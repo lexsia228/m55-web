@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { captureHubEvent } from '../../../lib/hubAnalytics';
 
 type Entitlements = {
   tier: string;
@@ -12,10 +13,10 @@ type Entitlements = {
 };
 
 const DTR_SLOTS = [
-  { key: 'm55_p:core_origin', label: 'Core', desc: '本質レポート（永久）' },
-  { key: 'm55_p:week:', label: 'Weekly', desc: '週次（7日）' },
-  { key: 'm55_p:day:', label: 'Daily', desc: '日次（1日）' },
-  { key: 'm55_p:month:', label: 'Monthly', desc: '月次（Premium特典）' },
+  { key: 'm55_p:core_origin', label: 'Core', cardType: 'core', desc: '本質レポート（永久）' },
+  { key: 'm55_p:week:', label: 'Weekly', cardType: 'weekly', desc: '週次（7日）' },
+  { key: 'm55_p:day:', label: 'Daily', cardType: 'daily', desc: '日次（1日）' },
+  { key: 'm55_p:month:', label: 'Monthly', cardType: 'monthly', desc: '月次（Premium特典）' },
 ];
 
 const TIER_RETENTION: Record<string, number> = { free: 0, standard: 30, premium: 90 };
@@ -45,6 +46,10 @@ const cardStyle = {
 
 export default function PrototypeHubPage() {
   const [ent, setEnt] = useState<Entitlements | null>(null);
+  const retentionRef = useRef<HTMLElement>(null);
+  const planRef = useRef<HTMLElement>(null);
+  const retentionFired = useRef(false);
+  const planFired = useRef(false);
 
   useEffect(() => {
     fetch('/api/me/entitlements')
@@ -62,10 +67,57 @@ export default function PrototypeHubPage() {
   }, []);
 
   const tier = ent?.tier ?? 'free';
-  const retentionDays = ent?.retention_days ?? 0;
   const rights = ent?.dtr_rights ?? [];
-  const zone = getZoneFromRetention(retentionDays);
+  const retentionDays = ent?.retention_days ?? 0;
   const hasMonthlyDtr = tier === 'premium' && rights.some((r) => r.startsWith('m55_p:month:'));
+  const hubViewFired = useRef(false);
+
+  useEffect(() => {
+    if (ent === null || hubViewFired.current) return;
+    hubViewFired.current = true;
+    captureHubEvent('hub_view', {
+      tier,
+      has_monthly_dtr: hasMonthlyDtr,
+      source_surface: 'prototype_hub',
+    });
+  }, [ent, tier, hasMonthlyDtr]);
+
+  useEffect(() => {
+    const retentionEl = retentionRef.current;
+    const planEl = planRef.current;
+    if (!retentionEl || !planEl) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          if (e.target === retentionEl && !retentionFired.current) {
+            retentionFired.current = true;
+            captureHubEvent('view_retention_comparison', {
+              tier,
+              has_monthly_dtr: hasMonthlyDtr,
+              section: 'retention_comparison',
+              source_surface: 'prototype_hub',
+            });
+          }
+          if (e.target === planEl && !planFired.current) {
+            planFired.current = true;
+            captureHubEvent('view_plan_summary', {
+              tier,
+              has_monthly_dtr: hasMonthlyDtr,
+              section: 'plan_summary',
+              source_surface: 'prototype_hub',
+            });
+          }
+        }
+      },
+      { threshold: 0.5 }
+    );
+    io.observe(retentionEl);
+    io.observe(planEl);
+    return () => io.disconnect();
+  }, [tier, hasMonthlyDtr]);
+
+  const zone = getZoneFromRetention(retentionDays);
 
   return (
     <main style={{ padding: 24, fontFamily: 'system-ui', maxWidth: 640, margin: '0 auto', paddingBottom: 80 }}>
@@ -125,7 +177,7 @@ export default function PrototypeHubPage() {
       </section>
 
       {/* 0/30/90 retention comparison */}
-      <section style={sectionStyle}>
+      <section ref={retentionRef} style={sectionStyle}>
         <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>保存期間の比較</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           <li>Free: {TIER_RETENTION.free}日</li>
@@ -135,7 +187,7 @@ export default function PrototypeHubPage() {
       </section>
 
       {/* Plan overview — annual display-only, CTA disabled */}
-      <section style={sectionStyle}>
+      <section ref={planRef} style={sectionStyle}>
         <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 8px' }}>プラン概要</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
           <li>月額 Standard — 保存30日・回数中</li>
@@ -175,12 +227,26 @@ export default function PrototypeHubPage() {
             const unlocked = hasRight(slot.key, rights);
             return (
               <li key={slot.key} style={cardStyle}>
-                <strong>{slot.label}</strong> — {slot.desc}
-                {unlocked ? (
-                  <span style={{ marginLeft: 8, fontSize: 12, color: 'green' }}>利用可</span>
-                ) : (
-                  <span style={{ marginLeft: 8, fontSize: 12, opacity: 0.7 }}>詳細は DTR で</span>
-                )}
+                <Link
+                  href="/dtr"
+                  onClick={() =>
+                    captureHubEvent('dtr_card_click', {
+                      tier,
+                      has_monthly_dtr: hasMonthlyDtr,
+                      card_type: slot.cardType,
+                      is_unlocked: unlocked,
+                      source_surface: 'prototype_hub',
+                    })
+                  }
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                >
+                  <strong>{slot.label}</strong> — {slot.desc}
+                  {unlocked ? (
+                    <span style={{ marginLeft: 8, fontSize: 12, color: 'green' }}>利用可</span>
+                  ) : (
+                    <span style={{ marginLeft: 8, fontSize: 12, opacity: 0.7 }}>詳細は DTR で</span>
+                  )}
+                </Link>
               </li>
             );
           })}
