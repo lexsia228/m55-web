@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { captureHubEvent } from '../../../lib/hubAnalytics';
+import { captureHubEvent, type HubCardType } from '../../../lib/hubAnalytics';
 
 type Entitlements = {
   tier: string;
@@ -12,7 +12,7 @@ type Entitlements = {
   dtr_rights: string[];
 };
 
-const DTR_SLOTS = [
+const DTR_SLOTS: { key: string; label: string; cardType: HubCardType; desc: string }[] = [
   { key: 'm55_p:core_origin', label: 'Core', cardType: 'core', desc: '本質レポート（永久）' },
   { key: 'm55_p:week:', label: 'Weekly', cardType: 'weekly', desc: '週次（7日）' },
   { key: 'm55_p:day:', label: 'Daily', cardType: 'daily', desc: '日次（1日）' },

@@ -28,11 +28,13 @@ function initIfNeeded(): boolean {
   }
 }
 
+export type HubCardType = 'core' | 'weekly' | 'daily' | 'monthly';
+
 export type HubEventProperties = {
   tier?: string;
   has_monthly_dtr?: boolean;
   section?: 'retention_comparison' | 'plan_summary';
-  card_type?: 'core' | 'weekly' | 'daily' | 'monthly';
+  card_type?: HubCardType;
   is_unlocked?: boolean;
   source_surface?: 'prototype_hub';
 };
