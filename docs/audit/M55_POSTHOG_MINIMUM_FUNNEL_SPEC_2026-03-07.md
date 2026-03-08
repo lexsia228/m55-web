@@ -18,17 +18,30 @@ Do not contaminate AI chat with sales logging noise.
 - `dtr_card_click`
   - fired when a DTR shelf card is clicked
 
+## Event firing rules
+- `hub_view` fires once per page load/view
+- `view_retention_comparison` fires once when the section becomes meaningfully visible
+- `view_plan_summary` fires once when the section becomes meaningfully visible
+- visibility-based events must not fire repeatedly in the same page session
+
+## Privacy guardrails
+- do not send free-text content
+- do not send AI chat content
+- do not send email addresses
+- do not send raw sensitive identifiers unless explicitly approved
+- do not send URL/query-derived context as analytics payload
+
 ## Rules
 - do not use disabled annual CTA clicks as the primary signal
-- do not record sensitive free-text content
-- do not log AI chat conversation content
 - keep properties minimal and operationally useful
 
-## Suggested properties
+## Suggested properties (minimal)
 - `tier`
 - `has_monthly_dtr`
 - `section`
 - `card_type`
+- `is_unlocked`
+- `source_surface`
 
 ## Operating note
 Implement only after visual verification and Stripe merchant baseline are complete.
