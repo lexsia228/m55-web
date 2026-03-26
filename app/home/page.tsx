@@ -127,8 +127,8 @@ function FiveElementRing() {
   );
 }
 
-// Identity Card Component
-function IdentityCard() {
+// Identity Understanding Block
+function IdentityBlock() {
   return (
     <section className="bg-card border border-border rounded-lg p-5">
       {/* Public title and symbol */}
@@ -148,7 +148,7 @@ function IdentityCard() {
       </p>
 
       {/* Keywords */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 mb-4">
         <span className="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded">
           [KEYWORD_1]
         </span>
@@ -159,28 +159,108 @@ function IdentityCard() {
           [KEYWORD_3]
         </span>
       </div>
+
+      {/* Supporting rows */}
+      <div className="pt-3 border-t border-border space-y-2">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          [IDENTITY_SUPPORT_1]
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          [IDENTITY_SUPPORT_2]
+        </p>
+      </div>
     </section>
   );
 }
 
-// Compact Shelves Component
+// Ten-Title Understanding Block
+function TenTitleBlock() {
+  return (
+    <section className="bg-card border border-border rounded-lg p-5">
+      <h2 className="text-sm font-medium text-foreground mb-4">
+        10の称号
+      </h2>
+      
+      {/* Primary title slot */}
+      <div className="mb-4 p-3 bg-secondary/50 rounded-md">
+        <p className="text-sm font-medium text-foreground">
+          [PRIMARY_TITLE_SLOT]
+        </p>
+      </div>
+      
+      {/* Secondary title slots */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="p-3 bg-secondary/30 rounded-md">
+          <p className="text-xs text-muted-foreground">
+            [SECONDARY_TITLE_SLOT_1]
+          </p>
+        </div>
+        <div className="p-3 bg-secondary/30 rounded-md">
+          <p className="text-xs text-muted-foreground">
+            [SECONDARY_TITLE_SLOT_2]
+          </p>
+        </div>
+      </div>
+      
+      {/* System note */}
+      <p className="text-xs text-muted-foreground text-center pt-3 border-t border-border">
+        [TITLE_SYSTEM_NOTE]
+      </p>
+    </section>
+  );
+}
+
+// Five Element Visualization Block
+function FiveElementBlock() {
+  return (
+    <section className="bg-card border border-border rounded-lg p-5">
+      <h2 className="text-sm font-medium text-foreground mb-4">
+        五行バランス
+      </h2>
+      
+      <FiveElementRing />
+      
+      {/* Interpretive helper lines */}
+      <div className="mt-4 pt-3 border-t border-border space-y-2">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          [FIVE_ELEMENT_NOTE]
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          [FIVE_ELEMENT_NOTE_2]
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// Compact Current-Focus Shelves
 function CompactShelves() {
   return (
     <section className="space-y-4">
+      <h2 className="text-sm font-medium text-foreground">
+        今の焦点
+      </h2>
+      
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5">
         {/* Today Card */}
-        <div className="shrink-0 w-40 bg-card border border-border rounded-lg p-4">
+        <div className="shrink-0 w-48 bg-card border border-border rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-2">[TODAY_HEADING]</p>
-          <p className="text-sm text-foreground leading-relaxed">
+          <p className="text-sm text-foreground leading-relaxed mb-3">
             [TODAY_SUMMARY_SHORT]
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border">
+            [TODAY_SUPPORT_LINE]
           </p>
         </div>
 
         {/* Weekly Card */}
-        <div className="shrink-0 w-40 bg-card border border-border rounded-lg p-4">
+        <div className="shrink-0 w-48 bg-card border border-border rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-2">[WEEKLY_HEADING]</p>
-          <p className="text-sm text-foreground leading-relaxed">
+          <p className="text-sm text-foreground leading-relaxed mb-3">
             [WEEKLY_KEY]
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border">
+            [WEEKLY_SUPPORT_LINE]
           </p>
         </div>
       </div>
@@ -188,7 +268,7 @@ function CompactShelves() {
   );
 }
 
-// Entry Report Purchase Block
+// Entry Report Monetization Block
 function EntryReportBlock() {
   return (
     <section className="bg-primary/5 border border-primary/10 rounded-lg p-5">
@@ -201,7 +281,7 @@ function EntryReportBlock() {
         </div>
       </div>
       
-      <ul className="space-y-2 mb-4">
+      <ul className="space-y-2 mb-5">
         <li className="text-sm text-muted-foreground flex items-start gap-2">
           <span className="text-primary mt-0.5">•</span>
           [ENTRY_REPORT_FEATURE_1]
@@ -215,6 +295,34 @@ function EntryReportBlock() {
           [ENTRY_REPORT_FEATURE_3]
         </li>
       </ul>
+      
+      {/* Blurred teaser rows */}
+      <div className="mb-5 p-4 bg-background/50 rounded-md border border-border">
+        <p className="text-xs text-muted-foreground mb-3 font-medium">収録内容プレビュー</p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-primary/50" />
+            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_1]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-primary/50" />
+            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_2]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-primary/50" />
+            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_3]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-primary/50" />
+            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_4]</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Value gap note */}
+      <p className="text-xs text-muted-foreground text-center mb-4">
+        [ENTRY_REPORT_VALUE_GAP_NOTE]
+      </p>
       
       <Link
         href="/report"
@@ -309,13 +417,16 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-lg mx-auto w-full px-5 py-8 space-y-8">
-        {/* Hero Section */}
+        {/* 1. Hero Fold */}
         <section className="text-center py-6">
           <h1 className="text-2xl font-serif text-foreground mb-3 text-balance">
             [HOME_HERO_TITLE]
           </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto mb-5">
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto mb-3">
             [HOME_HERO_DESC]
+          </p>
+          <p className="text-xs text-muted-foreground mb-5">
+            [HOME_SUPPORTING_LINE]
           </p>
           <Link
             href="/report"
@@ -325,27 +436,25 @@ export default function HomePage() {
           </Link>
         </section>
 
-        {/* Identity Card */}
-        <IdentityCard />
+        {/* 2. Identity Understanding Block */}
+        <IdentityBlock />
 
-        {/* Five Element Ring with Labels */}
-        <section className="py-4">
-          <FiveElementRing />
-          <p className="mt-4 text-xs text-muted-foreground text-center">
-            [FIVE_ELEMENT_NOTE]
-          </p>
-        </section>
+        {/* 3. Ten-Title Understanding Block */}
+        <TenTitleBlock />
 
-        {/* Compact Shelves - Today/Weekly */}
+        {/* 4. Five Element Visualization Block */}
+        <FiveElementBlock />
+
+        {/* 5. Compact Current-Focus Shelves */}
         <CompactShelves />
 
-        {/* Entry Report Block */}
+        {/* 6. Entry Report Monetization Block */}
         <EntryReportBlock />
 
-        {/* Quiet System Rule */}
+        {/* 7. Quiet System Rule Block */}
         <SystemRuleBlock />
 
-        {/* Quiet Trust Footer */}
+        {/* 8. Quiet Trust Footer */}
         <TrustFooter />
       </main>
 
