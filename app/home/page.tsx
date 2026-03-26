@@ -20,7 +20,7 @@ const FIVE_ELEMENTS = [
   { key: "water", color: "#5c7b9c", angle: 288 },
 ];
 
-// Five Element Ring Chart Component
+// Five Element Ring Chart Component (main chart on Home)
 function FiveElementRing() {
   const size = 160;
   const center = size / 2;
@@ -90,36 +90,6 @@ function FiveElementRing() {
         opacity="0.6"
       />
     </svg>
-  );
-}
-
-// Bias Gauge Component (secondary chart)
-function BiasGauge() {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative w-32 h-16 overflow-hidden">
-        {/* Gauge arc background */}
-        <svg viewBox="0 0 100 50" className="w-full h-full">
-          <path
-            d="M 5 50 A 45 45 0 0 1 95 50"
-            fill="none"
-            stroke="hsl(var(--border))"
-            strokeWidth="8"
-            strokeLinecap="round"
-          />
-          {/* Active portion */}
-          <path
-            d="M 5 50 A 45 45 0 0 1 60 8"
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="8"
-            strokeLinecap="round"
-            opacity="0.7"
-          />
-        </svg>
-      </div>
-      <p className="text-xs text-muted-foreground">[BIAS_GAUGE_LABEL]</p>
-    </div>
   );
 }
 
@@ -209,7 +179,7 @@ function InstantPreviewBoard() {
       </p>
 
       {/* Keywords */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-4">
         <span className="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded">
           [KEYWORD_1]
         </span>
@@ -220,54 +190,53 @@ function InstantPreviewBoard() {
           [KEYWORD_3]
         </span>
       </div>
+
+      {/* Primary title slot */}
+      <div className="pt-3 border-t border-border">
+        <p className="text-sm text-foreground mb-1">[PRIMARY_TITLE_SLOT]</p>
+        <p className="text-xs text-muted-foreground">[TITLE_SYSTEM_NOTE]</p>
+      </div>
     </section>
   );
 }
 
-// D. Chart Layer
-function ChartLayer() {
+// D. Main Chart Block (Five Element Ring only - no bias gauge)
+function MainChartBlock() {
   return (
     <section className="bg-card border border-border rounded-lg p-5">
-      <div className="flex flex-col md:flex-row gap-6 items-start">
+      <div className="flex gap-4 items-start">
         {/* Five Element Ring */}
-        <div className="flex gap-4 items-start">
-          <div className="shrink-0">
-            <FiveElementRing />
-          </div>
-          
-          {/* Right-side labels */}
-          <div className="flex flex-col gap-1.5 py-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#5d7c5d]" />
-              <span className="text-xs text-muted-foreground">[WOOD_LABEL]</span>
-              <span className="text-xs text-foreground ml-auto">[WOOD_WEIGHT]</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#b85c5c]" />
-              <span className="text-xs text-muted-foreground">[FIRE_LABEL]</span>
-              <span className="text-xs text-foreground ml-auto">[FIRE_WEIGHT]</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#c9a857]" />
-              <span className="text-xs text-muted-foreground">[EARTH_LABEL]</span>
-              <span className="text-xs text-foreground ml-auto">[EARTH_WEIGHT]</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#8b8b8b]" />
-              <span className="text-xs text-muted-foreground">[METAL_LABEL]</span>
-              <span className="text-xs text-foreground ml-auto">[METAL_WEIGHT]</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#5c7b9c]" />
-              <span className="text-xs text-muted-foreground">[WATER_LABEL]</span>
-              <span className="text-xs text-foreground ml-auto">[WATER_WEIGHT]</span>
-            </div>
-          </div>
+        <div className="shrink-0">
+          <FiveElementRing />
         </div>
         
-        {/* Secondary chart: Bias Gauge */}
-        <div className="w-full md:w-auto flex justify-center pt-2 md:pt-4">
-          <BiasGauge />
+        {/* Right-side labels */}
+        <div className="flex flex-col gap-1.5 py-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#5d7c5d]" />
+            <span className="text-xs text-muted-foreground">[WOOD_LABEL]</span>
+            <span className="text-xs text-foreground ml-auto">[WOOD_WEIGHT]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#b85c5c]" />
+            <span className="text-xs text-muted-foreground">[FIRE_LABEL]</span>
+            <span className="text-xs text-foreground ml-auto">[FIRE_WEIGHT]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#c9a857]" />
+            <span className="text-xs text-muted-foreground">[EARTH_LABEL]</span>
+            <span className="text-xs text-foreground ml-auto">[EARTH_WEIGHT]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#8b8b8b]" />
+            <span className="text-xs text-muted-foreground">[METAL_LABEL]</span>
+            <span className="text-xs text-foreground ml-auto">[METAL_WEIGHT]</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#5c7b9c]" />
+            <span className="text-xs text-muted-foreground">[WATER_LABEL]</span>
+            <span className="text-xs text-foreground ml-auto">[WATER_WEIGHT]</span>
+          </div>
         </div>
       </div>
       
@@ -284,7 +253,7 @@ function ChartLayer() {
   );
 }
 
-// E. Current Focus Block (small, secondary)
+// E. Small Current Focus Block (secondary, not hero)
 function CurrentFocusBlock() {
   return (
     <section className="bg-secondary/30 border border-border rounded-lg p-4">
@@ -296,10 +265,10 @@ function CurrentFocusBlock() {
   );
 }
 
-// F. Compact Shelves
+// E. Compact Shelves (Today/Weekly)
 function CompactShelves() {
   return (
-    <section className="space-y-3">
+    <section>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5">
         {/* Today Card */}
         <div className="shrink-0 w-44 bg-card border border-border rounded-lg p-4">
@@ -327,30 +296,7 @@ function CompactShelves() {
   );
 }
 
-// I. System Rule Block
-function SystemRuleBlock() {
-  return (
-    <section className="py-4 space-y-2">
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_1]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_2]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_3]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_4]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_5]
-      </p>
-    </section>
-  );
-}
-
-// G + H. Entry Report Block with Blurred Teaser Inside
+// F. Entry Report Block (value bridge)
 function EntryReportBlock() {
   return (
     <section className="bg-primary/5 border border-primary/10 rounded-lg p-5">
@@ -378,34 +324,6 @@ function EntryReportBlock() {
         </li>
       </ul>
       
-      {/* H. Blurred chapter teaser INSIDE the Entry Report layer */}
-      <div className="mb-5 p-4 bg-background/50 rounded-md border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">収録内容</p>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-primary/50" />
-            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_1]</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-primary/50" />
-            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_2]</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-primary/50" />
-            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_3]</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-primary/50" />
-            <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_4]</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Value gap note */}
-      <p className="text-xs text-muted-foreground text-center mb-4">
-        [ENTRY_REPORT_VALUE_GAP_NOTE]
-      </p>
-      
       <Link
         href="/report"
         className="block w-full py-3 bg-primary text-primary-foreground text-center text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
@@ -416,7 +334,60 @@ function EntryReportBlock() {
   );
 }
 
-// J. Quiet Trust Footer
+// G. Blurred Teaser (separate section, ONLY place blur is allowed)
+function BlurredTeaser() {
+  return (
+    <section className="bg-card border border-border rounded-lg p-5">
+      <p className="text-xs text-muted-foreground mb-3 font-medium">収録内容プレビュー</p>
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-primary/50" />
+          <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_1]</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-primary/50" />
+          <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_2]</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-primary/50" />
+          <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_3]</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-primary/50" />
+          <span className="text-xs text-foreground/70 blur-[2px] select-none">[CHAPTER_TITLE_4]</span>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground text-center">
+        [ENTRY_REPORT_VALUE_GAP_NOTE]
+      </p>
+    </section>
+  );
+}
+
+// H. System Rule Block
+function SystemRuleBlock() {
+  return (
+    <section className="py-4 space-y-2">
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_1]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_2]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_3]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_4]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_5]
+      </p>
+    </section>
+  );
+}
+
+// I. Quiet Trust Footer
 function TrustFooter() {
   return (
     <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground py-4">
@@ -485,22 +456,23 @@ export default function HomePage() {
         {/* 3. Instant Preview Board */}
         <InstantPreviewBoard />
 
-        {/* 4. Chart Layer (Five Element Ring + Bias Gauge) */}
-        <ChartLayer />
+        {/* 4. Main Chart Block (Five Element Ring only) */}
+        <MainChartBlock />
 
-        {/* 5. Current Focus Block (small, secondary) */}
+        {/* 5. Small Current Focus + Today/Weekly Shelf */}
         <CurrentFocusBlock />
-
-        {/* 6. Free-Result Sample Shelf (Today/Weekly) */}
         <CompactShelves />
 
-        {/* 7. System Rule Explanation */}
-        <SystemRuleBlock />
-
-        {/* 8. Entry Report Value Bridge + Blurred Teaser */}
+        {/* 6. Entry Report Value Bridge */}
         <EntryReportBlock />
 
-        {/* 9. Quiet Trust Footer */}
+        {/* 7. Entry Report Blurred Teaser */}
+        <BlurredTeaser />
+
+        {/* 8. Quiet System Rules */}
+        <SystemRuleBlock />
+
+        {/* 9. Quiet Trust/Legal/Support Footer */}
         <TrustFooter />
       </main>
 
