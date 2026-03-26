@@ -22,113 +22,174 @@ const FIVE_ELEMENTS = [
 
 // Five Element Ring Chart Component
 function FiveElementRing() {
-  const size = 180;
+  const size = 160;
   const center = size / 2;
-  const radius = 65;
+  const radius = 55;
 
   return (
-    <div className="flex gap-6 items-start">
-      {/* Ring Chart */}
-      <div className="shrink-0">
-        <svg
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-          className="opacity-80"
-          aria-hidden="true"
-        >
-          {/* Outer ring */}
-          <circle
-            cx={center}
-            cy={center}
-            r={radius + 12}
-            fill="none"
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="opacity-85"
+      aria-hidden="true"
+    >
+      {/* Outer ring */}
+      <circle
+        cx={center}
+        cy={center}
+        r={radius + 10}
+        fill="none"
+        stroke="hsl(var(--border))"
+        strokeWidth="1"
+      />
+      
+      {/* Connection lines between elements */}
+      {FIVE_ELEMENTS.map((el, i) => {
+        const nextEl = FIVE_ELEMENTS[(i + 1) % 5];
+        const x1 = center + radius * Math.cos((el.angle - 90) * Math.PI / 180);
+        const y1 = center + radius * Math.sin((el.angle - 90) * Math.PI / 180);
+        const x2 = center + radius * Math.cos((nextEl.angle - 90) * Math.PI / 180);
+        const y2 = center + radius * Math.sin((nextEl.angle - 90) * Math.PI / 180);
+        return (
+          <line
+            key={`line-${i}`}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
             stroke="hsl(var(--border))"
             strokeWidth="1"
+            opacity="0.5"
           />
-          
-          {/* Connection lines between elements */}
-          {FIVE_ELEMENTS.map((el, i) => {
-            const nextEl = FIVE_ELEMENTS[(i + 1) % 5];
-            const x1 = center + radius * Math.cos((el.angle - 90) * Math.PI / 180);
-            const y1 = center + radius * Math.sin((el.angle - 90) * Math.PI / 180);
-            const x2 = center + radius * Math.cos((nextEl.angle - 90) * Math.PI / 180);
-            const y2 = center + radius * Math.sin((nextEl.angle - 90) * Math.PI / 180);
-            return (
-              <line
-                key={`line-${i}`}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="hsl(var(--border))"
-                strokeWidth="1"
-                opacity="0.5"
-              />
-            );
-          })}
-          
-          {/* Element nodes */}
-          {FIVE_ELEMENTS.map((el) => {
-            const x = center + radius * Math.cos((el.angle - 90) * Math.PI / 180);
-            const y = center + radius * Math.sin((el.angle - 90) * Math.PI / 180);
-            return (
-              <circle
-                key={el.key}
-                cx={x}
-                cy={y}
-                r={18}
-                fill={el.color}
-                opacity="0.85"
-              />
-            );
-          })}
-          
-          {/* Center dot */}
+        );
+      })}
+      
+      {/* Element nodes */}
+      {FIVE_ELEMENTS.map((el) => {
+        const x = center + radius * Math.cos((el.angle - 90) * Math.PI / 180);
+        const y = center + radius * Math.sin((el.angle - 90) * Math.PI / 180);
+        return (
           <circle
-            cx={center}
-            cy={center}
-            r={6}
-            fill="hsl(var(--primary))"
-            opacity="0.6"
+            key={el.key}
+            cx={x}
+            cy={y}
+            r={16}
+            fill={el.color}
+            opacity="0.85"
+          />
+        );
+      })}
+      
+      {/* Center dot */}
+      <circle
+        cx={center}
+        cy={center}
+        r={5}
+        fill="hsl(var(--primary))"
+        opacity="0.6"
+      />
+    </svg>
+  );
+}
+
+// Bias Gauge Component (secondary chart)
+function BiasGauge() {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative w-32 h-16 overflow-hidden">
+        {/* Gauge arc background */}
+        <svg viewBox="0 0 100 50" className="w-full h-full">
+          <path
+            d="M 5 50 A 45 45 0 0 1 95 50"
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth="8"
+            strokeLinecap="round"
+          />
+          {/* Active portion */}
+          <path
+            d="M 5 50 A 45 45 0 0 1 60 8"
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="8"
+            strokeLinecap="round"
+            opacity="0.7"
           />
         </svg>
       </div>
-
-      {/* Right-side labels */}
-      <div className="flex flex-col gap-2 py-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#5d7c5d]" />
-          <span className="text-xs text-muted-foreground">[WOOD_LABEL]</span>
-          <span className="text-xs text-foreground ml-auto">[WOOD_WEIGHT]</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#b85c5c]" />
-          <span className="text-xs text-muted-foreground">[FIRE_LABEL]</span>
-          <span className="text-xs text-foreground ml-auto">[FIRE_WEIGHT]</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#c9a857]" />
-          <span className="text-xs text-muted-foreground">[EARTH_LABEL]</span>
-          <span className="text-xs text-foreground ml-auto">[EARTH_WEIGHT]</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#8b8b8b]" />
-          <span className="text-xs text-muted-foreground">[METAL_LABEL]</span>
-          <span className="text-xs text-foreground ml-auto">[METAL_WEIGHT]</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#5c7b9c]" />
-          <span className="text-xs text-muted-foreground">[WATER_LABEL]</span>
-          <span className="text-xs text-foreground ml-auto">[WATER_WEIGHT]</span>
-        </div>
-      </div>
+      <p className="text-xs text-muted-foreground">[BIAS_GAUGE_LABEL]</p>
     </div>
   );
 }
 
-// Identity Understanding Block
-function IdentityBlock() {
+// A. Hero Section
+function HeroSection() {
+  return (
+    <section className="text-center py-8">
+      <h1 className="text-2xl font-serif text-foreground mb-3 text-balance">
+        [HOME_HERO_TITLE]
+      </h1>
+      <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto mb-2">
+        [HOME_HERO_DESC]
+      </p>
+      <p className="text-xs text-muted-foreground mb-5">
+        [HOME_SUPPORTING_LINE]
+      </p>
+      <Link
+        href="/report"
+        className="inline-block px-6 py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+      >
+        [PRIMARY_CTA]
+      </Link>
+    </section>
+  );
+}
+
+// B. Input Gate Section
+function InputGate() {
+  return (
+    <section className="bg-card border border-border rounded-lg p-5">
+      <h2 className="text-base font-medium text-foreground mb-4 text-center">
+        [INPUT_GATE_TITLE]
+      </h2>
+      
+      <div className="space-y-3 mb-4">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">
+            お名前
+          </label>
+          <div className="w-full px-3 py-2.5 bg-secondary/50 border border-border rounded-md text-sm text-muted-foreground">
+            [NAME_FIELD]
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">
+            生年月日
+          </label>
+          <div className="w-full px-3 py-2.5 bg-secondary/50 border border-border rounded-md text-sm text-muted-foreground">
+            [BIRTHDATE_FIELD]
+          </div>
+        </div>
+      </div>
+      
+      <p className="text-xs text-muted-foreground text-center mb-4 leading-relaxed">
+        [INPUT_GATE_EXPLAINER]
+      </p>
+      
+      <button
+        type="button"
+        className="w-full py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+      >
+        [INPUT_GATE_CTA]
+      </button>
+    </section>
+  );
+}
+
+// C. Instant Preview Board
+function InstantPreviewBoard() {
   return (
     <section className="bg-card border border-border rounded-lg p-5">
       {/* Public title and symbol */}
@@ -148,7 +209,7 @@ function IdentityBlock() {
       </p>
 
       {/* Keywords */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2">
         <span className="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded">
           [KEYWORD_1]
         </span>
@@ -159,68 +220,58 @@ function IdentityBlock() {
           [KEYWORD_3]
         </span>
       </div>
-
-      {/* Supporting rows */}
-      <div className="pt-3 border-t border-border space-y-2">
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          [IDENTITY_SUPPORT_1]
-        </p>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          [IDENTITY_SUPPORT_2]
-        </p>
-      </div>
     </section>
   );
 }
 
-// Ten-Title Understanding Block
-function TenTitleBlock() {
+// D. Chart Layer
+function ChartLayer() {
   return (
     <section className="bg-card border border-border rounded-lg p-5">
-      <h2 className="text-sm font-medium text-foreground mb-4">
-        10の称号
-      </h2>
-      
-      {/* Primary title slot */}
-      <div className="mb-4 p-3 bg-secondary/50 rounded-md">
-        <p className="text-sm font-medium text-foreground">
-          [PRIMARY_TITLE_SLOT]
-        </p>
+      <div className="flex flex-col md:flex-row gap-6 items-start">
+        {/* Five Element Ring */}
+        <div className="flex gap-4 items-start">
+          <div className="shrink-0">
+            <FiveElementRing />
+          </div>
+          
+          {/* Right-side labels */}
+          <div className="flex flex-col gap-1.5 py-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#5d7c5d]" />
+              <span className="text-xs text-muted-foreground">[WOOD_LABEL]</span>
+              <span className="text-xs text-foreground ml-auto">[WOOD_WEIGHT]</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#b85c5c]" />
+              <span className="text-xs text-muted-foreground">[FIRE_LABEL]</span>
+              <span className="text-xs text-foreground ml-auto">[FIRE_WEIGHT]</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#c9a857]" />
+              <span className="text-xs text-muted-foreground">[EARTH_LABEL]</span>
+              <span className="text-xs text-foreground ml-auto">[EARTH_WEIGHT]</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#8b8b8b]" />
+              <span className="text-xs text-muted-foreground">[METAL_LABEL]</span>
+              <span className="text-xs text-foreground ml-auto">[METAL_WEIGHT]</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#5c7b9c]" />
+              <span className="text-xs text-muted-foreground">[WATER_LABEL]</span>
+              <span className="text-xs text-foreground ml-auto">[WATER_WEIGHT]</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Secondary chart: Bias Gauge */}
+        <div className="w-full md:w-auto flex justify-center pt-2 md:pt-4">
+          <BiasGauge />
+        </div>
       </div>
       
-      {/* Secondary title slots */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="p-3 bg-secondary/30 rounded-md">
-          <p className="text-xs text-muted-foreground">
-            [SECONDARY_TITLE_SLOT_1]
-          </p>
-        </div>
-        <div className="p-3 bg-secondary/30 rounded-md">
-          <p className="text-xs text-muted-foreground">
-            [SECONDARY_TITLE_SLOT_2]
-          </p>
-        </div>
-      </div>
-      
-      {/* System note */}
-      <p className="text-xs text-muted-foreground text-center pt-3 border-t border-border">
-        [TITLE_SYSTEM_NOTE]
-      </p>
-    </section>
-  );
-}
-
-// Five Element Visualization Block
-function FiveElementBlock() {
-  return (
-    <section className="bg-card border border-border rounded-lg p-5">
-      <h2 className="text-sm font-medium text-foreground mb-4">
-        五行バランス
-      </h2>
-      
-      <FiveElementRing />
-      
-      {/* Interpretive helper lines */}
+      {/* Interpretive notes */}
       <div className="mt-4 pt-3 border-t border-border space-y-2">
         <p className="text-xs text-muted-foreground leading-relaxed">
           [FIVE_ELEMENT_NOTE]
@@ -233,19 +284,27 @@ function FiveElementBlock() {
   );
 }
 
-// Compact Current-Focus Shelves
+// E. Current Focus Block (small, secondary)
+function CurrentFocusBlock() {
+  return (
+    <section className="bg-secondary/30 border border-border rounded-lg p-4">
+      <p className="text-xs text-muted-foreground mb-1">[CURRENT_FOCUS_TITLE]</p>
+      <p className="text-sm text-foreground leading-relaxed">
+        [CURRENT_FOCUS_SUMMARY]
+      </p>
+    </section>
+  );
+}
+
+// F. Compact Shelves
 function CompactShelves() {
   return (
-    <section className="space-y-4">
-      <h2 className="text-sm font-medium text-foreground">
-        今の焦点
-      </h2>
-      
+    <section className="space-y-3">
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5">
         {/* Today Card */}
-        <div className="shrink-0 w-48 bg-card border border-border rounded-lg p-4">
+        <div className="shrink-0 w-44 bg-card border border-border rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-2">[TODAY_HEADING]</p>
-          <p className="text-sm text-foreground leading-relaxed mb-3">
+          <p className="text-sm text-foreground leading-relaxed mb-2">
             [TODAY_SUMMARY_SHORT]
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border">
@@ -254,9 +313,9 @@ function CompactShelves() {
         </div>
 
         {/* Weekly Card */}
-        <div className="shrink-0 w-48 bg-card border border-border rounded-lg p-4">
+        <div className="shrink-0 w-44 bg-card border border-border rounded-lg p-4">
           <p className="text-xs text-muted-foreground mb-2">[WEEKLY_HEADING]</p>
-          <p className="text-sm text-foreground leading-relaxed mb-3">
+          <p className="text-sm text-foreground leading-relaxed mb-2">
             [WEEKLY_KEY]
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border">
@@ -268,7 +327,30 @@ function CompactShelves() {
   );
 }
 
-// Entry Report Monetization Block
+// I. System Rule Block
+function SystemRuleBlock() {
+  return (
+    <section className="py-4 space-y-2">
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_1]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_2]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_3]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_4]
+      </p>
+      <p className="text-xs text-muted-foreground leading-relaxed text-center">
+        [SYSTEM_RULE_5]
+      </p>
+    </section>
+  );
+}
+
+// G + H. Entry Report Block with Blurred Teaser Inside
 function EntryReportBlock() {
   return (
     <section className="bg-primary/5 border border-primary/10 rounded-lg p-5">
@@ -296,9 +378,9 @@ function EntryReportBlock() {
         </li>
       </ul>
       
-      {/* Blurred teaser rows */}
+      {/* H. Blurred chapter teaser INSIDE the Entry Report layer */}
       <div className="mb-5 p-4 bg-background/50 rounded-md border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">収録内容プレビュー</p>
+        <p className="text-xs text-muted-foreground mb-3 font-medium">収録内容</p>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="w-1 h-1 rounded-full bg-primary/50" />
@@ -334,30 +416,7 @@ function EntryReportBlock() {
   );
 }
 
-// Quiet System Rule Block
-function SystemRuleBlock() {
-  return (
-    <section className="py-6 space-y-3">
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_1]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_2]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_3]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_4]
-      </p>
-      <p className="text-xs text-muted-foreground leading-relaxed text-center">
-        [SYSTEM_RULE_5]
-      </p>
-    </section>
-  );
-}
-
-// Quiet Trust Footer
+// J. Quiet Trust Footer
 function TrustFooter() {
   return (
     <nav className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground py-4">
@@ -416,45 +475,32 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-lg mx-auto w-full px-5 py-8 space-y-8">
-        {/* 1. Hero Fold */}
-        <section className="text-center py-6">
-          <h1 className="text-2xl font-serif text-foreground mb-3 text-balance">
-            [HOME_HERO_TITLE]
-          </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto mb-3">
-            [HOME_HERO_DESC]
-          </p>
-          <p className="text-xs text-muted-foreground mb-5">
-            [HOME_SUPPORTING_LINE]
-          </p>
-          <Link
-            href="/report"
-            className="inline-block px-6 py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
-          >
-            [PRIMARY_CTA]
-          </Link>
-        </section>
+      <main className="flex-1 max-w-lg mx-auto w-full px-5 py-6 space-y-6">
+        {/* 1. Quiet Hero */}
+        <HeroSection />
 
-        {/* 2. Identity Understanding Block */}
-        <IdentityBlock />
+        {/* 2. Input Gate */}
+        <InputGate />
 
-        {/* 3. Ten-Title Understanding Block */}
-        <TenTitleBlock />
+        {/* 3. Instant Preview Board */}
+        <InstantPreviewBoard />
 
-        {/* 4. Five Element Visualization Block */}
-        <FiveElementBlock />
+        {/* 4. Chart Layer (Five Element Ring + Bias Gauge) */}
+        <ChartLayer />
 
-        {/* 5. Compact Current-Focus Shelves */}
+        {/* 5. Current Focus Block (small, secondary) */}
+        <CurrentFocusBlock />
+
+        {/* 6. Free-Result Sample Shelf (Today/Weekly) */}
         <CompactShelves />
 
-        {/* 6. Entry Report Monetization Block */}
-        <EntryReportBlock />
-
-        {/* 7. Quiet System Rule Block */}
+        {/* 7. System Rule Explanation */}
         <SystemRuleBlock />
 
-        {/* 8. Quiet Trust Footer */}
+        {/* 8. Entry Report Value Bridge + Blurred Teaser */}
+        <EntryReportBlock />
+
+        {/* 9. Quiet Trust Footer */}
         <TrustFooter />
       </main>
 
