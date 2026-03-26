@@ -1,6 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /*
- * M55 Next.js shell CSS
- * IMPORTANT: Do NOT style html/body canvas here (NoTouch).
+ * M55 Calm Diagnostic Editorial Theme
+ * Soft, premium, quiet, modern Japanese self-observation product
  */
-html, body { margin: 0; padding: 0; }
-* { box-sizing: border-box; }
+
+@layer base {
+  :root {
+    /* Background & Surface */
+    --background: 48 33% 97%;
+    --foreground: 30 10% 15%;
+    
+    /* Card & Content surfaces */
+    --card: 48 30% 99%;
+    --card-foreground: 30 10% 15%;
+    
+    /* Muted elements */
+    --muted: 40 20% 94%;
+    --muted-foreground: 30 8% 45%;
+    
+    /* Primary - warm stone/earth tone */
+    --primary: 30 12% 28%;
+    --primary-foreground: 48 33% 97%;
+    
+    /* Secondary - soft warm gray */
+    --secondary: 35 15% 92%;
+    --secondary-foreground: 30 10% 25%;
+    
+    /* Accent - subtle warm highlight */
+    --accent: 35 25% 88%;
+    --accent-foreground: 30 12% 20%;
+    
+    /* Borders & Rings */
+    --border: 35 15% 88%;
+    --input: 35 15% 88%;
+    --ring: 30 12% 45%;
+    
+    /* Destructive (rarely used) */
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Radius */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 30 10% 8%;
+    --foreground: 48 20% 92%;
+    
+    --card: 30 10% 10%;
+    --card-foreground: 48 20% 92%;
+    
+    --muted: 30 10% 15%;
+    --muted-foreground: 40 10% 60%;
+    
+    --primary: 40 20% 85%;
+    --primary-foreground: 30 10% 10%;
+    
+    --secondary: 30 10% 18%;
+    --secondary-foreground: 48 20% 90%;
+    
+    --accent: 30 12% 22%;
+    --accent-foreground: 48 20% 90%;
+    
+    --border: 30 10% 20%;
+    --input: 30 10% 20%;
+    --ring: 40 15% 50%;
+    
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "palt" 1;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+}
