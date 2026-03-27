@@ -113,10 +113,10 @@ function HeroFold() {
         <div className="space-y-4 mb-5">
           <div>
             <label className="block text-xs text-muted-foreground mb-1.5 font-medium">
-              お名前
+              ニックネーム
             </label>
             <div className="w-full px-4 py-3 bg-secondary/40 border border-border rounded-lg text-sm text-muted-foreground">
-              [NAME_FIELD]
+              [NICKNAME_FIELD]
             </div>
           </div>
           
@@ -363,9 +363,9 @@ function EntryReportFold() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════��═══════════════════════════════════════════════════════
 // FOLD 6: System Rules + Trust (quiet, light, explanatory)
-// ═══════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════���═════════
 
 function SystemRuleFold() {
   return (
@@ -456,23 +456,25 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-lg mx-auto w-full px-5">
-        {/* Fold 1: Hero + Input Gate */}
+        {/* 1. Quiet hero */}
+        {/* 2. Input gate */}
         <HeroFold />
 
-        {/* Fold 2: Instant Preview Board */}
+        {/* 3. Instant preview board */}
         <InstantPreviewFold />
 
-        {/* Fold 3: Chart (quiet, supporting) */}
+        {/* 4. Free-result sample shelf (chart + current focus + today/weekly) */}
         <ChartFold />
-
-        {/* Fold 4: Secondary content (light weight) */}
         <SecondaryContentFold />
 
-        {/* Fold 5: Entry Report (monetization hero) */}
+        {/* 5. System rule explanation */}
+        <SystemRuleFold />
+
+        {/* 6. Entry Report value bridge */}
+        {/* 7. Entry Report blurred teaser */}
         <EntryReportFold />
 
-        {/* Fold 6: System rules + Trust */}
-        <SystemRuleFold />
+        {/* 8. Quiet trust/legal/support footer */}
         <TrustFooter />
       </main>
     </div>
