@@ -7,7 +7,7 @@ export default function HomePanel() {
   return (
     <div className={styles.wrap}>
       {/* ═══════════════════════════════════════════════════════════════════
-          FOLD 1: HERO + INPUT GATE
+          FOLD 1: HERO + EXPLANATORY STRIP + INPUT GATE
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.heroSection}>
         {/* A. Hero text */}
@@ -17,13 +17,14 @@ export default function HomePanel() {
           <p className={styles.heroDesc}>[HOME_HERO_DESC]</p>
         </div>
 
-        {/* B. What this site is strip */}
+        {/* B. Explanatory strip */}
         <div className={styles.siteStrip}>
           <p className={styles.siteStripLine1}>[WHAT_THIS_SITE_IS]</p>
-          <p className={styles.siteStripLine2}>[HOME_SUPPORTING_LINE]</p>
+          <p className={styles.siteStripLine2}>[WHAT_BECOMES_VISIBLE]</p>
+          <p className={styles.siteStripLine3}>[HOME_SUPPORTING_LINE]</p>
         </div>
 
-        {/* C. Input Gate card */}
+        {/* C. Input gate card */}
         <div className={styles.inputGateCard}>
           <p className={styles.inputGateTitle}>[INPUT_GATE_TITLE]</p>
           <p className={styles.inputGateSubtitle}>[WHY_PRESS_THE_BUTTON]</p>
@@ -43,6 +44,13 @@ export default function HomePanel() {
           <button type="button" className={styles.inputGateCta}>
             [INPUT_GATE_CTA]
           </button>
+
+          {/* Hint row below button */}
+          <div className={styles.hintRow}>
+            <span>本質</span>
+            <span>今日 / 今週</span>
+            <span>五行の比重</span>
+          </div>
         </div>
       </section>
 
@@ -51,7 +59,6 @@ export default function HomePanel() {
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.previewSection}>
         <p className={styles.previewEyebrow}>あなたの本質</p>
-        <p className={styles.previewExplainer}>[WHAT_BECOMES_VISIBLE]</p>
 
         {/* Identity card */}
         <div className={styles.identityCard}>
@@ -126,8 +133,9 @@ export default function HomePanel() {
                 fill="none"
                 stroke="#7cb87a"
                 strokeWidth={11}
-                strokeDasharray="69.1 188.5"
-                transform="rotate(-90,43,43)"
+                strokeDasharray="71.6 188.5"
+                strokeDashoffset="0"
+                transform="rotate(-90 43 43)"
               />
               {/* Fire segment - 22% */}
               <circle
@@ -137,8 +145,9 @@ export default function HomePanel() {
                 fill="none"
                 stroke="#d4795c"
                 strokeWidth={11}
-                strokeDasharray="39.0 188.5"
-                transform="rotate(46.8,43,43)"
+                strokeDasharray="41.5 188.5"
+                strokeDashoffset="-71.6"
+                transform="rotate(-90 43 43)"
               />
               {/* Earth segment - 18% */}
               <circle
@@ -148,8 +157,9 @@ export default function HomePanel() {
                 fill="none"
                 stroke="#c4982a"
                 strokeWidth={11}
-                strokeDasharray="31.4 188.5"
-                transform="rotate(126,43,43)"
+                strokeDasharray="33.9 188.5"
+                strokeDashoffset="-113.1"
+                transform="rotate(-90 43 43)"
               />
               {/* Metal segment - 12% */}
               <circle
@@ -159,8 +169,9 @@ export default function HomePanel() {
                 fill="none"
                 stroke="#9090ac"
                 strokeWidth={11}
-                strokeDasharray="20.1 188.5"
-                transform="rotate(190.8,43,43)"
+                strokeDasharray="22.6 188.5"
+                strokeDashoffset="-147"
+                transform="rotate(-90 43 43)"
               />
               {/* Water segment - 10% */}
               <circle
@@ -170,13 +181,14 @@ export default function HomePanel() {
                 fill="none"
                 stroke="#5a8fc4"
                 strokeWidth={11}
-                strokeDasharray="16.3 188.5"
-                transform="rotate(234,43,43)"
+                strokeDasharray="18.9 188.5"
+                strokeDashoffset="-169.6"
+                transform="rotate(-90 43 43)"
               />
               {/* Center character */}
               <text
                 x={43}
-                y={44}
+                y={47}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fontSize={15}
@@ -223,6 +235,7 @@ export default function HomePanel() {
           </div>
 
           <p className={styles.chartDisclaimer}>[FIVE_ELEMENT_NOTE]</p>
+          <p className={styles.chartDisclaimerSub}>[FIVE_ELEMENT_NOTE_2]</p>
         </div>
 
         {/* B. Current Focus card */}
@@ -237,6 +250,7 @@ export default function HomePanel() {
             <p className={styles.shelfLabel}>今日</p>
             <p className={styles.shelfHeading}>[TODAY_HEADING]</p>
             <p className={styles.shelfSummary}>[TODAY_SUMMARY_SHORT]</p>
+            <p className={styles.shelfSupport}>[TODAY_SUPPORT_LINE]</p>
             <Link href="/today" className={styles.shelfLink}>
               読む →
             </Link>
@@ -245,6 +259,7 @@ export default function HomePanel() {
             <p className={styles.shelfLabel}>今週</p>
             <p className={styles.shelfHeading}>[WEEKLY_HEADING]</p>
             <p className={styles.shelfKey}>[WEEKLY_KEY]</p>
+            <p className={styles.shelfSupport}>[WEEKLY_SUPPORT_LINE]</p>
             <Link href="/weekly" className={styles.shelfLink}>
               読む →
             </Link>
@@ -270,10 +285,13 @@ export default function HomePanel() {
           FOLD 5: ENTRY REPORT MONETIZATION LAYER
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.reportSection}>
-        {/* A. Value bridge card */}
+        <p className={styles.reportSectionEyebrow}>[ENTRY_REPORT_LABEL]</p>
+
+        {/* Value bridge card */}
         <div className={styles.valueCard}>
           <p className={styles.valueEyebrow}>Entry Report</p>
           <p className={styles.valuePrice}>[ENTRY_REPORT_PRICE]</p>
+          <p className={styles.depthNote}>[ENTRY_REPORT_DEPTH_NOTE]</p>
 
           <ul className={styles.featureList}>
             <li className={styles.featureItem}>[ENTRY_REPORT_FEATURE_1]</li>
@@ -281,27 +299,25 @@ export default function HomePanel() {
             <li className={styles.featureItem}>[ENTRY_REPORT_FEATURE_3]</li>
           </ul>
 
-          <p className={styles.depthNote}>[ENTRY_REPORT_DEPTH_NOTE]</p>
-
-          {/* B. Blurred chapter preview */}
+          {/* Chapter preview - NO BLUR */}
           <div className={styles.chapterPreview}>
             <p className={styles.chapterPreviewLabel}>収録内容プレビュー</p>
             <ul className={styles.chapterList}>
               <li className={styles.chapterRow}>
                 <span className={styles.chapterDot} />
-                <span className={styles.chapterTitleBlurred}>[CHAPTER_TITLE_1]</span>
+                <span className={styles.chapterTitle}>[CHAPTER_TITLE_1]</span>
               </li>
               <li className={styles.chapterRow}>
                 <span className={styles.chapterDot} />
-                <span className={styles.chapterTitleBlurred}>[CHAPTER_TITLE_2]</span>
+                <span className={styles.chapterTitle}>[CHAPTER_TITLE_2]</span>
               </li>
               <li className={styles.chapterRow}>
                 <span className={styles.chapterDot} />
-                <span className={styles.chapterTitleBlurred}>[CHAPTER_TITLE_3]</span>
+                <span className={styles.chapterTitle}>[CHAPTER_TITLE_3]</span>
               </li>
               <li className={styles.chapterRow}>
                 <span className={styles.chapterDot} />
-                <span className={styles.chapterTitleBlurred}>[CHAPTER_TITLE_4]</span>
+                <span className={styles.chapterTitle}>[CHAPTER_TITLE_4]</span>
               </li>
             </ul>
             <p className={styles.chapterMore}>＋他4章</p>
