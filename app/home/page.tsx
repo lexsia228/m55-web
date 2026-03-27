@@ -92,63 +92,63 @@ function FiveElementRing() {
 
 function HeroFold() {
   return (
-    <section className="pt-12 pb-10">
-      {/* Hero message - LARGE, serif, commanding presence */}
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-serif text-foreground mb-5 text-balance leading-tight tracking-tight">
+    <section className="pt-10 pb-8">
+      {/* Hero message - calm, welcoming */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-serif text-foreground mb-4 text-balance leading-snug tracking-tight">
           [HOME_HERO_TITLE]
         </h1>
-        <p className="text-lg text-foreground/80 leading-relaxed max-w-sm mx-auto mb-3">
+        <p className="text-base text-foreground/80 leading-relaxed max-w-xs mx-auto">
           [HOME_HERO_DESC]
         </p>
-        <p className="text-sm text-muted-foreground/70">
+      </div>
+
+      {/* What this site is - explanatory strip */}
+      <div className="bg-secondary/40 rounded-xl px-5 py-4 mb-6">
+        <p className="text-sm text-foreground/70 text-center leading-relaxed mb-2">
+          [WHAT_THIS_SITE_IS]
+        </p>
+        <p className="text-xs text-muted-foreground/60 text-center leading-relaxed">
           [HOME_SUPPORTING_LINE]
         </p>
       </div>
 
-      {/* What this site is - compact support strip */}
-      <div className="bg-secondary/30 rounded-lg px-4 py-3 mb-8">
-        <p className="text-xs text-muted-foreground text-center leading-relaxed">
-          [WHAT_THIS_SITE_IS]
-        </p>
-      </div>
-
-      {/* Input Gate - PROMINENT card, the primary action point */}
-      <div className="bg-card border-2 border-primary/20 rounded-2xl p-7 shadow-md">
-        <h2 className="text-xl font-medium text-foreground mb-2 text-center">
+      {/* Input Gate - warm, inviting card */}
+      <div className="bg-gradient-to-b from-card to-secondary/20 border border-primary/15 rounded-2xl p-6 shadow-sm">
+        <h2 className="text-lg font-medium text-foreground mb-1 text-center">
           [INPUT_GATE_TITLE]
         </h2>
-        <p className="text-xs text-muted-foreground text-center mb-6">
+        <p className="text-xs text-muted-foreground/70 text-center mb-5 leading-relaxed">
           [WHY_PRESS_THE_BUTTON]
         </p>
         
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4 mb-5">
           <div>
-            <label className="block text-xs text-muted-foreground mb-2 font-medium">
+            <label className="block text-xs text-muted-foreground/80 mb-1.5">
               ニックネーム
             </label>
-            <div className="w-full px-4 py-3.5 bg-background border-2 border-border rounded-xl text-sm text-muted-foreground">
+            <div className="w-full px-4 py-3 bg-background border border-border/80 rounded-xl text-sm text-muted-foreground/60">
               [NICKNAME_FIELD]
             </div>
           </div>
           
           <div>
-            <label className="block text-xs text-muted-foreground mb-2 font-medium">
+            <label className="block text-xs text-muted-foreground/80 mb-1.5">
               生年月日
             </label>
-            <div className="w-full px-4 py-3.5 bg-background border-2 border-border rounded-xl text-sm text-muted-foreground">
+            <div className="w-full px-4 py-3 bg-background border border-border/80 rounded-xl text-sm text-muted-foreground/60">
               [BIRTHDATE_FIELD]
             </div>
           </div>
         </div>
         
-        <p className="text-xs text-muted-foreground/70 text-center mb-6 leading-relaxed">
+        <p className="text-xs text-muted-foreground/60 text-center mb-5 leading-relaxed">
           [INPUT_GATE_EXPLAINER]
         </p>
         
         <button
           type="button"
-          className="w-full py-4 bg-primary text-primary-foreground text-base font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm"
+          className="w-full py-3.5 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
         >
           [INPUT_GATE_CTA]
         </button>
@@ -163,59 +163,64 @@ function HeroFold() {
 
 function InstantPreviewFold() {
   return (
-    <section className="py-10 border-t border-border/40">
+    <section className="py-8 border-t border-border/30">
       {/* Section header with explanatory note */}
-      <div className="mb-6">
-        <p className="text-xs text-primary/80 uppercase tracking-widest mb-2 text-center font-medium">
+      <div className="mb-5">
+        <p className="text-xs text-primary/70 uppercase tracking-widest mb-1.5 text-center font-medium">
           あなたの本質
         </p>
-        <p className="text-xs text-muted-foreground/60 text-center">
+        <p className="text-sm text-muted-foreground/70 text-center leading-relaxed">
           [WHAT_BECOMES_VISIBLE]
         </p>
       </div>
 
-      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-        {/* Identity header - larger, more personal */}
-        <div className="flex items-start gap-5 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 border border-primary/20 flex items-center justify-center shrink-0">
-            <span className="text-lg text-primary font-medium">[SYMBOL]</span>
+      <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-sm">
+        {/* Identity header - personal, warm */}
+        <div className="flex items-start gap-4 mb-5">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-primary/10 border border-border flex items-center justify-center shrink-0">
+            <span className="text-base text-primary font-medium">[SYMBOL]</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground mb-1.5">[PUBLIC_TITLE]</p>
-            <p className="text-2xl font-medium text-foreground leading-snug tracking-tight">[DISPLAY_ONE_LINE]</p>
+          <div className="flex-1 min-w-0 pt-1">
+            <p className="text-xs text-muted-foreground/60 mb-1">[PUBLIC_TITLE]</p>
+            <p className="text-xl font-medium text-foreground leading-snug">[DISPLAY_ONE_LINE]</p>
           </div>
         </div>
 
-        {/* Essence summary - substantial */}
-        <p className="text-base text-foreground/80 leading-relaxed mb-6">
+        {/* Essence summary - readable */}
+        <p className="text-sm text-foreground/75 leading-relaxed mb-5">
           [ESSENCE_SUMMARY_SHORT]
         </p>
 
-        {/* Keywords - visible tags */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <span className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-full font-medium">
+        {/* Keywords - compact tags */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          <span className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-full">
             [KEYWORD_1]
           </span>
-          <span className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-full font-medium">
+          <span className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-full">
             [KEYWORD_2]
           </span>
-          <span className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-full font-medium">
+          <span className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-full">
             [KEYWORD_3]
           </span>
         </div>
 
-        {/* Primary title highlight - visible, informative */}
-        <div className="pt-5 border-t border-border">
-          <p className="text-lg font-medium text-foreground mb-2">[PRIMARY_TITLE_SLOT]</p>
-          <p className="text-sm text-muted-foreground/70 leading-relaxed">[TITLE_SYSTEM_NOTE]</p>
+        {/* Primary title highlight */}
+        <div className="pt-4 border-t border-border/50">
+          <p className="text-base font-medium text-foreground mb-1.5">[PRIMARY_TITLE_SLOT]</p>
+          <p className="text-xs text-muted-foreground/60 leading-relaxed">[TITLE_SYSTEM_NOTE]</p>
         </div>
 
         {/* Identity support notes */}
-        <div className="mt-5 pt-4 border-t border-border/50 space-y-2">
-          <p className="text-xs text-muted-foreground/60 leading-relaxed">[IDENTITY_SUPPORT_1]</p>
-          <p className="text-xs text-muted-foreground/60 leading-relaxed">[IDENTITY_SUPPORT_2]</p>
+        <div className="mt-4 pt-3 border-t border-border/30 space-y-1.5">
+          <p className="text-xs text-muted-foreground/50 leading-relaxed">[IDENTITY_SUPPORT_1]</p>
+          <p className="text-xs text-muted-foreground/50 leading-relaxed">[IDENTITY_SUPPORT_2]</p>
         </div>
       </div>
+
+      {/* Free surface note - below the card */}
+      <p className="text-xs text-muted-foreground/50 text-center mt-4 leading-relaxed">
+        [FREE_SURFACE_NOTE]
+      </p>
     </section>
   );
 }
@@ -226,16 +231,9 @@ function InstantPreviewFold() {
 
 function FreeResultShelf() {
   return (
-    <section className="py-8">
-      {/* Free surface note */}
-      <div className="bg-secondary/20 rounded-lg px-4 py-2.5 mb-6">
-        <p className="text-xs text-muted-foreground text-center">
-          [FREE_SURFACE_NOTE]
-        </p>
-      </div>
-
+    <section className="py-6">
       {/* Chart - supporting visual */}
-      <div className="bg-secondary/10 border border-border/40 rounded-xl p-5 mb-6">
+      <div className="bg-secondary/20 border border-border/30 rounded-xl p-5 mb-5">
         <div className="flex gap-5 items-start">
           <div className="shrink-0">
             <FiveElementRing />
@@ -270,9 +268,14 @@ function FreeResultShelf() {
           </div>
         </div>
         
-        <p className="text-xs text-muted-foreground/60 leading-relaxed mt-4 pt-3 border-t border-border/30">
-          [FIVE_ELEMENT_NOTE]
-        </p>
+        <div className="mt-4 pt-3 border-t border-border/20 space-y-1.5">
+          <p className="text-xs text-muted-foreground/50 leading-relaxed">
+            [FIVE_ELEMENT_NOTE]
+          </p>
+          <p className="text-xs text-muted-foreground/40 leading-relaxed">
+            [FIVE_ELEMENT_NOTE_2]
+          </p>
+        </div>
       </div>
 
       {/* Current Focus - informative but secondary */}
@@ -346,73 +349,73 @@ function SystemRuleFold() {
 
 function EntryReportFold() {
   return (
-    <section className="py-10 border-t border-border/30">
+    <section className="py-10 border-t border-border/40">
       {/* Section label */}
-      <p className="text-xs text-primary uppercase tracking-widest mb-6 text-center font-semibold">
+      <p className="text-xs text-primary uppercase tracking-widest mb-5 text-center font-semibold">
         有料レポート
       </p>
 
-      {/* Value bridge - STRONGEST visual presence */}
-      <div className="bg-gradient-to-b from-primary/8 via-primary/12 to-primary/8 border-2 border-primary/30 rounded-2xl p-8 shadow-lg">
-        <div className="text-center mb-6">
-          <p className="text-sm text-muted-foreground mb-2">[ENTRY_REPORT_LABEL]</p>
+      {/* Value bridge - STRONGEST visual presence on page */}
+      <div className="bg-gradient-to-b from-primary/5 via-primary/10 to-primary/5 border-2 border-primary/25 rounded-2xl p-7 shadow-md">
+        <div className="text-center mb-5">
+          <p className="text-sm text-muted-foreground/80 mb-1.5">[ENTRY_REPORT_LABEL]</p>
           <p className="text-4xl font-semibold text-foreground tracking-tight">
             [ENTRY_REPORT_PRICE]
           </p>
         </div>
 
         {/* Depth note - what makes this richer */}
-        <div className="bg-background/60 rounded-lg px-4 py-3 mb-6">
-          <p className="text-xs text-foreground/70 text-center leading-relaxed">
+        <div className="bg-background/70 rounded-xl px-4 py-3 mb-5">
+          <p className="text-sm text-foreground/70 text-center leading-relaxed">
             [ENTRY_REPORT_DEPTH_NOTE]
           </p>
         </div>
         
-        <ul className="space-y-4 mb-8">
-          <li className="text-base text-foreground/90 flex items-start gap-4">
-            <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+        <ul className="space-y-3 mb-6">
+          <li className="text-sm text-foreground/85 flex items-start gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
             [ENTRY_REPORT_FEATURE_1]
           </li>
-          <li className="text-base text-foreground/90 flex items-start gap-4">
-            <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+          <li className="text-sm text-foreground/85 flex items-start gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
             [ENTRY_REPORT_FEATURE_2]
           </li>
-          <li className="text-base text-foreground/90 flex items-start gap-4">
-            <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
+          <li className="text-sm text-foreground/85 flex items-start gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
             [ENTRY_REPORT_FEATURE_3]
           </li>
         </ul>
         
         <Link
           href="/report"
-          className="block w-full py-4 bg-primary text-primary-foreground text-center text-base font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-md"
+          className="block w-full py-3.5 bg-primary text-primary-foreground text-center text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm"
         >
           [ENTRY_REPORT_CTA]
         </Link>
       </div>
 
       {/* Blurred teaser - preview of deeper structure (BLUR ONLY HERE) */}
-      <div className="mt-6 bg-card border border-border rounded-xl p-6">
-        <p className="text-xs text-muted-foreground/70 font-medium mb-4 text-center">収録内容プレビュー</p>
-        <div className="space-y-3 mb-5">
-          <div className="flex items-center gap-3 bg-secondary/20 rounded-lg px-4 py-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-            <span className="text-sm text-foreground/50 blur-[4px] select-none flex-1">[CHAPTER_TITLE_1]</span>
+      <div className="mt-5 bg-card border border-border/60 rounded-xl p-5">
+        <p className="text-xs text-muted-foreground/60 font-medium mb-3 text-center">収録内容プレビュー</p>
+        <div className="space-y-2.5 mb-4">
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg px-3 py-2">
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-xs text-foreground/40 blur-[3px] select-none flex-1">[CHAPTER_TITLE_1]</span>
           </div>
-          <div className="flex items-center gap-3 bg-secondary/20 rounded-lg px-4 py-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-            <span className="text-sm text-foreground/50 blur-[4px] select-none flex-1">[CHAPTER_TITLE_2]</span>
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg px-3 py-2">
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-xs text-foreground/40 blur-[3px] select-none flex-1">[CHAPTER_TITLE_2]</span>
           </div>
-          <div className="flex items-center gap-3 bg-secondary/20 rounded-lg px-4 py-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-            <span className="text-sm text-foreground/50 blur-[4px] select-none flex-1">[CHAPTER_TITLE_3]</span>
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg px-3 py-2">
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-xs text-foreground/40 blur-[3px] select-none flex-1">[CHAPTER_TITLE_3]</span>
           </div>
-          <div className="flex items-center gap-3 bg-secondary/20 rounded-lg px-4 py-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-            <span className="text-sm text-foreground/50 blur-[4px] select-none flex-1">[CHAPTER_TITLE_4]</span>
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg px-3 py-2">
+            <span className="w-1 h-1 rounded-full bg-primary/40" />
+            <span className="text-xs text-foreground/40 blur-[3px] select-none flex-1">[CHAPTER_TITLE_4]</span>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground/50 text-center leading-relaxed">
+        <p className="text-xs text-muted-foreground/40 text-center leading-relaxed">
           [ENTRY_REPORT_VALUE_GAP_NOTE]
         </p>
       </div>
