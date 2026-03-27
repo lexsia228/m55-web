@@ -158,6 +158,46 @@ function HeroFold() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// FRAMEWORK STRIP (authority without fake science)
+// ═══════════════════════════════════════════════════════════════════
+
+function FrameworkStrip() {
+  return (
+    <section className="py-6 border-t border-border/20">
+      <p className="text-xs text-muted-foreground/60 uppercase tracking-wider mb-4 text-center font-medium">
+        [FRAMEWORK_LABEL]
+      </p>
+      <div className="flex gap-3 justify-center">
+        <div className="flex-1 max-w-[100px] text-center">
+          <div className="w-8 h-8 mx-auto mb-2 rounded-full bg-secondary/50 flex items-center justify-center">
+            <span className="text-xs text-muted-foreground/70">1</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 leading-snug">
+            [FRAMEWORK_STEP_1]
+          </p>
+        </div>
+        <div className="flex-1 max-w-[100px] text-center">
+          <div className="w-8 h-8 mx-auto mb-2 rounded-full bg-secondary/50 flex items-center justify-center">
+            <span className="text-xs text-muted-foreground/70">2</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 leading-snug">
+            [FRAMEWORK_STEP_2]
+          </p>
+        </div>
+        <div className="flex-1 max-w-[100px] text-center">
+          <div className="w-8 h-8 mx-auto mb-2 rounded-full bg-secondary/50 flex items-center justify-center">
+            <span className="text-xs text-muted-foreground/70">3</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 leading-snug">
+            [FRAMEWORK_STEP_3]
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // FOLD 2: Instant Preview Board (PERSONAL, specific, substantial)
 // ═══════════════════════════════════════════════════════════════════
 
@@ -419,6 +459,34 @@ function EntryReportFold() {
           [ENTRY_REPORT_VALUE_GAP_NOTE]
         </p>
       </div>
+
+      {/* Narrative breadcrumbs - next unlock hint without gamification */}
+      <div className="mt-5 bg-secondary/20 rounded-xl px-4 py-4">
+        <p className="text-xs text-muted-foreground/60 text-center leading-relaxed mb-2">
+          [NEXT_REVEAL_HINT]
+        </p>
+        <p className="text-xs text-muted-foreground/40 text-center leading-relaxed">
+          [CHAPTER_PREVIEW_NOTE]
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// OPERATIONAL TRUST STRIP (trust without fake proof)
+// ═══════════════════════════════════════════════════════════════════
+
+function OperationalTrustStrip() {
+  return (
+    <section className="py-5 border-t border-border/15">
+      <div className="flex justify-center gap-6 text-xs text-muted-foreground/40">
+        <span>[ARTIFACT_VERSION_LABEL]</span>
+        <span>[LAST_UPDATED_LABEL]</span>
+      </div>
+      <p className="text-xs text-muted-foreground/30 text-center mt-2 leading-relaxed">
+        [SUPPORT_CLARITY_NOTE]
+      </p>
     </section>
   );
 }
@@ -497,6 +565,9 @@ export default function HomePage() {
         {/* 1. Quiet hero + 2. Input gate */}
         <HeroFold />
 
+        {/* Framework strip - how M55 reads and organizes */}
+        <FrameworkStrip />
+
         {/* 3. Instant preview board */}
         <InstantPreviewFold />
 
@@ -506,8 +577,11 @@ export default function HomePage() {
         {/* 5. System rule explanation */}
         <SystemRuleFold />
 
-        {/* 6. Entry Report value bridge + 7. Blurred teaser */}
+        {/* 6. Entry Report value bridge + 7. Blurred teaser + Narrative breadcrumbs */}
         <EntryReportFold />
+
+        {/* Operational trust strip */}
+        <OperationalTrustStrip />
 
         {/* 8. Quiet trust footer */}
         <TrustFooter />
