@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   M55HowItWorks.module.css
+   Calm, premium-quiet, Japanese editorial informational page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Page Container
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  background-color: #f9f7f4;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  color: #3d3a35;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Common Section Styles
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.sectionTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #3d3a35;
+  text-align: center;
+  margin: 0 0 28px 0;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 1 — Intro
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldIntro {
+  padding: 64px 24px 56px;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: #3d3a35;
+  margin: 0 0 20px 0;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.pageLead {
+  font-size: 15px;
+  color: rgba(61, 58, 53, 0.85);
+  margin: 0 0 16px 0;
+  line-height: 1.85;
+}
+
+.pageSupport {
+  font-size: 13px;
+  color: rgba(61, 58, 53, 0.55);
+  margin: 0;
+  line-height: 1.75;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 2 — What you can see for free
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldFree {
+  padding: 48px 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(61, 58, 53, 0.08);
+}
+
+.freeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.freeCard {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.65) 100%
+  );
+  border: 1px solid rgba(61, 58, 53, 0.08);
+  border-radius: 14px;
+  padding: 22px 20px;
+  backdrop-filter: blur(8px);
+}
+
+.freeItemTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3d3a35;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.02em;
+}
+
+.freeItemDesc {
+  font-size: 13px;
+  color: rgba(61, 58, 53, 0.7);
+  margin: 0;
+  line-height: 1.75;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 3 — What Entry Report adds
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldPaid {
+  padding: 48px 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(61, 58, 53, 0.08);
+}
+
+.paidIntro {
+  font-size: 14px;
+  color: rgba(61, 58, 53, 0.75);
+  text-align: center;
+  margin: 0 0 28px 0;
+  line-height: 1.8;
+}
+
+.paidList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.paidRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(107, 95, 168, 0.06) 0%,
+    rgba(107, 95, 168, 0.03) 100%
+  );
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  border-radius: 14px;
+  padding: 20px 18px;
+}
+
+.paidRowMarker {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(107, 95, 168, 0.12);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b5fa8;
+}
+
+.paidRowContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.paidItemTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3d3a35;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.02em;
+}
+
+.paidItemDesc {
+  font-size: 13px;
+  color: rgba(61, 58, 53, 0.7);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.paidCtaWrapper {
+  text-align: center;
+}
+
+.paidCtaButton {
+  display: inline-block;
+  padding: 14px 36px;
+  background-color: #6b5fa8;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  letter-spacing: 0.03em;
+}
+
+.paidCtaButton:hover {
+  opacity: 0.88;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 4 — What M55 values
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldPhilosophy {
+  padding: 56px 24px;
+  max-width: 480px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(61, 58, 53, 0.08);
+  text-align: center;
+}
+
+.philosophyBody {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 15px;
+  color: rgba(61, 58, 53, 0.85);
+  margin: 0 0 20px 0;
+  line-height: 2;
+  letter-spacing: 0.03em;
+}
+
+.philosophySupport {
+  font-size: 13px;
+  color: rgba(61, 58, 53, 0.55);
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 5 — What the consultation room is for
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldRoom {
+  padding: 48px 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(61, 58, 53, 0.08);
+}
+
+.roomCard {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  border: 1px solid rgba(61, 58, 53, 0.08);
+  border-radius: 16px;
+  padding: 28px 22px;
+  backdrop-filter: blur(8px);
+}
+
+.roomBody {
+  font-size: 14px;
+  color: rgba(61, 58, 53, 0.8);
+  margin: 0 0 14px 0;
+  line-height: 1.85;
+}
+
+.roomSupport {
+  font-size: 12px;
+  color: rgba(61, 58, 53, 0.5);
+  margin: 0;
+  line-height: 1.75;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLD 6 — Final bridge
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.foldFinal {
+  padding: 56px 24px 72px;
+  max-width: 480px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(61, 58, 53, 0.08);
+  text-align: center;
+}
+
+.finalTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #3d3a35;
+  margin: 0 0 18px 0;
+  letter-spacing: 0.03em;
+}
+
+.finalBody {
+  font-size: 14px;
+  color: rgba(61, 58, 53, 0.75);
+  margin: 0 0 28px 0;
+  line-height: 1.85;
+}
+
+.finalPrimaryCta {
+  display: inline-block;
+  padding: 16px 48px;
+  background-color: #3d3a35;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+.finalPrimaryCta:hover {
+  opacity: 0.88;
+}
+
+.finalNote {
+  font-size: 12px;
+  color: rgba(61, 58, 53, 0.45);
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Responsive adjustments for larger screens
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 640px) {
+  .pageTitle {
+    font-size: 32px;
+  }
+  
+  .pageLead {
+    font-size: 16px;
+  }
+  
+  .sectionTitle {
+    font-size: 22px;
+  }
+  
+  .freeGrid {
+    flex-direction: row;
+    gap: 16px;
+  }
+  
+  .freeCard {
+    flex: 1;
+  }
+  
+  .foldIntro {
+    padding: 80px 32px 64px;
+  }
+  
+  .foldFree,
+  .foldPaid,
+  .foldRoom {
+    padding: 56px 32px;
+  }
+  
+  .foldPhilosophy,
+  .foldFinal {
+    padding: 64px 32px;
+  }
+}
