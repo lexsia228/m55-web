@@ -1,0 +1,22 @@
+{
+  "scope": "essence",
+  "mappingRef": "M55_PAGE_OUTPUT_MAPPING_SSOT_v1 + PATCH_P1",
+  "pages": {
+    "Home": [
+      "essence.summaryShort",
+      "essence.keywords (preview only)"
+    ],
+    "core": [
+      "essence.summaryShort",
+      "essence.keywords",
+      "essence.focusAreas"
+    ],
+    "today": [],
+    "weekly": [],
+    "my": [],
+    "dtr/lp": []
+  },
+  "rawFieldsNeverOnPublicFree": [
+    "rawTraits"
+  ]
+}

@@ -1,0 +1,7 @@
+﻿40_AUDIT_AND_WORKLOG/
+98_PACKS_SOURCE/
+*.zip
+.next/
+node_modules/
+
+.env.local.*

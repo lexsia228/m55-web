@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "note": "ZIP files in this directory are .gitignore. SSOT for what is stored locally.",
+  "packs": [
+    {
+      "name": "Desktop Pack",
+      "date": "2026-02-01",
+      "sha256": "6e9fba2166f44a69b760b38cc318b44bbc546b357aa048c246cfc8b447b21880",
+      "entries": 352
+    },
+    {
+      "name": "Phase2 5 Holy Artifacts",
+      "date": "2026-02-15",
+      "version": "v1.0.1",
+      "sha256": "0c0cb8ca7b8c41cfa4c666e13e83e7aa0e6328d0ab616bbeb23afc40c302b684",
+      "entries": 14771
+    }
+  ]
+}

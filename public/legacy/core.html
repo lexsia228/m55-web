@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>M55 本質</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-start: #f7f5ff;
+      --bg-end: #ffffff;
+      --accent: #b19cff;
+      --accent-soft: rgba(177, 156, 255, 0.18);
+      --text-main: #2c233a;
+      --text-sub: #6b667a;
+      --border-glass: rgba(255, 255, 255, 0.8);
+      --card-bg-hero: rgba(255, 255, 255, 0.9);
+      --card-bg-standard: rgba(255, 255, 255, 0.85);
+      --card-bg-shelf: rgba(255, 255, 255, 0.7);
+      --shadow-hero: 0 18px 40px rgba(29, 24, 61, 0.18);
+      --shadow-standard: 0 10px 24px rgba(29, 24, 61, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top, var(--bg-start), var(--bg-end));
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 12px 12px 80px;
+      position: relative;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px 12px;
+    }
+
+    .app-header-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .app-header-sub {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    .app-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(29, 24, 61, 0.12);
+      font-size: 15px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .card-hero {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 255, 0.98));
+      box-shadow: var(--shadow-hero);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(204, 190, 255, 0.55), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-standard {
+      background: var(--card-bg-standard);
+      box-shadow: var(--shadow-standard);
+    }
+
+    .card-shelf {
+      background: var(--card-bg-shelf);
+      border-style: solid;
+      border-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 6px 16px rgba(29, 24, 61, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .wave-bar {
+      position: relative;
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(to right, rgba(177, 156, 255, 0.18), rgba(255, 255, 255, 0.6));
+      overflow: hidden;
+      margin: 6px 0 4px;
+    }
+
+    .wave-bar-fill {
+      position: absolute;
+      inset: 1px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(177, 156, 255, 0.85), rgba(139, 187, 255, 0.9));
+      width: 68%;
+    }
+
+    .wave-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .text-main {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .text-subtle {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .mini-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .mini-link:hover {
+      text-decoration: underline;
+    }
+
+    .today-mini-reading-body {
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+
+    .toggle-link {
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .pin-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .chip-icon {
+      margin-right: 4px;
+    }
+
+    .button-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #c3b5ff, #9aa3ff);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(82, 71, 163, 0.3);
+    }
+
+    .button-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(82, 71, 163, 0.3);
+    }
+
+    .button-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      border: 1px solid rgba(177, 156, 255, 0.55);
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .log-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .log-row-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .log-row-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      opacity: 0.8;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 6px 8px 10px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(to top, rgba(247, 245, 255, 0.96), rgba(247, 245, 255, 0.8));
+      border-top: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .bottom-nav-inner {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    .bottom-nav-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .bottom-nav-item.is-active .bottom-nav-icon {
+      background: linear-gradient(135deg, #c3b5ff, #9aa3ff);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(82, 71, 163, 0.35);
+    }
+
+    .bottom-nav-item.is-active span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .cta-bottom {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+/* === M55 SSOT Compliance Override (AUTO) ===
+   - No DOM structure changes.
+   - Disable full-screen pseudo backgrounds.
+   - No notification/badge UI.
+   - No infinite animations; Reduce Motion => no animations/transitions.
+*/
+html, body { background: transparent !important; }
+body::before, body::after, html::before, html::after {
+  content: none !important;
+  background-image: none !important;
+  animation: none !important;
+}
+.notification-btn, .badge, .notification, .bell, .unread { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* === END OVERRIDE === */
+
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header-left">
+        <div class="app-header-sub">本質</div>
+        <div class="app-header-title">本質</div>
+      </div>
+      <div class="app-header-right">
+        <div class="app-header-sub">AI観測</div>
+        <div class="icon-circle">☰</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card card-hero">
+        <div class="card-hero-inner">
+          <div id="core-content"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">🏠</div>
+        <span>ホーム</span>
+      </div>
+      <div class="bottom-nav-item is-active">
+        <div class="bottom-nav-icon">☀️</div>
+        <span>今日</span>
+      </div>
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">📅</div>
+        <span>週間</span>
+      </div>
+      <div class-nav-item class="bottom-nav-item">
+        <div class="bottom-nav-icon">✨</div>
+        <span>AIカレンダー</span>
+      </div>
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">⭐</div>
+        <span>マイページ</span>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { M55Profile } from "./js/m55_data_core.js";
+    import { navigateTo } from "./js/routes_manifest.js";
+    const profile = M55Profile.load();
+    const el = document.getElementById("core-content");
+    if (profile && (profile.nickname || profile.birthDateISO)) {
+      const nick = profile.nickname || "名無し";
+      el.innerHTML = "<p class=\"card-title\">" + nick + "さんの本質</p><p class=\"text-subtle\">心の設計図を、そっと眺める場所。</p>";
+    } else {
+      el.innerHTML = "<p class=\"text-main\">プロフィールが見つかりませんでした</p><button class=\"button-ghost\" type=\"button\">ホームへ戻る</button>";
+      el.querySelector("button").onclick = () => navigateTo("PAGE_HOME");
+    }
+  </script>
+  <script type="module" src="js/binding_inventory.js"></script>
+</body>
+</html>

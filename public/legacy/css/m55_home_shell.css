@@ -1,0 +1,17 @@
+/* --- Phase 6-B: Meter Fill & Interaction --- */
+.meter-bar {
+    position: relative;
+    overflow: hidden;
+    --meter-fill-pct: 0;
+  }
+  .meter-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: calc(var(--meter-fill-pct) * 1%);
+    background: linear-gradient(90deg, rgba(188, 160, 255, 0.50), rgba(171, 213, 255, 0.40));
+    opacity: 0.85;
+    transition: width 0.4s ease-out; /* ぬるっと動く演出 */
+  }
+  .meter-card.is-pressed { opacity: 0.88; }
+  .is-disabled { opacity: 0.30 !important; pointer-events: none !important; }

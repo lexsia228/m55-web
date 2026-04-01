@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M55 HOME (SSOT HARDENED)</title>
+  <link rel="stylesheet" href="m55_home_shell.css"/>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-title">
+        <div class="app-logo-orb"></div>
+        <div class="app-logo-text">M55</div>
+      </div>
+      <div class="header-right">
+      </div>
+    </header>
+
+    <main class="home-main">
+      <div class="top-tabs">
+        <div class="top-tab">本質</div>
+        <div class="top-tab">相性</div>
+        <div class="top-tab active">今日</div>
+        <div class="top-tab">週間</div>
+        <div class="top-tab">AIカレンダー</div>
+      </div>
+
+      <!-- AI観測メーター -->
+      <section class="card card-hero meter-card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">AI観測</div>
+            <div class="card-title"></div>
+          </div>
+          <div class="pill">観測中</div>
+        </div>
+        <div class="te-slot">
+          <div class="dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+        <div class="meter-bar" role="img" aria-label="AI観測メーター">
+          <div class="meter-breath-layer"></div>
+        </div>
+        <div class="meter-days-display">
+          <span id="meter-days-count">--</span> Days Recorded
+        </div>
+        <div class="meter-values" data-visual="hidden">
+          <span class="meter-chip">短期：育ち</span>
+          <span class="meter-chip">長期：深まり</span>
+        </div>
+        <div class="meter-labels" data-visual="hidden">
+          <span>芽吹き → 育ち → 澄み</span>
+          <span>積もり → 深まり → 結晶</span>
+        </div>
+      </section>
+
+      <!-- 今日の波 -->
+      <section class="card card-hero">
+        <div class="card-header">
+          <div>
+            <div class="section-label">TODAY</div>
+            <div class="card-title">今日の波</div>
+          </div>
+          <div class="card-sub">本日の心のコンディション</div>
+        </div>
+        <div class="today-card-main-text">
+          今日は、いつもより少しだけ心がひらきやすい流れです。<br/>
+          自分のペースを大切にしながら、小さな一歩をあげてください。
+        </div>
+        <div class="today-footer">
+          <span class="card-sub">デイリー詳細は「今日」タブから</span>
+          <span class="link-soft">今日のくわしい読みへ</span>
+        </div>
+      </section>
+
+      <!-- DTR 履歴 -->
+      <section class="card card-shelf dtr-history">
+        <div class="shelf-header">
+          <div>
+            <div class="section-label">HISTORY</div>
+            <div class="card-title">DTR 履歴</div>
+          </div>
+        </div>
+        <div class="shelf-row">
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/12 の記録</div>
+            <div class="dtr-caption">本日分の観測</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/11 の下書き</div>
+            <div class="dtr-caption">前日分</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/10 の設計メモ</div>
+            <div class="dtr-caption">設計メモ保存</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/9 の記録</div>
+            <div class="dtr-caption">記録</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/8 の下書き</div>
+            <div class="dtr-caption">下書き</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/7 の設計メモ</div>
+            <div class="dtr-caption">設計メモ</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/6 の記録</div>
+            <div class="dtr-caption">記録</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/5 のメモ</div>
+            <div class="dtr-caption">メモ</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/4 の記録</div>
+            <div class="dtr-caption">記録</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">10/3 の下書き</div>
+            <div class="dtr-caption">下書き</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 毎日のミニ読み -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">DAILY MINI</div>
+            <div class="card-title">毎日のミニ読み</div>
+          </div>
+        </div>
+        <div class="mini-lines">
+          今日は「気持ちを言葉にしてみる」がテーマの日です。<br/>
+          深呼吸をひとつおいてから、ゆっくりと伝えてみてください。
+        </div>
+        <div class="mini-blur-block"></div>
+      </section>
+
+      <!-- 今月のAIカレンダー要約 -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">AI CALENDAR</div>
+            <div class="card-title">今月のAIカレンダー</div>
+          </div>
+          <div class="card-sub">本日：10月12日</div>
+        </div>
+        <div class="calendar-row">
+          <div class="calendar-pill">
+            <span class="calendar-icon">☀️</span>
+            <span>22日：心と行動がそろいやすい日</span>
+          </div>
+          <div class="calendar-pill">
+            <span class="calendar-icon">💖</span>
+            <span>12日：気持ちが通いやすい日</span>
+          </div>
+          <div class="calendar-pill">
+            <span class="calendar-icon">💰</span>
+            <span>27日：循環がスムーズになりやすい日</span>
+          </div>
+          <div class="calendar-pill">
+            <span class="calendar-icon">🌥</span>
+            <span>5日：深呼吸に向いている日</span>
+          </div>
+        </div>
+        <div class="calendar-note">くわしいカレンダーと💞ふたりの重なり日は「AIカレンダー」タブから。</div>
+      </section>
+
+      <!-- 週間カード -->
+      <section class="weekly-card">
+        <div class="weekly-glass-top"></div>
+        <div class="weekly-breath-layer"></div>
+        <div class="weekly-content">
+          <div class="section-label">WEEKLY</div>
+          <div class="weekly-key">今週は、「整えながら進む」タイミングです。</div>
+          <div class="weekly-lines">
+            心：自分のペースを守ると、安心感が戻りやすい週。<br/>
+            恋愛：一言そえるだけで、距離がやさしく縮まりそうです。<br/>
+            お金：小さな整理が、次の流れの準備になっていきます。
+          </div>
+          <div class="weekly-cta">週間ページで、今週の物語を静かに読む</div>
+        </div>
+      </section>
+
+      <!-- Prime DTRランキング -->
+      <section class="card card-hero">
+        <div class="prime-header-row">
+          <div>
+            <div class="section-label">PRIME</div>
+            <div class="card-title">Premium DTR</div>
+          </div>
+          <div class="card-sub">AIが静かに更新</div>
+        </div>
+        <div class="prime-tabs">
+          <div class="prime-tab active">総合</div>
+          <div class="prime-tab">出会い</div>
+          <div class="prime-tab">片思い</div>
+          <div class="prime-tab">人生</div>
+          <div class="prime-tab">復縁</div>
+          <div class="prime-tab">不倫</div>
+        </div>
+        <div class="prime-list">
+          <div class="prime-item">
+            <div class="prime-rank">1</div>
+            <div class="prime-thumb"></div>
+            <div class="prime-texts">
+              <div class="prime-title">この1年の「心の航跡」総まとめ</div>
+              <div class="prime-tagline">気づかなかった変化を、静かに言葉にします。</div>
+            </div>
+          </div>
+          <div class="prime-item">
+            <div class="prime-rank">2</div>
+            <div class="prime-thumb"></div>
+            <div class="prime-texts">
+              <div class="prime-title">あの人との距離が近づくとき</div>
+              <div class="prime-tagline">二人の呼吸の重なり方だけにフォーカスした一冊。</div>
+            </div>
+          </div>
+          <div class="prime-item">
+            <div class="prime-rank">3</div>
+            <div class="prime-thumb"></div>
+            <div class="prime-texts">
+              <div class="prime-title">仕事と心のバランスノート</div>
+              <div class="prime-tagline">頑張り方を、少しだけ柔らかく整えるために。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 〇〇さんにおすすめ -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div>
+            <div class="section-label">FOR YOU</div>
+            <div class="card-title">〇〇さんにおすすめ</div>
+          </div>
+        </div>
+        <div class="picks-row">
+          <article class="pick-card">
+            <div class="pick-tag">最近の心ログから</div>
+            <div class="pick-title">「疲れが溜まる前」に気づくための一冊</div>
+            <div class="pick-caption">ここ数日のAIチャットとカレンダーから、心のクセをそっとまとめました。</div>
+          </article>
+          <article class="pick-card">
+            <div class="pick-tag">よく登場するあの人</div>
+            <div class="pick-title">二人の距離がほどけるタイミング</div>
+            <div class="pick-caption">メッセージや心の動きの重なり方から、今の呼吸を静かに観測しています。</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 初心者向け棚 -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div>
+            <div class="section-label">BEGINNER</div>
+            <div class="card-title">はじめての方に</div>
+          </div>
+          <div class="card-sub">低価格の体験DTR</div>
+        </div>
+        <div class="shelf-row">
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">まずは「本質」から</div>
+            <div class="dtr-caption">あなたの静的な設計図だけを、ぎゅっとまとめた入門レポート。</div>
+          </article>
+          <article class="dtr-card">
+            <div class="dtr-image-accent"></div>
+            <div class="dtr-title">1年後のあなた</div>
+            <div class="dtr-caption">今の心ログをもとに、1年後のテーマをやさしく先取りします。</div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <div class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>ホーム</div>
+        <div class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" ry="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>タロット</div>
+        <div class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AIチャット</div>
+        <div class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>鑑定</div>
+        <div class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>マイページ</div>
+      </div>
+    </nav>
+
+    <div class="page-placeholder" id="page-core"></div>
+    <div class="page-placeholder" id="page-match"></div>
+    <div class="page-placeholder" id="page-today"></div>
+    <div class="page-placeholder" id="page-weekly"></div>
+    <div class="page-placeholder" id="calendar-full"></div>
+    <div class="page-placeholder" id="tarot"></div>
+    <div class="page-placeholder" id="dtr-shelf"></div>
+    <div class="page-placeholder" id="ai-chat"></div>
+    <div class="page-placeholder" id="mypage"></div>
+  </div>
+
+  <script type="module" src="js/binding_inventory.js"></script>
+  <script type="module" src="js/m55_home_bind.js"></script>
+</body>
+</html>

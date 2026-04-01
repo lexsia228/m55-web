@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M55 MY PAGE (SSOT)</title>
+  <!-- NOTE: Background is SSOT NoTouch. This page must inherit the app background. -->
+</head>
+<body>
+  <div class="app-shell mypage-shell">
+    <header class="app-header">
+      <div class="app-title">
+        <div class="app-logo-text">MY PAGE</div>
+      </div>
+    </header>
+
+    <main class="mypage-main" style="padding:20px;">
+      <section class="card card-hero">
+        <div class="section-label">YOUR ARCHIVE</div>
+        <div style="display:flex; align-items:baseline; gap:8px; margin:10px 0;">
+          <span style="font-size:32px; font-weight:700; color:var(--text-main);">
+            <span id="mypage-days-count">--</span>
+          </span>
+          <span style="font-size:12px; color:var(--text-sub);">Days Recorded</span>
+        </div>
+
+        <div style="margin-top:8px; font-size:10px; color:var(--text-sub);">
+          直近90日間の観測記録
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">感情観測ログ</div>
+        </div>
+        <div style="font-size:11px; color:var(--text-sub); line-height:1.6;">
+          <p>Free: <span style="font-weight:600;">7日間</span></p>
+          <p>Standard: <span style="font-weight:600;">30日間</span></p>
+          <p>Premium: <span style="font-weight:600;">90日間</span></p>
+        </div>
+        <div id="log-vault-list" style="margin-top:10px;"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">CRYPTIC ARTIFACT</div>
+        </div>
+        <div style="font-size:11px; color:var(--text-sub); line-height:1.6;">
+          <p>テキストではなく、抽象の石として取り出します。</p>
+        </div>
+        <div style="margin-top:10px;">
+          <button id="artifact-export-btn" style="
+            width:100%;
+            border:1px solid var(--card-border);
+            background:rgba(255,255,255,0.04);
+            color:var(--text-main);
+            padding:12px 14px;
+            border-radius:14px;
+            font-size:13px;
+            font-weight:600;
+          ">石の断片を書き出す</button>
+        </div>
+      </section>
+
+      <!-- SSOT safety: do not include destructive "reset local profile" actions here -->
+    </main>
+  </div>
+  <script type="module" src="js/binding_inventory.js"></script>
+</body>
+</html>

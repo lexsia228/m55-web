@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>M55 Home MJ Thumbnail Policy SSOT v1</title>
+<style>
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:24px;line-height:1.6;}
+h1{font-size:18px;margin:0 0 10px;}
+h2{font-size:15px;margin:22px 0 8px;}
+.meta{opacity:.7;font-size:12px;margin-bottom:16px;}
+code,pre{background:#f6f6f6;border-radius:10px;padding:2px 6px;}
+pre{padding:12px;overflow:auto;}
+ul{padding-left:18px;}
+</style>
+</head>
+<body>
+<h1>M55 Home MJ Thumbnail Policy SSOT v1</h1>
+<div class="meta">FREEZE: 2026-01-26</div>
+
+<h2>結論</h2>
+<p>画像は「カード内のサムネ枠のみ」。背景SSOT侵食（body/html背景化）は禁止。</p>
+
+<h2>上限（チープ化防止）</h2>
+<ul>
+<li>Home内で"目立つ画像枠"は最大2ブロックまで（例：DTR棚 + Prime棚）。</li>
+<li>同一画面内で大面積画像を複数同時に見せない。</li>
+</ul>
+
+<h2>表現</h2>
+<ul>
+<li>抽象（屈折/鉱物/水晶/薄い羽粒子）。人物・宗教記号・文字入り画像は禁止。</li>
+<li>必ずスクラム（薄い膜）を固定で重ね、可読性を担保。</li>
+<li>透過は"背景に溶ける"方向。彩度で煽らない。</li>
+</ul>
+
+<h2>データ保持</h2>
+<ul>
+<li>thumb_urlの直書きは禁止（改ざん/衝突）。</li>
+<li>dtr_master等に <code>thumb_asset_id</code> を置き、クライアントはCDN既定パスで解決（唯一ルート）。</li>
+</ul>
+
+</body>
+</html>

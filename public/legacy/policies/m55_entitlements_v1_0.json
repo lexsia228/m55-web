@@ -1,0 +1,80 @@
+{
+  "version": "v1.0",
+  "freeze_date_jst": "2026-01-31",
+  "principles": {
+    "no_ads_in_rituals": true,
+    "no_numbers_on_home": true,
+    "no_badges_notifications": true,
+    "no_infinite_animation": true,
+    "no_speculative_queries": true,
+    "silent_observer_tone": true
+  },
+  "plans": {
+    "free": {
+      "display_name": "Free",
+      "price_jpy": 0,
+      "retention_days": 7,
+      "ai_chat_send_per_day": 1,
+      "ai_chat_retention_days": 0,
+      "tarot_draws_per_day": 1,
+      "dtr_monthly_included": 0,
+      "weekly_view": "partial",
+      "notes": "広告は主軸にならない。儀式/鑑定/解析中に広告を挿入しない。"
+    },
+    "standard": {
+      "display_name": "Standard",
+      "price_jpy": 680,
+      "retention_days": 30,
+      "ai_chat_send_per_day": 5,
+      "ai_chat_retention_days": 30,
+      "tarot_draws_per_day": 5,
+      "dtr_monthly_included": 0,
+      "weekly_view": "full",
+      "notes": "広告非表示。結果の中身は課金で変えない（保存/深さ/再訪のみ差）。"
+    },
+    "premium": {
+      "display_name": "Premium",
+      "price_jpy": 1980,
+      "retention_days": 90,
+      "ai_chat_send_per_day": -1,
+      "ai_chat_retention_days": 90,
+      "tarot_draws_per_day": -1,
+      "dtr_monthly_included": 1,
+      "weekly_view": "full",
+      "notes": "月次DTRを自動付与。煽り/誇示/アンロック表現禁止。"
+    }
+  },
+  "dtr_products": {
+    "static": {
+      "core": {
+        "suggested_price_jpy": 980,
+        "permanent": true
+      },
+      "synastry": {
+        "suggested_price_jpy": 980,
+        "permanent": true
+      }
+    },
+    "dynamic": {
+      "weekly": {
+        "suggested_price_jpy": 300,
+        "time_limited_days": 7
+      },
+      "monthly": {
+        "suggested_price_jpy": 500,
+        "time_limited_days": 30
+      }
+    },
+    "personal": {
+      "snapshot": {
+        "suggested_price_jpy": 800,
+        "permanent": true
+      }
+    }
+  },
+  "intent_pins": {
+    "taxonomy_fixed_count": 7,
+    "user_selection_persistence": "session_only",
+    "retention_alignment": "filters_only; no extra retention beyond log retention"
+  }
+}

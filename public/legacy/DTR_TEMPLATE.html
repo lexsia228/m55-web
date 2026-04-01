@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>M55 DTR TEMPLATE (Gate Compliance)</title>
+</head>
+<body>
+  <main>
+    <h1>DTR Shelf</h1>
+  </main>
+
+  <!-- Gate requirement: static DOM existence -->
+  <div id="dtr-thanks-view" class="dtr-thanks-view is-hidden" aria-hidden="true" style="display:none;">
+    <div class="thanks-container">
+      <h3 data-testid="thanks-title"></h3>
+      <p data-testid="thanks-rights"></p>
+
+      <div class="thanks-actions">
+        <button type="button" data-testid="btn-thanks-chat">AIと話す</button>
+        <button type="button" data-testid="btn-thanks-home">ホームへ</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/binding_inventory.js"></script>
+</body>
+</html>

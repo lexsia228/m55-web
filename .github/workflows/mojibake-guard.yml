@@ -1,0 +1,15 @@
+name: mojibake-guard
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: mojibake scan (utf8 strict)
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/ci/check-mojibake.ps1 -Root .

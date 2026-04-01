@@ -1,0 +1,28 @@
+{
+  "contractVersion": "io-v1.0",
+  "engineVersion": "logic-v1.0.0",
+  "contextScope": "essence",
+  "generatedAt": "2026-03-23T12:00:00.000Z",
+  "seedFingerprint": "sha256:339be71d90785d8d98b71d12430b9af0cdca76cd4cde2bc67cfee4d240fe55a5",
+  "freeVisible": true,
+  "dtrExpandable": true,
+  "payload": {
+    "summaryShort": "自分らしさの要約。いまの見方を整理するヒントとしてお使いください。",
+    "keywords": [
+      "蓄積",
+      "一歩",
+      "習慣"
+    ],
+    "focusAreas": [
+      "本質",
+      "整理",
+      "選択"
+    ],
+    "rawTraits": [
+      "trait.structural_focus",
+      "trait.quiet_persistence"
+    ],
+    "freeVisible": true,
+    "dtrExpandable": true
+  }
+}

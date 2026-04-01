@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>M55 AI観測メーター詳細</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main-from: #f9f5ff;
+      --bg-main-to: #ffffff;
+      --lavender-soft: #e5dcff;
+      --lavender-deep: #c8b5ff;
+      --accent-blue-soft: #dfe9ff;
+      --accent-pink-soft: #ffe6f4;
+      --text-main: #2f2640;
+      --text-sub: #756a8a;
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --shadow-soft: 0 12px 30px rgba(40, 18, 77, 0.12);
+      --shadow-light: 0 8px 22px rgba(40, 18, 77, 0.08);
+      --shadow-min: 0 4px 12px rgba(40, 18, 77, 0.06);
+      --radius-hero: 22px;
+      --radius-standard: 18px;
+      --radius-shelf: 20px;
+      --lavender-glow: rgba(194, 156, 255, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.9), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(233, 217, 255, 0.7), transparent 60%),
+        radial-gradient(circle at 50% 100%, rgba(214, 229, 255, 0.7), transparent 60%),
+        linear-gradient(160deg, var(--bg-main-from), var(--bg-main-to));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color-scheme: light;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.14) 0, transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.12) 0, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.12) 0, transparent 55%);
+      opacity: 0.35;
+      mix-blend-mode: screen;
+      z-index: -1;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ヘッダー（HOMEと同じ世界観） */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 12px 16px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(
+        to bottom,
+        rgba(250, 246, 255, 0.9),
+        rgba(250, 246, 255, 0.75),
+        transparent
+      );
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-logo-orb {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 20%, #ffffff 0, rgba(255, 255, 255, 0.1) 40%),
+        conic-gradient(
+          from 210deg,
+          rgba(188, 160, 255, 0.9),
+          rgba(171, 213, 255, 0.9),
+          rgba(255, 193, 222, 0.9),
+          rgba(188, 160, 255, 0.9)
+        );
+      box-shadow: 0 0 18px rgba(180, 156, 255, 0.45);
+    }
+
+    .app-logo-text {
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ダミー上タブ（HOMEと同じスタイルで見た目だけ合わせ） */
+    .top-tabs {
+      padding: 0 12px 4px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .top-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .top-tab {
+      white-space: nowrap;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      background: radial-gradient(circle at 0 0, #ffffff, rgba(244, 236, 255, 0.92));
+      color: var(--text-sub);
+      box-shadow: var(--shadow-min);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .top-tab.active {
+      background: linear-gradient(135deg, #e3d5ff, #f9efff);
+      color: var(--text-main);
+      font-weight: 600;
+      box-shadow: 0 8px 18px rgba(78, 47, 127, 0.18);
+    }
+
+    /* メインスクロール */
+    .meter-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 12px 70px;
+      scrollbar-width: thin;
+    }
+
+    .meter-main::-webkit-scrollbar {
+      width: 4px;
+    }
+    .meter-main::-webkit-scrollbar-thumb {
+      background: rgba(140, 124, 180, 0.4);
+      border-radius: 999px;
+    }
+
+    /* カード共通 */
+    .card {
+      position: relative;
+      background: var(--card-bg);
+      border-radius: var(--radius-standard);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-light);
+      padding: 14px 14px 12px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .card-hero {
+      border-radius: var(--radius-hero);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 16px 14px;
+      background:
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.95), transparent 60%),
+        linear-gradient(145deg, rgba(243, 236, 255, 0.9), rgba(255, 255, 255, 0.98));
+    }
+
+    .card-shelf {
+      border-radius: var(--radius-shelf);
+      box-shadow: var(--shadow-min);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .pill {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(238, 227, 255, 0.9);
+      color: #5a3e85;
+      white-space: nowrap;
+    }
+
+    .text-main {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .text-subtle {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* 90日メーター */
+    .meter-wrap {
+      margin-top: 6px;
+    }
+
+    .meter-bar {
+      position: relative;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 0 0, #ffffff, rgba(239, 232, 255, 0.95));
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .meter-breath-layer {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(194, 156, 255, 0.9), transparent 60%),
+        radial-gradient(circle at 70% 50%, rgba(179, 210, 255, 0.8), transparent 60%);
+      opacity: 0.2;
+      mix-blend-mode: screen;
+      animation: meterBreath 7s ease-in-out 1;
+    }
+
+    .meter-bar-fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      transform: scaleX(0.65); /* 仮に 65% までたまっている表示 */
+      background: linear-gradient(90deg, rgba(194, 156, 255, 0.9), rgba(152, 203, 255, 0.9));
+      opacity: 0.7;
+    }
+
+    .meter-ticks {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+
+    .meter-tick {
+      width: 2px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.96);
+      opacity: 0.9;
+    }
+
+    @keyframes meterBreath {
+      0% { opacity: 0.0; transform: translateX(-4%); }
+      30% { opacity: 0.2; }
+      50% { opacity: 0.27; transform: translateX(0); }
+      70% { opacity: 0.2; transform: translateX(4%); }
+      100% { opacity: 0.0; transform: translateX(0); }
+    }
+
+    .meter-scale-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .meter-zone-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-sub);
+      opacity: 0.9;
+      margin-top: 4px;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .meter-chip-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 10px;
+    }
+
+    .meter-chip {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 4px 10px rgba(84, 44, 145, 0.15);
+    }
+
+    /* DTRカード */
+    .dtr-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .dtr-card-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.94);
+      align-items: center;
+    }
+
+    .dtr-icon-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(229, 220, 255, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .dtr-main {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .dtr-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .dtr-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .dtr-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 3px;
+    }
+
+    .status-chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(203, 230, 215, 0.9);
+      color: #206e4b;
+    }
+
+    .status-chip.cooldown {
+      background: rgba(213, 224, 245, 0.9);
+      color: #2b4f8a;
+    }
+
+    .status-chip.locked {
+      background: rgba(235, 235, 240, 0.98);
+      color: #77758a;
+    }
+
+    .status-note {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* テーマ円グラフ */
+    .insight-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .donut {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          rgba(248, 205, 218, 0.9) 0 25%,
+          rgba(190, 215, 255, 0.9) 25% 50%,
+          rgba(214, 225, 255, 0.9) 50% 75%,
+          rgba(207, 238, 222, 0.9) 75% 100%
+        );
+      position: relative;
+      box-shadow: 0 10px 24px rgba(29, 24, 61, 0.15);
+      flex-shrink: 0;
+    }
+
+    .donut::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.95), rgba(247,245,255,0.98));
+    }
+
+    .donut-center-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: center;
+      padding: 0 6px;
+    }
+
+    .donut-center-main {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .insight-text {
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .chip-row {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(247, 245, 255, 0.96);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* キーワード＆メモ */
+    .memo-area {
+      width: 100%;
+      min-height: 60px;
+      border-radius: 12px;
+      border: 1px solid rgba(219, 215, 240, 0.9);
+      padding: 8px 9px;
+      font-size: 12px;
+      resize: none;
+      outline: none;
+      background: rgba(255,255,255,0.92);
+    }
+
+    .memo-area::placeholder {
+      color: rgba(151, 145, 175, 0.9);
+    }
+
+    .memo-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      gap: 8px;
+    }
+
+    .button-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #c3b5ff, #9aa3ff);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(82, 71, 163, 0.3);
+      white-space: nowrap;
+    }
+
+    .button-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(82, 71, 163, 0.3);
+    }
+
+    .button-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      border: 1px solid rgba(177, 156, 255, 0.55);
+      background: rgba(255, 255, 255, 0.8);
+      color: #7a65d8;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cta-bottom {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* 下部ナビ（HOMEと同じ見た目。ホームをアクティブ扱い） */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      padding: 4px 10px 8px;
+      background: rgba(250, 246, 255, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.9);
+      z-index: 30;
+    }
+
+    .bottom-nav-inner {
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 0, #ffffff, rgba(242, 235, 255, 0.95));
+      box-shadow: 0 10px 20px rgba(60, 35, 110, 0.22);
+      padding: 6px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-sub);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .nav-item span {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .nav-item.active {
+      color: #5f49c9;
+      font-weight: 600;
+    }
+
+/* === M55 SSOT Compliance Override (AUTO) ===
+   - No DOM structure changes.
+   - Disable full-screen pseudo backgrounds.
+   - No notification/badge UI.
+   - No infinite animations; Reduce Motion => no animations/transitions.
+*/
+html, body { background: transparent !important; }
+body::before, body::after, html::before, html::after {
+  content: none !important;
+  background-image: none !important;
+  animation: none !important;
+}
+.notification-btn, .badge, .notification, .bell, .unread { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* === END OVERRIDE === */
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="app-title">
+        <div class="app-logo-orb"></div>
+        <div class="app-logo-text">M55</div>
+      </div>
+      <div class="header-right"></div>
+    </header>
+
+    <!-- 上タブ（見た目だけ揃えておく） -->
+    <div class="top-tabs">
+      <div class="top-tab">本質</div>
+      <div class="top-tab">相性</div>
+      <div class="top-tab">今日</div>
+      <div class="top-tab">週間</div>
+      <div class="top-tab active">AI観測</div>
+    </div>
+
+    <!-- AI観測メーター詳細 -->
+    <main class="meter-main">
+      <!-- Heroメーター -->
+      <section class="card card-hero">
+        <div class="card-header">
+          <div>
+            <div class="section-label">AI OBSERVE</div>
+            <div class="card-title">この90日の観測</div>
+            <div class="card-sub">直近90日ぶんの「心の記録」がどれくらい積もっているかを見ています。</div>
+          </div>
+          <div class="pill">じわじわ蓄積中</div>
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-bar">
+            <div class="meter-breath-layer"></div>
+            <div class="meter-bar-fill"></div>
+            <div class="meter-ticks">
+              <div class="meter-tick"></div>
+              <div class="meter-tick"></div>
+              <div class="meter-tick"></div>
+            </div>
+          </div>
+          <div class="meter-scale-row">
+            <span>7日</span>
+            <span>30日</span>
+            <span>90日</span>
+          </div>
+          <div class="meter-zone-row">
+            <span>芽吹き</span>
+            <span>育ち</span>
+            <span>澄み</span>
+            <span>積もり</span>
+            <span>深まり</span>
+            <span>結晶</span>
+          </div>
+          <div class="meter-chip-row">
+            <span class="meter-chip">短期：育ち（直近7〜10日）</span>
+            <span class="meter-chip">長期：深まり（直近30〜90日）</span>
+          </div>
+        </div>
+
+        <p class="text-main" style="margin-top:8px;">
+          この90日間で、だいたい3分の2くらいの日に「心の記録」が残っています。<br />
+          まだ余白もありますが、ゆっくりと積もり始めているタイミングと言えそうです。
+        </p>
+      </section>
+
+      <!-- DTR解放ゾーン -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">DTR</div>
+            <div class="card-title">観測レポート</div>
+            <div class="card-sub">たまったログから、期間ごとの振り返りをつくれます。</div>
+          </div>
+        </div>
+        <div class="dtr-list">
+          <div class="dtr-card-row">
+            <div class="dtr-icon-circle">W</div>
+            <div class="dtr-main">
+              <div class="dtr-title">週次ライトDTR</div>
+              <div class="dtr-desc">直近7日ぶんの心ログから、「この1週間」の空気感を一言でまとめます。</div>
+              <div class="dtr-status-row">
+                <span class="status-chip">利用可能</span>
+                <span class="status-note">タップして、この週のDTRを生成</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dtr-card-row">
+            <div class="dtr-icon-circle">M</div>
+            <div class="dtr-main">
+              <div class="dtr-title">月間DTR</div>
+              <div class="dtr-desc">直近30日ぶんの心ログから、この1ヶ月の振り返りレポートをつくります。</div>
+              <div class="dtr-status-row">
+                <span class="status-chip cooldown">あと5日で利用可能</span>
+                <span class="status-note">前回のDTRからクールタイム中です</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dtr-card-row">
+            <div class="dtr-icon-circle">3M</div>
+            <div class="dtr-main">
+              <div class="dtr-title">3ヶ月DTR</div>
+              <div class="dtr-desc">直近90日ぶんの心ログから、最近の変化の流れを静かに整理します。</div>
+              <div class="dtr-status-row">
+                <span class="status-chip locked">あと12日分のログ</span>
+                <span class="status-note">もう少し積もると、このDTRが作成できます</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- テーマ円グラフ -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">INSIGHT</div>
+            <div class="card-title">この1ヶ月、よく出てきたテーマ</div>
+            <div class="card-sub">カテゴリごとの割合を、やわらかく可視化します。</div>
+          </div>
+        </div>
+        <div class="insight-row">
+          <div class="donut">
+            <div class="donut-center-label">
+              <div class="donut-center-main">恋愛 / 自分自身</div>
+              <div>が少し多めの1ヶ月</div>
+            </div>
+          </div>
+          <div class="insight-text">
+            最近1ヶ月の観測では、
+            <strong>「自分自身」</strong> と <strong>「恋愛」</strong> に関する話題がやや多めになっています。<br />
+            とはいえ、仕事や将来のことも穏やかに混ざっていて、
+            「ひとつのテーマだけ」に偏りすぎてはいない印象です。
+          </div>
+        </div>
+        <div class="chip-row">
+          <span class="chip">恋愛 30%</span>
+          <span class="chip">自分自身 25%</span>
+          <span class="chip">仕事 20%</span>
+          <span class="chip">人間関係 15%</span>
+          <span class="chip">将来 10%</span>
+        </div>
+      </section>
+
+      <!-- キーワード -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div>
+            <div class="section-label">KEYWORDS</div>
+            <div class="card-title">よく出てきたキーワード</div>
+            <div class="card-sub">AIが、心のメモから拾った言葉たちです。</div>
+          </div>
+        </div>
+        <div class="chip-row">
+          <span class="chip">#環境を変えたい</span>
+          <span class="chip">#自信</span>
+          <span class="chip">#新しい出会い</span>
+          <span class="chip">#疲れをためたくない</span>
+        </div>
+        <p class="text-subtle" style="margin-top:6px;">
+          タップすると、そのテーマを入り口にAIチャットを始められます。（実装時に連携）
+        </p>
+      </section>
+
+      <!-- 自分へのメモ -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div>
+            <div class="section-label">MEMO</div>
+            <div class="card-title">この1週間の自分にひと言</div>
+            <div class="card-sub">あとから読み返したいメモがあれば、ここだけに残せます。</div>
+          </div>
+        </div>
+        <textarea class="memo-area" placeholder="例）最近いちばん気になっていることや、ふと気づいたことなど。"></textarea>
+        <div class="memo-footer">
+          <span class="text-subtle">メモは心の記録として保存され、DTRの参考にもなります。</span>
+          <button class="button-ghost" type="button">メモを保存</button>
+        </div>
+      </section>
+
+      <!-- AIチャットCTA -->
+      <section class="cta-bottom">
+        <button class="button-primary" type="button">
+          この90日のことをAIと一緒に振り返る
+        </button>
+      </section>
+    </main>
+
+    <!-- ボトムナビ -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <div class="nav-item active">
+          <span>🏠</span>
+          ホーム
+        </div>
+        <div class="nav-item">
+          <span>🃏</span>
+          タロット
+        </div>
+        <div class="nav-item">
+          <span>💬</span>
+          AIチャット
+        </div>
+        <div class="nav-item">
+          <span>📜</span>
+          プレミアム鑑定
+        </div>
+        <div class="nav-item">
+          <span>👤</span>
+          マイページ
+        </div>
+      </div>
+    </nav>
+  </div>
+</body>
+</html>

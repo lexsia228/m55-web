@@ -1,0 +1,13 @@
+/*
+ * public/legacy/css/m55_global.css
+ * FROZEN ASSET: exists solely to satisfy legacy HTML references.
+ * Layer0: Background NoTouch — NEVER set html/body background here.
+ */
+
+/* Minimal reset (safe, non-invasive) */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+img, svg { display: block; max-width: 100%; }
+button, input, textarea, select { font: inherit; }
+
+/* Intentionally NO background declarations. */

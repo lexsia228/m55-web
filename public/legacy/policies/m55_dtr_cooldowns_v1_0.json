@@ -1,0 +1,33 @@
+{
+  "version": "v1.0",
+  "freeze_date_jst": "2026-01-31",
+  "period_keys": {
+    "weekly": "ISO-8601 week (YYYY-'W'ww with week-year), boundary: Monday 00:00 user TZ",
+    "monthly": "YYYY-MM in user TZ (calendar month)"
+  },
+  "generation_limits": {
+    "dynamic_weekly": {
+      "max_per_period": 1,
+      "period": "weekly"
+    },
+    "dynamic_monthly": {
+      "max_per_period": 1,
+      "period": "monthly"
+    },
+    "premium_monthly_grant": {
+      "max_per_period": 1,
+      "period": "monthly",
+      "requires_active_subscription": "premium"
+    },
+    "tarot_draw": {
+      "max_per_day_by_plan": "see entitlements.plans.*.tarot_draws_per_day"
+    },
+    "ai_chat_send": {
+      "max_per_day_by_plan": "see entitlements.plans.*.ai_chat_send_per_day"
+    }
+  },
+  "notes": [
+    "同一period_key内で再生成/再付与は禁止（冪等）。",
+    "expires_atを超えたキャッシュは採用しない（now < expires_at のみヒット）。"
+  ]
+}

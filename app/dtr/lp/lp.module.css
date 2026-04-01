@@ -1,0 +1,79 @@
+/* DTR Core Static V1 LP */
+
+.page {
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  background: rgba(250, 246, 255, 0.98);
+  color: #2f2640;
+}
+
+.inner {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.desc {
+  font-size: 0.875rem;
+  color: #6b5b8a;
+  margin: 0 0 24px;
+}
+
+.price {
+  margin-bottom: 24px;
+}
+
+.priceLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b5b8a;
+  margin-bottom: 4px;
+}
+
+.priceValue {
+  font-size: 1rem;
+  color: #2f2640;
+}
+
+.actions {
+  margin-bottom: 24px;
+}
+
+.btn {
+  min-width: 200px;
+  min-height: 44px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: #fff;
+  background: #4a3d6b;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.95;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.legal {
+  font-size: 0.75rem;
+  color: #6b5b8a;
+}
+
+.legal a {
+  color: #4a3d6b;
+  text-decoration: underline;
+}

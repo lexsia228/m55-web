@@ -1,0 +1,21 @@
+{
+  "contractVersion": "io-v1.0",
+  "engineVersion": "logic-v1.0.0",
+  "contextScope": "today",
+  "generatedAt": "2026-03-23T12:00:00.000Z",
+  "seedFingerprint": "sha256:c3539d268fab50862eeb9432015e140c5513d732b23a8e11649e8fb31a06e779",
+  "freeVisible": true,
+  "dtrExpandable": true,
+  "payload": {
+    "heading": "今日の見方",
+    "summaryShort": "今日のヒント：朝の数分、静かに呼吸を感じる時間を。明日の接点も準備されています。",
+    "focus": "今日のヒント：朝の数分、静かに呼吸を感じる時間を。明日の接点も準備されています。",
+    "step": "一歩のヒント：今日感じたことを一言メモするだけでも、観測の蓄積になります。",
+    "bridgeToTomorrow": "明日も流れを確認できます。",
+    "rawSignals": [
+      "signal.step_first"
+    ],
+    "freeVisible": true,
+    "dtrExpandable": true
+  }
+}

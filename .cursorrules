@@ -1,0 +1,80 @@
+You are implementing M55 under strict SSOT constraints.
+
+ABSOLUTE RULES (NON-NEGOTIABLE):
+1) Background NoTouch:
+   - NEVER modify html/body background, global gradients, or page-wide background visuals.
+   - All visual styling must stay inside components/cards/surfaces.
+
+2) No Notifications:
+   - NEVER add bell icons, badges, unread markers, red dots, counters, notification UI, or wording implying notifications.
+
+3) No Ranking / No Scores / No Percent:
+   - NEVER render scores, %, gauges, rankings, "おすすめ/人気/最適/成功" style optimization language.
+   - If a numeric UI is present, only "Days Recorded" is allowed (no %).
+
+4) No Infinite Motion:
+   - NEVER apply infinite/loop animations.
+   - Reduce Motion must disable transitions/animations.
+
+5) A-plan Routing:
+   - Only Home / AI Chat / MyPage are navigable.
+   - Tarot and DTR must be quiet-disabled (opacity 0.30 + pointer-events none).
+   - No dead-end navigation, no error pages.
+
+6) File Discipline:
+   - Do not edit frozen SSOT artifacts.
+   - Keep changes minimal and explain each change briefly.
+
+OUTPUT REQUIREMENT:
+- Provide a short report: files changed + why + key diffs.
+- If you add JS/CSS, ensure it does not introduce banned words: badge, unread, notification, notif, infinite, spinner.
+
+# M55 Prototype Gate SSOT (2026-03-05)
+This repo contains a path-isolated prototype hub under `/prototype` that MUST NOT affect Stripe-review public pages.
+
+Non-negotiable SSOT invariants:
+- Do not modify public pages (`/`, `/dtr/lp`, `/support`, `/legal/*`) when working on prototype isolation.
+- URL-based context injection is forbidden. Prototype access is header-based only (`x-m55-proto`).
+- Fail-Closed: env missing or mismatch → always deny via `302 Location: /`.
+- No secrets in logs, commits, or chat: never paste tokens/keys; only share lengths and HTTP status codes.
+
+Three-gate mental model (fast triage):
+- Gate A: Vercel Deployment Protection (outer gate)
+  - `401 Unauthorized` + Vercel auth/SSO HTML means the app/middleware never ran.
+- Gate B: M55 Middleware (inner gate)
+  - `/prototype` matcher only. Checks `process.env.M55_PROTO_TOKEN` vs `req.headers.get("x-m55-proto")`.
+  - Deny is always `302 -> /` (Fail-Closed).
+- Gate C: Next.js Route Inclusion (build-time)
+  - `404` + `X-Matched-Path: /404` often means `/prototype` route is missing from the deployed build (app root mismatch like `app/` vs `src/app/`, or wrong deployment).
+
+Operational rules:
+- PowerShell commands must be single-line, one command per line (no multiline/backticks).
+- When debugging, prioritize status-code meaning (401 vs 404 vs 302 vs 200) before changing code.
+- Env changes require redeploy: adding `M55_PROTO_TOKEN` in Vercel does not affect already-built artifacts.
+
+Canonical runbook:
+- docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md
+
+# M55 Docs Index (2026-03-05)
+参照先（SSOT 優先順位に従う）:
+- docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md — 隔離 Hub 正史・最上位
+- docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md — 運用 directive
+- docs/audit/sources/ingest_2026-03-05/INDEX.md — トピック索引（Prototype / Phase2 / Review 後 UI）
+- docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md — 審査通過後の UI 段階移行
+- docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md — Phase2 統合憲法（補完）
+
+SSOT 優先順位ルール（2026-03-05）:
+- 2026-03-05 Prototype Gate Postmortem が最上位。古い資料は上書き禁止。
+- 矛盾する古い指示は docs/audit/sources/ に参考として収録し、差分は History/Appendix 扱いでのみ追記する。
+
+## M55 JP Revenue Acceleration (SSOT)
+- Source of truth:
+  - docs/ssot/M55_WEB_JP_REVENUE_ACCELERATION_SSOT_v1_2026-03-06.md
+  - docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md
+- Hard constraints:
+  - Do NOT edit storefront pages: /, /dtr/lp, /support, /legal/* (frozen).
+  - /prototype is header-gated (no URL injection). Match /prototype/:path*.
+  - Entitlements are DB-SSOT. On error/missing/expired => Silent Free (no pressure).
+  - /api/me/entitlements must be non-cacheable (private/no-store) and dynamic.
+  - Stripe webhook: Node runtime, signature verify, idempotent by event_id, no secrets in logs.
+  - Forbidden terms must not appear in any public HTML (and keep isolated UI safe too).

@@ -1,0 +1,15 @@
+{
+  "version": "v1.0",
+  "freeze_date_jst": "2026-01-31",
+  "logs": {
+    "free_days": 7,
+    "standard_days": 30,
+    "premium_days": 90,
+    "rule": "読み取り時に now < expires_at のみ可視。期限超過は『静かに眠っています』等の静かな表現。"
+  },
+  "dtr": {
+    "static_permanent": true,
+    "personal_permanent": true,
+    "dynamic_time_limited": true
+  }
+}

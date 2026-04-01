@@ -1,0 +1,61 @@
+/* 特定商取引法に基づく表記ページ */
+
+.page {
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  background: rgba(250, 246, 255, 0.98);
+  color: #2f2640;
+  font-family: inherit;
+}
+
+.inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 24px;
+  color: #2f2640;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #4a3d6b;
+  border-bottom: 1px solid rgba(60, 35, 110, 0.15);
+  padding-bottom: 4px;
+}
+
+.dl {
+  margin: 0;
+}
+
+.dt {
+  font-size: 0.75rem;
+  color: #6b5b8a;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+
+.dd {
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.back {
+  margin-top: 32px;
+  font-size: 0.875rem;
+}
+
+.back a {
+  color: #4a3d6b;
+  text-decoration: underline;
+}

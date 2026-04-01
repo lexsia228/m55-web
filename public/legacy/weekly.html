@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>M55 週間ページ プレビュー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* 共通スタイル（Todayとほぼ同じ） */
+    :root {
+      --bg-start: #f7f5ff;
+      --bg-end: #ffffff;
+      --accent: #b19cff;
+      --accent-soft: rgba(177, 156, 255, 0.18);
+      --text-main: #2c233a;
+      --text-sub: #6b667a;
+      --border-glass: rgba(255, 255, 255, 0.8);
+      --card-bg-hero: rgba(255, 255, 255, 0.9);
+      --card-bg-standard: rgba(255, 255, 255, 0.85);
+      --card-bg-shelf: rgba(255, 255, 255, 0.7);
+      --shadow-hero: 0 18px 40px rgba(29, 24, 61, 0.18);
+      --shadow-standard: 0 10px 24px rgba(29, 24, 61, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top, var(--bg-start), var(--bg-end));
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 12px 12px 80px;
+      position: relative;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px 12px;
+    }
+
+    .app-header-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .app-header-sub {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    .app-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(29, 24, 61, 0.12);
+      font-size: 15px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .card-hero {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 255, 0.98));
+      box-shadow: var(--shadow-hero);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(204, 190, 255, 0.55), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-standard {
+      background: var(--card-bg-standard);
+      box-shadow: var(--shadow-standard);
+    }
+
+    .card-shelf {
+      background: var(--card-bg-shelf);
+      border-style: solid;
+      border-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 6px 16px rgba(29, 24, 61, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .text-main {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .text-subtle {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .week-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .day-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      align-items: center;
+    }
+
+    .day-row-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+      min-width: 70px;
+    }
+
+    .day-date {
+      font-weight: 500;
+    }
+
+    .day-week {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .day-row-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .day-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(247, 245, 255, 0.9);
+    }
+
+    .day-note {
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .day-now {
+      border: 1px solid rgba(177, 156, 255, 0.8);
+      box-shadow: 0 0 0 1px rgba(177, 156, 255, 0.25);
+    }
+
+    .button-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      border: 1px solid rgba(177, 156, 255, 0.55);
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .button-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #c3b5ff, #9aa3ff);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(82, 71, 163, 0.3);
+    }
+
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .week-nav button {
+      flex: 1;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 6px 8px 10px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(to top, rgba(247, 245, 255, 0.96), rgba(247, 245, 255, 0.8));
+      border-top: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .bottom-nav-inner {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    .bottom-nav-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .bottom-nav-item.is-active .bottom-nav-icon {
+      background: linear-gradient(135deg, #c3b5ff, #9aa3ff);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(82, 71, 163, 0.35);
+    }
+
+    .bottom-nav-item.is-active span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+/* === M55 SSOT Compliance Override (AUTO) ===
+   - No DOM structure changes.
+   - Disable full-screen pseudo backgrounds.
+   - No notification/badge UI.
+   - No infinite animations; Reduce Motion => no animations/transitions.
+*/
+html, body { background: transparent !important; }
+body::before, body::after, html::before, html::after {
+  content: none !important;
+  background-image: none !important;
+  animation: none !important;
+}
+.notification-btn, .badge, .notification, .bell, .unread { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* === END OVERRIDE === */
+
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header-left">
+        <div class="app-header-sub">2025年12月1日〜7日</div>
+        <div class="app-header-title">今週</div>
+      </div>
+      <div class="app-header-right">
+        <div class="icon-circle">☰</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- 今週の観測メモ -->
+      <section class="card card-hero">
+        <div class="card-hero-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">今週の観測メモ</div>
+              <div class="card-sub">この1週間の、心の流れのまとめ</div>
+            </div>
+            <div class="pill">
+              <span class="pill-dot"></span>
+              <span>静かに整える週</span>
+            </div>
+          </div>
+          <p class="text-main">
+            今週は「整える」ことがテーマになりやすい流れです。<br />
+            大きく動くというよりも、日々の生活や人間関係の中で「これは続けたい」「これはそろそろ
+            手放してもいいかも」という感覚が生まれやすいタイミング。<br />
+            無理に結論を出さなくても、心の中での「整理」が少しずつ進んでいきそうです。
+          </p>
+        </div>
+      </section>
+
+      <!-- 7日分のミニカード -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div class="card-title">この週の7日間</div>
+          <span class="card-sub">その日の波と、よく出てきたテーマ</span>
+        </div>
+        <div class="week-list">
+          <!-- 例：月曜 -->
+          <div class="day-row day-now">
+            <div class="day-row-left">
+              <div class="day-date">12/1</div>
+              <div class="day-week">月</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#自分自身</span>
+                <span class="tag">#整える</span>
+              </div>
+              <div class="day-note">
+                今日は「自分のペース」を思い出すような気づきがありそうな日。
+              </div>
+            </div>
+          </div>
+
+          <!-- 火 -->
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/2</div>
+              <div class="day-week">火</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#仕事</span>
+              </div>
+              <div class="day-note">
+                小さなタスクを片付けるほど、心も軽くなりやすいタイミング。
+              </div>
+            </div>
+          </div>
+
+          <!-- 水 -->
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/3</div>
+              <div class="day-week">水</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#人間関係</span>
+                <span class="tag">#出会い</span>
+              </div>
+              <div class="day-note">
+                いつもと少し違う会話の中に、新しいヒントが紛れ込んでいそうな日。
+              </div>
+            </div>
+          </div>
+
+          <!-- 木〜日も同様にダミー -->
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/4</div>
+              <div class="day-week">木</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#自分時間</span>
+              </div>
+              <div class="day-note">
+                ひとりの時間が、頭と心を整えるための小さな充電になりそうです。
+              </div>
+            </div>
+          </div>
+
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/5</div>
+              <div class="day-week">金</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#恋愛</span>
+              </div>
+              <div class="day-note">
+                「連絡するか迷っていた相手」に一言送ると、ささやかな変化が起きるかも。
+              </div>
+            </div>
+          </div>
+
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/6</div>
+              <div class="day-week">土</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#リラックス</span>
+              </div>
+              <div class="day-note">
+                何もしない時間が、むしろ心に余白をつくってくれるタイミング。
+              </div>
+            </div>
+          </div>
+
+          <div class="day-row">
+            <div class="day-row-left">
+              <div class="day-date">12/7</div>
+              <div class="day-week">日</div>
+            </div>
+            <div class="day-row-main">
+              <div class="day-tags">
+                <span class="tag">#振り返り</span>
+              </div>
+              <div class="day-note">
+                この1週間を静かに振り返ると、「続けたい小さな習慣」が見えてきそうです。
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 週次ライトDTR -->
+      <section class="card card-standard">
+        <div class="card-header">
+          <div>
+            <div class="card-title">この週のライトDTR</div>
+            <div class="card-sub">直近7日ぶんの心ログからの短いレポート</div>
+          </div>
+        </div>
+        <p class="text-main">
+          この1週間は、「大きく進む」というよりも、これからの自分にとって
+          ちょうどよいペースを探るような時間になりやすかったようです。<br />
+          もし少しモヤモヤする日があっても、それは「ここを変えていきたい」という
+          小さなサイン。今すぐ動けなくても、気づけたこと自体が、もう一歩前なのかもしれません。
+        </p>
+        <button class="button-ghost" type="button">レポートを開く</button>
+      </section>
+
+      <!-- 週ナビ -->
+      <section class="card card-shelf">
+        <div class="card-header">
+          <div class="card-title">週を切り替える</div>
+          <span class="card-sub">保存期間内の週だけ、さかのぼって見られます</span>
+        </div>
+        <div class="week-nav">
+          <button class="button-ghost" type="button">前の週</button>
+          <button class="button-ghost" type="button">次の週</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 下部ナビ（ダミー） -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">🏠</div>
+        <span>ホーム</span>
+      </div>
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">☀️</div>
+        <span>今日</span>
+      </div>
+      <div class="bottom-nav-item is-active">
+        <div class="bottom-nav-icon">📅</div>
+        <span>週間</span>
+      </div>
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">✨</div>
+        <span>AIカレンダー</span>
+      </div>
+      <div class="bottom-nav-item">
+        <div class="bottom-nav-icon">⭐</div>
+        <span>マイページ</span>
+      </div>
+    </div>
+  </nav>
+</body>
+</html>

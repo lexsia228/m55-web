@@ -1,0 +1,22 @@
+{
+  "layer": "Layer3",
+  "title": "DTR Core Static V1",
+  "teaserHeadlines": [
+    {
+      "id": "grp-a-t",
+      "title": "魂の原石（入口）",
+      "summary": "あなたらしさの核"
+    },
+    {
+      "id": "grp-b-t",
+      "title": "才能の変換機（入口）",
+      "summary": "出力の整え方"
+    },
+    {
+      "id": "grp-c-t",
+      "title": "航路（入口）",
+      "summary": "今後の見方"
+    }
+  ],
+  "calmLpCopy": "無料表示よりも詳しく読むための深掘りレポート。AI相談は内容の整理を補助します。"
+}

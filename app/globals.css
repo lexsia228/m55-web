@@ -1,0 +1,6 @@
+/*
+ * M55 Next.js shell CSS
+ * IMPORTANT: Do NOT style html/body canvas here (NoTouch).
+ */
+html, body { margin: 0; padding: 0; }
+* { box-sizing: border-box; }

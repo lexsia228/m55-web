@@ -1,0 +1,101 @@
+# Local backup artifacts
+*.bak
+*.wip.bak
+*.wip
+
+# ---- dependencies / build ----
+node_modules/
+.next/
+out/
+dist/
+coverage/
+tsconfig.tsbuildinfo
+
+# ---- env (NEVER COMMIT) ----
+.env.local
+.env.*.local
+
+# ---- logs / audits / temp ----
+*.log
+*.tsv
+*.csv
+*.txt
+
+# ---- our generated audit artifacts (prefix) ----
+_audit_*
+_moji_*
+_mojibake_*
+_patch_*
+_repair_*
+_ufd_*
+_unjibake_*
+
+# ---- backups ----
+*.bak
+*.bak_*
+*.wip.bak
+*.bak_*.bak_*
+
+# ---- platform ----
+.DS_Store
+Thumbs.db# === local secrets ===
+# === next build outputs ===
+# === deps ===
+# === generated native wrappers (do not commit in Phase6) ===
+android/
+ios/
+fastlane/
+# === local patch backups / audits ===
+docs/archive/patch_baks/
+_audit_*.tsv
+_audit_*.csv
+_audit_*.txt
+_moji_*.log
+_mojibake_*.log
+_patch_*.log
+_repair_*.log
+_unjibake*.log
+# Local secrets
+.env.local
+
+# Tool outputs / audit logs (repo root)
+_audit_*.tsv
+_audit_*.csv
+_audit_*.txt
+_moji_*.log
+_mojibake_*.log
+_patch_*.log
+_repair_*.log
+_ufd_*.log
+_unjibake*.log
+
+# Backups created by scripts/editors
+*.wip.bak
+*.bak
+*.bak_*
+*.tsbuildinfo
+
+# Build outputs
+.next/
+out/
+node_modules/
+
+# Platform build dirs (if not tracked)
+android/
+ios/
+fastlane/
+
+# Patch backups archive (local-only)
+docs/archive/patch_baks/
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+# local backups
+*.bundle
+projectA_backup_*
+
+# ZIP commit prevention (m55-web)
+docs/archive/zips/*.zip
+docs/archive/zips/**/*.zip
+
