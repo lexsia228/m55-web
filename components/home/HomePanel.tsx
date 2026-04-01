@@ -16,8 +16,9 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ProfileRepository, type BirthProfile } from '../../lib/soul/profile';
+import { useEffect, useMemo, useState } from 'react';
+import { ProfileRepository } from '../../lib/soul/profile';
+import HomeBirthIntakeLayer from './HomeBirthIntakeLayer';
 import { essenceStemLaneIndex, runEssenceEngine } from '../../lib/m55/essenceEngine';
 import { runTodayEngine } from '../../lib/m55/todayEngine';
 import { runWeeklyEngine } from '../../lib/m55/weeklyEngine';
@@ -152,12 +153,7 @@ export default function HomePanel() {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
-  const railId = useId();
-  const railNickId = `${railId}-nick`;
-  const railBirthId = `${railId}-birth`;
-  const railBirthRef = useRef<HTMLInputElement>(null);
-  const [railNickname, setRailNickname] = useState('');
-  const [railBirthDate, setRailBirthDate] = useState('');
+  const [birthIntakeOpen, setBirthIntakeOpen] = useState(false);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
@@ -214,37 +210,6 @@ export default function HomePanel() {
 
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
-  useEffect(() => {
-    if (!isLoaded || view.kind !== 'no_profile') return;
-    const h = nicknameHint;
-    if (h) setRailNickname((n) => (n.trim() ? n : h));
-  }, [isLoaded, view.kind, nicknameHint]);
-
-  const railCanSubmit = railNickname.trim().length > 0 && railBirthDate.trim().length > 0;
-
-  const activateRailBirthPicker = () => {
-    const el = railBirthRef.current;
-    if (!el) return;
-    if (typeof el.showPicker === 'function') {
-      try {
-        el.showPicker();
-        return;
-      } catch {
-        /* fall through */
-      }
-    }
-    el.focus();
-  };
-
-  const saveRailProfile = () => {
-    const nick = railNickname.trim();
-    const bday = railBirthDate.trim();
-    if (!nick || !bday) return;
-    const profile: BirthProfile = { nickname: nick, birthDate: bday };
-    ProfileRepository.save(ownerId, profile);
-    window.dispatchEvent(new Event('m55:profile_updated'));
-  };
-
   return (
     <div className={styles.wrap}>
 
@@ -265,49 +230,12 @@ export default function HomePanel() {
         </div>
 
         {isLoaded && view.kind === 'no_profile' && (
-          <div className={styles.inlineIntakeRail} data-testid="m55-home-inline-intake">
-            <div className={styles.inlineIntakeFields}>
-              <label htmlFor={railNickId} className={styles.inlineIntakeField}>
-                <span className={styles.inlineIntakeLabel}>ニックネーム</span>
-                <input
-                  id={railNickId}
-                  type="text"
-                  name="nickname"
-                  autoComplete="nickname"
-                  value={railNickname}
-                  onChange={(e) => setRailNickname(e.target.value)}
-                  className={styles.inlineIntakeInput}
-                  placeholder="表示名"
-                />
-              </label>
-              <label
-                htmlFor={railBirthId}
-                className={styles.inlineIntakeField}
-                onClick={(e) => {
-                  if (e.target === railBirthRef.current) return;
-                  activateRailBirthPicker();
-                }}
-              >
-                <span className={styles.inlineIntakeLabel}>生年月日</span>
-                <input
-                  ref={railBirthRef}
-                  id={railBirthId}
-                  type="date"
-                  name="bday"
-                  autoComplete="bday"
-                  value={railBirthDate}
-                  onChange={(e) => setRailBirthDate(e.target.value)}
-                  className={styles.inlineIntakeDate}
-                  max={todayIso()}
-                />
-              </label>
-            </div>
+          <div className={styles.inlineIntakeRail}>
             <button
               type="button"
               className={styles.inlineIntakeCta}
-              data-testid="m55-home-inline-intake-submit"
-              disabled={!railCanSubmit}
-              onClick={saveRailProfile}
+              data-testid="m55-home-open-birth-intake"
+              onClick={() => setBirthIntakeOpen(true)}
             >
               無料で読み取りを始める
             </button>
@@ -579,6 +507,14 @@ export default function HomePanel() {
       {/* ═══════════════════════════════════════════════════════════════════
           FOLD 6: TRUST FOOTER (always visible)
           ═══════════════════════════════════════════════════════════════════ */}
+      <HomeBirthIntakeLayer
+        open={birthIntakeOpen}
+        ownerId={ownerId}
+        nicknameHint={nicknameHint}
+        onClose={() => setBirthIntakeOpen(false)}
+        onSaved={() => {}}
+      />
+
       <footer className={styles.trustFooter}>
         <div className={styles.legalLinks}>
           <Link href="/support" className={styles.legalLink}>サポート</Link>
