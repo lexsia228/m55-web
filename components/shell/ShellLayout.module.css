@@ -57,21 +57,26 @@
   outline-offset: 2px;
 }
 
-/* Mirrors tab active indicator — subtle, no size bump */
-.brandLockupHome {
-  box-shadow: inset 0 -2px 0 #7c6fd6;
-}
-
 .brandMark {
   display: block;
   flex-shrink: 0;
 }
 
+/* Active indicator on text label only — never on logo mark (HEADER_VISUAL_FREEZE_v1) */
 .brandWordmark {
+  display: inline-block;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-main, #2f2640);
+  line-height: 1.2;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+.brandWordmarkActive {
+  border-bottom-color: #7c6fd6;
 }
 
 @media (prefers-reduced-transparency: reduce) {

@@ -16,7 +16,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import HomeBirthIntakeLayer from './HomeBirthIntakeLayer';
 import { essenceStemLaneIndex, runEssenceEngine } from '../../lib/m55/essenceEngine';
@@ -147,6 +147,133 @@ function todayIso(): string {
 /** Public showcase lane index (甲) — illustrative weights only, not a user result */
 const PUBLIC_SHOWCASE_LANE = 0;
 
+/**
+ * Hero Main Visual: quiet layered booklet abstraction — stacked translucent sheets,
+ * central protagonist plane, soft light enclosure. No text, icons, or labels.
+ */
+function PosterMainVisualDiagram() {
+  const u = useId().replace(/:/g, '');
+  const g = {
+    amb: `m55-bk-amb-${u}`,
+    halo: `m55-bk-halo-${u}`,
+    rim: `m55-bk-rim-${u}`,
+    mg: `m55-bk-mg-${u}`,
+    tq: `m55-bk-tq-${u}`,
+  };
+  const cx = 160;
+  const cy = 90;
+  return (
+    <svg
+      className={styles.posterDiagramSvg}
+      viewBox="0 0 320 180"
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden
+    >
+      <defs>
+        <radialGradient id={g.amb} cx="50%" cy="48%" r="68%">
+          <stop offset="0%" stopColor="rgba(252, 249, 255, 0.88)" />
+          <stop offset="55%" stopColor="rgba(236, 230, 248, 0.38)" />
+          <stop offset="100%" stopColor="rgba(210, 200, 234, 0.09)" />
+        </radialGradient>
+        <radialGradient id={g.halo} cx="50%" cy="50%" r="48%">
+          <stop offset="0%" stopColor="rgba(124, 111, 214, 0.11)" />
+          <stop offset="72%" stopColor="rgba(124, 111, 214, 0)" />
+        </radialGradient>
+        <radialGradient id={g.rim} cx="50%" cy="50%" r="50%">
+          <stop offset="78%" stopColor="rgba(255, 255, 255, 0)" />
+          <stop offset="100%" stopColor="rgba(177, 156, 255, 0.14)" />
+        </radialGradient>
+        <radialGradient id={g.mg} cx="96%" cy="8%" r="24%">
+          <stop offset="0%" stopColor="rgba(188, 96, 168, 0.065)" />
+          <stop offset="100%" stopColor="rgba(188, 96, 168, 0)" />
+        </radialGradient>
+        <radialGradient id={g.tq} cx="4%" cy="92%" r="22%">
+          <stop offset="0%" stopColor="rgba(64, 168, 176, 0.055)" />
+          <stop offset="100%" stopColor="rgba(64, 168, 176, 0)" />
+        </radialGradient>
+      </defs>
+
+      <rect width="320" height="180" fill={`url(#${g.amb})`} />
+      <rect width="320" height="180" fill={`url(#${g.halo})`} />
+      <rect width="320" height="180" fill={`url(#${g.rim})`} />
+      <rect width="320" height="180" fill={`url(#${g.mg})`} />
+      <rect width="320" height="180" fill={`url(#${g.tq})`} />
+
+      {/* 5 stacked sheets — back → front, offset + rotation like a closed booklet */}
+      <g transform={`rotate(-5.2 ${cx} ${cy})`}>
+        <rect
+          x={cx - 62}
+          y={cy - 48}
+          width={124}
+          height={96}
+          rx={11}
+          fill="rgba(208, 198, 232, 0.22)"
+          stroke="rgba(177, 156, 255, 0.16)"
+          strokeWidth="0.75"
+        />
+      </g>
+      <g transform={`rotate(-3.6 ${cx} ${cy})`}>
+        <rect
+          x={cx - 59}
+          y={cy - 46}
+          width={118}
+          height={92}
+          rx={10}
+          fill="rgba(220, 212, 242, 0.3)"
+          stroke="rgba(177, 156, 255, 0.18)"
+          strokeWidth="0.7"
+        />
+      </g>
+      <g transform={`rotate(-2.1 ${cx} ${cy})`}>
+        <rect
+          x={cx - 56}
+          y={cy - 44}
+          width={112}
+          height={88}
+          rx={9}
+          fill="rgba(232, 226, 250, 0.4)"
+          stroke="rgba(160, 148, 220, 0.2)"
+          strokeWidth="0.65"
+        />
+      </g>
+      <g transform={`rotate(-0.7 ${cx} ${cy})`}>
+        <rect
+          x={cx - 53}
+          y={cy - 42}
+          width={106}
+          height={84}
+          rx={9}
+          fill="rgba(242, 238, 255, 0.52)"
+          stroke="rgba(124, 111, 214, 0.18)"
+          strokeWidth="0.65"
+        />
+      </g>
+      {/* Protagonist face — brightest sheet */}
+      <rect
+        x={cx - 50}
+        y={cy - 40}
+        width={100}
+        height={80}
+        rx={8}
+        fill="rgba(255, 255, 255, 0.78)"
+        stroke="rgba(124, 111, 214, 0.22)"
+        strokeWidth="0.85"
+      />
+      <rect
+        x={cx - 46}
+        y={cy - 36}
+        width={92}
+        height={72}
+        rx={6}
+        fill="rgba(124, 111, 214, 0.045)"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
 export default function HomePanel() {
@@ -217,40 +344,46 @@ export default function HomePanel() {
           FOLD 1: HERO + SITE STRIP (intake: /my only)
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.heroSection} data-testid="m55-home-hero">
-
-        <div className={styles.heroText}>
-          <p className={styles.heroEyebrow}>自己観測レポート</p>
-          <h1 className={styles.heroTitle}>今の自分を、整理し直す。</h1>
-          <p className={styles.heroDesc}>
-            生年月日を手がかりに、10通りの資質と5つの解析軸から、今の見え方と出やすい傾向を整理します。
-          </p>
-          <p className={styles.heroSupport}>
-            無料では見取り図を、Entry Report では理由と重なり方まで読めます。
-          </p>
-        </div>
-
-        {isLoaded && view.kind === 'no_profile' && (
-          <div className={styles.inlineIntakeRail}>
-            <button
-              type="button"
-              className={styles.inlineIntakeCta}
-              data-testid="m55-home-open-birth-intake"
-              onClick={() => setBirthIntakeOpen(true)}
-            >
-              無料で読み取りを始める
-            </button>
+        <div className={styles.posterStack}>
+          <div
+            className={styles.posterMainVisual}
+            data-testid="m55-home-poster-main-visual"
+            aria-label="M55 メインビジュアル（プレースホルダー）"
+          >
+            <div className={styles.posterMainVisualInner} aria-hidden>
+              <PosterMainVisualDiagram />
+            </div>
           </div>
-        )}
 
-        {/* Explanatory strip — what this site is / what becomes visible */}
-        <div className={styles.siteStrip}>
-          <p className={styles.siteStripLine1}>まずは仕組みを理解し、プロフィール保存後に個人の見取り図が開きます。</p>
-          <p className={styles.siteStripLine2}>無料では本質・今日・今週と、5つの解析軸のバランスが読めます。</p>
-          <p className={styles.siteStripLine3}>
-            同じ入力を同じルールで読み解く、自己観測のための整理ツールです。
-          </p>
+          <div className={styles.posterTitleLockup}>
+            <p className={styles.posterTitleSmall}>アルゴリズムでわかる</p>
+            <p className={styles.posterTitleMid}>あなたの</p>
+            <h1 className={styles.posterTitleMax}>取扱説明書</h1>
+          </div>
+
+          {isLoaded && view.kind === 'no_profile' && (
+            <p className={styles.posterSupportOneLine}>保存すると、あなたの見取り図が開きます。</p>
+          )}
+
+          {isLoaded && view.kind === 'no_profile' && (
+            <div className={styles.inlineIntakeRail}>
+              <button
+                type="button"
+                className={styles.inlineIntakeCta}
+                data-testid="m55-home-open-birth-intake"
+                onClick={() => setBirthIntakeOpen(true)}
+              >
+                無料で読み取りを始める
+              </button>
+            </div>
+          )}
+
+          <ul className={styles.posterMicroGrid} aria-label="M55の特徴">
+            <li className={styles.posterMicroCard}>再現可能アルゴリズム解析</li>
+            <li className={styles.posterMicroCard}>Entry Report</li>
+            <li className={styles.posterMicroCard}>AIチャット深掘り</li>
+          </ul>
         </div>
-
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
@@ -264,22 +397,12 @@ export default function HomePanel() {
         >
           <p className={styles.understandingEyebrow}>はじめに</p>
           <h2 className={styles.understandingTitle}>M55 で何が見えるか</h2>
-          <p className={styles.understandingLead}>
-            登録前は「仕組み」と「読み方」の説明です。個人の結果はプロフィール保存後にだけ表示されます。
-          </p>
-          <ul className={styles.understandingList}>
-            <li>生年月日を手がかりに、10通りの資質と5つの解析軸から本質・今日・今週を同じ土台で整理します</li>
-            <li>無料では見取り図としての読み取りが中心です</li>
-            <li>Entry Report（¥1,000）で同じ本質を章立ての構造で深く整理できます</li>
-            <li>相談は購入したレポートに紐づく専用ルームでのみ行えます</li>
-            <li>輪郭の整理と内省の補助を目的とした読み取りです</li>
-          </ul>
           <div className={styles.supportCtaGroup} role="navigation" aria-label="理解を深める">
             <Link href="/how-m55-works" className={styles.supportCtaCard}>
               <span className={styles.supportCtaInner}>
                 <span className={styles.supportCtaTextCol}>
                   <span className={styles.supportCtaTitle}>M55の見方を知る</span>
-                  <span className={styles.supportCtaSub}>全体の流れと、無料で見える範囲</span>
+                  <span className={styles.supportCtaSub}>流れと無料で見える範囲</span>
                 </span>
                 <span className={styles.supportCtaChevron} aria-hidden>›</span>
               </span>
@@ -288,7 +411,7 @@ export default function HomePanel() {
               <span className={styles.supportCtaInner}>
                 <span className={styles.supportCtaTextCol}>
                   <span className={styles.supportCtaTitle}>10通りの資質を知る</span>
-                  <span className={styles.supportCtaSub}>10通りの資質のラベルの意味と読み方</span>
+                  <span className={styles.supportCtaSub}>ラベルの意味と読み方</span>
                 </span>
                 <span className={styles.supportCtaChevron} aria-hidden>›</span>
               </span>
@@ -297,9 +420,7 @@ export default function HomePanel() {
 
           <div className={styles.unifiedAxisCard} data-testid="m55-home-demo-five-element">
             <p className={styles.unifiedAxisTitle}>5つの解析軸の見方</p>
-            <p className={styles.unifiedAxisIntro}>
-              C / E / S / D / L のバランスから、今の見方の傾向を整理します。下のリングは共通サンプルです。
-            </p>
+            <p className={styles.unifiedAxisIntro}>C〜L のバランスで傾向を整理（下は共通サンプル）</p>
             <div className={styles.unifiedAxisSample}>
               <div className={styles.elementInnerRow}>
                 <FiveElementRing
@@ -332,9 +453,7 @@ export default function HomePanel() {
                 </div>
               </div>
             </div>
-            <p className={styles.unifiedAxisFoot}>
-              この表示は見方のサンプルです。個人の解析結果はプロフィール保存後に表示されます。
-            </p>
+            <p className={styles.unifiedAxisFoot}>個人の結果はプロフィール保存後に表示</p>
           </div>
         </section>
       )}
@@ -383,27 +502,23 @@ export default function HomePanel() {
             >
               <p className={styles.elementLabel}>5つの解析軸</p>
 
-              <div className={styles.elementInnerRow}>
+              <div className={`${styles.elementInnerRow} ${styles.elementInnerRowObs}`}>
                 <FiveElementRing
                   weights={personal.fiveWeights}
                   primaryElemIdx={personal.elemIdx}
-                  size={72}
+                  size={86}
                 />
-                <div className={styles.legendColumn}>
+                <div className={styles.obsLegendColumn}>
                   {FIVE_ELEMENTS.map((elem, i) => {
                     const w = personal.fiveWeights[i] ?? 0;
                     return (
                       <div
                         key={elem.char}
-                        className={w >= 16 ? styles.legendRow : styles.legendRowMuted}
+                        className={w >= 16 ? styles.obsLegendRow : styles.obsLegendRowMuted}
                       >
                         <span className={styles.legendDot} style={{ background: elem.color }} />
-                        <span className={styles.legendCode} style={{ color: elem.color }}>
-                          {elem.code}
-                        </span>
-                        <span className={styles.legendAxisBlock}>
-                          <span className={styles.legendAxisEn}>{elem.axis}</span>
-                          <span className={styles.legendAxisJp}> / {elem.genre}</span>
+                        <span className={styles.obsLegendText} style={{ color: elem.color }}>
+                          {elem.code} · {elem.axis} / {elem.char}
                         </span>
                         <span className={styles.legendIntensity} aria-hidden>
                           {axisIntensityBlocks(w)}
@@ -414,8 +529,7 @@ export default function HomePanel() {
                 </div>
               </div>
 
-              <p className={styles.chartDisclaimer}>5つの解析軸のバランスを示す見取りです。</p>
-              <p className={styles.chartDisclaimerSub}>内省と意思決定の補助としてお読みください。</p>
+              <p className={styles.chartDisclaimerTight}>見取り · 内省の補助として</p>
             </div>
 
             <div className={styles.focusCard}>
@@ -428,14 +542,14 @@ export default function HomePanel() {
                 <p className={styles.shelfLabel}>今日</p>
                 <p className={styles.shelfHeading}>{personal.today.heading}</p>
                 <p className={styles.shelfSummary}>{personal.today.summaryShort}</p>
-                <p className={styles.shelfSupport}>今日の観測テーマ。/今日 で全文を読めます。</p>
+                <p className={`${styles.shelfSupport} ${styles.shelfSupportOneLine}`}>/今日 で全文</p>
                 <Link href="/today" className={styles.shelfLink}>読む →</Link>
               </section>
               <section className={styles.shelfCard} aria-label="今週の観測">
                 <p className={styles.shelfLabel}>今週</p>
                 <p className={styles.shelfHeading}>{personal.weekly.heading}</p>
                 <p className={styles.shelfKey}>{personal.weekly.weeklyKey}</p>
-                <p className={styles.shelfSupport}>今週のキーワード。/今週 で全文を読めます。</p>
+                <p className={`${styles.shelfSupport} ${styles.shelfSupportOneLine}`}>/今週 で全文</p>
                 <Link href="/weekly" className={styles.shelfLink}>読む →</Link>
               </section>
             </div>
@@ -458,28 +572,31 @@ export default function HomePanel() {
             無料面と同じ本質を、章立ての構造で深く整理した版です。
           </p>
 
-          <ul className={styles.featureList}>
-            <li className={styles.featureItem}>本質を章立てで深く読む</li>
-            <li className={styles.featureItem}>相談1回付属（購入者専用ルーム）</li>
-            <li className={styles.featureItem}>永久閲覧・物理配送なし</li>
+          <ul className={styles.featureListLoose}>
+            <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
+            <li className={styles.featureItemLoose}>相談1回付属（購入者専用ルーム）</li>
+            <li className={styles.featureItemLoose}>永久閲覧・物理配送なし</li>
           </ul>
 
-          {/* Chapter preview — 4 of 8 titles, muted + truncated (no blur) */}
+          {/* Chapter preview — chips / mini-cards (no blur) */}
           <div className={styles.chapterPreview}>
             <p className={styles.chapterPreviewLabel}>収録内容プレビュー</p>
-            <ul className={styles.chapterList}>
+            <div className={styles.chapterChipWrap}>
               {DTR_TEASER_SECTIONS.slice(0, 4).map((s) => (
-                <li key={s.id} className={styles.chapterRow}>
-                  <span className={styles.chapterDot} />
-                  <span className={styles.chapterTitle}>{s.title}</span>
-                </li>
+                <span key={s.id} className={styles.chapterChip}>
+                  {s.title}
+                </span>
               ))}
-            </ul>
+            </div>
             <p className={styles.chapterMore}>ほかにも章を収録</p>
             <p className={styles.valueGapNote}>
               無料面は見取り図です。Entry Report は同じ本質を構造化して所有する版です。
             </p>
           </div>
+
+          <p className={styles.reportAuxCard}>
+            購入者専用ルームで、レポートに沿って AI チャットにより深掘りできます。
+          </p>
 
           <Link href="/dtr/lp" className={styles.reportCta}>
             Entry Reportを見る →

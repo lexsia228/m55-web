@@ -62,7 +62,7 @@ export default function ShellLayout({
         <div className={styles.headerStart}>
           <Link
             href="/home"
-            className={`${styles.brandLockup}${pathname === '/home' ? ` ${styles.brandLockupHome}` : ''}`}
+            className={styles.brandLockup}
             aria-label="ホーム"
             aria-current={pathname === '/home' ? 'page' : undefined}
           >
@@ -74,7 +74,11 @@ export default function ShellLayout({
               className={styles.brandMark}
               decoding="async"
             />
-            <span className={styles.brandWordmark}>M55</span>
+            <span
+              className={`${styles.brandWordmark}${pathname === '/home' ? ` ${styles.brandWordmarkActive}` : ''}`}
+            >
+              M55
+            </span>
           </Link>
           <nav className={styles.topNav} aria-label="メインナビゲーション">
           {TABS.map((tab) => {
