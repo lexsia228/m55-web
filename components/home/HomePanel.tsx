@@ -14,6 +14,7 @@
  *   dtr: chapter titles only (muted teaser, §4.1) — no fullSections/rawTraits/rawSignals
  */
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useId, useMemo, useState } from 'react';
@@ -144,24 +145,79 @@ function todayIso(): string {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
-/** Public showcase lane index (甲) — illustrative weights only, not a user result */
-const PUBLIC_SHOWCASE_LANE = 0;
-
-/**
- * Hero Main Visual: quiet layered booklet abstraction — stacked translucent sheets,
- * central protagonist plane, soft light enclosure. No text, icons, or labels.
- */
-function PosterMainVisualDiagram() {
-  const u = useId().replace(/:/g, '');
-  const g = {
+function posterGradientIds(u: string) {
+  return {
     amb: `m55-bk-amb-${u}`,
     halo: `m55-bk-halo-${u}`,
     rim: `m55-bk-rim-${u}`,
-    mg: `m55-bk-mg-${u}`,
-    tq: `m55-bk-tq-${u}`,
   };
-  const cx = 160;
-  const cy = 90;
+}
+
+const POSTER_FIVE_AXIS_COLORS = ['#7cb87a', '#d4795c', '#c4982a', '#9090ac', '#5a8fc4'] as const;
+
+/** no_profile: 5軸読み方カード用の公開サンプル配分（固定） */
+const PUBLIC_FIVE_AXIS_SAMPLE_WEIGHTS: readonly [number, number, number, number, number] = [
+  22, 20, 18, 22, 18,
+];
+const PUBLIC_FIVE_AXIS_SAMPLE_PRIMARY_IDX = 0;
+
+/** 探索カード1用：5分割円弧メーター（ラスタより一瞥で「5軸」の読みを返す） */
+const EXPLORE_METER_WEIGHTS = [22, 20, 18, 22, 18] as const;
+
+function ExploreFiveAxisMeter({ className }: { className?: string }) {
+  const r = 23.5;
+  const cx = 32;
+  const cy = 32;
+  const circ = 2 * Math.PI * r;
+  const gap = 0.88;
+  let cumPct = 0;
+  const arcs = EXPLORE_METER_WEIGHTS.map((w, i) => {
+    const segLen = Math.max(0, (w / 100) * circ - gap);
+    const rot = (cumPct / 100) * 360 - 90;
+    cumPct += w;
+    return { segLen, rot, color: POSTER_FIVE_AXIS_COLORS[i]!, key: i };
+  });
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 64 64"
+      width={64}
+      height={64}
+      aria-hidden
+    >
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke="rgba(92, 78, 160, 0.5)"
+        strokeWidth="5.6"
+      />
+      {arcs.map(({ segLen, rot, color, key }) => (
+        <circle
+          key={key}
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6.6"
+          strokeOpacity={0.97}
+          strokeLinecap="round"
+          strokeDasharray={`${segLen} ${circ}`}
+          transform={`rotate(${rot}, ${cx}, ${cy})`}
+        />
+      ))}
+    </svg>
+  );
+}
+
+/**
+ * Hero 上層 SVG：写真を主役にし、ごく薄いトーン合わせのみ（中央シンボル・5軸は見せない）。
+ */
+function PosterMainVisualDiagram() {
+  const u = useId().replace(/:/g, '');
+  const g = posterGradientIds(u);
   return (
     <svg
       className={styles.posterDiagramSvg}
@@ -172,104 +228,24 @@ function PosterMainVisualDiagram() {
       aria-hidden
     >
       <defs>
-        <radialGradient id={g.amb} cx="50%" cy="48%" r="68%">
-          <stop offset="0%" stopColor="rgba(252, 249, 255, 0.88)" />
-          <stop offset="55%" stopColor="rgba(236, 230, 248, 0.38)" />
-          <stop offset="100%" stopColor="rgba(210, 200, 234, 0.09)" />
+        <radialGradient id={g.amb} cx="50%" cy="48%" r="70%">
+          <stop offset="0%" stopColor="rgba(252, 249, 255, 0.32)" />
+          <stop offset="50%" stopColor="rgba(236, 230, 248, 0.12)" />
+          <stop offset="100%" stopColor="rgba(210, 200, 234, 0.03)" />
         </radialGradient>
-        <radialGradient id={g.halo} cx="50%" cy="50%" r="48%">
-          <stop offset="0%" stopColor="rgba(124, 111, 214, 0.11)" />
-          <stop offset="72%" stopColor="rgba(124, 111, 214, 0)" />
+        <radialGradient id={g.halo} cx="50%" cy="50%" r="55%">
+          <stop offset="0%" stopColor="rgba(124, 111, 214, 0.06)" />
+          <stop offset="70%" stopColor="rgba(124, 111, 214, 0)" />
         </radialGradient>
-        <radialGradient id={g.rim} cx="50%" cy="50%" r="50%">
-          <stop offset="78%" stopColor="rgba(255, 255, 255, 0)" />
-          <stop offset="100%" stopColor="rgba(177, 156, 255, 0.14)" />
-        </radialGradient>
-        <radialGradient id={g.mg} cx="96%" cy="8%" r="24%">
-          <stop offset="0%" stopColor="rgba(188, 96, 168, 0.065)" />
-          <stop offset="100%" stopColor="rgba(188, 96, 168, 0)" />
-        </radialGradient>
-        <radialGradient id={g.tq} cx="4%" cy="92%" r="22%">
-          <stop offset="0%" stopColor="rgba(64, 168, 176, 0.055)" />
-          <stop offset="100%" stopColor="rgba(64, 168, 176, 0)" />
-        </radialGradient>
+        <linearGradient id={g.rim} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.14)" />
+          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+        </linearGradient>
       </defs>
 
       <rect width="320" height="180" fill={`url(#${g.amb})`} />
       <rect width="320" height="180" fill={`url(#${g.halo})`} />
       <rect width="320" height="180" fill={`url(#${g.rim})`} />
-      <rect width="320" height="180" fill={`url(#${g.mg})`} />
-      <rect width="320" height="180" fill={`url(#${g.tq})`} />
-
-      {/* 5 stacked sheets — back → front, offset + rotation like a closed booklet */}
-      <g transform={`rotate(-5.2 ${cx} ${cy})`}>
-        <rect
-          x={cx - 62}
-          y={cy - 48}
-          width={124}
-          height={96}
-          rx={11}
-          fill="rgba(208, 198, 232, 0.22)"
-          stroke="rgba(177, 156, 255, 0.16)"
-          strokeWidth="0.75"
-        />
-      </g>
-      <g transform={`rotate(-3.6 ${cx} ${cy})`}>
-        <rect
-          x={cx - 59}
-          y={cy - 46}
-          width={118}
-          height={92}
-          rx={10}
-          fill="rgba(220, 212, 242, 0.3)"
-          stroke="rgba(177, 156, 255, 0.18)"
-          strokeWidth="0.7"
-        />
-      </g>
-      <g transform={`rotate(-2.1 ${cx} ${cy})`}>
-        <rect
-          x={cx - 56}
-          y={cy - 44}
-          width={112}
-          height={88}
-          rx={9}
-          fill="rgba(232, 226, 250, 0.4)"
-          stroke="rgba(160, 148, 220, 0.2)"
-          strokeWidth="0.65"
-        />
-      </g>
-      <g transform={`rotate(-0.7 ${cx} ${cy})`}>
-        <rect
-          x={cx - 53}
-          y={cy - 42}
-          width={106}
-          height={84}
-          rx={9}
-          fill="rgba(242, 238, 255, 0.52)"
-          stroke="rgba(124, 111, 214, 0.18)"
-          strokeWidth="0.65"
-        />
-      </g>
-      {/* Protagonist face — brightest sheet */}
-      <rect
-        x={cx - 50}
-        y={cy - 40}
-        width={100}
-        height={80}
-        rx={8}
-        fill="rgba(255, 255, 255, 0.78)"
-        stroke="rgba(124, 111, 214, 0.22)"
-        strokeWidth="0.85"
-      />
-      <rect
-        x={cx - 46}
-        y={cy - 36}
-        width={92}
-        height={72}
-        rx={6}
-        fill="rgba(124, 111, 214, 0.045)"
-        stroke="none"
-      />
     </svg>
   );
 }
@@ -332,9 +308,6 @@ export default function HomePanel() {
   /** Observation mode = personalized engines; otherwise public understanding mode */
   const observation = !!personal;
 
-  const showcaseWeights = getFiveElementWeights(PUBLIC_SHOWCASE_LANE);
-  const showcaseElemIdx = stemToElemIdx(PUBLIC_SHOWCASE_LANE);
-
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
   return (
@@ -350,19 +323,38 @@ export default function HomePanel() {
             data-testid="m55-home-poster-main-visual"
             aria-label="M55 メインビジュアル（プレースホルダー）"
           >
-            <div className={styles.posterMainVisualInner} aria-hidden>
-              <PosterMainVisualDiagram />
+            <div className={styles.posterMainVisualStack} aria-hidden>
+              <div className={styles.posterHeroBaseLayer}>
+                <Image
+                  src="/home/hero-tech-map.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 480px) 100vw, 420px"
+                  className={styles.posterHeroBaseImage}
+                  priority
+                />
+              </div>
+              <div className={styles.posterHeroImageVeil} />
+              <div className={styles.posterMainVisualInner}>
+                <PosterMainVisualDiagram />
+              </div>
+            </div>
+            <div className={styles.posterHeroOverlay}>
+              <div className={styles.posterHeroOverlayScrim} aria-hidden />
+              <div className={styles.posterTitleLockupBlite}>
+                <p className={styles.posterHeroEyebrow}>統合パーソナル解析</p>
+                <h1 className={styles.posterHeroTitleBlite}>
+                  <span className={styles.posterHeroTitleLine}>生まれた日からひらく、</span>
+                  <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
+                </h1>
+              </div>
             </div>
           </div>
 
-          <div className={styles.posterTitleLockup}>
-            <p className={styles.posterTitleSmall}>アルゴリズムでわかる</p>
-            <p className={styles.posterTitleMid}>あなたの</p>
-            <h1 className={styles.posterTitleMax}>取扱説明書</h1>
-          </div>
-
           {isLoaded && view.kind === 'no_profile' && (
-            <p className={styles.posterSupportOneLine}>保存すると、あなたの見取り図が開きます。</p>
+            <p className={styles.posterSupportOneLine}>
+              生まれた日を入れると、5つの軸から見取り図が開きます。無料で始められます。
+            </p>
           )}
 
           {isLoaded && view.kind === 'no_profile' && (
@@ -373,16 +365,10 @@ export default function HomePanel() {
                 data-testid="m55-home-open-birth-intake"
                 onClick={() => setBirthIntakeOpen(true)}
               >
-                無料で読み取りを始める
+                無料で自分の輪郭を見る
               </button>
             </div>
           )}
-
-          <ul className={styles.posterMicroGrid} aria-label="M55の特徴">
-            <li className={styles.posterMicroCard}>再現可能アルゴリズム解析</li>
-            <li className={styles.posterMicroCard}>Entry Report</li>
-            <li className={styles.posterMicroCard}>AIチャット深掘り</li>
-          </ul>
         </div>
       </section>
 
@@ -391,70 +377,88 @@ export default function HomePanel() {
           ═══════════════════════════════════════════════════════════════════ */}
       {isLoaded && view.kind === 'no_profile' && (
         <section
-          className={styles.understandingSection}
+          className={styles.useExploreSection}
           data-testid="m55-home-understanding"
-          aria-label="M55の理解"
+          aria-label="次の一歩"
         >
-          <p className={styles.understandingEyebrow}>はじめに</p>
-          <h2 className={styles.understandingTitle}>M55 で何が見えるか</h2>
-          <div className={styles.supportCtaGroup} role="navigation" aria-label="理解を深める">
-            <Link href="/how-m55-works" className={styles.supportCtaCard}>
-              <span className={styles.supportCtaInner}>
-                <span className={styles.supportCtaTextCol}>
-                  <span className={styles.supportCtaTitle}>M55の見方を知る</span>
-                  <span className={styles.supportCtaSub}>流れと無料で見える範囲</span>
-                </span>
-                <span className={styles.supportCtaChevron} aria-hidden>›</span>
+          <div className={styles.useExploreRule} aria-hidden />
+          <div className={styles.useExploreGrid} role="navigation" aria-label="探索への入口">
+            <Link href="/how-m55-works" className={styles.useExploreCard}>
+              <span
+                className={styles.useExploreIconThumbExplore}
+                data-testid="m55-home-demo-five-element"
+              >
+                <ExploreFiveAxisMeter className={styles.useExploreFiveAxisMeterSvg} />
               </span>
-            </Link>
-            <Link href="/ten-views" className={styles.supportCtaCard}>
-              <span className={styles.supportCtaInner}>
-                <span className={styles.supportCtaTextCol}>
-                  <span className={styles.supportCtaTitle}>10通りの資質を知る</span>
-                  <span className={styles.supportCtaSub}>ラベルの意味と読み方</span>
-                </span>
-                <span className={styles.supportCtaChevron} aria-hidden>›</span>
+              <span className={styles.useExploreBody}>
+                <span className={styles.useExploreTitle}>M55の見方を知る</span>
+                <span className={styles.useExploreSub}>無料で見える範囲と読み方</span>
               </span>
+              <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
-          </div>
-
-          <div className={styles.unifiedAxisCard} data-testid="m55-home-demo-five-element">
-            <p className={styles.unifiedAxisTitle}>5つの解析軸の見方</p>
-            <p className={styles.unifiedAxisIntro}>C〜L のバランスで傾向を整理（下は共通サンプル）</p>
-            <div className={styles.unifiedAxisSample}>
-              <div className={styles.elementInnerRow}>
-                <FiveElementRing
-                  weights={showcaseWeights}
-                  primaryElemIdx={showcaseElemIdx}
-                  size={72}
+            <Link href="/ten-views" className={styles.useExploreCard}>
+              <span className={styles.useExploreIconThumbExplore}>
+                <Image
+                  src="/home/card-qualities-flower.webp"
+                  alt=""
+                  fill
+                  sizes="60px"
+                  className={styles.useExploreThumbImage}
                 />
-                <div className={styles.legendColumn}>
-                  {FIVE_ELEMENTS.map((elem, i) => {
-                    const w = showcaseWeights[i] ?? 0;
-                    return (
-                      <div
-                        key={elem.char}
-                        className={w >= 16 ? styles.legendRow : styles.legendRowMuted}
-                      >
-                        <span className={styles.legendDot} style={{ background: elem.color }} />
-                        <span className={styles.legendCode} style={{ color: elem.color }}>
-                          {elem.code}
-                        </span>
-                        <span className={styles.legendAxisBlock}>
-                          <span className={styles.legendAxisEn}>{elem.axis}</span>
-                          <span className={styles.legendAxisJp}> / {elem.genre}</span>
-                        </span>
-                        <span className={styles.legendIntensity} aria-hidden>
-                          {axisIntensityBlocks(w)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-            <p className={styles.unifiedAxisFoot}>個人の結果はプロフィール保存後に表示</p>
+              </span>
+              <span className={styles.useExploreBody}>
+                <span className={styles.useExploreTitle}>10通りの資質から読む</span>
+                <span className={styles.useExploreSub}>ラベルと世界の入口</span>
+              </span>
+              <span className={styles.useExploreChevron} aria-hidden>›</span>
+            </Link>
           </div>
+        </section>
+      )}
+
+      {isLoaded && view.kind === 'no_profile' && (
+        <section
+          className={styles.fiveAxisReadCard}
+          data-testid="m55-home-five-axis-read"
+          aria-labelledby="m55-home-five-axis-read-title"
+        >
+          <p className={styles.fiveAxisReadBridge}>
+            まずは、5つの解析軸が何を見ているかを確認できます。
+          </p>
+          <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
+            5つの解析軸の見方
+          </h2>
+          <p className={styles.fiveAxisReadLead}>
+            円を5つに分けたバランスで、傾向の輪郭を読みます。
+          </p>
+          <div className={styles.fiveAxisReadRow}>
+            <FiveElementRing
+              weights={PUBLIC_FIVE_AXIS_SAMPLE_WEIGHTS}
+              primaryElemIdx={PUBLIC_FIVE_AXIS_SAMPLE_PRIMARY_IDX}
+              size={68}
+            />
+            <ul className={styles.fiveAxisReadList}>
+              {FIVE_ELEMENTS.map((elem) => (
+                <li key={elem.char} className={styles.fiveAxisReadItem}>
+                  <span
+                    className={styles.fiveAxisReadDot}
+                    style={{ background: elem.color }}
+                    aria-hidden
+                  />
+                  <span className={styles.fiveAxisReadMeta}>
+                    <span className={styles.fiveAxisReadLabel}>
+                      {elem.char} · {elem.code}
+                    </span>
+                    <span className={styles.fiveAxisReadAxis}>{elem.axis}</span>
+                    <span className={styles.fiveAxisReadGenre}>{elem.genre}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className={styles.fiveAxisReadNote}>
+            個人の形は、生年月日とニックネームを保存したあとに開きます。
+          </p>
         </section>
       )}
 
@@ -565,6 +569,17 @@ export default function HomePanel() {
         <p className={styles.reportSectionEyebrow}>有料レポート</p>
 
         <div className={styles.valueCard}>
+          <div className={styles.reportCardHeroBand} aria-hidden>
+            <Image
+              src="/home/card-entry-report.webp"
+              alt=""
+              fill
+              sizes="(max-width: 420px) 100vw, 390px"
+              className={styles.reportCardHeroBandImg}
+            />
+            <div className={styles.reportCardHeroBandVeil} />
+          </div>
+
           <p className={styles.valueEyebrow}>Entry Report</p>
           <p className={styles.valuePrice}>¥1,000（税込）</p>
 

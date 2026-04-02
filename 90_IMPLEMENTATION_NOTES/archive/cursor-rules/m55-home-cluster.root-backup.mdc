@@ -1,0 +1,142 @@
+---
+description: M55 Home cluster hard rules
+globs:
+  - "components/home/HomePanel.tsx"
+  - "components/home/HomePanel.module.css"
+alwaysApply: true
+---
+
+# M55 Home Cluster Hard Rules
+
+## Scope
+Only work on:
+- `components/home/HomePanel.tsx`
+- `components/home/HomePanel.module.css`
+
+Do not touch:
+- scripts
+- routing
+- header
+- other pages
+- unrelated sections
+
+## Product line
+Public line is fixed:
+- Free
+- ¥1,000 Entry Report
+- purchaser-only concierge room
+
+Do not add:
+- new product lanes
+- subscription surfaces
+- generic AI chat front
+
+## Home structure
+Keep this order:
+1. Hero
+2. 2 exploration cards
+3. lightweight 5-axis explanation block
+4. Entry Report block
+
+Do not:
+- add a third exploration card
+- duplicate paid-depth CTA above the Entry Report block
+- turn Home into a long explanation LP
+
+## Hero rules
+Hero must be a single poster-like first viewport.
+
+Hero uses:
+- `/public/home/hero-tech-map.webp` as base image
+- contained horizontal frame only
+- no full-bleed background
+
+Hero text must be overlayed inside the Hero image area:
+- 統合パーソナル解析
+- main title
+- support line
+
+Do not:
+- separate Hero image and text into two vertical blocks
+- burn text into the image asset
+- force weak geometric symbols into the center
+- claim invisible elements are implemented
+
+## Public-safe wording
+Do not use on public Home:
+- 木 / 火 / 土 / 金 / 水
+- 五行
+- 占術
+- 鑑定
+- 当たる
+- 運命
+- 開運
+- 霊感
+- 覚醒
+- superiority claims
+- mystical / spiritual certainty wording
+
+Prefer:
+- 整理
+- 見取り図
+- レポート
+- 読み方
+- 傾向
+- 構造
+- 5つの視点
+- 5つの解析軸
+
+## 5-axis explanation block
+Keep the block on Home.
+Do not remove it.
+
+But:
+- do not put it inside Hero
+- do not use 5-line dictionary format
+- do not list wood/fire/earth/metal/water
+- do not list C/E/S/D/L as main explanation
+- do not create a manual-like dense block
+
+Target:
+- one short lead line
+- one circular meter
+- 2 to 3 short explanation cards
+- quick understanding only
+
+Detailed definitions belong in `/how-m55-works`, not Home.
+
+## Asset roles
+Fixed asset roles:
+- Hero = `hero-tech-map.webp`
+- Guide card = SVG-based 5-axis ring
+- Qualities card = `card-qualities-flower.webp`
+- Entry Report = `card-entry-report.webp`
+
+Do not use:
+- `card-guide-ring.webp` on Home
+
+Entry Report image must be:
+- a wide top visual band
+- not a centered small thumbnail
+
+## Visual quality bar
+Aim for:
+- Apple-like quiet whitespace
+- Notion-like intelligent minimalism
+- Calm-like soft gradients
+
+Use design logic:
+- spacing in 8px multiples
+- no arbitrary visual decisions
+- justify typography, color, radius, and shadows
+- no “good enough” 1px compromises
+
+## Review rule
+If it is not clearly visible in the screenshot, it does not count as implemented.
+
+Always optimize for:
+- immediate comprehension
+- product/result tangibility
+- method cue
+- structural trust
+- premium calm hierarchy
