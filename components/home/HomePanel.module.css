@@ -7,37 +7,37 @@
 .wrap {
   max-width: 420px;
   margin: 0 auto;
-  padding: 12px 12px 36px;
+  padding: 6px 18px 54px;
   background: transparent;
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #2c233a;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1d1d1f;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    FOLD 1: HERO + SITE STRIP + GATE
    ═══════════════════════════════════════════════════════════════════ */
 
-/* 1st viewport = ポスターのみ（Shell header 48px + .wrap 上余白 12px を差し引く） */
+/* 第1画面：ナビ下〜Hero ポスターが主役（Hero 専用の縦配分） */
 .heroSection {
   box-sizing: border-box;
-  min-height: calc(100dvh - 48px - 12px);
+  min-height: calc(100dvh - 48px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: stretch;
-  padding: 6px 4px 10px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
 }
 
-/* Poster hero — M55_HOME_POSTER_LAYOUT_SSOT_v1 */
 .posterStack {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-  flex: 0 1 auto;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
 }
 
@@ -45,22 +45,17 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  /* 画像＋オーバーレイ文案を一枚のポスターとして収める */
-  aspect-ratio: 16 / 9;
-  max-height: 208px;
-  border-radius: 14px;
+  flex: 1 1 auto;
+  min-height: 300px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(124, 111, 214, 0.28);
-  background: rgba(252, 250, 255, 0.62);
-  /* Quiet contained glow — not full-bleed; 視覚的重心をやや強める */
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.52) inset,
-    0 3px 26px rgba(124, 111, 214, 0.14),
-    0 12px 42px rgba(29, 24, 61, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f2f0f8;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
 }
 
-/* メインコピー：写真枠内オーバーレイ（HTML/CSS・下側に集約） */
+/* コピー＋CTA：箱なし・左セーフエリア */
 .posterHeroOverlay {
   position: absolute;
   inset: 0;
@@ -69,51 +64,87 @@
   flex-direction: column;
   justify-content: flex-end;
   align-items: stretch;
-  padding: 0 8px 10px;
+  padding: 0 18px 18px;
   box-sizing: border-box;
   pointer-events: none;
 }
 
-.posterHeroOverlayScrim {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 68%;
-  border-radius: 0 0 13px 13px;
-  pointer-events: none;
-  background: linear-gradient(
-    to top,
-    rgba(252, 250, 255, 0.97) 0%,
-    rgba(252, 250, 255, 0.82) 32%,
-    rgba(248, 245, 255, 0.45) 62%,
-    rgba(248, 245, 255, 0) 100%
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.posterHeroOverlay .posterTitleLockupBlite {
+.posterHeroCopy {
   position: relative;
   z-index: 1;
-  margin: 0;
-  padding: 4px 4px 2px;
   width: 100%;
   max-width: 100%;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  text-align: left;
 }
 
-.posterHeroOverlay .posterHeroEyebrow {
-  color: rgba(92, 78, 160, 0.95);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+.posterHeroBrandM55 {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6e61c4;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.posterHeroProductTitle {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #6b6578;
+  margin: 0 0 12px;
 }
 
 .posterHeroOverlay .posterHeroTitleBlite {
-  color: #140f22;
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.95),
-    0 0 12px rgba(255, 255, 255, 0.65);
-  font-size: clamp(17px, 4.8vw, 22px);
+  color: #0f0f12;
+  font-size: clamp(22px, 6.2vw, 32px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.posterHeroSupportInline {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: #48484a;
+  margin: 0 0 16px;
+  max-width: 36ch;
+}
+
+.posterHeroCta {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 14px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #7c6fd6;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.posterHeroCta:hover {
+  background: #6f62c9;
+}
+
+.posterHeroCta:focus-visible {
+  outline: 2px solid #7c6fd6;
+  outline-offset: 3px;
 }
 
 /* ベース写真 → 白ヴェール → 既存 SVG（レポート束・見取り図） */
@@ -140,65 +171,29 @@
   transform-origin: center center;
 }
 
-.posterHeroImageVeil {
+/* 下端のみ：読みやすさ用のごく薄い明るいハゼ（濃色タイポ用・重いグレー板にしない） */
+.posterHeroReadabilityVeil {
   grid-area: 1 / 1 / 2 / 2;
   z-index: 1;
   pointer-events: none;
-  /* 中央へ視線を寄せ、端の空き感を抑えつつ壁紙感を弱める */
-  background:
-    radial-gradient(
-      ellipse 88% 95% at 50% 46%,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0) 58%
-    ),
-    linear-gradient(
-      168deg,
-      rgba(255, 255, 255, 0.72) 0%,
-      rgba(252, 250, 255, 0.5) 40%,
-      rgba(246, 242, 252, 0.38) 72%,
-      rgba(238, 234, 248, 0.32) 100%
-    );
-}
-
-.posterMainVisualInner {
-  grid-area: 1 / 1 / 2 / 2;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* 写真を主役に：上層は極薄のトーン合わせのみ */
   background: linear-gradient(
-    168deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 50%,
-    rgba(255, 255, 255, 0) 100%
+    to top,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.82) 18%,
+    rgba(255, 255, 255, 0.35) 42%,
+    rgba(255, 255, 255, 0) 68%
   );
 }
 
-.posterDiagramSvg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-height: 168px;
-}
-
-/* 縦余白が狭い端末でポスター全体が収まりやすくする */
 @media (max-height: 720px) {
   .posterMainVisual {
-    max-height: 186px;
-  }
-
-  .posterDiagramSvg {
-    max-height: 186px;
+    min-height: 260px;
   }
 }
 
 @media (max-width: 360px) {
   .posterHeroOverlay .posterHeroTitleBlite {
-    font-size: 16px;
+    font-size: 19px;
   }
 }
 
@@ -271,16 +266,70 @@
 }
 
 .posterSupportOneLine {
-  font-size: 12px;
-  color: #7a7288;
-  line-height: 1.45;
-  margin: 2px 0 0;
+  font-size: 11px;
+  color: #636366;
+  line-height: 1.5;
+  margin: 0;
   max-width: 100%;
   width: 100%;
-  padding: 0 14px;
+  padding: 0 20px;
   box-sizing: border-box;
   text-wrap: balance;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* 無料 / 読める / 有料 — 短文モジュール（長文の説明にしない） */
+.homeTierStack {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+}
+
+.homeTierRow {
+  display: grid;
+  grid-template-columns: minmax(96px, 104px) 1fr;
+  gap: 10px 12px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.homeTierRow:first-child {
+  padding-top: 2px;
+}
+
+.homeTierRow:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.homeTierBadge,
+.homeTierBadgePaid {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1d4ed8;
+  line-height: 1.3;
+  padding: 3px 0 0;
+}
+
+.homeTierBadgePaid {
+  color: #6b21a8;
+}
+
+.homeTierText {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #3a3a3c;
+  text-align: left;
 }
 
 .heroText {
@@ -323,10 +372,11 @@
 
 /* Explanatory strip — below poster hero (SSOT §9: not inside hero fold) */
 .siteStrip {
-  background: rgba(177, 156, 255, 0.06);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .siteStripLine1 {
@@ -411,34 +461,38 @@
 .inputGateCta {
   display: block;
   width: 100%;
-  background: #7c6fd6;
+  background: #1d4ed8;
   color: #fff;
   border: none;
   border-radius: 10px;
   padding: 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
   box-sizing: border-box;
   margin-top: 14px;
   cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 4px 16px rgba(29, 78, 216, 0.35);
 }
 
 .inputGateCta:hover {
-  opacity: 0.9;
+  filter: brightness(1.06);
 }
 
 /* Compact inline intake — no_profile only; below hero copy */
 .inlineIntakeRail {
-  margin: 8px 0 6px;
-  padding: 8px 10px 10px;
+  margin: 2px 0 4px;
+  padding: 12px 14px 14px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(124, 111, 214, 0.26);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.55) inset,
-    0 4px 18px rgba(92, 78, 180, 0.14);
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
 }
 
@@ -488,14 +542,14 @@
   display: block;
   width: 100%;
   margin: 0;
-  padding: 13px 14px;
+  padding: 14px 16px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(180deg, #8578df 0%, #6454c4 100%);
+  background: #1d4ed8;
   color: #fff;
   font-size: 15px;
   font-weight: 700;
-  line-height: 1.32;
+  line-height: 1.3;
   letter-spacing: 0.02em;
   text-align: center;
   cursor: pointer;
@@ -504,20 +558,20 @@
   overflow-wrap: break-word;
   hyphens: none;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-    0 4px 16px rgba(92, 78, 180, 0.32);
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 4px 14px rgba(29, 78, 216, 0.45);
 }
 
 .inlineIntakeCta:hover:not(:disabled) {
-  opacity: 0.92;
+  filter: brightness(1.06);
 }
 
 .inlineIntakeCta:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline: 2px solid #1d4ed8;
   outline-offset: 3px;
   box-shadow:
-    0 4px 18px rgba(92, 78, 180, 0.4),
-    0 0 0 3px rgba(124, 111, 214, 0.45);
+    0 4px 14px rgba(29, 78, 216, 0.4),
+    0 0 0 3px rgba(29, 78, 216, 0.25);
 }
 
 .inlineIntakeCta:disabled {
@@ -529,7 +583,7 @@
 
 /* no_profile: 視覚付き探索カード2枚（有料深度は reportSection のみ） */
 .useExploreSection {
-  padding: 12px 0 10px;
+  padding: 16px 0 14px;
 }
 
 .useExploreRule {
@@ -557,33 +611,41 @@
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
-  min-height: 64px;
+  padding: 14px 16px;
+  min-height: 72px;
   border-radius: 16px;
-  border: 1px solid rgba(124, 111, 214, 0.24);
-  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
   text-decoration: none;
   color: inherit;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.75) inset,
-    0 2px 12px rgba(29, 24, 61, 0.06);
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 28px rgba(0, 0, 0, 0.06);
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
   box-sizing: border-box;
 }
 
 .useExploreCard:hover {
-  background: rgba(252, 250, 255, 1);
-  border-color: rgba(92, 78, 180, 0.32);
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.85) inset,
-    0 4px 16px rgba(92, 78, 180, 0.09);
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 14px 36px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.useExploreCard:active {
+  transform: translateY(0);
 }
 
 .useExploreCard:focus-visible {
-  outline: 2px solid #7c6fd6;
+  outline: 2px solid #1d4ed8;
   outline-offset: 3px;
 }
 
@@ -599,11 +661,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(248, 245, 255, 1);
-  border: 1px solid rgba(92, 78, 160, 0.34);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.9) inset,
-    0 1px 10px rgba(92, 78, 180, 0.09);
+  background: #f5f5f7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 1) inset;
 }
 
 .useExploreFiveAxisMeterSvg {
@@ -626,138 +686,107 @@
 
 .useExploreTitle {
   display: block;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e1730;
-  line-height: 1.28;
+  font-size: 16px;
+  font-weight: 800;
+  color: #000000;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
 }
 
 .useExploreSub {
   display: block;
-  font-size: 11px;
-  color: #6b6280;
-  line-height: 1.38;
-  margin-top: 3px;
+  font-size: 9px;
+  font-weight: 500;
+  color: #86868b;
+  line-height: 1.35;
+  margin-top: 4px;
+  letter-spacing: 0.03em;
 }
 
 .useExploreChevron {
   flex-shrink: 0;
-  font-size: 24px;
-  font-weight: 500;
-  color: #7c6fd6;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d4ed8;
   line-height: 1;
-  opacity: 0.9;
-}
-
-/* 5軸の読み方：探索2枚の下・有料ブロックの上（静かな理解カード） */
-.fiveAxisReadCard {
-  margin: 0 0 18px;
-  padding: 12px 14px 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(124, 111, 214, 0.18);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.75) inset,
-    0 2px 12px rgba(29, 24, 61, 0.05);
+  border-radius: 50%;
+  background: rgba(29, 78, 216, 0.08);
+  border: 1px solid rgba(29, 78, 216, 0.15);
   box-sizing: border-box;
 }
 
-.fiveAxisReadBridge {
-  font-size: 11px;
-  font-weight: 500;
-  color: #6b6280;
-  line-height: 1.45;
-  margin: 0 0 8px;
-  text-align: center;
-  text-wrap: balance;
+/* 5軸：公開向け・極軽量（メーター＋リード＋短文チップのみ） */
+.fiveAxisReadCard {
+  margin: 0 0 18px;
+  padding: 14px 12px 12px;
+  border-radius: 14px;
+  background: rgba(248, 248, 250, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+  box-sizing: border-box;
 }
 
 .fiveAxisReadTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e1730;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d1d1f;
   margin: 0 0 6px;
   text-align: center;
-  line-height: 1.35;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
 .fiveAxisReadLead {
   font-size: 11px;
-  color: #6b6280;
+  color: #636366;
   line-height: 1.45;
   margin: 0 0 12px;
   text-align: center;
+  text-wrap: balance;
+  font-weight: 500;
 }
 
-.fiveAxisReadRow {
+.fiveAxisReadMeterWrap {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 12px;
 }
 
-.fiveAxisReadList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
-  min-width: 0;
+.fiveAxisReadMeterSvg {
+  display: block;
+  width: 80px;
+  height: 80px;
 }
 
-.fiveAxisReadItem {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.fiveAxisReadItem:last-child {
-  margin-bottom: 0;
-}
-
-.fiveAxisReadDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.fiveAxisReadMeta {
+.fiveAxisReadCardGrid {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  gap: 8px;
+  margin: 0;
 }
 
-.fiveAxisReadLabel {
+.fiveAxisReadMiniCard {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.fiveAxisReadMiniCardText {
+  margin: 0;
   font-size: 11px;
-  font-weight: 600;
-  color: #2c233a;
-  line-height: 1.3;
-}
-
-.fiveAxisReadAxis {
-  font-size: 10px;
   font-weight: 500;
-  color: #5a5270;
-  letter-spacing: 0.02em;
-  line-height: 1.3;
-}
-
-.fiveAxisReadGenre {
-  font-size: 10px;
-  color: #7a7288;
-  line-height: 1.35;
-}
-
-.fiveAxisReadNote {
-  font-size: 10px;
-  color: #8a8499;
-  margin: 10px 0 0;
   line-height: 1.45;
-  text-align: center;
+  color: #48484a;
+  text-align: left;
 }
 
 .understandingSection {
@@ -1517,9 +1546,10 @@
 
 /* Depth note — lead-in before feature list */
 .depthNote {
-  font-size: 12px;
-  color: #7a7389;
-  line-height: 1.65;
+  font-size: 11px;
+  font-weight: 500;
+  color: #636366;
+  line-height: 1.5;
   margin: 0 0 12px;
 }
 
@@ -1655,10 +1685,11 @@
 
 .valueGapNote {
   font-size: 11px;
-  color: #9b94b3;
+  font-weight: 600;
+  color: #48484a;
   text-align: center;
   margin: 8px 0 0;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .reportCta {

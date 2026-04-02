@@ -1,0 +1,80 @@
+description: M55 Entry Report Product Constitution and Logic Laws. Apply whenever modifying product structure, pricing, report chapters, or AI chat logic.
+globs: ["/*.{ts,tsx,md,mdx}", "app/api/report/", "components/report/**"]
+
+M55 Entry Report Product Law (SSOT v1)
+
+1. Product Identity
+
+Name: Entry Report
+
+Price: ¥1,000 (tax incl.)
+
+Core Value: From "outline" (Free) to "structured meaning and usage" (Paid)
+
+2. 8-Chapter Structure
+
+あなたという人物 (Conclusion)
+
+構成と傾向の全体像 (Structure)
+
+強みが自然に出る場面 (Strengths)
+
+つまずきやすい偏り (Bottlenecks)
+
+本質と安定の条件 (Stability)
+
+役割・仕事との噛み合わせ (Roles)
+
+今の焦点と整え方 (Current Focus)
+
+これからの使い方 (Practical Usage)
+
+3. 5-Axis Analytical Framework (C/E/S/D/L)
+
+C: Create (創造・成長)
+
+E: Express (表現・情熱)
+
+S: Support (共鳴・育成)
+
+D: Decide (判断・洗練)
+
+L: Logic (知性・流動)
+
+4. AI Chat / Add-on Rule
+
+Location: Inside purchaser-only rooms only.
+
+Price: ¥700 (tax incl.) per round.
+
+Max Rounds: Total 3 (1 free with report + 2 add-ons).
+
+Tone: Analytical, high-density (approx. 1,800 characters), including data tables.
+
+
+---
+
+## 2. 修正：Home実装ルール
+既存の `m55-home-cluster.mdc` を開き、**Heroセクション**と**5軸説明セクション**を以下のSSOT準拠の内容に置換してください。
+
+### 修正箇所A：Hero Text Rule
+```markdown
+## Hero Text Overlays
+Hero text must be overlayed inside the Hero image area:
+- `M55` as the small upper label
+- `Entry Report` as the main product title
+- Support line: "生まれた日からひらく、あなたの強みの見取り図"
+
+Do not:
+- Replace the product title with a worldview label.
+- Use "統合パーソナル解析" as the main visible product name (use it as a small label).
+
+
+修正箇所B：5-Axis Explanation Block
+
+## 5-Axis Explanation Block
+Keep the block on Home but strictly follow these:
+- Prefer `C / E / S / D / L` with Japanese helper labels.
+- Use circular meters (donut charts) as primary visuals.
+- Do not list Wood/Fire/Earth/Metal/Water in public descriptions.
+- Do not create a manual-like dense block; keep it for "quick understanding".

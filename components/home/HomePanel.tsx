@@ -17,7 +17,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import HomeBirthIntakeLayer from './HomeBirthIntakeLayer';
 import { essenceStemLaneIndex, runEssenceEngine } from '../../lib/m55/essenceEngine';
@@ -145,21 +145,7 @@ function todayIso(): string {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
-function posterGradientIds(u: string) {
-  return {
-    amb: `m55-bk-amb-${u}`,
-    halo: `m55-bk-halo-${u}`,
-    rim: `m55-bk-rim-${u}`,
-  };
-}
-
 const POSTER_FIVE_AXIS_COLORS = ['#7cb87a', '#d4795c', '#c4982a', '#9090ac', '#5a8fc4'] as const;
-
-/** no_profile: 5軸読み方カード用の公開サンプル配分（固定） */
-const PUBLIC_FIVE_AXIS_SAMPLE_WEIGHTS: readonly [number, number, number, number, number] = [
-  22, 20, 18, 22, 18,
-];
-const PUBLIC_FIVE_AXIS_SAMPLE_PRIMARY_IDX = 0;
 
 /** 探索カード1用：5分割円弧メーター（ラスタより一瞥で「5軸」の読みを返す） */
 const EXPLORE_METER_WEIGHTS = [22, 20, 18, 22, 18] as const;
@@ -208,44 +194,6 @@ function ExploreFiveAxisMeter({ className }: { className?: string }) {
           transform={`rotate(${rot}, ${cx}, ${cy})`}
         />
       ))}
-    </svg>
-  );
-}
-
-/**
- * Hero 上層 SVG：写真を主役にし、ごく薄いトーン合わせのみ（中央シンボル・5軸は見せない）。
- */
-function PosterMainVisualDiagram() {
-  const u = useId().replace(/:/g, '');
-  const g = posterGradientIds(u);
-  return (
-    <svg
-      className={styles.posterDiagramSvg}
-      viewBox="0 0 320 180"
-      width="100%"
-      height="100%"
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden
-    >
-      <defs>
-        <radialGradient id={g.amb} cx="50%" cy="48%" r="70%">
-          <stop offset="0%" stopColor="rgba(252, 249, 255, 0.32)" />
-          <stop offset="50%" stopColor="rgba(236, 230, 248, 0.12)" />
-          <stop offset="100%" stopColor="rgba(210, 200, 234, 0.03)" />
-        </radialGradient>
-        <radialGradient id={g.halo} cx="50%" cy="50%" r="55%">
-          <stop offset="0%" stopColor="rgba(124, 111, 214, 0.06)" />
-          <stop offset="70%" stopColor="rgba(124, 111, 214, 0)" />
-        </radialGradient>
-        <linearGradient id={g.rim} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.14)" />
-          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
-        </linearGradient>
-      </defs>
-
-      <rect width="320" height="180" fill={`url(#${g.amb})`} />
-      <rect width="320" height="180" fill={`url(#${g.halo})`} />
-      <rect width="320" height="180" fill={`url(#${g.rim})`} />
     </svg>
   );
 }
@@ -334,43 +282,61 @@ export default function HomePanel() {
                   priority
                 />
               </div>
-              <div className={styles.posterHeroImageVeil} />
-              <div className={styles.posterMainVisualInner}>
-                <PosterMainVisualDiagram />
-              </div>
+              <div className={styles.posterHeroReadabilityVeil} />
             </div>
             <div className={styles.posterHeroOverlay}>
-              <div className={styles.posterHeroOverlayScrim} aria-hidden />
-              <div className={styles.posterTitleLockupBlite}>
-                <p className={styles.posterHeroEyebrow}>統合パーソナル解析</p>
+              <div className={styles.posterHeroCopy}>
+                <p className={styles.posterHeroBrandM55}>M55</p>
+                <p className={styles.posterHeroProductTitle}>Entry Report</p>
                 <h1 className={styles.posterHeroTitleBlite}>
                   <span className={styles.posterHeroTitleLine}>生まれた日からひらく、</span>
                   <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
                 </h1>
+                <p className={styles.posterHeroSupportInline}>
+                  生まれた日から個人向けの見取り図が開きます。無料ではまず輪郭まで見えます。
+                </p>
+                {isLoaded && view.kind === 'no_profile' && (
+                  <button
+                    type="button"
+                    className={styles.posterHeroCta}
+                    data-testid="m55-home-open-birth-intake"
+                    onClick={() => setBirthIntakeOpen(true)}
+                  >
+                    無料で見取り図を開く
+                  </button>
+                )}
               </div>
             </div>
           </div>
-
-          {isLoaded && view.kind === 'no_profile' && (
-            <p className={styles.posterSupportOneLine}>
-              生まれた日を入れると、5つの軸から見取り図が開きます。無料で始められます。
-            </p>
-          )}
-
-          {isLoaded && view.kind === 'no_profile' && (
-            <div className={styles.inlineIntakeRail}>
-              <button
-                type="button"
-                className={styles.inlineIntakeCta}
-                data-testid="m55-home-open-birth-intake"
-                onClick={() => setBirthIntakeOpen(true)}
-              >
-                無料で自分の輪郭を見る
-              </button>
-            </div>
-          )}
         </div>
       </section>
+
+      {isLoaded && view.kind === 'no_profile' && (
+        <div
+          className={styles.homeTierStack}
+          data-testid="m55-home-tier-stack"
+          aria-label="無料で得られるもの、このサイトで読めること、有料レポートの違い"
+        >
+          <div className={styles.homeTierRow}>
+            <span className={styles.homeTierBadge}>無料</span>
+            <p className={styles.homeTierText}>
+              生まれた日から、5つの視点の見取り図（傾向のバランス）が開きます。
+            </p>
+          </div>
+          <div className={styles.homeTierRow}>
+            <span className={styles.homeTierBadge}>無料</span>
+            <p className={styles.homeTierText}>
+              仕組みと読み方、10通りの資質の地図はページから読めます。
+            </p>
+          </div>
+          <div className={styles.homeTierRow}>
+            <span className={styles.homeTierBadgePaid}>Entry Report</span>
+            <p className={styles.homeTierText}>
+              同じ本質を章立てで深く整理し、手元に残して読み返せます（¥1,000・税込）。
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           UNDERSTANDING MODE — public education only (no personal result UI)
@@ -392,7 +358,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>M55の見方を知る</span>
-                <span className={styles.useExploreSub}>無料で見える範囲と読み方</span>
+                <span className={styles.useExploreSub}>仕組みと無料範囲 →</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -408,7 +374,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>10通りの資質から読む</span>
-                <span className={styles.useExploreSub}>ラベルと世界の入口</span>
+                <span className={styles.useExploreSub}>資質の地図へ →</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -422,43 +388,30 @@ export default function HomePanel() {
           data-testid="m55-home-five-axis-read"
           aria-labelledby="m55-home-five-axis-read-title"
         >
-          <p className={styles.fiveAxisReadBridge}>
-            まずは、5つの解析軸が何を見ているかを確認できます。
-          </p>
           <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
             5つの解析軸の見方
           </h2>
-          <p className={styles.fiveAxisReadLead}>
-            円を5つに分けたバランスで、傾向の輪郭を読みます。
-          </p>
-          <div className={styles.fiveAxisReadRow}>
-            <FiveElementRing
-              weights={PUBLIC_FIVE_AXIS_SAMPLE_WEIGHTS}
-              primaryElemIdx={PUBLIC_FIVE_AXIS_SAMPLE_PRIMARY_IDX}
-              size={68}
-            />
-            <ul className={styles.fiveAxisReadList}>
-              {FIVE_ELEMENTS.map((elem) => (
-                <li key={elem.char} className={styles.fiveAxisReadItem}>
-                  <span
-                    className={styles.fiveAxisReadDot}
-                    style={{ background: elem.color }}
-                    aria-hidden
-                  />
-                  <span className={styles.fiveAxisReadMeta}>
-                    <span className={styles.fiveAxisReadLabel}>
-                      {elem.char} · {elem.code}
-                    </span>
-                    <span className={styles.fiveAxisReadAxis}>{elem.axis}</span>
-                    <span className={styles.fiveAxisReadGenre}>{elem.genre}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <p className={styles.fiveAxisReadLead}>円のバランスで、いまの出方をざっと整理します。</p>
+          <div className={styles.fiveAxisReadMeterWrap}>
+            <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
           </div>
-          <p className={styles.fiveAxisReadNote}>
-            個人の形は、生年月日とニックネームを保存したあとに開きます。
-          </p>
+          <div className={styles.fiveAxisReadCardGrid}>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                5つの視点の配分を、ひとつの見取り図として見ます。
+              </p>
+            </div>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                順位ではなく、あなたの中の傾向として読みます。
+              </p>
+            </div>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                詳しい読み方は「M55の見方を知る」から。
+              </p>
+            </div>
+          </div>
         </section>
       )}
 
@@ -583,9 +536,7 @@ export default function HomePanel() {
           <p className={styles.valueEyebrow}>Entry Report</p>
           <p className={styles.valuePrice}>¥1,000（税込）</p>
 
-          <p className={styles.depthNote}>
-            無料面と同じ本質を、章立ての構造で深く整理した版です。
-          </p>
+          <p className={styles.depthNote}>無料の見取り図と同じ本質を、章立てで深く読む版です。</p>
 
           <ul className={styles.featureListLoose}>
             <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
@@ -605,7 +556,7 @@ export default function HomePanel() {
             </div>
             <p className={styles.chapterMore}>ほかにも章を収録</p>
             <p className={styles.valueGapNote}>
-              無料面は見取り図です。Entry Report は同じ本質を構造化して所有する版です。
+              無料＝見取り図／有料＝章立てレポート（保存・深読み）。
             </p>
           </div>
 
