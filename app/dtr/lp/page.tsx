@@ -31,21 +31,54 @@ export default async function DtrLpPage({
   const isExpired = params?.state === 'expired';
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: "24px 16px 56px", lineHeight: 1.75, flex: "1 0 auto" }}>
-      <p style={{ margin: "0 0 10px" }}><Link href="/">M55 Home</Link></p>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f9f7f4" }}>
+    <main
+      style={{
+        maxWidth: 860,
+        margin: "0 auto",
+        padding: "32px 20px 56px",
+        lineHeight: 1.8,
+        flex: "1 0 auto",
+        fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+        color: "#3d3d3d",
+      }}
+    >
+      <p style={{ margin: "0 0 10px", fontSize: 13 }}>
+        <Link href="/" style={{ color: "#6b5fa8" }}>M55 Home</Link>
+      </p>
 
       {isExpired && <ExpiredNotice />}
 
-      <h1 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 10px" }}>DTR Core Static V1</h1>
+      <h1
+        style={{
+          fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif',
+          fontSize: 24,
+          fontWeight: 500,
+          margin: "0 0 16px",
+          color: "#1a1a1a",
+          letterSpacing: "0.02em",
+        }}
+      >
+        DTR Core Static V1
+      </h1>
 
-      <p style={{ margin: "0 0 14px" }}>
+      <p style={{ margin: "0 0 18px", fontSize: 14 }}>
         ウェブ上で提供するデジタルコンテンツ（レポート）です。決済完了後に閲覧できます（物理配送なし）。
       </p>
 
       <section style={{ margin: "0 0 16px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 6px" }}>価格</h2>
-        <ul style={{ margin: 0, paddingLeft: 18 }}>
+        <h2
+          style={{
+            fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif',
+            fontSize: 18,
+            fontWeight: 500,
+            margin: "0 0 8px",
+            color: "#1a1a1a",
+          }}
+        >
+          価格
+        </h2>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
           <li>¥1,000（税込）</li>
         </ul>
       </section>
@@ -57,26 +90,36 @@ export default async function DtrLpPage({
         >
           ¥1,000で購入する
         </PurchaseButton>
-        <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(0,0,0,0.6)" }}>
-          <Link href="/legal/tokushoho">特定商取引法</Link>
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(60,60,60,0.7)" }}>
+          <Link href="/legal/tokushoho" style={{ color: "#6b5fa8" }}>特定商取引法</Link>
           {' · '}
-          <Link href="/legal/terms">利用規約</Link>
+          <Link href="/legal/terms" style={{ color: "#6b5fa8" }}>利用規約</Link>
           {' · '}
-          <Link href="/legal/refund">返金・キャンセル</Link>
+          <Link href="/legal/refund" style={{ color: "#6b5fa8" }}>返金・キャンセル</Link>
           {' · '}
-          <Link href="/support">サポート</Link>
+          <Link href="/support" style={{ color: "#6b5fa8" }}>サポート</Link>
         </p>
       </section>
 
       <section style={{ margin: "0 0 16px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 6px" }}>提供・支払い</h2>
-        <ul style={{ margin: 0, paddingLeft: 18 }}>
+        <h2
+          style={{
+            fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif',
+            fontSize: 18,
+            fontWeight: 500,
+            margin: "0 0 8px",
+            color: "#1a1a1a",
+          }}
+        >
+          提供・支払い
+        </h2>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.8 }}>
           <li>提供：決済完了後に閲覧可能</li>
           <li>支払い：クレジットカード（Stripe）</li>
         </ul>
       </section>
 
-      <p style={{ margin: 0, fontSize: 12, opacity: 0.75 }}>
+      <p style={{ margin: 0, fontSize: 12, color: "rgba(60,60,60,0.7)" }}>
         本サービスは医療・法律・投資等の助言ではありません。
       </p>
     </main>

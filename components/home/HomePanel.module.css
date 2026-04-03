@@ -8,9 +8,9 @@
   max-width: 420px;
   margin: 0 auto;
   padding: 6px 18px 54px;
-  background: transparent;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #1d1d1f;
+  background: #f9f7f4;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1a1a1a;
 }
 
 @media (min-width: 768px) {
@@ -97,7 +97,8 @@
 
 .posterHeroBrandM55 {
   font-size: clamp(10px, 2.5vw, 11px);
-  letter-spacing: 0.2em;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #6e61c4;
   margin: 0;
@@ -107,7 +108,8 @@
 
 .posterHeroProductTitle {
   font-size: clamp(12px, 3vw, 14px);
-  letter-spacing: 0.05em;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  letter-spacing: 0.02em;
   font-weight: 600;
   line-height: 1.38;
   color: #4a4458;
@@ -115,20 +117,22 @@
 }
 
 .posterHeroOverlay .posterHeroTitleBlite {
-  color: #0f0f12;
-  font-size: clamp(22px, 5.8vw + 0.35rem, 32px);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  margin: 0 0 14px;
+  color: #1a1a1a;
+  font-size: 28px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: 0.02em;
+  margin: 0 0 16px;
   padding: 0;
 }
 
 .posterHeroSupportInline {
-  font-size: clamp(13px, 3.2vw, 15px);
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.55;
-  color: #48484a;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  line-height: 1.8;
+  color: rgba(60, 60, 60, 0.8);
   margin: 0 0 16px;
   max-width: 38ch;
 }
@@ -148,7 +152,8 @@
   background: #7c6fd6;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 600;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-weight: 500;
   letter-spacing: 0.01em;
   cursor: pointer;
   box-sizing: border-box;
@@ -247,11 +252,12 @@
 
 .posterHeroTitleBlite {
   font-size: clamp(19px, 5.2vw, 24px);
-  font-weight: 800;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-weight: 500;
   color: #161026;
   line-height: 1.26;
   margin: 0;
-  letter-spacing: -0.025em;
+  letter-spacing: 0.02em;
   max-width: 100%;
   width: 100%;
   padding: 0 10px;
@@ -261,7 +267,7 @@
 /* 主見出し：JSX の2行をそのままポスター行として優先（balance で再分割しない） */
 .posterHeroTitleLine {
   display: block;
-  line-height: 1.22;
+  line-height: 1.28;
 }
 
 .posterHeroTitleLine:first-child {
@@ -274,8 +280,8 @@
   }
 
   .posterHeroOverlay .posterHeroTitleBlite {
-    font-size: clamp(24px, 2.5vw + 0.85rem, 32px);
-    line-height: 1.18;
+    font-size: 28px;
+    line-height: 1.28;
   }
 }
 
@@ -373,10 +379,10 @@
 
 .homeTierText {
   margin: 0;
-  font-size: clamp(12px, 3.1vw, 14px);
+  font-size: 14px;
   font-weight: 500;
-  line-height: 1.5;
-  color: #3a3a3c;
+  line-height: 1.8;
+  color: #3d3d3d;
   text-align: left;
   max-width: min(48ch, 100%);
 }
@@ -790,7 +796,7 @@
 /* 5軸：公開向け・極軽量（メーター＋リード＋短文チップのみ） */
 .fiveAxisReadCard {
   margin: 0 0 18px;
-  padding: 14px 12px 12px;
+  padding: 18px 14px 14px;
   border-radius: 14px;
   background: rgba(248, 248, 250, 0.65);
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -799,9 +805,10 @@
 }
 
 .fiveAxisReadTitle {
-  font-size: clamp(15px, 3.5vw, 18px);
-  font-weight: 800;
-  color: #1d1d1f;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1a;
   margin: 0 0 8px;
   text-align: center;
   line-height: 1.28;
@@ -809,9 +816,9 @@
 }
 
 .fiveAxisReadLead {
-  font-size: clamp(12px, 3vw, 14px);
-  color: #48484a;
-  line-height: 1.5;
+  font-size: 14px;
+  color: #3d3d3d;
+  line-height: 1.8;
   margin: 0 0 10px;
   text-align: center;
   text-wrap: balance;
@@ -849,10 +856,10 @@
 
 .fiveAxisReadMiniCardText {
   margin: 0;
-  font-size: clamp(11px, 2.8vw, 13px);
+  font-size: 13px;
   font-weight: 500;
-  line-height: 1.5;
-  color: #3a3a3c;
+  line-height: 1.7;
+  color: rgba(60, 60, 60, 0.8);
   text-align: left;
 }
 
@@ -1671,10 +1678,10 @@
 
 /* Depth note — lead-in before feature list */
 .depthNote {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  color: #636366;
-  line-height: 1.5;
+  color: #3d3d3d;
+  line-height: 1.8;
   margin: 0 0 12px;
 }
 
@@ -1701,9 +1708,9 @@
 }
 
 .featureItemLoose {
-  font-size: 12px;
-  color: #4a4458;
-  line-height: 1.45;
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.85);
+  line-height: 1.7;
   padding: 11px 0;
   margin: 0;
   border-bottom: 1px solid rgba(124, 111, 214, 0.09);
@@ -1771,9 +1778,9 @@
 }
 
 .reportAuxCard {
-  font-size: clamp(12px, 2.9vw, 13px);
-  line-height: 1.55;
-  color: #48484a;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(60, 60, 60, 0.8);
   margin: 14px 0 0;
   padding: 11px 13px;
   border-radius: 10px;
@@ -1814,9 +1821,9 @@
 }
 
 .valueGapNote {
-  font-size: clamp(11px, 2.8vw, 13px);
+  font-size: 13px;
   font-weight: 700;
-  color: #2c233a;
+  color: #3d3d3d;
   text-align: left;
   margin: 10px 0 0;
   line-height: 1.45;
@@ -1852,10 +1859,10 @@
   border-top: 1px solid rgba(177, 156, 255, 0.14);
   padding-top: 16px;
   margin-top: 10px;
-  font-size: clamp(11px, 2.8vw, 12px);
-  color: #8e889c;
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.7);
   text-align: center;
-  line-height: 1.55;
+  line-height: 1.7;
 }
 
 .legalLinks {
@@ -1868,14 +1875,14 @@
 }
 
 .legalLink {
-  color: #7a7389;
+  color: rgba(60, 60, 60, 0.8);
   text-decoration: none;
   font-weight: 600;
 }
 
 .legalLink:hover {
   text-decoration: underline;
-  color: #5b4db8;
+  color: #6b5fa8;
 }
 
 .legalSep {
@@ -1887,8 +1894,8 @@
 .copyright {
   display: block;
   margin-top: 10px;
-  font-size: clamp(10px, 2.5vw, 11px);
-  color: #b5b0c4;
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.6);
   letter-spacing: 0.03em;
 }
 

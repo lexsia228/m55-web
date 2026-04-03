@@ -21,51 +21,71 @@ const viewCards = [
     persona: "プレジデント",
     qualityLabel: "突破の資質",
     desc: "まっすぐ突き進む力。ゼロからイチを作り、自分の旗を立てる。",
+    imageSrc: "/ten-views/president.webp",
+    imageAlt: "president",
   },
   {
     persona: "プランナー",
     qualityLabel: "適応の資質",
     desc: "しなやかに広がる力。周囲とつながり、形を変えながら根を張る。",
+    imageSrc: "/ten-views/planner.webp",
+    imageAlt: "planner",
   },
   {
     persona: "インフルエンサー",
     qualityLabel: "発信の資質",
     desc: "太陽のように照らす力。存在自体で注目を集め、人を動かす。",
+    imageSrc: "/ten-views/influencer.webp",
+    imageAlt: "influencer",
   },
   {
     persona: "クリエイター",
     qualityLabel: "凝縮の資質",
     desc: "静かに燃え続ける力。一点に集中し、深いこだわりで形にする。",
+    imageSrc: "/ten-views/creator.webp",
+    imageAlt: "creator",
   },
   {
     persona: "マネージャー",
     qualityLabel: "不動の資質",
     desc: "どっしりと構える力。大きな視点で全体を受け止め、安心感を作る。",
+    imageSrc: "/ten-views/manager.webp",
+    imageAlt: "manager",
   },
   {
     persona: "プロデューサー",
     qualityLabel: "育成の資質",
     desc: "丁寧に育む力。身近な人を支え、知識や経験を着実に蓄える。",
+    imageSrc: "/ten-views/producer.webp",
+    imageAlt: "producer",
   },
   {
     persona: "エグゼキューター",
     qualityLabel: "変革の資質",
     desc: "古いものを断つ力。迷いを捨てて決断し、新しい秩序を切り拓く。",
+    imageSrc: "/ten-views/executor.webp",
+    imageAlt: "executor",
   },
   {
     persona: "デザイナー",
     qualityLabel: "研磨の資質",
     desc: "本質を磨く力。繊細な美意識で、物事の完成度を極限まで高める。",
+    imageSrc: "/ten-views/designer.webp",
+    imageAlt: "designer",
   },
   {
     persona: "グローバルリーダー",
     qualityLabel: "大局の資質",
     desc: "流れを読む力。大きな変化を恐れず、ダイナミックに世界を広げる。",
+    imageSrc: "/ten-views/global-leader.webp",
+    imageAlt: "global leader",
   },
   {
     persona: "アナリスト",
     qualityLabel: "洞察の資質",
     desc: "深く潜り込む力。目に見えない本質を読み解き、静かに統合する。",
+    imageSrc: "/ten-views/analyst.webp",
+    imageAlt: "analyst",
   },
 ] as const;
 
@@ -102,6 +122,15 @@ export default function M55TenViews() {
         <div className={styles.cardGrid}>
           {viewCards.map((card, index) => (
             <article key={card.persona} className={styles.viewCard}>
+              <div className={styles.cardImageWrap}>
+                <img
+                  className={styles.cardImage}
+                  src={card.imageSrc}
+                  alt={card.imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
               <div className={styles.cardSymbol} aria-hidden="true">
                 <span className={styles.symbolNumber}>{index + 1}</span>
               </div>

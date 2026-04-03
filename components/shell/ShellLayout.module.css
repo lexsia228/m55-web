@@ -26,6 +26,7 @@
   padding: 0 10px 0 8px;
   height: 48px;
   background: #ffffff;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   z-index: 25;
 }
@@ -63,8 +64,8 @@
 /* Active indicator on text label only — never on logo mark (HEADER_VISUAL_FREEZE_v1) */
 .brandWordmark {
   display: inline-block;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--text-main, #2f2640);
   line-height: 1.2;
@@ -105,7 +106,7 @@
   align-items: center;
   padding: 0 10px;
   height: 100%;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-main, #2f2640);
   text-decoration: none;
   opacity: 0.5;
@@ -168,7 +169,7 @@
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: #f5f5f7;
+  background: #f9f7f4;
 }
 
 .iframe {
