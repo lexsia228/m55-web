@@ -15,7 +15,7 @@ type Props = {
 
 /**
  * Home-only: nickname + birth date required; CTA-opened only.
- * REGRESSION: not rendered inline in hero.
+ * Native dialog element + ::backdrop — top layer, viewport-centered.
  */
 export default function HomeBirthIntakeLayer({
   open,
@@ -27,10 +27,21 @@ export default function HomeBirthIntakeLayer({
   const id = useId();
   const birthId = `${id}-birth`;
   const nickId = `${id}-nick`;
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const birthRef = useRef<HTMLInputElement>(null);
   const nickRef = useRef<HTMLInputElement>(null);
   const [birthDate, setBirthDate] = useState('');
   const [nickname, setNickname] = useState('');
+
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    if (open) {
+      if (!el.open) el.showModal();
+    } else if (el.open) {
+      el.close();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
@@ -43,17 +54,6 @@ export default function HomeBirthIntakeLayer({
     const t = window.setTimeout(() => nickRef.current?.focus(), 50);
     return () => window.clearTimeout(t);
   }, [open, nicknameHint]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
 
   const handleSave = () => {
     const nick = nickname.trim();
@@ -84,17 +84,19 @@ export default function HomeBirthIntakeLayer({
   const canSave = nickname.trim().length > 0 && birthDate.trim().length > 0;
 
   return (
-    <div
-      className={styles.backdrop}
-      role="presentation"
+    <dialog
+      ref={dialogRef}
+      className={styles.dialog}
       data-testid="m55-home-birth-intake-layer"
-      onClick={onClose}
+      aria-labelledby={`${id}-title`}
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) dialogRef.current?.close();
+      }}
     >
       <div
-        className={styles.sheet}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={`${id}-title`}
+        className={styles.panel}
+        role="document"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id={`${id}-title`} className={styles.title}>
@@ -159,6 +161,6 @@ export default function HomeBirthIntakeLayer({
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

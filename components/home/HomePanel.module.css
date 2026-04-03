@@ -13,6 +13,13 @@
   color: #1d1d1f;
 }
 
+@media (min-width: 768px) {
+  .wrap {
+    max-width: min(1320px, calc(100vw - 48px));
+    padding: 8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px);
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    FOLD 1: HERO + SITE STRIP + GATE
    ═══════════════════════════════════════════════════════════════════ */
@@ -64,7 +71,7 @@
   flex-direction: column;
   justify-content: flex-end;
   align-items: stretch;
-  padding: 0 18px 18px;
+  padding: 0 clamp(16px, 4.5vw, 22px) clamp(18px, 5vw, 26px);
   box-sizing: border-box;
   pointer-events: none;
 }
@@ -73,59 +80,69 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 100%;
+  max-width: min(100%, 33em);
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   text-align: left;
 }
 
+/* 表紙の2行タイトル（M55 / Entry Report）をまとめて読ませる */
+.posterHeroLabelGroup {
+  margin: 0 0 14px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  box-sizing: border-box;
+}
+
 .posterHeroBrandM55 {
-  font-size: 10px;
+  font-size: clamp(10px, 2.5vw, 11px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #6e61c4;
-  margin: 0 0 8px;
-  font-weight: 600;
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .posterHeroProductTitle {
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  font-size: clamp(12px, 3vw, 14px);
+  letter-spacing: 0.05em;
   font-weight: 600;
-  line-height: 1.35;
-  color: #6b6578;
-  margin: 0 0 12px;
+  line-height: 1.38;
+  color: #4a4458;
+  margin: 5px 0 0;
 }
 
 .posterHeroOverlay .posterHeroTitleBlite {
   color: #0f0f12;
-  font-size: clamp(22px, 6.2vw, 32px);
+  font-size: clamp(22px, 5.8vw + 0.35rem, 32px);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.03em;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   padding: 0;
 }
 
 .posterHeroSupportInline {
-  font-size: 13px;
+  font-size: clamp(13px, 3.2vw, 15px);
   font-weight: 400;
   line-height: 1.55;
   color: #48484a;
   margin: 0 0 16px;
-  max-width: 36ch;
+  max-width: 38ch;
 }
 
 .posterHeroCta {
   pointer-events: auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: stretch;
-  width: 100%;
+  align-self: flex-start;
+  width: auto;
+  max-width: 100%;
   margin: 0;
-  padding: 14px 20px;
+  padding: 14px 28px;
   border-radius: 8px;
   border: none;
   background: #7c6fd6;
@@ -169,6 +186,13 @@
   /* ベース画像の左右の淡い帯を枠外へクロップ */
   transform: scale(1.34);
   transform-origin: center center;
+}
+
+@media (min-width: 768px) {
+  .posterHeroBaseImage {
+    object-position: 58% 46%;
+    transform: scale(1.22);
+  }
 }
 
 /* 下端のみ：読みやすさ用のごく薄い明るいハゼ（濃色タイポ用・重いグレー板にしない） */
@@ -234,10 +258,25 @@
   box-sizing: border-box;
 }
 
-/* 主見出しをポスター改行で固定（3行化を避ける） */
+/* 主見出し：JSX の2行をそのままポスター行として優先（balance で再分割しない） */
 .posterHeroTitleLine {
   display: block;
-  line-height: 1.3;
+  line-height: 1.22;
+}
+
+.posterHeroTitleLine:first-child {
+  margin-bottom: 0.08em;
+}
+
+@media (min-width: 768px) {
+  .posterHeroCopy {
+    max-width: min(66%, 40em);
+  }
+
+  .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: clamp(24px, 2.5vw + 0.85rem, 32px);
+    line-height: 1.18;
+  }
 }
 
 .posterTitleSmall {
@@ -281,21 +320,30 @@
 
 /* 無料 / 読める / 有料 — 短文モジュール（長文の説明にしない） */
 .homeTierStack {
+  width: 100%;
+  max-width: min(56rem, 100%);
   margin: 0 0 16px;
-  padding: 12px 14px;
+  padding: clamp(12px, 2.8vw, 16px) clamp(14px, 3vw, 18px);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .homeTierStack {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .homeTierRow {
   display: grid;
-  grid-template-columns: minmax(96px, 104px) 1fr;
-  gap: 10px 12px;
+  grid-template-columns: minmax(108px, 120px) minmax(0, 1fr);
+  gap: 12px 14px;
   align-items: start;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
 }
 
@@ -311,25 +359,32 @@
 .homeTierBadge,
 .homeTierBadgePaid {
   display: inline-block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: clamp(10px, 2.4vw, 11px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
   color: #1d4ed8;
   line-height: 1.3;
-  padding: 3px 0 0;
+  padding: 2px 0 0;
 }
 
 .homeTierBadgePaid {
-  color: #6b21a8;
+  color: #5b21a8;
 }
 
 .homeTierText {
   margin: 0;
-  font-size: 11px;
+  font-size: clamp(12px, 3.1vw, 14px);
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.5;
   color: #3a3a3c;
   text-align: left;
+  max-width: min(48ch, 100%);
+}
+
+@media (min-width: 768px) {
+  .homeTierText {
+    max-width: min(52ch, 100%);
+  }
 }
 
 .heroText {
@@ -606,12 +661,23 @@
   gap: 12px;
 }
 
+@media (min-width: 768px) {
+  .useExploreGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 56rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .useExploreCard {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+  column-gap: 14px;
+  padding: 14px 14px 14px 16px;
   min-height: 72px;
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -661,8 +727,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f5f7;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(124, 111, 214, 0.08);
+  border: 1px solid rgba(124, 111, 214, 0.18);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 1) inset;
 }
 
@@ -679,45 +745,46 @@
 }
 
 .useExploreBody {
-  flex: 1;
   min-width: 0;
   text-align: left;
 }
 
 .useExploreTitle {
   display: block;
-  font-size: 16px;
+  font-size: clamp(16px, 3.9vw, 18px);
   font-weight: 800;
-  color: #000000;
-  line-height: 1.22;
+  color: #0a0a0c;
+  line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
 .useExploreSub {
   display: block;
-  font-size: 9px;
+  font-size: clamp(11px, 2.7vw, 13px);
   font-weight: 500;
-  color: #86868b;
-  line-height: 1.35;
-  margin-top: 4px;
-  letter-spacing: 0.03em;
+  color: #636366;
+  line-height: 1.42;
+  margin-top: 5px;
+  letter-spacing: 0.02em;
 }
 
 .useExploreChevron {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  justify-self: end;
+  font-size: 22px;
   font-weight: 600;
-  color: #1d4ed8;
+  color: #4a3d8a;
   line-height: 1;
-  border-radius: 50%;
-  background: rgba(29, 78, 216, 0.08);
-  border: 1px solid rgba(29, 78, 216, 0.15);
+  border-radius: 11px;
+  background: rgba(124, 111, 214, 0.12);
+  border: 1px solid rgba(91, 77, 184, 0.28);
   box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
 }
 
 /* 5軸：公開向け・極軽量（メーター＋リード＋短文チップのみ） */
@@ -732,20 +799,20 @@
 }
 
 .fiveAxisReadTitle {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: clamp(15px, 3.5vw, 18px);
+  font-weight: 800;
   color: #1d1d1f;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   text-align: center;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.28;
+  letter-spacing: -0.022em;
 }
 
 .fiveAxisReadLead {
-  font-size: 11px;
-  color: #636366;
-  line-height: 1.45;
-  margin: 0 0 12px;
+  font-size: clamp(12px, 3vw, 14px);
+  color: #48484a;
+  line-height: 1.5;
+  margin: 0 0 10px;
   text-align: center;
   text-wrap: balance;
   font-weight: 500;
@@ -755,19 +822,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 
 .fiveAxisReadMeterSvg {
   display: block;
-  width: 80px;
-  height: 80px;
+  width: clamp(84px, 22vw, 96px);
+  height: clamp(84px, 22vw, 96px);
 }
 
 .fiveAxisReadCardGrid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   margin: 0;
 }
 
@@ -782,11 +849,57 @@
 
 .fiveAxisReadMiniCardText {
   margin: 0;
-  font-size: 11px;
+  font-size: clamp(11px, 2.8vw, 13px);
   font-weight: 500;
-  line-height: 1.45;
-  color: #48484a;
+  line-height: 1.5;
+  color: #3a3a3c;
   text-align: left;
+}
+
+@media (min-width: 768px) {
+  .fiveAxisReadCard {
+    max-width: 52rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 18px 20px 16px;
+    display: grid;
+    grid-template-columns: minmax(104px, 120px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    column-gap: 22px;
+    row-gap: 8px;
+    align-items: start;
+  }
+
+  .fiveAxisReadTitle {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .fiveAxisReadLead {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+    max-width: 48ch;
+    margin-bottom: 6px;
+  }
+
+  .fiveAxisReadMeterWrap {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+    justify-content: flex-start;
+    align-self: start;
+    padding-top: 2px;
+  }
+
+  .fiveAxisReadCardGrid {
+    grid-column: 2;
+    grid-row: 3;
+    margin: 0;
+    align-self: start;
+  }
 }
 
 .understandingSection {
@@ -1544,6 +1657,18 @@
   );
 }
 
+.reportCardBody {
+  margin: 0;
+  padding: 0;
+}
+
+.reportCardColMain,
+.reportCardColAside {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
 /* Depth note — lead-in before feature list */
 .depthNote {
   font-size: 11px;
@@ -1572,7 +1697,7 @@
 .featureListLoose {
   list-style: none;
   padding: 0;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .featureItemLoose {
@@ -1593,20 +1718,26 @@
   padding-bottom: 4px;
 }
 
+/* 収録プレビュー以下：読み幅を抑えた「下段」 */
+.reportCardLower {
+  margin-top: 0;
+}
+
 /* Blurred chapter preview — inside value card */
 .chapterPreview {
-  border-top: 1px solid rgba(124, 111, 214, 0.1);
-  padding-top: 10px;
-  margin-top: 12px;
+  border-top: 1px solid rgba(124, 111, 214, 0.14);
+  padding-top: 12px;
+  margin-top: 10px;
 }
 
 .chapterPreviewLabel {
-  font-size: 10px;
+  font-size: clamp(10px, 2.4vw, 11px);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #9b94b3;
+  letter-spacing: 0.08em;
+  color: #6b5f8a;
   text-align: center;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  font-weight: 700;
 }
 
 .chapterList {
@@ -1624,15 +1755,14 @@
 }
 
 .chapterChip {
-  font-size: 10px;
-  font-weight: 500;
-  color: #6b5fa8;
-  opacity: 0.9;
-  padding: 6px 10px;
+  font-size: clamp(11px, 2.6vw, 12px);
+  font-weight: 600;
+  color: #3d3558;
+  padding: 7px 11px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(124, 111, 214, 0.22);
-  line-height: 1.3;
+  background: #ffffff;
+  border: 1px solid rgba(124, 111, 214, 0.32);
+  line-height: 1.35;
   max-width: 100%;
   box-sizing: border-box;
   white-space: nowrap;
@@ -1641,15 +1771,15 @@
 }
 
 .reportAuxCard {
-  font-size: 11px;
-  line-height: 1.45;
-  color: #7a7389;
-  margin: 12px 0 0;
-  padding: 10px 12px;
+  font-size: clamp(12px, 2.9vw, 13px);
+  line-height: 1.55;
+  color: #48484a;
+  margin: 14px 0 0;
+  padding: 11px 13px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(124, 111, 214, 0.14);
-  text-align: center;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  text-align: left;
 }
 
 .chapterRow {
@@ -1684,25 +1814,29 @@
 }
 
 .valueGapNote {
-  font-size: 11px;
-  font-weight: 600;
-  color: #48484a;
-  text-align: center;
-  margin: 8px 0 0;
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 700;
+  color: #2c233a;
+  text-align: left;
+  margin: 10px 0 0;
   line-height: 1.45;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(124, 111, 214, 0.16);
 }
 
 .reportCta {
   display: inline-block;
-  padding: 10px 22px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 11px 24px;
+  font-size: clamp(14px, 3.2vw, 15px);
+  font-weight: 700;
   background: #7c6fd6;
   color: #fff;
   border-radius: 999px;
   text-decoration: none;
-  border: none;
-  margin-top: 14px;
+  border: 1px solid rgba(91, 77, 184, 0.35);
+  margin-top: 16px;
   cursor: pointer;
 }
 
@@ -1715,38 +1849,102 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .trustFooter {
-  border-top: 1px solid rgba(177, 156, 255, 0.1);
-  padding-top: 14px;
-  margin-top: 6px;
-  font-size: 11px;
-  color: #9b94b3;
+  border-top: 1px solid rgba(177, 156, 255, 0.14);
+  padding-top: 16px;
+  margin-top: 10px;
+  font-size: clamp(11px, 2.8vw, 12px);
+  color: #8e889c;
   text-align: center;
-  line-height: 2;
+  line-height: 1.55;
 }
 
 .legalLinks {
   margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 0;
 }
 
 .legalLink {
-  color: #9b94b3;
+  color: #7a7389;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .legalLink:hover {
   text-decoration: underline;
+  color: #5b4db8;
 }
 
 .legalSep {
-  color: #b5b0c4;
+  color: #c4bfd4;
+  padding: 0 6px;
+  user-select: none;
 }
 
 .copyright {
   display: block;
-  margin-top: 6px;
-  font-size: 10px;
+  margin-top: 10px;
+  font-size: clamp(10px, 2.5vw, 11px);
   color: #b5b0c4;
   letter-spacing: 0.03em;
+}
+
+@media (min-width: 768px) {
+  .reportCardBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px 28px;
+    align-items: start;
+  }
+
+  .reportCardColAside {
+    align-self: start;
+  }
+
+  .reportCardLower {
+    max-width: none;
+    margin: 0;
+  }
+
+  .reportCardColAside .chapterPreview {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .chapterPreviewLabel,
+  .chapterChipWrap,
+  .chapterMore,
+  .valueGapNote {
+    text-align: left;
+  }
+
+  .chapterChipWrap {
+    justify-content: flex-start;
+  }
+
+  .trustFooter {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 12px 24px;
+    text-align: left;
+    padding-top: 20px;
+  }
+
+  .legalLinks {
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  .copyright {
+    margin-top: 0;
+    text-align: right;
+    justify-self: end;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

@@ -277,7 +277,7 @@ export default function HomePanel() {
                   src="/home/hero-tech-map.webp"
                   alt=""
                   fill
-                  sizes="(max-width: 480px) 100vw, 420px"
+                  sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
                   className={styles.posterHeroBaseImage}
                   priority
                 />
@@ -286,8 +286,10 @@ export default function HomePanel() {
             </div>
             <div className={styles.posterHeroOverlay}>
               <div className={styles.posterHeroCopy}>
-                <p className={styles.posterHeroBrandM55}>M55</p>
-                <p className={styles.posterHeroProductTitle}>Entry Report</p>
+                <div className={styles.posterHeroLabelGroup}>
+                  <p className={styles.posterHeroBrandM55}>M55</p>
+                  <p className={styles.posterHeroProductTitle}>Entry Report</p>
+                </div>
                 <h1 className={styles.posterHeroTitleBlite}>
                   <span className={styles.posterHeroTitleLine}>生まれた日からひらく、</span>
                   <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
@@ -527,46 +529,54 @@ export default function HomePanel() {
               src="/home/card-entry-report.webp"
               alt=""
               fill
-              sizes="(max-width: 420px) 100vw, 390px"
+              sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
               className={styles.reportCardHeroBandImg}
             />
             <div className={styles.reportCardHeroBandVeil} />
           </div>
 
-          <p className={styles.valueEyebrow}>Entry Report</p>
-          <p className={styles.valuePrice}>¥1,000（税込）</p>
+          <div className={styles.reportCardBody}>
+            <div className={styles.reportCardColMain}>
+              <p className={styles.valueEyebrow}>Entry Report</p>
+              <p className={styles.valuePrice}>¥1,000（税込）</p>
 
-          <p className={styles.depthNote}>無料の見取り図と同じ本質を、章立てで深く読む版です。</p>
+              <p className={styles.depthNote}>無料の見取り図と同じ本質を、章立てで深く読む版です。</p>
 
-          <ul className={styles.featureListLoose}>
-            <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
-            <li className={styles.featureItemLoose}>相談1回付属（購入者専用ルーム）</li>
-            <li className={styles.featureItemLoose}>永久閲覧・物理配送なし</li>
-          </ul>
-
-          {/* Chapter preview — chips / mini-cards (no blur) */}
-          <div className={styles.chapterPreview}>
-            <p className={styles.chapterPreviewLabel}>収録内容プレビュー</p>
-            <div className={styles.chapterChipWrap}>
-              {DTR_TEASER_SECTIONS.slice(0, 4).map((s) => (
-                <span key={s.id} className={styles.chapterChip}>
-                  {s.title}
-                </span>
-              ))}
+              <ul className={styles.featureListLoose}>
+                <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
+                <li className={styles.featureItemLoose}>相談1回付属（購入者専用ルーム）</li>
+                <li className={styles.featureItemLoose}>永久閲覧・物理配送なし</li>
+              </ul>
             </div>
-            <p className={styles.chapterMore}>ほかにも章を収録</p>
-            <p className={styles.valueGapNote}>
-              無料＝見取り図／有料＝章立てレポート（保存・深読み）。
-            </p>
+
+            <div className={styles.reportCardColAside}>
+              <div className={styles.reportCardLower}>
+                {/* Chapter preview — chips / mini-cards (no blur) */}
+                <div className={styles.chapterPreview}>
+                  <p className={styles.chapterPreviewLabel}>収録内容プレビュー</p>
+                  <div className={styles.chapterChipWrap}>
+                    {DTR_TEASER_SECTIONS.slice(0, 4).map((s) => (
+                      <span key={s.id} className={styles.chapterChip}>
+                        {s.title}
+                      </span>
+                    ))}
+                  </div>
+                  <p className={styles.chapterMore}>ほかにも章を収録</p>
+                  <p className={styles.valueGapNote}>
+                    無料＝見取り図／有料＝章立てレポート（保存・深読み）。
+                  </p>
+                </div>
+
+                <p className={styles.reportAuxCard}>
+                  購入者専用ルームで、レポートに沿って AI チャットにより深掘りできます。
+                </p>
+
+                <Link href="/dtr/lp" className={styles.reportCta}>
+                  Entry Reportを見る →
+                </Link>
+              </div>
+            </div>
           </div>
-
-          <p className={styles.reportAuxCard}>
-            購入者専用ルームで、レポートに沿って AI チャットにより深掘りできます。
-          </p>
-
-          <Link href="/dtr/lp" className={styles.reportCta}>
-            Entry Reportを見る →
-          </Link>
         </div>
       </section>
 
