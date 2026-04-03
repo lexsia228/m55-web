@@ -1,0 +1,43 @@
+/*
+ * Public routes use document (body) scroll — not ShellLayout’s inner main scroll.
+ * position:sticky on the shared .header is unreliable here (flex + UA differences).
+ * Pin the real <header> to the viewport for this shell only; ShellLayout does not use .page.
+ */
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100dvh;
+  /* Reserve the same 48px band the in-flow header used so main/footer do not jump under the bar */
+  padding-top: 48px;
+  background: #f9f7f4;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #3d3d3d;
+}
+
+.page[data-m55-public-shell] > :global(header) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 25;
+}
+
+/* Do not grow main to fill the viewport: footer must follow content in normal flow
+   (not pinned to the bottom of the screen when the page is short). */
+.main {
+  flex: 0 0 auto;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.inner {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+

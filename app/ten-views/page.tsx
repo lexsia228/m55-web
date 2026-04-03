@@ -1,4 +1,5 @@
 import M55TenViews from '../../components/pages/M55TenViews';
+import { PublicShell } from '../_components/PublicShell';
 
 export const metadata = {
   title: '人生を再構築するための10通りの資質 | M55',
@@ -7,5 +8,9 @@ export const metadata = {
 };
 
 export default function TenViewsPage() {
-  return <M55TenViews />;
+  return (
+    <PublicShell>
+      <M55TenViews />
+    </PublicShell>
+  );
 }

@@ -6,13 +6,13 @@
  * Public Home panel. Birth date: CTA → HomeBirthIntakeLayer. Full edit: /my.
  */
 
-import ShellLayout from '../../components/shell/ShellLayout';
 import HomePanel from '../../components/home/HomePanel';
+import { PublicShell } from '../_components/PublicShell';
 
 export default function HomePage() {
   return (
-    <ShellLayout iframeTitle="M55 ホーム">
+    <PublicShell>
       <HomePanel />
-    </ShellLayout>
+    </PublicShell>
   );
 }

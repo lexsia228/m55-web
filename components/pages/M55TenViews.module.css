@@ -10,12 +10,10 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .page {
-  min-height: 100vh;
-  background-color: #f9f7f4;
-  color: #1a1a1a;
+  color: #3d3d3d;
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  line-height: 1.7;
-  padding: 0 0 80px;
+  line-height: 1.8;
+  padding: 0 0 56px;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -23,9 +21,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .introFold {
-  max-width: 600px;
+  max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 64px 20px 48px;
+  padding: 8px clamp(20px, 3vw, 32px) 40px;
   text-align: center;
 }
 
@@ -57,9 +55,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .galleryFold {
-  max-width: 900px;
+  max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 40px 20px 56px;
+  padding: 0 clamp(20px, 3vw, 32px) 48px;
 }
 
 .sectionTitle {
@@ -96,7 +94,7 @@
   background-color: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
-  padding: 20px 16px;
+  padding: 0;
   text-align: center;
   transition: box-shadow 0.2s ease;
   overflow: hidden;
@@ -121,17 +119,23 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   position: relative;
-  margin: -20px -16px 16px;
+  margin: 0;
   border-radius: 12px 12px 0 0;
-  background-color: rgba(107, 95, 168, 0.06);
+  background-color: transparent;
+  overflow: hidden;
+  line-height: 0;
 }
 
 .cardImage {
-  position: absolute;
-  inset: 0;
+  position: static;
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
+}
+
+.cardBody {
+  padding: 16px 16px 18px;
 }
 
 .symbolNumber {
@@ -167,9 +171,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .clarifyFold {
-  max-width: 600px;
+  max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 48px 20px;
+  padding: 0 clamp(20px, 3vw, 32px) 40px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -214,9 +218,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .freeBridgeFold {
-  max-width: 500px;
+  max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 48px 20px 56px;
+  padding: 0 clamp(20px, 3vw, 32px) 48px;
   text-align: center;
 }
 
@@ -258,9 +262,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 .depthBridgeFold {
-  max-width: 600px;
+  max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 40px 20px 48px;
+  padding: 0 clamp(20px, 3vw, 32px) 24px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   text-align: center;
 }
@@ -282,7 +286,7 @@
 
 .depthSupport {
   font-size: 12px;
-  color: rgba(60, 60, 60, 0.6);
+  color: rgba(60, 60, 60, 0.7);
   margin: 0 0 20px;
   line-height: 1.7;
 }
@@ -298,3 +302,4 @@
 .depthCta:hover {
   opacity: 0.75;
 }
+

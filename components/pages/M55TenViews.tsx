@@ -131,12 +131,14 @@ export default function M55TenViews() {
                   decoding="async"
                 />
               </div>
-              <div className={styles.cardSymbol} aria-hidden="true">
-                <span className={styles.symbolNumber}>{index + 1}</span>
+              <div className={styles.cardBody}>
+                <div className={styles.cardSymbol} aria-hidden="true">
+                  <span className={styles.symbolNumber}>{index + 1}</span>
+                </div>
+                <h3 className={styles.viewName}>{card.persona}</h3>
+                <p className={styles.viewTagline}>{card.qualityLabel}</p>
+                <p className={styles.viewDesc}>{card.desc}</p>
               </div>
-              <h3 className={styles.viewName}>{card.persona}</h3>
-              <p className={styles.viewTagline}>{card.qualityLabel}</p>
-              <p className={styles.viewDesc}>{card.desc}</p>
             </article>
           ))}
         </div>

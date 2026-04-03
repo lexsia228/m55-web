@@ -1,6 +1,6 @@
 import Link from "next/link";
 import PurchaseButton from "../../../components/PurchaseButton";
-import { SiteFooter } from "../../_components/SiteFooter";
+import { PublicShell } from "../../_components/PublicShell";
 
 export const metadata = { title: "DTR | M55" };
 
@@ -31,16 +31,16 @@ export default async function DtrLpPage({
   const isExpired = params?.state === 'expired';
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f9f7f4" }}>
-    <main
+    <PublicShell>
+    <div
       style={{
-        maxWidth: 860,
-        margin: "0 auto",
-        padding: "32px 20px 56px",
         lineHeight: 1.8,
-        flex: "1 0 auto",
         fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
         color: "#3d3d3d",
+        maxWidth: "min(1320px, calc(100vw - 48px))",
+        margin: "0 auto",
+        padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
+        boxSizing: "border-box",
       }}
     >
       <p style={{ margin: "0 0 10px", fontSize: 13 }}>
@@ -90,15 +90,6 @@ export default async function DtrLpPage({
         >
           ¥1,000で購入する
         </PurchaseButton>
-        <p style={{ margin: "12px 0 0", fontSize: 12, color: "rgba(60,60,60,0.7)" }}>
-          <Link href="/legal/tokushoho" style={{ color: "#6b5fa8" }}>特定商取引法</Link>
-          {' · '}
-          <Link href="/legal/terms" style={{ color: "#6b5fa8" }}>利用規約</Link>
-          {' · '}
-          <Link href="/legal/refund" style={{ color: "#6b5fa8" }}>返金・キャンセル</Link>
-          {' · '}
-          <Link href="/support" style={{ color: "#6b5fa8" }}>サポート</Link>
-        </p>
       </section>
 
       <section style={{ margin: "0 0 16px" }}>
@@ -122,8 +113,7 @@ export default async function DtrLpPage({
       <p style={{ margin: 0, fontSize: 12, color: "rgba(60,60,60,0.7)" }}>
         本サービスは医療・法律・投資等の助言ではありません。
       </p>
-    </main>
-    <SiteFooter />
     </div>
+    </PublicShell>
   );
 }

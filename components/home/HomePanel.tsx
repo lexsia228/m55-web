@@ -608,21 +608,6 @@ export default function HomePanel() {
         onSaved={() => {}}
       />
 
-      <footer className={styles.trustFooter}>
-        <div className={styles.legalLinks}>
-          <Link href="/support" className={styles.legalLink}>サポート</Link>
-          <span className={styles.legalSep}> · </span>
-          <Link href="/legal/refund" className={styles.legalLink}>返金</Link>
-          <span className={styles.legalSep}> · </span>
-          <Link href="/legal/tokushoho" className={styles.legalLink}>特商法</Link>
-          <span className={styles.legalSep}> · </span>
-          <Link href="/legal/terms" className={styles.legalLink}>利用規約</Link>
-          <span className={styles.legalSep}> · </span>
-          <Link href="/legal/privacy" className={styles.legalLink}>プライバシー</Link>
-        </div>
-        <p className={styles.copyright}>© 2026 M55</p>
-      </footer>
-
     </div>
   );
 }

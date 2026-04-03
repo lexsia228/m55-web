@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ProfileRepository, type BirthProfile } from '../../lib/soul/profile';
 import styles from './HomeBirthIntakeLayer.module.css';
 
@@ -15,7 +16,7 @@ type Props = {
 
 /**
  * Home-only: nickname + birth date required; CTA-opened only.
- * Native dialog element + ::backdrop — top layer, viewport-centered.
+ * Custom modal only — portal to document.body, fixed overlay + panel (no native <dialog>).
  */
 export default function HomeBirthIntakeLayer({
   open,
@@ -27,20 +28,40 @@ export default function HomeBirthIntakeLayer({
   const id = useId();
   const birthId = `${id}-birth`;
   const nickId = `${id}-nick`;
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const birthRef = useRef<HTMLInputElement>(null);
   const nickRef = useRef<HTMLInputElement>(null);
   const [birthDate, setBirthDate] = useState('');
   const [nickname, setNickname] = useState('');
+  const [portalReady, setPortalReady] = useState(false);
 
   useEffect(() => {
-    const el = dialogRef.current;
-    if (!el) return;
-    if (open) {
-      if (!el.open) el.showModal();
-    } else if (el.open) {
-      el.close();
-    }
+    setPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverscroll = html.style.overscrollBehavior;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      html.style.overscrollBehavior = prevHtmlOverscroll;
+    };
   }, [open]);
 
   useEffect(() => {
@@ -83,22 +104,24 @@ export default function HomeBirthIntakeLayer({
 
   const canSave = nickname.trim().length > 0 && birthDate.trim().length > 0;
 
-  return (
-    <dialog
-      ref={dialogRef}
-      className={styles.dialog}
-      data-testid="m55-home-birth-intake-layer"
+  if (!portalReady || !open) return null;
+
+  return createPortal(
+    <div
+      className={styles.root}
+      role="dialog"
+      aria-modal="true"
       aria-labelledby={`${id}-title`}
-      onClose={onClose}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) dialogRef.current?.close();
-      }}
+      data-testid="m55-home-birth-intake-layer"
     >
-      <div
-        className={styles.panel}
-        role="document"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <button
+        type="button"
+        className={styles.overlay}
+        aria-label="閉じる"
+        tabIndex={-1}
+        onClick={onClose}
+      />
+      <div className={styles.panel}>
         <h2 id={`${id}-title`} className={styles.title}>
           プロフィールを保存
         </h2>
@@ -161,6 +184,7 @@ export default function HomeBirthIntakeLayer({
           </button>
         </div>
       </div>
-    </dialog>
+    </div>,
+    document.body
   );
 }

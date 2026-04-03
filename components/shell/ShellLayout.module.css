@@ -16,9 +16,16 @@
 
 /* ── Header ──────────────────────────────────────────────────────────────────── */
 
+/* Public surface (document scroll): stays under the viewport top while scrolling.
+   ShellLayout (fixed wrapper + internal main scroll): header stays above .main by flex;
+   sticky is a no-op there but does not break layout. */
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
   flex-shrink: 0;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;

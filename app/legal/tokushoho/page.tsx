@@ -7,9 +7,9 @@ export const metadata = {
 export default function TokushohoPage() {
   return (
     <main style={{
-      maxWidth: 860,
+      maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
-      padding: "24px 16px 56px",
+      padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
       lineHeight: 1.7,
     }}>
       <h1 style={{
