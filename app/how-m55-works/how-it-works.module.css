@@ -175,19 +175,21 @@
   gap: 20px;
 }
 
-.inputBadge {
+.inputCalloutThumb {
+  position: relative;
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: rgba(107, 95, 168, 0.08);
-  border: 1px solid rgba(107, 95, 168, 0.14);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: #6b5fa8;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.inputCalloutThumbImg {
+  object-fit: contain;
+  transform: scale(1.32);
+  transform-origin: center center;
 }
 
 .inputCalloutTitle {
@@ -248,28 +250,34 @@
   gap: 14px;
 }
 
-.tenMap {
+.tenThumbGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+  width: 100%;
+  max-width: 200px;
 }
 
-.tenDot {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media (min-width: 768px) {
+  .tenThumbGrid {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: min(100%, 288px);
+    gap: 8px;
+  }
 }
 
-.tenDotInner {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(107, 95, 168, 0.35);
+.tenThumbCell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tenThumbImg {
+  object-fit: cover;
 }
 
 .visualCaption {

@@ -25,9 +25,6 @@ export function NextStepSection() {
         <Link href="/dtr/lp" className={styles.secondaryCta}>
           Entry Report を見る
         </Link>
-        <Link href="/support" className={styles.tertiaryCta}>
-          相談室について
-        </Link>
       </div>
 
       <div className={styles.nextFoot}>

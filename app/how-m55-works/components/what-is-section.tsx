@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from '../how-it-works.module.css';
 
 export function WhatIsSection() {
@@ -24,8 +25,14 @@ export function WhatIsSection() {
 
       <div className={styles.inputCallout}>
         <div className={styles.inputCalloutInner}>
-          <div className={styles.inputBadge} aria-hidden>
-            入力
+          <div className={styles.inputCalloutThumb} aria-hidden>
+            <Image
+              src="/home/card-core-brain.webp"
+              alt=""
+              fill
+              sizes="48px"
+              className={styles.inputCalloutThumbImg}
+            />
           </div>
           <div>
             <p className={styles.inputCalloutTitle}>生年月日</p>

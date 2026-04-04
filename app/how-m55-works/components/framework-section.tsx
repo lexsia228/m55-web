@@ -1,4 +1,18 @@
+import Image from 'next/image';
 import styles from '../how-it-works.module.css';
+
+const TEN_VIEW_THUMB_SRCS = [
+  '/ten-views/president.webp',
+  '/ten-views/planner.webp',
+  '/ten-views/influencer.webp',
+  '/ten-views/creator.webp',
+  '/ten-views/manager.webp',
+  '/ten-views/producer.webp',
+  '/ten-views/executor.webp',
+  '/ten-views/designer.webp',
+  '/ten-views/global-leader.webp',
+  '/ten-views/analyst.webp',
+] as const;
 
 const VERTICES: [number, number][] = [
   [100, 20],
@@ -27,14 +41,20 @@ export function FrameworkSection() {
             </p>
           </div>
           <div className={styles.frameworkVisual}>
-            <div className={styles.tenMap} aria-hidden>
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className={styles.tenDot}>
-                  <div className={styles.tenDotInner} />
+            <div className={styles.tenThumbGrid} aria-hidden>
+              {TEN_VIEW_THUMB_SRCS.map((src) => (
+                <div key={src} className={styles.tenThumbCell}>
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 767px) 22vw, 56px"
+                    className={styles.tenThumbImg}
+                  />
                 </div>
               ))}
             </div>
-            <p className={styles.visualCaption}>10通りの資質（抽象イメージ）</p>
+            <p className={styles.visualCaption}>10通りの資質のビジュアル</p>
           </div>
         </div>
 

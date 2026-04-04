@@ -1,15 +1,8 @@
-import Link from 'next/link';
 import styles from '../how-it-works.module.css';
 
 export function IntroSection() {
   return (
     <section className={styles.introSection} aria-labelledby="how-m55-intro-heading">
-      <nav className={styles.breadcrumb} aria-label="パンくず">
-        <Link href="/">ホーム</Link>
-        <span className={styles.breadcrumbSep}>/</span>
-        <span className={styles.breadcrumbCurrent}>M55の仕組み</span>
-      </nav>
-
       <p id="how-m55-intro-heading" className={styles.introLineLarge}>
         自分のことが、わからなくなることがある。
       </p>
