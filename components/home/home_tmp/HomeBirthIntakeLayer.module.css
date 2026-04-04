@@ -1,0 +1,170 @@
+/**
+ * Custom modal — portal to body only. Fixed root + scrim + panel.
+ * No native <dialog>, no ::backdrop. Width uses % of padded root (no 100vw).
+ */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 40000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: rgba(29, 24, 61, 0.52);
+  cursor: pointer;
+  appearance: none;
+  font: inherit;
+  color: transparent;
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  /* Root already has 16px side padding; use % of flex line, not 100vw */
+  width: min(560px, 100%);
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 245, 255, 0.99));
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  border-radius: clamp(12px, 2vw, 16px);
+  padding: clamp(18px, 3vw, 24px) clamp(16px, 3vw, 22px) clamp(20px, 3vw, 28px);
+  box-shadow: 0 18px 48px rgba(29, 24, 61, 0.14);
+  -webkit-overflow-scrolling: touch;
+}
+
+.title {
+  font-size: clamp(15px, 2.5vw, 17px);
+  font-weight: 600;
+  color: #1e1730;
+  margin: 0 0 6px;
+}
+
+.lead {
+  font-size: clamp(11px, 1.8vw, 13px);
+  color: #6b5f8a;
+  line-height: 1.55;
+  margin: 0 0 clamp(14px, 2.5vw, 18px);
+}
+
+.fieldGap {
+  margin-top: 12px;
+}
+
+.fieldBlock {
+  margin: 0;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8499;
+  margin-bottom: 6px;
+}
+
+.fieldRow {
+  display: block;
+  cursor: pointer;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(177, 156, 255, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.fieldRow:focus-within {
+  border-color: #7c6fd6;
+  outline: none;
+}
+
+.dateInput {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #2c233a;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.dateInput:focus {
+  outline: none;
+}
+
+.textInput {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #2c233a;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  box-sizing: border-box;
+}
+
+.textInput:focus {
+  outline: none;
+}
+
+.textInputWrap {
+  cursor: text;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btnSecondary {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(177, 156, 255, 0.35);
+  background: transparent;
+  font-size: 14px;
+  color: #6b5f8a;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #7c6fd6;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btnPrimary:hover:not(:disabled),
+.btnSecondary:hover {
+  opacity: 0.92;
+}

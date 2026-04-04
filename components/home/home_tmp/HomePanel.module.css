@@ -326,20 +326,11 @@
 }
 
 /* ── Shared home surface (below hero): one shell + card family ───────────── */
-/* Below hero: single horizontal column — width lives here only (not on each section). */
 .homeSurfaceShell {
   width: 100%;
   max-width: min(56rem, 100%);
   margin-left: auto;
   margin-right: auto;
-  box-sizing: border-box;
-}
-
-.homeBelowHeroStack {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -696,16 +687,10 @@
   );
 }
 
-/* Grid owns layout only — column max-width is .homeSurfaceShell on the parent stack. */
 .useExploreGrid {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
-  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {

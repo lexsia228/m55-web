@@ -313,13 +313,9 @@ export default function HomePanel() {
         </div>
       </section>
 
-      <div
-        className={`${styles.homeSurfaceShell} ${styles.homeBelowHeroStack}`}
-        data-testid="m55-home-public-surface-shell"
-      >
       {isLoaded && view.kind === 'no_profile' && (
         <div
-          className={`${styles.homeSurfaceCard} ${styles.homeTierStack}`}
+          className={`${styles.homeSurfaceShell} ${styles.homeSurfaceCard} ${styles.homeTierStack}`}
           data-testid="m55-home-tier-stack"
           aria-label="無料で得られるもの、このサイトで読めること、有料レポートの違い"
         >
@@ -349,7 +345,7 @@ export default function HomePanel() {
           ═══════════════════════════════════════════════════════════════════ */}
       {isLoaded && view.kind === 'no_profile' && (
         <section
-          className={styles.useExploreSection}
+          className={`${styles.homeSurfaceShell} ${styles.useExploreSection}`}
           data-testid="m55-home-understanding"
           aria-label="次の一歩"
         >
@@ -396,7 +392,7 @@ export default function HomePanel() {
 
       {isLoaded && view.kind === 'no_profile' && (
         <section
-          className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardSoft} ${styles.fiveAxisReadCard}`}
+          className={`${styles.homeSurfaceShell} ${styles.homeSurfaceCard} ${styles.homeSurfaceCardSoft} ${styles.fiveAxisReadCard}`}
           data-testid="m55-home-five-axis-read"
           aria-labelledby="m55-home-five-axis-read-title"
         >
@@ -426,8 +422,6 @@ export default function HomePanel() {
           </div>
         </section>
       )}
-
-      </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
           OBSERVATION MODE — personal computed surfaces only
@@ -528,15 +522,12 @@ export default function HomePanel() {
         </div>
       )}
 
-      <div
-        className={`${styles.homeSurfaceShell} ${styles.homeBelowHeroStack}`}
-        data-testid="m55-home-report-shell"
-      >
       {/* ═══════════════════════════════════════════════════════════════════
           FOLD 5: ENTRY REPORT MONETIZATION LAYER (always visible)
           One hero only — no second product or second price.
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.reportSection} aria-label="Entry Report">
+        <div className={styles.homeSurfaceShell}>
           <p className={styles.reportSectionEyebrow}>有料レポート</p>
 
           <div
@@ -596,9 +587,8 @@ export default function HomePanel() {
             </div>
           </div>
           </div>
+        </div>
       </section>
-
-      </div>
 
       {observation && personal && (
         <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
