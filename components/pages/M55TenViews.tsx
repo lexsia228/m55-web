@@ -107,11 +107,11 @@ export default function M55TenViews() {
           下の呼び名（例：プレジデント）は、覚えやすさのためのラベルで、実際の肩書きを指すものではありません。
           資質は「性格」という一言より、自分の中にある素材に近い捉え方です。各タイプは独立した観点として並んでいます。
         </p>
-        <p style={{ marginTop: 16, fontSize: 12, color: 'rgba(60, 60, 60, 0.65)' }}>
-          <Link href="/how-m55-works" style={{ color: '#6b5fa8', textDecoration: 'underline' }}>
+        <div className={styles.introCtaRow}>
+          <Link href="/how-m55-works" className={styles.introSecondaryCta}>
             M55の見方を見る
           </Link>
-        </p>
+        </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
@@ -179,16 +179,19 @@ export default function M55TenViews() {
           FOLD 5 — Gentle paid-depth bridge → /dtr/lp
           ══════════════════════════════════════════════════════════════ */}
       <section className={styles.depthBridgeFold}>
-        <h2 className={styles.depthTitle}>さらに深く読みたい場合</h2>
-        <p className={styles.depthBody}>
-          Entry Report では、10通りの資質の重なりや相互作用をより詳しく記述しています。
-        </p>
-        <p className={styles.depthSupport}>
-          ¥1,000 · ウェブ上で提供するデジタルコンテンツです
-        </p>
-        <Link href="/dtr/lp" className={styles.depthCta}>
-          Entry Report を見る
-        </Link>
+        <h2 className={styles.depthTitle}>さらに深く読む</h2>
+        <div className={styles.depthProductBlock}>
+          <p className={styles.depthProductEyebrow}>Entry Report</p>
+          <p className={styles.depthBody}>
+            Entry Report では、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
+          </p>
+          <p className={styles.depthPriceLine}>
+            ¥1,000｜ウェブで閲覧するデジタルレポート
+          </p>
+          <Link href="/dtr/lp" className={styles.depthPrimaryCta}>
+            Entry Report を見る
+          </Link>
+        </div>
       </section>
     </div>
   );

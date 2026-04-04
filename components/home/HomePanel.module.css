@@ -792,6 +792,24 @@
   object-position: center center;
 }
 
+/* 「10通りの資質から読む」左サムネのみ：内側の白リング抑止＋画像をタイル全面に敷く */
+.useExploreIconThumbQualities {
+  box-shadow: none;
+}
+
+.useExploreThumbImageQualities {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  /* card-qualities-flower.webp にラスタ内の白余白がある前提で、枠内をわずかに拡大して隠す（親は overflow: hidden で角丸維持） */
+  transform: scale(1.12);
+  transform-origin: center center;
+}
+
 .useExploreBody {
   min-width: 0;
   text-align: left;

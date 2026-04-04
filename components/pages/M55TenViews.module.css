@@ -50,6 +50,43 @@
   line-height: 1.7;
 }
 
+.introCtaRow {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Secondary: 仕組み案内 — 本文末尾の下線リンクに見えないよう輪郭ボタンに限定 */
+.introSecondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #534a72;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(107, 95, 168, 0.4);
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.introSecondaryCta:hover {
+  background: rgba(107, 95, 168, 0.06);
+  border-color: rgba(107, 95, 168, 0.5);
+  color: #453d62;
+}
+
+.introSecondaryCta:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.45);
+  outline-offset: 3px;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    FOLD 2 — TEN VIEWS GALLERY
    ══════════════════════════════════════════════════════════════════════ */
@@ -264,7 +301,7 @@
 .depthBridgeFold {
   max-width: min(1320px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 0 clamp(20px, 3vw, 32px) 24px;
+  padding: 28px clamp(20px, 3vw, 32px) 32px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   text-align: center;
 }
@@ -274,32 +311,73 @@
   font-size: 16px;
   font-weight: 500;
   color: #1a1a1a;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
+}
+
+/* Paid product block — title stays section-level; inner block groups offer + price + primary action */
+.depthProductBlock {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 22px 20px 24px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  box-sizing: border-box;
+}
+
+.depthProductEyebrow {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #5c5280;
+  margin: 0 0 12px;
+  line-height: 1.4;
 }
 
 .depthBody {
   font-size: 14px;
   color: #3d3d3d;
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   line-height: 1.8;
 }
 
-.depthSupport {
-  font-size: 12px;
-  color: rgba(60, 60, 60, 0.7);
+.depthPriceLine {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2638;
   margin: 0 0 20px;
-  line-height: 1.7;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
 }
 
-.depthCta {
-  display: inline-block;
-  font-size: 13px;
-  color: #6b5fa8;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+/* Primary: 有料商品導線 — secondary（intro）より塗りで強く、同一パレット内 */
+.depthPrimaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  background: #6b5fa8;
+  border: 1px solid rgba(58, 48, 98, 0.25);
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 }
 
-.depthCta:hover {
-  opacity: 0.75;
+.depthPrimaryCta:hover {
+  background: #625699;
+  border-color: rgba(58, 48, 98, 0.35);
+}
+
+.depthPrimaryCta:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.65);
+  outline-offset: 3px;
 }
 

@@ -326,7 +326,7 @@ export default function HomePanel() {
           <div className={styles.homeTierRow}>
             <span className={styles.homeTierBadge}>無料</span>
             <p className={styles.homeTierText}>
-              生まれた日から、5つの視点の見取り図（傾向のバランス）が開きます。
+              生まれた日から5つの視点の見取り図（傾向のバランス）が開きます。
             </p>
           </div>
           <div className={styles.homeTierRow}>
@@ -375,13 +375,15 @@ export default function HomePanel() {
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
             <Link href="/ten-views" className={styles.useExploreCard}>
-              <span className={styles.useExploreIconThumbExplore}>
+              <span
+                className={`${styles.useExploreIconThumbExplore} ${styles.useExploreIconThumbQualities}`}
+              >
                 <Image
                   src="/home/card-qualities-flower.webp"
                   alt=""
                   fill
                   sizes="60px"
-                  className={styles.useExploreThumbImage}
+                  className={`${styles.useExploreThumbImage} ${styles.useExploreThumbImageQualities}`}
                 />
               </span>
               <span className={styles.useExploreBody}>
@@ -403,14 +405,14 @@ export default function HomePanel() {
           <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
             5つの解析軸の見方
           </h2>
-          <p className={styles.fiveAxisReadLead}>円のバランスで、いまの出方をざっと整理します。</p>
+          <p className={styles.fiveAxisReadLead}>円のバランスでいまの出方をざっと整理します。</p>
           <div className={styles.fiveAxisReadMeterWrap}>
             <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
           </div>
           <div className={styles.fiveAxisReadCardGrid}>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                5つの視点の配分を、ひとつの見取り図として見ます。
+                5つの視点の配分をひとつの見取り図として見ます。
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
@@ -558,7 +560,7 @@ export default function HomePanel() {
               <p className={styles.valueEyebrow}>Entry Report</p>
               <p className={styles.valuePrice}>¥1,000（税込）</p>
 
-              <p className={styles.depthNote}>無料の見取り図と同じ本質を、章立てで深く読む版です。</p>
+              <p className={styles.depthNote}>無料の見取り図と同じ本質を章立てで深く読む版です。</p>
 
               <ul className={styles.featureListLoose}>
                 <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
@@ -586,7 +588,7 @@ export default function HomePanel() {
                 </div>
 
                 <p className={styles.reportAuxCard}>
-                  購入者専用ルームで、レポートに沿って AI チャットにより深掘りできます。
+                  購入者専用ルームで、レポートに沿って AI チャットで深掘りできます。
                 </p>
 
                 <Link href="/dtr/lp" className={styles.reportCta}>
