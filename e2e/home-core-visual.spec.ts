@@ -44,15 +44,17 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await page.screenshot({ path: path.join(OUT, '02-home-after-profile.png'), fullPage: true });
   });
 
-  test('03 /core 未保存（案内＋共通保存モーダル導線）', async ({ page, context }) => {
+  test('03 /core 未保存（ホームへ戻る案内）', async ({ page, context }) => {
     await context.addInitScript(() => {
       localStorage.clear();
       sessionStorage.clear();
     });
     await page.goto('/core');
     await expect(page.getByTestId('m55-core-locked')).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('button', { name: 'プロフィールを保存して開く' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'マイページで入力・保存する' })).toBeVisible();
+    const homeLink = page.getByTestId('m55-core-locked-home-link');
+    await expect(homeLink).toBeVisible();
+    await expect(homeLink).toHaveAttribute('href', '/home');
+    await expect(homeLink).toContainText('ホームへ戻る');
     await page.screenshot({ path: path.join(OUT, '03-core-locked.png'), fullPage: true });
   });
 

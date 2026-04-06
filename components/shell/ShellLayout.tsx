@@ -31,6 +31,8 @@ export default function ShellLayout({
   children?: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const isCoreRoute =
+    pathname === '/core' || (pathname?.startsWith('/core/') ?? false);
 
   // Prevent body-level scrolling that would expose the global SiteFooter
   // behind the fixed shell on mobile browsers (viewport-unit instability).
@@ -57,13 +59,13 @@ export default function ShellLayout({
           <LegacyFrame src={iframeSrc!} title={iframeTitle} {...iframeProps} />
         ) : children ? (
           <>
-            {/* REGRESSION: SoulBirthGate auto-opens; /home uses CTA-driven BirthProfileIntakeLayer only */}
-            {pathname !== '/home' && <SoulBirthGate />}
+            {/* REGRESSION: SoulBirthGate auto-opens; /home と /core は専用導線（BirthProfileIntakeLayer 等）のみ */}
+            {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
             {children}
           </>
         ) : (
           <>
-            {pathname !== '/home' && <SoulBirthGate />}
+            {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
             <iframe ref={iframeRef} src={iframeSrc} title={iframeTitle} {...iframeProps} />
           </>
         )}

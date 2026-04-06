@@ -147,35 +147,44 @@ export default function HomePanel() {
               <div className={styles.posterHeroReadabilityVeil} />
             </div>
             <div className={styles.posterHeroOverlay}>
-              <div className={styles.posterHeroCopy}>
-                <div className={styles.posterHeroLabelGroup}>
-                  <p className={styles.posterHeroBrandM55}>M55</p>
-                  <p className={styles.posterHeroProductTitle}>Entry Report</p>
+              <div className={styles.posterHeroFoot}>
+                <div className={styles.posterHeroCopy}>
+                  <div className={styles.posterHeroTopBlock}>
+                    <div className={styles.posterHeroLabelGroup}>
+                      <p className={styles.posterHeroBrandM55}>M55</p>
+                      <p className={styles.posterHeroProductTitle}>Entry Report</p>
+                    </div>
+                    <h1 className={styles.posterHeroTitleBlite}>
+                      <span className={styles.posterHeroTitleLine}>生まれた日からひらく</span>
+                      <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
+                    </h1>
+                  </div>
+                  <div className={styles.posterHeroBreathing} aria-hidden />
+                  <div className={styles.posterHeroBottomStack}>
+                    {isLoaded && view.kind === 'no_profile' && (
+                      <button
+                        type="button"
+                        className={styles.posterHeroCta}
+                        data-testid="m55-home-open-birth-intake"
+                        onClick={() => setBirthIntakeOpen(true)}
+                      >
+                        無料で見取り図を開く
+                      </button>
+                    )}
+                    {hasProfile && (
+                      <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
+                        <Link href="/core" className={styles.posterHeroCoreLinkA}>
+                          本質ページを開く →
+                        </Link>
+                      </p>
+                    )}
+                    <p className={styles.posterHeroSupportInline}>
+                      生まれた日から個人向けの見取り図が開きます。
+                      <br />
+                      無料ではまず輪郭まで見えます。
+                    </p>
+                  </div>
                 </div>
-                <h1 className={styles.posterHeroTitleBlite}>
-                  <span className={styles.posterHeroTitleLine}>生まれた日からひらく</span>
-                  <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
-                </h1>
-                <p className={styles.posterHeroSupportInline}>
-                  生まれた日から個人向けの見取り図が開きます。無料ではまず輪郭まで見えます。
-                </p>
-                {isLoaded && view.kind === 'no_profile' && (
-                  <button
-                    type="button"
-                    className={styles.posterHeroCta}
-                    data-testid="m55-home-open-birth-intake"
-                    onClick={() => setBirthIntakeOpen(true)}
-                  >
-                    無料で見取り図を開く
-                  </button>
-                )}
-                {hasProfile && (
-                  <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
-                    <Link href="/core" className={styles.posterHeroCoreLinkA}>
-                      本質ページを開く →
-                    </Link>
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -371,23 +380,6 @@ export default function HomePanel() {
       </section>
 
       </div>
-
-      {isLoaded && view.kind !== 'loading' && (
-        <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
-          <summary className={styles.learnMoreSummary}>M55の仕組みと資料</summary>
-          <nav className={styles.learnMoreLinks} aria-label="理解を深める">
-            <Link href="/how-m55-works">M55の使い方</Link>
-            <Link href="/ten-views">10通りの資質</Link>
-          </nav>
-          <ul className={styles.rulesList}>
-            <li className={styles.ruleItem}>無料では基礎の見取り図が見えます</li>
-            <li className={styles.ruleItem}>Entry Report では同じ本質を深く整理します</li>
-            <li className={styles.ruleItem}>レポートには相談1回がつきます</li>
-            <li className={styles.ruleItem}>追加相談はそのレポートのルームだけで行えます</li>
-            <li className={styles.ruleItem}>1レポートの相談は最大3回です</li>
-          </ul>
-        </details>
-      )}
 
       {/* ═══════════════════════════════════════════════════════════════════
           FOLD 6: TRUST FOOTER (always visible)

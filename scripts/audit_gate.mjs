@@ -313,8 +313,8 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('data-testid="m55-home-demo-five-element"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-demo-five-element" (public sample chart)');
   }
-  if (!t.includes('data-testid="m55-home-learn-more"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-learn-more" (trust / links)');
+  if (!t.includes('data-testid="m55-home-report-shell"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-report-shell" (Entry Report fold)');
   }
   if (!t.includes('data-testid="m55-home-open-birth-intake"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-open-birth-intake"');

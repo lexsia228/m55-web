@@ -27,7 +27,7 @@ export function SoulBirthGate() {
       return;
     }
 
-    if (pathname === '/core') {
+    if (pathname === '/core' || pathname?.startsWith('/core/')) {
       setOpen(false);
       return;
     }

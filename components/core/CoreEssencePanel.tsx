@@ -59,9 +59,7 @@ export default function CoreEssencePanel() {
   }
 
   if (sealed.kind === 'locked') {
-    const nicknameHint =
-      (user?.firstName || user?.username || '').trim();
-    return <CoreLockedState ownerId={ownerId} nicknameHint={nicknameHint} />;
+    return <CoreLockedState />;
   }
 
   if (sealed.kind === 'error') {

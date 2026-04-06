@@ -1,54 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import styles from './CoreExperience.module.css';
 
-type Props = {
-  ownerId: string | null;
-  nicknameHint?: string;
-};
-
 /**
- * /core 未保存：常時フォームは出さず、案内＋ Home と同一の保存モーダルへ誘導する。
+ * /core 未保存：本質はまだ開かない。ホームの無料導線へ戻す静かな案内面。
  */
-export default function CoreLockedState({ ownerId, nicknameHint = '' }: Props) {
-  const [layerOpen, setLayerOpen] = useState(false);
-
-  useEffect(() => {
-    const onOpenRequest = () => setLayerOpen(true);
-    window.addEventListener('m55:open_profile_gate', onOpenRequest);
-    return () => window.removeEventListener('m55:open_profile_gate', onOpenRequest);
-  }, []);
-
+export default function CoreLockedState() {
   return (
     <div className={styles.page}>
-      <div className={styles.coreProfileGate} data-testid="m55-core-locked">
-        <p className={styles.coreProfileGateLead}>
-          ニックネームと生年月日を端末に保存すると、本質ページの輪郭が開きます。入力はホームと同じ画面で行えます。
-        </p>
-        <div className={styles.coreProfileGateActions}>
-          <button
-            type="button"
-            className={styles.coreProfileGatePrimary}
-            onClick={() => setLayerOpen(true)}
-          >
-            プロフィールを保存して開く
-          </button>
-          <Link href="/my" className={styles.coreProfileGateLink}>
-            マイページで入力・保存する
-          </Link>
+      <div className={styles.coreProfileGateShell}>
+        <div className={styles.coreProfileGate} data-testid="m55-core-locked">
+          <h1 className={styles.coreProfileGateTitle}>
+            まずは、無料の範囲で輪郭を確認してみてください。
+          </h1>
+          <p className={styles.coreProfileGateSupport}>
+            本質ページは、プロフィール保存後に開きます。
+          </p>
+          <p className={styles.coreProfileGateSupport}>
+            無料の見取り図はホームから確認できます。
+          </p>
+          <div className={styles.coreProfileGateActions}>
+            <Link
+              href="/home"
+              className={styles.coreProfileGatePrimary}
+              data-testid="m55-core-locked-home-link"
+            >
+              ホームへ戻る
+            </Link>
+          </div>
         </div>
       </div>
-      <BirthProfileIntakeLayer
-        open={layerOpen}
-        ownerId={ownerId}
-        nicknameHint={nicknameHint}
-        onClose={() => setLayerOpen(false)}
-        onSaved={() => {}}
-        dataTestId="m55-core-birth-intake-layer"
-      />
     </div>
   );
 }
