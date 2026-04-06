@@ -16,6 +16,8 @@ const isPublicRoute = createRouteMatcher([
   '/ten-views',
   '/api/stripe/webhook',
   '/api/purchase/checkout',
+  '/api/diagnostics/env',
+  '/api/diagnostics/core-regression',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

@@ -39,3 +39,8 @@
   - `docs/audit/M55_CORE_REGRESSION_AUDIT_2026-04-06.json`
 - API run (without fixedNow, 3 consecutive): pass
 - Playwright (`e2e/core-regression-anchor.spec.ts`): pass
+
+## Founder Anchor Hero Expectation (1983-02-28)
+- Founder anchor (`1983-02-28`) hero card expectation is fixed to `ANALYST / 静観分析型`.
+- `CREATOR / クリエイター` may exist in other public title/ranking contexts, but must never appear as hero-card output for this anchor.
+- Audit coverage is implemented in `e2e/core-founder-anchor-hero.spec.ts` for both normal and secret-equivalent contexts.

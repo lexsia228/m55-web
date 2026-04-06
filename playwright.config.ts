@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = 'http://127.0.0.1:3000';
+const healthURL = `${baseURL}/api/diagnostics/env`;
+
 /**
  * ローカル: `npm run dev` を別ターミナルで起動してから
  *   `npx playwright test e2e/home-core-visual.spec.ts`
@@ -14,7 +17,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'off',
     video: 'off',
@@ -25,8 +28,8 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: 'npx next dev -p 3000 -H 127.0.0.1',
-        url: 'http://127.0.0.1:3000',
+        command: 'npx next dev -p 3000 -H 0.0.0.0',
+        url: healthURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
         stdout: 'pipe',
