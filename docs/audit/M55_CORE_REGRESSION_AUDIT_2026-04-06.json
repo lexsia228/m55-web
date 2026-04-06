@@ -1,0 +1,77 @@
+{
+  "auditId": "m55-core-regression-2026-04-06",
+  "repo": "C:/dev/M55_CANONICAL",
+  "branch": "work/home-cluster",
+  "anchors": {
+    "primary": "1983-02-28",
+    "secondary": "1992-12-19",
+    "pair": "1983-02-28x1992-12-19"
+  },
+  "preChangeSnapshot": "../M55_CANONICAL-preaudit-20260406-212554.zip",
+  "determinismChecks": {
+    "apiWithoutFixedNowThreeConsecutive": {
+      "runs": 3,
+      "seed19830228Diff": [0, 0, 0],
+      "seed19921219Diff": [0, 0, 0],
+      "pair1983x1992Diff": [0, 0, 0],
+      "rawDiff": 0,
+      "displayDiff": 0,
+      "pairDiff": 0,
+      "result": "pass"
+    },
+    "countryMatrix": {
+      "JP": {
+        "seed19830228": 0,
+        "seed19921219": 0,
+        "pair1983x1992": 0
+      },
+      "US": {
+        "seed19830228": 0,
+        "seed19921219": 0,
+        "pair1983x1992": 0
+      },
+      "result": "pass"
+    },
+    "boundaryContext": {
+      "normalizedGregorianDate": "1983-02-28",
+      "canonicalTimezone": "UTC",
+      "solarTermBoundary": "1983-02-28T00:00:00.000+09:00",
+      "lunarBoundary": "1983-02-28T00:00:00.000+09:00",
+      "fallbackMode": "anchor-1983-02-28-fixed",
+      "explainable": true
+    },
+    "savedVsUnsavedReplay": {
+      "coreType": true,
+      "coreLabel": true,
+      "coreAxisScores": true,
+      "engineVersion": true,
+      "lockedAt": true,
+      "staticFingerprint": true,
+      "displayFingerprint": true,
+      "result": "pass"
+    },
+    "pairPathNondeterminismAudit": {
+      "pairFingerprintStable": true,
+      "pairFingerprint": "djb2:2147ebd7",
+      "result": "pass"
+    },
+    "playwright": {
+      "spec": "e2e/core-regression-anchor.spec.ts",
+      "dimensions": [
+        "country=JP",
+        "country=US",
+        "fixedNow provided",
+        "fixedNow omitted",
+        "normal context",
+        "secret-equivalent context"
+      ],
+      "passed": true
+    }
+  },
+  "acceptance": {
+    "anchor19830228DeterministicAllConditions": true,
+    "boundaryContextExplainsDifferenceWhenAny": true,
+    "rawDisplayPairAllZeroDiff": true
+  },
+  "overall": "pass"
+}
