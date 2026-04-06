@@ -15,8 +15,8 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <PublicHeader />
       <main className={styles.main}>
         <div className={styles.inner}>{children}</div>
+        <PublicFooter />
       </main>
-      <PublicFooter />
     </div>
   );
 }

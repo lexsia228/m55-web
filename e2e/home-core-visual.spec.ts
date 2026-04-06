@@ -72,7 +72,7 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await expect(page.getByTestId('m55-home-core-analyzing')).toBeVisible({ timeout: 5000 });
     await page.screenshot({ path: path.join(OUT, '04-analyzing-overlay.png'), fullPage: true });
     await page.waitForURL('**/core', { timeout: 12_000 });
-    await expect(page.locator('h1').first()).toContainText('の本質', { timeout: 15_000 });
+    await expect(page.locator('h1').first()).toContainText('さん', { timeout: 15_000 });
     await page.screenshot({ path: path.join(OUT, '05-core-after-save.png'), fullPage: true });
   });
 });

@@ -428,5 +428,7 @@ export function affinityForTypeIndex(self: number): AffinityItem[] {
     const t = TYPE_CATALOG[j]!;
     items.push({ type: t.coreType, label: t.coreLabel, score });
   }
-  return items.sort((a, b) => b.score - a.score).slice(0, 5);
+  return items
+    .sort((a, b) => (b.score - a.score) || a.type.localeCompare(b.type))
+    .slice(0, 5);
 }

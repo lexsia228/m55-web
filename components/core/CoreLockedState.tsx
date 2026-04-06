@@ -8,7 +8,7 @@ import styles from './CoreExperience.module.css';
  */
 export default function CoreLockedState() {
   return (
-    <div className={styles.page}>
+    <div className={styles.coreLockedRoot}>
       <div className={styles.coreProfileGateShell}>
         <div className={styles.coreProfileGate} data-testid="m55-core-locked">
           <h1 className={styles.coreProfileGateTitle}>

@@ -7,6 +7,7 @@ import LegacyFrame from '../../src/components/legacy/LegacyFrame';
 import styles from './ShellLayout.module.css';
 import { useSoulBridge } from '../../hooks/useSoulBridge';
 import { SoulBirthGate } from '../../src/components/soul/SoulBirthGate';
+import { PublicFooter } from '../../app/_components/PublicFooter';
 
 /**
  * Primary entry: logo lockup → /home. Tabs: 本質 / レポート / マイページ
@@ -15,7 +16,7 @@ import { SoulBirthGate } from '../../src/components/soul/SoulBirthGate';
  * Tarot / AI Chat remain quiet-disabled (opacity 0.30 + pointer-events none) per A-plan routing.
  *
  * Navigation is in the top header (editorial layout — no pill bottom nav).
- * legalLinks are handled per-page (HomePanel trust footer, etc.) — not as a shell fixture.
+ * 法務/サポート導線は PublicFooter を main 末尾に置き、スクロール先端で表示（PublicShell と同一）。
  */
 
 export default function ShellLayout({
@@ -56,17 +57,22 @@ export default function ShellLayout({
 
       <main className={styles.main}>
         {useDataBridge ? (
-          <LegacyFrame src={iframeSrc!} title={iframeTitle} {...iframeProps} />
+          <>
+            <LegacyFrame src={iframeSrc!} title={iframeTitle} {...iframeProps} />
+            <PublicFooter />
+          </>
         ) : children ? (
           <>
             {/* REGRESSION: SoulBirthGate auto-opens; /home と /core は専用導線（BirthProfileIntakeLayer 等）のみ */}
             {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
             {children}
+            <PublicFooter />
           </>
         ) : (
           <>
             {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
             <iframe ref={iframeRef} src={iframeSrc} title={iframeTitle} {...iframeProps} />
+            <PublicFooter />
           </>
         )}
       </main>

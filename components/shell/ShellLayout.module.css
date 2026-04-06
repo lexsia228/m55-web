@@ -1,6 +1,6 @@
 /* ShellLayout — editorial top-nav shell.
- * Bottom pill nav and review-safe legalLinks footer have been removed.
- * Primary tabs live in the header. Legal/trust links are per-page (e.g. HomePanel trust footer).
+ * Bottom pill nav removed. Primary tabs live in the header.
+ * Legal/trust links: PublicFooter at wrapper bottom (shared with PublicShell).
  */
 
 /* ── Outer wrapper ───────────────────────────────────────────────────────────── */
