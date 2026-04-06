@@ -280,7 +280,7 @@ function validateShellLayoutNoAutoBirthGateOnHome() {
   }
 }
 
-/** Stable hooks for manual / future E2E: understanding vs observation split + CTA intake (no inline form on Home surface). */
+/** Stable hooks for manual / future E2E: Home = value surface only; no personal observation shelf on Home. */
 function validateHomeRegressionTestIds() {
   const panel = path.join(ROOT, 'components', 'home', 'HomePanel.tsx');
   if (!exists(panel)) return;
@@ -288,37 +288,51 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('data-testid="m55-home-hero"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-hero"');
   }
-  if (!t.includes('data-testid="m55-home-five-element-card"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-five-element-card" (observation mode personal chart)');
+  if (!t.includes('data-testid="m55-home-tier-stack"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-tier-stack" (free / paid value rows)');
+  }
+  if (t.includes('data-testid="m55-home-observation"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not mount m55-home-observation (personal results belong off Home)');
+  }
+  if (!t.includes('data-testid="m55-home-has-profile-hero"')) {
+    add(
+      rel(panel),
+      'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-has-profile-hero" (quiet /core link in hero)',
+    );
+  }
+  const overlay = path.join(ROOT, 'components', 'home', 'HomeCoreAnalyzingOverlay.tsx');
+  if (exists(overlay) && !readText(overlay).includes('data-testid="m55-home-core-analyzing"')) {
+    add(
+      rel(overlay),
+      'REGRESSION GUARD: HomeCoreAnalyzingOverlay must expose data-testid="m55-home-core-analyzing" (post-save → /core)',
+    );
   }
   if (!t.includes('data-testid="m55-home-understanding"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-understanding" (anonymous / no-profile)');
-  }
-  if (!t.includes('data-testid="m55-home-observation"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-observation" (profile-ready)');
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-understanding" (explore cards)');
   }
   if (!t.includes('data-testid="m55-home-demo-five-element"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-demo-five-element" (public sample chart)');
   }
   if (!t.includes('data-testid="m55-home-learn-more"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-learn-more" (observation follow-up)');
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-learn-more" (trust / links)');
   }
   if (!t.includes('data-testid="m55-home-open-birth-intake"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-open-birth-intake"');
   }
-  if (!t.includes('HomeBirthIntakeLayer')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomeBirthIntakeLayer for CTA-driven birth intake');
+  if (!t.includes('BirthProfileIntakeLayer')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount BirthProfileIntakeLayer for CTA-driven birth intake');
+  }
+  if (!t.includes('HomeCoreAnalyzingOverlay')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomeCoreAnalyzingOverlay after profile save');
   }
   if (!/nicknameHint=\{nicknameHint\}/.test(t)) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must pass nicknameHint to HomeBirthIntakeLayer');
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must pass nicknameHint to BirthProfileIntakeLayer');
+  }
+  if (!/router\.push\(['"]\/core['"]\)/.test(t)) {
+    add(rel(panel), "REGRESSION GUARD: HomePanel must router.push('/core') after save analyzing beat");
   }
   if (/<input\b/.test(t)) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must not embed inline inputs (intake lives in HomeBirthIntakeLayer only)');
-  }
-  const u = t.indexOf('data-testid="m55-home-understanding"');
-  const o = t.indexOf('data-testid="m55-home-observation"');
-  if (u >= 0 && o > u && t.slice(u, o).includes('あなたの本質')) {
-    add(rel(panel), 'REGRESSION GUARD: understanding block must not contain personalized label 「あなたの本質」');
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not embed inline inputs (intake lives in BirthProfileIntakeLayer only)');
   }
 }
 

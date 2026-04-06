@@ -1,6 +1,6 @@
 /**
  * Custom modal — portal to body only. Fixed root + scrim + panel.
- * No native <dialog>, no ::backdrop. Width uses % of padded root (no 100vw).
+ * Home /core 共通のプロフィール保存 UI。
  */
 
 .root {
@@ -32,7 +32,6 @@
 .panel {
   position: relative;
   z-index: 1;
-  /* Root already has 16px side padding; use % of flex line, not 100vw */
   width: min(560px, 100%);
   max-width: 100%;
   max-height: calc(100dvh - 32px);

@@ -258,6 +258,18 @@
   max-width: 200px;
 }
 
+/* 10通りの資質: 未公開カードを 1 枚だけ（従来セルの角丸・枠線トーンを維持） */
+.tenThumbSingle {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.tenThumbSingle .tenThumbCell {
+  width: min(120px, 44vw);
+  flex-shrink: 0;
+}
+
 @media (min-width: 768px) {
   .tenThumbGrid {
     grid-template-columns: repeat(5, 1fr);

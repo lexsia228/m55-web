@@ -99,3 +99,8 @@ projectA_backup_*
 docs/archive/zips/*.zip
 docs/archive/zips/**/*.zip
 
+# Playwright
+playwright-report/
+test-results/
+e2e/screenshots/required/*.png
+

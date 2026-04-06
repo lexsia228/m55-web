@@ -90,9 +90,8 @@
 
 /* 表紙の2行タイトル（M55 / Entry Report）をまとめて読ませる */
 .posterHeroLabelGroup {
-  margin: 0 0 14px;
-  padding: 0 0 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  margin: 0 0 18px;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -168,6 +167,23 @@
 .posterHeroCta:focus-visible {
   outline: 2px solid #7c6fd6;
   outline-offset: 3px;
+}
+
+.posterHeroCoreLink {
+  margin: 14px 0 0;
+}
+
+.posterHeroCoreLinkA {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  color: #534a72;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.posterHeroCoreLinkA:hover {
+  text-decoration: underline;
 }
 
 /* ベース写真 → 白ヴェール → 既存 SVG（レポート束・見取り図） */
@@ -1652,6 +1668,25 @@
 }
 
 .shelfLink:hover {
+  text-decoration: underline;
+}
+
+.shelfRowSingleLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.shelfLinkMuted {
+  font-size: 11px;
+  color: rgba(90, 85, 110, 0.78);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.shelfLinkMuted:hover {
   text-decoration: underline;
 }
 

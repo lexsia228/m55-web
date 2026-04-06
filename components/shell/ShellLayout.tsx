@@ -57,7 +57,7 @@ export default function ShellLayout({
           <LegacyFrame src={iframeSrc!} title={iframeTitle} {...iframeProps} />
         ) : children ? (
           <>
-            {/* REGRESSION: SoulBirthGate auto-opens; /home uses CTA-driven HomeBirthIntakeLayer only */}
+            {/* REGRESSION: SoulBirthGate auto-opens; /home uses CTA-driven BirthProfileIntakeLayer only */}
             {pathname !== '/home' && <SoulBirthGate />}
             {children}
           </>

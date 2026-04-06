@@ -3,7 +3,7 @@
 /**
  * /home — Shell Home (primary entry point via root redirect)
  *
- * Public Home panel. Birth date: CTA → HomeBirthIntakeLayer. Full edit: /my.
+ * Public Home panel. Birth date: CTA → BirthProfileIntakeLayer. Full edit: /my.
  */
 
 import HomePanel from '../../components/home/HomePanel';

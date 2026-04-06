@@ -3,27 +3,28 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ProfileRepository, type BirthProfile } from '../../lib/soul/profile';
-import styles from './HomeBirthIntakeLayer.module.css';
+import styles from './BirthProfileIntakeLayer.module.css';
 
 type Props = {
   open: boolean;
   ownerId: string | null;
-  /** Prefill hint (e.g. Clerk firstName) — user may edit */
   nicknameHint?: string;
   onClose: () => void;
   onSaved: () => void;
+  /** E2E など用（例: m55-home-birth-intake-layer / m55-core-birth-intake-layer） */
+  dataTestId?: string;
 };
 
 /**
- * Home-only: nickname + birth date required; CTA-opened only.
- * Custom modal only — portal to document.body, fixed overlay + panel (no native <dialog>).
+ * ニックネーム＋生年月日の保存モーダル。Home・/core で同一 UI を共有する。
  */
-export default function HomeBirthIntakeLayer({
+export default function BirthProfileIntakeLayer({
   open,
   ownerId,
   nicknameHint = '',
   onClose,
   onSaved,
+  dataTestId = 'm55-birth-profile-intake-layer',
 }: Props) {
   const id = useId();
   const birthId = `${id}-birth`;
@@ -112,7 +113,7 @@ export default function HomeBirthIntakeLayer({
       role="dialog"
       aria-modal="true"
       aria-labelledby={`${id}-title`}
-      data-testid="m55-home-birth-intake-layer"
+      data-testid={dataTestId}
     >
       <button
         type="button"
@@ -126,7 +127,7 @@ export default function HomeBirthIntakeLayer({
           プロフィールを保存
         </h2>
         <p className={styles.lead}>
-          端末に保存され、本質・今日・今週の無料読み取りが開きます。マイページでいつでも変更できます。
+          端末に保存されます。本質ページで無料の輪郭が開き、今日・今週はそれぞれのページから読めます。マイページでいつでも変更できます。
         </p>
 
         <div className={styles.fieldBlock}>
@@ -185,6 +186,6 @@ export default function HomeBirthIntakeLayer({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

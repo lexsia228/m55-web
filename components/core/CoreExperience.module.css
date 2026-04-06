@@ -1,0 +1,885 @@
+/**
+ * /core — editorial rhythm aligned with ten-views (calm serif titles, sans body).
+ */
+
+.page {
+  color: #3d3d3d;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  line-height: 1.75;
+  max-width: min(720px, calc(100vw - 24px));
+  margin: 0 auto;
+  padding: 12px 12px 48px;
+}
+
+.muted {
+  font-size: 14px;
+  color: rgba(60, 60, 60, 0.72);
+  line-height: 1.65;
+}
+
+.errorBox {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(180, 80, 80, 0.35);
+  background: rgba(255, 248, 248, 0.9);
+  font-size: 14px;
+  color: #5a3030;
+}
+
+/* Sections */
+.section {
+  margin-top: 36px;
+}
+
+.section:first-of-type {
+  margin-top: 8px;
+}
+
+.sectionEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 6px;
+}
+
+.sectionTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.sectionLead {
+  font-size: 15px;
+  margin: 0 0 16px;
+  color: #3d3d3d;
+}
+
+/* /core 未保存 — 案内のみ。入力は BirthProfileIntakeLayer（Home と共通） */
+.coreProfileGate {
+  margin: 8px 0 0;
+  padding: 8px 0 24px;
+}
+
+.coreProfileGateLead {
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(60, 60, 60, 0.82);
+  margin: 0 0 22px;
+  max-width: 36em;
+}
+
+.coreProfileGateActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.coreProfileGatePrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(83, 74, 114, 0.92);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.coreProfileGatePrimary:hover {
+  background: rgba(63, 54, 94, 0.95);
+}
+
+.coreProfileGatePrimary:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.6);
+  outline-offset: 2px;
+}
+
+.coreProfileGateLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #534a72;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(107, 95, 168, 0.4);
+  border-radius: 10px;
+}
+
+.coreProfileGateLink:hover {
+  background: rgba(107, 95, 168, 0.07);
+}
+
+/* Hero */
+.hero {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.heroMainTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+}
+
+.heroAuxLabel {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 6px;
+}
+
+.heroCoreLabel {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(24px, 5vw, 30px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.heroSummary {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #3d3d3d;
+  margin: 0;
+  max-width: 38em;
+}
+
+.heroTriad {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(60, 60, 60, 0.45);
+  margin: 14px 0 0;
+}
+
+.heroMark {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
+.heroMark img {
+  object-fit: contain;
+}
+
+/* Summary */
+.summaryBody {
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Radar */
+.radarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.radarNote {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.6);
+  margin: 0;
+  text-align: center;
+  max-width: 36em;
+}
+
+/* Axis bars */
+.barsList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.barHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.barLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2a2a;
+}
+
+.barBand {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(107, 95, 168, 0.1);
+  color: #534a72;
+  font-weight: 600;
+}
+
+.barScore {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.barSub {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.65);
+  margin: 4px 0 0;
+  line-height: 1.55;
+}
+
+.barTrack {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(107, 95, 168, 0.55), rgba(107, 95, 168, 0.88));
+  min-width: 4px;
+}
+
+.barBlurb {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.78);
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* Cards grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 560px) {
+  .cardGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.05);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+}
+
+.cardBody {
+  font-size: 13px;
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.65;
+}
+
+.cardGrid .card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* Composition */
+.compMap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 12px;
+  border-radius: 16px;
+  background: rgba(248, 246, 252, 0.5);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.compCenter {
+  text-align: center;
+  padding: 16px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  max-width: 100%;
+}
+
+.compCenterLabel {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 6px;
+}
+
+.compCenterName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.compAxisRow {
+  width: 100%;
+  max-width: 420px;
+}
+
+.compGrid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+@media (min-width: 520px) {
+  .compGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.compBlock {
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(248, 246, 252, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.compLabel {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 8px;
+}
+
+.compAxes {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0;
+}
+
+.compHint {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.65);
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+/* Affinity */
+.affList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.affRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 10px;
+  align-items: center;
+}
+
+.affName {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.affTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.affFill {
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(90, 80, 130, 0.45);
+  min-width: 2px;
+}
+
+.affScore {
+  font-size: 11px;
+  color: rgba(60, 60, 60, 0.5);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* CTA strip */
+.ctaStrip {
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(107, 95, 168, 0.2);
+}
+
+.ctaTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 18px;
+  margin: 0 0 8px;
+  color: #1a1a1a;
+}
+
+.ctaBody {
+  font-size: 14px;
+  margin: 0 0 14px;
+  color: #3d3d3d;
+}
+
+.ctaLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: #534a72;
+  text-decoration: none;
+}
+
+.ctaLink:hover {
+  text-decoration: underline;
+}
+
+/* Focus list */
+.focusList {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 15px;
+}
+
+.focusList li {
+  margin-bottom: 8px;
+}
+
+/* Today / weekly teaser */
+.teaserGrid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 520px) {
+  .teaserGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.teaserCard {
+  display: block;
+  padding: 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.teaserCard:hover {
+  border-color: rgba(107, 95, 168, 0.35);
+  box-shadow: 0 10px 28px rgba(29, 24, 61, 0.07);
+}
+
+.teaserLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 6px;
+}
+
+.teaserTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.teaserBody {
+  font-size: 13px;
+  margin: 0;
+  color: rgba(60, 60, 60, 0.85);
+  line-height: 1.55;
+}
+
+.teaserGo {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #534a72;
+  font-weight: 600;
+}
+
+/* ── 凍結 /core：ヒーローポスター ── */
+.heroPoster {
+  position: relative;
+  margin: -4px -12px 0;
+  padding: 24px 16px 28px;
+  border-radius: 0 0 18px 18px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.heroPosterArt {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgba(107, 95, 168, 0.14), transparent 55%),
+    radial-gradient(90% 70% at 100% 30%, rgba(140, 120, 190, 0.12), transparent 50%),
+    linear-gradient(165deg, rgba(252, 251, 255, 1), rgba(245, 242, 252, 0.98));
+  pointer-events: none;
+}
+
+.heroPosterInner {
+  position: relative;
+  z-index: 1;
+}
+
+.heroPosterTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.heroPosterCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroPosterKicker {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4.2vw, 24px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.heroPosterMeta {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 14px;
+}
+
+.heroPosterAnchor {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(42px, 12vw, 56px);
+  font-weight: 500;
+  line-height: 1.05;
+  margin: 0 0 6px;
+  color: #141414;
+  letter-spacing: -0.02em;
+}
+
+.heroPosterEn {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(83, 74, 114, 0.92);
+  margin: 0 0 4px;
+}
+
+.heroPosterJaType {
+  font-size: 17px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0 0 14px;
+  letter-spacing: 0.04em;
+}
+
+.heroPosterTagline {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2e2e2e;
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.heroPosterBody {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #3d3d3d;
+  margin: 0 0 10px;
+  max-width: 38em;
+}
+
+.heroPosterBody:last-child {
+  margin-bottom: 0;
+}
+
+.heroPosterMark {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  opacity: 0.82;
+}
+
+.heroPosterMark img {
+  object-fit: contain;
+}
+
+/* 今の焦点（本文外の小さな導線） */
+.focusJumpRow {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 8px;
+}
+
+.focusJumpLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(83, 74, 114, 0.95);
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.focusJumpLink:hover {
+  background: rgba(107, 95, 168, 0.08);
+}
+
+/* M55は… 3ステップ */
+.freezeStepList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.freezeStepItem {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.freezeStepIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #534a72;
+  background: rgba(107, 95, 168, 0.1);
+  border: 1px solid rgba(107, 95, 168, 0.15);
+}
+
+.freezeStepTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  line-height: 1.45;
+}
+
+.freezeStepBody {
+  font-size: 14px;
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* 傾向と負荷 */
+.tendencyStack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.tendencyBlock {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tendencyBlock:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tendencyAxisTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.tendencyHook {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.tendencyDot {
+  margin-right: 6px;
+  color: rgba(83, 74, 114, 0.75);
+}
+
+.tendencyBody {
+  font-size: 14px;
+  color: #3d3d3d;
+  margin: 0 0 12px;
+  line-height: 1.7;
+}
+
+.tendencyLoadLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 4px;
+}
+
+.tendencyLoadBody {
+  font-size: 14px;
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* まず整えるとよいこと */
+.alignFlowList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.alignFlowItem {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.alignFlowPhase {
+  font-size: 13px;
+  font-weight: 700;
+  color: #534a72;
+  letter-spacing: 0.06em;
+}
+
+.alignFlowText {
+  font-size: 15px;
+  color: #3d3d3d;
+  line-height: 1.65;
+}
+
+/* 観測リスト */
+.observationBullets {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #3d3d3d;
+}
+
+.observationBullets li {
+  margin-bottom: 8px;
+}
+
+/* AI説明 */
+.aiExplainerLeadBlock .sectionLead {
+  margin-bottom: 10px;
+}
+
+.aiExplainerLeadBlock .sectionLead:last-child {
+  margin-bottom: 16px;
+}
+
+.aiExplainerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.aiExplainerTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+
+.aiExplainerBody {
+  font-size: 14px;
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* 最終CTA */
+.ctaPrimaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: rgba(83, 74, 114, 0.92);
+  border-radius: 10px;
+  border: none;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+.ctaPrimaryButton:hover {
+  background: rgba(63, 54, 94, 0.95);
+}
