@@ -18,7 +18,7 @@ import styles from './HomePanel.module.css';
 /* ── DTR teaser (chapter titles only — 4 of 8, muted + truncated) ───────────── */
 
 const DTR_TEASER_SECTIONS = [
-  { id: 's1', title: 'あなたという人物' },
+  { id: 's1', title: '人物像と傾向' },
   { id: 's2', title: '構成と傾向の全体像' },
   { id: 's3', title: '本質と安定の条件' },
   { id: 's4', title: '活きる力' },
@@ -156,7 +156,7 @@ export default function HomePanel() {
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
                       <span className={styles.posterHeroTitleLine}>生まれた日からひらく</span>
-                      <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
+                      <span className={styles.posterHeroTitleLine}>強みの見取り図</span>
                     </h1>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
@@ -248,7 +248,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>M55の見方を知る</span>
-                <span className={styles.useExploreSub}>仕組みと無料範囲 →</span>
+                <span className={styles.useExploreSub}>輪郭から構造、返書まで →</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -283,24 +283,26 @@ export default function HomePanel() {
           <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
             5つの解析軸の見方
           </h2>
-          <p className={styles.fiveAxisReadLead}>円のバランスでいまの出方をざっと整理します。</p>
+          <p className={styles.fiveAxisReadLead}>
+            無料では傾向の輪郭まで、Entry Report では章立ての構造として保存できます。相談の返書では、その上で整理を深める手がかりにできます。
+          </p>
           <div className={styles.fiveAxisReadMeterWrap}>
             <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
           </div>
           <div className={styles.fiveAxisReadCardGrid}>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                5つの視点の配分をひとつの見取り図として見ます。
+                M55は、生まれた日を手がかりに、自分の出方を静かに眺めるための読み方です。読みで決めつけるのではなく、続きの解釈のための地図として使えます。
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                順位ではなく、あなたの中の傾向として読みます。
+                資質の名前は10通りですが、内側の質感はもっと細かく分かれます。分類で決めつけず、地図の入口だと捉えてください。
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                詳しい読み方は「M55の見方を知る」から。
+                円に映る五つの視点は、順位ではなく、いまのバランスの感触をつかむためのものです。人生を一言に要約するより、見つめ直す入口として使えます。
               </p>
             </div>
           </div>
@@ -367,7 +369,7 @@ export default function HomePanel() {
                 </div>
 
                 <p className={styles.reportAuxCard}>
-                  購入者専用ルームで、レポートに沿って AI チャットで深掘りできます。
+                  購入者専用ルームで、レポートに沿った相談返書を通じて、いまの整理を深められます。
                 </p>
 
                 <Link href="/dtr/lp" className={styles.reportCta}>

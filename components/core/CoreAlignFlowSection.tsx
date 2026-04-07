@@ -5,14 +5,20 @@ import styles from './CoreExperience.module.css';
 export default function CoreAlignFlowSection({ result }: { result: CoreResult }) {
   const steps = alignStepsForResult(result);
   return (
-    <section className={styles.section} aria-labelledby="core-align-flow">
+    <section
+      className={`${styles.section} ${styles.coreSectionSurface}`}
+      aria-labelledby="core-align-flow"
+    >
       <h2 id="core-align-flow" className={styles.sectionTitle}>
         まず整えるとよいこと
       </h2>
+      <p className={styles.sectionLead}>
+        整える順番を持つと、どこから手をつけるかが曖昧になりにくく、負荷がかかりやすい場面を一段ずつ確かめやすくなります。
+      </p>
       <p className={styles.sectionLead}>今の流れを少し使いやすくするなら、順番はこうです。</p>
-      <ul className={styles.alignFlowList}>
+      <ul className={styles.alignFlowGrid}>
         {steps.map((s) => (
-          <li key={s.phase} className={styles.alignFlowItem}>
+          <li key={s.phase} className={styles.alignFlowCard}>
             <span className={styles.alignFlowPhase}>{s.phase}</span>
             <span className={styles.alignFlowText}>{s.body}</span>
           </li>

@@ -4,7 +4,10 @@ import styles from './CoreExperience.module.css';
 export default function CoreHowM55ReadsSection({ nickname }: { nickname: string }) {
   const nick = nickname.trim();
   return (
-    <section className={styles.section} aria-labelledby="core-how-m55-reads">
+    <section
+      className={`${styles.section} ${styles.coreSectionSurface}`}
+      aria-labelledby="core-how-m55-reads"
+    >
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>
         {withNickname('M55は、t の傾向をこう読みます', nick)}
       </h2>
@@ -20,7 +23,7 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
             <span className={styles.freezeStepIndex} aria-hidden>
               {i + 1}
             </span>
-            <div>
+            <div className={styles.freezeStepCard}>
               <p className={styles.freezeStepTitle}>{step.title}</p>
               <p className={styles.freezeStepBody}>{step.body}</p>
             </div>

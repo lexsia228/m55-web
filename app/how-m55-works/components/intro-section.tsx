@@ -7,7 +7,9 @@ export function IntroSection() {
         自分のことが、わからなくなることがある。
       </p>
       <p className={styles.introLine}>
-        なぜこう感じるのか、なぜうまくいかないのか。
+        なぜこう感じるのか。
+        <br />
+        なぜうまくいかないのか。
         <br />
         答えを外に求めても、しっくりこない。
       </p>
@@ -15,7 +17,7 @@ export function IntroSection() {
         <p className={styles.introEmphasis}>
           M55は、そんなときに立ち返れる
           <br className={styles.introBr} />
-          <strong>「読み解きの型」</strong>を届けるためにあります。
+          <strong>自分を見つめ直すための地図</strong>です。
         </p>
       </div>
       <div className={styles.introRule} aria-hidden />

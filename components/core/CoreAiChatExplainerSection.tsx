@@ -3,7 +3,10 @@ import styles from './CoreExperience.module.css';
 
 export default function CoreAiChatExplainerSection() {
   return (
-    <section className={styles.section} aria-labelledby="core-ai-explainer">
+    <section
+      className={`${styles.section} ${styles.coreSectionSurface}`}
+      aria-labelledby="core-ai-explainer"
+    >
       <h2 id="core-ai-explainer" className={styles.sectionTitle}>
         M55のAIチャットができること
       </h2>

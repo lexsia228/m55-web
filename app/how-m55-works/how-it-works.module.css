@@ -306,6 +306,19 @@
   color: rgba(0, 0, 0, 0.14);
 }
 
+.visibleAxisFigure {
+  margin-top: 32px;
+}
+
+.receiveFlowBlock {
+  margin-top: 40px;
+}
+
+.receiveFlowNote {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
 .frameworkDivider {
   height: 1px;
   background: rgba(0, 0, 0, 0.07);

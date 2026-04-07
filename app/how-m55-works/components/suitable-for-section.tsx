@@ -2,24 +2,24 @@ import styles from '../how-it-works.module.css';
 
 const SITUATIONS = [
   {
-    text: '自分をうまく説明できない',
-    subtext: '言葉にしようとすると、いつも曖昧になる',
+    text: 'なんとなく疲れる理由を整理したい',
+    subtext: '',
   },
   {
-    text: '同じ悩みを繰り返している',
-    subtext: '気づくと、また同じところで躓いている',
+    text: '人との距離の取り方を見直したい',
+    subtext: '',
   },
   {
-    text: '人と比べて疲れやすい',
-    subtext: '周りと同じようにできない自分に疲れる',
+    text: '自分に合う動き方を理解したい',
+    subtext: '',
   },
   {
-    text: '日々の観測軸がほしい',
-    subtext: 'いまの自分を眺めるための、安定した視点が欲しい',
+    text: '迷いやすい場面の傾向をつかみたい',
+    subtext: '',
   },
   {
-    text: '自分の傾向を静かに整理したい',
-    subtext: '大げさな診断ではなく、淡々と確認したい',
+    text: '大事な時期に、自分の整え方を思い出したい',
+    subtext: '',
   },
 ] as const;
 
@@ -27,8 +27,8 @@ export function SuitableForSection() {
   return (
     <section className={styles.shellNarrow} aria-labelledby="how-m55-suitable-title">
       <p className={styles.sectionKicker}>05 — こんなときに</p>
-      <h2 id="how-m55-suitable-title" className={styles.sectionTitle}>
-        M55が向いている場面。
+      <h2 id="how-m55-suitable-title" className={styles.visuallyHidden}>
+        こんなときに
       </h2>
 
       <ul className={styles.suitableList}>
@@ -40,7 +40,7 @@ export function SuitableForSection() {
               </div>
               <div>
                 <p className={styles.suitableTitle}>{s.text}</p>
-                <p className={styles.suitableSub}>{s.subtext}</p>
+                {s.subtext ? <p className={styles.suitableSub}>{s.subtext}</p> : null}
               </div>
             </div>
           </li>
@@ -48,9 +48,9 @@ export function SuitableForSection() {
       </ul>
 
       <p className={styles.suitableFootnote}>
-        M55は、派手な結果を出したり、劇的な変化を約束したりするものではありません。
+        M55が渡したいのは、ひとつの答えではありません。
         <br />
-        静かに、自分を眺めるための整理の道具です。
+        今の自分を読みやすくし、扱いやすくするための見取り図です。
       </p>
     </section>
   );

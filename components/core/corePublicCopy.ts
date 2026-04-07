@@ -37,46 +37,59 @@ export const FREEZE_TYPE_04 = {
     {
       key: 'socialEnergy' as const,
       hook: '少人数で深く関わりやすい',
-      body: '広く浅い関係より、限られた相手と深く信頼を築くほうが自然です。',
-      load: '初対面が続く場面では、思っている以上に疲れがたまりやすくなります。',
+      body:
+        '広く浅い関係より、限られた相手と深く信頼を築くほうが自然です。会議や雑談、少人数の場面では、距離感の感触としてこう出やすいです。',
+      load:
+        '初対面が続く場面では、思っている以上に疲れがたまりやすくなります。余力が浅いときほど、負荷が静かに積み上がりやすいです。',
     },
     {
       key: 'stability' as const,
       hook: '小さな変化を拾いやすい',
-      body: '空気の変化や相手の反応を、早めに受け取りやすい傾向があります。',
-      load: '刺激が多い場面では、想像以上に負荷がかかりやすくなります。',
+      body:
+        '空気の変化や相手の反応を、早めに受け取りやすい傾向があります。情報が増える場面では、違和感の感触が先に立ち上がりやすいです。',
+      load:
+        '刺激が多い場面では、想像以上に負荷がかかりやすくなります。切迫が続くと、判断の余白が削られやすいです。',
     },
     {
       key: 'openness' as const,
       hook: '深掘りで力が出やすい',
-      body: '新しいアイデアを次々に出すより、一つのテーマを深く考えるほうが自然です。',
-      load: '拡散的な流れが続くと、焦点が定まりにくくなります。',
+      body:
+        '新しいアイデアを次々に出すより、一つのテーマを深く考えるほうが自然です。学びや検討の場面では、掘り下げるほど輪郭がはっきりしやすいです。',
+      load:
+        '拡散的な流れが続くと、焦点が定まりにくくなります。話題が次々に増えると、手元の整理が追いつきにくいです。',
     },
     {
       key: 'cooperation' as const,
       hook: '状況に応じて立ち位置を調整できる',
-      body: '周囲の流れを見ながら、自然に立ち位置を調整しやすい傾向があります。',
-      load: '調整役が続くと、自分の意見を後回しにしやすくなります。',
+      body:
+        '周囲の流れを見ながら、自然に立ち位置を調整しやすい傾向があります。合意形成や調整の場面では、空気を読みながら進めやすいです。',
+      load:
+        '調整役が続くと、自分の意見を後回しにしやすくなります。合わせが続くと、本音の言語化が遅れやすいです。',
     },
     {
       key: 'structure' as const,
       hook: '準備があるほど安定する',
-      body: '事前に流れを想定してから動くことで、安定した力が出やすくなります。',
-      load: '急な変更が続くと、本来の判断力が使いにくくなります。',
+      body:
+        '事前に流れを想定してから動くことで、安定した力が出やすくなります。段取りや手順が見える場面ほど、本来の判断力が使いやすいです。',
+      load:
+        '急な変更が続くと、本来の判断力が使いにくくなります。見通しが途切れると、整え直しに時間を取りやすいです。',
     },
   ],
   lifestyle: [
     {
       title: '学びや活動の中で',
-      body: '整った流れの中では、理解の深さと丁寧さが信頼につながりやすくなります。',
+      body:
+        '整った流れの中では、理解の深さと丁寧さが信頼につながりやすくなります。資料を読む、課題を進める、議論する場面では、結論を急かされないほど本来の質が出やすいです。',
     },
     {
       title: '人との関わりの中で',
-      body: '広く浅く関わるより、信頼できる相手と深くつながるほうが自然です。',
+      body:
+        '広く浅く関わるより、信頼できる相手と深くつながるほうが自然です。対面やチャットの距離感が読みにくい場面では、少人数のほうが負荷がたまりにくいです。',
     },
     {
       title: '近い距離の関係の中で',
-      body: '安心できる距離が保てるほど、本来のやさしさや誠実さが出やすくなります。',
+      body:
+        '安心できる距離が保てるほど、本来のやさしさや誠実さが出やすくなります。親しい相手との約束や衝突の場面では、落ち着いて言葉を選びやすいです。',
     },
   ] as const,
   alignSteps: [
@@ -113,33 +126,51 @@ export const STATIC_M55_READ_STEPS: readonly {
 
 export const STATIC_AI_EXPLAINER = {
   lead: [
-    '一般的なAIチャットは、その場で入力された内容をもとに返答します。',
-    'M55では、統合パーソナルアルゴリズムを使って、見えている傾向やエッセンスを先に整理したうえで対話します。',
-    'そのため、今の悩みを、自分の出やすい傾向に沿って深めやすくなります。',
+    '一般的なAIチャットは、その場の入力を起点に返答しやすい一方、M55では先に見えている傾向や組み合わせを前提に、話を整理します。',
+    '入力をそのまま広げるのではなく、すでに示されている輪郭に沿って、いまの論点を絞り込みます。',
+    'そのうえで、人間関係や疲れやすさ、動き方の迷いなど、今の悩みを自分の流れに結びつけて扱いやすくします。',
   ] as const,
   items: [
     {
-      title: '見えている傾向を前提に話せる',
-      body: 'その場の気分だけではなく、見えている本質や傾向に沿って相談できます。',
+      title: '見えている傾向や組み合わせを前提に整理する',
+      body: '単発の気分や出来事だけでなく、ここまで読めている傾向を土台に、話の置き場をそろえます。',
     },
     {
       title: '入力をそのまま広げない',
-      body: '入力された内容をそのまま膨らませるのではなく、軸を整理しながら返します。',
+      body: '打った言葉を増幅するのではなく、軸に沿って要るところだけを深めます。',
     },
     {
-      title: '今の悩みに落とし込める',
-      body: '人との関係、疲れやすさ、動き方の迷いを、自分の流れと結びつけて考えられます。',
+      title: '今の悩みを、自分の流れに結びつける',
+      body: '切り離した相談にせず、いま見えている出方の延長線で、次の一歩を扱いやすくします。',
     },
   ] as const,
 };
 
 export const STATIC_CTA = {
-  title: '保存版レポートで深く読む',
+  title: 'Entry Report',
+  linkLabel: 'Entry Report を見る',
   lines: [
-    '結果を、あとから読み返せる形で整理して持っておけます。',
-    '保存版では、レポートに加えて相談返書も受け取れます。',
+    '章立てで受け取れる、構造として読み返せる有料レポートです。',
+    '相談返書は独立した商品ではなく、Entry Report に含まれる価値です。',
   ] as const,
 };
+
+/** 傾向と負荷（非 TYPE_04）：生活・負荷の短文を軸順に少し厚くする */
+const TENDENCY_LIFE_SUFFIX: readonly string[] = [
+  ' 日々の場面でも、だいたい同じ感触が立ち上がりやすいです。',
+  ' 仕事や学びの場面でも、同じ読み方で捉えやすいです。',
+  ' 人との距離やペースの場面で、こう感じやすい傾向が表れやすいです。',
+  ' 関係の調整や判断の場面で、同じ感触が出やすいです。',
+  ' 段取りや進め方の場面で、こう扱いやすい傾向が表れやすいです。',
+];
+
+const TENDENCY_LOAD_PREFIX: readonly string[] = [
+  '負荷が集中すると、',
+  '余力が浅いときほど、',
+  '切迫が続くと、',
+  '詰まりが続くと、',
+  '押し切られると、',
+];
 
 function splitSummaryTwo(summary: string): [string, string] {
   const s = summary.trim();
@@ -169,25 +200,25 @@ export function heroNarrative(result: CoreResult): {
   return { tagline: a, body: [s0, s1] };
 }
 
-/** 傾向と負荷：TYPE_04 は凍結文、その他は軸ごとの strength / caution を意味中心で表示 */
+/** 傾向と負荷：TYPE_04 は凍結文、その他は軸ごとの strength / summary / caution を3層で表示 */
 export function tendencyAxesForResult(result: CoreResult) {
   if (result.coreType === 'TYPE_04') {
     return FREEZE_TYPE_04.tendencyAxes.map((row) => ({
       formal: AXIS_FORMAL_JA[row.key],
-      hook: row.hook,
-      body: row.body,
+      tendency: row.hook,
+      life: row.body,
       load: row.load,
     }));
   }
   const byKey = new Map<AxisKey, (typeof result.axisDetails)[0]>();
   for (const d of result.axisDetails) byKey.set(d.key, d);
-  return AXIS_ORDER.map((key) => {
+  return AXIS_ORDER.map((key, i) => {
     const d = byKey.get(key)!;
     return {
       formal: AXIS_FORMAL_JA[key],
-      hook: d.strength,
-      body: d.summary,
-      load: d.caution,
+      tendency: d.strength,
+      life: `${d.summary}${TENDENCY_LIFE_SUFFIX[i % TENDENCY_LIFE_SUFFIX.length]}`,
+      load: `${TENDENCY_LOAD_PREFIX[i % TENDENCY_LOAD_PREFIX.length]}${d.caution}`,
     };
   });
 }
@@ -197,9 +228,18 @@ export function lifestyleTriptych(result: CoreResult) {
     return [...FREEZE_TYPE_04.lifestyle];
   }
   return [
-    { title: '学びや活動の中で', body: result.workStyle.summary },
-    { title: '人との関わりの中で', body: result.relationships.summary },
-    { title: '近い距離の関係の中で', body: result.love.summary },
+    {
+      title: '学びや活動の中で',
+      body: `${result.workStyle.summary} 会議や制作、調べものの場面では、落ち着いたペースが整うほど力が出やすいです。`,
+    },
+    {
+      title: '人との関わりの中で',
+      body: `${result.relationships.summary} 雑談や対面、チャットの距離感など、関係の温度差が出やすい場面でこの感触が立ち上がりやすいです。`,
+    },
+    {
+      title: '近い距離の関係の中で',
+      body: `${result.love.summary} 親しい人との約束や衝突の場面では、安心できる距離が保てるほど本来のやさしさが出やすいです。`,
+    },
   ] as const;
 }
 

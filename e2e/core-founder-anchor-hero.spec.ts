@@ -37,12 +37,10 @@ async function assertFounderAnchorHero(page: Page) {
   await expect(heroCard).toBeVisible();
   await expect(
     heroCard,
-    'expected hero ANALYST / 静観分析型 for founder anchor 1983-02-28',
+    'expected hero ANALYST / 観測特性：静観分析 for founder anchor 1983-02-28',
   ).toContainText('ANALYST');
-  await expect(
-    heroCard,
-    'expected hero ANALYST / 静観分析型 for founder anchor 1983-02-28',
-  ).toContainText('静観分析型');
+  await expect(heroCard).toContainText('観測特性');
+  await expect(heroCard).toContainText('静観分析');
   await expect(
     heroCard,
     'CREATOR exposure detected in hero card',

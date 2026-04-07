@@ -7,20 +7,18 @@ export function NextStepSection() {
       className={`${styles.shellNarrow} ${styles.foldAlt} ${styles.nextSection}`}
       aria-labelledby="how-m55-next-title"
     >
-      <p className={styles.sectionKicker}>07 — 次のステップ</p>
+      <p className={styles.sectionKicker}>06 — 次のステップ</p>
       <h2 id="how-m55-next-title" className={styles.visuallyHidden}>
         次のステップ
       </h2>
-      <p className={styles.nextLead}>
-        まずは、無料の範囲で輪郭を確認してみてください。
-      </p>
+      <p className={styles.nextLead}>まずは、無料 /core で自分の輪郭を確認してみてください。</p>
       <p className={styles.nextSub}>
-        その先に進むかどうかは、ご自身のタイミングで決めていただければと思います。
+        その先で必要になったら、Entry Report で構造を読み返し、含まれている相談返書で今の悩みへつなげていけます。
       </p>
 
       <div className={styles.ctaStack}>
-        <Link href="/home" className={styles.primaryCta}>
-          無料で輪郭を確認する
+        <Link href="/core" className={styles.primaryCta}>
+          無料 /core で輪郭を確認する
         </Link>
         <Link href="/dtr/lp" className={styles.secondaryCta}>
           Entry Report を見る
@@ -29,9 +27,7 @@ export function NextStepSection() {
 
       <div className={styles.nextFoot}>
         <p className={styles.nextFootText}>
-          M55は、一貫したルールで、静かに読み解きを届けます。
-          <br />
-          順位をつけず、自己観察のための補助線として使ってください。
+          M55は、今の自分を読みやすくし、扱いやすくするためにあります。
         </p>
       </div>
     </section>

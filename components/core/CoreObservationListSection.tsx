@@ -5,15 +5,20 @@ import styles from './CoreExperience.module.css';
 export default function CoreObservationListSection({ result }: { result: CoreResult }) {
   const bullets = observationBulletsForResult(result);
   return (
-    <section className={styles.section} aria-labelledby="core-observation-list">
+    <section
+      className={`${styles.section} ${styles.coreSectionSurface}`}
+      aria-labelledby="core-observation-list"
+    >
       <h2 id="core-observation-list" className={styles.sectionTitle}>
         観測
       </h2>
-      <ul className={styles.observationBullets}>
-        {bullets.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
+      <div className={styles.observationPanel}>
+        <ul className={styles.observationBullets}>
+          {bullets.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

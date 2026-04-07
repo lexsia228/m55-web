@@ -4,7 +4,7 @@ import { AXIS_SHORT_JA } from './corePublicAxisLabels';
 import { withNickname } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
-const VB = 240;
+const VB = 272;
 const CX = VB / 2;
 const CY = VB / 2;
 const R_MAX = 82;
@@ -47,16 +47,21 @@ export default function CoreRadarSection({
   });
 
   return (
-    <section className={styles.section} aria-labelledby="core-radar-title">
-      <h2 id="core-radar-title" className={styles.sectionTitle}>
-        傾向の輪郭
-      </h2>
-      <p className={styles.sectionLead}>
-        {withNickname(
-          'これは良し悪しではなく、t の本質を支える5つの固定観測軸の輪郭です。',
-          nick,
-        )}
-      </p>
+    <section
+      className={`${styles.section} ${styles.coreSectionSurface}`}
+      aria-labelledby="core-radar-title"
+    >
+      <div className={styles.radarSectionHeader}>
+        <h2 id="core-radar-title" className={styles.sectionTitle}>
+          傾向の輪郭
+        </h2>
+        <p className={styles.sectionLead}>
+          {withNickname(
+            'これは良し悪しではなく、t の本質を支える5つの固定観測軸の輪郭です。',
+            nick,
+          )}
+        </p>
+      </div>
       <div className={styles.radarWrap}>
         <svg
           width="100%"

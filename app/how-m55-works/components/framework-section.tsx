@@ -3,30 +3,27 @@ import styles from '../how-it-works.module.css';
 
 const TEN_QUALITIES_CARD_SRC = '/core/unrevealed-card.webp' as const;
 
-const VERTICES: [number, number][] = [
-  [100, 20],
-  [180, 75],
-  [155, 165],
-  [45, 165],
-  [20, 75],
-];
-
 export function FrameworkSection() {
   return (
     <section className={`${styles.shellWide} ${styles.foldAlt}`} aria-labelledby="how-m55-framework-title">
-      <p className={styles.sectionKicker}>02 — 読み解きの構造</p>
-      <h2 id="how-m55-framework-title" className={styles.sectionTitle}>
-        読み解きの構造
+      <p className={styles.sectionKicker}>02 — 10通りの資質から読む</p>
+      <h2 id="how-m55-framework-title" className={styles.visuallyHidden}>
+        10通りの資質から読む
       </h2>
 
       <div className={styles.frameworkGrid}>
         <div className={styles.frameworkRow}>
           <div>
-            <h3 className={styles.frameworkSubTitle}>
-              10通りの資質
-            </h3>
-            <p className={styles.frameworkBody}>
-              M55は、人の傾向を10通りの資質として捉えます。それぞれに特性があり、優劣の序列はありません。
+            <p className={styles.sectionLead}>最初に見えるのは、10通りの資質です。</p>
+            <p className={styles.sectionLead}>
+              ただし、これは全体を決める答えではなく、読み始めるための入口です。
+            </p>
+            <p className={styles.sectionLead}>
+              M55の読みは、それだけで終わりません。内部では、M55独自のパーソナルアルゴリズムによって、より細かな組み合わせを重ねています。
+            </p>
+            <p className={styles.sectionLead}>
+              そのため、同じ称号に見えても、受け取る内容は一人ずつ変わります。似た入口を持つ人がいても、見取り図や
+              Entry Report まで同じになるわけではありません。
             </p>
           </div>
           <div className={styles.frameworkVisual}>
@@ -44,61 +41,7 @@ export function FrameworkSection() {
             <p className={styles.visualCaption}>10通りの資質のビジュアル</p>
           </div>
         </div>
-
-        <div className={styles.frameworkDivider} aria-hidden />
-
-        <div className={styles.frameworkRow}>
-          <div>
-            <h3 className={styles.frameworkSubTitle}>5つの解析軸</h3>
-            <p className={styles.frameworkBody}>
-              資質を、5つの観点から読み解きます。ひとつのラベルを多角的に見ることで、平面的な言い換えではなく、傾向のバランスが立ち上がります。
-            </p>
-          </div>
-          <div className={styles.frameworkVisual}>
-            <svg
-              className={styles.pentagonSvg}
-              viewBox="0 0 200 200"
-              aria-hidden
-            >
-              <polygon
-                points="100,20 180,75 155,165 45,165 20,75"
-                fill="none"
-                stroke="rgba(0,0,0,0.12)"
-                strokeWidth="1"
-              />
-              <circle cx="100" cy="100" r="3" fill="rgba(60,60,60,0.35)" />
-              {VERTICES.map(([x, y], i) => (
-                <line
-                  key={`l-${i}`}
-                  x1="100"
-                  y1="100"
-                  x2={x}
-                  y2={y}
-                  stroke="rgba(0,0,0,0.1)"
-                  strokeWidth="1"
-                  strokeDasharray="2 4"
-                />
-              ))}
-              {VERTICES.map(([x, y], i) => (
-                <circle
-                  key={`d-${i}`}
-                  cx={x}
-                  cy={y}
-                  r="4"
-                  fill="rgba(107,95,168,0.25)"
-                />
-              ))}
-            </svg>
-            <p className={styles.visualCaption}>5つの解析軸（抽象イメージ）</p>
-          </div>
-        </div>
       </div>
-
-      <p className={styles.frameworkSummary}>
-        入力はひとつ。読み解きは多層的に。
-        <br />
-        それがM55の構造です。
-      </p>
     </section>
   );
 }
