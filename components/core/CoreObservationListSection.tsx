@@ -6,7 +6,7 @@ export default function CoreObservationListSection({ result }: { result: CoreRes
   const bullets = observationBulletsForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceObserve}`}
       aria-labelledby="core-observation-list"
     >
       <h2 id="core-observation-list" className={styles.sectionTitle}>

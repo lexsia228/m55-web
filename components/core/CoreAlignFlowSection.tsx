@@ -6,7 +6,7 @@ export default function CoreAlignFlowSection({ result }: { result: CoreResult })
   const steps = alignStepsForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAlign}`}
       aria-labelledby="core-align-flow"
     >
       <h2 id="core-align-flow" className={styles.sectionTitle}>

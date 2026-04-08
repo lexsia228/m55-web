@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeCoreAnalyzingOverlay from './HomeCoreAnalyzingOverlay';
+import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
 /* ── DTR teaser (chapter titles only — 4 of 8, muted + truncated) ───────────── */
@@ -143,6 +144,7 @@ export default function HomePanel() {
                   className={styles.posterHeroBaseImage}
                   priority
                 />
+                <HeroBackgroundMedia />
               </div>
               <div className={styles.posterHeroReadabilityVeil} />
             </div>

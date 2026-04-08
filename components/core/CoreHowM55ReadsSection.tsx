@@ -5,7 +5,7 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
   const nick = nickname.trim();
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceReads}`}
       aria-labelledby="core-how-m55-reads"
     >
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>

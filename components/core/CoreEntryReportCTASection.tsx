@@ -8,8 +8,11 @@ export default function CoreEntryReportCTASection() {
       <h2 id="core-saved-report-cta" className={styles.ctaTitle}>
         {STATIC_CTA.title}
       </h2>
-      {STATIC_CTA.lines.map((line) => (
-        <p key={line} className={styles.ctaBody}>
+      {STATIC_CTA.lines.map((line, i) => (
+        <p
+          key={line}
+          className={i === 0 ? styles.ctaBodyLead : styles.ctaBodySupplement}
+        >
           {line}
         </p>
       ))}

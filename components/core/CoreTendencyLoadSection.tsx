@@ -6,7 +6,7 @@ export default function CoreTendencyLoadSection({ result }: { result: CoreResult
   const rows = tendencyAxesForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTendency}`}
       aria-labelledby="core-tendency-load"
     >
       <h2 id="core-tendency-load" className={styles.sectionTitle}>

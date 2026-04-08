@@ -47,6 +47,59 @@
   box-sizing: border-box;
 }
 
+/* セクション面ごとのごく薄い色差（低彩度・プレミアムリズム） */
+.surfaceRadar {
+  background: linear-gradient(
+    165deg,
+    rgba(248, 246, 252, 0.95) 0%,
+    rgba(240, 244, 250, 0.88) 48%,
+    rgba(245, 242, 252, 0.92) 100%
+  );
+  border-color: rgba(107, 95, 168, 0.07);
+}
+
+.surfaceReads {
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.92), rgba(248, 252, 249, 0.88));
+  border-color: rgba(90, 120, 100, 0.06);
+}
+
+.surfaceTendency {
+  background: linear-gradient(175deg, rgba(255, 252, 248, 0.94), rgba(250, 248, 252, 0.9));
+  border-color: rgba(120, 100, 90, 0.05);
+}
+
+.surfaceTypeEase {
+  background: linear-gradient(168deg, rgba(250, 252, 255, 0.93), rgba(248, 250, 252, 0.9));
+  border-color: rgba(80, 90, 110, 0.05);
+}
+
+.surfaceAlign {
+  background: linear-gradient(170deg, rgba(252, 251, 248, 0.94), rgba(246, 248, 252, 0.9));
+  border-color: rgba(100, 95, 120, 0.055);
+}
+
+.surfaceObserve {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 249, 252, 0.92));
+  border-color: rgba(0, 0, 0, 0.035);
+}
+
+.surfaceAi {
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.92), rgba(248, 246, 252, 0.9));
+  border-color: rgba(107, 95, 168, 0.06);
+}
+
+.coreSectionSurface .sectionTitle {
+  font-size: clamp(23px, 4.4vw, 27px);
+  font-weight: 500;
+  margin-bottom: 14px;
+  letter-spacing: 0.03em;
+}
+
+.coreSectionSurface .sectionLead {
+  font-size: 15px;
+  line-height: 1.72;
+}
+
 .sectionEyebrow {
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -257,8 +310,8 @@
   margin-bottom: clamp(8px, 2vw, 16px);
 }
 
-.radarSectionHeader .sectionTitle {
-  margin-bottom: 8px;
+.surfaceRadar .radarSectionHeader .sectionTitle {
+  margin-bottom: 10px;
 }
 
 .radarSectionHeader .sectionLead {
@@ -279,7 +332,7 @@
 }
 
 .radarWrap svg {
-  max-width: min(100%, 340px);
+  max-width: min(100%, 400px);
 }
 
 .radarNote {
@@ -387,6 +440,22 @@
   }
 }
 
+.typeEaseGrid .card:nth-child(1) {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.88), rgba(255, 255, 255, 0.75));
+}
+
+.typeEaseGrid .card:nth-child(2) {
+  background: linear-gradient(168deg, rgba(242, 250, 246, 0.88), rgba(255, 255, 255, 0.75));
+}
+
+.typeEaseGrid .card:nth-child(3) {
+  background: linear-gradient(168deg, rgba(250, 246, 240, 0.88), rgba(255, 255, 255, 0.75));
+}
+
+.typeEaseGrid .cardTitle {
+  font-size: 16px;
+}
+
 .card {
   border-radius: 18px;
   padding: 16px 16px 18px;
@@ -396,7 +465,7 @@
 }
 
 .cardTitle {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;
@@ -551,9 +620,11 @@
   padding: clamp(26px, 5vw, 38px) clamp(20px, 4vw, 28px) clamp(28px, 5vw, 40px);
   border-radius: 26px;
   text-align: center;
-  background: linear-gradient(172deg, rgba(255, 255, 255, 0.96), rgba(250, 246, 252, 0.94));
-  border: 1px solid rgba(107, 95, 168, 0.1);
-  box-shadow: 0 18px 50px rgba(29, 24, 61, 0.06);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(245, 236, 255, 0.55), transparent 55%),
+    linear-gradient(172deg, rgba(252, 246, 236, 0.98) 0%, rgba(248, 242, 252, 0.96) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.09);
+  box-shadow: 0 20px 56px rgba(29, 24, 61, 0.065);
 }
 
 .ctaTitle {
@@ -564,8 +635,8 @@
 }
 
 .ctaStripV0 .ctaTitle {
-  font-size: clamp(19px, 4vw, 22px);
-  margin-bottom: 12px;
+  font-size: clamp(21px, 4.2vw, 24px);
+  margin-bottom: 16px;
   letter-spacing: 0.02em;
 }
 
@@ -575,15 +646,22 @@
   color: #3d3d3d;
 }
 
-.ctaStripV0 .ctaBody {
+.ctaBodyLead {
+  font-size: 15px;
+  margin: 0 auto 12px;
   max-width: 28em;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.72;
+  line-height: 1.75;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
 }
 
-.ctaStripV0 .ctaBody:last-of-type {
-  margin-bottom: 20px;
+.ctaBodySupplement {
+  font-size: 13px;
+  margin: 0 auto 22px;
+  max-width: 30em;
+  line-height: 1.72;
+  color: rgba(60, 60, 60, 0.78);
+  font-weight: 400;
 }
 
 .ctaLink {
@@ -729,7 +807,7 @@
   padding: clamp(22px, 4.5vw, 30px) clamp(18px, 4vw, 26px) clamp(24px, 5vw, 34px);
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.55);
-  background: linear-gradient(168deg, rgba(255, 255, 255, 0.72), rgba(255, 250, 246, 0.58));
+  background: linear-gradient(168deg, rgba(255, 252, 247, 0.82), rgba(255, 246, 236, 0.65));
   box-shadow:
     0 20px 56px rgba(45, 32, 28, 0.08),
     0 1px 0 rgba(255, 255, 255, 0.65) inset;
@@ -797,40 +875,40 @@
 
 .heroPosterMonogram {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(56px, 14vw, 76px);
+  font-size: clamp(64px, 16vw, 92px);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.02em;
-  color: rgba(42, 36, 34, 0.88);
-  margin: 0 0 4px;
+  color: rgba(38, 32, 30, 0.9);
+  margin: 0 0 6px;
 }
 
 .heroPosterEnV0 {
-  font-size: clamp(18px, 4.2vw, 26px);
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: rgba(28, 24, 22, 0.88);
-  margin: 0 0 12px;
-  line-height: 1.15;
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgba(22, 20, 24, 0.92);
+  margin: 0 0 14px;
+  line-height: 1.12;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 
 .heroPosterTraitKind {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  color: rgba(60, 60, 60, 0.45);
-  margin: 0 0 4px;
+  letter-spacing: 0.22em;
+  color: rgba(60, 60, 60, 0.42);
+  margin: 0 0 5px;
 }
 
 .heroPosterTraitName {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(17px, 3.6vw, 20px);
+  font-size: clamp(15px, 3.2vw, 17px);
   font-weight: 500;
-  color: #1a1a1a;
-  margin: 0 0 16px;
-  letter-spacing: 0.04em;
+  color: rgba(34, 32, 36, 0.88);
+  margin: 0 0 18px;
+  letter-spacing: 0.06em;
 }
 
 .heroPosterTaglineV0 {
@@ -866,16 +944,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 18px;
-  font-size: 11px;
+  padding: 5px 14px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  color: rgba(72, 64, 88, 0.82);
+  letter-spacing: 0.14em;
+  color: rgba(72, 64, 88, 0.78);
   text-decoration: none;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 4px 14px rgba(29, 24, 61, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 3px 12px rgba(29, 24, 61, 0.035);
 }
 
 .focusJumpLink:hover {
@@ -904,21 +982,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(83, 74, 114, 0.92);
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(107, 95, 168, 0.12);
-  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.04);
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(62, 52, 88, 0.95);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(232, 226, 248, 0.55));
+  border: 1px solid rgba(107, 95, 168, 0.22);
+  box-shadow: 0 4px 12px rgba(83, 74, 114, 0.12);
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .freezeStepCard {
-  padding: 16px 16px 18px;
+  padding: 17px 17px 19px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(0, 0, 0, 0.04);
@@ -926,8 +1004,23 @@
   min-width: 0;
 }
 
+.freezeStepItem:nth-child(1) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.85), rgba(255, 255, 255, 0.75));
+  border-color: rgba(107, 95, 168, 0.08);
+}
+
+.freezeStepItem:nth-child(2) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(242, 250, 246, 0.88), rgba(255, 255, 255, 0.76));
+  border-color: rgba(90, 130, 110, 0.07);
+}
+
+.freezeStepItem:nth-child(3) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(248, 246, 242, 0.9), rgba(255, 255, 255, 0.78));
+  border-color: rgba(120, 100, 85, 0.06);
+}
+
 .freezeStepTitle {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;
@@ -961,6 +1054,26 @@
   box-shadow: 0 6px 22px rgba(29, 24, 61, 0.028);
 }
 
+.tendencyStack .tendencyAxisCard:nth-child(1) {
+  background: linear-gradient(168deg, rgba(252, 248, 255, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(2) {
+  background: linear-gradient(168deg, rgba(244, 250, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(3) {
+  background: linear-gradient(168deg, rgba(252, 250, 244, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(4) {
+  background: linear-gradient(168deg, rgba(248, 246, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(5) {
+  background: linear-gradient(168deg, rgba(246, 248, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
 .tendencyAxisCard .tendencyAxisTitle {
   margin-bottom: 10px;
   padding-bottom: 10px;
@@ -969,10 +1082,17 @@
 
 .tendencyAxisTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 500;
   margin: 0 0 6px;
   color: #1a1a1a;
+}
+
+.tendencyAxisCard .tendencyTendencyBody,
+.tendencyAxisCard .tendencyBody,
+.tendencyAxisCard .tendencyLoadBody {
+  padding-left: 12px;
+  border-left: 2px solid rgba(107, 95, 168, 0.12);
 }
 
 .tendencyLayerLabel {
@@ -1077,11 +1197,29 @@
   box-shadow: 0 6px 20px rgba(29, 24, 61, 0.03);
 }
 
+.alignFlowGrid .alignFlowCard:nth-child(1) {
+  background: linear-gradient(175deg, rgba(252, 248, 255, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(2) {
+  background: linear-gradient(175deg, rgba(244, 248, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(3) {
+  background: linear-gradient(175deg, rgba(250, 246, 240, 0.9), rgba(255, 255, 255, 0.72));
+}
+
 .alignFlowPhase {
-  font-size: 12px;
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(83, 74, 114, 0.88);
-  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.9);
+  letter-spacing: 0.16em;
+  background: rgba(107, 95, 168, 0.12);
+  border: 1px solid rgba(107, 95, 168, 0.1);
 }
 
 .alignFlowText {
@@ -1092,23 +1230,23 @@
 
 /* 観測リスト */
 .observationPanel {
-  margin-top: 4px;
-  padding: clamp(16px, 3vw, 22px) clamp(14px, 3vw, 20px);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(0, 0, 0, 0.035);
+  margin-top: 8px;
+  padding: clamp(22px, 4vw, 30px) clamp(18px, 3.5vw, 26px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(0, 0, 0, 0.032);
 }
 
 .observationBullets {
   margin: 0;
   padding-left: 1.15em;
   font-size: 15px;
-  line-height: 1.95;
-  color: rgba(60, 60, 60, 0.88);
+  line-height: 2.1;
+  color: rgba(60, 60, 60, 0.85);
 }
 
 .observationBullets li {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .observationBullets li:last-child {
@@ -1116,12 +1254,24 @@
 }
 
 /* AI説明 */
+.coreSectionSurface .sectionLead.aiExplainerIntro {
+  font-size: 14px;
+  color: rgba(55, 55, 60, 0.88);
+  line-height: 1.75;
+}
+
 .aiExplainerLeadBlock .sectionLead {
   margin-bottom: 10px;
 }
 
 .aiExplainerLeadBlock .sectionLead:last-child {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+.aiExplainerValueDeck {
+  margin-top: 6px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.045);
 }
 
 .aiExplainerList {
@@ -1141,8 +1291,20 @@
   box-shadow: 0 6px 20px rgba(29, 24, 61, 0.03);
 }
 
+.aiExplainerList .aiExplainerItem:nth-child(1) {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.88), rgba(255, 255, 255, 0.72));
+}
+
+.aiExplainerList .aiExplainerItem:nth-child(2) {
+  background: linear-gradient(168deg, rgba(242, 250, 248, 0.88), rgba(255, 255, 255, 0.72));
+}
+
+.aiExplainerList .aiExplainerItem:nth-child(3) {
+  background: linear-gradient(168deg, rgba(250, 246, 242, 0.88), rgba(255, 255, 255, 0.72));
+}
+
 .aiExplainerTitle {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;

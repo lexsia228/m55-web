@@ -4,11 +4,11 @@ import { AXIS_SHORT_JA } from './corePublicAxisLabels';
 import { withNickname } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
-const VB = 272;
+const VB = 300;
 const CX = VB / 2;
 const CY = VB / 2;
-const R_MAX = 82;
-const R_MIN = 22;
+const R_MAX = 92;
+const R_MIN = 24;
 
 function pointFor(i: number, n: number, radius: number): [number, number] {
   const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
@@ -48,7 +48,7 @@ export default function CoreRadarSection({
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar}`}
       aria-labelledby="core-radar-title"
     >
       <div className={styles.radarSectionHeader}>

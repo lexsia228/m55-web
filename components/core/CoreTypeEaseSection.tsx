@@ -6,7 +6,7 @@ export default function CoreTypeEaseSection({ result }: { result: CoreResult }) 
   const cards = lifestyleTriptych(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTypeEase}`}
       aria-labelledby="core-type-ease"
     >
       <h2 id="core-type-ease" className={styles.sectionTitle}>
