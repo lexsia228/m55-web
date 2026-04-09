@@ -35,8 +35,7 @@ export default function CoreRadarSection({
     const [x, y] = pointFor(i, n, rad);
     poly.push(`${x.toFixed(1)},${y.toFixed(1)}`);
   }
-
-  const gridPolys = [0.45, 0.72, 1].map((f) => {
+  const gridPolys = [0.68, 1].map((f) => {
     const pts: string[] = [];
     for (let i = 0; i < n; i++) {
       const rad = R_MIN + f * (R_MAX - R_MIN);
@@ -58,36 +57,37 @@ export default function CoreRadarSection({
         </h2>
         <p className={styles.sectionLead}>
           {withNickname(
-            'これは良し悪しではなく、t の本質を支える5つの固定観測軸の輪郭です。',
+            'これは良し悪しではなく、tさんがふだんどんな出方をしやすいかを、5つの視点で見た輪郭です。',
             nick,
           )}
         </p>
+        <p className={styles.radarTip}>外に開くほど、その視点が表に出やすい傾向があります。</p>
       </div>
       <div className={styles.radarWrap}>
         <svg
           width="100%"
           viewBox={`0 0 ${VB} ${VB}`}
           role="img"
-          aria-label="五つの固定観測軸の輪郭を示す図"
+          aria-label="五つの視点の輪郭図"
         >
           {gridPolys.map((p, idx) => (
             <polygon
               key={idx}
               points={p}
               fill="none"
-              stroke="rgba(90,80,120,0.1)"
-              strokeWidth={1}
+              stroke="rgba(107, 95, 168, 0.13)"
+              strokeWidth={idx === 0 ? 0.9 : 1}
             />
           ))}
           <polygon
             points={poly.join(' ')}
-            fill="rgba(107, 95, 168, 0.1)"
-            stroke="rgba(107, 95, 168, 0.55)"
-            strokeWidth={1.4}
+            fill="rgba(107, 95, 168, 0.06)"
+            stroke="rgba(107, 95, 168, 0.62)"
+            strokeWidth={1.55}
             strokeLinejoin="round"
           />
           {AXIS_ORDER.map((key, i) => {
-            const [lx, ly] = pointFor(i, n, R_MAX + 26);
+            const [lx, ly] = pointFor(i, n, R_MAX + 14);
             const ta = (-90 + (i / n) * 360 + 360) % 360;
             const anchor =
               ta > 35 && ta < 145 ? 'end' : ta > 215 && ta < 325 ? 'start' : 'middle';
@@ -107,6 +107,7 @@ export default function CoreRadarSection({
           })}
         </svg>
       </div>
+      <p className={styles.radarSubLead}>このあと下で、5つの軸をひとつずつ見ていきます。</p>
     </section>
   );
 }
