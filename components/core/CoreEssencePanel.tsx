@@ -15,6 +15,7 @@ import CoreHowM55ReadsSection from './CoreHowM55ReadsSection';
 import CoreLockedState from './CoreLockedState';
 import CoreObservationListSection from './CoreObservationListSection';
 import CoreRadarSection from './CoreRadarSection';
+import CoreScrollReveal from './CoreScrollReveal';
 import CoreTendencyLoadSection from './CoreTendencyLoadSection';
 import CoreTypeEaseSection from './CoreTypeEaseSection';
 
@@ -77,6 +78,7 @@ export default function CoreEssencePanel() {
 
   return (
     <div className={CoreExperienceStyles.page}>
+      <CoreScrollReveal />
       <CoreHeroSection result={result} nickname={nickname} />
       <CoreFocusLinkRow />
       <CoreRadarSection result={result} nickname={nickname} />

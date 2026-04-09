@@ -48,8 +48,9 @@ export default function CoreRadarSection({
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar} ${styles.coreReveal}`}
       aria-labelledby="core-radar-title"
+      data-core-reveal
     >
       <div className={styles.radarSectionHeader}>
         <h2 id="core-radar-title" className={styles.sectionTitle}>

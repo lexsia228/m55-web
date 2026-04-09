@@ -4,7 +4,11 @@ import styles from './CoreExperience.module.css';
 
 export default function CoreEntryReportCTASection() {
   return (
-    <section className={`${styles.ctaStrip} ${styles.ctaStripV0}`} aria-labelledby="core-saved-report-cta">
+    <section
+      className={`${styles.ctaStrip} ${styles.ctaStripV0} ${styles.coreReveal}`}
+      aria-labelledby="core-saved-report-cta"
+      data-core-reveal
+    >
       <h2 id="core-saved-report-cta" className={styles.ctaTitle}>
         {STATIC_CTA.title}
       </h2>

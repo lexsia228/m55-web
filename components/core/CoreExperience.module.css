@@ -8,9 +8,15 @@
   line-height: 1.75;
   max-width: min(680px, calc(100vw - 24px));
   margin: 0 auto;
-  padding: 12px 12px 56px;
+  padding: clamp(10px, 2.2vw, 12px) 12px 56px;
   background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #faf9fb 100%);
   background-attachment: local;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-top: clamp(12px, 1.6vw, 16px);
+  }
 }
 
 .muted {
@@ -41,9 +47,9 @@
 .coreSectionSurface {
   padding: clamp(22px, 4.5vw, 30px);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 10px 36px rgba(29, 24, 61, 0.035);
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
   box-sizing: border-box;
 }
 
@@ -51,21 +57,21 @@
 .surfaceRadar {
   background: linear-gradient(
     165deg,
-    rgba(248, 246, 252, 0.95) 0%,
-    rgba(240, 244, 250, 0.88) 48%,
+    rgba(247, 245, 252, 0.95) 0%,
+    rgba(239, 243, 250, 0.88) 50%,
     rgba(245, 242, 252, 0.92) 100%
   );
-  border-color: rgba(107, 95, 168, 0.07);
+  border-color: rgba(107, 95, 168, 0.08);
 }
 
 .surfaceReads {
-  background: linear-gradient(168deg, rgba(252, 250, 255, 0.92), rgba(248, 252, 249, 0.88));
-  border-color: rgba(90, 120, 100, 0.06);
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.94), rgba(247, 252, 249, 0.9));
+  border-color: rgba(90, 120, 100, 0.065);
 }
 
 .surfaceTendency {
-  background: linear-gradient(175deg, rgba(255, 252, 248, 0.94), rgba(250, 248, 252, 0.9));
-  border-color: rgba(120, 100, 90, 0.05);
+  background: linear-gradient(175deg, rgba(255, 252, 248, 0.95), rgba(249, 247, 252, 0.9));
+  border-color: rgba(120, 100, 90, 0.058);
 }
 
 .surfaceTypeEase {
@@ -84,19 +90,19 @@
 }
 
 .surfaceAi {
-  background: linear-gradient(168deg, rgba(252, 250, 255, 0.92), rgba(248, 246, 252, 0.9));
-  border-color: rgba(107, 95, 168, 0.06);
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.94), rgba(247, 245, 252, 0.9));
+  border-color: rgba(107, 95, 168, 0.068);
 }
 
 .coreSectionSurface .sectionTitle {
-  font-size: clamp(23px, 4.4vw, 27px);
+  font-size: clamp(24px, 4.8vw, 29px);
   font-weight: 500;
   margin-bottom: 14px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.028em;
 }
 
 .coreSectionSurface .sectionLead {
-  font-size: 15px;
+  font-size: clamp(14px, 2.8vw, 16px);
   line-height: 1.72;
 }
 
@@ -110,7 +116,7 @@
 
 .sectionTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: 22px;
+  font-size: clamp(22px, 4.5vw, 28px);
   font-weight: 500;
   color: #1a1a1a;
   margin: 0 0 12px;
@@ -118,7 +124,7 @@
 }
 
 .sectionLead {
-  font-size: 15px;
+  font-size: clamp(14px, 2.8vw, 16px);
   margin: 0 0 16px;
   color: #3d3d3d;
 }
@@ -465,14 +471,14 @@
 }
 
 .cardTitle {
-  font-size: 15px;
+  font-size: clamp(17px, 3.4vw, 19px);
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;
 }
 
 .cardBody {
-  font-size: 13px;
+  font-size: clamp(13px, 2.7vw, 15px);
   color: #3d3d3d;
   margin: 0;
   line-height: 1.65;
@@ -618,13 +624,13 @@
 .ctaStripV0 {
   margin-top: clamp(36px, 8vw, 52px);
   padding: clamp(26px, 5vw, 38px) clamp(20px, 4vw, 28px) clamp(28px, 5vw, 40px);
-  border-radius: 26px;
+  border-radius: 28px;
   text-align: center;
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(245, 236, 255, 0.55), transparent 55%),
-    linear-gradient(172deg, rgba(252, 246, 236, 0.98) 0%, rgba(248, 242, 252, 0.96) 100%);
-  border: 1px solid rgba(107, 95, 168, 0.09);
-  box-shadow: 0 20px 56px rgba(29, 24, 61, 0.065);
+    radial-gradient(120% 95% at 50% -2%, rgba(245, 236, 255, 0.6), transparent 58%),
+    linear-gradient(172deg, rgba(253, 247, 238, 0.985) 0%, rgba(247, 241, 252, 0.97) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.13);
+  box-shadow: 0 22px 64px rgba(29, 24, 61, 0.075);
 }
 
 .ctaTitle {
@@ -635,7 +641,7 @@
 }
 
 .ctaStripV0 .ctaTitle {
-  font-size: clamp(21px, 4.2vw, 24px);
+  font-size: clamp(22px, 4.6vw, 27px);
   margin-bottom: 16px;
   letter-spacing: 0.02em;
 }
@@ -647,7 +653,7 @@
 }
 
 .ctaBodyLead {
-  font-size: 15px;
+  font-size: clamp(16px, 3vw, 18px);
   margin: 0 auto 12px;
   max-width: 28em;
   line-height: 1.75;
@@ -656,7 +662,7 @@
 }
 
 .ctaBodySupplement {
-  font-size: 13px;
+  font-size: clamp(13px, 2.7vw, 15px);
   margin: 0 auto 22px;
   max-width: 30em;
   line-height: 1.72;
@@ -747,33 +753,11 @@
 /* ── /core v0：中央本質ポスター（ピーチ〜ベージュ・静かな紋章構図） ── */
 .heroPoster {
   position: relative;
-  margin: -12px -12px 0;
-  padding: clamp(20px, 5vw, 36px) 12px clamp(28px, 6vw, 40px);
+  margin: 0 -12px 0;
+  padding: 0 12px clamp(24px, 5vw, 34px);
   min-height: min(72vh, 520px);
   overflow: hidden;
   border-bottom: none;
-}
-
-.heroPosterArt {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-color: #f4e8df;
-  background-image: var(--hero-bg-image, url('/core/m55-core-bg-teal-primary.webp'));
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-}
-
-.heroPosterArt::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(165deg, rgba(255, 244, 236, 0.92) 0%, rgba(248, 232, 220, 0.88) 38%, rgba(242, 236, 252, 0.55) 100%),
-    radial-gradient(100% 80% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 62%);
-  pointer-events: none;
 }
 
 .heroPosterBlooms {
@@ -782,7 +766,8 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.95;
+  opacity: 0.7;
+  mix-blend-mode: soft-light;
 }
 
 .heroPosterBloomsSvg {
@@ -793,35 +778,60 @@
 
 .heroPosterSurface {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 0 4px;
+  padding: 0 0 4px;
   box-sizing: border-box;
 }
 
 .heroPosterCardV0 {
+  position: relative;
   width: min(100%, 420px);
   margin-inline: auto;
+  margin-top: 0;
   padding: clamp(22px, 4.5vw, 30px) clamp(18px, 4vw, 26px) clamp(24px, 5vw, 34px);
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.55);
-  background: linear-gradient(168deg, rgba(255, 252, 247, 0.82), rgba(255, 246, 236, 0.65));
+  background: rgba(255, 252, 247, 0.3);
+  overflow: hidden;
   box-shadow:
-    0 20px 56px rgba(45, 32, 28, 0.08),
+    0 22px 62px rgba(45, 32, 28, 0.09),
     0 1px 0 rgba(255, 255, 255, 0.65) inset;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-sizing: border-box;
 }
 
+.heroPosterVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.heroPosterOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(165deg, rgba(255, 244, 236, 0.74) 0%, rgba(248, 232, 220, 0.7) 38%, rgba(242, 236, 252, 0.54) 100%),
+    radial-gradient(100% 80% at 50% 0%, rgba(255, 255, 255, 0.46), transparent 62%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 .heroPosterTopBar {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: clamp(18px, 3.5vw, 26px);
+  margin-bottom: clamp(12px, 2.4vw, 18px);
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -846,69 +856,62 @@
   font-weight: 500;
 }
 
-.heroPosterCenter {
+.heroPosterStack {
+  position: relative;
+  z-index: 2;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.heroPosterBadgeRing {
-  width: 52px;
-  height: 52px;
+.heroPosterPortraitRing {
+  position: relative;
+  width: clamp(124px, 34vw, 158px);
+  height: clamp(124px, 34vw, 158px);
   border-radius: 999px;
-  padding: 2px;
-  margin-bottom: 10px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(230, 218, 210, 0.5));
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 6px 18px rgba(40, 28, 24, 0.06);
+  padding: 3px;
+  margin: 0 0 clamp(12px, 2.4vw, 16px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(230, 218, 210, 0.42));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 3px 12px rgba(40, 28, 24, 0.04);
   box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
-.heroPosterBadgeImg {
-  width: 46px;
-  height: 46px;
+.heroPosterPortraitImg {
   border-radius: 999px;
   object-fit: cover;
-  display: block;
-}
-
-.heroPosterMonogram {
-  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(64px, 16vw, 92px);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  color: rgba(38, 32, 30, 0.9);
-  margin: 0 0 6px;
 }
 
 .heroPosterEnV0 {
-  font-size: clamp(22px, 5vw, 32px);
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: rgba(22, 20, 24, 0.92);
-  margin: 0 0 14px;
-  line-height: 1.12;
+  font-size: clamp(20px, 4.2vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(18, 16, 22, 0.94);
+  margin: 0 0 clamp(8px, 1.6vw, 12px);
+  line-height: 1.2;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 
 .heroPosterTraitKind {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   color: rgba(60, 60, 60, 0.42);
   margin: 0 0 5px;
 }
 
 .heroPosterTraitName {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(15px, 3.2vw, 17px);
+  font-size: clamp(17px, 3.4vw, 20px);
   font-weight: 500;
-  color: rgba(34, 32, 36, 0.88);
-  margin: 0 0 18px;
-  letter-spacing: 0.06em;
+  color: rgba(34, 32, 36, 0.9);
+  margin: 0 0 clamp(10px, 2vw, 14px);
+  letter-spacing: 0.055em;
+  line-height: 1.38;
 }
 
 .heroPosterTaglineV0 {
@@ -996,11 +999,11 @@
 }
 
 .freezeStepCard {
-  padding: 17px 17px 19px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 6px 20px rgba(29, 24, 61, 0.03);
+  padding: 19px 18px 21px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 10px 26px rgba(29, 24, 61, 0.045);
   min-width: 0;
 }
 
@@ -1020,7 +1023,7 @@
 }
 
 .freezeStepTitle {
-  font-size: 16px;
+  font-size: clamp(17px, 3.3vw, 20px);
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;
@@ -1028,7 +1031,7 @@
 }
 
 .freezeStepBody {
-  font-size: 14px;
+  font-size: clamp(14px, 2.8vw, 15px);
   color: #3d3d3d;
   margin: 0;
   line-height: 1.72;
@@ -1047,11 +1050,11 @@
 }
 
 .tendencyAxisCard {
-  padding: clamp(16px, 3.2vw, 20px) clamp(14px, 3vw, 18px) clamp(18px, 3.5vw, 22px);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 6px 22px rgba(29, 24, 61, 0.028);
+  padding: clamp(17px, 3.3vw, 22px) clamp(14px, 3vw, 18px) clamp(20px, 3.8vw, 24px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(90, 80, 130, 0.085);
+  box-shadow: 0 9px 26px rgba(29, 24, 61, 0.04);
 }
 
 .tendencyStack .tendencyAxisCard:nth-child(1) {
@@ -1082,7 +1085,7 @@
 
 .tendencyAxisTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: 19px;
+  font-size: clamp(20px, 4vw, 24px);
   font-weight: 500;
   margin: 0 0 6px;
   color: #1a1a1a;
@@ -1096,9 +1099,9 @@
 }
 
 .tendencyLayerLabel {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: rgba(60, 60, 60, 0.48);
   margin: 16px 0 6px;
 }
@@ -1108,7 +1111,7 @@
 }
 
 .tendencyTendencyBody {
-  font-size: 15px;
+  font-size: clamp(16px, 3vw, 18px);
   font-weight: 600;
   color: #2a2a2a;
   margin: 0 0 10px;
@@ -1129,22 +1132,22 @@
 }
 
 .tendencyBody {
-  font-size: 14px;
+  font-size: clamp(14px, 2.8vw, 15px);
   color: #3d3d3d;
   margin: 0 0 10px;
   line-height: 1.72;
 }
 
 .tendencyLoadLabel {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   color: rgba(60, 60, 60, 0.55);
   margin: 0 0 4px;
 }
 
 .tendencyLoadBody {
-  font-size: 14px;
+  font-size: clamp(14px, 2.8vw, 15px);
   color: #3d3d3d;
   margin: 0;
   line-height: 1.72;
@@ -1190,11 +1193,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 16px 14px 18px;
-  border-radius: 18px;
+  padding: 18px 16px 20px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 6px 20px rgba(29, 24, 61, 0.03);
+  border: 1px solid rgba(70, 90, 120, 0.09);
+  box-shadow: 0 7px 21px rgba(29, 24, 61, 0.034);
 }
 
 .alignFlowGrid .alignFlowCard:nth-child(1) {
@@ -1223,7 +1226,7 @@
 }
 
 .alignFlowText {
-  font-size: 14px;
+  font-size: clamp(14px, 2.8vw, 15px);
   color: #3d3d3d;
   line-height: 1.72;
 }
@@ -1338,13 +1341,46 @@
 
 .ctaStripV0 .ctaPrimaryButton {
   margin-top: 0;
-  padding: 13px 32px;
+  padding: 14px 34px;
   border-radius: 999px;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  box-shadow: 0 8px 24px rgba(83, 74, 114, 0.22);
+  font-size: 15px;
+  letter-spacing: 0.075em;
+  box-shadow: 0 10px 28px rgba(83, 74, 114, 0.25);
 }
 
 .ctaPrimaryButton:hover {
   background: rgba(63, 54, 94, 0.95);
+}
+
+/* /core scroll reveal: calm one-time motion */
+.coreReveal {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(8px);
+  transition:
+    opacity 560ms ease,
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 560ms ease;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.coreReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPosterVideo {
+    display: none;
+  }
+
+  .coreReveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
 }

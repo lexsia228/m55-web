@@ -13,8 +13,13 @@ export default function CoreTendencyLoadSection({ result }: { result: CoreResult
         傾向と負荷
       </h2>
       <div className={styles.tendencyStack}>
-        {rows.map((row) => (
-          <article key={row.formal} className={`${styles.tendencyBlock} ${styles.tendencyAxisCard}`}>
+        {rows.map((row, i) => (
+          <article
+            key={row.formal}
+            className={`${styles.tendencyBlock} ${styles.tendencyAxisCard} ${styles.coreReveal}`}
+            data-core-reveal
+            style={{ ['--reveal-delay' as string]: `${i * 50}ms` }}
+          >
             <h3 className={styles.tendencyAxisTitle}>{row.formal}</h3>
             <p className={styles.tendencyLayerLabel}>出やすい傾向</p>
             <p className={styles.tendencyTendencyBody}>{row.tendency}</p>
