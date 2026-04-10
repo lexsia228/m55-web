@@ -1,4 +1,4 @@
-/**
+﻿/**
  * /core — editorial rhythm aligned with ten-views (calm serif titles, sans body).
  */
 
@@ -769,284 +769,325 @@
   font-weight: 600;
 }
 
-/* ── /core v0：中央本質ポスター（ピーチ〜ベージュ・静かな紋章構図） ── */
-.heroPoster {
-  position: relative;
-  margin: 0;
-  padding: clamp(4px, 1.1vw, 8px) 0 0;
-  min-height: min(72vh, 520px);
-  overflow: hidden;
-  border-bottom: none;
+/* ── /core poster hero：Home .heroSection + .posterMainVisual と同型（1枚の面・横幅は .page と同一） ── */
+
+.corePosterHeroSection {
+  --core-poster-hero-nav: 48px;
+  box-sizing: border-box;
+  min-height: calc(100dvh - var(--core-poster-hero-nav));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin: 0 0 20px;
 }
 
-.heroPosterBlooms {
+.corePosterStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.corePosterMainVisual {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 auto;
+  min-height: min(72dvh, 560px);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #ece8f4;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.corePosterMainVisualStack {
   position: absolute;
   inset: 0;
+  min-height: 0;
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+.corePosterHeroBaseLayer {
+  grid-area: 1 / 1 / 2 / 2;
+  position: relative;
   z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0.62;
-  mix-blend-mode: soft-light;
+  min-height: 0;
 }
 
-.heroPosterBloomsSvg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.heroPosterSurface {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.heroPosterCardV0 {
-  position: relative;
-  width: 100%;
-  margin-inline: auto;
-  margin-top: 0;
-  padding: clamp(20px, 4.1vw, 26px) clamp(18px, 4vw, 26px) clamp(1px, 0.5vw, 4px);
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 252, 247, 0.3);
-  overflow: hidden;
-  box-shadow:
-    0 22px 62px rgba(45, 32, 28, 0.09),
-    0 1px 0 rgba(255, 255, 255, 0.65) inset;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-sizing: border-box;
-}
-
-.heroPosterVideo {
+.corePosterHeroBgVideo {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 0;
+  object-position: center center;
   pointer-events: none;
 }
 
-.heroPosterOverlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(165deg, rgba(255, 244, 236, 0.78) 0%, rgba(248, 232, 220, 0.74) 32%, rgba(248, 240, 236, 0.72) 58%, rgba(242, 236, 252, 0.62) 100%),
-    radial-gradient(100% 72% at 50% 0%, rgba(255, 255, 255, 0.52), transparent 60%),
-    linear-gradient(180deg, transparent 0%, rgba(255, 252, 248, 0.22) 100%);
+.corePosterHeroReadabilityVeil {
+  grid-area: 1 / 1 / 2 / 2;
   z-index: 1;
   pointer-events: none;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 252, 250, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(248, 246, 252, 0.12) 100%
+  );
 }
 
-.heroPosterTopBar {
+.corePosterHeroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: clamp(16px, 3.5vw, 22px) clamp(16px, 4.5vw, 22px) clamp(18px, 5vw, 26px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.corePosterHeroFoot {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.corePosterHeroCopy {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.corePosterHeroTopBlock {
+  flex: 0 0 auto;
+}
+
+.corePosterMetaRow {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: clamp(8px, 1.7vw, 13px);
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.038);
+  gap: clamp(8px, 2vw, 14px);
+  width: 100%;
+  text-align: left;
+  margin: 0 0 clamp(6px, 1.2vw, 10px);
+  padding-bottom: clamp(8px, 1.5vw, 12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  box-sizing: border-box;
 }
 
-.heroPosterEssenceTitle {
+.corePosterEssenceTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(13px, 2.75vw, 15px);
+  font-size: clamp(12px, 2.2vw, 15px);
   font-weight: 500;
-  color: rgba(26, 26, 26, 0.68);
+  color: rgba(26, 26, 26, 0.88);
   margin: 0;
   letter-spacing: 0.045em;
   line-height: 1.42;
   max-width: 62%;
+  min-width: 0;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.65),
+    0 1px 2px rgba(255, 255, 255, 0.85);
 }
 
-.heroPosterObsDate {
-  font-size: 10px;
+.corePosterObsDate {
+  font-size: clamp(9px, 1.55vw, 11px);
   letter-spacing: 0.035em;
-  color: rgba(44, 42, 50, 0.5);
-  margin: 1px 0 0;
-  white-space: nowrap;
-  font-weight: 400;
+  color: rgba(44, 42, 50, 0.62);
+  margin: 2px 0 0;
+  text-align: right;
+  max-width: 38%;
   line-height: 1.42;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.55),
+    0 1px 1px rgba(255, 255, 255, 0.75);
 }
 
-.heroPosterStack {
-  position: relative;
-  z-index: 2;
+.corePosterEnCaption {
+  font-size: clamp(9px, 1.65vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(80, 72, 98, 0.55);
+  margin: 0 0 clamp(4px, 1vw, 8px);
   text-align: center;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.55),
+    0 1px 1px rgba(255, 255, 255, 0.75);
+}
+
+.corePosterFigureWrap {
+  flex: 1 1 auto;
+  min-height: clamp(120px, 22vh, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 2vw, 14px) 0;
+  box-sizing: border-box;
+}
+
+.corePosterPortrait {
+  width: 100%;
+  max-width: min(280px, 78vw);
+  flex: 0 1 auto;
+  aspect-ratio: 4 / 5;
+  max-height: min(36vh, 320px);
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 10px 24px rgba(29, 24, 61, 0.12));
+}
+
+.corePosterHeroLower {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: clamp(10px, 2vw, 14px);
+  width: 100%;
 }
 
-.heroPosterPortraitRing {
-  position: relative;
-  width: clamp(140px, 38vw, 178px);
-  height: clamp(140px, 38vw, 178px);
-  border-radius: 999px;
-  padding: 3px;
-  margin: clamp(2px, 0.6vw, 6px) 0 clamp(9px, 1.8vw, 12px);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(230, 218, 210, 0.42));
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: 0 3px 12px rgba(40, 28, 24, 0.04);
-  box-sizing: border-box;
-  flex-shrink: 0;
-  overflow: hidden;
+.corePosterTitleBlock {
+  width: 100%;
 }
 
-.heroPosterPortraitImg {
-  border-radius: 999px;
-  object-fit: cover;
-}
-
-.heroPosterEnV0 {
-  font-size: clamp(20px, 5.2vw, 30px);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: rgba(24, 22, 30, 0.58);
-  margin: clamp(10px, 2vw, 14px) 0 clamp(10px, 2vw, 14px);
-  line-height: 1.08;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.heroPosterTraitKind {
-  font-size: clamp(8px, 1.85vw, 9px);
+.corePosterTraitKind {
+  font-size: clamp(8px, 1.35vw, 10px);
   font-weight: 500;
   letter-spacing: 0.1em;
-  color: rgba(58, 56, 64, 0.52);
-  margin: 0 0 5px;
-  line-height: 1.35;
+  color: rgba(32, 30, 42, 0.78);
+  margin: 0 0 4px;
 }
 
-.heroPosterTraitName {
+.corePosterTraitName {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(25px, 5.4vw, 33px);
-  font-weight: 700;
-  color: #15131a;
-  margin: 0 0 clamp(12px, 2.2vw, 16px);
-  letter-spacing: 0.05em;
-  line-height: 1.24;
+  font-size: clamp(20px, 4.6vw, 30px);
+  font-weight: 600;
+  color: #0f0d15;
+  margin: 0;
+  letter-spacing: 0.04em;
+  line-height: 1.28;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(255, 255, 255, 0.85);
 }
 
-.heroPosterProse {
+.corePosterTextBlock {
   width: 100%;
-  max-width: min(30em, 100%);
-  margin: 0 auto;
-  padding-top: clamp(1px, 0.5vw, 4px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  padding-top: clamp(8px, 1.6vw, 12px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
-.heroPosterTaglineV0 {
-  font-size: clamp(14.5px, 3.25vw, 16px);
+.corePosterTagline {
+  font-size: clamp(14px, 3.1vw, 16px);
   font-weight: 600;
   color: rgba(34, 31, 39, 0.96);
-  margin: 0 0 clamp(10px, 2vw, 14px);
-  line-height: 1.62;
+  margin: 0 0 clamp(8px, 1.6vw, 11px);
+  line-height: 1.58;
   max-width: 28em;
+  margin-inline: auto;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.52),
+    0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-.heroPosterBodyV0 {
+.corePosterBody {
   font-size: clamp(13.5px, 2.85vw, 15px);
   line-height: 1.66;
   font-weight: 400;
-  color: rgba(55, 53, 58, 0.78);
-  margin: 0 0 clamp(4px, 0.8vw, 6px);
+  color: rgba(44, 42, 50, 0.92);
+  margin: 0 0 clamp(6px, 1.2vw, 8px);
   max-width: 28em;
+  margin-inline: auto;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.45),
+    0 1px 1px rgba(255, 255, 255, 0.75);
 }
 
-.heroPosterBodyV0 + .heroPosterBodyV0 {
-  font-size: clamp(12.5px, 2.55vw, 13.5px);
-  line-height: 1.64;
-  color: rgba(60, 58, 62, 0.58);
-  margin-top: 3px;
+.corePosterBodyMuted {
+  font-size: clamp(12.5px, 2.55vw, 14px);
+  line-height: 1.62;
+  color: rgba(52, 50, 58, 0.78);
+  margin: 0;
+  max-width: 28em;
+  margin-inline: auto;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.42),
+    0 1px 1px rgba(255, 255, 255, 0.72);
 }
 
-.heroPosterBodyV0:last-child {
-  margin-bottom: 0;
+.corePosterHeroBottomStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2vw, 14px);
+  width: 100%;
+  padding-top: clamp(4px, 1vw, 8px);
+  box-sizing: border-box;
 }
 
-/* スマホのみ：ポスター占有率・主役感をわずかに前出し（デスクトップはベース値のまま） */
+.corePosterHeroBottomStack .focusJumpRow {
+  margin: 0;
+}
+
+@media (max-width: 479px) {
+  .corePosterEssenceTitle {
+    max-width: 58%;
+  }
+
+  .corePosterObsDate {
+    max-width: 44%;
+  }
+}
+
+@media (max-height: 720px) {
+  .corePosterMainVisual {
+    min-height: 260px;
+  }
+
+  .corePosterFigureWrap {
+    min-height: 100px;
+    padding: 4px 0;
+  }
+
+  .corePosterPortrait {
+    max-height: min(32vh, 260px);
+  }
+}
+
+
+/* スマホ微調整は行わず、hero は全端末で同一構造を維持 */
 @media (max-width: 639px) {
-  .heroPoster {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: clamp(2px, 0.8vw, 5px) 0 0;
-  }
-
-  .heroPosterSurface {
-    padding: 0;
-  }
-
-  .heroPosterCardV0 {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    min-height: 620px;
-    padding: clamp(18px, 3.8vw, 24px) clamp(17px, 3.9vw, 24px) clamp(18px, 4.2vw, 26px);
-    border-radius: 24px;
-    transform: none;
-  }
-
-  .heroPosterTopBar {
-    margin-bottom: clamp(7px, 1.5vw, 11px);
-    padding-bottom: 8px;
-  }
-
-  .heroPosterEnV0 {
-    font-size: clamp(23px, 6.3vw, 31px);
-    letter-spacing: 0.11em;
-    margin-top: clamp(12px, 2.8vw, 16px);
-    margin-bottom: clamp(10px, 2.2vw, 14px);
-  }
-
-  .heroPosterPortraitRing {
-    width: clamp(182px, 50vw, 224px);
-    height: clamp(182px, 50vw, 224px);
-    margin: clamp(1px, 0.4vw, 4px) 0 clamp(12px, 2.6vw, 16px);
-  }
-
-  .heroPosterTraitName {
-    font-size: clamp(27px, 6.4vw, 35px);
-    margin-bottom: clamp(10px, 2vw, 14px);
-  }
-
-  .heroPosterProse {
-    max-width: min(32em, 100%);
-    padding-top: clamp(2px, 0.6vw, 5px);
-  }
-
-  .heroPosterTaglineV0 {
-    font-size: clamp(15px, 3.45vw, 16px);
-    margin-bottom: clamp(8px, 1.8vw, 12px);
-  }
-
-  .heroPosterBodyV0 {
-    font-size: clamp(14px, 3.05vw, 15.5px);
-    margin-bottom: clamp(3px, 0.8vw, 5px);
-  }
-
-  .heroPosterBodyV0 + .heroPosterBodyV0 {
-    font-size: clamp(13px, 2.85vw, 14.5px);
-    margin-top: 1px;
-  }
-
-  .heroPosterBodyV0:last-child {
-    margin-bottom: 0;
-  }
-
   .focusJumpRow {
-    margin: clamp(4px, 1.1vw, 8px) 0 1px;
+    margin: clamp(6px, 1.5vw, 10px) 0 2px;
   }
 
   .focusJumpLink {
@@ -1055,12 +1096,14 @@
     letter-spacing: 0.1em;
   }
 
-  .focusJumpRow + .section.surfaceRadar {
-    margin-top: 1px;
-    padding-top: clamp(10px, 2.5vw, 14px);
+  .focusJumpRow + .section.surfaceRadar,
+  .corePosterHeroSection + .section.surfaceRadar {
+    margin-top: clamp(28px, 7vw, 48px);
+    padding-top: clamp(10px, 2.6vw, 14px);
   }
 
-  .focusJumpRow + .section.surfaceRadar .sectionTitle {
+  .focusJumpRow + .section.surfaceRadar .sectionTitle,
+  .corePosterHeroSection + .section.surfaceRadar .sectionTitle {
     margin-bottom: clamp(14px, 2.6vw, 17px);
   }
 }
@@ -1069,7 +1112,7 @@
 .focusJumpRow {
   display: flex;
   justify-content: center;
-  margin: clamp(8px, 2.1vw, 14px) 0 3px;
+  margin: clamp(8px, 1.5vw, 14px) 0 clamp(16px, 3.2vw, 28px);
 }
 
 .focusJumpLink {
@@ -1091,13 +1134,15 @@
   user-select: none;
 }
 
-/* /core: hero poster → focus link → radar section (vertical rhythm only) */
-.focusJumpRow + .section.surfaceRadar {
-  margin-top: clamp(4px, 1vw, 7px);
+/* /core: hero ラッパー直後の radar セクション間隔 */
+.focusJumpRow + .section.surfaceRadar,
+.corePosterHeroSection + .section.surfaceRadar {
+  margin-top: clamp(36px, 7vw, 64px);
   padding-top: clamp(11px, 2.8vw, 16px);
 }
 
-.focusJumpRow + .section.surfaceRadar .sectionTitle {
+.focusJumpRow + .section.surfaceRadar .sectionTitle,
+.corePosterHeroSection + .section.surfaceRadar .sectionTitle {
   margin-bottom: clamp(14px, 2.4vw, 18px);
 }
 
@@ -1510,7 +1555,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroPosterVideo {
+  .corePosterHeroBgVideo {
     display: none;
   }
 

@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
@@ -8,6 +7,7 @@ import {
   heroNarrative,
   withNickname,
 } from './corePublicCopy';
+import CoreFocusLinkRow from './CoreFocusLinkRow';
 import styles from './CoreExperience.module.css';
 
 /** ヒーローカード内背景動画の再生速度（1 より小さいほど静かに流れる） */
@@ -155,64 +155,74 @@ export default function CoreHeroSection({
   }
 
   return (
-    <header className={styles.heroPoster} data-hero-type={result.coreType}>
-      <div className={styles.heroPosterBlooms} aria-hidden>
-        <svg className={styles.heroPosterBloomsSvg} viewBox="0 0 400 360" preserveAspectRatio="xMidYMid slice">
-          <ellipse cx="340" cy="48" rx="140" ry="96" fill="rgba(255, 210, 190, 0.35)" />
-          <ellipse cx="48" cy="280" rx="120" ry="88" fill="rgba(230, 218, 255, 0.28)" />
-          <circle cx="200" cy="120" r="72" fill="rgba(255, 236, 224, 0.45)" />
-          <path
-            d="M 60 40 Q 120 100 40 160 Q 100 120 60 40"
-            fill="rgba(255, 245, 238, 0.5)"
-            opacity="0.9"
-          />
-        </svg>
-      </div>
-      <div className={styles.heroPosterSurface}>
-        <div className={styles.heroPosterCardV0}>
-          <video
-            ref={videoRef}
-            className={styles.heroPosterVideo}
-            muted
-            autoPlay
-            loop
-            playsInline
-            preload="metadata"
-            poster="/core/core-blueprint-bg-poster.webp"
-            aria-hidden
-          >
-            <source src="/core/core-blueprint-bg-motion.mp4" type="video/mp4" />
-          </video>
-          <div className={styles.heroPosterOverlay} aria-hidden />
-          <div className={styles.heroPosterTopBar}>
-            <h1 className={styles.heroPosterEssenceTitle}>{withNickname('tの見取り図', nick)}</h1>
-            <p className={styles.heroPosterObsDate}>{obsMeta}</p>
-          </div>
-          <div className={styles.heroPosterStack}>
-            <p className={styles.heroPosterEnV0}>{visual.englishLabel}</p>
-            <div className={styles.heroPosterPortraitRing}>
-              <Image
-                src={visual.heroCardImage}
-                alt=""
-                fill
-                sizes="(max-width: 639px) 170px, 168px"
-                className={styles.heroPosterPortraitImg}
-              />
+    <section
+      className={styles.corePosterHeroSection}
+      data-hero-type={result.coreType}
+      aria-label="本質の見取り図"
+    >
+      <div className={styles.corePosterStack}>
+        <div className={styles.corePosterMainVisual}>
+          <div className={styles.corePosterMainVisualStack} aria-hidden>
+            <div className={styles.corePosterHeroBaseLayer}>
+              <video
+                ref={videoRef}
+                className={styles.corePosterHeroBgVideo}
+                muted
+                autoPlay
+                loop
+                playsInline
+                preload="metadata"
+                poster="/core/core-blueprint-bg-poster.webp"
+                aria-hidden
+              >
+                <source src="/core/core-blueprint-bg-motion.mp4" type="video/mp4" />
+              </video>
             </div>
-            <p className={styles.heroPosterTraitKind}>{trait.kind}</p>
-            <p className={styles.heroPosterTraitName}>{trait.name}</p>
-            <div className={styles.heroPosterProse}>
-              <p className={styles.heroPosterTaglineV0}>{visual.shortCopy}</p>
-              {visual.subCopy1 ? (
-                <p className={styles.heroPosterBodyV0}>{visual.subCopy1}</p>
-              ) : null}
-              {visual.subCopy2 ? (
-                <p className={styles.heroPosterBodyV0}>{visual.subCopy2}</p>
-              ) : null}
+            <div className={styles.corePosterHeroReadabilityVeil} />
+          </div>
+          <div className={styles.corePosterHeroOverlay}>
+            <div className={styles.corePosterHeroFoot}>
+              <div className={styles.corePosterHeroCopy}>
+                <div className={styles.corePosterHeroTopBlock}>
+                  <div className={styles.corePosterMetaRow}>
+                    <h1 className={styles.corePosterEssenceTitle}>
+                      {withNickname('tの見取り図', nick)}
+                    </h1>
+                    <p className={styles.corePosterObsDate}>{obsMeta}</p>
+                  </div>
+                  <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
+                </div>
+                <div className={styles.corePosterFigureWrap}>
+                  <div
+                    className={styles.corePosterPortrait}
+                    style={{ backgroundImage: `url("${visual.heroCardImage}")` }}
+                    role="img"
+                    aria-label={visual.japaneseTitle}
+                  />
+                </div>
+                <div className={styles.corePosterHeroLower}>
+                  <div className={styles.corePosterTitleBlock}>
+                    <p className={styles.corePosterTraitKind}>{trait.kind}</p>
+                    <p className={styles.corePosterTraitName}>{trait.name}</p>
+                  </div>
+                  <div className={styles.corePosterTextBlock}>
+                    <p className={styles.corePosterTagline}>{visual.shortCopy}</p>
+                    {visual.subCopy1 ? (
+                      <p className={styles.corePosterBody}>{visual.subCopy1}</p>
+                    ) : null}
+                    {visual.subCopy2 ? (
+                      <p className={styles.corePosterBodyMuted}>{visual.subCopy2}</p>
+                    ) : null}
+                  </div>
+                  <div className={styles.corePosterHeroBottomStack}>
+                    <CoreFocusLinkRow />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </header>
+    </section>
   );
 }

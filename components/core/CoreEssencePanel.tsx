@@ -9,7 +9,6 @@ import CoreAiChatExplainerSection from './CoreAiChatExplainerSection';
 import CoreAlignFlowSection from './CoreAlignFlowSection';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
 import CoreExperienceStyles from './CoreExperience.module.css';
-import CoreFocusLinkRow from './CoreFocusLinkRow';
 import CoreHeroSection from './CoreHeroSection';
 import CoreHowM55ReadsSection from './CoreHowM55ReadsSection';
 import CoreLockedState from './CoreLockedState';
@@ -80,7 +79,6 @@ export default function CoreEssencePanel() {
     <div className={CoreExperienceStyles.page}>
       <CoreScrollReveal />
       <CoreHeroSection result={result} nickname={nickname} />
-      <CoreFocusLinkRow />
       <CoreRadarSection result={result} nickname={nickname} />
       <CoreHowM55ReadsSection nickname={nickname} />
       <CoreTendencyLoadSection result={result} />
