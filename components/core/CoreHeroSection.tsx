@@ -125,6 +125,8 @@ export default function CoreHeroSection({
   const visual = resolveHeroVisual(result, narrative);
   const trait = splitObservationTrait(visual.japaneseTitle);
   const obsDate = formatFirstObservationJa(result.lockedAt);
+  const obsMonth = obsDate.replace(/^初回観測\s*/, '').trim();
+  const obsMeta = obsMonth ? `First Record ${obsMonth}` : 'First Record';
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -183,8 +185,8 @@ export default function CoreHeroSection({
           </video>
           <div className={styles.heroPosterOverlay} aria-hidden />
           <div className={styles.heroPosterTopBar}>
-            <h1 className={styles.heroPosterEssenceTitle}>{withNickname('tの本質', nick)}</h1>
-            <p className={styles.heroPosterObsDate}>{obsDate}</p>
+            <h1 className={styles.heroPosterEssenceTitle}>{withNickname('tの見取り図', nick)}</h1>
+            <p className={styles.heroPosterObsDate}>{obsMeta}</p>
           </div>
           <div className={styles.heroPosterStack}>
             <p className={styles.heroPosterEnV0}>{visual.englishLabel}</p>

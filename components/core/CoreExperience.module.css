@@ -773,7 +773,7 @@
 .heroPoster {
   position: relative;
   margin: 0;
-  padding: clamp(6px, 1.5vw, 10px) 0 clamp(28px, 5.5vw, 40px);
+  padding: clamp(4px, 1.1vw, 8px) 0 0;
   min-height: min(72vh, 520px);
   overflow: hidden;
   border-bottom: none;
@@ -801,7 +801,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: clamp(4px, 1.2vw, 8px) 0 clamp(6px, 1.5vw, 10px);
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -810,7 +810,7 @@
   width: 100%;
   margin-inline: auto;
   margin-top: 0;
-  padding: clamp(20px, 4.2vw, 28px) clamp(18px, 4vw, 26px) clamp(28px, 5.2vw, 38px);
+  padding: clamp(20px, 4.1vw, 26px) clamp(18px, 4vw, 26px) clamp(1px, 0.5vw, 4px);
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 252, 247, 0.3);
@@ -851,8 +851,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: clamp(10px, 2vw, 15px);
-  padding-bottom: 10px;
+  margin-bottom: clamp(8px, 1.7vw, 13px);
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.038);
 }
 
@@ -869,11 +869,12 @@
 
 .heroPosterObsDate {
   font-size: 10px;
-  letter-spacing: 0.07em;
-  color: rgba(60, 60, 60, 0.42);
+  letter-spacing: 0.035em;
+  color: rgba(44, 42, 50, 0.5);
   margin: 1px 0 0;
   white-space: nowrap;
   font-weight: 400;
+  line-height: 1.42;
 }
 
 .heroPosterStack {
@@ -887,11 +888,11 @@
 
 .heroPosterPortraitRing {
   position: relative;
-  width: clamp(128px, 35vw, 162px);
-  height: clamp(128px, 35vw, 162px);
+  width: clamp(140px, 38vw, 178px);
+  height: clamp(140px, 38vw, 178px);
   border-radius: 999px;
   padding: 3px;
-  margin: clamp(2px, 0.6vw, 6px) 0 clamp(14px, 2.6vw, 18px);
+  margin: clamp(2px, 0.6vw, 6px) 0 clamp(9px, 1.8vw, 12px);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(230, 218, 210, 0.42));
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: 0 3px 12px rgba(40, 28, 24, 0.04);
@@ -906,11 +907,11 @@
 }
 
 .heroPosterEnV0 {
-  font-size: clamp(26px, 6.8vw, 38px);
+  font-size: clamp(20px, 5.2vw, 30px);
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: rgba(14, 12, 18, 0.96);
-  margin: 0 0 clamp(6px, 1.4vw, 10px);
+  color: rgba(24, 22, 30, 0.58);
+  margin: clamp(10px, 2vw, 14px) 0 clamp(10px, 2vw, 14px);
   line-height: 1.08;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -918,28 +919,28 @@
 
 .heroPosterTraitKind {
   font-size: clamp(8px, 1.85vw, 9px);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.1em;
-  color: rgba(60, 60, 60, 0.36);
+  color: rgba(58, 56, 64, 0.52);
   margin: 0 0 5px;
   line-height: 1.35;
 }
 
 .heroPosterTraitName {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(21px, 4.6vw, 28px);
-  font-weight: 600;
-  color: #17151a;
-  margin: 0 0 clamp(14px, 2.6vw, 20px);
+  font-size: clamp(25px, 5.4vw, 33px);
+  font-weight: 700;
+  color: #15131a;
+  margin: 0 0 clamp(12px, 2.2vw, 16px);
   letter-spacing: 0.05em;
-  line-height: 1.3;
+  line-height: 1.24;
 }
 
 .heroPosterProse {
   width: 100%;
   max-width: min(30em, 100%);
   margin: 0 auto;
-  padding-top: clamp(2px, 0.8vw, 6px);
+  padding-top: clamp(1px, 0.5vw, 4px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -948,8 +949,8 @@
 
 .heroPosterTaglineV0 {
   font-size: clamp(14.5px, 3.25vw, 16px);
-  font-weight: 500;
-  color: rgba(35, 33, 38, 0.93);
+  font-weight: 600;
+  color: rgba(34, 31, 39, 0.96);
   margin: 0 0 clamp(10px, 2vw, 14px);
   line-height: 1.62;
   max-width: 28em;
@@ -959,16 +960,16 @@
   font-size: clamp(13.5px, 2.85vw, 15px);
   line-height: 1.66;
   font-weight: 400;
-  color: rgba(55, 53, 58, 0.8);
-  margin: 0 0 clamp(6px, 1.2vw, 9px);
+  color: rgba(55, 53, 58, 0.78);
+  margin: 0 0 clamp(4px, 0.8vw, 6px);
   max-width: 28em;
 }
 
 .heroPosterBodyV0 + .heroPosterBodyV0 {
-  font-size: clamp(12.5px, 2.65vw, 14px);
+  font-size: clamp(12.5px, 2.55vw, 13.5px);
   line-height: 1.64;
-  color: rgba(60, 58, 62, 0.66);
-  margin-top: 2px;
+  color: rgba(60, 58, 62, 0.58);
+  margin-top: 3px;
 }
 
 .heroPosterBodyV0:last-child {
@@ -978,56 +979,89 @@
 /* スマホのみ：ポスター占有率・主役感をわずかに前出し（デスクトップはベース値のまま） */
 @media (max-width: 639px) {
   .heroPoster {
-    padding: clamp(4px, 1.2vw, 8px) 0 clamp(26px, 5.2vw, 38px);
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: clamp(2px, 0.8vw, 5px) 0 0;
   }
 
   .heroPosterSurface {
-    padding: 2px 0 4px;
+    padding: 0;
   }
 
   .heroPosterCardV0 {
     width: 100%;
-    padding: clamp(18px, 4vw, 24px) clamp(15px, 3.6vw, 22px) clamp(24px, 4.8vw, 34px);
+    margin-left: 0;
+    margin-right: 0;
+    min-height: 620px;
+    padding: clamp(18px, 3.8vw, 24px) clamp(17px, 3.9vw, 24px) clamp(18px, 4.2vw, 26px);
+    border-radius: 24px;
+    transform: none;
   }
 
   .heroPosterTopBar {
-    margin-bottom: clamp(8px, 1.8vw, 13px);
-    padding-bottom: 9px;
+    margin-bottom: clamp(7px, 1.5vw, 11px);
+    padding-bottom: 8px;
   }
 
   .heroPosterEnV0 {
-    font-size: clamp(28px, 7.5vw, 36px);
+    font-size: clamp(23px, 6.3vw, 31px);
     letter-spacing: 0.11em;
-    margin-bottom: clamp(5px, 1.2vw, 9px);
+    margin-top: clamp(12px, 2.8vw, 16px);
+    margin-bottom: clamp(10px, 2.2vw, 14px);
   }
 
   .heroPosterPortraitRing {
-    width: clamp(136px, 39vw, 170px);
-    height: clamp(136px, 39vw, 170px);
-    margin: clamp(1px, 0.5vw, 5px) 0 clamp(12px, 2.4vw, 17px);
+    width: clamp(182px, 50vw, 224px);
+    height: clamp(182px, 50vw, 224px);
+    margin: clamp(1px, 0.4vw, 4px) 0 clamp(12px, 2.6vw, 16px);
   }
 
   .heroPosterTraitName {
-    font-size: clamp(22px, 5.05vw, 27px);
-    margin-bottom: clamp(12px, 2.4vw, 18px);
+    font-size: clamp(27px, 6.4vw, 35px);
+    margin-bottom: clamp(10px, 2vw, 14px);
   }
 
   .heroPosterProse {
     max-width: min(32em, 100%);
-    padding-top: clamp(3px, 0.9vw, 7px);
+    padding-top: clamp(2px, 0.6vw, 5px);
   }
 
   .heroPosterTaglineV0 {
     font-size: clamp(15px, 3.45vw, 16px);
-    margin-bottom: clamp(9px, 1.85vw, 13px);
+    margin-bottom: clamp(8px, 1.8vw, 12px);
   }
 
   .heroPosterBodyV0 {
     font-size: clamp(14px, 3.05vw, 15.5px);
+    margin-bottom: clamp(3px, 0.8vw, 5px);
   }
 
   .heroPosterBodyV0 + .heroPosterBodyV0 {
     font-size: clamp(13px, 2.85vw, 14.5px);
+    margin-top: 1px;
+  }
+
+  .heroPosterBodyV0:last-child {
+    margin-bottom: 0;
+  }
+
+  .focusJumpRow {
+    margin: clamp(4px, 1.1vw, 8px) 0 1px;
+  }
+
+  .focusJumpLink {
+    padding: 7px 18px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .focusJumpRow + .section.surfaceRadar {
+    margin-top: 1px;
+    padding-top: clamp(10px, 2.5vw, 14px);
+  }
+
+  .focusJumpRow + .section.surfaceRadar .sectionTitle {
+    margin-bottom: clamp(14px, 2.6vw, 17px);
   }
 }
 
@@ -1035,28 +1069,36 @@
 .focusJumpRow {
   display: flex;
   justify-content: center;
-  margin: clamp(18px, 4vw, 26px) 0 6px;
+  margin: clamp(8px, 2.1vw, 14px) 0 3px;
 }
 
 .focusJumpLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 14px;
-  font-size: 10px;
+  padding: 6px 16px;
+  font-size: clamp(10px, 2.2vw, 11px);
   font-weight: 600;
-  letter-spacing: 0.14em;
-  color: rgba(72, 64, 88, 0.78);
+  letter-spacing: 0.11em;
+  color: rgba(68, 62, 86, 0.82);
   text-decoration: none;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 3px 12px rgba(29, 24, 61, 0.035);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 245, 252, 0.72));
+  box-shadow: 0 2px 10px rgba(29, 24, 61, 0.04);
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
 }
 
-.focusJumpLink:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(107, 95, 168, 0.15);
+/* /core: hero poster → focus link → radar section (vertical rhythm only) */
+.focusJumpRow + .section.surfaceRadar {
+  margin-top: clamp(4px, 1vw, 7px);
+  padding-top: clamp(11px, 2.8vw, 16px);
+}
+
+.focusJumpRow + .section.surfaceRadar .sectionTitle {
+  margin-bottom: clamp(14px, 2.4vw, 18px);
 }
 
 /* M55は… 3ステップ */
