@@ -3,12 +3,14 @@
  */
 
 .page {
+  /* /core 全体のコンテンツ基準線（ヒーロー〜各セクションで共通） */
+  --core-page-pad-x: 12px;
   color: #3d3d3d;
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   line-height: 1.75;
-  max-width: min(680px, calc(100vw - 24px));
+  max-width: min(680px, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
-  padding: clamp(10px, 2.2vw, 12px) 12px 56px;
+  padding: clamp(10px, 2.2vw, 12px) var(--core-page-pad-x) 56px;
   background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #faf9fb 100%);
   background-attachment: local;
 }
@@ -770,8 +772,8 @@
 /* ── /core v0：中央本質ポスター（ピーチ〜ベージュ・静かな紋章構図） ── */
 .heroPoster {
   position: relative;
-  margin: 0 -12px 0;
-  padding: 0 12px clamp(24px, 5vw, 34px);
+  margin: 0;
+  padding: clamp(6px, 1.5vw, 10px) 0 clamp(28px, 5.5vw, 40px);
   min-height: min(72vh, 520px);
   overflow: hidden;
   border-bottom: none;
@@ -783,7 +785,7 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.7;
+  opacity: 0.62;
   mix-blend-mode: soft-light;
 }
 
@@ -799,16 +801,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 0 4px;
+  padding: clamp(4px, 1.2vw, 8px) 0 clamp(6px, 1.5vw, 10px);
   box-sizing: border-box;
 }
 
 .heroPosterCardV0 {
   position: relative;
-  width: min(100%, 420px);
+  width: 100%;
   margin-inline: auto;
   margin-top: 0;
-  padding: clamp(22px, 4.5vw, 30px) clamp(18px, 4vw, 26px) clamp(24px, 5vw, 34px);
+  padding: clamp(20px, 4.2vw, 28px) clamp(18px, 4vw, 26px) clamp(28px, 5.2vw, 38px);
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 252, 247, 0.3);
@@ -835,8 +837,9 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(165deg, rgba(255, 244, 236, 0.74) 0%, rgba(248, 232, 220, 0.7) 38%, rgba(242, 236, 252, 0.54) 100%),
-    radial-gradient(100% 80% at 50% 0%, rgba(255, 255, 255, 0.46), transparent 62%);
+    linear-gradient(165deg, rgba(255, 244, 236, 0.78) 0%, rgba(248, 232, 220, 0.74) 32%, rgba(248, 240, 236, 0.72) 58%, rgba(242, 236, 252, 0.62) 100%),
+    radial-gradient(100% 72% at 50% 0%, rgba(255, 255, 255, 0.52), transparent 60%),
+    linear-gradient(180deg, transparent 0%, rgba(255, 252, 248, 0.22) 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -848,29 +851,29 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: clamp(12px, 2.4vw, 18px);
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: clamp(10px, 2vw, 15px);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.038);
 }
 
 .heroPosterEssenceTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(15px, 3.2vw, 17px);
+  font-size: clamp(13px, 2.75vw, 15px);
   font-weight: 500;
-  color: #1a1a1a;
+  color: rgba(26, 26, 26, 0.68);
   margin: 0;
-  letter-spacing: 0.06em;
-  line-height: 1.45;
+  letter-spacing: 0.045em;
+  line-height: 1.42;
   max-width: 62%;
 }
 
 .heroPosterObsDate {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: rgba(60, 60, 60, 0.52);
-  margin: 2px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  color: rgba(60, 60, 60, 0.42);
+  margin: 1px 0 0;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .heroPosterStack {
@@ -884,11 +887,11 @@
 
 .heroPosterPortraitRing {
   position: relative;
-  width: clamp(124px, 34vw, 158px);
-  height: clamp(124px, 34vw, 158px);
+  width: clamp(128px, 35vw, 162px);
+  height: clamp(128px, 35vw, 162px);
   border-radius: 999px;
   padding: 3px;
-  margin: 0 0 clamp(12px, 2.4vw, 16px);
+  margin: clamp(2px, 0.6vw, 6px) 0 clamp(14px, 2.6vw, 18px);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(230, 218, 210, 0.42));
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: 0 3px 12px rgba(40, 28, 24, 0.04);
@@ -903,54 +906,129 @@
 }
 
 .heroPosterEnV0 {
-  font-size: clamp(20px, 4.2vw, 26px);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: rgba(18, 16, 22, 0.94);
-  margin: 0 0 clamp(8px, 1.6vw, 12px);
-  line-height: 1.2;
+  font-size: clamp(26px, 6.8vw, 38px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(14, 12, 18, 0.96);
+  margin: 0 0 clamp(6px, 1.4vw, 10px);
+  line-height: 1.08;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 
 .heroPosterTraitKind {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: rgba(60, 60, 60, 0.42);
+  font-size: clamp(8px, 1.85vw, 9px);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(60, 60, 60, 0.36);
   margin: 0 0 5px;
+  line-height: 1.35;
 }
 
 .heroPosterTraitName {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(17px, 3.4vw, 20px);
-  font-weight: 500;
-  color: rgba(34, 32, 36, 0.9);
-  margin: 0 0 clamp(10px, 2vw, 14px);
-  letter-spacing: 0.055em;
-  line-height: 1.38;
+  font-size: clamp(21px, 4.6vw, 28px);
+  font-weight: 600;
+  color: #17151a;
+  margin: 0 0 clamp(14px, 2.6vw, 20px);
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.heroPosterProse {
+  width: 100%;
+  max-width: min(30em, 100%);
+  margin: 0 auto;
+  padding-top: clamp(2px, 0.8vw, 6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .heroPosterTaglineV0 {
-  font-size: clamp(14px, 3.1vw, 15px);
-  font-weight: 400;
-  color: #2e2e2e;
-  margin: 0 0 8px;
-  line-height: 1.65;
+  font-size: clamp(14.5px, 3.25vw, 16px);
+  font-weight: 500;
+  color: rgba(35, 33, 38, 0.93);
+  margin: 0 0 clamp(10px, 2vw, 14px);
+  line-height: 1.62;
   max-width: 28em;
 }
 
 .heroPosterBodyV0 {
-  font-size: clamp(13px, 2.8vw, 14px);
-  line-height: 1.68;
+  font-size: clamp(13.5px, 2.85vw, 15px);
+  line-height: 1.66;
   font-weight: 400;
-  color: rgba(60, 60, 60, 0.88);
-  margin: 0 0 8px;
-  max-width: 30em;
+  color: rgba(55, 53, 58, 0.8);
+  margin: 0 0 clamp(6px, 1.2vw, 9px);
+  max-width: 28em;
+}
+
+.heroPosterBodyV0 + .heroPosterBodyV0 {
+  font-size: clamp(12.5px, 2.65vw, 14px);
+  line-height: 1.64;
+  color: rgba(60, 58, 62, 0.66);
+  margin-top: 2px;
 }
 
 .heroPosterBodyV0:last-child {
   margin-bottom: 0;
+}
+
+/* スマホのみ：ポスター占有率・主役感をわずかに前出し（デスクトップはベース値のまま） */
+@media (max-width: 639px) {
+  .heroPoster {
+    padding: clamp(4px, 1.2vw, 8px) 0 clamp(26px, 5.2vw, 38px);
+  }
+
+  .heroPosterSurface {
+    padding: 2px 0 4px;
+  }
+
+  .heroPosterCardV0 {
+    width: 100%;
+    padding: clamp(18px, 4vw, 24px) clamp(15px, 3.6vw, 22px) clamp(24px, 4.8vw, 34px);
+  }
+
+  .heroPosterTopBar {
+    margin-bottom: clamp(8px, 1.8vw, 13px);
+    padding-bottom: 9px;
+  }
+
+  .heroPosterEnV0 {
+    font-size: clamp(28px, 7.5vw, 36px);
+    letter-spacing: 0.11em;
+    margin-bottom: clamp(5px, 1.2vw, 9px);
+  }
+
+  .heroPosterPortraitRing {
+    width: clamp(136px, 39vw, 170px);
+    height: clamp(136px, 39vw, 170px);
+    margin: clamp(1px, 0.5vw, 5px) 0 clamp(12px, 2.4vw, 17px);
+  }
+
+  .heroPosterTraitName {
+    font-size: clamp(22px, 5.05vw, 27px);
+    margin-bottom: clamp(12px, 2.4vw, 18px);
+  }
+
+  .heroPosterProse {
+    max-width: min(32em, 100%);
+    padding-top: clamp(3px, 0.9vw, 7px);
+  }
+
+  .heroPosterTaglineV0 {
+    font-size: clamp(15px, 3.45vw, 16px);
+    margin-bottom: clamp(9px, 1.85vw, 13px);
+  }
+
+  .heroPosterBodyV0 {
+    font-size: clamp(14px, 3.05vw, 15.5px);
+  }
+
+  .heroPosterBodyV0 + .heroPosterBodyV0 {
+    font-size: clamp(13px, 2.85vw, 14.5px);
+  }
 }
 
 /* 今の焦点（本文外の小さな導線） */

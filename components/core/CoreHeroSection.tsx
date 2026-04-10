@@ -193,19 +193,21 @@ export default function CoreHeroSection({
                 src={visual.heroCardImage}
                 alt=""
                 fill
-                sizes="(max-width: 480px) 140px, 168px"
+                sizes="(max-width: 639px) 170px, 168px"
                 className={styles.heroPosterPortraitImg}
               />
             </div>
             <p className={styles.heroPosterTraitKind}>{trait.kind}</p>
             <p className={styles.heroPosterTraitName}>{trait.name}</p>
-            <p className={styles.heroPosterTaglineV0}>{visual.shortCopy}</p>
-            {visual.subCopy1 ? (
-              <p className={styles.heroPosterBodyV0}>{visual.subCopy1}</p>
-            ) : null}
-            {visual.subCopy2 ? (
-              <p className={styles.heroPosterBodyV0}>{visual.subCopy2}</p>
-            ) : null}
+            <div className={styles.heroPosterProse}>
+              <p className={styles.heroPosterTaglineV0}>{visual.shortCopy}</p>
+              {visual.subCopy1 ? (
+                <p className={styles.heroPosterBodyV0}>{visual.subCopy1}</p>
+              ) : null}
+              {visual.subCopy2 ? (
+                <p className={styles.heroPosterBodyV0}>{visual.subCopy2}</p>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
