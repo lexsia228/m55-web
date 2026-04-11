@@ -190,21 +190,23 @@ export default function CoreHeroSection({
                     </h1>
                     <p className={styles.corePosterObsDate}>{obsMeta}</p>
                   </div>
-                  <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
                 </div>
-                <div className={styles.corePosterFigureWrap}>
-                  <div
-                    className={styles.corePosterPortrait}
-                    style={{ backgroundImage: `url("${visual.heroCardImage}")` }}
-                    role="img"
-                    aria-label={visual.japaneseTitle}
+                <div className={styles.corePosterGridStage}>
+                  <img
+                    className={styles.corePosterStageImage}
+                    src={visual.heroCardImage}
+                    alt=""
+                    decoding="async"
                   />
+                  <div className={styles.corePosterStageText}>
+                    <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
+                    <div className={styles.corePosterTitleBlock}>
+                      <p className={styles.corePosterTraitKind}>{trait.kind}</p>
+                      <p className={styles.corePosterTraitName}>{trait.name}</p>
+                    </div>
+                  </div>
                 </div>
                 <div className={styles.corePosterHeroLower}>
-                  <div className={styles.corePosterTitleBlock}>
-                    <p className={styles.corePosterTraitKind}>{trait.kind}</p>
-                    <p className={styles.corePosterTraitName}>{trait.name}</p>
-                  </div>
                   <div className={styles.corePosterTextBlock}>
                     <p className={styles.corePosterTagline}>{visual.shortCopy}</p>
                     {visual.subCopy1 ? (
