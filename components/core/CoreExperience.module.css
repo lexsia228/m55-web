@@ -1077,17 +1077,19 @@
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
-.corePosterHeroBottomStack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(10px, 2vw, 14px);
+.corePosterBetweenCardsCta {
   width: 100%;
-  padding-top: clamp(4px, 1vw, 8px);
+  max-width: 42rem;
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  margin-top: clamp(14px, 2.8vw, 24px);
+  margin-bottom: clamp(14px, 2.8vw, 24px);
 }
 
-.corePosterHeroBottomStack .focusJumpRow {
+.corePosterBetweenCardsCta .focusJumpRow {
   margin: 0;
 }
 
@@ -1124,14 +1126,12 @@
     letter-spacing: 0.1em;
   }
 
-  .focusJumpRow + .section.surfaceRadar,
-  .corePosterHeroSection + .section.surfaceRadar {
+  .corePosterBetweenCardsCta + .section.surfaceRadar {
     margin-top: clamp(28px, 7vw, 48px);
     padding-top: clamp(10px, 2.6vw, 14px);
   }
 
-  .focusJumpRow + .section.surfaceRadar .sectionTitle,
-  .corePosterHeroSection + .section.surfaceRadar .sectionTitle {
+  .corePosterBetweenCardsCta + .section.surfaceRadar .sectionTitle {
     margin-bottom: clamp(14px, 2.6vw, 17px);
   }
 }
@@ -1162,15 +1162,13 @@
   user-select: none;
 }
 
-/* /core: hero ラッパー直後の radar セクション間隔 */
-.focusJumpRow + .section.surfaceRadar,
-.corePosterHeroSection + .section.surfaceRadar {
+/* /core: ポスターと「傾向の輪郭」の間（CTA ラッパー直後） */
+.corePosterBetweenCardsCta + .section.surfaceRadar {
   margin-top: clamp(36px, 7vw, 64px);
   padding-top: clamp(11px, 2.8vw, 16px);
 }
 
-.focusJumpRow + .section.surfaceRadar .sectionTitle,
-.corePosterHeroSection + .section.surfaceRadar .sectionTitle {
+.corePosterBetweenCardsCta + .section.surfaceRadar .sectionTitle {
   margin-bottom: clamp(14px, 2.4vw, 18px);
 }
 

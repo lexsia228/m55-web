@@ -155,6 +155,7 @@ export default function CoreHeroSection({
   }
 
   return (
+    <>
     <section
       className={styles.corePosterHeroSection}
       data-hero-type={result.coreType}
@@ -216,9 +217,6 @@ export default function CoreHeroSection({
                       <p className={styles.corePosterBodyMuted}>{visual.subCopy2}</p>
                     ) : null}
                   </div>
-                  <div className={styles.corePosterHeroBottomStack}>
-                    <CoreFocusLinkRow />
-                  </div>
                 </div>
               </div>
             </div>
@@ -226,5 +224,9 @@ export default function CoreHeroSection({
         </div>
       </div>
     </section>
+    <div className={styles.corePosterBetweenCardsCta}>
+      <CoreFocusLinkRow />
+    </div>
+    </>
   );
 }
