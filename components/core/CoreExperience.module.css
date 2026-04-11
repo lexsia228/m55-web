@@ -898,67 +898,54 @@
   flex: 0 1 auto;
   align-self: center;
   display: block;
-  width: fit-content;
+  width: min(100%, clamp(268px, 34vw, 420px));
   max-width: 100%;
+  aspect-ratio: 3 / 4;
   margin-inline: auto;
   margin-top: auto;
   margin-bottom: clamp(14px, 2.45vw, 24px);
   box-sizing: border-box;
   overflow: hidden;
+  isolation: isolate;
   border-radius: 8px;
   box-shadow: 0 5px 18px rgba(48, 42, 36, 0.07);
+  background:
+    radial-gradient(circle at 18% 52%, rgba(176, 94, 58, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(26, 17, 15, 0.18), rgba(26, 17, 15, 0.1));
 }
 
 @media (min-width: 900px) {
-  /* 背景＋オーバーレイを包む外枠：1st viewport 内の高さ予算 */
+  /* 背景＋オーバーレイを包む外枠：1st viewport 内の高さ予算（内側は fill させない） */
   .corePosterMainVisual {
     min-height: 0;
     min-block-size: min(260px, 34svh);
     max-block-size: calc(100svh - var(--core-poster-hero-nav) - 44px);
   }
 
-  /* メタ固定・中央塊（カード＋下本文）を上下 1fr で挟んで縦バランス */
-  .corePosterHeroCopy {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr);
-    align-items: start;
-    justify-items: stretch;
-    block-size: 100%;
-    min-block-size: 0;
-    justify-content: unset;
+  .corePosterHeroFoot {
+    justify-content: center;
   }
 
-  .corePosterHeroTopBlock {
-    grid-row: 1;
-    grid-column: 1;
-    margin-bottom: 0;
+  .corePosterHeroCopy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 0 1 auto;
+    min-height: 0;
+    width: 100%;
   }
 
   .corePosterGridStage {
-    grid-row: 3;
-    grid-column: 1;
-    justify-self: center;
-    align-self: center;
-    margin-top: 0;
-    overflow: hidden;
-    max-block-size: calc(clamp(280px, 36vw, 440px) * 1.22 - 18px);
-  }
-
-  .corePosterHeroLower {
-    grid-row: 4;
-    grid-column: 1;
-    margin-bottom: 0;
+    max-width: min(100%, 380px);
   }
 }
 
 .corePosterStageImage {
   display: block;
-  width: auto;
-  max-width: min(100%, clamp(280px, 36vw, 440px));
-  height: auto;
-  object-fit: contain;
-  object-position: center center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 22% center;
   filter: saturate(0.93) drop-shadow(0 3px 12px rgba(48, 42, 36, 0.05));
 }
 
@@ -974,14 +961,64 @@
   padding: clamp(12px, 4vw, 22px) clamp(8px, 3vw, 16px) clamp(14px, 5.5vw, 28px);
   box-sizing: border-box;
   pointer-events: none;
+  overflow: hidden;
   background: linear-gradient(
     180deg,
-    rgba(252, 250, 247, 0.58) 0%,
-    rgba(252, 250, 247, 0) 28%,
-    rgba(252, 250, 247, 0) 48%,
-    rgba(240, 236, 228, 0.22) 68%,
-    rgba(234, 228, 220, 0.52) 100%
+    rgba(250, 246, 238, 0.5) 0%,
+    rgba(248, 244, 236, 0) 28%,
+    rgba(248, 244, 236, 0) 48%,
+    rgba(238, 232, 222, 0.2) 68%,
+    rgba(230, 224, 212, 0.46) 100%
   );
+}
+
+@media (min-width: 900px) {
+  .corePosterStageText {
+    left: auto;
+    right: 0;
+    inset-block: 0;
+    width: min(23.5%, 6.5rem);
+    padding: clamp(8px, 1.05vw, 12px) clamp(4px, 0.75vw, 7px) clamp(10px, 1.45vw, 14px);
+    border-radius: 0 10px 10px 0;
+    align-items: flex-start;
+    text-align: left;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(18, 18, 20, 0) 0%,
+        rgba(18, 18, 20, 0.1) 20%,
+        rgba(242, 238, 233, 0.16) 58%,
+        rgba(245, 241, 236, 0.48) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 40%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+    box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+  }
+
+  .corePosterStageText .corePosterEnCaption {
+    text-align: left;
+  }
+
+  .corePosterStageText .corePosterTitleBlock {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1280px) {
+  .corePosterStageImage {
+    object-position: 18% center;
+  }
+
+  .corePosterStageText {
+    width: min(24%, 6.125rem);
+    padding: clamp(6px, 1.55vw, 12px) clamp(3px, 0.95vw, 6px) clamp(8px, 2.1vw, 14px);
+  }
 }
 
 .corePosterStageText .corePosterTitleBlock {
@@ -1175,8 +1212,8 @@
     min-height: 260px;
   }
 
-  .corePosterStageImage {
-    max-width: min(100%, clamp(240px, 56vw, 360px));
+  .corePosterGridStage {
+    max-width: min(100%, clamp(220px, 72vw, 300px));
   }
 }
 
