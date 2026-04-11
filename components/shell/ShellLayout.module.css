@@ -30,7 +30,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding: 0 10px 0 8px;
+  /* 上寄せの微調整：上薄く・下わずかに厚く（数 px）で帯を視覚的に少し上へ */
+  padding: 3px 10px 7px 8px;
   height: 48px;
   background: #ffffff;
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -76,7 +77,7 @@
   letter-spacing: -0.02em;
   color: var(--text-main, #2f2640);
   line-height: 1.2;
-  padding-bottom: 2px;
+  padding-bottom: 1px;
   border-bottom: 2px solid transparent;
   box-sizing: border-box;
 }
