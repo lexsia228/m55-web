@@ -7,7 +7,6 @@ import {
   heroNarrative,
   withNickname,
 } from './corePublicCopy';
-import CoreFocusLinkRow from './CoreFocusLinkRow';
 import styles from './CoreExperience.module.css';
 
 /** ヒーローカード内背景動画の再生速度（1 より小さいほど静かに流れる） */
@@ -155,7 +154,6 @@ export default function CoreHeroSection({
   }
 
   return (
-    <>
     <section
       className={styles.corePosterHeroSection}
       data-hero-type={result.coreType}
@@ -184,30 +182,27 @@ export default function CoreHeroSection({
           <div className={styles.corePosterHeroOverlay}>
             <div className={styles.corePosterHeroFoot}>
               <div className={styles.corePosterHeroCopy}>
-                <div className={styles.corePosterHeroTopBlock}>
-                  <div className={styles.corePosterMetaRow}>
-                    <h1 className={styles.corePosterEssenceTitle}>
-                      {withNickname('tの見取り図', nick)}
-                    </h1>
-                    <p className={styles.corePosterObsDate}>{obsMeta}</p>
-                  </div>
-                </div>
                 <div className={styles.corePosterGridStage}>
+                  <div className={styles.corePosterHeroTopBlock}>
+                    <div className={styles.corePosterMetaRow}>
+                      <h1 className={styles.corePosterEssenceTitle}>
+                        {withNickname('tの見取り図', nick)}
+                      </h1>
+                      <p className={styles.corePosterObsDate}>{obsMeta}</p>
+                    </div>
+                  </div>
                   <img
                     className={styles.corePosterStageImage}
                     src={visual.heroCardImage}
                     alt=""
                     decoding="async"
                   />
-                  <div className={styles.corePosterStageText}>
-                    <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
-                    <div className={styles.corePosterTitleBlock}>
-                      <p className={styles.corePosterTraitKind}>{trait.kind}</p>
-                      <p className={styles.corePosterTraitName}>{trait.name}</p>
-                    </div>
-                  </div>
                 </div>
                 <div className={styles.corePosterHeroLower}>
+                  <p className={styles.corePosterTraitPlate}>{trait.name}</p>
+                  <p className={styles.corePosterTraitKind}>{trait.kind}</p>
+                  <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
+                  <div className={styles.corePosterHeroHairline} aria-hidden />
                   <div className={styles.corePosterTextBlock}>
                     <p className={styles.corePosterTagline}>{visual.shortCopy}</p>
                     {visual.subCopy1 ? (
@@ -224,9 +219,5 @@ export default function CoreHeroSection({
         </div>
       </div>
     </section>
-    <div className={styles.corePosterBetweenCardsCta}>
-      <CoreFocusLinkRow />
-    </div>
-    </>
   );
 }
