@@ -894,7 +894,7 @@
   text-align: center;
 }
 
-/* 画像上端：発行文書ヘッダー感（極細境界・内側ハイライト、pill 外形は維持） */
+/* 画像上端：発行文書ヘッダー感（2手目：内枠・blur で写真面に沈める／pill 維持） */
 .corePosterGridStage > .corePosterHeroTopBlock {
   position: absolute;
   top: var(--core-hero-inset-top);
@@ -905,16 +905,19 @@
   width: max-content;
   max-width: calc(100% - 2 * var(--core-hero-inset-x));
   margin: 0;
-  padding: clamp(7px, 1.45vw, 10px) clamp(14px, 2.9vw, 18px);
+  padding: clamp(8px, 1.55vw, 11px) clamp(16px, 3.1vw, 20px);
   box-sizing: border-box;
-  border-radius: 9999px;
+  border-radius: clamp(10px, 2vw, 14px);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 42%),
-    rgba(8, 8, 10, 0.52);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, transparent 48%),
+    rgba(10, 10, 12, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 2px 10px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   pointer-events: none;
 }
 
@@ -926,11 +929,6 @@
   --core-hero-inset-x: clamp(10px, 2.4vw, 16px);
   --core-hero-inset-top: clamp(9px, 2vw, 12px);
   --core-hero-plate-bottom: clamp(9px, 2.1vw, 13px);
-  --core-hero-axis-col-w: clamp(5.125rem, 11vw, 5.625rem);
-  --core-hero-axis-under-meta: clamp(54px, 13.5vw, 70px);
-  /* 下端からの予約：主役矩形＋その上のクリアランス（左帯はこれより上で完結） */
-  --core-hero-plate-stack-reserve: clamp(170px, 44svh, 240px);
-  --core-hero-axis-plate-gap: clamp(11px, 2.9vw, 18px);
   --core-hero-plate-max-w: min(20rem, calc(100% - 2 * var(--core-hero-inset-x)));
   flex: 1 1 auto;
   align-self: stretch;
@@ -960,124 +958,29 @@
   z-index: 2;
   pointer-events: none;
   border-radius: inherit;
-  /* メタ帯周辺のごく薄い幕（下端は本文へ移したため弱め） */
-  background: linear-gradient(
-    180deg,
-    rgba(12, 11, 10, 0.38) 0%,
-    rgba(12, 11, 10, 0.08) 22%,
-    transparent 42%,
-    transparent 100%
-  );
-}
-
-/* 左 5 軸帯：分析パネル（数値先行・左縁・区切りで配置感を強める／主役矩形トークンは不変） */
-.corePosterHeroAxisRail {
-  list-style: none;
-  margin: 0;
-  padding: clamp(8px, 1.75vw, 11px) clamp(9px, 2.1vw, 13px) clamp(9px, 1.9vw, 12px) clamp(8px, 1.6vw, 11px);
-  position: absolute;
-  z-index: 4;
-  left: calc(var(--core-hero-inset-x) - 2px);
-  top: var(--core-hero-axis-under-meta);
-  bottom: calc(var(--core-hero-plate-stack-reserve) + var(--core-hero-axis-plate-gap));
-  width: calc(var(--core-hero-axis-col-w) + clamp(10px, 2.4vw, 14px));
-  max-width: calc(var(--core-hero-axis-col-w) + clamp(10px, 2.4vw, 14px));
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: clamp(4px, 0.75vw, 7px);
-  pointer-events: none;
-  border-radius: 0 clamp(9px, 2vw, 12px) clamp(9px, 2vw, 12px) 0;
+  /* 左上にごく弱い奥行き（文字を「載せ」ではなく面内の層に見せる） */
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 55%),
-    linear-gradient(90deg, rgba(6, 7, 12, 0.72) 0%, rgba(6, 7, 12, 0.38) 58%, rgba(6, 7, 12, 0) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-left: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 4px 18px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+    radial-gradient(ellipse 85% 55% at 14% 6%, rgba(8, 7, 6, 0.2), transparent 62%),
+    linear-gradient(
+      180deg,
+      rgba(12, 11, 10, 0.34) 0%,
+      rgba(12, 11, 10, 0.07) 24%,
+      transparent 44%,
+      transparent 100%
+    );
 }
 
-.corePosterHeroAxisItem {
-  display: grid;
-  grid-template-columns: min-content minmax(0, 1fr);
-  align-items: center;
-  column-gap: clamp(7px, 1.4vw, 10px);
-  min-width: 0;
-  position: relative;
-  padding: clamp(2px, 0.4vw, 4px) 0 clamp(3px, 0.55vw, 5px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.corePosterHeroAxisItem:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.corePosterHeroAxisItem::before {
+.corePosterGridStage::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: clamp(10px, 2.2vw, 14px);
-  border-radius: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.45),
-    rgba(255, 255, 255, 0.12)
-  );
-  opacity: 0.85;
+  inset: clamp(7px, 1.4vw, 10px);
+  border-radius: clamp(10px, 2.1vw, 13px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 10, 12, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  z-index: 3;
   pointer-events: none;
-}
-
-.corePosterHeroAxisCopy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  min-width: 0;
-  grid-column: 2;
-}
-
-.corePosterHeroAxisScore {
-  grid-column: 1;
-  font-size: clamp(11.5px, 2.35vw, 13.5px);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.03em;
-  color: rgba(255, 252, 250, 0.98);
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.75),
-    0 0 14px rgba(0, 0, 0, 0.28);
-  line-height: 1;
-  min-width: 1.6em;
-  text-align: right;
-}
-
-.corePosterHeroAxisJa {
-  font-size: clamp(7.5px, 1.45vw, 9px);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  color: rgba(255, 252, 248, 0.82);
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.65),
-    0 0 10px rgba(0, 0, 0, 0.22);
-}
-
-.corePosterHeroAxisEn {
-  font-size: clamp(6px, 1.05vw, 7px);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(252, 248, 242, 0.48);
-  line-height: 1.1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 @media (min-width: 900px) {
@@ -1176,31 +1079,27 @@
   line-height: 1.32;
 }
 
-/* メタ：識別ヘッダー／記録欄（書類・解析のトーン、文言はそのまま） */
+/* メタ：識別ヘッダー／記録欄（2手目：静かな締まり・影の単純化） */
 .corePosterHeroTopBlock .corePosterMetaRow {
-  gap: clamp(10px, 2vw, 16px);
+  gap: clamp(12px, 2.2vw, 18px);
 }
 
 .corePosterHeroTopBlock .corePosterEssenceTitle {
-  color: rgba(255, 253, 250, 0.98);
-  letter-spacing: 0.065em;
+  color: rgba(255, 253, 250, 0.99);
+  letter-spacing: 0.07em;
   font-weight: 600;
   font-feature-settings: 'palt' 1;
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.5),
-    0 0 14px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 .corePosterHeroTopBlock .corePosterObsDate {
-  color: rgba(248, 246, 242, 0.78);
-  letter-spacing: 0.07em;
+  color: rgba(245, 242, 238, 0.74);
+  letter-spacing: 0.075em;
   font-variant-numeric: tabular-nums;
-  padding-left: clamp(10px, 2vw, 14px);
-  margin-left: clamp(2px, 0.5vw, 6px);
-  border-left: 1px solid rgba(255, 255, 255, 0.16);
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.45),
-    0 0 10px rgba(0, 0, 0, 0.16);
+  padding-left: clamp(12px, 2.2vw, 16px);
+  margin-left: clamp(3px, 0.65vw, 7px);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
 }
 
 /* 主役名（観測特性ラベル由来・旧 trait プレートより主役として明確化） */
@@ -1335,12 +1234,12 @@
   border-radius: clamp(10px, 2.2vw, 13px);
   padding: clamp(17px, 3.6vw, 22px) clamp(16px, 3.5vw, 22px) clamp(16px, 3.2vw, 20px);
   background: rgba(252, 251, 249, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.36);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow:
-    0 12px 32px rgba(12, 10, 8, 0.14),
-    0 1px 0 rgba(255, 255, 255, 0.65) inset;
+    0 9px 24px rgba(12, 10, 8, 0.11),
+    0 1px 0 rgba(255, 255, 255, 0.58) inset;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -1496,16 +1395,6 @@
     justify-self: center;
     margin: var(--core-hero-inset-top) auto 0.5rem;
     z-index: 6;
-  }
-
-  .corePosterHeroAxisRail {
-    grid-column: 1;
-    grid-row: 2;
-    position: absolute;
-    top: var(--core-hero-inset-x);
-    bottom: var(--core-hero-inset-x);
-    left: calc(var(--core-hero-inset-x) - 2px);
-    z-index: 4;
   }
 
   .corePosterStageImage {

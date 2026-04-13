@@ -1,12 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { AXIS_ORDER } from '../../lib/m55/coreResult/axisMeta';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
-  formatFirstObservationJa,
   heroNarrative,
-  withNickname,
 } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
@@ -37,14 +34,17 @@ function splitObservationTrait(ja: string): { kind: string; name: string } {
   return { kind: '観測特性', name: ja.trim() };
 }
 
-/** ヒーロー左帯：憲章 C→L 順と `AXIS_ORDER` の各スコアを 1:1 で対応（レーダーと同じ並びの数値） */
-const HERO_AXIS_ROW_DEF: readonly { jaLine: string; enCaps: string }[] = [
-  { jaLine: '創造・成長', enCaps: 'Create' },
-  { jaLine: '表現・情熱', enCaps: 'Express' },
-  { jaLine: '基盤・育成', enCaps: 'Support' },
-  { jaLine: '決断・洗練', enCaps: 'Decide' },
-  { jaLine: '知性・流動', enCaps: 'Logic' },
-] as const;
+function formatRecordMonthDot(isoLike: string): string {
+  const d = new Date(isoLike);
+  if (!Number.isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    return `${y}.${m}`;
+  }
+  const m = isoLike.match(/(\d{4})[-/.年](\d{1,2})/);
+  if (!m) return '';
+  return `${m[1]}.${String(Number(m[2])).padStart(2, '0')}`;
+}
 
 const HERO_VISUAL_PRESET: Record<string, Omit<HeroVisualPreset, 'shortCopy' | 'subCopy1' | 'subCopy2'>> = {
   TYPE_01: {
@@ -133,14 +133,15 @@ export default function CoreHeroSection({
   const narrative = heroNarrative(result);
   const visual = resolveHeroVisual(result, narrative);
   const trait = splitObservationTrait(visual.japaneseTitle);
-  const heroAxisRows = AXIS_ORDER.map((key, i) => ({
-    key,
-    score: result.coreAxisScores[key],
-    ...HERO_AXIS_ROW_DEF[i]!,
-  }));
-  const obsDate = formatFirstObservationJa(result.lockedAt);
-  const obsMonth = obsDate.replace(/^初回観測\s*/, '').trim();
-  const obsMeta = obsMonth ? `First Record ${obsMonth}` : 'First Record';
+  const obsMonthDot = formatRecordMonthDot(result.lockedAt);
+  const obsMeta = obsMonthDot ? `First Record ${obsMonthDot}` : 'First Record';
+  const blueprintTitle = `Blueprint of ${nick || 'You'}`;
+  const traitLabel = '特質性';
+  const classLabelJa = '分析類型';
+  const leadText =
+    trait.name === '静観分析'
+      ? '周囲の喧騒に惑わされず、本質を静かに見極め、最適な答えを深く導き出せる人。'
+      : visual.shortCopy;
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -201,25 +202,11 @@ export default function CoreHeroSection({
                   <div className={styles.corePosterHeroTopBlock}>
                     <div className={styles.corePosterMetaRow}>
                       <h1 className={styles.corePosterEssenceTitle}>
-                        {withNickname('tの見取り図', nick)}
+                        {blueprintTitle}
                       </h1>
                       <p className={styles.corePosterObsDate}>{obsMeta}</p>
                     </div>
                   </div>
-                  <ul
-                    className={styles.corePosterHeroAxisRail}
-                    aria-label="五つの視点の配分"
-                  >
-                    {heroAxisRows.map((row) => (
-                      <li key={row.key} className={styles.corePosterHeroAxisItem}>
-                        <div className={styles.corePosterHeroAxisCopy}>
-                          <span className={styles.corePosterHeroAxisJa}>{row.jaLine}</span>
-                          <span className={styles.corePosterHeroAxisEn}>{row.enCaps}</span>
-                        </div>
-                        <span className={styles.corePosterHeroAxisScore}>{row.score}</span>
-                      </li>
-                    ))}
-                  </ul>
                   <img
                     className={styles.corePosterStageImage}
                     src={visual.heroCardImage}
@@ -228,14 +215,14 @@ export default function CoreHeroSection({
                   />
                   <div className={styles.corePosterHeroLower}>
                     <p className={styles.corePosterHeroEyebrow}>
-                      <span className={styles.corePosterHeroEyebrowKind}>{trait.kind}</span>
-                      <span className={styles.corePosterHeroEyebrowSep}>|</span>
+                      <span className={styles.corePosterHeroEyebrowKind}>{classLabelJa}</span>
+                      <span className={styles.corePosterHeroEyebrowSep}>/</span>
                       <span className={styles.corePosterHeroEyebrowEn}>
                         {visual.englishLabel}
                       </span>
                     </p>
-                    <p className={styles.corePosterMainHeadline}>{trait.name}</p>
-                    <p className={styles.corePosterHeroLead}>{visual.shortCopy}</p>
+                    <p className={styles.corePosterMainHeadline}>{`${traitLabel}：${trait.name}`}</p>
+                    <p className={styles.corePosterHeroLead}>{leadText}</p>
                   </div>
                 </div>
               </div>
