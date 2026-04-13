@@ -34,16 +34,21 @@ function splitObservationTrait(ja: string): { kind: string; name: string } {
   return { kind: '観測特性', name: ja.trim() };
 }
 
-function formatRecordMonthDot(isoLike: string): string {
-  const d = new Date(isoLike);
-  if (!Number.isNaN(d.getTime())) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    return `${y}.${m}`;
+function formatRecordDateLabel(isoLike: string): string {
+  const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const parsed = isoLike.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
+  if (parsed) {
+    const year = parsed[1];
+    const monthIdx = Number(parsed[2]) - 1;
+    const day = String(Number(parsed[3])).padStart(2, '0');
+    if (monthIdx >= 0 && monthIdx < mon.length) return `${year}.${mon[monthIdx]}.${day}`;
   }
-  const m = isoLike.match(/(\d{4})[-/.年](\d{1,2})/);
-  if (!m) return '';
-  return `${m[1]}.${String(Number(m[2])).padStart(2, '0')}`;
+  const d = new Date(isoLike);
+  if (Number.isNaN(d.getTime())) return '';
+  const year = d.getUTCFullYear();
+  const month = mon[d.getUTCMonth()]!;
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${year}.${month}.${day}`;
 }
 
 const HERO_VISUAL_PRESET: Record<string, Omit<HeroVisualPreset, 'shortCopy' | 'subCopy1' | 'subCopy2'>> = {
@@ -133,8 +138,8 @@ export default function CoreHeroSection({
   const narrative = heroNarrative(result);
   const visual = resolveHeroVisual(result, narrative);
   const trait = splitObservationTrait(visual.japaneseTitle);
-  const obsMonthDot = formatRecordMonthDot(result.lockedAt);
-  const obsMeta = obsMonthDot ? `First Record ${obsMonthDot}` : 'First Record';
+  const obsDateLabel = formatRecordDateLabel(result.lockedAt);
+  const obsMeta = obsDateLabel ? `First Record ${obsDateLabel}` : 'First Record';
   const blueprintTitle = `Blueprint of ${nick || 'You'}`;
   const traitLabel = '特質性';
   const classLabelJa = '分析類型';
@@ -202,7 +207,8 @@ export default function CoreHeroSection({
                   <div className={styles.corePosterHeroTopBlock}>
                     <div className={styles.corePosterMetaRow}>
                       <h1 className={styles.corePosterEssenceTitle}>
-                        {blueprintTitle}
+                        <span className={styles.corePosterEssenceTitlePrefix}>Blueprint of</span>
+                        <span className={styles.corePosterEssenceTitleName}>{nick || 'You'}</span>
                       </h1>
                       <p className={styles.corePosterObsDate}>{obsMeta}</p>
                     </div>
@@ -221,7 +227,10 @@ export default function CoreHeroSection({
                         {visual.englishLabel}
                       </span>
                     </p>
-                    <p className={styles.corePosterMainHeadline}>{`${traitLabel}：${trait.name}`}</p>
+                    <p className={styles.corePosterMainHeadline}>
+                      <span className={styles.corePosterMainHeadlineBadge}>{traitLabel}</span>
+                      <span className={styles.corePosterMainHeadlineName}>{trait.name}</span>
+                    </p>
                     <p className={styles.corePosterHeroLead}>{leadText}</p>
                   </div>
                 </div>
