@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { AXIS_ORDER } from '../../lib/m55/coreResult/axisMeta';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
   formatFirstObservationJa,
@@ -35,6 +36,15 @@ function splitObservationTrait(ja: string): { kind: string; name: string } {
   if (m) return { kind: '観測特性', name: m[1]!.trim() };
   return { kind: '観測特性', name: ja.trim() };
 }
+
+/** ヒーロー左帯：憲章 C→L 順と `AXIS_ORDER` の各スコアを 1:1 で対応（レーダーと同じ並びの数値） */
+const HERO_AXIS_ROW_DEF: readonly { jaLine: string; enCaps: string }[] = [
+  { jaLine: '創造・成長', enCaps: 'Create' },
+  { jaLine: '表現・情熱', enCaps: 'Express' },
+  { jaLine: '基盤・育成', enCaps: 'Support' },
+  { jaLine: '決断・洗練', enCaps: 'Decide' },
+  { jaLine: '知性・流動', enCaps: 'Logic' },
+] as const;
 
 const HERO_VISUAL_PRESET: Record<string, Omit<HeroVisualPreset, 'shortCopy' | 'subCopy1' | 'subCopy2'>> = {
   TYPE_01: {
@@ -123,6 +133,11 @@ export default function CoreHeroSection({
   const narrative = heroNarrative(result);
   const visual = resolveHeroVisual(result, narrative);
   const trait = splitObservationTrait(visual.japaneseTitle);
+  const heroAxisRows = AXIS_ORDER.map((key, i) => ({
+    key,
+    score: result.coreAxisScores[key],
+    ...HERO_AXIS_ROW_DEF[i]!,
+  }));
   const obsDate = formatFirstObservationJa(result.lockedAt);
   const obsMonth = obsDate.replace(/^初回観測\s*/, '').trim();
   const obsMeta = obsMonth ? `First Record ${obsMonth}` : 'First Record';
@@ -191,26 +206,36 @@ export default function CoreHeroSection({
                       <p className={styles.corePosterObsDate}>{obsMeta}</p>
                     </div>
                   </div>
+                  <ul
+                    className={styles.corePosterHeroAxisRail}
+                    aria-label="五つの視点の配分"
+                  >
+                    {heroAxisRows.map((row) => (
+                      <li key={row.key} className={styles.corePosterHeroAxisItem}>
+                        <div className={styles.corePosterHeroAxisCopy}>
+                          <span className={styles.corePosterHeroAxisJa}>{row.jaLine}</span>
+                          <span className={styles.corePosterHeroAxisEn}>{row.enCaps}</span>
+                        </div>
+                        <span className={styles.corePosterHeroAxisScore}>{row.score}</span>
+                      </li>
+                    ))}
+                  </ul>
                   <img
                     className={styles.corePosterStageImage}
                     src={visual.heroCardImage}
                     alt=""
                     decoding="async"
                   />
-                </div>
-                <div className={styles.corePosterHeroLower}>
-                  <p className={styles.corePosterTraitPlate}>{trait.name}</p>
-                  <p className={styles.corePosterTraitKind}>{trait.kind}</p>
-                  <p className={styles.corePosterEnCaption}>{visual.englishLabel}</p>
-                  <div className={styles.corePosterHeroHairline} aria-hidden />
-                  <div className={styles.corePosterTextBlock}>
-                    <p className={styles.corePosterTagline}>{visual.shortCopy}</p>
-                    {visual.subCopy1 ? (
-                      <p className={styles.corePosterBody}>{visual.subCopy1}</p>
-                    ) : null}
-                    {visual.subCopy2 ? (
-                      <p className={styles.corePosterBodyMuted}>{visual.subCopy2}</p>
-                    ) : null}
+                  <div className={styles.corePosterHeroLower}>
+                    <p className={styles.corePosterHeroEyebrow}>
+                      <span className={styles.corePosterHeroEyebrowKind}>{trait.kind}</span>
+                      <span className={styles.corePosterHeroEyebrowSep}>|</span>
+                      <span className={styles.corePosterHeroEyebrowEn}>
+                        {visual.englishLabel}
+                      </span>
+                    </p>
+                    <p className={styles.corePosterMainHeadline}>{trait.name}</p>
+                    <p className={styles.corePosterHeroLead}>{visual.shortCopy}</p>
                   </div>
                 </div>
               </div>
