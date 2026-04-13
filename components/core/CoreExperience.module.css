@@ -1364,6 +1364,9 @@
 @media (max-width: 639px) {
   /* 上下バランス：上を少し詰め、下にわずかな呼吸（カード・プレートの構造はそのまま） */
   .corePosterHeroSection {
+    width: calc(100% + 12px);
+    max-width: none;
+    margin: 0 -6px 20px;
     padding: 2px 0 18px;
   }
 
@@ -1419,13 +1422,19 @@
 }
 
 @media (min-width: 640px) and (max-width: 1279px) {
+  .page {
+    padding-top: clamp(4px, 0.7vw, 6px);
+  }
+
   .corePosterHeroSection {
     padding-bottom: 18px;
-    margin-bottom: 30px;
+    margin-bottom: 36px;
   }
 
   .corePosterGridStage .corePosterHeroLower {
-    bottom: calc(var(--core-hero-plate-bottom) + clamp(5px, 0.9vw, 7px));
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(var(--core-hero-plate-bottom) + clamp(12px, 1.6vw, 16px));
   }
 }
 
@@ -1445,7 +1454,6 @@
 @media (min-width: 1280px) {
   .corePosterHeroSection {
     min-height: 0;
-    padding: 2px 0 18px;
   }
 
   .corePosterMainVisual {
