@@ -916,14 +916,16 @@
 .corePosterGridStage {
   /* Home .posterMainVisualStack 相当：親ポスター内で縦を受け取り、min 300 は Home .posterMainVisual と同型 */
   /* ヒーロー3ゾーンの幾何トークン（上メタ／左スコア／下主役を数式で分離） */
+  /* PC/スマホ共通トークン（ブレークポイントで別値を置かない） */
+  --core-hero-stage-min-h: clamp(300px, 52svh, 468px);
   --core-hero-inset-x: clamp(10px, 2.4vw, 16px);
   --core-hero-inset-top: clamp(9px, 2vw, 12px);
-  --core-hero-plate-bottom: clamp(10px, 2.2vw, 14px);
-  --core-hero-axis-col-w: 5.625rem;
-  --core-hero-axis-under-meta: clamp(48px, 12vw, 62px);
+  --core-hero-plate-bottom: clamp(9px, 2.1vw, 13px);
+  --core-hero-axis-col-w: clamp(5.125rem, 11vw, 5.625rem);
+  --core-hero-axis-under-meta: clamp(54px, 13.5vw, 70px);
   /* 下端からの予約：主役矩形＋その上のクリアランス（左帯はこれより上で完結） */
-  --core-hero-plate-stack-reserve: clamp(178px, 46svh, 248px);
-  --core-hero-axis-plate-gap: clamp(12px, 3vw, 20px);
+  --core-hero-plate-stack-reserve: clamp(170px, 44svh, 240px);
+  --core-hero-axis-plate-gap: clamp(11px, 2.9vw, 18px);
   --core-hero-plate-max-w: min(20rem, calc(100% - 2 * var(--core-hero-inset-x)));
   flex: 1 1 auto;
   align-self: stretch;
@@ -934,7 +936,7 @@
   width: 100%;
   max-width: min(100%, var(--core-poster-inner-measure));
   min-width: 0;
-  min-height: 300px;
+  min-height: var(--core-hero-stage-min-h);
   height: auto;
   margin-inline: auto;
   margin-bottom: 0;
@@ -967,20 +969,27 @@
 .corePosterHeroAxisRail {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: clamp(7px, 1.6vw, 10px) clamp(8px, 2vw, 12px) clamp(8px, 1.8vw, 11px) clamp(6px, 1.4vw, 9px);
   position: absolute;
   z-index: 4;
-  left: var(--core-hero-inset-x);
+  left: calc(var(--core-hero-inset-x) - 2px);
   top: var(--core-hero-axis-under-meta);
   bottom: calc(var(--core-hero-plate-stack-reserve) + var(--core-hero-axis-plate-gap));
-  width: var(--core-hero-axis-col-w);
-  max-width: var(--core-hero-axis-col-w);
+  width: calc(var(--core-hero-axis-col-w) + clamp(10px, 2.4vw, 14px));
+  max-width: calc(var(--core-hero-axis-col-w) + clamp(10px, 2.4vw, 14px));
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: clamp(2px, 0.55vw, 5px);
   pointer-events: none;
+  border-radius: 0 clamp(9px, 2vw, 12px) clamp(9px, 2vw, 12px) 0;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 5, 8, 0.58) 0%,
+    rgba(5, 5, 8, 0.32) 52%,
+    rgba(5, 5, 8, 0) 100%
+  );
 }
 
 .corePosterHeroAxisItem {
@@ -1004,10 +1013,10 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.18;
-  color: rgba(255, 252, 248, 0.94);
+  color: rgba(255, 252, 248, 0.97);
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 0 10px rgba(0, 0, 0, 0.25);
+    0 1px 3px rgba(0, 0, 0, 0.72),
+    0 0 14px rgba(0, 0, 0, 0.32);
 }
 
 .corePosterHeroAxisEn {
@@ -1015,9 +1024,11 @@
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(252, 248, 242, 0.52);
+  color: rgba(252, 248, 242, 0.58);
   line-height: 1.12;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.58),
+    0 0 8px rgba(0, 0, 0, 0.22);
 }
 
 .corePosterHeroAxisScore {
@@ -1025,8 +1036,10 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-  color: rgba(255, 252, 248, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: rgba(255, 252, 248, 0.94);
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.68),
+    0 0 12px rgba(0, 0, 0, 0.28);
   line-height: 1;
 }
 
@@ -1054,18 +1067,11 @@
   height: 100%;
   min-height: 0;
   object-fit: cover;
-  object-position: center center;
-  transform: scale(1.34);
+  /* 全幅で同一のクロップ言語（PC/スマホで別ズームにしない） */
+  object-position: 54% 36%;
+  transform: scale(1.22);
   transform-origin: center center;
   border-radius: 0;
-}
-
-@media (min-width: 768px) {
-  .corePosterStageImage {
-    /* Web のみ：見せ場をやや上へ、わずかにズームして間延び感を抑える（639 以下は別ブロックのまま） */
-    object-position: 56% 34%;
-    transform: scale(1.24);
-  }
 }
 
 .corePosterGridStage .corePosterMetaRow {
@@ -1280,7 +1286,7 @@
   margin-inline: 0;
   box-sizing: border-box;
   border-radius: clamp(10px, 2.2vw, 13px);
-  padding: clamp(13px, 2.9vw, 17px) clamp(16px, 3.5vw, 22px) clamp(12px, 2.6vw, 16px);
+  padding: clamp(17px, 3.6vw, 22px) clamp(16px, 3.5vw, 22px) clamp(16px, 3.2vw, 20px);
   background: rgba(252, 251, 249, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.42);
   backdrop-filter: blur(12px);
@@ -1367,50 +1373,14 @@
   text-shadow: none;
 }
 
-/* スマホ：ヒーローを「画像＋説明の一枚カード」に見せる＋直下を詰める */
+/* スマホ：ヒーロー直下の余白（カード規格は .corePosterGridStage の共通トークンに統一） */
 @media (max-width: 639px) {
-  .corePosterMainVisual {
-    /* 内側ポスターをわずかに拡げ、外枠 12px と角の語感を揃える */
-    --core-poster-overlay-inset: clamp(4px, 1.15vw, 7px);
-  }
-
-  .corePosterHeroOverlay {
-    padding: clamp(16px, 3.5vw, 22px) clamp(16px, 4.5vw, 22px) clamp(18px, 5vw, 26px);
-  }
-
-  .corePosterGridStage {
-    border-radius: 12px;
-    min-height: clamp(312px, 52svh, 468px);
-    --core-hero-axis-col-w: 5.125rem;
-    --core-hero-plate-stack-reserve: clamp(168px, 48svh, 228px);
-    --core-hero-axis-under-meta: clamp(44px, 11vw, 54px);
-    --core-hero-axis-plate-gap: clamp(10px, 2.8vw, 16px);
-    --core-hero-plate-bottom: clamp(8px, 2vw, 12px);
-  }
-
-  .corePosterStageImage {
-    /* cover 維持：スマホでは拡大を弱め、主役が枠内で自然に収まる */
-    transform: scale(1.12);
-    object-position: center 40%;
-  }
-
-  .corePosterGridStage .corePosterHeroLower {
-    padding: clamp(11px, 2.6vw, 14px) clamp(14px, 3.2vw, 18px) clamp(10px, 2.4vw, 13px);
-    border-radius: clamp(9px, 2vw, 12px);
-    gap: clamp(5px, 1.1vw, 8px);
-  }
-
   .corePosterHeroLower {
     margin-top: 0;
     border-radius: 12px;
     max-height: none;
     overflow-y: visible;
     overscroll-behavior: auto;
-  }
-
-  .corePosterMainHeadline {
-    font-size: clamp(20px, 5.2vw, 26px);
-    line-height: 1.18;
   }
 
   .corePosterHeroSection + .section.surfaceRadar {
@@ -1423,17 +1393,89 @@
   }
 }
 
-/* Home: max-height 720px 時の .posterMainVisual min-height */
+/* 低いビューポート：画像面の下限（幅に依存しない共通ルール） */
 @media (max-height: 720px) {
   .corePosterMainVisual {
     min-height: 260px;
   }
+
+  .corePosterGridStage {
+    --core-hero-stage-min-h: clamp(260px, 40svh, 360px);
+    min-height: var(--core-hero-stage-min-h);
+  }
 }
 
-/* 画像帯の 260px 床はタブレット幅以上のみ（スマホは上の 639 内の画像面 clamp を優先） */
-@media (max-height: 720px) and (min-width: 640px) {
+/* 大画面のみ：ヒーローを横並び（上メタ／左ビジュアル＋5軸／右主役プレート）— 1280px 未満は従来の縦オーバーレイのまま */
+@media (min-width: 1280px) {
+  .corePosterHeroSection {
+    min-height: 0;
+  }
+
+  .corePosterMainVisual {
+    flex: 0 0 auto;
+  }
+
+  .corePosterHeroFoot {
+    flex: 0 1 auto;
+  }
+
   .corePosterGridStage {
-    min-height: 260px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(252px, 35%);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    min-height: 0;
+    height: min(428px, calc(100dvh - 112px));
+    max-height: min(428px, calc(100dvh - 112px));
+  }
+
+  .corePosterGridStage > .corePosterHeroTopBlock {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+    margin: var(--core-hero-inset-top) auto 0.5rem;
+    z-index: 6;
+  }
+
+  .corePosterHeroAxisRail {
+    grid-column: 1;
+    grid-row: 2;
+    position: absolute;
+    top: var(--core-hero-inset-x);
+    bottom: var(--core-hero-inset-x);
+    left: calc(var(--core-hero-inset-x) - 2px);
+    z-index: 4;
+  }
+
+  .corePosterStageImage {
+    grid-area: unset;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    z-index: 0;
+  }
+
+  .corePosterGridStage .corePosterHeroLower {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    left: auto;
+    right: auto;
+    transform: none;
+    top: auto;
+    bottom: auto;
+    width: calc(100% - 2 * var(--core-hero-inset-x));
+    max-width: none;
+    margin: var(--core-hero-inset-x) var(--core-hero-inset-x) var(--core-hero-inset-x) 0;
+    align-self: center;
+    z-index: 5;
   }
 }
 
