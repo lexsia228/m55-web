@@ -1375,6 +1375,15 @@
 
 /* スマホ：ヒーロー直下の余白（カード規格は .corePosterGridStage の共通トークンに統一） */
 @media (max-width: 639px) {
+  /* 上下バランス：上を少し詰め、下にわずかな呼吸（カード・プレートの構造はそのまま） */
+  .corePosterHeroSection {
+    padding: 2px 0 18px;
+  }
+
+  .corePosterHeroOverlay {
+    padding: clamp(10px, 2.8vw, 16px) clamp(16px, 4.5vw, 22px) clamp(22px, 5.5vw, 30px);
+  }
+
   .corePosterHeroLower {
     margin-top: 0;
     border-radius: 12px;

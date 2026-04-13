@@ -1,0 +1,34 @@
+---
+description: /core ポスターヒーローカードは現状FIX。明示的再開まで CoreHeroSection とヒーロー用CSSを編集しない。
+globs:
+  - "components/core/CoreHeroSection.tsx"
+  - "components/core/CoreExperience.module.css"
+alwaysApply: true
+---
+
+# M55 /CORE POSTER HERO FREEZE
+
+## Status
+`/core` 先頭の**ポスターヒーローカード**（`CoreHeroSection` および対応する `CoreExperience.module.css` 内スタイル）は、現状で **FIX（凍結基準）** とする。
+
+## 判断のメモ（参照用）
+- 大画面・スマホともに成立している。
+- 中間小画面の余白差のみ残り、致命的な崩れではない。
+- これ以上の追従は他ブレークポイントへの干渉リスクが高い。
+
+## Absolute rule
+ユーザーが **`/core` ヒーローを編集する旨を明示**するまで、次を**編集しない**。
+
+1. `components/core/CoreHeroSection.tsx`（全文）
+2. `components/core/CoreExperience.module.css` のうち、次に該当する範囲：
+   - コメント `/* ── /core poster hero：` から始まるブロック全体
+   - 同ファイル内の `.corePosterHeroSection` に隣接する `傾向の輪郭` 直前余白（`.corePosterHeroSection + .section.surfaceRadar` およびその `.sectionTitle`）
+   - 上記ヒーローに紐づく `@media (max-width: 639px)` / `@media (max-height: 720px)` / `@media (min-width: 1280px)` の**ヒーロー用**オーバーライド
+
+`CoreExperience.module.css` の **ヒーロー以外**（レーダー、傾向と負荷、CTA 等）は、この凍結の対象外。ただしヒーロー用セレクタに触れないこと。
+
+## 再開の扱い
+ヒーロー調整が必要なときは、ユーザーが **再訪・再開を明示**してから着手する。特に「小画面余白だけ」などスコープを一言で指定してもよい。
+
+## 優先順位
+凍結後は、ユーザーが指定する**他ページの固定作業**を優先する。ヒーローに無関係な差分を入れない。
