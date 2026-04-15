@@ -7,8 +7,13 @@ interface Props {
 }
 
 export default function CoreEntryReportCTASection({ nickname }: Props) {
-  // 渡ってきたnicknameを確実に取得（空なら空文字）
   const nick = nickname?.trim() ?? '';
+  const renderLine = (line: string) => {
+    if (!nick) {
+      return line.replace(/\btさん\b/g, '').replace(/\bt\b/g, '');
+    }
+    return withNickname(line, nick);
+  };
 
   return (
     <section
@@ -26,8 +31,7 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
             key={i}
             className={i === 0 ? styles.ctaBodyLead : styles.ctaBodySupplement}
           >
-            {/* 修正ポイント：各行に対して必ず withNickname を通す */}
-            {withNickname(line, nick)}
+            {renderLine(line)}
           </p>
         ))}
       </div>

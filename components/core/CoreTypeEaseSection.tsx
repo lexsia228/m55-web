@@ -13,8 +13,8 @@ export default function CoreTypeEaseSection({ result }: { result: CoreResult }) 
         このタイプは、こう出やすい
       </h2>
       <p className={styles.sectionLead}>
-        見えている傾向は、学び・対人・身近な関係の場面で、次のような感触として立ち上がりやすいです。
-      </p>
+  見えている傾向は、仕事や判断、人との距離、近い関係の中で、次のような感触として立ち上がりやすいです。
+</p>
       <div className={`${styles.cardGrid} ${styles.typeEaseGrid}`}>
         {cards.map((c) => (
           <div key={c.title} className={styles.card}>
