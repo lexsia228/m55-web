@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
   heroNarrative,
@@ -9,6 +9,23 @@ import styles from './CoreExperience.module.css';
 
 /** ヒーローカード内背景動画の再生速度（1 より小さいほど静かに流れる） */
 const HERO_POSTER_BG_PLAYBACK_RATE = 0.76;
+
+/** PC 小画面（/core ヒーロー：外殻ラッパーを DOM から外す幅帯。CSS の @media (640–1279) と一致） */
+const NARROW_PC_CORE_HERO_MQ = '(min-width: 640px) and (max-width: 1279px)';
+
+function useNarrowPcCoreHeroLayout() {
+  const [narrowPcFlat, setNarrowPcFlat] = useState(false);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(NARROW_PC_CORE_HERO_MQ);
+    const apply = () => setNarrowPcFlat(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  return narrowPcFlat;
+}
 
 type HeroVisualPreset = {
   heroCardImage: string;
@@ -148,6 +165,7 @@ export default function CoreHeroSection({
       ? '周囲の喧騒に惑わされず、本質を静かに見極め、最適な答えを深く導き出せる人。'
       : visual.shortCopy;
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const narrowPcFlat = useNarrowPcCoreHeroLayout();
 
   useEffect(() => {
     const video = videoRef.current;
@@ -174,70 +192,82 @@ export default function CoreHeroSection({
     });
   }
 
+  const stackClassName = narrowPcFlat
+    ? `${styles.corePosterStack} ${styles.corePosterStackNarrowPcFlat}`
+    : styles.corePosterStack;
+
+  const posterBody = (
+    <>
+      <div className={styles.corePosterMainVisualStack} aria-hidden>
+        <div className={styles.corePosterHeroBaseLayer}>
+          <video
+            ref={videoRef}
+            className={styles.corePosterHeroBgVideo}
+            muted
+            autoPlay
+            loop
+            playsInline
+            preload="metadata"
+            poster="/core/core-blueprint-bg-poster.webp"
+            aria-hidden
+          >
+            <source src="/core/core-blueprint-bg-motion.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div className={styles.corePosterHeroReadabilityVeil} />
+      </div>
+      <div className={styles.corePosterHeroOverlay}>
+        <div className={styles.corePosterHeroFoot}>
+          <div className={styles.corePosterHeroCopy}>
+            <div className={styles.corePosterGridStage}>
+              <div className={styles.corePosterHeroTopBlock}>
+                <div className={styles.corePosterMetaRow}>
+                  <h1 className={styles.corePosterEssenceTitle}>
+                    <span className={styles.corePosterEssenceTitlePrefix}>Blueprint of</span>
+                    <span className={styles.corePosterEssenceTitleName}>{nick || 'You'}</span>
+                  </h1>
+                  <p className={styles.corePosterObsDate}>{obsMeta}</p>
+                </div>
+              </div>
+              <img
+                className={styles.corePosterStageImage}
+                src={visual.heroCardImage}
+                alt=""
+                decoding="async"
+              />
+              <div className={styles.corePosterHeroLower}>
+                <p className={styles.corePosterHeroEyebrow}>
+                  <span className={styles.corePosterHeroEyebrowKind}>{classLabelJa}</span>
+                  <span className={styles.corePosterHeroEyebrowSep}>/</span>
+                  <span className={styles.corePosterHeroEyebrowEn}>
+                    {visual.englishLabel}
+                  </span>
+                </p>
+                <p className={styles.corePosterMainHeadline}>
+                  <span className={styles.corePosterMainHeadlineBadge}>{traitLabel}</span>
+                  <span className={styles.corePosterMainHeadlineName}>{trait.name}</span>
+                </p>
+                <p className={styles.corePosterHeroLead}>{leadText}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <section
       className={styles.corePosterHeroSection}
       data-hero-type={result.coreType}
       aria-label="本質の見取り図"
     >
-      <div className={styles.corePosterStack}>
-        <div className={styles.corePosterMainVisual}>
-          <div className={styles.corePosterMainVisualStack} aria-hidden>
-            <div className={styles.corePosterHeroBaseLayer}>
-              <video
-                ref={videoRef}
-                className={styles.corePosterHeroBgVideo}
-                muted
-                autoPlay
-                loop
-                playsInline
-                preload="metadata"
-                poster="/core/core-blueprint-bg-poster.webp"
-                aria-hidden
-              >
-                <source src="/core/core-blueprint-bg-motion.mp4" type="video/mp4" />
-              </video>
-            </div>
-            <div className={styles.corePosterHeroReadabilityVeil} />
-          </div>
-          <div className={styles.corePosterHeroOverlay}>
-            <div className={styles.corePosterHeroFoot}>
-              <div className={styles.corePosterHeroCopy}>
-                <div className={styles.corePosterGridStage}>
-                  <div className={styles.corePosterHeroTopBlock}>
-                    <div className={styles.corePosterMetaRow}>
-                      <h1 className={styles.corePosterEssenceTitle}>
-                        <span className={styles.corePosterEssenceTitlePrefix}>Blueprint of</span>
-                        <span className={styles.corePosterEssenceTitleName}>{nick || 'You'}</span>
-                      </h1>
-                      <p className={styles.corePosterObsDate}>{obsMeta}</p>
-                    </div>
-                  </div>
-                  <img
-                    className={styles.corePosterStageImage}
-                    src={visual.heroCardImage}
-                    alt=""
-                    decoding="async"
-                  />
-                  <div className={styles.corePosterHeroLower}>
-                    <p className={styles.corePosterHeroEyebrow}>
-                      <span className={styles.corePosterHeroEyebrowKind}>{classLabelJa}</span>
-                      <span className={styles.corePosterHeroEyebrowSep}>/</span>
-                      <span className={styles.corePosterHeroEyebrowEn}>
-                        {visual.englishLabel}
-                      </span>
-                    </p>
-                    <p className={styles.corePosterMainHeadline}>
-                      <span className={styles.corePosterMainHeadlineBadge}>{traitLabel}</span>
-                      <span className={styles.corePosterMainHeadlineName}>{trait.name}</span>
-                    </p>
-                    <p className={styles.corePosterHeroLead}>{leadText}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className={stackClassName}>
+        {narrowPcFlat ? (
+          posterBody
+        ) : (
+          <div className={styles.corePosterMainVisual}>{posterBody}</div>
+        )}
       </div>
     </section>
   );

@@ -1423,18 +1423,92 @@
 
 @media (min-width: 640px) and (max-width: 1279px) {
   .page {
-    padding-top: clamp(4px, 0.7vw, 6px);
+    padding-top: 0;
   }
 
   .corePosterHeroSection {
     padding-bottom: 18px;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
+    /* 画面高いっぱいの余白「台紙」をやめ、下の画像ステージの高さを基準にしやすくする */
+    min-height: 0;
   }
 
-  .corePosterGridStage .corePosterHeroLower {
+  .corePosterStack {
+    flex: 0 1 auto;
+  }
+
+  /*
+   * PC 小画面：クリーム地の上に載るラベンダー「白い台紙」（.corePosterMainVisual）を視覚的に消す
+   * background / border / box-shadow が成立要因。DOM が残る瞬間も同じ見え方にする。
+   */
+  .corePosterMainVisual {
+    flex: 0 1 auto;
+    min-height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* 内周パディングで外殻色（旧ラベンダー面）がリング状に見えないようにする */
+  .corePosterHeroOverlay {
+    padding: 0;
+  }
+
+  .corePosterHeroFoot {
+    flex: 0 1 auto;
+  }
+
+  .corePosterHeroCopy {
+    flex: 0 1 auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .corePosterGridStage {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * PC 小画面：写真面の「内側にもう一枚」に見える擬似レイヤーを完全にオフ
+   * - ::before … inset + rgba 白の細枠 + inset box-shadow（半透明の角丸内枠）
+   * - ::after … 全面グラデ（写真上の被せ）
+   * フラット DOM 有無に関わらず、この幅帯では同じ見え方に揃える
+   */
+  .corePosterGridStage::before,
+  .corePosterGridStage::after {
+    content: none;
+    border: none;
+    box-shadow: none;
+    background: none;
+  }
+
+  /*
+   * PC 小画面のみ：JSX で .corePosterMainVisual を描画しないとき（.corePosterStackNarrowPcFlat）
+   * 外殻トークンをスタックに載せ替え、オーバーレイの台紙パディングを無くす（主役ステージへ枠・影は移さない）
+   */
+  .corePosterStackNarrowPcFlat {
+    --core-poster-shell-pad: clamp(12px, 3vw, 18px);
+    --core-poster-inner-measure: 100%;
+    --core-poster-overlay-inset: clamp(7px, 1.85vw, 13px);
+    --core-poster-lower-cap: clamp(96px, 24dvh, 158px);
+    --core-poster-stack-gap: var(--core-poster-shell-pad);
+  }
+
+  .corePosterStackNarrowPcFlat .corePosterHeroOverlay {
+    flex: 0 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .corePosterStackNarrowPcFlat .corePosterGridStage .corePosterHeroLower {
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(var(--core-hero-plate-bottom) + clamp(12px, 1.6vw, 16px));
+    bottom: var(--core-hero-plate-bottom);
+  }
+
+  .corePosterHeroSection + .section.surfaceRadar {
+    margin-top: clamp(4px, 0.8vw, 7px);
+    padding-top: clamp(3px, 0.55vw, 5px);
   }
 }
 
@@ -1447,6 +1521,13 @@
   .corePosterGridStage {
     --core-hero-stage-min-h: clamp(260px, 40svh, 360px);
     min-height: var(--core-hero-stage-min-h);
+  }
+}
+
+/* フラット DOM 時は .corePosterMainVisual が無いため、低いビューポートでもオーバーレイに同相当の下限を与える */
+@media (max-height: 720px) {
+  .corePosterStackNarrowPcFlat .corePosterHeroOverlay {
+    min-height: 260px;
   }
 }
 
