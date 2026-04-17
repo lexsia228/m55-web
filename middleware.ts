@@ -23,10 +23,17 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   // non-prod runtime verification only:
-  // allow /reply rendering with test user header, without affecting production auth behavior.
+  // allow reply runtime verification routes with test user header,
+  // without affecting production auth behavior.
+  const pathname = req.nextUrl.pathname;
+  const isReplyRuntimeVerificationPath =
+    pathname === '/reply' ||
+    pathname === '/reply/result' ||
+    pathname === '/api/reply/history' ||
+    pathname.startsWith('/api/reply/session/');
   const isNonProdReplyVerificationBypass =
     process.env.NODE_ENV !== 'production' &&
-    req.nextUrl.pathname === '/reply' &&
+    isReplyRuntimeVerificationPath &&
     !!req.headers.get('x-m55-test-user-id')?.trim();
 
   if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass) {
