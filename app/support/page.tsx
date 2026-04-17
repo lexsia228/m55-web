@@ -10,15 +10,15 @@ export default function SupportPage() {
       <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 12px" }}>サポート</h1>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>お問い合わせ</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>お問い合わせについて</h2>
         <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
-          ご不明点・ご要望は下記メールアドレスまでお送りください。
+          このページでは、よくある質問と、
+          ご連絡前に確認していただきたい内容をまとめています。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          メール：lexsia228@gmail.com
-        </p>
-        <p style={{ margin: "6px 0 0", opacity: 0.9 }}>
-          電話：070-9010-2828
+          購入・利用・請求・返金に関する連絡先は、
+          「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」に記載しています。
+          ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」もご確認ください。
         </p>
       </section>
 
@@ -43,11 +43,11 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、本質・今日・今週の見取り図と、5つの解析軸のバランスを無料で読めます。深い章立ての版や相談室は Entry Report の範囲です。
+              プロフィール保存後、本質・今日・今週の見取り図と、5つの解析軸のバランスを無料で読めます。より詳しい内容や相談機能は、有料レポートの対象です。
             </p>
           </article>
           <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>Entry Report で何が増えますか</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料レポートで見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
               無料面と同じ土台の本質を、章立てのレポートとしてウェブ上で閲覧できる形に整理したものです。物理の発送はありません。相談が一定回数付属します（詳細は商品ページと特商法表記をご確認ください）。
             </p>
@@ -55,7 +55,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>相談室では何ができますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              Entry Report を購入した方だけが使える、レポートに紐づく専用のやりとりです。レポートの読み取りを補足する範囲の返答を想定しており、公開チャットや無制限の相談ではありません。
+              有料レポートを購入した方だけが使える、レポートに紐づく専用のやりとりです。レポートの読み取りを補足する範囲の返答を想定しており、公開チャットや無制限の相談ではありません。
             </p>
           </article>
           <article>
@@ -118,9 +118,13 @@ export default function SupportPage() {
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>お問い合わせ窓口</h2>
-        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>メール：lexsia228@gmail.com</p>
-        <p style={{ margin: 0, opacity: 0.9 }}>電話：070-9010-2828（<Link href="/legal/tokushoho">特商法に基づく表記</Link>）</p>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ご連絡について</h2>
+        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>お問い合わせについて</p>
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          購入、利用、返金に関するご連絡先は
+          「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」にまとめています。
+          ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」のページもご確認ください。
+        </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>

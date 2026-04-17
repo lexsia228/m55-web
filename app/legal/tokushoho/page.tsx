@@ -47,7 +47,8 @@ export default function TokushohoPage() {
         }}>
           <li>販売事業者：M55 Project</li>
           <li>連絡先メールアドレス：lexsia228@gmail.com</li>
-          <li>所在地・電話番号：ご請求をいただければ遅滞なく開示いたします。</li>
+          <li>所在地：ご請求をいただければ遅滞なく開示いたします。</li>
+          <li>電話番号：07090102828</li>
         </ul>
       </section>
 
