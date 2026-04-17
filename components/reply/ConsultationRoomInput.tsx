@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useState, type ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 
 type Theme = "仕事" | "人間関係" | "疲れやすさ" | "判断の迷い" | "自分の整え方" | "距離感"
 
@@ -29,6 +30,8 @@ function messageForStatus(status: number): string {
   switch (status) {
     case 401:
       return "サインイン後にご利用いただけます"
+    case 403:
+      return "現在ご利用いただける返書がありません"
     case 400:
       return "入力内容を確認してください"
     case 409:
@@ -103,12 +106,12 @@ function QuestionToggle({
 }
 
 export default function ConsultationRoomInput() {
+  const router = useRouter()
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null)
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set())
   const [freeInput, setFreeInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedbackError, setFeedbackError] = useState<string | null>(null)
-  const [showSuccess, setShowSuccess] = useState(false)
   const idempotencyKeyRef = useRef<string | null>(null)
 
   const toggleQuestion = (id: string) => {
@@ -128,7 +131,6 @@ export default function ConsultationRoomInput() {
     idempotencyKeyRef.current = idempotencyKey
     setIsSubmitting(true)
     setFeedbackError(null)
-    setShowSuccess(false)
 
     const trimmedFree = freeInput.trim()
     const selectedSubquestions = SUPPLEMENTARY_QUESTIONS.filter((q) =>
@@ -174,7 +176,15 @@ export default function ConsultationRoomInput() {
           setFeedbackError("時間をおいてもう一度お試しください")
           return
         }
-        setShowSuccess(true)
+        const sid =
+          typeof (data as { reply_session_id?: string }).reply_session_id === "string"
+            ? (data as { reply_session_id: string }).reply_session_id
+            : null
+        if (sid) {
+          router.push(`/reply/result?session=${encodeURIComponent(sid)}`)
+        } else {
+          router.push("/reply/result")
+        }
         return
       }
 
@@ -279,12 +289,6 @@ export default function ConsultationRoomInput() {
               {feedbackError}
             </p>
           ) : null}
-          {showSuccess ? (
-            <p className="text-sm text-muted-foreground/90">
-              返書の準備ができました
-            </p>
-          ) : null}
-
           {/* Submit Button */}
           <button
             type="button"
