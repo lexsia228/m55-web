@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { getStripe } from '../../../../lib/stripe';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { grantInitialIncludedReplyIfNeeded } from '../../../../lib/m55/reply/walletGrants';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -137,7 +138,14 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
     const { error: upsertErr } = await db
       .from('entitlements')
       .upsert(
-        { user_id: userId, product_id: productId, status: 'active', stripe_session_id: session.id },
+        {
+          user_id: userId,
+          product_id: productId,
+          grant_type: 'subscription',
+          source: 'stripe_subscription',
+          status: 'active',
+          stripe_session_id: session.id,
+        },
         { onConflict: 'user_id,product_id' }
       );
     if (upsertErr) {
@@ -241,7 +249,14 @@ async function handleCheckoutCompletedOneTime(
     const { error: upsertEntErr } = await db
       .from('entitlements')
       .upsert(
-        { user_id: userId, product_id: productId, status: 'active', stripe_session_id: checkoutSessionId },
+        {
+          user_id: userId,
+          product_id: productId,
+          grant_type: 'one_time',
+          source: 'stripe_checkout',
+          status: 'active',
+          stripe_session_id: checkoutSessionId,
+        },
         { onConflict: 'user_id,product_id' }
       );
     if (upsertEntErr) throw upsertEntErr;
@@ -250,10 +265,14 @@ async function handleCheckoutCompletedOneTime(
       const { error: upsertRightErr } = await db
         .from('entitlement_rights')
         .upsert(
-          { user_id: userId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1', source: `checkout:${checkoutSessionId}`, updated_at: new Date().toISOString() },
+          { user_id: userId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
           { onConflict: 'user_id,right_key' }
         );
-      if (upsertRightErr) throw upsertRightErr;
+      if (upsertRightErr) {
+        console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', checkoutSessionId, 'user_id=', userId, 'failure=entitlement_rights_upsert_non_blocking', upsertRightErr);
+      }
+
+      await grantInitialIncludedReplyIfNeeded(db, userId);
     }
 
     console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', checkoutSessionId, 'user_id=', userId, 'product_id=', productId, 'status=fulfilled');

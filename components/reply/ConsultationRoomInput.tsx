@@ -105,7 +105,13 @@ function QuestionToggle({
   )
 }
 
-export default function ConsultationRoomInput() {
+export default function ConsultationRoomInput({
+  canGenerateReply = true,
+  availableCount = 0,
+}: {
+  canGenerateReply?: boolean
+  availableCount?: number
+}) {
   const router = useRouter()
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null)
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set())
@@ -125,7 +131,7 @@ export default function ConsultationRoomInput() {
   }
 
   const handleSubmit = async () => {
-    if (!selectedTheme || isSubmitting) return
+    if (!selectedTheme || isSubmitting || !canGenerateReply) return
 
     const idempotencyKey = crypto.randomUUID()
     idempotencyKeyRef.current = idempotencyKey
@@ -197,7 +203,7 @@ export default function ConsultationRoomInput() {
     }
   }
 
-  const isSubmitDisabled = !selectedTheme || isSubmitting
+  const isSubmitDisabled = !selectedTheme || isSubmitting || !canGenerateReply
   const controlsDisabled = isSubmitting
 
   return (
@@ -215,7 +221,9 @@ export default function ConsultationRoomInput() {
           </div>
           <div className="text-right">
             <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">利用状態</span>
-            <p className="text-sm text-foreground/80 mt-0.5">返書 1件利用可能</p>
+            <p className="text-sm text-foreground/80 mt-0.5">
+              {canGenerateReply ? `返書 ${availableCount}件利用可能` : "返書 0件"}
+            </p>
           </div>
         </div>
       </header>
@@ -283,6 +291,20 @@ export default function ConsultationRoomInput() {
               className="min-h-[160px] w-full rounded-sm bg-input/50 border border-border/50 px-3 py-3 text-sm focus:border-foreground/30 focus:ring-1 focus:ring-foreground/10 placeholder:text-muted-foreground/50 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </section>
+
+          {!canGenerateReply ? (
+            <div className="rounded-sm border border-border/60 bg-muted/20 px-4 py-3">
+              <p className="text-sm text-muted-foreground" role="status">
+                現在ご利用いただける返書がありません
+              </p>
+              <a
+                href="/dtr/lp"
+                className="mt-2 inline-block text-sm text-foreground/80 underline underline-offset-2 hover:text-foreground"
+              >
+                利用プランを確認する
+              </a>
+            </div>
+          ) : null}
 
           {feedbackError ? (
             <p className="text-sm text-muted-foreground" role="alert">

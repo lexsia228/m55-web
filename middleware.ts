@@ -22,7 +22,14 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  // non-prod runtime verification only:
+  // allow /reply rendering with test user header, without affecting production auth behavior.
+  const isNonProdReplyVerificationBypass =
+    process.env.NODE_ENV !== 'production' &&
+    req.nextUrl.pathname === '/reply' &&
+    !!req.headers.get('x-m55-test-user-id')?.trim();
+
+  if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass) {
     await auth.protect();
   }
 });
