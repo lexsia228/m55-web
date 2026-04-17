@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/purchase/checkout',
   '/api/diagnostics/env',
   '/api/diagnostics/core-regression',
+  '/api/reply/generate',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

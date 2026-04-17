@@ -53,6 +53,22 @@ function samePayload(a: ReplySessionRow, b: {
   );
 }
 
+function resolveUserIdForRequest(req: NextRequest, clerkUserId: string | null | undefined) {
+  if (clerkUserId) {
+    return clerkUserId;
+  }
+
+  // Test-only auth fallback for API smoke runs.
+  if (process.env.NODE_ENV !== 'production') {
+    const testUserId = req.headers.get('x-m55-test-user-id')?.trim();
+    if (testUserId) {
+      return testUserId;
+    }
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   const startedAt = Date.now();
   const requestId = createRequestId();
@@ -95,15 +111,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!idemKey) {
-    return logAndReturn(
-      invalidRequestResponse(requestId, 'X-Idempotency-Key is required'),
-      'INVALID_REQUEST',
-    );
-  }
-
   const { userId: clerkUserId } = await auth();
-  if (!clerkUserId) {
+  const resolvedUserId = resolveUserIdForRequest(req, clerkUserId);
+  if (!resolvedUserId) {
     return logAndReturn(
       NextResponse.json(
         {
@@ -116,7 +126,14 @@ export async function POST(req: NextRequest) {
       'UNAUTHORIZED',
     );
   }
-  userId = clerkUserId;
+  userId = resolvedUserId;
+
+  if (!idemKey) {
+    return logAndReturn(
+      invalidRequestResponse(requestId, 'X-Idempotency-Key is required'),
+      'INVALID_REQUEST',
+    );
+  }
 
   let bodyRaw: unknown;
   try {
