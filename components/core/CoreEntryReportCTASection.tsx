@@ -69,6 +69,18 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
         </p>
       </div>
 
+      <div className={styles.ctaPaymentRow} aria-label="対応支払い方法">
+        <span className={styles.ctaPaymentLabel}>クレジットカード / Apple Pay / PayPay 対応</span>
+        <div className={styles.ctaPaymentBadges}>
+          <span className={styles.ctaPayBadge}>Visa</span>
+          <span className={styles.ctaPayBadge}>Mastercard</span>
+          <span className={styles.ctaPayBadge}>JCB</span>
+          <span className={styles.ctaPayBadge}>AMEX</span>
+          <span className={`${styles.ctaPayBadge} ${styles.ctaPayBadgeApple}`}>Apple Pay</span>
+          <span className={`${styles.ctaPayBadge} ${styles.ctaPayBadgePayPay}`}>PayPay</span>
+        </div>
+      </div>
+
       <Link href="/dtr/lp" className={styles.ctaPrimaryButton}>
         {STATIC_CTA.ctaLabel}
       </Link>

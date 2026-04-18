@@ -993,6 +993,54 @@
   box-shadow: 0 12px 32px rgba(63, 54, 94, 0.32);
 }
 
+/* 決済方法表示 */
+.ctaPaymentRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.ctaPaymentLabel {
+  font-size: 12px;
+  color: rgba(60, 58, 66, 0.6);
+  letter-spacing: 0.015em;
+  line-height: 1.4;
+}
+
+.ctaPaymentBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.ctaPayBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(80, 74, 100, 0.18);
+  color: rgba(40, 38, 46, 0.72);
+}
+
+.ctaPayBadgeApple {
+  background: rgba(24, 24, 28, 0.88);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.ctaPayBadgePayPay {
+  background: rgba(215, 20, 20, 0.88);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.97);
+}
+
 .ctaLink {
   font-size: 14px;
   font-weight: 600;
