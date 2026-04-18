@@ -180,6 +180,15 @@
   margin-bottom: 4px;
 }
 
+.tierBOverline {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: rgba(107, 95, 168, 0.52);
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
 .tierBSummary {
   font-size: clamp(12.5px, 2.5vw, 14px);
   color: rgba(48, 45, 60, 0.6);
@@ -487,17 +496,17 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 12px 30px;
+  padding: 13px 32px;
   font-size: clamp(13.5px, 2.9vw, 15px);
   font-weight: 600;
-  color: rgba(52, 44, 88, 0.94);
-  background: linear-gradient(140deg, rgba(224, 218, 252, 0.72), rgba(210, 200, 245, 0.62));
-  border: 1.5px solid rgba(107, 95, 168, 0.42);
+  color: rgba(44, 36, 80, 0.96);
+  background: linear-gradient(140deg, rgba(220, 213, 252, 0.88), rgba(205, 194, 244, 0.78));
+  border: 1.5px solid rgba(107, 95, 168, 0.48);
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
   letter-spacing: 0.04em;
-  box-shadow: 0 4px 14px rgba(83, 74, 114, 0.14);
+  box-shadow: 0 5px 18px rgba(83, 74, 114, 0.18);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -506,15 +515,15 @@
 }
 
 .radarRevealBtn:hover {
-  background: linear-gradient(140deg, rgba(214, 207, 250, 0.88), rgba(198, 187, 242, 0.78));
-  border-color: rgba(107, 95, 168, 0.6);
-  box-shadow: 0 6px 20px rgba(83, 74, 114, 0.2);
-  color: rgba(42, 34, 78, 0.98);
+  background: linear-gradient(140deg, rgba(208, 200, 248, 0.94), rgba(192, 180, 240, 0.88));
+  border-color: rgba(107, 95, 168, 0.65);
+  box-shadow: 0 7px 22px rgba(83, 74, 114, 0.24);
+  color: rgba(34, 26, 70, 0.98);
 }
 
 .radarRevealBtn:active {
-  background: rgba(200, 192, 240, 0.92);
-  box-shadow: 0 2px 8px rgba(83, 74, 114, 0.15);
+  background: rgba(196, 188, 238, 0.95);
+  box-shadow: 0 2px 8px rgba(83, 74, 114, 0.16);
 }
 
 .radarRevealBtnIcon {
@@ -528,8 +537,8 @@
 }
 
 .radarRevealHelper {
-  font-size: clamp(11px, 2.6vw, 12px);
-  color: rgba(80, 72, 110, 0.52);
+  font-size: clamp(11.5px, 2.6vw, 12.5px);
+  color: rgba(72, 64, 102, 0.65);
   letter-spacing: 0.02em;
   line-height: 1.45;
   text-align: center;
@@ -580,8 +589,8 @@
 .radarSummaryCard {
   margin: 16px 0 0;
   padding: 14px 18px 16px;
-  background: linear-gradient(160deg, rgba(107, 95, 168, 0.07), rgba(90, 80, 140, 0.04));
-  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: linear-gradient(160deg, rgba(107, 95, 168, 0.09), rgba(90, 80, 140, 0.05));
+  border: 1px solid rgba(107, 95, 168, 0.2);
   border-radius: 16px;
   animation: radarSummaryReveal 0.5s 0.22s ease both;
 }
@@ -593,11 +602,11 @@
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: rgba(62, 52, 88, 0.58);
-  margin: 0 0 8px;
-  padding: 3px 9px 3px 7px;
-  background: rgba(107, 95, 168, 0.09);
-  border: 1px solid rgba(107, 95, 168, 0.12);
+  color: rgba(55, 45, 85, 0.68);
+  margin: 0 0 10px;
+  padding: 3px 10px 3px 8px;
+  background: rgba(107, 95, 168, 0.11);
+  border: 1px solid rgba(107, 95, 168, 0.16);
   border-radius: 999px;
 }
 
@@ -605,24 +614,25 @@
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  background: rgba(107, 95, 168, 0.55);
+  background: rgba(107, 95, 168, 0.62);
   flex-shrink: 0;
 }
 
 .radarSummaryCard p {
   margin: 0;
-  font-size: clamp(13px, 2.85vw, 14.5px);
-  color: rgba(52, 44, 88, 0.9);
-  line-height: 1.62;
+  font-size: clamp(13.5px, 2.9vw, 15px);
+  color: rgba(44, 36, 80, 0.92);
+  line-height: 1.58;
   letter-spacing: 0.01em;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .radarSummaryCard p + p {
-  margin-top: 5px;
+  margin-top: 6px;
   font-size: clamp(12px, 2.6vw, 13px);
   font-weight: 400;
   color: rgba(65, 54, 108, 0.62);
+  line-height: 1.62;
 }
 
 /* Axis bars */
@@ -2424,19 +2434,22 @@
   gap: 0;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(107, 95, 168, 0.09);
-  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.04);
+  border-top: 1px solid rgba(107, 95, 168, 0.1);
+  border-right: 1px solid rgba(107, 95, 168, 0.1);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.1);
+  border-left: 3px solid rgba(107, 95, 168, 0.34);
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.055);
 }
 
 .aiExplainerItem {
-  padding: 16px 18px 18px;
+  padding: 18px 18px 20px;
   background: rgba(255, 255, 255, 0.72);
   border: none;
   border-top: 1px solid rgba(107, 95, 168, 0.07);
   position: relative;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 13px;
   align-items: start;
 }
 
@@ -2445,22 +2458,22 @@
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(1) {
-  background: linear-gradient(168deg, rgba(248, 244, 255, 0.75), rgba(255, 255, 255, 0.68));
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.82), rgba(255, 255, 255, 0.72));
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(2) {
-  background: linear-gradient(168deg, rgba(244, 250, 248, 0.75), rgba(255, 255, 255, 0.68));
+  background: linear-gradient(168deg, rgba(244, 250, 248, 0.82), rgba(255, 255, 255, 0.72));
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(3) {
-  background: linear-gradient(168deg, rgba(250, 246, 242, 0.75), rgba(255, 255, 255, 0.68));
+  background: linear-gradient(168deg, rgba(250, 246, 242, 0.82), rgba(255, 255, 255, 0.72));
 }
 
 .aiExplainerTitle {
   display: block;
   font-size: clamp(14.5px, 2.9vw, 15.5px);
   font-weight: 600;
-  color: #1a1a1a;
+  color: rgba(20, 16, 40, 0.92);
   margin: 0 0 5px;
   line-height: 1.45;
 }
@@ -2468,7 +2481,7 @@
 .aiExplainerBody {
   display: block;
   font-size: clamp(13px, 2.65vw, 14px);
-  color: rgba(55, 52, 60, 0.78);
+  color: rgba(55, 52, 60, 0.72);
   margin: 0;
   line-height: 1.68;
 }
@@ -2652,16 +2665,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
-  background: rgba(107, 95, 168, 0.1);
-  border: 1px solid rgba(107, 95, 168, 0.18);
-  font-size: 10.5px;
+  background: rgba(107, 95, 168, 0.16);
+  border: 1.5px solid rgba(107, 95, 168, 0.3);
+  font-size: 11px;
   font-weight: 800;
-  color: rgba(62, 52, 88, 0.72);
+  color: rgba(55, 44, 90, 0.82);
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 0;
 }
 
 .aiExplainerItemHeader {

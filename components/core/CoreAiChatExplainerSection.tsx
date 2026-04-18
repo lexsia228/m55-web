@@ -20,6 +20,7 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAi} ${styles.tierBSection}`}
       aria-labelledby="core-ai-explainer"
     >
+      <span className={styles.tierBOverline}>返書の仕組み</span>
       <h2 id="core-ai-explainer" className={styles.sectionTitle}>
         {STATIC_AI_EXPLAINER.title}
       </h2>
