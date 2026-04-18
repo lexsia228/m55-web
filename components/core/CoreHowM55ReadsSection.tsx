@@ -6,15 +6,15 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
   
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceReads}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceReads} ${styles.tierBSection} ${styles.coreReveal}`}
       aria-labelledby="core-how-m55-reads"
+      data-core-reveal
     >
-      {/* 見出し：呼び捨てを解消し、敬称付きへ */}
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>
         {withNickname('M55は、tさんの傾向をこう読みます', nick)}
       </h2>
+      <p className={styles.tierBSummary}>生まれた日を起点に、個別の出方を整理しています</p>
 
-      {/* 導入：V3正本の「生まれた日」「独自のアルゴリズム」定義を注入 */}
       <p className={styles.sectionLead}>
         M55では、生まれた日をもとに、独自のパーソナルアルゴリズムで傾向を整理しています。
       </p>

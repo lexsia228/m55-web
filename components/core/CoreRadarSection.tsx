@@ -47,14 +47,16 @@ export default function CoreRadarSection({
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar} ${styles.tierASurface} ${styles.coreReveal}`}
       aria-labelledby="core-radar-title"
       data-core-reveal
     >
       <div className={styles.radarSectionHeader}>
+        <span className={styles.tierAOverline}>輪郭</span>
         <h2 id="core-radar-title" className={styles.sectionTitle}>
           傾向の輪郭
         </h2>
+        <p className={styles.tierASummary}>5つの軸を、ひとつの輪郭として見ます</p>
         <p className={styles.sectionLead}>
           {withNickname(
             'これは良し悪しではなく、tさんがふだんどんな出方をしやすいかを、5つの視点で見た輪郭です。',

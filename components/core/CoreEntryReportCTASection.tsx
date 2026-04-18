@@ -6,6 +6,28 @@ interface Props {
   nickname?: string;
 }
 
+function CheckIcon(props: { className?: string }) {
+  return (
+    <svg
+      className={props.className}
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M20 6L9 17l-5-5"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function CoreEntryReportCTASection({ nickname }: Props) {
   const nick = nickname?.trim() ?? '';
   const renderLine = (line: string) => {
@@ -17,27 +39,38 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
 
   return (
     <section
-      className={`${styles.ctaStrip} ${styles.ctaStripV0} ${styles.coreReveal}`}
+      className={`${styles.ctaStrip} ${styles.ctaStripV0} ${styles.ctaStripPurchase} ${styles.tierASurface} ${styles.coreReveal}`}
       aria-labelledby="core-saved-report-cta"
       data-core-reveal
     >
+      <span className={styles.tierAOverline}>保存版レポート</span>
       <h2 id="core-saved-report-cta" className={styles.ctaTitle}>
         {STATIC_CTA.title}
       </h2>
-      
-      <div className={styles.ctaLines}>
-        {STATIC_CTA.lines.map((line, i) => (
-          <p
-            key={i}
-            className={i === 0 ? styles.ctaBodyLead : styles.ctaBodySupplement}
-          >
-            {renderLine(line)}
-          </p>
+
+      <p className={styles.ctaPurchaseIntro}>{renderLine(STATIC_CTA.intro)}</p>
+
+      <h3 className={styles.ctaBenefitsHeading}>{STATIC_CTA.benefitsHeading}</h3>
+
+      <ul className={styles.ctaBenefitCard}>
+        {STATIC_CTA.benefits.map((line, i) => (
+          <li key={i} className={styles.ctaBenefitRow}>
+            <CheckIcon className={styles.ctaBenefitIcon} />
+            <span className={styles.ctaBenefitText}>{renderLine(line)}</span>
+          </li>
         ))}
+      </ul>
+
+      <div className={styles.ctaPriceBlock}>
+        <p className={styles.ctaBundleNote}>{STATIC_CTA.bundleNote}</p>
+        <p className={styles.ctaPriceStrong} aria-label={STATIC_CTA.priceLabel}>
+          <span className={styles.ctaPriceKind}>買い切り</span>{' '}
+          <span className={styles.ctaPriceAmount}>1000円</span>
+        </p>
       </div>
 
       <Link href="/dtr/lp" className={styles.ctaPrimaryButton}>
-        {STATIC_CTA.linkLabel ?? STATIC_CTA.title}
+        {STATIC_CTA.ctaLabel}
       </Link>
     </section>
   );

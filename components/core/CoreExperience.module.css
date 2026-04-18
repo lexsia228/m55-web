@@ -133,6 +133,112 @@
   color: #3d3d3d;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Visual Hierarchy — Tier System
+   A: page pillar  B: mid-level  C: bridge
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Tier A — page pillar */
+.tierASurface {
+  margin-top: clamp(56px, 10vw, 76px);
+  border-color: rgba(107, 95, 168, 0.16);
+  box-shadow: 0 18px 56px rgba(29, 24, 61, 0.07);
+}
+
+.tierASurface .sectionTitle {
+  font-size: clamp(25px, 5vw, 31px);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.tierAOverline {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: rgba(107, 95, 168, 0.7);
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.tierASummary {
+  font-size: clamp(13px, 2.55vw, 14.5px);
+  color: rgba(48, 45, 60, 0.62);
+  margin: 3px 0 20px;
+  line-height: 1.62;
+}
+
+/* Tier B — mid-level */
+.tierBSection {
+  margin-top: clamp(28px, 5.5vw, 44px);
+}
+
+.tierBSection .sectionTitle {
+  font-size: clamp(18px, 3.6vw, 21px);
+  font-weight: 600;
+  padding-left: 14px;
+  border-left: 3px solid rgba(107, 95, 168, 0.38);
+  margin-bottom: 4px;
+}
+
+.tierBSummary {
+  font-size: clamp(12.5px, 2.5vw, 14px);
+  color: rgba(48, 45, 60, 0.6);
+  margin: 4px 0 18px;
+  padding-left: 17px;
+  line-height: 1.58;
+}
+
+/* Tier C — bridge */
+.tierCBridge {
+  margin-top: clamp(28px, 5vw, 40px);
+  padding: clamp(14px, 3vw, 20px) clamp(16px, 3.5vw, 22px);
+  border-radius: 12px;
+  background: rgba(248, 246, 252, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: none;
+}
+
+.tierCBridge .sectionTitle {
+  font-size: clamp(15px, 3vw, 17px);
+  font-weight: 500;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+.tierCBridgeLead {
+  font-size: clamp(13px, 2.5vw, 14px);
+  line-height: 1.7;
+  color: rgba(48, 45, 60, 0.72);
+  margin: 0 0 14px;
+}
+
+.tierCBridgeList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tierCBridgeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tierCBridgeItemTitle {
+  font-size: clamp(13px, 2.6vw, 14px);
+  font-weight: 600;
+  color: #252228;
+}
+
+.tierCBridgeItemBody {
+  font-size: clamp(12px, 2.4vw, 13.5px);
+  color: rgba(48, 45, 60, 0.68);
+  line-height: 1.62;
+}
+
 /* /core 未入力のみ — 横はみ出し禁止。フッターは main 内スクロールの末尾へ */
 .coreLockedRoot {
   width: 100%;
@@ -687,6 +793,109 @@
   line-height: 1.72;
   color: rgba(60, 60, 60, 0.78);
   font-weight: 400;
+}
+
+/* 最下部「本質の読み解き」購入カード（左寄せ・可読性優先） */
+.ctaStripPurchase {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.ctaStripV0.ctaStripPurchase {
+  text-align: left;
+}
+
+.ctaPurchaseIntro {
+  font-size: clamp(15px, 2.85vw, 17px);
+  margin: 0 0 4px;
+  max-width: 38em;
+  line-height: 1.78;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.ctaBenefitsHeading {
+  font-size: clamp(14px, 2.6vw, 15px);
+  font-weight: 600;
+  margin: 18px 0 10px;
+  padding: 0;
+  color: #1f1f1f;
+  letter-spacing: 0.02em;
+}
+
+.ctaBenefitCard {
+  margin: 0 0 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(107, 95, 168, 0.065);
+  border: 1px solid rgba(107, 95, 168, 0.11);
+  list-style: none;
+}
+
+.ctaBenefitRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.ctaBenefitRow + .ctaBenefitRow {
+  margin-top: 11px;
+}
+
+.ctaBenefitIcon {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: rgba(76, 66, 108, 0.95);
+}
+
+.ctaBenefitText {
+  font-size: clamp(14px, 2.65vw, 15px);
+  line-height: 1.65;
+  color: rgba(38, 36, 42, 0.92);
+}
+
+.ctaPriceBlock {
+  margin: 22px 0 16px;
+}
+
+.ctaBundleNote {
+  font-size: clamp(13px, 2.5vw, 14px);
+  margin: 0 0 10px;
+  line-height: 1.55;
+  color: rgba(55, 52, 58, 0.88);
+}
+
+.ctaPriceStrong {
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+}
+
+.ctaPriceKind {
+  font-size: clamp(17px, 3.4vw, 20px);
+  font-weight: 700;
+  color: #151515;
+}
+
+.ctaPriceAmount {
+  font-size: clamp(26px, 5.5vw, 34px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #121212;
+}
+
+.ctaStripV0.ctaStripPurchase .ctaPrimaryButton {
+  margin-top: 4px;
+  width: 100%;
+  max-width: 100%;
+  padding: 16px 22px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 12px 32px rgba(63, 54, 94, 0.32);
 }
 
 .ctaLink {

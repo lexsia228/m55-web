@@ -6,12 +6,15 @@ export default function CoreTendencyLoadSection({ result }: { result: CoreResult
   const rows = tendencyAxesForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTendency}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTendency} ${styles.tierASurface} ${styles.coreReveal}`}
       aria-labelledby="core-tendency-load"
+      data-core-reveal
     >
+      <span className={styles.tierAOverline}>傾向</span>
       <h2 id="core-tendency-load" className={styles.sectionTitle}>
         傾向と負荷
       </h2>
+      <p className={styles.tierASummary}>出やすさと、崩れやすさを分けて見ます</p>
       <div className={styles.tendencyStack}>
         {rows.map((row, i) => (
           <article
