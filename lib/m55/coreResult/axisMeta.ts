@@ -32,8 +32,8 @@ const BAND_JA: Record<AxisBand, string> = {
   low: '背景で支えやすい',
 };
 
-function axisSummary(coreLabel: string, axisLabel: string, band: AxisBand): string {
-  return `「${coreLabel}」の見取り図では、${axisLabel}は${BAND_JA[band]}傾向として読み取れます。`;
+function axisSummary(axisLabel: string, band: AxisBand): string {
+  return `${axisLabel}は、${BAND_JA[band]}傾向として読み取れます。`;
 }
 
 function axisStrength(key: AxisKey, band: AxisBand): string {
@@ -102,7 +102,7 @@ export function buildAxisDetails(
       label,
       score,
       band,
-      summary: axisSummary(coreLabel, label, band),
+      summary: axisSummary(label, band),
       strength: axisStrength(key, band),
       caution: axisCaution(key, band),
     };
