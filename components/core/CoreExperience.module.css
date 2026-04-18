@@ -668,14 +668,17 @@
 
 .typeEaseGrid .card:nth-child(1) {
   background: linear-gradient(168deg, rgba(248, 244, 255, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(107, 95, 168, 0.32);
 }
 
 .typeEaseGrid .card:nth-child(2) {
   background: linear-gradient(168deg, rgba(242, 250, 246, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(75, 130, 105, 0.28);
 }
 
 .typeEaseGrid .card:nth-child(3) {
   background: linear-gradient(168deg, rgba(250, 246, 240, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(128, 98, 60, 0.26);
 }
 
 .typeEaseGrid .cardTitle {
@@ -1967,6 +1970,7 @@
 }
 
 .freezeStepIndex {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1981,6 +1985,18 @@
   box-shadow: 0 4px 12px rgba(83, 74, 114, 0.12);
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+.freezeStepItem:not(:last-child) .freezeStepIndex::after {
+  content: '';
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(to bottom, rgba(107, 95, 168, 0.22), transparent);
+  pointer-events: none;
 }
 
 .freezeStepCard {
@@ -2084,15 +2100,27 @@
 }
 
 .tendencyLayerLabel {
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  color: rgba(60, 60, 60, 0.48);
-  margin: 16px 0 6px;
+  letter-spacing: 0.16em;
+  color: rgba(62, 52, 88, 0.68);
+  margin: 14px 0 6px;
+  padding: 3px 9px;
+  background: rgba(107, 95, 168, 0.07);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  border-radius: 999px;
 }
 
 .tendencyAxisTitle + .tendencyLayerLabel {
   margin-top: 0;
+}
+
+.tendencyBody + .tendencyLayerLabel {
+  color: rgba(140, 90, 70, 0.75);
+  background: rgba(180, 100, 75, 0.07);
+  border-color: rgba(180, 100, 75, 0.13);
 }
 
 .tendencyTendencyBody {
@@ -2197,6 +2225,18 @@
   background: linear-gradient(175deg, rgba(250, 246, 240, 0.9), rgba(255, 255, 255, 0.72));
 }
 
+.alignFlowGrid .alignFlowCard:nth-child(2) .alignFlowPhase {
+  color: rgba(45, 80, 65, 0.9);
+  background: rgba(70, 120, 100, 0.12);
+  border-color: rgba(70, 120, 100, 0.12);
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(3) .alignFlowPhase {
+  color: rgba(90, 65, 40, 0.9);
+  background: rgba(110, 85, 55, 0.1);
+  border-color: rgba(110, 85, 55, 0.12);
+}
+
 .alignFlowPhase {
   display: inline-flex;
   align-self: flex-start;
@@ -2239,6 +2279,27 @@
 
 .observationBullets li:last-child {
   margin-bottom: 0;
+}
+
+/* この輪郭から見えていること — chip layout */
+.observationChipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.observationChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: clamp(13px, 2.55vw, 14px);
+  color: rgba(55, 46, 78, 0.88);
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  box-shadow: 0 3px 10px rgba(29, 24, 61, 0.042);
+  line-height: 1.45;
 }
 
 /* AI説明 */
@@ -2292,6 +2353,7 @@
 }
 
 .aiExplainerTitle {
+  display: block;
   font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
@@ -2300,6 +2362,7 @@
 }
 
 .aiExplainerBody {
+  display: block;
   font-size: 14px;
   color: #3d3d3d;
   margin: 0;

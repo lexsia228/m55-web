@@ -17,7 +17,7 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
 
   return (
     <section
-      className={`${styles.tierCBridge} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAi} ${styles.tierBSection} ${styles.coreReveal}`}
       aria-labelledby="core-ai-explainer"
       data-core-reveal
     >
@@ -25,15 +25,15 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
         {STATIC_AI_EXPLAINER.title}
       </h2>
 
-      <p className={styles.tierCBridgeLead}>
+      <p className={styles.tierBSummary}>
         {renderLead(STATIC_AI_EXPLAINER.lead[0])}
       </p>
 
-      <ul className={styles.tierCBridgeList}>
+      <ul className={styles.aiExplainerList}>
         {STATIC_AI_EXPLAINER.items.map((item) => (
-          <li key={item.title} className={styles.tierCBridgeItem}>
-            <span className={styles.tierCBridgeItemTitle}>{item.title}</span>
-            <span className={styles.tierCBridgeItemBody}>{item.body}</span>
+          <li key={item.title} className={styles.aiExplainerItem}>
+            <span className={styles.aiExplainerTitle}>{item.title}</span>
+            <span className={styles.aiExplainerBody}>{item.body}</span>
           </li>
         ))}
       </ul>

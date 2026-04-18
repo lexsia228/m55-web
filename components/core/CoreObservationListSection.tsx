@@ -12,12 +12,10 @@ export default function CoreObservationListSection({ result }: { result: CoreRes
     >
       <h2 id="core-observation-list" className={styles.sectionTitle}>この輪郭から見えていること</h2>
       <p className={styles.tierBSummary}>見えている傾向を短く整理したものです</p>
-      <div className={styles.observationPanel}>
-        <ul className={styles.observationBullets}>
-          {bullets.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
+      <div className={styles.observationChipList}>
+        {bullets.map((t) => (
+          <span key={t} className={styles.observationChip}>{t}</span>
+        ))}
       </div>
     </section>
   );
