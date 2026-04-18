@@ -107,9 +107,8 @@ export default function CoreRadarSection({
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar} ${styles.tierASurface} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceRadar} ${styles.tierASurface}`}
       aria-labelledby="core-radar-title"
-      data-core-reveal
     >
       <div className={styles.radarSectionHeader}>
         <span className={styles.tierAOverline}>輪郭</span>

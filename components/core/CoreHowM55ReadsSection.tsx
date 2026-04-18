@@ -6,9 +6,8 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
   
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceReads} ${styles.tierBSection} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceReads} ${styles.tierBSection}`}
       aria-labelledby="core-how-m55-reads"
-      data-core-reveal
     >
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>
         {withNickname('M55は、tさんの傾向をこう読みます', nick)}
@@ -29,8 +28,7 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
         {STATIC_M55_READ_STEPS.map((step, i) => (
           <li
             key={step.title}
-            className={`${styles.freezeStepItem} ${styles.coreReveal}`}
-            data-core-reveal
+            className={styles.freezeStepItem}
             style={{ ['--reveal-delay' as string]: `${i * 50}ms` }}
           >
             <span className={styles.freezeStepIndex} aria-hidden>
@@ -39,7 +37,6 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
             <div className={styles.freezeStepCard}>
               <h3 className={styles.freezeStepTitle}>{step.title}</h3>
               <p className={styles.freezeStepBody}>
-                {/* ステップ内テキストも置換を適用 */}
                 {withNickname(step.body, nick)}
               </p>
             </div>

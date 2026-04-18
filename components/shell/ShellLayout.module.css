@@ -28,20 +28,26 @@
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
-  /* 上寄せの微調整：上薄く・下わずかに厚く（数 px）で帯を視覚的に少し上へ */
-  padding: 3px 10px 7px 8px;
-  height: 48px;
-  background: #ffffff;
+  /* safe-area: header absorbs status bar / notch; nav items sit in the lower 48px band */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 3px);
+  padding-bottom: 7px;
+  padding-left: max(10px, env(safe-area-inset-left, 10px));
+  padding-right: max(10px, env(safe-area-inset-right, 10px));
+  min-height: calc(env(safe-area-inset-top, 0px) + 48px);
+  /* M55 brand surface: dark plum tint */
+  background: rgba(28, 22, 48, 0.93);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   z-index: 25;
 }
 
 .headerStart {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   min-width: 0;
   flex: 1;
   gap: 4px;
@@ -50,45 +56,55 @@
 .brandLockup {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex-shrink: 0;
-  padding: 0 6px 0 4px;
+  padding: 5px 8px 5px 4px;
   margin-right: 2px;
   text-decoration: none;
   color: inherit;
-  border-radius: 8px;
+  border-radius: 9px;
+  transition: background 0.15s ease;
 }
 
 .brandLockup:focus-visible {
-  outline: 2px solid #1d4ed8;
+  outline: 2px solid rgba(255, 255, 255, 0.50);
   outline-offset: 2px;
+}
+
+.brandLockup:hover {
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .brandMark {
   display: block;
   flex-shrink: 0;
+  /* SVG をダーク背景で白く見せる */
+  filter: brightness(0) invert(1);
+  opacity: 0.88;
 }
 
 /* Active indicator on text label only — never on logo mark (HEADER_VISUAL_FREEZE_v1) */
 .brandWordmark {
   display: inline-block;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--text-main, #2f2640);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.2;
-  padding-bottom: 1px;
-  border-bottom: 2px solid transparent;
+  padding-bottom: 0;
+  border-bottom: none;
   box-sizing: border-box;
 }
 
 .brandWordmarkActive {
-  border-bottom-color: #1d4ed8;
+  color: #ffffff;
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .header {
-    background: #ffffff;
+    background: #1c1630;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 
@@ -96,9 +112,9 @@
 
 .topNav {
   display: flex;
-  align-items: stretch;
-  height: 100%;
-  gap: 0;
+  align-items: center;
+  height: auto;
+  gap: 2px;
   min-width: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -110,29 +126,33 @@
 }
 
 .topNavItem {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding: 0 10px;
-  height: 100%;
-  font-size: 14px;
-  color: var(--text-main, #2f2640);
+  padding: 6px 11px;
+  height: auto;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.48);
   text-decoration: none;
-  opacity: 0.5;
-  border-bottom: 2px solid transparent;
+  border-bottom: none;
+  border-radius: 8px;
   box-sizing: border-box;
   white-space: nowrap;
+  opacity: 1;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .topNavItem:hover {
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.07);
+  opacity: 1;
 }
 
 .topNavItemActive {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  border-bottom: none;
   opacity: 1;
-  border-bottom-color: #1d4ed8;
 }
-
-/* ── Auth area ───────────────────────────────────────────────────────────────── */
 
 .authArea {
   display: flex;
@@ -142,21 +162,25 @@
 
 .authButton {
   min-width: 44px;
-  min-height: 36px;
-  padding: 6px 12px;
+  min-height: 32px;
+  padding: 5px 14px;
   font-size: 13px;
   font-family: inherit;
-  color: var(--text-main, #2f2640);
-  background: transparent;
-  border: 1px solid rgba(60, 35, 110, 0.14);
-  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
   cursor: pointer;
   box-sizing: border-box;
-  opacity: 0.82;
+  opacity: 1;
   white-space: nowrap;
+  letter-spacing: 0.01em;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .authButton:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.96);
   opacity: 1;
 }
 
@@ -191,6 +215,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .header,
+  .brandLockup,
   .topNavItem,
   .authButton {
     transition: none !important;

@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
 
@@ -15,6 +15,13 @@ export const metadata: Metadata = {
     description: "M55 digital content service.",
     images: [{ url: "/icons/m55-core-logo.png", alt: "M55" }],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#1c1630",
 };
 
 /**
