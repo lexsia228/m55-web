@@ -474,6 +474,101 @@
   max-width: 36em;
 }
 
+/* ── 傾向の輪郭：「私の輪郭を見る」ボタン ── */
+.radarRevealBtnWrap {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 4px;
+}
+
+.radarRevealBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 26px;
+  font-size: clamp(12.5px, 2.8vw, 14px);
+  font-weight: 500;
+  color: rgba(83, 74, 114, 0.88);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.055em;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.radarRevealBtn:hover {
+  background: rgba(243, 241, 252, 0.9);
+  border-color: rgba(107, 95, 168, 0.45);
+  color: rgba(63, 54, 94, 0.95);
+}
+
+.radarRevealBtn:active {
+  background: rgba(235, 232, 252, 0.95);
+}
+
+/* データ輪郭 フェードイン */
+@keyframes radarShapeReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.radarDataGroup {
+  animation: radarShapeReveal 0.5s ease forwards;
+}
+
+/* 1行要約 */
+.radarSummaryLine {
+  margin: 10px 0 0;
+  font-size: clamp(12.5px, 2.8vw, 13.5px);
+  color: rgba(83, 74, 114, 0.8);
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1.55;
+  animation: radarSummaryReveal 0.5s 0.22s ease both;
+}
+
+@keyframes radarSummaryReveal {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 要約カード */
+.radarSummaryCard {
+  margin: 14px 0 0;
+  padding: 11px 14px 11px 16px;
+  border-left: 2px solid rgba(107, 95, 168, 0.38);
+  background: rgba(107, 95, 168, 0.042);
+  border-radius: 0 10px 10px 0;
+  animation: radarSummaryReveal 0.5s 0.22s ease both;
+}
+
+.radarSummaryCard p {
+  margin: 0;
+  font-size: clamp(12.5px, 2.75vw, 13.5px);
+  color: rgba(65, 54, 108, 0.88);
+  line-height: 1.62;
+  letter-spacing: 0.01em;
+}
+
+.radarSummaryCard p + p {
+  margin-top: 4px;
+  color: rgba(65, 54, 108, 0.66);
+}
+
 /* Axis bars */
 .barsList {
   display: flex;
@@ -2228,5 +2323,18 @@
     transform: none;
     filter: none;
     transition: none;
+  }
+
+  .radarDataGroup {
+    animation: none;
+    opacity: 1;
+  }
+
+  .radarSummaryLine {
+    animation: none;
+  }
+
+  .radarSummaryCard {
+    animation: none;
   }
 }

@@ -1,5 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import { AXIS_ORDER } from '../../lib/m55/coreResult/axisMeta';
-import type { CoreResult } from '../../lib/m55/coreResult/types';
+import type { AxisKey, CoreResult } from '../../lib/m55/coreResult/types';
 import { AXIS_SHORT_JA } from './corePublicAxisLabels';
 import { withNickname } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
@@ -15,6 +18,54 @@ function pointFor(i: number, n: number, radius: number): [number, number] {
   return [CX + radius * Math.cos(a), CY + radius * Math.sin(a)];
 }
 
+const AXIS_MEANING: Record<AxisKey, string> = {
+  socialEnergy: '人との関わり方',
+  stability: '感情の受け取り方',
+  openness: '考えや発想の広がり',
+  cooperation: '人との関係の保ち方',
+  structure: '物事の進め方や段取り',
+};
+
+type RadarSummary = { line1: string; line2: string };
+
+function buildRadarSummary(scores: CoreResult['coreAxisScores']): RadarSummary {
+  const SHORT = AXIS_SHORT_JA;
+  const sorted = [...AXIS_ORDER].sort((a, b) => (scores[b] ?? 0) - (scores[a] ?? 0));
+  const [first, second, third] = sorted;
+  const s0 = scores[first!] ?? 0;
+  const s1 = scores[second!] ?? 0;
+  const s2 = scores[third!] ?? 0;
+
+  if (s0 >= 78 && s1 < 55) {
+    return {
+      line1: `${SHORT[first!]}が強く前に出やすい輪郭です。`,
+      line2: `${AXIS_MEANING[first!]}に、この人らしい輪郭が出やすい形です。`,
+    };
+  }
+  if (s0 >= 62 && s1 >= 62 && s2 < 45) {
+    return {
+      line1: `${SHORT[first!]}と${SHORT[second!]}が前に出やすい輪郭です。`,
+      line2: `${AXIS_MEANING[first!]}と${AXIS_MEANING[second!]}に輪郭が出やすい形です。`,
+    };
+  }
+  if (s0 >= 62 && s1 >= 62 && s2 >= 62) {
+    return {
+      line1: `${SHORT[first!]}・${SHORT[second!]}・${SHORT[third!]}が広がりやすい輪郭です。`,
+      line2: `複数の視点にわたって輪郭が広がりやすく、全体的に前に出やすい傾向があります。`,
+    };
+  }
+  if (s0 >= 55 && s1 >= 45) {
+    return {
+      line1: `${SHORT[first!]}と${SHORT[second!]}が効きやすい輪郭です。`,
+      line2: `${AXIS_MEANING[first!]}を中心に、この人らしい動き方が出やすい形です。`,
+    };
+  }
+  return {
+    line1: `${SHORT[first!]}を軸に、全体が穏やかに効きやすい輪郭です。`,
+    line2: `特定の軸に偏らず、場に応じて使い分けやすい形です。`,
+  };
+}
+
 export default function CoreRadarSection({
   result,
   nickname,
@@ -26,6 +77,12 @@ export default function CoreRadarSection({
   const scores = result.coreAxisScores;
   const n = AXIS_ORDER.length;
 
+  const [revealed, setRevealed] = useState(false);
+
+  function handleReveal() {
+    setRevealed(true);
+  }
+
   const poly: string[] = [];
   for (let i = 0; i < n; i++) {
     const key = AXIS_ORDER[i]!;
@@ -35,6 +92,7 @@ export default function CoreRadarSection({
     const [x, y] = pointFor(i, n, rad);
     poly.push(`${x.toFixed(1)},${y.toFixed(1)}`);
   }
+
   const gridPolys = [0.68, 1].map((f) => {
     const pts: string[] = [];
     for (let i = 0; i < n; i++) {
@@ -44,6 +102,8 @@ export default function CoreRadarSection({
     }
     return pts.join(' ');
   });
+
+  const summary = buildRadarSummary(scores);
 
   return (
     <section
@@ -65,12 +125,27 @@ export default function CoreRadarSection({
         </p>
         <p className={styles.radarTip}>外に開くほど、その視点が表に出やすい傾向があります。</p>
       </div>
+
+      {!revealed && (
+        <div className={styles.radarRevealBtnWrap}>
+          <button
+            type="button"
+            className={styles.radarRevealBtn}
+            onClick={handleReveal}
+          >
+            私の輪郭を見る
+          </button>
+        </div>
+      )}
+
       <div className={styles.radarWrap}>
         <svg
           width="100%"
           viewBox={`0 0 ${VB} ${VB}`}
           role="img"
-          aria-label="五つの視点の輪郭図"
+          aria-label={
+            revealed ? `傾向の輪郭: ${summary.line1}` : '五つの視点の輪郭図（ボタンを押すと表示）'
+          }
         >
           {gridPolys.map((p, idx) => (
             <polygon
@@ -81,13 +156,19 @@ export default function CoreRadarSection({
               strokeWidth={idx === 0 ? 0.9 : 1}
             />
           ))}
-          <polygon
-            points={poly.join(' ')}
-            fill="rgba(107, 95, 168, 0.06)"
-            stroke="rgba(107, 95, 168, 0.62)"
-            strokeWidth={1.55}
-            strokeLinejoin="round"
-          />
+
+          {revealed && (
+            <g className={styles.radarDataGroup}>
+              <polygon
+                points={poly.join(' ')}
+                fill="rgba(107, 95, 168, 0.10)"
+                stroke="rgba(107, 95, 168, 0.72)"
+                strokeWidth={1.75}
+                strokeLinejoin="round"
+              />
+            </g>
+          )}
+
           {AXIS_ORDER.map((key, i) => {
             const [lx, ly] = pointFor(i, n, R_MAX + 14);
             const ta = (-90 + (i / n) * 360 + 360) % 360;
@@ -109,6 +190,14 @@ export default function CoreRadarSection({
           })}
         </svg>
       </div>
+
+      {revealed && (
+        <div className={styles.radarSummaryCard}>
+          <p>{summary.line1}</p>
+          <p>{summary.line2}</p>
+        </div>
+      )}
+
       <p className={styles.radarSubLead}>このあと下で、5つの軸をひとつずつ見ていきます。</p>
     </section>
   );
