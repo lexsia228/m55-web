@@ -61,28 +61,10 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
         ))}
       </ul>
 
-      <div className={styles.ctaPriceBlock}>
-        <p className={styles.ctaBundleNote}>{STATIC_CTA.bundleNote}</p>
-        <p className={styles.ctaPriceStrong} aria-label={STATIC_CTA.priceLabel}>
-          <span className={styles.ctaPriceKind}>買い切り</span>{' '}
-          <span className={styles.ctaPriceAmount}>1000円</span>
-        </p>
-      </div>
-
-      <div className={styles.ctaPaymentRow} aria-label="対応支払い方法">
-        <span className={styles.ctaPaymentLabel}>クレジットカード / Apple Pay / PayPay 対応</span>
-        <div className={styles.ctaPaymentBadges}>
-          <span className={styles.ctaPayBadge}>Visa</span>
-          <span className={styles.ctaPayBadge}>Mastercard</span>
-          <span className={styles.ctaPayBadge}>JCB</span>
-          <span className={styles.ctaPayBadge}>AMEX</span>
-          <span className={`${styles.ctaPayBadge} ${styles.ctaPayBadgeApple}`}>Apple Pay</span>
-          <span className={`${styles.ctaPayBadge} ${styles.ctaPayBadgePayPay}`}>PayPay</span>
-        </div>
-      </div>
+      <p className={styles.ctaBundleNote} style={{ marginTop: 16 }}>{STATIC_CTA.bundleNote}</p>
 
       <Link href="/dtr/lp" className={styles.ctaPrimaryButton}>
-        {STATIC_CTA.ctaLabel}
+        本質の読み解きを見る
       </Link>
     </section>
   );
