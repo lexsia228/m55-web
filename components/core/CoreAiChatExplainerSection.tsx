@@ -17,9 +17,8 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAi} ${styles.tierBSection} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAi} ${styles.tierBSection}`}
       aria-labelledby="core-ai-explainer"
-      data-core-reveal
     >
       <h2 id="core-ai-explainer" className={styles.sectionTitle}>
         {STATIC_AI_EXPLAINER.title}
@@ -30,10 +29,13 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
       </p>
 
       <ul className={styles.aiExplainerList}>
-        {STATIC_AI_EXPLAINER.items.map((item) => (
+        {STATIC_AI_EXPLAINER.items.map((item, i) => (
           <li key={item.title} className={styles.aiExplainerItem}>
-            <span className={styles.aiExplainerTitle}>{item.title}</span>
-            <span className={styles.aiExplainerBody}>{item.body}</span>
+            <span className={styles.aiExplainerItemNum} aria-hidden>{i + 1}</span>
+            <div className={styles.aiExplainerItemHeader}>
+              <span className={styles.aiExplainerTitle}>{item.title}</span>
+              <span className={styles.aiExplainerBody}>{item.body}</span>
+            </div>
           </li>
         ))}
       </ul>

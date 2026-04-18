@@ -6,15 +6,19 @@ export default function CoreObservationListSection({ result }: { result: CoreRes
   const bullets = observationBulletsForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceObserve} ${styles.tierBSection} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceObserve} ${styles.tierBSection}`}
       aria-labelledby="core-observation-list"
-      data-core-reveal
     >
       <h2 id="core-observation-list" className={styles.sectionTitle}>この輪郭から見えていること</h2>
       <p className={styles.tierBSummary}>見えている傾向を短く整理したものです</p>
       <div className={styles.observationChipList}>
-        {bullets.map((t) => (
-          <span key={t} className={styles.observationChip}>{t}</span>
+        {bullets.map((t, i) => (
+          <span
+            key={t}
+            className={`${styles.observationChip} ${styles.chipReveal}`}
+            data-core-reveal
+            style={{ ['--reveal-delay' as string]: `${i * 55}ms` }}
+          >{t}</span>
         ))}
       </div>
     </section>

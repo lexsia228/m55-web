@@ -477,51 +477,81 @@
 /* ── 傾向の輪郭：「私の輪郭を見る」ボタン ── */
 .radarRevealBtnWrap {
   display: flex;
-  justify-content: center;
-  margin: 14px 0 4px;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  margin: 16px 0 6px;
 }
 
 .radarRevealBtn {
   display: inline-flex;
   align-items: center;
-  padding: 10px 26px;
-  font-size: clamp(12.5px, 2.8vw, 14px);
-  font-weight: 500;
-  color: rgba(83, 74, 114, 0.88);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(107, 95, 168, 0.28);
+  gap: 7px;
+  padding: 12px 30px;
+  font-size: clamp(13.5px, 2.9vw, 15px);
+  font-weight: 600;
+  color: rgba(52, 44, 88, 0.94);
+  background: linear-gradient(140deg, rgba(224, 218, 252, 0.72), rgba(210, 200, 245, 0.62));
+  border: 1.5px solid rgba(107, 95, 168, 0.42);
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
-  letter-spacing: 0.055em;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 14px rgba(83, 74, 114, 0.14);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
+    box-shadow 0.2s ease,
     color 0.2s ease;
 }
 
 .radarRevealBtn:hover {
-  background: rgba(243, 241, 252, 0.9);
-  border-color: rgba(107, 95, 168, 0.45);
-  color: rgba(63, 54, 94, 0.95);
+  background: linear-gradient(140deg, rgba(214, 207, 250, 0.88), rgba(198, 187, 242, 0.78));
+  border-color: rgba(107, 95, 168, 0.6);
+  box-shadow: 0 6px 20px rgba(83, 74, 114, 0.2);
+  color: rgba(42, 34, 78, 0.98);
 }
 
 .radarRevealBtn:active {
-  background: rgba(235, 232, 252, 0.95);
+  background: rgba(200, 192, 240, 0.92);
+  box-shadow: 0 2px 8px rgba(83, 74, 114, 0.15);
 }
 
-/* データ輪郭 フェードイン */
+.radarRevealBtnIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  opacity: 0.78;
+  flex-shrink: 0;
+}
+
+.radarRevealHelper {
+  font-size: clamp(11px, 2.6vw, 12px);
+  color: rgba(80, 72, 110, 0.52);
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+  text-align: center;
+  margin: 0;
+}
+
+/* データ輪郭 — ボタン押下後に中心から外へ静かに広がる */
 @keyframes radarShapeReveal {
   from {
     opacity: 0;
+    transform: scale(0.6);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
 .radarDataGroup {
-  animation: radarShapeReveal 0.5s ease forwards;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: radarShapeReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* 1行要約 */
@@ -548,25 +578,51 @@
 
 /* 要約カード */
 .radarSummaryCard {
-  margin: 14px 0 0;
-  padding: 11px 14px 11px 16px;
-  border-left: 2px solid rgba(107, 95, 168, 0.38);
-  background: rgba(107, 95, 168, 0.042);
-  border-radius: 0 10px 10px 0;
+  margin: 16px 0 0;
+  padding: 14px 18px 16px;
+  background: linear-gradient(160deg, rgba(107, 95, 168, 0.07), rgba(90, 80, 140, 0.04));
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  border-radius: 16px;
   animation: radarSummaryReveal 0.5s 0.22s ease both;
+}
+
+.radarSummaryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.58);
+  margin: 0 0 8px;
+  padding: 3px 9px 3px 7px;
+  background: rgba(107, 95, 168, 0.09);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  border-radius: 999px;
+}
+
+.radarSummaryBadgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.55);
+  flex-shrink: 0;
 }
 
 .radarSummaryCard p {
   margin: 0;
-  font-size: clamp(12.5px, 2.75vw, 13.5px);
-  color: rgba(65, 54, 108, 0.88);
+  font-size: clamp(13px, 2.85vw, 14.5px);
+  color: rgba(52, 44, 88, 0.9);
   line-height: 1.62;
   letter-spacing: 0.01em;
+  font-weight: 500;
 }
 
 .radarSummaryCard p + p {
-  margin-top: 4px;
-  color: rgba(65, 54, 108, 0.66);
+  margin-top: 5px;
+  font-size: clamp(12px, 2.6vw, 13px);
+  font-weight: 400;
+  color: rgba(65, 54, 108, 0.62);
 }
 
 /* Axis bars */
@@ -682,29 +738,44 @@
 }
 
 .typeEaseGrid .cardTitle {
-  font-size: 16px;
+  font-size: clamp(14.5px, 2.9vw, 16px);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.typeEaseGrid .card:nth-child(1) .cardTitle {
+  border-bottom-color: rgba(107, 95, 168, 0.12);
+}
+
+.typeEaseGrid .card:nth-child(2) .cardTitle {
+  border-bottom-color: rgba(75, 130, 105, 0.12);
+}
+
+.typeEaseGrid .card:nth-child(3) .cardTitle {
+  border-bottom-color: rgba(128, 98, 60, 0.1);
 }
 
 .card {
   border-radius: 18px;
-  padding: 16px 16px 18px;
+  padding: 18px 16px 20px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow: 0 8px 26px rgba(29, 24, 61, 0.035);
 }
 
 .cardTitle {
-  font-size: clamp(17px, 3.4vw, 19px);
+  font-size: clamp(15px, 3vw, 17px);
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px;
 }
 
 .cardBody {
-  font-size: clamp(13px, 2.7vw, 15px);
-  color: #3d3d3d;
+  font-size: clamp(13px, 2.65vw, 14.5px);
+  color: rgba(50, 48, 56, 0.78);
   margin: 0;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
 .cardGrid .card:last-child:nth-child(odd) {
@@ -2246,13 +2317,15 @@
 
 .alignFlowPhase {
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
   align-self: flex-start;
   padding: 5px 12px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
   color: rgba(62, 52, 88, 0.9);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   background: rgba(107, 95, 168, 0.12);
   border: 1px solid rgba(107, 95, 168, 0.1);
 }
@@ -2292,21 +2365,33 @@
 .observationChipList {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .observationChip {
   display: inline-flex;
   align-items: center;
-  padding: 9px 16px;
+  gap: 6px;
+  padding: 8px 15px;
   border-radius: 999px;
-  font-size: clamp(13px, 2.55vw, 14px);
-  color: rgba(55, 46, 78, 0.88);
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid rgba(107, 95, 168, 0.14);
-  box-shadow: 0 3px 10px rgba(29, 24, 61, 0.042);
-  line-height: 1.45;
+  font-size: clamp(12.5px, 2.5vw, 13.5px);
+  color: rgba(52, 44, 78, 0.88);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(248, 244, 255, 0.72));
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.046);
+  line-height: 1.42;
+  font-weight: 500;
+}
+
+.observationChip::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.45);
+  flex-shrink: 0;
 }
 
 /* AI説明 */
@@ -2336,44 +2421,56 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(107, 95, 168, 0.09);
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.04);
 }
 
 .aiExplainerItem {
-  padding: 16px 14px 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 6px 20px rgba(29, 24, 61, 0.03);
+  padding: 16px 18px 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: none;
+  border-top: 1px solid rgba(107, 95, 168, 0.07);
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.aiExplainerItem:first-child {
+  border-top: none;
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(1) {
-  background: linear-gradient(168deg, rgba(248, 244, 255, 0.88), rgba(255, 255, 255, 0.72));
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.75), rgba(255, 255, 255, 0.68));
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(2) {
-  background: linear-gradient(168deg, rgba(242, 250, 248, 0.88), rgba(255, 255, 255, 0.72));
+  background: linear-gradient(168deg, rgba(244, 250, 248, 0.75), rgba(255, 255, 255, 0.68));
 }
 
 .aiExplainerList .aiExplainerItem:nth-child(3) {
-  background: linear-gradient(168deg, rgba(250, 246, 242, 0.88), rgba(255, 255, 255, 0.72));
+  background: linear-gradient(168deg, rgba(250, 246, 242, 0.75), rgba(255, 255, 255, 0.68));
 }
 
 .aiExplainerTitle {
   display: block;
-  font-size: 16px;
+  font-size: clamp(14.5px, 2.9vw, 15.5px);
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 8px;
+  margin: 0 0 5px;
   line-height: 1.45;
 }
 
 .aiExplainerBody {
   display: block;
-  font-size: 14px;
-  color: #3d3d3d;
+  font-size: clamp(13px, 2.65vw, 14px);
+  color: rgba(55, 52, 60, 0.78);
   margin: 0;
-  line-height: 1.72;
+  line-height: 1.68;
 }
 
 /* 最終CTA */
@@ -2407,24 +2504,19 @@
   background: rgba(63, 54, 94, 0.95);
 }
 
-/* /core scroll reveal: calm one-time motion */
+/* /core scroll reveal: opacity + translateY のみ（blur 禁止） */
 .coreReveal {
   opacity: 0;
-  transform: translateY(14px);
-  filter: blur(8px);
+  transform: translateY(10px);
   transition:
-    opacity 560ms ease,
-    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 560ms ease;
+    opacity 420ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
 }
 
 .coreReveal[data-reveal-state='shown'] {
   opacity: 1;
   transform: translateY(0);
-  filter: blur(0);
-  will-change: auto;
 }
 
 /* 傾向と負荷 結果本文: 軽い opacity + translateY のみ */
@@ -2442,6 +2534,196 @@
   transform: translateY(0);
 }
 
+/* ─────────────────────────────────────────────────
+   Section-polish animations & reveal classes
+   ───────────────────────────────────────────────── */
+
+/* Page-load fade-up for numbered step items (Section A) */
+@keyframes coreFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stepFadeIn {
+  animation: coreFadeUp 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* Scroll-triggered card reveal — no blur (Section C, D) */
+.cardReveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 380ms ease,
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.cardReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll-triggered chip reveal (Section E) */
+.chipReveal {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.chipReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* AlignFlow: step number badge inside phase pill (Section D) */
+.alignFlowStepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  background: currentColor;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+  opacity: 0.72;
+}
+
+/* AlignFlow: desktop connector arrow between step cards */
+@media (min-width: 680px) {
+  .alignFlowCard {
+    position: relative;
+  }
+
+  .alignFlowCard:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    line-height: 1;
+    color: rgba(107, 95, 168, 0.3);
+    z-index: 1;
+    pointer-events: none;
+  }
+}
+
+/* AlignFlow: mobile connector line between step cards */
+@media (max-width: 679px) {
+  .alignFlowCard:not(:last-child) {
+    margin-bottom: 2px;
+  }
+
+  .alignFlowCard:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 10px;
+    background: linear-gradient(to bottom, rgba(107, 95, 168, 0.2), rgba(107, 95, 168, 0.04));
+    margin: 10px auto -2px;
+  }
+}
+
+/* TendencyAxisCard: mobile micro-hierarchy improvements */
+@media (max-width: 639px) {
+  .tendencyAxisCard {
+    padding: clamp(14px, 3.5vw, 18px) clamp(12px, 3vw, 16px);
+  }
+
+  .tendencyLayerLabel {
+    margin-top: 12px;
+    margin-bottom: 5px;
+  }
+
+  .tendencyTendencyBody {
+    font-size: clamp(15px, 3.2vw, 17px);
+  }
+}
+
+/* AI Explainer: number badge — left column of grid */
+.aiExplainerItemNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.1);
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: rgba(62, 52, 88, 0.72);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.aiExplainerItemHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Entry CTA teaser: softer spacing */
+.ctaStripTeaser {
+  margin-top: clamp(36px, 8vw, 52px);
+  padding: clamp(24px, 4.5vw, 34px) clamp(20px, 4vw, 28px) clamp(26px, 5vw, 36px);
+  border-radius: 24px;
+  background:
+    radial-gradient(110% 80% at 50% 0%, rgba(240, 232, 255, 0.45), transparent 55%),
+    linear-gradient(168deg, rgba(253, 249, 242, 0.98) 0%, rgba(248, 244, 255, 0.95) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 16px 44px rgba(29, 24, 61, 0.058);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.ctaTeaserCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(62, 52, 88, 0.95);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  box-shadow: 0 4px 14px rgba(83, 74, 114, 0.1);
+  letter-spacing: 0.02em;
+  transition: background 200ms ease, box-shadow 200ms ease;
+  align-self: flex-start;
+}
+
+.ctaTeaserCta:hover {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 6px 20px rgba(83, 74, 114, 0.16);
+}
+
+.ctaStripTeaser .tierAOverline {
+  font-size: clamp(10px, 2vw, 11px);
+  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.58);
+  margin-bottom: 8px;
+}
+
+.ctaStripTeaser .ctaTitle {
+  font-size: clamp(22px, 4.4vw, 26px);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .corePosterMainVisualStack {
     display: none;
@@ -2454,7 +2736,6 @@
   .coreReveal {
     opacity: 1;
     transform: none;
-    filter: none;
     transition: none;
   }
 
@@ -2464,9 +2745,26 @@
     transition: none;
   }
 
+  .cardReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .chipReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .stepFadeIn {
+    animation: none;
+  }
+
   .radarDataGroup {
     animation: none;
     opacity: 1;
+    transform: none;
   }
 
   .radarSummaryLine {

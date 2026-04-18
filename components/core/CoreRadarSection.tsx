@@ -39,7 +39,7 @@ function buildRadarSummary(scores: CoreResult['coreAxisScores']): RadarSummary {
   if (s0 >= 78 && s1 < 55) {
     return {
       line1: `${SHORT[first!]}が強く前に出やすい輪郭です。`,
-      line2: `${AXIS_MEANING[first!]}に、この人らしい輪郭が出やすい形です。`,
+      line2: `${AXIS_MEANING[first!]}に、自分らしい輪郭が出やすい形です。`,
     };
   }
   if (s0 >= 62 && s1 >= 62 && s2 < 45) {
@@ -57,7 +57,7 @@ function buildRadarSummary(scores: CoreResult['coreAxisScores']): RadarSummary {
   if (s0 >= 55 && s1 >= 45) {
     return {
       line1: `${SHORT[first!]}と${SHORT[second!]}が効きやすい輪郭です。`,
-      line2: `${AXIS_MEANING[first!]}を中心に、この人らしい動き方が出やすい形です。`,
+      line2: `${AXIS_MEANING[first!]}を中心に、自分の動き方の傾向が出やすい形です。`,
     };
   }
   return {
@@ -132,8 +132,17 @@ export default function CoreRadarSection({
             className={styles.radarRevealBtn}
             onClick={handleReveal}
           >
+            <span className={styles.radarRevealBtnIcon} aria-hidden>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.8"/>
+                <path d="M2.5 12C4.5 7 8 4.5 12 4.5S19.5 7 21.5 12c-2 5-5.5 7.5-9.5 7.5S4.5 17 2.5 12z" stroke="currentColor" strokeWidth="1.8"/>
+              </svg>
+            </span>
             私の輪郭を見る
           </button>
+          <p className={styles.radarRevealHelper}>
+            タップすると、5つの軸の形が表示されます
+          </p>
         </div>
       )}
 
@@ -192,6 +201,10 @@ export default function CoreRadarSection({
 
       {revealed && (
         <div className={styles.radarSummaryCard}>
+          <div className={styles.radarSummaryBadge} aria-hidden>
+            <span className={styles.radarSummaryBadgeDot} />
+            輪郭の読み取り
+          </div>
           <p>{summary.line1}</p>
           <p>{summary.line2}</p>
         </div>

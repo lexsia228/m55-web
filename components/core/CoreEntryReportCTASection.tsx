@@ -39,7 +39,7 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
 
   return (
     <section
-      className={`${styles.ctaStrip} ${styles.ctaStripV0} ${styles.ctaStripPurchase} ${styles.tierASurface} ${styles.coreReveal}`}
+      className={`${styles.ctaStripTeaser} ${styles.coreReveal}`}
       aria-labelledby="core-saved-report-cta"
       data-core-reveal
     >
@@ -63,8 +63,8 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
 
       <p className={styles.ctaBundleNote} style={{ marginTop: 16 }}>{STATIC_CTA.bundleNote}</p>
 
-      <Link href="/dtr/lp" className={styles.ctaPrimaryButton}>
-        本質の読み解きを見る
+      <Link href="/dtr/lp" className={styles.ctaTeaserCta}>
+        本質の読み解きを見る →
       </Link>
     </section>
   );

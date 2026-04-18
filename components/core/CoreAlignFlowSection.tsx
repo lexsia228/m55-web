@@ -6,9 +6,8 @@ export default function CoreAlignFlowSection({ result }: { result: CoreResult })
   const steps = alignStepsForResult(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAlign} ${styles.tierBSection} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceAlign} ${styles.tierBSection}`}
       aria-labelledby="core-align-flow"
-      data-core-reveal
     >
       <h2 id="core-align-flow" className={styles.sectionTitle}>
         まず整えるとよいこと
@@ -20,9 +19,12 @@ export default function CoreAlignFlowSection({ result }: { result: CoreResult })
       </p>
 
       <ul className={styles.alignFlowGrid}>
-        {steps.map((s) => (
+        {steps.map((s, i) => (
           <li key={s.phase} className={styles.alignFlowCard}>
-            <span className={styles.alignFlowPhase}>{s.phase}</span>
+            <span className={styles.alignFlowPhase}>
+              <span className={styles.alignFlowStepNum} aria-hidden>{i + 1}</span>
+              {s.phase}
+            </span>
             <span className={styles.alignFlowText}>{s.body}</span>
           </li>
         ))}

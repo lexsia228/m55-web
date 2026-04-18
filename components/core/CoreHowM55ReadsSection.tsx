@@ -29,7 +29,6 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
           <li
             key={step.title}
             className={styles.freezeStepItem}
-            style={{ ['--reveal-delay' as string]: `${i * 50}ms` }}
           >
             <span className={styles.freezeStepIndex} aria-hidden>
               {i + 1}

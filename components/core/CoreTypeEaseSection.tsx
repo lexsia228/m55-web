@@ -6,9 +6,8 @@ export default function CoreTypeEaseSection({ result }: { result: CoreResult }) 
   const cards = lifestyleTriptych(result);
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTypeEase} ${styles.tierBSection} ${styles.coreReveal}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceTypeEase} ${styles.tierBSection}`}
       aria-labelledby="core-type-ease"
-      data-core-reveal
     >
       <h2 id="core-type-ease" className={styles.sectionTitle}>
         このタイプは、こう出やすい
@@ -19,7 +18,10 @@ export default function CoreTypeEaseSection({ result }: { result: CoreResult }) 
       </p>
       <div className={`${styles.cardGrid} ${styles.typeEaseGrid}`}>
         {cards.map((c) => (
-          <div key={c.title} className={styles.card}>
+          <div
+            key={c.title}
+            className={styles.card}
+          >
             <h3 className={styles.cardTitle}>{c.title}</h3>
             <p className={styles.cardBody}>{c.body}</p>
           </div>
