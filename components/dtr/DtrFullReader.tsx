@@ -1196,7 +1196,13 @@ function FrictionRecoveryModule({
   bridgeSection: DtrSection;
 }) {
   const frictions = parseBlockItems(frictionSection.body);
-  const bridgeText = bridgeSection.body.split('\n\n')[0] ?? bridgeSection.body;
+  const bridgeParts = bridgeSection.body
+    .split('\n\n')
+    .map((p) => p.trim())
+    .filter(Boolean);
+  /** 2段落目 = 戻し方・運用（1段落目はまとめで使用） */
+  const bridgeText =
+    bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body;
 
   const stageLabels = ['入口・トリガー', '摩擦の型', '消耗が寄りやすい点'];
   const flowNodes: { key: string; stage: string; title: string; body: string }[] = frictions
@@ -1387,7 +1393,8 @@ function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
     .map((p) => p.trim())
     .filter(Boolean);
   const lead = parts[0] ?? '';
-  const bridgeRest = parts.slice(1).join('\n\n');
+  /** 2段落目は Module 04 の最終ノードで使用するため、まとめでは 3 段落目以降のみ */
+  const bridgeRest = parts.slice(2).join('\n\n');
 
   return (
     <section className={styles.prSummaryBand}>
