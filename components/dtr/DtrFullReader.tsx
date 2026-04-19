@@ -58,10 +58,52 @@ type Props = {
   expiresAt: string | null;
 };
 
+function HeroIconCheck({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function HeroIconShield({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3l7 3v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-3z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function HeroIconClock({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 7v6l4 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function HeroIconMessage({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 6h16v10H8l-4 3V6z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
-   A. Premium hero — dark poster with ten-views type image + serif headline.
-   Inherits /core CoreHeroSection visual language: dark bg, type image overlay,
-   eyebrow / serif h1 / one-line structure. Adds "保存済み" owned-report identity.
+   A. Premium hero — two-column feel: left copy stack + right type image (absolute).
+   v0-inspired: brand line, badge row, Blueprint h1, inset type card, dense meta grid.
    ───────────────────────────────────────────────────────────────────────────── */
 
 function PremiumHero({
@@ -82,10 +124,10 @@ function PremiumHero({
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
   const nick = nickname.trim();
+  const blueprintName = nick || 'You';
 
   return (
     <header className={styles.premiumHero} aria-label="保存済みレポート">
-      {/* Poster card — dark bg + type image + text overlay */}
       <div className={styles.heroPoster}>
         <img
           className={styles.heroPosterTypeImg}
@@ -95,45 +137,63 @@ function PremiumHero({
           aria-hidden
         />
         <div className={styles.heroPosterOverlay}>
-          {/* Top row: brand + product label + saved status */}
-          <div className={styles.heroPosterTopRow}>
-            <span className={styles.heroPosterBrandWord}>M55</span>
-            <span className={styles.heroPosterTypePill}>Full Report</span>
-            <span className={styles.heroPosterSavedPill}>保存済み</span>
-            <span className={styles.heroPosterPremiumPill}>Premium</span>
-          </div>
-          <p className={styles.heroPosterKicker}>
-            保存版レポート · 輪郭のプレミアム深読み
-            {nick ? (
-              <>
-                <br />
-                <span className={styles.heroPosterKickerName}>Blueprint of {nick}</span>
-              </>
-            ) : null}
-          </p>
-          {/* Bottom: type identity + report title + one-line */}
-          <div className={styles.heroPosterBottom}>
-            <p className={styles.heroPosterEyebrow}>
-              分析類型&thinsp;/&thinsp;{typeEnLabel}
-            </p>
-            <h1 className={styles.heroPosterTitle}>{reportTitle}</h1>
-            <p className={styles.heroPosterOneLine}>{stem.displayOneLine}</p>
+          <div className={styles.heroPosterMain}>
+            <div className={styles.heroPosterBrandRow}>
+              <span className={styles.heroPosterBrandWord}>M55</span>
+              <span className={styles.heroPosterBrandSep} aria-hidden>|</span>
+              <span className={styles.heroPosterTypeMono}>Full Report</span>
+            </div>
+
+            <div className={styles.heroPosterBadgeRow}>
+              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipSaved}`}>
+                <HeroIconCheck className={styles.heroBadgeIcon} />
+                保存済み
+              </span>
+              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
+                <HeroIconShield className={styles.heroBadgeIcon} />
+                Premium
+              </span>
+            </div>
+
+            <p className={styles.heroPosterKicker}>保存版レポート · 輪郭のプレミアム深読み</p>
+
+            <h1 className={styles.heroBlueprintTitle}>
+              <span className={styles.heroBlueprintBalance}>Blueprint of {blueprintName}</span>
+            </h1>
+
+            <div className={styles.heroTypeCard}>
+              <div className={styles.heroTypeCardRow}>
+                <span className={styles.heroTypeCardLabel}>分析類型 /</span>
+                <span className={styles.heroTypeCardType}>{typeEnLabel}</span>
+              </div>
+              <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
+            </div>
+
+            <p className={styles.heroReportSubtitle}>{reportTitle}</p>
           </div>
         </div>
       </div>
 
-      {/* Ownership meta strip — subordinate to poster */}
       <div className={styles.heroMetaStrip} aria-label="レポート情報">
         <div className={styles.heroMetaItem}>
-          <span className={styles.heroMetaLabel}>有効期限</span>
+          <div className={styles.heroMetaLabelRow}>
+            <HeroIconClock className={styles.heroMetaIcon} />
+            <span className={styles.heroMetaLabel}>有効期限</span>
+          </div>
           <span className={styles.heroMetaValue}>{expiresAt ?? '無期限'}</span>
         </div>
         <div className={styles.heroMetaItem}>
-          <span className={styles.heroMetaLabel}>相談枠</span>
+          <div className={styles.heroMetaLabelRow}>
+            <HeroIconMessage className={styles.heroMetaIcon} />
+            <span className={styles.heroMetaLabel}>相談枠</span>
+          </div>
           <span className={styles.heroMetaValue}>{aiConsultIncluded ? '1件付帯' : 'なし'}</span>
         </div>
         <div className={styles.heroMetaItem}>
-          <span className={styles.heroMetaLabel}>タイプ</span>
+          <div className={styles.heroMetaLabelRow}>
+            <HeroIconShield className={styles.heroMetaIcon} />
+            <span className={styles.heroMetaLabel}>タイプ</span>
+          </div>
           <span className={styles.heroMetaValue}>{stem.publicTitle}</span>
         </div>
       </div>
