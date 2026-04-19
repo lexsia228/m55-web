@@ -10,7 +10,6 @@ import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
 import {
   AXIS_DATA,
   AXIS_LABELS,
-  AXIS_LEVEL_LABELS,
   AXIS_COLORS,
   AXIS_DESCS,
   INTERACTION_NOTE,
@@ -20,6 +19,42 @@ import {
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
 import styles from './DtrFullReader.module.css';
+
+/** Module 01: map engine level (0–3) to purchaser-facing role labels (no scores). */
+function axisRoleFromLevel(level: number): { badge: string; badgeClass: string } {
+  switch (level) {
+    case 3:
+      return { badge: '主軸', badgeClass: styles.axisRolePrimary };
+    case 2:
+      return { badge: '副軸', badgeClass: styles.axisRoleSecondary };
+    case 1:
+      return { badge: '支え', badgeClass: styles.axisRoleSupport };
+    default:
+      return { badge: '静観', badgeClass: styles.axisRoleQuiet };
+  }
+}
+
+function axisRoleInterpretLine(label: string, level: number): string {
+  switch (level) {
+    case 3:
+      return `${label}が、この輪郭を大きく形づくります。`;
+    case 2:
+      return `${label}が補助線として働き、全体のバランスをまとめます。`;
+    case 1:
+      return `${label}が共鳴し、動きに厚みを足します。`;
+    default:
+      return `${label}は前に出にくく、静かな補助にとどまります。`;
+  }
+}
+
+/** Text after first 。 — for compact secondary lines in domain tiles. */
+function afterFirstSentence(text: string): string {
+  const t = text.trim();
+  const i = t.indexOf('。');
+  if (i === -1 || i >= t.length - 1) return '';
+  const rest = t.slice(i + 1).trim();
+  return rest ? firstSentence(rest) : '';
+}
 
 /**
  * Ten-views image mapping by stem index.
@@ -330,6 +365,19 @@ function SectionBlock({
 
 function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const data = AXIS_DATA[stemIdx] ?? AXIS_DATA[0]!;
+  const primaryNames = AXIS_LABELS.filter((_, i) => (data.balance[i] ?? 0) === 3);
+  const assistNames = AXIS_LABELS.filter((_, i) => (data.balance[i] ?? 0) === 2);
+  const growNames = AXIS_LABELS.filter((_, i) => {
+    const l = data.balance[i] ?? 0;
+    return l === 0 || l === 1;
+  });
+
+  const summaryRows: { key: string; label: string; names: string[] }[] = [
+    { key: 'primary', label: '主に働く軸', names: primaryNames },
+    { key: 'assist', label: '補助で効く軸', names: assistNames },
+    { key: 'grow', label: '整えると伸びる軸', names: growNames },
+  ];
+
   return (
     <section
       className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
@@ -338,34 +386,48 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
       <PremiumModuleLead n={1} tierJa="主軸分析" tierClass={styles.prTierMint} />
       <span className={styles.moduleOverline}>5軸</span>
       <h3 className={styles.moduleTitle}>輪郭を支える構造</h3>
-      <div className={styles.axisCardGrid}>
+
+      <div className={styles.axisVizSummary} aria-label="軸の役割の要約">
+        {summaryRows.map((row) => (
+          <div key={row.key} className={styles.axisVizSummaryRow}>
+            <span className={styles.axisVizSummaryKeyWide}>{row.label}</span>
+            <span className={styles.axisVizSummaryVal}>
+              {row.names.length > 0 ? row.names.join(' · ') : '—'}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.axisVizList}>
         {AXIS_LABELS.map((label, i) => {
           const level = data.balance[i] ?? 0;
           const color = AXIS_COLORS[i] ?? '#9E92BE';
           const desc = AXIS_DESCS[i] ?? '';
-          const levelLabel = AXIS_LEVEL_LABELS[level] ?? '—';
+          const role = axisRoleFromLevel(level);
+
           return (
-            <div key={label} className={styles.axisCard}>
-              <div
-                className={styles.axisDot}
-                style={{ background: color }}
-                aria-hidden="true"
-              />
-              <div className={styles.axisCardBody}>
-                <span className={styles.axisCardName}>{label}</span>
-                <span className={styles.axisCardDesc}>{desc}</span>
-              </div>
-              {level > 0 && (
+            <div
+              key={label}
+              className={`${styles.axisVizRow} ${styles.vizReveal}`}
+              style={{ animationDelay: `${0.04 + i * 0.05}s` }}
+            >
+              <div className={styles.axisVizRowTop}>
                 <span
-                  className={
-                    level === 3
-                      ? `${styles.axisLevelPill} ${styles.axisLevelPillPrimary}`
-                      : styles.axisLevelPill
-                  }
-                >
-                  {levelLabel}
+                  className={styles.axisVizDot}
+                  style={{ background: color }}
+                  aria-hidden
+                />
+                <div className={styles.axisVizTextCol}>
+                  <span className={styles.axisVizName}>{label}</span>
+                  <span className={styles.axisVizDesc}>{desc}</span>
+                </div>
+                <span className={`${styles.axisRoleBadge} ${role.badgeClass}`}>
+                  {role.badge}
                 </span>
-              )}
+              </div>
+              <p className={styles.axisVizInterpret}>
+                {axisRoleInterpretLine(label, level)}
+              </p>
             </div>
           );
         })}
@@ -442,17 +504,53 @@ function DomainMatrixModule({
   const relationItems = parseBlockItems(relationSection.body);
 
   const workCond = workItems.find((i) => i.header === '力が出る条件')?.content ?? '';
+  const workStuck = workItems.find((i) => i.header === '詰まりやすい条件')?.content ?? '';
+  const workEnv = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const workHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
+  const deliverWay = relationItems.find((i) => i.header === '渡し方')?.content ?? '';
   const withdrawWay = relationItems.find((i) => i.header === '引き方')?.content ?? '';
+  const convRhythm = relationItems.find((i) => i.header === '会話のリズム')?.content ?? '';
   const stabilityClause = extractAfterLabel(essenceSection.body, '安定する条件は');
+  const fatigueClause = extractAfterLabel(essenceSection.body, '疲れやすい場面は');
 
-  const domains = [
-    { label: '仕事での力', value: firstSentence(workCond) },
-    { label: '人間関係', value: firstSentence(receiveWay) },
-    { label: '近い関係', value: firstSentence(withdrawWay) },
-    { label: '判断と安定', value: stabilityClause || firstSentence(essenceSection.body) },
-    { label: '回復のヒント', value: firstSentence(workHint) },
+  const closeLoad = afterFirstSentence(withdrawWay) || firstSentence(deliverWay);
+  const domainTiles = [
+    {
+      key: 'work',
+      title: '仕事',
+      strength: firstSentence(workCond),
+      load: firstSentence(workStuck),
+      recovery: firstSentence(workEnv),
+    },
+    {
+      key: 'social',
+      title: '人間関係',
+      strength: firstSentence(receiveWay),
+      load: firstSentence(deliverWay),
+      recovery: firstSentence(convRhythm),
+    },
+    {
+      key: 'close',
+      title: '近い関係',
+      strength: firstSentence(withdrawWay),
+      load: closeLoad || '—',
+      recovery: firstSentence(workHint),
+    },
+    {
+      key: 'judgment',
+      title: '判断',
+      strength: stabilityClause || firstSentence(essenceSection.body),
+      load: fatigueClause || '—',
+      recovery: firstSentence(workStuck),
+    },
+    {
+      key: 'recovery',
+      title: '回復',
+      strength: firstSentence(workHint),
+      load: firstSentence(workStuck),
+      recovery: firstSentence(workEnv),
+    },
   ];
 
   return (
@@ -463,11 +561,43 @@ function DomainMatrixModule({
       <PremiumModuleLead n={3} tierJa="領域比較" tierClass={styles.prTierBlue} />
       <span className={styles.moduleOverline}>生活での出方</span>
       <h3 className={styles.moduleTitle}>場面別の整理</h3>
-      <div className={styles.domainGrid}>
-        {domains.map(({ label, value }) => (
-          <div key={label} className={styles.domainCard}>
-            <span className={styles.domainCardLabel}>{label}</span>
-            <p className={styles.domainCardValue}>{value || '—'}</p>
+      <div className={styles.domainMatrix}>
+        {domainTiles.map((d, di) => (
+          <div
+            key={d.key}
+            className={`${styles.domainTile} ${styles.vizReveal}`}
+            style={{ animationDelay: `${0.05 + di * 0.06}s` }}
+          >
+            <div className={styles.domainTileTitle}>{d.title}</div>
+            <div className={styles.domainTileRows}>
+              <div className={styles.domainTileBand}>
+                <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphPlus}`} aria-hidden>
+                  +
+                </span>
+                <div className={styles.domainTileCell}>
+                  <span className={styles.domainTileMicro}>強み</span>
+                  <p className={styles.domainTileText}>{d.strength || '—'}</p>
+                </div>
+              </div>
+              <div className={styles.domainTileBand}>
+                <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphMinus}`} aria-hidden>
+                  −
+                </span>
+                <div className={styles.domainTileCell}>
+                  <span className={styles.domainTileMicro}>負荷</span>
+                  <p className={styles.domainTileText}>{d.load || '—'}</p>
+                </div>
+              </div>
+              <div className={`${styles.domainTileBand} ${styles.domainTileBandRecovery}`}>
+                <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphLoop}`} aria-hidden>
+                  ↻
+                </span>
+                <div className={styles.domainTileCell}>
+                  <span className={styles.domainTileMicro}>戻し方</span>
+                  <p className={styles.domainTileText}>{d.recovery || '—'}</p>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -485,6 +615,22 @@ function FrictionRecoveryModule({
   const frictions = parseBlockItems(frictionSection.body);
   const bridgeText = bridgeSection.body.split('\n\n')[0] ?? bridgeSection.body;
 
+  const stageLabels = ['入口・トリガー', '摩擦の型', '消耗が寄りやすい点'];
+  const flowNodes: { key: string; stage: string; title: string; body: string }[] = frictions
+    .slice(0, 3)
+    .map((f, i) => ({
+      key: `f-${i}-${f.header}`,
+      stage: stageLabels[Math.min(i, 2)] ?? stageLabels[2]!,
+      title: f.header,
+      body: firstSentence(f.content),
+    }));
+  flowNodes.push({
+    key: 'recovery',
+    stage: '回復の方向',
+    title: '戻し方のヒント',
+    body: bridgeText,
+  });
+
   return (
     <section
       className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
@@ -493,17 +639,27 @@ function FrictionRecoveryModule({
       <PremiumModuleLead n={4} tierJa="実践ガイド" tierClass={styles.prTierRose} />
       <span className={styles.moduleOverline}>戻し方 · 整え方</span>
       <h3 className={styles.moduleTitle}>摩擦から整える流れ</h3>
-      <div className={styles.frictionList}>
-        {frictions.map((f) => (
-          <div key={f.header} className={styles.frictionItem}>
-            <span className={styles.frictionMarker}>摩擦</span>
-            <span className={styles.frictionHeader}>{f.header}</span>
+      <div className={styles.flowTrack} role="list">
+        {flowNodes.map((node, i) => (
+          <div
+            className={`${styles.flowTrackUnit} ${styles.vizReveal}`}
+            key={node.key}
+            role="listitem"
+            style={{ animationDelay: `${0.06 + i * 0.08}s` }}
+          >
+            <div className={styles.flowCard}>
+              <span className={styles.flowStage}>{node.stage}</span>
+              <h4 className={styles.flowTitle}>{node.title}</h4>
+              <p className={styles.flowBody}>{node.body}</p>
+            </div>
+            {i < flowNodes.length - 1 ? (
+              <div className={styles.flowConnector} aria-hidden>
+                <span className={styles.flowArrowLine} />
+                <span className={styles.flowArrowHead}>→</span>
+              </div>
+            ) : null}
           </div>
         ))}
-      </div>
-      <div className={styles.recoveryBlock}>
-        <span className={styles.recoveryMarker}>回復の方向</span>
-        <p className={styles.recoveryText}>{bridgeText}</p>
       </div>
     </section>
   );
