@@ -21,6 +21,7 @@ import {
   AXIS_COLORS,
   AXIS_DESCS,
   INTERACTION_NOTE,
+  axisVizSummaryDisplay,
   parseBlockItems,
   extractAfterLabel,
   firstSentence,
@@ -237,7 +238,10 @@ function PremiumHero({
             <p className={styles.heroPosterKicker}>保存版レポート · 輪郭のプレミアム深読み</p>
 
             <h1 className={styles.heroBlueprintTitle}>
-              <span className={styles.heroBlueprintBalance}>Blueprint of {blueprintName}</span>
+              <span className={styles.heroBlueprintPrefix} lang="en">
+                Blueprint of
+              </span>
+              <span className={styles.heroBlueprintName}>{blueprintName}</span>
             </h1>
 
             <div className={styles.heroTypeCard}>
@@ -384,7 +388,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
 
   return (
     <div className={styles.idDesignShell} aria-label="自己設計図（保存版）">
-      <p className={styles.idDesignOverline}>保存版 · 自己設計図</p>
+      <p className={styles.idDesignOverline}>深読み · 自己設計図</p>
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>設計の4層</h3>
@@ -501,7 +505,7 @@ function IdentityArticleWithBlueprint({
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
       <IdentityDesignFigures stemIdx={stemIdx} />
-      <div className={styles.savedWideBody}>
+      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedWidePara}>
             {para}
@@ -568,7 +572,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
 
   return (
     <div className={styles.idDesignShell} aria-label="構造の噛み合い（保存版）">
-      <p className={styles.idDesignOverline}>保存版 · 構造インタラクション</p>
+      <p className={styles.idDesignOverline}>深読み · 構造の噛み合い</p>
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>構造の噛み合い</h3>
@@ -665,7 +669,7 @@ function CompositionArticleWithViz({
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
       <StructureInteractionMapFigures stemIdx={stemIdx} />
-      <div className={styles.savedWideBody}>
+      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedWidePara}>
             {para}
@@ -688,7 +692,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
 
   return (
     <div className={styles.idDesignShell} aria-label="安定条件パネル（保存版）">
-      <p className={styles.idDesignOverline}>保存版 · 安定条件</p>
+      <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>安定の4領域</h3>
         <p className={styles.idDesignHint}>四つの領域で、環境と関わりの条件を整理しています。</p>
@@ -720,7 +724,7 @@ function EssenceArticleWithViz({
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
-      <div className={styles.savedWideBody}>
+      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedWidePara}>
             {para}
@@ -746,7 +750,7 @@ function StrengthsLiftFigures({ body }: { body: string }) {
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="強みの可視化">
-      <p className={styles.idDesignOverline}>保存版 · 強みのレバー</p>
+      <p className={styles.idDesignOverline}>深読み · 強みのレバー</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
           価値に繋がる噛み合い
@@ -826,7 +830,7 @@ function FrictionWarningFigures({ body }: { body: string }) {
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="注意の可視化">
-      <p className={styles.idDesignOverline}>保存版 · 注意マップ</p>
+      <p className={styles.idDesignOverline}>深読み · 注意マップ</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
           つまずきやすい位置
@@ -859,7 +863,7 @@ function CommFlowFigures({ body }: { body: string }) {
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="対話の流れ">
-      <p className={styles.idDesignOverline}>保存版 · 対話の流れ</p>
+      <p className={styles.idDesignOverline}>深読み · 対話の流れ</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
           やりとりの順路
@@ -900,7 +904,7 @@ function GridArticleStrengthsViz({ section }: { section: DtrSection }) {
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
       <StrengthsLiftFigures body={section.body} />
-      <div className={styles.savedGridBody}>
+      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedGridPara}>
             {para}
@@ -916,7 +920,7 @@ function GridArticleFrictionViz({ section }: { section: DtrSection }) {
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
       <FrictionWarningFigures body={section.body} />
-      <div className={styles.savedGridBody}>
+      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedGridPara}>
             {para}
@@ -932,7 +936,7 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
       <CommFlowFigures body={section.body} />
-      <div className={styles.savedGridBody}>
+      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.savedGridPara}>
             {para}
@@ -951,17 +955,12 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
 
 function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const data = AXIS_DATA[stemIdx] ?? AXIS_DATA[0]!;
-  const primaryNames = AXIS_LABELS.filter((_, i) => (data.balance[i] ?? 0) === 3);
-  const assistNames = AXIS_LABELS.filter((_, i) => (data.balance[i] ?? 0) === 2);
-  const growNames = AXIS_LABELS.filter((_, i) => {
-    const l = data.balance[i] ?? 0;
-    return l === 0 || l === 1;
-  });
+  const summary = axisVizSummaryDisplay(data.balance);
 
-  const summaryRows: { key: string; label: string; names: string[] }[] = [
-    { key: 'primary', label: '主に働く軸', names: primaryNames },
-    { key: 'assist', label: '補助で効く軸', names: assistNames },
-    { key: 'grow', label: '整えると伸びる軸', names: growNames },
+  const summaryRows: { key: string; label: string; val: string }[] = [
+    { key: 'primary', label: summary.primaryLabel, val: summary.primaryVal },
+    { key: 'assist', label: summary.assistLabel, val: summary.assistVal },
+    { key: 'grow', label: summary.growLabel, val: summary.growVal },
   ];
 
   return (
@@ -977,9 +976,7 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
         {summaryRows.map((row) => (
           <div key={row.key} className={styles.axisVizSummaryRow}>
             <span className={styles.axisVizSummaryKeyWide}>{row.label}</span>
-            <span className={styles.axisVizSummaryVal}>
-              {row.names.length > 0 ? row.names.join(' · ') : '—'}
-            </span>
+            <span className={styles.axisVizSummaryVal}>{row.val}</span>
           </div>
         ))}
       </div>
@@ -1158,7 +1155,7 @@ function DomainMatrixModule({
             <div className={styles.domainTileRows}>
               <div className={styles.domainTileBand}>
                 <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphPlus}`} aria-hidden>
-                  +
+                  強
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>強み</span>
@@ -1167,7 +1164,7 @@ function DomainMatrixModule({
               </div>
               <div className={styles.domainTileBand}>
                 <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphMinus}`} aria-hidden>
-                  −
+                  負
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>負荷</span>
@@ -1176,7 +1173,7 @@ function DomainMatrixModule({
               </div>
               <div className={`${styles.domainTileBand} ${styles.domainTileBandRecovery}`}>
                 <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphLoop}`} aria-hidden>
-                  ↻
+                  戻
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>戻し方</span>
@@ -1241,7 +1238,7 @@ function FrictionRecoveryModule({
             {i < flowNodes.length - 1 ? (
               <div className={styles.flowConnector} aria-hidden>
                 <span className={styles.flowArrowLine} />
-                <span className={styles.flowArrowHead}>→</span>
+                <span className={styles.flowArrowHead} />
               </div>
             ) : null}
           </div>

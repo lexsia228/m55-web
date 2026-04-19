@@ -35,12 +35,87 @@ export type AxisEntry = {
   note: string;
 };
 
+/** Paid Module 01 — three summary rows; handles “no single Lv3” linkage patterns (e.g. 丁). */
+export function axisVizSummaryDisplay(balance: readonly [number, number, number, number, number]): {
+  primaryLabel: string;
+  primaryVal: string;
+  assistLabel: string;
+  assistVal: string;
+  growLabel: string;
+  growVal: string;
+} {
+  const primaryNames = AXIS_LABELS.filter((_, i) => balance[i] === 3);
+  const secondaryNames = AXIS_LABELS.filter((_, i) => balance[i] === 2);
+  const resonantNames = AXIS_LABELS.filter((_, i) => balance[i] === 1);
+  const quietNames = AXIS_LABELS.filter((_, i) => balance[i] === 0);
+
+  const growOrdered =
+    AXIS_LABELS.filter((_, i) => balance[i] === 0 || balance[i] === 1).join(' · ') || '—';
+
+  if (primaryNames.length > 0) {
+    return {
+      primaryLabel: '最優先の主軸',
+      primaryVal: primaryNames.join(' · '),
+      assistLabel: '補助の副軸',
+      assistVal: secondaryNames.length > 0 ? secondaryNames.join(' · ') : '—',
+      growLabel: '整えると伸びる軸',
+      growVal: growOrdered,
+    };
+  }
+
+  if (secondaryNames.length >= 2) {
+    return {
+      primaryLabel: '輪郭をつくる連動',
+      primaryVal: `${secondaryNames.join(' · ')}（副軸同格）`,
+      assistLabel: '補助で効く軸',
+      assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '同格の連動に集約',
+      growLabel: '整えると伸びる軸',
+      growVal: growOrdered,
+    };
+  }
+
+  if (secondaryNames.length === 1) {
+    const only = secondaryNames[0]!;
+    return {
+      primaryLabel: '輪郭をつくる連動',
+      primaryVal: `${only}が前面（副軸中心）`,
+      assistLabel: '補助で効く軸',
+      assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '—',
+      growLabel: '整えると伸びる軸',
+      growVal: growOrdered,
+    };
+  }
+
+  if (resonantNames.length > 0) {
+    return {
+      primaryLabel: '厚みを足す共鳴',
+      primaryVal: resonantNames.join(' · '),
+      assistLabel: '補助の副軸',
+      assistVal: '—',
+      growLabel: '整えると伸びる軸',
+      growVal: growOrdered,
+    };
+  }
+
+  return {
+    primaryLabel: '輪郭をつくる連動',
+    primaryVal: quietNames.length > 0 ? quietNames.join(' · ') : '—',
+    assistLabel: '補助の副軸',
+    assistVal: '—',
+    growLabel: '整えると伸びる軸',
+    growVal: '—',
+  };
+}
+
 /** Per-stem structural axis data. */
 export const AXIS_DATA: readonly AxisEntry[] = [
   /* 0 甲 */ { balance: [3, 2, 0, 0, 2], note: '思考軸が主軸。推進・感受が補完する推進型構成。' },
   /* 1 乙 */ { balance: [3, 0, 2, 0, 1], note: '思考軸の柔軟性が中心。安定軸との接続で調整力を持つ。' },
   /* 2 丙 */ { balance: [1, 3, 0, 0, 2], note: '推進軸が主軸。感受軸が表現を深める。' },
-  /* 3 丁 */ { balance: [0, 2, 0, 2, 2], note: '推進軸の内向型。精度・感受の精緻さが質を生む。' },
+  /* 3 丁 */ {
+    balance: [0, 2, 0, 2, 2],
+    note: '単独主軸に固定せず、推進・精度・感受の連動が輪郭をつくる内向型。精緻さが質を生む。',
+  },
   /* 4 戊 */ { balance: [0, 1, 3, 0, 1], note: '安定軸が主軸。定着と継続に特化した構成。' },
   /* 5 己 */ { balance: [2, 2, 3, 0, 1], note: '安定軸が中心で思考・推進を育む。統合型の構成。' },
   /* 6 庚 */ { balance: [2, 2, 0, 3, 0], note: '精度軸が主軸。思考・推進の駆動力が実行力を加える。' },
