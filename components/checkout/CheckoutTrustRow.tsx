@@ -5,17 +5,25 @@ import {
 } from '../../lib/m55/checkoutTrustBadges';
 import styles from './CheckoutTrustRow.module.css';
 
+/** Optical position only (no scale / no fixed canvas). */
+const MARK_NUDGE: Partial<Record<CheckoutTrustBadgeId, string>> = {
+  jcb: styles.markNudgeJcb,
+  apple_pay: styles.markNudgeApple,
+  google_pay: styles.markNudgeGoogle,
+  paypay: styles.markNudgePayPay,
+};
+
 function BadgeVisa() {
   return (
-    <svg className={styles.innerSvg} viewBox="0 0 48 16" aria-hidden focusable="false">
+    <svg className={styles.iconSvg} viewBox="0 0 52 16" aria-hidden focusable="false">
       <text
         x="0"
-        y="12"
-        fill="#1a1f71"
-        fontSize="13"
+        y="12.5"
+        fill="#1434CB"
+        fontSize="12.5"
         fontWeight="700"
-        fontFamily="system-ui, sans-serif"
-        letterSpacing="0.12em"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        letterSpacing="0.14em"
       >
         VISA
       </text>
@@ -25,24 +33,24 @@ function BadgeVisa() {
 
 function BadgeMastercard() {
   return (
-    <svg className={styles.innerSvgTall} viewBox="0 0 40 22" aria-hidden focusable="false">
-      <circle cx="15" cy="11" r="9" fill="#eb001b" />
-      <circle cx="25" cy="11" r="9" fill="#f79e1b" />
+    <svg className={styles.iconSvgMc} viewBox="0 0 38 24" aria-hidden focusable="false">
+      <circle cx="14" cy="12" r="8.5" fill="#EB001B" opacity="0.92" />
+      <circle cx="24" cy="12" r="8.5" fill="#F79E1B" opacity="0.92" />
     </svg>
   );
 }
 
 function BadgeAmex() {
   return (
-    <svg className={styles.innerSvg} viewBox="0 0 44 14" aria-hidden focusable="false">
+    <svg className={styles.iconSvg} viewBox="0 0 46 14" aria-hidden focusable="false">
       <text
         x="0"
         y="11"
-        fill="#fff"
-        fontSize="10"
+        fill="#F8FBFF"
+        fontSize="9.5"
         fontWeight="800"
-        fontFamily="system-ui, sans-serif"
-        letterSpacing="0.06em"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        letterSpacing="0.1em"
       >
         AMEX
       </text>
@@ -52,29 +60,28 @@ function BadgeAmex() {
 
 function BadgeJcb() {
   return (
-    <svg className={styles.innerSvg} viewBox="0 0 36 16" aria-hidden focusable="false">
-      <rect x="0" y="3" width="10" height="10" rx="1" fill="#0e4c96" />
-      <rect x="12" y="3" width="10" height="10" rx="1" fill="#e60012" />
-      <rect x="24" y="3" width="10" height="10" rx="1" fill="#00a650" />
+    <svg className={styles.iconSvg} viewBox="0 0 38 16" aria-hidden focusable="false">
+      <rect x="0" y="2.5" width="10.5" height="11" rx="1.2" fill="#0E4C96" />
+      <rect x="13.25" y="2.5" width="10.5" height="11" rx="1.2" fill="#CB2B29" />
+      <rect x="26.5" y="2.5" width="10.5" height="11" rx="1.2" fill="#0A9138" />
     </svg>
   );
 }
 
-/** Stylized mark + Pay — trust-row scale only. */
 function BadgeApplePay() {
   return (
-    <svg className={styles.innerSvgTall} viewBox="0 0 50 18" aria-hidden focusable="false">
+    <svg className={styles.iconSvg} viewBox="0 0 54 18" aria-hidden focusable="false">
       <path
         fill="currentColor"
-        d="M6.8 3.1c.04.95-.62 1.68-1.28 2.05-.33.17-.88.3-1.25.25.08-.78.45-1.52 1.02-1.98.33-.28.95-.6 1.5-.32zm2.1 3.45c-1.38-.08-2.55.78-3.22.78-.68 0-1.58-.74-2.62-.72-1.35.04-2.6.78-3.3 2.02-1.42 2.45-.36 6.05 1.02 8.02.72.98 1.56 2.1 2.7 2.06 1.08-.04 1.5-.7 2.78-.68 1.3-.02 1.68.68 2.78.7 1.18.02 1.94-1.05 2.66-2.05.84-1.22 1.18-2.4 1.2-2.46-.02-.04-2.3-.88-2.33-3.48-.02-2.2 1.78-3.25 1.86-3.3-1.02-1.5-2.6-1.68-3.12-1.72z"
+        d="M7.1 3.4c.03.88-.58 1.55-1.18 1.88-.3.16-.82.28-1.15.24.07-.72.4-1.4.94-1.82.3-.26.88-.56 1.39-.3zm1.9 3.2c-1.28-.08-2.36.72-2.98.72-.63 0-1.46-.68-2.42-.66-1.25.04-2.4.72-3.05 1.88-1.32 2.28-.33 5.62.94 7.45.67.92 1.44 1.95 2.5 1.92 1-.04 1.38-.65 2.56-.63 1.2-.02 1.54.63 2.56.65 1.1.02 1.8-.98 2.46-1.9.78-1.14 1.1-2.23 1.12-2.28-.02-.04-2.12-.82-2.15-3.25-.02-2.05 1.65-3.02 1.72-3.07-.94-1.4-2.4-1.56-2.88-1.6z"
       />
       <text
-        x="13"
-        y="12"
+        x="14.5"
+        y="12.2"
         fill="currentColor"
-        fontSize="9.5"
+        fontSize="9.25"
         fontWeight="600"
-        fontFamily="system-ui, -apple-system, sans-serif"
+        fontFamily="system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
       >
         Pay
       </text>
@@ -82,15 +89,21 @@ function BadgeApplePay() {
   );
 }
 
-/** Compact G + Pay — not an official Google Pay lockup. */
 function BadgeGooglePay() {
   return (
-    <svg className={styles.innerSvgTall} viewBox="0 0 48 16" aria-hidden focusable="false">
-      <circle cx="8" cy="8" r="6.5" fill="#fff" stroke="rgba(0,0,0,0.08)" strokeWidth="0.75" />
-      <text x="4.8" y="11.2" fontSize="10" fontWeight="700" fill="#4285F4" fontFamily="system-ui, sans-serif">
+    <svg className={styles.iconSvg} viewBox="0 0 56 16" aria-hidden focusable="false">
+      <circle cx="8.2" cy="8" r="6.2" fill="#fff" stroke="rgba(107, 95, 168, 0.12)" strokeWidth="0.85" />
+      <text
+        x="5.1"
+        y="11.1"
+        fontSize="9.75"
+        fontWeight="700"
+        fill="#1A73E8"
+        fontFamily="system-ui, sans-serif"
+      >
         G
       </text>
-      <text x="17" y="11.2" fontSize="9.5" fontWeight="600" fill="#5F6368" fontFamily="system-ui, sans-serif">
+      <text x="18" y="11.1" fontSize="9.25" fontWeight="600" fill="#3C4043" fontFamily="system-ui, sans-serif">
         Pay
       </text>
     </svg>
@@ -99,11 +112,11 @@ function BadgeGooglePay() {
 
 function BadgeShopPay() {
   return (
-    <svg className={styles.innerSvg} viewBox="0 0 64 14" aria-hidden focusable="false">
-      <text x="0" y="11" fill="#fff" fontSize="9" fontWeight="700" fontFamily="system-ui, sans-serif">
+    <svg className={styles.iconSvg} viewBox="0 0 68 14" aria-hidden focusable="false">
+      <text x="0" y="11" fill="#FAFAFF" fontSize="8.75" fontWeight="700" fontFamily="system-ui, sans-serif" letterSpacing="0.02em">
         shop
       </text>
-      <text x="26" y="11" fill="#fff" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">
+      <text x="25" y="11" fill="#FAFAFF" fontSize="8.75" fontWeight="600" fontFamily="system-ui, sans-serif">
         Pay
       </text>
     </svg>
@@ -112,13 +125,21 @@ function BadgeShopPay() {
 
 function BadgePayPay() {
   return (
-    <svg className={styles.innerSvg} viewBox="0 0 52 16" aria-hidden focusable="false">
-      <rect x="1" y="2" width="12" height="12" rx="2.5" fill="#e60012" />
+    <svg className={styles.iconSvg} viewBox="0 0 72 16" aria-hidden focusable="false">
+      <rect x="0.5" y="2" width="11.5" height="11.5" rx="2.75" fill="#C45C5A" />
       <path
-        fill="#fff"
-        d="M5.5 5.2c.3 0 .6.1.8.3.2.2.3.5.3.8 0 .5-.3.9-.7 1l.9 2.1h-.9l-.8-1.9h-.4v1.9H4V5.2h1.5zm-.3 1.8h.2c.2 0 .4-.2.4-.4s-.2-.4-.4-.4h-.2v.8z"
+        fill="#FFFBFA"
+        d="M4.8 5.1c.28 0 .52.1.7.28.18.18.27.42.27.72 0 .45-.25.78-.6.92l.75 1.75h-.75l-.68-1.58h-.35v1.58H3.5V5.1h1.3zm-.25 1.5h.18c.18 0 .32-.14.32-.34 0-.18-.14-.32-.32-.32h-.18v.66z"
       />
-      <text x="16" y="11.5" fill="#e60012" fontSize="10" fontWeight="800" fontFamily="system-ui, sans-serif">
+      <text
+        x="14.75"
+        y="11.5"
+        fill="#8F4A48"
+        fontSize="9.5"
+        fontWeight="700"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        letterSpacing="0.01em"
+      >
         PayPay
       </text>
     </svg>
@@ -160,10 +181,15 @@ function renderBadge(id: CheckoutTrustBadgeId) {
 }
 
 function badgeClassName(id: CheckoutTrustBadgeId): string {
-  if (id === 'amex') return `${styles.badge} ${styles.badgeInvert}`;
+  if (id === 'amex') return `${styles.badge} ${styles.badgeAmex}`;
   if (id === 'shop_pay') return `${styles.badge} ${styles.badgeShopPay}`;
   if (id === 'paypay') return `${styles.badge} ${styles.badgePayPay}`;
   return styles.badge;
+}
+
+function badgeInnerClassName(id: CheckoutTrustBadgeId): string | undefined {
+  if (id === 'apple_pay') return styles.markDark;
+  return undefined;
 }
 
 /**
@@ -187,10 +213,12 @@ export function CheckoutTrustRow() {
         {ids.map((id) => {
           const inner = renderBadge(id);
           if (!inner) return null;
-          const isWalletText = id === 'apple_pay' || id === 'google_pay';
+          const innerClass = badgeInnerClassName(id);
+          const mark = innerClass ? <span className={innerClass}>{inner}</span> : inner;
+          const nudge = MARK_NUDGE[id];
           return (
             <li key={id} className={badgeClassName(id)} title={LABELS[id]}>
-              {isWalletText ? <span style={{ color: '#1a1a1a' }}>{inner}</span> : inner}
+              <span className={[styles.badgeMark, nudge].filter(Boolean).join(' ')}>{mark}</span>
             </li>
           );
         })}

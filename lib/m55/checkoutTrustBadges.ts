@@ -5,8 +5,8 @@
  * `NEXT_PUBLIC_CHECKOUT_TRUST_BADGES` — comma-separated ids, e.g.:
  *   visa,mastercard,amex,jcb,apple_pay,google_pay,paypay,shop_pay
  *
- * If unset, a conservative default lists major cards + wallet logos (with on-page soft disclaimer).
- * `shop_pay` and `paypay` are NOT in the default; add them only when actually enabled.
+ * If unset, default lists major cards, wallets, and PayPay (with on-page soft disclaimer for wallets).
+ * `shop_pay` remains opt-in in the default list — add via env when enabled.
  */
 export const CHECKOUT_TRUST_BADGE_IDS = [
   'visa',
@@ -28,6 +28,7 @@ const DEFAULT_BADGES: readonly CheckoutTrustBadgeId[] = [
   'jcb',
   'apple_pay',
   'google_pay',
+  'paypay',
 ];
 
 const DISPLAY_ORDER: readonly CheckoutTrustBadgeId[] = [
