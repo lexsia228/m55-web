@@ -71,6 +71,518 @@
   white-space: pre-line;
 }
 
+/* ── /dtr paid — 「あなたという人物」 self blueprint (no scores) ── */
+
+.idDesignShell {
+  margin: 0 0 clamp(18px, 3.5vw, 26px);
+  padding: clamp(16px, 3vw, 22px) clamp(14px, 2.8vw, 20px);
+  border-radius: 18px;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(246, 244, 252, 0.88) 100%
+  );
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  box-shadow: 0 10px 36px rgba(29, 24, 61, 0.05);
+  box-sizing: border-box;
+}
+
+.idDesignOverline {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.5);
+  margin: 0 0 14px;
+}
+
+.idDesignBlock {
+  margin-top: 16px;
+}
+
+.idDesignBlock:first-of-type {
+  margin-top: 0;
+}
+
+.idDesignBlockTitle {
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(55, 48, 95, 0.78);
+  margin: 0 0 10px;
+}
+
+.idDesignHint {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(90, 80, 120, 0.65);
+  margin: -4px 0 10px;
+}
+
+.idBpStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.idBpLayer {
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(107, 95, 168, 0.09);
+}
+
+.idBpLabel {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(107, 95, 168, 0.55);
+  margin-bottom: 5px;
+}
+
+.idBpText {
+  font-size: clamp(13px, 2.6vw, 14px);
+  line-height: 1.65;
+  color: #3a3252;
+  margin: 0;
+}
+
+.idBpReveal {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: idBpFadeUp 0.42s ease forwards;
+}
+
+.idTensionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.idTensionAxis {
+  display: grid;
+  grid-template-columns: minmax(2.8em, auto) 1fr minmax(2.8em, auto);
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.idTensionPole {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(80, 70, 120, 0.72);
+  line-height: 1.3;
+}
+
+.idTensionTrack {
+  position: relative;
+  height: 22px;
+  display: flex;
+  align-items: center;
+}
+
+.idTensionBar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.1);
+}
+
+.idTensionMarkWrap {
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%);
+  margin-top: -6px;
+  pointer-events: none;
+}
+
+.idTensionMark {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(90, 78, 160, 0.88);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  transform: scale(0.86);
+  animation: idMarkIn 0.38s ease forwards;
+}
+
+.idGrowthFlow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 4px;
+}
+
+.idGrowthCard {
+  padding: 12px 13px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  opacity: 0;
+  transform: translateY(5px);
+  animation: idBpFadeUp 0.4s ease forwards;
+}
+
+.idGrowthTag {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(55, 120, 95, 0.88);
+  margin-bottom: 6px;
+}
+
+.idGrowthTagMid {
+  color: rgba(140, 95, 55, 0.9);
+}
+
+.idGrowthTagEnd {
+  color: rgba(90, 78, 160, 0.9);
+}
+
+.idGrowthText {
+  font-size: clamp(12.5px, 2.5vw, 13.5px);
+  line-height: 1.62;
+  color: #3a3448;
+  margin: 0;
+}
+
+.idGrowthBetween {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.idGrowthConnH {
+  display: none;
+  width: 100%;
+  max-width: 56px;
+  height: 12px;
+}
+
+.idGrowthConnV {
+  display: block;
+  width: 12px;
+  height: 28px;
+}
+
+.idGrowthPath {
+  fill: none;
+  stroke: rgba(107, 95, 168, 0.38);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 72;
+  stroke-dashoffset: 72;
+  animation: idGrowthDraw 0.7s ease forwards;
+}
+
+.idGrowthPath2 {
+  animation-delay: 0.18s;
+}
+
+@media (min-width: 560px) {
+  .idGrowthFlow {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .idGrowthCard {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .idGrowthBetween {
+    width: 44px;
+    padding: 0 4px;
+  }
+
+  .idGrowthConnH {
+    display: block;
+  }
+
+  .idGrowthConnV {
+    display: none;
+  }
+}
+
+@keyframes idBpFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes idMarkIn {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes idGrowthDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes strLinkDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes strDotSettle {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idBpReveal,
+  .idGrowthReveal,
+  .idTensionMarkReveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .idTensionMarkWrap {
+    transform: translateX(-50%) !important;
+  }
+
+  .idGrowthPath,
+  .idGrowthPath2 {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  .strMapLink {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  .strMapDotReveal {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ── /dtr paid — s2 structure map · s3 stability panel ── */
+
+.strMapPattern {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.strMapPatternLabel {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(55, 48, 95, 0.92);
+}
+
+.strMapPatternCap {
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: rgba(90, 80, 120, 0.78);
+  margin: 0;
+}
+
+.strMapFig {
+  margin: 0 0 12px;
+}
+
+.strMapSvg {
+  display: block;
+  width: 100%;
+  max-width: min(280px, 100%);
+  height: auto;
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.strMapLink {
+  fill: none;
+  stroke: rgba(107, 95, 168, 0.34);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: strLinkDraw 0.58s ease forwards;
+}
+
+.strMapDot {
+  stroke: rgba(255, 255, 255, 0.88);
+  stroke-width: 0.7;
+}
+
+.strMapDotReveal {
+  opacity: 0;
+  animation: strDotSettle 0.42s ease forwards;
+}
+
+.strMapNodeCore {
+  fill: rgba(90, 78, 160, 0.94);
+}
+
+.strMapNodeStrong {
+  fill: rgba(124, 111, 214, 0.82);
+}
+
+.strMapNodeBridge {
+  fill: rgba(107, 95, 168, 0.48);
+}
+
+.strMapNodeQuiet {
+  fill: rgba(160, 148, 200, 0.38);
+}
+
+.strMapAxisText {
+  font-size: 4.5px;
+  font-weight: 700;
+  fill: rgba(58, 50, 82, 0.92);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.strMapLinksCaption {
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: rgba(90, 80, 120, 0.68);
+  text-align: center;
+  margin: 8px 0 0;
+  padding: 0 4px;
+}
+
+.strMapCallouts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.strMapCallout {
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.strMapCalloutFlip {
+  border-color: rgba(184, 148, 95, 0.22);
+  background: rgba(255, 252, 247, 0.78);
+}
+
+.strMapCalloutLabel {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(107, 95, 168, 0.55);
+  margin-bottom: 5px;
+}
+
+.strMapCalloutFlip .strMapCalloutLabel {
+  color: rgba(140, 95, 55, 0.75);
+}
+
+.strMapCalloutText {
+  font-size: clamp(12.5px, 2.5vw, 13.5px);
+  line-height: 1.62;
+  color: #3a3448;
+  margin: 0;
+}
+
+.stabGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 560px) {
+  .stabGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.stabCell {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.11);
+  background: rgba(255, 255, 255, 0.76);
+  box-sizing: border-box;
+}
+
+.stabCellLabel {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.stabCellText {
+  font-size: clamp(12.5px, 2.5vw, 13.5px);
+  line-height: 1.6;
+  margin: 0;
+  color: #3a3448;
+}
+
+.stabCellCalm {
+  border-color: rgba(80, 130, 115, 0.22);
+  background: rgba(246, 252, 249, 0.85);
+}
+
+.stabCellCalm .stabCellLabel {
+  color: rgba(55, 105, 90, 0.82);
+}
+
+.stabCellGrow {
+  border-color: rgba(107, 95, 168, 0.22);
+  background: rgba(248, 246, 255, 0.88);
+}
+
+.stabCellGrow .stabCellLabel {
+  color: rgba(75, 65, 130, 0.85);
+}
+
+.stabCellRisk {
+  border-color: rgba(190, 130, 80, 0.26);
+  background: rgba(255, 250, 244, 0.88);
+}
+
+.stabCellRisk .stabCellLabel {
+  color: rgba(130, 85, 45, 0.88);
+}
+
+.stabCellGuard {
+  border-color: rgba(75, 65, 120, 0.28);
+  background: rgba(242, 240, 252, 0.92);
+}
+
+.stabCellGuard .stabCellLabel {
+  color: rgba(55, 48, 100, 0.9);
+}
+
 .savedGridThree {
   display: grid;
   grid-template-columns: 1fr;

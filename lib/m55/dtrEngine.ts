@@ -258,6 +258,457 @@ const STEM_BODIES: readonly StemSectionBodies[] = [
   },
 ] as const;
 
+/* ─── Paid /dtr identity section — self blueprint viz (no scores; stem-local) ─ */
+
+export type IdentityDesignViz = {
+  blueprint: {
+    core: string;
+    natural: string;
+    fragile: string;
+    maximize: string;
+  };
+  /** Bias for marker position only: -1 = 深める / 守る pole, +1 = 広げる / 出す pole (not shown as numbers). */
+  tension: {
+    deepenBroaden: number;
+    guardExpress: number;
+  };
+  growth: {
+    grow: string;
+    break: string;
+    restore: string;
+  };
+};
+
+const IDENTITY_DESIGN_VIZ: readonly IdentityDesignViz[] = [
+  {
+    blueprint: {
+      core: '進路を先に確定し、そこから身体が動く駆動',
+      natural: '混乱した局面で軸を示し、長距離を一貫して押し切ること',
+      fragile: '方針なき待機の常態化、細かな都度調整だけの役回り',
+      maximize: '自分の言葉で説明責任を背負える方針と、裁量・期限・結果評価',
+    },
+    tension: { deepenBroaden: -0.22, guardExpress: 0.42 },
+    growth: {
+      grow: '進む理由が言語化され、自分が納得した到達点が見えているとき',
+      break: '合意が先送りされ、待機と微調整だけが続くとき',
+      restore: '進路の更新ルールを、短時間でも自分の手で握り直す',
+    },
+  },
+  {
+    blueprint: {
+      core: '流れを読み、関係の中で最適な位置へ移る駆動',
+      natural: 'ズレの前に橋をかけ、複数要素をつなぎ直すこと',
+      fragile: '舵取りのない集団への長期滞在、曖昧な期待の抱え込み',
+      maximize: '「何の接点として呼ばれているか」が命名され、更新できる余白',
+    },
+    tension: { deepenBroaden: 0.12, guardExpress: -0.08 },
+    growth: {
+      grow: '役割が言葉になり、関係が前に進んだ手応えがあるとき',
+      break: '自分の優先を言えないまま、調整だけが増えるとき',
+      restore: '役割と境界を、関係の外に一度だけでも言語化する',
+    },
+  },
+  {
+    blueprint: {
+      core: '表現と熱量で場の状態を更新する駆動',
+      natural: '温度と反応を拾い、動き出すきっかけを渡すこと',
+      fragile: '無反応の発信の常態化、評価の見えない孤立作業',
+      maximize: '届く距離の相手と、短い往復のフィードバック',
+    },
+    tension: { deepenBroaden: 0.38, guardExpress: 0.48 },
+    growth: {
+      grow: '伝えたことが反応として返り、場に変化が見えるとき',
+      break: '一方通行が続き、熱だけが内側に溜まるとき',
+      restore: '発信の後に必ず入れる、短い回復と別入力の時間',
+    },
+  },
+  {
+    blueprint: {
+      core: '一点に熱を長く保ち、密度で差を作る駆動',
+      natural: '仕上げが成果を決める局面で、手触りを更新し続けること',
+      fragile: '細切れの割り込みと、「とりあえず出せ」の圧力',
+      maximize: '遮断できる時間と、完成の定義を自分が持てる環境',
+    },
+    tension: { deepenBroaden: -0.48, guardExpress: -0.32 },
+    growth: {
+      grow: '深く向き合う時間が守られ、基準が更新できるとき',
+      break: '干渉だけが増え、仕上げの主権が奪われるとき',
+      restore: '今日の完了ラインを、自分の言葉で先に置く',
+    },
+  },
+  {
+    blueprint: {
+      core: '揺れない運用と手順で信頼を積む駆動',
+      natural: '荒れた現場にレールを戻し、同じ品質を届け続けること',
+      fragile: '根拠なき方針転換の連打、見えない継続貢献',
+      maximize: '役割とルールが文章化され、更新理由が共有されること',
+    },
+    tension: { deepenBroaden: -0.28, guardExpress: -0.4 },
+    growth: {
+      grow: '手順が機能し、任せられる安定が続くとき',
+      break: '黙ってルールだけが変わり、説明がないとき',
+      restore: '変化のたびに「何を守ったか」を一行で言語化する',
+    },
+  },
+  {
+    blueprint: {
+      core: '芽を見抜き、段取りで形に育てる駆動',
+      natural: 'バラバラな要素を統合し、中間成果まで責任を持つこと',
+      fragile: '見えない貢献の常態化、急激な方針転換',
+      maximize: '育成対象の成長が途中で見え、上限を宣言できること',
+    },
+    tension: { deepenBroaden: 0.08, guardExpress: -0.18 },
+    growth: {
+      grow: '手応えが途中で可視化され、段取りが報われるとき',
+      break: '抱え込みが増え、委任の線が消えるとき',
+      restore: '守る上限を先に宣言し、優先を二つに絞る',
+    },
+  },
+  {
+    blueprint: {
+      core: '線を引き、決めたことを完遂する駆動',
+      natural: '停滞を打ち破り、複雑さを実行可能な順序に落とすこと',
+      fragile: '決定が宙に浮いた合議、責任だけ先に来る構造',
+      maximize: '決定権・締切・完了ラインがセットで置かれること',
+    },
+    tension: { deepenBroaden: 0.18, guardExpress: 0.36 },
+    growth: {
+      grow: '裁量とゴールが明確で、完了が評価に繋がるとき',
+      break: '結論が出ないプロセスだけが増えるとき',
+      restore: '今日の完了ラインと、明日の最初の一手だけを決める',
+    },
+  },
+  {
+    blueprint: {
+      core: 'ディテールと基準で価値を引き上げる駆動',
+      natural: '仕上げ局面で精度を保ち、余白と調和を守ること',
+      fragile: '雑さの常態化、量だけが数えられる評価',
+      maximize: '品質への投資が評価に接続し、締切に余白があること',
+    },
+    tension: { deepenBroaden: -0.52, guardExpress: -0.22 },
+    growth: {
+      grow: '仕上げに時間が割かれ、「十分」の基準を自分が持てるとき',
+      break: '細部の投資が無駄扱いされ、妥協だけが求められるとき',
+      restore: '外部から「ここまで」を一つ決め、そこで一度締める',
+    },
+  },
+  {
+    blueprint: {
+      core: '枠を越えて接続し、新しい組み合わせを作る駆動',
+      natural: '越境と探索で、地図の外に意味を輸送すること',
+      fragile: '単調な反復、越境が禁止される環境',
+      maximize: '探索が業務に組み込まれ、失敗が学習として扱われること',
+    },
+    tension: { deepenBroaden: 0.42, guardExpress: 0.28 },
+    growth: {
+      grow: '新しい接続先があり、好奇心が枯れないとき',
+      break: '射程だけが広がり、集中の錨がないとき',
+      restore: '四半期単位で「深める一本」を選び直す',
+    },
+  },
+  {
+    blueprint: {
+      core: '差分を証拠に積み、構造として言語化する駆動',
+      natural: '静かに観測し、見落としがちな兆しを拾うこと',
+      fragile: '浅い処理の連打、結論の強要',
+      maximize: '観察に時間が割かれ、洞察が意思決定に接続すること',
+    },
+    tension: { deepenBroaden: -0.55, guardExpress: -0.12 },
+    growth: {
+      grow: '深く読む時間と、小さく外に出す出口があるとき',
+      break: '速さだけが正義になり、検証が削られるとき',
+      restore: '気づきを一行で共有し、確認を一回だけ取る',
+    },
+  },
+] as const;
+
+export function identityDesignVizForStem(stemLaneIndex: number): IdentityDesignViz {
+  const i = Math.max(0, Math.min(9, stemLaneIndex));
+  return IDENTITY_DESIGN_VIZ[i]!;
+}
+
+/* ─── Paid /dtr — composition & essence section viz (structure map; stability panel) ─ */
+
+export type StructureAxisJa = '推進' | '感受' | '精度' | '安定' | '思考';
+
+/** Visual weight only — not a score. */
+export type StructureAxisRole = 'core' | 'strong' | 'bridge' | 'quiet';
+
+export type CompositionStructureViz = {
+  patternLabel: string;
+  patternCaption: string;
+  axisRoles: Record<StructureAxisJa, StructureAxisRole>;
+  links: [StructureAxisJa, StructureAxisJa][];
+  strengthEmergence: string;
+  flipRisk: string;
+};
+
+export type EssenceStabilityViz = {
+  stabilize: string;
+  maximize: string;
+  collapse: string;
+  guard: string;
+};
+
+const COMPOSITION_STRUCTURE_VIZ: readonly CompositionStructureViz[] = [
+  {
+    patternLabel: 'ベクトル先取り型',
+    patternCaption: '進む方向を先に置くほど、資源と人の配置が後から整いやすい構造です。',
+    axisRoles: {
+      思考: 'core',
+      推進: 'core',
+      感受: 'strong',
+      精度: 'quiet',
+      安定: 'quiet',
+    },
+    links: [
+      ['思考', '推進'],
+      ['推進', '感受'],
+    ],
+    strengthEmergence:
+      '思考が骨格、推進が駆動、感受が場の材料として重なり、「曲がれる一貫性」として強みが立ち上がります。',
+    flipRisk: 'テンポの差が摩擦になり、速さが他者への圧力に見えやすくなります。',
+  },
+  {
+    patternLabel: 'ハブ調整型',
+    patternCaption: '全体最適を見るほど、自分の立ち位置がぼやけやすいので役割の命名が鍵です。',
+    axisRoles: {
+      思考: 'strong',
+      推進: 'quiet',
+      感受: 'bridge',
+      精度: 'quiet',
+      安定: 'strong',
+    },
+    links: [
+      ['思考', '安定'],
+      ['思考', '感受'],
+      ['安定', '感受'],
+    ],
+    strengthEmergence:
+      '思考が状況モデルを更新し、安定が土台、感受が接点として噛み合うと、流量の調整が強みになります。',
+    flipRisk: '適応が過剰になり、自分の希望が後回しに見えないまま置き去りになります。',
+  },
+  {
+    patternLabel: 'ポンプ駆動型',
+    patternCaption: '流れを一度作ると周囲が乗る一方、止まったあとの静寂が長く感じやすい構造です。',
+    axisRoles: {
+      思考: 'bridge',
+      推進: 'core',
+      感受: 'strong',
+      精度: 'quiet',
+      安定: 'quiet',
+    },
+    links: [
+      ['推進', '思考'],
+      ['推進', '感受'],
+    ],
+    strengthEmergence:
+      '推進が先に立ち上がり、感受が出力を整えると、伝達と動員が同時に起きるのが強みです。',
+    flipRisk: '高まりのあとに急落し、反応の薄さを個人的な失敗として処理しやすくなります。',
+  },
+  {
+    patternLabel: '蒸留集中型',
+    patternCaption: '同時並行が増えるほど、核心に届く熱が下がりやすい構造です。',
+    axisRoles: {
+      思考: 'quiet',
+      推進: 'core',
+      感受: 'strong',
+      精度: 'strong',
+      安定: 'quiet',
+    },
+    links: [
+      ['感受', '精度'],
+      ['推進', '精度'],
+    ],
+    strengthEmergence:
+      '内向きの推進が熱を保ち、感受と精度が重なるほど、密度と手触りの更新が強みになります。',
+    flipRisk: '改善が完了を遅らせ、提出のタイミングを逃しやすくなります。',
+  },
+  {
+    patternLabel: '堤防安定型',
+    patternCaption: '水位の変化理由が共有されないと、内側だけが先に疲れやすい構造です。',
+    axisRoles: {
+      思考: 'quiet',
+      推進: 'bridge',
+      感受: 'bridge',
+      精度: 'quiet',
+      安定: 'core',
+    },
+    links: [
+      ['安定', '推進'],
+      ['安定', '感受'],
+    ],
+    strengthEmergence:
+      '安定が衝動を受け止めてレールに落とし、長期の再現性として信頼が積み上がります。',
+    flipRisk: '変化への拒否に見えやすく、必要な適応が遅れることがあります。',
+  },
+  {
+    patternLabel: '温室育成型',
+    patternCaption: '段取りと環境設計が中心で、急成長と枯れの両方を防ぐ構造です。',
+    axisRoles: {
+      思考: 'strong',
+      推進: 'strong',
+      感受: 'strong',
+      精度: 'bridge',
+      安定: 'core',
+    },
+    links: [
+      ['安定', '思考'],
+      ['安定', '推進'],
+      ['思考', '推進'],
+    ],
+    strengthEmergence:
+      '安定が育成の器になり、思考・感受・推進が「次の段階」へ向かう栄養として揃うと統合が強みになります。',
+    flipRisk: '抱え込みが増え、委任の失敗が内側で連鎖しやすくなります。',
+  },
+  {
+    patternLabel: '切断接合型',
+    patternCaption: '不要を落とし、必要だけを繋ぐほど、会話の長さが内側の負荷に直結します。',
+    axisRoles: {
+      思考: 'strong',
+      推進: 'strong',
+      感受: 'quiet',
+      精度: 'core',
+      安定: 'quiet',
+    },
+    links: [
+      ['思考', '精度'],
+      ['思考', '推進'],
+      ['精度', '推進'],
+    ],
+    strengthEmergence:
+      '精度が切れ味を持ち、思考が骨格、推進が駆動として揃うと、停滞の打開が強みになります。',
+    flipRisk: '厳密さが冷たさに見えやすく、対話との摩擦が増えます。',
+  },
+  {
+    patternLabel: '研磨仕上げ型',
+    patternCaption: '粗いまま積み上げるほど、後工程で取り返しがつきにくいと止まりやすい構造です。',
+    axisRoles: {
+      思考: 'bridge',
+      推進: 'quiet',
+      感受: 'strong',
+      精度: 'core',
+      安定: 'quiet',
+    },
+    links: [
+      ['精度', '感受'],
+      ['思考', '精度'],
+    ],
+    strengthEmergence:
+      '精度の鋭さと感受の繊細さが重なり、違和感の早期発見と整えが強みになります。',
+    flipRisk: '完璧主義が全体速度を落とし、恐怖が判断を支配しやすくなります。',
+  },
+  {
+    patternLabel: '航路開拓型',
+    patternCaption: '港が増えるほど強い一方、補給線が追いつかないと破綻しやすい構造です。',
+    axisRoles: {
+      思考: 'strong',
+      推進: 'strong',
+      感受: 'core',
+      精度: 'quiet',
+      安定: 'quiet',
+    },
+    links: [
+      ['感受', '思考'],
+      ['感受', '推進'],
+      ['思考', '推進'],
+    ],
+    strengthEmergence:
+      '感受の射程が長く、思考と推進が追従すると、越境による価値生成が強みになります。',
+    flipRisk: '拡散し、集中の喪失が怖くて次々に手を伸ばしやすくなります。',
+  },
+  {
+    patternLabel: '観測蓄積型',
+    patternCaption: '速報より蓄積が強みだが、発信が遅れると貢献が見えにくい構造です。',
+    axisRoles: {
+      思考: 'bridge',
+      推進: 'quiet',
+      感受: 'core',
+      精度: 'strong',
+      安定: 'strong',
+    },
+    links: [
+      ['感受', '安定'],
+      ['感受', '精度'],
+      ['安定', '精度'],
+    ],
+    strengthEmergence:
+      '感受の解像度が高く、安定と精度が観測を支えると、微細な信号からの立ち上がりが強みになります。',
+    flipRisk: '深掘りが完了を遅らせ、評価が空振りしやすくなります。',
+  },
+] as const;
+
+const ESSENCE_STABILITY_VIZ: readonly EssenceStabilityViz[] = [
+  {
+    stabilize: '自分の言葉で説明責任を持てる方針が、環境として置かれているとき',
+    maximize: '裁量と期限がセットで与えられ、結果で評価される場所',
+    collapse: '方針なき待機の常態化と、細かな都度調整だけが続く役回り',
+    guard: '進路の更新ルールを自分で持ち、誰かの都合で何度も折れないこと',
+  },
+  {
+    stabilize: '「何の接点として呼ばれているか」が言葉になっているとき',
+    maximize: '合意より先に整流が必要な場所で、短い打ち返しと中間確認があるとき',
+    collapse: '舵取りのない集団に長く留まり、優先を言語化しないまま過負荷になるとき',
+    guard: '役割の更新を自分から申し出られる余白を残すこと',
+  },
+  {
+    stabilize: '発信が届く距離に相手がいて、短いフィードバックループがあるとき',
+    maximize: '舞台が可視化され、意味のあるリアクションがある環境',
+    collapse: '無反応の発信の常態化と、評価の見えない孤独作業',
+    guard: '熱を出したあとに必ず回復する儀式を組み込むこと',
+  },
+  {
+    stabilize: '遮断できる時間と、守られた締切の両方があるとき',
+    maximize: '深掘りが評価され、仕上げに権威が置かれる環境',
+    collapse: '細切れの割り込みと、「とりあえず出せ」の圧力の常態化',
+    guard: '完成の定義を自分が持てること（曖昧な「上げて」に引きずられない）',
+  },
+  {
+    stabilize: '役割とルールが文章化され、更新理由が共有されるとき',
+    maximize: '長期運用・品質均一・リスク先回りが正式な価値になる場所',
+    collapse: '根拠なき方針転換の連打と、評価されない継続',
+    guard: '変化のたびに「何を守ったか」を言語化できること',
+  },
+  {
+    stabilize: '貢献が中間成果として見えるとき',
+    maximize: '育成・統合・調整が役割として置かれ、育成サイクルに評価が乗るとき',
+    collapse: '急激な方針転換と、見えない努力の常態化',
+    guard: '上限と境界を先に宣言し、無限に受け取らないこと',
+  },
+  {
+    stabilize: '決定権と目標がセットで与えられ、合議が儀式化していないとき',
+    maximize: '締切が明確で、評価が成果に結びつく環境',
+    collapse: '責任だけが先に来ることと、決裁の迷宮',
+    guard: '疲労を可視化し、完了ラインを自分で握り直すこと',
+  },
+  {
+    stabilize: '品質への投資が評価に接続するとき',
+    maximize: '基準が明文化され、仕上げに時間が割かれる現場',
+    collapse: '「とりあえず」の常態化と、仕上げ放棄を強いる圧力',
+    guard: '完了ラインを自分が宣言できること',
+  },
+  {
+    stabilize: '探索が業務に組み込まれ、失敗が学習として扱われるとき',
+    maximize: '新規性と多様性が評価指標に入っている場所',
+    collapse: '単調な反復の常態化と、越境の禁止',
+    guard: '集中の錨を持ち、興味だけで漂流しないこと',
+  },
+  {
+    stabilize: '観察に時間が割かれ、洞察が意思決定に接続するとき',
+    maximize: '調査・分析・改善サイクルが正式な価値として置かれた現場',
+    collapse: '浅い処理の連打と、結論の強要',
+    guard: '気づきを小さく外部化し、内側だけで完結しないこと',
+  },
+] as const;
+
+export function compositionStructureVizForStem(stemLaneIndex: number): CompositionStructureViz {
+  return COMPOSITION_STRUCTURE_VIZ[Math.max(0, Math.min(9, stemLaneIndex))]!;
+}
+
+export function essenceStabilityVizForStem(stemLaneIndex: number): EssenceStabilityViz {
+  return ESSENCE_STABILITY_VIZ[Math.max(0, Math.min(9, stemLaneIndex))]!;
+}
+
 /* ─── Section definitions ────────────────────────────────────────────────── */
 
 type SectionSpec = {

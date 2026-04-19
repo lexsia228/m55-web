@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
-import { runDtrEngine, type DtrSection } from '../../lib/m55/dtrEngine';
+import {
+  runDtrEngine,
+  type DtrSection,
+  type StructureAxisJa,
+  type StructureAxisRole,
+  identityDesignVizForStem,
+  compositionStructureVizForStem,
+  essenceStabilityVizForStem,
+} from '../../lib/m55/dtrEngine';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
 import {
@@ -349,6 +357,372 @@ function SectionBlock({
       <div className={compact ? styles.savedGridBody : styles.savedWideBody}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={compact ? styles.savedGridPara : styles.savedWidePara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function clampTensionBias(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(-1, Math.min(1, n));
+}
+
+/** Paid-only: visual self-design figure for 「あなたという人物」 (body text unchanged). */
+function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
+  const viz = identityDesignVizForStem(stemIdx);
+  const bpLayers: { key: string; label: string; text: string }[] = [
+    { key: 'core', label: '核', text: viz.blueprint.core },
+    { key: 'natural', label: '自然に出る', text: viz.blueprint.natural },
+    { key: 'fragile', label: '崩れやすい', text: viz.blueprint.fragile },
+    { key: 'max', label: '最大化条件', text: viz.blueprint.maximize },
+  ];
+  const db = clampTensionBias(viz.tension.deepenBroaden);
+  const ge = clampTensionBias(viz.tension.guardExpress);
+
+  return (
+    <div className={styles.idDesignShell} aria-label="自己設計図（保存版）">
+      <p className={styles.idDesignOverline}>保存版 · 自己設計図</p>
+
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>設計の4層</h3>
+        <div className={styles.idBpStack} role="list">
+          {bpLayers.map((L, i) => (
+            <div
+              key={L.key}
+              role="listitem"
+              className={`${styles.idBpLayer} ${styles.idBpReveal}`}
+              style={{ animationDelay: `${0.04 + i * 0.07}s` }}
+            >
+              <span className={styles.idBpLabel}>{L.label}</span>
+              <p className={styles.idBpText}>{L.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>両極マップ</h3>
+        <p className={styles.idDesignHint}>スコアではなく、重心の位置関係です。</p>
+        <div className={styles.idTensionGrid}>
+          <div className={styles.idTensionAxis}>
+            <span className={styles.idTensionPole}>深める</span>
+            <div className={styles.idTensionTrack}>
+              <span className={styles.idTensionBar} aria-hidden />
+              <span
+                className={styles.idTensionMarkWrap}
+                style={{ left: `${50 + db * 44}%` }}
+              >
+                <span
+                  className={`${styles.idTensionMark} ${styles.idTensionMarkReveal}`}
+                  style={{ animationDelay: '0.32s' }}
+                  aria-hidden
+                />
+              </span>
+            </div>
+            <span className={styles.idTensionPole}>広げる</span>
+          </div>
+          <div className={styles.idTensionAxis}>
+            <span className={styles.idTensionPole}>守る</span>
+            <div className={styles.idTensionTrack}>
+              <span className={styles.idTensionBar} aria-hidden />
+              <span
+                className={styles.idTensionMarkWrap}
+                style={{ left: `${50 + ge * 44}%` }}
+              >
+                <span
+                  className={`${styles.idTensionMark} ${styles.idTensionMarkReveal}`}
+                  style={{ animationDelay: '0.42s' }}
+                  aria-hidden
+                />
+              </span>
+            </div>
+            <span className={styles.idTensionPole}>出す</span>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>伸びのレバー</h3>
+        <div className={styles.idGrowthFlow}>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.12s' }}
+          >
+            <span className={styles.idGrowthTag}>伸びる条件</span>
+            <p className={styles.idGrowthText}>{viz.growth.grow}</p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.2s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>崩れる条件</span>
+            <p className={styles.idGrowthText}>{viz.growth.break}</p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.28s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻す条件</span>
+            <p className={styles.idGrowthText}>{viz.growth.restore}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IdentityArticleWithBlueprint({
+  section,
+  stemIdx,
+}: {
+  section: DtrSection;
+  stemIdx: number;
+}) {
+  return (
+    <article className={styles.savedWideArticle} aria-label={section.title}>
+      <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      <IdentityDesignFigures stemIdx={stemIdx} />
+      <div className={styles.savedWideBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedWidePara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+const STRUCTURE_AXIS_ORDER: readonly StructureAxisJa[] = [
+  '思考',
+  '推進',
+  '感受',
+  '精度',
+  '安定',
+] as const;
+
+const STR_MAP_R_NODE = 34;
+const STR_MAP_R_LABEL = 41;
+
+function structureAxisPos(axis: StructureAxisJa): { x: number; y: number } {
+  const idx = STRUCTURE_AXIS_ORDER.indexOf(axis);
+  const deg = -90 + idx * 72;
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: 50 + STR_MAP_R_NODE * Math.cos(rad),
+    y: 50 + STR_MAP_R_NODE * Math.sin(rad),
+  };
+}
+
+function structureLabelPos(axis: StructureAxisJa): { x: number; y: number } {
+  const idx = STRUCTURE_AXIS_ORDER.indexOf(axis);
+  const deg = -90 + idx * 72;
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: 50 + STR_MAP_R_LABEL * Math.cos(rad),
+    y: 50 + STR_MAP_R_LABEL * Math.sin(rad),
+  };
+}
+
+function structureRoleClass(role: StructureAxisRole): string {
+  switch (role) {
+    case 'core':
+      return styles.strMapNodeCore;
+    case 'strong':
+      return styles.strMapNodeStrong;
+    case 'bridge':
+      return styles.strMapNodeBridge;
+    default:
+      return styles.strMapNodeQuiet;
+  }
+}
+
+/** 構成と傾向 — Structure Interaction Map（数値・スコアなし） */
+function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
+  const viz = compositionStructureVizForStem(stemIdx);
+  const linkPairs = viz.links.map(([a, b]) => {
+    const p1 = structureAxisPos(a);
+    const p2 = structureAxisPos(b);
+    const key = [a, b].sort().join('—');
+    return { key, a, b, p1, p2 };
+  });
+
+  return (
+    <div className={styles.idDesignShell} aria-label="構造の噛み合い（保存版）">
+      <p className={styles.idDesignOverline}>保存版 · 構造インタラクション</p>
+
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>構造の噛み合い</h3>
+        <p className={styles.strMapPattern}>
+          <span className={styles.strMapPatternLabel}>{viz.patternLabel}</span>
+          <span className={styles.strMapPatternCap}>{viz.patternCaption}</span>
+        </p>
+
+        <div className={styles.strMapFig}>
+          <svg
+            className={styles.strMapSvg}
+            viewBox="0 0 100 100"
+            aria-hidden
+            focusable="false"
+          >
+            {linkPairs.map((L, i) => (
+              <line
+                key={L.key}
+                x1={L.p1.x}
+                y1={L.p1.y}
+                x2={L.p2.x}
+                y2={L.p2.y}
+                pathLength={100}
+                className={`${styles.strMapLink} ${styles.strMapLinkReveal}`}
+                style={{ animationDelay: `${0.06 + i * 0.07}s` }}
+              />
+            ))}
+            {STRUCTURE_AXIS_ORDER.map((axis, i) => {
+              const { x, y } = structureAxisPos(axis);
+              const role = viz.axisRoles[axis];
+              const r = role === 'core' ? 4.2 : role === 'strong' ? 3.5 : role === 'bridge' ? 3 : 2.4;
+              return (
+                <circle
+                  key={axis}
+                  cx={x}
+                  cy={y}
+                  r={r}
+                  className={`${styles.strMapDot} ${structureRoleClass(role)} ${styles.strMapDotReveal}`}
+                  style={{ animationDelay: `${0.22 + i * 0.05}s` }}
+                />
+              );
+            })}
+            {STRUCTURE_AXIS_ORDER.map((axis) => {
+              const { x, y } = structureLabelPos(axis);
+              return (
+                <text
+                  key={`${axis}-label`}
+                  x={x}
+                  y={y}
+                  className={styles.strMapAxisText}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  {axis}
+                </text>
+              );
+            })}
+          </svg>
+          <p className={styles.strMapLinksCaption}>
+            つながり（位置関係）:{' '}
+            {linkPairs.map((L) => `${L.a}—${L.b}`).join(' · ')}
+          </p>
+        </div>
+
+        <div className={styles.strMapCallouts}>
+          <div
+            className={`${styles.strMapCallout} ${styles.idBpReveal}`}
+            style={{ animationDelay: '0.35s' }}
+          >
+            <span className={styles.strMapCalloutLabel}>強みの立ち上がり</span>
+            <p className={styles.strMapCalloutText}>{viz.strengthEmergence}</p>
+          </div>
+          <div
+            className={`${styles.strMapCallout} ${styles.strMapCalloutFlip} ${styles.idBpReveal}`}
+            style={{ animationDelay: '0.42s' }}
+          >
+            <span className={styles.strMapCalloutLabel}>裏返り</span>
+            <p className={styles.strMapCalloutText}>{viz.flipRisk}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CompositionArticleWithViz({
+  section,
+  stemIdx,
+}: {
+  section: DtrSection;
+  stemIdx: number;
+}) {
+  return (
+    <article className={styles.savedWideArticle} aria-label={section.title}>
+      <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      <StructureInteractionMapFigures stemIdx={stemIdx} />
+      <div className={styles.savedWideBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedWidePara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+/** 本質と安定 — 4領域パネル（数値なし） */
+function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
+  const viz = essenceStabilityVizForStem(stemIdx);
+  const cells: { key: string; label: string; text: string; mod: string }[] = [
+    { key: 'st', label: '安定する条件', text: viz.stabilize, mod: styles.stabCellCalm },
+    { key: 'mx', label: '最大化する条件', text: viz.maximize, mod: styles.stabCellGrow },
+    { key: 'cl', label: '崩れる条件', text: viz.collapse, mod: styles.stabCellRisk },
+    { key: 'gd', label: '守る条件', text: viz.guard, mod: styles.stabCellGuard },
+  ];
+
+  return (
+    <div className={styles.idDesignShell} aria-label="安定条件パネル（保存版）">
+      <p className={styles.idDesignOverline}>保存版 · 安定条件</p>
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>安定の4領域</h3>
+        <p className={styles.idDesignHint}>四つの領域で、環境と関わりの条件を整理しています。</p>
+        <div className={styles.stabGrid}>
+          {cells.map((c, i) => (
+            <div
+              key={c.key}
+              className={`${styles.stabCell} ${c.mod} ${styles.idBpReveal}`}
+              style={{ animationDelay: `${0.04 + i * 0.06}s` }}
+            >
+              <span className={styles.stabCellLabel}>{c.label}</span>
+              <p className={styles.stabCellText}>{c.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EssenceArticleWithViz({
+  section,
+  stemIdx,
+}: {
+  section: DtrSection;
+  stemIdx: number;
+}) {
+  return (
+    <article className={styles.savedWideArticle} aria-label={section.title}>
+      <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      <StabilityConditionsPanelFigures stemIdx={stemIdx} />
+      <div className={styles.savedWideBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedWidePara}>
             {para}
           </p>
         ))}
@@ -1075,9 +1449,17 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
           aria-label="保存版レポート"
         >
           <div className={styles.savedWideStack}>
-            {preGridSections.map((section) => (
-              <SectionBlock key={section.id} section={section} density="comfortable" />
-            ))}
+            {preGridSections.map((section) =>
+              section.id === 's1_identity' ? (
+                <IdentityArticleWithBlueprint key={section.id} section={section} stemIdx={stemIdx} />
+              ) : section.id === 's2_composition' ? (
+                <CompositionArticleWithViz key={section.id} section={section} stemIdx={stemIdx} />
+              ) : section.id === 's3_essence' ? (
+                <EssenceArticleWithViz key={section.id} section={section} stemIdx={stemIdx} />
+              ) : (
+                <SectionBlock key={section.id} section={section} density="comfortable" />
+              )
+            )}
           </div>
           {gridSections.length > 0 ? (
             <div className={styles.savedGridThree}>
