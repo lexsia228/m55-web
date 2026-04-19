@@ -253,6 +253,11 @@
    Provides structural navigation between content groups.
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Core Analysis anchor: offset for PublicHeader (sticky) + safe area when scrollIntoView */
+.coreAnalysisScrollAnchor {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 56px);
+}
+
 .groupLabel {
   margin-top: clamp(52px, 10vw, 76px);
   margin-bottom: 20px;

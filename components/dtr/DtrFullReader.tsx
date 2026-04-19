@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { runDtrEngine, type DtrSection } from '../../lib/m55/dtrEngine';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
@@ -135,9 +135,25 @@ function PremiumHero({
    Used as structural divider between content groups (コア分析, 深掘り解析, etc.).
    ───────────────────────────────────────────────────────────────────────────── */
 
-function SectionGroupLabel({ label, sub }: { label: string; sub?: string }) {
+function SectionGroupLabel({
+  label,
+  sub,
+  scrollAnchorId,
+}: {
+  label: string;
+  sub?: string;
+  /** When set, adds id + scroll-margin for /dtr/core initial scroll to Core Analysis */
+  scrollAnchorId?: string;
+}) {
   return (
-    <div className={styles.groupLabel}>
+    <div
+      id={scrollAnchorId}
+      className={
+        scrollAnchorId
+          ? `${styles.groupLabel} ${styles.coreAnalysisScrollAnchor}`
+          : styles.groupLabel
+      }
+    >
       <div className={styles.groupLabelLine}>
         <span className={styles.groupLabelAccentBar} aria-hidden />
         <span className={styles.groupLabelOverline}>{sub}</span>
@@ -498,6 +514,23 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, ownerId, profileEpoch]);
 
+  const didScrollToCoreAnalysisRef = useRef(false);
+
+  /** One-time: land readers at Core Analysis after hero (sticky header offset via scroll-margin). */
+  useLayoutEffect(() => {
+    if (view.kind !== 'ready') return;
+    if (didScrollToCoreAnalysisRef.current) return;
+    didScrollToCoreAnalysisRef.current = true;
+    const el = document.getElementById('dtr-core-analysis');
+    if (!el) return;
+    const run = () => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(run);
+    });
+  }, [view.kind]);
+
   if (view.kind === 'loading') {
     return (
       <div className={styles.wrap}>
@@ -540,7 +573,11 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
       />
 
       {/* ── B. Core analysis narrative ─────────────────────────────── */}
-      <SectionGroupLabel label="コア分析" sub="Core Analysis" />
+      <SectionGroupLabel
+        label="コア分析"
+        sub="Core Analysis"
+        scrollAnchorId="dtr-core-analysis"
+      />
       <div className={styles.sections}>
         {coreNarrativeSections.map((section) => (
           <SectionBlock key={section.id} section={section} />

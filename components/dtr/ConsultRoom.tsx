@@ -63,6 +63,9 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   // Separate from `sending` state which controls UI after re-render.
   const sendLock = useRef(false);
 
+  /** Skip first messages-driven scroll so /dtr/core opens at page top (scrollIntoView scrolls ancestors). */
+  const skipInitialThreadScrollRef = useRef(true);
+
   // Load thread state + messages on mount
   useEffect(() => {
     let cancelled = false;
@@ -83,8 +86,14 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // Scroll to bottom when messages update
+  // Scroll thread to latest only after user-driven updates — not on initial room load.
   useEffect(() => {
+    if (!roomData) return;
+    if (skipInitialThreadScrollRef.current) {
+      skipInitialThreadScrollRef.current = false;
+      return;
+    }
+    if (roomData.messages.length === 0) return;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [roomData?.messages]);
 

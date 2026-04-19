@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import PurchaseButton from "../../../components/PurchaseButton";
 import { PublicShell } from "../../_components/PublicShell";
 import { STATIC_CTA } from "../../../components/core/corePublicCopy";
@@ -52,6 +53,7 @@ export default async function DtrLpPage({
 }) {
   const params = await searchParams;
   const isExpired = params?.state === 'expired';
+  const { userId } = await auth();
 
   return (
     <PublicShell>
@@ -269,13 +271,47 @@ export default async function DtrLpPage({
             </div>
           </div>
 
-          {/* 購入ボタン */}
-          <PurchaseButton
-            productId="DTR_CORE_STATIC_V1"
-            className="inline-flex items-center justify-center rounded-full bg-[#534a72] px-8 py-4 text-white font-bold hover:opacity-90 w-full text-base tracking-wide shadow-lg"
-          >
-            1000円で本質の読み解きを購入する
-          </PurchaseButton>
+          {/* 購入ボタン — ログイン状態で分岐 */}
+          {userId ? (
+            <PurchaseButton
+              productId="DTR_CORE_STATIC_V1"
+              className="inline-flex items-center justify-center rounded-full bg-[#534a72] px-8 py-4 text-white font-bold hover:opacity-90 w-full text-base tracking-wide shadow-lg"
+            >
+              1000円で本質の読み解きを購入する
+            </PurchaseButton>
+          ) : (
+            <div>
+              <p style={{
+                fontSize: 13,
+                color: 'rgba(107, 95, 168, 0.82)',
+                margin: '0 0 12px',
+                lineHeight: 1.55,
+              }}>
+                購入にはログインが必要です。
+              </p>
+              <a
+                href={`/sign-in?redirect_url=${encodeURIComponent('/dtr/lp')}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 999,
+                  background: '#534a72',
+                  padding: '14px 32px',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  letterSpacing: '0.02em',
+                  textDecoration: 'none',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  boxShadow: '0 6px 22px rgba(83, 74, 114, 0.32)',
+                }}
+              >
+                ログインして購入へ進む
+              </a>
+            </div>
+          )}
 
           {/* 法的注記 */}
           <p style={{
