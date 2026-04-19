@@ -731,6 +731,218 @@ function EssenceArticleWithViz({
   );
 }
 
+function commFlowShortLabel(header: string): string {
+  if (header.includes('受け取り')) return '受け取り';
+  if (header.includes('渡し')) return '渡し';
+  if (header.includes('引き')) return '引き';
+  if (header.includes('会話') || header.includes('リズム')) return 'リズム';
+  return header.slice(0, 3);
+}
+
+/** 活きる力 — レバー群 + 合流線（本文は親でそのまま表示） */
+function StrengthsLiftFigures({ body }: { body: string }) {
+  const items = parseBlockItems(body).slice(0, 3);
+  if (items.length === 0) return null;
+
+  return (
+    <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="強みの可視化">
+      <p className={styles.idDesignOverline}>保存版 · 強みのレバー</p>
+      <div className={styles.idDesignBlock}>
+        <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
+          価値に繋がる噛み合い
+        </h3>
+        <div className={styles.liftStack}>
+          {items.map((it, i) => (
+            <div
+              key={it.header}
+              className={`${styles.liftCard} ${styles.idBpReveal}`}
+              style={{ animationDelay: `${0.04 + i * 0.07}s` }}
+            >
+              <div className={styles.liftCardTop}>
+                <span className={styles.liftIndex}>{String(i + 1).padStart(2, '0')}</span>
+                <span className={styles.liftName}>{it.header}</span>
+              </div>
+              <p className={styles.liftLead}>{firstSentence(it.content)}</p>
+            </div>
+          ))}
+        </div>
+        {items.length >= 2 ? (
+          <>
+            <svg className={styles.liftMergeSvg} viewBox="0 0 120 40" aria-hidden focusable="false">
+              {items.length >= 3 ? (
+                <>
+                  <path
+                    pathLength={100}
+                    d="M 18 6 L 60 32"
+                    className={styles.liftMergePath}
+                    style={{ animationDelay: '0.26s' }}
+                  />
+                  <path
+                    pathLength={100}
+                    d="M 60 6 L 60 32"
+                    className={styles.liftMergePath}
+                    style={{ animationDelay: '0.33s' }}
+                  />
+                  <path
+                    pathLength={100}
+                    d="M 102 6 L 60 32"
+                    className={styles.liftMergePath}
+                    style={{ animationDelay: '0.4s' }}
+                  />
+                </>
+              ) : (
+                <>
+                  <path
+                    pathLength={100}
+                    d="M 32 6 L 60 30"
+                    className={styles.liftMergePath}
+                    style={{ animationDelay: '0.28s' }}
+                  />
+                  <path
+                    pathLength={100}
+                    d="M 88 6 L 60 30"
+                    className={styles.liftMergePath}
+                    style={{ animationDelay: '0.36s' }}
+                  />
+                </>
+              )}
+            </svg>
+            <p className={styles.liftMergeCaption}>
+              {items.length >= 3
+                ? '三つの傾向が重なると、状況に対して再現性のある強みとして現れます。'
+                : '複数の傾向が重なると、状況に対して再現性のある強みとして現れます。'}
+            </p>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** 注意と盲点 — warning カード列 */
+function FrictionWarningFigures({ body }: { body: string }) {
+  const items = parseBlockItems(body);
+  if (items.length === 0) return null;
+
+  return (
+    <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="注意の可視化">
+      <p className={styles.idDesignOverline}>保存版 · 注意マップ</p>
+      <div className={styles.idDesignBlock}>
+        <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
+          つまずきやすい位置
+        </h3>
+        <p className={styles.gridInsertHint}>先に「どこで詰まりやすいか」の輪郭を置きます。</p>
+        <div className={styles.warnList}>
+          {items.map((it, i) => (
+            <div
+              key={it.header}
+              className={`${styles.warnCard} ${styles.idBpReveal}`}
+              style={{ animationDelay: `${0.05 + i * 0.07}s` }}
+            >
+              <span className={styles.warnStripe} aria-hidden />
+              <div className={styles.warnInner}>
+                <span className={styles.warnTitle}>{it.header}</span>
+                <p className={styles.warnLead}>{firstSentence(it.content)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** コミュニケーションの形 — 縦のフロー（グリッド幅でも破綻しにくい） */
+function CommFlowFigures({ body }: { body: string }) {
+  const items = parseBlockItems(body);
+  if (items.length === 0) return null;
+
+  return (
+    <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="対話の流れ">
+      <p className={styles.idDesignOverline}>保存版 · 対話の流れ</p>
+      <div className={styles.idDesignBlock}>
+        <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
+          やりとりの順路
+        </h3>
+        <div className={styles.commFlowCol}>
+          {items.map((it, i) => (
+            <div key={it.header} className={styles.commFlowStep}>
+              <div
+                className={`${styles.commNode} ${styles.idBpReveal}`}
+                style={{ animationDelay: `${0.04 + i * 0.07}s` }}
+              >
+                <span className={styles.commTag}>{commFlowShortLabel(it.header)}</span>
+                <span className={styles.commHead}>{it.header}</span>
+                <p className={styles.commLead}>{firstSentence(it.content)}</p>
+              </div>
+              {i < items.length - 1 ? (
+                <div className={styles.commBetweenV} aria-hidden>
+                  <svg className={styles.commBetweenSvg} viewBox="0 0 16 40" preserveAspectRatio="none">
+                    <path
+                      pathLength={100}
+                      d="M8 4 L8 36"
+                      className={styles.commPath}
+                      style={{ animationDelay: `${0.1 + i * 0.08}s` }}
+                    />
+                  </svg>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GridArticleStrengthsViz({ section }: { section: DtrSection }) {
+  return (
+    <article className={styles.savedGridArticle} aria-label={section.title}>
+      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <StrengthsLiftFigures body={section.body} />
+      <div className={styles.savedGridBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedGridPara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function GridArticleFrictionViz({ section }: { section: DtrSection }) {
+  return (
+    <article className={styles.savedGridArticle} aria-label={section.title}>
+      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <FrictionWarningFigures body={section.body} />
+      <div className={styles.savedGridBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedGridPara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function GridArticleCommViz({ section }: { section: DtrSection }) {
+  return (
+    <article className={styles.savedGridArticle} aria-label={section.title}>
+      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <CommFlowFigures body={section.body} />
+      <div className={styles.savedGridBody}>
+        {section.body.split('\n\n').map((para, i) => (
+          <p key={i} className={styles.savedGridPara}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    C. Deep Analysis — paid-only modules.
    Each module is a native M55 section: overline + serif title + coreSurface.
@@ -1463,9 +1675,17 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
           </div>
           {gridSections.length > 0 ? (
             <div className={styles.savedGridThree}>
-              {gridSections.map((section) => (
-                <SectionBlock key={section.id} section={section} density="compact" />
-              ))}
+              {gridSections.map((section) =>
+                section.id === 's4_strengths' ? (
+                  <GridArticleStrengthsViz key={section.id} section={section} />
+                ) : section.id === 's5_friction' ? (
+                  <GridArticleFrictionViz key={section.id} section={section} />
+                ) : section.id === 's6_relation' ? (
+                  <GridArticleCommViz key={section.id} section={section} />
+                ) : (
+                  <SectionBlock key={section.id} section={section} density="compact" />
+                )
+              )}
             </div>
           ) : null}
         </section>
