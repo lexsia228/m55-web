@@ -41,7 +41,7 @@ export const TEN_STEM_DISPLAY: readonly TenStemDisplay[] = [
   {
     stemChar: '丁',
     publicTitle: 'クリエイター',
-    symbol: '灯火',
+    symbol: '深層',
     displayOneLine: '静かな集中で、独自の表現を磨き上げる人',
     keywordPool: ['集中', '仕上げ', '質'],
     focusPool: ['深さ', '反復', '基準'],
@@ -50,8 +50,8 @@ export const TEN_STEM_DISPLAY: readonly TenStemDisplay[] = [
     stemChar: '戊',
     publicTitle: 'マネージャー',
     symbol: '山',
-    displayOneLine: '安定した運用で、崩れない土台を守る人',
-    keywordPool: ['運用', '土台', '継続'],
+    displayOneLine: '安定した運用で、崩れない基盤を守る人',
+    keywordPool: ['運用', '基盤', '継続'],
     focusPool: ['リスク', '手順', '持続'],
   },
   {

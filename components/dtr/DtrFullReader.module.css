@@ -159,6 +159,39 @@
   background: rgba(45, 106, 79, 0.22);
 }
 
+.heroPosterPremiumPill {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(200, 190, 255, 0.88);
+  border: 1px solid rgba(177, 156, 255, 0.35);
+  border-radius: 999px;
+  padding: 2px 9px;
+  background: rgba(107, 95, 168, 0.2);
+}
+
+.heroPosterKicker {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 700;
+  margin: 10px 0 0;
+  line-height: 1.55;
+  max-width: 92%;
+}
+
+.heroPosterKickerName {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .heroPosterBottom {
   /* sits at the bottom of the flex overlay */
 }
@@ -198,9 +231,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  padding: 10px 0;
-  border-top: 1px solid rgba(107, 95, 168, 0.12);
-  border-bottom: 1px solid rgba(107, 95, 168, 0.12);
+  padding: 12px 14px;
+  margin-top: 2px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.04);
   margin-bottom: 12px;
 }
 
@@ -357,8 +393,9 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .modulePaid {
-  background: linear-gradient(168deg, rgba(250, 248, 255, 0.95), rgba(245, 243, 252, 0.9));
-  border-color: rgba(107, 95, 168, 0.1);
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.98), rgba(246, 243, 252, 0.94));
+  border: 1px solid rgba(107, 95, 168, 0.11);
+  box-shadow: 0 14px 44px rgba(29, 24, 61, 0.045);
 }
 
 .paidModules {
@@ -397,54 +434,89 @@
   margin: 14px 0 0;
 }
 
-/* ── Module 1: Five-element axis bars ── */
+/* ── Module 1: Structural axis card grid (V0 premium style) ── */
 
-.axisGrid {
+.axisCardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 399px) {
+  .axisCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.axisCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.axisDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
+.axisCardBody {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.axisRow {
-  display: grid;
-  grid-template-columns: 22px 1fr 52px;
-  align-items: center;
-  gap: 12px;
-}
-
-.axisName {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #4a3f6e;
-  text-align: center;
-}
-
-.axisBarWrap {
-  display: flex;
-  gap: 5px;
-}
-
-.axisSegFill,
-.axisSegEmpty {
+  gap: 1px;
   flex: 1;
-  height: 9px;
-  border-radius: 5px;
+  min-width: 0;
 }
 
-.axisSegFill {
-  background: linear-gradient(90deg, rgba(107, 95, 168, 0.7), rgba(124, 111, 214, 0.85));
-}
-
-.axisSegEmpty {
-  background: rgba(177, 156, 255, 0.14);
-}
-
-.axisLevelLabel {
-  font-size: 0.72rem;
-  color: #7a6fa0;
-  text-align: right;
+.axisCardName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #3a3252;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
+
+.axisCardDesc {
+  font-size: 0.7rem;
+  color: rgba(90, 80, 120, 0.72);
+  line-height: 1.4;
+}
+
+.axisLevelPill {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(107, 95, 168, 0.1);
+  color: rgba(80, 70, 130, 0.85);
+  white-space: nowrap;
+}
+
+.axisLevelPillPrimary {
+  background: rgba(107, 95, 168, 0.18);
+  color: rgba(70, 58, 120, 0.95);
+}
+
+/* Legacy bar styles kept for any potential fallback reference — not rendered */
+.axisGrid { display: flex; flex-direction: column; gap: 10px; }
+.axisRow { display: grid; grid-template-columns: 22px 1fr 52px; align-items: center; gap: 12px; }
+.axisName { font-size: 0.85rem; font-weight: 700; color: #4a3f6e; text-align: center; }
+.axisBarWrap { display: flex; gap: 5px; }
+.axisSegFill, .axisSegEmpty { flex: 1; height: 9px; border-radius: 5px; }
+.axisSegFill { background: linear-gradient(90deg, rgba(107, 95, 168, 0.7), rgba(124, 111, 214, 0.85)); }
+.axisSegEmpty { background: rgba(177, 156, 255, 0.14); }
+.axisLevelLabel { font-size: 0.72rem; color: #7a6fa0; text-align: right; white-space: nowrap; }
 
 /* ── Module 2: Trait interaction grid ── */
 
@@ -764,49 +836,93 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 .groundingPanel {
-  padding: clamp(18px, 3.5vw, 24px);
+  padding: clamp(20px, 3.8vw, 26px);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(0, 0, 0, 0.035);
-  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
+  background: linear-gradient(172deg, rgba(253, 251, 248, 0.97) 0%, rgba(248, 246, 252, 0.96) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  box-shadow: 0 18px 52px rgba(29, 24, 61, 0.055);
   margin-bottom: 0;
+}
+
+.groundingBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.groundingBrandWord {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(107, 95, 168, 0.55);
+}
+
+.groundingProductPill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(80, 70, 120, 0.75);
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.75);
 }
 
 .groundingHeader {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
-.groundingSymbol {
-  font-size: 1.4rem;
-  line-height: 1;
-  opacity: 0.6;
+.groundingDocIcon {
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 2px;
+  opacity: 0.92;
 }
 
 .groundingHeaderText {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  min-width: 0;
+}
+
+.groundingReportLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.55);
+  margin: 0;
 }
 
 .groundingTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.95rem, 2.6vw, 1.05rem);
   font-weight: 500;
   color: #1a1a1a;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .groundingSubline {
   font-size: 0.82rem;
   color: #7a6fa0;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+}
+
+.groundingSymbolInline {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: 700;
+  color: rgba(107, 95, 168, 0.75);
 }
 
 .groundingMeta {

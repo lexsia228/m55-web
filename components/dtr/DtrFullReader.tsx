@@ -9,8 +9,10 @@ import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCata
 import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
 import {
   AXIS_DATA,
-  ELEMENT_LABELS,
-  ELEMENT_LEVEL_LABELS,
+  AXIS_LABELS,
+  AXIS_LEVEL_LABELS,
+  AXIS_COLORS,
+  AXIS_DESCS,
   INTERACTION_NOTE,
   parseBlockItems,
   extractAfterLabel,
@@ -68,15 +70,18 @@ function PremiumHero({
   reportTitle,
   aiConsultIncluded,
   expiresAt,
+  nickname,
 }: {
   stem: TenStemDisplay;
   stemIdx: number;
   reportTitle: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
+  nickname: string;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
+  const nick = nickname.trim();
 
   return (
     <header className={styles.premiumHero} aria-label="保存済みレポート">
@@ -95,7 +100,17 @@ function PremiumHero({
             <span className={styles.heroPosterBrandWord}>M55</span>
             <span className={styles.heroPosterTypePill}>Full Report</span>
             <span className={styles.heroPosterSavedPill}>保存済み</span>
+            <span className={styles.heroPosterPremiumPill}>Premium</span>
           </div>
+          <p className={styles.heroPosterKicker}>
+            保存版レポート · 輪郭のプレミアム深読み
+            {nick ? (
+              <>
+                <br />
+                <span className={styles.heroPosterKickerName}>Blueprint of {nick}</span>
+              </>
+            ) : null}
+          </p>
           {/* Bottom: type identity + report title + one-line */}
           <div className={styles.heroPosterBottom}>
             <p className={styles.heroPosterEyebrow}>
@@ -190,26 +205,37 @@ function SectionBlock({ section }: { section: DtrSection }) {
 function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const data = AXIS_DATA[stemIdx] ?? AXIS_DATA[0]!;
   return (
-    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="五行構成">
-      <span className={styles.moduleOverline}>主軸分析</span>
-      <h3 className={styles.moduleTitle}>5軸の確定ビュー</h3>
-      <div className={styles.axisGrid}>
-        {ELEMENT_LABELS.map((label, i) => {
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="5軸分析">
+      <span className={styles.moduleOverline}>5軸</span>
+      <h3 className={styles.moduleTitle}>輪郭を支える構造</h3>
+      <div className={styles.axisCardGrid}>
+        {AXIS_LABELS.map((label, i) => {
           const level = data.balance[i] ?? 0;
+          const color = AXIS_COLORS[i] ?? '#9E92BE';
+          const desc = AXIS_DESCS[i] ?? '';
+          const levelLabel = AXIS_LEVEL_LABELS[level] ?? '—';
           return (
-            <div key={label} className={styles.axisRow}>
-              <span className={styles.axisName}>{label}</span>
-              <div className={styles.axisBarWrap} aria-hidden="true">
-                {[1, 2, 3].map((seg) => (
-                  <div
-                    key={seg}
-                    className={seg <= level ? styles.axisSegFill : styles.axisSegEmpty}
-                  />
-                ))}
+            <div key={label} className={styles.axisCard}>
+              <div
+                className={styles.axisDot}
+                style={{ background: color }}
+                aria-hidden="true"
+              />
+              <div className={styles.axisCardBody}>
+                <span className={styles.axisCardName}>{label}</span>
+                <span className={styles.axisCardDesc}>{desc}</span>
               </div>
-              <span className={styles.axisLevelLabel}>
-                {ELEMENT_LEVEL_LABELS[level] ?? '—'}
-              </span>
+              {level > 0 && (
+                <span
+                  className={
+                    level === 3
+                      ? `${styles.axisLevelPill} ${styles.axisLevelPillPrimary}`
+                      : styles.axisLevelPill
+                  }
+                >
+                  {levelLabel}
+                </span>
+              )}
             </div>
           );
         })}
@@ -233,9 +259,9 @@ function TraitInteractionModule({
   const note = INTERACTION_NOTE[stemIdx] ?? '';
 
   return (
-    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="傾向の構造">
-      <span className={styles.moduleOverline}>構造分析</span>
-      <h3 className={styles.moduleTitle}>重なり・相互作用分析</h3>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="傾向と負荷">
+      <span className={styles.moduleOverline}>傾向と負荷</span>
+      <h3 className={styles.moduleTitle}>重なりと読み解き</h3>
       {note && <p className={styles.moduleNote}>{note}</p>}
       <div className={styles.interactionGrid}>
         <div className={styles.interactionCol}>
@@ -296,9 +322,9 @@ function DomainMatrixModule({
   ];
 
   return (
-    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="領域マトリクス">
-      <span className={styles.moduleOverline}>領域比較</span>
-      <h3 className={styles.moduleTitle}>領域マトリクス</h3>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="生活での出方">
+      <span className={styles.moduleOverline}>生活での出方</span>
+      <h3 className={styles.moduleTitle}>場面別の整理</h3>
       <div className={styles.domainGrid}>
         {domains.map(({ label, value }) => (
           <div key={label} className={styles.domainCard}>
@@ -322,9 +348,9 @@ function FrictionRecoveryModule({
   const bridgeText = bridgeSection.body.split('\n\n')[0] ?? bridgeSection.body;
 
   return (
-    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="摩擦と回復フロー">
-      <span className={styles.moduleOverline}>実践ガイド</span>
-      <h3 className={styles.moduleTitle}>摩擦 → 回復フロー</h3>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="戻し方と整え方">
+      <span className={styles.moduleOverline}>戻し方 · 整え方</span>
+      <h3 className={styles.moduleTitle}>摩擦から整える流れ</h3>
       <div className={styles.frictionList}>
         {frictions.map((f) => (
           <div key={f.header} className={styles.frictionItem}>
@@ -417,7 +443,7 @@ function ContinuousSupport() {
       <h3 className={styles.supportSectionTitle}>継続サポート</h3>
       <p className={styles.supportBody}>
         このレポートは保存版です。転職・異動・新プロジェクト・ライフステージの変化など、
-        大きな局面では、このレポートの構造を土台に、改めて今の状況を整理することができます。
+        大きな局面では、このレポートの構造を基盤に、改めて今の状況を整理することができます。
       </p>
       <ul className={styles.supportPathList} aria-label="継続利用の経路">
         <li className={styles.supportPathItem}>
@@ -441,6 +467,17 @@ function ContinuousSupport() {
    G. Grounding panel — ties consultation room to saved report
    ───────────────────────────────────────────────────────────────────────────── */
 
+function GroundingDocIcon() {
+  return (
+    <svg className={styles.groundingDocIcon} viewBox="0 0 32 32" fill="none" aria-hidden>
+      <rect x="6" y="4" width="20" height="24" rx="2" fill="#E8E4F0" stroke="#9B8AB8" strokeWidth="1.5" />
+      <line x1="10" y1="10" x2="22" y2="10" stroke="#9B8AB8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="10" y1="14" x2="18" y2="14" stroke="#C4B8D6" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="10" y1="18" x2="20" y2="18" stroke="#C4B8D6" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function GroundingPanel({
   stemSymbol,
   reportTitle,
@@ -452,22 +489,30 @@ function GroundingPanel({
 }) {
   return (
     <div className={styles.groundingPanel} role="complementary" aria-label="ルームのコンテキスト">
+      <div className={styles.groundingBadgeRow}>
+        <span className={styles.groundingBrandWord}>M55</span>
+        <span className={styles.groundingProductPill}>Report-backed consult</span>
+      </div>
       <div className={styles.groundingHeader}>
-        <span className={styles.groundingSymbol} aria-hidden="true">{stemSymbol}</span>
+        <GroundingDocIcon />
         <div className={styles.groundingHeaderText}>
+          <p className={styles.groundingReportLabel}>Premium grounding</p>
           <p className={styles.groundingTitle}>{reportTitle}</p>
-          <p className={styles.groundingSubline}>{stemOneLine}</p>
+          <p className={styles.groundingSubline}>
+            <span className={styles.groundingSymbolInline} aria-hidden="true">{stemSymbol}</span>
+            {stemOneLine}
+          </p>
         </div>
       </div>
       <div className={styles.groundingMeta}>
-        <span className={styles.groundingMetaLabel}>参照している分析</span>
+        <span className={styles.groundingMetaLabel}>参照している読み</span>
         <span className={styles.groundingMetaValue}>
-          五行構成・強化傾向と摩擦傾向・本質と安定条件・コミュニケーション傾向・仕事と生活のヒント
+          輪郭 · 5軸 · 傾向と負荷 · 生活での出方 · 戻し方
         </span>
       </div>
       <p className={styles.groundingNote}>
         レポートが地図、相談が現在地。
-        このルームはこの保存済みレポートを土台として動作します。一般的なアドバイスではなく、このレポートの構造を参照した上で返答します。
+        このルームは保存版レポートを基盤に動作します。一般的なアドバイスではなく、上記の読みを参照したうえで返答します。
       </p>
     </div>
   );
@@ -570,11 +615,12 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
         reportTitle={payload.title}
         aiConsultIncluded={aiConsultIncluded}
         expiresAt={expiresAt}
+        nickname={view.nickname}
       />
 
-      {/* ── B. Core analysis narrative ─────────────────────────────── */}
+      {/* ── B. Core analysis narrative — 輪郭（free /core 系） ───────── */}
       <SectionGroupLabel
-        label="コア分析"
+        label="輪郭とコア分析"
         sub="Core Analysis"
         scrollAnchorId="dtr-core-analysis"
       />
@@ -584,8 +630,8 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
         ))}
       </div>
 
-      {/* ── C. Deep Analysis — paid-only modules ───────────────────── */}
-      <SectionGroupLabel label="深掘り解析" sub="Deep Analysis" />
+      {/* ── C. Deep Analysis — プレミアム深読み ─────────────────────── */}
+      <SectionGroupLabel label="プレミアム深読み" sub="Premium Deep Read" />
       <div className={styles.paidModules}>
         <FiveAxisModule stemIdx={stemIdx} />
 
@@ -613,10 +659,10 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
         )}
       </div>
 
-      {/* ── D. Practical Guidance ──────────────────────────────────── */}
+      {/* ── D. 生活での出方 ───────────────────────────────────────── */}
       {sec('s7_work') && sec('s6_relation') && (
         <>
-          <SectionGroupLabel label="実践ガイド" sub="Practical Guidance" />
+          <SectionGroupLabel label="生活での出方" sub="Daily patterns" />
           <PracticalGuidanceSection
             workSection={sec('s7_work')!}
             relationSection={sec('s6_relation')!}

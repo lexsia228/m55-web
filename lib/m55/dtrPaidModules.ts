@@ -2,29 +2,51 @@
  * Paid-only analysis modules for DTR Entry Report.
  * Provides per-stem structured data for the 4 additional analysis modules.
  * Index = stemLaneIndex (0–9): 甲乙丙丁戊己庚辛壬癸
+ *
+ * Axis vocabulary follows M55 structural dimensions (not five-element ontology):
+ *   [思考軸, 推進軸, 安定軸, 精度軸, 感受軸]
+ *   0: absent  1: 共鳴  2: 副軸  3: 主軸
  */
 
-export const ELEMENT_LABELS = ['木', '火', '土', '金', '水'] as const;
-export const ELEMENT_LEVEL_LABELS = ['—', '共鳴', '副軸', '主軸'] as const;
+export const AXIS_LABELS = ['思考軸', '推進軸', '安定軸', '精度軸', '感受軸'] as const;
+export const AXIS_LEVEL_LABELS = ['—', '共鳴', '副軸', '主軸'] as const;
+
+/** Accent color per axis — used for dot indicators in the axis card grid. */
+export const AXIS_COLORS = [
+  '#B8A87C',  // 思考軸 — warm amber
+  '#C4826A',  // 推進軸 — warm coral
+  '#7EA882',  // 安定軸 — calm green
+  '#7A9CB4',  // 精度軸 — cool blue
+  '#9E92BE',  // 感受軸 — soft purple
+] as const;
+
+/** One-line description per axis — shown in axis card grid. */
+export const AXIS_DESCS = [
+  '考え方の傾向と構造化力',
+  '行動・発信・推進力',
+  '安定・継続・基盤定着',
+  '精度・品質・実務設計',
+  '感受・察知・内的感性',
+] as const;
 
 export type AxisEntry = {
-  /** [wood木, fire火, earth土, metal金, water水] — 0: absent, 1: resonant, 2: secondary, 3: primary */
+  /** [思考軸, 推進軸, 安定軸, 精度軸, 感受軸] — 0: absent, 1: resonant, 2: secondary, 3: primary */
   balance: readonly [number, number, number, number, number];
   note: string;
 };
 
-/** Per-stem five-element axis data. */
+/** Per-stem structural axis data. */
 export const AXIS_DATA: readonly AxisEntry[] = [
-  /* 0 甲 */ { balance: [3, 2, 0, 0, 2], note: '木が主軸。火・水が補完する推進型構成。' },
-  /* 1 乙 */ { balance: [3, 0, 2, 0, 1], note: '木の柔軟性が中心。土との接続で調整力を持つ。' },
-  /* 2 丙 */ { balance: [1, 3, 0, 0, 2], note: '火が主軸。水の感受性が表現を深める。' },
-  /* 3 丁 */ { balance: [0, 2, 0, 2, 2], note: '火の内炎型。金・水の精緻さが質を生む。' },
-  /* 4 戊 */ { balance: [0, 1, 3, 0, 1], note: '土が主軸。安定と継続に特化した構成。' },
-  /* 5 己 */ { balance: [2, 2, 3, 0, 1], note: '土が中心で木・火を育む。統合型の構成。' },
-  /* 6 庚 */ { balance: [2, 2, 0, 3, 0], note: '金が主軸。木・火の推進力が実行力を加える。' },
-  /* 7 辛 */ { balance: [0, 0, 1, 3, 3], note: '金と水が双軸。精緻さと感性が共鳴する。' },
-  /* 8 壬 */ { balance: [2, 2, 0, 0, 3], note: '水が主軸（広域）。火・木の探索力が加わる。' },
-  /* 9 癸 */ { balance: [0, 0, 2, 2, 3], note: '水が主軸（精細）。土・金の観察精度が深まる。' },
+  /* 0 甲 */ { balance: [3, 2, 0, 0, 2], note: '思考軸が主軸。推進・感受が補完する推進型構成。' },
+  /* 1 乙 */ { balance: [3, 0, 2, 0, 1], note: '思考軸の柔軟性が中心。安定軸との接続で調整力を持つ。' },
+  /* 2 丙 */ { balance: [1, 3, 0, 0, 2], note: '推進軸が主軸。感受軸が表現を深める。' },
+  /* 3 丁 */ { balance: [0, 2, 0, 2, 2], note: '推進軸の内向型。精度・感受の精緻さが質を生む。' },
+  /* 4 戊 */ { balance: [0, 1, 3, 0, 1], note: '安定軸が主軸。定着と継続に特化した構成。' },
+  /* 5 己 */ { balance: [2, 2, 3, 0, 1], note: '安定軸が中心で思考・推進を育む。統合型の構成。' },
+  /* 6 庚 */ { balance: [2, 2, 0, 3, 0], note: '精度軸が主軸。思考・推進の駆動力が実行力を加える。' },
+  /* 7 辛 */ { balance: [0, 0, 1, 3, 3], note: '精度軸と感受軸が双軸。精緻さと感性が共鳴する。' },
+  /* 8 壬 */ { balance: [2, 2, 0, 0, 3], note: '感受軸が主軸（広域）。推進・思考の探索力が加わる。' },
+  /* 9 癸 */ { balance: [0, 0, 2, 2, 3], note: '感受軸が主軸（精細）。安定・精度の観察深度が高まる。' },
 ] as const;
 
 /**

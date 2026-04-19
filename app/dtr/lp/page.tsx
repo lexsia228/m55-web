@@ -9,13 +9,13 @@ export const metadata = { title: "本質の読み解き | M55" };
 function CheckIcon() {
   return (
     <svg
-      width="18"
-      height="18"
+      width="17"
+      height="17"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ flexShrink: 0, marginTop: 3, color: 'rgba(76, 66, 108, 0.95)' }}
+      style={{ flexShrink: 0, marginTop: 2, color: 'rgba(107, 95, 168, 0.75)' }}
     >
       <path
         d="M20 6L9 17l-5-5"
@@ -28,7 +28,23 @@ function CheckIcon() {
   );
 }
 
-/** Minimal expired-state notice (shown when redirected from /dtr/core with ?state=expired). */
+function ArrowRightIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Minimal expired-state notice. */
 function ExpiredNotice() {
   return (
     <p style={{
@@ -60,15 +76,15 @@ export default async function DtrLpPage({
       <div style={{
         fontFamily: '"Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
         color: '#3d3d3d',
-        maxWidth: 'min(680px, calc(100vw - 48px))',
+        maxWidth: 'min(640px, calc(100vw - 40px))',
         margin: '0 auto',
-        padding: 'clamp(16px, 4vw, 32px) 0 clamp(56px, 10vw, 80px)',
+        padding: 'clamp(16px, 4vw, 32px) 0 clamp(64px, 10vw, 96px)',
         boxSizing: 'border-box',
         lineHeight: 1.75,
       }}>
 
         {/* パンくず */}
-        <p style={{ margin: '0 0 20px', fontSize: 13 }}>
+        <p style={{ margin: '0 0 20px', fontSize: 12.5, letterSpacing: '0.01em' }}>
           <Link href="/" style={{ color: '#6b5fa8', textDecoration: 'none' }}>M55</Link>
           <span style={{ margin: '0 6px', opacity: 0.35 }}>›</span>
           <Link href="/core" style={{ color: '#6b5fa8', textDecoration: 'none' }}>本質</Link>
@@ -76,253 +92,311 @@ export default async function DtrLpPage({
 
         {isExpired && <ExpiredNotice />}
 
-        {/* ────────────────────────────────────
-            購入カード（CoreEntryReportCTASection の移植版）
-            ──────────────────────────────────── */}
+        {/* ── Purchase card ───────────────────────────────────────── */}
         <section
           aria-labelledby="dtr-lp-title"
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'stretch',
-            padding: 'clamp(26px, 5vw, 38px) clamp(20px, 4vw, 28px) clamp(28px, 5vw, 40px)',
-            borderRadius: 28,
-            background: `
-              radial-gradient(120% 95% at 50% -2%, rgba(245, 236, 255, 0.6), transparent 58%),
-              linear-gradient(172deg, rgba(253, 247, 238, 0.985) 0%, rgba(247, 241, 252, 0.97) 100%)
-            `,
+            borderRadius: 24,
             border: '1px solid rgba(107, 95, 168, 0.13)',
-            boxShadow: '0 22px 64px rgba(29, 24, 61, 0.075)',
+            boxShadow: '0 24px 72px rgba(29, 24, 61, 0.085)',
+            overflow: 'hidden',
             boxSizing: 'border-box',
           }}
         >
-          {/* overline */}
-          <span style={{
-            display: 'block',
-            fontSize: 10.5,
-            letterSpacing: '0.2em',
-            color: 'rgba(107, 95, 168, 0.7)',
-            marginBottom: 8,
-            fontWeight: 700,
-          }}>
-            保存版レポート
-          </span>
-
-          {/* タイトル */}
-          <h1
-            id="dtr-lp-title"
-            style={{
-              fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif',
-              fontSize: 'clamp(22px, 4.6vw, 27px)',
-              fontWeight: 500,
-              margin: '0 0 16px',
-              color: '#1a1a1a',
-              letterSpacing: '0.02em',
-              lineHeight: 1.4,
-            }}
-          >
-            {STATIC_CTA.title}
-          </h1>
-
-          {/* イントロ */}
-          <p style={{
-            fontSize: 'clamp(15px, 2.85vw, 17px)',
-            margin: '0 0 4px',
-            maxWidth: '38em',
-            lineHeight: 1.78,
-            color: 'rgba(40, 38, 44, 0.92)',
-            fontWeight: 500,
-            whiteSpace: 'pre-line',
-          }}>
-            {STATIC_CTA.intro}
-          </p>
-
-          {/* ベネフィット見出し */}
-          <h2 style={{
-            fontSize: 'clamp(14px, 2.6vw, 15px)',
-            fontWeight: 600,
-            margin: '18px 0 10px',
-            color: '#1f1f1f',
-            letterSpacing: '0.02em',
-          }}>
-            {STATIC_CTA.benefitsHeading}
-          </h2>
-
-          {/* ベネフィットカード */}
-          <ul style={{
-            margin: '0 0 4px',
-            padding: '16px 18px',
-            borderRadius: 14,
-            background: 'rgba(107, 95, 168, 0.065)',
-            border: '1px solid rgba(107, 95, 168, 0.11)',
-            listStyle: 'none',
-            boxSizing: 'border-box',
-          }}>
-            {STATIC_CTA.benefits.map((line, i) => (
-              <li key={i} style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 11,
-                marginTop: i > 0 ? 11 : 0,
-              }}>
-                <CheckIcon />
-                <span style={{
-                  fontSize: 'clamp(14px, 2.65vw, 15px)',
-                  lineHeight: 1.65,
-                  color: 'rgba(38, 36, 42, 0.92)',
-                }}>
-                  {line}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          {/* 価格ブロック */}
-          <div style={{ margin: '22px 0 16px' }}>
-            <p style={{
-              fontSize: 'clamp(13px, 2.5vw, 14px)',
-              margin: '0 0 10px',
-              lineHeight: 1.55,
-              color: 'rgba(55, 52, 58, 0.88)',
-            }}>
-              {STATIC_CTA.bundleNote}
-            </p>
-            <p
-              style={{ margin: 0, lineHeight: 1.2, letterSpacing: '0.03em' }}
-              aria-label={STATIC_CTA.priceLabel}
-            >
-              <span style={{
-                fontSize: 'clamp(17px, 3.4vw, 20px)',
-                fontWeight: 700,
-                color: '#151515',
-              }}>買い切り</span>{' '}
-              <span style={{
-                fontSize: 'clamp(26px, 5.5vw, 34px)',
-                fontWeight: 800,
-                fontVariantNumeric: 'tabular-nums',
-                color: '#121212',
-              }}>1000円</span>
-            </p>
-          </div>
-
-          {/* 支払い方法 */}
+          {/* ── Dark identity header ─────────────────────────────── */}
           <div style={{
+            background: 'linear-gradient(145deg, #1a1230 0%, #261740 55%, #1c1438 100%)',
+            padding: 'clamp(18px, 3.5vw, 24px) clamp(20px, 4vw, 28px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
-            margin: '0 0 16px',
-          }} aria-label="対応支払い方法">
-            <span style={{
-              fontSize: 12,
-              color: 'rgba(60, 58, 66, 0.6)',
-              letterSpacing: '0.015em',
-              lineHeight: 1.4,
-            }}>
-              クレジットカード / Apple Pay / PayPay 対応
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
-              {(['Visa', 'Mastercard', 'JCB', 'AMEX'] as const).map((name) => (
-                <span key={name} style={{
+            gap: 14,
+          }}>
+            {/* Badge row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                fontSize: 11.5,
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                color: 'rgba(255, 255, 255, 0.45)',
+              }}>
+                M55
+              </span>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '2px 10px',
+                borderRadius: 999,
+                fontSize: 10.5,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+                color: 'rgba(255, 255, 255, 0.78)',
+              }}>
+                Entry Report
+              </span>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '2px 9px',
+                borderRadius: 999,
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                background: 'rgba(177, 156, 255, 0.14)',
+                border: '1px solid rgba(177, 156, 255, 0.2)',
+                color: 'rgba(177, 156, 255, 0.85)',
+              }}>
+                保存版
+              </span>
+            </div>
+
+            {/* Product headline */}
+            <div>
+              <h1
+                id="dtr-lp-title"
+                style={{
+                  fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif',
+                  fontSize: 'clamp(21px, 4.2vw, 25px)',
+                  fontWeight: 500,
+                  margin: '0 0 8px',
+                  color: 'rgba(255, 255, 255, 0.94)',
+                  letterSpacing: '0.02em',
+                  lineHeight: 1.42,
+                }}
+              >
+                {STATIC_CTA.title}
+              </h1>
+              <p style={{
+                fontSize: 'clamp(13.5px, 2.5vw, 14.5px)',
+                margin: 0,
+                color: 'rgba(255, 255, 255, 0.55)',
+                lineHeight: 1.65,
+                whiteSpace: 'pre-line',
+              }}>
+                {STATIC_CTA.intro}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Card body: benefits + price + CTA ───────────────── */}
+          <div style={{
+            background: `
+              radial-gradient(120% 90% at 50% -4%, rgba(245, 236, 255, 0.55), transparent 55%),
+              linear-gradient(172deg, rgba(253, 247, 238, 0.99) 0%, rgba(247, 241, 252, 0.98) 100%)
+            `,
+            padding: 'clamp(22px, 4vw, 30px) clamp(20px, 4vw, 28px) clamp(24px, 4.5vw, 32px)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+          }}>
+
+            {/* Benefits */}
+            <div>
+              <h2 style={{
+                fontSize: 12.5,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                color: 'rgba(107, 95, 168, 0.7)',
+                margin: '0 0 10px',
+                textTransform: 'uppercase',
+              }}>
+                {STATIC_CTA.benefitsHeading}
+              </h2>
+              <ul style={{
+                margin: 0,
+                padding: 0,
+                listStyle: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 9,
+              }}>
+                {STATIC_CTA.benefits.map((line, i) => (
+                  <li key={i} style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 10,
+                  }}>
+                    <CheckIcon />
+                    <span style={{
+                      fontSize: 'clamp(13.5px, 2.6vw, 14.5px)',
+                      lineHeight: 1.62,
+                      color: 'rgba(38, 36, 42, 0.88)',
+                    }}>
+                      {line}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              height: 1,
+              background: 'rgba(107, 95, 168, 0.1)',
+              borderRadius: 1,
+            }} />
+
+            {/* Price + payment block */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{
+                fontSize: 12,
+                color: 'rgba(55, 52, 58, 0.6)',
+                margin: 0,
+                lineHeight: 1.5,
+              }}>
+                {STATIC_CTA.bundleNote}
+              </p>
+
+              {/* Price row */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 10,
+              }}>
+                <p
+                  style={{ margin: 0, lineHeight: 1.1 }}
+                  aria-label={STATIC_CTA.priceLabel}
+                >
+                  <span style={{
+                    fontSize: 'clamp(28px, 5.8vw, 36px)',
+                    fontWeight: 800,
+                    fontVariantNumeric: 'tabular-nums',
+                    color: '#121212',
+                    letterSpacing: '-0.01em',
+                  }}>¥1,000</span>
+                </p>
+                <span style={{
+                  fontSize: 12,
+                  color: 'rgba(55, 52, 58, 0.55)',
+                  letterSpacing: '0.02em',
+                  paddingBottom: 2,
+                }}>買い切り</span>
+              </div>
+
+              {/* Payment methods */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 5,
+                alignItems: 'center',
+              }} aria-label="対応支払い方法">
+                {(['Visa', 'Mastercard', 'JCB', 'AMEX'] as const).map((name) => (
+                  <span key={name} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '2.5px 8px',
+                    borderRadius: 5,
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: '0.02em',
+                    lineHeight: 1,
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    border: '1px solid rgba(80, 74, 100, 0.15)',
+                    color: 'rgba(40, 38, 46, 0.65)',
+                  }}>
+                    {name}
+                  </span>
+                ))}
+                <span style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  padding: '3px 8px',
+                  padding: '2.5px 8px',
                   borderRadius: 5,
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: 600,
                   letterSpacing: '0.02em',
                   lineHeight: 1,
-                  background: 'rgba(255, 255, 255, 0.75)',
-                  border: '1px solid rgba(80, 74, 100, 0.18)',
-                  color: 'rgba(40, 38, 46, 0.72)',
+                  background: 'rgba(24, 24, 28, 0.85)',
+                  color: 'rgba(255, 255, 255, 0.92)',
                 }}>
-                  {name}
+                  Apple Pay
                 </span>
-              ))}
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '3px 8px',
-                borderRadius: 5,
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                lineHeight: 1,
-                background: 'rgba(24, 24, 28, 0.88)',
-                border: '1px solid transparent',
-                color: 'rgba(255, 255, 255, 0.95)',
-              }}>
-                Apple Pay
-              </span>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '3px 8px',
-                borderRadius: 5,
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: '0.02em',
-                lineHeight: 1,
-                background: 'rgba(215, 20, 20, 0.88)',
-                border: '1px solid transparent',
-                color: 'rgba(255, 255, 255, 0.97)',
-              }}>
-                PayPay
-              </span>
-            </div>
-          </div>
-
-          {/* 購入ボタン — ログイン状態で分岐 */}
-          {userId ? (
-            <PurchaseButton
-              productId="DTR_CORE_STATIC_V1"
-              className="inline-flex items-center justify-center rounded-full bg-[#534a72] px-8 py-4 text-white font-bold hover:opacity-90 w-full text-base tracking-wide shadow-lg"
-            >
-              1000円で本質の読み解きを購入する
-            </PurchaseButton>
-          ) : (
-            <div>
-              <p style={{
-                fontSize: 13,
-                color: 'rgba(107, 95, 168, 0.82)',
-                margin: '0 0 12px',
-                lineHeight: 1.55,
-              }}>
-                購入にはログインが必要です。
-              </p>
-              <a
-                href={`/sign-in?redirect_url=${encodeURIComponent('/dtr/lp')}`}
-                style={{
-                  display: 'flex',
+                <span style={{
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 999,
-                  background: '#534a72',
-                  padding: '14px 32px',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '1rem',
+                  padding: '2.5px 8px',
+                  borderRadius: 5,
+                  fontSize: 10.5,
+                  fontWeight: 600,
                   letterSpacing: '0.02em',
-                  textDecoration: 'none',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  boxShadow: '0 6px 22px rgba(83, 74, 114, 0.32)',
-                }}
-              >
-                ログインして購入へ進む
-              </a>
+                  lineHeight: 1,
+                  background: 'rgba(215, 20, 20, 0.85)',
+                  color: 'rgba(255, 255, 255, 0.97)',
+                }}>
+                  PayPay
+                </span>
+              </div>
             </div>
-          )}
 
-          {/* 法的注記 */}
-          <p style={{
-            marginTop: 20,
-            fontSize: 12,
-            color: 'rgba(60, 60, 60, 0.65)',
-            lineHeight: 1.65,
-          }}>
-            ウェブ上で提供するデジタルコンテンツ（レポート）です。決済完了後すぐに閲覧できます（物理配送なし）。
-            本サービスは医療・法律・投資等の助言ではありません。
-          </p>
+            {/* CTA block */}
+            {userId ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <PurchaseButton
+                  productId="DTR_CORE_STATIC_V1"
+                  className="m55-lp-cta-btn"
+                >
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    gap: 12,
+                  }}>
+                    <span>今すぐ入手する</span>
+                    <ArrowRightIcon />
+                  </span>
+                </PurchaseButton>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p style={{
+                  fontSize: 13,
+                  color: 'rgba(107, 95, 168, 0.78)',
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}>
+                  購入にはログインが必要です。
+                </p>
+                <a
+                  href={`/sign-in?redirect_url=${encodeURIComponent('/dtr/lp')}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderRadius: 14,
+                    background: 'linear-gradient(135deg, #3d3262 0%, #534a72 100%)',
+                    padding: '16px 22px',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 'clamp(14.5px, 2.8vw, 16px)',
+                    letterSpacing: '0.02em',
+                    textDecoration: 'none',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    boxShadow: '0 8px 28px rgba(61, 50, 98, 0.38)',
+                  }}
+                >
+                  <span>ログインして入手する</span>
+                  <ArrowRightIcon />
+                </a>
+              </div>
+            )}
+
+            {/* Legal note */}
+            <p style={{
+              margin: 0,
+              fontSize: 11.5,
+              color: 'rgba(60, 60, 60, 0.55)',
+              lineHeight: 1.65,
+            }}>
+              ウェブ上で提供するデジタルコンテンツ（レポート）です。決済完了後すぐに閲覧できます（物理配送なし）。
+              本サービスは医療・法律・投資等の助言ではありません。
+            </p>
+          </div>
         </section>
       </div>
     </PublicShell>
