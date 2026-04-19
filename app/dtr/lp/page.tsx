@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import PurchaseButton from "../../../components/PurchaseButton";
+import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
 import { STATIC_CTA } from "../../../components/core/corePublicCopy";
 
@@ -240,7 +241,7 @@ export default async function DtrLpPage({
               borderRadius: 1,
             }} />
 
-            {/* Price + payment block */}
+            {/* Price block */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <p style={{
                 fontSize: 12,
@@ -276,61 +277,10 @@ export default async function DtrLpPage({
                   paddingBottom: 2,
                 }}>買い切り</span>
               </div>
-
-              {/* Payment methods */}
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 5,
-                alignItems: 'center',
-              }} aria-label="対応支払い方法">
-                {(['Visa', 'Mastercard', 'JCB', 'AMEX'] as const).map((name) => (
-                  <span key={name} style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '2.5px 8px',
-                    borderRadius: 5,
-                    fontSize: 10.5,
-                    fontWeight: 600,
-                    letterSpacing: '0.02em',
-                    lineHeight: 1,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    border: '1px solid rgba(80, 74, 100, 0.15)',
-                    color: 'rgba(40, 38, 46, 0.65)',
-                  }}>
-                    {name}
-                  </span>
-                ))}
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '2.5px 8px',
-                  borderRadius: 5,
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  letterSpacing: '0.02em',
-                  lineHeight: 1,
-                  background: 'rgba(24, 24, 28, 0.85)',
-                  color: 'rgba(255, 255, 255, 0.92)',
-                }}>
-                  Apple Pay
-                </span>
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '2.5px 8px',
-                  borderRadius: 5,
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  letterSpacing: '0.02em',
-                  lineHeight: 1,
-                  background: 'rgba(215, 20, 20, 0.85)',
-                  color: 'rgba(255, 255, 255, 0.97)',
-                }}>
-                  PayPay
-                </span>
-              </div>
             </div>
+
+            {/* Trust row — Stripe Checkout 前の安心表示（ホスト側 UI のみ） */}
+            <CheckoutTrustRow />
 
             {/* CTA block */}
             {userId ? (
