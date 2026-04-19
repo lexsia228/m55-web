@@ -19,7 +19,7 @@
  * - High-risk block response shows safe guidance only.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ConsultRoom.module.css';
 
 const INPUT_MIN = 10;
@@ -27,6 +27,25 @@ const INPUT_WARN = 450;
 const INPUT_MAX = 500;
 /** Max consults per report thread (SSOT M55_REPORT_CONCIERGE_ROOM_SSOT_v1 §2.3) */
 const MAX_CREDITS = 3;
+
+const THEMES = [
+  '仕事',
+  '人間関係',
+  '疲れやすさ',
+  '判断の迷い',
+  '自分の整え方',
+  '距離感',
+] as const;
+
+type Theme = (typeof THEMES)[number];
+
+const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
+  { id: 'q1', label: '最近、判断を急がされる場面が増えている' },
+  { id: 'q2', label: '対人関係で消耗を感じることがある' },
+  { id: 'q3', label: '見通しが立ちにくい状態が続いている' },
+  { id: 'q4', label: '自分のペースを保ちにくい' },
+  { id: 'q5', label: '休息が十分に取れていない' },
+];
 
 type Message = {
   id?: string;
@@ -51,22 +70,91 @@ type Props = {
   nickname: string;
 };
 
+function buildComposedMessage(
+  theme: Theme | null,
+  selectedIds: Set<string>,
+  freeText: string
+): string {
+  const parts: string[] = [];
+  if (theme) parts.push(`【テーマ】${theme}`);
+  if (selectedIds.size > 0) {
+    const labels = SUPPLEMENTARY_QUESTIONS.filter((q) => selectedIds.has(q.id)).map(
+      (q) => `・${q.label}`
+    );
+    parts.push(`【補助（最大3つ）】\n${labels.join('\n')}`);
+  }
+  const body = freeText.trim();
+  if (body) parts.push(body);
+  return parts.join('\n\n');
+}
+
+function ThemeChip({
+  theme,
+  selected,
+  onSelect,
+}: {
+  theme: Theme;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={selected ? `${styles.themeChip} ${styles.themeChipSelected}` : styles.themeChip}
+      onClick={onSelect}
+      aria-pressed={selected}
+    >
+      {theme}
+    </button>
+  );
+}
+
+function SupplementaryToggle({
+  label,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={
+        selected ? `${styles.questionToggle} ${styles.questionToggleSelected}` : styles.questionToggle
+      }
+      onClick={onToggle}
+      aria-pressed={selected}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function ConsultRoom({ birthDate, nickname }: Props) {
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [inputText, setInputText] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(() => new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Immediate double-submit guard — set before any async op, cleared in finally.
-  // Separate from `sending` state which controls UI after re-render.
   const sendLock = useRef(false);
-
-  /** Skip first messages-driven scroll so /dtr/core opens at page top (scrollIntoView scrolls ancestors). */
   const skipInitialThreadScrollRef = useRef(true);
 
-  // Load thread state + messages on mount
+  const composedMessage = useMemo(
+    () => buildComposedMessage(selectedTheme, selectedQuestionIds, inputText),
+    [selectedTheme, selectedQuestionIds, inputText]
+  );
+
+  const composedLen = composedMessage.length;
+  const isOverMax = composedLen > INPUT_MAX;
+  const isUnderMin = composedMessage.trim().length < INPUT_MIN;
+  const isWarn = composedLen >= INPUT_WARN && !isOverMax;
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -83,10 +171,11 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
         if (!cancelled) setLoadError('ルームの読み込みに失敗しました。ページを再読み込みしてください。');
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Scroll thread to latest only after user-driven updates — not on initial room load.
   useEffect(() => {
     if (!roomData) return;
     if (skipInitialThreadScrollRef.current) {
@@ -97,27 +186,40 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [roomData?.messages]);
 
+  const toggleQuestion = (id: string) => {
+    setSelectedQuestionIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < 3) next.add(id);
+      return next;
+    });
+  };
+
   const handleSend = async () => {
-    // Double-submit guard: ref check before state check
     if (sendLock.current) return;
     if (!roomData) return;
+    if (!selectedTheme) return;
 
-    const msg = inputText.trim();
+    const msg = composedMessage.trim();
     if (msg.length < INPUT_MIN) return;
     if (msg.length > INPUT_MAX) return;
     if (roomData.thread.state !== 'writable') return;
     if (roomData.thread.credits_remaining <= 0) return;
 
+    const snapshot = {
+      free: inputText,
+      questions: new Set(selectedQuestionIds),
+      theme: selectedTheme,
+    };
+
     sendLock.current = true;
     setSending(true);
     setSendError(null);
 
-    // Optimistic: show user message immediately, clear input
     const optimisticMsg: Message = { role: 'user', content: msg };
-    setRoomData((prev) =>
-      prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev
-    );
+    setRoomData((prev) => (prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev));
     setInputText('');
+    setSelectedQuestionIds(new Set());
 
     try {
       const res = await fetch('/api/room/core/send', {
@@ -128,44 +230,32 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
-        // Roll back optimistic message on error
-        setRoomData((prev) =>
-          prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev
-        );
-        // Show safe message for high-risk blocks, error text for others
+        setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
         setSendError(
           (data as { safeMessage?: string }).safeMessage ??
-          (data as { error?: string }).error ??
-          `送信エラー (${res.status})`
+            (data as { error?: string }).error ??
+            `送信エラー (${res.status})`
         );
-        // Restore input text for user to edit and retry
-        setInputText(msg);
+        setInputText(snapshot.free);
+        setSelectedQuestionIds(snapshot.questions);
+        setSelectedTheme(snapshot.theme);
         return;
       }
 
       const { reply, thread } = data as { reply: Message; thread: ThreadState };
-      setRoomData((prev) =>
-        prev ? { thread, messages: [...prev.messages, reply] } : null
-      );
+      setRoomData((prev) => (prev ? { thread, messages: [...prev.messages, reply] } : null));
     } catch {
-      // Network error: roll back
-      setRoomData((prev) =>
-        prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev
-      );
+      setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
       setSendError('送信に失敗しました。ネットワークを確認して再度お試しください。');
-      setInputText(msg);
+      setInputText(snapshot.free);
+      setSelectedQuestionIds(snapshot.questions);
+      setSelectedTheme(snapshot.theme);
     } finally {
       sendLock.current = false;
       setSending(false);
     }
   };
 
-  const charCount = inputText.length;
-  const isOverMax = charCount > INPUT_MAX;
-  const isUnderMin = inputText.trim().length < INPUT_MIN;
-  const isWarn = charCount >= INPUT_WARN && !isOverMax;
-
-  // ── Loading / error states ──────────────────────────────────────────
   if (loadError) {
     return (
       <div className={styles.room} aria-label="相談ルーム">
@@ -185,28 +275,38 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   const { thread, messages } = roomData;
   const isReadOnly = thread.state === 'read_only' || thread.credits_remaining <= 0;
 
-  // ── Render ──────────────────────────────────────────────────────────
+  const usageLine =
+    thread.credits_remaining > 0
+      ? `返書 ${thread.credits_remaining}件利用可能`
+      : 'このスレッドの相談は利用済みです';
+
+  const submitDisabled = sending || !selectedTheme || isOverMax || isUnderMin;
+
   return (
     <section className={styles.room} aria-label="相談ルーム（purchaser-only）">
-      <div className={styles.roomHeader}>
-        <h2 className={styles.roomTitle}>相談ルーム</h2>
-
-        {/* Credits counter — required by SSOT §6.1 */}
-        <div className={styles.credits} aria-label="相談の残り回数">
-          <span className={styles.creditsLabel}>相談残り</span>
-          <span className={styles.creditsValue} aria-live="polite">
-            {thread.credits_remaining} / {thread.credits_total}
-          </span>
+      <header className={styles.roomHeaderBar}>
+        <div className={styles.roomHeaderMain}>
+          <h2 className={styles.roomTitle}>相談返書ルーム</h2>
+          <p className={styles.roomLead}>
+            見えている傾向を土台に、今回の論点を整理する
+          </p>
         </div>
-      </div>
+        <div className={styles.roomHeaderMeta}>
+          <span className={styles.usageLabel}>利用状態</span>
+          <p className={styles.usageValue} aria-live="polite">
+            {usageLine}
+            <span className={styles.usageSub}>
+              （{thread.credits_remaining} / {thread.credits_total}）
+            </span>
+          </p>
+        </div>
+      </header>
 
-      {/* Read-only notice — SSOT §5.2: no urgency/shame/failure wording */}
       {isReadOnly && (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
             このレポートスレッドの相談上限に達しました。これまでのやりとりは引き続き確認できます。
           </p>
-          {/* Add-on hint: room-only, no public hero (SSOT §3.2) */}
           {thread.credits_total < MAX_CREDITS && (
             <p className={styles.addOnNote}>
               追加の相談（1回）はこのルーム内でのみ申し込み可能です。上限は合計{MAX_CREDITS}回です。
@@ -215,7 +315,6 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
         </div>
       )}
 
-      {/* Message thread */}
       <div className={styles.messages} role="log" aria-label="相談のやりとり" aria-live="polite">
         {messages.length === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>
@@ -234,56 +333,111 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
         {sending && (
           <div className={styles.msgAssistant}>
             <p className={styles.msgRole}>M55</p>
-            <p className={styles.msgContent} aria-live="polite">返答を生成しています…</p>
+            <p className={styles.msgContent} aria-live="polite">
+              返答を生成しています…
+            </p>
           </div>
         )}
         <div ref={messagesEndRef} aria-hidden="true" />
       </div>
 
-      {/* Send error */}
-      {sendError && (
-        <p className={styles.sendError} role="alert">{sendError}</p>
-      )}
+      {sendError && <p className={styles.sendError} role="alert">{sendError}</p>}
 
-      {/* Input area — hidden when read-only (SSOT §5.1) */}
       {!isReadOnly && (
-        <div className={styles.inputArea}>
-          <label htmlFor="consult-input" className={styles.srOnly}>
-            相談メッセージを入力（{INPUT_MIN}〜{INPUT_MAX}文字）
-          </label>
-          <textarea
-            id="consult-input"
-            className={styles.textarea}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder={`このレポートの内容について確認したいことを入力（${INPUT_MIN}〜${INPUT_MAX}文字）`}
-            rows={4}
-            maxLength={INPUT_MAX + 10}
-            disabled={sending}
-            aria-describedby="char-counter"
-          />
-          <div className={styles.inputFooter}>
-            <span
-              id="char-counter"
-              className={
-                isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter
-              }
-              aria-live="polite"
-            >
-              {charCount} / {INPUT_MAX}
-              {isWarn && ` — あと${INPUT_MAX - charCount}文字`}
-              {isOverMax && ' — 上限を超えています。短くしてください'}
-            </span>
-            <button
-              type="button"
-              className={styles.sendBtn}
-              onClick={handleSend}
-              disabled={sending || isOverMax || isUnderMin}
-              aria-busy={sending}
-            >
-              {sending ? '送信中…' : '送信する（1回消費）'}
-            </button>
-          </div>
+        <div className={styles.composeColumn}>
+          <section className={styles.composeSection}>
+            <h3 className={styles.composeSectionLabel}>テーマを選択</h3>
+            <div className={styles.themeRow}>
+              {THEMES.map((t) => (
+                <ThemeChip
+                  key={t}
+                  theme={t}
+                  selected={selectedTheme === t}
+                  onSelect={() => setSelectedTheme(t)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.composeSection}>
+            <h3 className={styles.composeSectionLabel}>補助質問（最大3つ）</h3>
+            <p className={styles.composeHint}>当てはまるものがあれば選択してください</p>
+            <div className={styles.questionList}>
+              {SUPPLEMENTARY_QUESTIONS.map((q) => (
+                <SupplementaryToggle
+                  key={q.id}
+                  label={q.label}
+                  selected={selectedQuestionIds.has(q.id)}
+                  onToggle={() => toggleQuestion(q.id)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.composeSection}>
+            <h3 className={styles.composeSectionLabel}>自由入力</h3>
+            <label htmlFor="consult-input" className={styles.srOnly}>
+              相談メッセージを入力（全体で{INPUT_MIN}〜{INPUT_MAX}文字）
+            </label>
+            <textarea
+              id="consult-input"
+              className={styles.textarea}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="今気になっていること、整理したいことがあればご記入ください"
+              rows={6}
+              maxLength={INPUT_MAX + 80}
+              disabled={sending}
+              aria-describedby="char-counter"
+            />
+            <div className={styles.counterRow}>
+              <span
+                id="char-counter"
+                className={
+                  isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter
+                }
+                aria-live="polite"
+              >
+                送信内容全体 {composedLen} / {INPUT_MAX}
+                {selectedTheme == null && ' — テーマを選択してください'}
+                {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
+                {isOverMax && ' — 上限を超えています。短くしてください'}
+              </span>
+            </div>
+          </section>
+
+          <button
+            type="button"
+            className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+            onClick={handleSend}
+            disabled={submitDisabled}
+            aria-busy={sending}
+          >
+            {sending ? (
+              <span className={styles.submitBtnInner}>
+                <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
+                  <circle
+                    className={styles.submitSpinnerTrack}
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  />
+                  <path
+                    className={styles.submitSpinnerArc}
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                作成中
+              </span>
+            ) : (
+              '返書を作成する'
+            )}
+          </button>
+
           <p className={styles.inputNote}>
             1回の送信で相談1回を消費します。送信後の取り消しはできません。返答は保存されます。
           </p>
@@ -292,4 +446,3 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     </section>
   );
 }
-

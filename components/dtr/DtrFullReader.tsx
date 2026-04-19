@@ -102,6 +102,42 @@ function HeroIconMessage({ className }: { className?: string }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   Premium included-features band — under poster, before ownership meta.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
+  const items: { key: string; label: string }[] = [
+    { key: 'axis', label: '5軸の確定ビュー' },
+    { key: 'load', label: '傾向と負荷の深読み' },
+    { key: 'scene', label: '場面別の整理' },
+    { key: 'recovery', label: '戻し方・整え方' },
+    { key: 'practical', label: '実践ガイド' },
+  ];
+  if (aiConsultIncluded) {
+    items.push({ key: 'consult', label: '保存版相談 1件' });
+  }
+
+  return (
+    <div className={styles.premiumIncludedBand} aria-label="有料版に含まれる内容">
+      <p className={styles.premiumIncludedOverline}>この保存版に含まれるもの</p>
+      <p className={styles.premiumIncludedLead}>
+        無料の輪郭に加え、深読みと実践までをこの一冊にまとめています。
+      </p>
+      <ul className={styles.premiumIncludedList}>
+        {items.map((it) => (
+          <li key={it.key} className={styles.premiumIncludedItem}>
+            {it.label}
+          </li>
+        ))}
+      </ul>
+      <p className={styles.premiumIncludedFootnote}>
+        無料で見える輪郭に比べ、構造の確定から日々の整理までをこの保存版ひとつで追えます。
+      </p>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    A. Premium hero — two-column feel: left copy stack + right type image (absolute).
    v0-inspired: brand line, badge row, Blueprint h1, inset type card, dense meta grid.
    ───────────────────────────────────────────────────────────────────────────── */
@@ -173,6 +209,8 @@ function PremiumHero({
           </div>
         </div>
       </div>
+
+      <PremiumIncludedBand aiConsultIncluded={aiConsultIncluded} />
 
       <div className={styles.heroMetaStrip} aria-label="レポート情報">
         <div className={styles.heroMetaItem}>

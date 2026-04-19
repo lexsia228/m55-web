@@ -644,6 +644,68 @@
   margin-bottom: 8px;
 }
 
+/* Included-features band — quiet premium strip between hero and narrative */
+.premiumIncludedBand {
+  margin: clamp(10px, 2vw, 16px) 0 clamp(14px, 2.5vw, 18px);
+  padding: clamp(18px, 3.2vw, 24px) clamp(16px, 3vw, 22px);
+  border-radius: 18px;
+  background: linear-gradient(
+    168deg,
+    rgba(252, 250, 255, 0.97),
+    rgba(242, 238, 250, 0.9)
+  );
+  border: 1px solid rgba(107, 95, 168, 0.11);
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.035);
+  box-sizing: border-box;
+}
+
+.premiumIncludedOverline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.52);
+  margin: 0 0 8px;
+}
+
+.premiumIncludedLead {
+  font-size: 0.86rem;
+  color: #454059;
+  line-height: 1.55;
+  margin: 0 0 14px;
+  max-width: 40rem;
+}
+
+.premiumIncludedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.premiumIncludedItem {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #3a3252;
+  line-height: 1.35;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(107, 95, 168, 0.11);
+}
+
+.premiumIncludedFootnote {
+  font-size: 0.7rem;
+  color: rgba(107, 95, 168, 0.48);
+  margin: 12px 0 0;
+  line-height: 1.5;
+  max-width: 42rem;
+}
+
 /* Poster card: dark gradient bg, type image positioned at right-bottom */
 .heroPoster {
   position: relative;
