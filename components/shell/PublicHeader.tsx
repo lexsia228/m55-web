@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import styles from './ShellLayout.module.css';
 
-type TabId = '/core' | '/dtr/core' | '/my';
+type TabId = '/core' | '/dtr' | '/my';
 
 const TABS: { href: TabId; label: string }[] = [
   { href: '/core', label: '本質' },
-  { href: '/dtr/core', label: 'レポート' },
+  { href: '/dtr', label: 'レポート' },
   { href: '/my', label: 'マイページ' },
 ];
 
@@ -44,7 +44,7 @@ export function PublicHeader() {
         <nav className={styles.topNav} aria-label="メインナビゲーション">
           {TABS.map((tab) => {
             const isActive =
-              tab.href === '/dtr/core' ? pathname.startsWith('/dtr/') : pathname === tab.href;
+              tab.href === '/dtr' ? pathname === '/dtr' || pathname.startsWith('/dtr/') : pathname === tab.href;
             return (
               <Link
                 key={tab.href}
