@@ -19,6 +19,37 @@ import {
 import ConsultRoom from './ConsultRoom';
 import styles from './DtrFullReader.module.css';
 
+/**
+ * Ten-views image mapping by stem index.
+ * Mirrors CoreHeroSection HERO_VISUAL_PRESET order (TYPE_01–10).
+ * stemIdx 0–9 maps to ten stem 甲–癸 (TenStemCatalog order).
+ */
+const DTR_TYPE_IMAGE: Record<number, string> = {
+  0: '/ten-views/president.webp',
+  1: '/ten-views/planner.webp',
+  2: '/ten-views/influencer.webp',
+  3: '/ten-views/creator.webp',
+  4: '/ten-views/manager.webp',
+  5: '/ten-views/producer.webp',
+  6: '/ten-views/executor.webp',
+  7: '/ten-views/designer.webp',
+  8: '/ten-views/global-leader.webp',
+  9: '/ten-views/analyst.webp',
+};
+
+const DTR_TYPE_EN: Record<number, string> = {
+  0: 'PRESIDENT',
+  1: 'PLANNER',
+  2: 'INFLUENCER',
+  3: 'CREATOR',
+  4: 'MANAGER',
+  5: 'PRODUCER',
+  6: 'EXECUTOR',
+  7: 'DESIGNER',
+  8: 'GLOBAL LEADER',
+  9: 'ANALYST',
+};
+
 type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
@@ -26,59 +57,73 @@ type Props = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   A. Premium hero
+   A. Premium hero — dark poster with ten-views type image + serif headline.
+   Inherits /core CoreHeroSection visual language: dark bg, type image overlay,
+   eyebrow / serif h1 / one-line structure. Adds "保存済み" owned-report identity.
    ───────────────────────────────────────────────────────────────────────────── */
 
 function PremiumHero({
   stem,
+  stemIdx,
   reportTitle,
   aiConsultIncluded,
   expiresAt,
 }: {
   stem: TenStemDisplay;
+  stemIdx: number;
   reportTitle: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
 }) {
+  const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
+  const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
+
   return (
-    <header className={styles.premiumHero}>
-      {/* Brand + product + saved badges */}
-      <div className={styles.heroBrandRow}>
-        <span className={styles.heroBrand}>M55</span>
-        <span className={styles.heroProductLabel}>Deep Type Report</span>
-        <span className={styles.heroSavedBadge}>保存済み</span>
-      </div>
-
-      {/* Type name + title */}
-      <div className={styles.heroTypeRow}>
-        <span className={styles.heroSymbolDisplay} aria-hidden="true">{stem.symbol}</span>
-        <div className={styles.heroTypeInfo}>
-          <span className={styles.heroPublicTitle}>
-            {stem.publicTitle}&#8201;·&#8201;{stem.stemChar}
-          </span>
-          <h1 className={styles.heroTitle}>{reportTitle}</h1>
+    <header className={styles.premiumHero} aria-label="保存済みレポート">
+      {/* Poster card — dark bg + type image + text overlay */}
+      <div className={styles.heroPoster}>
+        <img
+          className={styles.heroPosterTypeImg}
+          src={typeImage}
+          alt=""
+          decoding="async"
+          aria-hidden
+        />
+        <div className={styles.heroPosterOverlay}>
+          {/* Top row: brand + product label + saved status */}
+          <div className={styles.heroPosterTopRow}>
+            <span className={styles.heroPosterBrandWord}>M55</span>
+            <span className={styles.heroPosterTypePill}>Full Report</span>
+            <span className={styles.heroPosterSavedPill}>保存済み</span>
+          </div>
+          {/* Bottom: type identity + report title + one-line */}
+          <div className={styles.heroPosterBottom}>
+            <p className={styles.heroPosterEyebrow}>
+              分析類型&thinsp;/&thinsp;{typeEnLabel}
+            </p>
+            <h1 className={styles.heroPosterTitle}>{reportTitle}</h1>
+            <p className={styles.heroPosterOneLine}>{stem.displayOneLine}</p>
+          </div>
         </div>
       </div>
 
-      <p className={styles.heroEssence}>{stem.displayOneLine}</p>
-
-      {/* Ownership meta strip */}
-      <div className={styles.heroOwnershipStrip} aria-label="レポート情報">
-        <div className={styles.heroOwnershipItem}>
-          <span className={styles.heroOwnershipLabel}>タイプ</span>
-          <span className={styles.heroOwnershipValue}>Full Report</span>
+      {/* Ownership meta strip — subordinate to poster */}
+      <div className={styles.heroMetaStrip} aria-label="レポート情報">
+        <div className={styles.heroMetaItem}>
+          <span className={styles.heroMetaLabel}>有効期限</span>
+          <span className={styles.heroMetaValue}>{expiresAt ?? '無期限'}</span>
         </div>
-        <div className={styles.heroOwnershipItem}>
-          <span className={styles.heroOwnershipLabel}>有効期限</span>
-          <span className={styles.heroOwnershipValue}>{expiresAt ?? '無期限'}</span>
+        <div className={styles.heroMetaItem}>
+          <span className={styles.heroMetaLabel}>相談枠</span>
+          <span className={styles.heroMetaValue}>{aiConsultIncluded ? '1件付帯' : 'なし'}</span>
         </div>
-        <div className={styles.heroOwnershipItem}>
-          <span className={styles.heroOwnershipLabel}>相談枠</span>
-          <span className={styles.heroOwnershipValue}>{aiConsultIncluded ? '1件付帯' : 'なし'}</span>
+        <div className={styles.heroMetaItem}>
+          <span className={styles.heroMetaLabel}>タイプ</span>
+          <span className={styles.heroMetaValue}>{stem.publicTitle}</span>
         </div>
       </div>
 
-      <p className={styles.heroNav}>
+      <p className={styles.heroBackNav}>
         <Link href="/my">← マイページへ</Link>
       </p>
     </header>
@@ -86,29 +131,31 @@ function PremiumHero({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Section group label
+   Section group header — matches /core tierAOverline + serif section title rhythm.
+   Used as structural divider between content groups (コア分析, 深掘り解析, etc.).
    ───────────────────────────────────────────────────────────────────────────── */
 
 function SectionGroupLabel({ label, sub }: { label: string; sub?: string }) {
   return (
-    <div className={styles.sectionGroupLabel}>
-      <div className={styles.sectionGroupLabelAccent} aria-hidden="true" />
-      <div>
-        <span className={styles.sectionGroupLabelText}>{label}</span>
-        {sub && <span className={styles.sectionGroupLabelSub}>{sub}</span>}
+    <div className={styles.groupLabel}>
+      <div className={styles.groupLabelLine}>
+        <span className={styles.groupLabelAccentBar} aria-hidden />
+        <span className={styles.groupLabelOverline}>{sub}</span>
       </div>
+      <h2 className={styles.groupLabelTitle}>{label}</h2>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   B. Core analysis — prose section block
+   B. Core analysis — prose section block.
+   Uses /core coreSectionSurface style: 22px radius, shadow, serif title.
    ───────────────────────────────────────────────────────────────────────────── */
 
 function SectionBlock({ section }: { section: DtrSection }) {
   return (
     <section className={styles.section} aria-label={section.title}>
-      <h2 className={styles.sectionTitle}>{section.title}</h2>
+      <h3 className={styles.sectionTitle}>{section.title}</h3>
       <div className={styles.sectionBody}>
         {section.body.split('\n\n').map((para, i) => (
           <p key={i} className={styles.para}>{para}</p>
@@ -119,15 +166,17 @@ function SectionBlock({ section }: { section: DtrSection }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   C. Deep Analysis — paid-only modules
+   C. Deep Analysis — paid-only modules.
+   Each module is a native M55 section: overline + serif title + coreSurface.
+   Not a "report insert box" — same family as /core sections, elevated tint.
    ───────────────────────────────────────────────────────────────────────────── */
 
 function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const data = AXIS_DATA[stemIdx] ?? AXIS_DATA[0]!;
   return (
-    <div className={styles.paidModule}>
-      <div className={styles.paidBadge}>Module 01 — 主軸分析</div>
-      <h3 className={styles.paidModuleTitle}>5軸の確定ビュー</h3>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="五行構成">
+      <span className={styles.moduleOverline}>主軸分析</span>
+      <h3 className={styles.moduleTitle}>5軸の確定ビュー</h3>
       <div className={styles.axisGrid}>
         {ELEMENT_LABELS.map((label, i) => {
           const level = data.balance[i] ?? 0;
@@ -149,8 +198,8 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
           );
         })}
       </div>
-      <p className={styles.axisNote}>{data.note}</p>
-    </div>
+      <p className={styles.moduleNote}>{data.note}</p>
+    </section>
   );
 }
 
@@ -168,10 +217,10 @@ function TraitInteractionModule({
   const note = INTERACTION_NOTE[stemIdx] ?? '';
 
   return (
-    <div className={styles.paidModule}>
-      <div className={styles.paidBadge}>Module 02 — 構造分析</div>
-      <h3 className={styles.paidModuleTitle}>重なり・相互作用分析</h3>
-      {note && <p className={styles.interactionNote}>{note}</p>}
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="傾向の構造">
+      <span className={styles.moduleOverline}>構造分析</span>
+      <h3 className={styles.moduleTitle}>重なり・相互作用分析</h3>
+      {note && <p className={styles.moduleNote}>{note}</p>}
       <div className={styles.interactionGrid}>
         <div className={styles.interactionCol}>
           <div className={styles.interactionColTitle}>強化傾向</div>
@@ -194,9 +243,15 @@ function TraitInteractionModule({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Domain matrix — redesigned as card grid for instant readability.
+   Each domain is a card with overline label + prominent value sentence.
+   Replaces the old 2-column table that required decoding.
+   ───────────────────────────────────────────────────────────────────────────── */
 
 function DomainMatrixModule({
   essenceSection,
@@ -217,26 +272,26 @@ function DomainMatrixModule({
   const stabilityClause = extractAfterLabel(essenceSection.body, '安定する条件は');
 
   const domains = [
-    { label: '仕事', value: firstSentence(workCond) },
+    { label: '仕事での力', value: firstSentence(workCond) },
     { label: '人間関係', value: firstSentence(receiveWay) },
     { label: '近い関係', value: firstSentence(withdrawWay) },
-    { label: '判断', value: stabilityClause || firstSentence(essenceSection.body) },
-    { label: '回復', value: firstSentence(workHint) },
+    { label: '判断と安定', value: stabilityClause || firstSentence(essenceSection.body) },
+    { label: '回復のヒント', value: firstSentence(workHint) },
   ];
 
   return (
-    <div className={styles.paidModule}>
-      <div className={styles.paidBadge}>Module 03 — 領域比較</div>
-      <h3 className={styles.paidModuleTitle}>領域マトリクス</h3>
-      <div className={styles.domainTable}>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="領域マトリクス">
+      <span className={styles.moduleOverline}>領域比較</span>
+      <h3 className={styles.moduleTitle}>領域マトリクス</h3>
+      <div className={styles.domainGrid}>
         {domains.map(({ label, value }) => (
-          <div key={label} className={styles.domainRow}>
-            <span className={styles.domainLabel}>{label}</span>
-            <span className={styles.domainValue}>{value}</span>
+          <div key={label} className={styles.domainCard}>
+            <span className={styles.domainCardLabel}>{label}</span>
+            <p className={styles.domainCardValue}>{value || '—'}</p>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -251,9 +306,9 @@ function FrictionRecoveryModule({
   const bridgeText = bridgeSection.body.split('\n\n')[0] ?? bridgeSection.body;
 
   return (
-    <div className={styles.paidModule}>
-      <div className={styles.paidBadge}>Module 04 — 実践ガイド</div>
-      <h3 className={styles.paidModuleTitle}>摩擦 → 回復フロー</h3>
+    <section className={`${styles.module} ${styles.modulePaid}`} aria-label="摩擦と回復フロー">
+      <span className={styles.moduleOverline}>実践ガイド</span>
+      <h3 className={styles.moduleTitle}>摩擦 → 回復フロー</h3>
       <div className={styles.frictionList}>
         {frictions.map((f) => (
           <div key={f.header} className={styles.frictionItem}>
@@ -266,7 +321,7 @@ function FrictionRecoveryModule({
         <span className={styles.recoveryMarker}>回復の方向</span>
         <p className={styles.recoveryText}>{bridgeText}</p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -330,7 +385,7 @@ function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
   const bridgeText = bridgeSection.body.split('\n\n')[0] ?? bridgeSection.body;
   return (
     <div className={styles.summarySection}>
-      <h2 className={styles.summarySectionTitle}>{bridgeSection.title}</h2>
+      <h3 className={styles.summarySectionTitle}>{bridgeSection.title}</h3>
       <p className={styles.summarySectionBody}>{bridgeText}</p>
     </div>
   );
@@ -343,7 +398,7 @@ function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
 function ContinuousSupport() {
   return (
     <div className={styles.supportSection}>
-      <h2 className={styles.supportSectionTitle}>継続サポート</h2>
+      <h3 className={styles.supportSectionTitle}>継続サポート</h3>
       <p className={styles.supportBody}>
         このレポートは保存版です。転職・異動・新プロジェクト・ライフステージの変化など、
         大きな局面では、このレポートの構造を土台に、改めて今の状況を整理することができます。
@@ -466,10 +521,8 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
 
   const { stemIdx, stem, payload } = view;
 
-  // Section lookup
   const sec = (id: string) => payload.fullSections.find((s) => s.id === id);
 
-  // B: core narrative = s1–s6 (work and bridge rendered separately)
   const coreNarrativeSections = payload.fullSections.filter(
     (s) => !['s7_work', 's8_bridge'].includes(s.id)
   );
@@ -480,6 +533,7 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
       {/* ── A. Premium hero ────────────────────────────────────────── */}
       <PremiumHero
         stem={stem}
+        stemIdx={stemIdx}
         reportTitle={payload.title}
         aiConsultIncluded={aiConsultIncluded}
         expiresAt={expiresAt}
@@ -541,7 +595,7 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
         </>
       )}
 
-      {/* ── F. 継続サポート — single-person repeat path only ───────── */}
+      {/* ── F. 継続サポート ─────────────────────────────────────────── */}
       <SectionGroupLabel label="継続サポート" sub="Continuous Support" />
       <ContinuousSupport />
 

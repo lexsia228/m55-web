@@ -1,11 +1,38 @@
+/**
+ * DtrFullReader — M55 premium section system.
+ *
+ * Inherits /core visual language (CoreExperience.module.css):
+ *   - Serif section titles (Hiragino Mincho ProN / Noto Serif JP)
+ *   - coreSectionSurface: border-radius 22px, box-shadow, white bg
+ *   - Tier rhythm: clamp() spacing for section group headers
+ *   - tierAOverline: 10.5px letter-spacing 0.2em rgba(107,95,168,0.7)
+ *   - Warm gradient background
+ *
+ * Paid elevation above free /core:
+ *   - Dark poster hero with ten-views type image
+ *   - modulePaid surface: premium lavender tint on deep-analysis modules
+ *   - Larger body text than /core's compact summaries
+ *   - Domain cards (not table) for instant readability
+ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Wrapper
+   ───────────────────────────────────────────────────────────────────────────── */
+
 .wrap {
-  max-width: 680px;
+  --page-pad-x: 12px;
+  max-width: min(680px, calc(100vw - 2 * var(--page-pad-x)));
   margin: 0 auto;
-  padding: 24px 16px 64px;
-  color: #2f2640;
+  padding: clamp(10px, 2vw, 14px) var(--page-pad-x) 80px;
+  color: #3d3d3d;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  line-height: 1.75;
 }
 
-/* Loading / gate states */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Loading / gate states
+   ───────────────────────────────────────────────────────────────────────────── */
+
 .stateMsg {
   padding: 48px 0;
   text-align: center;
@@ -45,121 +72,264 @@
   opacity: 0.88;
 }
 
-/* Header */
-.header {
-  margin-bottom: 40px;
+/* ─────────────────────────────────────────────────────────────────────────────
+   A. Premium hero — dark poster + type image + serif headline
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.premiumHero {
+  margin-bottom: 8px;
 }
 
-.brandRow {
+/* Poster card: dark gradient bg, type image positioned at right-bottom */
+.heroPoster {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #1a1230 0%, #261740 45%, #1c1438 100%);
+  min-height: 280px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.heroPosterTypeImg {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 90%;
+  width: auto;
+  max-width: 58%;
+  object-fit: contain;
+  object-position: bottom right;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Full-overlay gradient for text readability — dark bottom, lighter top */
+.heroPosterOverlay {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(18px, 3.5vw, 24px);
+  background: linear-gradient(
+    to top,
+    rgba(8, 4, 20, 0.78) 0%,
+    rgba(8, 4, 20, 0.28) 45%,
+    rgba(8, 4, 20, 0.08) 100%
+  );
+}
+
+.heroPosterTopRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.dtrBrandMark {
-  display: block;
-  flex-shrink: 0;
+.heroPosterBrandWord {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.dtrBrandWordmark {
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #2f2640;
+.heroPosterTypePill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  padding: 2px 8px;
 }
 
-.nav {
-  font-size: 0.8rem;
-  margin: 0 0 20px;
+.heroPosterSavedPill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(160, 255, 200, 0.9);
+  border: 1px solid rgba(160, 255, 200, 0.28);
+  border-radius: 4px;
+  padding: 2px 8px;
+  background: rgba(45, 106, 79, 0.22);
 }
 
-.nav a {
-  color: #7c6fd6;
-  text-decoration: none;
+.heroPosterBottom {
+  /* sits at the bottom of the flex overlay */
 }
 
-.nav a:hover {
-  text-decoration: underline;
-}
-
-.hero {
-  margin-bottom: 20px;
-}
-
-.symbol {
-  display: block;
-  font-size: 2.25rem;
-  margin-bottom: 8px;
-  opacity: 0.7;
-}
-
-.title {
-  font-size: 1.35rem;
+/* Matches /core corePosterHeroEyebrow style */
+.heroPosterEyebrow {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
   font-weight: 700;
   margin: 0 0 8px;
-  line-height: 1.4;
 }
 
-.subLine {
-  font-size: 0.9rem;
-  color: #6b5b8a;
+/* Premium serif headline — mirrors /core corePosterMainHeadlineName */
+.heroPosterTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4.5vw, 28px);
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0 0 10px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  max-width: 65%;
+}
+
+.heroPosterOneLine {
+  font-size: clamp(12px, 2.4vw, 13.5px);
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.65;
   margin: 0;
-  line-height: 1.6;
+  max-width: 65%;
 }
 
-/* Meta */
-.meta {
+/* Ownership meta strip — subordinate strip below poster */
+.heroMetaStrip {
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  margin: 0;
-  padding: 12px 0;
-  border-top: 1px solid rgba(177, 156, 255, 0.15);
-  border-bottom: 1px solid rgba(177, 156, 255, 0.15);
+  padding: 10px 0;
+  border-top: 1px solid rgba(107, 95, 168, 0.12);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.12);
+  margin-bottom: 12px;
 }
 
-.metaRow {
+.heroMetaItem {
   display: flex;
-  gap: 12px;
-  align-items: baseline;
-  padding: 4px 0;
-  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 20px 0 0;
+  margin-right: 20px;
+  border-right: 1px solid rgba(107, 95, 168, 0.1);
 }
 
-.metaDt {
-  min-width: 72px;
-  font-size: 0.78rem;
-  color: #9a8fb0;
+.heroMetaItem:last-child {
+  border-right: none;
+  padding-right: 0;
+  margin-right: 0;
 }
 
-.metaDd {
-  font-size: 0.85rem;
+.heroMetaLabel {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.65);
+}
+
+.heroMetaValue {
+  font-size: 0.82rem;
+  font-weight: 600;
   color: #3a3448;
+}
+
+.heroBackNav {
+  font-size: 0.78rem;
   margin: 0;
 }
 
-/* Sections */
+.heroBackNav a {
+  color: rgba(107, 95, 168, 0.75);
+  text-decoration: none;
+}
+
+.heroBackNav a:hover {
+  color: #7c6fd6;
+  text-decoration: underline;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Section group header — /core tierAOverline + serif title rhythm.
+   Provides structural navigation between content groups.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.groupLabel {
+  margin-top: clamp(52px, 10vw, 76px);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.groupLabelLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.groupLabelAccentBar {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: rgba(107, 95, 168, 0.5);
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+
+/* Mirrors /core tierAOverline */
+.groupLabelOverline {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.6);
+  font-weight: 700;
+}
+
+/* Mirrors /core sectionTitle (serif large) */
+.groupLabelTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4vw, 25px);
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Core surface — mirrors /core coreSectionSurface.
+   Applied to both .section and .module base class.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.section,
+.module {
+  padding: clamp(22px, 4.5vw, 30px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
+  box-sizing: border-box;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   B. Core narrative sections
+   ───────────────────────────────────────────────────────────────────────────── */
+
 .sections {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
 }
 
-.section {
-  padding: 24px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(177, 156, 255, 0.18);
-}
-
+/* Mirrors /core sectionTitle (serif) */
 .sectionTitle {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #4a3f6e;
-  margin: 0 0 14px;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(18px, 3.5vw, 22px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.15);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.08);
+  letter-spacing: 0.02em;
 }
 
 .sectionBody {
@@ -169,128 +339,72 @@
 }
 
 .para {
-  font-size: 0.9rem;
-  line-height: 1.8;
+  font-size: clamp(14px, 2.8vw, 15.5px);
+  line-height: 1.82;
   color: #3a3448;
   margin: 0;
   white-space: pre-line;
 }
 
-/* Footer */
-.footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(177, 156, 255, 0.12);
-  font-size: 0.8rem;
-  color: #9a8fb0;
+/* ─────────────────────────────────────────────────────────────────────────────
+   C. Paid-only modules — elevated from /core surface.
+   Premium tint signals deeper analysis without breaking the visual family.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.modulePaid {
+  background: linear-gradient(168deg, rgba(250, 248, 255, 0.95), rgba(245, 243, 252, 0.9));
+  border-color: rgba(107, 95, 168, 0.1);
 }
-
-.footer a {
-  color: #7c6fd6;
-  text-decoration: none;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wrap,
-  .gateCard,
-  .gateLink,
-  .section {
-    transition: none !important;
-  }
-}
-
-/* ══════════════════════════════════════════════════════
-   Layer labels
-   ══════════════════════════════════════════════════════ */
-
-.layerLabel {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 20px;
-}
-
-.layerLabel::before,
-.layerLabel::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(177, 156, 255, 0.18);
-}
-
-.layerLabelText {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #9a8fb0;
-  white-space: nowrap;
-  padding: 0 4px;
-}
-
-/* ══════════════════════════════════════════════════════
-   Paid-only modules wrapper
-   ══════════════════════════════════════════════════════ */
 
 .paidModules {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 32px;
 }
 
-/* ── Shared paid module card ── */
-
-.paidModule {
-  padding: 20px 20px 22px;
-  border-radius: 14px;
-  background: rgba(247, 243, 255, 0.92);
-  border: 1px solid rgba(177, 156, 255, 0.28);
-}
-
-.paidBadge {
-  display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+/* Mirrors /core tierAOverline */
+.moduleOverline {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #7c6fd6;
-  background: rgba(124, 111, 214, 0.1);
-  border: 1px solid rgba(124, 111, 214, 0.2);
-  border-radius: 4px;
-  padding: 2px 8px;
-  margin-bottom: 10px;
-}
-
-.paidModuleTitle {
-  font-size: 0.95rem;
+  color: rgba(107, 95, 168, 0.7);
   font-weight: 700;
-  color: #3a3060;
-  margin: 0 0 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.15);
+  margin-bottom: 8px;
 }
 
-/* ══════════════════════════════════════════════════════
-   Module 1: Five-element axis
-   ══════════════════════════════════════════════════════ */
+/* Mirrors /core sectionTitle (serif, slightly smaller than group title) */
+.moduleTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(18px, 3.5vw, 22px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.09);
+  letter-spacing: 0.02em;
+}
+
+.moduleNote {
+  font-size: clamp(13.5px, 2.7vw, 15px);
+  color: #4a3f6e;
+  line-height: 1.75;
+  margin: 14px 0 0;
+}
+
+/* ── Module 1: Five-element axis bars ── */
 
 .axisGrid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
 }
 
 .axisRow {
   display: grid;
-  grid-template-columns: 20px 1fr 48px;
+  grid-template-columns: 22px 1fr 52px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .axisName {
@@ -302,22 +416,22 @@
 
 .axisBarWrap {
   display: flex;
-  gap: 4px;
+  gap: 5px;
 }
 
 .axisSegFill,
 .axisSegEmpty {
   flex: 1;
-  height: 8px;
-  border-radius: 4px;
+  height: 9px;
+  border-radius: 5px;
 }
 
 .axisSegFill {
-  background: #7c6fd6;
+  background: linear-gradient(90deg, rgba(107, 95, 168, 0.7), rgba(124, 111, 214, 0.85));
 }
 
 .axisSegEmpty {
-  background: rgba(177, 156, 255, 0.18);
+  background: rgba(177, 156, 255, 0.14);
 }
 
 .axisLevelLabel {
@@ -327,28 +441,12 @@
   white-space: nowrap;
 }
 
-.axisNote {
-  font-size: 0.85rem;
-  color: #5a4f7a;
-  line-height: 1.65;
-  margin: 0;
-}
-
-/* ══════════════════════════════════════════════════════
-   Module 2: Trait interaction
-   ══════════════════════════════════════════════════════ */
-
-.interactionNote {
-  font-size: 0.875rem;
-  color: #5a5070;
-  line-height: 1.65;
-  margin: 0 0 14px;
-}
+/* ── Module 2: Trait interaction grid ── */
 
 .interactionGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 @media (max-width: 479px) {
@@ -364,12 +462,12 @@
 }
 
 .interactionColTitle {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #9a8fb0;
-  margin-bottom: 4px;
+  color: rgba(107, 95, 168, 0.62);
+  margin-bottom: 6px;
 }
 
 .traitList {
@@ -380,510 +478,219 @@
 
 .traitCard,
 .traitCardFriction {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  line-height: 1.4;
+  padding: 9px 13px;
+  border-radius: 10px;
+  font-size: clamp(13px, 2.6vw, 14.5px);
+  line-height: 1.45;
   color: #2f2640;
 }
 
 .traitCard {
-  background: rgba(124, 111, 214, 0.07);
-  border: 1px solid rgba(124, 111, 214, 0.18);
+  background: rgba(107, 95, 168, 0.06);
+  border: 1px solid rgba(107, 95, 168, 0.14);
 }
 
 .traitCardFriction {
-  background: rgba(160, 130, 80, 0.06);
-  border: 1px solid rgba(160, 130, 80, 0.18);
+  background: rgba(140, 100, 70, 0.05);
+  border: 1px solid rgba(140, 100, 70, 0.14);
 }
 
-/* ══════════════════════════════════════════════════════
-   Module 3: Domain matrix
-   ══════════════════════════════════════════════════════ */
+/* ── Module 3: Domain matrix — card grid (replaces document table) ── */
 
-.domainTable {
+.domainGrid {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  border: 1px solid rgba(177, 156, 255, 0.2);
-  border-radius: 10px;
-  overflow: hidden;
+  gap: 10px;
 }
 
-.domainRow {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 0;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
+/* Each domain is a left-bordered card: label overline + value sentence */
+.domainCard {
+  padding: 14px 16px 14px 18px;
+  border-radius: 14px;
+  background: rgba(248, 246, 252, 0.75);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  border-left: 3px solid rgba(107, 95, 168, 0.32);
 }
 
-.domainRow:last-child {
-  border-bottom: none;
-}
-
-.domainLabel {
-  padding: 10px 12px;
-  font-size: 0.78rem;
+.domainCardLabel {
+  display: block;
+  font-size: 9.5px;
   font-weight: 700;
-  color: #7c6fd6;
-  background: rgba(124, 111, 214, 0.06);
-  border-right: 1px solid rgba(177, 156, 255, 0.14);
-  display: flex;
-  align-items: center;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.65);
+  margin-bottom: 6px;
 }
 
-.domainValue {
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  color: #3a3448;
-  line-height: 1.6;
-  display: flex;
-  align-items: center;
+.domainCardValue {
+  font-size: clamp(13.5px, 2.7vw, 15px);
+  line-height: 1.7;
+  color: #2a2540;
+  margin: 0;
 }
 
-/* ══════════════════════════════════════════════════════
-   Module 4: Friction → recovery
-   ══════════════════════════════════════════════════════ */
+/* ── Module 4: Friction → recovery flow ── */
 
 .frictionList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 7px;
+  margin-bottom: 16px;
 }
 
 .frictionItem {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  background: rgba(160, 100, 80, 0.05);
-  border: 1px solid rgba(160, 100, 80, 0.14);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(140, 90, 70, 0.04);
+  border: 1px solid rgba(140, 90, 70, 0.12);
 }
 
 .frictionMarker {
   flex-shrink: 0;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #a05a40;
-  background: rgba(160, 90, 64, 0.1);
-  border: 1px solid rgba(160, 90, 64, 0.2);
+  color: #9a5040;
+  background: rgba(140, 80, 60, 0.08);
+  border: 1px solid rgba(140, 80, 60, 0.18);
   border-radius: 3px;
-  padding: 2px 6px;
+  padding: 2px 7px;
 }
 
 .frictionHeader {
-  font-size: 0.85rem;
+  font-size: clamp(13.5px, 2.7vw, 15px);
   color: #3a3448;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .recoveryBlock {
-  padding: 14px 16px;
-  border-radius: 10px;
-  background: rgba(124, 111, 214, 0.06);
-  border: 1px solid rgba(124, 111, 214, 0.18);
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(248, 246, 252, 0.8);
+  border: 1px solid rgba(107, 95, 168, 0.14);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .recoveryMarker {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7c6fd6;
+  color: rgba(107, 95, 168, 0.7);
 }
 
 .recoveryText {
-  font-size: 0.875rem;
+  font-size: clamp(13.5px, 2.7vw, 15px);
   color: #3a3448;
-  line-height: 1.75;
+  line-height: 1.82;
   margin: 0;
 }
 
-/* ══════════════════════════════════════════════════════
-   Layer divider (Layer 1 → Layer 2)
-   ══════════════════════════════════════════════════════ */
-
-.layerDivider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 40px 0 24px;
-}
-
-.layerDivider::before,
-.layerDivider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(177, 156, 255, 0.25);
-}
-
-.layerDividerLabel {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #7c6fd6;
-  white-space: nowrap;
-  padding: 0 4px;
-}
-
-/* ══════════════════════════════════════════════════════
-   Grounding panel
-   ══════════════════════════════════════════════════════ */
-
-.groundingPanel {
-  padding: 16px 18px 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(177, 156, 255, 0.28);
-  margin-bottom: 0;
-}
-
-.groundingHeader {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.groundingSymbol {
-  font-size: 1.5rem;
-  line-height: 1;
-  opacity: 0.65;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.groundingHeaderText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.groundingTitle {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #3a3060;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.groundingSubline {
-  font-size: 0.8rem;
-  color: #7a6fa0;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.groundingMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: rgba(247, 243, 255, 0.9);
-  border: 1px solid rgba(177, 156, 255, 0.16);
-  margin-bottom: 10px;
-}
-
-.groundingMetaLabel {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #9a8fb0;
-}
-
-.groundingMetaValue {
-  font-size: 0.8rem;
-  color: #5a4f7a;
-  line-height: 1.55;
-}
-
-.groundingNote {
-  font-size: 0.82rem;
-  color: #7a6fa0;
-  line-height: 1.65;
-  margin: 0;
-}
-
-/* ══════════════════════════════════════════════════════
-   A. Premium hero
-   ══════════════════════════════════════════════════════ */
-
-.premiumHero {
-  margin-bottom: 36px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.15);
-}
-
-.heroBrandRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-}
-
-.heroBrand {
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #2f2640;
-}
-
-.heroProductLabel {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: #7c6fd6;
-  background: rgba(124, 111, 214, 0.08);
-  border: 1px solid rgba(124, 111, 214, 0.2);
-  border-radius: 4px;
-  padding: 2px 8px;
-}
-
-.heroSavedBadge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #2d6a4f;
-  background: rgba(45, 106, 79, 0.07);
-  border: 1px solid rgba(45, 106, 79, 0.2);
-  border-radius: 4px;
-  padding: 2px 8px;
-}
-
-.heroTypeRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-
-.heroSymbolDisplay {
-  font-size: 2rem;
-  line-height: 1;
-  opacity: 0.55;
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-.heroTypeInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.heroPublicTitle {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #7c6fd6;
-}
-
-.heroTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: #2f2640;
-  margin: 0;
-}
-
-.heroEssence {
-  font-size: 0.88rem;
-  color: #6b5b8a;
-  line-height: 1.7;
-  margin: 0 0 16px;
-}
-
-.heroOwnershipStrip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  padding: 10px 0;
-  border-top: 1px solid rgba(177, 156, 255, 0.14);
-  border-bottom: 1px solid rgba(177, 156, 255, 0.14);
-  margin-bottom: 12px;
-}
-
-.heroOwnershipItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 20px 0 0;
-  margin-right: 20px;
-  border-right: 1px solid rgba(177, 156, 255, 0.14);
-}
-
-.heroOwnershipItem:last-child {
-  border-right: none;
-  padding-right: 0;
-  margin-right: 0;
-}
-
-.heroOwnershipLabel {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #9a8fb0;
-}
-
-.heroOwnershipValue {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #3a3448;
-}
-
-.heroNav {
-  font-size: 0.8rem;
-  margin: 0;
-}
-
-.heroNav a {
-  color: #7c6fd6;
-  text-decoration: none;
-}
-
-.heroNav a:hover {
-  text-decoration: underline;
-}
-
-/* ══════════════════════════════════════════════════════
-   Section group labels
-   ══════════════════════════════════════════════════════ */
-
-.sectionGroupLabel {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 32px 0 14px;
-}
-
-.sectionGroupLabelAccent {
-  width: 3px;
-  height: 16px;
-  background: rgba(124, 111, 214, 0.45);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.sectionGroupLabelText {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #5a4ea0;
-}
-
-.sectionGroupLabelSub {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  color: #b0a8c8;
-  margin-left: 6px;
-}
-
-/* ══════════════════════════════════════════════════════
-   D. Practical Guidance
-   ══════════════════════════════════════════════════════ */
+/* ─────────────────────────────────────────────────────────────────────────────
+   D. Practical Guidance — 3 cards in /core surface style
+   ───────────────────────────────────────────────────────────────────────────── */
 
 .practicalGrid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .practicalCard {
-  padding: 18px 20px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(177, 156, 255, 0.18);
+  padding: clamp(18px, 3.5vw, 24px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.032);
 }
 
 .practicalCardTitle {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #4a3f6e;
-  margin: 0 0 8px;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(16px, 3.2vw, 19px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
 }
 
 .practicalCardContent {
-  font-size: 0.875rem;
-  line-height: 1.75;
-  color: #3a3448;
-  margin: 0;
-}
-
-.practicalCardDetail {
-  font-size: 0.835rem;
-  line-height: 1.7;
-  color: #5a5070;
-  margin: 8px 0 0;
-}
-
-/* ══════════════════════════════════════════════════════
-   E. Summary
-   ══════════════════════════════════════════════════════ */
-
-.summarySection {
-  padding: 22px 24px;
-  border-radius: 14px;
-  background: rgba(247, 243, 255, 0.95);
-  border: 1px solid rgba(177, 156, 255, 0.25);
-}
-
-.summarySectionTitle {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #4a3f6e;
-  margin: 0 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.14);
-}
-
-.summarySectionBody {
-  font-size: 0.9rem;
+  font-size: clamp(14px, 2.8vw, 15.5px);
   line-height: 1.8;
   color: #3a3448;
   margin: 0;
 }
 
-/* ══════════════════════════════════════════════════════
+.practicalCardDetail {
+  font-size: clamp(13px, 2.6vw, 14.5px);
+  line-height: 1.72;
+  color: #5a5070;
+  margin: 8px 0 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   E. Summary — elevated tint surface (same as modulePaid)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.summarySection {
+  padding: clamp(22px, 4.5vw, 30px);
+  border-radius: 22px;
+  background: linear-gradient(168deg, rgba(250, 248, 255, 0.95), rgba(245, 243, 252, 0.9));
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.045);
+}
+
+.summarySectionTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(18px, 3.5vw, 22px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.09);
+  letter-spacing: 0.02em;
+}
+
+.summarySectionBody {
+  font-size: clamp(14px, 2.8vw, 15.5px);
+  line-height: 1.85;
+  color: #3a3448;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    F. 継続サポート
-   ══════════════════════════════════════════════════════ */
+   ───────────────────────────────────────────────────────────────────────────── */
 
 .supportSection {
-  padding: 22px 24px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(177, 156, 255, 0.18);
+  padding: clamp(22px, 4.5vw, 30px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
 }
 
 .supportSectionTitle {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #4a3f6e;
-  margin: 0 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(18px, 3.5vw, 22px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.08);
+  letter-spacing: 0.02em;
 }
 
 .supportBody {
-  font-size: 0.875rem;
-  line-height: 1.75;
+  font-size: clamp(14px, 2.8vw, 15.5px);
+  line-height: 1.82;
   color: #5a5070;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
 }
 
 .supportPathList {
@@ -898,22 +705,187 @@
 .supportPathItem {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: rgba(247, 243, 255, 0.9);
-  border: 1px solid rgba(177, 156, 255, 0.14);
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(248, 246, 252, 0.8);
+  border: 1px solid rgba(107, 95, 168, 0.1);
 }
 
 .supportPathLabel {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #7c6fd6;
-  letter-spacing: 0.02em;
+  color: rgba(107, 95, 168, 0.8);
+  letter-spacing: 0.04em;
 }
 
 .supportPathDesc {
-  font-size: 0.84rem;
+  font-size: clamp(13px, 2.6vw, 14.5px);
   color: #5a5070;
+  line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Layer divider — report → consultation room transition
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.layerDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: clamp(52px, 10vw, 76px) 0 24px;
+}
+
+.layerDivider::before,
+.layerDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(107, 95, 168, 0.2);
+}
+
+.layerDividerLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.65);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   G. Grounding panel
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.groundingPanel {
+  padding: clamp(18px, 3.5vw, 24px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
+  margin-bottom: 0;
+}
+
+.groundingHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.groundingSymbol {
+  font-size: 1.4rem;
+  line-height: 1;
+  opacity: 0.6;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.groundingHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.groundingTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.groundingSubline {
+  font-size: 0.82rem;
+  color: #7a6fa0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.groundingMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(248, 246, 252, 0.85);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  margin-bottom: 12px;
+}
+
+.groundingMetaLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.65);
+}
+
+.groundingMetaValue {
+  font-size: 0.82rem;
+  color: #5a4f7a;
   line-height: 1.6;
+}
+
+.groundingNote {
+  font-size: 0.85rem;
+  color: #7a6fa0;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.footer {
+  margin-top: 52px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(107, 95, 168, 0.1);
+  font-size: 0.8rem;
+  color: rgba(107, 95, 168, 0.6);
+}
+
+.footer a {
+  color: rgba(107, 95, 168, 0.75);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #7c6fd6;
+  text-decoration: underline;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 640px) {
+  .heroPoster {
+    min-height: 320px;
+  }
+
+  .heroPosterOverlay {
+    min-height: 320px;
+  }
+
+  .heroPosterTitle {
+    max-width: 60%;
+  }
+
+  .heroPosterOneLine {
+    max-width: 62%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap,
+  .gateCard,
+  .gateLink,
+  .section,
+  .module {
+    transition: none !important;
+  }
 }
