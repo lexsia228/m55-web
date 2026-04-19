@@ -16,17 +16,581 @@
  */
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Wrapper
+   Page shell — premium-report width (max-w-4xl) + horizontal padding
    ───────────────────────────────────────────────────────────────────────────── */
 
-.wrap {
+.reportRoot {
   --page-pad-x: 12px;
-  max-width: min(680px, calc(100vw - 2 * var(--page-pad-x)));
-  margin: 0 auto;
   padding: clamp(10px, 2vw, 14px) var(--page-pad-x) 80px;
   color: #3d3d3d;
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
   line-height: 1.75;
+}
+
+.reportMain {
+  max-width: min(896px, calc(100vw - 2 * var(--page-pad-x)));
+  margin: 0 auto;
+}
+
+/* ── premium-report.tsx Layer 2: saved narrative + dividers + module chrome ── */
+
+.savedReportShell {
+  padding: clamp(8px, 2vw, 12px) 0 clamp(4px, 1.5vw, 8px);
+}
+
+.savedWideStack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(22px, 4vw, 30px);
+}
+
+.savedWideArticle {
+  margin: 0;
+}
+
+.savedWideTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(17px, 3.2vw, 20px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.savedWideBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.savedWidePara {
+  font-size: clamp(14px, 2.8vw, 15.5px);
+  line-height: 1.82;
+  color: #3a3448;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.savedGridThree {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: clamp(18px, 3vw, 24px);
+}
+
+@media (min-width: 768px) {
+  .savedGridThree {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+.savedGridArticle {
+  margin: 0;
+  padding: 18px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 6px 22px rgba(29, 24, 61, 0.03);
+  box-sizing: border-box;
+}
+
+.savedGridTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(107, 95, 168, 0.55);
+  margin: 0 0 10px;
+}
+
+.savedGridBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.savedGridPara {
+  font-size: clamp(13px, 2.5vw, 14px);
+  line-height: 1.72;
+  color: #5a5070;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.prSectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: clamp(26px, 4.5vw, 36px) 0;
+}
+
+.prDividerRule {
+  flex: 1;
+  height: 1px;
+  background: rgba(107, 95, 168, 0.14);
+}
+
+.prDividerChip {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.42);
+  white-space: nowrap;
+}
+
+.prDividerChipPremium {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(80, 70, 120, 0.68);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(248, 246, 252, 0.9);
+  white-space: nowrap;
+}
+
+.prModuleShell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.prModuleShell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(107, 95, 168, 0.22),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.prModuleBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.prModuleBadgeMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(80, 70, 120, 0.72);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.prModuleBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(107, 95, 168, 0.45);
+}
+
+.prModuleBadgeTier {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.prTierMint {
+  color: rgba(45, 110, 85, 0.9);
+  background: rgba(52, 140, 110, 0.1);
+  border: 1px solid rgba(52, 140, 110, 0.2);
+}
+
+.prTierAmber {
+  color: rgba(140, 95, 30, 0.92);
+  background: rgba(200, 150, 60, 0.1);
+  border: 1px solid rgba(200, 150, 60, 0.22);
+}
+
+.prTierBlue {
+  color: rgba(55, 85, 150, 0.9);
+  background: rgba(80, 110, 200, 0.1);
+  border: 1px solid rgba(80, 110, 200, 0.18);
+}
+
+.prTierRose {
+  color: rgba(150, 55, 75, 0.9);
+  background: rgba(190, 90, 110, 0.1);
+  border: 1px solid rgba(190, 90, 110, 0.2);
+}
+
+.prModuleInsight {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(107, 95, 168, 0.06);
+  border-left: 3px solid rgba(107, 95, 168, 0.35);
+  margin-top: 16px;
+  flex-wrap: nowrap;
+}
+
+.prModuleInsight::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: no-repeat center / contain;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b5fa8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18' /%3E%3C/svg%3E");
+}
+
+.practicalShell {
+  padding-bottom: clamp(8px, 2vw, 14px);
+}
+
+.practicalStack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.practicalIntro {
+  margin-bottom: 4px;
+}
+
+.practicalIntroTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(17px, 3.2vw, 20px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+
+.practicalIntroSub {
+  font-size: 0.88rem;
+  color: #7a6fa0;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.practicalCategory {
+  padding: 20px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 26px rgba(29, 24, 61, 0.03);
+}
+
+.practicalCategoryHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.practicalCategoryIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: rgba(107, 95, 168, 0.55);
+}
+
+.practicalCategoryTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #2f2648;
+  margin: 0;
+}
+
+.practicalCategoryBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.practicalActionRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(248, 246, 252, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.08);
+}
+
+@media (min-width: 768px) {
+  .practicalActionRow {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+.practicalActionCell {
+  min-width: 0;
+}
+
+.practicalMicroLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.45);
+  margin: 0 0 4px;
+}
+
+.practicalActionValue {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2a2540;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.practicalWhyWhen {
+  font-size: 0.8rem;
+  color: #5a5070;
+  margin: 0;
+  line-height: 1.65;
+}
+
+.prSummaryBand {
+  padding: clamp(28px, 5vw, 40px) 0;
+  border-top: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.prSummaryEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(107, 95, 168, 0.55);
+  margin: 0 0 14px;
+}
+
+.prSummaryLead {
+  font-size: clamp(14px, 2.8vw, 15.5px);
+  line-height: 1.82;
+  color: #3a3448;
+  margin: 0 0 18px;
+}
+
+.prSummaryBridge {
+  padding: 18px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(248, 246, 252, 0.75);
+}
+
+.prSummaryBridgePara {
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: #5a5070;
+  margin: 0;
+}
+
+.prSummaryBridgePara + .prSummaryBridgePara {
+  margin-top: 10px;
+}
+
+.supportRepeat {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 22px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  background: linear-gradient(145deg, rgba(252, 250, 255, 0.95), rgba(245, 241, 252, 0.5));
+  margin: clamp(20px, 4vw, 28px) 0 0;
+}
+
+.supportRepeatIconWrap {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.supportRepeatIcon {
+  width: 22px;
+  height: 22px;
+  color: rgba(107, 95, 168, 0.45);
+}
+
+.supportRepeatBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.supportRepeatOverline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.5);
+  margin: 0 0 8px;
+}
+
+.supportRepeatText {
+  font-size: 0.88rem;
+  color: #5a5070;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+.consultLayer {
+  margin-top: clamp(36px, 6vw, 52px);
+}
+
+.consultGroundingBand {
+  background: linear-gradient(
+    180deg,
+    rgba(250, 248, 255, 0.4) 0%,
+    rgba(235, 228, 248, 0.55) 100%
+  );
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: clamp(22px, 4vw, 34px) clamp(14px, 3vw, 22px);
+}
+
+.consultRoomBand {
+  background: rgba(228, 220, 242, 0.42);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  border-top: 1px solid rgba(107, 95, 168, 0.08);
+  border-radius: 0 0 20px 20px;
+  padding: clamp(22px, 4vw, 36px) clamp(14px, 3vw, 22px);
+}
+
+.groundingBandInner {
+  max-width: 100%;
+}
+
+.groundingDividerBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.groundingDividerFade {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(107, 95, 168, 0.2),
+    transparent
+  );
+}
+
+.groundingDividerChip {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(80, 70, 120, 0.62);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+}
+
+.groundingLead {
+  font-size: 0.88rem;
+  color: #5a5070;
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+
+.groundingReportTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(0.92rem, 2.4vw, 1.02rem);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.groundingPillarGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 20px 0 18px;
+}
+
+@media (min-width: 768px) {
+  .groundingPillarGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.groundingPillar {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.groundingPillarHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.groundingPillarDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.groundingPillarDotMint {
+  background: rgba(52, 160, 120, 0.75);
+}
+
+.groundingPillarDotAmber {
+  background: rgba(210, 150, 60, 0.85);
+}
+
+.groundingPillarDotRose {
+  background: rgba(200, 90, 110, 0.8);
+}
+
+.groundingPillarLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(80, 70, 120, 0.65);
+}
+
+.groundingPillarText {
+  font-size: 0.78rem;
+  color: #5a5070;
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -473,7 +1037,7 @@
 .paidModules {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: clamp(22px, 4vw, 32px);
 }
 
 /* Mirrors /core tierAOverline */
@@ -976,10 +1540,10 @@
 
 .groundingTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
-  font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+  font-size: clamp(1.05rem, 2.8vw, 1.22rem);
   font-weight: 500;
   color: #1a1a1a;
-  margin: 0;
+  margin: 0 0 8px;
   line-height: 1.35;
 }
 
@@ -1120,7 +1684,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wrap,
+  .reportRoot,
   .gateCard,
   .gateLink,
   .section,
