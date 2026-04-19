@@ -81,3 +81,35 @@ export function ensureSealedCoreResult(
   writeV3(ownerId, wrapV3(cur, built));
   return built;
 }
+
+/**
+ * Post-purchase: copy sealed core snapshot (v3 or legacy v1) from device owner → Clerk user.
+ * Keeps the same result seed / type the user saw on free /core before login+checkout.
+ */
+export function promoteGuestCoreSnapshotToClerkUser(userId: string): boolean {
+  if (!isClient() || !userId?.trim()) return false;
+  const guestOwner = ProfileRepository.getOwnerId(null);
+  const clerkOwner = ProfileRepository.getOwnerId(userId);
+  if (guestOwner === clerkOwner) return false;
+
+  const v3 = readEnvelope(guestOwner);
+  if (v3) {
+    writeV3(clerkOwner, v3);
+    return true;
+  }
+
+  const legacyRaw = readLegacyV1(guestOwner);
+  if (isLegacyV1(legacyRaw)) {
+    const si = legacyRaw.sealedInputs;
+    const profile: BirthProfile = {
+      birthDate: si.birthDate,
+      nickname: (si.nickname ?? '').trim(),
+    };
+    if (!profile.birthDate || !profile.nickname) return false;
+    const migrated = migrateLegacyV1ToCoreResult(legacyRaw, profile);
+    writeV3(clerkOwner, wrapV3(profile, migrated));
+    return true;
+  }
+
+  return false;
+}

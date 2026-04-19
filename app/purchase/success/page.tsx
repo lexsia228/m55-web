@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import successStyles from './success.module.css';
-import { QuietPolling } from '../../../components/QuietPolling';
+import { PurchaseSuccessBridge } from './PurchaseSuccessBridge';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { getStripe } from '../../../lib/stripe';
 import {
@@ -58,7 +58,7 @@ async function verifyOneTimeSession(
  * 購入成功ページ（Stripe決済直後のリダイレクト先）
  * 分岐: (1) Session 再取得で one-time lane 整合確認 (2) entitlement で happy/delayed 判定。
  * Webhook が fulfillment truth-source。本ページは READ のみ、権限付与は行わない。
- * 権限が既に active でも /dtr/core へ即 redirect せず、報酬感のある完了画面を表示する。
+ * Client: PurchaseSuccessBridge promotes device-local profile to Clerk; after entitlements apply, navigates to /dtr/core?post_purchase=1 (no server redirect to /dtr/core).
  */
 export default async function PurchaseSuccessPage(props: {
   searchParams?: Promise<{ session_id?: string }>;
@@ -175,23 +175,23 @@ function PurchaseSuccessFallback({
           </>
         ) : (
           <>
+            <PurchaseSuccessBridge entitlementInitiallyReady={!!entitlementReady} />
             <p className={successStyles.rewardEyebrow}>Entry Report</p>
             <h1 className={successStyles.title} data-testid="m55-purchase-success-headline">
-              お手続き、ありがとうございます
+              レポートへ接続しています
             </h1>
             <p className={successStyles.desc}>
               {entitlementReady
-                ? 'ご購入いただいたレポートへのアクセスが有効です。本編はいつでも開けます。'
-                : 'ご購入は完了しています。利用権限の反映を待っている間も、このままお待ちいただけます。'}
+                ? '購入内容を反映し、Entry Report を開きます。しばらくお待ちください。'
+                : 'ご購入は完了しています。利用権限の反映を確認してから、Entry Report を開きます。'}
             </p>
             <a
               href={DTR_CORE_HREF}
               className={successStyles.ctaButton}
               data-testid="m55-purchase-success-primary-cta"
             >
-              Entry Report を開く
+              今すぐ Entry Report を開く
             </a>
-            {!entitlementReady && <QuietPolling />}
             {recoveryRef && (
               <p className={successStyles.desc} style={{ marginTop: 8, fontSize: 11 }}>
                 お問い合わせ時のお控え: {recoveryRef}

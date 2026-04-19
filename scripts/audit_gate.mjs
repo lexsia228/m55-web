@@ -345,7 +345,7 @@ function validateMyPanelProfileIntakeTestId() {
   }
 }
 
-/** /purchase/success: reward-first UI, primary CTA /dtr/core, no auto-skip redirect, quiet refresh without full reload. */
+/** /purchase/success: bridge promotes local profile, primary CTA /dtr/core, client navigates after entitlements (no server redirect), no QuietPolling on page. */
 function validatePurchaseSuccessPage() {
   const pagePath = path.join(ROOT, 'app', 'purchase', 'success', 'page.tsx');
   if (!exists(pagePath)) return;
