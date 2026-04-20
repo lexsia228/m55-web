@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * Post-purchase bridge: promote free-tier local snapshot (device key) → Clerk user key,
- * then replace to Entry Report. SSOT: same inputs user saw on /core before checkout.
+ * Post-purchase: device-local profile → Clerk; optional polling until entitlements reflect.
+ * Does not navigate to /dtr/core — user uses primary CTA (audit: reward screen stays).
  */
 import { useAuth } from '@clerk/nextjs';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../../lib/m55/coreResult/store';
 
@@ -21,7 +20,7 @@ export function PurchaseSuccessBridge({
   entitlementInitiallyReady: boolean;
 }) {
   const { userId, isLoaded } = useAuth();
-  const router = useRouter();
+  const [pollStuck, setPollStuck] = useState(false);
 
   useEffect(() => {
     if (!isLoaded || !userId) return;
@@ -35,16 +34,9 @@ export function PurchaseSuccessBridge({
       /* no-op */
     }
 
-    const go = () => {
-      if (cancelled) return;
-      router.replace(DTR_CORE_DEST);
-    };
-
     if (entitlementInitiallyReady) {
-      const t = window.setTimeout(go, 400);
       return () => {
         cancelled = true;
-        window.clearTimeout(t);
       };
     }
 
@@ -59,7 +51,7 @@ export function PurchaseSuccessBridge({
         if (r.ok) {
           const d = (await r.json()) as { dtr_rights?: string[] };
           if (d.dtr_rights?.includes(ENTRY_RIGHT)) {
-            go();
+            cancelled = true;
             return;
           }
         }
@@ -68,7 +60,7 @@ export function PurchaseSuccessBridge({
       }
       if (cancelled) return;
       if (polls >= MAX_POLLS) {
-        go();
+        setPollStuck(true);
         return;
       }
       timeoutId = window.setTimeout(() => {
@@ -84,7 +76,27 @@ export function PurchaseSuccessBridge({
       cancelled = true;
       if (timeoutId !== undefined) window.clearTimeout(timeoutId);
     };
-  }, [isLoaded, userId, entitlementInitiallyReady, router]);
+  }, [isLoaded, userId, entitlementInitiallyReady]);
+
+  if (pollStuck) {
+    return (
+      <p
+        role="alert"
+        style={{
+          margin: '0 0 16px',
+          fontSize: 13,
+          lineHeight: 1.65,
+          color: '#5a4ea0',
+        }}
+      >
+        権限の反映に時間がかかっています。マイページで状態を確認するか、しばらくしてから
+        <a href={DTR_CORE_DEST} style={{ color: '#6b5fa8', marginLeft: 4 }}>
+          Entry Report を開く
+        </a>
+        を再度お試しください。
+      </p>
+    );
+  }
 
   return null;
 }

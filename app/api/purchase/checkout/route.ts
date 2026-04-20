@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
+import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
+
+const DTR_CORE_PRODUCT = 'DTR_CORE_STATIC_V1';
 
 const PRODUCT_ID_TO_ENV: Record<string, string> = {
   DTR_CORE_STATIC_V1: 'STRIPE_PRICE_DTR_CORE_STATIC_V1',
@@ -36,6 +39,16 @@ export async function POST(req: NextRequest) {
       { error: 'productId is required' },
       { status: 400 }
     );
+  }
+
+  if (productId === DTR_CORE_PRODUCT) {
+    const ownership = await resolveEntryReportOwnership(userId);
+    if (ownership.unlockState === 'owned') {
+      return NextResponse.json(
+        { error: 'already_purchased', redirectTo: '/dtr/core' },
+        { status: 409 }
+      );
+    }
   }
 
   const envKey = PRODUCT_ID_TO_ENV[productId];

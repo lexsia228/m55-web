@@ -5,12 +5,11 @@ import successStyles from './success.module.css';
 import { PurchaseSuccessBridge } from './PurchaseSuccessBridge';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { getStripe } from '../../../lib/stripe';
-import {
-  ALLOWED_ONE_TIME_PRODUCTS,
-  DTR_CORE_STATIC_V1,
-} from '../../../lib/oneTimeCheckout';
+import { ALLOWED_ONE_TIME_PRODUCTS, DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
+import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
+import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 
-/** SSOT: post_purchase_alignment_ssot_2026_03_08 */
+/** SSOT: DB entitlements + entitlement_rights; success path syncs paid Session → DB (idempotent). */
 
 async function getSupportUrl(): Promise<string> {
   const base =
@@ -30,8 +29,8 @@ async function getSupportUrl(): Promise<string> {
 }
 
 /**
- * Checkout Session を再取得し、one-time lane と矛盾しないか検証。
- * fulfillment truth-source は webhook。本関数は表示分岐のため READ のみ。
+ * Checkout Session を再取得し、one-time lane と矛盾しないか検証（READ）。
+ * payment は fulfill 側で再検証する。
  */
 async function verifyOneTimeSession(
   sessionId: string,
@@ -44,7 +43,8 @@ async function verifyOneTimeSession(
     if (
       session.mode !== 'payment' ||
       session.client_reference_id !== userId ||
-      !ALLOWED_ONE_TIME_PRODUCTS.has(productId)
+      !ALLOWED_ONE_TIME_PRODUCTS.has(productId) ||
+      session.payment_status !== 'paid'
     ) {
       return { valid: false };
     }
@@ -55,10 +55,11 @@ async function verifyOneTimeSession(
 }
 
 /**
- * 購入成功ページ（Stripe決済直後のリダイレクト先）
- * 分岐: (1) Session 再取得で one-time lane 整合確認 (2) entitlement で happy/delayed 判定。
- * Webhook が fulfillment truth-source。本ページは READ のみ、権限付与は行わない。
- * Client: PurchaseSuccessBridge promotes device-local profile to Clerk; after entitlements apply, navigates to /dtr/core?post_purchase=1 (no server redirect to /dtr/core).
+ * 購入成功ページ（Stripe success_url）。
+ * - Session 検証後、DB へ冪等 upsert（webhook 遅延時のモバイル対策）。
+ * - 購入済み判定は resolveEntryReportOwnership（DB のみ）に統一。
+ * - revalidatePath は呼ばない（Next 15: RSC レンダー中は不可）。キャッシュ無効化は webhook Route Handler 側。
+ * - 購入済みでも /dtr/core へ server redirect しない（報酬画面の監査ガード）。CTA で /dtr/core?post_purchase=1 へ。
  */
 export default async function PurchaseSuccessPage(props: {
   searchParams?: Promise<{ session_id?: string }>;
@@ -76,9 +77,8 @@ export default async function PurchaseSuccessPage(props: {
     sessionVerified = await verifyOneTimeSession(sessionIdFromUrl, userId);
   }
 
-  let supabaseAdmin;
   try {
-    supabaseAdmin = getSupabaseAdmin();
+    getSupabaseAdmin();
   } catch {
     return (
       <PurchaseSuccessFallback
@@ -88,28 +88,29 @@ export default async function PurchaseSuccessPage(props: {
     );
   }
 
-  const { data, error } = await supabaseAdmin
-    .from('entitlements')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('product_id', DTR_CORE_STATIC_V1)
-    .eq('status', 'active')
-    .limit(1)
-    .maybeSingle();
+  const supportUrl = await getSupportUrl();
+  const recoveryRef = sessionVerified.valid ? sessionVerified.sessionId : sessionIdFromUrl;
 
-  if (error) {
-    return (
-      <PurchaseSuccessFallback
-        message="購入の確認を完了できませんでした。しばらくしてからマイページをご確認いただくか、サポートへお問い合わせください。"
-        supportUrl={await getSupportUrl()}
-      />
-    );
+  if (sessionVerified.valid) {
+    const fr = await fulfillDtrCoreFromCheckoutSessionId({
+      checkoutSessionId: sessionVerified.sessionId,
+      expectedUserId: userId,
+      eventIdForFulfillmentRow: `purchase_success:${sessionVerified.sessionId}`,
+    });
+    if (!fr.ok && fr.reason === 'db_error') {
+      return (
+        <PurchaseSuccessFallback
+          message="購入の反映を一時的に完了できませんでした。しばらくしてからマイページをご確認いただくか、サポートへお問い合わせください。"
+          supportUrl={supportUrl}
+          recoveryRef={recoveryRef}
+        />
+      );
+    }
   }
 
-  const supportUrl = await getSupportUrl();
-  const recoveryRef = sessionVerified.valid ? sessionVerified.sessionId : undefined;
+  const ownership = await resolveEntryReportOwnership(userId);
 
-  if (data) {
+  if (ownership.unlockState === 'owned') {
     return (
       <PurchaseSuccessFallback
         entitlementReady
@@ -117,6 +118,10 @@ export default async function PurchaseSuccessPage(props: {
         recoveryRef={recoveryRef}
       />
     );
+  }
+
+  if (ownership.unlockState === 'expired') {
+    redirect('/dtr/lp?state=expired');
   }
 
   if (!sessionVerified.valid && sessionIdFromUrl) {
@@ -129,11 +134,21 @@ export default async function PurchaseSuccessPage(props: {
     );
   }
 
+  if (!sessionIdFromUrl) {
+    return (
+      <PurchaseSuccessFallback
+        message="このページは決済完了直後のみ有効です。マイページからレポートへお進みください。"
+        supportUrl={supportUrl}
+      />
+    );
+  }
+
   return (
     <PurchaseSuccessFallback
       message={undefined}
       supportUrl={supportUrl}
       recoveryRef={recoveryRef}
+      entitlementReady={false}
     />
   );
 }
@@ -149,7 +164,6 @@ function PurchaseSuccessFallback({
   message?: string;
   supportUrl: string;
   recoveryRef?: string;
-  /** true: entitlement already active — no background refresh */
   entitlementReady?: boolean;
 }) {
   return (

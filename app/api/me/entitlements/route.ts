@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
+import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +24,16 @@ export async function GET() {
   try {
     const db = getSupabaseAdmin();
 
-    const [subRes, rightsRes] = await Promise.all([
+    const [subRes, rightsRes, entRes] = await Promise.all([
       db.from('subscriptions').select('tier, status').eq('user_id', userId).maybeSingle(),
       db.from('entitlement_rights').select('right_key, right_value, expires_at').eq('user_id', userId),
+      db
+        .from('entitlements')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('product_id', DTR_CORE_STATIC_V1)
+        .eq('status', 'active')
+        .maybeSingle(),
     ]);
 
     const sub = subRes.data as unknown as { status?: string | null; tier?: string | null } | null;
@@ -37,6 +46,12 @@ export async function GET() {
       const exp = r.expires_at ? new Date(r.expires_at).getTime() : null;
       if (exp !== null && exp < Date.now()) continue;
       if (key.startsWith('m55_p:')) dtrRights.push(key);
+    }
+
+    const hasCoreInList = dtrRights.includes(DTR_CORE_RIGHT_KEY);
+    const hasActiveProductRow = !entRes.error && !!(entRes.data as { id?: string } | null)?.id;
+    if (hasActiveProductRow && !hasCoreInList) {
+      dtrRights.push(DTR_CORE_RIGHT_KEY);
     }
 
     return NextResponse.json(

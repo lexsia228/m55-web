@@ -45,7 +45,12 @@ export default function PurchaseButton({
         setLoading(false);
         return;
       }
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; url?: string; redirectTo?: string };
+      if (res.status === 409 && data?.redirectTo) {
+        window.location.href = data.redirectTo;
+        setLoading(false);
+        return;
+      }
       if (!res.ok) {
         throw new Error(data?.error ?? `Error ${res.status}`);
       }

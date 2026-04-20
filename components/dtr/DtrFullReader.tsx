@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ProfileRepository } from '../../lib/soul/profile';
+import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
+import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
   runDtrEngine,
   type DtrSection,
@@ -1564,6 +1565,20 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
     window.addEventListener('m55:profile_updated', bump);
     return () => window.removeEventListener('m55:profile_updated', bump);
   }, []);
+
+  /** /purchase/success から server redirect した場合も、device-local → Clerk へ寄せる（旧 PurchaseSuccessBridge と同じ）。 */
+  useEffect(() => {
+    if (!isLoaded || !ownerId) return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get('post_purchase') !== '1') return;
+      promoteGuestProfileToClerkUser(ownerId);
+      promoteGuestCoreSnapshotToClerkUser(ownerId);
+      window.dispatchEvent(new Event('m55:profile_updated'));
+    } catch {
+      /* no-op */
+    }
+  }, [isLoaded, ownerId]);
 
   const view = useMemo(() => {
     if (!isLoaded) return { kind: 'loading' as const };

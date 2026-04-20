@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import PurchaseButton from "../../../components/PurchaseButton";
+import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
 import { STATIC_CTA } from "../../../components/core/corePublicCopy";
@@ -71,6 +73,13 @@ export default async function DtrLpPage({
   const params = await searchParams;
   const isExpired = params?.state === 'expired';
   const { userId } = await auth();
+
+  if (userId) {
+    const ownership = await resolveEntryReportOwnership(userId);
+    if (ownership.unlockState === "owned") {
+      redirect("/dtr/core");
+    }
+  }
 
   return (
     <PublicShell>

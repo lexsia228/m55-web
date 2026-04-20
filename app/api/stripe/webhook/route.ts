@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import Stripe from 'stripe';
 import { getStripe } from '../../../../lib/stripe';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
-import { grantInitialIncludedReplyIfNeeded } from '../../../../lib/m55/reply/walletGrants';
+import {
+  fulfillDtrCoreFromCheckoutSessionId,
+  DTR_CORE_RIGHT_KEY,
+} from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -113,8 +117,6 @@ export async function POST(req: NextRequest) {
   return res;
 }
 
-const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
-
 /**
  * checkout.session.completed: route to subscription or one-time lane.
  * - Subscription: mode=subscription, session.subscription set → subscription lane (unchanged).
@@ -192,11 +194,7 @@ async function lookupCheckoutSessionForRefund(db: any, event: Stripe.Event): Pro
 }
 
 /**
- * One-time Checkout fulfillment lane.
- * - Only runs for mode=payment, no subscription.
- * - Re-fetches session from Stripe for payment_status truth check.
- * - Grants entitlement only when payment_status=paid.
- * - Idempotent: one_time_fulfillments (session) + stripe_events (event).
+ * One-time Checkout fulfillment lane — delegates to lib (shared with /purchase/success).
  */
 async function handleCheckoutCompletedOneTime(
   stripe: Stripe,
@@ -206,83 +204,61 @@ async function handleCheckoutCompletedOneTime(
   userId: string,
   productId: string
 ): Promise<NextResponse> {
-  let freshSession: Stripe.Checkout.Session;
-  try {
-    freshSession = await stripe.checkout.sessions.retrieve(session.id);
-  } catch (e) {
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=session_retrieve', e);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
+  void stripe;
+  void productId;
 
-  const paymentStatus = freshSession.payment_status ?? 'unknown';
-  if (paymentStatus !== 'paid') {
-    await insertFailedFulfillment(db, event.id, session.id, 'payment_status_not_paid', { payment_status: paymentStatus, ...(session.metadata ?? {}) });
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'user_id=', userId, 'skipped=payment_status_not_paid status=', paymentStatus);
+  const result = await fulfillDtrCoreFromCheckoutSessionId({
+    checkoutSessionId: session.id,
+    expectedUserId: userId,
+    eventIdForFulfillmentRow: event.id,
+  });
+
+  if (result.ok) {
+    try {
+      revalidatePath('/dtr/core');
+      revalidatePath('/dtr');
+      revalidatePath('/dtr/lp');
+      revalidatePath('/purchase/success');
+    } catch (e) {
+      console.error('[webhook] revalidatePath failed (non-fatal)', e);
+    }
+    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'user_id=', userId, 'status=fulfilled');
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
-  const checkoutSessionId = session.id;
-  const paymentIntentId =
-    typeof freshSession.payment_intent === 'string'
-      ? freshSession.payment_intent
-      : (freshSession.payment_intent as Stripe.PaymentIntent)?.id ?? null;
-
-  const { data: existingFulfillment } = await db.from('one_time_fulfillments').select('checkout_session_id').eq('checkout_session_id', checkoutSessionId).maybeSingle();
-  if (existingFulfillment) {
-    return NextResponse.json({ received: true }, { status: 200 });
-  }
-
-  try {
-    const { error: insertFulfillmentErr } = await db.from('one_time_fulfillments').insert({
-      checkout_session_id: checkoutSessionId,
-      payment_intent_id: paymentIntentId,
-      event_id: event.id,
-      user_id: userId,
-      product_id: productId,
-      fulfilled_at: new Date().toISOString(),
+  if (result.reason === 'payment_not_paid') {
+    await insertFailedFulfillment(db, event.id, session.id, 'payment_status_not_paid', {
+      payment_status: result.detail,
+      ...(session.metadata ?? {}),
     });
-    if (insertFulfillmentErr) {
-      if (insertFulfillmentErr.code === '23505') return NextResponse.json({ received: true }, { status: 200 });
-      throw insertFulfillmentErr;
-    }
-
-    const { error: upsertEntErr } = await db
-      .from('entitlements')
-      .upsert(
-        {
-          user_id: userId,
-          product_id: productId,
-          grant_type: 'one_time',
-          source: 'stripe_checkout',
-          status: 'active',
-          stripe_session_id: checkoutSessionId,
-        },
-        { onConflict: 'user_id,product_id' }
-      );
-    if (upsertEntErr) throw upsertEntErr;
-
-    if (productId === PRODUCT_ID_FROM_META) {
-      const { error: upsertRightErr } = await db
-        .from('entitlement_rights')
-        .upsert(
-          { user_id: userId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
-          { onConflict: 'user_id,right_key' }
-        );
-      if (upsertRightErr) {
-        console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', checkoutSessionId, 'user_id=', userId, 'failure=entitlement_rights_upsert_non_blocking', upsertRightErr);
-      }
-
-      await grantInitialIncludedReplyIfNeeded(db, userId);
-    }
-
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', checkoutSessionId, 'user_id=', userId, 'product_id=', productId, 'status=fulfilled');
-  } catch (e) {
-    console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', checkoutSessionId, 'user_id=', userId, 'failure=', e);
-    await insertFailedFulfillment(db, event.id, checkoutSessionId, 'internal_processing_failed', { error: String(e) });
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    console.error(
+      '[webhook] lane=one_time event_id=',
+      event.id,
+      'checkout_session_id=',
+      session.id,
+      'user_id=',
+      userId,
+      'skipped=payment_status_not_paid',
+      result.detail
+    );
+    return NextResponse.json({ received: true }, { status: 200 });
   }
 
-  return NextResponse.json({ received: true }, { status: 200 });
+  if (
+    result.reason === 'user_mismatch' ||
+    result.reason === 'not_payment' ||
+    result.reason === 'product_not_allowed'
+  ) {
+    await insertFailedFulfillment(db, event.id, session.id, `fulfill_${result.reason}`, session.metadata ?? null);
+    return NextResponse.json({ received: true }, { status: 200 });
+  }
+
+  console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=', result);
+  await insertFailedFulfillment(db, event.id, session.id, 'internal_processing_failed', {
+    reason: result.reason,
+    detail: result.detail,
+  });
+  return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
 }
 
 /**
