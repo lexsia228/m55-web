@@ -216,6 +216,7 @@ async function handleCheckoutCompletedOneTime(
   if (result.ok) {
     try {
       revalidatePath('/dtr/core');
+      revalidatePath('/dtr/processing');
       revalidatePath('/dtr');
       revalidatePath('/dtr/lp');
       revalidatePath('/purchase/success');

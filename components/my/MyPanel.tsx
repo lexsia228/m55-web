@@ -133,17 +133,25 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
   const [nick, setNick] = useState('');
   const [birth, setBirth] = useState('');
   const birthRef = useRef<HTMLInputElement>(null);
+  const editingRef = useRef(false);
 
   useEffect(() => {
-    const p = ProfileRepository.get(userId);
-    if (p) {
-      setProfile(p);
-      setNick(p.nickname);
-      setBirth(p.birthDate);
-      setState('ready');
-    } else {
-      setState('no_profile');
-    }
+    const syncFromRepo = () => {
+      if (editingRef.current) return;
+      const p = ProfileRepository.get(userId);
+      if (p?.birthDate) {
+        setProfile(p);
+        setNick(p.nickname);
+        setBirth(p.birthDate);
+        setState('ready');
+      } else {
+        setState('no_profile');
+      }
+    };
+
+    syncFromRepo();
+    window.addEventListener('m55:profile_updated', syncFromRepo);
+    return () => window.removeEventListener('m55:profile_updated', syncFromRepo);
   }, [userId]);
 
   const handleSave = () => {
@@ -152,10 +160,12 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     const p: BirthProfile = { nickname: trimmed, birthDate: birth };
     ProfileRepository.save(userId, p);
     setProfile(p);
+    editingRef.current = false;
     setState('ready');
   };
 
   const handleEdit = () => {
+    editingRef.current = true;
     if (profile) {
       setNick(profile.nickname);
       setBirth(profile.birthDate);
@@ -163,7 +173,10 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     setState('editing');
   };
 
-  const handleCancel = () => setState('ready');
+  const handleCancel = () => {
+    editingRef.current = false;
+    setState('ready');
+  };
 
   const handleNickKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === 'Tab') {
@@ -176,8 +189,13 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     if (e.key === 'Enter' && nick.trim() && birth) handleSave();
   };
 
-  // Don't render until localStorage has been read (avoids autofocus flicker)
-  if (state === null) return null;
+  if (state === null) {
+    return (
+      <section className={styles.card} aria-label="プロフィール" style={{ marginBottom: 12 }}>
+        <p className={styles.muted}>読み込み中…</p>
+      </section>
+    );
+  }
 
   if (state === 'no_profile' || state === 'editing') {
     return (

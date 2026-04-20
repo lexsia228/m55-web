@@ -41,7 +41,31 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
 
     if (!rightErr && rightRow) {
       const exp = rightRow.expires_at ? new Date(rightRow.expires_at).getTime() : null;
-      if (exp !== null && exp < Date.now()) return { unlockState: 'expired' };
+      if (exp !== null && exp < Date.now()) {
+        console.info(
+          '[dtrOwnershipGate]',
+          JSON.stringify({
+            userId,
+            unlockState: 'expired',
+            basis: 'entitlement_rights_row',
+            table: 'entitlement_rights',
+            rightKey: DTR_CORE_RIGHT_KEY,
+            expiresAt: rightRow.expires_at,
+          })
+        );
+        return { unlockState: 'expired' };
+      }
+      console.info(
+        '[dtrOwnershipGate]',
+        JSON.stringify({
+          userId,
+          unlockState: 'owned',
+          basis: 'entitlement_rights_row',
+          table: 'entitlement_rights',
+          rightKey: rightRow.right_key,
+          expiresAt: rightRow.expires_at,
+        })
+      );
       return {
         unlockState: 'owned',
         ownershipType: 'static',
@@ -52,11 +76,14 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
 
     const { data: entRow, error: entErr } = await db
       .from('entitlements')
-      .select('id')
+      .select('id, product_id, status')
       .eq('user_id', userId)
       .eq('product_id', DTR_CORE_STATIC_V1)
       .eq('status', 'active')
-      .maybeSingle() as unknown as { data: { id: string } | null; error: unknown };
+      .maybeSingle() as unknown as {
+      data: { id: string; product_id: string; status: string } | null;
+      error: unknown;
+    };
 
     if (!entErr && entRow) {
       const { error: repairErr } = await (db as any).from('entitlement_rights').upsert(
@@ -66,6 +93,18 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
       if (repairErr) {
         console.error('[dtrOwnershipGate] entitlement_rights repair failed', repairErr);
       }
+      console.info(
+        '[dtrOwnershipGate]',
+        JSON.stringify({
+          userId,
+          unlockState: 'owned',
+          basis: 'entitlements_active_row_repair_rights',
+          table: 'entitlements',
+          entitlementId: entRow.id,
+          productId: entRow.product_id,
+          status: entRow.status,
+        })
+      );
       return {
         unlockState: 'owned',
         ownershipType: 'static',
@@ -74,6 +113,16 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
       };
     }
 
+    console.info(
+      '[dtrOwnershipGate]',
+      JSON.stringify({
+        userId,
+        unlockState: 'locked',
+        basis: 'no_row',
+        entitlementRightsError: rightErr ? String((rightErr as { message?: string }).message ?? rightErr) : null,
+        entitlementsError: entErr ? String((entErr as { message?: string }).message ?? entErr) : null,
+      })
+    );
     return { unlockState: 'locked' };
   } catch (e) {
     console.error('[dtrOwnershipGate] resolve failed', e);

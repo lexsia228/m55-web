@@ -1,6 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
+import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
+import { DTR_PROCESSING_PATH } from "../../../lib/m55/dtrRoutes";
+import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
 
@@ -19,14 +22,24 @@ export default async function DtrCorePage() {
   if (ownership.unlockState === "locked") redirect("/dtr/lp");
   if (ownership.unlockState === "expired") redirect("/dtr/lp?state=expired");
 
-  // owned → render full reader shell (fullSections via client component)
-  return (
-    <main className={styles.page}>
-      <DtrFullReader
-        ownershipType={ownership.ownershipType}
-        aiConsultIncluded={ownership.aiConsultIncluded}
-        expiresAt={ownership.expiresAt}
-      />
-    </main>
-  );
+  const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+
+  if (snap) {
+    return (
+      <main className={styles.page}>
+        <DtrFullReader
+          ownershipType={ownership.ownershipType}
+          aiConsultIncluded={ownership.aiConsultIncluded}
+          expiresAt={ownership.expiresAt}
+          purchasedSnapshot={{
+            envelope: snap.envelope_json,
+            profile: snap.profile_snapshot,
+          }}
+        />
+      </main>
+    );
+  }
+
+  // Past locked/expired gates ⇒ owned only. No snapshot ⇒ wait for fulfillment (fail-closed).
+  redirect(DTR_PROCESSING_PATH);
 }

@@ -1,9 +1,9 @@
 /**
- * M55 PROFILE REPOSITORY (Local-first)
- * - Stores nickname + birthDate locally (no server DB)
- * - Works for both Clerk user and Guest (device id)
- * - No URL-based injection
+ * M55 PROFILE REPOSITORY (Local-first cache)
+ * - Primary UX still reads/writes localStorage for instant UI
+ * - Same values are synced to server draft via queueDtrDraftSync (DB SSOT for carry-over)
  */
+import { queueDtrDraftSync } from '../m55/dtrDraftClientSync';
 export type BirthProfile = {
   nickname: string;
   birthDate: string; // YYYY-MM-DD
@@ -68,6 +68,10 @@ export const ProfileRepository = {
         /* no-op */
       }
     }
+    queueDtrDraftSync(userId ?? null, {
+      nickname: profile.nickname,
+      birthDate: profile.birthDate,
+    });
   },
 
   exists: (userId?: string | null): boolean => {

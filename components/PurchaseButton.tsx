@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { ProfileRepository } from '../lib/soul/profile';
 
 /**
  * productId → 環境変数マッピング
@@ -25,19 +27,35 @@ export default function PurchaseButton({
   children = '購入する',
   className,
 }: PurchaseButtonProps) {
+  const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
+  const [checkout409, setCheckout409] = useState<
+    null | { code: 'already_purchased' | 'fulfillment_pending' }
+  >(null);
 
   const handleClick = async () => {
     setLoading(true);
     setError(null);
     setNeedsSignIn(false);
+    setCheckout409(null);
     try {
+      const profile =
+        userId ? ProfileRepository.get(userId) : null;
+      const payload: { productId: string; profile?: { nickname: string; birthDate: string } } = {
+        productId,
+      };
+      if (profile?.birthDate && profile.nickname?.trim()) {
+        payload.profile = {
+          nickname: profile.nickname.trim(),
+          birthDate: profile.birthDate,
+        };
+      }
       const res = await fetch('/api/purchase/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify(payload),
       });
       // 401: raw "Unauthorized" を出さず、ログイン導線に切り替える
       if (res.status === 401) {
@@ -45,10 +63,21 @@ export default function PurchaseButton({
         setLoading(false);
         return;
       }
-      const data = (await res.json()) as { error?: string; url?: string; redirectTo?: string };
-      if (res.status === 409 && data?.redirectTo) {
-        window.location.href = data.redirectTo;
+      const data = (await res.json()) as {
+        code?: string;
+        error?: string;
+        url?: string;
+        redirectTo?: string;
+      };
+      // 409: code を画面に出したうえで、明示リンクからのみ遷移（自動リダイレクトしない）
+      if (res.status === 409) {
+        if (data.code === 'already_purchased' || data.code === 'fulfillment_pending') {
+          setCheckout409({ code: data.code });
+          setLoading(false);
+          return;
+        }
         setLoading(false);
+        setError(data.error ?? '購入を続行できません。');
         return;
       }
       if (!res.ok) {
@@ -84,6 +113,30 @@ export default function PurchaseButton({
           購入にはログインが必要です。{' '}
           <a href={signInHref} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             ログインして購入を続ける
+          </a>
+        </p>
+      )}
+      {checkout409 && (
+        <p role="status" style={{ marginTop: 10, fontSize: 14, color: '#5a4ea0', lineHeight: 1.6 }}>
+          {checkout409.code === 'already_purchased' ? (
+            <>
+              <strong>already_purchased</strong>
+              {' — '}
+              購入済みでレポート配布まで完了しています。Entry Report を開けます。
+            </>
+          ) : (
+            <>
+              <strong>fulfillment_pending</strong>
+              {' — '}
+              購入権限はありますが、保存版レポートの生成を待っています。準備画面へ進んでください。
+            </>
+          )}
+          <br />
+          <a
+            href={checkout409.code === 'already_purchased' ? '/dtr/core' : '/dtr/processing'}
+            style={{ color: '#7c6fd6', fontWeight: 600, textDecoration: 'underline' }}
+          >
+            {checkout409.code === 'already_purchased' ? 'Entry Report を開く' : '準備画面へ進む'}
           </a>
         </p>
       )}

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
+import { getDtrReportSnapshot } from '../../../../lib/m55/dtrDraftDb';
+import { DTR_PROCESSING_PATH } from '../../../../lib/m55/dtrRoutes';
+import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
 
 const DTR_CORE_PRODUCT = 'DTR_CORE_STATIC_V1';
 
@@ -23,7 +26,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { productId?: string };
+  let body: {
+    productId?: string;
+    profile?: { nickname?: string; birthDate?: string };
+  };
   try {
     body = await req.json();
   } catch {
@@ -43,9 +49,33 @@ export async function POST(req: NextRequest) {
 
   if (productId === DTR_CORE_PRODUCT) {
     const ownership = await resolveEntryReportOwnership(userId);
+    const hasOwnership = ownership.unlockState === 'owned';
+    const snap = hasOwnership ? await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1) : null;
+    const hasPurchaseSnapshot = snap != null;
+
     if (ownership.unlockState === 'owned') {
+      if (snap) {
+        return NextResponse.json(
+          {
+            code: 'already_purchased' as const,
+            unlockState: ownership.unlockState,
+            hasOwnership,
+            hasPurchaseSnapshot,
+            userId,
+            error: 'already_purchased',
+          },
+          { status: 409 }
+        );
+      }
       return NextResponse.json(
-        { error: 'already_purchased', redirectTo: '/dtr/core' },
+        {
+          code: 'fulfillment_pending' as const,
+          unlockState: ownership.unlockState,
+          hasOwnership,
+          hasPurchaseSnapshot,
+          userId,
+          error: 'fulfillment_pending',
+        },
         { status: 409 }
       );
     }
@@ -70,6 +100,14 @@ export async function POST(req: NextRequest) {
     clerkUser?.emailAddresses?.[0]?.emailAddress ??
     undefined;
 
+  const metadata: Record<string, string> = { productId };
+  const pn = body.profile?.nickname?.trim();
+  const pb = body.profile?.birthDate?.trim().slice(0, 10);
+  if (pn && pb) {
+    metadata.profileNickname = pn.slice(0, 120);
+    metadata.profileBirthDate = pb;
+  }
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -79,10 +117,10 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/dtr/processing?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dtr/lp?checkout=cancelled`,
       client_reference_id: userId,
-      metadata: { productId },
+      metadata,
       locale: 'ja',
       payment_intent_data: {
         description: 'Reflect Report',

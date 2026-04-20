@@ -12,7 +12,7 @@ import { PublicFooter } from '../../app/_components/PublicFooter';
 /**
  * Primary entry: logo lockup → /home. Tabs: 本質 / レポート / マイページ
  * /today and /weekly are routes but NOT primary tabs (M55_MAIN_PAGE_HOOK SSOT).
- * レポート → /dtr/core: server gate redirects unowned users to /dtr/lp automatically.
+ * レポート → /dtr/core: 未購入は /dtr/lp、購入済みで snapshot 未生成は /dtr/processing。
  * Tarot / AI Chat remain quiet-disabled (opacity 0.30 + pointer-events none) per A-plan routing.
  *
  * Navigation is in the top header (editorial layout — no pill bottom nav).

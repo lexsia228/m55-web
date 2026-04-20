@@ -3,7 +3,7 @@ import { SignIn } from '@clerk/nextjs';
 export default function SignInPage() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: 24 }}>
-      <SignIn signUpUrl="/sign-up" afterSignInUrl="/" />
+      <SignIn signUpUrl="/sign-up" afterSignInUrl="/dtr/lp" />
     </div>
   );
 }

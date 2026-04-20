@@ -1,6 +1,6 @@
 /**
  * DTR Core one-time checkout: Stripe Session → entitlements + entitlement_rights (DB SSOT).
- * Shared by Stripe webhook and /purchase/success (mobile-friendly when webhook is delayed).
+ * Shared by Stripe webhook and /dtr/processing (mobile-friendly when webhook is delayed).
  * Idempotent: safe to call with the same checkout session many times.
  */
 import type Stripe from 'stripe';
@@ -8,6 +8,7 @@ import { getStripe } from '../stripe';
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { ALLOWED_ONE_TIME_PRODUCTS, DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { grantInitialIncludedReplyIfNeeded } from './reply/walletGrants';
+import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
 
@@ -125,6 +126,16 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
       }
 
       await grantInitialIncludedReplyIfNeeded(db, params.expectedUserId);
+
+      const snap = await upsertDtrReportSnapshotAtFulfillment({
+        userId: params.expectedUserId,
+        productId,
+        checkoutSessionId,
+        sessionMetadata: fresh.metadata,
+      });
+      if (!snap.ok) {
+        console.error('[fulfillDtrCore] dtr_report_snapshots skipped:', snap.reason);
+      }
     }
 
     return { ok: true };

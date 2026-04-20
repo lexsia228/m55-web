@@ -345,22 +345,16 @@ function validateMyPanelProfileIntakeTestId() {
   }
 }
 
-/** /purchase/success: bridge promotes local profile, primary CTA /dtr/core, client navigates after entitlements (no server redirect), no QuietPolling on page. */
+/** /purchase/success: legacy Stripe URL compat — must forward to /dtr/processing (snapshot wait + fulfillment). */
 function validatePurchaseSuccessPage() {
   const pagePath = path.join(ROOT, 'app', 'purchase', 'success', 'page.tsx');
   if (!exists(pagePath)) return;
   const t = readText(pagePath);
-  if (!t.includes('data-testid="m55-purchase-success-primary-cta"')) {
-    add(rel(pagePath), 'REGRESSION GUARD: purchase success must expose data-testid="m55-purchase-success-primary-cta"');
+  if (!t.includes('/dtr/processing')) {
+    add(rel(pagePath), 'REGRESSION GUARD: purchase success must redirect to /dtr/processing');
   }
-  if (!t.includes('data-testid="m55-purchase-success-headline"')) {
-    add(rel(pagePath), 'REGRESSION GUARD: purchase success must expose data-testid="m55-purchase-success-headline"');
-  }
-  if (!t.includes('/dtr/core?post_purchase=1')) {
-    add(rel(pagePath), 'REGRESSION GUARD: purchase success primary target must include /dtr/core?post_purchase=1');
-  }
-  if (/redirect\s*\(\s*['"]\/dtr\/core/.test(t)) {
-    add(rel(pagePath), 'REGRESSION GUARD: purchase success must not redirect away from reward screen to /dtr/core');
+  if (!t.includes('redirect(')) {
+    add(rel(pagePath), 'REGRESSION GUARD: purchase success must use redirect()');
   }
   if (/\bunauthorized\b/i.test(t)) {
     add(rel(pagePath), 'REGRESSION GUARD: purchase success page must not surface raw unauthorized copy');

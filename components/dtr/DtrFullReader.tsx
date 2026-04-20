@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
-  runDtrEngine,
+  type DtrEnvelope,
   type DtrSection,
   type StructureAxisJa,
   type StructureAxisRole,
@@ -15,7 +15,6 @@ import {
   essenceStabilityVizForStem,
 } from '../../lib/m55/dtrEngine';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
-import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
 import {
   AXIS_DATA,
   AXIS_LABELS,
@@ -101,6 +100,11 @@ type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
+  /** Immutable paid body from dtr_report_snapshots (required; server gate ensures presence). */
+  purchasedSnapshot: {
+    envelope: DtrEnvelope;
+    profile: { nickname: string; birthDate: string };
+  };
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -1555,18 +1559,16 @@ function GroundingPanel({
    Main component
    ───────────────────────────────────────────────────────────────────────────── */
 
-export default function DtrFullReader({ ownershipType, aiConsultIncluded, expiresAt }: Props) {
+export default function DtrFullReader({
+  ownershipType,
+  aiConsultIncluded,
+  expiresAt,
+  purchasedSnapshot,
+}: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
-  const [profileEpoch, setProfileEpoch] = useState(0);
 
-  useEffect(() => {
-    const bump = () => setProfileEpoch((n) => n + 1);
-    window.addEventListener('m55:profile_updated', bump);
-    return () => window.removeEventListener('m55:profile_updated', bump);
-  }, []);
-
-  /** /purchase/success から server redirect した場合も、device-local → Clerk へ寄せる（旧 PurchaseSuccessBridge と同じ）。 */
+  /** Checkout / processing 経由後も、device-local → Clerk へ寄せる。 */
   useEffect(() => {
     if (!isLoaded || !ownerId) return;
     try {
@@ -1582,29 +1584,20 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
 
   const view = useMemo(() => {
     if (!isLoaded) return { kind: 'loading' as const };
-    const profile = ProfileRepository.get(ownerId);
-    if (!profile?.birthDate) return { kind: 'need_profile' as const };
 
-    const envelope = runDtrEngine({
-      birthDate: profile.birthDate,
-      nickname: profile.nickname,
-      locale: 'ja-JP',
-      contextScope: 'dtr',
-    });
-
-    const idx = essenceStemLaneIndex(profile.birthDate);
-    const stem = TEN_STEM_DISPLAY[idx]!;
-
+    const env = purchasedSnapshot.envelope;
+    const idx = env.auditMeta.stemLaneIndex;
+    const stem = TEN_STEM_DISPLAY[idx];
+    if (!stem) return { kind: 'loading' as const };
     return {
       kind: 'ready' as const,
       stemIdx: idx,
       stem,
-      payload: envelope.payload,
-      birthDate: profile.birthDate,
-      nickname: profile.nickname,
+      payload: env.payload,
+      birthDate: purchasedSnapshot.profile.birthDate,
+      nickname: purchasedSnapshot.profile.nickname,
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, ownerId, profileEpoch]);
+  }, [isLoaded, purchasedSnapshot]);
 
   const didScrollToCoreAnalysisRef = useRef(false);
 
@@ -1628,21 +1621,6 @@ export default function DtrFullReader({ ownershipType, aiConsultIncluded, expire
       <div className={styles.reportRoot}>
         <div className={styles.reportMain}>
           <p className={styles.stateMsg}>読み込み中…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (view.kind === 'need_profile') {
-    return (
-      <div className={styles.reportRoot}>
-        <div className={styles.reportMain}>
-          <div className={styles.gateCard}>
-            <p className={styles.gateMsg}>
-              レポートを表示するには、プロフィール（ニックネームと生年月日）の設定が必要です。
-            </p>
-            <Link href="/my" className={styles.gateLink}>マイページで設定する</Link>
-          </div>
         </div>
       </div>
     );
