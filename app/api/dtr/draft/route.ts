@@ -50,35 +50,46 @@ export async function POST(req: NextRequest) {
   const jar = await cookies();
   const fromCookie = jar.get(COOKIE_NAME)?.value ?? null;
 
+  // 未ログイン: DB に user_id null で upsert しない（23502 / NOT NULL 回避）。識別子は cookie のみ。
+  if (!userId) {
+    const draftId = fromCookie && isUuid(fromCookie) ? fromCookie : crypto.randomUUID();
+    console.info('[api/dtr/draft]', JSON.stringify({ event: 'anonymous_draft_cookie_only', draftId }));
+    const res = NextResponse.json({ ok: true as const, draftId });
+    res.cookies.set(COOKIE_NAME, draftId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+    });
+    return res;
+  }
+
   let draftId: string;
   try {
     const db = getSupabaseAdmin() as any;
 
-    if (userId) {
-      const { data: existingUserDraft, error: selectErr } = await db
-        .from('dtr_guest_drafts')
-        .select('id')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (selectErr) {
-        const se = selectErr as { code?: string; message?: string };
-        console.error('[api/dtr/draft] select', JSON.stringify({ code: se.code, message: se.message }));
-        if (isDraftTableMissingError(selectErr)) {
-          return NextResponse.json({ error: 'draft_schema_unavailable' }, { status: 503 });
-        }
-        return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
+    const { data: existingUserDraft, error: selectErr } = await db
+      .from('dtr_guest_drafts')
+      .select('id')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (selectErr) {
+      const se = selectErr as { code?: string; message?: string };
+      console.error('[api/dtr/draft] select', JSON.stringify({ code: se.code, message: se.message }));
+      if (isDraftTableMissingError(selectErr)) {
+        return NextResponse.json({ error: 'draft_schema_unavailable' }, { status: 503 });
       }
-      if (existingUserDraft?.id) {
-        draftId = existingUserDraft.id as string;
-      } else if (fromCookie && isUuid(fromCookie)) {
-        draftId = fromCookie;
-      } else {
-        draftId = crypto.randomUUID();
-      }
+      return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
+    }
+    if (existingUserDraft?.id) {
+      draftId = existingUserDraft.id as string;
+    } else if (fromCookie && isUuid(fromCookie)) {
+      draftId = fromCookie;
     } else {
-      draftId = fromCookie && isUuid(fromCookie) ? fromCookie : crypto.randomUUID();
+      draftId = crypto.randomUUID();
     }
 
     const now = new Date().toISOString();
@@ -89,7 +100,7 @@ export async function POST(req: NextRequest) {
         birth_date: birthRaw,
         extra_json: body.extraJson ?? {},
         user_id: userId,
-        linked_at: userId ? now : null,
+        linked_at: now,
         updated_at: now,
       },
       { onConflict: 'id' }

@@ -150,6 +150,15 @@ export async function POST(req: NextRequest) {
   if (productId === DTR_CORE_PRODUCT) {
     const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     if (snap) {
+      console.info(
+        '[checkout]',
+        JSON.stringify({
+          event: 'dtr_purchase_path',
+          path: 'purchased_resume_already_purchased_snapshot',
+          userId,
+          note: 'SSOT: dtr_report_snapshots row exists → 409 already_purchased',
+        })
+      );
       await logCheckout409(userId, 'already_purchased', true, null);
       return NextResponse.json({ code: 'already_purchased' as const }, { status: 409 });
     }
@@ -168,10 +177,12 @@ export async function POST(req: NextRequest) {
           console.info(
             '[checkout]',
             JSON.stringify({
-              event: 'dtr_fulfillment_pending_but_resume_missing_profile_metadata',
+              event: 'dtr_purchase_path',
+              path: 'fresh_purchase_stripe_session_create',
+              subreason: 'stale_resume_missing_profile_metadata',
               userId,
               resumeCheckoutSessionId,
-              note: 'falling through to new Checkout Session (DTR_ALLOW_STALE_SESSION_NEW_CHECKOUT=1)',
+              note: 'DTR_ALLOW_STALE_SESSION_NEW_CHECKOUT=1 → new Stripe Checkout',
             })
           );
         }
@@ -181,6 +192,16 @@ export async function POST(req: NextRequest) {
         if (resumeCheckoutSessionId) {
           const vr = await verifyStripeCheckoutSessionForDtrUser(resumeCheckoutSessionId, userId);
           if (vr.valid) {
+            console.info(
+              '[checkout]',
+              JSON.stringify({
+                event: 'dtr_purchase_path',
+                path: 'purchased_resume_fulfillment_pending',
+                userId,
+                resumeCheckoutSessionId: vr.sessionId,
+                note: 'owned + no snapshot + valid paid session in DB → 409 resume processing',
+              })
+            );
             await logCheckout409(userId, 'fulfillment_pending', false, resumeCheckoutSessionId);
             return NextResponse.json(
               {
@@ -200,6 +221,16 @@ export async function POST(req: NextRequest) {
             JSON.stringify({ userId })
           );
         }
+        console.info(
+          '[checkout]',
+          JSON.stringify({
+            event: 'dtr_purchase_path',
+            path: 'purchased_resume_fulfillment_pending',
+            userId,
+            resumeCheckoutSessionId: null,
+            note: 'owned + no snapshot + no resume id or verify failed → 409',
+          })
+        );
         await logCheckout409(userId, 'fulfillment_pending', false, null);
         return NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 });
       }
@@ -243,6 +274,18 @@ export async function POST(req: NextRequest) {
   if (pn && pb) {
     metadata.profileNickname = pn.slice(0, 120);
     metadata.profileBirthDate = pb;
+  }
+
+  if (productId === DTR_CORE_PRODUCT) {
+    console.info(
+      '[checkout]',
+      JSON.stringify({
+        event: 'dtr_purchase_path',
+        path: 'fresh_purchase_stripe_session_create',
+        userId,
+        note: 'Stripe checkout.sessions.create (new user, unowned, or stale-session escape)',
+      })
+    );
   }
 
   try {
