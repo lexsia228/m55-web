@@ -17,27 +17,48 @@ type EntitlementsResponse = {
   dtr_rights?: string[];
 };
 
+type SnapshotReadyResponse = {
+  ready: boolean;
+  hasOwnership: boolean;
+  hasPurchaseSnapshot: boolean;
+};
+
 type ProfileState = 'no_profile' | 'ready' | 'editing';
 
 export default function MyPanel() {
   const { user, isLoaded } = useUser();
   const [ent, setEnt] = useState<EntitlementsResponse | null>(null);
   const [entError, setEntError] = useState(false);
+  const [snap, setSnap] = useState<SnapshotReadyResponse | null>(null);
+  const [snapError, setSnapError] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch('/api/me/entitlements', { credentials: 'include', cache: 'no-store' });
-      if (!res.ok) {
+      const [entRes, snapRes] = await Promise.all([
+        fetch('/api/me/entitlements', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/dtr/report-snapshot-ready', { credentials: 'include', cache: 'no-store' }),
+      ]);
+      if (!entRes.ok) {
         setEntError(true);
         setEnt(null);
-        return;
+      } else {
+        const data = (await entRes.json()) as EntitlementsResponse;
+        setEnt(data);
+        setEntError(false);
       }
-      const data = (await res.json()) as EntitlementsResponse;
-      setEnt(data);
-      setEntError(false);
+      if (!snapRes.ok) {
+        setSnapError(true);
+        setSnap(null);
+      } else {
+        const s = (await snapRes.json()) as SnapshotReadyResponse;
+        setSnap(s);
+        setSnapError(false);
+      }
     } catch {
       setEntError(true);
       setEnt(null);
+      setSnapError(true);
+      setSnap(null);
     }
   }, []);
 
@@ -81,26 +102,63 @@ export default function MyPanel() {
           {entError && (
             <p className={styles.muted}>利用状況を読み取れませんでした。時間をおいて再度お試しください。</p>
           )}
+          {snapError && !entError && (
+            <p className={styles.muted}>レポートの再開状態を確認できませんでした。時間をおいて再度お試しください。</p>
+          )}
 
           {!entError && ent && (
             <>
-              <div className={styles.blockLabel}>Report</div>
-              {(!ent.dtr_rights || ent.dtr_rights.length === 0) && (
-                <p className={styles.body}>
-                  {LABEL_ENTRY_REPORT} はまだありません。商品ページから購入できます。
-                </p>
-              )}
+              <div className={styles.blockLabel}>購入済みレポート</div>
+              {(() => {
+                const rights = ent.dtr_rights ?? [];
+                const hasCoreInList = rights.some((k) => isEntryReportCoreRight(k));
+                const rows =
+                  rights.length > 0
+                    ? rights
+                    : snap?.hasOwnership && !hasCoreInList
+                    ? ['m55_p:core_origin']
+                    : [];
+                const purchased = rows.length > 0 || snap?.hasOwnership === true;
 
-              {ent.dtr_rights && ent.dtr_rights.length > 0 && (
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                  {ent.dtr_rights.map((key, i) => (
-                    <li key={i} className={styles.row}>
-                      <span>{displayLabelForDtrRightKey(key)}</span>
-                      <span className={styles.badge}>利用可能</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                if (!purchased) {
+                  return (
+                    <>
+                      <p className={styles.body}>
+                        {LABEL_ENTRY_REPORT} はまだありません。商品ページから購入できます。
+                      </p>
+                      <nav className={styles.links} aria-label="購入">
+                        <Link href="/dtr/lp">{LABEL_ENTRY_REPORT} を購入する</Link>
+                      </nav>
+                    </>
+                  );
+                }
+
+                const canOpenCore = !snapError && snap?.ready === true;
+
+                return (
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="購入済みレポート一覧">
+                    {rows.map((key, i) => {
+                      const isCore = isEntryReportCoreRight(key);
+                      return (
+                        <li key={`${key}-${i}`} className={styles.row}>
+                          <span>{displayLabelForDtrRightKey(key)}</span>
+                          <span style={{ flexShrink: 0 }}>
+                            {isCore && canOpenCore && (
+                              <Link href="/dtr/core" className={styles.openLink}>
+                                開く
+                              </Link>
+                            )}
+                            {isCore && !canOpenCore && (
+                              <span className={styles.muted}>準備中</span>
+                            )}
+                            {!isCore && <span className={styles.badge}>利用可能</span>}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              })()}
 
               <div className={styles.blockLabel}>相談（Report 付帯）</div>
               <p className={styles.muted}>
@@ -116,10 +174,8 @@ export default function MyPanel() {
           )}
 
           <nav className={styles.links} aria-label="次の操作">
+            <Link href="/dtr">レポート一覧へ</Link>
             <Link href="/dtr/lp">{LABEL_ENTRY_REPORT} について</Link>
-            {ent?.dtr_rights?.some((k) => isEntryReportCoreRight(k)) && (
-              <Link href="/dtr/core">Report を開く</Link>
-            )}
           </nav>
         </section>
       </SignedIn>

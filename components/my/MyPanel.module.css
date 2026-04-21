@@ -75,6 +75,13 @@
   font-size: 13px;
 }
 
+.openLink {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
 .links a {
   color: #7c6fd6;
   text-decoration: none;

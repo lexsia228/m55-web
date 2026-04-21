@@ -1,5 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { resolveEntryReportOwnership } from '../../lib/m55/dtrOwnershipGate';
+import { getDtrReportSnapshot } from '../../lib/m55/dtrDraftDb';
+import { DTR_CORE_STATIC_V1 } from '../../lib/oneTimeCheckout';
 import { PublicHeader } from '../../components/shell/PublicHeader';
 import { PublicFooter } from '../_components/PublicFooter';
 import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
@@ -25,11 +27,17 @@ export default async function DtrPage() {
     ownershipState = ownership.unlockState;
   }
 
+  let snapshotReady = false;
+  if (userId && ownershipState === 'owned') {
+    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    snapshotReady = snap != null;
+  }
+
   return (
     <>
       <PublicHeader />
       <main className={styles.main}>
-        <DtrShelfPanel ownershipState={ownershipState} />
+        <DtrShelfPanel ownershipState={ownershipState} snapshotReady={snapshotReady} />
       </main>
       <PublicFooter />
     </>

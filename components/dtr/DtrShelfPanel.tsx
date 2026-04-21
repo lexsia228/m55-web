@@ -40,6 +40,8 @@ type CardProfile =
 
 type Props = {
   ownershipState: OwnershipState;
+  /** `dtr_report_snapshots` に本文があるときのみ true（`/dtr/core` へ誘導してよい） */
+  snapshotReady: boolean;
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -52,15 +54,19 @@ type Props = {
 function EntryReportCard({
   ownershipState,
   cardProfile,
+  snapshotReady,
 }: {
   ownershipState: OwnershipState;
   cardProfile: CardProfile;
+  snapshotReady: boolean;
 }) {
   const isOwned = ownershipState === 'owned';
   const isExpired = ownershipState === 'expired';
 
-  const ctaHref = isOwned
+  const ctaHref = isOwned && snapshotReady
     ? '/dtr/core'
+    : isOwned
+    ? '/dtr/lp'
     : isExpired
     ? '/dtr/lp?state=expired'
     : '/dtr/lp';
@@ -77,13 +83,23 @@ function EntryReportCard({
     ? `${nickname}さんの取り扱い説明書`
     : '本質の読み解き';
 
-  const ctaLabel = isOwned
+  const ctaLabel = isOwned && snapshotReady
     ? 'レポートを開く'
+    : isOwned
+    ? 'レポートの準備中'
     : isExpired
     ? 'サポートに相談する'
     : '1,000円で入手する';
 
-  const ariaLabel = `Entry Report — ${isOwned ? '保存済み。レポートを開く' : isExpired ? '期限切れ' : '入手する'}`;
+  const ariaLabel = `Entry Report — ${
+    isOwned && snapshotReady
+      ? '保存済み。レポートを開く'
+      : isOwned
+      ? '保存済み。レポートの準備中'
+      : isExpired
+      ? '期限切れ'
+      : '入手する'
+  }`;
 
   return (
     <Link href={ctaHref} className={styles.reportCard} aria-label={ariaLabel}>
@@ -185,7 +201,7 @@ function EntryReportCard({
    Inherits /core visual language. Supports future parallel product cards.
    ───────────────────────────────────────────────────────────────────────────── */
 
-export default function DtrShelfPanel({ ownershipState }: Props) {
+export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
 
@@ -223,6 +239,7 @@ export default function DtrShelfPanel({ ownershipState }: Props) {
           <EntryReportCard
             ownershipState={ownershipState}
             cardProfile={cardProfile}
+            snapshotReady={snapshotReady}
           />
         </div>
       </div>
