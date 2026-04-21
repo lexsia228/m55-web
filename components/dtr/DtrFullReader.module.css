@@ -2715,14 +2715,50 @@
   }
 }
 
-@media (max-width: 639px) {
+/* 小〜中幅のみ: contain のレターボックスを上に寄せず上端から見せる（1024px+ はベースの bottom right のまま） */
+@media (max-width: 1023px) {
+  .heroPosterTypeImg {
+    object-position: top right;
+  }
+
+  /*
+   * 右画像 max-width:58% と左テキスト max-width:60% が同時に効き、狭い幅で中央が重なるのを防ぐ。
+   * 分析類型カードを左カラム内に収める（1024px+ は min-width:640 の heroPosterMain のまま）。
+   */
   .heroPosterMain {
-    max-width: calc(100% - 34vw);
+    max-width: min(50%, calc(100% - 58% - 0.75rem));
+  }
+
+  .heroTypeCard {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 639px) {
+  /*
+   * 右画像 max-width:50% より左にテキスト列を閉じ、分析カードを左域のみに完結させる。
+   * 本文は 16em（≈16字相当）で行長を固定寄りにし、枠は width:auto でその幅に追従。
+   */
+  .heroPosterMain {
+    max-width: calc(50% - 0.75rem);
+  }
+
+  .heroTypeCard {
+    align-self: flex-start;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .heroTypeCardEssence {
+    max-width: 16em;
   }
 
   .heroPosterTypeImg {
     max-width: 50%;
-    height: 82%;
+    height: 100%;
   }
 
   .heroMetaStrip {
