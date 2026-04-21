@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
         .limit(1)
         .maybeSingle();
       if (selectErr) {
-        console.error('[api/dtr/draft]', selectErr);
+        const se = selectErr as { code?: string; message?: string };
+        console.error('[api/dtr/draft] select', JSON.stringify({ code: se.code, message: se.message }));
         if (isDraftTableMissingError(selectErr)) {
           return NextResponse.json({ error: 'draft_schema_unavailable' }, { status: 503 });
         }
@@ -94,7 +95,8 @@ export async function POST(req: NextRequest) {
       { onConflict: 'id' }
     );
     if (error) {
-      console.error('[api/dtr/draft]', error);
+      const er = error as { code?: string; message?: string };
+      console.error('[api/dtr/draft] upsert', JSON.stringify({ code: er.code, message: er.message }));
       if (isDraftTableMissingError(error)) {
         return NextResponse.json({ error: 'draft_schema_unavailable' }, { status: 503 });
       }

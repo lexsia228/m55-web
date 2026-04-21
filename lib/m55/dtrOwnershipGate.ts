@@ -2,9 +2,9 @@
  * Layer1 ownership gate for DTR reader (M55_ENTITLEMENT_KEY_NORMALIZATION + BINDING_ROLLOUT Step 5).
  * Server-side only. Never call from client.
  *
- * SSOT: Database (`entitlement_rights` + `entitlements`). If Stripe wrote `entitlements` but
- * `entitlement_rights` was missing (partial failure), we repair the right row on read so all
- * routes match webhook + success-sync behavior.
+ * SSOT: `dtr_report_snapshots`（保存版）または Stripe 決済完了に裏打ちされた entitlements / one_time_fulfillments。
+ * entitlement_rights 単独（手動・残骸・不整合）は owned にしない。
+ * If Stripe wrote `entitlements` but `entitlement_rights` was missing (partial failure), we repair the right row on read.
  *
  * Rules:
  * - dtr_unlock_state: 'locked' | 'owned' | 'expired'
@@ -13,6 +13,7 @@
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { DTR_CORE_RIGHT_KEY } from './dtrCoreCheckoutFulfillment';
+import { getDtrReportSnapshot } from './dtrDraftDb';
 
 export type DtrUnlockState = 'owned' | 'locked' | 'expired';
 
@@ -28,6 +29,26 @@ export type DtrOwnershipResult =
 export async function resolveEntryReportOwnership(userId: string): Promise<DtrOwnershipResult> {
   try {
     const db = getSupabaseAdmin();
+
+    const snapRow = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    if (snapRow) {
+      console.info(
+        '[dtrOwnershipGate]',
+        JSON.stringify({
+          userId,
+          unlockState: 'owned',
+          grantSource: 'dtr_report_snapshots',
+          grantDetail: '保存版レポート行あり（購入フロー完了）',
+          productId: DTR_CORE_STATIC_V1,
+        })
+      );
+      return {
+        unlockState: 'owned',
+        ownershipType: 'static',
+        aiConsultIncluded: true,
+        expiresAt: null,
+      };
+    }
 
     const { data: rightRow, error: rightErr } = await db
       .from('entitlement_rights')
@@ -55,23 +76,60 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
         );
         return { unlockState: 'expired' };
       }
-      console.info(
+
+      const { data: entForRights } = await db
+        .from('entitlements')
+        .select('id, product_id, status')
+        .eq('user_id', userId)
+        .eq('product_id', DTR_CORE_STATIC_V1)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      const { data: otfForRights } = await db
+        .from('one_time_fulfillments')
+        .select('checkout_session_id')
+        .eq('user_id', userId)
+        .eq('product_id', DTR_CORE_STATIC_V1)
+        .order('fulfilled_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const hasPaymentBacking = !!(entForRights ?? otfForRights);
+
+      if (hasPaymentBacking) {
+        console.info(
+          '[dtrOwnershipGate]',
+          JSON.stringify({
+            userId,
+            unlockState: 'owned',
+            grantSource: 'entitlement_rights_plus_payment_backing',
+            grantDetail:
+              'entitlement_rights に行があり、かつ entitlements(active) または one_time_fulfillments がある（Stripe 決済完了後の通常状態）',
+            hasEntitlementsRow: !!entForRights,
+            hasOneTimeFulfillmentRow: !!otfForRights,
+            rightKey: rightRow.right_key,
+            expiresAt: rightRow.expires_at,
+          })
+        );
+        return {
+          unlockState: 'owned',
+          ownershipType: 'static',
+          aiConsultIncluded: true,
+          expiresAt: null,
+        };
+      }
+
+      console.warn(
         '[dtrOwnershipGate]',
         JSON.stringify({
           userId,
-          unlockState: 'owned',
-          basis: 'entitlement_rights_row',
-          table: 'entitlement_rights',
-          rightKey: rightRow.right_key,
-          expiresAt: rightRow.expires_at,
+          unlockState: 'locked',
+          grantSourceRejected: 'entitlement_rights_orphan',
+          grantDetail:
+            'entitlement_rights のみで entitlements / one_time_fulfillments が無い。手動投入・テスト残骸・削除不整合の可能性。正規の付与は fulfillDtrCoreFromCheckoutSessionId または Stripe webhook（checkout.session.completed）経由のみ。',
         })
       );
-      return {
-        unlockState: 'owned',
-        ownershipType: 'static',
-        aiConsultIncluded: true,
-        expiresAt: null,
-      };
+      return { unlockState: 'locked' };
     }
 
     const { data: entRow, error: entErr } = await db
@@ -98,7 +156,9 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
         JSON.stringify({
           userId,
           unlockState: 'owned',
-          basis: 'entitlements_active_row_repair_rights',
+          grantSource: 'entitlements_active_repair_entitlement_rights',
+          grantDetail:
+            'entitlements に product_id=DTR_CORE_STATIC_V1 かつ status=active の行があり、entitlement_rights を repair したため owned（Webhook/processing の片側失敗時の補修）',
           table: 'entitlements',
           entitlementId: entRow.id,
           productId: entRow.product_id,

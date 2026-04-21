@@ -2,7 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
-import { DTR_PROCESSING_PATH } from "../../../lib/m55/dtrRoutes";
 import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
@@ -40,6 +39,6 @@ export default async function DtrCorePage() {
     );
   }
 
-  // Past locked/expired gates ⇒ owned only. No snapshot ⇒ wait for fulfillment (fail-closed).
-  redirect(DTR_PROCESSING_PATH);
+  // owned だが snapshot なし: 本文は出さず LP（processing は checkout session_id 付きでのみ利用）
+  redirect("/dtr/lp");
 }

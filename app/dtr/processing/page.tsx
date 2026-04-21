@@ -2,12 +2,11 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
-import { getStripe } from '../../../lib/stripe';
-import { ALLOWED_ONE_TIME_PRODUCTS, DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
+import { DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
+import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 import { getDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
-import { DTR_PROCESSING_PATH } from '../../../lib/m55/dtrRoutes';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
 import styles from './processing.module.css';
 
@@ -30,28 +29,6 @@ async function getSupportUrl(): Promise<string> {
     /* ignore */
   }
   return '/support';
-}
-
-async function verifyOneTimeSession(
-  sessionId: string,
-  userId: string
-): Promise<{ valid: true; sessionId: string } | { valid: false }> {
-  try {
-    const stripe = getStripe();
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    const productId = (session.metadata?.productId as string) ?? DTR_CORE_STATIC_V1;
-    if (
-      session.mode !== 'payment' ||
-      session.client_reference_id !== userId ||
-      !ALLOWED_ONE_TIME_PRODUCTS.has(productId) ||
-      session.payment_status !== 'paid'
-    ) {
-      return { valid: false };
-    }
-    return { valid: true, sessionId };
-  } catch {
-    return { valid: false };
-  }
 }
 
 function ProcessingFallback({
@@ -93,22 +70,31 @@ function ProcessingFallback({
 export default async function DtrProcessingPage(props: {
   searchParams?: Promise<{ session_id?: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
-    // ログイン後は LP でチェックアウト導線を見せる（processing 直送はしない）
-    redirect(`/sign-in?redirect_url=${encodeURIComponent('/dtr/lp')}`);
-  }
-
   const params = props.searchParams ? await props.searchParams : {};
   const sessionIdFromUrl = typeof params.session_id === 'string' ? params.session_id : undefined;
 
-  let sessionVerified: { valid: true; sessionId: string } | { valid: false } = { valid: false };
-  if (sessionIdFromUrl) {
-    sessionVerified = await verifyOneTimeSession(sessionIdFromUrl, userId);
+  const processingReturnPath =
+    sessionIdFromUrl != null
+      ? `/dtr/processing?session_id=${encodeURIComponent(sessionIdFromUrl)}`
+      : '/dtr/processing';
+
+  const { userId } = await auth();
+  if (!userId) {
+    const back = sessionIdFromUrl != null ? processingReturnPath : '/dtr/lp';
+    redirect(`/sign-in?redirect_url=${encodeURIComponent(back)}`);
+  }
+
+  if (!sessionIdFromUrl) {
+    redirect('/dtr/lp');
+  }
+
+  const sessionVerified = await verifyStripeCheckoutSessionForDtrUser(sessionIdFromUrl, userId);
+  if (!sessionVerified.valid) {
+    redirect('/dtr/lp');
   }
 
   const supportUrl = await getSupportUrl();
-  const recoveryRef = sessionVerified.valid ? sessionVerified.sessionId : sessionIdFromUrl;
+  const recoveryRef = sessionVerified.sessionId;
 
   try {
     getSupabaseAdmin();
@@ -121,21 +107,19 @@ export default async function DtrProcessingPage(props: {
     );
   }
 
-  if (sessionVerified.valid) {
-    const fr = await fulfillDtrCoreFromCheckoutSessionId({
-      checkoutSessionId: sessionVerified.sessionId,
-      expectedUserId: userId,
-      eventIdForFulfillmentRow: `processing_page:${sessionVerified.sessionId}`,
-    });
-    if (!fr.ok && fr.reason === 'db_error') {
-      return (
-        <ProcessingFallback
-          message="購入の反映を一時的に完了できませんでした。しばらくしてからこのページを再読み込みするか、サポートへお問い合わせください。"
-          supportUrl={supportUrl}
-          recoveryRef={recoveryRef}
-        />
-      );
-    }
+  const fr = await fulfillDtrCoreFromCheckoutSessionId({
+    checkoutSessionId: sessionVerified.sessionId,
+    expectedUserId: userId,
+    eventIdForFulfillmentRow: `processing_page:${sessionVerified.sessionId}`,
+  });
+  if (!fr.ok && fr.reason === 'db_error') {
+    return (
+      <ProcessingFallback
+        message="購入の反映を一時的に完了できませんでした。しばらくしてからこのページを再読み込みするか、サポートへお問い合わせください。"
+        supportUrl={supportUrl}
+        recoveryRef={recoveryRef}
+      />
+    );
   }
 
   const ownership = await resolveEntryReportOwnership(userId);
@@ -145,15 +129,6 @@ export default async function DtrProcessingPage(props: {
   }
 
   if (ownership.unlockState === 'locked') {
-    if (sessionIdFromUrl && !sessionVerified.valid) {
-      return (
-        <ProcessingFallback
-          message="セッションを確認できませんでした。サポートまでお問い合わせください。"
-          supportUrl={supportUrl}
-          recoveryRef={sessionIdFromUrl}
-        />
-      );
-    }
     redirect('/dtr/lp');
   }
 
@@ -161,8 +136,6 @@ export default async function DtrProcessingPage(props: {
   if (snap) {
     redirect('/dtr/core');
   }
-
-  // 以降: owned かつ snapshot 未生成。locked は上で除外済み（未購入の URL 直叩きは /dtr/lp へ）。
 
   return (
     <main className={styles.page} data-testid="m55-dtr-processing-main">

@@ -125,6 +125,17 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         return { ok: false, reason: 'db_error', detail: String(upsertRightErr.message ?? upsertRightErr) };
       }
 
+      console.info(
+        '[dtrGrant]',
+        JSON.stringify({
+          where: 'fulfillDtrCoreFromCheckoutSessionId',
+          trigger: 'stripe_checkout_session_paid',
+          userId: params.expectedUserId,
+          rightKey: DTR_CORE_RIGHT_KEY,
+          checkoutSessionId,
+        })
+      );
+
       await grantInitialIncludedReplyIfNeeded(db, params.expectedUserId);
 
       const snap = await upsertDtrReportSnapshotAtFulfillment({
@@ -134,7 +145,20 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         sessionMetadata: fresh.metadata,
       });
       if (!snap.ok) {
-        console.error('[fulfillDtrCore] dtr_report_snapshots skipped:', snap.reason);
+        console.error(
+          '[fulfillDtrCore] dtr_report_snapshots skipped',
+          JSON.stringify({
+            reason: snap.reason,
+            checkoutSessionId,
+            userId: params.expectedUserId,
+            hint:
+              snap.reason.includes('PGRST205') || /schema cache|not find/i.test(snap.reason)
+                ? 'PostgREST: run migration 20260421000000 or NOTIFY pgrst reload; ensure 20260420000000 applied'
+                : snap.reason.includes('missing_profile_for_snapshot')
+                  ? 'Set profile in Checkout metadata or ensure dtr_guest_drafts row exists (fix /api/dtr/draft 503 first)'
+                  : undefined,
+          })
+        );
       }
     }
 

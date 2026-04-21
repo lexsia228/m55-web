@@ -81,10 +81,13 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
   let nickname = (meta.profileNickname as string | undefined)?.trim() ?? '';
   let birthDate = (meta.profileBirthDate as string | undefined)?.trim() ?? '';
 
+  // Stripe Checkout metadata を最優先。dtr_guest_drafts は欠損時のみ補完（PGRST205 でも metadata があれば保存版を生成可能）。
   const draft = await getLatestDraftForUser(params.userId);
-  if (draft?.nickname && draft.birth_date) {
-    nickname = draft.nickname.trim();
-    birthDate = String(draft.birth_date).slice(0, 10);
+  if (!nickname || !birthDate) {
+    if (draft?.nickname && draft.birth_date) {
+      if (!nickname) nickname = draft.nickname.trim();
+      if (!birthDate) birthDate = String(draft.birth_date).slice(0, 10);
+    }
   }
 
   if (!birthDate || !nickname) {
@@ -128,7 +131,10 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
       { onConflict: 'user_id,product_id' }
     );
     if (error) {
-      return { ok: false, reason: String(error.message ?? error) };
+      const e = error as { code?: string; message?: string; details?: string; hint?: string };
+      const reason = [e.code, e.message, e.details, e.hint].filter(Boolean).join(' | ');
+      console.error('[dtrDraftDb] dtr_report_snapshots upsert failed', JSON.stringify({ code: e.code, message: e.message }));
+      return { ok: false, reason: reason || String(error) };
     }
     return { ok: true };
   } catch (e) {

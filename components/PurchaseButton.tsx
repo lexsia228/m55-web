@@ -31,15 +31,11 @@ export default function PurchaseButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
-  const [checkout409, setCheckout409] = useState<
-    null | { code: 'already_purchased' | 'fulfillment_pending' }
-  >(null);
 
   const handleClick = async () => {
     setLoading(true);
     setError(null);
     setNeedsSignIn(false);
-    setCheckout409(null);
     try {
       const profile =
         userId ? ProfileRepository.get(userId) : null;
@@ -67,17 +63,27 @@ export default function PurchaseButton({
         code?: string;
         error?: string;
         url?: string;
-        redirectTo?: string;
+        resumeCheckoutSessionId?: string;
       };
-      // 409: code を画面に出したうえで、明示リンクからのみ遷移（自動リダイレクトしない）
+      // 409: 内部コードは画面に出さず、閲覧済み / 準備中はそのまま遷移（詳細はサーバーログ）
       if (res.status === 409) {
-        if (data.code === 'already_purchased' || data.code === 'fulfillment_pending') {
-          setCheckout409({ code: data.code });
-          setLoading(false);
+        if (data.code === 'already_purchased') {
+          window.location.replace('/dtr/core');
+          return;
+        }
+        if (data.code === 'fulfillment_pending') {
+          const sid =
+            typeof data.resumeCheckoutSessionId === 'string' ? data.resumeCheckoutSessionId.trim() : '';
+          if (sid) {
+            window.location.replace(`/dtr/processing?session_id=${encodeURIComponent(sid)}`);
+          } else {
+            console.warn('[PurchaseButton] fulfillment_pending without resumeCheckoutSessionId');
+            window.location.replace('/dtr/lp');
+          }
           return;
         }
         setLoading(false);
-        setError(data.error ?? '購入を続行できません。');
+        setError('購入を続行できません。しばらくしてからお試しください。');
         return;
       }
       if (!res.ok) {
@@ -106,37 +112,13 @@ export default function PurchaseButton({
         aria-busy={loading}
         aria-live="polite"
       >
-        {loading ? '処理中...' : children}
+        {loading ? '購入状況を確認しています…' : children}
       </button>
       {needsSignIn && (
         <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#5a4ea0' }}>
           購入にはログインが必要です。{' '}
           <a href={signInHref} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             ログインして購入を続ける
-          </a>
-        </p>
-      )}
-      {checkout409 && (
-        <p role="status" style={{ marginTop: 10, fontSize: 14, color: '#5a4ea0', lineHeight: 1.6 }}>
-          {checkout409.code === 'already_purchased' ? (
-            <>
-              <strong>already_purchased</strong>
-              {' — '}
-              購入済みでレポート配布まで完了しています。Entry Report を開けます。
-            </>
-          ) : (
-            <>
-              <strong>fulfillment_pending</strong>
-              {' — '}
-              購入権限はありますが、保存版レポートの生成を待っています。準備画面へ進んでください。
-            </>
-          )}
-          <br />
-          <a
-            href={checkout409.code === 'already_purchased' ? '/dtr/core' : '/dtr/processing'}
-            style={{ color: '#7c6fd6', fontWeight: 600, textDecoration: 'underline' }}
-          >
-            {checkout409.code === 'already_purchased' ? 'Entry Report を開く' : '準備画面へ進む'}
           </a>
         </p>
       )}
