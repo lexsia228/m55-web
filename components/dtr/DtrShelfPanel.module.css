@@ -65,6 +65,48 @@
   margin: 0;
 }
 
+.shelfToLpInline {
+  font-weight: 600;
+  color: #6b5fa8;
+  text-decoration: none;
+  margin: 0 2px;
+}
+
+.shelfToLpInline:hover {
+  text-decoration: underline;
+}
+
+.shelfHintBlock {
+  margin: 0 0 12px;
+}
+
+.shelfHint {
+  font-size: 12.5px;
+  color: rgba(48, 45, 60, 0.58);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.shelfHintLink {
+  font-weight: 600;
+  color: #6b5fa8;
+  text-decoration: none;
+}
+
+.shelfHintLink:hover {
+  text-decoration: underline;
+}
+
+/* メイン棚を先に読ませる（視線の第1優先） */
+.shelfHeroLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(107, 95, 168, 0.55);
+  margin: clamp(10px, 2.5vw, 18px) 0 10px;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Product shelf grid
    Single column on mobile. Can grow to multi-column when future cards are added.
@@ -74,6 +116,31 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+/* ── Extended catalog (Phase 4): placeholders + retention ─── */
+
+.catalogBlock {
+  margin-top: clamp(28px, 5vw, 40px);
+  padding-top: clamp(22px, 4vw, 32px);
+  border-top: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.catalogBlockTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(17px, 3.2vw, 20px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.catalogBlockLead {
+  font-size: clamp(12.5px, 2.4vw, 13.5px);
+  color: rgba(48, 45, 60, 0.62);
+  line-height: 1.65;
+  margin: 0 0 16px;
 }
 
 @media (min-width: 720px) {

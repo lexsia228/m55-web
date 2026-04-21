@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs';
+import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import { useMemo } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
+import DtrCatalogStrip from './DtrCatalogStrip';
 import styles from './DtrShelfPanel.module.css';
 
 /**
@@ -201,6 +202,41 @@ function EntryReportCard({
    Inherits /core visual language. Supports future parallel product cards.
    ───────────────────────────────────────────────────────────────────────────── */
 
+function ShelfContextHint({
+  ownershipState,
+  snapshotReady,
+}: {
+  ownershipState: OwnershipState;
+  snapshotReady: boolean;
+}) {
+  return (
+    <div className={styles.shelfHintBlock}>
+      <SignedOut>
+        <p className={styles.shelfHint}>
+          ログインすると購入状況に応じて表示が変わります。
+          <Link href="/dtr/lp" className={styles.shelfHintLink}> 内容・価格は商品ページ</Link>
+        </p>
+      </SignedOut>
+      <SignedIn>
+        {ownershipState === 'locked' && (
+          <p className={styles.shelfHint}>
+            未購入の方は、商品ページで価格と内容を確認してからお進みください。
+          </p>
+        )}
+        {ownershipState === 'owned' && snapshotReady && (
+          <p className={styles.shelfHint}>購入済みです。下のカードから保存版を開けます。</p>
+        )}
+        {ownershipState === 'owned' && !snapshotReady && (
+          <p className={styles.shelfHint}>購入済みです。本文の準備が完了すると開けます。</p>
+        )}
+        {ownershipState === 'expired' && (
+          <p className={styles.shelfHint}>有効期限のご確認は商品ページまたはサポートへ。</p>
+        )}
+      </SignedIn>
+    </div>
+  );
+}
+
 export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
@@ -227,14 +263,20 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) 
         <span className={styles.shelfOverline}>M55 Reports</span>
         <h1 className={styles.shelfTitle}>本質の深読み</h1>
         <p className={styles.shelfLead}>
-          分析の構造を、保存版として手元に残す。
-          <br />
-          レポートは閲覧・参照・相談の起点となります。
+          保存版レポートの棚です。内容の詳細・価格・購入は
+          <Link href="/dtr/lp" className={styles.shelfToLpInline}>商品ページ</Link>
+          で確認できます。
         </p>
       </div>
 
-      {/* ── Product shelf ─── */}
-      <div className={styles.productShelf} role="list" aria-label="レポート一覧">
+      <ShelfContextHint ownershipState={ownershipState} snapshotReady={snapshotReady} />
+
+      <p className={styles.shelfHeroLabel} id="dtr-main-shelf-label">
+        メインのレポート
+      </p>
+
+      {/* ── Product shelf（メインSKU） ─── */}
+      <div className={styles.productShelf} role="list" aria-labelledby="dtr-main-shelf-label">
         <div role="listitem">
           <EntryReportCard
             ownershipState={ownershipState}
@@ -243,6 +285,17 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) 
           />
         </div>
       </div>
+
+      {/* ── カタログ棚（追加SKU・近日公開。Entry は上記と重複させない） ─── */}
+      <section className={styles.catalogBlock} aria-labelledby="dtr-catalog-heading">
+        <h2 id="dtr-catalog-heading" className={styles.catalogBlockTitle}>
+          追加予定のサービス
+        </h2>
+        <p className={styles.catalogBlockLead}>
+          今後のラインナップです。近日公開はサポートからお知らせします。
+        </p>
+        <DtrCatalogStrip variant="dtr" hideEntryReportRow />
+      </section>
 
     </div>
   );

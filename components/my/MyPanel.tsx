@@ -7,8 +7,8 @@ import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
 import {
   displayLabelForDtrRightKey,
   isEntryReportCoreRight,
-  LABEL_ENTRY_REPORT,
 } from '../../lib/m55/myEntitlementLabels';
+import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
 import styles from './MyPanel.module.css';
 
 type EntitlementsResponse = {
@@ -24,6 +24,25 @@ type SnapshotReadyResponse = {
 };
 
 type ProfileState = 'no_profile' | 'ready' | 'editing';
+
+type CoreVisualStatus = 'ready' | 'pending' | 'unknown';
+
+function computeRows(ent: EntitlementsResponse, snap: SnapshotReadyResponse | null): string[] {
+  const rights = ent.dtr_rights ?? [];
+  const hasCoreInList = rights.some((k) => isEntryReportCoreRight(k));
+  if (rights.length > 0) return rights;
+  if (snap?.hasOwnership && !hasCoreInList) return ['m55_p:core_origin'];
+  return [];
+}
+
+function coreVisualStatus(
+  snapError: boolean,
+  snap: SnapshotReadyResponse | null
+): CoreVisualStatus {
+  if (snapError) return 'unknown';
+  if (snap?.ready) return 'ready';
+  return 'pending';
+}
 
 export default function MyPanel() {
   const { user, isLoaded } = useUser();
@@ -78,8 +97,8 @@ export default function MyPanel() {
     <div className={styles.wrap}>
       <header style={{ marginBottom: 12 }}>
         <div style={{ fontSize: 12, color: '#6b667a' }}>マイページ</div>
-        <h1 className={styles.h1}>所有と再開</h1>
-        <p className={styles.lead}>権利と利用の整理</p>
+        <h1 className={styles.h1}>マイハブ</h1>
+        <p className={styles.lead}>レポートを再開し、次の一歩を選べます。</p>
       </header>
 
       <SignedOut>
@@ -96,9 +115,20 @@ export default function MyPanel() {
       </SignedOut>
 
       <SignedIn>
+        <nav className={styles.quickNav} aria-label="よく使う導線">
+          <Link href="/dtr">レポート一覧</Link>
+          <span className={styles.quickNavSep} aria-hidden>·</span>
+          <Link href="/dtr/lp">商品の説明</Link>
+        </nav>
+
         {user && <ProfileIntakeCard userId={user.id} />}
 
-        <section className={styles.card} aria-label="ライブラリ">
+        <section className={styles.card} aria-label="あなたのレポート">
+          <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>あなたのレポート</div>
+          <p className={styles.sectionIntro}>
+            保存版はここから開きます。生成が終わると「開く」が使えます。
+          </p>
+
           {entError && (
             <p className={styles.muted}>利用状況を読み取れませんでした。時間をおいて再度お試しください。</p>
           )}
@@ -107,79 +137,128 @@ export default function MyPanel() {
           )}
 
           {!entError && ent && (
-            <>
-              <div className={styles.blockLabel}>購入済みレポート</div>
-              {(() => {
-                const rights = ent.dtr_rights ?? [];
-                const hasCoreInList = rights.some((k) => isEntryReportCoreRight(k));
-                const rows =
-                  rights.length > 0
-                    ? rights
-                    : snap?.hasOwnership && !hasCoreInList
-                    ? ['m55_p:core_origin']
-                    : [];
-                const purchased = rows.length > 0 || snap?.hasOwnership === true;
-
-                if (!purchased) {
-                  return (
-                    <>
-                      <p className={styles.body}>
-                        {LABEL_ENTRY_REPORT} はまだありません。商品ページから購入できます。
-                      </p>
-                      <nav className={styles.links} aria-label="購入">
-                        <Link href="/dtr/lp">{LABEL_ENTRY_REPORT} を購入する</Link>
-                      </nav>
-                    </>
-                  );
-                }
-
-                const canOpenCore = !snapError && snap?.ready === true;
-
-                return (
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="購入済みレポート一覧">
-                    {rows.map((key, i) => {
-                      const isCore = isEntryReportCoreRight(key);
-                      return (
-                        <li key={`${key}-${i}`} className={styles.row}>
-                          <span>{displayLabelForDtrRightKey(key)}</span>
-                          <span style={{ flexShrink: 0 }}>
-                            {isCore && canOpenCore && (
-                              <Link href="/dtr/core" className={styles.openLink}>
-                                開く
-                              </Link>
-                            )}
-                            {isCore && !canOpenCore && (
-                              <span className={styles.muted}>準備中</span>
-                            )}
-                            {!isCore && <span className={styles.badge}>利用可能</span>}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                );
-              })()}
-
-              <div className={styles.blockLabel}>相談（Report 付帯）</div>
-              <p className={styles.muted}>
-                相談は購入済み Report に紐づく範囲です。汎用チャットではありません。
-              </p>
-
-              <div className={styles.blockLabel}>参考</div>
-              <div className={styles.row}>
-                <span>保存の目安（日）</span>
-                <span>{ent.retention_days ?? 0}</span>
-              </div>
-            </>
+            <OwnedReportsBlock ent={ent} snap={snap} snapError={snapError} />
           )}
+        </section>
 
-          <nav className={styles.links} aria-label="次の操作">
-            <Link href="/dtr">レポート一覧へ</Link>
-            <Link href="/dtr/lp">{LABEL_ENTRY_REPORT} について</Link>
+        {!entError && ent && (
+          <section className={styles.card} aria-label="レポートとサービス">
+            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>レポートとサービス</div>
+            <p className={styles.sectionIntro}>
+              所有・未購入・近日公開を一覧で確認できます。
+            </p>
+            <DtrCatalogStrip
+              variant="my"
+              externalData
+              ent={ent}
+              snap={snap}
+              snapError={snapError}
+            />
+          </section>
+        )}
+
+        {!entError && ent && (
+          <section className={styles.card} aria-label="相談と保存の目安">
+            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>相談（Report 付帯）</div>
+            <p className={styles.muted} style={{ margin: '0 0 12px' }}>
+              相談は購入済み Report に紐づく範囲です。汎用チャットではありません。
+            </p>
+            <div className={styles.blockLabel}>参考</div>
+            <div className={styles.row}>
+              <span>保存の目安（日）</span>
+              <span>{ent.retention_days ?? 0}</span>
+            </div>
+          </section>
+        )}
+
+        <section className={styles.card} aria-label="ヘルプとお問い合わせ">
+          <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>ヘルプ・お問い合わせ</div>
+          <nav className={styles.hubLinks} aria-label="サポートと規約">
+            <Link href="/support">よくある質問・サポート</Link>
+            <Link href="/legal/refund">返金・キャンセル</Link>
+            <Link href="/legal/tokushoho">事業者情報・お問い合わせ先（特商法）</Link>
           </nav>
+          <p className={styles.hubLinksMuted}>
+            購入の明細・領収は、決済メールまたは上記からご確認ください。
+          </p>
         </section>
       </SignedIn>
     </div>
+  );
+}
+
+function OwnedReportsBlock({
+  ent,
+  snap,
+  snapError,
+}: {
+  ent: EntitlementsResponse;
+  snap: SnapshotReadyResponse | null;
+  snapError: boolean;
+}) {
+  const rows = computeRows(ent, snap);
+  const ownsAny = rows.length > 0 || snap?.hasOwnership === true;
+  const canOpenCore = !snapError && snap?.ready === true;
+  const coreVs = coreVisualStatus(snapError, snap);
+
+  if (!ownsAny) {
+    return (
+      <>
+        <p className={styles.emptyOwned}>まだレポートはありません。下の一覧から購入できます。</p>
+      </>
+    );
+  }
+
+  return (
+    <ul className={styles.reportList} aria-label="購入済みレポート一覧">
+      {rows.map((key, i) => {
+        const isCore = isEntryReportCoreRight(key);
+        if (isCore) {
+          const badgeClass =
+            coreVs === 'ready'
+              ? styles.statusPurchased
+              : coreVs === 'pending'
+              ? styles.statusPending
+              : styles.statusPending;
+          const badgeText =
+            coreVs === 'ready' ? '購入済み' : coreVs === 'pending' ? '準備中' : '準備中';
+          return (
+            <li key={`${key}-${i}`} className={styles.reportItem}>
+              <div className={styles.reportItemTop}>
+                <span className={styles.reportTitle}>{displayLabelForDtrRightKey(key)}</span>
+                <span className={`${styles.statusBadge} ${badgeClass}`}>{badgeText}</span>
+              </div>
+              <div className={styles.reportItemCta}>
+                {canOpenCore && (
+                  <Link href="/dtr/core" className={styles.ctaOpen}>
+                    開く
+                  </Link>
+                )}
+                {!canOpenCore && (
+                  <span className={styles.muted} style={{ fontSize: 12, textAlign: 'right' as const }}>
+                    本文が整い次第、「開く」が表示されます
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        }
+
+        return (
+          <li key={`${key}-${i}`} className={styles.reportItem}>
+            <div className={styles.reportItemTop}>
+              <span className={styles.reportTitle}>{displayLabelForDtrRightKey(key)}</span>
+              <span className={`${styles.statusBadge} ${styles.statusPurchased}`}>購入済み</span>
+            </div>
+            <div className={styles.reportItemCta}>
+              <Link href="/dtr" className={styles.ctaSecondaryLink}>
+                レポート棚へ
+              </Link>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

@@ -4,8 +4,14 @@ import PurchaseButton from "../../../components/PurchaseButton";
 import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
 import { STATIC_CTA } from "../../../components/core/corePublicCopy";
+import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
+import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
+import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 
 export const metadata = { title: "本質の読み解き | M55" };
+
+/** LP 下部 CTA（サーバで解決。内部コードは画面に出さない） */
+type DtrLpCtaMode = "signin" | "expired" | "purchase" | "open" | "pending";
 
 function CheckIcon() {
   return (
@@ -69,8 +75,29 @@ export default async function DtrLpPage({
   searchParams: Promise<{ state?: string }>;
 }) {
   const params = await searchParams;
-  const isExpired = params?.state === 'expired';
+  const isExpiredParam = params?.state === "expired";
   const { userId } = await auth();
+
+  let lpCtaMode: DtrLpCtaMode = "signin";
+  let showExpiredBanner = isExpiredParam;
+
+  if (userId) {
+    const ownership = await resolveEntryReportOwnership(userId);
+    if (ownership.unlockState === "expired" || isExpiredParam) {
+      lpCtaMode = "expired";
+      showExpiredBanner = true;
+    } else if (ownership.unlockState === "locked") {
+      lpCtaMode = "purchase";
+    } else if (ownership.unlockState === "owned") {
+      const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+      lpCtaMode = snap ? "open" : "pending";
+    } else {
+      lpCtaMode = "purchase";
+    }
+  }
+
+  const hidePriceAndTrust =
+    !!userId && (lpCtaMode === "open" || lpCtaMode === "pending" || lpCtaMode === "expired");
 
   return (
     <PublicShell>
@@ -84,14 +111,16 @@ export default async function DtrLpPage({
         lineHeight: 1.75,
       }}>
 
-        {/* パンくず */}
+        {/* パンくず — 棚（/dtr）→ 商品ページ（LP）の流れを明示 */}
         <p style={{ margin: '0 0 20px', fontSize: 12.5, letterSpacing: '0.01em' }}>
           <Link href="/" style={{ color: '#6b5fa8', textDecoration: 'none' }}>M55</Link>
           <span style={{ margin: '0 6px', opacity: 0.35 }}>›</span>
-          <Link href="/core" style={{ color: '#6b5fa8', textDecoration: 'none' }}>本質</Link>
+          <Link href="/dtr" style={{ color: '#6b5fa8', textDecoration: 'none' }}>レポート</Link>
+          <span style={{ margin: '0 6px', opacity: 0.35 }}>›</span>
+          <span style={{ color: 'rgba(60, 60, 60, 0.55)' }}>商品ページ</span>
         </p>
 
-        {isExpired && <ExpiredNotice />}
+        {showExpiredBanner && <ExpiredNotice />}
 
         {/* ── Purchase card ───────────────────────────────────────── */}
         <section
@@ -241,67 +270,51 @@ export default async function DtrLpPage({
               borderRadius: 1,
             }} />
 
-            {/* Price block */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <p style={{
-                fontSize: 12,
-                color: 'rgba(55, 52, 58, 0.6)',
-                margin: 0,
-                lineHeight: 1.5,
-              }}>
-                {STATIC_CTA.bundleNote}
-              </p>
-
-              {/* Price row */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 10,
-              }}>
-                <p
-                  style={{ margin: 0, lineHeight: 1.1 }}
-                  aria-label={STATIC_CTA.priceLabel}
-                >
-                  <span style={{
-                    fontSize: 'clamp(28px, 5.8vw, 36px)',
-                    fontWeight: 800,
-                    fontVariantNumeric: 'tabular-nums',
-                    color: '#121212',
-                    letterSpacing: '-0.01em',
-                  }}>¥1,000</span>
-                </p>
-                <span style={{
+            {/* Price block — 未購入の購入導線でのみ表示（既購入・期限切れでは違和感を避ける） */}
+            {!hidePriceAndTrust && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p style={{
                   fontSize: 12,
-                  color: 'rgba(55, 52, 58, 0.55)',
-                  letterSpacing: '0.02em',
-                  paddingBottom: 2,
-                }}>買い切り</span>
-              </div>
-            </div>
+                  color: 'rgba(55, 52, 58, 0.6)',
+                  margin: 0,
+                  lineHeight: 1.5,
+                }}>
+                  {STATIC_CTA.bundleNote}
+                </p>
 
-            {/* Trust row — Stripe Checkout 前の安心表示（ホスト側 UI のみ） */}
-            <CheckoutTrustRow />
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 10,
+                }}>
+                  <p
+                    style={{ margin: 0, lineHeight: 1.1 }}
+                    aria-label={STATIC_CTA.priceLabel}
+                  >
+                    <span style={{
+                      fontSize: 'clamp(28px, 5.8vw, 36px)',
+                      fontWeight: 800,
+                      fontVariantNumeric: 'tabular-nums',
+                      color: '#121212',
+                      letterSpacing: '-0.01em',
+                    }}>¥1,000</span>
+                  </p>
+                  <span style={{
+                    fontSize: 12,
+                    color: 'rgba(55, 52, 58, 0.55)',
+                    letterSpacing: '0.02em',
+                    paddingBottom: 2,
+                  }}>買い切り</span>
+                </div>
+              </div>
+            )}
+
+            {!hidePriceAndTrust && (
+              <CheckoutTrustRow />
+            )}
 
             {/* CTA block */}
-            {userId ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                <PurchaseButton
-                  productId="DTR_CORE_STATIC_V1"
-                  className="m55-lp-cta-btn"
-                >
-                  <span style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    gap: 12,
-                  }}>
-                    <span>今すぐ入手する</span>
-                    <ArrowRightIcon />
-                  </span>
-                </PurchaseButton>
-              </div>
-            ) : (
+            {lpCtaMode === "signin" ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <p style={{
                   fontSize: 13,
@@ -334,6 +347,74 @@ export default async function DtrLpPage({
                   <ArrowRightIcon />
                 </a>
               </div>
+            ) : lpCtaMode === "expired" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <Link
+                  href="/support"
+                  className="m55-lp-cta-btn"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}
+                >
+                  <span>サポートに相談する</span>
+                  <ArrowRightIcon />
+                </Link>
+              </div>
+            ) : lpCtaMode === "purchase" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <PurchaseButton
+                  productId="DTR_CORE_STATIC_V1"
+                  className="m55-lp-cta-btn"
+                >
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    gap: 12,
+                  }}>
+                    <span>購入する</span>
+                    <ArrowRightIcon />
+                  </span>
+                </PurchaseButton>
+              </div>
+            ) : lpCtaMode === "open" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <Link
+                  href="/dtr/core"
+                  className="m55-lp-cta-btn"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}
+                >
+                  <span>レポートを開く</span>
+                  <ArrowRightIcon />
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p style={{
+                  fontSize: 13,
+                  color: 'rgba(107, 95, 168, 0.85)',
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}>
+                  本文の準備が完了すると閲覧できます。しばらくしてから再度お試しください。
+                </p>
+                <button
+                  type="button"
+                  disabled
+                  className="m55-lp-cta-btn"
+                  aria-disabled
+                >
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    gap: 12,
+                  }}>
+                    <span>レポートの準備中</span>
+                    <ArrowRightIcon />
+                  </span>
+                </button>
+              </div>
             )}
 
             {/* Legal note */}
@@ -343,8 +424,18 @@ export default async function DtrLpPage({
               color: 'rgba(60, 60, 60, 0.55)',
               lineHeight: 1.65,
             }}>
-              ウェブ上で提供するデジタルコンテンツ（レポート）です。決済完了後すぐに閲覧できます（物理配送なし）。
-              本サービスは医療・法律・投資等の助言ではありません。
+              {lpCtaMode === "pending" ? (
+                <>
+                  ウェブ上で提供するデジタルコンテンツ（レポート）です（物理配送なし）。
+                  本文の生成が完了次第、閲覧いただけます。
+                  本サービスは医療・法律・投資等の助言ではありません。
+                </>
+              ) : (
+                <>
+                  ウェブ上で提供するデジタルコンテンツ（レポート）です。決済完了後すぐに閲覧できます（物理配送なし）。
+                  本サービスは医療・法律・投資等の助言ではありません。
+                </>
+              )}
             </p>
           </div>
         </section>

@@ -6,6 +6,10 @@ export function PublicFooter() {
     <footer className={styles.footer}>
       <div className={styles.row}>
         <div className={styles.links}>
+          <Link href="/dtr" className={styles.link}>
+            レポート
+          </Link>
+          <span className={styles.sep}>·</span>
           <Link href="/support" className={styles.link}>
             サポート
           </Link>

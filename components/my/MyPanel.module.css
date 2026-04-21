@@ -5,6 +5,36 @@
   color: #2c233a;
 }
 
+/* Phase 5: 先に「どこへ行くか」を示す（プロフィールより上） */
+.quickNav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(177, 156, 255, 0.09);
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.quickNav a {
+  color: #5a4d9e;
+  text-decoration: none;
+}
+
+.quickNav a:hover {
+  text-decoration: underline;
+}
+
+.quickNavSep {
+  opacity: 0.4;
+  user-select: none;
+  font-weight: 400;
+}
+
 .card {
   border-radius: 16px;
   padding: 16px;
@@ -33,6 +63,17 @@
   margin: 12px 0 4px;
 }
 
+.blockLabelFirst {
+  margin-top: 0;
+}
+
+.sectionIntro {
+  font-size: 13px;
+  color: #6b667a;
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+
 .body {
   font-size: 14px;
   line-height: 1.65;
@@ -51,6 +92,148 @@
 
 .row:last-child {
   border-bottom: none;
+}
+
+/* ── Owned report list (hub) ───────────────────────────────────── */
+.reportList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reportItem {
+  border-radius: 12px;
+  padding: 12px 12px 10px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(29, 24, 61, 0.06);
+}
+
+.reportItemTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.reportTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c233a;
+  line-height: 1.35;
+}
+
+.reportItemCta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 28px;
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.statusPurchased {
+  background: rgba(124, 111, 214, 0.14);
+  color: #5a4d9e;
+}
+
+.statusPending {
+  background: rgba(234, 179, 8, 0.16);
+  color: #7a5f06;
+}
+
+.statusNotPurchased {
+  background: rgba(107, 102, 122, 0.12);
+  color: #5c5668;
+}
+
+.ctaOpen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #7c6fd6;
+  color: #fff;
+  text-decoration: none;
+}
+
+.ctaOpen:hover {
+  filter: brightness(1.05);
+}
+
+.ctaBuy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(124, 111, 214, 0.12);
+  color: #5a4d9e;
+  text-decoration: none;
+  border: 1px solid rgba(124, 111, 214, 0.35);
+}
+
+.ctaBuy:hover {
+  background: rgba(124, 111, 214, 0.2);
+}
+
+.ctaSecondaryLink {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.ctaSecondaryLink:hover {
+  text-decoration: underline;
+}
+
+.emptyOwned {
+  font-size: 14px;
+  color: #6b667a;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+.hubLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.hubLinks a {
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.hubLinks a:hover {
+  text-decoration: underline;
+}
+
+.hubLinksMuted {
+  font-size: 12px;
+  color: #8a8499;
+  line-height: 1.45;
+  margin: 4px 0 0;
 }
 
 .muted {
