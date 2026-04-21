@@ -109,15 +109,6 @@ function formatEnvelopeDateJa(iso: string): string {
   return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
 }
 
-function formatExpiryHero(value: string | null): string {
-  if (value == null || value.trim() === '') return '無期限';
-  const d = new Date(value);
-  if (!Number.isNaN(d.getTime())) {
-    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
-  }
-  return value.trim();
-}
-
 type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
@@ -283,7 +274,6 @@ function PremiumHero({
 
             <p className={styles.heroPosterAuxMeta}>
               初回記録 {formatEnvelopeDateJa(generatedAt)}
-              {aiConsultIncluded ? ' · 保存版相談 1件' : ''} · {formatExpiryHero(expiresAt)}
             </p>
           </div>
         </div>

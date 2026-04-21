@@ -1488,8 +1488,9 @@
   height: 100%;
   width: auto;
   max-width: 58%;
-  object-fit: contain;
-  object-position: bottom right;
+  /* contain + object-position の切替では上下どちらかに必ず隙間が残る。cover で箱を塗り、右列内で天地いっぱいに固定 */
+  object-fit: cover;
+  object-position: center right;
   pointer-events: none;
   user-select: none;
 }
@@ -2714,12 +2715,8 @@
   }
 }
 
-/* 小〜中幅のみ: contain のレターボックスを上に寄せず上端から見せる（1024px+ はベースの bottom right のまま） */
+/* 小〜中幅: 左テキストと右画像の重なり防止（画像の object-position はベースに統一） */
 @media (max-width: 1023px) {
-  .heroPosterTypeImg {
-    object-position: top right;
-  }
-
   /*
    * 右画像 max-width:58% と左テキスト max-width:60% が同時に効き、狭い幅で中央が重なるのを防ぐ。
    * 分析類型カードを左カラム内に収める（1024px+ は min-width:640 の heroPosterMain のまま）。
