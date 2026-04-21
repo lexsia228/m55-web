@@ -96,6 +96,28 @@ const DTR_TYPE_EN: Record<number, string> = {
   9: 'ANALYST',
 };
 
+function formatBirthDateJa(iso: string): string {
+  const t = iso.trim().slice(0, 10);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+  if (!m) return iso.trim() || '—';
+  return `${m[1]}年${Number(m[2])}月${Number(m[3])}日`;
+}
+
+function formatEnvelopeDateJa(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+}
+
+function formatExpiryHero(value: string | null): string {
+  if (value == null || value.trim() === '') return '無期限';
+  const d = new Date(value);
+  if (!Number.isNaN(d.getTime())) {
+    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+  }
+  return value.trim();
+}
+
 type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
@@ -194,17 +216,19 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
 function PremiumHero({
   stem,
   stemIdx,
-  reportTitle,
   aiConsultIncluded,
   expiresAt,
   nickname,
+  birthDate,
+  generatedAt,
 }: {
   stem: TenStemDisplay;
   stemIdx: number;
-  reportTitle: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
   nickname: string;
+  birthDate: string;
+  generatedAt: string;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
@@ -229,6 +253,23 @@ function PremiumHero({
               <span className={styles.heroPosterTypeMono}>Full Report</span>
             </div>
 
+            <h1 className={styles.heroBlueprintTitle}>
+              <span className={styles.heroBlueprintPrefix} lang="en">
+                Blueprint of
+              </span>
+              <span className={styles.heroBlueprintName}>{blueprintName}</span>
+            </h1>
+
+            <p className={styles.heroPosterBirthLine}>{formatBirthDateJa(birthDate)}</p>
+
+            <div className={styles.heroTypeCard}>
+              <div className={styles.heroTypeCardRow}>
+                <span className={styles.heroTypeCardLabel}>観測タイプ /</span>
+                <span className={styles.heroTypeCardType}>{typeEnLabel}</span>
+              </div>
+              <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
+            </div>
+
             <div className={styles.heroPosterBadgeRow}>
               <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipSaved}`}>
                 <HeroIconCheck className={styles.heroBadgeIcon} />
@@ -240,24 +281,10 @@ function PremiumHero({
               </span>
             </div>
 
-            <p className={styles.heroPosterKicker}>保存版レポート · 輪郭のプレミアム深読み</p>
-
-            <h1 className={styles.heroBlueprintTitle}>
-              <span className={styles.heroBlueprintPrefix} lang="en">
-                Blueprint of
-              </span>
-              <span className={styles.heroBlueprintName}>{blueprintName}</span>
-            </h1>
-
-            <div className={styles.heroTypeCard}>
-              <div className={styles.heroTypeCardRow}>
-                <span className={styles.heroTypeCardLabel}>分析類型 /</span>
-                <span className={styles.heroTypeCardType}>{typeEnLabel}</span>
-              </div>
-              <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
-            </div>
-
-            <p className={styles.heroReportSubtitle}>{reportTitle}</p>
+            <p className={styles.heroPosterAuxMeta}>
+              初回記録 {formatEnvelopeDateJa(generatedAt)}
+              {aiConsultIncluded ? ' · 保存版相談 1件' : ''} · {formatExpiryHero(expiresAt)}
+            </p>
           </div>
         </div>
       </div>
@@ -1646,10 +1673,11 @@ export default function DtrFullReader({
         <PremiumHero
           stem={stem}
           stemIdx={stemIdx}
-          reportTitle={payload.title}
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}
           nickname={view.nickname}
+          birthDate={purchasedSnapshot.profile.birthDate}
+          generatedAt={purchasedSnapshot.envelope.generatedAt}
         />
 
         <section

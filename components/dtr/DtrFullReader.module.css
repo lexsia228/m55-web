@@ -1597,14 +1597,13 @@
   font-feature-settings: 'kern' 1;
 }
 
-.heroPosterKicker {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: none;
-  color: rgba(255, 255, 255, 0.48);
+.heroPosterBirthLine {
+  margin: 0;
+  font-size: clamp(0.72rem, 2vw, 0.82rem);
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.65);
   font-weight: 600;
-  margin: 4px 0 0;
-  line-height: 1.55;
+  line-height: 1.45;
   max-width: 100%;
 }
 
@@ -1651,6 +1650,15 @@
   text-wrap: balance;
 }
 
+.heroPosterAuxMeta {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
 .heroTypeCard {
   width: 100%;
   max-width: 100%;
@@ -1690,15 +1698,6 @@
   font-size: clamp(0.72rem, 2.1vw, 0.8rem);
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.78);
-}
-
-.heroReportSubtitle {
-  margin: 4px 0 0;
-  max-width: 100%;
-  font-size: clamp(0.72rem, 2.2vw, 0.82rem);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.58);
-  font-weight: 500;
 }
 
 /* Ownership meta strip — dense 3-column grid below poster */
