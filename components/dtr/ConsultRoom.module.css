@@ -142,6 +142,11 @@
   letter-spacing: 0.04em;
 }
 
+/* 白バブル内では暗色で上書き */
+.msgAssistant .msgRole {
+  color: rgba(107, 95, 168, 0.70);
+}
+
 /* msgUser 内テキストはバブル内なので白系、msgAssistant は白バブル上なので暗色 */
 .msgUser .msgContent {
   color: rgba(255, 255, 255, 0.88);

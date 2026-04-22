@@ -250,8 +250,8 @@
 .idGrowthCard {
   padding: 12px 13px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(107, 95, 168, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--dtr-border);
   opacity: 0;
   transform: translateY(5px);
   animation: idBpFadeUp 0.4s ease forwards;
@@ -522,13 +522,13 @@
 .strMapCallout {
   padding: 11px 13px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(107, 95, 168, 0.1);
+  background: rgba(160, 140, 220, 0.08);
+  border: 1px solid rgba(160, 140, 220, 0.18);
 }
 
 .strMapCalloutFlip {
-  border-color: rgba(184, 148, 95, 0.22);
-  background: rgba(255, 252, 247, 0.78);
+  border-color: rgba(200, 160, 90, 0.25);
+  background: rgba(200, 160, 80, 0.08);
 }
 
 .strMapCalloutLabel {
@@ -536,12 +536,12 @@
   font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: rgba(107, 95, 168, 0.55);
+  color: var(--dtr-accent);
   margin-bottom: 5px;
 }
 
 .strMapCalloutFlip .strMapCalloutLabel {
-  color: rgba(140, 95, 55, 0.75);
+  color: rgba(225, 170, 100, 0.85);
 }
 
 .strMapCalloutText {
@@ -566,8 +566,8 @@
 .stabCell {
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1px solid rgba(107, 95, 168, 0.11);
-  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid var(--dtr-border);
+  background: rgba(255, 255, 255, 0.04);
   box-sizing: border-box;
 }
 
@@ -724,8 +724,8 @@
   gap: 0;
   border-radius: 12px;
   overflow: hidden;
-  background: rgba(255, 252, 248, 0.88);
-  border: 1px solid rgba(190, 130, 80, 0.2);
+  background: rgba(200, 130, 70, 0.08);
+  border: 1px solid rgba(210, 150, 90, 0.28);
   box-sizing: border-box;
 }
 
@@ -748,7 +748,7 @@
   display: block;
   font-size: 0.7rem;
   font-weight: 800;
-  color: rgba(110, 70, 40, 0.92);
+  color: rgba(235, 175, 100, 0.90);
   letter-spacing: 0.02em;
   margin-bottom: 4px;
 }
