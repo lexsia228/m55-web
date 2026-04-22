@@ -1598,14 +1598,34 @@
   font-feature-settings: 'kern' 1;
 }
 
-.heroPosterBirthLine {
+/* First Record: 2行（ラベル / 生年月日 YYYY.Mon.DD）— identity-first の出生アンカー */
+.heroFirstRecord {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   margin: 0;
-  font-size: clamp(0.72rem, 2vw, 0.82rem);
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.65);
-  font-weight: 600;
-  line-height: 1.45;
   max-width: 100%;
+}
+
+.heroFirstRecordLabel {
+  font-family: var(--dtr-sans);
+  font-size: clamp(0.58rem, 1.55vw, 0.68rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.48);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.heroFirstRecordDate {
+  font-family: var(--dtr-sans);
+  font-size: clamp(0.72rem, 2vw, 0.82rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.35;
+  margin: 0;
 }
 
 .heroBlueprintTitle {
@@ -1649,15 +1669,6 @@
 .heroBlueprintBalance {
   display: inline;
   text-wrap: balance;
-}
-
-.heroPosterAuxMeta {
-  margin: 0;
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.38);
-  line-height: 1.5;
-  max-width: 100%;
 }
 
 .heroTypeCard {

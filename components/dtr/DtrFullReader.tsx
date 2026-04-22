@@ -96,17 +96,15 @@ const DTR_TYPE_EN: Record<number, string> = {
   9: 'ANALYST',
 };
 
-function formatBirthDateJa(iso: string): string {
+/** Birth date for First Record line — e.g. 1983.Feb.28 */
+function formatBirthDateFirstRecordLine(iso: string): string {
   const t = iso.trim().slice(0, 10);
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
   if (!m) return iso.trim() || '—';
-  return `${m[1]}年${Number(m[2])}月${Number(m[3])}日`;
-}
-
-function formatEnvelopeDateJa(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
+  const monthIdx = parseInt(m[2], 10) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return iso.trim() || '—';
+  return `${m[1]}.${months[monthIdx]}.${Number(m[3])}`;
 }
 
 type Props = {
@@ -170,7 +168,7 @@ function HeroIconMessage({ className }: { className?: string }) {
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
   const items: { key: string; label: string }[] = [
     { key: 'axis', label: '5軸の確定ビュー' },
-    { key: 'load', label: '傾向と負荷の深読み' },
+    { key: 'load', label: '傾向と負荷（本編）' },
     { key: 'scene', label: '場面別の整理' },
     { key: 'recovery', label: '戻し方・整え方' },
     { key: 'practical', label: '実践ガイド' },
@@ -183,7 +181,8 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
     <div className={styles.premiumIncludedBand} aria-label="有料版に含まれる内容">
       <p className={styles.premiumIncludedOverline}>この保存版に含まれるもの</p>
       <p className={styles.premiumIncludedLead}>
-        無料の輪郭に加え、深読みと実践までをこの一冊にまとめています。
+        無料は輪郭の入り口まで。保存版は、5軸の確定と深読み・実践
+        {aiConsultIncluded ? '・相談' : ''}をこの一冊に揃えます。
       </p>
       <ul className={styles.premiumIncludedList}>
         {items.map((it) => (
@@ -193,7 +192,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
         ))}
       </ul>
       <p className={styles.premiumIncludedFootnote}>
-        無料で見える輪郭に比べ、構造の確定から日々の整理までをこの保存版ひとつで追えます。
+        上記の内訳は、下の本文で章ごとに扱います。
       </p>
     </div>
   );
@@ -211,7 +210,6 @@ function PremiumHero({
   expiresAt,
   nickname,
   birthDate,
-  generatedAt,
 }: {
   stem: TenStemDisplay;
   stemIdx: number;
@@ -219,7 +217,6 @@ function PremiumHero({
   expiresAt: string | null;
   nickname: string;
   birthDate: string;
-  generatedAt: string;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
@@ -238,6 +235,17 @@ function PremiumHero({
         />
         <div className={styles.heroPosterOverlay}>
           <div className={styles.heroPosterMain}>
+            <div className={styles.heroPosterBadgeRow}>
+              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipSaved}`}>
+                <HeroIconCheck className={styles.heroBadgeIcon} />
+                保存済み
+              </span>
+              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
+                <HeroIconShield className={styles.heroBadgeIcon} />
+                Premium
+              </span>
+            </div>
+
             <div className={styles.heroPosterBrandRow}>
               <span className={styles.heroPosterBrandWord}>M55</span>
               <span className={styles.heroPosterBrandSep} aria-hidden>|</span>
@@ -251,7 +259,10 @@ function PremiumHero({
               <span className={styles.heroBlueprintName}>{blueprintName}</span>
             </h1>
 
-            <p className={styles.heroPosterBirthLine}>{formatBirthDateJa(birthDate)}</p>
+            <div className={styles.heroFirstRecord} lang="en" aria-label="生年月日（First Record）">
+              <span className={styles.heroFirstRecordLabel}>First Record</span>
+              <span className={styles.heroFirstRecordDate}>{formatBirthDateFirstRecordLine(birthDate)}</span>
+            </div>
 
             <div className={styles.heroTypeCard}>
               <div className={styles.heroTypeCardRow}>
@@ -260,21 +271,6 @@ function PremiumHero({
               </div>
               <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
             </div>
-
-            <div className={styles.heroPosterBadgeRow}>
-              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipSaved}`}>
-                <HeroIconCheck className={styles.heroBadgeIcon} />
-                保存済み
-              </span>
-              <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
-                <HeroIconShield className={styles.heroBadgeIcon} />
-                Premium
-              </span>
-            </div>
-
-            <p className={styles.heroPosterAuxMeta}>
-              初回記録 {formatEnvelopeDateJa(generatedAt)}
-            </p>
           </div>
         </div>
       </div>
@@ -1667,7 +1663,6 @@ export default function DtrFullReader({
           expiresAt={expiresAt}
           nickname={view.nickname}
           birthDate={purchasedSnapshot.profile.birthDate}
-          generatedAt={purchasedSnapshot.envelope.generatedAt}
         />
 
         <section
