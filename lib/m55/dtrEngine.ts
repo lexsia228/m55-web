@@ -759,7 +759,7 @@ const SECTION_SPECS: readonly SectionSpec[] = [
   { id: 's1_identity',     title: 'あなたという人物',         teaserSummary: 'あなたの基本的な性質と動き方の特徴です。',                   bodyKey: 'identity'     },
   { id: 's2_composition',  title: '構成と傾向の全体像',       teaserSummary: '輪郭と5軸に沿った構成と傾向の全体的な読み取りです。',         bodyKey: 'composition'  },
   { id: 's3_essence',      title: '本質と安定の条件',         teaserSummary: '本質的な動作原理と、安定するための条件の整理です。',         bodyKey: 'essence'      },
-  { id: 's4_strengths',    title: '活きる力',                 teaserSummary: 'あなたが持つ具体的な強みと、それが機能する場面の整理です。', bodyKey: 'strengths'    },
+  { id: 's4_strengths',    title: '自分の出やすい面',           teaserSummary: '出やすい面と、それが機能しやすい場面の整理です。',     bodyKey: 'strengths'    },
   { id: 's5_friction',     title: '注意と盲点',               teaserSummary: '意識しておくと助けになる傾向と、生まれやすい摩擦の整理です。', bodyKey: 'friction'     },
   { id: 's6_relation',     title: 'コミュニケーションの形',   teaserSummary: '受け取り・渡し・引くときのリズムと会話の傾向です。',         bodyKey: 'relation'     },
   { id: 's7_work',         title: '仕事と生活の取扱いヒント', teaserSummary: '力が出る条件と詰まりやすい条件、環境のヒントです。',         bodyKey: 'work'         },

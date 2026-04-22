@@ -137,7 +137,7 @@ export const STATIC_AI_EXPLAINER = {
 export const STATIC_CTA = {
   title: '本質の読み解き',
   intro:
-    'ここまで見えてきた輪郭を土台に、\n日常の中でどう出やすいかまで整理した保存版レポートです。',
+    '自分の形を知ると、少し楽になる。\nM55は、そのための見取り図です。',
   benefitsHeading: 'このレポートで分かること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
