@@ -403,12 +403,7 @@
     stroke-dashoffset: 0 !important;
   }
 
-  .strMapLink {
-    animation: none !important;
-    stroke-dashoffset: 0 !important;
-  }
-
-  .strMapDotReveal {
+  .strMapDataReveal {
     animation: none !important;
     opacity: 1 !important;
   }
@@ -460,48 +455,9 @@
   aspect-ratio: 1;
 }
 
-.strMapLink {
-  fill: none;
-  stroke: rgba(107, 95, 168, 0.34);
-  stroke-width: 1.15;
-  stroke-linecap: round;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: strLinkDraw 0.58s ease forwards;
-}
-
-.strMapDot {
-  stroke: rgba(255, 255, 255, 0.88);
-  stroke-width: 0.7;
-}
-
-.strMapDotReveal {
+.strMapDataReveal {
   opacity: 0;
-  animation: strDotSettle 0.42s ease forwards;
-}
-
-.strMapNodeCore {
-  fill: rgba(90, 78, 160, 0.94);
-}
-
-.strMapNodeStrong {
-  fill: rgba(124, 111, 214, 0.82);
-}
-
-.strMapNodeBridge {
-  fill: rgba(107, 95, 168, 0.48);
-}
-
-.strMapNodeQuiet {
-  fill: rgba(160, 148, 200, 0.38);
-}
-
-.strMapAxisText {
-  font-size: 4.5px;
-  font-weight: 700;
-  fill: rgba(58, 50, 82, 0.92);
-  letter-spacing: 0.02em;
-  pointer-events: none;
+  animation: strDotSettle 0.6s ease 0.18s forwards;
 }
 
 .strMapLinksCaption {

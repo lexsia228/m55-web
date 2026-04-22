@@ -542,61 +542,55 @@ const STRUCTURE_AXIS_ORDER: readonly StructureAxisJa[] = [
   '安定',
 ] as const;
 
-const STR_MAP_R_NODE = 34;
-const STR_MAP_R_LABEL = 41;
+const STR_VIZ_N = STRUCTURE_AXIS_ORDER.length;
+const STR_VIZ_CX = 50;
+const STR_VIZ_CY = 50;
+const STR_VIZ_R_MAX = 33;
+const STR_VIZ_R_MIN = 7;
+const STR_VIZ_R_LABEL = 42;
 
-function structureAxisPos(axis: StructureAxisJa): { x: number; y: number } {
-  const idx = STRUCTURE_AXIS_ORDER.indexOf(axis);
-  const deg = -90 + idx * 72;
-  const rad = (deg * Math.PI) / 180;
-  return {
-    x: 50 + STR_MAP_R_NODE * Math.cos(rad),
-    y: 50 + STR_MAP_R_NODE * Math.sin(rad),
-  };
+function roleToRadius(role: StructureAxisRole): number {
+  const w =
+    role === 'core'   ? 1.00 :
+    role === 'strong' ? 0.72 :
+    role === 'bridge' ? 0.45 :
+                        0.20;
+  return STR_VIZ_R_MIN + w * (STR_VIZ_R_MAX - STR_VIZ_R_MIN);
 }
 
-function structureLabelPos(axis: StructureAxisJa): { x: number; y: number } {
-  const idx = STRUCTURE_AXIS_ORDER.indexOf(axis);
-  const deg = -90 + idx * 72;
-  const rad = (deg * Math.PI) / 180;
-  return {
-    x: 50 + STR_MAP_R_LABEL * Math.cos(rad),
-    y: 50 + STR_MAP_R_LABEL * Math.sin(rad),
-  };
+function strPentPoint(i: number, radius: number): [number, number] {
+  const a = -Math.PI / 2 + (i / STR_VIZ_N) * Math.PI * 2;
+  return [STR_VIZ_CX + radius * Math.cos(a), STR_VIZ_CY + radius * Math.sin(a)];
 }
 
-function structureRoleClass(role: StructureAxisRole): string {
-  switch (role) {
-    case 'core':
-      return styles.strMapNodeCore;
-    case 'strong':
-      return styles.strMapNodeStrong;
-    case 'bridge':
-      return styles.strMapNodeBridge;
-    default:
-      return styles.strMapNodeQuiet;
-  }
-}
-
-/** 構成と傾向 — Structure Interaction Map（数値・スコアなし） */
+/** 構成と傾向 — 5軸輪郭レーダー（paid 深読み版 · 数値なし） */
 function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   const viz = compositionStructureVizForStem(stemIdx);
-  const linkPairs = viz.links.map(([a, b]) => {
-    const p1 = structureAxisPos(a);
-    const p2 = structureAxisPos(b);
-    const key = [a, b].sort().join('—');
-    return { key, a, b, p1, p2 };
-  });
+
+  // Grid pentagons at 60 % and 100 % of max radius
+  const gridLevels = [0.60, 1.0].map((f) =>
+    STRUCTURE_AXIS_ORDER.map((_, i) => {
+      const rad = STR_VIZ_R_MIN + f * (STR_VIZ_R_MAX - STR_VIZ_R_MIN);
+      const [x, y] = strPentPoint(i, rad);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ')
+  );
+
+  // Data pentagon from axisRoles
+  const dataPoly = STRUCTURE_AXIS_ORDER.map((axis, i) => {
+    const [x, y] = strPentPoint(i, roleToRadius(viz.axisRoles[axis]));
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
 
   return (
-    <div className={styles.idDesignShell} aria-label="構造の噛み合い（保存版）">
-      <p className={styles.idDesignOverline}>深読み · 構造の噛み合い</p>
+    <div className={styles.idDesignShell} aria-label="構成の5軸輪郭（保存版）">
+      <p className={styles.idDesignOverline}>深読み · 5軸の構成輪郭</p>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>構造の噛み合い</h3>
+        <h3 className={styles.idDesignBlockTitle}>構成の輪郭</h3>
+        {/* 構成タイプ名を図の前に置く */}
         <p className={styles.strMapPattern}>
           <span className={styles.strMapPatternLabel}>{viz.patternLabel}</span>
-          <span className={styles.strMapPatternCap}>{viz.patternCaption}</span>
         </p>
 
         <div className={styles.strMapFig}>
@@ -606,53 +600,54 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
             aria-hidden
             focusable="false"
           >
-            {linkPairs.map((L, i) => (
-              <line
-                key={L.key}
-                x1={L.p1.x}
-                y1={L.p1.y}
-                x2={L.p2.x}
-                y2={L.p2.y}
-                pathLength={100}
-                className={`${styles.strMapLink} ${styles.strMapLinkReveal}`}
-                style={{ animationDelay: `${0.06 + i * 0.07}s` }}
+            {/* Grid pentagons */}
+            {gridLevels.map((pts, idx) => (
+              <polygon
+                key={idx}
+                points={pts}
+                fill="none"
+                stroke="rgba(140,120,220,0.18)"
+                strokeWidth={idx === 0 ? 0.5 : 0.7}
               />
             ))}
+
+            {/* Data polygon */}
+            <polygon
+              points={dataPoly}
+              fill="rgba(115,100,195,0.22)"
+              stroke="rgba(155,135,225,0.80)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+              className={styles.strMapDataReveal}
+            />
+
+            {/* Axis labels */}
             {STRUCTURE_AXIS_ORDER.map((axis, i) => {
-              const { x, y } = structureAxisPos(axis);
-              const role = viz.axisRoles[axis];
-              const r = role === 'core' ? 4.2 : role === 'strong' ? 3.5 : role === 'bridge' ? 3 : 2.4;
-              return (
-                <circle
-                  key={axis}
-                  cx={x}
-                  cy={y}
-                  r={r}
-                  className={`${styles.strMapDot} ${structureRoleClass(role)} ${styles.strMapDotReveal}`}
-                  style={{ animationDelay: `${0.22 + i * 0.05}s` }}
-                />
-              );
-            })}
-            {STRUCTURE_AXIS_ORDER.map((axis) => {
-              const { x, y } = structureLabelPos(axis);
+              const [lx, ly] = strPentPoint(i, STR_VIZ_R_LABEL);
+              const ta = ((-90 + (i / STR_VIZ_N) * 360) + 360) % 360;
+              const anchor =
+                ta > 35 && ta < 145 ? 'end' :
+                ta > 215 && ta < 325 ? 'start' :
+                'middle';
+              const dy = ta > 135 && ta < 225 ? 2.5 : ta > 315 || ta < 45 ? -1 : 1;
               return (
                 <text
-                  key={`${axis}-label`}
-                  x={x}
-                  y={y}
-                  className={styles.strMapAxisText}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
+                  key={axis}
+                  x={lx}
+                  y={ly + dy}
+                  textAnchor={anchor}
+                  fontSize={4.8}
+                  fontWeight="700"
+                  fill="rgba(200,185,240,0.90)"
+                  letterSpacing="0.02em"
                 >
                   {axis}
                 </text>
               );
             })}
           </svg>
-          <p className={styles.strMapLinksCaption}>
-            つながり（位置関係）:{' '}
-            {linkPairs.map((L) => `${L.a}—${L.b}`).join(' · ')}
-          </p>
+          {/* 図の直後に生活語の要約 */}
+          <p className={styles.strMapLinksCaption}>{viz.patternCaption}</p>
         </div>
 
         <div className={styles.strMapCallouts}>
