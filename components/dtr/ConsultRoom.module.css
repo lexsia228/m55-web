@@ -14,7 +14,7 @@
   gap: 16px 24px;
   padding-bottom: 22px;
   margin-bottom: 22px;
-  border-bottom: 1px solid rgba(107, 95, 168, 0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .roomHeaderMain {
@@ -27,14 +27,14 @@
   font-size: clamp(1.15rem, 3vw, 1.35rem);
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: #2a2540;
+  color: rgba(255, 255, 255, 0.90);
   margin: 0;
   line-height: 1.35;
 }
 
 .roomLead {
   font-size: 0.86rem;
-  color: #6b6088;
+  color: rgba(255, 255, 255, 0.54);
   margin: 8px 0 0;
   line-height: 1.6;
   max-width: 36rem;
@@ -51,14 +51,14 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(107, 95, 168, 0.45);
+  color: rgba(185, 165, 230, 0.65);
   margin-bottom: 4px;
 }
 
 .usageValue {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #3d3558;
+  color: rgba(255, 255, 255, 0.82);
   margin: 0;
   line-height: 1.45;
 }
@@ -67,7 +67,7 @@
   display: block;
   font-size: 0.76rem;
   font-weight: 500;
-  color: rgba(107, 95, 168, 0.55);
+  color: rgba(185, 165, 230, 0.55);
   margin-top: 2px;
 }
 
@@ -75,21 +75,21 @@
 .readOnlyNotice {
   padding: 14px 16px;
   border-radius: 12px;
-  background: rgba(250, 246, 255, 0.95);
-  border: 1px solid rgba(177, 156, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(160, 140, 220, 0.20);
   margin-bottom: 20px;
 }
 
 .readOnlyText {
   font-size: 0.875rem;
-  color: #5a5070;
+  color: rgba(255, 255, 255, 0.72);
   margin: 0 0 6px;
   line-height: 1.65;
 }
 
 .addOnNote {
   font-size: 0.8rem;
-  color: #8a8499;
+  color: rgba(255, 255, 255, 0.48);
   margin: 0;
   line-height: 1.6;
 }
@@ -106,7 +106,7 @@
 
 .emptyMsg {
   font-size: 0.875rem;
-  color: #9a8fb0;
+  color: rgba(185, 165, 230, 0.55);
   padding: 8px 0 4px;
   margin: 0;
   line-height: 1.65;
@@ -120,8 +120,8 @@
 }
 
 .msgUser {
-  background: rgba(124, 111, 214, 0.08);
-  border: 1px solid rgba(124, 111, 214, 0.15);
+  background: rgba(124, 111, 214, 0.20);
+  border: 1px solid rgba(160, 140, 220, 0.28);
   align-self: flex-end;
   max-width: 92%;
 }
@@ -136,10 +136,15 @@
 .msgRole {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #9a8fb0;
+  color: rgba(185, 165, 230, 0.65);
   margin: 0 0 6px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+/* msgUser 内テキストはバブル内なので白系、msgAssistant は白バブル上なので暗色 */
+.msgUser .msgContent {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .msgContent {
@@ -178,13 +183,13 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(107, 95, 168, 0.52);
+  color: rgba(185, 165, 230, 0.65);
   margin: 0 0 14px;
 }
 
 .composeHint {
   font-size: 0.75rem;
-  color: rgba(107, 95, 168, 0.55);
+  color: rgba(185, 165, 230, 0.55);
   margin: -8px 0 14px;
   line-height: 1.5;
 }
@@ -200,9 +205,9 @@
   font-size: 0.88rem;
   line-height: 1.3;
   border-radius: 6px;
-  border: 1px solid rgba(107, 95, 168, 0.2);
-  background: rgba(255, 255, 255, 0.65);
-  color: #5a5070;
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.70);
   cursor: pointer;
   font-family: inherit;
   transition:
@@ -212,14 +217,14 @@
 }
 
 .themeChip:hover {
-  border-color: rgba(80, 70, 120, 0.35);
-  color: #2f2640;
+  border-color: rgba(160, 140, 220, 0.40);
+  color: rgba(255, 255, 255, 0.90);
 }
 
 .themeChipSelected {
-  border-color: rgba(80, 70, 120, 0.45);
-  background: rgba(107, 95, 168, 0.08);
-  color: #2a2540;
+  border-color: rgba(160, 140, 220, 0.55);
+  background: rgba(107, 95, 168, 0.22);
+  color: rgba(220, 210, 255, 0.95);
   font-weight: 600;
 }
 
@@ -237,9 +242,9 @@
   font-size: 0.88rem;
   line-height: 1.45;
   border-radius: 6px;
-  border: 1px solid rgba(107, 95, 168, 0.18);
-  background: rgba(255, 255, 255, 0.55);
-  color: #5a5070;
+  border: 1px solid rgba(160, 140, 220, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
   font-family: inherit;
   transition:
@@ -249,14 +254,14 @@
 }
 
 .questionToggle:hover {
-  border-color: rgba(80, 70, 120, 0.28);
-  color: #2f2640;
+  border-color: rgba(160, 140, 220, 0.35);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .questionToggleSelected {
-  border-color: rgba(80, 70, 120, 0.4);
-  background: rgba(107, 95, 168, 0.07);
-  color: #2a2540;
+  border-color: rgba(160, 140, 220, 0.50);
+  background: rgba(107, 95, 168, 0.18);
+  color: rgba(220, 210, 255, 0.92);
 }
 
 .textarea {
@@ -296,18 +301,18 @@
 
 .counter {
   font-size: 0.78rem;
-  color: #9a8fb0;
+  color: rgba(185, 165, 230, 0.55);
 }
 
 .counterWarn {
   font-size: 0.78rem;
-  color: #c07a00;
+  color: #e8a020;
   font-weight: 600;
 }
 
 .counterOver {
   font-size: 0.78rem;
-  color: #c0392b;
+  color: #f04040;
   font-weight: 700;
 }
 
@@ -370,7 +375,7 @@
 
 .inputNote {
   font-size: 0.75rem;
-  color: rgba(107, 95, 168, 0.55);
+  color: rgba(185, 165, 230, 0.52);
   margin: 0;
   line-height: 1.55;
   text-align: center;
@@ -380,7 +385,7 @@
 .loading,
 .errorMsg {
   font-size: 0.875rem;
-  color: #9a8fb0;
+  color: rgba(185, 165, 230, 0.55);
   padding: 16px 0;
   margin: 0;
 }
