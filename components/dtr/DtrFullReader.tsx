@@ -563,6 +563,13 @@ function strPentPoint(i: number, radius: number): [number, number] {
   return [STR_VIZ_CX + radius * Math.cos(a), STR_VIZ_CY + radius * Math.sin(a)];
 }
 
+// Colour for each readability accent level (used as inline style to avoid dynamic CSS module keys)
+const STR_MAP_READ_COLORS = {
+  front:  'rgba(155,135,225,0.95)',
+  bridge: 'rgba(140,120,200,0.75)',
+  quiet:  'rgba(160,148,200,0.55)',
+} as const;
+
 /** 構成と傾向 — 5軸輪郭レーダー（paid 深読み版 · 数値なし） */
 function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   const viz = compositionStructureVizForStem(stemIdx);
@@ -581,6 +588,25 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
     const [x, y] = strPentPoint(i, roleToRadius(viz.axisRoles[axis]));
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(' ');
+
+  // Axis grouping for summary card
+  const readRows: { label: string; accent: keyof typeof STR_MAP_READ_COLORS; axes: StructureAxisJa[] }[] = [
+    {
+      label: '強く出やすい',
+      accent: 'front',
+      axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'core' || viz.axisRoles[a] === 'strong'),
+    },
+    {
+      label: '支えになる',
+      accent: 'bridge',
+      axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'bridge'),
+    },
+    {
+      label: '整えると伸びる',
+      accent: 'quiet',
+      axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'quiet'),
+    },
+  ].filter((r) => r.axes.length > 0);
 
   return (
     <div className={styles.idDesignShell} aria-label="構成の5軸輪郭（保存版）">
@@ -648,6 +674,30 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
           </svg>
           {/* 図の直後に生活語の要約 */}
           <p className={styles.strMapLinksCaption}>{viz.patternCaption}</p>
+        </div>
+
+        {/* ── 読み取り要約カード ── */}
+        <div className={`${styles.strMapReadCard} ${styles.idBpReveal}`} style={{ animationDelay: '0.28s' }}>
+          <div className={styles.strMapReadBadge}>
+            <span className={styles.strMapReadBadgeDot} aria-hidden />
+            輪郭の読み取り
+          </div>
+          <div className={styles.strMapReadRows}>
+            {readRows.map(({ label, accent, axes }) => (
+              <div key={label} className={styles.strMapReadRow}>
+                <span
+                  className={styles.strMapReadLabel}
+                  style={{ color: STR_MAP_READ_COLORS[accent] }}
+                >
+                  {label}
+                </span>
+                <span className={styles.strMapReadAxes}>{axes.join('・')}</span>
+              </div>
+            ))}
+          </div>
+          <p className={styles.strMapReadLegend}>
+            外に開く軸ほど前に出やすい — 無料版「傾向の輪郭」と同じ読み方
+          </p>
         </div>
 
         <div className={styles.strMapCallouts}>

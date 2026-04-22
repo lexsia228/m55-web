@@ -469,6 +469,73 @@
   padding: 0 4px;
 }
 
+/* ── 読み取り要約カード ── */
+.strMapReadCard {
+  margin: 4px 0 14px;
+  padding: 11px 13px 10px;
+  border-radius: 12px;
+  background: rgba(115, 100, 195, 0.10);
+  border: 1px solid rgba(140, 120, 220, 0.20);
+}
+
+.strMapReadBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.60rem;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: var(--dtr-accent);
+  margin-bottom: 9px;
+}
+
+.strMapReadBadgeDot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--dtr-accent);
+  flex-shrink: 0;
+}
+
+.strMapReadRows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 9px;
+}
+
+.strMapReadRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.strMapReadLabel {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  min-width: 6.5em;
+  flex-shrink: 0;
+}
+
+.strMapReadAxes {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--dtr-body);
+  letter-spacing: 0.04em;
+}
+
+.strMapReadLegend {
+  font-size: 0.59rem;
+  line-height: 1.5;
+  color: var(--dtr-body-muted);
+  border-top: 1px solid rgba(140, 120, 220, 0.14);
+  padding-top: 7px;
+  margin: 0;
+}
+
+/* ── /s2 structure callouts ── */
 .strMapCallouts {
   display: flex;
   flex-direction: column;
