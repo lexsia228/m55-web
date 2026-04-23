@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -198,6 +198,33 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
           <span className={styles.premiumIncludedConsultDesc}>このレポートに紐づいた返書相談</span>
         </p>
       )}
+    </div>
+  );
+}
+
+/** SSOT v1 Phase 3: 各部の区切り（上部目次バンドと表記を一致） */
+function ReportPartBand({
+  partId,
+  title,
+}: {
+  partId: '1' | '2' | '3' | '4';
+  title: string;
+}) {
+  const roman: Record<typeof partId, string> = {
+    '1': 'Ⅰ',
+    '2': 'Ⅱ',
+    '3': 'Ⅲ',
+    '4': 'Ⅳ',
+  };
+  return (
+    <div
+      className={styles.reportPartBand}
+      aria-label={`第${partId}部 ${title}`}
+    >
+      <span className={styles.reportPartBandNum} aria-hidden>
+        {roman[partId]}
+      </span>
+      <span className={styles.reportPartBandTitle}>{title}</span>
     </div>
   );
 }
@@ -597,17 +624,17 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   const readRows: { label: string; accent: keyof typeof STR_MAP_READ_COLORS; axes: StructureAxisJa[] }[] = [
     {
       label: '強く出やすい',
-      accent: 'front',
+      accent: 'front' as const,
       axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'core' || viz.axisRoles[a] === 'strong'),
     },
     {
       label: '支えになる',
-      accent: 'bridge',
+      accent: 'bridge' as const,
       axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'bridge'),
     },
     {
       label: '整えると伸びる',
-      accent: 'quiet',
+      accent: 'quiet' as const,
       axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'quiet'),
     },
   ].filter((r) => r.axes.length > 0);
@@ -1701,6 +1728,9 @@ export default function DtrFullReader({
   const gridSections = (['s4_strengths', 's5_friction', 's6_relation'] as const)
     .map((id) => coreNarrativeSections.find((s) => s.id === id))
     .filter((s): s is DtrSection => Boolean(s));
+  const gridS4 = gridSections.find((s) => s.id === 's4_strengths');
+  const gridS5 = gridSections.find((s) => s.id === 's5_friction');
+  const gridS6 = gridSections.find((s) => s.id === 's6_relation');
 
   return (
     <div className={styles.reportRoot}>
@@ -1720,31 +1750,28 @@ export default function DtrFullReader({
           aria-label="保存版レポート"
         >
           <div className={styles.savedWideStack}>
-            {preGridSections.map((section) =>
-              section.id === 's1_identity' ? (
-                <IdentityArticleWithBlueprint key={section.id} section={section} stemIdx={stemIdx} />
-              ) : section.id === 's2_composition' ? (
-                <CompositionArticleWithViz key={section.id} section={section} stemIdx={stemIdx} />
-              ) : section.id === 's3_essence' ? (
-                <EssenceArticleWithViz key={section.id} section={section} stemIdx={stemIdx} />
-              ) : (
-                <SectionBlock key={section.id} section={section} density="comfortable" />
-              )
-            )}
+            {preGridSections.map((section) => (
+              <Fragment key={section.id}>
+                {section.id === 's1_identity' && <ReportPartBand partId="1" title="輪郭を見る" />}
+                {section.id === 's3_essence' && <ReportPartBand partId="2" title="構造を読む" />}
+                {section.id === 's1_identity' ? (
+                  <IdentityArticleWithBlueprint section={section} stemIdx={stemIdx} />
+                ) : section.id === 's2_composition' ? (
+                  <CompositionArticleWithViz section={section} stemIdx={stemIdx} />
+                ) : section.id === 's3_essence' ? (
+                  <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
+                ) : (
+                  <SectionBlock section={section} density="comfortable" />
+                )}
+              </Fragment>
+            ))}
           </div>
           {gridSections.length > 0 ? (
             <div className={styles.savedGridThree}>
-              {gridSections.map((section) =>
-                section.id === 's4_strengths' ? (
-                  <GridArticleStrengthsViz key={section.id} section={section} />
-                ) : section.id === 's5_friction' ? (
-                  <GridArticleFrictionViz key={section.id} section={section} />
-                ) : section.id === 's6_relation' ? (
-                  <GridArticleCommViz key={section.id} section={section} />
-                ) : (
-                  <SectionBlock key={section.id} section={section} density="compact" />
-                )
-              )}
+              {gridS4 ? <GridArticleStrengthsViz key={gridS4.id} section={gridS4} /> : null}
+              {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
+              {gridS5 ? <GridArticleFrictionViz key={gridS5.id} section={gridS5} /> : null}
+              {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
             </div>
           ) : null}
         </section>
@@ -1780,6 +1807,7 @@ export default function DtrFullReader({
 
         {sec('s7_work') && sec('s6_relation') && (
           <>
+            <ReportPartBand partId="4" title="楽に扱う" />
             <SectionDivider label="実践ガイド" premium />
             <section className={styles.practicalShell} aria-label="実践ガイド">
               <PracticalGuidanceSection
