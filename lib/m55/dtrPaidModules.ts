@@ -58,7 +58,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryVal: primaryNames.join(' · '),
       assistLabel: '補助の副軸',
       assistVal: secondaryNames.length > 0 ? secondaryNames.join(' · ') : '—',
-      growLabel: '整えると伸びる軸',
+      growLabel: '整えると開く軸',
       growVal: growOrdered,
     };
   }
@@ -69,7 +69,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryVal: `${secondaryNames.join(' · ')}（副軸同格）`,
       assistLabel: '補助で効く軸',
       assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '同格の連動に集約',
-      growLabel: '整えると伸びる軸',
+      growLabel: '整えると開く軸',
       growVal: growOrdered,
     };
   }
@@ -81,7 +81,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryVal: `${only}が前面（副軸中心）`,
       assistLabel: '補助で効く軸',
       assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '—',
-      growLabel: '整えると伸びる軸',
+      growLabel: '整えると開く軸',
       growVal: growOrdered,
     };
   }
@@ -92,7 +92,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryVal: resonantNames.join(' · '),
       assistLabel: '補助の副軸',
       assistVal: '—',
-      growLabel: '整えると伸びる軸',
+      growLabel: '整えると開く軸',
       growVal: growOrdered,
     };
   }
@@ -102,7 +102,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
     primaryVal: quietNames.length > 0 ? quietNames.join(' · ') : '—',
     assistLabel: '補助の副軸',
     assistVal: '—',
-    growLabel: '整えると伸びる軸',
+    growLabel: '整えると開く軸',
     growVal: '—',
   };
 }
