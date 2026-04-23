@@ -399,7 +399,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
     { key: 'core', label: '核', text: viz.blueprint.core },
     { key: 'natural', label: '自然に出る', text: viz.blueprint.natural },
     { key: 'fragile', label: '崩れやすい', text: viz.blueprint.fragile },
-    { key: 'max', label: '最大化条件', text: viz.blueprint.maximize },
+    { key: 'max', label: '無理なく力が出やすい条件', text: viz.blueprint.maximize },
   ];
   const db = clampTensionBias(viz.tension.deepenBroaden);
   const ge = clampTensionBias(viz.tension.guardExpress);
@@ -467,13 +467,13 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
       </div>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>伸びのレバー</h3>
+        <h3 className={styles.idDesignBlockTitle}>出やすさの鍵</h3>
         <div className={styles.idGrowthFlow}>
           <div
             className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
             style={{ animationDelay: '0.12s' }}
           >
-            <span className={styles.idGrowthTag}>伸びる条件</span>
+            <span className={styles.idGrowthTag}>楽になる条件</span>
             <p className={styles.idGrowthText}>{viz.growth.grow}</p>
           </div>
           <div className={styles.idGrowthBetween} aria-hidden>
@@ -748,7 +748,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
   const viz = essenceStabilityVizForStem(stemIdx);
   const cells: { key: string; label: string; text: string; mod: string }[] = [
     { key: 'st', label: '安定する条件', text: viz.stabilize, mod: styles.stabCellCalm },
-    { key: 'mx', label: '最大化する条件', text: viz.maximize, mod: styles.stabCellGrow },
+    { key: 'mx', label: '無理なく力が出やすい条件', text: viz.maximize, mod: styles.stabCellGrow },
     { key: 'cl', label: '崩れる条件', text: viz.collapse, mod: styles.stabCellRisk },
     { key: 'gd', label: '守る条件', text: viz.guard, mod: styles.stabCellGuard },
   ];
@@ -806,14 +806,14 @@ function commFlowShortLabel(header: string): string {
   return header.slice(0, 3);
 }
 
-/** 活きる力 — レバー群 + 合流線（本文は親でそのまま表示） */
+/** 自分の出やすい面 — 出やすさの鍵 + 合流線（本文は親でそのまま表示） */
 function StrengthsLiftFigures({ body }: { body: string }) {
   const items = parseBlockItems(body).slice(0, 3);
   if (items.length === 0) return null;
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="強みの可視化">
-      <p className={styles.idDesignOverline}>深読み · 強みのレバー</p>
+      <p className={styles.idDesignOverline}>深読み · 出やすさの鍵</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
           価値に繋がる噛み合い
