@@ -1497,6 +1497,84 @@
   max-width: 42rem;
 }
 
+/* ── SSOT v1 Phase 2: 本の目次型 TOC ── */
+
+.premiumIncludedTocList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.premiumIncludedTocRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 6px;
+}
+
+.premiumIncludedTocNum {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--dtr-accent);
+  min-width: 1.5em;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+
+.premiumIncludedTocName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--dtr-body);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.premiumIncludedTocSep {
+  font-size: 0.68rem;
+  color: rgba(185, 165, 230, 0.30);
+  flex-shrink: 0;
+}
+
+.premiumIncludedTocDesc {
+  font-size: 0.73rem;
+  color: var(--dtr-body-muted);
+  line-height: 1.45;
+}
+
+.premiumIncludedConsultRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.premiumIncludedConsultPlus {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--dtr-accent);
+  min-width: 1.5em;
+  flex-shrink: 0;
+}
+
+.premiumIncludedConsultLabel {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: var(--dtr-body);
+  flex-shrink: 0;
+}
+
+.premiumIncludedConsultDesc {
+  font-size: 0.71rem;
+  color: var(--dtr-body-muted);
+  line-height: 1.45;
+}
+
 /* Poster card: dark gradient bg, type image positioned at right-bottom */
 .heroPoster {
   position: relative;

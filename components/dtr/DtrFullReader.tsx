@@ -165,35 +165,39 @@ function HeroIconMessage({ className }: { className?: string }) {
    Premium included-features band — under poster, before ownership meta.
    ───────────────────────────────────────────────────────────────────────────── */
 
+/** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
-  const items: { key: string; label: string }[] = [
-    { key: 'axis', label: '5軸の確定ビュー' },
-    { key: 'load', label: '傾向と負荷（本編）' },
-    { key: 'scene', label: '場面別の整理' },
-    { key: 'recovery', label: '戻し方・整え方' },
-    { key: 'practical', label: '実践ガイド' },
+  const parts: { num: string; name: string; desc: string }[] = [
+    { num: 'Ⅰ', name: '輪郭を見る', desc: 'あなたの5軸の形と全体を整理する' },
+    { num: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く' },
+    { num: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する' },
+    { num: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き' },
   ];
-  if (aiConsultIncluded) {
-    items.push({ key: 'consult', label: '保存版相談 1件' });
-  }
 
   return (
     <div className={styles.premiumIncludedBand} aria-label="有料版に含まれる内容">
       <p className={styles.premiumIncludedOverline}>この保存版に含まれるもの</p>
       <p className={styles.premiumIncludedLead}>
-        無料は輪郭の入り口まで。保存版は、5軸の確定と深読み・実践
-        {aiConsultIncluded ? '・相談' : ''}をこの一冊に揃えます。
+        無料版は輪郭の入り口まで。
+        保存版は、形を知るところから楽に扱うところまで、一冊で読み通せます。
       </p>
-      <ul className={styles.premiumIncludedList}>
-        {items.map((it) => (
-          <li key={it.key} className={styles.premiumIncludedItem}>
-            {it.label}
+      <ol className={styles.premiumIncludedTocList} aria-label="目次">
+        {parts.map((p) => (
+          <li key={p.num} className={styles.premiumIncludedTocRow}>
+            <span className={styles.premiumIncludedTocNum} aria-hidden>{p.num}</span>
+            <span className={styles.premiumIncludedTocName}>{p.name}</span>
+            <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
+            <span className={styles.premiumIncludedTocDesc}>{p.desc}</span>
           </li>
         ))}
-      </ul>
-      <p className={styles.premiumIncludedFootnote}>
-        上記の内訳は、下の本文で章ごとに扱います。
-      </p>
+      </ol>
+      {aiConsultIncluded && (
+        <p className={styles.premiumIncludedConsultRow}>
+          <span className={styles.premiumIncludedConsultPlus} aria-hidden>＋</span>
+          <span className={styles.premiumIncludedConsultLabel}>保存版相談（1件）</span>
+          <span className={styles.premiumIncludedConsultDesc}>このレポートに紐づいた返書相談</span>
+        </p>
+      )}
     </div>
   );
 }
