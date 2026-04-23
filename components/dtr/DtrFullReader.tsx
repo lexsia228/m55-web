@@ -829,7 +829,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
             className={`${styles.strMapCallout} ${styles.idBpReveal}`}
             style={{ animationDelay: '0.35s' }}
           >
-            <span className={styles.strMapCalloutLabel}>強みの立ち上がり</span>
+            <span className={styles.strMapCalloutLabel}>出方の立ち上がり</span>
             <p className={styles.strMapCalloutText}>{viz.strengthEmergence}</p>
           </div>
           <div
@@ -936,7 +936,7 @@ function StrengthsLiftFigures({ body }: { body: string }) {
   if (items.length === 0) return null;
 
   return (
-    <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="強みの可視化">
+    <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="出方の可視化">
       <p className={styles.idDesignOverline}>深読み · 出やすさの鍵</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
@@ -1000,8 +1000,8 @@ function StrengthsLiftFigures({ body }: { body: string }) {
             </svg>
             <p className={styles.liftMergeCaption}>
               {items.length >= 3
-                ? '三つの傾向が重なると、状況に対して再現性のある強みとして現れます。'
-                : '複数の傾向が重なると、状況に対して再現性のある強みとして現れます。'}
+                ? '三つの傾向が重なると、この形が状況の中で自然に現れます。'
+                : '複数の傾向が重なると、この形が状況の中で自然に現れます。'}
             </p>
           </>
         ) : null}
@@ -1342,10 +1342,10 @@ function DomainMatrixModule({
             <div className={styles.domainTileRows}>
               <div className={styles.domainTileBand}>
                 <span className={`${styles.domainTileGlyph} ${styles.domainTileGlyphPlus}`} aria-hidden>
-                  強
+                  出
                 </span>
                 <div className={styles.domainTileCell}>
-                  <span className={styles.domainTileMicro}>強み</span>
+                  <span className={styles.domainTileMicro}>出方</span>
                   <p className={styles.domainTileText}>{d.strength || '—'}</p>
                 </div>
               </div>
