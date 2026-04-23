@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
+import { runDtrEngine } from "../../../lib/m55/dtrEngine";
 import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
@@ -24,6 +25,16 @@ export default async function DtrCorePage() {
   const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
 
   if (snap) {
+    // Re-derive envelope from the current engine so code-side text edits are
+    // immediately visible without a DB migration.
+    // Ownership / entitlement remain DB-gated; only the body text is refreshed.
+    const envelope = runDtrEngine({
+      birthDate: snap.profile_snapshot.birthDate,
+      nickname: snap.profile_snapshot.nickname,
+      locale: "ja-JP",
+      contextScope: "dtr",
+    });
+
     return (
       <main className={styles.page}>
         <DtrFullReader
@@ -31,7 +42,7 @@ export default async function DtrCorePage() {
           aiConsultIncluded={ownership.aiConsultIncluded}
           expiresAt={ownership.expiresAt}
           purchasedSnapshot={{
-            envelope: snap.envelope_json,
+            envelope,
             profile: snap.profile_snapshot,
           }}
         />

@@ -872,16 +872,46 @@
   }
 }
 
-/* ── SSOT v1 Phase 3: 各部の区切り（上部目次と同一表記） ── */
+/* ── SSOT v1 Phase 3 → Phase 5: 章扉（アンカー・モチーフ・説明付き） ── */
 .reportPartBand {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  margin: clamp(14px, 2.4vw, 22px) 0 clamp(10px, 2vw, 14px);
-  padding: clamp(12px, 2vw, 16px) 0 4px;
+  flex-direction: column;
+  gap: 0;
+  margin: clamp(24px, 3.8vw, 36px) 0 clamp(12px, 2.2vw, 18px);
+  padding: clamp(14px, 2.4vw, 20px) 0 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.09);
   box-sizing: border-box;
+  scroll-margin-top: 72px;
+}
+
+.reportPartBandHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.reportPartBandMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reportPartBandRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reportPartMotif {
+  width: 40px;
+  height: 36px;
+  flex-shrink: 0;
+  color: var(--dtr-accent);
+}
+
+.reportPartMotifAmber {
+  color: rgba(218, 165, 64, 0.85);
 }
 
 .reportPartBandNum {
@@ -894,10 +924,18 @@
 
 .reportPartBandTitle {
   font-family: var(--dtr-serif);
-  font-size: clamp(0.78rem, 1.55vw, 0.9rem);
+  font-size: clamp(0.82rem, 1.65vw, 0.96rem);
   font-weight: 500;
   letter-spacing: 0.16em;
   color: var(--dtr-text);
+}
+
+.reportPartBandDesc {
+  margin: 0;
+  font-size: 0.70rem;
+  color: var(--dtr-body-muted);
+  letter-spacing: 0.03em;
+  line-height: 1.45;
 }
 
 .savedGridArticle {
@@ -1606,6 +1644,40 @@
   font-size: 0.71rem;
   color: var(--dtr-body-muted);
   line-height: 1.45;
+}
+
+/* ── Phase 5: TOC anchor リンク（smooth scroll + active state） ── */
+
+.tocLink {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 3px 5px;
+  margin: -3px -5px;
+  transition: background-color 0.18s;
+  outline-offset: 3px;
+}
+
+.tocLink:hover {
+  background-color: rgba(155, 135, 225, 0.08);
+}
+
+.tocLinkActive {
+  background-color: rgba(155, 135, 225, 0.12);
+}
+
+.tocLinkConsult {
+  /* 相談行は TOC 本体と別トーン — hover 時のみ accent を少し強める */
+}
+
+.tocLinkConsult:hover {
+  background-color: rgba(155, 135, 225, 0.11);
 }
 
 /* Poster card: dark gradient bg, type image positioned at right-bottom */

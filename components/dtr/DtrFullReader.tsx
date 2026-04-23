@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -166,13 +166,47 @@ function HeroIconMessage({ className }: { className?: string }) {
    ───────────────────────────────────────────────────────────────────────────── */
 
 /** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
+/* ── SSOT v1: 各部の共通データ（TOC + 章扉で共用） ── */
+const REPORT_PARTS = [
+  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: 'あなたの5軸の形と全体を整理する',       anchor: 'section-overview'  },
+  { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
+  { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
+  { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き',           anchor: 'section-practice'  },
+] as const;
+
+/** 現在スクロール中の章 anchor id を返す（IntersectionObserver） */
+function useActiveSection(): string | null {
+  const [active, setActive] = useState<string | null>(null);
+  useEffect(() => {
+    const ids = [...REPORT_PARTS.map((p) => p.anchor), 'consultation-room'];
+    const els = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (els.length === 0) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActive(visible[0]!.target.id);
+      },
+      { rootMargin: '-8% 0px -55% 0px', threshold: 0 },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+  return active;
+}
+
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
-  const parts: { num: string; name: string; desc: string }[] = [
-    { num: 'Ⅰ', name: '輪郭を見る', desc: 'あなたの5軸の形と全体を整理する' },
-    { num: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く' },
-    { num: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する' },
-    { num: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き' },
-  ];
+  const active = useActiveSection();
+
+  function scrollTo(anchor: string) {
+    return (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+  }
 
   return (
     <div className={styles.premiumIncludedBand} aria-label="有料版に含まれる内容">
@@ -182,27 +216,81 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
         保存版は、形を知るところから楽に扱うところまで、一冊で読み通せます。
       </p>
       <ol className={styles.premiumIncludedTocList} aria-label="目次">
-        {parts.map((p) => (
-          <li key={p.num} className={styles.premiumIncludedTocRow}>
-            <span className={styles.premiumIncludedTocNum} aria-hidden>{p.num}</span>
-            <span className={styles.premiumIncludedTocName}>{p.name}</span>
-            <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
-            <span className={styles.premiumIncludedTocDesc}>{p.desc}</span>
+        {REPORT_PARTS.map((p) => (
+          <li key={p.roman} className={styles.premiumIncludedTocRow}>
+            <a
+              href={`#${p.anchor}`}
+              onClick={scrollTo(p.anchor)}
+              className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
+              aria-current={active === p.anchor ? 'location' : undefined}
+            >
+              <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
+              <span className={styles.premiumIncludedTocName}>{p.name}</span>
+              <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
+              <span className={styles.premiumIncludedTocDesc}>{p.desc}</span>
+            </a>
           </li>
         ))}
       </ol>
       {aiConsultIncluded && (
         <p className={styles.premiumIncludedConsultRow}>
-          <span className={styles.premiumIncludedConsultPlus} aria-hidden>＋</span>
-          <span className={styles.premiumIncludedConsultLabel}>保存版相談（1件）</span>
-          <span className={styles.premiumIncludedConsultDesc}>このレポートに紐づいた返書相談</span>
+          <a
+            href="#consultation-room"
+            onClick={scrollTo('consultation-room')}
+            className={`${styles.tocLink} ${styles.tocLinkConsult}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
+          >
+            <span className={styles.premiumIncludedConsultPlus} aria-hidden>＋</span>
+            <span className={styles.premiumIncludedConsultLabel}>保存版相談（1件）</span>
+            <span className={styles.premiumIncludedConsultDesc}>このレポートに紐づいた返書相談</span>
+          </a>
         </p>
       )}
     </div>
   );
 }
 
-/** SSOT v1 Phase 3: 各部の区切り（上部目次バンドと表記を一致） */
+/** 各章の空気感を差別化する小モチーフ SVG */
+function ReportPartMotif({ partId }: { partId: '1' | '2' | '3' | '4' }) {
+  const base = { width: 40, height: 36, viewBox: '0 0 40 36', 'aria-hidden': true as const };
+  if (partId === '1') {
+    return (
+      <svg {...base} className={styles.reportPartMotif}>
+        <circle cx="20" cy="18" r="14.5" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.55" />
+        <circle cx="20" cy="18" r="8.5"  fill="none" stroke="currentColor" strokeWidth="0.7" strokeDasharray="2.5 2" opacity="0.4" />
+        <circle cx="20" cy="18" r="2.5"  fill="currentColor" opacity="0.45" />
+      </svg>
+    );
+  }
+  if (partId === '2') {
+    return (
+      <svg {...base} className={styles.reportPartMotif}>
+        <line x1="6"  y1="11" x2="34" y2="11" stroke="currentColor" strokeWidth="0.9" opacity="0.6" />
+        <line x1="6"  y1="18" x2="34" y2="18" stroke="currentColor" strokeWidth="0.7" opacity="0.4" />
+        <line x1="6"  y1="25" x2="34" y2="25" stroke="currentColor" strokeWidth="0.5" opacity="0.25" />
+        <circle cx="13" cy="11" r="2" fill="currentColor" opacity="0.6" />
+        <circle cx="27" cy="18" r="2" fill="currentColor" opacity="0.4" />
+      </svg>
+    );
+  }
+  if (partId === '3') {
+    return (
+      <svg {...base} className={`${styles.reportPartMotif} ${styles.reportPartMotifAmber}`}>
+        <path d="M20 6 L33 30 H7 Z" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinejoin="round" opacity="0.55" />
+        <line x1="20" y1="14" x2="20" y2="22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="20" cy="26" r="1.8" fill="currentColor" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...base} className={styles.reportPartMotif}>
+      <path d="M10 24 A12 12 0 0 1 30 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
+      <path d="M14 28 A8 8 0 0 1 26 28"  fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" opacity="0.4" />
+      <circle cx="20" cy="18" r="2" fill="currentColor" opacity="0.5" />
+    </svg>
+  );
+}
+
+/** SSOT v1 Phase 3 → Phase 5: 各部の章扉（目次と表記を一致・アンカー・モチーフ付き） */
 function ReportPartBand({
   partId,
   title,
@@ -210,21 +298,26 @@ function ReportPartBand({
   partId: '1' | '2' | '3' | '4';
   title: string;
 }) {
-  const roman: Record<typeof partId, string> = {
-    '1': 'Ⅰ',
-    '2': 'Ⅱ',
-    '3': 'Ⅲ',
-    '4': 'Ⅳ',
-  };
+  const part = REPORT_PARTS.find((p) => p.partId === partId);
+  const roman: Record<typeof partId, string> = { '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ' };
   return (
     <div
+      id={part?.anchor}
       className={styles.reportPartBand}
       aria-label={`第${partId}部 ${title}`}
     >
-      <span className={styles.reportPartBandNum} aria-hidden>
-        {roman[partId]}
-      </span>
-      <span className={styles.reportPartBandTitle}>{title}</span>
+      <div className={styles.reportPartBandHeader}>
+        <ReportPartMotif partId={partId} />
+        <div className={styles.reportPartBandMeta}>
+          <div className={styles.reportPartBandRow}>
+            <span className={styles.reportPartBandNum} aria-hidden>
+              {roman[partId]}
+            </span>
+            <span className={styles.reportPartBandTitle}>{title}</span>
+          </div>
+          {part?.desc && <p className={styles.reportPartBandDesc}>{part.desc}</p>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -633,7 +726,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
       axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'bridge'),
     },
     {
-      label: '整えると伸びる',
+      label: '整えると開く',
       accent: 'quiet' as const,
       axes: STRUCTURE_AXIS_ORDER.filter((a) => viz.axisRoles[a] === 'quiet'),
     },
