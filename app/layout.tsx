@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { jaJP } from "@clerk/localizations";
 import { DraftClaimOnLogin } from "../components/dtr/DraftClaimOnLogin";
+import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 
 export const metadata: Metadata = {
   title: "M55",
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="ja">
         <body style={{ margin: 0, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" }}>
           <DraftClaimOnLogin />
+          <ScrollToTopButton />
           {children}
         </body>
       </html>

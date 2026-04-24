@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -1784,23 +1784,6 @@ export default function DtrFullReader({
       nickname: purchasedSnapshot.profile.nickname,
     };
   }, [isLoaded, purchasedSnapshot]);
-
-  const didScrollToCoreAnalysisRef = useRef(false);
-
-  /** One-time: land readers at Core Analysis after hero (sticky header offset via scroll-margin). */
-  useLayoutEffect(() => {
-    if (view.kind !== 'ready') return;
-    if (didScrollToCoreAnalysisRef.current) return;
-    didScrollToCoreAnalysisRef.current = true;
-    const el = document.getElementById('dtr-core-analysis');
-    if (!el) return;
-    const run = () => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    requestAnimationFrame(() => {
-      requestAnimationFrame(run);
-    });
-  }, [view.kind]);
 
   if (view.kind === 'loading') {
     return (
