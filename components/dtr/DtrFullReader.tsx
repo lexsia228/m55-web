@@ -27,6 +27,7 @@ import {
   firstSentence,
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
+import { ReportBridgeBand } from './ReportBridgeBand';
 import styles from './DtrFullReader.module.css';
 
 /** Module 01: map engine level (0–3) to purchaser-facing role labels (no scores). */
@@ -1683,6 +1684,9 @@ function GroundingPanel({
             <p className={styles.groundingLead}>
               レポートはあなたの傾向構造を示した地図です。この相談ルームは、その地図を使って「今の状況」を読み解く場所です。
             </p>
+            <p className={styles.groundingBridgeLine}>
+              この保存版の型を前提に、今の状況を読む返書です。
+            </p>
             <p className={styles.groundingReportTitle}>{reportTitle}</p>
             <p className={styles.groundingSubline}>
               <span className={styles.groundingSymbolInline} aria-hidden="true">
@@ -1850,9 +1854,15 @@ export default function DtrFullReader({
                 {section.id === 's1_identity' ? (
                   <IdentityArticleWithBlueprint section={section} stemIdx={stemIdx} />
                 ) : section.id === 's2_composition' ? (
-                  <CompositionArticleWithViz section={section} stemIdx={stemIdx} />
+                  <>
+                    <CompositionArticleWithViz section={section} stemIdx={stemIdx} />
+                    <ReportBridgeBand partId="1" />
+                  </>
                 ) : section.id === 's3_essence' ? (
-                  <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
+                  <>
+                    <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
+                    <ReportBridgeBand partId="2" />
+                  </>
                 ) : (
                   <SectionBlock section={section} density="comfortable" />
                 )}
@@ -1867,6 +1877,7 @@ export default function DtrFullReader({
               {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
             </div>
           ) : null}
+          {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
         </section>
 
         <SectionDivider label="プレミアム深読み" premium />
@@ -1908,6 +1919,7 @@ export default function DtrFullReader({
                 relationSection={sec('s6_relation')!}
               />
             </section>
+            <ReportBridgeBand partId="4" />
           </>
         )}
 

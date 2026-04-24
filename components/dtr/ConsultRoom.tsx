@@ -28,13 +28,13 @@ const INPUT_MAX = 500;
 /** Max consults per report thread (SSOT M55_REPORT_CONCIERGE_ROOM_SSOT_v1 §2.3) */
 const MAX_CREDITS = 3;
 
+/** 用途ラベル（往復券・1テーマ）— 保存版の型に当てはめて返書で深める軸 */
 const THEMES = [
-  '仕事',
-  '人間関係',
-  '疲れやすさ',
-  '判断の迷い',
-  '自分の整え方',
-  '距離感',
+  '役割・裁量',
+  '距離と期待',
+  '消耗と回復',
+  '迷いの一本化',
+  '入り方・抜け方',
 ] as const;
 
 type Theme = (typeof THEMES)[number];
@@ -346,7 +346,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       {!isReadOnly && (
         <div className={styles.composeColumn}>
           <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>テーマを選択</h3>
+            <h3 className={styles.composeSectionLabel}>用途を選択（1つ）</h3>
             <div className={styles.themeRow}>
               {THEMES.map((t) => (
                 <ThemeChip

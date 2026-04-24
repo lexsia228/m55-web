@@ -1384,6 +1384,17 @@
   margin: 0 0 12px;
 }
 
+.groundingBridgeLine {
+  font-size: 0.82rem;
+  color: rgba(200, 188, 228, 0.88);
+  line-height: 1.65;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(155, 135, 225, 0.12);
+  background: rgba(40, 34, 58, 0.35);
+}
+
 .groundingReportTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
   font-size: clamp(0.92rem, 2.4vw, 1.02rem);

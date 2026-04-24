@@ -1,0 +1,86 @@
+/* Chapter-end bridge — quiet, subordinate to main prose (paid /dtr/core) */
+
+.bridge {
+  margin: clamp(18px, 2.5vw, 28px) 0 clamp(6px, 1.2vw, 12px);
+  padding: clamp(14px, 2.2vw, 20px) clamp(14px, 2.4vw, 20px) clamp(16px, 2.6vw, 22px);
+  border-radius: 14px;
+  border: 1px solid rgba(155, 135, 225, 0.14);
+  background: linear-gradient(165deg, rgba(32, 26, 48, 0.55) 0%, rgba(24, 20, 38, 0.42) 100%);
+  box-sizing: border-box;
+}
+
+.bridgeOverline {
+  margin: 0 0 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(180, 165, 220, 0.55);
+}
+
+.bridgeHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-family: var(--dtr-serif, 'Hiragino Mincho ProN', 'Noto Serif JP', serif);
+  font-size: clamp(0.78rem, 1.4vw, 0.88rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(235, 228, 250, 0.96);
+}
+
+.bridgeRoman {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--dtr-accent, #c4a8e8);
+  flex-shrink: 0;
+}
+
+.bridgeSeen {
+  margin: 0 0 14px;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: rgba(200, 190, 225, 0.88);
+  letter-spacing: 0.02em;
+}
+
+.bridgeSubheading {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(185, 170, 215, 0.85);
+}
+
+.bridgeList {
+  margin: 0 0 12px;
+  padding-left: 1.1rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: rgba(210, 200, 232, 0.9);
+}
+
+.bridgeItem {
+  margin-bottom: 6px;
+  padding-left: 0.15rem;
+}
+
+.bridgeItem:last-child {
+  margin-bottom: 0;
+}
+
+.bridgeNote {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: rgba(160, 145, 195, 0.65);
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bridge {
+    transition: none;
+  }
+}
