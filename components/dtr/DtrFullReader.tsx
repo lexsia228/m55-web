@@ -538,6 +538,32 @@ function PremiumModuleLead({
    Parent layout follows premium-report Layer 2 (overview + 3-col band).
    ───────────────────────────────────────────────────────────────────────────── */
 
+/** Paragraphs that start with 【〜】 are rendered as a labelled block: heading + body. */
+function BodyPara({
+  para,
+  compact,
+}: {
+  para: string;
+  compact: boolean;
+}) {
+  const match = /^【(.+?)】\n?/.exec(para);
+  if (match) {
+    const heading = match[1]!;
+    const body = para.slice(match[0].length).trim();
+    return (
+      <div className={styles.sectionBlockGroup}>
+        <p className={styles.sectionBlockLabel}>{heading}</p>
+        {body && (
+          <p className={compact ? styles.savedGridPara : styles.savedWidePara}>{body}</p>
+        )}
+      </div>
+    );
+  }
+  return (
+    <p className={compact ? styles.savedGridPara : styles.savedWidePara}>{para}</p>
+  );
+}
+
 function SectionBlock({
   section,
   density = 'comfortable',
@@ -558,9 +584,7 @@ function SectionBlock({
       )}
       <div className={compact ? styles.savedGridBody : styles.savedWideBody}>
         {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={compact ? styles.savedGridPara : styles.savedWidePara}>
-            {para}
-          </p>
+          <BodyPara key={i} para={para} compact={compact} />
         ))}
       </div>
     </article>
@@ -699,15 +723,16 @@ function IdentityArticleWithBlueprint({
   section: DtrSection;
   stemIdx: number;
 }) {
+  const paras = section.body.split('\n\n');
+  const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      {lede && <p className={styles.sectionLede}>{lede}</p>}
       <IdentityDesignFigures stemIdx={stemIdx} />
       <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedWidePara}>
-            {para}
-          </p>
+        {rest.map((para, i) => (
+          <BodyPara key={i} para={para} compact={false} />
         ))}
       </div>
     </article>
@@ -750,9 +775,28 @@ const STR_MAP_READ_COLORS = {
   quiet:  'rgba(160,148,200,0.55)',
 } as const;
 
+// Display names for radar axis labels — plain language, used in buttons and tips
+const STRUCTURE_AXIS_DISPLAY: Record<StructureAxisJa, string> = {
+  思考: '考える',
+  推進: '進める',
+  感受: '感じる',
+  精度: '仕上げる',
+  安定: '整える',
+};
+
+// Short descriptions aligned to STRUCTURE_AXIS_ORDER: 思考/推進/感受/精度/安定
+const STRUCTURE_AXIS_DESC: Record<string, string> = {
+  思考: '物事を筋立てて考える傾向',
+  推進: '行動に出て場を動かす傾向',
+  感受: '空気や変化を感じ取る傾向',
+  精度: '仕上がりの質にこだわる傾向',
+  安定: '継続して場を保つ傾向',
+};
+
 /** 構成と傾向 — 5軸輪郭レーダー（paid 深読み版 · 数値なし） */
 function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   const viz = compositionStructureVizForStem(stemIdx);
+  const [activeAxis, setActiveAxis] = useState<string | null>(null);
 
   // Grid pentagons at 60 % and 100 % of max radius
   const gridLevels = [0.60, 1.0].map((f) =>
@@ -789,12 +833,11 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   ].filter((r) => r.axes.length > 0);
 
   return (
-    <div className={styles.idDesignShell} aria-label="構成の5軸輪郭（保存版）">
-      <p className={styles.idDesignOverline}>深読み · 5軸の構成輪郭</p>
+    <div className={styles.idDesignShell} aria-label="5つの傾向バランス">
+      <p className={styles.idDesignOverline}>5つの傾向バランス</p>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>構成の輪郭</h3>
-        {/* 構成タイプ名を図の前に置く */}
+        {/* 構成タイプ名 */}
         <p className={styles.strMapPattern}>
           <span className={styles.strMapPatternLabel}>{viz.patternLabel}</span>
         </p>
@@ -803,7 +846,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
           <svg
             className={styles.strMapSvg}
             viewBox="0 0 100 100"
-            aria-hidden
+            aria-hidden="true"
             focusable="false"
           >
             {/* Grid pentagons */}
@@ -827,31 +870,36 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
               className={styles.strMapDataReveal}
             />
 
-            {/* Axis labels */}
-            {STRUCTURE_AXIS_ORDER.map((axis, i) => {
-              const [lx, ly] = strPentPoint(i, STR_VIZ_R_LABEL);
-              const ta = ((-90 + (i / STR_VIZ_N) * 360) + 360) % 360;
-              const anchor =
-                ta > 35 && ta < 145 ? 'end' :
-                ta > 215 && ta < 325 ? 'start' :
-                'middle';
-              const dy = ta > 135 && ta < 225 ? 2.5 : ta > 315 || ta < 45 ? -1 : 1;
-              return (
-                <text
-                  key={axis}
-                  x={lx}
-                  y={ly + dy}
-                  textAnchor={anchor}
-                  fontSize={4.8}
-                  fontWeight="700"
-                  fill="rgba(200,185,240,0.90)"
-                  letterSpacing="0.02em"
-                >
-                  {axis}
-                </text>
-              );
-            })}
           </svg>
+          {/* Axis label tap targets — sole visible labels; SVG text removed to eliminate duplication */}
+          {STRUCTURE_AXIS_ORDER.map((axis, i) => {
+            const [lx, ly] = strPentPoint(i, STR_VIZ_R_LABEL);
+            const isActive = activeAxis === axis;
+            return (
+              <button
+                key={axis}
+                className={`${styles.radarAxisBtn}${isActive ? ` ${styles.radarAxisBtnActive}` : ''}`}
+                style={{ left: `${lx}%`, top: `${ly}%` }}
+                aria-pressed={isActive}
+                aria-label={`${STRUCTURE_AXIS_DISPLAY[axis]}について詳しく見る`}
+                onClick={() => setActiveAxis(isActive ? null : axis)}
+              >
+                {STRUCTURE_AXIS_DISPLAY[axis]}
+              </button>
+            );
+          })}
+          {activeAxis && (
+            <div className={styles.radarAxisTip} role="status">
+              <span className={styles.radarAxisTipName}>{STRUCTURE_AXIS_DISPLAY[activeAxis as StructureAxisJa]}</span>
+              <span className={styles.radarAxisTipDesc}>{STRUCTURE_AXIS_DESC[activeAxis]}</span>
+              <span className={styles.radarAxisTipRole}>
+                {viz.axisRoles[activeAxis as keyof typeof viz.axisRoles] === 'core'   && '主軸'}
+                {viz.axisRoles[activeAxis as keyof typeof viz.axisRoles] === 'strong' && '副軸'}
+                {viz.axisRoles[activeAxis as keyof typeof viz.axisRoles] === 'bridge' && '支え'}
+                {viz.axisRoles[activeAxis as keyof typeof viz.axisRoles] === 'quiet'  && '静観'}
+              </span>
+            </div>
+          )}
           {/* 図の直後に生活語の要約 */}
           <p className={styles.strMapLinksCaption}>{viz.patternCaption}</p>
         </div>
@@ -860,7 +908,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
         <div className={`${styles.strMapReadCard} ${styles.idBpReveal}`} style={{ animationDelay: '0.28s' }}>
           <div className={styles.strMapReadBadge}>
             <span className={styles.strMapReadBadgeDot} aria-hidden />
-            輪郭の読み取り
+            傾向の読み取り
           </div>
           <div className={styles.strMapReadRows}>
             {readRows.map(({ label, accent, axes }) => (
@@ -871,12 +919,12 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
                 >
                   {label}
                 </span>
-                <span className={styles.strMapReadAxes}>{axes.join('・')}</span>
+                <span className={styles.strMapReadAxes}>{axes.map(a => STRUCTURE_AXIS_DISPLAY[a]).join('・')}</span>
               </div>
             ))}
           </div>
           <p className={styles.strMapReadLegend}>
-            外に開く軸ほど前に出やすい — 無料版「傾向の輪郭」と同じ読み方
+            外に広がるほど、その傾向が前に出やすい形です
           </p>
         </div>
 
@@ -908,15 +956,16 @@ function CompositionArticleWithViz({
   section: DtrSection;
   stemIdx: number;
 }) {
+  const paras = section.body.split('\n\n');
+  const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      {lede && <p className={styles.sectionLede}>{lede}</p>}
       <StructureInteractionMapFigures stemIdx={stemIdx} />
       <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedWidePara}>
-            {para}
-          </p>
+        {rest.map((para, i) => (
+          <BodyPara key={i} para={para} compact={false} />
         ))}
       </div>
     </article>
@@ -963,15 +1012,16 @@ function EssenceArticleWithViz({
   section: DtrSection;
   stemIdx: number;
 }) {
+  const paras = section.body.split('\n\n');
+  const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      {lede && <p className={styles.sectionLede}>{lede}</p>}
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
       <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedWidePara}>
-            {para}
-          </p>
+        {rest.map((para, i) => (
+          <BodyPara key={i} para={para} compact={false} />
         ))}
       </div>
     </article>
@@ -1149,9 +1199,7 @@ function GridArticleStrengthsViz({ section }: { section: DtrSection }) {
       <StrengthsLiftFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedGridPara}>
-            {para}
-          </p>
+          <BodyPara key={i} para={para} compact />
         ))}
       </div>
     </article>
@@ -1165,9 +1213,7 @@ function GridArticleFrictionViz({ section }: { section: DtrSection }) {
       <FrictionWarningFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedGridPara}>
-            {para}
-          </p>
+          <BodyPara key={i} para={para} compact />
         ))}
       </div>
     </article>
@@ -1181,9 +1227,7 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
       <CommFlowFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
-          <p key={i} className={styles.savedGridPara}>
-            {para}
-          </p>
+          <BodyPara key={i} para={para} compact />
         ))}
       </div>
     </article>
@@ -1696,6 +1740,44 @@ function PracticalGuidanceSection({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   D2. Work Guide Cards — S7 本文の4ブロックを読みやすい4枚カードで先出し。
+   PracticalGuidanceSection（日常要約版）の手前に置き、保存版の具体本文へ誘導。
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const WORK_CARD_META: {
+  key: string;
+  icon: string;
+  color: string;
+}[] = [
+  { key: '力が出る条件',      icon: '⚡', color: 'var(--dtr-accent)' },
+  { key: '詰まりやすい条件',  icon: '⚠', color: 'rgba(218,165,64,0.88)' },
+  { key: '環境のヒント',      icon: '◎', color: 'rgba(88,190,148,0.88)' },
+  { key: '生活のヒント',      icon: '●', color: 'rgba(140,170,220,0.88)' },
+];
+
+function WorkGuideCards({ workSection }: { workSection: DtrSection }) {
+  const items = parseBlockItems(workSection.body);
+  if (items.length === 0) return null;
+  return (
+    <div className={styles.wgGrid} aria-label="力の出し方ガイド">
+      {WORK_CARD_META.map(({ key, icon, color }) => {
+        const item = items.find((it) => it.header === key);
+        if (!item) return null;
+        return (
+          <div key={key} className={styles.wgCard}>
+            <div className={styles.wgCardTop}>
+              <span className={styles.wgIcon} style={{ color }} aria-hidden>{icon}</span>
+              <span className={styles.wgLabel} style={{ color }}>{key}</span>
+            </div>
+            <p className={styles.wgBody}>{item.content.trim()}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    E. Summary
    ───────────────────────────────────────────────────────────────────────────── */
 
@@ -2086,6 +2168,7 @@ export default function DtrFullReader({
         {sec('s7_work') && sec('s6_relation') && (
           <>
             <ReportPartBand partId="4" title="楽に扱う" />
+            <WorkGuideCards workSection={sec('s7_work')!} />
             <SectionDivider label="実践ガイド" premium />
             <section className={styles.practicalShell} aria-label="実践ガイド">
               <PracticalGuidanceSection
