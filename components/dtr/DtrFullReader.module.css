@@ -884,6 +884,19 @@
   scroll-margin-top: 72px;
 }
 
+/* Landing glow — added/removed by scrollTo() for 1.4 s after TOC navigation */
+@keyframes reportPartLandPulse {
+  0%   { box-shadow: 0 0  0px 0 rgba(155, 135, 225, 0.00); }
+  18%  { box-shadow: 0 0 18px 0 rgba(155, 135, 225, 0.22); }
+  100% { box-shadow: 0 0  0px 0 rgba(155, 135, 225, 0.00); }
+}
+.reportPartBandLanding {
+  animation: reportPartLandPulse 1.2s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reportPartBandLanding { animation: none; }
+}
+
 .reportPartBandHeader {
   display: flex;
   align-items: center;
@@ -1671,16 +1684,21 @@
   border-radius: 5px;
   padding: 3px 5px;
   margin: -3px -5px;
-  transition: background-color 0.18s;
+  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
   outline-offset: 3px;
 }
 
 .tocLink:hover {
   background-color: rgba(155, 135, 225, 0.08);
+  color: rgba(255, 255, 255, 0.88);
 }
 
+/* Active: left-line indicator (inset shadow) + brighter text.
+   Deliberately no background box — avoids the "selected" visual noise. */
 .tocLinkActive {
-  background-color: rgba(155, 135, 225, 0.12);
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: inset 3px 0 0 rgba(155, 135, 225, 0.72);
 }
 
 .tocLinkConsult {
@@ -2129,7 +2147,9 @@
 
 /* ── Paid module accordion shell ─────────────────────────────────────────── */
 
-/* Clickable header region — replaces the module's plain header */
+/* Clickable header region — replaces the module's plain header.
+   Bottom border acts as a visual separator between trigger and body,
+   and gives hover feedback via border-color transition.               */
 .pmAccordionTrigger {
   display: block;
   width: 100%;
@@ -2137,12 +2157,20 @@
   text-align: left;
   background: none;
   border: none;
-  padding: 0;
-  margin: 0;
+  border-bottom: 1px solid rgba(160, 140, 210, 0.10);
+  padding: 0 0 14px;
+  margin: 0 0 4px;
   color: inherit;
   font: inherit;
   -webkit-user-select: none;
   user-select: none;
+  transition: border-color 0.18s ease;
+}
+.pmAccordionTrigger:hover {
+  border-bottom-color: rgba(160, 140, 210, 0.30);
+}
+.pmAccordionTrigger:hover .pmChevron {
+  color: rgba(185, 165, 230, 0.90);
 }
 .pmAccordionTrigger:focus-visible {
   outline: 2px solid rgba(175, 150, 230, 0.65);
@@ -2156,19 +2184,20 @@
   align-items: flex-start;
   gap: 10px;
 }
-/* Title takes remaining space so border-bottom spans full width */
+/* Title fills row; reset the 18px bottom margin moduleTitle sets globally */
 .pmTitleRow h3 {
   flex: 1;
+  margin-bottom: 0;
 }
 
 /* Chevron icon — rotates when open */
 .pmChevron {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  margin-top: 5px;
-  color: rgba(185, 165, 230, 0.45);
-  transition: transform 0.22s ease;
+  margin-top: 3px;
+  color: rgba(185, 165, 230, 0.65);
+  transition: transform 0.22s ease, color 0.18s ease;
 }
 .pmChevronOpen {
   transform: rotate(180deg);
@@ -2176,11 +2205,26 @@
 
 /* 1-line teaser shown when the module is closed */
 .pmSummary {
-  margin: 6px 0 0;
-  font-size: clamp(12.5px, 2.3vw, 13.5px);
-  color: rgba(185, 165, 230, 0.52);
+  margin: 10px 0 0;
+  font-size: clamp(13px, 2.4vw, 14px);
+  color: rgba(185, 165, 230, 0.72);
   line-height: 1.65;
-  font-style: italic;
+  pointer-events: none;
+}
+
+/* "展開" chip — mobile tap affordance shown only in closed state */
+.pmExpandChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid rgba(160, 140, 210, 0.18);
+  background: rgba(160, 140, 210, 0.06);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(185, 165, 230, 0.55);
   pointer-events: none;
 }
 

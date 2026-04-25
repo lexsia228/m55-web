@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -175,17 +175,30 @@ const REPORT_PARTS = [
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き',           anchor: 'section-practice'  },
 ] as const;
 
-/** 現在スクロール中の章 anchor id を返す（IntersectionObserver） */
-function useActiveSection(): string | null {
+/**
+ * 現在スクロール中の章 anchor id を返す（IntersectionObserver）。
+ * hasScrolledRef により、初期ロード直後の誤検知を抑制する。
+ * setActive を返すことで、TOC クリック時に即時 active 更新も可能にする。
+ */
+function useActiveSection(): [string | null, (id: string | null) => void] {
   const [active, setActive] = useState<string | null>(null);
+  const hasScrolledRef = useRef(false);
+
   useEffect(() => {
     const ids = [...REPORT_PARTS.map((p) => p.anchor), 'consultation-room'];
     const els = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
+
+    // Suppress the "already in viewport on load" false trigger.
+    // Observer callbacks are ignored until the user (or programmatic scroll) fires.
+    const onScroll = () => { hasScrolledRef.current = true; };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     const obs = new IntersectionObserver(
       (entries) => {
+        if (!hasScrolledRef.current) return;
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
@@ -194,18 +207,29 @@ function useActiveSection(): string | null {
       { rootMargin: '-8% 0px -55% 0px', threshold: 0 },
     );
     els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+    return () => {
+      obs.disconnect();
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
-  return active;
+
+  return [active, setActive];
 }
 
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
-  const active = useActiveSection();
+  const [active, setActive] = useActiveSection();
 
   function scrollTo(anchor: string) {
     return (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Set active immediately so TOC highlights before scroll completes
+      setActive(anchor);
+      const el = document.getElementById(anchor);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Brief landing glow — tells the user "this is where you arrived"
+      el.classList.add(styles.reportPartBandLanding);
+      setTimeout(() => el.classList.remove(styles.reportPartBandLanding), 1400);
     };
   }
 
@@ -1216,7 +1240,12 @@ function PaidModuleShell({
             />
           </svg>
         </div>
-        {!open && <p className={styles.pmSummary}>{summary}</p>}
+        {!open && (
+          <>
+            <p className={styles.pmSummary}>{summary}</p>
+            <span className={styles.pmExpandChip} aria-hidden="true">展開</span>
+          </>
+        )}
       </div>
 
       {/* Animated body — grid-template-rows 0fr → 1fr */}
@@ -1961,7 +1990,7 @@ export default function DtrFullReader({
             title="輪郭を支える構造"
             ariaLabel="5軸分析"
             summary="5軸の分布から、この形の重心と周縁部を読む。"
-            defaultOpen={true}
+            defaultOpen={false}
           >
             <FiveAxisModule stemIdx={stemIdx} />
           </PaidModuleShell>
@@ -1975,7 +2004,7 @@ export default function DtrFullReader({
               title="重なりと読み解き"
               ariaLabel="傾向と負荷"
               summary="前に出やすい傾向と摩擦傾向の重なりから、この形の輪郭を読む。"
-              defaultOpen={true}
+              defaultOpen={false}
             >
               <TraitInteractionModule
                 strengthsSection={sec('s4_strengths')!}
