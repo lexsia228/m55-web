@@ -328,6 +328,7 @@ function ReportPartBand({
   return (
     <div
       id={part?.anchor}
+      data-part={partId}
       className={styles.reportPartBand}
       aria-label={`第${partId}部 ${title}`}
     >

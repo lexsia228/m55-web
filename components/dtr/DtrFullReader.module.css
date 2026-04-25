@@ -884,6 +884,12 @@
   scroll-margin-top: 72px;
 }
 
+/* Per-chapter border-top accent — sets color temperature for each section */
+.reportPartBand[data-part="1"] { border-top-color: rgba(155, 135, 225, 0.32); } /* Ⅰ lavender  */
+.reportPartBand[data-part="2"] { border-top-color: rgba( 96, 155, 232, 0.28); } /* Ⅱ cool blue */
+.reportPartBand[data-part="3"] { border-top-color: rgba(218, 165,  64, 0.38); } /* Ⅲ amber     */
+.reportPartBand[data-part="4"] { border-top-color: rgba( 88, 190, 148, 0.28); } /* Ⅳ soft green*/
+
 /* Landing glow — added/removed by scrollTo() for 1.4 s after TOC navigation */
 @keyframes reportPartLandPulse {
   0%   { box-shadow: 0 0  0px 0 rgba(155, 135, 225, 0.00); }
@@ -917,10 +923,19 @@
 }
 
 .reportPartMotif {
-  width: 40px;
-  height: 36px;
+  width: 48px;
+  height: 44px;
   flex-shrink: 0;
   color: var(--dtr-accent);
+  opacity: 0;
+  animation: motifReveal 0.72s 0.10s ease-out forwards;
+}
+@keyframes motifReveal {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reportPartMotif { animation: none; opacity: 1; }
 }
 
 .reportPartMotifAmber {
@@ -1608,6 +1623,10 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0 6px;
+  list-style: none; /* Explicit suppression on li; belt-and-suspenders against Chromium ::marker leakage on double-click */
+}
+.premiumIncludedTocRow::marker {
+  content: ''; /* Prevent Chromium from rendering the ol counter on text-select */
 }
 
 .premiumIncludedTocNum {
@@ -1678,14 +1697,29 @@
   flex-wrap: wrap;
   gap: 0 6px;
   flex: 1;
+  position: relative;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   border-radius: 5px;
   padding: 3px 5px;
   margin: -3px -5px;
-  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
+  transition: background-color 0.18s, color 0.18s;
   outline-offset: 3px;
+}
+
+/* Left indicator bar — uses ::before so it is immune to border-radius rounding
+   that caused box-shadow: inset to render as "(" brackets */
+.tocLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  border-radius: 1px;
+  background: rgba(155, 135, 225, 0);
+  transition: background-color 0.18s;
 }
 
 .tocLink:hover {
@@ -1693,12 +1727,14 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
-/* Active: left-line indicator (inset shadow) + brighter text.
-   Deliberately no background box — avoids the "selected" visual noise. */
+/* Active: straight left-line indicator + brighter text.
+   No background box — avoids "selected" visual noise. */
 .tocLinkActive {
   background-color: transparent;
   color: rgba(255, 255, 255, 0.95);
-  box-shadow: inset 3px 0 0 rgba(155, 135, 225, 0.72);
+}
+.tocLinkActive::before {
+  background: rgba(155, 135, 225, 0.72);
 }
 
 .tocLinkConsult {
