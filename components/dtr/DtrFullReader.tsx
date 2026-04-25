@@ -1141,6 +1141,95 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
    Not a "report insert box" — same family as /core sections, elevated tint.
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Accordion shell — shared wrapper for all paid deep-read modules.
+   Each module function now returns pure content; PaidModuleShell owns the
+   section chrome, header, open/close state, and smooth grid transition.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+function PaidModuleShell({
+  n,
+  tierJa,
+  tierClass,
+  overline,
+  title,
+  ariaLabel,
+  summary,
+  defaultOpen,
+  children,
+}: {
+  n: number;
+  tierJa: string;
+  tierClass: string;
+  overline: string;
+  title: string;
+  ariaLabel: string;
+  summary: string;
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const bodyId = `pm-body-${n}`;
+
+  function toggle() {
+    setOpen((o) => !o);
+  }
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggle();
+    }
+  }
+
+  return (
+    <section
+      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
+      aria-label={ariaLabel}
+    >
+      {/* Accordion trigger — the whole header area is interactive */}
+      <div
+        role="button"
+        tabIndex={0}
+        className={styles.pmAccordionTrigger}
+        onClick={toggle}
+        onKeyDown={handleKey}
+        aria-expanded={open}
+        aria-controls={bodyId}
+      >
+        <PremiumModuleLead n={n} tierJa={tierJa} tierClass={tierClass} />
+        <span className={styles.moduleOverline}>{overline}</span>
+        <div className={styles.pmTitleRow}>
+          <h3 className={styles.moduleTitle}>{title}</h3>
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+            focusable="false"
+            className={`${styles.pmChevron}${open ? ` ${styles.pmChevronOpen}` : ''}`}
+          >
+            <path
+              d="M4 6 L8 10 L12 6"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        {!open && <p className={styles.pmSummary}>{summary}</p>}
+      </div>
+
+      {/* Animated body — grid-template-rows 0fr → 1fr */}
+      <div
+        id={bodyId}
+        className={`${styles.pmBody}${open ? ` ${styles.pmBodyOpen}` : ''}`}
+      >
+        <div className={styles.pmBodyInner}>{children}</div>
+      </div>
+    </section>
+  );
+}
+
 function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const data = AXIS_DATA[stemIdx] ?? AXIS_DATA[0]!;
   const summary = axisVizSummaryDisplay(data.balance);
@@ -1152,14 +1241,7 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   ];
 
   return (
-    <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
-      aria-label="5軸分析"
-    >
-      <PremiumModuleLead n={1} tierJa="主軸分析" tierClass={styles.prTierMint} />
-      <span className={styles.moduleOverline}>5軸</span>
-      <h3 className={styles.moduleTitle}>輪郭を支える構造</h3>
-
+    <>
       <div className={styles.axisVizSummary} aria-label="軸の役割の要約">
         {summaryRows.map((row) => (
           <div key={row.key} className={styles.axisVizSummaryRow}>
@@ -1204,7 +1286,7 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
         })}
       </div>
       <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{data.note}</p>
-    </section>
+    </>
   );
 }
 
@@ -1222,13 +1304,7 @@ function TraitInteractionModule({
   const note = INTERACTION_NOTE[stemIdx] ?? '';
 
   return (
-    <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
-      aria-label="傾向と負荷"
-    >
-      <PremiumModuleLead n={2} tierJa="構造分析" tierClass={styles.prTierAmber} />
-      <span className={styles.moduleOverline}>傾向と負荷</span>
-      <h3 className={styles.moduleTitle}>重なりと読み解き</h3>
+    <>
       {note && <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{note}</p>}
       <div className={styles.interactionGrid}>
         <div className={styles.interactionCol}>
@@ -1252,7 +1328,7 @@ function TraitInteractionModule({
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }
 
@@ -1325,13 +1401,7 @@ function DomainMatrixModule({
   ];
 
   return (
-    <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
-      aria-label="生活での出方"
-    >
-      <PremiumModuleLead n={3} tierJa="領域比較" tierClass={styles.prTierBlue} />
-      <span className={styles.moduleOverline}>生活での出方</span>
-      <h3 className={styles.moduleTitle}>場面別の整理</h3>
+    <>
       <div className={styles.domainMatrix}>
         {domainTiles.map((d, di) => (
           <div
@@ -1372,7 +1442,7 @@ function DomainMatrixModule({
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }
 
@@ -1409,13 +1479,7 @@ function FrictionRecoveryModule({
   });
 
   return (
-    <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
-      aria-label="戻し方と整え方"
-    >
-      <PremiumModuleLead n={4} tierJa="実践ガイド" tierClass={styles.prTierRose} />
-      <span className={styles.moduleOverline}>戻し方 · 整え方</span>
-      <h3 className={styles.moduleTitle}>摩擦から整える流れ</h3>
+    <>
       <div className={styles.flowTrack} role="list">
         {flowNodes.map((node, i) => (
           <div
@@ -1438,7 +1502,7 @@ function FrictionRecoveryModule({
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }
 
@@ -1865,30 +1929,97 @@ export default function DtrFullReader({
 
         <SectionDivider label="プレミアム深読み" premium />
 
+        {/* 4-node structural map — lets readers grasp module relations before diving in */}
+        <div className={styles.pmDeepMap} aria-hidden="true">
+          {(
+            [
+              { n: 1, label: '主軸分析', desc: '軸と重心',     colorCls: styles.pmDeepMapMint  },
+              { n: 2, label: '構造分析', desc: '傾向の重なり', colorCls: styles.pmDeepMapAmber },
+              { n: 3, label: '領域比較', desc: '場面の出方',   colorCls: styles.pmDeepMapBlue  },
+              { n: 4, label: '実践ガイド', desc: '整え方',     colorCls: styles.pmDeepMapRose  },
+            ] as const
+          ).map((m, i) => (
+            <Fragment key={m.n}>
+              <div className={`${styles.pmDeepMapNode} ${m.colorCls}`}>
+                <span className={styles.pmDeepMapN}>0{m.n}</span>
+                <span className={styles.pmDeepMapLabel}>{m.label}</span>
+                <span className={styles.pmDeepMapDesc}>{m.desc}</span>
+              </div>
+              {i < 3 && (
+                <span className={styles.pmDeepMapArrow}>→</span>
+              )}
+            </Fragment>
+          ))}
+        </div>
+
         <div className={styles.paidModules}>
-          <FiveAxisModule stemIdx={stemIdx} />
+          <PaidModuleShell
+            n={1}
+            tierJa="主軸分析"
+            tierClass={styles.prTierMint}
+            overline="5軸"
+            title="輪郭を支える構造"
+            ariaLabel="5軸分析"
+            summary="5軸の分布から、この形の重心と周縁部を読む。"
+            defaultOpen={true}
+          >
+            <FiveAxisModule stemIdx={stemIdx} />
+          </PaidModuleShell>
 
           {sec('s4_strengths') && sec('s5_friction') && (
-            <TraitInteractionModule
-              strengthsSection={sec('s4_strengths')!}
-              frictionSection={sec('s5_friction')!}
-              stemIdx={stemIdx}
-            />
+            <PaidModuleShell
+              n={2}
+              tierJa="構造分析"
+              tierClass={styles.prTierAmber}
+              overline="傾向と負荷"
+              title="重なりと読み解き"
+              ariaLabel="傾向と負荷"
+              summary="前に出やすい傾向と摩擦傾向の重なりから、この形の輪郭を読む。"
+              defaultOpen={true}
+            >
+              <TraitInteractionModule
+                strengthsSection={sec('s4_strengths')!}
+                frictionSection={sec('s5_friction')!}
+                stemIdx={stemIdx}
+              />
+            </PaidModuleShell>
           )}
 
           {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
-            <DomainMatrixModule
-              essenceSection={sec('s3_essence')!}
-              relationSection={sec('s6_relation')!}
-              workSection={sec('s7_work')!}
-            />
+            <PaidModuleShell
+              n={3}
+              tierJa="領域比較"
+              tierClass={styles.prTierBlue}
+              overline="生活での出方"
+              title="場面別の整理"
+              ariaLabel="生活での出方"
+              summary="仕事・関係・判断・回復の場面で、この形がどう現れるかを整理する。"
+              defaultOpen={false}
+            >
+              <DomainMatrixModule
+                essenceSection={sec('s3_essence')!}
+                relationSection={sec('s6_relation')!}
+                workSection={sec('s7_work')!}
+              />
+            </PaidModuleShell>
           )}
 
           {sec('s5_friction') && sec('s8_bridge') && (
-            <FrictionRecoveryModule
-              frictionSection={sec('s5_friction')!}
-              bridgeSection={sec('s8_bridge')!}
-            />
+            <PaidModuleShell
+              n={4}
+              tierJa="実践ガイド"
+              tierClass={styles.prTierRose}
+              overline="戻し方 · 整え方"
+              title="摩擦から整える流れ"
+              ariaLabel="戻し方と整え方"
+              summary="摩擦から整えるまでの流れと、回復のパターンを示す。"
+              defaultOpen={false}
+            >
+              <FrictionRecoveryModule
+                frictionSection={sec('s5_friction')!}
+                bridgeSection={sec('s8_bridge')!}
+              />
+            </PaidModuleShell>
           )}
         </div>
 

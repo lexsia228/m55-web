@@ -1,12 +1,13 @@
 /* ── Scroll-to-top floating button ─────────────────────────────────────────
    Mounted globally in app/layout.tsx.
-   Position: bottom-left, clear of CTA / input areas.
+   Position: bottom-center, clear of CTA / input areas and browser chrome.
    ─────────────────────────────────────────────────────────────────────────── */
 
 .btn {
   position: fixed;
-  bottom: clamp(20px, 3.6vw, 28px);
-  right:  clamp(16px, 2.8vw, 24px);
+  bottom: clamp(24px, 4vw, 36px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
   z-index: 1500;
 
   /* size */
@@ -31,10 +32,10 @@
   color: rgba(205, 195, 235, 0.82);
   cursor: pointer;
 
-  /* hidden by default — fade + float up */
+  /* hidden by default — fade + float up (translateX(-50%) keeps center alignment) */
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);
+  transform: translateX(-50%) translateY(8px);
   transition:
     opacity 0.22s ease,
     transform 0.22s ease,
@@ -47,7 +48,7 @@
 .btnVisible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 /* hover */
@@ -62,7 +63,7 @@
 
 /* active */
 .btn:active {
-  transform: scale(0.93) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(0.93);
   transition: transform 0.08s ease;
 }
 
@@ -82,10 +83,10 @@
 @media (prefers-reduced-motion: reduce) {
   .btn {
     transition: opacity 0.12s ease;
-    transform: none !important;
+    transform: translateX(-50%) !important;
   }
   .btn:active {
-    transform: none !important;
+    transform: translateX(-50%) !important;
   }
 }
 
@@ -94,8 +95,8 @@
   .btn {
     width: 44px;
     height: 44px;
-    bottom: 20px;
-    right: 14px;
+    bottom: 24px;
+    /* left: 50% is already set; no override needed */
   }
   .icon {
     width: 20px;
