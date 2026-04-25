@@ -176,6 +176,20 @@ const REPORT_PARTS = [
 ] as const;
 
 /**
+ * True only when Ⅰ's chapter band is in a "we are reading ch.I" viewport position
+ * (not: still under hero/TOC, not: already scrolled past into later chapters).
+ * Uses geometry so it works for inner scroll and long hero — unlike scrollY thresholds.
+ */
+function isSectionOverviewEligibleForScrollspy(): boolean {
+  const el = document.getElementById('section-overview');
+  if (!el) return false;
+  const t = el.getBoundingClientRect().top;
+  if (t < 0) return false; // Ⅰ is above the viewport
+  if (t > window.innerHeight * 0.45) return false; // Ⅰ is still in the page lower area (hero, TOC, etc.)
+  return true;
+}
+
+/**
  * 現在スクロール中の章 anchor id を返す（IntersectionObserver）。
  * hasScrolledRef により、初期ロード直後の誤検知を抑制する。
  * setActive を返すことで、TOC クリック時に即時 active 更新も可能にする。
@@ -195,21 +209,32 @@ function useActiveSection(): [string | null, (id: string | null) => void] {
     // Observer callbacks are ignored until the user (or programmatic scroll) fires.
     const onScroll = () => { hasScrolledRef.current = true; };
     window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true });
 
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (!hasScrolledRef.current) return;
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible.length > 0) setActive(visible[0]!.target.id);
-      },
-      { rootMargin: '-8% 0px -55% 0px', threshold: 0 },
-    );
+    const applyScrollspy = (entries: IntersectionObserverEntry[]) => {
+      if (!hasScrolledRef.current) return;
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length === 0) return;
+
+      for (let i = 0; i < visible.length; i++) {
+        const id = visible[i]!.target.id;
+        if (id === 'section-overview' && !isSectionOverviewEligibleForScrollspy()) {
+          continue;
+        }
+        setActive(id);
+        return;
+      }
+      setActive(null);
+    };
+
+    const obs = new IntersectionObserver(applyScrollspy, { rootMargin: '-8% 0px -55% 0px', threshold: 0 });
     els.forEach((el) => obs.observe(el));
     return () => {
       obs.disconnect();
       window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('scroll', onScroll, { capture: true });
     };
   }, []);
 
