@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -175,28 +175,29 @@ const REPORT_PARTS = [
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き',           anchor: 'section-practice'  },
 ] as const;
 
-/**
- * True only when Ⅰ's chapter band is in a "we are reading ch.I" viewport position
- * (not: still under hero/TOC, not: already scrolled past into later chapters).
- * Uses geometry so it works for inner scroll and long hero — unlike scrollY thresholds.
- */
-function isSectionOverviewEligibleForScrollspy(): boolean {
+/** Ⅰ導入・TOC帯: #section-overview の上端がまだ下寄り＝「本文帯の読み」に入っていない */
+const INTRO_TOC_FRACTION = 0.4;
+const TOC_GUARD_MS = 1000;
+
+function isIntroOrTocView(): boolean {
   const el = document.getElementById('section-overview');
-  if (!el) return false;
-  const t = el.getBoundingClientRect().top;
-  if (t < 0) return false; // Ⅰ is above the viewport
-  if (t > window.innerHeight * 0.45) return false; // Ⅰ is still in the page lower area (hero, TOC, etc.)
-  return true;
+  if (!el) return true;
+  return el.getBoundingClientRect().top > window.innerHeight * INTRO_TOC_FRACTION;
 }
 
 /**
  * 現在スクロール中の章 anchor id を返す（IntersectionObserver）。
  * hasScrolledRef により、初期ロード直後の誤検知を抑制する。
  * setActive を返すことで、TOC クリック時に即時 active 更新も可能にする。
+ * markTocNavigation: TOC/相談クリック直後の scrollspy による active クリアを避ける。
  */
-function useActiveSection(): [string | null, (id: string | null) => void] {
+function useActiveSection(): [string | null, (id: string | null) => void, () => void] {
   const [active, setActive] = useState<string | null>(null);
   const hasScrolledRef = useRef(false);
+  const tocClickAtRef = useRef(0);
+  const markTocNavigation = useCallback(() => {
+    tocClickAtRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
     const ids = [...REPORT_PARTS.map((p) => p.anchor), 'consultation-room'];
@@ -205,28 +206,31 @@ function useActiveSection(): [string | null, (id: string | null) => void] {
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
 
+    const canClearInIntro = () => Date.now() - tocClickAtRef.current > TOC_GUARD_MS;
+
     // Suppress the "already in viewport on load" false trigger.
-    // Observer callbacks are ignored until the user (or programmatic scroll) fires.
-    const onScroll = () => { hasScrolledRef.current = true; };
+    const onScroll = () => {
+      hasScrolledRef.current = true;
+      if (isIntroOrTocView() && canClearInIntro()) {
+        setActive(null);
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('scroll', onScroll, { passive: true, capture: true });
 
     const applyScrollspy = (entries: IntersectionObserverEntry[]) => {
       if (!hasScrolledRef.current) return;
+      if (isIntroOrTocView()) {
+        if (canClearInIntro()) {
+          setActive(null);
+        }
+        return;
+      }
       const visible = entries
         .filter((e) => e.isIntersecting)
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
       if (visible.length === 0) return;
-
-      for (let i = 0; i < visible.length; i++) {
-        const id = visible[i]!.target.id;
-        if (id === 'section-overview' && !isSectionOverviewEligibleForScrollspy()) {
-          continue;
-        }
-        setActive(id);
-        return;
-      }
-      setActive(null);
+      setActive(visible[0]!.target.id);
     };
 
     const obs = new IntersectionObserver(applyScrollspy, { rootMargin: '-8% 0px -55% 0px', threshold: 0 });
@@ -238,15 +242,16 @@ function useActiveSection(): [string | null, (id: string | null) => void] {
     };
   }, []);
 
-  return [active, setActive];
+  return [active, setActive, markTocNavigation];
 }
 
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
-  const [active, setActive] = useActiveSection();
+  const [active, setActive, markTocNavigation] = useActiveSection();
 
   function scrollTo(anchor: string) {
     return (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
+      markTocNavigation();
       // Set active immediately so TOC highlights before scroll completes
       setActive(anchor);
       const el = document.getElementById(anchor);
