@@ -282,20 +282,34 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
         この保存版では、どこで力が出やすいか、どこで無理がたまりやすいか、どこから整えると戻りやすいかを、順番に見ていきます。
       </p>
       <p className={styles.premiumIntroSectionLabel}>この保存版で分かること</p>
-      <ul className={styles.premiumIntroBulletList} aria-label="目次">
-        {INTRO_BULLETS.map(({ text, anchor }) => (
-          <li key={anchor} className={styles.premiumIntroBulletItem}>
-            <a
-              href={`#${anchor}`}
-              onClick={scrollTo(anchor)}
-              className={`${styles.premiumIntroBulletLink}${active === anchor ? ` ${styles.tocLinkActive}` : ''}`}
-              aria-current={active === anchor ? 'location' : undefined}
-            >
-              {text}
-            </a>
+      <ul className={styles.premiumIntroBulletList} aria-label="この保存版で分かること">
+        {INTRO_BULLETS.map(({ text }) => (
+          <li key={text} className={styles.premiumIntroBulletItem}>
+            <span className={styles.premiumIntroBulletText}>{text}</span>
           </li>
         ))}
       </ul>
+      <p className={styles.premiumIntroSectionLabel}>この保存版の読み方</p>
+      <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
+        {REPORT_PARTS.map((p) => {
+          const tocDesc = p.partId === '4' ? '戻し方・整え方・日常での使い方' : p.desc;
+          return (
+            <li key={p.roman} className={styles.premiumIncludedTocRow}>
+              <a
+                href={`#${p.anchor}`}
+                onClick={scrollTo(p.anchor)}
+                className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
+                aria-current={active === p.anchor ? 'location' : undefined}
+              >
+                <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
+                <span className={styles.premiumIncludedTocName}>{p.name}</span>
+                <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
+                <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
       <p className={styles.premiumIntroClosing}>
         難しく考えなくて大丈夫です。<br />
         まずは、いまの自分に近いと感じるところから読んでください。
@@ -481,9 +495,9 @@ function PremiumHero({
         <div className={styles.heroMetaItem}>
           <div className={styles.heroMetaLabelRow}>
             <HeroIconMessage className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>相談枠</span>
+            <span className={styles.heroMetaLabel}>返書チケット</span>
           </div>
-          <span className={styles.heroMetaValue}>{aiConsultIncluded ? '1件付帯' : 'なし'}</span>
+          <span className={styles.heroMetaValue}>{aiConsultIncluded ? '相談返書 1件' : 'なし'}</span>
         </div>
         <div className={styles.heroMetaItem}>
           <div className={styles.heroMetaLabelRow}>
@@ -1846,9 +1860,9 @@ function ContinuousSupport() {
         </p>
         <ul className={styles.supportPathList} aria-label="継続利用の経路">
           <li className={styles.supportPathItem}>
-            <span className={styles.supportPathLabel}>追加相談</span>
+            <span className={styles.supportPathLabel}>返書チケットを追加</span>
             <span className={styles.supportPathDesc}>
-              このレポートに紐づいた形で相談枠を追加できます。ルーム内からのみ申し込みできます（上限3回）。
+              このレポートに紐づいた形で返書チケットを追加できます。相談返書ルーム内からのみ申し込みできます（上限3回）。
             </span>
           </li>
           <li className={styles.supportPathItem}>
@@ -1866,6 +1880,16 @@ function ContinuousSupport() {
 /* ─────────────────────────────────────────────────────────────────────────────
    G. Grounding panel — ties consultation room to saved report
    ───────────────────────────────────────────────────────────────────────────── */
+
+/** Grounding の見出し用。エンジン payload.title の表記を画面命名に寄せる（SSOT 本文は未変更）。 */
+function groundingDisplayReportTitle(engineTitle: string): string {
+  const t = engineTitle.trim();
+  const m = /^Entry Report — (.+?)さんの取り扱い説明書$/.exec(t);
+  if (m) return `保存版レポート — ${m[1]}さんの形を読み直す`;
+  return t
+    .replace(/^Entry Report — /, '保存版レポート — ')
+    .replace(/取り扱い説明書/g, '形を読み直す');
+}
 
 function GroundingDocIcon() {
   return (
@@ -1891,20 +1915,20 @@ function GroundingPanel({
     <div className={styles.groundingBandInner}>
       <div className={styles.groundingDividerBar} role="presentation">
         <span className={styles.groundingDividerFade} aria-hidden />
-        <span className={styles.groundingDividerChip}>レポート基盤の相談</span>
+        <span className={styles.groundingDividerChip}>相談返書 · レポート基盤</span>
         <span className={styles.groundingDividerFade} aria-hidden />
       </div>
 
-      <div className={styles.groundingPanel} role="complementary" aria-label="ルームのコンテキスト">
+      <div className={styles.groundingPanel} role="complementary" aria-label="相談返書ルームのコンテキスト">
         <div className={styles.groundingHeader}>
           <GroundingDocIcon />
           <div className={styles.groundingHeaderText}>
-            <h3 className={styles.groundingTitle}>レポートが地図、相談が現在地</h3>
+            <h3 className={styles.groundingTitle}>レポートが地図なら、相談返書は今の状況を読む場所です</h3>
             <p className={styles.groundingLead}>
-              レポートはあなたの傾向構造を示した地図です。この相談ルームは、その地図を使って「今の状況」を読み解く場所です。
+              保存版レポートはあなたの傾向構造を示した地図です。この相談返書ルームは、その地図を使って「今の状況」を読み解く場所です。
             </p>
             <p className={styles.groundingBridgeLine}>
-              この保存版の型を前提に、今の状況を読む返書です。
+              この保存版レポートを土台に、今の状況を相談返書で読み直せます。
             </p>
             <p className={styles.groundingReportTitle}>{reportTitle}</p>
             <p className={styles.groundingSubline}>
@@ -1953,7 +1977,7 @@ function GroundingPanel({
           </span>
         </div>
         <p className={styles.groundingNote}>
-          一般的なアドバイスではなく、あなたの保存済みレポートに基づいた返書を作成します。
+          一般的なアドバイスではなく、あなたの保存版レポートに基づいた相談返書を作成します。
         </p>
       </div>
     </div>
@@ -2195,7 +2219,7 @@ export default function DtrFullReader({
 
         {sec('s8_bridge') && (
           <>
-            <SectionDivider label="まとめ" />
+            <SectionDivider label="まとめと相談返書" />
             <SummarySection bridgeSection={sec('s8_bridge')!} />
           </>
         )}
@@ -2207,7 +2231,7 @@ export default function DtrFullReader({
             <div className={styles.consultGroundingBand}>
               <GroundingPanel
                 stemSymbol={stem.symbol}
-                reportTitle={payload.title}
+                reportTitle={groundingDisplayReportTitle(payload.title)}
                 stemOneLine={stem.displayOneLine}
               />
             </div>

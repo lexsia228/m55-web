@@ -1849,6 +1849,25 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* ベネフィットリスト用（クリック不要・同じ ::before ドット を継承） */
+.premiumIntroBulletText {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--dtr-body);
+  font-size: 0.84rem;
+  line-height: 1.52;
+  padding: 3px 5px 3px 0;
+}
+
+.premiumIntroBulletText::before {
+  content: '·';
+  color: var(--dtr-accent);
+  font-size: 1.15em;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
 .premiumIntroClosing {
   font-size: 0.84rem;
   color: var(--dtr-body-muted);
@@ -3344,6 +3363,7 @@
   color: var(--dtr-text);
   margin: 0 0 8px;
   line-height: 1.35;
+  text-wrap: balance;
 }
 
 .groundingSubline {

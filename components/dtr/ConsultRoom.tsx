@@ -258,7 +258,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   if (loadError) {
     return (
-      <div className={styles.room} aria-label="相談ルーム">
+      <div className={styles.room} aria-label="相談返書ルーム">
         <p className={styles.errorMsg}>{loadError}</p>
       </div>
     );
@@ -266,7 +266,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   if (!roomData) {
     return (
-      <div className={styles.room} aria-label="相談ルーム">
+      <div className={styles.room} aria-label="相談返書ルーム">
         <p className={styles.loading}>読み込み中…</p>
       </div>
     );
@@ -277,13 +277,13 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   const usageLine =
     thread.credits_remaining > 0
-      ? `返書 ${thread.credits_remaining}件利用可能`
-      : 'このスレッドの相談は利用済みです';
+      ? `返書チケット ${thread.credits_remaining}件`
+      : '返書チケットは利用済みです';
 
   const submitDisabled = sending || !selectedTheme || isOverMax || isUnderMin;
 
   return (
-    <section className={styles.room} aria-label="相談ルーム（purchaser-only）">
+    <section className={styles.room} aria-label="相談返書ルーム（purchaser-only）">
       <header className={styles.roomHeaderBar}>
         <div className={styles.roomHeaderMain}>
           <h2 className={styles.roomTitle}>相談返書ルーム</h2>
@@ -305,17 +305,17 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       {isReadOnly && (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            このレポートスレッドの相談上限に達しました。これまでのやりとりは引き続き確認できます。
+            返書チケットの上限に達しました。これまでのやりとりは引き続き確認できます。
           </p>
           {thread.credits_total < MAX_CREDITS && (
             <p className={styles.addOnNote}>
-              追加の相談（1回）はこのルーム内でのみ申し込み可能です。上限は合計{MAX_CREDITS}回です。
+              返書チケットの追加はこのルーム内でのみ申し込み可能です。上限は合計{MAX_CREDITS}件です。
             </p>
           )}
         </div>
       )}
 
-      <div className={styles.messages} role="log" aria-label="相談のやりとり" aria-live="polite">
+      <div className={styles.messages} role="log" aria-label="相談返書のやりとり" aria-live="polite">
         {messages.length === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>
             レポートの内容について確認したいことがあれば、こちらで整理できます。
@@ -377,7 +377,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <section className={styles.composeSection}>
             <h3 className={styles.composeSectionLabel}>自由入力</h3>
             <label htmlFor="consult-input" className={styles.srOnly}>
-              相談メッセージを入力（全体で{INPUT_MIN}〜{INPUT_MAX}文字）
+              相談内容を入力（全体で{INPUT_MIN}〜{INPUT_MAX}文字）
             </label>
             <textarea
               id="consult-input"
@@ -434,12 +434,12 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
                 作成中
               </span>
             ) : (
-              '返書を作成する'
+              '相談返書を作成する'
             )}
           </button>
 
           <p className={styles.inputNote}>
-            1回の送信で相談1回を消費します。送信後の取り消しはできません。返答は保存されます。
+            1回の送信で返書チケット1件を消費します。送信後の取り消しはできません。返書は保存されます。
           </p>
         </div>
       )}
