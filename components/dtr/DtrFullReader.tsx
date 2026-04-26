@@ -285,7 +285,10 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
       <ul className={styles.premiumIntroBulletList} aria-label="この保存版で分かること">
         {INTRO_BULLETS.map(({ text }) => (
           <li key={text} className={styles.premiumIntroBulletItem}>
-            <span className={styles.premiumIntroBulletText}>{text}</span>
+            <span className={styles.premiumIntroBulletText}>
+              <HeroIconCheck className={styles.benefitCheckIcon} />
+              {text}
+            </span>
           </li>
         ))}
       </ul>

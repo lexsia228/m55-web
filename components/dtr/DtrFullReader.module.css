@@ -1852,20 +1852,26 @@
 /* ベネフィットリスト用（クリック不要・同じ ::before ドット を継承） */
 .premiumIntroBulletText {
   display: flex;
-  align-items: baseline;
-  gap: 7px;
+  align-items: center;
+  gap: 8px;
   color: var(--dtr-body);
   font-size: 0.84rem;
   line-height: 1.52;
   padding: 3px 5px 3px 0;
 }
 
+/* dot は SVG アイコンに差し替えたため無効化 */
 .premiumIntroBulletText::before {
-  content: '·';
-  color: var(--dtr-accent);
-  font-size: 1.15em;
+  content: '';
+}
+
+/* ベネフィットリスト用チェックアイコン */
+.benefitCheckIcon {
+  width: 11px;
+  height: 11px;
   flex-shrink: 0;
-  opacity: 0.65;
+  color: var(--dtr-accent);
+  opacity: 0.72;
 }
 
 .premiumIntroClosing {
@@ -1877,25 +1883,26 @@
 }
 
 .premiumIntroConsultNote {
-  margin: 13px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: rgba(140, 120, 200, 0.07);
+  border: 1px solid rgba(160, 140, 220, 0.18);
 }
 
 .premiumIntroConsultLink {
   display: block;
   text-decoration: none;
-  color: var(--dtr-body-muted);
+  color: rgba(200, 188, 230, 0.85);
   font-size: 0.84rem;
-  line-height: 1.65;
-  padding: 3px 5px 3px 0;
+  line-height: 1.68;
   border-radius: 5px;
   transition: color 0.15s;
   outline-offset: 3px;
 }
 
 .premiumIntroConsultLink:hover {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(225, 215, 255, 0.96);
 }
 
 /* ── 既存 TOC（内部参照のみ、新ブロックに引き継ぎ済み） ── */
@@ -2277,8 +2284,8 @@
   margin-top: 2px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--dtr-border);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.30), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   margin-bottom: 12px;
 }
 
