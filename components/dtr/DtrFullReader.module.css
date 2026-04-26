@@ -1769,7 +1769,117 @@
   max-width: 42rem;
 }
 
-/* ?? SSOT v1 Phase 2: ?????ETOC ?? */
+/* ── 冒頭ブロック差し替え 2026-04 ── */
+
+.premiumIntroOverline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--dtr-accent);
+  margin: 0 0 10px;
+  font-feature-settings: 'kern' 1;
+}
+
+.premiumIntroLead {
+  font-size: clamp(15px, 3vw, 16px);
+  font-weight: 500;
+  color: var(--dtr-text);
+  line-height: 1.72;
+  margin: 0 0 12px;
+}
+
+.premiumIntroBody {
+  font-size: 0.875rem;
+  color: var(--dtr-body);
+  line-height: 1.75;
+  margin: 0 0 16px;
+  max-width: 38em;
+}
+
+.premiumIntroBody:has(+ .premiumIntroBody) {
+  margin-bottom: 0.45em;
+}
+
+.premiumIntroSectionLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--dtr-accent);
+  opacity: 0.82;
+  margin: 0 0 7px;
+}
+
+.premiumIntroBulletList {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.premiumIntroBulletItem {
+  margin: 0;
+  padding: 0;
+}
+
+.premiumIntroBulletLink {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  text-decoration: none;
+  color: var(--dtr-body);
+  font-size: 0.84rem;
+  line-height: 1.52;
+  padding: 3px 5px 3px 0;
+  border-radius: 5px;
+  transition: color 0.15s;
+  outline-offset: 3px;
+}
+
+.premiumIntroBulletLink::before {
+  content: '·';
+  color: var(--dtr-accent);
+  font-size: 1.15em;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.premiumIntroBulletLink:hover {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.premiumIntroClosing {
+  font-size: 0.84rem;
+  color: var(--dtr-body-muted);
+  line-height: 1.68;
+  margin: 0;
+  max-width: 36em;
+}
+
+.premiumIntroConsultNote {
+  margin: 13px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.premiumIntroConsultLink {
+  display: block;
+  text-decoration: none;
+  color: var(--dtr-body-muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
+  padding: 3px 5px 3px 0;
+  border-radius: 5px;
+  transition: color 0.15s;
+  outline-offset: 3px;
+}
+
+.premiumIntroConsultLink:hover {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* ── 既存 TOC（内部参照のみ、新ブロックに引き継ぎ済み） ── */
 
 .premiumIncludedTocList {
   list-style: none;

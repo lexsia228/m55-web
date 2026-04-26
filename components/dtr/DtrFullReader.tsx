@@ -245,6 +245,13 @@ function useActiveSection(): [string | null, (id: string | null) => void, () => 
   return [active, setActive, markTocNavigation];
 }
 
+const INTRO_BULLETS: { text: string; anchor: string }[] = [
+  { text: '仕事や学びで、どこに力が出やすいか',     anchor: 'section-overview'  },
+  { text: '人間関係で、どこで無理がたまりやすいか', anchor: 'section-structure' },
+  { text: '疲れやすい条件と、崩れやすい流れ',       anchor: 'section-strain'    },
+  { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
+];
+
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
   const [active, setActive, markTocNavigation] = useActiveSection();
 
@@ -252,53 +259,59 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
     return (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       markTocNavigation();
-      // Set active immediately so TOC highlights before scroll completes
       setActive(anchor);
       const el = document.getElementById(anchor);
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Brief landing glow — tells the user "this is where you arrived"
       el.classList.add(styles.reportPartBandLanding);
       setTimeout(() => el.classList.remove(styles.reportPartBandLanding), 1400);
     };
   }
 
   return (
-    <div className={styles.premiumIncludedBand} aria-label="有料版に含まれる内容">
-      <p className={styles.premiumIncludedOverline}>この保存版に含まれるもの</p>
-      <p className={styles.premiumIncludedLead}>
-        無料版は輪郭の入り口まで。
-        保存版は、形を知るところから楽に扱うところまで、一冊で読み通せます。
+    <div className={styles.premiumIncludedBand} aria-label="保存版レポートの説明">
+      <p className={styles.premiumIntroOverline}>保存版レポート</p>
+      <p className={styles.premiumIntroLead}>
+        自分を無理に変えなくていい。<br />
+        「自分の形」から、今の悩みを読み直すための土台です。
       </p>
-      <ol className={styles.premiumIncludedTocList} aria-label="目次">
-        {REPORT_PARTS.map((p) => (
-          <li key={p.roman} className={styles.premiumIncludedTocRow}>
+      <p className={styles.premiumIntroBody}>
+        自分の形がわかると、少し楽になります。
+      </p>
+      <p className={styles.premiumIntroBody}>
+        この保存版では、どこで力が出やすいか、どこで無理がたまりやすいか、どこから整えると戻りやすいかを、順番に見ていきます。
+      </p>
+      <p className={styles.premiumIntroSectionLabel}>この保存版で分かること</p>
+      <ul className={styles.premiumIntroBulletList} aria-label="目次">
+        {INTRO_BULLETS.map(({ text, anchor }) => (
+          <li key={anchor} className={styles.premiumIntroBulletItem}>
             <a
-              href={`#${p.anchor}`}
-              onClick={scrollTo(p.anchor)}
-              className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
-              aria-current={active === p.anchor ? 'location' : undefined}
+              href={`#${anchor}`}
+              onClick={scrollTo(anchor)}
+              className={`${styles.premiumIntroBulletLink}${active === anchor ? ` ${styles.tocLinkActive}` : ''}`}
+              aria-current={active === anchor ? 'location' : undefined}
             >
-              <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
-              <span className={styles.premiumIncludedTocName}>{p.name}</span>
-              <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
-              <span className={styles.premiumIncludedTocDesc}>{p.desc}</span>
+              {text}
             </a>
           </li>
         ))}
-      </ol>
+      </ul>
+      <p className={styles.premiumIntroClosing}>
+        難しく考えなくて大丈夫です。<br />
+        まずは、いまの自分に近いと感じるところから読んでください。
+      </p>
       {aiConsultIncluded && (
-        <p className={styles.premiumIncludedConsultRow}>
+        <div className={styles.premiumIntroConsultNote}>
           <a
             href="#consultation-room"
             onClick={scrollTo('consultation-room')}
-            className={`${styles.tocLink} ${styles.tocLinkConsult}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
+            className={`${styles.premiumIntroConsultLink}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
+            aria-current={active === 'consultation-room' ? 'location' : undefined}
           >
-            <span className={styles.premiumIncludedConsultPlus} aria-hidden>＋</span>
-            <span className={styles.premiumIncludedConsultLabel}>保存版相談（1件）</span>
-            <span className={styles.premiumIncludedConsultDesc}>このレポートに紐づいた返書相談</span>
+            この保存版には、相談返書&nbsp;1件が付いています。<br />
+            レポートが地図なら、相談返書は今の状況を読む場所です。
           </a>
-        </p>
+        </div>
       )}
     </div>
   );
