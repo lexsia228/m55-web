@@ -1874,14 +1874,6 @@
   opacity: 0.72;
 }
 
-.premiumIntroClosing {
-  font-size: 0.84rem;
-  color: var(--dtr-body-muted);
-  line-height: 1.68;
-  margin: 0;
-  max-width: 36em;
-}
-
 .premiumIntroConsultNote {
   margin: 14px 0 0;
   padding: 12px 14px;
@@ -2022,6 +2014,29 @@
 .tocLinkActive .premiumIncludedTocDesc,
 .tocLinkActive .premiumIncludedConsultDesc {
   color: rgba(205, 198, 230, 0.8);
+}
+
+/* Mobile: ブロック間は余白のみ（目次は1行に近いコンパクト表示を維持） */
+@media (max-width: 640px) {
+  .premiumIntroBulletList {
+    margin-bottom: 16px;
+  }
+
+  .premiumIntroBulletList + .premiumIntroSectionLabel {
+    margin-top: 2px;
+  }
+
+  .premiumIncludedTocList {
+    gap: 8px;
+  }
+
+  .premiumIntroConsultNote {
+    margin-top: 16px;
+  }
+
+  .heroMetaStrip {
+    margin-top: 14px;
+  }
 }
 
 .tocLinkConsult {
@@ -2282,11 +2297,11 @@
   gap: 0;
   padding: 10px 8px;
   margin-top: 2px;
+  margin-bottom: 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(160, 140, 220, 0.22);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.30), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  margin-bottom: 12px;
 }
 
 .heroMetaItem {

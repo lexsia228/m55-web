@@ -175,6 +175,14 @@ const REPORT_PARTS = [
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
 ] as const;
 
+/** 上部「読み方」TOC 専用（章帯の desc は REPORT_PARTS のまま） */
+const REPORT_PARTS_TOC_TAG: Readonly<Record<(typeof REPORT_PARTS)[number]['partId'], string>> = {
+  '1': '全体像',
+  '2': '動き方の理由',
+  '3': '崩れやすい条件',
+  '4': '戻し方と使い方',
+};
+
 /** Ⅰ導入・TOC帯: #section-overview の上端がまだ下寄り＝「本文帯の読み」に入っていない */
 const INTRO_TOC_FRACTION = 0.4;
 const TOC_GUARD_MS = 1000;
@@ -295,7 +303,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
       <p className={styles.premiumIntroSectionLabel}>この保存版の読み方</p>
       <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
         {REPORT_PARTS.map((p) => {
-          const tocDesc = p.partId === '4' ? '戻し方・整え方・日常での使い方' : p.desc;
+          const tocDesc = REPORT_PARTS_TOC_TAG[p.partId];
           return (
             <li key={p.roman} className={styles.premiumIncludedTocRow}>
               <a
@@ -313,10 +321,6 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
           );
         })}
       </ol>
-      <p className={styles.premiumIntroClosing}>
-        難しく考えなくて大丈夫です。<br />
-        まずは、いまの自分に近いと感じるところから読んでください。
-      </p>
       {aiConsultIncluded && (
         <div className={styles.premiumIntroConsultNote}>
           <a
