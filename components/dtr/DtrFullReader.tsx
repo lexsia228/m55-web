@@ -169,7 +169,7 @@ function HeroIconMessage({ className }: { className?: string }) {
 /** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
 /* ── SSOT v1: 各部の共通データ（TOC + 章扉で共用） ── */
 const REPORT_PARTS = [
-  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: 'あなたの5軸の形と全体を整理する',       anchor: 'section-overview'  },
+  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: '考え方・進め方・感じ方・仕上げ方・整え方の全体像を整理する', anchor: 'section-overview'  },
   { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
   { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
@@ -476,7 +476,7 @@ function PremiumHero({
 
             <div className={styles.heroTypeCard}>
               <div className={styles.heroTypeCardRow}>
-                <span className={styles.heroTypeCardLabel}>観測タイプ /</span>
+                <span className={styles.heroTypeCardLabel}>表現傾向 /</span>
                 <span className={styles.heroTypeCardType}>{typeEnLabel}</span>
               </div>
               <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
@@ -505,7 +505,7 @@ function PremiumHero({
         <div className={styles.heroMetaItem}>
           <div className={styles.heroMetaLabelRow}>
             <HeroIconShield className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>タイプ</span>
+            <span className={styles.heroMetaLabel}>傾向名</span>
           </div>
           <span className={styles.heroMetaValue}>{stem.publicTitle}</span>
         </div>
@@ -661,7 +661,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>両極マップ</h3>
-        <p className={styles.idDesignHint}>スコアではなく、重心の位置関係です。</p>
+        <p className={styles.idDesignHint}>良い・悪いの点数ではなく、どちらの動きが出やすいかを見る図です。</p>
         <div className={styles.idTensionGrid}>
           <div className={styles.idTensionAxis}>
             <span className={styles.idTensionPole}>深める</span>
@@ -954,7 +954,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
             ))}
           </div>
           <p className={styles.strMapReadLegend}>
-            外に広がるほど、その傾向が前に出やすい形です
+            この図は、良い・悪いの点数ではありません。外側に近いほどふだん出やすく、中心に近いほど必要な場面でゆっくり出やすい傾向として見ます。
           </p>
         </div>
 
@@ -963,14 +963,14 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
             className={`${styles.strMapCallout} ${styles.idBpReveal}`}
             style={{ animationDelay: '0.35s' }}
           >
-            <span className={styles.strMapCalloutLabel}>出方の立ち上がり</span>
+            <span className={styles.strMapCalloutLabel}>力が出やすい流れ</span>
             <p className={styles.strMapCalloutText}>{viz.strengthEmergence}</p>
           </div>
           <div
             className={`${styles.strMapCallout} ${styles.strMapCalloutFlip} ${styles.idBpReveal}`}
             style={{ animationDelay: '0.42s' }}
           >
-            <span className={styles.strMapCalloutLabel}>裏返り</span>
+            <span className={styles.strMapCalloutLabel}>つまずきやすいところ</span>
             <p className={styles.strMapCalloutText}>{viz.flipRisk}</p>
           </div>
         </div>
@@ -1076,7 +1076,7 @@ function StrengthsLiftFigures({ body }: { body: string }) {
       <p className={styles.idDesignOverline}>深読み · 出やすさの鍵</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
-          価値に繋がる噛み合い
+          価値につながりやすい力
         </h3>
         <div className={styles.liftStack}>
           {items.map((it, i) => (
@@ -1136,8 +1136,8 @@ function StrengthsLiftFigures({ body }: { body: string }) {
             </svg>
             <p className={styles.liftMergeCaption}>
               {items.length >= 3
-                ? '三つの傾向が重なると、この形が状況の中で自然に現れます。'
-                : '複数の傾向が重なると、この形が状況の中で自然に現れます。'}
+                ? '三つの傾向が重なると、仕事や日常の中で力として出やすくなります。'
+                : '複数の傾向が重なると、仕事や日常の中で力として出やすくなります。'}
             </p>
           </>
         ) : null}
@@ -1452,7 +1452,7 @@ function TraitInteractionModule({
           </div>
         </div>
         <div className={styles.interactionCol}>
-          <div className={styles.interactionColTitle}>摩擦傾向</div>
+          <div className={styles.interactionColTitle}>つまずき傾向</div>
           <div className={styles.traitList}>
             {frictions.map((f) => (
               <div key={f.header} className={styles.traitCardFriction}>
@@ -1596,7 +1596,7 @@ function FrictionRecoveryModule({
   const bridgeText =
     bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body;
 
-  const stageLabels = ['入口・トリガー', '摩擦の型', '消耗が寄りやすい点'];
+  const stageLabels = ['入口・トリガー', 'つまずきの型', '消耗が寄りやすい点'];
   const flowNodes: { key: string; stage: string; title: string; body: string }[] = frictions
     .slice(0, 3)
     .map((f, i) => ({
@@ -1918,8 +1918,8 @@ function GroundingPanel({
   const nick = readerDisplayName.trim();
   const mapLead =
     nick.length > 0
-      ? `保存版レポートは、${nick}さんの傾向構造を示した地図です。`
-      : '保存版レポートは、見えている傾向構造を示した地図です。';
+      ? `保存版レポートは、${nick}さんの傾向のまとまりを整理した地図です。`
+      : '保存版レポートは、見えている傾向のまとまりを整理した地図です。';
   const groundingNoteText =
     nick.length > 0
       ? `一般的なアドバイスではなく、${nick}さんの保存版レポートに基づいた相談返書を作成します。`
@@ -1987,7 +1987,7 @@ function GroundingPanel({
         <div className={styles.groundingMeta}>
           <span className={styles.groundingMetaLabel}>参照している読み</span>
           <span className={styles.groundingMetaValue}>
-            輪郭 · 5軸 · 傾向と負荷 · 生活での出方 · 戻し方
+            輪郭 · 5つの視点 · 傾向と負荷 · 生活での出方 · 戻し方
           </span>
         </div>
         <p className={styles.groundingNote}>{groundingNoteText}</p>
@@ -2148,10 +2148,10 @@ export default function DtrFullReader({
             n={1}
             tierJa="主軸分析"
             tierClass={styles.prTierMint}
-            overline="5軸"
+            overline="5つの視点"
             title="輪郭を支える構造"
-            ariaLabel="5軸分析"
-            summary="5軸の分布から、この形の重心と周縁部を読む。"
+            ariaLabel="5つの視点の分布"
+            summary="5つの視点の分布から、この形の重心と周縁部を読む。"
             defaultOpen={false}
           >
             <FiveAxisModule stemIdx={stemIdx} />
@@ -2165,7 +2165,7 @@ export default function DtrFullReader({
               overline="傾向と負荷"
               title="重なりと読み解き"
               ariaLabel="傾向と負荷"
-              summary="前に出やすい傾向と摩擦傾向の重なりから、この形の輪郭を読む。"
+              summary="力として出やすい傾向とつまずきやすい傾向の重なりから、この保存版で見えている形を読む。"
               defaultOpen={false}
             >
               <TraitInteractionModule
@@ -2201,9 +2201,9 @@ export default function DtrFullReader({
               tierJa="実践ガイド"
               tierClass={styles.prTierRose}
               overline="戻し方 · 整え方"
-              title="摩擦から整える流れ"
+              title="つまずきから整える流れ"
               ariaLabel="戻し方と整え方"
-              summary="摩擦から整えるまでの流れと、回復のパターンを示す。"
+              summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
               defaultOpen={false}
             >
               <FrictionRecoveryModule
