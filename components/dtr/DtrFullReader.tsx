@@ -278,49 +278,61 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
 
   return (
     <div className={styles.premiumIncludedBand} aria-label="保存版レポートの説明">
-      <p className={styles.premiumIntroOverline}>保存版レポート</p>
-      <p className={styles.premiumIntroLead}>
-        自分を無理に変えなくていい。<br />
-        「自分の形」から、今の悩みを読み直すための土台です。
-      </p>
-      <p className={styles.premiumIntroBody}>
-        自分の形がわかると、少し楽になります。
-      </p>
-      <p className={styles.premiumIntroBody}>
-        この保存版では、どこで力が出やすいか、どこで無理がたまりやすいか、どこから整えると戻りやすいかを、順番に見ていきます。
-      </p>
-      <p className={styles.premiumIntroSectionLabel}>この保存版で分かること</p>
-      <ul className={styles.premiumIntroBulletList} aria-label="この保存版で分かること">
-        {INTRO_BULLETS.map(({ text }) => (
-          <li key={text} className={styles.premiumIntroBulletItem}>
-            <span className={styles.premiumIntroBulletText}>
-              <HeroIconCheck className={styles.benefitCheckIcon} />
-              {text}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className={styles.premiumIntroSectionLabel}>この保存版の読み方</p>
-      <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
-        {REPORT_PARTS.map((p) => {
-          const tocDesc = REPORT_PARTS_TOC_TAG[p.partId];
-          return (
-            <li key={p.roman} className={styles.premiumIncludedTocRow}>
-              <a
-                href={`#${p.anchor}`}
-                onClick={scrollTo(p.anchor)}
-                className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
-                aria-current={active === p.anchor ? 'location' : undefined}
-              >
-                <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
-                <span className={styles.premiumIncludedTocName}>{p.name}</span>
-                <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
-                <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
-              </a>
+      <div className={styles.premiumIntroPanelSection}>
+        <span className={styles.premiumIntroPanelStep} aria-hidden>
+          01
+        </span>
+        <p className={styles.premiumIntroOverline}>保存版レポート</p>
+        <p className={styles.premiumIntroLead}>
+          自分を無理に変えなくていい。<br />
+          「自分の形」から、今の悩みを読み直すための土台です。
+        </p>
+        <p className={styles.premiumIntroBody}>
+          この保存版では、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。
+        </p>
+      </div>
+      <div className={styles.premiumIntroPanelSection}>
+        <span className={styles.premiumIntroPanelStep} aria-hidden>
+          02
+        </span>
+        <p className={styles.premiumIntroSectionLabel}>この保存版で分かること</p>
+        <ul className={styles.premiumIntroBulletList} aria-label="この保存版で分かること">
+          {INTRO_BULLETS.map(({ text }) => (
+            <li key={text} className={styles.premiumIntroBulletItem}>
+              <span className={styles.premiumIntroBulletText}>
+                <HeroIconCheck className={styles.benefitCheckIcon} />
+                {text}
+              </span>
             </li>
-          );
-        })}
-      </ol>
+          ))}
+        </ul>
+      </div>
+      <div className={`${styles.premiumIntroPanelSection} ${styles.premiumIntroPanelSectionToc}`}>
+        <span className={styles.premiumIntroPanelStep} aria-hidden>
+          03
+        </span>
+        <p className={styles.premiumIntroSectionLabel}>この保存版の読み方</p>
+        <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
+          {REPORT_PARTS.map((p) => {
+            const tocDesc = REPORT_PARTS_TOC_TAG[p.partId];
+            return (
+              <li key={p.roman} className={styles.premiumIncludedTocRow}>
+                <a
+                  href={`#${p.anchor}`}
+                  onClick={scrollTo(p.anchor)}
+                  className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
+                  aria-current={active === p.anchor ? 'location' : undefined}
+                >
+                  <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
+                  <span className={styles.premiumIncludedTocName}>{p.name}</span>
+                  <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
+                  <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
       {aiConsultIncluded && (
         <div className={styles.premiumIntroConsultNote}>
           <a
