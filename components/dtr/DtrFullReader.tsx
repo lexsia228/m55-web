@@ -172,7 +172,7 @@ const REPORT_PARTS = [
   { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: 'あなたの5軸の形と全体を整理する',       anchor: 'section-overview'  },
   { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
   { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
-  { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常の手引き',           anchor: 'section-practice'  },
+  { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
 ] as const;
 
 /** Ⅰ導入・TOC帯: #section-overview の上端がまだ下寄り＝「本文帯の読み」に入っていない */
@@ -1821,8 +1821,7 @@ function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
   const bridgeRest = parts.slice(2).join('\n\n');
 
   return (
-    <section className={styles.prSummaryBand}>
-      <h2 className={styles.prSummaryEyebrow}>{bridgeSection.title}</h2>
+    <section className={styles.prSummaryBand} aria-label={bridgeSection.title}>
       <p className={styles.prSummaryLead}>{lead}</p>
       {bridgeRest ? (
         <div className={styles.prSummaryBridge}>
@@ -1909,11 +1908,22 @@ function GroundingPanel({
   stemSymbol,
   reportTitle,
   stemOneLine,
+  readerDisplayName,
 }: {
   stemSymbol: string;
   reportTitle: string;
   stemOneLine: string;
+  readerDisplayName: string;
 }) {
+  const nick = readerDisplayName.trim();
+  const mapLead =
+    nick.length > 0
+      ? `保存版レポートは、${nick}さんの傾向構造を示した地図です。`
+      : '保存版レポートは、見えている傾向構造を示した地図です。';
+  const groundingNoteText =
+    nick.length > 0
+      ? `一般的なアドバイスではなく、${nick}さんの保存版レポートに基づいた相談返書を作成します。`
+      : '一般的なアドバイスではなく、この保存版レポートに基づいた相談返書を作成します。';
   return (
     <div className={styles.groundingBandInner}>
       <div className={styles.groundingDividerBar} role="presentation">
@@ -1928,7 +1938,8 @@ function GroundingPanel({
           <div className={styles.groundingHeaderText}>
             <h3 className={styles.groundingTitle}>レポートが地図なら、相談返書は今の状況を読む場所です</h3>
             <p className={styles.groundingLead}>
-              保存版レポートはあなたの傾向構造を示した地図です。この相談返書ルームは、その地図を使って「今の状況」を読み解く場所です。
+              {mapLead}
+              この相談返書ルームは、その地図を使って「今の状況」を読み解く場所です。
             </p>
             <p className={styles.groundingBridgeLine}>
               この保存版レポートを土台に、今の状況を相談返書で読み直せます。
@@ -1979,9 +1990,7 @@ function GroundingPanel({
             輪郭 · 5軸 · 傾向と負荷 · 生活での出方 · 戻し方
           </span>
         </div>
-        <p className={styles.groundingNote}>
-          一般的なアドバイスではなく、あなたの保存版レポートに基づいた相談返書を作成します。
-        </p>
+        <p className={styles.groundingNote}>{groundingNoteText}</p>
       </div>
     </div>
   );
@@ -2222,7 +2231,7 @@ export default function DtrFullReader({
 
         {sec('s8_bridge') && (
           <>
-            <SectionDivider label="まとめと相談返書" />
+            <SectionDivider label="まとめと相談返書について" />
             <SummarySection bridgeSection={sec('s8_bridge')!} />
           </>
         )}
@@ -2236,6 +2245,7 @@ export default function DtrFullReader({
                 stemSymbol={stem.symbol}
                 reportTitle={groundingDisplayReportTitle(payload.title)}
                 stemOneLine={stem.displayOneLine}
+                readerDisplayName={view.nickname}
               />
             </div>
             <div className={styles.consultRoomBand}>
