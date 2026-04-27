@@ -3,13 +3,15 @@
  * Provides per-stem structured data for the 4 additional analysis modules.
  * Index = stemLaneIndex (0–9): 甲乙丙丁戊己庚辛壬癸
  *
- * Axis vocabulary follows M55 structural dimensions (not five-element ontology):
- *   [思考軸, 推進軸, 安定軸, 精度軸, 感受軸]
+ * Axis vocabulary (display): 考える / 進める / 支える / 整える / 感じ取る — M55 structural dimensions.
+ * Index order in balance tuples:
+ *   [考える力, 進める力, 支える力, 整える力, 感じ取る力]
  *   0: absent  1: 共鳴  2: 副軸  3: 主軸
  */
 
-export const AXIS_LABELS = ['思考軸', '推進軸', '安定軸', '精度軸', '感受軸'] as const;
-export const AXIS_LEVEL_LABELS = ['—', '共鳴', '副軸', '主軸'] as const;
+/** Purchaser-facing names (no 「軸」suffix — life language for premium deep-read). */
+export const AXIS_LABELS = ['考える力', '進める力', '支える力', '整える力', '感じ取る力'] as const;
+export const AXIS_LEVEL_LABELS = ['—', '響き合う', '支えになる力', '中心'] as const;
 
 /** Accent color per axis — used for dot indicators in the axis card grid. */
 export const AXIS_COLORS = [
@@ -22,11 +24,11 @@ export const AXIS_COLORS = [
 
 /** One-line description per axis — shown in axis card grid. */
 export const AXIS_DESCS = [
-  '考え方の傾向と構造化力',
-  '行動・発信・推進力',
-  '安定・継続・基盤定着',
-  '精度・品質・実務設計',
-  '感受・察知・内的感性',
+  '筋道を立てて整理する力',
+  '動かす・前に進める力',
+  '続けられる土台をつくる力',
+  '形を整えて仕上げる力',
+  '空気やニュアンスを拾う力',
 ] as const;
 
 export type AxisEntry = {
@@ -50,26 +52,28 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
   const quietNames = AXIS_LABELS.filter((_, i) => balance[i] === 0);
 
   const growOrdered =
-    AXIS_LABELS.filter((_, i) => balance[i] === 0 || balance[i] === 1).join(' · ') || '—';
+    AXIS_LABELS.filter((_, i) => balance[i] === 0 || balance[i] === 1).join('・') || '—';
 
   if (primaryNames.length > 0) {
     return {
-      primaryLabel: '最優先の主軸',
-      primaryVal: primaryNames.join(' · '),
-      assistLabel: '補助の副軸',
-      assistVal: secondaryNames.length > 0 ? secondaryNames.join(' · ') : '—',
-      growLabel: '整えると開く軸',
+      primaryLabel: 'どの力が前に出やすいか',
+      primaryVal: primaryNames.join('・'),
+      assistLabel: '支えになっている力',
+      assistVal: secondaryNames.length > 0 ? secondaryNames.join('・') : '—',
+      growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
   }
 
   if (secondaryNames.length >= 2) {
     return {
-      primaryLabel: '輪郭をつくる連動',
-      primaryVal: `${secondaryNames.join(' · ')}（副軸同格）`,
-      assistLabel: '補助で効く軸',
-      assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '同格の連動に集約',
-      growLabel: '整えると開く軸',
+      primaryLabel: '今の形をつくっている力',
+      primaryVal: `${secondaryNames.join('・')}が、同じくらい支えています`,
+      assistLabel: '支えになっている力',
+      assistVal: resonantNames.length > 0
+        ? resonantNames.join('・')
+        : 'いくつかの力が重なって、今の形をつくっています',
+      growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
   }
@@ -77,51 +81,51 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
   if (secondaryNames.length === 1) {
     const only = secondaryNames[0]!;
     return {
-      primaryLabel: '輪郭をつくる連動',
-      primaryVal: `${only}が前面（副軸中心）`,
-      assistLabel: '補助で効く軸',
-      assistVal: resonantNames.length > 0 ? resonantNames.join(' · ') : '—',
-      growLabel: '整えると開く軸',
+      primaryLabel: '今の形をつくっている力',
+      primaryVal: `${only}が、いちばん前に出やすい土台です`,
+      assistLabel: '支えになっている力',
+      assistVal: resonantNames.length > 0 ? resonantNames.join('・') : '—',
+      growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
   }
 
   if (resonantNames.length > 0) {
     return {
-      primaryLabel: '厚みを足す共鳴',
-      primaryVal: resonantNames.join(' · '),
-      assistLabel: '補助の副軸',
+      primaryLabel: '一緒に響き合う力',
+      primaryVal: resonantNames.join('・'),
+      assistLabel: '支えになっている力',
       assistVal: '—',
-      growLabel: '整えると開く軸',
+      growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
   }
 
   return {
-    primaryLabel: '輪郭をつくる連動',
-    primaryVal: quietNames.length > 0 ? quietNames.join(' · ') : '—',
-    assistLabel: '補助の副軸',
+    primaryLabel: '今の形をつくっている力',
+    primaryVal: quietNames.length > 0 ? quietNames.join('・') : '—',
+    assistLabel: '支えになっている力',
     assistVal: '—',
-    growLabel: '整えると開く軸',
+    growLabel: '整うと使いやすくなる力',
     growVal: '—',
   };
 }
 
 /** Per-stem structural axis data. */
 export const AXIS_DATA: readonly AxisEntry[] = [
-  /* 0 甲 */ { balance: [3, 2, 0, 0, 2], note: '思考軸が主軸。推進・感受が補完する推進型構成。' },
-  /* 1 乙 */ { balance: [3, 0, 2, 0, 1], note: '思考軸の柔軟性が中心。安定軸との接続で調整力を持つ。' },
-  /* 2 丙 */ { balance: [1, 3, 0, 0, 2], note: '推進軸が主軸。感受軸が表現を深める。' },
+  /* 0 甲 */ { balance: [3, 2, 0, 0, 2], note: '考える力が中心に立ち、進める力と感じ取る力が輪郭を補います。' },
+  /* 1 乙 */ { balance: [3, 0, 2, 0, 1], note: '考える力が柔らかく中心にあり、支える力とつながって調整しやすいです。' },
+  /* 2 丙 */ { balance: [1, 3, 0, 0, 2], note: '進める力が前に出て、感じ取る力が表現に厚みを足します。' },
   /* 3 丁 */ {
     balance: [0, 2, 0, 2, 2],
-    note: '単独主軸に固定せず、推進・精度・感受の連動が輪郭をつくる内向型。精緻さが質を生む。',
+    note: '進める・整える・感じ取る力が同じくらい重なり、内側で丁寧に形をつくりやすいです。',
   },
-  /* 4 戊 */ { balance: [0, 1, 3, 0, 1], note: '安定軸が主軸。定着と継続に特化した構成。' },
-  /* 5 己 */ { balance: [2, 2, 3, 0, 1], note: '安定軸が中心で思考・推進を育む。統合型の構成。' },
-  /* 6 庚 */ { balance: [2, 2, 0, 3, 0], note: '精度軸が主軸。思考・推進の駆動力が実行力を加える。' },
-  /* 7 辛 */ { balance: [0, 0, 1, 3, 3], note: '精度軸と感受軸が双軸。精緻さと感性が共鳴する。' },
-  /* 8 壬 */ { balance: [2, 2, 0, 0, 3], note: '感受軸が主軸（広域）。推進・思考の探索力が加わる。' },
-  /* 9 癸 */ { balance: [0, 0, 2, 2, 3], note: '感受軸が主軸（精細）。安定・精度の観察深度が高まる。' },
+  /* 4 戊 */ { balance: [0, 1, 3, 0, 1], note: '支える力が中心にあり、続けられる形をつくりやすいです。' },
+  /* 5 己 */ { balance: [2, 2, 3, 0, 1], note: '支える力を中心に、考える力と進める力が育ち合う統合型です。' },
+  /* 6 庚 */ { balance: [2, 2, 0, 3, 0], note: '整える力が中心に立ち、考える力と進める力が実行に乗りやすいです。' },
+  /* 7 辛 */ { balance: [0, 0, 1, 3, 3], note: '整える力と感じ取る力が並び立ち、細かさと感性が響き合います。' },
+  /* 8 壬 */ { balance: [2, 2, 0, 0, 3], note: '感じ取る力が広く前に出て、考える力と進める力が探索を助けます。' },
+  /* 9 癸 */ { balance: [0, 0, 2, 2, 3], note: '感じ取る力が細やかに前に出て、支える力と整える力が観察を支えます。' },
 ] as const;
 
 /**

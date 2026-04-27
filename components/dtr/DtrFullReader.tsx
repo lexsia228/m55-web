@@ -34,26 +34,26 @@ import styles from './DtrFullReader.module.css';
 function axisRoleFromLevel(level: number): { badge: string; badgeClass: string } {
   switch (level) {
     case 3:
-      return { badge: '主軸', badgeClass: styles.axisRolePrimary };
+      return { badge: '中心', badgeClass: styles.axisRolePrimary };
     case 2:
-      return { badge: '副軸', badgeClass: styles.axisRoleSecondary };
+      return { badge: '支えになる力', badgeClass: styles.axisRoleSecondary };
     case 1:
-      return { badge: '支え', badgeClass: styles.axisRoleSupport };
+      return { badge: '響き合う', badgeClass: styles.axisRoleSupport };
     default:
-      return { badge: '静観', badgeClass: styles.axisRoleQuiet };
+      return { badge: '控えめに支える', badgeClass: styles.axisRoleQuiet };
   }
 }
 
 function axisRoleInterpretLine(label: string, level: number): string {
   switch (level) {
     case 3:
-      return `${label}が、この輪郭を大きく形づくります。`;
+      return `${label}が、この形の中心に立ちやすいです。`;
     case 2:
-      return `${label}が補助線として働き、全体のバランスをまとめます。`;
+      return `${label}が全体を支え、バランスをまとめやすくなります。`;
     case 1:
-      return `${label}が共鳴し、動きに厚みを足します。`;
+      return `${label}が重なり合い、動きに厚みを足します。`;
     default:
-      return `${label}は前に出にくく、静かな補助にとどまります。`;
+      return `${label}は前に出すより、控えめに支える場面が多いです。`;
   }
 }
 
@@ -64,6 +64,88 @@ function afterFirstSentence(text: string): string {
   if (i === -1 || i >= t.length - 1) return '';
   const rest = t.slice(i + 1).trim();
   return rest ? firstSentence(rest) : '';
+}
+
+function pickSentenceWithKeyword(text: string, re: RegExp): string {
+  for (const chunk of text.split('。')) {
+    const s = chunk.trim();
+    if (s && re.test(s)) return s + '。';
+  }
+  return '';
+}
+
+function stripDtrTokens(body: string): string {
+  return body.replace(/\{\{[^}]+\}\}/g, '');
+}
+
+function domainSocialReceiveLoad(receiveWay: string): string {
+  return (
+    pickSentenceWithKeyword(receiveWay, /受け取りすぎ|深く受け取|疲れる/) ||
+    afterFirstSentence(receiveWay) ||
+    firstSentence(receiveWay)
+  );
+}
+
+function domainSocialRecovery(convRhythm: string): string {
+  const tail = afterFirstSentence(convRhythm);
+  return tail ? firstSentence(tail) : firstSentence(convRhythm);
+}
+
+function domainCloseLoad(withdrawWay: string): string {
+  return (
+    pickSentenceWithKeyword(withdrawWay, /距離を置|説明を|疲れ/) ||
+    afterFirstSentence(withdrawWay) ||
+    firstSentence(withdrawWay)
+  );
+}
+
+function domainJudgmentStrength(essenceBody: string): string {
+  const stripped = stripDtrTokens(essenceBody);
+  const blocks = stripped.split(/\n\n/).map((p) => p.trim()).filter(Boolean);
+  const pick =
+    blocks.find((p) => /集中し続け|集中できる|ひとつのこと/.test(p)) ?? blocks[0] ?? stripped;
+  return firstSentence(pick);
+}
+
+function domainJudgmentLoad(essenceBody: string): string {
+  const stripped = stripDtrTokens(essenceBody);
+  return (
+    pickSentenceWithKeyword(stripped, /自由が大きすぎ|口を出され|ほどけにくく/) || '—'
+  );
+}
+
+function domainJudgmentRecovery(compositionBody: string | undefined, workHint: string): string {
+  const comp = compositionBody ? stripDtrTokens(compositionBody) : '';
+  return (
+    pickSentenceWithKeyword(comp, /ここまで|一度出す|決めておく/) ||
+    pickSentenceWithKeyword(workHint, /固定|ここまで|決め/) ||
+    firstSentence(workHint)
+  );
+}
+
+function domainRecoveryLoad(workStuck: string): string {
+  const oneLine = workStuck.replace(/\s+/g, '');
+  if (/細切れ|仕上げる前|妥協/.test(oneLine)) {
+    return '細かく区切られた時間や切り替えが続くと、休める余白が減りやすいです。';
+  }
+  return firstSentence(workStuck);
+}
+
+function domainRecoveryMerge(workEnv: string, workHint: string): string {
+  const e = firstSentence(workEnv);
+  const h = firstSentence(workHint);
+  if (e.includes('静か') && /深く向き合う|固定/.test(h)) {
+    return '何もしない時間か、静かに整える時間を先に置くと戻りやすいです。';
+  }
+  return e || h;
+}
+
+/** Premium module 04: soften DRAFT phrasing in bridge 2nd paragraph (stem 3 copy). */
+function premiumBridgeRecoveryHint(raw: string): string {
+  if (raw.includes('DRAFT')) {
+    return '戻し方としては、最初に「今日はここまで」と決めておき、完成前でも一度だけ途中の形を誰かに見せるところから始めると、負担が下がりやすいです。';
+  }
+  return raw;
 }
 
 /**
@@ -1523,7 +1605,7 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
 
   return (
     <>
-      <div className={styles.axisVizSummary} aria-label="軸の役割の要約">
+      <div className={styles.axisVizSummary} aria-label="力のバランスの要約">
         {summaryRows.map((row) => (
           <div key={row.key} className={styles.axisVizSummaryRow}>
             <span className={styles.axisVizSummaryKeyWide}>{row.label}</span>
@@ -1589,7 +1671,7 @@ function TraitInteractionModule({
       {note && <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{note}</p>}
       <div className={styles.interactionGrid}>
         <div className={styles.interactionCol}>
-          <div className={styles.interactionColTitle}>強化傾向</div>
+          <div className={styles.interactionColTitle}>力が出やすい組み合わせ</div>
           <div className={styles.traitList}>
             {strengths.map((s) => (
               <div key={s.header} className={styles.traitCard}>
@@ -1599,7 +1681,7 @@ function TraitInteractionModule({
           </div>
         </div>
         <div className={styles.interactionCol}>
-          <div className={styles.interactionColTitle}>つまずき傾向</div>
+          <div className={styles.interactionColTitle}>無理が出やすい組み合わせ</div>
           <div className={styles.traitList}>
             {frictions.map((f) => (
               <div key={f.header} className={styles.traitCardFriction}>
@@ -1623,10 +1705,12 @@ function DomainMatrixModule({
   essenceSection,
   relationSection,
   workSection,
+  compositionSection,
 }: {
   essenceSection: DtrSection;
   relationSection: DtrSection;
   workSection: DtrSection;
+  compositionSection?: DtrSection;
 }) {
   const workItems = parseBlockItems(workSection.body);
   const relationItems = parseBlockItems(relationSection.body);
@@ -1636,16 +1720,11 @@ function DomainMatrixModule({
   const workEnv = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const workHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
-  const deliverWay =
-    relationItems.find((i) => i.header === '渡し方' || i.header === '伝え方')?.content ?? '';
   const withdrawWay =
     relationItems.find((i) => i.header === '引き方' || i.header === '距離の取り方')?.content ??
     '';
   const convRhythm = relationItems.find((i) => i.header === '会話のリズム')?.content ?? '';
-  const stabilityClause = extractAfterLabel(essenceSection.body, '安定する条件は');
-  const fatigueClause = extractAfterLabel(essenceSection.body, '疲れやすい場面は');
 
-  const closeLoad = afterFirstSentence(withdrawWay) || firstSentence(deliverWay);
   const domainTiles = [
     {
       key: 'work',
@@ -1658,29 +1737,31 @@ function DomainMatrixModule({
       key: 'social',
       title: '人間関係',
       strength: firstSentence(receiveWay),
-      load: firstSentence(deliverWay),
-      recovery: firstSentence(convRhythm),
+      load: domainSocialReceiveLoad(receiveWay),
+      recovery: domainSocialRecovery(convRhythm),
     },
     {
       key: 'close',
       title: '近い関係',
-      strength: firstSentence(withdrawWay),
-      load: closeLoad || '—',
-      recovery: firstSentence(workHint),
+      strength: firstSentence(convRhythm),
+      load: domainCloseLoad(withdrawWay),
+      recovery:
+        pickSentenceWithKeyword(withdrawWay, /急かされない時間|整理する時間/) ||
+        firstSentence(withdrawWay),
     },
     {
       key: 'judgment',
       title: '判断',
-      strength: stabilityClause || firstSentence(essenceSection.body),
-      load: fatigueClause || '—',
-      recovery: firstSentence(workStuck),
+      strength: domainJudgmentStrength(essenceSection.body),
+      load: domainJudgmentLoad(essenceSection.body),
+      recovery: domainJudgmentRecovery(compositionSection?.body, workHint),
     },
     {
       key: 'recovery',
       title: '回復',
       strength: firstSentence(workHint),
-      load: firstSentence(workStuck),
-      recovery: firstSentence(workEnv),
+      load: domainRecoveryLoad(workStuck),
+      recovery: domainRecoveryMerge(workEnv, workHint),
     },
   ];
 
@@ -1743,8 +1824,9 @@ function FrictionRecoveryModule({
     .map((p) => p.trim())
     .filter(Boolean);
   /** 2段落目 = 戻し方・運用（1段落目はまとめで使用） */
-  const bridgeText =
-    bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body;
+  const bridgeText = premiumBridgeRecoveryHint(
+    bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body
+  );
 
   const stageLabels = ['入口・トリガー', 'つまずきの型', '消耗が寄りやすい点'];
   const flowNodes: { key: string; stage: string; title: string; body: string }[] = frictions
@@ -2277,7 +2359,7 @@ export default function DtrFullReader({
         <div className={styles.pmDeepMap} aria-hidden="true">
           {(
             [
-              { n: 1, label: '主軸分析', desc: '軸と重心',     colorCls: styles.pmDeepMapMint  },
+              { n: 1, label: '力の中心を読む', desc: 'どの力が前に出やすいか',     colorCls: styles.pmDeepMapMint  },
               { n: 2, label: '構造分析', desc: '傾向の重なり', colorCls: styles.pmDeepMapAmber },
               { n: 3, label: '領域比較', desc: '場面の出方',   colorCls: styles.pmDeepMapBlue  },
               { n: 4, label: '実践ガイド', desc: '整え方',     colorCls: styles.pmDeepMapRose  },
@@ -2304,28 +2386,28 @@ export default function DtrFullReader({
           <div className={styles.paidModules}>
             <PaidModuleShell
               n={1}
-              tierJa="主軸分析"
+              tierJa="力の中心を読む"
               tierClass={styles.prTierMint}
-              overline="5つの視点"
-              title="輪郭を支える構造"
-              ariaLabel="5つの視点の分布"
-              summary="5つの視点の分布から、この形の重心と周縁部を読む。"
+              overline="5つの力のかけ合わせ"
+              title="いまの形をつくっている力"
+              ariaLabel="5つの力の分布"
+              summary="5つの力がどう重なっているかを読み、中心と支えの役割をつかむ。"
               defaultOpen={false}
             >
               <FiveAxisModule stemIdx={stemIdx} />
             </PaidModuleShell>
 
             {sec('s4_strengths') && sec('s5_friction') && (
-              <PaidModuleShell
-                n={2}
-                tierJa="構造分析"
-                tierClass={styles.prTierAmber}
-                overline="傾向と負荷"
-                title="重なりと読み解き"
-                ariaLabel="傾向と負荷"
-                summary="力として出やすい傾向とつまずきやすい傾向の重なりから、この保存版で見えている形を読む。"
-                defaultOpen={false}
-              >
+            <PaidModuleShell
+              n={2}
+              tierJa="構造分析"
+              tierClass={styles.prTierAmber}
+              overline="傾向と負荷"
+              title="重なりと読み解き"
+              ariaLabel="傾向と負荷"
+              summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
+              defaultOpen={false}
+            >
                 <TraitInteractionModule
                   strengthsSection={sec('s4_strengths')!}
                   frictionSection={sec('s5_friction')!}
@@ -2335,20 +2417,21 @@ export default function DtrFullReader({
             )}
 
             {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
-              <PaidModuleShell
-                n={3}
-                tierJa="領域比較"
-                tierClass={styles.prTierBlue}
-                overline="生活での出方"
-                title="場面別の整理"
-                ariaLabel="生活での出方"
-                summary="仕事・関係・判断・回復の場面で、この形がどう現れるかを整理する。"
-                defaultOpen={false}
-              >
+            <PaidModuleShell
+              n={3}
+              tierJa="領域比較"
+              tierClass={styles.prTierBlue}
+              overline="生活での出方"
+              title="場面別の整理"
+              ariaLabel="生活での出方"
+              summary="仕事・関係・判断・回復ごとに、出やすさ・負荷・戻し方を整理する。"
+              defaultOpen={false}
+            >
                 <DomainMatrixModule
                   essenceSection={sec('s3_essence')!}
                   relationSection={sec('s6_relation')!}
                   workSection={sec('s7_work')!}
+                  compositionSection={sec('s2_composition')}
                 />
               </PaidModuleShell>
             )}
