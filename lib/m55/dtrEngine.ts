@@ -72,6 +72,9 @@ const DTR_VIZ_BODY_LEADS = {
   s6: '可視化は順路の骨格です。本文では各項目のニュアンスと、現場での取り回しの差分を足します。\n\n',
 } as const;
 
+/** runDtrEngine が stem 3「構成と傾向の全体像」先頭主語へ差し替え（paid full のみ通過） */
+const STEM3_COMPOSITION_INTRO_TOKEN = '{{DTR_STEM3_COMP_INTRO}}';
+
 const STEM_BODIES: readonly StemSectionBodies[] = [
   /* stem 0 */
   {
@@ -144,7 +147,7 @@ const STEM_BODIES: readonly StemSectionBodies[] = [
     identity:
       'ひとつのことにじっくり向き合うと力が出やすいです。いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさがはっきりしていきます。\nやりがいを感じやすいのは、「前より良くなった」と実感できるときです。完成した瞬間だけでなく、直しながら良くなっていく過程にも手応えがあります。\n大切にしたいのは、自分なりの納得感と、雑に済ませたくない誠実さです。妥協が続くと、後から「これは自分の仕事ではない」と感じやすくなります。',
     composition:
-      'ひとりでじっくり考えてから形にするほうが自然です。人前で目立つより、静かに集中して少しずつ質を高めると力が出やすくなります。細かな違和感に気づきやすく、何度か見直すほど仕上がりが良くなります。\n一方で、もっと良くしたい気持ちが強くなると、完成していても「まだ足りない」と感じやすくなります。その結果、出すタイミングが遅れやすくなります。\n同時にいくつものことを進めるより、余計な作業を減らし、ひとつずつ仕上げるほうが力を使いやすいです。',
+      '{{DTR_STEM3_COMP_INTRO}}急いで広げるより、ひとつのことに落ち着いて向き合うと、考えがまとまりやすくなります。人前で大きく見せるより、気になる部分を見直しながら、自分が納得できる形に近づけていくほうが力が出ます。\n\n細かな違和感に気づきやすく、何度か見直すほど「これでいい」と思える状態に近づきます。一方で、もっと良くしたい気持ちが強くなると、すでに出せる状態でも「まだ足りない」と感じやすくなります。\n\n同時にいくつものことを進めるより、やることをひとつに絞るほうが動きやすくなります。出す前に「ここまでで一度出す」と決めておくと、力を込めすぎて止まる流れを減らしやすくなります。',
     essence:
       '強みは、ひとつのことに集中し続けることで、簡単には真似できない質を作れるところにあります。速くたくさん出すより、時間をかけて「これは良い」と思える形に近づけるほうが力を使いやすいです。\n安定しやすいのは、邪魔されずに集中できる時間と、守りやすい締切の両方があるときです。自由だけが大きすぎると迷いやすく、逆に細かく口を出されすぎると苦しくなりやすいです。\n無理なく動きやすいのは、深く考えることや最後の仕上げまで丁寧に見ることが評価される環境です。短時間で一気に進めるより、少し時間をかけて整えていくほうが自然です。',
     strengths:
@@ -784,6 +787,16 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
 
   const fullSections: DtrSection[] = SECTION_SPECS.map((spec) => {
     let body = bodies[spec.bodyKey] as string;
+    if (
+      spec.bodyKey === 'composition' &&
+      body.includes(STEM3_COMPOSITION_INTRO_TOKEN)
+    ) {
+      const trimmedNick = input.nickname?.trim();
+      const intro = trimmedNick
+        ? `${clamp(trimmedNick, 20)}さんは、`
+        : 'この保存版で見えている形では、';
+      body = body.replace(STEM3_COMPOSITION_INTRO_TOKEN, intro);
+    }
     if (spec.id === 's8_bridge') {
       body = `${body}\n\n${SYSTEM_RULE_COPY}`;
     }
