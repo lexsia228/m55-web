@@ -1136,8 +1136,8 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
   const viz = essenceStabilityVizForStem(stemIdx);
   const cells: { key: string; label: string; text: string; mod: string }[] = [
     { key: 'st', label: '安定する条件', text: viz.stabilize, mod: styles.stabCellCalm },
-    { key: 'mx', label: '無理なく力が出やすい条件', text: viz.maximize, mod: styles.stabCellGrow },
-    { key: 'cl', label: '崩れる条件', text: viz.collapse, mod: styles.stabCellRisk },
+    { key: 'mx', label: '力が出やすい条件', text: viz.maximize, mod: styles.stabCellGrow },
+    { key: 'cl', label: '崩れやすい条件', text: viz.collapse, mod: styles.stabCellRisk },
     { key: 'gd', label: '守る条件', text: viz.guard, mod: styles.stabCellGuard },
   ];
 
@@ -1145,8 +1145,8 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
     <div className={styles.idDesignShell} aria-label="安定条件パネル（保存版）">
       <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>安定の4領域</h3>
-        <p className={styles.idDesignHint}>四つの領域で、環境と関わりの条件を整理しています。</p>
+        <h3 className={styles.idDesignBlockTitle}>安定しやすい4つの条件</h3>
+        <p className={styles.idDesignHint}>集中しやすい環境と、人との関わり方を整理しています。</p>
         <div className={styles.stabGrid}>
           {cells.map((c, i) => (
             <div
@@ -1197,17 +1197,27 @@ function commFlowShortLabel(header: string): string {
   return header.slice(0, 3);
 }
 
+function clampDisplayNick(raw: string, max: number): string {
+  const s = raw.trim();
+  return s.length <= max ? s : s.slice(0, max - 1) + '…';
+}
+
 /** 自分の出やすい面 — 出やすさの鍵 + 合流線（本文は親でそのまま表示） */
-function StrengthsLiftFigures({ body }: { body: string }) {
+function StrengthsLiftFigures({ body, nickname }: { body: string; nickname?: string }) {
   const items = parseBlockItems(body).slice(0, 3);
   if (items.length === 0) return null;
+
+  const nick = nickname?.trim();
+  const merge3Caption = nick
+    ? `この三つが重なると、仕事や日常の中で、${clampDisplayNick(nick, 20)}さんの力が伝わりやすくなります。`
+    : 'この三つが重なると、仕事や日常の中で、見えている力が伝わりやすくなります。';
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="出方の可視化">
       <p className={styles.idDesignOverline}>深読み · 出やすさの鍵</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
-          価値につながりやすい力
+          人に届きやすい力
         </h3>
         <div className={styles.liftStack}>
           {items.map((it, i) => (
@@ -1267,7 +1277,7 @@ function StrengthsLiftFigures({ body }: { body: string }) {
             </svg>
             <p className={styles.liftMergeCaption}>
               {items.length >= 3
-                ? '三つの傾向が重なると、仕事や日常の中で力として出やすくなります。'
+                ? merge3Caption
                 : '複数の傾向が重なると、仕事や日常の中で力として出やすくなります。'}
             </p>
           </>
@@ -1353,11 +1363,17 @@ function CommFlowFigures({ body }: { body: string }) {
   );
 }
 
-function GridArticleStrengthsViz({ section }: { section: DtrSection }) {
+function GridArticleStrengthsViz({
+  section,
+  nickname,
+}: {
+  section: DtrSection;
+  nickname?: string;
+}) {
   return (
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
-      <StrengthsLiftFigures body={section.body} />
+      <StrengthsLiftFigures body={section.body} nickname={nickname} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
           <BodyPara key={i} para={para} compact />
@@ -2237,7 +2253,7 @@ export default function DtrFullReader({
           </div>
           {gridS4 ? (
             <div className={styles.savedWideStack}>
-              <GridArticleStrengthsViz key={gridS4.id} section={gridS4} />
+              <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
             </div>
           ) : null}
           {sec('s3_essence') ? <ReportBridgeBand partId="2" /> : null}
