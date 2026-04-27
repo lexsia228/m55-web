@@ -2228,19 +2228,21 @@ export default function DtrFullReader({
                     <ReportBridgeBand partId="1" />
                   </>
                 ) : section.id === 's3_essence' ? (
-                  <>
-                    <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
-                    <ReportBridgeBand partId="2" />
-                  </>
+                  <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
                 ) : (
                   <SectionBlock section={section} density="comfortable" />
                 )}
               </Fragment>
             ))}
           </div>
+          {gridS4 ? (
+            <div className={styles.savedWideStack}>
+              <GridArticleStrengthsViz key={gridS4.id} section={gridS4} />
+            </div>
+          ) : null}
+          {sec('s3_essence') ? <ReportBridgeBand partId="2" /> : null}
           {gridSections.length > 0 ? (
             <div className={styles.savedGridThree}>
-              {gridS4 ? <GridArticleStrengthsViz key={gridS4.id} section={gridS4} /> : null}
               {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
               {gridS5 ? <GridArticleFrictionViz key={gridS5.id} section={gridS5} /> : null}
               {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
