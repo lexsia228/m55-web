@@ -1537,6 +1537,21 @@
   margin-top: 10px;
 }
 
+.prSummaryTicketBand {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--dtr-border);
+}
+
+.prSummaryTicketBand .prSummaryBridgePara + .prSummaryBridgePara {
+  margin-top: 10px;
+}
+
+.prSummaryTicketFoot {
+  font-size: 0.82rem;
+  opacity: 0.92;
+}
+
 .supportRepeat {
   display: flex;
   gap: 16px;
@@ -1585,6 +1600,12 @@
   color: var(--dtr-body-muted);
   line-height: 1.7;
   margin: 0 0 14px;
+}
+
+.supportRepeatScopeNote {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-top: -6px;
 }
 
 .consultLayer {
@@ -3561,6 +3582,15 @@
   font-size: clamp(13px, 2.6vw, 14.5px);
   color: var(--dtr-body-muted);
   line-height: 1.65;
+}
+
+.supportPathNote {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--dtr-body-muted);
+  line-height: 1.6;
+  opacity: 0.92;
+  margin-top: 6px;
 }
 
 /* ?????????????????????????????????????????????????????????????????????????????

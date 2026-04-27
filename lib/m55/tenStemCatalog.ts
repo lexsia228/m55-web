@@ -42,7 +42,7 @@ export const TEN_STEM_DISPLAY: readonly TenStemDisplay[] = [
     stemChar: '丁',
     publicTitle: 'クリエイター',
     symbol: '深層',
-    displayOneLine: '静かな集中で、独自の表現を磨き上げる人',
+    displayOneLine: '静かに深く集中し、独自の表現を磨き上げる人',
     keywordPool: ['集中', '仕上げ', '質'],
     focusPool: ['深さ', '反復', '基準'],
   },
