@@ -170,11 +170,53 @@
   line-height: 1.4;
 }
 
+.idDesignHintBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+
 .idDesignHint {
   font-size: 0.72rem;
   line-height: 1.5;
   color: var(--dtr-body-muted);
+  margin: 0;
+}
+
+/* Ⅱ章など：ヒントがブロック直下の1行だけのとき */
+.idDesignBlock > .idDesignHint {
   margin: -4px 0 10px;
+}
+
+.idDesignHintBlock .idDesignHint {
+  margin: 0;
+}
+
+/* 両極マップ：用語補足（非カード・2×2 でスマホ可読） */
+.idDesignHintGlossGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(10px, 3vw, 16px);
+  row-gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.idDesignHintGlossLine {
+  font-size: 0.64rem;
+  line-height: 1.5;
+  color: var(--dtr-body-muted);
+  opacity: 0.78;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+@media (max-width: 360px) {
+  .idDesignHintGlossGrid {
+    grid-template-columns: 1fr;
+    row-gap: 5px;
+  }
 }
 
 .idBpStack {

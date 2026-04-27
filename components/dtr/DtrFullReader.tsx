@@ -775,7 +775,18 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>どちらに動きやすいか</h3>
-        <p className={styles.idDesignHint}>良い・悪いの点数ではなく、どちらの動きが出やすいかを見る図です。</p>
+        <div className={styles.idDesignHintBlock}>
+          <p className={styles.idDesignHint}>これは、良い・悪いを決める図ではありません。</p>
+          <p className={styles.idDesignHint}>
+            「深める・広げる」「守る・出す」のどちらへ動きやすいかを見る図です。
+          </p>
+          <div className={styles.idDesignHintGlossGrid} role="note">
+            <span className={styles.idDesignHintGlossLine}>深める＝じっくり考える</span>
+            <span className={styles.idDesignHintGlossLine}>広げる＝人や場に広げる</span>
+            <span className={styles.idDesignHintGlossLine}>守る＝自分の基準を保つ</span>
+            <span className={styles.idDesignHintGlossLine}>出す＝外へ見せる・伝える</span>
+          </div>
+        </div>
         <div className={styles.idTensionGrid}>
           <div className={styles.idTensionAxis}>
             <span className={styles.idTensionPole}>深める</span>
