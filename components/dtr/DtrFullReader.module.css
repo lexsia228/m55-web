@@ -983,7 +983,9 @@
 }
 
 /* Per-chapter border-top accent ?Esets color temperature for each section */
-.reportPartBand[data-part="1"] { border-top-color: rgba(155, 135, 225, 0.32); } /* ? lavender  */
+.reportPartBand[data-part="1"]:not(.reportPartBandChapterPlate) {
+  border-top-color: rgba(155, 135, 225, 0.32);
+} /* ? lavender  */
 .reportPartBand[data-part="2"] { border-top-color: rgba( 96, 155, 232, 0.28); } /* ? cool blue */
 .reportPartBand[data-part="3"] { border-top-color: rgba(218, 165,  64, 0.38); } /* ? amber     */
 .reportPartBand[data-part="4"] { border-top-color: rgba( 88, 190, 148, 0.28); } /* ? soft green*/
@@ -1056,12 +1058,43 @@
   color: var(--dtr-text);
 }
 
+/* Ⅰ章など：構造名の直下に置くキャッチ（章扉のみ） */
+.reportPartBandCatch {
+  margin: 6px 0 0;
+  font-family: var(--dtr-serif);
+  font-size: clamp(15px, 2.9vw, 17px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.38;
+  color: var(--dtr-text);
+}
+
 .reportPartBandDesc {
   margin: 0;
   font-size: 0.70rem;
   color: var(--dtr-body-muted);
   letter-spacing: 0.03em;
   line-height: 1.45;
+}
+
+/*
+ * Ⅰ章章扉のみ：チャプターマーカー（カード枠ではなく区切りの合図）
+ * — 全周ボーダー・角丸カード感を避け、左ライン＋極薄の上辺で「ここから章」と示す
+ */
+.reportPartBand.reportPartBandChapterPlate {
+  max-width: 100%;
+  margin-top: clamp(20px, 3.6vw, 34px);
+  margin-bottom: clamp(26px, 4.4vw, 38px);
+  padding: clamp(16px, 3vw, 22px) 0 clamp(16px, 3vw, 22px) clamp(14px, 2.5vw, 18px);
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid rgba(155, 135, 225, 0.09);
+  border-left: 2px solid rgba(155, 135, 225, 0.17);
+  background: rgba(255, 255, 255, 0.012);
+  box-shadow: none;
+  cursor: default;
+  box-sizing: border-box;
+  scroll-margin-top: 72px;
 }
 
 .savedGridArticle {
