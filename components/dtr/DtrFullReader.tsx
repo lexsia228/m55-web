@@ -178,7 +178,7 @@ const REPORT_PARTS = [
     anchor: 'section-overview',
   },
   { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜ力が出るのか、どこで安定するのかを見る',  anchor: 'section-structure' },
-  { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
+  { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '無理が出やすい場面を、責めずに整理する',         anchor: 'section-strain'    },
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
 ] as const;
 
@@ -1287,19 +1287,19 @@ function StrengthsLiftFigures({ body, nickname }: { body: string; nickname?: str
   );
 }
 
-/** 注意と盲点 — warning カード列 */
+/** 無理が出やすいところ — warning カード列 */
 function FrictionWarningFigures({ body }: { body: string }) {
   const items = parseBlockItems(body);
   if (items.length === 0) return null;
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="注意の可視化">
-      <p className={styles.idDesignOverline}>深読み · 注意マップ</p>
+      <p className={styles.idDesignOverline}>深読み · つまずき方を整理する</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
-          つまずきやすい位置
+          つまずきやすい場面
         </h3>
-        <p className={styles.gridInsertHint}>先に「どこで詰まりやすいか」の輪郭を置きます。</p>
+        <p className={styles.gridInsertHint}>ここでは、どんな時に無理が出やすいかを先に整理します。</p>
         <div className={styles.warnList}>
           {items.map((it, i) => (
             <div
@@ -2264,7 +2264,6 @@ export default function DtrFullReader({
               {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
             </div>
           ) : null}
-          {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
         </section>
 
         <SectionDivider label="プレミアム深読み" premium />
@@ -2362,6 +2361,8 @@ export default function DtrFullReader({
             </PaidModuleShell>
           )}
         </div>
+
+        {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
 
         {sec('s7_work') && sec('s6_relation') && (
           <>
