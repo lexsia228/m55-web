@@ -59,11 +59,18 @@ type StemSectionBodies = {
   friction: string;      // S5 friction / blind spots
   relation: string;      // S6 relation / communication
   work: string;          // S7 work / life manual
-  bridge: string;        // S8 summary / consult bridge (stem-specific closing)
+  bridge: string; // S8 は runDtrEngine で組み立て（ニックネーム対応の地図・返書導線）。STEM ごとの値は参照されない。
 };
 
-const SYSTEM_RULE_COPY =
-  'この保存版レポートには、相談返書 1件が付いています。相談返書はこの保存版レポートに紐づいており、他のレポートへの転用はできません。返書チケットを追加する場合は、購入後のルーム内でのみ申し込み可能です。上限は合計3回です。保存版レポートの本文は固定され、今の状況は相談返書で整理できます。';
+/**
+ * s8 末尾：付帯する相談返書の事実（締めの本質レポート本文の後に続く）。
+ * SSOT: 相談返書1件付属・レポート紐づきのみ。追加返書課金は未実装のため「追加」「上限」はUIに出さない。
+ * （転用不可・追加上限3回などは実装後に再掲を検討）
+ */
+const SYSTEM_RULE_COPY = [
+  'このレポートには、相談返書 1件が付いています。\n相談返書は、このレポートに紐づいて作成されます。',
+  'レポートの本文は、購入時点の内容として固定されます。\n今の感じ方や迷いは、相談返書で具体的に整理できます。',
+].join('\n\n');
 
 /** Paid s4–s6: viz = 要点 / 本文 = 場面・背景・扱い方（同義の言い換え連続を避ける） */
 const DTR_VIZ_BODY_LEADS = {
@@ -167,7 +174,7 @@ const STEM_BODIES: readonly StemSectionBodies[] = [
       DTR_VIZ_BODY_LEADS.s6 +
       '【受け取り方】\n相手の言葉の細かな違いに気づきやすく、意図を深く考えやすいです。\n\n表面的なやりとりより、言葉の質や温度を大切にしやすくなります。\nその分、軽く言われた一言でも、深く受け取りすぎて疲れることがあります。\n\n【伝え方】\nたくさん話すより、選んだ言葉で深く伝えようとします。\n言葉を大切にする分、短い表現の中に多くの意味を込めやすくなります。\nただし、相手に伝わる前に余白が残り、誤解されることがあります。\n\n【距離の取り方】\n疲れたときは、強くぶつかるより、静かに距離を置きやすくなります。\n自分の中で整理する時間が必要なだけでも、相手には「何かあったのかな」と見えることがあります。\n回復には、急かされない時間が必要になりやすいです。\n\n【会話のリズム】\n短く速いやりとりより、落ち着いて中身を話せる時間が合っています。\nすぐに返す会話より、考えながら言葉を選べるやりとりの方が、無理なく伝えやすくなります。',
     work:
-      '【力が出る条件】\n誰かに邪魔されず、自分のペースで仕上げに向かえる環境が最も力を引き出す。\n\n【詰まりやすい条件】\n細切れの時間での高品質要求。仕上げる前に次の作業を要求される環境。「この程度でいい」という妥協を求められ続ける状況。\n\n【環境のヒント】\n集中できる作業環境・静かな空間が大切。チームの中でも「自分の仕事を持つ」という形で動ける役割が合う。\n\n【生活のヒント】\n一日の中に「深く向き合う時間」を固定すること。その時間を守るほど、慢性的な仕上げ不足のストレスが減る。',
+      '【力が出る条件】\n邪魔されずに集中でき、ひとつずつ整えられる時間があること。\n\n【詰まりやすい条件】\n細かい割り込みが続き、整える前に次のことを求められる状態。\n「このくらいでいい」と急かされ続けると、疲れがたまりやすくなります。\n\n【環境のヒント】\n静かに集中できる時間と、自分の範囲が分かる役割があると整いやすくなります。\nチームの中でも、任される範囲が見えているほど動きやすくなります。\n\n【生活のヒント】\n一日の中に、短くても「深く向き合う時間」を置くこと。\nその時間を守るほど、整えきれないまま進む疲れを減らしやすくなります。',
     bridge:
       'このレポートは、深く向き合い磨き続ける力の構造を示しています。読み返す軸は「外に出す締切」をどう自分で置くかに置くと機能しやすく、相談返書では、出力のタイミングを一緒に整理できます。\n\n戻し方としては、完成の定義を一言で共有できるまで内部に留め、週末にだけDRAFTを外に出す、といったリズムから始めると負担が下がりやすいです。',
   },
@@ -773,7 +780,12 @@ const SECTION_SPECS: readonly SectionSpec[] = [
   { id: 's5_friction',     title: '無理が出やすいところ',               teaserSummary: '意識しておくと助けになる傾向と、生まれやすい摩擦の整理です。', bodyKey: 'friction'     },
   { id: 's6_relation',     title: '人とのやりとりの癖',   teaserSummary: '受け取り方・伝え方・距離の取り方と、会話のリズムの整理です。',         bodyKey: 'relation'     },
   { id: 's7_work',         title: '仕事と生活の取扱いヒント', teaserSummary: '力が出る条件と詰まりやすい条件、環境のヒントです。',         bodyKey: 'work'         },
-  { id: 's8_bridge',       title: 'まとめと相談返書について', teaserSummary: 'このレポートの要点と、相談返書の使い方です。',               bodyKey: 'bridge'       },
+  {
+    id: 's8_bridge',
+    title: 'まとめと相談返書について',
+    teaserSummary: '本質レポートの役割と、相談返書で整理する流れです。',
+    bodyKey: 'bridge',
+  },
 ] as const;
 
 /* ─── Engine ─────────────────────────────────────────────────────────────── */
@@ -793,6 +805,27 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
     : 'この保存版で見えている輪郭';
 
   const fullSections: DtrSection[] = SECTION_SPECS.map((spec) => {
+    if (spec.id === 's8_bridge') {
+      const trimmedNick = input.nickname?.trim();
+      const mapLeadLine = trimmedNick
+        ? `このレポートは、${clamp(trimmedNick, 20)}さん個人の傾向を整理した本質レポートです。`
+        : 'このレポートは、個人の傾向を整理した本質レポートです。';
+      const narrative = [
+        mapLeadLine,
+        'どこで力が出やすいか、どこで無理がたまりやすいか、どこから整えると戻りやすいかを、閲覧できる期間内で読み返せます。',
+        '相談返書では、この内容をもとに、今気になっていることを具体的に読み直します。',
+        'いま何に迷っているのか、どこから整えると楽になりやすいのかを、このレポートに沿って読み直します。',
+      ].join('\n\n');
+      const body = `${narrative}\n\n${SYSTEM_RULE_COPY}`;
+      return {
+        id: spec.id,
+        title: spec.title,
+        summary: spec.teaserSummary,
+        body,
+        visibility: 'full' as const,
+      };
+    }
+
     let body = bodies[spec.bodyKey] as string;
     if (
       spec.bodyKey === 'composition' &&
@@ -830,9 +863,6 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
         ? `${clamp(trimmedNick, 20)}さんの力は、`
         : 'この保存版で見えている傾向では、力は、';
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
-    }
-    if (spec.id === 's8_bridge') {
-      body = `${body}\n\n${SYSTEM_RULE_COPY}`;
     }
     const title =
       spec.id === 's1_identity'  ? s1Overline :

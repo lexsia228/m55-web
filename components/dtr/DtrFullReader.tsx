@@ -349,12 +349,12 @@ const INTRO_BULLETS: { text: string; anchor: string }[] = [
   { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
 ];
 
-/** フローティング ↑ の移動先（03「この保存版の読み方」ブロック） */
+/** フローティング ↑ の移動先（03「このレポートの読み方」ブロック） */
 const PREMIUM_INTRO_READING_GUIDE_ID = 'premium-intro-reading-guide';
 
 const READING_GUIDE_FAB_SHOW_PX = 600;
 
-/** 保存版ページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
+/** 本質レポートページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
 function PremiumReadingGuideScrollFab() {
   const [visible, setVisible] = useState(false);
 
@@ -396,7 +396,7 @@ function PremiumReadingGuideScrollFab() {
       type="button"
       onClick={handleClick}
       className={`${styles.readingGuideFab}${visible ? ` ${styles.readingGuideFabVisible}` : ''}`}
-      aria-label="この保存版の読み方へ戻る"
+      aria-label="このレポートの読み方へ戻る"
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
     >
@@ -436,26 +436,26 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
   }
 
   return (
-    <div className={styles.premiumIncludedBand} aria-label="保存版レポートの説明">
+    <div className={styles.premiumIncludedBand} aria-label="本質レポートの説明">
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           01
         </span>
-        <p className={styles.premiumIntroOverline}>保存版レポート</p>
+        <p className={styles.premiumIntroOverline}>本質レポート</p>
         <p className={styles.premiumIntroLead}>
           自分を無理に変えなくていい。<br />
           「自分の形」から、今の悩みを読み直すための土台です。
         </p>
         <p className={styles.premiumIntroBody}>
-          この保存版では、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。
+          このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。
         </p>
       </div>
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           02
         </span>
-        <p className={styles.premiumIntroSectionLabel}>この保存版で分かること</p>
-        <ul className={styles.premiumIntroBulletList} aria-label="この保存版で分かること">
+        <p className={styles.premiumIntroSectionLabel}>このレポートで分かること</p>
+        <ul className={styles.premiumIntroBulletList} aria-label="このレポートで分かること">
           {INTRO_BULLETS.map(({ text }) => (
             <li key={text} className={styles.premiumIntroBulletItem}>
               <span className={styles.premiumIntroBulletText}>
@@ -473,7 +473,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           03
         </span>
-        <p className={styles.premiumIntroSectionLabel}>この保存版の読み方</p>
+        <p className={styles.premiumIntroSectionLabel}>このレポートの読み方</p>
         <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
           {REPORT_PARTS.map((p) => {
             const tocDesc = REPORT_PARTS_TOC_TAG[p.partId];
@@ -509,8 +509,8 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
             className={`${styles.premiumIntroConsultLink}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
             aria-current={active === 'consultation-room' ? 'location' : undefined}
           >
-            この保存版には、相談返書&nbsp;1件が付いています。<br />
-            レポートが地図なら、相談返書は今の状況を読む場所です。
+            このレポートには、相談返書&nbsp;1件が付いています。<br />
+            本質レポートをもとに、今の相談を整理する。
           </a>
         </div>
       )}
@@ -835,7 +835,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
   const ge = clampTensionBias(viz.tension.guardExpress);
 
   return (
-    <div className={styles.idDesignShell} aria-label="力の出方を分解する（保存版）">
+    <div className={styles.idDesignShell} aria-label="力の出方を分解する（本質レポート）">
       <p className={styles.idDesignOverline}>深読み · 力の出方を分解する</p>
 
       <div className={styles.idDesignBlock}>
@@ -1224,7 +1224,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
   ];
 
   return (
-    <div className={styles.idDesignShell} aria-label="安定条件パネル（保存版）">
+    <div className={styles.idDesignShell} aria-label="安定条件パネル（本質レポート）">
       <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>安定しやすい4つの条件</h3>
@@ -1876,12 +1876,55 @@ function FrictionRecoveryModule({
    D. Practical Guidance
    ───────────────────────────────────────────────────────────────────────────── */
 
+/** Ⅳ章・実践ガイド（stem 3）：本文からの自動抜粋では足りない行を、生活語で固定表示 */
+const PRACTICAL_GUIDANCE_STEM3: {
+  title: string;
+  icon: 'work' | 'relationship' | 'recovery';
+  rows: { action: string; why: string; when: string }[];
+}[] = [
+  {
+    title: '仕事での判断',
+    icon: 'work',
+    rows: [
+      {
+        action: '始める前に、今日やる範囲と「ここまでで十分」のラインを決めておく。',
+        why: '範囲が見えるほど、ひとつのことに深く入りやすくなります。',
+        when: '細かい依頼が増える前、または作業を始める前。',
+      },
+    ],
+  },
+  {
+    title: '人間関係の境界線',
+    icon: 'relationship',
+    rows: [
+      {
+        action: 'すぐに説明しきろうとせず、「少し整理してから返す」と伝える。',
+        why: '言葉を深く受け取りやすい分、急いだやりとりでは疲れがたまりやすくなります。',
+        when: '誤解されそうなとき、返事を急かされているとき。',
+      },
+    ],
+  },
+  {
+    title: '疲労と回復',
+    icon: 'recovery',
+    rows: [
+      {
+        action: '短くても、静かに整える時間を先に確保する。',
+        why: '深く向き合う時間があるほど、考えや感情を戻しやすくなります。',
+        when: '疲れきってからではなく、予定が詰まり始める前。',
+      },
+    ],
+  },
+];
+
 function PracticalGuidanceSection({
   workSection,
   relationSection,
+  stemIdx,
 }: {
   workSection: DtrSection;
   relationSection: DtrSection;
+  stemIdx: number;
 }) {
   const workItems = parseBlockItems(workSection.body);
   const relationItems = parseBlockItems(relationSection.body);
@@ -1899,47 +1942,50 @@ function PracticalGuidanceSection({
     title: string;
     icon: 'work' | 'relationship' | 'recovery';
     rows: { action: string; why: string; when: string }[];
-  }[] = [
-    {
-      title: '仕事での判断',
-      icon: 'work',
-      rows: [
-        {
-          action: firstSentence(workPower),
-          why: firstSentence(workStuck),
-          when: firstSentence(envHint),
-        },
-      ],
-    },
-    {
-      title: '人間関係の境界線',
-      icon: 'relationship',
-      rows: [
-        {
-          action: firstSentence(withdrawWay),
-          why: firstSentence(receiveWay),
-          when: '',
-        },
-      ],
-    },
-    {
-      title: '疲労と回復',
-      icon: 'recovery',
-      rows: [
-        {
-          action: firstSentence(lifeHint),
-          why: firstSentence(workStuck),
-          when: firstSentence(envHint),
-        },
-      ],
-    },
-  ];
+  }[] =
+    stemIdx === 3
+      ? PRACTICAL_GUIDANCE_STEM3
+      : [
+          {
+            title: '仕事での判断',
+            icon: 'work',
+            rows: [
+              {
+                action: firstSentence(workPower),
+                why: firstSentence(workStuck),
+                when: firstSentence(envHint),
+              },
+            ],
+          },
+          {
+            title: '人間関係の境界線',
+            icon: 'relationship',
+            rows: [
+              {
+                action: firstSentence(withdrawWay),
+                why: firstSentence(receiveWay),
+                when: '',
+              },
+            ],
+          },
+          {
+            title: '疲労と回復',
+            icon: 'recovery',
+            rows: [
+              {
+                action: firstSentence(lifeHint),
+                why: firstSentence(workStuck),
+                when: firstSentence(envHint),
+              },
+            ],
+          },
+        ];
 
   return (
     <div className={styles.practicalStack}>
       <div className={styles.practicalIntro}>
         <h2 className={styles.practicalIntroTitle}>このレポートの使い方</h2>
-        <p className={styles.practicalIntroSub}>分析結果を日常で活かすための実践ガイド</p>
+        <p className={styles.practicalIntroSub}>今日から少し楽に扱うための実践ガイド</p>
       </div>
       {categories.map((cat) => (
         <div key={cat.title} className={styles.practicalCategory}>
@@ -2005,7 +2051,7 @@ function PracticalGuidanceSection({
 
 /* ─────────────────────────────────────────────────────────────────────────────
    D2. Work Guide Cards — S7 本文の4ブロックを読みやすい4枚カードで先出し。
-   PracticalGuidanceSection（日常要約版）の手前に置き、保存版の具体本文へ誘導。
+   PracticalGuidanceSection（日常要約版）の手前に置き、本質レポートの具体本文へ誘導。
    ───────────────────────────────────────────────────────────────────────────── */
 
 const WORK_CARD_META: {
@@ -2045,23 +2091,67 @@ function WorkGuideCards({ workSection }: { workSection: DtrSection }) {
    E. Summary
    ───────────────────────────────────────────────────────────────────────────── */
 
+/** s8 本文とチケット説明の境界（旧スナップショット互換のため先頭一致で検出） */
+const BRIDGE_TICKET_BLOCK_START = 'このレポートには、相談返書';
+
 function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
   const parts = bridgeSection.body
     .split('\n\n')
     .map((p) => p.trim())
     .filter(Boolean);
+  const ticketStart = parts.findIndex((p) => p.startsWith(BRIDGE_TICKET_BLOCK_START));
   const lead = parts[0] ?? '';
-  /** 2段落目は Module 04 の最終ノードで使用するため、まとめでは 3 段落目以降のみ */
-  const bridgeRest = parts.slice(2).join('\n\n');
+
+  if (ticketStart === -1) {
+    const bridgeRest = parts.slice(2).join('\n\n');
+    return (
+      <section className={styles.prSummaryBand} aria-label={bridgeSection.title}>
+        <p className={styles.prSummaryLead}>{lead}</p>
+        {bridgeRest ? (
+          <div className={styles.prSummaryBridge}>
+            {bridgeRest.split('\n\n').map((para, i) => (
+              <p key={i} className={styles.prSummaryBridgePara}>
+                {para}
+              </p>
+            ))}
+          </div>
+        ) : null}
+      </section>
+    );
+  }
+
+  const narrativeTail = parts.slice(1, ticketStart);
+  const ticketParts = parts.slice(ticketStart);
 
   return (
     <section className={styles.prSummaryBand} aria-label={bridgeSection.title}>
       <p className={styles.prSummaryLead}>{lead}</p>
-      {bridgeRest ? (
+      {narrativeTail.length > 0 ? (
         <div className={styles.prSummaryBridge}>
-          {bridgeRest.split('\n\n').map((para, i) => (
-            <p key={i} className={styles.prSummaryBridgePara}>
+          {narrativeTail.map((para, i) => (
+            <p key={`n-${i}`} className={styles.prSummaryBridgePara}>
               {para}
+            </p>
+          ))}
+        </div>
+      ) : null}
+      {ticketParts.length > 0 ? (
+        <div className={styles.prSummaryTicketBand} aria-label="相談返書・チケット">
+          {ticketParts.map((para, i) => (
+            <p
+              key={`t-${i}`}
+              className={
+                para.startsWith('※')
+                  ? `${styles.prSummaryBridgePara} ${styles.prSummaryTicketFoot}`
+                  : styles.prSummaryBridgePara
+              }
+            >
+              {para.split('\n').map((line, li) => (
+                <span key={li}>
+                  {li > 0 ? <br /> : null}
+                  {line}
+                </span>
+              ))}
             </p>
           ))}
         </div>
@@ -2074,7 +2164,12 @@ function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
    F. 継続サポート — single-person repeat path only
    ───────────────────────────────────────────────────────────────────────────── */
 
-function ContinuousSupport() {
+function ContinuousSupport({ readerDisplayName }: { readerDisplayName: string }) {
+  const nick = readerDisplayName.trim();
+  const lead =
+    nick.length > 0
+      ? `このレポートは、${nick}さん個人の傾向を整理したものです。`
+      : 'このレポートは、個人の傾向を整理したものです。';
   return (
     <section className={styles.supportRepeat}>
       <div className={styles.supportRepeatIconWrap} aria-hidden>
@@ -2090,17 +2185,18 @@ function ContinuousSupport() {
       </div>
       <div className={styles.supportRepeatBody}>
         <p className={styles.supportRepeatOverline}>継続サポート</p>
+        <p className={styles.supportRepeatText}>{lead}</p>
         <p className={styles.supportRepeatText}>
-          このレポートは保存版です。転職・異動・新プロジェクト・ライフステージの変化など、
-          大きな局面では、このレポートの構造を基盤に、改めて今の状況を整理することができます。
+          状況が変わったときは、この内容をもとに、今の感じ方や迷いを相談返書で整理できます。
         </p>
-        <ul className={styles.supportPathList} aria-label="継続利用の経路">
-          <li className={styles.supportPathItem}>
-            <span className={styles.supportPathLabel}>返書チケットを追加</span>
-            <span className={styles.supportPathDesc}>
-              このレポートに紐づいた形で返書チケットを追加できます。相談返書ルーム内からのみ申し込みできます（上限3回）。
-            </span>
-          </li>
+        <p className={`${styles.supportRepeatText} ${styles.supportRepeatScopeNote}`}>
+          ※転職・異動・恋愛・相性・仕事特化など、別レポートで扱うべき領域までは、この解析では広げません。
+        </p>
+        {/*
+         * 追加返書課金は未実装のため、「相談返書を続ける」導線は表示しない（SSOT）。
+         * 実装時: ルーム内申込・上限の文言をここへ復帰。
+         */}
+        <ul className={styles.supportPathList} aria-label="読み返しのヒント">
           <li className={styles.supportPathItem}>
             <span className={styles.supportPathLabel}>状況整理</span>
             <span className={styles.supportPathDesc}>
@@ -2121,9 +2217,9 @@ function ContinuousSupport() {
 function groundingDisplayReportTitle(engineTitle: string): string {
   const t = engineTitle.trim();
   const m = /^Entry Report — (.+?)さんの取り扱い説明書$/.exec(t);
-  if (m) return `保存版レポート — ${m[1]}さんの形を読み直す`;
+  if (m) return `本質レポート — ${m[1]}さんの形を読み直す`;
   return t
-    .replace(/^Entry Report — /, '保存版レポート — ')
+    .replace(/^Entry Report — /, '本質レポート — ')
     .replace(/取り扱い説明書/g, '形を読み直す');
 }
 
@@ -2139,12 +2235,10 @@ function GroundingDocIcon() {
 }
 
 function GroundingPanel({
-  stemSymbol,
   reportTitle,
   stemOneLine,
   readerDisplayName,
 }: {
-  stemSymbol: string;
   reportTitle: string;
   stemOneLine: string;
   readerDisplayName: string;
@@ -2152,12 +2246,12 @@ function GroundingPanel({
   const nick = readerDisplayName.trim();
   const mapLead =
     nick.length > 0
-      ? `保存版レポートは、${nick}さんの傾向のまとまりを整理した地図です。`
-      : '保存版レポートは、見えている傾向のまとまりを整理した地図です。';
+      ? `このレポートは、${nick}さん個人の傾向を整理した本質レポートです。`
+      : 'このレポートは、個人の傾向を整理した本質レポートです。';
   const groundingNoteText =
     nick.length > 0
-      ? `一般的なアドバイスではなく、${nick}さんの保存版レポートに基づいた相談返書を作成します。`
-      : '一般的なアドバイスではなく、この保存版レポートに基づいた相談返書を作成します。';
+      ? `一般的なアドバイスではなく、${nick}さん向けのこの解析内容に基づいた相談返書を作成します。`
+      : '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。';
   return (
     <div className={styles.groundingBandInner}>
       <div className={styles.groundingDividerBar} role="presentation">
@@ -2170,21 +2264,17 @@ function GroundingPanel({
         <div className={styles.groundingHeader}>
           <GroundingDocIcon />
           <div className={styles.groundingHeaderText}>
-            <h3 className={styles.groundingTitle}>レポートが地図なら、相談返書は今の状況を読む場所です</h3>
+            <h3 className={styles.groundingTitle}>
+              本質レポートをもとに、
+              <br />
+              今の相談を整理する。
+            </h3>
+            <p className={styles.groundingLead}>{mapLead}</p>
             <p className={styles.groundingLead}>
-              {mapLead}
-              この相談返書ルームは、その地図を使って「今の状況」を読み解く場所です。
-            </p>
-            <p className={styles.groundingBridgeLine}>
-              この保存版レポートを土台に、今の状況を相談返書で読み直せます。
+              相談返書では、この内容をもとに、今気になっていることを具体的に読み直します。
             </p>
             <p className={styles.groundingReportTitle}>{reportTitle}</p>
-            <p className={styles.groundingSubline}>
-              <span className={styles.groundingSymbolInline} aria-hidden="true">
-                {stemSymbol}
-              </span>
-              {stemOneLine}
-            </p>
+            <p className={styles.groundingSubline}>{stemOneLine}</p>
           </div>
         </div>
 
@@ -2195,7 +2285,7 @@ function GroundingPanel({
               <span className={styles.groundingPillarLabel}>構造を参照</span>
             </div>
             <p className={styles.groundingPillarText}>
-              保存版レポートで整理した傾向から、その状況で出やすい反応を読み解きます。
+              このレポートで整理した傾向から、その状況で出やすい反応を読み解きます。
             </p>
           </div>
           <div className={styles.groundingPillar}>
@@ -2221,7 +2311,7 @@ function GroundingPanel({
         <div className={styles.groundingMeta}>
           <span className={styles.groundingMetaLabel}>参照している読み</span>
           <span className={styles.groundingMetaValue}>
-            輪郭 · 5つの視点 · 傾向と負荷 · 生活での出方 · 戻し方
+            輪郭 · 構造 · 無理の出方 · 扱い方 · 戻し方
           </span>
         </div>
         <p className={styles.groundingNote}>{groundingNoteText}</p>
@@ -2316,7 +2406,7 @@ export default function DtrFullReader({
         <section
           id="dtr-core-analysis"
           className={`${styles.savedReportShell} ${styles.coreAnalysisScrollAnchor}`}
-          aria-label="保存版レポート"
+          aria-label="本質レポート"
         >
           <div className={styles.savedWideStack}>
             {preGridSections.map((section) => (
@@ -2467,6 +2557,7 @@ export default function DtrFullReader({
               <PracticalGuidanceSection
                 workSection={sec('s7_work')!}
                 relationSection={sec('s6_relation')!}
+                stemIdx={stemIdx}
               />
             </section>
             <ReportBridgeBand partId="4" />
@@ -2480,13 +2571,12 @@ export default function DtrFullReader({
           </>
         )}
 
-        <ContinuousSupport />
+        <ContinuousSupport readerDisplayName={view.nickname} />
 
         {aiConsultIncluded && (
           <div className={styles.consultLayer} id="consultation-room">
             <div className={styles.consultGroundingBand}>
               <GroundingPanel
-                stemSymbol={stem.symbol}
                 reportTitle={groundingDisplayReportTitle(payload.title)}
                 stemOneLine={stem.displayOneLine}
                 readerDisplayName={view.nickname}
