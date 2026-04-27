@@ -75,6 +75,10 @@ const DTR_VIZ_BODY_LEADS = {
 /** runDtrEngine が stem 3「構成と傾向の全体像」先頭主語へ差し替え（paid full のみ通過） */
 const STEM3_COMPOSITION_INTRO_TOKEN = '{{DTR_STEM3_COMP_INTRO}}';
 
+/** stem 3「輪郭」本文：ニックネーム有無で主語を差し替え */
+const STEM3_IDENTITY_INTRO_TOKEN = '{{DTR_STEM3_ID_INTRO}}';
+const STEM3_IDENTITY_CORE_TOKEN = '{{DTR_STEM3_ID_CORE}}';
+
 const STEM_BODIES: readonly StemSectionBodies[] = [
   /* stem 0 */
   {
@@ -145,7 +149,7 @@ const STEM_BODIES: readonly StemSectionBodies[] = [
   /* stem 3 */
   {
     identity:
-      'ひとつのことにじっくり向き合うと力が出やすいです。いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさがはっきりしていきます。\nやりがいを感じやすいのは、「前より良くなった」と実感できるときです。完成した瞬間だけでなく、直しながら良くなっていく過程にも手応えがあります。\n大切にしたいのは、自分なりの納得感と、雑に済ませたくない誠実さです。妥協が続くと、後から「これは自分の仕事ではない」と感じやすくなります。',
+      '{{DTR_STEM3_ID_INTRO}}いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさがはっきりしていきます。\n\nやりがいを感じやすいのは、「前より良くなった」と実感できるときです。\n完成した瞬間だけでなく、直しながら良くなっていく過程にも手応えがあります。\n\n大切なのは、{{DTR_STEM3_ID_CORE}}「これなら出せる」と思えることです。\n雑に済ませたくない気持ちは、弱さではなく、納得できる形まで向き合おうとする力です。\nただし、妥協が続く環境にいると、後から「これは自分の仕事ではない」と感じやすくなります。',
     composition:
       '{{DTR_STEM3_COMP_INTRO}}急いで広げるより、ひとつのことに落ち着いて向き合うと、考えがまとまりやすくなります。人前で大きく見せるより、気になる部分を見直しながら、自分が納得できる形に近づけていくほうが力が出ます。\n\n細かな違和感に気づきやすく、何度か見直すほど「これでいい」と思える状態に近づきます。一方で、もっと良くしたい気持ちが強くなると、すでに出せる状態でも「まだ足りない」と感じやすくなります。\n\n同時にいくつものことを進めるより、やることをひとつに絞るほうが動きやすくなります。出す前に「ここまでで一度出す」と決めておくと、力を込めすぎて止まる流れを減らしやすくなります。',
     essence:
@@ -796,6 +800,22 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
         ? `${clamp(trimmedNick, 20)}さんは、`
         : 'この保存版で見えている形では、';
       body = body.replace(STEM3_COMPOSITION_INTRO_TOKEN, intro);
+    }
+    if (
+      spec.id === 's1_identity' &&
+      idx === 3 &&
+      body.includes(STEM3_IDENTITY_INTRO_TOKEN)
+    ) {
+      const trimmedNick = input.nickname?.trim();
+      const idIntro = trimmedNick
+        ? `ひとつのことにじっくり向き合うほど、${clamp(trimmedNick, 20)}さんの力は出やすくなります。\n`
+        : 'この傾向では、ひとつのことにじっくり向き合うほど、力は出やすくなります。\n';
+      const idCore = trimmedNick
+        ? `${clamp(trimmedNick, 20)}さん自身が`
+        : 'この傾向では、自分自身が';
+      body = body
+        .replace(STEM3_IDENTITY_INTRO_TOKEN, idIntro)
+        .replace(STEM3_IDENTITY_CORE_TOKEN, idCore);
     }
     if (spec.id === 's8_bridge') {
       body = `${body}\n\n${SYSTEM_RULE_COPY}`;
