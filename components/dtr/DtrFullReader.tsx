@@ -1191,8 +1191,8 @@ function EssenceArticleWithViz({
 
 function commFlowShortLabel(header: string): string {
   if (header.includes('受け取り')) return '受け取り';
-  if (header.includes('渡し')) return '渡し';
-  if (header.includes('引き')) return '引き';
+  if (header === '伝え方' || header.includes('渡し')) return '渡し';
+  if (header === '距離の取り方' || header.includes('引き')) return '引き';
   if (header.includes('会話') || header.includes('リズム')) return 'リズム';
   return header.slice(0, 3);
 }
@@ -1327,10 +1327,10 @@ function CommFlowFigures({ body }: { body: string }) {
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="対話の流れ">
-      <p className={styles.idDesignOverline}>深読み · 対話の流れ</p>
+      <p className={styles.idDesignOverline}>深読み · 受け取り方と伝え方</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
-          やりとりの順路
+          やりとりで起きやすい流れ
         </h3>
         <div className={styles.commFlowCol}>
           {items.map((it, i) => (
@@ -1636,8 +1636,11 @@ function DomainMatrixModule({
   const workEnv = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const workHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
-  const deliverWay = relationItems.find((i) => i.header === '渡し方')?.content ?? '';
-  const withdrawWay = relationItems.find((i) => i.header === '引き方')?.content ?? '';
+  const deliverWay =
+    relationItems.find((i) => i.header === '渡し方' || i.header === '伝え方')?.content ?? '';
+  const withdrawWay =
+    relationItems.find((i) => i.header === '引き方' || i.header === '距離の取り方')?.content ??
+    '';
   const convRhythm = relationItems.find((i) => i.header === '会話のリズム')?.content ?? '';
   const stabilityClause = extractAfterLabel(essenceSection.body, '安定する条件は');
   const fatigueClause = extractAfterLabel(essenceSection.body, '疲れやすい場面は');
@@ -1806,7 +1809,9 @@ function PracticalGuidanceSection({
   const envHint = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const lifeHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
-  const withdrawWay = relationItems.find((i) => i.header === '引き方')?.content ?? '';
+  const withdrawWay =
+    relationItems.find((i) => i.header === '引き方' || i.header === '距離の取り方')?.content ??
+    '';
 
   const categories: {
     title: string;
