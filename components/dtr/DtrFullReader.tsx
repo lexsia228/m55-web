@@ -2291,78 +2291,84 @@ export default function DtrFullReader({
           ))}
         </div>
 
-        <div className={styles.paidModules}>
-          <PaidModuleShell
-            n={1}
-            tierJa="主軸分析"
-            tierClass={styles.prTierMint}
-            overline="5つの視点"
-            title="輪郭を支える構造"
-            ariaLabel="5つの視点の分布"
-            summary="5つの視点の分布から、この形の重心と周縁部を読む。"
-            defaultOpen={false}
-          >
-            <FiveAxisModule stemIdx={stemIdx} />
-          </PaidModuleShell>
-
-          {sec('s4_strengths') && sec('s5_friction') && (
+        <div
+          className={
+            gridSections.length > 0 ? styles.premiumModulesAndBridgeIII : undefined
+          }
+        >
+          <div className={styles.paidModules}>
             <PaidModuleShell
-              n={2}
-              tierJa="構造分析"
-              tierClass={styles.prTierAmber}
-              overline="傾向と負荷"
-              title="重なりと読み解き"
-              ariaLabel="傾向と負荷"
-              summary="力として出やすい傾向とつまずきやすい傾向の重なりから、この保存版で見えている形を読む。"
+              n={1}
+              tierJa="主軸分析"
+              tierClass={styles.prTierMint}
+              overline="5つの視点"
+              title="輪郭を支える構造"
+              ariaLabel="5つの視点の分布"
+              summary="5つの視点の分布から、この形の重心と周縁部を読む。"
               defaultOpen={false}
             >
-              <TraitInteractionModule
-                strengthsSection={sec('s4_strengths')!}
-                frictionSection={sec('s5_friction')!}
-                stemIdx={stemIdx}
-              />
+              <FiveAxisModule stemIdx={stemIdx} />
             </PaidModuleShell>
-          )}
 
-          {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
-            <PaidModuleShell
-              n={3}
-              tierJa="領域比較"
-              tierClass={styles.prTierBlue}
-              overline="生活での出方"
-              title="場面別の整理"
-              ariaLabel="生活での出方"
-              summary="仕事・関係・判断・回復の場面で、この形がどう現れるかを整理する。"
-              defaultOpen={false}
-            >
-              <DomainMatrixModule
-                essenceSection={sec('s3_essence')!}
-                relationSection={sec('s6_relation')!}
-                workSection={sec('s7_work')!}
-              />
-            </PaidModuleShell>
-          )}
+            {sec('s4_strengths') && sec('s5_friction') && (
+              <PaidModuleShell
+                n={2}
+                tierJa="構造分析"
+                tierClass={styles.prTierAmber}
+                overline="傾向と負荷"
+                title="重なりと読み解き"
+                ariaLabel="傾向と負荷"
+                summary="力として出やすい傾向とつまずきやすい傾向の重なりから、この保存版で見えている形を読む。"
+                defaultOpen={false}
+              >
+                <TraitInteractionModule
+                  strengthsSection={sec('s4_strengths')!}
+                  frictionSection={sec('s5_friction')!}
+                  stemIdx={stemIdx}
+                />
+              </PaidModuleShell>
+            )}
 
-          {sec('s5_friction') && sec('s8_bridge') && (
-            <PaidModuleShell
-              n={4}
-              tierJa="実践ガイド"
-              tierClass={styles.prTierRose}
-              overline="戻し方 · 整え方"
-              title="つまずきから整える流れ"
-              ariaLabel="戻し方と整え方"
-              summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
-              defaultOpen={false}
-            >
-              <FrictionRecoveryModule
-                frictionSection={sec('s5_friction')!}
-                bridgeSection={sec('s8_bridge')!}
-              />
-            </PaidModuleShell>
-          )}
+            {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
+              <PaidModuleShell
+                n={3}
+                tierJa="領域比較"
+                tierClass={styles.prTierBlue}
+                overline="生活での出方"
+                title="場面別の整理"
+                ariaLabel="生活での出方"
+                summary="仕事・関係・判断・回復の場面で、この形がどう現れるかを整理する。"
+                defaultOpen={false}
+              >
+                <DomainMatrixModule
+                  essenceSection={sec('s3_essence')!}
+                  relationSection={sec('s6_relation')!}
+                  workSection={sec('s7_work')!}
+                />
+              </PaidModuleShell>
+            )}
+
+            {sec('s5_friction') && sec('s8_bridge') && (
+              <PaidModuleShell
+                n={4}
+                tierJa="実践ガイド"
+                tierClass={styles.prTierRose}
+                overline="戻し方 · 整え方"
+                title="つまずきから整える流れ"
+                ariaLabel="戻し方と整え方"
+                summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
+                defaultOpen={false}
+              >
+                <FrictionRecoveryModule
+                  frictionSection={sec('s5_friction')!}
+                  bridgeSection={sec('s8_bridge')!}
+                />
+              </PaidModuleShell>
+            )}
+          </div>
+
+          {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
         </div>
-
-        {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
 
         {sec('s7_work') && sec('s6_relation') && (
           <>
