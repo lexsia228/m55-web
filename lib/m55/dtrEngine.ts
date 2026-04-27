@@ -79,6 +79,9 @@ const STEM3_COMPOSITION_INTRO_TOKEN = '{{DTR_STEM3_COMP_INTRO}}';
 const STEM3_IDENTITY_INTRO_TOKEN = '{{DTR_STEM3_ID_INTRO}}';
 const STEM3_IDENTITY_CORE_TOKEN = '{{DTR_STEM3_ID_CORE}}';
 
+/** stem 3「本質と安定の条件」先頭：ニックネーム有無で主語を差し替え */
+const STEM3_ESSENCE_OPEN_TOKEN = '{{DTR_STEM3_ESS_OPEN}}';
+
 const STEM_BODIES: readonly StemSectionBodies[] = [
   /* stem 0 */
   {
@@ -153,7 +156,7 @@ const STEM_BODIES: readonly StemSectionBodies[] = [
     composition:
       '{{DTR_STEM3_COMP_INTRO}}急いで広げるより、ひとつのことに落ち着いて向き合うと、考えがまとまりやすくなります。人前で大きく見せるより、気になる部分を見直しながら、自分が納得できる形に近づけていくほうが力が出ます。\n\n細かな違和感に気づきやすく、何度か見直すほど「これでいい」と思える状態に近づきます。一方で、もっと良くしたい気持ちが強くなると、すでに出せる状態でも「まだ足りない」と感じやすくなります。\n\n同時にいくつものことを進めるより、やることをひとつに絞るほうが動きやすくなります。出す前に「ここまでで一度出す」と決めておくと、力を込めすぎて止まる流れを減らしやすくなります。',
     essence:
-      '強みは、ひとつのことに集中し続けることで、簡単には真似できない質を作れるところにあります。速くたくさん出すより、時間をかけて「これは良い」と思える形に近づけるほうが力を使いやすいです。\n安定しやすいのは、邪魔されずに集中できる時間と、守りやすい締切の両方があるときです。自由だけが大きすぎると迷いやすく、逆に細かく口を出されすぎると苦しくなりやすいです。\n無理なく動きやすいのは、深く考えることや最後の仕上げまで丁寧に見ることが評価される環境です。短時間で一気に進めるより、少し時間をかけて整えていくほうが自然です。',
+      '{{DTR_STEM3_ESS_OPEN}}ひとつのことに集中し続ける時間の中で安定します。\n急いでたくさん進めるより、考えながら整え、自分が「これでいい」と思える形に近づけるほうが合っています。\n\n安定しやすいのは、邪魔されずに集中できる時間と、守りやすい締切があるときです。\n自由が大きすぎると迷いやすく、反対に細かく口を出されすぎると苦しくなりやすいです。\n\n深く考えることや、最後まで丁寧に確認することが評価される場所では、力が出やすくなります。\n短時間で急いで終えるより、少し時間をかけて整えられるほうが進みやすいです。',
     strengths:
       DTR_VIZ_BODY_LEADS.s4 +
       '【深く集中する力】\n締切が曖昧だと集中が続きにくい一方、やることの範囲が見えると、深く入りやすいです。一つの対象に長く向き合い、他が気にならないほど集中できる。この深さが、他との差になる仕上がりを生む。\n\n【質への強いこだわり】\n自分の中の基準を妥協せず、「これで良い」ではなく「これが良い」を選び続ける。\n\n【反復による精度向上】\n同じことを繰り返すことを苦にせず、むしろその中で改善を重ねていく。時間をかけるほど精度が上がる。',
@@ -816,6 +819,17 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
       body = body
         .replace(STEM3_IDENTITY_INTRO_TOKEN, idIntro)
         .replace(STEM3_IDENTITY_CORE_TOKEN, idCore);
+    }
+    if (
+      spec.id === 's3_essence' &&
+      idx === 3 &&
+      body.includes(STEM3_ESSENCE_OPEN_TOKEN)
+    ) {
+      const trimmedNick = input.nickname?.trim();
+      const essOpen = trimmedNick
+        ? `${clamp(trimmedNick, 20)}さんの力は、`
+        : 'この保存版で見えている傾向では、力は';
+      body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
     }
     if (spec.id === 's8_bridge') {
       body = `${body}\n\n${SYSTEM_RULE_COPY}`;
