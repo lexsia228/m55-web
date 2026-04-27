@@ -177,7 +177,7 @@ const REPORT_PARTS = [
     desc: '今の自分に出やすい傾向を整理する',
     anchor: 'section-overview',
   },
-  { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
+  { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜ力が出るのか、どこで安定するのかを見る',  anchor: 'section-structure' },
   { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
 ] as const;
@@ -1171,18 +1171,20 @@ function EssenceArticleWithViz({
   section: DtrSection;
   stemIdx: number;
 }) {
-  const paras = section.body.split('\n\n');
+  const paras = section.body.split('\n\n').filter((p) => p.trim());
   const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
-      {lede && <p className={styles.sectionLede}>{lede}</p>}
+      {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
+      {rest.length > 0 ? (
+        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+          {rest.map((para, i) => (
+            <BodyPara key={i} para={para} compact={false} />
+          ))}
+        </div>
+      ) : null}
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
-      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-        {rest.map((para, i) => (
-          <BodyPara key={i} para={para} compact={false} />
-        ))}
-      </div>
     </article>
   );
 }
