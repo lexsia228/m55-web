@@ -169,7 +169,14 @@ function HeroIconMessage({ className }: { className?: string }) {
 /** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
 /* ── SSOT v1: 各部の共通データ（TOC + 章扉で共用） ── */
 const REPORT_PARTS = [
-  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: '今の自分に出やすい傾向を整理する', anchor: 'section-overview'  },
+  {
+    partId: '1' as const,
+    roman: 'Ⅰ',
+    name: '輪郭を見る',
+    catch: '広げるより、深める',
+    desc: '今の自分に出やすい傾向を整理する',
+    anchor: 'section-overview',
+  },
   { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
   { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
@@ -480,12 +487,21 @@ function ReportPartBand({
 }) {
   const part = REPORT_PARTS.find((p) => p.partId === partId);
   const roman: Record<typeof partId, string> = { '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ' };
+  const catchPhrase = part && 'catch' in part ? part.catch : undefined;
+  const a11yLabel = catchPhrase
+    ? `第${partId}部 ${title}。${catchPhrase}`
+    : `第${partId}部 ${title}`;
+  const bandClass =
+    partId === '1'
+      ? `${styles.reportPartBand} ${styles.reportPartBandChapterPlate}`
+      : styles.reportPartBand;
+
   return (
     <div
       id={part?.anchor}
       data-part={partId}
-      className={styles.reportPartBand}
-      aria-label={`第${partId}部 ${title}`}
+      className={bandClass}
+      aria-label={a11yLabel}
     >
       <div className={styles.reportPartBandHeader}>
         <ReportPartMotif partId={partId} />
@@ -496,6 +512,9 @@ function ReportPartBand({
             </span>
             <span className={styles.reportPartBandTitle}>{title}</span>
           </div>
+          {catchPhrase ? (
+            <p className={styles.reportPartBandCatch}>{catchPhrase}</p>
+          ) : null}
           {part?.desc && <p className={styles.reportPartBandDesc}>{part.desc}</p>}
         </div>
       </div>
@@ -725,20 +744,20 @@ function clampTensionBias(n: number): number {
 function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
   const viz = identityDesignVizForStem(stemIdx);
   const bpLayers: { key: string; label: string; text: string }[] = [
-    { key: 'core', label: '核', text: viz.blueprint.core },
-    { key: 'natural', label: '自然に出る', text: viz.blueprint.natural },
-    { key: 'fragile', label: '崩れやすい', text: viz.blueprint.fragile },
-    { key: 'max', label: '無理なく力が出やすい条件', text: viz.blueprint.maximize },
+    { key: 'core', label: '中心にある力', text: viz.blueprint.core },
+    { key: 'natural', label: '力が出やすい場面', text: viz.blueprint.natural },
+    { key: 'fragile', label: 'つまずきやすい場面', text: viz.blueprint.fragile },
+    { key: 'max', label: '無理なく進める条件', text: viz.blueprint.maximize },
   ];
   const db = clampTensionBias(viz.tension.deepenBroaden);
   const ge = clampTensionBias(viz.tension.guardExpress);
 
   return (
-    <div className={styles.idDesignShell} aria-label="自己設計図（保存版）">
-      <p className={styles.idDesignOverline}>深読み · 自己設計図</p>
+    <div className={styles.idDesignShell} aria-label="力の出方を分解する（保存版）">
+      <p className={styles.idDesignOverline}>深読み · 力の出方を分解する</p>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>設計の4層</h3>
+        <h3 className={styles.idDesignBlockTitle}>力が出るまでの4つの手がかり</h3>
         <div className={styles.idBpStack} role="list">
           {bpLayers.map((L, i) => (
             <div
@@ -755,7 +774,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
       </div>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>両極マップ</h3>
+        <h3 className={styles.idDesignBlockTitle}>どちらに動きやすいか</h3>
         <p className={styles.idDesignHint}>良い・悪いの点数ではなく、どちらの動きが出やすいかを見る図です。</p>
         <div className={styles.idTensionGrid}>
           <div className={styles.idTensionAxis}>
@@ -918,7 +937,7 @@ const STRUCTURE_AXIS_DESC: Record<string, string> = {
   安定: '継続して場を保つ傾向',
 };
 
-/** 構成と傾向 — 5軸輪郭レーダー（paid 深読み版 · 数値なし） */
+/** 構成と傾向 — 傾向レーダー（paid 深読み版 · 数値なし） */
 function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   const viz = compositionStructureVizForStem(stemIdx);
   const [activeAxis, setActiveAxis] = useState<string | null>(null);
@@ -958,8 +977,8 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
   ].filter((r) => r.axes.length > 0);
 
   return (
-    <div className={styles.idDesignShell} aria-label="5つの傾向バランス">
-      <p className={styles.idDesignOverline}>5つの傾向バランス</p>
+    <div className={styles.idDesignShell} aria-label="傾向のバランス">
+      <p className={styles.idDesignOverline}>傾向のバランス</p>
 
       <div className={styles.idDesignBlock}>
         {/* 構成タイプ名 */}
@@ -1033,7 +1052,7 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
         <div className={`${styles.strMapReadCard} ${styles.idBpReveal}`} style={{ animationDelay: '0.28s' }}>
           <div className={styles.strMapReadBadge}>
             <span className={styles.strMapReadBadgeDot} aria-hidden />
-            傾向の読み取り
+            今出やすいところ
           </div>
           <div className={styles.strMapReadRows}>
             {readRows.map(({ label, accent, axes }) => (

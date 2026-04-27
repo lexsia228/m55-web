@@ -760,7 +760,7 @@ type SectionSpec = {
 
 const SECTION_SPECS: readonly SectionSpec[] = [
   { id: 's1_identity',     title: 'あなたという人物',         teaserSummary: 'あなたの基本的な性質と動き方の特徴です。',                   bodyKey: 'identity'     },
-  { id: 's2_composition',  title: '構成と傾向の全体像',       teaserSummary: '輪郭と5軸に沿った構成と傾向の全体的な読み取りです。',         bodyKey: 'composition'  },
+  { id: 's2_composition',  title: '構成と傾向の全体像',       teaserSummary: '輪郭に沿った構成と傾向の全体的な読み取りです。',         bodyKey: 'composition'  },
   { id: 's3_essence',      title: '本質と安定の条件',         teaserSummary: '本質的な動作原理と、安定するための条件の整理です。',         bodyKey: 'essence'      },
   { id: 's4_strengths',    title: '自分の出やすい面',           teaserSummary: '出やすい面と、それが機能しやすい場面の整理です。',     bodyKey: 'strengths'    },
   { id: 's5_friction',     title: '注意と盲点',               teaserSummary: '意識しておくと助けになる傾向と、生まれやすい摩擦の整理です。', bodyKey: 'friction'     },
@@ -781,7 +781,7 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
   const bodies = STEM_BODIES[idx]!;
   const nick = input.nickname ? clamp(input.nickname, 20) : 'あなた';
 
-  const s1Title = input.nickname
+  const s1Overline = input.nickname
     ? `${nick}さんの輪郭`
     : 'この保存版で見えている輪郭';
 
@@ -801,7 +801,7 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
       body = `${body}\n\n${SYSTEM_RULE_COPY}`;
     }
     const title =
-      spec.id === 's1_identity'  ? s1Title :
+      spec.id === 's1_identity'  ? s1Overline :
       spec.id === 's4_strengths' ? '力が出やすい場面' :
       spec.title;
     return {
