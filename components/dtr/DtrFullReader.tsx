@@ -1081,18 +1081,20 @@ function CompositionArticleWithViz({
   section: DtrSection;
   stemIdx: number;
 }) {
-  const paras = section.body.split('\n\n');
+  const paras = section.body.split('\n\n').filter((p) => p.trim());
   const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
       <h2 className={styles.savedWideTitle}>{section.title}</h2>
-      {lede && <p className={styles.sectionLede}>{lede}</p>}
+      {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
+      {rest.length > 0 ? (
+        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+          {rest.map((para, i) => (
+            <BodyPara key={i} para={para} compact={false} />
+          ))}
+        </div>
+      ) : null}
       <StructureInteractionMapFigures stemIdx={stemIdx} />
-      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-        {rest.map((para, i) => (
-          <BodyPara key={i} para={para} compact={false} />
-        ))}
-      </div>
     </article>
   );
 }
