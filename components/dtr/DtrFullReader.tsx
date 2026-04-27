@@ -169,7 +169,7 @@ function HeroIconMessage({ className }: { className?: string }) {
 /** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
 /* ── SSOT v1: 各部の共通データ（TOC + 章扉で共用） ── */
 const REPORT_PARTS = [
-  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: '考え方・進め方・感じ方・仕上げ方・整え方の全体像を整理する', anchor: 'section-overview'  },
+  { partId: '1' as const, roman: 'Ⅰ', name: '輪郭を見る', desc: '今の自分に出やすい傾向を整理する', anchor: 'section-overview'  },
   { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜそう動くか・何が本質かを読み解く',  anchor: 'section-structure' },
   { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '盲点と崩れやすい条件を確認する',         anchor: 'section-strain'    },
   { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
@@ -260,6 +260,76 @@ const INTRO_BULLETS: { text: string; anchor: string }[] = [
   { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
 ];
 
+/** フローティング ↑ の移動先（03「この保存版の読み方」ブロック） */
+const PREMIUM_INTRO_READING_GUIDE_ID = 'premium-intro-reading-guide';
+
+const READING_GUIDE_FAB_SHOW_PX = 600;
+
+/** 保存版ページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
+function PremiumReadingGuideScrollFab() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const globalBtn = document.querySelector<HTMLButtonElement>(
+      'button[aria-label="ページ上部へ戻る"]'
+    );
+    if (globalBtn) {
+      globalBtn.style.display = 'none';
+    }
+    return () => {
+      if (globalBtn) globalBtn.style.removeProperty('display');
+    };
+  }, []);
+
+  useEffect(() => {
+    const measure = () => {
+      const y =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+      setVisible(y > READING_GUIDE_FAB_SHOW_PX);
+    };
+    measure();
+    window.addEventListener('scroll', measure, { passive: true });
+    return () => window.removeEventListener('scroll', measure);
+  }, []);
+
+  const handleClick = () => {
+    document.getElementById(PREMIUM_INTRO_READING_GUIDE_ID)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`${styles.readingGuideFab}${visible ? ` ${styles.readingGuideFabVisible}` : ''}`}
+      aria-label="この保存版の読み方へ戻る"
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
+    >
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        aria-hidden="true"
+        focusable="false"
+        className={styles.readingGuideFabIcon}
+      >
+        <path
+          d="M10 14.5V5.5M6 9l4-4 4 4"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
   const [active, setActive, markTocNavigation] = useActiveSection();
 
@@ -307,7 +377,10 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
           ))}
         </ul>
       </div>
-      <div className={`${styles.premiumIntroPanelSection} ${styles.premiumIntroPanelSectionToc}`}>
+      <div
+        id={PREMIUM_INTRO_READING_GUIDE_ID}
+        className={`${styles.premiumIntroPanelSection} ${styles.premiumIntroPanelSectionToc} ${styles.premiumIntroReadingGuideAnchor}`}
+      >
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           03
         </span>
@@ -320,13 +393,19 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
                 <a
                   href={`#${p.anchor}`}
                   onClick={scrollTo(p.anchor)}
-                  className={`${styles.tocLink}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
+                  className={`${styles.tocLink} ${styles.tocLinkIntroCard}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
                   aria-current={active === p.anchor ? 'location' : undefined}
+                  aria-label={`${p.roman} ${p.name}へ移動`}
                 >
-                  <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
-                  <span className={styles.premiumIncludedTocName}>{p.name}</span>
-                  <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
-                  <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
+                  <span className={styles.tocLinkIntroCardMain}>
+                    <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
+                    <span className={styles.premiumIncludedTocName}>{p.name}</span>
+                    <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
+                    <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
+                  </span>
+                  <span className={styles.tocLinkIntroCardArrow} aria-hidden>
+                    →
+                  </span>
                 </a>
               </li>
             );
@@ -2278,6 +2357,7 @@ export default function DtrFullReader({
           <Link href="/support">サポート</Link>
         </footer>
       </div>
+      <PremiumReadingGuideScrollFab />
     </div>
   );
 }

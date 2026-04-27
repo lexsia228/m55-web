@@ -1847,6 +1847,11 @@
   border: 1px solid rgba(160, 140, 220, 0.14);
 }
 
+/* 03「この保存版の読み方」：PublicHeader 下に 16〜24px 相当の余白を残して止める */
+.premiumIntroReadingGuideAnchor {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 56px + 20px);
+}
+
 .premiumIntroBulletList {
   list-style: none;
   margin: 0 0 14px;
@@ -1946,6 +1951,98 @@
   gap: 7px;
 }
 
+.premiumIntroPanelSectionToc .premiumIncludedTocList {
+  gap: 10px;
+}
+
+/* 保存版専用：中央下 ↑ → 03 読み方ハブへ（ScrollToTopButton と同系の静かな丸ボタン） */
+.readingGuideFab {
+  position: fixed;
+  bottom: clamp(24px, 4vw, 36px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 1500;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 16, 32, 0.72);
+  border: 1px solid rgba(160, 140, 210, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  color: rgba(205, 195, 235, 0.82);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.readingGuideFabVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.readingGuideFab:hover {
+  background: rgba(30, 24, 50, 0.88);
+  border-color: rgba(180, 160, 225, 0.3);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  color: rgba(230, 220, 250, 0.97);
+}
+
+.readingGuideFab:active {
+  transform: translateX(-50%) translateY(0) scale(0.93);
+  transition: transform 0.08s ease;
+}
+
+.readingGuideFab:focus-visible {
+  outline: 2px solid rgba(175, 150, 230, 0.65);
+  outline-offset: 3px;
+}
+
+.readingGuideFabIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readingGuideFab {
+    transition: opacity 0.12s ease;
+    transform: translateX(-50%) !important;
+  }
+
+  .readingGuideFab:active {
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .readingGuideFab {
+    width: 44px;
+    height: 44px;
+    bottom: 24px;
+  }
+
+  .readingGuideFabIcon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .premiumIncludedTocRow {
   display: flex;
   align-items: baseline;
@@ -2040,6 +2137,70 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* 冒頭 03：章へ移動できる静かなリンクカード */
+.tocLinkIntroCard {
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  min-height: 40px;
+  padding: 10px 12px;
+  margin: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(160, 140, 220, 0.14);
+  box-sizing: border-box;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.tocLinkIntroCardMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tocLinkIntroCardArrow {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--dtr-accent);
+  opacity: 0.48;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.tocLinkIntroCard:hover {
+  background-color: rgba(155, 135, 225, 0.075);
+  border-color: rgba(178, 158, 238, 0.24);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tocLinkIntroCard:hover .tocLinkIntroCardArrow {
+  opacity: 0.66;
+  transform: translateX(1px);
+}
+
+.tocLinkIntroCard:focus-visible {
+  outline: 1px solid rgba(185, 165, 230, 0.5);
+  outline-offset: 2px;
+}
+
+.tocLinkIntroCard.tocLinkActive {
+  background-color: rgba(155, 135, 225, 0.09);
+  border-color: rgba(188, 168, 238, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.tocLinkIntroCard.tocLinkActive .tocLinkIntroCardArrow {
+  opacity: 0.58;
+}
+
 /* Active: no left bar ?Ea whisper of tint + slightly brighter key lines */
 .tocLinkActive {
   background-color: rgba(155, 135, 225, 0.055);
@@ -2065,8 +2226,9 @@
     padding: 10px 10px 8px;
   }
 
-  .premiumIncludedTocList {
-    gap: 8px;
+  .tocLinkIntroCard {
+    min-height: 44px;
+    padding: 11px 12px;
   }
 
   .premiumIntroConsultNote {
