@@ -119,7 +119,7 @@ export async function GET() {
   // PR1: read-only wallet vs consult comparison (ADR: M55_REPLY_CREDIT_LEDGER_ARCHITECTURE_ADR_v1).
   // No DB writes to wallet or consult from this block; user-facing thread/messages unchanged in meaning.
   const consultRem = thread!.credits_remaining;
-  const walletProbe = await readReplyWalletProbe(db, userId);
+  const walletProbe = await readReplyWalletProbe(db, userId, ownership.reportInstanceId);
   const walletReadError = walletProbe.readError;
   const walletMissing = !walletReadError && walletProbe.availableCount === null;
   const numberMismatch =
@@ -135,6 +135,8 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         userIdHash: hashUserIdForLedgerLog(userId),
         report_key: REPORT_KEY,
+        requested_report_instance_id: walletProbe.requestedReportInstanceId ?? null,
+        scoped_wallet_lookup_active: walletProbe.scopedWalletLookupActive,
         consult_credits_remaining: consultRem,
         wallet_available_count: walletProbe.availableCount,
         wallet_status: walletProbe.status,
@@ -160,6 +162,8 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       userIdHash: hashUserIdForLedgerLog(userId),
       report_key: REPORT_KEY,
+      requested_report_instance_id: walletProbe.requestedReportInstanceId ?? null,
+      scoped_wallet_lookup_active: walletProbe.scopedWalletLookupActive,
       consult_credits_remaining: consultRem,
       wallet_available_count: walletProbe.availableCount,
       wallet_status: walletProbe.status,
