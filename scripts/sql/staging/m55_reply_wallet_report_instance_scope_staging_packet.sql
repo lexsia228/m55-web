@@ -113,6 +113,115 @@ WHERE NOT EXISTS (
 );
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- PHASE 0 (hardening) — wallet / ledger / snapshot / entitlement / fulfillment
+-- See: docs/ssot/M55_REPLY_WALLET_STAGING_RUNBOOK_HARDENING_REVIEW_v1.md
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- B — Wallet: invariant & bounds (usually 0 rows if DB CHECKs always held)
+SELECT id, user_id,
+  initial_included_count, purchased_count, consumed_count, available_count
+FROM public.reply_ticket_wallets
+WHERE available_count <> initial_included_count + purchased_count - consumed_count
+   OR available_count < 0
+   OR consumed_count < 0
+   OR purchased_count < 0
+   OR initial_included_count < 0
+   OR consumed_count > initial_included_count + purchased_count;
+
+SELECT id, user_id FROM public.reply_ticket_wallets
+WHERE status NOT IN ('active', 'suspended', 'closed');
+
+SELECT id, user_id FROM public.reply_ticket_wallets
+WHERE created_at IS NULL OR updated_at IS NULL;
+
+-- C — Ledger: consume without session (double-check vs CHECK constraint)
+SELECT l.id AS ledger_reply_consume_missing_session_id
+FROM public.reply_wallet_ledgers l
+WHERE l.event_type = 'reply_consume'
+  AND l.reply_session_id IS NULL;
+
+-- C — Ledger: grants with NULL source_of_grant (weak audit trail)
+SELECT l.id AS ledger_grant_weak_tracking_id
+FROM public.reply_wallet_ledgers l
+WHERE l.event_type IN ('included_grant', 'purchase_grant')
+  AND l.source_of_grant IS NULL;
+
+-- C — Ledger: last row balance_after vs wallet.available_count (may flag imports; investigate non-zero)
+SELECT w.id AS wallet_id, w.user_id,
+       w.available_count AS wallet_available,
+       lr.balance_after AS last_ledger_balance_after
+FROM public.reply_ticket_wallets w
+JOIN (
+  SELECT DISTINCT ON (wallet_id)
+    wallet_id, balance_after
+  FROM public.reply_wallet_ledgers
+  ORDER BY wallet_id, created_at DESC, id DESC
+) lr ON lr.wallet_id = w.id
+WHERE lr.balance_after IS DISTINCT FROM w.available_count;
+
+-- C — Wallet rows with ledger activity implied but zero ledger rows
+SELECT w.id AS wallet_no_ledger_but_nonzero_balances_id, w.user_id,
+       w.available_count, w.initial_included_count, w.purchased_count, w.consumed_count
+FROM public.reply_ticket_wallets w
+WHERE NOT EXISTS (SELECT 1 FROM public.reply_wallet_ledgers l WHERE l.wallet_id = w.id)
+  AND (
+    w.initial_included_count <> 0 OR w.purchased_count <> 0 OR w.consumed_count <> 0
+    OR w.available_count <> 0
+  );
+
+-- D — Snapshot: invalid nulls (schema normally prevents)
+SELECT id FROM public.dtr_report_snapshots
+WHERE user_id IS NULL OR btrim(user_id) = ''
+   OR product_id IS NULL OR btrim(product_id) = '';
+
+-- D — Snapshot without wallet row (informational; may occur before wallet grant flows)
+SELECT s.user_id AS snapshot_user_without_wallet, s.id AS snapshot_id
+FROM public.dtr_report_snapshots s
+WHERE s.product_id = 'DTR_CORE_STATIC_V1'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.reply_ticket_wallets w WHERE w.user_id = s.user_id
+  );
+
+-- D — entitlement_rights (DTR_CORE_RIGHT_KEY) vs Entry Report snapshot
+-- right_key SSOT: lib/m55/dtrCoreCheckoutFulfillment.ts DTR_CORE_RIGHT_KEY = 'm55_p:core_origin'
+SELECT er.user_id AS entitlement_core_origin_without_snapshot
+FROM public.entitlement_rights er
+LEFT JOIN public.dtr_report_snapshots s
+  ON s.user_id = er.user_id AND s.product_id = 'DTR_CORE_STATIC_V1'
+WHERE er.right_key = 'm55_p:core_origin'
+  AND s.id IS NULL;
+
+SELECT s.user_id, s.id AS snapshot_without_core_origin_right
+FROM public.dtr_report_snapshots s
+LEFT JOIN public.entitlement_rights er
+  ON er.user_id = s.user_id AND er.right_key = 'm55_p:core_origin'
+WHERE s.product_id = 'DTR_CORE_STATIC_V1'
+  AND er.id IS NULL;
+
+-- D — one_time_fulfillments vs snapshot by checkout_session_id (DTR Core lane)
+SELECT o.checkout_session_id, o.user_id
+FROM public.one_time_fulfillments o
+LEFT JOIN public.dtr_report_snapshots s ON s.checkout_session_id = o.checkout_session_id
+WHERE o.product_id = 'DTR_CORE_STATIC_V1'
+  AND s.id IS NULL;
+
+-- E — document vs session user_id
+SELECT d.id AS document_id, d.reply_session_id,
+       d.user_id AS document_user_id, s.user_id AS session_user_id
+FROM public.reply_documents d
+JOIN public.reply_sessions s ON s.id = d.reply_session_id
+WHERE d.user_id IS DISTINCT FROM s.user_id;
+
+-- E — succeeded sessions with no document (may be brief windows or policy; investigate if non-zero)
+SELECT COUNT(*) AS succeeded_sessions_without_document
+FROM public.reply_sessions rs
+WHERE rs.status = 'succeeded'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.reply_documents d WHERE d.reply_session_id = rs.id
+  );
+
+
 -- ############################################################################
 -- ## STOP — DO NOT PROCEED TO DDL UNTIL:                                    ##
 -- ##   - Phase 0 queries above have been recorded                            ##

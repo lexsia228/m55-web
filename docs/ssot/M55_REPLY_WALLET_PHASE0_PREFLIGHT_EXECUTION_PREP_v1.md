@@ -6,7 +6,9 @@ Date: 2026-04-28
 
 Related:
 
-- `scripts/sql/staging/m55_reply_wallet_report_instance_scope_staging_packet.sql`
+- `scripts/sql/staging/m55_reply_wallet_report_instance_phase0_only.sql`（**Phase 0 のみ**。貼り付け推奨）
+- `scripts/sql/staging/m55_reply_wallet_report_instance_scope_staging_packet.sql`（Phase 0 に **同一の SELECT が含まれる**／Phase A〜H はコメント）
+- `docs/ssot/M55_REPLY_WALLET_STAGING_RUNBOOK_HARDENING_REVIEW_v1.md`
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_STAGING_EXECUTION_PACKET_v1.md`
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_EXECUTION_REVIEW_v1.md`
 
@@ -14,23 +16,24 @@ Related:
 
 ## A. Phase 0 が SELECT のみである根拠
 
-対象ファイルの **行 41〜114** を機械的に確認した結果、**アクティブな（`--` で始まっていない）SQL は `SELECT` 文のみ**である。
+**推奨**: **`m55_reply_wallet_report_instance_phase0_only.sql` 全体を実行対象とする**。このファイルには **実行可能な文は `SELECT` のみ**であり、Phase A〜H ブロックを **含まない**。
 
-| 区分 | 行（目安） | 内容 |
-|------|-------------|------|
-| `SELECT` のみブロック | 46〜113 | `current_database()`、各種 `COUNT(*)`、`JOIN`/`GROUP BY`/`HAVING` を伴う読み取り、`pg_constraint` 参照 |
+別経路として **`m55_reply_wallet_report_instance_scope_staging_packet.sql`** の **PHASE 0 と PHASE 0 (hardening)** セクションのみをコピーしてもよい。同一内容は Packet と同期させる。**Phase A ブロックより下はコピーしない**こと。
 
-- **ALTER / UPDATE / INSERT / DELETE / DROP / CREATE / TRUNCATE / SET** は **Phase 0 ブロック内に無い**。  
-- **行 127 以降**は Phase A ラベルから始まり、**DDL/DML はすべて行頭 `--` によるコメント**で無効化されている（次節）。
+| 判定 | 内容 |
+|------|------|
+| `phase0_only.sql` | ファイル末尾まで **`SELECT` のみ**（DDL/DML なし） |
+| `staging_packet.sql` の Phase A 以降 | **行頭 `--`** により実行されず（§B）。Phase 0 だけをコピー実行する運用でも可 |
+
+- **ALTER / UPDATE / INSERT / DELETE / DROP / CREATE / TRUNCATE / SET** は **phase0_only に無い**。Packet の Phase A〜H は **すべてコメント**。
 
 ---
 
 ## B. Phase A〜H が実行されない根拠
 
-1. **Phase A（行 131 付近）以降**の `ALTER` / `UPDATE` 等は、**行全体が `--` でコメントアウト**されている。既定のまま **Postgres に送るとパーサが無視**し、実行されない。  
-2. **Phase E** 内の `SELECT` も **コメント内**のため、**アンコメントしない限り実行されない**（現行ポリシー: **アンコメント禁止**）。  
-3. **Phase F / G / H** の DDL および rollback 例はすべて **`--`** かコメント説明のみ。  
-4. **推奨**: SQL エディタで **行 46〜113（Phase 0 の `SELECT` のみ）をコピーして実行**する。ファイル全体を実行しても Phase 0 の `SELECT` のみが有効だが、**将来のファイル編集による誤実行を防ぐため、ブロック単位の実行を推奨**する。
+1. **`phase0_only.sql` を使う場合**：Phase A〜H を **ファイルが含まない**。  
+2. **`staging_packet.sql` のみ使う場合**：Phase A 以降の `ALTER` / `UPDATE` は **行頭 `--`**。Phase E の検証用 `SELECT` も **コメント内**（アンコメント禁止）。Phase F / G / H も **`--`** または注記のみ。  
+3. **推奨**：**`phase0_only.sql` を実行**するか、Packet から **Phase 0〜hardening まで**のみコピー。**Packet 全文実行**でも Phase A〜H は送信されないが、`phase0_only` の方が **貼り事故が少ない**。
 
 ---
 
@@ -40,13 +43,15 @@ Related:
 
 | # | 手順 |
 |---|------|
-| 1 | **Supabase Dashboard** で接続先プロジェクトを開き、**Project ref** を控える（チームの「staging/dev 一覧」と照合）。 |
-| 2 | **本番用**の ref / URL / 表示名と **一致しない**ことを口頭またはチケットで二重確認する。 |
-| 3 | **SQL Editor** または **psql** の接続先が上記プロジェクトであることを確認する。 |
-| 4 | （任意）社内規程に従い、**staging/dev の許可リスト**に ref が載っていることを確認する。 |
-| 5 | Phase 0 実行後、`current_database()` の結果を記録し、想定 DB 名と一致するか確認する。 |
+| 1 | **Supabase Dashboard** で **Project ref** / **Project name** / **URL host**（`<ref>.supabase.co`）を **画面から**記録。**`.env` をチケットに貼らない**（秘密混入防止）。 |
+| 2 | チームの **本番 project ref** と **一致・不明・あいまいなら STOP**（SQL を実行しない）。 |
+| 3 | **実行者 ID / 氏名** をチケットに残す。 |
+| 4 | **SQL Editor の画面**でプロジェクト名が Dashboard と **目視で一致**することを確認（タブ取り違え防止）。 |
+| 5 | **SQL Editor / psql** が上記プロジェクトに接続していることを確認。 |
+| 6 | （任意）**staging/dev 許可リスト**に ref があるか。 |
+| 7 | 実行後、`current_database()` と想定 DB 名を照合。 |
 
-**否定条件（即中止）**: 接続先が不明、本番と思われる、または project ref が本番と一致する可能性がある。
+**否定条件（即中止）**: **本番 ref と同一・疑い**、Dashboard と Editor のプロジェクト不一致、接続先不明。**`.env` だけでは「本番でない」と証明しない**。
 
 ---
 
@@ -57,14 +62,17 @@ Related:
 | フィールド | 記入例 | 備考 |
 |------------|--------|------|
 | `executed_at_utc` | `2026-04-28T12:00:00Z` | 実行開始時刻（UTC 推奨） |
-| `supabase_project_ref` | `abcdefghijklmnop` | Dashboard の ref（**本番と一致しないこと**） |
-| `connection_method` | `Supabase SQL Editor` / `psql` 等 | — |
-| `phase0_current_database` | （Phase 0 の `SELECT current_database()` 結果） | 実行**後**に追記 |
-| `git_branch` | `main` / `feature/...` | パケットを参照したブランチ |
-| `git_commit_hash` | 40 文字の SHA または短縮 SHA | `git rev-parse HEAD` |
-| `packet_path` | `scripts/sql/staging/m55_reply_wallet_report_instance_scope_staging_packet.sql` | 監査用 |
-| `confirmed_not_production` | `YES` | 合意者名を任意で追記可 |
-| `read_only_scope` | `Phase 0 only` | Phase A 以降は **未実行** |
+| `executor` | `<name or id>` | — |
+| `supabase_project_ref` | `<from Dashboard>` | **本番一覧と照合済み** |
+| `supabase_project_name` | `<from Dashboard>` | — |
+| `project_url_host` | `<ref>.supabase.co` | `.env` は記載禁止 |
+| `connection_method` | `Supabase SQL Editor` / `psql` | — |
+| `phase0_current_database` | （`SELECT current_database()`） | 実行後 |
+| `git_branch` | `main` / `feature/...` | |
+| `git_commit_hash` | SHA | `git rev-parse HEAD` |
+| `sql_script_used` | `m55_reply_wallet_report_instance_phase0_only.sql` または Packet Phase 0 のみ | |
+| `confirmed_not_production` | `YES` | Dashboard で確認した旨 |
+| `read_only_scope` | `Phase 0 only` | Phase A 以降 **未実行** |
 
 ---
 
@@ -138,6 +146,10 @@ orphan_document_id rows: <0 or rows>
 - **Phase A〜H は NO-GO**（アンコメントしない・実行しない）。  
 - **GO（Phase 0）**は **「preflight 記録の完了」**であり、**マイグレーション GO ではない**。
 
+### F.4 ハードニング追加クエリについて（自動 STOP としない項目）
+
+`HARDENING_REVIEW_v1` と SQL にある **snapshot だけあって wallet が無い**、**Rights と snapshot の片方欠け**、**Fulfillment と snapshot の突合ずれ**、`succeeded_sessions_without_document`、**最終 ledger と wallet の不一致**などは、**staging のテスト順序によっては非ゼロ**になりうる。**F.1 の STOP 条件には含めず**、**返却行がある場合は理由をチケットに記載**したうえで、**migration 本体のゲートとは別オーナー判定**とする。**`wallet_user_without_snapshot` と snapshot 重複のハード STOP は変更なし**。
+
 ---
 
 ## G. 厳守（本ドキュメントの利用範囲）
@@ -155,3 +167,4 @@ orphan_document_id rows: <0 or rows>
 | バージョン | 内容 |
 |-----------|------|
 | v1 | PR1.9c Phase 0 実行準備 SSOT |
+| v1.1 | PR1.9c-hardening：環境欄強化、`phase0_only.sql`、ハード STOP と情報系の区分（F.4） |
