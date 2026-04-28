@@ -18,7 +18,14 @@ import { getDtrReportSnapshot } from './dtrDraftDb';
 export type DtrUnlockState = 'owned' | 'locked' | 'expired';
 
 export type DtrOwnershipResult =
-  | { unlockState: 'owned'; ownershipType: 'static'; aiConsultIncluded: true; expiresAt: null }
+  | {
+      unlockState: 'owned';
+      ownershipType: 'static';
+      aiConsultIncluded: true;
+      expiresAt: null;
+      /** Present when ownership is backed by `dtr_report_snapshots`; equals `reportInstanceId` from snapshot row. */
+      reportInstanceId?: string;
+    }
   | { unlockState: 'locked' }
   | { unlockState: 'expired' };
 
@@ -47,6 +54,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
         ownershipType: 'static',
         aiConsultIncluded: true,
         expiresAt: null,
+        reportInstanceId: snapRow.reportInstanceId,
       };
     }
 

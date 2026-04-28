@@ -33,7 +33,9 @@ export async function getLatestDraftForUser(userId: string): Promise<GuestDraftR
   }
 }
 
+/** Immutable snapshot row; `reportInstanceId` === `dtr_report_snapshots.id` (canonical report instance key). */
 export type DtrReportSnapshotRow = {
+  reportInstanceId: string;
   user_id: string;
   product_id: string;
   checkout_session_id: string | null;
@@ -50,12 +52,15 @@ export async function getDtrReportSnapshot(
     const db = getSupabaseAdmin() as any;
     const { data, error } = await db
       .from('dtr_report_snapshots')
-      .select('user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json')
+      .select('id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json')
       .eq('user_id', userId)
       .eq('product_id', productId)
       .maybeSingle();
     if (error || !data) return null;
+    const idRaw = data.id as unknown;
+    if (idRaw == null || (typeof idRaw !== 'string' && typeof idRaw !== 'number')) return null;
     return {
+      reportInstanceId: String(idRaw),
       user_id: data.user_id,
       product_id: data.product_id,
       checkout_session_id: data.checkout_session_id ?? null,
