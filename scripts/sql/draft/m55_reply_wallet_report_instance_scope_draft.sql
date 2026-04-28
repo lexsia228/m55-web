@@ -10,6 +10,15 @@
 -- report_instance_id canonical: dtr_report_snapshots.id (uuid)
 -- Entry Report product_id (code): match lib/oneTimeCheckout.ts exactly:
 --     DTR_CORE_STATIC_V1
+--
+-- ORPHAN / QUARANTINE (SSOT: docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md):
+-- - Wallets with NO row in dtr_report_snapshots for DTR_CORE_STATIC_V1 must NOT receive
+--   a guessed report_instance_id. Phase B UPDATE below joins FROM dtr_report_snapshots only,
+--   so orphan wallets do not match the JOIN and remain unchanged until migration_status OPS.
+-- - Track users in tickets via hashed_user_id (same salt as
+--   m55_reply_wallet_backfill_minimal_verification_hash.sql) — not raw user_id.
+-- - Automatic migration backfill EXCLUDES known orphan count (production: 3). Phase F/G NO-GO
+--   while manual_review_quarantine / legacy_protected rows leave NULL exceptions.
 -- ============================================================================
 
 -- BEGIN;  -- Uncomment only after splitting phases; CREATE INDEX CONCURRENTLY cannot run inside a txn.
@@ -70,6 +79,10 @@
 -- ───────────────────────────────────────────────────────────────────────────
 -- PHASE B — Backfill wallet.report_instance_id from dtr_report_snapshots.id
 -- ───────────────────────────────────────────────────────────────────────────
+--
+-- SAFETY: This UPDATE only assigns rows WHERE a matching snapshot EXISTS (FROM s).
+--         Users WITHOUT dtr_report_snapshots (DTR_CORE_STATIC_V1) are NOT touched here.
+--         Equivalent to INNER JOIN semantics — quarantine orphans stay without report_instance_id.
 
 -- Single-snapshot-per-(user,product) assumption (current UNIQUE on dtr_report_snapshots):
 -- UPDATE public.reply_ticket_wallets AS w
@@ -80,7 +93,8 @@
 --   AND s.product_id = 'DTR_CORE_STATIC_V1'
 --   AND w.report_instance_id IS NULL;
 
--- Mark rows with no snapshot match for manual handling (no destructive guess)
+-- Mark rows still NULL after Phase B UPDATE (includes quarantine orphans with no snapshot)
+-- OPTIONAL: migration_status = 'quarantine' if column CHECK allows (see PHASE A fragment)
 -- UPDATE public.reply_ticket_wallets
 -- SET migration_status = 'manual_review'
 -- WHERE report_instance_id IS NULL;

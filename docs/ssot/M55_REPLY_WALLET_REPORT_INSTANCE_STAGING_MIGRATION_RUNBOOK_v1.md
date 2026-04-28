@@ -2,12 +2,13 @@
 
 Status: **Staging / Dev only** — manual runbook. **Do not execute on production.** Do not add production migrations under `supabase/migrations/` from this document.  
 
-Date: 2026-04-28  
+Date: 2026-04-29  
 
 Related:
 
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_EXECUTION_REVIEW_v1.md`
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_PLAN_v1.md`
+- `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`（**quarantine exclusion 正本**）
 - `scripts/sql/draft/m55_reply_wallet_report_instance_scope_draft.sql`
 
 Owner: M55 / Reflect Note by M55
@@ -19,6 +20,15 @@ Owner: M55 / Reflect Note by M55
 - **user 単位 1 行の `reply_ticket_wallet` から、`report_instance_id`（`dtr_report_snapshots.id` を正）を軸としたスコープへの移行**について、**staging / dev のみ**で **DDL・backfill・制約変更・rollback の可否**を検証するための安全実行手順書である。
 - **本番適用の代替ではない**。成功しても **`supabase/migrations` に本番 migration を置くゲートは別ドキュメント**（EXECUTION REVIEW の GO 条件）による。
 - ドラフト SQL（`scripts/sql/draft/m55_reply_wallet_report_instance_scope_draft.sql`）は **コメントアウト縦並び**であり、本書では **Phase ごとの検証ゲート・停止条件**を明示する。
+
+### 1.1 Quarantine exclusion（Orphan 3 件）— 2026-04-29
+
+**SSOT:** `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`
+
+- **Known orphan:** `wallet_user_without_snapshot_count = 3`（`DTR_CORE_STATIC_V1` snapshot 無し）。**migration 自動 backfill の対象に含めない。**  
+- **`report_instance_id` を埋めるのは** `dtr_report_snapshots` に **行が存在するユーザーに限る**（Phase B の `UPDATE ... FROM dtr_report_snapshots` は **INNER 的事実上**そうなる）。**snapshot 無し wallet へ推測で ID を入れない。**  
+- チケットでは **生 `user_id` を書かない**。**`hashed_user_id`**（`md5('m55_wallet_diag_v1' \|\| user_id)`、`m55_reply_wallet_backfill_minimal_verification_hash.sql` と同ソルト）で **3 行を突合**する。  
+- **Phase A（nullable 列追加）**は **設計・staging 限定で再開候補**。**Phase B 以降の backfill** は **別承認・別ゲート**。**`NOT NULL` / FK / strict UNIQUE 完成（Phase F/G）は** `manual_review_quarantine` / `legacy_protected` が残る限り **NO-GO**（`MIGRATION_PLAN` §0.1）。
 
 ---
 
@@ -67,6 +77,8 @@ WHERE product_id = 'DTR_CORE_STATIC_V1';
 ```
 
 ### 3.3 wallet はあるが snapshot が無いユーザー（orphan wallet 候補）
+
+**チケット転記用（生 ID を出さない）:** Phase 検証でも **`hashed_user_id` のみ**を記録するなら、`m55_reply_wallet_backfill_minimal_verification_hash.sql` の **PART 2** を用いる。下は **開発者のみが接続できる環境での列挙例**であり、公開チャンネルに **平文 `user_id` を貼らない**こと。
 
 ```sql
 SELECT w.user_id
@@ -167,12 +179,13 @@ WHERE l.report_instance_id IS DISTINCT FROM w.report_instance_id
 
 | 停止トリガー | Phase |
 |---------------|--------|
-| **snapshot が無い wallet が想定外件数で残る**（自動で UUID を捏造しない方針と矛盾） | **B 以降**は **manual_review の方針確定**まで停止 |
+| **snapshot が無い wallet** | **自動 backfill で `report_instance_id` を埋めない**（§1.1）。既知 orphan **3** 件は **quarantine**。**B 以前**は件数・`hashed_user_id` を SSOT と突合済みであること。**想定外の追加 orphan** があれば **停止**。 |
 | **複数 snapshot 候補が 1 件でもある**（§3.4） | **B 前**は **どの行を正とするか手動方針**まで停止 |
 | **`report_instance_id` が埋まらない ledger（C 後）または session（D 後）が、説明不能** | **E で合格せず** |
 | **UNIQUE 移行前に `(user_id, report_instance_id)` の重複がある** | **F を実行しない** |
 | **RPC / アプリが旧 user 単位のまま本番に向けて適用されようとしている** | **本 runbook の対象外**。staging のみで **コードは触らない**前提（§8）なら、**Phase F/G は「検証のみ・本番コード未接続の DB」に限定 |
 | **rollback 手順が未確認**（チーム内で合意した復旧パスが無い） | **H を完了するまで本番 GO に進めない** |
+| **`manual_review` / quarantine が残り、例外 NULL が許容されていない状態で Phase F/G を適用しようとする** | **F/G は NO-GO**（`MIGRATION_PLAN_v1` §0.1、`ORPHAN_THREE_CASE_CLASSIFICATION_v1`） |
 
 ---
 
@@ -230,3 +243,4 @@ WHERE l.report_instance_id IS DISTINCT FROM w.report_instance_id
 | バージョン | 内容 |
 |-----------|------|
 | v1 | PR1.9a staging/dev 安全手順書として初版 |
+| v1.1 | 2026-04-29: quarantine exclusion（Orphan 3）、hashed_user_id、`hashed` 以外の転記禁止、Phase B/F/G ゲートと整合。 |

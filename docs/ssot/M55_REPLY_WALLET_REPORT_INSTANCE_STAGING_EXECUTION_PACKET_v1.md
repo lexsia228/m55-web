@@ -2,7 +2,7 @@
 
 Status: **Staging / dev execution packet (reference)** — **not** a production migration.  
 
-Date: 2026-04-28  
+Date: 2026-04-29  
 
 Companion SQL:
 
@@ -12,6 +12,8 @@ Related:
 
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_STAGING_MIGRATION_RUNBOOK_v1.md`
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_EXECUTION_REVIEW_v1.md`
+- `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`（**quarantine exclusion**）
+- `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_PLAN_v1.md`（§0.1）
 
 Owner: M55 / Reflect Note by M55
 
@@ -22,6 +24,15 @@ Owner: M55 / Reflect Note by M55
 - **`supabase/migrations` に置かない**。本番 DDL 自動適用ではない。
 - **リポジトリの DB への適用はしない**（CI / 開発者環境での手動適用のみを想定）。
 - **コード変更を伴わない**：`walletGrants`、`RPC`、`/api/reply/generate`、`ConsultRoom` 等は本パケットでは触らない（下記§9）。
+
+### 1.1 Quarantine exclusion（Orphan 3 件）
+
+**正本:** `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`
+
+- **`DTR_CORE_STATIC_V1` の `dtr_report_snapshots` が無い wallet** に対して、**自動 backfill で `report_instance_id` を埋めない**（推測禁止）。Phase B の `UPDATE ... FROM dtr_report_snapshots` は **snapshot 行がある場合のみ** wallet を更新する。  
+- Known orphan **3** 件は **migration 自動対象から除外**。識別は **条件式**（本 WHERE と同様の `NOT EXISTS`）またはチケット上の **`hashed_user_id` のみ**（`m55_wallet_diag_v1` ソルト）。  
+- **`NOT NULL` / FK / strict UNIQUE の完成（Phase F/G）は** 当該 quarantine が解消するまで **NO-GO**。Phase **F/G は引き続き NO-GO**（本番・staging いずれもゲート SSOT 優先）。  
+- **Phase A（nullable 列のみ）**は **設計・オーナー合意下で再開候補**。**Backfill（B〜D）は別ゲート。**
 
 ---
 
@@ -61,7 +72,7 @@ Owner: M55 / Reflect Note by M55
 | Phase | 開始条件 |
 |--------|----------|
 | **0** | 接続先確認済み。バックアップ方針の合意。 |
-| **A** | Phase 0 完了。**wallet はあるが snapshot が無い user が 0 件**。**複数 snapshot 行が 0 件**。Ledger/document の FK 起因 orphan が空（または説明済み）。 |
+| **A** | Phase 0 完了。**複数 snapshot 行が 0 件**。Ledger/document の FK 起因 orphan が空（または説明済み）。**「snapshot が無い wallet」の件数**は SSOT と突合（**既知 3** 件 quarantine の場合は **件数のみ**記録し **Phase B 以降では自動埋めしない**方針を確認済みであること。**生 `user_id` をチケットに貼らない**。） |
 | **B** | Phase A 適用済み（列が存在する）。 |
 | **C** | Phase B 適用済み。 |
 | **D** | Phase C 適用済み（または運用上 C をスキップしない方針で合意）。 |
@@ -78,7 +89,7 @@ Owner: M55 / Reflect Note by M55
 
 | 条件 |
 |------|
-| **wallet はあるが `DTR_CORE_STATIC_V1` の snapshot が無い user が 1 件でもいる**（Phase 0 の検出）。 |
+| **Phase B を「snapshot が無い wallet にまで誤って backfill を当てようとしている」場合** — **STOP**。**Known orphan は SSOT（3 件）で quarantine**。件数のみ突合し、**自動で `report_instance_id` を捏造しない**。 |
 | **`(user_id, product_id)` またはエントリー製品限定で snapshot が複数行**の user がいる。 |
 | **Phase 0 の `unique_constraint_name` が手元メモの想定と一致しない**（`reply_ticket_wallets_user_id_key` 等は慣例に過ぎない）。手動で突合してから Phase F。 |
 | **本番 DB だと思われる接続**（project ref / ホスト / 運用ラベルが本番）。 |
@@ -99,8 +110,8 @@ Owner: M55 / Reflect Note by M55
 | **C** | 親 wallet と ledger の不一致クエリが **0 行**。 |
 | **D** | `sessions_null_report_instance` が方針どおり説明可能。 |
 | **E** | 重複 0、`wallet_null_not_manual_review` が許容、`ledger`/`session` の方針が文書化。 |
-| **F**（試行のみ） | 新複合 UNIQUE が存在し、アプリ無し環境でのみ検証済み。 |
-| **G**（試行のみ） | NOT NULL が方針どおり。**本番では別 GO**。 |
+| **F**（試行のみ） | 新複合 UNIQUE が存在し、アプリ無し環境でのみ検証済み。**quarantine が NULL 例外を残す限り本フェーズは原則 NO-GO**（§1.1）。 |
+| **G**（試行のみ） | NOT NULL が方針どおり。**本番では別 GO**。**quarantine 未解決なら NO-GO**。 |
 
 ---
 
@@ -182,3 +193,4 @@ Owner: M55 / Reflect Note by M55
 | バージョン | 内容 |
 |-----------|------|
 | v1 | PR1.9b staging/dev 実行パケット SSOT として初版 |
+| v1.1 | 2026-04-29: quarantine exclusion、Phase A と backfill の分離、Phase F/G NO-GO、STOP 文言の調整（§1.1）。 |

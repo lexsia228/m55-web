@@ -20,14 +20,29 @@
 -- Canonical report_instance_id: dtr_report_snapshots.id (uuid)
 -- Entry Report product_id (must match lib/oneTimeCheckout.ts):
 --   DTR_CORE_STATIC_V1
+--
+-- ORPHAN / QUARANTINE (do NOT auto-backfill wallets without snapshot):
+--   docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md
+--   Known cohort: wallet exists but NO dtr_report_snapshots row for DTR_CORE_STATIC_V1.
+--   - Phase B UPDATE ... FROM dtr_report_snapshots touches ONLY users WITH a snapshot row.
+--   - Do NOT infer report_instance_id for orphan wallets. Use migration_status / ops.
+--   - Identify in tickets via hashed_user_id (see m55_reply_wallet_backfill_minimal_verification_hash.sql)
+--     or NOT EXISTS(...) cohort — never paste raw user_id to public channels.
+--   - Phase F/G remain NO-GO until quarantine policy resolved (see MIGRATION_PLAN_v1 §0.1).
 -- ============================================================================
 
 
+-- NOTE: Phase B backfill (below) uses FROM dtr_report_snapshots — only users WITH
+--       a snapshot row get report_instance_id. Wallets without snapshot are NOT
+--       updated by the first UPDATE; second UPDATE sets migration_status for NULLs.
+--       Do not add UPDATEs that guess UUIDs. Phase F/G stay commented (NO-GO with quarantine).
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║ STOP — READ BEFORE ANY EXECUTION                                         ║
 -- ║                                                                          ║
--- ║ STOP if ANY wallet has no DTR_CORE_STATIC_V1 snapshot (Phase 0 shows    ║
--- ║      orphaned users) — resolve data or use a clean staging DB first.     ║
+-- ║ If wallets exist WITHOUT DTR_CORE_STATIC_V1 snapshot: do NOT invent     ║
+-- ║      report_instance_id in Phase B. Known prod orphan count = 3 (SSOT).   ║
+-- ║      Phase A (nullable columns) may be gated separately from backfill.   ║
+-- ║      Record counts + hashed_user_id only; reconcile with ORPHAN SSOT.     ║
 -- ║ STOP if duplicate snapshot rows exist per (user_id, product_id).         ║
 -- ║ STOP if UNIQUE constraint name differs from your recorded name —         ║
 -- ║      reconcile manually before Phase F.                                   ║
@@ -70,7 +85,9 @@ WHERE rel.relname = 'reply_ticket_wallets'
   AND con.contype IN ('u')
 ORDER BY con.conname;
 
--- Wallet exists but no matching Entry Report snapshot — MUST be 0 rows to proceed (per packet STOP)
+-- Wallet exists but no matching Entry Report snapshot.
+-- Quarantine: do not auto-fill report_instance_id without a snapshot row (ORPHAN SSOT).
+-- For ticket-safe correlation use: m55_reply_wallet_backfill_minimal_verification_hash.sql PART 2 (hashed_user_id only).
 SELECT w.user_id AS wallet_user_without_snapshot
 FROM public.reply_ticket_wallets w
 LEFT JOIN public.dtr_report_snapshots s
@@ -224,11 +241,13 @@ WHERE rs.status = 'succeeded'
 
 -- ############################################################################
 -- ## STOP — DO NOT PROCEED TO DDL UNTIL:                                    ##
--- ##   - Phase 0 queries above have been recorded                            ##
--- ##   - wallet_user_without_snapshot returns 0 rows                       ##
--- ##   - duplicate snapshot groups return 0 rows                             ##
+-- ##   - Phase 0 queries above have been recorded                             ##
+-- ##   - wallet_user_without_snapshot: count matches ORPHAN SSOT OR you have  ##
+-- ##     documented quarantine (no invented report_instance_id in Phase B)  ##
+-- ##   - duplicate snapshot groups return 0 rows                              ##
 -- ##   - backup / PITR confirmed                                             ##
--- ##   - environment confirmed NOT production                                ##
+-- ##   - environment confirmed NOT production                                  ##
+-- ## For Phase B: UPDATE only joins dtr_report_snapshots — orphans stay NULL. ##
 -- ############################################################################
 
 

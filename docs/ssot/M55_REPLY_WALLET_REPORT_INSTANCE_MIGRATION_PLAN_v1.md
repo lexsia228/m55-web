@@ -1,10 +1,12 @@
 # M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_PLAN_v1
 
 Status: Draft — **not approved for production `supabase/migrations` without ADR gate + QA**  
-Date: 2026-04-28  
+Date: 2026-04-29  
 Related:
 
 - `docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_SCOPE_ADR_v1.md`（推奨案 A）
+- **Orphan 3 件・quarantine 正本:** `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`
+- **Phase A 再開ゲート:** `docs/ssot/M55_REPLY_WALLET_PHASE_A_RESTART_GATE_AFTER_ORPHAN_BLOCKER_v1.md`
 
 Draft SQL mirror: `scripts/sql/draft/m55_reply_wallet_report_instance_scope_draft.sql`
 
@@ -17,6 +19,17 @@ Owner: M55 / Reflect Note by M55
 - **migration を本番 DB に適用しない**。`supabase/migrations/` に本番適用用ファイルとして **追加しない**。  
 - 適用するのは **PR1.8（staging/dev）ゲート後** とする。  
 - アプリコード（ConsultRoom、`/api/room/core`、`/api/reply/generate`、`walletGrants`、RPC）は **別 PR** で追従（本 PLAN のスコープ外）。
+
+### 0.1 Orphan 3 件と quarantine exclusion（2026-04-29 追記）
+
+**SSOT:** `docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md`
+
+- **Known orphan ユーザー（現DB実測）:** `wallet_user_without_snapshot_count = 3`。いずれも **`DTR_CORE_STATIC_V1` の `dtr_report_snapshots` 行が無い**。  
+- **分類:** 返書利用済み 2 件＝`legacy_protected` + `manual_review_quarantine`、未使用 1 件＝`manual_review_quarantine`。**`repair_candidate` は 0**。  
+- **migration 自動 backfill からの扱い:** この **3 件は除外（quarantine exclusion）**。**`dtr_report_snapshots` が存在しない wallet に対して `report_instance_id` を推測・自動埋めしない。**  
+- **識別子:** チケット・ログでは **生 `user_id` を転記しない**。**`hashed_user_id = md5('m55_wallet_diag_v1' \|\| user_id)`**（`scripts/sql/staging/m55_reply_wallet_backfill_minimal_verification_hash.sql` と同一ソルト）または **SQL 上の条件式**（例: `NOT EXISTS`（`dtr_report_snapshots` where `product_id = 'DTR_CORE_STATIC_V1'`））でコホートを指す。  
+- **Phase A（nullable 列追加）**は、設計・staging 検証の範囲では **別ゲートで再開候補**。**Phase B 以降の backfill**（`report_instance_id` を snapshot から埋める処理）は **別ゲート** — 本稿 §2 の B〜D は **snapshot 行が存在する wallet のみ**が JOIN 対象となるよう **WHERE／FROM を必ず制限**する（ドラフト SQL 参照）。  
+- **`manual_review_quarantine` / `legacy_protected` が残る限り:** **`NOT NULL` / `FOREIGN KEY` / restrictive `UNIQUE` の「完成」**（Phase F/G 相当）は **NO-GO**（例外行が NULL のまま残りうるため）。**Phase F / G は引き続き NO-GO**（オーナー・ゲート SSOTと整合）。
 
 ---
 
@@ -88,7 +101,7 @@ Owner: M55 / Reflect Note by M55
 | 段階 | 内容 |
 |------|------|
 | **Phase A** | `reply_ticket_wallets.report_instance_id uuid NULL`、`reply_wallet_ledgers.report_instance_id uuid NULL`、`reply_sessions.report_instance_id uuid NULL` を **追加のみ**（FK は任意・別検討）。 |
-| **Phase B** | **バックフィル**：`reply_ticket_wallets` を `dtr_report_snapshots` と **`user_id` + `product_id = 'DTR_CORE_STATIC_V1'`** で結合し **`report_instance_id = dtr_report_snapshots.id`** をセット。 |
+| **Phase B** | **バックフィル**：`reply_ticket_wallets` を `dtr_report_snapshots` と **`user_id` + `product_id = 'DTR_CORE_STATIC_V1'`** で結合し **`report_instance_id = dtr_report_snapshots.id`** をセット。**snapshot 行が無い wallet は JOIN されない → 自動では埋まらない（quarantine）。** Orphan 3 件は §0.1。 |
 | **Phase C** | **ledger**：`wallet_id` 経由で wallet の `report_instance_id` を **ledger にコピー**。既存 consume 行は **同じ实例**を付ける（履歴説明として最低限）。 |
 | **Phase D** | **`reply_sessions`**：同一ユーザー・製品前提で **`dtr_report_snapshots.id` を 1 件選び**セット（複数無い現在は単純 UPDATE）。将来的に複数行が立つ場合は **別論点**。 |
 | **Phase E** | **検証**：NULL 残存を **カウント**。意図しない NULL は **自動破壊的紐づけをしない**。**quarantine / manual_review** に回す（下記 §4）。 |
@@ -113,9 +126,11 @@ Owner: M55 / Reflect Note by M55
 
 | 状態 | 扱い |
 |------|------|
-| wallet 行はあるが **対応する `dtr_report_snapshots` が無い** | **自動 UPDATE しない**。**ステータス `suspended` またはフラグ列 `needs_manual_review = true`** 等で **管理者対応**。 |
+| wallet 行はあるが **対応する `dtr_report_snapshots` が無い** | **自動 UPDATE で `report_instance_id` を埋めない**（**推測 UUID 禁止**）。**`migration_status`**（列があれば）を `manual_review` / `quarantine` 等で **自動 backfill 対象外**と明示。§0.1 の **3 件**は **SSOT で固定**。 |
 | **複数 snapshot**（将来 unique 変更後） | 上記と同様 **手動**。 |
 | **`report_instance_id` が付かない ledger 古行** | **履歴として残し**、可能なら **wallet と同じ UUID を後から UPDATE**（監査ログで承認済みのみ）。 |
+
+**識別:** 運用チケットでは **raw `user_id` を書かず**、`hashed_user_id`（§0.1）または **「snapshot 無し wallet」という条件式だけ** でコホートを参照する。
 
 ---
 
@@ -161,3 +176,4 @@ Owner: M55 / Reflect Note by M55
 | バージョン | 内容 |
 |-----------|------|
 | v1 | PR1.7 初版。ドラフトのみ。 |
+| v1.1 | 2026-04-29: Orphan 3 件の quarantine exclusion、Backfill 安全条件、`hashed_user_id`、Phase B 分離・F/G NO-GO を追記。 |
