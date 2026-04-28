@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
+import { hashUserIdForLedgerLog, readReplyWalletProbe } from '../../../../lib/m55/reply/readReplyWalletProbe';
 
 export const dynamic = 'force-dynamic';
 
@@ -115,15 +116,58 @@ export async function GET() {
     thread = { ...thread!, credits_remaining: expectedRemaining, state: expectedState };
   }
 
-  return NextResponse.json(
-    {
-      thread: {
-        credits_total: thread!.credits_total,
-        credits_remaining: thread!.credits_remaining,
-        state: thread!.state,
-      },
-      messages: msgs,
+  // PR1: read-only wallet vs consult comparison (ADR: M55_REPLY_CREDIT_LEDGER_ARCHITECTURE_ADR_v1).
+  // No DB writes to wallet or consult from this block; user-facing thread/messages unchanged in meaning.
+  const consultRem = thread!.credits_remaining;
+  const walletProbe = await readReplyWalletProbe(db, userId);
+  const walletReadError = walletProbe.readError;
+  const walletMissing = !walletReadError && walletProbe.availableCount === null;
+  const numberMismatch =
+    !walletReadError &&
+    typeof walletProbe.availableCount === 'number' &&
+    walletProbe.availableCount !== consultRem;
+
+  if (walletReadError || walletMissing || numberMismatch) {
+    console.warn(
+      '[room/core GET] LEDGER_MISMATCH_PROBE',
+      JSON.stringify({
+        route: 'GET /api/room/core',
+        timestamp: new Date().toISOString(),
+        userIdHash: hashUserIdForLedgerLog(userId),
+        report_key: REPORT_KEY,
+        consult_credits_remaining: consultRem,
+        wallet_available_count: walletProbe.availableCount,
+        wallet_status: walletProbe.status,
+        wallet_read_error: walletReadError,
+        wallet_row_missing: walletMissing,
+        mismatch: numberMismatch || walletMissing,
+      })
+    );
+  }
+
+  const payload: Record<string, unknown> = {
+    thread: {
+      credits_total: thread!.credits_total,
+      credits_remaining: thread!.credits_remaining,
+      state: thread!.state,
     },
-    { status: 200, headers: NO_STORE }
-  );
+    messages: msgs,
+  };
+
+  if (process.env.NODE_ENV !== 'production') {
+    payload._m55LedgerProbe = {
+      route: 'GET /api/room/core',
+      timestamp: new Date().toISOString(),
+      userIdHash: hashUserIdForLedgerLog(userId),
+      report_key: REPORT_KEY,
+      consult_credits_remaining: consultRem,
+      wallet_available_count: walletProbe.availableCount,
+      wallet_status: walletProbe.status,
+      wallet_read_error: walletReadError,
+      wallet_row_missing: walletMissing,
+      mismatch: numberMismatch || walletMissing,
+    };
+  }
+
+  return NextResponse.json(payload, { status: 200, headers: NO_STORE });
 }
