@@ -12,6 +12,14 @@
 -- Design: docs/ssot/M55_REPLY_WALLET_PHASE_B_BACKFILL_DESIGN_REVIEW_v1.md
 --
 -- BEFORE RUNNING: Confirm target DB in Dashboard. Do not paste secrets into tickets.
+--
+-- EXECUTION MODEL (recommended)
+-- ----------------------------------------------------------------------------
+-- Run **one SECTION at a time** in Supabase SQL Editor (or paste only the block
+-- you need). The file contains **multiple statements**; the UI often shows only
+-- the **last** result set when the whole file is executed at once.
+-- Run order for aggregates: SECTION 2 → SECTION 4 → SECTION 6 (each is self-contained).
+-- Full-file execution is allowed but **not recommended** for reading all outputs.
 -- ============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -111,7 +119,8 @@ SELECT
   count(*) FILTER (WHERE is_smoke_pattern)::bigint AS wallet_smoke_pattern_row_count,
   count(*) FILTER (WHERE dtr_core_snapshot_count = 0)::bigint AS wallet_snapshot_zero_count,
   count(*) FILTER (WHERE dtr_core_snapshot_count = 1)::bigint AS wallet_snapshot_exactly_one_count,
-  count(*) FILTER (WHERE dtr_core_snapshot_count > 1)::bigint AS wallet_snapshot_multi_count;
+  count(*) FILTER (WHERE dtr_core_snapshot_count > 1)::bigint AS wallet_snapshot_multi_count
+FROM ws_class;
 
 
 -- =========================================================================
@@ -276,7 +285,8 @@ ORDER BY u.reply_session_pk;
 
 
 -- ----------------------------------------------------------------------------
--- SESSION — core_profile_ref distribution (presence only; no raw value)
+-- SECTION 5a — SESSION supplementary: core_profile_ref distribution only
+-- (optional; SELECT-only — run separately if needed; same guardrails as header)
 -- ----------------------------------------------------------------------------
 SELECT
   (core_profile_ref IS NULL) AS core_profile_ref_is_null_session_count_dim,
@@ -286,6 +296,7 @@ GROUP BY (core_profile_ref IS NULL)
 ORDER BY core_profile_ref_is_null_session_count_dim;
 
 
+-- SECTION 5a (cont.) — core_profile_ref text bucket counts
 SELECT
   case
     when core_profile_ref IS NULL then '(null)'
@@ -298,6 +309,7 @@ GROUP BY 1
 ORDER BY 1;
 
 
+-- SECTION 5a (cont.) — theme bucket counts only
 SELECT
   coalesce(theme, '(theme_null)') AS theme_bucket_literal,
   count(*)::bigint AS session_row_count
@@ -307,7 +319,8 @@ ORDER BY count(*) DESC, theme_bucket_literal;
 
 
 -- ----------------------------------------------------------------------------
--- SESSION — counts: snapshot user vs none; smoke-only count
+-- SECTION 5b — SESSION supplementary: user_has_core_snapshot / smoke buckets
+-- (optional; SELECT-only — run separately if needed)
 -- ----------------------------------------------------------------------------
 WITH su AS (
   SELECT
@@ -426,4 +439,5 @@ SELECT
     AS any_existing_report_instance_id_count;
 
 
--- END OF FILE
+-- END OF FILE — Recommended aggregate-only runs: SECTION 2, SECTION 4, SECTION 6 (each paste separately in SQL Editor).
+
