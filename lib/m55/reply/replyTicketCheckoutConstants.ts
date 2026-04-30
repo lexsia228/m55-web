@@ -49,6 +49,7 @@ export const REPLY_TICKET_PURCHASE_SOURCE_OF_GRANT: Extract<
 /** POST /api/reply-tickets/checkout logical error codes (contract SSOT). */
 export const REPLY_TICKET_CHECKOUT_ERROR_CODES = [
   'unauthenticated',
+  'invalid_request',
   'forbidden_not_owner',
   'wallet_not_found',
   'wallet_not_active',
