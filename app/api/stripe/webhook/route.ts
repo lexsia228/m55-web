@@ -12,7 +12,7 @@ import {
   ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
 } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
-import { handleReplyTicketCheckoutCompletedSkeleton } from '../../../../lib/m55/reply/replyTicketWebhookLane';
+import { handleReplyTicketCheckoutCompleted } from '../../../../lib/m55/reply/replyTicketWebhookLane';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -171,7 +171,7 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   const metadataProductKey =
     md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.productKey] ?? md.product_key;
   if (metadataProductKey === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY) {
-    return handleReplyTicketCheckoutCompletedSkeleton(event, session);
+    return handleReplyTicketCheckoutCompleted(event, session);
   }
 
   if (!ALLOWED_ONE_TIME_PRODUCTS.has(productId)) {
