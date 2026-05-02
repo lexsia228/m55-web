@@ -10,6 +10,10 @@
 -- additions, secrets, payload bodies, edits to other functions (incl.
 -- public.m55_reply_generate_commit).
 --
+-- Wallet scope (M55 SSOT): reply_ticket_wallets is keyed per user AND per report_instance_id.
+-- Do not lock or mutate wallet rows by user_id alone — companion DDL candidate:
+--   scripts/sql/staging/m55_reply_ticket_wallets_report_scope_unique_migration_candidate.sql
+--
 -- SSOT: docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_FUNCTION_SPEC_v1.md
 -- Companion: docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_MIGRATION_CANDIDATE_DRAFT_v1.md
 --
@@ -198,11 +202,12 @@ BEGIN
     );
   END IF;
 
-  -- ── Wallet row FOR UPDATE ──────────────────────────────────────────────────
+  -- ── Wallet row FOR UPDATE (report-scoped; not user-global) ─────────────────
   SELECT *
   INTO r_wallet
   FROM public.reply_ticket_wallets w
   WHERE w.user_id = btrim(p_wallet_scope_user_id)
+    AND w.report_instance_id = p_report_instance_id
   FOR UPDATE;
 
   IF NOT FOUND THEN
@@ -217,7 +222,7 @@ BEGIN
       'ledger_id', NULL,
       'available_count', NULL,
       'purchased_count', NULL,
-      'reason', 'wallet_not_found'
+      'reason', 'wallet_not_found_for_report'
     );
   END IF;
 

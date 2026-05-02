@@ -71,10 +71,12 @@ export async function validateReplyTicketCheckoutGate(params: {
   }
 
   const db = getSupabaseAdmin() as any;
+  /** One wallet row per (user_id, report_instance_id); additional_reply_ticket caps are per-report. */
   const { data, error } = await db
     .from('reply_ticket_wallets')
     .select('id, status, initial_included_count, purchased_count, available_count')
     .eq('user_id', params.userId)
+    .eq('report_instance_id', params.reportInstanceId)
     .maybeSingle();
 
   if (error) {
