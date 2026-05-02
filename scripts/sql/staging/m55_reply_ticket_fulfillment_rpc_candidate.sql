@@ -42,6 +42,9 @@ DECLARE
 
   v_new_purchased int;
   v_new_avail int;
+
+  v_dup_wallet_id uuid;
+  v_dup_ledger_id uuid;
 BEGIN
   -- ── 1–4: argument guards (no processed_events persistence) ───────────────
   IF p_stripe_event_id IS NULL OR length(btrim(p_stripe_event_id)) = 0 THEN
@@ -141,13 +144,32 @@ BEGIN
     );
   EXCEPTION
     WHEN unique_violation THEN
+      -- Replay / concurrent insert on stripe_processed_events: surface existing grant if ledger row exists.
+      SELECT l.wallet_id, l.id
+      INTO v_dup_wallet_id, v_dup_ledger_id
+      FROM public.reply_wallet_ledgers l
+      WHERE l.stripe_event_id = btrim(p_stripe_event_id)
+      ORDER BY l.id DESC
+      LIMIT 1;
+
+      IF v_dup_wallet_id IS NOT NULL AND v_dup_ledger_id IS NOT NULL THEN
+        RETURN jsonb_build_object(
+          'status', 'duplicate_noop',
+          'wallet_id', v_dup_wallet_id,
+          'ledger_id', v_dup_ledger_id,
+          'available_count', NULL,
+          'purchased_count', NULL,
+          'reason', NULL
+        );
+      END IF;
+
       RETURN jsonb_build_object(
         'status', 'duplicate_noop',
         'wallet_id', NULL,
         'ledger_id', NULL,
         'available_count', NULL,
         'purchased_count', NULL,
-        'reason', NULL
+        'reason', 'duplicate_without_ledger_grant'
       );
   END;
 

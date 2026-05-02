@@ -44,7 +44,11 @@ export type ReplyTicketDiagnosticSummary = {
   wallet_grant_observed: boolean | 'unknown';
   ledger_grant_attempted: boolean;
   ledger_grant_observed: boolean | 'unknown';
-  fulfill_status: 'fulfilled' | 'skipped' | 'failed' | 'unknown';
+  fulfill_status:
+    | 'fulfilled'
+    | 'duplicate_with_existing_grant'
+    | 'inconsistent_duplicate_without_grant'
+    | 'failed';
   route_response_2xx: boolean;
 };
 
@@ -65,15 +69,23 @@ function amountCurrencyExpected(session: Stripe.Checkout.Session): boolean {
   );
 }
 
-function mapRpcToFulfillSummary(
-  status: M55ReplyTicketFulfillRpcRow['status']
-): 'fulfilled' | 'skipped' | 'failed' {
-  switch (status) {
+function hasGrantId(v: string | null): boolean {
+  return typeof v === 'string' && v.trim().length > 0;
+}
+
+/** Summary-only classification (no raw IDs). */
+function diagnosticFulfillStatus(
+  result: M55ReplyTicketFulfillRpcRow
+): ReplyTicketDiagnosticSummary['fulfill_status'] {
+  const w = hasGrantId(result.wallet_id);
+  const l = hasGrantId(result.ledger_id);
+
+  switch (result.status) {
     case 'processed':
-      return 'fulfilled';
+      return w && l ? 'fulfilled' : 'failed';
     case 'duplicate_noop':
+      return w && l ? 'duplicate_with_existing_grant' : 'inconsistent_duplicate_without_grant';
     case 'skipped_cap':
-      return 'skipped';
     case 'rejected_invalid_product':
     case 'rejected_not_owner':
     case 'rejected_wallet_inactive':
@@ -280,9 +292,9 @@ export async function handleReplyTicketCheckoutCompleted(
     return NextResponse.json({ error: 'rpc_failed' }, { status: 500 });
   }
 
-  const walletObserved = result.wallet_id != null;
-  const ledgerObserved = result.ledger_id != null;
-  const fulfillMapped = mapRpcToFulfillSummary(result.status);
+  const walletObserved = hasGrantId(result.wallet_id);
+  const ledgerObserved = hasGrantId(result.ledger_id);
+  const diagStatus = diagnosticFulfillStatus(result);
 
   console.info(
     '[reply-ticket-diagnostic:lane_rpc]',
@@ -290,81 +302,106 @@ export async function handleReplyTicketCheckoutCompleted(
       rpc_call_attempted: true,
       rpc_result_status: result.status,
       lane_response_kind: 'rpc_ok',
+      fulfillment_outcome: diagStatus,
     })
   );
 
-  switch (result.status) {
-    case 'processed':
-    case 'duplicate_noop':
-    case 'skipped_cap':
-    case 'rejected_invalid_product':
-    case 'rejected_not_owner':
-    case 'rejected_wallet_inactive': {
-      const summary: ReplyTicketDiagnosticSummary = {
-        event_type_checkout_completed: true,
-        product_key: 'additional_reply_ticket',
-        reply_lane_selected: true,
-        metadata_required_present: true,
-        report_instance_present: true,
-        client_reference_id_present: true,
-        user_ref_hash_present: userRefHash != null,
-        payment_intent_present: paymentIntentId != null,
-        amount_currency_expected: amountCurrencyExpected(session),
-        dedupe_checked: true,
-        dedupe_inserted_or_already_processed: 'unknown',
-        rpc_called: true,
-        rpc_ok: true,
-        wallet_grant_attempted: true,
-        wallet_grant_observed: walletObserved,
-        ledger_grant_attempted: true,
-        ledger_grant_observed: ledgerObserved,
-        fulfill_status: fulfillMapped,
-        route_response_2xx: true,
-      };
-      pendingReplyTicketDiagnosticSummary = summary;
-      break;
-    }
-    default: {
-      const _exhaustive: never = result.status;
-      throw new Error(`unexpected fulfill_status: ${_exhaustive}`);
-    }
+  function buildRpcSummary(route2xx: boolean): ReplyTicketDiagnosticSummary {
+    return {
+      event_type_checkout_completed: true,
+      product_key: 'additional_reply_ticket',
+      reply_lane_selected: true,
+      metadata_required_present: true,
+      report_instance_present: true,
+      client_reference_id_present: true,
+      user_ref_hash_present: userRefHash != null,
+      payment_intent_present: paymentIntentId != null,
+      amount_currency_expected: amountCurrencyExpected(session),
+      dedupe_checked: true,
+      dedupe_inserted_or_already_processed: 'unknown',
+      rpc_called: true,
+      rpc_ok: true,
+      wallet_grant_attempted: true,
+      wallet_grant_observed: walletObserved,
+      ledger_grant_attempted: true,
+      ledger_grant_observed: ledgerObserved,
+      fulfill_status: diagStatus,
+      route_response_2xx: route2xx,
+    };
   }
 
-  switch (result.status) {
-    case 'processed':
-    case 'duplicate_noop':
-      return NextResponse.json(
-        { received: true, lane: 'reply_ticket', fulfill_status: result.status },
-        { status: 200 }
-      );
-    case 'skipped_cap':
-      console.warn('[webhook] reply_lane: skipped_cap (monitoring candidate)', {
-        fulfill_status: result.status,
-        reason_present: result.reason != null,
-      });
-      return NextResponse.json(
-        { received: true, lane: 'reply_ticket', fulfill_status: result.status },
-        { status: 200 }
-      );
-    case 'rejected_invalid_product':
-    case 'rejected_not_owner':
-    case 'rejected_wallet_inactive':
-      console.warn('[webhook] reply_lane: fulfillment no-op (monitoring candidate)', {
-        fulfill_status: result.status,
-        reason_present: result.reason != null,
-      });
-      return NextResponse.json(
-        {
-          received: true,
-          lane: 'reply_ticket',
-          fulfill_status: result.status,
-          no_op: true,
-        },
-        { status: 200 }
-      );
-    default: {
-      const _exhaustive: never = result.status;
-      throw new Error(`unexpected fulfill_status: ${_exhaustive}`);
-    }
+  if (result.status === 'processed' && !(walletObserved && ledgerObserved)) {
+    pendingReplyTicketDiagnosticSummary = buildRpcSummary(false);
+    return NextResponse.json({ error: 'grant_missing_after_processed' }, { status: 500 });
   }
+
+  if (result.status === 'duplicate_noop' && !(walletObserved && ledgerObserved)) {
+    pendingReplyTicketDiagnosticSummary = buildRpcSummary(false);
+    return NextResponse.json({ error: 'inconsistent_duplicate_without_grant' }, { status: 500 });
+  }
+
+  pendingReplyTicketDiagnosticSummary = buildRpcSummary(true);
+
+  if (diagStatus === 'fulfilled') {
+    return NextResponse.json(
+      {
+        received: true,
+        lane: 'reply_ticket',
+        fulfill_status: result.status,
+        fulfillment_outcome: 'fulfilled',
+      },
+      { status: 200 }
+    );
+  }
+
+  if (diagStatus === 'duplicate_with_existing_grant') {
+    return NextResponse.json(
+      {
+        received: true,
+        lane: 'reply_ticket',
+        fulfill_status: result.status,
+        fulfillment_outcome: 'duplicate_with_existing_grant',
+      },
+      { status: 200 }
+    );
+  }
+
+  if (result.status === 'skipped_cap') {
+    console.warn('[webhook] reply_lane: skipped_cap (monitoring candidate)', {
+      fulfill_status: result.status,
+      reason_present: result.reason != null,
+    });
+    return NextResponse.json(
+      {
+        received: true,
+        lane: 'reply_ticket',
+        fulfill_status: result.status,
+        fulfillment_outcome: 'failed',
+      },
+      { status: 200 }
+    );
+  }
+
+  if (
+    result.status === 'rejected_invalid_product' ||
+    result.status === 'rejected_not_owner' ||
+    result.status === 'rejected_wallet_inactive'
+  ) {
+    console.warn('[webhook] reply_lane: fulfillment no-op (monitoring candidate)', {
+      fulfill_status: result.status,
+      reason_present: result.reason != null,
+    });
+    return NextResponse.json(
+      {
+        received: true,
+        lane: 'reply_ticket',
+        fulfill_status: result.status,
+        fulfillment_outcome: 'failed',
+        no_op: true,
+      },
+      { status: 200 }
+    );
+  }
+
+  throw new Error(`unexpected fulfill_status: ${String(result.status)}`);
 }
