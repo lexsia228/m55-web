@@ -1,6 +1,8 @@
 /**
  * Webhook Reply lane → DB RPC `m55_reply_ticket_fulfill_checkout_event` (M55).
  * Fulfillment side effects live in Postgres only; no wallet/ledger writes here.
+ *
+ * TODO(M55 reply ticket diagnostic): remove `[reply-ticket-diagnostic:rpc]` logs after observation SSOT.
  */
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 
@@ -77,7 +79,9 @@ export async function callM55ReplyTicketFulfillCheckoutEvent(
 ): Promise<M55ReplyTicketFulfillRpcRow> {
   /** RPC が生成型に載っていないため、応答パースで堅牢化（generate route と同様） */
   const db = getSupabaseAdmin() as any;
-  const { data, error } = await db.rpc('m55_reply_ticket_fulfill_checkout_event', {
+  const RPC_NAME = 'm55_reply_ticket_fulfill_checkout_event';
+
+  const { data, error } = await db.rpc(RPC_NAME, {
     p_stripe_event_id: args.stripeEventId,
     p_checkout_session_id: args.checkoutSessionId,
     p_payment_intent_id: args.paymentIntentId,
@@ -89,7 +93,49 @@ export async function callM55ReplyTicketFulfillCheckoutEvent(
   });
 
   if (error) {
+    console.info(
+      '[reply-ticket-diagnostic:rpc]',
+      JSON.stringify({
+        rpc_function_name: RPC_NAME,
+        rpc_call_started: true,
+        rpc_call_succeeded: false,
+        rpc_error_present: true,
+        rpc_row_present: false,
+        rpc_status: 'unknown',
+      })
+    );
     throw new Error(`m55_reply_ticket_fulfill_checkout_event failed: ${error.message}`);
   }
-  return parseM55ReplyTicketFulfillRpcRow(data);
+
+  let parsed: M55ReplyTicketFulfillRpcRow;
+  try {
+    parsed = parseM55ReplyTicketFulfillRpcRow(data);
+  } catch {
+    console.info(
+      '[reply-ticket-diagnostic:rpc]',
+      JSON.stringify({
+        rpc_function_name: RPC_NAME,
+        rpc_call_started: true,
+        rpc_call_succeeded: false,
+        rpc_error_present: false,
+        rpc_row_present: false,
+        rpc_status: 'unknown',
+      })
+    );
+    throw new Error('m55_reply_ticket_fulfill_checkout_event: unexpected RPC payload shape');
+  }
+
+  console.info(
+    '[reply-ticket-diagnostic:rpc]',
+    JSON.stringify({
+      rpc_function_name: RPC_NAME,
+      rpc_call_started: true,
+      rpc_call_succeeded: true,
+      rpc_error_present: false,
+      rpc_row_present: true,
+      rpc_status: parsed.status,
+    })
+  );
+
+  return parsed;
 }

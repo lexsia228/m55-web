@@ -12,10 +12,15 @@ import {
   ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
 } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
-import { handleReplyTicketCheckoutCompleted } from '../../../../lib/m55/reply/replyTicketWebhookLane';
+import {
+  consumePendingReplyTicketDiagnosticSummary,
+  handleReplyTicketCheckoutCompleted,
+} from '../../../../lib/m55/reply/replyTicketWebhookLane';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+/** TODO(M55 reply ticket diagnostic): remove `[reply-ticket-diagnostic:*]` logs after observation SSOT. */
 
 const PRODUCT_ID_FROM_META = 'DTR_CORE_STATIC_V1';
 const STRIPE_PRICE_PREMIUM_MONTHLY = 'STRIPE_PRICE_PREMIUM_MONTHLY';
@@ -67,6 +72,47 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (existing) {
+    if (event.type === 'checkout.session.completed') {
+      try {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const md = session.metadata ?? {};
+        const pk =
+          md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.productKey] ?? md.product_key;
+        const product_key_value =
+          pk === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY
+            ? 'additional_reply_ticket'
+            : typeof pk === 'string' && pk.trim().length > 0
+              ? 'other'
+              : 'unknown';
+        console.info(
+          '[reply-ticket-diagnostic:dedupe_early]',
+          JSON.stringify({
+            event_type_checkout_completed: true,
+            product_key: product_key_value,
+            reply_lane_selected: false,
+            dedupe_checked: true,
+            dedupe_inserted_or_already_processed: 'already_processed',
+            route_response_2xx: true,
+            rpc_called: false,
+            global_dedupe_returned_before_reply_lane: true,
+          })
+        );
+      } catch {
+        console.info(
+          '[reply-ticket-diagnostic:dedupe_early]',
+          JSON.stringify({
+            event_type_checkout_completed: true,
+            product_key: 'unknown',
+            reply_lane_selected: false,
+            dedupe_checked: true,
+            dedupe_inserted_or_already_processed: 'already_processed',
+            route_response_2xx: true,
+            rpc_called: false,
+            global_dedupe_returned_before_reply_lane: true,
+          })
+        );
+      }
+    }
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
@@ -95,6 +141,17 @@ export async function POST(req: NextRequest) {
   }
 
   if (res.status !== 200) {
+    const diagFail = consumePendingReplyTicketDiagnosticSummary();
+    if (diagFail) {
+      console.info(
+        '[reply-ticket-diagnostic:final]',
+        JSON.stringify({
+          ...diagFail,
+          dedupe_inserted_or_already_processed: 'skipped',
+          route_response_2xx: false,
+        })
+      );
+    }
     return res;
   }
 
@@ -103,10 +160,32 @@ export async function POST(req: NextRequest) {
     .insert({ event_id: event.id, event_type: eventType });
   if (insertErr) {
     if (insertErr.code === '23505') {
+      const diagDup = consumePendingReplyTicketDiagnosticSummary();
+      if (diagDup) {
+        console.info(
+          '[reply-ticket-diagnostic:final]',
+          JSON.stringify({
+            ...diagDup,
+            dedupe_inserted_or_already_processed: 'already_processed',
+            route_response_2xx: true,
+          })
+        );
+      }
       return NextResponse.json({ received: true }, { status: 200 });
     }
     console.error('[webhook] event_id=', event.id, 'event_type=', eventType, 'failure=stripe_events_insert', insertErr);
     if (ONE_TIME_KEY_EVENTS.has(event.type ?? '')) {
+      const diagIdemFail = consumePendingReplyTicketDiagnosticSummary();
+      if (diagIdemFail) {
+        console.info(
+          '[reply-ticket-diagnostic:final]',
+          JSON.stringify({
+            ...diagIdemFail,
+            dedupe_inserted_or_already_processed: 'unknown',
+            route_response_2xx: false,
+          })
+        );
+      }
       const checkoutSessionId =
         event.type === 'charge.refunded'
           ? await lookupCheckoutSessionForRefund(db, event)
@@ -116,7 +195,30 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ error: 'Idempotency failed' }, { status: 500 });
     }
+    const diagInsSoft = consumePendingReplyTicketDiagnosticSummary();
+    if (diagInsSoft) {
+      console.info(
+        '[reply-ticket-diagnostic:final]',
+        JSON.stringify({
+          ...diagInsSoft,
+          dedupe_inserted_or_already_processed: 'unknown',
+          route_response_2xx: true,
+        })
+      );
+    }
     return NextResponse.json({ received: true }, { status: 200 });
+  }
+
+  const diagOk = consumePendingReplyTicketDiagnosticSummary();
+  if (diagOk) {
+    console.info(
+      '[reply-ticket-diagnostic:final]',
+      JSON.stringify({
+        ...diagOk,
+        dedupe_inserted_or_already_processed: 'inserted',
+        route_response_2xx: true,
+      })
+    );
   }
 
   return res;
@@ -171,6 +273,29 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   const metadataProductKey =
     md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.productKey] ?? md.product_key;
   if (metadataProductKey === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY) {
+    const mode =
+      session.livemode === false ? 'test' : session.livemode === true ? 'live' : 'unknown';
+    console.info(
+      '[reply-ticket-diagnostic:route_received]',
+      JSON.stringify({
+        event_type: 'checkout.session.completed',
+        checkout_session_mode: mode,
+        metadata_product_key_present: typeof metadataProductKey === 'string' && metadataProductKey.length > 0,
+        metadata_product_key_is_additional_reply_ticket: true,
+        client_reference_id_present:
+          typeof session.client_reference_id === 'string' &&
+          session.client_reference_id.trim().length > 0,
+      })
+    );
+    console.info(
+      '[reply-ticket-diagnostic:route_branch]',
+      JSON.stringify({
+        reply_lane_branch_selected: true,
+        dtr_branch_selected: false,
+        global_dedupe_returned_before_reply_lane: false,
+        route_response_kind: 'reply_ticket_delegate',
+      })
+    );
     return handleReplyTicketCheckoutCompleted(event, session);
   }
 
