@@ -126,9 +126,10 @@ export async function POST(req: NextRequest) {
       '[reply-tickets/checkout]',
       JSON.stringify({
         event: 'reply_ticket_checkout_session_created',
-        sessionId: session_id,
-        reportInstanceId: parsed.reportInstanceId,
-        productKey: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+        session_id_present: Boolean(session_id),
+        report_instance_id_present: Boolean(parsed.reportInstanceId),
+        product_key: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+        checkout_url_created: Boolean(checkout_url),
       })
     );
 
