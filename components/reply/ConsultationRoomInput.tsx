@@ -1,13 +1,29 @@
 "use client"
 
-import { useRef, useState, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+  type ChangeEvent,
+} from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { ConsultationTicketWallet } from "./consultation-ticket-wallet"
 
 type Theme = "仕事" | "人間関係" | "疲れやすさ" | "判断の迷い" | "自分の整え方" | "距離感"
 
 type SupplementaryQuestion = {
   id: string
   label: string
+}
+
+export type ReplyRoomWalletSnapshot = {
+  initial_included_count: number
+  purchased_count: number
+  consumed_count: number
+  available_count: number
+  status: string
 }
 
 const THEMES: Theme[] = ["仕事", "人間関係", "疲れやすさ", "判断の迷い", "自分の整え方", "距離感"]
@@ -23,7 +39,7 @@ const SUPPLEMENTARY_QUESTIONS: SupplementaryQuestion[] = [
 const SESSION_STORAGE_RESULT_KEY = "m55_reply_stub_result_v1"
 
 function cx(...values: Array<string | false | null | undefined>) {
-  return values.filter(Boolean).join(" ");
+  return values.filter(Boolean).join(" ")
 }
 
 function messageForStatus(status: number): string {
@@ -45,16 +61,38 @@ function messageForStatus(status: number): string {
   }
 }
 
-function ThemeChip({ 
-  theme, 
-  selected, 
+function messageForCheckoutError(code: string | undefined): string {
+  switch (code) {
+    case "unauthenticated":
+      return "サインインの状態を確認してください"
+    case "forbidden_not_owner":
+      return "このレポートに対する利用権限を確認できませんでした"
+    case "wallet_not_found":
+      return "チケット情報が見つかりませんでした"
+    case "wallet_not_active":
+      return "現在、追加購入を受け付けていません"
+    case "cap_reached":
+      return "このレポートで購入できる上限に達しています"
+    case "invalid_request":
+    case "invalid_product":
+      return "リクエスト内容を確認してください"
+    case "stripe_error":
+      return "決済の準備に失敗しました。時間をおいてもう一度お試しください"
+    default:
+      return "決済の準備に失敗しました。時間をおいてもう一度お試しください"
+  }
+}
+
+function ThemeChip({
+  theme,
+  selected,
   disabled,
-  onClick 
-}: { 
+  onClick,
+}: {
   theme: Theme
   selected: boolean
   disabled?: boolean
-  onClick: () => void 
+  onClick: () => void
 }) {
   return (
     <button
@@ -65,8 +103,8 @@ function ThemeChip({
         "px-4 py-2 text-sm rounded-sm border transition-all duration-200",
         !disabled && "hover:border-foreground/30",
         disabled && "opacity-50 cursor-not-allowed",
-        selected 
-          ? "border-foreground/50 bg-foreground/5 text-foreground" 
+        selected
+          ? "border-foreground/50 bg-foreground/5 text-foreground"
           : "border-border text-muted-foreground hover:text-foreground"
       )}
     >
@@ -75,16 +113,16 @@ function ThemeChip({
   )
 }
 
-function QuestionToggle({ 
-  question, 
-  selected, 
+function QuestionToggle({
+  question,
+  selected,
   disabled,
-  onToggle 
-}: { 
+  onToggle,
+}: {
   question: SupplementaryQuestion
   selected: boolean
   disabled?: boolean
-  onToggle: () => void 
+  onToggle: () => void
 }) {
   return (
     <button
@@ -95,8 +133,8 @@ function QuestionToggle({
         "text-left px-4 py-3 text-sm rounded-sm border transition-all duration-200",
         !disabled && "hover:border-foreground/20",
         disabled && "opacity-50 cursor-not-allowed",
-        selected 
-          ? "border-foreground/40 bg-foreground/5 text-foreground" 
+        selected
+          ? "border-foreground/40 bg-foreground/5 text-foreground"
           : "border-border text-muted-foreground hover:text-foreground/80"
       )}
     >
@@ -106,19 +144,108 @@ function QuestionToggle({
 }
 
 export default function ConsultationRoomInput({
-  canGenerateReply = true,
-  availableCount = 0,
+  wallet,
+  hasWalletRow,
+  reportInstanceId,
+  ownershipOwned,
+  userPresent,
 }: {
-  canGenerateReply?: boolean
-  availableCount?: number
+  wallet: ReplyRoomWalletSnapshot | null
+  hasWalletRow: boolean
+  reportInstanceId: string | null
+  ownershipOwned: boolean
+  userPresent: boolean
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [isRefreshPending, startTransition] = useTransition()
+  const createSectionRef = useRef<HTMLDivElement | null>(null)
+
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null)
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set())
   const [freeInput, setFreeInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [feedbackError, setFeedbackError] = useState<string | null>(null)
+  const [checkoutBusy, setCheckoutBusy] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const idempotencyKeyRef = useRef<string | null>(null)
+  const checkoutReturnRefreshDoneRef = useRef(false)
+
+  useEffect(() => {
+    const c = searchParams.get("checkout")
+    if (c !== "complete" && c !== "cancelled") {
+      checkoutReturnRefreshDoneRef.current = false
+      return
+    }
+    if (checkoutReturnRefreshDoneRef.current) return
+    checkoutReturnRefreshDoneRef.current = true
+    startTransition(() => {
+      router.refresh()
+    })
+  }, [searchParams, router, startTransition])
+
+  const canGenerateReply =
+    userPresent &&
+    ownershipOwned &&
+    hasWalletRow &&
+    wallet !== null &&
+    wallet.status === "active" &&
+    wallet.available_count > 0
+
+  const walletForCard: ReplyRoomWalletSnapshot =
+    wallet ??
+    ({
+      initial_included_count: 0,
+      purchased_count: 0,
+      consumed_count: 0,
+      available_count: 0,
+      status: "inactive",
+    } satisfies ReplyRoomWalletSnapshot)
+
+  const actionsLocked = isSubmitting || isRefreshPending || checkoutBusy
+
+  const scrollToCreate = useCallback(() => {
+    createSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [])
+
+  const handlePurchase = useCallback(async () => {
+    if (!reportInstanceId?.trim() || checkoutBusy) return
+    setCheckoutBusy(true)
+    setCheckoutError(null)
+    try {
+      const res = await fetch("/api/reply-tickets/checkout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reportInstanceId: reportInstanceId.trim(),
+          productKey: "additional_reply_ticket",
+        }),
+      })
+      let data: unknown = {}
+      try {
+        data = await res.json()
+      } catch {
+        setCheckoutError(messageForCheckoutError(undefined))
+        return
+      }
+      if (!res.ok) {
+        const code = (data as { error?: { code?: string } })?.error?.code
+        setCheckoutError(messageForCheckoutError(code))
+        return
+      }
+      const checkoutUrl = (data as { checkout_url?: string }).checkout_url
+      if (typeof checkoutUrl === "string" && checkoutUrl.length > 0) {
+        window.location.assign(checkoutUrl)
+        return
+      }
+      setCheckoutError("決済の準備に失敗しました。もう一度お試しください")
+    } catch {
+      setCheckoutError("通信に失敗しました。時間をおいてもう一度お試しください")
+    } finally {
+      setCheckoutBusy(false)
+    }
+  }, [reportInstanceId, checkoutBusy])
 
   const toggleQuestion = (id: string) => {
     const newSet = new Set(selectedQuestions)
@@ -140,7 +267,7 @@ export default function ConsultationRoomInput({
 
     const trimmedFree = freeInput.trim()
     const selectedSubquestions = SUPPLEMENTARY_QUESTIONS.filter((q) =>
-      selectedQuestions.has(q.id),
+      selectedQuestions.has(q.id)
     ).map((q) => q.label)
 
     const body = {
@@ -206,6 +333,8 @@ export default function ConsultationRoomInput({
   const isSubmitDisabled = !selectedTheme || isSubmitting || !canGenerateReply
   const controlsDisabled = isSubmitting
 
+  const showWalletCard = userPresent && ownershipOwned
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -219,18 +348,29 @@ export default function ConsultationRoomInput({
               見えている傾向を土台に、今回の論点を整理する
             </p>
           </div>
-          <div className="text-right">
-            <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">利用状態</span>
-            <p className="text-sm text-foreground/80 mt-0.5">
-              {canGenerateReply ? `返書 ${availableCount}件利用可能` : "返書 0件"}
-            </p>
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
         <div className="space-y-12">
+          {showWalletCard ? (
+            <ConsultationTicketWallet
+              initial_included_count={walletForCard.initial_included_count}
+              purchased_count={walletForCard.purchased_count}
+              consumed_count={walletForCard.consumed_count}
+              available_count={walletForCard.available_count}
+              status={walletForCard.status}
+              isLoading={isRefreshPending}
+              disableActions={actionsLocked}
+              isCheckoutBusy={checkoutBusy}
+              checkoutError={checkoutError}
+              purchaseCheckoutAllowed={Boolean(reportInstanceId?.trim())}
+              onCreateReply={scrollToCreate}
+              onPurchase={handlePurchase}
+            />
+          ) : null}
+
           {/* Theme Selection */}
           <section>
             <h2 className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
@@ -312,29 +452,31 @@ export default function ConsultationRoomInput({
             </p>
           ) : null}
           {/* Submit Button */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-            className={cx(
-              "w-full py-4 rounded-sm text-sm font-medium tracking-wide transition-all duration-200",
-              isSubmitDisabled
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-foreground text-background hover:bg-foreground/90"
-            )}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                作成中
-              </span>
-            ) : (
-              "返書を作成する"
-            )}
-          </button>
+          <div ref={createSectionRef}>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitDisabled || actionsLocked}
+              className={cx(
+                "w-full py-4 rounded-sm text-sm font-medium tracking-wide transition-all duration-200",
+                isSubmitDisabled || actionsLocked
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-foreground text-background hover:bg-foreground/90"
+              )}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  作成中
+                </span>
+              ) : (
+                "返書を作成する"
+              )}
+            </button>
+          </div>
         </div>
       </main>
     </div>
