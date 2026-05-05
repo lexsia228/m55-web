@@ -26,6 +26,13 @@ const MAX_CREDITS = 3;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
 type ThreadRow = { id: string; credits_total: number; credits_remaining: number; state: string };
+type WalletUiState = {
+  initial_included_count: number;
+  purchased_count: number;
+  consumed_count: number;
+  available_count: number;
+  status: string;
+};
 
 export async function GET() {
   const { userId } = await auth();
@@ -70,12 +77,20 @@ export async function GET() {
           .eq('report_key', REPORT_KEY)
           .maybeSingle();
         if (refetchErr || !refetched) {
-          console.error('[room/core GET] refetch after 23505 failed', refetchErr);
+          console.error(
+            '[room/core GET] refetch after 23505 failed',
+            JSON.stringify({ userHash: hashUserIdForLedgerLog(userId) }),
+            refetchErr
+          );
           return NextResponse.json({ error: 'Internal error' }, { status: 500, headers: NO_STORE });
         }
         thread = refetched as ThreadRow;
       } else {
-        console.error('[room/core GET] thread create failed', createErr);
+        console.error(
+          '[room/core GET] thread create failed',
+          JSON.stringify({ userHash: hashUserIdForLedgerLog(userId) }),
+          createErr
+        );
         return NextResponse.json({ error: 'Internal error' }, { status: 500, headers: NO_STORE });
       }
     } else {
@@ -91,7 +106,11 @@ export async function GET() {
     .order('created_at', { ascending: true });
 
   if (msgErr) {
-    console.error('[room/core GET] messages fetch failed thread_id=', thread!.id, msgErr);
+    console.error(
+      '[room/core GET] messages fetch failed',
+      JSON.stringify({ userHash: hashUserIdForLedgerLog(userId) }),
+      msgErr
+    );
     return NextResponse.json({ error: 'Internal error' }, { status: 500, headers: NO_STORE });
   }
 
@@ -105,9 +124,14 @@ export async function GET() {
 
   if (expectedRemaining !== thread!.credits_remaining || expectedState !== thread!.state) {
     console.error(
-      '[room/core GET] RECONCILING credits user_id=', userId, 'thread_id=', thread!.id,
-      'stored_remaining=', thread!.credits_remaining, 'expected_remaining=', expectedRemaining,
-      'stored_state=', thread!.state, 'expected_state=', expectedState
+      '[room/core GET] RECONCILING credits',
+      JSON.stringify({
+        userHash: hashUserIdForLedgerLog(userId),
+        stored_remaining: thread!.credits_remaining,
+        expected_remaining: expectedRemaining,
+        stored_state: thread!.state,
+        expected_state: expectedState,
+      })
     );
     await db
       .from('consult_threads')
@@ -116,16 +140,52 @@ export async function GET() {
     thread = { ...thread!, credits_remaining: expectedRemaining, state: expectedState };
   }
 
-  // PR1: read-only wallet vs consult comparison (ADR: M55_REPLY_CREDIT_LEDGER_ARCHITECTURE_ADR_v1).
-  // No DB writes to wallet or consult from this block; user-facing thread/messages unchanged in meaning.
+  let wallet: WalletUiState | null = null;
+  let hasWalletRow = false;
+  try {
+    let walletQuery = db
+      .from('reply_ticket_wallets')
+      .select('initial_included_count, purchased_count, consumed_count, available_count, status')
+      .eq('user_id', userId);
+    if (ownership.reportInstanceId) {
+      walletQuery = walletQuery.eq('report_instance_id', ownership.reportInstanceId);
+    }
+    const { data: walletRow } = await walletQuery.maybeSingle();
+    if (walletRow && typeof walletRow.status === 'string') {
+      const pic = Number(walletRow.initial_included_count);
+      const pc = Number(walletRow.purchased_count);
+      const cc = Number(walletRow.consumed_count);
+      const ac = Number(walletRow.available_count);
+      if (Number.isFinite(pic) && Number.isFinite(pc) && Number.isFinite(cc) && Number.isFinite(ac)) {
+        wallet = {
+          initial_included_count: Math.trunc(pic),
+          purchased_count: Math.trunc(pc),
+          consumed_count: Math.trunc(cc),
+          available_count: Math.trunc(ac),
+          status: walletRow.status,
+        };
+        hasWalletRow = true;
+      }
+    }
+  } catch {
+    // Fail closed for checkout CTA surface; keep thread/messages response intact.
+    wallet = null;
+    hasWalletRow = false;
+  }
+
+  // PR1 probe log keeps legacy fields for diagnostics, but mismatch判定はwallet SSOT優先で算出する。
   const consultRem = thread!.credits_remaining;
   const walletProbe = await readReplyWalletProbe(db, userId, ownership.reportInstanceId);
   const walletReadError = walletProbe.readError;
   const walletMissing = !walletReadError && walletProbe.availableCount === null;
+  const effectiveRemaining =
+    hasWalletRow && wallet && wallet.status === 'active'
+      ? wallet.available_count
+      : consultRem;
   const numberMismatch =
     !walletReadError &&
     typeof walletProbe.availableCount === 'number' &&
-    walletProbe.availableCount !== consultRem;
+    walletProbe.availableCount !== effectiveRemaining;
 
   if (walletReadError || walletMissing || numberMismatch) {
     console.warn(
@@ -135,9 +195,10 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         userIdHash: hashUserIdForLedgerLog(userId),
         report_key: REPORT_KEY,
-        requested_report_instance_id: walletProbe.requestedReportInstanceId ?? null,
+        reportInstanceIdPresent: Boolean(walletProbe.requestedReportInstanceId),
         scoped_wallet_lookup_active: walletProbe.scopedWalletLookupActive,
         consult_credits_remaining: consultRem,
+        effective_credits_remaining: effectiveRemaining,
         wallet_available_count: walletProbe.availableCount,
         wallet_status: walletProbe.status,
         wallet_read_error: walletReadError,
@@ -154,6 +215,11 @@ export async function GET() {
       state: thread!.state,
     },
     messages: msgs,
+    wallet,
+    has_wallet_row: hasWalletRow,
+    report_instance_id: ownership.reportInstanceId ?? null,
+    effective_credits_remaining: effectiveRemaining,
+    effective_state: effectiveRemaining > 0 ? 'writable' : 'read_only',
   };
 
   if (process.env.NODE_ENV !== 'production') {
@@ -162,9 +228,10 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       userIdHash: hashUserIdForLedgerLog(userId),
       report_key: REPORT_KEY,
-      requested_report_instance_id: walletProbe.requestedReportInstanceId ?? null,
+      reportInstanceIdPresent: Boolean(walletProbe.requestedReportInstanceId),
       scoped_wallet_lookup_active: walletProbe.scopedWalletLookupActive,
       consult_credits_remaining: consultRem,
+      effective_credits_remaining: effectiveRemaining,
       wallet_available_count: walletProbe.availableCount,
       wallet_status: walletProbe.status,
       wallet_read_error: walletReadError,

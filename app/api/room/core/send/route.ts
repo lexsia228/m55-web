@@ -25,6 +25,7 @@ import OpenAI from 'openai';
 import { getSupabaseAdmin } from '../../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../../lib/m55/dtrOwnershipGate';
 import { runDtrEngine } from '../../../../../lib/m55/dtrEngine';
+import { hashUserIdForLedgerLog } from '../../../../../lib/m55/reply/readReplyWalletProbe';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -78,6 +79,16 @@ export async function POST(req: NextRequest) {
   if (ownership.unlockState !== 'owned') {
     return NextResponse.json({ error: 'Not owned' }, { status: 403, headers: NO_STORE });
   }
+  const reportInstanceId =
+    typeof ownership.reportInstanceId === 'string' && ownership.reportInstanceId.trim().length > 0
+      ? ownership.reportInstanceId.trim()
+      : null;
+  if (!reportInstanceId) {
+    return NextResponse.json(
+      { error: 'Report context missing. Reload and try again.' },
+      { status: 409, headers: NO_STORE }
+    );
+  }
 
   let body: { message?: string; birthDate?: string; nickname?: string };
   try {
@@ -116,7 +127,7 @@ export async function POST(req: NextRequest) {
 
   const db = getSupabaseAdmin() as any;
 
-  // Get thread — verify writable + credits > 0 (server authority)
+  // Get thread (existing compatibility ledger row)
   const { data: thread, error: threadErr } = await db
     .from('consult_threads')
     .select('id, credits_total, credits_remaining, state')
@@ -130,13 +141,27 @@ export async function POST(req: NextRequest) {
 
   const t = thread as { id: string; credits_total: number; credits_remaining: number; state: string };
 
-  if (t.state !== 'writable') {
+  const { data: walletRaw, error: walletErr } = await db
+    .from('reply_ticket_wallets')
+    .select('id, status, available_count, consumed_count')
+    .eq('user_id', userId)
+    .eq('report_instance_id', reportInstanceId)
+    .maybeSingle();
+
+  if (walletErr || !walletRaw) {
     return NextResponse.json(
-      { error: 'このレポートの相談は終了しています。' },
-      { status: 403, headers: NO_STORE }
+      { error: 'Reply wallet not found. Reload and try again.' },
+      { status: 409, headers: NO_STORE }
     );
   }
-  if (t.credits_remaining <= 0) {
+
+  const wallet = walletRaw as {
+    id: string;
+    status: string;
+    available_count: number;
+    consumed_count: number;
+  };
+  if (wallet.status !== 'active' || wallet.available_count <= 0) {
     return NextResponse.json(
       { error: '相談回数の残りがありません。' },
       { status: 403, headers: NO_STORE }
@@ -187,7 +212,11 @@ export async function POST(req: NextRequest) {
       completion.choices[0]?.message?.content?.trim() ?? '（返答を生成できませんでした）'
     );
   } catch (e) {
-    console.error('[room/core/send] AI call failed user_id=', userId, e);
+    console.error(
+      '[room/core/send] AI call failed',
+      JSON.stringify({ userHash: hashUserIdForLedgerLog(userId), reportInstanceIdPresent: true }),
+      e
+    );
     return NextResponse.json(
       { error: 'AI service error. Please try again.' },
       { status: 503, headers: NO_STORE }
@@ -199,31 +228,101 @@ export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
   const { error: batchErr } = await db.from('consult_messages').insert([
     { thread_id: t.id, role: 'user', content: userMessage, created_at: now },
-    { thread_id: t.id, role: 'assistant', content: aiContent },
+    { thread_id: t.id, role: 'assistant', content: aiContent, created_at: now },
   ]);
 
   if (batchErr) {
-    console.error('[room/core/send] batch message insert failed user_id=', userId, 'thread_id=', t.id, batchErr);
+    console.error(
+      '[room/core/send] batch message insert failed',
+      JSON.stringify({
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: true,
+      }),
+      batchErr
+    );
     return NextResponse.json({ error: 'Message save failed. Please try again.' }, { status: 500, headers: NO_STORE });
   }
 
-  // Update credits after successful message commit
-  // If this fails: messages are already saved (user received answer).
-  // GET endpoint will reconcile credits on next load.
-  const newRemaining = t.credits_remaining - 1;
+  const consumeWallet = async (w: { id: string; available_count: number; consumed_count: number }) => {
+    const res = await db
+      .from('reply_ticket_wallets')
+      .update({
+        available_count: w.available_count - 1,
+        consumed_count: w.consumed_count + 1,
+      })
+      .eq('id', w.id)
+      .eq('available_count', w.available_count)
+      .eq('consumed_count', w.consumed_count)
+      .eq('status', 'active')
+      .select('id, available_count, consumed_count')
+      .maybeSingle();
+    return {
+      ok: !res.error && !!res.data,
+      afterAvailable: w.available_count - 1,
+      afterConsumed: w.consumed_count + 1,
+    };
+  };
+
+  const firstConsume = await consumeWallet(wallet);
+  let walletConsumeOk = firstConsume.ok;
+  let walletAfterAvailable = firstConsume.afterAvailable;
+  if (!walletConsumeOk) {
+    const { data: latestWallet } = await db
+      .from('reply_ticket_wallets')
+      .select('id, available_count, consumed_count, status')
+      .eq('id', wallet.id)
+      .eq('user_id', userId)
+      .eq('report_instance_id', reportInstanceId)
+      .maybeSingle();
+    if (
+      latestWallet &&
+      latestWallet.status === 'active' &&
+      typeof latestWallet.available_count === 'number' &&
+      typeof latestWallet.consumed_count === 'number' &&
+      latestWallet.available_count > 0
+    ) {
+      const retryConsume = await consumeWallet({
+        id: latestWallet.id,
+        available_count: latestWallet.available_count,
+        consumed_count: latestWallet.consumed_count,
+      });
+      walletConsumeOk = retryConsume.ok;
+      walletAfterAvailable = retryConsume.afterAvailable;
+    }
+  }
+  if (!walletConsumeOk) {
+    console.error(
+      '[room/core/send] wallet consume failed',
+      JSON.stringify({
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: true,
+      })
+    );
+    return NextResponse.json(
+      { error: 'Ticket consumption failed. Please reload and try again.' },
+      { status: 500, headers: NO_STORE }
+    );
+  }
+
+  // Update compatibility thread ledger from wallet SSOT (never negative).
+  // If this fails: messages+wallet are already saved; GET will still use wallet-derived effective state.
+  const newRemaining = Math.max(0, walletAfterAvailable);
   const newState = newRemaining <= 0 ? 'read_only' : 'writable';
   const { error: creditErr } = await db
     .from('consult_threads')
     .update({ credits_remaining: newRemaining, state: newState, updated_at: new Date().toISOString() })
-    .eq('id', t.id)
-    .eq('credits_remaining', t.credits_remaining); // optimistic lock: only update if not changed concurrently
+    .eq('id', t.id);
 
   if (creditErr) {
     // Messages saved. Credits update failed. GET will reconcile.
     // Return success — user received their answer. Log for recovery audit.
     console.error(
       '[room/core/send] CREDIT_UPDATE_FAILED — messages saved, credits not decremented.',
-      'user_id=', userId, 'thread_id=', t.id, 'credits_remaining_expected=', t.credits_remaining, creditErr
+      JSON.stringify({
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: true,
+      }),
+      creditErr
     );
     return NextResponse.json(
       {

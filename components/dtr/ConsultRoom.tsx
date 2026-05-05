@@ -19,7 +19,7 @@
  * - High-risk block response shows safe guidance only.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ConsultRoom.module.css';
 
 const INPUT_MIN = 10;
@@ -63,6 +63,17 @@ type ThreadState = {
 type RoomData = {
   thread: ThreadState;
   messages: Message[];
+  effective_credits_remaining?: number;
+  effective_state?: 'writable' | 'read_only';
+  wallet?: {
+    initial_included_count: number;
+    purchased_count: number;
+    consumed_count: number;
+    available_count: number;
+    status: string;
+  } | null;
+  has_wallet_row?: boolean;
+  report_instance_id?: string | null;
 };
 
 type Props = {
@@ -136,6 +147,8 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
@@ -144,6 +157,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   const sendLock = useRef(false);
   const skipInitialThreadScrollRef = useRef(true);
+  const checkoutReturnRefreshDoneRef = useRef(false);
 
   const composedMessage = useMemo(
     () => buildComposedMessage(selectedTheme, selectedQuestionIds, inputText),
@@ -155,26 +169,57 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   const isUnderMin = composedMessage.trim().length < INPUT_MIN;
   const isWarn = composedLen >= INPUT_WARN && !isOverMax;
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/room/core', { cache: 'no-store' });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          if (!cancelled) setLoadError((d as { error?: string }).error ?? `読み込みエラー (${res.status})`);
-          return;
+  const reloadRoom = useCallback(async (cancelledRef?: { cancelled: boolean }) => {
+    try {
+      const res = await fetch('/api/room/core', { cache: 'no-store' });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        if (!cancelledRef?.cancelled) {
+          setLoadError((d as { error?: string }).error ?? `読み込みエラー (${res.status})`);
         }
-        const data = await res.json();
-        if (!cancelled) setRoomData(data as RoomData);
-      } catch {
-        if (!cancelled) setLoadError('ルームの読み込みに失敗しました。ページを再読み込みしてください。');
+        return;
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
+      const data = await res.json();
+      if (!cancelledRef?.cancelled) {
+        setLoadError(null);
+        setRoomData(data as RoomData);
+      }
+    } catch {
+      if (!cancelledRef?.cancelled) {
+        setLoadError('ルームの読み込みに失敗しました。ページを再読み込みしてください。');
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    const cancelledRef = { cancelled: false };
+    void reloadRoom(cancelledRef);
+    return () => {
+      cancelledRef.cancelled = true;
+    };
+  }, [reloadRoom]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    if (checkout !== 'complete' && checkout !== 'cancelled') {
+      checkoutReturnRefreshDoneRef.current = false;
+      return;
+    }
+    if (checkoutReturnRefreshDoneRef.current) return;
+    checkoutReturnRefreshDoneRef.current = true;
+    void reloadRoom();
+  }, [reloadRoom]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      void reloadRoom();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [reloadRoom]);
 
   useEffect(() => {
     if (!roomData) return;
@@ -203,8 +248,23 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     const msg = composedMessage.trim();
     if (msg.length < INPUT_MIN) return;
     if (msg.length > INPUT_MAX) return;
-    if (roomData.thread.state !== 'writable') return;
-    if (roomData.thread.credits_remaining <= 0) return;
+    const liveWallet = roomData.wallet ?? null;
+    const liveHasWalletRow = roomData.has_wallet_row === true;
+    const liveWalletUsable =
+      Boolean(liveWallet) &&
+      liveHasWalletRow &&
+      liveWallet?.status === 'active';
+    const liveWalletAvailable = liveWallet?.available_count ?? 0;
+    const liveEffectiveRemaining = liveWalletUsable
+      ? liveWalletAvailable
+      : typeof roomData.effective_credits_remaining === 'number'
+        ? roomData.effective_credits_remaining
+        : roomData.thread.credits_remaining;
+    const liveEffectiveState = liveWalletUsable
+      ? (liveEffectiveRemaining > 0 ? 'writable' : 'read_only')
+      : roomData.effective_state ?? roomData.thread.state;
+    if (liveEffectiveState !== 'writable') return;
+    if (liveEffectiveRemaining <= 0) return;
 
     const snapshot = {
       free: inputText,
@@ -256,6 +316,67 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     }
   };
 
+  const messageForCheckoutError = (code?: string): string => {
+    switch (code) {
+      case 'unauthenticated':
+        return 'サインインの状態を確認してください。';
+      case 'forbidden_not_owner':
+        return 'このレポートの利用権限を確認できませんでした。';
+      case 'wallet_not_found':
+        return '返書チケット情報が見つかりませんでした。';
+      case 'wallet_not_active':
+        return '現在、追加購入を受け付けていません。';
+      case 'cap_reached':
+        return 'このレポートでの追加相談返書は上限に達しています。';
+      case 'invalid_request':
+      case 'invalid_product':
+        return '購入リクエストを確認してください。';
+      case 'stripe_error':
+      default:
+        return '決済の準備に失敗しました。時間をおいてもう一度お試しください。';
+    }
+  };
+
+  const handlePurchase = async () => {
+    if (!roomData) return;
+    const reportInstanceId =
+      typeof roomData.report_instance_id === 'string' && roomData.report_instance_id.trim().length > 0
+        ? roomData.report_instance_id.trim()
+        : null;
+    if (!reportInstanceId || checkoutBusy) return;
+
+    setCheckoutBusy(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch('/api/reply-tickets/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          reportInstanceId,
+          productKey: 'additional_reply_ticket',
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        checkout_url?: string;
+        error?: { code?: string };
+      };
+      if (!res.ok) {
+        setCheckoutError(messageForCheckoutError(data.error?.code));
+        return;
+      }
+      if (typeof data.checkout_url === 'string' && data.checkout_url.length > 0) {
+        window.location.assign(data.checkout_url);
+        return;
+      }
+      setCheckoutError('決済ページの作成に失敗しました。時間をおいてもう一度お試しください。');
+    } catch {
+      setCheckoutError('通信に失敗しました。時間をおいてもう一度お試しください。');
+    } finally {
+      setCheckoutBusy(false);
+    }
+  };
+
   if (loadError) {
     return (
       <div className={styles.room} aria-label="相談返書ルーム">
@@ -273,14 +394,47 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   }
 
   const { thread, messages } = roomData;
-  const isReadOnly = thread.state === 'read_only' || thread.credits_remaining <= 0;
+  const wallet = roomData.wallet ?? null;
+  const hasWalletRow = roomData.has_wallet_row === true;
+  const walletUsable =
+    Boolean(wallet) && hasWalletRow && wallet!.status === 'active';
+  const effectiveRemaining =
+    walletUsable
+      ? wallet!.available_count
+      : typeof roomData.effective_credits_remaining === 'number'
+        ? roomData.effective_credits_remaining
+        : thread.credits_remaining;
+  const effectiveState =
+    walletUsable
+      ? (effectiveRemaining > 0 ? 'writable' : 'read_only')
+      : roomData.effective_state ?? thread.state;
+  const isReadOnly = effectiveState === 'read_only' || effectiveRemaining <= 0;
+  const reportInstanceId =
+    typeof roomData.report_instance_id === 'string' && roomData.report_instance_id.trim().length > 0
+      ? roomData.report_instance_id.trim()
+      : null;
+  const walletLoading = !wallet || !hasWalletRow;
+  const walletTotal = wallet ? wallet.initial_included_count + wallet.purchased_count : 0;
+  const walletReachedLimit = walletTotal >= 5 || (wallet?.purchased_count ?? 0) >= 4;
+  const walletCanPurchase =
+    !walletLoading &&
+    wallet!.available_count === 0 &&
+    wallet!.status === 'active' &&
+    walletTotal < 5 &&
+    wallet!.purchased_count < 4 &&
+    Boolean(reportInstanceId);
 
-  const usageLine =
-    thread.credits_remaining > 0
-      ? `返書チケット ${thread.credits_remaining}件`
-      : '返書チケットは利用済みです';
+  const usageLine = walletLoading
+    ? '残数確認中'
+    : wallet!.available_count > 0
+      ? `残り ${wallet!.available_count}件`
+      : walletReachedLimit
+        ? '上限到達'
+        : '残り 0件';
 
-  const submitDisabled = sending || !selectedTheme || isOverMax || isUnderMin;
+  const actionLocked = sending || checkoutBusy || walletLoading;
+  const submitDisabled =
+    actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
 
   return (
     <section className={styles.room} aria-label="相談返書ルーム（purchaser-only）">
@@ -295,25 +449,61 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <span className={styles.usageLabel}>利用状態</span>
           <p className={styles.usageValue} aria-live="polite">
             {usageLine}
-            <span className={styles.usageSub}>
-              （{thread.credits_remaining} / {thread.credits_total}）
-            </span>
+            {!walletLoading ? <span className={styles.usageSub}>（合計5件まで）</span> : null}
           </p>
         </div>
       </header>
 
-      {isReadOnly && (
+      {walletLoading ? (
+        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.readOnlyText}>残数確認中です。しばらくお待ちください。</p>
+        </div>
+      ) : wallet!.available_count > 0 ? (
+        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.readOnlyText}>
+            相談返書チケット 残り {wallet!.available_count}件 / 合計5件まで
+          </p>
+          <p className={styles.addOnNote}>この本質レポートに紐づいて、4章の内容を深掘りできます。</p>
+        </div>
+      ) : walletReachedLimit ? (
+        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.readOnlyText}>
+            このレポートで利用できる追加相談返書は上限に達しました。
+          </p>
+          <p className={styles.addOnNote}>付属1件 + 追加購入4件までが上限です。</p>
+        </div>
+      ) : walletCanPurchase ? (
+        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.readOnlyText}>追加相談返書 1件 500円</p>
+          <p className={styles.addOnNote}>この本質レポートの相談をもう一度整理できます。</p>
+          {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
+          <button
+            type="button"
+            className={checkoutBusy ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+            onClick={handlePurchase}
+            disabled={checkoutBusy || actionLocked || !reportInstanceId}
+          >
+            {checkoutBusy ? '処理中…' : '追加相談返書 1件 500円'}
+          </button>
+        </div>
+      ) : !reportInstanceId ? (
+        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.readOnlyText}>
+            追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。
+          </p>
+        </div>
+      ) : isReadOnly ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
             返書チケットの上限に達しました。これまでのやりとりは引き続き確認できます。
           </p>
-          {thread.credits_total < MAX_CREDITS && (
+          {thread.credits_total < MAX_CREDITS && wallet!.status !== 'active' && (
             <p className={styles.addOnNote}>
               返書チケットの追加はこのルーム内でのみ申し込み可能です。上限は合計{MAX_CREDITS}件です。
             </p>
           )}
         </div>
-      )}
+      ) : null}
 
       <div className={styles.messages} role="log" aria-label="相談返書のやりとり" aria-live="polite">
         {messages.length === 0 && !isReadOnly && (
@@ -387,7 +577,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
               placeholder="今気になっていること、整理したいことがあればご記入ください"
               rows={6}
               maxLength={INPUT_MAX + 80}
-              disabled={sending}
+              disabled={actionLocked}
               aria-describedby="char-counter"
             />
             <div className={styles.counterRow}>
