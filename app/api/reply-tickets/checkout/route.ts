@@ -74,7 +74,18 @@ export async function POST(req: NextRequest) {
   }
 
   const priceId = process.env[STRIPE_PRICE_ENV]?.trim();
+  const stripeSecretPresent = Boolean(process.env.STRIPE_SECRET_KEY?.trim());
   if (!priceId) {
+    console.error(
+      '[reply-tickets/checkout] failed',
+      JSON.stringify({
+        stage: 'price_env_missing',
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: Boolean(parsed.reportInstanceId),
+        stripePricePresent: Boolean(priceId),
+        stripeSecretPresent,
+      })
+    );
     return jsonError(
       'stripe_error',
       503,
@@ -86,7 +97,17 @@ export async function POST(req: NextRequest) {
   try {
     stripe = getStripe();
   } catch (e) {
-    console.error('[reply-tickets/checkout]', e);
+    console.error(
+      '[reply-tickets/checkout] failed',
+      JSON.stringify({
+        stage: 'stripe_client_create_failed',
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: Boolean(parsed.reportInstanceId),
+        stripePricePresent: Boolean(priceId),
+        stripeSecretPresent,
+        errorMessage: e instanceof Error ? e.message : 'unknown',
+      })
+    );
     return jsonError('stripe_error', 503, 'Stripe client not configured');
   }
 
@@ -103,8 +124,8 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: priceId, quantity: REPLY_TICKET_PURCHASE_QUANTITY }],
-      success_url: `${origin}/reply?checkout=complete&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/reply?checkout=cancelled`,
+      success_url: `${origin}/dtr/core?checkout=complete`,
+      cancel_url: `${origin}/dtr/core?checkout=cancelled`,
       client_reference_id: userId,
       locale: 'ja',
       metadata: {
@@ -119,6 +140,17 @@ export async function POST(req: NextRequest) {
     const checkout_url = session.url;
     const session_id = session.id;
     if (!checkout_url) {
+      console.warn(
+        '[reply-tickets/checkout] failed',
+        JSON.stringify({
+          stage: 'session_url_missing',
+          userHash: hashUserIdForLedgerLog(userId),
+          reportInstanceIdPresent: Boolean(parsed.reportInstanceId),
+          stripePricePresent: Boolean(priceId),
+          stripeSecretPresent,
+          sessionIdPresent: Boolean(session_id),
+        })
+      );
       return jsonError('stripe_error', 502, 'Stripe session URL not created');
     }
 
@@ -135,7 +167,20 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ checkout_url, session_id });
   } catch (e) {
-    console.error('[reply-tickets/checkout] stripe checkout.sessions.create', e);
+    const stripeError = e as { type?: string; code?: string; message?: string };
+    console.error(
+      '[reply-tickets/checkout] failed',
+      JSON.stringify({
+        stage: 'stripe_session_create_failed',
+        userHash: hashUserIdForLedgerLog(userId),
+        reportInstanceIdPresent: Boolean(parsed.reportInstanceId),
+        stripePricePresent: Boolean(priceId),
+        stripeSecretPresent,
+        errorType: typeof stripeError?.type === 'string' ? stripeError.type : 'unknown',
+        errorCode: typeof stripeError?.code === 'string' ? stripeError.code : 'unknown',
+        errorMessage: typeof stripeError?.message === 'string' ? stripeError.message : 'unknown',
+      })
+    );
     return jsonError('stripe_error', 502);
   }
 }
