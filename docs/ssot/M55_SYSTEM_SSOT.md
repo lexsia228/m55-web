@@ -1,6 +1,44 @@
 ## 2026-05-11 — Stripe / Vercel / Supabase Shadow incident recovery protocol
-Status: APPROVED SSOT
-Runbook: docs/ssot/M55_2026-05_STRIPE_SUPABASE_SHADOW_INCIDENT_RUNBOOK.md
+
+Status: APPROVED SSOT / REQUIRED DEVELOPMENT PROTOCOL
+
+Applies to:
+- Payment
+- Webhook
+- Vercel Preview
+- Supabase Shadow/Test
+- DB schema repair
+- Release promotion
+- Any work where AI may lose the mainline context
+
+Mandatory sequence:
+work anchor -> current snapshot -> read-only diagnosis -> minimal repair -> verification -> evidence commit -> return-to-mainline decision.
+
+Last GREEN:
+- DTR base report ¥1,000 / DTR_CORE_STATIC_V1
+- Stripe Sandbox checkout.session.completed
+- M55-Vercel-Preview-HomeCluster
+- Vercel Preview / work-home-cluster
+- Supabase Shadow/Test = m55-soul-shadow / jonlynrbfveaprncyrmv
+- Webhook delivery recovered to HTTP 200
+
+Core rule:
+Shadow DB is not safe merely because it exists. Shadow safety requires URL/key/project/schema/columns/types/UNIQUE/PK/PostgREST visibility/current code contract alignt.
+
+Hard locks during DTR base report payment work:
+- Do not touch Production/main.
+- Do not touch additional reply ticket ¥500.
+- Do not rotate whsec.
+- Do not create a new Stripe endpoint.
+- Do not change Vercel env unless that layer is proven to be the current blocker.
+- Do not start a new payment or resend Stripe before current-layer verification is GREEN.
+
+Runbook:
+docs/ssot/M55_2026-05_STRIPE_SUPABASE_SHADOW_INCIDENT_RUNBOOK.md
+
+Evidence SQL:
+scripts/sql/staging/m55_shadow_schema_contract_repair_execute_v1.sql
+scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 ## 2026-03-07 Checkpoint: Relationship reflection pivot
 - Relationship reflection SSOT triad registered as canonical law for product direction.
