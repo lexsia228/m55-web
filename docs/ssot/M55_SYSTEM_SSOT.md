@@ -1,3 +1,7 @@
+## 2026-05-11 — Stripe / Vercel / Supabase Shadow incident recovery protocol
+Status: APPROVED SSOT
+Runbook: docs/ssot/M55_2026-05_STRIPE_SUPABASE_SHADOW_INCIDENT_RUNBOOK.md
+
 ## 2026-03-07 Checkpoint: Relationship reflection pivot
 - Relationship reflection SSOT triad registered as canonical law for product direction.
 - Canonical docs: `M55_RELATIONSHIP_REFLECTION_SYSTEM_SSOT_v1_2026-03-07.md`, `M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md`, `M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md`.
