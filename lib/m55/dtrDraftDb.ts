@@ -73,15 +73,20 @@ export async function getDtrReportSnapshot(
   }
 }
 
+export type UpsertDtrReportSnapshotAtFulfillmentResult =
+  | { ok: true; snapshotId: string }
+  | { ok: false; reason: string };
+
 /**
  * Build immutable snapshot at fulfillment. Idempotent upsert on (user_id, product_id).
+ * On success returns `snapshotId` (= `dtr_report_snapshots.id`) for downstream wallet link.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
   userId: string;
   productId: string;
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
-}): Promise<{ ok: true } | { ok: false; reason: string }> {
+}): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
   const meta = params.sessionMetadata ?? {};
   let nickname = (meta.profileNickname as string | undefined)?.trim() ?? '';
   let birthDate = (meta.profileBirthDate as string | undefined)?.trim() ?? '';
@@ -124,24 +129,41 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 
   try {
     const db = getSupabaseAdmin() as any;
-    const { error } = await db.from('dtr_report_snapshots').upsert(
-      {
-        user_id: params.userId,
-        product_id: params.productId,
-        checkout_session_id: params.checkoutSessionId,
-        profile_snapshot: { nickname, birthDate },
-        draft_snapshot: draftSnapshot,
-        envelope_json: envelope as unknown as Record<string, unknown>,
-      },
-      { onConflict: 'user_id,product_id' }
-    );
+    const { data: upsertRow, error } = await db
+      .from('dtr_report_snapshots')
+      .upsert(
+        {
+          user_id: params.userId,
+          product_id: params.productId,
+          checkout_session_id: params.checkoutSessionId,
+          profile_snapshot: { nickname, birthDate },
+          draft_snapshot: draftSnapshot,
+          envelope_json: envelope as unknown as Record<string, unknown>,
+        },
+        { onConflict: 'user_id,product_id' },
+      )
+      .select('id')
+      .maybeSingle();
+
     if (error) {
       const e = error as { code?: string; message?: string; details?: string; hint?: string };
       const reason = [e.code, e.message, e.details, e.hint].filter(Boolean).join(' | ');
       console.error('[dtrDraftDb] dtr_report_snapshots upsert failed', JSON.stringify({ code: e.code, message: e.message }));
       return { ok: false, reason: reason || String(error) };
     }
-    return { ok: true };
+
+    let snapshotId: string | undefined =
+      upsertRow?.id != null ? String((upsertRow as { id: unknown }).id) : undefined;
+    if (!snapshotId) {
+      const reread = await getDtrReportSnapshot(params.userId, params.productId);
+      snapshotId = reread?.reportInstanceId;
+    }
+    if (!snapshotId) {
+      console.error('[dtrDraftDb] dtr_report_snapshots upsert succeeded but snapshot id unavailable');
+      return { ok: false, reason: 'snapshot_id_missing_after_upsert' };
+    }
+
+    return { ok: true, snapshotId };
   } catch (e) {
     return { ok: false, reason: String(e) };
   }

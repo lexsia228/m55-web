@@ -159,6 +159,33 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
                   : undefined,
           })
         );
+      } else {
+        const { data: linkRows, error: linkErr } = await db
+          .from('reply_ticket_wallets')
+          .update({
+            report_instance_id: snap.snapshotId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', params.expectedUserId)
+          .eq('status', 'active')
+          .is('report_instance_id', null)
+          .select('id');
+
+        if (linkErr) {
+          console.error(
+            '[dtrWalletReportInstanceLink]',
+            JSON.stringify({
+              outcome: 'error',
+              code: (linkErr as { code?: string }).code,
+            }),
+          );
+        } else if (process.env.NODE_ENV !== 'production') {
+          const n = Array.isArray(linkRows) ? linkRows.length : 0;
+          console.info(
+            '[dtrWalletReportInstanceLink]',
+            JSON.stringify({ outcome: n > 0 ? 'linked' : 'skipped', rowsUpdated: n }),
+          );
+        }
       }
     }
 
