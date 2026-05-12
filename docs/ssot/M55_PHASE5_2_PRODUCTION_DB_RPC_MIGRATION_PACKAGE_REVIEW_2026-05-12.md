@@ -1,6 +1,6 @@
 # M55 Phase 5-2 — Production DB/RPC migration package (review only) (2026-05-12)
 
-Status: **Review-only package preparation** — Production DB への適用、**`main` merge**、本番インフラ変更、**ライブ決済**は **一切行わない**。成果物は **レビュー可能な SQL パッケージ、Runbook 概念、preflight/postflight 参照**のみ。
+Status: **Review-only package preparation** — Production DB への適用、**`main` merge**、本番インフラ変更、**ライブ決済**は **一切行わない**。成果物は **レビュー可能な SQL パッケージ、Runbook 概念、preflight/postflight 参照**のみ。**Phase 5-3A:** `m55_phase5_production_promotion_readiness_preflight_v1.sql` に **reply_ticket_wallets.report_instance_id** および **wallet スコープ制約/index の read-only 照会**を追記済み（APPROVE_WITH_FIXES の preflight gap 補強）。
 
 ## Current GREEN stack（Phase 1〜5-1）
 

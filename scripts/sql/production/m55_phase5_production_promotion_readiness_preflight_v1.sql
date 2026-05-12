@@ -11,6 +11,8 @@
 --
 -- Expected when Phase 4 RPC lane is fully deployed:
 --   All listed public tables exist (boolean true).
+--   reply_ticket_wallets.report_instance_id column exists (boolean true) — report-scoped
+--     wallet prerequisite (Phase 2+); STOP Production apply if false.
 --   reply_wallet_ledgers has columns: report_instance_id, stripe_event_id,
 --     stripe_checkout_session_id, stripe_payment_intent_id, product_key (each true).
 --   RPC m55_reply_ticket_fulfill_checkout_event exists (count >= 1).
@@ -99,18 +101,56 @@ SELECT
       AND column_name = 'product_key'
   ) AS col_product_key;
 
--- SECTION C — RPC existence (public schema)
+-- SECTION C — reply_ticket_wallets: report_instance_id + scope constraints (read-only)
+-- Expected: has_reply_ticket_wallets_report_instance_id = true
+-- Additional-reply RPC uses WHERE user_id = ... AND report_instance_id = ... FOR UPDATE.
+-- Production must satisfy report-scoped wallet contract before applying Phase 5-2 migration package.
+SELECT
+  EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'reply_ticket_wallets'
+      AND column_name = 'report_instance_id'
+  ) AS has_reply_ticket_wallets_report_instance_id;
+
+-- PK / UNIQUE on reply_ticket_wallets (heuristic — DBA interprets report-scope fit)
+SELECT
+  con.conname,
+  con.contype,
+  pg_get_constraintdef(con.oid) AS constraint_def
+FROM pg_constraint AS con
+JOIN pg_class AS rel ON rel.oid = con.conrelid
+JOIN pg_namespace AS ns ON ns.oid = rel.relnamespace
+WHERE ns.nspname = 'public'
+  AND rel.relname = 'reply_ticket_wallets'
+  AND con.contype IN ('p', 'u')
+ORDER BY con.conname;
+
+-- Indexes mentioning user_id or report_instance_id (optional uniqueness / lookup)
+SELECT
+  i.indexname,
+  i.indexdef
+FROM pg_indexes AS i
+WHERE i.schemaname = 'public'
+  AND i.tablename = 'reply_ticket_wallets'
+  AND (
+    i.indexdef ILIKE '%user_id%'
+    OR i.indexdef ILIKE '%report_instance_id%'
+  )
+ORDER BY i.indexname;
+
+-- SECTION D — RPC existence (public schema)
 SELECT COUNT(*)::bigint AS rpc_m55_reply_ticket_fulfill_checkout_event_count
 FROM pg_proc AS p
 JOIN pg_namespace AS n ON n.oid = p.pronamespace
 WHERE n.nspname = 'public'
   AND p.proname = 'm55_reply_ticket_fulfill_checkout_event';
 
--- SECTION D — service_role EXECUTE on RPC (information_schema)
+-- SECTION E — service_role EXECUTE on RPC (information_schema)
 SELECT
   rp.grantee,
   rp.privilege_type,
-  rp.specific_schema,
+  rp.routine_schema,
   rp.routine_name
 FROM information_schema.routine_privileges AS rp
 WHERE rp.routine_schema = 'public'
@@ -118,7 +158,7 @@ WHERE rp.routine_schema = 'public'
   AND rp.grantee = 'service_role'
   AND rp.privilege_type = 'EXECUTE';
 
--- SECTION E — Idempotency: stripe_processed_events indexes touching stripe_event_id
+-- SECTION F — Idempotency: stripe_processed_events indexes touching stripe_event_id
 -- Expected after optional gate: at least one index where stripe_event_id is indexed
 -- (unique/partial unique may be required by ops policy — not strictly provable here).
 SELECT
@@ -131,7 +171,7 @@ WHERE i.schemaname = 'public'
   AND i.tablename = 'stripe_processed_events'
   AND i.indexdef ILIKE '%stripe_event_id%';
 
--- SECTION F — Idempotency: reply_wallet_ledgers indexes on stripe_event_id (replay lookup)
+-- SECTION G — Idempotency: reply_wallet_ledgers indexes on stripe_event_id (replay lookup)
 SELECT
   i.schemaname,
   i.tablename,
