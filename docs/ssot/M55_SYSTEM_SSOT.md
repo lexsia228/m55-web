@@ -1,3 +1,29 @@
+## 2026-05-12 — Phase 5-3B Production DB/RPC package APPROVED for future apply gate
+
+Status: **Review approval evidence** — Phase **5-3B** 再レビュー判定 **APPROVE**。**パッケージは「将来の Production 適用ゲート」用に承認済みとして記録するのみ。** **Production DB 実行なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline **`6e603d9`**（preflight hardening）, Preview/Shadow 検証済み。
+
+Verified / approved:
+
+- **5-3A:** `m55_phase5_production_promotion_readiness_preflight_v1.sql` に **`reply_ticket_wallets.report_instance_id`** および **制約/index read-only** を追加済み。
+- **5-3B:** 上記を含む **DB/RPC migration package** を **APPROVE**（実行 GO は別途）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md`
+- Approved paths: `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`, `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`, `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`
+
+Next:
+
+- **Phase 5-4** — **Production apply 計画** / **メンテナンス窓** / **最終 GO ゲート**（**明示承認なしに適用しない**）。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until Phase 5-4 GO.
+
 ## 2026-05-12 — Phase 5-2 Production DB/RPC migration package prepared for review
 
 Status: **Review-only** — Phase 1〜5-1 **GREEN** 前提で、**Production 向け DB/RPC マイグレーション候補パッケージを repo に整理済み**。**Production DB への適用なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
@@ -14,11 +40,11 @@ Package paths（レビュー用）:
 
 Next:
 
-- **Phase 5-3** — パッケージの **レビュー承認**（**明示 GO なしに Production 適用しない**）。
+- **Phase 5-4** — Production apply / maintenance window / final GO（**5-3B APPROVE 済み**; 実行は別途）。
 
 Hard stop:
 
-- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until Phase 5-3 approval.
+- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until Phase 5-4 explicit GO.
 
 ## 2026-05-12 — Phase 5 Production promotion readiness gate started
 
@@ -37,10 +63,11 @@ Evidence:
 - `docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md`
 - `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`（read-only; **明示承認後の Production preflight 用**）
 - Phase 5-2 パッケージ（レビュー用）: `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md`
+- Phase 5-3B 承認証跡: `docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md`
 
 Next:
 
-- **Phase 5-3** — パッケージ **レビュー承認**（**明示 GO なしに Production 適用しない**）。準備済みパッケージ: **Phase 5-2** セクション参照。
+- **Phase 5-4** — Production apply / maintenance window / final GO（**5-3B APPROVE 済み**; **実行は別途明示 GO**）。
 
 ## 2026-05-12 — Phase 4 additional reply ¥500 Preview E2E GREEN
 
