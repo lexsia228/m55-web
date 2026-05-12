@@ -1,3 +1,25 @@
+## 2026-05-12 — Phase 5-2 Production DB/RPC migration package prepared for review
+
+Status: **Review-only** — Phase 1〜5-1 **GREEN** 前提で、**Production 向け DB/RPC マイグレーション候補パッケージを repo に整理済み**。**Production DB への適用なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Preview/Shadow 検証済み、`DTR_CORE_STATIC_V1` + `additional_reply_ticket`。
+
+Package paths（レビュー用）:
+
+- `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md`
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`（**明示承認まで実行禁止**）
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`（read-only; 適用後検証用）
+
+Next:
+
+- **Phase 5-3** — パッケージの **レビュー承認**（**明示 GO なしに Production 適用しない**）。
+
+Hard stop:
+
+- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until Phase 5-3 approval.
+
 ## 2026-05-12 — Phase 5 Production promotion readiness gate started
 
 Status: **Gate artifact started** — Phase 1〜4 は **GREEN**（証跡化済み）。**Phase 5（Production 昇格前ゲート／リリース強化）に着手**。これは **Production リリースではない**。**本記録時点: Production / `main` merge なし、Production DB/env/`whsec` 変更なし、ライブ決済なし。**
@@ -14,10 +36,11 @@ Evidence:
 
 - `docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md`
 - `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`（read-only; **明示承認後の Production preflight 用**）
+- Phase 5-2 パッケージ（レビュー用）: `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md`
 
 Next:
 
-- **Phase 5-2** — Production DB/RPC **マイグレーションパッケージ準備・レビューのみ**（適用 GO は別ゲート）。
+- **Phase 5-3** — パッケージ **レビュー承認**（**明示 GO なしに Production 適用しない**）。準備済みパッケージ: **Phase 5-2** セクション参照。
 
 ## 2026-05-12 — Phase 4 additional reply ¥500 Preview E2E GREEN
 
