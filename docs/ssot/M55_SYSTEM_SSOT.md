@@ -1,3 +1,32 @@
+## 2026-05-12 — Phase 2 wallet report_instance_id permanent fix GREEN
+
+Status: **Checkpoint evidence** — Phase 2（`reply_ticket_wallets.report_instance_id` ↔ `dtr_report_snapshots.id` 自動リンク）**GREEN**。リリース昇格の根拠単体ではない。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane DTR base ¥1,000 + included reply ticket（`DTR_CORE_STATIC_V1`）.
+
+Implementation commit:
+
+- `c5b46f0` — `fix: link DTR reply wallet to report snapshot`
+
+Verified GREEN summary:
+
+- New Preview/Sandbox DTR purchase: **no manual backfill**; `dtr_report_snapshots.id` = `reply_ticket_wallets.report_instance_id`; wallet counts match included-ticket path; webhook **200**; `/dtr/processing` reached; `/dtr/core` **200**; `GET /api/room/core` **200**; `dtrOwnershipGate` owned from `dtr_report_snapshots`.
+
+Next required phase:
+
+- **Phase 3** — included reply **1-ticket E2E**（generate/consume lane; separate gate).
+
+Hard stop:
+
+- **No** additional reply **¥500** / **no** Production **`main`** / **no** env **`whsec`** / **no** new payment verification loop / **no** UI polish yet.
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE2_WALLET_LINK_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase2_wallet_report_instance_link_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
 ## 2026-05-12 — DTR base report ¥1,000 Preview purchase-after flow GREEN
 
 Status: **Checkpoint evidence** — **Phase 1 GREEN の証跡**。Preview + Shadow で購入後フロー検証済み。リリース昇格の根拠ではない。**本チェックポイントではアプリロジックは変更しない。**
