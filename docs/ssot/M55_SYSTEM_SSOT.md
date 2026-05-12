@@ -1,6 +1,43 @@
+## 2026-05-12 — Phase 4 additional reply ¥500 Preview E2E GREEN
+
+Status: **Checkpoint evidence** — Phase 4（追加返書 **¥500** Checkout〜Webhook〜wallet〜購入分返書送信〜UI）**GREEN**。**Preview / Shadow のみ**。Production / `main` **未承認**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane additional reply ticket ¥500（`additional_reply_ticket`）。
+
+Verified GREEN summary:
+
+- **Checkout:** `POST /api/reply-tickets/checkout` → **200**.
+- **初回 Webhook:** **500** → **root cause:** `public.m55_reply_ticket_fulfill_checkout_event` **RPC missing** on Shadow.
+- **Repair:** Shadow に **RPC 作成**、`service_role` **EXECUTE** 確認。
+- **Stripe:** **自動再送**で過去 `checkout.session.completed` が回復。
+- **Wallet:** `initial_included_count` **1**, `purchased_count` **1**, `consumed_count` **2**, `available_count` **0**, `status` **`active`**.
+- **Ledger:** `purchase_grant` / `PURCHASE` / `delta` **1** / `balance_after` **1** / `product_key` **`additional_reply_ticket`**, Stripe 参照あり。
+- **Send:** `POST /api/room/core/send` **200**; `consult_messages` **4** 行（user/assistant ×2）; thread **`read_only`**.
+- **UI:** 残り **0**、**追加返書 CTA** 再表示。
+
+Root cause / repair（証跡）:
+
+- RPC 欠落 → **Shadow で RPC 作成** → **Stripe 自動再送で回復**。
+
+Next required phase:
+
+- **Phase 5** — **Production promotion readiness gate** / release hardening（RPC・DDL を **Production マイグレーション計画に含める**こと。**合計 5 件 cap** はコード／read-only ゲートで確認し、**繰り返し有料購入のみで cap を叩く検証はしない**。）。
+
+Hard stop:
+
+- **No** Production **`main`** until Phase 5 gate / team approval.
+- **No** Vercel env / **`whsec`** / secret edits; **no** additional purchase loop for testing; **no** UI polish until **Phase 4 evidence is committed**（チーム手順に従う）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE4_ADDITIONAL_REPLY_E2E_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase4_additional_reply_e2e_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
 ## 2026-05-12 — Phase 3 included reply 1-ticket E2E GREEN
 
-Status: **Checkpoint evidence** — Phase 3（同梱返書 **1 チケット**の送信〜DB 消費〜UI 整合）**GREEN**。追加返書 **¥500** の Checkout **E2E はまだ GREEN としない**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
+Status: **Checkpoint evidence** — Phase 3（同梱返書 **1 チケット**の送信〜DB 消費〜UI 整合）**GREEN**。後続の Phase 4（追加返書 ¥500）は **上位チェックポイントで証跡化済み**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
 
 Work anchor:
 
@@ -14,12 +51,11 @@ Verified GREEN summary:
 
 Next required phase:
 
-- **Phase 4** — additional reply **¥500** **Preview Checkout** verification（決済〜Webhook〜wallet / UI; **not yet GREEN**）。
+- **Phase 5** — Production promotion readiness（上位の Phase 4 証跡を参照）。
 
 Hard stop:
 
-- **No** Production **`main`** / **no** Vercel env / **no** **`whsec`** rotation / **no** UI polish yet.
-- **追加返書 ¥500** の実行検証は Phase 4 まで別ゲート（本チェックポイントでは未完了）。
+- **No** Production **`main`** / **no** Vercel env / **no** **`whsec`** rotation / **no** UI polish yet（チームの現在ゲートに従う）。
 
 Evidence:
 
