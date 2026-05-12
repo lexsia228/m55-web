@@ -1,3 +1,24 @@
+## 2026-05-12 — Phase 5 Production promotion readiness gate started
+
+Status: **Gate artifact started** — Phase 1〜4 は **GREEN**（証跡化済み）。**Phase 5（Production 昇格前ゲート／リリース強化）に着手**。これは **Production リリースではない**。**本記録時点: Production / `main` merge なし、Production DB/env/`whsec` 変更なし、ライブ決済なし。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Preview/Shadow 検証済み、`DTR_CORE_STATIC_V1` + `additional_reply_ticket` レーン。
+
+Core risk:
+
+- Preview/Shadow Phase 4 で **Shadow 上に後追い修復した RPC / DDL**（`m55_reply_ticket_fulfill_checkout_event`、`stripe_processed_events`、ledger 参照列、`service_role` EXECUTE、schema reload）が **`supabase/migrations` にまだ一式で載っていない**。**Production へはパッケージ化後にのみ昇格すること。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md`
+- `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`（read-only; **明示承認後の Production preflight 用**）
+
+Next:
+
+- **Phase 5-2** — Production DB/RPC **マイグレーションパッケージ準備・レビューのみ**（適用 GO は別ゲート）。
+
 ## 2026-05-12 — Phase 4 additional reply ¥500 Preview E2E GREEN
 
 Status: **Checkpoint evidence** — Phase 4（追加返書 **¥500** Checkout〜Webhook〜wallet〜購入分返書送信〜UI）**GREEN**。**Preview / Shadow のみ**。Production / `main` **未承認**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
