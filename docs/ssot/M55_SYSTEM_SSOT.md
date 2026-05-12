@@ -1,3 +1,31 @@
+## 2026-05-12 — Phase 3 included reply 1-ticket E2E GREEN
+
+Status: **Checkpoint evidence** — Phase 3（同梱返書 **1 チケット**の送信〜DB 消費〜UI 整合）**GREEN**。追加返書 **¥500** の Checkout **E2E はまだ GREEN としない**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane DTR base ¥1,000 + included reply ticket（`DTR_CORE_STATIC_V1`）.
+
+Verified GREEN summary:
+
+- **Before send:** remaining **1**（同梱チケット未消費状態）。
+- **After send:** `reply_ticket_wallets.available_count` = **0**, `consumed_count` = **1**; `consult_threads.credits_remaining` = **0**, `state` = **`read_only`**; `consult_messages` **2 行**; UI リロードで残り **0**; **追加相談返書 1件 500円** CTA 表示。
+- **検証範囲:** 同梱 1 件フローのみ（`POST /api/room/core/send` 経路）。
+
+Next required phase:
+
+- **Phase 4** — additional reply **¥500** **Preview Checkout** verification（決済〜Webhook〜wallet / UI; **not yet GREEN**）。
+
+Hard stop:
+
+- **No** Production **`main`** / **no** Vercel env / **no** **`whsec`** rotation / **no** UI polish yet.
+- **追加返書 ¥500** の実行検証は Phase 4 まで別ゲート（本チェックポイントでは未完了）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE3_INCLUDED_REPLY_E2E_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase3_included_reply_e2e_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
 ## 2026-05-12 — Phase 2 wallet report_instance_id permanent fix GREEN
 
 Status: **Checkpoint evidence** — Phase 2（`reply_ticket_wallets.report_instance_id` ↔ `dtr_report_snapshots.id` 自動リンク）**GREEN**。リリース昇格の根拠単体ではない。
