@@ -1,3 +1,35 @@
+## 2026-05-12 — DTR base report ¥1,000 Preview purchase-after flow GREEN
+
+Status: **Checkpoint evidence** — **Phase 1 GREEN の証跡**。Preview + Shadow で購入後フロー検証済み。リリース昇格の根拠ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Verified GREEN (Preview + Shadow / Sandbox):
+
+- Stripe `checkout.session.completed` → webhook **HTTP 200**
+- `entitlements`, `entitlement_rights`, `one_time_fulfillments` — DTR base lane
+- `reply_ticket_wallets`, `dtr_guest_drafts`, `dtr_report_snapshots` (`snapshot_rows = 1`)
+- `/dtr/core` paid report unlock
+- `consult_threads` / `consult_messages` schema; `GET /api/room/core` **200**
+- Consultation room UI: remaining count **「残り1件（合計5件まで）」** after wallet linkage
+
+Caveat:
+
+- `reply_ticket_wallets.report_instance_id` を `dtr_report_snapshots.id` に揃えたのは **Shadow のみ**の **手動 SQL backfill**。**恒久修正ではない**（正規 fulfillment / migration への置換が次フェーズ）。
+
+Next required phase:
+
+- **恒久:** wallet の `report_instance_id` を canonical fulfillment / migration（または合意 SSOT）で付与し、手動 backfill に依存しないこと。
+
+Hard stop:
+
+- **追加返書 ¥500** に進まない。
+- **Production / `main`** に進まない（本証跡のみでの昇格・マージ禁止）。
+- **Vercel env / `whsec` / 新規決済** は当面禁止（別途合意した次ブロッカーでない限り）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_GREEN_CHECKPOINT_2026-05-12.md`
+- `scripts/sql/staging/m55_shadow_reply_wallet_report_instance_backfill_v1.sql`（`<CLERK_USER_ID>` を置換後に Shadow のみ実行。Production 禁止）
+
 ## 2026-05-11 — Stripe / Vercel / Supabase Shadow incident recovery protocol
 
 Status: APPROVED SSOT / REQUIRED DEVELOPMENT PROTOCOL
