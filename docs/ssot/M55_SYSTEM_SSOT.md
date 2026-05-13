@@ -1,3 +1,23 @@
+## 2026-05-13 — Phase 5-6D Production read-only preflight PASS_WITH_REVIEW_NOTE
+
+Status: **Read-only preflight evidence** — **証跡のみ。** Production 上で **SELECT / read-only preflight のみ**実施済み。**A〜F PASS**。**G は REVIEW / NON-BLOCKING**（`reply_wallet_ledgers` の `stripe_event_id` インデックス未検出 — 主冪等は `stripe_processed_events` UNIQUE でカバー）。**migration candidate は未実行。** 次は **Phase 5-6E** — **インデックス方針 / migration 実行可否の判断**。
+
+Work anchor:
+
+- Branch `work/home-cluster`（preflight 証跡: `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6E** — **migration candidate 実行準備レビュー** / **`reply_wallet_ledgers` lookup インデックス判断**。
+
+Hard stop:
+
+- **No** migration candidate / **no** DDL-DML on Production / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-6E decision**（別途記録）。
+
 ## 2026-05-13 — Phase 5-6C execution start checkpoint prepared, NOT executed
 
 Status: **Final pre-execution checkpoint** — **実行ではない。** Production **read-only preflight** に入る **直前**の SSOT。**execution-start phrase はまだ記録されていない。** `docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md` を正とする。
