@@ -1,3 +1,23 @@
+## 2026-05-13 — Phase 5-6C execution start checkpoint prepared, NOT executed
+
+Status: **Final pre-execution checkpoint** — **実行ではない。** Production **read-only preflight** に入る **直前**の SSOT。**execution-start phrase はまだ記録されていない。** `docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md` を正とする。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`0888802`**（execution start checkpoint 準備時点）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6D** — **Production read-only preflight**（**lexsia が execution-start phrase をアクティブに記録した後のみ**）、または **Phase 5-6C** ブロッカー時のハードニング。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution start**（**lexsia による execution-start phrase のアクティブ記録**が別途あるまで止まる）。
+
 ## 2026-05-13 — Phase 5-6B-1 single-operator exception SSOT hardening
 
 Status: **SSOT alignment only** — **実行ではない。** Phase 5-4「**二名以上確認**」と Phase 5-6A「**single-operator**」を、**本リリース限りの明示例外**として整合。**lexsia** が全実行ロールを保有。**Gemini / ChatGPT** は **助言のみ**で **責任主体の人間オペレータではない**。**最終説明責任は lexsia**。lexsia **不在**または **独立した最終確認が取れない**場合は **NO-GO**。Phase 5-6 Production apply **実行は未開始**。
