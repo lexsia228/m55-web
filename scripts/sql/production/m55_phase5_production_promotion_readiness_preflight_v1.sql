@@ -172,6 +172,9 @@ WHERE i.schemaname = 'public'
   AND i.indexdef ILIKE '%stripe_event_id%';
 
 -- SECTION G — Idempotency: reply_wallet_ledgers indexes on stripe_event_id (replay lookup)
+-- NON-BLOCKING for promotion: primary duplicate protection is stripe_processed_events (SECTION F).
+-- Before migration candidate STEP B2, 0 rows here is acceptable (Phase 5-6D evidence).
+-- After STEP B2 apply, expect >=1 row; confirm also via postflight SECTION H.
 SELECT
   i.schemaname,
   i.tablename,

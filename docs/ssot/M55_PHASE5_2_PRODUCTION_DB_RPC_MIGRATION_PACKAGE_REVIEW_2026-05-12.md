@@ -82,6 +82,11 @@ Preview/Shadow の Phase 4 は **`public.m55_reply_ticket_fulfill_checkout_event
 
 - **Phase 5-3** — 本マイグレーションパッケージの **レビュー承認**（**明示 GO が無い限り Production 適用しない**）
 
+## Amendment 2026-05-13（Phase 5-6E — ledger lookup index）
+
+- 統合候補 `m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql` に **STEP B2** を追加: `reply_wallet_ledgers(stripe_event_id)` の **`CREATE INDEX IF NOT EXISTS`**（**NON-BLOCKING** hardening。**二重付与防止の本命は `stripe_processed_events.stripe_event_id` UNIQUE / partial UNIQUE**）。**Production 未実行**。
+- 詳細: `docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md`
+
 ## Related
 
 - `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md`

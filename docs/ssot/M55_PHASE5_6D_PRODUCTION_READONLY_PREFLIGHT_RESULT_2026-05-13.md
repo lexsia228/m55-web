@@ -59,7 +59,15 @@ Status: **Evidence / traceability only** — **Production スキーマ・デー�
 
 ## Next phase
 
-- **Phase 5-6E** — **migration candidate 実行可否のレビュー**および **`reply_wallet_ledgers` の `stripe_event_id` 参照用インデックス方針の決定**（実行は **5-6E の判断後**の別手順のみ）。
+- **Phase 5-6E（完了）** — パッケージ hardening のみ（**Production 未実行**）。詳細: `docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md`。
+- **migration candidate 実行**は **別明示 GO** のみ（本証跡では開始しない）。
+
+---
+
+## Resolution（Phase 5-6E / パッケージ正本）
+
+- **判定:** `reply_wallet_ledgers.stripe_event_id` の **非一意 lookup インデックス**を **今回の migration candidate に含める**（`CREATE INDEX IF NOT EXISTS`、データ行は変更しない）。
+- **正本:** `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql` **STEP B2**；postflight **SECTION H** で read-only 確認可能。
 
 ---
 

@@ -16,6 +16,8 @@
 --   rpc_count >= 1
 --   service_role EXECUTE: at least one row
 --   unique_index_on_stripe_event_id: at least one matching index (partial unique OK)
+--   reply_wallet_ledgers stripe_event_id lookup index (SECTION H): optional
+--     operational hardening — NOT a substitute for stripe_processed_events uniqueness
 --   reply_ticket_wallets.report_instance_id: true (prerequisite for RPC wallet SELECT)
 -- =============================================================================
 
@@ -109,5 +111,18 @@ SELECT
 FROM information_schema.routines AS r
 WHERE r.routine_schema = 'public'
   AND r.routine_name = 'm55_reply_ticket_fulfill_checkout_event';
+
+-- SECTION H — reply_wallet_ledgers: lookup index on stripe_event_id (Phase 5-6E NON-BLOCKING)
+-- Expected after migration candidate STEP B2: at least one index referencing stripe_event_id.
+-- Primary duplicate protection remains stripe_processed_events (SECTION F), not this index.
+SELECT
+  i.schemaname,
+  i.tablename,
+  i.indexname,
+  i.indexdef
+FROM pg_indexes AS i
+WHERE i.schemaname = 'public'
+  AND i.tablename = 'reply_wallet_ledgers'
+  AND i.indexdef ILIKE '%stripe_event_id%';
 
 -- END OF FILE

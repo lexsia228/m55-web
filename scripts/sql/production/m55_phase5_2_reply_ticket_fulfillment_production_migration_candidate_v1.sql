@@ -23,11 +23,12 @@
 --   - Confirm PostgREST / Supabase policy for NOTIFY vs Dashboard schema reload.
 --
 -- Suggested order when GO is granted (manual transaction optional — DBA policy):
---   1) additive DDL below
---   2) idempotency unique index
---   3) RPC CREATE OR REPLACE
---   4) REVOKE / GRANT
---   5) NOTIFY pgrst
+--   1) additive DDL below (STEP A/B)
+--   2) optional NON-UNIQUE ledger lookup index (STEP B2 — Phase 5-6E; not idempotency)
+--   3) idempotency unique index on stripe_processed_events (STEP C)
+--   4) RPC CREATE OR REPLACE
+--   5) REVOKE / GRANT
+--   6) NOTIFY pgrst
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -66,6 +67,16 @@ ALTER TABLE public.reply_wallet_ledgers
 
 ALTER TABLE public.reply_wallet_ledgers
   ADD COLUMN IF NOT EXISTS product_key text;
+
+-- -----------------------------------------------------------------------------
+-- STEP B2 — reply_wallet_ledgers: NON-UNIQUE lookup index on stripe_event_id
+-- Phase 5-6E (2026-05-13): audit / replay investigation efficiency ONLY.
+-- NOT primary idempotency — duplicate protection remains STEP C on
+--   stripe_processed_events (partial UNIQUE on stripe_event_id).
+-- Add-only, idempotent DDL — no row updates.
+-- -----------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS m55_idx_reply_wallet_ledgers_stripe_event_id_lookup
+  ON public.reply_wallet_ledgers (stripe_event_id);
 
 -- -----------------------------------------------------------------------------
 -- STEP C — Idempotency: unique index on stripe_event_id (non-empty values only)

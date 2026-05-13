@@ -1,6 +1,29 @@
+## 2026-05-13 — Phase 5-6E ledger lookup index review / migration package hardening only
+
+Status: **Hardening review + repo package amendment only** — **Production 未実行。** Phase 5-6E は **SSOT 記録と migration / postflight 正本への追記のみ**（**DB 適用なし**）。`reply_wallet_ledgers(stripe_event_id)` に **非一意 lookup 用 `CREATE INDEX IF NOT EXISTS`**（`m55_idx_reply_wallet_ledgers_stripe_event_id_lookup`）を **今回の migration candidate に含める判断**。**primary idempotency の本命は `stripe_processed_events.stripe_event_id` UNIQUE（partial）のまま** — 本インデックスは **NON-BLOCKING** 運用強化。
+
+Work anchor:
+
+- Branch `work/home-cluster`.
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md`
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`（**STEP B2**）
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`（**SECTION H**）
+- `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`（Resolution 追記）
+
+Next:
+
+- **migration candidate の Production 適用** — **別明示 GO** のみ（**本ゲートでは未実行**）。
+
+Hard stop:
+
+- **No** Production DB apply / **no** migration candidate execution / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（5-6E は **正本更新のみ**）。
+
 ## 2026-05-13 — Phase 5-6D Production read-only preflight PASS_WITH_REVIEW_NOTE
 
-Status: **Read-only preflight evidence** — **証跡のみ。** Production 上で **SELECT / read-only preflight のみ**実施済み。**A〜F PASS**。**G は REVIEW / NON-BLOCKING**（`reply_wallet_ledgers` の `stripe_event_id` インデックス未検出 — 主冪等は `stripe_processed_events` UNIQUE でカバー）。**migration candidate は未実行。** 次は **Phase 5-6E** — **インデックス方針 / migration 実行可否の判断**。
+Status: **Read-only preflight evidence** — **証跡のみ。** Production 上で **SELECT / read-only preflight のみ**実施済み。**A〜F PASS**。**G は REVIEW / NON-BLOCKING**（`reply_wallet_ledgers` の `stripe_event_id` インデックス未検出 — 主冪等は `stripe_processed_events` UNIQUE でカバー）。**migration candidate は未実行。** **SECTION G 解消は Phase 5-6E でパッケージ追記（Production 未適用）。**
 
 Work anchor:
 
@@ -12,11 +35,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6E** — **migration candidate 実行準備レビュー** / **`reply_wallet_ledgers` lookup インデックス判断**。
+- **Phase 5-6E** — **完了**（lookup index パッケージ hardening）。以降は **migration 適用は別明示 GO** のみ。
 
 Hard stop:
 
-- **No** migration candidate / **no** DDL-DML on Production / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-6E decision**（別途記録）。
+- **No** migration candidate / **no** DDL-DML on Production / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（5-6E は **repo のみ**、**DB 未適用**）。
 
 ## 2026-05-13 — Phase 5-6C execution start checkpoint prepared, NOT executed
 

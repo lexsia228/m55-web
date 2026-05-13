@@ -46,6 +46,12 @@ Status: **Approval checkpoint evidence** — Phase **5-3B** 再レビュー判�
 - **`stripe_processed_events`** に **重複 `stripe_event_id` が無いこと**（unique index 作成前のデータ確認）
 - preflight 出力に基づく **report-scoped wallet の index/constraint** の DBA 解釈
 
+## Amendment 2026-05-13（Phase 5-6E — **hardening review / package 追記のみ、Production 未実行**）
+
+- `m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql` に **STEP B2** を追加: **`m55_idx_reply_wallet_ledgers_stripe_event_id_lookup`**（`reply_wallet_ledgers(stripe_event_id)`、**非一意**・**lookup / 監査効率用**。**primary idempotency ではない** — 本命は引き続き **`stripe_processed_events`** 上の partial UNIQUE）。
+- `m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql` に **SECTION H**（上記インデックスの read-only 検出）を追加。
+- 判断 SSOT: `docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md`。**Phase 5-3B APPROVE の趣旨（additive・冪等 RPC レーン）は維持**し、**実行 GO は含まない**。
+
 ## Shadow 専用 SQL
 
 - **`scripts/sql/staging/m55_shadow_reply_wallet_report_instance_backfill_v1.sql`** 等の **Shadow 専用 backfill を Production に流用しない。**
