@@ -1,6 +1,26 @@
+## 2026-05-13 — Phase 5-5 final execution readiness / explicit Production apply GO decision gate
+
+Status: **Readiness / GO decision only** — **実行ではない。** **明示の最終 GO が無い限り、Production apply（DB・`main`・本番 env・`whsec`/秘密・ライブ決済）に進めない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline **`2b237cb`**（Phase 5-4 planning）, Phase 5-3B **APPROVE** 済みパッケージ。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_5_FINAL_EXECUTION_READINESS_EXPLICIT_GO_DECISION_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6** — **明示最終 GO 後**の Production apply **実行のみ**、または **Phase 5-5B** — ブロッカー時のハードニング。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit final GO**（5-5 チェックリスト記録後も **実行は別 GO**）。
+
 ## 2026-05-13 — Phase 5-4 Production apply planning / final GO gate started
 
-Status: **Planning only** — **実行ではない。** Production DB 適用、`main` merge、Production env、`whsec`/秘密、**ライブ決済**は **触れない。** 次は **明示 Production apply GO** または **ブロッカー時の Phase 5-4B ハードニング**。
+Status: **Planning only** — **実行ではない。** Production DB 適用、`main` merge、Production env、`whsec`/秘密、**ライブ決済**は **触れない。** 次は **Phase 5-5 最終 GO 意思決定** または **ブロッカー時の Phase 5-4B ハードニング**。
 
 Work anchor:
 
@@ -14,11 +34,11 @@ Evidence / runbook:
 
 Next:
 
-- **Phase 5-5** — **明示 GO** による Production apply、または **Phase 5-4B**。
+- **Phase 5-5** — **最終実行可否 / 明示 GO 意思決定**（`M55_PHASE5_5_FINAL_EXECUTION_READINESS_EXPLICIT_GO_DECISION_2026-05-13.md`）。実行は **Phase 5-6**。
 
 Hard stop:
 
-- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until explicit GO.
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit final GO**（5-5 記録後も **5-6 実行は別承認**）。
 
 ## 2026-05-12 — Phase 5-3B Production DB/RPC package APPROVED for future apply gate
 
@@ -40,11 +60,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-4** — apply planning / final GO gate SSOT（**5-4 ドキュメント参照**）。実行は **Phase 5-5 明示 GO**。
+- **Phase 5-5** — **最終 GO 意思決定** SSOT（`M55_PHASE5_5_...`）。実行は **Phase 5-6 明示最終 GO**。
 
 Hard stop:
 
-- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-5 explicit GO**（5-4 は計画のみ）。
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-6 explicit final GO**（5-5 は意思決定のみ）。
 
 ## 2026-05-12 — Phase 5-2 Production DB/RPC migration package prepared for review
 
@@ -66,7 +86,7 @@ Next:
 
 Hard stop:
 
-- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until **Phase 5-5 explicit GO**（5-4 計画 SSOT 参照）。
+- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until **Phase 5-6 explicit final GO**（5-5 意思決定後も **実行は別 GO**）。
 
 ## 2026-05-12 — Phase 5 Production promotion readiness gate started
 
