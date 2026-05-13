@@ -29,6 +29,7 @@ Phase 5-6 Production apply execution は、別ゲートで最終確認を行い�
 - Phase 5-4: final GO planning **GREEN**
 - Phase 5-5: explicit GO decision gate **GREEN**
 - Phase 5-6A: execution readiness intake **GREEN / filled for review**
+- Phase 5-6B-1: single-operator exception SSOT hardening **GREEN**
 
 ---
 
@@ -72,7 +73,16 @@ Phase 5-6 Production apply execution は、別ゲートで最終確認を行い�
 | Live smoke tester | **lexsia** |
 | Support / refund responder | **lexsia** |
 
-**Note:** Single-operator mode is accepted for this release. All roles are owned by lexsia, with AI audit used as review support only. Final accountability remains with lexsia.
+**Phase 5-4 / Phase 5-6A SSOT alignment — single-operator exception (this release only)**
+
+- For **this release**, **single-operator mode** is **explicitly accepted** as an **exception** to the Phase 5-4 maintenance-window note that calls for **two named human confirmations**.
+- **All execution roles** in this section are owned by **lexsia**.
+- **Gemini / ChatGPT** audit is **advisory only** and is **not** an accountable human operator.
+- **Final accountability** remains with **lexsia**.
+- If **lexsia** is **unavailable** or **cannot perform independent final checks**, execution is **NO-GO**.
+- This **resolves** the Phase 5-4 two-person confirmation expectation **for the current solo release only**.
+- **Production execution is still NOT started.**
+- **Next phase:** **Phase 5-6C** — execution start checkpoint.
 
 ---
 
@@ -130,6 +140,7 @@ The following package paths are approved for future Production apply **only afte
 
 Phase 5-6 execution must stop or must not start if any of the following occurs:
 
+- **Single-operator exception:** lexsia が利用不能、または **独立した最終確認**が取れない（Phase 5-6B-1）
 - Production DB接続先が特定できない
 - Webhook endpoint URL と env上の署名秘密のペアリングがラベル単位でも確認できない
 - 秘密値がチャット・ドキュメントに要求または貼付された

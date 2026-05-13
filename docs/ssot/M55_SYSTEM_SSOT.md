@@ -1,3 +1,23 @@
+## 2026-05-13 — Phase 5-6B-1 single-operator exception SSOT hardening
+
+Status: **SSOT alignment only** — **実行ではない。** Phase 5-4「**二名以上確認**」と Phase 5-6A「**single-operator**」を、**本リリース限りの明示例外**として整合。**lexsia** が全実行ロールを保有。**Gemini / ChatGPT** は **助言のみ**で **責任主体の人間オペレータではない**。**最終説明責任は lexsia**。lexsia **不在**または **独立した最終確認が取れない**場合は **NO-GO**。Phase 5-6 Production apply **実行は未開始**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`b355dba`**（intake / hardening 記録時点の作業アンカー）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md`（section B — single-operator exception）
+
+Next:
+
+- **Phase 5-6C** — **execution start checkpoint**（明示実行開始の別ゲート）。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（承認の **記録・発動**は実行ゲートで別途）。
+
 ## 2026-05-13 — Phase 5-6A execution readiness intake filled for review, NOT executed
 
 Status: **Filled intake for review** — **実行ではない。** `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md` の **スケジュール・担当・Production ラベル欄がレビュー用に記入済み**。**最終承認フレーズ（G 節）は準備済みだが、実行のために発動（invoke）されていない。** Phase 5-6 Production apply **実行は未開始**。
@@ -12,7 +32,7 @@ Evidence:
 
 Next:
 
-- **Phase 5-6B** — **記入済み intake / チェックリストの最終レビュー**、または **Phase 5-5B / 5-6A** ブロッカー時のハードニング。
+- **Phase 5-6C** — **execution start checkpoint**、または **Phase 5-5B / 5-6A** ブロッカー時のハードニング。
 
 Hard stop:
 
