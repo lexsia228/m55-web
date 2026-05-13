@@ -1,10 +1,10 @@
-## 2026-05-13 — Phase 5-6A Production execution readiness intake started
+## 2026-05-13 — Phase 5-6A execution readiness intake filled for review, NOT executed
 
-Status: **Intake only** — **実行ではない。** 実行日・メンテ窓・担当・対象ラベルを **記入するための SSOT**。**Production DB / `main` / env / `whsec`/秘密 / ライブ決済には触れない。**
+Status: **Filled intake for review** — **実行ではない。** `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md` の **スケジュール・担当・Production ラベル欄がレビュー用に記入済み**。**最終承認フレーズ（G 節）は準備済みだが、実行のために発動（invoke）されていない。** Phase 5-6 Production apply **実行は未開始**。
 
 Work anchor:
 
-- Branch `work/home-cluster`, commit **`b61af91`**（explicit GO gate 定義）。
+- Branch `work/home-cluster`, commit **`b355dba`**（filled intake 記録時点の作業アンカー）。
 
 Evidence:
 
@@ -16,7 +16,7 @@ Next:
 
 Hard stop:
 
-- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit final GO**（**G 節の承認文記載後も、実行開始は別手順**）。
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（承認の **記録・発動**は実行ゲートで別途）。
 
 ## 2026-05-13 — Phase 5-5 final execution readiness / explicit Production apply GO decision gate
 
