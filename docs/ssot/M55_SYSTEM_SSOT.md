@@ -1,3 +1,25 @@
+## 2026-05-13 — Phase 5-4 Production apply planning / final GO gate started
+
+Status: **Planning only** — **実行ではない。** Production DB 適用、`main` merge、Production env、`whsec`/秘密、**ライブ決済**は **触れない。** 次は **明示 Production apply GO** または **ブロッカー時の Phase 5-4B ハードニング**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Phase 5-3B **APPROVE** 済みパッケージ前提。
+
+Evidence / runbook:
+
+- `docs/ssot/M55_PHASE5_4_PRODUCTION_APPLY_PLANNING_FINAL_GO_GATE_2026-05-13.md`
+- `scripts/sql/production/m55_phase5_4_production_ghost_data_readonly_check_v1.sql`（read-only）
+- `scripts/sql/production/m55_phase5_4_production_live_smoke_readonly_verification_v1.sql`（read-only; `<CLERK_USER_ID>`）
+
+Next:
+
+- **Phase 5-5** — **明示 GO** による Production apply、または **Phase 5-4B**。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until explicit GO.
+
 ## 2026-05-12 — Phase 5-3B Production DB/RPC package APPROVED for future apply gate
 
 Status: **Review approval evidence** — Phase **5-3B** 再レビュー判定 **APPROVE**。**パッケージは「将来の Production 適用ゲート」用に承認済みとして記録するのみ。** **Production DB 実行なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
@@ -18,11 +40,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-4** — **Production apply 計画** / **メンテナンス窓** / **最終 GO ゲート**（**明示承認なしに適用しない**）。
+- **Phase 5-4** — apply planning / final GO gate SSOT（**5-4 ドキュメント参照**）。実行は **Phase 5-5 明示 GO**。
 
 Hard stop:
 
-- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until Phase 5-4 GO.
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-5 explicit GO**（5-4 は計画のみ）。
 
 ## 2026-05-12 — Phase 5-2 Production DB/RPC migration package prepared for review
 
@@ -44,7 +66,7 @@ Next:
 
 Hard stop:
 
-- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until Phase 5-4 explicit GO.
+- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until **Phase 5-5 explicit GO**（5-4 計画 SSOT 参照）。
 
 ## 2026-05-12 — Phase 5 Production promotion readiness gate started
 
