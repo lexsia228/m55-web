@@ -1,3 +1,23 @@
+## 2026-05-14 — Phase 5-6G Production migration + postflight GREEN
+
+Status: **Production DB/RPC migration evidence** — **証跡のみ。** **m55-soul-core / PRODUCTION** に対し、承認済み **`m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql` を 1 回実行**し、**read-only postflight 主要項目 PASS**（RPC 存在、`service_role` EXECUTE、`stripe_processed_events` + UNIQUE インデックス、ledger 列 + lookup index、PostgREST 可視性）。**`main` merge なし** / **Production env 変更なし** / **`whsec`/secret 未触** / **Stripe webhook 変更なし** / **live smoke・本番決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, repo HEAD **`9f3c0d0`**（実行前確認と一致）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6G_PRODUCTION_MIGRATION_POSTFLIGHT_GREEN_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H** — **app deploy / `main` 整合 readiness レビュー**、またはブロッカー時ハードニング。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **Phase 5-6H gate**（**追加 Production DDL は別 GO**）。
+
 ## 2026-05-13 — Phase 5-6E ledger lookup index review / migration package hardening only
 
 Status: **Hardening review + repo package amendment only** — **Production 未実行。** Phase 5-6E は **SSOT 記録と migration / postflight 正本への追記のみ**（**DB 適用なし**）。`reply_wallet_ledgers(stripe_event_id)` に **非一意 lookup 用 `CREATE INDEX IF NOT EXISTS`**（`m55_idx_reply_wallet_ledgers_stripe_event_id_lookup`）を **今回の migration candidate に含める判断**。**primary idempotency の本命は `stripe_processed_events.stripe_event_id` UNIQUE（partial）のまま** — 本インデックスは **NON-BLOCKING** 運用強化。
