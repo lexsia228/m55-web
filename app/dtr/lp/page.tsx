@@ -417,6 +417,26 @@ export default async function DtrLpPage({
               </div>
             )}
 
+            <div
+              aria-label="販売条件・返金・サポート"
+              style={{
+                marginTop: 6,
+                padding: "12px 14px",
+                border: "1px solid rgba(80, 65, 120, 0.16)",
+                borderRadius: 14,
+                background: "rgba(255,255,255,0.55)",
+                fontSize: 12.5,
+                lineHeight: 1.7,
+                color: "rgba(60, 50, 86, 0.78)"
+              }}
+            >
+              <div>価格：¥1,000（税込）</div>
+              <div>支払い：クレジットカード（Stripe）</div>
+              <div>返金・キャンセル：<Link href="/legal/refund">/legal/refund</Link></div>
+              <div>法務情報：<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link></div>
+              <div>サポート：<Link href="/support">/support</Link></div>
+            </div>
+
             {/* Legal note */}
             <p style={{
               margin: 0,

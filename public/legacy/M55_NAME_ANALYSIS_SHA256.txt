@@ -1,0 +1,8 @@
+M55 RC1 (Step1) — Name Analysis Data Integrity
+
+File: data/m55_name_analysis_81_sanitized.json
+SHA-256: 94d58be9bc925103235ace9f06f9363cf82ecdc46c3bf4370809486b9bfe6918
+
+Normalization: UTF-8 (no BOM), LF line endings, trailing newline.
+CI hook: ci/prebuild_guard.sh
+Runtime guard: js/integrity_guard.js

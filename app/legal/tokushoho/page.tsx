@@ -7,9 +7,9 @@ export const metadata = {
 export default function TokushohoPage() {
   return (
     <main style={{
-      maxWidth: "min(1320px, calc(100vw - 48px))",
+      maxWidth: 860,
       margin: "0 auto",
-      padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
+      padding: "24px 16px 56px",
       lineHeight: 1.7,
     }}>
       <h1 style={{
@@ -47,8 +47,7 @@ export default function TokushohoPage() {
         }}>
           <li>販売事業者：M55 Project</li>
           <li>連絡先メールアドレス：lexsia228@gmail.com</li>
-          <li>所在地：ご請求をいただければ遅滞なく開示いたします。</li>
-          <li>電話番号：07090102828</li>
+          <li>所在地・電話番号：ご請求をいただければ遅滞なく開示いたします。</li>
         </ul>
       </section>
 
