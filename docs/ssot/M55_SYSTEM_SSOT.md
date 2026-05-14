@@ -1,3 +1,23 @@
+## 2026-05-14 — Phase 5-6H-2 integration/main-align branch plan prepared
+
+Status: **Planning SSOT only** — **計画のみ。** **ブランチ作成 / merge / rebase / cherry-pick / deploy は実行していない。** **`main` は触っていない。** integration 手順・保護資産・衝突ルール・検証チェックを `M55_PHASE5_6H_2_...` に固定。次 **Phase 5-6H-3** — **integration ブランチ作成 / dry-run merge ゲート**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`9cefa47`**（topology diagnostic 記録）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_2_INTEGRATION_MAIN_ALIGN_BRANCH_PLAN_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H-3** — **integration ブランチ作成**および **dry-run merge**（**別承認**）、または計画不採用時の **ブロッカー hardening**。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-3 gate**（**本 SSOT は実行を開始しない**）。
+
 ## 2026-05-14 — Phase 5-6H-1 main alignment topology diagnostic READY_FOR_MAIN_ALIGNMENT_PLAN
 
 Status: **Topology diagnostic evidence** — **証跡のみ。** **merge / rebase / cherry-pick / deploy は実行していない。** `origin/main` と `work/home-cluster` に **merge-base なし（unrelated histories）**。**main 整合は NOT READY**。**アプリ ↔ Production RPC は PASS**（`m55_reply_ticket_fulfill_checkout_event`・8 引数・`additional_reply_ticket` レーン分離・`report_instance_id` 一貫）。判決 **READY_FOR_MAIN_ALIGNMENT_PLAN**。**即時 merge 禁止。**
@@ -12,11 +32,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-2** — **integration / main-align ブランチ計画**（`work/home-cluster` から integration ブランチを切り、**試験ブランチ上でのみ** `origin/main` を取り込み、unrelated 時は Git の指示に従う）。
+- **Phase 5-6H-2** — **integration / main-align ブランチ計画 SSOT**（`docs/ssot/M55_PHASE5_6H_2_INTEGRATION_MAIN_ALIGN_BRANCH_PLAN_2026-05-14.md`）。実行は **5-6H-3**。
 
 Hard stop:
 
-- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **separate approval**（**5-6H-2 以降のゲート**）。
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **separate approval**（**5-6H-3 以降のゲート**）。
 
 ## 2026-05-14 — Phase 5-6G Production migration + postflight GREEN
 
