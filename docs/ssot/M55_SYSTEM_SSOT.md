@@ -1,3 +1,24 @@
+## 2026-05-14 — Phase 5-6H-3 integration branch merge/build GREEN
+
+Status: **Integration branch evidence** — **証跡のみ。** **`integration/main-align-2026-05-14`** を `work/home-cluster` から作成し **`origin/main` を merge**（**`10b4e33`**）。**`npm run build` PASS** / **`npx tsc --noEmit` exit 0**。**`main` / Production は未触。** 次 **Phase 5-6H-4** — **`main` 整合意思決定 / PR・merge 戦略ゲート**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`7a7946f`**（integration 計画時点）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_3_INTEGRATION_BRANCH_MERGE_BUILD_GREEN_2026-05-14.md`
+- Remote: **`origin/integration/main-align-2026-05-14`**, merge commit **`10b4e33`**
+
+Next:
+
+- **Phase 5-6H-4** — **`main` alignment decision**（**PR または merge 戦略**）、またはブロッカー **hardening**。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-4 gate**（**integration 検証完了のみ**）。
+
 ## 2026-05-14 — Phase 5-6H-2 integration/main-align branch plan prepared
 
 Status: **Planning SSOT only** — **計画のみ。** **ブランチ作成 / merge / rebase / cherry-pick / deploy は実行していない。** **`main` は触っていない。** integration 手順・保護資産・衝突ルール・検証チェックを `M55_PHASE5_6H_2_...` に固定。次 **Phase 5-6H-3** — **integration ブランチ作成 / dry-run merge ゲート**。
@@ -12,11 +33,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-3** — **integration ブランチ作成**および **dry-run merge**（**別承認**）、または計画不採用時の **ブロッカー hardening**。
+- **Phase 5-6H-3** — **完了**（integration merge + build GREEN）。詳細: `M55_PHASE5_6H_3_INTEGRATION_BRANCH_MERGE_BUILD_GREEN_2026-05-14.md`。次 **5-6H-4**。
 
 Hard stop:
 
-- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-3 gate**（**本 SSOT は実行を開始しない**）。
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-4 gate**（**本 SSOT は `main` を更新しない**）。
 
 ## 2026-05-14 — Phase 5-6H-1 main alignment topology diagnostic READY_FOR_MAIN_ALIGNMENT_PLAN
 
