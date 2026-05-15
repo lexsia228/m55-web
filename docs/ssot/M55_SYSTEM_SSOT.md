@@ -1,6 +1,26 @@
+## 2026-05-15 — Phase 5-6H-5E-D Main merge + Production deploy execution GREEN
+
+Status: **Evidence SSOT（`work/home-cluster` で文書化）。** **PR #1 `MERGED`** / **`mergeCommit` `483285da9b5ef492bd8495fa404558b31d994705`** / **`main` 先端一致**。**Vercel m55-webv2 Production: Ready / Current / branch `main`**（**UI 観測・commit 短縮表示 `48325d`**）。Verdict: **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **本 commit における作業者操作は docs のみ** — **live smoke / 本番決済 / env・`whsec`・secret / Stripe webhook / Supabase / Vercel 設定変更は未実施。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`5493c0e`** — `docs: prepare main merge production deploy start gate`（**5E-D 本書追加直前・ローカル記録基準**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`
+
+Next:
+
+- **Phase 5-6H-5F** — **Production deployment read-only verification / post-merge state recording**（**live payment・webhook/env 変更なし**）。
+
+Hard stop:
+
+- **5F までも** **live smoke / 本番決済 / env・secret / webhook / DB / ホスト設定の変更は別 Gate** — **本記録は証跡のみ**。
+
 ## 2026-05-15 — Phase 5-6H-5E-C Main merge + Production deploy start decision gate prepared
 
-Status: **docs-only。** **`main` merge と Vercel Production deploy start を一体として扱う実行可否を SSOT 化。** **GitHub での Merge / `main` 更新 / Production deploy は未実施。** Verdict: **`READY_FOR_MAIN_MERGE_PRODUCTION_DEPLOY_START_GO_GATE`**（**実操作は別明示 GO / 5E-D のみ**）。**5E-B の Production 自動発火前提を内包する。**
+Status: **Decision gate（実行前スナップショット）。** **当時:** **`main` merge + Production start の GO を文書化。** **→ 実行済み:** **`5E-D execution GREEN` を参照。** 当時 Verdict: **`READY_FOR_MAIN_MERGE_PRODUCTION_DEPLOY_START_GO_GATE`**。
 
 Work anchor:
 
@@ -13,15 +33,15 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5E-D** — **`main` merge + Production deploy start の明示 GO / 実行チェックポイント**。**操作は GitHub UI の Merge pull request のみ**（env / webhook / live 決済等は後続 Gate）。
+- **（完了）** GitHub **Merge pull request** により **`main` 更新 + Vercel Production** — 証跡 **`M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`。** **次 5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** `main` merge / **no** Production deploy **開始** / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel・Supabase・Stripe **設定変更** until **explicit GO（本 checkpoint は文書のみ）**。
+- **（実行後）** **追加の本番破壊的操作なし**まで、以降の Gate に従う（**本セクションは実行前 Hard stop の履歴**）。
 
 ## 2026-05-15 — Phase 5-6H-5E-B Vercel Production auto-deploy blocking confirmation
 
-Status: **docs-only。** **Vercel UI 読み取りの観測を SSOT 化。** **Project m55-webv2 / Git `lexsia228/m55-web` / Production は `main` を追跡し、UI 文言どおり `main` の各コミットが Production Deployment を作成する。** **Auto-assign Custom Production Domains は Enabled。** **PR merge / `main` merge / Production deploy は未実行。** **Vercel 設定は変更していない。** Verdict: **`MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`** — **「PR merge のみ GO」は不成立**。
+Status: **docs-only（履歴）。** **Production Branch `main` / Auto-assign Custom Production Domains Enabled / `MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`。** **実行後の本番状態は 5E-D を参照。**
 
 Work anchor:
 
@@ -33,15 +53,15 @@ Evidence:
 
 Next:
 
-- **（達成）** **5E-C** decision gate SSOT。**次** — **別明示 GO** → **5E-D** で **Merge pull request のみ**。
+- **5E-D execution GREEN 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel・Supabase・Stripe **設定変更**（**本 checkpoint は UI 閲覧と文書化のみ**）。
+- **無承認変更なし**（後続プロトコル）。
 
 ## 2026-05-15 — Phase 5-6H-5E-A Production auto-deploy side-effect read-only check
 
-Status: **`work/home-cluster`。** **docs-only / read-only。** **PR merge / `main` merge / Production deploy / ホスト設定変更は未実行。** **`main` merge 時の Vercel Production 自動発火可否を repo のみ検証：** Verdict **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`** — **GitHub Actions の `main` push だけでは `.github/workflows/01_one_path_release.yml` の `vercel deploy --prod` は起動しない**。**一方 Vercel ダッシュボードの Production branch / 自動デプロイは repo では断定できない。** **→ 5E-B で UI 確定し BLOCKING を記録。**
+Status: **`work/home-cluster`。** **read-only ゲート（履歴）。** **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`（当時）→ 5E-B UI 確定 → 5E-D 実行済。**
 
 Work anchor:
 
@@ -53,15 +73,15 @@ Evidence:
 
 Next:
 
-- **（達成）** Vercel UI 観測は **`M55_PHASE5_6H_5E_B_VERCEL_PRODUCTION_AUTODEPLOY_BLOCKING_CONFIRMATION_2026-05-15.md`**。**旧「PR merge のみ GO」前提は破棄。** **5E-C SSOT 済**。**次** — **5E-D + 明示 GO**。
+- **5E-D 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel・Supabase・Stripe **設定変更**（**本 checkpoint は読み取り専用**）。
+- **無承認変更なし**（後続プロトコル）。
 
 ## 2026-05-15 — Phase 5-6H-5E PR merge / main alignment execution decision gate prepared
 
-Status: **Decision gate documentation only — docs-only。** **PR #1 を `main` へ merge してよいかを判断する SSOT を追加。** **GitHub での PR merge / `main` merge / Production 操作は未実施。** **履歴上の Verdict:** **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**。**運用上は 5E-B により「本番を伴わない PR merge のみ」は不可** — **5E-C へ再設計。**
+Status: **Decision gate（履歴）。** **`READY_FOR_PR_MERGE_EXECUTION_GO_GATE`。** **運用は 5E-C〜D に統合。** **merge + Production は 5E-D で完了。**
 
 Work anchor:
 
@@ -70,15 +90,15 @@ Work anchor:
 Evidence:
 
 - `docs/ssot/M55_PHASE5_6H_5E_PR_MERGE_DECISION_GATE_2026-05-15.md`
-- PR #1 https://github.com/lexsia228/m55-web/pull/1 — HEAD **`7a0b784`** / **MERGEABLE** / **CLEAN** / checks **SUCCESS**
+- PR #1 https://github.com/lexsia228/m55-web/pull/1（**MERGED** — 詳細 **5E-D**）
 
 Next:
 
-- **（達成）** **`M55_PHASE5_6H_5E_C_MAIN_MERGE_PRODUCTION_DEPLOY_START_DECISION_GATE_2026-05-15.md`。** **次** — **Phase 5-6H-5E-D** と **明示 GO** → **Merge pull request のみ**。
+- **5E-D GREEN 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel・Supabase・Stripe **設定変更** until **5E-D と merge / Production start 用の明示 GO**（**本 checkpoint は GitHub の merge を実行しない**）。
+- **無承認で live 決済・webhook/env を触らない**。
 
 ## 2026-05-15 — Phase 5-6H-5D Ready for review execution GREEN
 
@@ -694,9 +714,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-15 — Phase 5-6H-5E-D Main merge + Production deploy execution GREEN
+
+Status: **MERGED + Production Current。** **`mergeCommit` `483285da9b5ef492bd8495fa404558b31d994705`。** Verdict **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **本ローカル commit は docs のみ。** **live smoke / 本番決済 / env・webhook・secret 変更なし。** Next **5F read-only verification**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`5493c0e`**（5E-D SSOT 文書追加直前）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`
+
+Next:
+
+- **Phase 5-6H-5F** — **Production deployment read-only verification / post-merge state recording**。
+
+Hard stop:
+
+- **No** live payment / **no** env・webhook・secret 変更 until **別 Gate（5F は read-only 中心）**。
+
 ## 2026-05-15 — Phase 5-6H-5E-C Main merge + Production deploy start decision gate prepared
 
-Status: **docs-only。** **`main` merge + Production deploy start を束ねて GO を記録。** Verdict **`READY_FOR_MAIN_MERGE_PRODUCTION_DEPLOY_START_GO_GATE`。** PR merge / `main` merge / Production deploy **未実行。** Next **5E-D + 明示 GO**。
+Status: **（実行前ゲート・履歴）** Verdict **`READY_FOR_MAIN_MERGE_PRODUCTION_DEPLOY_START_GO_GATE`。** **→ 実行済: 上記 5E-D。**
 
 Work anchor:
 
@@ -708,15 +748,15 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5E-D** — **explicit GO** → GitHub **Merge pull request のみ**（本番開始は Vercel 自動）。
+- **（完了）** **5E-D**。**次** **5F**。
 
 Hard stop:
 
-- **No** merge / **no** Production deploy / **no** secrets・webhook・DB・live 決済 / **no** ホスト設定変更 until **GO**。
+- （実行後）後続 Gate 準拠。
 
 ## 2026-05-15 — Phase 5-6H-5E-B Vercel Production auto-deploy blocking confirmation
 
-Status: **docs-only / Vercel UI 観測の記録。** **Production = `main` 追跡・各コミットで Production Deployment 作成（UI 文言）・Auto-assign Custom Production Domains Enabled。** Verdict: **`MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`。** **PR merge / `main` merge / Production deploy 未実行。** **「PR merge のみ GO」不成立** → **5E-C 済** → **5E-D**。
+Status: **docs-only / Vercel UI 観測の記録。** **Production = `main` 追跡・各コミットで Production Deployment 作成（UI 文言）・Auto-assign Custom Production Domains Enabled。** Verdict: **`MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`。** **→ merge 実行・Production Current は 5E-D。** Next **5F**。
 
 Work anchor:
 
@@ -728,15 +768,15 @@ Evidence:
 
 Next:
 
-- **5E-C SSOT 済。** **次 5E-D + 明示 GO**。
+- **5E-D 実行 GREEN 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** Production deploy / **no** secrets・webhooks・DB・live 決済 / **no** Vercel 設定変更。
+- **追加の無承認変更なし**（後続プロトコル）。
 
 ## 2026-05-15 — Phase 5-6H-5E-A Production auto-deploy side-effect read-only check
 
-Status: **read-only / docs-only。** **PR merge / Production deploy 未実施。** **repo + `gh` のみ:** **`vercel.json` なし** / **GHA `01_one_path_release` は tag・`workflow_dispatch` のみ（`main` merge 単体では `vercel deploy --prod` 非起動）** / **Vercel Production は UI で 5E-B 確定。** 旧 Verdict: **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`**。
+Status: **read-only / docs-only（履歴）。** **`vercel.json` なし** / **GHA `01_one_path_release` は tag・`workflow_dispatch` のみ** / **UI で 5E-B BLOCKING。** 旧 Verdict: **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`**。**→ 本番進行は 5E-D まで完了。**
 
 Work anchor:
 
@@ -748,15 +788,15 @@ Evidence:
 
 Next:
 
-- **5E-B / 5E-C 記録済み。** **次 5E-D + 明示 GO**。
+- **5E-D execution GREEN 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** Production deploy / **no** 秘密・webhook・DB・live 決済 / **no** Vercel 設定変更（**本記録は読み取りのみ**）。
+- **追加の無承認変更なし**（後続プロトコル）。
 
 ## 2026-05-15 — Phase 5-6H-5E PR merge / main alignment execution decision gate prepared
 
-Status: **docs-only。** **5E PR merge 判断ゲート SSOT 追加。** **PR merge / `main` merge / Production 未実施。** **履歴 Verdict:** **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**。**5E-B / 5E-C により運用上は merge = Production start** — **次 5E-D**。
+Status: **（履歴）** **`READY_FOR_PR_MERGE_EXECUTION_GO_GATE`。** **5E-B / 5E-C〜D により merge = Production。** **実行完了は 5E-D。**
 
 Work anchor:
 
@@ -768,11 +808,11 @@ Evidence:
 
 Next:
 
-- **5E-C docs-only 済。** **次** — **5E-D + 明示 GO** → **Merge pull request のみ**。
+- **5E-D GREEN 済。** **5F**。
 
 Hard stop:
 
-- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook **change** / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel / Supabase / Stripe **設定変更** until **5E-D + merge GO**。
+- **無承認で env・webhook・live 決済に進まない**。
 
 ## 2026-05-15 — Phase 5-6H-5D Ready for review execution GREEN
 
