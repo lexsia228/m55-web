@@ -1,0 +1,28 @@
+{
+  "contractVersion": "io-v1.0",
+  "engineVersion": "logic-v1.0.0",
+  "contextScope": "weekly",
+  "generatedAt": "2026-03-23T12:00:00.000Z",
+  "seedFingerprint": "sha256:41dc3c663a6945e5efcc924a6a551985d2218d85abbad5c0636bf7df96ffdf2b",
+  "freeVisible": true,
+  "dtrExpandable": true,
+  "payload": {
+    "heading": "今週の焦点",
+    "weeklyKey": "今週の焦点：自分の傾向に気づく、小さな習慣を続ける。",
+    "lines": [
+      "心：観察を続けると、気づきが増えていきます。",
+      "接点：今日ページで毎日のヒントが見られます。"
+    ],
+    "focusAreas": [
+      "整理",
+      "接続",
+      "持続"
+    ],
+    "nextBridge": "DTRで長い流れも確認できます。",
+    "rawSignals": [
+      "signal.narrow_focus"
+    ],
+    "freeVisible": true,
+    "dtrExpandable": true
+  }
+}

@@ -1,0 +1,58 @@
+---
+description: Freeze /home after current snapshot. Narrow exceptions for three explore-card images only; all else needs explicit reopen.
+globs:
+  - "app/home/**"
+  - "components/home/**"
+alwaysApply: true
+---
+
+# M55 HOME NO-TOUCH RULE
+
+## Status
+`/home` is frozen after the current stabilization snapshot.
+
+## Absolute rule
+From this point onward, do **not** modify `/home` related files unless one of the **exceptions** below applies, or the user explicitly says that `/home` has been reopened for editing.
+
+## Covered scope
+- `app/home/**`
+- `components/home/**`
+
+This includes, but is not limited to:
+- `components/home/HomePanel.tsx`
+- `components/home/HomePanel.module.css`
+- `components/home/HomeBirthIntakeLayer.tsx`
+- `components/home/HomeBirthIntakeLayer.module.css`
+
+## What to do instead
+If a request touches `/home` outside the **narrow image exceptions** or a full reopen, stop and do not edit immediately.
+First respond with:
+1. `/home` is currently frozen by rule.
+2. Ask whether the user wants to explicitly reopen `/home` (or confirm the change fits an allowed exception).
+3. Do not make any change until that instruction is given.
+
+## Explicit exceptions (allowed without full `/home` reopen)
+The following are the **only** pre-authorized edits under this rule. Scope is **image presentation inside the left thumbnail of each named card** (wrapper / `img` / Next `Image` classes tied to that card). **Nothing else.**
+
+1. **「10通りの資質から読む」** — image adjustment for that explore card’s left logo only.
+2. **「オリオン資質から読む」** — image adjustment for that explore card’s left logo only.
+3. **「M55の見方を知る」** — image adjustment for that explore card’s left logo only.
+
+For these three, still **do not**: change hero, shell alignment, header/footer/modal, `HomeBirthIntakeLayer`, copy unless the user separately asks, other sections, other pages, broad CSS sweep, draft wholesale replace, or “while we’re here” edits.
+
+## Exception (full reopen)
+Any other `/home` work is allowed **only** when the user explicitly states that `/home` is reopened and specifies the exact issue to work on.
+
+## Safety behavior
+- No speculative fixes
+- No incidental redesign
+- No broad CSS sweep
+- No header/footer/modal changes through home-side edits
+- No replacement from draft files
+- No touching related files “while here”
+
+## Current work priority after freeze
+After `/home` freeze, prioritize only the user-specified next targets outside this rule.
+
+## Note on `HomePanel_v0_draft.tsx`
+If `HomePanel_v0_draft.tsx` lives under `.cursor/rules/`, that is unconventional: **rule directories are for agent guidance (e.g. `.mdc`), not app components.** Prefer a draft path under `components/` or a dedicated scratch folder if the file is meant to be edited as source.

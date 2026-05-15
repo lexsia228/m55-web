@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ShellLayout from '../../components/shell/ShellLayout';
+import WeeklyPanel from '../../components/weekly/WeeklyPanel';
 
 export default function WeeklyPage() {
   const [ready, setReady] = useState(false);
@@ -13,10 +14,8 @@ export default function WeeklyPage() {
   if (!ready) return null;
 
   return (
-    <ShellLayout
-      iframeSrc="/legacy/weekly.html"
-      iframeTitle="M55 Weekly"
-      useDataBridge
-    />
+    <ShellLayout iframeTitle="M55 Weekly">
+      <WeeklyPanel />
+    </ShellLayout>
   );
 }

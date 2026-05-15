@@ -1,0 +1,528 @@
+## 2026-05-14 — Phase 5-6H-2 integration/main-align branch plan prepared
+
+Status: **Planning SSOT only** — **計画のみ。** **ブランチ作成 / merge / rebase / cherry-pick / deploy は実行していない。** **`main` は触っていない。** integration 手順・保護資産・衝突ルール・検証チェックを `M55_PHASE5_6H_2_...` に固定。次 **Phase 5-6H-3** — **integration ブランチ作成 / dry-run merge ゲート**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`9cefa47`**（topology diagnostic 記録）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_2_INTEGRATION_MAIN_ALIGN_BRANCH_PLAN_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H-3** — **integration ブランチ作成**および **dry-run merge**（**別承認**）、または計画不採用時の **ブロッカー hardening**。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-3 gate**（**本 SSOT は実行を開始しない**）。
+
+## 2026-05-14 — Phase 5-6H-1 main alignment topology diagnostic READY_FOR_MAIN_ALIGNMENT_PLAN
+
+Status: **Topology diagnostic evidence** — **証跡のみ。** **merge / rebase / cherry-pick / deploy は実行していない。** `origin/main` と `work/home-cluster` に **merge-base なし（unrelated histories）**。**main 整合は NOT READY**。**アプリ ↔ Production RPC は PASS**（`m55_reply_ticket_fulfill_checkout_event`・8 引数・`additional_reply_ticket` レーン分離・`report_instance_id` 一貫）。判決 **READY_FOR_MAIN_ALIGNMENT_PLAN**。**即時 merge 禁止。**
+
+Work anchor:
+
+- Branch `work/home-cluster`.
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_1_MAIN_ALIGNMENT_TOPOLOGY_DIAGNOSTIC_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H-2** — **integration / main-align ブランチ計画 SSOT**（`docs/ssot/M55_PHASE5_6H_2_INTEGRATION_MAIN_ALIGN_BRANCH_PLAN_2026-05-14.md`）。実行は **5-6H-3**。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **separate approval**（**5-6H-3 以降のゲート**）。
+
+## 2026-05-14 — Phase 5-6G Production migration + postflight GREEN
+
+Status: **Production DB/RPC migration evidence** — **証跡のみ。** **m55-soul-core / PRODUCTION** に対し、承認済み **`m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql` を 1 回実行**し、**read-only postflight 主要項目 PASS**（RPC 存在、`service_role` EXECUTE、`stripe_processed_events` + UNIQUE インデックス、ledger 列 + lookup index、PostgREST 可視性）。**`main` merge なし** / **Production env 変更なし** / **`whsec`/secret 未触** / **Stripe webhook 変更なし** / **live smoke・本番決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, repo HEAD **`9f3c0d0`**（実行前確認と一致）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6G_PRODUCTION_MIGRATION_POSTFLIGHT_GREEN_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H** — **app deploy / `main` 整合 readiness レビュー**、またはブロッカー時ハードニング。
+
+Hard stop:
+
+- **No** `main` merge / **no** Production env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **Phase 5-6H gate**（**追加 Production DDL は別 GO**）。
+
+## 2026-05-13 — Phase 5-6E ledger lookup index review / migration package hardening only
+
+Status: **Hardening review + repo package amendment only** — **Production 未実行。** Phase 5-6E は **SSOT 記録と migration / postflight 正本への追記のみ**（**DB 適用なし**）。`reply_wallet_ledgers(stripe_event_id)` に **非一意 lookup 用 `CREATE INDEX IF NOT EXISTS`**（`m55_idx_reply_wallet_ledgers_stripe_event_id_lookup`）を **今回の migration candidate に含める判断**。**primary idempotency の本命は `stripe_processed_events.stripe_event_id` UNIQUE（partial）のまま** — 本インデックスは **NON-BLOCKING** 運用強化。
+
+Work anchor:
+
+- Branch `work/home-cluster`.
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md`
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`（**STEP B2**）
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`（**SECTION H**）
+- `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`（Resolution 追記）
+
+Next:
+
+- **migration candidate の Production 適用** — **別明示 GO** のみ（**本ゲートでは未実行**）。
+
+Hard stop:
+
+- **No** Production DB apply / **no** migration candidate execution / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（5-6E は **正本更新のみ**）。
+
+## 2026-05-13 — Phase 5-6D Production read-only preflight PASS_WITH_REVIEW_NOTE
+
+Status: **Read-only preflight evidence** — **証跡のみ。** Production 上で **SELECT / read-only preflight のみ**実施済み。**A〜F PASS**。**G は REVIEW / NON-BLOCKING**（`reply_wallet_ledgers` の `stripe_event_id` インデックス未検出 — 主冪等は `stripe_processed_events` UNIQUE でカバー）。**migration candidate は未実行。** **SECTION G 解消は Phase 5-6E でパッケージ追記（Production 未適用）。**
+
+Work anchor:
+
+- Branch `work/home-cluster`（preflight 証跡: `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6E** — **完了**（lookup index パッケージ hardening）。以降は **migration 適用は別明示 GO** のみ。
+
+Hard stop:
+
+- **No** migration candidate / **no** DDL-DML on Production / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（5-6E は **repo のみ**、**DB 未適用**）。
+
+## 2026-05-13 — Phase 5-6C execution start checkpoint prepared, NOT executed
+
+Status: **Final pre-execution checkpoint** — **実行ではない。** Production **read-only preflight** に入る **直前**の SSOT。**execution-start phrase はまだ記録されていない。** `docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md` を正とする。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`0888802`**（execution start checkpoint 準備時点）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6D** — **Production read-only preflight**（**lexsia が execution-start phrase をアクティブに記録した後のみ**）、または **Phase 5-6C** ブロッカー時のハードニング。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution start**（**lexsia による execution-start phrase のアクティブ記録**が別途あるまで止まる）。
+
+## 2026-05-13 — Phase 5-6B-1 single-operator exception SSOT hardening
+
+Status: **SSOT alignment only** — **実行ではない。** Phase 5-4「**二名以上確認**」と Phase 5-6A「**single-operator**」を、**本リリース限りの明示例外**として整合。**lexsia** が全実行ロールを保有。**Gemini / ChatGPT** は **助言のみ**で **責任主体の人間オペレータではない**。**最終説明責任は lexsia**。lexsia **不在**または **独立した最終確認が取れない**場合は **NO-GO**。Phase 5-6 Production apply **実行は未開始**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`b355dba`**（intake / hardening 記録時点の作業アンカー）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md`（section B — single-operator exception）
+
+Next:
+
+- **Phase 5-6C** — **execution start checkpoint**（明示実行開始の別ゲート）。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（承認の **記録・発動**は実行ゲートで別途）。
+
+## 2026-05-13 — Phase 5-6A execution readiness intake filled for review, NOT executed
+
+Status: **Filled intake for review** — **実行ではない。** `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md` の **スケジュール・担当・Production ラベル欄がレビュー用に記入済み**。**最終承認フレーズ（G 節）は準備済みだが、実行のために発動（invoke）されていない。** Phase 5-6 Production apply **実行は未開始**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`b355dba`**（filled intake 記録時点の作業アンカー）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6C** — **execution start checkpoint**、または **Phase 5-5B / 5-6A** ブロッカー時のハードニング。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit execution GO**（承認の **記録・発動**は実行ゲートで別途）。
+
+## 2026-05-13 — Phase 5-5 final execution readiness / explicit Production apply GO decision gate
+
+Status: **Readiness / GO decision only** — **実行ではない。** **明示の最終 GO が無い限り、Production apply（DB・`main`・本番 env・`whsec`/秘密・ライブ決済）に進めない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline **`2b237cb`**（Phase 5-4 planning）, Phase 5-3B **APPROVE** 済みパッケージ。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_5_FINAL_EXECUTION_READINESS_EXPLICIT_GO_DECISION_2026-05-13.md`
+
+Next:
+
+- **Phase 5-6A** — execution readiness **intake**（記入用 SSOT）。次 **Phase 5-6B** 最終レビュー、または **5-5B/5-6A** ブロッカー。**実行は Phase 5-6**（別 GO）。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit final GO**（5-5 チェックリスト記録後も **実行は別 GO**）。
+
+## 2026-05-13 — Phase 5-4 Production apply planning / final GO gate started
+
+Status: **Planning only** — **実行ではない。** Production DB 適用、`main` merge、Production env、`whsec`/秘密、**ライブ決済**は **触れない。** 次は **Phase 5-5 最終 GO 意思決定** または **ブロッカー時の Phase 5-4B ハードニング**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Phase 5-3B **APPROVE** 済みパッケージ前提。
+
+Evidence / runbook:
+
+- `docs/ssot/M55_PHASE5_4_PRODUCTION_APPLY_PLANNING_FINAL_GO_GATE_2026-05-13.md`
+- `scripts/sql/production/m55_phase5_4_production_ghost_data_readonly_check_v1.sql`（read-only）
+- `scripts/sql/production/m55_phase5_4_production_live_smoke_readonly_verification_v1.sql`（read-only; `<CLERK_USER_ID>`）
+
+Next:
+
+- **Phase 5-5** — **最終実行可否 / 明示 GO 意思決定**（`M55_PHASE5_5_FINAL_EXECUTION_READINESS_EXPLICIT_GO_DECISION_2026-05-13.md`）。実行は **Phase 5-6**。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **explicit final GO**（5-5 記録後も **5-6 実行は別承認**）。
+
+## 2026-05-12 — Phase 5-3B Production DB/RPC package APPROVED for future apply gate
+
+Status: **Review approval evidence** — Phase **5-3B** 再レビュー判定 **APPROVE**。**パッケージは「将来の Production 適用ゲート」用に承認済みとして記録するのみ。** **Production DB 実行なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline **`6e603d9`**（preflight hardening）, Preview/Shadow 検証済み。
+
+Verified / approved:
+
+- **5-3A:** `m55_phase5_production_promotion_readiness_preflight_v1.sql` に **`reply_ticket_wallets.report_instance_id`** および **制約/index read-only** を追加済み。
+- **5-3B:** 上記を含む **DB/RPC migration package** を **APPROVE**（実行 GO は別途）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md`
+- Approved paths: `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`, `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`, `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`
+
+Next:
+
+- **Phase 5-5** — **最終 GO 意思決定** SSOT（`M55_PHASE5_5_...`）。実行は **Phase 5-6 明示最終 GO**。
+
+Hard stop:
+
+- **No** Production DB / **no** `main` merge / **no** env / **no** `whsec` / **no** secret / **no** live payment until **Phase 5-6 explicit final GO**（5-5 は意思決定のみ）。
+
+## 2026-05-12 — Phase 5-2 Production DB/RPC migration package prepared for review
+
+Status: **Review-only** — Phase 1〜5-1 **GREEN** 前提で、**Production 向け DB/RPC マイグレーション候補パッケージを repo に整理済み**。**Production DB への適用なし**、**`main` merge なし**、**Production env / `whsec` / ライブ決済なし**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Preview/Shadow 検証済み、`DTR_CORE_STATIC_V1` + `additional_reply_ticket`。
+
+Package paths（レビュー用）:
+
+- `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md`
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql`（**明示承認まで実行禁止**）
+- `scripts/sql/production/m55_phase5_2_reply_ticket_fulfillment_postflight_verification_v1.sql`（read-only; 適用後検証用）
+
+Next:
+
+- **Phase 5-4** — Production apply / maintenance window / final GO（**5-3B APPROVE 済み**; 実行は別途）。
+
+Hard stop:
+
+- **No** Production DB apply / **no** `main` merge / **no** env / **no** `whsec` / **no** live payment until **Phase 5-6 explicit final GO**（5-5 意思決定後も **実行は別 GO**）。
+
+## 2026-05-12 — Phase 5 Production promotion readiness gate started
+
+Status: **Gate artifact started** — Phase 1〜4 は **GREEN**（証跡化済み）。**Phase 5（Production 昇格前ゲート／リリース強化）に着手**。これは **Production リリースではない**。**本記録時点: Production / `main` merge なし、Production DB/env/`whsec` 変更なし、ライブ決済なし。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Preview/Shadow 検証済み、`DTR_CORE_STATIC_V1` + `additional_reply_ticket` レーン。
+
+Core risk:
+
+- Preview/Shadow Phase 4 で **Shadow 上に後追い修復した RPC / DDL**（`m55_reply_ticket_fulfill_checkout_event`、`stripe_processed_events`、ledger 参照列、`service_role` EXECUTE、schema reload）が **`supabase/migrations` にまだ一式で載っていない**。**Production へはパッケージ化後にのみ昇格すること。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md`
+- `scripts/sql/production/m55_phase5_production_promotion_readiness_preflight_v1.sql`（read-only; **明示承認後の Production preflight 用**）
+- Phase 5-2 パッケージ（レビュー用）: `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md`
+- Phase 5-3B 承認証跡: `docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md`
+
+Next:
+
+- **Phase 5-4** — Production apply / maintenance window / final GO（**5-3B APPROVE 済み**; **実行は別途明示 GO**）。
+
+## 2026-05-12 — Phase 4 additional reply ¥500 Preview E2E GREEN
+
+Status: **Checkpoint evidence** — Phase 4（追加返書 **¥500** Checkout〜Webhook〜wallet〜購入分返書送信〜UI）**GREEN**。**Preview / Shadow のみ**。Production / `main` **未承認**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane additional reply ticket ¥500（`additional_reply_ticket`）。
+
+Verified GREEN summary:
+
+- **Checkout:** `POST /api/reply-tickets/checkout` → **200**.
+- **初回 Webhook:** **500** → **root cause:** `public.m55_reply_ticket_fulfill_checkout_event` **RPC missing** on Shadow.
+- **Repair:** Shadow に **RPC 作成**、`service_role` **EXECUTE** 確認。
+- **Stripe:** **自動再送**で過去 `checkout.session.completed` が回復。
+- **Wallet:** `initial_included_count` **1**, `purchased_count` **1**, `consumed_count` **2**, `available_count` **0**, `status` **`active`**.
+- **Ledger:** `purchase_grant` / `PURCHASE` / `delta` **1** / `balance_after` **1** / `product_key` **`additional_reply_ticket`**, Stripe 参照あり。
+- **Send:** `POST /api/room/core/send` **200**; `consult_messages` **4** 行（user/assistant ×2）; thread **`read_only`**.
+- **UI:** 残り **0**、**追加返書 CTA** 再表示。
+
+Root cause / repair（証跡）:
+
+- RPC 欠落 → **Shadow で RPC 作成** → **Stripe 自動再送で回復**。
+
+Next required phase:
+
+- **Phase 5** — **Production promotion readiness gate** / release hardening（RPC・DDL を **Production マイグレーション計画に含める**こと。**合計 5 件 cap** はコード／read-only ゲートで確認し、**繰り返し有料購入のみで cap を叩く検証はしない**。）。
+
+Hard stop:
+
+- **No** Production **`main`** until Phase 5 gate / team approval.
+- **No** Vercel env / **`whsec`** / secret edits; **no** additional purchase loop for testing; **no** UI polish until **Phase 4 evidence is committed**（チーム手順に従う）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE4_ADDITIONAL_REPLY_E2E_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase4_additional_reply_e2e_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
+## 2026-05-12 — Phase 3 included reply 1-ticket E2E GREEN
+
+Status: **Checkpoint evidence** — Phase 3（同梱返書 **1 チケット**の送信〜DB 消費〜UI 整合）**GREEN**。後続の Phase 4（追加返書 ¥500）は **上位チェックポイントで証跡化済み**。リリース昇格の根拠単体ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane DTR base ¥1,000 + included reply ticket（`DTR_CORE_STATIC_V1`）.
+
+Verified GREEN summary:
+
+- **Before send:** remaining **1**（同梱チケット未消費状態）。
+- **After send:** `reply_ticket_wallets.available_count` = **0**, `consumed_count` = **1**; `consult_threads.credits_remaining` = **0**, `state` = **`read_only`**; `consult_messages` **2 行**; UI リロードで残り **0**; **追加相談返書 1件 500円** CTA 表示。
+- **検証範囲:** 同梱 1 件フローのみ（`POST /api/room/core/send` 経路）。
+
+Next required phase:
+
+- **Phase 5** — Production promotion readiness（上位の Phase 4 証跡を参照）。
+
+Hard stop:
+
+- **No** Production **`main`** / **no** Vercel env / **no** **`whsec`** rotation / **no** UI polish yet（チームの現在ゲートに従う）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE3_INCLUDED_REPLY_E2E_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase3_included_reply_e2e_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
+## 2026-05-12 — Phase 2 wallet report_instance_id permanent fix GREEN
+
+Status: **Checkpoint evidence** — Phase 2（`reply_ticket_wallets.report_instance_id` ↔ `dtr_report_snapshots.id` 自動リンク）**GREEN**。リリース昇格の根拠単体ではない。
+
+Work anchor:
+
+- Branch `work/home-cluster`, Vercel Preview, Supabase Shadow/Test（`m55-soul-shadow` / `jonlynrbfveaprncyrmv`）, Stripe Sandbox, webhook endpoint M55-Vercel-Preview-HomeCluster, product lane DTR base ¥1,000 + included reply ticket（`DTR_CORE_STATIC_V1`）.
+
+Implementation commit:
+
+- `c5b46f0` — `fix: link DTR reply wallet to report snapshot`
+
+Verified GREEN summary:
+
+- New Preview/Sandbox DTR purchase: **no manual backfill**; `dtr_report_snapshots.id` = `reply_ticket_wallets.report_instance_id`; wallet counts match included-ticket path; webhook **200**; `/dtr/processing` reached; `/dtr/core` **200**; `GET /api/room/core` **200**; `dtrOwnershipGate` owned from `dtr_report_snapshots`.
+
+Next required phase:
+
+- **Phase 3** — included reply **1-ticket E2E**（generate/consume lane; separate gate).
+
+Hard stop:
+
+- **No** additional reply **¥500** / **no** Production **`main`** / **no** env **`whsec`** / **no** new payment verification loop / **no** UI polish yet.
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE2_WALLET_LINK_GREEN_2026-05-12.md`
+- `scripts/sql/staging/m55_phase2_wallet_report_instance_link_verification_v1.sql`（read-only; `<CLERK_USER_ID>` placeholder）
+
+## 2026-05-12 — DTR base report ¥1,000 Preview purchase-after flow GREEN
+
+Status: **Checkpoint evidence** — **Phase 1 GREEN の証跡**。Preview + Shadow で購入後フロー検証済み。リリース昇格の根拠ではない。**本チェックポイントではアプリロジックは変更しない。**
+
+Verified GREEN (Preview + Shadow / Sandbox):
+
+- Stripe `checkout.session.completed` → webhook **HTTP 200**
+- `entitlements`, `entitlement_rights`, `one_time_fulfillments` — DTR base lane
+- `reply_ticket_wallets`, `dtr_guest_drafts`, `dtr_report_snapshots` (`snapshot_rows = 1`)
+- `/dtr/core` paid report unlock
+- `consult_threads` / `consult_messages` schema; `GET /api/room/core` **200**
+- Consultation room UI: remaining count **「残り1件（合計5件まで）」** after wallet linkage
+
+Caveat:
+
+- `reply_ticket_wallets.report_instance_id` を `dtr_report_snapshots.id` に揃えたのは **Shadow のみ**の **手動 SQL backfill**。**恒久修正ではない**（正規 fulfillment / migration への置換が次フェーズ）。
+
+Next required phase:
+
+- **恒久:** wallet の `report_instance_id` を canonical fulfillment / migration（または合意 SSOT）で付与し、手動 backfill に依存しないこと。
+
+Hard stop:
+
+- **追加返書 ¥500** に進まない。
+- **Production / `main`** に進まない（本証跡のみでの昇格・マージ禁止）。
+- **Vercel env / `whsec` / 新規決済** は当面禁止（別途合意した次ブロッカーでない限り）。
+
+Evidence:
+
+- `docs/ssot/M55_DTR_BASE_PREVIEW_GREEN_CHECKPOINT_2026-05-12.md`
+- `scripts/sql/staging/m55_shadow_reply_wallet_report_instance_backfill_v1.sql`（`<CLERK_USER_ID>` を置換後に Shadow のみ実行。Production 禁止）
+
+## 2026-05-11 — Stripe / Vercel / Supabase Shadow incident recovery protocol
+
+Status: APPROVED SSOT / REQUIRED DEVELOPMENT PROTOCOL
+
+Applies to:
+- Payment
+- Webhook
+- Vercel Preview
+- Supabase Shadow/Test
+- DB schema repair
+- Release promotion
+- Any work where AI may lose the mainline context
+
+Mandatory sequence:
+work anchor -> current snapshot -> read-only diagnosis -> minimal repair -> verification -> evidence commit -> return-to-mainline decision.
+
+Last GREEN:
+- DTR base report ¥1,000 / DTR_CORE_STATIC_V1
+- Stripe Sandbox checkout.session.completed
+- M55-Vercel-Preview-HomeCluster
+- Vercel Preview / work-home-cluster
+- Supabase Shadow/Test = m55-soul-shadow / jonlynrbfveaprncyrmv
+- Webhook delivery recovered to HTTP 200
+
+Core rule:
+Shadow DB is not safe merely because it exists. Shadow safety requires URL/key/project/schema/columns/types/UNIQUE/PK/PostgREST visibility/current code contract alignt.
+
+Hard locks during DTR base report payment work:
+- Do not touch Production/main.
+- Do not touch additional reply ticket ¥500.
+- Do not rotate whsec.
+- Do not create a new Stripe endpoint.
+- Do not change Vercel env unless that layer is proven to be the current blocker.
+- Do not start a new payment or resend Stripe before current-layer verification is GREEN.
+
+Runbook:
+docs/ssot/M55_2026-05_STRIPE_SUPABASE_SHADOW_INCIDENT_RUNBOOK.md
+
+Evidence SQL:
+scripts/sql/staging/m55_shadow_schema_contract_repair_execute_v1.sql
+scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
+
+## 2026-03-07 Checkpoint: Relationship reflection pivot
+- Relationship reflection SSOT triad registered as canonical law for product direction.
+- Canonical docs: `M55_RELATIONSHIP_REFLECTION_SYSTEM_SSOT_v1_2026-03-07.md`, `M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md`, `M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md`.
+- Product pivot: non-divinatory relationship reflection, daily check-in signals, weekly light summary, DTR as paid deep layer. Legacy tarot references remain for interaction quality only, not as semantic engine.
+- Storefront, webhook, assets, migrations, analytics code unchanged.
+
+## 2026-03-07 Checkpoint: Team current-position checkpoint formalized
+- Team-shared current position is now formalized in `docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md`.
+- Real Step5 contracts and real bottom-nav SVG assets are imported and frozen for web identity.
+- Web prototype identity remains primary: AI chat, Tarot, ai_meter, Today, Weekly, Prime/DTR, and My remain first-class surfaces.
+- Webhook Task 1 remains a separate implementation/review lane; do not mix unfinished webhook code with docs-only or UI-asset commits.
+
+## 2026-03-06 Checkpoint: Task 2 guard and observability aligned
+- Task 2 remains isolated to `/prototype/hub` only; storefront/public routes remain frozen.
+- Annual/value-difference UI is approved as display-only comparison (0/30/90 retention), with annual purchase disabled or feature-flagged until annual entitlement semantics are defined.
+- Observability is required for webhook settlement failures; at minimum, structured `console.error` logging must capture event type, invoice id, user resolution, and DB persistence failure point.
+- Database migration application/verification must use official Supabase migration flow (`supabase db push` / local migration verification), not ad-hoc schema changes.
+
+## 2026-03-06 Checkpoint: Phase 1 foundation verified
+- Latest preview for `521c1b4` is Ready.
+- Local `/prototype` token-gated access verified with `HTTP/1.1 200 OK`.
+- Automation operating system, audit assets, workflows, and scripts are imported and pushed.
+- Phase 1 foundation is complete; next implementation phase starts from Premium monthly DTR grant, then annual plan / value-difference UI.
+
+## 2026-03-06 Checkpoint: Automation operating system imported
+- Added automation guardrails/workflows/scripts for asset extraction and SSOT enforcement.
+- Added retrospective and checkpoint template for reusable team operations.
+- Previous 2026-03-05 ingest artifacts remain canonical; no raw re-import of yesterday bundles.
+
+## 2026-03-06 Checkpoint: JP Revenue Acceleration SSOT registered
+- Canonical doc: `docs/ssot/M55_WEB_JP_REVENUE_ACCELERATION_SSOT_v1_2026-03-06.md`
+- Scope: Phase 1 (isolated UI only). Storefront (`/`, `/dtr/lp`, `/support`, `/legal/*`) remains frozen.
+- Guards: Prototype entry gate=`302 -> /` (token/headers), entitlement decision gate=Silent Free, DB is SSOT, no forbidden terms in public HTML.
+
+## 2026-03-06 Checkpoint: Post-Review Harvest Strategy (Finalized)
+- **Policy**: "Done is better than perfect." Activate monetization post-review via Phase 1 (isolated UI only; storefront unchanged). [cite: 2026-02-28]
+- **Ingest**: `01_BIZ_Monetization_Logic_v1.0` (hash: `80C83F...`) integrated via secure manifest (index+sha256; no raw vault committed).
+- **Logic**: Prototype *entry* gate = `302 -> /` (token/headers); Entitlement *decision* gate = Silent Free (no errors/no pressure).
+- **Structure**: `ai_meter_detail` is adopted as the connection hub for DTR shelving + subscription value (30d/90d retention comparison shown in isolated UI only).
+
+
+
+
+
+## 2026-03-06 Checkpoint: Monetization Implementation Plan Web v1 registered
+- Canonical doc: `docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md`
+- Scope: Next.js + Supabase + Clerk + Stripe での収益化実装。Post-Review UI Switch に従属。
+- Key: DB/entitlements SSOT、productId/rightsKey 正規化、Stripe Webhook 唯一の真実化、禁止語彙0 CI。
+
+## 2026-03-05 Checkpoint: /prototype Isolation Hub Postmortem as SSOT Seed
+- Canonical runbook frozen at: `docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md`
+- Operational directive frozen at: `docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md`
+- Key invariants: header-only access (`x-m55-proto`), Fail-Closed (`302 -> /`), no URL-based context injection, no public page edits during review, no secrets in logs/chats.
+- Triage model: status codes map to Gate A (401), Gate B (302), Gate C (404), all-pass (200 + X-Matched-Path:/prototype).
+
+## 2026-03-05 Checkpoint: Post-Review UI Switch SSOT registered
+- Canonical doc: `docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md`
+- Priority: Do not increase (1) payment/refund/support/legal consistency risk, (2) misrepresentation risk (forbidden terms).
+- Rollout: Phase 0 keep storefront (`/`, `/dtr/lp`), Phase 1 isolate UI (`/app` or `/prototype`), Phase 2 gated switch with fixed price/refund/support block.
+
+## 2026-03-05: Ingest of local bundles completed
+- Ingest 索引: `docs/audit/sources/ingest_2026-03-05/` (MANIFEST.md, INDEX.md, NOTES.md)
+- 新規 ssot: `M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md`, `POST_REVIEW_UI_SWITCH_SSOT_v1.md`（機密除去注記付与）
+- 新規 audit: `M55_AUDIT_CHECKLIST_FINAL.md`, `M55_IMPLEMENTATION_COMMANDS_FOR_CURSOR.md`
+- PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
+
+# M55 SYSTEM SSOT & AUDIT LOG (2026)
+
+## 【CURRENT: 2026-03-03】
+- **Gate R Status**: PASS (Stripe審査用ページ隔離済み)
+- **Public Pages**: / , /dtr/lp , /support , /legal/* (これらは一切書き換えない)
+- **Development**: 新機能(Hub)は /app/prototype 配下でのみ進める
+
+## 【NEXT】
+- [ ] /app/prototype 配下に最強のハブ画面を実装する
+
+<details>
+<summary>HISTORY (過去の記録)</summary>
+
+### 2026-03-02 (旧チェックポイント)
+- Stripe審査：提出直前。Gate R GREEN 判定 = PASS
+- 商品価格：¥1,000（税込）
+- サポート：/support にメール＋電話を明記
+- 禁止語彙：占い/鑑定 等は公開HTMLから排除済み
+</details>

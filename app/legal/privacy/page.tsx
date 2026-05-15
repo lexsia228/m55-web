@@ -7,9 +7,9 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <main style={{
-      maxWidth: 860,
+      maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
-      padding: "24px 16px 56px",
+      padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
       lineHeight: 1.7,
     }}>
       <h1 style={{
@@ -30,11 +30,16 @@ export default function PrivacyPage() {
       <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>取得する情報</h2>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
+          <li>アカウント情報（認証サービス経由で提供される識別子・メールアドレス等）</li>
+          <li>プロフィールとしてお預かりする表示名（ニックネーム）および生年月日（読み取り生成のため）</li>
           <li>連絡先（メールアドレス等）</li>
           <li>決済の確認に必要な取引情報（決済の処理は外部の決済事業者を利用します）</li>
-          <li>ユーザー入力（レポート生成に必要な範囲）</li>
+          <li>レポート生成や相談室に関するユーザー入力（必要な範囲）</li>
           <li>アクセスログ等の技術情報（不正対策・障害対応のため）</li>
         </ul>
+        <p style={{ margin: "10px 0 0", fontSize: 13, opacity: 0.9 }}>
+          購入者専用の相談室に送信された内容は、該当レポートの範囲で処理し、サポート・安全運用のために必要な限度で保存・確認する場合があります。
+        </p>
       </section>
 
       <section style={{ margin: "0 0 16px" }}>

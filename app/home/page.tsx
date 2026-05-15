@@ -1,21 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import ShellLayout from '../../components/shell/ShellLayout';
+/**
+ * /home — Shell Home (primary entry point via root redirect)
+ *
+ * Public Home panel. Birth date: CTA → BirthProfileIntakeLayer. Full edit: /my.
+ */
+
+import HomePanel from '../../components/home/HomePanel';
+import { PublicShell } from '../_components/PublicShell';
 
 export default function HomePage() {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  if (!ready) return null;
-
   return (
-    <ShellLayout
-      iframeSrc="/legacy/page_home.html"
-      iframeTitle="M55 Home"
-    />
+    <PublicShell>
+      <HomePanel />
+    </PublicShell>
   );
 }

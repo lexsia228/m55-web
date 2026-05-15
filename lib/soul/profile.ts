@@ -1,9 +1,9 @@
 /**
- * M55 PROFILE REPOSITORY (Local-first)
- * - Stores nickname + birthDate locally (no server DB)
- * - Works for both Clerk user and Guest (device id)
- * - No URL-based injection
+ * M55 PROFILE REPOSITORY (Local-first cache)
+ * - Primary UX still reads/writes localStorage for instant UI
+ * - Same values are synced to server draft via queueDtrDraftSync (DB SSOT for carry-over)
  */
+import { queueDtrDraftSync } from '../m55/dtrDraftClientSync';
 export type BirthProfile = {
   nickname: string;
   birthDate: string; // YYYY-MM-DD
@@ -61,6 +61,17 @@ export const ProfileRepository = {
     const key = KEY_PROFILE_PREFIX + ownerId;
     localStorage.setItem(key, JSON.stringify(profile));
     localStorage.removeItem(KEY_DISMISS_PREFIX + ownerId);
+    if (!userId) {
+      try {
+        localStorage.setItem('m55_profile_v1', JSON.stringify({ nickname: profile.nickname, birthDateISO: profile.birthDate }));
+      } catch {
+        /* no-op */
+      }
+    }
+    queueDtrDraftSync(userId ?? null, {
+      nickname: profile.nickname,
+      birthDate: profile.birthDate,
+    });
   },
 
   exists: (userId?: string | null): boolean => {
@@ -77,5 +88,47 @@ export const ProfileRepository = {
     if (!isClient()) return false;
     const ownerId = resolveOwnerId(userId);
     return localStorage.getItem(KEY_DISMISS_PREFIX + ownerId) === todayKey();
-  }
+  },
 };
+
+/**
+ * Post-purchase: copy device-local profile (free /core guest key) to Clerk user key.
+ * Checkout leaves Clerk signed-in while localStorage still holds profile under device id.
+ */
+export function promoteGuestProfileToClerkUser(userId: string): boolean {
+  if (!isClient() || !userId?.trim()) return false;
+  const guestOwnerId = getOrCreateDeviceId();
+  const clerkOwnerId = resolveOwnerId(userId);
+  if (guestOwnerId === clerkOwnerId) return false;
+
+  const guestKey = KEY_PROFILE_PREFIX + guestOwnerId;
+  const raw = localStorage.getItem(guestKey);
+  let guest: BirthProfile | null = null;
+  if (raw) {
+    try {
+      guest = JSON.parse(raw) as BirthProfile;
+    } catch {
+      guest = null;
+    }
+  }
+  if (!guest?.birthDate || !guest?.nickname?.trim()) {
+    try {
+      const leg = localStorage.getItem('m55_profile_v1');
+      if (leg) {
+        const j = JSON.parse(leg) as { nickname?: string; birthDateISO?: string };
+        if (j.birthDateISO && j.nickname?.trim()) {
+          guest = { nickname: j.nickname.trim(), birthDate: j.birthDateISO };
+        }
+      }
+    } catch {
+      /* no-op */
+    }
+  }
+  if (!guest?.birthDate || !guest?.nickname?.trim()) return false;
+
+  ProfileRepository.save(userId, {
+    nickname: guest.nickname.trim(),
+    birthDate: guest.birthDate,
+  });
+  return true;
+}

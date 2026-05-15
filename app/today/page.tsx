@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ShellLayout from '../../components/shell/ShellLayout';
+import TodayPanel from '../../components/today/TodayPanel';
 
 export default function TodayPage() {
   const [ready, setReady] = useState(false);
@@ -13,10 +14,8 @@ export default function TodayPage() {
   if (!ready) return null;
 
   return (
-    <ShellLayout
-      iframeSrc="/legacy/today.html"
-      iframeTitle="M55 Today"
-      useDataBridge
-    />
+    <ShellLayout iframeTitle="M55 Today">
+      <TodayPanel />
+    </ShellLayout>
   );
 }

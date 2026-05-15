@@ -1,0 +1,2790 @@
+﻿/**
+ * /core — editorial rhythm aligned with ten-views (calm serif titles, sans body).
+ */
+
+.page {
+  /* /core 全体のコンテンツ基準線（ヒーロー〜各セクションで共通） */
+  --core-page-pad-x: 12px;
+  color: #3d3d3d;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  line-height: 1.75;
+  max-width: min(680px, calc(100vw - 2 * var(--core-page-pad-x)));
+  margin: 0 auto;
+  padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x) 56px;
+  background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #faf9fb 100%);
+  background-attachment: local;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-top: clamp(12px, 1.6vw, 16px);
+  }
+}
+
+.muted {
+  font-size: 14px;
+  color: rgba(60, 60, 60, 0.72);
+  line-height: 1.65;
+}
+
+.errorBox {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(180, 80, 80, 0.35);
+  background: rgba(255, 248, 248, 0.9);
+  font-size: 14px;
+  color: #5a3030;
+}
+
+/* Sections */
+.section {
+  margin-top: 40px;
+}
+
+.section:first-of-type {
+  margin-top: 12px;
+}
+
+/* v0: 各ブロックを静かな紙面として包む */
+.coreSectionSurface {
+  padding: clamp(22px, 4.5vw, 30px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(0, 0, 0, 0.035);
+  box-shadow: 0 12px 40px rgba(29, 24, 61, 0.038);
+  box-sizing: border-box;
+}
+
+/* セクション面ごとのごく薄い色差（低彩度・プレミアムリズム） */
+.surfaceRadar {
+  background: linear-gradient(
+    165deg,
+    rgba(247, 245, 252, 0.95) 0%,
+    rgba(239, 243, 250, 0.88) 50%,
+    rgba(245, 242, 252, 0.92) 100%
+  );
+  border-color: rgba(107, 95, 168, 0.08);
+  padding-top: clamp(14px, 3.6vw, 20px);
+  padding-bottom: clamp(12px, 3vw, 18px);
+}
+
+.surfaceReads {
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.94), rgba(247, 252, 249, 0.9));
+  border-color: rgba(90, 120, 100, 0.065);
+}
+
+.surfaceTendency {
+  background: linear-gradient(175deg, rgba(255, 252, 248, 0.95), rgba(249, 247, 252, 0.9));
+  border-color: rgba(120, 100, 90, 0.058);
+}
+
+.surfaceTypeEase {
+  background: linear-gradient(168deg, rgba(250, 252, 255, 0.93), rgba(248, 250, 252, 0.9));
+  border-color: rgba(80, 90, 110, 0.05);
+}
+
+.surfaceAlign {
+  background: linear-gradient(170deg, rgba(252, 251, 248, 0.94), rgba(246, 248, 252, 0.9));
+  border-color: rgba(100, 95, 120, 0.055);
+}
+
+.surfaceObserve {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 249, 252, 0.92));
+  border-color: rgba(0, 0, 0, 0.035);
+}
+
+.surfaceAi {
+  background: linear-gradient(168deg, rgba(252, 250, 255, 0.94), rgba(247, 245, 252, 0.9));
+  border-color: rgba(107, 95, 168, 0.068);
+}
+
+.coreSectionSurface .sectionTitle {
+  font-size: clamp(24px, 4.8vw, 29px);
+  font-weight: 500;
+  margin-bottom: 14px;
+  letter-spacing: 0.028em;
+}
+
+.coreSectionSurface .sectionLead {
+  font-size: clamp(14px, 2.8vw, 16px);
+  line-height: 1.72;
+}
+
+.sectionEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 6px;
+}
+
+.sectionTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(22px, 4.5vw, 28px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
+.sectionLead {
+  font-size: clamp(14px, 2.8vw, 16px);
+  margin: 0 0 16px;
+  color: #3d3d3d;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Visual Hierarchy — Tier System
+   A: page pillar  B: mid-level  C: bridge
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Tier A — page pillar */
+.tierASurface {
+  margin-top: clamp(56px, 10vw, 76px);
+  border-color: rgba(107, 95, 168, 0.16);
+  box-shadow: 0 18px 56px rgba(29, 24, 61, 0.07);
+}
+
+.tierASurface .sectionTitle {
+  font-size: clamp(25px, 5vw, 31px);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.tierAOverline {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: rgba(107, 95, 168, 0.7);
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.tierASummary {
+  font-size: clamp(13px, 2.55vw, 14.5px);
+  color: rgba(48, 45, 60, 0.62);
+  margin: 3px 0 20px;
+  line-height: 1.62;
+}
+
+/* Tier B — mid-level */
+.tierBSection {
+  margin-top: clamp(28px, 5.5vw, 44px);
+}
+
+.tierBSection .sectionTitle {
+  font-size: clamp(18px, 3.6vw, 21px);
+  font-weight: 600;
+  padding-left: 14px;
+  border-left: 3px solid rgba(107, 95, 168, 0.38);
+  margin-bottom: 4px;
+}
+
+.tierBOverline {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: rgba(107, 95, 168, 0.52);
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
+.tierBSummary {
+  font-size: clamp(12.5px, 2.5vw, 14px);
+  color: rgba(48, 45, 60, 0.6);
+  margin: 4px 0 18px;
+  padding-left: 17px;
+  line-height: 1.58;
+}
+
+/* Tier C — bridge */
+.tierCBridge {
+  margin-top: clamp(28px, 5vw, 40px);
+  padding: clamp(14px, 3vw, 20px) clamp(16px, 3.5vw, 22px);
+  border-radius: 12px;
+  background: rgba(248, 246, 252, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: none;
+}
+
+.tierCBridge .sectionTitle {
+  font-size: clamp(15px, 3vw, 17px);
+  font-weight: 500;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+.tierCBridgeLead {
+  font-size: clamp(13px, 2.5vw, 14px);
+  line-height: 1.7;
+  color: rgba(48, 45, 60, 0.72);
+  margin: 0 0 14px;
+}
+
+.tierCBridgeList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tierCBridgeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tierCBridgeItemTitle {
+  font-size: clamp(13px, 2.6vw, 14px);
+  font-weight: 600;
+  color: #252228;
+}
+
+.tierCBridgeItemBody {
+  font-size: clamp(12px, 2.4vw, 13.5px);
+  color: rgba(48, 45, 60, 0.68);
+  line-height: 1.62;
+}
+
+/* /core 未入力のみ — 横はみ出し禁止。フッターは main 内スクロールの末尾へ */
+.coreLockedRoot {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 4px max(12px, env(safe-area-inset-right)) 24px max(12px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: visible;
+  min-height: min(72vh, 520px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 未入力案内面のみ使用（100vw フルブリードは廃止して横スクロールを防ぐ） */
+.coreProfileGateShell {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: clamp(8px, 2vh, 16px) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 28%, rgba(232, 226, 248, 0.45), transparent 58%),
+    linear-gradient(180deg, #faf9f7 0%, #f3f1f8 48%, #f8f6fb 100%);
+}
+
+.coreProfileGate {
+  width: 100%;
+  max-width: min(26rem, 100%);
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 32px) clamp(16px, 4vw, 24px);
+  text-align: center;
+  box-sizing: border-box;
+  background: linear-gradient(168deg, rgba(255, 255, 255, 0.97), rgba(248, 246, 252, 0.99));
+  border: 1px solid rgba(177, 156, 255, 0.2);
+  border-radius: 18px;
+  box-shadow: 0 14px 44px rgba(29, 24, 61, 0.07);
+}
+
+.coreProfileGateTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(17px, 4.2vw, 20px);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+  margin: 0 auto clamp(12px, 2.2vw, 18px);
+  max-width: 22em;
+  text-align: center;
+}
+
+.coreProfileGateSupport {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(60, 60, 60, 0.82);
+  margin: 0 auto clamp(6px, 1.5vw, 10px);
+  max-width: 24em;
+  text-align: center;
+}
+
+.coreProfileGateSupport:last-of-type {
+  margin-bottom: clamp(14px, 2.5vw, 20px);
+}
+
+.coreProfileGateActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.coreProfileGatePrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #8b7aa8;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  box-sizing: border-box;
+  box-shadow: 0 2px 12px rgba(139, 122, 168, 0.2);
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.coreProfileGatePrimary:hover {
+  background: #7a6a97;
+  transform: translateY(-1px);
+}
+
+.coreProfileGatePrimary:active {
+  transform: translateY(0);
+}
+
+.coreProfileGatePrimary:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.55);
+  outline-offset: 2px;
+}
+
+/* Hero */
+.hero {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.heroMainTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+}
+
+.heroAuxLabel {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 6px;
+}
+
+.heroCoreLabel {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(24px, 5vw, 30px);
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+.heroSummary {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #3d3d3d;
+  margin: 0;
+  max-width: 38em;
+}
+
+.heroTriad {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(60, 60, 60, 0.45);
+  margin: 14px 0 0;
+}
+
+.heroMark {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
+.heroMark img {
+  object-fit: contain;
+}
+
+/* Summary */
+.summaryBody {
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Radar */
+.radarSectionHeader {
+  margin-bottom: clamp(5px, 1.5vw, 8px);
+}
+
+.surfaceRadar .radarSectionHeader .sectionTitle {
+  margin-bottom: 8px;
+}
+
+.radarSectionHeader .sectionLead {
+  margin: 0;
+  font-size: clamp(13px, 3.2vw, 14px);
+  color: rgba(60, 60, 60, 0.8);
+  line-height: 1.55;
+}
+
+.radarSubLead {
+  margin: 4px 0 0;
+  font-size: clamp(11.5px, 2.8vw, 12.5px);
+  color: rgba(60, 60, 60, 0.56);
+  line-height: 1.46;
+  text-align: center;
+}
+
+.radarTip {
+  margin: 6px 0 0;
+  font-size: clamp(11.5px, 2.8vw, 12.5px);
+  color: rgba(58, 58, 58, 0.68);
+  line-height: 1.38;
+}
+
+.radarWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: clamp(3px, 1.2vw, 6px);
+  padding: 0 0 1px;
+  max-width: 100%;
+}
+
+.radarWrap svg {
+  max-width: clamp(280px, 78vw, 320px);
+}
+
+.radarNote {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.6);
+  margin: 0;
+  text-align: center;
+  max-width: 36em;
+}
+
+/* ── 傾向の輪郭：「私の輪郭を見る」ボタン ── */
+.radarRevealBtnWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  margin: 16px 0 6px;
+}
+
+.radarRevealBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 32px;
+  font-size: clamp(13.5px, 2.9vw, 15px);
+  font-weight: 600;
+  color: rgba(44, 36, 80, 0.96);
+  background: linear-gradient(140deg, rgba(220, 213, 252, 0.88), rgba(205, 194, 244, 0.78));
+  border: 1.5px solid rgba(107, 95, 168, 0.48);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  box-shadow: 0 5px 18px rgba(83, 74, 114, 0.18);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+.radarRevealBtn:hover {
+  background: linear-gradient(140deg, rgba(208, 200, 248, 0.94), rgba(192, 180, 240, 0.88));
+  border-color: rgba(107, 95, 168, 0.65);
+  box-shadow: 0 7px 22px rgba(83, 74, 114, 0.24);
+  color: rgba(34, 26, 70, 0.98);
+}
+
+.radarRevealBtn:active {
+  background: rgba(196, 188, 238, 0.95);
+  box-shadow: 0 2px 8px rgba(83, 74, 114, 0.16);
+}
+
+.radarRevealBtnIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  opacity: 0.78;
+  flex-shrink: 0;
+}
+
+.radarRevealHelper {
+  font-size: clamp(11.5px, 2.6vw, 12.5px);
+  color: rgba(72, 64, 102, 0.65);
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+  text-align: center;
+  margin: 0;
+}
+
+/* データ輪郭 — ボタン押下後に中心から外へ静かに広がる */
+@keyframes radarShapeReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.radarDataGroup {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  animation: radarShapeReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 1行要約 */
+.radarSummaryLine {
+  margin: 10px 0 0;
+  font-size: clamp(12.5px, 2.8vw, 13.5px);
+  color: rgba(83, 74, 114, 0.8);
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1.55;
+  animation: radarSummaryReveal 0.5s 0.22s ease both;
+}
+
+@keyframes radarSummaryReveal {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 要約カード */
+.radarSummaryCard {
+  margin: 16px 0 0;
+  padding: 14px 18px 16px;
+  background: linear-gradient(160deg, rgba(107, 95, 168, 0.09), rgba(90, 80, 140, 0.05));
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  border-radius: 16px;
+  animation: radarSummaryReveal 0.5s 0.22s ease both;
+}
+
+.radarSummaryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(55, 45, 85, 0.68);
+  margin: 0 0 10px;
+  padding: 3px 10px 3px 8px;
+  background: rgba(107, 95, 168, 0.11);
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  border-radius: 999px;
+}
+
+.radarSummaryBadgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.62);
+  flex-shrink: 0;
+}
+
+.radarSummaryCard p {
+  margin: 0;
+  font-size: clamp(13.5px, 2.9vw, 15px);
+  color: rgba(44, 36, 80, 0.92);
+  line-height: 1.58;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.radarSummaryCard p + p {
+  margin-top: 6px;
+  font-size: clamp(12px, 2.6vw, 13px);
+  font-weight: 400;
+  color: rgba(65, 54, 108, 0.62);
+  line-height: 1.62;
+}
+
+/* Axis bars */
+.barsList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.barHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.barLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2a2a;
+}
+
+.barBand {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(107, 95, 168, 0.1);
+  color: #534a72;
+  font-weight: 600;
+}
+
+.barScore {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.barSub {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.65);
+  margin: 4px 0 0;
+  line-height: 1.55;
+}
+
+.barTrack {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(107, 95, 168, 0.55), rgba(107, 95, 168, 0.88));
+  min-width: 4px;
+}
+
+.barBlurb {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.78);
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* Cards grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 560px) {
+  .cardGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.typeEaseGrid {
+  gap: 14px;
+}
+
+@media (min-width: 720px) {
+  .typeEaseGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .typeEaseGrid .card:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+.typeEaseGrid .card:nth-child(1) {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(107, 95, 168, 0.32);
+}
+
+.typeEaseGrid .card:nth-child(2) {
+  background: linear-gradient(168deg, rgba(242, 250, 246, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(75, 130, 105, 0.28);
+}
+
+.typeEaseGrid .card:nth-child(3) {
+  background: linear-gradient(168deg, rgba(250, 246, 240, 0.88), rgba(255, 255, 255, 0.75));
+  border-top: 2px solid rgba(128, 98, 60, 0.26);
+}
+
+.typeEaseGrid .cardTitle {
+  font-size: clamp(14.5px, 2.9vw, 16px);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.typeEaseGrid .card:nth-child(1) .cardTitle {
+  border-bottom-color: rgba(107, 95, 168, 0.12);
+}
+
+.typeEaseGrid .card:nth-child(2) .cardTitle {
+  border-bottom-color: rgba(75, 130, 105, 0.12);
+}
+
+.typeEaseGrid .card:nth-child(3) .cardTitle {
+  border-bottom-color: rgba(128, 98, 60, 0.1);
+}
+
+.card {
+  border-radius: 18px;
+  padding: 18px 16px 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 26px rgba(29, 24, 61, 0.035);
+}
+
+.cardTitle {
+  font-size: clamp(15px, 3vw, 17px);
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+}
+
+.cardBody {
+  font-size: clamp(13px, 2.65vw, 14.5px);
+  color: rgba(50, 48, 56, 0.78);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.cardGrid .card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* typeEaseGrid 大画面: cardGrid の全幅ルールより後ろで上書きし3等幅に戻す */
+@media (min-width: 720px) {
+  .typeEaseGrid .card:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+/* Composition */
+.compMap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 12px;
+  border-radius: 16px;
+  background: rgba(248, 246, 252, 0.5);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.compCenter {
+  text-align: center;
+  padding: 16px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  max-width: 100%;
+}
+
+.compCenterLabel {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 6px;
+}
+
+.compCenterName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.compAxisRow {
+  width: 100%;
+  max-width: 420px;
+}
+
+.compGrid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+@media (min-width: 520px) {
+  .compGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.compBlock {
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(248, 246, 252, 0.65);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.compLabel {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 8px;
+}
+
+.compAxes {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0;
+}
+
+.compHint {
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.65);
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+/* Affinity */
+.affList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.affRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 10px;
+  align-items: center;
+}
+
+.affName {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.affTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.affFill {
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(90, 80, 130, 0.45);
+  min-width: 2px;
+}
+
+.affScore {
+  font-size: 11px;
+  color: rgba(60, 60, 60, 0.5);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* CTA strip */
+.ctaStrip {
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(107, 95, 168, 0.2);
+}
+
+.ctaStripV0 {
+  margin-top: clamp(36px, 8vw, 52px);
+  padding: clamp(26px, 5vw, 38px) clamp(20px, 4vw, 28px) clamp(28px, 5vw, 40px);
+  border-radius: 28px;
+  text-align: center;
+  background:
+    radial-gradient(120% 95% at 50% -2%, rgba(245, 236, 255, 0.6), transparent 58%),
+    linear-gradient(172deg, rgba(253, 247, 238, 0.985) 0%, rgba(247, 241, 252, 0.97) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.13);
+  box-shadow: 0 22px 64px rgba(29, 24, 61, 0.075);
+}
+
+.ctaTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: 18px;
+  margin: 0 0 8px;
+  color: #1a1a1a;
+}
+
+.ctaStripV0 .ctaTitle {
+  font-size: clamp(22px, 4.6vw, 27px);
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+
+.ctaBody {
+  font-size: 14px;
+  margin: 0 0 14px;
+  color: #3d3d3d;
+}
+
+.ctaBodyLead {
+  font-size: clamp(16px, 3vw, 18px);
+  margin: 0 auto 12px;
+  max-width: 28em;
+  line-height: 1.75;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
+}
+
+.ctaBodySupplement {
+  font-size: clamp(13px, 2.7vw, 15px);
+  margin: 0 auto 22px;
+  max-width: 30em;
+  line-height: 1.72;
+  color: rgba(60, 60, 60, 0.78);
+  font-weight: 400;
+}
+
+/* 最下部「本質の読み解き」購入カード（左寄せ・可読性優先） */
+.ctaStripPurchase {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.ctaStripV0.ctaStripPurchase {
+  text-align: left;
+}
+
+.ctaPurchaseIntro {
+  font-size: clamp(15px, 2.85vw, 17px);
+  margin: 0 0 4px;
+  max-width: 38em;
+  line-height: 1.78;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.ctaBenefitsHeading {
+  font-size: clamp(14px, 2.6vw, 15px);
+  font-weight: 600;
+  margin: 18px 0 10px;
+  padding: 0;
+  color: #1f1f1f;
+  letter-spacing: 0.02em;
+}
+
+.ctaBenefitCard {
+  margin: 0 0 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(107, 95, 168, 0.065);
+  border: 1px solid rgba(107, 95, 168, 0.11);
+  list-style: none;
+}
+
+.ctaBenefitRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.ctaBenefitRow + .ctaBenefitRow {
+  margin-top: 11px;
+}
+
+.ctaBenefitIcon {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: rgba(76, 66, 108, 0.95);
+}
+
+.ctaBenefitText {
+  font-size: clamp(14px, 2.65vw, 15px);
+  line-height: 1.65;
+  color: rgba(38, 36, 42, 0.92);
+}
+
+.ctaPriceBlock {
+  margin: 22px 0 16px;
+}
+
+.ctaBundleNote {
+  font-size: clamp(13px, 2.5vw, 14px);
+  margin: 0 0 10px;
+  line-height: 1.55;
+  color: rgba(55, 52, 58, 0.88);
+}
+
+.ctaPriceStrong {
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+}
+
+.ctaPriceKind {
+  font-size: clamp(17px, 3.4vw, 20px);
+  font-weight: 700;
+  color: #151515;
+}
+
+.ctaPriceAmount {
+  font-size: clamp(26px, 5.5vw, 34px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #121212;
+}
+
+.ctaStripV0.ctaStripPurchase .ctaPrimaryButton {
+  margin-top: 4px;
+  width: 100%;
+  max-width: 100%;
+  padding: 16px 22px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 12px 32px rgba(63, 54, 94, 0.32);
+}
+
+/* 決済方法表示 */
+.ctaPaymentRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.ctaPaymentLabel {
+  font-size: 12px;
+  color: rgba(60, 58, 66, 0.6);
+  letter-spacing: 0.015em;
+  line-height: 1.4;
+}
+
+.ctaPaymentBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.ctaPayBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(80, 74, 100, 0.18);
+  color: rgba(40, 38, 46, 0.72);
+}
+
+.ctaPayBadgeApple {
+  background: rgba(24, 24, 28, 0.88);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.ctaPayBadgePayPay {
+  background: rgba(215, 20, 20, 0.88);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.97);
+}
+
+.ctaLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: #534a72;
+  text-decoration: none;
+}
+
+.ctaLink:hover {
+  text-decoration: underline;
+}
+
+/* Focus list */
+.focusList {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 15px;
+}
+
+.focusList li {
+  margin-bottom: 8px;
+}
+
+/* Today / weekly teaser */
+.teaserGrid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 520px) {
+  .teaserGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.teaserCard {
+  display: block;
+  padding: 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.teaserCard:hover {
+  border-color: rgba(107, 95, 168, 0.35);
+  box-shadow: 0 10px 28px rgba(29, 24, 61, 0.07);
+}
+
+.teaserLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 6px;
+}
+
+.teaserTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.teaserBody {
+  font-size: 13px;
+  margin: 0;
+  color: rgba(60, 60, 60, 0.85);
+  line-height: 1.55;
+}
+
+.teaserGo {
+  font-size: 13px;
+  margin-top: 10px;
+  color: #534a72;
+  font-weight: 600;
+}
+
+/* ── /core poster hero：Home .heroSection + .posterMainVisual と同型（1枚の面・横幅は .page と同一） ── */
+
+.corePosterHeroSection {
+  --core-poster-hero-nav: 48px;
+  box-sizing: border-box;
+  /* 横幅は下の .section.coreSectionSurface（傾向の輪郭）と同じ .page コンテンツ幅 */
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  min-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  /* 横インセットなし：レーダーカード外縁と揃える（縦リズムのみ維持） */
+  padding: 6px 0 12px;
+  border-bottom: 1px solid rgba(62, 58, 52, 0.055);
+}
+
+.corePosterStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+.corePosterMainVisual {
+  /* 外形横幅は .page 内の .coreSectionSurface（傾向の輪郭）と同規格 */
+  --core-poster-shell-pad: clamp(12px, 3vw, 18px);
+  --core-poster-inner-measure: 100%;
+  --core-poster-overlay-inset: clamp(7px, 1.85vw, 13px);
+  --core-poster-lower-cap: clamp(96px, 24dvh, 158px);
+  --core-poster-stack-gap: var(--core-poster-shell-pad);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  flex: 1 1 auto;
+  min-height: 300px;
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f2f0f8;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* 背景動画・可読性ヴェール：この面では視覚的に無効（二重主役の解消） */
+.corePosterMainVisualStack {
+  display: none;
+}
+
+.corePosterHeroBaseLayer {
+  display: none;
+}
+
+.corePosterHeroBgVideo {
+  display: none;
+}
+
+.corePosterHeroReadabilityVeil {
+  display: none;
+}
+
+/* 動画の上に載せない：通常フローでポスター本文を積む */
+.corePosterHeroOverlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  /* Home .posterHeroOverlay と同値 */
+  padding: clamp(16px, 3.5vw, 22px) clamp(16px, 4.5vw, 22px) clamp(18px, 5vw, 26px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.corePosterHeroFoot {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.corePosterHeroCopy {
+  /* 幅・帯の高さは .corePosterMainVisual のトークンを継承 */
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  align-self: center;
+  width: 100%;
+  max-width: 42rem;
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
+  /* 上詰め：カード内に縦の「空ステージ」が残らない */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  /* メタ帯は margin-bottom で呼吸。画像〜本文は積みの継ぎ目を弱くする */
+  gap: 0;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* 画像上端：発行文書ヘッダー感（2手目：内枠・blur で写真面に沈める／pill 維持） */
+.corePosterGridStage > .corePosterHeroTopBlock {
+  position: absolute;
+  top: var(--core-hero-inset-top);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--core-hero-inset-x));
+  margin: 0;
+  padding: clamp(8px, 1.55vw, 11px) clamp(16px, 3.1vw, 20px);
+  box-sizing: border-box;
+  border-radius: clamp(10px, 2vw, 14px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, transparent 48%),
+    rgba(10, 10, 12, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.corePosterGridStage {
+  /* Home .posterMainVisualStack 相当：親ポスター内で縦を受け取り、min 300 は Home .posterMainVisual と同型 */
+  /* ヒーロー3ゾーンの幾何トークン（上メタ／左スコア／下主役を数式で分離） */
+  /* PC/スマホ共通トークン（ブレークポイントで別値を置かない） */
+  --core-hero-stage-min-h: clamp(300px, 52svh, 468px);
+  --core-hero-inset-x: clamp(10px, 2.4vw, 16px);
+  --core-hero-inset-top: clamp(9px, 2vw, 12px);
+  --core-hero-plate-bottom: clamp(9px, 2.1vw, 13px);
+  --core-hero-plate-max-w: min(20rem, calc(100% - 2 * var(--core-hero-inset-x)));
+  flex: 1 1 auto;
+  align-self: stretch;
+  position: relative;
+  z-index: 0;
+  display: grid;
+  grid-template: 1fr / 1fr;
+  width: 100%;
+  max-width: min(100%, var(--core-poster-inner-measure));
+  min-width: 0;
+  min-height: var(--core-hero-stage-min-h);
+  height: auto;
+  margin-inline: auto;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1a1a1a;
+  border: none;
+  box-shadow: none;
+}
+
+.corePosterGridStage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  /* 左上にごく弱い奥行き（文字を「載せ」ではなく面内の層に見せる） */
+  background:
+    radial-gradient(ellipse 85% 55% at 14% 6%, rgba(8, 7, 6, 0.2), transparent 62%),
+    linear-gradient(
+      180deg,
+      rgba(12, 11, 10, 0.34) 0%,
+      rgba(12, 11, 10, 0.07) 24%,
+      transparent 44%,
+      transparent 100%
+    );
+}
+
+.corePosterGridStage::before {
+  content: '';
+  position: absolute;
+  inset: clamp(7px, 1.4vw, 10px);
+  border-radius: clamp(10px, 2.1vw, 13px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 10, 12, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .corePosterMainVisual {
+    min-block-size: 0;
+    max-block-size: none;
+  }
+
+  .corePosterHeroCopy {
+    flex: 1 1 auto;
+    align-self: center;
+    height: auto;
+    width: 100%;
+  }
+}
+
+.corePosterStageImage {
+  /* Home .posterHeroBaseImage: セル全面 + cover + 軽いスケールクロップ */
+  grid-area: 1 / 1 / 2 / 2;
+  display: block;
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  /* 全幅で同一のクロップ言語（PC/スマホで別ズームにしない） */
+  object-position: 54% 36%;
+  transform: scale(1.22);
+  transform-origin: center center;
+  border-radius: 0;
+}
+
+.corePosterGridStage .corePosterMetaRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 1.65vw, 13px);
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+.corePosterMetaRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: clamp(8px, 2vw, 14px);
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+.corePosterEssenceTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(12px, 2.15vw, 15px);
+  font-weight: 500;
+  color: rgba(48, 44, 40, 0.88);
+  margin: 0;
+  letter-spacing: 0.045em;
+  line-height: 1.38;
+  min-width: 0;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.corePosterEssenceTitlePrefix,
+.corePosterEssenceTitleName {
+  display: inline;
+}
+
+.corePosterEssenceTitleName {
+  margin-left: 0.42em;
+}
+
+.corePosterObsDate {
+  font-size: clamp(9px, 1.5vw, 10.5px);
+  letter-spacing: 0.038em;
+  color: rgba(92, 86, 78, 0.48);
+  margin: 2px 0 0;
+  text-align: right;
+  line-height: 1.38;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.corePosterGridStage .corePosterEssenceTitle {
+  flex: 1 1 auto;
+  max-width: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.corePosterGridStage .corePosterObsDate {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-top: 0;
+  line-height: 1.32;
+}
+
+/* メタ：識別ヘッダー／記録欄（2手目：静かな締まり・影の単純化） */
+.corePosterHeroTopBlock .corePosterMetaRow {
+  gap: clamp(12px, 2.2vw, 18px);
+}
+
+.corePosterHeroTopBlock .corePosterEssenceTitle {
+  color: rgba(255, 253, 250, 0.99);
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  margin-top: clamp(3px, 0.6vw, 6px);
+  font-feature-settings: 'palt' 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.corePosterHeroTopBlock .corePosterObsDate {
+  color: rgba(245, 242, 238, 0.74);
+  letter-spacing: 0.075em;
+  font-variant-numeric: tabular-nums;
+  padding-left: clamp(12px, 2.2vw, 16px);
+  margin-left: clamp(3px, 0.65vw, 7px);
+  margin-top: clamp(1px, 0.25vw, 2px);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+}
+
+/* 主役名（観測特性ラベル由来・旧 trait プレートより主役として明確化） */
+.corePosterMainHeadline {
+  margin: 0;
+  padding: 0 clamp(4px, 1.2vw, 10px);
+  box-sizing: border-box;
+  max-width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(6px, 1.3vw, 10px);
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .corePosterMainHeadline {
+    gap: clamp(8px, 1.05vw, 12px);
+  }
+}
+
+.corePosterMainHeadlineBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2px, 0.45vw, 4px) clamp(8px, 1.6vw, 11px);
+  border-radius: 999px;
+  background: rgba(18, 16, 14, 0.94);
+  color: rgba(255, 253, 250, 0.96);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: clamp(10px, 1.85vw, 11.5px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.corePosterMainHeadlineName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(22px, 5.4vw, 30px);
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: 0.06em;
+  color: #161311;
+}
+
+@media (min-width: 640px) {
+  .corePosterMainHeadlineName {
+    font-size: clamp(26px, 4.2vw, 32px);
+    letter-spacing: 0.05em;
+  }
+}
+
+.corePosterHeroEyebrow {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: clamp(9.5px, 1.75vw, 11px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: rgba(72, 66, 58, 0.52);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.corePosterHeroEyebrowKind {
+  letter-spacing: 0.1em;
+}
+
+.corePosterHeroEyebrowSep {
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: rgba(72, 66, 58, 0.35);
+}
+
+.corePosterHeroEyebrowEn {
+  font-size: clamp(8.5px, 1.55vw, 10px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(88, 82, 74, 0.42);
+}
+
+.corePosterHeroLead {
+  margin: 0;
+  padding: 0 clamp(6px, 2vw, 14px);
+  max-width: 36em;
+  margin-inline: auto;
+  font-size: clamp(12px, 2.55vw, 14px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: rgba(42, 38, 34, 0.82);
+  text-align: center;
+}
+
+.corePosterHeroHairline {
+  width: 100%;
+  max-width: min(18rem, 90%);
+  height: 1px;
+  margin: clamp(6px, 1.15vw, 10px) auto clamp(5px, 0.95vw, 9px);
+  background: rgba(48, 44, 38, 0.09);
+  flex-shrink: 0;
+}
+
+.corePosterEnCaption {
+  font-size: clamp(9px, 1.65vw, 11px);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(100, 92, 84, 0.4);
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.corePosterHeroLower {
+  flex: 0 0 auto;
+  align-self: stretch;
+  z-index: 3;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 1vw, 9px);
+  width: 100%;
+  max-width: min(100%, var(--core-poster-inner-measure));
+  margin-inline: auto;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  border-radius: 0 0 12px 12px;
+  border: none;
+  margin-top: 0;
+  padding: calc(var(--core-poster-shell-pad) * 0.34) var(--core-poster-shell-pad)
+    calc(var(--core-poster-shell-pad) * 0.28);
+  background: rgba(253, 252, 251, 0.66);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 1px 8px rgba(44, 40, 36, 0.028);
+  max-height: none;
+  overflow-y: visible;
+  overscroll-behavior: auto;
+}
+
+/* 画像上の主役プレート：ステージの水平中心に矩形を置き、左右余白を対称に */
+.corePosterGridStage .corePosterHeroLower {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  bottom: var(--core-hero-plate-bottom);
+  z-index: 5;
+  width: min(var(--core-hero-plate-max-w), calc(100% - 2 * var(--core-hero-inset-x)));
+  max-width: min(var(--core-hero-plate-max-w), calc(100% - 2 * var(--core-hero-inset-x)));
+  margin-inline: 0;
+  box-sizing: border-box;
+  border-radius: clamp(10px, 2.2vw, 13px);
+  padding: clamp(17px, 3.6vw, 22px) clamp(16px, 3.5vw, 22px) clamp(16px, 3.2vw, 20px);
+  background: rgba(252, 251, 249, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 9px 24px rgba(12, 10, 8, 0.11),
+    0 1px 0 rgba(255, 255, 255, 0.58) inset;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: clamp(7px, 1.35vw, 11px);
+  text-align: center;
+}
+
+.corePosterTitleBlock {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.12rem, 0.45vw, 0.28rem);
+  box-sizing: border-box;
+}
+
+.corePosterTraitKind {
+  font-size: clamp(8px, 1.35vw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(88, 82, 74, 0.52);
+  margin: 0;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.corePosterTraitName {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4.6vw, 30px);
+  font-weight: 600;
+  color: #2c2824;
+  margin: 0;
+  letter-spacing: 0.04em;
+  line-height: 1.28;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.corePosterTextBlock {
+  width: 100%;
+  max-width: min(100%, 34em);
+  margin-inline: auto;
+  padding-top: clamp(1px, 0.35vw, 4px);
+  border-top: none;
+  box-sizing: border-box;
+}
+
+.corePosterTagline {
+  font-size: clamp(12.5px, 2.7vw, 14.25px);
+  font-weight: 600;
+  color: rgba(34, 32, 28, 0.93);
+  margin: 0 0 clamp(3px, 0.6vw, 5px);
+  line-height: 1.42;
+  letter-spacing: 0.012em;
+  max-width: 100%;
+  margin-inline: auto;
+  text-shadow: none;
+}
+
+.corePosterBody {
+  font-size: clamp(12.5px, 2.5vw, 13.75px);
+  line-height: 1.45;
+  font-weight: 400;
+  color: rgba(50, 46, 40, 0.88);
+  margin: 0 0 clamp(2px, 0.5vw, 4px);
+  max-width: 100%;
+  margin-inline: auto;
+  text-shadow: none;
+}
+
+.corePosterBodyMuted {
+  font-size: clamp(11.5px, 2.3vw, 12.75px);
+  line-height: 1.42;
+  color: rgba(72, 66, 58, 0.74);
+  margin: 0;
+  max-width: 100%;
+  margin-inline: auto;
+  text-shadow: none;
+}
+
+/* スマホ：ヒーロー直下の余白（カード規格は .corePosterGridStage の共通トークンに統一） */
+@media (max-width: 639px) {
+  /* 上下バランス：上を少し詰め、下にわずかな呼吸（カード・プレートの構造はそのまま） */
+  .corePosterHeroSection {
+    width: calc(100% + 12px);
+    max-width: none;
+    margin: 0 -6px 20px;
+    padding: 2px 0 18px;
+  }
+
+  .corePosterHeroOverlay {
+    padding: clamp(10px, 2.8vw, 16px) clamp(16px, 4.5vw, 22px) clamp(22px, 5.5vw, 30px);
+  }
+
+  .corePosterGridStage > .corePosterHeroTopBlock {
+    top: calc(var(--core-hero-inset-top) + clamp(5px, 1vw, 7px));
+  }
+
+  .corePosterGridStage .corePosterMetaRow {
+    align-items: center;
+  }
+
+  .corePosterGridStage .corePosterEssenceTitle {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.2;
+  }
+
+  .corePosterEssenceTitlePrefix,
+  .corePosterEssenceTitleName {
+    display: block;
+  }
+
+  .corePosterEssenceTitleName {
+    margin-left: 0;
+    margin-top: 1px;
+  }
+
+  .corePosterGridStage .corePosterObsDate {
+    margin-top: 0;
+  }
+
+  .corePosterHeroLower {
+    margin-top: 0;
+    border-radius: 12px;
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
+  }
+
+  .corePosterHeroSection + .section.surfaceRadar {
+    margin-top: clamp(2px, 0.85vw, 6px);
+    padding-top: clamp(2px, 0.55vw, 5px);
+  }
+
+  .corePosterHeroSection + .section.surfaceRadar .sectionTitle {
+    margin-bottom: clamp(6px, 1.5vw, 11px);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1279px) {
+  .page {
+    padding-top: 0;
+  }
+
+  .corePosterHeroSection {
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+    /* 画面高いっぱいの余白「台紙」をやめ、下の画像ステージの高さを基準にしやすくする */
+    min-height: 0;
+  }
+
+  .corePosterStack {
+    flex: 0 1 auto;
+  }
+
+  /*
+   * PC 小画面：クリーム地の上に載るラベンダー「白い台紙」（.corePosterMainVisual）を視覚的に消す
+   * background / border / box-shadow が成立要因。DOM が残る瞬間も同じ見え方にする。
+   */
+  .corePosterMainVisual {
+    flex: 0 1 auto;
+    min-height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* 内周パディングで外殻色（旧ラベンダー面）がリング状に見えないようにする */
+  .corePosterHeroOverlay {
+    padding: 0;
+  }
+
+  .corePosterHeroFoot {
+    flex: 0 1 auto;
+  }
+
+  .corePosterHeroCopy {
+    flex: 0 1 auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .corePosterGridStage {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * PC 小画面：写真面の「内側にもう一枚」に見える擬似レイヤーを完全にオフ
+   * - ::before … inset + rgba 白の細枠 + inset box-shadow（半透明の角丸内枠）
+   * - ::after … 全面グラデ（写真上の被せ）
+   * フラット DOM 有無に関わらず、この幅帯では同じ見え方に揃える
+   */
+  .corePosterGridStage::before,
+  .corePosterGridStage::after {
+    content: none;
+    border: none;
+    box-shadow: none;
+    background: none;
+  }
+
+  /*
+   * PC 小画面のみ：JSX で .corePosterMainVisual を描画しないとき（.corePosterStackNarrowPcFlat）
+   * 外殻トークンをスタックに載せ替え、オーバーレイの台紙パディングを無くす（主役ステージへ枠・影は移さない）
+   */
+  .corePosterStackNarrowPcFlat {
+    --core-poster-shell-pad: clamp(12px, 3vw, 18px);
+    --core-poster-inner-measure: 100%;
+    --core-poster-overlay-inset: clamp(7px, 1.85vw, 13px);
+    --core-poster-lower-cap: clamp(96px, 24dvh, 158px);
+    --core-poster-stack-gap: var(--core-poster-shell-pad);
+  }
+
+  .corePosterStackNarrowPcFlat .corePosterHeroOverlay {
+    flex: 0 1 auto;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .corePosterStackNarrowPcFlat .corePosterGridStage .corePosterHeroLower {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: var(--core-hero-plate-bottom);
+  }
+
+  .corePosterHeroSection + .section.surfaceRadar {
+    margin-top: clamp(4px, 0.8vw, 7px);
+    padding-top: clamp(3px, 0.55vw, 5px);
+  }
+}
+
+/* 低いビューポート：画像面の下限（幅に依存しない共通ルール） */
+@media (max-height: 720px) {
+  .corePosterMainVisual {
+    min-height: 260px;
+  }
+
+  .corePosterGridStage {
+    --core-hero-stage-min-h: clamp(260px, 40svh, 360px);
+    min-height: var(--core-hero-stage-min-h);
+  }
+}
+
+/* フラット DOM 時は .corePosterMainVisual が無いため、低いビューポートでもオーバーレイに同相当の下限を与える */
+@media (max-height: 720px) {
+  .corePosterStackNarrowPcFlat .corePosterHeroOverlay {
+    min-height: 260px;
+  }
+}
+
+/* 大画面のみ：ヒーローを横並び（上メタ／左ビジュアル＋5軸／右主役プレート）— 1280px 未満は従来の縦オーバーレイのまま */
+@media (min-width: 1280px) {
+  .corePosterHeroSection {
+    min-height: 0;
+  }
+
+  .corePosterMainVisual {
+    flex: 0 0 auto;
+  }
+
+  .corePosterHeroFoot {
+    flex: 0 1 auto;
+  }
+
+  .corePosterGridStage {
+    display: grid;
+    grid-template: 1fr / 1fr;
+    align-items: stretch;
+    min-height: 0;
+    height: min(428px, calc(100dvh - 112px));
+    max-height: min(428px, calc(100dvh - 112px));
+  }
+
+  .corePosterGridStage > .corePosterHeroTopBlock {
+    position: absolute;
+    top: var(--core-hero-inset-top);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    margin: 0;
+    z-index: 6;
+  }
+
+  .corePosterStageImage {
+    grid-area: 1 / 1 / 2 / 2;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    z-index: 0;
+    object-position: 50% 50%;
+  }
+
+  .corePosterGridStage .corePosterHeroLower {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    top: auto;
+    bottom: var(--core-hero-plate-bottom);
+    width: min(var(--core-hero-plate-max-w), calc(100% - 2 * var(--core-hero-inset-x)));
+    max-width: min(var(--core-hero-plate-max-w), calc(100% - 2 * var(--core-hero-inset-x)));
+    margin-inline: 0;
+    z-index: 5;
+  }
+}
+
+/* /core: ヒーロー面の直後に続く「傾向の輪郭」（旧 CTA 跡の空白を持たない） */
+.corePosterHeroSection + .section.surfaceRadar {
+  margin-top: clamp(8px, 2vw, 16px);
+  padding-top: clamp(5px, 1.4vw, 10px);
+}
+
+.corePosterHeroSection + .section.surfaceRadar .sectionTitle {
+  margin-bottom: clamp(12px, 2.2vw, 16px);
+}
+
+/* M55は… 3ステップ */
+.freezeStepList {
+  list-style: none;
+  margin: clamp(8px, 2vw, 16px) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.freezeStepItem {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.freezeStepIndex {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(62, 52, 88, 0.95);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(232, 226, 248, 0.55));
+  border: 1px solid rgba(107, 95, 168, 0.22);
+  box-shadow: 0 4px 12px rgba(83, 74, 114, 0.12);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.freezeStepItem:not(:last-child) .freezeStepIndex::after {
+  content: '';
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(to bottom, rgba(107, 95, 168, 0.22), transparent);
+  pointer-events: none;
+}
+
+.freezeStepCard {
+  padding: 19px 18px 21px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 10px 26px rgba(29, 24, 61, 0.045);
+  min-width: 0;
+}
+
+.freezeStepItem:nth-child(1) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.85), rgba(255, 255, 255, 0.75));
+  border-color: rgba(107, 95, 168, 0.08);
+}
+
+.freezeStepItem:nth-child(2) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(242, 250, 246, 0.88), rgba(255, 255, 255, 0.76));
+  border-color: rgba(90, 130, 110, 0.07);
+}
+
+.freezeStepItem:nth-child(3) .freezeStepCard {
+  background: linear-gradient(168deg, rgba(248, 246, 242, 0.9), rgba(255, 255, 255, 0.78));
+  border-color: rgba(120, 100, 85, 0.06);
+}
+
+.freezeStepTitle {
+  font-size: clamp(17px, 3.3vw, 20px);
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+
+.freezeStepBody {
+  font-size: clamp(14px, 2.8vw, 15px);
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.72;
+}
+
+/* 傾向と負荷 */
+.tendencyStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tendencyBlock {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tendencyAxisCard {
+  padding: clamp(17px, 3.3vw, 22px) clamp(14px, 3vw, 18px) clamp(20px, 3.8vw, 24px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(90, 80, 130, 0.085);
+  box-shadow: 0 9px 26px rgba(29, 24, 61, 0.04);
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(1) {
+  background: linear-gradient(168deg, rgba(252, 248, 255, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(2) {
+  background: linear-gradient(168deg, rgba(244, 250, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(3) {
+  background: linear-gradient(168deg, rgba(252, 250, 244, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(4) {
+  background: linear-gradient(168deg, rgba(248, 246, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyStack .tendencyAxisCard:nth-child(5) {
+  background: linear-gradient(168deg, rgba(246, 248, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.tendencyAxisCard .tendencyAxisTitle {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.045);
+}
+
+.tendencyAxisTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4vw, 24px);
+  font-weight: 500;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.tendencyAxisCard .tendencyTendencyBody,
+.tendencyAxisCard .tendencyBody,
+.tendencyAxisCard .tendencyLoadBody {
+  padding-left: 12px;
+  border-left: 2px solid rgba(107, 95, 168, 0.12);
+}
+
+.tendencyLayerLabel {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgba(62, 52, 88, 0.68);
+  margin: 14px 0 6px;
+  padding: 3px 9px;
+  background: rgba(107, 95, 168, 0.07);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  border-radius: 999px;
+}
+
+.tendencyAxisTitle + .tendencyLayerLabel {
+  margin-top: 0;
+}
+
+.tendencyBody + .tendencyLayerLabel {
+  color: rgba(140, 90, 70, 0.75);
+  background: rgba(180, 100, 75, 0.07);
+  border-color: rgba(180, 100, 75, 0.13);
+}
+
+.tendencyTendencyBody {
+  font-size: clamp(16px, 3vw, 18px);
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0 0 10px;
+  line-height: 1.58;
+}
+
+.tendencyHook {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.tendencyDot {
+  margin-right: 6px;
+  color: rgba(83, 74, 114, 0.75);
+}
+
+.tendencyBody {
+  font-size: clamp(14px, 2.8vw, 15px);
+  color: #3d3d3d;
+  margin: 0 0 10px;
+  line-height: 1.72;
+}
+
+.tendencyLoadLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(60, 60, 60, 0.55);
+  margin: 0 0 4px;
+}
+
+.tendencyLoadBody {
+  font-size: clamp(14px, 2.8vw, 15px);
+  color: #3d3d3d;
+  margin: 0;
+  line-height: 1.72;
+}
+
+/* まず整えるとよいこと */
+.alignFlowList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.alignFlowItem {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.alignFlowGrid {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 680px) {
+  .alignFlowGrid {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 14px;
+  }
+}
+
+.alignFlowCard {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 16px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(70, 90, 120, 0.09);
+  box-shadow: 0 7px 21px rgba(29, 24, 61, 0.034);
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(1) {
+  background: linear-gradient(175deg, rgba(252, 248, 255, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(2) {
+  background: linear-gradient(175deg, rgba(244, 248, 252, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(3) {
+  background: linear-gradient(175deg, rgba(250, 246, 240, 0.9), rgba(255, 255, 255, 0.72));
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(2) .alignFlowPhase {
+  color: rgba(45, 80, 65, 0.9);
+  background: rgba(70, 120, 100, 0.12);
+  border-color: rgba(70, 120, 100, 0.12);
+}
+
+.alignFlowGrid .alignFlowCard:nth-child(3) .alignFlowPhase {
+  color: rgba(90, 65, 40, 0.9);
+  background: rgba(110, 85, 55, 0.1);
+  border-color: rgba(110, 85, 55, 0.12);
+}
+
+.alignFlowPhase {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(62, 52, 88, 0.9);
+  letter-spacing: 0.12em;
+  background: rgba(107, 95, 168, 0.12);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+}
+
+.alignFlowText {
+  font-size: clamp(14px, 2.8vw, 15px);
+  color: #3d3d3d;
+  line-height: 1.72;
+}
+
+/* 観測リスト */
+.observationPanel {
+  margin-top: 8px;
+  padding: clamp(22px, 4vw, 30px) clamp(18px, 3.5vw, 26px);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(0, 0, 0, 0.032);
+}
+
+.observationBullets {
+  margin: 0;
+  padding-left: 1.15em;
+  font-size: 15px;
+  line-height: 2.1;
+  color: rgba(60, 60, 60, 0.85);
+}
+
+.observationBullets li {
+  margin-bottom: 18px;
+}
+
+.observationBullets li:last-child {
+  margin-bottom: 0;
+}
+
+/* この輪郭から見えていること — chip layout */
+.observationChipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.observationChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: clamp(12.5px, 2.5vw, 13.5px);
+  color: rgba(52, 44, 78, 0.88);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(248, 244, 255, 0.72));
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.046);
+  line-height: 1.42;
+  font-weight: 500;
+}
+
+.observationChip::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.45);
+  flex-shrink: 0;
+}
+
+/* AI説明 */
+.coreSectionSurface .sectionLead.aiExplainerIntro {
+  font-size: 14px;
+  color: rgba(55, 55, 60, 0.88);
+  line-height: 1.75;
+}
+
+.aiExplainerLeadBlock .sectionLead {
+  margin-bottom: 10px;
+}
+
+.aiExplainerLeadBlock .sectionLead:last-child {
+  margin-bottom: 8px;
+}
+
+.aiExplainerValueDeck {
+  margin-top: 6px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.045);
+}
+
+.aiExplainerList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  border-top: 1px solid rgba(107, 95, 168, 0.1);
+  border-right: 1px solid rgba(107, 95, 168, 0.1);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.1);
+  border-left: 3px solid rgba(107, 95, 168, 0.34);
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.055);
+}
+
+.aiExplainerItem {
+  padding: 18px 18px 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: none;
+  border-top: 1px solid rgba(107, 95, 168, 0.07);
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+}
+
+.aiExplainerItem:first-child {
+  border-top: none;
+}
+
+.aiExplainerList .aiExplainerItem:nth-child(1) {
+  background: linear-gradient(168deg, rgba(248, 244, 255, 0.82), rgba(255, 255, 255, 0.72));
+}
+
+.aiExplainerList .aiExplainerItem:nth-child(2) {
+  background: linear-gradient(168deg, rgba(244, 250, 248, 0.82), rgba(255, 255, 255, 0.72));
+}
+
+.aiExplainerList .aiExplainerItem:nth-child(3) {
+  background: linear-gradient(168deg, rgba(250, 246, 242, 0.82), rgba(255, 255, 255, 0.72));
+}
+
+.aiExplainerTitle {
+  display: block;
+  font-size: clamp(14.5px, 2.9vw, 15.5px);
+  font-weight: 600;
+  color: rgba(20, 16, 40, 0.92);
+  margin: 0 0 5px;
+  line-height: 1.45;
+}
+
+.aiExplainerBody {
+  display: block;
+  font-size: clamp(13px, 2.65vw, 14px);
+  color: rgba(55, 52, 60, 0.72);
+  margin: 0;
+  line-height: 1.68;
+}
+
+/* 最終CTA */
+.ctaPrimaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: rgba(83, 74, 114, 0.92);
+  border-radius: 10px;
+  border: none;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+.ctaStripV0 .ctaPrimaryButton {
+  margin-top: 0;
+  padding: 14px 34px;
+  border-radius: 999px;
+  font-size: 15px;
+  letter-spacing: 0.075em;
+  box-shadow: 0 10px 28px rgba(83, 74, 114, 0.25);
+}
+
+.ctaPrimaryButton:hover {
+  background: rgba(63, 54, 94, 0.95);
+}
+
+/* /core scroll reveal: opacity + translateY のみ（blur 禁止） */
+.coreReveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 420ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.coreReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 傾向と負荷 結果本文: 軽い opacity + translateY のみ */
+.resultBodyReveal {
+  opacity: 0;
+  transform: translateY(7px);
+  transition:
+    opacity 400ms ease,
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.resultBodyReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─────────────────────────────────────────────────
+   Section-polish animations & reveal classes
+   ───────────────────────────────────────────────── */
+
+/* Page-load fade-up for numbered step items (Section A) */
+@keyframes coreFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stepFadeIn {
+  animation: coreFadeUp 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* Scroll-triggered card reveal — no blur (Section C, D) */
+.cardReveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 380ms ease,
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.cardReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll-triggered chip reveal (Section E) */
+.chipReveal {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.chipReveal[data-reveal-state='shown'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* AlignFlow: step number badge inside phase pill (Section D) */
+.alignFlowStepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  background: currentColor;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+  opacity: 0.72;
+}
+
+/* AlignFlow: desktop connector arrow between step cards */
+@media (min-width: 680px) {
+  .alignFlowCard {
+    position: relative;
+  }
+
+  .alignFlowCard:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    line-height: 1;
+    color: rgba(107, 95, 168, 0.3);
+    z-index: 1;
+    pointer-events: none;
+  }
+}
+
+/* AlignFlow: mobile connector line between step cards */
+@media (max-width: 679px) {
+  .alignFlowCard:not(:last-child) {
+    margin-bottom: 2px;
+  }
+
+  .alignFlowCard:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 10px;
+    background: linear-gradient(to bottom, rgba(107, 95, 168, 0.2), rgba(107, 95, 168, 0.04));
+    margin: 10px auto -2px;
+  }
+}
+
+/* TendencyAxisCard: mobile micro-hierarchy improvements */
+@media (max-width: 639px) {
+  .tendencyAxisCard {
+    padding: clamp(14px, 3.5vw, 18px) clamp(12px, 3vw, 16px);
+  }
+
+  .tendencyLayerLabel {
+    margin-top: 12px;
+    margin-bottom: 5px;
+  }
+
+  .tendencyTendencyBody {
+    font-size: clamp(15px, 3.2vw, 17px);
+  }
+}
+
+/* AI Explainer: number badge — left column of grid */
+.aiExplainerItemNum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.16);
+  border: 1.5px solid rgba(107, 95, 168, 0.3);
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(55, 44, 90, 0.82);
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.aiExplainerItemHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Entry CTA teaser: softer spacing */
+.ctaStripTeaser {
+  margin-top: clamp(36px, 8vw, 52px);
+  padding: clamp(24px, 4.5vw, 34px) clamp(20px, 4vw, 28px) clamp(26px, 5vw, 36px);
+  border-radius: 24px;
+  background:
+    radial-gradient(110% 80% at 50% 0%, rgba(240, 232, 255, 0.45), transparent 55%),
+    linear-gradient(168deg, rgba(253, 249, 242, 0.98) 0%, rgba(248, 244, 255, 0.95) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 16px 44px rgba(29, 24, 61, 0.058);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.ctaTeaserCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(62, 52, 88, 0.95);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  box-shadow: 0 4px 14px rgba(83, 74, 114, 0.1);
+  letter-spacing: 0.02em;
+  transition: background 200ms ease, box-shadow 200ms ease;
+  align-self: flex-start;
+}
+
+.ctaTeaserCta:hover {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 6px 20px rgba(83, 74, 114, 0.16);
+}
+
+.ctaStripTeaser .tierAOverline {
+  font-size: clamp(10px, 2vw, 11px);
+  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.58);
+  margin-bottom: 8px;
+}
+
+.ctaStripTeaser .ctaTitle {
+  font-size: clamp(22px, 4.4vw, 26px);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corePosterMainVisualStack {
+    display: none;
+  }
+
+  .corePosterHeroBgVideo {
+    display: none;
+  }
+
+  .coreReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .resultBodyReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .cardReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .chipReveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .stepFadeIn {
+    animation: none;
+  }
+
+  .radarDataGroup {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .radarSummaryLine {
+    animation: none;
+  }
+
+  .radarSummaryCard {
+    animation: none;
+  }
+}

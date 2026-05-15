@@ -1,0 +1,16 @@
+# P1 TC-02〜TC-07 証跡保存先
+
+**Current promotion gate:** blocked by TC-02 execution evidence. TC-03〜TC-07 are implementation-confirmed but runtime-evidence-pending.
+
+- **実行手順書:** `docs/audit/P1_TC_EXECUTION_RUNBOOK_2026_03_08.md`
+- **親レポート:** `docs/audit/M55_ONE_TIME_FULFILLMENT_EVIDENCE_REPORT_2026-03-08.md`
+- **ACTIVE 昇格再報告:** `docs/audit/P1_ACTIVE_PROMOTION_REPORT_2026_03_09.md`
+
+| TC | 証跡ファイル | 状態 |
+|----|--------------|------|
+| TC-02 | TC-02_ONE_TIME_HAPPY_PATH.md | 未実行（実施環境制約）|
+| TC-03 | TC-03_REPLAY_DUPLICATE_RESISTANCE.md | IMPLEMENTATION PASS / EVIDENCE PENDING |
+| TC-04 | TC-04_PAYMENT_TRUTH_GUARD.md | IMPLEMENTATION PASS / EVIDENCE PENDING |
+| TC-05 | TC-05_FULL_REFUND.md | IMPLEMENTATION PASS / EVIDENCE PENDING |
+| TC-06 | TC-06_PARTIAL_REFUND.md | IMPLEMENTATION PASS / EVIDENCE PENDING |
+| TC-07 | TC-07_FAILED_FULFILLMENT_MANUAL_RECOVERY.md | IMPLEMENTATION PASS / EVIDENCE PENDING |

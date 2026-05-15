@@ -11,6 +11,15 @@
   text-align: center;
 }
 
+.rewardEyebrow {
+  margin: 0 0 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7c6fd6;
+}
+
 .title {
   font-size: 1.25rem;
   margin: 0 0 16px;
@@ -19,4 +28,41 @@
 .desc {
   font-size: 0.875rem;
   color: #6b5b8a;
+}
+
+.supportLink {
+  color: #5a4a7a;
+  text-decoration: underline;
+}
+
+.secondaryRow {
+  margin-top: 22px;
+  font-size: 0.8125rem;
+  color: #6b5b8a;
+}
+
+.secondaryLink {
+  color: #5a4a7a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.linkSep {
+  opacity: 0.55;
+}
+
+.ctaButton {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 28px;
+  background: #7c6fd6;
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.ctaButton:hover {
+  opacity: 0.88;
 }

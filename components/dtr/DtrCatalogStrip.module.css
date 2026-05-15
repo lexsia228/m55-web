@@ -1,0 +1,143 @@
+/**
+ * DtrCatalogStrip — /my と /dtr 共通のカタログ行（棚の型）。
+ * 全面デザイン改修はしない前提の軽量スタイル。
+ */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  border-radius: 12px;
+  padding: 12px 12px 10px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(29, 24, 61, 0.06);
+}
+
+.rowDtr {
+  background: rgba(253, 250, 255, 0.92);
+}
+
+.rowTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c233a;
+  line-height: 1.35;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6b667a;
+  line-height: 1.45;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.badgeOwned {
+  background: rgba(124, 111, 214, 0.14);
+  color: #5a4d9e;
+}
+
+.badgePending {
+  background: rgba(234, 179, 8, 0.16);
+  color: #7a5f06;
+}
+
+.badgeNotOwned {
+  background: rgba(107, 102, 122, 0.12);
+  color: #5c5668;
+}
+
+.badgeSoon {
+  background: rgba(55, 52, 58, 0.08);
+  color: #5c5668;
+}
+
+.rowFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 28px;
+}
+
+.ctaOpen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #7c6fd6;
+  color: #fff;
+  text-decoration: none;
+}
+
+.ctaOpen:hover {
+  filter: brightness(1.05);
+}
+
+.ctaBuy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(124, 111, 214, 0.12);
+  color: #5a4d9e;
+  text-decoration: none;
+  border: 1px solid rgba(124, 111, 214, 0.35);
+}
+
+.ctaBuy:hover {
+  background: rgba(124, 111, 214, 0.2);
+}
+
+.linkQuiet {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.linkQuiet:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  font-size: 12px;
+  color: #6b667a;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.loading {
+  font-size: 13px;
+  color: #6b667a;
+  margin: 0;
+}

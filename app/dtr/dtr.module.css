@@ -1,0 +1,5 @@
+.main {
+  min-height: calc(100vh - 48px);
+  background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #faf9fb 100%);
+  background-attachment: local;
+}

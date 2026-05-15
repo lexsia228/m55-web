@@ -1,0 +1,53 @@
+---
+description: M55 public typography and chrome unification rule
+globs:
+  - "components/home/HomePanel.tsx"
+  - "components/home/HomePanel.module.css"
+  - "components/pages/M55TenViews.tsx"
+  - "components/pages/M55TenViews.module.css"
+  - "components/layout/**/*.tsx"
+  - "components/layout/**/*.module.css"
+  - "components/common/**/*.tsx"
+  - "components/common/**/*.module.css"
+  - "app/**/page.tsx"
+alwaysApply: true
+---
+
+# M55 Public Surface Hard Rule
+
+## Scope
+You may work on:
+- Home
+- ten-views
+- shared public header / footer / shell
+- relevant public-facing page typography and chrome
+
+Do not touch:
+- logic
+- billing
+- entitlements
+- routing behavior unless absolutely necessary for shared chrome rendering
+- private room / purchaser-only internals
+- unrelated backend files
+
+## Goal
+Create a real typographic and chrome unification across public-facing pages.
+
+## Reference
+The typography and editorial rhythm of ten-views is the visual reference.
+Home and related public pages should match that typographic family and tone.
+
+## Hard constraints
+- Do not redesign product structure
+- Do not change text meaning
+- Do not expose internal labels like 甲乙丙丁
+- Do not expose raw symbolic labels like tree / mountain / sea / rain
+- Do not add abstract public labels like 軸 / 結節 / 微差
+- Keep the public layer simple, premium, and instantly understandable
+- Avoid noisy effects, glassmorphism, and decorative experiments
+
+## Priority
+1. typography unification
+2. shared top bar consistency
+3. shared quiet footer consistency
+4. only minimal layout changes needed to support the typography

@@ -267,8 +267,190 @@ function runGuard(name, pythonScript, args) {
   process.exit(1);
 }
 
+/** REGRESSION: /home must not auto-mount SoulBirthGate (CTA-driven intake on HomePanel). */
+function validateShellLayoutNoAutoBirthGateOnHome() {
+  const p = path.join(ROOT, 'components', 'shell', 'ShellLayout.tsx');
+  if (!exists(p)) return;
+  const t = readText(p);
+  if (!/\bpathname\s*!==\s*['"]\/home['"]/.test(t)) {
+    add(rel(p), "REGRESSION GUARD: ShellLayout must render SoulBirthGate only when pathname !== '/home'");
+  }
+  if (!t.includes('<SoulBirthGate')) {
+    add(rel(p), 'REGRESSION GUARD: ShellLayout must still render SoulBirthGate for non-/home shell routes');
+  }
+}
+
+/** Stable hooks for manual / future E2E: Home = value surface only; no personal observation shelf on Home. */
+function validateHomeRegressionTestIds() {
+  const panel = path.join(ROOT, 'components', 'home', 'HomePanel.tsx');
+  if (!exists(panel)) return;
+  const t = readText(panel);
+  if (!t.includes('data-testid="m55-home-hero"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-hero"');
+  }
+  if (!t.includes('data-testid="m55-home-tier-stack"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-tier-stack" (free / paid value rows)');
+  }
+  if (t.includes('data-testid="m55-home-observation"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not mount m55-home-observation (personal results belong off Home)');
+  }
+  if (!t.includes('data-testid="m55-home-has-profile-hero"')) {
+    add(
+      rel(panel),
+      'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-has-profile-hero" (quiet /core link in hero)',
+    );
+  }
+  const overlay = path.join(ROOT, 'components', 'home', 'HomeCoreAnalyzingOverlay.tsx');
+  if (exists(overlay) && !readText(overlay).includes('data-testid="m55-home-core-analyzing"')) {
+    add(
+      rel(overlay),
+      'REGRESSION GUARD: HomeCoreAnalyzingOverlay must expose data-testid="m55-home-core-analyzing" (post-save → /core)',
+    );
+  }
+  if (!t.includes('data-testid="m55-home-understanding"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-understanding" (explore cards)');
+  }
+  if (!t.includes('data-testid="m55-home-demo-five-element"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-demo-five-element" (public sample chart)');
+  }
+  if (!t.includes('data-testid="m55-home-report-shell"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-report-shell" (Entry Report fold)');
+  }
+  if (!t.includes('data-testid="m55-home-open-birth-intake"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-open-birth-intake"');
+  }
+  if (!t.includes('BirthProfileIntakeLayer')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount BirthProfileIntakeLayer for CTA-driven birth intake');
+  }
+  if (!t.includes('HomeCoreAnalyzingOverlay')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomeCoreAnalyzingOverlay after profile save');
+  }
+  if (!/nicknameHint=\{nicknameHint\}/.test(t)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must pass nicknameHint to BirthProfileIntakeLayer');
+  }
+  if (!/router\.push\(['"]\/core['"]\)/.test(t)) {
+    add(rel(panel), "REGRESSION GUARD: HomePanel must router.push('/core') after save analyzing beat");
+  }
+  if (/<input\b/.test(t)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not embed inline inputs (intake lives in BirthProfileIntakeLayer only)');
+  }
+}
+
+function validateMyPanelProfileIntakeTestId() {
+  const p = path.join(ROOT, 'components', 'my', 'MyPanel.tsx');
+  if (!exists(p)) return;
+  const t = readText(p);
+  if (!t.includes('data-testid="m55-my-profile-intake"')) {
+    add(rel(p), 'REGRESSION GUARD: MyPanel no_profile intake must expose data-testid="m55-my-profile-intake"');
+  }
+}
+
+/** /purchase/success: legacy Stripe URL compat — must forward to /dtr/processing (snapshot wait + fulfillment). */
+function validatePurchaseSuccessPage() {
+  const pagePath = path.join(ROOT, 'app', 'purchase', 'success', 'page.tsx');
+  if (!exists(pagePath)) return;
+  const t = readText(pagePath);
+  if (!t.includes('/dtr/processing')) {
+    add(rel(pagePath), 'REGRESSION GUARD: purchase success must redirect to /dtr/processing');
+  }
+  if (!t.includes('redirect(')) {
+    add(rel(pagePath), 'REGRESSION GUARD: purchase success must use redirect()');
+  }
+  if (/\bunauthorized\b/i.test(t)) {
+    add(rel(pagePath), 'REGRESSION GUARD: purchase success page must not surface raw unauthorized copy');
+  }
+  const pollPath = path.join(ROOT, 'components', 'QuietPolling.tsx');
+  if (exists(pollPath)) {
+    const q = readText(pollPath);
+    if (q.includes('location.reload')) {
+      add(rel(pollPath), 'REGRESSION GUARD: QuietPolling must not use location.reload (use router.refresh to reduce flicker)');
+    }
+    if (!q.includes('router.refresh')) {
+      add(rel(pollPath), 'REGRESSION GUARD: QuietPolling must call router.refresh for soft entitlement revalidation');
+    }
+  }
+}
+
+/** BAN-prevention: forbidden public-claim markers in user-facing app/components (fast scan). */
+const PUBLIC_CLAIMS_SCAN_DIRS = [
+  path.join(ROOT, 'components', 'home'),
+  path.join(ROOT, 'components', 'pages'),
+  path.join(ROOT, 'components', 'shell'),
+  path.join(ROOT, 'app', 'how-m55-works'),
+  path.join(ROOT, 'app', 'ten-views'),
+  path.join(ROOT, 'app', 'support'),
+  path.join(ROOT, 'app', 'legal'),
+  path.join(ROOT, 'app', 'purchase', 'success'),
+  path.join(ROOT, 'app', 'dtr'),
+  path.join(ROOT, 'app', 'home'),
+];
+
+const PUBLIC_CLAIMS_BAN_PATTERNS = [
+  { re: /世界初/, label: '世界初' },
+  { re: /日本発/, label: '日本発' },
+  { re: /20万7,360/, label: '20万7,360' },
+  { re: /33の基本因子/, label: '33の基本因子' },
+  { re: /12の動的サイクル/, label: '12の動的サイクル' },
+  { re: /1,000年の統計/, label: '1,000年の統計' },
+  { re: /AI精度No\.1/, label: 'AI精度No.1' },
+  { re: /best in Japan/i, label: 'best in Japan' },
+  { re: /ぼったくり/, label: 'ぼったくり' },
+];
+
+function isPublicClaimsScannableFile(filePath) {
+  const base = path.basename(filePath);
+  if (base.includes('.bak')) return false;
+  return filePath.endsWith('.tsx') || filePath.endsWith('.ts');
+}
+
+function collectPublicClaimsScanTargets() {
+  const targets = [];
+  for (const d of PUBLIC_CLAIMS_SCAN_DIRS) {
+    if (!exists(d)) continue;
+    let stat;
+    try {
+      stat = fs.statSync(d);
+    } catch {
+      continue;
+    }
+    if (!stat.isDirectory()) continue;
+    for (const f of walk(d)) {
+      if (isPublicClaimsScannableFile(f)) targets.push(f);
+    }
+  }
+  const appPage = path.join(ROOT, 'app', 'page.tsx');
+  if (exists(appPage) && isPublicClaimsScannableFile(appPage)) targets.push(appPage);
+  return [...new Set(targets)];
+}
+
+function validatePublicClaimsBanlist() {
+  const files = collectPublicClaimsScanTargets();
+  for (const f of files) {
+    let txt;
+    try {
+      txt = readText(f);
+    } catch {
+      continue;
+    }
+    for (const { re, label } of PUBLIC_CLAIMS_BAN_PATTERNS) {
+      if (re.test(txt)) {
+        add(
+          rel(f),
+          `PUBLIC CLAIMS BAN: disallowed marker 「${label}」 (docs/ssot/M55_PUBLIC_CLAIMS_ALLOWLIST_v1.md)`
+        );
+      }
+    }
+  }
+}
+
 function main() {
   validateRequiredFiles();
+
+  validateShellLayoutNoAutoBirthGateOnHome();
+  validateHomeRegressionTestIds();
+  validateMyPanelProfileIntakeTestId();
+  validatePurchaseSuccessPage();
+  validatePublicClaimsBanlist();
 
   if (!exists(LEGACY)) {
     reportAndExit();

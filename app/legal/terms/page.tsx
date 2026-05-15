@@ -7,9 +7,9 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <main style={{
-      maxWidth: 860,
+      maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
-      padding: "24px 16px 56px",
+      padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
       lineHeight: 1.7,
     }}>
       <h1 style={{
@@ -41,6 +41,19 @@ export default function TermsPage() {
           <li>不正アクセス、またはこれを助長する行為</li>
           <li>本サービスの運営を妨げる行為</li>
           <li>法令または公序良俗に反する行為</li>
+        </ul>
+      </section>
+
+      <section style={{ margin: "0 0 16px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>相談ルームの利用条件</h2>
+        <ul style={{ margin: 0, paddingLeft: 18 }}>
+          <li>相談ルームはEntry Reportを購入したユーザーのみ利用できます。</li>
+          <li>1回の「相談」は、ユーザーからの質問1件とAIからの返答1件が正常に記録された場合にのみ消費されます。</li>
+          <li>1レポートにつき相談返書は合計5件まで。付属1件＋追加購入最大4件まで。</li>
+          <li>AIの返答は、レポートの内容に関する補足・整理を目的としており、医療・法律・投資等の専門的助言ではありません。</li>
+          <li>危機的・不適切な内容が検知された場合、送信をブロックします。この場合、相談回数は消費されません。</li>
+          <li>相談のやりとりはサーバーに保存されます。過去の内容は上限到達後も確認できます。</li>
+          <li>相談ルームは一般公開されたチャットサービスではなく、当該レポートに付随するサービスです。</li>
         </ul>
       </section>
 

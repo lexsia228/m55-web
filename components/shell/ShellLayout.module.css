@@ -1,44 +1,186 @@
-/* Phase 7-B: ShellLayout — BottomNav 統一表示。opacity のみで active/inactive。
- * Phase 12-A: Header + Auth Button (hardened, 44px tap, a11y). */
+/* ShellLayout — editorial top-nav shell.
+ * Bottom pill nav removed. Primary tabs live in the header.
+ * Legal/trust links: PublicFooter at wrapper bottom (shared with PublicShell).
+ */
 
-.header {
-  position: relative;
-  flex-shrink: 0;
+/* ── Outer wrapper ───────────────────────────────────────────────────────────── */
+
+.wrapper {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 6px 10px;
-  background: rgba(250, 246, 255, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+
+/* Public surface (document scroll): stays under the viewport top while scrolling.
+   ShellLayout (fixed wrapper + internal main scroll): header stays above .main by flex;
+   sticky is a no-op there but does not break layout. */
+.header {
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+  /* safe-area: header absorbs status bar / notch; nav items sit in the lower 48px band */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 3px);
+  padding-bottom: 7px;
+  padding-left: max(10px, env(safe-area-inset-left, 10px));
+  padding-right: max(10px, env(safe-area-inset-right, 10px));
+  min-height: calc(env(safe-area-inset-top, 0px) + 48px);
+  /* M55 brand surface: dark plum tint */
+  background: rgba(28, 22, 48, 0.93);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   z-index: 25;
+}
+
+.headerStart {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.brandLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 5px 8px 5px 4px;
+  margin-right: 2px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 9px;
+  transition: background 0.15s ease;
+}
+
+.brandLockup:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.50);
+  outline-offset: 2px;
+}
+
+.brandLockup:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.brandMark {
+  display: block;
+  flex-shrink: 0;
+  /* SVG をダーク背景で白く見せる */
+  filter: brightness(0) invert(1);
+  opacity: 0.88;
+}
+
+/* Active indicator on text label only — never on logo mark (HEADER_VISUAL_FREEZE_v1) */
+.brandWordmark {
+  display: inline-block;
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.2;
+  padding-bottom: 0;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+
+.brandWordmarkActive {
+  color: #ffffff;
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .header {
-    background: rgb(250, 246, 255);
+    background: #1c1630;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 }
 
+/* ── Top nav (primary tabs in header) ───────────────────────────────────────── */
+
+.topNav {
+  display: flex;
+  align-items: center;
+  height: auto;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.topNav::-webkit-scrollbar {
+  display: none;
+}
+
+.topNavItem {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  height: auto;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.48);
+  text-decoration: none;
+  border-bottom: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  opacity: 1;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.topNavItem:hover {
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.07);
+  opacity: 1;
+}
+
+.topNavItemActive {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  border-bottom: none;
+  opacity: 1;
+}
+
+.authArea {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .authButton {
   min-width: 44px;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: 14px;
+  min-height: 32px;
+  padding: 5px 14px;
+  font-size: 13px;
   font-family: inherit;
-  color: var(--text-main, #2f2640);
-  background: transparent;
-  border: 1px solid rgba(60, 35, 110, 0.12);
-  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
   cursor: pointer;
   box-sizing: border-box;
-  opacity: 0.88;
+  opacity: 1;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .authButton:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.96);
   opacity: 1;
 }
 
@@ -52,92 +194,30 @@
   box-sizing: border-box;
 }
 
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* ── Content area ────────────────────────────────────────────────────────────── */
+
+.main {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #f9f7f4;
 }
 
 .iframe {
-  flex: 1;
   width: 100%;
   height: 100%;
   border: none;
   display: block;
 }
 
-.legalLinks {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  padding: 6px 10px;
-  font-size: 10px;
-  opacity: 0.72;
-}
+/* ── Reduced motion ──────────────────────────────────────────────────────────── */
 
-.legalLinks a {
-  color: inherit;
-  text-decoration: underline;
-}
-
-.bottomNav {
-  position: relative;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 480px;
-  padding: 4px 10px 8px;
-  background: rgba(250, 246, 255, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.9);
-  z-index: 30;
-  flex-shrink: 0;
-}
-
-.bottomNavInner {
-  border-radius: 999px;
-  background: radial-gradient(circle at 50% 0, #ffffff, rgba(242, 235, 255, 0.95));
-  box-shadow: 0 10px 20px rgba(60, 35, 110, 0.22);
-  padding: 6px 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navItem {
-  flex: 1;
-  text-align: center;
-  font-size: 10px;
-  color: var(--text-main, #2f2640);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 4px 2px;
-  font-family: inherit;
-}
-
-.navIcon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-/* prefers-reduced-motion: Shell transition 無効 */
 @media (prefers-reduced-motion: reduce) {
   .header,
-  .header .authButton,
-  .header .userButtonWrap,
-  .bottomNav,
-  .bottomNav .navIcon {
+  .brandLockup,
+  .topNavItem,
+  .authButton {
     transition: none !important;
   }
 }

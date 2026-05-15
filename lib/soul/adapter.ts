@@ -1,7 +1,8 @@
 /**
  * M55 SOUL ADAPTER
  * Maps Clerk User to Legacy-compatible shape.
- * SSOT: PurchaseCache remains authority for entitlements; this is display-only.
+ * Next/Web 本流の権利状態は DB entitlements / entitlement_rights。
+ * PurchaseCache は legacy または表示補助であり、第二の所有状態にしない（本モジュールは display-only）。
  */
 type ClerkUserShape = {
   username?: string | null;

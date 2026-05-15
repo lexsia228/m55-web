@@ -1,0 +1,276 @@
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+  color: #2c233a;
+}
+
+/* ── Fold 1: Hero ── */
+.fold1 {
+  padding: 52px 0 40px;
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #8a8499;
+  margin: 0 0 18px;
+}
+
+.heroTitle {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 14px;
+  line-height: 1.35;
+}
+
+.heroLead {
+  font-size: 15px;
+  color: #4a3f68;
+  margin: 0 0 16px;
+  line-height: 1.7;
+}
+
+.heroSupport {
+  font-size: 13px;
+  color: #6b5f8a;
+  line-height: 1.8;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Fold 2: Free items ── */
+.fold2 {
+  padding: 32px 0;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a8499;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
+.freeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.freeCard {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(177, 156, 255, 0.18);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px rgba(29, 24, 61, 0.06);
+}
+
+.freeCardLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1730;
+  margin-bottom: 6px;
+}
+
+.freeCardDesc {
+  font-size: 13px;
+  color: #6b5f8a;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Fold 3: Entry Report ── */
+.fold3 {
+  padding: 32px 0;
+}
+
+.reportCard {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(177, 156, 255, 0.24);
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 32px rgba(29, 24, 61, 0.10);
+}
+
+.reportEyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7c6fd6;
+  margin-bottom: 8px;
+}
+
+.reportTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.reportDesc {
+  font-size: 13px;
+  color: #4a3f68;
+  line-height: 1.8;
+  margin: 0 0 18px;
+}
+
+.chapterList {
+  border-top: 1px solid rgba(177, 156, 255, 0.15);
+  margin-bottom: 18px;
+}
+
+.chapterRow {
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
+}
+
+/* Muted + truncation — NO blur (per M55_noBlur spec) */
+.chapterText {
+  display: block;
+  font-size: 13px;
+  color: rgba(107, 95, 168, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reportFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reportPrice {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1730;
+}
+
+.reportCta {
+  display: inline-block;
+  padding: 9px 22px;
+  background: #7c6fd6;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reportCta:hover {
+  opacity: 0.88;
+}
+
+/* ── Fold 4: Philosophy ── */
+.fold4 {
+  padding: 32px 0;
+}
+
+.philosophyBody {
+  font-size: 14px;
+  color: #4a3f68;
+  line-height: 1.85;
+  margin: 0 0 12px;
+}
+
+.philosophyDisclaimer {
+  font-size: 12px;
+  color: #8a8499;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Fold 5: Room ── */
+.fold5 {
+  padding: 32px 0;
+}
+
+.roomCard {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(177, 156, 255, 0.18);
+  border-radius: 14px;
+  padding: 20px 18px;
+  box-shadow: 0 4px 16px rgba(29, 24, 61, 0.06);
+}
+
+.roomEyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8a8499;
+  margin-bottom: 8px;
+}
+
+.roomTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 10px;
+}
+
+.roomDesc {
+  font-size: 13px;
+  color: #6b5f8a;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* ── Fold 6: Primary CTA ── */
+.fold6 {
+  padding: 48px 0 32px;
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 10px;
+}
+
+.ctaDesc {
+  font-size: 13px;
+  color: #6b5f8a;
+  margin: 0 0 24px;
+  line-height: 1.7;
+}
+
+.primaryCta {
+  display: inline-block;
+  padding: 12px 32px;
+  background: #7c6fd6;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 36px;
+}
+
+.primaryCta:hover {
+  opacity: 0.88;
+}
+
+.legalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.legalLinks a {
+  color: #8a8499;
+  text-decoration: none;
+}
+
+.legalLinks a:hover {
+  text-decoration: underline;
+}

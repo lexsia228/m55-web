@@ -1,11 +1,21 @@
 'use client';
 
-import PlaceholderShell from '../home/PlaceholderShell';
+import { useEffect, useState } from 'react';
+import ShellLayout from '../../components/shell/ShellLayout';
+import CoreEssencePanel from '../../components/core/CoreEssencePanel';
 
 export default function CorePage() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  if (!ready) return null;
+
   return (
-    <PlaceholderShell>
-      <p style={{ padding: 24, textAlign: 'center', color: 'var(--text-sub)' }}>絶対に大丈夫！</p>
-    </PlaceholderShell>
+    <ShellLayout iframeTitle="M55 本質">
+      <CoreEssencePanel />
+    </ShellLayout>
   );
 }

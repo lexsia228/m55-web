@@ -1,0 +1,105 @@
+/* ── Scroll-to-top floating button ─────────────────────────────────────────
+   Mounted globally in app/layout.tsx.
+   Position: bottom-center, clear of CTA / input areas and browser chrome.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.btn {
+  position: fixed;
+  bottom: clamp(24px, 4vw, 36px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 1500;
+
+  /* size */
+  width:  40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* dark-glass surface */
+  background: rgba(20, 16, 32, 0.72);
+  border: 1px solid rgba(160, 140, 210, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+
+  /* text / icon */
+  color: rgba(205, 195, 235, 0.82);
+  cursor: pointer;
+
+  /* hidden by default — fade + float up (translateX(-50%) keeps center alignment) */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(8px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* visible state */
+.btnVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* hover */
+.btn:hover {
+  background: rgba(30, 24, 50, 0.88);
+  border-color: rgba(180, 160, 225, 0.30);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.40),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  color: rgba(230, 220, 250, 0.97);
+}
+
+/* active */
+.btn:active {
+  transform: translateX(-50%) translateY(0) scale(0.93);
+  transition: transform 0.08s ease;
+}
+
+/* focus-visible ring */
+.btn:focus-visible {
+  outline: 2px solid rgba(175, 150, 230, 0.65);
+  outline-offset: 3px;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: opacity 0.12s ease;
+    transform: translateX(-50%) !important;
+  }
+  .btn:active {
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* ── mobile: slightly larger tap target ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .btn {
+    width: 44px;
+    height: 44px;
+    bottom: 24px;
+    /* left: 50% is already set; no override needed */
+  }
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+}

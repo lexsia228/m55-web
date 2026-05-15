@@ -1,0 +1,107 @@
+{
+  "contractVersion": "io-v1.0",
+  "engineVersion": "logic-v1.0.0",
+  "contextScope": "dtr",
+  "generatedAt": "2026-03-23T12:00:00.000Z",
+  "seedFingerprint": "sha256:06d847efc6f2c869cc30e0bb973c1e01fa1c53f0f91ca66b9ec636008b1f3ade",
+  "freeVisible": false,
+  "dtrExpandable": true,
+  "payload": {
+    "title": "DTR Core Static V1",
+    "sections": [
+      {
+        "id": "grp-a",
+        "title": "魂の原石（要約）",
+        "summary": "あなたらしさの核",
+        "body": "[full only]",
+        "visibility": "full"
+      },
+      {
+        "id": "grp-a-t",
+        "title": "魂の原石（入口）",
+        "summary": "あなたらしさの核",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      },
+      {
+        "id": "grp-b",
+        "title": "才能の変換機",
+        "summary": "強みの活かし方",
+        "body": "[full only]",
+        "visibility": "full"
+      },
+      {
+        "id": "grp-b-t",
+        "title": "才能の変換機（入口）",
+        "summary": "出力の整え方",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      },
+      {
+        "id": "grp-c",
+        "title": "航路",
+        "summary": "長期の流れ",
+        "body": "[full only]",
+        "visibility": "full"
+      },
+      {
+        "id": "grp-c-t",
+        "title": "航路（入口）",
+        "summary": "今後の見方",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      }
+    ],
+    "teaserSections": [
+      {
+        "id": "grp-a-t",
+        "title": "魂の原石（入口）",
+        "summary": "あなたらしさの核",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      },
+      {
+        "id": "grp-b-t",
+        "title": "才能の変換機（入口）",
+        "summary": "出力の整え方",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      },
+      {
+        "id": "grp-c-t",
+        "title": "航路（入口）",
+        "summary": "今後の見方",
+        "body": "[teaser]",
+        "visibility": "teaser"
+      }
+    ],
+    "fullSections": [
+      {
+        "id": "grp-a",
+        "title": "魂の原石（要約）",
+        "summary": "あなたらしさの核",
+        "body": "[full only]",
+        "visibility": "full"
+      },
+      {
+        "id": "grp-b",
+        "title": "才能の変換機",
+        "summary": "強みの活かし方",
+        "body": "[full only]",
+        "visibility": "full"
+      },
+      {
+        "id": "grp-c",
+        "title": "航路",
+        "summary": "長期の流れ",
+        "body": "[full only]",
+        "visibility": "full"
+      }
+    ],
+    "ownershipType": "static",
+    "expiresAt": null,
+    "aiConsultIncluded": true,
+    "version": "v1",
+    "purchase_product_code": "dtr_core_static_v1"
+  }
+}

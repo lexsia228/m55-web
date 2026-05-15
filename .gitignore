@@ -95,3 +95,12 @@ docs/archive/patch_baks/
 *.bundle
 projectA_backup_*
 
+# ZIP commit prevention (m55-web)
+docs/archive/zips/*.zip
+docs/archive/zips/**/*.zip
+
+# Playwright
+playwright-report/
+test-results/
+e2e/screenshots/required/*.png
+

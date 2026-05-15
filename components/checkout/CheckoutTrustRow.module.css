@@ -1,0 +1,131 @@
+/**
+ * Trust row — unified “card chip” family for premium LP (white field, lavender border harmony).
+ */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row li {
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Unified chip shell (all marks sit inside the same frame) ── */
+.badge {
+  --trust-chip-h: 32px;
+  --trust-radius: 8px;
+  --trust-border: 1px solid rgba(107, 95, 168, 0.14);
+  --trust-shadow: 0 1px 2px rgba(29, 24, 61, 0.045), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--trust-chip-h);
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: var(--trust-radius);
+  box-sizing: border-box;
+  border: var(--trust-border);
+  background: #ffffff;
+  box-shadow: var(--trust-shadow);
+}
+
+.badgeAmex {
+  --trust-border: 1px solid rgba(0, 90, 170, 0.28);
+  background: linear-gradient(165deg, #0a7bcb 0%, #0061a8 100%);
+  box-shadow: 0 1px 3px rgba(0, 60, 120, 0.12);
+}
+
+.badgeShopPay {
+  --trust-border: 1px solid rgba(98, 75, 168, 0.35);
+  background: linear-gradient(165deg, #6e58c4 0%, #5740a8 100%);
+  box-shadow: 0 1px 3px rgba(61, 50, 120, 0.14);
+}
+
+/* PayPay: same outer frame; warm paper + muted crimson (no high-chroma yellow) */
+.badgePayPay {
+  --trust-border: 1px solid rgba(165, 95, 90, 0.2);
+  background: linear-gradient(180deg, #fffdfb 0%, #faf6f4 100%);
+  box-shadow: var(--trust-shadow);
+}
+
+/* Center mark in chip; per-brand translate only (no scale, no fixed canvas) */
+.badgeMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.markNudgeJcb {
+  transform: translateY(-0.5px);
+}
+
+.markNudgeApple {
+  transform: translateY(-1px);
+}
+
+.markNudgeGoogle {
+  transform: translateY(-1px);
+}
+
+.markNudgePayPay {
+  transform: translate(-0.5px, -1px);
+}
+
+.iconSvg {
+  display: block;
+  width: auto;
+  height: 16px;
+  max-width: 100%;
+}
+
+.iconSvgMc {
+  display: block;
+  width: auto;
+  height: 17px;
+  max-width: 100%;
+}
+
+/* Wallets: iconography reads on white chip */
+.markDark {
+  display: block;
+  line-height: 0;
+  color: #141218;
+}
+
+.hint {
+  margin: 0;
+  padding-top: 1px;
+  font-size: 10.5px;
+  line-height: 1.58;
+  letter-spacing: 0.018em;
+  color: rgba(55, 52, 58, 0.46);
+  max-width: 38em;
+}

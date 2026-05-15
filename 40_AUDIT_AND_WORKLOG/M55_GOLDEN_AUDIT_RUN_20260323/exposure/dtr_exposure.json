@@ -1,0 +1,29 @@
+{
+  "scope": "dtr",
+  "mappingRef": "M55_PAGE_OUTPUT_MAPPING_SSOT_v1 + PATCH_P1",
+  "pages": {
+    "Home": [
+      "dtr.teaserSections (blurred/teaser)"
+    ],
+    "core": [
+      "bridge link only"
+    ],
+    "today": [],
+    "weekly": [],
+    "my": [
+      "dtr.title",
+      "dtr.ownershipType",
+      "dtr.expiresAt",
+      "consult credits"
+    ],
+    "dtr/lp": [
+      "dtr.title",
+      "dtr.teaserSections",
+      "dtr.aiConsultIncluded",
+      "dtr.version"
+    ]
+  },
+  "rawFieldsNeverOnPublicFree": [
+    "fullSections body"
+  ]
+}

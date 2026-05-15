@@ -1,20 +1,33 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { ProfileRepository, type BirthProfile } from '../../../lib/soul/profile';
 
 export function SoulBirthGate() {
   const { user, isLoaded } = useUser();
+  const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
   const [nickname, setNickname] = useState('');
   const [birthDate, setBirthDate] = useState('');
 
   useEffect(() => {
+    const onOpenRequest = () => setOpen(true);
+    window.addEventListener('m55:open_profile_gate', onOpenRequest);
+    return () => window.removeEventListener('m55:open_profile_gate', onOpenRequest);
+  }, []);
+
+  useEffect(() => {
     if (!isLoaded) return;
 
     if (ProfileRepository.exists(user ? user.id : null)) {
+      setOpen(false);
+      return;
+    }
+
+    if (pathname === '/core' || pathname?.startsWith('/core/')) {
       setOpen(false);
       return;
     }
@@ -29,7 +42,7 @@ export function SoulBirthGate() {
 
     setOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, user]);
+  }, [isLoaded, user, pathname]);
 
   const onSave = () => {
     if (!nickname.trim() || !birthDate) return;

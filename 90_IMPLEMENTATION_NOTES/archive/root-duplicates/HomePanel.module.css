@@ -1,0 +1,762 @@
+/* ═══════════════════════════════════════════════════════════════════
+   HomePanel.module.css — M55 Home panel styles
+   CSS Modules only · Literal color values · No CSS variables
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wrap {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 14px 12px 36px;
+  background: transparent;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #2c233a;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 1: HERO + INPUT GATE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.heroSection {
+  padding: 20px 4px 22px;
+  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
+  margin-bottom: 16px;
+}
+
+.heroText {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.heroEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #9b94b3;
+  margin: 0 0 7px;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e1730;
+  line-height: 1.3;
+  margin: 0 0 9px;
+}
+
+.heroDesc {
+  font-size: 13px;
+  color: #5a5270;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Explanatory strip — 3 lines explaining what M55 is and what becomes visible */
+.siteStrip {
+  background: rgba(177, 156, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.siteStripLine1 {
+  font-size: 13px;
+  color: #4a4458;
+  text-align: center;
+  line-height: 1.65;
+  margin: 0 0 4px;
+}
+
+.siteStripLine2 {
+  font-size: 12px;
+  color: #6a6280;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 3px;
+}
+
+.siteStripLine3 {
+  font-size: 11px;
+  color: #8a8499;
+  text-align: center;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Input Gate card */
+.inputGateCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 245, 255, 0.98));
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 6px 20px rgba(29, 24, 61, 0.07);
+}
+
+.inputGateTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e1730;
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.inputGateSubtitle {
+  font-size: 11px;
+  color: #8a8499;
+  text-align: center;
+  margin: 0 0 14px;
+  line-height: 1.55;
+}
+
+.fieldGroup {
+  margin-bottom: 0;
+}
+
+.fieldGroupSpaced {
+  margin-top: 10px;
+}
+
+.fieldLabel {
+  font-size: 10px;
+  color: #7a7389;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fieldInput {
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #9b94b3;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputGateExplainer {
+  font-size: 11px;
+  color: #9b94b3;
+  text-align: center;
+  margin: 10px 0 14px;
+  line-height: 1.55;
+}
+
+.inputGateCta {
+  display: block;
+  width: 100%;
+  background: #7c6fd6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* Preview hint row — what the user will receive after pressing CTA */
+.gateHintRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.gateHint {
+  font-size: 10px;
+  color: #9b94b3;
+}
+
+.gateHintSep {
+  font-size: 10px;
+  color: #c4bfd8;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 2: INSTANT PREVIEW BOARD
+   ═══════════════════════════════════════════════════════════════════ */
+
+.previewSection {
+  border-top: 1px solid rgba(177, 156, 255, 0.1);
+  padding-top: 16px;
+  margin-bottom: 0;
+}
+
+.previewEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(124, 111, 214, 0.7);
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.identityCard {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(177, 156, 255, 0.18);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.08);
+  margin-bottom: 8px;
+}
+
+.identityTopRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.avatarChip {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(195, 181, 255, 0.3), rgba(124, 111, 214, 0.1));
+  border: 1px solid rgba(177, 156, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarSymbol {
+  font-size: 16px;
+  font-weight: 700;
+  color: #7c6fd6;
+}
+
+.identityRight {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.publicTitle {
+  font-size: 10px;
+  color: #9b94b3;
+  margin: 0 0 4px;
+}
+
+.displayOneLine {
+  font-size: 19px;
+  font-weight: 600;
+  color: #1e1730;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.essenceSummary {
+  font-size: 14px;
+  color: #2c233a;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.keywordPill {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(177, 156, 255, 0.28);
+  color: #5c5668;
+}
+
+.titleSection {
+  border-top: 1px solid rgba(177, 156, 255, 0.1);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.primaryTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1730;
+  margin: 0 0 4px;
+}
+
+.titleNote {
+  font-size: 11px;
+  color: #8a8499;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.supportNotes {
+  border-top: 1px solid rgba(177, 156, 255, 0.07);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.supportNote {
+  font-size: 11px;
+  color: #9b94b3;
+  line-height: 1.5;
+  margin: 0 0 3px;
+}
+
+.supportNote:last-child {
+  margin-bottom: 0;
+}
+
+.cardLink {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+.freeSurfaceNote {
+  font-size: 11px;
+  color: #9b94b3;
+  text-align: center;
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 3: FREE-RESULT SAMPLE SHELF
+   ═══════════════════════════════════════════════════════════════════ */
+
+.shelfSection {
+  padding-top: 14px;
+}
+
+/* A. Five-element ring card */
+.elementCard {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.elementLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9b94b3;
+  margin: 0 0 10px;
+}
+
+.elementInnerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.donutSvg {
+  flex-shrink: 0;
+}
+
+.legendColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendRowMuted {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.5;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendChar {
+  font-size: 13px;
+  font-weight: 700;
+  width: 17px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.legendGenre {
+  font-size: 11px;
+  color: #5c5668;
+  flex: 1;
+  line-height: 1.3;
+}
+
+.legendBadge {
+  font-size: 10px;
+  color: #9b94b3;
+  flex-shrink: 0;
+}
+
+.chartDisclaimer {
+  font-size: 11px;
+  color: #9b94b3;
+  margin: 0 0 3px;
+  line-height: 1.4;
+}
+
+.chartDisclaimerSub {
+  font-size: 10px;
+  color: #b5b0c4;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* B. Current Focus card */
+.focusCard {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.focusEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(124, 111, 214, 0.7);
+  margin: 0 0 6px;
+}
+
+.focusText {
+  font-size: 14px;
+  color: #2c233a;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* C. Today + Weekly horizontal shelf */
+.shelfRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.shelfCard {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.04);
+}
+
+.shelfLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9b94b3;
+  margin: 0 0 5px;
+}
+
+.shelfHeading {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1730;
+  margin: 0 0 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfSummary {
+  font-size: 11px;
+  color: #5a5270;
+  line-height: 1.55;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfKey {
+  font-size: 11px;
+  color: #7a7389;
+  font-style: italic;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Support line — adds explanatory density to shelf cards */
+.shelfSupport {
+  font-size: 10px;
+  color: #b5b0c4;
+  line-height: 1.5;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfLink {
+  font-size: 11px;
+  color: #7c6fd6;
+  text-decoration: none;
+  display: block;
+  margin-top: 4px;
+}
+
+.shelfLink:hover {
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 4: SYSTEM RULE EXPLANATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.rulesSection {
+  padding: 0 4px 14px;
+}
+
+.rulesTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a8499;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.rulesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ruleItem {
+  font-size: 12px;
+  color: #8a8499;
+  line-height: 1.85;
+  padding-left: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 5: ENTRY REPORT MONETIZATION LAYER
+   One hero only. No second product. No second price.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.reportSection {
+  padding-top: 14px;
+}
+
+/* Section-level eyebrow — marks transition from free to paid surface */
+.reportSectionEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(124, 111, 214, 0.6);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.valueCard {
+  background: linear-gradient(135deg, rgba(124, 111, 214, 0.07), rgba(195, 181, 255, 0.09));
+  border: 1px solid rgba(124, 111, 214, 0.2);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 8px 28px rgba(29, 24, 61, 0.1);
+  margin-bottom: 10px;
+}
+
+.valueEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7c6fd6;
+  margin: 0 0 4px;
+}
+
+/* Price — stronger than free surface labels (26px vs 13–14px) */
+.valuePrice {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 10px;
+}
+
+/* Depth note — lead-in explaining why it is richer, placed before feature list */
+.depthNote {
+  font-size: 12px;
+  color: #7a7389;
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+
+.featureList {
+  font-size: 13px;
+  color: #4a4458;
+  line-height: 1.8;
+  padding-left: 18px;
+  margin: 0 0 4px;
+}
+
+.featureItem {
+  margin-bottom: 2px;
+}
+
+.featureItem:last-child {
+  margin-bottom: 0;
+}
+
+/* Blurred chapter preview — inside value card */
+.chapterPreview {
+  border-top: 1px solid rgba(124, 111, 214, 0.1);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+
+.chapterPreviewLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9b94b3;
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.chapterList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chapterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.chapterDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(124, 111, 214, 0.25);
+  flex-shrink: 0;
+}
+
+/* blur + user-select + pointer-events are required — do not remove */
+.chapterTitleBlurred {
+  font-size: 12px;
+  color: rgba(107, 95, 168, 0.5);
+  flex: 1;
+  filter: blur(3px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.chapterMore {
+  font-size: 11px;
+  color: #9b94b3;
+  margin: 4px 0 0;
+}
+
+.valueGapNote {
+  font-size: 11px;
+  color: #9b94b3;
+  text-align: center;
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.reportCta {
+  display: inline-block;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #7c6fd6;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  border: none;
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+.reportCta:hover {
+  opacity: 0.88;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 6: TRUST FOOTER
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trustFooter {
+  border-top: 1px solid rgba(177, 156, 255, 0.1);
+  padding-top: 14px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #9b94b3;
+  text-align: center;
+  line-height: 2;
+}
+
+.legalLinks {
+  margin: 0;
+}
+
+.legalLink {
+  color: #9b94b3;
+  text-decoration: none;
+}
+
+.legalLink:hover {
+  text-decoration: underline;
+}
+
+.legalSep {
+  color: #b5b0c4;
+}
+
+.copyright {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #b5b0c4;
+  letter-spacing: 0.03em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .inputGateCta,
+  .reportCta,
+  .cardLink,
+  .shelfLink {
+    transition: none;
+  }
+}

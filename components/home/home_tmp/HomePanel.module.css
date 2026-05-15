@@ -1,0 +1,2051 @@
+/* ═══════════════════════════════════════════════════════════════════
+   HomePanel.module.css — M55 Home panel (v11 transplant)
+   CSS Modules only · Literal color values · No CSS variables
+   All styling scoped to component — no html/body/global backgrounds.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wrap {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 6px 18px 54px;
+  background: transparent;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1a1a1a;
+}
+
+@media (min-width: 768px) {
+  .wrap {
+    /* 100vw は縦スクロールバー分だけビューポートより広くなりがち — 親幅基準にする */
+    max-width: min(1320px, calc(100% - 48px));
+    padding: 8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 1: HERO + SITE STRIP + GATE
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 第1画面：ナビ下〜Hero ポスターが主役（Hero 専用の縦配分） */
+.heroSection {
+  box-sizing: border-box;
+  min-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.posterStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.posterMainVisual {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 auto;
+  min-height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f2f0f8;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* コピー＋CTA：箱なし・左セーフエリア */
+.posterHeroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 0 clamp(16px, 4.5vw, 22px) clamp(18px, 5vw, 26px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.posterHeroCopy {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: min(100%, 33em);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* 表紙の2行タイトル（M55 / Entry Report）をまとめて読ませる */
+.posterHeroLabelGroup {
+  margin: 0 0 14px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  box-sizing: border-box;
+}
+
+.posterHeroBrandM55 {
+  font-size: clamp(10px, 2.5vw, 11px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6e61c4;
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.posterHeroProductTitle {
+  font-size: clamp(12px, 3vw, 14px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  line-height: 1.38;
+  color: #4a4458;
+  margin: 5px 0 0;
+}
+
+.posterHeroOverlay .posterHeroTitleBlite {
+  color: #1a1a1a;
+  font-size: 28px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: 0.02em;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.posterHeroSupportInline {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  line-height: 1.8;
+  color: rgba(60, 60, 60, 0.8);
+  margin: 0 0 16px;
+  max-width: 38ch;
+}
+
+.posterHeroCta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 14px 28px;
+  border-radius: 8px;
+  border: none;
+  background: #7c6fd6;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+.posterHeroCta:hover {
+  background: #6f62c9;
+}
+
+.posterHeroCta:focus-visible {
+  outline: 2px solid #7c6fd6;
+  outline-offset: 3px;
+}
+
+/* ベース写真 → 白ヴェール → 既存 SVG（レポート束・見取り図） */
+.posterMainVisualStack {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+.posterHeroBaseLayer {
+  grid-area: 1 / 1 / 2 / 2;
+  position: relative;
+  z-index: 0;
+  min-height: 0;
+}
+
+.posterHeroBaseImage {
+  object-fit: cover;
+  object-position: center center;
+  /* ベース画像の左右の淡い帯を枠外へクロップ */
+  transform: scale(1.34);
+  transform-origin: center center;
+}
+
+@media (min-width: 768px) {
+  .posterHeroBaseImage {
+    object-position: 58% 46%;
+    transform: scale(1.22);
+  }
+}
+
+/* 下端のみ：読みやすさ用のごく薄い明るいハゼ（濃色タイポ用・重いグレー板にしない） */
+.posterHeroReadabilityVeil {
+  grid-area: 1 / 1 / 2 / 2;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.82) 18%,
+    rgba(255, 255, 255, 0.35) 42%,
+    rgba(255, 255, 255, 0) 68%
+  );
+}
+
+@media (max-height: 720px) {
+  .posterMainVisual {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 360px) {
+  .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: 19px;
+  }
+}
+
+.posterTitleLockup {
+  margin: -6px 0 0;
+  padding: 0 4px;
+}
+
+/* 統合パーソナル解析路線: 上段ラベル + 主見出し（text-fit 優先） */
+.posterTitleLockupBlite {
+  margin: -2px 0 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.posterHeroEyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(124, 111, 214, 0.9);
+  margin: 0 0 5px;
+  font-weight: 600;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.posterHeroTitleBlite {
+  font-size: clamp(19px, 5.2vw, 24px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-weight: 500;
+  color: #161026;
+  line-height: 1.26;
+  margin: 0;
+  letter-spacing: 0.02em;
+  max-width: 100%;
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* 主見出し：JSX の2行をそのままポスター行として優先（balance で再分割しない） */
+.posterHeroTitleLine {
+  display: block;
+  line-height: 1.28;
+}
+
+.posterHeroTitleLine:first-child {
+  margin-bottom: 0.08em;
+}
+
+@media (min-width: 768px) {
+  .posterHeroCopy {
+    max-width: min(66%, 40em);
+  }
+
+  .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: 28px;
+    line-height: 1.28;
+  }
+}
+
+.posterTitleSmall {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #8a8499;
+  margin: 0 0 3px;
+  font-weight: 500;
+}
+
+.posterTitleMid {
+  font-size: 15px;
+  color: #5a5270;
+  margin: 0 0 2px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.posterTitleMax {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e1730;
+  line-height: 1.18;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.posterSupportOneLine {
+  font-size: 11px;
+  color: #636366;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 100%;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  text-wrap: balance;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ── Shared home surface (below hero): one shell + card family ───────────── */
+.homeSurfaceShell {
+  width: 100%;
+  max-width: min(56rem, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.homeSurfaceCard {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 28px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  padding: 20px 20px;
+}
+
+.homeSurfaceCardSoft {
+  background: rgba(248, 248, 250, 0.92);
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+.homeSurfaceCardPaid {
+  background: linear-gradient(135deg, rgba(124, 111, 214, 0.07), rgba(195, 181, 255, 0.09));
+  border: 1px solid rgba(124, 111, 214, 0.2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .homeSurfaceCard {
+    padding: 24px 28px;
+  }
+}
+
+/* 無料 / 読める / 有料 — 短文モジュール（長文の説明にしない） */
+.homeTierStack {
+  margin-bottom: 16px;
+}
+
+.homeTierRow {
+  display: grid;
+  grid-template-columns: minmax(108px, 120px) minmax(0, 1fr);
+  gap: 12px 14px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+}
+
+.homeTierRow:first-child {
+  padding-top: 2px;
+}
+
+.homeTierRow:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.homeTierBadge,
+.homeTierBadgePaid {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #6b5fa8;
+  line-height: 1.3;
+  padding: 2px 0 0;
+}
+
+.homeTierBadgePaid {
+  color: #5b21a8;
+}
+
+.homeTierText {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.8;
+  color: #3d3d3d;
+  text-align: left;
+  max-width: min(48ch, 100%);
+}
+
+@media (min-width: 768px) {
+  .homeTierText {
+    max-width: min(52ch, 100%);
+  }
+}
+
+.heroText {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.heroEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #9b94b3;
+  margin: 0 0 7px;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e1730;
+  line-height: 1.45;
+  margin: 0 0 9px;
+  text-wrap: balance;
+}
+
+.heroDesc {
+  font-size: 13px;
+  color: #5a5270;
+  line-height: 1.8;
+  margin: 0 auto 8px;
+  max-width: 34ch;
+}
+
+.heroSupport {
+  font-size: 12px;
+  color: #7a7389;
+  line-height: 1.72;
+  margin: 0 auto;
+  max-width: 34ch;
+}
+
+/* Explanatory strip — below poster hero (SSOT §9: not inside hero fold) */
+.siteStrip {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.siteStripLine1 {
+  font-size: 13px;
+  color: #4a4458;
+  text-align: center;
+  line-height: 1.75;
+  margin: 0 auto 4px;
+  max-width: 32ch;
+}
+
+.siteStripLine2 {
+  font-size: 12px;
+  color: #6a6280;
+  text-align: center;
+  line-height: 1.72;
+  margin: 0 auto 3px;
+  max-width: 32ch;
+}
+
+.siteStripLine3 {
+  font-size: 11px;
+  color: #8a8499;
+  text-align: center;
+  line-height: 1.68;
+  margin: 0 auto;
+  max-width: 32ch;
+}
+
+/* Input Gate card — used for no_profile state as profile setup CTA */
+.inputGateCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 245, 255, 0.98));
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 6px 20px rgba(29, 24, 61, 0.07);
+}
+
+.inputGateTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e1730;
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.inputGateSubtitle {
+  font-size: 11px;
+  color: #8a8499;
+  text-align: center;
+  margin: 0 0 14px;
+  line-height: 1.55;
+}
+
+.fieldGroup {
+  margin-bottom: 0;
+}
+
+.fieldGroupSpaced {
+  margin-top: 10px;
+}
+
+.fieldLabel {
+  font-size: 10px;
+  color: #7a7389;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fieldInput {
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #9b94b3;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* CTA — works for both <button> and <Link> in no_profile state */
+.inputGateCta {
+  display: block;
+  width: 100%;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  margin-top: 14px;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 4px 16px rgba(29, 78, 216, 0.35);
+}
+
+.inputGateCta:hover {
+  filter: brightness(1.06);
+}
+
+/* Compact inline intake — no_profile only; below hero copy */
+.inlineIntakeRail {
+  margin: 2px 0 4px;
+  padding: 12px 14px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+}
+
+.inlineIntakeFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.inlineIntakeField {
+  flex: 1 1 140px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.inlineIntakeLabel {
+  font-size: 10px;
+  color: #7a7389;
+  letter-spacing: 0.02em;
+}
+
+.inlineIntakeInput,
+.inlineIntakeDate {
+  font-size: 14px;
+  line-height: 1.35;
+  min-height: 44px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  background: rgba(255, 255, 255, 0.92);
+  color: #2c233a;
+}
+
+.inlineIntakeDate {
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+.inlineIntakeCta {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 4px 14px rgba(29, 78, 216, 0.45);
+}
+
+.inlineIntakeCta:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.inlineIntakeCta:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 3px;
+  box-shadow:
+    0 4px 14px rgba(29, 78, 216, 0.4),
+    0 0 0 3px rgba(29, 78, 216, 0.25);
+}
+
+.inlineIntakeCta:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Understanding mode (no personal profile) — REGRESSION: separate from observation blocks ── */
+
+/* no_profile: 視覚付き探索カード2枚（有料深度は reportSection のみ） */
+.useExploreSection {
+  padding: 16px 0 14px;
+}
+
+.useExploreRule {
+  width: 48px;
+  height: 2px;
+  margin: 0 auto 14px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 111, 214, 0.35) 20%,
+    rgba(124, 111, 214, 0.35) 80%,
+    transparent
+  );
+}
+
+.useExploreGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .useExploreGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+.useExploreCard {
+  composes: homeSurfaceCard;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 14px;
+  min-height: 72px;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+/* 大画面: 行ストレッチ時も thumb / 本文 / chevron を縦方向に揃えた pair 感（start だと列ごと上寄せで重心がズレる） */
+@media (min-width: 768px) {
+  .useExploreCard {
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+    align-items: center;
+  }
+}
+
+.useExploreCard:hover {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 1) inset,
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 14px 36px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.useExploreCard:active {
+  transform: translateY(0);
+}
+
+.useExploreCard:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+/* 探索カード左：2枚同一タイル（webp サムネ） */
+.useExploreIconThumbExplore {
+  position: relative;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 111, 214, 0.08);
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 1) inset;
+}
+
+.useExploreFiveAxisMeterSvg {
+  display: block;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
+
+.useExploreThumbImage {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.useExploreBody {
+  min-width: 0;
+  text-align: left;
+}
+
+.useExploreTitle {
+  display: block;
+  font-size: clamp(16px, 3.9vw, 18px);
+  font-weight: 800;
+  color: #0a0a0c;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.useExploreSub {
+  display: block;
+  font-size: clamp(11px, 2.7vw, 13px);
+  font-weight: 500;
+  color: #636366;
+  line-height: 1.42;
+  margin-top: 5px;
+  letter-spacing: 0.02em;
+}
+
+.useExploreChevron {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  font-size: 22px;
+  font-weight: 600;
+  color: #4a3d8a;
+  line-height: 1;
+  border-radius: 11px;
+  background: rgba(124, 111, 214, 0.12);
+  border: 1px solid rgba(91, 77, 184, 0.28);
+  box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+}
+
+/* デスクトップのみ：探索2枚の外寸・サムネ・chevron を拡大（モバイル／タブレットは未変更） */
+@media (min-width: 1024px) {
+  .useExploreGrid {
+    gap: 28px;
+  }
+
+  .useExploreCard {
+    min-height: 168px;
+    grid-template-columns: 88px minmax(0, 1fr) 64px;
+    column-gap: 18px;
+    align-items: center;
+  }
+
+  .useExploreIconThumbExplore {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+  }
+
+  .useExploreChevron {
+    width: 56px;
+    height: 56px;
+    border-radius: 15px;
+    font-size: 26px;
+  }
+}
+
+/* 5軸：公開向け・極軽量（メーター＋リード＋短文チップのみ） — 外殻は homeSurface* */
+.fiveAxisReadCard {
+  margin: 0 0 18px;
+}
+
+.fiveAxisReadTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  text-align: center;
+  line-height: 1.28;
+  letter-spacing: -0.022em;
+}
+
+.fiveAxisReadLead {
+  font-size: 14px;
+  color: #3d3d3d;
+  line-height: 1.8;
+  margin: 0 0 10px;
+  text-align: center;
+  text-wrap: balance;
+  font-weight: 500;
+}
+
+.fiveAxisReadMeterWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 10px;
+}
+
+.fiveAxisReadMeterSvg {
+  display: block;
+  width: clamp(84px, 22vw, 96px);
+  height: clamp(84px, 22vw, 96px);
+}
+
+.fiveAxisReadCardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+}
+
+.fiveAxisReadMiniCard {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.fiveAxisReadMiniCardText {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: rgba(60, 60, 60, 0.8);
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .fiveAxisReadCard {
+    display: grid;
+    grid-template-columns: minmax(104px, 120px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    column-gap: 22px;
+    row-gap: 8px;
+    align-items: start;
+  }
+
+  .fiveAxisReadTitle {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .fiveAxisReadLead {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+    max-width: 48ch;
+    margin-bottom: 6px;
+  }
+
+  .fiveAxisReadMeterWrap {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+    justify-content: flex-start;
+    align-self: start;
+    padding-top: 2px;
+  }
+
+  .fiveAxisReadCardGrid {
+    grid-column: 2;
+    grid-row: 3;
+    margin: 0;
+    align-self: start;
+  }
+}
+
+.understandingSection {
+  padding: 4px 0 20px;
+}
+
+.understandingEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(124, 111, 214, 0.75);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+.understandingTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1e1730;
+  text-align: center;
+  margin: 0 auto 16px;
+  line-height: 1.42;
+  text-wrap: balance;
+  max-width: 28ch;
+}
+
+.understandingLead {
+  font-size: 13px;
+  color: #5a5270;
+  line-height: 1.78;
+  margin: 0 auto 14px;
+  text-align: center;
+  max-width: 32ch;
+}
+
+.understandingList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.understandingList li {
+  font-size: 12px;
+  color: #6b5f8a;
+  line-height: 1.65;
+  padding: 6px 0 6px 14px;
+  position: relative;
+  border-bottom: 1px solid rgba(177, 156, 255, 0.1);
+}
+
+.understandingList li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(124, 111, 214, 0.45);
+}
+
+.supportCtaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.supportCtaCard {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  min-height: 56px;
+  border: 1px solid rgba(124, 111, 214, 0.38);
+  border-radius: 14px;
+  background: rgba(124, 111, 214, 0.09);
+  text-decoration: none;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.06);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.12s ease;
+}
+
+.supportCtaCard:hover {
+  background: rgba(124, 111, 214, 0.14);
+  border-color: rgba(92, 78, 180, 0.55);
+  box-shadow: 0 5px 16px rgba(29, 24, 61, 0.1);
+}
+
+.supportCtaCard:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.08);
+}
+
+.supportCtaCard:focus-visible {
+  outline: 2px solid #7c6fd6;
+  outline-offset: 3px;
+}
+
+.supportCtaInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px;
+  min-height: 56px;
+  box-sizing: border-box;
+}
+
+.supportCtaTextCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.supportCtaTitle {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e1730;
+  line-height: 1.35;
+}
+
+.supportCtaSub {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #5c5470;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.supportCtaChevron {
+  flex-shrink: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: #7c6fd6;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+/* Unified 5-axis explainer + sample ring (understanding mode) */
+.unifiedAxisCard {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(177, 156, 255, 0.2);
+  border-radius: 14px;
+  padding: 16px 14px 14px;
+  margin-bottom: 4px;
+  box-shadow: 0 2px 12px rgba(29, 24, 61, 0.05);
+}
+
+.unifiedAxisTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1730;
+  margin: 0 auto 10px;
+  text-align: center;
+  text-wrap: balance;
+  max-width: 28ch;
+}
+
+.unifiedAxisIntro {
+  font-size: 11px;
+  color: #5a5270;
+  line-height: 1.5;
+  margin: 0 auto 10px;
+  text-align: center;
+  max-width: 34ch;
+}
+
+.unifiedAxisSample {
+  margin: 0 0 12px;
+}
+
+.unifiedAxisFoot {
+  margin: 0 auto;
+  font-size: 10px;
+  color: #8a8499;
+  line-height: 1.45;
+  text-align: center;
+  max-width: 34ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supportCtaCard {
+    transition: none;
+  }
+
+  .supportCtaCard:active {
+    transform: none;
+  }
+
+  .useExploreCard {
+    transition: none;
+  }
+
+  .inlineIntakeCta:hover:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+.learnMoreDetails {
+  margin: 16px 4px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(177, 156, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0 12px 12px;
+}
+
+.learnMoreSummary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b5f8a;
+  padding: 12px 4px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.learnMoreSummary::-webkit-details-marker {
+  display: none;
+}
+
+.learnMoreLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.learnMoreLinks a {
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.learnMoreLinks a:hover {
+  text-decoration: underline;
+}
+
+/* Hint row — what becomes visible after setup */
+.hintRow {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: #9b94b3;
+}
+
+/* Loading state message */
+.stateMsg {
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+  color: #9b94b3;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 2: INSTANT PREVIEW BOARD
+   ═══════════════════════════════════════════════════════════════════ */
+
+.previewSection {
+  border-top: 1px solid rgba(177, 156, 255, 0.1);
+  padding-top: 16px;
+  margin-bottom: 0;
+}
+
+.previewEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(124, 111, 214, 0.7);
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.identityCard {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(177, 156, 255, 0.18);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(29, 24, 61, 0.08);
+  margin-bottom: 8px;
+}
+
+.roleCardHeader {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.roleCardUpper {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #9b94b3;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.roleCardTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e1730;
+  line-height: 1.35;
+  margin: 0 0 10px;
+  text-wrap: balance;
+}
+
+.roleCardDesc {
+  font-size: 13px;
+  color: #5a5270;
+  line-height: 1.78;
+  margin: 0 auto;
+  max-width: 30ch;
+  text-align: center;
+}
+
+.essenceSummary {
+  font-size: 14px;
+  color: #2c233a;
+  line-height: 1.78;
+  margin: 0 auto 10px;
+  max-width: 32ch;
+  text-align: center;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 auto 10px;
+  justify-content: center;
+  max-width: 32ch;
+}
+
+.keywordPill {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(177, 156, 255, 0.28);
+  color: #5c5668;
+}
+
+.supportNotes {
+  border-top: 1px solid rgba(177, 156, 255, 0.07);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.supportNote {
+  font-size: 11px;
+  color: #9b94b3;
+  line-height: 1.5;
+  margin: 0 0 3px;
+}
+
+.supportNote:last-child {
+  margin-bottom: 0;
+}
+
+.cardLink {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+.freeSurfaceNote {
+  font-size: 11px;
+  color: #9b94b3;
+  text-align: center;
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 3: FREE-RESULT SAMPLE SHELF
+   ═══════════════════════════════════════════════════════════════════ */
+
+.shelfSection {
+  padding-top: 14px;
+}
+
+/* A. Five-element ring card */
+.elementCard {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.04);
+}
+
+.elementLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9b94b3;
+  margin: 0 0 10px;
+}
+
+.elementInnerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.elementInnerRowObs {
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.obsLegendColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.obsLegendRow,
+.obsLegendRowMuted {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.obsLegendRowMuted {
+  opacity: 0.5;
+}
+
+.obsLegendText {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chartDisclaimerTight {
+  font-size: 10px;
+  color: #b5b0c4;
+  margin: 2px 0 0;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.legendColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendRowMuted {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.5;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendCode {
+  font-size: 12px;
+  font-weight: 700;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.legendAxisBlock {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.legendAxisEn {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3d3552;
+  margin-right: 2px;
+}
+
+.legendAxisJp {
+  font-size: 10px;
+  color: #6b5f8a;
+}
+
+.legendIntensity {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #8a8499;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.chartDisclaimer {
+  font-size: 11px;
+  color: #9b94b3;
+  margin: 0 0 3px;
+  line-height: 1.4;
+}
+
+.chartDisclaimerSub {
+  font-size: 10px;
+  color: #b5b0c4;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* B. Current Focus card */
+.focusCard {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.04);
+}
+
+.focusEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(124, 111, 214, 0.7);
+  margin: 0 0 6px;
+}
+
+.focusText {
+  font-size: 14px;
+  color: #2c233a;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* C. Today + Weekly horizontal shelf */
+.shelfRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.shelfCard {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(177, 156, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(29, 24, 61, 0.04);
+}
+
+@media (min-width: 768px) {
+  .shelfRow {
+    align-items: stretch;
+  }
+
+  .shelfCard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .shelfCard .shelfLink {
+    margin-top: auto;
+  }
+}
+
+.shelfLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9b94b3;
+  margin: 0 0 5px;
+}
+
+.shelfHeading {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1730;
+  margin: 0 0 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfSummary {
+  font-size: 11px;
+  color: #5a5270;
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfKey {
+  font-size: 11px;
+  color: #7a7389;
+  font-style: italic;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Support line — explanatory density without deep body text */
+.shelfSupport {
+  font-size: 10px;
+  color: #b5b0c4;
+  line-height: 1.5;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelfSupportOneLine {
+  -webkit-line-clamp: 1;
+}
+
+.shelfLink {
+  font-size: 11px;
+  color: #7c6fd6;
+  text-decoration: none;
+  display: block;
+  margin-top: 4px;
+}
+
+.shelfLink:hover {
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 4: SYSTEM RULE EXPLANATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.rulesSection {
+  padding: 0 4px 14px;
+}
+
+.rulesTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a8499;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.rulesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ruleItem {
+  font-size: 12px;
+  color: #8a8499;
+  line-height: 1.85;
+  padding-left: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 5: ENTRY REPORT MONETIZATION LAYER
+   One hero only. No second product. No second price.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.reportSection {
+  padding-top: 14px;
+}
+
+/* Section-level eyebrow — marks transition from free to paid surface */
+.reportSectionEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(124, 111, 214, 0.6);
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+/* 外殻は homeSurfaceShell + homeSurfaceCard + homeSurfaceCardPaid（JSX で合成） */
+.valueCard {
+  position: relative;
+}
+
+.valueEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7c6fd6;
+  margin: 0 0 4px;
+}
+
+/* Price — visually dominant vs free surface (26px vs 13–14px) */
+.valuePrice {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 10px;
+}
+
+/* Entry Report：カード先頭のワイドバンド（カード角に沿って一体化） */
+.reportCardHeroBand {
+  position: relative;
+  height: 112px;
+  margin: -20px -20px 16px -20px;
+  width: calc(100% + 40px);
+  border-bottom: 1px solid rgba(124, 111, 214, 0.18);
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(236, 230, 248, 0.35) 0%, rgba(252, 250, 255, 0.2) 100%);
+}
+
+@media (min-width: 1024px) {
+  .reportCardHeroBand {
+    margin: -24px -28px 20px -28px;
+    width: calc(100% + 56px);
+  }
+}
+
+.reportCardHeroBandImg {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.reportCardHeroBandVeil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(252, 250, 255, 0.06) 0%,
+    rgba(248, 245, 255, 0.42) 50%,
+    rgba(244, 240, 252, 0.58) 100%
+  );
+}
+
+.reportCardBody {
+  margin: 0;
+  padding: 0;
+}
+
+.reportCardColMain,
+.reportCardColAside {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* Depth note — lead-in before feature list */
+.depthNote {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3d3d3d;
+  line-height: 1.8;
+  margin: 0 0 12px;
+}
+
+.featureList {
+  font-size: 13px;
+  color: #4a4458;
+  line-height: 1.8;
+  padding-left: 18px;
+  margin: 0 0 4px;
+}
+
+.featureItem {
+  margin-bottom: 2px;
+}
+
+.featureItem:last-child {
+  margin-bottom: 0;
+}
+
+.featureListLoose {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 4px;
+}
+
+.featureItemLoose {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.85);
+  line-height: 1.7;
+  padding: 11px 0;
+  margin: 0;
+  border-bottom: 1px solid rgba(124, 111, 214, 0.09);
+}
+
+.featureItemLoose:first-child {
+  padding-top: 2px;
+}
+
+.featureItemLoose:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+/* 収録プレビュー以下：読み幅を抑えた「下段」 */
+.reportCardLower {
+  margin-top: 0;
+}
+
+/* Blurred chapter preview — inside value card */
+.chapterPreview {
+  border-top: 1px solid rgba(124, 111, 214, 0.14);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.chapterPreviewLabel {
+  font-size: clamp(10px, 2.4vw, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b5f8a;
+  text-align: center;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.chapterList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chapterChipWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 0 0 8px;
+}
+
+.chapterChip {
+  font-size: clamp(11px, 2.6vw, 12px);
+  font-weight: 600;
+  color: #3d3558;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(124, 111, 214, 0.32);
+  line-height: 1.35;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reportAuxCard {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(60, 60, 60, 0.8);
+  margin: 14px 0 0;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  text-align: left;
+}
+
+.chapterRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.chapterDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(124, 111, 214, 0.35);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* NO BLUR — muted color + truncation only */
+.chapterTitle {
+  font-size: 12px;
+  color: #6b5fa8;
+  opacity: 0.72;
+  flex: 1;
+  line-height: 1.45;
+}
+
+.chapterMore {
+  font-size: 11px;
+  color: #9b94b3;
+  margin: 4px 0 0;
+}
+
+.valueGapNote {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3d3d3d;
+  text-align: left;
+  margin: 10px 0 0;
+  line-height: 1.45;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(124, 111, 214, 0.16);
+}
+
+.reportCta {
+  display: inline-block;
+  padding: 11px 24px;
+  font-size: clamp(14px, 3.2vw, 15px);
+  font-weight: 700;
+  background: #7c6fd6;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid rgba(91, 77, 184, 0.35);
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.reportCta:hover {
+  opacity: 0.88;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOLD 6: TRUST FOOTER
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trustFooter {
+  border-top: 1px solid rgba(177, 156, 255, 0.14);
+  padding-top: 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.7);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.legalLinks {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 0;
+}
+
+.legalLink {
+  color: rgba(60, 60, 60, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.legalLink:hover {
+  text-decoration: underline;
+  color: #6b5fa8;
+}
+
+.legalSep {
+  color: #c4bfd4;
+  padding: 0 6px;
+  user-select: none;
+}
+
+.copyright {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(60, 60, 60, 0.6);
+  letter-spacing: 0.03em;
+}
+
+@media (min-width: 768px) {
+  .reportCardBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px 28px;
+    align-items: stretch;
+  }
+
+  /* start だと列が行高まで伸びず、左列と右列の下辺が揃わない */
+  .reportCardColAside {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .reportCardLower {
+    max-width: none;
+    margin: 0;
+  }
+
+  .reportCardColAside .reportCardLower {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 16px;
+  }
+
+  .reportCardColAside .reportAuxCard {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .reportCardColAside .reportCta {
+    margin-top: auto;
+  }
+
+  .reportCardColAside .chapterPreview {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .chapterPreviewLabel,
+  .chapterChipWrap,
+  .chapterMore,
+  .valueGapNote {
+    text-align: left;
+  }
+
+  .chapterChipWrap {
+    justify-content: flex-start;
+  }
+
+  .trustFooter {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 12px 24px;
+    text-align: left;
+    padding-top: 20px;
+  }
+
+  .legalLinks {
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  .copyright {
+    margin-top: 0;
+    text-align: right;
+    justify-self: end;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .inputGateCta,
+  .reportCta,
+  .cardLink,
+  .shelfLink {
+    transition: none;
+  }
+}
