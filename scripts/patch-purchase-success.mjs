@@ -15,12 +15,12 @@ const oldBlock = `        ) : (
           <>
             <p className={successStyles.rewardEyebrow}>Entry Report</p>
             <h1 className={successStyles.title} data-testid="m55-purchase-success-headline">
-              お手続き、ありがとうご��います
+              お手続き、ありがとうございます
             </h1>
             <p className={successStyles.desc}>
               {entitlementReady
-               �入いただいたレポートへのアクセスが有効です。本編はいつでも開けます。'
-                : 'ご��入は完了しています。利用権限の反映を待っている間も、このままお待ちいただけます。'}
+               ご購入いただいたレポートへのアクセスが有効です。本編はいつでも開けます。'
+                : 'ご購入は完了しています。利用権限の反映を待っている間も、このままお待ちいただけます。'}
             </p>
             <a
               href={DTR_CORE_HREF}
@@ -39,7 +39,7 @@ const newBlock = `        ) : (
               レポートを開いています
             </h1>
             <p className={successStyles.desc}>
-              お手続きありがとうご��います。無料で入力いただいた内容を引き����、まもなく Entry Report を表示します。
+              お手続きありがとうございます。無料で入力いただいた内容を引き継ぎ、まもなく Entry Report を表示します。
             </p>
             <p className={successStyles.desc} style={{ marginTop: 12, fontSize: 13, opacity: 0.88 }}>
               {entitlementReady
