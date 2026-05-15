@@ -1,10 +1,31 @@
-## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+## 2026-05-15 — Phase 5-6H-5D Ready for review execution GREEN
 
-Status: **Decision gate documentation only — docs-only.** **No GitHub Ready for review / no PR merge / no `main` merge / no Production operations executed by this SSOT update.** **PR #1 remains Draft on GitHub.**
+Status: **`work/home-cluster` における証跡 SSOT のみ。** **GitHub で PR #1 は Ready for review（Draft 解除済み）と確認済み。** **Checks は最新 HEAD で SUCCESS。** **Vercel Preview は SUCCESS。** **Merge ボタンはあるが、この記録フェーズでは未クリック。** **PR merge / `main` merge / Production 系は未実施。** Verdict: **READY_FOR_PR_MERGE_DECISION_GATE**（**merge の許可ではない**）。
 
 Work anchor:
 
-- Branch `work/home-cluster`, baseline commit **`0b9134e`** — `docs: prepare ready-for-review merge decision gate`（**5D SSOT 追加直前**）。
+- Branch `work/home-cluster`, baseline commit **`1adfd61`** — `docs: prepare ready-for-review escalation gate`.
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5D_READY_FOR_REVIEW_EXECUTION_GREEN_2026-05-15.md`
+- PR #1 HEAD **`7a0b784`**（`integration/main-align-2026-05-14`）— https://github.com/lexsia228/m55-web/pull/1
+
+Next:
+
+- **Phase 5-6H-5E** — **PR merge / main alignment の実行についての決定ゲート（まず docs-only）**。**実 merge はさらに別明示 GO に限る。**
+
+Hard stop:
+
+- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB touch（**この checkpoint は GitHub に merge 状態を変更しない**：**docs と GitHub での確認記録のみ**）。
+
+## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+
+Status: **Decision gate documentation only — docs-only（記録時点 `1adfd61` 以前の判断 SSOT）。** **当該時点では** GitHub Ready for review **未実行** / **PR #1 は Draft のまま**。**次の明示 GO のうえ RfR 実行後、上記「execution GREEN」checkpoint が現在有効状態。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`0b9134e`** — `docs: prepare ready-for-review merge decision gate`（**5D escalation SSOT 追加直前**）。
 
 Evidence:
 
@@ -12,11 +33,11 @@ Evidence:
 
 Next:
 
-- **Separate explicit GO** — **Ready for review button only** on GitHub → re-verify PR + checks → **Phase 5-6H-5E** PR merge decision gate.
+- **（達成済み）** 明示 GO に基づく **Ready for review のみ** → `M55_PHASE5_6H_5D_READY_FOR_REVIEW_EXECUTION_GREEN_2026-05-15.md`。**以降は 5E**。
 
 Hard stop:
 
-- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **that explicit GO**（**this checkpoint is documentation-only**）.
+- **（escalation 記録当時）** Ready for review **は別 GO まで未実施**。**PR merge / `main` merge / Production deploy 等は継続禁止**（**execution GREEN 以降の禁止範囲は同 checkpoint の Hard stop を参照**）。
 
 ## 2026-05-15 — Release Command Center / AI team status board prepared
 
@@ -591,13 +612,33 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
-## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+## 2026-05-15 — Phase 5-6H-5D Ready for review execution GREEN
 
-Status: **Decision gate documentation only — docs-only.** **No GitHub PR state change / no Production operations.** Verdict: **READY_FOR_READY_REVIEW_ESCALATION_GATE**; **actual Ready for review** only after **separate explicit GO**.
+Status: **`work/home-cluster` は docs のみ。** **PR #1 Open / Ready for review（Draft 解除済み）。** **Checks SUCCESS / merge conflict なし（CLEAN）。** **Vercel Preview SUCCESS。** **Merge 未クリック。** **PR merge / `main` merge / Production 未実施。** Verdict: **READY_FOR_PR_MERGE_DECISION_GATE**（**merge 許可ではない**）。
 
 Work anchor:
 
-- Branch `work/home-cluster`, baseline commit **`0b9134e`**（**5D SSOT 追加直前**）。
+- Branch `work/home-cluster`, commit **`1adfd61`**（本 execution GREEN 証跡直前）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5D_READY_FOR_REVIEW_EXECUTION_GREEN_2026-05-15.md`
+
+Next:
+
+- **Phase 5-6H-5E** — **PR merge 判断ゲートはまず docs-only**。**実 merge は別明示 GO**。
+
+Hard stop:
+
+- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB（**この SSOT は merge を実行しない**）。
+
+## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+
+Status: **Decision gate documentation only（記録時点）。** **当該時点では RfR 未実施・PR #1 Draft。** **実行後は上「execution GREEN」を正とする。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`0b9134e`**（**5D escalation SSOT 追加直前**）。
 
 Evidence:
 
@@ -605,15 +646,15 @@ Evidence:
 
 Next:
 
-- **Explicit GO** → **Ready for review only** → re-check PR/checks → **Phase 5-6H-5E** PR merge GO gate.
+- **（完了）** RfR 実行 → execution GREEN SSOT → **5E**。
 
 Hard stop:
 
-- **No** Ready for review button / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **post-5D explicit GO**.
+- **（当該記録の意図）** escalation 時点では RfR 実操作も merge も禁止。**現在の追加禁止は execution GREEN と同一（PR merge / Production 等）**。
 
 ## 2026-05-15 — Phase 5-6H-5C Ready-for-review / PR merge GO decision gate prepared
 
-Status: **Decision / handoff documentation only** — **実行ではない。** **5C 意思決定・引き継ぎ SSOT** を追加。**Ready for review / PR merge / `main` merge / Production deploy は未実施。** **PR #1** は **Draft** のまま。
+Status: **Decision / handoff documentation only** — **実行ではない。** **5C 意思決定・引き継ぎ SSOT** を追加。**当該記録時点では** **PR merge / `main` merge / Production deploy は未実施。** **当該記録時点では PR #1 は Draft。** **→ 現在:** Ready for review は **`M55_PHASE5_6H_5D_READY_FOR_REVIEW_EXECUTION_GREEN_2026-05-15.md`** までに **完了**。**merge は未実行のまま。**
 
 Work anchor:
 
@@ -626,11 +667,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5D** — **本 checkpoint**（Ready for review **昇格判断** SSOT のみ）。**実操作は別 GO**。
+- **Phase 5-6H-5D** — **完了**（escalation + execution GREEN）。以降 **5-6H-5E**（**docs-only 判断** → **merge は別 GO**）。
 
 Hard stop:
 
-- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5D 記録後の明示 GO**。
+- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5E 記録および merge 用の明示 GO**。
 
 ## 2026-05-15 — Phase 5-6H-5B PR checks GREEN evidence checkpoint
 
@@ -640,7 +681,7 @@ Status: **GREEN — evidence checkpoint only / no merge executed**
 - PR diff / CI / guard checks were reviewed and recorded as GREEN.
 - Integration hotfixes recorded: `2edc4cb`, `d9f8a88`, `d856061`, `7a0b784`.
 - PR compare shows Able to merge, but this is review state only.
-- **Not executed:** Ready for review, PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment.
+- **Not executed:** PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment. **Ready for review:** 5B 記録時点では **未** → **現在は 5D execution GREEN SSOT 時点で RfR 完了済み**（**merge は未**）。
 - Next: **Phase 5-6H-5C〜5D** — **完了**（SSOT）。次 **別明示 GO** — **Ready for review のみ** → 再確認後 **5-6H-5E** PR merge 判断。
 
 Hard stop remains: do not merge or deploy without a separate explicit GO.
