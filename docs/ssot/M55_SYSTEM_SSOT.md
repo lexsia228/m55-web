@@ -1,3 +1,23 @@
+## 2026-05-14 — Phase 5-6H-4 main alignment decision gate prepared
+
+Status: **Decision / strategy only** — **実行ではない。** **`main` merge / PR 作成 / deploy は未実施。** integration **`integration/main-align-2026-05-14`**（**`10b4e33`**）を **正本候補**とし、**`main` 反映は GitHub PR 優先**等を `M55_PHASE5_6H_4_...` に固定。次 **Phase 5-6H-5** — **`main` alignment execution GO gate**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`19e9989`**（5-6H-3 証跡記録）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_4_MAIN_ALIGNMENT_DECISION_GATE_2026-05-14.md`
+
+Next:
+
+- **Phase 5-6H-5** — **`main` 反映実行 GO**（**PR または明示 GO 付きローカル merge**）、またはブロッカー **hardening**。
+
+Hard stop:
+
+- **No** `main` merge（**PR merge を含む、5-6H-5 GO まで**）/ **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5 gate**。
+
 ## 2026-05-14 — Phase 5-6H-3 integration branch merge/build GREEN
 
 Status: **Integration branch evidence** — **証跡のみ。** **`integration/main-align-2026-05-14`** を `work/home-cluster` から作成し **`origin/main` を merge**（**`10b4e33`**）。**`npm run build` PASS** / **`npx tsc --noEmit` exit 0**。**`main` / Production は未触。** 次 **Phase 5-6H-4** — **`main` 整合意思決定 / PR・merge 戦略ゲート**。
@@ -13,11 +33,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-4** — **`main` alignment decision**（**PR または merge 戦略**）、またはブロッカー **hardening**。
+- **Phase 5-6H-4** — **完了**（decision gate SSOT）。詳細: `M55_PHASE5_6H_4_MAIN_ALIGNMENT_DECISION_GATE_2026-05-14.md`。次 **5-6H-5**。
 
 Hard stop:
 
-- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-4 gate**（**integration 検証完了のみ**）。
+- **No** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5 gate**（**integration 検証完了のみ**）。
 
 ## 2026-05-14 — Phase 5-6H-2 integration/main-align branch plan prepared
 
