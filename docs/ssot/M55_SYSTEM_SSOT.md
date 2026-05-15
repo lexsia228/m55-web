@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5G Production public surface read-only smoke planning gate prepared
+
+Status: **`work/home-cluster` で docs-only。** **5H で行う Production public GET/HEAD smoke の範囲・禁止・成否条件を計画。** **本番 URL / `curl` / ブラウザ / 決済・ログイン・Checkout・webhook・env は未操作。** Verdict: **`READY_FOR_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_EXECUTION_GATE`**（**実行は別明示 GO + 5H のみ**）。
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`1167f77`** — `docs: record production deployment readonly verification`（**5G SSOT 追加直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5G_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_PLANNING_GATE_2026-05-15.md`
+
+Next:
+
+- **Phase 5-6H-5H** — **read-only smoke execution**（**GET/HEAD のみ・別明示 GO**）。
+
+Hard stop:
+
+- **5G/本セッション:** **No** 本番 URL / **no** `curl` / **no** live smoke / **no** 決済 / **no** Checkout / **no** webhook・env・DB・redeploy。
+
 ## 2026-05-15 — Phase 5-6H-5F Production deployment read-only verification / post-merge state recording completed
 
 Status: **`work/home-cluster` で docs のみ。** **PR #1 `MERGED` / `main` `483285da…` と Vercel Production Ready+Current を read-only で再確認し SSOT 化。** Verdict: **`PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_GREEN`。** **本セッションで env・`whsec`・secret・webhook・Supabase・Vercel 設定・決済・Checkout・追加 redeploy・DB 変更は未実施。**
@@ -12,11 +32,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5G** — **Production public surface read-only smoke planning gate**（**docs-only first**。**決済・webhook・env 変更は依然禁止**）。
+- **（達成）** **`M55_PHASE5_6H_5G_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_PLANNING_GATE_2026-05-15.md`。** **次 5H**（**実行は別 GO**）。
 
 Hard stop:
 
-- **5G まで** **live smoke / 本番決済 / env・secret / webhook 変更なし**（**別 Gate 文書で範囲を限定してから**）。
+- **本番 URL アクセス・live smoke は 5H+GO まで禁止**。
 
 ## 2026-05-15 — Phase 5-6H-5E-D Main merge + Production deploy execution GREEN
 
@@ -32,11 +52,11 @@ Evidence:
 
 Next:
 
-- **（達成）** **`M55_PHASE5_6H_5F_PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_2026-05-15.md`。** **次 Phase 5-6H-5G**（**read-only smoke 計画、docs-only**）。
+- **（達成）** **`M55_PHASE5_6H_5F_PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_2026-05-15.md`** と **`M55_PHASE5_6H_5G_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_PLANNING_GATE_2026-05-15.md`。** **次** **5H**（**read-only smoke 実行・別明示 GO**）。
 
 Hard stop:
 
-- **無承認の live payment / webhook / env 変更なし**（**5G / 別 Gate で範囲固定**）。
+- **無承認の live payment / webhook / env 変更なし**（**5H / 別 GO で範囲固定**）。
 
 ## 2026-05-15 — Phase 5-6H-5E-C Main merge + Production deploy start decision gate prepared
 
@@ -53,7 +73,7 @@ Evidence:
 
 Next:
 
-- **（完了）** GitHub **Merge pull request** により **`main` 更新 + Vercel Production** — 証跡 **`M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`。** **次 5G**。
+- **（完了）** GitHub **Merge pull request** により **`main` 更新 + Vercel Production** — 証跡 **`M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`。** **`5F`〜`5G` 経路済。現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -73,7 +93,7 @@ Evidence:
 
 Next:
 
-- **5E-D execution GREEN 済。** **5G**。
+- **5E-D execution GREEN 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -93,7 +113,7 @@ Evidence:
 
 Next:
 
-- **5E-D 済。** **5G**。
+- **5E-D 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -114,7 +134,7 @@ Evidence:
 
 Next:
 
-- **5E-D GREEN 済。** **5G**。
+- **5E-D GREEN 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -135,7 +155,7 @@ Evidence:
 
 Next:
 
-- **（次段は上記 5E checkpoint）** — **PR merge 判断ゲート SSOT 済**。**実 merge は別明示 GO** → **5E-D〜5F 経由で本番整合** → **5G**。
+- **（次段は上記 5E checkpoint）** — **PR merge 判断ゲート SSOT 済**。**実 merge は別明示 GO** → **5E-D〜5F 経由で本番整合** → **`5G`（計画 SSOT 済）→** **`5H`**。
 
 Hard stop:
 
@@ -734,9 +754,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-15 — Phase 5-6H-5G Production public surface read-only smoke planning gate prepared
+
+Status: **docs-only plan。** Verdict **`READY_FOR_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_EXECUTION_GATE`。** **No prod URL / no curl / no payment.** Next **5H + explicit GO**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`1167f77`**（5G 追加直前）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5G_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_PLANNING_GATE_2026-05-15.md`
+
+Next:
+
+- **Phase 5-6H-5H** — **GET/HEAD smoke（別 GO）**。
+
+Hard stop:
+
+- **5G セッション:** **本番 URL 未アクセス** / **決済・Checkout・webhook・env 未変更**。
+
 ## 2026-05-15 — Phase 5-6H-5F Production deployment read-only verification / post-merge state recording completed
 
-Status: **read-only cross-check + docs。** Verdict **`PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_GREEN`。** **`main`/`merge` `483285da…` と Vercel Production Current 再確認。** **live 決済・webhook・env 変更なし。** Next **5G planning（docs-only）**。
+Status: **read-only cross-check + docs。** Verdict **`PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_GREEN`。** **`main`/`merge` `483285da…` と Vercel Production Current 再確認。** **live 決済・webhook・env 変更なし。** **→ 5G 計画 SSOT 済。**
 
 Work anchor:
 
@@ -748,15 +788,15 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5G** — **Production public surface read-only smoke planning**。
+- **`M55_PHASE5_6H_5G_...` 済。** **次** **5H**（**GET/HEAD・別 GO**）。
 
 Hard stop:
 
-- **No live payment / no webhook / no env edits** until **5G-approved scope**。
+- **Prod URL smoke は 5H+GO まで禁止**。
 
 ## 2026-05-15 — Phase 5-6H-5E-D Main merge + Production deploy execution GREEN
 
-Status: **MERGED + Production Current。** **`mergeCommit` `483285da9b5ef492bd8495fa404558b31d994705`。** Verdict **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **本ローカル commit は docs のみ。** **live smoke / 本番決済 / env・webhook・secret 変更なし。** **→ 5F read-only GREEN 済。**
+Status: **MERGED + Production Current。** **`mergeCommit` `483285da9b5ef492bd8495fa404558b31d994705`。** Verdict **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **本ローカル commit は docs のみ。** **live smoke / 本番決済 / env・webhook・secret 変更なし。** **→ 5F read-only GREEN / 5G 計画 SSOT 済。**
 
 Work anchor:
 
@@ -768,7 +808,7 @@ Evidence:
 
 Next:
 
-- **`M55_PHASE5_6H_5F_PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_2026-05-15.md` 済。** **次** **5G**。
+- **`M55_PHASE5_6H_5F_PRODUCTION_DEPLOYMENT_READONLY_VERIFICATION_2026-05-15.md` 済。** **`M55_PHASE5_6H_5G_PRODUCTION_PUBLIC_SURFACE_READONLY_SMOKE_PLANNING_GATE_2026-05-15.md` 済。** **次** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -788,7 +828,7 @@ Evidence:
 
 Next:
 
-- **（完了）** **5E-D**。**次** **5G**。
+- **（完了）** GitHub **Merge pull request** により **`main` 更新 + Vercel Production** — 証跡 **`M55_PHASE5_6H_5E_D_MAIN_MERGE_PRODUCTION_DEPLOY_EXECUTION_GREEN_2026-05-15.md`。** **`5F`〜`5G` 経路済。現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -796,7 +836,7 @@ Hard stop:
 
 ## 2026-05-15 — Phase 5-6H-5E-B Vercel Production auto-deploy blocking confirmation
 
-Status: **docs-only / Vercel UI 観測の記録。** **Production = `main` 追跡・各コミットで Production Deployment 作成（UI 文言）・Auto-assign Custom Production Domains Enabled。** Verdict: **`MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`。** **→ merge 実行・Production Current は 5E-D。** Next **5G**（**5F read-only 済**）。
+Status: **docs-only / Vercel UI 観測の記録。** **Production = `main` 追跡・各コミットで Production Deployment 作成（UI 文言）・Auto-assign Custom Production Domains Enabled。** Verdict: **`MERGE_WILL_TRIGGER_PRODUCTION_DEPLOY_BLOCKING`。** **→ merge 実行・Production Current は 5E-D。** Next **`5H`**（**`5F` read-only / `5G` 計画 SSOT 済**）。
 
 Work anchor:
 
@@ -808,7 +848,7 @@ Evidence:
 
 Next:
 
-- **5E-D 実行 GREEN 済。** **5G**。
+- **5E-D 実行 GREEN 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -828,7 +868,7 @@ Evidence:
 
 Next:
 
-- **5E-D execution GREEN 済。** **5G**。
+- **5E-D execution GREEN 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -848,7 +888,7 @@ Evidence:
 
 Next:
 
-- **5E-D GREEN 済。** **5G**。
+- **5E-D GREEN 済。** **5G 計画 SSOT 済。** **現在の Next:** **`5H`**（**別明示 GO**）。
 
 Hard stop:
 
@@ -868,7 +908,7 @@ Evidence:
 
 Next:
 
-- **5E 判断 SSOT 済（上記）**。**実 merge は別明示 GO** → **5E-D〜5F** → **5G**。
+- **5E 判断 SSOT 済（上記）**。**実 merge は別明示 GO** → **5E-D〜5F〜`5G`（計画 SSOT 済）→** **`5H`**。
 
 Hard stop:
 
@@ -909,7 +949,7 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5D** — **完了**。**Phase 5-6H-5E** — **判断ゲート SSOT 済**。**merge は別明示 GO** → **5E-D〜5F〜5G**。
+- **Phase 5-6H-5D** — **完了**。**Phase 5-6H-5E** — **判断ゲート SSOT 済**。**merge は別明示 GO** → **5E-D〜5F〜`5G`（計画 SSOT 済）→** **`5H`**。
 
 Hard stop:
 
@@ -924,7 +964,7 @@ Status: **GREEN — evidence checkpoint only / no merge executed**
 - Integration hotfixes recorded: `2edc4cb`, `d9f8a88`, `d856061`, `7a0b784`.
 - PR compare shows Able to merge, but this is review state only.
 - **Not executed:** PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment. **Ready for review:** 5B 記録時点では **未** → **現在は 5D execution GREEN SSOT 時点で RfR 完了済み**（**merge は未**）。
-- Next: **5C〜5D 完了**。**5E** PR merge 判断ゲート **SSOT 済**。次 **明示 GO** → **main + Production（5E-D）** → **5F read-only** → **5G**。
+- Next: **5C〜5D 完了**。**5E** PR merge 判断ゲート **SSOT 済**。次 **明示 GO** → **main + Production（5E-D）** → **5F read-only** → **`5G`（計画 SSOT 済）→** **`5H`**。
 
 Hard stop remains: do not merge or deploy without a separate explicit GO.
 
