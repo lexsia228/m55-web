@@ -45,6 +45,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
+    '/prototype/:path*',
     '/((?!_next|.*\\..*).*)',
     '/(api|trpc)(.*)',
   ],
