@@ -1,10 +1,31 @@
-## 2026-05-14 — Phase 5-6H-4 main alignment decision gate prepared
+## 2026-05-15 — Release Command Center / AI team status board prepared
 
-Status: **Decision / strategy only** — **実行ではない。** **`main` merge / PR 作成 / deploy は未実施。** integration **`integration/main-align-2026-05-14`**（**`10b4e33`**）を **正本候補**とし、**`main` 反映は GitHub PR 優先**等を `M55_PHASE5_6H_4_...` に固定。次 **Phase 5-6H-5** — **`main` alignment execution GO gate**。
+Status: **Documentation only** — **実行ではない。** **`M55_RELEASE_COMMAND_CENTER_2026-05-15.md`**（zero-backtracking プロトコル）と **`M55_AI_TEAM_STATUS_BOARD.md`**（AI 向けダッシュボード）を追加。**PR 作成 / merge / deploy は未実施。** 次 **Phase 5-6H-5A** — **Draft PR 作成のみ**。
 
 Work anchor:
 
-- Branch `work/home-cluster`, commit **`19e9989`**（5-6H-3 証跡記録）。
+- Branch `work/home-cluster`, commit **`57d7671`**.
+
+Evidence:
+
+- `docs/ssot/M55_RELEASE_COMMAND_CENTER_2026-05-15.md`
+- `docs/ssot/M55_AI_TEAM_STATUS_BOARD.md`
+
+Next:
+
+- **Phase 5-6H-5A** — **Draft PR のみ**（`integration/main-align-2026-05-14` → `main`）。詳細 § H は Release Command Center。
+
+Hard stop:
+
+- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment（**5-6H-5A で許可された範囲外**）。
+
+## 2026-05-14 — Phase 5-6H-4 main alignment decision gate prepared
+
+Status: **Decision / strategy only** — **実行ではない。** **`main` merge / PR 作成 / deploy は未実施。** integration **`integration/main-align-2026-05-14`**（**`10b4e33`**）を **正本候補**とし、**`main` 反映は GitHub PR 優先**等を `M55_PHASE5_6H_4_...` に固定。次 **Phase 5-6H-5A** — **Draft PR のみ**（Release Command Center § H）。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`57d7671`**（main alignment decision gate 文書）。
 
 Evidence:
 
@@ -12,11 +33,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5** — **`main` 反映実行 GO**（**PR または明示 GO 付きローカル merge**）、またはブロッカー **hardening**。
+- **Phase 5-6H-5A** — **Draft PR 作成のみ**（**`M55_RELEASE_COMMAND_CENTER_2026-05-15.md`** § H）。**PR merge は別 GO**。
 
 Hard stop:
 
-- **No** `main` merge（**PR merge を含む、5-6H-5 GO まで**）/ **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5 gate**。
+- **No** `main` merge（**PR merge を含む、PR merge は明示 GO まで**）/ **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment（**5-6H-5A は Draft PR 作成・diff/checks レビューのみ**）。
 
 ## 2026-05-14 — Phase 5-6H-3 integration branch merge/build GREEN
 
