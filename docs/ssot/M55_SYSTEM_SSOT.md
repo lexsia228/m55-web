@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+
+Status: **Decision gate documentation only — docs-only.** **No GitHub Ready for review / no PR merge / no `main` merge / no Production operations executed by this SSOT update.** **PR #1 remains Draft on GitHub.**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`0b9134e`** — `docs: prepare ready-for-review merge decision gate`（**5D SSOT 追加直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5D_READY_FOR_REVIEW_ESCALATION_DECISION_GATE_2026-05-15.md`
+
+Next:
+
+- **Separate explicit GO** — **Ready for review button only** on GitHub → re-verify PR + checks → **Phase 5-6H-5E** PR merge decision gate.
+
+Hard stop:
+
+- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **that explicit GO**（**this checkpoint is documentation-only**）.
+
 ## 2026-05-15 — Release Command Center / AI team status board prepared
 
 Status: **Documentation only** — **実行ではない。** **`M55_RELEASE_COMMAND_CENTER_2026-05-15.md`**（zero-backtracking プロトコル）と **`M55_AI_TEAM_STATUS_BOARD.md`**（AI 向けダッシュボード）を追加。**PR 作成 / merge / deploy は未実施。** 次 **Phase 5-6H-5A** — **Draft PR 作成のみ**。
@@ -571,9 +591,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-15 — Phase 5-6H-5D Ready-for-review escalation decision gate prepared
+
+Status: **Decision gate documentation only — docs-only.** **No GitHub PR state change / no Production operations.** Verdict: **READY_FOR_READY_REVIEW_ESCALATION_GATE**; **actual Ready for review** only after **separate explicit GO**.
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`0b9134e`**（**5D SSOT 追加直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5D_READY_FOR_REVIEW_ESCALATION_DECISION_GATE_2026-05-15.md`
+
+Next:
+
+- **Explicit GO** → **Ready for review only** → re-check PR/checks → **Phase 5-6H-5E** PR merge GO gate.
+
+Hard stop:
+
+- **No** Ready for review button / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **post-5D explicit GO**.
+
 ## 2026-05-15 — Phase 5-6H-5C Ready-for-review / PR merge GO decision gate prepared
 
-Status: **Decision / handoff documentation only** — **実行ではない。** **5C 意思決定・引き継ぎ SSOT** を追加。**Ready for review / PR merge / `main` merge / Production deploy は未実施。** **現在の heavy AI スレッド**は、本ドキュメントの **commit / push** と **status clean** 後に **停止**し、**新スレッド**で **5-6H-5D**（実行判断ゲート）へ。**PR #1** は **Draft** のまま。
+Status: **Decision / handoff documentation only** — **実行ではない。** **5C 意思決定・引き継ぎ SSOT** を追加。**Ready for review / PR merge / `main` merge / Production deploy は未実施。** **PR #1** は **Draft** のまま。
 
 Work anchor:
 
@@ -586,11 +626,11 @@ Evidence:
 
 Next:
 
-- **Phase 5-6H-5D** — **新スレッド**による **Ready-for-review / PR merge 実行判断**（**明示 GO 後のみ** GitHub 操作）。
+- **Phase 5-6H-5D** — **本 checkpoint**（Ready for review **昇格判断** SSOT のみ）。**実操作は別 GO**。
 
 Hard stop:
 
-- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5D explicit GO**。
+- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5D 記録後の明示 GO**。
 
 ## 2026-05-15 — Phase 5-6H-5B PR checks GREEN evidence checkpoint
 
@@ -601,10 +641,9 @@ Status: **GREEN — evidence checkpoint only / no merge executed**
 - Integration hotfixes recorded: `2edc4cb`, `d9f8a88`, `d856061`, `7a0b784`.
 - PR compare shows Able to merge, but this is review state only.
 - **Not executed:** Ready for review, PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment.
-- Next: **Phase 5-6H-5C** — **完了**（decision gate SSOT）。次 **5-6H-5D** — **新スレッド実行判断**。
+- Next: **Phase 5-6H-5C〜5D** — **完了**（SSOT）。次 **別明示 GO** — **Ready for review のみ** → 再確認後 **5-6H-5E** PR merge 判断。
 
 Hard stop remains: do not merge or deploy without a separate explicit GO.
- & AUDIT LOG (2026)
 
 ## 【CURRENT: 2026-03-03】
 - **Gate R Status**: PASS (Stripe審査用ページ隔離済み)
