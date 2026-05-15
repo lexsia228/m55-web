@@ -12,7 +12,6 @@ html, body { margin: 0; padding: 0; }
   justify-content: space-between !important;
   width: 100% !important;
   border-radius: 14px !important;
-  background: linear-gradient(135deg, #3d3262 0%, #534a72 100%) !important;
   padding: 16px 22px !important;
   color: #fff !important;
   font-weight: 700 !important;
