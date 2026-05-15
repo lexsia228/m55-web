@@ -1,0 +1,1356 @@
+{
+  "generated_at_utc": "2026-05-15T22:11:04.719451+00:00",
+  "count": 270,
+  "records": [
+    {
+      "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
+      "category": "ssot",
+      "bytes": 1717
+    },
+    {
+      "path": "docs/ssot/DESKTOP_PACK_SCAN_REPORT_2026-02-26.md",
+      "category": "ssot",
+      "bytes": 3948
+    },
+    {
+      "path": "docs/ssot/M55_2026-05_STRIPE_SUPABASE_SHADOW_INCIDENT_RUNBOOK.md",
+      "category": "ssot",
+      "bytes": 6285
+    },
+    {
+      "path": "docs/ssot/M55_AUTOMATION_OPERATING_SYSTEM_v1_2026-03-06.md",
+      "category": "ssot",
+      "bytes": 4202
+    },
+    {
+      "path": "docs/ssot/M55_BASELINE_FREEZE_20260330.md",
+      "category": "ssot",
+      "bytes": 6333
+    },
+    {
+      "path": "docs/ssot/M55_CHECKPOINT_UPDATE_20260330_v3.md",
+      "category": "ssot",
+      "bytes": 3545
+    },
+    {
+      "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 4728
+    },
+    {
+      "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
+      "category": "ssot",
+      "bytes": 6382
+    },
+    {
+      "path": "docs/ssot/M55_DTR_BASE_PREVIEW_GREEN_CHECKPOINT_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 3141
+    },
+    {
+      "path": "docs/ssot/M55_DTR_BASE_PREVIEW_PHASE2_WALLET_LINK_GREEN_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 3379
+    },
+    {
+      "path": "docs/ssot/M55_DTR_BASE_PREVIEW_PHASE3_INCLUDED_REPLY_E2E_GREEN_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 3288
+    },
+    {
+      "path": "docs/ssot/M55_DTR_BASE_PREVIEW_PHASE4_ADDITIONAL_REPLY_E2E_GREEN_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 4207
+    },
+    {
+      "path": "docs/ssot/M55_ENTITLEMENT_STATE_TRANSITION_SPEC_v1.md",
+      "category": "ssot",
+      "bytes": 11634
+    },
+    {
+      "path": "docs/ssot/M55_ENVIRONMENT_MATRIX.md",
+      "category": "ssot",
+      "bytes": 3019
+    },
+    {
+      "path": "docs/ssot/M55_HEADER_VISUAL_FREEZE_v1.md",
+      "category": "ssot",
+      "bytes": 1825
+    },
+    {
+      "path": "docs/ssot/M55_HOME_CLUSTER_SSOT_FREEZE_v2.md",
+      "category": "ssot",
+      "bytes": 11332
+    },
+    {
+      "path": "docs/ssot/M55_HOME_MAIN_VISUAL_ART_BRIEF_v1.md",
+      "category": "ssot",
+      "bytes": 5307
+    },
+    {
+      "path": "docs/ssot/M55_HOME_POSTER_LAYOUT_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 5927
+    },
+    {
+      "path": "docs/ssot/M55_HOME_TEXT_FIT_RULES_v1.md",
+      "category": "ssot",
+      "bytes": 6424
+    },
+    {
+      "path": "docs/ssot/M55_INCIDENT_2026-05-08_WEBHOOK_ENV_MIXUP.md",
+      "category": "ssot",
+      "bytes": 2934
+    },
+    {
+      "path": "docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md",
+      "category": "ssot",
+      "bytes": 7244
+    },
+    {
+      "path": "docs/ssot/M55_MONETIZATION_SSOT_FULL_FREEZE_v1_0.md",
+      "category": "ssot",
+      "bytes": 8954
+    },
+    {
+      "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
+      "category": "ssot",
+      "bytes": 7657
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 6653
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 4335
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_4_PRODUCTION_APPLY_PLANNING_FINAL_GO_GATE_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 7176
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_5_FINAL_EXECUTION_READINESS_EXPLICIT_GO_DECISION_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 4866
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6A_PRODUCTION_EXECUTION_READINESS_INTAKE_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 12138
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6C_EXECUTION_START_CHECKPOINT_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 5193
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6D_PRODUCTION_READONLY_PREFLIGHT_RESULT_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 3424
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6E_LEDGER_LOOKUP_INDEX_REVIEW_2026-05-13.md",
+      "category": "ssot",
+      "bytes": 2852
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6G_PRODUCTION_MIGRATION_POSTFLIGHT_GREEN_2026-05-14.md",
+      "category": "ssot",
+      "bytes": 3411
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_1_MAIN_ALIGNMENT_TOPOLOGY_DIAGNOSTIC_2026-05-14.md",
+      "category": "ssot",
+      "bytes": 4443
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_2_INTEGRATION_MAIN_ALIGN_BRANCH_PLAN_2026-05-14.md",
+      "category": "ssot",
+      "bytes": 6180
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md",
+      "category": "ssot",
+      "bytes": 6724
+    },
+    {
+      "path": "docs/ssot/M55_PUBLIC_CLAIMS_ALLOWLIST_v1.md",
+      "category": "ssot",
+      "bytes": 3853
+    },
+    {
+      "path": "docs/ssot/M55_PURCHASE_FLOW_SPLIT.md",
+      "category": "ssot",
+      "bytes": 2123
+    },
+    {
+      "path": "docs/ssot/M55_RELATIONSHIP_REFLECTION_SYSTEM_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 8941
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_CREDIT_LEDGER_ARCHITECTURE_ADR_v1.md",
+      "category": "ssot",
+      "bytes": 8825
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_DATA_MODEL_AND_DB_CONTRACT_v1.md",
+      "category": "ssot",
+      "bytes": 9650
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_GENERATE_API_STUB_SPEC_v1.md",
+      "category": "ssot",
+      "bytes": 9887
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_JSON_SCHEMA_v1.md",
+      "category": "ssot",
+      "bytes": 8006
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_SYSTEM_IMPLEMENTATION_SPEC.md",
+      "category": "ssot",
+      "bytes": 6891
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_CHECKOUT_SESSION_CREATION_TEST_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6352
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_CHECKOUT_SESSION_CREATION_TEST_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4214
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_CHECKOUT_WEBHOOK_API_CONTRACT_DESIGN_v1.md",
+      "category": "ssot",
+      "bytes": 9128
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_CHECKOUT_WEBHOOK_IMPLEMENTATION_READINESS_v1.md",
+      "category": "ssot",
+      "bytes": 12142
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_CHECKOUT_WEBHOOK_TRANSACTION_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 11928
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_ALIGNMENT_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5634
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_ALIGNMENT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4239
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_ALIGNMENT_WEBHOOK_FORWARDING_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6403
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_POST_FULFILLMENT_BASELINE_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7834
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_PRE_FULFILLMENT_BASELINE_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7904
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_PRE_FULFILLMENT_BASELINE_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 7357
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DB_PRE_POST_BASELINE_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 8408
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DEDUPE_FULFILL_STATUS_DIAGNOSTIC_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5705
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DEDUPE_FULFILL_STATUS_DIAGNOSTIC_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5588
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DEDUPE_FULFILL_STATUS_DIAGNOSTIC_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5127
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DIAGNOSTIC_OBSERVATION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 0
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_DRY_RUN_TEST_MODE_SMOKE_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6352
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FRESH_CHECKOUT_FULFILLMENT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 2032
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_CANDIDATE_DRAFT_v1.md",
+      "category": "ssot",
+      "bytes": 7258
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 12813
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_FINAL_PRODUCTION_APPLY_APPROVAL_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 7597
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7542
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5479
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_APPLY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6180
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_APPLY_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5222
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_CANDIDATE_STATIC_AUDIT_v1.md",
+      "category": "ssot",
+      "bytes": 5643
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_CANDIDATE_v1.md",
+      "category": "ssot",
+      "bytes": 4253
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6025
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_PRODUCTION_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3789
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_SHADOW_APPLY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6240
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_SHADOW_APPLY_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4469
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_SHADOW_CANDIDATE_STATIC_AUDIT_v1.md",
+      "category": "ssot",
+      "bytes": 6468
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_SHADOW_CANDIDATE_v1.md",
+      "category": "ssot",
+      "bytes": 4726
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_ADDITIVE_MIGRATION_SHADOW_STAGING_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6522
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_DB_API_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 9369
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_DB_TRANSACTION_IMPLEMENTATION_DESIGN_v1.md",
+      "category": "ssot",
+      "bytes": 9615
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_IDEMPOTENCY_UNIQUENESS_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 9645
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_SCHEMA_GAP_DIAGNOSTIC_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 8654
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_SCHEMA_GAP_DIAGNOSTIC_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 6874
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_FULFILLMENT_SCHEMA_GAP_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 7498
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_PARTIAL_UNIQUE_INDEX_CANDIDATE_v1.md",
+      "category": "ssot",
+      "bytes": 5835
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_PARTIAL_UNIQUE_INDEX_PRODUCTION_APPLY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 7381
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_PARTIAL_UNIQUE_INDEX_PRODUCTION_APPLY_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5593
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_PARTIAL_UNIQUE_INDEX_STATIC_AUDIT_v1.md",
+      "category": "ssot",
+      "bytes": 5344
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_UNIQUENESS_INDEX_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 6596
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_UNIQUENESS_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7722
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_IDEMPOTENCY_UNIQUENESS_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3731
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_MINIMAL_REDACTED_DIAGNOSTIC_LOG_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 7333
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_MINIMAL_REDACTED_DIAGNOSTIC_LOG_IMPLEMENTATION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6289
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_NULL_WALLET_POLICY_v1.md",
+      "category": "ssot",
+      "bytes": 1684
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_NULL_WALLET_QUARANTINE_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 2252
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_III_WEBHOOK_REPLY_LANE_SKELETON_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3685
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_II_CHECKOUT_API_SKELETON_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4344
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_FULFILLMENT_TRANSACTION_HELPER_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 8271
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_CANDIDATE_STATIC_AUDIT_v1.md",
+      "category": "ssot",
+      "bytes": 8383
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_FUNCTION_SPEC_v1.md",
+      "category": "ssot",
+      "bytes": 12286
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_MIGRATION_CANDIDATE_DRAFT_v1.md",
+      "category": "ssot",
+      "bytes": 6688
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6843
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4606
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_PRODUCTION_APPLY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 7755
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_RPC_PRODUCTION_APPLY_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4039
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_IV_TRANSACTION_MODE_DECISION_v1.md",
+      "category": "ssot",
+      "bytes": 8661
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_PHASE_I_CONSTANTS_TYPES_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3147
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_REDACTED_ROUTE_RESPONSE_FULFILL_STATUS_OBSERVATION_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5502
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_REDACTED_ROUTE_RESPONSE_FULFILL_STATUS_OBSERVATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5413
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_REDACTED_ROUTE_RESPONSE_FULFILL_STATUS_OBSERVATION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4442
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_RPC_REPLACEMENT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 2052
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_A_STATIC_VERIFICATION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5131
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_AUTHENTICATED_LOW_RISK_VALIDATION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4031
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_AUTHENTICATED_VALIDATION_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6234
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_AUTHENTICATED_VALIDATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5729
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_CASE_1_UNAUTHENTICATED_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3924
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_CHECKOUT_API_VALIDATION_COMPLETION_v1.md",
+      "category": "ssot",
+      "bytes": 6188
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_CHECKOUT_API_VALIDATION_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6147
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_CHECKOUT_API_VALIDATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5488
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_OWNERSHIP_WALLET_DATA_SELECTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7602
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_OWNERSHIP_WALLET_DATA_SELECTION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4620
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_OWNERSHIP_WALLET_VALIDATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6601
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_PRICE_ENV_PRESENCE_CHECK_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5399
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STAGE_B_PRICE_ENV_PRESENCE_CHECK_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4045
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_CLI_LISTEN_SETUP_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5654
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_CLI_LISTEN_SETUP_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3320
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_EVENT_METADATA_CHECK_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5771
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_EVENT_METADATA_CHECK_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4323
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_EXPANSION_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 8247
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_TEST_PRICE_ENV_PREPARATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5756
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_TEST_PRICE_ENV_SETUP_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5502
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_STRIPE_TEST_PRICE_LOCAL_ENV_SETUP_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3226
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_TARGET_EVENT_ALIGNMENT_CHECK_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5424
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_TARGET_EVENT_ALIGNMENT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3987
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_TEST_CHECKOUT_PAYMENT_COMPLETION_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6685
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_TEST_CHECKOUT_PAYMENT_COMPLETION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 7230
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_TEST_PAYMENT_RETURN_WEBHOOK_NOT_VERIFIED_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4937
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WALLET_REPORT_SCOPE_DDL_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 2078
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WALLET_REPORT_SCOPE_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 1771
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_200_DB_FULFILLMENT_NOT_OBSERVED_TRIAGE_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6463
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_FORWARDING_PREREQ_CHECK_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3675
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_FORWARDING_SETUP_CHECK_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7087
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_RECEIVE_REPLAY_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6266
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_RECEIVE_REPLAY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 5781
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_RECEIVE_REPLAY_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 3895
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_REPLY_LANE_STATIC_AUDIT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7903
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_REPLY_LANE_STATIC_AUDIT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 7100
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_RPC_CALL_IMPLEMENTATION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6976
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_TICKET_WEBHOOK_RPC_CALL_IMPLEMENTATION_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 6142
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_DB_REACH_POINT_BEFORE_STRIPE_EXPANSION_v1.md",
+      "category": "ssot",
+      "bytes": 6197
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_MINIMAL_BACKFILL_VERIFICATION_OBSERVATION_v1.md",
+      "category": "ssot",
+      "bytes": 6672
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_MISSING_FULFILLMENT_REMEDIATION_POLICY_v1.md",
+      "category": "ssot",
+      "bytes": 7800
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_ORPHAN_ENTITLEMENT_PART1_OBSERVATION_v1.md",
+      "category": "ssot",
+      "bytes": 4570
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_ORPHAN_ENTITLEMENT_PART1_RESULT_TEMPLATE_v1.md",
+      "category": "ssot",
+      "bytes": 6554
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_ORPHAN_ENTITLEMENT_REMEDIATION_POLICY_v1.md",
+      "category": "ssot",
+      "bytes": 10073
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_ORPHAN_THREE_CASE_CLASSIFICATION_v1.md",
+      "category": "ssot",
+      "bytes": 5487
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE0_PREFLIGHT_EXECUTION_PREP_v1.md",
+      "category": "ssot",
+      "bytes": 9144
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE0_PRE_EXECUTION_CHECKLIST_v1.md",
+      "category": "ssot",
+      "bytes": 7049
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_NULLABLE_COLUMNS_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 8980
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_NULLABLE_ONLY_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 5573
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_PRODUCTION_ALTER_EXECUTION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6272
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_PRODUCTION_POSTFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 6042
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_PRODUCTION_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7630
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_PRODUCTION_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4535
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_PRODUCTION_READINESS_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 7381
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_RESTART_GATE_AFTER_ORPHAN_BLOCKER_v1.md",
+      "category": "ssot",
+      "bytes": 7280
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_A_RETURN_TO_MAINLINE_CHECKPOINT_v1.md",
+      "category": "ssot",
+      "bytes": 5433
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B1_WALLET_BACKFILL_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 9744
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B1_WALLET_EXECUTION_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6431
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B1_WALLET_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 7900
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B1_WALLET_PREFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4673
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B1_WALLET_PRODUCTION_UPDATE_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5080
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B2_LEDGER_INHERIT_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 6321
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B2_LEDGER_PREFLIGHT_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6535
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B2_LEDGER_PRODUCTION_UPDATE_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5498
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B3_SESSION_QUARANTINE_CONTINUATION_v1.md",
+      "category": "ssot",
+      "bytes": 5640
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B_BACKFILL_DESIGN_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 8630
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B_CANDIDATE_DIAGNOSTIC_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 9820
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_PHASE_B_CANDIDATE_DIAGNOSTIC_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 4961
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_APP_IMPACT_PLAN_v1.md",
+      "category": "ssot",
+      "bytes": 13125
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_EXECUTION_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 13246
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_MIGRATION_PLAN_v1.md",
+      "category": "ssot",
+      "bytes": 12621
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_SCOPE_ADR_v1.md",
+      "category": "ssot",
+      "bytes": 11056
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_STAGING_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 12132
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_REPORT_INSTANCE_STAGING_MIGRATION_RUNBOOK_v1.md",
+      "category": "ssot",
+      "bytes": 14744
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_BOOTSTRAP_EXECUTION_PACKET_v1.md",
+      "category": "ssot",
+      "bytes": 6042
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_BOOTSTRAP_MIGRATION_FILE_AUDIT_v1.md",
+      "category": "ssot",
+      "bytes": 11873
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_ENV_PHASE_A_READINESS_CHECK_v1.md",
+      "category": "ssot",
+      "bytes": 6841
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_MINIMAL_BOOTSTRAP_APPLY_GATE_v1.md",
+      "category": "ssot",
+      "bytes": 6111
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_MINIMAL_BOOTSTRAP_DRAFT_v1.md",
+      "category": "ssot",
+      "bytes": 12117
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_MINIMAL_BOOTSTRAP_RUNBOOK_v1.md",
+      "category": "ssot",
+      "bytes": 10925
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_PHASE_A_NULLABLE_POSTFLIGHT_RESULT_v1.md",
+      "category": "ssot",
+      "bytes": 5974
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_PREFLIGHT_OBSERVATION_AND_MANUAL_CREATE_REJECTION_v1.md",
+      "category": "ssot",
+      "bytes": 6790
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_SCHEMA_BOOTSTRAP_PLAN_v1.md",
+      "category": "ssot",
+      "bytes": 9480
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SHADOW_SCHEMA_DEPENDENCY_MAP_v1.md",
+      "category": "ssot",
+      "bytes": 12262
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_SMOKE_ORPHAN_QUARANTINE_POLICY_v1.md",
+      "category": "ssot",
+      "bytes": 5639
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_STAGING_RUNBOOK_HARDENING_REVIEW_v1.md",
+      "category": "ssot",
+      "bytes": 5595
+    },
+    {
+      "path": "docs/ssot/M55_REPLY_WALLET_UNSAFE_ARCHIVE_SQL_REJECTION_v1.md",
+      "category": "ssot",
+      "bytes": 5889
+    },
+    {
+      "path": "docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md",
+      "category": "ssot",
+      "bytes": 29744
+    },
+    {
+      "path": "docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md",
+      "category": "ssot",
+      "bytes": 5018
+    },
+    {
+      "path": "docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md",
+      "category": "ssot",
+      "bytes": 2698
+    },
+    {
+      "path": "docs/ssot/M55_SUPABASE_NON_PROD_DB_STRATEGY_FOR_REPLY_WALLET_MIGRATION_v1.md",
+      "category": "ssot",
+      "bytes": 10722
+    },
+    {
+      "path": "docs/ssot/M55_SYSTEM_SSOT.md",
+      "category": "ssot",
+      "bytes": 31069
+    },
+    {
+      "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 6676
+    },
+    {
+      "path": "docs/ssot/M55_VISUAL_TOKEN_SPEC_v1.md",
+      "category": "ssot",
+      "bytes": 4363
+    },
+    {
+      "path": "docs/ssot/M55_WEB_BEHAVIORAL_AND_DATA_BINDING_CONTRACT_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 1501
+    },
+    {
+      "path": "docs/ssot/M55_WEB_JP_REVENUE_ACCELERATION_SSOT_v1_2026-03-06.md",
+      "category": "ssot",
+      "bytes": 4925
+    },
+    {
+      "path": "docs/ssot/M55_WEB_PAGE_MAPPING_AND_REUSE_MATRIX_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 1319
+    },
+    {
+      "path": "docs/ssot/M55_WEB_UI_ARCHITECTURE_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 1134
+    },
+    {
+      "path": "docs/ssot/M55_WEB_VISUAL_AND_COMPONENT_CONTRACT_SSOT_v1_2026-03-07.md",
+      "category": "ssot",
+      "bytes": 1438
+    },
+    {
+      "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
+      "category": "ssot",
+      "bytes": 3159
+    },
+    {
+      "path": "docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 3410
+    },
+    {
+      "path": "docs/ssot/PRICING_WALLET_SEPARATION__EXTRACT_v1_DESKTOP_PACK_2026-02-01.md",
+      "category": "ssot",
+      "bytes": 2813
+    },
+    {
+      "path": "docs/ssot/PROJECT_B_SSOT_FREEZE.md",
+      "category": "ssot",
+      "bytes": 1259
+    },
+    {
+      "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
+      "category": "ssot",
+      "bytes": 1523
+    },
+    {
+      "path": "docs/ssot/SSOT_INDEX.md",
+      "category": "ssot",
+      "bytes": 627
+    },
+    {
+      "path": "docs/ssot/STRIPE_DASHBOARD_SUBMISSION_CHECKLIST__MIN_PII_v1.md",
+      "category": "ssot",
+      "bytes": 2262
+    },
+    {
+      "path": "docs/ssot/STRIPE_REVIEW_SUBMISSION_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 2433
+    },
+    {
+      "path": "docs/ssot/WEB_LEGAL_PAGES_MINIMUM_SSOT_v2.md",
+      "category": "ssot",
+      "bytes": 2822
+    },
+    {
+      "path": "docs/ssot/WEB_MASTER_SSOT__PRICING_AND_PRODUCTS_v1.md",
+      "category": "ssot",
+      "bytes": 4272
+    },
+    {
+      "path": "docs/ssot/WEB_PRICING_WALLET_SEPARATION_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 1980
+    },
+    {
+      "path": "docs/ssot/post_purchase_alignment_ssot_2026_03_08.md",
+      "category": "ssot",
+      "bytes": 2368
+    },
+    {
+      "path": "docs/ssot/stripe_go_live_test_checklist_2026_03_08.md",
+      "category": "ssot",
+      "bytes": 1853
+    },
+    {
+      "path": "docs/audit/GM_SEAL.md",
+      "category": "audit",
+      "bytes": 2714
+    },
+    {
+      "path": "docs/audit/HOME_POSTER_REGRESSION_CHECKLIST_20260401.md",
+      "category": "audit",
+      "bytes": 2336
+    },
+    {
+      "path": "docs/audit/M55_ASSET_EXTRACTION_AND_RETENTION_POLICY_v1_2026-03-06.md",
+      "category": "audit",
+      "bytes": 1677
+    },
+    {
+      "path": "docs/audit/M55_AUDIT_CHECKLIST_FINAL.md",
+      "category": "audit",
+      "bytes": 3477
+    },
+    {
+      "path": "docs/audit/M55_CORE_REGRESSION_AUDIT_2026-04-06.json",
+      "category": "audit",
+      "bytes": 2056
+    },
+    {
+      "path": "docs/audit/M55_CORE_REGRESSION_AUDIT_2026-04-06.md",
+      "category": "audit",
+      "bytes": 1716
+    },
+    {
+      "path": "docs/audit/M55_CURSOR_TEAM_CHECKPOINT_TEMPLATE_2026-03-06.md",
+      "category": "audit",
+      "bytes": 820
+    },
+    {
+      "path": "docs/audit/M55_DOCS_PUBLIC_LANE_CROSS_CONSISTENCY_2026-03-08.md",
+      "category": "audit",
+      "bytes": 1038
+    },
+    {
+      "path": "docs/audit/M55_E2E_RUNBOOK_2026-03-28.md",
+      "category": "audit",
+      "bytes": 10624
+    },
+    {
+      "path": "docs/audit/M55_E2E_VERIFICATION_CHECKLIST_2026-03-28.md",
+      "category": "audit",
+      "bytes": 5920
+    },
+    {
+      "path": "docs/audit/M55_IMPLEMENTATION_COMMANDS_FOR_CURSOR.md",
+      "category": "audit",
+      "bytes": 5052
+    },
+    {
+      "path": "docs/audit/M55_ONE_TIME_CHECKOUT_FULFILLMENT_SPEC_2026-03-08.md",
+      "category": "audit",
+      "bytes": 3165
+    },
+    {
+      "path": "docs/audit/M55_ONE_TIME_FULFILLMENT_EVIDENCE_REPORT_2026-03-08.md",
+      "category": "audit",
+      "bytes": 5537
+    },
+    {
+      "path": "docs/audit/M55_PHASE1_MONETIZATION_IMPLEMENTATION_2026-03-06.md",
+      "category": "audit",
+      "bytes": 3436
+    },
+    {
+      "path": "docs/audit/M55_PHASE1_RETROSPECTIVE_AND_ROUTE_2026-03-06.md",
+      "category": "audit",
+      "bytes": 11236
+    },
+    {
+      "path": "docs/audit/M55_POSTHOG_MINIMUM_FUNNEL_SPEC_2026-03-07.md",
+      "category": "audit",
+      "bytes": 1509
+    },
+    {
+      "path": "docs/audit/M55_PROTOTYPE_HUB_VISUAL_VERIFICATION_AND_RELEASE_SEQUENCE_2026-03-07.md",
+      "category": "audit",
+      "bytes": 1966
+    },
+    {
+      "path": "docs/audit/M55_PROTOTYPE_HUB_WIREFRAME_2026-03-07_APPROVED.md",
+      "category": "audit",
+      "bytes": 2097
+    },
+    {
+      "path": "docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md",
+      "category": "audit",
+      "bytes": 1974
+    },
+    {
+      "path": "docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md",
+      "category": "audit",
+      "bytes": 9623
+    },
+    {
+      "path": "docs/audit/M55_REFINED_EXECUTION_ROADMAP_2026-03-07.md",
+      "category": "audit",
+      "bytes": 5608
+    },
+    {
+      "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
+      "category": "audit",
+      "bytes": 9663
+    },
+    {
+      "path": "docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md",
+      "category": "audit",
+      "bytes": 3726
+    },
+    {
+      "path": "docs/audit/M55_THREAD_ASSET_SUMMARY_2026-03-06.md",
+      "category": "audit",
+      "bytes": 1323
+    },
+    {
+      "path": "docs/audit/M55_WEBHOOK_EVENT_BIFURCATION_TABLE_2026_03_14.md",
+      "category": "audit",
+      "bytes": 4187
+    },
+    {
+      "path": "docs/audit/M55_WEBHOOK_EVENT_TYPE_FIX_REPORT_2026_03_14.md",
+      "category": "audit",
+      "bytes": 2940
+    },
+    {
+      "path": "docs/audit/P1_ACTIVE_PROMOTION_REPORT_2026_03_09.md",
+      "category": "audit",
+      "bytes": 4010
+    },
+    {
+      "path": "docs/audit/P1_EVIDENCE_PHASE_SUMMARY_2026_03_08.md",
+      "category": "audit",
+      "bytes": 2381
+    },
+    {
+      "path": "docs/audit/P1_POST_PURCHASE_ALIGNMENT_SUBTASK_COMPLETE_2026_03_08.md",
+      "category": "audit",
+      "bytes": 1632
+    },
+    {
+      "path": "docs/audit/P1_TC_EXECUTION_RUNBOOK_2026_03_08.md",
+      "category": "audit",
+      "bytes": 6727
+    },
+    {
+      "path": "docs/audit/README.md",
+      "category": "audit",
+      "bytes": 1172
+    },
+    {
+      "path": "docs/audit/RECOVERY_COMPLETE_20260401.md",
+      "category": "audit",
+      "bytes": 3466
+    },
+    {
+      "path": "docs/audit/TURN_12A_CHECKED_LEDGER.md",
+      "category": "audit",
+      "bytes": 1996
+    },
+    {
+      "path": "docs/audit/TURN_13A_SSOT_SURFACE_INDEX.md",
+      "category": "audit",
+      "bytes": 1189
+    },
+    {
+      "path": "docs/audit/evidence/README.md",
+      "category": "audit",
+      "bytes": 987
+    },
+    {
+      "path": "docs/audit/evidence/TC-02_ONE_TIME_HAPPY_PATH.md",
+      "category": "audit",
+      "bytes": 4148
+    },
+    {
+      "path": "docs/audit/evidence/TC-03_REPLAY_DUPLICATE_RESISTANCE.md",
+      "category": "audit",
+      "bytes": 950
+    },
+    {
+      "path": "docs/audit/evidence/TC-04_PAYMENT_TRUTH_GUARD.md",
+      "category": "audit",
+      "bytes": 1120
+    },
+    {
+      "path": "docs/audit/evidence/TC-05_FULL_REFUND.md",
+      "category": "audit",
+      "bytes": 1037
+    },
+    {
+      "path": "docs/audit/evidence/TC-06_PARTIAL_REFUND.md",
+      "category": "audit",
+      "bytes": 859
+    },
+    {
+      "path": "docs/audit/evidence/TC-07_FAILED_FULFILLMENT_MANUAL_RECOVERY.md",
+      "category": "audit",
+      "bytes": 1558
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-05/INDEX.md",
+      "category": "audit",
+      "bytes": 1892
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-05/MANIFEST.md",
+      "category": "audit",
+      "bytes": 2921
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-05/NOTES.md",
+      "category": "audit",
+      "bytes": 2421
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-06/INDEX.md",
+      "category": "audit",
+      "bytes": 273
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-06/MANIFEST.md",
+      "category": "audit",
+      "bytes": 239
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-06/NOTES.md",
+      "category": "audit",
+      "bytes": 598
+    },
+    {
+      "path": "docs/audit/sources/ingest_2026-03-07/MANIFEST.md",
+      "category": "audit",
+      "bytes": 1499
+    }
+  ]
+}
