@@ -569,7 +569,21 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - 新規 audit: `M55_AUDIT_CHECKLIST_FINAL.md`, `M55_IMPLEMENTATION_COMMANDS_FOR_CURSOR.md`
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
-# M55 SYSTEM SSOT & AUDIT LOG (2026)
+# M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5B PR checks GREEN evidence checkpoint
+
+Status: **GREEN — evidence checkpoint only / no merge executed**
+
+- Draft PR #1 was created for `integration/main-align-2026-05-14` → `main`.
+- PR diff / CI / guard checks were reviewed and recorded as GREEN.
+- Integration hotfixes recorded: `2edc4cb`, `d9f8a88`, `d856061`, `7a0b784`.
+- PR compare shows Able to merge, but this is review state only.
+- **Not executed:** Ready for review, PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment.
+- Next: **Phase 5-6H-5C explicit Ready-for-review / PR merge GO decision gate**.
+
+Hard stop remains: do not merge or deploy without a separate explicit GO.
+ & AUDIT LOG (2026)
 
 ## 【CURRENT: 2026-03-03】
 - **Gate R Status**: PASS (Stripe審査用ページ隔離済み)
