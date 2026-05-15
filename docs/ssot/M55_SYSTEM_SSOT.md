@@ -571,6 +571,27 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-15 — Phase 5-6H-5C Ready-for-review / PR merge GO decision gate prepared
+
+Status: **Decision / handoff documentation only** — **実行ではない。** **5C 意思決定・引き継ぎ SSOT** を追加。**Ready for review / PR merge / `main` merge / Production deploy は未実施。** **現在の heavy AI スレッド**は、本ドキュメントの **commit / push** と **status clean** 後に **停止**し、**新スレッド**で **5-6H-5D**（実行判断ゲート）へ。**PR #1** は **Draft** のまま。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`53af483`** — `docs: update system ssot for PR checks green`（5C 文書追加前の証跡）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5C_READY_FOR_REVIEW_PR_MERGE_GO_DECISION_GATE_2026-05-15.md`
+- Prior: `docs/ssot/M55_PHASE5_6H_5B_PR_CHECKS_GREEN_2026-05-15.md`, PR https://github.com/lexsia228/m55-web/pull/1
+
+Next:
+
+- **Phase 5-6H-5D** — **新スレッド**による **Ready-for-review / PR merge 実行判断**（**明示 GO 後のみ** GitHub 操作）。
+
+Hard stop:
+
+- **No** Ready for review / **no** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment until **5-6H-5D explicit GO**。
+
 ## 2026-05-15 — Phase 5-6H-5B PR checks GREEN evidence checkpoint
 
 Status: **GREEN — evidence checkpoint only / no merge executed**
@@ -580,7 +601,7 @@ Status: **GREEN — evidence checkpoint only / no merge executed**
 - Integration hotfixes recorded: `2edc4cb`, `d9f8a88`, `d856061`, `7a0b784`.
 - PR compare shows Able to merge, but this is review state only.
 - **Not executed:** Ready for review, PR merge, main merge, Production deploy, env/whsec/secret changes, Stripe webhook changes, live smoke, live payment.
-- Next: **Phase 5-6H-5C explicit Ready-for-review / PR merge GO decision gate**.
+- Next: **Phase 5-6H-5C** — **完了**（decision gate SSOT）。次 **5-6H-5D** — **新スレッド実行判断**。
 
 Hard stop remains: do not merge or deploy without a separate explicit GO.
  & AUDIT LOG (2026)
