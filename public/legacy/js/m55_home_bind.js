@@ -64,17 +64,13 @@ function installInteractions(doc = document) {
     if (i === 0) {
       el.addEventListener("click", () => navigateTo("PAGE_CORE"));
     } else if (i === 1) {
-      el.setAttribute("aria-disabled", "true");
-      el.style.opacity = "0.5";
-      el.style.cursor = "default";
+      el.addEventListener("click", () => navigateTo("PAGE_SYNASTRY"));
     } else if (i === 2) {
       el.addEventListener("click", () => navigateTo("PAGE_TODAY"));
     } else if (i === 3) {
       el.addEventListener("click", () => navigateTo("PAGE_WEEKLY"));
     } else if (i === 4) {
-      el.setAttribute("aria-disabled", "true");
-      el.style.opacity = "0.5";
-      el.style.cursor = "default";
+      el.addEventListener("click", () => navigateTo("PAGE_CALENDAR"));
     }
   });
 
