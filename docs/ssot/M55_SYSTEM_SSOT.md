@@ -1,6 +1,27 @@
+## 2026-05-15 — Phase 5-6H-5E-A Production auto-deploy side-effect read-only check
+
+Status: **`work/home-cluster`。** **docs-only / read-only。** **PR merge / `main` merge / Production deploy / ホスト設定変更は未実行。** **`main` merge 時の Vercel Production **自動発火可否** を repo のみ検証：**Verdict **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`** — **GitHub Actions の `main` push だけでは `.github/workflows/01_one_path_release.yml` の `vercel deploy --prod` は起動しない**。**一方 Vercel ダッシュボードの Production branch / 自動デプロイは repo では断定できない。** **merge は Vercel UI 確認または再 SSOT で UNKNOWN 解除までブロック運用が安全。**
+
+Work anchor:
+
+- Branch `work/home-cluster`, baseline commit **`de4d751`** — `docs: prepare pr merge decision gate`（**5E-A SSOT 追加直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5E_A_PRODUCTION_AUTODEPLOY_SIDE_EFFECT_CHECK_2026-05-15.md`
+
+Next:
+
+- **人間:** Vercel UI で Production branch / Automatic Production Deploy（相当）／保護設定を確認 → **SAFE が証跡化されるまで UNKNOWN 継続**。
+- **`UNKNOWN` 解除後**の **別明示 GO** で **PR #1 merge のみ** → **5-6H-5F**。
+
+Hard stop:
+
+- **No** PR merge / **no** `main` merge / **no** Production deploy / **no** env / **no** `whsec` / **no** secret / **no** Stripe webhook change / **no** live smoke / **no** live payment / **no** Production DB / **no** Vercel・Supabase・Stripe **設定変更**（**本 checkpoint は読み取り専用**）。
+
 ## 2026-05-15 — Phase 5-6H-5E PR merge / main alignment execution decision gate prepared
 
-Status: **Decision gate documentation only — docs-only。** **PR #1 を `main` へ merge してよいかを判断する SSOT を追加。** **GitHub での PR merge / `main` merge / Production 操作は未実施。** Verdict: **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**（**実 merge は別明示 GO のみ**）。
+Status: **Decision gate documentation only — docs-only。** **PR #1 を `main` へ merge してよいかを判断する SSOT を追加。** **GitHub での PR merge / `main` merge / Production 操作は未実施。** Verdict: **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**（**実 merge は別明示 GO のみ**）。**自動本番側は 5E-A が UNKNOWN のため merge GO と併せて運用側で確認。**
 
 Work anchor:
 
@@ -13,7 +34,8 @@ Evidence:
 
 Next:
 
-- **Separate explicit GO** — **PR #1 で Merge pull request のみ**（推奨: 通常マージ；設定が squash/rebase のみなら停止・報告）→ **Phase 5-6H-5F** merge 後証跡。
+- **先に:** `docs/ssot/M55_PHASE5_6H_5E_A_PRODUCTION_AUTODEPLOY_SIDE_EFFECT_CHECK_2026-05-15.md` の **UNKNOWN 解除**（Vercel UI 確認を SSOT 化）または運用許容の明示。
+- **その後 Separate explicit GO** — **PR #1 で Merge pull request のみ**（推奨: 通常マージ；設定が squash/rebase のみなら停止・報告）→ **Phase 5-6H-5F** merge 後証跡。
 
 Hard stop:
 
@@ -633,9 +655,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-15 — Phase 5-6H-5E-A Production auto-deploy side-effect read-only check
+
+Status: **read-only / docs-only。** **PR merge / Production deploy 未実施。** **repo + `gh` のみ:** **`vercel.json` なし** / **GHA `01_one_path_release` は tag・`workflow_dispatch` のみ（`main` merge 単体では `vercel deploy --prod` 非起動）** / **Vercel Production 自動発火は UI 外では断定不可。** Verdict: **`UNKNOWN_BLOCKING_NEEDS_MANUAL_VERCEL_UI_CONFIRMATION`**。
+
+Work anchor:
+
+- Branch `work/home-cluster`, commit **`de4d751`**（5E-A 追加直前）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5E_A_PRODUCTION_AUTODEPLOY_SIDE_EFFECT_CHECK_2026-05-15.md`
+
+Next:
+
+- **Vercel UI** で Production branch / auto-deploy を人間が確認 → **SAFE 証跡化 or 再判定** → その後 **merge 用明示 GO**。
+
+Hard stop:
+
+- **No** PR merge / **no** Production deploy / **no** 秘密・webhook・DB・live 決済 / **no** Vercel 設定変更（**本記録は読み取りのみ**）。
+
 ## 2026-05-15 — Phase 5-6H-5E PR merge / main alignment execution decision gate prepared
 
-Status: **docs-only。** **5E PR merge 判断ゲート SSOT 追加。** **PR merge / `main` merge / Production 未実施。** Verdict: **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**。**実 merge は別明示 GO**。
+Status: **docs-only。** **5E PR merge 判断ゲート SSOT 追加。** **PR merge / `main` merge / Production 未実施。** Verdict: **READY_FOR_PR_MERGE_EXECUTION_GO_GATE**。**実 merge は別明示 GO**。**自動本番は 5E-A UNKNOWN に注意。**
 
 Work anchor:
 
@@ -647,7 +689,7 @@ Evidence:
 
 Next:
 
-- **Explicit GO** → **PR #1 Merge pull request**（通常マージ推奨）→ **5-6H-5F** 証跡。
+- **5E-A** の Vercel UI 確認または再 SSOT → **explicit GO** → **PR merge** → **5-6H-5F**。
 
 Hard stop:
 
