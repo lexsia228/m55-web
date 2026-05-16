@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5P-A Production checkout price env blocked finding recorded
+
+Status: **`work/home-cluster`。** **人間が Production（**`https://m55-web.vercel.app`**／**`https://m55-webv2.vercel.app`**）でレポート／商品導線を閲覧。** **購入／レポート購入に相当するボタンを **一度だけ**押下。** **観測メッセージ:** **`Product DTR_CORE_STATIC_V1 is not configured (missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1)`**。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** が **missing のため、Stripe Checkout 作成前のアプリ側ブロックとして記録する。** **Checkout 作成成功なし。** **本番決済なし。** **`env`／`whsec`／secret／Vercel／Supabase／Stripe／webhook／追加 redeploy／Production DB：本条および本コミットでは変更しない。** **`/api/stripe/*` を直接実行しない。** **runtime／コード／UI は変更しない（docs のみ）。** Verdict **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`。** **直前 SSOT：** **`201b5b1643c9fe3e7b7a94a6946dfd056f91e8c4`**（**`5O` `GREEN`**）。 Next **`Phase`** **`5‑6H‑5Q`** — **Production Stripe price `env` configuration planning gate（**docs-only**）。** **`Checkout`** **の再試行・購入ボタンの再押下・`env` の代入・redeploy は **`5Q` および** **後続の明示 GO** **まで控える。**
+
+Work anchor:
+
+- **`201b5b1643c9fe3e7b7a94a6946dfd056f91e8c4`** — `docs: record production auth login blocked checkpoint`（**5P‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5P_A_PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_2026-05-15.md`
+
+Prior:
+
+- **`5O`:** `docs/ssot/M55_PHASE5_6H_5O_PRODUCTION_AUTH_LOGIN_BLOCKED_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`PRODUCTION_AUTH_LOGIN_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**
+
+Hard stop:
+
+- **Checkout を成功としては記録しない。** **購入再試行なし。** **`env` はまだ追加しない。** **redeploy なし。** **Stripe webhook／`whsec`／secret は変更しない。**
+
 ## 2026-05-15 — Phase 5-6H-5O Production auth/login blocked evidence checkpoint / human manual login gate planning recorded
 
 Status: **`work/home-cluster`。** **docs-only。** **`5M` auth/login planning は `READY_FOR_PRODUCTION_AUTH_LOGIN_EXECUTION_GATE`（GREEN）。** **`5N` は `PRODUCTION_AUTH_LOGIN_EXECUTION_BLOCKED`（エージェントが credential login を実行せず実ログイン証跡未取得；** **アプリログイン障害の確定ではない**）。** **`/sign-in` 到達・未ログイン UI の自動観測は `5N` SSOT を参照。** **`Checkout`/本番決済/webhook・`env`/意図的 `DB`・POST・`/api/stripe/*`・ログイン実操作は本条でも未実施。** Verdict **`PRODUCTION_AUTH_LOGIN_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`。** Next **Phase **`5`**-`**6`**H`-`**5`**P** — **`Production`** **`auth`**/`**`**login`** **`human`** **`manual`** **`execution`** **`gate`。** **`5P` でも Checkout／本番決済／webhook／`env`／Production DB 変更は別明示 GO まで禁止。**
@@ -916,6 +936,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5P-A Production checkout price env blocked finding recorded
+
+Status: **`work/home-cluster`。** **人間が Production（**`https://m55-web.vercel.app`**／**`https://m55-webv2.vercel.app`**）でレポート／商品導線を閲覧。** **購入／レポート購入に相当するボタンを **一度だけ**押下。** **観測メッセージ:** **`Product DTR_CORE_STATIC_V1 is not configured (missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1)`**。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** が **missing のため、Stripe Checkout 作成前のアプリ側ブロックとして記録する。** **Checkout 作成成功なし。** **本番決済なし。** **`env`／`whsec`／secret／Vercel／Supabase／Stripe／webhook／追加 redeploy／Production DB：本条および本コミットでは変更しない。** **`/api/stripe/*` を直接実行しない。** **runtime／コード／UI は変更しない（docs のみ）。** Verdict **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`。** **直前 SSOT：** **`201b5b1643c9fe3e7b7a94a6946dfd056f91e8c4`**（**`5O` `GREEN`**）。 Next **`Phase`** **`5‑6H‑5Q`** — **Production Stripe price `env` configuration planning gate（**docs-only**）。** **`Checkout`** **の再試行・購入ボタンの再押下・`env` の代入・redeploy は **`5Q` および** **後続の明示 GO** **まで控える。**
+
+Work anchor:
+
+- **`201b5b1643c9fe3e7b7a94a6946dfd056f91e8c4`** — `docs: record production auth login blocked checkpoint`（**5P‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5P_A_PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_2026-05-15.md`
+
+Prior:
+
+- **`5O`:** `docs/ssot/M55_PHASE5_6H_5O_PRODUCTION_AUTH_LOGIN_BLOCKED_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`PRODUCTION_AUTH_LOGIN_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**
+
+Hard stop:
+
+- **Checkout を成功としては記録しない。** **購入再試行なし。** **`env` はまだ追加しない。** **redeploy なし。** **Stripe webhook／`whsec`／secret は変更しない。**
 
 ## 2026-05-15 — Phase 5-6H-5O Production auth/login blocked evidence checkpoint / human manual login gate planning recorded
 
