@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5Q Production Stripe price env configuration planning gate prepared
+
+Status: **`work/home-cluster`。** **docs-only planning。** **`5P‑A`：** **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`**（**`53097e9eed08eaf07a0dc4aa5a36a482730c7fba`**）。** **blocking environment variable name:** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`**（**フル値・`price_…` 全体は SSOT に載せない**）。** **観測メッセージは `5P‑A` SSOT 参照。** **Vercel Project **`m55-webv2`**、Production **`m55-web.vercel.app`**／**`m55-webv2.vercel.app`**。** **本条：`env`/`whsec`/secret・Vercel／Stripe／webhook／Checkout 再試行・購入・本番決済・redeploy・Supabase／Production DB／`/api/stripe/*` 直接・runtime 変更はしない。** Verdict **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（**フル値禁止**、**redacted** のみ）。**
+
+Work anchor:
+
+- **`53097e9eed08eaf07a0dc4aa5a36a482730c7fba`** — `docs: record production checkout price env blocked finding`（**5Q SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5P‑A`:** `docs/ssot/M55_PHASE5_6H_5P_A_PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_2026-05-15.md` — **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`**
+
+Hard stop:
+
+- **Stripe Price ID・secret・`whsec` のフル値を SSOT／チャットへ貼らない。** **`env` 代入なし。** **redeploy なし。**
+
 ## 2026-05-15 — Phase 5-6H-5P-A Production checkout price env blocked finding recorded
 
 Status: **`work/home-cluster`。** **人間が Production（**`https://m55-web.vercel.app`**／**`https://m55-webv2.vercel.app`**）でレポート／商品導線を閲覧。** **購入／レポート購入に相当するボタンを **一度だけ**押下。** **観測メッセージ:** **`Product DTR_CORE_STATIC_V1 is not configured (missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1)`**。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** が **missing のため、Stripe Checkout 作成前のアプリ側ブロックとして記録する。** **Checkout 作成成功なし。** **本番決済なし。** **`env`／`whsec`／secret／Vercel／Supabase／Stripe／webhook／追加 redeploy／Production DB：本条および本コミットでは変更しない。** **`/api/stripe/*` を直接実行しない。** **runtime／コード／UI は変更しない（docs のみ）。** Verdict **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`。** **直前 SSOT：** **`201b5b1643c9fe3e7b7a94a6946dfd056f91e8c4`**（**`5O` `GREEN`**）。 Next **`Phase`** **`5‑6H‑5Q`** — **Production Stripe price `env` configuration planning gate（**docs-only**）。** **`Checkout`** **の再試行・購入ボタンの再押下・`env` の代入・redeploy は **`5Q` および** **後続の明示 GO** **まで控える。**
@@ -936,6 +956,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5Q Production Stripe price env configuration planning gate prepared
+
+Status: **`work/home-cluster`。** **docs-only planning。** **`5P‑A`：** **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`**（**`53097e9eed08eaf07a0dc4aa5a36a482730c7fba`**）。** **blocking environment variable name:** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`**（**フル値・`price_…` 全体は SSOT に載せない**）。** **観測メッセージは `5P‑A` SSOT 参照。** **Vercel Project **`m55-webv2`**、Production **`m55-web.vercel.app`**／**`m55-webv2.vercel.app`**。** **本条：`env`/`whsec`/secret・Vercel／Stripe／webhook／Checkout 再試行・購入・本番決済・redeploy・Supabase／Production DB／`/api/stripe/*` 直接・runtime 変更はしない。** Verdict **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（**フル値禁止**、**redacted** のみ）。**
+
+Work anchor:
+
+- **`53097e9eed08eaf07a0dc4aa5a36a482730c7fba`** — `docs: record production checkout price env blocked finding`（**5Q SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5P‑A`:** `docs/ssot/M55_PHASE5_6H_5P_A_PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_2026-05-15.md` — **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`**
+
+Hard stop:
+
+- **Stripe Price ID・secret・`whsec` のフル値を SSOT／チャットへ貼らない。** **`env` 代入なし。** **redeploy なし。**
 
 ## 2026-05-15 — Phase 5-6H-5P-A Production checkout price env blocked finding recorded
 
