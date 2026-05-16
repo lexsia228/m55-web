@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-F Production redeploy for corrected price env activation gate recorded
+
+Status: **`work/home-cluster`。** `5U-E-A` **`12f33785cfaa047b8ac8c611ba079969d9fa827a`** — **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。** Human が **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を corrected 値で Production／Preview 上書き済み。**redacted：** **`price_****U3hF`**。** **フル Price ID 記録なし。** **`5U-F`（本条）：** **repo は Production redeploy 完了を証明しない**。** Human：**`m55-webv2`** で **Production redeploy を 1 回**、Ready／Current・**`main`** を人手確認（**deployment id 等フル値は SSOT に書かない**）。** **Checkout／購入／本番決済・連打 redeploy・env／secret 追加変更・webhook／DB／コード変更なし。** Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`**（完了は別証跡で **`GREEN`**）。 Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry（支払い禁止）**。
+
+Work anchor:
+
+- **`12f33785cfaa047b8ac8c611ba079969d9fa827a`** — `docs: record vercel price env overwrite evidence`（**5U-F SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_F_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_2026-05-15.md`
+
+Prior:
+
+- **`5U-E-A`:** `docs/ssot/M55_PHASE5_6H_5U_E_A_VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に書かない。** **`5U-F`** **で Checkout／決済・追加変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-E-A Vercel Production price env overwrite evidence checkpoint recorded
 
 Status: **`work/home-cluster`。** `5U-D` 記録 commit **`f0ac351b65d4d05081e66f190deb910b2902d503`** — `docs: record stripe price account mode diagnostic`、**`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**。** blocker：`No such price`（redacted **`price_****U3hF`**）。** Human：**Stripe Dashboard の Live Price ID を直接コピー**し **`m55-webv2`** の **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を **Production／Preview** に上書き。** **Sensitive。** **Updated just now／約 47s 相当。** **「new deployment is needed」と読める。** **フル Price ID は SSOT に書かず** redacted のみ。** **本条：** redeploy 未実施、Checkout／購入／本番決済未実施、Stripe／webhook／Supabase／Production DB／runtime・コード／UI／追加 Vercel 変更なし、`/api/stripe/*` 直接なし。 Verdict **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。 Next **`Phase 5-6H-5U-F`** — **`Production`** **`redeploy`** **`for`** **`corrected`** **`price`** **`env`** **`activation`** **`gate`**。
@@ -1197,6 +1217,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-F Production redeploy for corrected price env activation gate recorded
+
+Status: **`work/home-cluster`。** `5U-E-A` **`12f33785cfaa047b8ac8c611ba079969d9fa827a`** — **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。** Human が **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を corrected 値で Production／Preview 上書き済み。**redacted：** **`price_****U3hF`**。** **フル Price ID 記録なし。** **`5U-F`（本条）：** **repo は Production redeploy 完了を証明しない**。** Human：**`m55-webv2`** で **Production redeploy を 1 回**、Ready／Current・**`main`** を人手確認（**deployment id 等フル値は SSOT に書かない**）。** **Checkout／購入／本番決済・連打 redeploy・env／secret 追加変更・webhook／DB／コード変更なし。** Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`**（完了は別証跡で **`GREEN`**）。 Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry（支払い禁止）**。
+
+Work anchor:
+
+- **`12f33785cfaa047b8ac8c611ba079969d9fa827a`** — `docs: record vercel price env overwrite evidence`（**5U-F SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_F_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_2026-05-15.md`
+
+Prior:
+
+- **`5U-E-A`:** `docs/ssot/M55_PHASE5_6H_5U_E_A_VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に書かない。** **`5U-F`** **で Checkout／決済・追加変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-E-A Vercel Production price env overwrite evidence checkpoint recorded
 
