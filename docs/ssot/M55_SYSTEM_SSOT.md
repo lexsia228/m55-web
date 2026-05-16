@@ -1076,7 +1076,7 @@ Hard stop:
 
 ## 2026-05-15 — Phase 5-6H-5E-D Main merge + Production deploy execution GREEN
 
-Status: **`MERGED`。** **`483285da…`。** **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **`5F〜5M` 経路済（**`5N` `BLOCKED`** 済）。** Next **`5`**O`**。**
+Status: **`MERGED`。** **`483285da…`。** **`MAIN_MERGE_PRODUCTION_DEPLOY_READY_GREEN`。** **`5F〜5M` 経路済（**`5N` `BLOCKED`** 済）。** Next **`5`**O**。
 
 Work anchor:
 
