@@ -1,3 +1,24 @@
+## 2026-05-15 — Phase 5-6H-5R Production Stripe Price ID human confirmation gate recorded
+
+Status: **`work/home-cluster`。** **人間のみ Stripe Dashboard確認（Live／Production）：** Product **M55 デジタル鑑定レポート（Standard）**、論理チェックアウト **`DTR_CORE_STATIC_V1`**、**¥1,000 `JPY`**、**one-time**、**Price active**。 **redacted Price ID のみ記録：** **`price_****U3hF`。** **フル Price ID は SSOT に書かず AI／Cursor へも渡さない。** **Vercel（`m55-webv2`）Environment Variables：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** は **Preview に存在すると観察、Production は提供一覧で確認されず**（設定変更・代入なし、次 **`5S`** で分離）。** **Production：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing の blocker は継続。** **`env`/whsec/secret／Vercel・Stripe／webhook／Checkout 再試行／購入／live payment／redeploy／Supabase／Production DB／`/api/stripe/*`／runtime は変更しない。** Verdict **`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。 Next **`Phase`** **`5‑6H‑5S`** — **Vercel Production env variable addition planning／execution gate。**
+
+Work anchor:
+
+- **`59e108962072985673f6e64161ad38d476119e89`** — `docs: record historical stripe payment evidence inventory`（**5R SSOT・SYSTEM_SSOT 更新直前**。直前チェーン：**`5Q`** commit **`0f63e994027986c9e664d1d072f6667e43ed0e09`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5R_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_2026-05-15.md`
+
+Prior:
+
+- **`5Q‑A`:** `docs/ssot/M55_PHASE5_6H_5Q_A_HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_2026-05-15.md` — **`HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_RECORDED`**
+- **`5Q`:** `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**
+
+Hard stop:
+
+- **フル Price ID を SSOT に入れない。** **`env`/Vercel 設定変更なし。** **Checkout／決済／redeploy なし。**
+
 ## 2026-05-15 — Phase 5-6H-5Q-A Historical Stripe payment evidence inventory recorded
 
 Status: **`work/home-cluster`。** **docs-only。** **直前 **`5Q`：** **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**（**`0f63e994027986c9e664d1d072f6667e43ed0e09`**）。** **現在の Production **`Checkout`** は **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing のまま BLOCKED。** **人間が Stripe Dashboard の過去取引スクショを提示（**画像ファイルは repo にコミットしない**）。** **記録したのは redacted テキストのみ：** **¥1,000 `JPY`**／**succeeded または successful と読める状態**／**03/14 付近の日付表示**／**M55／レポート製品に関連すると読める説明**。** **Payment Intent／Request／Customer／email／client_reference／Stripe Price ID のフル値は SSOT に載せない。** **本条は過去ダッシュボード上の証跡インベントリのみ。** **現在の checkout／live payment が GREEN であることを意味しない。** **`env`/whsec/secret／Vercel／Stripe／webhook／Checkout 再試行／購入／本番決済／redeploy／Supabase／Production DB／`/api/stripe/*` 直接／runtime 変更はしない。** Verdict **`HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_RECORDED`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（フル値禁止・redacted のみ）。**
@@ -976,6 +997,27 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5R Production Stripe Price ID human confirmation gate recorded
+
+Status: **`work/home-cluster`。** **人間のみ Stripe Dashboard確認（Live／Production）：** Product **M55 デジタル鑑定レポート（Standard）**、論理チェックアウト **`DTR_CORE_STATIC_V1`**、**¥1,000 `JPY`**、**one-time**、**Price active**。 **redacted Price ID のみ記録：** **`price_****U3hF`。** **フル Price ID は SSOT に書かず AI／Cursor へも渡さない。** **Vercel（`m55-webv2`）Environment Variables：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** は **Preview に存在すると観察、Production は提供一覧で確認されず**（設定変更・代入なし、次 **`5S`** で分離）。** **Production：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing の blocker は継続。** **`env`/whsec/secret／Vercel・Stripe／webhook／Checkout 再試行／購入／live payment／redeploy／Supabase／Production DB／`/api/stripe/*`／runtime は変更しない。** Verdict **`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。 Next **`Phase`** **`5‑6H‑5S`** — **Vercel Production env variable addition planning／execution gate。**
+
+Work anchor:
+
+- **`59e108962072985673f6e64161ad38d476119e89`** — `docs: record historical stripe payment evidence inventory`（**5R SSOT・SYSTEM_SSOT 更新直前**。直前チェーン：**`5Q`** commit **`0f63e994027986c9e664d1d072f6667e43ed0e09`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5R_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_2026-05-15.md`
+
+Prior:
+
+- **`5Q‑A`:** `docs/ssot/M55_PHASE5_6H_5Q_A_HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_2026-05-15.md` — **`HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_RECORDED`**
+- **`5Q`:** `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**
+
+Hard stop:
+
+- **フル Price ID を SSOT に入れない。** **`env`/Vercel 設定変更なし。** **Checkout／決済／redeploy なし。**
 
 ## 2026-05-15 — Phase 5-6H-5Q-A Historical Stripe payment evidence inventory recorded
 
