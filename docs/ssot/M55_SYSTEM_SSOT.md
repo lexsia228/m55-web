@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-J Vercel Production STRIPE_SECRET_KEY human correction evidence checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-I` 記録 commit **`f3490940c10e2fc6174bf02e674a4b2f45476b9f`** — **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`。 Human：**Stripe で Live secret を **`M55-Live`** と命名して新規作成**。** **`m55-webv2` Environment：** **`STRIPE_SECRET_KEY`** を **Production／Preview** で Human が **Live に更新**。** **Sensitive。** **フル値は SSOT／AI に出さず repo に書かない。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **redeploy／Checkout／購入／本番決済は未実行。webhook 変更／DB／コード／追加 Vercel 変更なし。** **Running が新値を読み込んだとは限らない（通常 redeploy が要）。旧 Stripe key の削除／ローテーションも本条ではしない。** Verdict **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`。 Next **`Phase 5-6H-5U-K`** — **`STRIPE_SECRET_KEY` を校正後に Running deployment に読み込ませる**ための Production redeploy gate（**人手で redeploy を 1 回、Ready／Current 確認**。）
+
+Work anchor:
+
+- **`f3490940c10e2fc6174bf02e674a4b2f45476b9f`** — `docs: plan production stripe secret key correction`（**5U-J SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_J_VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_2026-05-15.md`
+
+Prior:
+
+- **`5U-I`:** `docs/ssot/M55_PHASE5_6H_5U_I_PRODUCTION_STRIPE_SECRET_KEY_MODE_ACCOUNT_CORRECTION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI は SSOT と AI に出さない。** **`5U-J`** **で redeploy／Checkout／決済をしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-I Production Stripe secret key mode/account correction planning gate recorded
 
 Status: **`work/home-cluster`。** `5U-H` evidence commit **`f84399bb5653d40a6be5c8e3a5002611e2438a11`。再掲（`5U-H` finding）：Verdict **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**。** redacted observed error：** **`No such price: price_****U3hF; a similar object exists in live mode, but a test mode key was used to make this request.`** **Likely blocker：** **`Production STRIPE_SECRET_KEY` の test／live mode mismatch**（または意図しないアカウント）。 **`checkout.stripe.com`未到達、payment 未完了。`STRIPE_SECRET_KEY`／env／`whsec`／webhook／Stripe 設定／Vercel／redeploy／Checkout／purchase／本番決済／Supabase／Production DB／runtime・コードは `5U-I` で未変更。** **本条は docs-only planning。** Verdict **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`**（実 env 変更は本条コミット後の **`Phase 5-6H-5U-J`** と **明示 GO** のみ）。 Next **`Phase 5-6H-5U-J`** — **Vercel `m55-webv2`** **Production で Human が `STRIPE_SECRET_KEY` を Live に校正**。続いて **`Phase 5-6H-5U-K`** **で redeploy 分離。Checkout／live payment は後続。**
@@ -1297,6 +1317,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-J Vercel Production STRIPE_SECRET_KEY human correction evidence checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-I` 記録 commit **`f3490940c10e2fc6174bf02e674a4b2f45476b9f`** — **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`。 Human：**Stripe で Live secret を **`M55-Live`** と命名して新規作成**。** **`m55-webv2` Environment：** **`STRIPE_SECRET_KEY`** を **Production／Preview** で Human が **Live に更新**。** **Sensitive。** **フル値は SSOT／AI に出さず repo に書かない。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **redeploy／Checkout／購入／本番決済は未実行。webhook 変更／DB／コード／追加 Vercel 変更なし。** **Running が新値を読み込んだとは限らない（通常 redeploy が要）。旧 Stripe key の削除／ローテーションも本条ではしない。** Verdict **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`。 Next **`Phase 5-6H-5U-K`** — **`STRIPE_SECRET_KEY` を校正後に Running deployment に読み込ませる**ための Production redeploy gate（**人手で redeploy を 1 回、Ready／Current 確認**。）
+
+Work anchor:
+
+- **`f3490940c10e2fc6174bf02e674a4b2f45476b9f`** — `docs: plan production stripe secret key correction`（**5U-J SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_J_VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_2026-05-15.md`
+
+Prior:
+
+- **`5U-I`:** `docs/ssot/M55_PHASE5_6H_5U_I_PRODUCTION_STRIPE_SECRET_KEY_MODE_ACCOUNT_CORRECTION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI は SSOT と AI に出さない。** **`5U-J`** **で redeploy／Checkout／決済をしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-I Production Stripe secret key mode/account correction planning gate recorded
 
