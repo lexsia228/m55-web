@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-F Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-G`** — webhook **idempotency／delivery／replay planning**（**docs-only first**／別 GO）。
+
+Work anchor:
+
+- **`167f0859047d47096e88badda4c4fea86593b513`** — `5Z-E` STRIPE_WEBHOOK_SECRET env。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_F_VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-E`:** `docs/ssot/M55_PHASE5_6H_5Z_E_VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_2026-05-16.md` — **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**
+
+Hard stop:
+
+- **追加 redeploy／replay／delivery test／Stripe 変更／secret・env 変更／DB／コード／再決済：** **本条コミットではしない。** **フル ID／secret を SSOT に書かない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-E Vercel STRIPE_WEBHOOK_SECRET human env configuration checkpoint recorded
 
 Status: **`work/home-cluster`。** **`5Z-D`** **`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`**（**`ec02d778ee1d5bbba56b45678a6bae4e568a5f49`**）。 **Stripe endpoint：** **`https://m55-webv2.vercel.app/api/stripe/webhook`**／event **`checkout.session.completed`**／**enabled yes**。 **Human が Vercel Project **`m55-webv2`** で env **`STRIPE_WEBHOOK_SECRET`** を **Production と Preview** に設定。** **Sensitive。** **UI 上で「たった今更新」と人手確認。** **`whsec` 全文：** **SSOT／AI へ記録・共有なし。** **Redeploy／replay／delivery test／Production DB read/write／返金・再決済：** **本条コミットでは未実施。** **実行中 Production が新 secret を読込済みとは証明しない（Next：** **`5Z-F`** redeploy）。 Evidence：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**。 Links：**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**。 Verdict：**`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`。** Next：**`Phase 5-6H-5Z-F`** — **Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation**（原則 **1 回**）。 **`5Z-G`** — webhook delivery／replay／idempotency は後続。
@@ -1682,6 +1704,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-F Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-G`** — webhook **idempotency／delivery／replay planning**（**docs-only first**／別 GO）。
+
+Work anchor:
+
+- **`167f0859047d47096e88badda4c4fea86593b513`** — `5Z-E` STRIPE_WEBHOOK_SECRET env。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_F_VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-E`:** `docs/ssot/M55_PHASE5_6H_5Z_E_VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_2026-05-16.md` — **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**
+
+Hard stop:
+
+- **追加 redeploy／replay／delivery test／Stripe 変更／secret・env 変更／DB／コード／再決済：** **本条コミットではしない。** **フル ID／secret を SSOT に書かない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-E Vercel STRIPE_WEBHOOK_SECRET human env configuration checkpoint recorded
 
