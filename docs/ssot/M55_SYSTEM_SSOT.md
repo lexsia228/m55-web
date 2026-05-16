@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-I Production Stripe secret key mode/account correction planning gate recorded
+
+Status: **`work/home-cluster`。** `5U-H` evidence commit **`f84399bb5653d40a6be5c8e3a5002611e2438a11`。再掲（`5U-H` finding）：Verdict **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**。** redacted observed error：** **`No such price: price_****U3hF; a similar object exists in live mode, but a test mode key was used to make this request.`** **Likely blocker：** **`Production STRIPE_SECRET_KEY` の test／live mode mismatch**（または意図しないアカウント）。 **`checkout.stripe.com`未到達、payment 未完了。`STRIPE_SECRET_KEY`／env／`whsec`／webhook／Stripe 設定／Vercel／redeploy／Checkout／purchase／本番決済／Supabase／Production DB／runtime・コードは `5U-I` で未変更。** **本条は docs-only planning。** Verdict **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`**（実 env 変更は本条コミット後の **`Phase 5-6H-5U-J`** と **明示 GO** のみ）。 Next **`Phase 5-6H-5U-J`** — **Vercel `m55-webv2`** **Production で Human が `STRIPE_SECRET_KEY` を Live に校正**。続いて **`Phase 5-6H-5U-K`** **で redeploy 分離。Checkout／live payment は後続。**
+
+Work anchor:
+
+- **`f84399bb5653d40a6be5c8e3a5002611e2438a11`** — `docs: record checkout stripe secret key mode mismatch finding`（**5U-I SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_I_PRODUCTION_STRIPE_SECRET_KEY_MODE_ACCOUNT_CORRECTION_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5U-H`:** `docs/ssot/M55_PHASE5_6H_5U_H_CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED_FINDING_2026-05-15.md` — **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI／顧客識別子を SSOT または AI に載せない。** **`5U-I`** **では env を更新しない。** **webhook／redeploy は触らない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-H Checkout retry blocked by Stripe secret key mode mismatch finding recorded
 
 Status: **`work/home-cluster`。** `5U-G` commit **`0fad76fe110a40b4fd61cd19ace269251f0dd593`** — **`CHECKOUT_CREATION_CONTROLLED_RETRY_BLOCKED`。** Human：**`https://m55-webv2.vercel.app`** で **corrected env／redeploy 後の purchase retry**。** Human がスクリーンショットで証跡を提示。** **`missing env` 再発なし。** 可視エラー（Price redacted **`price_****U3hF`**）：**`No such price: price_****U3hF; a similar object exists in live mode, but a test mode key was used to make this request.`** **`checkout.stripe.com`** **未到達。** Hosted Checkout：**no。** **payment：** **未完了。** **Likely blocker：** **Production `STRIPE_SECRET_KEY` の test／live mode mismatch**（または意図しないアカウント／古い key）。 **本条：** `STRIPE_SECRET_KEY`／env／`whsec`・webhook・Supabase／Vercel／追加 redeploy／コード／Production DB 変更なし、購入／Checkout の **追加再試行なし、`/api/stripe/*` 直接なし、フル Price／Session／PI／secret／顧客識別子未記録。** Verdict **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**。 Next **`Phase 5-6H-5U-I`** — **Production Stripe secret key mode／account correction planning gate**（**docs-only first**。**`whsec` は本条では変更しない**）。
@@ -1277,6 +1297,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-I Production Stripe secret key mode/account correction planning gate recorded
+
+Status: **`work/home-cluster`。** `5U-H` evidence commit **`f84399bb5653d40a6be5c8e3a5002611e2438a11`。再掲（`5U-H` finding）：Verdict **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**。** redacted observed error：** **`No such price: price_****U3hF; a similar object exists in live mode, but a test mode key was used to make this request.`** **Likely blocker：** **`Production STRIPE_SECRET_KEY` の test／live mode mismatch**（または意図しないアカウント）。 **`checkout.stripe.com`未到達、payment 未完了。`STRIPE_SECRET_KEY`／env／`whsec`／webhook／Stripe 設定／Vercel／redeploy／Checkout／purchase／本番決済／Supabase／Production DB／runtime・コードは `5U-I` で未変更。** **本条は docs-only planning。** Verdict **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`**（実 env 変更は本条コミット後の **`Phase 5-6H-5U-J`** と **明示 GO** のみ）。 Next **`Phase 5-6H-5U-J`** — **Vercel `m55-webv2`** **Production で Human が `STRIPE_SECRET_KEY` を Live に校正**。続いて **`Phase 5-6H-5U-K`** **で redeploy 分離。Checkout／live payment は後続。**
+
+Work anchor:
+
+- **`f84399bb5653d40a6be5c8e3a5002611e2438a11`** — `docs: record checkout stripe secret key mode mismatch finding`（**5U-I SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_I_PRODUCTION_STRIPE_SECRET_KEY_MODE_ACCOUNT_CORRECTION_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5U-H`:** `docs/ssot/M55_PHASE5_6H_5U_H_CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED_FINDING_2026-05-15.md` — **`CHECKOUT_STRIPE_SECRET_KEY_MODE_MISMATCH_BLOCKED`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI／顧客識別子を SSOT または AI に載せない。** **`5U-I`** **では env を更新しない。** **webhook／redeploy は触らない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-H Checkout retry blocked by Stripe secret key mode mismatch finding recorded
 
