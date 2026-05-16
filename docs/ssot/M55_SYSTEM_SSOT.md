@@ -1,3 +1,26 @@
+## 2026-05-16 — Phase 5-6H-5Z-B Stripe webhook endpoint not observed read-only finding checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／complete 証跡記録済み／**Product** **Standard**／**¥1,000 JPY**／Post-payment UI **`接続を確認できませんでした`。** **`5Z`** **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** **`5Z-A`** **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`**（**`f3d7de09abec8f2ca6061812716f40bf937da7e8`**）。 **`5Z-A0` Evidence Registry：** **`893d540a4b0da10503ebac4552cc122b85f91d5e`**。 **Human read-only：** **Stripe Workbench → Webhook タブ。** **送信先追加 UI のみ読み／既存 Production webhook endpoint は観測されず。** **delivery 履歴／response code は観測せず。** **Evidence ID：** **`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**（Source: Workbench Webhook tab。**`kind`：** **`webhook_endpoint_presence`**。**OBSERVED／REDACTED_RECORDED**）。 **関連 Registry：** **`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **Classification：** **`WEBHOOK_ENDPOINT_NOT_OBSERVED`**／候補 **`WEBHOOK_NOT_DELIVERED_ENDPOINT_NOT_FOUND_CANDIDATE`。** **解釈：** **paid が成立しても entitlement／unlock が未証明となる有力候補**（endpoint 不在なら **`checkout.session.completed`** 経由のサーバ fulfillment が起きにくい）。 **Endpoint 追加／replay／`STRIPE_WEBHOOK_SECRET` 変更／env・whsec／Stripe・Supabase・Vercel 設定／コード／redeploy／Production DB read／write／再決済／返金／full ID：** **すべて未実行またはなし。** Verdict：**`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`。** Next：**`Phase 5-6H-5Z-C`** — **Stripe Production webhook endpoint configuration planning gate**（**docs-only first**。canonical **`https://m55-webv2.vercel.app/api/stripe/webhook`**（または運用確定ドメイン）／**`checkout.session.completed`**／**`whsec`／Vercel env／replay・delivery test は後続別 Gate）。
+
+Work anchor:
+
+- **`f3d7de09abec8f2ca6061812716f40bf937da7e8`** — `5Z-A`（post-payment fulfillment read-only diagnostic）。
+- **`893d540a4b0da10503ebac4552cc122b85f91d5e`** — Evidence Registry protocol（`5Z-A0`）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_B_STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-A`:** `docs/ssot/M55_PHASE5_6H_5Z_A_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_2026-05-16.md` — **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`**
+
+Hard stop:
+
+- **本条はコンソール read-only＋docs のみ。** **endpoint 作成／replay／secret／env／設定変更／コード／DB／返金／再決済／フル external ID を SSOT に書かない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-A Post-payment fulfillment read-only diagnostic execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Y-A`** **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`**／**payment は paid／complete 相当（redacted 既証跡）**／**Post-payment UI：** **`接続を確認できませんでした`。** **`5Z`** **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** **`5Z-A0`** **`EVIDENCE_REGISTRY_PROTOCOL_GREEN`**（**`893d540a4b0da10503ebac4552cc122b85f91d5e`**）。 **Evidence Registry（5Y-A seed）：** **`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-LOG-001`**、**`M55-EVID-20260516-5Y-A-VERCEL-PROCESSING-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **read-only 診断：** **Stripe Dashboard／Workbench Events／webhook delivery／Workbench Logs／Vercel ログの新規取得／Supabase Production SELECT は **本 Cursor セッション未実施** → §A〜F は各観点 **`unclear`。** **repo コード read-only：** **実施済み（**`/dtr/processing` **の **`ProcessingFallback`「接続を確認できませんでした」は **`getSupabaseAdmin` throw **または **`fulfillDtrCoreFromCheckoutSessionId` の **`db_error`** と整合し、 **`verifyStripeCheckoutSessionForDtr` valid true とは表面のみ両立しうる**）。 **Stripe→webhook→DB の鎖：** **本条では証明未到達。** Cause classification：**`INCONCLUSIVE`。** Verdict：**`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`。** **再決済／Checkout 再試行／webhook replay／`STRIPE_WEBHOOK_SECRET` 変更／env・whsec 追加変更／Stripe・Supabase・Vercel 設定変更／追加 redeploy／ランタイム・コード・UI 変更／Production DB 読書・手動付与／返金 rollback／`/api/stripe` 直接／full ID・email・secret 記録：** **すべて **未実行** **または **なし**。** Next **`Phase 5-6H-5Z-B`** — **deeper read-only diagnostic planning／観測 GO**。
@@ -1592,6 +1615,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-B Stripe webhook endpoint not observed read-only finding checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／complete 証跡記録済み／**Product** **Standard**／**¥1,000 JPY**／Post-payment UI **`接続を確認できませんでした`。** **`5Z`** **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** **`5Z-A`** **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`**（**`f3d7de09abec8f2ca6061812716f40bf937da7e8`**）。 **`5Z-A0` Evidence Registry：** **`893d540a4b0da10503ebac4552cc122b85f91d5e`**。 **Human read-only：** **Stripe Workbench → Webhook タブ。** **送信先追加 UI のみ読み／既存 Production webhook endpoint は観測されず。** **delivery 履歴／response code は観測せず。** **Evidence ID：** **`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**（Source: Workbench Webhook tab。**`kind`：** **`webhook_endpoint_presence`**。**OBSERVED／REDACTED_RECORDED**）。 **関連 Registry：** **`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **Classification：** **`WEBHOOK_ENDPOINT_NOT_OBSERVED`**／候補 **`WEBHOOK_NOT_DELIVERED_ENDPOINT_NOT_FOUND_CANDIDATE`。** **解釈：** **paid が成立しても entitlement／unlock が未証明となる有力候補**（endpoint 不在なら **`checkout.session.completed`** 経由のサーバ fulfillment が起きにくい）。 **Endpoint 追加／replay／`STRIPE_WEBHOOK_SECRET` 変更／env・whsec／Stripe・Supabase・Vercel 設定／コード／redeploy／Production DB read／write／再決済／返金／full ID：** **すべて未実行またはなし。** Verdict：**`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`。** Next：**`Phase 5-6H-5Z-C`** — **Stripe Production webhook endpoint configuration planning gate**（**docs-only first**。canonical **`https://m55-webv2.vercel.app/api/stripe/webhook`**（または運用確定ドメイン）／**`checkout.session.completed`**／**`whsec`／Vercel env／replay・delivery test は後続別 Gate）。
+
+Work anchor:
+
+- **`f3d7de09abec8f2ca6061812716f40bf937da7e8`** — `5Z-A`（post-payment fulfillment read-only diagnostic）。
+- **`893d540a4b0da10503ebac4552cc122b85f91d5e`** — Evidence Registry protocol（`5Z-A0`）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_B_STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-A`:** `docs/ssot/M55_PHASE5_6H_5Z_A_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_2026-05-16.md` — **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`**
+
+Hard stop:
+
+- **本条はコンソール read-only＋docs のみ。** **endpoint 作成／replay／secret／env／設定変更／コード／DB／返金／再決済／フル external ID を SSOT に書かない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-A Post-payment fulfillment read-only diagnostic execution recorded
 
