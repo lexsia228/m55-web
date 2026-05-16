@@ -1,3 +1,25 @@
+## 2026-05-15 — Phase 5-6H-5X-B Batch live payment planning gate recorded
+
+Status: **`work/home-cluster`。** **`5X-A`** evidence commit **`cf5e858587f240e57b51c3fc590a1495704cd16b`**（`docs: record live payment deferred checkpoint`）。 **`5X`：** **`LIVE_PAYMENT_EXECUTION_BLOCKED`**／**attempt 0**／**payment 未完了**／**live payment 未実行**。** **`5X-A`：** **`LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**（**実金検証延期・順序固定**）。 **webhook fulfillment／entitlement／DB grant／refund／rollback：** **未証明／未実行。** **本条（5X-B）：** **batch 計画のみ**／**実決済・購入押下・Checkout 作成／再試行なし**／**フル ID 未記録。** **将来順序：** **¥1,000 DTR 本体 → webhook／entitlement／report unlock → ¥500 追加返書券（各々別 Gate・別試行・別証跡）。** Verdict **`READY_FOR_PHASE_5_6H_5Y_DTR_BASE_LIVE_PAYMENT_EXECUTION_GATE`**（別名 **`READY_FOR_BATCH_LIVE_PAYMENT_SEQUENCE_PLANNING_COMPLETE`**）。 **¥1,000 本体 live payment は本条コミット後の別明示 GO のみ。** Next **`Phase 5-6H-5Y`** — **DTR base ¥1,000 live payment execution gate**（**post-payment 検証は後続 Gate・¥500 は DTR 検証後**）。
+
+Work anchor:
+
+- **`cf5e858587f240e57b51c3fc590a1495704cd16b`** — 5X-A 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5X_B_BATCH_LIVE_PAYMENT_PLANNING_GATE_2026-05-15.md`
+
+Prior:
+
+- **`5X-A`:** `docs/ssot/M55_PHASE5_6H_5X_A_LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**
+- **`5X`:** `docs/ssot/M55_PHASE5_6H_5X_LIVE_PAYMENT_EXECUTION_2026-05-15.md` — **`LIVE_PAYMENT_EXECUTION_BLOCKED`**
+
+Hard stop:
+
+- **本番決済・購入押下・Checkout 作成／再試行・webhook／secret／env・Production DB 読み書き・返金をしない。** **フル ID を SSOT に書かない。**
+
+
 ## 2026-05-15 — Phase 5-6H-5X-A Live payment deferred / blocked evidence checkpoint recorded
 
 Status: **`work/home-cluster`。** **`5X`** evidence commit **`70ea18520ace01aa1c66e76f0ec99548ccc91f77`**（`docs: record live payment execution`）。 **`5X`：** **`LIVE_PAYMENT_EXECUTION_BLOCKED`**／**未実施**／**Payment attempt count：** **0**／**Payment completed：** **no**／**M55 デジタル鑑定レポート (Standard)**／**¥1,000**。** **webhook fulfillment／entitlement／DB grant：** **未証明。** **`STRIPE_WEBHOOK_SECRET`：** **未変更。** **refund／rollback：** **未実行。** **本条（5X-A）：** **実金フロー検証を後日に延期する旨を固定**／**live payment／Checkout 再試行・webhook／DB／返金は実施しない**／**フル ID 未記録。** **後日順序：** **¥1,000 DTR 本体 → webhook／entitlement／レポート unlock → その後 ¥500 追加返書券（別 Gate・別試行・別証跡）。** Verdict **`LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`。** Next **`Phase 5-6H-5X-B`** — **Batch live payment planning gate**（**実決済は別明示 GO**）。
@@ -1484,6 +1506,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5X-B Batch live payment planning gate recorded
+
+Status: **`work/home-cluster`。** **`5X-A`** evidence commit **`cf5e858587f240e57b51c3fc590a1495704cd16b`**（`docs: record live payment deferred checkpoint`）。 **`5X`：** **`LIVE_PAYMENT_EXECUTION_BLOCKED`**／**attempt 0**／**payment 未完了**／**live payment 未実行**。** **`5X-A`：** **`LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**（**実金検証延期・順序固定**）。 **webhook fulfillment／entitlement／DB grant／refund／rollback：** **未証明／未実行。** **本条（5X-B）：** **batch 計画のみ**／**実決済・購入押下・Checkout 作成／再試行なし**／**フル ID 未記録。** **将来順序：** **¥1,000 DTR 本体 → webhook／entitlement／report unlock → ¥500 追加返書券（各々別 Gate・別試行・別証跡）。** Verdict **`READY_FOR_PHASE_5_6H_5Y_DTR_BASE_LIVE_PAYMENT_EXECUTION_GATE`**（別名 **`READY_FOR_BATCH_LIVE_PAYMENT_SEQUENCE_PLANNING_COMPLETE`**）。 **¥1,000 本体 live payment は本条コミット後の別明示 GO のみ。** Next **`Phase 5-6H-5Y`** — **DTR base ¥1,000 live payment execution gate**（**post-payment 検証は後続 Gate・¥500 は DTR 検証後**）。
+
+Work anchor:
+
+- **`cf5e858587f240e57b51c3fc590a1495704cd16b`** — 5X-A 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5X_B_BATCH_LIVE_PAYMENT_PLANNING_GATE_2026-05-15.md`
+
+Prior:
+
+- **`5X-A`:** `docs/ssot/M55_PHASE5_6H_5X_A_LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_2026-05-15.md` — **`LIVE_PAYMENT_DEFERRED_BLOCKED_EVIDENCE_CHECKPOINT_GREEN`**
+- **`5X`:** `docs/ssot/M55_PHASE5_6H_5X_LIVE_PAYMENT_EXECUTION_2026-05-15.md` — **`LIVE_PAYMENT_EXECUTION_BLOCKED`**
+
+Hard stop:
+
+- **本番決済・購入押下・Checkout 作成／再試行・webhook／secret／env・Production DB 読み書き・返金をしない。** **フル ID を SSOT に書かない。**
+
 
 ## 2026-05-15 — Phase 5-6H-5X-A Live payment deferred / blocked evidence checkpoint recorded
 
