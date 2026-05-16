@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-A0 Evidence Registry / AI-safe identifier protocol checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z`** evidence commit **`73d43824ccb156997caceade0fb778b1dbf37ba8`**（`docs: plan post payment fulfillment diagnostic`）。 **AI-safe Evidence Registry Protocol を SSOT 導入。** **今後 `Phase 5-6H-5Z-A` 以降は `evidence_id` と redacted 参照のみを用いて Stripe／Vercel／Supabase／UI 証跡を接続。** **フル Checkout／PI／customer／email／event／request／price／secret／service_role は記録禁止（Protocol 準拠）。** **5Y-A seed `evidence_id`（一覧）：** **`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-LOG-001`**、**`M55-EVID-20260516-5Y-A-VERCEL-PROCESSING-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **フル外部 ID は未記録。** **docs-only**／**5Z-A の実診断は未着手**／**Production DB read／write、webhook replay、webhook／secret／env 変更、コード変更、返金、再決済なし。** Verdict **`EVIDENCE_REGISTRY_PROTOCOL_GREEN`。** Next **`Phase 5-6H-5Z-A`** — **Post-payment fulfillment read-only diagnostic execution**（**Registry 準拠のみ**）。
+
+Work anchor:
+
+- **`73d43824ccb156997caceade0fb778b1dbf37ba8`** — `5Z` 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_EVIDENCE_REGISTRY_PROTOCOL_2026-05-16.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_A0_EVIDENCE_REGISTRY_PROTOCOL_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z`:** `docs/ssot/M55_PHASE5_6H_5Z_POST_PAYMENT_FULFILLMENT_ENTITLEMENT_REPORT_UNLOCK_DIAGNOSTIC_PLANNING_2026-05-16.md` — **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル ID を SSOT に書かない。** **webhook replay／webhook・secret 変更／Production DB／返金／再決済／`5Z-A` 診断は本条コミットでは実行しない（`5Z-A` は別明示 GO）。**
+
+
 ## 2026-05-16 — Phase 5-6H-5Z Post-payment fulfillment / entitlement / report unlock diagnostic planning gate recorded
 
 Status: **`work/home-cluster`。** **`5Y-A`** evidence commit **`b8b4849b4ee206bcb1eb9e226d26888bbb070373`**（`docs: record dtr base live payment paid connection blocked checkpoint`）。 **前提：** **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`。** **¥1,000／Standard：** **M55 デジタル鑑定レポート (Standard)。** **Stripe（redacted）：** **`status`** **`complete`**／**`payment_status`** **`paid`**／product **`DTR_CORE_STATIC_V1`**／**`amount_total`** **`1000`**／**`currency`** **`jpy`。** **Post-payment UI：** **`接続を確認できませんでした`。** **`/dtr/processing`**／**`/api/dtr/draft/claim`**／**`/api/dtr/draft/me`**：** **200（5Y-A 再掲）。** **webhook fulfillment／entitlement／report unlock／included reply-ticket／snapshot：** **未証明。** **本条（5Z）：** **docs-only**／**実診断・Production DB read・Dashboard／replay は未実行**／**再決済／返金／webhook／secret／コード／Supabase／Vercel 変更なし。** **フル ID 未記録。** Verdict **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** Next **`Phase 5-6H-5Z-A`** — **Post-payment fulfillment read-only diagnostic execution**（**redacted read-only のみ**）。
@@ -1548,6 +1570,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-A0 Evidence Registry / AI-safe identifier protocol checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z`** evidence commit **`73d43824ccb156997caceade0fb778b1dbf37ba8`**（`docs: plan post payment fulfillment diagnostic`）。 **AI-safe Evidence Registry Protocol を SSOT 導入。** **今後 `Phase 5-6H-5Z-A` 以降は `evidence_id` と redacted 参照のみを用いて Stripe／Vercel／Supabase／UI 証跡を接続。** **フル Checkout／PI／customer／email／event／request／price／secret／service_role は記録禁止（Protocol 準拠）。** **5Y-A seed `evidence_id`（一覧）：** **`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-LOG-001`**、**`M55-EVID-20260516-5Y-A-VERCEL-PROCESSING-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **フル外部 ID は未記録。** **docs-only**／**5Z-A の実診断は未着手**／**Production DB read／write、webhook replay、webhook／secret／env 変更、コード変更、返金、再決済なし。** Verdict **`EVIDENCE_REGISTRY_PROTOCOL_GREEN`。** Next **`Phase 5-6H-5Z-A`** — **Post-payment fulfillment read-only diagnostic execution**（**Registry 準拠のみ**）。
+
+Work anchor:
+
+- **`73d43824ccb156997caceade0fb778b1dbf37ba8`** — `5Z` 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_EVIDENCE_REGISTRY_PROTOCOL_2026-05-16.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_A0_EVIDENCE_REGISTRY_PROTOCOL_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z`:** `docs/ssot/M55_PHASE5_6H_5Z_POST_PAYMENT_FULFILLMENT_ENTITLEMENT_REPORT_UNLOCK_DIAGNOSTIC_PLANNING_2026-05-16.md` — **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル ID を SSOT に書かない。** **webhook replay／webhook・secret 変更／Production DB／返金／再決済／`5Z-A` 診断は本条コミットでは実行しない（`5Z-A` は別明示 GO）。**
+
 
 ## 2026-05-16 — Phase 5-6H-5Z Post-payment fulfillment / entitlement / report unlock diagnostic planning gate recorded
 
