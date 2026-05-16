@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-L Checkout creation controlled retry after corrected STRIPE_SECRET_KEY redeploy recorded
+
+Status: **`work/home-cluster`。** `5U-K-A` evidence commit **`9e36a047157decd90a6b567665777d444d7d2f4c`**（短縮 **`9e36a04`**）。 Verdict（前提）：**`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN`**。** **`m55-webv2`** **Production deployment：** **`6G5HrffJ8`** — **Ready／Current**（**`5U-K-A`**）。 **Corrected env：** **`STRIPE_SECRET_KEY`**（値は SSOT 非記録）。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **`5U-L`：** Human の purchase **1 回**／**`checkout.stripe.com` 到達の結果は、本条 SSOT 作成セッション未提示。** **repo／agent は押下しない。** **到達可否は本条では未証明。** **payment 未証明。** **webhook／env 追加変更／Stripe 設定／Supabase／追加 redeploy／Production DB／コード変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子未記録。** Verdict **`CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_SECRET_KEY_REDEPLOY_BLOCKED`**（**証跡未**）。§3 追記で **`GREEN`。** Next **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**（**`GREEN` 確定後のみ**）。
+
+Work anchor:
+
+- **`9e36a047157decd90a6b567665777d444d7d2f4c`** — `docs: record corrected stripe secret key redeploy green`（**5U-L SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_L_CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_CORRECTED_STRIPE_SECRET_KEY_REDEPLOY_2026-05-15.md`
+
+Prior:
+
+- **`5U-K-A`:** `docs/ssot/M55_PHASE5_6H_5U_K_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Session／PI／顧客識別子を SSOT／AI に出さない。** **`5U-L`** **で決済完了・連打・追加 redeploy をしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-K-A Production redeploy for corrected STRIPE_SECRET_KEY activation GREEN checkpoint recorded
 
 Status: **`work/home-cluster`。** `5U-K` 記録 commit **`cc9fde66aa6169970ba6e0963e098b5c22c0426f`**、当時 **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_BLOCKED`。 Human：**`m55-webv2`** で **corrected `STRIPE_SECRET_KEY`** 反映後に **Production redeploy を 1 回のみ**。** **Deployment：** **`6G5HrffJ8`**（Vercel deployment id／表示）。** **Status：** **Ready／Latest**。** **Environment：** **Production／Current**。** **Branch：** **`main`**。** **Source **`a38918`** — `chore(audit): refresh repo asset index`。** **Domain：** **`m55-web.vercel.app`**。** **所要 **約 1m14s**。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **`STRIPE_SECRET_KEY`** **本文：** **SSOT 非記録。** **`5U-K-A`：** 追加 redeploy なし、Checkout／購入／本番決済／webhook／env 追加変更／Supabase／Production DB／runtime・コード変更なし、`POST`／`/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN`**。 Next **`Phase 5-6H-5U-L`** — **Checkout controlled retry**（**`checkout.stripe.com` のみ／決済禁止／ボタン 1 回**）。
@@ -1357,6 +1377,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-L Checkout creation controlled retry after corrected STRIPE_SECRET_KEY redeploy recorded
+
+Status: **`work/home-cluster`。** `5U-K-A` evidence commit **`9e36a047157decd90a6b567665777d444d7d2f4c`**（短縮 **`9e36a04`**）。 Verdict（前提）：**`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN`**。** **`m55-webv2`** **Production deployment：** **`6G5HrffJ8`** — **Ready／Current**（**`5U-K-A`**）。 **Corrected env：** **`STRIPE_SECRET_KEY`**（値は SSOT 非記録）。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **`5U-L`：** Human の purchase **1 回**／**`checkout.stripe.com` 到達の結果は、本条 SSOT 作成セッション未提示。** **repo／agent は押下しない。** **到達可否は本条では未証明。** **payment 未証明。** **webhook／env 追加変更／Stripe 設定／Supabase／追加 redeploy／Production DB／コード変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子未記録。** Verdict **`CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_SECRET_KEY_REDEPLOY_BLOCKED`**（**証跡未**）。§3 追記で **`GREEN`。** Next **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**（**`GREEN` 確定後のみ**）。
+
+Work anchor:
+
+- **`9e36a047157decd90a6b567665777d444d7d2f4c`** — `docs: record corrected stripe secret key redeploy green`（**5U-L SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_L_CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_CORRECTED_STRIPE_SECRET_KEY_REDEPLOY_2026-05-15.md`
+
+Prior:
+
+- **`5U-K-A`:** `docs/ssot/M55_PHASE5_6H_5U_K_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Session／PI／顧客識別子を SSOT／AI に出さない。** **`5U-L`** **で決済完了・連打・追加 redeploy をしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-K-A Production redeploy for corrected STRIPE_SECRET_KEY activation GREEN checkpoint recorded
 
