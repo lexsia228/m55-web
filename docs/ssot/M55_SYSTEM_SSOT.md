@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-B Checkout creation controlled human attempt price-not-found blocked finding recorded
+
+Status: **`work/home-cluster`。** `5U-A` 記録 commit **`2f7ceb4f14e2d6a4a27105180f73e160f0d28649`** — `docs: record checkout creation controlled execution`（**`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**）。 Human：**`https://m55-webv2.vercel.app`** — **購入ボタン 1 回**。** **`missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1` 再発なし。** Stripe 系表示：**`No such price`**（redacted **`price_****U3hF`** のみ。フル Price ID は記録禁止）。 **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **本条：** env／whsec／secret／webhook／Supabase／Vercel／redeploy／コード・Production DB 変更なし、Checkout 再試行なし、API 直接叩きなし。 Verdict **`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。 Next **`Phase 5-6H-5U-C`** — **Stripe Price ID／account／mode mismatch diagnostic planning gate**（docs-only 先行）。
+
+Work anchor:
+
+- **`2f7ceb4f14e2d6a4a27105180f73e160f0d28649`** — `docs: record checkout creation controlled execution`（**5U-B SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_B_CHECKOUT_PRICE_NOT_FOUND_BLOCKED_FINDING_2026-05-15.md`
+
+Prior:
+
+- **`5U-A`:** `docs/ssot/M55_PHASE5_6H_5U_A_CHECKOUT_CREATION_CONTROLLED_EXECUTION_2026-05-15.md` — **`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／Session／PI／secret／`whsec` を SSOT に書かない。** **`5U-B`** **で再試行・設定変更・redeploy はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-A Checkout creation controlled execution recorded
 
 Status: **`work/home-cluster`。`5U` planning commit **`3112d6871ce846170a5b7dc89b2bc8d149b9014a`** — `docs: plan checkout creation controlled gate`、当時 **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**。** **`m55-webv2`** Production 前提、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`**。**redacted：** **`price_****U3hF`** のみ。** **`5U-A` 本条コミット：** **repo／Cursor は Production 購入ボタン・`checkout.stripe.com` 到達を実証しない**。** **checkout.stripe.com 到達：** **本条未検証。** **missing env 再発：** **未検証。** **purchase button 1 回：** **本条では確認できない。** **payment 完了：** **なし（agent 未実施）。** **env／whsec／secret 追加変更なし、webhook 変更なし、Vercel 変更なし、追加 redeploy なし、Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子は SSOT に載せない。** Verdict **`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**（Human 証跡を `5U-A` SSOT に反映した別コミットで **`GREEN`**）。 **`GREEN` 後 Next：** **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**。
@@ -1117,6 +1137,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-B Checkout creation controlled human attempt price-not-found blocked finding recorded
+
+Status: **`work/home-cluster`。** `5U-A` 記録 commit **`2f7ceb4f14e2d6a4a27105180f73e160f0d28649`** — `docs: record checkout creation controlled execution`（**`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**）。 Human：**`https://m55-webv2.vercel.app`** — **購入ボタン 1 回**。** **`missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1` 再発なし。** Stripe 系表示：**`No such price`**（redacted **`price_****U3hF`** のみ。フル Price ID は記録禁止）。 **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **本条：** env／whsec／secret／webhook／Supabase／Vercel／redeploy／コード・Production DB 変更なし、Checkout 再試行なし、API 直接叩きなし。 Verdict **`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。 Next **`Phase 5-6H-5U-C`** — **Stripe Price ID／account／mode mismatch diagnostic planning gate**（docs-only 先行）。
+
+Work anchor:
+
+- **`2f7ceb4f14e2d6a4a27105180f73e160f0d28649`** — `docs: record checkout creation controlled execution`（**5U-B SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_B_CHECKOUT_PRICE_NOT_FOUND_BLOCKED_FINDING_2026-05-15.md`
+
+Prior:
+
+- **`5U-A`:** `docs/ssot/M55_PHASE5_6H_5U_A_CHECKOUT_CREATION_CONTROLLED_EXECUTION_2026-05-15.md` — **`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／Session／PI／secret／`whsec` を SSOT に書かない。** **`5U-B`** **で再試行・設定変更・redeploy はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-A Checkout creation controlled execution recorded
 
