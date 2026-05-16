@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-F-A Production redeploy for corrected price env activation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-F` 記録 commit **`a2bda197b6777346f4c918564e8d91992e7c6f8a`**、`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`。 Human：**`m55-webv2`** で **corrected `STRIPE_PRICE_DTR_CORE_STATIC_V1` 後** **Production redeploy を 1 回**。**Deployment `2w7o55HBG…`（redacted）**、**Ready／Latest**、**Production**、**branch `main`**、**`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` ほか。** 所要 **約 1m15s**。**redacted：** **`price_****U3hF`** のみ。** **`5U-F-A`：** 追加 redeploy なし、Checkout／購入／本番決済未実行、env／secret 追加変更なし、Stripe／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry**（支払い禁止）。
+
+Work anchor:
+
+- **`a2bda197b6777346f4c918564e8d91992e7c6f8a`** — `docs: record redeploy for corrected price env activation`（**5U-F-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_F_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5U-F`:** `docs/ssot/M55_PHASE5_6H_5U_F_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に載せない。** **`5U-F-A`** **で Checkout／追加 redeploy／設定変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-F Production redeploy for corrected price env activation gate recorded
 
 Status: **`work/home-cluster`。** `5U-E-A` **`12f33785cfaa047b8ac8c611ba079969d9fa827a`** — **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。** Human が **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を corrected 値で Production／Preview 上書き済み。**redacted：** **`price_****U3hF`**。** **フル Price ID 記録なし。** **`5U-F`（本条）：** **repo は Production redeploy 完了を証明しない**。** Human：**`m55-webv2`** で **Production redeploy を 1 回**、Ready／Current・**`main`** を人手確認（**deployment id 等フル値は SSOT に書かない**）。** **Checkout／購入／本番決済・連打 redeploy・env／secret 追加変更・webhook／DB／コード変更なし。** Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`**（完了は別証跡で **`GREEN`**）。 Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry（支払い禁止）**。
@@ -1217,6 +1237,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-F-A Production redeploy for corrected price env activation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-F` 記録 commit **`a2bda197b6777346f4c918564e8d91992e7c6f8a`**、`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`。 Human：**`m55-webv2`** で **corrected `STRIPE_PRICE_DTR_CORE_STATIC_V1` 後** **Production redeploy を 1 回**。**Deployment `2w7o55HBG…`（redacted）**、**Ready／Latest**、**Production**、**branch `main`**、**`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` ほか。** 所要 **約 1m15s**。**redacted：** **`price_****U3hF`** のみ。** **`5U-F-A`：** 追加 redeploy なし、Checkout／購入／本番決済未実行、env／secret 追加変更なし、Stripe／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry**（支払い禁止）。
+
+Work anchor:
+
+- **`a2bda197b6777346f4c918564e8d91992e7c6f8a`** — `docs: record redeploy for corrected price env activation`（**5U-F-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_F_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5U-F`:** `docs/ssot/M55_PHASE5_6H_5U_F_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に載せない。** **`5U-F-A`** **で Checkout／追加 redeploy／設定変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-F Production redeploy for corrected price env activation gate recorded
 
