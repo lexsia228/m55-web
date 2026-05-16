@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-E-A Vercel Production price env overwrite evidence checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-D` 記録 commit **`f0ac351b65d4d05081e66f190deb910b2902d503`** — `docs: record stripe price account mode diagnostic`、**`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**。** blocker：`No such price`（redacted **`price_****U3hF`**）。** Human：**Stripe Dashboard の Live Price ID を直接コピー**し **`m55-webv2`** の **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を **Production／Preview** に上書き。** **Sensitive。** **Updated just now／約 47s 相当。** **「new deployment is needed」と読める。** **フル Price ID は SSOT に書かず** redacted のみ。** **本条：** redeploy 未実施、Checkout／購入／本番決済未実施、Stripe／webhook／Supabase／Production DB／runtime・コード／UI／追加 Vercel 変更なし、`/api/stripe/*` 直接なし。 Verdict **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。 Next **`Phase 5-6H-5U-F`** — **`Production`** **`redeploy`** **`for`** **`corrected`** **`price`** **`env`** **`activation`** **`gate`**。
+
+Work anchor:
+
+- **`f0ac351b65d4d05081e66f190deb910b2902d503`** — `docs: record stripe price account mode diagnostic`（**5U-E-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_E_A_VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_CHECKPOINT_2026-05-15.md`
+
+Prior:
+
+- **`5U-D`:** `docs/ssot/M55_PHASE5_6H_5U_D_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_2026-05-15.md` — **`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に書かない。** **`5U-E-A`** **で redeploy／Checkout／決済／追加変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-D Stripe Price/account/mode human diagnostic execution recorded
 
 Status: **`work/home-cluster`。** `5U-C` 記録 commit **`9ae80dba7b00f33229f737d94f355ee8b1e3abbd`** — `docs: plan stripe price account mode diagnostic`、**`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**。** **`5U-B` 継続 blocker：** **`No such price`**（redacted **`price_****U3hF`**）。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-D` 本条：** Human 診断（A–D）は **repo が検証せず** §3 は **未記録**。**変更・Checkout 再試行・決済・env／webhook／DB／Vercel／redeploy／コード変更なし。 Verdict **`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**（§3 追記で **`CAUSE_IDENTIFIED`** へ）。 **likely category：** **unclear**。** Next **`Phase 5-6H-5U-E`** — env 修正／secret・mode 修正計画／より深い read-only 診断のいずれか（**原因確定後に文書を選択**）。
@@ -1177,6 +1197,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-E-A Vercel Production price env overwrite evidence checkpoint recorded
+
+Status: **`work/home-cluster`。** `5U-D` 記録 commit **`f0ac351b65d4d05081e66f190deb910b2902d503`** — `docs: record stripe price account mode diagnostic`、**`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**。** blocker：`No such price`（redacted **`price_****U3hF`**）。** Human：**Stripe Dashboard の Live Price ID を直接コピー**し **`m55-webv2`** の **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を **Production／Preview** に上書き。** **Sensitive。** **Updated just now／約 47s 相当。** **「new deployment is needed」と読める。** **フル Price ID は SSOT に書かず** redacted のみ。** **本条：** redeploy 未実施、Checkout／購入／本番決済未実施、Stripe／webhook／Supabase／Production DB／runtime・コード／UI／追加 Vercel 変更なし、`/api/stripe/*` 直接なし。 Verdict **`VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_RECORDED`**。 Next **`Phase 5-6H-5U-F`** — **`Production`** **`redeploy`** **`for`** **`corrected`** **`price`** **`env`** **`activation`** **`gate`**。
+
+Work anchor:
+
+- **`f0ac351b65d4d05081e66f190deb910b2902d503`** — `docs: record stripe price account mode diagnostic`（**5U-E-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_E_A_VERCEL_PRICE_ENV_OVERWRITE_EVIDENCE_CHECKPOINT_2026-05-15.md`
+
+Prior:
+
+- **`5U-D`:** `docs/ssot/M55_PHASE5_6H_5U_D_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_2026-05-15.md` — **`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**
+
+Hard stop:
+
+- **フル Price ID／secret を SSOT に書かない。** **`5U-E-A`** **で redeploy／Checkout／決済／追加変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-D Stripe Price/account/mode human diagnostic execution recorded
 
