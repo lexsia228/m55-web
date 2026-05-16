@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-D Stripe Price/account/mode human diagnostic execution recorded
+
+Status: **`work/home-cluster`。** `5U-C` 記録 commit **`9ae80dba7b00f33229f737d94f355ee8b1e3abbd`** — `docs: plan stripe price account mode diagnostic`、**`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**。** **`5U-B` 継続 blocker：** **`No such price`**（redacted **`price_****U3hF`**）。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-D` 本条：** Human 診断（A–D）は **repo が検証せず** §3 は **未記録**。**変更・Checkout 再試行・決済・env／webhook／DB／Vercel／redeploy／コード変更なし。 Verdict **`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**（§3 追記で **`CAUSE_IDENTIFIED`** へ）。 **likely category：** **unclear**。** Next **`Phase 5-6H-5U-E`** — env 修正／secret・mode 修正計画／より深い read-only 診断のいずれか（**原因確定後に文書を選択**）。
+
+Work anchor:
+
+- **`9ae80dba7b00f33229f737d94f355ee8b1e3abbd`** — `docs: plan stripe price account mode diagnostic`（**5U-D SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_D_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5U-C`:** `docs/ssot/M55_PHASE5_6H_5U_C_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_PLANNING_2026-05-15.md` — **`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル Price ID／secret／`whsec` を SSOT に書かない。** **`5U-D`** **で設定変更・再試行はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-C Stripe Price ID / account / mode mismatch diagnostic planning gate recorded
 
 Status: **`work/home-cluster`。** `5U-B` 記録 commit **`b00a8f1614bb8b5ddf79357d2b67ab66f813e629`** — `docs: record checkout price not found blocked finding`、**`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。** 観測：** **`No such price`**（redacted **`price_****U3hF`** のみ）。** **`missing env` 再発なし。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-C`（本条）：** docs-only planning。**Purchase／Checkout 再試行なし、決済なし、Stripe／Vercel／env／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、追加 redeploy なし、手動 POST／`/api/stripe/*` 直接なし、フル Price ID／secret を SSOT に書かない。** Verdict **`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**（実画面確認は **`5U-D`**＋別 GO）。 Next **`Phase 5-6H-5U-D`** — **Stripe Price／account／mode human diagnostic execution**（**read-only 優先**；**値修正は `5U-E` に分離**）。
@@ -1157,6 +1177,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-D Stripe Price/account/mode human diagnostic execution recorded
+
+Status: **`work/home-cluster`。** `5U-C` 記録 commit **`9ae80dba7b00f33229f737d94f355ee8b1e3abbd`** — `docs: plan stripe price account mode diagnostic`、**`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**。** **`5U-B` 継続 blocker：** **`No such price`**（redacted **`price_****U3hF`**）。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-D` 本条：** Human 診断（A–D）は **repo が検証せず** §3 は **未記録**。**変更・Checkout 再試行・決済・env／webhook／DB／Vercel／redeploy／コード変更なし。 Verdict **`STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_INCONCLUSIVE`**（§3 追記で **`CAUSE_IDENTIFIED`** へ）。 **likely category：** **unclear**。** Next **`Phase 5-6H-5U-E`** — env 修正／secret・mode 修正計画／より深い read-only 診断のいずれか（**原因確定後に文書を選択**）。
+
+Work anchor:
+
+- **`9ae80dba7b00f33229f737d94f355ee8b1e3abbd`** — `docs: plan stripe price account mode diagnostic`（**5U-D SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_D_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5U-C`:** `docs/ssot/M55_PHASE5_6H_5U_C_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_PLANNING_2026-05-15.md` — **`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル Price ID／secret／`whsec` を SSOT に書かない。** **`5U-D`** **で設定変更・再試行はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-C Stripe Price ID / account / mode mismatch diagnostic planning gate recorded
 
