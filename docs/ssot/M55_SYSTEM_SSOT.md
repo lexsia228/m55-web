@@ -1,3 +1,24 @@
+## 2026-05-16 — Phase 5-6H-5Z Post-payment fulfillment / entitlement / report unlock diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** **`5Y-A`** evidence commit **`b8b4849b4ee206bcb1eb9e226d26888bbb070373`**（`docs: record dtr base live payment paid connection blocked checkpoint`）。 **前提：** **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`。** **¥1,000／Standard：** **M55 デジタル鑑定レポート (Standard)。** **Stripe（redacted）：** **`status`** **`complete`**／**`payment_status`** **`paid`**／product **`DTR_CORE_STATIC_V1`**／**`amount_total`** **`1000`**／**`currency`** **`jpy`。** **Post-payment UI：** **`接続を確認できませんでした`。** **`/dtr/processing`**／**`/api/dtr/draft/claim`**／**`/api/dtr/draft/me`**：** **200（5Y-A 再掲）。** **webhook fulfillment／entitlement／report unlock／included reply-ticket／snapshot：** **未証明。** **本条（5Z）：** **docs-only**／**実診断・Production DB read・Dashboard／replay は未実行**／**再決済／返金／webhook／secret／コード／Supabase／Vercel 変更なし。** **フル ID 未記録。** Verdict **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** Next **`Phase 5-6H-5Z-A`** — **Post-payment fulfillment read-only diagnostic execution**（**redacted read-only のみ**）。
+
+Work anchor:
+
+- **`b8b4849b4ee206bcb1eb9e226d26888bbb070373`** — 5Y-A 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_POST_PAYMENT_FULFILLMENT_ENTITLEMENT_REPORT_UNLOCK_DIAGNOSTIC_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Y-A`:** `docs/ssot/M55_PHASE5_6H_5Y_A_DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_CHECKPOINT_2026-05-16.md` — **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`**
+
+Hard stop:
+
+- **再決済／購入再押下／Checkout 再試行／webhook 変更／replay／secret／env／コード変更／Production DB read／write／返金：** **本条（5Z）では実施しない。** **実診断の着手は Phase 5-6H-5Z-A の別明示 GO 後のみ。** **フル ID を SSOT に書かない。**
+
+
 ## 2026-05-16 — Phase 5-6H-5Y-A DTR base live payment paid evidence and post-payment connection blocked checkpoint recorded
 
 Status: **`work/home-cluster`。** **`5X-B`** evidence commit **`6f08c8a3c46c627a884a09174bbc393f2ede1feb`**（`docs: plan batch live payment sequence`）。 **Human：** **¥1,000 DTR base live payment を 1 回実施済み。** **Product：** **M55 デジタル鑑定レポート (Standard)**／**¥1,000 JPY**。** **Post-payment UI：** **`接続を確認できませんでした`。** **Stripe（Vercel ログ／redacted 要約）：** Checkout **`status`** **`complete`**、**`payment_status`** **`paid`**、**`mode`** **`payment`**、metadata product **`DTR_CORE_STATIC_V1`**、**`amount_total`** **`1000`**、**`currency`** **`jpy`**。** **`verifyStripeCheckoutSessionForDtr`**：** **`valid`** **`true`。** **`/dtr/processing`** **200。** **`/api/dtr/draft/claim`** **200。** **`/api/dtr/draft/me`** **200。** **webhook fulfillment／entitlement／DB grant／report unlock：** **未証明。** **再試行決済／2 回目 purchase／Checkout 再試行／返金／Production DB 書き込み／webhook／secret／env 変更なし。** **フル Session／PI／customer／email／client_reference_id／user id：** **記録しない。** Verdict **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`。** Next **`Phase 5-6H-5Z`** — **Post-payment fulfillment／entitlement／report unlock diagnostic planning gate**（**まず docs-only**。read-only 診断の計画のみ）。
@@ -1527,6 +1548,27 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z Post-payment fulfillment / entitlement / report unlock diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** **`5Y-A`** evidence commit **`b8b4849b4ee206bcb1eb9e226d26888bbb070373`**（`docs: record dtr base live payment paid connection blocked checkpoint`）。 **前提：** **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`。** **¥1,000／Standard：** **M55 デジタル鑑定レポート (Standard)。** **Stripe（redacted）：** **`status`** **`complete`**／**`payment_status`** **`paid`**／product **`DTR_CORE_STATIC_V1`**／**`amount_total`** **`1000`**／**`currency`** **`jpy`。** **Post-payment UI：** **`接続を確認できませんでした`。** **`/dtr/processing`**／**`/api/dtr/draft/claim`**／**`/api/dtr/draft/me`**：** **200（5Y-A 再掲）。** **webhook fulfillment／entitlement／report unlock／included reply-ticket／snapshot：** **未証明。** **本条（5Z）：** **docs-only**／**実診断・Production DB read・Dashboard／replay は未実行**／**再決済／返金／webhook／secret／コード／Supabase／Vercel 変更なし。** **フル ID 未記録。** Verdict **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** Next **`Phase 5-6H-5Z-A`** — **Post-payment fulfillment read-only diagnostic execution**（**redacted read-only のみ**）。
+
+Work anchor:
+
+- **`b8b4849b4ee206bcb1eb9e226d26888bbb070373`** — 5Y-A 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_POST_PAYMENT_FULFILLMENT_ENTITLEMENT_REPORT_UNLOCK_DIAGNOSTIC_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Y-A`:** `docs/ssot/M55_PHASE5_6H_5Y_A_DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_CHECKPOINT_2026-05-16.md` — **`DTR_BASE_LIVE_PAYMENT_PAID_CONNECTION_BLOCKED_EVIDENCE_RECORDED`**
+
+Hard stop:
+
+- **再決済／購入再押下／Checkout 再試行／webhook 変更／replay／secret／env／コード変更／Production DB read／write／返金：** **本条（5Z）では実施しない。** **実診断の着手は Phase 5-6H-5Z-A の別明示 GO 後のみ。** **フル ID を SSOT に書かない。**
+
 
 ## 2026-05-16 — Phase 5-6H-5Y-A DTR base live payment paid evidence and post-payment connection blocked checkpoint recorded
 
