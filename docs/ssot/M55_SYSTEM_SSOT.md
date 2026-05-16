@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-G Checkout creation controlled retry after corrected env redeploy recorded
+
+Status: **`work/home-cluster`。** `5U-F-A` 記録 commit **`40d72e8b1649b8a4297eff980112dd02750e37ff`** — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`**。前提：**`m55-webv2`** Production **Ready／Latest**、**Production** environment、**branch `main`**、**source `a38918`** — `chore(audit): refresh repo asset index`。corrected **`STRIPE_PRICE_DTR_CORE_STATIC_V1`**。**redacted：** **`price_****U3hF`** のみ。** **本条（`5U-G`）：** Controlled retry の結果（purchase ボタン 1 回、`checkout.stripe.com` 到達、missing env／`No such price` 再発）は **SSOT 作成セッションに Human 証跡が未提示**。** **repo／Cursor はブラウザ操作をしない。** **checkout.stripe.com 到達は本条では未証明。** **payment：** Human 入力・完了は **本条では証明しない**。** **agent による決済操作なし。** **env／`whsec`／secret／webhook／Supabase／Vercel／追加 redeploy／コード・Production DB／runtime・UI 変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子未記録。** Verdict **`CHECKOUT_CREATION_CONTROLLED_RETRY_BLOCKED`**（**証跡未提出**。§3 成功観測を追記すれば **`GREEN`**）。 Next：**`GREEN`** のみ **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**。** **`5V` 未到達：** `GREEN` と SSOT で断定できるまで **`5V` に進まない。**
+
+Work anchor:
+
+- **`40d72e8b1649b8a4297eff980112dd02750e37ff`** — `docs: record corrected price env redeploy green`（**5U-G SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_G_CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_CORRECTED_ENV_REDEPLOY_2026-05-15.md`
+
+Prior:
+
+- **`5U-F-A`:** `docs/ssot/M55_PHASE5_6H_5U_F_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル Price ID／Session／PI／顧客識別子／secret を SSOT に載せない。** **`5U-G`** **で決済入力・決済完了・purchase ボタン連打をしない。** **`GREEN` と SSOT 確定まで **`Phase 5-6H-5V` に進まない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-F-A Production redeploy for corrected price env activation GREEN checkpoint recorded
 
 Status: **`work/home-cluster`。** `5U-F` 記録 commit **`a2bda197b6777346f4c918564e8d91992e7c6f8a`**、`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_BLOCKED`。 Human：**`m55-webv2`** で **corrected `STRIPE_PRICE_DTR_CORE_STATIC_V1` 後** **Production redeploy を 1 回**。**Deployment `2w7o55HBG…`（redacted）**、**Ready／Latest**、**Production**、**branch `main`**、**`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` ほか。** 所要 **約 1m15s**。**redacted：** **`price_****U3hF`** のみ。** **`5U-F-A`：** 追加 redeploy なし、Checkout／購入／本番決済未実行、env／secret 追加変更なし、Stripe／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U-G`** — **Checkout controlled retry**（支払い禁止）。
@@ -1237,6 +1257,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-G Checkout creation controlled retry after corrected env redeploy recorded
+
+Status: **`work/home-cluster`。** `5U-F-A` 記録 commit **`40d72e8b1649b8a4297eff980112dd02750e37ff`** — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`**。前提：**`m55-webv2`** Production **Ready／Latest**、**Production** environment、**branch `main`**、**source `a38918`** — `chore(audit): refresh repo asset index`。corrected **`STRIPE_PRICE_DTR_CORE_STATIC_V1`**。**redacted：** **`price_****U3hF`** のみ。** **本条（`5U-G`）：** Controlled retry の結果（purchase ボタン 1 回、`checkout.stripe.com` 到達、missing env／`No such price` 再発）は **SSOT 作成セッションに Human 証跡が未提示**。** **repo／Cursor はブラウザ操作をしない。** **checkout.stripe.com 到達は本条では未証明。** **payment：** Human 入力・完了は **本条では証明しない**。** **agent による決済操作なし。** **env／`whsec`／secret／webhook／Supabase／Vercel／追加 redeploy／コード・Production DB／runtime・UI 変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子未記録。** Verdict **`CHECKOUT_CREATION_CONTROLLED_RETRY_BLOCKED`**（**証跡未提出**。§3 成功観測を追記すれば **`GREEN`**）。 Next：**`GREEN`** のみ **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**。** **`5V` 未到達：** `GREEN` と SSOT で断定できるまで **`5V` に進まない。**
+
+Work anchor:
+
+- **`40d72e8b1649b8a4297eff980112dd02750e37ff`** — `docs: record corrected price env redeploy green`（**5U-G SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_G_CHECKOUT_CREATION_CONTROLLED_RETRY_AFTER_CORRECTED_ENV_REDEPLOY_2026-05-15.md`
+
+Prior:
+
+- **`5U-F-A`:** `docs/ssot/M55_PHASE5_6H_5U_F_A_PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_CORRECTED_PRICE_ENV_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル Price ID／Session／PI／顧客識別子／secret を SSOT に載せない。** **`5U-G`** **で決済入力・決済完了・purchase ボタン連打をしない。** **`GREEN` と SSOT 確定まで **`Phase 5-6H-5V` に進まない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-F-A Production redeploy for corrected price env activation GREEN checkpoint recorded
 
