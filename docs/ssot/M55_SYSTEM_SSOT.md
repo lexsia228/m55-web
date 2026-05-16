@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-E Vercel STRIPE_WEBHOOK_SECRET human env configuration checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-D`** **`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`**（**`ec02d778ee1d5bbba56b45678a6bae4e568a5f49`**）。 **Stripe endpoint：** **`https://m55-webv2.vercel.app/api/stripe/webhook`**／event **`checkout.session.completed`**／**enabled yes**。 **Human が Vercel Project **`m55-webv2`** で env **`STRIPE_WEBHOOK_SECRET`** を **Production と Preview** に設定。** **Sensitive。** **UI 上で「たった今更新」と人手確認。** **`whsec` 全文：** **SSOT／AI へ記録・共有なし。** **Redeploy／replay／delivery test／Production DB read/write／返金・再決済：** **本条コミットでは未実施。** **実行中 Production が新 secret を読込済みとは証明しない（Next：** **`5Z-F`** redeploy）。 Evidence：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**。 Links：**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**。 Verdict：**`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`。** Next：**`Phase 5-6H-5Z-F`** — **Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation**（原則 **1 回**）。 **`5Z-G`** — webhook delivery／replay／idempotency は後続。
+
+Work anchor:
+
+- **`ec02d778ee1d5bbba56b45678a6bae4e568a5f49`** — `5Z-D` endpoint creation。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_E_VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-D`:** `docs/ssot/M55_PHASE5_6H_5Z_D_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_2026-05-16.md` — **`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`**
+
+Hard stop:
+
+- **`whsec` フル値・全シークレットを SSOT／AI に書かない。** **本条では redeploy／replay／delivery test／Stripe 追加設定／追加 env／DB／コード／再決済をしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-D Stripe Production webhook endpoint human configuration gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／¥1,000。**UI：** **`接続を確認できませんでした`。** **`5Z-B`** **`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`。 **`5Z-C`** **`READY_FOR_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_GATE`**（**`be49ddaffc2a554d9db8d632260b593a21bfb7a6`**）。 **Human が Stripe Dashboard／Workbench で Production webhook endpoint を作成。** **URL：** **`https://m55-webv2.vercel.app/api/stripe/webhook`。** **購読 event：** **`checkout.session.completed`** のみ。** **Endpoint active／enabled 相当：** **yes。** **`whsec`／signing secret：** **UI で参照あり（フル値は未記録）**。 **フルの Stripe endpoint object ID：** **未記録。** **`STRIPE_WEBHOOK_SECRET`：** Vercel Production **未設定**（**`5Z-E`**）。 **redeploy／delivery test／replay／Production DB／再決済・返金：** **未実施。** **本条は Stripe 側 endpoint 作成のみ。delivery／fulfillment／entitlement は未証明。** Evidence：**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 **Links：** **`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**、**`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`。** Verdict：**`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`。** Next：**`Phase 5-6H-5Z-E`** — Vercel **`STRIPE_WEBHOOK_SECRET`** human env（**値は書かない**）→ **`5Z-F`** redeploy → **`5Z-G`** 以降 delivery／idempotency。
@@ -1660,6 +1682,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-E Vercel STRIPE_WEBHOOK_SECRET human env configuration checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-D`** **`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`**（**`ec02d778ee1d5bbba56b45678a6bae4e568a5f49`**）。 **Stripe endpoint：** **`https://m55-webv2.vercel.app/api/stripe/webhook`**／event **`checkout.session.completed`**／**enabled yes**。 **Human が Vercel Project **`m55-webv2`** で env **`STRIPE_WEBHOOK_SECRET`** を **Production と Preview** に設定。** **Sensitive。** **UI 上で「たった今更新」と人手確認。** **`whsec` 全文：** **SSOT／AI へ記録・共有なし。** **Redeploy／replay／delivery test／Production DB read/write／返金・再決済：** **本条コミットでは未実施。** **実行中 Production が新 secret を読込済みとは証明しない（Next：** **`5Z-F`** redeploy）。 Evidence：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**。 Links：**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**。 Verdict：**`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`。** Next：**`Phase 5-6H-5Z-F`** — **Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation**（原則 **1 回**）。 **`5Z-G`** — webhook delivery／replay／idempotency は後続。
+
+Work anchor:
+
+- **`ec02d778ee1d5bbba56b45678a6bae4e568a5f49`** — `5Z-D` endpoint creation。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_E_VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-D`:** `docs/ssot/M55_PHASE5_6H_5Z_D_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_2026-05-16.md` — **`STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_RECORDED`**
+
+Hard stop:
+
+- **`whsec` フル値・全シークレットを SSOT／AI に書かない。** **本条では redeploy／replay／delivery test／Stripe 追加設定／追加 env／DB／コード／再決済をしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-D Stripe Production webhook endpoint human configuration gate recorded
 
