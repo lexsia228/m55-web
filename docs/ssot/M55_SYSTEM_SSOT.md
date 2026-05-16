@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5S Vercel Production env variable addition planning／execution gate recorded
+
+Status: **`work/home-cluster`。直前 **`5R`**：正式フル hash **`8408f37ddb5ea58153377367f667168533db30e5`**、`docs: record production stripe price id confirmation`、`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **Production**：本条コミット時点では **repo が「追加済み」を証明しない**（Human が Vercel UI でのみ値を入力；**値のフル文字列は SSOT／AI／Cursor に載せない**）。** redacted：** **`price_****U3hF`。** **フル Price ID：** **未記録。** **Planning／execution：** **Project `m55-webv2` / Key `STRIPE_PRICE_DTR_CORE_STATIC_V1` / Env Production。** **`5S`：** **追加 redeploy なし、Checkout 再試行なし、購入ボタン押下なし、本番決済なし、env 代入後 Checkout 確認なし、Stripe 設定変更なし、webhook／replay なし、Supabase 変更なし、runtime／コード／UI 変更なし、Production DB 変更なし、POST／PUT／PATCH／DELETE なし、`/api/stripe/*` 直接なし**。 Verdict **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**（Human が Production にキーを追加するときは **`M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md`** の **人手のみ：Vercel UI 手順および §4（実施結果）** に従い、完了後 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`** を別証跡で確定させ **`5T`** に進む）。 Next **`Phase`** **`5‑6H‑5T`** — **`Production`** **`redeploy`** **`for`** **`env`** **`activation`** **`planning`**／**`execution`** **`gate`。**
+
+Work anchor:
+
+- **`8408f37ddb5ea58153377367f667168533db30e5`** — `docs: record production stripe price id confirmation`（**5S SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md`
+
+Prior:
+
+- **`5R`:** `docs/ssot/M55_PHASE5_6H_5R_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_2026-05-15.md` — **`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`**
+
+Hard stop:
+
+- **Stripe Price ID フルを SSOT／チャットへ書かない。** **`whsec`／`sk_live`／service role などのシークレットのフルを扱わない。** **`5S`** **で redeploy／Checkout／本番決済／webhook／DB は触らない。**
+
 ## 2026-05-15 — Phase 5-6H-5R Production Stripe Price ID human confirmation gate recorded
 
 Status: **`work/home-cluster`。** **人間のみ Stripe Dashboard確認（Live／Production）：** Product **M55 デジタル鑑定レポート（Standard）**、論理チェックアウト **`DTR_CORE_STATIC_V1`**、**¥1,000 `JPY`**、**one-time**、**Price active**。 **redacted Price ID のみ記録：** **`price_****U3hF`。** **フル Price ID は SSOT に書かず AI／Cursor へも渡さない。** **Vercel（`m55-webv2`）Environment Variables：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** は **Preview に存在すると観察、Production は提供一覧で確認されず**（設定変更・代入なし、次 **`5S`** で分離）。** **Production：** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing の blocker は継続。** **`env`/whsec/secret／Vercel・Stripe／webhook／Checkout 再試行／購入／live payment／redeploy／Supabase／Production DB／`/api/stripe/*`／runtime は変更しない。** Verdict **`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。 Next **`Phase`** **`5‑6H‑5S`** — **Vercel Production env variable addition planning／execution gate。**
@@ -997,6 +1017,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5S Vercel Production env variable addition planning／execution gate recorded
+
+Status: **`work/home-cluster`。直前 **`5R`**：正式フル hash **`8408f37ddb5ea58153377367f667168533db30e5`**、`docs: record production stripe price id confirmation`、`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **Production**：本条コミット時点では **repo が「追加済み」を証明しない**（Human が Vercel UI でのみ値を入力；**値のフル文字列は SSOT／AI／Cursor に載せない**）。** redacted：** **`price_****U3hF`。** **フル Price ID：** **未記録。** **Planning／execution：** **Project `m55-webv2` / Key `STRIPE_PRICE_DTR_CORE_STATIC_V1` / Env Production。** **`5S`：** **追加 redeploy なし、Checkout 再試行なし、購入ボタン押下なし、本番決済なし、env 代入後 Checkout 確認なし、Stripe 設定変更なし、webhook／replay なし、Supabase 変更なし、runtime／コード／UI 変更なし、Production DB 変更なし、POST／PUT／PATCH／DELETE なし、`/api/stripe/*` 直接なし**。 Verdict **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**（Human が Production にキーを追加するときは **`M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md`** の **人手のみ：Vercel UI 手順および §4（実施結果）** に従い、完了後 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`** を別証跡で確定させ **`5T`** に進む）。 Next **`Phase`** **`5‑6H‑5T`** — **`Production`** **`redeploy`** **`for`** **`env`** **`activation`** **`planning`**／**`execution`** **`gate`。**
+
+Work anchor:
+
+- **`8408f37ddb5ea58153377367f667168533db30e5`** — `docs: record production stripe price id confirmation`（**5S SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md`
+
+Prior:
+
+- **`5R`:** `docs/ssot/M55_PHASE5_6H_5R_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_2026-05-15.md` — **`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`**
+
+Hard stop:
+
+- **Stripe Price ID フルを SSOT／チャットへ書かない。** **`whsec`／`sk_live`／service role などのシークレットのフルを扱わない。** **`5S`** **で redeploy／Checkout／本番決済／webhook／DB は触らない。**
 
 ## 2026-05-15 — Phase 5-6H-5R Production Stripe Price ID human confirmation gate recorded
 
