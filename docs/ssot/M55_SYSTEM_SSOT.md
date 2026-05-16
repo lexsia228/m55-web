@@ -1,3 +1,24 @@
+## 2026-05-15 — Phase 5-6H-5X Live payment execution gate recorded
+
+Status: **`work/home-cluster`。** **`5W`** evidence commit **`5621c30ddc70bf20d83aac4727fd580aca4ba609`**（`docs: plan live payment execution gate`）。 **`m55-webv2`** Production：**Ready／Current**。** **履歴：** **`checkout.stripe.com` 到達（5U-L-A）**／**M55 デジタル鑑定レポート (Standard)**／**¥1,000**／**当時 payment 未完了**。** **本条 SSOT 作成時点：** **human による live payment（完了）は未実施。** **Payment completed：** **no**。** **Stripe status（redacted）：** **N/A**。** **`STRIPE_WEBHOOK_SECRET`：** **未変更。** **webhook fulfillment：** **未証明。** **entitlement／DB grant：** **未証明。** **refund／rollback：** **未実行。** **フル ID：** **未記録。** Verdict **`LIVE_PAYMENT_EXECUTION_BLOCKED`**（**未実施**）。 Next **`Phase 5-6H-5X-A`** — **Live payment blocked evidence checkpoint**（**再試行は新 planning Gate まで禁止**）。
+
+Work anchor:
+
+- **`5621c30ddc70bf20d83aac4727fd580aca4ba609`** — 5W 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5X_LIVE_PAYMENT_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5W`:** `docs/ssot/M55_PHASE5_6H_5W_LIVE_PAYMENT_EXECUTION_PLANNING_GATE_2026-05-15.md` — **`READY_FOR_PHASE_5_6H_5X_LIVE_PAYMENT_EXECUTION_GATE`**
+
+Hard stop:
+
+- **複数回試行／Checkout 連打／`/api/stripe` 直実行／webhook・secret・env 変更／Production DB 読み書き／返金即実行をしない。** **フル ID を SSOT に書かない。**
+
+
 ## 2026-05-15 — Phase 5-6H-5W Live payment execution planning gate recorded
 
 Status: **`work/home-cluster`。** **`5V`** evidence commit **`db38fe423bf5df51658b64f09346528c6733d2ce`**（`docs: plan live payment after checkout creation evidence`）。 **`5U-L-A`／`5V` 前提：** Checkout purchase **exactly once**／**`checkout.stripe.com` 到達：yes**／**M55 デジタル鑑定レポート (Standard)**／**¥1,000**。** **再発なし：** **`missing env`**、**`No such price`**、**test mode key**。** **payment：** **未完了。** **live payment：** **未実行。** **webhook fulfillment：** **未証明。** **entitlement／DB grant：** **未証明。** **`STRIPE_WEBHOOK_SECRET`：** **未変更・未検証。** **本条（5W）：** **docs-only**／**実決済なし**／**Checkout 再試行・購入ボタン再押下なし**／**webhook／env／Supabase／Vercel／追加 redeploy／runtime・コード／Production DB 読み書きなし**／**`POST`／`PUT`／`PATCH`／`DELETE` なし**／**`/api/stripe/*` 直接なし**／**フル ID 未記録。** Verdict **`READY_FOR_PHASE_5_6H_5X_LIVE_PAYMENT_EXECUTION_GATE`**。** **本番決済は本条コミット後の別明示 GO のみ。** Next **`Phase 5-6H-5X`** — **Live payment execution gate**（**human・一回試行は 5X で別 GO**；**post-payment 検証は後続 Gate に分離**）。
@@ -1442,6 +1463,27 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5X Live payment execution gate recorded
+
+Status: **`work/home-cluster`。** **`5W`** evidence commit **`5621c30ddc70bf20d83aac4727fd580aca4ba609`**（`docs: plan live payment execution gate`）。 **`m55-webv2`** Production：**Ready／Current**。** **履歴：** **`checkout.stripe.com` 到達（5U-L-A）**／**M55 デジタル鑑定レポート (Standard)**／**¥1,000**／**当時 payment 未完了**。** **本条 SSOT 作成時点：** **human による live payment（完了）は未実施。** **Payment completed：** **no**。** **Stripe status（redacted）：** **N/A**。** **`STRIPE_WEBHOOK_SECRET`：** **未変更。** **webhook fulfillment：** **未証明。** **entitlement／DB grant：** **未証明。** **refund／rollback：** **未実行。** **フル ID：** **未記録。** Verdict **`LIVE_PAYMENT_EXECUTION_BLOCKED`**（**未実施**）。 Next **`Phase 5-6H-5X-A`** — **Live payment blocked evidence checkpoint**（**再試行は新 planning Gate まで禁止**）。
+
+Work anchor:
+
+- **`5621c30ddc70bf20d83aac4727fd580aca4ba609`** — 5W 最新 evidence commit（本条の直前提）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5X_LIVE_PAYMENT_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5W`:** `docs/ssot/M55_PHASE5_6H_5W_LIVE_PAYMENT_EXECUTION_PLANNING_GATE_2026-05-15.md` — **`READY_FOR_PHASE_5_6H_5X_LIVE_PAYMENT_EXECUTION_GATE`**
+
+Hard stop:
+
+- **複数回試行／Checkout 連打／`/api/stripe` 直実行／webhook・secret・env 変更／Production DB 読み書き／返金即実行をしない。** **フル ID を SSOT に書かない。**
+
 
 ## 2026-05-15 — Phase 5-6H-5W Live payment execution planning gate recorded
 
