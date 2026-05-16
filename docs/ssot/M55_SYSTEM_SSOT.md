@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5T-A Production redeploy for env activation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。** `5T` 記録 commit **`16cb70c270c6d5f0e4d333185023790722f21ec5`** — `docs: record production redeploy for env activation`（当時 **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**）。 Human：**`m55-webv2`** で Production **redeploy を 1 回**。**Deployment **`6yVT8BHC…`**（redacted）、**Ready／Latest**、**Production／Current**、**branch `main`**、source **`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` 等。** 所要 **約 1m10s**。** ビルド断片：warnings のみ／fatal は提示範囲で非観測。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を含む deployment が **Ready／Current** と人手確認。**redacted：** **`price_****U3hF`** のみ。** **`5T-A`：** 追加 redeploy なし、Checkout／購入／本番決済／env／secret 追加変更／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、POST および `/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U`** — **Checkout creation controlled gate**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
+
+Work anchor:
+
+- **`16cb70c270c6d5f0e4d333185023790722f21ec5`** — `docs: record production redeploy for env activation`（**5T-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5T_A_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5T`:** `docs/ssot/M55_PHASE5_6H_5T_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／secret／`whsec`・`sk_live`／service role を SSOT に書かない。** **`5T-A`** **で追加 redeploy／Checkout／本番決済／env 変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5T Production redeploy for env activation planning／execution gate recorded
 
 Status: **`work/home-cluster`。直前 **`5S-A`**：commit **`0785595292774e419b2d30230112a2c35be9497f`**（subject `docs: record vercel production price env addition green`）、判定 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`**。** Project **`m55-webv2`**、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`** は **Production／Preview**（`5S-A`）。**redacted：** **`price_****U3hF`** のみ。** **Vercel 注記：** new deployment is needed（→ **`5T`** で Production redeploy）。** **`5T` 本条：** **repo は redeploy 完了を証明しない**。Human：**`main`** 系 Production deployment に **Redeploy を 1 回だけ**；成功時 **Ready／Current** を人手確認（**deployment id 等のフル値は SSOT に載せない**）。** **`5T`：** Checkout／購入／本番決済／env・secret 追加変更／webhook／Supabase／Production DB／runtime・コード・UI 変更なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**（完了は別証跡で **`GREEN`**）。 Next **`Phase 5-6H-5U`** — **Checkout creation controlled gate**（本番決済は未 Gate）。
@@ -1057,6 +1077,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5T-A Production redeploy for env activation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。** `5T` 記録 commit **`16cb70c270c6d5f0e4d333185023790722f21ec5`** — `docs: record production redeploy for env activation`（当時 **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**）。 Human：**`m55-webv2`** で Production **redeploy を 1 回**。**Deployment **`6yVT8BHC…`**（redacted）、**Ready／Latest**、**Production／Current**、**branch `main`**、source **`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` 等。** 所要 **約 1m10s**。** ビルド断片：warnings のみ／fatal は提示範囲で非観測。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を含む deployment が **Ready／Current** と人手確認。**redacted：** **`price_****U3hF`** のみ。** **`5T-A`：** 追加 redeploy なし、Checkout／購入／本番決済／env／secret 追加変更／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、POST および `/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U`** — **Checkout creation controlled gate**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
+
+Work anchor:
+
+- **`16cb70c270c6d5f0e4d333185023790722f21ec5`** — `docs: record production redeploy for env activation`（**5T-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5T_A_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5T`:** `docs/ssot/M55_PHASE5_6H_5T_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**
+
+Hard stop:
+
+- **フル Price ID／secret／`whsec`・`sk_live`／service role を SSOT に書かない。** **`5T-A`** **で追加 redeploy／Checkout／本番決済／env 変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5T Production redeploy for env activation planning／execution gate recorded
 
