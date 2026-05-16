@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U Checkout creation controlled planning gate recorded
+
+Status: **`work/home-cluster`。** `5T-A` 記録 commit **`c5dc8c3b18cb6437dbb4c5883336717b1f512240`** — `docs: record production redeploy env activation green`、**`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`**。 **`m55-webv2`** Production **Ready／Current**、**`main`**、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`** 活性化前提。**redacted：** **`price_****U3hF`** のみ。** **`missing env`** 系は **Checkout 未実行のため未検証**。** **`5U`（本条）：** docs-only planning。**購入ボタン押下なし、Checkout 作成確認なし、本番決済なし、env／whsec／secret 追加変更なし、Vercel 変更なし、追加 redeploy なし、webhook／Supabase／Production DB／runtime・コード・UI 変更なし、手動 POST／`/api/stripe/*` 直接なし。** Verdict **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**（実作業は **`5U-A`**＋別 GO）。 Next **`Phase 5-6H-5U-A`** — **Checkout creation controlled execution**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
+
+Work anchor:
+
+- **`c5dc8c3b18cb6437dbb4c5883336717b1f512240`** — `docs: record production redeploy env activation green`（**5U SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_CHECKOUT_CREATION_CONTROLLED_PLANNING_GATE_2026-05-15.md`
+
+Prior:
+
+- **`5T-A`:** `docs/ssot/M55_PHASE5_6H_5T_A_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル Price ID／Session ID／PI／secret／`whsec` を SSOT に書かない。** **`5U`** **で購入操作・Checkout 実行・決済・設定変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5T-A Production redeploy for env activation GREEN checkpoint recorded
 
 Status: **`work/home-cluster`。** `5T` 記録 commit **`16cb70c270c6d5f0e4d333185023790722f21ec5`** — `docs: record production redeploy for env activation`（当時 **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_BLOCKED`**）。 Human：**`m55-webv2`** で Production **redeploy を 1 回**。**Deployment **`6yVT8BHC…`**（redacted）、**Ready／Latest**、**Production／Current**、**branch `main`**、source **`a38918`** — `chore(audit): refresh repo asset index`。** Domains：`m55-web.vercel.app` 等。** 所要 **約 1m10s**。** ビルド断片：warnings のみ／fatal は提示範囲で非観測。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** を含む deployment が **Ready／Current** と人手確認。**redacted：** **`price_****U3hF`** のみ。** **`5T-A`：** 追加 redeploy なし、Checkout／購入／本番決済／env／secret 追加変更／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、POST および `/api/stripe/*` 直接なし。 Verdict **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`。** Next **`Phase 5-6H-5U`** — **Checkout creation controlled gate**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
@@ -1077,6 +1097,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U Checkout creation controlled planning gate recorded
+
+Status: **`work/home-cluster`。** `5T-A` 記録 commit **`c5dc8c3b18cb6437dbb4c5883336717b1f512240`** — `docs: record production redeploy env activation green`、**`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`**。 **`m55-webv2`** Production **Ready／Current**、**`main`**、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`** 活性化前提。**redacted：** **`price_****U3hF`** のみ。** **`missing env`** 系は **Checkout 未実行のため未検証**。** **`5U`（本条）：** docs-only planning。**購入ボタン押下なし、Checkout 作成確認なし、本番決済なし、env／whsec／secret 追加変更なし、Vercel 変更なし、追加 redeploy なし、webhook／Supabase／Production DB／runtime・コード・UI 変更なし、手動 POST／`/api/stripe/*` 直接なし。** Verdict **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**（実作業は **`5U-A`**＋別 GO）。 Next **`Phase 5-6H-5U-A`** — **Checkout creation controlled execution**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
+
+Work anchor:
+
+- **`c5dc8c3b18cb6437dbb4c5883336717b1f512240`** — `docs: record production redeploy env activation green`（**5U SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_CHECKOUT_CREATION_CONTROLLED_PLANNING_GATE_2026-05-15.md`
+
+Prior:
+
+- **`5T-A`:** `docs/ssot/M55_PHASE5_6H_5T_A_PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN_2026-05-15.md` — **`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **フル Price ID／Session ID／PI／secret／`whsec` を SSOT に書かない。** **`5U`** **で購入操作・Checkout 実行・決済・設定変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5T-A Production redeploy for env activation GREEN checkpoint recorded
 
