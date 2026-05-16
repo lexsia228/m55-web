@@ -1,3 +1,26 @@
+## 2026-05-16 — Phase 5-6H-5Z-C Stripe Production webhook endpoint configuration planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／¥1,000。**UI：** **`接続を確認できませんでした`。** **`5Z-A`** **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`。** **`5Z-B`** **`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`**（**`638e22f608003f6dc43fb75c747e633541f9d1d9`**）：**Webhook タブで endpoint 未観測**。 **本条（5Z-C）は docs-only：** **endpoint／whsec／Vercel env／redeploy／delivery test／replay／Production DB／再決済は未実行。** **Evidence：** **`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**。 **関連：** **`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **推奨 endpoint URL：** **`https://m55-webv2.vercel.app/api/stripe/webhook`**（**候補B：** **`https://m55-web.vercel.app/api/stripe/webhook`** — canonical は Vercel Domains で 5Z-D 前確認）。 **Event plan：** **`checkout.session.completed`**（必須）。必要に応じ **`charge.refunded`**／**`invoice.paid`**（**`payment_intent.succeeded`** はコード上不要）。 **`STRIPE_WEBHOOK_SECRET`：** Production のみ、`m55-webv2` で人手設定——**別 Gate**。 Verdict：**`READY_FOR_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_GATE`。** Next：**`Phase 5-6H-5Z-D`** — endpoint 人手作成（**明示 GO のみ**）→ **`5Z-E`** whsec／Vercel → **`5Z-F`** redeploy → **`5Z-G`** idempotency 後 delivery／replay planning。
+
+Work anchor:
+
+- **`638e22f608003f6dc43fb75c747e633541f9d1d9`** — `5Z-B` finding。
+- **`893d540a4b0da10503ebac4552cc122b85f91d5e`** — Evidence Registry protocol。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_C_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_CONFIGURATION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-B`:** `docs/ssot/M55_PHASE5_6H_5Z_B_STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_2026-05-16.md` — **`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`**
+
+Hard stop:
+
+- **endpoint 送信先追加／replay／delivery test／`STRIPE_WEBHOOK_SECRET`／env／Stripe・Supabase・Vercel 変更／redeploy／code／Production DB／full secret・ID：** **本条コミットでは実施しない・記録しない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-B Stripe webhook endpoint not observed read-only finding checkpoint recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／complete 証跡記録済み／**Product** **Standard**／**¥1,000 JPY**／Post-payment UI **`接続を確認できませんでした`。** **`5Z`** **`READY_FOR_POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_EXECUTION_GATE`。** **`5Z-A`** **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`**（**`f3d7de09abec8f2ca6061812716f40bf937da7e8`**）。 **`5Z-A0` Evidence Registry：** **`893d540a4b0da10503ebac4552cc122b85f91d5e`**。 **Human read-only：** **Stripe Workbench → Webhook タブ。** **送信先追加 UI のみ読み／既存 Production webhook endpoint は観測されず。** **delivery 履歴／response code は観測せず。** **Evidence ID：** **`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**（Source: Workbench Webhook tab。**`kind`：** **`webhook_endpoint_presence`**。**OBSERVED／REDACTED_RECORDED**）。 **関連 Registry：** **`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **Classification：** **`WEBHOOK_ENDPOINT_NOT_OBSERVED`**／候補 **`WEBHOOK_NOT_DELIVERED_ENDPOINT_NOT_FOUND_CANDIDATE`。** **解釈：** **paid が成立しても entitlement／unlock が未証明となる有力候補**（endpoint 不在なら **`checkout.session.completed`** 経由のサーバ fulfillment が起きにくい）。 **Endpoint 追加／replay／`STRIPE_WEBHOOK_SECRET` 変更／env・whsec／Stripe・Supabase・Vercel 設定／コード／redeploy／Production DB read／write／再決済／返金／full ID：** **すべて未実行またはなし。** Verdict：**`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`。** Next：**`Phase 5-6H-5Z-C`** — **Stripe Production webhook endpoint configuration planning gate**（**docs-only first**。canonical **`https://m55-webv2.vercel.app/api/stripe/webhook`**（または運用確定ドメイン）／**`checkout.session.completed`**／**`whsec`／Vercel env／replay・delivery test は後続別 Gate）。
@@ -1615,6 +1638,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-C Stripe Production webhook endpoint configuration planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Y-A`** paid／¥1,000。**UI：** **`接続を確認できませんでした`。** **`5Z-A`** **`POST_PAYMENT_FULFILLMENT_READ_ONLY_DIAGNOSTIC_INCONCLUSIVE`。** **`5Z-B`** **`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`**（**`638e22f608003f6dc43fb75c747e633541f9d1d9`**）：**Webhook タブで endpoint 未観測**。 **本条（5Z-C）は docs-only：** **endpoint／whsec／Vercel env／redeploy／delivery test／replay／Production DB／再決済は未実行。** **Evidence：** **`M55-EVID-20260516-5Z-C-WEBHOOK-CONFIG-PLAN-001`**。 **関連：** **`M55-EVID-20260516-5Z-B-STRIPE-WEBHOOK-ENDPOINT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`。** **推奨 endpoint URL：** **`https://m55-webv2.vercel.app/api/stripe/webhook`**（**候補B：** **`https://m55-web.vercel.app/api/stripe/webhook`** — canonical は Vercel Domains で 5Z-D 前確認）。 **Event plan：** **`checkout.session.completed`**（必須）。必要に応じ **`charge.refunded`**／**`invoice.paid`**（**`payment_intent.succeeded`** はコード上不要）。 **`STRIPE_WEBHOOK_SECRET`：** Production のみ、`m55-webv2` で人手設定——**別 Gate**。 Verdict：**`READY_FOR_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_HUMAN_CONFIGURATION_GATE`。** Next：**`Phase 5-6H-5Z-D`** — endpoint 人手作成（**明示 GO のみ**）→ **`5Z-E`** whsec／Vercel → **`5Z-F`** redeploy → **`5Z-G`** idempotency 後 delivery／replay planning。
+
+Work anchor:
+
+- **`638e22f608003f6dc43fb75c747e633541f9d1d9`** — `5Z-B` finding。
+- **`893d540a4b0da10503ebac4552cc122b85f91d5e`** — Evidence Registry protocol。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_C_STRIPE_PRODUCTION_WEBHOOK_ENDPOINT_CONFIGURATION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-B`:** `docs/ssot/M55_PHASE5_6H_5Z_B_STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_2026-05-16.md` — **`STRIPE_WEBHOOK_ENDPOINT_NOT_OBSERVED_FINDING_RECORDED`**
+
+Hard stop:
+
+- **endpoint 送信先追加／replay／delivery test／`STRIPE_WEBHOOK_SECRET`／env／Stripe・Supabase・Vercel 変更／redeploy／code／Production DB／full secret・ID：** **本条コミットでは実施しない・記録しない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-B Stripe webhook endpoint not observed read-only finding checkpoint recorded
 
