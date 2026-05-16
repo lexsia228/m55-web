@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-C Stripe Price ID / account / mode mismatch diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** `5U-B` 記録 commit **`b00a8f1614bb8b5ddf79357d2b67ab66f813e629`** — `docs: record checkout price not found blocked finding`、**`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。** 観測：** **`No such price`**（redacted **`price_****U3hF`** のみ）。** **`missing env` 再発なし。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-C`（本条）：** docs-only planning。**Purchase／Checkout 再試行なし、決済なし、Stripe／Vercel／env／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、追加 redeploy なし、手動 POST／`/api/stripe/*` 直接なし、フル Price ID／secret を SSOT に書かない。** Verdict **`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**（実画面確認は **`5U-D`**＋別 GO）。 Next **`Phase 5-6H-5U-D`** — **Stripe Price／account／mode human diagnostic execution**（**read-only 優先**；**値修正は `5U-E` に分離**）。
+
+Work anchor:
+
+- **`b00a8f1614bb8b5ddf79357d2b67ab66f813e629`** — `docs: record checkout price not found blocked finding`（**5U-C SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_C_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5U-B`:** `docs/ssot/M55_PHASE5_6H_5U_B_CHECKOUT_PRICE_NOT_FOUND_BLOCKED_FINDING_2026-05-15.md` — **`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**
+
+Hard stop:
+
+- **`sk_live`／`whsec`／フル Price ID を SSOT に載せない。** **`5U-C`** **で設定変更・再試行はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-B Checkout creation controlled human attempt price-not-found blocked finding recorded
 
 Status: **`work/home-cluster`。** `5U-A` 記録 commit **`2f7ceb4f14e2d6a4a27105180f73e160f0d28649`** — `docs: record checkout creation controlled execution`（**`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**）。 Human：**`https://m55-webv2.vercel.app`** — **購入ボタン 1 回**。** **`missing env: STRIPE_PRICE_DTR_CORE_STATIC_V1` 再発なし。** Stripe 系表示：**`No such price`**（redacted **`price_****U3hF`** のみ。フル Price ID は記録禁止）。 **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **本条：** env／whsec／secret／webhook／Supabase／Vercel／redeploy／コード・Production DB 変更なし、Checkout 再試行なし、API 直接叩きなし。 Verdict **`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。 Next **`Phase 5-6H-5U-C`** — **Stripe Price ID／account／mode mismatch diagnostic planning gate**（docs-only 先行）。
@@ -1137,6 +1157,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-C Stripe Price ID / account / mode mismatch diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** `5U-B` 記録 commit **`b00a8f1614bb8b5ddf79357d2b67ab66f813e629`** — `docs: record checkout price not found blocked finding`、**`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**。** 観測：** **`No such price`**（redacted **`price_****U3hF`** のみ）。** **`missing env` 再発なし。** **`checkout.stripe.com`：** **未到達。** **payment：** **未完了。** **`5U-C`（本条）：** docs-only planning。**Purchase／Checkout 再試行なし、決済なし、Stripe／Vercel／env／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、追加 redeploy なし、手動 POST／`/api/stripe/*` 直接なし、フル Price ID／secret を SSOT に書かない。** Verdict **`READY_FOR_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_EXECUTION_GATE`**（実画面確認は **`5U-D`**＋別 GO）。 Next **`Phase 5-6H-5U-D`** — **Stripe Price／account／mode human diagnostic execution**（**read-only 優先**；**値修正は `5U-E` に分離**）。
+
+Work anchor:
+
+- **`b00a8f1614bb8b5ddf79357d2b67ab66f813e629`** — `docs: record checkout price not found blocked finding`（**5U-C SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_C_STRIPE_PRICE_ACCOUNT_MODE_DIAGNOSTIC_PLANNING_2026-05-15.md`
+
+Prior:
+
+- **`5U-B`:** `docs/ssot/M55_PHASE5_6H_5U_B_CHECKOUT_PRICE_NOT_FOUND_BLOCKED_FINDING_2026-05-15.md` — **`CHECKOUT_CREATION_CONTROLLED_PRICE_NOT_FOUND_BLOCKED`**
+
+Hard stop:
+
+- **`sk_live`／`whsec`／フル Price ID を SSOT に載せない。** **`5U-C`** **で設定変更・再試行はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-B Checkout creation controlled human attempt price-not-found blocked finding recorded
 
