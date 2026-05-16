@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5Q-A Historical Stripe payment evidence inventory recorded
+
+Status: **`work/home-cluster`。** **docs-only。** **直前 **`5Q`：** **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**（**`0f63e994027986c9e664d1d072f6667e43ed0e09`**）。** **現在の Production **`Checkout`** は **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing のまま BLOCKED。** **人間が Stripe Dashboard の過去取引スクショを提示（**画像ファイルは repo にコミットしない**）。** **記録したのは redacted テキストのみ：** **¥1,000 `JPY`**／**succeeded または successful と読める状態**／**03/14 付近の日付表示**／**M55／レポート製品に関連すると読める説明**。** **Payment Intent／Request／Customer／email／client_reference／Stripe Price ID のフル値は SSOT に載せない。** **本条は過去ダッシュボード上の証跡インベントリのみ。** **現在の checkout／live payment が GREEN であることを意味しない。** **`env`/whsec/secret／Vercel／Stripe／webhook／Checkout 再試行／購入／本番決済／redeploy／Supabase／Production DB／`/api/stripe/*` 直接／runtime 変更はしない。** Verdict **`HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_RECORDED`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（フル値禁止・redacted のみ）。**
+
+Work anchor:
+
+- **`0f63e994027986c9e664d1d072f6667e43ed0e09`** — `docs: plan production stripe price env configuration`（**5Q‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Q_A_HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_2026-05-15.md`
+
+Prior:
+
+- **`5Q`:** `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**
+
+Hard stop:
+
+- **スクリーンショットを repo にコミットしない。** **フル ID／secret を SSOT に書かない。** **`env` 代入・redeploy・Checkout 再試行なし。**
+
 ## 2026-05-15 — Phase 5-6H-5Q Production Stripe price env configuration planning gate prepared
 
 Status: **`work/home-cluster`。** **docs-only planning。** **`5P‑A`：** **`PRODUCTION_CHECKOUT_PRICE_ENV_BLOCKED_FINDING_RECORDED`**（**`53097e9eed08eaf07a0dc4aa5a36a482730c7fba`**）。** **blocking environment variable name:** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`**（**フル値・`price_…` 全体は SSOT に載せない**）。** **観測メッセージは `5P‑A` SSOT 参照。** **Vercel Project **`m55-webv2`**、Production **`m55-web.vercel.app`**／**`m55-webv2.vercel.app`**。** **本条：`env`/`whsec`/secret・Vercel／Stripe／webhook／Checkout 再試行・購入・本番決済・redeploy・Supabase／Production DB／`/api/stripe/*` 直接・runtime 変更はしない。** Verdict **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（**フル値禁止**、**redacted** のみ）。**
@@ -956,6 +976,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5Q-A Historical Stripe payment evidence inventory recorded
+
+Status: **`work/home-cluster`。** **docs-only。** **直前 **`5Q`：** **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**（**`0f63e994027986c9e664d1d072f6667e43ed0e09`**）。** **現在の Production **`Checkout`** は **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **missing のまま BLOCKED。** **人間が Stripe Dashboard の過去取引スクショを提示（**画像ファイルは repo にコミットしない**）。** **記録したのは redacted テキストのみ：** **¥1,000 `JPY`**／**succeeded または successful と読める状態**／**03/14 付近の日付表示**／**M55／レポート製品に関連すると読める説明**。** **Payment Intent／Request／Customer／email／client_reference／Stripe Price ID のフル値は SSOT に載せない。** **本条は過去ダッシュボード上の証跡インベントリのみ。** **現在の checkout／live payment が GREEN であることを意味しない。** **`env`/whsec/secret／Vercel／Stripe／webhook／Checkout 再試行／購入／本番決済／redeploy／Supabase／Production DB／`/api/stripe/*` 直接／runtime 変更はしない。** Verdict **`HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_RECORDED`。 Next **`Phase`** **`5‑6H‑5R`** — **Production Stripe Price ID human confirmation gate（フル値禁止・redacted のみ）。**
+
+Work anchor:
+
+- **`0f63e994027986c9e664d1d072f6667e43ed0e09`** — `docs: plan production stripe price env configuration`（**5Q‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Q_A_HISTORICAL_STRIPE_PAYMENT_EVIDENCE_INVENTORY_2026-05-15.md`
+
+Prior:
+
+- **`5Q`:** `docs/ssot/M55_PHASE5_6H_5Q_PRODUCTION_STRIPE_PRICE_ENV_CONFIGURATION_PLANNING_2026-05-15.md` — **`READY_FOR_PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GATE`**
+
+Hard stop:
+
+- **スクリーンショットを repo にコミットしない。** **フル ID／secret を SSOT に書かない。** **`env` 代入・redeploy・Checkout 再試行なし。**
 
 ## 2026-05-15 — Phase 5-6H-5Q Production Stripe price env configuration planning gate prepared
 
