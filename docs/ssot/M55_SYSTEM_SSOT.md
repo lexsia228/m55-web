@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5S-A Vercel Production price env addition human confirmation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。`5S` 記録 commit **`9469e5eb672164aa49407155220e502d2217e75b`**（subject `docs: record vercel production price env addition`）当時の判定 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**（repo のみでは Production 代入を証明できず）。 Human：**`m55-webv2`** の Environment Variables で **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** が **Production／Preview** に存在すること、トースト（updated successfully 相当）、および「a new deployment is needed for changes to take effect」注記を人手で確認。**redacted：** **`price_****U3hF`** のみ。** **フル Price ID 未記録。** **`5S-A`：** redeploy 未実施、Checkout 再試行なし、本番決済なし、Stripe／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、POST 系および `/api/stripe/*` 直接なし、**本条では追加の Vercel 設定変更は行わない**（本条は観測の記録のみ）。 Verdict **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`。** Next **`Phase 5-6H-5T`** — **Production redeploy for env activation planning／execution gate**。
+
+Work anchor:
+
+- **`9469e5eb672164aa49407155220e502d2217e75b`** — `docs: record vercel production price env addition`（**5S‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5S_A_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5S`:** `docs/ssot/M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md` — **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**
+
+Hard stop:
+
+- **Stripe Price ID フル／`whsec`／`sk_live`／service role を SSOT に書かない。** **`5S‑A`** **で redeploy／Checkout／本番決済／追加 Vercel 変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5S Vercel Production env variable addition planning／execution gate recorded
 
 Status: **`work/home-cluster`。直前 **`5R`**：正式フル hash **`8408f37ddb5ea58153377367f667168533db30e5`**、`docs: record production stripe price id confirmation`、`PRODUCTION_STRIPE_PRICE_ID_HUMAN_CONFIRMATION_GREEN`。** **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** **Production**：本条コミット時点では **repo が「追加済み」を証明しない**（Human が Vercel UI でのみ値を入力；**値のフル文字列は SSOT／AI／Cursor に載せない**）。** redacted：** **`price_****U3hF`。** **フル Price ID：** **未記録。** **Planning／execution：** **Project `m55-webv2` / Key `STRIPE_PRICE_DTR_CORE_STATIC_V1` / Env Production。** **`5S`：** **追加 redeploy なし、Checkout 再試行なし、購入ボタン押下なし、本番決済なし、env 代入後 Checkout 確認なし、Stripe 設定変更なし、webhook／replay なし、Supabase 変更なし、runtime／コード／UI 変更なし、Production DB 変更なし、POST／PUT／PATCH／DELETE なし、`/api/stripe/*` 直接なし**。 Verdict **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**（Human が Production にキーを追加するときは **`M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md`** の **人手のみ：Vercel UI 手順および §4（実施結果）** に従い、完了後 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`** を別証跡で確定させ **`5T`** に進む）。 Next **`Phase`** **`5‑6H‑5T`** — **`Production`** **`redeploy`** **`for`** **`env`** **`activation`** **`planning`**／**`execution`** **`gate`。**
@@ -1017,6 +1037,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5S-A Vercel Production price env addition human confirmation GREEN checkpoint recorded
+
+Status: **`work/home-cluster`。`5S` 記録 commit **`9469e5eb672164aa49407155220e502d2217e75b`**（subject `docs: record vercel production price env addition`）当時の判定 **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**（repo のみでは Production 代入を証明できず）。 Human：**`m55-webv2`** の Environment Variables で **`STRIPE_PRICE_DTR_CORE_STATIC_V1`** が **Production／Preview** に存在すること、トースト（updated successfully 相当）、および「a new deployment is needed for changes to take effect」注記を人手で確認。**redacted：** **`price_****U3hF`** のみ。** **フル Price ID 未記録。** **`5S-A`：** redeploy 未実施、Checkout 再試行なし、本番決済なし、Stripe／webhook／Supabase／Production DB／runtime・コード・UI 変更なし、POST 系および `/api/stripe/*` 直接なし、**本条では追加の Vercel 設定変更は行わない**（本条は観測の記録のみ）。 Verdict **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN`。** Next **`Phase 5-6H-5T`** — **Production redeploy for env activation planning／execution gate**。
+
+Work anchor:
+
+- **`9469e5eb672164aa49407155220e502d2217e75b`** — `docs: record vercel production price env addition`（**5S‑A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5S_A_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_GREEN_2026-05-15.md`
+
+Prior:
+
+- **`5S`:** `docs/ssot/M55_PHASE5_6H_5S_VERCEL_PRODUCTION_PRICE_ENV_ADDITION_2026-05-15.md` — **`VERCEL_PRODUCTION_PRICE_ENV_ADDITION_BLOCKED`**
+
+Hard stop:
+
+- **Stripe Price ID フル／`whsec`／`sk_live`／service role を SSOT に書かない。** **`5S‑A`** **で redeploy／Checkout／本番決済／追加 Vercel 変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5S Vercel Production env variable addition planning／execution gate recorded
 
