@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-A Checkout creation controlled execution recorded
+
+Status: **`work/home-cluster`。`5U` planning commit **`3112d6871ce846170a5b7dc89b2bc8d149b9014a`** — `docs: plan checkout creation controlled gate`、当時 **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**。** **`m55-webv2`** Production 前提、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`**。**redacted：** **`price_****U3hF`** のみ。** **`5U-A` 本条コミット：** **repo／Cursor は Production 購入ボタン・`checkout.stripe.com` 到達を実証しない**。** **checkout.stripe.com 到達：** **本条未検証。** **missing env 再発：** **未検証。** **purchase button 1 回：** **本条では確認できない。** **payment 完了：** **なし（agent 未実施）。** **env／whsec／secret 追加変更なし、webhook 変更なし、Vercel 変更なし、追加 redeploy なし、Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子は SSOT に載せない。** Verdict **`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**（Human 証跡を `5U-A` SSOT に反映した別コミットで **`GREEN`**）。 **`GREEN` 後 Next：** **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**。
+
+Work anchor:
+
+- **`3112d6871ce846170a5b7dc89b2bc8d149b9014a`** — `docs: plan checkout creation controlled gate`（**5U-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_A_CHECKOUT_CREATION_CONTROLLED_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5U`:** `docs/ssot/M55_PHASE5_6H_5U_CHECKOUT_CREATION_CONTROLLED_PLANNING_GATE_2026-05-15.md` — **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル Session／PI／Price／secret／`whsec` を SSOT に書かない。** **`5U-A`** **で支払い完了・連打・設定変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U Checkout creation controlled planning gate recorded
 
 Status: **`work/home-cluster`。** `5T-A` 記録 commit **`c5dc8c3b18cb6437dbb4c5883336717b1f512240`** — `docs: record production redeploy env activation green`、**`PRODUCTION_REDEPLOY_FOR_ENV_ACTIVATION_GREEN`**。 **`m55-webv2`** Production **Ready／Current**、**`main`**、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`** 活性化前提。**redacted：** **`price_****U3hF`** のみ。** **`missing env`** 系は **Checkout 未実行のため未検証**。** **`5U`（本条）：** docs-only planning。**購入ボタン押下なし、Checkout 作成確認なし、本番決済なし、env／whsec／secret 追加変更なし、Vercel 変更なし、追加 redeploy なし、webhook／Supabase／Production DB／runtime・コード・UI 変更なし、手動 POST／`/api/stripe/*` 直接なし。** Verdict **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**（実作業は **`5U-A`**＋別 GO）。 Next **`Phase 5-6H-5U-A`** — **Checkout creation controlled execution**（`checkout.stripe.com` 到達まで／支払い完了は別 Gate）。
@@ -1097,6 +1117,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-A Checkout creation controlled execution recorded
+
+Status: **`work/home-cluster`。`5U` planning commit **`3112d6871ce846170a5b7dc89b2bc8d149b9014a`** — `docs: plan checkout creation controlled gate`、当時 **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**。** **`m55-webv2`** Production 前提、**`STRIPE_PRICE_DTR_CORE_STATIC_V1`**。**redacted：** **`price_****U3hF`** のみ。** **`5U-A` 本条コミット：** **repo／Cursor は Production 購入ボタン・`checkout.stripe.com` 到達を実証しない**。** **checkout.stripe.com 到達：** **本条未検証。** **missing env 再発：** **未検証。** **purchase button 1 回：** **本条では確認できない。** **payment 完了：** **なし（agent 未実施）。** **env／whsec／secret 追加変更なし、webhook 変更なし、Vercel 変更なし、追加 redeploy なし、Supabase／Production DB／runtime・コード・UI 変更なし、`/api/stripe/*` 直接なし、フル Session／PI／顧客識別子は SSOT に載せない。** Verdict **`CHECKOUT_CREATION_CONTROLLED_EXECUTION_BLOCKED`**（Human 証跡を `5U-A` SSOT に反映した別コミットで **`GREEN`**）。 **`GREEN` 後 Next：** **`Phase 5-6H-5V`** — **Checkout creation evidence checkpoint／live payment planning gate**。
+
+Work anchor:
+
+- **`3112d6871ce846170a5b7dc89b2bc8d149b9014a`** — `docs: plan checkout creation controlled gate`（**5U-A SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_A_CHECKOUT_CREATION_CONTROLLED_EXECUTION_2026-05-15.md`
+
+Prior:
+
+- **`5U`:** `docs/ssot/M55_PHASE5_6H_5U_CHECKOUT_CREATION_CONTROLLED_PLANNING_GATE_2026-05-15.md` — **`READY_FOR_CHECKOUT_CREATION_CONTROLLED_EXECUTION_GATE`**
+
+Hard stop:
+
+- **フル Session／PI／Price／secret／`whsec` を SSOT に書かない。** **`5U-A`** **で支払い完了・連打・設定変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U Checkout creation controlled planning gate recorded
 
