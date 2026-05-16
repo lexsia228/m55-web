@@ -1,3 +1,23 @@
+## 2026-05-15 — Phase 5-6H-5U-K Production redeploy for corrected STRIPE_SECRET_KEY activation gate recorded
+
+Status: **`work/home-cluster`。** `5U-J` commit **`7dda2ed382db21019bb293211fc4d4f1ed6bae70`** — **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`。 **`STRIPE_SECRET_KEY`** **Human 更新済み（Production／Preview）。値は SSOT 非記録。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **`5U-K`：** **Human の Production redeploy 1 回の結果は本条 SSOT ドラフト時点で未伝達。** **repo／agent は Vercel を操作しない。** **Checkout／購入／本番決済未実行**。** **env／追加 secret／Stripe／webhook／Supabase／Production DB／コード変更なし。** **redeploy 連打なし。** Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_BLOCKED`**（証跡未。§4 で成功観測を追記すれば **`GREEN`）。** Next **`Phase 5-6H-5U-L`** — **Checkout controlled retry**（purchase **1 回**／**`checkout.stripe.com` のみ／決済禁止**）。
+
+Work anchor:
+
+- **`7dda2ed382db21019bb293211fc4d4f1ed6bae70`** — `docs: record production stripe secret key correction`（**5U-K SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_K_PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_2026-05-15.md`
+
+Prior:
+
+- **`5U-J`:** `docs/ssot/M55_PHASE5_6H_5U_J_VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_2026-05-15.md` — **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI を SSOT／AI に出さない。** **`5U-K`** **で redeploy 連打・Checkout・決済・webhook 変更はしない。**
+
 ## 2026-05-15 — Phase 5-6H-5U-J Vercel Production STRIPE_SECRET_KEY human correction evidence checkpoint recorded
 
 Status: **`work/home-cluster`。** `5U-I` 記録 commit **`f3490940c10e2fc6174bf02e674a4b2f45476b9f`** — **`READY_FOR_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_GATE`。 Human：**Stripe で Live secret を **`M55-Live`** と命名して新規作成**。** **`m55-webv2` Environment：** **`STRIPE_SECRET_KEY`** を **Production／Preview** で Human が **Live に更新**。** **Sensitive。** **フル値は SSOT／AI に出さず repo に書かない。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **redeploy／Checkout／購入／本番決済は未実行。webhook 変更／DB／コード／追加 Vercel 変更なし。** **Running が新値を読み込んだとは限らない（通常 redeploy が要）。旧 Stripe key の削除／ローテーションも本条ではしない。** Verdict **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`。 Next **`Phase 5-6H-5U-K`** — **`STRIPE_SECRET_KEY` を校正後に Running deployment に読み込ませる**ための Production redeploy gate（**人手で redeploy を 1 回、Ready／Current 確認**。）
@@ -1317,6 +1337,26 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-15 — Phase 5-6H-5U-K Production redeploy for corrected STRIPE_SECRET_KEY activation gate recorded
+
+Status: **`work/home-cluster`。** `5U-J` commit **`7dda2ed382db21019bb293211fc4d4f1ed6bae70`** — **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`。 **`STRIPE_SECRET_KEY`** **Human 更新済み（Production／Preview）。値は SSOT 非記録。** **`STRIPE_WEBHOOK_SECRET`／`whsec`：** **未変更。** **`5U-K`：** **Human の Production redeploy 1 回の結果は本条 SSOT ドラフト時点で未伝達。** **repo／agent は Vercel を操作しない。** **Checkout／購入／本番決済未実行**。** **env／追加 secret／Stripe／webhook／Supabase／Production DB／コード変更なし。** **redeploy 連打なし。** Verdict **`PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_BLOCKED`**（証跡未。§4 で成功観測を追記すれば **`GREEN`）。** Next **`Phase 5-6H-5U-L`** — **Checkout controlled retry**（purchase **1 回**／**`checkout.stripe.com` のみ／決済禁止**）。
+
+Work anchor:
+
+- **`7dda2ed382db21019bb293211fc4d4f1ed6bae70`** — `docs: record production stripe secret key correction`（**5U-K SSOT・SYSTEM_SSOT 更新直前**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5U_K_PRODUCTION_REDEPLOY_FOR_CORRECTED_STRIPE_SECRET_KEY_ACTIVATION_2026-05-15.md`
+
+Prior:
+
+- **`5U-J`:** `docs/ssot/M55_PHASE5_6H_5U_J_VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_2026-05-15.md` — **`VERCEL_PRODUCTION_STRIPE_SECRET_KEY_HUMAN_CORRECTION_RECORDED`**
+
+Hard stop:
+
+- **フル `STRIPE_SECRET_KEY`／`whsec`／Price／Session／PI を SSOT／AI に出さない。** **`5U-K`** **で redeploy 連打・Checkout・決済・webhook 変更はしない。**
 
 ## 2026-05-15 — Phase 5-6H-5U-J Vercel Production STRIPE_SECRET_KEY human correction evidence checkpoint recorded
 
