@@ -1,9 +1,10 @@
-## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate recorded
+## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate（SSOT update）recorded
 
-Status: **`work/home-cluster`。** **Execution gate（`5Z-I-Q`）：** **`5Z-I-P` 計画**／**`5Z-I-O-D` READY** を前提。** **本条コミット工程：** Cursor／agent workspace は **Human-private の full repair env を扱わない**ため **runner は起動せず**。**Execution summary（redacted）：** **runner 起動 `0`**／**dry-run `not_applicable`**／**confirm `not_applicable`**／**DB write `no`**／**final `REPAIR_NOT_EXECUTED`**／**safe labels `cs_live_JSRW`／`user_36xz`**（**参照のみ**）。** **Verdict：** **`REPAIR_EXECUTION_NOT_EXECUTED`。** **Evidence：** **`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。 Links：**`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`。** **二回実行・retry・full ID／raw ログ：なし**。** **Next：** Human-private が **未完成**→ **`5Z-I-R` 未開始**。**完了後は**成功なら **`5Z-I-R` post-repair read-only**／STOP なら **stopped diagnostic**／部分失敗なら **partial diagnostic**（**UI unlock なし**／**本条で refund なし**）。
+Status: **`work/home-cluster`。** **SSOT update：** **`b9793ea`** で **Cursor／agent** は **`REPAIR_EXECUTION_NOT_EXECUTED`**（runner 未起動）。** **Human-private redacted 追認：** **execution count `1`**／**dry-run `false`**／**confirm matched `yes`**／**Stripe validation `all matched`**／**`stripe_events` pre-insert `inserted`**／**fulfill `success`**／**DB write by runner `yes`**／**final `REPAIR_EXECUTED_ONCE`**／**second／retry／refund：`no`**／**safe labels：`cs_live_JSRW`／`user_36xz`**／**full ID／secret／raw：なし**。** **Verdict：** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`。** **Evidence（同一）：** **`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。 Links：**`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`。** **本条コミット：** runner **再実行なし**／**追加 DB write なし**。** **Next：** **`Phase 5-6H-5Z-I-R` Post-repair Production DB read-only verification gate**。** **UI unlock：本条未実施。**
 
 Work anchor:
 
+- **`b9793ea601b07cdee5ba08345b57b0854adc7f23`** — **`docs: record exactly one repair execution`**（**prior agent baseline**）。
 - **`b52d6e0cfa1c201c3683899d86b4995a75315463`** — **`docs: plan exactly one repair execution`**（**`5Z-I-P`**）。
 
 Evidence:
@@ -16,7 +17,7 @@ Prior planning:
 
 Hard stop:
 
-- **本条コミット：** **runner 本実行なし**（workspace）／**二回実行・自動 retry なし**／**manual SQL／Events／replay／決済／refund／webhook／env 恒久的変更／package／script／runner・UI 変更なし**／**full ID／secret／printenv／raw stdout 転載なし**／**safe label を DB 値として扱わない**。**
+- **本条コミット：** **runner 再実行なし**／**追加 Production DB write なし**／**二回実行・retry／manual SQL／Events／replay／決済／refund なし**／**package／lockfile／runner・UI 変更なし**／**full ID／secret／printenv／raw stdout 転載なし**／**safe label を DB 値として扱わない**。**
 
 
 
@@ -2281,12 +2282,13 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
-## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate recorded
+## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate（SSOT update）recorded
 
-Status: **`work/home-cluster`。** **Execution gate（`5Z-I-Q`）：** **`5Z-I-P` 計画**／**`5Z-I-O-D` READY** を前提。** **本条コミット工程：** Cursor／agent workspace は **Human-private の full repair env を扱わない**ため **runner は起動せず**。**Execution summary（redacted）：** **runner 起動 `0`**／**dry-run `not_applicable`**／**confirm `not_applicable`**／**DB write `no`**／**final `REPAIR_NOT_EXECUTED`**／**safe labels `cs_live_JSRW`／`user_36xz`**（**参照のみ**）。** **Verdict：** **`REPAIR_EXECUTION_NOT_EXECUTED`。** **Evidence：** **`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。 Links：**`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`。** **二回実行・retry・full ID／raw ログ：なし**。** **Next：** Human-private が **未完成**→ **`5Z-I-R` 未開始**。**完了後は**成功なら **`5Z-I-R` post-repair read-only**／STOP なら **stopped diagnostic**／部分失敗なら **partial diagnostic**（**UI unlock なし**／**本条で refund なし**）。
+Status: **`work/home-cluster`。** **SSOT update：** **`b9793ea`** で **Cursor／agent** は **`REPAIR_EXECUTION_NOT_EXECUTED`**（runner 未起動）。** **Human-private redacted 追認：** **execution count `1`**／**dry-run `false`**／**confirm matched `yes`**／**Stripe validation `all matched`**／**`stripe_events` pre-insert `inserted`**／**fulfill `success`**／**DB write by runner `yes`**／**final `REPAIR_EXECUTED_ONCE`**／**second／retry／refund：`no`**／**safe labels：`cs_live_JSRW`／`user_36xz`**／**full ID／secret／raw：なし**。** **Verdict：** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`。** **Evidence（同一）：** **`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。 Links：**`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`。** **本条コミット：** runner **再実行なし**／**追加 DB write なし**。** **Next：** **`Phase 5-6H-5Z-I-R` Post-repair Production DB read-only verification gate**。** **UI unlock：本条未実施。**
 
 Work anchor:
 
+- **`b9793ea601b07cdee5ba08345b57b0854adc7f23`** — **`docs: record exactly one repair execution`**（**prior agent baseline**）。
 - **`b52d6e0cfa1c201c3683899d86b4995a75315463`** — **`docs: plan exactly one repair execution`**（**`5Z-I-P`**）。
 
 Evidence:
@@ -2299,7 +2301,7 @@ Prior planning:
 
 Hard stop:
 
-- **本条コミット：** **runner 本実行なし**（workspace）／**二回実行・自動 retry なし**／**manual SQL／Events／replay／決済／refund／webhook／env 恒久的変更／package／script／runner・UI 変更なし**／**full ID／secret／printenv／raw stdout 転載なし**／**safe label を DB 値として扱わない**。**
+- **本条コミット：** **runner 再実行なし**／**追加 Production DB write なし**／**二回実行・retry／manual SQL／Events／replay／決済／refund なし**／**package／lockfile／runner・UI 変更なし**／**full ID／secret／printenv／raw stdout 転載なし**／**safe label を DB 値として扱わない**。**
 
 
 
