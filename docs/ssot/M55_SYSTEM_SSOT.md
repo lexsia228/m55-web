@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-H-A Human Supabase Production DB read-only evidence checkpoint recorded
+
+Status: **`work/home-cluster`。`5Z-H`：** **`DB_PREFLIGHT_INCONCLUSIVE`** が Cursor／AI のみでは転記未完だった。** Human が Supabase Production で **`SELECT` read-only** を実施し結果を本条で固定。**対象 UTC ウィンドウ：** **`2026-05-16 13:30:00+00`〜`2026-05-16 15:10:00+00`。** **観測：** **`stripe_events`／`one_time_fulfillments`／`failed_fulfillments`／`entitlements_DTR_CORE_STATIC_V1`／`entitlement_rights_window`／`reply_ticket_wallets_window`／`reply_wallet_ledgers_window`／`dtr_report_snapshots_DTR_CORE_STATIC_V1`／`dtr_guest_drafts_window` — **`row_count` はいずれも 0**。** **Aggregate：** **`FULFILLMENT_ARTIFACTS_MISSING`。** **Replay recommendation：** **`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`。** Evidence：**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。 Links：**`M55-EVID-20260516-5Z-H-PROD-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。** Work anchor：** **`8503e3e902bf0bfe3ad1bb531b3ad5efc4210915`**。** **replay／webhook delivery test／Production write／refund／手動 grant：** **本条ではしない。** **フル ID／個人証跡は記録しない。** Next：**`Phase 5-6H-5Z-I` Exactly-one Stripe webhook replay planning／execution gate**。
+
+Work anchor:
+
+- **`8503e3e902bf0bfe3ad1bb531b3ad5efc4210915`** — **`5Z-H`** docs commit。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_H_A_HUMAN_SUPABASE_PRODUCTION_DB_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-H`:** `docs/ssot/M55_PHASE5_6H_5Z_H_PRE_REPLAY_PRODUCTION_DB_READ_ONLY_PREFLIGHT_2026-05-16.md` — **`DB_PREFLIGHT_INCONCLUSIVE`**（Human 転記前）
+
+Hard stop:
+
+- **webhook replay／delivery test／Supabase write／manual entitlement／stripe env／whsec／redeploy／`/api/stripe` 直呼び／返金：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-H Pre-replay Production DB read-only preflight gate recorded
 
 Status: **`work/home-cluster`。`5Z-G` SSOT と矛盾なし。** **Work anchor：** **`fa3ce3b8c8f5ddb9b392863b6290bf70a39f1854`**（**`docs: plan webhook replay idempotency preflight`**）。 **Production：** **read-only**（**`SELECT`** のみ）（本条コミットの AI／Cursor：** **Production 非接続** — **転記未完の項目はすべて **`unclear`** と明示）。 **`stripe_events`／`one_time_fulfillments`／`failed_fulfillments`／`entitlements`／`entitlement_rights`／`reply_ticket_wallets`／`reply_wallet_ledgers`／`dtr_report_snapshots`：** **`unclear`。** **`dtr_guest_drafts`：** **本条では評価欄のみ（未評価）**。 **Aggregate：** **`DB_PREFLIGHT_INCONCLUSIVE`。** **Replay recommendation：** **`DEEPER_READ_ONLY_DIAGNOSTIC_REQUIRED`。** Evidence：**`M55-EVID-20260516-5Z-H-PROD-DB-PREFLIGHT-001`**。 Links：**`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`**、**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。** **replay／delivery test／Production write／manual grant／stripe env／whsec／redeploy／refund：** **本条ではしない。** Next：**`Phase 5-6H-5Z-I`** — **Deeper read-only diagnostic gate**。** **フル ID／個人証跡は SSOT に書かない。**
@@ -1747,6 +1769,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-H-A Human Supabase Production DB read-only evidence checkpoint recorded
+
+Status: **`work/home-cluster`。`5Z-H`：** **`DB_PREFLIGHT_INCONCLUSIVE`** が Cursor／AI のみでは転記未完だった。** Human が Supabase Production で **`SELECT` read-only** を実施し結果を本条で固定。**対象 UTC ウィンドウ：** **`2026-05-16 13:30:00+00`〜`2026-05-16 15:10:00+00`。** **観測：** **`stripe_events`／`one_time_fulfillments`／`failed_fulfillments`／`entitlements_DTR_CORE_STATIC_V1`／`entitlement_rights_window`／`reply_ticket_wallets_window`／`reply_wallet_ledgers_window`／`dtr_report_snapshots_DTR_CORE_STATIC_V1`／`dtr_guest_drafts_window` — **`row_count` はいずれも 0**。** **Aggregate：** **`FULFILLMENT_ARTIFACTS_MISSING`。** **Replay recommendation：** **`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`。** Evidence：**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。 Links：**`M55-EVID-20260516-5Z-H-PROD-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。** Work anchor：** **`8503e3e902bf0bfe3ad1bb531b3ad5efc4210915`**。** **replay／webhook delivery test／Production write／refund／手動 grant：** **本条ではしない。** **フル ID／個人証跡は記録しない。** Next：**`Phase 5-6H-5Z-I` Exactly-one Stripe webhook replay planning／execution gate**。
+
+Work anchor:
+
+- **`8503e3e902bf0bfe3ad1bb531b3ad5efc4210915`** — **`5Z-H`** docs commit。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_H_A_HUMAN_SUPABASE_PRODUCTION_DB_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-H`:** `docs/ssot/M55_PHASE5_6H_5Z_H_PRE_REPLAY_PRODUCTION_DB_READ_ONLY_PREFLIGHT_2026-05-16.md` — **`DB_PREFLIGHT_INCONCLUSIVE`**（Human 転記前）
+
+Hard stop:
+
+- **webhook replay／delivery test／Supabase write／manual entitlement／stripe env／whsec／redeploy／`/api/stripe` 直呼び／返金：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-H Pre-replay Production DB read-only preflight gate recorded
 
