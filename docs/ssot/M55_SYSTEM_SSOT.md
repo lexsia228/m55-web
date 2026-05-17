@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I Exactly-one Stripe webhook replay execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-H-A`：** **`FULFILLMENT_ARTIFACTS_MISSING`／`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`**（anchor **`3dddefa3619047b0e232cdc7f0812dda9975878a`**）。** **Human 意図：** **`checkout.session.completed` を exactly once replay**。**本条 SSOT：** replay の HTTP／delivery は本条コミットで転記しない。** **replay attempt（断定カウント）：** **未定**。** **response code：** **未転記**。** **delivery status：** **未転記**。** **target event type：** **`checkout.session.completed`。** **endpoint domain（期待）：** **`m55-webv2.vercel.app`。** Verdict：**`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`。 Evidence：**`M55-EVID-20260516-5Z-I-STRIPE-WEBHOOK-REPLAY-001`**。 Links：**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。** **規程：** **second／broad replay／新規決済／stripe env／redeploy／Production write／`/api/stripe`／返金：** **本条ではしない。** **フル ID 未記録。** Next：**`Phase 5-6H-5Z-J` Replay blocked evidence checkpoint**（replay 転記後は **`5Z-J` を fulfillment read-only で再定義）。
+
+Work anchor:
+
+- **`3dddefa3619047b0e232cdc7f0812dda9975878a`** — **`5Z-H-A`** Human Supabase evidence commit。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_EXACTLY_ONE_STRIPE_WEBHOOK_REPLAY_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-H-A`:** `docs/ssot/M55_PHASE5_6H_5Z_H_A_HUMAN_SUPABASE_PRODUCTION_DB_READ_ONLY_EVIDENCE_2026-05-16.md` — **`FULFILLMENT_ARTIFACTS_MISSING`／`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`**
+
+Hard stop:
+
+- **2 回目 replay／delivery test での自動再試行／Supabase・Production write／manual grant／`/api/stripe` 直呼び／full ID を SSOT に書くこと：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-H-A Human Supabase Production DB read-only evidence checkpoint recorded
 
 Status: **`work/home-cluster`。`5Z-H`：** **`DB_PREFLIGHT_INCONCLUSIVE`** が Cursor／AI のみでは転記未完だった。** Human が Supabase Production で **`SELECT` read-only** を実施し結果を本条で固定。**対象 UTC ウィンドウ：** **`2026-05-16 13:30:00+00`〜`2026-05-16 15:10:00+00`。** **観測：** **`stripe_events`／`one_time_fulfillments`／`failed_fulfillments`／`entitlements_DTR_CORE_STATIC_V1`／`entitlement_rights_window`／`reply_ticket_wallets_window`／`reply_wallet_ledgers_window`／`dtr_report_snapshots_DTR_CORE_STATIC_V1`／`dtr_guest_drafts_window` — **`row_count` はいずれも 0**。** **Aggregate：** **`FULFILLMENT_ARTIFACTS_MISSING`。** **Replay recommendation：** **`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`。** Evidence：**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。 Links：**`M55-EVID-20260516-5Z-H-PROD-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。** Work anchor：** **`8503e3e902bf0bfe3ad1bb531b3ad5efc4210915`**。** **replay／webhook delivery test／Production write／refund／手動 grant：** **本条ではしない。** **フル ID／個人証跡は記録しない。** Next：**`Phase 5-6H-5Z-I` Exactly-one Stripe webhook replay planning／execution gate**。
@@ -1769,6 +1791,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I Exactly-one Stripe webhook replay execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-H-A`：** **`FULFILLMENT_ARTIFACTS_MISSING`／`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`**（anchor **`3dddefa3619047b0e232cdc7f0812dda9975878a`**）。** **Human 意図：** **`checkout.session.completed` を exactly once replay**。**本条 SSOT：** replay の HTTP／delivery は本条コミットで転記しない。** **replay attempt（断定カウント）：** **未定**。** **response code：** **未転記**。** **delivery status：** **未転記**。** **target event type：** **`checkout.session.completed`。** **endpoint domain（期待）：** **`m55-webv2.vercel.app`。** Verdict：**`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`。 Evidence：**`M55-EVID-20260516-5Z-I-STRIPE-WEBHOOK-REPLAY-001`**。 Links：**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。** **規程：** **second／broad replay／新規決済／stripe env／redeploy／Production write／`/api/stripe`／返金：** **本条ではしない。** **フル ID 未記録。** Next：**`Phase 5-6H-5Z-J` Replay blocked evidence checkpoint**（replay 転記後は **`5Z-J` を fulfillment read-only で再定義）。
+
+Work anchor:
+
+- **`3dddefa3619047b0e232cdc7f0812dda9975878a`** — **`5Z-H-A`** Human Supabase evidence commit。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_EXACTLY_ONE_STRIPE_WEBHOOK_REPLAY_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-H-A`:** `docs/ssot/M55_PHASE5_6H_5Z_H_A_HUMAN_SUPABASE_PRODUCTION_DB_READ_ONLY_EVIDENCE_2026-05-16.md` — **`FULFILLMENT_ARTIFACTS_MISSING`／`READY_FOR_EXACTLY_ONE_WEBHOOK_REPLAY_PLANNING`**
+
+Hard stop:
+
+- **2 回目 replay／delivery test での自動再試行／Supabase・Production write／manual grant／`/api/stripe` 直呼び／full ID を SSOT に書くこと：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-H-A Human Supabase Production DB read-only evidence checkpoint recorded
 
