@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-J Manual fulfillment repair route selection / technical design gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／**`5Z-H-A`** missing／**`5Z-I-C`** Dashboard **not observed**／**`5Z-I-E`** CLI **blocked**／**`5Z-I-H`** manual route／**`5Z-I-I`** **GREEN**。** delivery：** **0**。** Route：** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**（**`fulfillDtrCoreFromCheckoutSessionId` 再利用**）。** 設計要点：** webhook **dedupe（`stripe_events`）**／**fulfill が OTF・entitlements・rights・wallet・snapshot**／**`stripe_events` 順序は `5Z-I-K`〜`L` で確定**。** Human mapping：** Stripe／Supabase **read-only**、**SSOT は matched／mismatch／row_count のみ**。** 将来 Gate：** **K→L→M→N→O→P→Q**。** Stop：** full ID SSOT・mapping 不能・孤児 rights・broad mutation。 Verdict：**`READY_FOR_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**。 Links：**`M55-EVID-20260516-5Z-I-I-MANUAL-FULFILLMENT-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／replay／refund 実行：** **なし**。** **Next：**`Phase 5-6H-5Z-I-K`** Human-only mapping **read-only**。
+
+Work anchor:
+
+- **`16bb308366b29de14c2580b4e3dccb5bfb542160`** — **`docs: plan manual fulfillment repair route`**（**`5Z-I-I`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_J_MANUAL_FULFILLMENT_REPAIR_ROUTE_SELECTION_TECHNICAL_DESIGN_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-I`:** `docs/ssot/M55_PHASE5_6H_5Z_I_I_MANUAL_FULFILLMENT_REPAIR_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／webhook／CLI／Dashboard resend／redeploy／code／env／whsec／返金／フル ID SSOT：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-I Manual fulfillment repair planning gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／**`5Z-H-A`** **`FULFILLMENT_ARTIFACTS_MISSING`**／**`5Z-I-C`** Dashboard resend **not observed**／**`5Z-I-E`** CLI **blocked**／**`5Z-I-H`** **`STRIPE_SUPPORT_HELP_RESPONSE_RECORDED_MANUAL_PROCESSING_ROUTE_RECOMMENDED_IF_RESEND_UNAVAILABLE`**。** M55 delivery：** **0**。** HTTP：** **none**。** unlock：** **unproven**。**本条のみ：** **docs-only planning**。** Repo 要約：** webhook は **`stripe_events.event_id`** で **事前 dedupe** → **`checkout.session.completed`** one-time は **`fulfillDtrCoreFromCheckoutSessionId`**（**`one_time_fulfillments`／`entitlements`／`entitlement_rights`／wallet／`dtr_report_snapshots`**）。** R1〜R4：** app 再利用／Events API+app（実行は別 Gate）／manual SQL（低優先）／refund（最終）。** Stop：** full ID SSOT・mapping 不能・二重付与・snapshot 不明・**repair 前返金**。 Verdict：**`READY_FOR_MANUAL_FULFILLMENT_REPAIR_ROUTE_SELECTION_GATE`。** Alt focus：**`READY_FOR_APPLICATION_SIDE_FULFILLMENT_REUSE_DESIGN_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-I-MANUAL-FULFILLMENT-REPAIR-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／Stripe API／replay／CLI／refund 実行：** **なし**。** **Next：**`Phase 5-6H-5Z-I-J`** manual fulfillment repair **route selection／technical design**（**docs-only 既定**）。
@@ -1989,6 +2011,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-J Manual fulfillment repair route selection / technical design gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／**`5Z-H-A`** missing／**`5Z-I-C`** Dashboard **not observed**／**`5Z-I-E`** CLI **blocked**／**`5Z-I-H`** manual route／**`5Z-I-I`** **GREEN**。** delivery：** **0**。** Route：** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**（**`fulfillDtrCoreFromCheckoutSessionId` 再利用**）。** 設計要点：** webhook **dedupe（`stripe_events`）**／**fulfill が OTF・entitlements・rights・wallet・snapshot**／**`stripe_events` 順序は `5Z-I-K`〜`L` で確定**。** Human mapping：** Stripe／Supabase **read-only**、**SSOT は matched／mismatch／row_count のみ**。** 将来 Gate：** **K→L→M→N→O→P→Q**。** Stop：** full ID SSOT・mapping 不能・孤児 rights・broad mutation。 Verdict：**`READY_FOR_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**。 Links：**`M55-EVID-20260516-5Z-I-I-MANUAL-FULFILLMENT-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／replay／refund 実行：** **なし**。** **Next：**`Phase 5-6H-5Z-I-K`** Human-only mapping **read-only**。
+
+Work anchor:
+
+- **`16bb308366b29de14c2580b4e3dccb5bfb542160`** — **`docs: plan manual fulfillment repair route`**（**`5Z-I-I`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_J_MANUAL_FULFILLMENT_REPAIR_ROUTE_SELECTION_TECHNICAL_DESIGN_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-I`:** `docs/ssot/M55_PHASE5_6H_5Z_I_I_MANUAL_FULFILLMENT_REPAIR_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／webhook／CLI／Dashboard resend／redeploy／code／env／whsec／返金／フル ID SSOT：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-I Manual fulfillment repair planning gate recorded
 
