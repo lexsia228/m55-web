@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-K-A Human Supabase mapping read-only evidence checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`5Z-I-K`** **`HUMAN_MAPPING_INCONCLUSIVE`** から、Human が **Supabase Production `SELECT` only** で対象文脈を確認。** **safe label（非 ID）：** checkout **`cs_live_JSRW`**／user **`user_36xz`** — **SQL 値・full ID として使わない**。** **Supabase：** `one_time_fulfillments`／`entitlements`（**DTR_CORE_STATIC_V1**）／`entitlement_rights`／`reply_ticket_wallets`／`reply_wallet_ledgers`／`dtr_report_snapshots`／`failed_fulfillments` いずれも **row_count 0**（**missing expected**）。** **Stripe：** **先行証跡と整合**（**full ID 再生なし**）。**optional** final Dashboard read-only。** Classification：** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** Repair readiness：** **`READY_FOR_PRE_WRITE_REPAIR_SCRIPT_REVIEW_GATE`**（**推奨**）。**Alternate：** **`READY_FOR_STRIPE_MAPPING_FINAL_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Pre-write repair script review**（**推奨**）または **Stripe final read-only**（**alternate**）。
+
+Work anchor:
+
+- **`ff7c7fb162c4d76911b35f0ab386b97560b7e9ef`** — **`docs: record human mapping readonly confirmation`**（**`5Z-I-K`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_K_A_HUMAN_SUPABASE_MAPPING_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-K`:** `docs/ssot/M55_PHASE5_6H_5Z_I_K_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／replay／CLI／Dashboard／redeploy／code／env／whsec／返金／full ID／safe label misuse：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-K Human-only mapping read-only confirmation gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId`**。** 本 Gate：** **Human-only read-only mapping（Stripe Dashboard／Supabase SELECT／必要なら Clerk read-only）**。** **Stripe 各行：** **unclear**（**本条コミット時点・Human 転記未取得**）。** Supabase：** **unclear**／**期待 missing は `5Z-H-A` と整合確認要**。** Classification：** **`HUMAN_MAPPING_INCONCLUSIVE_DEEPER_READ_ONLY_REQUIRED`**。** Repair readiness：** **`DEEPER_READ_ONLY_MAPPING_REQUIRED`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／Stripe API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Deeper read-only mapping diagnostic gate**（**本条の inconclusive 前提**）。
@@ -2033,6 +2055,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-K-A Human Supabase mapping read-only evidence checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`5Z-I-K`** **`HUMAN_MAPPING_INCONCLUSIVE`** から、Human が **Supabase Production `SELECT` only** で対象文脈を確認。** **safe label（非 ID）：** checkout **`cs_live_JSRW`**／user **`user_36xz`** — **SQL 値・full ID として使わない**。** **Supabase：** `one_time_fulfillments`／`entitlements`（**DTR_CORE_STATIC_V1**）／`entitlement_rights`／`reply_ticket_wallets`／`reply_wallet_ledgers`／`dtr_report_snapshots`／`failed_fulfillments` いずれも **row_count 0**（**missing expected**）。** **Stripe：** **先行証跡と整合**（**full ID 再生なし**）。**optional** final Dashboard read-only。** Classification：** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** Repair readiness：** **`READY_FOR_PRE_WRITE_REPAIR_SCRIPT_REVIEW_GATE`**（**推奨**）。**Alternate：** **`READY_FOR_STRIPE_MAPPING_FINAL_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Pre-write repair script review**（**推奨**）または **Stripe final read-only**（**alternate**）。
+
+Work anchor:
+
+- **`ff7c7fb162c4d76911b35f0ab386b97560b7e9ef`** — **`docs: record human mapping readonly confirmation`**（**`5Z-I-K`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_K_A_HUMAN_SUPABASE_MAPPING_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-K`:** `docs/ssot/M55_PHASE5_6H_5Z_I_K_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／replay／CLI／Dashboard／redeploy／code／env／whsec／返金／full ID／safe label misuse：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-K Human-only mapping read-only confirmation gate recorded
 
