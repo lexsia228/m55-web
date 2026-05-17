@@ -1,3 +1,26 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-S UI report unlock verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**`5Z-I-R`** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`**（**`5Z-I-R` caveat：** agent **Production `SELECT` 未実行**）。** **本条：** **UI report unlock** の **Human browser 観測 SSOT 枠**。** **target domain：** **`https://m55-webv2.vercel.app`**。** **UI observation（初回コミット）：** **login／route／unlock／connection error／snapshot visibility／purchase CTA blocking／unexpected error — いずれも `not_measured`（Human 追認待ち）**。** **Aggregate：** **`UI_REPORT_UNLOCK_INCONCLUSIVE`。** **Verdict：** **`UI_REPORT_UNLOCK_VERIFICATION_INCONCLUSIVE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`。** **Agent：** **Production UI 閲覧・ログイン未実行**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**Events API／replay なし**／**refund なし**／**included reply-ticket 検証なし**／**full ID／secret／session なし**。** **Next：** **`Phase 5-6H-5Z-I-T` UI unlock diagnostic gate**（**retry／repair／refund なし**）。
+
+Work anchor:
+
+- **`c75e41fc44518500ee0f12a72028656ca754fb95`** — **`docs: record post repair db readonly verification`**（**`5Z-I-R`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`
+- **`5Z-I-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／二回目 repair／manual SQL／grant なし**／**Events／replay／決済／追加¥500／refund なし**／**Stripe／env／whsec／redeploy なし**／**package／lockfile／runner・runtime・code・UI 変更なし**／**full ID／secret／session／cookie なし**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-R Post-repair Production DB read-only verification gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**DB write by runner `yes`**／**`REPAIR_EXECUTED_ONCE`**。** **本条：** Production DB **`SELECT` read-only 証跡の SSOT 固定のみ**。** **Human-local：** safe labels **`cs_live_JSRW`／`user_36xz`**（**参照のみ・DB 値ではない**）。** **row_count summary：** **`stripe_events` 1**／**`one_time_fulfillments` 1**／**`entitlements` DTR_CORE 1**／**`entitlement_rights` ≥1**／**`reply_ticket_wallets` 1**／**`reply_wallet_ledgers` ≥1**／**`dtr_report_snapshots` DTR_CORE 1**／**`failed_fulfillments` 0**／**duplicate scan：no unexpected**。** **Aggregate：** **`POST_REPAIR_DB_ARTIFACTS_VERIFIED`。** **Verdict：** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`。** **Evidence：** **`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`。** **Agent：** Production **`SELECT` 未実行**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**Events API／replay なし**／**refund なし**／**UI unlock 未実施**／**full ID／secret なし**。** **Next：** **`Phase 5-6H-5Z-I-S` UI report unlock verification gate**（**DB write なし**）。
@@ -2304,6 +2327,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-S UI report unlock verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**`5Z-I-R`** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`**（**`5Z-I-R` caveat：** agent **Production `SELECT` 未実行**）。** **本条：** **UI report unlock** の **Human browser 観測 SSOT 枠**。** **target domain：** **`https://m55-webv2.vercel.app`**。** **UI observation（初回コミット）：** **login／route／unlock／connection error／snapshot visibility／purchase CTA blocking／unexpected error — いずれも `not_measured`（Human 追認待ち）**。** **Aggregate：** **`UI_REPORT_UNLOCK_INCONCLUSIVE`。** **Verdict：** **`UI_REPORT_UNLOCK_VERIFICATION_INCONCLUSIVE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`。** **Agent：** **Production UI 閲覧・ログイン未実行**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**Events API／replay なし**／**refund なし**／**included reply-ticket 検証なし**／**full ID／secret／session なし**。** **Next：** **`Phase 5-6H-5Z-I-T` UI unlock diagnostic gate**（**retry／repair／refund なし**）。
+
+Work anchor:
+
+- **`c75e41fc44518500ee0f12a72028656ca754fb95`** — **`docs: record post repair db readonly verification`**（**`5Z-I-R`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`
+- **`5Z-I-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／二回目 repair／manual SQL／grant なし**／**Events／replay／決済／追加¥500／refund なし**／**Stripe／env／whsec／redeploy なし**／**package／lockfile／runner・runtime・code・UI 変更なし**／**full ID／secret／session／cookie なし**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-R Post-repair Production DB read-only verification gate recorded
 
