@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-P Exactly-one repair execution planning gate recorded
+
+Status: **`work/home-cluster`。** **Planning gate（docs のみ）：** **`5Z-I-N`** runner ソースあり。** **`5Z-I-O-C` 正式：** **BLOCKED のまま**（統合シェル **missing env**／**本条で改訂しない**）。** **`5Z-I-O-D` Human-side READY** を前提に **exactly-one repair 実行計画**を固定。** **本条：** **runner 本実行なし**／**Production DB write なし**／**runner・runtime／UI 変更なし**／**full ID／secret／raw 出力なし**。** **Verdict：** **`READY_FOR_EXACTLY_ONE_REPAIR_EXECUTION_GATE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Planning SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_P_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING_2026-05-16.md`。** **Preconditions：** O-D READY／full values Human-local／**`M55_REPAIR_DRY_RUN=false` と `M55_REPAIR_CONFIRM` は `5Z-I-Q` のみ**／確認フレーズ **`M55_CONFIRM_ONE_SHOT_DTR_CORE_MANUAL_REPAIR_20260516`**（**`M55_EXECUTE_CONFIRM_PHRASE` と同一**）／**実行 1 回・再試行なし**。** **Command shape：** `npx tsx scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`（**値は SSOT に書かない**）。** **STOP：** §9 参照（full ID 露出・confirm 不一致・artifact 既存・`23505` 等）。** **Next：** **`Phase 5-6H-5Z-I-Q` Exactly-one repair execution gate**（**explicit human GO**／**成功時 `5Z-I-R`**／**STOP・失敗は無断再試行禁止**）。
+
+Work anchor:
+
+- **`3b13dbacc60b412b967cf7f5730eb1745d824d85`** — **`docs: update human side dry run ready attestation`**（**`5Z-I-O-D` READY**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_P_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-O-D`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`
+
+Hard stop:
+
+- **本条コミット：** **repair runner 本実行なし**／**Production DB write／write RPC／schema／migration なし**／**`M55_REPAIR_DRY_RUN=false` または `M55_REPAIR_CONFIRM` を本条でセットしない**／**manual grant／Events／replay／決済／refund／webhook secret・env 変更なし**／**Vercel／package／script 変更なし**／**safe label を DB 値として扱わない**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint（SSOT update）recorded
 
 Status: **`work/home-cluster`。** **SSOT update：** **`ced5ae3`** 以降、Human が chat に **redacted READY メタ**を提出 → **本条と `M55_PHASE5_6H_5Z_I_O_D_…` に固定**。** **`5Z-I-O-C` 正式：** **BLOCKED のまま**（統合シェル **missing env**／**`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`** — **本条で改訂しない**）。** **`5Z-I-O-D` Human-side：** **`HUMAN_SIDE_DRY_RUN_READY_RECORDED_FOR_REPAIR_PLANNING`。** **dry-run：** **execution count `1`**／**mode `true`**／**`M55_REPAIR_CONFIRM` unset**。** **Stripe（9 項）：** **すべて `matched`。** **Supabase（8 テーブル）：** **すべて row_count `0`。** **final：** **`DRY_RUN_READY_FOR_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING`。** **full IDs／secrets／raw stdout：** **記録なし**。** **Evidence（同一枠）：** **`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**／**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**。** **Attestation SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`。** **Safe labels：** **`cs_live_JSRW`**／**`user_36xz`**。** **Next：** **`Phase 5-6H-5Z-I-P` Exactly-one repair execution planning gate**。** **explicit GO まで repair／Production DB write なし。**
@@ -2236,6 +2258,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-P Exactly-one repair execution planning gate recorded
+
+Status: **`work/home-cluster`。** **Planning gate（docs のみ）：** **`5Z-I-N`** runner ソースあり。** **`5Z-I-O-C` 正式：** **BLOCKED のまま**（統合シェル **missing env**／**本条で改訂しない**）。** **`5Z-I-O-D` Human-side READY** を前提に **exactly-one repair 実行計画**を固定。** **本条：** **runner 本実行なし**／**Production DB write なし**／**runner・runtime／UI 変更なし**／**full ID／secret／raw 出力なし**。** **Verdict：** **`READY_FOR_EXACTLY_ONE_REPAIR_EXECUTION_GATE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Planning SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_P_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING_2026-05-16.md`。** **Preconditions：** O-D READY／full values Human-local／**`M55_REPAIR_DRY_RUN=false` と `M55_REPAIR_CONFIRM` は `5Z-I-Q` のみ**／確認フレーズ **`M55_CONFIRM_ONE_SHOT_DTR_CORE_MANUAL_REPAIR_20260516`**（**`M55_EXECUTE_CONFIRM_PHRASE` と同一**）／**実行 1 回・再試行なし**。** **Command shape：** `npx tsx scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`（**値は SSOT に書かない**）。** **STOP：** §9 参照（full ID 露出・confirm 不一致・artifact 既存・`23505` 等）。** **Next：** **`Phase 5-6H-5Z-I-Q` Exactly-one repair execution gate**（**explicit human GO**／**成功時 `5Z-I-R`**／**STOP・失敗は無断再試行禁止**）。
+
+Work anchor:
+
+- **`3b13dbacc60b412b967cf7f5730eb1745d824d85`** — **`docs: update human side dry run ready attestation`**（**`5Z-I-O-D` READY**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_P_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-O-D`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`
+
+Hard stop:
+
+- **本条コミット：** **repair runner 本実行なし**／**Production DB write／write RPC／schema／migration なし**／**`M55_REPAIR_DRY_RUN=false` または `M55_REPAIR_CONFIRM` を本条でセットしない**／**manual grant／Events／replay／決済／refund／webhook secret・env 変更なし**／**Vercel／package／script 変更なし**／**safe label を DB 値として扱わない**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint（SSOT update）recorded
 
