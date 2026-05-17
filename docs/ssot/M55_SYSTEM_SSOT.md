@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-O-C Human-local env dry-run retry execution checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-O-B`** Human-local retry plan。** 本条：** **dry-run を 1 回**（**証明スコープ内シェル**）。** EXIT **2。** **final：** **`DRY_RUN_STOP_ENV_OR_COMMAND_UNCERTAIN`**（reason クラスのみ：**`MISSING_REPAIR_IDS_*`**）。**Stripe／Supabase：** **not_measured**。** **dry-run 既定。** **`M55_REPAIR_CONFIRM`：** unset（シェル）。** **DB write／repair：** **無**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**、**`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**、**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**。** **Checkpoint SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-P`** Dry-run blocked diagnostic gate。** **備考：** **プライベート Human シェルで独立実行した異なる結果は本条と別 attest。**
+
+Work anchor:
+
+- **`239d8fb9bd4e097942d834e011b092ce798c6832`** — **`docs: plan human local env dry run retry`**（**`5Z-I-O-B`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-O-B`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_B_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **repair／Prod DB write／Events／replay／返金／dep／Secrets 転記／raw stdout 転載：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-B Human-local env dry-run retry planning gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-O-A`** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**（repair 用 **`M55_REPAIR_*` 三項目**が実行時未到達。**Stripe／Supabase は **not_measured**。**write／repair／フル ID なし**）。 **本条：** **Human-local に repair ID をだけ載せて再 dry-run する手順計画。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**、**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`READY_FOR_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_GATE`**。** **Planning SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_B_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_PLANNING_2026-05-16.md`。** **本条：** **dry-run 再試行なし／repair なし／DB write なし／フル ID なし。** **Next：** **`Phase 5-6H-5Z-I-O-C`** Human-local env dry-run retry **execution checkpoint**（**exactly-one dry-run、writeなし**。）
@@ -2191,6 +2213,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-O-C Human-local env dry-run retry execution checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-O-B`** Human-local retry plan。** 本条：** **dry-run を 1 回**（**証明スコープ内シェル**）。** EXIT **2。** **final：** **`DRY_RUN_STOP_ENV_OR_COMMAND_UNCERTAIN`**（reason クラスのみ：**`MISSING_REPAIR_IDS_*`**）。**Stripe／Supabase：** **not_measured**。** **dry-run 既定。** **`M55_REPAIR_CONFIRM`：** unset（シェル）。** **DB write／repair：** **無**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**、**`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**、**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**。** **Checkpoint SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-P`** Dry-run blocked diagnostic gate。** **備考：** **プライベート Human シェルで独立実行した異なる結果は本条と別 attest。**
+
+Work anchor:
+
+- **`239d8fb9bd4e097942d834e011b092ce798c6832`** — **`docs: plan human local env dry run retry`**（**`5Z-I-O-B`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-O-B`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_B_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **repair／Prod DB write／Events／replay／返金／dep／Secrets 転記／raw stdout 転載：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-B Human-local env dry-run retry planning gate recorded
 
