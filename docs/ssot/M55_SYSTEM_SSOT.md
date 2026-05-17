@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-K Human-only mapping read-only confirmation gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId`**。** 本 Gate：** **Human-only read-only mapping（Stripe Dashboard／Supabase SELECT／必要なら Clerk read-only）**。** **Stripe 各行：** **unclear**（**本条コミット時点・Human 転記未取得**）。** Supabase：** **unclear**／**期待 missing は `5Z-H-A` と整合確認要**。** Classification：** **`HUMAN_MAPPING_INCONCLUSIVE_DEEPER_READ_ONLY_REQUIRED`**。** Repair readiness：** **`DEEPER_READ_ONLY_MAPPING_REQUIRED`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／Stripe API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Deeper read-only mapping diagnostic gate**（**本条の inconclusive 前提**）。
+
+Work anchor:
+
+- **`392dfafa1b500745279e06a4cfcfe5376d0e6e54`** — **`docs: design manual fulfillment repair route`**（**`5Z-I-J`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_K_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-J`:** `docs/ssot/M55_PHASE5_6H_5Z_I_J_MANUAL_FULFILLMENT_REPAIR_ROUTE_SELECTION_TECHNICAL_DESIGN_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／replay／CLI／Dashboard／redeploy／code／env／whsec／返金／フル ID SSOT：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-J Manual fulfillment repair route selection / technical design gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／**`5Z-H-A`** missing／**`5Z-I-C`** Dashboard **not observed**／**`5Z-I-E`** CLI **blocked**／**`5Z-I-H`** manual route／**`5Z-I-I`** **GREEN**。** delivery：** **0**。** Route：** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**（**`fulfillDtrCoreFromCheckoutSessionId` 再利用**）。** 設計要点：** webhook **dedupe（`stripe_events`）**／**fulfill が OTF・entitlements・rights・wallet・snapshot**／**`stripe_events` 順序は `5Z-I-K`〜`L` で確定**。** Human mapping：** Stripe／Supabase **read-only**、**SSOT は matched／mismatch／row_count のみ**。** 将来 Gate：** **K→L→M→N→O→P→Q**。** Stop：** full ID SSOT・mapping 不能・孤児 rights・broad mutation。 Verdict：**`READY_FOR_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**。 Links：**`M55-EVID-20260516-5Z-I-I-MANUAL-FULFILLMENT-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／replay／refund 実行：** **なし**。** **Next：**`Phase 5-6H-5Z-I-K`** Human-only mapping **read-only**。
@@ -2011,6 +2033,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-K Human-only mapping read-only confirmation gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId`**。** 本 Gate：** **Human-only read-only mapping（Stripe Dashboard／Supabase SELECT／必要なら Clerk read-only）**。** **Stripe 各行：** **unclear**（**本条コミット時点・Human 転記未取得**）。** Supabase：** **unclear**／**期待 missing は `5Z-H-A` と整合確認要**。** Classification：** **`HUMAN_MAPPING_INCONCLUSIVE_DEEPER_READ_ONLY_REQUIRED`**。** Repair readiness：** **`DEEPER_READ_ONLY_MAPPING_REQUIRED`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／Events API／Stripe API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Deeper read-only mapping diagnostic gate**（**本条の inconclusive 前提**）。
+
+Work anchor:
+
+- **`392dfafa1b500745279e06a4cfcfe5376d0e6e54`** — **`docs: design manual fulfillment repair route`**（**`5Z-I-J`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_K_HUMAN_ONLY_MAPPING_READ_ONLY_CONFIRMATION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-J`:** `docs/ssot/M55_PHASE5_6H_5Z_I_J_MANUAL_FULFILLMENT_REPAIR_ROUTE_SELECTION_TECHNICAL_DESIGN_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／RPC／migration／grant／Events API／Stripe API／replay／CLI／Dashboard／redeploy／code／env／whsec／返金／フル ID SSOT：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-J Manual fulfillment repair route selection / technical design gate recorded
 
