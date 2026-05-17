@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-F Replay alternative / manual fulfillment repair planning gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** は paid／complete と観測／**`5Z-H-A`** は Production fulfillment artifact **すべて missing**／**`5Z-I-A`**・**`5Z-I-E`** は restricted live key で **CLI replay が権限不足により blocked**／**`5Z-I-C`** は Dashboard **resend／replay UI not observed**。** **M55 に向けた replay delivery：** **0**。 **M55 endpoint HTTP：** **none**。** entitlement／report unlock：** **未証明**。**本条のみ：** **docs-only planning**。 **公式 Stripe 入力（ウィンドウは常に Stripe 側最新を確認）：** Dashboard での **manual resend** が **イベント文脈から提供される公式ルート**（多くは **イベント作成後おおよそ 15 日**）／Stripe CLI で **`stripe events resend <FULL_EVENT_ID> --webhook-endpoint=<FULL_ENDPOINT_ID> --live`**（**およそ 30 日**、**`--webhook-endpoint`** および **`--live` 必須**）／**未配達の自動再試行はおおよそ 3 日**の記述があるが **本ケースは支払い時 endpoint 未到達という観察**と両立検討／**非公式 API ミューテーションは対象外**。** **経路：** A **公式サポート／Dashboard での確認**・B Human-only で **十分権限 credential** をローカルのみ／C **manual fulfillment repair**（**(1)-(6)** を別ゲート）・D refund（**repair 検討後・別 Gate**）。** Verdict：**`READY_FOR_STRIPE_OFFICIAL_SUPPORT_DASHBOARD_ROUTE_CONFIRMATION_GATE`。** Alternate（条件付）：** **`READY_FOR_HUMAN_ONLY_SUFFICIENTLY_PERMITTED_CLI_REPLAY_PLANNING_GATE`。** Evidence：**`M55-EVID-20260516-5Z-I-F-REPLAY-ALTERNATIVE-REPAIR-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **Hard stop 系：** **full ID／secret の SSOT 露出が前提となる提案**／**same restricted retry**／**replay 複数／broad／対象外**／DB write が **repair 複数ゲート無しで**混入／本条での返金。** **replay 実行なし／M55 endpoint delivery は **0** のまま／Production DB write なし／refund／rollback なし／フル Stripe・ユーザー ID 未記録**。** Next：**`Phase 5-6H-5Z-I-G`** Stripe official support／Dashboard route confirmation（**read-only／inquiry-only first**）。
+
+Work anchor:
+
+- **`98063eb`** — **`docs: record authorized cli replay still blocked`**（**`5Z-I-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_F_REPLAY_ALTERNATIVE_MANUAL_FULFILLMENT_REPAIR_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_E_AUTHORIZED_CLI_REPLAY_STILL_BLOCKED_2026-05-16.md`
+
+Hard stop:
+
+- **replay 実行／same restricted retry／第2 replay／broad／対象外／新規決済／Checkout／DB／手動 entitlement／ticket／wallet／webhook設定／env・whsec／redeploy／code／`/api/stripe`／返金rollback／フル ID 転記：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-E Authorized CLI replay still blocked evidence checkpoint recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-H-A`** fulfillment artifact missing／**`5Z-I-A`** restricted CLI blocked／**`5Z-I-C`** Dashboard resend UI not observed／**`5Z-I-D`** **`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`**（転記未取得）まで完了後、**Human が authorized CLI を再試行**。** **`stripe events resend` + `--webhook-endpoint` + `--live`。** **credential class：** **restricted live key。** **Stripe：** **`invalid_request_error`** — **restricted live key lacks required permissions for endpoint/account**。 **replay delivery count to M55：** **0**。** **M55 endpoint response：** **none**。** **delivery：** **none／not delivered**。** **second replay：** **no**。** **full IDs／secrets：** **未記録**。 Verdict：**`STRIPE_WEBHOOK_REPLAY_STILL_BLOCKED_BY_RESTRICTED_KEY_PERMISSION`。** Evidence：**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**。 Links：**`M55-EVID-20260516-5Z-I-D-HUMAN-AUTHORIZED-CLI-REPLAY-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。** **same restricted：** **replay 再試行しない**。 DB write／manual entitlement／wallet／ticket／Stripe webhook設定／環境・署名秘密／返金：** **しない**。 Next：**`Phase 5-6H-5Z-I-F`** Replay alternative／manual fulfillment repair planning gate（**docs-only first**）。
@@ -1901,6 +1923,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-F Replay alternative / manual fulfillment repair planning gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** は paid／complete と観測／**`5Z-H-A`** は Production fulfillment artifact **すべて missing**／**`5Z-I-A`**・**`5Z-I-E`** は restricted live key で **CLI replay が権限不足により blocked**／**`5Z-I-C`** は Dashboard **resend／replay UI not observed**。** **M55 に向けた replay delivery：** **0**。 **M55 endpoint HTTP：** **none**。** entitlement／report unlock：** **未証明**。**本条のみ：** **docs-only planning**。 **公式 Stripe 入力（ウィンドウは常に Stripe 側最新を確認）：** Dashboard での **manual resend** が **イベント文脈から提供される公式ルート**（多くは **イベント作成後おおよそ 15 日**）／Stripe CLI で **`stripe events resend <FULL_EVENT_ID> --webhook-endpoint=<FULL_ENDPOINT_ID> --live`**（**およそ 30 日**、**`--webhook-endpoint`** および **`--live` 必須**）／**未配達の自動再試行はおおよそ 3 日**の記述があるが **本ケースは支払い時 endpoint 未到達という観察**と両立検討／**非公式 API ミューテーションは対象外**。** **経路：** A **公式サポート／Dashboard での確認**・B Human-only で **十分権限 credential** をローカルのみ／C **manual fulfillment repair**（**(1)-(6)** を別ゲート）・D refund（**repair 検討後・別 Gate**）。** Verdict：**`READY_FOR_STRIPE_OFFICIAL_SUPPORT_DASHBOARD_ROUTE_CONFIRMATION_GATE`。** Alternate（条件付）：** **`READY_FOR_HUMAN_ONLY_SUFFICIENTLY_PERMITTED_CLI_REPLAY_PLANNING_GATE`。** Evidence：**`M55-EVID-20260516-5Z-I-F-REPLAY-ALTERNATIVE-REPAIR-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **Hard stop 系：** **full ID／secret の SSOT 露出が前提となる提案**／**same restricted retry**／**replay 複数／broad／対象外**／DB write が **repair 複数ゲート無しで**混入／本条での返金。** **replay 実行なし／M55 endpoint delivery は **0** のまま／Production DB write なし／refund／rollback なし／フル Stripe・ユーザー ID 未記録**。** Next：**`Phase 5-6H-5Z-I-G`** Stripe official support／Dashboard route confirmation（**read-only／inquiry-only first**）。
+
+Work anchor:
+
+- **`98063eb`** — **`docs: record authorized cli replay still blocked`**（**`5Z-I-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_F_REPLAY_ALTERNATIVE_MANUAL_FULFILLMENT_REPAIR_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_E_AUTHORIZED_CLI_REPLAY_STILL_BLOCKED_2026-05-16.md`
+
+Hard stop:
+
+- **replay 実行／same restricted retry／第2 replay／broad／対象外／新規決済／Checkout／DB／手動 entitlement／ticket／wallet／webhook設定／env・whsec／redeploy／code／`/api/stripe`／返金rollback／フル ID 転記：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-E Authorized CLI replay still blocked evidence checkpoint recorded
 
