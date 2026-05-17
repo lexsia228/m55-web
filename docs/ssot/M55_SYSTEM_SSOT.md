@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-D Human-only authorized CLI replay execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-C`** **`DASHBOARD_RESEND_UI_NOT_OBSERVED`**（anchor **`8bfe312d1b858f0533185cbd080d24039f2cf0a9`**）。** **許可：** **Human-only**／**権限十分な資格証**／**端末のみ**／**exactly one** **`stripe events resend ... --webhook-endpoint ... --live`**（**`/api/stripe`** や Vercel 非経由。**フル値は転記しない**）。** **本条：** **CLI／delivery の転記未取得**。** **attempt／HTTP／delivery status：** **未転記**。 **endpoint domain（意図）：** **`m55-webv2.vercel.app`。 Verdict：**`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`。** Evidence：**`M55-EVID-20260516-5Z-I-D-HUMAN-AUTHORIZED-CLI-REPLAY-001`**。 Links：**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。** **second／broad replay：** **しない。** **Production DB manual write：** **本条ではしない。** **full IDs／secrets：** **記録しない。** Next：**`Phase 5-6H-5Z-J`** — **成功転記後は fulfillment `SELECT`**／**転記未完または blocked はプランニング**。
+
+Work anchor:
+
+- **`8bfe312d1b858f0533185cbd080d24039f2cf0a9`** — **`5Z-I-C`。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_D_HUMAN_ONLY_AUTHORIZED_CLI_REPLAY_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-C`:** `docs/ssot/M55_PHASE5_6H_5Z_I_C_DASHBOARD_RESEND_UI_UNAVAILABLE_FINDING_2026-05-16.md` — **`DASHBOARD_RESEND_UI_NOT_OBSERVED`**
+
+Hard stop:
+
+- **2 回目 replay／`/api/stripe` 直呼び／DB write／env・whsec／redeploy／code／キー転記：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-C Dashboard resend UI re-check unavailable finding checkpoint recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-B`** Route A 優先（anchor **`4eecc982985f6d348ef4ad8619a1b32ac75221f7`**）。** Human が Workbench で **Events（`checkout.session.completed`）**および **Webhook endpoint 一覧**を再確認。**M55 Production DTR Checkout Webhook：** **active／購読 1／type `checkout.session.completed`。** **`Resend`／`Replay`／再送信 UI：** **not observed**。 **replay：** **本条ではしない。** **delivery：** **0 のまま。** **M55 endpoint HTTP：** **none**。** Verdict：**`DASHBOARD_RESEND_UI_NOT_OBSERVED`。** Evidence：**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**。 Links：**`M55-EVID-20260516-5Z-I-B-REPLAY-ROUTE-DECISION-001`**、**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。** **フル ID／secrets 未記録。** **Production DB write なし。** Next：**`Phase 5-6H-5Z-I-D` Human-only authorized CLI replay execution gate**。
@@ -1857,6 +1879,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-D Human-only authorized CLI replay execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-C`** **`DASHBOARD_RESEND_UI_NOT_OBSERVED`**（anchor **`8bfe312d1b858f0533185cbd080d24039f2cf0a9`**）。** **許可：** **Human-only**／**権限十分な資格証**／**端末のみ**／**exactly one** **`stripe events resend ... --webhook-endpoint ... --live`**（**`/api/stripe`** や Vercel 非経由。**フル値は転記しない**）。** **本条：** **CLI／delivery の転記未取得**。** **attempt／HTTP／delivery status：** **未転記**。 **endpoint domain（意図）：** **`m55-webv2.vercel.app`。 Verdict：**`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`。** Evidence：**`M55-EVID-20260516-5Z-I-D-HUMAN-AUTHORIZED-CLI-REPLAY-001`**。 Links：**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。** **second／broad replay：** **しない。** **Production DB manual write：** **本条ではしない。** **full IDs／secrets：** **記録しない。** Next：**`Phase 5-6H-5Z-J`** — **成功転記後は fulfillment `SELECT`**／**転記未完または blocked はプランニング**。
+
+Work anchor:
+
+- **`8bfe312d1b858f0533185cbd080d24039f2cf0a9`** — **`5Z-I-C`。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_D_HUMAN_ONLY_AUTHORIZED_CLI_REPLAY_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-C`:** `docs/ssot/M55_PHASE5_6H_5Z_I_C_DASHBOARD_RESEND_UI_UNAVAILABLE_FINDING_2026-05-16.md` — **`DASHBOARD_RESEND_UI_NOT_OBSERVED`**
+
+Hard stop:
+
+- **2 回目 replay／`/api/stripe` 直呼び／DB write／env・whsec／redeploy／code／キー転記：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-C Dashboard resend UI re-check unavailable finding checkpoint recorded
 
