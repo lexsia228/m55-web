@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-I-O-C` 正式 checkpoint は保持：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**（統合シェル **env 未到達**／**missing repair IDs** — **本条で改訂しない**）。** 本条：** **Human プライベート端末の dry-run があれば redacted attestation のみ記録**。** **Human-side 判定（本条コミット時点）：** **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`** — **検証済 redacted メタ未提出**。**Stripe 検証フラグ一覧／Supabase 各テーブル row_count／final READY token：** **unclear**。** **`M55_REPAIR_CONFIRM`：** **unset 前提のみ**。** **Dry-run：** **本条コミットでは runner 実行なし**。** **DB write／repair／full IDs／raw stdout：** **なし**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**／**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**。** **Attestation SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`。** **Safe labels（非秘密・参照のみ）：** **`cs_live_JSRW`**／**`user_36xz`**。** **Next：** **`Phase 5-6H-5Z-I-P` Dry-run blocked diagnostic gate**。** **explicit GO まで repair 実行なし。**
+
+Work anchor:
+
+- **`8375b67c4e071225b331695e036246fcbbf06657`** — **`docs: record human local env dry run retry`**（**`5Z-I-O-C` 証跡**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`
+
+Prior frozen formal:
+
+- **`5Z-I-O-C`：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Hard stop:
+
+- **本条コミット：** **Production DB INSERT/UPDATE/DELETE/UPSERT なし**／**repair なし**／**manual grant なし**／**Events API／replay／CLI／Dashboard 再送／新規決済／checkout 再試行／refund／env・whsec 変更／Vercel redeploy／package・script 変更／full ID／raw コンソール貼り付け：なし。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-C Human-local env dry-run retry execution checkpoint recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-O-B`** Human-local retry plan。** 本条：** **dry-run を 1 回**（**証明スコープ内シェル**）。** EXIT **2。** **final：** **`DRY_RUN_STOP_ENV_OR_COMMAND_UNCERTAIN`**（reason クラスのみ：**`MISSING_REPAIR_IDS_*`**）。**Stripe／Supabase：** **not_measured**。** **dry-run 既定。** **`M55_REPAIR_CONFIRM`：** unset（シェル）。** **DB write／repair：** **無**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**、**`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**、**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**。** **Checkpoint SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-P`** Dry-run blocked diagnostic gate。** **備考：** **プライベート Human シェルで独立実行した異なる結果は本条と別 attest。**
@@ -2213,6 +2235,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint recorded
+
+Status: **`work/home-cluster`。** **`5Z-I-O-C` 正式 checkpoint は保持：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**（統合シェル **env 未到達**／**missing repair IDs** — **本条で改訂しない**）。** 本条：** **Human プライベート端末の dry-run があれば redacted attestation のみ記録**。** **Human-side 判定（本条コミット時点）：** **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`** — **検証済 redacted メタ未提出**。**Stripe 検証フラグ一覧／Supabase 各テーブル row_count／final READY token：** **unclear**。** **`M55_REPAIR_CONFIRM`：** **unset 前提のみ**。** **Dry-run：** **本条コミットでは runner 実行なし**。** **DB write／repair／full IDs／raw stdout：** **なし**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`**／**`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**。** **Attestation SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`。** **Safe labels（非秘密・参照のみ）：** **`cs_live_JSRW`**／**`user_36xz`**。** **Next：** **`Phase 5-6H-5Z-I-P` Dry-run blocked diagnostic gate**。** **explicit GO まで repair 実行なし。**
+
+Work anchor:
+
+- **`8375b67c4e071225b331695e036246fcbbf06657`** — **`docs: record human local env dry run retry`**（**`5Z-I-O-C` 証跡**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_D_HUMAN_SIDE_DRY_RUN_READY_ATTESTATION_2026-05-16.md`
+
+Prior frozen formal:
+
+- **`5Z-I-O-C`：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_C_HUMAN_LOCAL_ENV_DRY_RUN_RETRY_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Hard stop:
+
+- **本条コミット：** **Production DB INSERT/UPDATE/DELETE/UPSERT なし**／**repair なし**／**manual grant なし**／**Events API／replay／CLI／Dashboard 再送／新規決済／checkout 再試行／refund／env・whsec 変更／Vercel redeploy／package・script 変更／full ID／raw コンソール貼り付け：なし。**
+
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-O-C Human-local env dry-run retry execution checkpoint recorded
 
