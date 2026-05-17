@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-O-A Dry-run repair runner execution checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-O`**。** 本条：** **runner dry-run `1` 回**。** **結果：** **`DRY_RUN_STOP_ENV_OR_COMMAND_UNCERTAIN`**（**reason クラスのみ：** **`MISSING_REPAIR_IDS_*`**。**Stripe／Supabase 未到達**。）** **mode：** **dry-run 既定**。 **`M55_REPAIR_CONFIRM`：** **未設定**。** **write／repair：** **無**。** **full ID SSOT：** **無**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-DRY-RUN-REPAIR-RUNNER-PLAN-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**。** **Checkpoint SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_A_DRY_RUN_REPAIR_RUNNER_EXECUTION_CHECKPOINT_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-P`** Dry-run blocked diagnostic gate（**STOP 経路**。）
+
+Work anchor:
+
+- **`d141f6be8ee292feebee3385e1d7a2348d966c71`** — **`docs: plan dry run repair runner execution`**（**`5Z-I-O`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_A_DRY_RUN_REPAIR_RUNNER_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Prior planning:
+
+- **`5Z-I-O`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **repair／Prod DB write／Events／replay／返金／dep／secrets 転記／raw 出力貼付：** **本条ではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-O Dry-run repair runner execution planning gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-N`** runner **作成済**（**`scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`**）／**runner・dry-run・repair 未実行**。** 本条：** **dry-run 実行計画 SSOT のみ**（**実行は `5Z-I-O-A` 推奨**）。 **計画文書：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`。** **dry-run 計画要点：** **env 名のみ**／**`M55_REPAIR_DRY_RUN=true` または未設定**／**コマンド形** `npx tsx scripts/repair/…`（**値は SSOT に書かずマスクのみ**）**／STOP 一覧／redacted 出力期待。** **禁止：** **`M55_REPAIR_DRY_RUN=false` を dry に使わない／本確認フレーズ混在での誤実行／DB write／Events／replay／dep・npm scripts。** **本条実施状態：** **dry-run 実行なし／repair なし／DB write なし／フル ID なし。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-DRY-RUN-REPAIR-RUNNER-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`READY_FOR_DRY_RUN_REPAIR_RUNNER_EXECUTION_GATE`**。** **Next：** **`Phase 5-6H-5Z-I-O-A`** Dry-run repair runner execution **checkpoint**（**no write**。）
@@ -2147,6 +2169,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-O-A Dry-run repair runner execution checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-O`**。** 本条：** **runner dry-run `1` 回**。** **結果：** **`DRY_RUN_STOP_ENV_OR_COMMAND_UNCERTAIN`**（**reason クラスのみ：** **`MISSING_REPAIR_IDS_*`**。**Stripe／Supabase 未到達**。）** **mode：** **dry-run 既定**。 **`M55_REPAIR_CONFIRM`：** **未設定**。** **write／repair：** **無**。** **full ID SSOT：** **無**。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-A-DRY-RUN-REPAIR-RUNNER-001`**。 Links：**`M55-EVID-20260516-5Z-I-O-DRY-RUN-REPAIR-RUNNER-PLAN-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**。** **Checkpoint SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_A_DRY_RUN_REPAIR_RUNNER_EXECUTION_CHECKPOINT_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-P`** Dry-run blocked diagnostic gate（**STOP 経路**。）
+
+Work anchor:
+
+- **`d141f6be8ee292feebee3385e1d7a2348d966c71`** — **`docs: plan dry run repair runner execution`**（**`5Z-I-O`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_A_DRY_RUN_REPAIR_RUNNER_EXECUTION_CHECKPOINT_2026-05-16.md`
+
+Prior planning:
+
+- **`5Z-I-O`:** `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`
+
+Hard stop:
+
+- **repair／Prod DB write／Events／replay／返金／dep／secrets 転記／raw 出力貼付：** **本条ではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-O Dry-run repair runner execution planning gate recorded
 
