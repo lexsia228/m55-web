@@ -1,3 +1,26 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-R Post-repair Production DB read-only verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**DB write by runner `yes`**／**`REPAIR_EXECUTED_ONCE`**。** **本条：** Production DB **`SELECT` read-only 証跡の SSOT 固定のみ**。** **Human-local：** safe labels **`cs_live_JSRW`／`user_36xz`**（**参照のみ・DB 値ではない**）。** **row_count summary：** **`stripe_events` 1**／**`one_time_fulfillments` 1**／**`entitlements` DTR_CORE 1**／**`entitlement_rights` ≥1**／**`reply_ticket_wallets` 1**／**`reply_wallet_ledgers` ≥1**／**`dtr_report_snapshots` DTR_CORE 1**／**`failed_fulfillments` 0**／**duplicate scan：no unexpected**。** **Aggregate：** **`POST_REPAIR_DB_ARTIFACTS_VERIFIED`。** **Verdict：** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`。** **Evidence：** **`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`。** **Agent：** Production **`SELECT` 未実行**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**Events API／replay なし**／**refund なし**／**UI unlock 未実施**／**full ID／secret なし**。** **Next：** **`Phase 5-6H-5Z-I-S` UI report unlock verification gate**（**DB write なし**）。
+
+Work anchor:
+
+- **`138b5dcab101dc12ed01e74f5c3d9967c3e086a7`** — **`docs: update exactly one repair execution result`**（**`5Z-I-Q`**）。
+- **`b52d6e0cfa1c201c3683899d86b4995a75315463`** — **`docs: plan exactly one repair execution`**（**`5Z-I-P`** post-repair 期待）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`
+
+Prior repair:
+
+- **`5Z-I-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／write RPC／schema／migration なし**／**runner 実行・二回目 repair・retry なし**／**manual SQL／grant／Events／replay／決済／refund なし**／**Stripe／env／whsec 変更なし**／**Vercel redeploy なし**／**package／lockfile／runner・UI 変更なし**／**full ID／secret／raw SQL with full IDs なし**／**safe label を DB 値として扱わない**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate（SSOT update）recorded
 
 Status: **`work/home-cluster`。** **SSOT update：** **`b9793ea`** で **Cursor／agent** は **`REPAIR_EXECUTION_NOT_EXECUTED`**（runner 未起動）。** **Human-private redacted 追認：** **execution count `1`**／**dry-run `false`**／**confirm matched `yes`**／**Stripe validation `all matched`**／**`stripe_events` pre-insert `inserted`**／**fulfill `success`**／**DB write by runner `yes`**／**final `REPAIR_EXECUTED_ONCE`**／**second／retry／refund：`no`**／**safe labels：`cs_live_JSRW`／`user_36xz`**／**full ID／secret／raw：なし**。** **Verdict：** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`。** **Evidence（同一）：** **`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。 Links：**`M55-EVID-20260516-5Z-I-P-EXACTLY-ONE-REPAIR-EXECUTION-PLAN-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`。** **本条コミット：** runner **再実行なし**／**追加 DB write なし**。** **Next：** **`Phase 5-6H-5Z-I-R` Post-repair Production DB read-only verification gate**。** **UI unlock：本条未実施。**
@@ -2281,6 +2304,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-R Post-repair Production DB read-only verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**DB write by runner `yes`**／**`REPAIR_EXECUTED_ONCE`**。** **本条：** Production DB **`SELECT` read-only 証跡の SSOT 固定のみ**。** **Human-local：** safe labels **`cs_live_JSRW`／`user_36xz`**（**参照のみ・DB 値ではない**）。** **row_count summary：** **`stripe_events` 1**／**`one_time_fulfillments` 1**／**`entitlements` DTR_CORE 1**／**`entitlement_rights` ≥1**／**`reply_ticket_wallets` 1**／**`reply_wallet_ledgers` ≥1**／**`dtr_report_snapshots` DTR_CORE 1**／**`failed_fulfillments` 0**／**duplicate scan：no unexpected**。** **Aggregate：** **`POST_REPAIR_DB_ARTIFACTS_VERIFIED`。** **Verdict：** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`。** **Evidence：** **`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**／**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`。** **Agent：** Production **`SELECT` 未実行**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**Events API／replay なし**／**refund なし**／**UI unlock 未実施**／**full ID／secret なし**。** **Next：** **`Phase 5-6H-5Z-I-S` UI report unlock verification gate**（**DB write なし**）。
+
+Work anchor:
+
+- **`138b5dcab101dc12ed01e74f5c3d9967c3e086a7`** — **`docs: update exactly one repair execution result`**（**`5Z-I-Q`**）。
+- **`b52d6e0cfa1c201c3683899d86b4995a75315463`** — **`docs: plan exactly one repair execution`**（**`5Z-I-P`** post-repair 期待）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_R_POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_2026-05-16.md`
+
+Prior repair:
+
+- **`5Z-I-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Q_EXACTLY_ONE_REPAIR_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／write RPC／schema／migration なし**／**runner 実行・二回目 repair・retry なし**／**manual SQL／grant／Events／replay／決済／refund なし**／**Stripe／env／whsec 変更なし**／**Vercel redeploy なし**／**package／lockfile／runner・UI 変更なし**／**full ID／secret／raw SQL with full IDs なし**／**safe label を DB 値として扱わない**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-Q Exactly-one repair execution gate（SSOT update）recorded
 
