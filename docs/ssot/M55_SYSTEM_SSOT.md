@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-H Stripe support/help response checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／complete／**`5Z-H-A`** fulfillment **all missing**／**`5Z-I-C`** Dashboard resend **not observed**／**`5Z-I-E`** restricted **CLI blocked**／**`5Z-I-G`** **GREEN**。 Human：**Stripe official support/help の Assistant／chatbot に到達**（**ヒューマンエージェント確証なし**）。 Support/help **要約：** eligible イベントへの **Dashboard manual resend**（多くは **イベント作成後約15日**）／導線 **Workbench〜Webhooks → endpoint → Event deliveries → イベント → resend**／不可・期間外は **Events API で取得し、アプリ側 idempotency 付き処理**。**二重処理防止にイベント単位チェック**。 **フル Stripe／ユーザー ID：** **SSOT 未転記**。 **M55 解釈：** **historical で当時 endpoint 不在の可能性が高く、新 endpoint に **delivery attempt が無い**ため **Dashboard resend UI が観測されない**説明と整合。**Dashboard 経路は M55 文脈では依然 not observed のまま**。**CLI blocked 継続**。 Verdict：**`STRIPE_SUPPORT_HELP_RESPONSE_RECORDED_MANUAL_PROCESSING_ROUTE_RECOMMENDED_IF_RESEND_UNAVAILABLE`**。**補助コード：** **`STRIPE_SUPPORT_HELP_RESPONSE_RECORDED_DASHBOARD_RESEND_NOT_AVAILABLE_FOR_M55_CONTEXT`**。 Evidence：**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**。 Links：**`M55-EVID-20260516-5Z-I-G-STRIPE-OFFICIAL-ROUTE-CONFIRMATION-001`**、**`M55-EVID-20260516-5Z-I-F-REPLAY-ALTERNATIVE-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。** **replay／CLI／Events API／Dashboard resend：** **本条すべて未実行**。** delivery：** **0**。** Production DB／refund／フル IDs：** **なし**。 Next：**`Phase 5-6H-5Z-I-I`** Manual fulfillment repair planning gate（**docs-only first**。idempotency・artifact・SQL review・ゲート分割・検証。**返金は別最終ゲート**。）
+
+Work anchor:
+
+- **`17c1b26`** — **`docs: plan stripe official replay route confirmation`**（**`5Z-I-G`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_H_STRIPE_SUPPORT_HELP_RESPONSE_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-G`:** `docs/ssot/M55_PHASE5_6H_5Z_I_G_STRIPE_OFFICIAL_SUPPORT_DASHBOARD_ROUTE_CONFIRMATION_2026-05-16.md`
+
+Hard stop:
+
+- **replay／CLI／Events API／Dashboard resend実行／restricted／十分権限キー実行／broad／対象外／決済／Checkout／DB／手動 entitlement／ticket／wallet／webhook設定／env・whsec／redeploy／code／`/api/stripe`／返金 rollback／フル ID 転記：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-G Stripe official support / Dashboard route confirmation gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／complete 観測／**`5Z-H-A`** fulfillment **all missing**／**`5Z-I-C`** Dashboard **resend／replay not observed**／**`5Z-I-E`** restricted key **CLI replay blocked**／**`5Z-I-F`** **`READY_FOR_STRIPE_OFFICIAL_SUPPORT_DASHBOARD_ROUTE_CONFIRMATION_GATE`**。** **M55 replay delivery：** **0**。** HTTP：** **none**。** entitlement／unlock：** **unproven**。**本条のみ：** **inquiry-only／read-only**。**公式 Stripe 入力：** Dashboard manual resend（**イベント視点／delivery 文脈**、多くは **作成から約15日**）／CLI **`stripe events resend <FULL_EVENT_ID> --webhook-endpoint=<FULL_ENDPOINT_ID> --live`**（多くは **約30日**、**endpoint 宛先固定**・**live**）／Workbench **Event deliveries** に **試行ログ**がある文脈で **Retry now** が隣接し得る／**試行ログが無い履歴イベント**では Dashboard **retry／resend 非表示**となりうるので **Stripe 公式ヘルプ／サポート確認**。**非公式 API ミューテーションなし**。** Dashboard 観測結果（本条転記のみ）：** resend／attempt／retry いずれも **`unclear`（Human read-only で再確認要）**。先行 **`5Z-I-C`** **not observed**。**Dashboard 実行：** **no**。**サポート計画：** 英語ドラフト **`§5`**、**実 ID は Stripe 画面上のみ**。 Verdict：**`READY_FOR_STRIPE_SUPPORT_INQUIRY_HUMAN_CONFIRMATION_GATE`。** Evidence：**`M55-EVID-20260516-5Z-I-G-STRIPE-OFFICIAL-ROUTE-CONFIRMATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-F-REPLAY-ALTERNATIVE-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。** **replay／CLI／Dashboard：** **本条すべて未実行**。** **M55 replay delivery：** **0**。** **Production DB write／返金 rollback／フル ID SSOT：** **なし**。** conditional tokens（Stripe 応答確定後の `5Z-I-H`）：** **`DASHBOARD_RESEND_ROUTE_CONFIRMED_READY_FOR_EXACTLY_ONE_RESEND_GATE`** 等。** Next：**`Phase 5-6H-5Z-I-H`** で **Stripe support inquiry human submission** を既定とし、回答に応じ **exactly-one Dashboard resend**／**CLI 十分権限**／**repair プランニング**／**support pending** に分岐。** explicit GO なし実行なし**。
@@ -1945,6 +1967,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-H Stripe support/help response checkpoint recorded
+
+Status: **`work/home-cluster`。前提：** **`5Y-A`** paid／complete／**`5Z-H-A`** fulfillment **all missing**／**`5Z-I-C`** Dashboard resend **not observed**／**`5Z-I-E`** restricted **CLI blocked**／**`5Z-I-G`** **GREEN**。 Human：**Stripe official support/help の Assistant／chatbot に到達**（**ヒューマンエージェント確証なし**）。 Support/help **要約：** eligible イベントへの **Dashboard manual resend**（多くは **イベント作成後約15日**）／導線 **Workbench〜Webhooks → endpoint → Event deliveries → イベント → resend**／不可・期間外は **Events API で取得し、アプリ側 idempotency 付き処理**。**二重処理防止にイベント単位チェック**。 **フル Stripe／ユーザー ID：** **SSOT 未転記**。 **M55 解釈：** **historical で当時 endpoint 不在の可能性が高く、新 endpoint に **delivery attempt が無い**ため **Dashboard resend UI が観測されない**説明と整合。**Dashboard 経路は M55 文脈では依然 not observed のまま**。**CLI blocked 継続**。 Verdict：**`STRIPE_SUPPORT_HELP_RESPONSE_RECORDED_MANUAL_PROCESSING_ROUTE_RECOMMENDED_IF_RESEND_UNAVAILABLE`**。**補助コード：** **`STRIPE_SUPPORT_HELP_RESPONSE_RECORDED_DASHBOARD_RESEND_NOT_AVAILABLE_FOR_M55_CONTEXT`**。 Evidence：**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**。 Links：**`M55-EVID-20260516-5Z-I-G-STRIPE-OFFICIAL-ROUTE-CONFIRMATION-001`**、**`M55-EVID-20260516-5Z-I-F-REPLAY-ALTERNATIVE-REPAIR-PLAN-001`**、**`M55-EVID-20260516-5Z-I-E-CLI-REPLAY-STILL-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-I-C-DASHBOARD-RESEND-UI-UNAVAILABLE-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**。** **replay／CLI／Events API／Dashboard resend：** **本条すべて未実行**。** delivery：** **0**。** Production DB／refund／フル IDs：** **なし**。 Next：**`Phase 5-6H-5Z-I-I`** Manual fulfillment repair planning gate（**docs-only first**。idempotency・artifact・SQL review・ゲート分割・検証。**返金は別最終ゲート**。）
+
+Work anchor:
+
+- **`17c1b26`** — **`docs: plan stripe official replay route confirmation`**（**`5Z-I-G`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_H_STRIPE_SUPPORT_HELP_RESPONSE_CHECKPOINT_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-G`:** `docs/ssot/M55_PHASE5_6H_5Z_I_G_STRIPE_OFFICIAL_SUPPORT_DASHBOARD_ROUTE_CONFIRMATION_2026-05-16.md`
+
+Hard stop:
+
+- **replay／CLI／Events API／Dashboard resend実行／restricted／十分権限キー実行／broad／対象外／決済／Checkout／DB／手動 entitlement／ticket／wallet／webhook設定／env・whsec／redeploy／code／`/api/stripe`／返金 rollback／フル ID 転記：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-G Stripe official support / Dashboard route confirmation gate recorded
 
