@@ -2,9 +2,9 @@
 
 ## 1. Phase 名
 
-**Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint**
+**Phase 5-6H-5Z-I-O-D Human-side dry-run READY attestation checkpoint — SSOT update（Human redacted metadata による READY 確定）**
 
-本条は **Human プライベート端末での dry-run 結果**を **redacted attestation の形でのみ** SSOT 化する。**`5Z-I-O-C` の正式判定・証跡は変更しない**。**repair／DB write なし**。
+本条は **Human プライベート端末での dry-run 結果**を **redacted attestation の形でのみ** SSOT 化する。**`5Z-I-O-C` の正式判定・証跡は変更しない**。**repair／Production DB write なし**。**本条は証跡固定のみ**。
 
 ---
 
@@ -12,11 +12,12 @@
 
 | 項目 | 状態 |
 |------|------|
-| **`5Z-I-O-C`（正式）** | **統合シェル上の runner：** **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`。** **`5Z-I-O-D` で改訂しない。** |
-| **Human-side** | プライベート端末に **`M55_REPAIR_*` を載せて** **`5Z-I-O-B` と同じコマンドで dry-run READY** が得られる **可能性のみ**。** |
-| **本条** | Human が **チャットまたは本文書への追認なしで**、このコミットに **検証済み redacted メタを提出していない**。→ **§5 は inconclusive**。 |
+| **`5Z-I-O-C`（正式・統合シェル）** | **`REPAIR_EXECUTION_BLOCKED_BY_DRY_RUN_RESULT`**（**missing env**／**`MISSING_REPAIR_IDS_USE_LOCAL_ENV_ONLY_NOT_LOGGED_HERE`** 系）。** **`5Z-I-O-D`／本条で改訂しない。** |
+| **`5Z-I-O-D` Human-side（本条）** | Human が **chat に redacted READY メタを提出** → **§5 に固定**。**判定：** **`HUMAN_SIDE_DRY_RUN_READY_RECORDED_FOR_REPAIR_PLANNING`**。 |
 
-**Work anchor：** **`8375b67c4e071225b331695e036246fcbbf06657`** — **`docs: record human local env dry run retry`**（**`5Z-I-O-C`**）。
+**Work anchor（`5Z-I-O-C` 証跡）：** **`8375b67c4e071225b331695e036246fcbbf06657`** — **`docs: record human local env dry run retry`**。
+
+**Update anchor（prior inconclusive `5Z-I-O-D` baseline）：** **`ced5ae3`** — **`docs: record human side dry run attestation`**。
 
 ---
 
@@ -24,10 +25,12 @@
 
 | `evidence_id` | Role |
 |----------------|------|
-| **`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`** | **本条：** Human-side dry-run **attestation 枠** |
-| **`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`** | 正式統合実行 |
+| **`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`** | **本条：** Human-side dry-run **attestation 枠**（**同一 ID**で **READY メタに更新**） |
+| **`M55-EVID-20260516-5Z-I-O-C-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-001`** | 正式統合実行（**BLOCKED のまま**） |
 | **`M55-EVID-20260516-5Z-I-O-B-HUMAN-LOCAL-ENV-DRY-RUN-RETRY-PLAN-001`** | 注入計画 |
 | **`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`** | runner |
+
+**Full IDs／secrets：** **SSOT に記録しない**。
 
 ---
 
@@ -47,34 +50,34 @@
 
 ---
 
-## 5. Human-side attestation result（本条コミット時点・redacted のみ許容）
+## 5. Human-side attestation result（redacted のみ・chat 提出に基づく）
 
-Human が **検証済み redacted メタを提出していない**。以下は **証跡化できない**。**raw コンソール貼り付けは禁止**されたまま。**Human が後続で本文書のみ追認する場合も、値は **`matched/failed`**／**カウント非負整数**／**final token** に限る**。**
+**出所：** Human が **chat に提出した redacted メタ**（**raw コンソール貼り付けなし**）。**値は **`matched`／非負整数カウント**／**final token**／**yes/no** に限る**。
 
 | Category | Recorded |
 |----------|----------|
-| **dry-run execution count（private）** | **unclear／not submitted** |
-| **dry-run mode** | **unclear／not submitted** |
-| **`M55_REPAIR_CONFIRM`** | Human 手順：**unset** とする前提 — **本条コミット時点：** **not attested** |
-| **Stripe：livemode** | **unclear** |
-| **Stripe：mode payment** | **unclear** |
-| **Stripe：status complete** | **unclear** |
-| **Stripe：payment_status paid** | **unclear** |
-| **Stripe：amount_total 1000** | **unclear** |
-| **Stripe：currency jpy** | **unclear** |
-| **Stripe：metadata.productId DTR_CORE_STATIC_V1** | **unclear** |
-| **Stripe：URL domain m55-webv2** | **unclear** |
-| **Stripe：user／client_reference 整合** | **unclear** |
-| **`stripe_events`** | **not submitted／unclear** |
-| **`one_time_fulfillments`** | **not submitted／unclear** |
-| **`entitlements`** | **not submitted／unclear** |
-| **`entitlement_rights`** | **not submitted／unclear** |
-| **`reply_ticket_wallets`** | **not submitted／unclear** |
-| **`reply_wallet_ledgers`** | **not submitted／unclear** |
-| **`dtr_report_snapshots`** | **not submitted／unclear** |
-| **`failed_fulfillments`** | **not submitted／unclear** |
-| **final（Human token）** | **unclear** |
-| **full IDs／secrets printed（Human）はい／いいえ** | **not attested** |
+| **dry-run execution count** | **1** |
+| **dry-run mode** | **true** |
+| **`M55_REPAIR_CONFIRM`** | **unset** |
+| **Stripe：livemode** | **matched** |
+| **Stripe：mode payment** | **matched** |
+| **Stripe：status complete** | **matched** |
+| **Stripe：payment_status paid** | **matched** |
+| **Stripe：amount_total 1000** | **matched** |
+| **Stripe：currency jpy** | **matched** |
+| **Stripe：metadata.productId DTR_CORE_STATIC_V1** | **matched** |
+| **Stripe：URL domain m55-webv2** | **matched** |
+| **Stripe：user／client_reference 整合** | **matched** |
+| **`stripe_events`** | **0** |
+| **`one_time_fulfillments`** | **0** |
+| **`entitlements`** | **0** |
+| **`entitlement_rights`** | **0** |
+| **`reply_ticket_wallets`** | **0** |
+| **`reply_wallet_ledgers`** | **0** |
+| **`dtr_report_snapshots`** | **0** |
+| **`failed_fulfillments`** | **0** |
+| **final（Human token）** | **`DRY_RUN_READY_FOR_EXACTLY_ONE_REPAIR_EXECUTION_PLANNING`** |
+| **full IDs／secrets printed（Human）** | **no** |
 
 **Safe labels（参照のみ・非 SQL）：** **`cs_live_JSRW`**／**`user_36xz`**
 
@@ -84,26 +87,25 @@ Human が **検証済み redacted メタを提出していない**。以下は *
 
 | Field | Value |
 |--------|--------|
-| **Human-side attestable outcome** | **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`** |
+| **Human-side attestable outcome** | **`HUMAN_SIDE_DRY_RUN_READY_RECORDED_FOR_REPAIR_PLANNING`** |
 
-**代替（Human が READY を提出している場合のみ将来採用）：** **`HUMAN_SIDE_DRY_RUN_READY_RECORDED_FOR_REPAIR_PLANNING`**
-
-**代替（Human が STOP を明示した場合）：** **`HUMAN_SIDE_DRY_RUN_NOT_READY_REPAIR_BLOCKED`**
+**参考（未採用）：** **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`**（**prior `ced5ae3` baseline**で採用済み → **本条で置換**）／**`HUMAN_SIDE_DRY_RUN_NOT_READY_REPAIR_BLOCKED`**
 
 ---
 
 ## 7. 未実行事項
 
-- **Production DB INSERT／UPDATE／DELETE／UPSERT なし**
 - **repair 実行なし**
-- **manual entitlement grant なし**
-- **wallet／ticket grant なし**
+- **Production DB INSERT／UPDATE／DELETE／UPSERT なし**
+- **`M55_REPAIR_DRY_RUN=false` を本番系で用いない**
+- **`M55_REPAIR_CONFIRM` 設定なし**
+- **manual entitlement／wallet／ticket 付与なし**
 - **Events API 実行なし**
 - **webhook／CLI／Dashboard replay／再送 なし**
 - **新規決済／checkout 再試行 なし**
 - **refund／rollback なし**
-- **Stripe 設定変更 なし**
-- **env／whsec／secret 変更 なし**
+- **Stripe webhook 設定変更なし**
+- **`STRIPE_WEBHOOK_SECRET`／whsec／env／secret 変更なし**
 - **Vercel redeploy なし**
 - **package／dependency／npm script 追加・変更なし**
 - **full IDs／secrets／raw terminal 出力の記録・転載なし**
@@ -114,8 +116,11 @@ Human が **検証済み redacted メタを提出していない**。以下は *
 
 | Human-side 本条 | Next gate |
 |-----------------|-----------|
-| **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`（本条）** | **`Phase 5-6H-5Z-I-P` Dry-run blocked diagnostic gate** |
-| **READY（将来 Human が redacted のみ追認）** | **`Phase 5-6H-5Z-I-P` Exactly-one repair execution planning gate**（**explicit GO まで実行なし**。） |
+| **`HUMAN_SIDE_DRY_RUN_READY_RECORDED_FOR_REPAIR_PLANNING`（本条）** | **`Phase 5-6H-5Z-I-P` Exactly-one repair execution planning gate** |
+| **`HUMAN_SIDE_DRY_RUN_ATTESTATION_INCONCLUSIVE`** | **`Phase 5-6H-5Z-I-P` Dry-run blocked diagnostic gate** |
+| **`HUMAN_SIDE_DRY_RUN_NOT_READY_REPAIR_BLOCKED`** | **`Phase 5-6H-5Z-I-P` Dry-run blocked diagnostic gate** |
+
+**explicit GO まで：** **repair 実行なし**／**DB write なし**。
 
 **注：** **`5Z-I-O-C` 正式 BLOCKED** と **Human-side READY** は **論理的に両立し得る**。**repair 実行へ進む際は両系統 SSOT と explicit GO が必要**。
 
