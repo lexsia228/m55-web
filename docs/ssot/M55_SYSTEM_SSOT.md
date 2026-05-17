@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-B Replay route decision gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-H-A`** fulfillment missing／**`5Z-I`** transfer missing／**`5Z-I-A`** **`STRIPE_WEBHOOK_REPLAY_BLOCKED_BY_CLI_RESTRICTED_KEY_PERMISSION`**（anchor **`c474af62643a78e322845a7cde5b10f14a3a6bda`**）。** **M55 webhook delivery：** **未発火（HTTP none）**。** **replay：** **本条ではしない。** **Official：** Dashboard の手動再送経路および **`stripe events resend`**（**イベント／endpoint は SSOT に書かない**）。**ウィンドウ目安：** **Dashboard は作成後およそ ~15 日**、CLI **~30 日（Stripe 公式を常に確認）**。 Verdict：**`READY_FOR_DASHBOARD_RESEND_UI_RECHECK_GATE`。** Evidence：**`M55-EVID-20260516-5Z-I-B-REPLAY-ROUTE-DECISION-001`**。 Links：**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。** **経路：** **Route A（Dashboard UI 優先）**／Route B（Human-only CLI）。** Next：**`Phase 5-6H-5Z-I-C`** Dashboard resend UI re-check。** **full IDs／secrets 未記録。**
+
+Work anchor:
+
+- **`c474af62643a78e322845a7cde5b10f14a3a6bda`** — **`5Z-I-A`。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_B_REPLAY_ROUTE_DECISION_GATE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_A_STRIPE_WEBHOOK_REPLAY_CLI_PERMISSION_BLOCKED_2026-05-16.md` — **`STRIPE_WEBHOOK_REPLAY_BLOCKED_BY_CLI_RESTRICTED_KEY_PERMISSION`**
+
+Hard stop:
+
+- **replay／DB write／stripe env／redeploy／`/api/stripe` 直呼び／full secrets・full IDs：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-A Stripe webhook replay blocked by CLI restricted key permission checkpoint recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-H-A`** artifact missing／**`5Z-I`** は **`STRIPE_WEBHOOK_REPLAY_NOT_EXECUTED`**（anchor **`95760b31bee0322c5f33c9bcfb9a1bcb2b8fce80`**）。** Human がローカル **Stripe CLI（**`1.40.9`**）**で **`stripe events resend` + `--webhook-endpoint` + `--live`** を試行。**Stripe 応答：** **`invalid_request_error`** — **restricted live key の権限不足**（endpoint／account 要件）。** **replay が M55 に delivery した回数：** **0**。** **M55 endpoint HTTP：** **none**（配信未発火）。** **delivery：** **none／not delivered**。** **2 回目 replay：** **no**。** Verdict：**`STRIPE_WEBHOOK_REPLAY_BLOCKED_BY_CLI_RESTRICTED_KEY_PERMISSION`。** Evidence：**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**。 Links：**`M55-EVID-20260516-5Z-I-STRIPE-WEBHOOK-REPLAY-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **フル key／フル Event／Endpoint ID：** **未記録。** Next：**`Phase 5-6H-5Z-I-B` Replay route decision gate**。
@@ -1813,6 +1835,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-B Replay route decision gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-H-A`** fulfillment missing／**`5Z-I`** transfer missing／**`5Z-I-A`** **`STRIPE_WEBHOOK_REPLAY_BLOCKED_BY_CLI_RESTRICTED_KEY_PERMISSION`**（anchor **`c474af62643a78e322845a7cde5b10f14a3a6bda`**）。** **M55 webhook delivery：** **未発火（HTTP none）**。** **replay：** **本条ではしない。** **Official：** Dashboard の手動再送経路および **`stripe events resend`**（**イベント／endpoint は SSOT に書かない**）。**ウィンドウ目安：** **Dashboard は作成後およそ ~15 日**、CLI **~30 日（Stripe 公式を常に確認）**。 Verdict：**`READY_FOR_DASHBOARD_RESEND_UI_RECHECK_GATE`。** Evidence：**`M55-EVID-20260516-5Z-I-B-REPLAY-ROUTE-DECISION-001`**。 Links：**`M55-EVID-20260516-5Z-I-A-STRIPE-CLI-REPLAY-PERMISSION-BLOCKED-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。** **経路：** **Route A（Dashboard UI 優先）**／Route B（Human-only CLI）。** Next：**`Phase 5-6H-5Z-I-C`** Dashboard resend UI re-check。** **full IDs／secrets 未記録。**
+
+Work anchor:
+
+- **`c474af62643a78e322845a7cde5b10f14a3a6bda`** — **`5Z-I-A`。**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_B_REPLAY_ROUTE_DECISION_GATE_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_A_STRIPE_WEBHOOK_REPLAY_CLI_PERMISSION_BLOCKED_2026-05-16.md` — **`STRIPE_WEBHOOK_REPLAY_BLOCKED_BY_CLI_RESTRICTED_KEY_PERMISSION`**
+
+Hard stop:
+
+- **replay／DB write／stripe env／redeploy／`/api/stripe` 直呼び／full secrets・full IDs：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-A Stripe webhook replay blocked by CLI restricted key permission checkpoint recorded
 
