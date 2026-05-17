@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-M Minimal repair runner code design / no execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** R1 **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId`**。** **`5Z-I-K-A`** **expected missing**。** **`5Z-I-L`** **pre-write review 済**（**`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_GATE`**）。** 本条：** **minimal runner の設計固定のみ**。 **採用形態：** **ローカル one-off TypeScript runner**（**`scripts/repair/…` 候補**）/**`npx tsx`** で **既存 fulfill import**。** **`stripe_events`：** **`READY_WITH_ACTUAL_STRIPE_EVENT_ID_HUMAN_ONLY`** — **実 `event.id` pre-insert の後に **`fulfill`**。** **Dry-run：** **`5Z-I-O`** 以降のみ。**repair 実行：** **`5Z-I-P`**。** **実行・コード作成：** **本条ではしない**。 **Evidence：** **`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**。 Links：**`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**。** **Verdict：** **`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_CREATION_NO_EXECUTION_GATE`**。** **Runner design SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_M_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_NO_EXECUTION_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-N`** Minimal repair runner **code creation／no execution**（**明示 GO でファイル作成のみ。dry-run／repair はしない**。）
+
+Work anchor:
+
+- **`cf08a96815247c553978650ac02517a1d15db7ec`** — **`docs: review pre write repair script design`**（**`5Z-I-L`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_M_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_NO_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`
+
+Hard stop:
+
+- **コード作成／Prod DB write／dry-run実行／repair実行／Events／Stripe／replay／CLI／Dashboard／checkout／返金／env／whsec／redeploy／runtime／UI／full ID／safe label misuse：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-L Pre-write repair script / implementation review gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId` 再利用**。 **`5Z-I-K-A`** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** 本条：** **docs-only**：**repair runner／実装の pre-write design review**。 **Repo readonly 要約：** **`fulfillDtrCoreFromCheckoutSessionId`** 再利用可／**検証一覧（金額・livemode・URL 等§6）／dry-run／exactly-one**／ **`stripe_events` 決定** **`READY_WITH_ACTUAL_STRIPE_EVENT_ID_HUMAN_ONLY`**（**実 Stripe `event.id` Human ローカルのみ、`fulfill` 直前に INSERT → **将来 webhook は dedupe**）。 **実行なし：** **Production DB write／dry-run 実行／repair／Events／Stripe／replay／CLI／Dashboard／checkout／返金／redeploy／runtime／code／UI／フル IDs**。 **Evidence：** **`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**。** **Verdict：** **`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_GATE`**。** **Implementation review：** `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-M`** Minimal repair runner **code design／no execution gate**。
@@ -2077,6 +2099,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-M Minimal repair runner code design / no execution gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** R1 **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId`**。** **`5Z-I-K-A`** **expected missing**。** **`5Z-I-L`** **pre-write review 済**（**`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_GATE`**）。** 本条：** **minimal runner の設計固定のみ**。 **採用形態：** **ローカル one-off TypeScript runner**（**`scripts/repair/…` 候補**）/**`npx tsx`** で **既存 fulfill import**。** **`stripe_events`：** **`READY_WITH_ACTUAL_STRIPE_EVENT_ID_HUMAN_ONLY`** — **実 `event.id` pre-insert の後に **`fulfill`**。** **Dry-run：** **`5Z-I-O`** 以降のみ。**repair 実行：** **`5Z-I-P`**。** **実行・コード作成：** **本条ではしない**。 **Evidence：** **`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**。 Links：**`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**。** **Verdict：** **`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_CREATION_NO_EXECUTION_GATE`**。** **Runner design SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_M_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_NO_EXECUTION_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-N`** Minimal repair runner **code creation／no execution**（**明示 GO でファイル作成のみ。dry-run／repair はしない**。）
+
+Work anchor:
+
+- **`cf08a96815247c553978650ac02517a1d15db7ec`** — **`docs: review pre write repair script design`**（**`5Z-I-L`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_M_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_NO_EXECUTION_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`
+
+Hard stop:
+
+- **コード作成／Prod DB write／dry-run実行／repair実行／Events／Stripe／replay／CLI／Dashboard／checkout／返金／env／whsec／redeploy／runtime／UI／full ID／safe label misuse：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-L Pre-write repair script / implementation review gate recorded
 
