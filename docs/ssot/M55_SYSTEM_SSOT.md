@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-L Pre-write repair script / implementation review gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId` 再利用**。 **`5Z-I-K-A`** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** 本条：** **docs-only**：**repair runner／実装の pre-write design review**。 **Repo readonly 要約：** **`fulfillDtrCoreFromCheckoutSessionId`** 再利用可／**検証一覧（金額・livemode・URL 等§6）／dry-run／exactly-one**／ **`stripe_events` 決定** **`READY_WITH_ACTUAL_STRIPE_EVENT_ID_HUMAN_ONLY`**（**実 Stripe `event.id` Human ローカルのみ、`fulfill` 直前に INSERT → **将来 webhook は dedupe**）。 **実行なし：** **Production DB write／dry-run 実行／repair／Events／Stripe／replay／CLI／Dashboard／checkout／返金／redeploy／runtime／code／UI／フル IDs**。 **Evidence：** **`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**。** **Verdict：** **`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_GATE`**。** **Implementation review：** `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-M`** Minimal repair runner **code design／no execution gate**。
+
+Work anchor:
+
+- **`1bc92138aa7c792602ef7cb536f237f2b7e083ab`** — **`docs: record human supabase mapping readonly evidence`**（**`5Z-I-K-A`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-K-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_K_A_HUMAN_SUPABASE_MAPPING_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／dry-run実行／repair／Events API／Stripe API／replay／CLI／Dashboard／checkout／返金／env／whsec／redeploy／runtime／code／UI／full ID／safe label misuse：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-K-A Human Supabase mapping read-only evidence checkpoint recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`5Z-I-K`** **`HUMAN_MAPPING_INCONCLUSIVE`** から、Human が **Supabase Production `SELECT` only** で対象文脈を確認。** **safe label（非 ID）：** checkout **`cs_live_JSRW`**／user **`user_36xz`** — **SQL 値・full ID として使わない**。** **Supabase：** `one_time_fulfillments`／`entitlements`（**DTR_CORE_STATIC_V1**）／`entitlement_rights`／`reply_ticket_wallets`／`reply_wallet_ledgers`／`dtr_report_snapshots`／`failed_fulfillments` いずれも **row_count 0**（**missing expected**）。** **Stripe：** **先行証跡と整合**（**full ID 再生なし**）。**optional** final Dashboard read-only。** Classification：** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** Repair readiness：** **`READY_FOR_PRE_WRITE_REPAIR_SCRIPT_REVIEW_GATE`**（**推奨**）。**Alternate：** **`READY_FOR_STRIPE_MAPPING_FINAL_READ_ONLY_CONFIRMATION_GATE`**。 Evidence：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-HUMAN-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-H-A-HUMAN-SUPABASE-DB-PREFLIGHT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**。** **DB write／API／replay／refund：** **なし**。** **Next：**`Phase 5-6H-5Z-I-L`** **Pre-write repair script review**（**推奨**）または **Stripe final read-only**（**alternate**）。
@@ -2055,6 +2077,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-L Pre-write repair script / implementation review gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-J`** **`SELECTED_ROUTE_R1_APPLICATION_SIDE_FULFILLMENT_FUNCTION_REUSE`**／**`fulfillDtrCoreFromCheckoutSessionId` 再利用**。 **`5Z-I-K-A`** **`SUPABASE_MAPPING_EXPECTED_MISSING_CONFIRMED`**。** 本条：** **docs-only**：**repair runner／実装の pre-write design review**。 **Repo readonly 要約：** **`fulfillDtrCoreFromCheckoutSessionId`** 再利用可／**検証一覧（金額・livemode・URL 等§6）／dry-run／exactly-one**／ **`stripe_events` 決定** **`READY_WITH_ACTUAL_STRIPE_EVENT_ID_HUMAN_ONLY`**（**実 Stripe `event.id` Human ローカルのみ、`fulfill` 直前に INSERT → **将来 webhook は dedupe**）。 **実行なし：** **Production DB write／dry-run 実行／repair／Events／Stripe／replay／CLI／Dashboard／checkout／返金／redeploy／runtime／code／UI／フル IDs**。 **Evidence：** **`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**。 Links：**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**、**`M55-EVID-20260516-5Z-I-J-REPAIR-ROUTE-SELECTION-TECH-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-H-STRIPE-SUPPORT-HELP-RESPONSE-001`**。** **Verdict：** **`READY_FOR_MINIMAL_REPAIR_RUNNER_CODE_DESIGN_GATE`**。** **Implementation review：** `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-M`** Minimal repair runner **code design／no execution gate**。
+
+Work anchor:
+
+- **`1bc92138aa7c792602ef7cb536f237f2b7e083ab`** — **`docs: record human supabase mapping readonly evidence`**（**`5Z-I-K-A`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_L_PRE_WRITE_REPAIR_SCRIPT_IMPLEMENTATION_REVIEW_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-K-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_K_A_HUMAN_SUPABASE_MAPPING_READ_ONLY_EVIDENCE_2026-05-16.md`
+
+Hard stop:
+
+- **Prod DB write／dry-run実行／repair／Events API／Stripe API／replay／CLI／Dashboard／checkout／返金／env／whsec／redeploy／runtime／code／UI／full ID／safe label misuse：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-K-A Human Supabase mapping read-only evidence checkpoint recorded
 
