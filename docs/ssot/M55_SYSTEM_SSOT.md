@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-O Dry-run repair runner execution planning gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-N`** runner **作成済**（**`scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`**）／**runner・dry-run・repair 未実行**。** 本条：** **dry-run 実行計画 SSOT のみ**（**実行は `5Z-I-O-A` 推奨**）。 **計画文書：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`。** **dry-run 計画要点：** **env 名のみ**／**`M55_REPAIR_DRY_RUN=true` または未設定**／**コマンド形** `npx tsx scripts/repair/…`（**値は SSOT に書かずマスクのみ**）**／STOP 一覧／redacted 出力期待。** **禁止：** **`M55_REPAIR_DRY_RUN=false` を dry に使わない／本確認フレーズ混在での誤実行／DB write／Events／replay／dep・npm scripts。** **本条実施状態：** **dry-run 実行なし／repair なし／DB write なし／フル ID なし。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-DRY-RUN-REPAIR-RUNNER-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`READY_FOR_DRY_RUN_REPAIR_RUNNER_EXECUTION_GATE`**。** **Next：** **`Phase 5-6H-5Z-I-O-A`** Dry-run repair runner execution **checkpoint**（**no write**。）
+
+Work anchor:
+
+- **`ea3f75889fcf4a68e37fc9b49a06caa88567a499`** — **`chore: add minimal dtr fulfillment repair runner`**（**`5Z-I-N`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-N`:** `docs/ssot/M55_PHASE5_6H_5Z_I_N_MINIMAL_REPAIR_RUNNER_CODE_CREATION_NO_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **dry-run（誤 `false`）／repair／Prod DB write／Events／webhook／CLI／Dashboard／返金／dep追加／npm script／runtime／UI／フル ID：** **本条コミットではしない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-N Minimal repair runner code creation / no execution gate recorded
 
 Status: **`work/home-cluster`。前提：** **`5Z-I-J`**〜**`5Z-I-M`**。** 本条：** **`scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`** **作成のみ**（**import 時は副作用なし／CLI エントリ時のみ `main`**）。** **既定：** **dry-run**（**`M55_REPAIR_DRY_RUN` 未設定**）。** **実行経路：** **`M55_REPAIR_DRY_RUN=false`** かつ **`M55_REPAIR_CONFIRM === M55_EXECUTE_CONFIRM_PHRASE`**（**ソース定数**）。** **`stripe_events`：** **Human のみ保有の実 Stripe `event.id`** — **SELECT で既存行なら **`STOP`**、無ければ INSERT の後 **`fulfillDtrCoreFromCheckoutSessionId`** を実行**。** **本条：** **実行なし／dry-run なし／DB write なし／フル ID 転記なし**。 **Evidence：** **`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**。 Links：**`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-L-PRE-WRITE-REPAIR-SCRIPT-REVIEW-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`READY_FOR_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_GATE`**。** **静的検証：** **`npx tsc --noEmit -p tsconfig.json`**（**runner 起動なし**。）** **Runner SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_N_MINIMAL_REPAIR_RUNNER_CODE_CREATION_NO_EXECUTION_2026-05-16.md`。** **Next：** **`Phase 5-6H-5Z-I-O`** Dry-run repair runner execution **planning gate**（**dry-run のみ／write 禁止**）。
@@ -2125,6 +2147,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-O Dry-run repair runner execution planning gate recorded
+
+Status: **`work/home-cluster`。前提：** **`5Z-I-N`** runner **作成済**（**`scripts/repair/repair-dtr-core-fulfillment-from-checkout-session.ts`**）／**runner・dry-run・repair 未実行**。** 本条：** **dry-run 実行計画 SSOT のみ**（**実行は `5Z-I-O-A` 推奨**）。 **計画文書：** `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`。** **dry-run 計画要点：** **env 名のみ**／**`M55_REPAIR_DRY_RUN=true` または未設定**／**コマンド形** `npx tsx scripts/repair/…`（**値は SSOT に書かずマスクのみ**）**／STOP 一覧／redacted 出力期待。** **禁止：** **`M55_REPAIR_DRY_RUN=false` を dry に使わない／本確認フレーズ混在での誤実行／DB write／Events／replay／dep・npm scripts。** **本条実施状態：** **dry-run 実行なし／repair なし／DB write なし／フル ID なし。** **Evidence：** **`M55-EVID-20260516-5Z-I-O-DRY-RUN-REPAIR-RUNNER-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-N-MINIMAL-REPAIR-RUNNER-CODE-CREATED-001`**、**`M55-EVID-20260516-5Z-I-M-MINIMAL-REPAIR-RUNNER-DESIGN-001`**、**`M55-EVID-20260516-5Z-I-K-A-HUMAN-SUPABASE-MAPPING-READONLY-001`**。** **Verdict：** **`READY_FOR_DRY_RUN_REPAIR_RUNNER_EXECUTION_GATE`**。** **Next：** **`Phase 5-6H-5Z-I-O-A`** Dry-run repair runner execution **checkpoint**（**no write**。）
+
+Work anchor:
+
+- **`ea3f75889fcf4a68e37fc9b49a06caa88567a499`** — **`chore: add minimal dtr fulfillment repair runner`**（**`5Z-I-N`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_O_DRY_RUN_REPAIR_RUNNER_EXECUTION_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-N`:** `docs/ssot/M55_PHASE5_6H_5Z_I_N_MINIMAL_REPAIR_RUNNER_CODE_CREATION_NO_EXECUTION_2026-05-16.md`
+
+Hard stop:
+
+- **dry-run（誤 `false`）／repair／Prod DB write／Events／webhook／CLI／Dashboard／返金／dep追加／npm script／runtime／UI／フル ID：** **本条コミットではしない。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-N Minimal repair runner code creation / no execution gate recorded
 
