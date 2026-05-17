@@ -1,6 +1,27 @@
+## 2026-05-16 — Phase 5-6H-5Z-G Webhook idempotency / delivery / replay planning gate recorded
+
+Status: **`work/home-cluster`。`5Z-F`：** **`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`** と矛盾なし（Work anchor **`e50218c58486d87b4a68db9d9026ddb663ea53f5`**、**`5Z-E`** 前提 **`167f085…`**）。 **`5Z-F` 完了後も：replay／Stripe webhook delivery test／Production DB read/write：** **本条コミットでは未**。** **entitlement／report unlock：** **未証明**。** **replay に先立ち：** **Production DB read-only preflight（`Phase 5-6H-5Z-H`）を推奨**。 Evidence：**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。 Links：**`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Verdict：**`READY_FOR_PRE_REPLAY_PRODUCTION_DB_READ_ONLY_PREFLIGHT_GATE`。** Next：**`Phase 5-6H-5Z-H`** — Pre-replay **Production DB read-only preflight gate**（WRITE 禁止）。
+
+Work anchor:
+
+- **`e50218c58486d87b4a68db9d9026ddb663ea53f5`** — `5Z-F`（Vercel Production redeploy／WHSEC activation 記録）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_G_WEBHOOK_IDEMPOTENCY_DELIVERY_REPLAY_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-F`:** `docs/ssot/M55_PHASE5_6H_5Z_F_VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_2026-05-16.md` — **`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **replay／delivery test／Stripe webhook 設定変更／`STRIPE_WEBHOOK_SECRET`・whsec／env／Vercel redeploy／Production DB／手動 entitlement／ランタイム・コード・UI／返金 rollback／`/api/stripe/*` 直接／フル ID／secret を SSOT に書かない。**
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-F Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation checkpoint recorded
 
-Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-G`** — webhook **idempotency／delivery／replay planning**（**docs-only first**／別 GO）。
+Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-H`** — **Pre-replay Production DB read-only preflight gate**（WRITE 禁止）。** **上位に **`Phase 5-6H-5Z-G` planning Gate** が記録済み。
 
 Work anchor:
 
@@ -1705,9 +1726,31 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
+## 2026-05-16 — Phase 5-6H-5Z-G Webhook idempotency / delivery / replay planning gate recorded
+
+Status: **`work/home-cluster`。`5Z-F`：** **`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`** と矛盾なし（Work anchor **`e50218c58486d87b4a68db9d9026ddb663ea53f5`**、**`5Z-E`** 前提 **`167f085…`**）。 **`5Z-F` 完了後も：replay／Stripe webhook delivery test／Production DB read/write：** **本条コミットでは未**。** **entitlement／report unlock：** **未証明**。** **replay に先立ち：** **Production DB read-only preflight（`Phase 5-6H-5Z-H`）を推奨**。 Evidence：**`M55-EVID-20260516-5Z-G-WEBHOOK-REPLAY-IDEMPOTENCY-PLAN-001`**。 Links：**`M55-EVID-20260516-5Y-A-STRIPE-PAYMENT-001`**、**`M55-EVID-20260516-5Y-A-STRIPE-EVENT-001`**、**`M55-EVID-20260516-5Y-A-M55-UI-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**、**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Verdict：**`READY_FOR_PRE_REPLAY_PRODUCTION_DB_READ_ONLY_PREFLIGHT_GATE`。** Next：**`Phase 5-6H-5Z-H`** — Pre-replay **Production DB read-only preflight gate**（WRITE 禁止）。
+
+Work anchor:
+
+- **`e50218c58486d87b4a68db9d9026ddb663ea53f5`** — `5Z-F`（Vercel Production redeploy／WHSEC activation 記録）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_G_WEBHOOK_IDEMPOTENCY_DELIVERY_REPLAY_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-F`:** `docs/ssot/M55_PHASE5_6H_5Z_F_VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_2026-05-16.md` — **`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`**
+
+Hard stop:
+
+- **replay／delivery test／Stripe webhook 設定変更／`STRIPE_WEBHOOK_SECRET`・whsec／env／Vercel redeploy／Production DB／手動 entitlement／ランタイム・コード・UI／返金 rollback／`/api/stripe/*` 直接／フル ID／secret を SSOT に書かない。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-F Vercel Production redeploy for STRIPE_WEBHOOK_SECRET activation checkpoint recorded
 
-Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-G`** — webhook **idempotency／delivery／replay planning**（**docs-only first**／別 GO）。
+Status: **`work/home-cluster`。** **`5Z-D`** endpoint OK。** **`5Z-E`** **`VERCEL_STRIPE_WEBHOOK_SECRET_HUMAN_ENV_CONFIGURATION_RECORDED`**（**`167f0859047d47096e88badda4c4fea86593b513`**）。 **Human：** **`m55-webv2`** で **Production redeploy を **1 回のみ**実行。** **Deployment ID（truncated）：** **`74YQgkwgR…`**。** **Status：** **Ready／Latest。** **Environment：** **Production／Current。** **Branch：** **`main`。** **Source：** **`a38918`** **`chore(audit): refresh repo asset index`。** **所要：** **約 1m13s。** **`whsec`／フル Deployment ID：** **未記録。** **replay／delivery test／Production DB／返金・再決済：** **本条では未。** runtime で webhook が届く／fulfillment が走るとは **証明しない**。 Evidence：**`M55-EVID-20260516-5Z-F-VERCEL-REDEPLOY-WHSEC-ACTIVATION-001`**。 Links：**`M55-EVID-20260516-5Z-E-VERCEL-WHSEC-ENV-001`**、**`M55-EVID-20260516-5Z-D-STRIPE-WEBHOOK-ENDPOINT-CREATED-001`**。 Verdict：**`VERCEL_PRODUCTION_REDEPLOY_FOR_STRIPE_WEBHOOK_SECRET_ACTIVATION_GREEN`。** Next：**`Phase 5-6H-5Z-H`** — **Pre-replay Production DB read-only preflight gate**（WRITE 禁止）。** **上位に **`Phase 5-6H-5Z-G` planning Gate** が記録済み。
 
 Work anchor:
 
