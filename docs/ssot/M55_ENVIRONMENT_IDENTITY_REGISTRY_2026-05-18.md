@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`（**§B execution — §2k**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-P-OWNERSHIP-GATE-READ-PATH-SNAPSHOT-LOOKUP-DIAGNOSTIC-PLAN-001`（**planning — §2l**）
+**§B execution:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`（§2k）
 **Exception:** `M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`（§2j）
 **Check:** `M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`（§2i）
 **Plan:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`（§2h）
@@ -469,9 +470,31 @@
 | **`OTF_MULTIPLE_ROWS_FOUND_FOR_UI_USER`** | **yes** |
 | **`UI_UNLOCK_STILL_REQUIRES_OWNERSHIP_READ_PATH_DIAGNOSTIC`** | **yes** |
 
-**Next diagnostic focus：** ownership gate；product_id / right_key；snapshot lookup；read path / RLS / API；**OTF ×4**（read-only, no cleanup).
+**Next diagnostic focus：** **`5Z-I-V-P` planned** → **`5Z-I-V-Q` execution**.
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
+
+---
+
+### 2l. Ownership / read path diagnostic planning（`5Z-I-V-P` — planning only）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-P-OWNERSHIP-GATE-READ-PATH-SNAPSHOT-LOOKUP-DIAGNOSTIC-PLAN-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`READY_FOR_OWNERSHIP_GATE_READONLY_DIAGNOSTIC_EXECUTION`** |
+| **primary rejected** | **`USER_ID_MISMATCH`** as sole cause |
+| **artifacts** | **present**（§2k row_counts） |
+| **UI state** | **locked** — ownership/read-path diagnostic required |
+| **OTF** | **row_count 4** — read-only; **no cleanup** |
+
+**Repo targets（read-only）：** `lib/m55/dtrOwnershipGate`；`lib/m55/dtrDraftDb`；`app/dtr/*`；`components/dtr/DtrShelfPanel.tsx`；`app/api/dtr/report-snapshot-ready/route.ts`.
+
+**Hypotheses（Q classifies）：** product_id mismatch；right_key mismatch；snapshot lookup/parse；shelf/read-path；RLS/server-client；cache stale；OTF multiple rows；code bug；inconclusive.
+
+**Next：** **`5Z-I-V-Q`** execution.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_P_OWNERSHIP_GATE_READ_PATH_SNAPSHOT_LOOKUP_DIAGNOSTIC_PLANNING_2026-05-18.md`
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -605,6 +628,8 @@
 | **W-21** | **§B SELECT permitted read-only under exception only**（**`5Z-I-V-O` executed**） | **inspect_only** | **5Z-I-V-O** |
 | **W-22** | **UI user DTR artifacts found but unlock still blocked** | **inspect_only** | **5Z-I-V-O** |
 | **W-23** | **`one_time_fulfillments` multiple rows for UI user**（**row_count 4**） | **inspect_only** | **5Z-I-V-O** |
+| **W-24** | **UI user artifacts present but ownership gate still locked** | **inspect_only** | **5Z-I-V-P** |
+| **W-25** | **OTF multiple rows may affect ownership stability** | **inspect_only** | **5Z-I-V-P** |
 
 ---
 
@@ -665,9 +690,11 @@
 | **CONTROL-17** | Temporary exception exit criteria | **open** |
 | **CONTROL-18** | Current-Clerk user mapping result required before any repair | **row_count recorded — `5Z-I-V-O`**；repair **blocked** until **CONTROL-20** |
 | **CONTROL-19** | Production auth compliance remains unresolved | **open** |
-| **CONTROL-20** | Ownership gate / read-path diagnostic required | **open**（**`5Z-I-V-P`**） |
+| **CONTROL-20** | Ownership gate / read-path diagnostic required | **planned** — execution **`5Z-I-V-Q`** |
+| **CONTROL-21** | Ownership gate condition map required | **open**（**`5Z-I-V-Q`**） |
+| **CONTROL-22** | Product/right key/snapshot lookup read-only verification | **open**（**`5Z-I-V-Q`**） |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-O`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-P`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_P_OWNERSHIP_GATE_READ_PATH_SNAPSHOT_LOOKUP_DIAGNOSTIC_PLANNING_2026-05-18.md`
 
 ---
 
@@ -676,7 +703,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-O`** Human UI user row_count read-only SELECT |
+| **Update after** | **`5Z-I-V-P`** Ownership gate / read path diagnostic planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
