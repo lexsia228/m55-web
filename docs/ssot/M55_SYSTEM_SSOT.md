@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-Y Included reply-ticket UI read-only verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-W`** DTR unlock GREEN／**`5Z-I-X`** planning **`READY_FOR_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GATE`**。** **本条：** **LEVEL_1 UI read-only**（**相談返書ルーム**／**`canonical-normal-login`**）— **remaining 1 / 合計5件まで**／theme+補助質問 visible／**submit・consume・DB write なし**。** **Classification：** **`INCLUDED_REPLY_TICKET_UI_READONLY_VERIFIED`**／**`INCLUDED_REPLY_TICKET_REMAINING_ONE_VISIBLE`**／**`NO_CONSUME_NO_DB_WRITE_CONFIRMED`**。** **Verdict：** **`INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GREEN`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-Y-INCLUDED-REPLY-TICKET-UI-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260518-5Z-I-X-INCLUDED-REPLY-TICKET-VERIFICATION-PLAN-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Y_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-Z` Included reply-ticket actual consume / reply generation planning gate**（planning only unless explicit GO）。** **本条：** **consume 未実行**／**payment 未実行**／**full IDs なし**。
+
+Work anchor:
+
+- **`2da06f62f03e2352417f8efba6586efe70830a29`** — **`docs: plan included reply ticket verification`**（**`5Z-I-X`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_Y_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **ticket consume／reply generation／DB write なし**／**checkout／追加決済 なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-W UI login identity correction and unlock verification checkpoint recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-F`** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**／**`5Z-I-S`** UI blocked under wrong context。** **本条：** **`canonical-normal-login`**（**`M55-Official production user`**）後の **redacted UI unlock GREEN**（**DB write／runner／env／redeploy／code／reply-ticket 正式検証なし**）。** **Login：** **`previous-private-login` → corrected yes**。** **DTR：** shelf saved yes／**FULL REPORT / 保存済み**／opens yes／content visible yes／purchase CTA blocking no。** **Reply-ticket：** visible remaining **1** — **formal verification not executed**。** **Type：** canonical login shows **CREATOR** — **CONTROL-08 / W-07 open**。** **Classification：** **`UI_LOGIN_IDENTITY_CORRECTION_CONFIRMED`**／**`UI_REPORT_UNLOCK_VERIFIED_AFTER_CANONICAL_LOGIN`**／**`INCLUDED_REPLY_TICKET_VISIBLE_PRELIMINARY_ONLY`**。** **Verdict：** **`UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_GREEN`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD** — **canonical-normal-login unlocked paid report**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-X` Included reply-ticket verification planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
@@ -2575,6 +2597,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-Y Included reply-ticket UI read-only verification gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-W`** DTR unlock GREEN／**`5Z-I-X`** planning **`READY_FOR_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GATE`**。** **本条：** **LEVEL_1 UI read-only**（**相談返書ルーム**／**`canonical-normal-login`**）— **remaining 1 / 合計5件まで**／theme+補助質問 visible／**submit・consume・DB write なし**。** **Classification：** **`INCLUDED_REPLY_TICKET_UI_READONLY_VERIFIED`**／**`INCLUDED_REPLY_TICKET_REMAINING_ONE_VISIBLE`**／**`NO_CONSUME_NO_DB_WRITE_CONFIRMED`**。** **Verdict：** **`INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GREEN`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-Y-INCLUDED-REPLY-TICKET-UI-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260518-5Z-I-X-INCLUDED-REPLY-TICKET-VERIFICATION-PLAN-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Y_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-Z` Included reply-ticket actual consume / reply generation planning gate**（planning only unless explicit GO）。** **本条：** **consume 未実行**／**payment 未実行**／**full IDs なし**。
+
+Work anchor:
+
+- **`2da06f62f03e2352417f8efba6586efe70830a29`** — **`docs: plan included reply ticket verification`**（**`5Z-I-X`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_Y_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **ticket consume／reply generation／DB write なし**／**checkout／追加決済 なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-W UI login identity correction and unlock verification checkpoint recorded
 
