@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（**conflict — authoritative §2b**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（**planning — §2c**）
+**Conflict source:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（**authoritative §2b**）
 **Superseded:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`（§2a historical only）
 **Device-origin supplement:** `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`（**operational context only — not Production-bound proof**）
 **Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
@@ -150,6 +151,43 @@
 | **CONTROL-01 / CONTROL-02** | **reopened**（blocked by conflict） |
 | **§B `human-ui-current-user` SELECT** | **not resumed** |
 
+---
+
+### 2c. Planned exact key diagnostic（`5Z-I-V-H` — planning only）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`
+
+**Status:** **`READY_FOR_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION`** — **execution deferred to `5Z-I-V-I`**.
+
+**Production-bound winner:** **`conflict` / `unresolved`**（unchanged — **no winner confirmed in this gate**）.
+
+**Exact comparison protocol（human-local — no raw key）：**
+
+| Compare target | Record fields |
+|----------------|---------------|
+| Vercel Production `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | **exists: yes/no/unclear** |
+| vs **`M55-core`** | **first 8 / last 6 / full equality: yes/no/unclear each** |
+| vs **`M55-Official`** | **first 8 / last 6 / full equality: yes/no/unclear each** |
+| **raw key in SSOT/chat** | **prohibited** |
+
+**Decision（`5Z-I-V-I` applies — planning reference）：**
+
+| core full eq | official full eq | Outcome |
+|--------------|------------------|---------|
+| yes | no | winner **`M55-core`** |
+| no | yes | winner **`M55-Official`** |
+| yes | yes | **severe duplicate/config conflict** |
+| no | no | **third app / stale Vercel env** |
+| unclear | * | **inconclusive** |
+
+**Post-winner only（`5Z-I-V-I`）：** secret same-app + user location（safe labels, **no full IDs**）.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_H_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+**CONTROL-01 / CONTROL-02:** **open**（blocked until `5Z-I-V-I` winner）.
+
+**§B SELECT:** **blocked** until single winner confirmed.
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -269,6 +307,7 @@
 | **W-08** | **DTR ownership gate** — **paid report unlock verified after canonical login** | **inspect_only** | **5Z-I-W** |
 | **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
 | **W-10** | **Publishable dual-match conflict**（**both `M55-core` + `M55-Official` match yes**） | **ask_human** | **5Z-I-V-G** |
+| **W-11** | **Exact key diagnostic pending**（**`5Z-I-V-H` planned → `5Z-I-V-I` execution**） | **inspect_only** | **5Z-I-V-H** |
 
 ---
 
@@ -330,7 +369,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-G`** Clerk publishable key match conflict correction |
+| **Update after** | **`5Z-I-V-H`** Exact Clerk key conflict diagnostic planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
