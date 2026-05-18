@@ -3,8 +3,9 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-CONFLICT-DIAGNOSTIC-PLAN-001`（**planning — §2f**）
-**Execution:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（**authoritative §2d**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`（**execution — §2g**）
+**Plan:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-CONFLICT-DIAGNOSTIC-PLAN-001`（§2f）
+**Exact key:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（§2d）
 **Plan:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（§2c）
 **Conflict source:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（§2b）
 **Superseded:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`（§2a historical only）
@@ -300,6 +301,66 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_J_DUPLICATE_CLERK_APP_CONFIG_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`
 
+---
+
+### 2g. Read-only diagnostic execution（`5Z-I-V-K` — authoritative diagnostic）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`DUPLICATE_CLERK_READONLY_DIAGNOSTIC_GREEN_DEV_KEY_ON_PRODUCTION_CONFIRMED`** |
+| **primary classification** | **`VERCEL_PRODUCTION_USES_DEV_TEST_CLERK_KEY_CONFIRMED`** |
+| **secondary** | **`DUPLICATE_CLERK_CONFIG_CONFIRMED_SAME_PUBLISHABLE_KEY`** + **`CLERK_APPS_SEPARATE_BUT_KEY_REUSED`** |
+| **Production-bound winner** | **`conflict` / `unresolved`**（**unchanged**） |
+| **last_verified_phase** | **`5Z-I-V-K`** |
+
+#### A. Vercel env scope（redacted）
+
+| Check | Result |
+|-------|--------|
+| **publishable exists** | **yes** |
+| **environment scope** | **unclear** |
+| **prefix class** | **`pk_test_`** |
+| **suffix** | **`ZXYk`** |
+| **secret exists** | **yes** |
+| **secret scope** | **unclear** |
+
+#### B–C. Per-app identity（redacted）
+
+| App | frontend domain | prod warning | prefix | suffix | same key |
+|-----|-----------------|--------------|--------|--------|----------|
+| **`M55-core`** | **content-snake-42…** | **yes** | **`pk_test_`** | **`ZXYk`** | **yes** |
+| **`M55-Official`** | **whole-halibut-25…** | **yes** | **`pk_test_`** | **`ZXYk`** | **yes** |
+
+#### D. Separate-apps summary
+
+| Check | Result |
+|-------|--------|
+| **separate app cards** | **yes** |
+| **different domains** | **yes** |
+| **same publishable key** | **yes** |
+| **both dev/test instance risk** | **yes** |
+| **`pk_live_` visible** | **no** |
+
+#### H1–H7（summary）
+
+| H | Result |
+|---|--------|
+| **H1** | not supported |
+| **H2** | supported |
+| **H3** | unclear |
+| **H4** | **supported** |
+| **H5** | not supported |
+| **H6** | supported |
+| **H7** | not supported |
+
+**Registry posture：** CK-11/HQ-01 **`unclear`**；CONTROL-01/02 **open**；W-10/W-11/W-12 **active**；W-13 **`pk_test_` on Production**；§B **blocked**；normal dev **not unlocked**.
+
+**Next：** **`5Z-I-V-L` Vercel–Clerk env correction planning**（**no env change until GO**）.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_K_DUPLICATE_CLERK_APP_CONFIG_READONLY_DIAGNOSTIC_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -322,7 +383,7 @@
 | **ai_action_policy** | `use` \| `inspect_only` \| `do_not_touch` \| `ask_human` |
 | **deletion_policy** | `prohibited` \| `later_after_confirmation` \| `unknown` |
 | **evidence_source** | `Vercel` \| `Clerk` \| `Supabase` \| `Stripe` \| `SSOT` |
-| **last_verified_phase** | **`5Z-I-V-I`** |
+| **last_verified_phase** | **`5Z-I-V-K`** |
 | **full_secret_recorded** | **`no`**（always） |
 
 ---
@@ -420,7 +481,8 @@
 | **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
 | **W-10** | **Publishable dual-match conflict**（**both `M55-core` + `M55-Official` match yes**） | **ask_human** | **5Z-I-V-G** |
 | **W-11** | **Exact full-equality duplicate conflict**（**Vercel key = both `M55-core` + `M55-Official` full eq yes**） | **ask_human** | **5Z-I-V-I** |
-| **W-12** | **Duplicate config diagnostic plan**（**`5Z-I-V-J` → `5Z-I-V-K` read-only**） | **inspect_only** | **5Z-I-V-J** |
+| **W-12** | **Duplicate config diagnostic executed**（**`5Z-I-V-K`**） | **inspect_only** | **5Z-I-V-K** |
+| **W-13** | **Production env uses `pk_test_` publishable class**（**H4 confirmed — `5Z-I-V-K`**） | **ask_human** | **5Z-I-V-K** |
 
 ---
 
@@ -482,7 +544,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-J`** Duplicate Clerk app/config conflict diagnostic planning |
+| **Update after** | **`5Z-I-V-K`** Duplicate Clerk app/config read-only diagnostic execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
