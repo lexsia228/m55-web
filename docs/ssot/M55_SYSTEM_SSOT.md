@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-V Human-local DB read-only UI unlock diagnostic gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-U`** DB confirmation required／primary candidate **`OWNERSHIP_GATE_USER_ID_MISMATCH`**。** **本条：** **Human-local `SELECT` 診断枠**（**Agent Production `SELECT` 未実行**）。** **Repair user（`user_36xz`）：** **`5Z-I-R` 引用** — **stripe_events 1／OTF 1／entitlements DTR_CORE 1／rights ≥1／snapshots 1／wallets 1／ledgers ≥1**。** **UI user（`human-ui-current-user`）：** **§B `row_count` chat 未提出 → すべて `unclear`**。** **Mapping：** safe labels **`user_36xz` vs `human-ui-current-user` → `mismatch`（label 対のみ・DB 同一性未証明）**。** **Unlock primary：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**。** **Type：** **`CONFIRMED_LABEL_SOURCE_DIVERGENCE_STEMIDX_MAPPING`**（repo 確定）＋ shelf profile／core preset secondary。** **Verdict：** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。 Links：**`M55-EVID-20260516-5Z-I-U-UI-UNLOCK-TYPE-MISMATCH-READONLY-DIAGNOSTIC-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`。** **Next action：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE_MORE_EVIDENCE_REQUIRED`**（**§B redacted `row_count` 追認待ち**）。** **本条：** **DB write／runner／code／UI 変更なし**／**full ID なし**。
+
+Work anchor:
+
+- **`5b184719e963a7fa838a36805349108d12fa2478`** — **`docs: diagnose ui unlock type mismatch readonly`**（**`5Z-I-U`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-U`:** `docs/ssot/M55_PHASE5_6H_5Z_I_U_UI_UNLOCK_AND_TYPE_MISMATCH_READ_ONLY_DIAGNOSTIC_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry なし**／**Events／replay／決済／refund なし**／**included reply-ticket なし**／**code／UI 変更なし**／**full ID／session なし**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-U UI unlock and type mismatch read-only diagnostic execution gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-T`** planning GREEN／**`5Z-I-S`** UI BLOCKED／**`5Z-I-R`** DB GREEN（**caveat**）。** **本条：** **repo read-only 診断実行**（**DB `SELECT` 未実行**）。** **Unlock（primary）：** **`OWNERSHIP_GATE_USER_ID_MISMATCH`**（repair **`expectedUserId`** vs UI **Clerk `userId`** — **DB 確認要**）＋ **`SNAPSHOT_LOOKUP_MISMATCH`**（secondary）＋ **`PURCHASE_CTA_FALLBACK_NOT_OWNED_BRANCH`**（**`locked`→purchase** 仕様）。** **Type：** **`SHELF_CARD_USES_PROFILE_REPOSITORY_NOT_SNAPSHOT`**／**`CORE_USES_TYPE_09_PRESET_DIFFERENT_SOURCE`**／**`FREE_AND_PAID_DTR_ENGINE_DIVERGENCE`**（**stemIdx 8：`DTR_TYPE_EN`=GLOBAL LEADER vs `TYPE_09` hero=INFLUENCER**）。** **Verdict：** **`UI_UNLOCK_TYPE_MISMATCH_READONLY_DIAGNOSTIC_GREEN_DB_CONFIRMATION_REQUIRED`。** **Evidence：** **`M55-EVID-20260516-5Z-I-U-UI-UNLOCK-TYPE-MISMATCH-READONLY-DIAGNOSTIC-001`**。 Links：**`M55-EVID-20260516-5Z-I-T-UI-UNLOCK-TYPE-MISMATCH-DIAGNOSTIC-PLAN-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_U_UI_UNLOCK_AND_TYPE_MISMATCH_READ_ONLY_DIAGNOSTIC_2026-05-16.md`。** **Next action：** **`READY_FOR_HUMAN_LOCAL_DB_READONLY_DIAGNOSTIC_GATE`。** **Next Gate：** **`Phase 5-6H-5Z-I-V` Human-local DB read-only UI unlock diagnostic**。** **本条：** **DB write／runner／code／UI 変更なし**／**full ID なし**。
@@ -2372,6 +2394,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-V Human-local DB read-only UI unlock diagnostic gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-U`** DB confirmation required／primary candidate **`OWNERSHIP_GATE_USER_ID_MISMATCH`**。** **本条：** **Human-local `SELECT` 診断枠**（**Agent Production `SELECT` 未実行**）。** **Repair user（`user_36xz`）：** **`5Z-I-R` 引用** — **stripe_events 1／OTF 1／entitlements DTR_CORE 1／rights ≥1／snapshots 1／wallets 1／ledgers ≥1**。** **UI user（`human-ui-current-user`）：** **§B `row_count` chat 未提出 → すべて `unclear`**。** **Mapping：** safe labels **`user_36xz` vs `human-ui-current-user` → `mismatch`（label 対のみ・DB 同一性未証明）**。** **Unlock primary：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**。** **Type：** **`CONFIRMED_LABEL_SOURCE_DIVERGENCE_STEMIDX_MAPPING`**（repo 確定）＋ shelf profile／core preset secondary。** **Verdict：** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。 Links：**`M55-EVID-20260516-5Z-I-U-UI-UNLOCK-TYPE-MISMATCH-READONLY-DIAGNOSTIC-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`。** **Next action：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE_MORE_EVIDENCE_REQUIRED`**（**§B redacted `row_count` 追認待ち**）。** **本条：** **DB write／runner／code／UI 変更なし**／**full ID なし**。
+
+Work anchor:
+
+- **`5b184719e963a7fa838a36805349108d12fa2478`** — **`docs: diagnose ui unlock type mismatch readonly`**（**`5Z-I-U`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-U`:** `docs/ssot/M55_PHASE5_6H_5Z_I_U_UI_UNLOCK_AND_TYPE_MISMATCH_READ_ONLY_DIAGNOSTIC_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry なし**／**Events／replay／決済／refund なし**／**included reply-ticket なし**／**code／UI 変更なし**／**full ID／session なし**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-U UI unlock and type mismatch read-only diagnostic execution gate recorded
 
