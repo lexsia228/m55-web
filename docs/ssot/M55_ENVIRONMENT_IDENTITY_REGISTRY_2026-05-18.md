@@ -1,10 +1,10 @@
 # M55 Environment Identity Registry（AI-readable SSOT）
 
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
-**Maintained by phase:** `5Z-I-V-F`
-**Registry evidence:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`
-**Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+**Maintained by phase:** `5Z-I-W`
+**Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`
+**Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
 
 **Policy:** This document is the **AI-readable SSOT** for environment identity. **Full secrets, full user IDs, emails, sessions, cookies, tokens, and raw env dumps are never recorded here.**
 
@@ -32,6 +32,24 @@
 | **Label** | `label.checkout.repair` | **`cs_live_JSRW`** | **reference** | **n/a** |
 | **Label** | `label.user.repair` | **`user_36xz`** | **reference** | **n/a** |
 | **Label** | `label.user.ui` | **`human-ui-current-user`** | **reference** | **n/a** |
+| **Label** | `label.login.previous` | **`previous-private-login`** | **reference** | **n/a** |
+| **Label** | `label.login.canonical` | **`canonical-normal-login`** | **reference** | **n/a** |
+| **Label** | `label.login.m55-official` | **`M55-Official production user`** | **reference** | **n/a** |
+
+---
+
+## 1b. UI unlock verification（`5Z-I-W` — redacted）
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| **Login context corrected** | **yes** | **`previous-private-login` → `canonical-normal-login`** |
+| **Production-bound Clerk** | **`M55-Official`** | unchanged **CANONICAL_KEEP** |
+| **Paid DTR report unlock** | **yes** | shelf saved / FULL REPORT / opens / content visible |
+| **Purchase CTA blocking** | **no** | under **`canonical-normal-login`** |
+| **Included reply-ticket** | **visible, remaining 1** | **formal verification not done** |
+| **Emails recorded** | **no** | safe labels only |
+
+**`M55-core`:** remains **HOLD_QUARANTINE** — **not delete**.
 
 ---
 
@@ -208,9 +226,9 @@
 | **W-03** | **Supabase Auth empty is non-conclusive**（Clerk is auth SSOT） | **inspect_only** | **5Z-I-V-F** |
 | **W-04** | **Production domain duality**（`m55-web` vs `m55-webv2`） | **ask_human** | **5Z-I-V-F** |
 | **W-05** | **Stripe live/test mode separation** | **inspect_only** | **5Z-I-V-F** |
-| **W-06** | **`user_id` mapping mismatch confirmed**（UI user not in `M55-Official`） | **ask_human** | **5Z-I-V-F** |
-| **W-07** | **Type label source divergence**（shelf vs core preset） | **inspect_only** | **5Z-I-V-F** |
-| **W-08** | **DTR ownership gate locked-after-repair**（repair user in app, UI user not） | **ask_human** | **5Z-I-V-F** |
+| **W-06** | **`user_id` mapping** — **`canonical-normal-login` unlock verified**（**`5Z-I-W`**） | **inspect_only** | **5Z-I-W** |
+| **W-07** | **Type label source divergence** — **CREATOR under canonical login; global SSOT open** | **inspect_only** | **5Z-I-W** |
+| **W-08** | **DTR ownership gate** — **paid report unlock verified after canonical login** | **inspect_only** | **5Z-I-W** |
 
 ---
 
@@ -250,7 +268,7 @@
 |------------|-------|--------|
 | **CONTROL-01** | Production-bound Clerk app confirmation | **closed**（**`M55-Official` — `5Z-I-V-F`**） |
 | **CONTROL-02** | Vercel env-to-Clerk key preflight | **closed**（**match yes + same-app yes — `5Z-I-V-F`**） |
-| **CONTROL-06** | User identity mapping preflight | **open**（**UI user not in Production-bound app — `5Z-I-V-F`**） |
+| **CONTROL-06** | User identity mapping preflight | **closed**（**UI unlock verified — `canonical-normal-login` / `5Z-I-W`**） |
 | **CONTROL-03** | Env identity registry JSON/YAML export | **open** |
 | **CONTROL-04** | Dashboard naming/tagging convention | **open** |
 | **CONTROL-05** | Webhook endpoint inventory monitor | **open** |
@@ -268,7 +286,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-W`** UI login identity correction planning |
+| **Update after** | **`5Z-I-X`** Included reply-ticket verification planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-F-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

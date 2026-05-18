@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-W UI login identity correction and unlock verification checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-F`** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**／**`5Z-I-S`** UI blocked under wrong context。** **本条：** **`canonical-normal-login`**（**`M55-Official production user`**）後の **redacted UI unlock GREEN**（**DB write／runner／env／redeploy／code／reply-ticket 正式検証なし**）。** **Login：** **`previous-private-login` → corrected yes**。** **DTR：** shelf saved yes／**FULL REPORT / 保存済み**／opens yes／content visible yes／purchase CTA blocking no。** **Reply-ticket：** visible remaining **1** — **formal verification not executed**。** **Type：** canonical login shows **CREATOR** — **CONTROL-08 / W-07 open**。** **Classification：** **`UI_LOGIN_IDENTITY_CORRECTION_CONFIRMED`**／**`UI_REPORT_UNLOCK_VERIFIED_AFTER_CANONICAL_LOGIN`**／**`INCLUDED_REPLY_TICKET_VISIBLE_PRELIMINARY_ONLY`**。** **Verdict：** **`UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_GREEN`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD** — **canonical-normal-login unlocked paid report**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-X` Included reply-ticket verification planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`c5c75ed637b5198d67c59b89b203347394652713`** — **`docs: record clerk production app alignment result`**（**`5Z-I-V-F`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-F`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Hard stop:
+
+- **DB write／runner／second repair なし**／**Events／replay／決済／refund なし**／**env 変更／redeploy なし**／**code／UI 変更なし**／**reply-ticket 正式 use なし**／**full ID／email／session なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-F Human dashboard Clerk alignment result checkpoint recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`**。** **本条：** **Human redacted yes/no により Clerk alignment 確定**（**削除・env 変更・redeploy・DB write・runner・code・§B SELECT なし**）。** **Production-bound：** **`M55-Official`**（**M55-core match no**／**M55-Official match yes**／**secret same-app yes**）。** **User location：** **`human-ui-current-user` in winner app no**／**`user_36xz` yes**／**same app no**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD_QUARANTINE（not delete）**。** **Classification：** **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`** ＋ **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP`** ＋ **`REPAIR_USER_EXISTS_IN_PRODUCTION_BOUND_APP`**。** **Verdict：** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**。** **Recommended：** **`READY_FOR_UI_LOGIN_IDENTITY_CORRECTION_PLANNING_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-W` UI login identity correction planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
@@ -2530,6 +2553,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-W UI login identity correction and unlock verification checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-F`** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**／**`5Z-I-S`** UI blocked under wrong context。** **本条：** **`canonical-normal-login`**（**`M55-Official production user`**）後の **redacted UI unlock GREEN**（**DB write／runner／env／redeploy／code／reply-ticket 正式検証なし**）。** **Login：** **`previous-private-login` → corrected yes**。** **DTR：** shelf saved yes／**FULL REPORT / 保存済み**／opens yes／content visible yes／purchase CTA blocking no。** **Reply-ticket：** visible remaining **1** — **formal verification not executed**。** **Type：** canonical login shows **CREATOR** — **CONTROL-08 / W-07 open**。** **Classification：** **`UI_LOGIN_IDENTITY_CORRECTION_CONFIRMED`**／**`UI_REPORT_UNLOCK_VERIFIED_AFTER_CANONICAL_LOGIN`**／**`INCLUDED_REPLY_TICKET_VISIBLE_PRELIMINARY_ONLY`**。** **Verdict：** **`UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_GREEN`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD** — **canonical-normal-login unlocked paid report**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-X` Included reply-ticket verification planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`c5c75ed637b5198d67c59b89b203347394652713`** — **`docs: record clerk production app alignment result`**（**`5Z-I-V-F`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-F`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Hard stop:
+
+- **DB write／runner／second repair なし**／**Events／replay／決済／refund なし**／**env 変更／redeploy なし**／**code／UI 変更なし**／**reply-ticket 正式 use なし**／**full ID／email／session なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-F Human dashboard Clerk alignment result checkpoint recorded
 
