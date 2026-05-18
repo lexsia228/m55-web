@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`（**execution — §2g**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`（**planning — §2h**）
+**Diagnostic:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`（§2g）
 **Plan:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-CONFLICT-DIAGNOSTIC-PLAN-001`（§2f）
 **Exact key:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（§2d）
 **Plan:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（§2c）
@@ -361,6 +362,27 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_K_DUPLICATE_CLERK_APP_CONFIG_READONLY_DIAGNOSTIC_2026-05-18.md`
 
+---
+
+### 2h. Vercel–Clerk env correction planning（`5Z-I-V-L` — no mutation）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`VERCEL_CLERK_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`** |
+| **recommended next** | **`READY_FOR_CLERK_PRODUCTION_INSTANCE_CAPABILITY_CHECK_GATE`** → **`5Z-I-V-M`** |
+| **Production-bound winner** | **`conflict` / `unresolved`**（unchanged） |
+| **env correction executed** | **no** |
+
+**Correction options（not selected）：** Option 1 known-risk retain **`pk_test_`** / Option 2 **`pk_live_` migration** / Option 3 canonicalize one app + quarantine / Option 4 delay + user mapping first.
+
+**User ID / DB impact：** Clerk instance change → **userId churn risk**；Supabase tables use Clerk **`user_id`** strings → **orphan risk** for entitlements/snapshots/wallets；**`user_36xz`** artifacts **no blind copy**.
+
+**Preflight before future env change：** Human backup of env values；target app/instance；**`pk_live_`** confirmation；secret same-app；mapping assessment；rollback plan（**CONTROL-12**）.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -483,6 +505,10 @@
 | **W-11** | **Exact full-equality duplicate conflict**（**Vercel key = both `M55-core` + `M55-Official` full eq yes**） | **ask_human** | **5Z-I-V-I** |
 | **W-12** | **Duplicate config diagnostic executed**（**`5Z-I-V-K`**） | **inspect_only** | **5Z-I-V-K** |
 | **W-13** | **Production env uses `pk_test_` publishable class**（**H4 confirmed — `5Z-I-V-K`**） | **ask_human** | **5Z-I-V-K** |
+| **W-14** | **Vercel Production uses `pk_test_` publishable**（**correction required before production-grade**） | **ask_human** | **5Z-I-V-L** |
+| **W-15** | **Clerk production instance absent / `pk_live_` not visible** | **ask_human** | **5Z-I-V-L** |
+| **W-16** | **Env correction may orphan DB `user_id` mappings** | **do_not_touch** | **5Z-I-V-L** |
+| **W-17** | **Normal dev flow blocked until Clerk env decision** | **inspect_only** | **5Z-I-V-L** |
 
 ---
 
@@ -534,8 +560,11 @@
 | **CONTROL-08** | DTR type label SSOT alignment plan | **open** |
 | **CONTROL-09** | Drift detection checklist | **open** |
 | **CONTROL-10** | Incident/postmortem template formalization | **open** |
+| **CONTROL-11** | Clerk production instance / migration decision | **open**（**`5Z-I-V-L` — blocked until `5Z-I-V-M`**） |
+| **CONTROL-12** | Clerk env rollback plan | **open** |
+| **CONTROL-13** | **`user_id` preservation / migration plan** | **open** |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6.
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
 
 ---
 
@@ -544,7 +573,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-K`** Duplicate Clerk app/config read-only diagnostic execution |
+| **Update after** | **`5Z-I-V-L`** Vercel–Clerk env correction planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

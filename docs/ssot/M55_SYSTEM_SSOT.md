@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-L Vercel–Clerk env correction planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-K`** **`DUPLICATE_CLERK_READONLY_DIAGNOSTIC_GREEN_DEV_KEY_ON_PRODUCTION_CONFIRMED`**（**`pk_test_` on Production** + duplicate same-key apps）。** **本条：** **docs-only planning** — Options 1–4（known-risk retain / **`pk_live_` migration** / canonicalize+quarantine / delay+user mapping）；preflight checklist；**user_id/DB orphan risk** documented。** **Verdict：** **`VERCEL_CLERK_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Recommended next：** **`READY_FOR_CLERK_PRODUCTION_INSTANCE_CAPABILITY_CHECK_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`**。** **Registry：** §2h；**W-14–W-17**；**CONTROL-11–13**。** **Winner conflict/unresolved**；**CONTROL-01/02 open**；**§B SELECT blocked**；**normal dev flow blocked**。** **Next：** **`5Z-I-V-M`**（**no env change / no redeploy**）。** **本条:** env/redeploy/deletion/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
+
+Work anchor:
+
+- **`4b68fcc7c4809326667abe133071a2db64a32f88`** — **`docs: diagnose duplicate clerk app config readonly`**（**`5Z-I-V-K`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-K`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_K_DUPLICATE_CLERK_APP_CONFIG_READONLY_DIAGNOSTIC_2026-05-18.md`
+
+Hard stop:
+
+- **no env change**／**no redeploy**／**§B SELECT not resumed**／**no normal dev unlock**／**no raw keys**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-K Duplicate Clerk app/config read-only diagnostic execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-J`** GREEN planning。** **本条：** read-only diagnostic execution（**no mutation**）。** **Vercel:** publishable **exists yes**；prefix **`pk_test_`**；suffix **`ZXYk`**；scope **unclear**。** **M55-core:** **content-snake-42** domain；prod warning **yes**；**pk_test_/ZXYk**。** **M55-Official:** **whole-halibut-25** domain；prod warning **yes**；**pk_test_/ZXYk**。** **Separate apps yes**；**different domains yes**；**same publishable key yes**；**both dev/test yes**；**pk_live_ no**。** **H4 supported**（test key on Production）；**H2/H6 supported**；**H3 unclear**。** **Primary:** **`VERCEL_PRODUCTION_USES_DEV_TEST_CLERK_KEY_CONFIRMED`**。** **Verdict:** **`DUPLICATE_CLERK_READONLY_DIAGNOSTIC_GREEN_DEV_KEY_ON_PRODUCTION_CONFIRMED`**。** **Winner:** **conflict/unresolved**（unchanged）。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`**。** **Next:** **`5Z-I-V-L` Vercel–Clerk env correction planning**（**no env change until GO**）。** **§B SELECT blocked**；**normal dev flow not unlocked**。** **本条:** deletion/env/redeploy/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
@@ -2846,6 +2869,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-L Vercel–Clerk env correction planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-K`** **`DUPLICATE_CLERK_READONLY_DIAGNOSTIC_GREEN_DEV_KEY_ON_PRODUCTION_CONFIRMED`**（**`pk_test_` on Production** + duplicate same-key apps）。** **本条：** **docs-only planning** — Options 1–4（known-risk retain / **`pk_live_` migration** / canonicalize+quarantine / delay+user mapping）；preflight checklist；**user_id/DB orphan risk** documented。** **Verdict：** **`VERCEL_CLERK_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Recommended next：** **`READY_FOR_CLERK_PRODUCTION_INSTANCE_CAPABILITY_CHECK_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`**。** **Registry：** §2h；**W-14–W-17**；**CONTROL-11–13**。** **Winner conflict/unresolved**；**CONTROL-01/02 open**；**§B SELECT blocked**；**normal dev flow blocked**。** **Next：** **`5Z-I-V-M`**（**no env change / no redeploy**）。** **本条:** env/redeploy/deletion/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
+
+Work anchor:
+
+- **`4b68fcc7c4809326667abe133071a2db64a32f88`** — **`docs: diagnose duplicate clerk app config readonly`**（**`5Z-I-V-K`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-K`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_K_DUPLICATE_CLERK_APP_CONFIG_READONLY_DIAGNOSTIC_2026-05-18.md`
+
+Hard stop:
+
+- **no env change**／**no redeploy**／**§B SELECT not resumed**／**no normal dev unlock**／**no raw keys**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-K Duplicate Clerk app/config read-only diagnostic execution recorded
 
