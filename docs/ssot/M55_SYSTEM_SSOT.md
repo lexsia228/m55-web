@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-N Temporary current-Clerk-instance exception / user mapping planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-M`** temporary dev-auth exception recommended。** **本条：** **docs-only** — exception **`TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION`**（scope/timebox/prohibitions）。** **Risk:** **high**；mitigation read-only/no env/no DB mutation。** **§B SELECT:** resume **authorized for `5Z-I-V-O` only** — **not executed in N**。** **Verdict:** **`TEMPORARY_CURRENT_CLERK_INSTANCE_EXCEPTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`**。** **Registry:** §2j；**W-20/W-21**；**CONTROL-14 planned**；**CONTROL-17–19 open**。** **Production auth compliance unresolved**；**normal dev flow not released**。** **Next:** **`5Z-I-V-O` Human UI user rowcount read-only SELECT**。** **本条:** no env/redeploy/Production instance/DB write/runner/code；no raw IDs；§B not executed**。
+
+Work anchor:
+
+- **`88d4df18730cc0855296245183ae5381decd6f92`** — **`docs: check clerk production migration impact`**（**`5Z-I-V-M`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-M`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
+
+Hard stop:
+
+- **§B SELECT not executed in N**／**no env change**／**no normal dev unlock**／**no raw keys**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-M Clerk production instance capability / migration impact check recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-L`** correction planning GREEN（no mutation）。** **本条：** read-only capability + migration impact check。** **`pk_live_` visible:** **no**（both apps）。** **Production enable path:** **unclear** per app；**`No Production Environment` warning:** **yes** both。** **Preserve current `pk_test_`:** **yes**；user IDs **likely** if no migration；UI/§B diagnostic on current instance **yes** subject to exception gate。** **Migration orphan risk:** entitlements/snapshots/wallets **yes**；**`user_36xz` migration if instance changes yes**。** **Recommended path:** **`READY_FOR_TEMPORARY_DEV_AUTH_EXCEPTION_USER_MAPPING_PLANNING`**。** **Verdict:** **`CLERK_PRODUCTION_CAPABILITY_CHECK_GREEN_TEMPORARY_DEV_AUTH_EXCEPTION_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`**。** **Registry:** §2i；**W-18/W-19**；**CONTROL-14–16**。** **Winner conflict/unresolved**；**§B blocked**；**normal dev blocked**。** **Next:** **`5Z-I-V-N` temporary dev-auth exception / user mapping planning**。** **本条:** no env/redeploy/Production instance create/DB write/runner/code；no raw keys**。
@@ -2892,6 +2915,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-N Temporary current-Clerk-instance exception / user mapping planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-M`** temporary dev-auth exception recommended。** **本条：** **docs-only** — exception **`TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION`**（scope/timebox/prohibitions）。** **Risk:** **high**；mitigation read-only/no env/no DB mutation。** **§B SELECT:** resume **authorized for `5Z-I-V-O` only** — **not executed in N**。** **Verdict:** **`TEMPORARY_CURRENT_CLERK_INSTANCE_EXCEPTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`**。** **Registry:** §2j；**W-20/W-21**；**CONTROL-14 planned**；**CONTROL-17–19 open**。** **Production auth compliance unresolved**；**normal dev flow not released**。** **Next:** **`5Z-I-V-O` Human UI user rowcount read-only SELECT**。** **本条:** no env/redeploy/Production instance/DB write/runner/code；no raw IDs；§B not executed**。
+
+Work anchor:
+
+- **`88d4df18730cc0855296245183ae5381decd6f92`** — **`docs: check clerk production migration impact`**（**`5Z-I-V-M`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-M`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
+
+Hard stop:
+
+- **§B SELECT not executed in N**／**no env change**／**no normal dev unlock**／**no raw keys**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-M Clerk production instance capability / migration impact check recorded
 
