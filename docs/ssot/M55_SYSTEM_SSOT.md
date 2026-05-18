@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-A Identity and environment inventory checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V`** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**（**§B UI user `row_count` 未提出**）。** **本条：** **docs-only identity／environment inventory**。** **Clerk：** **`M55-core`**／**`M55-Official`** 可視／frontend domains **`content-snake-42.clerk.accounts.dev`**／**`whole-halibut-25.clerk.accounts.dev`**／**両カード `No Production Environment`（risk signal）**。** **Vercel：** project **`m55-webv2`**（SSOT confirmed）／team display **`m55-official`（suspected）**／domains **`m55-webv2.vercel.app`**（UI）＋**`m55-web.vercel.app`**。** **Supabase：** **`m55-soul-core`／main／PRODUCTION`** — **Auth Users empty observed — not conclusive**（**Clerk is auth SSOT**）。** **Stripe：** **`M55WEB` live／`DTR_CORE_STATIC_V1`／`cs_live_JSRW` label**。** **Risk：** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**。** **Verdict：** **`IDENTITY_ENVIRONMENT_INVENTORY_RISK_DETECTED`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。 Links：**`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`。** **Next：** **Clerk↔Vercel Production publishable key alignment（redacted prefix/suffix only）→ then resume `5Z-I-V` §B SELECT**。** **本条：** **DB write／runner／env 変更／code 変更なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`dc74464f15ae57b9ed6e88f0d2c7e6d39a06046e`** — **`docs: record human local db readonly ui unlock diagnostic`**（**`5Z-I-V`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry なし**／**Events／replay／決済／refund なし**／**Stripe／Vercel／Clerk／Supabase env 変更なし**／**redeploy なし**／**code／UI 変更なし**／**full ID／secret／session なし**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-V Human-local DB read-only UI unlock diagnostic gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-U`** DB confirmation required／primary candidate **`OWNERSHIP_GATE_USER_ID_MISMATCH`**。** **本条：** **Human-local `SELECT` 診断枠**（**Agent Production `SELECT` 未実行**）。** **Repair user（`user_36xz`）：** **`5Z-I-R` 引用** — **stripe_events 1／OTF 1／entitlements DTR_CORE 1／rights ≥1／snapshots 1／wallets 1／ledgers ≥1**。** **UI user（`human-ui-current-user`）：** **§B `row_count` chat 未提出 → すべて `unclear`**。** **Mapping：** safe labels **`user_36xz` vs `human-ui-current-user` → `mismatch`（label 対のみ・DB 同一性未証明）**。** **Unlock primary：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**。** **Type：** **`CONFIRMED_LABEL_SOURCE_DIVERGENCE_STEMIDX_MAPPING`**（repo 確定）＋ shelf profile／core preset secondary。** **Verdict：** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。 Links：**`M55-EVID-20260516-5Z-I-U-UI-UNLOCK-TYPE-MISMATCH-READONLY-DIAGNOSTIC-001`**／**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`。** **Next action：** **`DB_READONLY_DIAGNOSTIC_INCONCLUSIVE_MORE_EVIDENCE_REQUIRED`**（**§B redacted `row_count` 追認待ち**）。** **本条：** **DB write／runner／code／UI 変更なし**／**full ID なし**。
@@ -2394,6 +2416,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-A Identity and environment inventory checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V`** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**（**§B UI user `row_count` 未提出**）。** **本条：** **docs-only identity／environment inventory**。** **Clerk：** **`M55-core`**／**`M55-Official`** 可視／frontend domains **`content-snake-42.clerk.accounts.dev`**／**`whole-halibut-25.clerk.accounts.dev`**／**両カード `No Production Environment`（risk signal）**。** **Vercel：** project **`m55-webv2`**（SSOT confirmed）／team display **`m55-official`（suspected）**／domains **`m55-webv2.vercel.app`**（UI）＋**`m55-web.vercel.app`**。** **Supabase：** **`m55-soul-core`／main／PRODUCTION`** — **Auth Users empty observed — not conclusive**（**Clerk is auth SSOT**）。** **Stripe：** **`M55WEB` live／`DTR_CORE_STATIC_V1`／`cs_live_JSRW` label**。** **Risk：** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**。** **Verdict：** **`IDENTITY_ENVIRONMENT_INVENTORY_RISK_DETECTED`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。 Links：**`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`。** **Next：** **Clerk↔Vercel Production publishable key alignment（redacted prefix/suffix only）→ then resume `5Z-I-V` §B SELECT**。** **本条：** **DB write／runner／env 変更／code 変更なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`dc74464f15ae57b9ed6e88f0d2c7e6d39a06046e`** — **`docs: record human local db readonly ui unlock diagnostic`**（**`5Z-I-V`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_HUMAN_LOCAL_DB_READONLY_UI_UNLOCK_DIAGNOSTIC_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry なし**／**Events／replay／決済／refund なし**／**Stripe／Vercel／Clerk／Supabase env 変更なし**／**redeploy なし**／**code／UI 変更なし**／**full ID／secret／session なし**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-V Human-local DB read-only UI unlock diagnostic gate recorded
 
