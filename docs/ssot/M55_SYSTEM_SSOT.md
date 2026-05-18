@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-F Device-origin Clerk context registry update gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** key match frame unclear at E。** **本条：** **device-origin operational mapping only**（**no mutation**）。** **M55-core：** **Mac**／primary active cockpit／fewer users tendency。** **M55-Official：** **Windows/test**／historical multi-user validation／more users tendency。** **Supabase aggregates（distinct users only）：** entitlements DTR_CORE **10**／snapshots **6**／OTF **7**／reply_wallets **10**。** **Non-conclusions：** device-origin／app name／user count **do not** prove Production-bound winner。** **Winner rule：** **Vercel Production publishable key match only**；both match yes = **conflict**；unselected template = **not submitted**。** **Verdict：** **`DEVICE_ORIGIN_CONTEXT_RECORDED_PRODUCTION_WINNER_STILL_KEY_MATCH_REQUIRED`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`**。** **Registry：** `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md` §1c + AI guard §7（11–14）。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_DEVICE_ORIGIN_CLERK_CONTEXT_REGISTRY_UPDATE_2026-05-18.md`。** **Note：** separate **`5Z-I-V-F` Clerk alignment result** doc may later confirm winner via key match — **device-origin does not override**。** **Next：** **`5Z-I-V-G` Exact Vercel–Clerk publishable key match**。** **本条：** **deletion／env／DB write なし**／**full IDs なし**。
+
+Work anchor:
+
+- **`3ddb69477cd3a20f95c5c61a04ac7aceea1a6ed3`** — **`docs: confirm clerk production app alignment`**（**`5Z-I-V-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_DEVICE_ORIGIN_CLERK_CONTEXT_REGISTRY_UPDATE_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`
+
+Hard stop:
+
+- **削除／env 変更／redeploy／DB write／runner／code なし**／**full ID／secret なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-AB Post-consume DB read-only verification gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-AA`** **`INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_RECORDED`**（**consume 1**／**remaining_after UI 0**／**theme 距離と期待**）。** **本条：** **Human-local Production `SELECT` read-only 枠** — **Agent `SELECT` 未実行**／**Human row_count 未提出**。** **Expected（pending）：** wallet **`available_count=0`**／ledger **`reply_consume`×1**／session+document／no duplicate／no Stripe payment。** **Aggregate：** **`POST_CONSUME_DB_VERIFICATION_INCONCLUSIVE`**。** **Verdict：** **`POST_CONSUME_DB_READONLY_VERIFICATION_INCONCLUSIVE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-AB-POST-CONSUME-DB-READONLY-VERIFICATION-001`**。 Links：**`M55-EVID-20260518-5Z-I-AA-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-EXECUTION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_AB_POST_CONSUME_DB_READONLY_VERIFICATION_2026-05-18.md`。** **Next：** **`5Z-I-AC` post-consume diagnostic**（Human redacted `row_count`）or amend AB after `SELECT`。** **本条：** **DB write／second consume／retry なし**／**full IDs なし**。
@@ -2685,6 +2708,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-F Device-origin Clerk context registry update gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** key match frame unclear at E。** **本条：** **device-origin operational mapping only**（**no mutation**）。** **M55-core：** **Mac**／primary active cockpit／fewer users tendency。** **M55-Official：** **Windows/test**／historical multi-user validation／more users tendency。** **Supabase aggregates（distinct users only）：** entitlements DTR_CORE **10**／snapshots **6**／OTF **7**／reply_wallets **10**。** **Non-conclusions：** device-origin／app name／user count **do not** prove Production-bound winner。** **Winner rule：** **Vercel Production publishable key match only**；both match yes = **conflict**；unselected template = **not submitted**。** **Verdict：** **`DEVICE_ORIGIN_CONTEXT_RECORDED_PRODUCTION_WINNER_STILL_KEY_MATCH_REQUIRED`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`**。** **Registry：** `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md` §1c + AI guard §7（11–14）。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_DEVICE_ORIGIN_CLERK_CONTEXT_REGISTRY_UPDATE_2026-05-18.md`。** **Note：** separate **`5Z-I-V-F` Clerk alignment result** doc may later confirm winner via key match — **device-origin does not override**。** **Next：** **`5Z-I-V-G` Exact Vercel–Clerk publishable key match**。** **本条：** **deletion／env／DB write なし**／**full IDs なし**。
+
+Work anchor:
+
+- **`3ddb69477cd3a20f95c5c61a04ac7aceea1a6ed3`** — **`docs: confirm clerk production app alignment`**（**`5Z-I-V-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_DEVICE_ORIGIN_CLERK_CONTEXT_REGISTRY_UPDATE_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`
+
+Hard stop:
+
+- **削除／env 変更／redeploy／DB write／runner／code なし**／**full ID／secret なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-AB Post-consume DB read-only verification gate recorded
 

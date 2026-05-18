@@ -4,6 +4,7 @@
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
 **Prior evidence:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`
+**Device-origin supplement:** `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`（**operational context only — not Production-bound proof**）
 **Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
 
 **Policy:** This document is the **AI-readable SSOT** for environment identity. **Full secrets, full user IDs, emails, sessions, cookies, tokens, and raw env dumps are never recorded here.**
@@ -53,7 +54,31 @@
 
 ---
 
-## 2. Clerk alignment result（redacted — `5Z-I-V-F`）
+## 1c. Device-origin Clerk context（`5Z-I-V-F` device-origin — operational only）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`
+
+**Does NOT determine `production_bound`.** **Does NOT contradict** §2 key-match winner when publishable match evidence exists.
+
+| registry_id | Clerk app | device-origin | operational role | user-count tendency | proves_production_bound |
+|-------------|-----------|---------------|------------------|---------------------|-------------------------|
+| **DO-01** | **`M55-core`** | **Mac** | **primary active / main cockpit** | **fewer than Official** | **no** |
+| **DO-02** | **`M55-Official`** | **Windows / test** | **historical test / multi-user validation** | **more than core** | **no** |
+
+### Supabase aggregate inventory（distinct users — no full user_id）
+
+| Metric | **count** |
+|--------|-----------|
+| **`entitlements` DTR_CORE distinct users** | **10** |
+| **`dtr_report_snapshots` DTR_CORE distinct users** | **6** |
+| **`one_time_fulfillments` distinct users** | **7** |
+| **`reply_ticket_wallets` distinct users** | **10** |
+
+**Non-inference:** user counts ≠ Production-bound Clerk app; **“Official” name ≠ Production**.
+
+---
+
+## 2. Clerk alignment result（redacted — `5Z-I-V-F` key match）
 
 **Human dashboard observation:** **SUBMITTED**（redacted yes/no only — **no full keys/secrets/user ids**）。
 
@@ -229,6 +254,7 @@
 | **W-06** | **`user_id` mapping** — **`canonical-normal-login` unlock verified**（**`5Z-I-W`**） | **inspect_only** | **5Z-I-W** |
 | **W-07** | **Type label source divergence** — **CREATOR under canonical login; global SSOT open** | **inspect_only** | **5Z-I-W** |
 | **W-08** | **DTR ownership gate** — **paid report unlock verified after canonical login** | **inspect_only** | **5Z-I-W** |
+| **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
 
 ---
 
@@ -246,6 +272,10 @@
 8. **`DELETE_LATER_CANDIDATE` purge requires explicit human-only gate** — not agent execution.
 9. **Mandatory first-read:** all auth/payment/DB gates must read this registry before execution（**`5Z-I-V-D` preflight elevation**）.
 10. **Machine-checkable export pending** — see **CONTROL-03**（§10）.
+11. **Do not infer Production-bound Clerk app from device-origin, app name, or Supabase distinct-user counts**（§1c）.
+12. **Only Vercel Production publishable key match**（redacted — **not** device-origin）**confirms Clerk winner**.
+13. **If both `M55-core` and `M55-Official` publishable match = yes → classify `conflict`** — not winner.
+14. **Template yes/no/unclear left unselected = evidence not submitted**.
 
 ---
 
@@ -289,4 +319,4 @@
 | **Update after** | **`5Z-I-X`** Included reply-ticket verification planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
