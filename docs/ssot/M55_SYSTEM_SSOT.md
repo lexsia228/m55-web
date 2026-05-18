@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-M Clerk production instance capability / migration impact check recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-L`** correction planning GREEN（no mutation）。** **本条：** read-only capability + migration impact check。** **`pk_live_` visible:** **no**（both apps）。** **Production enable path:** **unclear** per app；**`No Production Environment` warning:** **yes** both。** **Preserve current `pk_test_`:** **yes**；user IDs **likely** if no migration；UI/§B diagnostic on current instance **yes** subject to exception gate。** **Migration orphan risk:** entitlements/snapshots/wallets **yes**；**`user_36xz` migration if instance changes yes**。** **Recommended path:** **`READY_FOR_TEMPORARY_DEV_AUTH_EXCEPTION_USER_MAPPING_PLANNING`**。** **Verdict:** **`CLERK_PRODUCTION_CAPABILITY_CHECK_GREEN_TEMPORARY_DEV_AUTH_EXCEPTION_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`**。** **Registry:** §2i；**W-18/W-19**；**CONTROL-14–16**。** **Winner conflict/unresolved**；**§B blocked**；**normal dev blocked**。** **Next:** **`5Z-I-V-N` temporary dev-auth exception / user mapping planning**。** **本条:** no env/redeploy/Production instance create/DB write/runner/code；no raw keys**。
+
+Work anchor:
+
+- **`933df021590d4b05bd572172f8f5f0448d893b80`** — **`docs: plan vercel clerk env correction`**（**`5Z-I-V-L`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no env change**／**no Production instance creation**／**§B SELECT not resumed**／**no normal dev unlock**／**no raw keys**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-L Vercel–Clerk env correction planning gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-K`** **`DUPLICATE_CLERK_READONLY_DIAGNOSTIC_GREEN_DEV_KEY_ON_PRODUCTION_CONFIRMED`**（**`pk_test_` on Production** + duplicate same-key apps）。** **本条：** **docs-only planning** — Options 1–4（known-risk retain / **`pk_live_` migration** / canonicalize+quarantine / delay+user mapping）；preflight checklist；**user_id/DB orphan risk** documented。** **Verdict：** **`VERCEL_CLERK_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Recommended next：** **`READY_FOR_CLERK_PRODUCTION_INSTANCE_CAPABILITY_CHECK_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`**。** **Registry：** §2h；**W-14–W-17**；**CONTROL-11–13**。** **Winner conflict/unresolved**；**CONTROL-01/02 open**；**§B SELECT blocked**；**normal dev flow blocked**。** **Next：** **`5Z-I-V-M`**（**no env change / no redeploy**）。** **本条:** env/redeploy/deletion/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
@@ -2869,6 +2892,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-M Clerk production instance capability / migration impact check recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-L`** correction planning GREEN（no mutation）。** **本条：** read-only capability + migration impact check。** **`pk_live_` visible:** **no**（both apps）。** **Production enable path:** **unclear** per app；**`No Production Environment` warning:** **yes** both。** **Preserve current `pk_test_`:** **yes**；user IDs **likely** if no migration；UI/§B diagnostic on current instance **yes** subject to exception gate。** **Migration orphan risk:** entitlements/snapshots/wallets **yes**；**`user_36xz` migration if instance changes yes**。** **Recommended path:** **`READY_FOR_TEMPORARY_DEV_AUTH_EXCEPTION_USER_MAPPING_PLANNING`**。** **Verdict:** **`CLERK_PRODUCTION_CAPABILITY_CHECK_GREEN_TEMPORARY_DEV_AUTH_EXCEPTION_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`**。** **Registry:** §2i；**W-18/W-19**；**CONTROL-14–16**。** **Winner conflict/unresolved**；**§B blocked**；**normal dev blocked**。** **Next:** **`5Z-I-V-N` temporary dev-auth exception / user mapping planning**。** **本条:** no env/redeploy/Production instance create/DB write/runner/code；no raw keys**。
+
+Work anchor:
+
+- **`933df021590d4b05bd572172f8f5f0448d893b80`** — **`docs: plan vercel clerk env correction`**（**`5Z-I-V-L`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no env change**／**no Production instance creation**／**§B SELECT not resumed**／**no normal dev unlock**／**no raw keys**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-L Vercel–Clerk env correction planning gate recorded
 

@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`（**planning — §2h**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`（**check — §2i**）
+**Plan:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`（§2h）
 **Diagnostic:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`（§2g）
 **Plan:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-CONFLICT-DIAGNOSTIC-PLAN-001`（§2f）
 **Exact key:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（§2d）
@@ -383,6 +384,29 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
 
+---
+
+### 2i. Production instance capability / migration impact（`5Z-I-V-M` — read-only）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`CLERK_PRODUCTION_CAPABILITY_CHECK_GREEN_TEMPORARY_DEV_AUTH_EXCEPTION_RECOMMENDED`** |
+| **recommended path** | **`READY_FOR_TEMPORARY_DEV_AUTH_EXCEPTION_USER_MAPPING_PLANNING`** |
+| **`pk_live_` visible** | **no**（both apps） |
+| **Production enable path per app** | **unclear** |
+| **`No Production Environment` warning** | **yes**（both） |
+| **Production-bound winner** | **`conflict` / `unresolved`**（unchanged） |
+
+**Migration impact：** userId change **yes** on migration；entitlements/snapshots/wallets orphan **yes**；**`user_36xz`** migration needed if instance changes **yes**；separate mapping plan **yes**.
+
+**Option comparison（summary）：** Option **1** short-term **yes** / high risk；Option **2** capability **unclear** / migration **high**；Option **3** **unclear** / still **`pk_test_`**；Option **4** **yes** / governance incomplete **yes**.
+
+**Next：** **`5Z-I-V-N` temporary dev-auth exception / user mapping planning** — **§B still blocked until N**.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -509,6 +533,8 @@
 | **W-15** | **Clerk production instance absent / `pk_live_` not visible** | **ask_human** | **5Z-I-V-L** |
 | **W-16** | **Env correction may orphan DB `user_id` mappings** | **do_not_touch** | **5Z-I-V-L** |
 | **W-17** | **Normal dev flow blocked until Clerk env decision** | **inspect_only** | **5Z-I-V-L** |
+| **W-18** | **`pk_live_` migration may orphan current Clerk user IDs** | **do_not_touch** | **5Z-I-V-M** |
+| **W-19** | **Temporary dev-auth exception requires explicit scope/timebox** | **ask_human** | **5Z-I-V-M** |
 
 ---
 
@@ -563,8 +589,11 @@
 | **CONTROL-11** | Clerk production instance / migration decision | **open**（**`5Z-I-V-L` — blocked until `5Z-I-V-M`**） |
 | **CONTROL-12** | Clerk env rollback plan | **open** |
 | **CONTROL-13** | **`user_id` preservation / migration plan** | **open** |
+| **CONTROL-14** | Temporary auth exception decision | **open**（**`5Z-I-V-N` planning**） |
+| **CONTROL-15** | Future Clerk production migration plan | **open**（deferred until **`pk_live_` confirmed**） |
+| **CONTROL-16** | **`user_id` migration dry-run / preflight** | **open** |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-L`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_L_VERCEL_CLERK_ENV_CORRECTION_PLANNING_2026-05-18.md`；**`5Z-I-V-M`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_M_CLERK_PRODUCTION_INSTANCE_CAPABILITY_MIGRATION_IMPACT_CHECK_2026-05-18.md`
 
 ---
 
@@ -573,7 +602,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-L`** Vercel–Clerk env correction planning |
+| **Update after** | **`5Z-I-V-M`** Clerk production instance capability / migration impact check |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
