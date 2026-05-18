@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（**conflict — authoritative §2b**）
+**Superseded:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`（§2a historical only）
 **Device-origin supplement:** `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`（**operational context only — not Production-bound proof**）
 **Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
 
@@ -21,9 +22,9 @@
 | **Vercel** | `vercel.branch.production` | **`main`** | **confirmed** | **yes** |
 | **Vercel** | `vercel.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | **name confirmed; value redacted** | **confirmed** | **yes** |
 | **Vercel** | `vercel.env.CLERK_SECRET_KEY` | **name confirmed; value redacted** | **confirmed** | **yes** |
-| **Clerk** | `clerk.app.production-bound` | **`M55-Official`** | **confirmed** | **yes** |
-| **Clerk** | `clerk.app.M55-core` | non-Production-bound | **confirmed hold** | **no** |
-| **Clerk** | `clerk.app.M55-Official` | Production-bound winner | **confirmed** | **yes** |
+| **Clerk** | `clerk.app.production-bound` | **winner unresolved**（**`5Z-I-V-G` conflict**） | **conflict** | **unclear** |
+| **Clerk** | `clerk.app.M55-core` | publishable match **yes** — **not winner** | **conflict** | **unclear** |
+| **Clerk** | `clerk.app.M55-Official` | publishable match **yes** — **not winner** | **conflict** | **unclear** |
 | **Supabase** | `supabase.project.m55-soul-core` | **`m55-soul-core` / `main` / `PRODUCTION`** | **confirmed** | **yes** |
 | **Supabase** | `supabase.auth.users` | **not auth SSOT for M55** | **confirmed empty observed** | **n/a** |
 | **Supabase** | `supabase.tables.user_id` | **Clerk userId (text) in app tables** | **confirmed** | **yes** |
@@ -44,7 +45,7 @@
 | Check | Result | Notes |
 |-------|--------|-------|
 | **Login context corrected** | **yes** | **`previous-private-login` → `canonical-normal-login`** |
-| **Production-bound Clerk** | **`M55-Official`** | unchanged **CANONICAL_KEEP** |
+| **Production-bound Clerk** | **`conflict` / unresolved**（**`5Z-I-V-G`** — **not `M55-Official` until `5Z-I-V-H`**） | **see §2b** |
 | **Paid DTR report unlock** | **yes** | shelf saved / FULL REPORT / opens / content visible |
 | **Purchase CTA blocking** | **no** | under **`canonical-normal-login`** |
 | **Included reply-ticket** | **visible, remaining 1** | **formal verification not done** |
@@ -78,21 +79,37 @@
 
 ---
 
-## 2. Clerk alignment result（redacted — `5Z-I-V-F` key match）
+## 2. Clerk alignment result（redacted）
 
-**`5Z-I-V-G` attempt（2026-05-18）：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** — template options unselected; **§2 table unchanged**. See `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`.
+### 2a. Historical — `5Z-I-V-F` alignment result（**superseded for `production_bound`**）
 
-**Human dashboard observation（§2 source — `5Z-I-V-F` alignment result）：** **SUBMITTED**（redacted yes/no only — **no full keys/secrets/user ids**）。
+**Status:** **SUPERSEDED** by **§2b `5Z-I-V-G` conflict** — **do not use `M55-Official` as Production-bound winner.**
+
+| Field | Prior value（historical only） |
+|-------|-------------------------------|
+| **classification** | **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`**（**withdrawn**） |
+| **gate_verdict** | **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**（**withdrawn**） |
+
+**Source doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+---
+
+### 2b. Authoritative — `5Z-I-V-G` publishable key match（**conflict correction**）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`
+
+**Prior pass:** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** → **Human resubmitted** → **both apps match yes**.
 
 | Field | Value |
 |-------|--------|
-| **classification** | **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`** ＋ **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP`** ＋ **`REPAIR_USER_EXISTS_IN_PRODUCTION_BOUND_APP`** |
-| **gate_verdict** | **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`** |
-| **ui_unlock_primary** | **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP` / `USER_ID_MAPPING_MISMATCH`** |
+| **classification** | **`CLERK_PUBLISHABLE_KEY_MATCH_CONFLICT`** |
+| **gate_verdict** | **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`** |
+| **Production-bound winner** | **`conflict` / `unresolved`** |
+| **Human winner submitted** | **`M55-core`** — **rejected**（registry dual-match rule） |
 | **full_secret_recorded** | **no** |
-| **last_verified_phase** | **`5Z-I-V-F`** |
+| **last_verified_phase** | **`5Z-I-V-G`** |
 
-### A. Vercel Production env（§A）
+#### A. Vercel Production env
 
 | Check | Result |
 |-------|--------|
@@ -100,44 +117,38 @@
 | **`CLERK_SECRET_KEY` exists** | **yes** |
 | **full values recorded** | **no** |
 
-### B. Clerk publishable key app match（§B）
+#### B. Clerk publishable key app match
 
 | Check | Result |
 |-------|--------|
-| **`M55-core` publishable match** | **no** |
+| **`M55-core` publishable match** | **yes** |
 | **`M55-Official` publishable match** | **yes** |
-| **Production-bound publishable winner** | **`M55-Official`** |
+| **Production-bound publishable winner** | **`conflict`**（**not `M55-core`** / **not `M55-Official`**） |
 | **full publishable key recorded** | **no** |
 
-### C. Clerk secret same-app（§C）
+#### C. Clerk secret same-app
 
 | Check | Result |
 |-------|--------|
-| **secret same-app as publishable winner** | **yes** |
+| **secret same-app as winner** | **yes**（**non-dispositive** — winner **conflict**） |
 | **full secret recorded** | **no** |
 
-### D. Production Environment warning（§D）
+#### D. User location（observed — **not winner-scoped**）
 
 | Check | Result |
 |-------|--------|
-| **`No Production Environment` warning still observed** | **yes**（prior `5Z-I-V-A` — **not contradicted**） |
-| **interpretation** | **risk signal only — not mutation target** |
+| **`human-ui-current-user` in winner app** | **yes**（**non-dispositive**） |
+| **`user_36xz` in winner app** | **yes**（**non-dispositive**） |
+| **both users in same Clerk app** | **yes**（**non-dispositive**） |
 
-### E. User location（§E — yes/no/unclear only）
-
-| Check | Result |
-|-------|--------|
-| **`human-ui-current-user` in Production-bound Clerk app** | **no** |
-| **`user_36xz` in Production-bound Clerk app** | **yes** |
-| **both users in same Clerk app** | **no** |
-
-### F. Registry classification actions（§G — applied `5Z-I-V-F`）
+#### E. Registry classification actions（`5Z-I-V-G` conflict correction）
 
 | Action | Status |
 |--------|--------|
-| **`M55-Official` → CANONICAL_KEEP（CK-11 production_bound yes）** | **applied** |
-| **`M55-core` → HOLD_QUARANTINE（HQ-01）** | **applied** — **not delete** |
-| **UT-01 / UT-02 removed from UNKNOWN** | **yes**（key match resolved） |
+| **CK-11 `M55-Official` production_bound yes** | **reverted → `unclear`** |
+| **HQ-01 `M55-core` production_bound no** | **reverted → `unclear`** |
+| **CONTROL-01 / CONTROL-02** | **reopened**（blocked by conflict） |
+| **§B `human-ui-current-user` SELECT** | **not resumed** |
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -161,7 +172,7 @@
 | **ai_action_policy** | `use` \| `inspect_only` \| `do_not_touch` \| `ask_human` |
 | **deletion_policy** | `prohibited` \| `later_after_confirmation` \| `unknown` |
 | **evidence_source** | `Vercel` \| `Clerk` \| `Supabase` \| `Stripe` \| `SSOT` |
-| **last_verified_phase** | **`5Z-I-V-F`** |
+| **last_verified_phase** | **`5Z-I-V-G`** |
 | **full_secret_recorded** | **`no`**（always） |
 
 ---
@@ -180,7 +191,7 @@
 | **CK-08** | Stripe **`M55WEB` live** | **canonical** | **yes** | **use** | **prohibited** | **Stripe** |
 | **CK-09** | Stripe product lane **`DTR_CORE_STATIC_V1`** | **canonical** | **yes** | **use** | **prohibited** | **Stripe** |
 | **CK-10** | Stripe webhook intent **`/api/stripe/webhook` on m55-webv2** | **canonical** | **yes** | **inspect_only** | **prohibited** | **SSOT** |
-| **CK-11** | Clerk app **`M55-Official`**（Production-bound） | **canonical** | **yes** | **use** | **prohibited** | **Clerk** |
+| **CK-11** | Clerk app **`M55-Official`**（**winner unresolved — conflict**） | **canonical** | **unclear** | **ask_human** | **prohibited** | **Clerk** |
 
 ---
 
@@ -188,7 +199,7 @@
 
 | registry_id | resource | canonical_status | production_bound | ai_action_policy | deletion_policy | evidence_source |
 |-------------|----------|------------------|------------------|------------------|-----------------|-------------------|
-| **HQ-01** | Clerk app **`M55-core`**（non-Production-bound — **do not delete**） | **hold** | **no** | **do_not_touch** | **later_after_confirmation** | **Clerk** |
+| **HQ-01** | Clerk app **`M55-core`**（**publishable match yes — not winner** — **do not delete**） | **hold** | **unclear** | **do_not_touch** | **later_after_confirmation** | **Clerk** |
 | **HQ-02** | Clerk domain **`content-snake-42.clerk.accounts.dev`** | **hold** | **unclear** | **inspect_only** | **prohibited** | **Clerk** |
 | **HQ-03** | Clerk domain **`whole-halibut-25.clerk.accounts.dev`** | **hold** | **unclear** | **inspect_only** | **prohibited** | **Clerk** |
 | **HQ-04** | Vercel **non-Current / Preview deployments** | **hold** | **no** | **inspect_only** | **later_after_confirmation** | **Vercel** |
@@ -205,7 +216,7 @@
 |-------------|----------|------------------|------------------|------------------|-----------------|-------------------|
 | **UT-01** | Vercel Production **publishable key value**（full） | **unknown** | **n/a** | **do_not_touch** | **unknown** | **Vercel** |
 | **UT-02** | Vercel Production **`CLERK_SECRET_KEY` value**（full） | **unknown** | **n/a** | **do_not_touch** | **unknown** | **Vercel** |
-| **UT-03** | **Browser/UI Clerk session user**（`human-ui-current-user` — not in `M55-Official`） | **unknown** | **no** | **ask_human** | **unknown** | **Clerk** |
+| **UT-03** | **Browser/UI Clerk session user**（`human-ui-current-user` — **winner app unresolved**） | **unknown** | **unclear** | **ask_human** | **unknown** | **Clerk** |
 | **UT-04** | **Any unmapped Supabase project** | **unknown** | **unclear** | **do_not_touch** | **unknown** | **Supabase** |
 | **UT-05** | **Unmapped Stripe price/webhook** | **unknown** | **unclear** | **do_not_touch** | **unknown** | **Stripe** |
 
@@ -249,7 +260,7 @@
 | watch_id | signal | ai_action_policy | last_verified_phase |
 |----------|--------|------------------|---------------------|
 | **W-01** | **Multiple Clerk app risk**（`M55-core` + `M55-Official`） | **inspect_only** | **5Z-I-V-F** |
-| **W-02** | **Clerk Production-bound winner** → **`M55-Official` confirmed** | **use CK-11** | **5Z-I-V-F** |
+| **W-02** | **Clerk Production-bound winner** → **`conflict` / unresolved**（**dual publishable match yes**） | **ask_human** | **5Z-I-V-G** |
 | **W-03** | **Supabase Auth empty is non-conclusive**（Clerk is auth SSOT） | **inspect_only** | **5Z-I-V-F** |
 | **W-04** | **Production domain duality**（`m55-web` vs `m55-webv2`） | **ask_human** | **5Z-I-V-F** |
 | **W-05** | **Stripe live/test mode separation** | **inspect_only** | **5Z-I-V-F** |
@@ -257,6 +268,7 @@
 | **W-07** | **Type label source divergence** — **CREATOR under canonical login; global SSOT open** | **inspect_only** | **5Z-I-W** |
 | **W-08** | **DTR ownership gate** — **paid report unlock verified after canonical login** | **inspect_only** | **5Z-I-W** |
 | **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
+| **W-10** | **Publishable dual-match conflict**（**both `M55-core` + `M55-Official` match yes**） | **ask_human** | **5Z-I-V-G** |
 
 ---
 
@@ -298,8 +310,8 @@
 
 | control_id | title | status |
 |------------|-------|--------|
-| **CONTROL-01** | Production-bound Clerk app confirmation | **closed**（**`M55-Official` — `5Z-I-V-F`**） |
-| **CONTROL-02** | Vercel env-to-Clerk key preflight | **closed**（**match yes + same-app yes — `5Z-I-V-F`**） |
+| **CONTROL-01** | Production-bound Clerk app confirmation | **open**（**blocked — `5Z-I-V-G` conflict**） |
+| **CONTROL-02** | Vercel env-to-Clerk key preflight | **open**（**blocked — dual match yes — `5Z-I-V-H` required**） |
 | **CONTROL-06** | User identity mapping preflight | **closed**（**UI unlock verified — `canonical-normal-login` / `5Z-I-W`**） |
 | **CONTROL-03** | Env identity registry JSON/YAML export | **open** |
 | **CONTROL-04** | Dashboard naming/tagging convention | **open** |
@@ -318,7 +330,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-X`** Included reply-ticket verification planning |
+| **Update after** | **`5Z-I-V-G`** Clerk publishable key match conflict correction |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

@@ -1,6 +1,29 @@
-## 2026-05-18 — Phase 5-6H-5Z-I-V-G Exact Vercel–Clerk publishable key match gate recorded
+## 2026-05-18 — Phase 5-6H-5Z-I-V-G Clerk publishable key match conflict correction recorded
 
-Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-F` device-origin** recorded; **registry §2** holds prior **`5Z-I-V-F` alignment result**（**`M55-Official`** — separate evidence）。** **本条 Human 提出：** **template only** — each match row still shows **`yes / no / unclear`** literal list (**not selected**)。** **Policy：** unselected template = **evidence not submitted**。** **Recorded：** Vercel publishable key **exists: yes**; full key **not shared: no**（compliant）。** **Not recorded：** per-app match, winner, secret same-app, user location（all **not submitted**）。** **Verdict：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`。** **Registry §2：** **unchanged**。** **Next：** Human **single-value** resubmit（§11 in gate doc）。** **本条：** deletion／env／DB write／runner／code なし／full IDs なし**。
+Status: **`work/home-cluster`。** **前提：** prior **`5Z-I-V-G`** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`**；**`5Z-I-V-F` alignment result superseded** for **`production_bound`**。** **Human resubmit：** **`M55-core` match yes** + **`M55-Official` match yes**；Human winner **`M55-core` → rejected**。** **Registry rule：** both match yes = **`conflict`** — **not winner**。** **Classification：** **`CLERK_PUBLISHABLE_KEY_MATCH_CONFLICT`**。** **Verdict：** **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`**。** **Production-bound winner：** **`conflict` / `unresolved`**（**not `M55-core`** / **not `M55-Official`**）。** **Secret same-app yes** — **non-dispositive**。** **User location yes/yes/yes** — **non-dispositive**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`。** **Registry §2b authoritative**；§2a **`5Z-I-V-F` withdrawn**。** **`5Z-I-AB`：** **unchanged**（UI lines → **`5Z-I-AA`** only; DB SELECT still inconclusive）。** **Next：** **`5Z-I-V-H`** exact Clerk key conflict diagnostic planning（prefix/suffix/full equality redacted）。** **§B SELECT not resumed**。** **本条：** deletion／env／redeploy／DB write／runner／code なし／full IDs なし**。
+
+Work anchor:
+
+- **`dc85a2f`** — prior **`5Z-I-V-G` inconclusive**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-F` alignment（superseded）：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Hard stop:
+
+- **winner as `M55-core` or `M55-Official` 確定禁止**／**env／redeploy／DB write／runner／code なし**／**full key／secret／user_id なし**。**
+
+
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-G Exact Vercel–Clerk publishable key match gate recorded（1st pass — superseded）
+
+Status: **`work/home-cluster`。** **1st pass：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** — superseded by **conflict correction** checkpoint above。** **Evidence ID shared：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。
 
 Work anchor:
 
@@ -2732,9 +2755,32 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 
 # M55 SYSTEM SSOT
 
-## 2026-05-18 — Phase 5-6H-5Z-I-V-G Exact Vercel–Clerk publishable key match gate recorded
+## 2026-05-18 — Phase 5-6H-5Z-I-V-G Clerk publishable key match conflict correction recorded
 
-Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-F` device-origin** recorded; **registry §2** holds prior **`5Z-I-V-F` alignment result**（**`M55-Official`** — separate evidence）。** **本条 Human 提出：** **template only** — each match row still shows **`yes / no / unclear`** literal list (**not selected**)。** **Policy：** unselected template = **evidence not submitted**。** **Recorded：** Vercel publishable key **exists: yes**; full key **not shared: no**（compliant）。** **Not recorded：** per-app match, winner, secret same-app, user location（all **not submitted**）。** **Verdict：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`。** **Registry §2：** **unchanged**。** **Next：** Human **single-value** resubmit（§11 in gate doc）。** **本条：** deletion／env／DB write／runner／code なし／full IDs なし**。
+Status: **`work/home-cluster`。** **前提：** prior **`5Z-I-V-G`** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`**；**`5Z-I-V-F` alignment result superseded** for **`production_bound`**。** **Human resubmit：** **`M55-core` match yes** + **`M55-Official` match yes**；Human winner **`M55-core` → rejected**。** **Registry rule：** both match yes = **`conflict`** — **not winner**。** **Classification：** **`CLERK_PUBLISHABLE_KEY_MATCH_CONFLICT`**。** **Verdict：** **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`**。** **Production-bound winner：** **`conflict` / `unresolved`**（**not `M55-core`** / **not `M55-Official`**）。** **Secret same-app yes** — **non-dispositive**。** **User location yes/yes/yes** — **non-dispositive**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`。** **Registry §2b authoritative**；§2a **`5Z-I-V-F` withdrawn**。** **`5Z-I-AB`：** **unchanged**（UI lines → **`5Z-I-AA`** only; DB SELECT still inconclusive）。** **Next：** **`5Z-I-V-H`** exact Clerk key conflict diagnostic planning（prefix/suffix/full equality redacted）。** **§B SELECT not resumed**。** **本条：** deletion／env／redeploy／DB write／runner／code なし／full IDs なし**。
+
+Work anchor:
+
+- **`dc85a2f`** — prior **`5Z-I-V-G` inconclusive**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-F` alignment（superseded）：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Hard stop:
+
+- **winner as `M55-core` or `M55-Official` 確定禁止**／**env／redeploy／DB write／runner／code なし**／**full key／secret／user_id なし**。**
+
+
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-G Exact Vercel–Clerk publishable key match gate recorded（1st pass — superseded）
+
+Status: **`work/home-cluster`。** **1st pass：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** — superseded by **conflict correction** checkpoint above。** **Evidence ID shared：** **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`**。
 
 Work anchor:
 

@@ -4,7 +4,9 @@
 
 **Phase 5-6H-5Z-I-V-G Exact Vercel–Clerk publishable key match human confirmation gate**
 
-本条は **Human dashboard read-only** による **Production-bound Clerk app** の **単一選択 yes/no/unclear** 固定。**env 変更・削除・redeploy・DB write・runner・code 変更なし**。
+**Conflict correction checkpoint（本条最終）：** **Clerk publishable key match conflict correction**
+
+本条は **Human dashboard read-only**。**env 変更・削除・redeploy・DB write・runner・code 変更なし**。**Supabase §B SELECT 再開なし**。
 
 ---
 
@@ -12,11 +14,12 @@
 
 | 項目 | 状態 |
 |------|------|
-| **`5Z-I-V-F` device-origin** | **`DEVICE_ORIGIN_CONTEXT_RECORDED_PRODUCTION_WINNER_STILL_KEY_MATCH_REQUIRED`** |
-| **Registry §2** | **prior `5Z-I-V-F` alignment result**（**`M55-Official`** — separate evidence）— **本条未提出では上書きしない** |
-| **本条 Human 提出** | **template only — options not selected** |
+| **Prior `5Z-I-V-G`（1st）** | **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** |
+| **本条（2nd — conflict correction）** | **Human redacted result submitted** → **both apps match yes** → **`conflict`** |
+| **`5Z-I-V-F` alignment result** | **superseded for `production_bound`** — **do not use as winner** |
+| **`5Z-I-AB`** | **separate track** — **not mixed**（§12） |
 
-**Work anchor（device-origin）：** **`619b0d529d33df93cc23169640838890332844b6`** — **`docs: record clerk device origin context`**（**`5Z-I-V-F` device-origin**）。
+**Work anchor（1st）：** **`dc85a2f`** — **`docs: record 5z-i-v-g clerk key match inconclusive`**
 
 **Safe labels：** **`human-ui-current-user`**／**`user_36xz`**
 
@@ -26,124 +29,150 @@
 
 | `evidence_id` | Role |
 |----------------|------|
-| **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`** | **本条** |
+| **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`** | **本条（amended — conflict）** |
 | **`M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`** | device-origin（not Production proof） |
+| **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`** | **superseded** for winner（historical） |
 | **`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`** | prior frame |
-| **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`** | **separate prior submission**（not adopted as本条 evidence） |
 
 **Full publishable key／full secret／full user_id／email：** **記録しない**。
 
 ---
 
-## 4. Human submission received（2026-05-18 chat）
+## 4. Gate history
 
-**Format:** template with **literal option lists**（`yes / no / unclear`）on each line — **no single value selected per field**.
+| Pass | Verdict |
+|------|---------|
+| **1st（template unselected）** | **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** |
+| **2nd（conflict correction）** | **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`** |
 
-**Policy（registry §7 item 14）：** **unselected template = evidence not submitted**.
+---
 
-### Vercel Production env
+## 5. Human submission — conflict correction（redacted）
 
-| Check | Human message | Recorded result |
-|-------|---------------|-----------------|
-| **`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` exists** | `yes`（fixed field） | **yes** |
-| **full publishable key shared** | `no`（fixed field） | **no**（compliant） |
+### Vercel Production env（`m55-webv2` / Production）
+
+| Check | Result |
+|-------|--------|
+| **`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` exists** | **yes** |
+| **`CLERK_SECRET_KEY` exists** | **yes** |
+| **full values shared** | **no** |
 
 ### Publishable key match
 
-| Check | Human message | Recorded result |
-|-------|---------------|-----------------|
-| **`M55-core` publishable match** | `yes / no / unclear`（unselected） | **not submitted** |
-| **`M55-Official` publishable match** | `yes / no / unclear`（unselected） | **not submitted** |
-| **Production-bound winner** | `M55-core / M55-Official / unclear / conflict`（unselected） | **not submitted** |
+| Check | Human submitted | **Recorded（registry rule applied）** |
+|-------|-----------------|--------------------------------------|
+| **`M55-core` publishable match** | **yes** | **yes** |
+| **`M55-Official` publishable match** | **yes** | **yes** |
+| **Production-bound winner** | **M55-core**（Human） | **`conflict`** — **Human winner override rejected** |
+| **full publishable key recorded** | — | **no** |
+
+**Registry rule（§7 item 13）：** **both apps match yes → `conflict` — not winner.** **Do not record `M55-core` or `M55-Official` as Production-bound winner.**
 
 ### Secret same-app
 
-| Check | Human message | Recorded result |
-|-------|---------------|-----------------|
-| **`CLERK_SECRET_KEY` same app as winner** | `yes / no / unclear`（unselected） | **not submitted** |
-| **full secret shared** | `no`（fixed field） | **no**（compliant） |
+| Check | Human submitted | **Recorded** |
+|-------|-----------------|--------------|
+| **`CLERK_SECRET_KEY` same app as winner** | **yes** | **yes**（**non-dispositive** — winner is **conflict**） |
+| **full secret shared** | **no** | **no** |
 
-### User location
+### User location（non-dispositive — winner unresolved）
 
-| Check | Human message | Recorded result |
-|-------|---------------|-----------------|
-| **`human-ui-current-user` in winner app** | `yes / no / unclear`（unselected） | **not submitted** |
-| **`user_36xz` in winner app** | `yes / no / unclear`（unselected） | **not submitted** |
-| **both users same app** | `yes / no / unclear`（unselected） | **not submitted** |
-| **full user_id/email shared** | `no`（fixed field） | **no**（compliant） |
+| Check | Human submitted | **Recorded** |
+|-------|-----------------|--------------|
+| **`human-ui-current-user` in winner app** | **yes** | **observed — not winner-scoped** |
+| **`user_36xz` in winner app** | **yes** | **observed — not winner-scoped** |
+| **both users same app** | **yes** | **observed — not winner-scoped** |
+| **full user_id/email shared** | **no** | **no** |
 
 ---
 
-## 5. Classification
+## 6. Classification
 
 | Field | Value |
 |--------|--------|
-| **classification** | **`CLERK_PRODUCTION_BOUND_APP_STILL_UNCLEAR_FOR_5Z_I_V_G`** |
+| **classification** | **`CLERK_PUBLISHABLE_KEY_MATCH_CONFLICT`** |
 
-**未採用（本条）：** `CLERK_PRODUCTION_BOUND_APP_CONFIRMED`／`CONFLICT`／`CLERK_SECRET_PUBLISHABLE_APP_MISMATCH`（**match rows not submitted**）
-
-**Cross-reference only（別 evidence — 本条では採用しない）：** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001` に **`M55-Official` winner** の redacted yes/no が既存。Human が **`5Z-I-V-G` として再確定**する場合は **§11 形式で単一値再提出**が必要。
+**未採用：** `CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_CORE`／`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`／`CLERK_ALIGNMENT_CONFIRMED_*`
 
 ---
 
-## 6. 判定
+## 7. 判定
 
 | Field | Value |
 |--------|--------|
-| **Gate verdict** | **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** |
-
-**同等トークン：** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_KEY_MATCH_REQUIRED`**
+| **Gate verdict** | **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`** |
+| **Production-bound winner** | **`conflict` / `unresolved`** |
 
 ---
 
-## 7. Next
+## 8. Production-bound status（固定）
+
+| Statement | Status |
+|-----------|--------|
+| **`M55-core` is Production-bound winner** | **no**（**rejected** — conflict） |
+| **`M55-Official` is Production-bound winner** | **no**（**not confirmed** — conflict） |
+| **Winner from device-origin / user count / app name** | **prohibited** |
+| **§B `human-ui-current-user` row_count SELECT** | **not resumed**（blocked） |
+
+---
+
+## 9. Next
 
 **採用：**
 
-- **Human resubmit `5Z-I-V-G`** — **one value per row**（例：§11）
-- **If both apps publishable match = yes** → report **`conflict`**（not winner）
-- **If winner + secret same-app yes** → **resume `5Z-I-V` §B** `human-ui-current-user` **`row_count` SELECT**（redacted）
+- **`Phase 5-6H-5Z-I-V-H` Exact Clerk key conflict diagnostic planning gate**
+  - Human compares **full** Vercel Production publishable key to each Clerk app **locally**（**never paste full key into SSOT/chat**）
+  - Record **only:**
+    - **first 8 chars match:** yes/no
+    - **last 6 chars match:** yes/no
+    - **full equality:** yes/no
+    - **no raw key**
+  - **If one app full equality yes, other no** → **winner confirmed**（single app）
+  - **If both full equality yes** → **severe duplicate/config conflict**
+  - **If both full equality no** → Vercel key belongs to **another** Clerk app or **stale env**
+  - **no env change / no deletion / no redeploy**
 
-**Registry：** §2 **unchanged** until valid **`5Z-I-V-G`** submission amends via separate Human-approved gate update.
+**Not resumed until winner resolved:** **`5Z-I-V` §B** `human-ui-current-user` **`row_count` SELECT**
 
 ---
 
-## 8. 未実行事項
+## 10. 未実行事項
 
 - **削除／purge**
 - **env 変更／redeploy**
 - **DB write／runner**
 - **code／UI 変更**
 - **full IDs／secrets**
+- **Supabase §B SELECT**
 
 ---
 
-## 9. Human resubmission format（full 値禁止）
+## 11. `5Z-I-V-H` diagnostic frame（planning — for next gate doc）
 
-各行 **1 つのみ** 選択（スラッシュ列挙は不可）:
+| Outcome | Interpretation |
+|---------|----------------|
+| **One app full equality yes** | **Winner confirmed**（record app name only） |
+| **Both apps full equality yes** | **Severe duplicate/config conflict** |
+| **Both apps full equality no** | **Vercel key ≠ either app**（stale / third app） |
+| **Prefix/suffix only** | **Insufficient** — require **full equality** row |
 
-```
-Vercel Production env:
-- NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY exists: yes
-- full publishable key shared: no
+---
 
-Publishable key match:
-- M55-core publishable match: no
-- M55-Official publishable match: yes
-- Production-bound winner: M55-Official
+## 12. `5Z-I-AB` separation（reply-ticket — not Clerk）
 
-Secret same-app:
-- CLERK_SECRET_KEY same app as winner: yes
-- full secret shared: no
+**Human lines in same chat（UI consume verification）— out of scope for本条:**
 
-User location:
-- human-ui-current-user exists in winner app: no
-- repair user user_36xz exists in winner app: yes
-- both users same app: no
-- full user_id/email shared: no
-```
+| Check | Value | **Recorded in** |
+|-------|-------|-----------------|
+| final generate clicked | yes | **`5Z-I-AA`**（already） |
+| reply generated visible | yes | **`5Z-I-AA`** |
+| remaining after visible | 0 | **`5Z-I-AA`** |
+| DB write by app flow | yes | **`5Z-I-AA`** |
+| error shown | none | **`5Z-I-AA`** |
 
-（上記は **例示** — Human の実観測で **単一値** を記入。SSOT には **yes/no/unclear と winner 名のみ**。）
+**`5Z-I-AB` SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_AB_POST_CONSUME_DB_READONLY_VERIFICATION_2026-05-18.md` — **unchanged**（**Human `SELECT` row_count still inconclusive** — **not amended by本条**）。
+
+**Do not mix** Clerk alignment with included reply-ticket post-consume DB verification.
 
 ---
 
@@ -158,5 +187,7 @@ User location:
 | Field | Value |
 |--------|--------|
 | **Evidence** | **`M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`** |
-| **Verdict** | **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** |
-| **Next** | **Human single-value resubmit** |
+| **Classification** | **`CLERK_PUBLISHABLE_KEY_MATCH_CONFLICT`** |
+| **Verdict** | **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`** |
+| **Production-bound winner** | **`conflict` / `unresolved`** |
+| **Next** | **`5Z-I-V-H`** exact key conflict diagnostic planning |
