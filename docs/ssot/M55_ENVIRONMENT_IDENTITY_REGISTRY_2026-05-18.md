@@ -80,7 +80,9 @@
 
 ## 2. Clerk alignment result（redacted — `5Z-I-V-F` key match）
 
-**Human dashboard observation:** **SUBMITTED**（redacted yes/no only — **no full keys/secrets/user ids**）。
+**`5Z-I-V-G` attempt（2026-05-18）：** **`CLERK_KEY_MATCH_HUMAN_EVIDENCE_NOT_SUBMITTED`** — template options unselected; **§2 table unchanged**. See `docs/ssot/M55_PHASE5_6H_5Z_I_V_G_EXACT_VERCEL_CLERK_PUBLISHABLE_KEY_MATCH_2026-05-18.md`.
+
+**Human dashboard observation（§2 source — `5Z-I-V-F` alignment result）：** **SUBMITTED**（redacted yes/no only — **no full keys/secrets/user ids**）。
 
 | Field | Value |
 |-------|--------|
