@@ -3,8 +3,9 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（**planning — §2c**）
-**Conflict source:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（**authoritative §2b**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（**execution — authoritative §2d**）
+**Plan:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（§2c）
+**Conflict source:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（§2b）
 **Superseded:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`（§2a historical only）
 **Device-origin supplement:** `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-CLERK-CONTEXT-001`（**operational context only — not Production-bound proof**）
 **Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
@@ -23,9 +24,9 @@
 | **Vercel** | `vercel.branch.production` | **`main`** | **confirmed** | **yes** |
 | **Vercel** | `vercel.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | **name confirmed; value redacted** | **confirmed** | **yes** |
 | **Vercel** | `vercel.env.CLERK_SECRET_KEY` | **name confirmed; value redacted** | **confirmed** | **yes** |
-| **Clerk** | `clerk.app.production-bound` | **winner unresolved**（**`5Z-I-V-G` conflict**） | **conflict** | **unclear** |
-| **Clerk** | `clerk.app.M55-core` | publishable match **yes** — **not winner** | **conflict** | **unclear** |
-| **Clerk** | `clerk.app.M55-Official` | publishable match **yes** — **not winner** | **conflict** | **unclear** |
+| **Clerk** | `clerk.app.production-bound` | **duplicate publishable key**（**`5Z-I-V-I` — both full eq yes**） | **severe_conflict** | **unclear** |
+| **Clerk** | `clerk.app.M55-core` | **full equality yes** — **not winner** | **severe_conflict** | **unclear** |
+| **Clerk** | `clerk.app.M55-Official` | **full equality yes** — **not winner** | **severe_conflict** | **unclear** |
 | **Supabase** | `supabase.project.m55-soul-core` | **`m55-soul-core` / `main` / `PRODUCTION`** | **confirmed** | **yes** |
 | **Supabase** | `supabase.auth.users` | **not auth SSOT for M55** | **confirmed empty observed** | **n/a** |
 | **Supabase** | `supabase.tables.user_id` | **Clerk userId (text) in app tables** | **confirmed** | **yes** |
@@ -153,11 +154,11 @@
 
 ---
 
-### 2c. Planned exact key diagnostic（`5Z-I-V-H` — planning only）
+### 2c. Planned exact key diagnostic（`5Z-I-V-H` — planning — **executed `5Z-I-V-I`**）
 
 **Evidence:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`
 
-**Status:** **`READY_FOR_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION`** — **execution deferred to `5Z-I-V-I`**.
+**Status:** **EXECUTED** — see **§2d** for Human result.
 
 **Production-bound winner:** **`conflict` / `unresolved`**（unchanged — **no winner confirmed in this gate**）.
 
@@ -186,7 +187,55 @@
 
 **CONTROL-01 / CONTROL-02:** **open**（blocked until `5Z-I-V-I` winner）.
 
-**§B SELECT:** **blocked** until single winner confirmed.
+**§B SELECT:** **blocked**（**duplicate conflict — §2d**）.
+
+---
+
+### 2d. Authoritative — `5Z-I-V-I` exact key diagnostic execution
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`
+
+| Field | Value |
+|-------|--------|
+| **classification** | **`SEVERE_DUPLICATE_CONFIG_CONFLICT`** |
+| **gate_verdict** | **`CLERK_ALIGNMENT_BLOCKED_DUPLICATE_PUBLISHABLE_KEY_CONFLICT`** |
+| **Production-bound winner** | **`conflict` / `unresolved`** |
+| **`M55-core` winner** | **rejected** |
+| **`M55-Official` winner** | **rejected** |
+| **last_verified_phase** | **`5Z-I-V-I`** |
+| **full_secret_recorded** | **no** |
+
+#### Exact comparison（redacted）
+
+| Check | Result |
+|-------|--------|
+| **Vercel publishable key exists** | **yes** |
+| **raw key shared** | **no** |
+| **`M55-core` first 8 / last 6 / full equality** | **yes / yes / yes** |
+| **`M55-Official` first 8 / last 6 / full equality** | **yes / yes / yes** |
+| **Decision（both full eq yes）** | **`SEVERE_DUPLICATE_CONFIG_CONFLICT`** |
+
+#### Secret / user（non-dispositive）
+
+| Check | Submitted | Treatment |
+|-------|-----------|-----------|
+| **`CLERK_SECRET_KEY` exists** | **yes** | recorded |
+| **secret same-app as winner** | **yes** | **non-dispositive** |
+| **`human-ui-current-user` in winner app** | **yes** | **non-dispositive** |
+| **`user_36xz` in winner app** | **yes** | **non-dispositive** |
+| **both users same app** | **yes** | **non-dispositive** |
+
+#### Registry actions（`5Z-I-V-I`）
+
+| Action | Status |
+|--------|--------|
+| **CK-11 / HQ-01 `production_bound`** | **remain `unclear`** |
+| **CONTROL-01 / CONTROL-02** | **remain open** |
+| **§B SELECT** | **remain blocked** |
+| **W-10 dual-match** | **active** |
+| **W-11 exact duplicate** | **active** |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_I_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION_2026-05-18.md`
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -210,7 +259,7 @@
 | **ai_action_policy** | `use` \| `inspect_only` \| `do_not_touch` \| `ask_human` |
 | **deletion_policy** | `prohibited` \| `later_after_confirmation` \| `unknown` |
 | **evidence_source** | `Vercel` \| `Clerk` \| `Supabase` \| `Stripe` \| `SSOT` |
-| **last_verified_phase** | **`5Z-I-V-G`** |
+| **last_verified_phase** | **`5Z-I-V-I`** |
 | **full_secret_recorded** | **`no`**（always） |
 
 ---
@@ -307,7 +356,7 @@
 | **W-08** | **DTR ownership gate** — **paid report unlock verified after canonical login** | **inspect_only** | **5Z-I-W** |
 | **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
 | **W-10** | **Publishable dual-match conflict**（**both `M55-core` + `M55-Official` match yes**） | **ask_human** | **5Z-I-V-G** |
-| **W-11** | **Exact key diagnostic pending**（**`5Z-I-V-H` planned → `5Z-I-V-I` execution**） | **inspect_only** | **5Z-I-V-H** |
+| **W-11** | **Exact full-equality duplicate conflict**（**Vercel key = both `M55-core` + `M55-Official` full eq yes**） | **ask_human** | **5Z-I-V-I** |
 
 ---
 
@@ -369,7 +418,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-H`** Exact Clerk key conflict diagnostic planning |
+| **Update after** | **`5Z-I-V-I`** Exact Clerk key conflict diagnostic execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

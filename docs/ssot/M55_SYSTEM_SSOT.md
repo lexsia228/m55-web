@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-I Exact Clerk key conflict diagnostic execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-H`** planning complete。** **本条：** Human-local exact comparison executed（**no mutation**）。** **Vercel publishable exists: yes**；**raw key: no**。** **M55-core:** first8/last6/full **yes/yes/yes**。** **M55-Official:** first8/last6/full **yes/yes/yes**。** **Decision:** both full equality yes → **`SEVERE_DUPLICATE_CONFIG_CONFLICT`** — **not winner**。** **M55-core / M55-Official winner: both rejected**。** **Production-bound winner:** **`conflict/unresolved`**。** **Secret same-app yes + user location yes/yes/yes:** **non-dispositive**。** **Verdict:** **`CLERK_ALIGNMENT_BLOCKED_DUPLICATE_PUBLISHABLE_KEY_CONFLICT`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`**。** **Registry §2d authoritative**。** **CONTROL-01/02 open**；**§B SELECT blocked**。** **Next:** **`5Z-I-V-J`** duplicate Clerk app/config conflict diagnostic planning。** **本条:** deletion/env/redeploy/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
+
+Work anchor:
+
+- **`5c58de718aa2593f646ac9b70ea1848b09f7ee84`** — **`docs: plan exact clerk key conflict diagnostic`**（**`5Z-I-V-H`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_I_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-H`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_H_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no winner confirmed**／**§B SELECT not resumed**／**no mutation**／**no raw keys**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-H Exact Clerk key conflict diagnostic planning gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-G`** **`CLERK_ALIGNMENT_BLOCKED_KEY_CONFLICT`**（**core yes + official yes**；winner **`conflict/unresolved`**）。** **本条：** **docs-only planning** — human-local **first 8 / last 6 / full equality** protocol fixed；**no actual key comparison**。** **Production-bound winner：** **unchanged conflict/unresolved**。** **CONTROL-01/02：** **open**。** **§B SELECT：** **blocked**。** **Classification：** **`READY_FOR_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_H_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`。** **Registry：** §2c exact comparison protocol。** **Next：** **`5Z-I-V-I`** execution（redacted fields only）。** **本条：** deletion／env／redeploy／DB write／runner／code なし／raw keys・secrets・user IDs なし**。
@@ -2777,6 +2800,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-I Exact Clerk key conflict diagnostic execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-H`** planning complete。** **本条：** Human-local exact comparison executed（**no mutation**）。** **Vercel publishable exists: yes**；**raw key: no**。** **M55-core:** first8/last6/full **yes/yes/yes**。** **M55-Official:** first8/last6/full **yes/yes/yes**。** **Decision:** both full equality yes → **`SEVERE_DUPLICATE_CONFIG_CONFLICT`** — **not winner**。** **M55-core / M55-Official winner: both rejected**。** **Production-bound winner:** **`conflict/unresolved`**。** **Secret same-app yes + user location yes/yes/yes:** **non-dispositive**。** **Verdict:** **`CLERK_ALIGNMENT_BLOCKED_DUPLICATE_PUBLISHABLE_KEY_CONFLICT`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`**。** **Registry §2d authoritative**。** **CONTROL-01/02 open**；**§B SELECT blocked**。** **Next:** **`5Z-I-V-J`** duplicate Clerk app/config conflict diagnostic planning。** **本条:** deletion/env/redeploy/DB write/runner/code なし；raw keys/secrets/user IDs なし**。
+
+Work anchor:
+
+- **`5c58de718aa2593f646ac9b70ea1848b09f7ee84`** — **`docs: plan exact clerk key conflict diagnostic`**（**`5Z-I-V-H`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_I_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-H`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_H_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no winner confirmed**／**§B SELECT not resumed**／**no mutation**／**no raw keys**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-H Exact Clerk key conflict diagnostic planning gate recorded
 
