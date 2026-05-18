@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-B Non-canonical environment/build purge planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-A`** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**／**`5Z-I-V`** inconclusive。** **本条：** **purge／quarantine 計画のみ**（**削除・env 変更・redeploy・DB write なし**）。** **Canonical（confirmed partial）：** Vercel **`m55-webv2`**／**`m55-webv2.vercel.app`**／Supabase **`m55-soul-core/main/PRODUCTION`**／Stripe **`M55WEB` live**／**`DTR_CORE_STATIC_V1`**。** **Blocking：** Production **Clerk app winner unclear**（**`M55-core` vs `M55-Official`**）。** **Quarantine：** non-bound Clerk app／旧 deployments／shadow Supabase／dual domains／unused webhooks。** **Purge candidates：** duplicate Clerk app after alignment／unused deployments／obsolete endpoints（**DELETE LATER only**）。** **DO NOT TOUCH：** both Clerk apps until key match／all secrets／Production DB。** **Classification：** **`PURGE_PLANNING_BLOCKED_CLERK_APP_MAPPING_UNCLEAR`。** **Verdict：** **`NON_CANONICAL_ENV_PURGE_PLANNING_BLOCKED_CLERK_MAPPING`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-B-NON-CANONICAL-ENV-BUILD-PURGE-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-C` Vercel Production Clerk app alignment confirmation gate**。** **本条：** **deletion 未実行**／**env 変更未実行**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`2f31c11ecb0172e783dbae1b9cef0b17e6638bb1`** — **`docs: record identity environment inventory`**（**`5Z-I-V-A`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`
+
+Hard stop:
+
+- **削除（Clerk app／Vercel project／deployment／Supabase／Stripe）なし**／**env 変更なし**／**redeploy なし**／**DB write／runner なし**／**code 変更なし**／**full ID／secret なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-A Identity and environment inventory checkpoint recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V`** **`UI_UNLOCK_DB_READONLY_DIAGNOSTIC_INCONCLUSIVE`**（**§B UI user `row_count` 未提出**）。** **本条：** **docs-only identity／environment inventory**。** **Clerk：** **`M55-core`**／**`M55-Official`** 可視／frontend domains **`content-snake-42.clerk.accounts.dev`**／**`whole-halibut-25.clerk.accounts.dev`**／**両カード `No Production Environment`（risk signal）**。** **Vercel：** project **`m55-webv2`**（SSOT confirmed）／team display **`m55-official`（suspected）**／domains **`m55-webv2.vercel.app`**（UI）＋**`m55-web.vercel.app`**。** **Supabase：** **`m55-soul-core`／main／PRODUCTION`** — **Auth Users empty observed — not conclusive**（**Clerk is auth SSOT**）。** **Stripe：** **`M55WEB` live／`DTR_CORE_STATIC_V1`／`cs_live_JSRW` label**。** **Risk：** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**。** **Verdict：** **`IDENTITY_ENVIRONMENT_INVENTORY_RISK_DETECTED`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。 Links：**`M55-EVID-20260516-5Z-I-V-HUMAN-LOCAL-DB-READONLY-UI-UNLOCK-DIAGNOSTIC-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`。** **Next：** **Clerk↔Vercel Production publishable key alignment（redacted prefix/suffix only）→ then resume `5Z-I-V` §B SELECT**。** **本条：** **DB write／runner／env 変更／code 変更なし**／**full IDs／secrets なし**。
@@ -2416,6 +2438,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-B Non-canonical environment/build purge planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-A`** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**／**`5Z-I-V`** inconclusive。** **本条：** **purge／quarantine 計画のみ**（**削除・env 変更・redeploy・DB write なし**）。** **Canonical（confirmed partial）：** Vercel **`m55-webv2`**／**`m55-webv2.vercel.app`**／Supabase **`m55-soul-core/main/PRODUCTION`**／Stripe **`M55WEB` live**／**`DTR_CORE_STATIC_V1`**。** **Blocking：** Production **Clerk app winner unclear**（**`M55-core` vs `M55-Official`**）。** **Quarantine：** non-bound Clerk app／旧 deployments／shadow Supabase／dual domains／unused webhooks。** **Purge candidates：** duplicate Clerk app after alignment／unused deployments／obsolete endpoints（**DELETE LATER only**）。** **DO NOT TOUCH：** both Clerk apps until key match／all secrets／Production DB。** **Classification：** **`PURGE_PLANNING_BLOCKED_CLERK_APP_MAPPING_UNCLEAR`。** **Verdict：** **`NON_CANONICAL_ENV_PURGE_PLANNING_BLOCKED_CLERK_MAPPING`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-B-NON-CANONICAL-ENV-BUILD-PURGE-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-C` Vercel Production Clerk app alignment confirmation gate**。** **本条：** **deletion 未実行**／**env 変更未実行**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`2f31c11ecb0172e783dbae1b9cef0b17e6638bb1`** — **`docs: record identity environment inventory`**（**`5Z-I-V-A`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-A`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_A_IDENTITY_ENVIRONMENT_INVENTORY_2026-05-18.md`
+
+Hard stop:
+
+- **削除（Clerk app／Vercel project／deployment／Supabase／Stripe）なし**／**env 変更なし**／**redeploy なし**／**DB write／runner なし**／**code 変更なし**／**full ID／secret なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-A Identity and environment inventory checkpoint recorded
 
