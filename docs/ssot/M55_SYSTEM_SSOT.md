@@ -1,3 +1,25 @@
+## 2026-05-16 — Phase 5-6H-5Z-I-T UI unlock and report type mismatch diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** repair recorded／**`5Z-I-R`** DB GREEN（**caveat：** agent **Production `SELECT` 未実行**）／**`5Z-I-S`** **`UI_REPORT_UNLOCK_VERIFICATION_BLOCKED`**（**`UI_REPORT_UNLOCK_BLOCKED_AFTER_REPAIR`**／**`CORE_PAID_TYPE_MISMATCH_INFLUENCER_VS_GLOBAL_LEADER`**）。** **本条：** **read-only 診断計画のみ**（**repo inspection 要約済み**）。** **Top hypotheses：** **H1 ownership gate**／**H2 user id**／**H3 snapshot lookup**／**H5–H6 shelf profile stem vs core engine type source。** **Repo finding（例）：** **`/dtr/lp` purchase**＝**`resolveEntryReportOwnership` locked**；棚 **`DtrShelfPanel`** は **client `ProfileRepository`+`essenceStemLaneIndex`**、**`/dtr/core`** は **`runDtrEngine(snapshot.profile)`**。** **Non-conclusions：** calculation broken／snapshot_missing／DB absence **未確定**。** **Verdict：** **`READY_FOR_UI_UNLOCK_TYPE_MISMATCH_READ_ONLY_DIAGNOSTIC_GATE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-T-UI-UNLOCK-TYPE-MISMATCH-DIAGNOSTIC-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_T_UI_UNLOCK_AND_TYPE_MISMATCH_DIAGNOSTIC_PLANNING_2026-05-16.md`。** **本条コミット：** **DB write なし**／**runner なし**／**二回目 repair なし**／**code／UI 変更なし**／**full ID／session なし**。** **Next：** **`Phase 5-6H-5Z-I-U` UI unlock and type mismatch read-only diagnostic execution gate**（**read-only／mutate 禁止**）。
+
+Work anchor:
+
+- **`e15f0f7d7e84bbd7be6e067e6b3f24a67c1f55cb`** — **`docs: update ui report unlock blocked evidence`**（**`5Z-I-S`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_T_UI_UNLOCK_AND_TYPE_MISMATCH_DIAGNOSTIC_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry／manual SQL／grant なし**／**Events／replay／決済／refund なし**／**included reply-ticket 検証なし**／**Stripe／env／whsec／redeploy なし**／**package／lockfile／runner／runtime／code／UI 変更なし**／**full ID／secret／session なし**。**
+
+
+
 ## 2026-05-16 — Phase 5-6H-5Z-I-S UI report unlock verification gate（SSOT update）recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** **`EXACTLY_ONE_REPAIR_EXECUTION_RECORDED`**／**`5Z-I-R`** **`POST_REPAIR_PRODUCTION_DB_READ_ONLY_VERIFICATION_GREEN`**（**caveat：** agent **Production `SELECT` 未実行**）。** **Prior baseline（`8a63cae`）：** **`UI_REPORT_UNLOCK_VERIFICATION_INCONCLUSIVE`**（UI **未計測**）。** **Human 追認（screenshots／redacted UI）：** **domain **`m55-webv2.vercel.app`**／**logged in**／**DTR area reached yes**／**paid unlock no**／**connection error not observed in supplied screenshots**／**paid snapshot visible no**／**purchase CTA blocking yes**（**¥1,000**／**購入する**／**1,000円で入手**／商品ページ文脈）。** **Findings：** **`UI_REPORT_UNLOCK_BLOCKED_AFTER_REPAIR`**／**`CORE_PAID_TYPE_MISMATCH_INFLUENCER_VS_GLOBAL_LEADER`**（本質 **INFLUENCER**／棚 **GLOBAL LEADER** — **計算破損・snapshot_missing は本条で未確定**）。** **Aggregate：** **`UI_REPORT_UNLOCK_BLOCKED`。** **Verdict：** **`UI_REPORT_UNLOCK_VERIFICATION_BLOCKED`。** **Evidence（同一）：** **`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**。 Links：**`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**／**`M55-EVID-20260516-5Z-I-O-D-HUMAN-SIDE-DRY-RUN-READY-ATTESTATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`。** **Agent：** **Production UI 未閲覧**。** **本条コミット：** **DB write なし**／**runner 未実行**／**二回目 repair なし**／**診断・修復なし**／**Events API／replay なし**／**refund なし**／**included reply-ticket 検証なし**／**full ID／secret／session なし**。** **Next：** **`Phase 5-6H-5Z-I-T` UI unlock and report type mismatch diagnostic planning gate**（**read-only／diagnostic 先行**／**retry repair・runner・refund・追加決済なし**）。
@@ -2328,6 +2350,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-16 — Phase 5-6H-5Z-I-T UI unlock and report type mismatch diagnostic planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Q`** repair recorded／**`5Z-I-R`** DB GREEN（**caveat：** agent **Production `SELECT` 未実行**）／**`5Z-I-S`** **`UI_REPORT_UNLOCK_VERIFICATION_BLOCKED`**（**`UI_REPORT_UNLOCK_BLOCKED_AFTER_REPAIR`**／**`CORE_PAID_TYPE_MISMATCH_INFLUENCER_VS_GLOBAL_LEADER`**）。** **本条：** **read-only 診断計画のみ**（**repo inspection 要約済み**）。** **Top hypotheses：** **H1 ownership gate**／**H2 user id**／**H3 snapshot lookup**／**H5–H6 shelf profile stem vs core engine type source。** **Repo finding（例）：** **`/dtr/lp` purchase**＝**`resolveEntryReportOwnership` locked**；棚 **`DtrShelfPanel`** は **client `ProfileRepository`+`essenceStemLaneIndex`**、**`/dtr/core`** は **`runDtrEngine(snapshot.profile)`**。** **Non-conclusions：** calculation broken／snapshot_missing／DB absence **未確定**。** **Verdict：** **`READY_FOR_UI_UNLOCK_TYPE_MISMATCH_READ_ONLY_DIAGNOSTIC_GATE`。** **Evidence：** **`M55-EVID-20260516-5Z-I-T-UI-UNLOCK-TYPE-MISMATCH-DIAGNOSTIC-PLAN-001`**。 Links：**`M55-EVID-20260516-5Z-I-S-UI-REPORT-UNLOCK-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-R-POST-REPAIR-DB-READONLY-VERIFICATION-001`**／**`M55-EVID-20260516-5Z-I-Q-EXACTLY-ONE-REPAIR-EXECUTION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_T_UI_UNLOCK_AND_TYPE_MISMATCH_DIAGNOSTIC_PLANNING_2026-05-16.md`。** **本条コミット：** **DB write なし**／**runner なし**／**二回目 repair なし**／**code／UI 変更なし**／**full ID／session なし**。** **Next：** **`Phase 5-6H-5Z-I-U` UI unlock and type mismatch read-only diagnostic execution gate**（**read-only／mutate 禁止**）。
+
+Work anchor:
+
+- **`e15f0f7d7e84bbd7be6e067e6b3f24a67c1f55cb`** — **`docs: update ui report unlock blocked evidence`**（**`5Z-I-S`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_T_UI_UNLOCK_AND_TYPE_MISMATCH_DIAGNOSTIC_PLANNING_2026-05-16.md`
+
+Prior:
+
+- **`5Z-I-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_S_UI_REPORT_UNLOCK_VERIFICATION_2026-05-16.md`
+
+Hard stop:
+
+- **Production DB write／runner／repair retry／manual SQL／grant なし**／**Events／replay／決済／refund なし**／**included reply-ticket 検証なし**／**Stripe／env／whsec／redeploy なし**／**package／lockfile／runner／runtime／code／UI 変更なし**／**full ID／secret／session なし**。**
+
+
 
 ## 2026-05-16 — Phase 5-6H-5Z-I-S UI report unlock verification gate（SSOT update）recorded
 
