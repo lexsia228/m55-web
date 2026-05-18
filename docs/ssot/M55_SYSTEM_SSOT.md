@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-F Human dashboard Clerk alignment result checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`**。** **本条：** **Human redacted yes/no により Clerk alignment 確定**（**削除・env 変更・redeploy・DB write・runner・code・§B SELECT なし**）。** **Production-bound：** **`M55-Official`**（**M55-core match no**／**M55-Official match yes**／**secret same-app yes**）。** **User location：** **`human-ui-current-user` in winner app no**／**`user_36xz` yes**／**same app no**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD_QUARANTINE（not delete）**。** **Classification：** **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`** ＋ **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP`** ＋ **`REPAIR_USER_EXISTS_IN_PRODUCTION_BOUND_APP`**。** **Verdict：** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**。** **Recommended：** **`READY_FOR_UI_LOGIN_IDENTITY_CORRECTION_PLANNING_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-W` UI login identity correction planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`3ddb69477cd3a20f95c5c61a04ac7aceea1a6ed3`** — **`docs: confirm clerk production app alignment`**（**`5Z-I-V-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`
+
+Hard stop:
+
+- **削除なし**（**`M55-core` hold only**）／**env 変更なし**／**redeploy なし**／**DB write／runner／second repair なし**／**§B SELECT なし**／**code 変更なし**／**full ID／secret なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-E Human dashboard exact Clerk key match confirmation gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-D`** **`CLERK_ALIGNMENT_UNCLEAR_PLATFORM_BENCHMARK_GREEN`**。** **本条：** **Human dashboard exact Clerk key match gate**（**削除・env 変更・redeploy・DB write・runner・code なし**）。** **Human observation：** **NOT SUBMITTED** — **match／winner／user location すべて unclear**。** **Registry updated：** `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`（**classification `CLERK_PRODUCTION_BOUND_APP_STILL_UNCLEAR`**／**UT-01+UT-02 remain**／**CK-11 winner not applied**）。** **Vercel env exists：** **unclear**（Human 未提出）。** **Publishable：** **M55-core unclear**／**M55-Official unclear**／**winner unclear**。** **Secret same-app：** **unclear**。** **Users：** **human-ui-current-user unclear**／**user_36xz unclear**／**same app unclear**。** **No Prod Env warning：** **yes**（prior carry）。** **Verdict：** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-D-CLERK-ALIGNMENT-PLATFORM-BENCHMARK-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-F` Deeper Clerk dashboard alignment confirmation gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
@@ -2507,6 +2530,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-F Human dashboard Clerk alignment result checkpoint recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`**。** **本条：** **Human redacted yes/no により Clerk alignment 確定**（**削除・env 変更・redeploy・DB write・runner・code・§B SELECT なし**）。** **Production-bound：** **`M55-Official`**（**M55-core match no**／**M55-Official match yes**／**secret same-app yes**）。** **User location：** **`human-ui-current-user` in winner app no**／**`user_36xz` yes**／**same app no**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD_QUARANTINE（not delete）**。** **Classification：** **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`** ＋ **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP`** ＋ **`REPAIR_USER_EXISTS_IN_PRODUCTION_BOUND_APP`**。** **Verdict：** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**。** **Recommended：** **`READY_FOR_UI_LOGIN_IDENTITY_CORRECTION_PLANNING_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-W` UI login identity correction planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`3ddb69477cd3a20f95c5c61a04ac7aceea1a6ed3`** — **`docs: confirm clerk production app alignment`**（**`5Z-I-V-E`**）。
+
+Evidence:
+
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-E`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`
+
+Hard stop:
+
+- **削除なし**（**`M55-core` hold only**）／**env 変更なし**／**redeploy なし**／**DB write／runner／second repair なし**／**§B SELECT なし**／**code 変更なし**／**full ID／secret なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-E Human dashboard exact Clerk key match confirmation gate recorded
 
