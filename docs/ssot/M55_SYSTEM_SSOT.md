@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-R Product / right / snapshot read-only SELECT gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Q`** DB key confirmation required。** **本条：** **`5Z-I-V-R` Human-local SELECT gate** — **matched/mismatch not submitted** → **`PRODUCT_RIGHT_SNAPSHOT_SELECT_INCONCLUSIVE`**。** **Baseline row_count：** **`5Z-I-V-O`**（ent **1** / rights **1** / snap **1** / OTF **4**）。** **Agent：** Production **`SELECT` 未実行**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`**。** **Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`** — Human §9 protocol。** **本条:** no mutation；no raw IDs**。
+
+Work anchor:
+
+- **`993cd4a9a5e26e6596376f0edad2d878c2a3f52a`** — **`docs: diagnose ownership gate read path readonly`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Q_OWNERSHIP_GATE_READ_PATH_READONLY_DIAGNOSTIC_2026-05-18.md`
+
+Hard stop:
+
+- **no mutation**／**no fix**／**no raw user_id**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-Q Ownership gate / read path read-only diagnostic execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-O`** artifacts found；**`5Z-I-V-P`** planned。** **本条：** repo read-only trace of **`dtrOwnershipGate`**。** **Gate order:** snapshot → rights+payment backing → **rights orphan→locked** → ent active。** **Constants:** `DTR_CORE_STATIC_V1` + **`m55_p:core_origin`**。** **UI:** **`owned` requires `snapshotReady`** else LP/purchase UX。** **Primary:** **`OWNERSHIP_GATE_RIGHT_KEY_MISMATCH`**（DB confirm pending）+ possible **`SNAPSHOT_LOOKUP_CONDITION_MISMATCH`**。** **Verdict:** **`OWNERSHIP_GATE_READONLY_DIAGNOSTIC_GREEN_DB_KEY_CONFIRMATION_REQUIRED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`**。** **Next:** **`5Z-I-V-R` product/right/snapshot SELECT**。** **本条:** no DB write/code/env；no raw IDs**。

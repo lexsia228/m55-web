@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`（**execution — §2m**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`（**SELECT — §2n**）
+**Gate trace:** `M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`（§2m）
 **Plan:** `M55-EVID-20260518-5Z-I-V-P-OWNERSHIP-GATE-READ-PATH-SNAPSHOT-LOOKUP-DIAGNOSTIC-PLAN-001`（§2l）
 **§B execution:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`（§2k）
 **Exception:** `M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`（§2j）
@@ -520,6 +521,24 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Q_OWNERSHIP_GATE_READ_PATH_READONLY_DIAGNOSTIC_2026-05-18.md`
 
+---
+
+### 2n. Product / right / snapshot read-only SELECT（`5Z-I-V-R`）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`PRODUCT_RIGHT_SNAPSHOT_SELECT_INCONCLUSIVE`** |
+| **reason** | **Human matched/mismatch SELECT not submitted with gate execution** |
+| **row_count baseline** | **`5Z-I-V-O`** — ent **1** / rights **1** / snap **1** / OTF **4** |
+| **product_id / right_key / status / OTF latest** | **unclear** — pending Human §9 protocol |
+| **agent Production SELECT** | **no** |
+
+**Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`** — Human re-submit redacted §9 results.
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -655,8 +674,8 @@
 | **W-24** | **UI user artifacts present but gate may still lock** | **inspect_only** | **5Z-I-V-Q** |
 | **W-25** | **OTF multiple rows — gate reads latest only** | **inspect_only** | **5Z-I-V-Q** |
 | **W-26** | **`owned` + !`snapshotReady` routes to LP/purchase UX** | **inspect_only** | **5Z-I-V-Q** |
-| **W-27** | **`right_key` / `entitlements.status` must match gate constants** | **ask_human** | **5Z-I-V-Q** |
-| **W-28** | **OTF ×4 — confirm `product_id` on latest row** | **inspect_only** | **5Z-I-V-Q** |
+| **W-27** | **`right_key` / `entitlements.status` must match gate constants** | **ask_human** | **5Z-I-V-R** |
+| **W-28** | **OTF ×4 — confirm `product_id` on latest row** | **ask_human** | **5Z-I-V-R** |
 
 ---
 
@@ -719,9 +738,9 @@
 | **CONTROL-19** | Production auth compliance remains unresolved | **open** |
 | **CONTROL-20** | Ownership gate / read-path diagnostic required | **planned** — execution **`5Z-I-V-Q`** |
 | **CONTROL-21** | Ownership gate condition map required | **mapped** — **`5Z-I-V-Q`** repo trace |
-| **CONTROL-22** | Product/right key/snapshot lookup read-only verification | **open** — **`5Z-I-V-R` Human SELECT** |
+| **CONTROL-22** | Product/right key/snapshot lookup read-only verification | **open** — **`5Z-I-V-R` INCONCLUSIVE**；Human §9 re-submit required |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-Q`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Q_OWNERSHIP_GATE_READ_PATH_READONLY_DIAGNOSTIC_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
 
 ---
 
@@ -730,7 +749,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-Q`** Ownership gate / read path read-only diagnostic execution |
+| **Update after** | **`5Z-I-V-R`** Product / right / snapshot read-only SELECT gate |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
