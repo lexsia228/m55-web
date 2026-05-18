@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-T Entitlement discrepancy / ownership fallback read-only SELECT gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-S`** planned **`5Z-I-V-T` SELECT protocol**。** **本条：** Human-local SELECT gate — **results not submitted** → **`ENTITLEMENT_DISCREPANCY_SELECT_INCONCLUSIVE`**。** **O/R caveat unresolved：** O ent **1** / R ent **0**（prior only）。** **same-ID consistency：** **unclear**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`**。** **Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`**。** **本条:** no mutation；no raw IDs**。
+
+Work anchor:
+
+- **`b7428e39b29b3f92208b4b6ed5d15eb35b9ba72f`** — **`docs: plan entitlement discrepancy fallback diagnostic`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_S_ENTITLEMENT_ROW_DISCREPANCY_OWNERSHIP_FALLBACK_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no repair**／**no entitlement grant**／**no OTF cleanup**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-S Entitlement row discrepancy / ownership fallback diagnostic planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-R`** GREEN with caveat — **O ent 1 / R ent 0**。** **本条：** docs-only planning — **H1–H6** discrepancy hypotheses；ownership fallback（snapshot → rights+OTF）；**`5Z-I-V-T` SELECT protocol**。** **Verdict:** **`READY_FOR_ENTITLEMENT_DISCREPANCY_AND_FALLBACK_READONLY_SELECT_GATE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-S-ENTITLEMENT-ROW-DISCREPANCY-OWNERSHIP-FALLBACK-DIAGNOSTIC-PLAN-001`**。** **Registry:** §2o；**W-30**；**CONTROL-24/25**。** **Next:** **`5Z-I-V-T`**。** **本条:** no mutation；no raw IDs**。
