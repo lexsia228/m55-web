@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-Q Ownership gate / read path read-only diagnostic execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-O`** artifacts found；**`5Z-I-V-P`** planned。** **本条：** repo read-only trace of **`dtrOwnershipGate`**。** **Gate order:** snapshot → rights+payment backing → **rights orphan→locked** → ent active。** **Constants:** `DTR_CORE_STATIC_V1` + **`m55_p:core_origin`**。** **UI:** **`owned` requires `snapshotReady`** else LP/purchase UX。** **Primary:** **`OWNERSHIP_GATE_RIGHT_KEY_MISMATCH`**（DB confirm pending）+ possible **`SNAPSHOT_LOOKUP_CONDITION_MISMATCH`**。** **Verdict:** **`OWNERSHIP_GATE_READONLY_DIAGNOSTIC_GREEN_DB_KEY_CONFIRMATION_REQUIRED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`**。** **Next:** **`5Z-I-V-R` product/right/snapshot SELECT**。** **本条:** no DB write/code/env；no raw IDs**。
+
+Work anchor:
+
+- **`2c260319e4db66dd08ab0f37f85ac11f3b2d88b7`** — **`docs: plan ownership gate read path diagnostic`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_Q_OWNERSHIP_GATE_READ_PATH_READONLY_DIAGNOSTIC_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-P`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_P_OWNERSHIP_GATE_READ_PATH_SNAPSHOT_LOOKUP_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no mutation**／**no fix**／**no raw user_id**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-P Ownership gate / read path diagnostic planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-O`** UI user DTR artifacts found；**`USER_ID_MISMATCH` not primary**；UI still locked。** **本条：** docs-only planning — ownership gate / product_id / right_key / snapshot lookup / shelf-read-path / RLS / OTF×4。** **Verdict:** **`READY_FOR_OWNERSHIP_GATE_READONLY_DIAGNOSTIC_EXECUTION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-P-OWNERSHIP-GATE-READ-PATH-SNAPSHOT-LOOKUP-DIAGNOSTIC-PLAN-001`**。** **Registry:** §2l；**W-24/W-25**；**CONTROL-21/22 open**；**CONTROL-20 planned→Q**。** **Temporary exception scoped**；production auth unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-Q` read-only diagnostic execution**。** **本条:** no DB write/runner/env/redeploy/code/OTF cleanup/entitlement mutation；no full IDs**。
