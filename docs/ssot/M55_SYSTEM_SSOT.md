@@ -1,10 +1,10 @@
-## 2026-05-18 — Phase 5-6H-5Z-I-V-R Product / right / snapshot read-only SELECT gate recorded
+## 2026-05-18 — Phase 5-6H-5Z-I-V-R Product / right / snapshot read-only SELECT gate — Human evidence追認更新
 
-Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Q`** DB key confirmation required。** **本条：** **`5Z-I-V-R` Human-local SELECT gate** — **matched/mismatch not submitted** → **`PRODUCT_RIGHT_SNAPSHOT_SELECT_INCONCLUSIVE`**。** **Baseline row_count：** **`5Z-I-V-O`**（ent **1** / rights **1** / snap **1** / OTF **4**）。** **Agent：** Production **`SELECT` 未実行**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`**。** **Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`** — Human §9 protocol。** **本条:** no mutation；no raw IDs**。
+Status: **`work/home-cluster`。** **同一 Evidence 追認：** Human SELECT submitted。** **Verdict:** **`PRODUCT_RIGHT_SNAPSHOT_SELECT_GREEN_ENTITLEMENT_STATUS_MISMATCH_CONFIRMED_WITH_EVIDENCE_CAVEAT`**。** **R findings:** ent **0** / rights **`m55_p:core_origin` yes** / snap **1** `DTR_CORE_STATIC_V1` / OTF latest **matched**。** **Caveat:** **`5Z-I-V-O` ent 1 vs `5Z-I-V-R` ent 0** — **`V_O_V_R_ENTITLEMENT_ROWCOUNT_DISCREPANCY_REQUIRES_CONFIRMATION`**。** **Suspect if UI locked:** snapshot lookup / route read-path。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`**。** **Next:** **`5Z-I-V-S`** entitlement discrepancy / ownership fallback planning。** **本条:** no mutation；no raw IDs**。
 
 Work anchor:
 
-- **`993cd4a9a5e26e6596376f0edad2d878c2a3f52a`** — **`docs: diagnose ownership gate read path readonly`**
+- **`0ad7e8e6635514f465bd38ff16f2f6abc0973175`** — initial **`docs: record product right snapshot readonly select`**（INCONCLUSIVE）
 
 Evidence:
 
