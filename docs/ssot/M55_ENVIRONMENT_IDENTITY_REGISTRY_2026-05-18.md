@@ -1,10 +1,10 @@
 # M55 Environment Identity Registry（AI-readable SSOT）
 
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
-**Maintained by phase:** `5Z-I-V-D`
-**Registry evidence:** `M55-EVID-20260518-5Z-I-V-D-CLERK-ALIGNMENT-PLATFORM-BENCHMARK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-C-AI-READABLE-ENV-IDENTITY-REGISTRY-001`
-**Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md`
+**Maintained by phase:** `5Z-I-V-E`
+**Registry evidence:** `M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-D-CLERK-ALIGNMENT-PLATFORM-BENCHMARK-001`
+**Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md`
 
 **Policy:** This document is the **AI-readable SSOT** for environment identity. **Full secrets, full user IDs, emails, sessions, cookies, tokens, and raw env dumps are never recorded here.**
 
@@ -35,46 +35,63 @@
 
 ---
 
-## 2. Clerk alignment result（redacted — `5Z-I-V-D`）
+## 2. Clerk alignment result（redacted — `5Z-I-V-E`）
 
-**Human dashboard observation in `5Z-I-V-D`:** **not completed in-repo** — all alignment fields remain **`unclear`** until **`5Z-I-V-E`** exact key match confirmation.
+**Human dashboard observation in `5Z-I-V-E`:** **NOT SUBMITTED with gate commit** — Agent は dashboard 非アクセス。**match／winner／user location はすべて `unclear`**。
 
-### A. Vercel Production publishable key alignment
+| Field | Value |
+|-------|--------|
+| **classification** | **`CLERK_PRODUCTION_BOUND_APP_STILL_UNCLEAR`** |
+| **gate_verdict** | **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`** |
+| **full_secret_recorded** | **no** |
+| **last_verified_phase** | **`5Z-I-V-E`** |
 
-| Check | Result | Notes |
-|-------|--------|-------|
-| **`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` observed on Vercel Production** | **yes**（env name） | **full value not recorded** |
-| **prefix/suffix match recorded** | **no** | **Human dashboard required** |
-| **Matches `M55-core`** | **unclear** | **yes/no only when Human confirms** |
-| **Matches `M55-Official`** | **unclear** | **yes/no only when Human confirms** |
-| **Production-bound Clerk app** | **unclear** | **winner: `M55-core` \| `M55-Official` \| unclear** |
-
-### B. Vercel Production secret key alignment
-
-| Check | Result | Notes |
-|-------|--------|-------|
-| **`CLERK_SECRET_KEY` present on Vercel Production** | **yes**（env name） | **full value not recorded** |
-| **Same Clerk app as publishable key** | **unclear** | **yes/no/unclear — Human confirms** |
-
-### C. Production UI user location
+### A. Vercel Production env（§A）
 
 | Check | Result |
 |-------|--------|
-| **`human-ui-current-user` exists in Production-bound Clerk app** | **unclear** |
+| **`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` exists** | **unclear** |
+| **`CLERK_SECRET_KEY` exists** | **unclear** |
+| **full values recorded** | **no** |
 
-### D. Repair user location
+### B. Clerk publishable key app match（§B）
 
 | Check | Result |
 |-------|--------|
-| **`user_36xz` exists in Production-bound Clerk app** | **unclear** |
+| **`M55-core` publishable match** | **unclear** |
+| **`M55-Official` publishable match** | **unclear** |
+| **Production-bound publishable winner** | **unclear** |
+| **full publishable key recorded** | **no** |
 
-### E. User location matrix（`5Z-I-V-D` — yes/no/unclear only）
+### C. Clerk secret same-app（§C）
+
+| Check | Result |
+|-------|--------|
+| **secret same-app as publishable winner** | **unclear** |
+| **full secret recorded** | **no** |
+
+### D. Production Environment warning（§D）
+
+| Check | Result |
+|-------|--------|
+| **`No Production Environment` warning still observed** | **yes**（prior `5Z-I-V-A`） |
+| **interpretation** | **risk signal only — not mutation target** |
+
+### E. User location（§E — yes/no/unclear only）
 
 | Check | Result |
 |-------|--------|
 | **`human-ui-current-user` in Production-bound Clerk app** | **unclear** |
 | **`user_36xz` in Production-bound Clerk app** | **unclear** |
-| **Both users in same Clerk app** | **unclear** |
+| **both users in same Clerk app** | **unclear** |
+
+### F. Registry classification actions（§G）
+
+| Action | Status |
+|--------|--------|
+| **Winner → CANONICAL_KEEP（CK-11 production_bound yes）** | **not applied**（winner unclear） |
+| **Loser → HOLD_QUARANTINE（HQ-01）** | **not applied**（winner unclear） |
+| **Both apps remain UNKNOWN_DO_NOT_TOUCH（UT-01, UT-02）** | **yes** |
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -98,7 +115,7 @@
 | **ai_action_policy** | `use` \| `inspect_only` \| `do_not_touch` \| `ask_human` |
 | **deletion_policy** | `prohibited` \| `later_after_confirmation` \| `unknown` |
 | **evidence_source** | `Vercel` \| `Clerk` \| `Supabase` \| `Stripe` \| `SSOT` |
-| **last_verified_phase** | **`5Z-I-V-D`** |
+| **last_verified_phase** | **`5Z-I-V-E`** |
 | **full_secret_recorded** | **`no`**（always） |
 
 ---
@@ -186,8 +203,8 @@
 
 | watch_id | signal | ai_action_policy | last_verified_phase |
 |----------|--------|------------------|---------------------|
-| **W-01** | **Multiple Clerk app risk**（`M55-core` + `M55-Official`） | **ask_human** | **5Z-I-V-D** |
-| **W-02** | **Clerk Production-bound winner unclear** | **ask_human** | **5Z-I-V-D** |
+| **W-01** | **Multiple Clerk app risk**（`M55-core` + `M55-Official`） | **ask_human** | **5Z-I-V-E** |
+| **W-02** | **Clerk Production-bound winner unclear** | **ask_human** | **5Z-I-V-E** |
 | **W-03** | **Supabase Auth empty is non-conclusive**（Clerk is auth SSOT） | **inspect_only** | **5Z-I-V-D** |
 | **W-04** | **Production domain duality**（`m55-web` vs `m55-webv2`） | **ask_human** | **5Z-I-V-D** |
 | **W-05** | **Stripe live/test mode separation** | **inspect_only** | **5Z-I-V-D** |
@@ -231,8 +248,8 @@
 
 | control_id | title | status |
 |------------|-------|--------|
-| **CONTROL-01** | Production-bound Clerk app confirmation | **open** |
-| **CONTROL-02** | Vercel env-to-Clerk key preflight | **open** |
+| **CONTROL-01** | Production-bound Clerk app confirmation | **open**（**`5Z-I-V-E` Human observation pending**） |
+| **CONTROL-02** | Vercel env-to-Clerk key preflight | **open**（**`5Z-I-V-E` Human observation pending**） |
 | **CONTROL-03** | Env identity registry JSON/YAML export | **open** |
 | **CONTROL-04** | Dashboard naming/tagging convention | **open** |
 | **CONTROL-05** | Webhook endpoint inventory monitor | **open** |
@@ -251,7 +268,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-E`** Human dashboard exact Clerk key match |
+| **Update after** | **`5Z-I-V-F`** Deeper Human dashboard Clerk alignment（redacted yes/no submission） |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
