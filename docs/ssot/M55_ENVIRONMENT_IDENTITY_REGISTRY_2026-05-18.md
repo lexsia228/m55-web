@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`（**planning — §2j**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`（**§B execution — §2k**）
+**Exception:** `M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`（§2j）
 **Check:** `M55-EVID-20260518-5Z-I-V-M-CLERK-PRODUCTION-INSTANCE-CAPABILITY-MIGRATION-IMPACT-001`（§2i）
 **Plan:** `M55-EVID-20260518-5Z-I-V-L-VERCEL-CLERK-ENV-CORRECTION-PLAN-001`（§2h）
 **Diagnostic:** `M55-EVID-20260518-5Z-I-V-K-DUPLICATE-CLERK-APP-CONFIG-READONLY-DIAGNOSTIC-001`（§2g）
@@ -421,7 +422,7 @@
 | **risk level** | **high** |
 | **Production auth compliance** | **unresolved**（**`pk_test_` on Production**） |
 | **Production-bound winner** | **`conflict` / `unresolved`**（unchanged） |
-| **§B SELECT** | **resume authorized for `5Z-I-V-O` only** — **not executed in N** |
+| **§B SELECT** | **executed in `5Z-I-V-O`** — see **§2k** |
 | **normal dev flow** | **not released** |
 
 **Allowed：** `5Z-I-V` §B **`human-ui-current-user` `row_count` SELECT**（read-only）；ownership/mapping diagnosis（redacted）.
@@ -433,6 +434,44 @@
 **Next：** **`5Z-I-V-O`** Human UI user row_count read-only SELECT.
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+
+---
+
+### 2k. Human UI user row_count read-only SELECT（`5Z-I-V-O` — under exception）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`
+
+**Exception scope:** `TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION`（**`5Z-I-V-N`**）
+
+| Field | Value |
+|-------|--------|
+| **safe label** | **`human-ui-current-user`** |
+| **suffix evidence** | **`user_****1M65`** |
+| **gate_verdict** | **`UI_USER_ROWCOUNT_READONLY_SELECT_GREEN_ARTIFACTS_FOUND_OWNERSHIP_READ_PATH_DIAGNOSTIC_REQUIRED`** |
+
+#### Row_count（Human-local — no full user_id）
+
+| Table / scope | **row_count** |
+|---------------|---------------|
+| **entitlements DTR_CORE_STATIC_V1** | **1** |
+| **entitlement_rights** | **1** |
+| **dtr_report_snapshots DTR_CORE_STATIC_V1** | **1** |
+| **one_time_fulfillments** | **4** |
+| **reply_ticket_wallets** | **1** |
+| **reply_wallet_ledgers** | **1** |
+
+#### Findings
+
+| Token | Status |
+|-------|--------|
+| **`UI_USER_DTR_ARTIFACTS_FOUND`** | **yes** |
+| **`USER_ID_MISMATCH_NOT_PRIMARY_BASED_ON_ROWCOUNT`** | **yes** |
+| **`OTF_MULTIPLE_ROWS_FOUND_FOR_UI_USER`** | **yes** |
+| **`UI_UNLOCK_STILL_REQUIRES_OWNERSHIP_READ_PATH_DIAGNOSTIC`** | **yes** |
+
+**Next diagnostic focus：** ownership gate；product_id / right_key；snapshot lookup；read path / RLS / API；**OTF ×4**（read-only, no cleanup).
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -563,7 +602,9 @@
 | **W-18** | **`pk_live_` migration may orphan current Clerk user IDs** | **do_not_touch** | **5Z-I-V-M** |
 | **W-19** | **Temporary dev-auth exception requires explicit scope/timebox** | **ask_human** | **5Z-I-V-M** |
 | **W-20** | **Temporary dev-auth exception active**（**`TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION`**） | **inspect_only** | **5Z-I-V-N** |
-| **W-21** | **§B SELECT permitted read-only under exception only**（**`5Z-I-V-O`**） | **inspect_only** | **5Z-I-V-N** |
+| **W-21** | **§B SELECT permitted read-only under exception only**（**`5Z-I-V-O` executed**） | **inspect_only** | **5Z-I-V-O** |
+| **W-22** | **UI user DTR artifacts found but unlock still blocked** | **inspect_only** | **5Z-I-V-O** |
+| **W-23** | **`one_time_fulfillments` multiple rows for UI user**（**row_count 4**） | **inspect_only** | **5Z-I-V-O** |
 
 ---
 
@@ -622,10 +663,11 @@
 | **CONTROL-15** | Future Clerk production migration plan | **open**（deferred until **`pk_live_` confirmed**） |
 | **CONTROL-16** | **`user_id` migration dry-run / preflight** | **open** |
 | **CONTROL-17** | Temporary exception exit criteria | **open** |
-| **CONTROL-18** | Current-Clerk user mapping result required before any repair | **open**（**`5Z-I-V-O`**） |
+| **CONTROL-18** | Current-Clerk user mapping result required before any repair | **row_count recorded — `5Z-I-V-O`**；repair **blocked** until **CONTROL-20** |
 | **CONTROL-19** | Production auth compliance remains unresolved | **open** |
+| **CONTROL-20** | Ownership gate / read-path diagnostic required | **open**（**`5Z-I-V-P`**） |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-N`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-O`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
 
 ---
 
@@ -634,7 +676,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-N`** Temporary current-Clerk-instance exception planning |
+| **Update after** | **`5Z-I-V-O`** Human UI user row_count read-only SELECT |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

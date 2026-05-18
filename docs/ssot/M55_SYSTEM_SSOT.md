@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-O Human UI user row_count read-only SELECT recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-N`** temporary exception。** **本条：** Human-local **read-only `SELECT`** — **row_count only**（**`human-ui-current-user`** suffix **`user_****1M65`**）。** **Row counts:** entitlements **1** / rights **1** / snapshots **1** / OTF **4** / reply_wallets **1** / ledgers **1**。** **Findings:** **`UI_USER_DTR_ARTIFACTS_FOUND`**；**`USER_ID_MISMATCH_NOT_PRIMARY`**；**`OTF_MULTIPLE_ROWS`**；unlock needs **ownership/read-path diagnostic**。** **Verdict:** **`UI_USER_ROWCOUNT_READONLY_SELECT_GREEN_ARTIFACTS_FOUND_OWNERSHIP_READ_PATH_DIAGNOSTIC_REQUIRED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`**。** **Registry:** §2k；**W-22/W-23**；**CONTROL-20 open**。** **Next:** **`5Z-I-V-P` ownership gate / read path / snapshot lookup diagnostic planning**。** **本条:** no DB write/runner/env/redeploy/code/OTF cleanup；no full user_id/email/session；normal dev flow not released**。
+
+Work anchor:
+
+- **`1b2864eeb37af1b127c7e4c29d29bf53b1bbb5d6`** — **`docs: plan temporary clerk user mapping exception`**（**`5Z-I-V-N`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-N`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no DB write**／**no repair**／**no raw user_id**／**no normal dev unlock**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-N Temporary current-Clerk-instance exception / user mapping planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-M`** temporary dev-auth exception recommended。** **本条：** **docs-only** — exception **`TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION`**（scope/timebox/prohibitions）。** **Risk:** **high**；mitigation read-only/no env/no DB mutation。** **§B SELECT:** resume **authorized for `5Z-I-V-O` only** — **not executed in N**。** **Verdict:** **`TEMPORARY_CURRENT_CLERK_INSTANCE_EXCEPTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-N-TEMPORARY-CURRENT-CLERK-INSTANCE-USER-MAPPING-EXCEPTION-PLAN-001`**。** **Registry:** §2j；**W-20/W-21**；**CONTROL-14 planned**；**CONTROL-17–19 open**。** **Production auth compliance unresolved**；**normal dev flow not released**。** **Next:** **`5Z-I-V-O` Human UI user rowcount read-only SELECT**。** **本条:** no env/redeploy/Production instance/DB write/runner/code；no raw IDs；§B not executed**。
@@ -2915,6 +2938,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-O Human UI user row_count read-only SELECT recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-N`** temporary exception。** **本条：** Human-local **read-only `SELECT`** — **row_count only**（**`human-ui-current-user`** suffix **`user_****1M65`**）。** **Row counts:** entitlements **1** / rights **1** / snapshots **1** / OTF **4** / reply_wallets **1** / ledgers **1**。** **Findings:** **`UI_USER_DTR_ARTIFACTS_FOUND`**；**`USER_ID_MISMATCH_NOT_PRIMARY`**；**`OTF_MULTIPLE_ROWS`**；unlock needs **ownership/read-path diagnostic**。** **Verdict:** **`UI_USER_ROWCOUNT_READONLY_SELECT_GREEN_ARTIFACTS_FOUND_OWNERSHIP_READ_PATH_DIAGNOSTIC_REQUIRED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`**。** **Registry:** §2k；**W-22/W-23**；**CONTROL-20 open**。** **Next:** **`5Z-I-V-P` ownership gate / read path / snapshot lookup diagnostic planning**。** **本条:** no DB write/runner/env/redeploy/code/OTF cleanup；no full user_id/email/session；normal dev flow not released**。
+
+Work anchor:
+
+- **`1b2864eeb37af1b127c7e4c29d29bf53b1bbb5d6`** — **`docs: plan temporary clerk user mapping exception`**（**`5Z-I-V-N`**）
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_O_HUMAN_UI_USER_ROWCOUNT_READONLY_SELECT_2026-05-18.md`
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-N`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_N_TEMPORARY_CURRENT_CLERK_INSTANCE_USER_MAPPING_EXCEPTION_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no DB write**／**no repair**／**no raw user_id**／**no normal dev unlock**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-N Temporary current-Clerk-instance exception / user mapping planning recorded
 
