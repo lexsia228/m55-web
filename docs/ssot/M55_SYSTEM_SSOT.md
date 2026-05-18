@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-AA Included reply-ticket actual consume execution gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Z`** **`READY_FOR_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_GATE`**／**`5Z-I-Y`** remaining **1**。** **本条：** **explicit Human GO execution gate** — **exactly-one consume attempt designed**（**DB write may occur via `POST /api/reply/generate`**）。** **Observation（本条 commit）：** **Human redacted execution NOT SUBMITTED** — **execution_count 0**／**final generate not clicked**（Agent non-execution）。** **Result token：** **`INCLUDED_REPLY_CONSUME_NOT_EXECUTED`**。** **Verdict：** **`INCLUDED_REPLY_TICKET_CONSUME_EXECUTION_INCONCLUSIVE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-AA-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-EXECUTION-001`**。 Links：**`M55-EVID-20260518-5Z-I-Z-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-PLAN-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_AA_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_2026-05-18.md`。** **Next：** **`5Z-I-AB`** consume diagnostic / post-consume read-only（**no retry**）。** **本条：** **second execution／retry なし**／**payment なし**／**full IDs／prompt／reply 全文 なし**。
+
+Work anchor:
+
+- **`5b0ffc621f1b9dda15f862f6c8adfde26cfb130d`** — **`docs: plan included reply ticket actual consume`**（**`5Z-I-Z`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_AA_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Z_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **2回目実行／duplicate click／retry なし**／**checkout／追加決済 なし**／**refund なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session／prompt／reply 全文 なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-Z Included reply-ticket actual consume / reply generation planning gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-Y`** **`INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GREEN`**（**remaining 1**）／**`5Z-I-X`** consume timing confirmed。** **本条：** **LEVEL_3 actual consume planning only**（**consume／DB write／reply generation／payment なし**）。** **Scope：** **exactly one included ticket**／**`canonical-normal-login`**／paid DTR context／**no checkout**。** **Trigger：** **`POST /api/reply/generate`** + **`m55_reply_generate_commit`** on **「返書を作成する」** only。** **Post-exec checks（planned）：** wallet **1→0**／ledger **`reply_consume`**／session+document／no duplicate／no Stripe。** **Verdict：** **`READY_FOR_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-Z-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-Y-INCLUDED-REPLY-TICKET-UI-READONLY-VERIFICATION-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_Z_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_PLANNING_2026-05-18.md`。** **Next：** **`5Z-I-AA` actual consume execution**（**explicit Human GO** — **DB write may occur**）→ **`5Z-I-AB`** DB read-only → **`5Z-I-AC`** UI reply → **`5Z-I-AD`** ¥500 purchase planning。** **本条：** **consume 未実行**／**full IDs なし**。
@@ -2619,6 +2641,28 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-AA Included reply-ticket actual consume execution gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-Z`** **`READY_FOR_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_GATE`**／**`5Z-I-Y`** remaining **1**。** **本条：** **explicit Human GO execution gate** — **exactly-one consume attempt designed**（**DB write may occur via `POST /api/reply/generate`**）。** **Observation（本条 commit）：** **Human redacted execution NOT SUBMITTED** — **execution_count 0**／**final generate not clicked**（Agent non-execution）。** **Result token：** **`INCLUDED_REPLY_CONSUME_NOT_EXECUTED`**。** **Verdict：** **`INCLUDED_REPLY_TICKET_CONSUME_EXECUTION_INCONCLUSIVE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-AA-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-EXECUTION-001`**。 Links：**`M55-EVID-20260518-5Z-I-Z-INCLUDED-REPLY-TICKET-ACTUAL-CONSUME-PLAN-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_AA_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_2026-05-18.md`。** **Next：** **`5Z-I-AB`** consume diagnostic / post-consume read-only（**no retry**）。** **本条：** **second execution／retry なし**／**payment なし**／**full IDs／prompt／reply 全文 なし**。
+
+Work anchor:
+
+- **`5b0ffc621f1b9dda15f862f6c8adfde26cfb130d`** — **`docs: plan included reply ticket actual consume`**（**`5Z-I-Z`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_AA_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_EXECUTION_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_Z_INCLUDED_REPLY_TICKET_ACTUAL_CONSUME_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **2回目実行／duplicate click／retry なし**／**checkout／追加決済 なし**／**refund なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session／prompt／reply 全文 なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-Z Included reply-ticket actual consume / reply generation planning gate recorded
 
