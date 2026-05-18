@@ -21,6 +21,28 @@ Hard stop:
 
 
 
+## 2026-05-18 — Phase 5-6H-5Z-I-X Included reply-ticket verification planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-W`** **`UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_GREEN`**／included reply-ticket **visible remaining 1**（preliminary）。** **本条：** **docs-only planning**（**DB write／consume／reply generation／payment／runner／code なし**）。** **Levels：** **LEVEL_1 UI visible**／**LEVEL_2 dry no submit**／**LEVEL_3 actual use deferred**（explicit GO + separate gate）。** **Consume timing（repo）：** theme/select **no**；**`POST /api/reply/generate`** + **`m55_reply_generate_commit` RPC** **yes**；idempotent replay **no double consume**。** **UI：** **`/reply`** → `ConsultationRoomInput`；count from **`reply_ticket_wallets.available_count`**。** **Verdict：** **`READY_FOR_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-X-INCLUDED-REPLY-TICKET-VERIFICATION-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-Y` Included reply-ticket UI read-only verification**（LEVEL_1–2 only）。** **本条：** **consume 未実行**／**formal reply-ticket 未検証**／**full IDs なし**。
+
+Work anchor:
+
+- **`2eeeae53004ad10c50af1a48082f94eb4cf611fc`** — **`docs: record ui login identity correction unlock`**（**`5Z-I-W`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-W`:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
+
+Hard stop:
+
+- **DB write／ticket consume／reply generation／送信 なし**／**checkout／追加決済 なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-F Human dashboard Clerk alignment result checkpoint recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-E`** **`CLERK_ALIGNMENT_STILL_UNCLEAR_HUMAN_DASHBOARD_REQUIRED`**。** **本条：** **Human redacted yes/no により Clerk alignment 確定**（**削除・env 変更・redeploy・DB write・runner・code・§B SELECT なし**）。** **Production-bound：** **`M55-Official`**（**M55-core match no**／**M55-Official match yes**／**secret same-app yes**）。** **User location：** **`human-ui-current-user` in winner app no**／**`user_36xz` yes**／**same app no**。** **Registry：** **`M55-Official` CANONICAL_KEEP**／**`M55-core` HOLD_QUARANTINE（not delete）**。** **Classification：** **`CLERK_PRODUCTION_BOUND_APP_CONFIRMED_M55_OFFICIAL`** ＋ **`CLERK_UI_LOGIN_USER_NOT_IN_PRODUCTION_BOUND_APP`** ＋ **`REPAIR_USER_EXISTS_IN_PRODUCTION_BOUND_APP`**。** **Verdict：** **`CLERK_ALIGNMENT_CONFIRMED_USER_LOCATION_MISMATCH`**。** **Recommended：** **`READY_FOR_UI_LOGIN_IDENTITY_CORRECTION_PLANNING_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-E-HUMAN-DASHBOARD-CLERK-KEY-MATCH-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_F_CLERK_ALIGNMENT_RESULT_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-W` UI login identity correction planning gate**。** **本条：** **mutation なし**／**full IDs／secrets なし**。
@@ -2574,6 +2596,28 @@ Prior:
 Hard stop:
 
 - **DB write／runner／second repair なし**／**Events／replay／決済／refund なし**／**env 変更／redeploy なし**／**code／UI 変更なし**／**reply-ticket 正式 use なし**／**full ID／email／session なし**。**
+
+
+
+## 2026-05-18 — Phase 5-6H-5Z-I-X Included reply-ticket verification planning gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-W`** **`UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_GREEN`**／included reply-ticket **visible remaining 1**（preliminary）。** **本条：** **docs-only planning**（**DB write／consume／reply generation／payment／runner／code なし**）。** **Levels：** **LEVEL_1 UI visible**／**LEVEL_2 dry no submit**／**LEVEL_3 actual use deferred**（explicit GO + separate gate）。** **Consume timing（repo）：** theme/select **no**；**`POST /api/reply/generate`** + **`m55_reply_generate_commit` RPC** **yes**；idempotent replay **no double consume**。** **UI：** **`/reply`** → `ConsultationRoomInput`；count from **`reply_ticket_wallets.available_count`**。** **Verdict：** **`READY_FOR_INCLUDED_REPLY_TICKET_UI_READONLY_VERIFICATION_GATE`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-X-INCLUDED-REPLY-TICKET-VERIFICATION-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-Y` Included reply-ticket UI read-only verification**（LEVEL_1–2 only）。** **本条：** **consume 未実行**／**formal reply-ticket 未検証**／**full IDs なし**。
+
+Work anchor:
+
+- **`2eeeae53004ad10c50af1a48082f94eb4cf611fc`** — **`docs: record ui login identity correction unlock`**（**`5Z-I-W`**）。
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_X_INCLUDED_REPLY_TICKET_VERIFICATION_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-W`:** `docs/ssot/M55_PHASE5_6H_5Z_I_W_UI_LOGIN_IDENTITY_CORRECTION_UNLOCK_VERIFICATION_2026-05-18.md`
+
+Hard stop:
+
+- **DB write／ticket consume／reply generation／送信 なし**／**checkout／追加決済 なし**／**runner／repair なし**／**env／redeploy／code なし**／**full ID／session なし**。**
 
 
 
