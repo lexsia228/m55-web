@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-S Entitlement row discrepancy / ownership fallback diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-R`** GREEN with caveat — **O ent 1 / R ent 0**。** **本条：** docs-only planning — **H1–H6** discrepancy hypotheses；ownership fallback（snapshot → rights+OTF）；**`5Z-I-V-T` SELECT protocol**。** **Verdict:** **`READY_FOR_ENTITLEMENT_DISCREPANCY_AND_FALLBACK_READONLY_SELECT_GATE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-S-ENTITLEMENT-ROW-DISCREPANCY-OWNERSHIP-FALLBACK-DIAGNOSTIC-PLAN-001`**。** **Registry:** §2o；**W-30**；**CONTROL-24/25**。** **Next:** **`5Z-I-V-T`**。** **本条:** no mutation；no raw IDs**。
+
+Work anchor:
+
+- **`75d0de246dc366f0c5f56a9cf43abde9a6ce8b23`** — **`docs: update product right snapshot select result`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_S_ENTITLEMENT_ROW_DISCREPANCY_OWNERSHIP_FALLBACK_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
+
+Hard stop:
+
+- **no repair**／**no entitlement grant**／**no OTF cleanup**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-R Product / right / snapshot read-only SELECT gate — Human evidence追認更新
 
 Status: **`work/home-cluster`。** **同一 Evidence 追認：** Human SELECT submitted。** **Verdict:** **`PRODUCT_RIGHT_SNAPSHOT_SELECT_GREEN_ENTITLEMENT_STATUS_MISMATCH_CONFIRMED_WITH_EVIDENCE_CAVEAT`**。** **R findings:** ent **0** / rights **`m55_p:core_origin` yes** / snap **1** `DTR_CORE_STATIC_V1` / OTF latest **matched**。** **Caveat:** **`5Z-I-V-O` ent 1 vs `5Z-I-V-R` ent 0** — **`V_O_V_R_ENTITLEMENT_ROWCOUNT_DISCREPANCY_REQUIRES_CONFIRMATION`**。** **Suspect if UI locked:** snapshot lookup / route read-path。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`**。** **Next:** **`5Z-I-V-S`** entitlement discrepancy / ownership fallback planning。** **本条:** no mutation；no raw IDs**。

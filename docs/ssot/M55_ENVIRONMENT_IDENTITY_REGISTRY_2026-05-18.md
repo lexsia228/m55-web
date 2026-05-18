@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`（**SELECT — §2n**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-S-ENTITLEMENT-ROW-DISCREPANCY-OWNERSHIP-FALLBACK-DIAGNOSTIC-PLAN-001`（**planning — §2o**）
+**SELECT:** `M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`（§2n）
 **Gate trace:** `M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`（§2m）
 **Plan:** `M55-EVID-20260518-5Z-I-V-P-OWNERSHIP-GATE-READ-PATH-SNAPSHOT-LOOKUP-DIAGNOSTIC-PLAN-001`（§2l）
 **§B execution:** `M55-EVID-20260518-5Z-I-V-O-HUMAN-UI-USER-ROWCOUNT-READONLY-SELECT-001`（§2k）
@@ -540,6 +541,23 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
 
+---
+
+### 2o. Entitlement row discrepancy / ownership fallback diagnostic planning（`5Z-I-V-S`）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-S-ENTITLEMENT-ROW-DISCREPANCY-OWNERSHIP-FALLBACK-DIAGNOSTIC-PLAN-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`READY_FOR_ENTITLEMENT_DISCREPANCY_AND_FALLBACK_READONLY_SELECT_GATE`** |
+| **O/R caveat** | **O ent 1** vs **R ent 0** — **`V_O_V_R_ENTITLEMENT_ROWCOUNT_DISCREPANCY_REQUIRES_CONFIRMATION`** |
+| **matched（R）** | **right_key** / **snapshot** / **OTF latest** |
+| **fallback plan** | snapshot → rights+OTF → orphan；**rights+snap+OTF → should be owned** if same user |
+| **hypotheses** | **H1–H6**（user_id / SQL filter / alias / status / Clerk context / timing） |
+| **next execution** | **`5Z-I-V-T`** Human SELECT（same user_id；no label as SQL） |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_S_ENTITLEMENT_ROW_DISCREPANCY_OWNERSHIP_FALLBACK_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -678,6 +696,7 @@
 | **W-27** | **`5Z-I-V-O` vs `5Z-I-V-R` entitlement row_count discrepancy**（**O=1 / R=0**） | **ask_human** | **5Z-I-V-R** |
 | **W-28** | **OTF ×4 — latest row `DTR_CORE_STATIC_V1` matched**（**`5Z-I-V-R`**） | **inspect_only** | **5Z-I-V-R** |
 | **W-29** | **`owned` + !`snapshotReady` routes to LP/purchase UX** | **inspect_only** | **5Z-I-V-Q** |
+| **W-30** | **Ownership fallback should be checked**（rights + OTF + snapshot present — UI may still lock） | **inspect_only** | **5Z-I-V-S** |
 
 ---
 
@@ -741,9 +760,11 @@
 | **CONTROL-20** | Ownership gate / read-path diagnostic required | **planned** — execution **`5Z-I-V-Q`** |
 | **CONTROL-21** | Ownership gate condition map required | **mapped** — **`5Z-I-V-Q`** repo trace |
 | **CONTROL-22** | Product/right key/snapshot lookup read-only verification | **partial** — **`5Z-I-V-R` GREEN with caveat**；snapshot/route still suspect |
-| **CONTROL-23** | Entitlement **O/R row_count discrepancy** confirmation required | **open** — **`5Z-I-V-S`** |
+| **CONTROL-23** | Entitlement **O/R row_count discrepancy** confirmation required | **planned** — execution **`5Z-I-V-T`** |
+| **CONTROL-24** | Same-user same-query entitlement confirmation required | **open** — **`5Z-I-V-T`** |
+| **CONTROL-25** | Ownership fallback path decision required | **open** — **`5Z-I-V-T`** then fix planning |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_S_ENTITLEMENT_ROW_DISCREPANCY_OWNERSHIP_FALLBACK_DIAGNOSTIC_PLANNING_2026-05-18.md`
 
 ---
 
@@ -752,7 +773,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-R`** Product / right / snapshot SELECT — Human evidence追認 |
+| **Update after** | **`5Z-I-V-S`** Entitlement discrepancy / ownership fallback diagnostic planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
