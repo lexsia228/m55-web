@@ -1,3 +1,26 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-C AI-readable environment identity registry / Clerk alignment confirmation gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-B`** **`NON_CANONICAL_ENV_PURGE_PLANNING_BLOCKED_CLERK_MAPPING`**。** **本条：** **AI-readable environment identity registry 作成**（**削除・env 変更・redeploy・DB write・runner・code なし**）。** **Registry SSOT：** `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`（**CK/HQ/UT/DL + watchlist W-01–W-06 + prompt guard §7**）。** **Clerk alignment：** publishable/secret **prefix-suffix match 未記録**／**M55-core match unclear**／**M55-Official match unclear**／**same-app unclear**／**Production-bound app unclear**／**UI user exists unclear**／**`user_36xz` exists unclear**。** **Canonical confirmed：** Vercel **`m55-webv2`**／domains／Supabase **`m55-soul-core`**／Stripe **`M55WEB` live**／**`DTR_CORE_STATIC_V1`**。** **Verdict：** **`ENVIRONMENT_IDENTITY_REGISTRY_GREEN_WITH_CLERK_MAPPING_UNCLEAR`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-C-AI-READABLE-ENV-IDENTITY-REGISTRY-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-B-NON-CANONICAL-ENV-BUILD-PURGE-PLAN-001`**。** **AI guard：** use **CANONICAL_KEEP only**；**HOLD** not execution targets；**UNKNOWN** no change/delete；**never infer from Supabase Auth Users**；**safe labels ≠ DB values**；**full IDs/secrets human-local only**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_C_AI_READABLE_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-D` Human dashboard Clerk app alignment confirmation gate**。** **本条：** **deletion 未実行**／**env 変更未実行**／**redeploy 未実行**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`feae40c190889ed24aefa7821e3569fbe13b5bc2`** — **`docs: plan non canonical environment purge`**（**`5Z-I-V-B`**）。
+
+Evidence:
+
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_C_AI_READABLE_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-B`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **削除なし**／**env 変更なし**／**redeploy なし**／**DB write／runner なし**／**code 変更なし**／**purge 未実行**／**full ID／secret なし**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-B Non-canonical environment/build purge planning gate recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-A`** **`IDENTITY_ENVIRONMENT_ALIGNMENT_RISK_DETECTED`**／**`5Z-I-V`** inconclusive。** **本条：** **purge／quarantine 計画のみ**（**削除・env 変更・redeploy・DB write なし**）。** **Canonical（confirmed partial）：** Vercel **`m55-webv2`**／**`m55-webv2.vercel.app`**／Supabase **`m55-soul-core/main/PRODUCTION`**／Stripe **`M55WEB` live**／**`DTR_CORE_STATIC_V1`**。** **Blocking：** Production **Clerk app winner unclear**（**`M55-core` vs `M55-Official`**）。** **Quarantine：** non-bound Clerk app／旧 deployments／shadow Supabase／dual domains／unused webhooks。** **Purge candidates：** duplicate Clerk app after alignment／unused deployments／obsolete endpoints（**DELETE LATER only**）。** **DO NOT TOUCH：** both Clerk apps until key match／all secrets／Production DB。** **Classification：** **`PURGE_PLANNING_BLOCKED_CLERK_APP_MAPPING_UNCLEAR`。** **Verdict：** **`NON_CANONICAL_ENV_PURGE_PLANNING_BLOCKED_CLERK_MAPPING`。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-B-NON-CANONICAL-ENV-BUILD-PURGE-PLAN-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-A-IDENTITY-ENVIRONMENT-INVENTORY-001`**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-C` Vercel Production Clerk app alignment confirmation gate**。** **本条：** **deletion 未実行**／**env 変更未実行**／**full IDs／secrets なし**。
@@ -2438,6 +2461,29 @@ scripts/sql/staging/m55_shadow_one_time_fulfillment_contract_repair_v1.sql
 - PROTOTYPE_ISOLATION_BUNDLE（middleware/layout/page）はアプリコードのため repo 非収録。実装時はローカルから一時展開して配置。
 
 # M55 SYSTEM SSOT
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-C AI-readable environment identity registry / Clerk alignment confirmation gate recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-B`** **`NON_CANONICAL_ENV_PURGE_PLANNING_BLOCKED_CLERK_MAPPING`**。** **本条：** **AI-readable environment identity registry 作成**（**削除・env 変更・redeploy・DB write・runner・code なし**）。** **Registry SSOT：** `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`（**CK/HQ/UT/DL + watchlist W-01–W-06 + prompt guard §7**）。** **Clerk alignment：** publishable/secret **prefix-suffix match 未記録**／**M55-core match unclear**／**M55-Official match unclear**／**same-app unclear**／**Production-bound app unclear**／**UI user exists unclear**／**`user_36xz` exists unclear**。** **Canonical confirmed：** Vercel **`m55-webv2`**／domains／Supabase **`m55-soul-core`**／Stripe **`M55WEB` live**／**`DTR_CORE_STATIC_V1`**。** **Verdict：** **`ENVIRONMENT_IDENTITY_REGISTRY_GREEN_WITH_CLERK_MAPPING_UNCLEAR`**。** **Evidence：** **`M55-EVID-20260518-5Z-I-V-C-AI-READABLE-ENV-IDENTITY-REGISTRY-001`**。 Links：**`M55-EVID-20260518-5Z-I-V-B-NON-CANONICAL-ENV-BUILD-PURGE-PLAN-001`**。** **AI guard：** use **CANONICAL_KEEP only**；**HOLD** not execution targets；**UNKNOWN** no change/delete；**never infer from Supabase Auth Users**；**safe labels ≠ DB values**；**full IDs/secrets human-local only**。** **SSOT：** `docs/ssot/M55_PHASE5_6H_5Z_I_V_C_AI_READABLE_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`。** **Next：** **`Phase 5-6H-5Z-I-V-D` Human dashboard Clerk app alignment confirmation gate**。** **本条：** **deletion 未実行**／**env 変更未実行**／**redeploy 未実行**／**full IDs／secrets なし**。
+
+Work anchor:
+
+- **`feae40c190889ed24aefa7821e3569fbe13b5bc2`** — **`docs: plan non canonical environment purge`**（**`5Z-I-V-B`**）。
+
+Evidence:
+
+- `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_C_AI_READABLE_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-B`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_B_NON_CANONICAL_ENVIRONMENT_BUILD_PURGE_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **削除なし**／**env 変更なし**／**redeploy なし**／**DB write／runner なし**／**code 変更なし**／**purge 未実行**／**full ID／secret なし**。**
+
+
 
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-B Non-canonical environment/build purge planning gate recorded
 
