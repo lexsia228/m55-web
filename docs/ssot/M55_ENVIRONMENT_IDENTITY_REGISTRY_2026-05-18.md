@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（**execution — authoritative §2d**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-CONFLICT-DIAGNOSTIC-PLAN-001`（**planning — §2f**）
+**Execution:** `M55-EVID-20260518-5Z-I-V-I-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-001`（**authoritative §2d**）
 **Plan:** `M55-EVID-20260518-5Z-I-V-H-EXACT-CLERK-KEY-CONFLICT-DIAGNOSTIC-PLAN-001`（§2c）
 **Conflict source:** `M55-EVID-20260518-5Z-I-V-G-EXACT-VERCEL-CLERK-KEY-MATCH-001`（§2b）
 **Superseded:** `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-RESULT-001`（§2a historical only）
@@ -237,6 +238,68 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_I_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_EXECUTION_2026-05-18.md`
 
+---
+
+### 2e. Redacted key evidence summary（`5Z-I-V-J` — AI monitoring）
+
+**Raw key / secret / full user_id：** **not recorded**.
+
+| Field | Value |
+|-------|--------|
+| **Vercel Production publishable exists** | **yes** |
+| **first 8** | **`pk_test_`** |
+| **suffix label** | **`ZXYk`**（human-redacted） |
+| **`M55-core` first8 / last6 / full equality** | **yes / yes / yes** |
+| **`M55-Official` first8 / last6 / full equality** | **yes / yes / yes** |
+| **Production-bound winner** | **`conflict` / `unresolved`** |
+
+**Signal（planning only）：** **`pk_test_` on Production env name** → investigate **H3/H4** at **`5Z-I-V-K`**（read-only）.
+
+---
+
+### 2f. Conflict decision table + duplicate diagnostic plan（`5Z-I-V-J`）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-J-DUPLICATE-CLERK-APP-CONFIG-DIAGNOSTIC-PLAN-001`
+
+**Gate verdict（planning）：** **`READY_FOR_DUPLICATE_CLERK_APP_CONFIG_CONFLICT_READONLY_DIAGNOSTIC_GATE`**
+
+#### Conflict decision table（fixed）
+
+| core full eq | official full eq | Outcome | Winner |
+|--------------|------------------|---------|--------|
+| yes | no | single-app | **`M55-core`**（if later confirmed） |
+| no | yes | single-app | **`M55-Official`**（if later confirmed） |
+| **yes** | **yes** | **`SEVERE_DUPLICATE_CONFIG_CONFLICT`** | **none**（**current**） |
+| no | no | third / stale Vercel | none |
+| unclear | * | inconclusive | none |
+
+#### Diagnostic hypotheses（H1–H7）
+
+| ID | Summary |
+|----|---------|
+| **H1** | Dashboard context confusion |
+| **H2** | Clerk app duplication / clone |
+| **H3** | Vercel env copied/stale |
+| **H4** | Dev/test key reused on Production |
+| **H5** | Human comparison context error |
+| **H6** | Clerk project structure misunderstanding |
+| **H7** | Registry historical winner pollution |
+
+**Execution deferred:** **`5Z-I-V-K`** read-only app/instance/context checks（**no raw values**）.
+
+**Registry posture（unchanged）：**
+
+| Item | Status |
+|------|--------|
+| **CK-11 / HQ-01 `production_bound`** | **unclear** |
+| **CONTROL-01 / CONTROL-02** | **open** |
+| **W-10 / W-11** | **active** |
+| **W-12 J-level plan** | **active** |
+| **§B SELECT** | **blocked** |
+| **Normal dev flow** | **not unlocked** |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_J_DUPLICATE_CLERK_APP_CONFIG_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -357,6 +420,7 @@
 | **W-09** | **Device-origin vs Production-bound confusion**（Mac core vs Windows Official — **not winner proof**） | **inspect_only** | **5Z-I-V-F** |
 | **W-10** | **Publishable dual-match conflict**（**both `M55-core` + `M55-Official` match yes**） | **ask_human** | **5Z-I-V-G** |
 | **W-11** | **Exact full-equality duplicate conflict**（**Vercel key = both `M55-core` + `M55-Official` full eq yes**） | **ask_human** | **5Z-I-V-I** |
+| **W-12** | **Duplicate config diagnostic plan**（**`5Z-I-V-J` → `5Z-I-V-K` read-only**） | **inspect_only** | **5Z-I-V-J** |
 
 ---
 
@@ -418,7 +482,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-I`** Exact Clerk key conflict diagnostic execution |
+| **Update after** | **`5Z-I-V-J`** Duplicate Clerk app/config conflict diagnostic planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
