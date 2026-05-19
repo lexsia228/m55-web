@@ -39,10 +39,18 @@ type CardProfile =
   | { kind: 'ready'; stemIdx: number; stem: TenStemDisplay; nickname: string }
   | { kind: 'generic' };
 
+export type ShelfCtaProps = {
+  href: string;
+  label: string;
+  ariaLabel: string;
+};
+
 type Props = {
   ownershipState: OwnershipState;
   /** `dtr_report_snapshots` に本文があるときのみ true（`/dtr/core` へ誘導してよい） */
   snapshotReady: boolean;
+  /** Server-resolved CTA（owned + !ready は LP 購入導線へ送らない） */
+  shelfCta?: ShelfCtaProps;
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -56,21 +64,23 @@ function EntryReportCard({
   ownershipState,
   cardProfile,
   snapshotReady,
+  shelfCta,
 }: {
   ownershipState: OwnershipState;
   cardProfile: CardProfile;
   snapshotReady: boolean;
+  shelfCta?: ShelfCtaProps;
 }) {
   const isOwned = ownershipState === 'owned';
   const isExpired = ownershipState === 'expired';
 
-  const ctaHref = isOwned && snapshotReady
-    ? '/dtr/core'
-    : isOwned
-    ? '/dtr/lp'
-    : isExpired
-    ? '/dtr/lp?state=expired'
-    : '/dtr/lp';
+  const ctaHref =
+    shelfCta?.href ??
+    (isOwned && snapshotReady
+      ? '/dtr/core'
+      : isExpired
+      ? '/dtr/lp?state=expired'
+      : '/dtr/lp');
 
   const hasProfile = cardProfile.kind === 'ready';
   const stem = hasProfile ? cardProfile.stem : null;
@@ -84,23 +94,27 @@ function EntryReportCard({
     ? `${nickname}さんの取り扱い説明書`
     : '本質の読み解き';
 
-  const ctaLabel = isOwned && snapshotReady
-    ? 'レポートを開く'
-    : isOwned
-    ? 'レポートの準備中'
-    : isExpired
-    ? 'サポートに相談する'
-    : '1,000円で入手する';
-
-  const ariaLabel = `Entry Report — ${
-    isOwned && snapshotReady
-      ? '保存済み。レポートを開く'
+  const ctaLabel =
+    shelfCta?.label ??
+    (isOwned && snapshotReady
+      ? 'レポートを開く'
       : isOwned
-      ? '保存済み。レポートの準備中'
+      ? 'レポートの準備中'
       : isExpired
-      ? '期限切れ'
-      : '入手する'
-  }`;
+      ? 'サポートに相談する'
+      : '1,000円で入手する');
+
+  const ariaLabel =
+    shelfCta?.ariaLabel ??
+    `Entry Report — ${
+      isOwned && snapshotReady
+        ? '保存済み。レポートを開く'
+        : isOwned
+        ? '保存済み。レポートの準備中'
+        : isExpired
+        ? '期限切れ'
+        : '入手する'
+    }`;
 
   return (
     <Link href={ctaHref} className={styles.reportCard} aria-label={ariaLabel}>
@@ -237,7 +251,7 @@ function ShelfContextHint({
   );
 }
 
-export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) {
+export default function DtrShelfPanel({ ownershipState, snapshotReady, shelfCta }: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
 
@@ -282,6 +296,7 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady }: Props) 
             ownershipState={ownershipState}
             cardProfile={cardProfile}
             snapshotReady={snapshotReady}
+            shelfCta={shelfCta}
           />
         </div>
       </div>

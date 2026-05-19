@@ -1,7 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { resolveEntryReportOwnership } from '../../lib/m55/dtrOwnershipGate';
-import { getDtrReportSnapshot } from '../../lib/m55/dtrDraftDb';
-import { DTR_CORE_STATIC_V1 } from '../../lib/oneTimeCheckout';
+import { resolveDtrShelfAccess } from '../../lib/m55/dtrShelfAccess';
 import { PublicHeader } from '../../components/shell/PublicHeader';
 import { PublicFooter } from '../_components/PublicFooter';
 import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
@@ -19,25 +17,22 @@ export const metadata = { title: 'レポート | M55' };
  */
 export default async function DtrPage() {
   const { userId } = await auth();
+  const access = await resolveDtrShelfAccess(userId);
 
-  let ownershipState: 'owned' | 'locked' | 'expired' | 'anonymous' = 'anonymous';
-
-  if (userId) {
-    const ownership = await resolveEntryReportOwnership(userId);
-    ownershipState = ownership.unlockState;
-  }
-
-  let snapshotReady = false;
-  if (userId && ownershipState === 'owned') {
-    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
-    snapshotReady = snap != null;
-  }
+  const ownershipState =
+    access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
+  const snapshotReady = access.kind === 'authenticated' ? access.snapshotReady : false;
+  const shelfCta = access.shelfCta;
 
   return (
     <>
       <PublicHeader />
       <main className={styles.main}>
-        <DtrShelfPanel ownershipState={ownershipState} snapshotReady={snapshotReady} />
+        <DtrShelfPanel
+          ownershipState={ownershipState}
+          snapshotReady={snapshotReady}
+          shelfCta={shelfCta}
+        />
       </main>
       <PublicFooter />
     </>
