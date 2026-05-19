@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PRE m55_user_identity_mappings migration file creation + dry-run planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 migration file + dry-run planning / no-apply / no-mutation**。** **前提：** **`5Z-I-V-AW-R`** GREEN。** **本条：** filename **`20260519000000_m55_user_identity_mappings.sql`**（planned）；dry-run non-Production first；backup/rollback；Human GO templates；gate split **AX-FILE → AX-DRYRUN → AX-PROD**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_DRY_RUN_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PRE-M55-USER-IDENTITY-MAPPINGS-MIGRATION-FILE-CREATION-DRY-RUN-PLAN-001`**。** **Next:** **`5Z-I-V-AX-FILE`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_PRE_M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_DRY_RUN_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AW-R m55_user_identity_mappings migration SQL draft review recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 SQL draft review / no-apply / no-mutation**。** **前提：** **`5Z-I-V-AW`** GREEN。** **本条：** fenced **REVIEW DRAFT ONLY** SQL in SSOT；constraints/indexes/RLS reviewed；**no** `supabase/migrations/` file。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_SQL_DRAFT_REVIEW_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-R-M55-USER-IDENTITY-MAPPINGS-MIGRATION-SQL-DRAFT-REVIEW-001`**。** **Next:** **`5Z-I-V-AX-PRE`** then **AX**。** **AL: no**。** **本条:** no mutation**。
