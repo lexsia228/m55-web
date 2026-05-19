@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AB Production deployment / promotion execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AA`**；Human **GO**。** **本条：** **1** deployment action — **`work/home-cluster` → `main` merge + push**；Vercel Production autodeploy **`5e90199`**（includes **`98bcd58`**）；GitHub deployment id prefix **`4738129`**；status **Ready/success**。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_GREEN_FIX_DEPLOYED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AB-PRODUCTION-DEPLOYMENT-PROMOTION-EXECUTION-001`**。** **Next:** **`5Z-I-V-AC`** canonical Production UI verification。** **本条:** no env/DB/checkout；no UI verify；auth compliance unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AA Production deployment / promotion planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Z`** GREEN；Vercel read-only：**Preview `work/home-cluster` `98bcd58` ready**；**Production `main` Current `9bbf05c` ready**；**Production includes `98bcd58` = no**。** **Classification:** **`PRODUCTION_DOES_NOT_INCLUDE_SNAPSHOT_ROUTE_FIX`**。** **Preview logs:** `dtrOwnershipGate` **owned** / grantSource **`dtr_report_snapshots`**（suffix **`user_****1M65`** only）。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AA-PRODUCTION-DEPLOYMENT-PROMOTION-PLAN-001`**。** **Next:** **`READY_FOR_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_GATE`**（explicit GO）。** **本条:** no merge/promote/redeploy/env/DB/code/payment；Production UI verify deferred；auth compliance unresolved；normal dev flow not released**。

@@ -3,6 +3,7 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**Deploy execution:** `M55-EVID-20260518-5Z-I-V-AB-PRODUCTION-DEPLOYMENT-PROMOTION-EXECUTION-001`（**§2x**）
 **Deploy plan:** `M55-EVID-20260518-5Z-I-V-AA-PRODUCTION-DEPLOYMENT-PROMOTION-PLAN-001`（**§2w**）
 **Production UI plan:** `M55-EVID-20260518-5Z-I-V-Z-CANONICAL-PRODUCTION-UI-VERIFICATION-DEPLOYMENT-DECISION-PLAN-001`（**§2v**）
 **UI verify execution:** `M55-EVID-20260518-5Z-I-V-Y-HUMAN-UI-VERIFICATION-EXECUTION-001`（**§2u**）
@@ -764,7 +765,8 @@
 | **W-37** | **Human UI verification execution** | **closed** — **`UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`** | **5Z-I-V-Y** |
 | **W-38** | **Branch preview DTR unlock GREEN**；**canonical Production UI verify pending** | **inspect_only** — **plan at `5Z-I-V-Z`** | **5Z-I-V-Z** |
 | **W-39** | **Production includes `98bcd58`** | **no** — Current Production **`9bbf05c`**；Preview **`98bcd58` ready** | **5Z-I-V-AA** |
-| **W-40** | **Production deployment/promotion required** before canonical Production UI verification | **ask_human** — **explicit GO for execution gate** | **5Z-I-V-AB** |
+| **W-40** | **Production deployment/promotion execution** | **closed** — **`5Z-I-V-AB`** merge to **`main` / `5e90199`** | **5Z-I-V-AB** |
+| **W-41** | **Production includes `98bcd58` after AB** | **yes** — Production SHA **`5e90199`** | **5Z-I-V-AC** |
 
 ---
 
@@ -840,9 +842,10 @@
 | **CONTROL-32** | Canonical Production UI verification required | **open** — **plan closed at `5Z-I-V-Z`**；**execute `5Z-I-V-AA`** |
 | **CONTROL-33** | Canonical Production UI verification required | **open** — **blocked until Production includes `98bcd58`** |
 | **CONTROL-34** | Deployment/promotion planning required | **closed** — **`5Z-I-V-AA`** **`PRODUCTION_DOES_NOT_INCLUDE_SNAPSHOT_ROUTE_FIX`** |
-| **CONTROL-35** | Production deployment execution requires explicit GO | **open** — **execution gate after AA** |
+| **CONTROL-35** | Production deployment execution requires explicit GO | **closed** — **`5Z-I-V-AB`** **`PRODUCTION_DEPLOYMENT_PROMOTION_GREEN_FIX_DEPLOYED`** |
+| **CONTROL-36** | Canonical Production UI verification execution required | **open** — **`5Z-I-V-AC`** |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AB`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
 
 ---
 
@@ -851,7 +854,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-AA`** Production deployment / promotion planning |
+| **Update after** | **`5Z-I-V-AB`** Production deployment / promotion execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-V-*` → `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
