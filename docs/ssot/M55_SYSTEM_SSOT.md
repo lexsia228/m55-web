@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AC Canonical Production UI verification execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AB`** Production deploy **`5e90199`**（**`98bcd58`**）。** **本条：** Human UI on **canonical Production** **`m55-webv2.vercel.app`** — **`/dtr`** owned・未購入CTAなし・**「レポートを開く」** → **`/dtr/core`** 保存版；fatal errorなし；checkout/新規決済なし。** **Verdict:** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AC-CANONICAL-PRODUCTION-UI-VERIFICATION-EXECUTION-001`**。** **AC-P1–P5,P7–P8 pass**；**AC-P6 not-run**。** **Caveat:** production auth compliance unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-AD`** stabilization / release decision planning。** **本条:** no mutation；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AB Production deployment / promotion execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AA`**；Human **GO**。** **本条：** **1** deployment action — **`work/home-cluster` → `main` merge + push**；Vercel Production autodeploy **`5e90199`**（includes **`98bcd58`**）；GitHub deployment id prefix **`4738129`**；status **Ready/success**。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_GREEN_FIX_DEPLOYED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AB-PRODUCTION-DEPLOYMENT-PROMOTION-EXECUTION-001`**。** **Next:** **`5Z-I-V-AC`** canonical Production UI verification。** **本条:** no env/DB/checkout；no UI verify；auth compliance unresolved；normal dev flow not released**。
