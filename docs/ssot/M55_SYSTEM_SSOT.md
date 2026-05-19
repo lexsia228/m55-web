@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AD Post-Production DTR unlock stabilization / release decision planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AC`** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **本条：** docs-only — DTR unlock track **closed**（W/Y/AB/AC）；not closed: auth compliance / normal dev flow / AC-P6 unpaid / type-label / audit NoTouch；Options **1–4**；guardrails。** **Verdict:** **`POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AD-POST-PRODUCTION-DTR-UNLOCK-STABILIZATION-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GATE`**（conservative: partial release after unpaid smoke planning）。** **本条:** no mutation；no raw IDs；auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AC Canonical Production UI verification execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AB`** Production deploy **`5e90199`**（**`98bcd58`**）。** **本条：** Human UI on **canonical Production** **`m55-webv2.vercel.app`** — **`/dtr`** owned・未購入CTAなし・**「レポートを開く」** → **`/dtr/core`** 保存版；fatal errorなし；checkout/新規決済なし。** **Verdict:** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AC-CANONICAL-PRODUCTION-UI-VERIFICATION-EXECUTION-001`**。** **AC-P1–P5,P7–P8 pass**；**AC-P6 not-run**。** **Caveat:** production auth compliance unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-AD`** stabilization / release decision planning。** **本条:** no mutation；no raw IDs**。
