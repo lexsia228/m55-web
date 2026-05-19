@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AH Unpaid path no-payment smoke execution recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human UI read-only / no-payment execution**。** **前提：** **`5Z-I-V-AG`** planning GREEN；Production **`m55-webv2.vercel.app`**。** **観察:** **`logged-out-incognito-observation`** — **`/dtr`** 購入CTA（**`1,000円で入手する`→`/dtr/lp`**）・owned/保存済みバッジなし・**`/dtr/core`** は **307→`/dtr/lp`**；checkout/決済/CTA押下なし。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AH-UNPAID-PATH-NO-PAYMENT-SMOKE-EXECUTION-001`**。** **AC-P6:** **GREEN**（non-owned scope）；authenticated locked **NOT_RUN**。** **Caveat:** auth compliance / full dev flow / type-label / audit — separate。** **本条:** no mutation；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AG Unpaid path no-payment smoke planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR unlock **AC GREEN**；**AC-P6 unpaid not-run**；**AF Category 1 active**。** **本条：** docs-only plan for **AH** execution — unpaid/locked shelf+LP purchase CTA visible；no owned/saved leak；no **`/dtr/core`** saved open；**no payment/checkout/DB**。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AG-UNPAID-PATH-NO-PAYMENT-SMOKE-PLAN-001`**。** **Next:** **`5Z-I-V-AH`** execution（Human UI read-only no-payment）。** **本条:** no mutation；auth compliance separate；no raw IDs**。

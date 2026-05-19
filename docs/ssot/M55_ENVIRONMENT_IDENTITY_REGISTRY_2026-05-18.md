@@ -3,6 +3,7 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**Unpaid smoke execution:** `M55-EVID-20260519-5Z-I-V-AH-UNPAID-PATH-NO-PAYMENT-SMOKE-EXECUTION-001`（**§2ad**）
 **Unpaid smoke plan:** `M55-EVID-20260519-5Z-I-V-AG-UNPAID-PATH-NO-PAYMENT-SMOKE-PLAN-001`（**§2ac**）
 **Limited release execution:** `M55-EVID-20260518-5Z-I-V-AF-LIMITED-NORMAL-DEV-FLOW-RELEASE-EXECUTION-001`（**§2ab**）
 **Release decision plan:** `M55-EVID-20260518-5Z-I-V-AE-NORMAL-DEV-FLOW-RELEASE-DECISION-PLAN-001`（**§2aa**）
@@ -632,12 +633,28 @@
 |-------|--------|
 | **gate_verdict** | **`UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_GREEN_NO_MUTATION`** |
 | **classification** | **Category 3 separate track / planning-only** |
-| **AC-P6** | **not-run** — execution deferred to **`5Z-I-V-AH`** |
+| **AC-P6** | **closed GREEN** — **`5Z-I-V-AH`** non-owned Production smoke |
 | **owned path** | **closed GREEN** — **`5Z-I-V-AC`**（do not re-open from this track） |
 | **auth compliance** | **separate** — not closed by AG |
 | **next** | **`5Z-I-V-AH`** Human UI no-payment execution |
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`
+
+---
+
+### 2ad. Unpaid path no-payment smoke execution（`5Z-I-V-AH`）
+
+**Evidence:** `M55-EVID-20260519-5Z-I-V-AH-UNPAID-PATH-NO-PAYMENT-SMOKE-EXECUTION-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_GREEN_NO_MUTATION`** |
+| **safe state** | **`logged-out-incognito-observation`** |
+| **AC-P6** | **closed GREEN**（non-owned scope） |
+| **authenticated locked** | **NOT_RUN**（optional follow-up） |
+| **checkout / payment** | **none** |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`
 
 ### Clerk frontend domains（observed — app mapping unclear）
 
@@ -792,11 +809,12 @@
 | **W-42** | **Production DTR unlock verified on canonical domain** | **closed** — **`m55-webv2.vercel.app`** | **5Z-I-V-AC** |
 | **W-43** | **DTR unlock stabilized**；**release decision pending** | **inspect_only** — **plan `5Z-I-V-AD`** | **5Z-I-V-AD** |
 | **W-44** | **Production auth compliance unresolved after DTR unlock** | **open** — **`pk_test_` / Clerk track** | **5Z-I-V-AE** |
-| **W-45** | **Unpaid path not-run**（AC-P6） | **open** — **plan `5Z-I-V-AG`**；execute **`5Z-I-V-AH`** | **5Z-I-V-AG** |
+| **W-45** | **Unpaid path not-run**（AC-P6） | **closed GREEN** — **`5Z-I-V-AH`** logged-out non-owned scope | **5Z-I-V-AH** |
 | **W-46** | **Type-label mismatch separate** | **open** — not DTR unlock scope | **separate gate** |
 | **W-47** | **Limited normal dev flow active** | **active** — **Category 1 only** — **`5Z-I-V-AF`** | **5Z-I-V-AF** |
 | **W-48** | **auth / payment / env / DB remain gated** after DTR unlock | **active** | **ongoing** |
-| **W-49** | **Unpaid smoke recommended** before broad release confidence | **planned** — **`5Z-I-V-AG`**；**AH execution pending** | **5Z-I-V-AH** |
+| **W-49** | **Unpaid smoke recommended** before broad release confidence | **closed** — **`5Z-I-V-AH`** GREEN（non-owned scope） | **5Z-I-V-AH** |
+| **W-50** | **Authenticated locked unpaid shelf** | **optional NOT_RUN** — Human follow-up if required | **separate** |
 
 ---
 
@@ -878,13 +896,13 @@
 | **CONTROL-36** | Canonical Production UI verification execution required | **closed** — **`5Z-I-V-AC`** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`** |
 | **CONTROL-37** | Post-production stabilization / release decision required | **closed** — **`5Z-I-V-AD`** plan recorded |
 | **CONTROL-38** | Normal dev flow release decision required | **closed** — **`5Z-I-V-AE`** partial limited release **recommended** |
-| **CONTROL-39** | Unpaid-path no-payment smoke before full release | **open** — **plan closed `5Z-I-V-AG`**；**execute `5Z-I-V-AH`** |
-| **CONTROL-43** | Unpaid-path no-payment smoke execution | **open** — **`5Z-I-V-AH`** |
+| **CONTROL-39** | Unpaid-path no-payment smoke before full release | **closed** — **`5Z-I-V-AH`** GREEN |
+| **CONTROL-43** | Unpaid-path no-payment smoke execution | **closed** — **`5Z-I-V-AH`** |
 | **CONTROL-40** | Limited normal dev flow release execution | **closed** — **`5Z-I-V-AF`** **`LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GREEN_CATEGORY_1_ONLY`** |
 | **CONTROL-41** | Task category declaration required before work | **active** — enforced from **`5Z-I-V-AF`** |
 | **CONTROL-42** | Category 2 explicit GO remains required | **active** — auth/payment/env/DB/deploy/runner |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AG`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`；**`5Z-I-V-AF`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`；**`5Z-I-V-AE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AD`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AC`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AB`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AH`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`；**`5Z-I-V-AG`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`；**`5Z-I-V-AF`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`；**`5Z-I-V-AE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AD`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AC`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AB`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
 
 ---
 
@@ -893,7 +911,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-AG`** Unpaid path no-payment smoke planning |
+| **Update after** | **`5Z-I-V-AH`** Unpaid path no-payment smoke execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-V-*` → `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
