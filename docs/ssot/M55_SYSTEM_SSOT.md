@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AV Mapping schema / dual-namespace resolver design recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 design-only / no-mutation**。** **前提：** **`5Z-I-V-AU`** GREEN；**`feasible_with_dual_namespace_resolver_planning`**。** **本条：** `m55_user_identity_mappings` conceptual schema；**`resolveCanonicalOwner`** contract；read/write path matrix；gate chain **AW→BC**。** **Verdict:** **`MAPPING_SCHEMA_DUAL_NAMESPACE_RESOLVER_DESIGN_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AV-MAPPING-SCHEMA-DUAL-NAMESPACE-RESOLVER-DESIGN-001`**。** **Next:** **`5Z-I-V-AW`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AV_MAPPING_SCHEMA_DUAL_NAMESPACE_RESOLVER_DESIGN_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AU Read-only mapping feasibility inventory recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only inventory / no-mutation**。** **前提：** **`5Z-I-V-AT`** GREEN；AR-R **separate** namespace。** **本条：** mapping scale **5** Clerk visible / **10** DB distinct；artifact feasibility matrix；**`feasible_with_dual_namespace_resolver_planning`**。** **Verdict:** **`READONLY_MAPPING_FEASIBILITY_INVENTORY_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AU-READONLY-MAPPING-FEASIBILITY-INVENTORY-001`**。** **Next:** **`5Z-I-V-AV`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
