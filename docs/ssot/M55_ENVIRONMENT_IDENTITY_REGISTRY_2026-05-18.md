@@ -561,19 +561,20 @@
 
 ---
 
-### 2p. Entitlement discrepancy / ownership fallback read-only SELECT（`5Z-I-V-T`）
+### 2p. Entitlement discrepancy / ownership fallback read-only SELECT（`5Z-I-V-T` — updated）
 
-**Evidence:** `M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`
+**Evidence:** `M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`（**追認更新**）
 
 | Field | Value |
 |-------|--------|
-| **gate_verdict** | **`ENTITLEMENT_DISCREPANCY_SELECT_INCONCLUSIVE`** |
-| **reason** | **Human `5Z-I-V-T` protocol results not submitted** |
-| **same-ID consistency** | **unclear** |
-| **O/R discrepancy** | **unresolved**（O **1** / R **0** — prior only） |
+| **gate_verdict** | **`ENTITLEMENT_DISCREPANCY_SELECT_GREEN_ACTIVE_ROW_FOUND`** |
+| **same-ID consistency** | **yes** |
+| **matched** | **active ent** / **`m55_p:core_origin`** / **snapshot ×1** / **OTF latest DTR** |
+| **O/R discrepancy** | **resolved** — **`ENTITLEMENT_ROWCOUNT_DISCREPANCY_RESOLVED_ACTIVE_ROW_FOUND`** |
+| **primary suspect if UI locked** | **snapshot lookup / route / `snapshotReady`** |
 | **agent Production SELECT** | **no** |
 
-**Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`** — Human §5 protocol re-submit.
+**Next:** **`5Z-I-V-U`** snapshot/route/snapshotReady code-fix planning.
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
 
@@ -711,12 +712,12 @@
 | **W-23** | **`one_time_fulfillments` multiple rows for UI user**（**row_count 4**） | **inspect_only** | **5Z-I-V-O** |
 | **W-24** | **UI user artifacts present but gate may still lock** | **inspect_only** | **5Z-I-V-Q** |
 | **W-25** | **OTF multiple rows — gate reads latest only** | **inspect_only** | **5Z-I-V-Q** |
-| **W-26** | **Active entitlement row missing in `5Z-I-V-R` query**（ent **0** for `DTR_CORE_STATIC_V1`） | **ask_human** | **5Z-I-V-T** |
-| **W-27** | **`5Z-I-V-O` vs `5Z-I-V-R` entitlement row_count discrepancy** — **unresolved at `5Z-I-V-T`** | **ask_human** | **5Z-I-V-T** |
+| **W-26** | **Active entitlement row found**（**`5Z-I-V-T` final** — ent **1** / **active**） | **inspect_only** | **5Z-I-V-T** |
+| **W-27** | **O/R entitlement discrepancy resolved**（O **1** / R **0** → T confirms **1 active**） | **inspect_only** | **5Z-I-V-T** |
 | **W-28** | **OTF ×4 — latest row `DTR_CORE_STATIC_V1` matched**（**`5Z-I-V-R`**） | **inspect_only** | **5Z-I-V-R** |
 | **W-29** | **`owned` + !`snapshotReady` routes to LP/purchase UX** | **inspect_only** | **5Z-I-V-Q** |
-| **W-30** | **Ownership fallback should be checked** — **T INCONCLUSIVE**；await same-ID + §5 SELECT | **ask_human** | **5Z-I-V-T** |
-| **W-31** | **`5Z-I-V-T` same-user same-query SELECT not submitted** | **ask_human** | **5Z-I-V-T** |
+| **W-30** | **Ownership fallback artifacts matched**（ent + rights + snap + OTF latest） | **inspect_only** | **5Z-I-V-T** |
+| **W-31** | **Snapshot lookup / route / `snapshotReady` consumption primary suspect** | **inspect_only** | **5Z-I-V-T** |
 
 ---
 
@@ -780,10 +781,10 @@
 | **CONTROL-20** | Ownership gate / read-path diagnostic required | **planned** — execution **`5Z-I-V-Q`** |
 | **CONTROL-21** | Ownership gate condition map required | **mapped** — **`5Z-I-V-Q`** repo trace |
 | **CONTROL-22** | Product/right key/snapshot lookup read-only verification | **partial** — **`5Z-I-V-R` GREEN with caveat**；snapshot/route still suspect |
-| **CONTROL-23** | Entitlement **O/R row_count discrepancy** confirmation required | **open** — **`5Z-I-V-T` INCONCLUSIVE** |
-| **CONTROL-24** | Same-user same-query entitlement confirmation required | **open** — Human §5 re-submit |
-| **CONTROL-25** | Ownership fallback path decision required | **open** — blocked on **CONTROL-24** |
-| **CONTROL-26** | `5Z-I-V-T` Human SELECT evidence submission required | **open** |
+| **CONTROL-23** | Entitlement **O/R row_count discrepancy** confirmation required | **closed** — **`5Z-I-V-T`** active row found |
+| **CONTROL-24** | Same-user same-query entitlement confirmation required | **closed** — same-ID **yes**；SELECT submitted |
+| **CONTROL-25** | Ownership fallback path decision required | **decided** — artifacts matched；**route/read-path planning → `5Z-I-V-U`** |
+| **CONTROL-26** | `5Z-I-V-T` Human SELECT evidence submission required | **closed** |
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-T`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
 
@@ -794,7 +795,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-T`** Entitlement discrepancy / ownership fallback read-only SELECT |
+| **Update after** | **`5Z-I-V-T`** SELECT追認 — GREEN active row found |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

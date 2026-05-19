@@ -1,10 +1,10 @@
-## 2026-05-18 — Phase 5-6H-5Z-I-V-T Entitlement discrepancy / ownership fallback read-only SELECT gate recorded
+## 2026-05-18 — Phase 5-6H-5Z-I-V-T Entitlement discrepancy / ownership fallback read-only SELECT — Human追認更新
 
-Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-S`** planned **`5Z-I-V-T` SELECT protocol**。** **本条：** Human-local SELECT gate — **results not submitted** → **`ENTITLEMENT_DISCREPANCY_SELECT_INCONCLUSIVE`**。** **O/R caveat unresolved：** O ent **1** / R ent **0**（prior only）。** **same-ID consistency：** **unclear**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`**。** **Next:** **`MORE_READONLY_EVIDENCE_REQUIRED`**。** **本条:** no mutation；no raw IDs**。
+Status: **`work/home-cluster`。** **同一 Evidence 追認：** Human final confirmation SELECT。** **Verdict:** **`ENTITLEMENT_DISCREPANCY_SELECT_GREEN_ACTIVE_ROW_FOUND`**。** **same-ID:** **yes**。** **matched:** active ent **1** / **`m55_p:core_origin`** / snap **1** / OTF latest **DTR**。** **O/R resolved:** active row found（R **0** likely query drift）。** **Suspect if UI locked:** **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CONSUMPTION_PRIMARY`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`**。** **Next:** **`5Z-I-V-U`** code-fix planning。** **本条:** no mutation；production auth unresolved；normal dev flow not released**。
 
 Work anchor:
 
-- **`b7428e39b29b3f92208b4b6ed5d15eb35b9ba72f`** — **`docs: plan entitlement discrepancy fallback diagnostic`**
+- **`c82cd2ca951337ad1b0cf84a3ffc4d5cb33681fb`** — initial **`docs: record entitlement fallback readonly select`**（INCONCLUSIVE）
 
 Evidence:
 
