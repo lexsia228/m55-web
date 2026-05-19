@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-V Snapshot route read-path implementation planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-U`** Option **2+4**。** **本条：** file-level plan — **`dtrShelfAccess`** + **DtrShelfPanel** / **/dtr/lp/core/processing** / **report-snapshot-ready API**；UI taxonomy；tests **T1–T10**；rollback **commit revert only**。** **Verdict:** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_GREEN_NO_CODE_CHANGE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-V-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-PLAN-001`**。** **Next:** **`5Z-I-V-W` execution** — **explicit GO**。** **本条:** no code change；no mutation**。
+
+Work anchor:
+
+- **`bff5e958f4e3b0bb121d98083d4bed9885d3b45d`** — **`docs: plan snapshot route read path fix`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-U`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_U_SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CODE_FIX_PLANNING_2026-05-18.md`
+
+Hard stop:
+
+- **no implementation**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-U Snapshot lookup / route read-path / snapshotReady code-fix planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-T`** DB prerequisites **matched**；UI **still purchase/locked suspect**。** **本条：** docs-only code-fix plan — **`getDtrReportSnapshot`** / **`snapshotReady`** / **`DtrShelfPanel`** / **`/dtr/lp`/`/dtr/core`**；Options **1–5**；AC **AC-1–AC-8**。** **Verdict:** **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_CODE_FIX_PLANNING_GREEN_NO_IMPLEMENTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-U-SNAPSHOT-LOOKUP-ROUTE-READ-PATH-SNAPSHOTREADY-CODE-FIX-PLAN-001`**。** **Preferred:** Option **2+4**。** **Next:** **implementation planning gate** — **explicit GO only**。** **本条:** no code change；no mutation；no raw IDs**。
