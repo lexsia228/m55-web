@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AK Production Clerk auth compliance correction planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning only / no-mutation**。** **前提：** **`5Z-I-V-AJ-R`** RED（**`m55-official`** / **development** / **`pk_test_`+`sk_test_`** on Production）。** **本条：** correction plan — **Option 1 recommended**（enable Production on **`m55-official`** → Vercel **`pk_live_`/`sk_live_`**）；Option 2 fallback；Option 3 not compliance target。** **Future:** **AL** execution → **AM** redeploy → **AN** verify。** **Verdict:** **`PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AK-PRODUCTION-CLERK-AUTH-COMPLIANCE-CORRECTION-PLAN-001`**。** **Blockers:** **`pk_live_` visibility unclear**；user ID migration open；**no Human GO for AL**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AK_PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AJ-R Production auth compliance / Clerk dashboard replay result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human AJ-replay result / docs-only**。** **前提：** **`5Z-I-V-AJ`** BLOCKED → Human replay submitted（prefix class only；raw key **no**）。** **観察:** Vercel Production publishable **`pk_test_`**；Vercel secret **unclear**；Preview publishable **`pk_test_`**；Clerk **`m55-official`** / **development** / **`pk_test_`+`sk_test_`**；domain **`m55-webv2.vercel.app` configured**；same-app **yes**（limited confidence）；dual-app **resolved**。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_REPLAY_RED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AJ-R-PRODUCTION-AUTH-COMPLIANCE-CLERK-DASHBOARD-REPLAY-RESULT-001`**。** **Auth compliance:** **RED confirmed**；**no correction**。** **Next:** **`5Z-I-V-AK`** Category 2 correction **planning**（GO before execution）。** **本条:** no mutation；DTR/AC-P6 unchanged**。
