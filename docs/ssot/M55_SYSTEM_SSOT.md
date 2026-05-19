@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AR-R Clerk user_id continuity replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe replay result / no-mutation**。** **Human replay:** source **`clerk_dashboard_visual_inspection`**；answer **`separate`**；mutation **no**。** **Decision:** Development ↔ Production **separate namespace**；continuity **not confirmed**；continuity GREEN **no**。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_REPLAY_RED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-R-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-REPLAY-RESULT-001`**。** **AL: no**。** **Next:** **`5Z-I-V-AT`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AR_R_CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_REPLAY_RESULT_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AR Clerk production-instance user_id continuity confirmation planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe confirmation design / no-mutation**。** **前提：** **`5Z-I-V-AQ`** GREEN；continuity **`not_confirmed`**。** **本条：** Methods 1–4 compare；Human **§E** replay template；AR-replay GREEN/BLOCKED/RED rules；branching to AL-PRE / AS / AT。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_CONFIRMATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-CONFIRMATION-PLAN-001`**。** **Next:** **`5Z-I-V-AR-replay`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
