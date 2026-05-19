@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AW m55_user_identity_mappings DB migration planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 DB migration planning-only / no-mutation**。** **前提：** **`5Z-I-V-AV`** GREEN。** **本条：** `m55_user_identity_mappings` conceptual schema；constraints/indexes；RLS server-only；ordering **AW-R→AX→AY→AZ→BA→BB→BC**；dry-run/rollback；seed policy。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_DB_MIGRATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-M55-USER-IDENTITY-MAPPINGS-DB-MIGRATION-PLAN-001`**。** **Next:** **`5Z-I-V-AW-R`** then **AX**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AW_M55_USER_IDENTITY_MAPPINGS_DB_MIGRATION_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AV Mapping schema / dual-namespace resolver design recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 design-only / no-mutation**。** **前提：** **`5Z-I-V-AU`** GREEN；**`feasible_with_dual_namespace_resolver_planning`**。** **本条：** `m55_user_identity_mappings` conceptual schema；**`resolveCanonicalOwner`** contract；read/write path matrix；gate chain **AW→BC**。** **Verdict:** **`MAPPING_SCHEMA_DUAL_NAMESPACE_RESOLVER_DESIGN_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AV-MAPPING-SCHEMA-DUAL-NAMESPACE-RESOLVER-DESIGN-001`**。** **Next:** **`5Z-I-V-AW`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
