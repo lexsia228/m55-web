@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-X Human UI verification planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-W`** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_GREEN_CODE_CHANGE`**（**`98bcd58`**）。** **本条：** docs-only — Human UI verification checklist for **`/dtr` / `/dtr/lp` / `/dtr/core` / `/dtr/processing?recovery=owned`** + optional **`report-snapshot-ready` API**；AC **AC-1–AC-10**；failure tokens；rollback **`98bcd58`** criteria。** **Verdict:** **`HUMAN_UI_VERIFICATION_PLANNING_GREEN_NO_EXECUTION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-X-HUMAN-UI-VERIFICATION-PLAN-001`**。** **Next:** **`READY_FOR_HUMAN_UI_VERIFICATION_EXECUTION_GATE`** → **`5Z-I-V-Y`**。** **本条:** no UI execution；no DB/env/code/mutation；no raw IDs；production auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-W Snapshot route read-path implementation execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-V`** GREEN planning；Human implementation **GO**。** **本条：** scoped code — **`lib/m55/dtrShelfAccess.ts`** + **`/dtr`** shelf/LP/core/processing + **`report-snapshot-ready` API**；owned + !`snapshotReady` → **`/dtr/processing?recovery=owned`**（no unpaid purchase CTA）。** **Verdict:** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_GREEN_CODE_CHANGE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-W-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-EXECUTION-001`**。** **Tests:** **`tsc`/`build` PASS**；**`audit` FAIL** pre-existing globals.css NoTouch。** **Next:** **`5Z-I-V-X`** Human UI verification planning。** **本条:** no DB/env/mutation；production auth unresolved；normal dev flow not released**。
