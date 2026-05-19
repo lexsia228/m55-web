@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AT User mapping / entitlement preservation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AR-R`** RED（**`separate`** namespace）。** **本条：** artifact dependency map；safe-label mapping model；preservation rules §F；Options 1–5；future gates **AU/AV/AW/AX/AS**；stop conditions。** **Strategy:** prefer **dual-namespace resolver** over raw **`user_id` rewrite**；**no AL**。** **Verdict:** **`USER_MAPPING_ENTITLEMENT_PRESERVATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AT-USER-MAPPING-ENTITLEMENT-PRESERVATION-PLAN-001`**。** **Next:** **`5Z-I-V-AU`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AT_USER_MAPPING_ENTITLEMENT_PRESERVATION_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AR-R Clerk user_id continuity replay result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe replay result / no-mutation**。** **Human replay:** source **`clerk_dashboard_visual_inspection`**；answer **`separate`**；mutation **no**。** **Decision:** Development ↔ Production **separate namespace**；continuity **not confirmed**；continuity GREEN **no**。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_REPLAY_RED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-R-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-REPLAY-RESULT-001`**。** **AL: no**。** **Next:** **`5Z-I-V-AT`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
