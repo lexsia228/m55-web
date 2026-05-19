@@ -3,6 +3,7 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**Production instance feasibility plan:** `M55-EVID-20260519-5Z-I-V-AQ-PRODUCTION-CLERK-PRODUCTION-INSTANCE-FEASIBILITY-USER-ID-CONTINUITY-PLAN-001`（**§2ap**）
 **Supabase aggregate replay result:** `M55-EVID-20260519-5Z-I-V-AP-S-R-SUPABASE-AGGREGATE-INVENTORY-REPLAY-RESULT-001`（**§2ao**）
 **Supabase aggregate query prep:** `M55-EVID-20260519-5Z-I-V-AP-S-SUPABASE-AGGREGATE-INVENTORY-READONLY-QUERY-PREP-001`（**§2an**）
 **Namespace replay counts:** `M55-EVID-20260519-5Z-I-V-AP-R-PRODUCTION-CLERK-NAMESPACE-CONTINUITY-REPLAY-COUNTS-RESULT-001`（**§2am**）
@@ -836,9 +837,25 @@
 | **Production instance** | **no** |
 | **user_id continuity** | **`not_confirmed`** |
 | **AL authorized** | **no** |
-| **next** | **`5Z-I-V-AQ`** planning only |
+| **next** | **`5Z-I-V-AQ`**（completed）→ **`5Z-I-V-AR`** or **`5Z-I-V-AS`** |
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_R_SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_2026-05-19.md`
+
+---
+
+### 2ap. Production instance feasibility / user_id continuity planning（`5Z-I-V-AQ`）
+
+**Evidence:** `M55-EVID-20260519-5Z-I-V-AQ-PRODUCTION-CLERK-PRODUCTION-INSTANCE-FEASIBILITY-USER-ID-CONTINUITY-PLAN-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_GREEN_NO_MUTATION`** |
+| **Production instance creation** | **not authorized** |
+| **user_id continuity** | **`not_confirmed`** |
+| **AL authorized** | **no** |
+| **next** | **`5Z-I-V-AR`**（continuity inquiry）or **`5Z-I-V-AS`**（exception governance） |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AQ_PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_2026-05-19.md`
 
 ---
 
@@ -1006,10 +1023,11 @@
 | **W-41** | **Production includes `98bcd58` + UI verified** | **closed GREEN** — **`5Z-I-V-AC`** | **5Z-I-V-AC** |
 | **W-42** | **Production DTR unlock verified on canonical domain** | **closed** — **`m55-webv2.vercel.app`** | **5Z-I-V-AC** |
 | **W-43** | **DTR unlock stabilized**；**release decision pending** | **inspect_only** — **plan `5Z-I-V-AD`** | **5Z-I-V-AD** |
-| **W-44** | **Production auth compliance unresolved after DTR unlock** | **RED** — Supabase counts **GREEN `AP-S-R`**；continuity **not confirmed** | **5Z-I-V-AQ** |
-| **W-55** | **Namespace continuity inventory** | **partial** — Supabase **GREEN**；Clerk continuity **`not_confirmed`** | **5Z-I-V-AQ** |
-| **W-56** | **Clerk Development user population** | **5 total / 5 active** — **`5Z-I-V-AP-R`** | **AQ** |
-| **W-57** | **Supabase paid-artifact aggregates** | **recorded `5Z-I-V-AP-S-R`** — ent **10**；rights **7**；snap **6**；wallets **10**；OTF **10/7** | **AQ** |
+| **W-44** | **Production auth compliance unresolved after DTR unlock** | **RED** — AQ plan GREEN；execution **blocked** | **5Z-I-V-AR** or **AS** |
+| **W-55** | **Namespace continuity inventory** | **partial** — feasibility plan **`5Z-I-V-AQ`** GREEN；continuity **`not_confirmed`** | **5Z-I-V-AR** |
+| **W-56** | **Clerk Development user population** | **5 total / 5 active** — **`5Z-I-V-AP-R`** | **AR** |
+| **W-57** | **Supabase paid-artifact aggregates** | **recorded `5Z-I-V-AP-S-R`** — ent **10**；rights **7**；snap **6**；wallets **10**；OTF **10/7** | **AR/AT** |
+| **W-58** | **Production instance creation authorized** | **no** — **`5Z-I-V-AQ`** | **AR** then chain |
 | **W-53** | **AL correction execution preflight** | **BLOCKED** — replay **`5Z-I-V-AL-PRE-R`**；no **`pk_live_`** | **5Z-I-V-AO** |
 | **W-54** | **Clerk Development instance has real users** | **yes** — unsafe blind namespace switch | **5Z-I-V-AO** |
 | **W-51** | **Auth compliance dashboard confirmation** | **closed RED** — **`5Z-I-V-AJ-R`** replay | **5Z-I-V-AK** |
@@ -1093,7 +1111,10 @@
 | **CONTROL-55** | Production Clerk namespace inventory replay | **closed partial** — Clerk counts **`5Z-I-V-AP-R`** |
 | **CONTROL-57** | Supabase aggregate inventory replay | **closed** — **`5Z-I-V-AP-S-R`** GREEN counts recorded |
 | **CONTROL-58** | Supabase aggregate replay result recording | **closed** — **`5Z-I-V-AP-S-R`** |
-| **CONTROL-56** | Production instance feasibility / user_id continuity planning | **open** — **`5Z-I-V-AQ`** |
+| **CONTROL-56** | Production instance feasibility / user_id continuity planning | **closed** — **`5Z-I-V-AQ`** GREEN |
+| **CONTROL-59** | Clerk Production-instance `user_id` continuity confirmation | **open** — **`5Z-I-V-AR`** |
+| **CONTROL-60** | Temporary auth compliance exception governance | **open** — **`5Z-I-V-AS`**（optional） |
+| **CONTROL-61** | User mapping / entitlement preservation planning | **open** — **`5Z-I-V-AT`**（if AR = no） |
 | **CONTROL-52** | Vercel Production Clerk env backup / rollback prep | **open** — Human outside SSOT |
 | **CONTROL-48** | Production redeploy for Clerk env activation | **open** — **`5Z-I-V-AM`** after AL |
 | **CONTROL-49** | Post-correction auth/UI verification | **open** — **`5Z-I-V-AN`** |
@@ -1122,7 +1143,7 @@
 | **CONTROL-41** | Task category declaration required before work | **active** — enforced from **`5Z-I-V-AF`** |
 | **CONTROL-42** | Category 2 explicit GO remains required | **active** — auth/payment/env/DB/deploy/runner |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AP-S-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_R_SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AP-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_2026-05-19.md`；**`5Z-I-V-AP-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_R_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_REPLAY_COUNTS_RESULT_2026-05-19.md`；**`5Z-I-V-AP`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_READONLY_INVENTORY_2026-05-19.md`；**`5Z-I-V-AO`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AO_PRODUCTION_CLERK_PRODUCTION_INSTANCE_MIGRATION_NAMESPACE_CONTINUITY_PLANNING_2026-05-19.md`；**`5Z-I-V-AL-PRE-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_R_PRODUCTION_CLERK_CORRECTION_PREFLIGHT_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AL-PRE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_PRODUCTION_CLERK_CORRECTION_EXECUTION_PREFLIGHT_HUMAN_CHECKLIST_2026-05-19.md`；**`5Z-I-V-AK`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AK_PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_2026-05-19.md`；**`5Z-I-V-AJ-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_R_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AJ`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_2026-05-19.md`；**`5Z-I-V-AI`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AI_PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_2026-05-19.md`；**`5Z-I-V-AH`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`；**`5Z-I-V-AG`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`；**`5Z-I-V-AF`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`；**`5Z-I-V-AE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AD`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AC`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AB`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-AQ`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AQ_PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_2026-05-19.md`；**`5Z-I-V-AP-S-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_R_SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AP-S`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_2026-05-19.md`；**`5Z-I-V-AP-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_R_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_REPLAY_COUNTS_RESULT_2026-05-19.md`；**`5Z-I-V-AP`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_READONLY_INVENTORY_2026-05-19.md`；**`5Z-I-V-AO`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AO_PRODUCTION_CLERK_PRODUCTION_INSTANCE_MIGRATION_NAMESPACE_CONTINUITY_PLANNING_2026-05-19.md`；**`5Z-I-V-AL-PRE-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_R_PRODUCTION_CLERK_CORRECTION_PREFLIGHT_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AL-PRE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_PRODUCTION_CLERK_CORRECTION_EXECUTION_PREFLIGHT_HUMAN_CHECKLIST_2026-05-19.md`；**`5Z-I-V-AK`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AK_PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_2026-05-19.md`；**`5Z-I-V-AJ-R`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_R_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_REPLAY_RESULT_2026-05-19.md`；**`5Z-I-V-AJ`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_2026-05-19.md`；**`5Z-I-V-AI`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AI_PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_2026-05-19.md`；**`5Z-I-V-AH`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`；**`5Z-I-V-AG`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`；**`5Z-I-V-AF`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`；**`5Z-I-V-AE`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AD`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-AC`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AB`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`；**`5Z-I-V-AA`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`；**`5Z-I-V-Z`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
 
 ---
 
@@ -1131,7 +1152,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-AP-S-R`** Supabase aggregate inventory replay result |
+| **Update after** | **`5Z-I-V-AQ`** Production Clerk production-instance feasibility planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-V-*` → `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AQ Production Clerk production-instance feasibility / user_id continuity planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AP-S-R`** Supabase GREEN；Clerk continuity **`not_confirmed`**。** **本条：** eight feasibility questions；Options A–E；mapping design §F；future gates **AR/AS/AT/AL**；stop conditions。** **Policy:** no Production instance yet；no AL；compliance **RED**。** **Verdict:** **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AQ-PRODUCTION-CLERK-PRODUCTION-INSTANCE-FEASIBILITY-USER-ID-CONTINUITY-PLAN-001`**。** **Next:** **`5Z-I-V-AR`** or **`5Z-I-V-AS`**（Human choice）。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AQ_PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S-R Supabase aggregate inventory replay result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 inventory result recording / no-mutation**。** **前提：** **`5Z-I-V-AP-S`** GREEN；Human counts-only replay submitted。** **Supabase:** all AP-S metrics **numeric**（entitlements **10**；rights **7**；snapshots **6**；wallets **10**；ledgers **17**；OTF **10/7** distinct；stripe_events **133**；failed_fulfillments **7**）。** **Clerk:** Development **5/5**；Production instance **no**；**user_id continuity `not_confirmed`**（safe override）。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-R-SUPABASE-AGGREGATE-INVENTORY-REPLAY-RESULT-001`**。** **Namespace continuity overall:** **not GREEN**。** **AL: no**。** **Next:** **`5Z-I-V-AQ`** planning only。** **本条:** no mutation**。
