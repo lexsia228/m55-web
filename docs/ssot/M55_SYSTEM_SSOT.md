@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AA Production deployment / promotion planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Z`** GREEN；Vercel read-only：**Preview `work/home-cluster` `98bcd58` ready**；**Production `main` Current `9bbf05c` ready**；**Production includes `98bcd58` = no**。** **Classification:** **`PRODUCTION_DOES_NOT_INCLUDE_SNAPSHOT_ROUTE_FIX`**。** **Preview logs:** `dtrOwnershipGate` **owned** / grantSource **`dtr_report_snapshots`**（suffix **`user_****1M65`** only）。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AA-PRODUCTION-DEPLOYMENT-PROMOTION-PLAN-001`**。** **Next:** **`READY_FOR_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_GATE`**（explicit GO）。** **本条:** no merge/promote/redeploy/env/DB/code/payment；Production UI verify deferred；auth compliance unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AA_PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-Z Canonical Production UI verification / deployment decision planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Y`** branch preview **`HUMAN_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED_BRANCH_PREVIEW`**（**`4ab8e4e`**）；**`98bcd58`** on preview。** **本条：** docs-only — Options **1–4**（verify-only / deploy-later / defer / read-only Production check）；canonical routes **AC-P1–P8**；deployment checklist **98bcd58 yes/no/unclear**；go/no-go → **`5Z-I-V-AA`**。** **Verdict:** **`CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Z-CANONICAL-PRODUCTION-UI-VERIFICATION-DEPLOYMENT-DECISION-PLAN-001`**。** **Caveat:** Production UI + auth compliance unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-AA`**（status confirm / deploy plan / Production UI execution）。** **本条:** no merge/redeploy/env/DB/code/payment；no raw IDs**。
