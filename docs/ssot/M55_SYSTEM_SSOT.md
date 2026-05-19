@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AW-R m55_user_identity_mappings migration SQL draft review recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 SQL draft review / no-apply / no-mutation**。** **前提：** **`5Z-I-V-AW`** GREEN。** **本条：** fenced **REVIEW DRAFT ONLY** SQL in SSOT；constraints/indexes/RLS reviewed；**no** `supabase/migrations/` file。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_SQL_DRAFT_REVIEW_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-R-M55-USER-IDENTITY-MAPPINGS-MIGRATION-SQL-DRAFT-REVIEW-001`**。** **Next:** **`5Z-I-V-AX-PRE`** then **AX**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AW_R_M55_USER_IDENTITY_MAPPINGS_MIGRATION_SQL_DRAFT_REVIEW_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AW m55_user_identity_mappings DB migration planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 DB migration planning-only / no-mutation**。** **前提：** **`5Z-I-V-AV`** GREEN。** **本条：** `m55_user_identity_mappings` conceptual schema；constraints/indexes；RLS server-only；ordering **AW-R→AX→AY→AZ→BA→BB→BC**；dry-run/rollback；seed policy。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_DB_MIGRATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-M55-USER-IDENTITY-MAPPINGS-DB-MIGRATION-PLAN-001`**。** **Next:** **`5Z-I-V-AW-R`** then **AX**。** **AL: no**。** **本条:** no mutation**。
