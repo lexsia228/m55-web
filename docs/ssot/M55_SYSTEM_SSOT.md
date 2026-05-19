@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AR Clerk production-instance user_id continuity confirmation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe confirmation design / no-mutation**。** **前提：** **`5Z-I-V-AQ`** GREEN；continuity **`not_confirmed`**。** **本条：** Methods 1–4 compare；Human **§E** replay template；AR-replay GREEN/BLOCKED/RED rules；branching to AL-PRE / AS / AT。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_CONFIRMATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-CONFIRMATION-PLAN-001`**。** **Next:** **`5Z-I-V-AR-replay`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AR_CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_CONFIRMATION_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AQ Production Clerk production-instance feasibility / user_id continuity planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AP-S-R`** Supabase GREEN；Clerk continuity **`not_confirmed`**。** **本条：** eight feasibility questions；Options A–E；mapping design §F；future gates **AR/AS/AT/AL**；stop conditions。** **Policy:** no Production instance yet；no AL；compliance **RED**。** **Verdict:** **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AQ-PRODUCTION-CLERK-PRODUCTION-INSTANCE-FEASIBILITY-USER-ID-CONTINUITY-PLAN-001`**。** **Next:** **`5Z-I-V-AR`** or **`5Z-I-V-AS`**（Human choice）。** **本条:** no mutation**。
