@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AI Production auth compliance / Clerk pk_test planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR **AC GREEN**；AC-P6 **AH GREEN**；auth compliance **unresolved**。** **本条：** read-only repo review — Clerk via **`ClerkProvider`** + **`clerkMiddleware`** + **`auth()`**；env names only in code；**no literal `pk_*` in source**；compliance = dashboard/env track。** **Prior signal:** **`pk_test_` on Production**（**`5Z-I-V-K`**）；dual-app **conflict**。** **Next:** **`5Z-I-V-AJ`** Human dashboard prefix-class confirmation（no raw keys；no correction）。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AI-PRODUCTION-AUTH-COMPLIANCE-CLERK-PK-TEST-PLAN-001`**。** **本条:** no mutation；DTR GREEN ≠ auth GREEN**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AI_PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AH Unpaid path no-payment smoke execution recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human UI read-only / no-payment execution**。** **前提：** **`5Z-I-V-AG`** planning GREEN；Production **`m55-webv2.vercel.app`**。** **観察:** **`logged-out-incognito-observation`** — **`/dtr`** 購入CTA（**`1,000円で入手する`→`/dtr/lp`**）・owned/保存済みバッジなし・**`/dtr/core`** は **307→`/dtr/lp`**；checkout/決済/CTA押下なし。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AH-UNPAID-PATH-NO-PAYMENT-SMOKE-EXECUTION-001`**。** **AC-P6:** **GREEN**（non-owned scope）；authenticated locked **NOT_RUN**。** **Caveat:** auth compliance / full dev flow / type-label / audit — separate。** **本条:** no mutation；no raw IDs**。
