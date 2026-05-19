@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
+import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from '../../../lib/m55/dtrShelfAccess';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 import { getDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
@@ -68,20 +69,55 @@ function ProcessingFallback({
 }
 
 export default async function DtrProcessingPage(props: {
-  searchParams?: Promise<{ session_id?: string }>;
+  searchParams?: Promise<{ session_id?: string; recovery?: string }>;
 }) {
   const params = props.searchParams ? await props.searchParams : {};
   const sessionIdFromUrl = typeof params.session_id === 'string' ? params.session_id : undefined;
+  const isOwnedRecovery = params.recovery === 'owned';
 
   const processingReturnPath =
     sessionIdFromUrl != null
       ? `/dtr/processing?session_id=${encodeURIComponent(sessionIdFromUrl)}`
-      : '/dtr/processing';
+      : isOwnedRecovery
+        ? DTR_OWNED_RECOVERY_PROCESSING_PATH
+        : '/dtr/processing';
 
   const { userId } = await auth();
   if (!userId) {
-    const back = sessionIdFromUrl != null ? processingReturnPath : '/dtr/lp';
+    const back = sessionIdFromUrl != null || isOwnedRecovery ? processingReturnPath : '/dtr/lp';
     redirect(`/sign-in?redirect_url=${encodeURIComponent(back)}`);
+  }
+
+  if (isOwnedRecovery && !sessionIdFromUrl) {
+    const supportUrl = await getSupportUrl();
+    const ownership = await resolveEntryReportOwnership(userId);
+
+    if (ownership.unlockState === 'expired') {
+      redirect('/dtr/lp?state=expired');
+    }
+    if (ownership.unlockState === 'locked') {
+      redirect('/dtr/lp');
+    }
+
+    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    if (snap) {
+      redirect('/dtr/core');
+    }
+
+    return (
+      <main className={styles.page} data-testid="m55-dtr-processing-main">
+        <div className={styles.inner}>
+          <p className={styles.eyebrow}>Entry Report</p>
+          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
+            保存版レポートを確認しています
+          </h1>
+          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
+            購入済みです。保存版の読み込み経路を再確認しています（再購入は不要です）。
+          </p>
+          <DtrProcessingClient supportUrl={supportUrl} recoveryMode="owned" />
+        </div>
+      </main>
+    );
   }
 
   if (!sessionIdFromUrl) {

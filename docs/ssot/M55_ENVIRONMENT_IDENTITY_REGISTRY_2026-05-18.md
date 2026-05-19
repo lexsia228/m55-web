@@ -3,6 +3,7 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**Execution evidence:** `M55-EVID-20260518-5Z-I-V-W-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-EXECUTION-001`（**§2s**）
 **Prior evidence:** `M55-EVID-20260518-5Z-I-V-V-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-PLAN-001`（**impl plan — §2r**）
 **Code-fix plan:** `M55-EVID-20260518-5Z-I-V-U-SNAPSHOT-LOOKUP-ROUTE-READ-PATH-SNAPSHOTREADY-CODE-FIX-PLAN-001`（§2q）
 **SELECT:** `M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`（§2p）
@@ -751,10 +752,11 @@
 | **W-29** | **`owned` + !`snapshotReady` routes to LP/purchase UX** | **inspect_only** | **5Z-I-V-Q** |
 | **W-30** | **Ownership fallback artifacts matched**（ent + rights + snap + OTF latest） | **inspect_only** | **5Z-I-V-T** |
 | **W-31** | **Snapshot lookup / route / `snapshotReady` consumption primary suspect** | **inspect_only** | **5Z-I-V-U** |
-| **W-32** | **DB owned prerequisites matched** — implementation plan approved | **inspect_only** | **5Z-I-V-V** |
-| **W-33** | **`snapshotReady` consumption** — unified via **`dtrShelfAccess`**（planned） | **inspect_only** | **5Z-I-V-V** |
-| **W-34** | **Duplicate purchase CTA** — regression test **T1/T3** required at W | **inspect_only** | **5Z-I-V-V** |
-| **W-35** | **`owned` + !`snapshotReady` must not look unpaid** | **inspect_only** | **5Z-I-V-V** |
+| **W-32** | **DB owned prerequisites matched** — implementation executed | **inspect_only** | **5Z-I-V-W** |
+| **W-33** | **`snapshotReady` consumption** — unified via **`dtrShelfAccess`** | **inspect_only** | **5Z-I-V-W** |
+| **W-34** | **Duplicate purchase CTA** — code regression guard in place | **inspect_only** | **5Z-I-V-W** |
+| **W-35** | **`owned` + !`snapshotReady` → recovery/processing**（not unpaid LP） | **inspect_only** | **5Z-I-V-W** |
+| **W-36** | **Human UI verification required**（owned unlock / no duplicate CTA） | **ask_human** | **5Z-I-V-X** |
 
 ---
 
@@ -825,7 +827,7 @@
 | **CONTROL-27** | Route / read-path fix plan required | **closed** — **`5Z-I-V-V`** file list approved |
 | **CONTROL-28** | Owned-but-snapshot-not-ready UX decision required | **decided** — recovery/processing；no purchase CTA |
 | **CONTROL-29** | Implementation file list approved | **closed** — **`5Z-I-V-V`** |
-| **CONTROL-30** | No-duplicate-purchase CTA regression test required | **open** — **`5Z-I-V-W`** execution |
+| **CONTROL-30** | No-duplicate-purchase CTA regression test required | **code complete** — **Human UI verify at `5Z-I-V-X`** |
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
 
@@ -836,7 +838,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-V`** Snapshot route read-path implementation planning |
+| **Update after** | **`5Z-I-V-W`** Snapshot route read-path implementation execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-V-*` → `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

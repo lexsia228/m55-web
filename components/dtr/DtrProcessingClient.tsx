@@ -18,10 +18,14 @@ const CORE_READY = '/dtr/core?post_purchase=1';
 export function DtrProcessingClient({
   supportUrl,
   recoveryRef,
+  recoveryMode,
 }: {
   supportUrl: string;
   recoveryRef?: string;
+  /** Owned user without checkout session: snapshot read-path recovery (no purchase retry). */
+  recoveryMode?: 'checkout' | 'owned';
 }) {
+  const isOwnedRecovery = recoveryMode === 'owned';
   const { userId, isLoaded } = useAuth();
   const router = useRouter();
   const [stuck, setStuck] = useState(false);
@@ -83,7 +87,7 @@ export function DtrProcessingClient({
   return (
     <>
       <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
-        解析中です
+        {isOwnedRecovery ? '保存版を確認中です' : '解析中です'}
       </p>
       <div className={styles.animWrap} aria-hidden>
         <span className={styles.dot} />
@@ -91,7 +95,9 @@ export function DtrProcessingClient({
         <span className={styles.dot} />
       </div>
       <p className={styles.desc} style={{ margin: 0 }}>
-        購入済みレポートの保存版を準備しています。完了すると自動で開きます。
+        {isOwnedRecovery
+          ? '購入済みの保存版レポートを読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
+          : '購入済みレポートの保存版を準備しています。完了すると自動で開きます。'}
       </p>
       {stuck && (
         <p role="alert" className={styles.desc} style={{ marginTop: 16, color: '#5a4ea0' }}>

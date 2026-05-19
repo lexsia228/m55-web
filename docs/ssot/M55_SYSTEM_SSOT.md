@@ -1,3 +1,13 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-W Snapshot route read-path implementation execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-V`** GREEN planning；Human implementation **GO**。** **本条：** scoped code — **`lib/m55/dtrShelfAccess.ts`** + **`/dtr`** shelf/LP/core/processing + **`report-snapshot-ready` API**；owned + !`snapshotReady` → **`/dtr/processing?recovery=owned`**（no unpaid purchase CTA）。** **Verdict:** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_GREEN_CODE_CHANGE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-W-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-EXECUTION-001`**。** **Tests:** **`tsc`/`build` PASS**；**`audit` FAIL** pre-existing globals.css NoTouch。** **Next:** **`5Z-I-V-X`** Human UI verification planning。** **本条:** no DB/env/mutation；production auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_W_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_EXECUTION_2026-05-18.md`
+
+**Changed (code):** `lib/m55/dtrShelfAccess.ts`；`app/dtr/page.tsx`；`components/dtr/DtrShelfPanel.tsx`；`app/dtr/lp/page.tsx`；`app/dtr/core/page.tsx`；`app/dtr/processing/page.tsx`；`components/dtr/DtrProcessingClient.tsx`；`app/api/dtr/report-snapshot-ready/route.ts`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-V Snapshot route read-path implementation planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-U`** Option **2+4**。** **本条：** file-level plan — **`dtrShelfAccess`** + **DtrShelfPanel** / **/dtr/lp/core/processing** / **report-snapshot-ready API**；UI taxonomy；tests **T1–T10**；rollback **commit revert only**。** **Verdict:** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_GREEN_NO_CODE_CHANGE`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-V-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-PLAN-001`**。** **Next:** **`5Z-I-V-W` execution** — **explicit GO**。** **本条:** no code change；no mutation**。

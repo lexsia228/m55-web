@@ -4,14 +4,14 @@ import PurchaseButton from "../../../components/PurchaseButton";
 import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
 import { STATIC_CTA } from "../../../components/core/corePublicCopy";
-import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
-import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
-import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
+import {
+  DTR_OWNED_RECOVERY_PROCESSING_PATH,
+  lpCtaModeFromAccess,
+  resolveDtrShelfAccess,
+} from "../../../lib/m55/dtrShelfAccess";
 
 export const metadata = { title: "本質の読み解き | M55" };
 
-/** LP 下部 CTA（サーバで解決。内部コードは画面に出さない） */
-type DtrLpCtaMode = "signin" | "expired" | "purchase" | "open" | "pending";
 
 function CheckIcon() {
   return (
@@ -78,26 +78,17 @@ export default async function DtrLpPage({
   const isExpiredParam = params?.state === "expired";
   const { userId } = await auth();
 
-  let lpCtaMode: DtrLpCtaMode = "signin";
-  let showExpiredBanner = isExpiredParam;
-
-  if (userId) {
-    const ownership = await resolveEntryReportOwnership(userId);
-    if (ownership.unlockState === "expired" || isExpiredParam) {
-      lpCtaMode = "expired";
-      showExpiredBanner = true;
-    } else if (ownership.unlockState === "locked") {
-      lpCtaMode = "purchase";
-    } else if (ownership.unlockState === "owned") {
-      const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
-      lpCtaMode = snap ? "open" : "pending";
-    } else {
-      lpCtaMode = "purchase";
-    }
-  }
+  const access = await resolveDtrShelfAccess(userId);
+  const lpCtaMode = lpCtaModeFromAccess(access, isExpiredParam);
+  const showExpiredBanner =
+    isExpiredParam || (access.kind === "authenticated" && access.unlockState === "expired");
 
   const hidePriceAndTrust =
-    !!userId && (lpCtaMode === "open" || lpCtaMode === "pending" || lpCtaMode === "expired");
+    !!userId &&
+    (lpCtaMode === "open" ||
+      lpCtaMode === "pending" ||
+      lpCtaMode === "recovery" ||
+      lpCtaMode === "expired");
 
   return (
     <PublicShell>
@@ -387,6 +378,25 @@ export default async function DtrLpPage({
                   <ArrowRightIcon />
                 </Link>
               </div>
+            ) : lpCtaMode === "recovery" ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <p style={{
+                  fontSize: 13,
+                  color: 'rgba(107, 95, 168, 0.85)',
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}>
+                  購入済みです。保存版レポートの準備状況を確認できます（再購入は不要です）。
+                </p>
+                <Link
+                  href={DTR_OWNED_RECOVERY_PROCESSING_PATH}
+                  className="m55-lp-cta-btn"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 12 }}
+                >
+                  <span>準備状況を確認する</span>
+                  <ArrowRightIcon />
+                </Link>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <p style={{
@@ -424,7 +434,7 @@ export default async function DtrLpPage({
               color: 'rgba(60, 60, 60, 0.55)',
               lineHeight: 1.65,
             }}>
-              {lpCtaMode === "pending" ? (
+              {lpCtaMode === "pending" || lpCtaMode === "recovery" ? (
                 <>
                   ウェブ上で提供するデジタルコンテンツ（レポート）です（物理配送なし）。
                   本文の生成が完了次第、閲覧いただけます。

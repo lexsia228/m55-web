@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
 import { runDtrEngine } from "../../../lib/m55/dtrEngine";
@@ -50,6 +51,6 @@ export default async function DtrCorePage() {
     );
   }
 
-  // owned だが snapshot なし: 本文は出さず LP（processing は checkout session_id 付きでのみ利用）
-  redirect("/dtr/lp");
+  // owned だが snapshot なし: 未購入 LP へ戻さず、保存版 read-path 回復へ
+  redirect(DTR_OWNED_RECOVERY_PROCESSING_PATH);
 }
