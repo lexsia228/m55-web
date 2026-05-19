@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AE Normal dev flow release decision planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AD`** DTR unlock **closed GREEN**。** **本条：** docs-only — release scope Category **1/2/3**；Options **1–4**；**Option 2 partial limited release recommended**；guardrails；**no actual release**。** **Verdict:** **`NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GREEN_PARTIAL_LIMITED_RELEASE_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AE-NORMAL-DEV-FLOW-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GATE`**（explicit GO）；unpaid smoke planning **strongly recommended** parallel。** **本条:** no mutation；auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AD Post-Production DTR unlock stabilization / release decision planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AC`** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **本条：** docs-only — DTR unlock track **closed**（W/Y/AB/AC）；not closed: auth compliance / normal dev flow / AC-P6 unpaid / type-label / audit NoTouch；Options **1–4**；guardrails。** **Verdict:** **`POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AD-POST-PRODUCTION-DTR-UNLOCK-STABILIZATION-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GATE`**（conservative: partial release after unpaid smoke planning）。** **本条:** no mutation；no raw IDs；auth unresolved；normal dev flow not released**。
