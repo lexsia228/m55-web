@@ -3,7 +3,8 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
-**Prior evidence:** `M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`（**SELECT — §2p**）
+**Prior evidence:** `M55-EVID-20260518-5Z-I-V-U-SNAPSHOT-LOOKUP-ROUTE-READ-PATH-SNAPSHOTREADY-CODE-FIX-PLAN-001`（**planning — §2q**）
+**SELECT:** `M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`（§2p）
 **Plan:** `M55-EVID-20260518-5Z-I-V-S-ENTITLEMENT-ROW-DISCREPANCY-OWNERSHIP-FALLBACK-DIAGNOSTIC-PLAN-001`（§2o）
 **SELECT:** `M55-EVID-20260518-5Z-I-V-R-PRODUCT-RIGHT-SNAPSHOT-READONLY-SELECT-001`（§2n）
 **Gate trace:** `M55-EVID-20260518-5Z-I-V-Q-OWNERSHIP-GATE-READ-PATH-READONLY-DIAGNOSTIC-001`（§2m）
@@ -578,6 +579,22 @@
 
 **Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
 
+---
+
+### 2q. Snapshot lookup / route read-path / snapshotReady code-fix planning（`5Z-I-V-U`）
+
+**Evidence:** `M55-EVID-20260518-5Z-I-V-U-SNAPSHOT-LOOKUP-ROUTE-READ-PATH-SNAPSHOTREADY-CODE-FIX-PLAN-001`
+
+| Field | Value |
+|-------|--------|
+| **gate_verdict** | **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_CODE_FIX_PLANNING_GREEN_NO_IMPLEMENTATION`** |
+| **root suspicion** | **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CONSUMPTION_PRIMARY`** |
+| **DB prerequisites** | **matched**（**`5Z-I-V-T`**） |
+| **preferred fix** | **Option 2+4**（owned+!snapshotReady UX；route unification）+ **Option 3** if snap read null |
+| **next** | **implementation planning gate** — **explicit GO only** |
+
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_U_SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CODE_FIX_PLANNING_2026-05-18.md`
+
 ### Clerk frontend domains（observed — app mapping unclear）
 
 | domain (redacted host) | linked_app | production_bound |
@@ -717,7 +734,10 @@
 | **W-28** | **OTF ×4 — latest row `DTR_CORE_STATIC_V1` matched**（**`5Z-I-V-R`**） | **inspect_only** | **5Z-I-V-R** |
 | **W-29** | **`owned` + !`snapshotReady` routes to LP/purchase UX** | **inspect_only** | **5Z-I-V-Q** |
 | **W-30** | **Ownership fallback artifacts matched**（ent + rights + snap + OTF latest） | **inspect_only** | **5Z-I-V-T** |
-| **W-31** | **Snapshot lookup / route / `snapshotReady` consumption primary suspect** | **inspect_only** | **5Z-I-V-T** |
+| **W-31** | **Snapshot lookup / route / `snapshotReady` consumption primary suspect** | **inspect_only** | **5Z-I-V-U** |
+| **W-32** | **DB owned prerequisites matched but UI still purchase/locked** | **inspect_only** | **5Z-I-V-U** |
+| **W-33** | **`snapshotReady` consumption suspected**（dual-axis `owned` vs ready） | **inspect_only** | **5Z-I-V-U** |
+| **W-34** | **Duplicate purchase CTA risk for already-owned user** | **inspect_only** | **5Z-I-V-U** |
 
 ---
 
@@ -785,8 +805,10 @@
 | **CONTROL-24** | Same-user same-query entitlement confirmation required | **closed** — same-ID **yes**；SELECT submitted |
 | **CONTROL-25** | Ownership fallback path decision required | **decided** — artifacts matched；**route/read-path planning → `5Z-I-V-U`** |
 | **CONTROL-26** | `5Z-I-V-T` Human SELECT evidence submission required | **closed** |
+| **CONTROL-27** | Route / read-path fix plan required | **planned** — **`5Z-I-V-U`** |
+| **CONTROL-28** | Owned-but-snapshot-not-ready UX decision required | **open** — implementation gate |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-T`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-U`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_U_SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CODE_FIX_PLANNING_2026-05-18.md`
 
 ---
 
@@ -795,7 +817,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-T`** SELECT追認 — GREEN active row found |
+| **Update after** | **`5Z-I-V-U`** Snapshot route read-path code-fix planning |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
-**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
+**Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`

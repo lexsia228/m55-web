@@ -1,3 +1,25 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-U Snapshot lookup / route read-path / snapshotReady code-fix planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-T`** DB prerequisites **matched**；UI **still purchase/locked suspect**。** **本条：** docs-only code-fix plan — **`getDtrReportSnapshot`** / **`snapshotReady`** / **`DtrShelfPanel`** / **`/dtr/lp`/`/dtr/core`**；Options **1–5**；AC **AC-1–AC-8**。** **Verdict:** **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_CODE_FIX_PLANNING_GREEN_NO_IMPLEMENTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-U-SNAPSHOT-LOOKUP-ROUTE-READ-PATH-SNAPSHOTREADY-CODE-FIX-PLAN-001`**。** **Preferred:** Option **2+4**。** **Next:** **implementation planning gate** — **explicit GO only**。** **本条:** no code change；no mutation；no raw IDs**。
+
+Work anchor:
+
+- **`4c7c2fdba330feea1da743fe9dcca40d8981921f`** — **`docs: update entitlement fallback readonly select result`**
+
+Evidence:
+
+- `docs/ssot/M55_PHASE5_6H_5Z_I_V_U_SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CODE_FIX_PLANNING_2026-05-18.md`
+
+Prior:
+
+- **`5Z-I-V-T`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md`
+
+Hard stop:
+
+- **no implementation**／**no DB repair**／**normal dev flow not released**。**
+
+
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-T Entitlement discrepancy / ownership fallback read-only SELECT — Human追認更新
 
 Status: **`work/home-cluster`。** **同一 Evidence 追認：** Human final confirmation SELECT。** **Verdict:** **`ENTITLEMENT_DISCREPANCY_SELECT_GREEN_ACTIVE_ROW_FOUND`**。** **same-ID:** **yes**。** **matched:** active ent **1** / **`m55_p:core_origin`** / snap **1** / OTF latest **DTR**。** **O/R resolved:** active row found（R **0** likely query drift）。** **Suspect if UI locked:** **`SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CONSUMPTION_PRIMARY`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-T-ENTITLEMENT-DISCREPANCY-OWNERSHIP-FALLBACK-READONLY-SELECT-001`**。** **Next:** **`5Z-I-V-U`** code-fix planning。** **本条:** no mutation；production auth unresolved；normal dev flow not released**。
