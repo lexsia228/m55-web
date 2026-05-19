@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S Supabase aggregate inventory read-only query preparation recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only query prep / no-mutation**。** **前提：** **`5Z-I-V-AP-R`** BLOCKED（Supabase aggregates unclear）。** **本条：** prepared **counts-only** UNION SQL for **entitlements / rights / snapshots / wallets / ledgers / OTF / stripe_events / failed_fulfillments**；safety rules；Human paste template；**no query executed**。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-SUPABASE-AGGREGATE-INVENTORY-READONLY-QUERY-PREP-001`**。** **Next:** **`5Z-I-V-AP-S-R`** Human runs SQL + counts-only replay。** **AL/AQ: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-R Production Clerk namespace continuity AP-replay counts result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 inventory replay / docs-only**。** **前提：** **`5Z-I-V-AP`** BLOCKED。** **Human replay:** Clerk **`M55-Official`** Development users **5/5**；Production instance **no**；**user_id continuity not confirmed**；Supabase aggregates **mostly unclear**（**failed_fulfillments total 7** only）。** **Verdict:** **`PRODUCTION_CLERK_NAMESPACE_CONTINUITY_REPLAY_COUNTS_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-R-PRODUCTION-CLERK-NAMESPACE-CONTINUITY-REPLAY-COUNTS-RESULT-001`**。** **AL: no**；**AQ: no**（default）。** **Next:** **`5Z-I-V-AP-S`** Supabase aggregate replay。** **本条:** no mutation**。
