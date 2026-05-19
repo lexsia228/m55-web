@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AO Production Clerk namespace continuity planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning only / no-mutation**。** **前提：** **`5Z-I-V-AL-PRE-R`** BLOCKED；**`M55-Official`** Development + real users；Production instance **not created**。** **本条：** identity dependency map（Clerk **`user_id`** → entitlements/snapshots/wallets/OTF）；Options **A–D**；near-term **Option A** temporary exception（compliance **RED**）；compliance path **Option B** after **AP**。** **Verdict:** **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_NAMESPACE_CONTINUITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AO-PRODUCTION-CLERK-PRODUCTION-INSTANCE-MIGRATION-NAMESPACE-CONTINUITY-PLAN-001`**。** **Next:** **`5Z-I-V-AP`** read-only inventory。** **AL not authorized**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AO_PRODUCTION_CLERK_PRODUCTION_INSTANCE_MIGRATION_NAMESPACE_CONTINUITY_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AL-PRE-R Production Clerk correction preflight replay result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 preflight replay / docs-only**。** **前提：** **`5Z-I-V-AL-PRE`** BLOCKED → Human replay submitted（prefix only；raw key **no**）。** **Clerk:** **`M55-Official`** / **Development** / real users **yes**；Production instance **no**；**`pk_live_`/`sk_live_` unavailable**；create-production option **visible**。** **Vercel:** current **`pk_test_`/`sk_test_`**；backup **yes**；target keys **unavailable**。** **AL ready: no**；Human GO **no**。** **Verdict:** **`PRODUCTION_CLERK_CORRECTION_PREFLIGHT_REPLAY_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AL-PRE-R-PRODUCTION-CLERK-CORRECTION-PREFLIGHT-REPLAY-RESULT-001`**。** **Next:** **`5Z-I-V-AO`** production-instance migration / namespace continuity planning。** **本条:** no mutation**。
