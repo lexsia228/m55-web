@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-Z Canonical Production UI verification / deployment decision planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Y`** branch preview **`HUMAN_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED_BRANCH_PREVIEW`**（**`4ab8e4e`**）；**`98bcd58`** on preview。** **本条：** docs-only — Options **1–4**（verify-only / deploy-later / defer / read-only Production check）；canonical routes **AC-P1–P8**；deployment checklist **98bcd58 yes/no/unclear**；go/no-go → **`5Z-I-V-AA`**。** **Verdict:** **`CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Z-CANONICAL-PRODUCTION-UI-VERIFICATION-DEPLOYMENT-DECISION-PLAN-001`**。** **Caveat:** Production UI + auth compliance unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-AA`**（status confirm / deploy plan / Production UI execution）。** **本条:** no merge/redeploy/env/DB/code/payment；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Z_CANONICAL_PRODUCTION_UI_VERIFICATION_DEPLOYMENT_DECISION_PLANNING_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-Y Human UI verification execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-W`**（**`98bcd58`**）+ **`5Z-I-V-X`** plan（**`f786fbd`**）。** **本条：** Human UI on **branch preview** — **`human-ui-current-user`**：**`/dtr`** owned、未購入CTAなし、**「レポートを開く」** → **`/dtr/core`** 保存版表示；fatal errorなし；checkout retry/新規決済なし。** **Verdict:** **`HUMAN_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED_BRANCH_PREVIEW`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Y-HUMAN-UI-VERIFICATION-EXECUTION-001`**。** **Caveat:** canonical Production未検証；production auth unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-Z`** Production UI verification / deployment decision。** **本条:** no mutation；no raw IDs**。
