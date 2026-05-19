@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-Y Human UI verification execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-W`**（**`98bcd58`**）+ **`5Z-I-V-X`** plan（**`f786fbd`**）。** **本条：** Human UI on **branch preview** — **`human-ui-current-user`**：**`/dtr`** owned、未購入CTAなし、**「レポートを開く」** → **`/dtr/core`** 保存版表示；fatal errorなし；checkout retry/新規決済なし。** **Verdict:** **`HUMAN_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED_BRANCH_PREVIEW`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-Y-HUMAN-UI-VERIFICATION-EXECUTION-001`**。** **Caveat:** canonical Production未検証；production auth unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-Z`** Production UI verification / deployment decision。** **本条:** no mutation；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-X Human UI verification planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-W`** **`SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_GREEN_CODE_CHANGE`**（**`98bcd58`**）。** **本条：** docs-only — Human UI verification checklist for **`/dtr` / `/dtr/lp` / `/dtr/core` / `/dtr/processing?recovery=owned`** + optional **`report-snapshot-ready` API**；AC **AC-1–AC-10**；failure tokens；rollback **`98bcd58`** criteria。** **Verdict:** **`HUMAN_UI_VERIFICATION_PLANNING_GREEN_NO_EXECUTION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-X-HUMAN-UI-VERIFICATION-PLAN-001`**。** **Next:** **`READY_FOR_HUMAN_UI_VERIFICATION_EXECUTION_GATE`** → **`5Z-I-V-Y`**。** **本条:** no UI execution；no DB/env/code/mutation；no raw IDs；production auth unresolved；normal dev flow not released**。

@@ -3,6 +3,7 @@
 **Version:** `2026-05-18`（**preflight elevation:** `5Z-I-V-D`）
 **Maintained by phase:** `5Z-I-W`
 **Registry evidence:** `M55-EVID-20260518-5Z-I-W-UI-LOGIN-IDENTITY-CORRECTION-UNLOCK-001`
+**UI verify execution:** `M55-EVID-20260518-5Z-I-V-Y-HUMAN-UI-VERIFICATION-EXECUTION-001`（**§2u**）
 **UI verify plan:** `M55-EVID-20260518-5Z-I-V-X-HUMAN-UI-VERIFICATION-PLAN-001`（**§2t**）
 **Execution evidence:** `M55-EVID-20260518-5Z-I-V-W-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-EXECUTION-001`（**§2s**）
 **Prior evidence:** `M55-EVID-20260518-5Z-I-V-V-SNAPSHOT-ROUTE-READ-PATH-IMPLEMENTATION-PLAN-001`（**impl plan — §2r**）
@@ -757,8 +758,9 @@
 | **W-33** | **`snapshotReady` consumption** — unified via **`dtrShelfAccess`** | **inspect_only** | **5Z-I-V-W** |
 | **W-34** | **Duplicate purchase CTA** — code regression guard in place | **inspect_only** | **5Z-I-V-W** |
 | **W-35** | **`owned` + !`snapshotReady` → recovery/processing**（not unpaid LP） | **inspect_only** | **5Z-I-V-W** |
-| **W-36** | **Human UI verification required**（owned unlock / no duplicate CTA） | **ask_human** — **plan at `5Z-I-V-X`**；**execute at `5Z-I-V-Y`** | **5Z-I-V-X** |
-| **W-37** | **Human UI verification execution pending** | **ask_human** | **5Z-I-V-Y** |
+| **W-36** | **Human UI verification**（owned unlock / no duplicate CTA） | **closed** — **branch preview GREEN `5Z-I-V-Y`** | **5Z-I-V-Y** |
+| **W-37** | **Human UI verification execution** | **closed** — **`UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`** | **5Z-I-V-Y** |
+| **W-38** | **Branch preview DTR unlock GREEN**；**canonical Production UI verify pending** | **inspect_only** | **5Z-I-V-Z** |
 
 ---
 
@@ -829,10 +831,11 @@
 | **CONTROL-27** | Route / read-path fix plan required | **closed** — **`5Z-I-V-V`** file list approved |
 | **CONTROL-28** | Owned-but-snapshot-not-ready UX decision required | **decided** — recovery/processing；no purchase CTA |
 | **CONTROL-29** | Implementation file list approved | **closed** — **`5Z-I-V-V`** |
-| **CONTROL-30** | No-duplicate-purchase CTA regression test required | **code complete** — **Human UI verify at `5Z-I-V-Y`** |
-| **CONTROL-31** | Human UI verification required（DTR unlock post-**`5Z-I-V-W`**） | **open** — **plan closed at `5Z-I-V-X`**；**execution `5Z-I-V-Y`** |
+| **CONTROL-30** | No-duplicate-purchase CTA regression test required | **closed** — **branch preview Human UI `5Z-I-V-Y` GREEN** |
+| **CONTROL-31** | Human UI verification required（DTR unlock post-**`5Z-I-V-W`**） | **closed** — **branch preview passed `5Z-I-V-Y`** |
+| **CONTROL-32** | Canonical Production UI verification required | **open** — **`5Z-I-V-Z`** |
 
-**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_D_CLERK_ALIGNMENT_AND_PLATFORM_BENCHMARK_2026-05-18.md` §6；**`5Z-I-V-Y`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_Y_HUMAN_UI_VERIFICATION_EXECUTION_2026-05-18.md`；**`5Z-I-V-X`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_X_HUMAN_UI_VERIFICATION_PLANNING_2026-05-18.md`；**`5Z-I-V-V`:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md`
 
 ---
 
@@ -841,7 +844,7 @@
 | Field | Value |
 |-------|--------|
 | **Role** | **Production preflight ledger**（auth/payment/DB gates mandatory first-read） |
-| **Update after** | **`5Z-I-V-X`** Human UI verification planning |
+| **Update after** | **`5Z-I-V-Y`** Human UI verification execution |
 | **Do not update via** | env change, deletion, redeploy, DB write, code change |
 
 **Prior evidence chain:** `M55-EVID-20260518-5Z-I-V-V-*` → `M55-EVID-20260518-5Z-I-V-U-*` → `M55-EVID-20260518-5Z-I-V-T-*` → `M55-EVID-20260518-5Z-I-V-S-*` → `M55-EVID-20260518-5Z-I-V-R-*` → `M55-EVID-20260518-5Z-I-V-Q-*` → `M55-EVID-20260518-5Z-I-V-P-*` → `M55-EVID-20260518-5Z-I-V-O-*` → `M55-EVID-20260518-5Z-I-V-N-*` → `M55-EVID-20260518-5Z-I-V-M-*` → `M55-EVID-20260518-5Z-I-V-L-*` → `M55-EVID-20260518-5Z-I-V-K-*` → `M55-EVID-20260518-5Z-I-V-J-*` → `M55-EVID-20260518-5Z-I-V-I-*` → `M55-EVID-20260518-5Z-I-V-H-*` → `M55-EVID-20260518-5Z-I-V-G-*` → `M55-EVID-20260518-5Z-I-W-*` → `M55-EVID-20260518-5Z-I-V-F-DEVICE-ORIGIN-*` → `M55-EVID-20260518-5Z-I-V-F-CLERK-ALIGNMENT-*` → `M55-EVID-20260518-5Z-I-V-E-*` → `M55-EVID-20260518-5Z-I-V-D-*` → `M55-EVID-20260518-5Z-I-V-C-*` → `M55-EVID-20260518-5Z-I-V-B-*` → `M55-EVID-20260518-5Z-I-V-A-*` → `M55-EVID-20260516-5Z-I-V-*`
