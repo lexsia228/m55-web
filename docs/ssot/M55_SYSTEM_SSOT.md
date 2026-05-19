@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S-R Supabase aggregate inventory replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 inventory result recording / no-mutation**。** **前提：** **`5Z-I-V-AP-S`** GREEN；Human counts-only replay submitted。** **Supabase:** all AP-S metrics **numeric**（entitlements **10**；rights **7**；snapshots **6**；wallets **10**；ledgers **17**；OTF **10/7** distinct；stripe_events **133**；failed_fulfillments **7**）。** **Clerk:** Development **5/5**；Production instance **no**；**user_id continuity `not_confirmed`**（safe override）。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-R-SUPABASE-AGGREGATE-INVENTORY-REPLAY-RESULT-001`**。** **Namespace continuity overall:** **not GREEN**。** **AL: no**。** **Next:** **`5Z-I-V-AQ`** planning only。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_R_SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S Supabase aggregate inventory read-only query preparation recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only query prep / no-mutation**。** **前提：** **`5Z-I-V-AP-R`** BLOCKED（Supabase aggregates unclear）。** **本条：** prepared **counts-only** UNION SQL for **entitlements / rights / snapshots / wallets / ledgers / OTF / stripe_events / failed_fulfillments**；safety rules；Human paste template；**no query executed**。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-SUPABASE-AGGREGATE-INVENTORY-READONLY-QUERY-PREP-001`**。** **Next:** **`5Z-I-V-AP-S-R`** Human runs SQL + counts-only replay。** **AL/AQ: no**。** **本条:** no mutation**。
