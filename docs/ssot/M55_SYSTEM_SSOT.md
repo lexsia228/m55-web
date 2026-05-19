@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AG Unpaid path no-payment smoke planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR unlock **AC GREEN**；**AC-P6 unpaid not-run**；**AF Category 1 active**。** **本条：** docs-only plan for **AH** execution — unpaid/locked shelf+LP purchase CTA visible；no owned/saved leak；no **`/dtr/core`** saved open；**no payment/checkout/DB**。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AG-UNPAID-PATH-NO-PAYMENT-SMOKE-PLAN-001`**。** **Next:** **`5Z-I-V-AH`** execution（Human UI read-only no-payment）。** **本条:** no mutation；auth compliance separate；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AF Limited normal dev flow release execution recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AE`** partial limited release recommended。** **本条：** docs-only — **Category 1 ACTIVE**（docs/SSOT/copy/non-auth UI polish/read-only audit/planning）；**Category 2 GATED**；**Category 3 separate**；task category declaration **required**。** **Verdict:** **`LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GREEN_CATEGORY_1_ONLY`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AF-LIMITED-NORMAL-DEV-FLOW-RELEASE-EXECUTION-001`**。** **Next:** unpaid-path no-payment smoke planning **strongly recommended**。** **本条:** no mutation；no full release；auth compliance unresolved**。
