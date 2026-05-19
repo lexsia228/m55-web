@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AJ Production auth compliance / Clerk dashboard confirmation recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human dashboard read-only confirmation**。** **前提：** **`5Z-I-V-AI`** planning GREEN。** **本条：** AJ session に **fresh Human Vercel/Clerk dashboard prefix 確認なし**（agent は dashboard 非アクセス）→ Production/Preview/Clerk 各項目 **unclear / not_checked**；dual-app conflict **unresolved**。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AJ-PRODUCTION-AUTH-COMPLIANCE-CLERK-DASHBOARD-CONFIRMATION-001`**。** **Auth compliance:** **BLOCKED**（not GREEN/RED in AJ）。** **Next:** Human **AJ replay**（prefix class only）→ correction **planning** if RED trend。** **本条:** no mutation；DTR/AC-P6 separate**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AI Production auth compliance / Clerk pk_test planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR **AC GREEN**；AC-P6 **AH GREEN**；auth compliance **unresolved**。** **本条：** read-only repo review — Clerk via **`ClerkProvider`** + **`clerkMiddleware`** + **`auth()`**；env names only in code；**no literal `pk_*` in source**；compliance = dashboard/env track。** **Prior signal:** **`pk_test_` on Production**（**`5Z-I-V-K`**）；dual-app **conflict**。** **Next:** **`5Z-I-V-AJ`** Human dashboard prefix-class confirmation（no raw keys；no correction）。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AI-PRODUCTION-AUTH-COMPLIANCE-CLERK-PK-TEST-PLAN-001`**。** **本条:** no mutation；DTR GREEN ≠ auth GREEN**。
