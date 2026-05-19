@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AU Read-only mapping feasibility inventory recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only inventory / no-mutation**。** **前提：** **`5Z-I-V-AT`** GREEN；AR-R **separate** namespace。** **本条：** mapping scale **5** Clerk visible / **10** DB distinct；artifact feasibility matrix；**`feasible_with_dual_namespace_resolver_planning`**。** **Verdict:** **`READONLY_MAPPING_FEASIBILITY_INVENTORY_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AU-READONLY-MAPPING-FEASIBILITY-INVENTORY-001`**。** **Next:** **`5Z-I-V-AV`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AU_READONLY_MAPPING_FEASIBILITY_INVENTORY_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AT User mapping / entitlement preservation planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AR-R`** RED（**`separate`** namespace）。** **本条：** artifact dependency map；safe-label mapping model；preservation rules §F；Options 1–5；future gates **AU/AV/AW/AX/AS**；stop conditions。** **Strategy:** prefer **dual-namespace resolver** over raw **`user_id` rewrite**；**no AL**。** **Verdict:** **`USER_MAPPING_ENTITLEMENT_PRESERVATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AT-USER-MAPPING-ENTITLEMENT-PRESERVATION-PLAN-001`**。** **Next:** **`5Z-I-V-AU`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
