@@ -1,3 +1,11 @@
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AF Limited normal dev flow release execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AE`** partial limited release recommended。** **本条：** docs-only — **Category 1 ACTIVE**（docs/SSOT/copy/non-auth UI polish/read-only audit/planning）；**Category 2 GATED**；**Category 3 separate**；task category declaration **required**。** **Verdict:** **`LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GREEN_CATEGORY_1_ONLY`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AF-LIMITED-NORMAL-DEV-FLOW-RELEASE-EXECUTION-001`**。** **Next:** unpaid-path no-payment smoke planning **strongly recommended**。** **本条:** no mutation；no full release；auth compliance unresolved**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AE Normal dev flow release decision planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AD`** DTR unlock **closed GREEN**。** **本条：** docs-only — release scope Category **1/2/3**；Options **1–4**；**Option 2 partial limited release recommended**；guardrails；**no actual release**。** **Verdict:** **`NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GREEN_PARTIAL_LIMITED_RELEASE_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AE-NORMAL-DEV-FLOW-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GATE`**（explicit GO）；unpaid smoke planning **strongly recommended** parallel。** **本条:** no mutation；auth unresolved；normal dev flow not released**。
