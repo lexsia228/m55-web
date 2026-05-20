@@ -31,6 +31,10 @@ import {
   classifyM55AiSafetyInput,
   isConsultSafetyBlocked,
 } from '../../../../../lib/m55/ai/m55AiSafetyPolicy';
+import {
+  isConsultOutputSafetyBlocked,
+  sanitizeM55AiTextOutput,
+} from '../../../../../lib/m55/ai/m55AiOutputSanitizer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -209,6 +213,18 @@ export async function POST(req: NextRequest) {
     aiContent = clampOutput(
       completion.choices[0]?.message?.content?.trim() ?? '（返答を生成できませんでした）'
     );
+
+    const outputSafety = sanitizeM55AiTextOutput(aiContent, { surface: 'consult', locale: 'ja-JP' });
+    if (isConsultOutputSafetyBlocked(outputSafety)) {
+      return NextResponse.json(
+        {
+          error: 'blocked',
+          safeMessage: outputSafety.safeText,
+        },
+        { status: 422, headers: NO_STORE }
+      );
+    }
+    aiContent = outputSafety.safeText;
   } catch (e) {
     console.error(
       '[room/core/send] AI call failed',

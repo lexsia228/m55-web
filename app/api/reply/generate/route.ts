@@ -6,6 +6,7 @@ import { generateStubReplyPayload } from '../../../../lib/m55/reply/stubReplyGen
 import { replyPayloadV11Schema } from '../../../../lib/m55/reply/replyPayload.zod';
 import { logReplyGenerateEvent } from '../../../../lib/m55/reply/observability';
 import { classifyM55AiSafetyInput } from '../../../../lib/m55/ai/m55AiSafetyPolicy';
+import { sanitizeM55ReplyJsonOutput } from '../../../../lib/m55/ai/m55AiOutputSanitizer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -418,7 +419,41 @@ export async function POST(req: NextRequest) {
       freeText: payload.free_text,
     });
 
-    const schemaResult = replyPayloadV11Schema.safeParse(replyDocument);
+    const outputSanitized = sanitizeM55ReplyJsonOutput(
+      replyDocument as unknown as Record<string, unknown>,
+      {
+        surface: 'reply',
+        theme: payload.theme,
+        inputMode: payload.input_mode,
+        selectedSubquestions: payload.selected_subquestions,
+        freeText: payload.free_text,
+      },
+    );
+
+    if (!outputSanitized.ok || !outputSanitized.sanitizedJson) {
+      schemaValidationResult = 'fail';
+      await db
+        .from('reply_sessions')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('id', sessionRow.id);
+
+      return logAndReturn(
+        NextResponse.json(
+          {
+            ok: false,
+            request_id: requestId,
+            error: {
+              code: 'OUTPUT_SAFETY_FAILED',
+              message: 'Generated reply could not be made safe for delivery',
+            },
+          },
+          { status: 422 },
+        ),
+        'OUTPUT_SAFETY_FAILED',
+      );
+    }
+
+    const schemaResult = replyPayloadV11Schema.safeParse(outputSanitized.sanitizedJson);
     if (!schemaResult.success) {
       schemaValidationResult = 'fail';
       await db
