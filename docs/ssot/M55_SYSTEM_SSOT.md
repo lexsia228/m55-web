@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN-R Human-side identity mapping migration dry-run replay recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human-side non-Production dry-run replay**。** **Result:** **migration not applied** — no confirmed shadow/local DB URL；no Docker/psql；target not on non-Production allowlist before apply。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_REPLAY_BLOCKED_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-R-HUMAN-NONPRODUCTION-MIGRATION-DRYRUN-REPLAY-001`**。** **Production apply:** **no**。** **m55-soul-core:** **not used**。** **Next:** Human replay on **`m55-soul-shadow`** with counts-only evidence。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_DRYRUN_R_HUMAN_NONPRODUCTION_MIGRATION_DRYRUN_REPLAY_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN m55_user_identity_mappings non-Production migration dry-run recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / explicit Human GO / non-Production dry-run only**。**Human GO:** AX-DRYRUN go。** **Result:** **no safe non-Production DB target in agent session**（no env URL；no docker；no linked project）— **migration not applied**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_BLOCKED_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-M55-USER-IDENTITY-MAPPINGS-NONPRODUCTION-MIGRATION-DRYRUN-001`**。** **Production apply:** **no**。** **Next:** **`5Z-I-V-AX-DRYRUN-R`** Human replay on shadow/local。** **AL: no**。
