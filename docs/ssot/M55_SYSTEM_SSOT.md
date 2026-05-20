@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C5-A Output-side sanitizer implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / output sanitizer impl planning / docs-only / no code**。** **Targets:** reply JSON（primary）、consult plaintext（secondary）。** **Modules planned:** `m55AiOutputSanitizer.ts` + selfcheck。** **Verdict:** **`OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C5-A-OUTPUT-SIDE-SANITIZER-IMPLEMENTATION-PLAN-001`**。** **Next:** **`AS-C5-B`**（Human GO）or **C6** / **AS-B1-MONITOR**。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C5_A_OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_PLANNING_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D4 Historical failed fulfillment closure / monitoring policy planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / closure + monitoring policy / docs-only**。** **Baseline:** failed **7** / 24h **0**；repair **Not eligible**。** **Closure:** monitored historical finding — no delete/backfill/repair。** **Monitoring:** AS-B1 cadence + §E escalation triggers + AS-B1-MONITOR template。** **Verdict:** **`HISTORICAL_FAILED_FULFILLMENT_CLOSURE_MONITORING_POLICY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D4-HISTORICAL-FAILED-FULFILLMENT-CLOSURE-MONITORING-POLICY-PLAN-001`**。** **Next:** **`AS-B1-MONITOR`** or **C5-A** / **C6**（Human GO）。** **AS-B1-REPAIR:** **closed**。
