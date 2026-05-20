@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6 Prompt safety + output sanitizer deploy planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / deploy planning-only / docs-only / no deploy**。** **Human GO:** **AS-C6 deploy planning go**。** **Scope:** input guard（**`bff147e`**）+ output sanitizer（**`ef6d828`**）→ future Production。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_PLANNING_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-PROMPT-SAFETY-OUTPUT-SANITIZER-DEPLOY-PLAN-001`**。** **Next:** **`AS-C6-D`**（deploy execution GO）or **`AS-B1-MONITOR`**。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C6_PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_PLANNING_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C5-C Output-side sanitizer static/local review recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / static-local review / docs-only / no deploy**。** **Reviewed:** AS-C5-B commit **`ef6d828`** — module + consult + reply integrations。** **Tests:** tsc PASS；input 10/10；output 12/12。** **Verdict:** **`OUTPUT_SIDE_SANITIZER_STATIC_LOCAL_REVIEW_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C5-C-OUTPUT-SIDE-SANITIZER-STATIC-LOCAL-REVIEW-001`**。** **Next:** **`AS-C6`** deploy planning（Human GO）。** **Deploy:** **no**。
