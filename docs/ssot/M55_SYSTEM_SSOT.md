@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B3 Automated notification implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / implementation planning / docs-only**。** **AS-B4 plan:** `lib/m55/ops/m55OpsNotify.ts` + selfcheck；webhook hooks **#2–#4** only；env **`M55_OPS_SLACK_WEBHOOK_URL`** via **AS-B4-E**。** **Verdict:** **`AUTOMATED_NOTIFICATION_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B3-AUTOMATED-NOTIFICATION-IMPLEMENTATION-PLAN-001`**。** **Next:** **`AS-B4`**（Human GO for code）。** **No implementation / no env / no deploy**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B3_AUTOMATED_NOTIFICATION_IMPLEMENTATION_PLANNING_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B2 Automated notification channel selection planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel selection planning / docs-only**。** **Interim:** **AS-B1-MONITOR** manual counts-only。** **First automation（AS-B4 + env GO）:** **Slack Incoming Webhook**（Discord alternate）。** **Verdict:** **`AUTOMATED_NOTIFICATION_CHANNEL_SELECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B2-AUTOMATED-NOTIFICATION-CHANNEL-SELECTION-PLAN-001`**。** **Next:** **`AS-B3`**。** **No implementation / no env / no deploy**。
