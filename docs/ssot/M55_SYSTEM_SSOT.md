@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D3 Historical artifact consistency / repair eligibility diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / artifact consistency + repair eligibility planning / docs-only**。** **Baseline:** snapshots **6** vs fulfillments **10**；failed **7** / 24h **0**；active impact **no**。** **Focus:** user-visible gap vs aggregate mismatch；D3-R SQL plan；eligibility tiers。** **Verdict:** **`HISTORICAL_ARTIFACT_CONSISTENCY_REPAIR_ELIGIBILITY_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D3-HISTORICAL-ARTIFACT-CONSISTENCY-REPAIR-ELIGIBILITY-DIAGNOSTIC-PLAN-001`**。** **Next:** **`AS-B1-D3-R`**。** **Repair:** **not authorized**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D3_HISTORICAL_ARTIFACT_CONSISTENCY_REPAIR_ELIGIBILITY_DIAGNOSTIC_PLANNING_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D2-R Deeper fulfillment logic counts-only diagnostic result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / deeper counts-only diagnostic result / docs-only**。** **Target:** **`m55-soul-core`**。** **Counts:** failed **7** / 24h **0**；snapshots **6** vs fulfillments **10**。** **Hypotheses:** `db_error` likely；migration-era yes；snapshot direct-failure no。** **Q1:** weak correlation only（6=6 not causality）。** **Active impact:** **no**。** **Verdict:** **`DEEPER_FULFILLMENT_LOGIC_DIAGNOSTIC_RESULT_GREEN_HISTORICAL_ARTIFACT_CONSISTENCY_DIAGNOSTIC_REQUIRED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D2-R-DEEPER-FULFILLMENT-LOGIC-COUNTS-ONLY-DIAGNOSTIC-RESULT-001`**。** **Next:** **`AS-B1-D3`**。** **Repair:** **not authorized**（Human repair request overridden）。
