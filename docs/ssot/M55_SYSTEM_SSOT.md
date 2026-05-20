@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PROD-BLOCKED Supabase Free Plan backup limitation / Production migration blocked
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production migration blocked checkpoint / docs-only**。** **Human evidence:** Supabase **Free Plan** — **no scheduled/project backups** on **`m55-soul-core`** family project。** **AX-PROD-PRE** backup prerequisite **not met**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_PRODUCTION_MIGRATION_BLOCKED_SUPABASE_FREE_PLAN_BACKUP_LIMITATION_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PROD-BLOCKED-SUPABASE-FREE-PLAN-BACKUP-LIMITATION-001`**。** **AX-PROD:** **not authorized**。** **Shadow R2:** **GREEN** unchanged。** **Next:** **`5Z-I-V-AS`**（recommended）or **`AX-PROD-FREE-FALLBACK-GOVERNANCE`**。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_PROD_BLOCKED_SUPABASE_FREE_PLAN_BACKUP_LIMITATION_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PROD-PRE Production identity mapping migration backup / apply planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production backup + apply planning-only / docs-only**。** **前提：** **`5Z-I-V-AX-DRYRUN-R2`** shadow GREEN。** **本条：** backup / pre-apply counts / AX-PROD apply / post-verify / rollback / stop conditions / Human GO template — **no Production connection, no backup execution, no apply**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_PRODUCTION_MIGRATION_BACKUP_APPLY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PROD-PRE-PRODUCTION-MIGRATION-BACKUP-APPLY-PLAN-001`**。** **Production apply:** **no**。** **Next:** **`5Z-I-V-AX-PROD`** or **`5Z-I-V-AS`**。** **AL: no**。
