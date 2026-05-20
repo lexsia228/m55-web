@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6-D-R Import path fix + redeploy execution recorded
+
+Status: **`main` / `work/home-cluster`。** **Classification:** **Category 2 / import fix + redeploy / no env / no DB**。** **Human GO:** **AS-C6-D-R go**。** **Fix:** `m55AiOutputSanitizer.ts` import paths（no `.js`）。** **Build:** PASS。** **Deploy:** **`main` @ `4efd4af`**；Vercel **Ready**。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_IMPORT_FIX_REDEPLOY_GREEN_NO_ENV_NO_DB`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-D-R-IMPORT-PATH-FIX-REDEPLOY-EXECUTION-001`**。** **Next:** **`AS-C6-V`**。** **Rollback candidate was:** **`c2b9ab1`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C6_D_R_IMPORT_PATH_FIX_REDEPLOY_EXECUTION_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6-D Prompt safety deploy execution recorded
 
 Status: **`main` / `work/home-cluster`。** **Classification:** **Category 2 / deploy execution / no env / no DB**。** **Human GO:** **AS-C6-D go**。** **Action:** merge **`work/home-cluster`** → **`main`**；push **`7bcebe7`**。** **Vercel:** **Failed**（`.js` import resolution in `m55AiOutputSanitizer.ts`）。** **Production live:** **`c2b9ab1`**（rollback candidate Ready）。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_EXECUTION_FAILED_NO_ENV_NO_DB`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-D-PROMPT-SAFETY-OUTPUT-SANITIZER-DEPLOY-EXECUTION-001`**。** **Next:** **`AS-C6-D-R`**。** **Deploy to Production:** **no**（build failed）。
