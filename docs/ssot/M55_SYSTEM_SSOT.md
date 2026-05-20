@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6-D Prompt safety deploy execution recorded
+
+Status: **`main` / `work/home-cluster`。** **Classification:** **Category 2 / deploy execution / no env / no DB**。** **Human GO:** **AS-C6-D go**。** **Action:** merge **`work/home-cluster`** → **`main`**；push **`7bcebe7`**。** **Vercel:** **Failed**（`.js` import resolution in `m55AiOutputSanitizer.ts`）。** **Production live:** **`c2b9ab1`**（rollback candidate Ready）。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_EXECUTION_FAILED_NO_ENV_NO_DB`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-D-PROMPT-SAFETY-OUTPUT-SANITIZER-DEPLOY-EXECUTION-001`**。** **Next:** **`AS-C6-D-R`**。** **Deploy to Production:** **no**（build failed）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C6_D_PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_EXECUTION_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6 Prompt safety + output sanitizer deploy planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / deploy planning-only / docs-only / no deploy**。** **Human GO:** **AS-C6 deploy planning go**。** **Scope:** input guard（**`bff147e`**）+ output sanitizer（**`ef6d828`**）→ future Production。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_PLANNING_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-PROMPT-SAFETY-OUTPUT-SANITIZER-DEPLOY-PLAN-001`**。** **Next:** **`AS-C6-D`**（deploy execution GO）or **`AS-B1-MONITOR`**。** **Deploy:** **no**。
