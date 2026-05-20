@@ -5,6 +5,7 @@ import { replyGenerateRequestSchema } from '../../../../lib/m55/reply/replyGener
 import { generateStubReplyPayload } from '../../../../lib/m55/reply/stubReplyGenerator';
 import { replyPayloadV11Schema } from '../../../../lib/m55/reply/replyPayload.zod';
 import { logReplyGenerateEvent } from '../../../../lib/m55/reply/observability';
+import { classifyM55AiSafetyInput } from '../../../../lib/m55/ai/m55AiSafetyPolicy';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -219,6 +220,27 @@ export async function POST(req: NextRequest) {
   inputModeForLog = payload.input_mode;
   selectedSubquestionCount = payload.selected_subquestions.length;
   freeTextLength = payload.free_text?.length ?? 0;
+
+  const replySafetyInput = [payload.theme, ...payload.selected_subquestions, payload.free_text ?? '']
+    .filter((part) => part.length > 0)
+    .join('\n');
+  const replySafety = classifyM55AiSafetyInput(replySafetyInput, { surface: 'reply' });
+  if (replySafety.action !== 'allow') {
+    return logAndReturn(
+      NextResponse.json(
+        {
+          ok: false,
+          request_id: requestId,
+          error: {
+            code: 'SAFETY_BLOCKED',
+            message: replySafety.safeMessage ?? 'この内容はお受けできません。',
+          },
+        },
+        { status: 422 },
+      ),
+      'SAFETY_BLOCKED',
+    );
+  }
 
   const db = getSupabaseAdmin() as any;
   const sessionPayload = {

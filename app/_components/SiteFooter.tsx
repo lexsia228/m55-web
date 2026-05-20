@@ -43,7 +43,10 @@ export function SiteFooter() {
         </nav>
 
         <p style={small}>
-          This site sells digital content delivered on the web after successful payment. It does not provide medical, legal, or investment advice.
+          本サービスはウェブ上で提供するデジタルコンテンツです。医療・法律・投資等の専門的助言は行いません。
+        </p>
+        <p style={{ ...small, marginTop: 4 }}>
+          Digital content delivered on the web after payment. Not medical, legal, or investment advice.
         </p>
         <p style={{ ...small, marginTop: 6 }}>© 2026 M55 Project</p>
       </div>
