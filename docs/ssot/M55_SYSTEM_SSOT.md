@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B Minimal error notification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / minimal error notification planning / docs-only**。** **前提：** **`5Z-I-V-AS-A`** triage。** **Plan:** interim **manual `failed_fulfillments` polling**；first automation via **AS-B2–B5**；redacted payload rules。** **Verdict:** **`MINIMAL_ERROR_NOTIFICATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B-MINIMAL-ERROR-NOTIFICATION-PLAN-001`**。** **Next:** **`5Z-I-V-AS-C`**（default）or **`AS-B1`** if paid traffic imminent。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B_MINIMAL_ERROR_NOTIFICATION_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-A Release readiness immediate guardrail triage planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / release-readiness triage / docs-only**。** **前提：** **`5Z-I-V-AS`** exception active；**AX-PROD** blocked。** **Triage:** error notification **Pre-Paid Traffic Must-Have**；AI prompt safety **Release Day Must-Have**；manual **`failed_fulfillments`** polling interim。** **Verdict:** **`RELEASE_READINESS_IMMEDIATE_GUARDRAIL_TRIAGE_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-A-RELEASE-READINESS-IMMEDIATE-GUARDRAIL-TRIAGE-PLAN-001`**。** **Next:** **`5Z-I-V-AS-B`**（default）。** **AX-PROD / AL: no**。
