@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS Temporary auth compliance exception governance recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / temporary exception governance / docs-only**。** **Context:** **AX-PROD-BLOCKED**（Free Plan no backup）；**AJ-R** auth **RED**（**`pk_test_`** on Production）。** **Exception:** Clerk Development namespace **temporary continue** — **not GREEN**。** **Verdict:** **`TEMPORARY_AUTH_COMPLIANCE_EXCEPTION_GOVERNANCE_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-TEMPORARY-AUTH-COMPLIANCE-EXCEPTION-GOVERNANCE-001`**。** **Review date:** **`2026-06-19`**（governance checkpoint）。** **AX-PROD / AL:** **no**。** **Full normal dev flow:** **NOT released**。** **Next:** **`5Z-I-V-AS-A`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_TEMPORARY_AUTH_COMPLIANCE_EXCEPTION_GOVERNANCE_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PROD-BLOCKED Supabase Free Plan backup limitation / Production migration blocked
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production migration blocked checkpoint / docs-only**。** **Human evidence:** Supabase **Free Plan** — **no scheduled/project backups** on **`m55-soul-core`** family project。** **AX-PROD-PRE** backup prerequisite **not met**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_PRODUCTION_MIGRATION_BLOCKED_SUPABASE_FREE_PLAN_BACKUP_LIMITATION_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PROD-BLOCKED-SUPABASE-FREE-PLAN-BACKUP-LIMITATION-001`**。** **AX-PROD:** **not authorized**。** **Shadow R2:** **GREEN** unchanged。** **Next:** **`5Z-I-V-AS`**（recommended）or **`AX-PROD-FREE-FALLBACK-GOVERNANCE`**。** **AL: no**。
