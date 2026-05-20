@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B2 Automated notification channel selection planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel selection planning / docs-only**。** **Interim:** **AS-B1-MONITOR** manual counts-only。** **First automation（AS-B4 + env GO）:** **Slack Incoming Webhook**（Discord alternate）。** **Verdict:** **`AUTOMATED_NOTIFICATION_CHANNEL_SELECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B2-AUTOMATED-NOTIFICATION-CHANNEL-SELECTION-PLAN-001`**。** **Next:** **`AS-B3`**。** **No implementation / no env / no deploy**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B2_AUTOMATED_NOTIFICATION_CHANNEL_SELECTION_PLANNING_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-TL-A-R Type-label mismatch read-only diagnostic result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / read-only diagnostic / docs-only**。** **Primary finding:** shelf **`essenceStemLaneIndex`(client profile)** vs core **`auditMeta.stemLaneIndex`(snapshot engine)** divergence（**high**）。** **Secondary:** multi-name product labels；EN hero slug。** **Verdict:** **`TYPE_LABEL_MISMATCH_READONLY_DIAGNOSTIC_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-TL-A-R-TYPE-LABEL-MISMATCH-READONLY-DIAGNOSTIC-RESULT-001`**。** **Fix:** deferred Category 2。** **Next:** monitoring + optional TL-FIX plan。
