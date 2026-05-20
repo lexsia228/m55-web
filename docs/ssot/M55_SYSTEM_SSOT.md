@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN m55_user_identity_mappings non-Production migration dry-run recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / explicit Human GO / non-Production dry-run only**。**Human GO:** AX-DRYRUN go。** **Result:** **no safe non-Production DB target in agent session**（no env URL；no docker；no linked project）— **migration not applied**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_BLOCKED_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-M55-USER-IDENTITY-MAPPINGS-NONPRODUCTION-MIGRATION-DRYRUN-001`**。** **Production apply:** **no**。** **Next:** **`5Z-I-V-AX-DRYRUN-R`** Human replay on shadow/local。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_DRYRUN_M55_USER_IDENTITY_MAPPINGS_NONPRODUCTION_MIGRATION_DRYRUN_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-FILE m55_user_identity_mappings migration file creation only recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / explicit Human GO / file only / no DB apply**。** **Human GO:** AX-FILE migration file creation only。** **File:** `supabase/migrations/20260519000000_m55_user_identity_mappings.sql`（**9→10** migrations）。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_ONLY_GREEN_NO_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-FILE-M55-USER-IDENTITY-MAPPINGS-MIGRATION-FILE-CREATION-ONLY-001`**。** **Next:** **`5Z-I-V-AX-DRYRUN`**。** **AL: no**。** **本条:** no DB apply**。
