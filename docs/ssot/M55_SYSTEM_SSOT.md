@@ -1,3 +1,11 @@
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B1-D Failed fulfillment diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / diagnostic planning / docs-only**。** **Baseline:** total **7** / 24h **0**；`internal_processing_failed` **6**；`missing_client_reference_id` **1**。** **SEV:** historical **SEV-2**；no active bleeding。** **Verdict:** **`FAILED_FULFILLMENT_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B1-D-FAILED-FULFILLMENT-DIAGNOSTIC-PLAN-001`**。** **Next:** **`AS-B1-D-R`**。** **Repair/replay:** **not authorized**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D_FAILED_FULFILLMENT_DIAGNOSTIC_PLANNING_2026-05-19.md`
+
+---
+
 ## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B1-R Manual failed_fulfillments polling result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / polling result / docs-only**。** **Target:** **`m55-soul-core`** Production counts-only。** **Counts:** total **7**；24h **0**；`internal_processing_failed` **6**；`missing_client_reference_id` **1**。** **SEV:** historical **SEV-2**；**no active bleeding**。** **Verdict:** **`MANUAL_FAILED_FULFILLMENTS_POLLING_RESULT_GREEN_HISTORICAL_FAILURES_DIAGNOSTIC_REQUIRED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B1-R-MANUAL-FULFILLMENTS-POLLING-RESULT-001`**。** **Next:** **`AS-B1-D`**。** **Mutation:** **no**。
