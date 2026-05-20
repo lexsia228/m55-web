@@ -9,6 +9,7 @@ import { getSupabaseAdmin } from '../supabaseAdmin';
 import { ALLOWED_ONE_TIME_PRODUCTS, DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { grantInitialIncludedReplyIfNeeded } from './reply/walletGrants';
 import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
+import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
 
@@ -159,6 +160,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
                   : undefined,
           })
         );
+        notifyM55OpsFireAndForget(m55OpsEventSnapshotSkip(snap.reason));
       } else {
         const { data: linkRows, error: linkErr } = await db
           .from('reply_ticket_wallets')

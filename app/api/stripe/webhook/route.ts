@@ -16,6 +16,11 @@ import {
   consumePendingReplyTicketDiagnosticSummary,
   handleReplyTicketCheckoutCompleted,
 } from '../../../../lib/m55/reply/replyTicketWebhookLane';
+import {
+  notifyM55OpsFireAndForget,
+  m55OpsEventInternalProcessingFailed,
+  m55OpsEventMissingClientReferenceId,
+} from '../../../../lib/m55/ops/m55OpsNotify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -237,6 +242,7 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   if (!userId) {
     await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', session.metadata ?? null);
     console.error('[webhook] lane=checkout event_id=', event.id, 'checkout_session_id=', session.id, 'failure=missing_client_reference_id');
+    notifyM55OpsFireAndForget(m55OpsEventMissingClientReferenceId());
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
@@ -396,6 +402,7 @@ async function handleCheckoutCompletedOneTime(
     reason: result.reason,
     detail: result.detail,
   });
+  notifyM55OpsFireAndForget(m55OpsEventInternalProcessingFailed(result.reason));
   return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
 }
 
