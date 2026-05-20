@@ -5,6 +5,8 @@ import { replyGenerateRequestSchema } from '../../../../lib/m55/reply/replyGener
 import { generateStubReplyPayload } from '../../../../lib/m55/reply/stubReplyGenerator';
 import { replyPayloadV11Schema } from '../../../../lib/m55/reply/replyPayload.zod';
 import { logReplyGenerateEvent } from '../../../../lib/m55/reply/observability';
+import { classifyM55AiSafetyInput } from '../../../../lib/m55/ai/m55AiSafetyPolicy';
+import { sanitizeM55ReplyJsonOutput } from '../../../../lib/m55/ai/m55AiOutputSanitizer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -220,6 +222,27 @@ export async function POST(req: NextRequest) {
   selectedSubquestionCount = payload.selected_subquestions.length;
   freeTextLength = payload.free_text?.length ?? 0;
 
+  const replySafetyInput = [payload.theme, ...payload.selected_subquestions, payload.free_text ?? '']
+    .filter((part) => part.length > 0)
+    .join('\n');
+  const replySafety = classifyM55AiSafetyInput(replySafetyInput, { surface: 'reply' });
+  if (replySafety.action !== 'allow') {
+    return logAndReturn(
+      NextResponse.json(
+        {
+          ok: false,
+          request_id: requestId,
+          error: {
+            code: 'SAFETY_BLOCKED',
+            message: replySafety.safeMessage ?? 'この内容はお受けできません。',
+          },
+        },
+        { status: 422 },
+      ),
+      'SAFETY_BLOCKED',
+    );
+  }
+
   const db = getSupabaseAdmin() as any;
   const sessionPayload = {
     theme: payload.theme,
@@ -396,7 +419,41 @@ export async function POST(req: NextRequest) {
       freeText: payload.free_text,
     });
 
-    const schemaResult = replyPayloadV11Schema.safeParse(replyDocument);
+    const outputSanitized = sanitizeM55ReplyJsonOutput(
+      replyDocument as unknown as Record<string, unknown>,
+      {
+        surface: 'reply',
+        theme: payload.theme,
+        inputMode: payload.input_mode,
+        selectedSubquestions: payload.selected_subquestions,
+        freeText: payload.free_text,
+      },
+    );
+
+    if (!outputSanitized.ok || !outputSanitized.sanitizedJson) {
+      schemaValidationResult = 'fail';
+      await db
+        .from('reply_sessions')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('id', sessionRow.id);
+
+      return logAndReturn(
+        NextResponse.json(
+          {
+            ok: false,
+            request_id: requestId,
+            error: {
+              code: 'OUTPUT_SAFETY_FAILED',
+              message: 'Generated reply could not be made safe for delivery',
+            },
+          },
+          { status: 422 },
+        ),
+        'OUTPUT_SAFETY_FAILED',
+      );
+    }
+
+    const schemaResult = replyPayloadV11Schema.safeParse(outputSanitized.sanitizedJson);
     if (!schemaResult.success) {
       schemaValidationResult = 'fail';
       await db

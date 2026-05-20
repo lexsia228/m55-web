@@ -1,3 +1,467 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C6 Prompt safety + output sanitizer deploy planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / deploy planning-only / docs-only / no deploy**。** **Human GO:** **AS-C6 deploy planning go**。** **Scope:** input guard（**`bff147e`**）+ output sanitizer（**`ef6d828`**）→ future Production。** **Verdict:** **`PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_PLANNING_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C6-PROMPT-SAFETY-OUTPUT-SANITIZER-DEPLOY-PLAN-001`**。** **Next:** **`AS-C6-D`**（deploy execution GO）or **`AS-B1-MONITOR`**。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C6_PROMPT_SAFETY_OUTPUT_SANITIZER_DEPLOY_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C5-C Output-side sanitizer static/local review recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / static-local review / docs-only / no deploy**。** **Reviewed:** AS-C5-B commit **`ef6d828`** — module + consult + reply integrations。** **Tests:** tsc PASS；input 10/10；output 12/12。** **Verdict:** **`OUTPUT_SIDE_SANITIZER_STATIC_LOCAL_REVIEW_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C5-C-OUTPUT-SIDE-SANITIZER-STATIC-LOCAL-REVIEW-001`**。** **Next:** **`AS-C6`** deploy planning（Human GO）。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C5_C_OUTPUT_SIDE_SANITIZER_STATIC_LOCAL_REVIEW_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C5-B Output-side sanitizer implementation execution recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / output sanitizer implementation / no deploy**。** **Human GO:** **AS-C5-B go**。** **New:** `m55AiOutputSanitizer.ts` + selfcheck。** **Integrated:** consult（pre-insert）、reply（pre-RPC）。** **Tests:** tsc PASS；input 10/10；output 12/12（tsx）。** **Verdict:** **`OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_EXECUTION_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C5-B-OUTPUT-SIDE-SANITIZER-IMPLEMENTATION-EXECUTION-001`**。** **Next:** **`AS-C5-C`**。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C5_B_OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_EXECUTION_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-C5-A Output-side sanitizer implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / output sanitizer impl planning / docs-only / no code**。** **Targets:** reply JSON（primary）、consult plaintext（secondary）。** **Modules planned:** `m55AiOutputSanitizer.ts` + selfcheck。** **Verdict:** **`OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-C5-A-OUTPUT-SIDE-SANITIZER-IMPLEMENTATION-PLAN-001`**。** **Next:** **`AS-C5-B`**（Human GO）or **C6** / **AS-B1-MONITOR**。** **Deploy:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C5_A_OUTPUT_SIDE_SANITIZER_IMPLEMENTATION_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D4 Historical failed fulfillment closure / monitoring policy planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / closure + monitoring policy / docs-only**。** **Baseline:** failed **7** / 24h **0**；repair **Not eligible**。** **Closure:** monitored historical finding — no delete/backfill/repair。** **Monitoring:** AS-B1 cadence + §E escalation triggers + AS-B1-MONITOR template。** **Verdict:** **`HISTORICAL_FAILED_FULFILLMENT_CLOSURE_MONITORING_POLICY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D4-HISTORICAL-FAILED-FULFILLMENT-CLOSURE-MONITORING-POLICY-PLAN-001`**。** **Next:** **`AS-B1-MONITOR`** or **C5-A** / **C6**（Human GO）。** **AS-B1-REPAIR:** **closed**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D4_HISTORICAL_FAILED_FULFILLMENT_CLOSURE_MONITORING_POLICY_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D3-R Historical artifact consistency counts-only diagnostic result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / artifact consistency counts-only result / docs-only**。** **Target:** **`m55-soul-core`**。** **Gap:** **4** entitlement owners without snapshot（historical test；not user-visible）。** **Wallets/ledgers:** **0** missing。** **Failed:** **7** / 24h **0**。** **Repair eligibility:** **Not eligible**。** **Verdict:** **`HISTORICAL_ARTIFACT_CONSISTENCY_DIAGNOSTIC_RESULT_GREEN_REPAIR_NOT_ELIGIBLE_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D3-R-HISTORICAL-ARTIFACT-CONSISTENCY-COUNTS-ONLY-RESULT-001`**。** **Next:** **`AS-B1-D4`**。** **Repair:** **not authorized**（Human repair request overridden）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D3_R_HISTORICAL_ARTIFACT_CONSISTENCY_COUNTS_ONLY_RESULT_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D3 Historical artifact consistency / repair eligibility diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / artifact consistency + repair eligibility planning / docs-only**。** **Baseline:** snapshots **6** vs fulfillments **10**；failed **7** / 24h **0**；active impact **no**。** **Focus:** user-visible gap vs aggregate mismatch；D3-R SQL plan；eligibility tiers。** **Verdict:** **`HISTORICAL_ARTIFACT_CONSISTENCY_REPAIR_ELIGIBILITY_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D3-HISTORICAL-ARTIFACT-CONSISTENCY-REPAIR-ELIGIBILITY-DIAGNOSTIC-PLAN-001`**。** **Next:** **`AS-B1-D3-R`**。** **Repair:** **not authorized**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D3_HISTORICAL_ARTIFACT_CONSISTENCY_REPAIR_ELIGIBILITY_DIAGNOSTIC_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D2-R Deeper fulfillment logic counts-only diagnostic result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / deeper counts-only diagnostic result / docs-only**。** **Target:** **`m55-soul-core`**。** **Counts:** failed **7** / 24h **0**；snapshots **6** vs fulfillments **10**。** **Hypotheses:** `db_error` likely；migration-era yes；snapshot direct-failure no。** **Q1:** weak correlation only（6=6 not causality）。** **Active impact:** **no**。** **Verdict:** **`DEEPER_FULFILLMENT_LOGIC_DIAGNOSTIC_RESULT_GREEN_HISTORICAL_ARTIFACT_CONSISTENCY_DIAGNOSTIC_REQUIRED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D2-R-DEEPER-FULFILLMENT-LOGIC-COUNTS-ONLY-DIAGNOSTIC-RESULT-001`**。** **Next:** **`AS-B1-D3`**。** **Repair:** **not authorized**（Human repair request overridden）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D2_R_DEEPER_FULFILLMENT_LOGIC_COUNTS_ONLY_DIAGNOSTIC_RESULT_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D2 Deeper fulfillment logic diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / deeper fulfillment logic diagnostic planning / docs-only**。** **Baseline:** failed **7** / 24h **0**；`internal_processing_failed` **6**；active bleed **no**。** **Focus:** repo logic map；hypotheses H1–H9；D2-R counts-only SQL plan。** **Verdict:** **`DEEPER_FULFILLMENT_LOGIC_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D2-DEEPER-FULFILLMENT-LOGIC-DIAGNOSTIC-PLAN-001`**。** **Next:** **`AS-B1-D2-R`**。** **Repair/replay:** **not authorized**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D2_DEEPER_FULFILLMENT_LOGIC_DIAGNOSTIC_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-D-R Failed fulfillment counts-only diagnostic result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / counts-only diagnostic result / docs-only**。** **Target:** **`m55-soul-core`**。** **Counts:** failed **7** / 24h **0**；latest day **2026-05-03**；fulfilled **10**。** **Ratio caveat:** ~58.8% not exact KPI。** **Active bleed:** **no**。** **Verdict:** **`FAILED_FULFILLMENT_DIAGNOSTIC_RESULT_GREEN_DEEPER_READONLY_DIAGNOSTIC_REQUIRED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-D-R-FAILED-FULFILLMENT-COUNTS-ONLY-DIAGNOSTIC-RESULT-001`**。** **Next:** **`AS-B1-D2`**。** **Mutation:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D_R_FAILED_FULFILLMENT_COUNTS_ONLY_DIAGNOSTIC_RESULT_2026-05-20.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B1-D Failed fulfillment diagnostic planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / diagnostic planning / docs-only**。** **Baseline:** total **7** / 24h **0**；`internal_processing_failed` **6**；`missing_client_reference_id` **1**。** **SEV:** historical **SEV-2**；no active bleeding。** **Verdict:** **`FAILED_FULFILLMENT_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B1-D-FAILED-FULFILLMENT-DIAGNOSTIC-PLAN-001`**。** **Next:** **`AS-B1-D-R`**。** **Repair/replay:** **not authorized**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_D_FAILED_FULFILLMENT_DIAGNOSTIC_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B1-R Manual failed_fulfillments polling result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / polling result / docs-only**。** **Target:** **`m55-soul-core`** Production counts-only。** **Counts:** total **7**；24h **0**；`internal_processing_failed` **6**；`missing_client_reference_id` **1**。** **SEV:** historical **SEV-2**；**no active bleeding**。** **Verdict:** **`MANUAL_FAILED_FULFILLMENTS_POLLING_RESULT_GREEN_HISTORICAL_FAILURES_DIAGNOSTIC_REQUIRED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B1-R-MANUAL-FULFILLMENTS-POLLING-RESULT-001`**。** **Next:** **`AS-B1-D`**。** **Mutation:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_R_MANUAL_FAILED_FULFILLMENTS_POLLING_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-E Limited Category 1 continuation / release-readiness handoff recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / release-readiness handoff / docs-only**。** **Consolidates:** DTR/AC-P6 **GREEN**；auth **RED**；AX-PROD **BLOCKED**；AS safety chain；Category 1/2/3 boundaries；§H handoff prompt。** **Verdict:** **`LIMITED_CATEGORY_1_CONTINUATION_RELEASE_READINESS_HANDOFF_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-E-LIMITED-CATEGORY-1-CONTINUATION-RELEASE-READINESS-HANDOFF-PLAN-001`**。** **Next:** **`AS-B1-R`** or **`AS-C5-A`** or **`AS-C6`**（Human GO）。** **AX-PROD / AL: no**；**deploy: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_E_LIMITED_CATEGORY_1_CONTINUATION_RELEASE_READINESS_HANDOFF_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C5 Output-side AI safety sanitizer planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / output-side sanitizer planning / docs-only**。** **Plan:** post-LLM pipeline；actions allow/sanitize/refuse/redirect/escalate/block；reply JSON field walk；gates **C5-A–E**。** **Verdict:** **`OUTPUT_SIDE_AI_SAFETY_SANITIZER_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C5-OUTPUT-SIDE-AI-SAFETY-SANITIZER-PLAN-001`**。** **Implemented:** **no**。** **Next:** **`AS-E`** or **`AS-B1-R`** or **`C5-A`**（Human GO）。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C5_OUTPUT_SIDE_AI_SAFETY_SANITIZER_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C4-R Production-safe AI safety verification result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / verification result / no-payment / no deploy**。** **Target:** local/static + production **`/legal/terms`** disclaimer only。** **Tests:** tsc PASS；selfcheck **10/10**。** **Production new guard claims:** **no**（AS-C2 not deployed）。** **Verdict:** **`AI_PROMPT_SAFETY_PRODUCTION_SAFE_VERIFICATION_RESULT_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C4-R-PRODUCTION-SAFE-AI-SAFETY-VERIFICATION-RESULT-001`**。** **Next:** **`AS-C5`** or **`AS-B1-R`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C4_R_PRODUCTION_SAFE_AI_SAFETY_VERIFICATION_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C4 Production-safe AI safety verification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / production-safe verification planning / docs-only**。** **Plan:** surfaces D1–D6；rules §E；matrix T1–T11；**AS-C4-R** evidence template；gates **C4-R/C5/C6/C7**。** **Verdict:** **`AI_PROMPT_SAFETY_PRODUCTION_SAFE_VERIFICATION_PLANNING_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C4-PRODUCTION-SAFE-AI-SAFETY-VERIFICATION-PLAN-001`**。** **Verification executed:** **no**。** **Deploy:** **no**。** **Next:** **`AS-C4-R`** or **`AS-B1-R`** or **`AS-E`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C4_PRODUCTION_SAFE_AI_SAFETY_VERIFICATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C3 Static/local AI safety review recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / static-local review / no deploy**。** **Review:** policy + consult/reply guards + DTR deterministic + public copy。** **Tests:** tsc PASS；selfcheck **10/10**。** **Verdict:** **`AI_PROMPT_SAFETY_STATIC_LOCAL_REVIEW_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C3-STATIC-LOCAL-AI-SAFETY-REVIEW-001`**。** **Residual:** LLM output sanitizer；E2E；deploy not authorized。** **Next:** **`AS-C4`** or **`AS-B1-R`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C3_STATIC_LOCAL_AI_SAFETY_REVIEW_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C2 AI prompt safety implementation execution recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / code / no deploy**。** **Added:** `lib/m55/ai/m55AiSafetyPolicy.ts`；consult + reply guards。** **Verdict:** **`AI_PROMPT_SAFETY_IMPLEMENTATION_EXECUTION_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C2-AI-PROMPT-SAFETY-IMPLEMENTATION-EXECUTION-001`**。** **tsc:** pass。** **Next:** **`AS-C3`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C2_AI_PROMPT_SAFETY_IMPLEMENTATION_EXECUTION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C1 AI prompt safety implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / AI prompt safety implementation planning / docs-only**。** **Plan:** shared `lib/m55/ai/m55AiSafetyPolicy.ts`（AS-C2）；insertion points for DTR/reply/consult/public copy；test matrix **T1–T10**；gates **AS-C2–C5**。** **Verdict:** **`AI_PROMPT_SAFETY_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C1-AI-PROMPT-SAFETY-IMPLEMENTATION-PLAN-001`**。** **Implemented:** **no**。** **Next:** **`5Z-I-V-AS-C2`**（Human GO）or **`AS-B1-R`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C1_AI_PROMPT_SAFETY_IMPLEMENTATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B1 Manual failed_fulfillments polling runbook planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / manual operations runbook / docs-only**。** **Runbook:** cadence + counts-only SQL templates + **AS-B1-R** result template + SEV/escalation。** **Verdict:** **`MANUAL_FAILED_FULFILLMENTS_POLLING_RUNBOOK_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B1-MANUAL-FAILED-FULFILLMENTS-POLLING-RUNBOOK-PLAN-001`**。** **Polling executed:** **no**。** **Next:** **`5Z-I-V-AS-B1-R`** or **`AS-C1`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MANUAL_FAILED_FULFILLMENTS_POLLING_RUNBOOK_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-D Release readiness checklist consolidation recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / release readiness consolidation / docs-only**。** **Consolidates:** DTR owned **GREEN**；AC-P6 unpaid **GREEN**；auth **RED**（AS exception）；AX-PROD **BLOCKED**；AS-B/C planning **GREEN**；full dev flow **NOT released**。** **Verdict:** **`RELEASE_READINESS_CHECKLIST_CONSOLIDATION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-D-RELEASE-READINESS-CHECKLIST-CONSOLIDATION-001`**。** **Next:** **`5Z-I-V-AS-B1`** or **`AS-C1`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_D_RELEASE_READINESS_CHECKLIST_CONSOLIDATION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-C AI prompt safety guard planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / AI prompt safety planning / docs-only**。** **Scope:** DTR / reply / consult cross-cutting guards；9 forbidden categories；draft prompt blocks（**not deployed**）。** **Verdict:** **`AI_PROMPT_SAFETY_GUARD_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-C-AI-PROMPT-SAFETY-GUARD-PLAN-001`**。** **Next:** **`5Z-I-V-AS-D`**。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_C_AI_PROMPT_SAFETY_GUARD_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-B Minimal error notification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / minimal error notification planning / docs-only**。** **前提：** **`5Z-I-V-AS-A`** triage。** **Plan:** interim **manual `failed_fulfillments` polling**；first automation via **AS-B2–B5**；redacted payload rules。** **Verdict:** **`MINIMAL_ERROR_NOTIFICATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-B-MINIMAL-ERROR-NOTIFICATION-PLAN-001`**。** **Next:** **`5Z-I-V-AS-C`**（default）or **`AS-B1`** if paid traffic imminent。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B_MINIMAL_ERROR_NOTIFICATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS-A Release readiness immediate guardrail triage planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / release-readiness triage / docs-only**。** **前提：** **`5Z-I-V-AS`** exception active；**AX-PROD** blocked。** **Triage:** error notification **Pre-Paid Traffic Must-Have**；AI prompt safety **Release Day Must-Have**；manual **`failed_fulfillments`** polling interim。** **Verdict:** **`RELEASE_READINESS_IMMEDIATE_GUARDRAIL_TRIAGE_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-A-RELEASE-READINESS-IMMEDIATE-GUARDRAIL-TRIAGE-PLAN-001`**。** **Next:** **`5Z-I-V-AS-B`**（default）。** **AX-PROD / AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_A_RELEASE_READINESS_IMMEDIATE_GUARDRAIL_TRIAGE_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AS Temporary auth compliance exception governance recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / temporary exception governance / docs-only**。** **Context:** **AX-PROD-BLOCKED**（Free Plan no backup）；**AJ-R** auth **RED**（**`pk_test_`** on Production）。** **Exception:** Clerk Development namespace **temporary continue** — **not GREEN**。** **Verdict:** **`TEMPORARY_AUTH_COMPLIANCE_EXCEPTION_GOVERNANCE_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AS-TEMPORARY-AUTH-COMPLIANCE-EXCEPTION-GOVERNANCE-001`**。** **Review date:** **`2026-06-19`**（governance checkpoint）。** **AX-PROD / AL:** **no**。** **Full normal dev flow:** **NOT released**。** **Next:** **`5Z-I-V-AS-A`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_TEMPORARY_AUTH_COMPLIANCE_EXCEPTION_GOVERNANCE_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PROD-BLOCKED Supabase Free Plan backup limitation / Production migration blocked
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production migration blocked checkpoint / docs-only**。** **Human evidence:** Supabase **Free Plan** — **no scheduled/project backups** on **`m55-soul-core`** family project。** **AX-PROD-PRE** backup prerequisite **not met**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_PRODUCTION_MIGRATION_BLOCKED_SUPABASE_FREE_PLAN_BACKUP_LIMITATION_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PROD-BLOCKED-SUPABASE-FREE-PLAN-BACKUP-LIMITATION-001`**。** **AX-PROD:** **not authorized**。** **Shadow R2:** **GREEN** unchanged。** **Next:** **`5Z-I-V-AS`**（recommended）or **`AX-PROD-FREE-FALLBACK-GOVERNANCE`**。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_PROD_BLOCKED_SUPABASE_FREE_PLAN_BACKUP_LIMITATION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PROD-PRE Production identity mapping migration backup / apply planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production backup + apply planning-only / docs-only**。** **前提：** **`5Z-I-V-AX-DRYRUN-R2`** shadow GREEN。** **本条：** backup / pre-apply counts / AX-PROD apply / post-verify / rollback / stop conditions / Human GO template — **no Production connection, no backup execution, no apply**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_PRODUCTION_MIGRATION_BACKUP_APPLY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PROD-PRE-PRODUCTION-MIGRATION-BACKUP-APPLY-PLAN-001`**。** **Production apply:** **no**。** **Next:** **`5Z-I-V-AX-PROD`** or **`5Z-I-V-AS`**。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_PROD_PRE_PRODUCTION_MIGRATION_BACKUP_APPLY_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN-R2 Human shadow identity mapping migration dry-run GREEN result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human shadow dry-run result recording / docs-only**。** **Human R2:** shadow **`m55-soul-shadow`** / ref **`jonlynrbfveaprncyrmv`**；migration **applied**；**mapping_row_count 0**；RLS/REVOKE/artifacts **verified yes**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_REPLAY_GREEN_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-R2-HUMAN-SHADOW-MIGRATION-DRYRUN-GREEN-RESULT-001`**。** **Production apply:** **no**。** **m55-soul-core:** **not used**。** **Next:** **`5Z-I-V-AX-PROD-PRE`**（planning only）。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_DRYRUN_R2_HUMAN_SHADOW_MIGRATION_DRYRUN_GREEN_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN-R Human-side identity mapping migration dry-run replay recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human-side non-Production dry-run replay**。** **Result:** **migration not applied** — no confirmed shadow/local DB URL；no Docker/psql；target not on non-Production allowlist before apply。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_REPLAY_BLOCKED_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-R-HUMAN-NONPRODUCTION-MIGRATION-DRYRUN-REPLAY-001`**。** **Production apply:** **no**。** **m55-soul-core:** **not used**。** **Next:** Human replay on **`m55-soul-shadow`** with counts-only evidence。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_DRYRUN_R_HUMAN_NONPRODUCTION_MIGRATION_DRYRUN_REPLAY_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-DRYRUN m55_user_identity_mappings non-Production migration dry-run recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / explicit Human GO / non-Production dry-run only**。**Human GO:** AX-DRYRUN go。** **Result:** **no safe non-Production DB target in agent session**（no env URL；no docker；no linked project）— **migration not applied**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_DRYRUN_BLOCKED_NO_PRODUCTION_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-DRYRUN-M55-USER-IDENTITY-MAPPINGS-NONPRODUCTION-MIGRATION-DRYRUN-001`**。** **Production apply:** **no**。** **Next:** **`5Z-I-V-AX-DRYRUN-R`** Human replay on shadow/local。** **AL: no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_DRYRUN_M55_USER_IDENTITY_MAPPINGS_NONPRODUCTION_MIGRATION_DRYRUN_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-FILE m55_user_identity_mappings migration file creation only recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / explicit Human GO / file only / no DB apply**。** **Human GO:** AX-FILE migration file creation only。** **File:** `supabase/migrations/20260519000000_m55_user_identity_mappings.sql`（**9→10** migrations）。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_ONLY_GREEN_NO_APPLY`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-FILE-M55-USER-IDENTITY-MAPPINGS-MIGRATION-FILE-CREATION-ONLY-001`**。** **Next:** **`5Z-I-V-AX-DRYRUN`**。** **AL: no**。** **本条:** no DB apply**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_FILE_M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_ONLY_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AX-PRE m55_user_identity_mappings migration file creation + dry-run planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 migration file + dry-run planning / no-apply / no-mutation**。** **前提：** **`5Z-I-V-AW-R`** GREEN。** **本条：** filename **`20260519000000_m55_user_identity_mappings.sql`**（planned）；dry-run non-Production first；backup/rollback；Human GO templates；gate split **AX-FILE → AX-DRYRUN → AX-PROD**。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_DRY_RUN_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AX-PRE-M55-USER-IDENTITY-MAPPINGS-MIGRATION-FILE-CREATION-DRY-RUN-PLAN-001`**。** **Next:** **`5Z-I-V-AX-FILE`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AX_PRE_M55_USER_IDENTITY_MAPPINGS_MIGRATION_FILE_CREATION_DRY_RUN_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AW-R m55_user_identity_mappings migration SQL draft review recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 SQL draft review / no-apply / no-mutation**。** **前提：** **`5Z-I-V-AW`** GREEN。** **本条：** fenced **REVIEW DRAFT ONLY** SQL in SSOT；constraints/indexes/RLS reviewed；**no** `supabase/migrations/` file。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_MIGRATION_SQL_DRAFT_REVIEW_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-R-M55-USER-IDENTITY-MAPPINGS-MIGRATION-SQL-DRAFT-REVIEW-001`**。** **Next:** **`5Z-I-V-AX-PRE`** then **AX**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AW_R_M55_USER_IDENTITY_MAPPINGS_MIGRATION_SQL_DRAFT_REVIEW_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AW m55_user_identity_mappings DB migration planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 DB migration planning-only / no-mutation**。** **前提：** **`5Z-I-V-AV`** GREEN。** **本条：** `m55_user_identity_mappings` conceptual schema；constraints/indexes；RLS server-only；ordering **AW-R→AX→AY→AZ→BA→BB→BC**；dry-run/rollback；seed policy。** **Verdict:** **`M55_USER_IDENTITY_MAPPINGS_DB_MIGRATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AW-M55-USER-IDENTITY-MAPPINGS-DB-MIGRATION-PLAN-001`**。** **Next:** **`5Z-I-V-AW-R`** then **AX**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AW_M55_USER_IDENTITY_MAPPINGS_DB_MIGRATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AV Mapping schema / dual-namespace resolver design recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 design-only / no-mutation**。** **前提：** **`5Z-I-V-AU`** GREEN；**`feasible_with_dual_namespace_resolver_planning`**。** **本条：** `m55_user_identity_mappings` conceptual schema；**`resolveCanonicalOwner`** contract；read/write path matrix；gate chain **AW→BC**。** **Verdict:** **`MAPPING_SCHEMA_DUAL_NAMESPACE_RESOLVER_DESIGN_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AV-MAPPING-SCHEMA-DUAL-NAMESPACE-RESOLVER-DESIGN-001`**。** **Next:** **`5Z-I-V-AW`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AV_MAPPING_SCHEMA_DUAL_NAMESPACE_RESOLVER_DESIGN_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AU Read-only mapping feasibility inventory recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only inventory / no-mutation**。** **前提：** **`5Z-I-V-AT`** GREEN；AR-R **separate** namespace。** **本条：** mapping scale **5** Clerk visible / **10** DB distinct；artifact feasibility matrix；**`feasible_with_dual_namespace_resolver_planning`**。** **Verdict:** **`READONLY_MAPPING_FEASIBILITY_INVENTORY_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AU-READONLY-MAPPING-FEASIBILITY-INVENTORY-001`**。** **Next:** **`5Z-I-V-AV`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AU_READONLY_MAPPING_FEASIBILITY_INVENTORY_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AT User mapping / entitlement preservation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AR-R`** RED（**`separate`** namespace）。** **本条：** artifact dependency map；safe-label mapping model；preservation rules §F；Options 1–5；future gates **AU/AV/AW/AX/AS**；stop conditions。** **Strategy:** prefer **dual-namespace resolver** over raw **`user_id` rewrite**；**no AL**。** **Verdict:** **`USER_MAPPING_ENTITLEMENT_PRESERVATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AT-USER-MAPPING-ENTITLEMENT-PRESERVATION-PLAN-001`**。** **Next:** **`5Z-I-V-AU`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AT_USER_MAPPING_ENTITLEMENT_PRESERVATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AR-R Clerk user_id continuity replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe replay result / no-mutation**。** **Human replay:** source **`clerk_dashboard_visual_inspection`**；answer **`separate`**；mutation **no**。** **Decision:** Development ↔ Production **separate namespace**；continuity **not confirmed**；continuity GREEN **no**。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_REPLAY_RED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-R-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-REPLAY-RESULT-001`**。** **AL: no**。** **Next:** **`5Z-I-V-AT`** or **`5Z-I-V-AS`**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AR_R_CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_REPLAY_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AR Clerk production-instance user_id continuity confirmation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 dashboard-safe confirmation design / no-mutation**。** **前提：** **`5Z-I-V-AQ`** GREEN；continuity **`not_confirmed`**。** **本条：** Methods 1–4 compare；Human **§E** replay template；AR-replay GREEN/BLOCKED/RED rules；branching to AL-PRE / AS / AT。** **Verdict:** **`CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_CONFIRMATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AR-CLERK-PRODUCTION-INSTANCE-USER-ID-CONTINUITY-CONFIRMATION-PLAN-001`**。** **Next:** **`5Z-I-V-AR-replay`** or **`5Z-I-V-AS`**。** **AL: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AR_CLERK_PRODUCTION_INSTANCE_USER_ID_CONTINUITY_CONFIRMATION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AQ Production Clerk production-instance feasibility / user_id continuity planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning-only / no-mutation**。** **前提：** **`5Z-I-V-AP-S-R`** Supabase GREEN；Clerk continuity **`not_confirmed`**。** **本条：** eight feasibility questions；Options A–E；mapping design §F；future gates **AR/AS/AT/AL**；stop conditions。** **Policy:** no Production instance yet；no AL；compliance **RED**。** **Verdict:** **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AQ-PRODUCTION-CLERK-PRODUCTION-INSTANCE-FEASIBILITY-USER-ID-CONTINUITY-PLAN-001`**。** **Next:** **`5Z-I-V-AR`** or **`5Z-I-V-AS`**（Human choice）。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AQ_PRODUCTION_CLERK_PRODUCTION_INSTANCE_FEASIBILITY_USER_ID_CONTINUITY_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S-R Supabase aggregate inventory replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 inventory result recording / no-mutation**。** **前提：** **`5Z-I-V-AP-S`** GREEN；Human counts-only replay submitted。** **Supabase:** all AP-S metrics **numeric**（entitlements **10**；rights **7**；snapshots **6**；wallets **10**；ledgers **17**；OTF **10/7** distinct；stripe_events **133**；failed_fulfillments **7**）。** **Clerk:** Development **5/5**；Production instance **no**；**user_id continuity `not_confirmed`**（safe override）。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-R-SUPABASE-AGGREGATE-INVENTORY-REPLAY-RESULT-001`**。** **Namespace continuity overall:** **not GREEN**。** **AL: no**。** **Next:** **`5Z-I-V-AQ`** planning only。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_R_SUPABASE_AGGREGATE_INVENTORY_REPLAY_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-S Supabase aggregate inventory read-only query preparation recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only query prep / no-mutation**。** **前提：** **`5Z-I-V-AP-R`** BLOCKED（Supabase aggregates unclear）。** **本条：** prepared **counts-only** UNION SQL for **entitlements / rights / snapshots / wallets / ledgers / OTF / stripe_events / failed_fulfillments**；safety rules；Human paste template；**no query executed**。** **Verdict:** **`SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-S-SUPABASE-AGGREGATE-INVENTORY-READONLY-QUERY-PREP-001`**。** **Next:** **`5Z-I-V-AP-S-R`** Human runs SQL + counts-only replay。** **AL/AQ: no**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_S_SUPABASE_AGGREGATE_INVENTORY_READONLY_QUERY_PREPARATION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP-R Production Clerk namespace continuity AP-replay counts result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 inventory replay / docs-only**。** **前提：** **`5Z-I-V-AP`** BLOCKED。** **Human replay:** Clerk **`M55-Official`** Development users **5/5**；Production instance **no**；**user_id continuity not confirmed**；Supabase aggregates **mostly unclear**（**failed_fulfillments total 7** only）。** **Verdict:** **`PRODUCTION_CLERK_NAMESPACE_CONTINUITY_REPLAY_COUNTS_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-R-PRODUCTION-CLERK-NAMESPACE-CONTINUITY-REPLAY-COUNTS-RESULT-001`**。** **AL: no**；**AQ: no**（default）。** **Next:** **`5Z-I-V-AP-S`** Supabase aggregate replay。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_R_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_REPLAY_COUNTS_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AP Production Clerk namespace continuity read-only inventory recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 read-only inventory / no-mutation**。** **前提：** **`5Z-I-V-AO`** controlled Development exception；compliance **RED**。** **本条：** mapping risk matrix complete；**stale** SSOT aggregates only（distinct users **10/6/7/10** DTR-related）；Clerk counts **not_checked**；fresh Supabase **not run**；Production ID continuity **not_checked**。** **Verdict:** **`PRODUCTION_CLERK_NAMESPACE_CONTINUITY_READONLY_INVENTORY_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AP-PRODUCTION-CLERK-NAMESPACE-CONTINUITY-READONLY-INVENTORY-001`**。** **AL: no**。** **Next:** AP-replay counts + **`5Z-I-V-AQ`**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AP_PRODUCTION_CLERK_NAMESPACE_CONTINUITY_READONLY_INVENTORY_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AO Production Clerk namespace continuity planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning only / no-mutation**。** **前提：** **`5Z-I-V-AL-PRE-R`** BLOCKED；**`M55-Official`** Development + real users；Production instance **not created**。** **本条：** identity dependency map（Clerk **`user_id`** → entitlements/snapshots/wallets/OTF）；Options **A–D**；near-term **Option A** temporary exception（compliance **RED**）；compliance path **Option B** after **AP**。** **Verdict:** **`PRODUCTION_CLERK_PRODUCTION_INSTANCE_NAMESPACE_CONTINUITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AO-PRODUCTION-CLERK-PRODUCTION-INSTANCE-MIGRATION-NAMESPACE-CONTINUITY-PLAN-001`**。** **Next:** **`5Z-I-V-AP`** read-only inventory。** **AL not authorized**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AO_PRODUCTION_CLERK_PRODUCTION_INSTANCE_MIGRATION_NAMESPACE_CONTINUITY_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AL-PRE-R Production Clerk correction preflight replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 preflight replay / docs-only**。** **前提：** **`5Z-I-V-AL-PRE`** BLOCKED → Human replay submitted（prefix only；raw key **no**）。** **Clerk:** **`M55-Official`** / **Development** / real users **yes**；Production instance **no**；**`pk_live_`/`sk_live_` unavailable**；create-production option **visible**。** **Vercel:** current **`pk_test_`/`sk_test_`**；backup **yes**；target keys **unavailable**。** **AL ready: no**；Human GO **no**。** **Verdict:** **`PRODUCTION_CLERK_CORRECTION_PREFLIGHT_REPLAY_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AL-PRE-R-PRODUCTION-CLERK-CORRECTION-PREFLIGHT-REPLAY-RESULT-001`**。** **Next:** **`5Z-I-V-AO`** production-instance migration / namespace continuity planning。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_R_PRODUCTION_CLERK_CORRECTION_PREFLIGHT_REPLAY_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AL-PRE Production Clerk correction execution preflight recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 preflight / Human checklist / no-mutation**。** **前提：** **`5Z-I-V-AK`** Option 1 plan GREEN；AL blockers remain。** **本条：** Human dashboard checklist **not submitted** → all critical items **not_checked** / **no**；**AL ready: no**；**Human GO: no**。** **Verdict:** **`PRODUCTION_CLERK_CORRECTION_EXECUTION_PREFLIGHT_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AL-PRE-PRODUCTION-CLERK-CORRECTION-PREFLIGHT-CHECKLIST-001`**。** **Next:** AL-PRE-replay + user ID continuity planning + backup prep。** **本条:** no mutation；compliance RED**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AL_PRE_PRODUCTION_CLERK_CORRECTION_EXECUTION_PREFLIGHT_HUMAN_CHECKLIST_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AK Production Clerk auth compliance correction planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 planning only / no-mutation**。** **前提：** **`5Z-I-V-AJ-R`** RED（**`m55-official`** / **development** / **`pk_test_`+`sk_test_`** on Production）。** **本条：** correction plan — **Option 1 recommended**（enable Production on **`m55-official`** → Vercel **`pk_live_`/`sk_live_`**）；Option 2 fallback；Option 3 not compliance target。** **Future:** **AL** execution → **AM** redeploy → **AN** verify。** **Verdict:** **`PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AK-PRODUCTION-CLERK-AUTH-COMPLIANCE-CORRECTION-PLAN-001`**。** **Blockers:** **`pk_live_` visibility unclear**；user ID migration open；**no Human GO for AL**。** **本条:** no mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AK_PRODUCTION_CLERK_AUTH_COMPLIANCE_CORRECTION_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AJ-R Production auth compliance / Clerk dashboard replay result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human AJ-replay result / docs-only**。** **前提：** **`5Z-I-V-AJ`** BLOCKED → Human replay submitted（prefix class only；raw key **no**）。** **観察:** Vercel Production publishable **`pk_test_`**；Vercel secret **unclear**；Preview publishable **`pk_test_`**；Clerk **`m55-official`** / **development** / **`pk_test_`+`sk_test_`**；domain **`m55-webv2.vercel.app` configured**；same-app **yes**（limited confidence）；dual-app **resolved**。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_REPLAY_RED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AJ-R-PRODUCTION-AUTH-COMPLIANCE-CLERK-DASHBOARD-REPLAY-RESULT-001`**。** **Auth compliance:** **RED confirmed**；**no correction**。** **Next:** **`5Z-I-V-AK`** Category 2 correction **planning**（GO before execution）。** **本条:** no mutation；DTR/AC-P6 unchanged**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_R_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_REPLAY_RESULT_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AJ Production auth compliance / Clerk dashboard confirmation recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human dashboard read-only confirmation**。** **前提：** **`5Z-I-V-AI`** planning GREEN。** **本条：** AJ session に **fresh Human Vercel/Clerk dashboard prefix 確認なし**（agent は dashboard 非アクセス）→ Production/Preview/Clerk 各項目 **unclear / not_checked**；dual-app conflict **unresolved**。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_BLOCKED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AJ-PRODUCTION-AUTH-COMPLIANCE-CLERK-DASHBOARD-CONFIRMATION-001`**。** **Auth compliance:** **BLOCKED**（not GREEN/RED in AJ）。** **Next:** Human **AJ replay**（prefix class only）→ correction **planning** if RED trend。** **本条:** no mutation；DTR/AC-P6 separate**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AJ_PRODUCTION_AUTH_COMPLIANCE_CLERK_DASHBOARD_CONFIRMATION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AI Production auth compliance / Clerk pk_test planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR **AC GREEN**；AC-P6 **AH GREEN**；auth compliance **unresolved**。** **本条：** read-only repo review — Clerk via **`ClerkProvider`** + **`clerkMiddleware`** + **`auth()`**；env names only in code；**no literal `pk_*` in source**；compliance = dashboard/env track。** **Prior signal:** **`pk_test_` on Production**（**`5Z-I-V-K`**）；dual-app **conflict**。** **Next:** **`5Z-I-V-AJ`** Human dashboard prefix-class confirmation（no raw keys；no correction）。** **Verdict:** **`PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AI-PRODUCTION-AUTH-COMPLIANCE-CLERK-PK-TEST-PLAN-001`**。** **本条:** no mutation；DTR GREEN ≠ auth GREEN**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AI_PRODUCTION_AUTH_COMPLIANCE_CLERK_PK_TEST_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AH Unpaid path no-payment smoke execution recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human UI read-only / no-payment execution**。** **前提：** **`5Z-I-V-AG`** planning GREEN；Production **`m55-webv2.vercel.app`**。** **観察:** **`logged-out-incognito-observation`** — **`/dtr`** 購入CTA（**`1,000円で入手する`→`/dtr/lp`**）・owned/保存済みバッジなし・**`/dtr/core`** は **307→`/dtr/lp`**；checkout/決済/CTA押下なし。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AH-UNPAID-PATH-NO-PAYMENT-SMOKE-EXECUTION-001`**。** **AC-P6:** **GREEN**（non-owned scope）；authenticated locked **NOT_RUN**。** **Caveat:** auth compliance / full dev flow / type-label / audit — separate。** **本条:** no mutation；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AH_UNPAID_PATH_NO_PAYMENT_SMOKE_EXECUTION_2026-05-19.md`
+
+---
+
+## 2026-05-19 — Phase 5-6H-5Z-I-V-AG Unpaid path no-payment smoke planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 separate / planning-only**。** **前提：** DTR unlock **AC GREEN**；**AC-P6 unpaid not-run**；**AF Category 1 active**。** **本条：** docs-only plan for **AH** execution — unpaid/locked shelf+LP purchase CTA visible；no owned/saved leak；no **`/dtr/core`** saved open；**no payment/checkout/DB**。** **Verdict:** **`UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260519-5Z-I-V-AG-UNPAID-PATH-NO-PAYMENT-SMOKE-PLAN-001`**。** **Next:** **`5Z-I-V-AH`** execution（Human UI read-only no-payment）。** **本条:** no mutation；auth compliance separate；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AG_UNPAID_PATH_NO_PAYMENT_SMOKE_PLANNING_2026-05-19.md`
+
+---
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AF Limited normal dev flow release execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AE`** partial limited release recommended。** **本条：** docs-only — **Category 1 ACTIVE**（docs/SSOT/copy/non-auth UI polish/read-only audit/planning）；**Category 2 GATED**；**Category 3 separate**；task category declaration **required**。** **Verdict:** **`LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GREEN_CATEGORY_1_ONLY`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AF-LIMITED-NORMAL-DEV-FLOW-RELEASE-EXECUTION-001`**。** **Next:** unpaid-path no-payment smoke planning **strongly recommended**。** **本条:** no mutation；no full release；auth compliance unresolved**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AF_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_2026-05-18.md`
+
+---
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AE Normal dev flow release decision planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AD`** DTR unlock **closed GREEN**。** **本条：** docs-only — release scope Category **1/2/3**；Options **1–4**；**Option 2 partial limited release recommended**；guardrails；**no actual release**。** **Verdict:** **`NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GREEN_PARTIAL_LIMITED_RELEASE_RECOMMENDED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AE-NORMAL-DEV-FLOW-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_LIMITED_NORMAL_DEV_FLOW_RELEASE_EXECUTION_GATE`**（explicit GO）；unpaid smoke planning **strongly recommended** parallel。** **本条:** no mutation；auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AE_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_2026-05-18.md`
+
+---
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AD Post-Production DTR unlock stabilization / release decision planning recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AC`** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **本条：** docs-only — DTR unlock track **closed**（W/Y/AB/AC）；not closed: auth compliance / normal dev flow / AC-P6 unpaid / type-label / audit NoTouch；Options **1–4**；guardrails。** **Verdict:** **`POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AD-POST-PRODUCTION-DTR-UNLOCK-STABILIZATION-RELEASE-DECISION-PLAN-001`**。** **Next:** **`READY_FOR_NORMAL_DEV_FLOW_RELEASE_DECISION_PLANNING_GATE`**（conservative: partial release after unpaid smoke planning）。** **本条:** no mutation；no raw IDs；auth unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AD_POST_PRODUCTION_DTR_UNLOCK_STABILIZATION_RELEASE_DECISION_PLANNING_2026-05-18.md`
+
+---
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AC Canonical Production UI verification execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AB`** Production deploy **`5e90199`**（**`98bcd58`**）。** **本条：** Human UI on **canonical Production** **`m55-webv2.vercel.app`** — **`/dtr`** owned・未購入CTAなし・**「レポートを開く」** → **`/dtr/core`** 保存版；fatal errorなし；checkout/新規決済なし。** **Verdict:** **`CANONICAL_PRODUCTION_UI_VERIFICATION_GREEN_SAVED_REPORT_UNLOCKED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AC-CANONICAL-PRODUCTION-UI-VERIFICATION-EXECUTION-001`**。** **AC-P1–P5,P7–P8 pass**；**AC-P6 not-run**。** **Caveat:** production auth compliance unresolved；normal dev flow not released。** **Next:** **`5Z-I-V-AD`** stabilization / release decision planning。** **本条:** no mutation；no raw IDs**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AC_CANONICAL_PRODUCTION_UI_VERIFICATION_EXECUTION_2026-05-18.md`
+
+---
+
+## 2026-05-18 — Phase 5-6H-5Z-I-V-AB Production deployment / promotion execution recorded
+
+Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-AA`**；Human **GO**。** **本条：** **1** deployment action — **`work/home-cluster` → `main` merge + push**；Vercel Production autodeploy **`5e90199`**（includes **`98bcd58`**）；GitHub deployment id prefix **`4738129`**；status **Ready/success**。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_GREEN_FIX_DEPLOYED`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AB-PRODUCTION-DEPLOYMENT-PROMOTION-EXECUTION-001`**。** **Next:** **`5Z-I-V-AC`** canonical Production UI verification。** **本条:** no env/DB/checkout；no UI verify；auth compliance unresolved；normal dev flow not released**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AB_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_2026-05-18.md`
+
+---
+
 ## 2026-05-18 — Phase 5-6H-5Z-I-V-AA Production deployment / promotion planning recorded
 
 Status: **`work/home-cluster`。** **前提：** **`5Z-I-V-Z`** GREEN；Vercel read-only：**Preview `work/home-cluster` `98bcd58` ready**；**Production `main` Current `9bbf05c` ready**；**Production includes `98bcd58` = no**。** **Classification:** **`PRODUCTION_DOES_NOT_INCLUDE_SNAPSHOT_ROUTE_FIX`**。** **Preview logs:** `dtrOwnershipGate` **owned** / grantSource **`dtr_report_snapshots`**（suffix **`user_****1M65`** only）。** **Verdict:** **`PRODUCTION_DEPLOYMENT_PROMOTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260518-5Z-I-V-AA-PRODUCTION-DEPLOYMENT-PROMOTION-PLAN-001`**。** **Next:** **`READY_FOR_PRODUCTION_DEPLOYMENT_PROMOTION_EXECUTION_GATE`**（explicit GO）。** **本条:** no merge/promote/redeploy/env/DB/code/payment；Production UI verify deferred；auth compliance unresolved；normal dev flow not released**。

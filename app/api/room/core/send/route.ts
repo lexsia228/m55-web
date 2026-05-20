@@ -26,6 +26,15 @@ import { getSupabaseAdmin } from '../../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../../lib/m55/dtrOwnershipGate';
 import { runDtrEngine } from '../../../../../lib/m55/dtrEngine';
 import { hashUserIdForLedgerLog } from '../../../../../lib/m55/reply/readReplyWalletProbe';
+import {
+  buildM55AiSafetySystemInstruction,
+  classifyM55AiSafetyInput,
+  isConsultSafetyBlocked,
+} from '../../../../../lib/m55/ai/m55AiSafetyPolicy';
+import {
+  isConsultOutputSafetyBlocked,
+  sanitizeM55AiTextOutput,
+} from '../../../../../lib/m55/ai/m55AiOutputSanitizer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -36,16 +45,6 @@ const INPUT_MAX = 500;
 const OUTPUT_HARD_CAP = 1000;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
-/** Simple high-risk pattern check. Server-side only; not exhaustive. */
-const HIGH_RISK_PATTERNS = [
-  /自殺|自傷|死にたい|消えたい/,
-  /ignore previous|ignore all instructions|jailbreak|DAN mode/i,
-];
-
-function isHighRisk(text: string): boolean {
-  return HIGH_RISK_PATTERNS.some((p) => p.test(text));
-}
-
 function clampOutput(text: string): string {
   if (text.length <= OUTPUT_HARD_CAP) return text;
   return text.slice(0, OUTPUT_HARD_CAP - 1) + '…';
@@ -53,7 +52,10 @@ function clampOutput(text: string): string {
 
 /** Build report-scoped system prompt (no generic chat). */
 function buildSystemPrompt(reportSections: string): string {
-  return `あなたはM55のEntry Reportに付帯する相談AIです。
+  const safetyPrefix = buildM55AiSafetySystemInstruction('consult');
+  return `${safetyPrefix}
+
+あなたはM55のEntry Reportに付帯する相談AIです。
 このユーザーの取り扱い説明書の要点は以下のとおりです：
 
 ${reportSections}
@@ -113,13 +115,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // High-risk block (no ticket consumption on block — SSOT §5, §3.3)
-  if (isHighRisk(userMessage)) {
+  // Shared safety guard (no ticket consumption on block — SSOT §5, §3.3)
+  const safety = classifyM55AiSafetyInput(userMessage, { surface: 'consult' });
+  if (isConsultSafetyBlocked(safety)) {
     return NextResponse.json(
       {
         error: 'blocked',
-        safeMessage:
-          'この内容はこのレポートの相談では扱えません。困難な状況にある場合は、いのちの電話（0120-783-556）など専門の相談窓口をご利用ください。',
+        safeMessage: safety.safeMessage ?? 'この内容はこのレポートの相談では扱えません。',
       },
       { status: 422, headers: NO_STORE }
     );
@@ -211,6 +213,18 @@ export async function POST(req: NextRequest) {
     aiContent = clampOutput(
       completion.choices[0]?.message?.content?.trim() ?? '（返答を生成できませんでした）'
     );
+
+    const outputSafety = sanitizeM55AiTextOutput(aiContent, { surface: 'consult', locale: 'ja-JP' });
+    if (isConsultOutputSafetyBlocked(outputSafety)) {
+      return NextResponse.json(
+        {
+          error: 'blocked',
+          safeMessage: outputSafety.safeText,
+        },
+        { status: 422, headers: NO_STORE }
+      );
+    }
+    aiContent = outputSafety.safeText;
   } catch (e) {
     console.error(
       '[room/core/send] AI call failed',

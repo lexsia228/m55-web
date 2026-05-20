@@ -1,3 +1,8 @@
+/**
+ * Stub reply generator — deterministic templates only (no LLM).
+ * Before any future LLM path: call classifyM55AiSafetyInput from lib/m55/ai/m55AiSafetyPolicy
+ * on combined theme + subquestions + free_text (surface: 'reply').
+ */
 import type { ReplyPayloadV11 } from './types';
 
 const TEMPLATE_BY_MODE: Record<string, Omit<ReplyPayloadV11, 'theme' | 'version'>> = {
