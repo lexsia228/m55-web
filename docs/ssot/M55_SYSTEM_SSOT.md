@@ -1,3 +1,11 @@
+## 2026-05-20 — Phase 5-6H-5Z-I-V-TL-A-R Type-label mismatch read-only diagnostic result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / read-only diagnostic / docs-only**。** **Primary finding:** shelf **`essenceStemLaneIndex`(client profile)** vs core **`auditMeta.stemLaneIndex`(snapshot engine)** divergence（**high**）。** **Secondary:** multi-name product labels；EN hero slug。** **Verdict:** **`TYPE_LABEL_MISMATCH_READONLY_DIAGNOSTIC_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-TL-A-R-TYPE-LABEL-MISMATCH-READONLY-DIAGNOSTIC-RESULT-001`**。** **Fix:** deferred Category 2。** **Next:** monitoring + optional TL-FIX plan。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_A_R_TYPE_LABEL_MISMATCH_READONLY_DIAGNOSTIC_RESULT_2026-05-20.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-TL-A Type-label mismatch diagnostic planning recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / type-label diagnostic planning / docs-only**。** **Scope:** UI・DTR・返書・consult・product_id・Stripe-safe・10通り policy。** **Prior:** **5Z-I-U** type-source divergence。** **Verdict:** **`TYPE_LABEL_MISMATCH_DIAGNOSTIC_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-TL-A-TYPE-LABEL-MISMATCH-DIAGNOSTIC-PLAN-001`**。** **Next:** **`TL-A-R`**。** **No code/copy/deploy**。
