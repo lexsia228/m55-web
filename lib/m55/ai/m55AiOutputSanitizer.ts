@@ -9,10 +9,10 @@ import {
   safeMessageForCategory,
   type M55AiSafetyCategory,
   type M55AiSafetySurface,
-} from './m55AiSafetyPolicy.js';
-import { replyPayloadV11Schema } from '../reply/replyPayload.zod.js';
-import type { ReplyPayloadV11 } from '../reply/types.js';
-import { generateStubReplyPayload } from '../reply/stubReplyGenerator.js';
+} from './m55AiSafetyPolicy';
+import { replyPayloadV11Schema } from '../reply/replyPayload.zod';
+import type { ReplyPayloadV11 } from '../reply/types';
+import { generateStubReplyPayload } from '../reply/stubReplyGenerator';
 
 export type M55AiOutputAction =
   | 'allow'
