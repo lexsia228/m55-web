@@ -3,7 +3,7 @@
  * Stored in localStorage + dtr_guest_drafts.extra_json.
  */
 import type { BirthProfile } from './profile';
-import { lookupCountryTimezone } from '../m55/calendar/loadCalendarBundle';
+import { lookupCountryTimezone } from '../m55/calendar/countryTimezone';
 
 export const DEFAULT_COUNTRY = 'JP';
 

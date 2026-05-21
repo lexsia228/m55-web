@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { M55CompositeStemError } from '../compositeStem/types';
 import { CALENDAR_RANGE_END, CALENDAR_RANGE_START, CORRECTION_VERSION } from '../compositeStem/constants';
+import { lookupCountryTimezone as lookupCountryTimezoneFromJson } from './countryTimezone';
 
 type ManifestFileEntry = {
   sha256: string;
@@ -127,8 +128,7 @@ export function lookupSolarTermsForYear(year: number): SolarTermYearRow {
 }
 
 export function lookupCountryTimezone(country: string): string | null {
-  const bundle = loadCalendarBundle();
-  return bundle.tz.countries[country.toUpperCase()] ?? null;
+  return lookupCountryTimezoneFromJson(country);
 }
 
 /** Test-only: drop in-memory cache so integrity re-checks run. */
