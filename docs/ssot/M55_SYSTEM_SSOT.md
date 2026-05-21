@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B1 Migration draft + preflight recorded
+
+Status: **`work/home-cluster` @ `074d89b`+。** **Classification:** **Category 1 / migration draft / no-apply**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B1_MIGRATION_DRAFT_GREEN_NO_APPLY_NO_MUTATION`**。** **Artifacts:** `20260615000000_dtr_report_snapshots_soft_hide_repurchase.sql` + staging/production preflight v1。** **Apply:** **no**。** **Next:** **SOFT-HIDE-REPURCHASE-B2** staging preflight execution。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B1-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B1_MIGRATION_DRAFT_PREFLIGHT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B Schema migration planning recorded
 
 Status: **`work/home-cluster` @ `0837e52`+。** **Classification:** **Category 1 / docs-only / no-mutation**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B_SCHEMA_MIGRATION_PLANNING_GREEN_NO_MUTATION`**。** **Schema:** `user_hidden_at` + source/reason；drop `UNIQUE(user_id,product_id)`；partial unique `WHERE user_hidden_at IS NULL`。** **Read:** `getVisibleDtrReportSnapshot`。** **Checkout:** visible blocks；hidden-only + repurchase allows；entitlement alone does not block。** **Defer:** `user_hidden_by`；wallet detail → E。** **Next:** **SOFT-HIDE-REPURCHASE-B1** migration draft。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B-001`**。
