@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B Schema migration planning recorded
+
+Status: **`work/home-cluster` @ `0837e52`+。** **Classification:** **Category 1 / docs-only / no-mutation**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B_SCHEMA_MIGRATION_PLANNING_GREEN_NO_MUTATION`**。** **Schema:** `user_hidden_at` + source/reason；drop `UNIQUE(user_id,product_id)`；partial unique `WHERE user_hidden_at IS NULL`。** **Read:** `getVisibleDtrReportSnapshot`。** **Checkout:** visible blocks；hidden-only + repurchase allows；entitlement alone does not block。** **Defer:** `user_hidden_by`；wallet detail → E。** **Next:** **SOFT-HIDE-REPURCHASE-B1** migration draft。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B_SCHEMA_MIGRATION_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A-R Delete wording reinforcement recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / docs-only / no-mutation**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_A_R_DELETE_WORDING_GREEN_NO_MUTATION`**。** **Human:** UI = **削除**（not 非表示）；dialog + toast locked §B1.3；user-irreversible；internal soft hide + evidence retained；再購入で作り直し。** **No** code/DB/checkout/deploy/env/VERIFY-C。** **Next:** **CORE-DTR-SOFT-HIDE-REPURCHASE-A-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A-R-001`**。
@@ -227,6 +235,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / implementa
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel selection planning / docs-only**。** **Interim:** **AS-B1-MONITOR** manual counts-only。** **First automation（AS-B4 + env GO）:** **Slack Incoming Webhook**（Discord alternate）。** **Verdict:** **`AUTOMATED_NOTIFICATION_CHANNEL_SELECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B2-AUTOMATED-NOTIFICATION-CHANNEL-SELECTION-PLAN-001`**。** **Next:** **`AS-B3`**。** **No implementation / no env / no deploy**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B2_AUTOMATED_NOTIFICATION_CHANNEL_SELECTION_PLANNING_2026-05-20.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-UI-GUARD-DEPLOY-PREVIEW-R Human visual review recorded
+
+Status: **Preview @ `ff2af81`。** **Verdict:** **`CORE_DTR_UI_GUARD_DEPLOY_PREVIEW_R_PARTIAL_PENDING_UI_POLISH`**。** **Owned `/dtr/core`:** notice present · **資質 / クリエイター** pass。** **`/core` ANALYST vs `/dtr/core` クリエイター @ 1983-02-28:** **not DB corruption** — current profile preview vs **legacy stored envelope**；**no v2 overwrite**。** **Future:** `/dtr/core` 算定方式/旧計算方式 disclosure（**notice文言は本Gateでは変更しない**）。** **`/my`:** **POLISH-A**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-UI-GUARD-DEPLOY-PREVIEW-R-001`**。** **Next:** **CORE-DTR-UI-POLISH-A**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_DEPLOY_PREVIEW_R_HUMAN_VISUAL_REVIEW_2026-05-21.md`
 
 ---
 
