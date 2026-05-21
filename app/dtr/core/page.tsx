@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
-import { runDtrEngine } from "../../../lib/m55/dtrEngine";
+import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
 import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
@@ -28,15 +28,18 @@ export default async function DtrCorePage() {
   const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
 
   if (snap) {
-    // Re-derive envelope from the current engine so code-side text edits are
-    // immediately visible without a DB migration.
-    // Ownership / entitlement remain DB-gated; only the body text is refreshed.
-    const envelope = runDtrEngine({
-      birthDate: snap.profile_snapshot.birthDate,
-      nickname: snap.profile_snapshot.nickname,
-      locale: "ja-JP",
-      contextScope: "dtr",
-    });
+    const read = resolveStoredEnvelopeRead(snap);
+    if (!read.ok) {
+      console.info(
+        "[dtr/core]",
+        JSON.stringify({
+          event: "stored_envelope_read_fail",
+          code: read.code,
+          engineVersion: snap.engine_version ?? null,
+        }),
+      );
+      redirect(DTR_OWNED_RECOVERY_PROCESSING_PATH);
+    }
 
     return (
       <main className={styles.page}>
@@ -45,8 +48,8 @@ export default async function DtrCorePage() {
           aiConsultIncluded={ownership.aiConsultIncluded}
           expiresAt={ownership.expiresAt}
           purchasedSnapshot={{
-            envelope,
-            profile: snap.profile_snapshot,
+            envelope: read.envelope,
+            profile: read.profile,
           }}
         />
       </main>

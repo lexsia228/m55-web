@@ -214,6 +214,22 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B6-R Stored envelope route result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_GREEN_NO_DEPLOY`**（B6 実装 + **28/28** tests 再確認）。** **Runtime:** **未反映**；B6 差分は **未コミット**（HEAD **`1675cf4`** = B1–B5 のみ）。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B6-R-STORED-ENVELOPE-ROUTE-RESULT-001`**。** **Next:** **ENGINE-IMPL-B6-COMMIT** → **ENGINE-VERIFY-A** planning。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B6_R_COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B6 Stored envelope route recorded
+
+Status: **`work/home-cluster`。** **Scope:** `/dtr/core` stored `envelope_json` SSOT；SSR `runDtrEngine` 廃止；shelf snapshot-derived。** **GX-01:** **28/28 tests pass**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B6-STORED-ENVELOPE-ROUTE-001`**。** **No deploy/DB/checkout**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B6_COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B5-R Profile + checkout metadata result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_GREEN_NO_DEPLOY`**（B5 実装 + **21/21** tests 再確認）。** **Runtime:** **未反映**；fulfillment flag **default off**；staging 購入検証は **別 Gate**。** **Git note:** HEAD **`5c9248f`** 時点で B5 差分は未コミットの可能性 — preview 前に commit/push 確認。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B5-R-PROFILE-CHECKOUT-RESULT-001`**。** **Next:** **ENGINE-IMPL-B6**。

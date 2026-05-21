@@ -9,10 +9,8 @@ import {
   resolveEntryReportOwnership,
   type DtrUnlockState,
 } from './dtrOwnershipGate';
-import {
-  deriveDtrShelfStemDisplay,
-  type DtrShelfStemDisplay,
-} from './dtrShelfStemDisplay';
+import { deriveDtrShelfStemDisplayFromSnapshot } from './compositeStem/storedEnvelopeRead';
+import type { DtrShelfStemDisplay } from './dtrShelfStemDisplay';
 
 export type { DtrShelfStemDisplay };
 
@@ -187,9 +185,7 @@ export async function resolveDtrShelfAccess(
 
     const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     const snapshotReady = snap != null;
-    const ownedShelfDisplay = snap
-      ? deriveDtrShelfStemDisplay(snap.profile_snapshot)
-      : null;
+    const ownedShelfDisplay = snap ? deriveDtrShelfStemDisplayFromSnapshot(snap) : null;
     const uxState: DtrShelfUxState = snapshotReady
       ? 'owned_snapshot_ready'
       : 'owned_snapshot_not_ready';

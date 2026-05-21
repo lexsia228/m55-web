@@ -8,6 +8,7 @@ import { isCompositeV2FulfillmentWriteEnabled } from './compositeStem/featureFla
 import {
   resolveFulfillmentProfileFields,
 } from './compositeStem/parseFulfillmentMetadata';
+import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import { M55CompositeStemError } from './compositeStem/types';
 import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from './dtrEngine';
 
@@ -48,6 +49,8 @@ export type DtrReportSnapshotRow = {
   profile_snapshot: { nickname: string; birthDate: string };
   draft_snapshot: Record<string, unknown> | null;
   envelope_json: DtrEnvelope;
+  engine_version: string | null;
+  engine_context_json: EngineContextJson | Record<string, unknown> | null;
 };
 
 export async function getDtrReportSnapshot(
@@ -58,7 +61,9 @@ export async function getDtrReportSnapshot(
     const db = getSupabaseAdmin() as any;
     const { data, error } = await db
       .from('dtr_report_snapshots')
-      .select('id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json')
+      .select(
+        'id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json,engine_version,engine_context_json',
+      )
       .eq('user_id', userId)
       .eq('product_id', productId)
       .maybeSingle();
@@ -73,6 +78,9 @@ export async function getDtrReportSnapshot(
       profile_snapshot: data.profile_snapshot as { nickname: string; birthDate: string },
       draft_snapshot: (data.draft_snapshot as Record<string, unknown> | null) ?? null,
       envelope_json: data.envelope_json as DtrEnvelope,
+      engine_version: (data.engine_version as string | null) ?? null,
+      engine_context_json:
+        (data.engine_context_json as EngineContextJson | Record<string, unknown> | null) ?? null,
     };
   } catch {
     return null;
