@@ -3,6 +3,12 @@
  */
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
+import { buildV2FulfillmentSnapshot } from './compositeStem/buildV2FulfillmentSnapshot';
+import { isCompositeV2FulfillmentWriteEnabled } from './compositeStem/featureFlag';
+import {
+  resolveFulfillmentProfileFields,
+} from './compositeStem/parseFulfillmentMetadata';
+import { M55CompositeStemError } from './compositeStem/types';
 import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from './dtrEngine';
 
 export type GuestDraftRow = {
@@ -78,8 +84,8 @@ export type UpsertDtrReportSnapshotAtFulfillmentResult =
   | { ok: false; reason: string };
 
 /**
- * Build immutable snapshot at fulfillment. Idempotent upsert on (user_id, product_id).
- * On success returns `snapshotId` (= `dtr_report_snapshots.id`) for downstream wallet link.
+ * Build immutable snapshot at fulfillment. INSERT-only for new rows; existing rows are not updated.
+ * v2 columns written only when M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED=true and pipeline succeeds.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
   userId: string;
@@ -87,35 +93,15 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
-  const meta = params.sessionMetadata ?? {};
-  let nickname = (meta.profileNickname as string | undefined)?.trim() ?? '';
-  let birthDate = (meta.profileBirthDate as string | undefined)?.trim() ?? '';
+  const existing = await getDtrReportSnapshot(params.userId, params.productId);
+  if (existing) {
+    return { ok: true, snapshotId: existing.reportInstanceId };
+  }
 
-  // Stripe Checkout metadata を最優先。dtr_guest_drafts は欠損時のみ補完（PGRST205 でも metadata があれば保存版を生成可能）。
   const draft = await getLatestDraftForUser(params.userId);
-  if (!nickname || !birthDate) {
-    if (draft?.nickname && draft.birth_date) {
-      if (!nickname) nickname = draft.nickname.trim();
-      if (!birthDate) birthDate = String(draft.birth_date).slice(0, 10);
-    }
-  }
-
-  if (!birthDate || !nickname) {
+  const fields = resolveFulfillmentProfileFields(params.sessionMetadata, draft);
+  if (!fields) {
     return { ok: false, reason: 'missing_profile_for_snapshot' };
-  }
-
-  const input: DtrCanonicalInput = {
-    birthDate,
-    nickname,
-    locale: 'ja-JP',
-    contextScope: 'dtr',
-  };
-
-  let envelope: DtrEnvelope;
-  try {
-    envelope = runDtrEngine(input);
-  } catch (e) {
-    return { ok: false, reason: String(e) };
   }
 
   const draftSnapshot = draft
@@ -127,40 +113,78 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
       }
     : null;
 
+  let profile_snapshot: Record<string, unknown>;
+  let envelope: DtrEnvelope;
+  let engine_context_json: Record<string, unknown> | undefined;
+  let engine_version: string | undefined;
+
+  if (isCompositeV2FulfillmentWriteEnabled()) {
+    try {
+      const v2 = buildV2FulfillmentSnapshot(params.sessionMetadata, draft);
+      profile_snapshot = v2.profile_snapshot;
+      envelope = v2.envelope_json;
+      engine_context_json = v2.engine_context_json;
+      engine_version = v2.engine_version;
+    } catch (e) {
+      const code = e instanceof M55CompositeStemError ? e.code : 'composite_v2_build_failed';
+      return { ok: false, reason: code };
+    }
+  } else {
+    const input: DtrCanonicalInput = {
+      birthDate: fields.birthDate,
+      nickname: fields.nickname,
+      locale: 'ja-JP',
+      contextScope: 'dtr',
+    };
+    try {
+      envelope = runDtrEngine(input);
+    } catch (e) {
+      return { ok: false, reason: String(e) };
+    }
+    profile_snapshot = { nickname: fields.nickname, birthDate: fields.birthDate };
+  }
+
+  const insertRow: Record<string, unknown> = {
+    user_id: params.userId,
+    product_id: params.productId,
+    checkout_session_id: params.checkoutSessionId,
+    profile_snapshot,
+    draft_snapshot: draftSnapshot,
+    envelope_json: envelope as unknown as Record<string, unknown>,
+  };
+  if (engine_context_json != null && engine_version != null) {
+    insertRow.engine_context_json = engine_context_json;
+    insertRow.engine_version = engine_version;
+  }
+
   try {
     const db = getSupabaseAdmin() as any;
-    const { data: upsertRow, error } = await db
+    const { data: insertData, error } = await db
       .from('dtr_report_snapshots')
-      .upsert(
-        {
-          user_id: params.userId,
-          product_id: params.productId,
-          checkout_session_id: params.checkoutSessionId,
-          profile_snapshot: { nickname, birthDate },
-          draft_snapshot: draftSnapshot,
-          envelope_json: envelope as unknown as Record<string, unknown>,
-        },
-        { onConflict: 'user_id,product_id' },
-      )
+      .insert(insertRow)
       .select('id')
       .maybeSingle();
 
     if (error) {
+      if (error.code === '23505') {
+        const reread = await getDtrReportSnapshot(params.userId, params.productId);
+        if (reread) return { ok: true, snapshotId: reread.reportInstanceId };
+      }
       const e = error as { code?: string; message?: string; details?: string; hint?: string };
       const reason = [e.code, e.message, e.details, e.hint].filter(Boolean).join(' | ');
-      console.error('[dtrDraftDb] dtr_report_snapshots upsert failed', JSON.stringify({ code: e.code, message: e.message }));
+      console.error('[dtrDraftDb] dtr_report_snapshots insert failed', JSON.stringify({ code: e.code, message: e.message }));
       return { ok: false, reason: reason || String(error) };
     }
 
     let snapshotId: string | undefined =
-      upsertRow?.id != null ? String((upsertRow as { id: unknown }).id) : undefined;
+      insertData?.id != null ? String((insertData as { id: unknown }).id) : undefined;
     if (!snapshotId) {
       const reread = await getDtrReportSnapshot(params.userId, params.productId);
       snapshotId = reread?.reportInstanceId;
     }
     if (!snapshotId) {
-      console.error('[dtrDraftDb] dtr_report_snapshots upsert succeeded but snapshot id unavailable');
-      return { ok: false, reason: 'snapshot_id_missing_after_upsert' };
+      console.error('[dtrDraftDb] dtr_report_snapshots insert succeeded but snapshot id unavailable');
+      return { ok: false, reason: 'snapshot_id_missing_after_insert' };
     }
 
     return { ok: true, snapshotId };

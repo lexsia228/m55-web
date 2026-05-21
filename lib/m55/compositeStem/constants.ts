@@ -1,0 +1,9 @@
+export const ENGINE_VERSION_V2 = 'm55-composite-stem-v2' as const;
+export const INPUT_VERSION_V1 = 'composite-input-v1' as const;
+export const CORRECTION_VERSION = 'm55-calendar-2026-01' as const;
+export const DAY_BOUNDARY_RULE_ID = 'm55_day_boundary_v1' as const;
+export const UNKNOWN_TIME_POLICY = 'solar_noon_local' as const;
+export const SOLAR_NOON_LOCAL = '12:00:00.000' as const;
+export const CALENDAR_RANGE_START = '1900-01-01' as const;
+export const CALENDAR_RANGE_END = '2100-12-31' as const;
+export const PRIMARY_TIMEZONE_BUCKET = 'Asia/Tokyo' as const;

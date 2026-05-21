@@ -7,6 +7,13 @@ import { getDtrReportSnapshot, getLatestDraftForUser } from '../../../../lib/m55
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
+import { validateDtrCheckoutProfile } from '../../../../lib/m55/compositeStem/checkoutProfileGate';
+import { buildStripeCheckoutMetadataFromProfile } from '../../../../lib/m55/compositeStem/stripeCheckoutMetadata';
+import {
+  birthProfileFromCheckoutBody,
+  mergeBirthProfileWithDraftExtra,
+} from '../../../../lib/soul/birthProfileV2';
+import type { BirthProfile } from '../../../../lib/soul/profile';
 
 const DTR_CORE_PRODUCT = 'DTR_CORE_STATIC_V1';
 
@@ -128,7 +135,15 @@ export async function POST(req: NextRequest) {
 
   let body: {
     productId?: string;
-    profile?: { nickname?: string; birthDate?: string };
+    profile?: {
+      nickname?: string;
+      birthDate?: string;
+      birthTime?: string | null;
+      birthTimeUnknown?: boolean;
+      country?: string;
+      birthplace?: string | null;
+      timezone?: string | null;
+    };
   };
   try {
     body = await req.json();
@@ -256,24 +271,50 @@ export async function POST(req: NextRequest) {
     clerkUser?.emailAddresses?.[0]?.emailAddress ??
     undefined;
 
-  const metadata: Record<string, string> = { productId };
-  let pn = body.profile?.nickname?.trim();
-  let pb = body.profile?.birthDate?.trim().slice(0, 10);
-  // クライアント未送信でも、サーバー側 dtr_guest_drafts があれば Checkout Session metadata に載せる（fulfill で優先利用）
-  if (!pn || !pb) {
-    try {
-      const draft = await getLatestDraftForUser(userId);
-      if (draft?.nickname && draft.birth_date) {
-        if (!pn) pn = draft.nickname.trim();
-        if (!pb) pb = String(draft.birth_date).slice(0, 10);
-      }
-    } catch {
-      /* no-op */
+  let resolvedProfile: BirthProfile | null = birthProfileFromCheckoutBody(body.profile);
+  let draftExtra: Record<string, unknown> | null = null;
+  try {
+    const draft = await getLatestDraftForUser(userId);
+    if (draft?.nickname && draft.birth_date) {
+      const base =
+        resolvedProfile ??
+        ({
+          nickname: draft.nickname.trim(),
+          birthDate: String(draft.birth_date).slice(0, 10),
+        } as BirthProfile);
+      draftExtra = (draft.extra_json as Record<string, unknown> | null) ?? null;
+      resolvedProfile = mergeBirthProfileWithDraftExtra(base, draftExtra);
+    }
+  } catch {
+    /* no-op */
+  }
+
+  if (productId === DTR_CORE_PRODUCT) {
+    const gate = validateDtrCheckoutProfile(resolvedProfile);
+    if (!gate.ok) {
+      console.info(
+        '[checkout]',
+        JSON.stringify({
+          event: 'dtr_checkout_blocked',
+          code: gate.code,
+          reason: gate.reason,
+          userId,
+        }),
+      );
+      return NextResponse.json(
+        {
+          code: gate.code,
+          error: 'composite_profile_incomplete',
+          redirectMy: '/my',
+        },
+        { status: 400 },
+      );
     }
   }
-  if (pn && pb) {
-    metadata.profileNickname = pn.slice(0, 120);
-    metadata.profileBirthDate = pb;
+
+  const metadata: Record<string, string> = { productId };
+  if (resolvedProfile?.nickname && resolvedProfile.birthDate) {
+    Object.assign(metadata, buildStripeCheckoutMetadataFromProfile(resolvedProfile, productId));
   }
 
   if (productId === DTR_CORE_PRODUCT) {
@@ -323,6 +364,7 @@ export async function POST(req: NextRequest) {
         event: 'stripe_checkout_session_created',
         sessionId: session.id,
         hasProfileMetadata: !!(metadata.profileNickname && metadata.profileBirthDate),
+        hasV2Metadata: !!metadata.inputVersion,
       })
     );
 

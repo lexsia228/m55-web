@@ -1,0 +1,43 @@
+{
+  "bundleId": "m55-calendar-2026-01",
+  "schemaVersion": "m55-calendar-manifest-v1",
+  "rangeStart": "1900-01-01",
+  "rangeEnd": "2100-12-31",
+  "primaryTimezoneBucket": "Asia/Tokyo",
+  "files": {
+    "solar_terms_1900_2100.json": {
+      "path": "lib/m55/calendar/data/solar_terms_1900_2100.json",
+      "sha256": "sha256:cbfc2a037a9d8d40318ffaf6dda010d372cdcf56a40394bd88c687ff17f85736",
+      "bytes": 182303
+    },
+    "lunar_civil_days_1900_2100.json": {
+      "path": "lib/m55/calendar/data/lunar_civil_days_1900_2100.json",
+      "sha256": "sha256:ddbbb5242c4ae76698b76ed4b7179754d3838d98587c2233c5504a2fb8a57a58",
+      "bytes": 13901852,
+      "dayCount": 73414
+    },
+    "tz_country_primary.json": {
+      "path": "lib/m55/calendar/data/tz_country_primary.json",
+      "sha256": "sha256:3b3d46940255c0f3bbd2cabc46349ae12d9b172c4f8bd6b8cd6f44671f265acc",
+      "bytes": 543
+    }
+  },
+  "goldenSpotCheck": {
+    "caseId": "GOLDEN_1983_02_28_V2",
+    "bucket": "Asia/Tokyo",
+    "civilDate": "1983-02-28",
+    "expectedDayStemIndex": 9,
+    "expectedDayStemChar": "癸",
+    "actualDayStemIndex": 9,
+    "actualDayStemChar": "癸",
+    "lunarDayKey": "1983-1-15",
+    "lookupBasis": "lunar_civil_days_1900_2100.json days[civilDate] Asia/Tokyo bucket"
+  },
+  "build": {
+    "script": "scripts/calendar/build-m55-calendar-bundle.mjs",
+    "nodeVersion": "v25.9.0",
+    "generatedAt": "2026-05-21T09:16:26.947Z",
+    "completedAt": "2026-05-21T09:16:28.500Z",
+    "deterministic": true
+  }
+}

@@ -41,8 +41,16 @@ export type DtrAuditMeta = {
   derivation: string;
 };
 
+export type DtrEngineRunOptions = {
+  /** v2 fulfillment only — P-LUNAR stem lane; forbids civil JDN re-derive when set with v2 engineVersion. */
+  stemLaneIndex?: number;
+  engineVersion?: string;
+  derivation?: string;
+  contractVersion?: 'v1' | 'v2';
+};
+
 export type DtrEnvelope = {
-  contractVersion: 'v1';
+  contractVersion: 'v1' | 'v2';
   engineVersion: string;
   generatedAt: string;
   payload: DtrPayload;
@@ -794,8 +802,8 @@ function clamp(s: string, max: number): string {
   return s.length <= max ? s : s.slice(0, max - 1) + '…';
 }
 
-export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
-  const idx = essenceStemLaneIndex(input.birthDate);
+export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOptions): DtrEnvelope {
+  const idx = options?.stemLaneIndex ?? essenceStemLaneIndex(input.birthDate);
   const stem = TEN_STEM_DISPLAY[idx]!;
   const bodies = STEM_BODIES[idx]!;
   const nick = input.nickname ? clamp(input.nickname, 20) : 'あなた';
@@ -898,12 +906,12 @@ export function runDtrEngine(input: DtrCanonicalInput): DtrEnvelope {
   const auditMeta: DtrAuditMeta = {
     stemLaneIndex: idx,
     stemChar: stem.stemChar,
-    derivation: 'jdn_offset_provisional_v1',
+    derivation: options?.derivation ?? 'jdn_offset_provisional_v1',
   };
 
   return {
-    contractVersion: 'v1',
-    engineVersion: 'dtr-v1-jdn-day-stem-provisional',
+    contractVersion: options?.contractVersion ?? 'v1',
+    engineVersion: options?.engineVersion ?? 'dtr-v1-jdn-day-stem-provisional',
     generatedAt: new Date().toISOString(),
     payload,
     auditMeta,

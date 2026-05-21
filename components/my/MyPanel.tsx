@@ -5,6 +5,14 @@ import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
 import {
+  DEFAULT_COUNTRY,
+  SUPPORTED_COUNTRIES,
+  enrichBirthProfileForSave,
+  hasLegacyProfileOnly,
+  isV2ProfileFieldsComplete,
+  profileFormatLabel,
+} from '../../lib/soul/birthProfileV2';
+import {
   displayLabelForDtrRightKey,
   isEntryReportCoreRight,
 } from '../../lib/m55/myEntitlementLabels';
@@ -267,6 +275,10 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<BirthProfile | null>(null);
   const [nick, setNick] = useState('');
   const [birth, setBirth] = useState('');
+  const [birthTime, setBirthTime] = useState('');
+  const [birthTimeUnknown, setBirthTimeUnknown] = useState(false);
+  const [country, setCountry] = useState(DEFAULT_COUNTRY);
+  const [birthplace, setBirthplace] = useState('');
   const birthRef = useRef<HTMLInputElement>(null);
   const editingRef = useRef(false);
 
@@ -278,6 +290,10 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
         setProfile(p);
         setNick(p.nickname);
         setBirth(p.birthDate);
+        setBirthTime(p.birthTime ?? '');
+        setBirthTimeUnknown(Boolean(p.birthTimeUnknown));
+        setCountry(p.country ?? DEFAULT_COUNTRY);
+        setBirthplace(p.birthplace ?? '');
         setState('ready');
       } else {
         setState('no_profile');
@@ -289,10 +305,22 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     return () => window.removeEventListener('m55:profile_updated', syncFromRepo);
   }, [userId]);
 
+  const canSave =
+    nick.trim().length > 0 &&
+    !!birth &&
+    (birthTime.length > 0 || birthTimeUnknown);
+
   const handleSave = () => {
     const trimmed = nick.trim();
-    if (!trimmed || !birth) return;
-    const p: BirthProfile = { nickname: trimmed, birthDate: birth };
+    if (!trimmed || !birth || !canSave) return;
+    const p = enrichBirthProfileForSave({
+      nickname: trimmed,
+      birthDate: birth,
+      birthTime: birthTimeUnknown ? null : birthTime || null,
+      birthTimeUnknown,
+      country,
+      birthplace: birthplace.trim() || null,
+    });
     ProfileRepository.save(userId, p);
     setProfile(p);
     editingRef.current = false;
@@ -304,6 +332,10 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     if (profile) {
       setNick(profile.nickname);
       setBirth(profile.birthDate);
+      setBirthTime(profile.birthTime ?? '');
+      setBirthTimeUnknown(Boolean(profile.birthTimeUnknown));
+      setCountry(profile.country ?? DEFAULT_COUNTRY);
+      setBirthplace(profile.birthplace ?? '');
     }
     setState('editing');
   };
@@ -321,7 +353,7 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
   };
 
   const handleBirthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && nick.trim() && birth) handleSave();
+    if (e.key === 'Enter' && canSave) handleSave();
   };
 
   if (state === null) {
@@ -369,11 +401,68 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
             max={new Date().toISOString().slice(0, 10)}
           />
         </div>
+        <div className={styles.inputGroup} style={{ marginTop: 10 }}>
+          <label className={styles.inputLabel} htmlFor="mp-birth-time">出生時刻（任意）</label>
+          <input
+            id="mp-birth-time"
+            type="time"
+            value={birthTime}
+            onChange={e => {
+              setBirthTime(e.target.value);
+              if (e.target.value) setBirthTimeUnknown(false);
+            }}
+            disabled={birthTimeUnknown}
+            className={styles.inputField}
+          />
+        </div>
+        <div className={styles.inputGroup} style={{ marginTop: 8 }}>
+          <label className={styles.inputLabel} style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={birthTimeUnknown}
+              onChange={e => {
+                setBirthTimeUnknown(e.target.checked);
+                if (e.target.checked) setBirthTime('');
+              }}
+            />
+            出生時刻は不明
+          </label>
+        </div>
+        <div className={styles.inputGroup} style={{ marginTop: 10 }}>
+          <label className={styles.inputLabel} htmlFor="mp-country">国（必須）</label>
+          <select
+            id="mp-country"
+            value={country}
+            onChange={e => setCountry(e.target.value)}
+            className={styles.inputField}
+          >
+            {SUPPORTED_COUNTRIES.map(c => (
+              <option key={c.code} value={c.code}>{c.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.inputGroup} style={{ marginTop: 10 }}>
+          <label className={styles.inputLabel} htmlFor="mp-birthplace">出生地（任意）</label>
+          <input
+            id="mp-birthplace"
+            type="text"
+            value={birthplace}
+            onChange={e => setBirthplace(e.target.value)}
+            placeholder="例：東京都"
+            className={styles.inputField}
+            maxLength={120}
+          />
+        </div>
+        {!canSave && birth && (
+          <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
+            出生時刻を入力するか、「出生時刻は不明」にチェックを入れてください。
+          </p>
+        )}
         <div style={{ marginTop: 14, display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             type="button"
             onClick={handleSave}
-            disabled={!nick.trim() || !birth}
+            disabled={!canSave}
             className={styles.saveBtn}
           >
             保存する
@@ -392,6 +481,16 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
   const formattedBirth = profile?.birthDate
     ? profile.birthDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1年$2月$3日')
     : '';
+  const timeLine = profile?.birthTimeUnknown
+    ? '出生時刻：不明'
+    : profile?.birthTime
+    ? `出生時刻：${profile.birthTime.slice(0, 5)}`
+    : null;
+  const countryLabel =
+    SUPPORTED_COUNTRIES.find(c => c.code === (profile?.country ?? DEFAULT_COUNTRY))?.label ??
+    profile?.country;
+  const legacy = hasLegacyProfileOnly(profile);
+  const v2Ready = isV2ProfileFieldsComplete(profile);
 
   return (
     <section className={styles.card} aria-label="プロフィール" style={{ marginBottom: 12 }}>
@@ -399,8 +498,31 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
         <div className={styles.blockLabel} style={{ margin: 0 }}>プロフィール</div>
         <button type="button" onClick={handleEdit} className={styles.editBtn}>編集</button>
       </div>
+      {profile && (
+        <p className={styles.muted} style={{ marginTop: 4, fontSize: 11 }}>
+          {profileFormatLabel(profile)}
+        </p>
+      )}
       <p className={styles.body} style={{ marginTop: 6 }}>{profile?.nickname}</p>
       {formattedBirth && <p className={styles.muted} style={{ marginTop: 2 }}>{formattedBirth}</p>}
+      {timeLine && <p className={styles.muted} style={{ marginTop: 2 }}>{timeLine}</p>}
+      {countryLabel && <p className={styles.muted} style={{ marginTop: 2 }}>国：{countryLabel}</p>}
+      {profile?.birthplace && (
+        <p className={styles.muted} style={{ marginTop: 2 }}>出生地：{profile.birthplace}</p>
+      )}
+      {profile?.timezone && (
+        <p className={styles.muted} style={{ marginTop: 2, fontSize: 11 }}>タイムゾーン：{profile.timezone}</p>
+      )}
+      {legacy && (
+        <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
+          購入前に出生時刻（または時刻不明）と国を追加入力してください。
+        </p>
+      )}
+      {!legacy && !v2Ready && (
+        <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
+          出生時刻または「時刻不明」の指定が必要です。
+        </p>
+      )}
     </section>
   );
 }

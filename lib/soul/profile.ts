@@ -4,9 +4,18 @@
  * - Same values are synced to server draft via queueDtrDraftSync (DB SSOT for carry-over)
  */
 import { queueDtrDraftSync } from '../m55/dtrDraftClientSync';
+import { DEFAULT_COUNTRY, enrichBirthProfileForSave } from './birthProfileV2';
 export type BirthProfile = {
   nickname: string;
   birthDate: string; // YYYY-MM-DD
+  /** HH:mm or HH:mm:ss — optional when birthTimeUnknown */
+  birthTime?: string | null;
+  birthTimeUnknown?: boolean;
+  /** ISO-3166 alpha-2; default JP on save */
+  country?: string;
+  birthplace?: string | null;
+  timezone?: string | null;
+  profileFormat?: 'legacy' | 'v2';
 };
 
 const KEY_DEVICE_ID = 'm55_device_id_v1';
@@ -57,20 +66,32 @@ export const ProfileRepository = {
 
   save: (userId: string | null | undefined, profile: BirthProfile): void => {
     if (!isClient()) return;
+    const normalized = enrichBirthProfileForSave(profile);
     const ownerId = resolveOwnerId(userId);
     const key = KEY_PROFILE_PREFIX + ownerId;
-    localStorage.setItem(key, JSON.stringify(profile));
+    localStorage.setItem(key, JSON.stringify(normalized));
     localStorage.removeItem(KEY_DISMISS_PREFIX + ownerId);
     if (!userId) {
       try {
-        localStorage.setItem('m55_profile_v1', JSON.stringify({ nickname: profile.nickname, birthDateISO: profile.birthDate }));
+        localStorage.setItem(
+          'm55_profile_v1',
+          JSON.stringify({ nickname: normalized.nickname, birthDateISO: normalized.birthDate }),
+        );
       } catch {
         /* no-op */
       }
     }
     queueDtrDraftSync(userId ?? null, {
-      nickname: profile.nickname,
-      birthDate: profile.birthDate,
+      nickname: normalized.nickname,
+      birthDate: normalized.birthDate,
+      extraJson: {
+        birthTime: normalized.birthTime ?? null,
+        birthTimeUnknown: normalized.birthTimeUnknown ?? false,
+        country: normalized.country ?? DEFAULT_COUNTRY,
+        birthplace: normalized.birthplace ?? null,
+        timezone: normalized.timezone ?? null,
+        profileFormat: normalized.profileFormat ?? 'v2',
+      },
     });
   },
 

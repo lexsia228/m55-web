@@ -214,6 +214,212 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B5-R Profile + checkout metadata result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_GREEN_NO_DEPLOY`**（B5 実装 + **21/21** tests 再確認）。** **Runtime:** **未反映**；fulfillment flag **default off**；staging 購入検証は **別 Gate**。** **Git note:** HEAD **`5c9248f`** 時点で B5 差分は未コミットの可能性 — preview 前に commit/push 確認。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B5-R-PROFILE-CHECKOUT-RESULT-001`**。** **Next:** **ENGINE-IMPL-B6**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B5_R_COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B5 Profile + checkout metadata recorded
+
+Status: **`work/home-cluster`。** **Human GO:** **ENGINE-IMPL-B5 go**。** **Scope:** My Page v2 intake；`extra_json` sync；Stripe metadata extension；DTR checkout **block** when profile incomplete（code only）。** **GX-01:** **21/21 tests pass**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B5-PROFILE-CHECKOUT-001`**。** **No deploy/checkout/DB/env**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B5_COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B4-R Fulfillment v2 snapshot write result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_GREEN_NO_DEPLOY`**（B4 実装 + 14/14 tests 再確認）。** **Runtime:** **未反映**；flag **default off**；v2 購入検証は **別 Gate**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B4-R-FULFILLMENT-SNAPSHOT-WRITE-RESULT-001`**。** **Next:** **ENGINE-IMPL-B5**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B4_R_COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B4 Fulfillment v2 snapshot write recorded
+
+Status: **`work/home-cluster`。** **Human GO:** **ENGINE-IMPL-B4 go**。** **Scope:** `dtrDraftDb` INSERT-only + `buildV2FulfillmentSnapshot`；flag **`M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED`**（default off）。** **GX-01:** **14/14 tests pass**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B4-FULFILLMENT-SNAPSHOT-WRITE-001`**。** **No deploy/DB/checkout**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B4_COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-D-R Production DDL apply result recorded
+
+Status: **`work/home-cluster`。** **Target:** **`m55-soul-core`**。** **Metrics:** N=**6**；row count **6→6**；columns exist **1/1**；legacy NULL **6/6**；nonnull v2 **0/0**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DDL_APPLY_GREEN_NO_SNAPSHOT_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B3-D-R-PRODUCTION-DDL-APPLY-RESULT-001`**。** **snapshot mutation:** **no**。** **Next:** **ENGINE-IMPL-B4**（fulfillment v2 write planning）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_D_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DDL_APPLY_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-D Production DDL apply execution packet recorded
+
+Status: **`work/home-cluster`。** **Human GO:** **`GO for ENGINE-IMPL-B3-D Production DDL-only apply…`**。** **Target:** **`m55-soul-core`**。** **Result:** **B3-D-R GREEN**（metrics recorded）。** **Checkpoint:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_D_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DDL_APPLY_EXECUTION_PACKET_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-C Production migration apply planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Production apply planning / docs-only**。** **Target:** **`m55-soul-core`**（apply は **B3-D**）。** **Preflight:** `scripts/sql/production/m55_engine_v2_dtr_report_snapshots_engine_context_production_preflight_v1.sql`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_MIGRATION_APPLY_PLANNING_GREEN_NO_APPLY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B3-C-PRODUCTION-MIGRATION-APPLY-PLANNING-001`**。** **Shadow proof:** **B3-B-R**。** **Production apply:** **no**。** **Next:** **ENGINE-IMPL-B3-D**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_C_COMPOSITE_ASTROLOGY_V2_PRODUCTION_MIGRATION_APPLY_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-B-R Shadow migration apply result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human result recording / docs-only**。** **Target:** **`m55-soul-shadow`** / ref **`jonlynrbfveaprncyrmv`**。** **Metrics:** snapshot **2**；columns exist **1/1**；nullable **YES**；legacy NULL **2/2**；nonnull v2 **0/0**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_ADDITIVE_MIGRATION_SHADOW_APPLY_GREEN_NO_PRODUCTION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B3-B-R-SHADOW-MIGRATION-APPLY-RESULT-001`**。** **Production:** **no**。** **Next:** **ENGINE-IMPL-B3-C**（Production apply planning）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_B_R_COMPOSITE_ASTROLOGY_V2_SHADOW_MIGRATION_APPLY_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-B Staging migration apply execution packet recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / shadow apply packet**。** **Target:** **`m55-soul-shadow`** / ref **`jonlynrbfveaprncyrmv`**。** **SQL:** `scripts/sql/staging/m55_engine_v2_dtr_report_snapshots_engine_context_shadow_apply_verify_v1.sql`。** **Agent apply:** **blocked**（no DB session）。** **Verdict:** **`STAGING_MIGRATION_APPLY_EXECUTION_PACKET_GREEN_AGENT_APPLY_BLOCKED_NO_DB_SESSION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B3-B-STAGING-MIGRATION-APPLY-EXECUTION-PACKET-001`**。** **Next:** **B3-B-R**（Human metric 記録）→ **B3-C**（Production planning）。** **Production:** **no**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_B_COMPOSITE_ASTROLOGY_V2_STAGING_MIGRATION_APPLY_EXECUTION_PACKET_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B3-A Additive DB migration draft recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / migration SQL draft / no apply**。** **File:** `supabase/migrations/20260601000000_dtr_report_snapshots_engine_context.sql`。** **Columns:** `engine_context_json jsonb NULL`, `engine_version text NULL`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_ADDITIVE_DB_MIGRATION_DRAFT_GREEN_NO_APPLY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B3-A-ADDITIVE-DB-MIGRATION-DRAFT-001`**。** **Next:** **ENGINE-IMPL-B3-B**（staging apply）。** **No DB write**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_A_COMPOSITE_ASTROLOGY_V2_ADDITIVE_DB_MIGRATION_DRAFT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B2 Composite v2 pipeline + golden test recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / pipeline + unit test / no DB / no deploy**。** **API:** `runM55CompositeStemPipeline`。** **Golden GX-01:** **1983-02-28 → 9/癸/アナリスト**（4 tests pass）。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PIPELINE_AND_GOLDEN_TEST_GREEN`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B2-PIPELINE-AND-GOLDEN-TEST-001`**。** **Next:** **ENGINE-IMPL-B3**（DB migration）。** **Routes/fulfillment untouched**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B2_COMPOSITE_ASTROLOGY_V2_PIPELINE_AND_GOLDEN_TEST_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B1 Calendar bundle ingest recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / static calendar bundle / code allowed / no DB / no deploy**。** **Bundle:** `m55-calendar-2026-01`；range **1900-01-01 … 2100-12-31**；**73414** civil days。** **Golden:** **1983-02-28 → 9/癸**（`lunarDayKey` **1983-1-15**）。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_CALENDAR_BUNDLE_INGEST_GREEN`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B1-CALENDAR-BUNDLE-INGEST-001`**。** **Next:** **ENGINE-IMPL-B2**（pipeline + golden test）。** **No mutation** to engine routes / DB / fulfillment。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B1_COMPOSITE_ASTROLOGY_CALENDAR_BUNDLE_INGEST_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-A Composite astrology v2 implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / implementation planning / docs-only**。** **Scope:** calendar JSON；`runM55CompositeStemPipeline`；stored envelope；DB additive migration；My Page；test order（**GOLDEN_1983_02_28_V2 first**）。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-A-COMPOSITE-ASTROLOGY-V2-IMPLEMENTATION-PLAN-001`**。** **Next:** **IMPL-B1**（Human GO）。** **No execution**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_A_COMPOSITE_ASTROLOGY_V2_IMPLEMENTATION_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-SPEC-C-R 1983-02-28 golden anchor and snapshot firewall reinforcement recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / golden anchor firewall / docs-only**。** **GX-01** promoted to **absolute regression firewall**。** **v2:** 9/癸/アナリスト；**legacy:** 3/丁/クリエイター（UPDATE禁止）。** **Rules:** GX-01 fail → VERIFY-A RED → VERIFY HOLD。** **Verdict:** **`GOLDEN_ANCHOR_1983_02_28_AND_SNAPSHOT_FIREWALL_REINFORCEMENT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-SPEC-C-R-GOLDEN-ANCHOR-1983-02-28-AND-SNAPSHOT-FIREWALL-REINFORCEMENT-001`**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_C_R_1983_02_28_GOLDEN_ANCHOR_AND_SNAPSHOT_FIREWALL_REINFORCEMENT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-SPEC-C Composite astrology golden matrix and calendar table SSOT recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / golden matrix + calendar SSOT / docs-only**。** **Calendar bundle:** `m55-calendar-2026-01`；range **1900–2100**；fail-closed。** **Golden GX-01:** **1983-02-28 → 9/癸/アナリスト**。** **Verdict:** **`COMPOSITE_ASTROLOGY_GOLDEN_MATRIX_AND_CALENDAR_TABLE_SSOT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-SPEC-C-COMPOSITE-ASTROLOGY-GOLDEN-MATRIX-AND-CALENDAR-TABLE-SSOT-001`**。** **Next:** **ENGINE-IMPL-A**。** **VERIFY HOLD** until §I。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_C_COMPOSITE_ASTROLOGY_GOLDEN_MATRIX_AND_CALENDAR_TABLE_SSOT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-SPEC-B-R Composite astrology stem law Human sign-off recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human sign-off / docs-only**。** **Q1:** **HYBRID H-SOLAR-LUNAR-01** — stem=**P-LUNAR**；節入り=**P-SOLAR** meta。** **Q2:** v2 golden **1983-02-28 → 9/癸/アナリスト**；legacy **3/丁/クリエイター**。** **Q3:** `engine_context_json` + `engine_version` column；stored envelope read。** **Q4:** birthTime optional+unknown必須；checkout block until v2。** **Q5:** cutover post **ENGINE-VERIFY-A**。** **Verdict:** **`COMPOSITE_ASTROLOGY_STEM_LAW_HUMAN_SIGN_OFF_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-SPEC-B-R-COMPOSITE-ASTROLOGY-STEM-LAW-HUMAN-SIGN-OFF-001`**。** **Next:** **ENGINE-IMPL-A** or **ENGINE-SPEC-C**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_B_R_COMPOSITE_ASTROLOGY_STEM_LAW_UNRESOLVED_DECISIONS_SIGN_OFF_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-SPEC-A Composite astrology stem law specification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / stem law specification planning / docs-only**。** **Scope:** canonical input；correction order N0–N9；snapshot v2 contract；My Page expansion；route/DB/versioning；TM-01〜11。** **Engine names:** legacy `dtr-v1-jdn-day-stem-provisional`；target **`m55-composite-stem-v2`**。** **Verdict:** **`COMPOSITE_ASTROLOGY_STEM_LAW_SPECIFICATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-SPEC-A-COMPOSITE-ASTROLOGY-STEM-LAW-SPECIFICATION-PLAN-001`**。** **Production adequacy:** **`BLOCKED_UNTIL_COMPOSITE_ENGINE_CORRECTION`**。** **Next:** **ENGINE-SPEC-B-R**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_A_COMPOSITE_ASTROLOGY_STEM_LAW_SPECIFICATION_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DECISION-B-R Human decision composite engine correction required recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human decision record / docs-only**。** **Decision:** **Option B** — 節入り・旧暦・birthTime・TZ・海外を stem へ接続；My Page / snapshot / 全経路再設計；**versioned contract**；**既存 paid snapshot 上書き禁止**。** **Rejected:** provisional JDN のみを本番複合占術適正としない（Option A）。** **Production adequacy:** **`BLOCKED_UNTIL_COMPOSITE_ENGINE_CORRECTION`**。** **CORE-DTR-VERIFY:** **`HOLD`**。** **Verdict:** **`HUMAN_DECISION_COMPOSITE_ENGINE_CORRECTION_REQUIRED_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DECISION-B-R-HUMAN-DECISION-COMPOSITE-ENGINE-CORRECTION-REQUIRED-001`**。** **Next:** **ENGINE-SPEC-A**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DECISION_B_R_HUMAN_DECISION_COMPOSITE_ENGINE_CORRECTION_REQUIRED_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-AUDIT-C M55 engine deterministic matrix recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / local deterministic matrix / no DB**。** **Runner:** `scripts/engine-audit-c-matrix.ts`。** **Key:** stem=birthDate only；VC-01 lane3 丁 free ANALYST vs paid クリエイター；15/15 label diverge；fulfillment≡dtr。** **Verdict:** **`ENGINE_DETERMINISTIC_MATRIX_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-AUDIT-C-M55-ENGINE-DETERMINISTIC-MATRIX-001`**。** **Production 複合占術:** **BLOCKED**。** **Human:** **A provisional正式化** vs **B 補正実装**。** **VERIFY:** criteria更新まで保留。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_C_M55_ENGINE_DETERMINISTIC_MATRIX_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-AUDIT-B M55 original composite astrology engine read-only code audit recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / read-only code audit / docs-only**。** **Scope:** `essenceStemLaneIndex` 10 call sites；`/core` `/dtr` `/dtr/core` fulfillment traces；boundary≠stem；**1983-02-28 lane=3**（free ANALYST vs paid クリエイター）。** **Verdict:** **`ENGINE_READ_ONLY_AUDIT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-AUDIT-B-M55-ORIGINAL-COMPOSITE-ASTROLOGY-ENGINE-READ-ONLY-CODE-AUDIT-001`**。** **Next:** **ENGINE-AUDIT-C**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_B_M55_ORIGINAL_COMPOSITE_ASTROLOGY_ENGINE_READ_ONLY_CODE_AUDIT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-AUDIT-A M55 original composite astrology engine consistency audit planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / engine audit planning / docs-only**。** **Scope:** engine inventory；route mapping；input/correction/label matrices；gaps **G1–G8**；**1983-02-28 stemLane=3**（free ANALYST vs paid クリエイター；VERIFY 癸/アナリストは現行コードと不一致）。** **Verdict:** **`M55_ORIGINAL_COMPOSITE_ASTROLOGY_ENGINE_CONSISTENCY_AUDIT_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-AUDIT-A-M55-ORIGINAL-COMPOSITE-ASTROLOGY-ENGINE-CONSISTENCY-AUDIT-PLAN-001`**。** **Next:** **ENGINE-AUDIT-B**。** **No mutation**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_A_M55_ORIGINAL_COMPOSITE_ASTROLOGY_ENGINE_CONSISTENCY_AUDIT_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-VERIFY-A New unpaid user paid DTR snapshot verification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / verification planning / docs-only**。** **Target:** **`human-test-19830228-new-user`**、`birthDate=1983-02-28`、free `/core` vs paid `/dtr/core` snapshot。** **Decision:** Production + live for payment；preview optional pre-purchase only；**AS-B6-DISABLE-D** recommended before VERIFY-C。** **Verdict:** **`NEW_UNPAID_USER_PAID_DTR_SNAPSHOT_VERIFICATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-A-NEW-UNPAID-USER-PAID-DTR-SNAPSHOT-VERIFICATION-PLAN-001`**。** **Next:** **VERIFY-B** preflight → **VERIFY-C** one checkout。** **No payment in gate**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_A_NEW_UNPAID_USER_PAID_DTR_SNAPSHOT_VERIFICATION_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-B Free core vs paid DTR UI implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / UI implementation planning / docs-only**。** **Prior:** **CORE-DTR-A**。** **Scope:** drift helper；`/my` `/core` `/dtr` copy；soft-hide；repurchase CTA；no-delete CONTROL。** **Verdict:** **`FREE_CORE_PAID_DTR_UI_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-B-FREE-CORE-PAID-DTR-UI-IMPLEMENTATION-PLAN-001`**。** **Next:** **`CORE-DTR-C`** execution。** **No code/DB/checkout**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_B_FREE_CORE_PAID_DTR_UI_IMPLEMENTATION_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-A Free core vs paid DTR snapshot consistency policy planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / policy planning / docs-only**。** **Root cause:** by-design mutable `/core` vs immutable paid snapshot；not default DB bug。** **Policy:** no hard-delete of evidence；UI may de-emphasize drifted primary path；repurchase for new profile。** **Verdict:** **`FREE_CORE_PAID_DTR_SNAPSHOT_CONSISTENCY_POLICY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-A-FREE-CORE-PAID-DTR-SNAPSHOT-CONSISTENCY-POLICY-PLAN-001`**。** **Next:** **`CORE-DTR-B`** UI implementation planning。** **No delete / no DB write**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_A_FREE_CORE_PAID_DTR_SNAPSHOT_CONSISTENCY_POLICY_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-AS-B6-DISABLE-R Notification disable flag Human checkpoint result recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / Human env checkpoint / docs-only**。** **Human:** Vercel Production **`m55-webv2`** — **`M55_OPS_NOTIFY_ENABLED` → safe label `false`**；**redeploy required**；**redeploy not performed**。** **Verdict:** **`NOTIFICATION_DISABLE_ENV_FLAG_SET_GREEN_REDEPLOY_REQUIRED_NO_RUNTIME_CONFIRMATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-AS-B6-DISABLE-R-NOTIFICATION-DISABLE-FLAG-HUMAN-CHECKPOINT-RESULT-001`**。** **Next:** **AS-B6-DISABLE-D** if runtime reflection needed；else **AS-B1-MONITOR**。** **No secret / no send / no deploy in gate**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_DISABLE_R_NOTIFICATION_DISABLE_FLAG_HUMAN_CHECKPOINT_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-TL-FIX-D-HUMAN Owned Human UI verification gate recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 3 / Human UI / preview @ 5c9248f**。** **Agent:** M2–M6 **not_run**（no Clerk session）。** **Verdict:** **`OWNED_HUMAN_UI_VERIFICATION_PENDING_HUMAN_SESSION_NO_AGENT_AUTH`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-TL-FIX-D-HUMAN-OWNED-HUMAN-UI-VERIFICATION-001`**。** **Next:** **TL-FIX-D-HUMAN-R** after Human §F checklist。** **No checkout/DB/deploy**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_D_HUMAN_OWNED_HUMAN_UI_VERIFICATION_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-TL-FIX-C Type-label mismatch implementation execution recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 2 / code / no deploy**。** **Scope:** snapshot-owned shelf stem；canonical labels；Full Report removed。** **Verdict:** **`TYPE_LABEL_MISMATCH_IMPLEMENTATION_EXECUTION_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-TL-FIX-C-TYPE-LABEL-MISMATCH-IMPLEMENTATION-EXECUTION-001`**。** **Tests:** `tsc --noEmit` pass。** **Next:** **`TL-FIX-D`** Human UI on preview。** **No deploy/env/DB**。

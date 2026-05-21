@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { ProfileRepository } from '../lib/soul/profile';
+import { validateDtrCheckoutProfile } from '../lib/m55/compositeStem/checkoutProfileGate';
+import type { BirthProfile } from '../lib/soul/profile';
 
 /**
  * productId → 環境変数マッピング
@@ -31,22 +33,29 @@ export default function PurchaseButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
+  const [needsProfile, setNeedsProfile] = useState(false);
 
   const handleClick = async () => {
     setLoading(true);
     setError(null);
     setNeedsSignIn(false);
+    setNeedsProfile(false);
     try {
       const profile =
         userId ? ProfileRepository.get(userId) : null;
-      const payload: { productId: string; profile?: { nickname: string; birthDate: string } } = {
+      if (productId === 'DTR_CORE_STATIC_V1') {
+        const gate = validateDtrCheckoutProfile(profile);
+        if (!gate.ok) {
+          setNeedsProfile(true);
+          setLoading(false);
+          return;
+        }
+      }
+      const payload: { productId: string; profile?: BirthProfile } = {
         productId,
       };
       if (profile?.birthDate && profile.nickname?.trim()) {
-        payload.profile = {
-          nickname: profile.nickname.trim(),
-          birthDate: profile.birthDate,
-        };
+        payload.profile = profile;
       }
       const res = await fetch('/api/purchase/checkout', {
         method: 'POST',
@@ -66,6 +75,11 @@ export default function PurchaseButton({
         resumeCheckoutSessionId?: string;
       };
       // 409: 内部コードは画面に出さず、閲覧済み / 準備中はそのまま遷移（詳細はサーバーログ）
+      if (res.status === 400 && data.code === 'composite_profile_incomplete') {
+        setNeedsProfile(true);
+        setLoading(false);
+        return;
+      }
       if (res.status === 409) {
         if (data.code === 'already_purchased') {
           window.location.replace('/dtr/core');
@@ -119,6 +133,14 @@ export default function PurchaseButton({
           購入にはログインが必要です。{' '}
           <a href={signInHref} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             ログインして購入を続ける
+          </a>
+        </p>
+      )}
+      {needsProfile && (
+        <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#5a4ea0' }}>
+          購入前にマイページで生年月日・出生時刻（または時刻不明）・国を入力してください。{' '}
+          <a href="/my" style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
+            マイページでプロフィールを入力
           </a>
         </p>
       )}

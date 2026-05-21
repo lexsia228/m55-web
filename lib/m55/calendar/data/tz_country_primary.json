@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "m55-tz-country-primary-v1",
+  "correctionVersion": "m55-calendar-2026-01",
+  "tzSource": "country_primary",
+  "countries": {
+    "JP": "Asia/Tokyo",
+    "US": "America/New_York",
+    "GB": "Europe/London",
+    "AU": "Australia/Sydney",
+    "CA": "America/Toronto",
+    "DE": "Europe/Berlin",
+    "FR": "Europe/Paris",
+    "KR": "Asia/Seoul",
+    "CN": "Asia/Shanghai",
+    "TW": "Asia/Taipei",
+    "HK": "Asia/Hong_Kong",
+    "SG": "Asia/Singapore",
+    "TH": "Asia/Bangkok",
+    "VN": "Asia/Ho_Chi_Minh",
+    "PH": "Asia/Manila",
+    "IN": "Asia/Kolkata",
+    "NZ": "Pacific/Auckland",
+    "BR": "America/Sao_Paulo",
+    "MX": "America/Mexico_City"
+  }
+}
