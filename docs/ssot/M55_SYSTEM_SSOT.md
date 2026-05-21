@@ -214,6 +214,22 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-R Production logged-out smoke recorded
+
+Status: **`main` @ `6134048`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_R_GREEN`**。** **Host:** **`m55-webv2.vercel.app`** · target **production** · **Ready**。** **Smoke:** `/` `/core` `/dtr` `/dtr/lp` `/my` **200**；`/dtr/core` **307 → `/dtr/lp`**；fatal **none**。** **checkout/DB/env:** **no**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-R-001`**。** **Next:** **ENGINE-DEPLOY-PRODUCTION-R-COMMIT**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_LOGGED_OUT_SMOKE_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-EXECUTION Composite v2 Production deploy executed
+
+Status: **`main` @ `6134048`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_EXECUTION_GREEN`**。** **Human GO:** **`ENGINE-DEPLOY-PRODUCTION-EXECUTION go`**。** **Merge:** `origin/main` → **`work/home-cluster`** then **`main` ff-only**。** **Production:** **`m55-webv2.vercel.app`** · target **production** · Vercel **Ready** · clone **`6134048`**。** **Preflight:** calendar OK · **28/28** · tsc OK。** **Flags:** v2 fulfillment write **off**。** **CORE-DTR-VERIFY:** **HOLD**。** **checkout/payment/DB/env:** **no**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-EXECUTION-001`**。** **Next:** **ENGINE-DEPLOY-PRODUCTION-R**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_EXECUTION_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-PLANNING Composite v2 Production deploy plan recorded
 
 Status: **`work/home-cluster` @ `21d5bb4`。** **Classification:** **docs-only planning / no deploy**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_PLANNING_READY_FOR_EXECUTION_PENDING_HUMAN_GO`**。** **Preview-verified runtime SHA:** **`2564061`**。** **Route:** merge **`origin/main`** into **`work/home-cluster`** → FF **`main`** → **`git push origin main`** → Vercel Production **`m55-webv2.vercel.app`**。** **Flags:** v2 fulfillment write **off**；notify **unchanged**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-PLANNING-001`**。** **Next:** **`ENGINE-DEPLOY-PRODUCTION-EXECUTION`**（Human GO required）。
