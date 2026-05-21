@@ -214,6 +214,22 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE-R Production Human UI result recorded
+
+Status: **Production `m55-webv2.vercel.app` @ `6134048`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_POST_DEPLOY_HUMAN_SMOKE_GREEN`**。** **Human:** H1 `/my` v2 · H2 `/core` · H3 owned `/dtr` · H4 owned `/dtr/core` **pass**；legacy stored envelope **preserved**；**資質 / クリエイター** stable。** **checkout/DB/env/snapshot:** **no**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE-R-001`**。** **Next:** **ENGINE-POST-DEPLOY-HUMAN-SMOKE-R-COMMIT**；then **CORE-DTR-VERIFY planning**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_POST_DEPLOY_HUMAN_SMOKE_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_HUMAN_UI_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE Production Human UI smoke (agent pass)
+
+Status: **Production @ `6134048`。** **Human GO:** **`ENGINE-POST-DEPLOY-HUMAN-SMOKE go`**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_POST_DEPLOY_HUMAN_SMOKE_PARTIAL_AGENT_NO_AUTH`**（closed by **-R** GREEN）。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_POST_DEPLOY_HUMAN_SMOKE_COMPOSITE_ASTROLOGY_V2_PRODUCTION_HUMAN_UI_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-R Production logged-out smoke recorded
 
 Status: **`main` @ `6134048`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_R_GREEN`**。** **Host:** **`m55-webv2.vercel.app`** · target **production** · **Ready**。** **Smoke:** `/` `/core` `/dtr` `/dtr/lp` `/my` **200**；`/dtr/core` **307 → `/dtr/lp`**；fatal **none**。** **checkout/DB/env:** **no**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-R-001`**。** **Next:** **ENGINE-DEPLOY-PRODUCTION-R-COMMIT**.
