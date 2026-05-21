@@ -214,6 +214,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-VERIFY-PLANNING CORE-DTR verification restart planning recorded
+
+Status: **CORE-DTR-VERIFY was HOLD**。** **Verdict:** **`CORE_DTR_VERIFY_RESTART_PLANNING_GREEN_HOLD_LIFT_CONDITIONS_DEFINED`**。** **L1–L4 satisfied**（Production @ `6134048` · deploy/Human smoke GREEN · legacy preserved）。** **Lift pending:** **VERIFY-B** counts + per-gate Human GO。** **Track 1:** VERIFY chain with **v2 fulfillment flag OFF**（legacy new purchase）。** **Track 2:** **`ENGINE-ENV-GO`** for v2 writes — **not** in VERIFY-C default。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-PLANNING-001`**。** **Next:** **CORE-DTR-VERIFY-B** preflight。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_PLANNING_COMPOSITE_ASTROLOGY_V2_CORE_DTR_VERIFICATION_RESTART_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE-R Production Human UI result recorded
 
 Status: **Production `m55-webv2.vercel.app` @ `6134048`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_POST_DEPLOY_HUMAN_SMOKE_GREEN`**。** **Human:** H1 `/my` v2 · H2 `/core` · H3 owned `/dtr` · H4 owned `/dtr/core` **pass**；legacy stored envelope **preserved**；**資質 / クリエイター** stable。** **checkout/DB/env/snapshot:** **no**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-POST-DEPLOY-HUMAN-SMOKE-R-001`**。** **Next:** **ENGINE-POST-DEPLOY-HUMAN-SMOKE-R-COMMIT**；then **CORE-DTR-VERIFY planning**.
