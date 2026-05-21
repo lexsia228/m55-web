@@ -214,6 +214,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRECHECK Composite v2 deploy precheck recorded
+
+Status: **`work/home-cluster` @ `c8ce038`。** **Classification:** **deploy precheck / docs-only**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_DEPLOY_PRECHECK_READY_FOR_PREVIEW_ONLY`**。** **main:** **not pushed**（+26/-2 vs `origin/main`）。** **Next deploy route:** **branch preview only** — **not** immediate Production。** **Fulfillment flag:** **default off**；enable requires **separate env GO**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRECHECK-001`**。** **Next:** **ENGINE-DEPLOY-PREVIEW**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRECHECK_COMPOSITE_ASTROLOGY_V2_DEPLOY_READINESS_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-VERIFY-A-R Verification execution result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_VERIFY_EXECUTION_GREEN`**（VERIFY-A-EXEC 再確認：calendar OK · **28/28** · matrix **GREEN** · **p0Failures none**）。** **Artifact:** `docs/audit/ENGINE_VERIFY_MATRIX_RESULTS_20260521.json`。** **Runtime:** **未反映**；EXEC 生成物は **未コミット**（HEAD **`b93a776`**）。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-VERIFY-A-R-VERIFY-EXECUTION-RESULT-001`**。** **Next:** **VERIFY-A-EXEC-COMMIT**。
