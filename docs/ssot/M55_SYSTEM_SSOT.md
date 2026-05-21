@@ -214,6 +214,22 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PREVIEW-R Branch preview smoke recorded
+
+Status: **`work/home-cluster` @ `2564061`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_DEPLOY_PREVIEW_R_GREEN`**。** **Preview alias:** **`m55-webv2-git-work-home-cluster-m55-official.vercel.app`** — target **preview** · Vercel **Ready** · GH check **success**。** **Logged-out smoke:** `/` `/core` `/dtr` `/dtr/lp` `/my` **200**；`/dtr/core` **307 → `/dtr/lp`**。** **not_run:** signed-in `/my` v2 fields；owned stored envelope。** **checkout:** **not executed**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PREVIEW-R-001`**。** **Next:** **ENGINE-DEPLOY-PRODUCTION-PLANNING**（Human GO required）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PREVIEW_R_COMPOSITE_ASTROLOGY_V2_BRANCH_PREVIEW_SMOKE_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PREVIEW Branch preview execution recorded
+
+Status: **`work/home-cluster`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_DEPLOY_PREVIEW_PARTIAL_RED`**。** **Git @ `a6ddc5e`:** Vercel Preview deployment **failure**（client `node:path` bundle）。** **CLI preview（build fix 未commit）:** **Ready** — URL safe label **`m55-webv2-r32d6z2xc-m55-official.vercel.app`**；HTTP smoke logged-out **pass**。** **not_run:** signed-in `/my` v2 fields；owned `/dtr/core` stored envelope。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PREVIEW-001`**。** **Next:** **ENGINE-FIX-CLIENT-BUNDLE** commit → preview rebuild。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PREVIEW_COMPOSITE_ASTROLOGY_V2_BRANCH_PREVIEW_EXECUTION_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRECHECK Composite v2 deploy precheck recorded
 
 Status: **`work/home-cluster` @ `c8ce038`。** **Classification:** **deploy precheck / docs-only**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_DEPLOY_PRECHECK_READY_FOR_PREVIEW_ONLY`**。** **main:** **not pushed**（+26/-2 vs `origin/main`）。** **Next deploy route:** **branch preview only** — **not** immediate Production。** **Fulfillment flag:** **default off**；enable requires **separate env GO**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRECHECK-001`**。** **Next:** **ENGINE-DEPLOY-PREVIEW**。
