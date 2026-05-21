@@ -214,6 +214,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-VERIFY-A Composite v2 verification planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **verification planning / docs-only**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_VERIFICATION_PLANNING_GREEN_NO_MUTATION`**。** **Anchors:** B5 **`1675cf4`** · B6 **`f5f26e2`**。** **Matrix:** GX-01〜11 + route/fulfillment/profile checks + deploy **SC-01〜10**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-VERIFY-A-COMPOSITE-V2-VERIFICATION-PLANNING-001`**。** **Next:** **VERIFY-A execution** → **ENGINE-DEPLOY-PRECHECK**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_VERIFY_A_COMPOSITE_ASTROLOGY_V2_VERIFICATION_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-IMPL-B6-R Stored envelope route result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **docs-only result recording**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_GREEN_NO_DEPLOY`**（B6 実装 + **28/28** tests 再確認）。** **Runtime:** **未反映**；B6 差分は **未コミット**（HEAD **`1675cf4`** = B1–B5 のみ）。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-IMPL-B6-R-STORED-ENVELOPE-ROUTE-RESULT-001`**。** **Next:** **ENGINE-IMPL-B6-COMMIT** → **ENGINE-VERIFY-A** planning。
