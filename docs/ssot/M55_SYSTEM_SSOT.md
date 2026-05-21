@@ -214,6 +214,30 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-UI-GUARD-B Saved report notice implementation recorded
+
+Status: **`/dtr/core` reader。** **Verdict:** **`CORE_DTR_UI_GUARD_B_SAVED_REPORT_NOTICE_IMPLEMENTATION_GREEN_NO_DEPLOY`**。** **Placement:** `PremiumHero` → **`SavedSnapshotNotice`** → `#dtr-core-analysis`。** **Copy SSOT:** `lib/m55/dtrSavedReportCopy.ts`。** **Deploy:** **no**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-UI-GUARD-B-001`**。** **Next:** **CORE-DTR-UI-GUARD-DEPLOY-PRECHECK**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_B_SAVED_REPORT_NOTICE_IMPLEMENTATION_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-UI-GUARD-A Saved report notice planning recorded
+
+Status: **`/dtr/core`。** **Verdict:** **`CORE_DTR_UI_GUARD_A_SAVED_REPORT_NOTICE_PLANNING_GREEN_NO_MUTATION`**。** **Placement:** **`PremiumHero` 直後 · `#dtr-core-analysis` 直前**。** **Copy:** **この保存版は、購入時点のプロフィールをもとに作成・保存されています。**（legacy/v2 同一）。** **Forbidden copy:** 削除 / 再計算 / 上書き / notification UI.** **Next:** **CORE-DTR-UI-GUARD-B** implementation.** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-UI-GUARD-A-001`**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_A_PERMANENT_SAVED_REPORT_NOTICE_BADGE_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-VERIFY-B Counts-only preflight (agent pass)
+
+Status: **`m55-soul-core`。** **Verdict:** **`CORE_DTR_VERIFY_B_BLOCKED_PENDING_HUMAN_COUNTS_POLL`**。** **Live counts:** **not executed**（no DB creds in agent workspace）。** **SQL:** `scripts/sql/production/m55_core_dtr_verify_b_counts_only_preflight_v1.sql`。** **Stale ref:** `failed_fulfillments_24h=0` @ 2026-05-20 · snapshots **6** · engine nonnull **0** @ B3-D-R — **re-poll required**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-B-001`**。** **Next:** **CORE-DTR-VERIFY-B-R** Human counts → then **VERIFY-A-EXEC** / **VERIFY-C**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_B_COUNTS_ONLY_PREFLIGHT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-VERIFY-PLANNING CORE-DTR verification restart planning recorded
 
 Status: **CORE-DTR-VERIFY was HOLD**。** **Verdict:** **`CORE_DTR_VERIFY_RESTART_PLANNING_GREEN_HOLD_LIFT_CONDITIONS_DEFINED`**。** **L1–L4 satisfied**（Production @ `6134048` · deploy/Human smoke GREEN · legacy preserved）。** **Lift pending:** **VERIFY-B** counts + per-gate Human GO。** **Track 1:** VERIFY chain with **v2 fulfillment flag OFF**（legacy new purchase）。** **Track 2:** **`ENGINE-ENV-GO`** for v2 writes — **not** in VERIFY-C default。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-PLANNING-001`**。** **Next:** **CORE-DTR-VERIFY-B** preflight。

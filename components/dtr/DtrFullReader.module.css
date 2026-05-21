@@ -1802,6 +1802,30 @@
   margin-bottom: 8px;
 }
 
+/* Saved snapshot notice — editorial strip (not notification UI) */
+.savedSnapshotNotice {
+  margin: clamp(10px, 2vw, 14px) 0 clamp(12px, 2.2vw, 16px);
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  box-sizing: border-box;
+}
+
+.savedSnapshotNoticeText {
+  margin: 0;
+  font-size: clamp(0.8125rem, 2.8vw, 0.875rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .savedSnapshotNotice {
+    transition: none;
+  }
+}
+
 /* Included-features band ?Equiet premium strip between hero and narrative */
 .premiumIncludedBand {
   margin: clamp(10px, 2vw, 16px) 0 clamp(14px, 2.5vw, 18px);

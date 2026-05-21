@@ -29,6 +29,7 @@ import {
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
 import { ReportBridgeBand } from './ReportBridgeBand';
+import SavedSnapshotNotice from './SavedSnapshotNotice';
 import styles from './DtrFullReader.module.css';
 
 /** Module 01: map engine level (0–3) to purchaser-facing role labels (no scores). */
@@ -2389,6 +2390,8 @@ export default function DtrFullReader({
           nickname={view.nickname}
           birthDate={purchasedSnapshot.profile.birthDate}
         />
+
+        <SavedSnapshotNotice />
 
         <section
           id="dtr-core-analysis"
