@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-R Shadow preflight result recorded
+
+Status: **m55-soul-shadow @ `95ccc29`。** **Classification:** **Human attestation / docs-only**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B2_SHADOW_PREFLIGHT_GREEN_NO_APPLY`**。** **Key:** `legacy_duplicate=0` · `unique_constraint=1` · `user_hidden_*=0`（pre-apply）· `dtr_core_rows=0`（limited fixture）。** **No** Production / apply / DB write。** **Next:** **SOFT-HIDE-REPURCHASE-B3** staging apply。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B2_R_SHADOW_PREFLIGHT_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-B Primitive/adaptive preflight recorded
 
 Status: **`work/home-cluster` @ `1e212e6`+。** **Classification:** **SQL fix / no-apply**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_B_PREFLIGHT_SQL_PRIMITIVE_ADAPTIVE_GREEN_NO_DB_WRITE`**。** **Fix:** all table aggregates via dynamic SQL；forbid bare `engine_context`；canonical `engine_context_json`/`engine_version` only after exists check。** **Shadow 42703 engine_context:** acknowledged；no schema patch。** **Next:** **B2** Human shadow preflight retry。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-B-001`**。
