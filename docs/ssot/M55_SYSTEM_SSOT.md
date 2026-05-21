@@ -214,6 +214,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-UI-GUARD-DEPLOY-PRECHECK Notice deploy precheck recorded
+
+Status: **`work/home-cluster` @ `6a97efb`。** **Production @ `6134048`（notice 未反映）。** **Verdict:** **`CORE_DTR_UI_GUARD_DEPLOY_PRECHECK_READY_FOR_PREVIEW_FIRST`**。** **Route:** preview @ **`6a97efb`** first → then **`main` ff-only** → Production。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-UI-GUARD-DEPLOY-PRECHECK-001`**。** **Next:** **CORE-DTR-UI-GUARD-DEPLOY-PREVIEW**.
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_DEPLOY_PRECHECK_SAVED_REPORT_NOTICE_DEPLOY_READINESS_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-UI-GUARD-B Saved report notice implementation recorded
 
 Status: **`/dtr/core` reader。** **Verdict:** **`CORE_DTR_UI_GUARD_B_SAVED_REPORT_NOTICE_IMPLEMENTATION_GREEN_NO_DEPLOY`**。** **Placement:** `PremiumHero` → **`SavedSnapshotNotice`** → `#dtr-core-analysis`。** **Copy SSOT:** `lib/m55/dtrSavedReportCopy.ts`。** **Deploy:** **no**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-UI-GUARD-B-001`**。** **Next:** **CORE-DTR-UI-GUARD-DEPLOY-PRECHECK**.
