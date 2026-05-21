@@ -96,7 +96,7 @@ export function DtrProcessingClient({
       </div>
       <p className={styles.desc} style={{ margin: 0 }}>
         {isOwnedRecovery
-          ? '購入済みの保存版レポートを読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
+          ? '購入済みの保存版を読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
           : '購入済みレポートの保存版を準備しています。完了すると自動で開きます。'}
       </p>
       {stuck && (

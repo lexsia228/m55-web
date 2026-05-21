@@ -463,7 +463,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <p className={styles.readOnlyText}>
             相談返書チケット 残り {wallet!.available_count}件 / 合計5件まで
           </p>
-          <p className={styles.addOnNote}>この本質レポートに紐づいて、4章の内容を深掘りできます。</p>
+          <p className={styles.addOnNote}>この本質の読み解きに紐づいて、4章の内容を深掘りできます。</p>
         </div>
       ) : walletReachedLimit ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
@@ -475,7 +475,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       ) : walletCanPurchase ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>追加相談返書 1件 500円</p>
-          <p className={styles.addOnNote}>この本質レポートの相談をもう一度整理できます。</p>
+          <p className={styles.addOnNote}>この本質の読み解きの相談をもう一度整理できます。</p>
           {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
           <button
             type="button"

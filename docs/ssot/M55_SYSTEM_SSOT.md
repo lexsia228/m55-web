@@ -214,6 +214,30 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-TL-FIX-C Type-label mismatch implementation execution recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 2 / code / no deploy**。** **Scope:** snapshot-owned shelf stem；canonical labels；Full Report removed。** **Verdict:** **`TYPE_LABEL_MISMATCH_IMPLEMENTATION_EXECUTION_GREEN_NO_DEPLOY`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-TL-FIX-C-TYPE-LABEL-MISMATCH-IMPLEMENTATION-EXECUTION-001`**。** **Tests:** `tsc --noEmit` pass。** **Next:** **`TL-FIX-D`** Human UI on preview。** **No deploy/env/DB**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_C_TYPE_LABEL_MISMATCH_IMPLEMENTATION_EXECUTION_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-TL-FIX-B Type-label mismatch implementation planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / implementation planning / docs-only**。** **Prior:** **TL-FIX-A**。** **Scope:** owned shelf snapshot stem；canonical labels；Full Report 廃止；Entry Report owned 非表示；TL-F7 out。** **Verdict:** **`TYPE_LABEL_MISMATCH_IMPLEMENTATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-TL-FIX-B-TYPE-LABEL-MISMATCH-IMPLEMENTATION-PLAN-001`**。** **Next:** **`TL-FIX-C` execution** after Human GO；optional **`TL-FIX-B-R`**。** **No code/deploy**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_B_TYPE_LABEL_MISMATCH_IMPLEMENTATION_PLANNING_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-TL-FIX-A Type-label mismatch fix planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / fix planning / docs-only**。** **Prior:** **TL-A-R**（F1 type-source high；F2 multi-name medium）。** **Contradiction:** entitlement/gate **no**；display/type-source **yes**。** **Verdict:** **`TYPE_LABEL_MISMATCH_FIX_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-TL-FIX-A-TYPE-LABEL-MISMATCH-FIX-PLAN-001`**。** **Next:** **`TL-FIX-B` implementation planning**（not execution without Human GO）。** **No code/deploy/env/DB/Stripe/Clerk**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_A_TYPE_LABEL_MISMATCH_FIX_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-TL-A-R Type-label mismatch read-only diagnostic result recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / read-only diagnostic / docs-only**。** **Primary finding:** shelf **`essenceStemLaneIndex`(client profile)** vs core **`auditMeta.stemLaneIndex`(snapshot engine)** divergence（**high**）。** **Secondary:** multi-name product labels；EN hero slug。** **Verdict:** **`TYPE_LABEL_MISMATCH_READONLY_DIAGNOSTIC_RESULT_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-TL-A-R-TYPE-LABEL-MISMATCH-READONLY-DIAGNOSTIC-RESULT-001`**。** **Fix:** deferred Category 2。** **Next:** monitoring + optional TL-FIX plan。

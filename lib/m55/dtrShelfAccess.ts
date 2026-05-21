@@ -3,11 +3,18 @@
  * Keeps resolveEntryReportOwnership semantics; separates purchase CTA from owned-not-ready paths.
  */
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
+import { ariaLabelForDtrShelf } from './dtrProductLabels';
 import { getDtrReportSnapshot } from './dtrDraftDb';
 import {
   resolveEntryReportOwnership,
   type DtrUnlockState,
 } from './dtrOwnershipGate';
+import {
+  deriveDtrShelfStemDisplay,
+  type DtrShelfStemDisplay,
+} from './dtrShelfStemDisplay';
+
+export type { DtrShelfStemDisplay };
 
 /** Owned user without snapshot: poll ready API — not Stripe checkout processing. */
 export const DTR_OWNED_RECOVERY_PROCESSING_PATH = '/dtr/processing?recovery=owned';
@@ -50,13 +57,15 @@ export type DtrShelfAccessResolved =
   | ({
       kind: 'authenticated';
       ownershipState: 'owned' | 'locked' | 'expired';
+      /** Present when owned and snapshot row exists — shelf type must match /dtr/core. */
+      ownedShelfDisplay: DtrShelfStemDisplay | null;
     } & DtrShelfAccess);
 
 function shelfCtaForLocked(): DtrShelfCta {
   return {
     href: '/dtr/lp',
     label: '1,000円で入手する',
-    ariaLabel: 'Entry Report — 入手する',
+    ariaLabel: ariaLabelForDtrShelf('purchase', false),
   };
 }
 
@@ -64,7 +73,7 @@ function shelfCtaForExpired(): DtrShelfCta {
   return {
     href: '/dtr/lp?state=expired',
     label: 'サポートに相談する',
-    ariaLabel: 'Entry Report — 期限切れ',
+    ariaLabel: ariaLabelForDtrShelf('expired', false),
   };
 }
 
@@ -72,7 +81,7 @@ function shelfCtaForOwnedReady(): DtrShelfCta {
   return {
     href: '/dtr/core',
     label: 'レポートを開く',
-    ariaLabel: 'Entry Report — 保存済み。レポートを開く',
+    ariaLabel: ariaLabelForDtrShelf('open_ready', true),
   };
 }
 
@@ -80,14 +89,15 @@ function shelfCtaForOwnedNotReady(): DtrShelfCta {
   return {
     href: DTR_OWNED_RECOVERY_PROCESSING_PATH,
     label: '準備状況を確認する',
-    ariaLabel: 'Entry Report — 保存済み。レポートの準備状況を確認する',
+    ariaLabel: ariaLabelForDtrShelf('open_not_ready', true),
   };
 }
 
 function buildAuthenticated(
   unlockState: DtrUnlockState,
   snapshotReady: boolean,
-  uxState: DtrShelfUxState
+  uxState: DtrShelfUxState,
+  ownedShelfDisplay: DtrShelfStemDisplay | null
 ): Extract<DtrShelfAccessResolved, { kind: 'authenticated' }> {
   if (unlockState === 'expired') {
     return {
@@ -99,6 +109,7 @@ function buildAuthenticated(
       showPurchaseCta: false,
       lpCtaMode: 'expired',
       shelfCta: shelfCtaForExpired(),
+      ownedShelfDisplay: null,
     };
   }
 
@@ -112,6 +123,7 @@ function buildAuthenticated(
       showPurchaseCta: true,
       lpCtaMode: 'purchase',
       shelfCta: shelfCtaForLocked(),
+      ownedShelfDisplay: null,
     };
   }
 
@@ -125,6 +137,7 @@ function buildAuthenticated(
       showPurchaseCta: false,
       lpCtaMode: 'open',
       shelfCta: shelfCtaForOwnedReady(),
+      ownedShelfDisplay,
     };
   }
 
@@ -137,6 +150,7 @@ function buildAuthenticated(
     showPurchaseCta: false,
     lpCtaMode: 'recovery',
     shelfCta: shelfCtaForOwnedNotReady(),
+    ownedShelfDisplay: null,
   };
 }
 
@@ -153,7 +167,7 @@ export async function resolveDtrShelfAccess(
       shelfCta: {
         href: '/dtr/lp',
         label: '1,000円で入手する',
-        ariaLabel: 'Entry Report — 入手する',
+        ariaLabel: ariaLabelForDtrShelf('purchase', false),
       },
     };
   }
@@ -163,16 +177,24 @@ export async function resolveDtrShelfAccess(
     const unlockState = ownership.unlockState;
 
     if (unlockState !== 'owned') {
-      return buildAuthenticated(unlockState, false, unlockState === 'expired' ? 'expired' : 'unpaid_locked');
+      return buildAuthenticated(
+        unlockState,
+        false,
+        unlockState === 'expired' ? 'expired' : 'unpaid_locked',
+        null
+      );
     }
 
     const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     const snapshotReady = snap != null;
+    const ownedShelfDisplay = snap
+      ? deriveDtrShelfStemDisplay(snap.profile_snapshot)
+      : null;
     const uxState: DtrShelfUxState = snapshotReady
       ? 'owned_snapshot_ready'
       : 'owned_snapshot_not_ready';
 
-    return buildAuthenticated('owned', snapshotReady, uxState);
+    return buildAuthenticated('owned', snapshotReady, uxState, ownedShelfDisplay);
   } catch {
     return {
       kind: 'authenticated',
@@ -184,9 +206,10 @@ export async function resolveDtrShelfAccess(
       shelfCta: {
         href: '/support',
         label: 'サポートに相談する',
-        ariaLabel: 'Entry Report — 接続を確認できませんでした',
+        ariaLabel: ariaLabelForDtrShelf('connection_error', false),
       },
       lpCtaMode: 'recovery',
+      ownedShelfDisplay: null,
     };
   }
 }

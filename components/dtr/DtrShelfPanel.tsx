@@ -5,6 +5,13 @@ import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import { useMemo } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
+import {
+  LABEL_FORMAT_SAVED,
+  LABEL_PRODUCT_EN,
+  LABEL_PRODUCT_JP,
+  LABEL_STATE_OWNED,
+} from '../../lib/m55/dtrProductLabels';
+import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import DtrCatalogStrip from './DtrCatalogStrip';
 import styles from './DtrShelfPanel.module.css';
@@ -26,12 +33,6 @@ const DTR_TYPE_IMAGE: Record<number, string> = {
   9: '/ten-views/analyst.webp',
 };
 
-const DTR_TYPE_EN: Record<number, string> = {
-  0: 'PRESIDENT', 1: 'PLANNER', 2: 'INFLUENCER', 3: 'CREATOR',
-  4: 'MANAGER', 5: 'PRODUCER', 6: 'EXECUTOR', 7: 'DESIGNER',
-  8: 'GLOBAL LEADER', 9: 'ANALYST',
-};
-
 type OwnershipState = 'owned' | 'locked' | 'expired' | 'anonymous';
 
 /** Profile-derived card personalization. generic = profile not available yet. */
@@ -51,14 +52,9 @@ type Props = {
   snapshotReady: boolean;
   /** Server-resolved CTA（owned + !ready は LP 購入導線へ送らない） */
   shelfCta?: ShelfCtaProps;
+  /** Owned + snapshot: server stem from profile_snapshot (must not use client ProfileRepository). */
+  ownedShelfDisplay?: DtrShelfStemDisplay | null;
 };
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Entry Report Card
-   Translates the DtrFullReader heroPoster visual logic into a product shelf card.
-   Top: dark poster with ten-views type image + owned/purchase state.
-   Bottom: lightweight info strip + CTA.
-   ───────────────────────────────────────────────────────────────────────────── */
 
 function EntryReportCard({
   ownershipState,
@@ -88,11 +84,10 @@ function EntryReportCard({
   const nickname = hasProfile ? cardProfile.nickname : '';
 
   const typeImage = stemIdx >= 0 ? (DTR_TYPE_IMAGE[stemIdx] ?? null) : null;
-  const typeEnLabel = stemIdx >= 0 ? (DTR_TYPE_EN[stemIdx] ?? '') : '';
 
   const cardTitle = hasProfile && nickname
     ? `${nickname}さんの取り扱い説明書`
-    : '本質の読み解き';
+    : LABEL_PRODUCT_JP;
 
   const ctaLabel =
     shelfCta?.label ??
@@ -104,22 +99,11 @@ function EntryReportCard({
       ? 'サポートに相談する'
       : '1,000円で入手する');
 
-  const ariaLabel =
-    shelfCta?.ariaLabel ??
-    `Entry Report — ${
-      isOwned && snapshotReady
-        ? '保存済み。レポートを開く'
-        : isOwned
-        ? '保存済み。レポートの準備中'
-        : isExpired
-        ? '期限切れ'
-        : '入手する'
-    }`;
+  const ariaLabel = shelfCta?.ariaLabel ?? `${LABEL_PRODUCT_JP} — レポート`;
 
   return (
     <Link href={ctaHref} className={styles.reportCard} aria-label={ariaLabel}>
 
-      {/* ── Poster section (top) ─── */}
       <div className={styles.cardPoster}>
         {typeImage && (
           <img
@@ -131,25 +115,25 @@ function EntryReportCard({
           />
         )}
         <div className={styles.cardPosterContent}>
-          {/* Top badges */}
           <div className={styles.cardBadgeRow}>
             <span className={styles.cardBrandWord}>M55</span>
-            <span className={styles.cardProductPill}>
-              {isOwned ? 'Full Report' : 'Entry Report'}
-            </span>
+            {isOwned ? (
+              <span className={styles.cardProductPill}>{LABEL_PRODUCT_JP}</span>
+            ) : (
+              <span className={styles.cardProductPill}>{LABEL_PRODUCT_EN}</span>
+            )}
             {isOwned && (
-              <span className={styles.cardSavedPill}>保存済み</span>
+              <span className={styles.cardSavedPill}>{LABEL_STATE_OWNED}</span>
             )}
             {isExpired && (
               <span className={styles.cardExpiredPill}>期限切れ</span>
             )}
           </div>
 
-          {/* Bottom identity */}
           <div className={styles.cardPosterBottom}>
-            {hasProfile && typeEnLabel && (
+            {hasProfile && stem && (
               <p className={styles.cardEyebrow}>
-                分析類型&thinsp;/&thinsp;{typeEnLabel}
+                資質&thinsp;/&thinsp;{stem.publicTitle}
               </p>
             )}
             <h2 className={styles.cardTitle}>{cardTitle}</h2>
@@ -162,9 +146,7 @@ function EntryReportCard({
         </div>
       </div>
 
-      {/* ── Body section (bottom) ─── */}
       <div className={styles.cardBody}>
-        {/* Meta strip */}
         <div className={styles.cardMeta}>
           {isOwned ? (
             <>
@@ -201,7 +183,6 @@ function EntryReportCard({
           )}
         </div>
 
-        {/* CTA row */}
         <div className={styles.cardCta}>
           <span className={styles.cardCtaText}>{ctaLabel}</span>
           <span className={styles.cardCtaArrow} aria-hidden>→</span>
@@ -210,11 +191,6 @@ function EntryReportCard({
     </Link>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   DtrShelfPanel — product shelf for the レポート tab.
-   Inherits /core visual language. Supports future parallel product cards.
-   ───────────────────────────────────────────────────────────────────────────── */
 
 function ShelfContextHint({
   ownershipState,
@@ -238,7 +214,7 @@ function ShelfContextHint({
           </p>
         )}
         {ownershipState === 'owned' && snapshotReady && (
-          <p className={styles.shelfHint}>購入済みです。下のカードから保存版を開けます。</p>
+          <p className={styles.shelfHint}>購入済みです。下のカードから{LABEL_FORMAT_SAVED}を開けます。</p>
         )}
         {ownershipState === 'owned' && !snapshotReady && (
           <p className={styles.shelfHint}>購入済みです。本文の準備が完了すると開けます。</p>
@@ -251,11 +227,28 @@ function ShelfContextHint({
   );
 }
 
-export default function DtrShelfPanel({ ownershipState, snapshotReady, shelfCta }: Props) {
+export default function DtrShelfPanel({
+  ownershipState,
+  snapshotReady,
+  shelfCta,
+  ownedShelfDisplay = null,
+}: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
 
   const cardProfile = useMemo((): CardProfile => {
+    if (ownershipState === 'owned') {
+      if (!ownedShelfDisplay) return { kind: 'generic' };
+      const stem = TEN_STEM_DISPLAY[ownedShelfDisplay.stemLaneIndex];
+      if (!stem) return { kind: 'generic' };
+      return {
+        kind: 'ready',
+        stemIdx: ownedShelfDisplay.stemLaneIndex,
+        stem,
+        nickname: ownedShelfDisplay.nickname,
+      };
+    }
+
     if (!isLoaded) return { kind: 'generic' };
     const profile = ProfileRepository.get(ownerId);
     if (!profile?.birthDate) return { kind: 'generic' };
@@ -267,17 +260,16 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady, shelfCta 
       stem,
       nickname: profile.nickname?.trim() ?? '',
     };
-  }, [isLoaded, ownerId]);
+  }, [ownershipState, ownedShelfDisplay, isLoaded, ownerId]);
 
   return (
     <div className={styles.shelfPage}>
 
-      {/* ── Shelf intro ─── */}
       <div className={styles.shelfIntro}>
         <span className={styles.shelfOverline}>M55 Reports</span>
-        <h1 className={styles.shelfTitle}>本質の深読み</h1>
+        <h1 className={styles.shelfTitle}>{LABEL_PRODUCT_JP}</h1>
         <p className={styles.shelfLead}>
-          保存版レポートの棚です。内容の詳細・価格・購入は
+          {LABEL_FORMAT_SAVED}の棚です。内容の詳細・価格・購入は
           <Link href="/dtr/lp" className={styles.shelfToLpInline}>商品ページ</Link>
           で確認できます。
         </p>
@@ -289,7 +281,6 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady, shelfCta 
         メインのレポート
       </p>
 
-      {/* ── Product shelf（メインSKU） ─── */}
       <div className={styles.productShelf} role="list" aria-labelledby="dtr-main-shelf-label">
         <div role="listitem">
           <EntryReportCard
@@ -301,7 +292,6 @@ export default function DtrShelfPanel({ ownershipState, snapshotReady, shelfCta 
         </div>
       </div>
 
-      {/* ── カタログ棚（追加SKU・近日公開。Entry は上記と重複させない） ─── */}
       <section className={styles.catalogBlock} aria-labelledby="dtr-catalog-heading">
         <h2 id="dtr-catalog-heading" className={styles.catalogBlockTitle}>
           追加予定のサービス

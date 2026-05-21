@@ -14,6 +14,7 @@ import {
   compositionStructureVizForStem,
   essenceStabilityVizForStem,
 } from '../../lib/m55/dtrEngine';
+import { LABEL_PRODUCT_JP, LABEL_STATE_OWNED } from '../../lib/m55/dtrProductLabels';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import {
   AXIS_DATA,
@@ -164,19 +165,6 @@ const DTR_TYPE_IMAGE: Record<number, string> = {
   7: '/ten-views/designer.webp',
   8: '/ten-views/global-leader.webp',
   9: '/ten-views/analyst.webp',
-};
-
-const DTR_TYPE_EN: Record<number, string> = {
-  0: 'PRESIDENT',
-  1: 'PLANNER',
-  2: 'INFLUENCER',
-  3: 'CREATOR',
-  4: 'MANAGER',
-  5: 'PRODUCER',
-  6: 'EXECUTOR',
-  7: 'DESIGNER',
-  8: 'GLOBAL LEADER',
-  9: 'ANALYST',
 };
 
 /** Birth date for First Record line — e.g. 1983.Feb.28 */
@@ -354,7 +342,7 @@ const PREMIUM_INTRO_READING_GUIDE_ID = 'premium-intro-reading-guide';
 
 const READING_GUIDE_FAB_SHOW_PX = 600;
 
-/** 本質レポートページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
+/** 本質の読み解きページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
 function PremiumReadingGuideScrollFab() {
   const [visible, setVisible] = useState(false);
 
@@ -436,12 +424,12 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
   }
 
   return (
-    <div className={styles.premiumIncludedBand} aria-label="本質レポートの説明">
+    <div className={styles.premiumIncludedBand} aria-label="本質の読み解きの説明">
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           01
         </span>
-        <p className={styles.premiumIntroOverline}>本質レポート</p>
+        <p className={styles.premiumIntroOverline}>本質の読み解き</p>
         <p className={styles.premiumIntroLead}>
           自分を無理に変えなくていい。<br />
           「自分の形」から、今の悩みを読み直すための土台です。
@@ -510,7 +498,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
             aria-current={active === 'consultation-room' ? 'location' : undefined}
           >
             このレポートには、相談返書&nbsp;1件が付いています。<br />
-            本質レポートをもとに、今の相談を整理する。
+            本質の読み解きをもとに、今の相談を整理する。
           </a>
         </div>
       )}
@@ -625,7 +613,6 @@ function PremiumHero({
   birthDate: string;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
-  const typeEnLabel = DTR_TYPE_EN[stemIdx] ?? '';
   const nick = nickname.trim();
   const blueprintName = nick || 'You';
 
@@ -644,7 +631,7 @@ function PremiumHero({
             <div className={styles.heroPosterBadgeRow}>
               <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipSaved}`}>
                 <HeroIconCheck className={styles.heroBadgeIcon} />
-                保存済み
+                {LABEL_STATE_OWNED}
               </span>
               <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
                 <HeroIconShield className={styles.heroBadgeIcon} />
@@ -655,7 +642,7 @@ function PremiumHero({
             <div className={styles.heroPosterBrandRow}>
               <span className={styles.heroPosterBrandWord}>M55</span>
               <span className={styles.heroPosterBrandSep} aria-hidden>|</span>
-              <span className={styles.heroPosterTypeMono}>Full Report</span>
+              <span className={styles.heroPosterTypeMono}>{LABEL_PRODUCT_JP}</span>
             </div>
 
             <h1 className={styles.heroBlueprintTitle}>
@@ -672,8 +659,8 @@ function PremiumHero({
 
             <div className={styles.heroTypeCard}>
               <div className={styles.heroTypeCardRow}>
-                <span className={styles.heroTypeCardLabel}>表現傾向 /</span>
-                <span className={styles.heroTypeCardType}>{typeEnLabel}</span>
+                <span className={styles.heroTypeCardLabel}>資質 /</span>
+                <span className={styles.heroTypeCardType}>{stem.publicTitle}</span>
               </div>
               <p className={styles.heroTypeCardEssence}>{stem.displayOneLine}</p>
             </div>
@@ -835,7 +822,7 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
   const ge = clampTensionBias(viz.tension.guardExpress);
 
   return (
-    <div className={styles.idDesignShell} aria-label="力の出方を分解する（本質レポート）">
+    <div className={styles.idDesignShell} aria-label="力の出方を分解する（本質の読み解き）">
       <p className={styles.idDesignOverline}>深読み · 力の出方を分解する</p>
 
       <div className={styles.idDesignBlock}>
@@ -1224,7 +1211,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
   ];
 
   return (
-    <div className={styles.idDesignShell} aria-label="安定条件パネル（本質レポート）">
+    <div className={styles.idDesignShell} aria-label="安定条件パネル（本質の読み解き）">
       <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>安定しやすい4つの条件</h3>
@@ -2051,7 +2038,7 @@ function PracticalGuidanceSection({
 
 /* ─────────────────────────────────────────────────────────────────────────────
    D2. Work Guide Cards — S7 本文の4ブロックを読みやすい4枚カードで先出し。
-   PracticalGuidanceSection（日常要約版）の手前に置き、本質レポートの具体本文へ誘導。
+   PracticalGuidanceSection（日常要約版）の手前に置き、本質の読み解きの具体本文へ誘導。
    ───────────────────────────────────────────────────────────────────────────── */
 
 const WORK_CARD_META: {
@@ -2217,9 +2204,9 @@ function ContinuousSupport({ readerDisplayName }: { readerDisplayName: string })
 function groundingDisplayReportTitle(engineTitle: string): string {
   const t = engineTitle.trim();
   const m = /^Entry Report — (.+?)さんの取り扱い説明書$/.exec(t);
-  if (m) return `本質レポート — ${m[1]}さんの形を読み直す`;
+  if (m) return `${LABEL_PRODUCT_JP} — ${m[1]}さんの形を読み直す`;
   return t
-    .replace(/^Entry Report — /, '本質レポート — ')
+    .replace(/^Entry Report — /, `${LABEL_PRODUCT_JP} — `)
     .replace(/取り扱い説明書/g, '形を読み直す');
 }
 
@@ -2246,8 +2233,8 @@ function GroundingPanel({
   const nick = readerDisplayName.trim();
   const mapLead =
     nick.length > 0
-      ? `このレポートは、${nick}さん個人の傾向を整理した本質レポートです。`
-      : 'このレポートは、個人の傾向を整理した本質レポートです。';
+      ? `このレポートは、${nick}さん個人の傾向を整理した本質の読み解きです。`
+      : 'このレポートは、個人の傾向を整理した本質の読み解きです。';
   const groundingNoteText =
     nick.length > 0
       ? `一般的なアドバイスではなく、${nick}さん向けのこの解析内容に基づいた相談返書を作成します。`
@@ -2265,7 +2252,7 @@ function GroundingPanel({
           <GroundingDocIcon />
           <div className={styles.groundingHeaderText}>
             <h3 className={styles.groundingTitle}>
-              本質レポートをもとに、
+              本質の読み解きをもとに、
               <br />
               今の相談を整理する。
             </h3>
@@ -2406,7 +2393,7 @@ export default function DtrFullReader({
         <section
           id="dtr-core-analysis"
           className={`${styles.savedReportShell} ${styles.coreAnalysisScrollAnchor}`}
-          aria-label="本質レポート"
+          aria-label="本質の読み解き"
         >
           <div className={styles.savedWideStack}>
             {preGridSections.map((section) => (

@@ -23,6 +23,8 @@ export default async function DtrPage() {
     access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
   const snapshotReady = access.kind === 'authenticated' ? access.snapshotReady : false;
   const shelfCta = access.shelfCta;
+  const ownedShelfDisplay =
+    access.kind === 'authenticated' ? access.ownedShelfDisplay : null;
 
   return (
     <>
@@ -32,6 +34,7 @@ export default async function DtrPage() {
           ownershipState={ownershipState}
           snapshotReady={snapshotReady}
           shelfCta={shelfCta}
+          ownedShelfDisplay={ownedShelfDisplay}
         />
       </main>
       <PublicFooter />

@@ -8,7 +8,9 @@ import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
 
-export const metadata = { title: "Entry Report | M55" };
+import { LABEL_PRODUCT_JP } from "../../../lib/m55/dtrProductLabels";
+
+export const metadata = { title: `${LABEL_PRODUCT_JP} | M55` };
 
 export default async function DtrCorePage() {
   const { userId } = await auth();

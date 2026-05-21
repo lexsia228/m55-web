@@ -386,7 +386,7 @@ export default async function DtrLpPage({
                   margin: 0,
                   lineHeight: 1.55,
                 }}>
-                  購入済みです。保存版レポートの準備状況を確認できます（再購入は不要です）。
+                  購入済みです。保存版の準備状況を確認できます（再購入は不要です）。
                 </p>
                 <Link
                   href={DTR_OWNED_RECOVERY_PROCESSING_PATH}

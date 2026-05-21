@@ -3,7 +3,7 @@
  * 購入・決済ロジックは持たず、表示・所有判定のキーだけを定義する。
  * 新商品: `DTR_PRODUCT_CATALOG` に 1 行追加し、`entitlementRightKey` と `kind` を設定。
  */
-import { LABEL_ENTRY_REPORT } from './myEntitlementLabels';
+import { LABEL_ENTRY_REPORT, LABEL_FORMAT_SAVED, LABEL_PRODUCT_JP } from './dtrProductLabels';
 
 export const DTR_ENTRY_REPORT_RIGHT_KEY = 'm55_p:core_origin' as const;
 
@@ -28,7 +28,7 @@ export const DTR_PRODUCT_CATALOG: DtrCatalogSlot[] = [
     kind: 'live',
     entitlementRightKey: DTR_ENTRY_REPORT_RIGHT_KEY,
     title: LABEL_ENTRY_REPORT,
-    subtitle: '本質の読み解き（保存版）',
+    subtitle: `${LABEL_PRODUCT_JP}（${LABEL_FORMAT_SAVED}）`,
     learnMoreHref: '/dtr/lp',
   },
   {

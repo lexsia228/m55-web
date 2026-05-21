@@ -9,6 +9,7 @@ import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from '../../../lib/m55/dtrShelfAcc
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 import { getDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
+import { LABEL_FORMAT_SAVED, LABEL_PRODUCT_JP } from '../../../lib/m55/dtrProductLabels';
 import styles from './processing.module.css';
 
 export const metadata = { title: 'レポート準備中 | M55' };
@@ -44,7 +45,7 @@ function ProcessingFallback({
   return (
     <main className={styles.page} data-testid="m55-dtr-processing-main">
       <div className={styles.inner}>
-        <p className={styles.eyebrow}>Entry Report</p>
+        <p className={styles.eyebrow}>{LABEL_PRODUCT_JP}</p>
         <h1 className={styles.title} data-testid="m55-dtr-processing-title">
           接続を確認できませんでした
         </h1>
@@ -107,9 +108,9 @@ export default async function DtrProcessingPage(props: {
     return (
       <main className={styles.page} data-testid="m55-dtr-processing-main">
         <div className={styles.inner}>
-          <p className={styles.eyebrow}>Entry Report</p>
+          <p className={styles.eyebrow}>{LABEL_PRODUCT_JP}</p>
           <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-            保存版レポートを確認しています
+            {LABEL_FORMAT_SAVED}を確認しています
           </h1>
           <p className={styles.desc} style={{ margin: '0 0 16px' }}>
             購入済みです。保存版の読み込み経路を再確認しています（再購入は不要です）。
@@ -176,7 +177,7 @@ export default async function DtrProcessingPage(props: {
   return (
     <main className={styles.page} data-testid="m55-dtr-processing-main">
       <div className={styles.inner}>
-        <p className={styles.eyebrow}>Entry Report</p>
+        <p className={styles.eyebrow}>{LABEL_PRODUCT_JP}</p>
         <h1 className={styles.title} data-testid="m55-dtr-processing-title">
           レポートを準備しています
         </h1>
