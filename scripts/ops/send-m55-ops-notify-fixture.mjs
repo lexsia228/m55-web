@@ -7,6 +7,8 @@
  *   M55_OPS_NOTIFY_ENABLED=true|1|yes (local process only)
  *   M55_OPS_SLACK_WEBHOOK_URL=https://hooks.slack.com/...
  *
+ * --diagnose: reason labels only — never calls notifyM55Ops or network.
+ *
  * Run: node scripts/ops/send-m55-ops-notify-fixture.mjs
  * Selfcheck: node scripts/ops/send-m55-ops-notify-fixture.selfcheck.mjs
  */
@@ -41,6 +43,67 @@ function isNotifyEnabledFromEnv(env) {
 function hasValidWebhookFromEnv(env) {
   const url = String(env.M55_OPS_SLACK_WEBHOOK_URL ?? '').trim();
   return url.startsWith('https://hooks.slack.com/');
+}
+
+function webhookPresence(env) {
+  const url = String(env.M55_OPS_SLACK_WEBHOOK_URL ?? '').trim();
+  if (!url) return 'missing';
+  if (!url.startsWith('https://hooks.slack.com/')) return 'invalid_prefix';
+  return 'valid';
+}
+
+/**
+ * @param {string[]} argv — must not include --diagnose
+ * @param {NodeJS.ProcessEnv} env
+ * @param {boolean} payloadValid
+ * @returns {string[]}
+ */
+export function buildDiagnoseLabels(argv, env, payloadValid) {
+  const lines = [];
+  const sendFlag = argv.includes('--send');
+
+  if (!sendFlag) {
+    lines.push('diagnose:mode:dry_run');
+    lines.push('diagnose:validation:missing_send_flag');
+  } else {
+    lines.push('diagnose:mode:send_requested');
+
+    if (env.M55_OPS_FIXTURE_CONFIRM !== FIXTURE_CONFIRM_VALUE) {
+      lines.push('diagnose:validation:missing_confirm');
+    }
+    if (!isNotifyEnabledFromEnv(env)) {
+      lines.push('diagnose:validation:missing_enabled');
+    }
+
+    const webhook = webhookPresence(env);
+    if (webhook === 'missing') {
+      lines.push('diagnose:validation:missing_webhook');
+    } else if (webhook === 'invalid_prefix') {
+      lines.push('diagnose:validation:invalid_webhook_prefix');
+    }
+
+    if (
+      env.M55_OPS_FIXTURE_CONFIRM === FIXTURE_CONFIRM_VALUE &&
+      isNotifyEnabledFromEnv(env) &&
+      hasValidWebhookFromEnv(env)
+    ) {
+      lines.push('diagnose:validation:send_conditions_satisfied');
+    }
+  }
+
+  lines.push(payloadValid ? 'diagnose:payload:valid' : 'diagnose:payload:invalid');
+  return lines;
+}
+
+/** @param {string[]} labels */
+export function printDiagnoseLabels(labels) {
+  for (const label of labels) {
+    if (!/^diagnose:(mode|validation|payload):[a-z0-9_]+$/.test(label)) {
+      console.log('diagnose:payload:invalid');
+      return;
+    }
+    console.log(label);
+  }
 }
 
 /**
@@ -85,8 +148,36 @@ async function loadNotifyModule() {
   return import('../../lib/m55/ops/m55OpsNotify.ts');
 }
 
+/**
+ * @param {string[]} argvWithoutDiagnose
+ */
+async function runDiagnose(argvWithoutDiagnose) {
+  const payload = buildFixturePayload();
+  let payloadValid = false;
+
+  try {
+    const notifyMod = await loadNotifyModule();
+    const validated = notifyMod.validateM55OpsNotifyEvent(payload);
+    payloadValid = validated.ok === true;
+  } catch {
+    payloadValid = false;
+  }
+
+  const labels = buildDiagnoseLabels(argvWithoutDiagnose, process.env, payloadValid);
+  printDiagnoseLabels(labels);
+  process.exit(0);
+}
+
 async function main() {
   const argv = process.argv.slice(2);
+  const diagnoseFlag = argv.includes('--diagnose');
+  const argvWithoutDiagnose = argv.filter((a) => a !== '--diagnose');
+
+  if (diagnoseFlag) {
+    await runDiagnose(argvWithoutDiagnose);
+    return;
+  }
+
   const payload = buildFixturePayload();
 
   let notifyMod;
@@ -104,7 +195,7 @@ async function main() {
     process.exit(1);
   }
 
-  const mode = evaluateFixtureMode(argv, process.env);
+  const mode = evaluateFixtureMode(argvWithoutDiagnose, process.env);
   if (mode.status !== 'send') {
     printStatus(mode.status);
     process.exit(0);
