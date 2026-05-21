@@ -1,38 +1,24 @@
--- CORE-DTR-SOFT-HIDE-REPURCHASE-B1 — Staging preflight (m55-soul-shadow) READ ONLY
+-- CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-A — Staging preflight (m55-soul-shadow) READ ONLY
 -- Migration: supabase/migrations/20260615000000_dtr_report_snapshots_soft_hide_repurchase.sql
+-- Axis: user_id + product_id + visible uniqueness only (no product_label).
 -- Forbidden: SELECT * ; DML ; raw user_id / email / session / Stripe IDs / secrets in ticket paste
 -- target_safe_label: m55-soul-shadow
 -- production_used: no
--- m55-soul-core_used: no
--- Apply migration: NO (B2 gate only after this preflight GREEN)
+-- Apply migration: NO
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- A. Table presence
+-- Core metrics (always safe — no optional column refs on dtr_report_snapshots)
 -- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_dtr_report_snapshots_table_exists' AS metric,
-       count(*)::bigint AS value
-  FROM information_schema.tables
- WHERE table_schema = 'public'
-   AND table_name = 'dtr_report_snapshots';
-
--- ═══════════════════════════════════════════════════════════════════════════
--- B. Row counts (aggregates only)
--- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_dtr_report_snapshots_total' AS metric,
+SELECT 'total_snapshot_rows' AS metric,
        count(*)::bigint AS value
   FROM public.dtr_report_snapshots;
 
-SELECT 'PREFLIGHT_dtr_report_snapshots_dtr_core_product' AS metric,
+SELECT 'dtr_core_snapshot_rows' AS metric,
        count(*)::bigint AS value
   FROM public.dtr_report_snapshots
  WHERE product_id = 'DTR_CORE_STATIC_V1';
 
--- ═══════════════════════════════════════════════════════════════════════════
--- C. Duplicate pairs (STOP if value > 0)
--- Pre-migration: user_hidden_at absent — legacy count equals visible count.
--- Post-migration (B2-S): re-run visible_duplicate with user_hidden_at IS NULL.
--- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_legacy_duplicate_user_product_pairs' AS metric,
+SELECT 'legacy_duplicate_user_product_pairs' AS metric,
        count(*)::bigint AS value
   FROM (
     SELECT user_id, product_id
@@ -41,51 +27,45 @@ SELECT 'PREFLIGHT_legacy_duplicate_user_product_pairs' AS metric,
     HAVING count(*) > 1
   ) dup;
 
--- ═══════════════════════════════════════════════════════════════════════════
--- D. Constraint / index discovery (for migration DROP + partial unique)
--- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_unique_constraints' AS metric,
-       c.conname AS constraint_name,
-       pg_get_constraintdef(c.oid) AS definition
+SELECT 'unique_constraint_or_index_detected' AS metric,
+       count(*)::bigint AS value
   FROM pg_constraint c
   JOIN pg_class t ON c.conrelid = t.oid
   JOIN pg_namespace n ON t.relnamespace = n.oid
  WHERE n.nspname = 'public'
    AND t.relname = 'dtr_report_snapshots'
-   AND c.contype = 'u';
+   AND c.contype = 'u'
+   AND pg_get_constraintdef(c.oid) ~ '\(user_id, product_id\)';
 
-SELECT 'PREFLIGHT_indexes' AS metric,
-       i.indexname AS index_name,
-       i.indexdef AS definition
-  FROM pg_indexes i
- WHERE i.schemaname = 'public'
-   AND i.tablename = 'dtr_report_snapshots';
-
--- ═══════════════════════════════════════════════════════════════════════════
--- E. Soft-hide columns (expect 0 before apply; 3 after apply in B2-S)
--- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_user_hidden_at_exists' AS metric,
+SELECT 'user_hidden_at_exists' AS metric,
        count(*)::bigint AS value
   FROM information_schema.columns
  WHERE table_schema = 'public'
    AND table_name = 'dtr_report_snapshots'
    AND column_name = 'user_hidden_at';
 
-SELECT 'PREFLIGHT_user_hidden_source_exists' AS metric,
+SELECT 'user_hidden_source_exists' AS metric,
        count(*)::bigint AS value
   FROM information_schema.columns
  WHERE table_schema = 'public'
    AND table_name = 'dtr_report_snapshots'
    AND column_name = 'user_hidden_source';
 
-SELECT 'PREFLIGHT_user_hidden_reason_exists' AS metric,
+SELECT 'user_hidden_reason_exists' AS metric,
        count(*)::bigint AS value
   FROM information_schema.columns
  WHERE table_schema = 'public'
    AND table_name = 'dtr_report_snapshots'
    AND column_name = 'user_hidden_reason';
 
-SELECT 'PREFLIGHT_partial_unique_index_exists' AS metric,
+SELECT 'product_label_exists' AS metric,
+       count(*)::bigint AS value
+  FROM information_schema.columns
+ WHERE table_schema = 'public'
+   AND table_name = 'dtr_report_snapshots'
+   AND column_name = 'product_label';
+
+SELECT 'partial_unique_index_exists' AS metric,
        count(*)::bigint AS value
   FROM pg_indexes
  WHERE schemaname = 'public'
@@ -93,38 +73,65 @@ SELECT 'PREFLIGHT_partial_unique_index_exists' AS metric,
    AND indexname = 'dtr_report_snapshots_one_visible_per_user_product_uq';
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- F. Engine v2 columns (legacy NULL counts — no PII)
+-- Optional-column counts (dynamic SQL — no parse-time ref to missing columns)
+-- value = -1 means column absent (not an error)
 -- ═══════════════════════════════════════════════════════════════════════════
-SELECT 'PREFLIGHT_engine_context_json_exists' AS metric,
-       count(*)::bigint AS value
-  FROM information_schema.columns
- WHERE table_schema = 'public'
-   AND table_name = 'dtr_report_snapshots'
-   AND column_name = 'engine_context_json';
+CREATE TEMP TABLE IF NOT EXISTS _soft_hide_preflight_engine (
+  metric text PRIMARY KEY,
+  value bigint NOT NULL
+);
 
-SELECT 'PREFLIGHT_nonnull_engine_context_json_count' AS metric,
-       count(*)::bigint AS value
-  FROM public.dtr_report_snapshots
- WHERE engine_context_json IS NOT NULL;
+DO $$
+DECLARE
+  v_exists boolean;
+  v_count bigint;
+BEGIN
+  SELECT EXISTS (
+    SELECT 1
+      FROM information_schema.columns
+     WHERE table_schema = 'public'
+       AND table_name = 'dtr_report_snapshots'
+       AND column_name = 'engine_context_json'
+  ) INTO v_exists;
 
-SELECT 'PREFLIGHT_nonnull_engine_version_count' AS metric,
-       count(*)::bigint AS value
-  FROM public.dtr_report_snapshots
- WHERE engine_version IS NOT NULL;
+  IF v_exists THEN
+    EXECUTE 'SELECT count(*)::bigint FROM public.dtr_report_snapshots WHERE engine_context_json IS NOT NULL'
+      INTO v_count;
+    INSERT INTO _soft_hide_preflight_engine VALUES ('engine_context_json_nonnull_count', v_count);
+    EXECUTE 'SELECT count(*)::bigint FROM public.dtr_report_snapshots WHERE engine_context_json IS NULL'
+      INTO v_count;
+    INSERT INTO _soft_hide_preflight_engine VALUES ('engine_context_json_null_count', v_count);
+  ELSE
+    INSERT INTO _soft_hide_preflight_engine VALUES
+      ('engine_context_json_nonnull_count', -1),
+      ('engine_context_json_null_count', -1);
+  END IF;
 
-SELECT 'PREFLIGHT_legacy_engine_context_json_null_count' AS metric,
-       count(*)::bigint AS value
-  FROM public.dtr_report_snapshots
- WHERE engine_context_json IS NULL;
+  SELECT EXISTS (
+    SELECT 1
+      FROM information_schema.columns
+     WHERE table_schema = 'public'
+       AND table_name = 'dtr_report_snapshots'
+       AND column_name = 'engine_version'
+  ) INTO v_exists;
 
-SELECT 'PREFLIGHT_legacy_engine_version_null_count' AS metric,
-       count(*)::bigint AS value
-  FROM public.dtr_report_snapshots
- WHERE engine_version IS NULL;
+  IF v_exists THEN
+    EXECUTE 'SELECT count(*)::bigint FROM public.dtr_report_snapshots WHERE engine_version IS NOT NULL'
+      INTO v_count;
+    INSERT INTO _soft_hide_preflight_engine VALUES ('engine_version_nonnull_count', v_count);
+    EXECUTE 'SELECT count(*)::bigint FROM public.dtr_report_snapshots WHERE engine_version IS NULL'
+      INTO v_count;
+    INSERT INTO _soft_hide_preflight_engine VALUES ('engine_version_null_count', v_count);
+  ELSE
+    INSERT INTO _soft_hide_preflight_engine VALUES
+      ('engine_version_nonnull_count', -1),
+      ('engine_version_null_count', -1);
+  END IF;
+END $$;
 
--- ═══════════════════════════════════════════════════════════════════════════
--- PASS heuristics (B2 apply gate):
---   PREFLIGHT_dtr_report_snapshots_table_exists = 1
---   PREFLIGHT_legacy_duplicate_user_product_pairs = 0
---   PREFLIGHT_unique_constraints shows user_id+product_id (note conname for ticket)
--- STOP if legacy_duplicate > 0 OR constraint name unknown in migration comment
+SELECT metric, value FROM _soft_hide_preflight_engine ORDER BY metric;
+
+-- PASS (B2 shadow preflight):
+--   legacy_duplicate_user_product_pairs = 0
+--   unique_constraint_or_index_detected >= 1 (pre-migration)
+-- STOP: legacy_duplicate > 0
