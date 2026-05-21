@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-B Primitive/adaptive preflight recorded
+
+Status: **`work/home-cluster` @ `1e212e6`+。** **Classification:** **SQL fix / no-apply**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_B_PREFLIGHT_SQL_PRIMITIVE_ADAPTIVE_GREEN_NO_DB_WRITE`**。** **Fix:** all table aggregates via dynamic SQL；forbid bare `engine_context`；canonical `engine_context_json`/`engine_version` only after exists check。** **Shadow 42703 engine_context:** acknowledged；no schema patch。** **Next:** **B2** Human shadow preflight retry。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-B-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_B_PREFLIGHT_SQL_PRIMITIVE_ADAPTIVE_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-A Preflight SQL fix recorded
 
 Status: **`work/home-cluster` @ `2de3faa`+。** **Classification:** **SQL fix / no-apply**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_A_PREFLIGHT_SQL_GREEN_NO_DB_WRITE`**。** **Fix:** remove `product_label` table dependency；`product_id` axis；dynamic engine counts。** **Shadow 42703:** acknowledged；Production untouched。** **Next:** **B2** Human shadow preflight retry。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-FIX-A-001`**。
