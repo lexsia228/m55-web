@@ -1,0 +1,373 @@
+{
+  "schema": "m55-engine-verify-matrix-v1",
+  "generatedAt": "2026-05-21T11:02:56.037Z",
+  "dateTag": "20260521",
+  "phase": "5Z-I-V-ENGINE-VERIFY-A-EXEC",
+  "planningCommit": "b93a776",
+  "verdict": "GREEN",
+  "p0Failures": [],
+  "unitTests": {
+    "total": 28,
+    "pass": 28,
+    "fail": 0,
+    "suites": [
+      "pipeline.golden.test.ts",
+      "fulfillmentWrite.test.ts",
+      "profileCheckout.test.ts",
+      "storedEnvelopeRead.test.ts"
+    ]
+  },
+  "tsc": { "ok": true },
+  "calendarVerify": {
+    "ok": true,
+    "summary": "M55_CALENDAR_BUNDLE_VERIFY_OK"
+  },
+  "gxCases": [
+    {
+      "caseId": "GX-01",
+      "status": "pass",
+      "stemLaneIndex": 9,
+      "stemChar": "癸",
+      "publicTitle": "アナリスト",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=yushui"
+    },
+    {
+      "caseId": "GX-02a",
+      "status": "pass",
+      "stemLaneIndex": 9,
+      "stemChar": "癸",
+      "publicTitle": "アナリスト",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=dongzhi"
+    },
+    {
+      "caseId": "GX-02b",
+      "status": "pass",
+      "stemLaneIndex": 0,
+      "stemChar": "甲",
+      "publicTitle": "プレジデント",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=dahan"
+    },
+    {
+      "caseId": "GX-02c",
+      "status": "pass",
+      "stemLaneIndex": 1,
+      "stemChar": "乙",
+      "publicTitle": "プランナー",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=lichun"
+    },
+    {
+      "caseId": "GX-03a",
+      "status": "pass",
+      "stemLaneIndex": 6,
+      "stemChar": "庚",
+      "publicTitle": "エグゼキューター",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=dongzhi"
+    },
+    {
+      "caseId": "GX-03b",
+      "status": "pass",
+      "stemLaneIndex": 6,
+      "stemChar": "庚",
+      "publicTitle": "エグゼキューター",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=lichun"
+    },
+    {
+      "caseId": "GX-04a",
+      "status": "pass",
+      "stemLaneIndex": 9,
+      "stemChar": "癸",
+      "publicTitle": "アナリスト",
+      "calculationMode": "unknown_time_noon",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=yushui"
+    },
+    {
+      "caseId": "GX-04b",
+      "status": "pass",
+      "stemLaneIndex": 3,
+      "stemChar": "丁",
+      "publicTitle": "クリエイター",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=mangzhong"
+    },
+    {
+      "caseId": "GX-04c",
+      "status": "pass",
+      "stemLaneIndex": 0,
+      "stemChar": "甲",
+      "publicTitle": "プレジデント",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=yushui"
+    },
+    {
+      "caseId": "GX-05a",
+      "status": "pass",
+      "stemLaneIndex": 3,
+      "stemChar": "丁",
+      "publicTitle": "クリエイター",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=mangzhong"
+    },
+    {
+      "caseId": "GX-05b",
+      "status": "pass",
+      "stemLaneIndex": 3,
+      "stemChar": "丁",
+      "publicTitle": "クリエイター",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=mangzhong"
+    },
+    {
+      "caseId": "GX-06",
+      "status": "pass",
+      "stemLaneIndex": 4,
+      "stemChar": "戊",
+      "publicTitle": "マネージャー",
+      "calculationMode": "full",
+      "boundaryKeys": [
+        "lunarYearKey",
+        "lunarMonthKey",
+        "lunarDayKey",
+        "solarYearKey",
+        "lunarTableSource",
+        "solarTableSource",
+        "correctionVersion",
+        "tzSource",
+        "timezone",
+        "solarTermKey",
+        "solarTermBoundaryInstant",
+        "dayBoundaryRule"
+      ],
+      "notes": "solarTermKey=mangzhong"
+    },
+    {
+      "caseId": "GX-07",
+      "status": "error_expected",
+      "errorCode": "M55_COMPOSITE_INVALID_BIRTHDATE",
+      "notes": "fail-closed ok"
+    },
+    {
+      "caseId": "GX-08",
+      "status": "error_expected",
+      "errorCode": "M55_COMPOSITE_DATE_OUT_OF_RANGE",
+      "notes": "fail-closed ok"
+    },
+    {
+      "caseId": "GX-09",
+      "status": "error_expected",
+      "errorCode": "M55_COMPOSITE_DATE_OUT_OF_RANGE",
+      "notes": "fail-closed ok"
+    },
+    {
+      "caseId": "GX-10",
+      "status": "pass",
+      "stemLaneIndex": 3,
+      "stemChar": "丁",
+      "notes": "stored envelope unchanged (reference equality)"
+    },
+    {
+      "caseId": "GX-11",
+      "status": "pass",
+      "stemLaneIndex": 9,
+      "stemChar": "癸",
+      "publicTitle": "Entry Report — goldenさんの取り扱い説明書",
+      "notes": "v2 fulfillment snapshot builder (INSERT contract — no DB)"
+    }
+  ],
+  "staticChecks": [
+    {
+      "id": "R1_no_ssr_runDtrEngine",
+      "status": "pass",
+      "detail": "/dtr/core must not import runDtrEngine"
+    },
+    {
+      "id": "R2_resolveStoredEnvelopeRead",
+      "status": "pass",
+      "detail": "stored envelope read path"
+    },
+    {
+      "id": "F3_insert_only",
+      "status": "pass",
+      "detail": "dtrDraftDb INSERT-only on snapshots"
+    },
+    {
+      "id": "P5_checkout_block",
+      "status": "pass",
+      "detail": "v2 incomplete profile blocks checkout"
+    },
+    {
+      "id": "F1_flag_default_off",
+      "status": "pass",
+      "detail": "fulfillment flag default off"
+    },
+    {
+      "id": "P5_complete_profile_ok",
+      "status": "pass",
+      "detail": "v2 complete profile passes gate"
+    }
+  ],
+  "commands": {
+    "calendar": "node scripts/calendar/verify-m55-calendar-bundle.mjs",
+    "tests": "npx tsx --test lib/m55/compositeStem/pipeline.golden.test.ts lib/m55/compositeStem/fulfillmentWrite.test.ts lib/m55/compositeStem/profileCheckout.test.ts lib/m55/compositeStem/storedEnvelopeRead.test.ts",
+    "tsc": "npx tsc --noEmit"
+  }
+}
