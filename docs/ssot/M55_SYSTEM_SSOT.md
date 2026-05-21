@@ -1,3 +1,19 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A-R Delete wording reinforcement recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / docs-only / no-mutation**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_A_R_DELETE_WORDING_GREEN_NO_MUTATION`**。** **Human:** UI = **削除**（not 非表示）；dialog + toast locked §B1.3；user-irreversible；internal soft hide + evidence retained；再購入で作り直し。** **No** code/DB/checkout/deploy/env/VERIFY-C。** **Next:** **CORE-DTR-SOFT-HIDE-REPURCHASE-A-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_A_USER_VISIBLE_HIDE_REPURCHASE_SPEC_PLANNING_2026-05-21.md`（§B1）
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A User hide + repurchase spec planning recorded
+
+Status: **`work/home-cluster`。** **Classification:** **Category 1 / docs-only / no-mutation**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_A_PLANNING_GREEN_NO_MUTATION`**。** **Policy:** user **削除**（A-R）= `user_hidden_at` soft hide；**no** hard delete；**visible** snapshot blocks repurchase；**hidden-only** allows new INSERT；entitlements/Stripe retained。** **Not** VERIFY-C；**not** v2 flag。** **Next:** **A-R** then **A-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-A-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_A_USER_VISIBLE_HIDE_REPURCHASE_SPEC_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-20 — Phase 5-6H-5Z-I-V-AS-B1-MONITOR-CADENCE Operational monitoring cadence continuation recorded
 
 Status: **`work/home-cluster`。** **Classification:** **Category 1 / cadence checkpoint / docs-only**。** **Prior:** **MONITOR-R5** GREEN；baseline stable。** **Decision:** resume **AS-B1-D4** counts-only cadence；no repair/deploy/env/Slack/DB write。** **Verdict:** **`OPERATIONAL_MONITORING_CADENCE_CONTINUATION_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260520-5Z-I-V-AS-B1-MONITOR-CADENCE-OPERATIONAL-MONITORING-CADENCE-CONTINUATION-001`**。** **Next:** **AS-B1-MONITOR**；**DIAG-E** only if Human GO。
