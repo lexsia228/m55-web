@@ -214,6 +214,14 @@ Status: **`work/home-cluster`。** **Classification:** **Category 1 / channel se
 
 ---
 
+## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-PLANNING Composite v2 Production deploy plan recorded
+
+Status: **`work/home-cluster` @ `21d5bb4`。** **Classification:** **docs-only planning / no deploy**。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_PLANNING_READY_FOR_EXECUTION_PENDING_HUMAN_GO`**。** **Preview-verified runtime SHA:** **`2564061`**。** **Route:** merge **`origin/main`** into **`work/home-cluster`** → FF **`main`** → **`git push origin main`** → Vercel Production **`m55-webv2.vercel.app`**。** **Flags:** v2 fulfillment write **off**；notify **unchanged**。** **CORE-DTR-VERIFY:** **HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PRODUCTION-PLANNING-001`**。** **Next:** **`ENGINE-DEPLOY-PRODUCTION-EXECUTION`**（Human GO required）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_PLANNING_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_PLAN_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-ENGINE-DEPLOY-PREVIEW-R Branch preview smoke recorded
 
 Status: **`work/home-cluster` @ `2564061`。** **Verdict:** **`COMPOSITE_ASTROLOGY_V2_DEPLOY_PREVIEW_R_GREEN`**。** **Preview alias:** **`m55-webv2-git-work-home-cluster-m55-official.vercel.app`** — target **preview** · Vercel **Ready** · GH check **success**。** **Logged-out smoke:** `/` `/core` `/dtr` `/dtr/lp` `/my` **200**；`/dtr/core` **307 → `/dtr/lp`**。** **not_run:** signed-in `/my` v2 fields；owned stored envelope。** **checkout:** **not executed**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-ENGINE-DEPLOY-PREVIEW-R-001`**。** **Next:** **ENGINE-DEPLOY-PRODUCTION-PLANNING**（Human GO required）。
