@@ -1,3 +1,19 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3-R Shadow apply result recorded
+
+Status: **m55-soul-shadow。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B3_SHADOW_APPLY_GREEN_NO_PRODUCTION`**。** **POST:** `user_hidden_*=1` · partial unique **1** · rows **2→2** · `user_hidden_at_nonnull=0` · duplicate **0**。** **Production:** **no**。** **Note:** shadow GREEN only；Production needs separate **C** + Human GO。** **Next:** **B3-R-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B3_R_SHADOW_APPLY_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3 Shadow apply execution packet
+
+Status: **Human GO `CORE-DTR-SOFT-HIDE-REPURCHASE-B3 go`。** **Target:** **m55-soul-shadow only**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B3_AGENT_NO_SHADOW_DB_ACCESS_EXECUTION_PACKET_READY`**。** **Script:** `scripts/sql/staging/m55_soft_hide_repurchase_b3_shadow_apply_verify_v1.sql`。** **Agent:** no shadow DB creds — **Human SQL Editor run required**。** **Production:** **no**。** **Next:** **B3-R** POSTFLIGHT attestation。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B3_SHADOW_APPLY_EXECUTION_PACKET_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-R Shadow preflight result recorded
 
 Status: **m55-soul-shadow @ `95ccc29`。** **Classification:** **Human attestation / docs-only**。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B2_SHADOW_PREFLIGHT_GREEN_NO_APPLY`**。** **Key:** `legacy_duplicate=0` · `unique_constraint=1` · `user_hidden_*=0`（pre-apply）· `dtr_core_rows=0`（limited fixture）。** **No** Production / apply / DB write。** **Next:** **SOFT-HIDE-REPURCHASE-B3** staging apply。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B2-R-001`**。
