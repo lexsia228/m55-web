@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D Hide API + /my UI implementation planning
+
+Status: **`work/home-cluster` @ `0d62c49`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_IMPLEMENTATION_PLANNING_GREEN_NO_CODE_NO_DEPLOY`**。** **Scope:** `/my` 削除 UI · A-R dialog copy · `POST /api/dtr/report-snapshot/hide` · `getVisibleDtrReportSnapshot` · checkout repurchase lane · tests · deploy split。** **DB:** Production schema @ C-D-R。** **Next:** **D-READ** code。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_HIDE_API_MY_UI_IMPLEMENTATION_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D-R Production apply result recorded
 
 Status: **m55-soul-core。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_R_PRODUCTION_APPLY_GREEN`**。** **Apply:** 1× Success · rows **6→6** · `user_hidden_*=1` · partial unique **1** · nonnull **0** · duplicate **0**。** **DB layer complete**；**code/deploy not in gate**。** **Next:** **C-D-R-COMMIT** → **SOFT-HIDE-D** hide API + `/my` planning。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D-R-001`**。
