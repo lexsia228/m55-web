@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1 Post soft-hide ops monitor
+
+Status: **m55-soul-core intended · app @ `0e9597c`。** **Verdict:** **`RELEASE_READINESS_OPS_MONITOR_R1_BLOCKED_PENDING_HUMAN_COUNTS_POLL`** — agent has no Production DB creds；live counts **pending**。** **SQL:** `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Next:** **OPS-MONITOR-R1-R** after Human poll。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-RELEASE-READINESS-RETURN Release readiness handoff
 
 Status: **Production @ `0e9597c` · line closed PARTIAL_READY。** **Handoff:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_READINESS_RETURN_NOT_A_BLOCKER`**。** **Not a release blocker**；caveats C1–C4 documented。** **HOLD:** 本番削除 · live checkout · VERIFY-C。** **Return:** release readiness / ops monitoring track。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-RELEASE-READINESS-RETURN-001`**。
