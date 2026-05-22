@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-FULFILL-R Fulfillment repurchase INSERT result
+
+Status: **`work/home-cluster` @ `285e963`+（code pending D-FULFILL-COMMIT）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_FULFILL_GREEN_NO_DEPLOY_NO_LIVE_CHECKOUT`**。** **Scope:** visible-only dedupe · hidden-only INSERT · wallet relink · included reply idempotent · tests **23/23**。** **Not in gate:** live checkout · deploy。** **Next:** **D-FULFILL-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-FULFILL-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_FULFILL_R_REPURCHASE_INSERT_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-CHECKOUT-R Checkout repurchase lane result
 
 Status: **`work/home-cluster` @ `750d7c8`+（code pending D-CHECKOUT-COMMIT）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_CHECKOUT_GREEN_NO_DEPLOY_NO_LIVE_CHECKOUT`**。** **Scope:** `resolveDtrCoreCheckoutSnapshotGate` · visible→409 · hidden-only→allow · skip `fulfillment_pending` · logs repurchase_lane_* · tests **17/17**。** **Not in gate:** live checkout · fulfillment · deploy。** **Next:** **D-CHECKOUT-COMMIT** → **D-FULFILL**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-CHECKOUT-R-001`**。

@@ -140,7 +140,8 @@ export type UpsertDtrReportSnapshotAtFulfillmentResult =
   | { ok: false; reason: string };
 
 /**
- * Build immutable snapshot at fulfillment. INSERT-only for new rows; existing rows are not updated.
+ * Build immutable snapshot at fulfillment. INSERT-only for new visible rows.
+ * Hidden-only prior rows do not block INSERT (soft-hide repurchase).
  * v2 columns written only when M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED=true and pipeline succeeds.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
@@ -149,9 +150,20 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
-  const existing = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
-  if (existing) {
-    return { ok: true, snapshotId: existing.reportInstanceId };
+  const existingVisible = await getVisibleDtrReportSnapshot(params.userId, params.productId);
+  if (existingVisible) {
+    return { ok: true, snapshotId: existingVisible.reportInstanceId };
+  }
+
+  const hiddenOnlyPrior = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
+  if (hiddenOnlyPrior) {
+    console.info(
+      '[dtrDraftDb]',
+      JSON.stringify({
+        event: 'dtr_snapshot_repurchase_fulfillment_insert',
+        note: 'hidden-only prior row(s); inserting new visible snapshot',
+      }),
+    );
   }
 
   const draft = await getLatestDraftForUser(params.userId);
@@ -223,7 +235,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 
     if (error) {
       if (error.code === '23505') {
-        const reread = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
+        const reread = await getVisibleDtrReportSnapshot(params.userId, params.productId);
         if (reread) return { ok: true, snapshotId: reread.reportInstanceId };
       }
       const e = error as { code?: string; message?: string; details?: string; hint?: string };
@@ -235,7 +247,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     let snapshotId: string | undefined =
       insertData?.id != null ? String((insertData as { id: unknown }).id) : undefined;
     if (!snapshotId) {
-      const reread = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
+      const reread = await getVisibleDtrReportSnapshot(params.userId, params.productId);
       snapshotId = reread?.reportInstanceId;
     }
     if (!snapshotId) {

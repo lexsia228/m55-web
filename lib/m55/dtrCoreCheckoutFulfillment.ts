@@ -162,6 +162,8 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         );
         notifyM55OpsFireAndForget(m55OpsEventSnapshotSkip(snap.reason));
       } else {
+        // SSOT G4: link active wallet to new visible snapshot (first purchase or repurchase after hide).
+        // Repurchase: wallet may still reference hidden report_instance_id — relink without second included grant.
         const { data: linkRows, error: linkErr } = await db
           .from('reply_ticket_wallets')
           .update({
@@ -170,7 +172,6 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
           })
           .eq('user_id', params.expectedUserId)
           .eq('status', 'active')
-          .is('report_instance_id', null)
           .select('id');
 
         if (linkErr) {

@@ -23,12 +23,16 @@ describe('getVisibleDtrReportSnapshot read path', () => {
     assert.ok(src.includes('return getVisibleDtrReportSnapshot(userId, productId)'));
   });
 
-  it('fulfillment dedupe uses including-hidden helper (not visible-only)', () => {
+  it('fulfillment dedupe uses visible-only; hidden-only allows INSERT', () => {
     const src = readFileSync(DTR_DRAFT_DB, 'utf8');
     assert.ok(src.includes('getLatestDtrReportSnapshotIncludingHidden'));
     const upsertBlock = src.slice(src.indexOf('upsertDtrReportSnapshotAtFulfillment'));
-    assert.ok(upsertBlock.includes('getLatestDtrReportSnapshotIncludingHidden'));
-    assert.equal(upsertBlock.includes('getVisibleDtrReportSnapshot(params.userId'), false);
+    assert.ok(upsertBlock.includes('getVisibleDtrReportSnapshot'));
+    assert.ok(upsertBlock.includes('hiddenOnlyPrior'));
+    assert.equal(
+      upsertBlock.includes('getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);\n  if (existing)'),
+      false,
+    );
   });
 
   it('no hide UPDATE or hard DELETE in dtrDraftDb', () => {
