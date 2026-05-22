@@ -17,13 +17,23 @@ export default function HomePage() {
 
       <section style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 12, padding: 16, margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px" }}>商品</h2>
-        <p style={{ margin: "0 0 6px" }}><strong>DTR Core Static V1</strong></p>
+        <p style={{ margin: "0 0 6px" }}><strong>本質の読み解き</strong>（保存版レポート）</p>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>価格：<strong>¥1,000（税込）</strong></li>
           <li>提供：決済完了後に閲覧可能（物理配送なし）</li>
         </ul>
         <p style={{ margin: "12px 0 0" }}>
-          <Link href="/dtr/lp">商品ページへ（/dtr/lp）</Link>
+          <Link href="/dtr/lp">商品ページ・購入はこちら</Link>
+        </p>
+      </section>
+
+      <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>無料で試す</h2>
+        <p style={{ margin: "0 0 8px" }}>
+          プロフィール保存後、<Link href="/core">/core</Link> で無料の見取り図（傾向の輪郭）を読めます。
+        </p>
+        <p style={{ margin: 0, fontSize: 13, opacity: 0.85 }}>
+          保存版は章立てで読み返せる有料レポートです。詳細は上の商品ページからご確認ください。
         </p>
       </section>
 

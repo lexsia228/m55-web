@@ -160,7 +160,7 @@ function EntryReportCard({
               </div>
               {stem && (
                 <div className={styles.cardMetaItem}>
-                  <span className={styles.cardMetaLabel}>タイプ</span>
+                  <span className={styles.cardMetaLabel}>資質</span>
                   <span className={styles.cardMetaValue}>{stem.publicTitle}</span>
                 </div>
               )}

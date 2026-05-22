@@ -8,6 +8,7 @@ import type { CoreResult } from '../../lib/m55/coreResult/types';
 import CoreAiChatExplainerSection from './CoreAiChatExplainerSection';
 import CoreAlignFlowSection from './CoreAlignFlowSection';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
+import CoreFreeSavedBoundarySection from './CoreFreeSavedBoundarySection';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreHeroSection from './CoreHeroSection';
 import CoreHowM55ReadsSection from './CoreHowM55ReadsSection';
@@ -79,6 +80,7 @@ export default function CoreEssencePanel() {
     <div className={CoreExperienceStyles.page}>
       <CoreScrollReveal />
       <CoreHeroSection result={result} nickname={nickname} />
+      <CoreFreeSavedBoundarySection />
       <CoreRadarSection result={result} nickname={nickname} />
       <CoreHowM55ReadsSection nickname={nickname} />
       <CoreTendencyLoadSection result={result} />

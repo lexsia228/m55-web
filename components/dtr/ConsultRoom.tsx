@@ -535,6 +535,9 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
       {!isReadOnly && (
         <div className={styles.composeColumn}>
+          <p className={styles.composeGroundingHint}>
+            相談返書は、購入した保存版レポートの章に沿って深掘りするためのものです。別テーマの質問や、レポートと関係のない相談にはお答えできません。
+          </p>
           <section className={styles.composeSection}>
             <h3 className={styles.composeSectionLabel}>用途を選択（1つ）</h3>
             <div className={styles.themeRow}>

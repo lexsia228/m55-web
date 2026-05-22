@@ -10,7 +10,7 @@ export default function CoreTypeEaseSection({ result }: { result: CoreResult }) 
       aria-labelledby="core-type-ease"
     >
       <h2 id="core-type-ease" className={styles.sectionTitle}>
-        このタイプは、こう出やすい
+        場面ごとに、こう出やすい
       </h2>
       <p className={styles.tierBSummary}>仕事・対人・近い関係での感触の目安です</p>
       <p className={styles.sectionLead}>

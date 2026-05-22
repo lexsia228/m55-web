@@ -2684,6 +2684,37 @@
   min-width: 0;
 }
 
+/* Free vs 保存版 boundary (post-hero, Category 1 polish) */
+.coreFreeSavedBoundary {
+  margin-top: clamp(20px, 4vw, 28px);
+  margin-bottom: clamp(8px, 2vw, 12px);
+  padding: clamp(18px, 3.5vw, 24px) clamp(18px, 4vw, 24px);
+  border-radius: 18px;
+}
+
+.coreFreeSavedBoundaryTitle {
+  font-size: clamp(15px, 2.8vw, 17px);
+  font-weight: 600;
+  margin: 0 0 10px;
+  letter-spacing: 0.02em;
+}
+
+.coreFreeSavedBoundaryLead {
+  font-size: clamp(13.5px, 2.5vw, 14.5px);
+  line-height: 1.72;
+  margin: 0 0 10px;
+  color: rgba(38, 36, 42, 0.88);
+}
+
+.coreFreeSavedBoundaryLead:last-child {
+  margin-bottom: 0;
+}
+
+.coreFreeSavedBoundaryEm {
+  font-weight: 600;
+  color: rgba(38, 36, 42, 0.95);
+}
+
 /* Entry CTA teaser: softer spacing */
 .ctaStripTeaser {
   margin-top: clamp(36px, 8vw, 52px);
