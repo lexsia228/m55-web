@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-RELEASE-READINESS-RETURN Release readiness handoff
+
+Status: **Production @ `0e9597c` · line closed PARTIAL_READY。** **Handoff:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_READINESS_RETURN_NOT_A_BLOCKER`**。** **Not a release blocker**；caveats C1–C4 documented。** **HOLD:** 本番削除 · live checkout · VERIFY-C。** **Return:** release readiness / ops monitoring track。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-RELEASE-READINESS-RETURN-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_READINESS_RETURN_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DELETE-EXECUTION-R Production delete execution result
 
 Status: **Production @ `0e9597c`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DELETE_EXECUTION_BLOCKED_NOT_APPLICABLE_VISIBLE_ASSET_ABSENT`**。** **Human GO issued** but **no visible saved report** on target account（**未購入** · no 削除 button）。** **Delete:** **not executed** · API **not_run**。** **Safety:** no old leak · purchase CTA visible · no checkout。** **Not regression**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DELETE-EXECUTION-R-001`**。
