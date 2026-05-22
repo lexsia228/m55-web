@@ -1,5 +1,7 @@
 # Phase 5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-R — Post soft-hide ops monitor result（2026-05-21）
 
+> **Baseline notice（2026-05-22）：** **`incorrect_baseline_chain_superseded_by_R6`** — metrics below are **historical audit only** · **not valid for delta** after R6-RECONCILIATION · current anchor: **`RELEASE-READINESS-OPS-MONITOR-R6-R`**.
+
 ## A. Gate summary
 
 | Field | Value |

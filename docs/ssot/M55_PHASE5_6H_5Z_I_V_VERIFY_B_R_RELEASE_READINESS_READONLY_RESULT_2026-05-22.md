@@ -15,6 +15,8 @@
 
 **Read-only gate.** No Production mutation · no push · no deploy.
 
+> **Post-reconciliation footnote（2026-05-22 @ R6-R-BASELINE-CORRECTION-EXEC）：** Checkpoints **A/B/C** referencing **R5-R anchor · 5-poll streak · failed 0/0 · DTR 104/0** were **valid against SSOT at execution time** but **R5-R baseline was later invalidated** @ **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R6-RECONCILIATION-001`**. Current release-readiness anchor: **OPS-MONITOR-R6-R**.
+
 ---
 
 ## B. Read-only commands executed
@@ -109,3 +111,6 @@
 | Version | Date | Note |
 |---------|------|------|
 | v1.0 | 2026-05-22 | Read-only GREEN — doc stale refs noted |
+| v1.1 | 2026-05-22 | Footnote — R5-R anchor invalidated @ R6-RECONCILIATION |
+
+---

@@ -21,6 +21,8 @@
 
 ## B. R1-R baseline（new Production scale — use for R2 delta）
 
+**Superseded by §M Post-R6-RECONCILIATION baseline（2026-05-22）。** **`incorrect_baseline_chain_superseded_by_R6`** — retained for audit only · **not valid for delta**.
+
 | Metric | R1-R value |
 |--------|------------|
 | **failed_fulfillments_total** | **0** |
@@ -237,20 +239,34 @@ No-mutation:
 |---------|------|------|
 | v1.0 | 2026-05-21 | Post R1-R GREEN cadence planning |
 | v1.1 | 2026-05-22 | §L Post-R5-R amendment — Next **R6** · baseline **R5-R** |
+| v1.2 | 2026-05-22 | §M Post-R6-RECONCILIATION — baseline **R6-R** · next **R7** |
 
 ---
 
-## L. Post-R5-R cadence amendment（2026-05-22 — supersedes §C.1 “next R2”）
+## L. Post-R5-R cadence amendment（2026-05-22 — superseded by §M）
+
+**Superseded by §M Post-R6-RECONCILIATION baseline。** **`incorrect_baseline_chain_superseded_by_R6`** — retained for audit.
 
 | Field | Value |
 |-------|--------|
 | **Last poll** | **OPS-MONITOR-R5-R** @ **`879d955`** |
-| **Streak** | **5 consecutive GREEN**（R1–R5） |
+| **Streak** | **5 consecutive GREEN**（R1–R5）— **not inherited** by R6-R |
 | **Next poll** | **OPS-MONITOR-R6** |
-| **Baseline for delta** | **R5-R**（failed **0/0** · DTR **104** visible / **0** hidden · dup **0** · integrity **GREEN**） |
-| **SQL** | `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql` |
-| **Timing** | **Weekly** minimum **OR** before major deploy **OR** trigger §D（T1–T9 unchanged） |
-| **HOLD** | VERIFY-C · live checkout · 本番削除 unchanged |
-| **Evidence** | **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`** |
+| **Baseline for delta** | **R5-R**（invalid — see reconciliation） |
 
-**Does not imply R6 was executed.** R2–R5 result docs unchanged.
+---
+
+## M. Post-R6-RECONCILIATION baseline（2026-05-22 — supersedes §B · §L）
+
+| Field | Value |
+|-------|--------|
+| **Last poll** | **OPS-MONITOR-R6-R** |
+| **Re-baseline** | **yes** — **does not inherit** R1-R〜R5-R streak |
+| **Next poll** | **OPS-MONITOR-R7** |
+| **Baseline for delta** | **R6-R**（failed **7/0** · DTR **6/6/0** · OTF/wallets/ledgers **10/10/17** · dup **0** · integrity **YELLOW** · STOP **PASS**） |
+| **failed total 7** | **historical backlog** — **not 24h bleeding** |
+| **entitlements 10 vs snapshots 6** | **known historical gap** — not new incident |
+| **SQL** | `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql` |
+| **Timing** | **Weekly** minimum **OR** before major deploy **OR** trigger §D |
+| **HOLD** | VERIFY-C · live checkout · 本番削除 · **HYGIENE-PUSH refresh** before EXEC |
+| **Evidence** | **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R6-R-001`** · **`M55-EVID-20260522-R6-R-BASELINE-CORRECTION-EXEC-001`** |

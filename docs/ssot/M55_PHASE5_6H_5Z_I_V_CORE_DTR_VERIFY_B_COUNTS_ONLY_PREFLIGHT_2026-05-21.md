@@ -118,13 +118,15 @@
 
 ---
 
-## I. Release-readiness cross-track（2026-05-22）
+## I. Release-readiness cross-track（2026-05-22 — updated @ R6-R baseline correction）
 
-- **§C stale snapshot total 6** is historical reference only（2026-05-20 AS-B1-MONITOR-R5 era）.
-- **Release-readiness ops cadence** is anchored by **OPS-MONITOR-R5-R**（DTR snapshots **104**）— see `RELEASE-READINESS-OPS-MONITOR-R5-R`.
+- **§C snapshot total 6** aligns with **R6-R ops baseline**（visible **6**）and AP-S-R inventory.
+- **Release-readiness ops cadence** is anchored by **OPS-MONITOR-R6-R** — see `RELEASE-READINESS-OPS-MONITOR-R6-R`.
+- **Prior R5-R 104 chain** = **`incorrect_baseline_chain_superseded_by_R6`** — not ops anchor.
 - **This gate remains BLOCKED** until Human runs §D SQL and records **CORE-DTR-VERIFY-B-R**.
-- **Do not** use R5-R GREEN to close VERIFY-B without B-R poll（engine v2 columns + VERIFY-specific §E checks differ）.
-- **Evidence:** **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**
+- **Do not** use R6-R ops GREEN to close VERIFY-B without B-R poll（engine v2 columns + VERIFY-specific §E checks differ）.
+- **VERIFY-C:** **HOLD**
+- **Evidence:** **`M55-EVID-20260522-R6-R-BASELINE-CORRECTION-EXEC-001`**
 
 ---
 
@@ -134,3 +136,4 @@
 |---------|------|------|
 | v1.0 | 2026-05-21 | Agent BLOCKED — SQL script published |
 | v1.1 | 2026-05-22 | §I release-readiness cross-track — R5-R **104** vs stale **6** |
+| v1.2 | 2026-05-22 | §I updated — **R6-R baseline 6** · VERIFY-B still BLOCKED |

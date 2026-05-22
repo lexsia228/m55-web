@@ -18,6 +18,8 @@
 
 **Planning only.** **Push not performed.** **Deploy not performed.**
 
+> **Post-correction footnote（2026-05-22 @ R6-R-BASELINE-CORRECTION-EXEC）：** This assessment used **`origin/main` @ `879d955`（R5-R anchor）** and **R5-R release-readiness baseline**. **Both are superseded** by **R6-R re-baseline** @ **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R6-R-001`**. **Refresh required** before **HYGIENE-PUSH-EXECUTION** — do **not** push on pre-correction anchor alone.
+
 ---
 
 ## B. Read-only git inspection
@@ -197,6 +199,7 @@
 | Version | Date | Note |
 |---------|------|------|
 | v1.0 | 2026-05-22 | Planning GREEN — push not performed |
+| v1.1 | 2026-05-22 | Footnote — pre-R6-R anchor · refresh required before EXEC |
 
 ---
 
@@ -205,5 +208,5 @@
 | `evidence_id` | Role |
 |----------------|------|
 | **`M55-EVID-20260522-HYGIENE-PUSH-PLANNING-001`** | **本条** |
-| **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`** | Latest local commit scope |
-| **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R5-R-001`** | R5-R anchor |
+| **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R6-R-001`** | Post-correction anchor |
+| **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R5-R-001`** | ~~R5-R anchor~~ superseded |
