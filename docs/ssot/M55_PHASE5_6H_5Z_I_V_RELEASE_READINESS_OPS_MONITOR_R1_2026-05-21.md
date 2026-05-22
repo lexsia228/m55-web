@@ -7,7 +7,7 @@
 | **Phase** | **5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1** |
 | **Title** | **Post soft-hide release readiness operational monitor** |
 | **Classification** | **Category 1 / counts-only monitor / no-mutation** |
-| **Verdict** | **`RELEASE_READINESS_OPS_MONITOR_R1_BLOCKED_PENDING_HUMAN_COUNTS_POLL`** |
+| **Verdict** | **`RELEASE_READINESS_OPS_MONITOR_R1_BLOCKED_PENDING_HUMAN_COUNTS_POLL`**（**superseded:** **R1-R GREEN**） |
 | **Evidence ID** | **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-001`** |
 | **Date** | **2026-05-21** |
 | **Prior handoff** | **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_READINESS_RETURN_NOT_A_BLOCKER`** @ **`f74fec5`** |
@@ -132,9 +132,11 @@
 
 | Outcome | Next gate |
 |---------|-----------|
-| **BLOCKED**（this gate） | Human poll → **`5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-R`** |
+| **BLOCKED**（this gate） | **Completed** → **`5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-R`** GREEN |
 | **GREEN** @ R1-R | Continue **release readiness / AS-B1-MONITOR cadence** |
 | **PARTIAL / RED** @ R1-R | Diagnostic planning only — no repair without separate Human GO |
+
+**Result doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_R_RESULT_2026-05-21.md`
 
 ---
 
