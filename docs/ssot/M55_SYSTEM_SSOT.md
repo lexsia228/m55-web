@@ -1,6 +1,14 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-R Post soft-hide ops monitor result
+
+Status: **m55-soul-core · app @ `0e9597c`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_OPS_MONITOR_R1_GREEN_NO_MUTATION`**。** **Counts:** failed **0** / 24h **0** · DTR **104** visible / **0** hidden · schema **1/1/1** · partial unique **1** · dup **0** · integrity **GREEN**。** **Bleeding / paid-not-unlocked / unintended ops:** **no**。** **Next:** release readiness / AS-B1-MONITOR cadence。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_R_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1 Post soft-hide ops monitor
 
-Status: **m55-soul-core intended · app @ `0e9597c`。** **Verdict:** **`RELEASE_READINESS_OPS_MONITOR_R1_BLOCKED_PENDING_HUMAN_COUNTS_POLL`** — agent has no Production DB creds；live counts **pending**。** **SQL:** `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Next:** **OPS-MONITOR-R1-R** after Human poll。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-001`**。
+Status: **Superseded by R1-R GREEN @ Human poll。** **Verdict:** **`RELEASE_READINESS_OPS_MONITOR_R1_BLOCKED_PENDING_HUMAN_COUNTS_POLL`**（agent blocked）。** **SQL:** `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R1-001`**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_2026-05-21.md`
 
