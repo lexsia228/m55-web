@@ -1,0 +1,96 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 40000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: rgba(29, 24, 61, 0.52);
+  cursor: pointer;
+  appearance: none;
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  width: min(480px, 100%);
+  max-width: 100%;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 245, 255, 0.99));
+  border: 1px solid rgba(177, 156, 255, 0.22);
+  border-radius: 14px;
+  padding: 20px 18px 18px;
+  box-shadow: 0 18px 48px rgba(29, 24, 61, 0.14);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c233a;
+  margin: 0 0 12px;
+}
+
+.body {
+  font-size: 13px;
+  color: #3a3448;
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+
+.body:last-of-type {
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cancelBtn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: transparent;
+  color: #6b667a;
+  font-size: 13px;
+  border: 1px solid rgba(177, 156, 255, 0.3);
+  cursor: pointer;
+}
+
+.confirmBtn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #8b4d5c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.confirmBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .overlay {
+    transition: none;
+  }
+}

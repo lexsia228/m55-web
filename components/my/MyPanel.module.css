@@ -339,3 +339,50 @@
   text-decoration: underline;
   padding: 0;
 }
+
+.deleteReportBtn {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b4d5c;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-right: 12px;
+}
+
+.deleteReportBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  text-decoration: none;
+}
+
+.deleteToast {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(124, 111, 214, 0.1);
+  border: 1px solid rgba(124, 111, 214, 0.22);
+}
+
+.deleteToastPrimary {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c233a;
+  margin: 0 0 4px;
+}
+
+.deleteToastSecondary {
+  font-size: 12px;
+  color: #6b667a;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.deleteError {
+  font-size: 12px;
+  color: #8b4d5c;
+  margin: 6px 0 0;
+  text-align: right;
+}

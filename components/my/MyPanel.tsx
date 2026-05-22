@@ -17,6 +17,13 @@ import {
   isEntryReportCoreRight,
 } from '../../lib/m55/myEntitlementLabels';
 import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
+import SavedReportDeleteDialog from './SavedReportDeleteDialog';
+import {
+  DTR_SAVED_REPORT_DELETE_ERROR_GENERIC,
+  DTR_SAVED_REPORT_DELETE_TOAST_PRIMARY,
+  DTR_SAVED_REPORT_DELETE_TOAST_SECONDARY,
+  DTR_SAVED_REPORT_DELETE_TRIGGER_LABEL,
+} from '../../lib/m55/dtrSavedReportDeleteCopy';
 import styles from './MyPanel.module.css';
 
 type EntitlementsResponse = {
@@ -58,6 +65,7 @@ export default function MyPanel() {
   const [entError, setEntError] = useState(false);
   const [snap, setSnap] = useState<SnapshotReadyResponse | null>(null);
   const [snapError, setSnapError] = useState(false);
+  const [deleteToastVisible, setDeleteToastVisible] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -92,6 +100,17 @@ export default function MyPanel() {
   useEffect(() => {
     if (user) void load();
   }, [user, load]);
+
+  useEffect(() => {
+    if (!deleteToastVisible) return;
+    const t = window.setTimeout(() => setDeleteToastVisible(false), 6000);
+    return () => window.clearTimeout(t);
+  }, [deleteToastVisible]);
+
+  const handleDeleteSuccess = useCallback(() => {
+    setDeleteToastVisible(true);
+    void load();
+  }, [load]);
 
   if (!isLoaded) {
     return (
@@ -145,7 +164,25 @@ export default function MyPanel() {
           )}
 
           {!entError && ent && (
-            <OwnedReportsBlock ent={ent} snap={snap} snapError={snapError} />
+            <>
+              <OwnedReportsBlock
+                ent={ent}
+                snap={snap}
+                snapError={snapError}
+                onDeleteSuccess={handleDeleteSuccess}
+              />
+              {deleteToastVisible && (
+                <div
+                  className={styles.deleteToast}
+                  role="status"
+                  aria-live="polite"
+                  data-testid="m55-saved-report-delete-toast"
+                >
+                  <p className={styles.deleteToastPrimary}>{DTR_SAVED_REPORT_DELETE_TOAST_PRIMARY}</p>
+                  <p className={styles.deleteToastSecondary}>{DTR_SAVED_REPORT_DELETE_TOAST_SECONDARY}</p>
+                </div>
+              )}
+            </>
           )}
         </section>
 
@@ -199,15 +236,50 @@ function OwnedReportsBlock({
   ent,
   snap,
   snapError,
+  onDeleteSuccess,
 }: {
   ent: EntitlementsResponse;
   snap: SnapshotReadyResponse | null;
   snapError: boolean;
+  onDeleteSuccess: () => void;
 }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const rows = computeRows(ent, snap);
   const ownsAny = rows.length > 0 || snap?.hasOwnership === true;
   const canOpenCore = !snapError && snap?.ready === true;
   const coreVs = coreVisualStatus(snapError, snap);
+
+  const handleDeleteConfirm = async () => {
+    setDeleteConfirming(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch('/api/dtr/report-snapshot/hide', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (res.ok) {
+        setDeleteDialogOpen(false);
+        onDeleteSuccess();
+        return;
+      }
+      if (res.status === 409) {
+        setDeleteDialogOpen(false);
+        onDeleteSuccess();
+        return;
+      }
+      setDeleteError(DTR_SAVED_REPORT_DELETE_ERROR_GENERIC);
+    } catch {
+      setDeleteError(DTR_SAVED_REPORT_DELETE_ERROR_GENERIC);
+    } finally {
+      setDeleteConfirming(false);
+    }
+  };
 
   if (!ownsAny) {
     return (
@@ -218,7 +290,19 @@ function OwnedReportsBlock({
   }
 
   return (
-    <ul className={styles.reportList} aria-label="購入済みレポート一覧">
+    <>
+      <SavedReportDeleteDialog
+        open={deleteDialogOpen}
+        confirming={deleteConfirming}
+        onClose={() => {
+          if (!deleteConfirming) {
+            setDeleteDialogOpen(false);
+            setDeleteError(null);
+          }
+        }}
+        onConfirm={() => void handleDeleteConfirm()}
+      />
+      <ul className={styles.reportList} aria-label="購入済みレポート一覧">
       {rows.map((key, i) => {
         const isCore = isEntryReportCoreRight(key);
         if (isCore) {
@@ -238,9 +322,23 @@ function OwnedReportsBlock({
               </div>
               <div className={styles.reportItemCta}>
                 {canOpenCore && (
-                  <Link href="/dtr/core" className={styles.ctaOpen}>
-                    開く
-                  </Link>
+                  <>
+                    <button
+                      type="button"
+                      className={styles.deleteReportBtn}
+                      onClick={() => {
+                        setDeleteError(null);
+                        setDeleteDialogOpen(true);
+                      }}
+                      disabled={deleteConfirming}
+                      aria-haspopup="dialog"
+                    >
+                      {DTR_SAVED_REPORT_DELETE_TRIGGER_LABEL}
+                    </button>
+                    <Link href="/dtr/core" className={styles.ctaOpen}>
+                      開く
+                    </Link>
+                  </>
                 )}
                 {!canOpenCore && (
                   <span className={styles.muted} style={{ fontSize: 12, textAlign: 'right' as const }}>
@@ -248,6 +346,11 @@ function OwnedReportsBlock({
                   </span>
                 )}
               </div>
+              {deleteError && canOpenCore && (
+                <p className={styles.deleteError} role="alert">
+                  {deleteError}
+                </p>
+              )}
             </li>
           );
         }
@@ -267,6 +370,7 @@ function OwnedReportsBlock({
         );
       })}
     </ul>
+    </>
   );
 }
 
