@@ -21,6 +21,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/reply/generate',
   '/api/dtr/draft',
   '/api/dtr/report-snapshot-ready',
+  '/api/dtr/report-snapshot/hide',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-B Hide API middleware public route
+
+Status: **`work/home-cluster`（pending push）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_B_GREEN_NO_DEPLOY`**。** **Fix:** `middleware.ts` — add **`/api/dtr/report-snapshot/hide`** to public list；handler **`auth()`** returns **401 JSON**。** **Local smoke:** unauth POST → **401** `{ code: 'unauthorized' }`。** **Not in gate:** Production · `main` · live checkout · DB · env。** **Next:** **D-PREVIEW-FIX-B-R** preview redeploy smoke。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-B-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_B_MIDDLEWARE_PUBLIC_ROUTE_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-PRECHECK Preview deploy precheck
 
 Status: **`work/home-cluster` @ `c4c7f31`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_PRECHECK_GREEN_READY_FOR_BRANCH_PREVIEW_NO_DEPLOY`**。** **Tests:** **37/37** · tsc pass · git clean（soft-hide）。** **Advisory:** local `npm run build` failed Clerk key（Vercel env expected）。** **Next:** **D-PREVIEW** deploy → **D-PREVIEW-R** Human smoke。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-PRECHECK-001`**。
