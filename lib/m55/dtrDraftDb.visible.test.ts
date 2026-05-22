@@ -47,7 +47,6 @@ describe('consumer read paths use visible snapshot', () => {
   const visibleConsumers = [
     'app/dtr/core/page.tsx',
     'app/dtr/processing/page.tsx',
-    'lib/m55/dtrShelfAccess.ts',
     'lib/m55/dtrOwnershipGate.ts',
   ];
 
@@ -58,6 +57,14 @@ describe('consumer read paths use visible snapshot', () => {
       assert.equal(src.includes('getLatestDtrReportSnapshotIncludingHidden'), false);
     });
   }
+
+  it('dtrShelfAccess uses visible for shelf and including-hidden for hidden-only gate only', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/dtrShelfAccess.ts'), 'utf8');
+    assert.ok(src.includes('getVisibleDtrReportSnapshot'));
+    assert.ok(src.includes('getLatestDtrReportSnapshotIncludingHidden'));
+    assert.ok(src.includes('isDtrOwnedHiddenOnlyState'));
+    assert.equal(src.includes('resolveStoredEnvelopeRead'), false);
+  });
 
   it('checkout repurchase lane delegated to dtrCheckoutRepurchaseLane', () => {
     const src = readFileSync(join(process.cwd(), 'app/api/purchase/checkout/route.ts'), 'utf8');
