@@ -3,10 +3,8 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
-import {
-  getLatestDtrReportSnapshotIncludingHidden,
-  getLatestDraftForUser,
-} from '../../../../lib/m55/dtrDraftDb';
+import { getLatestDraftForUser } from '../../../../lib/m55/dtrDraftDb';
+import { resolveDtrCoreCheckoutSnapshotGate } from '../../../../lib/m55/dtrCheckoutRepurchaseLane';
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
@@ -165,24 +163,28 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let dtrRepurchaseLane = false;
+
   if (productId === DTR_CORE_PRODUCT) {
-    const snap = await getLatestDtrReportSnapshotIncludingHidden(userId, DTR_CORE_STATIC_V1);
-    if (snap) {
+    const snapGate = await resolveDtrCoreCheckoutSnapshotGate(userId);
+    if (snapGate.action === 'block_already_purchased') {
       console.info(
         '[checkout]',
         JSON.stringify({
           event: 'dtr_purchase_path',
-          path: 'purchased_resume_already_purchased_snapshot',
+          path: 'purchased_resume_already_purchased_visible_snapshot',
           userId,
-          note: 'SSOT: dtr_report_snapshots row exists → 409 already_purchased',
+          note: 'SSOT: visible dtr_report_snapshots row → 409 already_purchased',
         })
       );
       await logCheckout409(userId, 'already_purchased', true, null);
       return NextResponse.json({ code: 'already_purchased' as const }, { status: 409 });
     }
 
+    dtrRepurchaseLane = snapGate.action === 'allow' && snapGate.repurchaseLane;
+
     const ownership = await resolveEntryReportOwnership(userId);
-    if (ownership.unlockState === 'owned') {
+    if (ownership.unlockState === 'owned' && !dtrRepurchaseLane) {
       const resumeCheckoutSessionId = await getResumeCheckoutSessionIdForDtr(userId);
       const allowNewCheckoutForStaleProfile =
         process.env.DTR_ALLOW_STALE_SESSION_NEW_CHECKOUT === '1';
@@ -252,6 +254,18 @@ export async function POST(req: NextRequest) {
         await logCheckout409(userId, 'fulfillment_pending', false, null);
         return NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 });
       }
+    }
+
+    if (dtrRepurchaseLane && ownership.unlockState === 'owned') {
+      console.info(
+        '[checkout]',
+        JSON.stringify({
+          event: 'dtr_purchase_path',
+          path: 'repurchase_lane_hidden_only',
+          userId,
+          note: 'owned + hidden-only snapshot(s) → allow new Stripe Checkout (no fulfillment_pending 409)',
+        })
+      );
     }
   }
 
@@ -325,9 +339,12 @@ export async function POST(req: NextRequest) {
       '[checkout]',
       JSON.stringify({
         event: 'dtr_purchase_path',
-        path: 'fresh_purchase_stripe_session_create',
+        path: dtrRepurchaseLane ? 'repurchase_lane_stripe_session_create' : 'fresh_purchase_stripe_session_create',
         userId,
-        note: 'Stripe checkout.sessions.create (new user, unowned, or stale-session escape)',
+        repurchaseLane: dtrRepurchaseLane,
+        note: dtrRepurchaseLane
+          ? 'hidden-only snapshot → new Stripe Checkout for repurchase'
+          : 'Stripe checkout.sessions.create (new user, unowned, or stale-session escape)',
       })
     );
   }

@@ -55,10 +55,10 @@ describe('consumer read paths use visible snapshot', () => {
     });
   }
 
-  it('checkout keeps purchase-gate including-hidden read (no repurchase lane in D-READ)', () => {
+  it('checkout repurchase lane delegated to dtrCheckoutRepurchaseLane', () => {
     const src = readFileSync(join(process.cwd(), 'app/api/purchase/checkout/route.ts'), 'utf8');
-    assert.ok(src.includes('getLatestDtrReportSnapshotIncludingHidden'));
-    assert.equal(src.includes('getVisibleDtrReportSnapshot'), false);
+    assert.ok(src.includes('resolveDtrCoreCheckoutSnapshotGate'));
+    assert.equal(src.includes('getLatestDtrReportSnapshotIncludingHidden'), false);
   });
 
   it('reply ticket ownership probe requires visible snapshot', () => {
