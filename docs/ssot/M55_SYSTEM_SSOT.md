@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-EXECUTION Production deploy execution
+
+Status: **Production `https://m55-webv2.vercel.app` @ `0e9597c`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_EXECUTION_GREEN_NO_LIVE_CHECKOUT`**。** **Git:** `main` **`2e05724`→`0e9597c`** ff-only。** **Vercel:** **success / Ready**。** **Logged-out smoke:** pass（hide **401 JSON** after propagation）。** **Signed-in / delete / checkout:** **deferred D-PROD-DEPLOY-R**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-EXECUTION-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_EXECUTION_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-PLANNING Production deploy planning
 
 Status: **Planning only — no deploy。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_PLANNING_GREEN_READY_FOR_EXECUTION_PENDING_HUMAN_GO`**。** **Route:** **`work/home-cluster` → merge `main` → ff-only → Vercel Production**（not preview promote alone）。** **Anchor:** preview **`cc73af1`** · UX **`a081259`** · **current Production `main` @ `2e05724`**。** **DB:** schema @ C-D-R already applied；**no** EXECUTION migration。** **Next:** **D-PROD-DEPLOY-EXECUTION** explicit Human GO。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-PLANNING-001`**。
