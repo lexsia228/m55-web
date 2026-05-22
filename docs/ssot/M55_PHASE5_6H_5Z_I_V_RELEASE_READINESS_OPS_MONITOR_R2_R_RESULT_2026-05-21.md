@@ -5,24 +5,27 @@
 | Field | Value |
 |-------|--------|
 | **Phase** | **5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R2-R** |
-| **Title** | **Release readiness operational monitor R2 counts result** |
-| **Classification** | **Category 1 / counts-only monitor result / docs-only / no-mutation** |
-| **Verdict** | **`RELEASE_READINESS_OPS_MONITOR_R2_R_BLOCKED_PENDING_HUMAN_COUNTS`** |
+| **Title** | **Release readiness operational monitor R2 counts result recording** |
+| **Classification** | **Category 1 / Human attestation / docs-only / no-mutation** |
+| **Verdict** | **`RELEASE_READINESS_OPS_MONITOR_R2_R_GREEN_NO_MUTATION`** |
 | **Evidence ID** | **`M55-EVID-20260521-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R2-R-001`** |
 | **Date** | **2026-05-21** |
 | **Cadence** | **AS-B1-MONITOR-CADENCE** @ **`20ec831`** |
 | **Prior poll** | **OPS-MONITOR-R1-R** GREEN @ **`4f24a3c`** |
 | **Production app commit** | **`0e9597c`** |
 | **Target safe label** | **`m55-soul-core`** |
-| **Production used** | **yes**（intended — poll pending attestation） |
+| **Production used** | **yes** |
 | **SQL script** | `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql` |
-| **Agent DB execution** | **no** — no Production credentials in workspace |
+| **Execution count** | **1** |
+| **`SELECT *`** | **no** |
+| **metric/value only** | **yes** |
+| **Raw user_id / email / session / secret** | **not shared** |
 
-**Human counts not attested in gate message.** Re-submit filled **§D template** to upgrade verdict to GREEN / PARTIAL / RED.
+**Agent role:** Record Human-submitted counts-only monitor only.** **No query execution** in this gate.
 
 ---
 
-## B. R1-R baseline（delta reference）
+## B. Prior R1-R baseline
 
 | Metric | R1-R |
 |--------|-----:|
@@ -36,136 +39,128 @@
 | **user_hidden_* exists** | **1 / 1 / 1** |
 | **partial_unique_index_exists** | **1** |
 
+**Detail:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_R_RESULT_2026-05-21.md`
+
 ---
 
-## C. Live metrics（pending Human poll）
+## C. Human counts-only monitor result（R2）
+
+| Field | Human value |
+|-------|-------------|
+| **environment safe label** | **`m55-soul-core`** |
+| **Production used** | **yes** |
+| **SQL executed** | **once** |
+| **query type** | **counts-only / aggregate-only** |
+| **`SELECT *` used** | **no** |
+
+### 1. failed_fulfillments
 
 | Metric | Value |
-|--------|-------|
-| **failed_fulfillments_total** | **pending** |
-| **failed_fulfillments_24h** | **pending** |
-| **failed_internal_processing_failed** | **pending** |
-| **failed_missing_client_reference_id** | **pending** |
-| **failed_other** | **pending** |
-| **entitlements_dtr_total** | **pending** |
-| **dtr_report_snapshots_dtr_total** | **pending** |
-| **dtr_report_snapshots_visible_total** | **pending** |
-| **dtr_report_snapshots_hidden_total** | **pending** |
-| **user_hidden_at_nonnull_count** | **pending** |
-| **one_time_fulfillments_total** | **pending** |
-| **reply_ticket_wallets_total** | **pending** |
-| **reply_wallet_ledgers_total** | **pending** |
-| **user_hidden_at_exists** | **pending** |
-| **user_hidden_source_exists** | **pending** |
-| **user_hidden_reason_exists** | **pending** |
-| **partial_unique_index_exists** | **pending** |
-| **visible_duplicate_user_product_pairs** | **pending** |
+|--------|------:|
+| **failed_fulfillments_total** | **0** |
+| **failed_fulfillments_24h** | **0** |
+| **failed_internal_processing_failed** | **0** |
+| **failed_missing_client_reference_id** | **0** |
+| **failed_other** | **0** |
 
-### Delta vs R1-R（pending）
+### 2. DTR artifacts
+
+| Metric | Value |
+|--------|------:|
+| **entitlements_dtr_total** | **104** |
+| **dtr_report_snapshots_dtr_total** | **104** |
+| **dtr_report_snapshots_visible_total** | **104** |
+| **dtr_report_snapshots_hidden_total** | **0** |
+| **user_hidden_at_nonnull_count** | **0** |
+| **one_time_fulfillments_total** | **104** |
+| **reply_ticket_wallets_total** | **103** |
+| **reply_wallet_ledgers_total** | **103** |
+
+*Fulfillment / wallet totals **unchanged** vs R1-R — implied by Human **delta all 0**.*
+
+### 3. soft-hide schema health
+
+| Metric | Value |
+|--------|------:|
+| **user_hidden_at_exists** | **1** |
+| **user_hidden_source_exists** | **1** |
+| **user_hidden_reason_exists** | **1** |
+| **partial_unique_index_exists** | **1** |
+| **visible_duplicate_user_product_pairs** | **0** |
+
+### 4. Delta vs R1-R（Human）
 
 | Delta field | Value |
 |-------------|-------|
-| **failed_fulfillments_delta** | **pending** |
-| **entitlements_dtr_delta** | **pending** |
-| **dtr_report_snapshots_dtr_delta** | **pending** |
-| **visible_snapshots_delta** | **pending** |
-| **hidden_snapshots_delta** | **pending** |
-| **visible_duplicate_delta** | **pending** |
+| **failed_fulfillments_delta** | **0**（flat） |
+| **entitlements_dtr_delta** | **0**（flat） |
+| **dtr_report_snapshots_dtr_delta** | **0**（flat） |
+| **visible_snapshots_delta** | **0**（flat） |
+| **hidden_snapshots_delta** | **0**（flat） |
+| **visible_duplicate_delta** | **0**（flat） |
 
-### Operational（pending）
+**Human summary:** **all delta 0** — Production aggregates **stable** since R1-R.
 
-| Check | Value |
-|-------|-------|
-| **active_bleeding** | **pending** |
-| **new_failure_category** | **pending** |
-| **current_paid_not_unlocked** | **pending** |
-| **support_visible_issue** | **pending** |
-| **unintended_delete_observed** | **pending** |
-| **unintended_checkout_payment_observed** | **pending** |
-| **old_report_exposure_suspected** | **pending** |
-| **manual_mutation** | **no**（gate） |
+### 5. Operational interpretation（Human + GREEN inference）
 
----
-
-## D. Human return template（fill and re-submit）
-
-```
-RELEASE-READINESS-OPS-MONITOR-R2-R Human counts result
-
-Target:
-- safe label: m55-soul-core
-- Production used: yes
-
-SQL:
-- scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql
-- execution count: 1
-- metric/value only: yes
-- SELECT *: no
-
-Metrics:
-- failed_fulfillments_total:
-- failed_fulfillments_24h:
-- failed_internal_processing_failed:
-- failed_missing_client_reference_id:
-- failed_other:
-- entitlements_dtr_total:
-- dtr_report_snapshots_dtr_total:
-- dtr_report_snapshots_visible_total:
-- dtr_report_snapshots_hidden_total:
-- user_hidden_at_nonnull_count:
-- one_time_fulfillments_total:
-- reply_ticket_wallets_total:
-- reply_wallet_ledgers_total:
-- user_hidden_at_exists:
-- user_hidden_source_exists:
-- user_hidden_reason_exists:
-- partial_unique_index_exists:
-- visible_duplicate_user_product_pairs:
-
-Delta vs R1-R:
-- failed_fulfillments_delta: flat / up / down
-- entitlements_dtr_delta: flat / up / down
-- dtr_report_snapshots_dtr_delta: flat / up / down
-- visible_snapshots_delta: flat / up / down
-- hidden_snapshots_delta: flat / up / down
-- visible_duplicate_delta: flat / up / down
-
-Operational:
-- active_bleeding: yes/no
-- new_failure_category: yes/no
-- current_paid_not_unlocked: 0 or count
-- support_visible_issue: yes/no
-- unintended_delete_observed: yes/no
-- unintended_checkout_payment_observed: yes/no
-- old_report_exposure_suspected: yes/no
-- manual_mutation: no
-
-No-mutation:
-- 本番削除実行: no
-- live checkout/payment/webhook: no
-- manual DB SQL write: no
-- env change: no
-- deploy/main push: no
-- VERIFY-C: no
-- raw ID/email/session/secret: no
-
-Result:
-- GREEN / PARTIAL / RED
-```
+| Check | Result |
+|-------|--------|
+| **active_bleeding** | **no** |
+| **new_failure_category** | **no** |
+| **current_paid_not_unlocked** | **0** |
+| **support_visible_issue** | **no** |
+| **unintended_delete_observed** | **no** |
+| **unintended_checkout_payment_observed** | **no** |
+| **old_report_exposure_suspected** | **no** |
+| **data_integrity_verdict** | **GREEN** |
+| **manual_mutation** | **no** |
 
 ---
 
-## E. GREEN / RED criteria（per cadence）
+## D. GREEN / STOP evaluation
 
-| Result | When |
-|--------|------|
-| **GREEN** | All cadence GREEN checks pass · delta acceptable · no mutation |
-| **PARTIAL** | Schema OK · artifact drift without active bleed — document only |
-| **RED** | `failed_24h > 0` · dup **> 0** · schema missing · paid-not-unlocked **> 0** · exposure / unintended ops **yes** |
+| Check | Expected | Observed | Result |
+|-------|----------|----------|--------|
+| **failed_fulfillments_24h** | **0** | **0** | **PASS** |
+| **visible_duplicate_user_product_pairs** | **0** | **0** | **PASS** |
+| **user_hidden_* columns** | **1** each | **1** each | **PASS** |
+| **partial_unique_index_exists** | **1** | **1** | **PASS** |
+| **Delta vs R1-R** | stable | **all 0** | **PASS** |
+| **paid-not-unlocked** | **0** | **0** | **PASS** |
+| **active_bleeding** | **no** | **no** | **PASS** |
+| **unintended delete / checkout / payment** | **no** | **no** | **PASS** |
+| **manual mutation** | **no** | **no** | **PASS** |
+
+**Result classification:** **GREEN**
 
 ---
 
-## F. No-mutation（this gate）
+## E. SSOT interpretation
+
+| Finding | Reading |
+|---------|---------|
+| **Stability** | R2 poll matches R1-R on all attested metrics — cadence **GREEN** continuation |
+| **failed_fulfillments** | **0** total / **0** 24h — no queue |
+| **Soft-hide** | Schema healthy；**no** hidden rows；**no** visible duplicates |
+| **Scale** | DTR **104** aligned across entitlements / snapshots / fulfillments |
+| **Release readiness** | Soft-hide line remains **not a blocker** |
+
+---
+
+## F. Formal HOLD（unchanged）
+
+| Item | Status |
+|------|--------|
+| 本番削除実行 | **HOLD** |
+| live repurchase checkout | **HOLD** |
+| payment / webhook replay | **HOLD** |
+| VERIFY-C | **HOLD** |
+| DB SQL write / env変更 | **HOLD** unless incident |
+| **C1–C3 optional gates** | **HOLD** / optional only |
+
+---
+
+## G. No-mutation（this gate）
 
 | Action | Status |
 |--------|--------|
@@ -173,24 +168,24 @@ Result:
 | live checkout / payment / webhook | **no** |
 | manual DB SQL write | **no** |
 | env change | **no** |
-| deploy / main push | **no**（docs only until GREEN attestation） |
+| deploy / main push | **no**（docs only in R2-R-COMMIT） |
 | VERIFY-C | **no** |
 | raw ID / email / session / secret | **no** |
 
 ---
 
-## G. Next
+## H. Next
 
-| Step | Action |
-|------|--------|
-| **1** | Human runs SQL on **m55-soul-core** once |
-| **2** | Reply with **§D** filled + **Result: GREEN/PARTIAL/RED** |
-| **3** | Agent updates this doc verdict → **R2-R-COMMIT** |
+| Priority | Gate |
+|----------|------|
+| **1** | Continue **AS-B1-MONITOR cadence** — **R3** before next deploy / release decision or per weekly minimum |
+| **2** | Optional C1–C3 only with explicit Human GO |
 
 ---
 
-## H. History
+## I. History
 
 | Version | Date | Note |
 |---------|------|------|
-| v1.0 | 2026-05-21 | BLOCKED — metrics not in gate message |
+| v1.0 | 2026-05-21 | BLOCKED — metrics not in first message |
+| v1.1 | 2026-05-21 | Human attestation GREEN — R2-R-COMMIT |
