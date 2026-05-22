@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-VISIBLE-CANCEL-ONLY-R Production visible cancel-only
+
+Status: **Production `m55-webv2.vercel.app` @ `0e9597c`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_GREEN_WITH_DTR_CORE_OPEN_NOT_RUN`**。** **Human:** visible row · dialog §B1.3 exact · cancel safe · card remains · **no delete**。** **`/dtr/core` post-cancel:** **not_run**。** **No** checkout · **no** DB · **no** VERIFY-C。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-VISIBLE-CANCEL-ONLY-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_R_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-CLOSE-PARTIAL-READY Line close
 
 Status: **Production @ `0e9597c` · PROD-DEPLOY-R @ `484a417`。** **Close:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_LINE_CLOSED_PARTIAL_READY`**。** **Confirmed:** hidden-only/unpurchased routing · no old report leak · purchase CTA visible · no fatal。** **Not_run:** visible-row delete/cancel（no visible row — not regression）。** **HOLD:** 本番削除 · live checkout · VERIFY-C。** **Optional:** D-PROD-VISIBLE-CANCEL-ONLY · D-LIVE-REPURCHASE-CHECKOUT · D-PROD-DELETE-EXECUTION。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-CLOSE-PARTIAL-READY-001`**。
