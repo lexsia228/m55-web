@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FINAL Consolidated preview Human smoke
+
+Status: **Preview `m55-webv2-git-work-home-cluster-m55-official.vercel.app` @ `15d8eb1`（code `a081259`+）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FINAL_GREEN_NO_DEPLOY_NO_LIVE_CHECKOUT`**。** **Human GO:** consolidated smoke。** **Post-delete:** `/my` card absent · `/dtr/core`→`/dtr/lp` · no loader · LP CTA visible · no checkout click。** **API:** unauth hide **401 JSON**。** **Dialog/cancel:** **not_run**（already deleted）。** **Production / live checkout:** **not authorized**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FINAL-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FINAL_CONSOLIDATED_HUMAN_SMOKE_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-R Hidden-only redirect Human result
 
 Status: **Preview @ `a081259`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_R_GREEN_HIDDEN_ONLY_REDIRECT_CONFIRMED`**。** **Human:** post-delete `/dtr/core` → **`/dtr/lp`**；loader loop **broken**；no id exposure；no checkout click。** **Production merge/deploy:** **not authorized**。** **D-PREVIEW final Human:** **separate**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-R-001`**。
