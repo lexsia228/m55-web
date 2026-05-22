@@ -45,7 +45,9 @@
 
 ## C. Cadence policy
 
-### C.1 Monitor R2（next scheduled poll）
+### C.1 Monitor R2（next scheduled poll — historical）
+
+**Superseded by §L Post-R5-R cadence amendment（2026-05-22）。** Retained for audit history only.
 
 | Field | Value |
 |-------|--------|
@@ -234,3 +236,21 @@ No-mutation:
 | Version | Date | Note |
 |---------|------|------|
 | v1.0 | 2026-05-21 | Post R1-R GREEN cadence planning |
+| v1.1 | 2026-05-22 | §L Post-R5-R amendment — Next **R6** · baseline **R5-R** |
+
+---
+
+## L. Post-R5-R cadence amendment（2026-05-22 — supersedes §C.1 “next R2”）
+
+| Field | Value |
+|-------|--------|
+| **Last poll** | **OPS-MONITOR-R5-R** @ **`879d955`** |
+| **Streak** | **5 consecutive GREEN**（R1–R5） |
+| **Next poll** | **OPS-MONITOR-R6** |
+| **Baseline for delta** | **R5-R**（failed **0/0** · DTR **104** visible / **0** hidden · dup **0** · integrity **GREEN**） |
+| **SQL** | `scripts/sql/production/m55_release_readiness_ops_monitor_r1_counts_only_v1.sql` |
+| **Timing** | **Weekly** minimum **OR** before major deploy **OR** trigger §D（T1–T9 unchanged） |
+| **HOLD** | VERIFY-C · live checkout · 本番削除 unchanged |
+| **Evidence** | **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`** |
+
+**Does not imply R6 was executed.** R2–R5 result docs unchanged.

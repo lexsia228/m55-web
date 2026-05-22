@@ -118,8 +118,19 @@
 
 ---
 
-## I. History
+## I. Release-readiness cross-track（2026-05-22）
+
+- **§C stale snapshot total 6** is historical reference only（2026-05-20 AS-B1-MONITOR-R5 era）.
+- **Release-readiness ops cadence** is anchored by **OPS-MONITOR-R5-R**（DTR snapshots **104**）— see `RELEASE-READINESS-OPS-MONITOR-R5-R`.
+- **This gate remains BLOCKED** until Human runs §D SQL and records **CORE-DTR-VERIFY-B-R**.
+- **Do not** use R5-R GREEN to close VERIFY-B without B-R poll（engine v2 columns + VERIFY-specific §E checks differ）.
+- **Evidence:** **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**
+
+---
+
+## J. History
 
 | Version | Date | Note |
 |---------|------|------|
 | v1.0 | 2026-05-21 | Agent BLOCKED — SQL script published |
+| v1.1 | 2026-05-22 | §I release-readiness cross-track — R5-R **104** vs stale **6** |

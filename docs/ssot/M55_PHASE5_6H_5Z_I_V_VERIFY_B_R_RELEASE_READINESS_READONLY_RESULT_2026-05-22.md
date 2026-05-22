@@ -54,12 +54,12 @@
 
 ## D. Contradictions
 
-| # | Item | Severity | Release-readiness impact |
-|---|------|----------|---------------------------|
-| **D1** | `M55_SYSTEM_SSOT.md` **MONITOR-CADENCE** entry still says **Next: R2**（R5 完了後 stale） | **doc-only stale** | **non-blocking** — R5-R is top anchor |
-| **D2** | **CORE-DTR-VERIFY-B** still **`BLOCKED_PENDING_HUMAN_COUNTS`**（snapshots stale ref **6**） | **separate track stale** | **non-blocking** for ops monitor anchor — R5-R supersedes counts for release-readiness cadence；VERIFY-B track remains open for CORE-DTR verification chain |
+| # | Item | Severity | Release-readiness impact | Resolution |
+|---|------|----------|---------------------------|------------|
+| **D1** | `M55_SYSTEM_SSOT.md` **MONITOR-CADENCE** entry still says **Next: R2**（R5 完了後 stale） | **doc-only stale** | **non-blocking** — R5-R is top anchor | **resolved** @ VERIFY-B-CADENCE-REFRESH-EXEC |
+| **D2** | **CORE-DTR-VERIFY-B** still **`BLOCKED_PENDING_HUMAN_COUNTS`**（snapshots stale ref **6**） | **separate track stale** | **non-blocking** for ops monitor anchor — R5-R supersedes counts for release-readiness cadence；VERIFY-B track remains open for CORE-DTR verification chain | **clarified** @ VERIFY-B-CADENCE-REFRESH-EXEC — **BLOCKED unchanged** |
 
-**contradictions_found:** **yes**（doc-only · non-blocking）  
+**contradictions_found:** **yes**（doc-only · non-blocking）→ **D1/D2 addressed** @ **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**  
 **Does not downgrade release-readiness anchor GREEN.**
 
 ---
@@ -99,7 +99,7 @@
 |----------|------|------|
 | **1** | **OPS-MONITOR-R6** | Per cadence — no urgency unless trigger |
 | **2** | **Hygiene push planning** | Explicit Human GO only — **2 local commits** |
-| **3** | Optional **VERIFY-B doc refresh planning** | Reconcile D1/D2 stale refs — docs-only |
+| **3** | ~~Optional **VERIFY-B doc refresh planning**~~ | **Done** — **VERIFY-B-CADENCE-REFRESH-EXEC** @ **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`** |
 | **4** | **VERIFY-C** | **HOLD** — not next |
 
 ---

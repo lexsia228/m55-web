@@ -1,6 +1,22 @@
+## 2026-05-22 — Phase 5Z-I-V-VERIFY-B-CADENCE-REFRESH-EXEC Doc refresh execution (D1/D2)
+
+Status: **Post planning GREEN。** **Docs-only executed。** **D1:** MONITOR-CADENCE **Last R5-R @ `879d955` · Next OPS-MONITOR-R6`**。** **D2:** CORE-DTR-VERIFY-B **separate track** clarified；**BLOCKED unchanged**；R5-R **104** vs stale **6**。** **Verdict:** **`VERIFY_B_CADENCE_REFRESH_EXEC_GREEN_DOCS_ONLY_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**。** **HOLD:** VERIFY-C · push · deploy · DB · env · checkout unchanged。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_CADENCE_DOC_REFRESH_EXEC_2026-05-22.md`
+
+---
+
+## 2026-05-22 — Phase 5Z-I-V-VERIFY-B-CADENCE-REFRESH Doc refresh planning (D1/D2)
+
+Status: **Post VERIFY-B-R GREEN。** **Planning only — not executed。** **D1:** MONITOR-CADENCE **R2 next-line → R6 + R5-R baseline**。** **D2:** CORE-DTR-VERIFY-B **separate track**；R5-R **104** supersedes stale **6** for ops cadence only。** **Verdict:** **`VERIFY_B_CADENCE_DOC_REFRESH_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260522-VERIFY-B-CADENCE-DOC-REFRESH-PLAN-001`**。** **Next:** **`VERIFY-B-CADENCE-REFRESH-EXEC`** or **HOLD**。** **VERIFY-C HOLD unchanged**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_CADENCE_DOC_REFRESH_PLANNING_2026-05-22.md`
+
+---
+
 ## 2026-05-22 — Phase 5Z-I-V-VERIFY-B-R Release readiness read-only result
 
-Status: **Post R5-R @ `879d955` · hygiene local `ce5ab1e` unpushed。** **Verdict:** **`VERIFY_B_R_RELEASE_READINESS_READONLY_GREEN_NO_MUTATION`**。** **Anchor:** R5-R GREEN · 5-poll streak · integrity GREEN。** **HOLD:** VERIFY-C · C1–C3 · live checkout/delete unchanged。** **Doc stale (non-blocking):** MONITOR-CADENCE R2 next-line · CORE-DTR-VERIFY-B BLOCKED track。** **Evidence:** **`M55-EVID-20260522-VERIFY-B-R-RELEASE-READINESS-READONLY-001`**。
+Status: **Post R5-R @ `879d955` · hygiene local `ce5ab1e` unpushed。** **Verdict:** **`VERIFY_B_R_RELEASE_READINESS_READONLY_GREEN_NO_MUTATION`**。** **Anchor:** R5-R GREEN · 5-poll streak · integrity GREEN。** **HOLD:** VERIFY-C · C1–C3 · live checkout/delete unchanged。** **Doc stale D1/D2:** **resolved** @ **VERIFY-B-CADENCE-REFRESH-EXEC**。** **Evidence:** **`M55-EVID-20260522-VERIFY-B-R-RELEASE-READINESS-READONLY-001`**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_R_RELEASE_READINESS_READONLY_RESULT_2026-05-22.md`
 
@@ -40,7 +56,7 @@ Status: **m55-soul-core · app @ `0e9597c`。** **Verdict:** **`RELEASE_READINES
 
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-AS-B1-MONITOR-CADENCE Release readiness monitor cadence
 
-Status: **Post R1-R GREEN。** **Cadence:** **`RELEASE_READINESS_OPS_MONITOR_CADENCE_ACTIVE_POST_R1_R_GREEN`**。** **Verdict:** **`AS_B1_MONITOR_CADENCE_RELEASE_READINESS_GREEN_NO_MUTATION`**。** **Next poll:** **OPS-MONITOR-R2** within **24h** or before major release decision。** **SQL:** `m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **HOLD:** 本番削除 · live checkout · VERIFY-C unchanged。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-AS-B1-MONITOR-CADENCE-RELEASE-READINESS-001`**。
+Status: **Post R5-R @ `879d955`。** **Cadence:** **`RELEASE_READINESS_OPS_MONITOR_CADENCE_ACTIVE_POST_R1_R_GREEN`**（§L amendment 2026-05-22）。** **Verdict:** **`AS_B1_MONITOR_CADENCE_RELEASE_READINESS_GREEN_NO_MUTATION`**。** **Last poll:** **OPS-MONITOR-R5-R @ `879d955`**。** **Next poll:** **OPS-MONITOR-R6** — weekly OR before major deploy OR trigger §D。** **Baseline for delta:** **R5-R metrics**（DTR **104** visible / **0** hidden · failed **0/0**）。** **SQL:** `m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Note:** §C.1 R2 next-line **historical — superseded by §L**。** **HOLD:** 本番削除 · live checkout · VERIFY-C unchanged。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-AS-B1-MONITOR-CADENCE-RELEASE-READINESS-001`** · refresh **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_CADENCE_RELEASE_READINESS_2026-05-21.md`
 
@@ -576,7 +592,7 @@ Status: **`/dtr/core`。** **Verdict:** **`CORE_DTR_UI_GUARD_A_SAVED_REPORT_NOTI
 
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-VERIFY-B Counts-only preflight (agent pass)
 
-Status: **`m55-soul-core`。** **Verdict:** **`CORE_DTR_VERIFY_B_BLOCKED_PENDING_HUMAN_COUNTS_POLL`**。** **Live counts:** **not executed**（no DB creds in agent workspace）。** **SQL:** `scripts/sql/production/m55_core_dtr_verify_b_counts_only_preflight_v1.sql`。** **Stale ref:** `failed_fulfillments_24h=0` @ 2026-05-20 · snapshots **6** · engine nonnull **0** @ B3-D-R — **re-poll required**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-B-001`**。** **Next:** **CORE-DTR-VERIFY-B-R** Human counts → then **VERIFY-A-EXEC** / **VERIFY-C**.
+Status: **Separate track — not release-readiness anchor。** **`m55-soul-core`。** **Verdict:** **`CORE_DTR_VERIFY_B_BLOCKED_PENDING_HUMAN_COUNTS_POLL`**（**not GREENed**）。** **Release-readiness ops cadence:** **R5-R @ `879d955`** · DTR snapshots **104** — see RELEASE-READINESS-OPS-MONITOR-R5-R。** **§C stale ref snapshots 6** — historical only；does **not** invalidate R5-R ops count **104**。** **Live counts:** **not executed**（no DB creds in agent workspace）。** **SQL:** `scripts/sql/production/m55_core_dtr_verify_b_counts_only_preflight_v1.sql`。** **Next:** **CORE-DTR-VERIFY-B-R** Human counts → then **VERIFY-A-EXEC** / **VERIFY-C HOLD**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-VERIFY-B-001`** · cross-track **`M55-EVID-20260522-VERIFY-B-CADENCE-REFRESH-EXEC-001`**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_B_COUNTS_ONLY_PREFLIGHT_2026-05-21.md`
 
