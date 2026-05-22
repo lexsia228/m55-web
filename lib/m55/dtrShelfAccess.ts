@@ -4,7 +4,10 @@
  */
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { ariaLabelForDtrShelf } from './dtrProductLabels';
-import { getVisibleDtrReportSnapshot } from './dtrDraftDb';
+import {
+  getLatestDtrReportSnapshotIncludingHidden,
+  getVisibleDtrReportSnapshot,
+} from './dtrDraftDb';
 import {
   resolveEntryReportOwnership,
   type DtrUnlockState,
@@ -16,6 +19,31 @@ export type { DtrShelfStemDisplay };
 
 /** Owned user without snapshot: poll ready API — not Stripe checkout processing. */
 export const DTR_OWNED_RECOVERY_PROCESSING_PATH = '/dtr/processing?recovery=owned';
+
+/** Owned + hidden-only (user 削除): repurchase CTA on LP — not indefinite owned-recovery poll. */
+export const DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp';
+
+/**
+ * Owned entitlement with no visible snapshot but at least one hidden row (soft-hide / 削除後).
+ * Not for UI envelope display.
+ */
+export async function isDtrOwnedHiddenOnlyState(
+  userId: string,
+  productId: string = DTR_CORE_STATIC_V1,
+): Promise<boolean> {
+  const visible = await getVisibleDtrReportSnapshot(userId, productId);
+  if (visible) return false;
+  const latestIncludingHidden = await getLatestDtrReportSnapshotIncludingHidden(userId, productId);
+  return latestIncludingHidden != null;
+}
+
+function shelfCtaForHiddenOnlyRepurchase(): DtrShelfCta {
+  return {
+    href: DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH,
+    label: '新しい保存版を作成する',
+    ariaLabel: ariaLabelForDtrShelf('purchase', true),
+  };
+}
 
 export type DtrShelfUxState =
   | 'auth_required'
@@ -95,7 +123,8 @@ function buildAuthenticated(
   unlockState: DtrUnlockState,
   snapshotReady: boolean,
   uxState: DtrShelfUxState,
-  ownedShelfDisplay: DtrShelfStemDisplay | null
+  ownedShelfDisplay: DtrShelfStemDisplay | null,
+  hiddenOnlyRepurchase = false,
 ): Extract<DtrShelfAccessResolved, { kind: 'authenticated' }> {
   if (unlockState === 'expired') {
     return {
@@ -136,6 +165,20 @@ function buildAuthenticated(
       lpCtaMode: 'open',
       shelfCta: shelfCtaForOwnedReady(),
       ownedShelfDisplay,
+    };
+  }
+
+  if (hiddenOnlyRepurchase) {
+    return {
+      kind: 'authenticated',
+      ownershipState: 'owned',
+      uxState: 'owned_snapshot_not_ready',
+      unlockState: 'owned',
+      snapshotReady: false,
+      showPurchaseCta: true,
+      lpCtaMode: 'purchase',
+      shelfCta: shelfCtaForHiddenOnlyRepurchase(),
+      ownedShelfDisplay: null,
     };
   }
 
@@ -189,8 +232,22 @@ export async function resolveDtrShelfAccess(
     const uxState: DtrShelfUxState = snapshotReady
       ? 'owned_snapshot_ready'
       : 'owned_snapshot_not_ready';
+    let hiddenOnlyRepurchase = false;
+    if (!snapshotReady) {
+      const latestIncludingHidden = await getLatestDtrReportSnapshotIncludingHidden(
+        userId,
+        DTR_CORE_STATIC_V1,
+      );
+      hiddenOnlyRepurchase = latestIncludingHidden != null;
+    }
 
-    return buildAuthenticated('owned', snapshotReady, uxState, ownedShelfDisplay);
+    return buildAuthenticated(
+      'owned',
+      snapshotReady,
+      uxState,
+      ownedShelfDisplay,
+      hiddenOnlyRepurchase,
+    );
   } catch {
     return {
       kind: 'authenticated',

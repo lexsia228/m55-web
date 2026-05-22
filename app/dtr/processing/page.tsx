@@ -5,7 +5,11 @@ import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
-import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from '../../../lib/m55/dtrShelfAccess';
+import {
+  DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH,
+  DTR_OWNED_RECOVERY_PROCESSING_PATH,
+  isDtrOwnedHiddenOnlyState,
+} from '../../../lib/m55/dtrShelfAccess';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 import { getVisibleDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
@@ -103,6 +107,10 @@ export default async function DtrProcessingPage(props: {
     const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     if (snap) {
       redirect('/dtr/core');
+    }
+
+    if (await isDtrOwnedHiddenOnlyState(userId)) {
+      redirect(DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH);
     }
 
     return (

@@ -1,6 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from "../../../lib/m55/dtrShelfAccess";
+import {
+  DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH,
+  DTR_OWNED_RECOVERY_PROCESSING_PATH,
+  isDtrOwnedHiddenOnlyState,
+} from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getVisibleDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
 import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
@@ -56,6 +60,11 @@ export default async function DtrCorePage() {
     );
   }
 
-  // owned だが snapshot なし: 未購入 LP へ戻さず、保存版 read-path 回復へ
+  // owned + hidden-only（削除後）: 無限 recovery poll へ入れず LP 再購入導線へ
+  if (await isDtrOwnedHiddenOnlyState(userId)) {
+    redirect(DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH);
+  }
+
+  // owned だが visible snapshot なし（未反映）: 保存版 read-path 回復へ
   redirect(DTR_OWNED_RECOVERY_PROCESSING_PATH);
 }

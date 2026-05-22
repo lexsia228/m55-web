@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C Hidden-only post-delete UX
+
+Status: **`work/home-cluster`（pending push）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_GREEN_NO_DEPLOY`**。** **Fix:** hidden-only owned → **`/dtr/lp`** repurchase（not `/dtr/processing?recovery=owned` poll）。** **Root cause:** owned-recovery poll waits visible `hasPurchaseSnapshot` forever after soft-hide。** **Not in gate:** Production · `main` · live checkout · DB · env。** **Next:** **D-PREVIEW-FIX-C-R**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_HIDDEN_ONLY_UX_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-B Hide API middleware public route
 
 Status: **`work/home-cluster`（pending push）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_B_GREEN_NO_DEPLOY`**。** **Fix:** `middleware.ts` — add **`/api/dtr/report-snapshot/hide`** to public list；handler **`auth()`** returns **401 JSON**。** **Local smoke:** unauth POST → **401** `{ code: 'unauthorized' }`。** **Not in gate:** Production · `main` · live checkout · DB · env。** **Next:** **D-PREVIEW-FIX-B-R** preview redeploy smoke。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-B-001`**。

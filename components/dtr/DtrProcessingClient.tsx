@@ -14,6 +14,7 @@ const POLL_MS = 2500;
 const MAX_POLLS = 120;
 
 const CORE_READY = '/dtr/core?post_purchase=1';
+const HIDDEN_ONLY_REPURCHASE_LP = '/dtr/lp';
 
 export function DtrProcessingClient({
   supportUrl,
@@ -57,9 +58,19 @@ export function DtrProcessingClient({
             ready?: boolean;
             hasOwnership?: boolean;
             hasPurchaseSnapshot?: boolean;
+            showPurchaseCta?: boolean;
           };
           if (d.ready === true && d.hasOwnership === true && d.hasPurchaseSnapshot === true) {
             router.replace(CORE_READY);
+            return;
+          }
+          if (
+            isOwnedRecovery &&
+            d.hasOwnership === true &&
+            d.hasPurchaseSnapshot !== true &&
+            d.showPurchaseCta === true
+          ) {
+            router.replace(HIDDEN_ONLY_REPURCHASE_LP);
             return;
           }
         }
