@@ -1,3 +1,19 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D-R Production apply result recorded
+
+Status: **m55-soul-core。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_R_PRODUCTION_APPLY_GREEN`**。** **Apply:** 1× Success · rows **6→6** · `user_hidden_*=1` · partial unique **1** · nonnull **0** · duplicate **0**。** **DB layer complete**；**code/deploy not in gate**。** **Next:** **C-D-R-COMMIT** → **SOFT-HIDE-D** hide API + `/my` planning。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_R_PRODUCTION_APPLY_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D Production DDL apply packet
+
+Status: **Human GO `CORE-DTR-SOFT-HIDE-REPURCHASE-C-D go`。** **Target:** **m55-soul-core only**。** **Superseded by C-D-R GREEN.** **Script:** `scripts/sql/production/m55_soft_hide_repurchase_c_d_production_apply_verify_v1.sql`。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-D-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_PRODUCTION_APPLY_EXECUTION_PACKET_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-R Production preflight result recorded
 
 Status: **m55-soul-core @ `95ccc29`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_C_R_PRODUCTION_PREFLIGHT_GREEN_READY_FOR_APPLY_PENDING_HUMAN_GO`**。** **Key:** rows **6** · DTR **6** · duplicate **0** · legacy unique **1** · `user_hidden_*=0` · partial unique **0** · engine legacy NULL **6/6** · failed_24h **0**。** **Apply:** **not in this gate** — pending **C-D** Human GO。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-R-001`**。
