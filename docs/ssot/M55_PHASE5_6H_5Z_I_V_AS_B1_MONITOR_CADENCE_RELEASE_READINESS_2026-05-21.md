@@ -224,7 +224,7 @@ No-mutation:
 | Step | Gate |
 |------|------|
 | **1** | **`AS-B1-MONITOR-CADENCE-COMMIT`**（本条） |
-| **2** | **`RELEASE-READINESS-OPS-MONITOR-R2-R`** GREEN @ Human poll — **R3** when due |
+| **2** | **R2-R · R3-R** GREEN — **R4** per weekly / pre-deploy / trigger |
 | **3** | Optional C1–C3 only with explicit Human GO |
 
 ---
