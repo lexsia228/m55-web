@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-R Hidden-only redirect Human result
+
+Status: **Preview @ `a081259`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_R_GREEN_HIDDEN_ONLY_REDIRECT_CONFIRMED`**。** **Human:** post-delete `/dtr/core` → **`/dtr/lp`**；loader loop **broken**；no id exposure；no checkout click。** **Production merge/deploy:** **not authorized**。** **D-PREVIEW final Human:** **separate**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_R_HIDDEN_ONLY_REDIRECT_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C Hidden-only post-delete UX
 
 Status: **`work/home-cluster`（pending push）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_GREEN_NO_DEPLOY`**。** **Fix:** hidden-only owned → **`/dtr/lp`** repurchase（not `/dtr/processing?recovery=owned` poll）。** **Root cause:** owned-recovery poll waits visible `hasPurchaseSnapshot` forever after soft-hide。** **Not in gate:** Production · `main` · live checkout · DB · env。** **Next:** **D-PREVIEW-FIX-C-R**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FIX-C-001`**。
