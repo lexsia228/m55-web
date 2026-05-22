@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DELETE-EXECUTION-PLANNING Production delete planning
+
+Status: **Planning only — no Production delete。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DELETE_EXECUTION_PLANNING_GREEN_READY_FOR_EXECUTION_PENDING_HUMAN_GO`**。** **Target:** visible saved report account @ **`0e9597c`** · Human delete approval required。** **Irreversible:** soft-hide only · no UI undo。** **HOLD:** live checkout · VERIFY-C。** **Next:** **D-PROD-DELETE-EXECUTION** explicit Human GO。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DELETE-EXECUTION-PLANNING-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DELETE_EXECUTION_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-VISIBLE-CANCEL-ONLY-DTR-CORE-R Post-cancel /dtr/core supplemental
 
 Status: **Production @ `0e9597c`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_DTR_CORE_PARTIAL_NOT_APPLICABLE_VISIBLE_ASSET_ABSENT`**。** **Human:** `/my` **未購入** · no visible card · `/dtr/core` **not opened**（no visible asset）。** **Does not close** prior `/dtr/core` post-cancel caveat for visible account。** **Safety:** unpurchased/hidden-only · no old leak · no fatal。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-VISIBLE-CANCEL-ONLY-DTR-CORE-R-001`**。
