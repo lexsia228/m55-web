@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-PRECHECK Preview deploy precheck
+
+Status: **`work/home-cluster` @ `c4c7f31`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_PRECHECK_GREEN_READY_FOR_BRANCH_PREVIEW_NO_DEPLOY`**。** **Tests:** **37/37** · tsc pass · git clean（soft-hide）。** **Advisory:** local `npm run build` failed Clerk key（Vercel env expected）。** **Next:** **D-PREVIEW** deploy → **D-PREVIEW-R** Human smoke。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-PRECHECK-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_PRECHECK_PREVIEW_DEPLOY_PRECHECK_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-FULFILL-R Fulfillment repurchase INSERT result
 
 Status: **`work/home-cluster` @ `285e963`+（code pending D-FULFILL-COMMIT）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_FULFILL_GREEN_NO_DEPLOY_NO_LIVE_CHECKOUT`**。** **Scope:** visible-only dedupe · hidden-only INSERT · wallet relink · included reply idempotent · tests **23/23**。** **Not in gate:** live checkout · deploy。** **Next:** **D-FULFILL-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-FULFILL-R-001`**。
