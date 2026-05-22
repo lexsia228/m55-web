@@ -4,7 +4,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Phase** | **5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-R** supplemental · **DTR-CORE-R** |
+| **Phase** | **5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-VISIBLE-CANCEL-ONLY-DTR-CORE-R** |
 | **Title** | **Post-cancel `/dtr/core` open — not applicable** |
 | **Classification** | **Category 1 / Human attestation / docs-only** |
 | **Verdict** | **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_DTR_CORE_PARTIAL_NOT_APPLICABLE_VISIBLE_ASSET_ABSENT`** |
