@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-21T22:40:45.217889+00:00",
-  "count": 526,
+  "generated_at_utc": "2026-05-22T22:16:14.532674+00:00",
+  "count": 595,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -798,6 +798,11 @@
       "bytes": 4129
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_CADENCE_RELEASE_READINESS_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 10856
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_POST_DEPLOY_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
       "category": "ssot",
       "bytes": 7386
@@ -861,6 +866,11 @@
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_DISABLE_NOTIFICATION_DISABLE_FLAG_HUMAN_CHECKPOINT_2026-05-20.md",
       "category": "ssot",
       "bytes": 5337
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_DISABLE_R_NOTIFICATION_DISABLE_FLAG_HUMAN_CHECKPOINT_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5196
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_D_NOTIFY_CODE_PRODUCTION_DEPLOY_EXECUTION_2026-05-20.md",
@@ -1108,6 +1118,216 @@
       "bytes": 9769
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_A_FREE_CORE_PAID_DTR_SNAPSHOT_CONSISTENCY_POLICY_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 11028
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_B_FREE_CORE_PAID_DTR_UI_IMPLEMENTATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 14642
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_A_USER_VISIBLE_HIDE_REPURCHASE_SPEC_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 18360
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B1_MIGRATION_DRAFT_PREFLIGHT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2769
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_A_PREFLIGHT_SQL_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 1961
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B2_FIX_B_PREFLIGHT_SQL_PRIMITIVE_ADAPTIVE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2083
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B2_R_SHADOW_PREFLIGHT_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4155
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B3_R_SHADOW_APPLY_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3830
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B3_SHADOW_APPLY_EXECUTION_PACKET_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3357
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_B_SCHEMA_MIGRATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 13530
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_PRODUCTION_APPLY_EXECUTION_PACKET_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2949
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_D_R_PRODUCTION_APPLY_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4053
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_PRODUCTION_MIGRATION_PLANNING_PREFLIGHT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6793
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_R_PRODUCTION_PREFLIGHT_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4717
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_API_R_HIDE_API_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4312
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_CHECKOUT_R_REPURCHASE_LANE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3554
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_CLOSE_PARTIAL_READY_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4365
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_FULFILL_R_REPURCHASE_INSERT_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3432
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_HIDE_API_MY_UI_IMPLEMENTATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 10847
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_MY_R_MY_DELETE_UI_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3960
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_BRANCH_PREVIEW_SMOKE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4941
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FINAL_CONSOLIDATED_HUMAN_SMOKE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3966
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_B_MIDDLEWARE_PUBLIC_ROUTE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3116
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_HIDDEN_ONLY_UX_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2857
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FIX_C_R_HIDDEN_ONLY_REDIRECT_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2528
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_PRECHECK_PREVIEW_DEPLOY_PRECHECK_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5696
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DELETE_EXECUTION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 7350
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DELETE_EXECUTION_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3940
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_EXECUTION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3825
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 8284
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_R_SIGNED_IN_NO_MUTATION_SMOKE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3762
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_DTR_CORE_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3378
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_VISIBLE_CANCEL_ONLY_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3323
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_READ_R_VISIBLE_READ_PATH_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4451
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_RELEASE_READINESS_RETURN_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4867
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_A_PERMANENT_SAVED_REPORT_NOTICE_BADGE_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 7662
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_B_SAVED_REPORT_NOTICE_IMPLEMENTATION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 1523
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_DEPLOY_PRECHECK_SAVED_REPORT_NOTICE_DEPLOY_READINESS_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6643
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_UI_GUARD_DEPLOY_PREVIEW_R_HUMAN_VISUAL_REVIEW_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5842
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_A_NEW_UNPAID_USER_PAID_DTR_SNAPSHOT_VERIFICATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 15290
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_B_COUNTS_ONLY_PREFLIGHT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5424
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_VERIFY_PLANNING_COMPOSITE_ASTROLOGY_V2_CORE_DTR_VERIFICATION_RESTART_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 11207
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_C_AI_READABLE_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md",
       "category": "ssot",
       "bytes": 5250
@@ -1143,14 +1363,29 @@
       "bytes": 7885
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PREVIEW_COMPOSITE_ASTROLOGY_V2_BRANCH_PREVIEW_EXECUTION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5217
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PREVIEW_R_COMPOSITE_ASTROLOGY_V2_BRANCH_PREVIEW_SMOKE_2026-05-21.md",
       "category": "ssot",
       "bytes": 4050
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_EXECUTION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3389
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_PLANNING_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_PLAN_2026-05-21.md",
       "category": "ssot",
       "bytes": 11109
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_LOGGED_OUT_SMOKE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2923
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_A_COMPOSITE_ASTROLOGY_V2_IMPLEMENTATION_PLANNING_2026-05-21.md",
@@ -1228,6 +1463,16 @@
       "bytes": 4741
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_POST_DEPLOY_HUMAN_SMOKE_COMPOSITE_ASTROLOGY_V2_PRODUCTION_HUMAN_UI_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5380
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_POST_DEPLOY_HUMAN_SMOKE_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_HUMAN_UI_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3212
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_A_COMPOSITE_ASTROLOGY_STEM_LAW_SPECIFICATION_PLANNING_2026-05-21.md",
       "category": "ssot",
       "bytes": 18497
@@ -1288,6 +1533,41 @@
       "bytes": 9761
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_EXECUTION_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 5859
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_EXECUTION_COMMIT_PUSH_EXEC_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 5876
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_EXECUTION_COMMIT_PUSH_EXEC_COMMIT_PUSH_EXEC_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 6031
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_EXECUTION_COMMIT_PUSH_EXEC_COMMIT_PUSH_PLANNING_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 8431
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_EXECUTION_COMMIT_PUSH_PLANNING_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 9130
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_PLANNING_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 9748
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_HYGIENE_PUSH_PLANNING_REFRESH_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 9079
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_H_EXACT_CLERK_KEY_CONFLICT_DIAGNOSTIC_PLANNING_2026-05-18.md",
       "category": "ssot",
       "bytes": 8025
@@ -1338,6 +1618,51 @@
       "bytes": 10446
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5542
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R1_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6293
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R2_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6707
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R3_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6513
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R4_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6550
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R5_R_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 6525
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R6_RECONCILIATION_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 3187
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R6_R_RESULT_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 7037
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R7_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 9324
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_R_PRODUCT_RIGHT_SNAPSHOT_READONLY_SELECT_2026-05-18.md",
       "category": "ssot",
       "bytes": 8381
@@ -1373,6 +1698,11 @@
       "bytes": 5868
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_D_HUMAN_OWNED_HUMAN_UI_VERIFICATION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5935
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md",
       "category": "ssot",
       "bytes": 7849
@@ -1381,6 +1711,21 @@
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_U_SNAPSHOT_LOOKUP_ROUTE_READ_PATH_SNAPSHOTREADY_CODE_FIX_PLANNING_2026-05-18.md",
       "category": "ssot",
       "bytes": 10260
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_CADENCE_DOC_REFRESH_EXEC_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 4049
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_CADENCE_DOC_REFRESH_PLANNING_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 8785
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_VERIFY_B_R_RELEASE_READINESS_READONLY_RESULT_2026-05-22.md",
+      "category": "ssot",
+      "bytes": 5645
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_V_SNAPSHOT_ROUTE_READ_PATH_IMPLEMENTATION_PLANNING_2026-05-18.md",
@@ -2275,7 +2620,7 @@
     {
       "path": "docs/ssot/M55_SYSTEM_SSOT.md",
       "category": "ssot",
-      "bytes": 590665
+      "bytes": 638164
     },
     {
       "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
@@ -2490,12 +2835,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 72348
+      "bytes": 82292
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 47797
+      "bytes": 54933
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
