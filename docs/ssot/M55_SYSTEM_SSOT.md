@@ -1,3 +1,19 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-R Production preflight result recorded
+
+Status: **m55-soul-core @ `95ccc29`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_C_R_PRODUCTION_PREFLIGHT_GREEN_READY_FOR_APPLY_PENDING_HUMAN_GO`**。** **Key:** rows **6** · DTR **6** · duplicate **0** · legacy unique **1** · `user_hidden_*=0` · partial unique **0** · engine legacy NULL **6/6** · failed_24h **0**。** **Apply:** **not in this gate** — pending **C-D** Human GO。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_R_PRODUCTION_PREFLIGHT_RESULT_2026-05-21.md`
+
+---
+
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C Production migration planning + preflight
+
+Status: **`work/home-cluster` @ `04f466b`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_C_PRODUCTION_PREFLIGHT_PLANNING_GREEN_NO_APPLY_PENDING_HUMAN_COUNTS`**。** **Target:** **m55-soul-core** preflight only。** **Script:** `scripts/sql/production/m55_soft_hide_repurchase_b1_preflight_v1.sql`。** **Apply:** **not authorized**。** **VERIFY-C:** **HOLD**。** **Next:** **C-R** Human counts → readiness class。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-C-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_C_PRODUCTION_MIGRATION_PLANNING_PREFLIGHT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3-R Shadow apply result recorded
 
 Status: **m55-soul-shadow。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_B3_SHADOW_APPLY_GREEN_NO_PRODUCTION`**。** **POST:** `user_hidden_*=1` · partial unique **1** · rows **2→2** · `user_hidden_at_nonnull=0` · duplicate **0**。** **Production:** **no**。** **Note:** shadow GREEN only；Production needs separate **C** + Human GO。** **Next:** **B3-R-COMMIT**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-B3-R-001`**。
