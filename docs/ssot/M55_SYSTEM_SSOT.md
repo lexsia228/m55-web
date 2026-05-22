@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-PLANNING Production deploy planning
+
+Status: **Planning only — no deploy。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_PLANNING_GREEN_READY_FOR_EXECUTION_PENDING_HUMAN_GO`**。** **Route:** **`work/home-cluster` → merge `main` → ff-only → Vercel Production**（not preview promote alone）。** **Anchor:** preview **`cc73af1`** · UX **`a081259`** · **current Production `main` @ `2e05724`**。** **DB:** schema @ C-D-R already applied；**no** EXECUTION migration。** **Next:** **D-PROD-DEPLOY-EXECUTION** explicit Human GO。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PROD-DEPLOY-PLANNING-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_PROD_DEPLOY_PLANNING_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FINAL Consolidated preview Human smoke
 
 Status: **Preview `m55-webv2-git-work-home-cluster-m55-official.vercel.app` @ `15d8eb1`（code `a081259`+）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_PREVIEW_FINAL_GREEN_NO_DEPLOY_NO_LIVE_CHECKOUT`**。** **Human GO:** consolidated smoke。** **Post-delete:** `/my` card absent · `/dtr/core`→`/dtr/lp` · no loader · LP CTA visible · no checkout click。** **API:** unauth hide **401 JSON**。** **Dialog/cancel:** **not_run**（already deleted）。** **Production / live checkout:** **not authorized**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-PREVIEW-FINAL-001`**。
