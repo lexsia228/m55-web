@@ -3,7 +3,10 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
-import { getDtrReportSnapshot, getLatestDraftForUser } from '../../../../lib/m55/dtrDraftDb';
+import {
+  getLatestDtrReportSnapshotIncludingHidden,
+  getLatestDraftForUser,
+} from '../../../../lib/m55/dtrDraftDb';
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
@@ -163,7 +166,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (productId === DTR_CORE_PRODUCT) {
-    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snap = await getLatestDtrReportSnapshotIncludingHidden(userId, DTR_CORE_STATIC_V1);
     if (snap) {
       console.info(
         '[checkout]',

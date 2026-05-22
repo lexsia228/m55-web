@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
-import { getDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
+import { getVisibleDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
 import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
 import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
@@ -25,7 +25,7 @@ export default async function DtrCorePage() {
   if (ownership.unlockState === "locked") redirect("/dtr/lp");
   if (ownership.unlockState === "expired") redirect("/dtr/lp?state=expired");
 
-  const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+  const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
 
   if (snap) {
     const read = resolveStoredEnvelopeRead(snap);

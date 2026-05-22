@@ -7,7 +7,7 @@ import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifySt
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { DTR_OWNED_RECOVERY_PROCESSING_PATH } from '../../../lib/m55/dtrShelfAccess';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
-import { getDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
+import { getVisibleDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
 import { LABEL_FORMAT_SAVED, LABEL_PRODUCT_JP } from '../../../lib/m55/dtrProductLabels';
 import styles from './processing.module.css';
@@ -100,7 +100,7 @@ export default async function DtrProcessingPage(props: {
       redirect('/dtr/lp');
     }
 
-    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     if (snap) {
       redirect('/dtr/core');
     }
@@ -169,7 +169,7 @@ export default async function DtrProcessingPage(props: {
     redirect('/dtr/lp');
   }
 
-  const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+  const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
   if (snap) {
     redirect('/dtr/core');
   }

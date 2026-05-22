@@ -36,6 +36,7 @@ export async function verifyUserOwnsReportInstance(
     .select('id')
     .eq('id', reportInstanceId)
     .eq('user_id', userId)
+    .is('user_hidden_at', null)
     .maybeSingle();
   if (error || !data) return false;
   return true;

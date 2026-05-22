@@ -4,7 +4,7 @@
  */
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { ariaLabelForDtrShelf } from './dtrProductLabels';
-import { getDtrReportSnapshot } from './dtrDraftDb';
+import { getVisibleDtrReportSnapshot } from './dtrDraftDb';
 import {
   resolveEntryReportOwnership,
   type DtrUnlockState,
@@ -183,7 +183,7 @@ export async function resolveDtrShelfAccess(
       );
     }
 
-    const snap = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     const snapshotReady = snap != null;
     const ownedShelfDisplay = snap ? deriveDtrShelfStemDisplayFromSnapshot(snap) : null;
     const uxState: DtrShelfUxState = snapshotReady

@@ -1,3 +1,11 @@
+## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-READ-R Visible read path result
+
+Status: **`work/home-cluster` @ `f3df69e`+（code pending D-READ-COMMIT）。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_READ_GREEN_NO_DEPLOY`**。** **Scope:** `getVisibleDtrReportSnapshot` · UI/shelf/ownership/reply visible-only · checkout/fulfillment including-hidden preserved · tests **12/12** · tsc pass。** **Not in gate:** hide API · `/my` delete · repurchase lane · deploy。** **Next:** **D-READ-COMMIT** → **D-API**。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-READ-R-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_CORE_DTR_SOFT_HIDE_REPURCHASE_D_READ_R_VISIBLE_READ_PATH_RESULT_2026-05-21.md`
+
+---
+
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D Hide API + /my UI implementation planning
 
 Status: **`work/home-cluster` @ `0d62c49`。** **Verdict:** **`CORE_DTR_SOFT_HIDE_REPURCHASE_D_IMPLEMENTATION_PLANNING_GREEN_NO_CODE_NO_DEPLOY`**。** **Scope:** `/my` 削除 UI · A-R dialog copy · `POST /api/dtr/report-snapshot/hide` · `getVisibleDtrReportSnapshot` · checkout repurchase lane · tests · deploy split。** **DB:** Production schema @ C-D-R。** **Next:** **D-READ** code。** **Evidence:** **`M55-EVID-20260521-5Z-I-V-CORE-DTR-SOFT-HIDE-REPURCHASE-D-001`**。

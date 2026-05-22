@@ -53,38 +53,86 @@ export type DtrReportSnapshotRow = {
   engine_context_json: EngineContextJson | Record<string, unknown> | null;
 };
 
-export async function getDtrReportSnapshot(
+const DTR_REPORT_SNAPSHOT_SELECT =
+  'id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json,engine_version,engine_context_json';
+
+function mapDtrReportSnapshotRow(data: Record<string, unknown>): DtrReportSnapshotRow | null {
+  const idRaw = data.id as unknown;
+  if (idRaw == null || (typeof idRaw !== 'string' && typeof idRaw !== 'number')) return null;
+  return {
+    reportInstanceId: String(idRaw),
+    user_id: data.user_id as string,
+    product_id: data.product_id as string,
+    checkout_session_id: (data.checkout_session_id as string | null) ?? null,
+    profile_snapshot: data.profile_snapshot as { nickname: string; birthDate: string },
+    draft_snapshot: (data.draft_snapshot as Record<string, unknown> | null) ?? null,
+    envelope_json: data.envelope_json as DtrEnvelope,
+    engine_version: (data.engine_version as string | null) ?? null,
+    engine_context_json:
+      (data.engine_context_json as EngineContextJson | Record<string, unknown> | null) ?? null,
+  };
+}
+
+type FetchDtrReportSnapshotOptions = {
+  /** When true, only rows with `user_hidden_at IS NULL` (normal UI / ownership display). */
+  visibleOnly: boolean;
+};
+
+async function fetchDtrReportSnapshotRow(
   userId: string,
-  productId: string = DTR_CORE_STATIC_V1
+  productId: string,
+  options: FetchDtrReportSnapshotOptions,
 ): Promise<DtrReportSnapshotRow | null> {
   try {
     const db = getSupabaseAdmin() as any;
-    const { data, error } = await db
+    let query = db
       .from('dtr_report_snapshots')
-      .select(
-        'id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json,engine_version,engine_context_json',
-      )
+      .select(DTR_REPORT_SNAPSHOT_SELECT)
       .eq('user_id', userId)
-      .eq('product_id', productId)
+      .eq('product_id', productId);
+    if (options.visibleOnly) {
+      query = query.is('user_hidden_at', null);
+    }
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
     if (error || !data) return null;
-    const idRaw = data.id as unknown;
-    if (idRaw == null || (typeof idRaw !== 'string' && typeof idRaw !== 'number')) return null;
-    return {
-      reportInstanceId: String(idRaw),
-      user_id: data.user_id,
-      product_id: data.product_id,
-      checkout_session_id: data.checkout_session_id ?? null,
-      profile_snapshot: data.profile_snapshot as { nickname: string; birthDate: string },
-      draft_snapshot: (data.draft_snapshot as Record<string, unknown> | null) ?? null,
-      envelope_json: data.envelope_json as DtrEnvelope,
-      engine_version: (data.engine_version as string | null) ?? null,
-      engine_context_json:
-        (data.engine_context_json as EngineContextJson | Record<string, unknown> | null) ?? null,
-    };
+    return mapDtrReportSnapshotRow(data as Record<string, unknown>);
   } catch {
     return null;
   }
+}
+
+/**
+ * Latest visible snapshot for user-facing read paths (`user_hidden_at IS NULL`).
+ */
+export async function getVisibleDtrReportSnapshot(
+  userId: string,
+  productId: string = DTR_CORE_STATIC_V1,
+): Promise<DtrReportSnapshotRow | null> {
+  return fetchDtrReportSnapshotRow(userId, productId, { visibleOnly: true });
+}
+
+/**
+ * Latest snapshot row regardless of hide state (checkout block + fulfillment dedupe only).
+ * Not for UI envelope display — use {@link getVisibleDtrReportSnapshot}.
+ */
+export async function getLatestDtrReportSnapshotIncludingHidden(
+  userId: string,
+  productId: string = DTR_CORE_STATIC_V1,
+): Promise<DtrReportSnapshotRow | null> {
+  return fetchDtrReportSnapshotRow(userId, productId, { visibleOnly: false });
+}
+
+/**
+ * @deprecated Prefer {@link getVisibleDtrReportSnapshot} for UI. Delegates to visible-only read.
+ */
+export async function getDtrReportSnapshot(
+  userId: string,
+  productId: string = DTR_CORE_STATIC_V1,
+): Promise<DtrReportSnapshotRow | null> {
+  return getVisibleDtrReportSnapshot(userId, productId);
 }
 
 export type UpsertDtrReportSnapshotAtFulfillmentResult =
@@ -101,7 +149,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
-  const existing = await getDtrReportSnapshot(params.userId, params.productId);
+  const existing = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
   if (existing) {
     return { ok: true, snapshotId: existing.reportInstanceId };
   }
@@ -175,7 +223,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 
     if (error) {
       if (error.code === '23505') {
-        const reread = await getDtrReportSnapshot(params.userId, params.productId);
+        const reread = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
         if (reread) return { ok: true, snapshotId: reread.reportInstanceId };
       }
       const e = error as { code?: string; message?: string; details?: string; hint?: string };
@@ -187,7 +235,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     let snapshotId: string | undefined =
       insertData?.id != null ? String((insertData as { id: unknown }).id) : undefined;
     if (!snapshotId) {
-      const reread = await getDtrReportSnapshot(params.userId, params.productId);
+      const reread = await getLatestDtrReportSnapshotIncludingHidden(params.userId, params.productId);
       snapshotId = reread?.reportInstanceId;
     }
     if (!snapshotId) {

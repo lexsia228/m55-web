@@ -13,7 +13,7 @@
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { DTR_CORE_RIGHT_KEY } from './dtrCoreCheckoutFulfillment';
-import { getDtrReportSnapshot } from './dtrDraftDb';
+import { getVisibleDtrReportSnapshot } from './dtrDraftDb';
 
 export type DtrUnlockState = 'owned' | 'locked' | 'expired';
 
@@ -37,7 +37,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
   try {
     const db = getSupabaseAdmin();
 
-    const snapRow = await getDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snapRow = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
     if (snapRow) {
       console.info(
         '[dtrOwnershipGate]',
