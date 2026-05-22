@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-20T22:43:39.109728+00:00",
-  "count": 472,
+  "generated_at_utc": "2026-05-21T22:40:45.217889+00:00",
+  "count": 526,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -75,7 +75,7 @@
     {
       "path": "docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md",
       "category": "ssot",
-      "bytes": 127344
+      "bytes": 149864
     },
     {
       "path": "docs/ssot/M55_ENVIRONMENT_MATRIX.md",
@@ -793,9 +793,34 @@
       "bytes": 10086
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_CADENCE_OPERATIONAL_MONITORING_CADENCE_CONTINUATION_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 4129
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_POST_DEPLOY_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
       "category": "ssot",
       "bytes": 7386
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_R2_POST_NOTIFICATION_DISABLE_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 8605
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_R3_POST_FIXTURE_FAILED_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 8533
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_R4_POST_DIAGNOSTIC_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 8188
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_R5_POST_DIAG_D_BLOCKED_OPERATIONAL_COUNTS_ONLY_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 8262
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_R_MANUAL_FAILED_FULFILLMENTS_POLLING_RESULT_2026-05-19.md",
@@ -828,9 +853,89 @@
       "bytes": 7694
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_DISABLE_D_NOTIFICATION_DISABLE_ACTIVATION_REDEPLOY_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5786
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_DISABLE_NOTIFICATION_DISABLE_FLAG_HUMAN_CHECKPOINT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5337
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_D_NOTIFY_CODE_PRODUCTION_DEPLOY_EXECUTION_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5552
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_ENABLE_D_NOTIFICATION_ENABLE_ACTIVATION_REDEPLOY_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 4913
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_ENABLE_NOTIFICATION_ENABLE_FLAG_HUMAN_CHECKPOINT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 4951
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_PRODUCTION_SAFE_NOTIFICATION_VERIFICATION_PLANNING_2026-05-20.md",
       "category": "ssot",
       "bytes": 10195
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_DIAG_A_SAFE_LOCAL_DIAGNOSTIC_GUARD_MATRIX_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5966
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_DIAG_B_SAFE_REASON_LABEL_DIAGNOSTIC_PLANNING_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 7666
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_DIAG_C_SAFE_REASON_LABEL_DIAGNOSTIC_IMPLEMENTATION_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5558
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_DIAG_D_ENV_BACKED_LOCAL_DIAGNOSE_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 4403
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_DIAG_SAFE_FIXTURE_NOTIFICATION_FAILURE_DIAGNOSTIC_PLANNING_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 9547
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_HARNESS_A_HUMAN_LOCAL_FIXTURE_HARNESS_IMPLEMENTATION_PLANNING_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 11017
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_HARNESS_B_LOCAL_FIXTURE_SCRIPT_CREATION_NO_SEND_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5297
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_HARNESS_C_HUMAN_ENV_PULL_CHECKPOINT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5813
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_HARNESS_SAFE_FIXTURE_NOTIFICATION_HARNESS_PLANNING_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 11132
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_ONE_SHOT_SAFE_FIXTURE_NOTIFICATION_EXECUTION_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5338
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B6_R_R_ONE_SHOT_SAFE_FIXTURE_NOTIFICATION_RESULT_2026-05-20.md",
+      "category": "ssot",
+      "bytes": 5760
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B_MINIMAL_ERROR_NOTIFICATION_PLANNING_2026-05-19.md",
@@ -1013,6 +1118,151 @@
       "bytes": 9213
     },
     {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_A_M55_ORIGINAL_COMPOSITE_ASTROLOGY_ENGINE_CONSISTENCY_AUDIT_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 16766
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_B_M55_ORIGINAL_COMPOSITE_ASTROLOGY_ENGINE_READ_ONLY_CODE_AUDIT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 19007
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_AUDIT_C_M55_ENGINE_DETERMINISTIC_MATRIX_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 9704
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DECISION_B_R_HUMAN_DECISION_COMPOSITE_ENGINE_CORRECTION_REQUIRED_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 8320
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRECHECK_COMPOSITE_ASTROLOGY_V2_DEPLOY_READINESS_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 7885
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PREVIEW_R_COMPOSITE_ASTROLOGY_V2_BRANCH_PREVIEW_SMOKE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4050
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_DEPLOY_PRODUCTION_PLANNING_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DEPLOY_PLAN_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 11109
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_A_COMPOSITE_ASTROLOGY_V2_IMPLEMENTATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 13731
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B1_COMPOSITE_ASTROLOGY_CALENDAR_BUNDLE_INGEST_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2764
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B2_COMPOSITE_ASTROLOGY_V2_PIPELINE_AND_GOLDEN_TEST_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 1983
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_A_COMPOSITE_ASTROLOGY_V2_ADDITIVE_DB_MIGRATION_DRAFT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2650
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_B_COMPOSITE_ASTROLOGY_V2_STAGING_MIGRATION_APPLY_EXECUTION_PACKET_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3554
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_B_R_COMPOSITE_ASTROLOGY_V2_SHADOW_MIGRATION_APPLY_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3536
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_C_COMPOSITE_ASTROLOGY_V2_PRODUCTION_MIGRATION_APPLY_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 8096
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_D_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DDL_APPLY_EXECUTION_PACKET_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2693
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B3_D_R_COMPOSITE_ASTROLOGY_V2_PRODUCTION_DDL_APPLY_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4015
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B4_COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 2633
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B4_R_COMPOSITE_ASTROLOGY_V2_FULFILLMENT_SNAPSHOT_WRITE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3323
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B5_COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3490
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B5_R_COMPOSITE_ASTROLOGY_V2_PROFILE_CHECKOUT_METADATA_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4537
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B6_COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 1194
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_IMPL_B6_R_COMPOSITE_ASTROLOGY_V2_STORED_ENVELOPE_ROUTE_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4741
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_A_COMPOSITE_ASTROLOGY_STEM_LAW_SPECIFICATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 18497
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_B_R_COMPOSITE_ASTROLOGY_STEM_LAW_UNRESOLVED_DECISIONS_SIGN_OFF_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 11836
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_C_COMPOSITE_ASTROLOGY_GOLDEN_MATRIX_AND_CALENDAR_TABLE_SSOT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 13266
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_SPEC_C_R_1983_02_28_GOLDEN_ANCHOR_AND_SNAPSHOT_FIREWALL_REINFORCEMENT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 8832
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_VERIFY_A_COMPOSITE_ASTROLOGY_V2_VERIFICATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 11915
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_VERIFY_A_EXEC_COMPOSITE_ASTROLOGY_V2_VERIFICATION_EXECUTION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 4257
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_ENGINE_VERIFY_A_R_COMPOSITE_ASTROLOGY_V2_VERIFICATION_EXECUTION_RESULT_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 3537
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_E_HUMAN_DASHBOARD_CLERK_KEY_MATCH_CONFIRMATION_2026-05-18.md",
       "category": "ssot",
       "bytes": 6457
@@ -1106,6 +1356,21 @@
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_A_TYPE_LABEL_MISMATCH_DIAGNOSTIC_PLANNING_2026-05-20.md",
       "category": "ssot",
       "bytes": 9604
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_A_TYPE_LABEL_MISMATCH_FIX_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 15509
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_B_TYPE_LABEL_MISMATCH_IMPLEMENTATION_PLANNING_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 17620
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_TL_FIX_C_TYPE_LABEL_MISMATCH_IMPLEMENTATION_EXECUTION_2026-05-21.md",
+      "category": "ssot",
+      "bytes": 5868
     },
     {
       "path": "docs/ssot/M55_PHASE5_6H_5Z_I_V_T_ENTITLEMENT_DISCREPANCY_OWNERSHIP_FALLBACK_READONLY_SELECT_2026-05-18.md",
@@ -2010,7 +2275,7 @@
     {
       "path": "docs/ssot/M55_SYSTEM_SSOT.md",
       "category": "ssot",
-      "bytes": 543539
+      "bytes": 590665
     },
     {
       "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
@@ -2111,6 +2376,11 @@
       "path": "docs/ssot/stripe_go_live_test_checklist_2026_03_08.md",
       "category": "ssot",
       "bytes": 1853
+    },
+    {
+      "path": "docs/audit/ENGINE_VERIFY_MATRIX_RESULTS_20260521.json",
+      "category": "audit",
+      "bytes": 9453
     },
     {
       "path": "docs/audit/GM_SEAL.md",
@@ -2220,12 +2490,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 59614
+      "bytes": 72348
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 38807
+      "bytes": 47797
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
