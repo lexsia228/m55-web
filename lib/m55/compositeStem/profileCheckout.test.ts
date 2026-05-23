@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import type { BirthProfile } from '../../soul/profile';
 import {
   DEFAULT_COUNTRY,
   enrichBirthProfileForSave,
@@ -26,6 +27,12 @@ const GOLDEN: M55CompositeCanonicalInput = {
   calendarSystem: 'gregorian_civil',
 };
 
+const LEGACY_COHORT = {
+  nickname: 'A',
+  birthDate: '1990-01-01',
+  country: 'JP',
+};
+
 describe('profile v2 checkout readiness', () => {
   it('allows checkout when birthTime is set', () => {
     const p = enrichBirthProfileForSave({
@@ -50,9 +57,23 @@ describe('profile v2 checkout readiness', () => {
     assert.equal(validateDtrCheckoutProfile(p).ok, true);
   });
 
-  it('blocks when birthTime empty and unknown not selected', () => {
-    const p = { nickname: 'A', birthDate: '1990-01-01', country: 'JP' };
-    assert.equal(v2ProfileBlockReason(p), 'birth_time_or_unknown');
+  it('allows legacy profile without birthTime (implicit unknown-time)', () => {
+    assert.equal(v2ProfileBlockReason(LEGACY_COHORT), null);
+    assert.equal(validateDtrCheckoutProfile(LEGACY_COHORT).ok, true);
+    const enriched = enrichBirthProfileForSave(LEGACY_COHORT);
+    assert.equal(enriched.birthTimeUnknown, true);
+    assert.equal(enriched.profileFormat, 'v2');
+  });
+
+  it('blocks when nickname missing', () => {
+    const p = { birthDate: '1990-01-01', country: 'JP' } as BirthProfile;
+    assert.equal(v2ProfileBlockReason(p), 'nickname_and_birthdate');
+    assert.equal(validateDtrCheckoutProfile(p).ok, false);
+  });
+
+  it('blocks when birthDate missing', () => {
+    const p = { nickname: 'A', country: 'JP' } as BirthProfile;
+    assert.equal(v2ProfileBlockReason(p), 'nickname_and_birthdate');
     assert.equal(validateDtrCheckoutProfile(p).ok, false);
   });
 
@@ -60,10 +81,10 @@ describe('profile v2 checkout readiness', () => {
     const p = enrichBirthProfileForSave({
       nickname: 'A',
       birthDate: '1990-01-01',
-      birthTimeUnknown: true,
     });
     assert.equal(p.country, DEFAULT_COUNTRY);
     assert.equal(p.timezone, 'Asia/Tokyo');
+    assert.equal(p.birthTimeUnknown, true);
   });
 
   it('metadata payload contains v2 fields', () => {
@@ -85,6 +106,12 @@ describe('profile v2 checkout readiness', () => {
     assert.equal(meta.inputVersion, INPUT_VERSION_V1);
     assert.equal(meta.engineVersionCandidate, ENGINE_VERSION_V2);
     assert.ok(meta.calculationMode);
+  });
+
+  it('metadata marks implicit unknown when birthTime absent', () => {
+    const p = enrichBirthProfileForSave(LEGACY_COHORT);
+    const meta = buildStripeCheckoutMetadataFromProfile(p, 'DTR_CORE_STATIC_V1');
+    assert.equal(meta.profileBirthTimeUnknown, 'true');
   });
 
   it('merges draft extra_json without raw secrets', () => {

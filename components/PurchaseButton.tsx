@@ -138,7 +138,7 @@ export default function PurchaseButton({
       )}
       {needsProfile && (
         <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#5a4ea0' }}>
-          購入前にマイページで出生時刻を入力するか、「出生時刻は不明」にチェックを入れてください。{' '}
+          購入前にマイページでニックネームと生年月日を入力してください。{' '}
           <a href="/my" style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             マイページでプロフィールを入力
           </a>

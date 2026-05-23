@@ -33,22 +33,16 @@ export function normalizeBirthProfile(raw: BirthProfile | null | undefined): Bir
 export function hasLegacyProfileOnly(p: BirthProfile | null | undefined): boolean {
   const n = normalizeBirthProfile(p);
   if (!n) return false;
-  if (n.profileFormat === 'v2') return false;
-  if (n.profileFormat === 'legacy') return true;
-  return !isV2ProfileFieldsComplete(n);
+  return n.profileFormat === 'legacy';
 }
 
-/** v2 checkout gate: birthTime empty requires explicit unknown; country required (defaults JP on save). */
+/** Checkout gate: nickname + birthDate only; country defaults JP on save. Missing birthTime → unknown at fulfillment. */
 export function isV2ProfileFieldsComplete(p: BirthProfile | null | undefined): boolean {
-  if (!p?.nickname?.trim() || !p?.birthDate) return false;
-  const hasTime = !!(p.birthTime && p.birthTime.trim().length > 0);
-  if (hasTime) return true;
-  return p.birthTimeUnknown === true;
+  return !!(p?.nickname?.trim() && p?.birthDate);
 }
 
 export function v2ProfileBlockReason(p: BirthProfile | null | undefined): string | null {
   if (!p?.nickname?.trim() || !p?.birthDate) return 'nickname_and_birthdate';
-  if (!isV2ProfileFieldsComplete(p)) return 'birth_time_or_unknown';
   return null;
 }
 
@@ -63,13 +57,15 @@ export function resolveProfileTimezone(profile: BirthProfile): string {
   return lookupCountryTimezone(country) ?? 'Asia/Tokyo';
 }
 
-/** Persist-ready profile with country default, timezone, and format tag. */
+/** Persist-ready profile with country default, timezone, implicit unknown-time when birthTime absent. */
 export function enrichBirthProfileForSave(profile: BirthProfile): BirthProfile {
   const country = profile.country?.trim().toUpperCase() || DEFAULT_COUNTRY;
   const base = normalizeBirthProfile({ ...profile, country })!;
   const timezone = resolveProfileTimezone(base);
+  const hasTime = !!(base.birthTime && base.birthTime.trim().length > 0);
+  const birthTimeUnknown = hasTime ? false : true;
   const profileFormat: 'legacy' | 'v2' = isV2ProfileFieldsComplete(base) ? 'v2' : 'legacy';
-  return { ...base, country, timezone, profileFormat };
+  return { ...base, country, timezone, birthTimeUnknown, profileFormat };
 }
 
 export type CheckoutProfileBody = {
@@ -84,15 +80,17 @@ export type CheckoutProfileBody = {
 
 export function birthProfileFromCheckoutBody(body: CheckoutProfileBody | undefined): BirthProfile | null {
   if (!body?.nickname?.trim() || !body?.birthDate?.trim()) return null;
-  return {
+  const birthTime = body.birthTime?.trim() || null;
+  const hasTime = !!(birthTime && birthTime.length > 0);
+  return enrichBirthProfileForSave({
     nickname: body.nickname.trim(),
     birthDate: body.birthDate.trim().slice(0, 10),
-    birthTime: body.birthTime?.trim() || null,
-    birthTimeUnknown: Boolean(body.birthTimeUnknown),
+    birthTime,
+    birthTimeUnknown: hasTime ? Boolean(body.birthTimeUnknown) : true,
     country: body.country?.trim().toUpperCase() || DEFAULT_COUNTRY,
     birthplace: body.birthplace?.trim() || null,
     timezone: body.timezone?.trim() || null,
-  };
+  });
 }
 
 export function mergeBirthProfileWithDraftExtra(

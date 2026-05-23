@@ -1,3 +1,35 @@
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-COMMIT-PLANNING Checkout birthTime gate commit packet GREEN
+
+Status: **Post PROFILE-GATE-RELAXATION-IMPLEMENTATION。** **Commit scope frozen:** 5 runtime files + 4 gate SSOT docs（9 files atomic）。** **Validation:** webpack compile PASS · tsc PASS · profileCheckout **10/10** · grep guards PASS。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_COMMIT_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-COMMIT-PLANNING-001`**。** **HOLD unchanged:** commit/push/deploy · checkout/payment · VERIFY-C。** **Next:** **PROFILE-GATE-RELAXATION-COMMIT-EXEC**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_COMMIT_PLANNING_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-IMPLEMENTATION Checkout birthTime gate relaxation GREEN
+
+Status: **Post PROFILE-GATE-RELAXATION-PLANNING。** **Policy:** **`IMPLICIT_UNKNOWN_TIME_AT_CHECKOUT`** — missing birthTime → unknown · not checkout blocker。** **Minimum:** nickname + birthDate · country JP default on save。** **Repo-only:** **`birthProfileV2`** · **`checkoutProfileGate`** · **`profileCheckout.test`** · **`MyPanel`** · **`PurchaseButton`**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-IMPLEMENTATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C · no push/deploy。** **Next:** **PROFILE-GATE-RELAXATION-COMMIT-PLANNING** → Human visual re-attestation。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_IMPLEMENTATION_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-PLANNING Checkout birthTime gate relaxation planning GREEN
+
+Status: **Post DEPLOY-OBSERVATION-RE-RUN Human feedback。** **`/dtr` generic / no クリエイター PASS** · **`/my` birthTime nag remains**。** **Policy:** **`IMPLICIT_UNKNOWN_TIME_AT_CHECKOUT`** — missing birthTime → unknown · not checkout blocker。** **Minimum:** nickname + birthDate · country JP default。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-PLANNING-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** **PROFILE-GATE-RELAXATION-IMPLEMENTATION**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_PLANNING_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-DEPLOY-OBSERVATION-RE-RUN Post bundle-fix deploy observation re-run
+
+Status: **Post CLIENT-BUNDLE-FIX-COMMIT-EXEC @ `7ebdc63` Vercel SUCCESS。** **Agent:** logged-out smoke **PASS** · deploy alias **`7ebdc63`**。** **Human signed-in locked shelf / `/my` copy:** **PENDING**（R-D1–R-D5）。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_DEPLOY_OBSERVATION_RERUN_PARTIAL_GREEN_AGENT_PASS_HUMAN_SIGNED_IN_PENDING`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-DEPLOY-OBSERVATION-RERUN-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** Human §D attestation → **`FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_DEPLOY_OBSERVATION_RERUN_2026-05-23.md`
+
+----
+
 ## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-IMPLEMENTATION Server lockedShelfDisplay prop GREEN close
 
 Status: **Post CLIENT-BUNDLE-FIX-PLANNING Option A。** **Repo-only。** **Change:** **`lockedShelfDisplay`** server prop · **`DtrShelfPanel`** client pipeline import removed · **`deriveLockedShelfStemPreviewCore` + server-only barrel**。** **Build:** webpack **compile PASS** · local prerender Clerk env caveat only。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-IMPLEMENTATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** **CLIENT-BUNDLE-FIX-COMMIT-PLANNING** → push → **DEPLOY-OBSERVATION** re-run。

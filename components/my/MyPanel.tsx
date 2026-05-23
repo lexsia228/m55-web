@@ -8,8 +8,6 @@ import {
   DEFAULT_COUNTRY,
   SUPPORTED_COUNTRIES,
   enrichBirthProfileForSave,
-  hasLegacyProfileOnly,
-  isV2ProfileFieldsComplete,
   profileFormatLabel,
 } from '../../lib/soul/birthProfileV2';
 import {
@@ -409,10 +407,7 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
     return () => window.removeEventListener('m55:profile_updated', syncFromRepo);
   }, [userId]);
 
-  const canSave =
-    nick.trim().length > 0 &&
-    !!birth &&
-    (birthTime.length > 0 || birthTimeUnknown);
+  const canSave = nick.trim().length > 0 && !!birth;
 
   const handleSave = () => {
     const trimmed = nick.trim();
@@ -559,7 +554,7 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
         </div>
         {!canSave && birth && (
           <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
-            出生時刻を入力するか、「出生時刻は不明」にチェックを入れてください。
+            ニックネームを入力してください。
           </p>
         )}
         <div style={{ marginTop: 14, display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -593,9 +588,6 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
   const countryLabel =
     SUPPORTED_COUNTRIES.find(c => c.code === (profile?.country ?? DEFAULT_COUNTRY))?.label ??
     profile?.country;
-  const legacy = hasLegacyProfileOnly(profile);
-  const v2Ready = isV2ProfileFieldsComplete(profile);
-
   return (
     <section className={styles.card} aria-label="プロフィール" style={{ marginBottom: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -617,14 +609,9 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
       {profile?.timezone && (
         <p className={styles.muted} style={{ marginTop: 2, fontSize: 11 }}>タイムゾーン：{profile.timezone}</p>
       )}
-      {legacy && (
+      {profile && !profile.birthTime && (
         <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
-          購入前に出生時刻（または「時刻不明」）を入力してください。
-        </p>
-      )}
-      {!legacy && !v2Ready && (
-        <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
-          出生時刻または「時刻不明」の指定が必要です。
+          出生時刻が未入力の場合は、時刻不明として扱います。
         </p>
       )}
     </section>

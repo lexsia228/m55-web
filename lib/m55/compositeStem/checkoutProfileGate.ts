@@ -1,7 +1,7 @@
 import type { BirthProfile } from '../../soul/profile';
-import { isV2ProfileFieldsComplete, v2ProfileBlockReason } from '../../soul/birthProfileV2';
+import { v2ProfileBlockReason } from '../../soul/birthProfileV2';
 
-/** B5: DTR checkout requires v2-complete profile (independent of fulfillment write flag). */
+/** B5: DTR checkout requires nickname + birthDate (implicit unknown-time when birthTime absent). */
 export const DTR_CHECKOUT_REQUIRES_V2_PROFILE = true;
 
 export type CheckoutProfileGateResult =
@@ -15,9 +15,6 @@ export function validateDtrCheckoutProfile(profile: BirthProfile | null | undefi
   const reason = v2ProfileBlockReason(profile);
   if (reason) {
     return { ok: false, code: 'composite_profile_incomplete', reason };
-  }
-  if (!isV2ProfileFieldsComplete(profile)) {
-    return { ok: false, code: 'composite_profile_incomplete', reason: 'birth_time_or_unknown' };
   }
   return { ok: true };
 }
