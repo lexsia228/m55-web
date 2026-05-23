@@ -1,7 +1,6 @@
 /**
- * Server-only: derive paid DTR shelf type display from immutable snapshot profile.
- * Owned shelf uses snapshot envelope — not for locked client preview
- * (see deriveLockedShelfStemPreviewFromProfile).
+ * Serializable shelf stem display (server → client props).
+ * Owned: snapshot envelope. Locked: server draft v2 preview via deriveLockedShelfStemPreviewFromDraft.
  */
 import { essenceStemLaneIndex } from './essenceEngine';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';

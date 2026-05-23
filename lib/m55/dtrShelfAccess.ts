@@ -4,7 +4,9 @@
  */
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { ariaLabelForDtrShelf } from './dtrProductLabels';
+import { deriveLockedShelfStemPreviewFromDraft } from './compositeStem/deriveLockedShelfStemPreview';
 import {
+  getLatestDraftForUser,
   getLatestDtrReportSnapshotIncludingHidden,
   getVisibleDtrReportSnapshot,
 } from './dtrDraftDb';
@@ -85,6 +87,8 @@ export type DtrShelfAccessResolved =
       ownershipState: 'owned' | 'locked' | 'expired';
       /** Present when owned and snapshot row exists — shelf type must match /dtr/core. */
       ownedShelfDisplay: DtrShelfStemDisplay | null;
+      /** Pre-purchase locked shelf: v2 composite preview from server draft only. */
+      lockedShelfDisplay: DtrShelfStemDisplay | null;
     } & DtrShelfAccess);
 
 function shelfCtaForLocked(): DtrShelfCta {
@@ -125,6 +129,7 @@ function buildAuthenticated(
   uxState: DtrShelfUxState,
   ownedShelfDisplay: DtrShelfStemDisplay | null,
   hiddenOnlyRepurchase = false,
+  lockedShelfDisplay: DtrShelfStemDisplay | null = null,
 ): Extract<DtrShelfAccessResolved, { kind: 'authenticated' }> {
   if (unlockState === 'expired') {
     return {
@@ -137,6 +142,7 @@ function buildAuthenticated(
       lpCtaMode: 'expired',
       shelfCta: shelfCtaForExpired(),
       ownedShelfDisplay: null,
+      lockedShelfDisplay: null,
     };
   }
 
@@ -151,6 +157,7 @@ function buildAuthenticated(
       lpCtaMode: 'purchase',
       shelfCta: shelfCtaForLocked(),
       ownedShelfDisplay: null,
+      lockedShelfDisplay,
     };
   }
 
@@ -165,6 +172,7 @@ function buildAuthenticated(
       lpCtaMode: 'open',
       shelfCta: shelfCtaForOwnedReady(),
       ownedShelfDisplay,
+      lockedShelfDisplay: null,
     };
   }
 
@@ -179,6 +187,7 @@ function buildAuthenticated(
       lpCtaMode: 'purchase',
       shelfCta: shelfCtaForHiddenOnlyRepurchase(),
       ownedShelfDisplay: null,
+      lockedShelfDisplay: null,
     };
   }
 
@@ -192,6 +201,7 @@ function buildAuthenticated(
     lpCtaMode: 'recovery',
     shelfCta: shelfCtaForOwnedNotReady(),
     ownedShelfDisplay: null,
+    lockedShelfDisplay: null,
   };
 }
 
@@ -218,11 +228,18 @@ export async function resolveDtrShelfAccess(
     const unlockState = ownership.unlockState;
 
     if (unlockState !== 'owned') {
+      let lockedShelfDisplay: DtrShelfStemDisplay | null = null;
+      if (unlockState === 'locked') {
+        const draft = await getLatestDraftForUser(userId);
+        lockedShelfDisplay = deriveLockedShelfStemPreviewFromDraft(draft);
+      }
       return buildAuthenticated(
         unlockState,
         false,
         unlockState === 'expired' ? 'expired' : 'unpaid_locked',
-        null
+        null,
+        false,
+        lockedShelfDisplay,
       );
     }
 
@@ -263,6 +280,7 @@ export async function resolveDtrShelfAccess(
       },
       lpCtaMode: 'recovery',
       ownedShelfDisplay: null,
+      lockedShelfDisplay: null,
     };
   }
 }

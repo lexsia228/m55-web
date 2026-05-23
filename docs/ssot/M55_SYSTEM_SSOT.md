@@ -1,3 +1,35 @@
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-IMPLEMENTATION Server lockedShelfDisplay prop GREEN close
+
+Status: **Post CLIENT-BUNDLE-FIX-PLANNING Option A。** **Repo-only。** **Change:** **`lockedShelfDisplay`** server prop · **`DtrShelfPanel`** client pipeline import removed · **`deriveLockedShelfStemPreviewCore` + server-only barrel**。** **Build:** webpack **compile PASS** · local prerender Clerk env caveat only。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-IMPLEMENTATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** **CLIENT-BUNDLE-FIX-COMMIT-PLANNING** → push → **DEPLOY-OBSERVATION** re-run。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_IMPLEMENTATION_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-PLANNING Server/client boundary planning GREEN
+
+Status: **Post DEPLOY-OBSERVATION RED @ `6aa5245` build failure。** **Root:** **`DtrShelfPanel` client import → composite pipeline → `node:fs/path`**。** **Selected:** **Option A** — server **`lockedShelfDisplay`** prop via **`getLatestDraftForUser` + `deriveLockedShelfStemPreview`（server-only）· mirrors **`ownedShelfDisplay`**。** **Rejected:** Option B generic-only · Option C browser pipeline duplicate。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-CLIENT-BUNDLE-FIX-PLANNING-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** **CLIENT-BUNDLE-FIX-IMPLEMENTATION**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_PLANNING_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-DEPLOY-OBSERVATION Production deploy observation RED
+
+Status: **Post COMMIT-EXEC push **`6aa5245`**。** **Vercel Production @ `6aa5245`:** **FAILURE**（client webpack · **`node:path`** via **`DtrShelfPanel`→composite pipeline**）。** **Live alias:** still **`4dcd856`** success。** **Logged-out smoke:** **PASS** on stale deploy only。** **Signed-in preview attestation:** **NOT_RUN**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_DEPLOY_OBSERVATION_RED_DEPLOY_FAILED_STALE_PRODUCTION_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-DEPLOY-OBSERVATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C。** **Next:** **CLIENT-BUNDLE-FIX** planning → implementation → redeploy → re-observation。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_DEPLOY_OBSERVATION_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-FIX-COMMIT-EXEC Preview fix commit + push GREEN close
+
+Status: **Post COMMIT-PLANNING Option A。** **Commit **`6aa5245`** · push **`4dcd856`→`6aa5245`**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_COMMIT_EXEC_GREEN`**。** **Logged-out smoke:** **`m55-webv2.vercel.app`** · **200** on `/` `/core` `/dtr` `/dtr/lp` `/my` · **`/dtr/core`→307 `/dtr/lp`**。** **Signed-in preview / v2 profile:** deferred Human re-R。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-FIX-COMMIT-EXEC-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C · Production delete。** **Next:** deploy observation + **`FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R`** re-run。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_COMMIT_EXEC_2026-05-23.md`
+
+----
+
 ## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-FIX-IMPLEMENTATION Option A-hybrid locked shelf preview GREEN close
 
 Status: **Post FIX-PLANNING Option A-hybrid。** **Repo-only implementation。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_FIX_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Change:** locked `/dtr` shelf preview → **`deriveLockedShelfStemPreviewFromProfile`** · legacy **`essenceStemLaneIndex`** removed · incomplete profile → generic copy only。** **Evidence:** **`M55-EVID-20260523-BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-FIX-IMPLEMENTATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C · Production delete · deploy/push。** **Next:** **`FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R`** re-run · Human `/my` v2 profile · deploy if approved。

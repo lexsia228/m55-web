@@ -25,6 +25,8 @@ export default async function DtrPage() {
   const shelfCta = access.shelfCta;
   const ownedShelfDisplay =
     access.kind === 'authenticated' ? access.ownedShelfDisplay : null;
+  const lockedShelfDisplay =
+    access.kind === 'authenticated' ? access.lockedShelfDisplay : null;
 
   return (
     <>
@@ -35,6 +37,7 @@ export default async function DtrPage() {
           snapshotReady={snapshotReady}
           shelfCta={shelfCta}
           ownedShelfDisplay={ownedShelfDisplay}
+          lockedShelfDisplay={lockedShelfDisplay}
         />
       </main>
       <PublicFooter />

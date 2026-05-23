@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import { useMemo } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
-import { deriveLockedShelfStemPreviewFromProfile } from '../../lib/m55/compositeStem/deriveLockedShelfStemPreview';
 import {
   LABEL_FORMAT_SAVED,
   LABEL_PRODUCT_EN,
@@ -54,6 +53,8 @@ type Props = {
   shelfCta?: ShelfCtaProps;
   /** Owned + snapshot: server stem from profile_snapshot (must not use client ProfileRepository). */
   ownedShelfDisplay?: DtrShelfStemDisplay | null;
+  /** Pre-purchase locked: server v2 composite preview (must not use client pipeline). */
+  lockedShelfDisplay?: DtrShelfStemDisplay | null;
 };
 
 function EntryReportCard({
@@ -237,11 +238,26 @@ function ShelfContextHint({
   );
 }
 
+function shelfDisplayToCardProfile(display: DtrShelfStemDisplay): CardProfile {
+  const stem = TEN_STEM_DISPLAY[display.stemLaneIndex];
+  if (!stem) {
+    const fallbackNick = display.nickname?.trim();
+    return fallbackNick ? { kind: 'generic', nickname: fallbackNick } : { kind: 'generic' };
+  }
+  return {
+    kind: 'ready',
+    stemIdx: display.stemLaneIndex,
+    stem,
+    nickname: display.nickname,
+  };
+}
+
 export default function DtrShelfPanel({
   ownershipState,
   snapshotReady,
   shelfCta,
   ownedShelfDisplay = null,
+  lockedShelfDisplay = null,
 }: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
@@ -249,35 +265,18 @@ export default function DtrShelfPanel({
   const cardProfile = useMemo((): CardProfile => {
     if (ownershipState === 'owned') {
       if (!ownedShelfDisplay) return { kind: 'generic' };
-      const stem = TEN_STEM_DISPLAY[ownedShelfDisplay.stemLaneIndex];
-      if (!stem) return { kind: 'generic' };
-      return {
-        kind: 'ready',
-        stemIdx: ownedShelfDisplay.stemLaneIndex,
-        stem,
-        nickname: ownedShelfDisplay.nickname,
-      };
+      return shelfDisplayToCardProfile(ownedShelfDisplay);
+    }
+
+    if (lockedShelfDisplay) {
+      return shelfDisplayToCardProfile(lockedShelfDisplay);
     }
 
     if (!isLoaded) return { kind: 'generic' };
     const profile = ProfileRepository.get(ownerId);
-    const preview = deriveLockedShelfStemPreviewFromProfile(profile);
-    if (preview) {
-      const stem = TEN_STEM_DISPLAY[preview.stemLaneIndex];
-      if (!stem) {
-        const fallbackNick = preview.nickname?.trim();
-        return fallbackNick ? { kind: 'generic', nickname: fallbackNick } : { kind: 'generic' };
-      }
-      return {
-        kind: 'ready',
-        stemIdx: preview.stemLaneIndex,
-        stem,
-        nickname: preview.nickname,
-      };
-    }
     const fallbackNick = profile?.nickname?.trim();
     return fallbackNick ? { kind: 'generic', nickname: fallbackNick } : { kind: 'generic' };
-  }, [ownershipState, ownedShelfDisplay, isLoaded, ownerId]);
+  }, [ownershipState, ownedShelfDisplay, lockedShelfDisplay, isLoaded, ownerId]);
 
   return (
     <div className={styles.shelfPage}>
