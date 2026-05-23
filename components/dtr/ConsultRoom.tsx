@@ -8,7 +8,7 @@
  * - Shows only when ownership is confirmed (server gate already checked).
  * - Input: min=10, warning=450, hard max=500 chars.
  * - Output target: 700-900 chars, hard cap 1000.
- * - Thread cap: 3 consults (credits_total max 3).
+ * - Thread cap display: 5 tickets per report (included 1 + purchased max 4).
  * - Read-only when credits_remaining=0 (prior messages remain visible).
  * - Add-on CTA: room-only, no public lane.
  * - No generic public chat wording.
@@ -20,13 +20,13 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { REPLY_TICKET_TOTAL_CAP_PER_REPORT } from '../../lib/m55/reply/replyTicketCheckoutConstants';
 import styles from './ConsultRoom.module.css';
 
 const INPUT_MIN = 10;
 const INPUT_WARN = 450;
 const INPUT_MAX = 500;
-/** Max consults per report thread (SSOT M55_REPORT_CONCIERGE_ROOM_SSOT_v1 §2.3) */
-const MAX_CREDITS = 3;
+const DISPLAY_CAP_PER_REPORT = REPLY_TICKET_TOTAL_CAP_PER_REPORT;
 
 /** 用途ラベル（往復券・1テーマ）— 保存版の型に当てはめて返書で深める軸 */
 const THEMES = [
@@ -158,6 +158,8 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   const sendLock = useRef(false);
   const skipInitialThreadScrollRef = useRef(true);
   const checkoutReturnRefreshDoneRef = useRef(false);
+  const activeIdempotencyKeyRef = useRef<string | null>(null);
+  const activeSnapshotHashRef = useRef<string | null>(null);
 
   const composedMessage = useMemo(
     () => buildComposedMessage(selectedTheme, selectedQuestionIds, inputText),
@@ -240,6 +242,12 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     });
   };
 
+  const buildSnapshotHash = (
+    msg: string,
+    theme: Theme | null,
+    questionIds: Set<string>
+  ): string => `${theme ?? ''}|${[...questionIds].sort().join(',')}|${msg}`;
+
   const handleSend = async () => {
     if (sendLock.current) return;
     if (!roomData) return;
@@ -272,6 +280,13 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       theme: selectedTheme,
     };
 
+    const snapshotHash = buildSnapshotHash(msg, selectedTheme, selectedQuestionIds);
+    if (activeSnapshotHashRef.current !== snapshotHash) {
+      activeIdempotencyKeyRef.current = crypto.randomUUID();
+      activeSnapshotHashRef.current = snapshotHash;
+    }
+    const idempotencyKey = activeIdempotencyKeyRef.current!;
+
     sendLock.current = true;
     setSending(true);
     setSendError(null);
@@ -284,7 +299,10 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     try {
       const res = await fetch('/api/room/core/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': idempotencyKey,
+        },
         body: JSON.stringify({ message: msg, birthDate, nickname }),
       });
       const data = await res.json();
@@ -303,6 +321,8 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       }
 
       const { reply, thread } = data as { reply: Message; thread: ThreadState };
+      activeIdempotencyKeyRef.current = null;
+      activeSnapshotHashRef.current = null;
       setRoomData((prev) => (prev ? { thread, messages: [...prev.messages, reply] } : null));
     } catch {
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
@@ -415,12 +435,13 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       : null;
   const walletLoading = !wallet || !hasWalletRow;
   const walletTotal = wallet ? wallet.initial_included_count + wallet.purchased_count : 0;
-  const walletReachedLimit = walletTotal >= 5 || (wallet?.purchased_count ?? 0) >= 4;
+  const walletReachedLimit =
+    walletTotal >= DISPLAY_CAP_PER_REPORT || (wallet?.purchased_count ?? 0) >= 4;
   const walletCanPurchase =
     !walletLoading &&
     wallet!.available_count === 0 &&
     wallet!.status === 'active' &&
-    walletTotal < 5 &&
+    walletTotal < DISPLAY_CAP_PER_REPORT &&
     wallet!.purchased_count < 4 &&
     Boolean(reportInstanceId);
 
@@ -449,7 +470,9 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <span className={styles.usageLabel}>利用状態</span>
           <p className={styles.usageValue} aria-live="polite">
             {usageLine}
-            {!walletLoading ? <span className={styles.usageSub}>（合計5件まで）</span> : null}
+            {!walletLoading ? (
+              <span className={styles.usageSub}>（合計{DISPLAY_CAP_PER_REPORT}件まで）</span>
+            ) : null}
           </p>
         </div>
       </header>
@@ -461,7 +484,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       ) : wallet!.available_count > 0 ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            相談返書チケット 残り {wallet!.available_count}件 / 合計5件まで
+            相談返書チケット 残り {wallet!.available_count}件 / 合計{DISPLAY_CAP_PER_REPORT}件まで
           </p>
           <p className={styles.addOnNote}>この本質の読み解きに紐づいて、4章の内容を深掘りできます。</p>
         </div>
@@ -497,9 +520,10 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <p className={styles.readOnlyText}>
             返書チケットの上限に達しました。これまでのやりとりは引き続き確認できます。
           </p>
-          {thread.credits_total < MAX_CREDITS && wallet!.status !== 'active' && (
+          {wallet!.status !== 'active' && (
             <p className={styles.addOnNote}>
-              返書チケットの追加はこのルーム内でのみ申し込み可能です。上限は合計{MAX_CREDITS}件です。
+              返書チケットの追加はこのルーム内でのみ申し込み可能です。上限は合計
+              {DISPLAY_CAP_PER_REPORT}件です。
             </p>
           )}
         </div>

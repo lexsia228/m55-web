@@ -16,13 +16,13 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
+import { REPLY_TICKET_TOTAL_CAP_PER_REPORT } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
 import { hashUserIdForLedgerLog, readReplyWalletProbe } from '../../../../lib/m55/reply/readReplyWalletProbe';
 
 export const dynamic = 'force-dynamic';
 
 const REPORT_KEY = 'm55_p:core_origin';
 const CREDITS_ON_PURCHASE = 1;
-const MAX_CREDITS = 3;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
 type ThreadRow = { id: string; credits_total: number; credits_remaining: number; state: string };
@@ -142,46 +142,49 @@ export async function GET() {
 
   let wallet: WalletUiState | null = null;
   let hasWalletRow = false;
-  try {
-    let walletQuery = db
-      .from('reply_ticket_wallets')
-      .select('initial_included_count, purchased_count, consumed_count, available_count, status')
-      .eq('user_id', userId);
-    if (ownership.reportInstanceId) {
-      walletQuery = walletQuery.eq('report_instance_id', ownership.reportInstanceId);
-    }
-    const { data: walletRow } = await walletQuery.maybeSingle();
-    if (walletRow && typeof walletRow.status === 'string') {
-      const pic = Number(walletRow.initial_included_count);
-      const pc = Number(walletRow.purchased_count);
-      const cc = Number(walletRow.consumed_count);
-      const ac = Number(walletRow.available_count);
-      if (Number.isFinite(pic) && Number.isFinite(pc) && Number.isFinite(cc) && Number.isFinite(ac)) {
-        wallet = {
-          initial_included_count: Math.trunc(pic),
-          purchased_count: Math.trunc(pc),
-          consumed_count: Math.trunc(cc),
-          available_count: Math.trunc(ac),
-          status: walletRow.status,
-        };
-        hasWalletRow = true;
+  const reportInstanceId =
+    typeof ownership.reportInstanceId === 'string' && ownership.reportInstanceId.trim().length > 0
+      ? ownership.reportInstanceId.trim()
+      : null;
+
+  if (reportInstanceId) {
+    try {
+      const { data: walletRow } = await db
+        .from('reply_ticket_wallets')
+        .select('initial_included_count, purchased_count, consumed_count, available_count, status')
+        .eq('user_id', userId)
+        .eq('report_instance_id', reportInstanceId)
+        .maybeSingle();
+      if (walletRow && typeof walletRow.status === 'string') {
+        const pic = Number(walletRow.initial_included_count);
+        const pc = Number(walletRow.purchased_count);
+        const cc = Number(walletRow.consumed_count);
+        const ac = Number(walletRow.available_count);
+        if (Number.isFinite(pic) && Number.isFinite(pc) && Number.isFinite(cc) && Number.isFinite(ac)) {
+          wallet = {
+            initial_included_count: Math.trunc(pic),
+            purchased_count: Math.trunc(pc),
+            consumed_count: Math.trunc(cc),
+            available_count: Math.trunc(ac),
+            status: walletRow.status,
+          };
+          hasWalletRow = true;
+        }
       }
+    } catch {
+      // Fail closed for checkout CTA surface; keep thread/messages response intact.
+      wallet = null;
+      hasWalletRow = false;
     }
-  } catch {
-    // Fail closed for checkout CTA surface; keep thread/messages response intact.
-    wallet = null;
-    hasWalletRow = false;
   }
 
-  // PR1 probe log keeps legacy fields for diagnostics, but mismatch判定はwallet SSOT優先で算出する。
+  // Wallet SSOT for spend authority; thread credits are display-only secondary.
   const consultRem = thread!.credits_remaining;
-  const walletProbe = await readReplyWalletProbe(db, userId, ownership.reportInstanceId);
+  const walletProbe = await readReplyWalletProbe(db, userId, reportInstanceId ?? undefined);
   const walletReadError = walletProbe.readError;
   const walletMissing = !walletReadError && walletProbe.availableCount === null;
   const effectiveRemaining =
-    hasWalletRow && wallet && wallet.status === 'active'
-      ? wallet.available_count
-      : consultRem;
+    hasWalletRow && wallet && wallet.status === 'active' ? wallet.available_count : 0;
   const numberMismatch =
     !walletReadError &&
     typeof walletProbe.availableCount === 'number' &&
@@ -217,7 +220,8 @@ export async function GET() {
     messages: msgs,
     wallet,
     has_wallet_row: hasWalletRow,
-    report_instance_id: ownership.reportInstanceId ?? null,
+    report_instance_id: reportInstanceId,
+    display_cap_per_report: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
     effective_credits_remaining: effectiveRemaining,
     effective_state: effectiveRemaining > 0 ? 'writable' : 'read_only',
   };

@@ -1,23 +1,20 @@
 /**
  * POST /api/room/core/send
- * Sends a user message, calls AI, consumes one credit.
+ * Sends a user message, calls AI, consumes one credit via m55_consult_reply_commit RPC.
  *
  * Rules (M55_AI_CONSULT_SAFETY_AND_LIMITS_SSOT_v1 + M55_REPORT_CONCIERGE_ROOM_SSOT_v1):
  * - Ownership gate: fail-closed
  * - Input min=10, hard max=500 chars
  * - Output target 700-900 chars, hard cap 1000
- * - Ticket only consumed when BOTH messages committed successfully
+ * - Ticket only consumed when RPC succeeds (messages + wallet + ledger atomic)
  * - High-risk patterns: block send, do not consume ticket
  * - When credits_remaining reaches 0: thread → read_only
  * - No generic public chat; AI is scoped to the owned report
  *
- * Hardening (2026-03-25):
- * - Batch insert user + AI message atomically (prevents orphan user message)
- * - Credits update failure → log for recovery, return success with reconcile_needed flag
- *   (reconciliation happens on next GET; user already received AI answer)
- * - Server-side pending guard via thread.state check (prevents race on concurrent sends)
- * - OPENAI_API_KEY missing → 503 (no DB change)
- * - AI failure → 503 (no DB change)
+ * Contract-C (2026-05-23):
+ * - X-Idempotency-Key required
+ * - No pre-RPC message insert · no direct wallet UPDATE
+ * - AI success → db.rpc('m55_consult_reply_commit') only
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
@@ -45,9 +42,64 @@ const INPUT_MAX = 500;
 const OUTPUT_HARD_CAP = 1000;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
+type RpcCommitResult = {
+  ok: boolean;
+  mode?: string;
+  consumption_applied?: boolean;
+  wallet_before?: number;
+  wallet_after?: number;
+  thread_state?: string;
+  thread_credits_remaining?: number;
+  thread_credits_total?: number;
+  assistant_content?: string;
+  error_code?: string;
+  message?: string;
+};
+
 function clampOutput(text: string): string {
   if (text.length <= OUTPUT_HARD_CAP) return text;
   return text.slice(0, OUTPUT_HARD_CAP - 1) + '…';
+}
+
+function parseRpcResult(raw: unknown): RpcCommitResult | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.ok !== 'boolean') return null;
+  const out: RpcCommitResult = { ok: o.ok };
+  if (typeof o.mode === 'string') out.mode = o.mode;
+  if (typeof o.consumption_applied === 'boolean') out.consumption_applied = o.consumption_applied;
+  if (typeof o.wallet_before === 'number') out.wallet_before = o.wallet_before;
+  if (typeof o.wallet_after === 'number') out.wallet_after = o.wallet_after;
+  if (typeof o.thread_state === 'string') out.thread_state = o.thread_state;
+  if (typeof o.thread_credits_remaining === 'number') {
+    out.thread_credits_remaining = o.thread_credits_remaining;
+  }
+  if (typeof o.thread_credits_total === 'number') out.thread_credits_total = o.thread_credits_total;
+  if (typeof o.assistant_content === 'string') out.assistant_content = o.assistant_content;
+  if (typeof o.error_code === 'string') out.error_code = o.error_code;
+  if (typeof o.message === 'string') out.message = o.message;
+  return out;
+}
+
+function mapRpcErrorToResponse(rpc: RpcCommitResult): NextResponse {
+  const code = rpc.error_code ?? 'INTERNAL';
+  const msg = rpc.message ?? 'Commit failed. Please try again.';
+  switch (code) {
+    case 'INVALID_ARGUMENT':
+      return NextResponse.json({ error: msg }, { status: 422, headers: NO_STORE });
+    case 'IDEMPOTENCY_CONFLICT':
+    case 'COMMIT_IN_PROGRESS':
+    case 'FORBIDDEN_NULL_SCOPE':
+      return NextResponse.json({ error: msg }, { status: 409, headers: NO_STORE });
+    case 'THREAD_NOT_FOUND':
+      return NextResponse.json({ error: msg }, { status: 404, headers: NO_STORE });
+    case 'WALLET_NOT_FOUND':
+    case 'WALLET_NOT_ACTIVE':
+    case 'WALLET_NO_BALANCE':
+      return NextResponse.json({ error: msg }, { status: 403, headers: NO_STORE });
+    default:
+      return NextResponse.json({ error: msg }, { status: 500, headers: NO_STORE });
+  }
 }
 
 /** Build report-scoped system prompt (no generic chat). */
@@ -74,6 +126,14 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: NO_STORE });
+  }
+
+  const idempotencyKey = req.headers.get('x-idempotency-key')?.trim() ?? '';
+  if (!idempotencyKey || idempotencyKey.length < 8 || idempotencyKey.length > 128) {
+    return NextResponse.json(
+      { error: 'X-Idempotency-Key is required (8-128 characters).' },
+      { status: 400, headers: NO_STORE }
+    );
   }
 
   // Layer1 ownership gate (fail-closed)
@@ -143,9 +203,10 @@ export async function POST(req: NextRequest) {
 
   const t = thread as { id: string; credits_total: number; credits_remaining: number; state: string };
 
+  // Pre-RPC read-only wallet check (fast 403 before LLM cost — no mutation)
   const { data: walletRaw, error: walletErr } = await db
     .from('reply_ticket_wallets')
-    .select('id, status, available_count, consumed_count')
+    .select('status, available_count')
     .eq('user_id', userId)
     .eq('report_instance_id', reportInstanceId)
     .maybeSingle();
@@ -157,12 +218,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const wallet = walletRaw as {
-    id: string;
-    status: string;
-    available_count: number;
-    consumed_count: number;
-  };
+  const wallet = walletRaw as { status: string; available_count: number };
   if (wallet.status !== 'active' || wallet.available_count <= 0) {
     return NextResponse.json(
       { error: '相談回数の残りがありません。' },
@@ -189,7 +245,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // AI call — must complete before any DB write (fail fast, no orphan messages)
+  // AI call — must complete before RPC (fail fast, no DB mutation)
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -237,80 +293,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Batch insert both messages atomically (prevents orphan user message)
-  // Either both rows are inserted or neither is.
-  const now = new Date().toISOString();
-  const { error: batchErr } = await db.from('consult_messages').insert([
-    { thread_id: t.id, role: 'user', content: userMessage, created_at: now },
-    { thread_id: t.id, role: 'assistant', content: aiContent, created_at: now },
-  ]);
+  const { data: rpcRaw, error: rpcErr } = await db.rpc('m55_consult_reply_commit', {
+    p_user_id: userId,
+    p_report_instance_id: reportInstanceId,
+    p_consult_thread_id: t.id,
+    p_idempotency_key: idempotencyKey,
+    p_user_message: userMessage,
+    p_assistant_message: aiContent,
+    p_message_created_at: new Date().toISOString(),
+  });
 
-  if (batchErr) {
+  if (rpcErr) {
     console.error(
-      '[room/core/send] batch message insert failed',
+      '[room/core/send] m55_consult_reply_commit RPC error',
       JSON.stringify({
         userHash: hashUserIdForLedgerLog(userId),
         reportInstanceIdPresent: true,
       }),
-      batchErr
-    );
-    return NextResponse.json({ error: 'Message save failed. Please try again.' }, { status: 500, headers: NO_STORE });
-  }
-
-  const consumeWallet = async (w: { id: string; available_count: number; consumed_count: number }) => {
-    const res = await db
-      .from('reply_ticket_wallets')
-      .update({
-        available_count: w.available_count - 1,
-        consumed_count: w.consumed_count + 1,
-      })
-      .eq('id', w.id)
-      .eq('available_count', w.available_count)
-      .eq('consumed_count', w.consumed_count)
-      .eq('status', 'active')
-      .select('id, available_count, consumed_count')
-      .maybeSingle();
-    return {
-      ok: !res.error && !!res.data,
-      afterAvailable: w.available_count - 1,
-      afterConsumed: w.consumed_count + 1,
-    };
-  };
-
-  const firstConsume = await consumeWallet(wallet);
-  let walletConsumeOk = firstConsume.ok;
-  let walletAfterAvailable = firstConsume.afterAvailable;
-  if (!walletConsumeOk) {
-    const { data: latestWallet } = await db
-      .from('reply_ticket_wallets')
-      .select('id, available_count, consumed_count, status')
-      .eq('id', wallet.id)
-      .eq('user_id', userId)
-      .eq('report_instance_id', reportInstanceId)
-      .maybeSingle();
-    if (
-      latestWallet &&
-      latestWallet.status === 'active' &&
-      typeof latestWallet.available_count === 'number' &&
-      typeof latestWallet.consumed_count === 'number' &&
-      latestWallet.available_count > 0
-    ) {
-      const retryConsume = await consumeWallet({
-        id: latestWallet.id,
-        available_count: latestWallet.available_count,
-        consumed_count: latestWallet.consumed_count,
-      });
-      walletConsumeOk = retryConsume.ok;
-      walletAfterAvailable = retryConsume.afterAvailable;
-    }
-  }
-  if (!walletConsumeOk) {
-    console.error(
-      '[room/core/send] wallet consume failed',
-      JSON.stringify({
-        userHash: hashUserIdForLedgerLog(userId),
-        reportInstanceIdPresent: true,
-      })
+      rpcErr
     );
     return NextResponse.json(
       { error: 'Ticket consumption failed. Please reload and try again.' },
@@ -318,40 +318,42 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Update compatibility thread ledger from wallet SSOT (never negative).
-  // If this fails: messages+wallet are already saved; GET will still use wallet-derived effective state.
-  const newRemaining = Math.max(0, walletAfterAvailable);
-  const newState = newRemaining <= 0 ? 'read_only' : 'writable';
-  const { error: creditErr } = await db
-    .from('consult_threads')
-    .update({ credits_remaining: newRemaining, state: newState, updated_at: new Date().toISOString() })
-    .eq('id', t.id);
-
-  if (creditErr) {
-    // Messages saved. Credits update failed. GET will reconcile.
-    // Return success — user received their answer. Log for recovery audit.
-    console.error(
-      '[room/core/send] CREDIT_UPDATE_FAILED — messages saved, credits not decremented.',
-      JSON.stringify({
-        userHash: hashUserIdForLedgerLog(userId),
-        reportInstanceIdPresent: true,
-      }),
-      creditErr
-    );
+  const rpc = parseRpcResult(rpcRaw);
+  if (!rpc) {
     return NextResponse.json(
-      {
-        reply: { role: 'assistant', content: aiContent },
-        thread: { credits_total: t.credits_total, credits_remaining: newRemaining, state: newState },
-        reconcile_needed: true,
-      },
-      { status: 200, headers: NO_STORE }
+      { error: 'Invalid commit response. Please reload and try again.' },
+      { status: 500, headers: NO_STORE }
     );
   }
 
+  if (!rpc.ok) {
+    return mapRpcErrorToResponse(rpc);
+  }
+
+  const assistantContent = rpc.assistant_content ?? aiContent;
+  const threadCreditsTotal =
+    typeof rpc.thread_credits_total === 'number' ? rpc.thread_credits_total : t.credits_total;
+  const threadCreditsRemaining =
+    typeof rpc.thread_credits_remaining === 'number'
+      ? rpc.thread_credits_remaining
+      : Math.max(0, (rpc.wallet_after ?? wallet.available_count - 1));
+  const threadState =
+    rpc.thread_state === 'read_only' || rpc.thread_state === 'writable'
+      ? rpc.thread_state
+      : threadCreditsRemaining <= 0
+        ? 'read_only'
+        : 'writable';
+
   return NextResponse.json(
     {
-      reply: { role: 'assistant', content: aiContent },
-      thread: { credits_total: t.credits_total, credits_remaining: newRemaining, state: newState },
+      reply: { role: 'assistant', content: assistantContent },
+      thread: {
+        credits_total: threadCreditsTotal,
+        credits_remaining: threadCreditsRemaining,
+        state: threadState,
+      },
+      mode: rpc.mode ?? 'consumed',
+      consumption_applied: rpc.consumption_applied ?? true,
     },
     { status: 200, headers: NO_STORE }
   );
