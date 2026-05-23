@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-22T22:16:14.532674+00:00",
-  "count": 595,
+  "generated_at_utc": "2026-05-23T22:07:51.521031+00:00",
+  "count": 607,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -1778,6 +1778,66 @@
       "bytes": 7877
     },
     {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_FIX_IMPLEMENTATION_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 5366
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_FIX_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 13377
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_R_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 14967
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_COMMIT_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 9913
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_IMPLEMENTATION_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 5418
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_CLIENT_BUNDLE_FIX_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 9292
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_FIX_COMMIT_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 10493
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_COMMIT_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 9966
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_IMPLEMENTATION_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 6051
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 9417
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_IMPLEMENTATION_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 4924
+    },
+    {
+      "path": "docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_IMPLEMENTATION_COMMIT_PLANNING_2026-05-23.md",
+      "category": "ssot",
+      "bytes": 7891
+    },
+    {
       "path": "docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md",
       "category": "ssot",
       "bytes": 6724
@@ -2620,7 +2680,7 @@
     {
       "path": "docs/ssot/M55_SYSTEM_SSOT.md",
       "category": "ssot",
-      "bytes": 638164
+      "bytes": 648077
     },
     {
       "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
@@ -2835,12 +2895,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 82292
+      "bytes": 94585
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 54933
+      "bytes": 63638
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
