@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import { useMemo } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
-import { essenceStemLaneIndex } from '../../lib/m55/essenceEngine';
+import { deriveLockedShelfStemPreviewFromProfile } from '../../lib/m55/compositeStem/deriveLockedShelfStemPreview';
 import {
   LABEL_FORMAT_SAVED,
   LABEL_PRODUCT_EN,
@@ -35,10 +35,10 @@ const DTR_TYPE_IMAGE: Record<number, string> = {
 
 type OwnershipState = 'owned' | 'locked' | 'expired' | 'anonymous';
 
-/** Profile-derived card personalization. generic = profile not available yet. */
+/** Profile-derived card personalization. generic = no concrete v2 stem (incomplete or loading). */
 type CardProfile =
   | { kind: 'ready'; stemIdx: number; stem: TenStemDisplay; nickname: string }
-  | { kind: 'generic' };
+  | { kind: 'generic'; nickname?: string };
 
 export type ShelfCtaProps = {
   href: string;
@@ -81,13 +81,23 @@ function EntryReportCard({
   const hasProfile = cardProfile.kind === 'ready';
   const stem = hasProfile ? cardProfile.stem : null;
   const stemIdx = hasProfile ? cardProfile.stemIdx : -1;
-  const nickname = hasProfile ? cardProfile.nickname : '';
+  const nickname =
+    cardProfile.kind === 'ready'
+      ? cardProfile.nickname
+      : cardProfile.kind === 'generic'
+      ? cardProfile.nickname
+      : undefined;
 
   const typeImage = stemIdx >= 0 ? (DTR_TYPE_IMAGE[stemIdx] ?? null) : null;
 
-  const cardTitle = hasProfile && nickname
-    ? `${nickname}さんの取り扱い説明書`
-    : LABEL_PRODUCT_JP;
+  const cardTitle = (() => {
+    const nick = nickname?.trim();
+    if (nick) return `${nick}さんの取り扱い説明書`;
+    if (cardProfile.kind === 'generic' && !isOwned) {
+      return '本質の読み解きレポート（保存版）';
+    }
+    return LABEL_PRODUCT_JP;
+  })();
 
   const ctaLabel =
     shelfCta?.label ??
@@ -251,15 +261,22 @@ export default function DtrShelfPanel({
 
     if (!isLoaded) return { kind: 'generic' };
     const profile = ProfileRepository.get(ownerId);
-    if (!profile?.birthDate) return { kind: 'generic' };
-    const idx = essenceStemLaneIndex(profile.birthDate);
-    const stem = TEN_STEM_DISPLAY[idx]!;
-    return {
-      kind: 'ready',
-      stemIdx: idx,
-      stem,
-      nickname: profile.nickname?.trim() ?? '',
-    };
+    const preview = deriveLockedShelfStemPreviewFromProfile(profile);
+    if (preview) {
+      const stem = TEN_STEM_DISPLAY[preview.stemLaneIndex];
+      if (!stem) {
+        const fallbackNick = preview.nickname?.trim();
+        return fallbackNick ? { kind: 'generic', nickname: fallbackNick } : { kind: 'generic' };
+      }
+      return {
+        kind: 'ready',
+        stemIdx: preview.stemLaneIndex,
+        stem,
+        nickname: preview.nickname,
+      };
+    }
+    const fallbackNick = profile?.nickname?.trim();
+    return fallbackNick ? { kind: 'generic', nickname: fallbackNick } : { kind: 'generic' };
   }, [ownershipState, ownedShelfDisplay, isLoaded, ownerId]);
 
   return (

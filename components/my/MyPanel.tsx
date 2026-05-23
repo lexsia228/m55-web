@@ -619,7 +619,7 @@ function ProfileIntakeCard({ userId }: { userId: string }) {
       )}
       {legacy && (
         <p className={styles.muted} style={{ marginTop: 8, fontSize: 12 }}>
-          購入前に出生時刻（または時刻不明）と国を追加入力してください。
+          購入前に出生時刻（または「時刻不明」）を入力してください。
         </p>
       )}
       {!legacy && !v2Ready && (

@@ -1,6 +1,7 @@
 /**
  * Server-only: derive paid DTR shelf type display from immutable snapshot profile.
- * Uses same stem index function as runDtrEngine (essenceStemLaneIndex).
+ * Owned shelf uses snapshot envelope — not for locked client preview
+ * (see deriveLockedShelfStemPreviewFromProfile).
  */
 import { essenceStemLaneIndex } from './essenceEngine';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';

@@ -1,3 +1,19 @@
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-FIX-IMPLEMENTATION Option A-hybrid locked shelf preview GREEN close
+
+Status: **Post FIX-PLANNING Option A-hybrid。** **Repo-only implementation。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_FIX_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Change:** locked `/dtr` shelf preview → **`deriveLockedShelfStemPreviewFromProfile`** · legacy **`essenceStemLaneIndex`** removed · incomplete profile → generic copy only。** **Evidence:** **`M55-EVID-20260523-BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-FIX-IMPLEMENTATION-001`**。** **HOLD unchanged:** checkout/payment · VERIFY-C · Production delete · deploy/push。** **Next:** **`FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R`** re-run · Human `/my` v2 profile · deploy if approved。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_FIX_IMPLEMENTATION_2026-05-23.md`
+
+----
+
+## 2026-05-22 — Phase 5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R8-R Ops monitor R8 post-UI-deploy GREEN close
+
+Status: **Post CATEGORY-1-UI-POLISH-D-EXEC。** **m55-soul-core Human counts poll。** **Verdict:** **`RELEASE_READINESS_OPS_MONITOR_R8_R_GREEN_NO_MUTATION`**。** **Counts:** failed **7/0** · DTR **6/6/0** · OTF/wallets/ledgers **10/10/17** · dup **0** · STOP **PASS** · integrity **YELLOW**。** **Delta vs R7-R:** **stable / all metric delta 0** · **post_ui_deploy_regression no**。** **Evidence:** **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R8-R-001`**。** **Cadence:** last poll **R8-R** · next **OPS-MONITOR-R9**。** **Production app:** **`6ce7002`**。** **HOLD unchanged:** VERIFY-C · CORE-DTR-VERIFY-B · Production delete · live checkout/payment/webhook。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_RELEASE_READINESS_OPS_MONITOR_R8_2026-05-22.md`
+
+----
+
 ## 2026-05-22 — Phase 5Z-I-V-HYGIENE-PUSH-EXECUTION-COMMIT-PUSH-EXEC-COMMIT-PUSH-EXEC EXEC record sync push + observation
 
 Status: **Post COMMIT-PUSH-EXEC-COMMIT-PUSH-PLANNING Human GO。** **Push executed。** **origin/main:** **`68fad2e`→`97c6c34`**（**2 commits** · **3 docs/ssot files**）。** **Vercel Production deploy:** **triggered** · **Ready/success** @ **`97c6c34`** · runtime paths **0 delta** vs **`0e9597c`** / **`68fad2e`**。** **Smoke:** logged-out **200** on `/` `/core` `/dtr` `/dtr/lp` `/my` · **`/dtr/core`→307 `/dtr/lp`**。** **Verdict:** **`HYGIENE_PUSH_EXECUTION_COMMIT_PUSH_EXEC_COMMIT_PUSH_EXEC_GREEN_PUSHED_OBSERVED_NO_RUNTIME_MUTATION`**。** **Evidence:** **`M55-EVID-20260522-HYGIENE-PUSH-EXECUTION-COMMIT-PUSH-EXEC-COMMIT-PUSH-EXEC-001`**。** **Anchor:** **R7-R** maintained。** **HOLD unchanged:** VERIFY-C · CORE-DTR-VERIFY-B · Production delete · live checkout/payment/webhook。** **Next:** **OPS-MONITOR-R8**。
@@ -136,7 +152,7 @@ Status: **Historical attestation — `incorrect_baseline_chain_superseded_by_R6`
 
 ## 2026-05-21 — Phase 5-6H-5Z-I-V-AS-B1-MONITOR-CADENCE Release readiness monitor cadence
 
-Status: **Post R7-R post-push GREEN。** **Cadence:** **`RELEASE_READINESS_OPS_MONITOR_CADENCE_ACTIVE_POST_R7_R_GREEN`**。** **Verdict:** **`AS_B1_MONITOR_CADENCE_RELEASE_READINESS_GREEN_NO_MUTATION`**。** **Last poll:** **OPS-MONITOR-R7-R**。** **Next poll:** **OPS-MONITOR-R8** — weekly OR before major deploy OR trigger §D。** **Baseline for delta:** **R7-R**（failed **7/0** · DTR **6/6/0** · OTF/wallets/ledgers **10/10/17** · dup **0** · integrity **YELLOW** · STOP **PASS**）。** **SQL:** `m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Note:** §B · §L **superseded by §M**。** **HOLD:** 本番削除 · live checkout · VERIFY-C unchanged。** **Evidence:** **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R7-R-001`** · prior **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R6-R-001`**。
+Status: **Post R8-R post-UI-deploy GREEN。** **Cadence:** **`RELEASE_READINESS_OPS_MONITOR_CADENCE_ACTIVE_POST_R8_R_GREEN`**。** **Verdict:** **`AS_B1_MONITOR_CADENCE_RELEASE_READINESS_GREEN_NO_MUTATION`**。** **Last poll:** **OPS-MONITOR-R8-R**。** **Next poll:** **OPS-MONITOR-R9** — weekly OR before major deploy OR trigger §D。** **Baseline for delta:** **R8-R**（failed **7/0** · DTR **6/6/0** · OTF/wallets/ledgers **10/10/17** · dup **0** · integrity **YELLOW** · STOP **PASS**）。** **SQL:** `m55_release_readiness_ops_monitor_r1_counts_only_v1.sql`。** **Note:** §B · §L **superseded by §M**。** **HOLD:** 本番削除 · live checkout · VERIFY-C unchanged。** **Evidence:** **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R8-R-001`** · prior **`M55-EVID-20260522-5Z-I-V-RELEASE-READINESS-OPS-MONITOR-R7-R-001`**。
 
 **Checkpoint doc:** `docs/ssot/M55_PHASE5_6H_5Z_I_V_AS_B1_MONITOR_CADENCE_RELEASE_READINESS_2026-05-21.md`
 
