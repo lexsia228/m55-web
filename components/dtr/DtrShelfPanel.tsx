@@ -11,26 +11,15 @@ import {
   LABEL_STATE_OWNED,
 } from '../../lib/m55/dtrProductLabels';
 import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
+import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import DtrCatalogStrip from './DtrCatalogStrip';
 import styles from './DtrShelfPanel.module.css';
 
 /**
- * Ten-views image mapping by stem index (mirrors CoreHeroSection HERO_VISUAL_PRESET / DtrFullReader).
- * stemIdx 0–9 = ten stems 甲–癸 (TenStemCatalog order).
+ * Ten-views image mapping by stem index (shared SSOT: publicStemDisplay).
  */
-const DTR_TYPE_IMAGE: Record<number, string> = {
-  0: '/ten-views/president.webp',
-  1: '/ten-views/planner.webp',
-  2: '/ten-views/influencer.webp',
-  3: '/ten-views/creator.webp',
-  4: '/ten-views/manager.webp',
-  5: '/ten-views/producer.webp',
-  6: '/ten-views/executor.webp',
-  7: '/ten-views/designer.webp',
-  8: '/ten-views/global-leader.webp',
-  9: '/ten-views/analyst.webp',
-};
+const DTR_TYPE_IMAGE = STEM_LANE_TEN_VIEWS_IMAGE;
 
 type OwnershipState = 'owned' | 'locked' | 'expired' | 'anonymous';
 

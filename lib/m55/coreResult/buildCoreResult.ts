@@ -26,6 +26,7 @@ export function buildCoreResult(profile: BirthProfile): CoreResult {
   });
 
   return {
+    stemLaneIndex: seed.stemLaneIndex,
     coreType: `TYPE_${String(seed.typeIndex + 1).padStart(2, '0')}`,
     coreLabel: seed.longTermTheme,
     coreSummary: seed.staticEssence,

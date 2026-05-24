@@ -42,6 +42,7 @@ export function migrateLegacyV1ToCoreResult(v1: LegacyCoreResultV1, profile: Bir
 
   return {
     ...built,
+    stemLaneIndex: v1.stemLaneIndex,
     coreLabel: displayLabel,
     coreSummary: displaySummary,
     axisDetails: buildAxisDetails(displayLabel, built.coreAxisScores),

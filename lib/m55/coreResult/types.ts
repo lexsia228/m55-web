@@ -29,6 +29,8 @@ export type AffinityItem = {
 };
 
 export type CoreResult = {
+  /** 天干 lane 0–9 — public label parity with paid DTR via TEN_STEM_DISPLAY */
+  stemLaneIndex: number;
   coreType: string;
   coreLabel: string;
   coreSummary: string;

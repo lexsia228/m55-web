@@ -7,6 +7,7 @@ export const mockCorePageData: CorePageData = {
     birthDate: '1990-04-12',
   },
   coreResult: {
+    stemLaneIndex: 6,
     coreType: 'TYPE_07',
     coreLabel: '核心追究型',
     coreSummary: '表面で終わらず、物事の核と意味をつかもうとする本質です。',

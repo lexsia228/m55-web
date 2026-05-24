@@ -1,3 +1,91 @@
+## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-DEPLOY-PLANNING commit / deploy packet GREEN
+
+Status: **Post IMPLEMENTATION repo GREEN。** **Commit scope fixed:** **14 files**（parity code + 3 parity SSOT docs + **`M55_SYSTEM_SSOT.md`**）· **explicit `git add` only** · **no wholesale `docs/ssot/` stage**。** **Validation:** **tsc PASS** · **7/7 tests PASS** · **build compile PASS** · **Clerk prerender caveat local only** · **grep PRESIDENT/HERO_VISUAL_PRESET clean**。** **Excluded:** unrelated untracked SSOT · **`scripts/sql/production/*`** · **`supabase/.temp`** · **`.vercel`**。** **No commit/push/deploy/DB/env/Stripe in gate。** **¥500追加返書 smoke:** **HOLD until deploy + consistency re-poll GREEN**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_COMMIT_DEPLOY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-DEPLOY-PLANNING-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-EXEC`** Human GO。
+
+**Checkpoint doc:** `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_COMMIT_DEPLOY_PLANNING_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-IMPLEMENTATION P-TEN-STEM-PRIMARY-01 repo GREEN
+
+Status: **Post PARITY-PLANNING GREEN。** **Strategy `P-TEN-STEM-PRIMARY-01` implemented repo-only。** **`publicStemDisplay` SSOT** · **`CoreResult.stemLaneIndex`** · **`CoreHeroSection` uses `TEN_STEM publicTitle`** · **no PRESIDENT primary** · **shared `STEM_LANE_TEN_VIEWS_IMAGE`**。** **Tests:** **7/7 PASS** · **tsc PASS**。** **No DB/snapshot mutation · no deploy。** **¥500追加返書 smoke:** **HOLD until deploy + consistency re-poll**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-IMPLEMENTATION-001`**。** **Next:** deploy + **`DTR-SNAPSHOT-CORE-RESULT-CONSISTENCY-R` re-poll**。
+
+**Checkpoint doc:** `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_IMPLEMENTATION_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-PLANNING Free /core vs paid DTR label parity packet GREEN
+
+Status: **Post CONSISTENCY-R BLOCKED（taxonomy-only）。** **Strategy:** **`P-TEN-STEM-PRIMARY-01`** — **`TEN_STEM_DISPLAY[stemLaneIndex].publicTitle`** canonical · **`TYPE_CATALOG` internal only** · **no snapshot DB UPDATE**。** **Image:** single **`stemLaneIndex` → ten-views** map。** **Tests:** **1992-12-19** no PRESIDENT vs プロデューサー split · **1983-02-28** v2 **アナリスト+静観分析** preserved · legacy **旧計算方式** badge only。** **¥500追加返書 smoke:** **HOLD until parity impl GREEN**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-PLANNING-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-IMPLEMENTATION`** Human GO。
+
+**Checkpoint doc:** `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase BACKEND-COMMERCE-CONTRACT-C-DTR-SNAPSHOT-CORE-RESULT-CONSISTENCY-R /core vs paid DTR label mismatch BLOCKED
+
+Status: **Post fulfillment GREEN · unlock observed。** **Observed:** **`/core`** **分析類型 / PRESIDENT / 直観展開** vs **`/dtr` saved card** **資質 / プロデューサー**。** **Code audit:** same **`stemLaneIndex`** on legacy JDN path · **TYPE_CATALOG + HERO_VISUAL_PRESET** vs **`TEN_STEM_DISPLAY`** catalog split · **not** owned-shelf recompute bug。** **Classification:** **taxonomy-only mismatch**（trust blocker）。** **¥500追加返書 smoke:** **HOLD**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_DTR_SNAPSHOT_CORE_RESULT_CONSISTENCY_R_BLOCKED_RESULT_MISMATCH_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-RESULT-CONSISTENCY-R-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-PLANNING`** → **TL-F7-IMPLEMENTATION**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_DTR_SNAPSHOT_CORE_RESULT_CONSISTENCY_R_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase FRESH-WEBHOOK-500-ENV-FIX-VERIFY-R Post env-fix webhook recovery verify WAITING
+
+Status: **Post EXEC resume · Production redeploy Ready**（**`dpl_9hDNM3SzmAD8U9RaeibRP24fN9U8`**）。** **`/api/diagnostics/env`:** Supabase admin **len=40/219** · **MISSING no**。** **Vercel logs post-redeploy:** **no `POST /api/stripe/webhook`** · **no ENV_MISSING**。** **Classification:** **`no_retry_yet`**。** **Fulfillment SQL:** **not run**（webhook **200** pending）。** **Verdict:** **`FRESH_WEBHOOK_500_ENV_FIX_VERIFY_R_WAITING_NATURAL_RETRY_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-FRESH-WEBHOOK-500-ENV-FIX-VERIFY-R-001`**。** **Next:** natural retry re-poll · or **`FRESH-CHECKOUT-PROCESSING-RELOAD`** GO · then **`FRESH-FULFILLMENT-R`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_WEBHOOK_500_ENV_FIX_VERIFY_R_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase VERCEL-SUPABASE-ADMIN-ENV-CORRECTION-EXEC Production Supabase admin env add BLOCKED
+
+Status: **Human GO received。** **Target reconfirmed:** **`m55-official/m55-webv2` Production** → **`m55-soul-core` Production plane**。** **Blocker:** Supabase credential **values not available locally** · Vercel sensitive env **not decryptable** via CLI/API · **`vercel env pull`** empty。** **Production env add:** **not performed**。** **Redeploy:** **not performed**。** **`/api/diagnostics/env`:** Supabase vars still **MISSING** · Clerk vars **len=56/50**。** **Stripe retry / fulfillment:** **not observed**（env fix pending）。** **Verdict:** **`VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_BLOCKED_MISSING_CREDENTIAL_SOURCE_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-VERCEL-SUPABASE-ADMIN-ENV-CORRECTION-EXEC-001`**。** **Superseded by Human resume + VERIFY-R env probe GREEN。**
+
+**Checkpoint doc:** `docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase VERCEL-SUPABASE-ADMIN-ENV-CORRECTION-PLANNING Production Supabase admin env fix packet GREEN
+
+Status: **Post WEBHOOK-500-DIAGNOSTIC-R。** **Vercel CLI read-only:** **`NEXT_PUBLIC_SUPABASE_URL`** + **`SUPABASE_SERVICE_ROLE_KEY`** **absent on Production** · **Preview-only**。** **Target:** **`m55-official/m55-webv2` Production** → **`m55-soul-core` Production plane**。** **Redeploy:** **required** after env add。** **Verify:** **`/api/diagnostics/env` len probe** + Stripe **natural retry 200**（no replay in planning）。** **Fulfillment recovery:** natural retry → **`/dtr/processing` reload** → repair（separate GOs）。** **Verdict:** **`VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-VERCEL-SUPABASE-ADMIN-ENV-CORRECTION-PLANNING-001`**。** **Next:** **`VERCEL-SUPABASE-ADMIN-ENV-CORRECTION-EXEC`** Human GO。
+
+**Checkpoint doc:** `docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_PLANNING_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-WEBHOOK-500-DIAGNOSTIC-R Webhook 500 fulfillment missing BLOCKED
+
+Status: **Post `FRESH-CHECKOUT-D-EXEC` payment · `checkout.session.completed` observed · webhook **500 ERR**。** **Vercel log:** **`ENV_MISSING:SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY`** on **`POST /api/stripe/webhook`** before handler。** **Signature verify:** inferred **PASS**。** **Fulfillment:** **not started** · cohort SQL **all 0**。** **Retry:** deterministic **FAIL** until Vercel Supabase admin env fix。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_WEBHOOK_500_DIAGNOSTIC_R_BLOCKED_FULFILLMENT_MISSING_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-FRESH-WEBHOOK-500-DIAGNOSTIC-R-001`**。** **Next:** Vercel Supabase admin env correction → env-fix verify → **`FRESH-FULFILLMENT-R`**（no second payment · no replay in diagnostic）。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_WEBHOOK_500_DIAGNOSTIC_R_2026-05-24.md`
+
+----
+
+## 2026-05-23 — Phase AUTH-NAMESPACE-FRESH-CHECKOUT-CANARY-FREEZE-R Clerk namespace freeze GREEN
+
+Status: **Post `FRESH-CHECKOUT-D-EXEC go` · pre SQL baseline window。** **Human screenshot:** **`launch-cohort-primary`** visible in **`M55-core` / `Development`**（joined + last signed in **2026-05-23**）· **not** visible in **`M55-Official` / `Development`** shown list。** **Frozen label:** **`M55-core-Development`**。** **Canary checkout:** acceptable with auth-compliance exception。** **Final release auth-compliance:** still open · launch-blocker。** **Verdict:** **`AUTH_NAMESPACE_FRESH_CHECKOUT_CANARY_FREEZE_R_GREEN_M55_CORE_DEVELOPMENT_NAMESPACE_OBSERVED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-AUTH-NAMESPACE-FRESH-CHECKOUT-CANARY-FREEZE-R-001`**。** **Next:** pre SQL baseline → **`FRESH-CHECKOUT-D-EXEC`** payment window。
+
+**Checkpoint doc:** `docs/ssot/M55_AUTH_NAMESPACE_FRESH_CHECKOUT_CANARY_FREEZE_R_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-CHECKOUT-D-EXEC-PLANNING-REFRESH Execution packet refresh GREEN
+
+Status: **Post PREVIEW-CONSISTENCY-R re-run GREEN @ `2ef7ae8`。** **Cohort:** **`launch-cohort-primary`**。** **Profile gate:** nickname + birthDate only（**`IMPLICIT_UNKNOWN_TIME_AT_CHECKOUT`**）。** **Payment boundary:** exactly one live checkout · no webhook replay · no test card in live mode。** **Fulfillment proof:** counts/hash-bound SQL only。** **Prior `FRESH-CHECKOUT-D-EXEC go`:** consumed · **fresh GO required**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_CHECKOUT_D_EXEC_PLANNING_REFRESH_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-CHECKOUT-D-EXEC-PLANNING-REFRESH-001`**。** **HOLD:** checkout/payment until **`FRESH-CHECKOUT-D-EXEC go`**。** **Next:** Human GO → **`FRESH-CHECKOUT-D-EXEC`**。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_CHECKOUT_D_EXEC_PLANNING_REFRESH_2026-05-23.md`
+
+----
+
+## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R Re-run close GREEN
+
+Status: **Production @ `2ef7ae8`。** **Human visual PASS:** `/my` no birthTime block · `/dtr/lp` CTA eligible（not clicked）· `/dtr` no **`クリエイター`** · generic or **`アナリスト`** aligned · **`/core`** ANALYST consistent。** **Prior BLOCKED（クリエイター mismatch + birthTime gate）:** **CLEARED**。** **P1:** CTA disabled-like styling · clickable · non-blocker。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_R_GREEN_PRECHECKOUT_UI_ALIGNED_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PREVIEW-CONSISTENCY-R-RERUN-001`**。** **HOLD:** **`FRESH-CHECKOUT-D-EXEC`** until **separate fresh GO**。** **Next:** **`FRESH-CHECKOUT-D-EXEC` planning refresh** → fresh GO。
+
+**Checkpoint doc:** `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PREVIEW_CONSISTENCY_R_RERUN_2026-05-23.md`
+
+----
+
 ## 2026-05-23 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-COMMIT-PLANNING Checkout birthTime gate commit packet GREEN
 
 Status: **Post PROFILE-GATE-RELAXATION-IMPLEMENTATION。** **Commit scope frozen:** 5 runtime files + 4 gate SSOT docs（9 files atomic）。** **Validation:** webpack compile PASS · tsc PASS · profileCheckout **10/10** · grep guards PASS。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_PRECHECKOUT_PROFILE_GATE_RELAXATION_COMMIT_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260523-FRESH-PRECHECKOUT-PROFILE-GATE-RELAXATION-COMMIT-PLANNING-001`**。** **HOLD unchanged:** commit/push/deploy · checkout/payment · VERIFY-C。** **Next:** **PROFILE-GATE-RELAXATION-COMMIT-EXEC**。

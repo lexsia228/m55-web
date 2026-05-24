@@ -12,6 +12,7 @@ import {
   resolveBoundaryContext,
   runCanonicalCorePipeline,
 } from '../lib/m55/coreResult/canonicalBoundary';
+import { resolveCorePublicStemDisplay } from '../lib/m55/publicStemDisplay';
 import { runDtrEngine } from '../lib/m55/dtrEngine';
 import { TEN_STEM_DISPLAY } from '../lib/m55/tenStemCatalog';
 import { CORE_TYPE_EN_TAG } from '../components/core/corePublicCopy';
@@ -93,15 +94,9 @@ type Row = {
   error: string | null;
 };
 
-function classifyMismatch(lane: number, coreType: string, paidTitle: string, heroEn: string): string {
-  const stem = TEN_STEM_DISPLAY[lane];
-  if (!stem) return 'unknown_lane';
-  if (stem.publicTitle === paidTitle && heroEn !== paidTitle && heroEn !== stem.publicTitle) {
-    return 'free_hero_vs_paid_ten_stem_diverge';
-  }
-  if (stem.publicTitle !== paidTitle) return 'paid_stem_internal_error';
-  if (heroEn === paidTitle) return 'none';
-  return 'free_hero_vs_paid_ten_stem_diverge';
+function classifyMismatch(lane: number, corePublicTitle: string, paidTitle: string): string {
+  if (corePublicTitle !== paidTitle) return 'core_public_title_vs_paid_diverge';
+  return 'none';
 }
 
 function runCase(c: CaseInput): Row {
@@ -131,6 +126,8 @@ function runCase(c: CaseInput): Row {
       birthDate: c.birthDate,
     });
 
+    const corePublicTitle = resolveCorePublicStemDisplay(core).publicTitle;
+
     const hero = HERO_BY_CORE_TYPE[core.coreType] ?? {
       en: CORE_TYPE_EN_TAG[core.coreType] ?? core.coreType,
       traitJa: core.coreLabel,
@@ -144,7 +141,7 @@ function runCase(c: CaseInput): Row {
     });
 
     const paidTitle = TEN_STEM_DISPLAY[lane]!.publicTitle;
-    const mismatch = classifyMismatch(lane, core.coreType, paidTitle, hero.en);
+    const mismatch = classifyMismatch(lane, corePublicTitle, paidTitle);
 
     const normalized = normalizeBirthContext({
       birthDate: c.birthDate,
@@ -257,7 +254,7 @@ const summary = {
   boundaryTimezoneDiffers: boundaryDiffers,
   boundaryFallbackDiffers: solarDiffers,
   allFulfillmentSameAsDtr: rows.every((r) => r.fulfillmentSameAsDtr !== false),
-  labelMismatchCount: rows.filter((r) => r.labelMismatch === 'free_hero_vs_paid_ten_stem_diverge').length,
+  labelMismatchCount: rows.filter((r) => r.labelMismatch !== 'none').length,
 };
 
 // eslint-disable-next-line no-console -- audit script output
