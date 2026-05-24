@@ -1,7 +1,7 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-05-23T22:07:51.523023+00:00
-Total records: 607
+Generated: 2026-05-24T22:09:20.949424+00:00
+Total records: 613
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
 - [ssot] `docs/ssot/DESKTOP_PACK_SCAN_REPORT_2026-02-26.md` (3948 bytes)
@@ -16,6 +16,12 @@ Total records: 607
 - [ssot] `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE2_WALLET_LINK_GREEN_2026-05-12.md` (3379 bytes)
 - [ssot] `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE3_INCLUDED_REPLY_E2E_GREEN_2026-05-12.md` (3288 bytes)
 - [ssot] `docs/ssot/M55_DTR_BASE_PREVIEW_PHASE4_ADDITIONAL_REPLY_E2E_GREEN_2026-05-12.md` (4207 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_COMMIT_DEPLOY_PLANNING_2026-05-24.md` (7879 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_COMMIT_DEPLOY_PLANNING_2026-05-24.md` (5328 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_IMPLEMENTATION_2026-05-24.md` (2462 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_PLANNING_2026-05-24.md` (9903 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_IMPLEMENTATION_2026-05-24.md` (4750 bytes)
+- [ssot] `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_2026-05-24.md` (13265 bytes)
 - [ssot] `docs/ssot/M55_ENTITLEMENT_STATE_TRANSITION_SPEC_v1.md` (11634 bytes)
 - [ssot] `docs/ssot/M55_ENVIRONMENT_IDENTITY_REGISTRY_2026-05-18.md` (149864 bytes)
 - [ssot] `docs/ssot/M55_ENVIRONMENT_MATRIX.md` (3019 bytes)
@@ -538,7 +544,7 @@ Total records: 607
 - [ssot] `docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md` (5018 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md` (2698 bytes)
 - [ssot] `docs/ssot/M55_SUPABASE_NON_PROD_DB_STRATEGY_FOR_REPLY_WALLET_MIGRATION_v1.md` (10722 bytes)
-- [ssot] `docs/ssot/M55_SYSTEM_SSOT.md` (648077 bytes)
+- [ssot] `docs/ssot/M55_SYSTEM_SSOT.md` (661063 bytes)
 - [ssot] `docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md` (6676 bytes)
 - [ssot] `docs/ssot/M55_VISUAL_TOKEN_SPEC_v1.md` (4363 bytes)
 - [ssot] `docs/ssot/M55_WEB_BEHAVIORAL_AND_DATA_BINDING_CONTRACT_SSOT_v1_2026-03-07.md` (1501 bytes)
@@ -581,8 +587,8 @@ Total records: 607
 - [audit] `docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md` (1974 bytes)
 - [audit] `docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md` (9623 bytes)
 - [audit] `docs/audit/M55_REFINED_EXECUTION_ROADMAP_2026-03-07.md` (5608 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (94585 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (63638 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (96846 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (65275 bytes)
 - [audit] `docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md` (9663 bytes)
 - [audit] `docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md` (3726 bytes)
 - [audit] `docs/audit/M55_THREAD_ASSET_SUMMARY_2026-03-06.md` (1323 bytes)

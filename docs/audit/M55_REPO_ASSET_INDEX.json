@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-23T22:07:51.521031+00:00",
-  "count": 607,
+  "generated_at_utc": "2026-05-24T22:09:20.946919+00:00",
+  "count": 613,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -66,6 +66,36 @@
       "path": "docs/ssot/M55_DTR_BASE_PREVIEW_PHASE4_ADDITIONAL_REPLY_E2E_GREEN_2026-05-12.md",
       "category": "ssot",
       "bytes": 4207
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_COMMIT_DEPLOY_PLANNING_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 7879
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_COMMIT_DEPLOY_PLANNING_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 5328
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_IMPLEMENTATION_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 2462
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_PLANNING_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 9903
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_IMPLEMENTATION_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 4750
+    },
+    {
+      "path": "docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_PLANNING_2026-05-24.md",
+      "category": "ssot",
+      "bytes": 13265
     },
     {
       "path": "docs/ssot/M55_ENTITLEMENT_STATE_TRANSITION_SPEC_v1.md",
@@ -2680,7 +2710,7 @@
     {
       "path": "docs/ssot/M55_SYSTEM_SSOT.md",
       "category": "ssot",
-      "bytes": 648077
+      "bytes": 661063
     },
     {
       "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
@@ -2895,12 +2925,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 94585
+      "bytes": 96846
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 63638
+      "bytes": 65275
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
