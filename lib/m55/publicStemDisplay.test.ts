@@ -103,6 +103,64 @@ describe('publicStemDisplay parity', () => {
   });
 });
 
+describe('core hero hierarchy P-CORE-HERO-HIERARCHY-01', () => {
+  const coreHeroSrc = () =>
+    readFileSync(join(process.cwd(), 'components/core/CoreHeroSection.tsx'), 'utf8');
+
+  it('LH-01: 1992-12-19 primary visible label = プロデューサー', () => {
+    const core = buildCoreResult({ nickname: 't', birthDate: '1992-12-19' });
+    assert.equal(resolveCorePublicStemDisplay(core).publicTitle, 'プロデューサー');
+  });
+
+  it('LH-02: 1992-12-19 secondary trait = 直観展開', () => {
+    const core = buildCoreResult({ nickname: 't', birthDate: '1992-12-19' });
+    assert.equal(observationTraitNameFromCoreLabel(core.coreLabel), '直観展開');
+  });
+
+  it('LH-03: CoreHero main headline binds stemDisplay.publicTitle', () => {
+    const src = coreHeroSrc();
+    assert.match(src, /corePosterMainHeadlineName\}>\{stemDisplay\.publicTitle\}/);
+    assert.match(src, /corePosterHeroLead\}>\{stemDisplay\.displayOneLine\}/);
+    assert.doesNotMatch(src, /corePosterHeroEyebrowEn/);
+  });
+
+  it('LH-04: observationTraitName is not the sole primary headline binding', () => {
+    const src = coreHeroSrc();
+    assert.doesNotMatch(src, /corePosterMainHeadlineName\}>\{observationTraitName\}/);
+    assert.match(src, /corePosterTraitRowName\}>\{observationTraitName\}/);
+  });
+
+  it('LH-05: PRESIDENT / HERO_VISUAL_PRESET regression clean', () => {
+    const src = coreHeroSrc();
+    assert.doesNotMatch(src, /PRESIDENT/);
+    assert.doesNotMatch(src, /HERO_VISUAL_PRESET/);
+  });
+
+  it('LH-06: 1983-02-28 v2 golden primary アナリスト, secondary 静観分析', () => {
+    resetCalendarBundleCacheForTests();
+    const preview = deriveLockedShelfStemPreviewFromProfile(GOLDEN_V2_PROFILE);
+    assert.ok(preview);
+    assert.equal(preview.publicTitle, 'アナリスト');
+    assert.equal(preview.stemLaneIndex, 9);
+
+    const core = buildCoreResult({ nickname: 't', birthDate: '1983-02-28' });
+    assert.equal(observationTraitNameFromCoreLabel(core.coreLabel), '静観分析');
+    assert.equal(resolveCorePublicStemDisplay(core).publicTitle, 'クリエイター');
+  });
+
+  it('LH-07: DTR publicTitle parity remains intact', () => {
+    const birthDate = '1992-12-19';
+    const core = buildCoreResult({ nickname: 'm', birthDate });
+    const shelf = deriveDtrShelfStemDisplay({ birthDate, nickname: 'm' });
+    assert.ok(shelf);
+    assert.equal(resolveCorePublicStemDisplay(core).publicTitle, shelf.publicTitle);
+    assert.equal(
+      resolveCorePublicStemDisplay(core).displayOneLine,
+      resolvePublicStemDisplay(5)!.displayOneLine,
+    );
+  });
+});
+
 function TEN_STEM_PUBLIC_TITLE(lane: number): string {
   return resolvePublicTitleByStemLaneIndex(lane)!;
 }

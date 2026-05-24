@@ -1,3 +1,19 @@
+## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-DEPLOY-PLANNING hero hierarchy commit packet GREEN
+
+Status: **Post HIERARCHY-FIX-IMPLEMENTATION repo GREEN。** **Commit scope:** **7 files**（code **3** + SSOT **4**）· **explicit `git add` only**。** **Validation:** **tsc PASS** · **14/14 tests** · **build compile PASS** · **Clerk prerender caveat local**。** **DTR paths:** **unchanged**。** **No commit/push/deploy/DB in gate。** **¥500追加返書 smoke:** **HOLD until deploy + consistency re-poll GREEN**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_COMMIT_DEPLOY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-DEPLOY-PLANNING-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-EXEC`** Human GO。
+
+**Checkpoint doc:** `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_COMMIT_DEPLOY_PLANNING_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-FIX-IMPLEMENTATION P-CORE-HERO-HIERARCHY-01 repo GREEN
+
+Status: **Post Human re-poll @ `6c7f56a` — trait visually primary。** **Fix:** eyebrow **分析類型 only** · largest JP **`publicTitle`** · secondary **特質性 / observationTrait** · lead **`displayOneLine`**。** **Tests:** **LH-01–07** + LP parity **14/14 PASS**。** **No DTR/DB/snapshot change · no deploy。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_IMPLEMENTATION_GREEN_REPO_ONLY_NO_PRODUCTION_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-FIX-IMPLEMENTATION-001`**。
+
+**Checkpoint doc:** `docs/ssot/M55_DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_FIX_IMPLEMENTATION_2026-05-24.md`
+
+----
+
 ## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-DEPLOY-PLANNING commit / deploy packet GREEN
 
 Status: **Post IMPLEMENTATION repo GREEN。** **Commit scope fixed:** **14 files**（parity code + 3 parity SSOT docs + **`M55_SYSTEM_SSOT.md`**）· **explicit `git add` only** · **no wholesale `docs/ssot/` stage**。** **Validation:** **tsc PASS** · **7/7 tests PASS** · **build compile PASS** · **Clerk prerender caveat local only** · **grep PRESIDENT/HERO_VISUAL_PRESET clean**。** **Excluded:** unrelated untracked SSOT · **`scripts/sql/production/*`** · **`supabase/.temp`** · **`.vercel`**。** **No commit/push/deploy/DB/env/Stripe in gate。** **¥500追加返書 smoke:** **HOLD until deploy + consistency re-poll GREEN**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_COMMIT_DEPLOY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-DEPLOY-PLANNING-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-COMMIT-EXEC`** Human GO。

@@ -6,7 +6,6 @@ import {
   observationTraitNameFromCoreLabel,
   resolveCorePublicStemDisplay,
 } from '../../lib/m55/publicStemDisplay';
-import { heroNarrative } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
 /** ヒーローカード内背景動画の再生速度（1 より小さいほど静かに流れる） */
@@ -54,17 +53,12 @@ export default function CoreHeroSection({
   nickname: string;
 }) {
   const nick = nickname.trim();
-  const narrative = heroNarrative(result);
   const stemDisplay = resolveCorePublicStemDisplay(result);
   const observationTraitName = observationTraitNameFromCoreLabel(result.coreLabel);
   const obsDateLabel = formatRecordDateLabel(result.lockedAt);
   const obsMeta = obsDateLabel ? `First Record ${obsDateLabel}` : 'First Record';
   const traitLabel = '特質性';
   const classLabelJa = '分析類型';
-  const leadText =
-    observationTraitName === '静観分析'
-      ? '周囲の喧騒に惑わされず、本質を静かに見極め、最適な答えを深く導き出せる人。'
-      : narrative.tagline;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrowPcFlat = useNarrowPcCoreHeroLayout();
 
@@ -140,14 +134,16 @@ export default function CoreHeroSection({
               <div className={styles.corePosterHeroLower}>
                 <p className={styles.corePosterHeroEyebrow}>
                   <span className={styles.corePosterHeroEyebrowKind}>{classLabelJa}</span>
-                  <span className={styles.corePosterHeroEyebrowSep}>/</span>
-                  <span className={styles.corePosterHeroEyebrowEn}>{stemDisplay.publicTitle}</span>
                 </p>
                 <p className={styles.corePosterMainHeadline}>
-                  <span className={styles.corePosterMainHeadlineBadge}>{traitLabel}</span>
-                  <span className={styles.corePosterMainHeadlineName}>{observationTraitName}</span>
+                  <span className={styles.corePosterMainHeadlineName}>{stemDisplay.publicTitle}</span>
                 </p>
-                <p className={styles.corePosterHeroLead}>{leadText}</p>
+                <p className={styles.corePosterTraitRow}>
+                  <span className={styles.corePosterTraitRowBadge}>{traitLabel}</span>
+                  <span className={styles.corePosterTraitRowSep}>/</span>
+                  <span className={styles.corePosterTraitRowName}>{observationTraitName}</span>
+                </p>
+                <p className={styles.corePosterHeroLead}>{stemDisplay.displayOneLine}</p>
               </div>
             </div>
           </div>
