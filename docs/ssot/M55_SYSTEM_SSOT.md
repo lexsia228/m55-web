@@ -1,3 +1,51 @@
+## 2026-05-25 — Phase BACKEND-COMMERCE-CONTRACT-C-FRESH-LANE-COMPOSITE-CLOSE-R launch-cohort-primary composite GREEN
+
+Status: **Post purchased-ticket consume GREEN。** **Composite close:** **DTR ¥1k pay** · **webhook/fulfillment/unlock** · **core/dtr parity** · **included consume** · **¥500 pay** · **purchased consume** — all **observationally GREEN** on **`launch-cohort-primary` / `M55-core-Development`**。** **Terminal SQL:** snapshot **1** · wallet **1** · **available_max=0** · **consumed_max=2** · **purchased_max=1** · ledgers **included_grant 1 / reply_consume 2 / purchase_grant 1** · S-5 **all 0** · hash-bound **true**。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_C_FRESH_LANE_COMPOSITE_CLOSE_R_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260525-BACKEND-COMMERCE-CONTRACT-C-FRESH-LANE-COMPOSITE-CLOSE-R-001`**。** **HOLD:** second payment · ¥500 CTA · second send · 63-file backlog · VERIFY-C。** **Next:** **`RELEASE-READINESS-OPS-MONITOR-R*`** counts-only。
+
+**Checkpoint doc:** `docs/ssot/M55_BACKEND_COMMERCE_CONTRACT_C_FRESH_LANE_COMPOSITE_CLOSE_R_2026-05-25.md`
+
+----
+
+## 2026-05-25 — Phase FRESH-ADDITIONAL-REPLY-PURCHASED-TICKET-CONSUME-R purchased ¥500 slot consume GREEN close
+
+Status: **Post PAYMENT-SMOKE-R GREEN。** **Pre-consume UI:** **残り 1件**。** **Human:** **one** additional reply send · M55 response generated · **no** second send。** **Post-consume UI:** **残り 0件** · **合計5件まで** · **¥500 CTA visible · not clicked**。** **Vercel:** **`POST /api/room/core/send` 200** · **room/core ownership 200 owned**。** **SQL:** **available_max=0** · **consumed_max=2** · **purchased_max=1** · **reply_consume 2** · **purchase_grant 1** · included_grant **1** · S-5 **0** · hash-bound **true**。** **Verdict:** **`FRESH_ADDITIONAL_REPLY_PURCHASED_TICKET_CONSUME_R_GREEN_CONTROLLED_CONSUME_EXECUTED_NO_MANUAL_MUTATION`**。** **Evidence:** **`M55-EVID-20260525-FRESH-ADDITIONAL-REPLY-PURCHASED-TICKET-CONSUME-R-001`**。** **CLOSED:** purchased-ticket UI · send route · post-consume SQL。** **HOLD:** second send · second ¥500 pay · CTA click · webhook replay。** **Next:** **FRESH-LANE-COMPOSITE-CLOSE-R** · ops monitor cadence · optional cap-edge ¥500 (separate GO)。
+
+**Checkpoint doc:** `docs/ssot/M55_FRESH_ADDITIONAL_REPLY_PURCHASED_TICKET_CONSUME_R_2026-05-25.md`
+
+----
+
+## 2026-05-25 — Phase FRESH-ADDITIONAL-REPLY-500-PAYMENT-SMOKE-R ¥500 live payment smoke GREEN close
+
+Status: **Post Price/env correction GREEN · precheckout no-payment GREEN · included consume GREEN。** **Human:** exactly **one** live **¥500** payment · **`checkout.session.completed`** · Stripe endpoint **200** · Vercel **`POST /api/stripe/webhook` 200** · Reply lane metadata **`additional_reply_ticket`** (redacted diagnostic)。** **UI:** post-pay **`/dtr/core` 残り 1件**。** **SQL v2 band:** snapshot **1** · scoped wallet **1** · **available_max=1** · **consumed_max=1** · **purchased_max=1** · included_grant **1** · reply_consume **1** · **purchase_grant 1** · S-5 guards **0** · hash-bound **true**。** **Verdict:** **`FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260525-FRESH-ADDITIONAL-REPLY-500-PAYMENT-SMOKE-R-001`**。** **CLOSED:** ¥500 payment · webhook · fulfillment · UI · post-pay SQL。** **HOLD:** second ¥500 pay · CTA retry · webhook replay · purchased-ticket consume (separate gate)。** **Next:** optional **`FRESH-ADDITIONAL-REPLY-PURCHASED-TICKET-CONSUME-R`** · commerce composite close · ops monitor cadence。
+
+**Checkpoint doc:** `docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md`
+
+----
+
+## 2026-05-24 — Phase STRIPE-ADDITIONAL-REPLY-PRICE-ENV-CORRECTION-PLANNING Production live Price env packet GREEN
+
+Status: **Post PRECHECKOUT-FAIL-DIAGNOSTIC-R。** **Root cause:** **`STRIPE_PRICE_ADDITIONAL_REPLY_TICKET`** on Production = **test-mode Price id** used with **live `STRIPE_SECRET_KEY`** → **`stripe_session_create_failed` / `resource_missing` / 502**。** **Fix target:** **Vercel `m55-official/m55-webv2` Production** · key **`STRIPE_PRICE_ADDITIONAL_REPLY_TICKET`** → **Live ¥500 JPY one-time Price**（Dashboard select existing or create in EXEC）· **redeploy required**。** **Verify without payment:** DevTools POST **200 + checkout_url** + log **`reply_ticket_checkout_session_created`** · **STOP before Stripe**。** **CTA/payment:** **HOLD until EXEC + verify + consume SQL GREEN + fresh GO**。** **Verdict:** **`STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-STRIPE-ADDITIONAL-REPLY-PRICE-ENV-CORRECTION-PLANNING-001`**。** **Next:** **`STRIPE-ADDITIONAL-REPLY-PRICE-ENV-CORRECTION-EXEC`** Human GO。
+
+**Checkpoint doc:** `docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase FRESH-ADDITIONAL-REPLY-500-PRECHECKOUT-FAIL-DIAGNOSTIC-R ¥500 checkout prepare failed BLOCKED pending log
+
+Status: **Post consume UI 残り0件 · ¥500 CTA clicked once · error 決済の準備に失敗。** **Route:** **`POST /api/reply-tickets/checkout`** · env key **`STRIPE_PRICE_ADDITIONAL_REPLY_TICKET`**（not `STRIPE_PRICE_REPLY_TICKET`）· Vercel Production **name present** · **runtime stage unknown**。** **Stripe Checkout / payment:** **not observed**。** **Verdict:** **`FRESH_ADDITIONAL_REPLY_500_PRECHECKOUT_FAIL_DIAGNOSTIC_R_BLOCKED_PENDING_VERCEL_LOG_STAGE_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-FRESH-ADDITIONAL-REPLY-500-PRECHECKOUT-FAIL-DIAGNOSTIC-R-001`**。** **HOLD:** ¥500 payment · CTA retry · consume SQL still pending。** **Next:** Human Vercel log **`[reply-tickets/checkout] failed`** **`stage`**。
+
+**Checkpoint doc:** `docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PRECHECKOUT_FAIL_DIAGNOSTIC_R_2026-05-24.md`
+
+----
+
+## 2026-05-24 — Phase FRESH-INCLUDED-REPLY-CONSUME-SQL-R launch-cohort-primary post-consume read-only WAITING
+
+Status: **Post hierarchy deploy `23eb8a1` · Human UI consume observed once。** **UI:** `/dtr/core` open · one send · theme **距離と期待** · M55 reply generated · **残り 0件** · **¥500 CTA visible · not clicked**。** **SQL:** script **`m55_fresh_included_reply_consume_readonly_v1.sql`** · **Agent SELECT not run** · operator hash **local only**。** **Verdict:** **`FRESH_INCLUDED_REPLY_CONSUME_SQL_R_WAITING_HUMAN_SQL_ATTESTATION_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-FRESH-INCLUDED-REPLY-CONSUME-SQL-R-001`**。** **Next:** Human counts-only SQL close → **`FRESH-ADDITIONAL-REPLY-SMOKE` planning** only after GREEN。
+
+**Checkpoint doc:** `docs/ssot/M55_FRESH_INCLUDED_REPLY_CONSUME_SQL_R_2026-05-24.md`
+
+----
+
 ## 2026-05-24 — Phase DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-DEPLOY-PLANNING hero hierarchy commit packet GREEN
 
 Status: **Post HIERARCHY-FIX-IMPLEMENTATION repo GREEN。** **Commit scope:** **7 files**（code **3** + SSOT **4**）· **explicit `git add` only**。** **Validation:** **tsc PASS** · **14/14 tests** · **build compile PASS** · **Clerk prerender caveat local**。** **DTR paths:** **unchanged**。** **No commit/push/deploy/DB in gate。** **¥500追加返書 smoke:** **HOLD until deploy + consistency re-poll GREEN**。** **Verdict:** **`DTR_SNAPSHOT_CORE_LABEL_PARITY_CORE_HERO_HIERARCHY_COMMIT_DEPLOY_PLANNING_GREEN_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260524-DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-DEPLOY-PLANNING-001`**。** **Next:** **`DTR-SNAPSHOT-CORE-LABEL-PARITY-CORE-HERO-HIERARCHY-COMMIT-EXEC`** Human GO。
