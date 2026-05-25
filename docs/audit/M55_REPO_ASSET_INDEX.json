@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-24T22:09:20.946919+00:00",
-  "count": 613,
+  "generated_at_utc": "2026-05-25T22:17:11.049591+00:00",
+  "count": 617,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -26,6 +26,11 @@
       "path": "docs/ssot/M55_AUTOMATION_OPERATING_SYSTEM_v1_2026-03-06.md",
       "category": "ssot",
       "bytes": 4202
+    },
+    {
+      "path": "docs/ssot/M55_BACKEND_COMMERCE_CONTRACT_C_FRESH_LANE_COMPOSITE_CLOSE_R_2026-05-25.md",
+      "category": "ssot",
+      "bytes": 10319
     },
     {
       "path": "docs/ssot/M55_BASELINE_FREEZE_20260330.md",
@@ -116,6 +121,16 @@
       "path": "docs/ssot/M55_EVIDENCE_REGISTRY_PROTOCOL_2026-05-16.md",
       "category": "ssot",
       "bytes": 8821
+    },
+    {
+      "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_500_PAYMENT_SMOKE_R_2026-05-25.md",
+      "category": "ssot",
+      "bytes": 8330
+    },
+    {
+      "path": "docs/ssot/M55_FRESH_ADDITIONAL_REPLY_PURCHASED_TICKET_CONSUME_R_2026-05-25.md",
+      "category": "ssot",
+      "bytes": 6692
     },
     {
       "path": "docs/ssot/M55_HEADER_VISUAL_FREEZE_v1.md",
@@ -1893,6 +1908,11 @@
       "bytes": 9297
     },
     {
+      "path": "docs/ssot/M55_RELEASE_READINESS_OPS_MONITOR_R9_POST_FRESH_COMMERCE_LANE_CLOSE_2026-05-25.md",
+      "category": "ssot",
+      "bytes": 8059
+    },
+    {
       "path": "docs/ssot/M55_REPLY_CREDIT_LEDGER_ARCHITECTURE_ADR_v1.md",
       "category": "ssot",
       "bytes": 8825
@@ -2710,7 +2730,7 @@
     {
       "path": "docs/ssot/M55_SYSTEM_SSOT.md",
       "category": "ssot",
-      "bytes": 661063
+      "bytes": 668784
     },
     {
       "path": "docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md",
@@ -2925,12 +2945,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 96846
+      "bytes": 97819
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 65275
+      "bytes": 65936
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
