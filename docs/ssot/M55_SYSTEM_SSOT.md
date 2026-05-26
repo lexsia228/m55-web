@@ -1,3 +1,11 @@
+## 2026-05-26 — Phase BACKEND-COMMERCE-CONTRACT-A-REFUND-POLICY-CLOSEOUT launch manual-refund stance GREEN
+
+Status: **Post R10-R · Contract-A refund planning。** **Launch:** **policy-only + manual support** — **no** automated ¥500 revoke · **no** self-serve revoke UI。** **BC-GAP-006:** **not launch blocker**。** **Findings:** ¥500 webhook noop · ¥1k revoke partial (snapshot/wallet may remain) · snapshot-priority ownership。** **User copy:** **DRAFT** — legal/support review before public。** **Verdict:** **`BACKEND_COMMERCE_CONTRACT_A_REFUND_POLICY_CLOSEOUT_GREEN_DOCS_ONLY_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260526-BACKEND-COMMERCE-CONTRACT-A-REFUND-POLICY-CLOSEOUT-001`**。** **HOLD:** Stripe refund · DB mutation · webhook replay · VERIFY-C。** **Next:** **REFUND-POLICY-PUSH-GO** · **REFUND-MONITOR-READONLY-PLANNING** · **VERIFY-C-REENTRY-PLANNING**。
+
+**Checkpoint doc:** `docs/ssot/M55_BACKEND_COMMERCE_CONTRACT_A_REFUND_POLICY_CLOSEOUT_2026-05-26.md`
+
+----
+
 ## 2026-05-26 — Phase RELEASE-READINESS-OPS-MONITOR-R10-R Post backlog-zero reentry counts GREEN
 
 Status: **Post `60a8579` backlog-zero · Human Production poll complete。** **All artifact deltas vs R9-R: 0** · **failed_24h=0** · categories **6/1/0 stable** · **S-5 all 0** · **strict_backfill=0** · **quarantine_apply=0** · duplicate **0** · schema **1/1/1**。** **Active bleeding:** **no**。** **B3 update_candidate:** **not executed** (artifact-only)。** **Verdict:** **`RELEASE_READINESS_OPS_MONITOR_R10_R_GREEN_COUNTS_ONLY_NO_MUTATION`**。** **Evidence:** **`M55-EVID-20260526-RELEASE-READINESS-OPS-MONITOR-R10-R-001`**。** **HOLD:** VERIFY-C · payment/send · B3 DML。** **Next:** **CONTRACT-A-REFUND-PLANNING** · **VERIFY-C-REENTRY-PLANNING** · **UI second pass** · **R11 cadence**。
