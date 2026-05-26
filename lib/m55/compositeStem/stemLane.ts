@@ -1,5 +1,5 @@
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
-import type { LunarCivilDayRow } from '../calendar/loadCalendarBundle';
+import type { LunarCivilDayRow } from '../calendar/calendarBundleTypes';
 import { M55CompositeStemError, type CompositeStemPaidDisplay } from './types';
 
 /** P-LUNAR: stem lane comes only from precomputed lunar civil table (no civil JDN). */

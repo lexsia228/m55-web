@@ -4,53 +4,25 @@ import { join } from 'node:path';
 import { M55CompositeStemError } from '../compositeStem/types';
 import { CALENDAR_RANGE_END, CALENDAR_RANGE_START, CORRECTION_VERSION } from '../compositeStem/constants';
 import { lookupCountryTimezone as lookupCountryTimezoneFromJson } from './countryTimezone';
+import {
+  lookupLunarCivilDayFromBundle,
+  lookupSolarTermsForYearFromBundle,
+} from './calendarLookupPure';
+import type {
+  CalendarManifest,
+  LunarCivilDaysDoc,
+  LunarCivilDayRow,
+  M55CalendarBundle,
+  SolarTermYearRow,
+  SolarTermsDoc,
+  TzCountryDoc,
+} from './calendarBundleTypes';
 
-type ManifestFileEntry = {
-  sha256: string;
-};
-
-type CalendarManifest = {
-  bundleId: string;
-  rangeStart: string;
-  rangeEnd: string;
-  files: Record<string, ManifestFileEntry>;
-};
-
-export type LunarCivilDayRow = {
-  lunarYear: number;
-  lunarMonth: number;
-  lunarDay: number;
-  isLeapMonth: boolean;
-  lunarMonthKey: string;
-  lunarDayKey: string;
-  dayStemIndex: number;
-  dayStemChar: string;
-  solarYearKey: number;
-};
-
-type LunarCivilDaysDoc = {
-  correctionVersion: string;
-  days: Record<string, LunarCivilDayRow>;
-};
-
-type SolarTermYearRow = Record<string, string>;
-
-type SolarTermsDoc = {
-  correctionVersion: string;
-  years: Record<string, SolarTermYearRow>;
-};
-
-type TzCountryDoc = {
-  correctionVersion: string;
-  countries: Record<string, string>;
-};
-
-export type M55CalendarBundle = {
-  manifest: CalendarManifest;
-  lunar: LunarCivilDaysDoc;
-  solar: SolarTermsDoc;
-  tz: TzCountryDoc;
-};
+export type {
+  LunarCivilDayRow,
+  M55CalendarBundle,
+  SolarTermYearRow,
+} from './calendarBundleTypes';
 
 const DATA_DIR = join(process.cwd(), 'lib/m55/calendar/data');
 
@@ -107,24 +79,11 @@ export function loadCalendarBundle(): M55CalendarBundle {
 }
 
 export function lookupLunarCivilDay(civilDate: string): LunarCivilDayRow {
-  if (civilDate < CALENDAR_RANGE_START || civilDate > CALENDAR_RANGE_END) {
-    throw new M55CompositeStemError('M55_COMPOSITE_DATE_OUT_OF_RANGE', civilDate);
-  }
-  const bundle = loadCalendarBundle();
-  const row = bundle.lunar.days[civilDate];
-  if (!row) {
-    throw new M55CompositeStemError('M55_COMPOSITE_CALENDAR_TABLE_MISSING', civilDate);
-  }
-  return row;
+  return lookupLunarCivilDayFromBundle(loadCalendarBundle(), civilDate);
 }
 
 export function lookupSolarTermsForYear(year: number): SolarTermYearRow {
-  const bundle = loadCalendarBundle();
-  const row = bundle.solar.years[String(year)];
-  if (!row) {
-    throw new M55CompositeStemError('M55_COMPOSITE_CALENDAR_TABLE_MISSING', `solar:${year}`);
-  }
-  return row;
+  return lookupSolarTermsForYearFromBundle(loadCalendarBundle(), year);
 }
 
 export function lookupCountryTimezone(country: string): string | null {

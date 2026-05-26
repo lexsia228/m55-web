@@ -1,13 +1,13 @@
-import { lookupLunarCivilDay } from '../calendar/loadCalendarBundle';
+import { lookupLunarCivilDayClient } from '../calendar/loadCalendarBundleClient';
 import type { LunarCivilDayRow } from '../calendar/calendarBundleTypes';
 import type { BoundaryMetadata } from './types';
 import { CORRECTION_VERSION, PRIMARY_TIMEZONE_BUCKET } from './constants';
 
-export function resolveLunarCivilRow(effectiveLocalDate: string): LunarCivilDayRow {
-  return lookupLunarCivilDay(effectiveLocalDate);
+export function resolveLunarCivilRowClient(effectiveLocalDate: string): LunarCivilDayRow {
+  return lookupLunarCivilDayClient(effectiveLocalDate);
 }
 
-export function lunarBoundaryMetadata(
+export function lunarBoundaryMetadataClient(
   row: LunarCivilDayRow,
   tzSource: BoundaryMetadata['tzSource'],
   timezone: string,
@@ -36,4 +36,4 @@ export function lunarBoundaryMetadata(
   };
 }
 
-export const LUNAR_LOOKUP_BUCKET = PRIMARY_TIMEZONE_BUCKET;
+export const LUNAR_LOOKUP_BUCKET_CLIENT = PRIMARY_TIMEZONE_BUCKET;

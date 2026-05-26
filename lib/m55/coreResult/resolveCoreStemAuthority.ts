@@ -1,13 +1,11 @@
 import type { BirthProfile } from '../../soul/profile';
 import { enrichBirthProfileForSave } from '../../soul/birthProfileV2';
-import {
-  birthProfileToFulfillmentFields,
-} from '../compositeStem/deriveLockedShelfStemPreviewCore';
+import { birthProfileToFulfillmentFields } from '../compositeStem/fulfillmentProfileFields';
 import {
   isV2FulfillmentProfileComplete,
   toCompositeCanonicalInput,
 } from '../compositeStem/parseFulfillmentMetadata';
-import { runM55CompositeStemPipeline } from '../compositeStem/pipeline';
+import { runM55CompositeStemPipelineClient } from '../compositeStem/pipeline.client';
 import { ENGINE_VERSION_V2 } from '../compositeStem/constants';
 import type { M55CompositeCalculationMode } from '../compositeStem/types';
 import type { NormalizeBirthInput } from './canonicalBoundary';
@@ -41,7 +39,7 @@ export function birthProfileFromNormalizeInput(input: NormalizeBirthInput): Birt
 
 /**
  * v2 composite stem authority for /core public title, image, and stemLaneIndex.
- * Fail-closed when profile cannot run `runM55CompositeStemPipeline` (no legacy JDN).
+ * Fail-closed when profile cannot run client v2 pipeline (no legacy JDN).
  */
 export function resolveCoreStemAuthority(
   profile: BirthProfile | null | undefined,
@@ -53,7 +51,7 @@ export function resolveCoreStemAuthority(
   if (!fields || !isV2FulfillmentProfileComplete(fields)) return null;
 
   try {
-    const composite = runM55CompositeStemPipeline(toCompositeCanonicalInput(fields));
+    const composite = runM55CompositeStemPipelineClient(toCompositeCanonicalInput(fields));
     const meta = composite.boundaryMetadata;
     return {
       stemLaneIndex: composite.stemLaneIndex,

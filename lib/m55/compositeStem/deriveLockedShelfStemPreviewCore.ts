@@ -3,9 +3,9 @@
  * Tests import this module directly; client components must not.
  */
 import type { BirthProfile } from '../../soul/profile';
-import { DEFAULT_COUNTRY, normalizeBirthProfile } from '../../soul/birthProfileV2';
 import type { DtrShelfStemDisplay } from '../dtrShelfStemDisplay';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
+import { birthProfileToFulfillmentFields } from './fulfillmentProfileFields';
 import {
   isV2FulfillmentProfileComplete,
   resolveFulfillmentProfileFields,
@@ -15,25 +15,7 @@ import {
 } from './parseFulfillmentMetadata';
 import { runM55CompositeStemPipeline } from './pipeline';
 
-export function birthProfileToFulfillmentFields(
-  profile: BirthProfile | null | undefined,
-): FulfillmentProfileFields | null {
-  const normalized = normalizeBirthProfile(profile);
-  if (!normalized) return null;
-
-  const birthTime = normalized.birthTime?.trim() || null;
-  const birthTimeUnknown = normalized.birthTimeUnknown === true;
-
-  return {
-    nickname: normalized.nickname,
-    birthDate: normalized.birthDate,
-    birthTime,
-    birthTimeUnknown,
-    country: normalized.country ?? DEFAULT_COUNTRY,
-    birthplace: normalized.birthplace ?? null,
-    timezone: normalized.timezone ?? null,
-  };
-}
+export { birthProfileToFulfillmentFields } from './fulfillmentProfileFields';
 
 /** Returns null when fields incomplete or pipeline fail-closed — use generic shelf card. */
 export function deriveLockedShelfStemPreviewFromFields(

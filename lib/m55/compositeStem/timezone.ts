@@ -1,4 +1,4 @@
-import { lookupCountryTimezone } from '../calendar/loadCalendarBundle';
+import { lookupCountryTimezone } from '../calendar/countryTimezone';
 import type { M55CompositeCalculationMode, M55CompositeTzSource } from './types';
 import type { ParsedCompositeInput } from './normalize';
 
