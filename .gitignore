@@ -20,6 +20,7 @@ tsconfig.tsbuildinfo
 *.tsv
 *.csv
 *.txt
+supabase/.temp/
 
 # ---- our generated audit artifacts (prefix) ----
 _audit_*
