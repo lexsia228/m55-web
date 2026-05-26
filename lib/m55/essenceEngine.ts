@@ -8,6 +8,9 @@
  *   not asserted as immutable M55 primary law. Freeze requires re-audit against golden + calendar SSOT.
  *
  * birthTime/timezone are not in canonical input; one civil YYYY-MM-DD maps to one JDN.
+ *
+ * /core public stem title and image use `resolveCoreStemAuthority` (m55-composite-stem-v2).
+ * Do not use `essenceStemLaneIndex` for Core hero display or locked-shelf parity.
  */
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from './tenStemCatalog';
 

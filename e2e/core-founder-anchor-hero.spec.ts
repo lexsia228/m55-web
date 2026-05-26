@@ -37,10 +37,10 @@ async function assertFounderAnchorHero(page: Page) {
   await expect(heroCard).toBeVisible();
   await expect(
     heroCard,
-    'expected hero ANALYST / 観測特性：静観分析 for founder anchor 1983-02-28',
-  ).toContainText('ANALYST');
+    'expected hero アナリスト / v2 stem parity for founder anchor 1983-02-28',
+  ).toContainText('アナリスト');
   await expect(heroCard).toContainText('観測特性');
-  await expect(heroCard).toContainText('静観分析');
+  await expect(heroCard).toContainText('統合設計');
   await expect(
     heroCard,
     'CREATOR exposure detected in hero card',
@@ -48,7 +48,7 @@ async function assertFounderAnchorHero(page: Page) {
 }
 
 test.describe('core founder anchor hero fixed audit', () => {
-  test('1983-02-28 founder anchor は通常/シークレット相当とも ANALYST hero 固定', async ({ browser }) => {
+  test('1983-02-28 founder anchor は通常/シークレット相当とも アナリスト hero 固定', async ({ browser }) => {
     test.setTimeout(90_000);
     const normal = await browser.newContext();
     const secretLike = await browser.newContext();

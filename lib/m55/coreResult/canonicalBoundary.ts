@@ -1,6 +1,11 @@
 import { buildAxisDetails, compositionFromScores } from './axisMeta';
 import { affinityForTypeIndex, TYPE_CATALOG, type TypeCatalogSeed, typeIndexFromStemLane } from './typeCatalog';
-import { essenceStemLaneIndex } from '../essenceEngine';
+import type { BirthProfile } from '../../soul/profile';
+import {
+  birthProfileFromNormalizeInput,
+  resolveCoreStemAuthority,
+  resolveCoreStemAuthorityFromNormalizeInput,
+} from './resolveCoreStemAuthority';
 
 export type NormalizeBirthInput = {
   birthDate: string;
@@ -139,8 +144,13 @@ export function resolveBoundaryContext(normalizedInput: NormalizedBirthContext):
 export function computeStaticCoreDeterministic(
   normalizedInput: NormalizedBirthContext,
   boundaryContext: BoundaryContext,
+  profile: BirthProfile,
 ): StaticCoreDeterministic {
-  const lane = essenceStemLaneIndex(normalizedInput.normalizedGregorianDate);
+  const authority = resolveCoreStemAuthority(profile);
+  if (!authority) {
+    throw new Error('M55_CORE_STEM_AUTHORITY_UNAVAILABLE');
+  }
+  const lane = authority.stemLaneIndex;
   const idx = typeIndexFromStemLane(lane);
   const seed = TYPE_CATALOG[idx]!;
   const staticFingerprint = hashFingerprint({
@@ -212,16 +222,19 @@ export type CanonicalCorePipelineOutput = {
 };
 
 export function runCanonicalCorePipeline(input: NormalizeBirthInput, fixedNow = '2026-01-01T00:00:00.000Z'): CanonicalCorePipelineOutput {
+  const profile = birthProfileFromNormalizeInput(input);
   const normalized = normalizeBirthContext(input);
   const boundary = resolveBoundaryContext(normalized);
-  const staticCore = computeStaticCoreDeterministic(normalized, boundary);
+  const staticCore = computeStaticCoreDeterministic(normalized, boundary, profile);
   const dynamic = computeDynamicObservation(boundary, fixedNow);
   const seed = TYPE_CATALOG[staticCore.typeIndex]!;
   const axisDetails = buildAxisDetails(seed.coreLabel, seed.coreAxisScores);
   const composition = compositionFromScores(seed.coreAxisScores);
   const affinities = affinityForTypeIndex(staticCore.typeIndex);
-  const engineVersion = 'm55-core-canonical-v1';
-  const regressionAnchorMatched = normalized.normalizedGregorianDate === ANCHOR_DATE;
+  const stemAuthority = resolveCoreStemAuthorityFromNormalizeInput(input);
+  const engineVersion = stemAuthority?.engineVersion ?? 'm55-composite-stem-v2';
+  const regressionAnchorMatched =
+    normalized.normalizedGregorianDate === ANCHOR_DATE && stemAuthority?.stemLaneIndex === 9;
   return {
     normalized,
     boundary,

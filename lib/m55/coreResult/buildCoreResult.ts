@@ -2,12 +2,15 @@ import type { BirthProfile } from '../../soul/profile';
 import { runCanonicalCorePipeline } from './canonicalBoundary';
 import type { CoreResult } from './types';
 
-export const CORE_ENGINE_VERSION = 'm55-core-canonical-v1' as const;
+export const CORE_ENGINE_VERSION = 'm55-core-stem-v2-parity-1' as const;
 
 /** Fresh build from profile (deterministic). Use only when no sealed snapshot matches. */
 export function buildCoreResult(profile: BirthProfile): CoreResult {
   const canonical = runCanonicalCorePipeline({
     birthDate: profile.birthDate,
+    birthTime: profile.birthTime,
+    country: profile.country,
+    birthplace: profile.birthplace,
   });
   const seed = canonical.staticCore;
   const typeSeed = canonical.typeSeed;
