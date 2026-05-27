@@ -318,7 +318,7 @@ function useActiveSection(): [string | null, (id: string | null) => void, () => 
 }
 
 const INTRO_BULLETS: { text: string; anchor: string }[] = [
-  { text: '友達・家族・パートナーとの関係で、どこに力が出やすいか', anchor: 'section-overview'  },
+  { text: '近い人との関係で、自分らしくいられる距離感', anchor: 'section-overview'  },
   { text: '人との距離や言葉選びで、どこで無理がたまりやすいか',     anchor: 'section-structure' },
   { text: '疲れやすい条件と、崩れやすい流れ',       anchor: 'section-strain'    },
   { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
@@ -668,7 +668,7 @@ function PremiumHero({
         <div className={styles.heroMetaItem}>
           <div className={styles.heroMetaLabelRow}>
             <HeroIconMessage className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>返書チケット</span>
+            <span className={styles.heroMetaLabel}>相談返書</span>
           </div>
           <span className={styles.heroMetaValue}>{aiConsultIncluded ? '相談返書 1件' : 'なし'}</span>
         </div>
@@ -2419,15 +2419,15 @@ export default function DtrFullReader({
           ) : null}
         </section>
 
-        <SectionDivider label="プレミアム深読み" premium />
+        <SectionDivider label="保存版の深読み" premium />
 
         {/* 4-node structural map — lets readers grasp module relations before diving in */}
         <div className={styles.pmDeepMap} aria-hidden="true">
           {(
             [
               { n: 1, label: '力の中心を読む', desc: 'どの力が前に出やすいか',     colorCls: styles.pmDeepMapMint  },
-              { n: 2, label: '構造分析', desc: '傾向の重なり', colorCls: styles.pmDeepMapAmber },
-              { n: 3, label: '領域比較', desc: '場面の出方',   colorCls: styles.pmDeepMapBlue  },
+              { n: 2, label: '重なりを見る', desc: '傾向の重なり', colorCls: styles.pmDeepMapAmber },
+              { n: 3, label: '場面で見る', desc: '場面の出方',   colorCls: styles.pmDeepMapBlue  },
               { n: 4, label: '実践ガイド', desc: '整え方',     colorCls: styles.pmDeepMapRose  },
             ] as const
           ).map((m, i) => (
@@ -2466,7 +2466,7 @@ export default function DtrFullReader({
             {sec('s4_strengths') && sec('s5_friction') && (
             <PaidModuleShell
               n={2}
-              tierJa="構造分析"
+              tierJa="重なりを見る"
               tierClass={styles.prTierAmber}
               overline="傾向と負荷"
               title="重なりと読み解き"
@@ -2485,7 +2485,7 @@ export default function DtrFullReader({
             {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
             <PaidModuleShell
               n={3}
-              tierJa="領域比較"
+              tierJa="場面で見る"
               tierClass={styles.prTierBlue}
               overline="生活での出方"
               title="場面別の整理"

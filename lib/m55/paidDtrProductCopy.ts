@@ -119,7 +119,7 @@ export const PAID_DTR_CHAPTERS = [
 export const PAID_DTR_BENEFITS_HEADING = 'このレポートで分かること' as const;
 
 export const PAID_DTR_BENEFIT_BULLETS = [
-  '友達・家族・パートナーとの関係で、どこに力が出やすいか',
+  '近い人との関係で、自分らしくいられる距離感',
   '人との距離や言葉選びで、どこで無理がたまりやすいか',
   '疲れやすい条件と、崩れやすい流れ',
   '自分をどこから整えると戻りやすいか',
