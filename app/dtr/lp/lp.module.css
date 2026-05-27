@@ -43,7 +43,12 @@
   opacity: 0.9 !important;
 }
 
+:global(.m55-lp-cta-btn:focus-visible) {
+  outline: 2px solid rgba(104, 84, 182, 0.9) !important;
+  outline-offset: 2px !important;
+}
+
 :global(.m55-lp-cta-btn:disabled) {
-  opacity: 0.55 !important;
+  opacity: 0.6 !important;
   cursor: not-allowed !important;
 }

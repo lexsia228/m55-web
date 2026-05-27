@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import PurchaseButton from "../../../components/PurchaseButton";
 import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
+import "./lp.module.css";
 import {
   DTR_OWNED_RECOVERY_PROCESSING_PATH,
   lpCtaModeFromAccess,
