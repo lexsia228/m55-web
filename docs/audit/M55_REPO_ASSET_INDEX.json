@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-05-26T22:39:00.570363+00:00",
-  "count": 669,
+  "generated_at_utc": "2026-05-27T22:50:50.759274+00:00",
+  "count": 670,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -201,6 +201,11 @@
       "path": "docs/ssot/M55_MONETIZATION_SSOT_FULL_FREEZE_v1_0.md",
       "category": "ssot",
       "bytes": 8954
+    },
+    {
+      "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
+      "category": "ssot",
+      "bytes": 11797
     },
     {
       "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
@@ -3205,12 +3210,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 98450
+      "bytes": 106974
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 66359
+      "bytes": 72179
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
