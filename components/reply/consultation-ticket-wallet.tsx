@@ -89,7 +89,7 @@ export function ConsultationTicketWallet({
               <span className="block h-4 w-4 text-center text-xs text-muted-foreground">!</span>
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-sm font-medium text-foreground">相談返書チケット</h3>
+              <h3 className="text-sm font-medium text-foreground">相談返書</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 このレポートで利用できる相談返書は上限に達しました。
               </p>
@@ -116,7 +116,7 @@ export function ConsultationTicketWallet({
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-sm font-medium text-foreground">相談返書チケット</h3>
+                <h3 className="text-sm font-medium text-foreground">相談返書</h3>
                 <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                   残り {available_count}件 / 合計{totalLimit}件まで
                 </span>
@@ -158,7 +158,7 @@ export function ConsultationTicketWallet({
               <span className="block h-4 w-4 text-center text-xs text-muted-foreground">!</span>
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-sm font-medium text-foreground">相談返書チケット</h3>
+              <h3 className="text-sm font-medium text-foreground">相談返書</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。
               </p>
@@ -178,7 +178,7 @@ export function ConsultationTicketWallet({
               <span className="block h-4 w-4 text-center text-xs text-muted-foreground">!</span>
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-sm font-medium text-foreground">相談返書チケット</h3>
+              <h3 className="text-sm font-medium text-foreground">相談返書</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 現在、このレポートに紐づく追加購入をご利用いただけません。
               </p>

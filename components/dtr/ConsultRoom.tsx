@@ -343,7 +343,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       case 'forbidden_not_owner':
         return 'このレポートの利用権限を確認できませんでした。';
       case 'wallet_not_found':
-        return '返書チケット情報が見つかりませんでした。';
+        return '相談返書の利用情報が見つかりませんでした。';
       case 'wallet_not_active':
         return '現在、追加購入を受け付けていません。';
       case 'cap_reached':
@@ -484,7 +484,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       ) : wallet!.available_count > 0 ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            相談返書チケット 残り {wallet!.available_count}件 / 合計{DISPLAY_CAP_PER_REPORT}件まで
+            相談返書 残り {wallet!.available_count}件 / 合計{DISPLAY_CAP_PER_REPORT}件まで
           </p>
           <p className={styles.addOnNote}>この本質の読み解きに紐づいて、4章の内容を深掘りできます。</p>
         </div>
@@ -518,11 +518,11 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       ) : isReadOnly ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            返書チケットの上限に達しました。これまでのやりとりは引き続き確認できます。
+            相談返書の利用回数の上限に達しました。これまでのやりとりは引き続き確認できます。
           </p>
           {wallet!.status !== 'active' && (
             <p className={styles.addOnNote}>
-              返書チケットの追加はこのルーム内でのみ申し込み可能です。上限は合計
+              追加相談返書の購入はこのルーム内でのみ申し込み可能です。上限は合計
               {DISPLAY_CAP_PER_REPORT}件です。
             </p>
           )}
@@ -656,7 +656,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           </button>
 
           <p className={styles.inputNote}>
-            1回の送信で返書チケット1件を消費します。送信後の取り消しはできません。返書は保存されます。
+            1回の送信で相談返書1件を使用します。送信後の取り消しはできません。返書は保存されます。
           </p>
         </div>
       )}
