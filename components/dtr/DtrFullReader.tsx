@@ -622,7 +622,7 @@ function PremiumHero({
               </span>
               <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
                 <HeroIconShield className={styles.heroBadgeIcon} />
-                Premium
+                保存版
               </span>
             </div>
 
@@ -633,14 +633,14 @@ function PremiumHero({
             </div>
 
             <h1 className={styles.heroBlueprintTitle}>
-              <span className={styles.heroBlueprintPrefix} lang="en">
-                Blueprint of
+              <span className={styles.heroBlueprintPrefix}>
+                保存版の読み解き
               </span>
               <span className={styles.heroBlueprintName}>{blueprintName}</span>
             </h1>
 
-            <div className={styles.heroFirstRecord} lang="en" aria-label="生年月日（First Record）">
-              <span className={styles.heroFirstRecordLabel}>First Record</span>
+            <div className={styles.heroFirstRecord} aria-label="生年月日（購入時プロフィール）">
+              <span className={styles.heroFirstRecordLabel}>購入時プロフィール</span>
               <span className={styles.heroFirstRecordDate}>{formatBirthDateFirstRecordLine(birthDate)}</span>
             </div>
 
@@ -726,7 +726,7 @@ function PremiumModuleLead({
     <div className={styles.prModuleBadgeRow}>
       <span className={styles.prModuleBadgeMain}>
         <span className={styles.prModuleBadgeDot} aria-hidden />
-        Module {num}
+        第{n}章
       </span>
       <span className={`${styles.prModuleBadgeTier} ${tierClass}`}>{tierJa}</span>
     </div>
