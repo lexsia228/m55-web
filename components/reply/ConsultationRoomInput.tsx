@@ -11,7 +11,13 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { ConsultationTicketWallet } from "./consultation-ticket-wallet"
 
-type Theme = "仕事" | "人間関係" | "疲れやすさ" | "判断の迷い" | "自分の整え方" | "距離感"
+type Theme =
+  | "近い人との距離"
+  | "言葉を選びすぎる場面"
+  | "断れなかったあとの疲れ"
+  | "平気なふりのしんどさ"
+  | "ひとりで戻る時間"
+  | "安心したい気持ち"
 
 type SupplementaryQuestion = {
   id: string
@@ -26,14 +32,21 @@ export type ReplyRoomWalletSnapshot = {
   status: string
 }
 
-const THEMES: Theme[] = ["仕事", "人間関係", "疲れやすさ", "判断の迷い", "自分の整え方", "距離感"]
+const THEMES: Theme[] = [
+  "近い人との距離",
+  "言葉を選びすぎる場面",
+  "断れなかったあとの疲れ",
+  "平気なふりのしんどさ",
+  "ひとりで戻る時間",
+  "安心したい気持ち",
+]
 
 const SUPPLEMENTARY_QUESTIONS: SupplementaryQuestion[] = [
-  { id: "q1", label: "最近、判断を急がされる場面が増えている" },
-  { id: "q2", label: "対人関係で消耗を感じることがある" },
-  { id: "q3", label: "見通しが立ちにくい状態が続いている" },
-  { id: "q4", label: "自分のペースを保ちにくい" },
-  { id: "q5", label: "休息が十分に取れていない" },
+  { id: "q1", label: "大切な人にほど言葉を飲み込んでしまう" },
+  { id: "q2", label: "断れなかったあとに強く疲れを感じる" },
+  { id: "q3", label: "わかってほしいのに、うまく伝えられない" },
+  { id: "q4", label: "ひとりで落ち着く時間が足りていない" },
+  { id: "q5", label: "平気なふりをして、後からしんどくなる" },
 ]
 
 const SESSION_STORAGE_RESULT_KEY = "m55_reply_stub_result_v1"

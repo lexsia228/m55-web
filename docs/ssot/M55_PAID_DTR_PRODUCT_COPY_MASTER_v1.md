@@ -64,7 +64,7 @@
 
 **Life-language (canonical):**
 
-> 無料の見取り図で見えた輪郭を土台に、保存版は章立てで読み返しながら、仕事・関係・消耗・迷い・整え方を自分の形で読み直せる有料レポートです。
+> 無料の見取り図で見えた輪郭を土台に、保存版は章立てで読み返しながら、近い人との距離・消耗・迷い・整え方を自分の暮らしの中で読み直せる有料レポートです。
 
 **Must convey:**
 
@@ -99,7 +99,7 @@
 | Chapter | Title | Helps user understand | Life concern | LP / reader / My |
 |---------|-------|----------------------|--------------|------------------|
 | **Ⅰ** | 輪郭を見る | 今出やすい傾向の全体像 | いまの自分の出方 | TOC tag: 全体像 |
-| **Ⅱ** | 構造を読む | 力が出る理由・安定 | 仕事・役割・判断 | TOC tag: 動き方の理由 |
+| **Ⅱ** | 構造を読む | 力が出る理由・安定 | 近い人との距離・日々の判断 | TOC tag: 動き方の理由 |
 | **Ⅲ** | 無理を知る | 無理がたまる場面（非断定） | 疲れ・消耗・関係負荷 | TOC tag: 崩れやすい条件 |
 | **Ⅳ** | 楽に扱う | 戻し方・整え方・日常 | 回復・自分への扱い | TOC tag: 戻し方と使い方 |
 
@@ -111,7 +111,7 @@
 
 | ID | Area | Use |
 |----|------|-----|
-| work_role | 仕事・役割 | 裁量・期待・進め方 |
+| work_role | 日々の役目（仕事・家庭） | 抱えやすさ・期待・進め方 |
 | relationships | 人との距離・関係 | 期待のずれ・対人消耗 |
 | fatigue | 消耗・疲れ | 崩れやすい条件の見える化 |
 | decision | 迷い・判断 | 論点の一本化 |
@@ -132,7 +132,7 @@
 | **Grounded in** | Purchased 保存版 chapters — not generic chat |
 | **Where** | `/dtr/core` → 相談返書ルーム (`#consultation-room`); via My / レポート棚 → 開く |
 
-**Good question examples (pattern):** work stress tied to 無理 chapter; relationship exhaustion tied to 距離; recovery tied to 戻し方.
+**Good question examples (pattern):** words swallowed with close people tied to 距離 chapter; relationship exhaustion tied to 無理 chapter; recovery tied to 戻し方.
 
 **Out of scope:** unrelated topics; other people’s readings; medical/legal/investment; guarantees; emergencies.
 

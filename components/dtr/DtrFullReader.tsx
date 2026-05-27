@@ -318,8 +318,8 @@ function useActiveSection(): [string | null, (id: string | null) => void, () => 
 }
 
 const INTRO_BULLETS: { text: string; anchor: string }[] = [
-  { text: '仕事や学びで、どこに力が出やすいか',     anchor: 'section-overview'  },
-  { text: '人間関係で、どこで無理がたまりやすいか', anchor: 'section-structure' },
+  { text: '友達・家族・パートナーとの関係で、どこに力が出やすいか', anchor: 'section-overview'  },
+  { text: '人との距離や言葉選びで、どこで無理がたまりやすいか',     anchor: 'section-structure' },
   { text: '疲れやすい条件と、崩れやすい流れ',       anchor: 'section-strain'    },
   { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
 ];
@@ -1857,7 +1857,7 @@ const PRACTICAL_GUIDANCE_STEM3: {
   rows: { action: string; why: string; when: string }[];
 }[] = [
   {
-    title: '仕事での判断',
+    title: '日々の判断と距離',
     icon: 'work',
     rows: [
       {
@@ -1921,7 +1921,7 @@ function PracticalGuidanceSection({
       ? PRACTICAL_GUIDANCE_STEM3
       : [
           {
-            title: '仕事での判断',
+            title: '日々の判断と距離',
             icon: 'work',
             rows: [
               {
@@ -2174,7 +2174,7 @@ function ContinuousSupport({ readerDisplayName }: { readerDisplayName: string })
           <li className={styles.supportPathItem}>
             <span className={styles.supportPathLabel}>状況整理</span>
             <span className={styles.supportPathDesc}>
-              状況が変わったとき、このレポートの「仕事での判断」「疲労と回復」を改めて参照してください。
+              状況が変わったとき、このレポートの「日々の判断と距離」「疲労と回復」を改めて参照してください。
             </span>
           </li>
         </ul>
@@ -2457,7 +2457,7 @@ export default function DtrFullReader({
               overline="5つの力のかけ合わせ"
               title="いまの形をつくっている力"
               ariaLabel="5つの力の分布"
-              summary="5つの力がどう重なっているかを読み、中心と支えの役割をつかむ。"
+              summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
               defaultOpen={false}
             >
               <FiveAxisModule stemIdx={stemIdx} />
@@ -2490,7 +2490,7 @@ export default function DtrFullReader({
               overline="生活での出方"
               title="場面別の整理"
               ariaLabel="生活での出方"
-              summary="仕事・関係・判断・回復ごとに、出やすさ・負荷・戻し方を整理する。"
+              summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
               defaultOpen={false}
             >
                 <DomainMatrixModule

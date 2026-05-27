@@ -43,7 +43,7 @@ export const PAID_DTR_PRODUCT_IDENTITY = {
 
 export const PAID_DTR_VALUE_PROPOSITION = {
   oneSentenceJa:
-    '無料の見取り図で見えた輪郭を土台に、保存版は章立てで読み返しながら、仕事・関係・消耗・迷い・整え方を自分の形で読み直せる有料レポートです。',
+    '無料の見取り図で見えた輪郭を土台に、保存版は章立てで読み返しながら、近い人との距離・消耗・迷い・整え方を自分の暮らしの中で読み直せる有料レポートです。',
   leadParagraphJa:
     '自分の形を知ると、少し楽になる。M55は、そのための見取り図です。保存版では、いまの傾向を章立てで深く整理し、必要なときに相談返書で論点を絞り込めます。',
   notAClaim: [
@@ -58,7 +58,7 @@ export const PAID_DTR_FREE_VS_PAID = {
   paidSavedLabelJa: `${LABEL_FORMAT_SAVED}（${LABEL_PRODUCT_JP}）`,
   freeGives: [
     '生年月日とニックネームから、いま出やすい傾向の輪郭を読む入口',
-    '仕事や人との距離など、5つの出方から見た入口の整理',
+    '日々の人間関係やひとり時間など、5つの出方から見た入口の整理',
     '保存版へ進む前に、自分の読み方の土台をつかむ',
   ] as const,
   paidAdds: [
@@ -91,7 +91,7 @@ export const PAID_DTR_CHAPTERS = [
     tocTag: '動き方の理由',
     helpsUnderstandJa:
       'なぜ力が出るのか、どこで安定しやすいのかを読む',
-    lifeConcernJa: '仕事・役割・判断の場面での力の出方',
+    lifeConcernJa: '近い人との距離や日々の判断で出やすい流れ',
     readerDescJa: 'なぜ力が出るのか、どこで安定するのかを見る',
   },
   {
@@ -119,8 +119,8 @@ export const PAID_DTR_CHAPTERS = [
 export const PAID_DTR_BENEFITS_HEADING = 'このレポートで分かること' as const;
 
 export const PAID_DTR_BENEFIT_BULLETS = [
-  '仕事や学びで、どこに力が出やすいか',
-  '人間関係で、どこで無理がたまりやすいか',
+  '友達・家族・パートナーとの関係で、どこに力が出やすいか',
+  '人との距離や言葉選びで、どこで無理がたまりやすいか',
   '疲れやすい条件と、崩れやすい流れ',
   '自分をどこから整えると戻りやすいか',
 ] as const;
@@ -128,9 +128,9 @@ export const PAID_DTR_BENEFIT_BULLETS = [
 export const PAID_DTR_LIFE_USE_CASES = [
   {
     id: 'work_role',
-    titleJa: '仕事・役割',
+    titleJa: '日々の役目（仕事・家庭）',
     bodyJa:
-      '裁量や期待、進め方の場面で、力が出やすい条件と負荷がたまりやすい流れを整理する',
+      '仕事や家庭で「ちゃんとしよう」と抱えやすい場面で、力が出やすい条件と負荷がたまりやすい流れを整理する',
   },
   {
     id: 'relationships',
@@ -177,16 +177,16 @@ export const PAID_DTR_CONSULT_REPLY = {
   notGenericChatJa:
     '汎用のAIチャットではありません。見えている傾向と購入した保存版を土台に、今回の論点を整理します。',
   themeExamplesJa: [
-    '役割・裁量',
-    '距離と期待',
-    '消耗と回復',
-    '迷いの一本化',
-    '入り方・抜け方',
+    '近い人との距離',
+    '言葉を選びすぎてしまう場面',
+    '断れなかったあとの疲れ',
+    '平気なふりをしてしまうとき',
+    'ひとりで戻る時間の作り方',
   ] as const,
   goodQuestionExamplesJa: [
-    '仕事で判断を急かされる場面が続いている。保存版の「無理がたまる条件」に当てはめると、どこから整えるのが現実的か',
-    '対人関係で消耗を感じる。距離と期待の章を踏まえて、いまの論点を絞りたい',
-    '休息が十分に取れていない。戻し方の章に沿って、まず試せる一歩を整理したい',
+    '大切な人にほど言葉を選びすぎてしまい、あとから疲れます。保存版の「無理がたまる条件」に当てはめると、どこから整えるのが現実的ですか',
+    '断れなかった出来事のあとに、ひとりで抱え込みやすくなります。距離の章を踏まえて、いまの論点を絞りたいです',
+    '平気なふりが続いていて落ち着きません。戻し方の章に沿って、今日できる小さな一歩を整理したいです',
   ] as const,
   outOfScopeExamplesJa: [
     'レポートと無関係な別テーマの相談',

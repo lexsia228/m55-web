@@ -30,21 +30,21 @@ const DISPLAY_CAP_PER_REPORT = REPLY_TICKET_TOTAL_CAP_PER_REPORT;
 
 /** 用途ラベル（往復券・1テーマ）— 保存版の型に当てはめて返書で深める軸 */
 const THEMES = [
-  '役割・裁量',
-  '距離と期待',
-  '消耗と回復',
-  '迷いの一本化',
-  '入り方・抜け方',
+  '近い人との距離',
+  '言葉を選びすぎる場面',
+  '断れなかったあとの疲れ',
+  '平気なふりのしんどさ',
+  'ひとりで戻る時間',
 ] as const;
 
 type Theme = (typeof THEMES)[number];
 
 const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
-  { id: 'q1', label: '最近、判断を急がされる場面が増えている' },
-  { id: 'q2', label: '対人関係で消耗を感じることがある' },
-  { id: 'q3', label: '見通しが立ちにくい状態が続いている' },
-  { id: 'q4', label: '自分のペースを保ちにくい' },
-  { id: 'q5', label: '休息が十分に取れていない' },
+  { id: 'q1', label: '大切な人にほど言葉を飲み込んでしまう' },
+  { id: 'q2', label: '断れなかったあとに強く疲れを感じる' },
+  { id: 'q3', label: 'わかってほしいのに、うまく伝えられない' },
+  { id: 'q4', label: 'ひとりで落ち着く時間が足りていない' },
+  { id: 'q5', label: '平気なふりをして、後からしんどくなる' },
 ];
 
 type Message = {
