@@ -9,6 +9,9 @@ import {
   LABEL_PRODUCT_EN,
   LABEL_PRODUCT_JP,
   LABEL_STATE_OWNED,
+  SHELF_HINT_OWNED_PENDING,
+  SHELF_HINT_OWNED_READY,
+  SHELF_OVERLINE,
 } from '../../lib/m55/dtrProductLabels';
 import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
@@ -214,10 +217,10 @@ function ShelfContextHint({
           </p>
         )}
         {ownershipState === 'owned' && snapshotReady && (
-          <p className={styles.shelfHint}>購入済みです。下のカードから{LABEL_FORMAT_SAVED}を開けます。</p>
+          <p className={styles.shelfHint}>{SHELF_HINT_OWNED_READY}</p>
         )}
         {ownershipState === 'owned' && !snapshotReady && (
-          <p className={styles.shelfHint}>購入済みです。本文の準備が完了すると開けます。</p>
+          <p className={styles.shelfHint}>{SHELF_HINT_OWNED_PENDING}</p>
         )}
         {ownershipState === 'expired' && (
           <p className={styles.shelfHint}>有効期限のご確認は商品ページまたはサポートへ。</p>
@@ -271,7 +274,7 @@ export default function DtrShelfPanel({
     <div className={styles.shelfPage}>
 
       <div className={styles.shelfIntro}>
-        <span className={styles.shelfOverline}>M55 Reports</span>
+        <span className={styles.shelfOverline}>{SHELF_OVERLINE}</span>
         <h1 className={styles.shelfTitle}>{LABEL_PRODUCT_JP}</h1>
         <p className={styles.shelfLead}>
           {LABEL_FORMAT_SAVED}の棚です。内容の詳細・価格・購入は

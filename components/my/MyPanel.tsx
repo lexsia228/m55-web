@@ -14,6 +14,13 @@ import {
   displayLabelForDtrRightKey,
   isEntryReportCoreRight,
 } from '../../lib/m55/myEntitlementLabels';
+import {
+  LABEL_STATE_OWNED,
+  MY_CONSULT_BLOCK_BODY,
+  MY_CONSULT_BLOCK_TITLE,
+  MY_REPORT_LIST_ARIA_LABEL,
+  MY_SIGNED_OUT_HUB_BODY,
+} from '../../lib/m55/dtrProductLabels';
 import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
 import SavedReportDeleteDialog from './SavedReportDeleteDialog';
 import {
@@ -128,7 +135,7 @@ export default function MyPanel() {
 
       <SignedOut>
         <section className={styles.card} aria-label="サインイン">
-          <p className={styles.body}>購入済みの Report や利用状況を確認するには、サインインが必要です。</p>
+          <p className={styles.body}>{MY_SIGNED_OUT_HUB_BODY}</p>
           <div className={styles.links}>
             <SignInButton mode="modal">
               <button type="button" className={styles.badge} style={{ cursor: 'pointer', border: 'none' }}>
@@ -202,9 +209,9 @@ export default function MyPanel() {
 
         {!entError && ent && (
           <section className={styles.card} aria-label="相談と保存の目安">
-            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>相談（Report 付帯）</div>
+            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>{MY_CONSULT_BLOCK_TITLE}</div>
             <p className={styles.muted} style={{ margin: '0 0 12px' }}>
-              相談は購入済み Report に紐づく範囲です。汎用チャットではありません。
+              {MY_CONSULT_BLOCK_BODY}
             </p>
             <div className={styles.blockLabel}>参考</div>
             <div className={styles.row}>
@@ -300,7 +307,7 @@ function OwnedReportsBlock({
         }}
         onConfirm={() => void handleDeleteConfirm()}
       />
-      <ul className={styles.reportList} aria-label="購入済みレポート一覧">
+      <ul className={styles.reportList} aria-label={MY_REPORT_LIST_ARIA_LABEL}>
       {rows.map((key, i) => {
         const isCore = isEntryReportCoreRight(key);
         if (isCore) {
@@ -311,7 +318,7 @@ function OwnedReportsBlock({
               ? styles.statusPending
               : styles.statusPending;
           const badgeText =
-            coreVs === 'ready' ? '購入済み' : coreVs === 'pending' ? '準備中' : '準備中';
+            coreVs === 'ready' ? LABEL_STATE_OWNED : coreVs === 'pending' ? '準備中' : '準備中';
           return (
             <li key={`${key}-${i}`} className={styles.reportItem}>
               <div className={styles.reportItemTop}>
@@ -357,7 +364,7 @@ function OwnedReportsBlock({
           <li key={`${key}-${i}`} className={styles.reportItem}>
             <div className={styles.reportItemTop}>
               <span className={styles.reportTitle}>{displayLabelForDtrRightKey(key)}</span>
-              <span className={`${styles.statusBadge} ${styles.statusPurchased}`}>購入済み</span>
+              <span className={`${styles.statusBadge} ${styles.statusPurchased}`}>{LABEL_STATE_OWNED}</span>
             </div>
             <div className={styles.reportItemCta}>
               <Link href="/dtr" className={styles.ctaSecondaryLink}>

@@ -18,6 +18,30 @@ export const LABEL_STATE_OWNED = '保存済み';
 /** Legacy export for My / catalog EN title. */
 export const LABEL_ENTRY_REPORT = LABEL_PRODUCT_EN;
 
+/** Signed-out My hub body. */
+export const MY_SIGNED_OUT_HUB_BODY =
+  '保存版レポートや利用状況を確認するには、サインインが必要です。';
+
+/** Owned report list aria-label (My). */
+export const MY_REPORT_LIST_ARIA_LABEL = '保存版レポート一覧';
+
+/** My consult block title. */
+export const MY_CONSULT_BLOCK_TITLE = '相談（保存版付帯）';
+
+/** My consult block body. */
+export const MY_CONSULT_BLOCK_BODY =
+  '相談は保存版レポートに紐づく範囲です。汎用チャットではありません。';
+
+/** DTR shelf overline. */
+export const SHELF_OVERLINE = 'M55 保存版';
+
+/** Shelf hint when owned and snapshot ready. */
+export const SHELF_HINT_OWNED_READY = '保存版をお持ちです。下のカードから開けます。';
+
+/** Shelf hint when owned and snapshot pending. */
+export const SHELF_HINT_OWNED_PENDING =
+  '保存版をお持ちです。本文の準備が完了すると開けます。';
+
 export type DtrShelfAriaAction =
   | 'purchase'
   | 'expired'
