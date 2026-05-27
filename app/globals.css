@@ -12,6 +12,7 @@ html, body { margin: 0; padding: 0; }
   justify-content: space-between !important;
   width: 100% !important;
   border-radius: 14px !important;
+  background: linear-gradient(135deg, #3d3262 0%, #534a72 100%) !important;
   padding: 16px 22px !important;
   color: #fff !important;
   font-weight: 700 !important;
@@ -27,5 +28,12 @@ html, body { margin: 0; padding: 0; }
   line-height: 1 !important;
 }
 .m55-lp-cta-btn:hover:not(:disabled) { opacity: 0.9 !important; }
-.m55-lp-cta-btn:disabled { opacity: 0.55 !important; cursor: not-allowed !important; }
+.m55-lp-cta-btn:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9) !important;
+  outline-offset: 2px !important;
+}
+.m55-lp-cta-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
 
