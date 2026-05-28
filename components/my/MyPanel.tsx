@@ -160,6 +160,9 @@ export default function MyPanel() {
           <p className={styles.sectionIntro}>
             保存版はここから開きます。生成が終わると「開く」が使えます。
           </p>
+          <p className={styles.muted} style={{ marginTop: 6 }}>
+            保存版は購入時点のプロフィールをもとに保存されています。ここでプロフィールを更新しても、購入済みの保存版の内容は自動では変わりません。
+          </p>
 
           {entError && (
             <p className={styles.muted}>利用状況を読み取れませんでした。時間をおいて再度お試しください。</p>
@@ -213,6 +216,15 @@ export default function MyPanel() {
             <p className={styles.muted} style={{ margin: '0 0 12px' }}>
               {MY_CONSULT_BLOCK_BODY}
             </p>
+            <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+              相談返書の残り回数や送信は、保存版レポートの相談返書ルームで確認できます。
+            </p>
+            <p className={styles.muted} style={{ margin: '0 0 12px' }}>
+              保存版の内容に沿って、今気になっていることを整理できます。
+            </p>
+            <div className={styles.links} style={{ marginBottom: 12 }}>
+              <Link href="/dtr/core">相談返書ルームを開く</Link>
+            </div>
             <div className={styles.blockLabel}>参考</div>
             <div className={styles.row}>
               <span>保存の目安（日）</span>
@@ -289,7 +301,7 @@ function OwnedReportsBlock({
   if (!ownsAny) {
     return (
       <>
-        <p className={styles.emptyOwned}>まだレポートはありません。下の一覧から購入できます。</p>
+        <p className={styles.emptyOwned}>まだレポートはありません。まずは本質の読み解きを確認する。</p>
       </>
     );
   }
@@ -341,13 +353,13 @@ function OwnedReportsBlock({
                       {DTR_SAVED_REPORT_DELETE_TRIGGER_LABEL}
                     </button>
                     <Link href="/dtr/core" className={styles.ctaOpen}>
-                      開く
+                      保存版を開いて、続きから確認する
                     </Link>
                   </>
                 )}
                 {!canOpenCore && (
                   <span className={styles.muted} style={{ fontSize: 12, textAlign: 'right' as const }}>
-                    本文が整い次第、「開く」が表示されます
+                    保存版の準備状況を確認する
                   </span>
                 )}
               </div>
