@@ -602,7 +602,7 @@ export default function HomePanel() {
             <li className={styles.ruleItem}>Entry Report では同じ本質を深く整理します</li>
             <li className={styles.ruleItem}>レポートには相談1回がつきます</li>
             <li className={styles.ruleItem}>追加相談はそのレポートのルームだけで行えます</li>
-            <li className={styles.ruleItem}>1レポートの相談は最大3回です</li>
+            <li className={styles.ruleItem}>相談返書は、付属1件と追加最大4件を合わせて合計5件まで利用できます。</li>
           </ul>
         </details>
       )}
