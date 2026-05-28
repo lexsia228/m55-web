@@ -27,7 +27,7 @@ export const DTR_PRODUCT_CATALOG: DtrCatalogSlot[] = [
     id: 'entry_report',
     kind: 'live',
     entitlementRightKey: DTR_ENTRY_REPORT_RIGHT_KEY,
-    title: LABEL_ENTRY_REPORT,
+    title: LABEL_PRODUCT_JP,
     subtitle: `${LABEL_PRODUCT_JP}（${LABEL_FORMAT_SAVED}）`,
     learnMoreHref: '/dtr/lp',
   },
