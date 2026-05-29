@@ -22,6 +22,8 @@ Audit Patch: `gemin.GPT(35).txt` の監査3点を反映済み（保存版表現�
 
 このSSOTが固定されるまで、追加課金UI、Stripe Checkout、本番Webhook、商品棚の表示は実装してはならない。
 
+**Product copy alignment (cross-reference only):** ユーザー向け商品コピー・相談返書ルームの表示文言は `docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md` に従う。付属1・追加最大4・合計5・500円・保存版紐づき・範囲外相談の**数値・権利・台帳の正本は本SSOT**（§3以降の Stripe / webhook / ledger は変更しない）。
+
 ---
 
 ## 1. 上位SSOTとの関係

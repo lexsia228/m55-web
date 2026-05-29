@@ -20,6 +20,13 @@
 
 **Downstream rule:** LP, Core, My, shelf, reader chrome, and ConsultRoom must **import or mirror** `lib/m55/paidDtrProductCopy.ts` in later alignment gates — not redefine long copy locally.
 
+**Product truth boundary (copy layer only — values unchanged):**
+
+- **保存版に紐づく相談**（相談返書）。**汎用チャットではない**。**無制限相談ではない**。
+- **なんでも答える約束をしない**。**通知・メール送付を約束しない**（M55 起因の準備完了／返書完了／更新メールは未実装）。
+- **医療・治療・法律・投資・転職・退職判断の代替にしない**。**辞めろ・別れろ等の絶対助言にしない**。
+- **engine / snapshot / result-label** は本マスターで変更しない（表示コピーのみ）。
+
 ---
 
 ## 1. Conflict Register
@@ -140,6 +147,18 @@
 
 **AI往復券:** explanatory bridge only unless a separate gate chooses otherwise.
 
+### 7.1 相談返書ルーム — copy boundary（Wave 1 SSOT）
+
+| Rule | Policy |
+|------|--------|
+| **紐づき** | **保存版に紐づく相談**。購入済み保存版の4章・傾向の範囲で整理する。汎用チャットではない。 |
+| **回数・価格（表示のみ）** | **付属1** + **追加最大4** = **合計5**（レポート単位）。追加は **500円**/件。数値の正本は `M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md`（本マスターは追従のみ）。 |
+| **1テーマ** | 1回の相談返書は **1テーマ** に絞る。長文は **1テーマに narrow** する。 |
+| **入力** | **短文入力は受け入れ可能**。 |
+| **感情・対立** | 感情には触れるが **正誤判定で終わらない**。「あなたは悪くない」で締めない。「相手が悪い」と言わない。対立テーマでは **非非難の相手／状況視点を1つ** 含めうる。 |
+| **禁止** | 無制限相談・なんでも答える・通知/メール約束・**辞めろ/別れろ** 等の絶対助言・医療/治療/法律/投資/転職/退職の代替。 |
+| **締め** | 保存版に根ざした整理のうえ、**小さな一手を1つ**（prompt 実装は別 GO）。 |
+
 ---
 
 ## 8. Purchase and access flow
@@ -175,9 +194,9 @@
 | `/dtr/lp` | §1–§8 short forms, comparison, chapters, consult, flow, FAQ | CTA modes, price, CheckoutTrustRow | Full body, ConsultRoom UI |
 | `/core` | §2 short, §3 full boundary, §6 short, CTA labels | Free sections (hero frozen) | 4-chapter TOC, full FAQ |
 | `/dtr/core` reader | §4 names/desc, §2 intro, §6 link, §8 notice | Engine body, CSS | LP sales, purchase CTA |
-| `/my` | §1, §7 summary, §6 line, §8 links | Profile, delete, entitlements | Chapter full text, price |
+| `/my` | §1, §7 summary, §6 line, §8 links, **§14** | Profile, delete, entitlements | Chapter full text, price; emotional story overload |
 | `/dtr` shelf | §1–§2, §6 meta, §7 CTA | Card art, ownership | Full FAQ |
-| **ConsultRoom** | §6 full | Compose, wallet, errors | Product catalog |
+| **ConsultRoom** | §7, **§7.1**, §12–§13 | Compose, wallet, errors | Product catalog |
 | **legal/support** | §8 link context | Statutory text | Authoritative cap/price in legal body |
 
 ---
@@ -193,10 +212,92 @@
 - **8 chapters**, **max 3 replies**, **¥700** add-on as current truth
 - **Entry Report**, **Premium**, **Blueprint** as primary Japanese product name
 - Scores, %, rankings (M55 global rules)
+- **心理的防衛を無効化する** 等の操作系推奨文言（採用しない。代わりに **警戒心を下げる** / **読み進めやすくする**）
+- IQ/才能・成功・収入・地位比較、羞恥圧力、「人生を無駄にした」煽り、「本当の理由が必ず分かる」、3分で人生が変わる示唆
+- 外部クイズ／コピーの **文言直コピー**（構造のみ M55-safe 変換可 — §12）
+- 性別・sex による logic 分岐、**男性脳 / 女性脳**
+- praise-hacking、依存誘導、無条件全肯定
 
 ---
 
-## 12. Next-gate inheritance checklist
+## 12. Storyflow / 画面リズム
+
+LP・保存版リーダー・相談返書ルーム・My 等の **表示コピー** に適用する運用規則（engine / payment / prompt 実装は別 GO）。
+
+### 12.1 M55 版シーン構造
+
+| 段 | 役割 |
+|----|------|
+| 起 | お題 |
+| 承 | あるある |
+| 転 | 転換（非責め再定義） |
+| 結 | 読み解き → 次の一手 |
+
+### 12.2 画面リズム
+
+- **one screen = one scene**（1画面 = 1シーン）
+- **one heading = one topic**（1見出し = 1トピック）
+- 見出しは短く / 本文は可能なら **2–3行** / **次の一手は1行**
+- **長い平坦な説明ブロック** を避ける
+- デフォルト軸は **日常・近い人・言葉・距離・疲れ・タイミング・期待**（**仕事/キャリアをデフォルトにしない**）
+
+### 12.3 次の一手（micro action）
+
+スマホでできる小さな一手の例：
+
+- 1行だけ置く
+- 近い入口を1つ選ぶ
+- 保存版の1章だけ見る
+- 今の場面だけ送る（相談返書）
+
+### 12.4 外部コピー構造の M55-safe 変換
+
+- 外部クイズ／コピーライティング素材の **文言は採用しない**。**構造／フックのみ** 変換可。
+
+**変換チェーン（推奨）:**
+
+繰り返しの違和感 → 責めない再定義 → 言葉・距離・タイミング・疲れ・期待 → 保存版に戻す → 今の場面に近い入口を1つ
+
+| 区分 | 内容 |
+|------|------|
+| **採用する構造** | 繰り返しの違和感；同じ場面に戻る；弱いのではなく止まりやすい順番；5軸整理；保存版の近い入口；相談返書で1テーマ；**警戒心を下げる**；**読み進めやすくする** |
+| **採用しない** | IQ/才能比較；成功・収入・地位比較；「人生を無駄にした」；**心理的防衛を無効化する**；「本当の理由が必ず分かる」；3分で人生が変わる示唆；羞恥圧力；外部文言直コピー；依存・lock-in・操作系 |
+
+---
+
+## 13. 出力表現方針（温度感 / 具体承認）
+
+**出力表現レイヤーのみ。** UI セレクタ・prompt/code 実装は **本マスターでは承認しない**。engine / snapshot / result-label / 保存版結果 / 4章 / product truth 数値に **影響させない**。
+
+### 13.1 温度感 / 察するUX
+
+- **性別・sex による logic 分岐なし**（**男性脳 / 女性脳** を使わない）
+- 許容する表現方向（例）：**そっと整理する** / **はっきり整理する** / **順番にほどく**
+- いずれも Anti-sycophancy 境界（§7.1）を満たすこと
+
+### 13.2 具体承認 / 話しやすくするUX
+
+- **観察ベースの承認**（ユーザーが書いた・気づいたことの認識）
+- **無条件全肯定・praise-hacking・操作・依存誘導** は不採用
+- 短文 OK、長文は **1テーマ** に narrow → **保存版に根ざした構造**へ → **小さな一手1つ**
+
+---
+
+## 14. My page 機能 UI 方針
+
+My page（`/my`）のコピーは **機能 UI**（再開・カード・残数・注記）。**感情ストーリーで埋めない**。
+
+| 要素 | 方針 |
+|------|------|
+| **保存版再開** | 所有レポートへの再開導線 |
+| **相談返書カード** | 保存版紐づき・残数・ルーム再入 |
+| **残数表示** | product truth に追従（付属1 + 追加最大4 = 合計5） |
+| **購入時点プロフィール注記** | 保存版は購入時プロフィールに基づく旨 |
+| **避ける** | **Entry Report** を主日本語商品名にしない；visible **返書チケット** 主名称；My 全体の感情ストーリー過多 |
+
+---
+
+## 15. Next-gate inheritance checklist
 
 ### PAID-LP-CONTENT-EXPANSION-IMPLEMENTATION-PLANNING
 
@@ -232,5 +333,6 @@
 | ID | Note |
 |----|------|
 | `M55-EVID-20260527-PAID-DTR-PRODUCT-COPY-MASTER-v1-DRAFT` | DRAFT gate artifacts only; no downstream wiring |
+| `M55-EVID-20260529-SSOT-BODY-REFLECTION-WAVE1-v1` | Wave 1 body reflection — Storyflow, M55-safe conversion, consult boundary, expression/My (local DRAFT; no commit in gate) |
 
-**Verdict target (this gate):** `CATEGORY_1_PAID_DTR_COPY_BASE_SSOT_DRAFT_GREEN_LOCAL_CHANGES_NO_COMMIT`
+**Verdict target (prior gate):** `CATEGORY_1_PAID_DTR_COPY_BASE_SSOT_DRAFT_GREEN_LOCAL_CHANGES_NO_COMMIT`

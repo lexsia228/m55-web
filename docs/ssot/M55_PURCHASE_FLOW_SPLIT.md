@@ -40,3 +40,4 @@
 - `docs/ssot/M55_ENVIRONMENT_MATRIX.md`
 - `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md`
 - `docs/ssot/M55_INCIDENT_2026-05-08_WEBHOOK_ENV_MIXUP.md`
+- `docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md` — user-facing copy must preserve **Lane A / Lane B** separation and product truth (¥1,000 base / ¥500 additional reply; 付属1 + 追加最大4 = 合計5); do not conflate lanes in copy
