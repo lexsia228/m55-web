@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-05-29T22:42:34.533135+00:00",
+  "generated_at_utc": "2026-05-30T22:12:27.115974+00:00",
   "count": 670,
   "records": [
     {
@@ -205,7 +205,7 @@
     {
       "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
       "category": "ssot",
-      "bytes": 11797
+      "bytes": 18128
     },
     {
       "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
@@ -2130,7 +2130,7 @@
     {
       "path": "docs/ssot/M55_PURCHASE_FLOW_SPLIT.md",
       "category": "ssot",
-      "bytes": 2123
+      "bytes": 2366
     },
     {
       "path": "docs/ssot/M55_RELATIONSHIP_REFLECTION_SYSTEM_SSOT_v1_2026-03-07.md",
@@ -2950,7 +2950,7 @@
     {
       "path": "docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md",
       "category": "ssot",
-      "bytes": 29744
+      "bytes": 30133
     },
     {
       "path": "docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md",

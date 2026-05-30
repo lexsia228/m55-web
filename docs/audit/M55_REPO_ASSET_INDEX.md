@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-05-29T22:42:34.535714+00:00
+Generated: 2026-05-30T22:12:27.118740+00:00
 Total records: 670
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -43,7 +43,7 @@ Total records: 670
 - [ssot] `docs/ssot/M55_INCIDENT_2026-05-08_WEBHOOK_ENV_MIXUP.md` (2934 bytes)
 - [ssot] `docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md` (7244 bytes)
 - [ssot] `docs/ssot/M55_MONETIZATION_SSOT_FULL_FREEZE_v1_0.md` (8954 bytes)
-- [ssot] `docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md` (11797 bytes)
+- [ssot] `docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md` (18128 bytes)
 - [ssot] `docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md` (7657 bytes)
 - [ssot] `docs/ssot/M55_PHASE5_2_PRODUCTION_DB_RPC_MIGRATION_PACKAGE_REVIEW_2026-05-12.md` (6653 bytes)
 - [ssot] `docs/ssot/M55_PHASE5_3_PRODUCTION_DB_RPC_PACKAGE_APPROVED_2026-05-12.md` (4335 bytes)
@@ -428,7 +428,7 @@ Total records: 670
 - [ssot] `docs/ssot/M55_PHASE5_CATEGORY_1_UI_POLISH_SECOND_PASS_PLANNING_2026-05-22.md` (10860 bytes)
 - [ssot] `docs/ssot/M55_PHASE5_PRODUCTION_PROMOTION_READINESS_GATE_2026-05-12.md` (6724 bytes)
 - [ssot] `docs/ssot/M55_PUBLIC_CLAIMS_ALLOWLIST_v1.md` (3853 bytes)
-- [ssot] `docs/ssot/M55_PURCHASE_FLOW_SPLIT.md` (2123 bytes)
+- [ssot] `docs/ssot/M55_PURCHASE_FLOW_SPLIT.md` (2366 bytes)
 - [ssot] `docs/ssot/M55_RELATIONSHIP_REFLECTION_SYSTEM_SSOT_v1_2026-03-07.md` (8941 bytes)
 - [ssot] `docs/ssot/M55_RELEASE_COMMAND_CENTER_2026-05-15.md` (9297 bytes)
 - [ssot] `docs/ssot/M55_RELEASE_READINESS_OPS_MONITOR_R10_R_2026-05-26.md` (9212 bytes)
@@ -592,7 +592,7 @@ Total records: 670
 - [ssot] `docs/ssot/M55_REPLY_WALLET_SMOKE_ORPHAN_QUARANTINE_POLICY_v1.md` (5639 bytes)
 - [ssot] `docs/ssot/M55_REPLY_WALLET_STAGING_RUNBOOK_HARDENING_REVIEW_v1.md` (5595 bytes)
 - [ssot] `docs/ssot/M55_REPLY_WALLET_UNSAFE_ARCHIVE_SQL_REJECTION_v1.md` (5889 bytes)
-- [ssot] `docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md` (29744 bytes)
+- [ssot] `docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md` (30133 bytes)
 - [ssot] `docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md` (5018 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md` (9366 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md` (2698 bytes)
