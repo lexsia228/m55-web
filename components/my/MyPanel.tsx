@@ -21,6 +21,10 @@ import {
   MY_REPORT_LIST_ARIA_LABEL,
   MY_SIGNED_OUT_HUB_BODY,
 } from '../../lib/m55/dtrProductLabels';
+import {
+  PAID_DTR_MY_PAGE_CONSULT,
+  PAID_DTR_TRUST_BOUNDARIES,
+} from '../../lib/m55/paidDtrProductCopy';
 import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
 import SavedReportDeleteDialog from './SavedReportDeleteDialog';
 import {
@@ -211,19 +215,30 @@ export default function MyPanel() {
         )}
 
         {!entError && ent && (
-          <section className={styles.card} aria-label="相談と保存の目安">
-            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>{MY_CONSULT_BLOCK_TITLE}</div>
-            <p className={styles.muted} style={{ margin: '0 0 12px' }}>
+          <section className={styles.card} aria-label={PAID_DTR_MY_PAGE_CONSULT.sectionAriaJa}>
+            <div className={`${styles.blockLabel} ${styles.blockLabelFirst}`}>
+              {MY_CONSULT_BLOCK_TITLE}
+            </div>
+            <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+              {PAID_DTR_MY_PAGE_CONSULT.blockIntroJa}
+            </p>
+            <p className={styles.muted} style={{ margin: '0 0 8px' }}>
               {MY_CONSULT_BLOCK_BODY}
             </p>
             <p className={styles.muted} style={{ margin: '0 0 8px' }}>
-              相談返書の残り回数や送信は、保存版レポートの相談返書ルームで確認できます。
+              {PAID_DTR_MY_PAGE_CONSULT.capSummaryJa}
+            </p>
+            <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+              {PAID_DTR_MY_PAGE_CONSULT.remainingNoteJa}
+            </p>
+            <p className={styles.muted} style={{ margin: '0 0 8px' }}>
+              {PAID_DTR_MY_PAGE_CONSULT.reopenNoteJa}
             </p>
             <p className={styles.muted} style={{ margin: '0 0 12px' }}>
-              保存版の内容に沿って、今気になっていることを整理できます。
+              {PAID_DTR_TRUST_BOUNDARIES.profileSnapshotJa}
             </p>
             <div className={styles.links} style={{ marginBottom: 12 }}>
-              <Link href="/dtr/core">相談返書ルームを開く</Link>
+              <Link href="/dtr/core">{PAID_DTR_MY_PAGE_CONSULT.openRoomLinkJa}</Link>
             </div>
             <div className={styles.blockLabel}>参考</div>
             <div className={styles.row}>

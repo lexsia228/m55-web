@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {
   PAID_DTR_CHAPTERS,
   PAID_DTR_CONSULT_REPLY,
+  PAID_DTR_CONSULT_ROOM_UI,
+  PAID_DTR_MY_PAGE_CONSULT,
   PAID_DTR_PRODUCT_IDENTITY,
   PAID_DTR_VALUE_PROPOSITION,
   collectPaidDtrPublicCopyStrings,
@@ -67,5 +69,50 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.equal(corpus.includes('準備完了メール'), false);
     assert.equal(corpus.includes('返書完了メール'), false);
     assert.equal(corpus.includes('プッシュ通知'), false);
+  });
+
+  it('consult room and My copy state saved-report-linked boundary', () => {
+    const boundary = [
+      PAID_DTR_CONSULT_REPLY.savedReportLinkedShortJa,
+      PAID_DTR_CONSULT_ROOM_UI.roomLeadJa,
+      PAID_DTR_MY_PAGE_CONSULT.linkedScopeJa,
+    ].join('\n');
+    assert.match(boundary, /保存版に紐づく相談/);
+    assert.match(boundary, /汎用チャットではない/);
+    assert.match(boundary, /無制限/);
+  });
+
+  it('consult copy states one-theme and cap product truth', () => {
+    const consult = [
+      PAID_DTR_CONSULT_REPLY.oneThemeJa,
+      PAID_DTR_CONSULT_REPLY.capSummaryJa,
+      PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa,
+      PAID_DTR_CONSULT_ROOM_UI.composeThemeHintJa,
+    ].join('\n');
+    assert.match(consult, /1テーマ/);
+    assert.match(consult, /付属1/);
+    assert.match(consult, /追加.*4/);
+    assert.match(consult, /合計5/);
+    assert.match(consult, /500円/);
+    assert.equal(consult.includes('max3'), false);
+    assert.equal(consult.includes('700円'), false);
+    assert.equal(consult.includes('返書チケット'), false);
+  });
+
+  it('consult copy avoids unsafe external and selector wording in user-facing strings', () => {
+    const corpus = collectPaidDtrPublicCopyStrings().join('\n');
+    const forbidden = [
+      '心理的防衛を無効化',
+      '本当の理由が必ず',
+      '3分で人生',
+      '男性脳',
+      '女性脳',
+      'UI selector',
+      'praise-hacking',
+      '褒め殺し',
+    ] as const;
+    for (const term of forbidden) {
+      assert.equal(corpus.includes(term), false, `corpus must not include: ${term}`);
+    }
   });
 });

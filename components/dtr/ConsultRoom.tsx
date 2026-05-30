@@ -20,24 +20,21 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { REPLY_TICKET_TOTAL_CAP_PER_REPORT } from '../../lib/m55/reply/replyTicketCheckoutConstants';
+import {
+  PAID_DTR_CONSULT_REPLY,
+  PAID_DTR_CONSULT_ROOM_UI,
+} from '../../lib/m55/paidDtrProductCopy';
 import styles from './ConsultRoom.module.css';
 
 const INPUT_MIN = 10;
 const INPUT_WARN = 450;
 const INPUT_MAX = 500;
-const DISPLAY_CAP_PER_REPORT = REPLY_TICKET_TOTAL_CAP_PER_REPORT;
+const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
 
-/** 用途ラベル（往復券・1テーマ）— 保存版の型に当てはめて返書で深める軸 */
-const THEMES = [
-  '近い人との距離',
-  '言葉を選びすぎる場面',
-  '断れなかったあとの疲れ',
-  '平気なふりのしんどさ',
-  'ひとりで戻る時間',
-] as const;
+/** 用途ラベル（1テーマ）— copy master themeExamplesJa */
+const THEMES = PAID_DTR_CONSULT_REPLY.themeExamplesJa;
 
-type Theme = (typeof THEMES)[number];
+type Theme = (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number];
 
 const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
   { id: 'q1', label: '大切な人にほど言葉を飲み込んでしまう' },
@@ -399,7 +396,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   if (loadError) {
     return (
-      <div className={styles.room} aria-label="相談返書ルーム">
+      <div className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
         <p className={styles.errorMsg}>{loadError}</p>
       </div>
     );
@@ -407,7 +404,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   if (!roomData) {
     return (
-      <div className={styles.room} aria-label="相談返書ルーム">
+      <div className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
         <p className={styles.loading}>読み込み中…</p>
       </div>
     );
@@ -458,16 +455,14 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
 
   return (
-    <section className={styles.room} aria-label="相談返書ルーム（purchaser-only）">
+    <section className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
       <header className={styles.roomHeaderBar}>
         <div className={styles.roomHeaderMain}>
-          <h2 className={styles.roomTitle}>相談返書ルーム</h2>
-          <p className={styles.roomLead}>
-            見えている傾向を土台に、今回の論点を整理する
-          </p>
+          <h2 className={styles.roomTitle}>{PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}</h2>
+          <p className={styles.roomLead}>{PAID_DTR_CONSULT_ROOM_UI.roomLeadJa}</p>
         </div>
         <div className={styles.roomHeaderMeta}>
-          <span className={styles.usageLabel}>利用状態</span>
+          <span className={styles.usageLabel}>{PAID_DTR_CONSULT_ROOM_UI.usageLabelJa}</span>
           <p className={styles.usageValue} aria-live="polite">
             {usageLine}
             {!walletLoading ? (
@@ -479,26 +474,26 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
       {walletLoading ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>残数確認中です。しばらくお待ちください。</p>
+          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.walletLoadingJa}</p>
         </div>
       ) : wallet!.available_count > 0 ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
             相談返書 残り {wallet!.available_count}件 / 合計{DISPLAY_CAP_PER_REPORT}件まで
           </p>
-          <p className={styles.addOnNote}>この本質の読み解きに紐づいて、4章の内容を深掘りできます。</p>
+          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.savedReportLinkNoteJa}</p>
         </div>
       ) : walletReachedLimit ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            このレポートで利用できる追加相談返書は上限に達しました。
+            {PAID_DTR_CONSULT_ROOM_UI.limitReachedAdditionalJa}
           </p>
-          <p className={styles.addOnNote}>付属1件 + 追加購入4件までが上限です。</p>
+          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
         </div>
       ) : walletCanPurchase ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>追加相談返書 1件 500円</p>
-          <p className={styles.addOnNote}>この本質の読み解きの相談をもう一度整理できます。</p>
+          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}</p>
+          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.walletPurchaseRetryNoteJa}</p>
           {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
           <button
             type="button"
@@ -506,24 +501,23 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
             onClick={handlePurchase}
             disabled={checkoutBusy || actionLocked || !reportInstanceId}
           >
-            {checkoutBusy ? '処理中…' : '追加相談返書 1件 500円'}
+            {checkoutBusy ? '処理中…' : PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}
           </button>
         </div>
       ) : !reportInstanceId ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
-            追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。
+            {PAID_DTR_CONSULT_ROOM_UI.cannotPurchaseReportInfoJa}
           </p>
         </div>
       ) : isReadOnly ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>
-            相談返書の利用回数の上限に達しました。これまでのやりとりは引き続き確認できます。
-          </p>
+          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedReadOnlyJa}</p>
           {wallet!.status !== 'active' && (
             <p className={styles.addOnNote}>
-              追加相談返書の購入はこのルーム内でのみ申し込み可能です。上限は合計
-              {DISPLAY_CAP_PER_REPORT}件です。
+              {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomPrefixJa}
+              {DISPLAY_CAP_PER_REPORT}
+              {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomSuffixJa}
             </p>
           )}
         </div>
@@ -531,9 +525,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
       <div className={styles.messages} role="log" aria-label="相談返書のやりとり" aria-live="polite">
         {messages.length === 0 && !isReadOnly && (
-          <p className={styles.emptyMsg}>
-            レポートの内容について確認したいことがあれば、こちらで整理できます。
-          </p>
+          <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
         )}
         {messages.map((msg, i) => (
           <div
@@ -548,7 +540,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           <div className={styles.msgAssistant}>
             <p className={styles.msgRole}>M55</p>
             <p className={styles.msgContent} aria-live="polite">
-              返答を生成しています…
+              {PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}
             </p>
           </div>
         )}
@@ -560,10 +552,21 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       {!isReadOnly && (
         <div className={styles.composeColumn}>
           <p className={styles.composeGroundingHint}>
-            相談返書は、購入した保存版レポートの章に沿って深掘りするためのものです。別テーマの質問や、レポートと関係のない相談にはお答えできません。
+            {PAID_DTR_CONSULT_REPLY.groundedInReportJa}
           </p>
+          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.oneThemeJa}</p>
+          <p className={styles.composeHint}>
+            {PAID_DTR_CONSULT_REPLY.shortInputOkJa} {PAID_DTR_CONSULT_REPLY.longInputNarrowJa}
+          </p>
+          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.strongEmotionJa}</p>
+          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.conflictPerspectiveJa}</p>
+          <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.expressionHintJa}</p>
+          <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.observationInputJa}</p>
           <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>用途を選択（1つ）</h3>
+            <h3 className={styles.composeSectionLabel}>
+              {PAID_DTR_CONSULT_ROOM_UI.composeThemeSectionLabelJa}
+            </h3>
+            <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.composeThemeHintJa}</p>
             <div className={styles.themeRow}>
               {THEMES.map((t) => (
                 <ThemeChip
@@ -577,8 +580,12 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           </section>
 
           <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>補助質問（最大3つ）</h3>
-            <p className={styles.composeHint}>当てはまるものがあれば選択してください</p>
+            <h3 className={styles.composeSectionLabel}>
+              {PAID_DTR_CONSULT_ROOM_UI.composeSupplementaryLabelJa}
+            </h3>
+            <p className={styles.composeHint}>
+              {PAID_DTR_CONSULT_ROOM_UI.composeSupplementaryHintJa}
+            </p>
             <div className={styles.questionList}>
               {SUPPLEMENTARY_QUESTIONS.map((q) => (
                 <SupplementaryToggle
@@ -592,16 +599,19 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
           </section>
 
           <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>自由入力</h3>
+            <h3 className={styles.composeSectionLabel}>
+              {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputLabelJa}
+            </h3>
             <label htmlFor="consult-input" className={styles.srOnly}>
-              相談内容を入力（全体で{INPUT_MIN}〜{INPUT_MAX}文字）
+              {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
+              {INPUT_MIN}〜{INPUT_MAX}文字）
             </label>
             <textarea
               id="consult-input"
               className={styles.textarea}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="今気になっていること、整理したいことがあればご記入ください"
+              placeholder={PAID_DTR_CONSULT_ROOM_UI.inputPlaceholderJa}
               rows={6}
               maxLength={INPUT_MAX + 80}
               disabled={actionLocked}
@@ -648,16 +658,14 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                作成中
+                {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
               </span>
             ) : (
-              '相談返書を作成する'
+              PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
             )}
           </button>
 
-          <p className={styles.inputNote}>
-            1回の送信で相談返書1件を使用します。送信後の取り消しはできません。返書は保存されます。
-          </p>
+          <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
         </div>
       )}
     </section>

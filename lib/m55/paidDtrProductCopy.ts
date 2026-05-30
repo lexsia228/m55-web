@@ -204,6 +204,84 @@ export const PAID_DTR_CONSULT_REPLY = {
     'なんでも答えるボットではありません',
     'レポート本文の生成完了をメールでお知らせする、とは約束しません',
   ] as const,
+  /** 保存版紐づき・非汎用・非無制限（room / My 用の短い境界） */
+  savedReportLinkedShortJa:
+    '保存版に紐づく相談です。汎用チャットではなく、無制限の相談でもありません。',
+  oneThemeJa: '1回の相談返書は1テーマに絞ります。',
+  shortInputOkJa: '短文でも始められます。',
+  longInputNarrowJa: '長文の場合は、1テーマに絞って送ってください。',
+  strongEmotionJa:
+    '感情が強い内容でも、正しさの判定で終わらせません。',
+  conflictPerspectiveJa:
+    '対人の違和感では、相手側または状況側の見え方を1つ含めて整理することがあります（悪い／悪くないの結論にはしません）。',
+} as const;
+
+/** Consult room / ticket wallet UI copy (display-only). */
+export const PAID_DTR_CONSULT_ROOM_UI = {
+  ariaLabelJa: '相談返書ルーム（purchaser-only）',
+  roomTitleJa: '相談返書ルーム',
+  roomLeadJa:
+    '購入した保存版に紐づく相談です。汎用チャットではなく、無制限のやりとりでもありません。いまの1テーマを、章に沿って整理します。',
+  usageLabelJa: '利用状態',
+  walletLoadingJa: '残数確認中です。しばらくお待ちください。',
+  savedReportLinkNoteJa:
+    'この本質の読み解きに紐づいて、4章の内容を深掘りできます。',
+  addOnCapNoteJa: '付属1件 + 追加購入4件までが上限です。',
+  limitReachedAdditionalJa:
+    'このレポートで利用できる追加相談返書は上限に達しました。',
+  limitReachedReadOnlyJa:
+    '相談返書の利用回数の上限に達しました。これまでのやりとりは引き続き確認できます。',
+  purchaseOnlyInRoomPrefixJa:
+    '追加相談返書の購入はこのルーム内でのみ申し込み可能です。上限は合計',
+  purchaseOnlyInRoomSuffixJa: '件です。',
+  cannotPurchaseReportInfoJa:
+    '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
+  emptyThreadJa:
+    '保存版の章に沿って、いまの1テーマをここで整理できます。',
+  composeThemeSectionLabelJa: '用途を選択（1テーマ）',
+  composeThemeHintJa:
+    '1回の相談返書は1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
+  composeSupplementaryLabelJa: '補助質問（最大3つ）',
+  composeSupplementaryHintJa: '当てはまるものがあれば選択してください',
+  composeFreeInputLabelJa: '自由入力',
+  composeFreeInputAriaJa: '相談内容を入力（1テーマ・全体で',
+  inputPlaceholderJa:
+    '今気になっていること（1テーマ）。短く書いても構いません',
+  expressionHintJa:
+    '返書は、状況に合わせてそっと整理する・はっきり整理する・順番にほどく、のいずれかの方向です（モード選択はありません）。',
+  observationInputJa:
+    '書いたことや気づいたことに触れながら整理します。正しさの判定や、なんでも肯定する約束はしません。',
+  submitLabelJa: '相談返書を作成する',
+  submittingLabelJa: '作成中',
+  generatingReplyJa: '返答を生成しています…',
+  walletLoadingShortJa: '残数確認中...',
+  walletLimitReachedBodyJa:
+    'このレポートで利用できる相談返書は上限に達しました。',
+  walletLimitReachedHintJa:
+    '別のテーマを深く扱う場合は、今後の専用レポートで整理できます。',
+  walletPurchaseUnavailableJa:
+    '現在、このレポートに紐づく追加購入をご利用いただけません。',
+  walletPurchaseReportMissingJa:
+    '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
+  walletPurchaseRetryNoteJa:
+    'この本質の読み解きに紐づいて、今の相談をもう一度整理できます。',
+} as const;
+
+/** My page consult block (functional UI only — not emotional story). */
+export const PAID_DTR_MY_PAGE_CONSULT = {
+  blockTitleJa: '相談返書（保存版に紐づく）',
+  blockIntroJa:
+    '保存版の再開・相談返書の残数確認の入口です（機能案内）。',
+  linkedScopeJa:
+    '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。',
+  capSummaryJa:
+    '付属1件 + 追加最大4件 = 合計5件まで（残数・送信は相談返書ルームで確認）',
+  remainingNoteJa:
+    '相談返書の残り回数・送信は、保存版レポート内の相談返書ルームで確認できます。',
+  reopenNoteJa:
+    '保存版の再開は、上のレポート一覧またはレポート棚から行えます。',
+  openRoomLinkJa: '相談返書ルームを開く',
+  sectionAriaJa: '相談と保存の目安',
 } as const;
 
 export type PaidDtrAccessFlowStepId =
@@ -380,6 +458,14 @@ export function collectPaidDtrPublicCopyStrings(): string[] {
     PAID_DTR_CONSULT_REPLY.whereToUseJa,
     PAID_DTR_CONSULT_REPLY.consumeNoteJa,
     PAID_DTR_CONSULT_REPLY.capSummaryJa,
+    PAID_DTR_CONSULT_REPLY.savedReportLinkedShortJa,
+    PAID_DTR_CONSULT_REPLY.oneThemeJa,
+    PAID_DTR_CONSULT_REPLY.shortInputOkJa,
+    PAID_DTR_CONSULT_REPLY.longInputNarrowJa,
+    PAID_DTR_CONSULT_REPLY.strongEmotionJa,
+    PAID_DTR_CONSULT_REPLY.conflictPerspectiveJa,
+    ...Object.values(PAID_DTR_CONSULT_ROOM_UI),
+    ...Object.values(PAID_DTR_MY_PAGE_CONSULT),
     ...PAID_DTR_CONSULT_REPLY.avoidOverpromisingJa,
     ...PAID_DTR_PURCHASE_ACCESS_FLOW.flatMap((s) => [s.titleJa, s.bodyJa]),
     PAID_DTR_TRUST_BOUNDARIES.digitalContentJa,

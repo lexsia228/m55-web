@@ -26,11 +26,11 @@ export const MY_SIGNED_OUT_HUB_BODY =
 export const MY_REPORT_LIST_ARIA_LABEL = '保存版レポート一覧';
 
 /** My consult block title. */
-export const MY_CONSULT_BLOCK_TITLE = '相談（保存版付帯）';
+export const MY_CONSULT_BLOCK_TITLE = '相談返書（保存版に紐づく）';
 
 /** My consult block body. */
 export const MY_CONSULT_BLOCK_BODY =
-  '相談は保存版レポートに紐づく範囲です。汎用チャットではありません。';
+  '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。';
 
 /** DTR shelf overline. */
 export const SHELF_OVERLINE = 'M55 保存版';
