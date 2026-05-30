@@ -13,6 +13,48 @@
 export const AXIS_LABELS = ['考える力', '進める力', '支える力', '整える力', '感じ取る力'] as const;
 export const AXIS_LEVEL_LABELS = ['—', '響き合う', '支えになる力', '中心'] as const;
 
+/** Wave A1: renderer-only fallbacks when extraction yields empty or em-dash (not stored in snapshot). */
+export const DTR_DISPLAY_FALLBACK_NEUTRAL = '今はまだ強く出ていない項目です。';
+export const DTR_DISPLAY_FALLBACK_SOFT = '無理に決めなくていい項目です。';
+export const DTR_DISPLAY_FALLBACK_CONSULT = '気になる場面は相談返書で具体化できます。';
+export const DTR_DISPLAY_FALLBACK_UNWORDED = 'まだ言葉にしきれていない可能性があります。';
+
+const RENDERER_EMPTY_MARK = '—';
+
+export function isRendererEmptyDisplay(value: string | undefined | null): boolean {
+  if (value == null) return true;
+  const t = value.trim();
+  return !t || t === RENDERER_EMPTY_MARK;
+}
+
+export function dtrDisplayOrFallback(
+  value: string,
+  fallback: string = DTR_DISPLAY_FALLBACK_NEUTRAL,
+): string {
+  return isRendererEmptyDisplay(value) ? fallback : value.trim();
+}
+
+export function normalizeDisplaySentenceForDedupe(text: string): string {
+  return text.trim().replace(/\s+/g, '');
+}
+
+/** Pick first non-empty candidate not already used in this visible block; else fallback. */
+export function pickUniqueDisplaySentence(
+  candidates: readonly string[],
+  used: Set<string>,
+  fallback: string,
+): string {
+  for (const raw of candidates) {
+    if (isRendererEmptyDisplay(raw)) continue;
+    const display = raw.trim();
+    const key = normalizeDisplaySentenceForDedupe(display);
+    if (used.has(key)) continue;
+    used.add(key);
+    return display;
+  }
+  return fallback;
+}
+
 /** Accent color per axis — used for dot indicators in the axis card grid. */
 export const AXIS_COLORS = [
   '#B8A87C',  // 思考軸 — warm amber
@@ -52,14 +94,18 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
   const quietNames = AXIS_LABELS.filter((_, i) => balance[i] === 0);
 
   const growOrdered =
-    AXIS_LABELS.filter((_, i) => balance[i] === 0 || balance[i] === 1).join('・') || '—';
+    AXIS_LABELS.filter((_, i) => balance[i] === 0 || balance[i] === 1).join('・') ||
+    DTR_DISPLAY_FALLBACK_UNWORDED;
 
   if (primaryNames.length > 0) {
     return {
       primaryLabel: 'どの力が前に出やすいか',
       primaryVal: primaryNames.join('・'),
       assistLabel: '支えになっている力',
-      assistVal: secondaryNames.length > 0 ? secondaryNames.join('・') : '—',
+      assistVal:
+        secondaryNames.length > 0
+          ? secondaryNames.join('・')
+          : DTR_DISPLAY_FALLBACK_NEUTRAL,
       growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
@@ -84,7 +130,10 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryLabel: '今の形をつくっている力',
       primaryVal: `${only}が、いちばん前に出やすい土台です`,
       assistLabel: '支えになっている力',
-      assistVal: resonantNames.length > 0 ? resonantNames.join('・') : '—',
+      assistVal:
+        resonantNames.length > 0
+          ? resonantNames.join('・')
+          : DTR_DISPLAY_FALLBACK_NEUTRAL,
       growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
@@ -95,7 +144,7 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
       primaryLabel: '一緒に響き合う力',
       primaryVal: resonantNames.join('・'),
       assistLabel: '支えになっている力',
-      assistVal: '—',
+      assistVal: DTR_DISPLAY_FALLBACK_NEUTRAL,
       growLabel: '整うと使いやすくなる力',
       growVal: growOrdered,
     };
@@ -103,11 +152,12 @@ export function axisVizSummaryDisplay(balance: readonly [number, number, number,
 
   return {
     primaryLabel: '今の形をつくっている力',
-    primaryVal: quietNames.length > 0 ? quietNames.join('・') : '—',
+    primaryVal:
+      quietNames.length > 0 ? quietNames.join('・') : DTR_DISPLAY_FALLBACK_NEUTRAL,
     assistLabel: '支えになっている力',
-    assistVal: '—',
+    assistVal: DTR_DISPLAY_FALLBACK_NEUTRAL,
     growLabel: '整うと使いやすくなる力',
-    growVal: '—',
+    growVal: growOrdered,
   };
 }
 

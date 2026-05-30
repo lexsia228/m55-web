@@ -27,6 +27,12 @@ import {
   parseBlockItems,
   extractAfterLabel,
   firstSentence,
+  dtrDisplayOrFallback,
+  pickUniqueDisplaySentence,
+  DTR_DISPLAY_FALLBACK_NEUTRAL,
+  DTR_DISPLAY_FALLBACK_SOFT,
+  DTR_DISPLAY_FALLBACK_CONSULT,
+  DTR_DISPLAY_FALLBACK_UNWORDED,
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
 import { ReportBridgeBand } from './ReportBridgeBand';
@@ -113,7 +119,8 @@ function domainJudgmentStrength(essenceBody: string): string {
 function domainJudgmentLoad(essenceBody: string): string {
   const stripped = stripDtrTokens(essenceBody);
   return (
-    pickSentenceWithKeyword(stripped, /自由が大きすぎ|口を出され|ほどけにくく/) || '—'
+    pickSentenceWithKeyword(stripped, /自由が大きすぎ|口を出され|ほどけにくく/) ||
+    DTR_DISPLAY_FALLBACK_SOFT
   );
 }
 
@@ -1756,7 +1763,9 @@ function DomainMatrixModule({
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>出方</span>
-                  <p className={styles.domainTileText}>{d.strength || '—'}</p>
+                  <p className={styles.domainTileText}>
+                    {dtrDisplayOrFallback(d.strength, DTR_DISPLAY_FALLBACK_NEUTRAL)}
+                  </p>
                 </div>
               </div>
               <div className={styles.domainTileBand}>
@@ -1765,7 +1774,9 @@ function DomainMatrixModule({
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>負荷</span>
-                  <p className={styles.domainTileText}>{d.load || '—'}</p>
+                  <p className={styles.domainTileText}>
+                    {dtrDisplayOrFallback(d.load, DTR_DISPLAY_FALLBACK_SOFT)}
+                  </p>
                 </div>
               </div>
               <div className={`${styles.domainTileBand} ${styles.domainTileBandRecovery}`}>
@@ -1774,7 +1785,9 @@ function DomainMatrixModule({
                 </span>
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>戻し方</span>
-                  <p className={styles.domainTileText}>{d.recovery || '—'}</p>
+                  <p className={styles.domainTileText}>
+                    {dtrDisplayOrFallback(d.recovery, DTR_DISPLAY_FALLBACK_UNWORDED)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1916,44 +1929,82 @@ function PracticalGuidanceSection({
     title: string;
     icon: 'work' | 'relationship' | 'recovery';
     rows: { action: string; why: string; when: string }[];
-  }[] =
-    stemIdx === 3
-      ? PRACTICAL_GUIDANCE_STEM3
-      : [
+  }[] = (() => {
+    if (stemIdx === 3) return PRACTICAL_GUIDANCE_STEM3;
+
+    const used = new Set<string>();
+    return [
+      {
+        title: '日々の判断と距離',
+        icon: 'work' as const,
+        rows: [
           {
-            title: '日々の判断と距離',
-            icon: 'work',
-            rows: [
-              {
-                action: firstSentence(workPower),
-                why: firstSentence(workStuck),
-                when: firstSentence(envHint),
-              },
-            ],
+            action: pickUniqueDisplaySentence(
+              [firstSentence(workPower)],
+              used,
+              DTR_DISPLAY_FALLBACK_NEUTRAL,
+            ),
+            why: pickUniqueDisplaySentence(
+              [firstSentence(workStuck)],
+              used,
+              DTR_DISPLAY_FALLBACK_SOFT,
+            ),
+            when: pickUniqueDisplaySentence(
+              [firstSentence(envHint)],
+              used,
+              DTR_DISPLAY_FALLBACK_CONSULT,
+            ),
           },
+        ],
+      },
+      {
+        title: '人間関係の境界線',
+        icon: 'relationship' as const,
+        rows: [
           {
-            title: '人間関係の境界線',
-            icon: 'relationship',
-            rows: [
-              {
-                action: firstSentence(withdrawWay),
-                why: firstSentence(receiveWay),
-                when: '',
-              },
-            ],
+            action: pickUniqueDisplaySentence(
+              [firstSentence(withdrawWay)],
+              used,
+              DTR_DISPLAY_FALLBACK_NEUTRAL,
+            ),
+            why: pickUniqueDisplaySentence(
+              [firstSentence(receiveWay), afterFirstSentence(receiveWay)],
+              used,
+              DTR_DISPLAY_FALLBACK_SOFT,
+            ),
+            when: pickUniqueDisplaySentence(
+              [afterFirstSentence(withdrawWay)],
+              used,
+              DTR_DISPLAY_FALLBACK_UNWORDED,
+            ),
           },
+        ],
+      },
+      {
+        title: '疲労と回復',
+        icon: 'recovery' as const,
+        rows: [
           {
-            title: '疲労と回復',
-            icon: 'recovery',
-            rows: [
-              {
-                action: firstSentence(lifeHint),
-                why: firstSentence(workStuck),
-                when: firstSentence(envHint),
-              },
-            ],
+            action: pickUniqueDisplaySentence(
+              [firstSentence(lifeHint)],
+              used,
+              DTR_DISPLAY_FALLBACK_NEUTRAL,
+            ),
+            why: pickUniqueDisplaySentence(
+              [domainRecoveryLoad(workStuck), afterFirstSentence(workStuck), afterFirstSentence(lifeHint)],
+              used,
+              DTR_DISPLAY_FALLBACK_SOFT,
+            ),
+            when: pickUniqueDisplaySentence(
+              [firstSentence(envHint), afterFirstSentence(envHint)],
+              used,
+              DTR_DISPLAY_FALLBACK_CONSULT,
+            ),
           },
-        ];
+        ],
+      },
+    ];
+  })();
 
   return (
     <div className={styles.practicalStack}>
@@ -2004,15 +2055,21 @@ function PracticalGuidanceSection({
               <div key={idx} className={styles.practicalActionRow}>
                 <div className={styles.practicalActionCell}>
                   <p className={styles.practicalMicroLabel}>行動</p>
-                  <p className={styles.practicalActionValue}>{row.action || '—'}</p>
+                  <p className={styles.practicalActionValue}>
+                    {dtrDisplayOrFallback(row.action, DTR_DISPLAY_FALLBACK_NEUTRAL)}
+                  </p>
                 </div>
                 <div className={styles.practicalActionCell}>
                   <p className={styles.practicalMicroLabel}>理由</p>
-                  <p className={styles.practicalWhyWhen}>{row.why || '—'}</p>
+                  <p className={styles.practicalWhyWhen}>
+                    {dtrDisplayOrFallback(row.why, DTR_DISPLAY_FALLBACK_SOFT)}
+                  </p>
                 </div>
                 <div className={styles.practicalActionCell}>
                   <p className={styles.practicalMicroLabel}>タイミング</p>
-                  <p className={styles.practicalWhyWhen}>{row.when || '—'}</p>
+                  <p className={styles.practicalWhyWhen}>
+                    {dtrDisplayOrFallback(row.when, DTR_DISPLAY_FALLBACK_CONSULT)}
+                  </p>
                 </div>
               </div>
             ))}
