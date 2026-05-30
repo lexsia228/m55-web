@@ -14,10 +14,41 @@ export const AXIS_LABELS = ['考える力', '進める力', '支える力', '整
 export const AXIS_LEVEL_LABELS = ['—', '響き合う', '支えになる力', '中心'] as const;
 
 /** Wave A1: renderer-only fallbacks when extraction yields empty or em-dash (not stored in snapshot). */
-export const DTR_DISPLAY_FALLBACK_NEUTRAL = '今はまだ強く出ていない項目です。';
-export const DTR_DISPLAY_FALLBACK_SOFT = '無理に決めなくていい項目です。';
-export const DTR_DISPLAY_FALLBACK_CONSULT = '気になる場面は相談返書で具体化できます。';
-export const DTR_DISPLAY_FALLBACK_UNWORDED = 'まだ言葉にしきれていない可能性があります。';
+export const DTR_DISPLAY_FALLBACK_STRENGTH =
+  '小さな手ごたえが見えると、動きやすくなりやすいです。';
+export const DTR_DISPLAY_FALLBACK_LOAD =
+  '決めきれないとき、内側が少し重く感じやすいです。';
+export const DTR_DISPLAY_FALLBACK_RECOVERY =
+  '先に小さな区切りを決めると、戻りやすくなります。';
+export const DTR_DISPLAY_FALLBACK_TIMING =
+  'いつもより重い週は、先に休む時間を短く決めておくと楽です。';
+
+/** Axis / legacy call sites — life-language, no 「項目」. */
+export const DTR_DISPLAY_FALLBACK_NEUTRAL = '今はまだはっきり出ていない傾向です。';
+export const DTR_DISPLAY_FALLBACK_SOFT = DTR_DISPLAY_FALLBACK_LOAD;
+export const DTR_DISPLAY_FALLBACK_CONSULT =
+  '気になる場面は、相談返書で一緒に整理できます。';
+export const DTR_DISPLAY_FALLBACK_UNWORDED = DTR_DISPLAY_FALLBACK_RECOVERY;
+
+/** Blocks career-heavy copy on 出方 / 戻し方 / タイミング (not プロデューサー title). */
+const DTR_CAREER_SLOT_PATTERN =
+  /ポジション|マネジメント|プロデューサー的|統合・調整が求められる|複数の業務|人・企画・プロダクト|人を育てる役割/;
+
+const DTR_MISPLACED_LIFE_SLOT_PATTERN = /状態管理を後回し|後回しにしやすい/;
+
+export function isDtrCareerHeavyDisplay(text: string): boolean {
+  const t = text.trim();
+  return t.length > 0 && DTR_CAREER_SLOT_PATTERN.test(t);
+}
+
+export function isDtrMisplacedForLifeSlot(text: string): boolean {
+  const t = text.trim();
+  return t.length > 0 && DTR_MISPLACED_LIFE_SLOT_PATTERN.test(t);
+}
+
+export function isDtrBlockedForLifeSlot(text: string): boolean {
+  return isDtrCareerHeavyDisplay(text) || isDtrMisplacedForLifeSlot(text);
+}
 
 const RENDERER_EMPTY_MARK = '—';
 
@@ -38,15 +69,22 @@ export function normalizeDisplaySentenceForDedupe(text: string): string {
   return text.trim().replace(/\s+/g, '');
 }
 
+export type PickUniqueDisplayOptions = {
+  /** Omit career / misplaced life-hint lines from 出方・戻し方・タイミング. */
+  blockLifeMisplacement?: boolean;
+};
+
 /** Pick first non-empty candidate not already used in this visible block; else fallback. */
 export function pickUniqueDisplaySentence(
   candidates: readonly string[],
   used: Set<string>,
   fallback: string,
+  options?: PickUniqueDisplayOptions,
 ): string {
   for (const raw of candidates) {
     if (isRendererEmptyDisplay(raw)) continue;
     const display = raw.trim();
+    if (options?.blockLifeMisplacement && isDtrBlockedForLifeSlot(display)) continue;
     const key = normalizeDisplaySentenceForDedupe(display);
     if (used.has(key)) continue;
     used.add(key);

@@ -33,6 +33,10 @@ import {
   DTR_DISPLAY_FALLBACK_SOFT,
   DTR_DISPLAY_FALLBACK_CONSULT,
   DTR_DISPLAY_FALLBACK_UNWORDED,
+  DTR_DISPLAY_FALLBACK_STRENGTH,
+  DTR_DISPLAY_FALLBACK_LOAD,
+  DTR_DISPLAY_FALLBACK_RECOVERY,
+  DTR_DISPLAY_FALLBACK_TIMING,
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
 import { ReportBridgeBand } from './ReportBridgeBand';
@@ -116,21 +120,35 @@ function domainJudgmentStrength(essenceBody: string): string {
   return firstSentence(pick);
 }
 
-function domainJudgmentLoad(essenceBody: string): string {
+function domainJudgmentLoad(essenceBody: string, workStuck: string): string {
   const stripped = stripDtrTokens(essenceBody);
+  const stuck = stripDtrTokens(workStuck);
   return (
     pickSentenceWithKeyword(stripped, /自由が大きすぎ|口を出され|ほどけにくく/) ||
-    DTR_DISPLAY_FALLBACK_SOFT
+    pickSentenceWithKeyword(stripped, /集中|決め|迷い|負担|重く/) ||
+    pickSentenceWithKeyword(stuck, /細切れ|区切り|切り替え|妥協|詰ま/) ||
+    firstSentence(stuck)
   );
 }
 
-function domainJudgmentRecovery(compositionBody: string | undefined, workHint: string): string {
+function domainJudgmentRecoveryCandidates(
+  compositionBody: string | undefined,
+  workHint: string,
+): string[] {
   const comp = compositionBody ? stripDtrTokens(compositionBody) : '';
-  return (
-    pickSentenceWithKeyword(comp, /ここまで|一度出す|決めておく/) ||
-    pickSentenceWithKeyword(workHint, /固定|ここまで|決め/) ||
-    firstSentence(workHint)
-  );
+  const hint = stripDtrTokens(workHint);
+  return [
+    pickSentenceWithKeyword(comp, /ここまで|一度出す|決めておく|区切り/),
+    pickSentenceWithKeyword(hint, /ための時間|区切り|ここまで|休み|静か|何もしない/),
+  ];
+}
+
+function domainLifeRecoveryCandidates(workHint: string): string[] {
+  const hint = stripDtrTokens(workHint);
+  return [
+    pickSentenceWithKeyword(hint, /何もしない|静か|深く向き合う|固定|区切り|ここまで/),
+    pickSentenceWithKeyword(hint, /ための時間|休み/),
+  ];
 }
 
 function domainRecoveryLoad(workStuck: string): string {
@@ -141,13 +159,31 @@ function domainRecoveryLoad(workStuck: string): string {
   return firstSentence(workStuck);
 }
 
-function domainRecoveryMerge(workEnv: string, workHint: string): string {
-  const e = firstSentence(workEnv);
-  const h = firstSentence(workHint);
-  if (e.includes('静か') && /深く向き合う|固定/.test(h)) {
-    return '何もしない時間か、静かに整える時間を先に置くと戻りやすいです。';
+type DomainDisplaySlot = 'strength' | 'load' | 'recovery';
+
+function domainSlotFallback(kind: DomainDisplaySlot): string {
+  switch (kind) {
+    case 'strength':
+      return DTR_DISPLAY_FALLBACK_STRENGTH;
+    case 'load':
+      return DTR_DISPLAY_FALLBACK_LOAD;
+    case 'recovery':
+      return DTR_DISPLAY_FALLBACK_RECOVERY;
   }
-  return e || h;
+}
+
+function resolveDomainSlot(
+  kind: DomainDisplaySlot,
+  candidates: readonly string[],
+  used: Set<string>,
+  blockLifeMisplacement = false,
+): string {
+  return pickUniqueDisplaySentence(
+    candidates,
+    used,
+    domainSlotFallback(kind),
+    blockLifeMisplacement ? { blockLifeMisplacement: true } : undefined,
+  );
 }
 
 /** Premium module 04: soften DRAFT phrasing in bridge 2nd paragraph (stem 3 copy). */
@@ -1698,7 +1734,6 @@ function DomainMatrixModule({
 
   const workCond = workItems.find((i) => i.header === '力が出る条件')?.content ?? '';
   const workStuck = workItems.find((i) => i.header === '詰まりやすい条件')?.content ?? '';
-  const workEnv = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const workHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
   const withdrawWay =
@@ -1706,43 +1741,82 @@ function DomainMatrixModule({
     '';
   const convRhythm = relationItems.find((i) => i.header === '会話のリズム')?.content ?? '';
 
+  const usedDisplay = new Set<string>();
+
   const domainTiles = [
     {
       key: 'work',
       title: '仕事',
-      strength: firstSentence(workCond),
-      load: firstSentence(workStuck),
-      recovery: firstSentence(workEnv),
+      strength: resolveDomainSlot('strength', [firstSentence(workCond)], usedDisplay),
+      load: resolveDomainSlot('load', [firstSentence(workStuck)], usedDisplay),
+      recovery: resolveDomainSlot(
+        'recovery',
+        domainLifeRecoveryCandidates(workHint),
+        usedDisplay,
+        true,
+      ),
     },
     {
       key: 'social',
       title: '人間関係',
-      strength: firstSentence(receiveWay),
-      load: domainSocialReceiveLoad(receiveWay),
-      recovery: domainSocialRecovery(convRhythm),
+      strength: resolveDomainSlot('strength', [firstSentence(receiveWay)], usedDisplay),
+      load: resolveDomainSlot('load', [domainSocialReceiveLoad(receiveWay)], usedDisplay),
+      recovery: resolveDomainSlot('recovery', [domainSocialRecovery(convRhythm)], usedDisplay),
     },
     {
       key: 'close',
       title: '近い関係',
-      strength: firstSentence(convRhythm),
-      load: domainCloseLoad(withdrawWay),
-      recovery:
-        pickSentenceWithKeyword(withdrawWay, /急かされない時間|整理する時間/) ||
-        firstSentence(withdrawWay),
+      strength: resolveDomainSlot('strength', [firstSentence(convRhythm)], usedDisplay),
+      load: resolveDomainSlot('load', [domainCloseLoad(withdrawWay)], usedDisplay),
+      recovery: resolveDomainSlot(
+        'recovery',
+        [
+          pickSentenceWithKeyword(withdrawWay, /急かされない時間|整理する時間/),
+          firstSentence(withdrawWay),
+        ],
+        usedDisplay,
+        true,
+      ),
     },
     {
       key: 'judgment',
       title: '判断',
-      strength: domainJudgmentStrength(essenceSection.body),
-      load: domainJudgmentLoad(essenceSection.body),
-      recovery: domainJudgmentRecovery(compositionSection?.body, workHint),
+      strength: resolveDomainSlot(
+        'strength',
+        [domainJudgmentStrength(essenceSection.body)],
+        usedDisplay,
+      ),
+      load: resolveDomainSlot(
+        'load',
+        [domainJudgmentLoad(essenceSection.body, workStuck)],
+        usedDisplay,
+      ),
+      recovery: resolveDomainSlot(
+        'recovery',
+        domainJudgmentRecoveryCandidates(compositionSection?.body, workHint),
+        usedDisplay,
+        true,
+      ),
     },
     {
       key: 'recovery',
       title: '回復',
-      strength: firstSentence(workHint),
-      load: domainRecoveryLoad(workStuck),
-      recovery: domainRecoveryMerge(workEnv, workHint),
+      strength: resolveDomainSlot(
+        'strength',
+        [
+          firstSentence(workCond),
+          pickSentenceWithKeyword(workHint, /手ごたえ|続く|整える/),
+        ],
+        usedDisplay,
+        true,
+      ),
+      load: resolveDomainSlot('load', [domainRecoveryLoad(workStuck)], usedDisplay),
+      recovery: resolveDomainSlot(
+        'recovery',
+        domainLifeRecoveryCandidates(workHint),
+        usedDisplay,
+        true,
+      ),
     },
   ];
 
@@ -1764,7 +1838,7 @@ function DomainMatrixModule({
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>出方</span>
                   <p className={styles.domainTileText}>
-                    {dtrDisplayOrFallback(d.strength, DTR_DISPLAY_FALLBACK_NEUTRAL)}
+                    {dtrDisplayOrFallback(d.strength, DTR_DISPLAY_FALLBACK_STRENGTH)}
                   </p>
                 </div>
               </div>
@@ -1775,7 +1849,7 @@ function DomainMatrixModule({
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>負荷</span>
                   <p className={styles.domainTileText}>
-                    {dtrDisplayOrFallback(d.load, DTR_DISPLAY_FALLBACK_SOFT)}
+                    {dtrDisplayOrFallback(d.load, DTR_DISPLAY_FALLBACK_LOAD)}
                   </p>
                 </div>
               </div>
@@ -1786,7 +1860,7 @@ function DomainMatrixModule({
                 <div className={styles.domainTileCell}>
                   <span className={styles.domainTileMicro}>戻し方</span>
                   <p className={styles.domainTileText}>
-                    {dtrDisplayOrFallback(d.recovery, DTR_DISPLAY_FALLBACK_UNWORDED)}
+                    {dtrDisplayOrFallback(d.recovery, DTR_DISPLAY_FALLBACK_RECOVERY)}
                   </p>
                 </div>
               </div>
@@ -1918,7 +1992,6 @@ function PracticalGuidanceSection({
 
   const workPower = workItems.find((i) => i.header === '力が出る条件')?.content ?? '';
   const workStuck = workItems.find((i) => i.header === '詰まりやすい条件')?.content ?? '';
-  const envHint = workItems.find((i) => i.header === '環境のヒント')?.content ?? '';
   const lifeHint = workItems.find((i) => i.header === '生活のヒント')?.content ?? '';
   const receiveWay = relationItems.find((i) => i.header === '受け取り方')?.content ?? '';
   const withdrawWay =
@@ -1942,17 +2015,22 @@ function PracticalGuidanceSection({
             action: pickUniqueDisplaySentence(
               [firstSentence(workPower)],
               used,
-              DTR_DISPLAY_FALLBACK_NEUTRAL,
+              DTR_DISPLAY_FALLBACK_STRENGTH,
             ),
             why: pickUniqueDisplaySentence(
               [firstSentence(workStuck)],
               used,
-              DTR_DISPLAY_FALLBACK_SOFT,
+              DTR_DISPLAY_FALLBACK_LOAD,
             ),
             when: pickUniqueDisplaySentence(
-              [firstSentence(envHint)],
+              [
+                pickSentenceWithKeyword(lifeHint, /ための時間|区切り|ここまで|休み/),
+                afterFirstSentence(lifeHint),
+                firstSentence(lifeHint),
+              ],
               used,
-              DTR_DISPLAY_FALLBACK_CONSULT,
+              DTR_DISPLAY_FALLBACK_TIMING,
+              { blockLifeMisplacement: true },
             ),
           },
         ],
@@ -1996,9 +2074,14 @@ function PracticalGuidanceSection({
               DTR_DISPLAY_FALLBACK_SOFT,
             ),
             when: pickUniqueDisplaySentence(
-              [firstSentence(envHint), afterFirstSentence(envHint)],
+              [
+                pickSentenceWithKeyword(lifeHint, /ための時間|区切り|ここまで|休み|静か/),
+                afterFirstSentence(lifeHint),
+                firstSentence(lifeHint),
+              ],
               used,
-              DTR_DISPLAY_FALLBACK_CONSULT,
+              DTR_DISPLAY_FALLBACK_TIMING,
+              { blockLifeMisplacement: true },
             ),
           },
         ],
