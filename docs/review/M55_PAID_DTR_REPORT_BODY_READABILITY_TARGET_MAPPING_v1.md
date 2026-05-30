@@ -1,9 +1,9 @@
 # M55 Paid DTR Report Body Readability Target Mapping v1
 
-**Gate ID:** `CATEGORY-1-M55-PAID-DTR-REPORT-BODY-READABILITY-REFINEMENT-TARGET-MAPPING-DRAFT`  
-**Status:** Planning / mapping artifact only  
-**Baseline commit (read-only inspection):** `94e996f62807344967f7261efd31b4e2619b235a`  
-**Prior gate verdict:** `CATEGORY_1_M55_PAID_DTR_REPORT_BODY_READABILITY_REFINEMENT_PLANNING_NEEDS_TARGET_MAPPING_READONLY_NO_MUTATION`  
+**Gate ID:** `CATEGORY-1-M55-PAID-DTR-REPORT-BODY-READABILITY-REFINEMENT-TARGET-MAPPING-DRAFT`
+**Status:** Planning / mapping artifact only
+**Baseline commit (read-only inspection):** `94e996f62807344967f7261efd31b4e2619b235a`
+**Prior gate verdict:** `CATEGORY_1_M55_PAID_DTR_REPORT_BODY_READABILITY_REFINEMENT_PLANNING_NEEDS_TARGET_MAPPING_READONLY_NO_MUTATION`
 **Date:** 2026-05-30
 
 ---
@@ -52,10 +52,10 @@ Production / manual review of **paid DTR 保存版** report body (`/dtr/core`, `
 
 ### Non-goals (this mapping track)
 
-- Changing stem lane, Golden Matrix, or fulfillment pipeline semantics  
-- Rewriting purchased `dtr_report_snapshots.envelope_json` rows  
-- Renaming `publicTitle` (e.g. プロデューサー) — separate result-label GO  
-- Expanding consult reply prompts or LLM behavior in this track  
+- Changing stem lane, Golden Matrix, or fulfillment pipeline semantics
+- Rewriting purchased `dtr_report_snapshots.envelope_json` rows
+- Renaming `publicTitle` (e.g. プロデューサー) — separate result-label GO
+- Expanding consult reply prompts or LLM behavior in this track
 
 ---
 
@@ -151,9 +151,9 @@ Changes below may affect **existing purchased reports** at display time only. Th
 
 **Explicit renderer prohibitions**
 
-- No `runDtrEngine` on `/dtr/core` read path  
-- No POST/PATCH to snapshot tables  
-- No change to `ConsultRoom` send / wallet / checkout  
+- No `runDtrEngine` on `/dtr/core` read path
+- No POST/PATCH to snapshot tables
+- No change to `ConsultRoom` send / wallet / checkout
 
 ---
 
@@ -169,10 +169,10 @@ Changes below may affect **existing purchased reports** at display time only. Th
 
 ### Defaults (non-negotiable in this track)
 
-- **No** existing `envelope_json` rewrite  
-- **No** DB backfill  
-- **No** engine / snapshot / result-label changes **without separate explicit GO** (Wave C gate)  
-- **No** Golden Matrix or `stemLaneIndex` mutation  
+- **No** existing `envelope_json` rewrite
+- **No** DB backfill
+- **No** engine / snapshot / result-label changes **without separate explicit GO** (Wave C gate)
+- **No** Golden Matrix or `stemLaneIndex` mutation
 
 ---
 
@@ -195,10 +195,10 @@ Concepts requiring SSOT wording (in `docs/ssot` or approved review addendum) **b
 
 **Safe framing rules**
 
-- Anchor: `envelope.generatedAt` or purchase date — **reading rhythm only**, not event calendar  
-- Content: usage order, load patterns, care points, chapter revisit sequence  
-- **No** event prediction, guarantees, medical/legal/financial/career advice  
-- Align with `PAID_DTR_FORBIDDEN_CLAIMS` → `deterministic future`  
+- Anchor: `envelope.generatedAt` or purchase date — **reading rhythm only**, not event calendar
+- Content: usage order, load patterns, care points, chapter revisit sequence
+- **No** event prediction, guarantees, medical/legal/financial/career advice
+- Align with `PAID_DTR_FORBIDDEN_CLAIMS` → `deterministic future`
 
 **Implementation default:** Renderer-only additive block (Wave B); **no** new snapshot fields.
 
@@ -208,8 +208,8 @@ See §8; cross-reference `docs/review/M55_CONSULT_REPLY_ANTI_SYCOPHANCY_SAFETY_A
 
 ### 7.3 得意 / 苦手 as tendencies
 
-- Use **得意になりやすいこと** / **苦手になりやすいこと**  
-- Forbidden: 「あなたはこういう人間です」, fixed identity, rank, scores  
+- Use **得意になりやすいこと** / **苦手になりやすいこと**
+- Forbidden: 「あなたはこういう人間です」, fixed identity, rank, scores
 
 ### 7.4 Future prediction boundary
 
@@ -229,15 +229,15 @@ Report body and new blocks must not imply deterministic outcomes. Consult room r
 
 **Safe 4-part pattern**
 
-1. **Observation** — 「〜しやすい」  
-2. **Why it can help** — situational strength  
-3. **Where it overloads** — fatigue / 抱え込み  
-4. **One small handling hint** — 線引き, 休み, 相談返書で具体化  
+1. **Observation** — 「〜しやすい」
+2. **Why it can help** — situational strength
+3. **Where it overloads** — fatigue / 抱え込み
+4. **One small handling hint** — 線引き, 休み, 相談返書で具体化
 
 **Placement options (later gate)**
 
-- Renderer callout under s4 or s5 (Wave A/B)  
-- Engine paragraph in `STEM_BODIES` (Wave C, new purchases only)  
+- Renderer callout under s4 or s5 (Wave A/B)
+- Engine paragraph in `STEM_BODIES` (Wave C, new purchases only)
 
 ---
 
@@ -269,27 +269,27 @@ Convert **user-facing body** stiffness where meaning is preserved. Do **not** re
 
 ### Wave A — Renderer safety / readability (recommended first implementation gate)
 
-- Blank `—` handling (P0)  
-- Extraction dedupe (P0)  
-- Chapter openers with nickname / あなた (P1)  
-- 得意/苦手 display labels (P1)  
-- Domain tile order / life-hint emphasis (P1)  
-- **No** engine changes  
-- **No** DB  
-- **No** CSS unless separate layout GO (copy length discipline only here)  
+- Blank `—` handling (P0)
+- Extraction dedupe (P0)
+- Chapter openers with nickname / あなた (P1)
+- 得意/苦手 display labels (P1)
+- Domain tile order / life-hint emphasis (P1)
+- **No** engine changes
+- **No** DB
+- **No** CSS unless separate layout GO (copy length discipline only here)
 
 ### Wave B — Optional SSOT + UI block
 
-- SSOT paragraph for 1-year outlook + acknowledgement template  
-- Renderer block「これから1年の見方」using `generatedAt`  
-- **No** snapshot schema change  
+- SSOT paragraph for 1-year outlook + acknowledgement template
+- Renderer block「これから1年の見方」using `generatedAt`
+- **No** snapshot schema change
 
 ### Wave C — Engine-new-only daily Japanese
 
-- `STEM_BODIES` rewrite per stem (pilot: stem 5 己 / プロデューサー body)  
-- Extended nickname subject tokens  
-- **Future purchases only**  
-- Requires: engine GO, golden/fulfillment tests, no backfill  
+- `STEM_BODIES` rewrite per stem (pilot: stem 5 己 / プロデューサー body)
+- Extended nickname subject tokens
+- **Future purchases only**
+- Requires: engine GO, golden/fulfillment tests, no backfill
 
 ### Wave D — Backlog / forbidden without new gate
 
@@ -334,14 +334,14 @@ Any future implementation gate must satisfy:
 
 Rationale:
 
-- This mapping is **complete** for layer separation (renderer vs engine vs SSOT vs backlog).  
-- Source clarity is sufficient (`dtrEngine`, `storedEnvelopeRead`, `DtrFullReader`, `dtrPaidModules` inspected).  
-- **Do not** jump to implementation (`…-DRAFT` code gate) until mapping review + explicit Wave A GO.  
+- This mapping is **complete** for layer separation (renderer vs engine vs SSOT vs backlog).
+- Source clarity is sufficient (`dtrEngine`, `storedEnvelopeRead`, `DtrFullReader`, `dtrPaidModules` inspected).
+- **Do not** jump to implementation (`…-DRAFT` code gate) until mapping review + explicit Wave A GO.
 
 **Not recommended now**
 
-- `…-SOURCE-AUDIT-PLANNING` — only if review finds unknown extraction surfaces (none blocking at v1).  
-- Immediate code implementation — mapping is not narrow enough for copy-only without wave boundary.  
+- `…-SOURCE-AUDIT-PLANNING` — only if review finds unknown extraction surfaces (none blocking at v1).
+- Immediate code implementation — mapping is not narrow enough for copy-only without wave boundary.
 
 ---
 
@@ -349,17 +349,17 @@ Rationale:
 
 ### A.1 Subject ownership (engine or opener)
 
-**Before:** 本質は、潜在を見抜き、現実的な順序に並べ替えて育てられることにあります。  
+**Before:** 本質は、潜在を見抜き、現実的な順序に並べ替えて育てられることにあります。
 **After:** tttさんは、まだ形になっていないものの中から、育ちそうな部分を見つけやすい人です。思いつきで動くより、順番をつくって少しずつ形にする方が力が出やすいです。
 
 ### A.2 Blank fallback (renderer)
 
-**Before:** 負荷 —  
+**Before:** 負荷 —
 **After:** 今は、この項目では大きな負荷が出ていないか、まだ言葉にしきれていない可能性があります。無理に決めず、気になる場面が出てきたら相談返書で具体化できます。
 
 ### A.3 Abstract → daily (engine, 己 stem)
 
-**Before:** 育成・統合・調整が求められるポジション。  
+**Before:** 育成・統合・調整が求められるポジション。
 **After:** 人や物事の間に入り、バラバラなものを少しずつ整える場面で戻りやすくなります。
 
 ### A.4 Safe positive acknowledgement
@@ -368,7 +368,7 @@ tttさんの良さは、まだ形になっていないものを雑に扱わず�
 
 ### A.5 Safe 1-year outlook (new block, SSOT-first)
 
-**Label:** これから1年の見方  
+**Label:** これから1年の見方
 **Body:** これから1年は、何かを大きく当てに行くより、日常の中で「抱えすぎない形」を覚えていく時期として使うと合いやすいです。最初は、疲れが出る場面を見つける。次に、頼まれごとの線引きを決める。最後に、続けやすい関わり方を残す。この順番で読むと、保存版を日常に戻しやすくなります。
 
 ---
