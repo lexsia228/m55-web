@@ -115,6 +115,30 @@ export async function getVisibleDtrReportSnapshot(
 }
 
 /**
+ * Visible snapshot for a specific report instance owned by the user (SELECT-only).
+ * Used by Lane A consult context — must match wallet `report_instance_id`.
+ */
+export async function getVisibleDtrReportSnapshotByInstanceId(
+  userId: string,
+  reportInstanceId: string,
+): Promise<DtrReportSnapshotRow | null> {
+  try {
+    const db = getSupabaseAdmin() as any;
+    const { data, error } = await db
+      .from('dtr_report_snapshots')
+      .select(DTR_REPORT_SNAPSHOT_SELECT)
+      .eq('id', reportInstanceId)
+      .eq('user_id', userId)
+      .is('user_hidden_at', null)
+      .maybeSingle();
+    if (error || !data) return null;
+    return mapDtrReportSnapshotRow(data as Record<string, unknown>);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Latest snapshot row regardless of hide state (checkout block + fulfillment dedupe only).
  * Not for UI envelope display — use {@link getVisibleDtrReportSnapshot}.
  */

@@ -20,8 +20,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import OpenAI from 'openai';
 import { getSupabaseAdmin } from '../../../../../lib/supabaseAdmin';
+import { buildConsultReportContextFromEnvelope } from '../../../../../lib/m55/consult/consultReportContext';
+import { resolveStoredEnvelopeRead } from '../../../../../lib/m55/compositeStem/storedEnvelopeRead';
+import { getVisibleDtrReportSnapshotByInstanceId } from '../../../../../lib/m55/dtrDraftDb';
 import { resolveEntryReportOwnership } from '../../../../../lib/m55/dtrOwnershipGate';
-import { runDtrEngine } from '../../../../../lib/m55/dtrEngine';
 import { hashUserIdForLedgerLog } from '../../../../../lib/m55/reply/readReplyWalletProbe';
 import {
   buildM55AiSafetySystemInstruction,
@@ -102,7 +104,7 @@ function mapRpcErrorToResponse(rpc: RpcCommitResult): NextResponse {
   }
 }
 
-/** Lane A consult reply grounding (prompt-only; context still from runDtrEngine slice). */
+/** Lane A consult reply grounding (prompt-only; context from purchased snapshot envelope). */
 const CONSULT_PROMPT_GROUNDING_JA = `【相談返書の商品境界】
 - これは汎用のAIチャットではない。購入済み保存版レポートに紐づく「相談返書」として、上記に提供された抜粋の範囲で1テーマを整理する。
 - 無制限の相談や、なんでも答えるボットではない。1回の回答は相談返書1件分の整理に留める。
@@ -259,23 +261,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Build report context for system prompt (deterministic, birthDate-bound)
-  let reportContext = '';
-  if (body.birthDate) {
-    try {
-      const engine = runDtrEngine({
-        birthDate: body.birthDate,
-        nickname: body.nickname ?? 'ユーザー',
-        locale: 'ja-JP',
-        contextScope: 'dtr',
-      });
-      reportContext = engine.payload.fullSections
-        .filter((s) => ['s3_essence', 's4_strengths', 's5_friction'].includes(s.id))
-        .map((s) => `【${s.title}】\n${s.body.slice(0, 300)}`)
-        .join('\n\n');
-    } catch {
-      reportContext = '（レポートコンテキスト取得エラー）';
-    }
+  // Build report context from purchased snapshot envelope (read-only; fail-closed before LLM)
+  const snapRow = await getVisibleDtrReportSnapshotByInstanceId(userId, reportInstanceId);
+  if (!snapRow) {
+    return NextResponse.json(
+      { error: 'Report context missing. Reload and try again.' },
+      { status: 409, headers: NO_STORE }
+    );
+  }
+
+  const storedRead = resolveStoredEnvelopeRead(snapRow);
+  if (!storedRead.ok) {
+    return NextResponse.json(
+      { error: 'Report context missing. Reload and try again.' },
+      { status: 409, headers: NO_STORE }
+    );
+  }
+
+  const reportContext = buildConsultReportContextFromEnvelope(storedRead.envelope);
+  if (!reportContext) {
+    return NextResponse.json(
+      { error: 'Report context missing. Reload and try again.' },
+      { status: 409, headers: NO_STORE }
+    );
   }
 
   // AI call — must complete before RPC (fail fast, no DB mutation)
