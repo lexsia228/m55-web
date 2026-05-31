@@ -442,13 +442,25 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     wallet!.purchased_count < 4 &&
     Boolean(reportInstanceId);
 
-  const usageLine = walletLoading
-    ? '残数確認中'
-    : wallet!.available_count > 0
-      ? `残り ${wallet!.available_count}件`
-      : walletReachedLimit
-        ? '上限到達'
-        : '残り 0件';
+  const usedCount = wallet?.consumed_count ?? 0;
+  const additionalPurchasableCount = wallet
+    ? Math.max(0, PAID_DTR_CONSULT_REPLY.additionalMaxPurchased - wallet.purchased_count)
+    : 0;
+
+  const usageLine = walletLoading ? '残数確認中' : `残り ${wallet!.available_count}件`;
+
+  const usageDetailsBlock =
+    !walletLoading && wallet ? (
+      <span className={styles.usageDetailsStack}>
+        <span className={styles.usageDetail}>
+          {PAID_DTR_CONSULT_ROOM_UI.usageUsedCountLabelJa} {usedCount} / {DISPLAY_CAP_PER_REPORT}件
+        </span>
+        <span className={styles.usageDetail}>
+          {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
+          {additionalPurchasableCount}件
+        </span>
+      </span>
+    ) : null;
 
   const actionLocked = sending || checkoutBusy || walletLoading;
   const submitDisabled =
@@ -464,10 +476,8 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
         <div className={styles.roomHeaderMeta}>
           <span className={styles.usageLabel}>{PAID_DTR_CONSULT_ROOM_UI.usageLabelJa}</span>
           <p className={styles.usageValue} aria-live="polite">
-            {usageLine}
-            {!walletLoading ? (
-              <span className={styles.usageSub}>（合計{DISPLAY_CAP_PER_REPORT}件まで）</span>
-            ) : null}
+            <span className={styles.usageRemaining}>{usageLine}</span>
+            {usageDetailsBlock}
           </p>
         </div>
       </header>
@@ -486,12 +496,19 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       ) : walletReachedLimit ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
           <p className={styles.readOnlyText}>
+            {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa} 0件
+          </p>
+          <p className={styles.readOnlyText}>
             {PAID_DTR_CONSULT_ROOM_UI.limitReachedAdditionalJa}
           </p>
           <p className={styles.addOnNote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
         </div>
       ) : walletCanPurchase ? (
         <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+          <p className={styles.purchaseUsageHint}>
+            {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
+            {additionalPurchasableCount}件
+          </p>
           <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}</p>
           <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.walletPurchaseRetryNoteJa}</p>
           {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}

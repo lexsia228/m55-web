@@ -223,6 +223,9 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   roomLeadJa:
     '購入した保存版に紐づく相談です。汎用チャットではなく、無制限のやりとりでもありません。いまの1テーマを、章に沿って整理します。',
   usageLabelJa: '利用状態',
+  /** Display-only wallet usage lines (counts come from API; cap from Product Truth constants). */
+  usageUsedCountLabelJa: '使用済み',
+  usageAdditionalPurchasableLabelJa: 'あと購入できる',
   walletLoadingJa: '残数確認中です。しばらくお待ちください。',
   savedReportLinkNoteJa:
     'この本質の読み解きに紐づいて、4章の内容を深掘りできます。',
