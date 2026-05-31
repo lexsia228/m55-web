@@ -90,8 +90,10 @@ $base = "http://localhost:3000"
 ```
 
 ```powershell
-Invoke-RestMethod -Uri "$base/api/__probe" -Method GET
+Invoke-RestMethod -Uri "$base/api/diagnostics/build" -Method GET
 ```
+
+補足: deploy SHA の補助確認は `GET /api/diagnostics/build`。deploy inclusion の正は GitHub Deployments API（Production success + expected SHA）。
 
 ```powershell
 curl.exe -sS -o NUL -w "%{http_code}" "$base/"

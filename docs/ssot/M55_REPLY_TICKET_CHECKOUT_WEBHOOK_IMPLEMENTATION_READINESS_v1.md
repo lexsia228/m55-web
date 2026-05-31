@@ -32,7 +32,7 @@ Upstream DB 証跡:
 
 **未有り:** `app/api/reply-tickets/**`、`POST /api/reply-tickets/checkout`。
 
-**補足:** `src/app/api/__probe/route.ts` と `app/api/__probe/route.ts` の二重がありますが、**Stripe とは無関係**。
+**補足（observability・Stripe 非関連）:** 旧 `app/api/__probe` / `src/app/api/__probe` は削除済み。deploy SHA の補助 probe は `app/api/diagnostics/build/route.ts`（`GET /api/diagnostics/build`）。legacy `GET /api/__probe` は互換なし（404 想定）。deploy inclusion の正は **GitHub Deployments API**。
 
 ### 1.2 Stripe クライアント／ヘルパー
 

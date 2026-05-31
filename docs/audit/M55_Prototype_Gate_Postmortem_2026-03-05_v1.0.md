@@ -140,6 +140,9 @@ M55 is a hybrid:
 ## 11. Hardening recommendations for M55
 1) Choose **one** app root (`app/` or `src/app/`) and enforce via CI (fail build if both exist).
 2) Provide a non-secret probe endpoint that returns deployed git SHA (e.g., `/.well-known/m55-build` or `/__probe.txt`).
+
+> **現行正史（2026-05-31、commit `739dd45`）:** 上記は当時の hardening 提案。実装済みの正式 probe は **`GET /api/diagnostics/build`**（`vercel_env` / `vercel_git_sha` / `vercel_branch` / `node_env` のみ。secrets・env 値は返さない）。**Production deploy inclusion の SSOT は GitHub Deployments API**（Production · success · expected SHA）。legacy **`GET /api/__probe`** は App Router private segment のため route 化されず **互換なし（404 想定）**。
+
 3) Document "env change requires redeploy" as a checklist item (SSOT).
 4) Add an operator-safe PowerShell "smoke test" that blocks production domain and prints only safe diagnostics.
 5) Check domain hygiene: ensure the review production domain is not accidentally attached to the prototype/preview project (domain drift prevention).
