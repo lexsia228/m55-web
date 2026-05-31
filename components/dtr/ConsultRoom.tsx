@@ -153,7 +153,8 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const sendLock = useRef(false);
-  const skipInitialThreadScrollRef = useRef(true);
+  /** True only after user send; reload/checkout/focus must not scroll the thread. */
+  const shouldScrollThreadToEndRef = useRef(false);
   const checkoutReturnRefreshDoneRef = useRef(false);
   const activeIdempotencyKeyRef = useRef<string | null>(null);
   const activeSnapshotHashRef = useRef<string | null>(null);
@@ -222,13 +223,18 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
 
   useEffect(() => {
     if (!roomData) return;
-    if (skipInitialThreadScrollRef.current) {
-      skipInitialThreadScrollRef.current = false;
-      return;
-    }
+    if (!shouldScrollThreadToEndRef.current) return;
     if (roomData.messages.length === 0) return;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [roomData?.messages]);
+
+  useEffect(() => {
+    if (sending || !shouldScrollThreadToEndRef.current) return;
+    const id = requestAnimationFrame(() => {
+      shouldScrollThreadToEndRef.current = false;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [sending]);
 
   const toggleQuestion = (id: string) => {
     setSelectedQuestionIds((prev) => {
@@ -287,6 +293,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
     sendLock.current = true;
     setSending(true);
     setSendError(null);
+    shouldScrollThreadToEndRef.current = true;
 
     const optimisticMsg: Message = { role: 'user', content: msg };
     setRoomData((prev) => (prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev));
@@ -305,6 +312,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
+        shouldScrollThreadToEndRef.current = false;
         setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
         setSendError(
           (data as { safeMessage?: string }).safeMessage ??
@@ -322,6 +330,7 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
       activeSnapshotHashRef.current = null;
       setRoomData((prev) => (prev ? { thread, messages: [...prev.messages, reply] } : null));
     } catch {
+      shouldScrollThreadToEndRef.current = false;
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
       setSendError('送信に失敗しました。ネットワークを確認して再度お試しください。');
       setInputText(snapshot.free);
