@@ -34,6 +34,7 @@ import {
   isConsultOutputSafetyBlocked,
   sanitizeM55AiTextOutput,
 } from '../../../../../lib/m55/ai/m55AiOutputSanitizer';
+import { applyM55ConsultReplyQualityPasses } from '../../../../../lib/m55/ai/m55ConsultReplyQualitySanitizer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -322,6 +323,8 @@ export async function POST(req: NextRequest) {
       );
     }
     aiContent = outputSafety.safeText;
+    const qualityResult = applyM55ConsultReplyQualityPasses(aiContent);
+    aiContent = qualityResult.text;
   } catch (e) {
     console.error(
       '[room/core/send] AI call failed',
