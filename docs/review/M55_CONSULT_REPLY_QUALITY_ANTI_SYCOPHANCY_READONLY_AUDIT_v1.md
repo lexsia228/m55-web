@@ -97,8 +97,8 @@ Legend: **PASS** = structurally supported in this lane’s generator + guards; *
 | 11 | No gender logic | **PASS** — no gender patterns in ai libs (static grep) | **PASS** |
 | 12 | No rename of プロデューサー etc. | **PASS** — consult paths do not emit stem `publicTitle` | **PASS** |
 
-**Lane A aggregate:** 4 PASS, 6 PARTIAL, 2 FAIL  
-**Lane B aggregate:** 5 PASS, 3 PARTIAL, 4 FAIL  
+**Lane A aggregate:** 4 PASS, 6 PARTIAL, 2 FAIL
+**Lane B aggregate:** 5 PASS, 3 PARTIAL, 4 FAIL
 
 ---
 
