@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { PAID_DTR_CHAPTERS, PAID_DTR_DRAWER_HUB } from '../../lib/m55/paidDtrProductCopy';
 import hubStyles from './PremiumDrawerHub.module.css';
 
 /** 本番 drawer パネル id（full は UI 非掲出） */
@@ -14,29 +15,59 @@ type DrawerHubItem = {
   sublabel: string;
 };
 
-const DRAWER_HUB_CHAPTERS: DrawerHubItem[] = [
-  { panel: 'chapter-1', label: 'まず、全体を読み返す', sublabel: 'Ⅰ 輪郭を見る' },
-  { panel: 'chapter-2', label: '力が出やすい条件を読む', sublabel: 'Ⅱ 構造を読む' },
-  { panel: 'chapter-3', label: '無理が出やすい場面を読む', sublabel: 'Ⅲ 無理を知る' },
-  { panel: 'chapter-4', label: '戻し方と使い方を読む', sublabel: 'Ⅳ 楽に扱う' },
-];
+const DRAWER_HUB_CHAPTERS: DrawerHubItem[] = PAID_DTR_DRAWER_HUB.chapterRowLabelsJa.map(
+  (label, index) => {
+    const ch = PAID_DTR_CHAPTERS[index]!;
+    const panel = `chapter-${index + 1}` as DrawerHubPanelId;
+    return {
+      panel,
+      label,
+      sublabel: `${ch.roman} ${ch.title}`,
+    };
+  },
+);
 
 const DRAWER_HUB_CONSULT: DrawerHubItem = {
   panel: 'consult',
-  label: '相談返書で整理する',
-  sublabel: '保存版に紐づく相談',
+  label: PAID_DTR_DRAWER_HUB.consultLabelJa,
+  sublabel: PAID_DTR_DRAWER_HUB.consultSublabelJa,
 };
 
-function DrawerHubChevron() {
+function drawerHubPill(panel: DrawerHubPanelId): string {
+  switch (panel) {
+    case 'chapter-1':
+      return 'Ⅰ';
+    case 'chapter-2':
+      return 'Ⅱ';
+    case 'chapter-3':
+      return 'Ⅲ';
+    case 'chapter-4':
+      return 'Ⅳ';
+    case 'consult':
+      return '返書';
+    default:
+      return '';
+  }
+}
+
+function DrawerHubChevron({ open }: { open: boolean }) {
   return (
     <svg
-      className={hubStyles.drawerHubChevron}
-      width="14"
-      height="14"
+      className={`${hubStyles.drawerHubChevron}${open ? ` ${hubStyles.drawerHubChevronOpen}` : ''}`}
+      width="16"
+      height="16"
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden
-    />
+    >
+      <path
+        d="M6 4 L10 8 L6 12"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -70,60 +101,82 @@ export function PremiumDrawerHub({
     onSelectPanel(openPanel === panel ? null : panel);
   };
 
+  const hasExpandedPanel = openPanel !== null;
+
   return (
-    <section className={hubStyles.drawerHub} aria-label="保存版の入口">
-      <div className={hubStyles.drawerHubHeader}>
-        <p className={hubStyles.drawerHubOverline}>保存版の入口</p>
-        <h2 className={hubStyles.drawerHubTitle}>この保存版で読み返すこと</h2>
-        <p className={hubStyles.drawerHubLead}>気になるところから、静かに読み返せます。</p>
+    <section className={hubStyles.drawerHub} aria-label={PAID_DTR_DRAWER_HUB.ariaLabelJa}>
+      <div className={hubStyles.drawerHubEntryCard}>
+        <span className={hubStyles.drawerHubShimmer} aria-hidden />
+        <div className={hubStyles.drawerHubHeader}>
+          <p className={hubStyles.drawerHubOverline}>{PAID_DTR_DRAWER_HUB.overlineJa}</p>
+          <h2 className={hubStyles.drawerHubTitle}>{PAID_DTR_DRAWER_HUB.titleJa}</h2>
+          <p className={hubStyles.drawerHubLead}>{PAID_DTR_DRAWER_HUB.leadJa}</p>
+        </div>
+
+        <ul className={hubStyles.drawerHubList}>
+          {items.map((item) => {
+            const isOpen = openPanel === item.panel;
+            const isConsult = item.panel === 'consult';
+
+            return (
+              <li
+                key={item.panel}
+                className={`${hubStyles.drawerHubRow}${isOpen ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}`}
+              >
+                <button
+                  type="button"
+                  className={`${hubStyles.drawerHubTrigger}${isConsult ? ` ${hubStyles.drawerHubTriggerConsult}` : ''}`}
+                  onClick={() => toggle(item.panel)}
+                  aria-expanded={isOpen}
+                  aria-controls={`drawer-hub-body-${item.panel}`}
+                >
+                  <span className={hubStyles.drawerHubTriggerLeading} aria-hidden>
+                    <span className={hubStyles.drawerHubPill}>{drawerHubPill(item.panel)}</span>
+                  </span>
+                  <span className={hubStyles.drawerHubTriggerText}>
+                    <span className={hubStyles.drawerHubLabel}>{item.label}</span>
+                    <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
+                  </span>
+                  <DrawerHubChevron open={isOpen} />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
-      <ul className={hubStyles.drawerHubList}>
+      <div
+        className={`${hubStyles.drawerHubPanelArea}${hasExpandedPanel ? ` ${hubStyles.drawerHubPanelAreaExpanded}` : ''}`}
+      >
         {items.map((item) => {
-          const isOpen = openPanel === item.panel;
           const mountBody = shouldMountPanelBody(item.panel, openPanel, aiConsultIncluded);
+          if (!mountBody) return null;
+
           const bodyVisible = openPanel === item.panel;
 
           return (
-            <li
+            <div
               key={item.panel}
-              className={`${hubStyles.drawerHubRow}${isOpen ? ` ${hubStyles.drawerHubRowOpen}` : ''}`}
+              id={`drawer-hub-body-${item.panel}`}
+              className={hubStyles.drawerHubExpandBody}
+              hidden={!bodyVisible}
+              aria-hidden={!bodyVisible}
             >
-              <button
-                type="button"
-                className={hubStyles.drawerHubTrigger}
-                onClick={() => toggle(item.panel)}
-                aria-expanded={isOpen}
-                aria-controls={mountBody ? `drawer-hub-body-${item.panel}` : undefined}
+              <div
+                className={
+                  bodyVisible
+                    ? hubStyles.drawerHubPanelSlot
+                    : `${hubStyles.drawerHubPanelSlot} ${hubStyles.drawerHubPanelSlotPersist}`
+                }
               >
-                <span className={hubStyles.drawerHubTriggerText}>
-                  <span className={hubStyles.drawerHubLabel}>{item.label}</span>
-                  <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
-                </span>
-                <DrawerHubChevron />
-              </button>
-              {mountBody ? (
-                <div
-                  id={`drawer-hub-body-${item.panel}`}
-                  className={hubStyles.drawerHubExpandBody}
-                  hidden={!bodyVisible}
-                  aria-hidden={!bodyVisible}
-                >
-                  <div
-                    className={
-                      bodyVisible
-                        ? hubStyles.drawerHubPanelSlot
-                        : `${hubStyles.drawerHubPanelSlot} ${hubStyles.drawerHubPanelSlotPersist}`
-                    }
-                  >
-                    {renderPanelBody(item.panel)}
-                  </div>
+                <div className={hubStyles.drawerHubReadingSurface}>
+                  {renderPanelBody(item.panel)}
                 </div>
-              ) : null}
-            </li>
+              </div>
+            </div>
           );
         })}
-      </ul>
+      </div>
     </section>
   );
 }

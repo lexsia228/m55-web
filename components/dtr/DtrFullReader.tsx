@@ -42,6 +42,10 @@ import {
   DTR_DISPLAY_FALLBACK_RECOVERY,
   DTR_DISPLAY_FALLBACK_TIMING,
 } from '../../lib/m55/dtrPaidModules';
+import {
+  PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
+  PAID_DTR_REPORT_PARTS,
+} from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
 import {
   PremiumDrawerHub,
@@ -275,29 +279,8 @@ function HeroIconMessage({ className }: { className?: string }) {
    Premium included-features band — under poster, before ownership meta.
    ───────────────────────────────────────────────────────────────────────────── */
 
-/** SSOT v1 Phase 2: 4部構成の本の目次として機能するバンド */
-/* ── SSOT v1: 各部の共通データ（TOC + 章扉で共用） ── */
-const REPORT_PARTS = [
-  {
-    partId: '1' as const,
-    roman: 'Ⅰ',
-    name: '輪郭を見る',
-    catch: '広げるより、深める',
-    desc: '今の自分に出やすい傾向を整理する',
-    anchor: 'section-overview',
-  },
-  { partId: '2' as const, roman: 'Ⅱ', name: '構造を読む', desc: 'なぜ力が出るのか、どこで安定するのかを見る',  anchor: 'section-structure' },
-  { partId: '3' as const, roman: 'Ⅲ', name: '無理を知る', desc: '無理が出やすい場面を、責めずに整理する',         anchor: 'section-strain'    },
-  { partId: '4' as const, roman: 'Ⅳ', name: '楽に扱う',   desc: '戻し方・整え方・日常での使い方',           anchor: 'section-practice'  },
-] as const;
-
-/** 上部「読み方」TOC 専用（章帯の desc は REPORT_PARTS のまま） */
-const REPORT_PARTS_TOC_TAG: Readonly<Record<(typeof REPORT_PARTS)[number]['partId'], string>> = {
-  '1': '全体像',
-  '2': '動き方の理由',
-  '3': '崩れやすい条件',
-  '4': '戻し方と使い方',
-};
+/** Chapter bands + legacy intro TOC — from paidDtrProductCopy PAID_DTR_CHAPTERS. */
+const REPORT_PARTS = PAID_DTR_REPORT_PARTS;
 
 /** Ⅰ導入・TOC帯: #section-overview の上端がまだ下寄り＝「本文帯の読み」に入っていない */
 const INTRO_TOC_FRACTION = 0.4;
@@ -519,7 +502,7 @@ function PremiumIncludedBand({
         <p className={styles.premiumIntroSectionLabel}>このレポートの読み方</p>
         <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
           {REPORT_PARTS.map((p) => {
-            const tocDesc = REPORT_PARTS_TOC_TAG[p.partId];
+            const tocDesc = p.tocTag;
             return (
               <li key={p.roman} className={styles.premiumIncludedTocRow}>
                 <a
@@ -611,8 +594,8 @@ function ReportPartBand({
   title: string;
 }) {
   const part = REPORT_PARTS.find((p) => p.partId === partId);
-  const roman: Record<typeof partId, string> = { '1': 'Ⅰ', '2': 'Ⅱ', '3': 'Ⅲ', '4': 'Ⅳ' };
-  const catchPhrase = part && 'catch' in part ? part.catch : undefined;
+  const roman = part?.roman ?? '';
+  const catchPhrase = part?.catch;
   const a11yLabel = catchPhrase
     ? `第${partId}部 ${title}。${catchPhrase}`
     : `第${partId}部 ${title}`;
@@ -633,7 +616,7 @@ function ReportPartBand({
         <div className={styles.reportPartBandMeta}>
           <div className={styles.reportPartBandRow}>
             <span className={styles.reportPartBandNum} aria-hidden>
-              {roman[partId]}
+              {roman}
             </span>
             <span className={styles.reportPartBandTitle}>{title}</span>
           </div>
@@ -708,7 +691,7 @@ function PremiumHero({
 
             <h1 className={styles.heroBlueprintTitle}>
               <span className={styles.heroBlueprintPrefix}>
-                保存版の読み解き
+                {PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA}
               </span>
               <span className={styles.heroBlueprintName}>{blueprintName}</span>
             </h1>
@@ -1567,6 +1550,7 @@ function PaidModuleShell({
   ariaLabel,
   summary,
   defaultOpen,
+  inDrawer,
   children,
 }: {
   n: number;
@@ -1577,6 +1561,7 @@ function PaidModuleShell({
   ariaLabel: string;
   summary: string;
   defaultOpen: boolean;
+  inDrawer?: boolean;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -1594,7 +1579,7 @@ function PaidModuleShell({
 
   return (
     <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}`}
+      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}${inDrawer ? ` ${styles.pmInDrawer}` : ''}`}
       aria-label={ariaLabel}
     >
       {/* Accordion trigger — the whole header area is interactive */}
@@ -2572,7 +2557,7 @@ export default function DtrFullReader({
           <>
             <section
               id="dtr-core-analysis"
-              className={`${styles.savedReportShell} ${styles.coreAnalysisScrollAnchor}`}
+              className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer} ${styles.coreAnalysisScrollAnchor}`}
               aria-label="輪郭を見る"
             >
               <div className={styles.savedWideStack}>
@@ -2586,27 +2571,33 @@ export default function DtrFullReader({
                 ) : null}
               </div>
             </section>
-            <SectionDivider label="保存版の深読み" premium />
-            <div className={styles.paidModules}>
-              <PaidModuleShell
-                n={1}
-                tierJa="力の中心を読む"
-                tierClass={styles.prTierMint}
-                overline="5つの力のかけ合わせ"
-                title="いまの形をつくっている力"
-                ariaLabel="5つの力の分布"
-                summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
-                defaultOpen={false}
-              >
-                <FiveAxisModule stemIdx={stemIdx} />
-              </PaidModuleShell>
+            <div className={styles.drawerDeepReadBlock}>
+              <SectionDivider label="保存版の深読み" premium />
+              <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
+                <PaidModuleShell
+                  n={1}
+                  tierJa="力の中心を読む"
+                  tierClass={styles.prTierMint}
+                  overline="5つの力のかけ合わせ"
+                  title="いまの形をつくっている力"
+                  ariaLabel="5つの力の分布"
+                  summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
+                  defaultOpen
+                  inDrawer
+                >
+                  <FiveAxisModule stemIdx={stemIdx} />
+                </PaidModuleShell>
+              </div>
             </div>
           </>
         );
       case 'chapter-2':
         return (
           <>
-            <section className={styles.savedReportShell} aria-label="構造を読む">
+            <section
+              className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer}`}
+              aria-label="構造を読む"
+            >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" title="構造を読む" />
                 {s3 ? <EssenceArticleWithViz section={s3} stemIdx={stemIdx} /> : null}
@@ -2618,33 +2609,39 @@ export default function DtrFullReader({
               ) : null}
               {s3 ? <ReportBridgeBand partId="2" /> : null}
             </section>
-            <SectionDivider label="保存版の深読み" premium />
-            <div className={styles.paidModules}>
-              {sec('s4_strengths') && sec('s5_friction') ? (
-                <PaidModuleShell
-                  n={2}
-                  tierJa="重なりを見る"
-                  tierClass={styles.prTierAmber}
-                  overline="傾向と負荷"
-                  title="重なりと読み解き"
-                  ariaLabel="傾向と負荷"
-                  summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
-                  defaultOpen={false}
-                >
-                  <TraitInteractionModule
-                    strengthsSection={sec('s4_strengths')!}
-                    frictionSection={sec('s5_friction')!}
-                    stemIdx={stemIdx}
-                  />
-                </PaidModuleShell>
-              ) : null}
+            <div className={styles.drawerDeepReadBlock}>
+              <SectionDivider label="保存版の深読み" premium />
+              <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
+                {sec('s4_strengths') && sec('s5_friction') ? (
+                  <PaidModuleShell
+                    n={2}
+                    tierJa="重なりを見る"
+                    tierClass={styles.prTierAmber}
+                    overline="傾向と負荷"
+                    title="重なりと読み解き"
+                    ariaLabel="傾向と負荷"
+                    summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
+                    defaultOpen
+                    inDrawer
+                  >
+                    <TraitInteractionModule
+                      strengthsSection={sec('s4_strengths')!}
+                      frictionSection={sec('s5_friction')!}
+                      stemIdx={stemIdx}
+                    />
+                  </PaidModuleShell>
+                ) : null}
+              </div>
             </div>
           </>
         );
       case 'chapter-3':
         return (
           <>
-            <section className={styles.savedReportShell} aria-label="無理を知る">
+            <section
+              className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer}`}
+              aria-label="無理を知る"
+            >
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
                   {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
@@ -2654,27 +2651,30 @@ export default function DtrFullReader({
               ) : null}
               {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
             </section>
-            <SectionDivider label="保存版の深読み" premium />
-            <div className={styles.paidModules}>
-              {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
-                <PaidModuleShell
-                  n={3}
-                  tierJa="場面で見る"
-                  tierClass={styles.prTierBlue}
-                  overline="生活での出方"
-                  title="場面別の整理"
-                  ariaLabel="生活での出方"
-                  summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
-                  defaultOpen={false}
-                >
-                  <DomainMatrixModule
-                    essenceSection={sec('s3_essence')!}
-                    relationSection={sec('s6_relation')!}
-                    workSection={sec('s7_work')!}
-                    compositionSection={sec('s2_composition')}
-                  />
-                </PaidModuleShell>
-              ) : null}
+            <div className={styles.drawerDeepReadBlock}>
+              <SectionDivider label="保存版の深読み" premium />
+              <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
+                {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
+                  <PaidModuleShell
+                    n={3}
+                    tierJa="場面で見る"
+                    tierClass={styles.prTierBlue}
+                    overline="生活での出方"
+                    title="場面別の整理"
+                    ariaLabel="生活での出方"
+                    summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
+                    defaultOpen
+                    inDrawer
+                  >
+                    <DomainMatrixModule
+                      essenceSection={sec('s3_essence')!}
+                      relationSection={sec('s6_relation')!}
+                      workSection={sec('s7_work')!}
+                      compositionSection={sec('s2_composition')}
+                    />
+                  </PaidModuleShell>
+                ) : null}
+              </div>
             </div>
           </>
         );
@@ -2682,7 +2682,7 @@ export default function DtrFullReader({
         return (
           <>
             {sec('s7_work') && sec('s6_relation') ? (
-              <>
+              <div className={styles.drawerChapterLead}>
                 <ReportPartBand partId="4" title="楽に扱う" />
                 <WorkGuideCards workSection={sec('s7_work')!} />
                 <SectionDivider label="実践ガイド" premium />
@@ -2694,33 +2694,36 @@ export default function DtrFullReader({
                   />
                 </section>
                 <ReportBridgeBand partId="4" />
-              </>
+              </div>
             ) : null}
-            <SectionDivider label="保存版の深読み" premium />
-            <div className={styles.paidModules}>
-              {sec('s5_friction') && sec('s8_bridge') ? (
-                <PaidModuleShell
-                  n={4}
-                  tierJa="実践ガイド"
-                  tierClass={styles.prTierRose}
-                  overline="戻し方 · 整え方"
-                  title="つまずきから整える流れ"
-                  ariaLabel="戻し方と整え方"
-                  summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
-                  defaultOpen={false}
-                >
-                  <FrictionRecoveryModule
-                    frictionSection={sec('s5_friction')!}
-                    bridgeSection={sec('s8_bridge')!}
-                  />
-                </PaidModuleShell>
-              ) : null}
+            <div className={styles.drawerDeepReadBlock}>
+              <SectionDivider label="保存版の深読み" premium />
+              <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
+                {sec('s5_friction') && sec('s8_bridge') ? (
+                  <PaidModuleShell
+                    n={4}
+                    tierJa="実践ガイド"
+                    tierClass={styles.prTierRose}
+                    overline="戻し方 · 整え方"
+                    title="つまずきから整える流れ"
+                    ariaLabel="戻し方と整え方"
+                    summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
+                    defaultOpen
+                    inDrawer
+                  >
+                    <FrictionRecoveryModule
+                      frictionSection={sec('s5_friction')!}
+                      bridgeSection={sec('s8_bridge')!}
+                    />
+                  </PaidModuleShell>
+                ) : null}
+              </div>
             </div>
           </>
         );
       case 'consult':
         return (
-          <>
+          <div className={styles.drawerConsultPanel}>
             {sec('s8_bridge') ? (
               <>
                 <SectionDivider label="まとめと相談返書について" />
@@ -2742,7 +2745,7 @@ export default function DtrFullReader({
                 </div>
               </div>
             ) : null}
-          </>
+          </div>
         );
       default:
         return null;

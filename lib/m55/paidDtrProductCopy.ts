@@ -116,6 +116,64 @@ export const PAID_DTR_CHAPTERS = [
   },
 ] as const;
 
+/** /dtr/core reader hero — read-back axis (product name stays LABEL_PRODUCT_JP). */
+export const PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA = 'この保存版で読み返す' as const;
+
+/** PremiumDrawerHub shell copy (drawer row labels are action-oriented; chapter titles from PAID_DTR_CHAPTERS). */
+export const PAID_DTR_DRAWER_HUB = {
+  ariaLabelJa: '保存版の入口',
+  overlineJa: '保存版の入口',
+  titleJa: 'この保存版で読み返すこと',
+  leadJa: '気になるところから、静かに読み返せます。',
+  chapterRowLabelsJa: [
+    'まず、全体を読み返す',
+    '力が出やすい条件を読む',
+    '無理が出やすい場面を読む',
+    '戻し方と使い方を読む',
+  ] as const,
+  consultLabelJa: '相談返書で整理する',
+  consultSublabelJa: '保存版に紐づく相談',
+} as const;
+
+const PAID_DTR_CHAPTER_ANCHOR_BY_ID: Record<PaidDtrChapterId, string> = {
+  outline: 'section-overview',
+  structure: 'section-structure',
+  strain: 'section-strain',
+  ease: 'section-practice',
+};
+
+const PAID_DTR_CHAPTER_PART_ID: Record<PaidDtrChapterId, '1' | '2' | '3' | '4'> = {
+  outline: '1',
+  structure: '2',
+  strain: '3',
+  ease: '4',
+};
+
+export type PaidDtrReportPartId = '1' | '2' | '3' | '4';
+
+export type PaidDtrReportPartView = {
+  partId: PaidDtrReportPartId;
+  roman: string;
+  name: string;
+  catch: string;
+  desc: string;
+  anchor: string;
+  tocTag: string;
+  chapterId: PaidDtrChapterId;
+};
+
+/** Reader chapter bands + legacy TOC — derived from PAID_DTR_CHAPTERS (display-only). */
+export const PAID_DTR_REPORT_PARTS: readonly PaidDtrReportPartView[] = PAID_DTR_CHAPTERS.map((ch) => ({
+  partId: PAID_DTR_CHAPTER_PART_ID[ch.id],
+  roman: ch.roman,
+  name: ch.title,
+  catch: 'catch' in ch ? ch.catch : '',
+  desc: ch.readerDescJa,
+  anchor: PAID_DTR_CHAPTER_ANCHOR_BY_ID[ch.id],
+  tocTag: ch.tocTag,
+  chapterId: ch.id,
+}));
+
 export const PAID_DTR_BENEFITS_HEADING = 'このレポートで分かること' as const;
 
 export const PAID_DTR_BENEFIT_BULLETS = [
