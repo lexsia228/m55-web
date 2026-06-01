@@ -63,22 +63,22 @@ export default function ConsultReplyCard({
   const usageContext = `使用 ${usedCount} / 5件 · 残り ${remainingCount}件`;
 
   return (
-    <article className={styles.replyCard} aria-label="今回の相談返書">
+    <article className={styles.replyCard} aria-label="相談返書">
       <header className={styles.replyCardHeader}>
         <div className={styles.replyTagRow}>
           <span className={styles.replyTag}>相談返書</span>
           <span className={styles.replyTag}>保存版連動</span>
         </div>
         <p className={styles.replyCardLead}>保存版に紐づく相談</p>
-        <h3 className={styles.replyCardTitle}>今回の相談返書</h3>
+        <h3 className={styles.replyCardTitle}>相談返書</h3>
         <p className={styles.replyMeta}>関連章 {lens.roman} {lens.name}</p>
         {theme ? <p className={styles.replyMeta}>テーマ {theme}</p> : null}
         <p className={styles.replyUsage}>{usageContext}</p>
       </header>
 
       {userQuote ? (
-        <section className={styles.replyUserQuote} aria-label="相談内容の引用">
-          <p className={styles.replySectionTitle}>今回の相談</p>
+        <section className={styles.replyUserQuote} aria-label="相談内容">
+          <p className={styles.replySectionTitle}>相談内容</p>
           <p className={styles.replyQuoteText}>{trimLines(userQuote, 2)}</p>
         </section>
       ) : null}
@@ -103,7 +103,7 @@ export default function ConsultReplyCard({
         ))}
         {bodyTail ? (
           <div className={styles.replyReadingSection}>
-            <p className={styles.replySectionTitle}>補足</p>
+            <p className={styles.replySectionTitle}>視点の補助線</p>
             <p className={styles.replySectionBody}>{bodyTail}</p>
           </div>
         ) : null}

@@ -168,20 +168,20 @@ const BALANCE_LENS: ConsultReplyLensInfo = {
   ...DEFAULT_PART,
   visualKind: 'balance',
   lensTitle: '保存版のベース傾向',
-  lensCaption: '今回の相談の主役ではなく、保存版全体の傾向の補助です。',
+  lensCaption: 'この相談の主役ではなく、保存版全体の傾向の補助です。',
   lensRows: [],
   showBaseRadar: true,
   baseRadarTitle: '保存版のベース傾向',
-  baseRadarCaption: '今回の相談の主役ではなく、保存版全体の傾向の補助です。',
+  baseRadarCaption: 'この相談の主役ではなく、保存版全体の傾向の補助です。',
 };
 
 const LENS_CAPTION_BY_KIND: Record<Exclude<ConsultReplyVisualKind, 'balance'>, string> = {
   communication:
-    '保存版の対話の章に沿って、今回の相談で見る流れです。新しい診断ではなく、読み返す目安です。',
+    '保存版の対話の章に沿って、この相談で読む流れです。新しい診断ではなく、読み返す目安です。',
   strain:
-    '保存版の無理の出方に沿って、今回の相談で見る条件です。新しい診断ではなく、読み返す目安です。',
+    '保存版の無理の出方に沿って、この相談で読む条件です。新しい診断ではなく、読み返す目安です。',
   stability:
-    '保存版の戻し方に沿って、今回の相談で整えやすい余白です。新しい診断ではなく、読み返す目安です。',
+    '保存版の戻し方に沿って、この相談で整えやすい余白です。新しい診断ではなく、読み返す目安です。',
 };
 
 export function resolveConsultReplyPartByTheme(theme: string | null): ConsultReplyPartInfo {
@@ -198,7 +198,7 @@ export function resolveConsultReplyLensByTheme(theme: string | null): ConsultRep
   return {
     ...themed.part,
     visualKind: themed.visualKind,
-    lensTitle: '今回の相談で見るところ',
+    lensTitle: '読み返す視点',
     lensCaption: LENS_CAPTION_BY_KIND[themed.visualKind],
     lensRows: themed.lensRows,
     showBaseRadar: false,
