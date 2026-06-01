@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -43,6 +43,10 @@ import {
   DTR_DISPLAY_FALLBACK_TIMING,
 } from '../../lib/m55/dtrPaidModules';
 import {
+  PAID_DTR_BENEFITS_HEADING,
+  PAID_DTR_BENEFIT_BULLETS,
+  PAID_DTR_INTRO_CONSULT_NOTE,
+  PAID_DTR_INTRO_PANEL_01,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
   PAID_DTR_REPORT_PARTS,
 } from '../../lib/m55/paidDtrProductCopy';
@@ -282,207 +286,29 @@ function HeroIconMessage({ className }: { className?: string }) {
 /** Chapter bands + legacy intro TOC — from paidDtrProductCopy PAID_DTR_CHAPTERS. */
 const REPORT_PARTS = PAID_DTR_REPORT_PARTS;
 
-/** Ⅰ導入・TOC帯: #section-overview の上端がまだ下寄り＝「本文帯の読み」に入っていない */
-const INTRO_TOC_FRACTION = 0.4;
-const TOC_GUARD_MS = 1000;
-
-function isIntroOrTocView(): boolean {
-  const el = document.getElementById('section-overview');
-  if (!el) return true;
-  return el.getBoundingClientRect().top > window.innerHeight * INTRO_TOC_FRACTION;
-}
-
-/**
- * 現在スクロール中の章 anchor id を返す（IntersectionObserver）。
- * hasScrolledRef により、初期ロード直後の誤検知を抑制する。
- * setActive を返すことで、TOC クリック時に即時 active 更新も可能にする。
- * markTocNavigation: TOC/相談クリック直後の scrollspy による active クリアを避ける。
- */
-function useActiveSection(enabled: boolean): [string | null, (id: string | null) => void, () => void] {
-  const [active, setActive] = useState<string | null>(null);
-  const hasScrolledRef = useRef(false);
-  const tocClickAtRef = useRef(0);
-  const markTocNavigation = useCallback(() => {
-    tocClickAtRef.current = Date.now();
-  }, []);
-
-  useEffect(() => {
-    if (!enabled) {
-      setActive(null);
-      return;
-    }
-
-    const ids = [...REPORT_PARTS.map((p) => p.anchor), 'consultation-room'];
-    const els = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (els.length === 0) return;
-
-    const canClearInIntro = () => Date.now() - tocClickAtRef.current > TOC_GUARD_MS;
-
-    // Suppress the "already in viewport on load" false trigger.
-    const onScroll = () => {
-      hasScrolledRef.current = true;
-      if (isIntroOrTocView() && canClearInIntro()) {
-        setActive(null);
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('scroll', onScroll, { passive: true, capture: true });
-
-    const applyScrollspy = (entries: IntersectionObserverEntry[]) => {
-      if (!hasScrolledRef.current) return;
-      if (isIntroOrTocView()) {
-        if (canClearInIntro()) {
-          setActive(null);
-        }
-        return;
-      }
-      const visible = entries
-        .filter((e) => e.isIntersecting)
-        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-      if (visible.length === 0) return;
-      setActive(visible[0]!.target.id);
-    };
-
-    const obs = new IntersectionObserver(applyScrollspy, { rootMargin: '-8% 0px -55% 0px', threshold: 0 });
-    els.forEach((el) => obs.observe(el));
-    return () => {
-      obs.disconnect();
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('scroll', onScroll, { capture: true });
-    };
-  }, [enabled]);
-
-  return [active, setActive, markTocNavigation];
-}
-
-const INTRO_BULLETS: { text: string; anchor: string }[] = [
-  { text: '近い人との関係で、自分らしくいられる距離感', anchor: 'section-overview'  },
-  { text: '人との距離や言葉選びで、どこで無理がたまりやすいか',     anchor: 'section-structure' },
-  { text: '疲れやすい条件と、崩れやすい流れ',       anchor: 'section-strain'    },
-  { text: '自分をどこから整えると戻りやすいか',     anchor: 'section-practice'  },
-];
-
-/** フローティング ↑ の移動先（03「このレポートの読み方」ブロック） */
-const PREMIUM_INTRO_READING_GUIDE_ID = 'premium-intro-reading-guide';
-
-const READING_GUIDE_FAB_SHOW_PX = 600;
-
-/** 本質の読み解きページ専用：中央下の ↑ を「読み方」ハブへスクロール（グローバル先頭へ戻るボタンは非表示） */
-function PremiumReadingGuideScrollFab() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const globalBtn = document.querySelector<HTMLButtonElement>(
-      'button[aria-label="ページ上部へ戻る"]'
-    );
-    if (globalBtn) {
-      globalBtn.style.display = 'none';
-    }
-    return () => {
-      if (globalBtn) globalBtn.style.removeProperty('display');
-    };
-  }, []);
-
-  useEffect(() => {
-    const measure = () => {
-      const y =
-        window.scrollY ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0;
-      setVisible(y > READING_GUIDE_FAB_SHOW_PX);
-    };
-    measure();
-    window.addEventListener('scroll', measure, { passive: true });
-    return () => window.removeEventListener('scroll', measure);
-  }, []);
-
-  const handleClick = () => {
-    document.getElementById(PREMIUM_INTRO_READING_GUIDE_ID)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
-
+/** Intro panels 01 + 02 — between hero poster and drawer hub (no 03 TOC). */
+function PremiumIntroValueBand() {
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className={`${styles.readingGuideFab}${visible ? ` ${styles.readingGuideFabVisible}` : ''}`}
-      aria-label="このレポートの読み方へ戻る"
-      aria-hidden={!visible}
-      tabIndex={visible ? 0 : -1}
-    >
-      <svg
-        viewBox="0 0 20 20"
-        fill="none"
-        aria-hidden="true"
-        focusable="false"
-        className={styles.readingGuideFabIcon}
-      >
-        <path
-          d="M10 14.5V5.5M6 9l4-4 4 4"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
-  );
-}
-
-function PremiumIncludedBand({
-  aiConsultIncluded,
-  onEnterReading,
-  scrollspyEnabled,
-}: {
-  aiConsultIncluded: boolean;
-  onEnterReading: (anchor: string) => void;
-  scrollspyEnabled: boolean;
-}) {
-  const [active, setActive, markTocNavigation] = useActiveSection(scrollspyEnabled);
-
-  function navigateToAnchor(anchor: string) {
-    return (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      markTocNavigation();
-      setActive(anchor);
-      onEnterReading(anchor);
-    };
-  }
-
-  return (
-    <div className={styles.premiumIncludedBand} aria-label="本質の読み解きの説明">
-      <button
-        type="button"
-        className={styles.reportOverviewEnterRead}
-        onClick={() => onEnterReading('dtr-core-analysis')}
-      >
-        保存版を読む
-      </button>
+    <div className={styles.premiumIntroValueBand} aria-label="本質の読み解きの説明">
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
-          01
+          {PAID_DTR_INTRO_PANEL_01.stepLabel}
         </span>
-        <p className={styles.premiumIntroOverline}>本質の読み解き</p>
+        <p className={styles.premiumIntroOverline}>{PAID_DTR_INTRO_PANEL_01.overlineJa}</p>
         <p className={styles.premiumIntroLead}>
-          自分を無理に変えなくていい。<br />
-          「自分の形」から、今の悩みを読み直すための土台です。
+          {PAID_DTR_INTRO_PANEL_01.leadLinesJa[0]}
+          <br />
+          {PAID_DTR_INTRO_PANEL_01.leadLinesJa[1]}
         </p>
-        <p className={styles.premiumIntroBody}>
-          このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。
-        </p>
+        <p className={styles.premiumIntroBody}>{PAID_DTR_INTRO_PANEL_01.bodyJa}</p>
       </div>
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           02
         </span>
-        <p className={styles.premiumIntroSectionLabel}>このレポートで分かること</p>
-        <ul className={styles.premiumIntroBulletList} aria-label="このレポートで分かること">
-          {INTRO_BULLETS.map(({ text }) => (
+        <p className={styles.premiumIntroSectionLabel}>{PAID_DTR_BENEFITS_HEADING}</p>
+        <ul className={styles.premiumIntroBulletList} aria-label={PAID_DTR_BENEFITS_HEADING}>
+          {PAID_DTR_BENEFIT_BULLETS.map((text) => (
             <li key={text} className={styles.premiumIntroBulletItem}>
               <span className={styles.premiumIntroBulletText}>
                 <HeroIconCheck className={styles.benefitCheckIcon} />
@@ -492,54 +318,18 @@ function PremiumIncludedBand({
           ))}
         </ul>
       </div>
-      <div
-        id={PREMIUM_INTRO_READING_GUIDE_ID}
-        className={`${styles.premiumIntroPanelSection} ${styles.premiumIntroPanelSectionToc} ${styles.premiumIntroReadingGuideAnchor}`}
-      >
-        <span className={styles.premiumIntroPanelStep} aria-hidden>
-          03
-        </span>
-        <p className={styles.premiumIntroSectionLabel}>このレポートの読み方</p>
-        <ol className={styles.premiumIncludedTocList} aria-label="章の目次">
-          {REPORT_PARTS.map((p) => {
-            const tocDesc = p.tocTag;
-            return (
-              <li key={p.roman} className={styles.premiumIncludedTocRow}>
-                <a
-                  href={`#${p.anchor}`}
-                  onClick={navigateToAnchor(p.anchor)}
-                  className={`${styles.tocLink} ${styles.tocLinkIntroCard}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
-                  aria-current={active === p.anchor ? 'location' : undefined}
-                  aria-label={`${p.roman} ${p.name}へ移動`}
-                >
-                  <span className={styles.tocLinkIntroCardMain}>
-                    <span className={styles.premiumIncludedTocNum} aria-hidden>{p.roman}</span>
-                    <span className={styles.premiumIncludedTocName}>{p.name}</span>
-                    <span className={styles.premiumIncludedTocSep} aria-hidden> — </span>
-                    <span className={styles.premiumIncludedTocDesc}>{tocDesc}</span>
-                  </span>
-                  <span className={styles.tocLinkIntroCardArrow} aria-hidden>
-                    →
-                  </span>
-                </a>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-      {aiConsultIncluded && (
-        <div className={styles.premiumIntroConsultNote}>
-          <a
-            href="#consultation-room"
-            onClick={navigateToAnchor('consultation-room')}
-            className={`${styles.premiumIntroConsultLink}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
-            aria-current={active === 'consultation-room' ? 'location' : undefined}
-          >
-            このレポートには、相談返書&nbsp;1件が付いています。<br />
-            本質の読み解きをもとに、今の相談を整理する。
-          </a>
-        </div>
-      )}
+    </div>
+  );
+}
+
+function PremiumIntroConsultNote({ onOpen }: { onOpen: () => void }) {
+  return (
+    <div className={styles.premiumIntroConsultNote}>
+      <button type="button" className={styles.premiumIntroConsultLink} onClick={onOpen}>
+        <span>{PAID_DTR_INTRO_CONSULT_NOTE.line1Ja}</span>
+        <br />
+        <span>{PAID_DTR_INTRO_CONSULT_NOTE.line2Ja}</span>
+      </button>
     </div>
   );
 }
@@ -644,6 +434,7 @@ function PremiumHero({
   birthDate,
   openPanel,
   onSelectPanel,
+  onOpenConsult,
   renderPanelBody,
 }: {
   stem: TenStemDisplay;
@@ -654,6 +445,7 @@ function PremiumHero({
   birthDate: string;
   openPanel: DrawerHubOpenPanel;
   onSelectPanel: (panel: DrawerHubOpenPanel) => void;
+  onOpenConsult: () => void;
   renderPanelBody: (panel: DrawerHubPanelId) => ReactNode;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
@@ -712,12 +504,16 @@ function PremiumHero({
         </div>
       </div>
 
+      <PremiumIntroValueBand />
+
       <PremiumDrawerHub
         openPanel={openPanel}
         onSelectPanel={onSelectPanel}
         aiConsultIncluded={aiConsultIncluded}
         renderPanelBody={renderPanelBody}
       />
+
+      {aiConsultIncluded ? <PremiumIntroConsultNote onOpen={onOpenConsult} /> : null}
 
       <div className={styles.heroMetaStrip} aria-label="レポート情報">
         <div className={styles.heroMetaItem}>
@@ -2764,10 +2560,19 @@ export default function DtrFullReader({
           birthDate={view.birthDate}
           openPanel={openPanel}
           onSelectPanel={selectPanel}
+          onOpenConsult={() => selectPanel('consult')}
           renderPanelBody={renderDrawerPanelBody}
         />
 
-        {openPanel !== null ? <SavedSnapshotNotice /> : null}
+        <SavedSnapshotNotice />
+
+        <footer className={styles.footer}>
+          <Link href="/my">マイページへ戻る</Link>
+          {' · '}
+          <Link href="/core">本質を確認する</Link>
+          {' · '}
+          <Link href="/support">サポート</Link>
+        </footer>
       </div>
     </div>
   );

@@ -183,6 +183,24 @@ export const PAID_DTR_BENEFIT_BULLETS = [
   '自分をどこから整えると戻りやすいか',
 ] as const;
 
+/** /dtr/core reader intro — panel 01 (pre-W1 copy, display-only). */
+export const PAID_DTR_INTRO_PANEL_01 = {
+  stepLabel: '01',
+  overlineJa: '本質の読み解き',
+  leadLinesJa: [
+    '自分を無理に変えなくていい。',
+    '「自分の形」から、今の悩みを読み直すための土台です。',
+  ],
+  bodyJa:
+    'このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。',
+} as const;
+
+/** /dtr/core reader hero — consult inclusion note (pre-W1 two lines). */
+export const PAID_DTR_INTRO_CONSULT_NOTE = {
+  line1Ja: 'このレポートには、相談返書\u00a01件が付いています。',
+  line2Ja: '本質の読み解きをもとに、今の相談を整理する。',
+} as const;
+
 export const PAID_DTR_LIFE_USE_CASES = [
   {
     id: 'work_role',

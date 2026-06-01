@@ -1910,6 +1910,21 @@
   }
 }
 
+/* Intro value band (01 + 02 only) — between hero poster and drawer hub */
+.premiumIntroValueBand {
+  margin: clamp(10px, 2vw, 16px) 0 clamp(12px, 2.2vw, 16px);
+  padding: clamp(18px, 3.2vw, 24px) clamp(16px, 3vw, 22px);
+  border-radius: 18px;
+  background: linear-gradient(
+    168deg,
+    rgba(30, 25, 45, 0.97),
+    rgba(24, 20, 38, 0.92)
+  );
+  border: 1px solid var(--dtr-border-up);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+  box-sizing: border-box;
+}
+
 /* Included-features band ?Equiet premium strip between hero and narrative */
 .premiumIncludedBand {
   margin: clamp(10px, 2vw, 16px) 0 clamp(14px, 2.5vw, 18px);
@@ -2131,11 +2146,19 @@
 
 .premiumIntroConsultLink {
   display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
   text-decoration: none;
   color: rgba(200, 188, 230, 0.85);
   font-size: 0.84rem;
   line-height: 1.68;
+  border: none;
   border-radius: 5px;
+  background: none;
+  font: inherit;
+  cursor: pointer;
   transition: color 0.15s;
   outline-offset: 3px;
 }
