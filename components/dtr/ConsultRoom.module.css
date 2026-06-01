@@ -143,7 +143,7 @@
 .messages {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   min-height: 48px;
   margin-bottom: clamp(28px, 5vw, 40px);
   padding-bottom: 4px;
@@ -157,52 +157,255 @@
   line-height: 1.65;
 }
 
-.msgUser,
-.msgAssistant {
-  padding: 14px 16px;
+.msgUserCompact {
+  width: min(100%, 560px);
+  margin-left: auto;
+  padding: 12px 14px;
   border-radius: 12px;
-  max-width: 100%;
+  border: 1px solid rgba(160, 140, 220, 0.24);
+  background: rgba(124, 111, 214, 0.16);
 }
 
-.msgUser {
-  background: rgba(124, 111, 214, 0.20);
-  border: 1px solid rgba(160, 140, 220, 0.28);
-  align-self: flex-end;
-  max-width: 92%;
+.msgUserTheme {
+  margin: 0 0 4px;
+  font-size: 0.74rem;
+  color: rgba(220, 210, 255, 0.86);
+  letter-spacing: 0.02em;
 }
 
-.msgAssistant {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(177, 156, 255, 0.18);
-  align-self: flex-start;
-  max-width: 100%;
+.msgUserText {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.msgRole {
+.msgPending {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(185, 165, 230, 0.7);
+}
+
+.replyCard {
+  border-radius: 16px;
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  background: rgba(16, 18, 33, 0.72);
+  padding: 16px;
+}
+
+.replyCardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.replyTagRow {
+  display: flex;
+  gap: 8px;
+}
+
+.replyTag {
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 700;
-  color: rgba(185, 165, 230, 0.65);
+  color: rgba(210, 198, 240, 0.9);
+  border: 1px solid rgba(160, 140, 220, 0.26);
+  background: rgba(86, 74, 136, 0.28);
+}
+
+.replyCardLead {
+  margin: 2px 0 0;
+  font-size: 0.86rem;
+  color: rgba(185, 165, 230, 0.74);
+}
+
+.replyCardTitle {
+  margin: 0;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.55rem, 7vw, 1.95rem);
+  line-height: 1.26;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 500;
+}
+
+.replyMeta {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(221, 215, 240, 0.9);
+}
+
+.replyUsage {
+  margin: 2px 0 0;
+  font-size: 0.86rem;
+  color: rgba(185, 165, 230, 0.75);
+}
+
+.replyUserQuote {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 140, 220, 0.2);
+  background: rgba(34, 32, 55, 0.55);
+}
+
+.replyQuoteText {
+  margin: 0;
+  font-size: 0.86rem;
+  color: rgba(232, 224, 255, 0.9);
+  line-height: 1.65;
+}
+
+.replyGraphPanel {
+  margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+}
+
+.replyGraphShell {
+  position: relative;
+  width: min(240px, 92%);
+  margin: 0 auto;
+}
+
+.replyGraphSvg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.replyGraphAxis {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  color: rgba(212, 198, 245, 0.86);
+  pointer-events: none;
+}
+
+.replyGraphNote {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(188, 175, 220, 0.8);
+}
+
+.replyPoints {
+  margin-top: 14px;
+}
+
+.replyPointsTitle {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: rgba(235, 230, 252, 0.95);
+  font-weight: 600;
+}
+
+.replyPointsLine {
   margin: 0 0 6px;
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(225, 219, 246, 0.93);
+}
+
+.replyPointsLabel {
+  margin-right: 8px;
+  font-size: 0.82rem;
   letter-spacing: 0.04em;
 }
 
-/* 白バブル内では暗色で上書き */
-.msgAssistant .msgRole {
-  color: rgba(107, 95, 168, 0.70);
+.replyReadingBlock {
+  margin-top: 14px;
 }
 
-/* msgUser 内テキストはバブル内なので白系、msgAssistant は白バブル上なので暗色 */
-.msgUser .msgContent {
-  color: rgba(255, 255, 255, 0.88);
+.replyReadingSection {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+  margin-top: 12px;
 }
 
-.msgContent {
-  font-size: 0.9rem;
-  line-height: 1.75;
-  color: #2f2640;
+.replySectionTitle {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: rgba(241, 236, 252, 0.95);
+  font-weight: 600;
+}
+
+.replySectionBody {
   margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.78;
+  color: rgba(236, 230, 248, 0.9);
   white-space: pre-wrap;
+}
+
+.replyTodayBox {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(160, 140, 220, 0.24);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.replyTodayHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.replyTodayTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(206, 191, 248, 0.96);
+}
+
+.replyTodayMeta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(184, 170, 217, 0.8);
+}
+
+.replyTodayText {
+  margin: 8px 0 0;
+  font-size: 0.96rem;
+  line-height: 1.72;
+  color: rgba(247, 243, 255, 0.93);
+}
+
+.replyFooter {
+  margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+}
+
+.replyPrimaryLink {
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  padding: 10px 12px;
+  color: rgba(244, 240, 255, 0.95);
+  margin-bottom: 10px;
+}
+
+.replyPrimaryLink:hover {
+  border-color: rgba(160, 140, 220, 0.4);
+}
+
+.replySecondaryAction {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 0.96rem;
+  color: rgba(210, 198, 240, 0.88);
+}
+
+.replyFooterMeta {
+  margin: 0;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(173, 162, 203, 0.8);
 }
 
 .sendError {

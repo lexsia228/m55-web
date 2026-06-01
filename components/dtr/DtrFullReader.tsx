@@ -2699,7 +2699,7 @@ export default function DtrFullReader({
               />
             </div>
             <div className={styles.consultRoomBand}>
-              <ConsultRoom birthDate={view.birthDate} nickname={view.nickname} />
+              <ConsultRoom birthDate={view.birthDate} nickname={view.nickname} stemIdx={stemIdx} />
             </div>
           </div>
         )}

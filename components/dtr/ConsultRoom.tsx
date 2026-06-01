@@ -24,6 +24,7 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
 } from '../../lib/m55/paidDtrProductCopy';
+import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
 const INPUT_MIN = 10;
@@ -76,7 +77,22 @@ type RoomData = {
 type Props = {
   birthDate: string;
   nickname: string;
+  stemIdx: number;
 };
+
+function extractThemeAndQuoteFromUserMessage(content: string): { theme: string | null; quote: string | null } {
+  const lines = content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const themeLine = lines.find((line) => line.startsWith('【テーマ】'));
+  const theme = themeLine ? themeLine.replace('【テーマ】', '').trim() : null;
+  const quoteLine = lines.find((line) => !line.startsWith('【テーマ】') && !line.startsWith('【補助'));
+  return {
+    theme,
+    quote: quoteLine ?? null,
+  };
+}
 
 function buildComposedMessage(
   theme: Theme | null,
@@ -140,7 +156,7 @@ function SupplementaryToggle({
   );
 }
 
-export default function ConsultRoom({ birthDate, nickname }: Props) {
+export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
   const [roomData, setRoomData] = useState<RoomData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -553,23 +569,43 @@ export default function ConsultRoom({ birthDate, nickname }: Props) {
         {messages.length === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
         )}
-        {messages.map((msg, i) => (
-          <div
-            key={msg.id ?? i}
-            className={msg.role === 'user' ? styles.msgUser : styles.msgAssistant}
-          >
-            <p className={styles.msgRole}>{msg.role === 'user' ? 'あなた' : 'M55'}</p>
-            <p className={styles.msgContent}>{msg.content}</p>
-          </div>
-        ))}
-        {sending && (
-          <div className={styles.msgAssistant}>
-            <p className={styles.msgRole}>M55</p>
-            <p className={styles.msgContent} aria-live="polite">
-              {PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}
-            </p>
-          </div>
-        )}
+        {messages.map((msg, i) => {
+          if (msg.role === 'user') {
+            const extracted = extractThemeAndQuoteFromUserMessage(msg.content);
+            return (
+              <div key={msg.id ?? i} className={styles.msgUserCompact}>
+                {extracted.theme ? <p className={styles.msgUserTheme}>テーマ {extracted.theme}</p> : null}
+                <p className={styles.msgUserText}>{extracted.quote ?? msg.content}</p>
+              </div>
+            );
+          }
+
+          let linkedTheme: string | null = null;
+          let linkedQuote: string | null = null;
+          for (let j = i - 1; j >= 0; j -= 1) {
+            const prev = messages[j];
+            if (prev?.role === 'user') {
+              const extracted = extractThemeAndQuoteFromUserMessage(prev.content);
+              linkedTheme = extracted.theme;
+              linkedQuote = extracted.quote;
+              break;
+            }
+          }
+
+          return (
+            <ConsultReplyCard
+              key={msg.id ?? i}
+              assistantContent={msg.content}
+              theme={linkedTheme}
+              userQuote={linkedQuote}
+              stemIdx={stemIdx}
+              usedCount={usedCount}
+              remainingCount={wallet?.available_count ?? effectiveRemaining}
+              canPurchaseMoreCount={additionalPurchasableCount}
+            />
+          );
+        })}
+        {sending && <p className={styles.msgPending} aria-live="polite">{PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}</p>}
         <div ref={messagesEndRef} aria-hidden="true" />
       </div>
 
