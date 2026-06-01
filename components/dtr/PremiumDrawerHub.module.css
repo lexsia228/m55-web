@@ -1,0 +1,181 @@
+/* PremiumDrawerHub — 本番 premiumIncludedBand / tocLinkIntroCard 系に合わせる */
+
+.drawerHub {
+  margin: clamp(10px, 2vw, 16px) 0 clamp(14px, 2.5vw, 18px);
+  padding: clamp(18px, 3.2vw, 24px) clamp(16px, 3vw, 22px);
+  border-radius: 18px;
+  background: linear-gradient(
+    168deg,
+    rgba(30, 25, 45, 0.97),
+    rgba(24, 20, 38, 0.92)
+  );
+  border: 1px solid var(--dtr-border-up, rgba(160, 140, 220, 0.22));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.drawerHubHeader {
+  margin: 0 0 clamp(14px, 2.4vw, 18px);
+  padding: 0;
+}
+
+.drawerHubOverline {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--dtr-accent, rgba(185, 165, 230, 0.75));
+  font-feature-settings: 'kern' 1;
+}
+
+.drawerHubTitle {
+  margin: 0 0 12px;
+  font-family: var(--dtr-serif, 'Hiragino Mincho ProN', serif);
+  font-size: clamp(15px, 3vw, 16px);
+  font-weight: 500;
+  line-height: 1.72;
+  color: var(--dtr-text, rgba(255, 255, 255, 0.92));
+}
+
+.drawerHubLead {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--dtr-body, rgba(255, 255, 255, 0.72));
+  max-width: 38em;
+}
+
+.drawerHubList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawerHubRow {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.drawerHubRowOpen .drawerHubTrigger {
+  background-color: rgba(155, 135, 225, 0.09);
+  border-color: rgba(188, 168, 238, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.drawerHubTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(160, 140, 220, 0.14);
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.drawerHubTrigger:hover {
+  background-color: rgba(155, 135, 225, 0.075);
+  border-color: rgba(178, 158, 238, 0.24);
+}
+
+.drawerHubTrigger:focus-visible {
+  outline: 1px solid rgba(185, 165, 230, 0.5);
+  outline-offset: 2px;
+}
+
+.drawerHubTriggerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawerHubLabel {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--dtr-body, rgba(255, 255, 255, 0.78));
+}
+
+.drawerHubSublabel {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  color: var(--dtr-accent, rgba(185, 165, 230, 0.75));
+  opacity: 0.82;
+}
+
+.drawerHubChevron {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: var(--dtr-accent, rgba(185, 165, 230, 0.75));
+  opacity: 0.48;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.drawerHubRowOpen .drawerHubChevron {
+  opacity: 0.58;
+  transform: rotate(90deg);
+}
+
+.drawerHubTrigger:hover .drawerHubChevron {
+  opacity: 0.66;
+}
+
+.drawerHubExpandBody {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 10px;
+  padding-top: clamp(14px, 2.4vw, 18px);
+}
+
+.drawerHubPanelSlot {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* consult: DOM 温存・画面上は完全非表示（grid 折りたたみ漏れ防止） */
+.drawerHubPanelSlotPersist {
+  display: none !important;
+  overflow: hidden;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+@media (max-width: 640px) {
+  .drawerHubTrigger {
+    min-height: 44px;
+    padding: 11px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawerHubTrigger,
+  .drawerHubChevron {
+    transition: none;
+  }
+}

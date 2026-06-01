@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import {
@@ -14,7 +14,11 @@ import {
   compositionStructureVizForStem,
   essenceStabilityVizForStem,
 } from '../../lib/m55/dtrEngine';
-import { LABEL_PRODUCT_JP, LABEL_STATE_OWNED } from '../../lib/m55/dtrProductLabels';
+import {
+  LABEL_FORMAT_SAVED,
+  LABEL_PRODUCT_JP,
+  LABEL_STATE_OWNED,
+} from '../../lib/m55/dtrProductLabels';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import {
@@ -39,6 +43,11 @@ import {
   DTR_DISPLAY_FALLBACK_TIMING,
 } from '../../lib/m55/dtrPaidModules';
 import ConsultRoom from './ConsultRoom';
+import {
+  PremiumDrawerHub,
+  type DrawerHubOpenPanel,
+  type DrawerHubPanelId,
+} from './PremiumDrawerHub';
 import { ReportBridgeBand } from './ReportBridgeBand';
 import SavedSnapshotNotice from './SavedSnapshotNotice';
 import styles from './DtrFullReader.module.css';
@@ -306,7 +315,7 @@ function isIntroOrTocView(): boolean {
  * setActive を返すことで、TOC クリック時に即時 active 更新も可能にする。
  * markTocNavigation: TOC/相談クリック直後の scrollspy による active クリアを避ける。
  */
-function useActiveSection(): [string | null, (id: string | null) => void, () => void] {
+function useActiveSection(enabled: boolean): [string | null, (id: string | null) => void, () => void] {
   const [active, setActive] = useState<string | null>(null);
   const hasScrolledRef = useRef(false);
   const tocClickAtRef = useRef(0);
@@ -315,6 +324,11 @@ function useActiveSection(): [string | null, (id: string | null) => void, () => 
   }, []);
 
   useEffect(() => {
+    if (!enabled) {
+      setActive(null);
+      return;
+    }
+
     const ids = [...REPORT_PARTS.map((p) => p.anchor), 'consultation-room'];
     const els = ids
       .map((id) => document.getElementById(id))
@@ -355,7 +369,7 @@ function useActiveSection(): [string | null, (id: string | null) => void, () => 
       window.removeEventListener('scroll', onScroll);
       document.removeEventListener('scroll', onScroll, { capture: true });
     };
-  }, []);
+  }, [enabled]);
 
   return [active, setActive, markTocNavigation];
 }
@@ -437,24 +451,35 @@ function PremiumReadingGuideScrollFab() {
   );
 }
 
-function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean }) {
-  const [active, setActive, markTocNavigation] = useActiveSection();
+function PremiumIncludedBand({
+  aiConsultIncluded,
+  onEnterReading,
+  scrollspyEnabled,
+}: {
+  aiConsultIncluded: boolean;
+  onEnterReading: (anchor: string) => void;
+  scrollspyEnabled: boolean;
+}) {
+  const [active, setActive, markTocNavigation] = useActiveSection(scrollspyEnabled);
 
-  function scrollTo(anchor: string) {
+  function navigateToAnchor(anchor: string) {
     return (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       markTocNavigation();
       setActive(anchor);
-      const el = document.getElementById(anchor);
-      if (!el) return;
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      el.classList.add(styles.reportPartBandLanding);
-      setTimeout(() => el.classList.remove(styles.reportPartBandLanding), 1400);
+      onEnterReading(anchor);
     };
   }
 
   return (
     <div className={styles.premiumIncludedBand} aria-label="本質の読み解きの説明">
+      <button
+        type="button"
+        className={styles.reportOverviewEnterRead}
+        onClick={() => onEnterReading('dtr-core-analysis')}
+      >
+        保存版を読む
+      </button>
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           01
@@ -499,7 +524,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
               <li key={p.roman} className={styles.premiumIncludedTocRow}>
                 <a
                   href={`#${p.anchor}`}
-                  onClick={scrollTo(p.anchor)}
+                  onClick={navigateToAnchor(p.anchor)}
                   className={`${styles.tocLink} ${styles.tocLinkIntroCard}${active === p.anchor ? ` ${styles.tocLinkActive}` : ''}`}
                   aria-current={active === p.anchor ? 'location' : undefined}
                   aria-label={`${p.roman} ${p.name}へ移動`}
@@ -523,7 +548,7 @@ function PremiumIncludedBand({ aiConsultIncluded }: { aiConsultIncluded: boolean
         <div className={styles.premiumIntroConsultNote}>
           <a
             href="#consultation-room"
-            onClick={scrollTo('consultation-room')}
+            onClick={navigateToAnchor('consultation-room')}
             className={`${styles.premiumIntroConsultLink}${active === 'consultation-room' ? ` ${styles.tocLinkActive}` : ''}`}
             aria-current={active === 'consultation-room' ? 'location' : undefined}
           >
@@ -634,6 +659,9 @@ function PremiumHero({
   expiresAt,
   nickname,
   birthDate,
+  openPanel,
+  onSelectPanel,
+  renderPanelBody,
 }: {
   stem: TenStemDisplay;
   stemIdx: number;
@@ -641,6 +669,9 @@ function PremiumHero({
   expiresAt: string | null;
   nickname: string;
   birthDate: string;
+  openPanel: DrawerHubOpenPanel;
+  onSelectPanel: (panel: DrawerHubOpenPanel) => void;
+  renderPanelBody: (panel: DrawerHubPanelId) => ReactNode;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
   const nick = nickname.trim();
@@ -698,7 +729,12 @@ function PremiumHero({
         </div>
       </div>
 
-      <PremiumIncludedBand aiConsultIncluded={aiConsultIncluded} />
+      <PremiumDrawerHub
+        openPanel={openPanel}
+        onSelectPanel={onSelectPanel}
+        aiConsultIncluded={aiConsultIncluded}
+        renderPanelBody={renderPanelBody}
+      />
 
       <div className={styles.heroMetaStrip} aria-label="レポート情報">
         <div className={styles.heroMetaItem}>
@@ -2444,8 +2480,29 @@ export default function DtrFullReader({
   expiresAt,
   purchasedSnapshot,
 }: Props) {
+  const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
+
+  const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
+    setOpenPanel(panel);
+    if (panel === null) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`drawer-hub-body-${panel}`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const band = el.querySelector('[id^="section-"]');
+        if (band instanceof HTMLElement && REPORT_PARTS.some((p) => p.anchor === band.id)) {
+          band.classList.add(styles.reportPartBandLanding);
+          window.setTimeout(() => band.classList.remove(styles.reportPartBandLanding), 1400);
+        }
+      });
+    });
+  }, []);
 
   /** Checkout / processing 経由後も、device-local → Clerk へ寄せる。 */
   useEffect(() => {
@@ -2497,13 +2554,200 @@ export default function DtrFullReader({
   );
 
   const narrativeGridIds = new Set(['s4_strengths', 's5_friction', 's6_relation']);
-  const preGridSections = coreNarrativeSections.filter((s) => !narrativeGridIds.has(s.id));
   const gridSections = (['s4_strengths', 's5_friction', 's6_relation'] as const)
     .map((id) => coreNarrativeSections.find((s) => s.id === id))
     .filter((s): s is DtrSection => Boolean(s));
   const gridS4 = gridSections.find((s) => s.id === 's4_strengths');
   const gridS5 = gridSections.find((s) => s.id === 's5_friction');
   const gridS6 = gridSections.find((s) => s.id === 's6_relation');
+
+  const s1 = sec('s1_identity');
+  const s2 = sec('s2_composition');
+  const s3 = sec('s3_essence');
+
+  const renderDrawerPanelBody = (panel: DrawerHubPanelId): ReactNode => {
+    switch (panel) {
+      case 'chapter-1':
+        return (
+          <>
+            <section
+              id="dtr-core-analysis"
+              className={`${styles.savedReportShell} ${styles.coreAnalysisScrollAnchor}`}
+              aria-label="輪郭を見る"
+            >
+              <div className={styles.savedWideStack}>
+                <ReportPartBand partId="1" title="輪郭を見る" />
+                {s1 ? <IdentityArticleWithBlueprint section={s1} stemIdx={stemIdx} /> : null}
+                {s2 ? (
+                  <>
+                    <CompositionArticleWithViz section={s2} stemIdx={stemIdx} />
+                    <ReportBridgeBand partId="1" />
+                  </>
+                ) : null}
+              </div>
+            </section>
+            <SectionDivider label="保存版の深読み" premium />
+            <div className={styles.paidModules}>
+              <PaidModuleShell
+                n={1}
+                tierJa="力の中心を読む"
+                tierClass={styles.prTierMint}
+                overline="5つの力のかけ合わせ"
+                title="いまの形をつくっている力"
+                ariaLabel="5つの力の分布"
+                summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
+                defaultOpen={false}
+              >
+                <FiveAxisModule stemIdx={stemIdx} />
+              </PaidModuleShell>
+            </div>
+          </>
+        );
+      case 'chapter-2':
+        return (
+          <>
+            <section className={styles.savedReportShell} aria-label="構造を読む">
+              <div className={styles.savedWideStack}>
+                <ReportPartBand partId="2" title="構造を読む" />
+                {s3 ? <EssenceArticleWithViz section={s3} stemIdx={stemIdx} /> : null}
+              </div>
+              {gridS4 ? (
+                <div className={styles.savedWideStack}>
+                  <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
+                </div>
+              ) : null}
+              {s3 ? <ReportBridgeBand partId="2" /> : null}
+            </section>
+            <SectionDivider label="保存版の深読み" premium />
+            <div className={styles.paidModules}>
+              {sec('s4_strengths') && sec('s5_friction') ? (
+                <PaidModuleShell
+                  n={2}
+                  tierJa="重なりを見る"
+                  tierClass={styles.prTierAmber}
+                  overline="傾向と負荷"
+                  title="重なりと読み解き"
+                  ariaLabel="傾向と負荷"
+                  summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
+                  defaultOpen={false}
+                >
+                  <TraitInteractionModule
+                    strengthsSection={sec('s4_strengths')!}
+                    frictionSection={sec('s5_friction')!}
+                    stemIdx={stemIdx}
+                  />
+                </PaidModuleShell>
+              ) : null}
+            </div>
+          </>
+        );
+      case 'chapter-3':
+        return (
+          <>
+            <section className={styles.savedReportShell} aria-label="無理を知る">
+              {gridSections.length > 0 ? (
+                <div className={styles.savedGridThree}>
+                  {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
+                  {gridS5 ? <GridArticleFrictionViz key={gridS5.id} section={gridS5} /> : null}
+                  {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
+                </div>
+              ) : null}
+              {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
+            </section>
+            <SectionDivider label="保存版の深読み" premium />
+            <div className={styles.paidModules}>
+              {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
+                <PaidModuleShell
+                  n={3}
+                  tierJa="場面で見る"
+                  tierClass={styles.prTierBlue}
+                  overline="生活での出方"
+                  title="場面別の整理"
+                  ariaLabel="生活での出方"
+                  summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
+                  defaultOpen={false}
+                >
+                  <DomainMatrixModule
+                    essenceSection={sec('s3_essence')!}
+                    relationSection={sec('s6_relation')!}
+                    workSection={sec('s7_work')!}
+                    compositionSection={sec('s2_composition')}
+                  />
+                </PaidModuleShell>
+              ) : null}
+            </div>
+          </>
+        );
+      case 'chapter-4':
+        return (
+          <>
+            {sec('s7_work') && sec('s6_relation') ? (
+              <>
+                <ReportPartBand partId="4" title="楽に扱う" />
+                <WorkGuideCards workSection={sec('s7_work')!} />
+                <SectionDivider label="実践ガイド" premium />
+                <section className={styles.practicalShell} aria-label="実践ガイド">
+                  <PracticalGuidanceSection
+                    workSection={sec('s7_work')!}
+                    relationSection={sec('s6_relation')!}
+                    stemIdx={stemIdx}
+                  />
+                </section>
+                <ReportBridgeBand partId="4" />
+              </>
+            ) : null}
+            <SectionDivider label="保存版の深読み" premium />
+            <div className={styles.paidModules}>
+              {sec('s5_friction') && sec('s8_bridge') ? (
+                <PaidModuleShell
+                  n={4}
+                  tierJa="実践ガイド"
+                  tierClass={styles.prTierRose}
+                  overline="戻し方 · 整え方"
+                  title="つまずきから整える流れ"
+                  ariaLabel="戻し方と整え方"
+                  summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
+                  defaultOpen={false}
+                >
+                  <FrictionRecoveryModule
+                    frictionSection={sec('s5_friction')!}
+                    bridgeSection={sec('s8_bridge')!}
+                  />
+                </PaidModuleShell>
+              ) : null}
+            </div>
+          </>
+        );
+      case 'consult':
+        return (
+          <>
+            {sec('s8_bridge') ? (
+              <>
+                <SectionDivider label="まとめと相談返書について" />
+                <SummarySection bridgeSection={sec('s8_bridge')!} />
+              </>
+            ) : null}
+            <ContinuousSupport readerDisplayName={view.nickname} />
+            {aiConsultIncluded ? (
+              <div className={styles.consultLayer} id="consultation-room">
+                <div className={styles.consultGroundingBand}>
+                  <GroundingPanel
+                    reportTitle={groundingDisplayReportTitle(payload.title)}
+                    stemOneLine={stem.displayOneLine}
+                    readerDisplayName={view.nickname}
+                  />
+                </div>
+                <div className={styles.consultRoomBand}>
+                  <ConsultRoom birthDate={view.birthDate} nickname={view.nickname} stemIdx={stemIdx} />
+                </div>
+              </div>
+            ) : null}
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className={styles.reportRoot}>
@@ -2514,205 +2758,14 @@ export default function DtrFullReader({
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}
           nickname={view.nickname}
-          birthDate={purchasedSnapshot.profile.birthDate}
+          birthDate={view.birthDate}
+          openPanel={openPanel}
+          onSelectPanel={selectPanel}
+          renderPanelBody={renderDrawerPanelBody}
         />
 
-        <SavedSnapshotNotice />
-
-        <section
-          id="dtr-core-analysis"
-          className={`${styles.savedReportShell} ${styles.coreAnalysisScrollAnchor}`}
-          aria-label="本質の読み解き"
-        >
-          <div className={styles.savedWideStack}>
-            {preGridSections.map((section) => (
-              <Fragment key={section.id}>
-                {section.id === 's1_identity' && <ReportPartBand partId="1" title="輪郭を見る" />}
-                {section.id === 's3_essence' && <ReportPartBand partId="2" title="構造を読む" />}
-                {section.id === 's1_identity' ? (
-                  <IdentityArticleWithBlueprint section={section} stemIdx={stemIdx} />
-                ) : section.id === 's2_composition' ? (
-                  <>
-                    <CompositionArticleWithViz section={section} stemIdx={stemIdx} />
-                    <ReportBridgeBand partId="1" />
-                  </>
-                ) : section.id === 's3_essence' ? (
-                  <EssenceArticleWithViz section={section} stemIdx={stemIdx} />
-                ) : (
-                  <SectionBlock section={section} density="comfortable" />
-                )}
-              </Fragment>
-            ))}
-          </div>
-          {gridS4 ? (
-            <div className={styles.savedWideStack}>
-              <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
-            </div>
-          ) : null}
-          {sec('s3_essence') ? <ReportBridgeBand partId="2" /> : null}
-          {gridSections.length > 0 ? (
-            <div className={styles.savedGridThree}>
-              {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
-              {gridS5 ? <GridArticleFrictionViz key={gridS5.id} section={gridS5} /> : null}
-              {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
-            </div>
-          ) : null}
-        </section>
-
-        <SectionDivider label="保存版の深読み" premium />
-
-        {/* 4-node structural map — lets readers grasp module relations before diving in */}
-        <div className={styles.pmDeepMap} aria-hidden="true">
-          {(
-            [
-              { n: 1, label: '力の中心を読む', desc: 'どの力が前に出やすいか',     colorCls: styles.pmDeepMapMint  },
-              { n: 2, label: '重なりを見る', desc: '傾向の重なり', colorCls: styles.pmDeepMapAmber },
-              { n: 3, label: '場面で見る', desc: '場面の出方',   colorCls: styles.pmDeepMapBlue  },
-              { n: 4, label: '実践ガイド', desc: '整え方',     colorCls: styles.pmDeepMapRose  },
-            ] as const
-          ).map((m, i) => (
-            <Fragment key={m.n}>
-              <div className={`${styles.pmDeepMapNode} ${m.colorCls}`}>
-                <span className={styles.pmDeepMapN}>0{m.n}</span>
-                <span className={styles.pmDeepMapLabel}>{m.label}</span>
-                <span className={styles.pmDeepMapDesc}>{m.desc}</span>
-              </div>
-              {i < 3 && (
-                <span className={styles.pmDeepMapArrow}>→</span>
-              )}
-            </Fragment>
-          ))}
-        </div>
-
-        <div
-          className={
-            gridSections.length > 0 ? styles.premiumModulesAndBridgeIII : undefined
-          }
-        >
-          <div className={styles.paidModules}>
-            <PaidModuleShell
-              n={1}
-              tierJa="力の中心を読む"
-              tierClass={styles.prTierMint}
-              overline="5つの力のかけ合わせ"
-              title="いまの形をつくっている力"
-              ariaLabel="5つの力の分布"
-              summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
-              defaultOpen={false}
-            >
-              <FiveAxisModule stemIdx={stemIdx} />
-            </PaidModuleShell>
-
-            {sec('s4_strengths') && sec('s5_friction') && (
-            <PaidModuleShell
-              n={2}
-              tierJa="重なりを見る"
-              tierClass={styles.prTierAmber}
-              overline="傾向と負荷"
-              title="重なりと読み解き"
-              ariaLabel="傾向と負荷"
-              summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
-              defaultOpen={false}
-            >
-                <TraitInteractionModule
-                  strengthsSection={sec('s4_strengths')!}
-                  frictionSection={sec('s5_friction')!}
-                  stemIdx={stemIdx}
-                />
-              </PaidModuleShell>
-            )}
-
-            {sec('s3_essence') && sec('s6_relation') && sec('s7_work') && (
-            <PaidModuleShell
-              n={3}
-              tierJa="場面で見る"
-              tierClass={styles.prTierBlue}
-              overline="生活での出方"
-              title="場面別の整理"
-              ariaLabel="生活での出方"
-              summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
-              defaultOpen={false}
-            >
-                <DomainMatrixModule
-                  essenceSection={sec('s3_essence')!}
-                  relationSection={sec('s6_relation')!}
-                  workSection={sec('s7_work')!}
-                  compositionSection={sec('s2_composition')}
-                />
-              </PaidModuleShell>
-            )}
-
-            {sec('s5_friction') && sec('s8_bridge') && (
-              <PaidModuleShell
-                n={4}
-                tierJa="実践ガイド"
-                tierClass={styles.prTierRose}
-                overline="戻し方 · 整え方"
-                title="つまずきから整える流れ"
-                ariaLabel="戻し方と整え方"
-                summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
-                defaultOpen={false}
-              >
-                <FrictionRecoveryModule
-                  frictionSection={sec('s5_friction')!}
-                  bridgeSection={sec('s8_bridge')!}
-                />
-              </PaidModuleShell>
-            )}
-          </div>
-
-          {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
-        </div>
-
-        {sec('s7_work') && sec('s6_relation') && (
-          <>
-            <ReportPartBand partId="4" title="楽に扱う" />
-            <WorkGuideCards workSection={sec('s7_work')!} />
-            <SectionDivider label="実践ガイド" premium />
-            <section className={styles.practicalShell} aria-label="実践ガイド">
-              <PracticalGuidanceSection
-                workSection={sec('s7_work')!}
-                relationSection={sec('s6_relation')!}
-                stemIdx={stemIdx}
-              />
-            </section>
-            <ReportBridgeBand partId="4" />
-          </>
-        )}
-
-        {sec('s8_bridge') && (
-          <>
-            <SectionDivider label="まとめと相談返書について" />
-            <SummarySection bridgeSection={sec('s8_bridge')!} />
-          </>
-        )}
-
-        <ContinuousSupport readerDisplayName={view.nickname} />
-
-        {aiConsultIncluded && (
-          <div className={styles.consultLayer} id="consultation-room">
-            <div className={styles.consultGroundingBand}>
-              <GroundingPanel
-                reportTitle={groundingDisplayReportTitle(payload.title)}
-                stemOneLine={stem.displayOneLine}
-                readerDisplayName={view.nickname}
-              />
-            </div>
-            <div className={styles.consultRoomBand}>
-              <ConsultRoom birthDate={view.birthDate} nickname={view.nickname} stemIdx={stemIdx} />
-            </div>
-          </div>
-        )}
-
-        <footer className={styles.footer}>
-          <Link href="/my">マイページへ戻る</Link>
-          {' · '}
-          <Link href="/core">本質を確認する</Link>
-          {' · '}
-          <Link href="/support">サポート</Link>
-        </footer>
+        {openPanel !== null ? <SavedSnapshotNotice /> : null}
       </div>
-      <PremiumReadingGuideScrollFab />
     </div>
   );
 }
