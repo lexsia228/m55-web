@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { resolveConsultReplyPartByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
+import { resolveConsultReplyLensByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
 import ConsultReplyStructureMiniViz from './ConsultReplyStructureMiniViz';
+import ConsultReplyThemeLens from './ConsultReplyThemeLens';
 import styles from './ConsultRoom.module.css';
 
 type Props = {
@@ -49,7 +50,7 @@ export default function ConsultReplyCard({
   remainingCount,
   canPurchaseMoreCount,
 }: Props) {
-  const part = resolveConsultReplyPartByTheme(theme);
+  const lens = resolveConsultReplyLensByTheme(theme);
   const paragraphs = normalizeParagraphs(assistantContent);
   const sections = [
     { label: '今の場面の整理', body: paragraphs[0] ?? '' },
@@ -70,7 +71,7 @@ export default function ConsultReplyCard({
         </div>
         <p className={styles.replyCardLead}>保存版に紐づく相談</p>
         <h3 className={styles.replyCardTitle}>今回の相談返書</h3>
-        <p className={styles.replyMeta}>関連章 {part.roman} {part.name}</p>
+        <p className={styles.replyMeta}>関連章 {lens.roman} {lens.name}</p>
         {theme ? <p className={styles.replyMeta}>テーマ {theme}</p> : null}
         <p className={styles.replyUsage}>{usageContext}</p>
       </header>
@@ -82,7 +83,16 @@ export default function ConsultReplyCard({
         </section>
       ) : null}
 
-      <ConsultReplyStructureMiniViz stemIdx={stemIdx} />
+      {lens.showBaseRadar ? (
+        <ConsultReplyStructureMiniViz
+          stemIdx={stemIdx}
+          variant="fallback"
+          title={lens.baseRadarTitle}
+          caption={lens.baseRadarCaption}
+        />
+      ) : (
+        <ConsultReplyThemeLens lens={lens} />
+      )}
 
       <section className={styles.replyReadingBlock} aria-label="読み取りコメント">
         {sections.map((section) => (
@@ -110,7 +120,7 @@ export default function ConsultReplyCard({
       ) : null}
 
       <footer className={styles.replyFooter}>
-        <Link href={`#${part.anchor}`} className={styles.replyPrimaryLink}>
+        <Link href={`#${lens.anchor}`} className={styles.replyPrimaryLink}>
           保存版を読み返す
         </Link>
         <p className={styles.replySecondaryAction}>追加返書を使う</p>

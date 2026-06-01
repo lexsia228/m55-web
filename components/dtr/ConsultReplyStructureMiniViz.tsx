@@ -12,12 +12,6 @@ const LABELS: Record<(typeof AXES)[number], string> = {
   安定: '整える',
 };
 
-const READ_COLOR = {
-  front: 'rgba(203, 193, 255, 0.95)',
-  bridge: 'rgba(179, 169, 230, 0.78)',
-  quiet: 'rgba(157, 149, 206, 0.7)',
-} as const;
-
 function roleToRadius(role: 'core' | 'strong' | 'bridge' | 'quiet'): number {
   const weight = role === 'core' ? 1 : role === 'strong' ? 0.72 : role === 'bridge' ? 0.45 : 0.2;
   return 12 + weight * (39 - 12);
@@ -28,30 +22,25 @@ function pointFor(i: number, n: number, radius: number): [number, number] {
   return [50 + radius * Math.cos(a), 50 + radius * Math.sin(a)];
 }
 
-export default function ConsultReplyStructureMiniViz({ stemIdx }: { stemIdx: number }) {
+type Props = {
+  stemIdx: number;
+  variant?: 'fallback';
+  title?: string;
+  caption?: string;
+};
+
+export default function ConsultReplyStructureMiniViz({
+  stemIdx,
+  variant,
+  title,
+  caption,
+}: Props) {
+  const isFallback = variant === 'fallback';
   const viz = compositionStructureVizForStem(stemIdx);
   const dataPoly = AXES.map((axis, i) => {
     const [x, y] = pointFor(i, AXES.length, roleToRadius(viz.axisRoles[axis]));
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(' ');
-
-  const readRows = [
-    {
-      label: '強く出やすい',
-      color: READ_COLOR.front,
-      axes: AXES.filter((axis) => viz.axisRoles[axis] === 'core' || viz.axisRoles[axis] === 'strong'),
-    },
-    {
-      label: '支えになる',
-      color: READ_COLOR.bridge,
-      axes: AXES.filter((axis) => viz.axisRoles[axis] === 'bridge'),
-    },
-    {
-      label: '整えると開く',
-      color: READ_COLOR.quiet,
-      axes: AXES.filter((axis) => viz.axisRoles[axis] === 'quiet'),
-    },
-  ].filter((row) => row.axes.length > 0);
 
   const gridLevels = [0.6, 1].map((f) =>
     AXES.map((_, i) => {
@@ -60,9 +49,21 @@ export default function ConsultReplyStructureMiniViz({ stemIdx }: { stemIdx: num
     }).join(' ')
   );
 
+  const panelClass = isFallback
+    ? `${styles.replyGraphPanel} ${styles.replyGraphPanelFallback}`
+    : styles.replyGraphPanel;
+  const shellClass = isFallback
+    ? `${styles.replyGraphShell} ${styles.replyGraphShellFallback}`
+    : styles.replyGraphShell;
+
   return (
-    <section className={styles.replyGraphPanel} aria-label="傾向のバランス">
-      <div className={styles.replyGraphShell}>
+    <section
+      className={panelClass}
+      aria-label={title ?? '傾向のバランス'}
+    >
+      {isFallback && title ? <p className={styles.replyBaseRadarTitle}>{title}</p> : null}
+      {isFallback && caption ? <p className={styles.replyBaseRadarCaption}>{caption}</p> : null}
+      <div className={shellClass}>
         <svg className={styles.replyGraphSvg} viewBox="0 0 100 100" aria-hidden focusable="false">
           {gridLevels.map((pts, idx) => (
             <polygon
@@ -93,17 +94,6 @@ export default function ConsultReplyStructureMiniViz({ stemIdx }: { stemIdx: num
       <p className={styles.replyGraphNote}>
         傾向のバランスを示すものであり、良い悪いの点数ではありません。
       </p>
-      <div className={styles.replyPoints}>
-        <p className={styles.replyPointsTitle}>今回見るポイント</p>
-        {readRows.map((row) => (
-          <p key={row.label} className={styles.replyPointsLine}>
-            <span className={styles.replyPointsLabel} style={{ color: row.color }}>
-              {row.label}
-            </span>
-            <span>{row.axes.map((axis) => LABELS[axis]).join('・')}</span>
-          </p>
-        ))}
-      </div>
     </section>
   );
 }

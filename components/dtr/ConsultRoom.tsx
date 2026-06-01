@@ -32,6 +32,36 @@ const INPUT_WARN = 450;
 const INPUT_MAX = 500;
 const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
 
+/** Room-only display copy (Product Truth constants unchanged). */
+const ROOM_UI_COPY = {
+  roomLeadShort:
+    '保存版に紐づいて、今の1テーマを章に沿って整理します。汎用チャットではなく、無制限の相談でもありません。',
+  valueCardTitle: 'この1件で返ってくるもの',
+  valueItems: [
+    '今の場面の整理',
+    '保存版から見る見方',
+    '別視点（少しほどく見方）',
+    '今日の一手',
+  ] as const,
+  valueCardNote:
+    '保存版の章に沿った整理です。結果や未来の保証ではありません。',
+  composePanelTitle: '新しく相談する',
+  historyTitle: 'これまでの相談返書',
+  step1Title: 'Step 1 用途を選ぶ',
+  step1Badge: '必須',
+  step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
+  step2Title: 'Step 2 補助質問を選ぶ',
+  step2Badge: '任意',
+  step2Hint:
+    '最大3つまで。選ばなくても送信できます。選ぶほど、返書の焦点が絞られます。',
+  step3Title: 'Step 3 相談を書く',
+  step3Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
+  step4Title: 'Step 4 相談返書を作成する',
+  step4Consume: 'この送信で相談返書を1件使用します。',
+  purchaseValue:
+    '500円で、保存版の章に沿って今の1テーマを整理し、別視点と今日の一手まで返します。',
+} as const;
+
 /** 用途ラベル（1テーマ）— copy master themeExamplesJa */
 const THEMES = PAID_DTR_CONSULT_REPLY.themeExamplesJa;
 
@@ -472,99 +502,216 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
     ? Math.max(0, PAID_DTR_CONSULT_REPLY.additionalMaxPurchased - wallet.purchased_count)
     : 0;
 
-  const usageLine = walletLoading ? '残数確認中' : `残り ${wallet!.available_count}件`;
-
-  const usageDetailsBlock =
-    !walletLoading && wallet ? (
-      <span className={styles.usageDetailsStack}>
-        <span className={styles.usageDetail}>
-          {PAID_DTR_CONSULT_ROOM_UI.usageUsedCountLabelJa} {usedCount} / {DISPLAY_CAP_PER_REPORT}件
-        </span>
-        <span className={styles.usageDetail}>
-          {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
-          {additionalPurchasableCount}件
-        </span>
-      </span>
-    ) : null;
-
   const actionLocked = sending || checkoutBusy || walletLoading;
   const submitDisabled =
     actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
+  const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
 
-  return (
-    <section className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
-      <header className={styles.roomHeaderBar}>
-        <div className={styles.roomHeaderMain}>
-          <h2 className={styles.roomTitle}>{PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}</h2>
-          <p className={styles.roomLead}>{PAID_DTR_CONSULT_ROOM_UI.roomLeadJa}</p>
-        </div>
-        <div className={styles.roomHeaderMeta}>
-          <span className={styles.usageLabel}>{PAID_DTR_CONSULT_ROOM_UI.usageLabelJa}</span>
-          <p className={styles.usageValue} aria-live="polite">
-            <span className={styles.usageRemaining}>{usageLine}</span>
-            {usageDetailsBlock}
-          </p>
-        </div>
-      </header>
+  const usageStatusCard = walletLoading ? (
+    <div className={styles.usageStatusCard} role="status" aria-live="polite">
+      <p className={styles.usageLoadingText}>{PAID_DTR_CONSULT_ROOM_UI.walletLoadingJa}</p>
+    </div>
+  ) : wallet ? (
+    <div className={styles.usageStatusCard} aria-live="polite">
+      <p className={styles.usageStatusLabel}>{PAID_DTR_CONSULT_ROOM_UI.usageLabelJa}</p>
+      <p className={styles.usageHero}>
+        残り <span className={styles.usageHeroNum}>{wallet.available_count}</span> 件
+      </p>
+      <p className={styles.usageStat}>
+        {PAID_DTR_CONSULT_ROOM_UI.usageUsedCountLabelJa}{' '}
+        <span className={styles.usageStatNum}>
+          {usedCount} / {DISPLAY_CAP_PER_REPORT}件
+        </span>
+      </p>
+      <p className={styles.usageStat}>
+        {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
+        <span className={styles.usageStatNum}>{additionalPurchasableCount}件</span>
+      </p>
+    </div>
+  ) : null;
 
-      {walletLoading ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.walletLoadingJa}</p>
+  const valueDeliverablesCard = !walletLoading ? (
+    <div className={styles.valueDeliverablesCard}>
+      <h3 className={styles.valueDeliverablesTitle}>{ROOM_UI_COPY.valueCardTitle}</h3>
+      <ol className={styles.valueDeliverablesList}>
+        {ROOM_UI_COPY.valueItems.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ol>
+      <p className={styles.valueDeliverablesNote}>{ROOM_UI_COPY.valueCardNote}</p>
+    </div>
+  ) : null;
+
+  const statusNotice =
+    walletLoading ? null : walletReachedLimit ? (
+      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+        <p className={styles.readOnlyText}>
+          {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa} 0件
+        </p>
+        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedAdditionalJa}</p>
+        <p className={styles.addOnNote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
+      </div>
+    ) : walletCanPurchase ? (
+      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+        <p className={styles.purchaseValueNote}>{ROOM_UI_COPY.purchaseValue}</p>
+        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}</p>
+        <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.walletPurchaseRetryNoteJa}</p>
+        {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
+        <button
+          type="button"
+          className={checkoutBusy ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+          onClick={handlePurchase}
+          disabled={checkoutBusy || actionLocked || !reportInstanceId}
+        >
+          {checkoutBusy ? '処理中…' : PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}
+        </button>
+      </div>
+    ) : !reportInstanceId ? (
+      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.cannotPurchaseReportInfoJa}</p>
+      </div>
+    ) : isReadOnly ? (
+      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedReadOnlyJa}</p>
+        {wallet!.status !== 'active' && (
+          <p className={styles.addOnNote}>
+            {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomPrefixJa}
+            {DISPLAY_CAP_PER_REPORT}
+            {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomSuffixJa}
+          </p>
+        )}
+      </div>
+    ) : wallet!.available_count > 0 ? (
+      <p className={styles.roomContextNote}>{PAID_DTR_CONSULT_ROOM_UI.savedReportLinkNoteJa}</p>
+    ) : null;
+
+  const composeBlock = !isReadOnly ? (
+    <div className={styles.composePanel}>
+      <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
+      <p className={styles.composeGroundingHint}>{PAID_DTR_CONSULT_REPLY.groundedInReportJa}</p>
+
+      <section className={styles.composeStep} aria-labelledby="consult-step-1">
+        <div className={styles.composeStepHead}>
+          <h4 id="consult-step-1" className={styles.composeStepTitle}>
+            {ROOM_UI_COPY.step1Title}
+          </h4>
+          <span className={styles.composeStepBadgeRequired}>{ROOM_UI_COPY.step1Badge}</span>
         </div>
-      ) : wallet!.available_count > 0 ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>
-            相談返書 残り {wallet!.available_count}件 / 合計{DISPLAY_CAP_PER_REPORT}件まで
-          </p>
-          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.savedReportLinkNoteJa}</p>
+        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
+        <div className={styles.themeRow}>
+          {THEMES.map((t) => (
+            <ThemeChip
+              key={t}
+              theme={t}
+              selected={selectedTheme === t}
+              onSelect={() => setSelectedTheme(t)}
+            />
+          ))}
         </div>
-      ) : walletReachedLimit ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>
-            {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa} 0件
-          </p>
-          <p className={styles.readOnlyText}>
-            {PAID_DTR_CONSULT_ROOM_UI.limitReachedAdditionalJa}
-          </p>
-          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
+      </section>
+
+      <section className={styles.composeStep} aria-labelledby="consult-step-2">
+        <div className={styles.composeStepHead}>
+          <h4 id="consult-step-2" className={styles.composeStepTitle}>
+            {ROOM_UI_COPY.step2Title}
+          </h4>
+          <span className={styles.composeStepBadgeOptional}>{ROOM_UI_COPY.step2Badge}</span>
         </div>
-      ) : walletCanPurchase ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.purchaseUsageHint}>
-            {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
-            {additionalPurchasableCount}件
-          </p>
-          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}</p>
-          <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.walletPurchaseRetryNoteJa}</p>
-          {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
-          <button
-            type="button"
-            className={checkoutBusy ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
-            onClick={handlePurchase}
-            disabled={checkoutBusy || actionLocked || !reportInstanceId}
+        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
+        <div className={styles.questionList}>
+          {SUPPLEMENTARY_QUESTIONS.map((q) => (
+            <SupplementaryToggle
+              key={q.id}
+              label={q.label}
+              selected={selectedQuestionIds.has(q.id)}
+              onToggle={() => toggleQuestion(q.id)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.composeStep} aria-labelledby="consult-step-3">
+        <div className={styles.composeStepHead}>
+          <h4 id="consult-step-3" className={styles.composeStepTitle}>
+            {ROOM_UI_COPY.step3Title}
+          </h4>
+        </div>
+        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step3Hint}</p>
+        <label htmlFor="consult-input" className={styles.srOnly}>
+          {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
+          {INPUT_MIN}〜{INPUT_MAX}文字）
+        </label>
+        <textarea
+          id="consult-input"
+          className={styles.textarea}
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder={PAID_DTR_CONSULT_ROOM_UI.inputPlaceholderJa}
+          rows={5}
+          maxLength={INPUT_MAX + 80}
+          disabled={actionLocked}
+          aria-describedby="char-counter"
+        />
+        <div className={styles.counterRow}>
+          <span
+            id="char-counter"
+            className={isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter}
+            aria-live="polite"
           >
-            {checkoutBusy ? '処理中…' : PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}
-          </button>
+            送信内容全体 {composedLen} / {INPUT_MAX}
+            {selectedTheme == null && ' — テーマを選択してください'}
+            {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
+            {isOverMax && ' — 上限を超えています。短くしてください'}
+          </span>
         </div>
-      ) : !reportInstanceId ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>
-            {PAID_DTR_CONSULT_ROOM_UI.cannotPurchaseReportInfoJa}
-          </p>
-        </div>
-      ) : isReadOnly ? (
-        <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-          <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedReadOnlyJa}</p>
-          {wallet!.status !== 'active' && (
-            <p className={styles.addOnNote}>
-              {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomPrefixJa}
-              {DISPLAY_CAP_PER_REPORT}
-              {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomSuffixJa}
-            </p>
-          )}
-        </div>
-      ) : null}
+      </section>
 
+      <section className={styles.composeStepSubmit} aria-labelledby="consult-step-4">
+        <h4 id="consult-step-4" className={styles.composeStepTitle}>
+          {ROOM_UI_COPY.step4Title}
+        </h4>
+        <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step4Consume}</p>
+        <button
+          type="button"
+          className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+          onClick={handleSend}
+          disabled={submitDisabled}
+          aria-busy={sending}
+        >
+          {sending ? (
+            <span className={styles.submitBtnInner}>
+              <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
+                <circle
+                  className={styles.submitSpinnerTrack}
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className={styles.submitSpinnerArc}
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
+            </span>
+          ) : (
+            PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
+          )}
+        </button>
+        <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
+      </section>
+    </div>
+  ) : null;
+
+  const messagesBlock = (
+    <div className={styles.historySection}>
+      {messages.length > 0 ? (
+        <h3 className={styles.historyTitle}>{ROOM_UI_COPY.historyTitle}</h3>
+      ) : null}
       <div className={styles.messages} role="log" aria-label="相談返書のやりとり" aria-live="polite">
         {messages.length === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
@@ -605,131 +752,34 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
             />
           );
         })}
-        {sending && <p className={styles.msgPending} aria-live="polite">{PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}</p>}
+        {sending && (
+          <p className={styles.msgPending} aria-live="polite">
+            {PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}
+          </p>
+        )}
         <div ref={messagesEndRef} aria-hidden="true" />
       </div>
+    </div>
+  );
 
-      {sendError && <p className={styles.sendError} role="alert">{sendError}</p>}
+  return (
+    <section className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
+      <header className={styles.roomHeaderBar}>
+        <h2 className={styles.roomTitle}>{PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}</h2>
+        <p className={styles.roomLead}>{ROOM_UI_COPY.roomLeadShort}</p>
+      </header>
 
-      {!isReadOnly && (
-        <div className={styles.composeColumn}>
-          <p className={styles.composeGroundingHint}>
-            {PAID_DTR_CONSULT_REPLY.groundedInReportJa}
-          </p>
-          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.oneThemeJa}</p>
-          <p className={styles.composeHint}>
-            {PAID_DTR_CONSULT_REPLY.shortInputOkJa} {PAID_DTR_CONSULT_REPLY.longInputNarrowJa}
-          </p>
-          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.strongEmotionJa}</p>
-          <p className={styles.composeHint}>{PAID_DTR_CONSULT_REPLY.conflictPerspectiveJa}</p>
-          <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.expressionHintJa}</p>
-          <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.observationInputJa}</p>
-          <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>
-              {PAID_DTR_CONSULT_ROOM_UI.composeThemeSectionLabelJa}
-            </h3>
-            <p className={styles.composeHint}>{PAID_DTR_CONSULT_ROOM_UI.composeThemeHintJa}</p>
-            <div className={styles.themeRow}>
-              {THEMES.map((t) => (
-                <ThemeChip
-                  key={t}
-                  theme={t}
-                  selected={selectedTheme === t}
-                  onSelect={() => setSelectedTheme(t)}
-                />
-              ))}
-            </div>
-          </section>
+      <div className={styles.roomIntroStack}>
+        {usageStatusCard}
+        {valueDeliverablesCard}
+      </div>
 
-          <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>
-              {PAID_DTR_CONSULT_ROOM_UI.composeSupplementaryLabelJa}
-            </h3>
-            <p className={styles.composeHint}>
-              {PAID_DTR_CONSULT_ROOM_UI.composeSupplementaryHintJa}
-            </p>
-            <div className={styles.questionList}>
-              {SUPPLEMENTARY_QUESTIONS.map((q) => (
-                <SupplementaryToggle
-                  key={q.id}
-                  label={q.label}
-                  selected={selectedQuestionIds.has(q.id)}
-                  onToggle={() => toggleQuestion(q.id)}
-                />
-              ))}
-            </div>
-          </section>
+      {statusNotice}
 
-          <section className={styles.composeSection}>
-            <h3 className={styles.composeSectionLabel}>
-              {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputLabelJa}
-            </h3>
-            <label htmlFor="consult-input" className={styles.srOnly}>
-              {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
-              {INPUT_MIN}〜{INPUT_MAX}文字）
-            </label>
-            <textarea
-              id="consult-input"
-              className={styles.textarea}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={PAID_DTR_CONSULT_ROOM_UI.inputPlaceholderJa}
-              rows={6}
-              maxLength={INPUT_MAX + 80}
-              disabled={actionLocked}
-              aria-describedby="char-counter"
-            />
-            <div className={styles.counterRow}>
-              <span
-                id="char-counter"
-                className={
-                  isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter
-                }
-                aria-live="polite"
-              >
-                送信内容全体 {composedLen} / {INPUT_MAX}
-                {selectedTheme == null && ' — テーマを選択してください'}
-                {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
-                {isOverMax && ' — 上限を超えています。短くしてください'}
-              </span>
-            </div>
-          </section>
-
-          <button
-            type="button"
-            className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
-            onClick={handleSend}
-            disabled={submitDisabled}
-            aria-busy={sending}
-          >
-            {sending ? (
-              <span className={styles.submitBtnInner}>
-                <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
-                  <circle
-                    className={styles.submitSpinnerTrack}
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                  />
-                  <path
-                    className={styles.submitSpinnerArc}
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
-              </span>
-            ) : (
-              PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
-            )}
-          </button>
-
-          <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
-        </div>
-      )}
+      {showComposeFirst ? composeBlock : null}
+      {sendError ? <p className={styles.sendError} role="alert">{sendError}</p> : null}
+      {messagesBlock}
+      {!showComposeFirst ? composeBlock : null}
     </section>
   );
 }
