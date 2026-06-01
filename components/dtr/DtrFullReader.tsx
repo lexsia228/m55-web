@@ -322,15 +322,11 @@ function PremiumIntroValueBand() {
   );
 }
 
-function PremiumIntroConsultNote({ onOpen }: { onOpen: () => void }) {
+function PremiumIntroConsultNote() {
   return (
-    <div className={styles.premiumIntroConsultNote}>
-      <button type="button" className={styles.premiumIntroConsultLink} onClick={onOpen}>
-        <span>{PAID_DTR_INTRO_CONSULT_NOTE.line1Ja}</span>
-        <br />
-        <span>{PAID_DTR_INTRO_CONSULT_NOTE.line2Ja}</span>
-      </button>
-    </div>
+    <aside className={styles.premiumIntroConsultNote} role="note" aria-label="相談返書について">
+      <p className={styles.premiumIntroConsultText}>{PAID_DTR_INTRO_CONSULT_NOTE.lineJa}</p>
+    </aside>
   );
 }
 
@@ -434,7 +430,6 @@ function PremiumHero({
   birthDate,
   openPanel,
   onSelectPanel,
-  onOpenConsult,
   renderPanelBody,
 }: {
   stem: TenStemDisplay;
@@ -445,7 +440,6 @@ function PremiumHero({
   birthDate: string;
   openPanel: DrawerHubOpenPanel;
   onSelectPanel: (panel: DrawerHubOpenPanel) => void;
-  onOpenConsult: () => void;
   renderPanelBody: (panel: DrawerHubPanelId) => ReactNode;
 }) {
   const typeImage = DTR_TYPE_IMAGE[stemIdx] ?? '/ten-views/analyst.webp';
@@ -513,7 +507,7 @@ function PremiumHero({
         renderPanelBody={renderPanelBody}
       />
 
-      {aiConsultIncluded ? <PremiumIntroConsultNote onOpen={onOpenConsult} /> : null}
+      {aiConsultIncluded ? <PremiumIntroConsultNote /> : null}
 
       <div className={styles.heroMetaStrip} aria-label="レポート情報">
         <div className={styles.heroMetaItem}>
@@ -2560,7 +2554,6 @@ export default function DtrFullReader({
           birthDate={view.birthDate}
           openPanel={openPanel}
           onSelectPanel={selectPanel}
-          onOpenConsult={() => selectPanel('consult')}
           renderPanelBody={renderDrawerPanelBody}
         />
 

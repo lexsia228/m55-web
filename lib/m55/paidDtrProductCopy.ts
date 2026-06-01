@@ -195,10 +195,9 @@ export const PAID_DTR_INTRO_PANEL_01 = {
     'このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。',
 } as const;
 
-/** /dtr/core reader hero — consult inclusion note (pre-W1 two lines). */
+/** /dtr/core reader hero — consult inclusion note (informational only; action via drawer hub). */
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
-  line1Ja: 'このレポートには、相談返書\u00a01件が付いています。',
-  line2Ja: '本質の読み解きをもとに、今の相談を整理する。',
+  lineJa: 'このレポートには、相談返書\u00a01件が付いています。',
 } as const;
 
 export const PAID_DTR_LIFE_USE_CASES = [

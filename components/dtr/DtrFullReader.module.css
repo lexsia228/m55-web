@@ -2144,27 +2144,11 @@
   border: 1px solid rgba(160, 140, 220, 0.18);
 }
 
-.premiumIntroConsultLink {
-  display: block;
-  width: 100%;
+.premiumIntroConsultText {
   margin: 0;
-  padding: 0;
-  text-align: left;
-  text-decoration: none;
   color: rgba(200, 188, 230, 0.85);
   font-size: 0.84rem;
   line-height: 1.68;
-  border: none;
-  border-radius: 5px;
-  background: none;
-  font: inherit;
-  cursor: pointer;
-  transition: color 0.15s;
-  outline-offset: 3px;
-}
-
-.premiumIntroConsultLink:hover {
-  color: rgba(225, 215, 255, 0.96);
 }
 
 /* ── 既存 TOC（内部参照のみ、新ブロックに引き継ぎ済み） ── */
