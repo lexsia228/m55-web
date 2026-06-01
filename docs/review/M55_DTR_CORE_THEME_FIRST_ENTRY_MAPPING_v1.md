@@ -1,10 +1,10 @@
 # M55 DTR Core — Theme-First Hub Entry Mapping v1
 
-**Gate:** `CATEGORY-1-M55-DTR-CORE-THEME-FIRST-ENTRY-W0-DOCS`  
-**Status:** Planning SSOT (display/routing design only — no runtime implementation in this gate)  
-**Date:** 2026-06-01  
-**Production baseline (Hub / reader):** `d544677` (PRE-W1 regression HOTFIX closed)
-**Runtime SSOT (Hub labels):** `PAID_DTR_DRAWER_CHAPTER_ENTRIES` in `paidDtrProductCopy.ts`（W-A1 v1.2 以降）
+**Gate:** `CATEGORY-1-M55-DTR-CORE-THEME-FIRST-ENTRY` — **W-A1 CLOSED**
+**Status:** W-A1 implemented & Production-verified（Hub 4章統合 + 相談返書）
+**Date:** 2026-06-01
+**Production baseline (Hub / reader):** `26dfe62` — W-A1 four-chapter integrated drawer hub（PRE-W1 HOTFIX `d544677` 上に積み上げ）
+**Runtime SSOT (Hub labels):** `PAID_DTR_DRAWER_CHAPTER_ENTRIES` in `paidDtrProductCopy.ts`（W-A1 v1.2）
 
 ---
 
@@ -343,7 +343,7 @@ v1.2 では **章 pill（Ⅰ〜Ⅳ）+ 関心ラベル + 1行 sublabel**。ロ�
 
 ## 20. Human review checklist
 
-**確認 URL（local）:** `http://localhost:3000/dev/dtr-drawer-preview?withConsult=1`  
+**確認 URL（local）:** `http://localhost:3000/dev/dtr-drawer-preview?withConsult=1`
 **確認 URL（production）:** `https://m55-webv2.vercel.app/dtr/core`（購入済みアカウント）
 
 | # | 項目 | PASS 条件 |
@@ -382,3 +382,19 @@ v1.2 では **章 pill（Ⅰ〜Ⅳ）+ 関心ラベル + 1行 sublabel**。ロ�
 | v1 | 2026-06-01 | 初版 — THEME-FIRST-ENTRY W0-DOCS |
 | v1.1 | 2026-06-01 | W0-DOCS-HARDENING — テーマ別リスクガード（恋人・仕事・お金・これから）、W0 範囲明確化、W-A1 候補化 |
 | v1.2 | 2026-06-01 | W-A1 FOUR-CHAPTER-INTEGRATION — Hub を5テーマ直列から4章統合へ。`PAID_DTR_DRAWER_CHAPTER_ENTRIES`。Consult Step 1 は5テーマ維持 |
+| v1.3 | 2026-06-01 | **W-A1 CLOSE** — `26dfe62` Production。Human local + Production smoke 1–16 PASS。push/deploy verify 済。Preview Harness 非混入 |
+
+---
+
+## 21. W-A1 ゲートクローズ記録
+
+| ゲート | SHA / 結果 |
+|--------|------------|
+| LOCAL + Human visual | `26dfe62`（4章統合 + consult、`activeEntryId`） |
+| COMMIT-LOCAL | `26dfe62` |
+| PUSH-AND-DEPLOY-VERIFY | `origin/main` = `26dfe62`；diagnostics `vercel_env=production` |
+| PRODUCTION-SMOKE | Human 1–16 PASS（`https://m55-webv2.vercel.app/dtr/core`） |
+
+**役割分離（確定）:** Hub = `PAID_DTR_DRAWER_CHAPTER_ENTRIES`（4行 + 返書）／ Consult Step 1 = 5テーマ（`PAID_DTR_DRAWER_THEME_ENTRIES` + `themeExamplesJa`）。
+
+**次 Wave:** W-A2（drawer 内関連章リンク）— 本資料 §18 参照。W-A3 consult preselect は任意 defer。
