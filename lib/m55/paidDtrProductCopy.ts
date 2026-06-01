@@ -135,6 +135,133 @@ export const PAID_DTR_DRAWER_HUB = {
   consultSublabelJa: '保存版に紐づく相談',
 } as const;
 
+/** PremiumDrawerHub theme-first entry rows — labels align with PAID_DTR_CONSULT_REPLY.themeExamplesJa. */
+export type PaidDtrDrawerThemeEntryId =
+  | 'theme-relationship'
+  | 'theme-work'
+  | 'theme-money'
+  | 'theme-forward'
+  | 'theme-rest';
+
+export type PaidDtrDrawerThemePrimaryPanel =
+  | 'chapter-1'
+  | 'chapter-2'
+  | 'chapter-3'
+  | 'chapter-4';
+
+export type PaidDtrDrawerThemeEntry = {
+  id: PaidDtrDrawerThemeEntryId;
+  labelJa: string;
+  sublabelJa: string;
+  primaryPanel: PaidDtrDrawerThemePrimaryPanel;
+  primaryChapterJa: string;
+  relatedChaptersJa: readonly string[];
+  pillLabelJa: string;
+};
+
+/**
+ * Five consult themes — ConsultRoom Step 1 + consultReplyThemePartMap.
+ * Not used for PremiumDrawerHub row labels after W-A1 v1.2 (see PAID_DTR_DRAWER_CHAPTER_ENTRIES).
+ */
+export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] = [
+  {
+    id: 'theme-relationship',
+    labelJa: '恋人・近い人との向き合い方',
+    sublabelJa: '距離感・言葉選び・無理の出方を見る',
+    primaryPanel: 'chapter-3',
+    primaryChapterJa: 'Ⅲ 無理を知る',
+    relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅱ 構造を読む'],
+    pillLabelJa: '読',
+  },
+  {
+    id: 'theme-work',
+    labelJa: '仕事・スキルの伸ばし方',
+    sublabelJa: '力が出やすい条件と、詰まりやすい流れを見る',
+    primaryPanel: 'chapter-2',
+    primaryChapterJa: 'Ⅱ 構造を読む',
+    relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅲ 無理を知る'],
+    pillLabelJa: '読',
+  },
+  {
+    id: 'theme-money',
+    labelJa: 'お金・生活の整え方',
+    sublabelJa: '生活の余白と、日々の判断の整え方を見る',
+    primaryPanel: 'chapter-4',
+    primaryChapterJa: 'Ⅳ 楽に扱う',
+    relatedChaptersJa: ['Ⅲ 無理を知る'],
+    pillLabelJa: '読',
+  },
+  {
+    id: 'theme-forward',
+    labelJa: 'これからの動き方',
+    sublabelJa: '今の優先と、負荷の少ない進め方を見る',
+    primaryPanel: 'chapter-2',
+    primaryChapterJa: 'Ⅱ 構造を読む',
+    relatedChaptersJa: ['Ⅳ 楽に扱う', 'Ⅰ 輪郭を見る'],
+    pillLabelJa: '読',
+  },
+  {
+    id: 'theme-rest',
+    labelJa: '疲れたときの戻り方',
+    sublabelJa: '無理のサインと、戻り方を見る',
+    primaryPanel: 'chapter-4',
+    primaryChapterJa: 'Ⅳ 楽に扱う',
+    relatedChaptersJa: ['Ⅲ 無理を知る'],
+    pillLabelJa: '読',
+  },
+] as const;
+
+/** PremiumDrawerHub — 4-chapter integrated surface (user-interest labels; Ⅰ〜Ⅳ skeleton preserved). */
+export type PaidDtrDrawerChapterEntryId =
+  | 'chapter-entry-1'
+  | 'chapter-entry-2'
+  | 'chapter-entry-3'
+  | 'chapter-entry-4';
+
+export type PaidDtrDrawerChapterEntry = {
+  id: PaidDtrDrawerChapterEntryId;
+  pillLabelJa: string;
+  labelJa: string;
+  sublabelJa: string;
+  panel: PaidDtrDrawerThemePrimaryPanel;
+  primaryChapterJa: string;
+};
+
+export const PAID_DTR_DRAWER_CHAPTER_ENTRIES: readonly PaidDtrDrawerChapterEntry[] = [
+  {
+    id: 'chapter-entry-1',
+    pillLabelJa: 'Ⅰ',
+    labelJa: '自分の形を知る',
+    sublabelJa: '今の悩みを読み直す土台',
+    panel: 'chapter-1',
+    primaryChapterJa: 'Ⅰ 輪郭を見る',
+  },
+  {
+    id: 'chapter-entry-2',
+    pillLabelJa: 'Ⅱ',
+    labelJa: '仕事・これからの進め方',
+    sublabelJa: '力が出る条件と、優先順位を見る',
+    panel: 'chapter-2',
+    primaryChapterJa: 'Ⅱ 構造を読む',
+  },
+  {
+    id: 'chapter-entry-3',
+    pillLabelJa: 'Ⅲ',
+    labelJa: '恋人・近い人との向き合い方',
+    sublabelJa: '距離感・言葉選び・無理の出方を見る',
+    panel: 'chapter-3',
+    primaryChapterJa: 'Ⅲ 無理を知る',
+  },
+  {
+    id: 'chapter-entry-4',
+    pillLabelJa: 'Ⅳ',
+    labelJa: 'お金・生活・疲れの整え方',
+    sublabelJa: '生活の余白と、戻り方を見る',
+    panel: 'chapter-4',
+    primaryChapterJa: 'Ⅳ 楽に扱う',
+  },
+] as const;
+
 const PAID_DTR_CHAPTER_ANCHOR_BY_ID: Record<PaidDtrChapterId, string> = {
   outline: 'section-overview',
   structure: 'section-structure',

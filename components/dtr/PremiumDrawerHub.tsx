@@ -1,7 +1,10 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { PAID_DTR_CHAPTERS, PAID_DTR_DRAWER_HUB } from '../../lib/m55/paidDtrProductCopy';
+import { useState, type ReactNode } from 'react';
+import {
+  PAID_DTR_DRAWER_CHAPTER_ENTRIES,
+  PAID_DTR_DRAWER_HUB,
+} from '../../lib/m55/paidDtrProductCopy';
 import hubStyles from './PremiumDrawerHub.module.css';
 
 /** 本番 drawer パネル id（full は UI 非掲出） */
@@ -9,45 +12,44 @@ export type DrawerHubPanelId = 'chapter-1' | 'chapter-2' | 'chapter-3' | 'chapte
 
 export type DrawerHubOpenPanel = DrawerHubPanelId | null;
 
-type DrawerHubItem = {
+type DrawerHubEntryRow = {
+  entryId: string;
   panel: DrawerHubPanelId;
   label: string;
   sublabel: string;
+  pill: string;
 };
 
-const DRAWER_HUB_CHAPTERS: DrawerHubItem[] = PAID_DTR_DRAWER_HUB.chapterRowLabelsJa.map(
-  (label, index) => {
-    const ch = PAID_DTR_CHAPTERS[index]!;
-    const panel = `chapter-${index + 1}` as DrawerHubPanelId;
-    return {
-      panel,
-      label,
-      sublabel: `${ch.roman} ${ch.title}`,
-    };
-  },
+const DRAWER_HUB_CHAPTER_ROWS: DrawerHubEntryRow[] = PAID_DTR_DRAWER_CHAPTER_ENTRIES.map(
+  (entry) => ({
+    entryId: entry.id,
+    panel: entry.panel,
+    label: entry.labelJa,
+    sublabel: entry.sublabelJa,
+    pill: entry.pillLabelJa,
+  }),
 );
 
-const DRAWER_HUB_CONSULT: DrawerHubItem = {
+const DRAWER_HUB_CONSULT_ROW: DrawerHubEntryRow = {
+  entryId: 'consult',
   panel: 'consult',
   label: PAID_DTR_DRAWER_HUB.consultLabelJa,
   sublabel: PAID_DTR_DRAWER_HUB.consultSublabelJa,
+  pill: '返書',
 };
 
-function drawerHubPill(panel: DrawerHubPanelId): string {
-  switch (panel) {
-    case 'chapter-1':
-      return 'Ⅰ';
-    case 'chapter-2':
-      return 'Ⅱ';
-    case 'chapter-3':
-      return 'Ⅲ';
-    case 'chapter-4':
-      return 'Ⅳ';
-    case 'consult':
-      return '返書';
-    default:
-      return '';
-  }
+const DRAWER_HUB_PANEL_ORDER: DrawerHubPanelId[] = [
+  'chapter-1',
+  'chapter-2',
+  'chapter-3',
+  'chapter-4',
+  'consult',
+];
+
+function drawerHubPanelsToMount(aiConsultIncluded: boolean): DrawerHubPanelId[] {
+  return aiConsultIncluded
+    ? DRAWER_HUB_PANEL_ORDER
+    : DRAWER_HUB_PANEL_ORDER.filter((panel) => panel !== 'consult');
 }
 
 function DrawerHubChevron({ open }: { open: boolean }) {
@@ -93,12 +95,29 @@ export function PremiumDrawerHub({
   aiConsultIncluded,
   renderPanelBody,
 }: Props) {
-  const items = aiConsultIncluded
-    ? [...DRAWER_HUB_CHAPTERS, DRAWER_HUB_CONSULT]
-    : DRAWER_HUB_CHAPTERS;
+  const entryRows = aiConsultIncluded
+    ? [...DRAWER_HUB_CHAPTER_ROWS, DRAWER_HUB_CONSULT_ROW]
+    : DRAWER_HUB_CHAPTER_ROWS;
 
-  const toggle = (panel: DrawerHubPanelId) => {
-    onSelectPanel(openPanel === panel ? null : panel);
+  const panelsToMount = drawerHubPanelsToMount(aiConsultIncluded);
+
+  /** Which Hub row looks active (chevron / highlight). Separate from openPanel (which body to show). */
+  const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
+
+  const selectEntry = (item: DrawerHubEntryRow) => {
+    const isActiveEntry = activeEntryId === item.entryId;
+    const isPanelOpen = openPanel === item.panel;
+
+    if (isActiveEntry && isPanelOpen) {
+      setActiveEntryId(null);
+      onSelectPanel(null);
+      return;
+    }
+
+    setActiveEntryId(item.entryId);
+    if (!isPanelOpen) {
+      onSelectPanel(item.panel);
+    }
   };
 
   const hasExpandedPanel = openPanel !== null;
@@ -114,30 +133,30 @@ export function PremiumDrawerHub({
         </div>
 
         <ul className={hubStyles.drawerHubList}>
-          {items.map((item) => {
-            const isOpen = openPanel === item.panel;
+          {entryRows.map((item) => {
+            const isEntryActive = activeEntryId === item.entryId;
             const isConsult = item.panel === 'consult';
 
             return (
               <li
-                key={item.panel}
-                className={`${hubStyles.drawerHubRow}${isOpen ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}`}
+                key={item.entryId}
+                className={`${hubStyles.drawerHubRow}${isEntryActive ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}`}
               >
                 <button
                   type="button"
                   className={`${hubStyles.drawerHubTrigger}${isConsult ? ` ${hubStyles.drawerHubTriggerConsult}` : ''}`}
-                  onClick={() => toggle(item.panel)}
-                  aria-expanded={isOpen}
+                  onClick={() => selectEntry(item)}
+                  aria-expanded={isEntryActive}
                   aria-controls={`drawer-hub-body-${item.panel}`}
                 >
                   <span className={hubStyles.drawerHubTriggerLeading} aria-hidden>
-                    <span className={hubStyles.drawerHubPill}>{drawerHubPill(item.panel)}</span>
+                    <span className={hubStyles.drawerHubPill}>{item.pill}</span>
                   </span>
                   <span className={hubStyles.drawerHubTriggerText}>
                     <span className={hubStyles.drawerHubLabel}>{item.label}</span>
                     <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
                   </span>
-                  <DrawerHubChevron open={isOpen} />
+                  <DrawerHubChevron open={isEntryActive} />
                 </button>
               </li>
             );
@@ -148,16 +167,16 @@ export function PremiumDrawerHub({
       <div
         className={`${hubStyles.drawerHubPanelArea}${hasExpandedPanel ? ` ${hubStyles.drawerHubPanelAreaExpanded}` : ''}`}
       >
-        {items.map((item) => {
-          const mountBody = shouldMountPanelBody(item.panel, openPanel, aiConsultIncluded);
+        {panelsToMount.map((panel) => {
+          const mountBody = shouldMountPanelBody(panel, openPanel, aiConsultIncluded);
           if (!mountBody) return null;
 
-          const bodyVisible = openPanel === item.panel;
+          const bodyVisible = openPanel === panel;
 
           return (
             <div
-              key={item.panel}
-              id={`drawer-hub-body-${item.panel}`}
+              key={panel}
+              id={`drawer-hub-body-${panel}`}
               className={hubStyles.drawerHubExpandBody}
               hidden={!bodyVisible}
               aria-hidden={!bodyVisible}
@@ -170,7 +189,7 @@ export function PremiumDrawerHub({
                 }
               >
                 <div className={hubStyles.drawerHubReadingSurface}>
-                  {renderPanelBody(item.panel)}
+                  {renderPanelBody(panel)}
                 </div>
               </div>
             </div>

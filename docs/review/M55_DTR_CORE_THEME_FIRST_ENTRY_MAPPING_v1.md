@@ -4,16 +4,42 @@
 **Status:** Planning SSOT (display/routing design only — no runtime implementation in this gate)  
 **Date:** 2026-06-01  
 **Production baseline (Hub / reader):** `d544677` (PRE-W1 regression HOTFIX closed)
+**Runtime SSOT (Hub labels):** `PAID_DTR_DRAWER_CHAPTER_ENTRIES` in `paidDtrProductCopy.ts`（W-A1 v1.2 以降）
+
+---
+
+## 0. W-A1 v1.2 — 5テーマ直列から4章統合へ（方針転換）
+
+**経緯:** W-A1 初版で Hub を5テーマ + 相談の6行にしたが、Human visual で **保存版のⅠ〜Ⅳ骨格が弱く見える** と判断。仕事/これから・お金/疲れの同章共有も、入口が5行になることで重複感が増した。
+
+**確定方針（v1.2）:**
+
+| 表面 | 役割 |
+|------|------|
+| **PremiumDrawerHub** | **4章統合** — Ⅰ〜Ⅳ の器に、ユーザー関心を寄せたラベル（各章1行）+ 相談返書行 |
+| **ConsultRoom Step 1** | **5テーマ維持** — `themeExamplesJa` / `PAID_DTR_DRAWER_THEME_ENTRIES` は相談・返書マップ用 |
+
+**5テーマ → 4章への統合（Hub 表面）:**
+
+| 統合先章 | 取り込む関心テーマ |
+|---------|-------------------|
+| Ⅰ 輪郭 | 全テーマの土台（「自分の形を知る」） |
+| Ⅱ 構造 | 仕事・スキル、これからの進め方 |
+| Ⅲ 無理 | 恋人・近い人 |
+| Ⅳ 楽に扱う | お金・生活、疲れと戻し方 |
+
+**W0 本文の「5テーマ Hub 直列」:** 初版 W0 / v1.1 の計画記述。**実装は v1.2 で4章統合に変更**（本節が正）。Product Truth ガード（§11–16）は維持。
 
 ---
 
 ## 1. 目的
 
-`/dtr/core` 保存版レポートの **PremiumDrawerHub 入口**を、現在のⅠ〜Ⅳ章プロセス語（「〜を読む」）から、ユーザーが読みたくなる **悩み・用途起点の5テーマ**へ寄せる。
+`/dtr/core` 保存版の **PremiumDrawerHub** は、Ⅰ〜Ⅳの **4章骨格を表面でも見せる**読み返し入口とする。旧プロセス語（「〜を読む」）より、**章ごとに統合したユーザー関心ラベル**を載せる。
 
-- **表面（Hub 行ラベル）:** 恋人 / 仕事 / お金 / これから / 疲れ — ConsultRoom Step 1 と同語彙
-- **裏側（内部骨格）:** Ⅰ 輪郭 / Ⅱ 構造 / Ⅲ 無理 / Ⅳ 楽に扱う — **削除しない**
-- **操作導線:** テーマ行は **読む入口**（ticket 消費なし）。相談は Hub の「相談返書で整理する」行 + ConsultRoom 送信時のみ
+- **表面（Hub）:** 4行（Ⅰ〜Ⅳ 統合ラベル）+ 相談返書 — `PAID_DTR_DRAWER_CHAPTER_ENTRIES`
+- **相談（Step 1）:** 5テーマ — `PAID_DTR_CONSULT_REPLY.themeExamplesJa`（変更なし）
+- **裏側:** `chapter-1..4` の既存 drawer 本文 — engine / snapshot **変更なし**
+- **操作:** 章行は読む入口のみ（ticket 消費なし）
 
 本資料は W-A1 以降の実装・Human review の SSOT とする。
 
@@ -135,16 +161,17 @@
 
 ---
 
-## 9. Hub 表示案（主ラベル）
+## 9. Hub 表示案（主ラベル）— **v1.2 確定（4章統合）**
 
-| 行 | 主ラベル（案） | 開く先 |
-|----|---------------|--------|
-| 1 | 恋人・近い人との向き合い方 | `chapter-3` |
-| 2 | 仕事・スキルの伸ばし方 | `chapter-2` |
-| 3 | お金・生活の整え方 | `chapter-4` |
-| 4 | これからの動き方 | `chapter-2` |
-| 5 | 疲れたときの戻り方 | `chapter-4` |
-| 6 | 相談返書で整理する | `consult` |
+| 行 | pill | 主ラベル | sublabel | 開く先 |
+|----|------|---------|----------|--------|
+| 1 | Ⅰ | 自分の形を知る | 今の悩みを読み直す土台 | `chapter-1` |
+| 2 | Ⅱ | 仕事・これからの進め方 | 力が出る条件と、優先順位を見る | `chapter-2` |
+| 3 | Ⅲ | 恋人・近い人との向き合い方 | 距離感・言葉選び・無理の出方を見る | `chapter-3` |
+| 4 | Ⅳ | お金・生活・疲れの整え方 | 生活の余白と、戻り方を見る | `chapter-4` |
+| 5 | 返書 | 相談返書で整理する | 保存版に紐づく相談 | `consult` |
+
+**廃止（W-A1 初版のみ）:** 5テーマ直列6行（恋人 / 仕事 / お金 / これから / 疲れ を各行に分割）。
 
 **Hub ヘッダ（現行維持候補）**
 
@@ -154,20 +181,13 @@
 
 ---
 
-## 10. Hub sublabel 案
+## 10. Hub sublabel 案 — **v1.2**
 
-sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロセス語に戻さない）。
+v1.2 では **章 pill（Ⅰ〜Ⅳ）+ 関心ラベル + 1行 sublabel**。ローマ数字の章名を sublabel に重ねない（骨格は pill で示す）。
 
-| テーマ | sublabel（案） |
-|--------|-------------|
-| T1 | Ⅲ 無理を知る · 関連: Ⅰ 輪郭、Ⅱ 構造 |
-| T2 | Ⅱ 構造を読む · 関連: Ⅰ 輪郭、Ⅲ 無理 |
-| T3 | Ⅳ 楽に扱う · 関連: Ⅲ 無理 |
-| T4 | Ⅱ 構造を読む · 関連: Ⅳ 楽に扱う、Ⅰ 輪郭 |
-| T5 | Ⅳ 楽に扱う · 関連: Ⅲ 無理 |
-| 相談 | 保存版に紐づく相談（現行維持） |
+相談行: 保存版に紐づく相談（現行維持）。pill: 返書。
 
-**pill（行頭バッジ）案:** テーマ行は「読」、相談行は「返書」（現行 consult pill 維持）。章ローマ数字 pill はテーマ行では省略またはプライマリ章のみ `Ⅲ` 等を小さく表示（W-A1 で visual 調整）。
+**v1.1 案（5テーマ直列）:** プライマリ章 + 関連章を sublabel に列挙 — **v1.2 では不採用**。
 
 ---
 
@@ -289,7 +309,7 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 | Wave | 内容 | 触る候補 |
 |------|------|----------|
 | **W0** | 本資料（対応表 SSOT + リスクガード） | `docs/review/` のみ |
-| **W-A1** | `PAID_DTR_DRAWER_THEME_ENTRIES` + Hub 5テーマ行 + primary `chapter-N` オープン | **別ゲートでファイル確定**（§19 は候補） |
+| **W-A1** | `PAID_DTR_DRAWER_CHAPTER_ENTRIES` + Hub 4章統合行 + `activeEntryId` | `paidDtrProductCopy.ts`, `PremiumDrawerHub.tsx` |
 | **W-A2** | テーマパネル内「関連する保存版の章」リンク | `DtrFullReader.tsx` |
 | **W-A3** | Consult テーマ preselect（任意） | `ConsultRoom.tsx` |
 | **W-B** | 章本文・グラフ・深読みコピー研磨 | UI ラベル優先、`dtrEngine` は原則触らない |
@@ -305,8 +325,8 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 
 **In scope（候補）**
 
-1. `lib/m55/paidDtrProductCopy.ts` — `PAID_DTR_DRAWER_THEME_ENTRIES`（5件: `themeJa`, `primaryChapterId`, `primaryPanel`, `relatedChapterLabelsJa`, `hubLabelJa`, `hubSublabelJa`）
-2. `components/dtr/PremiumDrawerHub.tsx` — `DRAWER_HUB_CHAPTERS` をテーマ行5 + consult1 に差し替え；クリックで既存 `chapter-1..4` / `consult` を toggle
+1. `lib/m55/paidDtrProductCopy.ts` — `PAID_DTR_DRAWER_CHAPTER_ENTRIES`（4章統合 + pill Ⅰ〜Ⅳ）
+2. `components/dtr/PremiumDrawerHub.tsx` — `DRAWER_HUB_CHAPTER_ROWS` + consult；`activeEntryId`；`chapter-1..4` / `consult` を開く
 3. `components/dtr/DtrFullReader.tsx` — **open ロジック・本文は変更しない**（`renderDrawerPanelBody` 維持）— 変更なしが原則
 
 **Out of scope（W-A1）**
@@ -328,7 +348,7 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 
 | # | 項目 | PASS 条件 |
 |---|------|-----------|
-| H1 | Hub に5テーマ行が表示 | `themeExamplesJa` と同文言 |
+| H1 | Hub に4章統合行 + 相談が表示 | `PAID_DTR_DRAWER_CHAPTER_ENTRIES` |
 | H2 | 各テーマ行で primary 章 drawer が開く | §7 の panel と一致 |
 | H3 | テーマ行タップで ticket 消費しない | consult 送信しない限り消費なし |
 | H4 | 「相談返書で整理する」行が残る | consult drawer が開く |
@@ -339,7 +359,7 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 | H8b | 恋人＝相性・復縁保証に見えない | §11 |
 | H8c | 仕事＝転職・収入保証に見えない | §12 |
 | H8d | お金・これからに金融/占い/1年予測感がない | §13–14 |
-| H9 | 390px で Hub 5行 + consult が崩れない | 横スクロール・重なりなし |
+| H9 | 390px で Hub 4行 + consult が崩れない | 横スクロール・重なりなし |
 | H10 | W1.5 入口カード強調（entry / panel 分離）維持 | glow が本文全体を包まない |
 
 ---
@@ -348,7 +368,7 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 
 | ファイル | 役割 |
 |----------|------|
-| `lib/m55/paidDtrProductCopy.ts` | `PAID_DTR_CHAPTERS`, `PAID_DTR_DRAWER_HUB`, `PAID_DTR_CONSULT_REPLY.themeExamplesJa` |
+| `lib/m55/paidDtrProductCopy.ts` | `PAID_DTR_DRAWER_CHAPTER_ENTRIES`, `PAID_DTR_DRAWER_THEME_ENTRIES`（相談のみ） |
 | `lib/m55/consult/consultReplyThemePartMap.ts` | `PRIMARY_THEME_PART_MAP` |
 | `components/dtr/PremiumDrawerHub.tsx` | 現行4章行 + consult |
 | `components/dtr/DtrFullReader.tsx` | `renderDrawerPanelBody` / `chapter-1..4` |
@@ -361,3 +381,4 @@ sublabel は **プライマリ章の明示 + 関連章の短い示唆**（プロ
 |----|------|------|
 | v1 | 2026-06-01 | 初版 — THEME-FIRST-ENTRY W0-DOCS |
 | v1.1 | 2026-06-01 | W0-DOCS-HARDENING — テーマ別リスクガード（恋人・仕事・お金・これから）、W0 範囲明確化、W-A1 候補化 |
+| v1.2 | 2026-06-01 | W-A1 FOUR-CHAPTER-INTEGRATION — Hub を5テーマ直列から4章統合へ。`PAID_DTR_DRAWER_CHAPTER_ENTRIES`。Consult Step 1 は5テーマ維持 |

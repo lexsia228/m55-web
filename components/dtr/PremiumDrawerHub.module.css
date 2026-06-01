@@ -300,6 +300,8 @@
   letter-spacing: 0.04em;
   line-height: 1.35;
   color: rgba(185, 168, 228, 0.62);
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .drawerHubChevron {
