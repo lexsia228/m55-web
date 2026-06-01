@@ -68,11 +68,11 @@ const THEMES = PAID_DTR_CONSULT_REPLY.themeExamplesJa;
 type Theme = (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number];
 
 const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
-  { id: 'q1', label: '大切な人にほど言葉を飲み込んでしまう' },
-  { id: 'q2', label: '断れなかったあとに強く疲れを感じる' },
-  { id: 'q3', label: 'わかってほしいのに、うまく伝えられない' },
-  { id: 'q4', label: 'ひとりで落ち着く時間が足りていない' },
-  { id: 'q5', label: '平気なふりをして、後からしんどくなる' },
+  { id: 'q1', label: '恋人や近い人に、どう伝えればいいか迷っている' },
+  { id: 'q2', label: '仕事やスキルで、いま伸ばすところが分からない' },
+  { id: 'q3', label: 'お金や生活の不安で、気持ちが落ち着かない' },
+  { id: 'q4', label: 'これから何を優先すればいいか迷っている' },
+  { id: 'q5', label: '疲れていて、まずどこから戻せばいいか知りたい' },
 ];
 
 type Message = {

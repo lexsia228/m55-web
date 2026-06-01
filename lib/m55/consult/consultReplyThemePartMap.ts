@@ -28,12 +28,27 @@ const DEFAULT_PART: ConsultReplyPartInfo = {
   anchor: 'section-strain',
 };
 
-const THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
+/** Current Step 1 chips (Product Truth themeExamplesJa). */
+const PRIMARY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
+  '恋人・近い人との向き合い方': { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
+  '仕事・スキルの伸ばし方': { roman: 'Ⅱ', name: '構造を読む', anchor: 'section-structure' },
+  'お金・生活の整え方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
+  'これからの動き方': { roman: 'Ⅱ', name: '構造を読む', anchor: 'section-structure' },
+  '疲れたときの戻り方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
+};
+
+/** Legacy themes stored in past consult messages (not shown as new chips). */
+const LEGACY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
   近い人との距離: { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
   言葉を選びすぎてしまう場面: { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
   断れなかったあとの疲れ: { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
   平気なふりをしてしまうとき: { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
   ひとりで戻る時間の作り方: { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
+};
+
+const THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
+  ...PRIMARY_THEME_PART_MAP,
+  ...LEGACY_THEME_PART_MAP,
 };
 
 type ThemeLensConfig = {
@@ -42,9 +57,61 @@ type ThemeLensConfig = {
   lensRows: ConsultReplyLensRow[];
 };
 
-const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
+const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
+  '恋人・近い人との向き合い方': {
+    part: PRIMARY_THEME_PART_MAP['恋人・近い人との向き合い方']!,
+    visualKind: 'communication',
+    lensRows: [
+      { label: '受け取り' },
+      { label: '伝え方' },
+      { label: '距離' },
+      { label: '会話のリズム' },
+    ],
+  },
+  '仕事・スキルの伸ばし方': {
+    part: PRIMARY_THEME_PART_MAP['仕事・スキルの伸ばし方']!,
+    visualKind: 'stability',
+    lensRows: [
+      { label: '力が出る条件' },
+      { label: '詰まりやすさ' },
+      { label: '進め方' },
+      { label: '整え方' },
+    ],
+  },
+  'お金・生活の整え方': {
+    part: PRIMARY_THEME_PART_MAP['お金・生活の整え方']!,
+    visualKind: 'stability',
+    lensRows: [
+      { label: '生活リズム' },
+      { label: '不安の出方' },
+      { label: '使い方の整理' },
+      { label: '休む余白' },
+    ],
+  },
+  'これからの動き方': {
+    part: PRIMARY_THEME_PART_MAP['これからの動き方']!,
+    visualKind: 'stability',
+    lensRows: [
+      { label: '優先順位' },
+      { label: '選び方' },
+      { label: '迷いの整理' },
+      { label: '次の一手' },
+    ],
+  },
+  '疲れたときの戻り方': {
+    part: PRIMARY_THEME_PART_MAP['疲れたときの戻り方']!,
+    visualKind: 'stability',
+    lensRows: [
+      { label: '集中できる時間' },
+      { label: '守りやすい締切' },
+      { label: '整える余白' },
+    ],
+  },
+};
+
+const LEGACY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
   近い人との距離: {
-    part: THEME_PART_MAP['近い人との距離']!,
+    part: LEGACY_THEME_PART_MAP['近い人との距離']!,
     visualKind: 'communication',
     lensRows: [
       { label: '受け取り' },
@@ -54,7 +121,7 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     ],
   },
   言葉を選びすぎてしまう場面: {
-    part: THEME_PART_MAP['言葉を選びすぎてしまう場面']!,
+    part: LEGACY_THEME_PART_MAP['言葉を選びすぎてしまう場面']!,
     visualKind: 'communication',
     lensRows: [
       { label: '受け取り方' },
@@ -64,7 +131,7 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     ],
   },
   断れなかったあとの疲れ: {
-    part: THEME_PART_MAP['断れなかったあとの疲れ']!,
+    part: LEGACY_THEME_PART_MAP['断れなかったあとの疲れ']!,
     visualKind: 'strain',
     lensRows: [
       { label: '歩調を合わせすぎる' },
@@ -73,7 +140,7 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     ],
   },
   平気なふりをしてしまうとき: {
-    part: THEME_PART_MAP['平気なふりをしてしまうとき']!,
+    part: LEGACY_THEME_PART_MAP['平気なふりをしてしまうとき']!,
     visualKind: 'strain',
     lensRows: [
       { label: '外に出すタイミング' },
@@ -82,7 +149,7 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     ],
   },
   ひとりで戻る時間の作り方: {
-    part: THEME_PART_MAP['ひとりで戻る時間の作り方']!,
+    part: LEGACY_THEME_PART_MAP['ひとりで戻る時間の作り方']!,
     visualKind: 'stability',
     lensRows: [
       { label: '集中できる時間' },
@@ -90,6 +157,11 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
       { label: 'ひとりで整える余白' },
     ],
   },
+};
+
+const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
+  ...PRIMARY_THEME_LENS_MAP,
+  ...LEGACY_THEME_LENS_MAP,
 };
 
 const BALANCE_LENS: ConsultReplyLensInfo = {
@@ -139,4 +211,9 @@ export function isKnownConsultTheme(theme: string): theme is (typeof PAID_DTR_CO
   return PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes(
     theme as (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number]
   );
+}
+
+/** Past messages only: resolve lens for legacy theme strings not in current chips. */
+export function isLegacyConsultTheme(theme: string): boolean {
+  return theme in LEGACY_THEME_PART_MAP && !(theme in PRIMARY_THEME_PART_MAP);
 }
