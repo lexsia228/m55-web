@@ -50,14 +50,10 @@ const ROOM_UI_COPY = {
   step1Title: 'Step 1 用途を選ぶ',
   step1Badge: '必須',
   step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
-  step2Title: 'Step 2 補助質問を選ぶ',
-  step2Badge: '任意',
-  step2Hint:
-    '最大3つまで。選ばなくても送信できます。選ぶほど、返書の焦点が絞られます。',
-  step3Title: 'Step 3 相談を書く',
-  step3Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
-  step4Title: 'Step 4 相談返書を作成する',
-  step4Consume: 'この送信で相談返書を1件使用します。',
+  step2Title: 'Step 2 相談を書く',
+  step2Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
+  step3Title: 'Step 3 相談返書を作成する',
+  step3Consume: 'この送信で相談返書を1件使用します。',
   purchaseValue:
     '500円で、保存版の章に沿って今の1テーマを整理し、別視点と今日の一手まで返します。',
 } as const;
@@ -159,29 +155,6 @@ function ThemeChip({
       aria-pressed={selected}
     >
       {theme}
-    </button>
-  );
-}
-
-function SupplementaryToggle({
-  label,
-  selected,
-  onToggle,
-}: {
-  label: string;
-  selected: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={
-        selected ? `${styles.questionToggle} ${styles.questionToggleSelected}` : styles.questionToggle
-      }
-      onClick={onToggle}
-      aria-pressed={selected}
-    >
-      {label}
     </button>
   );
 }
@@ -615,28 +588,8 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
           <h4 id="consult-step-2" className={styles.composeStepTitle}>
             {ROOM_UI_COPY.step2Title}
           </h4>
-          <span className={styles.composeStepBadgeOptional}>{ROOM_UI_COPY.step2Badge}</span>
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
-        <div className={styles.questionList}>
-          {SUPPLEMENTARY_QUESTIONS.map((q) => (
-            <SupplementaryToggle
-              key={q.id}
-              label={q.label}
-              selected={selectedQuestionIds.has(q.id)}
-              onToggle={() => toggleQuestion(q.id)}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.composeStep} aria-labelledby="consult-step-3">
-        <div className={styles.composeStepHead}>
-          <h4 id="consult-step-3" className={styles.composeStepTitle}>
-            {ROOM_UI_COPY.step3Title}
-          </h4>
-        </div>
-        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step3Hint}</p>
         <label htmlFor="consult-input" className={styles.srOnly}>
           {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
           {INPUT_MIN}〜{INPUT_MAX}文字）
@@ -666,11 +619,11 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
         </div>
       </section>
 
-      <section className={styles.composeStepSubmit} aria-labelledby="consult-step-4">
-        <h4 id="consult-step-4" className={styles.composeStepTitle}>
-          {ROOM_UI_COPY.step4Title}
+      <section className={styles.composeStepSubmit} aria-labelledby="consult-step-3">
+        <h4 id="consult-step-3" className={styles.composeStepTitle}>
+          {ROOM_UI_COPY.step3Title}
         </h4>
-        <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step4Consume}</p>
+        <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step3Consume}</p>
         <button
           type="button"
           className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
@@ -718,6 +671,13 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
         )}
         {messages.map((msg, i) => {
           if (msg.role === 'user') {
+            const next = messages[i + 1];
+            if (next?.role === 'assistant') {
+              const extracted = extractThemeAndQuoteFromUserMessage(msg.content);
+              if (extracted.quote) {
+                return null;
+              }
+            }
             const extracted = extractThemeAndQuoteFromUserMessage(msg.content);
             return (
               <div key={msg.id ?? i} className={styles.msgUserCompact}>
