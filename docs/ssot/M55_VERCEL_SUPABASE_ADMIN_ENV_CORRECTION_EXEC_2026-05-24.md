@@ -47,7 +47,7 @@
 | # | Finding |
 |---|---------|
 | **B-1** | No repo **`.env*`** · no **`~/m55-tmp/.vercel-production-env`** |
-| **B-2** | **`vercel env pull --environment=preview`** → **`NEXT_PUBLIC_SUPABASE_URL=""`** · **`SUPABASE_SERVICE_ROLE_KEY=""`** |
+| **B-2** | **`vercel env pull --environment=preview`** → **`NEXT_PUBLIC_SUPABASE_URL`**: empty placeholder · **`SUPABASE_SERVICE_ROLE_KEY`**: empty placeholder（値は `<REDACTED_SUPABASE_SERVICE_ROLE>` 相当の未設定） |
 | **B-3** | Vercel REST **`GET /v9/projects/.../env?decrypt=true`** → sensitive values **not decryptable** via CLI token |
 | **B-4** | Supabase CLI **not usable** in agent context without Human **`m55-soul-core` Production** dashboard copy |
 | **B-5** | Agent **cannot invent** service_role or project URL values |
