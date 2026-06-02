@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
@@ -71,7 +70,6 @@ import {
   type DrawerHubPanelId,
 } from './PremiumDrawerHub';
 import { ReportBridgeBand } from './ReportBridgeBand';
-import SavedSnapshotNotice from './SavedSnapshotNotice';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -363,28 +361,6 @@ function HeroIconShield({ className }: { className?: string }) {
   );
 }
 
-function HeroIconClock({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M12 7v6l4 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function HeroIconMessage({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 6h16v10H8l-4 3V6z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 /* ─────────────────────────────────────────────────────────────────────────────
    Premium included-features band — under poster, before ownership meta.
    ───────────────────────────────────────────────────────────────────────────── */
@@ -425,14 +401,6 @@ function PremiumIntroValueBand() {
         </ul>
       </div>
     </div>
-  );
-}
-
-function PremiumIntroConsultNote() {
-  return (
-    <aside className={styles.premiumIntroConsultNote} role="note" aria-label="相談返書について">
-      <p className={styles.premiumIntroConsultText}>{PAID_DTR_INTRO_CONSULT_NOTE.lineJa}</p>
-    </aside>
   );
 }
 
@@ -746,37 +714,41 @@ function PremiumHero({
         aiConsultIncluded={aiConsultIncluded}
         renderPanelBody={renderPanelBody}
       />
-
-      {aiConsultIncluded ? <PremiumIntroConsultNote /> : null}
-
-      <div className={styles.heroMetaStrip} aria-label="レポート情報">
-        <div className={styles.heroMetaItem}>
-          <div className={styles.heroMetaLabelRow}>
-            <HeroIconClock className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>有効期限</span>
-          </div>
-          <span className={styles.heroMetaValue}>{expiresAt ?? '無期限'}</span>
-        </div>
-        <div className={styles.heroMetaItem}>
-          <div className={styles.heroMetaLabelRow}>
-            <HeroIconMessage className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>相談返書</span>
-          </div>
-          <span className={styles.heroMetaValue}>{aiConsultIncluded ? '相談返書 1件' : 'なし'}</span>
-        </div>
-        <div className={styles.heroMetaItem}>
-          <div className={styles.heroMetaLabelRow}>
-            <HeroIconShield className={styles.heroMetaIcon} />
-            <span className={styles.heroMetaLabel}>傾向名</span>
-          </div>
-          <span className={styles.heroMetaValue}>{stem.publicTitle}</span>
-        </div>
-      </div>
-
-      <p className={styles.heroBackNav}>
-        <Link href="/my">← マイページへ</Link>
-      </p>
     </header>
+  );
+}
+
+function ReportFooterMetaCard({
+  aiConsultIncluded,
+  expiresAt,
+  stemTitle,
+}: {
+  aiConsultIncluded: boolean;
+  expiresAt: string | null;
+  stemTitle: string;
+}) {
+  return (
+    <section className={styles.reportMetaCard} aria-label="保存版の情報">
+      <p className={styles.reportMetaHeading}>保存版の情報</p>
+      <p className={styles.reportMetaLead}>
+        {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、相談返書は付いていません。'}
+      </p>
+      <div className={styles.reportMetaGrid} role="list">
+        <p className={styles.reportMetaItem} role="listitem">
+          <span className={styles.reportMetaItemLabel}>有効期限</span>
+          <span className={styles.reportMetaItemValue}>{expiresAt ?? '無期限'}</span>
+        </p>
+        <p className={styles.reportMetaItem} role="listitem">
+          <span className={styles.reportMetaItemLabel}>相談返書</span>
+          <span className={styles.reportMetaItemValue}>{aiConsultIncluded ? '相談返書 1件' : 'なし'}</span>
+        </p>
+        <p className={styles.reportMetaItem} role="listitem">
+          <span className={styles.reportMetaItemLabel}>傾向名</span>
+          <span className={styles.reportMetaItemValue}>{stemTitle}</span>
+        </p>
+      </div>
+      <p className={styles.reportMetaNote}>この保存版は、購入時点のプロフィールをもとに作成・保存されています。</p>
+    </section>
   );
 }
 
@@ -2966,16 +2938,11 @@ export default function DtrFullReader({
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}
         />
-
-        <SavedSnapshotNotice />
-
-        <footer className={styles.footer}>
-          <Link href="/my">マイページへ戻る</Link>
-          {' · '}
-          <Link href="/core">本質を確認する</Link>
-          {' · '}
-          <Link href="/support">サポート</Link>
-        </footer>
+        <ReportFooterMetaCard
+          aiConsultIncluded={aiConsultIncluded}
+          expiresAt={expiresAt}
+          stemTitle={stem.publicTitle}
+        />
       </div>
     </div>
   );
