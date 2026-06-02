@@ -429,7 +429,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
       'そう読んだ理由は、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
     actionJa:
       'まずは、今の悩みを責めずに見直し、力が戻りやすい場所から読んでいきます。',
-    pointsJa: ['悩みを責めずに見直す', 'じっくり良くできる力', '次に見る場所を選ぶ'],
+    pointsJa: ['一つを深く見られる人', '少しずつ磨ける人', '納得まで整える人'],
   },
   '2': {
     headingSuffixJa: 'の進め方',
@@ -441,7 +441,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
       'そう読んだ理由は、力が出やすい条件と、止まりやすい条件が分かれて出ているためです。',
     actionJa:
       'まずは、今の仕事やこれからの動きの中で、先に整える場所を一つ見ていきます。',
-    pointsJa: ['先に整える場所を見る', '力が出やすい条件', '今日の優先を一つ決める'],
+    pointsJa: ['全体を見て順番を作れる人', '条件を整えてから動ける人', '急かされると力が散りやすい人'],
   },
   '3': {
     headingSuffixJa: 'の近い人との向き合い方',

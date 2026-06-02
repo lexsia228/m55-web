@@ -560,7 +560,10 @@ function DrawerChapterPersonalLead({
       {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
       <ChapterOpeningLede text={copy.lifeJa} />
       <ChapterOpeningLede text={copy.actionJa} />
-      <div className={styles.chapterOpeningPoints} aria-label="見るポイント">
+      <div
+        className={styles.chapterOpeningPoints}
+        aria-label={partId === '1' || partId === '2' ? 'この章で出ている特徴' : '見るポイント'}
+      >
         {copy.pointsJa.map((point) => (
           <p key={point} className={styles.chapterOpeningPoint}>
             {point}
@@ -1440,8 +1443,9 @@ function StrengthsLiftFigures({ body, nickname }: { body: string; nickname?: str
   if (items.length === 0) return null;
 
   const nick = nickname?.trim();
-  const merge3Caption = nick
-    ? `この三つが重なると、仕事や日常の中で、${clampDisplayNick(nick, 20)}さんの力が伝わりやすくなります。`
+  const displayNick = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : null;
+  const merge3Caption = displayNick
+    ? `この三つが重なると、仕事や日常の中で、${displayNick}さんの力が伝わりやすくなります。`
     : 'この三つが重なると、仕事や日常の中で、見えている力が伝わりやすくなります。';
 
   return (
@@ -2798,15 +2802,12 @@ export default function DtrFullReader({
                 </div>
               ) : null}
               {s3 ? (
-                <>
-                  <ReportBridgeBand partId="2" />
-                  <ChapterConsultNextAction
-                    partId="2"
-                    nickname={view.nickname}
-                    ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s3?.body ?? ''))}
-                    onOpenConsult={() => selectPanel('consult')}
-                  />
-                </>
+                <ChapterConsultNextAction
+                  partId="2"
+                  nickname={view.nickname}
+                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s3?.body ?? ''))}
+                  onOpenConsult={() => selectPanel('consult')}
+                />
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
