@@ -45,10 +45,15 @@ import {
 import {
   PAID_DTR_BENEFITS_HEADING,
   PAID_DTR_BENEFIT_BULLETS,
+  PAID_DTR_CHAPTER_DRAWER_INTRO,
+  PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA,
+  PAID_DTR_CHAPTER_GRAPH_CAPTIONS,
   PAID_DTR_INTRO_CONSULT_NOTE,
   PAID_DTR_INTRO_PANEL_01,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
   PAID_DTR_REPORT_PARTS,
+  type PaidDtrChapterGraphCaptionId,
+  type PaidDtrReportPartId,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
 import {
@@ -371,20 +376,43 @@ function ReportPartMotif({ partId }: { partId: '1' | '2' | '3' | '4' }) {
   );
 }
 
-/** SSOT v1 Phase 3 → Phase 5: 各部の章扉（目次と表記を一致・アンカー・モチーフ付き） */
-function ReportPartBand({
+function sectionOpeningLede(body: string): string | null {
+  const lede = body.split('\n\n').map((p) => p.trim()).find(Boolean);
+  return lede ?? null;
+}
+
+function GraphCaption({ id }: { id: PaidDtrChapterGraphCaptionId }) {
+  return (
+    <div className={styles.graphCaptionBlock} role="note">
+      <span className={styles.graphCaptionLabel}>{PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA}</span>
+      <p className={styles.graphCaption}>{PAID_DTR_CHAPTER_GRAPH_CAPTIONS[id]}</p>
+    </div>
+  );
+}
+
+function ChapterPersonalHeading({
   partId,
-  title,
+  nickname,
 }: {
-  partId: '1' | '2' | '3' | '4';
-  title: string;
+  partId: PaidDtrReportPartId;
+  nickname?: string;
 }) {
+  const suffix = PAID_DTR_CHAPTER_DRAWER_INTRO[partId].personalHeadingSuffixJa;
+  const nick = nickname?.trim();
+  const label = nick ? `${clampDisplayNick(nick, 20)}さん${suffix}` : `あなた${suffix}`;
+  return <h2 className={styles.chapterPersonalHeading}>{label}</h2>;
+}
+
+function ChapterOpeningLede({ text }: { text: string }) {
+  return <p className={styles.chapterOpeningLede}>{text}</p>;
+}
+
+/** Drawer chapter band — Hub label primary; legacy chapter title in aria only. */
+function ReportPartBand({ partId }: { partId: PaidDtrReportPartId }) {
   const part = REPORT_PARTS.find((p) => p.partId === partId);
+  const intro = PAID_DTR_CHAPTER_DRAWER_INTRO[partId];
   const roman = part?.roman ?? '';
-  const catchPhrase = part?.catch;
-  const a11yLabel = catchPhrase
-    ? `第${partId}部 ${title}。${catchPhrase}`
-    : `第${partId}部 ${title}`;
+  const a11yLabel = `第${partId}部 ${intro.hubLabelJa}。${intro.legacyChapterTitleJa}`;
   const bandClass =
     partId === '1'
       ? `${styles.reportPartBand} ${styles.reportPartBandChapterPlate}`
@@ -404,14 +432,28 @@ function ReportPartBand({
             <span className={styles.reportPartBandNum} aria-hidden>
               {roman}
             </span>
-            <span className={styles.reportPartBandTitle}>{title}</span>
+            <span className={styles.reportPartBandTitle}>{intro.hubLabelJa}</span>
           </div>
-          {catchPhrase ? (
-            <p className={styles.reportPartBandCatch}>{catchPhrase}</p>
-          ) : null}
-          {part?.desc && <p className={styles.reportPartBandDesc}>{part.desc}</p>}
+          <p className={styles.reportPartBandSublabel}>{intro.hubSublabelJa}</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function DrawerChapterPersonalLead({
+  partId,
+  nickname,
+  lede,
+}: {
+  partId: PaidDtrReportPartId;
+  nickname?: string;
+  lede?: string | null;
+}) {
+  return (
+    <div className={styles.drawerChapterPersonalLead}>
+      <ChapterPersonalHeading partId={partId} nickname={nickname} />
+      {lede ? <ChapterOpeningLede text={lede} /> : null}
     </div>
   );
 }
@@ -661,8 +703,8 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
   const ge = clampTensionBias(viz.tension.guardExpress);
 
   return (
-    <div className={styles.idDesignShell} aria-label="力の出方を分解する（本質の読み解き）">
-      <p className={styles.idDesignOverline}>深読み · 力の出方を分解する</p>
+    <div className={styles.idDesignShell} aria-label="力の出方をひとつずつ見る（本質の読み解き）">
+      <p className={styles.idDesignOverline}>深読み · 力の出方をひとつずつ見る</p>
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>力が出るまでの4つの手がかり</h3>
@@ -782,23 +824,27 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
 function IdentityArticleWithBlueprint({
   section,
   stemIdx,
+  openingLedeShown = false,
 }: {
   section: DtrSection;
   stemIdx: number;
+  openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
-  const [lede, ...rest] = paras;
+  const bodyParas = paras.slice(1);
+  const inlineLede = openingLedeShown ? null : paras[0];
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
-      <h2 className={styles.savedWideTitle}>{section.title}</h2>
-      {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
-      {rest.length > 0 ? (
+      {!openingLedeShown ? <h2 className={styles.savedWideTitle}>{section.title}</h2> : null}
+      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {bodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {rest.map((para, i) => (
+          {bodyParas.map((para, i) => (
             <BodyPara key={i} para={para} compact={false} />
           ))}
         </div>
       ) : null}
+      <GraphCaption id="ch1-identity-design" />
       <IdentityDesignFigures stemIdx={stemIdx} />
     </article>
   );
@@ -1025,7 +1071,7 @@ function CompositionArticleWithViz({
   const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
-      <h2 className={styles.savedWideTitle}>{section.title}</h2>
+      <h3 className={styles.savedWideTitleSub}>{section.title}</h3>
       {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
       {rest.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
@@ -1034,6 +1080,7 @@ function CompositionArticleWithViz({
           ))}
         </div>
       ) : null}
+      <GraphCaption id="ch1-structure-radar" />
       <StructureInteractionMapFigures stemIdx={stemIdx} />
     </article>
   );
@@ -1075,23 +1122,27 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
 function EssenceArticleWithViz({
   section,
   stemIdx,
+  openingLedeShown = false,
 }: {
   section: DtrSection;
   stemIdx: number;
+  openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
-  const [lede, ...rest] = paras;
+  const bodyParas = paras.slice(1);
+  const inlineLede = openingLedeShown ? null : paras[0];
   return (
     <article className={styles.savedWideArticle} aria-label={section.title}>
-      <h2 className={styles.savedWideTitle}>{section.title}</h2>
-      {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
-      {rest.length > 0 ? (
+      <h3 className={styles.savedWideTitleSub}>{section.title}</h3>
+      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {bodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {rest.map((para, i) => (
+          {bodyParas.map((para, i) => (
             <BodyPara key={i} para={para} compact={false} />
           ))}
         </div>
       ) : null}
+      <GraphCaption id="ch2-stability-panel" />
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
     </article>
   );
@@ -1281,6 +1332,7 @@ function GridArticleStrengthsViz({
   return (
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <GraphCaption id="ch2-strengths-lift" />
       <StrengthsLiftFigures body={section.body} nickname={nickname} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
@@ -1291,13 +1343,22 @@ function GridArticleStrengthsViz({
   );
 }
 
-function GridArticleFrictionViz({ section }: { section: DtrSection }) {
+function GridArticleFrictionViz({
+  section,
+  openingLedeShown = false,
+}: {
+  section: DtrSection;
+  openingLedeShown?: boolean;
+}) {
+  const paras = section.body.split('\n\n').filter((p) => p.trim());
+  const bodyParas = openingLedeShown ? paras.slice(1) : paras;
   return (
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <GraphCaption id="ch3-friction-warning" />
       <FrictionWarningFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
+        {bodyParas.map((para, i) => (
           <BodyPara key={i} para={para} compact />
         ))}
       </div>
@@ -1309,6 +1370,7 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
   return (
     <article className={styles.savedGridArticle} aria-label={section.title}>
       <h3 className={styles.savedGridTitle}>{section.title}</h3>
+      <GraphCaption id="ch3-comm-flow" />
       <CommFlowFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
         {section.body.split('\n\n').map((para, i) => (
@@ -1433,6 +1495,7 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
 
   return (
     <>
+      <GraphCaption id="ch1-five-axis" />
       <div className={styles.axisVizSummary} aria-label="力のバランスの要約">
         {summaryRows.map((row) => (
           <div key={row.key} className={styles.axisVizSummaryRow}>
@@ -1496,6 +1559,7 @@ function TraitInteractionModule({
 
   return (
     <>
+      <GraphCaption id="ch2-trait-interaction" />
       {note && <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{note}</p>}
       <div className={styles.interactionGrid}>
         <div className={styles.interactionCol}>
@@ -1633,6 +1697,7 @@ function DomainMatrixModule({
 
   return (
     <>
+      <GraphCaption id="ch3-domain-scenes" />
       <div className={styles.domainMatrix}>
         {domainTiles.map((d, di) => (
           <div
@@ -1718,6 +1783,7 @@ function FrictionRecoveryModule({
 
   return (
     <>
+      <GraphCaption id="ch4-friction-recovery" />
       <div className={styles.flowTrack} role="list">
         {flowNodes.map((node, i) => (
           <div
@@ -1902,6 +1968,7 @@ function PracticalGuidanceSection({
 
   return (
     <div className={styles.practicalStack}>
+      <GraphCaption id="ch4-practical-guidance" />
       <div className={styles.practicalIntro}>
         <h2 className={styles.practicalIntroTitle}>このレポートの使い方</h2>
         <p className={styles.practicalIntroSub}>今日から少し楽に扱うための実践ガイド</p>
@@ -1994,7 +2061,9 @@ function WorkGuideCards({ workSection }: { workSection: DtrSection }) {
   const items = parseBlockItems(workSection.body);
   if (items.length === 0) return null;
   return (
-    <div className={styles.wgGrid} aria-label="力の出し方ガイド">
+    <>
+      <GraphCaption id="ch4-work-guide" />
+      <div className={styles.wgGrid} aria-label="力の出し方ガイド">
       {WORK_CARD_META.map(({ key, icon, color }) => {
         const item = items.find((it) => it.header === key);
         if (!item) return null;
@@ -2008,7 +2077,8 @@ function WorkGuideCards({ workSection }: { workSection: DtrSection }) {
           </div>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -2348,11 +2418,22 @@ export default function DtrFullReader({
             <section
               id="dtr-core-analysis"
               className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer} ${styles.coreAnalysisScrollAnchor}`}
-              aria-label="輪郭を見る"
+              aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['1'].hubLabelJa}
             >
               <div className={styles.savedWideStack}>
-                <ReportPartBand partId="1" title="輪郭を見る" />
-                {s1 ? <IdentityArticleWithBlueprint section={s1} stemIdx={stemIdx} /> : null}
+                <ReportPartBand partId="1" />
+                <DrawerChapterPersonalLead
+                  partId="1"
+                  nickname={view.nickname}
+                  lede={s1 ? sectionOpeningLede(s1.body) : null}
+                />
+                {s1 ? (
+                  <IdentityArticleWithBlueprint
+                    section={s1}
+                    stemIdx={stemIdx}
+                    openingLedeShown={Boolean(sectionOpeningLede(s1.body))}
+                  />
+                ) : null}
                 {s2 ? (
                   <>
                     <CompositionArticleWithViz section={s2} stemIdx={stemIdx} />
@@ -2386,11 +2467,22 @@ export default function DtrFullReader({
           <>
             <section
               className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer}`}
-              aria-label="構造を読む"
+              aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['2'].hubLabelJa}
             >
               <div className={styles.savedWideStack}>
-                <ReportPartBand partId="2" title="構造を読む" />
-                {s3 ? <EssenceArticleWithViz section={s3} stemIdx={stemIdx} /> : null}
+                <ReportPartBand partId="2" />
+                <DrawerChapterPersonalLead
+                  partId="2"
+                  nickname={view.nickname}
+                  lede={s3 ? sectionOpeningLede(s3.body) : null}
+                />
+                {s3 ? (
+                  <EssenceArticleWithViz
+                    section={s3}
+                    stemIdx={stemIdx}
+                    openingLedeShown={Boolean(sectionOpeningLede(s3.body))}
+                  />
+                ) : null}
               </div>
               {gridS4 ? (
                 <div className={styles.savedWideStack}>
@@ -2430,12 +2522,23 @@ export default function DtrFullReader({
           <>
             <section
               className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer}`}
-              aria-label="無理を知る"
+              aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['3'].hubLabelJa}
             >
+              <ReportPartBand partId="3" />
+              <DrawerChapterPersonalLead
+                partId="3"
+                nickname={view.nickname}
+                lede={gridS5 ? sectionOpeningLede(gridS5.body) : null}
+              />
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
-                  {gridS5 ? <ReportPartBand partId="3" title="無理を知る" /> : null}
-                  {gridS5 ? <GridArticleFrictionViz key={gridS5.id} section={gridS5} /> : null}
+                  {gridS5 ? (
+                    <GridArticleFrictionViz
+                      key={gridS5.id}
+                      section={gridS5}
+                      openingLedeShown={Boolean(sectionOpeningLede(gridS5.body))}
+                    />
+                  ) : null}
                   {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
                 </div>
               ) : null}
@@ -2450,9 +2553,9 @@ export default function DtrFullReader({
                     tierJa="場面で見る"
                     tierClass={styles.prTierBlue}
                     overline="生活での出方"
-                    title="場面別の整理"
+                    title="場面ごとの見方"
                     ariaLabel="生活での出方"
-                    summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を整理する。"
+                    summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を見ます。"
                     defaultOpen
                     inDrawer
                   >
@@ -2473,7 +2576,12 @@ export default function DtrFullReader({
           <>
             {sec('s7_work') && sec('s6_relation') ? (
               <div className={styles.drawerChapterLead}>
-                <ReportPartBand partId="4" title="楽に扱う" />
+                <ReportPartBand partId="4" />
+                <DrawerChapterPersonalLead
+                  partId="4"
+                  nickname={view.nickname}
+                  lede={sectionOpeningLede(sec('s7_work')!.body)}
+                />
                 <WorkGuideCards workSection={sec('s7_work')!} />
                 <SectionDivider label="実践ガイド" premium />
                 <section className={styles.practicalShell} aria-label="実践ガイド">

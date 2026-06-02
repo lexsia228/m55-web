@@ -278,6 +278,79 @@ const PAID_DTR_CHAPTER_PART_ID: Record<PaidDtrChapterId, '1' | '2' | '3' | '4'> 
 
 export type PaidDtrReportPartId = '1' | '2' | '3' | '4';
 
+/** Drawer chapter surface — user-centric (W-B1 refine). Engine / snapshot unchanged. */
+export type PaidDtrChapterDrawerIntro = {
+  partId: PaidDtrReportPartId;
+  hubLabelJa: string;
+  hubSublabelJa: string;
+  personalHeadingSuffixJa: string;
+  /** Screen-reader / mapping only — not shown as primary UI */
+  legacyChapterTitleJa: string;
+};
+
+export const PAID_DTR_CHAPTER_DRAWER_INTRO: Record<PaidDtrReportPartId, PaidDtrChapterDrawerIntro> = {
+  '1': {
+    partId: '1',
+    hubLabelJa: '自分の形を知る',
+    hubSublabelJa: '今の悩みを読み直す土台',
+    personalHeadingSuffixJa: 'の形',
+    legacyChapterTitleJa: '輪郭を見る',
+  },
+  '2': {
+    partId: '2',
+    hubLabelJa: '仕事・これからの進め方',
+    hubSublabelJa: '力が出る条件と、優先順位を見る',
+    personalHeadingSuffixJa: 'の進め方',
+    legacyChapterTitleJa: '構造を読む',
+  },
+  '3': {
+    partId: '3',
+    hubLabelJa: '恋人・近い人との向き合い方',
+    hubSublabelJa: '距離感・言葉選び・無理の出方を見る',
+    personalHeadingSuffixJa: 'の近い人との向き合い方',
+    legacyChapterTitleJa: '無理を知る',
+  },
+  '4': {
+    partId: '4',
+    hubLabelJa: 'お金・生活・疲れの整え方',
+    hubSublabelJa: '生活の余白と、戻り方を見る',
+    personalHeadingSuffixJa: 'の整え方',
+    legacyChapterTitleJa: '楽に扱う',
+  },
+} as const;
+
+/** One-line graph meaning — placed immediately before each viz (W-B1). */
+export type PaidDtrChapterGraphCaptionId =
+  | 'ch1-identity-design'
+  | 'ch1-structure-radar'
+  | 'ch1-five-axis'
+  | 'ch2-stability-panel'
+  | 'ch2-strengths-lift'
+  | 'ch2-trait-interaction'
+  | 'ch3-friction-warning'
+  | 'ch3-comm-flow'
+  | 'ch3-domain-scenes'
+  | 'ch4-work-guide'
+  | 'ch4-practical-guidance'
+  | 'ch4-friction-recovery';
+
+export const PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA = 'この図で見ること' as const;
+
+export const PAID_DTR_CHAPTER_GRAPH_CAPTIONS: Record<PaidDtrChapterGraphCaptionId, string> = {
+  'ch1-identity-design': '出るとき・崩れやすいとき・戻すとき',
+  'ch1-structure-radar': '傾向が重なる様子',
+  'ch1-five-axis': '5つの力のバランス',
+  'ch2-stability-panel': '力が出やすい条件と詰まりやすい条件',
+  'ch2-strengths-lift': '力が自然に出やすい場面',
+  'ch2-trait-interaction': '出やすい力と無理の重なり',
+  'ch3-friction-warning': '無理が出やすい場面',
+  'ch3-comm-flow': '言葉と距離の流れ',
+  'ch3-domain-scenes': '近い人を中心にした場面の見方',
+  'ch4-work-guide': '日々の扱いやすい条件',
+  'ch4-practical-guidance': '今日から試せる小さな一手',
+  'ch4-friction-recovery': 'つまずきから戻る流れ',
+} as const;
+
 export type PaidDtrReportPartView = {
   partId: PaidDtrReportPartId;
   roman: string;
