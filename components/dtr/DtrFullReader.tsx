@@ -67,6 +67,98 @@ import { ReportBridgeBand } from './ReportBridgeBand';
 import SavedSnapshotNotice from './SavedSnapshotNotice';
 import styles from './DtrFullReader.module.css';
 
+const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
+
+function m55DtrDrawerPanelSelector(panel: DrawerHubPanelId): string {
+  return `[data-m55-dtr-drawer-panel="${panel}"]`;
+}
+
+function m55DtrScrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
+/** PublicHeader bottom + gap; falls back to --m55-dtr-scroll-offset on .reportRoot. */
+function m55DtrScrollOffsetPx(): number {
+  const header = document.querySelector('header[aria-label="ナビゲーション"]');
+  if (header instanceof HTMLElement) {
+    return Math.ceil(header.getBoundingClientRect().bottom) + 12;
+  }
+  return 104;
+}
+
+function m55DtrScrollToElement(el: HTMLElement): void {
+  const offset = m55DtrScrollOffsetPx();
+  const y = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: Math.max(0, y), behavior: m55DtrScrollBehavior() });
+}
+
+function m55DtrScrollToDrawerHub(): void {
+  const hub = document.querySelector(M55_DTR_DRAWER_HUB_SELECTOR);
+  if (hub instanceof HTMLElement) m55DtrScrollToElement(hub);
+}
+
+function m55DtrScrollToDrawerPanel(panel: DrawerHubPanelId): void {
+  const el = document.querySelector(m55DtrDrawerPanelSelector(panel));
+  if (el instanceof HTMLElement) m55DtrScrollToElement(el);
+}
+
+function runAfterDrawerPanelPaint(fn: () => void): void {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(fn);
+  });
+}
+
+const DRAWER_HUB_SCROLL_FAB_THRESHOLD_PX = 400;
+
+function DrawerHubScrollFab() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    document.body.dataset.m55DtrCoreReader = '1';
+    const onScroll = () => {
+      const y =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+      setVisible(y > DRAWER_HUB_SCROLL_FAB_THRESHOLD_PX);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      delete document.body.dataset.m55DtrCoreReader;
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  return (
+    <button
+      type="button"
+      className={`${styles.readingGuideFab}${visible ? ` ${styles.readingGuideFabVisible}` : ''}`}
+      onClick={() => m55DtrScrollToDrawerHub()}
+      aria-label="保存版の入口へ戻る"
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
+    >
+      <svg
+        className={styles.readingGuideFabIcon}
+        viewBox="0 0 20 20"
+        fill="none"
+        aria-hidden
+        focusable="false"
+      >
+        <path
+          d="M10 14.5V5.5M6 9l4-4 4 4"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 /** Module 01: map engine level (0–3) to purchaser-facing role labels (no scores). */
 function axisRoleFromLevel(level: number): { badge: string; badgeClass: string } {
   switch (level) {
@@ -2345,21 +2437,18 @@ export default function DtrFullReader({
 
   const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
     setOpenPanel(panel);
-    if (panel === null) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById(`drawer-hub-body-${panel}`);
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        const band = el.querySelector('[id^="section-"]');
-        if (band instanceof HTMLElement && REPORT_PARTS.some((p) => p.anchor === band.id)) {
-          band.classList.add(styles.reportPartBandLanding);
-          window.setTimeout(() => band.classList.remove(styles.reportPartBandLanding), 1400);
-        }
-      });
+    runAfterDrawerPanelPaint(() => {
+      if (panel === null) {
+        m55DtrScrollToDrawerHub();
+        return;
+      }
+      m55DtrScrollToDrawerPanel(panel);
+      const panelRoot = document.querySelector(m55DtrDrawerPanelSelector(panel));
+      const band = panelRoot?.querySelector('[id^="section-"]');
+      if (band instanceof HTMLElement && REPORT_PARTS.some((p) => p.anchor === band.id)) {
+        band.classList.add(styles.reportPartBandLanding);
+        window.setTimeout(() => band.classList.remove(styles.reportPartBandLanding), 1400);
+      }
     });
   }, []);
 
@@ -2665,7 +2754,8 @@ export default function DtrFullReader({
   };
 
   return (
-    <div className={styles.reportRoot}>
+    <div className={styles.reportRoot} data-m55-dtr-scroll-root="true">
+      <DrawerHubScrollFab />
       <div className={styles.reportMain}>
         <PremiumHero
           stem={stem}

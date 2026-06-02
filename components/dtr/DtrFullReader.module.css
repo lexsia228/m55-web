@@ -40,6 +40,8 @@
   --dtr-shadow:      rgba(0, 0, 0, 0.40);
 
   --page-pad-x: 12px;
+  /* Sticky PublicHeader + breathing room for drawer hub/panel scroll targets */
+  --m55-dtr-scroll-offset: calc(env(safe-area-inset-top, 0px) + 56px + 16px);
   padding: clamp(10px, 2vw, 14px) var(--page-pad-x) 80px;
   background: var(--dtr-canvas);
   color: var(--dtr-body);
@@ -2228,7 +2230,14 @@
   gap: 10px;
 }
 
-/* 保存版専用：中央下 ↑ → 03 読み方ハブへ（ScrollToTopButton と同系の静かな丸ボタン） */
+/* /dtr/core: hide global page-top FAB; reader mounts hub-target FAB below */
+:global(body[data-m55-dtr-core-reader]) button[aria-label='ページ上部へ戻る'] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden;
+}
+
+/* 保存版専用：中央下 ↑ → 入口カード上端へ（ScrollToTopButton と同系の静かな丸ボタン） */
 .readingGuideFab {
   position: fixed;
   bottom: clamp(24px, 4vw, 36px);

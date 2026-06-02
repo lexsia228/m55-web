@@ -124,7 +124,10 @@ export function PremiumDrawerHub({
 
   return (
     <section className={hubStyles.drawerHub} aria-label={PAID_DTR_DRAWER_HUB.ariaLabelJa}>
-      <div className={hubStyles.drawerHubEntryCard}>
+      <div
+        className={`${hubStyles.drawerHubEntryCard} ${hubStyles.drawerHubEntryAnchor}`}
+        data-m55-dtr-drawer-hub="true"
+      >
         <span className={hubStyles.drawerHubShimmer} aria-hidden />
         <div className={hubStyles.drawerHubHeader}>
           <p className={hubStyles.drawerHubOverline}>{PAID_DTR_DRAWER_HUB.overlineJa}</p>
@@ -184,9 +187,10 @@ export function PremiumDrawerHub({
               <div
                 className={
                   bodyVisible
-                    ? hubStyles.drawerHubPanelSlot
+                    ? `${hubStyles.drawerHubPanelSlot} ${hubStyles.drawerHubPanelAnchor}`
                     : `${hubStyles.drawerHubPanelSlot} ${hubStyles.drawerHubPanelSlotPersist}`
                 }
+                data-m55-dtr-drawer-panel={panel}
               >
                 <div className={hubStyles.drawerHubReadingSurface}>
                   {renderPanelBody(panel)}
