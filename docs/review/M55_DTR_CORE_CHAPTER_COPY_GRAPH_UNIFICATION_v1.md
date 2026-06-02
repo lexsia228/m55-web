@@ -329,3 +329,152 @@ W-A1 で確定した **4章統合 Hub**（ユーザー関心ラベル + Ⅰ〜�
 | 版 | 日付 | 内容 |
 |----|------|------|
 | v1 | 2026-06-01 | W-B0-DOCS — 初版 Planning SSOT（CHAPTER-COPY-GRAPH-UNIFICATION） |
+
+---
+
+## 20. v1.1追記（W-B2 Planning 監査結果）
+
+**Gate:** `CATEGORY-1-M55-DTR-CORE-CHAPTER-BALANCE-AND-REPLY-FUNNEL-W-B2a-DOCS-LOCAL`
+**Status:** GREEN（planning only / docs only）
+**Date:** 2026-06-02
+**Baseline:** W-B1 CLOSED on Production `3d4e4f5`（Human smoke PASS）
+
+### 20.1 Ⅰ〜Ⅳの文章量・読む負荷比較
+
+| 章 | engine本文（目安） | UI要素の主因 | 体感負荷 |
+|----|--------------------|--------------|----------|
+| Ⅰ 自分の形 | s1+s2 avg ~454 | 記事2 + viz2 + FiveAxis深読み | 重 |
+| Ⅱ 仕事・進め方 | s3+s4 avg ~462 | essence + strengths grid + trait深読み | 中〜重 |
+| Ⅲ 近い人 | s5+s6 avg ~645 | grid2 + domain深読み（場面幅広） | 中〜重 |
+| Ⅳ 生活・疲れ | s7中心（本文は軽め） | WorkGuide + Practical + Recovery深読み | 中（構成非対称） |
+
+**所見:** 文字数だけでなく、深読みの開き方と可視化配置が読む負荷を決める。特にⅠは積み上がり、Ⅳは構成パターン差で別物に感じやすい。
+
+### 20.2 章ごとの強い点
+
+| 章 | 強い点 |
+|----|--------|
+| Ⅰ | 本人情報の起点が明確で、土台として読み直しやすい |
+| Ⅱ | 力が出る条件が実務に直結し、優先順位に落としやすい |
+| Ⅲ | 距離感・言葉選び・無理の出方が生活文脈で読める |
+| Ⅳ | 戻し方が行動単位で示され、実践に移しやすい |
+
+### 20.3 章ごとの弱い点
+
+| 章 | 弱い点 |
+|----|--------|
+| Ⅰ | 情報が多く、深読みまで一気に読むと重い |
+| Ⅱ | grid内で本文重複が起き、冗長に見える箇所がある |
+| Ⅲ | 深読みの射程が広く、近い人テーマから外れて見える瞬間がある |
+| Ⅳ | WorkGuide先行で、Ⅰ〜Ⅲと導入リズムが揃いにくい |
+
+### 20.4 生活語としてまだ硬い箇所
+
+- `輪郭` / `整理` / `構造` など、主表示で説明語に寄る箇所が残る
+- `保存版から見ると` 系ラベルは、場面語に寄せる余地がある
+- 分析語（分析・分解・調査・改善サイクル）は主表示から外す方針を維持
+
+### 20.5 グラフ12点の棚卸し（削除前提にしない）
+
+| # | graph id | 章 |
+|---|----------|----|
+| 1 | ch1-identity-design | Ⅰ |
+| 2 | ch1-structure-radar | Ⅰ |
+| 3 | ch1-five-axis | Ⅰ |
+| 4 | ch2-stability-panel | Ⅱ |
+| 5 | ch2-strengths-lift | Ⅱ |
+| 6 | ch2-trait-interaction | Ⅱ |
+| 7 | ch3-friction-warning | Ⅲ |
+| 8 | ch3-comm-flow | Ⅲ |
+| 9 | ch3-domain-scenes | Ⅲ |
+| 10 | ch4-work-guide | Ⅳ |
+| 11 | ch4-practical-guidance | Ⅳ |
+| 12 | ch4-friction-recovery | Ⅳ |
+
+### 20.6 グラフと本文の紐づき評価
+
+| 評価 | 対象 | 方針 |
+|------|------|------|
+| 強 | identity/stability/friction/work-guide 系 | 現行順序を維持し、captionで意味を固定 |
+| 中 | trait-interaction / recovery | 導入文を短く足して読み筋を作る |
+| 弱 | five-axis / domain-scenes | 削除せず、導入文・順序・default設定で役割を明示 |
+
+### 20.7 章ごとの統一構成案
+
+共通骨格（表示層）:
+`章導入（生活語） -> 本文 -> 可視化+caption -> bridge -> 深読み（必要時のみ）`
+
+章別の確定候補:
+- Ⅰ: **FiveAxisをdefaultClosed候補**
+- Ⅱ: **grid内body重複の表示トリム候補**
+- Ⅲ: **「近い人を中心に」の章頭橋追加候補**
+- Ⅳ: **WorkGuide前に短い導入追加候補**
+
+### 20.8 章末返書導線案（W-B3候補）
+
+- `ReportBridgeBand` は既に存在（4章共通）
+- W-B3は **「CTA + consult panel遷移」** に限定
+- CTAは送信ではなく `consult` panel へ移動するのみ
+- cap情報（1件同梱、追加最大4件、500円）は誤解回避のため短く併記
+
+### 20.9 Hub返書行の強調案（W-B4候補）
+
+- Hub内の返書行だけ視認性を1段上げる（過剰演出なし）
+- 章行とのバランスを壊さず、導線の迷いを減らす
+- 無制限相談や汎用チャットに見える文言は避ける
+
+### 20.10 ConsultRoom / ConsultReplyCard へ波及すべき生活語（実装はW-C）
+
+- `整理` の多用を、生活語（絞る・見立てる・今の場面に合わせる）へ置換候補化
+- `保存版から見ると` のラベルを、章体験に沿う語へ再調整候補化
+- ただし本ゲートではコード変更しない
+
+### 20.11 時間軸選択の扱い（W-D別トラック）
+
+- 3択（指定なし / 今月 / 今年）は有効性あり
+- 置き場所は保存版drawerではなく、返書送信前工程が妥当
+- 「予言」表現は避け、「今月の扱い方」「今年の見取り図」で扱う
+- prompt/API/DB/UI影響が大きいため、W-B系列から分離する
+
+### 20.12 Product Truthリスク（維持確認）
+
+- 相談返書は **1件同梱**
+- 追加は **最大4件**
+- 合計 **5件**
+- 追加 **500円**
+- 保存版に紐づく相談、**1テーマ**
+- 汎用チャットではない
+- **ticket消費はconsult送信時のみ**
+
+### 20.13 engine/snapshotに触れずにできる範囲
+
+- 表示層 copy 調整（章導入、caption、bridge文言）
+- drawer内の順序・折りたたみ・重複抑制
+- consult panel への非送信遷移導線
+
+### 20.14 後回しにすべき範囲
+
+- engine本文の全面生活語化
+- snapshot rewrite / backfill
+- ConsultRoom / ConsultReplyCard 本体改修
+- 時間軸のprompt/API連動
+
+### 20.15 最小実装Wave案（更新）
+
+| Wave | 目的 |
+|------|------|
+| W-B2a | 本docs v1.1追記（本ゲート） |
+| W-B2b | 章バランスの表示層調整（量・順序・折りたたみ） |
+| W-B3 | 章末CTA + consult panel遷移（送信なし） |
+| W-B4 | Hub返書行の強調 |
+| W-C | ConsultRoom/ReplyCard生活語波及 |
+| W-D | 時間軸選択 |
+| W-engine | 新規生成分のengine生活語化 |
+
+---
+
+## 21. Changelog v1.1
+
+| 版 | 日付 | 内容 |
+|----|------|------|
+| v1.1 | 2026-06-02 | W-B2 Planning監査結果を追記（章バランス/グラフ紐づき/返書導線/Product Truth/Wave再編）。実装・commit・deployなし。 |
