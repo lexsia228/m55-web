@@ -1325,6 +1325,58 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
           ))}
         </div>
       </div>
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>力が出る条件と戻し方</h3>
+        <div className={styles.idGrowthFlow}>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.12s' }}
+          >
+            <span className={styles.idGrowthTag}>力が出やすいとき</span>
+            <p className={styles.idGrowthText}>
+              やることの順番が見え、先に整える場所を一つ決められるとき。
+            </p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.2s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
+            <p className={styles.idGrowthText}>
+              同時進行や急かしが重なり、どこから手をつけるか分からなくなるとき。
+            </p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.28s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
+            <p className={styles.idGrowthText}>
+              今日進めることを一つに絞り、「まずここから」と決めること。
+            </p>
+          </div>
+        </div>
+        <p className={styles.idDesignHint}>
+          見えた条件は、そのまま答えにするものではありません。
+          今いちばん重い作業や予定の中で、先に整える場所を一つ選ぶために使います。
+        </p>
+      </div>
     </div>
   );
 }
@@ -1332,14 +1384,22 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
 function EssenceArticleWithViz({
   section,
   stemIdx,
+  nickname,
   openingLedeShown = false,
 }: {
   section: DtrSection;
   stemIdx: number;
+  nickname?: string;
   openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
-  const bodyParas = paras.slice(1);
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const bodyParas = [
+    `${displayName}さんは、動き始める前に「何を先に整えるか」が見えると、力を出しやすくなります。勢いだけで進めるより、順番や置き方が見えるほうが、自分の力を使いやすくなります。`,
+    '同時にいくつものことを求められたり、急かされる流れが続くと、どこから手をつけるかが見えにくくなります。その状態で無理に進めようとすると、動いているのに疲れだけが残りやすくなります。',
+    'まずは、今日の優先を一つに絞ります。全部を整えてから進むのではなく、「ここだけ先に整える」と決めると、動き出しやすくなります。',
+  ];
   const inlineLede = openingLedeShown ? null : paras[0];
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
@@ -1352,6 +1412,9 @@ function EssenceArticleWithViz({
           ))}
         </div>
       ) : null}
+      <p className={styles.chapterPilotGuideText}>
+        この図では、{displayName}さんがどんな条件で進みやすく、どんな流れで止まりやすいかを見ます。仕事やこれからの動きは、気合いだけで進めるより、先に整える場所を見つけるほうが扱いやすくなります。
+      </p>
       <GraphCaption id="ch2-stability-panel" />
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
     </article>
@@ -2724,6 +2787,7 @@ export default function DtrFullReader({
                   <EssenceArticleWithViz
                     section={s3}
                     stemIdx={stemIdx}
+                    nickname={view.nickname}
                     openingLedeShown={Boolean(sectionOpeningLede(s3.body))}
                   />
                 ) : null}
