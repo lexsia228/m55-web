@@ -2230,13 +2230,6 @@
   gap: 10px;
 }
 
-/* /dtr/core: hide global page-top FAB; reader mounts hub-target FAB below */
-:global(body[data-m55-dtr-core-reader]) button[aria-label='ページ上部へ戻る'] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  visibility: hidden;
-}
-
 /* 保存版専用：中央下 ↑ → 入口カード上端へ（ScrollToTopButton と同系の静かな丸ボタン） */
 .readingGuideFab {
   position: fixed;

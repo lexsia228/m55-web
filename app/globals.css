@@ -6,3 +6,10 @@
 html, body { margin: 0; padding: 0; }
 * { box-sizing: border-box; }
 
+/* /dtr/core: hide global page-top FAB while reader mounts hub-target FAB (shell CSS; no CSS Modules) */
+body[data-m55-dtr-core-reader] button[aria-label='ページ上部へ戻る'] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden;
+}
+
