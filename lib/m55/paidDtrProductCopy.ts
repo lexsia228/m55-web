@@ -429,7 +429,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
       'そう読んだ理由は、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
     actionJa:
       'まずは、今の悩みを責めずに見直し、力が戻りやすい場所から読んでいきます。',
-    pointsJa: ['一つを深く見られる人', '少しずつ磨ける人', '納得まで整える人'],
+    pointsJa: ['一つを深く見られる人', '細かく直して良くできる人', '納得できる形まで整えたい人'],
   },
   '2': {
     headingSuffixJa: 'の進め方',
