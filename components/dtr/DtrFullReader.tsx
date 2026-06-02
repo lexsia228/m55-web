@@ -589,6 +589,7 @@ function DrawerChapterPersonalLead({
     <div className={styles.drawerChapterPersonalLead}>
       <h2 className={styles.chapterPersonalHeading}>{heading}</h2>
       <ChapterOpeningLede text={tendencyLine} />
+      {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
       <ChapterOpeningLede text={copy.lifeJa} />
       <ChapterOpeningLede text={copy.actionJa} />
       <div className={styles.chapterOpeningPoints} aria-label="見るポイント">

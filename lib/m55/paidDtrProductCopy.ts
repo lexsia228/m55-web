@@ -412,6 +412,7 @@ export const PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA =
 export type PaidDtrChapterOpeningCopy = {
   headingSuffixJa: string;
   tendencyJa: string;
+  reasonJa?: string;
   lifeJa: string;
   actionJa: string;
   pointsJa: readonly [string, string, string];
@@ -422,8 +423,10 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
     headingSuffixJa: 'の自分の形',
     tendencyJa:
       'M55の読み解きでは、{nickname}さんは、ひとつのことにじっくり向き合うほど力が出やすい形です。',
+    reasonJa:
+      'そう読んだ理由は、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
     lifeJa:
-      'いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさが見えやすくなります。',
+      'そのため、いろいろなことを一気に広げるより、今気になることをひとつ選び、少しずつ整えていくほうが自分らしさが見えやすくなります。',
     actionJa:
       'まずは、今の悩みが「進め方」「近い人」「整え方」のどこに近いかを見ていきます。',
     pointsJa: ['今の悩みがどこに出ているか', '自分の力が出やすい形', '次に読む章'],
