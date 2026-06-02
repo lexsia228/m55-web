@@ -562,7 +562,11 @@ function DrawerChapterPersonalLead({
       <ChapterOpeningLede text={copy.actionJa} />
       <div
         className={styles.chapterOpeningPoints}
-        aria-label={partId === '1' || partId === '2' ? 'この章で出ている特徴' : '見るポイント'}
+        aria-label={
+          partId === '1' || partId === '2' || partId === '3'
+            ? 'この章で出ている特徴'
+            : '見るポイント'
+        }
       >
         {copy.pointsJa.map((point) => (
           <p key={point} className={styles.chapterOpeningPoint}>
@@ -1554,6 +1558,58 @@ function FrictionWarningFigures({ body }: { body: string }) {
           ))}
         </div>
       </div>
+      <div className={styles.idDesignBlock}>
+        <h3 className={styles.idDesignBlockTitle}>近い人との向き合い方と戻し方</h3>
+        <div className={styles.idGrowthFlow}>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.12s' }}
+          >
+            <span className={styles.idGrowthTag}>力が出やすいとき</span>
+            <p className={styles.idGrowthText}>
+              落ち着いて相手の言葉を聞き、自分の気持ちも少しずつ言葉にできるとき。
+            </p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={styles.idGrowthPath} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.2s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
+            <p className={styles.idGrowthText}>
+              分かってほしい気持ちが強くなり、言葉が強くなったり、距離が近くなりすぎるとき。
+            </p>
+          </div>
+          <div className={styles.idGrowthBetween} aria-hidden>
+            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M2 6 L62 6" />
+            </svg>
+            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M6 2 L6 62" />
+            </svg>
+          </div>
+          <div
+            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+            style={{ animationDelay: '0.28s' }}
+          >
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
+            <p className={styles.idGrowthText}>
+              すぐに結論を出さず、まず一呼吸おいて、言葉を短く整えること。
+            </p>
+          </div>
+        </div>
+        <p className={styles.idDesignHint}>
+          見えた出方は、そのまま答えにするものではありません。
+          いまいちばん気になるやりとりの中で、言葉と距離を少し整えるために使います。
+        </p>
+      </div>
     </div>
   );
 }
@@ -1631,23 +1687,38 @@ function GridArticleStrengthsViz({
 
 function GridArticleFrictionViz({
   section,
+  nickname,
   openingLedeShown = false,
 }: {
   section: DtrSection;
+  nickname?: string;
   openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
-  const bodyParas = openingLedeShown ? paras.slice(1) : paras;
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const bodyParas = [
+    `${displayName}さんは、大切な人との関係ほど、雑に済ませず丁寧に向き合おうとします。相手の言葉や表情、少しの変化にも気づきやすく、関係を大事にしようとする力があります。`,
+    'ただし、近い人とのやりとりでは、分かってほしい気持ちが強くなるほど、言葉を選びすぎたり、逆に強く出てしまうことがあります。相手の反応を気にしすぎると、自分の中で抱え込みやすくなります。',
+    'まずは、相手を変えようとする前に、自分の言葉と距離を少し整えます。すぐに結論を出そうとせず、「今は近づきすぎていないか」「言葉が強くなっていないか」を見るだけでも、関係を扱いやすくなります。',
+  ];
+  const inlineLede = openingLedeShown ? null : paras[0];
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
+      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {bodyParas.length > 0 ? (
+        <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
+          {bodyParas.map((para, i) => (
+            <BodyPara key={i} para={para} compact={false} />
+          ))}
+        </div>
+      ) : null}
+      <p className={styles.chapterPilotGuideText}>
+        この図では、{displayName}さんが近い人との関係で、どこに力が入りやすく、どこで無理が出やすいかを見ます。大切な人とのやりとりは、正解を急ぐより、言葉と距離を少し整えるほうが扱いやすくなります。
+      </p>
       <GraphCaption id="ch3-friction-warning" />
       <FrictionWarningFigures body={section.body} />
-      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
-        {bodyParas.map((para, i) => (
-          <BodyPara key={i} para={para} compact />
-        ))}
-      </div>
     </article>
   );
 }
@@ -2849,13 +2920,13 @@ export default function DtrFullReader({
                 partId="3"
                 nickname={view.nickname}
               />
-              <ChapterOpeningLede text="近い人とのやりとりを中心に、言葉・距離・無理の出方を見ていきます。" />
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
                   {gridS5 ? (
                     <GridArticleFrictionViz
                       key={gridS5.id}
                       section={gridS5}
+                      nickname={view.nickname}
                       openingLedeShown={Boolean(sectionOpeningLede(gridS5.body))}
                     />
                   ) : null}
@@ -2863,15 +2934,12 @@ export default function DtrFullReader({
                 </div>
               ) : null}
               {gridSections.length > 0 ? (
-                <>
-                  <ReportBridgeBand partId="3" />
-                  <ChapterConsultNextAction
-                    partId="3"
-                    nickname={view.nickname}
-                    ledeHint={chapterBridgeLedeHint(sectionOpeningLede(gridS5?.body ?? ''))}
-                    onOpenConsult={() => selectPanel('consult')}
-                  />
-                </>
+                <ChapterConsultNextAction
+                  partId="3"
+                  nickname={view.nickname}
+                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(gridS5?.body ?? ''))}
+                  onOpenConsult={() => selectPanel('consult')}
+                />
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
