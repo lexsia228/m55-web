@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-06-01T23:09:14.727933+00:00
+Generated: 2026-06-02T23:08:31.386987+00:00
 Total records: 670
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -599,7 +599,7 @@ Total records: 670
 - [ssot] `docs/ssot/M55_SUPABASE_NON_PROD_DB_STRATEGY_FOR_REPLY_WALLET_MIGRATION_v1.md` (10722 bytes)
 - [ssot] `docs/ssot/M55_SYSTEM_SSOT.md` (671837 bytes)
 - [ssot] `docs/ssot/M55_USER_DATA_AND_MARKETING_BOUNDARY_SSOT_v1_2026-03-07.md` (6676 bytes)
-- [ssot] `docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md` (6555 bytes)
+- [ssot] `docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_EXEC_2026-05-24.md` (6653 bytes)
 - [ssot] `docs/ssot/M55_VERCEL_SUPABASE_ADMIN_ENV_CORRECTION_PLANNING_2026-05-24.md` (11270 bytes)
 - [ssot] `docs/ssot/M55_VISUAL_TOKEN_SPEC_v1.md` (4363 bytes)
 - [ssot] `docs/ssot/M55_WEB_BEHAVIORAL_AND_DATA_BINDING_CONTRACT_SSOT_v1_2026-03-07.md` (1501 bytes)
