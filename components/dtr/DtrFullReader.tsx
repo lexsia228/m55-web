@@ -48,6 +48,8 @@ import {
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
   PAID_DTR_CHAPTER_OPENING_COPY,
+  PAID_DTR_DEEP_READING_SECTION_TITLE_JA,
+  PAID_DTR_DEEP_READING_TAKEAWAYS,
   PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA,
   PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA,
   PAID_DTR_CHAPTER_DRAWER_INTRO,
@@ -491,6 +493,24 @@ function chapterBridgeLedeHint(lede?: string | null): string | null {
   return one.length > 36 ? `${one.slice(0, 35)}…` : one;
 }
 
+function stripTrailingHonorific(raw: string): string {
+  return raw.replace(/\s+/g, '').replace(/(さん|様)+$/u, '');
+}
+
+function chapter1SoftTone(text: string): string {
+  return text
+    .replaceAll('差分を証拠に積む', '小さな変化を丁寧に見る')
+    .replaceAll('感受の解像度', '感じ取る細やかさ')
+    .replaceAll('観測蓄積型', '深掘り集中型')
+    .replaceAll('速報より蓄積', '急ぐより積み重ね')
+    .replaceAll('長期記憶として保持', '長く覚えて活かす')
+    .replaceAll('意思決定', '判断')
+    .replaceAll('検証', '見直し')
+    .replaceAll('観測', '見取り')
+    .replaceAll('構成', '重なり')
+    .replaceAll('処理', '受け止め');
+}
+
 function GraphCaption({ id }: { id: PaidDtrChapterGraphCaptionId }) {
   return (
     <div className={styles.graphCaptionBlock} role="note">
@@ -509,7 +529,9 @@ function ChapterPersonalHeading({
 }) {
   const suffix = PAID_DTR_CHAPTER_DRAWER_INTRO[partId].personalHeadingSuffixJa;
   const nick = nickname?.trim();
-  const label = nick ? `${clampDisplayNick(nick, 20)}さん${suffix}` : `あなた${suffix}`;
+  const label = nick
+    ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん${suffix}`
+    : `あなた${suffix}`;
   return <h2 className={styles.chapterPersonalHeading}>{label}</h2>;
 }
 
@@ -560,7 +582,7 @@ function DrawerChapterPersonalLead({
 }) {
   const copy = PAID_DTR_CHAPTER_OPENING_COPY[partId];
   const nick = nickname?.trim();
-  const displayName = nick ? clampDisplayNick(nick, 20) : 'あなた';
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const heading = `${displayName}さん${copy.headingSuffixJa}`;
   const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   return (
@@ -593,7 +615,7 @@ function ChapterConsultNextAction({
 }) {
   const copy = PAID_DTR_CHAPTER_BRIDGE_COPY[partId];
   const nick = nickname?.trim();
-  const displayName = nick ? `${clampDisplayNick(nick, 20)}さん` : 'あなた';
+  const displayName = nick ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん` : 'あなた';
   const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   const lifeLine = ledeHint
     ? `${copy.lifeJa}（保存版では「${ledeHint}」という出方も見えています。）`
@@ -613,6 +635,22 @@ function ChapterConsultNextAction({
         {PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA}
       </button>
       <p className={styles.chapterConsultTruthNote}>{PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA}</p>
+    </div>
+  );
+}
+
+function ChapterDeepReadingTakeaways({ partId }: { partId: PaidDtrReportPartId }) {
+  const copy = PAID_DTR_DEEP_READING_TAKEAWAYS[partId];
+  return (
+    <div className={styles.chapterTakeawayBlock} aria-label={`${PAID_DTR_DEEP_READING_SECTION_TITLE_JA}の要点`}>
+      <p className={styles.chapterTakeawayLead}>{copy.closedLeadJa}</p>
+      <ul className={styles.chapterTakeawayList}>
+        {copy.itemsJa.map((item) => (
+          <li key={item} className={styles.chapterTakeawayItem}>
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -852,12 +890,29 @@ function clampTensionBias(n: number): number {
 /** Paid-only: visual self-design figure for 「あなたという人物」 (body text unchanged). */
 function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nickname?: string }) {
   const viz = identityDesignVizForStem(stemIdx);
-  const displayName = nickname?.trim() ? `${clampDisplayNick(nickname, 20)}さん` : 'あなた';
+  const nick = nickname?.trim();
+  const displayName = nick ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん` : 'あなた';
   const bpLayers: { key: string; label: string; text: string }[] = [
-    { key: 'core', label: 'いちばん土台になる力', text: viz.blueprint.core },
-    { key: 'natural', label: '力が出やすいとき', text: viz.blueprint.natural },
-    { key: 'fragile', label: '止まりやすいとき', text: viz.blueprint.fragile },
-    { key: 'max', label: '楽に進めるための条件', text: viz.blueprint.maximize },
+    {
+      key: 'core',
+      label: 'いちばん土台になる力',
+      text: 'ひとつのことに集中し、少しずつ良くしていく力',
+    },
+    {
+      key: 'natural',
+      label: '力が出やすいとき',
+      text: '一度で終えるより、少しずつ整えながら進められるとき',
+    },
+    {
+      key: 'fragile',
+      label: '止まりやすいとき',
+      text: '細かい割り込みが続いたり、「とりあえず早く」と急かされるとき',
+    },
+    {
+      key: 'max',
+      label: '楽に進めるための条件',
+      text: '集中できる時間があり、「今日はここまで」と自分で区切れること',
+    },
   ];
   const db = clampTensionBias(viz.tension.deepenBroaden);
   const ge = clampTensionBias(viz.tension.guardExpress);
@@ -869,7 +924,7 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>{displayName}の力が出やすい4つの手がかり</h3>
         <p className={styles.idDesignHint}>
-          ここでは、{displayName}の「出やすい」「止まりやすい」「戻しやすい」を順に見ます。
+          ここでは、{displayName}の「力が出やすいとき」「止まりやすいとき」「戻し方」を順に見ます。
         </p>
         <div className={styles.idBpStack} role="list">
           {bpLayers.map((L, i) => (
@@ -889,16 +944,16 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>どちらに動きやすいか</h3>
         <div className={styles.idDesignHintBlock}>
-          <p className={styles.idDesignHint}>これは、良い・悪いを決める図ではありません。</p>
           <p className={styles.idDesignHint}>
-            「深める・広げる」「守る・出す」のどちらへ動きやすいかを見る図です。
+            {displayName}
+            は、急いで広げるより、ひとつのことを深めながら、自分の基準で整えるほど力が出やすい形です。
           </p>
-          <div className={styles.idDesignHintGlossGrid} role="note">
-            <span className={styles.idDesignHintGlossLine}>深める＝じっくり考える</span>
-            <span className={styles.idDesignHintGlossLine}>広げる＝人や場に広げる</span>
-            <span className={styles.idDesignHintGlossLine}>守る＝自分の基準を保つ</span>
-            <span className={styles.idDesignHintGlossLine}>出す＝外へ見せる・伝える</span>
-          </div>
+          <p className={styles.idDesignHint}>
+            人前で大きく見せる前に、納得できるところまで整えたい気持ちが出やすくなります。
+          </p>
+          <p className={styles.idDesignHint}>
+            そのぶん、急かされたり、途中で細かく割り込まれると、自分のペースを失いやすくなります。
+          </p>
         </div>
         <div className={styles.idTensionGrid}>
           <div className={styles.idTensionAxis}>
@@ -939,14 +994,16 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
       </div>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>出やすさの鍵</h3>
+        <h3 className={styles.idDesignBlockTitle}>力が出る向きと戻し方</h3>
         <div className={styles.idGrowthFlow}>
           <div
             className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
             style={{ animationDelay: '0.12s' }}
           >
             <span className={styles.idGrowthTag}>楽になる条件</span>
-            <p className={styles.idGrowthText}>{viz.growth.grow}</p>
+            <p className={styles.idGrowthText}>
+              深く向き合う時間があり、自分の基準で整えられるとき。
+            </p>
           </div>
           <div className={styles.idGrowthBetween} aria-hidden>
             <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
@@ -961,7 +1018,9 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
             style={{ animationDelay: '0.2s' }}
           >
             <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>崩れる条件</span>
-            <p className={styles.idGrowthText}>{viz.growth.break}</p>
+            <p className={styles.idGrowthText}>
+              干渉や急かしが増えて、どこまでやるかを自分で決められなくなるとき。
+            </p>
           </div>
           <div className={styles.idGrowthBetween} aria-hidden>
             <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
@@ -976,7 +1035,9 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
             style={{ animationDelay: '0.28s' }}
           >
             <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻す条件</span>
-            <p className={styles.idGrowthText}>{viz.growth.restore}</p>
+            <p className={styles.idGrowthText}>
+              始める前に「今日はここまで」と自分の言葉で決めておくこと。
+            </p>
           </div>
         </div>
       </div>
@@ -996,7 +1057,13 @@ function IdentityArticleWithBlueprint({
   openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
-  const bodyParas = paras.slice(1);
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const bodyParas = [
+    `${displayName}さんは、ひとつのことにじっくり向き合うほど、力が出やすくなります。いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさがはっきりしていきます。`,
+    'やりがいを感じやすいのは、「前より良くなった」と実感できるときです。完成した瞬間だけでなく、直しながら良くなっていく過程にも手応えがあります。',
+    `${displayName}さん自身が納得できる形まで向き合えることが、いちばん大切です。雑に済ませたくない気持ちは、弱さではなく、納得できる形まで向き合おうとする力です。ただし、細かい割り込みが続いたり、急かされる流れが続くと、自分のペースを失いやすくなります。`,
+  ];
   const inlineLede = openingLedeShown ? null : paras[0];
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
@@ -1646,7 +1713,7 @@ function PaidModuleShell({
         {!open && (
           <>
             <p className={styles.pmSummary}>{summary}</p>
-            <span className={styles.pmExpandChip} aria-hidden="true">展開</span>
+            <span className={styles.pmExpandChip} aria-hidden="true">開いて読む</span>
           </>
         )}
       </div>
@@ -1667,15 +1734,15 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
   const summary = axisVizSummaryDisplay(data.balance);
 
   const summaryRows: { key: string; label: string; val: string }[] = [
-    { key: 'primary', label: summary.primaryLabel, val: summary.primaryVal },
-    { key: 'assist', label: summary.assistLabel, val: summary.assistVal },
-    { key: 'grow', label: summary.growLabel, val: summary.growVal },
+    { key: 'primary', label: summary.primaryLabel, val: chapter1SoftTone(summary.primaryVal) },
+    { key: 'assist', label: summary.assistLabel, val: chapter1SoftTone(summary.assistVal) },
+    { key: 'grow', label: summary.growLabel, val: chapter1SoftTone(summary.growVal) },
   ];
 
   return (
     <>
       <p className={styles.chapterPilotGuideText}>
-        5つの力は、点数ではなく、いま出やすい順に読むと分かりやすくなります。
+        5つの力は、点数ではありません。今の自分に出やすい力と、整うと使いやすくなる力を分けて見ると、今の悩みを読み直しやすくなります。
       </p>
       <GraphCaption id="ch1-five-axis" />
       <div className={styles.axisVizSummary} aria-label="力のバランスの要約">
@@ -1715,15 +1782,17 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
                 </span>
               </div>
               <p className={styles.axisVizInterpret}>
-                {axisRoleInterpretLine(label, level)}
+                {chapter1SoftTone(axisRoleInterpretLine(label, level))}
               </p>
             </div>
           );
         })}
       </div>
-      <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{data.note}</p>
+      <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>
+        この見え方は、そのまま答えにするものではありません。
+      </p>
       <p className={styles.chapterPilotGuideText}>
-        この見え方を、次は「進め方」「近い人」「整え方」のいちばん重い場面で使います。
+        次は「進め方」「近い人」「整え方」のうち、今いちばん重い場面で使います。
       </p>
     </>
   );
@@ -2645,19 +2714,20 @@ export default function DtrFullReader({
               </div>
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label="保存版の深読み" premium />
+              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 <PaidModuleShell
                   n={1}
                   tierJa="力の中心を読む"
                   tierClass={styles.prTierMint}
-                  overline="5つの力のかけ合わせ"
-                  title="いまの形をつくっている力"
+                  overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
+                  title={PAID_DTR_DEEP_READING_TAKEAWAYS['1'].closedTitleJa}
                   ariaLabel="5つの力の分布"
-                  summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
+                  summary={PAID_DTR_DEEP_READING_TAKEAWAYS['1'].closedLeadJa}
                   defaultOpen={false}
                   inDrawer
                 >
+                  <ChapterDeepReadingTakeaways partId="1" />
                   <FiveAxisModule stemIdx={stemIdx} />
                 </PaidModuleShell>
               </div>
@@ -2703,20 +2773,21 @@ export default function DtrFullReader({
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label="保存版の深読み" premium />
+              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s4_strengths') && sec('s5_friction') ? (
                   <PaidModuleShell
                     n={2}
                     tierJa="重なりを見る"
                     tierClass={styles.prTierAmber}
-                    overline="傾向と負荷"
-                    title="重なりと読み解き"
+                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
+                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['2'].closedTitleJa}
                     ariaLabel="傾向と負荷"
-                    summary="力として出やすい傾向と、無理が出やすい傾向がどう重なるかを読む。"
-                    defaultOpen
+                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['2'].closedLeadJa}
+                    defaultOpen={false}
                     inDrawer
                   >
+                    <ChapterDeepReadingTakeaways partId="2" />
                     <TraitInteractionModule
                       strengthsSection={sec('s4_strengths')!}
                       frictionSection={sec('s5_friction')!}
@@ -2766,20 +2837,21 @@ export default function DtrFullReader({
               ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label="保存版の深読み" premium />
+              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
                   <PaidModuleShell
                     n={3}
                     tierJa="場面で見る"
                     tierClass={styles.prTierBlue}
-                    overline="生活での出方"
-                    title="場面ごとの見方"
+                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
+                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['3'].closedTitleJa}
                     ariaLabel="生活での出方"
-                    summary="日常・関係・迷い・回復ごとに、出やすさ・負荷・戻し方を見ます。"
-                    defaultOpen
+                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['3'].closedLeadJa}
+                    defaultOpen={false}
                     inDrawer
                   >
+                    <ChapterDeepReadingTakeaways partId="3" />
                     <DomainMatrixModule
                       essenceSection={sec('s3_essence')!}
                       relationSection={sec('s6_relation')!}
@@ -2822,20 +2894,21 @@ export default function DtrFullReader({
               </div>
             ) : null}
             <div className={styles.drawerDeepReadBlock}>
-              <SectionDivider label="保存版の深読み" premium />
+              <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s5_friction') && sec('s8_bridge') ? (
                   <PaidModuleShell
                     n={4}
                     tierJa="実践ガイド"
                     tierClass={styles.prTierRose}
-                    overline="戻し方 · 整え方"
-                    title="つまずきから整える流れ"
+                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
+                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['4'].closedTitleJa}
                     ariaLabel="戻し方と整え方"
-                    summary="つまずきから整えて戻すまでの流れと、戻りやすい流れを示す。"
-                    defaultOpen
+                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['4'].closedLeadJa}
+                    defaultOpen={false}
                     inDrawer
                   >
+                    <ChapterDeepReadingTakeaways partId="4" />
                     <FrictionRecoveryModule
                       frictionSection={sec('s5_friction')!}
                       bridgeSection={sec('s8_bridge')!}

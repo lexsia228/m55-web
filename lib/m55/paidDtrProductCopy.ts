@@ -362,11 +362,11 @@ export type PaidDtrChapterBridgeCopy = {
 export const PAID_DTR_CHAPTER_BRIDGE_COPY: Record<PaidDtrReportPartId, PaidDtrChapterBridgeCopy> = {
   '1': {
     tendencyJa:
-      'M55の読み解きでは、{nickname}さんには、物事のつながりを静かに拾い続ける出方があります。',
+      'M55の読み解きでは、{nickname}さんは、ひとつのことにじっくり向き合うほど力が出やすい出方があります。',
     lifeJa:
-      'この章では、その出方を土台にして、進め方・近い人・整え方のどこで使うかを見ていきます。',
+      'この章で見えた形を土台にすると、進め方・近い人・整え方のどこで無理が出やすいかを読みやすくなります。',
     actionJa:
-      'まずは、今いちばん気になる場面をひとつに絞って読むと、次の章で扱いやすくなります。',
+      'まずは、今いちばん気になる場面をひとつ選んで、そこで自分の出方がどう重なるかを見てみてください。',
     consultQuestionJa:
       '今の悩みは、私のどの出方が重なって起きていますか？',
   },
@@ -421,11 +421,11 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
   '1': {
     headingSuffixJa: 'の自分の形',
     tendencyJa:
-      'M55の読み解きでは、{nickname}さんには、ひとつのことにじっくり向き合うほど力が出やすい傾向があります。',
+      'M55の読み解きでは、{nickname}さんは、ひとつのことにじっくり向き合うほど力が出やすい形です。',
     lifeJa:
-      'このお題では、いろいろなことを一気に広げるより、今気になる場面をひとつ選ぶほうが自分らしさを見つけやすくなります。',
+      'いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさが見えやすくなります。',
     actionJa:
-      'まずは、今の悩みが「進め方」「近い人」「整え方」のどこに近いかを見るところから始めます。',
+      'まずは、今の悩みが「進め方」「近い人」「整え方」のどこに近いかを見ていきます。',
     pointsJa: ['今の悩みがどこに出ているか', '自分の力が出やすい形', '次に読む章'],
   },
   '2': {
@@ -463,7 +463,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
 /** W-B3c1 pilot: chapter-1 only graph-reading and chapter-branch guidance. */
 export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
   beforeIdentityGraphJa:
-    'まずは「力が出る条件」と「崩れやすい条件」の2つだけを見ると、今の悩みの位置がつかみやすくなります。',
+    'まずは「力が出やすいとき」と「止まりやすいとき」の2つを見ると、今の悩みの位置がつかみやすくなります。',
   branchLeadJa:
     '形が見えたら、次は今いちばん重い場面へ進みます。',
   branchItemsJa: [
@@ -471,6 +471,58 @@ export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
     '近い人とのやりとりが重いときは、Ⅲ「恋人・近い人との向き合い方」へ。',
     '疲れ・生活・お金の不安が重いときは、Ⅳ「お金・生活・疲れの整え方」へ。',
   ] as const,
+} as const;
+
+/** Deep-reading renewal (W-B3): chapter-end takeaways copy (display-only). */
+export type PaidDtrDeepReadingTakeaway = {
+  closedTitleJa: string;
+  closedLeadJa: string;
+  itemsJa: readonly [string, string, string, string];
+};
+
+export const PAID_DTR_DEEP_READING_SECTION_TITLE_JA = 'この章で持ち帰ること' as const;
+
+export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDtrDeepReadingTakeaway> = {
+  '1': {
+    closedTitleJa: 'いまの形を、最後に短く整理する',
+    closedLeadJa: '力が出やすいとき・止まりやすいとき・戻し方を、短く確認します。',
+    itemsJa: [
+      '力が出やすいとき: ひとつのことに集中し、少しずつ良くしていけるとき。',
+      '止まりやすいとき: 細かい割り込みが続いたり、急かされて、自分のペースで整えられないとき。',
+      'まず意識すること: 始める前に「今日はここまで」と区切ると、出すタイミングを作りやすくなります。',
+      '返書で深める問い: 今の悩みは、私のどの出方が重なって起きていますか？',
+    ],
+  },
+  '2': {
+    closedTitleJa: '仕事とこれからの進め方を、短く確認する',
+    closedLeadJa: '力が出る条件と、止まりやすい場面を先に整える順で見ます。',
+    itemsJa: [
+      '力が出やすいとき: 条件が先に整うと、進み方が安定しやすいです。',
+      '止まりやすいとき: 条件が乱れると、動きが途切れやすくなります。',
+      'まず意識すること: いちばん重い作業の前に、整える条件をひとつ置きます。',
+      '返書で深める問い: 今週は、何を先に進めると詰まりにくいですか？',
+    ],
+  },
+  '3': {
+    closedTitleJa: '近い人とのやりとりを、短く確認する',
+    closedLeadJa: '距離・言葉・無理の出方を、自分側の扱い方として見直します。',
+    itemsJa: [
+      '言葉が強くなりやすいとき: 正しさを急ぐほど、強く伝わりやすくなります。',
+      '距離が近くなりやすいとき: 大切な人ほど、無理に近づきやすくなります。',
+      'まず意識すること: 結論の前に、距離と言葉の置き方を整えます。',
+      '返書で深める問い: このやりとりで、距離と言葉をどう置くと無理が減りますか？',
+    ],
+  },
+  '4': {
+    closedTitleJa: '生活の余白と戻し方を、短く確認する',
+    closedLeadJa: '判断疲れが出る場面と、まず戻す順番を日常の言葉で確認します。',
+    itemsJa: [
+      '判断が重くなりやすいとき: 疲れや不安が強いほど、日々の判断が重くなります。',
+      '余白が減りやすいとき: 決めることが増えると、戻る時間が減りやすくなります。',
+      'まず意識すること: 今日の判断をひとつ減らし、休む時間を先に確保します。',
+      '返書で深める問い: 疲れが強い今、まず一つだけ変えるなら何ですか？',
+    ],
+  },
 } as const;
 
 /** Drawer: engine section id → user-facing title (display-only; engine title unchanged). */
