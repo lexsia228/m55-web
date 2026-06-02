@@ -48,7 +48,9 @@ import {
   PAID_DTR_CHAPTER_DRAWER_INTRO,
   PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA,
   PAID_DTR_CHAPTER_GRAPH_CAPTIONS,
+  PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_INTRO_CONSULT_NOTE,
+  drawerSectionDisplayTitleJa,
   PAID_DTR_INTRO_PANEL_01,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
   PAID_DTR_REPORT_PARTS,
@@ -376,6 +378,10 @@ function ReportPartMotif({ partId }: { partId: '1' | '2' | '3' | '4' }) {
   );
 }
 
+function drawerSectionTitle(section: DtrSection): string {
+  return drawerSectionDisplayTitleJa(section);
+}
+
 function sectionOpeningLede(body: string): string | null {
   const lede = body.split('\n\n').map((p) => p.trim()).find(Boolean);
   return lede ?? null;
@@ -669,12 +675,12 @@ function SectionBlock({
   return (
     <article
       className={compact ? styles.savedGridArticle : styles.savedWideArticle}
-      aria-label={section.title}
+      aria-label={drawerSectionTitle(section)}
     >
       {compact ? (
-        <h3 className={styles.savedGridTitle}>{section.title}</h3>
+        <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       ) : (
-        <h2 className={styles.savedWideTitle}>{section.title}</h2>
+        <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
       )}
       <div className={compact ? styles.savedGridBody : styles.savedWideBody}>
         {section.body.split('\n\n').map((para, i) => (
@@ -834,8 +840,10 @@ function IdentityArticleWithBlueprint({
   const bodyParas = paras.slice(1);
   const inlineLede = openingLedeShown ? null : paras[0];
   return (
-    <article className={styles.savedWideArticle} aria-label={section.title}>
-      {!openingLedeShown ? <h2 className={styles.savedWideTitle}>{section.title}</h2> : null}
+    <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
+      {!openingLedeShown ? (
+        <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
+      ) : null}
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
       {bodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
@@ -1070,8 +1078,8 @@ function CompositionArticleWithViz({
   const paras = section.body.split('\n\n').filter((p) => p.trim());
   const [lede, ...rest] = paras;
   return (
-    <article className={styles.savedWideArticle} aria-label={section.title}>
-      <h3 className={styles.savedWideTitleSub}>{section.title}</h3>
+    <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
       {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
       {rest.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
@@ -1101,7 +1109,9 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
       <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>安定しやすい4つの条件</h3>
-        <p className={styles.idDesignHint}>集中しやすい環境と、人との関わり方を整理しています。</p>
+        <p className={styles.idDesignHint}>
+          集中しやすい環境と、人との関わり方をひとつずつ見ています。
+        </p>
         <div className={styles.stabGrid}>
           {cells.map((c, i) => (
             <div
@@ -1132,8 +1142,8 @@ function EssenceArticleWithViz({
   const bodyParas = paras.slice(1);
   const inlineLede = openingLedeShown ? null : paras[0];
   return (
-    <article className={styles.savedWideArticle} aria-label={section.title}>
-      <h3 className={styles.savedWideTitleSub}>{section.title}</h3>
+    <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
       {bodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
@@ -1253,12 +1263,14 @@ function FrictionWarningFigures({ body }: { body: string }) {
 
   return (
     <div className={`${styles.idDesignShell} ${styles.gridInsertShell}`} aria-label="注意の可視化">
-      <p className={styles.idDesignOverline}>深読み · つまずき方を整理する</p>
+      <p className={styles.idDesignOverline}>深読み · つまずき方をひとつずつ見る</p>
       <div className={styles.idDesignBlock}>
         <h3 className={`${styles.idDesignBlockTitle} ${styles.gridInsertBlockTitle}`}>
           つまずきやすい場面
         </h3>
-        <p className={styles.gridInsertHint}>ここでは、どんな時に無理が出やすいかを先に整理します。</p>
+        <p className={styles.gridInsertHint}>
+          ここでは、どんな時に無理が出やすいかを先に見ていきます。
+        </p>
         <div className={styles.warnList}>
           {items.map((it, i) => (
             <div
@@ -1330,8 +1342,8 @@ function GridArticleStrengthsViz({
   nickname?: string;
 }) {
   return (
-    <article className={styles.savedGridArticle} aria-label={section.title}>
-      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+    <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch2-strengths-lift" />
       <StrengthsLiftFigures body={section.body} nickname={nickname} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
@@ -1353,8 +1365,8 @@ function GridArticleFrictionViz({
   const paras = section.body.split('\n\n').filter((p) => p.trim());
   const bodyParas = openingLedeShown ? paras.slice(1) : paras;
   return (
-    <article className={styles.savedGridArticle} aria-label={section.title}>
-      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+    <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch3-friction-warning" />
       <FrictionWarningFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
@@ -1368,8 +1380,8 @@ function GridArticleFrictionViz({
 
 function GridArticleCommViz({ section }: { section: DtrSection }) {
   return (
-    <article className={styles.savedGridArticle} aria-label={section.title}>
-      <h3 className={styles.savedGridTitle}>{section.title}</h3>
+    <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch3-comm-flow" />
       <CommFlowFigures body={section.body} />
       <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
@@ -2262,7 +2274,7 @@ function GroundingPanel({
             <h3 className={styles.groundingTitle}>
               本質の読み解きをもとに、
               <br />
-              今の相談を整理する。
+              {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。
             </h3>
             <p className={styles.groundingLead}>{mapLead}</p>
             <p className={styles.groundingLead}>
@@ -2277,10 +2289,12 @@ function GroundingPanel({
           <div className={styles.groundingPillar}>
             <div className={styles.groundingPillarHead}>
               <span className={`${styles.groundingPillarDot} ${styles.groundingPillarDotMint}`} aria-hidden />
-              <span className={styles.groundingPillarLabel}>構造を参照</span>
+              <span className={styles.groundingPillarLabel}>
+                {PAID_DTR_CONSULT_GROUNDING_COPY.pillarFlowRefJa}
+              </span>
             </div>
             <p className={styles.groundingPillarText}>
-              このレポートで整理した傾向から、その状況で出やすい反応を読み解きます。
+              このレポートで見てきた傾向から、その状況で出やすい反応を読み解きます。
             </p>
           </div>
           <div className={styles.groundingPillar}>
@@ -2306,7 +2320,7 @@ function GroundingPanel({
         <div className={styles.groundingMeta}>
           <span className={styles.groundingMetaLabel}>参照している読み</span>
           <span className={styles.groundingMetaValue}>
-            輪郭 · 構造 · 無理の出方 · 扱い方 · 戻し方
+            {PAID_DTR_CONSULT_GROUNDING_COPY.metaReadAxesJa}
           </span>
         </div>
         <p className={styles.groundingNote}>{groundingNoteText}</p>
@@ -2605,7 +2619,7 @@ export default function DtrFullReader({
                     overline="戻し方 · 整え方"
                     title="つまずきから整える流れ"
                     ariaLabel="戻し方と整え方"
-                    summary="つまずきから整えて戻すまでの流れと、回復のパターンを示す。"
+                    summary="つまずきから整えて戻すまでの流れと、戻りやすい流れを示す。"
                     defaultOpen
                     inDrawer
                   >

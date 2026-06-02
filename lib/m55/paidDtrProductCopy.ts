@@ -351,6 +351,28 @@ export const PAID_DTR_CHAPTER_GRAPH_CAPTIONS: Record<PaidDtrChapterGraphCaptionI
   'ch4-friction-recovery': 'つまずきから戻る流れ',
 } as const;
 
+/** Drawer: engine section id → user-facing title (display-only; engine title unchanged). */
+export const PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID: Readonly<
+  Record<string, string>
+> = {
+  s2_composition: '傾向が重なる様子',
+  s3_essence: '力が出やすい条件と安定',
+};
+
+export function drawerSectionDisplayTitleJa(section: {
+  id: string;
+  title: string;
+}): string {
+  return PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID[section.id] ?? section.title;
+}
+
+/** Consult grounding band — life-language labels (W-B1 patch). */
+export const PAID_DTR_CONSULT_GROUNDING_COPY = {
+  titleLine2Ja: '今の相談を一緒に見ていく',
+  pillarFlowRefJa: '進め方を見る',
+  metaReadAxesJa: '自分の形 · 進め方 · 近い人 · 整え方 · 戻し方',
+} as const;
+
 export type PaidDtrReportPartView = {
   partId: PaidDtrReportPartId;
   roman: string;
