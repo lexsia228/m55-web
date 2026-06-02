@@ -351,6 +351,128 @@ export const PAID_DTR_CHAPTER_GRAPH_CAPTIONS: Record<PaidDtrChapterGraphCaptionI
   'ch4-friction-recovery': 'つまずきから戻る流れ',
 } as const;
 
+/** W-B3: chapter-end bridge copy for consult panel entry (display-only). */
+export type PaidDtrChapterBridgeCopy = {
+  tendencyJa: string;
+  lifeJa: string;
+  actionJa: string;
+  consultQuestionJa: string;
+};
+
+export const PAID_DTR_CHAPTER_BRIDGE_COPY: Record<PaidDtrReportPartId, PaidDtrChapterBridgeCopy> = {
+  '1': {
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんには、物事のつながりを静かに拾い続ける出方があります。',
+    lifeJa:
+      'この章では、その出方を土台にして、進め方・近い人・整え方のどこで使うかを見ていきます。',
+    actionJa:
+      'まずは、今いちばん気になる場面をひとつに絞って読むと、次の章で扱いやすくなります。',
+    consultQuestionJa:
+      '今の悩みは、私のどの出方が重なって起きていますか？',
+  },
+  '2': {
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、力が出る条件が整うと進みやすく、条件が乱れると詰まりやすい出方があります。',
+    lifeJa:
+      '仕事やこれからの動きでは、先にひとつ整えてから進むほうが、無理なく動きやすくなります。',
+    actionJa:
+      'まずは、今週いちばん止まりやすい作業の前に、整える条件をひとつ置いてみてください。',
+    consultQuestionJa:
+      '今週は、何を先に進めると詰まりにくいですか？',
+  },
+  '3': {
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、大切な人ほど言葉や距離に力が入りやすい出方があります。',
+    lifeJa:
+      '近い人との場面では、正しさを急ぐより、距離と言葉の置き方を整えるほうが戻しやすくなります。',
+    actionJa:
+      'まずは、言いすぎたと感じた場面で、結論の前にひと呼吸おくところから試してみてください。',
+    consultQuestionJa:
+      'このやりとりで、距離と言葉をどう置くと無理が減りますか？',
+  },
+  '4': {
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、疲れや不安が強いときほど日々の判断が重くなりやすい出方があります。',
+    lifeJa:
+      'お金や生活の不安は、数字を急いで動かすより、判断を続けられる余白を戻すほうが扱いやすくなります。',
+    actionJa:
+      'まずは、今日の判断をひとつ減らして休める時間を先に確保すると、戻りやすくなります。',
+    consultQuestionJa:
+      '疲れが強い今、まず一つだけ変えるなら何ですか？',
+  },
+} as const;
+
+export const PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA =
+  'この章の悩みを、相談返書でひとつに絞る' as const;
+
+export const PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA =
+  '保存版に紐づく1テーマだけを扱います。送信するまで相談返書は使いません。' as const;
+
+/** W-B3 refine: unified chapter opening (user-specific, life-language, display-only). */
+export type PaidDtrChapterOpeningCopy = {
+  headingSuffixJa: string;
+  tendencyJa: string;
+  lifeJa: string;
+  actionJa: string;
+  pointsJa: readonly [string, string, string];
+};
+
+export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrChapterOpeningCopy> = {
+  '1': {
+    headingSuffixJa: 'の自分の形',
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんには、ひとつのことにじっくり向き合うほど力が出やすい傾向があります。',
+    lifeJa:
+      'このお題では、いろいろなことを一気に広げるより、今気になる場面をひとつ選ぶほうが自分らしさを見つけやすくなります。',
+    actionJa:
+      'まずは、今の悩みが「進め方」「近い人」「整え方」のどこに近いかを見るところから始めます。',
+    pointsJa: ['今の悩みがどこに出ているか', '自分の力が出やすい形', '次に読む章'],
+  },
+  '2': {
+    headingSuffixJa: 'の進め方',
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、力が出る条件が整うと進みやすく、条件が乱れると止まりやすい傾向があります。',
+    lifeJa:
+      'このお題では、気合いで進めるより、先に時間・場所・締切の置き方を整えるほうが動きやすくなります。',
+    actionJa:
+      'まずは、今週いちばん止まりやすい作業の前に、整える条件をひとつ置いてみてください。',
+    pointsJa: ['力が出る条件', '止まりやすい場面', '先に整える順番'],
+  },
+  '3': {
+    headingSuffixJa: 'の近い人との向き合い方',
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、大切な人ほど言葉や距離に力が入りやすい傾向があります。',
+    lifeJa:
+      'このお題では、正しさを急ぐほど、言いすぎたり、近づきすぎたり、疲れが残りやすくなります。',
+    actionJa:
+      'まずは、相手を決めつける前に、距離と言葉の置き方を整えるところから見ていきます。',
+    pointsJa: ['言葉が強くなりやすい場面', '距離が近くなりすぎる場面', '無理を減らす戻し方'],
+  },
+  '4': {
+    headingSuffixJa: 'の整え方',
+    tendencyJa:
+      'M55の読み解きでは、{nickname}さんは、疲れや不安が強いときほど、日々の判断が重くなりやすい傾向があります。',
+    lifeJa:
+      'このお題では、お金や生活の不安は、数字を急いで動かすより、判断を続けられる余白をひとつ戻すほうが扱いやすくなります。',
+    actionJa:
+      'まずは、今日の判断をひとつ減らして、休める時間を先に確保するところから見ていきます。',
+    pointsJa: ['判断が重くなりやすい場面', '生活の余白', '疲れたときの戻し方'],
+  },
+} as const;
+
+/** W-B3c1 pilot: chapter-1 only graph-reading and chapter-branch guidance. */
+export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
+  beforeIdentityGraphJa:
+    'まずは「力が出る条件」と「崩れやすい条件」の2つだけを見ると、今の悩みの位置がつかみやすくなります。',
+  branchLeadJa:
+    '形が見えたら、次は今いちばん重い場面へ進みます。',
+  branchItemsJa: [
+    '進め方が重いときは、Ⅱ「仕事・これからの進め方」へ。',
+    '近い人とのやりとりが重いときは、Ⅲ「恋人・近い人との向き合い方」へ。',
+    '疲れ・生活・お金の不安が重いときは、Ⅳ「お金・生活・疲れの整え方」へ。',
+  ] as const,
+} as const;
+
 /** Drawer: engine section id → user-facing title (display-only; engine title unchanged). */
 export const PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID: Readonly<
   Record<string, string>

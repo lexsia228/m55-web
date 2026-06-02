@@ -45,6 +45,11 @@ import {
 import {
   PAID_DTR_BENEFITS_HEADING,
   PAID_DTR_BENEFIT_BULLETS,
+  PAID_DTR_CHAPTER1_PILOT_GUIDE,
+  PAID_DTR_CHAPTER_BRIDGE_COPY,
+  PAID_DTR_CHAPTER_OPENING_COPY,
+  PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA,
+  PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA,
   PAID_DTR_CHAPTER_DRAWER_INTRO,
   PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA,
   PAID_DTR_CHAPTER_GRAPH_CAPTIONS,
@@ -479,6 +484,13 @@ function sectionOpeningLede(body: string): string | null {
   return lede ?? null;
 }
 
+function chapterBridgeLedeHint(lede?: string | null): string | null {
+  if (!lede) return null;
+  const one = firstSentence(lede).replace(/\s+/g, ' ').trim();
+  if (!one) return null;
+  return one.length > 36 ? `${one.slice(0, 35)}…` : one;
+}
+
 function GraphCaption({ id }: { id: PaidDtrChapterGraphCaptionId }) {
   return (
     <div className={styles.graphCaptionBlock} role="note">
@@ -542,16 +554,65 @@ function ReportPartBand({ partId }: { partId: PaidDtrReportPartId }) {
 function DrawerChapterPersonalLead({
   partId,
   nickname,
-  lede,
 }: {
   partId: PaidDtrReportPartId;
   nickname?: string;
-  lede?: string | null;
 }) {
+  const copy = PAID_DTR_CHAPTER_OPENING_COPY[partId];
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(nick, 20) : 'あなた';
+  const heading = `${displayName}さん${copy.headingSuffixJa}`;
+  const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   return (
     <div className={styles.drawerChapterPersonalLead}>
-      <ChapterPersonalHeading partId={partId} nickname={nickname} />
-      {lede ? <ChapterOpeningLede text={lede} /> : null}
+      <h2 className={styles.chapterPersonalHeading}>{heading}</h2>
+      <ChapterOpeningLede text={tendencyLine} />
+      <ChapterOpeningLede text={copy.lifeJa} />
+      <ChapterOpeningLede text={copy.actionJa} />
+      <div className={styles.chapterOpeningPoints} aria-label="見るポイント">
+        {copy.pointsJa.map((point) => (
+          <p key={point} className={styles.chapterOpeningPoint}>
+            {point}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChapterConsultNextAction({
+  partId,
+  nickname,
+  ledeHint,
+  onOpenConsult,
+}: {
+  partId: PaidDtrReportPartId;
+  nickname?: string;
+  ledeHint?: string | null;
+  onOpenConsult: () => void;
+}) {
+  const copy = PAID_DTR_CHAPTER_BRIDGE_COPY[partId];
+  const nick = nickname?.trim();
+  const displayName = nick ? `${clampDisplayNick(nick, 20)}さん` : 'あなた';
+  const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
+  const lifeLine = ledeHint
+    ? `${copy.lifeJa}（保存版では「${ledeHint}」という出方も見えています。）`
+    : copy.lifeJa;
+  return (
+    <div className={styles.chapterConsultAction} aria-label="この章を返書で深める入口">
+      <p className={styles.chapterConsultReinforcement}>{tendencyLine}</p>
+      <p className={styles.chapterConsultReinforcement}>{lifeLine}</p>
+      <p className={styles.chapterConsultReinforcement}>{copy.actionJa}</p>
+      <p className={styles.chapterConsultQuestionLabel}>返書で深めるなら、この問い</p>
+      <p className={styles.chapterConsultQuestion}>{copy.consultQuestionJa}</p>
+      <button
+        type="button"
+        className={styles.chapterConsultButton}
+        onClick={onOpenConsult}
+      >
+        {PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA}
+      </button>
+      <p className={styles.chapterConsultTruthNote}>{PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA}</p>
     </div>
   );
 }
@@ -789,13 +850,14 @@ function clampTensionBias(n: number): number {
 }
 
 /** Paid-only: visual self-design figure for 「あなたという人物」 (body text unchanged). */
-function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
+function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nickname?: string }) {
   const viz = identityDesignVizForStem(stemIdx);
+  const displayName = nickname?.trim() ? `${clampDisplayNick(nickname, 20)}さん` : 'あなた';
   const bpLayers: { key: string; label: string; text: string }[] = [
-    { key: 'core', label: '中心にある力', text: viz.blueprint.core },
-    { key: 'natural', label: '力が出やすい場面', text: viz.blueprint.natural },
-    { key: 'fragile', label: 'つまずきやすい場面', text: viz.blueprint.fragile },
-    { key: 'max', label: '無理なく進める条件', text: viz.blueprint.maximize },
+    { key: 'core', label: 'いちばん土台になる力', text: viz.blueprint.core },
+    { key: 'natural', label: '力が出やすいとき', text: viz.blueprint.natural },
+    { key: 'fragile', label: '止まりやすいとき', text: viz.blueprint.fragile },
+    { key: 'max', label: '楽に進めるための条件', text: viz.blueprint.maximize },
   ];
   const db = clampTensionBias(viz.tension.deepenBroaden);
   const ge = clampTensionBias(viz.tension.guardExpress);
@@ -805,7 +867,10 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
       <p className={styles.idDesignOverline}>深読み · 力の出方をひとつずつ見る</p>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>力が出るまでの4つの手がかり</h3>
+        <h3 className={styles.idDesignBlockTitle}>{displayName}の力が出やすい4つの手がかり</h3>
+        <p className={styles.idDesignHint}>
+          ここでは、{displayName}の「出やすい」「止まりやすい」「戻しやすい」を順に見ます。
+        </p>
         <div className={styles.idBpStack} role="list">
           {bpLayers.map((L, i) => (
             <div
@@ -922,10 +987,12 @@ function IdentityDesignFigures({ stemIdx }: { stemIdx: number }) {
 function IdentityArticleWithBlueprint({
   section,
   stemIdx,
+  nickname,
   openingLedeShown = false,
 }: {
   section: DtrSection;
   stemIdx: number;
+  nickname?: string;
   openingLedeShown?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
@@ -944,8 +1011,9 @@ function IdentityArticleWithBlueprint({
           ))}
         </div>
       ) : null}
+      <p className={styles.chapterPilotGuideText}>{PAID_DTR_CHAPTER1_PILOT_GUIDE.beforeIdentityGraphJa}</p>
       <GraphCaption id="ch1-identity-design" />
-      <IdentityDesignFigures stemIdx={stemIdx} />
+      <IdentityDesignFigures stemIdx={stemIdx} nickname={nickname} />
     </article>
   );
 }
@@ -1606,6 +1674,9 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
 
   return (
     <>
+      <p className={styles.chapterPilotGuideText}>
+        5つの力は、点数ではなく、いま出やすい順に読むと分かりやすくなります。
+      </p>
       <GraphCaption id="ch1-five-axis" />
       <div className={styles.axisVizSummary} aria-label="力のバランスの要約">
         {summaryRows.map((row) => (
@@ -1651,6 +1722,9 @@ function FiveAxisModule({ stemIdx }: { stemIdx: number }) {
         })}
       </div>
       <p className={`${styles.moduleNote} ${styles.prModuleInsight}`}>{data.note}</p>
+      <p className={styles.chapterPilotGuideText}>
+        この見え方を、次は「進め方」「近い人」「整え方」のいちばん重い場面で使います。
+      </p>
     </>
   );
 }
@@ -2535,19 +2609,37 @@ export default function DtrFullReader({
                 <DrawerChapterPersonalLead
                   partId="1"
                   nickname={view.nickname}
-                  lede={s1 ? sectionOpeningLede(s1.body) : null}
                 />
                 {s1 ? (
                   <IdentityArticleWithBlueprint
                     section={s1}
                     stemIdx={stemIdx}
+                    nickname={view.nickname}
                     openingLedeShown={Boolean(sectionOpeningLede(s1.body))}
                   />
                 ) : null}
                 {s2 ? (
                   <>
                     <CompositionArticleWithViz section={s2} stemIdx={stemIdx} />
+                    <div className={styles.chapterPilotBranchGuide} aria-label="次に読む章の目安">
+                      <p className={styles.chapterPilotBranchLead}>
+                        {PAID_DTR_CHAPTER1_PILOT_GUIDE.branchLeadJa}
+                      </p>
+                      <ul className={styles.chapterPilotBranchList}>
+                        {PAID_DTR_CHAPTER1_PILOT_GUIDE.branchItemsJa.map((item) => (
+                          <li key={item} className={styles.chapterPilotBranchItem}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                     <ReportBridgeBand partId="1" />
+                    <ChapterConsultNextAction
+                      partId="1"
+                      nickname={view.nickname}
+                      ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s1?.body ?? ''))}
+                      onOpenConsult={() => selectPanel('consult')}
+                    />
                   </>
                 ) : null}
               </div>
@@ -2584,7 +2676,6 @@ export default function DtrFullReader({
                 <DrawerChapterPersonalLead
                   partId="2"
                   nickname={view.nickname}
-                  lede={s3 ? sectionOpeningLede(s3.body) : null}
                 />
                 {s3 ? (
                   <EssenceArticleWithViz
@@ -2599,7 +2690,17 @@ export default function DtrFullReader({
                   <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
                 </div>
               ) : null}
-              {s3 ? <ReportBridgeBand partId="2" /> : null}
+              {s3 ? (
+                <>
+                  <ReportBridgeBand partId="2" />
+                  <ChapterConsultNextAction
+                    partId="2"
+                    nickname={view.nickname}
+                    ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s3?.body ?? ''))}
+                    onOpenConsult={() => selectPanel('consult')}
+                  />
+                </>
+              ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label="保存版の深読み" premium />
@@ -2638,7 +2739,6 @@ export default function DtrFullReader({
               <DrawerChapterPersonalLead
                 partId="3"
                 nickname={view.nickname}
-                lede={gridS5 ? sectionOpeningLede(gridS5.body) : null}
               />
               <ChapterOpeningLede text="近い人とのやりとりを中心に、言葉・距離・無理の出方を見ていきます。" />
               {gridSections.length > 0 ? (
@@ -2653,7 +2753,17 @@ export default function DtrFullReader({
                   {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
                 </div>
               ) : null}
-              {gridSections.length > 0 ? <ReportBridgeBand partId="3" /> : null}
+              {gridSections.length > 0 ? (
+                <>
+                  <ReportBridgeBand partId="3" />
+                  <ChapterConsultNextAction
+                    partId="3"
+                    nickname={view.nickname}
+                    ledeHint={chapterBridgeLedeHint(sectionOpeningLede(gridS5?.body ?? ''))}
+                    onOpenConsult={() => selectPanel('consult')}
+                  />
+                </>
+              ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label="保存版の深読み" premium />
@@ -2691,7 +2801,6 @@ export default function DtrFullReader({
                 <DrawerChapterPersonalLead
                   partId="4"
                   nickname={view.nickname}
-                  lede={sectionOpeningLede(sec('s7_work')!.body)}
                 />
                 <ChapterOpeningLede text="ここでは、日々の動き方と疲れたときの戻し方を、生活の中で扱いやすい形にしていきます。" />
                 <WorkGuideCards workSection={sec('s7_work')!} />
@@ -2704,6 +2813,12 @@ export default function DtrFullReader({
                   />
                 </section>
                 <ReportBridgeBand partId="4" />
+                <ChapterConsultNextAction
+                  partId="4"
+                  nickname={view.nickname}
+                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(sec('s7_work')?.body ?? ''))}
+                  onOpenConsult={() => selectPanel('consult')}
+                />
               </div>
             ) : null}
             <div className={styles.drawerDeepReadBlock}>
