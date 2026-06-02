@@ -1433,16 +1433,23 @@ function GridArticleStrengthsViz({
   section: DtrSection;
   nickname?: string;
 }) {
+  const strengthItems = parseBlockItems(section.body);
+  const remainingItems = strengthItems.slice(3);
+
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch2-strengths-lift" />
       <StrengthsLiftFigures body={section.body} nickname={nickname} />
-      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
-          <BodyPara key={i} para={para} compact />
-        ))}
-      </div>
+      {remainingItems.length > 0 ? (
+        <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
+          {remainingItems.map((it) => (
+            <p key={it.header} className={styles.savedGridPara}>
+              {it.header} {firstSentence(it.content)}
+            </p>
+          ))}
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -2556,7 +2563,7 @@ export default function DtrFullReader({
                   title="いまの形をつくっている力"
                   ariaLabel="5つの力の分布"
                   summary="5つの力がどう重なるかを読み、近い人との関係で出やすい流れをつかむ。"
-                  defaultOpen
+                  defaultOpen={false}
                   inDrawer
                 >
                   <FiveAxisModule stemIdx={stemIdx} />
@@ -2633,6 +2640,7 @@ export default function DtrFullReader({
                 nickname={view.nickname}
                 lede={gridS5 ? sectionOpeningLede(gridS5.body) : null}
               />
+              <ChapterOpeningLede text="近い人とのやりとりを中心に、言葉・距離・無理の出方を見ていきます。" />
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
                   {gridS5 ? (
@@ -2685,6 +2693,7 @@ export default function DtrFullReader({
                   nickname={view.nickname}
                   lede={sectionOpeningLede(sec('s7_work')!.body)}
                 />
+                <ChapterOpeningLede text="ここでは、日々の動き方と疲れたときの戻し方を、生活の中で扱いやすい形にしていきます。" />
                 <WorkGuideCards workSection={sec('s7_work')!} />
                 <SectionDivider label="実践ガイド" premium />
                 <section className={styles.practicalShell} aria-label="実践ガイド">
