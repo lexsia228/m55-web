@@ -69,7 +69,6 @@ import {
   type DrawerHubOpenPanel,
   type DrawerHubPanelId,
 } from './PremiumDrawerHub';
-import { ReportBridgeBand } from './ReportBridgeBand';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -563,7 +562,7 @@ function DrawerChapterPersonalLead({
       <div
         className={styles.chapterOpeningPoints}
         aria-label={
-          partId === '1' || partId === '2' || partId === '3'
+          partId === '1' || partId === '2' || partId === '3' || partId === '4'
             ? 'この章で出ている特徴'
             : '見るポイント'
         }
@@ -591,8 +590,8 @@ function ChapterConsultNextAction({
 }) {
   const copy = PAID_DTR_CHAPTER_BRIDGE_COPY[partId];
   const nick = nickname?.trim();
-  const displayName = nick ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん` : 'あなた';
-  const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
+  const consultNick = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const tendencyLine = copy.tendencyJa.replace('{nickname}', consultNick);
   const lifeLine = ledeHint
     ? `${copy.lifeJa}（保存版では「${ledeHint}」という出方も見えています。）`
     : copy.lifeJa;
@@ -2179,42 +2178,42 @@ function FrictionRecoveryModule({
    D. Practical Guidance
    ───────────────────────────────────────────────────────────────────────────── */
 
-/** Ⅳ章・実践ガイド（stem 3）：本文からの自動抜粋では足りない行を、生活語で固定表示 */
-const PRACTICAL_GUIDANCE_STEM3: {
+/** Ⅳ章・実践ガイド：生活・余白向け固定表示（stemLaneIndex 非依存） */
+const CH4_PRACTICAL_GUIDANCE_CATEGORIES: {
   title: string;
   icon: 'work' | 'relationship' | 'recovery';
   rows: { action: string; why: string; when: string }[];
 }[] = [
   {
-    title: '日々の判断と距離',
+    title: '予定と余白',
     icon: 'work',
     rows: [
       {
-        action: '始める前に、今日やる範囲と「ここまでで十分」のラインを決めておく。',
-        why: '範囲が見えるほど、ひとつのことに深く入りやすくなります。',
-        when: '細かい依頼が増える前、または作業を始める前。',
+        action: '休める時間をカレンダーに先に置き、今日の予定を一つ手放す。',
+        why: 'お金・予定・疲れが重なるほど、全部を一度に決めようとしやすくなります。',
+        when: '不安が強く、何から手をつけるか分からないとき。',
       },
     ],
   },
   {
-    title: '人間関係の境界線',
-    icon: 'relationship',
+    title: '生活の負荷と余白',
+    icon: 'work',
     rows: [
       {
-        action: 'すぐに説明しきろうとせず、「少し整理してから返す」と伝える。',
-        why: '言葉を深く受け取りやすい分、急いだやりとりでは疲れがたまりやすくなります。',
-        when: '誤解されそうなとき、返事を急かされているとき。',
+        action: '休める時間を先に確保し、いま決めなくていいことを一つ横に置く。',
+        why: '不安や予定が重なるほど、全部を一度に決めようとしやすくなります。',
+        when: 'お金や生活のことが重なり、何から手をつけるか分からないとき。',
       },
     ],
   },
   {
-    title: '疲労と回復',
+    title: '疲れと戻り方',
     icon: 'recovery',
     rows: [
       {
-        action: '短くても、静かに整える時間を先に確保する。',
-        why: '深く向き合う時間があるほど、考えや感情を戻しやすくなります。',
-        when: '疲れきってからではなく、予定が詰まり始める前。',
+        action: '短くても、静かに休める時間を先に確保する。',
+        why: '疲れが残ったまま決め続けると、判断がさらに重くなりやすくなります。',
+        when: '予定が詰まり始め、休む前に片付けようとしているとき。',
       },
     ],
   },
@@ -2224,10 +2223,13 @@ function PracticalGuidanceSection({
   workSection,
   relationSection,
   stemIdx,
+  lifeTopicGuidance = false,
 }: {
   workSection: DtrSection;
   relationSection: DtrSection;
   stemIdx: number;
+  /** Ⅳ章：お金・生活・疲れ向け固定文（engine 抜粋フォールバックを使わない） */
+  lifeTopicGuidance?: boolean;
 }) {
   const workItems = parseBlockItems(workSection.body);
   const relationItems = parseBlockItems(relationSection.body);
@@ -2245,7 +2247,7 @@ function PracticalGuidanceSection({
     icon: 'work' | 'relationship' | 'recovery';
     rows: { action: string; why: string; when: string }[];
   }[] = (() => {
-    if (stemIdx === 3) return PRACTICAL_GUIDANCE_STEM3;
+    if (lifeTopicGuidance) return CH4_PRACTICAL_GUIDANCE_CATEGORIES;
 
     const used = new Set<string>();
     return [
@@ -2331,12 +2333,23 @@ function PracticalGuidanceSection({
     ];
   })();
 
+  const ch4Intro = lifeTopicGuidance
+    ? {
+        title: 'この章で試すこと',
+        sub: '今日決めなくていいことを一つ横に置き、休める時間を先に作ります。',
+      }
+    : null;
+
   return (
     <div className={styles.practicalStack}>
-      <GraphCaption id="ch4-practical-guidance" />
+      {lifeTopicGuidance ? null : <GraphCaption id="ch4-practical-guidance" />}
       <div className={styles.practicalIntro}>
-        <h2 className={styles.practicalIntroTitle}>このレポートの使い方</h2>
-        <p className={styles.practicalIntroSub}>今日から少し楽に扱うための実践ガイド</p>
+        <h2 className={styles.practicalIntroTitle}>
+          {ch4Intro?.title ?? 'このレポートの使い方'}
+        </h2>
+        <p className={styles.practicalIntroSub}>
+          {ch4Intro?.sub ?? '今日から少し楽に扱うための実践ガイド'}
+        </p>
       </div>
       {categories.map((cat) => (
         <div key={cat.title} className={styles.practicalCategory}>
@@ -2422,23 +2435,138 @@ const WORK_CARD_META: {
   { key: '生活のヒント',      icon: '●', color: 'rgba(140,170,220,0.88)' },
 ];
 
-function WorkGuideCards({ workSection }: { workSection: DtrSection }) {
+/** Ⅳ章 ch4-work-guide — カード見出し（engine キーはそのまま） */
+const CH4_WORK_GUIDE_LABEL_JA: Record<string, string> = {
+  '力が出る条件': '本来の力が出るとき',
+};
+
+/** Ⅳ章 ch4-work-guide — engine 本文は表示せず、生活・余白の読み解けだけ出す（engine 不変） */
+const CH4_WORK_GUIDE_BODY_JA: Record<string, string> = {
+  '力が出る条件':
+    '余白があり、今日やることを少なくできるとき。休める時間が少し戻っていると、動きやすくなります。',
+  '詰まりやすい条件':
+    'お金の不安、予定、やることが重なり、何から手をつけるか分からなくなるとき。全部を一度に決めようとすると、さらに重くなりやすいです。',
+  '環境のヒント':
+    '決めることが少ない時間帯や、予定の前に短く整える隙間があると、負担を戻しやすくなります。',
+  '生活のヒント':
+    '休める時間を先に置き、今日の予定を一つ手放すこと。余白が戻るほうが、動きやすくなります。',
+};
+
+function LifeMarginRecoveryFigures() {
+  return (
+    <div className={styles.idDesignBlock}>
+      <h3 className={styles.idDesignBlockTitle}>生活の余白と戻し方</h3>
+      <div className={styles.idGrowthFlow}>
+        <div
+          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+          style={{ animationDelay: '0.12s' }}
+        >
+          <span className={styles.idGrowthTag}>力が出やすいとき</span>
+          <p className={styles.idGrowthText}>
+            休める時間や余白があり、今やることを少なくできるとき。
+          </p>
+        </div>
+        <div className={styles.idGrowthBetween} aria-hidden>
+          <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+            <path className={styles.idGrowthPath} d="M2 6 L62 6" />
+          </svg>
+          <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+            <path className={styles.idGrowthPath} d="M6 2 L6 62" />
+          </svg>
+        </div>
+        <div
+          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+          style={{ animationDelay: '0.2s' }}
+        >
+          <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
+          <p className={styles.idGrowthText}>
+            不安や予定が重なり、全部を一度に決めようとしているとき。
+          </p>
+        </div>
+        <div className={styles.idGrowthBetween} aria-hidden>
+          <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
+            <path className={styles.idGrowthPath} d="M2 6 L62 6" />
+          </svg>
+          <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
+            <path className={styles.idGrowthPath} d="M6 2 L6 62" />
+          </svg>
+        </div>
+        <div
+          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
+          style={{ animationDelay: '0.28s' }}
+        >
+          <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
+            <p className={styles.idGrowthText}>
+              まず負担を一つ軽くし、休める時間を先に置くこと。
+            </p>
+        </div>
+      </div>
+      <p className={`${styles.idDesignHint} ${styles.ch4LifeMarginHint}`}>
+        見えた出方は、そのまま答えにするものではありません。
+        今いちばん重く感じている生活の中で、負担を一つ軽くするために使います。
+      </p>
+    </div>
+  );
+}
+
+function ChapterFourWorkLead({
+  workSection,
+  nickname,
+}: {
+  workSection: DtrSection;
+  nickname?: string;
+}) {
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const bodyParas = [
+    `${displayName}さんは、生活の小さな変化や疲れのサインに気づきやすいところがあります。乱れたまま無理に進むより、少しずつ整え直すことで、自分の動きやすさを取り戻しやすくなります。`,
+    'ただし、お金の不安、予定、やること、疲れが重なると、何から手をつけるか分からなくなりやすいです。その状態で一気に決めようとすると、考えることが増え、さらに疲れが残りやすくなります。',
+    'まずは、大きく変える前に、今日決めなくていいことを一つ横に置きます。全部を立て直そうとするより、休める時間、減らせる予定、後回しにできることを一つ選ぶほうが、戻る場所が見えやすくなります。',
+  ];
+
+  return (
+    <>
+      <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+        {bodyParas.map((para, i) => (
+          <BodyPara key={i} para={para} compact={false} />
+        ))}
+      </div>
+      <p className={styles.chapterPilotGuideText}>
+        この図では、{displayName}さんが疲れたときに、どこから余白を戻しやすいかを見ます。お金や生活の不安は、一気に答えを出すより、まず負担を一つ軽くするほうが扱いやすくなります。
+      </p>
+      <WorkGuideCards workSection={workSection} lifeTopicBodies />
+      <LifeMarginRecoveryFigures />
+    </>
+  );
+}
+
+function WorkGuideCards({
+  workSection,
+  lifeTopicBodies = false,
+}: {
+  workSection: DtrSection;
+  lifeTopicBodies?: boolean;
+}) {
   const items = parseBlockItems(workSection.body);
   if (items.length === 0) return null;
   return (
     <>
       <GraphCaption id="ch4-work-guide" />
-      <div className={styles.wgGrid} aria-label="力の出し方ガイド">
+      <div className={styles.wgGrid} aria-label="生活の余白と扱いやすさ">
       {WORK_CARD_META.map(({ key, icon, color }) => {
         const item = items.find((it) => it.header === key);
         if (!item) return null;
+        const body = lifeTopicBodies
+          ? (CH4_WORK_GUIDE_BODY_JA[key] ?? item.content.trim())
+          : item.content.trim();
+        const label = lifeTopicBodies ? (CH4_WORK_GUIDE_LABEL_JA[key] ?? key) : key;
         return (
           <div key={key} className={styles.wgCard}>
             <div className={styles.wgCardTop}>
               <span className={styles.wgIcon} style={{ color }} aria-hidden>{icon}</span>
-              <span className={styles.wgLabel} style={{ color }}>{key}</span>
+              <span className={styles.wgLabel} style={{ color }}>{label}</span>
             </div>
-            <p className={styles.wgBody}>{item.content.trim()}</p>
+            <p className={styles.wgBody}>{body}</p>
           </div>
         );
       })}
@@ -2813,7 +2941,6 @@ export default function DtrFullReader({
                         ))}
                       </ul>
                     </div>
-                    <ReportBridgeBand partId="1" />
                     <ChapterConsultNextAction
                       partId="1"
                       nickname={view.nickname}
@@ -2826,19 +2953,19 @@ export default function DtrFullReader({
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
+              <ChapterDeepReadingTakeaways partId="1" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 <PaidModuleShell
                   n={1}
                   tierJa="力の中心を読む"
                   tierClass={styles.prTierMint}
-                  overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
-                  title={PAID_DTR_DEEP_READING_TAKEAWAYS['1'].closedTitleJa}
+                  overline="5つの力のバランス"
+                  title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch1-five-axis']}
                   ariaLabel="5つの力の分布"
-                  summary={PAID_DTR_DEEP_READING_TAKEAWAYS['1'].closedLeadJa}
+                  summary="5つの力は点数ではなく、今出やすい傾向として見ます。"
                   defaultOpen={false}
                   inDrawer
                 >
-                  <ChapterDeepReadingTakeaways partId="1" />
                   <FiveAxisModule stemIdx={stemIdx} />
                 </PaidModuleShell>
               </div>
@@ -2883,20 +3010,20 @@ export default function DtrFullReader({
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
+              <ChapterDeepReadingTakeaways partId="2" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s4_strengths') && sec('s5_friction') ? (
                   <PaidModuleShell
                     n={2}
                     tierJa="重なりを見る"
                     tierClass={styles.prTierAmber}
-                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
-                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['2'].closedTitleJa}
+                    overline="出やすい力と無理の重なり"
+                    title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch2-trait-interaction']}
                     ariaLabel="傾向と負荷"
-                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['2'].closedLeadJa}
+                    summary="力が出やすい場面と、無理が重なりやすい場面を並べて見ます。"
                     defaultOpen={false}
                     inDrawer
                   >
-                    <ChapterDeepReadingTakeaways partId="2" />
                     <TraitInteractionModule
                       strengthsSection={sec('s4_strengths')!}
                       frictionSection={sec('s5_friction')!}
@@ -2944,20 +3071,20 @@ export default function DtrFullReader({
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
+              <ChapterDeepReadingTakeaways partId="3" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s3_essence') && sec('s6_relation') && sec('s7_work') ? (
                   <PaidModuleShell
                     n={3}
                     tierJa="場面で見る"
                     tierClass={styles.prTierBlue}
-                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
-                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['3'].closedTitleJa}
+                    overline="近い人を中心にした場面"
+                    title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch3-domain-scenes']}
                     ariaLabel="生活での出方"
-                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['3'].closedLeadJa}
+                    summary="仕事・人間関係・近い関係など、場面ごとの出方を見ます。"
                     defaultOpen={false}
                     inDrawer
                   >
-                    <ChapterDeepReadingTakeaways partId="3" />
                     <DomainMatrixModule
                       essenceSection={sec('s3_essence')!}
                       relationSection={sec('s6_relation')!}
@@ -2980,41 +3107,45 @@ export default function DtrFullReader({
                   partId="4"
                   nickname={view.nickname}
                 />
-                <ChapterOpeningLede text="ここでは、日々の動き方と疲れたときの戻し方を、生活の中で扱いやすい形にしていきます。" />
-                <WorkGuideCards workSection={sec('s7_work')!} />
-                <SectionDivider label="実践ガイド" premium />
-                <section className={styles.practicalShell} aria-label="実践ガイド">
+                <ChapterFourWorkLead
+                  workSection={sec('s7_work')!}
+                  nickname={view.nickname}
+                />
+                <SectionDivider label="お金・生活・疲れを軽くする一手" premium />
+                <section
+                  className={styles.practicalShell}
+                  aria-label="お金・生活・疲れを軽くする一手"
+                >
                   <PracticalGuidanceSection
                     workSection={sec('s7_work')!}
                     relationSection={sec('s6_relation')!}
                     stemIdx={stemIdx}
+                    lifeTopicGuidance
                   />
                 </section>
-                <ReportBridgeBand partId="4" />
                 <ChapterConsultNextAction
                   partId="4"
                   nickname={view.nickname}
-                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(sec('s7_work')?.body ?? ''))}
                   onOpenConsult={() => selectPanel('consult')}
                 />
               </div>
             ) : null}
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
+              <ChapterDeepReadingTakeaways partId="4" />
               <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
                 {sec('s5_friction') && sec('s8_bridge') ? (
                   <PaidModuleShell
                     n={4}
-                    tierJa="実践ガイド"
+                    tierJa="深読み"
                     tierClass={styles.prTierRose}
-                    overline={PAID_DTR_DEEP_READING_SECTION_TITLE_JA}
-                    title={PAID_DTR_DEEP_READING_TAKEAWAYS['4'].closedTitleJa}
-                    ariaLabel="戻し方と整え方"
-                    summary={PAID_DTR_DEEP_READING_TAKEAWAYS['4'].closedLeadJa}
+                    overline="つまずきから戻る流れ"
+                    title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch4-friction-recovery']}
+                    ariaLabel="つまずきから戻る流れ"
+                    summary="疲れや不安が重なったとき、どこから戻しやすいかを流れで見ます。"
                     defaultOpen={false}
                     inDrawer
                   >
-                    <ChapterDeepReadingTakeaways partId="4" />
                     <FrictionRecoveryModule
                       frictionSection={sec('s5_friction')!}
                       bridgeSection={sec('s8_bridge')!}

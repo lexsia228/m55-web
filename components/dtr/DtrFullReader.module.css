@@ -470,6 +470,13 @@
   margin: -4px 0 10px;
 }
 
+/* Ⅳ章：3カード直下の補助文を独立ブロックとして読める余白 */
+.ch4LifeMarginHint {
+  margin: clamp(14px, 3.2vw, 20px) 0 0;
+  padding-top: clamp(10px, 2.4vw, 14px);
+  border-top: 1px solid rgba(162, 192, 224, 0.2);
+}
+
 .idDesignHintBlock .idDesignHint {
   margin: 0;
 }
