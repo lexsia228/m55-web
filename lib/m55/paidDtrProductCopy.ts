@@ -413,6 +413,10 @@ export type PaidDtrChapterOpeningCopy = {
   headingSuffixJa: string;
   tendencyJa: string;
   reasonJa?: string;
+  /** Ⅳ章のみ：お金の見方（収入以外の時間・学び・余白） */
+  moneyScopeJa?: string;
+  /** Ⅳ章のみ：見える化・減らす・守る・つなげるの習慣としての見方 */
+  moneyHabitJa?: string;
   lifeJa: string;
   actionJa: string;
   pointsJa: readonly [string, string, string];
@@ -461,6 +465,10 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
   },
   '4': {
     headingSuffixJa: 'の整え方',
+    moneyScopeJa:
+      'ここで見るお金は、収入だけの話ではありません。時間の使い方、学び方、無駄を減らす力、安心して選べる余白まで含めて見ていきます。',
+    moneyHabitJa:
+      '見える化・減らす・守る・つなげる。無理に増やさず、続けられる形から一つだけ見直します。',
     tendencyJa:
       '{nickname}さんには、生活の小さな乱れや疲れに気づきやすいところがあります。無理をして押し切るより、余白が戻るほど動きやすくなる形です。',
     reasonJa:
@@ -532,11 +540,11 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
   },
   '4': {
     closedTitleJa: '生活の余白と戻し方を、短く確認する',
-    closedLeadJa: '力が出やすいとき・止まりやすいとき・戻し方を、日常の言葉で短く確認します。',
+    closedLeadJa: 'お金・生活・疲れを、今日の時間と余白から短く見直します。',
     itemsJa: [
       '力が出やすいとき: 余白があり、今やることを少なくできるとき。',
       '止まりやすいとき: 不安・予定・疲れが重なり、全部を一度に決めようとするとき。',
-      'まず意識すること: 大きく変える前に、決めることを一つ減らすと、戻る場所が見えやすくなります。',
+      'まず意識すること: 見える化・減らす・守る——続けられる習慣として、まず一つだけ見直すと、戻る場所が見えやすくなります。',
       '返書で深める問い: 今の疲れや不安を軽くするために、まず一つ減らすなら何ですか？',
     ],
   },

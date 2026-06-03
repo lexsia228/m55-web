@@ -559,6 +559,8 @@ function DrawerChapterPersonalLead({
       {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
       <ChapterOpeningLede text={copy.lifeJa} />
       <ChapterOpeningLede text={copy.actionJa} />
+      {copy.moneyScopeJa ? <ChapterOpeningLede text={copy.moneyScopeJa} /> : null}
+      {copy.moneyHabitJa ? <ChapterOpeningLede text={copy.moneyHabitJa} /> : null}
       <div
         className={styles.chapterOpeningPoints}
         aria-label={
@@ -2112,38 +2114,79 @@ function DomainMatrixModule({
   );
 }
 
+/** Ⅳ章・つまずきから戻る流れ：生活・余白向け固定表示（s5/s8 engine 見出しは使わない） */
+const CH4_FRICTION_RECOVERY_FLOW: {
+  stage: string;
+  title: string;
+  body: string;
+}[] = [
+  {
+    stage: '入口・トリガー',
+    title: '不安や予定が重なる',
+    body: 'お金、予定、やること、疲れが重なるほど、何から手をつけるか分からなくなりやすいです。',
+  },
+  {
+    stage: 'つまずきの型',
+    title: '全部を一度に決めようとする',
+    body: '一気に答えを出そうとすると、考えることが増え、判断がさらに重くなりやすくなります。',
+  },
+  {
+    stage: '消耗が寄りやすい点',
+    title: '休む前に片付けようとする',
+    body: '疲れているのに先に全部片付けようとすると、余白が戻る前に力を使い切りやすくなります。',
+  },
+  {
+    stage: '回復の方向',
+    title: '負担を一つ軽くする',
+    body: '今日決めなくていいことを一つ横に置き、休める時間を先に作ると、戻る場所が見えやすくなります。',
+  },
+];
+
 function FrictionRecoveryModule({
   frictionSection,
   bridgeSection,
+  lifeTopicRecovery = false,
 }: {
   frictionSection: DtrSection;
   bridgeSection: DtrSection;
+  /** Ⅳ章：お金・生活・疲れ向け固定文（engine 摩擦見出しフォールバックを使わない） */
+  lifeTopicRecovery?: boolean;
 }) {
-  const frictions = parseBlockItems(frictionSection.body);
-  const bridgeParts = bridgeSection.body
-    .split('\n\n')
-    .map((p) => p.trim())
-    .filter(Boolean);
-  /** 2段落目 = 戻し方・運用（1段落目はまとめで使用） */
-  const bridgeText = premiumBridgeRecoveryHint(
-    bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body
-  );
+  const flowNodes: { key: string; stage: string; title: string; body: string }[] = (() => {
+    if (lifeTopicRecovery) {
+      return CH4_FRICTION_RECOVERY_FLOW.map((node, i) => ({
+        key: `ch4-recovery-${i}`,
+        stage: node.stage,
+        title: node.title,
+        body: node.body,
+      }));
+    }
 
-  const stageLabels = ['入口・トリガー', 'つまずきの型', '消耗が寄りやすい点'];
-  const flowNodes: { key: string; stage: string; title: string; body: string }[] = frictions
-    .slice(0, 3)
-    .map((f, i) => ({
+    const frictions = parseBlockItems(frictionSection.body);
+    const bridgeParts = bridgeSection.body
+      .split('\n\n')
+      .map((p) => p.trim())
+      .filter(Boolean);
+    /** 2段落目 = 戻し方・運用（1段落目はまとめで使用） */
+    const bridgeText = premiumBridgeRecoveryHint(
+      bridgeParts.length >= 2 ? bridgeParts[1]! : bridgeParts[0] ?? bridgeSection.body
+    );
+
+    const stageLabels = ['入口・トリガー', 'つまずきの型', '消耗が寄りやすい点'];
+    const nodes = frictions.slice(0, 3).map((f, i) => ({
       key: `f-${i}-${f.header}`,
       stage: stageLabels[Math.min(i, 2)] ?? stageLabels[2]!,
       title: f.header,
       body: firstSentence(f.content),
     }));
-  flowNodes.push({
-    key: 'recovery',
-    stage: '回復の方向',
-    title: '戻し方のヒント',
-    body: bridgeText,
-  });
+    nodes.push({
+      key: 'recovery',
+      stage: '回復の方向',
+      title: '戻し方のヒント',
+      body: bridgeText,
+    });
+    return nodes;
+  })();
 
   return (
     <>
@@ -2189,8 +2232,8 @@ const CH4_PRACTICAL_GUIDANCE_CATEGORIES: {
     icon: 'work',
     rows: [
       {
-        action: '休める時間をカレンダーに先に置き、今日の予定を一つ手放す。',
-        why: 'お金・予定・疲れが重なるほど、全部を一度に決めようとしやすくなります。',
+        action: '今日決めなくていいことを一つ横に置き、休める時間を先に置く。',
+        why: '守る習慣として余白を先に確保すると、全部を一度に決めようとしにくくなります。',
         when: '不安が強く、何から手をつけるか分からないとき。',
       },
     ],
@@ -2200,8 +2243,8 @@ const CH4_PRACTICAL_GUIDANCE_CATEGORIES: {
     icon: 'work',
     rows: [
       {
-        action: '休める時間を先に確保し、いま決めなくていいことを一つ横に置く。',
-        why: '不安や予定が重なるほど、全部を一度に決めようとしやすくなります。',
+        action: 'お金・予定・疲れが重なるときは、まず何を減らせるかを一つだけ見る。',
+        why: '減らす習慣として、まず一つ見える化すると、負担の置き場所が分かりやすくなります。',
         when: 'お金や生活のことが重なり、何から手をつけるか分からないとき。',
       },
     ],
@@ -2211,7 +2254,7 @@ const CH4_PRACTICAL_GUIDANCE_CATEGORIES: {
     icon: 'recovery',
     rows: [
       {
-        action: '短くても、静かに休める時間を先に確保する。',
+        action: '疲れが残っているときは、学びや作業を増やす前に、続けられる形まで小さくする。',
         why: '疲れが残ったまま決め続けると、判断がさらに重くなりやすくなります。',
         when: '予定が詰まり始め、休む前に片付けようとしているとき。',
       },
@@ -2336,7 +2379,7 @@ function PracticalGuidanceSection({
   const ch4Intro = lifeTopicGuidance
     ? {
         title: 'この章で試すこと',
-        sub: '今日決めなくていいことを一つ横に置き、休める時間を先に作ります。',
+        sub: '見える化・減らす・守る——続けられる形で、負担を一つ軽くします。',
       }
     : null;
 
@@ -2443,13 +2486,13 @@ const CH4_WORK_GUIDE_LABEL_JA: Record<string, string> = {
 /** Ⅳ章 ch4-work-guide — engine 本文は表示せず、生活・余白の読み解けだけ出す（engine 不変） */
 const CH4_WORK_GUIDE_BODY_JA: Record<string, string> = {
   '力が出る条件':
-    '余白があり、今日やることを少なくできるとき。休める時間が少し戻っていると、動きやすくなります。',
+    '余白があり、今日やることを少なくできるとき。休める時間が少し戻ると、学びや作業も、生活の中で使える形に置きやすくなります。',
   '詰まりやすい条件':
     'お金の不安、予定、やることが重なり、何から手をつけるか分からなくなるとき。全部を一度に決めようとすると、さらに重くなりやすいです。',
   '環境のヒント':
     '決めることが少ない時間帯や、予定の前に短く整える隙間があると、負担を戻しやすくなります。',
   '生活のヒント':
-    '休める時間を先に置き、今日の予定を一つ手放すこと。余白が戻るほうが、動きやすくなります。',
+    '休める時間を先に置き、今日の予定を一つ手放す習慣。余白が戻るほうが、動きやすくなります。',
 };
 
 function LifeMarginRecoveryFigures() {
@@ -2520,7 +2563,7 @@ function ChapterFourWorkLead({
   const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const bodyParas = [
     `${displayName}さんは、生活の小さな変化や疲れのサインに気づきやすいところがあります。乱れたまま無理に進むより、少しずつ整え直すことで、自分の動きやすさを取り戻しやすくなります。`,
-    'ただし、お金の不安、予定、やること、疲れが重なると、何から手をつけるか分からなくなりやすいです。その状態で一気に決めようとすると、考えることが増え、さらに疲れが残りやすくなります。',
+    'ただし、お金の不安、予定、やること、疲れが重なると、何から手をつけるか分からなくなりやすいです。一気に決めようとすると、考えることが増え、さらに疲れが残りやすくなります。余白が戻ると、学びやスキルも、生活の中で使える形に置き直しやすくなります。',
     'まずは、大きく変える前に、今日決めなくていいことを一つ横に置きます。全部を立て直そうとするより、休める時間、減らせる予定、後回しにできることを一つ選ぶほうが、戻る場所が見えやすくなります。',
   ];
 
@@ -3149,6 +3192,7 @@ export default function DtrFullReader({
                     <FrictionRecoveryModule
                       frictionSection={sec('s5_friction')!}
                       bridgeSection={sec('s8_bridge')!}
+                      lifeTopicRecovery
                     />
                   </PaidModuleShell>
                 ) : null}
