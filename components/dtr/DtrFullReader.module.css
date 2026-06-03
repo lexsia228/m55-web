@@ -1906,7 +1906,94 @@
 }
 
 .consultLayer {
-  margin-top: clamp(36px, 6vw, 52px);
+  margin-top: clamp(24px, 4vw, 36px);
+}
+
+.consultRoomBand {
+  background: rgba(18, 15, 28, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: clamp(18px, 3.5vw, 28px) clamp(14px, 3vw, 22px);
+}
+
+.consultSupplementStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.consultEntryDetails {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.consultEntryDetailsSummary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(210, 198, 240, 0.86);
+  list-style: none;
+}
+
+.consultEntryDetailsSummary::-webkit-details-marker {
+  display: none;
+}
+
+.consultEntryDetails[open] .consultEntryDetailsSummary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.consultAboutBody {
+  padding: 10px 14px 4px;
+}
+
+.consultAboutLead {
+  margin: 0 0 8px;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: rgba(220, 212, 245, 0.88);
+}
+
+.consultAboutBullets {
+  margin: 0 0 10px;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.consultAboutBullets li {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(188, 175, 220, 0.78);
+}
+
+.supportRepeatCompact {
+  padding: 8px 14px 12px;
+}
+
+.supportRepeatCompact .supportRepeatText {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.groundingPanelSupplement {
+  margin: 0 10px 12px;
+  padding: 12px 12px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.groundingReportTitleCompact {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(188, 175, 220, 0.75);
 }
 
 .consultGroundingBand {
@@ -1915,14 +2002,6 @@
   border-bottom: none;
   border-radius: 20px 20px 0 0;
   padding: clamp(22px, 4vw, 34px) clamp(14px, 3vw, 22px);
-}
-
-.consultRoomBand {
-  background: rgba(18, 15, 28, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 0 0 20px 20px;
-  padding: clamp(22px, 4vw, 36px) clamp(14px, 3vw, 22px);
 }
 
 .groundingBandInner {

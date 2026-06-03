@@ -10,6 +10,12 @@ import {
 } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ConsultationTicketWallet } from "./consultation-ticket-wallet"
+import {
+  PAID_DTR_CONSULT_ENTRY_LAYOUT,
+  PAID_DTR_CONSULT_GROUNDING_COPY,
+  PAID_DTR_CONSULT_REPLY,
+  PAID_DTR_CONSULT_ROOM_UI,
+} from "../../lib/m55/paidDtrProductCopy"
 
 type Theme =
   | "近い人との距離"
@@ -355,10 +361,10 @@ export default function ConsultationRoomInput({
         <div className="max-w-2xl mx-auto px-6 py-8 flex items-start justify-between">
           <div>
             <h1 className="text-xl font-light tracking-wide text-foreground">
-              相談返書ルーム
+              {PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              見えている傾向を土台に、今回の論点を整理する
+              {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。
             </p>
           </div>
         </div>
@@ -366,7 +372,12 @@ export default function ConsultationRoomInput({
 
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="space-y-12">
+        <div className="space-y-8">
+          <ul className="text-xs text-muted-foreground/90 space-y-1 list-disc pl-4 max-w-prose">
+            {PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
           {showWalletCard ? (
             <ConsultationTicketWallet
               initial_included_count={walletForCard.initial_included_count}

@@ -21,8 +21,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  PAID_DTR_CONSULT_ENTRY_LAYOUT,
+  PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
+  PAID_DTR_CONSULT_USAGE_DISPLAY,
+  formatConsultPurchaseAddOnLine,
+  formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
@@ -32,11 +37,9 @@ const INPUT_WARN = 450;
 const INPUT_MAX = 500;
 const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
 
-/** Room-only display copy (Product Truth constants unchanged). */
+/** Entry-only display copy (Product Truth constants unchanged). */
 const ROOM_UI_COPY = {
-  roomLeadShort:
-    '保存版に紐づいて、今の1テーマを章に沿って整理します。汎用チャットではなく、無制限の相談でもありません。',
-  valueCardTitle: 'この1件で返ってくるもの',
+  valueCardTitle: PAID_DTR_CONSULT_ROOM_UI.valueDeliverablesTitleJa,
   valueItems: [
     '今の場面の整理',
     '保存版から見る見方',
@@ -45,7 +48,7 @@ const ROOM_UI_COPY = {
   ] as const,
   valueCardNote:
     '保存版の章に沿った整理です。結果や未来の保証ではありません。',
-  composePanelTitle: '新しく相談する',
+  composePanelTitle: PAID_DTR_CONSULT_ROOM_UI.composePanelTitleJa,
   historyTitle: 'これまでの相談返書',
   step1Title: 'Step 1 用途を選ぶ',
   step1Badge: '必須',
@@ -56,6 +59,7 @@ const ROOM_UI_COPY = {
   step3Consume: 'この送信で相談返書を1件使用します。',
   purchaseValue:
     '500円で、保存版の章に沿って今の1テーマを整理し、別視点と今日の一手まで返します。',
+  purchaseAddOnNote: PAID_DTR_CONSULT_ROOM_UI.addOnPurchaseNoteJa,
 } as const;
 
 /** 用途ラベル（1テーマ）— copy master themeExamplesJa */
@@ -104,6 +108,8 @@ type Props = {
   birthDate: string;
   nickname: string;
   stemIdx: number;
+  /** Dev-only: fixture data for /dev/dtr-drawer-preview (skips /api/room/core). */
+  devPreviewRoomData?: RoomData | null;
 };
 
 function extractThemeAndQuoteFromUserMessage(content: string): { theme: string | null; quote: string | null } {
@@ -159,8 +165,17 @@ function ThemeChip({
   );
 }
 
-export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
-  const [roomData, setRoomData] = useState<RoomData | null>(null);
+const DEV_PREVIEW_SEND_BLOCKED_JA = 'プレビューでは送信できません。';
+const DEV_PREVIEW_PURCHASE_BLOCKED_JA = 'プレビューでは購入操作できません。';
+
+export default function ConsultRoom({
+  birthDate,
+  nickname,
+  stemIdx,
+  devPreviewRoomData = null,
+}: Props) {
+  const isDevPreview = devPreviewRoomData != null;
+  const [roomData, setRoomData] = useState<RoomData | null>(devPreviewRoomData);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [checkoutBusy, setCheckoutBusy] = useState(false);
@@ -189,12 +204,26 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
   const isWarn = composedLen >= INPUT_WARN && !isOverMax;
 
   const reloadRoom = useCallback(async (cancelledRef?: { cancelled: boolean }) => {
+    if (isDevPreview && devPreviewRoomData) {
+      if (!cancelledRef?.cancelled) {
+        setLoadError(null);
+        setRoomData(devPreviewRoomData);
+      }
+      return;
+    }
     try {
       const res = await fetch('/api/room/core', { cache: 'no-store' });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         if (!cancelledRef?.cancelled) {
-          setLoadError((d as { error?: string }).error ?? `読み込みエラー (${res.status})`);
+          const apiErr = (d as { error?: string }).error;
+          const statusLabel =
+            apiErr && apiErr !== 'Not owned'
+              ? apiErr
+              : PAID_DTR_CONSULT_ROOM_UI.loadErrorJa;
+          setLoadError(
+            res.status === 404 ? PAID_DTR_CONSULT_ROOM_UI.loadErrorJa : `${statusLabel} (${res.status})`
+          );
         }
         return;
       }
@@ -205,20 +234,22 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
       }
     } catch {
       if (!cancelledRef?.cancelled) {
-        setLoadError('ルームの読み込みに失敗しました。ページを再読み込みしてください。');
+        setLoadError(PAID_DTR_CONSULT_ROOM_UI.loadErrorJa);
       }
     }
-  }, []);
+  }, [isDevPreview, devPreviewRoomData]);
 
   useEffect(() => {
+    if (isDevPreview) return;
     const cancelledRef = { cancelled: false };
     void reloadRoom(cancelledRef);
     return () => {
       cancelledRef.cancelled = true;
     };
-  }, [reloadRoom]);
+  }, [reloadRoom, isDevPreview]);
 
   useEffect(() => {
+    if (isDevPreview) return;
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get('checkout');
     if (checkout !== 'complete' && checkout !== 'cancelled') {
@@ -228,9 +259,10 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
     if (checkoutReturnRefreshDoneRef.current) return;
     checkoutReturnRefreshDoneRef.current = true;
     void reloadRoom();
-  }, [reloadRoom]);
+  }, [reloadRoom, isDevPreview]);
 
   useEffect(() => {
+    if (isDevPreview) return;
     const onFocus = () => {
       void reloadRoom();
     };
@@ -238,7 +270,7 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
     return () => {
       window.removeEventListener('focus', onFocus);
     };
-  }, [reloadRoom]);
+  }, [reloadRoom, isDevPreview]);
 
   useEffect(() => {
     if (!roomData) return;
@@ -271,6 +303,10 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
   ): string => `${theme ?? ''}|${[...questionIds].sort().join(',')}|${msg}`;
 
   const handleSend = async () => {
+    if (isDevPreview) {
+      setSendError(DEV_PREVIEW_SEND_BLOCKED_JA);
+      return;
+    }
     if (sendLock.current) return;
     if (!roomData) return;
     if (!selectedTheme) return;
@@ -383,6 +419,10 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
   };
 
   const handlePurchase = async () => {
+    if (isDevPreview) {
+      setCheckoutError(DEV_PREVIEW_PURCHASE_BLOCKED_JA);
+      return;
+    }
     if (!roomData) return;
     const reportInstanceId =
       typeof roomData.report_instance_id === 'string' && roomData.report_instance_id.trim().length > 0
@@ -479,60 +519,115 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
   const submitDisabled =
     actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
   const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
+  const showPurchaseCta = !walletLoading && walletCanPurchase;
+  const showCapReached = !walletLoading && walletReachedLimit;
 
   const usageStatusCard = walletLoading ? (
     <div className={styles.usageStatusCard} role="status" aria-live="polite">
       <p className={styles.usageLoadingText}>{PAID_DTR_CONSULT_ROOM_UI.walletLoadingJa}</p>
     </div>
   ) : wallet ? (
-    <div className={styles.usageStatusCard} aria-live="polite">
-      <p className={styles.usageStatusLabel}>{PAID_DTR_CONSULT_ROOM_UI.usageLabelJa}</p>
-      <p className={styles.usageHero}>
-        残り <span className={styles.usageHeroNum}>{wallet.available_count}</span> 件
-      </p>
-      <p className={styles.usageStat}>
-        {PAID_DTR_CONSULT_ROOM_UI.usageUsedCountLabelJa}{' '}
-        <span className={styles.usageStatNum}>
-          {usedCount} / {DISPLAY_CAP_PER_REPORT}件
-        </span>
-      </p>
-      <p className={styles.usageStat}>
-        {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa}{' '}
-        <span className={styles.usageStatNum}>{additionalPurchasableCount}件</span>
-      </p>
+    <div
+      className={
+        showPurchaseCta
+          ? `${styles.usageStatusCard} ${styles.usageStatusCardPurchase}`
+          : showCapReached
+            ? `${styles.usageStatusCard} ${styles.usageStatusCardCap}`
+            : styles.usageStatusCard
+      }
+      aria-live="polite"
+    >
+      {showComposeFirst ? (
+        <>
+          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.availablePrimaryJa}</p>
+          <p className={styles.usageSecondaryLead}>
+            {PAID_DTR_CONSULT_USAGE_DISPLAY.availableSecondaryJa}
+          </p>
+          <p className={styles.usageStatCompact}>
+            {PAID_DTR_CONSULT_USAGE_DISPLAY.remainingCompactTemplateJa.replace(
+              '{count}',
+              String(wallet.available_count)
+            )}
+            {' · '}
+            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
+            {additionalPurchasableCount > 0
+              ? ` · ${PAID_DTR_CONSULT_USAGE_DISPLAY.additionalPurchasableTemplateJa.replace('{count}', String(additionalPurchasableCount))}`
+              : ''}
+          </p>
+        </>
+      ) : showPurchaseCta ? (
+        <>
+          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.purchasePrimaryLine1Ja}</p>
+          <p className={styles.usagePrimaryLead}>{formatConsultPurchaseAddOnLine(additionalPurchasableCount)}</p>
+          <p className={styles.usageStatCompact}>
+            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
+          </p>
+        </>
+      ) : showCapReached ? (
+        <>
+          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedPrimaryJa}</p>
+          <p className={styles.usageSecondaryLead}>
+            {PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedSecondaryJa}
+          </p>
+          <p className={styles.usageStatCompact}>
+            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
+          </p>
+        </>
+      ) : (
+        <>
+          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedPrimaryJa}</p>
+          <p className={styles.usageStatCompact}>
+            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
+          </p>
+        </>
+      )}
     </div>
   ) : null;
 
-  const valueDeliverablesCard = !walletLoading ? (
-    <div className={styles.valueDeliverablesCard}>
-      <h3 className={styles.valueDeliverablesTitle}>{ROOM_UI_COPY.valueCardTitle}</h3>
-      <ol className={styles.valueDeliverablesList}>
-        {ROOM_UI_COPY.valueItems.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ol>
-      <p className={styles.valueDeliverablesNote}>{ROOM_UI_COPY.valueCardNote}</p>
-    </div>
+  const valueDeliverablesDetails = !walletLoading ? (
+    <details className={styles.entryDetails}>
+      <summary className={styles.entryDetailsSummary}>
+        {PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDetailsSummaryJa}
+      </summary>
+      <div className={styles.valueDeliverablesCard}>
+        <ol className={styles.valueDeliverablesList}>
+          {ROOM_UI_COPY.valueItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+        <p className={styles.valueDeliverablesNote}>{ROOM_UI_COPY.valueCardNote}</p>
+      </div>
+    </details>
   ) : null;
+
+  const entryEssentialNotes = (
+    <ul
+      className={
+        showComposeFirst || showPurchaseCta
+          ? `${styles.entryEssentialNotes} ${styles.entryEssentialNotesMuted}`
+          : styles.entryEssentialNotes
+      }
+      aria-label="利用上の注意"
+    >
+      {PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
+  );
 
   const statusNotice =
     walletLoading ? null : walletReachedLimit ? (
-      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-        <p className={styles.readOnlyText}>
-          {PAID_DTR_CONSULT_ROOM_UI.usageAdditionalPurchasableLabelJa} 0件
-        </p>
-        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedAdditionalJa}</p>
-        <p className={styles.addOnNote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
-      </div>
+      <p className={styles.usageFootnote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
     ) : walletCanPurchase ? (
-      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-        <p className={styles.purchaseValueNote}>{ROOM_UI_COPY.purchaseValue}</p>
-        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}</p>
-        <p className={styles.addOnNote}>{PAID_DTR_CONSULT_ROOM_UI.walletPurchaseRetryNoteJa}</p>
+      <div className={styles.purchaseCtaPanel} role="region" aria-label="追加相談返書の購入">
         {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
         <button
           type="button"
-          className={checkoutBusy ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+          className={
+            checkoutBusy
+              ? `${styles.submitBtn} ${styles.submitBtnPrimary} ${styles.submitBtnDisabled}`
+              : `${styles.submitBtn} ${styles.submitBtnPrimary}`
+          }
           onClick={handlePurchase}
           disabled={checkoutBusy || actionLocked || !reportInstanceId}
         >
@@ -554,14 +649,11 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
           </p>
         )}
       </div>
-    ) : wallet!.available_count > 0 ? (
-      <p className={styles.roomContextNote}>{PAID_DTR_CONSULT_ROOM_UI.savedReportLinkNoteJa}</p>
     ) : null;
 
   const composeBlock = !isReadOnly ? (
     <div className={styles.composePanel}>
       <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
-      <p className={styles.composeGroundingHint}>{PAID_DTR_CONSULT_REPLY.groundedInReportJa}</p>
 
       <section className={styles.composeStep} aria-labelledby="consult-step-1">
         <div className={styles.composeStepHead}>
@@ -665,7 +757,12 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
       {messages.length > 0 ? (
         <h3 className={styles.historyTitle}>{ROOM_UI_COPY.historyTitle}</h3>
       ) : null}
-      <div className={styles.messages} role="log" aria-label="相談返書のやりとり" aria-live="polite">
+      <div
+        className={styles.messages}
+        role="log"
+        aria-label={PAID_DTR_CONSULT_ROOM_UI.historyMessagesAriaJa}
+        aria-live="polite"
+      >
         {messages.length === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
         )}
@@ -726,20 +823,34 @@ export default function ConsultRoom({ birthDate, nickname, stemIdx }: Props) {
     <section className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
       <header className={styles.roomHeaderBar}>
         <h2 className={styles.roomTitle}>{PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}</h2>
-        <p className={styles.roomLead}>{ROOM_UI_COPY.roomLeadShort}</p>
+        <p className={styles.roomLead}>{PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。</p>
+        {isDevPreview ? (
+          <p className={styles.devPreviewNote} role="note">
+            開発プレビュー（送信・購入は実行されません）
+          </p>
+        ) : null}
       </header>
 
-      <div className={styles.roomIntroStack}>
-        {usageStatusCard}
-        {valueDeliverablesCard}
-      </div>
-
-      {statusNotice}
-
-      {showComposeFirst ? composeBlock : null}
+      {usageStatusCard}
+      {showComposeFirst ? (
+        <>
+          {entryEssentialNotes}
+          {composeBlock}
+        </>
+      ) : showPurchaseCta ? (
+        <>
+          {statusNotice}
+          {entryEssentialNotes}
+        </>
+      ) : (
+        <>
+          {entryEssentialNotes}
+          {statusNotice}
+        </>
+      )}
       {sendError ? <p className={styles.sendError} role="alert">{sendError}</p> : null}
       {messagesBlock}
-      {!showComposeFirst ? composeBlock : null}
+      {valueDeliverablesDetails}
     </section>
   );
 }

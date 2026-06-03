@@ -8,6 +8,10 @@ import { replyPayloadV11Schema } from "../../lib/m55/reply/replyPayload.zod";
 import ReplyHistoryList from "./ReplyHistoryList";
 import ReplyResultView from "./ReplyResultView";
 import type { ReplyHistoryItem } from "./replyHistoryTypes";
+import {
+  PAID_DTR_CONSULT_GROUNDING_COPY,
+  PAID_DTR_CONSULT_ROOM_UI,
+} from "../../lib/m55/paidDtrProductCopy";
 
 const SESSION_STORAGE_RESULT_KEY = "m55_reply_stub_result_v1";
 
@@ -215,9 +219,11 @@ export default function ReplyResultPageClient() {
       <header className="border-b border-border/50">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <h1 className="text-xl font-light tracking-wide text-foreground">
-            {"相\u8ac7返書ルーム"}
+            {PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">保存された返書を読み返す</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。保存された返書を読み返せます。
+          </p>
         </div>
       </header>
 

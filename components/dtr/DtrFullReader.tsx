@@ -54,6 +54,7 @@ import {
   PAID_DTR_CHAPTER_DRAWER_INTRO,
   PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA,
   PAID_DTR_CHAPTER_GRAPH_CAPTIONS,
+  PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_INTRO_CONSULT_NOTE,
   drawerSectionDisplayTitleJa,
@@ -64,6 +65,7 @@ import {
   type PaidDtrReportPartId,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
+import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
 import {
   PremiumDrawerHub,
   type DrawerHubOpenPanel,
@@ -337,6 +339,8 @@ type Props = {
     envelope: DtrEnvelope;
     profile: { nickname: string; birthDate: string };
   };
+  /** Dev-only (/dev/dtr-drawer-preview): inject consult UI without /api/room/core. */
+  consultDevPreviewRoomData?: ConsultRoomPreviewRoomData;
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -2622,121 +2626,37 @@ function WorkGuideCards({
    E. Summary
    ───────────────────────────────────────────────────────────────────────────── */
 
-/** s8 本文とチケット説明の境界（旧スナップショット互換のため先頭一致で検出） */
-const BRIDGE_TICKET_BLOCK_START = 'このレポートには、相談返書';
+/* ─────────────────────────────────────────────────────────────────────────────
+   F. 状況が変わったときの使い方 — single-person repeat path only
+   ───────────────────────────────────────────────────────────────────────────── */
 
-function SummarySection({ bridgeSection }: { bridgeSection: DtrSection }) {
-  const parts = bridgeSection.body
-    .split('\n\n')
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const ticketStart = parts.findIndex((p) => p.startsWith(BRIDGE_TICKET_BLOCK_START));
-  const lead = parts[0] ?? '';
-
-  if (ticketStart === -1) {
-    const bridgeRest = parts.slice(2).join('\n\n');
-    return (
-      <section className={styles.prSummaryBand} aria-label={bridgeSection.title}>
-        <p className={styles.prSummaryLead}>{lead}</p>
-        {bridgeRest ? (
-          <div className={styles.prSummaryBridge}>
-            {bridgeRest.split('\n\n').map((para, i) => (
-              <p key={i} className={styles.prSummaryBridgePara}>
-                {para}
-              </p>
-            ))}
-          </div>
-        ) : null}
-      </section>
-    );
-  }
-
-  const narrativeTail = parts.slice(1, ticketStart);
-  const ticketParts = parts.slice(ticketStart);
-
+function ConsultSavedReportAboutBody({ readerDisplayName }: { readerDisplayName: string }) {
+  const nick = readerDisplayName.trim();
+  const savedLead =
+    nick.length > 0
+      ? `このレポートは、${nick}さん個人の傾向を整理した保存版です。`
+      : 'このレポートは、個人の傾向を整理した保存版です。';
   return (
-    <section className={styles.prSummaryBand} aria-label={bridgeSection.title}>
-      <p className={styles.prSummaryLead}>{lead}</p>
-      {narrativeTail.length > 0 ? (
-        <div className={styles.prSummaryBridge}>
-          {narrativeTail.map((para, i) => (
-            <p key={`n-${i}`} className={styles.prSummaryBridgePara}>
-              {para}
-            </p>
-          ))}
-        </div>
-      ) : null}
-      {ticketParts.length > 0 ? (
-        <div className={styles.prSummaryTicketBand} aria-label="相談返書・チケット">
-          {ticketParts.map((para, i) => (
-            <p
-              key={`t-${i}`}
-              className={
-                para.startsWith('※')
-                  ? `${styles.prSummaryBridgePara} ${styles.prSummaryTicketFoot}`
-                  : styles.prSummaryBridgePara
-              }
-            >
-              {para.split('\n').map((line, li) => (
-                <span key={li}>
-                  {li > 0 ? <br /> : null}
-                  {line}
-                </span>
-              ))}
-            </p>
-          ))}
-        </div>
-      ) : null}
-    </section>
+    <div className={styles.consultAboutBody}>
+      <p className={styles.consultAboutLead}>{savedLead}</p>
+      <p className={styles.consultAboutLead}>{PAID_DTR_CONSULT_ENTRY_LAYOUT.savedReportConsultLeadJa}</p>
+      <ul className={styles.consultAboutBullets}>
+        {PAID_DTR_CONSULT_ENTRY_LAYOUT.fixedReportBulletsJa.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   F. 継続サポート — single-person repeat path only
-   ───────────────────────────────────────────────────────────────────────────── */
-
-function ContinuousSupport({ readerDisplayName }: { readerDisplayName: string }) {
-  const nick = readerDisplayName.trim();
-  const lead =
-    nick.length > 0
-      ? `このレポートは、${nick}さん個人の傾向を整理したものです。`
-      : 'このレポートは、個人の傾向を整理したものです。';
+function ContinuousSupportCompact() {
   return (
-    <section className={styles.supportRepeat}>
-      <div className={styles.supportRepeatIconWrap} aria-hidden>
-        <svg className={styles.supportRepeatIcon} viewBox="0 0 24 24" fill="none">
-          <path
-            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <div className={styles.supportRepeatBody}>
-        <p className={styles.supportRepeatOverline}>継続サポート</p>
-        <p className={styles.supportRepeatText}>{lead}</p>
-        <p className={styles.supportRepeatText}>
-          状況が変わったときは、この内容をもとに、今の感じ方や迷いを相談返書で整理できます。
-        </p>
-        <p className={`${styles.supportRepeatText} ${styles.supportRepeatScopeNote}`}>
-          ※転職・異動・恋愛・相性・仕事特化など、別レポートで扱うべき領域までは、この解析では広げません。
-        </p>
-        {/*
-         * 追加返書課金は未実装のため、「相談返書を続ける」導線は表示しない（SSOT）。
-         * 実装時: ルーム内申込・上限の文言をここへ復帰。
-         */}
-        <ul className={styles.supportPathList} aria-label="読み返しのヒント">
-          <li className={styles.supportPathItem}>
-            <span className={styles.supportPathLabel}>状況整理</span>
-            <span className={styles.supportPathDesc}>
-              状況が変わったとき、このレポートの「日々の判断と距離」「疲労と回復」を改めて参照してください。
-            </span>
-          </li>
-        </ul>
-      </div>
-    </section>
+    <div className={styles.supportRepeatCompact}>
+      <p className={styles.supportRepeatText}>{PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportBodyJa}</p>
+      <p className={`${styles.supportRepeatText} ${styles.supportRepeatScopeNote}`}>
+        {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportScopeJa}
+      </p>
+    </div>
   );
 }
 
@@ -2769,45 +2689,49 @@ function GroundingPanel({
   reportTitle,
   stemOneLine,
   readerDisplayName,
+  supplement = false,
 }: {
   reportTitle: string;
   stemOneLine: string;
   readerDisplayName: string;
+  supplement?: boolean;
 }) {
   const nick = readerDisplayName.trim();
-  const mapLead =
-    nick.length > 0
-      ? `このレポートは、${nick}さん個人の傾向を整理した本質の読み解きです。`
-      : 'このレポートは、個人の傾向を整理した本質の読み解きです。';
   const groundingNoteText =
     nick.length > 0
-      ? `一般的なアドバイスではなく、${nick}さん向けのこの解析内容に基づいた相談返書を作成します。`
-      : '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。';
+      ? PAID_DTR_CONSULT_ENTRY_LAYOUT.groundingNoteTemplateJa.replace('{nickname}', `${nick}さん`)
+      : PAID_DTR_CONSULT_ENTRY_LAYOUT.groundingNoteFallbackJa;
   return (
     <div className={styles.groundingBandInner}>
-      <div className={styles.groundingDividerBar} role="presentation">
-        <span className={styles.groundingDividerFade} aria-hidden />
-        <span className={styles.groundingDividerChip}>相談返書 · レポート基盤</span>
-        <span className={styles.groundingDividerFade} aria-hidden />
-      </div>
-
-      <div className={styles.groundingPanel} role="complementary" aria-label="相談返書ルームのコンテキスト">
-        <div className={styles.groundingHeader}>
-          <GroundingDocIcon />
-          <div className={styles.groundingHeaderText}>
-            <h3 className={styles.groundingTitle}>
-              本質の読み解きをもとに、
-              <br />
-              {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。
-            </h3>
-            <p className={styles.groundingLead}>{mapLead}</p>
-            <p className={styles.groundingLead}>
-              相談返書では、この内容をもとに、今気になっていることを具体的に読み直します。
-            </p>
-            <p className={styles.groundingReportTitle}>{reportTitle}</p>
-            <p className={styles.groundingSubline}>{stemOneLine}</p>
-          </div>
+      {supplement ? null : (
+        <div className={styles.groundingDividerBar} role="presentation">
+          <span className={styles.groundingDividerFade} aria-hidden />
+          <span className={styles.groundingDividerChip}>
+            {PAID_DTR_CONSULT_GROUNDING_COPY.dividerChipJa}
+          </span>
+          <span className={styles.groundingDividerFade} aria-hidden />
         </div>
+      )}
+
+      <div
+        className={supplement ? `${styles.groundingPanel} ${styles.groundingPanelSupplement}` : styles.groundingPanel}
+        role="complementary"
+        aria-label={PAID_DTR_CONSULT_GROUNDING_COPY.entryContextAriaJa}
+      >
+        {supplement ? (
+          <p className={styles.groundingReportTitleCompact}>{reportTitle}</p>
+        ) : (
+          <div className={styles.groundingHeader}>
+            <GroundingDocIcon />
+            <div className={styles.groundingHeaderText}>
+              <h3 className={styles.groundingTitle}>
+                {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。
+              </h3>
+              <p className={styles.groundingReportTitle}>{reportTitle}</p>
+              <p className={styles.groundingSubline}>{stemOneLine}</p>
+            </div>
+          </div>
+        )}
 
         <div className={styles.groundingPillarGrid}>
           <div className={styles.groundingPillar}>
@@ -2862,6 +2786,7 @@ export default function DtrFullReader({
   aiConsultIncluded,
   expiresAt,
   purchasedSnapshot,
+  consultDevPreviewRoomData,
 }: Props) {
   const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
   const { user, isLoaded } = useUser();
@@ -3203,24 +3128,35 @@ export default function DtrFullReader({
       case 'consult':
         return (
           <div className={styles.drawerConsultPanel}>
-            {sec('s8_bridge') ? (
-              <>
-                <SectionDivider label="まとめと相談返書について" />
-                <SummarySection bridgeSection={sec('s8_bridge')!} />
-              </>
-            ) : null}
-            <ContinuousSupport readerDisplayName={view.nickname} />
             {aiConsultIncluded ? (
               <div className={styles.consultLayer} id="consultation-room">
-                <div className={styles.consultGroundingBand}>
-                  <GroundingPanel
-                    reportTitle={groundingDisplayReportTitle(payload.title)}
-                    stemOneLine={stem.displayOneLine}
-                    readerDisplayName={view.nickname}
+                <div className={styles.consultRoomBand}>
+                  <ConsultRoom
+                    birthDate={view.birthDate}
+                    nickname={view.nickname}
+                    stemIdx={stemIdx}
+                    devPreviewRoomData={consultDevPreviewRoomData}
                   />
                 </div>
-                <div className={styles.consultRoomBand}>
-                  <ConsultRoom birthDate={view.birthDate} nickname={view.nickname} stemIdx={stemIdx} />
+                <div className={styles.consultSupplementStack}>
+                  <details className={styles.consultEntryDetails}>
+                    <summary className={styles.consultEntryDetailsSummary}>
+                      {PAID_DTR_CONSULT_ENTRY_LAYOUT.savedReportAboutSummaryJa}
+                    </summary>
+                    <ConsultSavedReportAboutBody readerDisplayName={view.nickname} />
+                    <GroundingPanel
+                      supplement
+                      reportTitle={groundingDisplayReportTitle(payload.title)}
+                      stemOneLine={stem.displayOneLine}
+                      readerDisplayName={view.nickname}
+                    />
+                  </details>
+                  <details className={styles.consultEntryDetails}>
+                    <summary className={styles.consultEntryDetailsSummary}>
+                      {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportOverlineJa}
+                    </summary>
+                    <ContinuousSupportCompact />
+                  </details>
                 </div>
               </div>
             ) : null}

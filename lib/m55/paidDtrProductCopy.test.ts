@@ -2,8 +2,12 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   PAID_DTR_CHAPTERS,
+  PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
+  PAID_DTR_CONSULT_USAGE_DISPLAY,
+  formatConsultPurchaseAddOnLine,
+  formatConsultUsedCountLine,
   PAID_DTR_MY_PAGE_CONSULT,
   PAID_DTR_PRODUCT_IDENTITY,
   PAID_DTR_VALUE_PROPOSITION,
@@ -80,6 +84,32 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(boundary, /保存版に紐づく相談/);
     assert.match(boundary, /汎用チャットではない/);
     assert.match(boundary, /無制限/);
+  });
+
+  it('consult UI copy avoids room wording in user-facing strings', () => {
+    const consultUi = [
+      PAID_DTR_CONSULT_ROOM_UI.roomTitleJa,
+      PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa,
+      PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja,
+      PAID_DTR_MY_PAGE_CONSULT.openRoomLinkJa,
+      ...Object.values(PAID_DTR_CONSULT_ROOM_UI),
+    ].join('\n');
+    assert.equal(consultUi.includes('相談返書ルーム'), false);
+    assert.equal(consultUi.includes('返書ルーム'), false);
+    assert.match(consultUi, /相談返書の入口/);
+  });
+
+  it('consult usage display copy prioritizes add-on over giant remaining-zero hero', () => {
+    assert.equal(
+      formatConsultPurchaseAddOnLine(4),
+      '保存版に紐づく相談返書を、あと4件まで追加できます。'
+    );
+    assert.equal(formatConsultUsedCountLine(1, 5), '使用済み 1 / 5件');
+    const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
+    assert.match(usage, /相談返書を1件使えます/);
+    assert.match(usage, /今は残り0件です/);
+    assert.equal(usage.includes('相談返書ルーム'), false);
+    assert.equal(usage.includes('返書ルーム'), false);
   });
 
   it('consult copy states one-theme and cap product truth', () => {

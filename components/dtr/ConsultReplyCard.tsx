@@ -67,7 +67,7 @@ export default function ConsultReplyCard({
       <header className={styles.replyCardHeader}>
         <div className={styles.replyTagRow}>
           <span className={styles.replyTag}>相談返書</span>
-          <span className={styles.replyTag}>保存版連動</span>
+          <span className={styles.replyTag}>保存版に紐づく返書</span>
         </div>
         <p className={styles.replyCardLead}>保存版に紐づく相談</p>
         <h3 className={styles.replyCardTitle}>相談返書</h3>

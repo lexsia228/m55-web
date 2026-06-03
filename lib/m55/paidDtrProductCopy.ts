@@ -567,10 +567,66 @@ export function drawerSectionDisplayTitleJa(section: {
 
 /** Consult grounding band — life-language labels (W-B1 patch). */
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
-  titleLine2Ja: '今の相談を一緒に見ていく',
+  titleLine2Ja: 'この保存版をもとに、今気になっていることを1テーマだけ整理します',
+  dividerChipJa: '保存版に紐づく相談返書',
+  entryContextAriaJa: '相談返書の入口のコンテキスト',
+  continuousSupportOverlineJa: '状況が変わったときの使い方',
+  continuousSupportBodyJa:
+    '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを相談返書で整理できます。',
+  continuousSupportScopeJa:
+    '※転職・異動・恋愛・相性・仕事特化など、別レポートで扱うべき領域までは、この解析では広げません。',
   pillarFlowRefJa: '進め方を見る',
   metaReadAxesJa: '自分の形 · 進め方 · 近い人 · 整え方 · 戻し方',
 } as const;
+
+/** Consult entry-first layout — display-only (W-B2). */
+export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
+  essentialNotesJa: [
+    '汎用チャットではなく、無制限の相談でもありません。',
+    '保存版に紐づく1テーマだけを扱います。',
+    '送信するまで相談返書は使いません。',
+  ] as const,
+  valueDetailsSummaryJa: '返書で整理できること',
+  savedReportAboutSummaryJa: 'この保存版と相談返書について',
+  savedReportConsultLeadJa:
+    '相談返書では、この保存版をもとに、今気になっていることを1テーマだけ整理します。',
+  fixedReportBulletsJa: [
+    'レポート本文は購入時点の内容として固定されます',
+    '今の感じ方や迷いは相談返書で整理できます',
+    '相談返書はこのレポートに紐づいて作成されます',
+  ] as const,
+  groundingNoteTemplateJa:
+    '一般的なアドバイスではなく、{nickname}向けのこの解析内容に基づいた相談返書を作成します。',
+  groundingNoteFallbackJa:
+    '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。',
+} as const;
+
+/** Consult usage card — CTA-first display copy (display-only). */
+export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
+  availablePrimaryJa: '相談返書を1件使えます。',
+  availableSecondaryJa: '今気になっていることを、1テーマだけ書けます。',
+  purchasePrimaryLine1Ja: '今は残り0件です。',
+  purchasePrimaryLine2Ja:
+    '保存版に紐づく相談返書を、あと{count}件まで追加できます。',
+  capReachedPrimaryJa: 'この保存版で使える相談返書は上限に達しています。',
+  capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
+  usedCountTemplateJa: '使用済み {used} / {cap}件',
+  remainingCompactTemplateJa: '残り {count} 件',
+  additionalPurchasableTemplateJa: 'あと購入できる {count}件',
+} as const;
+
+export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: number): string {
+  return PAID_DTR_CONSULT_USAGE_DISPLAY.purchasePrimaryLine2Ja.replace(
+    '{count}',
+    String(additionalPurchasableCount)
+  );
+}
+
+export function formatConsultUsedCountLine(used: number, cap: number): string {
+  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa
+    .replace('{used}', String(used))
+    .replace('{cap}', String(cap));
+}
 
 export type PaidDtrReportPartView = {
   partId: PaidDtrReportPartId;
@@ -691,7 +747,7 @@ export const PAID_DTR_CONSULT_REPLY = {
     '結果や未来の断定・保証の要求',
   ] as const,
   whereToUseJa:
-    '購入後、保存版レポート（/dtr/core）内の相談返書ルームで利用します。マイページやレポート棚からレポートを開いたあと、画面内の相談返書へ進みます。',
+    '購入後、保存版レポート（/dtr/core）内の相談返書の入口で利用します。マイページやレポート棚からレポートを開いたあと、画面内の相談返書へ進みます。',
   consumeNoteJa:
     '1回の送信で相談返書1件を使用します。送信後の取り消しはできません。返書は保存されます。',
   capSummaryJa: '付属1件 + 追加購入最大4件まで（合計5件まで）',
@@ -712,12 +768,14 @@ export const PAID_DTR_CONSULT_REPLY = {
     '対人の違和感では、相手側または状況側の見え方を1つ含めて整理することがあります（悪い／悪くないの結論にはしません）。',
 } as const;
 
-/** Consult room / ticket wallet UI copy (display-only). */
+/** Consult entry / ticket wallet UI copy (display-only). */
 export const PAID_DTR_CONSULT_ROOM_UI = {
-  ariaLabelJa: '相談返書ルーム（purchaser-only）',
-  roomTitleJa: '相談返書ルーム',
+  ariaLabelJa: '相談返書の入口（purchaser-only）',
+  roomTitleJa: '相談返書の入口',
   roomLeadJa:
-    '購入した保存版に紐づく相談です。汎用チャットではなく、無制限のやりとりでもありません。いまの1テーマを、章に沿って整理します。',
+    '購入した保存版に紐づく相談です。汎用チャットではなく、無制限の相談でもありません。いまの1テーマを、章に沿って整理します。',
+  standalonePageLeadJa:
+    '保存版に紐づく相談返書です。見えている傾向を土台に、今回の1テーマを整理します。',
   usageLabelJa: '利用状態',
   /** Display-only wallet usage lines (counts come from API; cap from Product Truth constants). */
   usageUsedCountLabelJa: '使用済み',
@@ -729,9 +787,9 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   limitReachedAdditionalJa:
     'このレポートで利用できる追加相談返書は上限に達しました。',
   limitReachedReadOnlyJa:
-    '相談返書の利用回数の上限に達しました。これまでのやりとりは引き続き確認できます。',
+    '相談返書の利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
   purchaseOnlyInRoomPrefixJa:
-    '追加相談返書の購入はこのルーム内でのみ申し込み可能です。上限は合計',
+    '追加相談返書の購入はこの保存版の相談返書画面内でのみ申し込み可能です。上限は合計',
   purchaseOnlyInRoomSuffixJa: '件です。',
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
@@ -762,8 +820,12 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
     '現在、このレポートに紐づく追加購入をご利用いただけません。',
   walletPurchaseReportMissingJa:
     '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
-  walletPurchaseRetryNoteJa:
-    'この本質の読み解きに紐づいて、今の相談をもう一度整理できます。',
+  walletPurchaseRetryNoteJa: '保存版に紐づく相談返書を1件追加できます。',
+  addOnPurchaseNoteJa: '保存版に紐づく相談返書を1件追加できます。',
+  valueDeliverablesTitleJa: 'この返書で整理すること',
+  historyMessagesAriaJa: 'これまでの相談返書',
+  loadErrorJa: '相談返書の読み込みに失敗しました。ページを再読み込みしてください。',
+  composePanelTitleJa: '今の1テーマを書く',
 } as const;
 
 /** My page consult block (functional UI only — not emotional story). */
@@ -774,12 +836,12 @@ export const PAID_DTR_MY_PAGE_CONSULT = {
   linkedScopeJa:
     '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。',
   capSummaryJa:
-    '付属1件 + 追加最大4件 = 合計5件まで（残数・送信は相談返書ルームで確認）',
+    '付属1件 + 追加最大4件 = 合計5件まで（残数・送信は相談返書の入口で確認）',
   remainingNoteJa:
-    '相談返書の残り回数・送信は、保存版レポート内の相談返書ルームで確認できます。',
+    '相談返書の残り回数・送信は、保存版レポート内の相談返書の入口で確認できます。',
   reopenNoteJa:
     '保存版の再開は、上のレポート一覧またはレポート棚から行えます。',
-  openRoomLinkJa: '相談返書ルームを開く',
+  openRoomLinkJa: '保存版で相談返書を開く',
   sectionAriaJa: '相談と保存の目安',
 } as const;
 
@@ -828,7 +890,7 @@ export const PAID_DTR_PURCHASE_ACCESS_FLOW = [
   },
   {
     id: 'consult_room' as const,
-    titleJa: '相談返書ルーム',
+    titleJa: '相談返書の入口',
     bodyJa: '保存版を読んだうえで、付属の相談返書（必要なら追加購入）を利用します。',
   },
   {
