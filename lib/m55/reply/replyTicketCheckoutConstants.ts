@@ -8,10 +8,34 @@
 
 import type { WalletLedgerEventType, WalletSourceOfGrant } from './constants';
 
-/** Stripe / app metadata: product_key value for additional reply ticket SKU (1 checkout = 1 ticket). */
+/** Saved report — light tier (¥1,000): report + 1 included consult reply. */
+export const DTR_CORE_LIGHT_V1_PRODUCT_KEY = 'dtr_core_light_v1' as const;
+
+/** Saved report — FULL tier (¥1,480): report + consult replies up to total cap 5 (1+4 wallet model). */
+export const DTR_CORE_FULL_V1_PRODUCT_KEY = 'dtr_core_full_v1' as const;
+
+/**
+ * Light → FULL upgrade (¥600): grants purchased_count delta up to {@link REPLY_TICKET_FULL_MAX_PURCHASED_COUNT}.
+ * Not per-ticket add-on sales.
+ */
+export const DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY =
+  'dtr_core_light_to_full_upgrade_v1' as const;
+
+export type DtrCoreLightV1ProductKey = typeof DTR_CORE_LIGHT_V1_PRODUCT_KEY;
+export type DtrCoreFullV1ProductKey = typeof DTR_CORE_FULL_V1_PRODUCT_KEY;
+export type DtrCoreLightToFullUpgradeV1ProductKey =
+  typeof DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY;
+
+/**
+ * @legacy Stripe / app metadata: ¥500 additional reply ticket (1 checkout = +1 purchased).
+ * New sales stopped in Product Truth; keep for in-flight checkout + webhook fulfillment until DB lane retires path.
+ */
 export const ADDITIONAL_REPLY_TICKET_PRODUCT_KEY = 'additional_reply_ticket' as const;
 
 export type AdditionalReplyTicketProductKey = typeof ADDITIONAL_REPLY_TICKET_PRODUCT_KEY;
+
+/** @legacy ¥500 per checkout session (legacy additional_reply_ticket lane only). */
+export const LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN = 500 as const;
 
 /** 1 report_instance: included 1 + purchased max 4 = 5 total capability. */
 export const REPLY_TICKET_TOTAL_CAP_PER_REPORT = 5 as const;
@@ -19,11 +43,58 @@ export const REPLY_TICKET_TOTAL_CAP_PER_REPORT = 5 as const;
 /** First included ticket per product rules. */
 export const REPLY_TICKET_INCLUDED_COUNT = 1 as const;
 
-/** Max additional purchases (not including the included ticket). */
+/** Max purchased_count for FULL-equivalent wallet (light 1 + purchased 4 = 5 total capability). */
 export const REPLY_TICKET_ADDITIONAL_MAX_PURCHASED = 4 as const;
 
-/** One Stripe Checkout session grants exactly one ticket. */
+/** Alias — FULL初回・ライト→FULLアップグレードの purchased_count 上限（SSOT: 1+4 方式）. */
+export const REPLY_TICKET_FULL_MAX_PURCHASED_COUNT =
+  REPLY_TICKET_ADDITIONAL_MAX_PURCHASED;
+
+/**
+ * FULL初回付与: initial_included_count=1 のまま purchased_count を 4 まで（合計5枠）。
+ * ライト→FULLアップグレードも同じ purchased_count 上限まで差分付与。
+ */
+export const REPLY_TICKET_FULL_INITIAL_PURCHASED_GRANT =
+  REPLY_TICKET_FULL_MAX_PURCHASED_COUNT;
+
+/** One Stripe Checkout session grants exactly one ticket (legacy ¥500 lane only). */
 export const REPLY_TICKET_PURCHASE_QUANTITY = 1 as const;
+
+/** Upgrade checkout grants purchased delta in one fulfillment (not legacy +1 RPC quantity). */
+export const REPLY_TICKET_UPGRADE_TARGET_PURCHASED_COUNT =
+  REPLY_TICKET_FULL_MAX_PURCHASED_COUNT;
+
+/**
+ * purchased_count を FULL 相当（最大4）まで埋める差分。例: 2 → 2, 0 → 4, 4 → 0.
+ * DB/RPC レーンで upgrade fulfillment に使用（今回は定数のみ）。
+ */
+export function computeLightToFullUpgradePurchasedDelta(
+  currentPurchasedCount: number
+): number {
+  const current = Number.isFinite(currentPurchasedCount)
+    ? Math.max(0, Math.floor(currentPurchasedCount))
+    : 0;
+  return Math.max(0, REPLY_TICKET_UPGRADE_TARGET_PURCHASED_COUNT - current);
+}
+
+/**
+ * FULL 相当: upgrade CTA 非表示・legacy 単品購入 cap と同型判定。
+ */
+export function isFullEquivalentReplyWallet(
+  initialIncludedCount: number,
+  purchasedCount: number
+): boolean {
+  const initial = Number.isFinite(initialIncludedCount)
+    ? Math.max(0, Math.floor(initialIncludedCount))
+    : 0;
+  const purchased = Number.isFinite(purchasedCount)
+    ? Math.max(0, Math.floor(purchasedCount))
+    : 0;
+  return (
+    purchased >= REPLY_TICKET_FULL_MAX_PURCHASED_COUNT ||
+    initial + purchased >= REPLY_TICKET_TOTAL_CAP_PER_REPORT
+  );
+}
 
 /** Stripe Session metadata field names (Stripe object keys are strings). */
 export const REPLY_TICKET_CHECKOUT_METADATA_KEYS = {

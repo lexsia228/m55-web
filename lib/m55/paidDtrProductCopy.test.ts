@@ -6,6 +6,8 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
+  PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
+  PAID_DTR_SAVED_REPORT_PRICING,
   formatConsultPurchaseAddOnLine,
   formatConsultUsedCountLine,
   PAID_DTR_MY_PAGE_CONSULT,
@@ -23,11 +25,41 @@ describe('paidDtrProductCopy SSOT', () => {
     );
   });
 
-  it('uses reply cap 5 and additional price ¥500', () => {
+  it('uses reply cap 5 and FULL wallet model (1+4)', () => {
     assert.equal(PAID_DTR_CONSULT_REPLY.includedCount, 1);
     assert.equal(PAID_DTR_CONSULT_REPLY.additionalMaxPurchased, 4);
     assert.equal(PAID_DTR_CONSULT_REPLY.totalCapPerReport, 5);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.initialIncludedCount, 1);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.initialPurchasedGrant, 4);
+  });
+
+  it('defines light / FULL / upgrade pricing tiers (primary SSOT)', () => {
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.recommended, true);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);
+    assert.equal(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen, 600);
+    assert.match(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa, /後からFULL化/);
+    assert.match(PAID_DTR_SAVED_REPORT_PRICING.light.audienceJa, /1テーマ/);
+    assert.match(PAID_DTR_SAVED_REPORT_PRICING.full.audienceJa, /複数テーマ/);
+    assert.match(
+      PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
+      /追加1件売りではありません/
+    );
+  });
+
+  it('keeps legacy ¥500 additional ticket constants for in-flight webhook safety', () => {
+    assert.equal(PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceYen, 500);
+    assert.equal(PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.newSalesStopped, true);
+    assert.equal(PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.productKey, 'additional_reply_ticket');
+    assert.equal(PAID_DTR_CONSULT_REPLY.legacyAdditionalPriceYen, 500);
     assert.equal(PAID_DTR_CONSULT_REPLY.additionalPriceYen, 500);
+    assert.match(PAID_DTR_CONSULT_REPLY.legacyAdditionalPriceLabelJa, /500円/);
+  });
+
+  it('primary upgrade SSOT is ¥600 not ¥500', () => {
+    assert.notEqual(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen, 500);
+    assert.equal(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen, 600);
   });
 
   it('uses Japanese primary product identity', () => {
@@ -82,7 +114,7 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_MY_PAGE_CONSULT.linkedScopeJa,
     ].join('\n');
     assert.match(boundary, /保存版に紐づく相談/);
-    assert.match(boundary, /汎用チャットではない/);
+    assert.match(boundary, /汎用チャットではなく/);
     assert.match(boundary, /無制限/);
   });
 
@@ -133,17 +165,38 @@ describe('paidDtrProductCopy SSOT', () => {
     const consult = [
       PAID_DTR_CONSULT_REPLY.oneThemeJa,
       PAID_DTR_CONSULT_REPLY.capSummaryJa,
-      PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa,
+      PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa,
       PAID_DTR_CONSULT_ROOM_UI.composeThemeHintJa,
     ].join('\n');
     assert.match(consult, /1テーマ/);
     assert.match(consult, /付属1/);
     assert.match(consult, /追加.*4/);
     assert.match(consult, /合計5/);
-    assert.match(consult, /500円/);
+    assert.match(consult, /600/);
+    assert.equal(consult.includes('500円'), false);
     assert.equal(consult.includes('max3'), false);
     assert.equal(consult.includes('700円'), false);
     assert.equal(consult.includes('返書チケット'), false);
+  });
+
+  it('new pricing tier copy avoids chat and unlimited consult wording', () => {
+    const tierCopy = [
+      PAID_DTR_SAVED_REPORT_PRICING.light.headlineJa,
+      PAID_DTR_SAVED_REPORT_PRICING.full.headlineJa,
+      PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.headlineJa,
+      PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
+      PAID_DTR_CONSULT_REPLY.upgradeToFullDescriptionJa,
+    ].join('\n');
+    const forbidden = [
+      'AIと喋れる',
+      '無制限相談',
+      '無制限の相談',
+      'チャット',
+    ] as const;
+    for (const term of forbidden) {
+      assert.equal(tierCopy.includes(term), false, `tier copy must not include: ${term}`);
+    }
+    assert.match(tierCopy, /相談返書/);
   });
 
   it('consult copy avoids unsafe external and selector wording in user-facing strings', () => {

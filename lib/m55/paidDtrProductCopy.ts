@@ -12,6 +12,16 @@ import {
   LABEL_PRODUCT_JP,
   LABEL_STATE_OWNED,
 } from './dtrProductLabels';
+import {
+  ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  DTR_CORE_FULL_V1_PRODUCT_KEY,
+  DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+  DTR_CORE_LIGHT_V1_PRODUCT_KEY,
+  LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN,
+  REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
+  REPLY_TICKET_INCLUDED_COUNT,
+  REPLY_TICKET_TOTAL_CAP_PER_REPORT,
+} from './reply/replyTicketCheckoutConstants';
 
 export const PAID_DTR_PRODUCT_COPY_VERSION = 'm55-paid-dtr-product-copy-v1' as const;
 
@@ -716,14 +726,77 @@ export const PAID_DTR_LIFE_USE_CASES = [
   },
 ] as const;
 
+/** Saved-report pricing tiers — Product Truth SSOT (2026-06). Checkout/UI wiring is later gates. */
+export const PAID_DTR_SAVED_REPORT_PRICING = {
+  light: {
+    productKey: DTR_CORE_LIGHT_V1_PRODUCT_KEY,
+    priceYen: 1000,
+    priceLabelJa: '¥1,000（税込）',
+    planNameJa: '保存版ライト',
+    headlineJa: '保存版レポート + 相談返書1件つき',
+    audienceJa: 'まずは1テーマだけ整理したい方向け',
+    includedReplyCount: REPLY_TICKET_INCLUDED_COUNT,
+  },
+  full: {
+    productKey: DTR_CORE_FULL_V1_PRODUCT_KEY,
+    priceYen: 1480,
+    priceLabelJa: '¥1,480（税込）',
+    planNameJa: '保存版FULL',
+    recommended: true,
+    headlineJa: '保存版レポート + 相談返書 合計5件まで',
+    audienceJa: '複数テーマで整理したい方向け',
+    totalReplyCap: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
+    /** FULL初回: initial_included=1 + purchased_count=4（合計5枠） */
+    initialIncludedCount: REPLY_TICKET_INCLUDED_COUNT,
+    initialPurchasedGrant: REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
+  },
+  lightToFullUpgrade: {
+    productKey: DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+    priceYen: 600,
+    priceLabelJa: '¥600（税込）',
+    planNameJa: '後からFULL化',
+    headlineJa: 'ライト購入後、相談返書を合計5件まで使えるようにする',
+    descriptionJa:
+      'ライト購入者向け。相談返書枠を合計5件まで増やします。追加1件売りではありません。',
+    targetPurchasedCount: REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
+  },
+  walletModelJa:
+    '付属1件（initial_included_count=1）+ purchased_count 最大4 = 合計5件。FULL初回は purchased_count=4 を一括付与。ライト→FULLは purchased_count を最大4まで差分付与。',
+} as const;
+
+/**
+ * @legacy ¥500 単品追加相談返書 — 新規販売停止。webhook/RPC 移行完了まで product_key を残す。
+ */
+export const PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET = {
+  productKey: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  priceYen: LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN,
+  priceLabelJa: '追加相談返書 1件 500円',
+  newSalesStopped: true as const,
+  noteJa:
+    '移行中の Stripe セッション完了時の付与用。新 Product Truth の購入導線では使用しない。',
+} as const;
+
 export const PAID_DTR_CONSULT_REPLY = {
   primaryTermJa: '相談返書',
   bridgeTermJa: 'AI往復券',
-  includedCount: 1,
-  additionalMaxPurchased: 4,
-  totalCapPerReport: 5,
-  additionalPriceYen: 500,
-  additionalPriceLabelJa: '追加相談返書 1件 500円',
+  includedCount: REPLY_TICKET_INCLUDED_COUNT,
+  additionalMaxPurchased: REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
+  totalCapPerReport: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
+  /** Primary upgrade price (SSOT). UI 未移行フィールドは legacy* を参照中。 */
+  upgradeToFullPriceYen: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen,
+  upgradeToFullPriceLabelJa: '後からFULL化 ¥600',
+  upgradeToFullDescriptionJa: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
+  oneThemeConsultPhraseJa: '今の1テーマを整理する返書',
+  /**
+   * @legacy UI / 進行中 checkout 表示ブリッジ — {@link PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET}
+   * LP・ConsultRoom レーンまで変更しない。
+   */
+  legacyAdditionalPriceYen: PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceYen,
+  legacyAdditionalPriceLabelJa: PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceLabelJa,
+  /** @deprecated Use {@link PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen} in new copy; UI bridge until price-copy lane. */
+  additionalPriceYen: PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceYen,
+  /** @deprecated Use {@link PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa} in new copy; UI bridge until price-copy lane. */
+  additionalPriceLabelJa: PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceLabelJa,
   groundedInReportJa:
     '相談返書は、購入した保存版レポートの章に沿って深掘りするためのものです。別テーマの質問や、レポートと関係のない相談にはお答えできません。',
   notGenericChatJa:
