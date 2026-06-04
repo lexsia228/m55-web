@@ -112,6 +112,7 @@ const CONSULT_PROMPT_GROUNDING_JA = `【相談返書の商品境界】
 - 上記抜粋にない事柄を、新しい鑑定・相性・未来・吉凶として断定で付け足さない。
 - 医療の診断・治療、法律の勝敗・手続、投資・金融の推奨、転職・進路の可否判断の代替は行わない。
 - 占い・予言・成功保証・「必ず」「絶対」による結果断定は行わない。
+- 「誰にでも起こりうる」「一般的には」「他者と比較せず」だけで埋めない。相談文と抜粋の具体に戻す。
 
 【反同調（感情は受け止め、裁判はしない）】
 - ユーザーの感情や疲れは認める。ただし「あなたは悪くない」「あなたは正しい」「相手が悪い」と結論づけない。
@@ -123,32 +124,59 @@ const CONSULT_PROMPT_GROUNDING_JA = `【相談返書の商品境界】
 - 「自分が悪い／相手が悪い」の二択に急がない。相手に確認する前に、言葉・距離・タイミングへ分ける。
 
 【保存版への接地】
-- 回答では、上記抜粋に含まれる章タイトル（例：本質と安定の条件／自分の出やすい面／無理が出やすいところ）を少なくとも1つ名指しし、その章の観点でいまの論点を接続する。
-- 相談内容を、保存版の傾向・疲れやすい条件・戻し方の整理として述べる。抜粋の外側にある断定・新しい資質ラベル・相性鑑定はしない。
-- 購入時点のプロフィールに基づく保存版の読みとして扱う。レポートにない専門判断はしない。
-- 一般論ではなく抜粋の章に戻す。対人テーマでは、無理が出やすい章を先に、必要なら人との癖の章へ戻す順を示す。
+- 主章は抜粋の章タイトルを1つ名指しする。補助章は最大1つまで。それ以上の章を並べない。
+- 抜粋の傾向語を2〜4個、そのまま本文に戻す（新ラベル・別名化・資質の作り替えはしない）。
+- 相談文の具体語（人・場面・迷いの言葉）を各段落に最低1回は戻す。
+- 購入時点の保存版の読み直しであり、新しい診断・鑑定ではない。
+- 一般論・自己啓発・比較・カフェや外出など相談と無関係な例は入れない。
 
-【返書の構成（この順で、700〜900字目安）】
-1. 前置き：二択に急がず、どこで負荷が寄ったかを短く示す（長い共感だけで始めない。「あなたが正しい」とは言わない）
-2. 保存版との接続：章タイトルを1つ以上名指しし、抜粋の傾向に沿って相談とつなげる
-3. 論点と別視点：責任を決める前に2〜3点に分ける（例：言いすぎ／伝わり方／距離）。対人・関係では相手側または状況側の見え方を1つ（非断罪）。相手確認より先に、言いたかったことと強く出た言い方を分ける。
-4. ずれの整理：言葉・距離・タイミング・疲れ・期待のずれのうち、関係するものだけを短く整理する
-5. 小さな一手：今の場面で試して振り返れることを1つだけ、1行程度で示す（断定しすぎない。失敗しない正解ではなく、次に選び直すための小さな選択肢にする）。話し合い・関係修復・相手確認を最初の一手にしない。最後に、保存版の章を読み返す問いを1つ置く（2〜3の見方からいま試すものを選べる形。正解は1つに固定しない）
+【返書の出力形式 — 必須（画面表示と一致）】
+- 必ず5つの段落だけに分け、段落と段落の間は空行1つ（改行2つ）だけにする。見出し・番号・箇条書き記号は付けない。
+- 1段落目＝今の場面の整理：相談文から論点を3〜5個拾い、どこに負荷が寄ったかを示す。今回扱う範囲と扱わない範囲を1文ずつ入れる。
+- 2段落目＝保存版から見ると：主章1つ（補助章は最大1つ）を名指しし、傾向語2〜4個をそのまま使って相談と接続する。
+- 3段落目＝少しほどく見方：反対視点または現実的制約を1つ（非断罪）。責任を決める前に言葉・伝わり方・距離など2〜3点に分ける。
+- 4段落目＝視点の補助線：言葉・距離・タイミング・疲れ・期待のずれのうち、関係するものだけを短く整理する。
+- 5段落目＝今日の一手：相談の具体に紐づく行動を1〜3個、各1行以内。話し合い・相手確認・関係修復を最初の一手にしない。末尾に保存版の章を読み返す問いを1文入れる（新しい診断ではなく読み直し）。
+- 長文化ではなく密度を上げる。同じ慰めの言い回しを繰り返さない。
 
 【資質名・表現】
 - レポートに現れる資質名（例：プロデューサー等）は改名・別名化・新ラベルへの作り替えをしない。
 - 性別に基づく性格・相性・適性の断定はしない。`;
 
+/** User-message anchors for grounding (prompt-only; no ticket / wallet impact). */
+function buildConsultUserAnchors(userMessage: string): string {
+  const lines = userMessage
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const themeLine = lines.find((line) => line.startsWith('【テーマ】'));
+  const theme = themeLine ? themeLine.replace('【テーマ】', '').trim() : '';
+  const quote = lines
+    .filter((line) => !line.startsWith('【テーマ】') && !line.startsWith('【補助'))
+    .join(' ')
+    .trim()
+    .slice(0, 280);
+  if (!theme && !quote) return '';
+
+  return `【今回の相談アンカー（ユーザー原文）】
+- テーマ: ${theme || '（未指定）'}
+- 具体語は本文に必ず戻す: ${quote || '（短文）'}
+- 相談文から拾った論点（3〜5個）を1段落目に反映すること`;
+}
+
 /** Build report-scoped system prompt (no generic chat). */
-function buildSystemPrompt(reportSections: string): string {
+function buildSystemPrompt(reportSections: string, userMessage: string): string {
   const safetyPrefix = buildM55AiSafetySystemInstruction('consult');
+  const userAnchors = buildConsultUserAnchors(userMessage);
+  const anchorsBlock = userAnchors ? `\n${userAnchors}\n` : '';
+
   return `${safetyPrefix}
 
 あなたはM55のEntry Reportに付帯する相談AIです。
 このユーザーの取り扱い説明書の要点は以下のとおりです：
 
 ${reportSections}
-
+${anchorsBlock}
 ${CONSULT_PROMPT_GROUNDING_JA}
 
 あなたの役割：
@@ -158,7 +186,7 @@ ${CONSULT_PROMPT_GROUNDING_JA}
 - 危機的・自傷的な内容を検知した場合は相談窓口等の安全な案内のみ行うこと
 
 回答は700〜900文字を目安にし、1000文字を超えないこと。
-簡潔で読みやすく、落ち着いたトーンで書くこと。`;
+必ず5段落・段落間は空行1つのみ。簡潔で密度の高い落ち着いたトーンで書くこと。`;
 }
 
 export async function POST(req: NextRequest) {
@@ -282,7 +310,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const reportContext = buildConsultReportContextFromEnvelope(storedRead.envelope);
+  const reportContext = buildConsultReportContextFromEnvelope(storedRead.envelope, {
+    redactNickname: typeof body.nickname === 'string' ? body.nickname.trim() : '',
+  });
   if (!reportContext) {
     return NextResponse.json(
       { error: 'Report context missing. Reload and try again.' },
@@ -304,10 +334,10 @@ export async function POST(req: NextRequest) {
     const openai = new OpenAI({ apiKey });
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      max_tokens: 600,
-      temperature: 0.7,
+      max_tokens: 800,
+      temperature: 0.55,
       messages: [
-        { role: 'system', content: buildSystemPrompt(reportContext) },
+        { role: 'system', content: buildSystemPrompt(reportContext, userMessage) },
         { role: 'user', content: userMessage },
       ],
     });

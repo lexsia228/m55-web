@@ -9,6 +9,10 @@ import {
   buildConsultReportContextFromEnvelope,
   CONSULT_REPORT_CONTEXT_TOTAL_CAP,
 } from './consultReportContext';
+import {
+  mapConsultReplyBodyForDisplay,
+  normalizeConsultReplyParagraphs,
+} from './consultReplyDisplaySections';
 
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const DTR_DRAFT_DB = join(process.cwd(), 'lib/m55/dtrDraftDb.ts');
@@ -23,10 +27,11 @@ describe('buildConsultReportContextFromEnvelope', () => {
     });
     const context = buildConsultReportContextFromEnvelope(envelope);
     assert.ok(context.length > 0);
+    assert.ok(context.includes('【保存版抜粋の使い方】'));
+    assert.ok(context.includes('主章候補'));
     assert.ok(context.includes('【本質と安定の条件】'));
-    assert.ok(context.includes('【自分の出やすい面】'));
+    assert.ok(context.includes('【力が出やすい場面】'));
     assert.ok(context.includes('【無理が出やすいところ】'));
-    assert.ok(context.includes('【あなたという人物】'));
     assert.ok(context.includes('【構成と傾向の全体像】'));
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });
@@ -65,9 +70,25 @@ describe('buildConsultReportContextFromEnvelope', () => {
       locale: 'ja-JP',
       contextScope: 'dtr',
     });
-    const context = buildConsultReportContextFromEnvelope(envelope);
+    const context = buildConsultReportContextFromEnvelope(envelope, {
+      redactNickname: 'SecretNick',
+    });
     assert.equal(context.includes('1983-02-28'), false);
     assert.equal(context.includes('SecretNick'), false);
+  });
+});
+
+describe('consult reply display paragraph contract', () => {
+  it('maps five blank-line paragraphs to renderer slots', () => {
+    const raw = ['場面A', '保存版B', 'ほどくC', '補助D', '一手E'].join('\n\n');
+    const paragraphs = normalizeConsultReplyParagraphs(raw);
+    assert.equal(paragraphs.length, 5);
+    const mapped = mapConsultReplyBodyForDisplay(paragraphs);
+    assert.equal(mapped.scene, '場面A');
+    assert.equal(mapped.report, '保存版B');
+    assert.equal(mapped.alt, 'ほどくC');
+    assert.equal(mapped.aux, '補助D');
+    assert.equal(mapped.today, '一手E');
   });
 });
 
@@ -78,6 +99,14 @@ describe('Lane A send route context source draft contract', () => {
     assert.ok(src.includes('getVisibleDtrReportSnapshotByInstanceId'));
     assert.ok(src.includes('resolveStoredEnvelopeRead'));
     assert.ok(src.includes('buildConsultReportContextFromEnvelope'));
+  });
+
+  it('send route prompt aligns with five-paragraph renderer contract', () => {
+    const src = readFileSync(SEND_ROUTE, 'utf8');
+    assert.ok(src.includes('必ず5つの段落'));
+    assert.ok(src.includes('buildConsultUserAnchors'));
+    assert.ok(src.includes('max_tokens: 800'));
+    assert.equal(src.includes('temperature: 0.7'), false);
   });
 
   it('instance snapshot helper is SELECT-only in dtrDraftDb', () => {

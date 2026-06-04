@@ -2,6 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import {
+  mapConsultReplyBodyForDisplay,
+  normalizeConsultReplyParagraphs,
+} from '../../lib/m55/consult/consultReplyDisplaySections';
 import { resolveConsultReplyLensByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
 import { PAID_DTR_CONSULT_ROOM_UI } from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyStructureMiniViz from './ConsultReplyStructureMiniViz';
@@ -31,22 +35,6 @@ function trimLines(input: string, maxLines: number): string {
     .join('\n');
 }
 
-function normalizeParagraphs(content: string): string[] {
-  return content
-    .split(/\n{2,}/)
-    .map((p) => p.replace(/\n+/g, ' ').trim())
-    .filter(Boolean);
-}
-
-function pickTodayStep(paragraphs: string[]): string | null {
-  const last = paragraphs[paragraphs.length - 1]?.trim() ?? '';
-  if (!last) return null;
-  if (last.length > 120) return null;
-  if (/(別れ|辞め|やめ|投資|医療|法律|転職)/.test(last)) return null;
-  if (/(分け|書く|整え|休む|戻す|決める前)/.test(last)) return last;
-  return null;
-}
-
 export default function ConsultReplyCard({
   assistantContent,
   theme,
@@ -62,15 +50,16 @@ export default function ConsultReplyCard({
   const collapsed = compactInitially && !isExpanded;
 
   const lens = resolveConsultReplyLensByTheme(theme);
-  const paragraphs = normalizeParagraphs(assistantContent);
+  const paragraphs = normalizeConsultReplyParagraphs(assistantContent);
+  const bodies = mapConsultReplyBodyForDisplay(paragraphs);
   const sections = [
-    { label: '今の場面の整理', body: paragraphs[0] ?? '' },
-    { label: '保存版から見ると', body: paragraphs[1] ?? '' },
-    { label: '少しほどく見方', body: paragraphs[2] ?? paragraphs[1] ?? '' },
+    { label: '今の場面の整理', body: bodies.scene },
+    { label: '保存版から見ると', body: bodies.report },
+    { label: '少しほどく見方', body: bodies.alt },
   ].filter((s) => s.body);
 
-  const todayStep = pickTodayStep(paragraphs);
-  const bodyTail = paragraphs.slice(sections.length).join('\n\n');
+  const todayStep = bodies.today.trim() || null;
+  const auxBody = bodies.aux.trim();
   const usageCompact = `使用 ${usedCount} / 5件`;
   const usageFull = `${usageCompact} · 残り ${remainingCount}件`;
 
@@ -155,10 +144,10 @@ export default function ConsultReplyCard({
                 <p className={styles.replySectionBody}>{section.body}</p>
               </div>
             ))}
-            {bodyTail ? (
+            {auxBody ? (
               <div className={styles.replyReadingSection}>
                 <p className={styles.replySectionTitle}>視点の補助線</p>
-                <p className={styles.replySectionBody}>{bodyTail}</p>
+                <p className={styles.replySectionBody}>{auxBody}</p>
               </div>
             ) : null}
           </section>
@@ -167,7 +156,7 @@ export default function ConsultReplyCard({
             <section className={styles.replyTodayBox} aria-label="今日の一手">
               <div className={styles.replyTodayHead}>
                 <p className={styles.replyTodayTitle}>今日の一手</p>
-                <p className={styles.replyTodayMeta}>1行 · 3分 · 1つ</p>
+                <p className={styles.replyTodayMeta}>1〜3 · 相談に紐づく小さな一手</p>
               </div>
               <p className={styles.replyTodayText}>{todayStep}</p>
             </section>

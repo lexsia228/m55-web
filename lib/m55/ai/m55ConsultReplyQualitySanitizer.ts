@@ -151,6 +151,56 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
     from: 'どう思っているの？',
     to: 'いま自分の中で、どこが引っかかっているかを見る',
   },
+  {
+    category: 'generic_advice',
+    from: '誰にでも起こりうる',
+    to: 'この保存版の傾向として見える範囲では',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: 'まずは受け入れることが大切',
+    to: 'いまの負荷の置き所を見る',
+  },
+  {
+    category: 'generic_advice',
+    from: '焦らず自分のペースで',
+    to: 'いまの場面で選べる歩幅で',
+  },
+  {
+    category: 'generic_advice',
+    from: '一般的には',
+    to: 'この抜粋では',
+  },
+  {
+    category: 'generic_advice',
+    from: '自分の心の声に耳を傾ける',
+    to: '相談文の具体語と照らす',
+  },
+  {
+    category: 'generic_advice',
+    from: '新しいカフェに行ってみる',
+    to: 'いま書いた場面に近い小さな一手にする',
+  },
+  {
+    category: 'generic_advice',
+    from: '他者と比較せず',
+    to: '保存版の章の観点だけに留める',
+  },
+  {
+    category: 'generic_advice',
+    from: '無理に行動しなくて大丈夫です',
+    to: '今日の一手は1つに絞る',
+  },
+  {
+    category: 'generic_advice',
+    from: '自分らしく進みましょう',
+    to: '保存版の章を読み直して選び直す',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: '自然なことです',
+    to: 'その重さは場面に応じて出やすい',
+  },
 ];
 
 const PHRASE_RULES = [...PHRASE_RULES_UNSORTED].sort((a, b) => b.from.length - a.from.length);
@@ -165,6 +215,21 @@ const REGEX_RULES: RegexRule[] = [
     category: 'outcome_guarantee',
     pattern: /([^。\n]{1,40})できるでしょう/g,
     replace: (lead) => `${lead}を選び直しやすくなるかもしれません`,
+  },
+];
+
+const PHRASE_OCCURRENCE_LIMITS: {
+  phrase: string;
+  maxKeep: number;
+  replacement: string;
+  category: M55ConsultReplyQualityCategory;
+}[] = [
+  { phrase: 'かもしれません', maxKeep: 2, replacement: 'なりやすいです', category: 'generic_advice' },
+  {
+    phrase: 'ここが論点になりやすいです',
+    maxKeep: 2,
+    replacement: 'ここが論点になりやすいです',
+    category: 'generic_advice',
   },
 ];
 
@@ -208,6 +273,39 @@ function applyRegexRules(
   return { text, count };
 }
 
+function limitPhraseOccurrences(
+  text: string,
+  categories: Set<M55ConsultReplyQualityCategory>,
+): { text: string; count: number } {
+  let out = text;
+  let count = 0;
+
+  for (const rule of PHRASE_OCCURRENCE_LIMITS) {
+    if (!out.includes(rule.phrase)) continue;
+    const parts = out.split(rule.phrase);
+    if (parts.length <= 1) continue;
+
+    let seen = 0;
+    const rebuilt: string[] = [];
+    for (let i = 0; i < parts.length; i += 1) {
+      rebuilt.push(parts[i] ?? '');
+      if (i < parts.length - 1) {
+        seen += 1;
+        if (seen <= rule.maxKeep) {
+          rebuilt.push(rule.phrase);
+        } else {
+          count += 1;
+          categories.add(rule.category);
+          rebuilt.push(rule.replacement);
+        }
+      }
+    }
+    out = rebuilt.join('');
+  }
+
+  return { text: out, count };
+}
+
 function applyToLine(
   line: string,
   categories: Set<M55ConsultReplyQualityCategory>,
@@ -244,7 +342,10 @@ export function applyM55ConsultReplyQualityPasses(
     replacementCount += applied.count;
   }
 
-  const text = outLines.join('\n');
+  let text = outLines.join('\n');
+  const limited = limitPhraseOccurrences(text, categories);
+  text = limited.text;
+  replacementCount += limited.count;
 
   // Fail-closed only when a long reply would be over-shortened by replacements.
   if (

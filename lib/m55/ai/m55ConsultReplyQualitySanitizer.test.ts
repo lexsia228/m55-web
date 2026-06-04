@@ -76,4 +76,21 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.ok(r.text.includes('診断して'));
     assert.ok(r.text.includes('整理しやすくなります'));
   });
+
+  it('rewrites listed generic coaching phrases', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '誰にでも起こりうるので、一般的には焦らず自分のペースで自分らしく進みましょう。'
+    );
+    assert.ok(r.text.includes('この保存版の傾向として見える範囲では'));
+    assert.ok(r.text.includes('この抜粋では'));
+    assert.ok(r.categoriesTriggered.includes('generic_advice'));
+  });
+
+  it('collapses repeated かもしれません phrasing', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '整理できるかもしれません。見直せるかもしれません。戻せるかもしれません。'
+    );
+    const count = (r.text.match(/かもしれません/g) ?? []).length;
+    assert.ok(count <= 2);
+  });
 });
