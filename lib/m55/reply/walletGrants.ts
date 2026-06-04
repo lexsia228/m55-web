@@ -1,6 +1,15 @@
+import { computePurchasedTopUpToFullEquivalent } from './replyWalletFulfillmentMath';
+
 type IncludedGrantResult =
   | { applied: true; walletId: string; availableAfter: number }
   | { applied: false; reason: 'already_granted' | 'wallet_conflict' };
+
+export type PurchasedTopUpGrantResult =
+  | { applied: true; walletId: string; availableAfter: number; purchasedDelta: number }
+  | {
+      applied: false;
+      reason: 'already_full_equivalent' | 'wallet_not_found' | 'no_delta' | 'wallet_conflict';
+    };
 
 type GrantSource = 'INCLUDED' | 'PURCHASE';
 
@@ -196,4 +205,92 @@ export async function grantPurchasedReplyTickets(
     delta: normalizedCount,
   });
   return { walletId: updated.id, availableAfter: updated.available_count };
+}
+
+type WalletRowForTopUp = {
+  id: string;
+  initial_included_count: number;
+  purchased_count: number;
+  consumed_count: number;
+  available_count: number;
+};
+
+/**
+ * FULL初回 (1+4) or reserved for app-layer upgrade before RPC apply.
+ * Sets purchased_count toward 4 and available_count per DB invariant (cap 5).
+ */
+export async function grantPurchasedTopUpToFullEquivalentIfNeeded(
+  db: any,
+  userId: string,
+): Promise<PurchasedTopUpGrantResult> {
+  const walletRes = await db
+    .from('reply_ticket_wallets')
+    .select('id, initial_included_count, purchased_count, consumed_count, available_count')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (walletRes.error) {
+    throw walletRes.error;
+  }
+
+  const wallet = walletRes.data as WalletRowForTopUp | null;
+  if (!wallet) {
+    return { applied: false, reason: 'wallet_not_found' };
+  }
+
+  const plan = computePurchasedTopUpToFullEquivalent({
+    initialIncludedCount: wallet.initial_included_count,
+    purchasedCount: wallet.purchased_count,
+    consumedCount: wallet.consumed_count,
+    availableCount: wallet.available_count,
+  });
+
+  if (plan.skipped) {
+    return { applied: false, reason: 'already_full_equivalent' };
+  }
+  if (plan.purchasedDelta <= 0) {
+    return { applied: false, reason: 'no_delta' };
+  }
+
+  const updateWalletRes = await db
+    .from('reply_ticket_wallets')
+    .update({
+      purchased_count: plan.nextPurchasedCount,
+      available_count: plan.nextAvailableCount,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', wallet.id)
+    .eq('purchased_count', wallet.purchased_count)
+    .eq('consumed_count', wallet.consumed_count)
+    .eq('available_count', wallet.available_count)
+    .select('id, available_count, purchased_count')
+    .maybeSingle();
+
+  if (updateWalletRes.error) {
+    throw updateWalletRes.error;
+  }
+
+  const updated = updateWalletRes.data as
+    | { id: string; available_count: number; purchased_count: number }
+    | null;
+  if (!updated) {
+    return { applied: false, reason: 'wallet_conflict' };
+  }
+
+  if (plan.availableGrantDelta > 0) {
+    await appendGrantLedger(db, {
+      userId,
+      walletId: updated.id,
+      availableAfter: updated.available_count,
+      source: 'PURCHASE',
+      delta: plan.availableGrantDelta,
+    });
+  }
+
+  return {
+    applied: true,
+    walletId: updated.id,
+    availableAfter: updated.available_count,
+    purchasedDelta: plan.purchasedDelta,
+  };
 }

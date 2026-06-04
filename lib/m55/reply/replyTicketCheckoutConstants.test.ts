@@ -7,8 +7,11 @@ import {
   DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
   DTR_CORE_LIGHT_V1_PRODUCT_KEY,
   isFullEquivalentReplyWallet,
+  isLegacyAdditionalReplyTicketProductKey,
+  isReplyTicketFulfillmentProductKey,
   LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN,
   REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
+  REPLY_TICKET_FULL_INITIAL_PURCHASED_GRANT,
   REPLY_TICKET_INCLUDED_COUNT,
   REPLY_TICKET_TOTAL_CAP_PER_REPORT,
 } from './replyTicketCheckoutConstants';
@@ -42,5 +45,19 @@ describe('replyTicketCheckoutConstants — pricing architecture SSOT', () => {
     assert.equal(isFullEquivalentReplyWallet(1, 3), false);
     assert.equal(isFullEquivalentReplyWallet(5, 0), true);
     assert.equal(isFullEquivalentReplyWallet(1, 2), false);
+  });
+
+  it('FULL initial purchased grant alias is 4 (1+4 model)', () => {
+    assert.equal(REPLY_TICKET_FULL_INITIAL_PURCHASED_GRANT, 4);
+  });
+
+  it('reply ticket fulfillment product keys include legacy + upgrade only', () => {
+    assert.equal(isLegacyAdditionalReplyTicketProductKey('additional_reply_ticket'), true);
+    assert.equal(
+      isReplyTicketFulfillmentProductKey('dtr_core_light_to_full_upgrade_v1'),
+      true
+    );
+    assert.equal(isReplyTicketFulfillmentProductKey('dtr_core_full_v1'), false);
+    assert.equal(isReplyTicketFulfillmentProductKey('additional_reply_ticket'), true);
   });
 });

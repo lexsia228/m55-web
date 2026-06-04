@@ -37,6 +37,30 @@ export type AdditionalReplyTicketProductKey = typeof ADDITIONAL_REPLY_TICKET_PRO
 /** @legacy ¥500 per checkout session (legacy additional_reply_ticket lane only). */
 export const LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN = 500 as const;
 
+/**
+ * Product keys fulfilled via {@link m55_reply_ticket_fulfill_checkout_event} (webhook reply lane).
+ * DTR core light/full grants use {@link grantInitialIncludedReplyIfNeeded} on DTR fulfill path.
+ */
+export const REPLY_TICKET_FULFILLMENT_PRODUCT_KEYS = [
+  ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+] as const;
+
+export type ReplyTicketFulfillmentProductKey =
+  (typeof REPLY_TICKET_FULFILLMENT_PRODUCT_KEYS)[number];
+
+export function isReplyTicketFulfillmentProductKey(productKey: string): boolean {
+  const normalized = productKey.trim().toLowerCase();
+  return REPLY_TICKET_FULFILLMENT_PRODUCT_KEYS.some(
+    (key) => key.toLowerCase() === normalized
+  );
+}
+
+/** Legacy +1 lane only (not upgrade bulk). */
+export function isLegacyAdditionalReplyTicketProductKey(productKey: string): boolean {
+  return productKey.trim().toLowerCase() === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY;
+}
+
 /** 1 report_instance: included 1 + purchased max 4 = 5 total capability. */
 export const REPLY_TICKET_TOTAL_CAP_PER_REPORT = 5 as const;
 

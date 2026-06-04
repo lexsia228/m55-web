@@ -6,14 +6,29 @@
 import type Stripe from 'stripe';
 import { getStripe } from '../stripe';
 import { getSupabaseAdmin } from '../supabaseAdmin';
-import { ALLOWED_ONE_TIME_PRODUCTS, DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
-import { grantInitialIncludedReplyIfNeeded } from './reply/walletGrants';
+import {
+  ALLOWED_ONE_TIME_PRODUCTS,
+  DTR_CORE_FULL_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_STATIC_V1,
+} from '../oneTimeCheckout';
+import {
+  grantInitialIncludedReplyIfNeeded,
+  grantPurchasedTopUpToFullEquivalentIfNeeded,
+} from './reply/walletGrants';
 import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
 import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
 
 const PRODUCT_ID_DEFAULT = DTR_CORE_STATIC_V1;
+
+/** DTR saved-report SKUs that grant core_origin + included reply (checkout wiring in later gate). */
+const DTR_CORE_PRODUCTS_WITH_ENTITLEMENT_GRANT: ReadonlySet<string> = new Set([
+  DTR_CORE_STATIC_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_FULL_V1,
+]);
 
 export type FulfillFromCheckoutSessionResult =
   | { ok: true }
@@ -117,7 +132,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
       return { ok: false, reason: 'db_error', detail: String(upsertEntErr.message ?? upsertEntErr) };
     }
 
-    if (productId === PRODUCT_ID_DEFAULT) {
+    if (DTR_CORE_PRODUCTS_WITH_ENTITLEMENT_GRANT.has(productId)) {
       const { error: upsertRightErr } = await db.from('entitlement_rights').upsert(
         { user_id: params.expectedUserId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
         { onConflict: 'user_id,right_key' }
@@ -133,11 +148,29 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
           trigger: 'stripe_checkout_session_paid',
           userId: params.expectedUserId,
           rightKey: DTR_CORE_RIGHT_KEY,
+          productId,
           checkoutSessionId,
         })
       );
 
       await grantInitialIncludedReplyIfNeeded(db, params.expectedUserId);
+
+      if (productId === DTR_CORE_FULL_V1) {
+        const fullTopUp = await grantPurchasedTopUpToFullEquivalentIfNeeded(
+          db,
+          params.expectedUserId
+        );
+        if (process.env.NODE_ENV !== 'production') {
+          console.info(
+            '[dtrGrantFullPurchasedTopUp]',
+            JSON.stringify({
+              applied: fullTopUp.applied,
+              reason: fullTopUp.applied ? undefined : fullTopUp.reason,
+              purchasedDelta: fullTopUp.applied ? fullTopUp.purchasedDelta : undefined,
+            })
+          );
+        }
+      }
 
       const snap = await upsertDtrReportSnapshotAtFulfillment({
         userId: params.expectedUserId,

@@ -10,6 +10,9 @@ import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import {
   ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+  isLegacyAdditionalReplyTicketProductKey,
+  isReplyTicketFulfillmentProductKey,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
 } from './replyTicketCheckoutConstants';
 import { callM55ReplyTicketFulfillCheckoutEvent } from './replyTicketFulfillmentRpc';
@@ -28,7 +31,7 @@ let pendingReplyTicketDiagnosticSummary: ReplyTicketDiagnosticSummary | null = n
 
 export type ReplyTicketDiagnosticSummary = {
   event_type_checkout_completed: true;
-  product_key: 'additional_reply_ticket' | 'other';
+  product_key: 'additional_reply_ticket' | 'light_to_full_upgrade' | 'other';
   reply_lane_selected: boolean;
   metadata_required_present: boolean;
   report_instance_present: boolean;
@@ -123,10 +126,14 @@ function buildBaseSummary(
     typeof session.payment_intent === 'string' ? session.payment_intent : null;
 
   const product_key =
-    mdProductKey === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY ? 'additional_reply_ticket' : 'other';
+    typeof mdProductKey === 'string' && isLegacyAdditionalReplyTicketProductKey(mdProductKey)
+      ? 'additional_reply_ticket'
+      : typeof mdProductKey === 'string' &&
+          mdProductKey.trim() === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY
+        ? 'light_to_full_upgrade'
+        : 'other';
   const metadata_required_present =
-    typeof mdProductKey === 'string' &&
-    mdProductKey.trim() === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY;
+    typeof mdProductKey === 'string' && isReplyTicketFulfillmentProductKey(mdProductKey);
 
   return {
     product_key,
@@ -175,7 +182,8 @@ export async function handleReplyTicketCheckoutCompleted(
     JSON.stringify({
       reply_lane_entered: true,
       event_id_present: true,
-      product_key_valid: mdProductKeyStr === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+      product_key_valid:
+        typeof mdProductKeyStr === 'string' && isReplyTicketFulfillmentProductKey(mdProductKeyStr),
       report_instance_id_present: !!(
         md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.reportInstanceId] ?? md.report_instance_id
       ),
@@ -186,7 +194,7 @@ export async function handleReplyTicketCheckoutCompleted(
     })
   );
 
-  if (mdProductKey !== ADDITIONAL_REPLY_TICKET_PRODUCT_KEY) {
+  if (typeof mdProductKeyStr !== 'string' || !isReplyTicketFulfillmentProductKey(mdProductKeyStr)) {
     baseLog({
       phase: 'product_key',
       ...base,
@@ -196,6 +204,8 @@ export async function handleReplyTicketCheckoutCompleted(
     });
     return NextResponse.json({ error: 'product_key_mismatch' }, { status: 400 });
   }
+
+  const rpcProductKey = mdProductKeyStr.trim();
 
   const reportRaw =
     md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.reportInstanceId] ?? md.report_instance_id;
@@ -252,7 +262,7 @@ export async function handleReplyTicketCheckoutCompleted(
       stripeEventId: eventId.trim(),
       checkoutSessionId: session.id,
       paymentIntentId,
-      productKey: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+      productKey: rpcProductKey,
       reportInstanceId,
       walletScopeUserId,
       userRefHash,
@@ -261,7 +271,10 @@ export async function handleReplyTicketCheckoutCompleted(
   } catch {
     const summary: ReplyTicketDiagnosticSummary = {
       event_type_checkout_completed: true,
-      product_key: 'additional_reply_ticket',
+      product_key:
+        rpcProductKey === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY
+          ? 'light_to_full_upgrade'
+          : 'additional_reply_ticket',
       reply_lane_selected: true,
       metadata_required_present: true,
       report_instance_present: true,
@@ -306,10 +319,15 @@ export async function handleReplyTicketCheckoutCompleted(
     })
   );
 
+  const diagProductKey: ReplyTicketDiagnosticSummary['product_key'] =
+    rpcProductKey === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY
+      ? 'light_to_full_upgrade'
+      : 'additional_reply_ticket';
+
   function buildRpcSummary(route2xx: boolean): ReplyTicketDiagnosticSummary {
     return {
       event_type_checkout_completed: true,
-      product_key: 'additional_reply_ticket',
+      product_key: diagProductKey,
       reply_lane_selected: true,
       metadata_required_present: true,
       report_instance_present: true,
