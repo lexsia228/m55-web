@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-03T23:14:01.039039+00:00",
+  "generated_at_utc": "2026-06-04T22:44:20.291724+00:00",
   "count": 671,
   "records": [
     {
@@ -3215,12 +3215,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 107102
+      "bytes": 107248
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 72255
+      "bytes": 72349
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
