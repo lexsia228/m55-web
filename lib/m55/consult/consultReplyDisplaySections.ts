@@ -40,7 +40,7 @@ export function mapConsultReplyBodyForDisplay(paragraphs: string[]): ConsultRepl
   const alt = paragraphs[2] ?? paragraphs[1] ?? '';
 
   if (paragraphs.length <= 3) {
-    const today = pickTodayStepFromParagraphs(paragraphs);
+    const today = pickTodayStepFromParagraphs(paragraphs) ?? '';
     return { scene, report, alt, aux: '', today };
   }
 

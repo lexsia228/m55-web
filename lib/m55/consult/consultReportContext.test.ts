@@ -90,6 +90,13 @@ describe('consult reply display paragraph contract', () => {
     assert.equal(mapped.aux, '補助D');
     assert.equal(mapped.today, '一手E');
   });
+
+  it('legacy three paragraphs use empty today when heuristic returns null', () => {
+    const raw = ['場面のみ', '保存版のみ', 'まとめだけ'].join('\n\n');
+    const mapped = mapConsultReplyBodyForDisplay(normalizeConsultReplyParagraphs(raw));
+    assert.equal(mapped.today, '');
+    assert.equal(typeof mapped.today, 'string');
+  });
 });
 
 describe('Lane A send route context source draft contract', () => {
