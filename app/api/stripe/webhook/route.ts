@@ -10,8 +10,12 @@ import {
 } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import {
   ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+  isLegacyAdditionalReplyTicketProductKey,
+  isReplyTicketFulfillmentProductKey,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
 } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
+import { ALLOWED_ONE_TIME_PRODUCTS } from '../../../../lib/oneTimeCheckout';
 import {
   consumePendingReplyTicketDiagnosticSummary,
   handleReplyTicketCheckoutCompleted,
@@ -29,7 +33,6 @@ export const dynamic = 'force-dynamic';
 
 const PRODUCT_ID_FROM_META = 'DTR_CORE_STATIC_V1';
 const STRIPE_PRICE_PREMIUM_MONTHLY = 'STRIPE_PRICE_PREMIUM_MONTHLY';
-const ALLOWED_ONE_TIME_PRODUCTS: ReadonlySet<string> = new Set([PRODUCT_ID_FROM_META]);
 /** 本丸イベント: 内部処理失敗時は 500 + failed_fulfillments 記録 */
 const ONE_TIME_KEY_EVENTS: ReadonlySet<string> = new Set(['checkout.session.completed', 'charge.refunded']);
 
@@ -84,11 +87,14 @@ export async function POST(req: NextRequest) {
         const pk =
           md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.productKey] ?? md.product_key;
         const product_key_value =
-          pk === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY
+          typeof pk === 'string' && isLegacyAdditionalReplyTicketProductKey(pk)
             ? 'additional_reply_ticket'
-            : typeof pk === 'string' && pk.trim().length > 0
-              ? 'other'
-              : 'unknown';
+            : typeof pk === 'string' &&
+                pk.trim() === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY
+              ? 'light_to_full_upgrade'
+              : typeof pk === 'string' && pk.trim().length > 0
+                ? 'other'
+                : 'unknown';
         console.info(
           '[reply-ticket-diagnostic:dedupe_early]',
           JSON.stringify({
@@ -278,16 +284,23 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   const md = session.metadata ?? {};
   const metadataProductKey =
     md[REPLY_TICKET_CHECKOUT_METADATA_KEYS.productKey] ?? md.product_key;
-  if (metadataProductKey === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY) {
+  if (
+    typeof metadataProductKey === 'string' &&
+    isReplyTicketFulfillmentProductKey(metadataProductKey)
+  ) {
     const mode =
       session.livemode === false ? 'test' : session.livemode === true ? 'live' : 'unknown';
+    const isLegacy = isLegacyAdditionalReplyTicketProductKey(metadataProductKey);
+    const isUpgrade =
+      metadataProductKey.trim() === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY;
     console.info(
       '[reply-ticket-diagnostic:route_received]',
       JSON.stringify({
         event_type: 'checkout.session.completed',
         checkout_session_mode: mode,
-        metadata_product_key_present: typeof metadataProductKey === 'string' && metadataProductKey.length > 0,
-        metadata_product_key_is_additional_reply_ticket: true,
+        metadata_product_key_present: metadataProductKey.length > 0,
+        metadata_product_key_is_additional_reply_ticket: isLegacy,
+        metadata_product_key_is_light_to_full_upgrade: isUpgrade,
         client_reference_id_present:
           typeof session.client_reference_id === 'string' &&
           session.client_reference_id.trim().length > 0,

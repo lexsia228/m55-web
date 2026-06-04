@@ -61,6 +61,20 @@ export function isLegacyAdditionalReplyTicketProductKey(productKey: string): boo
   return productKey.trim().toLowerCase() === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY;
 }
 
+export function isLightToFullUpgradeProductKey(productKey: string): boolean {
+  return (
+    productKey.trim().toLowerCase() === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY
+  );
+}
+
+/** POST /api/reply-tickets/checkout — legacy ¥500 lane or light→FULL upgrade. */
+export function isAllowedReplyTicketCheckoutProductKey(productKey: string): boolean {
+  return (
+    isLegacyAdditionalReplyTicketProductKey(productKey) ||
+    isLightToFullUpgradeProductKey(productKey)
+  );
+}
+
 /** 1 report_instance: included 1 + purchased max 4 = 5 total capability. */
 export const REPLY_TICKET_TOTAL_CAP_PER_REPORT = 5 as const;
 

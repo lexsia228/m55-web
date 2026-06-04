@@ -7,6 +7,8 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import {
   ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
+  isLegacyAdditionalReplyTicketProductKey,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
   REPLY_TICKET_PURCHASE_QUANTITY,
 } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
@@ -20,7 +22,11 @@ import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalle
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const STRIPE_PRICE_ENV = 'STRIPE_PRICE_ADDITIONAL_REPLY_TICKET';
+const STRIPE_PRICE_ENV_BY_PRODUCT_KEY: Record<string, string> = {
+  [ADDITIONAL_REPLY_TICKET_PRODUCT_KEY]: 'STRIPE_PRICE_ADDITIONAL_REPLY_TICKET',
+  [DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY]:
+    'STRIPE_PRICE_DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1',
+};
 
 function jsonError(code: ReplyTicketCheckoutErrorCode, status: number, message?: string) {
   return NextResponse.json({ error: { code, ...(message ? { message } : {}) } }, { status });
@@ -68,12 +74,14 @@ export async function POST(req: NextRequest) {
   const gate = await validateReplyTicketCheckoutGate({
     userId,
     reportInstanceId: parsed.reportInstanceId,
+    productKey: parsed.productKey,
   });
   if (!gate.ok) {
     return jsonError(gate.code, statusForError(gate.code));
   }
 
-  const priceId = process.env[STRIPE_PRICE_ENV]?.trim();
+  const stripePriceEnv = STRIPE_PRICE_ENV_BY_PRODUCT_KEY[parsed.productKey];
+  const priceId = stripePriceEnv ? process.env[stripePriceEnv]?.trim() : undefined;
   const stripeSecretPresent = Boolean(process.env.STRIPE_SECRET_KEY?.trim());
   if (!priceId) {
     console.error(
@@ -89,7 +97,7 @@ export async function POST(req: NextRequest) {
     return jsonError(
       'stripe_error',
       503,
-      `Stripe price not configured (env ${STRIPE_PRICE_ENV})`
+      `Stripe price not configured (env ${stripePriceEnv ?? 'unknown'})`
     );
   }
 
@@ -129,7 +137,7 @@ export async function POST(req: NextRequest) {
       client_reference_id: userId,
       locale: 'ja',
       metadata: {
-        [mdKey.productKey]: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+        [mdKey.productKey]: parsed.productKey,
         [mdKey.reportInstanceId]: parsed.reportInstanceId,
         [mdKey.userRefHash]: hashUserIdForLedgerLog(userId),
         [mdKey.quantity]: String(REPLY_TICKET_PURCHASE_QUANTITY),
@@ -160,7 +168,9 @@ export async function POST(req: NextRequest) {
         event: 'reply_ticket_checkout_session_created',
         session_id_present: Boolean(session_id),
         report_instance_id_present: Boolean(parsed.reportInstanceId),
-        product_key: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+        product_key: parsed.productKey,
+        legacy_lane: isLegacyAdditionalReplyTicketProductKey(parsed.productKey),
+        upgrade_lane: parsed.productKey === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
         checkout_url_created: Boolean(checkout_url),
       })
     );

@@ -31,3 +31,29 @@ export const ALLOWED_ONE_TIME_PRODUCTS: ReadonlySet<string> = new Set([
   DTR_CORE_FULL_V1,
   DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1,
 ]);
+
+/** Saved-report checkout (/api/purchase/checkout): static legacy + light + FULL (not upgrade). */
+export const DTR_CORE_SAVED_REPORT_ONE_TIME_PRODUCTS: ReadonlySet<string> = new Set([
+  DTR_CORE_STATIC_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_FULL_V1,
+]);
+
+export function isAllowedOneTimeProduct(productId: string): boolean {
+  return ALLOWED_ONE_TIME_PRODUCTS.has(productId);
+}
+
+export function isDtrCoreSavedReportOneTimeProduct(productId: string): boolean {
+  return DTR_CORE_SAVED_REPORT_ONE_TIME_PRODUCTS.has(productId);
+}
+
+export function isDtrCoreLightToFullUpgradeProduct(productId: string): boolean {
+  return productId === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1;
+}
+
+export function getOneTimeStripePriceEnvName(productId: string): string | undefined {
+  if (!isAllowedOneTimeProduct(productId)) return undefined;
+  return ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES[
+    productId as keyof typeof ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES
+  ];
+}

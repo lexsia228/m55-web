@@ -7,7 +7,12 @@ import { getLatestDraftForUser } from '../../../../lib/m55/dtrDraftDb';
 import { resolveDtrCoreCheckoutSnapshotGate } from '../../../../lib/m55/dtrCheckoutRepurchaseLane';
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
-import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
+import {
+  DTR_CORE_STATIC_V1,
+  getOneTimeStripePriceEnvName,
+  isDtrCoreLightToFullUpgradeProduct,
+  isDtrCoreSavedReportOneTimeProduct,
+} from '../../../../lib/oneTimeCheckout';
 import { validateDtrCheckoutProfile } from '../../../../lib/m55/compositeStem/checkoutProfileGate';
 import { buildStripeCheckoutMetadataFromProfile } from '../../../../lib/m55/compositeStem/stripeCheckoutMetadata';
 import {
@@ -15,8 +20,6 @@ import {
   mergeBirthProfileWithDraftExtra,
 } from '../../../../lib/soul/birthProfileV2';
 import type { BirthProfile } from '../../../../lib/soul/profile';
-
-const DTR_CORE_PRODUCT = 'DTR_CORE_STATIC_V1';
 
 /** 準備中フロー用: DB に残る Checkout Session ID（画面には出さずリダイレクトのみに使う） */
 async function getResumeCheckoutSessionIdForDtr(userId: string): Promise<string | null> {
@@ -116,9 +119,6 @@ async function logCheckout409(
   }
 }
 
-const PRODUCT_ID_TO_ENV: Record<string, string> = {
-  DTR_CORE_STATIC_V1: 'STRIPE_PRICE_DTR_CORE_STATIC_V1',
-};
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -163,9 +163,26 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (isDtrCoreLightToFullUpgradeProduct(productId)) {
+    return NextResponse.json(
+      {
+        error: 'invalid_product',
+        message: 'Use POST /api/reply-tickets/checkout with product_key dtr_core_light_to_full_upgrade_v1',
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!isDtrCoreSavedReportOneTimeProduct(productId)) {
+    return NextResponse.json(
+      { error: `Product ${productId} is not allowed on this route` },
+      { status: 400 }
+    );
+  }
+
   let dtrRepurchaseLane = false;
 
-  if (productId === DTR_CORE_PRODUCT) {
+  if (isDtrCoreSavedReportOneTimeProduct(productId)) {
     const snapGate = await resolveDtrCoreCheckoutSnapshotGate(userId);
     if (snapGate.action === 'block_already_purchased') {
       console.info(
@@ -269,12 +286,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const envKey = PRODUCT_ID_TO_ENV[productId];
+  const envKey = getOneTimeStripePriceEnvName(productId);
   const priceId = envKey ? process.env[envKey] : undefined;
-  if (!priceId) {
+  if (!envKey || !priceId) {
     return NextResponse.json(
       { error: `Product ${productId} is not configured (missing env: ${envKey ?? 'N/A'})` },
-      { status: 400 }
+      { status: 503 }
     );
   }
 
@@ -306,7 +323,7 @@ export async function POST(req: NextRequest) {
     /* no-op */
   }
 
-  if (productId === DTR_CORE_PRODUCT) {
+  if (isDtrCoreSavedReportOneTimeProduct(productId)) {
     const gate = validateDtrCheckoutProfile(resolvedProfile);
     if (!gate.ok) {
       console.info(
@@ -334,11 +351,12 @@ export async function POST(req: NextRequest) {
     Object.assign(metadata, buildStripeCheckoutMetadataFromProfile(resolvedProfile, productId));
   }
 
-  if (productId === DTR_CORE_PRODUCT) {
+  if (isDtrCoreSavedReportOneTimeProduct(productId)) {
     console.info(
       '[checkout]',
       JSON.stringify({
         event: 'dtr_purchase_path',
+        productId,
         path: dtrRepurchaseLane ? 'repurchase_lane_stripe_session_create' : 'fresh_purchase_stripe_session_create',
         userId,
         repurchaseLane: dtrRepurchaseLane,

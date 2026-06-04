@@ -6,7 +6,10 @@
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import type { ReplyTicketCheckoutErrorCode } from './replyTicketCheckoutConstants';
 import {
-  ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
+  isAllowedReplyTicketCheckoutProductKey,
+  isFullEquivalentReplyWallet,
+  isLegacyAdditionalReplyTicketProductKey,
+  isLightToFullUpgradeProductKey,
   REPLY_TICKET_ADDITIONAL_MAX_PURCHASED,
   REPLY_TICKET_TOTAL_CAP_PER_REPORT,
 } from './replyTicketCheckoutConstants';
@@ -65,6 +68,7 @@ function rowFromWallet(data: Record<string, unknown>): ReplyTicketWalletGateRow 
 export async function validateReplyTicketCheckoutGate(params: {
   userId: string;
   reportInstanceId: string;
+  productKey: string;
 }): Promise<ReplyTicketCheckoutValidateResult> {
   const owned = await verifyUserOwnsReportInstance(params.userId, params.reportInstanceId);
   if (!owned) {
@@ -99,16 +103,54 @@ export async function validateReplyTicketCheckoutGate(params: {
     return { ok: false, code: 'wallet_not_active' };
   }
 
-  const total = wallet.initial_included_count + wallet.purchased_count;
-  if (total >= REPLY_TICKET_TOTAL_CAP_PER_REPORT || wallet.purchased_count >= REPLY_TICKET_ADDITIONAL_MAX_PURCHASED) {
-    return { ok: false, code: 'cap_reached' };
+  const capCode = evaluateReplyTicketCheckoutWalletCap(
+    wallet,
+    params.productKey
+  );
+  if (capCode) {
+    return { ok: false, code: capCode };
   }
 
   return { ok: true, wallet };
 }
 
-export function isAdditionalReplyTicketProductKey(value: unknown): value is typeof ADDITIONAL_REPLY_TICKET_PRODUCT_KEY {
-  return typeof value === 'string' && value.trim() === ADDITIONAL_REPLY_TICKET_PRODUCT_KEY;
+/**
+ * Per-product cap rules for reply-ticket checkout (pure; unit-tested).
+ */
+export function evaluateReplyTicketCheckoutWalletCap(
+  wallet: ReplyTicketWalletGateRow,
+  productKey: string
+): ReplyTicketCheckoutErrorCode | null {
+  if (isLightToFullUpgradeProductKey(productKey)) {
+    if (
+      isFullEquivalentReplyWallet(
+        wallet.initial_included_count,
+        wallet.purchased_count
+      )
+    ) {
+      return 'cap_reached';
+    }
+    return null;
+  }
+
+  if (isLegacyAdditionalReplyTicketProductKey(productKey)) {
+    const total = wallet.initial_included_count + wallet.purchased_count;
+    if (
+      total >= REPLY_TICKET_TOTAL_CAP_PER_REPORT ||
+      wallet.purchased_count >= REPLY_TICKET_ADDITIONAL_MAX_PURCHASED
+    ) {
+      return 'cap_reached';
+    }
+    return null;
+  }
+
+  return 'invalid_product';
+}
+
+export function isAdditionalReplyTicketProductKey(value: unknown): boolean {
+  return isLegacyAdditionalReplyTicketProductKey(
+    typeof value === 'string' ? value : ''
+  );
 }
 
 export function validateReplyTicketCheckoutBody(input: unknown): { reportInstanceId: string; productKey: string } | { error: ReplyTicketCheckoutErrorCode } {
@@ -121,14 +163,15 @@ export function validateReplyTicketCheckoutBody(input: unknown): { reportInstanc
     return { error: 'invalid_request' };
   }
 
-  const productKey = o.product_key ?? o.productKey;
-  if (typeof productKey !== 'string' || productKey.trim().length === 0) {
-    return { error: 'invalid_request' };
-  }
+  const productKeyRaw = o.product_key ?? o.productKey;
+  const productKey =
+    typeof productKeyRaw === 'string' && productKeyRaw.trim().length > 0
+      ? productKeyRaw.trim()
+      : 'additional_reply_ticket';
 
-  if (!isAdditionalReplyTicketProductKey(productKey)) {
+  if (!isAllowedReplyTicketCheckoutProductKey(productKey)) {
     return { error: 'invalid_product' };
   }
 
-  return { reportInstanceId: reportInstanceId.trim(), productKey: productKey.trim() };
+  return { reportInstanceId: reportInstanceId.trim(), productKey };
 }
