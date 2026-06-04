@@ -86,6 +86,23 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(boundary, /無制限/);
   });
 
+  it('consult history collapse copy uses count template and avoids forbidden labels', () => {
+    const history = [
+      PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa,
+      PAID_DTR_CONSULT_ROOM_UI.historyShowAllJa,
+      PAID_DTR_CONSULT_ROOM_UI.historyShowMoreTemplateJa,
+      PAID_DTR_CONSULT_ROOM_UI.openToReadJa,
+      PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa,
+    ].join('\n');
+    assert.match(history, /\{count\}件の相談返書があります/);
+    assert.match(history, /すべて見る/);
+    assert.match(history, /開いて読む/);
+    assert.equal(history.includes('ルーム'), false);
+    assert.equal(history.includes('チャット'), false);
+    assert.equal(history.includes('やりとり'), false);
+    assert.equal(history.includes('会話履歴'), false);
+  });
+
   it('consult UI copy avoids room wording in user-facing strings', () => {
     const consultUi = [
       PAID_DTR_CONSULT_ROOM_UI.roomTitleJa,

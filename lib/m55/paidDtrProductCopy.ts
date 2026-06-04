@@ -824,6 +824,15 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   addOnPurchaseNoteJa: '保存版に紐づく相談返書を1件追加できます。',
   valueDeliverablesTitleJa: 'この返書で整理すること',
   historyMessagesAriaJa: 'これまでの相談返書',
+  /** {count} = assistant reply count in thread */
+  historyCountTemplateJa: '{count}件の相談返書があります',
+  historyShowAllJa: 'すべて見る',
+  historyShowLessJa: '閉じる',
+  /** {count} = hidden reply count when collapsed */
+  historyShowMoreTemplateJa: 'さらに{count}件を表示',
+  openToReadJa: '開いて読む',
+  closeReadJa: '閉じる',
+  latestReplyBadgeJa: '最新の返書',
   loadErrorJa: '相談返書の読み込みに失敗しました。ページを再読み込みしてください。',
   composePanelTitleJa: '今の1テーマを書く',
 } as const;

@@ -126,6 +126,43 @@ function extractThemeAndQuoteFromUserMessage(content: string): { theme: string |
   };
 }
 
+type AssistantReplyEntry = {
+  messageKey: string;
+  msg: Message;
+  theme: string | null;
+  userQuote: string | null;
+};
+
+function buildAssistantReplyHistory(messages: Message[]): AssistantReplyEntry[] {
+  const entries: AssistantReplyEntry[] = [];
+  for (let i = 0; i < messages.length; i += 1) {
+    const msg = messages[i];
+    if (msg.role !== 'assistant') continue;
+    let linkedTheme: string | null = null;
+    let linkedQuote: string | null = null;
+    for (let j = i - 1; j >= 0; j -= 1) {
+      const prev = messages[j];
+      if (prev?.role === 'user') {
+        const extracted = extractThemeAndQuoteFromUserMessage(prev.content);
+        linkedTheme = extracted.theme;
+        linkedQuote = extracted.quote;
+        break;
+      }
+    }
+    entries.push({
+      messageKey: msg.id ?? `assistant-${i}`,
+      msg,
+      theme: linkedTheme,
+      userQuote: linkedQuote,
+    });
+  }
+  return entries;
+}
+
+function formatHistoryCountSummary(count: number): string {
+  return PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa.replace('{count}', String(count));
+}
+
 function buildComposedMessage(
   theme: Theme | null,
   selectedIds: Set<string>,
@@ -184,6 +221,7 @@ export default function ConsultRoom({
   const [sendError, setSendError] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(() => new Set());
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const sendLock = useRef(false);
@@ -197,6 +235,20 @@ export default function ConsultRoom({
     () => buildComposedMessage(selectedTheme, selectedQuestionIds, inputText),
     [selectedTheme, selectedQuestionIds, inputText]
   );
+
+  const historyMessages = roomData?.messages ?? [];
+  const assistantReplies = useMemo(
+    () => buildAssistantReplyHistory(historyMessages),
+    [historyMessages]
+  );
+  const repliesNewestFirst = useMemo(
+    () => [...assistantReplies].reverse(),
+    [assistantReplies]
+  );
+  const replyCount = assistantReplies.length;
+  const hasMoreReplies = replyCount > 1;
+  const visibleReplies = showAllHistory ? repliesNewestFirst : repliesNewestFirst.slice(0, 1);
+  const latestReplyKey = repliesNewestFirst[0]?.messageKey ?? null;
 
   const composedLen = composedMessage.length;
   const isOverMax = composedLen > INPUT_MAX;
@@ -754,61 +806,60 @@ export default function ConsultRoom({
 
   const messagesBlock = (
     <div className={styles.historySection}>
-      {messages.length > 0 ? (
-        <h3 className={styles.historyTitle}>{ROOM_UI_COPY.historyTitle}</h3>
+      {replyCount > 0 ? (
+        <div className={styles.historyHeader}>
+          <div className={styles.historyHeaderText}>
+            <h3 className={styles.historyTitle}>{ROOM_UI_COPY.historyTitle}</h3>
+            <p className={styles.historySummary}>{formatHistoryCountSummary(replyCount)}</p>
+          </div>
+          {hasMoreReplies ? (
+            <button
+              type="button"
+              className={styles.historyHeaderAction}
+              onClick={() => setShowAllHistory((prev) => !prev)}
+              aria-expanded={showAllHistory}
+            >
+              {showAllHistory
+                ? PAID_DTR_CONSULT_ROOM_UI.historyShowLessJa
+                : PAID_DTR_CONSULT_ROOM_UI.historyShowAllJa}
+            </button>
+          ) : null}
+        </div>
       ) : null}
       <div
         className={styles.messages}
-        role="log"
+        role="region"
         aria-label={PAID_DTR_CONSULT_ROOM_UI.historyMessagesAriaJa}
-        aria-live="polite"
       >
-        {messages.length === 0 && !isReadOnly && (
+        {replyCount === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
         )}
-        {messages.map((msg, i) => {
-          if (msg.role === 'user') {
-            const next = messages[i + 1];
-            if (next?.role === 'assistant') {
-              const extracted = extractThemeAndQuoteFromUserMessage(msg.content);
-              if (extracted.quote) {
-                return null;
-              }
-            }
-            const extracted = extractThemeAndQuoteFromUserMessage(msg.content);
-            return (
-              <div key={msg.id ?? i} className={styles.msgUserCompact}>
-                {extracted.theme ? <p className={styles.msgUserTheme}>テーマ {extracted.theme}</p> : null}
-                <p className={styles.msgUserText}>{extracted.quote ?? msg.content}</p>
-              </div>
-            );
-          }
-
-          let linkedTheme: string | null = null;
-          let linkedQuote: string | null = null;
-          for (let j = i - 1; j >= 0; j -= 1) {
-            const prev = messages[j];
-            if (prev?.role === 'user') {
-              const extracted = extractThemeAndQuoteFromUserMessage(prev.content);
-              linkedTheme = extracted.theme;
-              linkedQuote = extracted.quote;
-              break;
-            }
-          }
-
-          return (
-            <ConsultReplyCard
-              key={msg.id ?? i}
-              assistantContent={msg.content}
-              theme={linkedTheme}
-              userQuote={linkedQuote}
-              stemIdx={stemIdx}
-              usedCount={usedCount}
-              remainingCount={wallet?.available_count ?? effectiveRemaining}
-              canPurchaseMoreCount={additionalPurchasableCount}
-            />
-          );
-        })}
+        {visibleReplies.map((entry) => (
+          <ConsultReplyCard
+            key={entry.messageKey}
+            assistantContent={entry.msg.content}
+            theme={entry.theme}
+            userQuote={entry.userQuote}
+            stemIdx={stemIdx}
+            usedCount={usedCount}
+            remainingCount={wallet?.available_count ?? effectiveRemaining}
+            canPurchaseMoreCount={additionalPurchasableCount}
+            compactInitially
+            isLatest={entry.messageKey === latestReplyKey}
+          />
+        ))}
+        {!showAllHistory && hasMoreReplies ? (
+          <button
+            type="button"
+            className={styles.historyShowMoreBtn}
+            onClick={() => setShowAllHistory(true)}
+          >
+            {PAID_DTR_CONSULT_ROOM_UI.historyShowMoreTemplateJa.replace(
+              '{count}',
+              String(replyCount - 1)
+            )}
+          </button>
+        ) : null}
         {sending && (
           <p className={styles.msgPending} aria-live="polite">
             {PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}

@@ -111,10 +111,42 @@ export const CONSULT_ROOM_PREVIEW_EXHAUSTED: ConsultRoomPreviewRoomData = roomDa
   effective_state: 'read_only',
 });
 
-/** Remaining ≥1 with one prior reply — history band visible. */
+const PREVIEW_HISTORY_MESSAGES: ConsultRoomPreviewRoomData['messages'] = [
+  {
+    id: 'preview-user-1',
+    role: 'user',
+    content: '【テーマ】お金・生活の整え方\n\n今月の支出の見直し方を整理したい',
+  },
+  {
+    id: 'preview-assistant-1',
+    role: 'assistant',
+    content:
+      '今の場面では、先に負担が集中しやすい流れが見えます。\n\n' +
+      '保存版の生活の整え方の章から見ると、いまは大きな決断より、小さく整える順番が合いやすい状態です。\n\n' +
+      '別の見方として、支出そのものより「何を先に見るか」を一つに絞ると負担が軽くなります。\n\n' +
+      '今日は、固定費の一覧を書き出すだけにとどめてください。',
+  },
+  {
+    id: 'preview-user-2',
+    role: 'user',
+    content:
+      '【テーマ】対人と伝え方\n\n職場で意見を言うタイミングが分からず、言い出せずにいます。',
+  },
+  {
+    id: 'preview-assistant-2',
+    role: 'assistant',
+    content:
+      '今の場面では、伝える前に自分の言葉を整えたい気持ちが強く出ています。\n\n' +
+      '保存版の対人の章から見ると、いまは結論より「一度書き出す」段階が合いやすいです。\n\n' +
+      '別の見方として、正しい一言を探すより、短いメモで意図だけ残す方法もあります。\n\n' +
+      '今日は、伝えたい要点を3行だけ書いてみてください。',
+  },
+];
+
+/** Remaining ≥1 with prior replies — history band visible (2 replies, newest last). */
 export const CONSULT_ROOM_PREVIEW_HISTORY: ConsultRoomPreviewRoomData = roomData({
   thread: { credits_total: 2, credits_remaining: 1, state: 'writable' },
-  messages: CONSULT_ROOM_PREVIEW_EXHAUSTED.messages,
+  messages: PREVIEW_HISTORY_MESSAGES,
   wallet: {
     ...BASE_WALLET,
     purchased_count: 1,
