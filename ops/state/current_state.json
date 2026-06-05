@@ -1,37 +1,67 @@
 {
   "schema_version": "1.1",
   "public_repo_mode": true,
-  "as_of": "2026-06-05T00:00:00+09:00",
-  "verification_level": "L1",
-  "active_release_id": null,
-  "current_gate": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-LOCAL",
-  "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
-  "origin_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
-  "deployment_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
-  "deployment_id": null,
-  "release_manifest_path": null,
+  "as_of": "2026-06-06T00:49:15+09:00",
+  "verification_level": "L3",
+  "active_release_id": "M55-REL-20260605-001",
+  "current_gate": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-REVIEW-COMMIT",
+  "repo_sha": "6fc80a7d86d4c4e93ce49e30366d6c9511e34d42",
+  "origin_sha": "6fc80a7d86d4c4e93ce49e30366d6c9511e34d42",
+  "deployment_sha": "6fc80a7d86d4c4e93ce49e30366d6c9511e34d42",
+  "deployment_id": "4945171235",
+  "release_manifest_path": "ops/releases/M55-REL-20260605-001/release_manifest.json",
   "rollback_target": {
     "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
     "deployment_id": null,
-    "note": "Human captures deployment_id via GitHub Deployments API or Vercel UI into Vault; not stored in Git."
+    "note": "Revert procedure: git revert -m 1 6fc80a7d86d4c4e93ce49e30366d6c9511e34d42. Pre-integration deployment_id not in Git L1 evidence; capture in Vault before rollback execution."
   },
-  "control_plane_branch": "chore/ops-control-plane-wave1",
+  "control_plane_branch": "chore/ops-control-plane-bootstrap",
   "product_lane_note": "Product pricing UI commit 4c52a8f remains on main worktree; not merged into control-plane branch.",
-  "vault_refs": [],
+  "vault_refs": [
+    "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged",
+    "VAULT-M55/github/production/M55-REL-20260605-001/repo-public-visibility",
+    "VAULT-M55/github/production/M55-REL-20260605-001/github-actions-pr2",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-deployment",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-alias",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/production-visual-confirmation"
+  ],
   "evidence_refs": [
     {
-      "ref_id": "git-rev-parse-head-control-plane",
+      "ref_id": "git-origin-main-sha",
       "level": "L1",
       "kind": "git_command",
-      "summary": "control-plane worktree HEAD at origin/main baseline",
-      "captured_at": null
+      "summary": "origin/main at merge commit 6fc80a7",
+      "captured_at": "2026-06-06T00:49:15+09:00"
     },
     {
-      "ref_id": "diagnostics-build-production",
-      "level": "L1",
+      "ref_id": "diagnostics-build-l3",
+      "level": "L3",
       "kind": "diagnostics_api",
-      "summary": "GET /api/diagnostics/build vercel_git_sha (names only; no env values)",
-      "captured_at": null
+      "summary": "vercel_git_sha 6fc80a7 matches origin/main and deployment",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "human-l2-provider-bundle",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "PR merged repo public CI success Vercel production visual normal",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true
+    },
+    {
+      "ref_id": "human-vault-bootstrap",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "Local Vault AES-256 restore test 5 evidence files Human-only access",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true
+    },
+    {
+      "ref_id": "l4-not-executed",
+      "level": "L4",
+      "kind": "gate_status",
+      "summary": "L4 purchase smoke not executed at bootstrap",
+      "captured_at": "2026-06-06T00:49:15+09:00"
     }
   ],
   "forbidden_in_git": [

@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "M55-REL-20260605-001",
+  "run_id": "",
+  "gate_name": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-LOCAL",
+  "status": "CLOSED",
+  "timing": {
+    "planned_at": "2026-06-06T00:49:15+09:00",
+    "started_at": "2026-06-06T00:49:15+09:00",
+    "observed_at": "2026-06-06T00:49:15+09:00",
+    "closed_at": "2026-06-06T00:49:15+09:00"
+  },
+  "scope": {
+    "allowed": [
+      "ops/state/current_state.json",
+      "ops/releases/M55-REL-20260605-001/release_manifest.json",
+      "ops/releases/M55-REL-20260605-001/gate_record.json",
+      "ops/releases/M55-REL-20260605-001/human_signoff.json",
+      "ops/releases/M55-REL-20260605-001/checksums.sha256"
+    ],
+    "forbidden": [
+      "commit",
+      "push",
+      "provider mutation",
+      "secret values",
+      "product code"
+    ]
+  },
+  "preconditions": [
+    "HUMAN-BOOTSTRAP-PLANNING GREEN",
+    "HUMAN-PREP GREEN_WITH_ACCEPTED_EXCEPTION",
+    "origin/main at 6fc80a7"
+  ],
+  "expected_evidence": [
+    "L1 git and API evidence",
+    "L2 Human provider confirmation",
+    "L3 SHA alignment"
+  ],
+  "stop_conditions": [
+    "allowlist violation",
+    "secret in Git diff",
+    "template field violation"
+  ],
+  "actions": [
+    "Create sanitized release bundle under ops/releases/M55-REL-20260605-001/",
+    "Update ops/state/current_state.json pointer",
+    "Generate checksums.sha256"
+  ],
+  "observations": [
+    "Control Plane Wave 1 integrated via PR 2 merge commit 6fc80a7",
+    "Product commit 4c52a8f remains on local main; not in this release",
+    "Exception M55-OPS-EXC-20260605-001: offsite encrypted backup deferred; Vault-native 2FA not implemented; Apple Account 2FA is not Vault-native 2FA",
+    "Pre-integration deployment_id not verified from Git L1 evidence; rollback repo SHA 330c47b only"
+  ],
+  "evidence_refs": [
+    {
+      "ref_id": "ci-pr2-all-success",
+      "level": "L1",
+      "kind": "github_api",
+      "summary": "PR 2 checks success",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "unicode-audit-clean",
+      "level": "L1",
+      "kind": "local_scan",
+      "summary": "Unicode hidden control audit CLEAN on 26 files",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "secret-scan-pass",
+      "level": "L1",
+      "kind": "local_scan",
+      "summary": "secret_scan.py pass",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    }
+  ],
+  "evidence_levels": {
+    "minimum_for_close": "L1",
+    "provider_confirmation_requires": "L2"
+  },
+  "result": "GREEN",
+  "rollback_target": {
+    "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+    "deployment_id": ""
+  },
+  "next_gate": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-PUSH-PLANNING",
+  "human_signoff": {
+    "operator": "M55_OWNER",
+    "approved": true,
+    "signed_at": "2026-06-06T00:49:15+09:00",
+    "verification_level": "L3"
+  },
+  "ai_review": {
+    "reviewer_role": "Cursor Ops Agent",
+    "decision": "GREEN",
+    "reviewed_at": "2026-06-06T00:49:15+09:00",
+    "verification_level": "L1"
+  },
+  "vault_refs": [
+    "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged",
+    "VAULT-M55/github/production/M55-REL-20260605-001/repo-public-visibility",
+    "VAULT-M55/github/production/M55-REL-20260605-001/github-actions-pr2",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-deployment",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-alias",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/production-visual-confirmation"
+  ],
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "price_id_full_value",
+    "raw_evidence"
+  ]
+}

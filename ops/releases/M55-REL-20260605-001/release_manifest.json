@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "M55-REL-20260605-001",
+  "title": "M55 Ops Control Plane Wave 1 Bootstrap",
+  "status": "CLOSED",
+  "product_truth_version": "",
+  "source": {
+    "branch": "chore/ops-control-plane-wave1",
+    "base_commit": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+    "head_commit": "ed047cf8734c8d4a27a1eafe1456d3c88fab9d01",
+    "range": "330c47bc487bf55e965e28b5ee3fed892fb8b513..ed047cf8734c8d4a27a1eafe1456d3c88fab9d01"
+  },
+  "gates": [
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-PLANNING",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-WORKTREE-SETUP",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-LOCAL",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-REVIEW-COMMIT",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-PUSH-PLANNING",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-PUSH",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-REMOTE-REVIEW",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-MAIN-INTEGRATION-PLANNING",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-PR-PREP",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-REMOTE-PR-REVIEW",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-MAIN-INTEGRATION",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-DEPLOYMENT-OBSERVATION",
+    "CATEGORY-1-M55-OPS-CONTROL-PLANE-WORKTREE-RESTORE",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-PLANNING",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-HUMAN-PREP",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-LOCAL",
+    "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-REVIEW-COMMIT"
+  ],
+  "artifacts": {
+    "tests": [
+      "python scripts/ops/validate_json.py ops",
+      "python -m py_compile scripts/ops/*.py",
+      "bash -n scripts/ops/capture_git_state.sh",
+      "python scripts/ops/secret_scan.py .",
+      "npm run audit",
+      "git diff --check"
+    ],
+    "manifests": [
+      "ops/releases/M55-REL-20260605-001/release_manifest.json",
+      "ops/releases/M55-REL-20260605-001/gate_record.json",
+      "ops/releases/M55-REL-20260605-001/human_signoff.json"
+    ],
+    "checksums_path": "checksums.sha256"
+  },
+  "providers": {
+    "vercel": {
+      "deployment_id": "4945171235",
+      "source_commit": "6fc80a7d86d4c4e93ce49e30366d6c9511e34d42",
+      "environment": "production"
+    },
+    "stripe": {
+      "vault_refs": []
+    },
+    "supabase": {
+      "migration_ids": [],
+      "schema_hash": ""
+    },
+    "clerk": {
+      "vault_refs": []
+    }
+  },
+  "rollback": {
+    "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+    "deployment_id": "",
+    "procedure_ref": "docs/ops/M55_BASELINE_CAPTURE_RUNBOOK_20260330.md"
+  },
+  "human_signoff": {
+    "operator": "M55_OWNER",
+    "at": "2026-06-06T00:49:15+09:00",
+    "decision": "GO",
+    "verification_level": "L3"
+  },
+  "ai_review": {
+    "reviewer_role": "Cursor Ops Agent",
+    "at": "2026-06-06T00:49:15+09:00",
+    "decision": "GREEN",
+    "notes": "REVIEW-COMMIT passed. Exception M55-OPS-EXC-20260605-001 accepted: offsite backup deferred; Vault-native 2FA not implemented. Apple Account 2FA is not Vault-native 2FA. Pre-integration deployment_id not verified in Git L1 evidence.",
+    "verification_level": "L1"
+  },
+  "vault_refs": [
+    "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged",
+    "VAULT-M55/github/production/M55-REL-20260605-001/repo-public-visibility",
+    "VAULT-M55/github/production/M55-REL-20260605-001/github-actions-pr2",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-deployment",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-alias",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/production-visual-confirmation"
+  ],
+  "evidence_refs": [
+    {
+      "ref_id": "git-origin-main-sha",
+      "level": "L1",
+      "kind": "git_command",
+      "summary": "origin/main at merge commit 6fc80a7",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "git-merge-parents",
+      "level": "L1",
+      "kind": "git_command",
+      "summary": "merge commit parents 330c47b and ed047cf",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "github-pr-2-merged",
+      "level": "L2",
+      "kind": "github_provider",
+      "summary": "PR 2 merged with merge commit",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "vault_ref": "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged"
+    },
+    {
+      "ref_id": "github-deployment-4945171235",
+      "level": "L1",
+      "kind": "github_api",
+      "summary": "Production deployment id 4945171235 source 6fc80a7",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "diagnostics-build-l3",
+      "level": "L3",
+      "kind": "diagnostics_api",
+      "summary": "vercel_git_sha 6fc80a7 vercel_branch main",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "product-commit-non-ancestor",
+      "level": "L1",
+      "kind": "git_command",
+      "summary": "4c52a8f is not ancestor of origin/main",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    },
+    {
+      "ref_id": "pre-integration-production-sha",
+      "level": "L1",
+      "kind": "diagnostics_api",
+      "summary": "Pre-integration Production aligned to 330c47b per DEPLOYMENT-OBSERVATION planning L1; deployment_id not in Git",
+      "captured_at": "2026-06-06T00:49:15+09:00"
+    }
+  ],
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "secret_last4",
+    "price_id_full_value",
+    "price_id_suffix",
+    "raw_cli_output",
+    "provider_export"
+  ]
+}
