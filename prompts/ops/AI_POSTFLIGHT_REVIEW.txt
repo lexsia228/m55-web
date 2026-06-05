@@ -5,9 +5,22 @@ Input: sanitized postflight bundle (no raw provider output).
 Verify:
 - gate_record complete
 - checksums present for ops/releases bundle if promoted
-- repo_sha / deployment_sha alignment noted with level (L1 vs L3)
 - Human sign-off separate from AI review
 - ops/runs/local not staged
+
+Semantics — report these separately:
+1. **Historical verified checkpoint** (`current_state.json` verified-at-close fields; release manifest if finalized)
+2. **Live provider state** (READ-ONLY observation at gate time; not auto-synced into `current_state`)
+3. **Product release state** (product commit, Product Truth, L4 — if applicable)
+4. **Administrative record commit** (docs/checklists/prompts/pointer semantics only — if applicable)
+
+Required output sections:
+- Release-scoped L3 (frozen in release manifest; does not expire when main advances)
+- Live L3 (ephemeral observation; not default write-back to `current_state`)
+- Product impact (unchanged / changed)
+- Recursive-record requirement (required / not required / fail-closed)
+- Accepted exceptions (maintained / missing / falsely closed)
+- Unresolved live-state observations (if any; not an automatic checkpoint failure)
 
 Output:
 - GREEN / YELLOW / RED

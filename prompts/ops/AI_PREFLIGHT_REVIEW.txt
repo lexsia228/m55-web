@@ -9,9 +9,19 @@ Verify:
 - Human sign-off block empty or draft only
 - provider mutation not assumed
 
+Semantics:
+- Do **not** treat mismatch between `current_state.json` and live provider/diagnostics as an automatic stale error
+- Check `as_of`, `active_release_id`, and `release_manifest_path`; judge whether `current_state` is a plausible **verified checkpoint** pointer
+- `repo_sha` / `deployment_sha` / `deployment_id` in `current_state` are **verified-at-close snapshots**, not required to equal live Production
+- If live confirmation is needed, request READ-ONLY observation (git fetch, GitHub Deployments, diagnostics, root HTTP) — do not write live values into Git in this review
+- Classify scope: **product release** vs **Control Plane administrative record**
+- Non-recursive record exception applies only when product behavior unchanged and scope is unambiguous; **fail-closed** → YELLOW / Planning if product, infra, provider, env, DB/RPC, security, deployment routing, or L4 scope may be affected
+
 Output:
 - GREEN / YELLOW / RED
 - missing evidence list
 - L0 claims not promoted
+- scope classification (product release / administrative record)
+- verified checkpoint assessment (not live-sync demand)
 
 Do not request secret values. Refer to vault_ref only.
