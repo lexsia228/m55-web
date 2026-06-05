@@ -13,10 +13,10 @@
 
 ## Repo / deployment (L3 when aligned)
 
-- [ ] `repo_sha` matches intended commit
-- [ ] `deployment_sha` matches Production diagnostics (L1) + Human L2 if needed
-- [ ] `deployment_id` recorded (sanitized; full export in Vault)
-- [ ] rollback target updated in release manifest
+- [ ] Release-scoped L3 recorded in release manifest when Human-closing a release (verified-at-close SHAs)
+- [ ] Live L3 observed READ-ONLY at observation gates when required (not auto-synced into `current_state`)
+- [ ] `repo_sha` / `deployment_sha` / `deployment_id` in manifest or checkpoint pointer are **verified-at-close**, not live Production sync
+- [ ] rollback target updated in release manifest when applicable
 
 ## Forbidden confirmations
 
@@ -35,8 +35,16 @@
 ## Promotion
 
 - [ ] finalized release moved to `ops/releases/<release_id>/` **only after Human review**
-- [ ] `current_state.json` pointer updated (not used as history ledger)
+- [ ] `current_state.json` verified checkpoint pointer updated (not used as history ledger; not live Production sync)
 - [ ] `next_gate` recorded
+
+## Semantics closeout
+
+- [ ] Release-scoped L3 and Live L3 distinguished in gate output
+- [ ] `current_state.json` was **not** updated solely to match live Production
+- [ ] no recursive administrative record commit created solely to record another administrative record
+- [ ] product behavior unchanged / changed stated explicitly
+- [ ] accepted exceptions not falsely closed (deferred items remain deferred)
 
 ## Restore readiness
 
