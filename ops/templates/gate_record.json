@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "",
+  "run_id": "",
+  "gate_name": "",
+  "status": "DRAFT",
+  "timing": {
+    "planned_at": "",
+    "started_at": "",
+    "observed_at": "",
+    "closed_at": ""
+  },
+  "scope": {
+    "allowed": [],
+    "forbidden": []
+  },
+  "preconditions": [],
+  "expected_evidence": [],
+  "stop_conditions": [],
+  "actions": [],
+  "observations": [],
+  "evidence_refs": [],
+  "evidence_levels": {
+    "minimum_for_close": "L1",
+    "provider_confirmation_requires": "L2"
+  },
+  "result": "UNREVIEWED",
+  "rollback_target": {
+    "repo_sha": "",
+    "deployment_id": ""
+  },
+  "next_gate": "",
+  "human_signoff": {
+    "operator": "",
+    "approved": false,
+    "signed_at": "",
+    "verification_level": null
+  },
+  "ai_review": {
+    "reviewer_role": "",
+    "decision": "",
+    "reviewed_at": "",
+    "verification_level": null
+  },
+  "vault_refs": [],
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "price_id_full_value",
+    "raw_evidence"
+  ]
+}

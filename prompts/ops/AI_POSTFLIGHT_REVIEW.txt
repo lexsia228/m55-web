@@ -1,0 +1,18 @@
+AI POSTFLIGHT REVIEW — Control Plane Gate
+
+Input: sanitized postflight bundle (no raw provider output).
+
+Verify:
+- gate_record complete
+- checksums present for ops/releases bundle if promoted
+- repo_sha / deployment_sha alignment noted with level (L1 vs L3)
+- Human sign-off separate from AI review
+- ops/runs/local not staged
+
+Output:
+- GREEN / YELLOW / RED
+- next_gate recommendation
+
+L2/L4 claims without Human confirmation → YELLOW.
+
+Do not output or request secrets.

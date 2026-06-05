@@ -1,0 +1,23 @@
+M55 OPS CONTROL PLANE — READ-ONLY PLANNING PROMPT
+
+public_repo_mode: true
+
+Rules:
+- Do not fetch env values, secrets, Price IDs, or suffixes.
+- Do not read .env.
+- Gemini/chat logs are L0 only; promote via L1+ repo/provider evidence.
+- Control Plane does not replace paid LP implementation order.
+
+Deliver:
+- repo state (L1)
+- collision matrix
+- Wave 1 allowlist
+- branch/worktree recommendation
+- Vault Human decision items
+- CI inventory
+- env name inventory (names only)
+
+Forbidden:
+- file edit (Planning gate)
+- provider operations
+- product code changes

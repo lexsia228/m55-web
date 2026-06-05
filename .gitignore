@@ -105,3 +105,9 @@ playwright-report/
 test-results/
 e2e/screenshots/required/*.png
 
+# M55 Ops Control Plane — local draft runs only (ops/releases/ remains tracked)
+ops/runs/local/
+
+# Allowlist: track Control Plane prompts only (does not un-ignore other *.txt)
+!prompts/ops/*.txt
+

@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "policy": {
+    "config_ids_in_git": "metadata_only",
+    "full_price_id_location": "PRIVATE_EVIDENCE_VAULT_ONLY",
+    "git_allowed_fields": [
+      "logical_name",
+      "env_name",
+      "provider",
+      "environment",
+      "purpose",
+      "expected_amount",
+      "currency",
+      "product_key",
+      "vault_ref",
+      "human_verified",
+      "last_verified_at",
+      "verification_level"
+    ],
+    "git_forbidden_fields": [
+      "full_price_id",
+      "price_id_suffix",
+      "dashboard_screenshot",
+      "provider_export"
+    ]
+  },
+  "items": [
+    {
+      "logical_name": "STRIPE_PRICE_DTR_CORE_STATIC_V1",
+      "env_name": "STRIPE_PRICE_DTR_CORE_STATIC_V1",
+      "provider": "stripe",
+      "environment": "production",
+      "purpose": "Legacy saved-report static checkout lane (migrating to light tier)",
+      "expected_amount": 1000,
+      "currency": "JPY",
+      "product_key": "DTR_CORE_STATIC_V1",
+      "vault_ref": "VAULT-M55/stripe/production/M55-REL-PLACEHOLDER/price-static",
+      "human_verified": false,
+      "last_verified_at": null,
+      "verification_level": "L0"
+    },
+    {
+      "logical_name": "STRIPE_PRICE_DTR_CORE_LIGHT_V1",
+      "env_name": "STRIPE_PRICE_DTR_CORE_LIGHT_V1",
+      "provider": "stripe",
+      "environment": "production",
+      "purpose": "Saved report light tier (report + 1 consult reply)",
+      "expected_amount": 1000,
+      "currency": "JPY",
+      "product_key": "dtr_core_light_v1",
+      "vault_ref": "VAULT-M55/stripe/production/M55-REL-PLACEHOLDER/price-light",
+      "human_verified": false,
+      "last_verified_at": null,
+      "verification_level": "L0"
+    },
+    {
+      "logical_name": "STRIPE_PRICE_DTR_CORE_FULL_V1",
+      "env_name": "STRIPE_PRICE_DTR_CORE_FULL_V1",
+      "provider": "stripe",
+      "environment": "production",
+      "purpose": "Saved report FULL tier (report + consult replies up to cap)",
+      "expected_amount": 1480,
+      "currency": "JPY",
+      "product_key": "dtr_core_full_v1",
+      "vault_ref": "VAULT-M55/stripe/production/M55-REL-PLACEHOLDER/price-full",
+      "human_verified": false,
+      "last_verified_at": null,
+      "verification_level": "L0"
+    },
+    {
+      "logical_name": "STRIPE_PRICE_DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1",
+      "env_name": "STRIPE_PRICE_DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1",
+      "provider": "stripe",
+      "environment": "production",
+      "purpose": "Light to FULL upgrade (not per-ticket add-on)",
+      "expected_amount": 600,
+      "currency": "JPY",
+      "product_key": "dtr_core_light_to_full_upgrade_v1",
+      "vault_ref": "VAULT-M55/stripe/production/M55-REL-PLACEHOLDER/price-upgrade",
+      "human_verified": false,
+      "last_verified_at": null,
+      "verification_level": "L0"
+    },
+    {
+      "logical_name": "STRIPE_PRICE_ADDITIONAL_REPLY_TICKET",
+      "env_name": "STRIPE_PRICE_ADDITIONAL_REPLY_TICKET",
+      "provider": "stripe",
+      "environment": "production",
+      "purpose": "Legacy additional reply ticket (webhook retry compatibility only)",
+      "expected_amount": 500,
+      "currency": "JPY",
+      "product_key": "additional_reply_ticket",
+      "vault_ref": "VAULT-M55/stripe/production/M55-REL-PLACEHOLDER/price-legacy-additional",
+      "human_verified": false,
+      "last_verified_at": null,
+      "verification_level": "L0"
+    }
+  ]
+}

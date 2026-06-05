@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "ref_id": "",
+  "level": "L0",
+  "kind": "",
+  "summary": "",
+  "captured_at": "",
+  "source": {
+    "type": "",
+    "location": ""
+  },
+  "vault_ref": "",
+  "related_shas": {
+    "repo_sha": "",
+    "deployment_sha": ""
+  },
+  "human_verified": false,
+  "notes": "",
+  "forbidden_fields": [
+    "raw_output",
+    "secret_value",
+    "price_id_value",
+    "suffix",
+    "screenshot_binary"
+  ]
+}
