@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "M55-REL-YYYYMMDD-NNN",
+  "title": "",
+  "status": "DRAFT",
+  "product_truth_version": "",
+  "source": {
+    "branch": "",
+    "base_commit": "",
+    "head_commit": "",
+    "range": ""
+  },
+  "gates": [],
+  "artifacts": {
+    "tests": [],
+    "manifests": [],
+    "checksums_path": ""
+  },
+  "providers": {
+    "vercel": {
+      "deployment_id": "",
+      "source_commit": "",
+      "environment": ""
+    },
+    "stripe": {
+      "vault_refs": []
+    },
+    "supabase": {
+      "migration_ids": [],
+      "schema_hash": ""
+    },
+    "clerk": {
+      "vault_refs": []
+    }
+  },
+  "rollback": {
+    "repo_sha": "",
+    "deployment_id": "",
+    "procedure_ref": "docs/ops/M55_BASELINE_CAPTURE_RUNBOOK_20260330.md"
+  },
+  "human_signoff": {
+    "operator": "",
+    "at": "",
+    "decision": "",
+    "verification_level": "L2"
+  },
+  "ai_review": {
+    "reviewer_role": "",
+    "at": "",
+    "decision": "",
+    "notes": "",
+    "verification_level": "L1"
+  },
+  "vault_refs": [],
+  "evidence_refs": [],
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "secret_last4",
+    "price_id_full_value",
+    "price_id_suffix",
+    "raw_cli_output",
+    "provider_export"
+  ]
+}

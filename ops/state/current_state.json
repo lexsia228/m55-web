@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "as_of": "2026-06-05T00:00:00+09:00",
+  "verification_level": "L1",
+  "active_release_id": null,
+  "current_gate": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-LOCAL",
+  "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+  "origin_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+  "deployment_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+  "deployment_id": null,
+  "release_manifest_path": null,
+  "rollback_target": {
+    "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+    "deployment_id": null,
+    "note": "Human captures deployment_id via GitHub Deployments API or Vercel UI into Vault; not stored in Git."
+  },
+  "control_plane_branch": "chore/ops-control-plane-wave1",
+  "product_lane_note": "Product pricing UI commit 4c52a8f remains on main worktree; not merged into control-plane branch.",
+  "vault_refs": [],
+  "evidence_refs": [
+    {
+      "ref_id": "git-rev-parse-head-control-plane",
+      "level": "L1",
+      "kind": "git_command",
+      "summary": "control-plane worktree HEAD at origin/main baseline",
+      "captured_at": null
+    },
+    {
+      "ref_id": "diagnostics-build-production",
+      "level": "L1",
+      "kind": "diagnostics_api",
+      "summary": "GET /api/diagnostics/build vercel_git_sha (names only; no env values)",
+      "captured_at": null
+    }
+  ],
+  "forbidden_in_git": [
+    "secret_full_value",
+    "secret_suffix",
+    "secret_last4",
+    "masked_secret",
+    "price_id_full_value",
+    "price_id_suffix",
+    "raw_cli_output",
+    "provider_export",
+    "unredacted_screenshot"
+  ],
+  "pointer_only": true,
+  "history_authoritative_source": "ops/releases/<release_id>/"
+}

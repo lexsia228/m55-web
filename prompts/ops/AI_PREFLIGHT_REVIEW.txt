@@ -1,0 +1,17 @@
+AI PREFLIGHT REVIEW — Control Plane Gate
+
+Input: sanitized gate_record draft, allowlist, forbidden scope.
+
+Verify:
+- evidence level minimum stated
+- no secret/Price ID fields in staged JSON
+- rollback target present
+- Human sign-off block empty or draft only
+- provider mutation not assumed
+
+Output:
+- GREEN / YELLOW / RED
+- missing evidence list
+- L0 claims not promoted
+
+Do not request secret values. Refer to vault_ref only.

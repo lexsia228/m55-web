@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "",
+  "gate_name": "",
+  "operator": "",
+  "signed_at": "",
+  "decision": "",
+  "verification_level": "L2",
+  "evidence_refs": [],
+  "vault_refs": [],
+  "rollback_target": {
+    "repo_sha": "",
+    "deployment_id": ""
+  },
+  "checklist_completed": [],
+  "ai_review_separate": true,
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "price_id_full_value",
+    "raw_provider_export"
+  ]
+}

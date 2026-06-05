@@ -1,0 +1,22 @@
+M55 OPS CONTROL PLANE — LOCAL PROMPT
+
+public_repo_mode: true
+
+Work only in chore/ops-control-plane-wave1 worktree at origin/main baseline.
+
+Wave 1 allowlist only. No product files. No provider ops.
+
+Git forbidden:
+- secret full value, suffix, last4
+- Price ID full value, suffix
+- raw CLI output, provider export
+
+Scripts:
+- capture_git_state.sh: no pwd/absolute path/username; untracked names only
+- secret_scan.py: path/type/offset only
+- validate_json.py: parse only (not schema)
+- new_run.py: ops/runs/local/ only; no auto-promote to ops/releases/
+
+After LOCAL: tests pass, no commit until REVIEW-COMMIT gate.
+
+First dry-run after commit: paid LP READ-ONLY Planning.
