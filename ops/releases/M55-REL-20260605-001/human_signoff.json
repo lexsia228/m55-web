@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.1",
+  "public_repo_mode": true,
+  "release_id": "M55-REL-20260605-001",
+  "gate_name": "CATEGORY-1-M55-OPS-EVIDENCE-RECOVERY-CONTROL-PLANE-HUMAN-BOOTSTRAP-LOCAL",
+  "operator": "M55_OWNER",
+  "signed_at": "2026-06-06T00:49:15+09:00",
+  "decision": "GO",
+  "verification_level": "L3",
+  "evidence_refs": [
+    {
+      "ref_id": "human-l2-pr2-merged",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "PR 2 MERGED confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true,
+      "vault_ref": "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged"
+    },
+    {
+      "ref_id": "human-l2-repo-public",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "Repository Public confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true,
+      "vault_ref": "VAULT-M55/github/production/M55-REL-20260605-001/repo-public-visibility"
+    },
+    {
+      "ref_id": "human-l2-github-actions",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "GitHub Actions all success confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true,
+      "vault_ref": "VAULT-M55/github/production/M55-REL-20260605-001/github-actions-pr2"
+    },
+    {
+      "ref_id": "human-l2-vercel-production",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "Vercel Production Ready Current Latest confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true,
+      "vault_ref": "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-deployment"
+    },
+    {
+      "ref_id": "human-l2-production-visual",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "Production visual normal confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true,
+      "vault_ref": "VAULT-M55/vercel/production/M55-REL-20260605-001/production-visual-confirmation"
+    },
+    {
+      "ref_id": "human-l3-sha-alignment",
+      "level": "L3",
+      "kind": "human_confirmation",
+      "summary": "origin/main deployment diagnostics all 6fc80a7 confirmed by Human",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true
+    },
+    {
+      "ref_id": "human-vault-bootstrap",
+      "level": "L2",
+      "kind": "human_confirmation",
+      "summary": "Local AES-256 Vault created restore test passed 5 evidence files verified Human-only access",
+      "captured_at": "2026-06-06T00:49:15+09:00",
+      "human_verified": true
+    }
+  ],
+  "vault_refs": [
+    "VAULT-M55/github/production/M55-REL-20260605-001/pr2-merged",
+    "VAULT-M55/github/production/M55-REL-20260605-001/repo-public-visibility",
+    "VAULT-M55/github/production/M55-REL-20260605-001/github-actions-pr2",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-deployment",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/vercel-production-alias",
+    "VAULT-M55/vercel/production/M55-REL-20260605-001/production-visual-confirmation"
+  ],
+  "rollback_target": {
+    "repo_sha": "330c47bc487bf55e965e28b5ee3fed892fb8b513",
+    "deployment_id": ""
+  },
+  "checklist_completed": [
+    "Local AES-256 encrypted sparsebundle created",
+    "Dedicated Vault password configured",
+    "GitHub evidence 3 files stored in Vault",
+    "Vercel evidence 2 files stored in Vault",
+    "Vault unmount remount test passed",
+    "All 5 evidence files reopened successfully",
+    "Human L2 confirmation completed",
+    "Public repo safe policy maintained",
+    "Exception M55-OPS-EXC-20260605-001 accepted by M55_OWNER: offsite encrypted backup deferred",
+    "Vault-native 2FA not implemented; Apple Account 2FA is not Vault-native 2FA",
+    "Review required before L4 purchase smoke secret rotation next major release",
+    "Offsite encrypted backup not completed",
+    "External-storage backup not completed",
+    "Vault-native 2FA not completed",
+    "AI CI Public repo access to Vault prohibited"
+  ],
+  "ai_review_separate": true,
+  "forbidden_fields": [
+    "secret_full_value",
+    "secret_suffix",
+    "price_id_full_value",
+    "raw_provider_export"
+  ]
+}
