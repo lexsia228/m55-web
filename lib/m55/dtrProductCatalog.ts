@@ -3,11 +3,11 @@
  * 購入・決済ロジックは持たず、表示・所有判定のキーだけを定義する。
  * 新商品: `DTR_PRODUCT_CATALOG` に 1 行追加し、`entitlementRightKey` と `kind` を設定。
  */
-import { LABEL_ENTRY_REPORT, LABEL_FORMAT_SAVED, LABEL_PRODUCT_JP } from './dtrProductLabels';
+import { LABEL_FORMAT_SAVED, LABEL_SAVED_REPORT_MY_JP } from './dtrProductLabels';
 
 export const DTR_ENTRY_REPORT_RIGHT_KEY = 'm55_p:core_origin' as const;
 
-export type DtrCatalogSlotId = 'entry_report' | 'compatibility_report' | 'additional_consult';
+export type DtrCatalogSlotId = 'entry_report' | 'compatibility_report';
 
 export type DtrCatalogSlotKind = 'live' | 'coming_soon';
 
@@ -27,8 +27,8 @@ export const DTR_PRODUCT_CATALOG: DtrCatalogSlot[] = [
     id: 'entry_report',
     kind: 'live',
     entitlementRightKey: DTR_ENTRY_REPORT_RIGHT_KEY,
-    title: LABEL_PRODUCT_JP,
-    subtitle: `${LABEL_PRODUCT_JP}（${LABEL_FORMAT_SAVED}）`,
+    title: LABEL_SAVED_REPORT_MY_JP,
+    subtitle: `${LABEL_FORMAT_SAVED}レポート`,
     learnMoreHref: '/dtr/lp',
   },
   {
@@ -37,14 +37,6 @@ export const DTR_PRODUCT_CATALOG: DtrCatalogSlot[] = [
     entitlementRightKey: null,
     title: '相性レポート',
     subtitle: '二人の関係を読み解く',
-    learnMoreHref: '/support',
-  },
-  {
-    id: 'additional_consult',
-    kind: 'coming_soon',
-    entitlementRightKey: null,
-    title: '追加相談枠',
-    subtitle: 'レポートに沿った深掘り相談',
     learnMoreHref: '/support',
   },
 ];

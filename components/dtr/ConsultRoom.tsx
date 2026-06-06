@@ -22,11 +22,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
+  PAID_DTR_CONSULT_ENTRY_NEUTRAL,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
-  formatConsultPurchaseAddOnLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyCard from './ConsultReplyCard';
@@ -57,9 +57,6 @@ const ROOM_UI_COPY = {
   step2Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
   step3Title: 'Step 3 相談返書を作成する',
   step3Consume: 'この送信で相談返書を1件使用します。',
-  purchaseValue:
-    '500円で、保存版の章に沿って今の1テーマを整理し、別視点と今日の一手まで返します。',
-  purchaseAddOnNote: PAID_DTR_CONSULT_ROOM_UI.addOnPurchaseNoteJa,
 } as const;
 
 /** 用途ラベル（1テーマ）— copy master themeExamplesJa */
@@ -203,7 +200,6 @@ function ThemeChip({
 }
 
 const DEV_PREVIEW_SEND_BLOCKED_JA = 'プレビューでは送信できません。';
-const DEV_PREVIEW_PURCHASE_BLOCKED_JA = 'プレビューでは購入操作できません。';
 
 export default function ConsultRoom({
   birthDate,
@@ -215,8 +211,6 @@ export default function ConsultRoom({
   const [roomData, setRoomData] = useState<RoomData | null>(devPreviewRoomData);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [checkoutBusy, setCheckoutBusy] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
@@ -225,9 +219,8 @@ export default function ConsultRoom({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const sendLock = useRef(false);
-  /** True only after user send; reload/checkout/focus must not scroll the thread. */
+  /** True only after user send; reload/focus must not scroll the thread. */
   const shouldScrollThreadToEndRef = useRef(false);
-  const checkoutReturnRefreshDoneRef = useRef(false);
   const activeIdempotencyKeyRef = useRef<string | null>(null);
   const activeSnapshotHashRef = useRef<string | null>(null);
 
@@ -298,19 +291,6 @@ export default function ConsultRoom({
     return () => {
       cancelledRef.cancelled = true;
     };
-  }, [reloadRoom, isDevPreview]);
-
-  useEffect(() => {
-    if (isDevPreview) return;
-    const params = new URLSearchParams(window.location.search);
-    const checkout = params.get('checkout');
-    if (checkout !== 'complete' && checkout !== 'cancelled') {
-      checkoutReturnRefreshDoneRef.current = false;
-      return;
-    }
-    if (checkoutReturnRefreshDoneRef.current) return;
-    checkoutReturnRefreshDoneRef.current = true;
-    void reloadRoom();
   }, [reloadRoom, isDevPreview]);
 
   useEffect(() => {
@@ -449,71 +429,6 @@ export default function ConsultRoom({
     }
   };
 
-  const messageForCheckoutError = (code?: string): string => {
-    switch (code) {
-      case 'unauthenticated':
-        return 'サインインの状態を確認してください。';
-      case 'forbidden_not_owner':
-        return 'このレポートの利用権限を確認できませんでした。';
-      case 'wallet_not_found':
-        return '相談返書の利用情報が見つかりませんでした。';
-      case 'wallet_not_active':
-        return '現在、追加購入を受け付けていません。';
-      case 'cap_reached':
-        return 'このレポートでの追加相談返書は上限に達しています。';
-      case 'invalid_request':
-      case 'invalid_product':
-        return '購入リクエストを確認してください。';
-      case 'stripe_error':
-      default:
-        return '決済の準備に失敗しました。時間をおいてもう一度お試しください。';
-    }
-  };
-
-  const handlePurchase = async () => {
-    if (isDevPreview) {
-      setCheckoutError(DEV_PREVIEW_PURCHASE_BLOCKED_JA);
-      return;
-    }
-    if (!roomData) return;
-    const reportInstanceId =
-      typeof roomData.report_instance_id === 'string' && roomData.report_instance_id.trim().length > 0
-        ? roomData.report_instance_id.trim()
-        : null;
-    if (!reportInstanceId || checkoutBusy) return;
-
-    setCheckoutBusy(true);
-    setCheckoutError(null);
-    try {
-      const res = await fetch('/api/reply-tickets/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          reportInstanceId,
-          productKey: 'additional_reply_ticket',
-        }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        checkout_url?: string;
-        error?: { code?: string };
-      };
-      if (!res.ok) {
-        setCheckoutError(messageForCheckoutError(data.error?.code));
-        return;
-      }
-      if (typeof data.checkout_url === 'string' && data.checkout_url.length > 0) {
-        window.location.assign(data.checkout_url);
-        return;
-      }
-      setCheckoutError('決済ページの作成に失敗しました。時間をおいてもう一度お試しください。');
-    } catch {
-      setCheckoutError('通信に失敗しました。時間をおいてもう一度お試しください。');
-    } finally {
-      setCheckoutBusy(false);
-    }
-  };
-
   if (loadError) {
     return (
       <div className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
@@ -553,25 +468,20 @@ export default function ConsultRoom({
   const walletLoading = !wallet || !hasWalletRow;
   const walletTotal = wallet ? wallet.initial_included_count + wallet.purchased_count : 0;
   const walletReachedLimit =
-    walletTotal >= DISPLAY_CAP_PER_REPORT || (wallet?.purchased_count ?? 0) >= 4;
-  const walletCanPurchase =
-    !walletLoading &&
-    wallet!.available_count === 0 &&
-    wallet!.status === 'active' &&
-    walletTotal < DISPLAY_CAP_PER_REPORT &&
-    wallet!.purchased_count < 4 &&
-    Boolean(reportInstanceId);
+    walletTotal >= DISPLAY_CAP_PER_REPORT ||
+    (wallet?.purchased_count ?? 0) >= PAID_DTR_CONSULT_REPLY.additionalMaxPurchased;
 
   const usedCount = wallet?.consumed_count ?? 0;
-  const additionalPurchasableCount = wallet
-    ? Math.max(0, PAID_DTR_CONSULT_REPLY.additionalMaxPurchased - wallet.purchased_count)
-    : 0;
 
-  const actionLocked = sending || checkoutBusy || walletLoading;
+  const actionLocked = sending || walletLoading;
   const submitDisabled =
     actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
   const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
-  const showPurchaseCta = !walletLoading && walletCanPurchase;
+  const showExhausted =
+    !walletLoading &&
+    Boolean(wallet) &&
+    effectiveRemaining <= 0 &&
+    !walletReachedLimit;
   const showCapReached = !walletLoading && walletReachedLimit;
 
   const usageStatusCard = walletLoading ? (
@@ -581,10 +491,10 @@ export default function ConsultRoom({
   ) : wallet ? (
     <div
       className={
-        showPurchaseCta
-          ? `${styles.usageStatusCard} ${styles.usageStatusCardPurchase}`
-          : showCapReached
-            ? `${styles.usageStatusCard} ${styles.usageStatusCardCap}`
+        showCapReached
+          ? `${styles.usageStatusCard} ${styles.usageStatusCardCap}`
+          : showExhausted
+            ? `${styles.usageStatusCard} ${styles.usageStatusCardPurchase}`
             : styles.usageStatusCard
       }
       aria-live="polite"
@@ -596,24 +506,21 @@ export default function ConsultRoom({
             {PAID_DTR_CONSULT_USAGE_DISPLAY.availableSecondaryJa}
           </p>
           <p className={styles.usageStatCompact}>
-            {PAID_DTR_CONSULT_USAGE_DISPLAY.remainingCompactTemplateJa.replace(
+            {PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(
               '{count}',
               String(wallet.available_count)
             )}
             {' · '}
-            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
-            {additionalPurchasableCount > 0
-              ? ` · ${PAID_DTR_CONSULT_USAGE_DISPLAY.additionalPurchasableTemplateJa.replace('{count}', String(additionalPurchasableCount))}`
-              : ''}
+            {formatConsultUsedCountLine(usedCount)}
           </p>
         </>
-      ) : showPurchaseCta ? (
+      ) : showExhausted ? (
         <>
-          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.purchasePrimaryLine1Ja}</p>
-          <p className={styles.usagePrimaryLead}>{formatConsultPurchaseAddOnLine(additionalPurchasableCount)}</p>
-          <p className={styles.usageStatCompact}>
-            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
+          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.exhaustedPrimaryJa}</p>
+          <p className={styles.usageSecondaryLead}>
+            {PAID_DTR_CONSULT_USAGE_DISPLAY.exhaustedSecondaryJa}
           </p>
+          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
         </>
       ) : showCapReached ? (
         <>
@@ -621,16 +528,12 @@ export default function ConsultRoom({
           <p className={styles.usageSecondaryLead}>
             {PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedSecondaryJa}
           </p>
-          <p className={styles.usageStatCompact}>
-            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
-          </p>
+          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
         </>
       ) : (
         <>
           <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedPrimaryJa}</p>
-          <p className={styles.usageStatCompact}>
-            {formatConsultUsedCountLine(usedCount, DISPLAY_CAP_PER_REPORT)}
-          </p>
+          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
         </>
       )}
     </div>
@@ -655,7 +558,7 @@ export default function ConsultRoom({
   const entryEssentialNotes = (
     <ul
       className={
-        showComposeFirst || showPurchaseCta
+        showComposeFirst
           ? `${styles.entryEssentialNotes} ${styles.entryEssentialNotesMuted}`
           : styles.entryEssentialNotes
       }
@@ -668,38 +571,17 @@ export default function ConsultRoom({
   );
 
   const statusNotice =
-    walletLoading ? null : walletReachedLimit ? (
-      <p className={styles.usageFootnote}>{PAID_DTR_CONSULT_REPLY.capSummaryJa}</p>
-    ) : walletCanPurchase ? (
-      <div className={styles.purchaseCtaPanel} role="region" aria-label="追加相談返書の購入">
-        {checkoutError ? <p className={styles.sendError} role="alert">{checkoutError}</p> : null}
-        <button
-          type="button"
-          className={
-            checkoutBusy
-              ? `${styles.submitBtn} ${styles.submitBtnPrimary} ${styles.submitBtnDisabled}`
-              : `${styles.submitBtn} ${styles.submitBtnPrimary}`
-          }
-          onClick={handlePurchase}
-          disabled={checkoutBusy || actionLocked || !reportInstanceId}
-        >
-          {checkoutBusy ? '処理中…' : PAID_DTR_CONSULT_REPLY.additionalPriceLabelJa}
-        </button>
-      </div>
-    ) : !reportInstanceId ? (
+    walletLoading ? null : !reportInstanceId ? (
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
         <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.cannotPurchaseReportInfoJa}</p>
+      </div>
+    ) : showExhausted ? (
+      <div className={styles.readOnlyNotice} role="status" aria-live="polite">
+        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletExhaustedJa}</p>
       </div>
     ) : isReadOnly ? (
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
         <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.limitReachedReadOnlyJa}</p>
-        {wallet!.status !== 'active' && (
-          <p className={styles.addOnNote}>
-            {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomPrefixJa}
-            {DISPLAY_CAP_PER_REPORT}
-            {PAID_DTR_CONSULT_ROOM_UI.purchaseOnlyInRoomSuffixJa}
-          </p>
-        )}
       </div>
     ) : null;
 
@@ -843,7 +725,6 @@ export default function ConsultRoom({
             stemIdx={stemIdx}
             usedCount={usedCount}
             remainingCount={wallet?.available_count ?? effectiveRemaining}
-            canPurchaseMoreCount={additionalPurchasableCount}
             compactInitially
             isLatest={entry.messageKey === latestReplyKey}
           />
@@ -887,11 +768,6 @@ export default function ConsultRoom({
         <>
           {entryEssentialNotes}
           {composeBlock}
-        </>
-      ) : showPurchaseCta ? (
-        <>
-          {statusNotice}
-          {entryEssentialNotes}
         </>
       ) : (
         <>

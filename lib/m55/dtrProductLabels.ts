@@ -3,11 +3,17 @@
  * Internal keys (m55_p:core_origin, DTR_CORE_STATIC_V1) must not appear as primary UI copy.
  */
 
-/** JP primary product name — owned and reader surfaces. */
+/** JP primary product name — LP / legacy marketing surfaces only. */
 export const LABEL_PRODUCT_JP = '本質の読み解き';
 
-/** EN auxiliary — unowned / LP / My / unowned aria only. */
+/** EN auxiliary — unowned / LP only. */
 export const LABEL_PRODUCT_EN = 'Entry Report';
+
+/** Processing eyebrow + /dtr/core document title (tier-neutral). */
+export const LABEL_SAVED_REPORT_METADATA_JP = '4章の保存版';
+
+/** My owned surfaces — tier-neutral saved report name. */
+export const LABEL_SAVED_REPORT_MY_JP = '保存版';
 
 /** Saved artifact format (not ownership state). */
 export const LABEL_FORMAT_SAVED = '保存版';
@@ -18,19 +24,83 @@ export const LABEL_STATE_OWNED = '保存済み';
 /** Legacy export for My / catalog EN title. */
 export const LABEL_ENTRY_REPORT = LABEL_PRODUCT_EN;
 
+/** My page formal title (h1). */
+export const MY_PAGE_TITLE = 'マイページ';
+
+/** Hero body (My). */
+export const MY_PAGE_HERO_BODY =
+  '保存版の状態や利用できるサービス、登録済みのプロフィールをここで確認できます。';
+
 /** Signed-out My hub body. */
 export const MY_SIGNED_OUT_HUB_BODY =
-  '保存版レポートや利用状況を確認するには、サインインが必要です。';
+  '保存版や利用状況を確認するには、サインインが必要です。';
+
+/** §2 はじめて使う方へ */
+export const MY_FIRST_TIME_GUIDE_TITLE = 'はじめて使う方へ';
+export const MY_FIRST_TIME_GUIDE_BODY =
+  '無料の見取り図は、メインページから始めます。ニックネームと生年月日を入力して、自分に出やすい輪郭を確認してください。';
+export const MY_FIRST_TIME_CTA_LABEL = '無料の見取り図を開く';
+export const MY_FIRST_TIME_CTA_HREF = '/home';
+
+/** §3 あなたの保存版 */
+export const MY_SAVED_REPORT_SECTION_TITLE = 'あなたの保存版';
+export const MY_SAVED_REPORT_INTRO_COMMON = '保存版の状態をここで確認できます。';
+export const MY_SAVED_REPORT_INTRO_OWNED = '購入済みの保存版は、ここから開けます。';
+export const MY_SAVED_REPORT_LOADING = '利用状況を確認しています。';
+export const MY_SAVED_REPORT_EMPTY_NO_PROFILE =
+  'まだ保存版はありません。まずは無料の見取り図から始めてください。';
+export const MY_SAVED_REPORT_EMPTY_READY =
+  'まだ保存版はありません。内容と料金は商品ページで確認できます。';
+export const MY_SAVED_REPORT_PROCESSING =
+  '保存版を準備しています。完了すると開けるようになります。';
+export const MY_SAVED_REPORT_OWNED_NOTE_P1 =
+  '保存版は、購入時までに入力された情報をもとに作成・保存されています。';
+export const MY_SAVED_REPORT_OWNED_NOTE_P2 =
+  'ここでプロフィールを更新しても、購入済みの保存版の内容は自動では変わりません。';
+export const MY_SAVED_REPORT_CTA_PLAN_LABEL = '保存版のプランを見る';
+export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
+export const MY_SAVED_REPORT_CTA_OPEN_LABEL = '保存版を開く';
+export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
+export const MY_SAVED_REPORT_ENT_ERROR =
+  '利用状況を確認できませんでした。時間をおいて再度お試しください。';
+export const MY_SAVED_REPORT_SNAP_ERROR =
+  '保存版の状態を確認できませんでした。時間をおいて再度お試しください。';
+
+/** §3 / §4 state badges */
+export const MY_BADGE_NOT_PURCHASED = '未購入';
+export const MY_BADGE_PREPARING = '準備中';
+
+/** §4 サービス一覧 */
+export const MY_SERVICES_SECTION_TITLE = 'サービス一覧';
+export const MY_SERVICES_INTRO =
+  '利用できるサービスと、未購入・近日公開の状態を確認できます。';
+
+/** §5 相談返書 */
+export const MY_CONSULT_SECTION_TITLE = '相談返書';
+export const MY_CONSULT_BODY_PRE_OWNED =
+  '相談返書は、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。';
+export const MY_CONSULT_BODY_OWNED_P1 =
+  '相談返書は、保存版に紐づく機能です。1回の相談につき、一つのテーマを書いて返書を受け取ります。';
+export const MY_CONSULT_BODY_OWNED_P2 =
+  '利用状況の確認と送信は、保存版を開いたあとの相談返書画面で行えます。';
+export const MY_CONSULT_CTA_LABEL = '相談返書を確認する';
+export const MY_CONSULT_CTA_HREF = '/dtr/core';
+
+/** §6 プロフィール */
+export const MY_PROFILE_SECTION_TITLE = 'プロフィール';
+export const MY_PROFILE_EDIT_CTA_LABEL = 'プロフィールを編集する';
+
+/** §7 ヘルプ・お問い合わせ */
+export const MY_HELP_SECTION_TITLE = 'ヘルプ・お問い合わせ';
 
 /** Owned report list aria-label (My). */
 export const MY_REPORT_LIST_ARIA_LABEL = '保存版レポート一覧';
 
-/** My consult block title. */
-export const MY_CONSULT_BLOCK_TITLE = '相談返書（保存版に紐づく）';
+/** @deprecated Use MY_CONSULT_SECTION_TITLE */
+export const MY_CONSULT_BLOCK_TITLE = MY_CONSULT_SECTION_TITLE;
 
-/** My consult block body. */
-export const MY_CONSULT_BLOCK_BODY =
-  '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。';
+/** @deprecated Use MY_CONSULT_BODY_PRE_OWNED */
+export const MY_CONSULT_BLOCK_BODY = MY_CONSULT_BODY_PRE_OWNED;
 
 /** DTR shelf overline. */
 export const SHELF_OVERLINE = 'M55 保存版';
@@ -49,18 +119,18 @@ export type DtrShelfAriaAction =
   | 'open_not_ready'
   | 'connection_error';
 
-/** aria-label prefix: JP product for owned; EN auxiliary for unowned. */
+/** aria-label prefix: saved-report JP for owned; EN auxiliary for unowned. */
 export function ariaLabelForDtrShelf(action: DtrShelfAriaAction, owned: boolean): string {
-  const prefix = owned ? LABEL_PRODUCT_JP : LABEL_PRODUCT_EN;
+  const prefix = owned ? LABEL_SAVED_REPORT_MY_JP : LABEL_PRODUCT_EN;
   switch (action) {
     case 'purchase':
       return `${prefix} — 入手する`;
     case 'expired':
       return `${prefix} — 期限切れ`;
     case 'open_ready':
-      return `${LABEL_PRODUCT_JP} — ${LABEL_STATE_OWNED}。レポートを開く`;
+      return `${LABEL_SAVED_REPORT_MY_JP} — ${LABEL_STATE_OWNED}。レポートを開く`;
     case 'open_not_ready':
-      return `${LABEL_PRODUCT_JP} — ${LABEL_STATE_OWNED}。レポートの準備状況を確認する`;
+      return `${LABEL_SAVED_REPORT_MY_JP} — ${LABEL_STATE_OWNED}。レポートの準備状況を確認する`;
     case 'connection_error':
       return `${prefix} — 接続を確認できませんでした`;
     default:

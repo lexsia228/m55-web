@@ -611,20 +611,32 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
     '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。',
 } as const;
 
-/** Consult usage card — CTA-first display copy (display-only). */
+/** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
 export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
   availablePrimaryJa: '相談返書を1件使えます。',
   availableSecondaryJa: '今気になっていることを、1テーマだけ書けます。',
+  /** Legacy SSOT for in-flight tests; not used on consult entry UI surfaces. */
   purchasePrimaryLine1Ja: '今は残り0件です。',
   purchasePrimaryLine2Ja:
     '保存版に紐づく相談返書を、あと{count}件まで追加できます。',
+  exhaustedPrimaryJa: '今は相談返書を使えません。',
+  exhaustedSecondaryJa: '残数はこの入口で確認できます。',
   capReachedPrimaryJa: 'この保存版で使える相談返書は上限に達しています。',
   capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
-  usedCountTemplateJa: '使用済み {used} / {cap}件',
-  remainingCompactTemplateJa: '残り {count} 件',
+  usedCountTemplateJa: '使用済み {used}件',
+  remainingCompactTemplateJa: '残り {count}件',
+  /** Legacy SSOT; not rendered on consult entry UI surfaces. */
   additionalPurchasableTemplateJa: 'あと購入できる {count}件',
 } as const;
 
+/** Consult entry LOCAL wave — neutral wallet lines (consult/my only; not LP). */
+export const PAID_DTR_CONSULT_ENTRY_NEUTRAL = {
+  walletRemainingTemplateJa: '残り {count}件',
+  walletUsedTemplateJa: '使用済み {used}件',
+  walletExhaustedJa: '今は相談返書を使えません。残数はこの入口で確認できます。',
+} as const;
+
+/** Legacy formatter; consult entry UI uses PAID_DTR_CONSULT_ENTRY_NEUTRAL instead. */
 export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: number): string {
   return PAID_DTR_CONSULT_USAGE_DISPLAY.purchasePrimaryLine2Ja.replace(
     '{count}',
@@ -632,10 +644,14 @@ export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: numbe
   );
 }
 
-export function formatConsultUsedCountLine(used: number, cap: number): string {
-  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa
-    .replace('{used}', String(used))
-    .replace('{cap}', String(cap));
+export function formatConsultUsedCountLine(used: number, cap?: number): string {
+  if (cap !== undefined) {
+    return `使用済み ${used} / ${cap}件`;
+  }
+  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa.replace(
+    '{used}',
+    String(used)
+  );
 }
 
 export type PaidDtrReportPartView = {
@@ -855,15 +871,9 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   usageAdditionalPurchasableLabelJa: 'あと購入できる',
   walletLoadingJa: '残数確認中です。しばらくお待ちください。',
   savedReportLinkNoteJa:
-    'この本質の読み解きに紐づいて、4章の内容を深掘りできます。',
-  addOnCapNoteJa: '付属1件 + 追加購入4件までが上限です。',
-  limitReachedAdditionalJa:
-    'このレポートで利用できる追加相談返書は上限に達しました。',
+    'この保存版に紐づいて、4章の内容を深掘りできます。',
   limitReachedReadOnlyJa:
     '相談返書の利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
-  purchaseOnlyInRoomPrefixJa:
-    '追加相談返書の購入はこの保存版の相談返書画面内でのみ申し込み可能です。上限は合計',
-  purchaseOnlyInRoomSuffixJa: '件です。',
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
   emptyThreadJa:
@@ -893,8 +903,6 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
     '現在、このレポートに紐づく追加購入をご利用いただけません。',
   walletPurchaseReportMissingJa:
     '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
-  walletPurchaseRetryNoteJa: '保存版に紐づく相談返書を1件追加できます。',
-  addOnPurchaseNoteJa: '保存版に紐づく相談返書を1件追加できます。',
   valueDeliverablesTitleJa: 'この返書で整理すること',
   historyMessagesAriaJa: 'これまでの相談返書',
   /** {count} = assistant reply count in thread */
@@ -910,21 +918,22 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   composePanelTitleJa: '今の1テーマを書く',
 } as const;
 
-/** My page consult block (functional UI only — not emotional story). */
+/** My page consult block — IA SSOT v1 (2-state copy; owned CTA only when snapshot ready). */
 export const PAID_DTR_MY_PAGE_CONSULT = {
-  blockTitleJa: '相談返書（保存版に紐づく）',
+  blockTitleJa: '相談返書',
   blockIntroJa:
-    '保存版の再開・相談返書の残数確認の入口です（機能案内）。',
+    '相談返書は、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。',
   linkedScopeJa:
     '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。',
   capSummaryJa:
-    '付属1件 + 追加最大4件 = 合計5件まで（残数・送信は相談返書の入口で確認）',
+    '相談返書の利用状況は、保存版内の相談返書画面で確認できます。',
+  walletFactNoteJa:
+    '利用状況の確認と送信は、保存版を開いたあとの相談返書画面で行えます。',
   remainingNoteJa:
-    '相談返書の残り回数・送信は、保存版レポート内の相談返書の入口で確認できます。',
-  reopenNoteJa:
-    '保存版の再開は、上のレポート一覧またはレポート棚から行えます。',
-  openRoomLinkJa: '保存版で相談返書を開く',
-  sectionAriaJa: '相談と保存の目安',
+    '1回の相談につき、一つのテーマを書いて返書を受け取ります。',
+  reopenNoteJa: '',
+  openRoomLinkJa: '相談返書を確認する',
+  sectionAriaJa: '相談返書',
 } as const;
 
 export type PaidDtrAccessFlowStepId =

@@ -8,6 +8,13 @@ import {
   isCatalogSlotOwned,
   type DtrCatalogSlot,
 } from '../../lib/m55/dtrProductCatalog';
+import {
+  LABEL_SAVED_REPORT_METADATA_JP,
+  LABEL_SAVED_REPORT_MY_JP,
+  LABEL_STATE_OWNED,
+  MY_BADGE_NOT_PURCHASED,
+  MY_BADGE_PREPARING,
+} from '../../lib/m55/dtrProductLabels';
 
 import styles from './DtrCatalogStrip.module.css';
 
@@ -109,13 +116,15 @@ export default function DtrCatalogStrip({
     : DTR_PRODUCT_CATALOG;
 
   const rowClass = variant === 'dtr' ? `${styles.row} ${styles.rowDtr}` : styles.row;
+  const listAriaLabel = variant === 'my' ? 'サービス一覧' : 'レポートとサービスのカタログ';
 
   return (
-    <ul className={styles.list} role="list" aria-label="レポートとサービスのカタログ">
+    <ul className={styles.list} role="list" aria-label={listAriaLabel}>
       {slots.map((slot) => (
         <CatalogRow
           key={slot.id}
           slot={slot}
+          variant={variant}
           ent={effectiveEnt}
           snap={effectiveSnap}
           snapError={effectiveSnapError}
@@ -128,17 +137,21 @@ export default function DtrCatalogStrip({
 
 function CatalogRow({
   slot,
+  variant,
   ent,
   snap,
   snapError,
   rowClass,
 }: {
   slot: DtrCatalogSlot;
+  variant: 'my' | 'dtr';
   ent: EntitlementsResponse | null;
   snap: SnapshotReadyResponse | null;
   snapError: boolean;
   rowClass: string;
 }) {
+  const isMy = variant === 'my';
+
   if (slot.kind === 'coming_soon') {
     return (
       <li className={rowClass}>
@@ -149,27 +162,56 @@ function CatalogRow({
           </div>
           <span className={`${styles.badge} ${styles.badgeSoon}`}>近日公開</span>
         </div>
-        <div className={styles.rowFooter}>
-          <Link href={slot.learnMoreHref} className={styles.linkQuiet}>
-            サポートへ
-          </Link>
-        </div>
+        {!isMy && (
+          <div className={styles.rowFooter}>
+            <Link href={slot.learnMoreHref} className={styles.linkQuiet}>
+              サポートへ
+            </Link>
+          </div>
+        )}
       </li>
     );
   }
 
-  /* live: Entry Report は再開・購入導線あり。他 SKU 追加時はここを拡張。 */
+  /* live: Entry Report — /dtr keeps purchase/open CTAs; /my is badge-only (IA SSOT). */
   if (slot.kind === 'live' && slot.id === 'entry_report') {
     const owned = isCatalogSlotOwned(slot, ent, snap);
     const canOpen = !snapError && snap?.ready === true;
+    const subtitle = isMy ? LABEL_SAVED_REPORT_METADATA_JP : slot.subtitle;
+    const title = isMy ? LABEL_SAVED_REPORT_MY_JP : slot.title;
+
+    if (isMy) {
+      const badgeClass = owned && canOpen
+        ? styles.badgeOwned
+        : owned
+        ? styles.badgePending
+        : styles.badgeNotOwned;
+      const badgeText = owned && canOpen
+        ? LABEL_STATE_OWNED
+        : owned
+        ? MY_BADGE_PREPARING
+        : MY_BADGE_NOT_PURCHASED;
+
+      return (
+        <li className={rowClass}>
+          <div className={styles.rowTop}>
+            <div>
+              <div className={styles.title}>{title}</div>
+              <p className={styles.subtitle}>{subtitle}</p>
+            </div>
+            <span className={`${styles.badge} ${badgeClass}`}>{badgeText}</span>
+          </div>
+        </li>
+      );
+    }
 
     if (owned && canOpen) {
       return (
         <li className={rowClass}>
           <div className={styles.rowTop}>
             <div>
-              <div className={styles.title}>{slot.title}</div>
-              <p className={styles.subtitle}>{slot.subtitle}</p>
+              <div className={styles.title}>{title}</div>
+              <p className={styles.subtitle}>{subtitle}</p>
             </div>
             <span className={`${styles.badge} ${styles.badgeOwned}`}>所有済み</span>
           </div>
@@ -187,8 +229,8 @@ function CatalogRow({
         <li className={rowClass}>
           <div className={styles.rowTop}>
             <div>
-              <div className={styles.title}>{slot.title}</div>
-              <p className={styles.subtitle}>{slot.subtitle}</p>
+              <div className={styles.title}>{title}</div>
+              <p className={styles.subtitle}>{subtitle}</p>
             </div>
             <span className={`${styles.badge} ${styles.badgePending}`}>準備中</span>
           </div>
@@ -203,8 +245,8 @@ function CatalogRow({
       <li className={rowClass}>
         <div className={styles.rowTop}>
           <div>
-            <div className={styles.title}>{slot.title}</div>
-            <p className={styles.subtitle}>{slot.subtitle}</p>
+            <div className={styles.title}>{title}</div>
+            <p className={styles.subtitle}>{subtitle}</p>
           </div>
           <span className={`${styles.badge} ${styles.badgeNotOwned}`}>未購入</span>
         </div>
@@ -230,11 +272,13 @@ function CatalogRow({
             {owned ? '所有済み' : '準備中'}
           </span>
         </div>
-        <div className={styles.rowFooter}>
-          <Link href={slot.learnMoreHref} className={styles.linkQuiet}>
-            くわしく見る
-          </Link>
-        </div>
+        {!isMy && (
+          <div className={styles.rowFooter}>
+            <Link href={slot.learnMoreHref} className={styles.linkQuiet}>
+              くわしく見る
+            </Link>
+          </div>
+        )}
       </li>
     );
   }

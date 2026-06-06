@@ -34,6 +34,8 @@ export default function ShellLayout({
   const pathname = usePathname();
   const isCoreRoute =
     pathname === '/core' || (pathname?.startsWith('/core/') ?? false);
+  const shouldRenderSoulBirthGate =
+    pathname !== '/home' && pathname !== '/my' && !isCoreRoute;
 
   // Prevent body-level scrolling that would expose the global SiteFooter
   // behind the fixed shell on mobile browsers (viewport-unit instability).
@@ -63,14 +65,14 @@ export default function ShellLayout({
           </>
         ) : children ? (
           <>
-            {/* REGRESSION: SoulBirthGate auto-opens; /home と /core は専用導線（BirthProfileIntakeLayer 等）のみ */}
-            {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
+            {/* REGRESSION: SoulBirthGate auto-opens; /home /my /core は専用導線（BirthProfileIntakeLayer 等）のみ */}
+            {shouldRenderSoulBirthGate && <SoulBirthGate />}
             {children}
             <PublicFooter />
           </>
         ) : (
           <>
-            {pathname !== '/home' && !isCoreRoute && <SoulBirthGate />}
+            {shouldRenderSoulBirthGate && <SoulBirthGate />}
             <iframe ref={iframeRef} src={iframeSrc} title={iframeTitle} {...iframeProps} />
             <PublicFooter />
           </>
