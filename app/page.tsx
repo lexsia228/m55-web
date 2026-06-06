@@ -1,39 +1,59 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../lib/m55/topFreeEntryPublicCopy";
+
+const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
 
 export const metadata: Metadata = {
   title: "M55",
-  description: "オンラインで提供するデジタルコンテンツ（レポート）を販売しています。",
+  description: copy.m55Definition.shortJa.replace(/\n/g, " "),
 };
 
 export default function HomePage() {
+  const { storefront, cta } = copy;
+
   return (
     <main style={{ maxWidth: 860, margin: "0 auto", padding: "24px 16px 56px", lineHeight: 1.7 }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 8px" }}>M55</h1>
 
       <p style={{ margin: "0 0 18px", opacity: 0.9 }}>
-        オンラインで提供するデジタルコンテンツ（レポート）を販売しています。決済完了後、ウェブ上で閲覧できます。
+        {storefront.introJa}
       </p>
 
-      <section style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 12, padding: 16, margin: "0 0 18px" }}>
+      <section style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 12, padding: 16, margin: "0 0 14px" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px" }}>商品</h2>
-        <p style={{ margin: "0 0 6px" }}><strong>本質の読み解き</strong>（保存版レポート）</p>
+        <p style={{ margin: "0 0 6px" }}>
+          <strong>{storefront.fullPlanNameJa}</strong>
+        </p>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
-          <li>価格：<strong>¥1,000（税込）</strong></li>
+          <li>価格：<strong>{storefront.fullPriceLabelJa}</strong></li>
+          <li>内容：{storefront.fullSavedReportJa}</li>
+          <li>{storefront.fullConsultReplyJa}</li>
           <li>提供：決済完了後に閲覧可能（物理配送なし）</li>
         </ul>
-        <p style={{ margin: "12px 0 0" }}>
-          <Link href="/dtr/lp">商品ページ・購入はこちら</Link>
+      </section>
+
+      <section style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 12, padding: 16, margin: "0 0 14px" }}>
+        <p style={{ margin: "0 0 6px" }}>
+          <strong>{storefront.lightPlanNameJa}</strong>
+        </p>
+        <ul style={{ margin: 0, paddingLeft: 18 }}>
+          <li>価格：<strong>{storefront.lightPriceLabelJa}</strong></li>
+          <li>内容：{storefront.lightSavedReportJa}</li>
+          <li>{storefront.lightConsultReplyJa}</li>
+          <li>提供：決済完了後に閲覧可能（物理配送なし）</li>
+        </ul>
+        <p style={{ margin: "12px 0 0", fontSize: 13, opacity: 0.9 }}>
+          {storefront.upgradeNoteJa}
         </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>無料で試す</h2>
         <p style={{ margin: "0 0 8px" }}>
-          プロフィール保存後、<Link href="/core">/core</Link> で無料の見取り図（傾向の輪郭）を読めます。
+          <Link href={cta.homeHref}>{cta.viewFreeMapJa}</Link>
         </p>
-        <p style={{ margin: 0, fontSize: 13, opacity: 0.85 }}>
-          保存版は章立てで読み返せる有料レポートです。詳細は上の商品ページからご確認ください。
+        <p style={{ margin: 0 }}>
+          <Link href={cta.viewSavedPlansHref}>{cta.viewSavedPlansJa}</Link>
         </p>
       </section>
 

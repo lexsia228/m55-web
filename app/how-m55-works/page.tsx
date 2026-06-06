@@ -1,4 +1,5 @@
 import { PublicShell } from '../_components/PublicShell';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { IntroSection } from './components/intro-section';
 import { WhatIsSection } from './components/what-is-section';
 import { FrameworkSection } from './components/framework-section';
@@ -10,8 +11,7 @@ import styles from './how-it-works.module.css';
 
 export const metadata = {
   title: 'M55の見方を知る | M55',
-  description:
-    'M55は、自分を見つめ直すための地図です。10通りの資質と5つの解析軸、無料 /core と Entry Report、相談返書のつながりを静かに説明します。',
+  description: TOP_FREE_ENTRY_PUBLIC_COPY.metadata.howM55WorksDescriptionJa,
 };
 
 export default function HowM55WorksPage() {

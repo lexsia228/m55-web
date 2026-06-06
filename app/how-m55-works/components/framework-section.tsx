@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
 import styles from '../how-it-works.module.css';
 
 const TEN_QUALITIES_CARD_SRC = '/core/unrevealed-card.webp' as const;
@@ -23,7 +24,7 @@ export function FrameworkSection() {
             </p>
             <p className={styles.sectionLead}>
               そのため、同じ称号に見えても、受け取る内容は一人ずつ変わります。似た入口を持つ人がいても、見取り図や
-              Entry Report まで同じになるわけではありません。
+              {TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works.frameworkSavedJa}
             </p>
           </div>
           <div className={styles.frameworkVisual}>
