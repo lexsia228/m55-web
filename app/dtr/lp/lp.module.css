@@ -1,27 +1,11 @@
-/* DTR Core Static V1 LP */
+/* DTR Paid LP — scoped CTA styles (local wrapper required for CSS modules) */
 
-/* Legacy (unused in new page.tsx, kept for safety) */
-.page { min-height: 100vh; padding: 24px 16px 48px; background: rgba(250, 246, 255, 0.98); color: #2f2640; }
-.inner { max-width: 480px; margin: 0 auto; text-align: center; }
-.title { font-size: 1.5rem; font-weight: 600; margin: 0 0 12px; }
-.desc { font-size: 0.875rem; color: #6b5b8a; margin: 0 0 24px; }
-.price { margin-bottom: 24px; }
-.priceLabel { display: block; font-size: 0.75rem; color: #6b5b8a; margin-bottom: 4px; }
-.priceValue { font-size: 1rem; color: #2f2640; }
-.actions { margin-bottom: 24px; }
-.btn { min-width: 200px; min-height: 44px; padding: 12px 24px; font-size: 0.875rem; font-family: inherit; color: #fff; background: #4a3d6b; border: none; border-radius: 8px; cursor: pointer; opacity: 0.95; }
-.btn:hover:not(:disabled) { opacity: 1; }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.legal { font-size: 0.75rem; color: #6b5b8a; }
-.legal a { color: #4a3d6b; text-decoration: underline; }
-
-/* ── Premium CTA button (used via .m55-lp-cta-btn on PurchaseButton) ── */
-
-:global(.m55-lp-cta-btn) {
+.lpRoot :global(.m55-lp-cta-btn) {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   width: 100% !important;
+  gap: 12px !important;
   border-radius: 14px !important;
   background: linear-gradient(135deg, #3d3262 0%, #534a72 100%) !important;
   padding: 16px 22px !important;
@@ -39,16 +23,16 @@
   line-height: 1 !important;
 }
 
-:global(.m55-lp-cta-btn:hover:not(:disabled)) {
+.lpRoot :global(.m55-lp-cta-btn:hover:not(:disabled)) {
   opacity: 0.9 !important;
 }
 
-:global(.m55-lp-cta-btn:focus-visible) {
+.lpRoot :global(.m55-lp-cta-btn:focus-visible) {
   outline: 2px solid rgba(104, 84, 182, 0.9) !important;
   outline-offset: 2px !important;
 }
 
-:global(.m55-lp-cta-btn:disabled) {
+.lpRoot :global(.m55-lp-cta-btn:disabled) {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
 }
