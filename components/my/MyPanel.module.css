@@ -191,6 +191,19 @@
   border-radius: 4px;
 }
 
+.helpSubsection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(107, 95, 168, 0.13);
+}
+
+.helpSubTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #2c233a;
+}
+
 .muted {
   font-size: 14px;
   line-height: 1.7;

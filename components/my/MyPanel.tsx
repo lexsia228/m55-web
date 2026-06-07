@@ -61,6 +61,14 @@ import {
   DTR_SAVED_REPORT_DELETE_TOAST_SECONDARY,
   DTR_SAVED_REPORT_DELETE_TRIGGER_LABEL,
 } from '../../lib/m55/dtrSavedReportDeleteCopy';
+import {
+  ACCOUNT_DATA_MY_BODY_P1,
+  ACCOUNT_DATA_MY_BODY_P2,
+  ACCOUNT_DATA_MY_DEVICE_NOTE,
+  ACCOUNT_DATA_MY_SECTION_TITLE,
+  ACCOUNT_DATA_REQUEST_CTA_LABEL,
+  ACCOUNT_DATA_REQUEST_HREF,
+} from '../../lib/m55/accountDataControlPublicCopy';
 import styles from './MyPanel.module.css';
 
 type EntitlementsResponse = {
@@ -281,7 +289,28 @@ export default function MyPanel() {
           <Link href="/legal/refund">返金・キャンセル</Link>
           <Link href="/legal/tokushoho">事業者情報・お問い合わせ先（特商法）</Link>
         </nav>
+        <AccountDataDeletionSubsection />
       </section>
+    </div>
+  );
+}
+
+function AccountDataDeletionSubsection() {
+  return (
+    <div
+      className={styles.helpSubsection}
+      aria-label={ACCOUNT_DATA_MY_SECTION_TITLE}
+      data-testid="m55-my-account-data-deletion"
+    >
+      <h3 className={styles.helpSubTitle}>{ACCOUNT_DATA_MY_SECTION_TITLE}</h3>
+      <p className={styles.body}>{ACCOUNT_DATA_MY_BODY_P1}</p>
+      <p className={styles.body}>{ACCOUNT_DATA_MY_BODY_P2}</p>
+      <p className={styles.muted}>{ACCOUNT_DATA_MY_DEVICE_NOTE}</p>
+      <div className={styles.links}>
+        <Link href={ACCOUNT_DATA_REQUEST_HREF} className={styles.ctaPrimary}>
+          {ACCOUNT_DATA_REQUEST_CTA_LABEL}
+        </Link>
+      </div>
     </div>
   );
 }

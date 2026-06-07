@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+  ACCOUNT_DATA_PRIVACY_AFTER_VERIFY,
+  ACCOUNT_DATA_PRIVACY_DEVICE_P1,
+  ACCOUNT_DATA_PRIVACY_DEVICE_P2,
+  ACCOUNT_DATA_PRIVACY_DEVICE_P3,
+  ACCOUNT_DATA_PRIVACY_INTRO,
+  ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL,
+  ACCOUNT_DATA_PRIVACY_SAVED_REPORT_BOUNDARY,
+  ACCOUNT_DATA_PRIVACY_SECTION_TITLE,
+  ACCOUNT_DATA_REQUEST_HREF,
+} from "../../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "プライバシーポリシー | M55",
@@ -59,9 +70,28 @@ export default function PrivacyPage() {
       </section>
 
       <section style={{ margin: "0 0 16px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>
+          {ACCOUNT_DATA_PRIVACY_SECTION_TITLE}
+        </h2>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_INTRO}</p>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_AFTER_VERIFY}</p>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_DEVICE_P1}</p>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_DEVICE_P2}</p>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_DEVICE_P3}</p>
+        <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_SAVED_REPORT_BOUNDARY}</p>
+        <p style={{ margin: 0 }}>
+          申請窓口は{" "}
+          <Link href={ACCOUNT_DATA_REQUEST_HREF}>{ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL}</Link>
+          {" "}をご覧ください。
+        </p>
+      </section>
+
+      <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>開示・訂正・削除等</h2>
         <p style={{ margin: 0 }}>
-          お問い合わせは <Link href="/support">/support</Link> よりご連絡ください。
+          お問い合わせは{" "}
+          <Link href={ACCOUNT_DATA_REQUEST_HREF}>サポート窓口（{ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL}）</Link>
+          {" "}よりご連絡ください。
         </p>
       </section>
 

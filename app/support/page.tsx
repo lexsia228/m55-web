@@ -1,4 +1,16 @@
 import Link from "next/link";
+import {
+  ACCOUNT_DATA_SUPPORT_AFTER_VERIFY,
+  ACCOUNT_DATA_SUPPORT_CONTACT_NOTE,
+  ACCOUNT_DATA_SUPPORT_INTRO,
+  ACCOUNT_DATA_SUPPORT_REQUEST_INFO,
+  ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY,
+  ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY,
+  ACCOUNT_DATA_SUPPORT_SECTION_ID,
+  ACCOUNT_DATA_SUPPORT_SECTION_TITLE,
+  ACCOUNT_DATA_SUPPORT_SECURITY_NOTE,
+  ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES,
+} from "../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "サポート | M55",
@@ -27,6 +39,25 @@ export default function SupportPage() {
         <p style={{ margin: 0, opacity: 0.9 }}>
           通常、2〜5営業日程度でご返信するよう努めております（状況により前後します）。
         </p>
+      </section>
+
+      <section id={ACCOUNT_DATA_SUPPORT_SECTION_ID} style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>
+          {ACCOUNT_DATA_SUPPORT_SECTION_TITLE}
+        </h2>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_INTRO}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_REQUEST_INFO}</p>
+        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>対象例：</p>
+        <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
+          {ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_AFTER_VERIFY}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_SECURITY_NOTE}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY}</p>
+        <p style={{ margin: 0, opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_CONTACT_NOTE}</p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
