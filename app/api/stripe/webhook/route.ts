@@ -25,6 +25,7 @@ import {
   m55OpsEventInternalProcessingFailed,
   m55OpsEventMissingClientReferenceId,
 } from '../../../../lib/m55/ops/m55OpsNotify';
+import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,6 +35,7 @@ export const dynamic = 'force-dynamic';
 const PRODUCT_ID_FROM_META = 'DTR_CORE_STATIC_V1';
 /** 本丸イベント: 内部処理失敗時は 500 + failed_fulfillments 記録 */
 const ONE_TIME_KEY_EVENTS: ReadonlySet<string> = new Set(['checkout.session.completed', 'charge.refunded']);
+const USER_REF_HASH_RE = /^[0-9a-f]{16}$/;
 
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -202,7 +204,23 @@ export async function POST(req: NextRequest) {
           ? await lookupCheckoutSessionForRefund(db, event)
           : (event.data?.object as Stripe.Checkout.Session | undefined)?.id ?? null;
       if (checkoutSessionId) {
-        await insertFailedFulfillment(db, event.id, checkoutSessionId, 'stripe_events_insert_failed', { error: String(insertErr?.message ?? insertErr) });
+        let stripeEventsInsertFailedUserRefHash: string | null = null;
+        if (event.type === 'checkout.session.completed') {
+          const session = event.data?.object as Stripe.Checkout.Session | undefined;
+          const clientReferenceId =
+            typeof session?.client_reference_id === 'string' ? session.client_reference_id.trim() : '';
+          if (clientReferenceId.length > 0) {
+            stripeEventsInsertFailedUserRefHash = hashUserIdForLedgerLog(clientReferenceId);
+          }
+        }
+        await insertFailedFulfillment(
+          db,
+          event.id,
+          checkoutSessionId,
+          'stripe_events_insert_failed',
+          null,
+          stripeEventsInsertFailedUserRefHash
+        );
       }
       return NextResponse.json({ error: 'Idempotency failed' }, { status: 500 });
     }
@@ -245,7 +263,7 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_FROM_META;
 
   if (!userId) {
-    await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', session.metadata ?? null);
+    await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', null, null);
     console.error('[webhook] lane=checkout event_id=', event.id, 'checkout_session_id=', session.id, 'failure=missing_client_reference_id');
     notifyM55OpsFireAndForget(m55OpsEventMissingClientReferenceId());
     return NextResponse.json({ received: true }, { status: 200 });
@@ -306,7 +324,14 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   }
 
   if (!ALLOWED_ONE_TIME_PRODUCTS.has(productId)) {
-    await insertFailedFulfillment(db, event.id, session.id, 'product_mismatch', { productId, ...(session.metadata ?? {}) });
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      'product_mismatch',
+      { productId },
+      hashUserIdForLedgerLog(userId)
+    );
     console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=product_mismatch product_id=', productId);
     return NextResponse.json({ received: true }, { status: 200 });
   }
@@ -314,13 +339,28 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   return handleCheckoutCompletedOneTime(stripe, event, db, session, userId, productId);
 }
 
-async function insertFailedFulfillment(db: any, eventId: string, checkoutSessionId: string, reason: string, metadata: Record<string, unknown> | null): Promise<void> {
+async function insertFailedFulfillment(
+  db: any,
+  eventId: string,
+  checkoutSessionId: string,
+  failureReason: string,
+  rawMetadata: Record<string, unknown> | null,
+  userRefHash: string | null
+): Promise<void> {
+  if (userRefHash !== null && !USER_REF_HASH_RE.test(userRefHash)) {
+    console.error(
+      '[webhook] failed_fulfillments_validation_failed',
+      JSON.stringify({ error_code: 'INVALID_USER_REF_HASH' })
+    );
+    return;
+  }
   try {
     await db.from('failed_fulfillments').insert({
       event_id: eventId,
       checkout_session_id: checkoutSessionId,
-      failure_reason: reason,
-      raw_metadata: metadata ? (metadata as object) : null,
+      failure_reason: failureReason,
+      raw_metadata: rawMetadata ? (rawMetadata as object) : null,
+      user_ref_hash: userRefHash,
     });
   } catch (e) {
     console.error('[webhook] failed_fulfillments insert failed', e);
@@ -371,10 +411,14 @@ async function handleCheckoutCompletedOneTime(
   }
 
   if (result.reason === 'payment_not_paid') {
-    await insertFailedFulfillment(db, event.id, session.id, 'payment_status_not_paid', {
-      payment_status: result.detail,
-      ...(session.metadata ?? {}),
-    });
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      'payment_status_not_paid',
+      { payment_status: result.detail ?? null },
+      hashUserIdForLedgerLog(userId)
+    );
     console.error(
       '[webhook] lane=one_time event_id=',
       event.id,
@@ -393,15 +437,26 @@ async function handleCheckoutCompletedOneTime(
     result.reason === 'not_payment' ||
     result.reason === 'product_not_allowed'
   ) {
-    await insertFailedFulfillment(db, event.id, session.id, `fulfill_${result.reason}`, session.metadata ?? null);
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      `fulfill_${result.reason}`,
+      null,
+      hashUserIdForLedgerLog(userId)
+    );
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
   console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=', result);
-  await insertFailedFulfillment(db, event.id, session.id, 'internal_processing_failed', {
-    reason: result.reason,
-    detail: result.detail,
-  });
+  await insertFailedFulfillment(
+    db,
+    event.id,
+    session.id,
+    'internal_processing_failed',
+    null,
+    hashUserIdForLedgerLog(userId)
+  );
   notifyM55OpsFireAndForget(m55OpsEventInternalProcessingFailed(result.reason));
   return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
 }
@@ -445,7 +500,14 @@ async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any
     console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'user_id=', userId, 'refund_type=full', 'status=revoked');
   } catch (e) {
     if (checkoutSessionId) {
-      await insertFailedFulfillment(db, event.id, checkoutSessionId, 'revoke_failed', { payment_intent_id: paymentIntentId, error: String((e as Error)?.message ?? e) });
+      await insertFailedFulfillment(
+        db,
+        event.id,
+        checkoutSessionId,
+        'revoke_failed',
+        null,
+        hashUserIdForLedgerLog(userId)
+      );
     }
     console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'failure=', e);
     return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
