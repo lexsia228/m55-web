@@ -200,7 +200,7 @@ async function countsForDryRun(opts: {
   rowCounts.stripe_events_for_event = await counted(
     db
       .from('stripe_events')
-      .select('id', { count: 'exact', head: true })
+      .select('event_id', { count: 'exact', head: true })
       .eq('event_id', opts.eventId),
   );
 
@@ -398,7 +398,7 @@ async function executionFlow(): Promise<void> {
 
   const { data: evRow } = await db
     .from('stripe_events')
-    .select('id')
+    .select('event_id')
     .eq('event_id', eventId)
     .maybeSingle();
 

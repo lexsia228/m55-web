@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
   const db = supabase as any;
   const { data: existing } = await db
     .from('stripe_events')
-    .select('id')
+    .select('event_id')
     .eq('event_id', event.id)
     .limit(1)
     .maybeSingle();
