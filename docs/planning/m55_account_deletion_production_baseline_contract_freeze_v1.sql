@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 ACCOUNT DELETION — PRODUCTION BASELINE CONTRACT FREEZE v1
 -- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE
--- Revision: SQL-REVISION-1-PATCH-6-PATCH-5 (global exact index key-shape audit)
+-- Revision: SQL-REVISION-1-PATCH-6-PATCH-6 (stripe_events runtime id dependency resolved)
 -- Target: Supabase Production safe label m55-soul-core ONLY (org m55-soul)
 -- Forbidden: Preview DB, DDL/DML, SET ROLE, DO, CALL, COPY, application row SELECT
 -- Allowed FROM: pg_catalog.*, information_schema.*, fixed VALUES allowlists
@@ -945,7 +945,7 @@ self_test_case_registry(case_name, sort_order) AS (
     ('16_reply_sessions_index_only_target_unique', 16), ('17_stripe_processed_allowed_redundant_present', 17)
 ),
 runtime_conflict_matrix(conflict_id, description, resolved) AS (
-  VALUES ('stripe_events_runtime_id_dependency','Runtime webhook .select(''id'') vs Production stripe_events without id column',false)
+  VALUES ('stripe_events_runtime_id_dependency','Resolved by runtime commit 35bee204f10637b16494468d2cadf4a283e762de: stripe_events lookups select event_id instead of absent id',true)
 ),
 rel_meta AS (
   SELECT r.relation_name, c.oid AS relation_oid, (c.oid IS NOT NULL) AS relation_exists,
@@ -2962,7 +2962,7 @@ SELECT
   cpe.production_catalog_contract_freeze_pass AS contract_freeze_pass,
   (cpe.production_catalog_contract_freeze_pass AND rc.runtime_compatibility_ready) AS baseline_runtime_ready,
   CASE WHEN ci.classifier_self_test_ok THEN 'CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-CONTRACT-PREFLIGHT-HUMAN'
-       ELSE 'CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-5-REVIEW' END AS next_gate_recommendation
+       ELSE 'CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-6-REVIEW' END AS next_gate_recommendation
 FROM classifier_inputs ci
 CROSS JOIN catalog_pass_expr cpe
 CROSS JOIN runtime_compatibility rc;
@@ -3131,10 +3131,13 @@ ORDER BY fes.case_name;
 
 -- ARTIFACT INTEGRITY FOOTER
 -- =============================================================================
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-5
--- revision: SQL-REVISION-1-PATCH-6-PATCH-5
+-- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-6
+-- revision: SQL-REVISION-1-PATCH-6-PATCH-6
 -- target: m55-soul-core (org m55-soul) Production catalog only
 -- human_green_requires: production_catalog_contract_freeze_pass=true AND catalog_failed_flags={}
 -- baseline_apply_requires: baseline_runtime_ready=true (S1 after catalog closure)
 -- forbidden_execution_scope: Preview, migration apply, application row SELECT
+-- runtime_remediation_commit: 35bee204f10637b16494468d2cadf4a283e762de
+-- runtime_remediation_scope: stripe_events_select_event_id
+-- runtime_remediation_tests: dedicated_11/11,checkout_12/12,failed_16/16,reply_2/2,typecheck_PASS
 -- =============================================================================
