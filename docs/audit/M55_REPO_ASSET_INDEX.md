@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-06-09T22:48:47.796142+00:00
+Generated: 2026-06-10T22:56:20.970019+00:00
 Total records: 671
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
