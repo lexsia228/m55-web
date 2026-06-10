@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 ACCOUNT DELETION — PRODUCTION BASELINE CONTRACT FREEZE v1
 -- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE
--- Revision: SQL-REVISION-1-PATCH-6-PATCH-6 (stripe_events runtime id dependency resolved)
+-- Revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-1 (access relation-security diagnostics + self-test fixture semantics)
 -- Target: Supabase Production safe label m55-soul-core ONLY (org m55-soul)
 -- Forbidden: Preview DB, DDL/DML, SET ROLE, DO, CALL, COPY, application row SELECT
 -- Allowed FROM: pg_catalog.*, information_schema.*, fixed VALUES allowlists
@@ -2098,6 +2098,325 @@ priv_flags AS (
                   WHEN relation_name='failed_fulfillments' AND role_name='authenticated' AND privilege_name IN ('SELECT','INSERT','UPDATE','DELETE') THEN effective_privilege=true ELSE true END) AS failed_fulfillments_pre_apply_privileges_ok
   FROM priv_eval
 ),
+access_contract_targets(relation_name) AS (
+  VALUES ('entitlements'::text), ('entitlement_rights')
+),
+access_privilege_registry(privilege_name) AS (
+  VALUES
+    ('SELECT'::text), ('INSERT'), ('UPDATE'), ('DELETE'),
+    ('TRUNCATE'), ('REFERENCES'), ('TRIGGER')
+),
+access_service_role_core_registry(privilege_name) AS (
+  VALUES ('SELECT'::text), ('INSERT'), ('UPDATE'), ('DELETE')
+),
+expected_access_effective_matrix(relation_name, role_name, privilege_name, expected_effective) AS (
+  SELECT t.relation_name, r.role_name, p.privilege_name, false
+  FROM access_contract_targets t
+  CROSS JOIN (VALUES ('anon'::text), ('authenticated')) AS r(role_name)
+  CROSS JOIN access_privilege_registry p
+  UNION ALL
+  SELECT t.relation_name, 'service_role'::text, c.privilege_name, true
+  FROM access_contract_targets t
+  CROSS JOIN access_service_role_core_registry c
+),
+expected_access_public_matrix(relation_name, privilege_name, expected_explicit_present) AS (
+  SELECT t.relation_name, p.privilege_name, false
+  FROM access_contract_targets t
+  CROSS JOIN access_privilege_registry p
+),
+access_relation_security AS (
+  SELECT
+    t.relation_name,
+    rm.relation_oid,
+    rm.relation_exists,
+    rm.relkind,
+    rm.owner_role,
+    rm.relrowsecurity,
+    rm.relforcerowsecurity,
+    COALESCE(pr.policy_count, 0) AS policy_count
+  FROM access_contract_targets t
+  JOIN rel_meta rm ON rm.relation_name = t.relation_name
+  LEFT JOIN policy_rel pr ON pr.relation_name = t.relation_name
+),
+access_relation_security_violation_rows AS (
+  SELECT
+    relation_name,
+    'relation_missing'::text AS mismatch_kind,
+    relation_name || ':RELATION_MISSING' AS mismatch_detail
+  FROM access_relation_security
+  WHERE NOT relation_exists
+  UNION ALL
+  SELECT
+    relation_name,
+    'relkind_mismatch',
+    relation_name || ':RELKIND=' || COALESCE(relkind::text, 'NULL')
+  FROM access_relation_security
+  WHERE relation_exists AND relkind IS DISTINCT FROM 'r'
+  UNION ALL
+  SELECT
+    relation_name,
+    'owner_mismatch',
+    relation_name || ':OWNER=' || COALESCE(owner_role, 'NULL')
+  FROM access_relation_security
+  WHERE relation_exists AND owner_role IS DISTINCT FROM 'postgres'
+  UNION ALL
+  SELECT
+    relation_name,
+    'rls_mismatch',
+    relation_name || ':RLS=' || COALESCE(relrowsecurity::text, 'NULL')
+  FROM access_relation_security
+  WHERE relation_exists AND relrowsecurity IS DISTINCT FROM true
+  UNION ALL
+  SELECT
+    relation_name,
+    'force_rls_mismatch',
+    relation_name || ':FORCE_RLS=' || COALESCE(relforcerowsecurity::text, 'NULL')
+  FROM access_relation_security
+  WHERE relation_exists AND relforcerowsecurity IS DISTINCT FROM false
+),
+access_policy_inventory AS (
+  SELECT
+    pr.relation_name,
+    pr.policy_name,
+    pr.policy_exists,
+    pr.command,
+    pr.roles
+  FROM policy_rows pr
+  JOIN access_contract_targets t ON t.relation_name = pr.relation_name
+  WHERE pr.policy_exists
+),
+access_effective_privilege_eval AS (
+  SELECT
+    em.relation_name,
+    em.role_name,
+    em.privilege_name,
+    em.expected_effective,
+    pe.effective_privilege AS actual_effective,
+    pe.privilege_state_known,
+    (pe.relation_name IS NOT NULL) AS actual_row_present,
+    (
+      pe.relation_name IS NULL
+      OR pe.privilege_state_known IS DISTINCT FROM true
+      OR pe.effective_privilege IS DISTINCT FROM em.expected_effective
+    ) AS is_violation
+  FROM expected_access_effective_matrix em
+  LEFT JOIN priv_eval pe
+    ON pe.relation_name = em.relation_name
+   AND pe.role_name = em.role_name
+   AND pe.privilege_name = em.privilege_name
+),
+access_effective_privilege_duplicate AS (
+  SELECT pe.relation_name, pe.role_name, pe.privilege_name
+  FROM priv_eval pe
+  JOIN access_contract_targets t ON t.relation_name = pe.relation_name
+  WHERE pe.role_name IN ('anon', 'authenticated', 'service_role')
+  GROUP BY pe.relation_name, pe.role_name, pe.privilege_name
+  HAVING count(*) > 1
+),
+access_public_acl_live AS (
+  SELECT
+    t.relation_name,
+    acl.privilege_type AS privilege_name,
+    true AS explicit_present
+  FROM access_contract_targets t
+  JOIN rel_meta rm ON rm.relation_name = t.relation_name
+  JOIN pg_class c ON c.oid = rm.relation_oid
+  CROSS JOIN LATERAL aclexplode(
+    COALESCE(c.relacl, acldefault('r', c.relowner))
+  ) acl
+  WHERE acl.grantee = 0
+),
+access_public_acl_eval AS (
+  SELECT
+    em.relation_name,
+    em.privilege_name,
+    em.expected_explicit_present,
+    COALESCE(l.explicit_present, false) AS actual_explicit_present,
+    (
+      COALESCE(l.explicit_present, false) IS DISTINCT FROM em.expected_explicit_present
+    ) AS is_violation
+  FROM expected_access_public_matrix em
+  LEFT JOIN access_public_acl_live l
+    ON l.relation_name = em.relation_name
+   AND l.privilege_name = em.privilege_name
+),
+service_role_access_state AS (
+  SELECT
+    rolname,
+    rolbypassrls,
+    (rolname IS NOT NULL) AS role_exists
+  FROM pg_roles
+  WHERE rolname = 'service_role'
+),
+access_contract_flags AS (
+  SELECT
+    EXISTS (
+      SELECT 1 FROM access_relation_security_violation_rows
+      WHERE relation_name = 'entitlements'
+    ) AS entitlements_relation_security_contract_mismatch,
+    EXISTS (
+      SELECT 1 FROM access_relation_security_violation_rows
+      WHERE relation_name = 'entitlement_rights'
+    ) AS entitlement_rights_relation_security_contract_mismatch,
+    EXISTS (
+      SELECT 1 FROM access_relation_security
+      WHERE relation_name = 'entitlements' AND policy_count > 0
+    ) AS entitlements_policy_contract_mismatch,
+    EXISTS (
+      SELECT 1 FROM access_relation_security
+      WHERE relation_name = 'entitlement_rights' AND policy_count > 0
+    ) AS entitlement_rights_policy_contract_mismatch,
+    EXISTS (
+      SELECT 1 FROM access_effective_privilege_eval
+      WHERE relation_name = 'entitlements' AND role_name = 'anon' AND is_violation
+    ) AS entitlements_anon_effective_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_effective_privilege_eval
+      WHERE relation_name = 'entitlements' AND role_name = 'authenticated' AND is_violation
+    ) AS entitlements_authenticated_effective_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_effective_privilege_eval
+      WHERE relation_name = 'entitlement_rights' AND role_name = 'anon' AND is_violation
+    ) AS entitlement_rights_anon_effective_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_effective_privilege_eval
+      WHERE relation_name = 'entitlement_rights' AND role_name = 'authenticated' AND is_violation
+    ) AS entitlement_rights_authenticated_effective_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_public_acl_eval
+      WHERE relation_name = 'entitlements' AND is_violation
+    ) AS entitlements_public_explicit_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_public_acl_eval
+      WHERE relation_name = 'entitlement_rights' AND is_violation
+    ) AS entitlement_rights_public_explicit_privileges_present,
+    EXISTS (
+      SELECT 1 FROM access_effective_privilege_eval
+      WHERE role_name = 'service_role' AND is_violation
+    ) AS service_role_core_privilege_gap,
+    (
+      (SELECT count(*) FROM service_role_access_state) <> 1
+      OR COALESCE((SELECT rolbypassrls FROM service_role_access_state LIMIT 1), false) IS DISTINCT FROM true
+    ) AS service_role_bypassrls_mismatch,
+    (SELECT count(*) FROM expected_access_effective_matrix) <> 36 AS access_effective_matrix_expected_row_mismatch,
+    (SELECT count(*) FROM access_effective_privilege_eval) <> 36 AS access_effective_matrix_actual_row_mismatch,
+    (SELECT count(*) FROM expected_access_public_matrix) <> 14 AS access_public_matrix_expected_row_mismatch,
+    (SELECT count(*) FROM access_public_acl_eval) <> 14 AS access_public_matrix_actual_row_mismatch,
+    EXISTS (SELECT 1 FROM access_effective_privilege_duplicate) AS access_effective_privilege_duplicate_present
+),
+access_contract_violation_rows AS (
+  SELECT 'relation_security_mismatch'::text AS violation_kind,
+         mismatch_detail AS violation_detail
+  FROM access_relation_security_violation_rows
+  UNION ALL
+  SELECT 'policy_present', relation_name || ':' || policy_name
+  FROM access_policy_inventory
+  UNION ALL
+  SELECT 'anon_effective_privilege', relation_name || ':' || privilege_name
+  FROM access_effective_privilege_eval
+  WHERE is_violation AND role_name = 'anon'
+  UNION ALL
+  SELECT 'authenticated_effective_privilege', relation_name || ':' || privilege_name
+  FROM access_effective_privilege_eval
+  WHERE is_violation AND role_name = 'authenticated'
+  UNION ALL
+  SELECT 'public_explicit_privilege', relation_name || ':PUBLIC:' || privilege_name
+  FROM access_public_acl_eval
+  WHERE is_violation
+  UNION ALL
+  SELECT 'service_role_core_gap', relation_name || ':' || privilege_name
+  FROM access_effective_privilege_eval
+  WHERE is_violation AND role_name = 'service_role'
+  UNION ALL
+  SELECT 'service_role_bypassrls_mismatch', 'service_role:rolbypassrls_not_true'
+  WHERE (SELECT count(*) FROM service_role_access_state) <> 1
+     OR COALESCE((SELECT rolbypassrls FROM service_role_access_state LIMIT 1), false) IS DISTINCT FROM true
+  UNION ALL
+  SELECT 'access_effective_matrix_row_mismatch', 'expected_or_actual_not_36'
+  WHERE (SELECT count(*) FROM expected_access_effective_matrix) <> 36
+     OR (SELECT count(*) FROM access_effective_privilege_eval) <> 36
+     OR EXISTS (SELECT 1 FROM access_effective_privilege_duplicate)
+  UNION ALL
+  SELECT 'access_public_matrix_row_mismatch', 'expected_or_actual_not_14'
+  WHERE (SELECT count(*) FROM expected_access_public_matrix) <> 14
+     OR (SELECT count(*) FROM access_public_acl_eval) <> 14
+),
+access_contract_aggregate AS (
+  SELECT
+    NOT (
+      EXISTS (SELECT 1 FROM access_contract_flags acf WHERE
+        acf.entitlements_relation_security_contract_mismatch
+        OR acf.entitlement_rights_relation_security_contract_mismatch
+        OR acf.entitlements_policy_contract_mismatch
+        OR acf.entitlement_rights_policy_contract_mismatch
+        OR acf.entitlements_anon_effective_privileges_present
+        OR acf.entitlements_authenticated_effective_privileges_present
+        OR acf.entitlement_rights_anon_effective_privileges_present
+        OR acf.entitlement_rights_authenticated_effective_privileges_present
+        OR acf.entitlements_public_explicit_privileges_present
+        OR acf.entitlement_rights_public_explicit_privileges_present
+        OR acf.service_role_core_privilege_gap
+        OR acf.service_role_bypassrls_mismatch
+        OR acf.access_effective_matrix_expected_row_mismatch
+        OR acf.access_effective_matrix_actual_row_mismatch
+        OR acf.access_public_matrix_expected_row_mismatch
+        OR acf.access_public_matrix_actual_row_mismatch
+        OR acf.access_effective_privilege_duplicate_present
+      )
+    ) AS access_contract_ok,
+    array_remove(ARRAY[
+      CASE WHEN (SELECT entitlements_relation_security_contract_mismatch FROM access_contract_flags) THEN 'entitlements_relation_security_contract_mismatch' END,
+      CASE WHEN (SELECT entitlement_rights_relation_security_contract_mismatch FROM access_contract_flags) THEN 'entitlement_rights_relation_security_contract_mismatch' END,
+      CASE WHEN (SELECT entitlements_policy_contract_mismatch FROM access_contract_flags) THEN 'entitlements_policy_contract_mismatch' END,
+      CASE WHEN (SELECT entitlement_rights_policy_contract_mismatch FROM access_contract_flags) THEN 'entitlement_rights_policy_contract_mismatch' END,
+      CASE WHEN (SELECT entitlements_anon_effective_privileges_present FROM access_contract_flags) THEN 'entitlements_anon_effective_privileges_present' END,
+      CASE WHEN (SELECT entitlements_authenticated_effective_privileges_present FROM access_contract_flags) THEN 'entitlements_authenticated_effective_privileges_present' END,
+      CASE WHEN (SELECT entitlement_rights_anon_effective_privileges_present FROM access_contract_flags) THEN 'entitlement_rights_anon_effective_privileges_present' END,
+      CASE WHEN (SELECT entitlement_rights_authenticated_effective_privileges_present FROM access_contract_flags) THEN 'entitlement_rights_authenticated_effective_privileges_present' END,
+      CASE WHEN (SELECT entitlements_public_explicit_privileges_present FROM access_contract_flags) THEN 'entitlements_public_explicit_privileges_present' END,
+      CASE WHEN (SELECT entitlement_rights_public_explicit_privileges_present FROM access_contract_flags) THEN 'entitlement_rights_public_explicit_privileges_present' END,
+      CASE WHEN (SELECT service_role_core_privilege_gap FROM access_contract_flags) THEN 'service_role_core_privilege_gap' END,
+      CASE WHEN (SELECT service_role_bypassrls_mismatch FROM access_contract_flags) THEN 'service_role_bypassrls_mismatch' END,
+      CASE WHEN (SELECT access_effective_matrix_expected_row_mismatch FROM access_contract_flags) THEN 'access_effective_matrix_expected_row_mismatch' END,
+      CASE WHEN (SELECT access_effective_matrix_actual_row_mismatch FROM access_contract_flags) THEN 'access_effective_matrix_actual_row_mismatch' END,
+      CASE WHEN (SELECT access_public_matrix_expected_row_mismatch FROM access_contract_flags) THEN 'access_public_matrix_expected_row_mismatch' END,
+      CASE WHEN (SELECT access_public_matrix_actual_row_mismatch FROM access_contract_flags) THEN 'access_public_matrix_actual_row_mismatch' END,
+      CASE WHEN (SELECT access_effective_privilege_duplicate_present FROM access_contract_flags) THEN 'access_effective_privilege_duplicate_present' END
+    ], NULL) AS access_contract_failed_flags,
+    COALESCE((
+      SELECT array_agg(mismatch_detail ORDER BY relation_name, mismatch_kind)
+      FROM access_relation_security_violation_rows
+    ), ARRAY[]::text[]) AS relation_security_mismatches,
+    COALESCE((
+      SELECT array_agg(relation_name || ':' || policy_name ORDER BY relation_name, policy_name)
+      FROM access_policy_inventory
+    ), ARRAY[]::text[]) AS policy_mismatches,
+    COALESCE((
+      SELECT array_agg(relation_name || ':' || role_name || ':' || privilege_name ORDER BY relation_name, role_name, privilege_name)
+      FROM access_effective_privilege_eval
+      WHERE is_violation AND role_name = 'anon'
+    ), ARRAY[]::text[]) AS anon_effective_privilege_violations,
+    COALESCE((
+      SELECT array_agg(relation_name || ':' || role_name || ':' || privilege_name ORDER BY relation_name, role_name, privilege_name)
+      FROM access_effective_privilege_eval
+      WHERE is_violation AND role_name = 'authenticated'
+    ), ARRAY[]::text[]) AS authenticated_effective_privilege_violations,
+    COALESCE((
+      SELECT array_agg(relation_name || ':PUBLIC:' || privilege_name ORDER BY relation_name, privilege_name)
+      FROM access_public_acl_eval
+      WHERE is_violation
+    ), ARRAY[]::text[]) AS public_explicit_privilege_violations,
+    COALESCE((
+      SELECT array_agg(relation_name || ':service_role:' || privilege_name ORDER BY relation_name, privilege_name)
+      FROM access_effective_privilege_eval
+      WHERE is_violation AND role_name = 'service_role'
+    ), ARRAY[]::text[]) AS service_role_core_privilege_gaps,
+    (
+      (SELECT count(*) FROM service_role_access_state) = 1
+      AND COALESCE((SELECT rolbypassrls FROM service_role_access_state LIMIT 1), false) = true
+    ) AS service_role_bypassrls_ok
+  FROM access_contract_flags
+),
 entitlements_public_select_policy_review AS (
   SELECT
     count(*) FILTER (
@@ -2606,7 +2925,8 @@ catalog_failed_flags_arr AS (
     CASE WHEN NOT (SELECT known_absent_objects_ok FROM absent_flags) THEN 'known_absent_objects_ok' END,
     CASE WHEN cardinality((SELECT contract_conflicts FROM contract_conflicts_arr))>0 THEN 'contract_conflicts_non_empty' END,
     CASE WHEN cardinality((SELECT freeze_v2_conflicts FROM freeze_v2_conflicts_arr))>0 THEN 'freeze_v2_conflicts_non_empty' END,
-    CASE WHEN cardinality((SELECT migration_reference_conflicts FROM migration_reference_conflicts_arr))>0 THEN 'migration_reference_conflicts_non_empty' END
+    CASE WHEN cardinality((SELECT migration_reference_conflicts FROM migration_reference_conflicts_arr))>0 THEN 'migration_reference_conflicts_non_empty' END,
+    CASE WHEN NOT (SELECT access_contract_ok FROM access_contract_aggregate) THEN 'access_contract_not_ok' END
   ], NULL) AS catalog_failed_flags
 ),
 catalog_review_flags_arr AS (
@@ -2619,6 +2939,175 @@ catalog_review_flags_arr AS (
     CASE WHEN (SELECT entitlements_authenticated_full_select_exposure FROM entitlements_security_review) THEN 'entitlements_authenticated_full_select_exposure' END,
     CASE WHEN (SELECT entitlements_redundant_same_key_unique_indexes FROM entitlements_security_review) THEN 'entitlements_redundant_same_key_unique_indexes' END
   ], NULL) AS catalog_review_flags
+),
+access_contract_self_test_registry(case_name, sort_order) AS (
+  VALUES
+    ('ac_01_secure_exact', 1),
+    ('ac_02_entitlements_anon_present', 2),
+    ('ac_03_rights_auth_present', 3),
+    ('ac_04_public_explicit', 4),
+    ('ac_05_unexpected_policy', 5),
+    ('ac_06_service_role_core_gap', 6),
+    ('ac_07_bypassrls_false', 7),
+    ('ac_08_rls_false', 8),
+    ('ac_09_force_rls_true', 9),
+    ('ac_10_secure_with_catalog_blockers', 10)
+),
+access_contract_self_test_fixtures(
+  case_name,
+  relation_exists_ok,
+  relkind_ok,
+  owner_ok,
+  rls_enabled_ok,
+  force_rls_disabled_ok,
+  entitlements_policy_ok,
+  entitlement_rights_policy_ok,
+  entitlements_anon_violation_count,
+  entitlement_rights_anon_violation_count,
+  entitlements_authenticated_violation_count,
+  entitlement_rights_authenticated_violation_count,
+  entitlements_public_explicit_violation_count,
+  entitlement_rights_public_explicit_violation_count,
+  service_role_core_gap_count,
+  service_role_bypassrls_ok,
+  catalog_blocker_present,
+  expected_access_contract_ok,
+  expected_catalog_freeze_pass
+) AS (
+  VALUES
+    ('ac_01_secure_exact', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, true, true),
+    ('ac_02_entitlements_anon_present', true, true, true, true, true, true, true, 7, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_03_rights_auth_present', true, true, true, true, true, true, true, 0, 0, 0, 7, 0, 0, 0, true, false, false, false),
+    ('ac_04_public_explicit', true, true, true, true, true, true, true, 0, 0, 0, 0, 1, 0, 0, true, false, false, false),
+    ('ac_05_unexpected_policy', true, true, true, true, true, false, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_06_service_role_core_gap', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 1, true, false, false, false),
+    ('ac_07_bypassrls_false', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, false, false, false, false),
+    ('ac_08_rls_false', true, true, true, false, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_09_force_rls_true', true, true, true, true, false, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_10_secure_with_catalog_blockers', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, true, true, false)
+),
+access_contract_self_test_eval AS (
+  SELECT
+    f.*,
+    (
+      f.relation_exists_ok AND f.relkind_ok AND f.owner_ok
+      AND f.rls_enabled_ok AND f.force_rls_disabled_ok
+      AND f.entitlements_policy_ok AND f.entitlement_rights_policy_ok
+      AND f.entitlements_anon_violation_count = 0
+      AND f.entitlement_rights_anon_violation_count = 0
+      AND f.entitlements_authenticated_violation_count = 0
+      AND f.entitlement_rights_authenticated_violation_count = 0
+      AND f.entitlements_public_explicit_violation_count = 0
+      AND f.entitlement_rights_public_explicit_violation_count = 0
+      AND f.service_role_core_gap_count = 0
+      AND f.service_role_bypassrls_ok
+    ) AS actual_access_contract_ok,
+    (
+      f.relation_exists_ok AND f.relkind_ok AND f.owner_ok
+      AND f.rls_enabled_ok AND f.force_rls_disabled_ok
+      AND f.entitlements_policy_ok AND f.entitlement_rights_policy_ok
+      AND f.entitlements_anon_violation_count = 0
+      AND f.entitlement_rights_anon_violation_count = 0
+      AND f.entitlements_authenticated_violation_count = 0
+      AND f.entitlement_rights_authenticated_violation_count = 0
+      AND f.entitlements_public_explicit_violation_count = 0
+      AND f.entitlement_rights_public_explicit_violation_count = 0
+      AND f.service_role_core_gap_count = 0
+      AND f.service_role_bypassrls_ok
+      AND NOT f.catalog_blocker_present
+    ) AS actual_catalog_freeze_pass
+  FROM access_contract_self_test_fixtures f
+),
+access_contract_self_test_scored AS (
+  SELECT
+    e.*,
+    (e.expected_access_contract_ok IS NOT DISTINCT FROM e.actual_access_contract_ok) AS access_matches_expected,
+    (e.expected_catalog_freeze_pass IS NOT DISTINCT FROM e.actual_catalog_freeze_pass) AS freeze_matches_expected,
+    (
+      e.expected_access_contract_ok IS NOT DISTINCT FROM e.actual_access_contract_ok
+      AND e.expected_catalog_freeze_pass IS NOT DISTINCT FROM e.actual_catalog_freeze_pass
+    ) AS matches_expected
+  FROM access_contract_self_test_eval e
+),
+access_contract_self_test_summary AS (
+  SELECT
+    (SELECT count(*) FROM access_contract_self_test_registry)::integer AS expected_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored)::integer AS actual_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored WHERE matches_expected)::integer AS matched_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored WHERE NOT matches_expected)::integer AS mismatched_case_count,
+    (
+      SELECT COALESCE(array_agg(reg.case_name ORDER BY reg.sort_order), ARRAY[]::text[])
+      FROM access_contract_self_test_registry reg
+      LEFT JOIN access_contract_self_test_scored ev ON ev.case_name = reg.case_name
+      WHERE ev.case_name IS NULL
+    ) AS missing_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM (SELECT case_name, count(*) AS c FROM access_contract_self_test_scored GROUP BY case_name HAVING count(*) > 1) d
+    ) AS duplicate_case_names,
+    (
+      SELECT COALESCE(array_agg(ev.case_name ORDER BY ev.case_name), ARRAY[]::text[])
+      FROM access_contract_self_test_scored ev
+      LEFT JOIN access_contract_self_test_registry reg ON reg.case_name = ev.case_name
+      WHERE reg.case_name IS NULL
+    ) AS unexpected_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM access_contract_self_test_scored
+      WHERE NOT matches_expected
+    ) AS mismatched_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM (
+        SELECT unnest(array_agg(f.case_name ORDER BY f.case_name)) AS case_name
+        FROM access_contract_self_test_fixtures f
+        GROUP BY
+          f.relation_exists_ok, f.relkind_ok, f.owner_ok, f.rls_enabled_ok, f.force_rls_disabled_ok,
+          f.entitlements_policy_ok, f.entitlement_rights_policy_ok,
+          f.entitlements_anon_violation_count, f.entitlement_rights_anon_violation_count,
+          f.entitlements_authenticated_violation_count, f.entitlement_rights_authenticated_violation_count,
+          f.entitlements_public_explicit_violation_count, f.entitlement_rights_public_explicit_violation_count,
+          f.service_role_core_gap_count, f.service_role_bypassrls_ok, f.catalog_blocker_present
+        HAVING count(*) > 1
+      ) dup
+    ) AS semantic_duplicate_case_names,
+    (
+      (SELECT count(*) FROM access_contract_self_test_registry) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored WHERE matches_expected) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored WHERE NOT matches_expected) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(reg.case_name), ARRAY[]::text[])
+        FROM access_contract_self_test_registry reg
+        LEFT JOIN access_contract_self_test_scored ev ON ev.case_name = reg.case_name
+        WHERE ev.case_name IS NULL
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(case_name), ARRAY[]::text[])
+        FROM (SELECT case_name FROM access_contract_self_test_scored GROUP BY case_name HAVING count(*) > 1) d
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(ev.case_name), ARRAY[]::text[])
+        FROM access_contract_self_test_scored ev
+        LEFT JOIN access_contract_self_test_registry reg ON reg.case_name = ev.case_name
+        WHERE reg.case_name IS NULL
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(case_name), ARRAY[]::text[])
+        FROM (
+          SELECT unnest(array_agg(f.case_name ORDER BY f.case_name)) AS case_name
+          FROM access_contract_self_test_fixtures f
+          GROUP BY
+            f.relation_exists_ok, f.relkind_ok, f.owner_ok, f.rls_enabled_ok, f.force_rls_disabled_ok,
+            f.entitlements_policy_ok, f.entitlement_rights_policy_ok,
+            f.entitlements_anon_violation_count, f.entitlement_rights_anon_violation_count,
+            f.entitlements_authenticated_violation_count, f.entitlement_rights_authenticated_violation_count,
+            f.entitlements_public_explicit_violation_count, f.entitlement_rights_public_explicit_violation_count,
+            f.service_role_core_gap_count, f.service_role_bypassrls_ok, f.catalog_blocker_present
+          HAVING count(*) > 1
+        ) dup
+      )) = 0
+    ) AS access_contract_self_test_ok
 ),
 p10_self_test_fixtures(case_name, all_required_relations_exist, all_required_relations_ordinary, relation_contract_state_known, column_contract_state_known, constraint_contract_state_known, index_contract_state_known, owner_contract_state_known, rls_contract_state_known, policy_contract_state_known, privilege_contract_state_known, dependent_object_state_known, known_absent_objects_ok, actual_privilege_cells, stripe_events_core_contract_ok, stripe_events_id_absent, stripe_optional_contract_state_known, stripe_processed_contract_ok, stripe_processed_index_contract_ok, entitlements_unique_ok, failed_fulfillments_pre_apply_contract_ok, reply_fk_contract_a_ok, dtr_visible_partial_unique_ok, ledger_critical_indexes_ok, required_function_contract_ok, required_provider_contract_ok, unknown_owners, unknown_rls_states, unknown_policy_states, unknown_privilege_states, unknown_column_fields, unknown_defaults, unknown_constraints, unknown_indexes, unknown_dependent_objects, contract_conflicts, freeze_v2_conflicts, migration_reference_conflicts, catalog_failed_flags, catalog_review_flags, runtime_compatibility_ready, expected_catalog_pass, expected_runtime_ready) AS (
   VALUES
@@ -2761,6 +3250,7 @@ p10_fixture_summary AS (
       AND (SELECT predicate_normalization_self_test_ok FROM predicate_norm_self_test)
       AND (SELECT index_contract_self_test_ok FROM index_contract_self_test_summary)
       AND (SELECT exact_index_key_shape_self_test_ok FROM exact_index_key_shape_self_test)
+      AND (SELECT access_contract_self_test_ok FROM access_contract_self_test_summary)
     ) AS classifier_self_test_ok
 ),
 classifier_inputs AS (
@@ -2825,6 +3315,7 @@ catalog_pass_expr AS (
     AND ci.failed_fulfillments_pre_apply_contract_ok AND ci.reply_fk_contract_a_ok AND ci.dtr_visible_partial_unique_ok
     AND ci.ledger_critical_indexes_ok AND ci.stripe_processed_index_contract_ok
     AND ci.required_function_contract_ok AND ci.classifier_self_test_ok
+    AND (SELECT access_contract_ok FROM access_contract_aggregate)
     AND cardinality(ci.unknown_owners) = 0 AND cardinality(ci.unknown_rls_states) = 0 AND cardinality(ci.unknown_policy_states) = 0
     AND cardinality(ci.unknown_privilege_states) = 0 AND cardinality(ci.unknown_column_fields) = 0 AND cardinality(ci.unknown_defaults) = 0
     AND cardinality(ci.unknown_constraints) = 0 AND cardinality(ci.unknown_indexes) = 0 AND cardinality(ci.unknown_dependent_objects) = 0
@@ -2909,6 +3400,25 @@ SELECT
   (SELECT mismatched_case_count FROM exact_index_key_shape_self_test) AS exact_index_key_shape_self_test_mismatched_case_count,
   (SELECT mismatched_case_names FROM exact_index_key_shape_self_test) AS exact_index_key_shape_self_test_mismatched_case_names,
   (SELECT exact_index_key_shape_self_test_ok FROM exact_index_key_shape_self_test) AS exact_index_key_shape_self_test_ok,
+  (SELECT access_contract_ok FROM access_contract_aggregate) AS access_contract_ok,
+  (SELECT access_contract_failed_flags FROM access_contract_aggregate) AS access_contract_failed_flags,
+  (SELECT relation_security_mismatches FROM access_contract_aggregate) AS relation_security_mismatches,
+  (SELECT policy_mismatches FROM access_contract_aggregate) AS policy_mismatches,
+  (SELECT anon_effective_privilege_violations FROM access_contract_aggregate) AS anon_effective_privilege_violations,
+  (SELECT authenticated_effective_privilege_violations FROM access_contract_aggregate) AS authenticated_effective_privilege_violations,
+  (SELECT public_explicit_privilege_violations FROM access_contract_aggregate) AS public_explicit_privilege_violations,
+  (SELECT service_role_core_privilege_gaps FROM access_contract_aggregate) AS service_role_core_privilege_gaps,
+  (SELECT service_role_bypassrls_ok FROM access_contract_aggregate) AS service_role_bypassrls_ok,
+  (SELECT expected_case_count FROM access_contract_self_test_summary) AS access_contract_self_test_expected_case_count,
+  (SELECT actual_case_count FROM access_contract_self_test_summary) AS access_contract_self_test_actual_case_count,
+  (SELECT matched_case_count FROM access_contract_self_test_summary) AS access_contract_self_test_matched_case_count,
+  (SELECT mismatched_case_count FROM access_contract_self_test_summary) AS access_contract_self_test_mismatched_case_count,
+  (SELECT missing_case_names FROM access_contract_self_test_summary) AS access_contract_self_test_missing_case_names,
+  (SELECT duplicate_case_names FROM access_contract_self_test_summary) AS access_contract_self_test_duplicate_case_names,
+  (SELECT unexpected_case_names FROM access_contract_self_test_summary) AS access_contract_self_test_unexpected_case_names,
+  (SELECT mismatched_case_names FROM access_contract_self_test_summary) AS access_contract_self_test_mismatched_case_names,
+  (SELECT semantic_duplicate_case_names FROM access_contract_self_test_summary) AS access_contract_self_test_semantic_duplicate_case_names,
+  (SELECT access_contract_self_test_ok FROM access_contract_self_test_summary) AS access_contract_self_test_ok,
   (SELECT entitlements_public_select_true_policy_count FROM entitlements_security_review) AS entitlements_public_select_true_policy_count,
   (SELECT entitlements_public_select_true_policy_names FROM entitlements_security_review) AS entitlements_public_select_true_policy_names,
   (SELECT entitlements_public_select_true_policy_state_known FROM entitlements_security_review) AS entitlements_public_select_true_policy_state_known,
@@ -2961,8 +3471,8 @@ SELECT
   cpe.production_catalog_contract_freeze_pass AS production_contract_complete,
   cpe.production_catalog_contract_freeze_pass AS contract_freeze_pass,
   (cpe.production_catalog_contract_freeze_pass AND rc.runtime_compatibility_ready) AS baseline_runtime_ready,
-  CASE WHEN ci.classifier_self_test_ok THEN 'CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-CONTRACT-PREFLIGHT-HUMAN'
-       ELSE 'CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-6-REVIEW' END AS next_gate_recommendation
+  CASE WHEN ci.classifier_self_test_ok THEN 'CATEGORY-1-M55-ENTITLEMENTS-AND-RIGHTS-ACCESS-CONTRACT-CLASSIFIER-EXTENSION-PATCH-1-REVIEW'
+       ELSE 'CATEGORY-1-M55-ENTITLEMENTS-AND-RIGHTS-ACCESS-CONTRACT-CLASSIFIER-EXTENSION-PATCH-1-REVIEW' END AS next_gate_recommendation
 FROM classifier_inputs ci
 CROSS JOIN catalog_pass_expr cpe
 CROSS JOIN runtime_compatibility rc;
@@ -2979,6 +3489,175 @@ WITH self_test_case_registry(case_name, sort_order) AS (
     ('10_partial_unique_predicate_missing', 10), ('11_unexpected_composite_fk', 11), ('12_function_search_path_mismatch', 12),
     ('13_unknown_defaults_nonempty', 13), ('14_migration_reference_conflict', 14), ('15_runtime_unresolved_catalog_pass', 15),
     ('16_reply_sessions_index_only_target_unique', 16), ('17_stripe_processed_allowed_redundant_present', 17)
+),
+access_contract_self_test_registry(case_name, sort_order) AS (
+  VALUES
+    ('ac_01_secure_exact', 1),
+    ('ac_02_entitlements_anon_present', 2),
+    ('ac_03_rights_auth_present', 3),
+    ('ac_04_public_explicit', 4),
+    ('ac_05_unexpected_policy', 5),
+    ('ac_06_service_role_core_gap', 6),
+    ('ac_07_bypassrls_false', 7),
+    ('ac_08_rls_false', 8),
+    ('ac_09_force_rls_true', 9),
+    ('ac_10_secure_with_catalog_blockers', 10)
+),
+access_contract_self_test_fixtures(
+  case_name,
+  relation_exists_ok,
+  relkind_ok,
+  owner_ok,
+  rls_enabled_ok,
+  force_rls_disabled_ok,
+  entitlements_policy_ok,
+  entitlement_rights_policy_ok,
+  entitlements_anon_violation_count,
+  entitlement_rights_anon_violation_count,
+  entitlements_authenticated_violation_count,
+  entitlement_rights_authenticated_violation_count,
+  entitlements_public_explicit_violation_count,
+  entitlement_rights_public_explicit_violation_count,
+  service_role_core_gap_count,
+  service_role_bypassrls_ok,
+  catalog_blocker_present,
+  expected_access_contract_ok,
+  expected_catalog_freeze_pass
+) AS (
+  VALUES
+    ('ac_01_secure_exact', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, true, true),
+    ('ac_02_entitlements_anon_present', true, true, true, true, true, true, true, 7, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_03_rights_auth_present', true, true, true, true, true, true, true, 0, 0, 0, 7, 0, 0, 0, true, false, false, false),
+    ('ac_04_public_explicit', true, true, true, true, true, true, true, 0, 0, 0, 0, 1, 0, 0, true, false, false, false),
+    ('ac_05_unexpected_policy', true, true, true, true, true, false, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_06_service_role_core_gap', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 1, true, false, false, false),
+    ('ac_07_bypassrls_false', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, false, false, false, false),
+    ('ac_08_rls_false', true, true, true, false, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_09_force_rls_true', true, true, true, true, false, true, true, 0, 0, 0, 0, 0, 0, 0, true, false, false, false),
+    ('ac_10_secure_with_catalog_blockers', true, true, true, true, true, true, true, 0, 0, 0, 0, 0, 0, 0, true, true, true, false)
+),
+access_contract_self_test_eval AS (
+  SELECT
+    f.*,
+    (
+      f.relation_exists_ok AND f.relkind_ok AND f.owner_ok
+      AND f.rls_enabled_ok AND f.force_rls_disabled_ok
+      AND f.entitlements_policy_ok AND f.entitlement_rights_policy_ok
+      AND f.entitlements_anon_violation_count = 0
+      AND f.entitlement_rights_anon_violation_count = 0
+      AND f.entitlements_authenticated_violation_count = 0
+      AND f.entitlement_rights_authenticated_violation_count = 0
+      AND f.entitlements_public_explicit_violation_count = 0
+      AND f.entitlement_rights_public_explicit_violation_count = 0
+      AND f.service_role_core_gap_count = 0
+      AND f.service_role_bypassrls_ok
+    ) AS actual_access_contract_ok,
+    (
+      f.relation_exists_ok AND f.relkind_ok AND f.owner_ok
+      AND f.rls_enabled_ok AND f.force_rls_disabled_ok
+      AND f.entitlements_policy_ok AND f.entitlement_rights_policy_ok
+      AND f.entitlements_anon_violation_count = 0
+      AND f.entitlement_rights_anon_violation_count = 0
+      AND f.entitlements_authenticated_violation_count = 0
+      AND f.entitlement_rights_authenticated_violation_count = 0
+      AND f.entitlements_public_explicit_violation_count = 0
+      AND f.entitlement_rights_public_explicit_violation_count = 0
+      AND f.service_role_core_gap_count = 0
+      AND f.service_role_bypassrls_ok
+      AND NOT f.catalog_blocker_present
+    ) AS actual_catalog_freeze_pass
+  FROM access_contract_self_test_fixtures f
+),
+access_contract_self_test_scored AS (
+  SELECT
+    e.*,
+    (e.expected_access_contract_ok IS NOT DISTINCT FROM e.actual_access_contract_ok) AS access_matches_expected,
+    (e.expected_catalog_freeze_pass IS NOT DISTINCT FROM e.actual_catalog_freeze_pass) AS freeze_matches_expected,
+    (
+      e.expected_access_contract_ok IS NOT DISTINCT FROM e.actual_access_contract_ok
+      AND e.expected_catalog_freeze_pass IS NOT DISTINCT FROM e.actual_catalog_freeze_pass
+    ) AS matches_expected
+  FROM access_contract_self_test_eval e
+),
+access_contract_self_test_summary AS (
+  SELECT
+    (SELECT count(*) FROM access_contract_self_test_registry)::integer AS expected_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored)::integer AS actual_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored WHERE matches_expected)::integer AS matched_case_count,
+    (SELECT count(*) FROM access_contract_self_test_scored WHERE NOT matches_expected)::integer AS mismatched_case_count,
+    (
+      SELECT COALESCE(array_agg(reg.case_name ORDER BY reg.sort_order), ARRAY[]::text[])
+      FROM access_contract_self_test_registry reg
+      LEFT JOIN access_contract_self_test_scored ev ON ev.case_name = reg.case_name
+      WHERE ev.case_name IS NULL
+    ) AS missing_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM (SELECT case_name, count(*) AS c FROM access_contract_self_test_scored GROUP BY case_name HAVING count(*) > 1) d
+    ) AS duplicate_case_names,
+    (
+      SELECT COALESCE(array_agg(ev.case_name ORDER BY ev.case_name), ARRAY[]::text[])
+      FROM access_contract_self_test_scored ev
+      LEFT JOIN access_contract_self_test_registry reg ON reg.case_name = ev.case_name
+      WHERE reg.case_name IS NULL
+    ) AS unexpected_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM access_contract_self_test_scored
+      WHERE NOT matches_expected
+    ) AS mismatched_case_names,
+    (
+      SELECT COALESCE(array_agg(case_name ORDER BY case_name), ARRAY[]::text[])
+      FROM (
+        SELECT unnest(array_agg(f.case_name ORDER BY f.case_name)) AS case_name
+        FROM access_contract_self_test_fixtures f
+        GROUP BY
+          f.relation_exists_ok, f.relkind_ok, f.owner_ok, f.rls_enabled_ok, f.force_rls_disabled_ok,
+          f.entitlements_policy_ok, f.entitlement_rights_policy_ok,
+          f.entitlements_anon_violation_count, f.entitlement_rights_anon_violation_count,
+          f.entitlements_authenticated_violation_count, f.entitlement_rights_authenticated_violation_count,
+          f.entitlements_public_explicit_violation_count, f.entitlement_rights_public_explicit_violation_count,
+          f.service_role_core_gap_count, f.service_role_bypassrls_ok, f.catalog_blocker_present
+        HAVING count(*) > 1
+      ) dup
+    ) AS semantic_duplicate_case_names,
+    (
+      (SELECT count(*) FROM access_contract_self_test_registry) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored WHERE matches_expected) = 10
+      AND (SELECT count(*) FROM access_contract_self_test_scored WHERE NOT matches_expected) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(reg.case_name), ARRAY[]::text[])
+        FROM access_contract_self_test_registry reg
+        LEFT JOIN access_contract_self_test_scored ev ON ev.case_name = reg.case_name
+        WHERE ev.case_name IS NULL
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(case_name), ARRAY[]::text[])
+        FROM (SELECT case_name FROM access_contract_self_test_scored GROUP BY case_name HAVING count(*) > 1) d
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(ev.case_name), ARRAY[]::text[])
+        FROM access_contract_self_test_scored ev
+        LEFT JOIN access_contract_self_test_registry reg ON reg.case_name = ev.case_name
+        WHERE reg.case_name IS NULL
+      )) = 0
+      AND cardinality((
+        SELECT COALESCE(array_agg(case_name), ARRAY[]::text[])
+        FROM (
+          SELECT unnest(array_agg(f.case_name ORDER BY f.case_name)) AS case_name
+          FROM access_contract_self_test_fixtures f
+          GROUP BY
+            f.relation_exists_ok, f.relkind_ok, f.owner_ok, f.rls_enabled_ok, f.force_rls_disabled_ok,
+            f.entitlements_policy_ok, f.entitlement_rights_policy_ok,
+            f.entitlements_anon_violation_count, f.entitlement_rights_anon_violation_count,
+            f.entitlements_authenticated_violation_count, f.entitlement_rights_authenticated_violation_count,
+            f.entitlements_public_explicit_violation_count, f.entitlement_rights_public_explicit_violation_count,
+            f.service_role_core_gap_count, f.service_role_bypassrls_ok, f.catalog_blocker_present
+          HAVING count(*) > 1
+        ) dup
+      )) = 0
+    ) AS access_contract_self_test_ok
 ),
 fixtures(case_name, all_required_relations_exist, all_required_relations_ordinary, relation_contract_state_known, column_contract_state_known, constraint_contract_state_known, index_contract_state_known, owner_contract_state_known, rls_contract_state_known, policy_contract_state_known, privilege_contract_state_known, dependent_object_state_known, known_absent_objects_ok, actual_privilege_cells, stripe_events_core_contract_ok, stripe_events_id_absent, stripe_optional_contract_state_known, stripe_processed_contract_ok, stripe_processed_index_contract_ok, entitlements_unique_ok, failed_fulfillments_pre_apply_contract_ok, reply_fk_contract_a_ok, dtr_visible_partial_unique_ok, ledger_critical_indexes_ok, required_function_contract_ok, required_provider_contract_ok, unknown_owners, unknown_rls_states, unknown_policy_states, unknown_privilege_states, unknown_column_fields, unknown_defaults, unknown_constraints, unknown_indexes, unknown_dependent_objects, contract_conflicts, freeze_v2_conflicts, migration_reference_conflicts, catalog_failed_flags, catalog_review_flags, runtime_compatibility_ready, expected_catalog_pass, expected_runtime_ready) AS (
   VALUES
@@ -3124,6 +3803,7 @@ SELECT
     AND cardinality(fs.duplicate_case_names) = 0
     AND cardinality(fs.unexpected_case_names) = 0
     AND cardinality(fs.mismatched_case_names) = 0
+    AND (SELECT access_contract_self_test_ok FROM access_contract_self_test_summary)
   ) AS classifier_self_test_ok
 FROM fixture_eval_scored fes
 CROSS JOIN fixture_summary fs
@@ -3131,8 +3811,8 @@ ORDER BY fes.case_name;
 
 -- ARTIFACT INTEGRITY FOOTER
 -- =============================================================================
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE-SQL-REVISION-1-PATCH-6-PATCH-6
--- revision: SQL-REVISION-1-PATCH-6-PATCH-6
+-- artifact_gate: CATEGORY-1-M55-ENTITLEMENTS-AND-RIGHTS-ACCESS-CONTRACT-CLASSIFIER-EXTENSION-PATCH-1
+-- revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-1
 -- target: m55-soul-core (org m55-soul) Production catalog only
 -- human_green_requires: production_catalog_contract_freeze_pass=true AND catalog_failed_flags={}
 -- baseline_apply_requires: baseline_runtime_ready=true (S1 after catalog closure)
@@ -3140,4 +3820,10 @@ ORDER BY fes.case_name;
 -- runtime_remediation_commit: 35bee204f10637b16494468d2cadf4a283e762de
 -- runtime_remediation_scope: stripe_events_select_event_id
 -- runtime_remediation_tests: dedicated_11/11,checkout_12/12,failed_16/16,reply_2/2,typecheck_PASS
+-- entitlements_access_security_commit: 942d09aef8af292515cd3794bd642e373ce3ea59
+-- entitlements_access_security_migration: 20260615000004_m55_entitlements_and_rights_access_security_v1.sql
+-- entitlements_access_security_migration_sha256: 40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d
+-- entitlements_access_security_status: COMMITTED_NOT_APPLIED
+-- entitlements_access_security_resolved: false
+-- next_gate_recommendation: CATEGORY-1-M55-ENTITLEMENTS-AND-RIGHTS-ACCESS-CONTRACT-CLASSIFIER-EXTENSION-PATCH-1-REVIEW
 -- =============================================================================
