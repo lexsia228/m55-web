@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 PRODUCTION BASELINE GAP DIAGNOSTIC v1
--- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3
--- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3
+-- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-4
+-- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-4
 -- Target: organization=m55-soul / project=m55-soul-core / branch=main
 --         environment=PRODUCTION / source=Primary Database / role=postgres
 -- Classifier evidence (READ-ONLY): m55_account_deletion_production_baseline_contract_freeze_v1.sql
@@ -256,24 +256,26 @@ index_catalog AS (
         AND u.ord > i.indnkeyatts
         AND NOT a.attisdropped
     ) AS included_columns,
-    GREATEST(i.indnkeyatts - COALESCE((
-      SELECT count(*) FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
+    (
+      SELECT count(*)::integer FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
       WHERE u.ord BETWEEN 1 AND i.indnatts
         AND u.ord <= i.indnkeyatts
-        AND (
-          u.attnum = 0
-          OR NOT EXISTS (
-            SELECT 1 FROM pg_attribute a
-            WHERE a.attrelid = i.indrelid
-              AND a.attnum = u.attnum
-              AND NOT a.attisdropped
-          )
-        )
-    ), 0), 0)::integer AS key_expression_count,
+        AND u.attnum = 0
+    ) AS key_expression_count,
     pg_get_expr(i.indpred, i.indrelid, true) AS predicate,
     pg_get_expr(i.indpred, i.indrelid, true) AS compact_normalized_predicate,
-    (i.indrelid <> ic.oid OR EXISTS (SELECT 1 FROM pg_constraint cx WHERE cx.conindid = ic.oid)) AS constraint_backed,
-    (SELECT cx.conname::text FROM pg_constraint cx WHERE cx.conindid = ic.oid LIMIT 1) AS constraint_name,
+    EXISTS (
+      SELECT 1 FROM pg_constraint con
+      WHERE con.conindid = i.indexrelid
+        AND con.contype IN ('p', 'u', 'x')
+    ) AS constraint_backed,
+    (
+      SELECT con.conname::text
+      FROM pg_constraint con
+      WHERE con.conindid = i.indexrelid
+        AND con.contype IN ('p', 'u', 'x')
+      LIMIT 1
+    ) AS constraint_name,
     pg_get_indexdef(ic.oid) AS definition
   FROM relation_catalog rc
   JOIN pg_index i ON i.indrelid = rc.relation_oid
@@ -489,7 +491,11 @@ wallet_scoped_unique_inventory AS (
     i.indisvalid,
     i.indisready,
     i.indislive,
-    EXISTS (SELECT 1 FROM pg_constraint cx WHERE cx.conindid = ic.oid)
+    EXISTS (
+      SELECT 1 FROM pg_constraint cx
+      WHERE cx.conindid = i.indexrelid
+        AND cx.contype IN ('p', 'u', 'x')
+    )
   FROM relation_catalog rc
   JOIN pg_index i ON i.indrelid = rc.relation_oid
   JOIN pg_class ic ON ic.oid = i.indexrelid
@@ -1423,7 +1429,7 @@ json_aggregations AS (
 -- ── final_summary ────────────────────────────────────────────────────────────
 final_summary AS (
   SELECT
-    'SQL-DIAGNOSTIC-REVISION-1-PATCH-3'::text AS diagnostic_revision,
+    'SQL-DIAGNOSTIC-REVISION-1-PATCH-4'::text AS diagnostic_revision,
     'm55-soul'::text AS target_organization,
     'm55-soul-core'::text AS target_project,
     'PRODUCTION'::text AS target_environment,
@@ -1515,12 +1521,12 @@ FROM final_summary fs;
 
 -- =============================================================================
 -- ARTIFACT INTEGRITY FOOTER
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3
--- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3
+-- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-4
+-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-4
 -- target: m55-soul / m55-soul-core PRODUCTION postgres (Primary Database / role postgres)
 -- preview_stop: m55-preview / m55-soul-preview — Human STOP immediately; do not execute
 -- registry: 536 cells (45 relation_security + 420 privilege + 5 wallet_scope + 66 inventory)
 -- independent_expected_count: (15*3)+(15*4*7)+5+(15*4)+2+4 = 536
--- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3-REVIEW
+-- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-4-REVIEW
 -- forbidden: Preview SQL, DDL/DML, application row SELECT, secrets in output
 -- =============================================================================

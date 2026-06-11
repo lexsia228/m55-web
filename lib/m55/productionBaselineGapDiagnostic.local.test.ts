@@ -151,10 +151,10 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
     assert.ok(sql.length > 0);
   });
 
-  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-3', () => {
-    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3/);
-    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3/);
-    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-3'::text AS diagnostic_revision/);
+  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-4', () => {
+    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-4/);
+    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-4/);
+    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-4'::text AS diagnostic_revision/);
   });
 
   it('3. one top-level SelectStmt', () => {
@@ -174,11 +174,11 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
   it('5. artifact footer next gate exact', () => {
     assert.match(
       sql,
-      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3-REVIEW/
+      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-4-REVIEW/
     );
     assert.match(
       sql,
-      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3/
+      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-4/
     );
     assert.match(sql, /preview_stop: m55-preview \/ m55-soul-preview/);
   });
@@ -609,12 +609,13 @@ describe('productionBaselineGapDiagnostic — index decompile PATCH-1 regression
   }
 
   it('65. no indkey pg_attribute join on index rel OID', () => {
+    const block = extractBlock('index_catalog');
     assert.equal(
-      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(body),
+      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(block),
       false,
       'indkey joins must not use index rel OID for base attnum lookup'
     );
-    assert.ok(countOccurrences(body, /attrelid = i\.indrelid/g) >= 6);
+    assert.ok(countOccurrences(block, /attrelid = i\.indrelid/g) >= 2);
   });
 
   it('66. general index_catalog uses base rel OID + ord bounds', () => {
@@ -676,10 +677,11 @@ describe('productionBaselineGapDiagnostic — index decompile PATCH-1 regression
     assert.match(body, /LEFT JOIN pg_attribute a[\s\S]{0,80}attrelid = i\.indrelid/);
   });
 
-  it('74. key_expression_count counts expression slots by attnum zero', () => {
+  it('74. key_expression_count counts expression slots by attnum zero only', () => {
     const block = extractBlock('index_catalog');
     assert.match(block, /key_expression_count/);
     assert.match(block, /u\.attnum = 0/);
+    assert.equal(/GREATEST\(i\.indnkeyatts\s*-/i.test(block), false);
   });
 });
 
@@ -786,11 +788,14 @@ describe('productionBaselineGapDiagnostic — index expression PATCH-2 regressio
   });
 
   it('83. PATCH-1 pg_attribute indrelid join contract maintained', () => {
+    const indexBlock = extractBlock('index_catalog');
+    const walletBlock = extractBlock('wallet_scoped_unique_inventory');
     assert.equal(
-      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(body),
+      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(indexBlock),
       false
     );
-    assert.ok(countOccurrences(body, /attrelid = i\.indrelid/g) >= 6);
+    assert.ok(countOccurrences(indexBlock, /attrelid = i\.indrelid/g) >= 2);
+    assert.ok(countOccurrences(walletBlock, /attrelid = i\.indrelid/g) >= 2);
   });
 
   it('84. E mutation-negative indpred indexrelid or ic.oid context fails classifier', () => {
@@ -1196,6 +1201,174 @@ describe('productionBaselineGapDiagnostic — entitlements M2B PATCH-3 regressio
       i.index_name === 'entitlements_user_product_uq' ? { ...i, constraint_backed: true } : i
     );
     assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+  });
+});
+
+function auditConstraintBackedDerivation(source: string): 'SAFE' | 'UNSAFE' {
+  const block = extractCteBody(source, 'index_catalog');
+  const backedExpr = block.match(/([\s\S]*?)\s*AS constraint_backed/)?.[1] ?? '';
+  if (!backedExpr) return 'UNSAFE';
+  if (/i\.indrelid\s*<>\s*ic\.oid/i.test(backedExpr)) return 'UNSAFE';
+  if (/ic\.oid IS NOT NULL/i.test(backedExpr)) return 'UNSAFE';
+  if (/con\.conrelid\s*=\s*i\.indrelid/i.test(backedExpr) && !/con\.conindid/i.test(backedExpr)) {
+    return 'UNSAFE';
+  }
+  if (!/con\.conindid\s*=\s*i\.indexrelid/i.test(backedExpr)) return 'UNSAFE';
+  if (!/con\.contype IN \('p', 'u', 'x'\)/i.test(backedExpr)) return 'UNSAFE';
+  return 'SAFE';
+}
+
+function countExpressionKeySlots(indkey: number[], indnkeyatts: number, indnatts: number): number {
+  return indkey
+    .map((attnum, idx) => ({ attnum, ord: idx + 1 }))
+    .filter((u) => u.ord >= 1 && u.ord <= indnatts && u.ord <= indnkeyatts && u.attnum === 0)
+    .length;
+}
+
+type IndexBackingFixture = {
+  index_name: string;
+  constraint_name: string | null;
+  constraint_backed: boolean;
+};
+
+function assertBackingConsistency(index: IndexBackingFixture): boolean {
+  return index.constraint_backed === (index.constraint_name !== null);
+}
+
+describe('productionBaselineGapDiagnostic — index backing PATCH-4 regression', () => {
+  const sql = readSql();
+  const body = sqlWithoutComments(sql);
+
+  function extractBlock(name: string): string {
+    return extractCteBody(body, name);
+  }
+
+  it('103. constraint_backed uses conindid exact join not indrelid vs ic.oid', () => {
+    const block = extractBlock('index_catalog');
+    assert.match(block, /con\.conindid = i\.indexrelid/);
+    assert.equal(/i\.indrelid\s*<>\s*ic\.oid/i.test(block), false);
+    assert.equal(auditConstraintBackedDerivation(body), 'SAFE');
+  });
+
+  it('104. A PK and B UNIQUE constraint backing indexes derive backed true', () => {
+    const block = extractBlock('index_catalog');
+    assert.match(block, /EXISTS \(\s*SELECT 1 FROM pg_constraint con/);
+    assert.match(block, /con\.contype IN \('p', 'u', 'x'\)/);
+    const pk = { index_name: 'pk', constraint_name: 'pk', constraint_backed: true };
+    const uq = { index_name: 'uq', constraint_name: 'uq', constraint_backed: true };
+    assert.equal(assertBackingConsistency(pk), true);
+    assert.equal(assertBackingConsistency(uq), true);
+  });
+
+  it('105. C standalone UNIQUE duplicate derives backed false', () => {
+    const standalone = {
+      index_name: 'entitlements_user_product_uq',
+      constraint_name: null,
+      constraint_backed: false,
+    };
+    assert.equal(assertBackingConsistency(standalone), true);
+    assert.match(extractBlock('wallet_scoped_unique_inventory'), /cx\.conindid = i\.indexrelid/);
+  });
+
+  it('106. D relation-level constraint does not back unrelated standalone index', () => {
+    const block = extractBlock('index_catalog');
+    assert.equal(/con\.conrelid\s*=\s*i\.indrelid[\s\S]{0,80}constraint_backed/i.test(block), false);
+    assert.equal(/con\.conrelid\s*=\s*rc\.relation_oid[\s\S]{0,120}AS constraint_backed/i.test(block), false);
+  });
+
+  it('107. E mutation ic.oid IS NOT NULL backing derivation fails audit', () => {
+    const mutated = body.replace(
+      /EXISTS \(\s*SELECT 1 FROM pg_constraint con[\s\S]*?\) AS constraint_backed/,
+      'ic.oid IS NOT NULL AS constraint_backed'
+    );
+    assert.equal(auditConstraintBackedDerivation(mutated), 'UNSAFE');
+  });
+
+  it('108. F uncorrelated relation-level EXISTS backing mutation fails audit', () => {
+    const mutated = body.replace(
+      /EXISTS \(\s*SELECT 1 FROM pg_constraint con[\s\S]*?\) AS constraint_backed/,
+      `EXISTS (SELECT 1 FROM pg_constraint con WHERE con.conrelid = i.indrelid) AS constraint_backed`
+    );
+    assert.equal(auditConstraintBackedDerivation(mutated), 'UNSAFE');
+  });
+
+  it('109. key_expression_count normal columns indkey 2,10 yields zero', () => {
+    assert.equal(countExpressionKeySlots([2, 10], 2, 2), 0);
+    const block = extractBlock('index_catalog');
+    assert.equal(/GREATEST\(i\.indnkeyatts/i.test(block), false);
+    assert.match(block, /u\.ord <= i\.indnkeyatts[\s\S]{0,40}u\.attnum = 0/);
+  });
+
+  it('110. J expression key indkey 0,10 yields one', () => {
+    assert.equal(countExpressionKeySlots([0, 10], 2, 2), 1);
+  });
+
+  it('111. K INCLUDE slots excluded from expression key count', () => {
+    assert.equal(countExpressionKeySlots([2, 10, 0], 2, 3), 0);
+    assert.equal(countExpressionKeySlots([0, 2, 10], 3, 3), 1);
+  });
+
+  it('112. L attnum>0 missing attribute not counted as expression slot', () => {
+    const block = extractBlock('index_catalog');
+    assert.equal(
+      /key_expression_count[\s\S]{0,200}NOT EXISTS[\s\S]{0,80}pg_attribute/i.test(block),
+      false
+    );
+  });
+
+  it('113. M included_columns NULL normalized in entitlements exact shape', () => {
+    const block = extractBlock('entitlements_exact_same_key_indexes');
+    assert.match(block, /COALESCE\(cardinality\(ic\.included_columns\), 0\) = 0/);
+  });
+
+  it('114. N global contradiction backed true with null name fails fixture audit', () => {
+    const contradictory = {
+      index_name: 'bad',
+      constraint_name: null,
+      constraint_backed: true,
+    };
+    assert.equal(assertBackingConsistency(contradictory), false);
+    assert.equal(auditConstraintBackedDerivation(body), 'SAFE');
+  });
+
+  it('115. H captured Entitlements Production pre-state redundant mismatch', () => {
+    assert.equal(
+      classifyEntitlementsM2bMismatch(productionCapturedEntitlementsIndexes()),
+      'entitlements_redundant_same_key_unique_indexes'
+    );
+    const counts = countEntitlementsM2bShape(productionCapturedEntitlementsIndexes());
+    assert.equal(counts.duplicateExactCount, 2);
+    assert.equal(counts.canonicalExactCount, 1);
+  });
+
+  it('116. O M2B post-state mismatch absent with corrected backing', () => {
+    const indexes = [
+      {
+        index_name: ENTITLEMENTS_CANONICAL_INDEX,
+        access_method: 'btree',
+        is_primary: false,
+        is_unique: true,
+        key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+        included_columns: null,
+        predicate: null,
+        is_valid: true,
+        is_ready: true,
+        is_live: true,
+        constraint_backed: true,
+      },
+    ];
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), null);
+  });
+
+  it('117. duplicate_exact_count zero with Production fixture must fail classifier', () => {
+    const wrongBacking = productionCapturedEntitlementsIndexes().map((i) => ({
+      ...i,
+      constraint_backed: true,
+    }));
+    assert.equal(
+      classifyEntitlementsM2bMismatch(wrongBacking),
+      'entitlements_duplicate_count_mismatch'
+    );
   });
 });
 
