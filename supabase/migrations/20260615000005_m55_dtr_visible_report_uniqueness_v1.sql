@@ -1,7 +1,11 @@
 -- M55 DTR visible report uniqueness v1 (2026-06-15)
--- Purpose: remove competing global UNIQUE (user_id, product_id) on
---   public.dtr_report_snapshots while preserving the visible-only partial
---   unique index dtr_report_snapshots_one_visible_per_user_product_uq.
+-- Purpose: state-convergent removal of competing global UNIQUE (user_id, product_id)
+--   on public.dtr_report_snapshots while preserving the visible-only partial unique
+--   index dtr_report_snapshots_one_visible_per_user_product_uq.
+--
+-- Accepted pre-states:
+--   STATE_A_PRODUCTION — global constraint dtr_report_snapshots_user_product_key present
+--   STATE_B_PREVIEW_REPLAY — global constraint/index absent after soft-hide replay
 --
 -- Production evidence:
 --   - global constraint: dtr_report_snapshots_user_product_key
@@ -23,6 +27,10 @@ DECLARE
   v_column_count integer;
   v_constraint_count integer;
   v_index_count integer;
+
+  v_pre_state text;
+  v_constraint_delta integer;
+  v_index_delta integer;
 
   v_global_con_oid oid;
   v_global_con_ind_oid oid;
@@ -86,63 +94,7 @@ BEGIN
     AND i.indisvalid;
 
   -- -------------------------------------------------------------------------
-  -- B. Exact global UNIQUE constraint
-  -- -------------------------------------------------------------------------
-  SELECT con.oid, con.conindid, con.convalidated
-  INTO v_global_con_oid, v_global_con_ind_oid, v_global_con_validated
-  FROM pg_constraint con
-  WHERE con.conrelid = v_relation_oid
-    AND con.conname = 'dtr_report_snapshots_user_product_key'
-    AND con.contype = 'u';
-
-  IF v_global_con_oid IS NULL THEN
-    RAISE EXCEPTION 'precondition failed: global constraint dtr_report_snapshots_user_product_key missing';
-  END IF;
-
-  IF (
-    SELECT array_agg(a.attname ORDER BY u.ord)
-    FROM pg_constraint con
-    JOIN unnest(con.conkey) WITH ORDINALITY AS u(attnum, ord) ON true
-    JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = u.attnum
-    WHERE con.oid = v_global_con_oid
-  ) IS DISTINCT FROM ARRAY['user_id', 'product_id']::text[] THEN
-    RAISE EXCEPTION 'precondition failed: global constraint key columns are not (user_id, product_id)';
-  END IF;
-
-  IF v_global_con_validated IS DISTINCT FROM true THEN
-    RAISE EXCEPTION 'precondition failed: global constraint is not validated';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_class ic
-    JOIN pg_index i ON i.indexrelid = ic.oid
-    JOIN pg_am am ON am.oid = ic.relam
-    WHERE ic.oid = v_global_con_ind_oid
-      AND i.indrelid = v_relation_oid
-      AND ic.relkind = 'i'
-      AND am.amname = 'btree'
-      AND i.indisunique
-      AND NOT i.indisprimary
-      AND i.indnatts = 2
-      AND i.indnkeyatts = 2
-      AND i.indpred IS NULL
-      AND i.indisvalid
-      AND i.indisready
-      AND i.indislive
-      AND (SELECT count(*)::integer FROM unnest(i.indkey) AS x(attnum) WHERE x.attnum = 0) = 0
-      AND (
-        SELECT array_agg(a.attname ORDER BY k.ord)
-        FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
-        JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
-        WHERE k.attnum > 0
-      ) = ARRAY['user_id', 'product_id']::text[]
-  ) THEN
-    RAISE EXCEPTION 'precondition failed: global constraint backing index shape mismatch';
-  END IF;
-
-  -- -------------------------------------------------------------------------
-  -- C. Expected partial UNIQUE index (full shape)
+  -- B. Expected partial UNIQUE index (full shape; common to both states)
   -- -------------------------------------------------------------------------
   SELECT ic.oid, i.indisvalid, i.indisready, i.indislive
   INTO v_partial_index_oid, v_partial_index_valid, v_partial_index_ready, v_partial_index_live
@@ -205,38 +157,130 @@ BEGIN
   END IF;
 
   -- -------------------------------------------------------------------------
-  -- D. Exact same-key index name set (pg_index canonical inventory)
+  -- C. Exact same-key index name set and state classification
   -- -------------------------------------------------------------------------
-  SELECT coalesce(array_agg(ic.relname ORDER BY ic.relname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(ic.relname::text ORDER BY ic.relname), ARRAY[]::text[])
   INTO v_pre_same_key_index_names
   FROM pg_class ic
   JOIN pg_index i ON i.indexrelid = ic.oid
-  JOIN pg_am am ON am.oid = ic.relam
   WHERE i.indrelid = v_relation_oid
     AND ic.relkind = 'i'
-    AND am.amname = 'btree'
     AND i.indisunique
     AND NOT i.indisprimary
     AND i.indnkeyatts = 2
-    AND i.indnatts = 2
-    AND (SELECT count(*)::integer FROM unnest(i.indkey) AS x(attnum) WHERE x.attnum = 0) = 0
     AND (
-      SELECT array_agg(a.attname ORDER BY k.ord)
+      SELECT count(*)::integer
+      FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
+      WHERE k.ord <= i.indnkeyatts
+        AND k.attnum = 0
+    ) = 0
+    AND (
+      SELECT array_agg(a.attname::text ORDER BY k.ord)
       FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
       JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
-      WHERE k.attnum > 0
+      WHERE k.ord <= i.indnkeyatts
+        AND k.attnum > 0
     ) = ARRAY['user_id', 'product_id']::text[];
 
-  IF v_pre_same_key_index_names IS DISTINCT FROM ARRAY[
+  IF v_pre_same_key_index_names = ARRAY[
     'dtr_report_snapshots_one_visible_per_user_product_uq',
     'dtr_report_snapshots_user_product_key'
   ]::text[] THEN
-    RAISE EXCEPTION 'precondition failed: same-key index name set is %, expected {dtr_report_snapshots_one_visible_per_user_product_uq,dtr_report_snapshots_user_product_key}',
-      v_pre_same_key_index_names;
+    v_pre_state := 'STATE_A_PRODUCTION';
+    v_constraint_delta := 1;
+    v_index_delta := 1;
+  ELSIF v_pre_same_key_index_names = ARRAY[
+    'dtr_report_snapshots_one_visible_per_user_product_uq'
+  ]::text[] THEN
+    v_pre_state := 'STATE_B_PREVIEW_REPLAY';
+    v_constraint_delta := 0;
+    v_index_delta := 0;
+    v_global_con_oid := NULL;
+    v_global_con_ind_oid := NULL;
+    v_global_con_validated := NULL;
+  ELSE
+    RAISE EXCEPTION 'precondition failed (%): same-key index name set is %, expected STATE_A {dtr_report_snapshots_one_visible_per_user_product_uq,dtr_report_snapshots_user_product_key} or STATE_B {dtr_report_snapshots_one_visible_per_user_product_uq}',
+      COALESCE(v_pre_state, 'UNCLASSIFIED'), v_pre_same_key_index_names;
   END IF;
 
   -- -------------------------------------------------------------------------
-  -- E. Referencing FK count
+  -- D. STATE_A exact global UNIQUE contract
+  -- -------------------------------------------------------------------------
+  IF v_pre_state = 'STATE_A_PRODUCTION' THEN
+    SELECT con.oid, con.conindid, con.convalidated
+    INTO v_global_con_oid, v_global_con_ind_oid, v_global_con_validated
+    FROM pg_constraint con
+    WHERE con.conrelid = v_relation_oid
+      AND con.conname = 'dtr_report_snapshots_user_product_key'
+      AND con.contype = 'u';
+
+    IF v_global_con_oid IS NULL THEN
+      RAISE EXCEPTION 'precondition failed (STATE_A_PRODUCTION): global constraint dtr_report_snapshots_user_product_key missing';
+    END IF;
+
+    IF (
+      SELECT array_agg(a.attname ORDER BY u.ord)
+      FROM pg_constraint con
+      JOIN unnest(con.conkey) WITH ORDINALITY AS u(attnum, ord) ON true
+      JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = u.attnum
+      WHERE con.oid = v_global_con_oid
+    ) IS DISTINCT FROM ARRAY['user_id', 'product_id']::text[] THEN
+      RAISE EXCEPTION 'precondition failed (STATE_A_PRODUCTION): global constraint key columns are not (user_id, product_id)';
+    END IF;
+
+    IF v_global_con_validated IS DISTINCT FROM true THEN
+      RAISE EXCEPTION 'precondition failed (STATE_A_PRODUCTION): global constraint is not validated';
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM pg_class ic
+      JOIN pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_am am ON am.oid = ic.relam
+      WHERE ic.oid = v_global_con_ind_oid
+        AND i.indrelid = v_relation_oid
+        AND ic.relkind = 'i'
+        AND am.amname = 'btree'
+        AND i.indisunique
+        AND NOT i.indisprimary
+        AND i.indnatts = 2
+        AND i.indnkeyatts = 2
+        AND i.indpred IS NULL
+        AND i.indisvalid
+        AND i.indisready
+        AND i.indislive
+        AND (SELECT count(*)::integer FROM unnest(i.indkey) AS x(attnum) WHERE x.attnum = 0) = 0
+        AND (
+          SELECT array_agg(a.attname ORDER BY k.ord)
+          FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
+          JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
+          WHERE k.attnum > 0
+        ) = ARRAY['user_id', 'product_id']::text[]
+    ) THEN
+      RAISE EXCEPTION 'precondition failed (STATE_A_PRODUCTION): global constraint backing index shape mismatch';
+    END IF;
+  END IF;
+
+  -- -------------------------------------------------------------------------
+  -- E. STATE_B exact global absence contract
+  -- -------------------------------------------------------------------------
+  IF v_pre_state = 'STATE_B_PREVIEW_REPLAY' THEN
+    IF EXISTS (
+      SELECT 1
+      FROM pg_constraint con
+      WHERE con.conrelid = v_relation_oid
+        AND con.conname = 'dtr_report_snapshots_user_product_key'
+    ) THEN
+      RAISE EXCEPTION 'precondition failed (STATE_B_PREVIEW_REPLAY): global constraint dtr_report_snapshots_user_product_key must be absent';
+    END IF;
+
+    IF to_regclass('public.dtr_report_snapshots_user_product_key') IS NOT NULL THEN
+      RAISE EXCEPTION 'precondition failed (STATE_B_PREVIEW_REPLAY): global backing index dtr_report_snapshots_user_product_key must be absent';
+    END IF;
+  END IF;
+
+  -- -------------------------------------------------------------------------
+  -- F. Referencing FK count
   -- -------------------------------------------------------------------------
   SELECT count(*)::integer
   INTO v_fk_target_count
@@ -254,7 +298,7 @@ BEGIN
   END IF;
 
   -- -------------------------------------------------------------------------
-  -- F. Structural pre-state
+  -- G. Structural pre-state
   -- -------------------------------------------------------------------------
   SELECT coalesce(array_agg(con.conname ORDER BY con.conname), ARRAY[]::text[])
   INTO v_unrelated_constraint_names
@@ -267,16 +311,22 @@ BEGIN
   FROM pg_class ic
   JOIN pg_index i ON i.indexrelid = ic.oid
   WHERE i.indrelid = v_relation_oid
-    AND ic.oid <> v_global_con_ind_oid;
+    AND ic.oid IS DISTINCT FROM v_global_con_ind_oid;
 
   -- -------------------------------------------------------------------------
-  -- G. Exact mutation
+  -- H. Exact conditional mutation
   -- -------------------------------------------------------------------------
-  ALTER TABLE public.dtr_report_snapshots
-    DROP CONSTRAINT dtr_report_snapshots_user_product_key;
+  IF v_pre_state = 'STATE_A_PRODUCTION' THEN
+    ALTER TABLE public.dtr_report_snapshots
+      DROP CONSTRAINT dtr_report_snapshots_user_product_key;
+  ELSIF v_pre_state = 'STATE_B_PREVIEW_REPLAY' THEN
+    NULL;
+  ELSE
+    RAISE EXCEPTION 'mutation branch failed: unsupported pre-state %', v_pre_state;
+  END IF;
 
   -- -------------------------------------------------------------------------
-  -- H. Postconditions
+  -- I. Postconditions
   -- -------------------------------------------------------------------------
   IF EXISTS (
     SELECT 1
@@ -284,11 +334,11 @@ BEGIN
     WHERE con.conrelid = v_relation_oid
       AND con.conname = 'dtr_report_snapshots_user_product_key'
   ) THEN
-    RAISE EXCEPTION 'postcondition failed: global constraint still present';
+    RAISE EXCEPTION 'postcondition failed (%): global constraint still present', v_pre_state;
   END IF;
 
   IF to_regclass('public.dtr_report_snapshots_user_product_key') IS NOT NULL THEN
-    RAISE EXCEPTION 'postcondition failed: global backing index still present';
+    RAISE EXCEPTION 'postcondition failed (%): global backing index still present', v_pre_state;
   END IF;
 
   IF NOT EXISTS (
@@ -328,34 +378,37 @@ BEGIN
         WHERE k.attnum > 0
       ) = ARRAY['user_id', 'product_id']::text[]
   ) THEN
-    RAISE EXCEPTION 'postcondition failed: partial unique index full shape mismatch after mutation';
+    RAISE EXCEPTION 'postcondition failed (%): partial unique index full shape mismatch after mutation', v_pre_state;
   END IF;
 
-  SELECT coalesce(array_agg(ic.relname ORDER BY ic.relname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(ic.relname::text ORDER BY ic.relname), ARRAY[]::text[])
   INTO v_post_same_key_index_names
   FROM pg_class ic
   JOIN pg_index i ON i.indexrelid = ic.oid
-  JOIN pg_am am ON am.oid = ic.relam
   WHERE i.indrelid = v_relation_oid
     AND ic.relkind = 'i'
-    AND am.amname = 'btree'
     AND i.indisunique
     AND NOT i.indisprimary
     AND i.indnkeyatts = 2
-    AND i.indnatts = 2
-    AND (SELECT count(*)::integer FROM unnest(i.indkey) AS x(attnum) WHERE x.attnum = 0) = 0
     AND (
-      SELECT array_agg(a.attname ORDER BY k.ord)
+      SELECT count(*)::integer
+      FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
+      WHERE k.ord <= i.indnkeyatts
+        AND k.attnum = 0
+    ) = 0
+    AND (
+      SELECT array_agg(a.attname::text ORDER BY k.ord)
       FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
       JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
-      WHERE k.attnum > 0
+      WHERE k.ord <= i.indnkeyatts
+        AND k.attnum > 0
     ) = ARRAY['user_id', 'product_id']::text[];
 
   IF v_post_same_key_index_names IS DISTINCT FROM ARRAY[
     'dtr_report_snapshots_one_visible_per_user_product_uq'
   ]::text[] THEN
-    RAISE EXCEPTION 'postcondition failed: same-key index name set is %, expected {dtr_report_snapshots_one_visible_per_user_product_uq}',
-      v_post_same_key_index_names;
+    RAISE EXCEPTION 'postcondition failed (%): same-key index name set is %, expected {dtr_report_snapshots_one_visible_per_user_product_uq}',
+      v_pre_state, v_post_same_key_index_names;
   END IF;
 
   SELECT c.oid, c.relowner
@@ -364,11 +417,11 @@ BEGIN
   WHERE c.oid = v_relation_oid;
 
   IF v_post_relation_oid IS DISTINCT FROM v_relation_oid THEN
-    RAISE EXCEPTION 'postcondition failed: relation OID changed';
+    RAISE EXCEPTION 'postcondition failed (%): relation OID changed', v_pre_state;
   END IF;
 
   IF v_post_owner_oid IS DISTINCT FROM v_owner_oid THEN
-    RAISE EXCEPTION 'postcondition failed: owner OID changed';
+    RAISE EXCEPTION 'postcondition failed (%): owner OID changed', v_pre_state;
   END IF;
 
   SELECT count(*)::integer
@@ -378,7 +431,7 @@ BEGIN
     AND table_name = 'dtr_report_snapshots';
 
   IF v_post_column_count IS DISTINCT FROM v_column_count THEN
-    RAISE EXCEPTION 'postcondition failed: column count changed';
+    RAISE EXCEPTION 'postcondition failed (%): column count changed', v_pre_state;
   END IF;
 
   SELECT count(*)::integer
@@ -386,9 +439,9 @@ BEGIN
   FROM pg_constraint con
   WHERE con.conrelid = v_relation_oid;
 
-  IF v_post_constraint_count IS DISTINCT FROM v_constraint_count - 1 THEN
-    RAISE EXCEPTION 'postcondition failed: constraint count changed from % to %, expected %',
-      v_constraint_count, v_post_constraint_count, v_constraint_count - 1;
+  IF v_post_constraint_count IS DISTINCT FROM v_constraint_count - v_constraint_delta THEN
+    RAISE EXCEPTION 'postcondition failed (%): constraint count changed from % to %, expected %',
+      v_pre_state, v_constraint_count, v_post_constraint_count, v_constraint_count - v_constraint_delta;
   END IF;
 
   SELECT count(*)::integer
@@ -397,9 +450,9 @@ BEGIN
   WHERE i.indrelid = v_relation_oid
     AND i.indisvalid;
 
-  IF v_post_index_count IS DISTINCT FROM v_index_count - 1 THEN
-    RAISE EXCEPTION 'postcondition failed: index count changed from % to %, expected %',
-      v_index_count, v_post_index_count, v_index_count - 1;
+  IF v_post_index_count IS DISTINCT FROM v_index_count - v_index_delta THEN
+    RAISE EXCEPTION 'postcondition failed (%): index count changed from % to %, expected %',
+      v_pre_state, v_index_count, v_post_index_count, v_index_count - v_index_delta;
   END IF;
 
   SELECT coalesce(array_agg(con.conname ORDER BY con.conname), ARRAY[]::text[])
@@ -408,7 +461,7 @@ BEGIN
   WHERE con.conrelid = v_relation_oid;
 
   IF v_post_unrelated_constraint_names IS DISTINCT FROM v_unrelated_constraint_names THEN
-    RAISE EXCEPTION 'postcondition failed: unrelated constraint names changed';
+    RAISE EXCEPTION 'postcondition failed (%): unrelated constraint names changed', v_pre_state;
   END IF;
 
   SELECT coalesce(array_agg(ic.relname ORDER BY ic.relname), ARRAY[]::text[])
@@ -419,7 +472,7 @@ BEGIN
     AND ic.relname <> 'dtr_report_snapshots_user_product_key';
 
   IF v_post_unrelated_index_names IS DISTINCT FROM v_unrelated_index_names THEN
-    RAISE EXCEPTION 'postcondition failed: unrelated index names changed';
+    RAISE EXCEPTION 'postcondition failed (%): unrelated index names changed', v_pre_state;
   END IF;
 END
 $m55$;
