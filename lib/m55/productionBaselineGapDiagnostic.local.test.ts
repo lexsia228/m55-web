@@ -151,10 +151,10 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
     assert.ok(sql.length > 0);
   });
 
-  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-1', () => {
-    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1/);
-    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1/);
-    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-1'::text AS diagnostic_revision/);
+  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-2', () => {
+    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2/);
+    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2/);
+    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-2'::text AS diagnostic_revision/);
   });
 
   it('3. one top-level SelectStmt', () => {
@@ -174,11 +174,11 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
   it('5. artifact footer next gate exact', () => {
     assert.match(
       sql,
-      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1-REVIEW/
+      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2-REVIEW/
     );
     assert.match(
       sql,
-      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1/
+      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2/
     );
     assert.match(sql, /preview_stop: m55-preview \/ m55-soul-preview/);
   });
@@ -680,6 +680,131 @@ describe('productionBaselineGapDiagnostic — index decompile PATCH-1 regression
     const block = extractBlock('index_catalog');
     assert.match(block, /key_expression_count/);
     assert.match(block, /u\.attnum = 0/);
+  });
+});
+
+type PgGetExprCall = {
+  nodeTree: string;
+  relationOid: string;
+};
+
+function extractPgGetExprCalls(body: string): PgGetExprCall[] {
+  const calls: PgGetExprCall[] = [];
+  const re = /pg_get_expr\(\s*([^,]+?)\s*,\s*([^,)]+?)(?:\s*,\s*[^)]+)?\s*\)/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(body)) !== null) {
+    calls.push({
+      nodeTree: match[1].trim(),
+      relationOid: match[2].trim(),
+    });
+  }
+  return calls;
+}
+
+function classifyIndpredRelationContext(body: string): 'SAFE' | 'UNSAFE' {
+  const calls = extractPgGetExprCalls(body).filter((c) => /i\.indpred/i.test(c.nodeTree));
+  if (calls.length === 0) return 'UNSAFE';
+  const allSafe = calls.every((c) => /i\.indrelid/i.test(c.relationOid));
+  const anyUnsafe = calls.some(
+    (c) => /ic\.oid/i.test(c.relationOid) || /i\.indexrelid/i.test(c.relationOid)
+  );
+  if (anyUnsafe) return 'UNSAFE';
+  return allSafe ? 'SAFE' : 'UNSAFE';
+}
+
+describe('productionBaselineGapDiagnostic — index expression PATCH-2 regression', () => {
+  const sql = readSql();
+  const body = sqlWithoutComments(sql);
+
+  function extractBlock(name: string): string {
+    return extractCteBody(body, name);
+  }
+
+  it('75. pg_get_expr call inventory and indpred relation context audit', () => {
+    const calls = extractPgGetExprCalls(body);
+    const indpredCalls = calls.filter((c) => /i\.indpred/i.test(c.nodeTree));
+    const unsafeIndpred = indpredCalls.filter(
+      (c) => /ic\.oid/i.test(c.relationOid) || /i\.indexrelid/i.test(c.relationOid)
+    );
+    assert.equal(calls.length, 6);
+    assert.equal(indpredCalls.length, 3);
+    assert.equal(unsafeIndpred.length, 0);
+    for (const call of indpredCalls) {
+      assert.match(call.relationOid, /i\.indrelid/);
+    }
+  });
+
+  it('76. A partial index indpred uses base relation OID not index rel OID', () => {
+    const block = extractBlock('index_catalog');
+    assert.equal(countOccurrences(block, /pg_get_expr\(i\.indpred, i\.indrelid, true\)/g), 2);
+    assert.equal(/pg_get_expr\(i\.indpred, ic\.oid\)/i.test(block), false);
+    assert.equal(/pg_get_expr\(i\.indpred, i\.indexrelid/i.test(block), false);
+  });
+
+  it('77. wallet scoped unique inventory indpred uses base relation OID', () => {
+    const block = extractBlock('wallet_scoped_unique_inventory');
+    assert.match(block, /pg_get_expr\(i\.indpred, i\.indrelid, true\)/);
+    assert.equal(/pg_get_expr\(i\.indpred, ic\.oid\)/i.test(block), false);
+  });
+
+  it('78. C column default expression context unchanged on adrelid', () => {
+    const block = extractBlock('column_catalog');
+    assert.match(block, /pg_get_expr\(ad\.adbin, ad\.adrelid\)/);
+    assert.equal(/pg_get_expr\(ad\.adbin, i\.indrelid\)/i.test(block), false);
+    assert.equal(/pg_get_expr\(ad\.adbin, ic\.oid\)/i.test(block), false);
+  });
+
+  it('79. D policy expression context unchanged on polrelid', () => {
+    const block = extractBlock('policy_catalog');
+    assert.match(block, /pg_get_expr\(pol\.polqual, pol\.polrelid\)/);
+    assert.match(block, /pg_get_expr\(pol\.polwithcheck, pol\.polrelid\)/);
+    assert.equal(/pg_get_expr\(pol\.polqual, ic\.oid\)/i.test(block), false);
+  });
+
+  it('80. B expression index indexprs would require indrelid if present', () => {
+    const indexprsCalls = extractPgGetExprCalls(body).filter((c) => /i\.indexprs/i.test(c.nodeTree));
+    assert.equal(indexprsCalls.length, 0);
+    assert.equal(
+      /pg_get_expr\(i\.indexprs,\s*(?:ic\.oid|i\.indexrelid)/i.test(body),
+      false
+    );
+  });
+
+  it('81. F Production-shaped partial predicate base attnum10 needs indrelid context', () => {
+    assert.equal(classifyIndpredRelationContext(body), 'SAFE');
+    assert.match(body, /reply_ticket_wallets/);
+    assert.match(body, /report_instance_id/);
+    assert.match(body, /pg_get_expr\(i\.indpred, i\.indrelid, true\)/);
+  });
+
+  it('82. PATCH-1 pg_get_indexdef ordinal contract maintained', () => {
+    assert.equal(
+      countOccurrences(body, /pg_get_indexdef\(i\.indexrelid,\s*u\.ord::integer,\s*true\)/g),
+      3
+    );
+    assert.equal(/pg_get_indexdef\([^)]*(?:u|a)\.attnum/i.test(body), false);
+  });
+
+  it('83. PATCH-1 pg_attribute indrelid join contract maintained', () => {
+    assert.equal(
+      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(body),
+      false
+    );
+    assert.ok(countOccurrences(body, /attrelid = i\.indrelid/g) >= 6);
+  });
+
+  it('84. E mutation-negative indpred indexrelid or ic.oid context fails classifier', () => {
+    const mutatedIndexrelid = body.replace(
+      /pg_get_expr\(i\.indpred, i\.indrelid, true\)/g,
+      'pg_get_expr(i.indpred, i.indexrelid, true)'
+    );
+    const mutatedIcOid = body.replace(
+      /pg_get_expr\(i\.indpred, i\.indrelid, true\)/g,
+      'pg_get_expr(i.indpred, ic.oid)'
+    );
+    assert.equal(classifyIndpredRelationContext(mutatedIndexrelid), 'UNSAFE');
+    assert.equal(classifyIndpredRelationContext(mutatedIcOid), 'UNSAFE');
+    assert.equal(classifyIndpredRelationContext(body), 'SAFE');
   });
 });
 

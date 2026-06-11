@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 PRODUCTION BASELINE GAP DIAGNOSTIC v1
--- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1
--- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1
+-- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2
+-- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2
 -- Target: organization=m55-soul / project=m55-soul-core / branch=main
 --         environment=PRODUCTION / source=Primary Database / role=postgres
 -- Classifier evidence (READ-ONLY): m55_account_deletion_production_baseline_contract_freeze_v1.sql
@@ -270,8 +270,8 @@ index_catalog AS (
           )
         )
     ), 0), 0)::integer AS key_expression_count,
-    pg_get_expr(i.indpred, ic.oid) AS predicate,
-    pg_get_expr(i.indpred, ic.oid) AS compact_normalized_predicate,
+    pg_get_expr(i.indpred, i.indrelid, true) AS predicate,
+    pg_get_expr(i.indpred, i.indrelid, true) AS compact_normalized_predicate,
     (i.indrelid <> ic.oid OR EXISTS (SELECT 1 FROM pg_constraint cx WHERE cx.conindid = ic.oid)) AS constraint_backed,
     (SELECT cx.conname::text FROM pg_constraint cx WHERE cx.conindid = ic.oid LIMIT 1) AS constraint_name,
     pg_get_indexdef(ic.oid) AS definition
@@ -474,7 +474,7 @@ wallet_scoped_unique_inventory AS (
         AND u.ord <= i.indnkeyatts
         AND (u.attnum = 0 OR NOT a.attisdropped)
     ),
-    pg_get_expr(i.indpred, ic.oid),
+    pg_get_expr(i.indpred, i.indrelid, true),
     (
       SELECT array_agg(a.attname::text ORDER BY u.ord)
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
@@ -1275,7 +1275,7 @@ json_aggregations AS (
 -- ── final_summary ────────────────────────────────────────────────────────────
 final_summary AS (
   SELECT
-    'SQL-DIAGNOSTIC-REVISION-1-PATCH-1'::text AS diagnostic_revision,
+    'SQL-DIAGNOSTIC-REVISION-1-PATCH-2'::text AS diagnostic_revision,
     'm55-soul'::text AS target_organization,
     'm55-soul-core'::text AS target_project,
     'PRODUCTION'::text AS target_environment,
@@ -1367,12 +1367,12 @@ FROM final_summary fs;
 
 -- =============================================================================
 -- ARTIFACT INTEGRITY FOOTER
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1
--- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1
+-- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2
+-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2
 -- target: m55-soul / m55-soul-core PRODUCTION postgres (Primary Database / role postgres)
 -- preview_stop: m55-preview / m55-soul-preview — Human STOP immediately; do not execute
 -- registry: 536 cells (45 relation_security + 420 privilege + 5 wallet_scope + 66 inventory)
 -- independent_expected_count: (15*3)+(15*4*7)+5+(15*4)+2+4 = 536
--- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1-REVIEW
+-- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2-REVIEW
 -- forbidden: Preview SQL, DDL/DML, application row SELECT, secrets in output
 -- =============================================================================
