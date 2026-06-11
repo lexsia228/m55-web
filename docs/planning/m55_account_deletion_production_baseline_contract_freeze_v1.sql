@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 ACCOUNT DELETION — PRODUCTION BASELINE CONTRACT FREEZE v1
 -- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PREVIEW-DB-BASELINE-CONTRACT-FREEZE
--- Revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-2 (M2A/M2B committed-not-applied evidence)
+-- Revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-3 (M2A state-convergence evidence)
 -- Target: Supabase Production safe label m55-soul-core ONLY (org m55-soul)
 -- Forbidden: Preview DB, DDL/DML, SET ROLE, DO, CALL, COPY, application row SELECT
 -- Allowed FROM: pg_catalog.*, information_schema.*, fixed VALUES allowlists
@@ -3471,8 +3471,8 @@ SELECT
   cpe.production_catalog_contract_freeze_pass AS production_contract_complete,
   cpe.production_catalog_contract_freeze_pass AS contract_freeze_pass,
   (cpe.production_catalog_contract_freeze_pass AND rc.runtime_compatibility_ready) AS baseline_runtime_ready,
-  CASE WHEN ci.classifier_self_test_ok THEN 'CATEGORY-1-M55-DTR-AND-ENTITLEMENTS-UNIQUE-BLOCKERS-CLASSIFIER-EVIDENCE-PATCH-REVIEW'
-       ELSE 'CATEGORY-1-M55-DTR-AND-ENTITLEMENTS-UNIQUE-BLOCKERS-CLASSIFIER-EVIDENCE-PATCH-REVIEW' END AS next_gate_recommendation
+  CASE WHEN ci.classifier_self_test_ok THEN 'CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-PLANNING'
+       ELSE 'CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-PLANNING' END AS next_gate_recommendation
 FROM classifier_inputs ci
 CROSS JOIN catalog_pass_expr cpe
 CROSS JOIN runtime_compatibility rc;
@@ -3811,8 +3811,8 @@ ORDER BY fes.case_name;
 
 -- ARTIFACT INTEGRITY FOOTER
 -- =============================================================================
--- artifact_gate: CATEGORY-1-M55-DTR-AND-ENTITLEMENTS-UNIQUE-BLOCKERS-CLASSIFIER-EVIDENCE-PATCH
--- revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-2
+-- artifact_gate: CATEGORY-1-M55-DTR-STATE-CONVERGENCE-COMMIT-EVIDENCE-AND-FEATURE-PUSH
+-- revision: SQL-REVISION-1-PATCH-6-PATCH-7-PATCH-3
 -- target: m55-soul-core (org m55-soul) Production catalog only
 -- human_green_requires: production_catalog_contract_freeze_pass=true AND catalog_failed_flags={}
 -- baseline_apply_requires: baseline_runtime_ready=true (S1 after catalog closure)
@@ -3825,9 +3825,9 @@ ORDER BY fes.case_name;
 -- entitlements_access_security_migration_sha256: 40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d
 -- entitlements_access_security_status: COMMITTED_NOT_APPLIED
 -- entitlements_access_security_resolved: false
--- dtr_visible_uniqueness_commit: 3df95c27cfa33319fd53b822d5981aa71c7277e4
+-- dtr_visible_uniqueness_commit: ebb87f2cd26d340c085ca764b9116d962fb95548
 -- dtr_visible_uniqueness_migration: 20260615000005_m55_dtr_visible_report_uniqueness_v1.sql
--- dtr_visible_uniqueness_migration_sha256: 65c85b20d3ba33245f77b0d9313b3aa694e68c91bb76162744bf5c20ec17eaaf
+-- dtr_visible_uniqueness_migration_sha256: 5d27ba561604943acd3680051b1adce7e20b2a1cf0c78ddf15f15be4543d73af
 -- dtr_visible_uniqueness_status: COMMITTED_NOT_APPLIED
 -- dtr_visible_uniqueness_resolved: false
 -- entitlements_unique_cleanup_commit: 7d84495f253ce420d4d8d5b0d81216b3a958535d
@@ -3835,5 +3835,5 @@ ORDER BY fes.case_name;
 -- entitlements_unique_cleanup_migration_sha256: 13dcd2f6b284b1d08a17d806140a83438d094259ff7ce70575e32f006073d873
 -- entitlements_unique_cleanup_status: COMMITTED_NOT_APPLIED
 -- entitlements_unique_cleanup_resolved: false
--- next_gate_recommendation: CATEGORY-1-M55-DTR-AND-ENTITLEMENTS-UNIQUE-BLOCKERS-CLASSIFIER-EVIDENCE-PATCH-REVIEW
+-- next_gate_recommendation: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-PLANNING
 -- =============================================================================
