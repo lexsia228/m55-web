@@ -151,9 +151,10 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
     assert.ok(sql.length > 0);
   });
 
-  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1', () => {
-    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1/);
-    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1/);
+  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-1', () => {
+    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1/);
+    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1/);
+    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-1'::text AS diagnostic_revision/);
   });
 
   it('3. one top-level SelectStmt', () => {
@@ -173,7 +174,11 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
   it('5. artifact footer next gate exact', () => {
     assert.match(
       sql,
-      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-REVIEW/
+      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1-REVIEW/
+    );
+    assert.match(
+      sql,
+      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1/
     );
     assert.match(sql, /preview_stop: m55-preview \/ m55-soul-preview/);
   });
@@ -389,11 +394,21 @@ describe('productionBaselineGapDiagnostic — inventory contract', () => {
     assert.match(body, /indnkeyatts/);
     assert.match(body, /included_columns/);
     assert.match(body, /key_columns/);
+    assert.match(body, /u\.ord BETWEEN 1 AND i\.indnatts/);
   });
 
-  it('33. expression key preservation present', () => {
-    assert.match(body, /key_expression_count/);
-    assert.match(body, /GREATEST\(i\.indnkeyatts/);
+  it('33. expression key uses index ordinal pg_get_indexdef not base attnum', () => {
+    assert.match(body, /WHEN u\.attnum = 0 THEN pg_get_indexdef\(i\.indexrelid, u\.ord::integer, true\)/);
+    assert.equal(
+      /pg_get_indexdef\([^)]*u\.attnum/i.test(body),
+      false,
+      'pg_get_indexdef must not use base attnum as column_no'
+    );
+    assert.equal(
+      /pg_get_indexdef\([^)]*a\.attnum/i.test(body),
+      false,
+      'pg_get_indexdef must not use pg_attribute attnum as column_no'
+    );
   });
 
   it('34. trigger internal classification present', () => {
@@ -582,6 +597,89 @@ describe('productionBaselineGapDiagnostic — synthetic formula fixtures', () =>
     assert.match(body, /definition_hash_algorithm/);
     assert.match(body, /'md5'/);
     assert.match(body, /md5\(pg_get_functiondef/);
+  });
+});
+
+describe('productionBaselineGapDiagnostic — index decompile PATCH-1 regression', () => {
+  const sql = readSql();
+  const body = sqlWithoutComments(sql);
+
+  function extractBlock(name: string): string {
+    return extractCteBody(body, name);
+  }
+
+  it('65. no indkey pg_attribute join on index rel OID', () => {
+    assert.equal(
+      /unnest\(i\.indkey\)[\s\S]{0,240}attrelid = ic\.oid/i.test(body),
+      false,
+      'indkey joins must not use index rel OID for base attnum lookup'
+    );
+    assert.ok(countOccurrences(body, /attrelid = i\.indrelid/g) >= 6);
+  });
+
+  it('66. general index_catalog uses base rel OID + ord bounds', () => {
+    const block = extractBlock('index_catalog');
+    assert.match(block, /attrelid = i\.indrelid/);
+    assert.match(block, /u\.ord BETWEEN 1 AND i\.indnatts/);
+    assert.match(block, /u\.ord <= i\.indnkeyatts/);
+    assert.match(block, /u\.ord > i\.indnkeyatts/);
+  });
+
+  it('67. wallet user_id unique inventory uses base rel OID', () => {
+    const block = extractBlock('wallet_user_id_unique_inventory');
+    assert.match(block, /attrelid = i\.indrelid/);
+    assert.equal(/attrelid = ic\.oid/i.test(block), false);
+  });
+
+  it('68. wallet scoped unique inventory uses base rel OID + include split', () => {
+    const block = extractBlock('wallet_scoped_unique_inventory');
+    assert.match(block, /attrelid = i\.indrelid/);
+    assert.match(block, /u\.ord > i\.indnkeyatts/);
+    assert.equal(/attrelid = ic\.oid/i.test(block), false);
+  });
+
+  it('69. pg_get_indexdef call-site audit', () => {
+    const oneArg = countOccurrences(body, /pg_get_indexdef\(\s*ic\.oid\s*\)/g);
+    const threeArgOrd = countOccurrences(
+      body,
+      /pg_get_indexdef\(i\.indexrelid,\s*u\.ord::integer,\s*true\)/g
+    );
+    const unsafeAttnum = countOccurrences(
+      body,
+      /pg_get_indexdef\([^)]*(?:u|a)\.attnum[^)]*\)/gi
+    );
+    assert.equal(oneArg, 1);
+    assert.equal(threeArgOrd, 3);
+    assert.equal(unsafeAttnum, 0);
+  });
+
+  it('70. A noncontiguous base attnums mapping contract', () => {
+    assert.match(body, /u\.attnum > 0/);
+    assert.match(body, /WHEN u\.attnum = 0 THEN pg_get_indexdef\(i\.indexrelid, u\.ord::integer, true\)/);
+    assert.equal(/pg_get_indexdef\([^)]*,\s*10\s*,/i.test(body), false);
+  });
+
+  it('71. B INCLUDE uses ord > indnkeyatts not base attnum as decompile position', () => {
+    const block = extractBlock('index_catalog');
+    assert.match(block, /u\.ord > i\.indnkeyatts/);
+    assert.match(block, /attrelid = i\.indrelid/);
+    assert.equal(/pg_get_indexdef\([^)]*,\s*u\.attnum/i.test(block), false);
+  });
+
+  it('72. C expression attnum zero uses ord one not column_no zero', () => {
+    assert.match(body, /WHEN u\.attnum = 0 THEN pg_get_indexdef\(i\.indexrelid, u\.ord::integer, true\)/);
+    assert.equal(/pg_get_indexdef\([^)]*,\s*0\s*,/i.test(body), false);
+  });
+
+  it('73. D high base attnum still decomposes with index ordinal', () => {
+    assert.match(body, /pg_get_indexdef\(i\.indexrelid, u\.ord::integer, true\)/);
+    assert.match(body, /LEFT JOIN pg_attribute a[\s\S]{0,80}attrelid = i\.indrelid/);
+  });
+
+  it('74. key_expression_count counts expression slots by attnum zero', () => {
+    const block = extractBlock('index_catalog');
+    assert.match(block, /key_expression_count/);
+    assert.match(block, /u\.attnum = 0/);
   });
 });
 

@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 PRODUCTION BASELINE GAP DIAGNOSTIC v1
--- Revision: SQL-DIAGNOSTIC-REVISION-1
--- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL
+-- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1
+-- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1
 -- Target: organization=m55-soul / project=m55-soul-core / branch=main
 --         environment=PRODUCTION / source=Primary Database / role=postgres
 -- Classifier evidence (READ-ONLY): m55_account_deletion_production_baseline_contract_freeze_v1.sql
@@ -231,23 +231,44 @@ index_catalog AS (
     (
       SELECT array_agg(
         CASE
+          WHEN u.attnum = 0 THEN pg_get_indexdef(i.indexrelid, u.ord::integer, true)
           WHEN a.attnum IS NOT NULL AND NOT a.attisdropped THEN a.attname::text
           ELSE NULL::text
         END
         ORDER BY u.ord
       )
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      LEFT JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum AND u.ord <= i.indnkeyatts
+      LEFT JOIN pg_attribute a
+        ON a.attrelid = i.indrelid
+       AND a.attnum = u.attnum
+       AND u.attnum > 0
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord <= i.indnkeyatts
     ) AS key_columns,
     (
       SELECT array_agg(a.attname::text ORDER BY u.ord)
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum
-      WHERE u.ord > i.indnkeyatts AND NOT a.attisdropped
+      JOIN pg_attribute a
+        ON a.attrelid = i.indrelid
+       AND a.attnum = u.attnum
+       AND u.attnum > 0
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord > i.indnkeyatts
+        AND NOT a.attisdropped
     ) AS included_columns,
     GREATEST(i.indnkeyatts - COALESCE((
       SELECT count(*) FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum AND u.ord <= i.indnkeyatts AND NOT a.attisdropped
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord <= i.indnkeyatts
+        AND (
+          u.attnum = 0
+          OR NOT EXISTS (
+            SELECT 1 FROM pg_attribute a
+            WHERE a.attrelid = i.indrelid
+              AND a.attnum = u.attnum
+              AND NOT a.attisdropped
+          )
+        )
     ), 0), 0)::integer AS key_expression_count,
     pg_get_expr(i.indpred, ic.oid) AS predicate,
     pg_get_expr(i.indpred, ic.oid) AS compact_normalized_predicate,
@@ -385,10 +406,21 @@ wallet_user_id_unique_inventory AS (
     ic.oid,
     NULL::text,
     (
-      SELECT array_agg(a.attname::text ORDER BY u.ord)
+      SELECT array_agg(
+        CASE
+          WHEN u.attnum = 0 THEN pg_get_indexdef(i.indexrelid, u.ord::integer, true)
+          ELSE a.attname::text
+        END
+        ORDER BY u.ord
+      )
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum
-      WHERE u.ord <= i.indnkeyatts AND NOT a.attisdropped
+      LEFT JOIN pg_attribute a
+        ON a.attrelid = i.indrelid
+       AND a.attnum = u.attnum
+       AND u.attnum > 0
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord <= i.indnkeyatts
+        AND (u.attnum = 0 OR NOT a.attisdropped)
     )
   FROM relation_catalog rc
   JOIN pg_index i ON i.indrelid = rc.relation_oid AND i.indisunique
@@ -426,17 +458,33 @@ wallet_scoped_unique_inventory AS (
     ic.relname::text,
     ic.oid,
     (
-      SELECT array_agg(a.attname::text ORDER BY u.ord)
+      SELECT array_agg(
+        CASE
+          WHEN u.attnum = 0 THEN pg_get_indexdef(i.indexrelid, u.ord::integer, true)
+          ELSE a.attname::text
+        END
+        ORDER BY u.ord
+      )
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum
-      WHERE u.ord <= i.indnkeyatts AND NOT a.attisdropped
+      LEFT JOIN pg_attribute a
+        ON a.attrelid = i.indrelid
+       AND a.attnum = u.attnum
+       AND u.attnum > 0
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord <= i.indnkeyatts
+        AND (u.attnum = 0 OR NOT a.attisdropped)
     ),
     pg_get_expr(i.indpred, ic.oid),
     (
       SELECT array_agg(a.attname::text ORDER BY u.ord)
       FROM unnest(i.indkey) WITH ORDINALITY AS u(attnum, ord)
-      JOIN pg_attribute a ON a.attrelid = ic.oid AND a.attnum = u.attnum
-      WHERE u.ord > i.indnkeyatts AND NOT a.attisdropped
+      JOIN pg_attribute a
+        ON a.attrelid = i.indrelid
+       AND a.attnum = u.attnum
+       AND u.attnum > 0
+      WHERE u.ord BETWEEN 1 AND i.indnatts
+        AND u.ord > i.indnkeyatts
+        AND NOT a.attisdropped
     ),
     i.indisvalid,
     i.indisready,
@@ -1227,7 +1275,7 @@ json_aggregations AS (
 -- ── final_summary ────────────────────────────────────────────────────────────
 final_summary AS (
   SELECT
-    'SQL-DIAGNOSTIC-REVISION-1'::text AS diagnostic_revision,
+    'SQL-DIAGNOSTIC-REVISION-1-PATCH-1'::text AS diagnostic_revision,
     'm55-soul'::text AS target_organization,
     'm55-soul-core'::text AS target_project,
     'PRODUCTION'::text AS target_environment,
@@ -1319,12 +1367,12 @@ FROM final_summary fs;
 
 -- =============================================================================
 -- ARTIFACT INTEGRITY FOOTER
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL
--- revision: SQL-DIAGNOSTIC-REVISION-1
+-- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1
+-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-1
 -- target: m55-soul / m55-soul-core PRODUCTION postgres (Primary Database / role postgres)
 -- preview_stop: m55-preview / m55-soul-preview — Human STOP immediately; do not execute
 -- registry: 536 cells (45 relation_security + 420 privilege + 5 wallet_scope + 66 inventory)
 -- independent_expected_count: (15*3)+(15*4*7)+5+(15*4)+2+4 = 536
--- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-REVIEW
+-- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-1-REVIEW
 -- forbidden: Preview SQL, DDL/DML, application row SELECT, secrets in output
 -- =============================================================================
