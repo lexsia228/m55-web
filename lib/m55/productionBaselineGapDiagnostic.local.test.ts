@@ -151,10 +151,10 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
     assert.ok(sql.length > 0);
   });
 
-  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-2', () => {
-    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2/);
-    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2/);
-    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-2'::text AS diagnostic_revision/);
+  it('2. revision exact SQL-DIAGNOSTIC-REVISION-1-PATCH-3', () => {
+    assert.match(sql, /Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3/);
+    assert.match(sql, /-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3/);
+    assert.match(body, /'SQL-DIAGNOSTIC-REVISION-1-PATCH-3'::text AS diagnostic_revision/);
   });
 
   it('3. one top-level SelectStmt', () => {
@@ -174,11 +174,11 @@ describe('productionBaselineGapDiagnostic — identity / parser', () => {
   it('5. artifact footer next gate exact', () => {
     assert.match(
       sql,
-      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2-REVIEW/
+      /next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3-REVIEW/
     );
     assert.match(
       sql,
-      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2/
+      /artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3/
     );
     assert.match(sql, /preview_stop: m55-preview \/ m55-soul-preview/);
   });
@@ -564,7 +564,7 @@ describe('productionBaselineGapDiagnostic — synthetic formula fixtures', () =>
     const body = sqlWithoutComments(readSql());
     assert.match(body, /expected_contract_mismatch_json/);
     assert.match(body, /dtr_report_snapshots_one_visible_per_user_product_uq/);
-    assert.match(body, /entitlements_unique/);
+    assert.match(body, /entitlements_redundant_same_key_unique_indexes/);
   });
 
   it('58. unexpected count >0 -> complete false', () => {
@@ -805,6 +805,397 @@ describe('productionBaselineGapDiagnostic — index expression PATCH-2 regressio
     assert.equal(classifyIndpredRelationContext(mutatedIndexrelid), 'UNSAFE');
     assert.equal(classifyIndpredRelationContext(mutatedIcOid), 'UNSAFE');
     assert.equal(classifyIndpredRelationContext(body), 'SAFE');
+  });
+});
+
+const ENTITLEMENTS_CANONICAL_INDEX = 'entitlements_user_id_product_id_key';
+const ENTITLEMENTS_KEY_COLUMNS = ['user_id', 'product_id'];
+const ENTITLEMENTS_DUPLICATE_INDEXES = [
+  'entitlements_user_product_uq',
+  'uq_entitlements_user_product',
+];
+
+type EntitlementsIndexFixture = {
+  index_name: string;
+  access_method?: string;
+  is_primary?: boolean;
+  is_unique?: boolean;
+  key_columns?: string[];
+  included_columns?: string[] | null;
+  predicate?: string | null;
+  is_valid?: boolean;
+  is_ready?: boolean;
+  is_live?: boolean;
+  constraint_backed?: boolean;
+};
+
+function isExactEntitlementsSameKeyIndex(index: EntitlementsIndexFixture): boolean {
+  return (
+    index.access_method === 'btree' &&
+    index.is_primary === false &&
+    index.is_unique === true &&
+    JSON.stringify(index.key_columns ?? []) === JSON.stringify(ENTITLEMENTS_KEY_COLUMNS) &&
+    (index.included_columns ?? []).length === 0 &&
+    (index.predicate ?? null) === null &&
+    index.is_valid === true &&
+    index.is_ready === true &&
+    index.is_live === true
+  );
+}
+
+function countEntitlementsM2bShape(indexes: EntitlementsIndexFixture[]) {
+  const exact = indexes.filter(isExactEntitlementsSameKeyIndex);
+  const canonicalExactCount = exact.filter(
+    (i) => i.index_name === ENTITLEMENTS_CANONICAL_INDEX && i.constraint_backed === true
+  ).length;
+  const duplicateExactCount = exact.filter(
+    (i) =>
+      ENTITLEMENTS_DUPLICATE_INDEXES.includes(i.index_name) && i.constraint_backed === false
+  ).length;
+  const duplicateIndexNames = exact
+    .filter(
+      (i) =>
+        ENTITLEMENTS_DUPLICATE_INDEXES.includes(i.index_name) && i.constraint_backed === false
+    )
+    .map((i) => i.index_name)
+    .sort();
+  return {
+    canonicalExactCount,
+    duplicateExactCount,
+    exactSameKeyUniqueCount: exact.length,
+    duplicateIndexNames,
+  };
+}
+
+type EntitlementsMismatchKind =
+  | 'entitlements_redundant_same_key_unique_indexes'
+  | 'entitlements_canonical_missing'
+  | 'entitlements_canonical_count_mismatch'
+  | 'entitlements_duplicate_count_mismatch'
+  | null;
+
+function duplicateNamesExactSet(indexes: EntitlementsIndexFixture[]): string[] {
+  return indexes
+    .filter(isExactEntitlementsSameKeyIndex)
+    .filter(
+      (i) =>
+        ENTITLEMENTS_DUPLICATE_INDEXES.includes(i.index_name) && i.constraint_backed === false
+    )
+    .map((i) => i.index_name)
+    .sort();
+}
+
+function unexpectedSameKeyNames(indexes: EntitlementsIndexFixture[]): string[] {
+  return indexes
+    .filter(isExactEntitlementsSameKeyIndex)
+    .filter(
+      (i) =>
+        i.index_name !== ENTITLEMENTS_CANONICAL_INDEX &&
+        !ENTITLEMENTS_DUPLICATE_INDEXES.includes(i.index_name)
+    )
+    .map((i) => i.index_name)
+    .sort();
+}
+
+function classifyEntitlementsM2bMismatch(
+  indexes: EntitlementsIndexFixture[]
+): EntitlementsMismatchKind {
+  const counts = countEntitlementsM2bShape(indexes);
+  const dupSet = duplicateNamesExactSet(indexes);
+  const expectedDupSet = [...ENTITLEMENTS_DUPLICATE_INDEXES].sort();
+  const unexpected = unexpectedSameKeyNames(indexes);
+
+  if (counts.canonicalExactCount === 0) return 'entitlements_canonical_missing';
+  if (counts.canonicalExactCount > 1) return 'entitlements_canonical_count_mismatch';
+  if (
+    counts.canonicalExactCount === 1 &&
+    counts.duplicateExactCount === 2 &&
+    counts.exactSameKeyUniqueCount === 3 &&
+    JSON.stringify(dupSet) === JSON.stringify(expectedDupSet) &&
+    unexpected.length === 0
+  ) {
+    return 'entitlements_redundant_same_key_unique_indexes';
+  }
+  if (
+    counts.canonicalExactCount === 1 &&
+    counts.duplicateExactCount === 0 &&
+    counts.exactSameKeyUniqueCount === 1 &&
+    unexpected.length === 0
+  ) {
+    return null;
+  }
+  return 'entitlements_duplicate_count_mismatch';
+}
+
+function productionCapturedEntitlementsIndexes(): EntitlementsIndexFixture[] {
+  const base = {
+    access_method: 'btree',
+    is_primary: false,
+    is_unique: true,
+    key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+    included_columns: null,
+    predicate: null,
+    is_valid: true,
+    is_ready: true,
+    is_live: true,
+  };
+  return [
+    { ...base, index_name: ENTITLEMENTS_CANONICAL_INDEX, constraint_backed: true },
+    { ...base, index_name: 'entitlements_user_product_uq', constraint_backed: false },
+    { ...base, index_name: 'uq_entitlements_user_product', constraint_backed: false },
+  ];
+}
+
+describe('productionBaselineGapDiagnostic — entitlements M2B PATCH-3 regression', () => {
+  const sql = readSql();
+  const body = sqlWithoutComments(sql);
+
+  it('85. stale product_key and wrong canonical name absent from SQL', () => {
+    assert.equal(/product_key/i.test(body), false);
+    assert.equal(/entitlements_user_id_product_key_unique/i.test(body), false);
+    assert.equal(/actual_same_key_uniques/i.test(body), false);
+    assert.match(body, /entitlements_user_id_product_id_key/);
+    assert.match(body, /ARRAY\['user_id','product_id'\]::text\[\]/);
+    assert.match(body, /entitlements_user_product_uq/);
+    assert.match(body, /uq_entitlements_user_product/);
+  });
+
+  it('86. A M2B pre-state canonical 1 duplicate 2 total 3 mismatch present', () => {
+    const kind = classifyEntitlementsM2bMismatch(productionCapturedEntitlementsIndexes());
+    const counts = countEntitlementsM2bShape(productionCapturedEntitlementsIndexes());
+    assert.equal(kind, 'entitlements_redundant_same_key_unique_indexes');
+    assert.equal(counts.canonicalExactCount, 1);
+    assert.equal(counts.duplicateExactCount, 2);
+    assert.equal(counts.exactSameKeyUniqueCount, 3);
+  });
+
+  it('87. B M2B post-state canonical 1 duplicate 0 total 1 mismatch absent', () => {
+    const indexes = [
+      {
+        index_name: ENTITLEMENTS_CANONICAL_INDEX,
+        access_method: 'btree',
+        is_primary: false,
+        is_unique: true,
+        key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+        included_columns: null,
+        predicate: null,
+        is_valid: true,
+        is_ready: true,
+        is_live: true,
+        constraint_backed: true,
+      },
+    ];
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), null);
+  });
+
+  it('88. C wrong product_key matrix must fail classifier', () => {
+    const indexes = productionCapturedEntitlementsIndexes().map((i) => ({
+      ...i,
+      key_columns: ['user_id', 'product_key'],
+    }));
+    const counts = countEntitlementsM2bShape(indexes);
+    assert.equal(counts.exactSameKeyUniqueCount, 0);
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_canonical_missing');
+  });
+
+  it('89. D wrong canonical name must fail pre-state classification', () => {
+    const indexes = productionCapturedEntitlementsIndexes().map((i) =>
+      i.index_name === ENTITLEMENTS_CANONICAL_INDEX
+        ? { ...i, index_name: 'entitlements_user_id_product_key_unique' }
+        : i
+    );
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_canonical_missing');
+  });
+
+  it('90. E missing canonical duplicates only is canonical_missing not pre-state', () => {
+    const indexes = productionCapturedEntitlementsIndexes().filter(
+      (i) => i.index_name !== ENTITLEMENTS_CANONICAL_INDEX
+    );
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_canonical_missing');
+  });
+
+  it('91. F one duplicate missing is duplicate_count_mismatch', () => {
+    const indexes = productionCapturedEntitlementsIndexes().filter(
+      (i) => i.index_name !== 'uq_entitlements_user_product'
+    );
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+  });
+
+  it('92. G malformed duplicate excluded from exact duplicate count', () => {
+    const indexes = [
+      ...productionCapturedEntitlementsIndexes(),
+      {
+        index_name: 'entitlements_user_product_uq',
+        access_method: 'btree',
+        is_primary: false,
+        is_unique: true,
+        key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+        included_columns: null,
+        predicate: 'product_id IS NOT NULL',
+        is_valid: true,
+        is_ready: true,
+        is_live: true,
+        constraint_backed: false,
+      },
+    ];
+    const counts = countEntitlementsM2bShape(indexes);
+    assert.equal(counts.duplicateExactCount, 2);
+    assert.equal(counts.exactSameKeyUniqueCount, 3);
+    assert.match(body, /entitlements_malformed_same_key_indexes/);
+  });
+
+  it('93. H stable duplicate names sorted output contract', () => {
+    const shuffled = [
+      productionCapturedEntitlementsIndexes()[2],
+      productionCapturedEntitlementsIndexes()[0],
+      productionCapturedEntitlementsIndexes()[1],
+    ];
+    const names = countEntitlementsM2bShape(shuffled).duplicateIndexNames;
+    assert.deepEqual(names, [...ENTITLEMENTS_DUPLICATE_INDEXES].sort());
+    assert.match(body, /jsonb_agg\(e\.index_name ORDER BY e\.index_name\)/);
+  });
+
+  it('94. I captured Production fixture exact pre-state mismatch kind', () => {
+    assert.equal(
+      classifyEntitlementsM2bMismatch(productionCapturedEntitlementsIndexes()),
+      'entitlements_redundant_same_key_unique_indexes'
+    );
+    assert.match(body, /entitlements_redundant_same_key_mismatch/);
+    assert.match(body, /COMMITTED_NOT_APPLIED_M2B/);
+  });
+
+  it('95. J mutation-negative product_key and empty actual_same_key_uniques', () => {
+    const wrongKeyBody = body.replace(
+      /ARRAY\['user_id','product_id'\]::text\[\]/g,
+      "ARRAY['user_id','product_key']::text[]"
+    );
+    assert.match(wrongKeyBody, /product_key/);
+    assert.equal(
+      classifyEntitlementsM2bMismatch(productionCapturedEntitlementsIndexes()),
+      'entitlements_redundant_same_key_unique_indexes'
+    );
+
+    const emptyActualBody = body.replace(
+      /'duplicate_index_names', COALESCE\(\(/,
+      "'actual_same_key_uniques', '[]'::jsonb, 'duplicate_index_names', COALESCE(("
+    );
+    assert.match(emptyActualBody, /actual_same_key_uniques/);
+    assert.equal(/actual_same_key_uniques/i.test(body), false);
+  });
+
+  it('96. catalog_snapshot_complete not gated on mismatch json emptiness', () => {
+    const block = extractCteBody(body, 'final_summary');
+    const completeExpr = block.match(
+      /\(\s*ri\.requested_gap_cell_count[\s\S]*?\)\s*AS catalog_snapshot_complete/
+    )?.[0];
+    assert.ok(completeExpr);
+    assert.equal(/expected_contract_mismatch_json/i.test(completeExpr!), false);
+    assert.match(completeExpr!, /registry_self_check_ok IS TRUE/);
+  });
+
+  it('97. canonical duplicate count greater than one fails', () => {
+    const canonical = productionCapturedEntitlementsIndexes()[0];
+    const indexes = [
+      canonical,
+      { ...canonical },
+      ...productionCapturedEntitlementsIndexes().slice(1),
+    ];
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_canonical_count_mismatch');
+    assert.match(body, /entitlements_canonical_count_mismatch/);
+    assert.match(body, /canonical_exact_count > 1/);
+  });
+
+  it('98. unknown same-key unique C fails pre-state', () => {
+    const indexes = [
+      ...productionCapturedEntitlementsIndexes(),
+      {
+        index_name: 'entitlements_user_product_extra_uq',
+        access_method: 'btree',
+        is_primary: false,
+        is_unique: true,
+        key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+        included_columns: null,
+        predicate: null,
+        is_valid: true,
+        is_ready: true,
+        is_live: true,
+        constraint_backed: false,
+      },
+    ];
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+    assert.match(body, /entitlements_unexpected_same_key_indexes/);
+  });
+
+  it('99. duplicate count two but wrong name set fails', () => {
+    const base = {
+      access_method: 'btree',
+      is_primary: false,
+      is_unique: true,
+      key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+      included_columns: null,
+      predicate: null,
+      is_valid: true,
+      is_ready: true,
+      is_live: true,
+      constraint_backed: false,
+    };
+    const indexes = [
+      {
+        ...base,
+        index_name: ENTITLEMENTS_CANONICAL_INDEX,
+        constraint_backed: true,
+      },
+      { ...base, index_name: 'entitlements_user_product_uq' },
+      { ...base, index_name: 'entitlements_wrong_name_uq' },
+    ];
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+  });
+
+  it('100. INCLUDE duplicate excluded from exact duplicate count', () => {
+    const base = {
+      access_method: 'btree',
+      is_primary: false,
+      is_unique: true,
+      key_columns: [...ENTITLEMENTS_KEY_COLUMNS],
+      predicate: null,
+      is_valid: true,
+      is_ready: true,
+      is_live: true,
+      constraint_backed: false,
+    };
+    const indexes = [
+      {
+        ...base,
+        index_name: ENTITLEMENTS_CANONICAL_INDEX,
+        constraint_backed: true,
+        included_columns: null,
+      },
+      { ...base, index_name: 'entitlements_user_product_uq', included_columns: null },
+      {
+        ...base,
+        index_name: 'uq_entitlements_user_product',
+        included_columns: ['created_at'],
+      },
+    ];
+    const counts = countEntitlementsM2bShape(indexes);
+    assert.equal(counts.duplicateExactCount, 1);
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+  });
+
+  it('101. invalid not-ready not-live duplicate excluded from exact count', () => {
+    const indexes = productionCapturedEntitlementsIndexes().map((i) =>
+      i.index_name === 'uq_entitlements_user_product'
+        ? { ...i, is_valid: false, is_ready: false, is_live: false }
+        : i
+    );
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
+  });
+
+  it('102. constraint-backed duplicate misclassification fails pre-state', () => {
+    const indexes = productionCapturedEntitlementsIndexes().map((i) =>
+      i.index_name === 'entitlements_user_product_uq' ? { ...i, constraint_backed: true } : i
+    );
+    assert.equal(classifyEntitlementsM2bMismatch(indexes), 'entitlements_duplicate_count_mismatch');
   });
 });
 

@@ -1,7 +1,7 @@
 -- =============================================================================
 -- M55 PRODUCTION BASELINE GAP DIAGNOSTIC v1
--- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2
--- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2
+-- Revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3
+-- Gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3
 -- Target: organization=m55-soul / project=m55-soul-core / branch=main
 --         environment=PRODUCTION / source=Primary Database / role=postgres
 -- Classifier evidence (READ-ONLY): m55_account_deletion_production_baseline_contract_freeze_v1.sql
@@ -1029,8 +1029,80 @@ expected_stripe_processed_indexes(index_name, key_columns, raw_predicate) AS (
 allowed_stripe_processed_redundant(index_name) AS (
   VALUES ('m55_uidx_stripe_processed_events_stripe_event_id'::text)
 ),
-expected_entitlements_unique(index_name, key_columns) AS (
-  VALUES ('entitlements_user_id_product_key_unique'::text, ARRAY['user_id','product_key']::text[])
+expected_entitlements_m2b_contract(canonical_index, expected_key_columns, expected_duplicate_indexes) AS (
+  SELECT
+    'entitlements_user_id_product_id_key'::text,
+    ARRAY['user_id','product_id']::text[],
+    ARRAY['entitlements_user_product_uq','uq_entitlements_user_product']::text[]
+),
+entitlements_exact_same_key_indexes AS (
+  SELECT
+    ic.index_name,
+    ic.constraint_backed
+  FROM index_catalog ic
+  WHERE ic.relation_name = 'entitlements'
+    AND ic.access_method = 'btree'
+    AND ic.is_primary = false
+    AND ic.is_unique = true
+    AND ic.key_columns = ARRAY['user_id','product_id']::text[]
+    AND COALESCE(cardinality(ic.included_columns), 0) = 0
+    AND ic.predicate IS NULL
+    AND ic.is_valid = true
+    AND ic.is_ready = true
+    AND ic.is_live = true
+),
+entitlements_m2b_index_counts AS (
+  SELECT
+    c.canonical_index,
+    c.expected_key_columns,
+    c.expected_duplicate_indexes,
+    (
+      SELECT count(*)::integer FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = c.canonical_index AND e.constraint_backed
+    ) AS canonical_exact_count,
+    (
+      SELECT count(*)::integer FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = ANY (c.expected_duplicate_indexes) AND NOT e.constraint_backed
+    ) AS duplicate_exact_count,
+    (SELECT count(*)::integer FROM entitlements_exact_same_key_indexes e) AS exact_same_key_unique_count
+  FROM expected_entitlements_m2b_contract c
+),
+entitlements_malformed_same_key_indexes AS (
+  SELECT
+    ic.index_name,
+    ic.predicate,
+    ic.included_columns,
+    ic.is_valid,
+    ic.is_ready,
+    ic.is_live,
+    ic.constraint_backed
+  FROM index_catalog ic
+  WHERE ic.relation_name = 'entitlements'
+    AND ic.is_unique = true
+    AND ic.key_columns = ARRAY['user_id','product_id']::text[]
+    AND NOT EXISTS (
+      SELECT 1 FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = ic.index_name
+    )
+),
+entitlements_unexpected_same_key_indexes AS (
+  SELECT e.index_name
+  FROM entitlements_exact_same_key_indexes e
+  CROSS JOIN expected_entitlements_m2b_contract c
+  WHERE e.index_name <> c.canonical_index
+    AND NOT (e.index_name = ANY (c.expected_duplicate_indexes))
+),
+entitlements_expected_duplicate_names_exact AS (
+  SELECT
+    cnt.canonical_index,
+    COALESCE((
+      SELECT array_agg(e.index_name ORDER BY e.index_name)
+      FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = ANY (cnt.expected_duplicate_indexes)
+        AND NOT e.constraint_backed
+    ), ARRAY[]::text[]) AS duplicate_index_names_exact,
+    cnt.expected_duplicate_indexes
+  FROM entitlements_m2b_index_counts cnt
 ),
 known_absent_objects(object_key, object_kind) AS (
   VALUES
@@ -1162,32 +1234,105 @@ stripe_processed_index_mismatch AS (
       AND ic.is_unique AND ic.is_valid
   )
 ),
-entitlements_unique_mismatch AS (
+entitlements_redundant_same_key_mismatch AS (
   SELECT jsonb_build_object(
-    'mismatch_kind', 'entitlements_unique',
-    'expected_index', e.index_name,
-    'expected_key_columns', e.key_columns,
-    'actual_same_key_uniques', COALESCE((
-      SELECT jsonb_agg(jsonb_build_object(
-        'index_name', ic.index_name,
-        'key_columns', ic.key_columns,
-        'constraint_backed', ic.constraint_backed
-      ) ORDER BY ic.index_name)
-      FROM index_catalog ic
-      WHERE ic.relation_name = 'entitlements'
-        AND ic.is_unique
-        AND ic.key_columns = e.key_columns
+    'mismatch_kind', 'entitlements_redundant_same_key_unique_indexes',
+    'canonical_index', cnt.canonical_index,
+    'expected_key_columns', cnt.expected_key_columns,
+    'canonical_exact_count', cnt.canonical_exact_count,
+    'duplicate_exact_count', cnt.duplicate_exact_count,
+    'exact_same_key_unique_count', cnt.exact_same_key_unique_count,
+    'duplicate_index_names', COALESCE((
+      SELECT jsonb_agg(e.index_name ORDER BY e.index_name)
+      FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = ANY (cnt.expected_duplicate_indexes)
+        AND NOT e.constraint_backed
     ), '[]'::jsonb),
     'remediation_status', 'COMMITTED_NOT_APPLIED_M2B'
   ) AS mismatch_item
-  FROM expected_entitlements_unique e
-  WHERE (
-    SELECT count(*) FROM index_catalog ic
-    WHERE ic.relation_name = 'entitlements'
-      AND ic.is_unique
-      AND ic.key_columns = e.key_columns
-      AND ic.is_valid
-  ) <> 1
+  FROM entitlements_m2b_index_counts cnt
+  JOIN entitlements_expected_duplicate_names_exact edn
+    ON edn.canonical_index = cnt.canonical_index
+  WHERE cnt.canonical_exact_count = 1
+    AND cnt.duplicate_exact_count = 2
+    AND cnt.exact_same_key_unique_count = 3
+    AND edn.duplicate_index_names_exact = (
+      SELECT array_agg(x ORDER BY x) FROM unnest(edn.expected_duplicate_indexes) AS x
+    )
+    AND NOT EXISTS (SELECT 1 FROM entitlements_unexpected_same_key_indexes)
+),
+entitlements_canonical_count_mismatch AS (
+  SELECT jsonb_build_object(
+    'mismatch_kind', 'entitlements_canonical_count_mismatch',
+    'canonical_index', cnt.canonical_index,
+    'expected_key_columns', cnt.expected_key_columns,
+    'canonical_exact_count', cnt.canonical_exact_count,
+    'duplicate_exact_count', cnt.duplicate_exact_count,
+    'exact_same_key_unique_count', cnt.exact_same_key_unique_count,
+    'remediation_status', 'COMMITTED_NOT_APPLIED_M2B'
+  ) AS mismatch_item
+  FROM entitlements_m2b_index_counts cnt
+  WHERE cnt.canonical_exact_count > 1
+),
+entitlements_canonical_missing_mismatch AS (
+  SELECT jsonb_build_object(
+    'mismatch_kind', 'entitlements_canonical_missing',
+    'canonical_index', cnt.canonical_index,
+    'expected_key_columns', cnt.expected_key_columns,
+    'canonical_exact_count', cnt.canonical_exact_count,
+    'duplicate_exact_count', cnt.duplicate_exact_count,
+    'exact_same_key_unique_count', cnt.exact_same_key_unique_count,
+    'remediation_status', 'COMMITTED_NOT_APPLIED_M2B'
+  ) AS mismatch_item
+  FROM entitlements_m2b_index_counts cnt
+  WHERE cnt.canonical_exact_count = 0
+),
+entitlements_duplicate_count_mismatch AS (
+  SELECT jsonb_build_object(
+    'mismatch_kind', 'entitlements_duplicate_count_mismatch',
+    'canonical_index', cnt.canonical_index,
+    'expected_key_columns', cnt.expected_key_columns,
+    'canonical_exact_count', cnt.canonical_exact_count,
+    'duplicate_exact_count', cnt.duplicate_exact_count,
+    'exact_same_key_unique_count', cnt.exact_same_key_unique_count,
+    'expected_duplicate_count', 2,
+    'duplicate_index_names', COALESCE((
+      SELECT jsonb_agg(e.index_name ORDER BY e.index_name)
+      FROM entitlements_exact_same_key_indexes e
+      WHERE e.index_name = ANY (cnt.expected_duplicate_indexes)
+        AND NOT e.constraint_backed
+    ), '[]'::jsonb),
+    'unexpected_same_key_unique_names', COALESCE((
+      SELECT jsonb_agg(u.index_name ORDER BY u.index_name)
+      FROM entitlements_unexpected_same_key_indexes u
+    ), '[]'::jsonb),
+    'malformed_same_key_indexes', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'index_name', m.index_name,
+        'predicate', m.predicate,
+        'included_columns', m.included_columns,
+        'is_valid', m.is_valid,
+        'constraint_backed', m.constraint_backed
+      ) ORDER BY m.index_name)
+      FROM entitlements_malformed_same_key_indexes m
+    ), '[]'::jsonb),
+    'remediation_status', 'COMMITTED_NOT_APPLIED_M2B'
+  ) AS mismatch_item
+  FROM entitlements_m2b_index_counts cnt
+  JOIN entitlements_expected_duplicate_names_exact edn
+    ON edn.canonical_index = cnt.canonical_index
+  WHERE cnt.canonical_exact_count = 1
+    AND NOT (
+      (
+        cnt.duplicate_exact_count = 2
+        AND cnt.exact_same_key_unique_count = 3
+        AND edn.duplicate_index_names_exact = (
+          SELECT array_agg(x ORDER BY x) FROM unnest(edn.expected_duplicate_indexes) AS x
+        )
+        AND NOT EXISTS (SELECT 1 FROM entitlements_unexpected_same_key_indexes)
+      )
+      OR (cnt.duplicate_exact_count = 0 AND cnt.exact_same_key_unique_count = 1)
+    )
 ),
 known_absent_mismatch AS (
   SELECT jsonb_build_object(
@@ -1204,11 +1349,14 @@ expected_contract_mismatch_items AS (
   SELECT mismatch_item FROM dtr_partial_unique_mismatch
   UNION ALL SELECT mismatch_item FROM ledger_index_mismatch
   UNION ALL SELECT mismatch_item FROM stripe_processed_index_mismatch
-  UNION ALL SELECT mismatch_item FROM entitlements_unique_mismatch
+  UNION ALL SELECT mismatch_item FROM entitlements_redundant_same_key_mismatch
+  UNION ALL SELECT mismatch_item FROM entitlements_canonical_count_mismatch
+  UNION ALL SELECT mismatch_item FROM entitlements_canonical_missing_mismatch
+  UNION ALL SELECT mismatch_item FROM entitlements_duplicate_count_mismatch
   UNION ALL SELECT mismatch_item FROM known_absent_mismatch
 ),
 expected_contract_mismatch_json_build AS (
-  SELECT COALESCE(jsonb_agg(mismatch_item ORDER BY mismatch_item->>'mismatch_kind', mismatch_item->>'expected_index', mismatch_item->>'object_key'), '[]'::jsonb) AS expected_contract_mismatch_json
+  SELECT COALESCE(jsonb_agg(mismatch_item ORDER BY mismatch_item->>'mismatch_kind', mismatch_item->>'canonical_index', mismatch_item->>'expected_index', mismatch_item->>'object_key'), '[]'::jsonb) AS expected_contract_mismatch_json
   FROM expected_contract_mismatch_items
 ),
 -- ── unexpected_catalog_analysis ──────────────────────────────────────────────
@@ -1275,7 +1423,7 @@ json_aggregations AS (
 -- ── final_summary ────────────────────────────────────────────────────────────
 final_summary AS (
   SELECT
-    'SQL-DIAGNOSTIC-REVISION-1-PATCH-2'::text AS diagnostic_revision,
+    'SQL-DIAGNOSTIC-REVISION-1-PATCH-3'::text AS diagnostic_revision,
     'm55-soul'::text AS target_organization,
     'm55-soul-core'::text AS target_project,
     'PRODUCTION'::text AS target_environment,
@@ -1367,12 +1515,12 @@ FROM final_summary fs;
 
 -- =============================================================================
 -- ARTIFACT INTEGRITY FOOTER
--- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2
--- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-2
+-- artifact_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3
+-- revision: SQL-DIAGNOSTIC-REVISION-1-PATCH-3
 -- target: m55-soul / m55-soul-core PRODUCTION postgres (Primary Database / role postgres)
 -- preview_stop: m55-preview / m55-soul-preview — Human STOP immediately; do not execute
 -- registry: 536 cells (45 relation_security + 420 privilege + 5 wallet_scope + 66 inventory)
 -- independent_expected_count: (15*3)+(15*4*7)+5+(15*4)+2+4 = 536
--- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-2-REVIEW
+-- next_gate: CATEGORY-1-M55-ACCOUNT-DELETION-PRODUCTION-BASELINE-GAP-DIAGNOSTIC-SQL-LOCAL-PATCH-3-REVIEW
 -- forbidden: Preview SQL, DDL/DML, application row SELECT, secrets in output
 -- =============================================================================
