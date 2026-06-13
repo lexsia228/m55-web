@@ -1,0 +1,345 @@
+{
+  "baseline_sql_revision": "PREVIEW-BASELINE-SQL-v1-REVISION-8",
+  "baseline_sql_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
+  "baseline_version": "20260614000000",
+  "contract_matrix_sha256": "d5d34b135acabe3cd7fc41144069d9deee133472810264e1b397cf5bd3a19257",
+  "expected_remote_history": [
+    "20260614000000",
+    "20260615000001",
+    "20260615000002",
+    "20260615000003",
+    "20260615000004",
+    "20260615000005",
+    "20260615000006"
+  ],
+  "function_source_migration_shas": [
+    {
+      "actual_sha256": "8eb356fa8c37c344fda9d42fe3e5cc27ce3b0200f11ef59eb23e7bf7efdcfee7",
+      "expected_sha256": "8eb356fa8c37c344fda9d42fe3e5cc27ce3b0200f11ef59eb23e7bf7efdcfee7",
+      "function_identity": "public.m55_reply_generate_commit",
+      "sha256_match": true,
+      "source_migration_path": "supabase/migrations/20260417000000_m55_reply_generate_commit_rpc.sql"
+    },
+    {
+      "actual_sha256": "119ecee04b70de6546a31be5c8a960679d6448b12f2b8dea2cdf0c0960c1b3ba",
+      "expected_sha256": "119ecee04b70de6546a31be5c8a960679d6448b12f2b8dea2cdf0c0960c1b3ba",
+      "function_identity": "public.m55_consult_reply_commit",
+      "sha256_match": true,
+      "source_migration_path": "supabase/migrations/20260523120000_m55_consult_reply_commit_rpc_v1.sql"
+    }
+  ],
+  "gap_result_sha256": "59095b8fa0ed5c386a5127ef612eae3f08efc1ca519348fc169cba54b5827c9f",
+  "generator_revision": "7",
+  "history_policy": {
+    "record_applied_only": true,
+    "renumber_forbidden": true,
+    "repair_forbidden": true
+  },
+  "manifest_revision": "PREVIEW-BASELINE-MANIFEST-v1-REVISION-8",
+  "matrix_revision": "PREVIEW-BASELINE-CONTRACT-MATRIX-v1-REVISION-7",
+  "migration_tuple_hash": "78266476d402a65e053c8ff5206df59578af5b83887b7d851b1606134abf8ab4",
+  "migrations": [
+    {
+      "byte_length": 44535,
+      "copy_mode": "generated_preview_only",
+      "expected_delta": {
+        "application_row_count": 0,
+        "relations_present": [
+          "consult_messages",
+          "consult_send_commits",
+          "consult_threads",
+          "dtr_guest_drafts",
+          "dtr_report_snapshots",
+          "entitlement_rights",
+          "entitlements",
+          "failed_fulfillments",
+          "one_time_fulfillments",
+          "reply_documents",
+          "reply_sessions",
+          "reply_ticket_wallets",
+          "reply_wallet_ledgers",
+          "stripe_events",
+          "stripe_processed_events"
+        ]
+      },
+      "filename": "20260614000000_preview_production_aligned_baseline_p1.sql",
+      "forbidden_delta": [
+        "purchases",
+        "subscriptions",
+        "invoice_dtr_grants",
+        "m55_user_identity_mappings",
+        "app.user_profiles",
+        "failed_fulfillments.user_ref_hash",
+        "failed_fulfillments_user_ref_hash_format_check",
+        "idx_failed_fulfillments_user_ref_hash",
+        "clerk_webhook_events",
+        "m55_account_deletion_process_v1"
+      ],
+      "history_identity": "20260614000000",
+      "line_count": 995,
+      "prerequisites": [],
+      "sequence": 1,
+      "sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
+      "source_class": "preview-only",
+      "source_path": "docs/planning/preview-baseline/migrations/20260614000000_preview_production_aligned_baseline_p1.sql",
+      "state_from": "P0",
+      "state_to": "P1",
+      "version": "20260614000000"
+    },
+    {
+      "byte_length": 674,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000001",
+        "state_from": "P1",
+        "state_to": "P2"
+      },
+      "filename": "20260615000001_failed_fulfillments_user_ref_hash.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000001",
+      "line_count": 21,
+      "prerequisites": [
+        "20260614000000"
+      ],
+      "sequence": 2,
+      "sha256": "d4a2f09058eac13aaea054cafaa47ca7b4288e38871973e16d99a51263d2459c",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000001_failed_fulfillments_user_ref_hash.sql",
+      "state_from": "P1",
+      "state_to": "P2",
+      "version": "20260615000001"
+    },
+    {
+      "byte_length": 1583,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000002",
+        "state_from": "P2",
+        "state_to": "P3"
+      },
+      "filename": "20260615000002_m55_account_deletion_ledger_v1.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000002",
+      "line_count": 44,
+      "prerequisites": [
+        "20260615000001"
+      ],
+      "sequence": 3,
+      "sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
+      "state_from": "P2",
+      "state_to": "P3",
+      "version": "20260615000002"
+    },
+    {
+      "byte_length": 16040,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000003",
+        "state_from": "P3",
+        "state_to": "P4"
+      },
+      "filename": "20260615000003_m55_account_deletion_process_rpc_v1.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000003",
+      "line_count": 528,
+      "prerequisites": [
+        "20260615000002"
+      ],
+      "sequence": 4,
+      "sha256": "25597665f594dfef6c60fb5af500e70105535c786f85c3c3b4f817c1da82567c",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000003_m55_account_deletion_process_rpc_v1.sql",
+      "state_from": "P3",
+      "state_to": "P4",
+      "version": "20260615000003"
+    },
+    {
+      "byte_length": 18337,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000004",
+        "state_from": "P4",
+        "state_to": "P5"
+      },
+      "filename": "20260615000004_m55_entitlements_and_rights_access_security_v1.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000004",
+      "line_count": 586,
+      "prerequisites": [
+        "20260615000003"
+      ],
+      "sequence": 5,
+      "sha256": "40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000004_m55_entitlements_and_rights_access_security_v1.sql",
+      "state_from": "P4",
+      "state_to": "P5",
+      "version": "20260615000004"
+    },
+    {
+      "byte_length": 18265,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000005",
+        "state_from": "P5",
+        "state_to": "P6"
+      },
+      "filename": "20260615000005_m55_dtr_visible_report_uniqueness_v1.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000005",
+      "line_count": 481,
+      "prerequisites": [
+        "20260615000004"
+      ],
+      "sequence": 6,
+      "sha256": "b283aa73ea4b004c006229dfc6afec222b44ea71422b34cb7a3fa3f46862d8f6",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000005_m55_dtr_visible_report_uniqueness_v1.sql",
+      "state_from": "P5",
+      "state_to": "P6",
+      "version": "20260615000005"
+    },
+    {
+      "byte_length": 15577,
+      "copy_mode": "byte_identical",
+      "expected_delta": {
+        "migration_version": "20260615000006",
+        "state_from": "P6",
+        "state_to": "P7"
+      },
+      "filename": "20260615000006_m55_entitlements_unique_index_cleanup_v1.sql",
+      "forbidden_delta": [],
+      "history_identity": "20260615000006",
+      "line_count": 436,
+      "prerequisites": [
+        "20260615000005"
+      ],
+      "sequence": 7,
+      "sha256": "c9ddd37396985fdfb116365073a330fbd4b31b4b592f7cec661ec157b2f8903e",
+      "source_class": "canonical",
+      "source_path": "supabase/migrations/20260615000006_m55_entitlements_unique_index_cleanup_v1.sql",
+      "state_from": "P6",
+      "state_to": "P7",
+      "version": "20260615000006"
+    }
+  ],
+  "p3_columns_result_sha256": "8cb8e4f685fad93e7669f2e053f32624ce019066ec07dfb7437621dc9f4f3ed9",
+  "pending_execution_validations": [
+    "function_production_body_parity",
+    "gen_random_uuid_callable",
+    "disposable_p1_p7_apply"
+  ],
+  "production_evidence_bundle_sha256": "2ef8b8375f1b92379a13c4c38cba5650e93085e38130a77196246f77f14629e0",
+  "prohibited_operations": [
+    "apply",
+    "push",
+    "repair",
+    "link",
+    "deploy",
+    "production_execute"
+  ],
+  "schema_version": "1",
+  "sql_revision": "PREVIEW-BASELINE-SQL-v1-REVISION-8",
+  "state_transitions": [
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000"
+      ],
+      "migration_version": "20260614000000",
+      "state_from": "P0",
+      "state_to": "P1",
+      "transition_id": "20260614000000"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "migration_version": "20260615000001",
+      "state_from": "P1",
+      "state_to": "P2",
+      "transition_id": "20260615000001"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "migration_version": "20260615000002",
+      "state_from": "P2",
+      "state_to": "P3",
+      "transition_id": "20260615000002"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "migration_version": "20260615000003",
+      "state_from": "P3",
+      "state_to": "P4",
+      "transition_id": "20260615000003"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "migration_version": "20260615000004",
+      "state_from": "P4",
+      "state_to": "P5",
+      "transition_id": "20260615000004"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "migration_version": "20260615000005",
+      "state_from": "P5",
+      "state_to": "P6",
+      "transition_id": "20260615000005"
+    },
+    {
+      "application_row_count": 0,
+      "history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "migration_version": "20260615000006",
+      "state_from": "P6",
+      "state_to": "P7",
+      "transition_id": "20260615000006"
+    }
+  ],
+  "static_readiness_state": "STATIC_READY_EXECUTION_VALIDATION_REQUIRED",
+  "strategy": "PREVIEW_ONLY_BASELINE_PLUS_ORIGINAL_CANONICAL_CHAIN",
+  "workspace_policy": {
+    "canonical_dir_write": false,
+    "default_root": "os_temp",
+    "marker_file": ".m55-preview-baseline-workspace.json"
+  }
+}

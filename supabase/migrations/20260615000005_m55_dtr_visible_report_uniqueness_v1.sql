@@ -136,7 +136,7 @@ BEGIN
   END IF;
 
   IF (
-    SELECT array_agg(a.attname ORDER BY k.ord)
+    SELECT array_agg(a.attname::text ORDER BY k.ord)
     FROM pg_index i
     JOIN unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord) ON true
     JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
@@ -219,7 +219,7 @@ BEGIN
     END IF;
 
     IF (
-      SELECT array_agg(a.attname ORDER BY u.ord)
+      SELECT array_agg(a.attname::text ORDER BY u.ord)
       FROM pg_constraint con
       JOIN unnest(con.conkey) WITH ORDINALITY AS u(attnum, ord) ON true
       JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = u.attnum
@@ -251,7 +251,7 @@ BEGIN
         AND i.indislive
         AND (SELECT count(*)::integer FROM unnest(i.indkey) AS x(attnum) WHERE x.attnum = 0) = 0
         AND (
-          SELECT array_agg(a.attname ORDER BY k.ord)
+          SELECT array_agg(a.attname::text ORDER BY k.ord)
           FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
           JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
           WHERE k.attnum > 0
@@ -288,7 +288,7 @@ BEGIN
   WHERE con.contype = 'f'
     AND con.confrelid = v_relation_oid
     AND (
-      SELECT array_agg(a.attname ORDER BY u.ord)
+      SELECT array_agg(a.attname::text ORDER BY u.ord)
       FROM unnest(con.confkey) WITH ORDINALITY AS u(attnum, ord)
       JOIN pg_attribute a ON a.attrelid = con.confrelid AND a.attnum = u.attnum
     ) = ARRAY['user_id', 'product_id']::text[];
@@ -300,13 +300,13 @@ BEGIN
   -- -------------------------------------------------------------------------
   -- G. Structural pre-state
   -- -------------------------------------------------------------------------
-  SELECT coalesce(array_agg(con.conname ORDER BY con.conname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(con.conname::text ORDER BY con.conname), ARRAY[]::text[])
   INTO v_unrelated_constraint_names
   FROM pg_constraint con
   WHERE con.conrelid = v_relation_oid
     AND con.conname <> 'dtr_report_snapshots_user_product_key';
 
-  SELECT coalesce(array_agg(ic.relname ORDER BY ic.relname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(ic.relname::text ORDER BY ic.relname), ARRAY[]::text[])
   INTO v_unrelated_index_names
   FROM pg_class ic
   JOIN pg_index i ON i.indexrelid = ic.oid
@@ -372,7 +372,7 @@ BEGIN
         '[[:space:]]', '', 'g'
       ) = 'user_hidden_atisnull'
       AND (
-        SELECT array_agg(a.attname ORDER BY k.ord)
+        SELECT array_agg(a.attname::text ORDER BY k.ord)
         FROM unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord)
         JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = k.attnum
         WHERE k.attnum > 0
@@ -455,7 +455,7 @@ BEGIN
       v_pre_state, v_index_count, v_post_index_count, v_index_count - v_index_delta;
   END IF;
 
-  SELECT coalesce(array_agg(con.conname ORDER BY con.conname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(con.conname::text ORDER BY con.conname), ARRAY[]::text[])
   INTO v_post_unrelated_constraint_names
   FROM pg_constraint con
   WHERE con.conrelid = v_relation_oid;
@@ -464,7 +464,7 @@ BEGIN
     RAISE EXCEPTION 'postcondition failed (%): unrelated constraint names changed', v_pre_state;
   END IF;
 
-  SELECT coalesce(array_agg(ic.relname ORDER BY ic.relname), ARRAY[]::text[])
+  SELECT coalesce(array_agg(ic.relname::text ORDER BY ic.relname), ARRAY[]::text[])
   INTO v_post_unrelated_index_names
   FROM pg_class ic
   JOIN pg_index i ON i.indexrelid = ic.oid
