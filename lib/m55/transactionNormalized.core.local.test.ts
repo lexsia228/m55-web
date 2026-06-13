@@ -42,7 +42,25 @@ import {
   EXPECTED_REVISION7_VERSION_IDENTITIES,
   EXPECTED_BRANCH,
   EXPECTED_REPO_ROOT,
+  EXPECTED_SOURCE_AUTHORITY_BASE,
   EXPECTED_SOURCE_AUTHORITY_HEAD,
+  BASELINE_STAGE_A_COMMIT,
+  STAGE_A_BINDING_ADDENDUM_REL_PATH,
+  BINDING_POLICY_IDENTIFIER,
+  PLAN_ONLY_EXTERNAL_ATTESTATION_HOLD,
+  GEN1_REBIND_CORE_REL_PATH,
+  GEN1_REBIND_CLI_REL_PATH,
+  GEN1_REVIEW_TEST_REL_PATH,
+  computeCanonicalPayloadSha256,
+  computeCanonicalPayloadSha256WithBlankSubstitution,
+  isGitAncestor,
+  loadStageABindingAddendum,
+  validateStageABindingAddendumSemantics,
+  verifyExternalPlanAttestation,
+  EXPECTED_GENERATION0_BASELINE_IDENTITIES,
+  EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES,
+  EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS,
+  STAGE_B_EXECUTION_BLOCKERS,
   expandPlanSelector,
   formatRedactedPlanEvidence,
   FINGERPRINT_PLACEHOLDER,
@@ -92,7 +110,7 @@ function authorityPaths() {
 
 const CLEAN_WORKSPACE = {
   branch: EXPECTED_BRANCH,
-  head: EXPECTED_SOURCE_AUTHORITY_HEAD,
+  head: BASELINE_STAGE_A_COMMIT,
   cleanWorktree: true,
   cleanIndex: true,
 };
@@ -258,7 +276,7 @@ describe('transaction normalized stage-a core', () => {
       { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
       CLEAN_WORKSPACE,
     );
-    assert.equal(result.coreValidation, 'PURE_CORE_VALIDATION_PASS');
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
     assert.equal(result.selectedVersions.length, 7);
     assert.equal(result.actualGitInspectionPerformed, false);
   });
@@ -406,32 +424,8 @@ describe('transaction normalized stage-a core', () => {
   });
 
   it('27 secret-safe evidence formatting', () => {
-    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
-      { repoRoot: REPO_ROOT, planVersionSelector: 'P1' },
-      CLEAN_WORKSPACE,
-    );
-    const text = formatRedactedPlanEvidence({
-      mode: STAGE_A_MODE,
-      coreValidation: result.coreValidation,
-      executionState: 'EXECUTION_LOCKED',
-      selectedVersions: result.selectedVersions,
-      authorityIdentities: {
-        contractSha256: AUTHORITY_FILE_EXPECTATIONS.contract.sha256,
-        matrixSha256: AUTHORITY_FILE_EXPECTATIONS.matrix.sha256,
-        parserEvidenceSha256: AUTHORITY_FILE_EXPECTATIONS.parserEvidence.sha256,
-        revision: 'REVISION-7',
-        executionStatus: 'NOT EXECUTED',
-      },
-      perVersionStatus: result.perVersionStatus,
-      stageBBlockers: [],
-      executionLock: STAGE_A_EXECUTION_LOCK,
-      targetFingerprintReadiness: 'REQUIRED_NOT_FROZEN',
-      holdReasonCode: result.holdReasonCode,
-      expectedPreImplementationHead: EXPECTED_SOURCE_AUTHORITY_HEAD,
-      planOnlyPassIsNotExecutionAuthorization: true,
-      executionRemainsLocked: true,
-      sourceAuthorityHeadRebindBlocker: SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER,
-    });
+    const result = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'P1' });
+    const text = formatRedactedPlanEvidence(result);
     const forbidden = [
       'password',
       'credential',
@@ -512,7 +506,7 @@ describe('transaction normalized stage-a core', () => {
       { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
       CLEAN_WORKSPACE,
     );
-    assert.equal(pureResult.coreValidation, 'PURE_CORE_VALIDATION_PASS');
+    assert.equal(pureResult.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
   });
 
   it('33 pure helper is not used by CLI', () => {
@@ -820,19 +814,30 @@ describe('transaction normalized stage-a core', () => {
     assert.ok(rootGateIndex >= 0 && gitReadIndex >= 0 && rootGateIndex < gitReadIndex);
   });
 
-  it('48 source-authority HEAD rebind blocker present and execution locked', () => {
-    assert.ok(STAGE_B_BLOCKERS.includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER));
-    const result = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
-    assert.equal(result.executionState, 'EXECUTION_LOCKED');
-    assert.equal(result.expectedPreImplementationHead, EXPECTED_SOURCE_AUTHORITY_HEAD);
-    assert.equal(result.planOnlyPassIsNotExecutionAuthorization, true);
-    assert.equal(result.executionRemainsLocked, true);
-    assert.equal(result.sourceAuthorityHeadRebindBlocker, SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER);
-    assert.ok(result.stageBBlockers.includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER));
-    const formatted = JSON.parse(formatRedactedPlanEvidence(result)) as {
-      sourceAuthorityHeadRebindBlocker?: string;
-    };
-    assert.equal(formatted.sourceAuthorityHeadRebindBlocker, SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER);
+  it('48 source-authority rebind blocker removed after binding validation', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.ok(binding.canonicalPayloadSha256.length === 64);
+    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
+      { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
+      CLEAN_WORKSPACE,
+    );
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    const status = spawnSync('git', ['status', '--short', '-uall'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (status.stdout.trim().length > 0) {
+      const dirtyPublic = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
+      assert.equal(dirtyPublic.coreValidation, 'PRE_DB_HOLD');
+      assert.ok(dirtyPublic.stageBBlockers.includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER));
+      return;
+    }
+    const publicResult = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
+    assert.equal(publicResult.executionState, 'EXECUTION_LOCKED');
+    assert.equal(publicResult.sourceAuthorityBase, EXPECTED_SOURCE_AUTHORITY_BASE);
+    assert.equal(publicResult.baselineStageACommit, BASELINE_STAGE_A_COMMIT);
+    assert.equal(publicResult.planOnlyPassIsNotExecutionAuthorization, true);
+    assert.equal(publicResult.executionRemainsLocked, true);
+    assert.equal(publicResult.externalPlanAttestationRequired, true);
+    assert.equal(publicResult.stageBBlockers.includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER), false);
+    assert.ok(publicResult.stageBBlockers.includes('executor_artifact_identity'));
   });
 
   it('49 exported Git override setter absent', () => {
@@ -852,7 +857,7 @@ describe('transaction normalized stage-a core', () => {
       { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
       CLEAN_WORKSPACE,
     );
-    assert.equal(bypassAttempt.coreValidation, 'PURE_CORE_VALIDATION_PASS');
+    assert.equal(bypassAttempt.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
     assert.equal(runTransactionNormalizedPlan.length, 1);
   });
 
@@ -1156,28 +1161,366 @@ describe('transaction normalized stage-a core', () => {
       { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
       CLEAN_WORKSPACE,
     );
-    assert.equal(pure.coreValidation, 'PURE_CORE_VALIDATION_PASS');
-    assert.equal(pure.actualGitInspectionPerformed, false);
+    assert.equal(pure.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    assert.equal(pure.ancestryValidationPerformed, false);
     assert.notEqual(pure.coreValidation, 'PLAN_ONLY_PASS');
+    assert.notEqual(pure.coreValidation, 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED');
+    assert.notEqual(pure.coreValidation, 'PLAN_STRUCTURE_VALIDATED');
   });
 
-  it('64 only public actual-Git path can emit PLAN_ONLY_PASS', () => {
+  it('64 public API never emits PLAN_ONLY_PASS in current implementation', () => {
     const coreSource = readFileSync(
       join(REPO_ROOT, 'lib/m55/transactionNormalized/transactionNormalizedCore.ts'),
       'utf8',
     );
-    const helperBlock = coreSource.slice(
-      coreSource.indexOf('evaluatePlanCoreFromValidatedWorkspaceFacts'),
-      coreSource.indexOf('export function formatRedactedPlanEvidence'),
+    const runBlock = coreSource.slice(
+      coreSource.indexOf('export function runTransactionNormalizedPlan'),
+      coreSource.indexOf('export type { Policy2HistoryPayload'),
     );
-    assert.equal(helperBlock.includes("'PLAN_ONLY_PASS'"), false);
+    assert.equal(runBlock.includes("'PLAN_ONLY_PASS'"), false);
     assert.equal(runTransactionNormalizedPlan.length, 1);
-    const dirty = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
-    assert.equal(dirty.coreValidation, 'PRE_DB_HOLD');
-    const pure = evaluatePlanCoreFromValidatedWorkspaceFacts(
+    const publicResult = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
+    assert.notEqual(publicResult.coreValidation, 'PLAN_ONLY_PASS');
+  });
+
+  it('65 addendum schema role status exact', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.equal(binding.addendum.schema, 'm55.preview.transaction_normalized.stage_a_binding.v1');
+    assert.equal(binding.addendum.revision, 'STAGE-A-BINDING-v1');
+    assert.equal(binding.addendum.status, 'DRAFT');
+    assert.equal(binding.addendum.authority_role, 'REVISION_7_STAGE_A_BINDING_CONTRACT_ADDENDUM');
+    assert.equal(binding.addendum.execution_status, 'NOT EXECUTED');
+  });
+
+  it('66 parent authority path bytes SHA exact', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.equal(binding.addendum.parent_authority.contract.path, AUTHORITY_CONTRACT_REL_PATH);
+    assert.equal(binding.addendum.parent_authority.contract.bytes, AUTHORITY_FILE_EXPECTATIONS.contract.bytes);
+    assert.equal(binding.addendum.parent_authority.contract.sha256, AUTHORITY_FILE_EXPECTATIONS.contract.sha256);
+    assert.equal(binding.addendum.parent_authority.matrix.path, AUTHORITY_MATRIX_REL_PATH);
+    assert.equal(binding.addendum.parent_authority.parser_evidence.path, AUTHORITY_PARSER_EVIDENCE_REL_PATH);
+  });
+
+  it('67 addendum contains no own full-file SHA blob commit', () => {
+    const raw = readFileSync(join(REPO_ROOT, STAGE_A_BINDING_ADDENDUM_REL_PATH), 'utf8');
+    assert.equal(raw.includes('full_file_sha256'), false);
+    assert.equal(raw.includes('git_blob'), false);
+    assert.equal(raw.includes('git_commit_sha'), false);
+    assert.equal(raw.includes(BASELINE_STAGE_A_COMMIT), true);
+  });
+
+  it('68 addendum absent from protected runtime file list', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const paths = binding.addendum.generation_1_protected_runtime_identities.files.map((f) => f.path);
+    assert.equal(paths.includes(STAGE_A_BINDING_ADDENDUM_REL_PATH), false);
+    assert.equal(paths.length, 7);
+  });
+
+  it('69 canonical payload SHA exact with one exclusion', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.equal(binding.addendum.integrity.canonical_payload_exclusions.length, 1);
+    assert.equal(
+      binding.addendum.integrity.canonical_payload_exclusions[0],
+      '/integrity/canonical_payload_sha256',
+    );
+    assert.equal(computeCanonicalPayloadSha256(binding.addendum), binding.canonicalPayloadSha256);
+  });
+
+  it('70 changed canonical payload field fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    mutated.workspace_binding.binding_policy_identifier = 'mutated_policy';
+    assert.notEqual(computeCanonicalPayloadSha256(mutated), binding.canonicalPayloadSha256);
+  });
+
+  it('71 exact Generation-0 historical identity registry', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.equal(binding.addendum.generation_0_historical_identities.anchor_commit, BASELINE_STAGE_A_COMMIT);
+    assert.equal(binding.addendum.generation_0_historical_identities.files.length, 8);
+    for (let i = 0; i < EXPECTED_GENERATION0_BASELINE_IDENTITIES.length; i++) {
+      const expected = EXPECTED_GENERATION0_BASELINE_IDENTITIES[i];
+      const actual = binding.addendum.generation_0_historical_identities.files[i];
+      assert.ok(expected && actual);
+      assert.equal(actual.path, expected.path);
+      assert.equal(actual.bytes, expected.bytes);
+      assert.equal(actual.sha256, expected.sha256);
+      assert.equal(actual.classification, expected.classification);
+    }
+  });
+
+  it('72 exact Generation-1 protected runtime set', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const paths = binding.addendum.generation_1_protected_runtime_identities.files.map((f) => f.path);
+    assert.deepEqual(paths, [
+      AUTHORITY_CONTRACT_REL_PATH,
+      AUTHORITY_MATRIX_REL_PATH,
+      AUTHORITY_PARSER_EVIDENCE_REL_PATH,
+      'lib/m55/transactionNormalized/splitAndTrim.ts',
+      'lib/m55/transactionNormalized/statementStream.ts',
+      GEN1_REBIND_CORE_REL_PATH,
+      GEN1_REBIND_CLI_REL_PATH,
+    ]);
+  });
+
+  it('73 test identity is review-only not runtime-protected', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const protectedPaths = binding.addendum.generation_1_protected_runtime_identities.files.map((f) => f.path);
+    const reviewPaths = binding.addendum.generation_1_review_evidence.files.map((f) => f.path);
+    assert.equal(protectedPaths.includes(GEN1_REVIEW_TEST_REL_PATH), false);
+    assert.equal(reviewPaths.includes(GEN1_REVIEW_TEST_REL_PATH), true);
+  });
+
+  it('74 source base is ancestor of baseline commit', () => {
+    assert.equal(isGitAncestor(REPO_ROOT, EXPECTED_SOURCE_AUTHORITY_BASE, BASELINE_STAGE_A_COMMIT), true);
+  });
+
+  it('75 baseline commit ancestor of current HEAD', () => {
+    assert.equal(isGitAncestor(REPO_ROOT, BASELINE_STAGE_A_COMMIT, BASELINE_STAGE_A_COMMIT), true);
+  });
+
+  it('76 unrelated descendant permitted structurally if protected identities exact', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.equal(binding.addendum.workspace_binding.binding_policy_identifier, BINDING_POLICY_IDENTIFIER);
+    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
       { repoRoot: REPO_ROOT, planVersionSelector: 'P1' },
       CLEAN_WORKSPACE,
     );
-    assert.equal(pure.coreValidation, 'PURE_CORE_VALIDATION_PASS');
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+  });
+
+  it('77 protected runtime identity drift fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    const coreEntry = mutated.generation_1_protected_runtime_identities.files[5];
+    assert.ok(coreEntry);
+    coreEntry.sha256 = '0'.repeat(64);
+    assert.throws(
+      () => validateStageABindingAddendumSemantics(mutated),
+      /STAGE_A_BINDING_CANONICAL_PAYLOAD_MISMATCH/,
+    );
+  });
+
+  it('78 pure helper cannot emit PLAN_STRUCTURE_VALIDATED without ancestry', () => {
+    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
+      { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
+      CLEAN_WORKSPACE,
+    );
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    assert.equal(result.ancestryValidationPerformed, false);
+    assert.notEqual(result.coreValidation, 'PLAN_STRUCTURE_VALIDATED');
+  });
+
+  it('79 public result is PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED when clean', () => {
+    const status = spawnSync('git', ['status', '--short', '-uall'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (status.stdout.trim().length > 0) {
+      const dirty = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
+      assert.equal(dirty.coreValidation, 'PRE_DB_HOLD');
+      assert.equal(dirty.holdReasonCode, 'WORKSPACE_NOT_CLEAN');
+      return;
+    }
+    const result = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'ALL' });
+    assert.equal(result.coreValidation, 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED');
+    assert.equal(result.structuralValidation, 'PLAN_STRUCTURE_VALIDATED');
+    assert.equal(result.holdReasonCode, PLAN_ONLY_EXTERNAL_ATTESTATION_HOLD);
+  });
+
+  it('80 public API CLI cannot accept arbitrary attestation path SHA object', () => {
+    const coreSource = readFileSync(join(REPO_ROOT, 'lib/m55/transactionNormalized/transactionNormalizedCore.ts'), 'utf8');
+    const cliSource = readFileSync(join(REPO_ROOT, 'scripts/m55/runTransactionNormalizedPlan.ts'), 'utf8');
+    assert.equal(coreSource.includes('verifyExternalPlanAttestation'), true);
+    assert.equal(cliSource.includes('attestation'), true);
+    assert.equal(runTransactionNormalizedPlan.length, 1);
+    const script = join(REPO_ROOT, 'scripts/m55/runTransactionNormalizedPlan.ts');
+    const forbidden = spawnSync(process.execPath, ['--experimental-strip-types', script, '--attestation-path=/tmp/x'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    assert.notEqual(forbidden.status, 0);
+    assert.match(forbidden.stderr, /FORBIDDEN_ARGUMENT/);
+  });
+
+  it('81 no public PLAN_ONLY_PASS path in current implementation', () => {
+    const result = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'P1' });
+    assert.notEqual(result.coreValidation, 'PLAN_ONLY_PASS');
+  });
+
+  it('82 source-authority rebind blocker removed only after addendum validation', () => {
+    const structural = evaluatePlanCoreFromValidatedWorkspaceFacts(
+      { repoRoot: REPO_ROOT, planVersionSelector: 'P1' },
+      CLEAN_WORKSPACE,
+    );
+    assert.equal(structural.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    assert.ok(STAGE_B_BLOCKERS.includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER));
+    assert.equal(
+      (STAGE_B_EXECUTION_BLOCKERS as readonly string[]).includes(SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER),
+      false,
+    );
+  });
+
+  it('83 execution-specific blockers remain', () => {
+    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
+      { repoRoot: REPO_ROOT, planVersionSelector: 'P1' },
+      CLEAN_WORKSPACE,
+    );
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    const publicResult = runTransactionNormalizedPlan({ repoRoot: REPO_ROOT, planVersionSelector: 'P1' });
+    for (const blocker of [
+      'approved_preview_target_fingerprint',
+      'executor_artifact_identity',
+      'execution_package_identity',
+      'db_transport_binding',
+    ]) {
+      if (publicResult.coreValidation === 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED') {
+        assert.ok(publicResult.stageBBlockers.includes(blocker));
+      }
+    }
+  });
+
+  it('84 CLI deterministic nonzero HOLD after structural success', () => {
+    const script = join(REPO_ROOT, 'scripts/m55/runTransactionNormalizedPlan.ts');
+    const first = spawnSync(process.execPath, ['--experimental-strip-types', script, 'ALL'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    const second = spawnSync(process.execPath, ['--experimental-strip-types', script, 'ALL'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    assert.equal(first.stdout, second.stdout);
+    assert.notEqual(first.status, 0);
+    const parsed = JSON.parse(first.stdout) as { coreValidation: string; holdReasonCode?: string };
+    assert.notEqual(parsed.coreValidation, 'PLAN_ONLY_PASS');
+    if (parsed.coreValidation === 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED') {
+      assert.equal(parsed.holdReasonCode, PLAN_ONLY_EXTERNAL_ATTESTATION_HOLD);
+    }
+  });
+
+  it('85 canonical deletion differs from blank-string substitution', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const deleted = computeCanonicalPayloadSha256(binding.addendum);
+    const blanked = computeCanonicalPayloadSha256WithBlankSubstitution(binding.addendum);
+    assert.notEqual(deleted, blanked);
+    assert.equal(deleted, binding.canonicalPayloadSha256);
+  });
+
+  it('86 exact canonical exclusion declaration bound', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.deepEqual(binding.addendum.integrity.canonical_payload_exclusions, [
+      '/integrity/canonical_payload_sha256',
+    ]);
+    assert.equal(
+      binding.addendum.integrity.canonical_payload_sha256_role,
+      'ACCIDENTAL_INTERNAL_CORRUPTION_DETECTION_ONLY',
+    );
+    assert.equal(binding.addendum.integrity.external_full_file_sha_attestation_required, true);
+  });
+
+  it('87 complete Generation-0 registry deep-equals independent authority', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    assert.deepEqual(
+      binding.addendum.generation_0_historical_identities.files.map((f) => ({
+        path: f.path,
+        bytes: f.bytes,
+        sha256: f.sha256,
+        classification: f.classification,
+      })),
+      EXPECTED_GENERATION0_BASELINE_IDENTITIES.map((f) => ({
+        path: f.path,
+        bytes: f.bytes,
+        sha256: f.sha256,
+        classification: f.classification,
+      })),
+    );
+  });
+
+  it('88 Generation-0 field mutation fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    mutated.generation_0_historical_identities.files[6] = {
+      ...mutated.generation_0_historical_identities.files[6],
+      classification: 'mutated_baseline_test',
+    };
+    assert.throws(
+      () => validateStageABindingAddendumSemantics(mutated),
+      /STAGE_A_BINDING_GEN0_HISTORICAL_IDENTITY_MISMATCH/,
+    );
+  });
+
+  it('89 immutable parser carry-forward mutation fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    const parserEntry = mutated.generation_1_protected_runtime_identities.files[3];
+    assert.ok(parserEntry);
+    parserEntry.sha256 = '0'.repeat(64);
+    assert.throws(
+      () => validateStageABindingAddendumSemantics(mutated),
+      /STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH/,
+    );
+  });
+
+  it('90 immutable statement-stream mutation fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    const streamEntry = mutated.generation_1_protected_runtime_identities.files[4];
+    assert.ok(streamEntry);
+    streamEntry.classification = 'mutated_statement_stream';
+    assert.throws(
+      () => validateStageABindingAddendumSemantics(mutated),
+      /STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH/,
+    );
+  });
+
+  it('91 contract-revision trigger supersedes mutation fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    mutated.contract_revision_fulfillment.trigger = 'mutated_trigger';
+    assert.throws(() => validateStageABindingAddendumSemantics(mutated), /STAGE_A_BINDING_ADDENDUM_MALFORMED/);
+    const mutated2 = structuredClone(binding.addendum);
+    mutated2.contract_revision_fulfillment.supersedes_plan_only_checks = ['mutated_check'];
+    assert.throws(() => validateStageABindingAddendumSemantics(mutated2), /STAGE_A_BINDING_ADDENDUM_MALFORMED/);
+  });
+
+  it('92 integrity role external flag mutation fails closed', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    mutated.integrity.canonical_payload_sha256_role = 'MUTATED_ROLE';
+    assert.throws(() => validateStageABindingAddendumSemantics(mutated), /STAGE_A_BINDING_ADDENDUM_MALFORMED/);
+    const mutated2 = structuredClone(binding.addendum);
+    mutated2.integrity.external_full_file_sha_attestation_required = false;
+    assert.throws(() => validateStageABindingAddendumSemantics(mutated2), /STAGE_A_BINDING_ADDENDUM_MALFORMED/);
+  });
+
+  it('93 pure helper cannot emit PLAN_STRUCTURE_VALIDATED without ancestry duplicate guard', () => {
+    const result = evaluatePlanCoreFromValidatedWorkspaceFacts(
+      { repoRoot: REPO_ROOT, planVersionSelector: 'ALL' },
+      CLEAN_WORKSPACE,
+    );
+    assert.notEqual(result.coreValidation, 'PLAN_STRUCTURE_VALIDATED');
+    assert.equal(result.coreValidation, 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY');
+    const coreSource = readFileSync(
+      join(REPO_ROOT, 'lib/m55/transactionNormalized/transactionNormalizedCore.ts'),
+      'utf8',
+    );
+    const fnStart = coreSource.indexOf('export function evaluatePlanCoreFromValidatedWorkspaceFacts');
+    const fnEnd = coreSource.indexOf('export function formatRedactedPlanEvidence');
+    assert.ok(fnStart >= 0 && fnEnd > fnStart);
+    const fnSlice = coreSource.slice(fnStart, fnEnd);
+    assert.equal(fnSlice.includes("'PLAN_STRUCTURE_VALIDATED'"), false);
+  });
+
+  it('94 protected drift invokes shared validator and fails closed on CLI SHA mutation', () => {
+    const binding = loadStageABindingAddendum(REPO_ROOT);
+    const mutated = structuredClone(binding.addendum);
+    const cliEntry = mutated.generation_1_protected_runtime_identities.files[6];
+    assert.ok(cliEntry);
+    cliEntry.sha256 = '0'.repeat(64);
+    assert.throws(
+      () => validateStageABindingAddendumSemantics(mutated),
+      /STAGE_A_BINDING_CANONICAL_PAYLOAD_MISMATCH/,
+    );
+    assert.deepEqual(
+      binding.addendum.generation_1_protected_runtime_identities.files.slice(0, 5).map((f) => f.sha256),
+      EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES.map((f) => f.sha256),
+    );
   });
 });

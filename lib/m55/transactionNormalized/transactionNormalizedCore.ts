@@ -35,8 +35,99 @@ export const AUTHORITY_PARSER_EVIDENCE_REL_PATH =
 
 export const EXPECTED_REPO_ROOT = '/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1' as const;
 export const EXPECTED_BRANCH = 'feat/m55-paid-lp-canonical-wave1' as const;
-export const EXPECTED_SOURCE_AUTHORITY_HEAD =
+export const EXPECTED_SOURCE_AUTHORITY_BASE =
   'ceee04aab0a94376a55a576900cb2f8d597c19f4' as const;
+/** @deprecated use EXPECTED_SOURCE_AUTHORITY_BASE — preserved alias for Revision-7 parity */
+export const EXPECTED_SOURCE_AUTHORITY_HEAD = EXPECTED_SOURCE_AUTHORITY_BASE;
+
+export const BASELINE_STAGE_A_COMMIT =
+  '66b6bf2431b979b777d63f7d4b2b5c5c2a4a3bdc' as const;
+
+export const STAGE_A_BINDING_ADDENDUM_REL_PATH =
+  'docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZED_STAGE_A_BINDING_v1.json' as const;
+
+export const BINDING_POLICY_IDENTIFIER = 'stage_a_ancestor_and_protected_file_v1' as const;
+
+export const PLAN_ONLY_EXTERNAL_ATTESTATION_HOLD = 'PLAN_ONLY_EXTERNAL_ATTESTATION_REQUIRED' as const;
+
+export const GEN1_REBIND_CORE_REL_PATH = 'lib/m55/transactionNormalized/transactionNormalizedCore.ts' as const;
+export const GEN1_REBIND_CLI_REL_PATH = 'scripts/m55/runTransactionNormalizedPlan.ts' as const;
+export const GEN1_REVIEW_TEST_REL_PATH = 'lib/m55/transactionNormalized.core.local.test.ts' as const;
+
+export const GEN0_IMMUTABLE_RUNTIME_REL_PATHS = [
+  AUTHORITY_CONTRACT_REL_PATH,
+  AUTHORITY_MATRIX_REL_PATH,
+  AUTHORITY_PARSER_EVIDENCE_REL_PATH,
+  'lib/m55/transactionNormalized/splitAndTrim.ts',
+  'lib/m55/transactionNormalized/statementStream.ts',
+] as const;
+
+export type ExpectedBindingFileIdentity = {
+  path: string;
+  bytes: number;
+  sha256: string;
+  classification: string;
+};
+
+export const EXPECTED_GENERATION0_BASELINE_IDENTITIES: readonly ExpectedBindingFileIdentity[] = [
+  {
+    path: AUTHORITY_CONTRACT_REL_PATH,
+    bytes: 309607,
+    sha256: 'd6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c',
+    classification: 'authority_contract',
+  },
+  {
+    path: AUTHORITY_MATRIX_REL_PATH,
+    bytes: 110904,
+    sha256: '6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93',
+    classification: 'authority_matrix',
+  },
+  {
+    path: AUTHORITY_PARSER_EVIDENCE_REL_PATH,
+    bytes: 208050,
+    sha256: 'bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442',
+    classification: 'authority_parser_evidence',
+  },
+  {
+    path: 'lib/m55/transactionNormalized/splitAndTrim.ts',
+    bytes: 9803,
+    sha256: '404feb5c68a656aebed29cfc81d80d49a22cc2812589d36ce148f1491d855b04',
+    classification: 'parser_port',
+  },
+  {
+    path: 'lib/m55/transactionNormalized/statementStream.ts',
+    bytes: 4060,
+    sha256: '1a3faaeed3eaefb25e5b5cedb7ece422d537126caef2eaf17a8c10c794953a13',
+    classification: 'statement_stream',
+  },
+  {
+    path: GEN1_REBIND_CORE_REL_PATH,
+    bytes: 72195,
+    sha256: '48f45dc6136ccb71c06e80c1631e995f416be778af82afd7daf7fa351e506ff7',
+    classification: 'baseline_core',
+  },
+  {
+    path: GEN1_REVIEW_TEST_REL_PATH,
+    bytes: 51580,
+    sha256: 'd38cfeae877876ad4d45862f8aa22d52c3d47e4f2b762639a2dfc70f447a621c',
+    classification: 'baseline_test',
+  },
+  {
+    path: GEN1_REBIND_CLI_REL_PATH,
+    bytes: 3791,
+    sha256: '7d88446115941337ed45cdcee2075beeb513dfc8203ff5a53a8ed903aec75d9b',
+    classification: 'baseline_plan_cli',
+  },
+] as const;
+
+export const EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES: readonly ExpectedBindingFileIdentity[] =
+  EXPECTED_GENERATION0_BASELINE_IDENTITIES.slice(0, 5);
+
+export const EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS = {
+  core: 'rebind_core',
+  cli: 'rebind_plan_cli',
+  review: 'rebind_test_review_evidence',
+} as const;
 
 export const APPROVED_PREVIEW_ORGANIZATION = 'm55-preview' as const;
 export const APPROVED_PREVIEW_PROJECT = 'm55-soul-preview' as const;
@@ -79,11 +170,16 @@ export type TransactionNormalizedPlanInput = {
   planVersionSelector: PlanVersionSelector;
 };
 
-export type PureCoreValidationOutcome = 'PURE_CORE_VALIDATION_PASS' | 'PRE_DB_HOLD';
+export type PureCoreValidationOutcome =
+  | 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY'
+  | 'PRE_DB_HOLD';
+
+export type StructuralValidationOutcome = 'PLAN_STRUCTURE_VALIDATED';
 
 export type PureOutcome =
   | 'PLAN_ONLY_PASS'
-  | 'PURE_CORE_VALIDATION_PASS'
+  | 'PLAN_STRUCTURE_VALIDATED'
+  | 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED'
   | 'PRE_DB_HOLD'
   | 'EXECUTION_LOCKED'
   | 'DEFINITELY_NOT_COMMITTED'
@@ -191,7 +287,7 @@ export type P2ThroughP7AckFacts = {
 export const SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER =
   'source_authority_head_rebind_contract_revision_required' as const;
 
-export const STAGE_B_BLOCKERS = [
+export const STAGE_B_EXECUTION_BLOCKERS = [
   'approved_preview_target_fingerprint',
   'executor_artifact_identity',
   'execution_package_identity',
@@ -206,6 +302,10 @@ export const STAGE_B_BLOCKERS = [
   'target_identity_fail_closed_dual_channel_guard',
   'post_connect_identity_probe_implementation',
   'db_transport_binding',
+] as const;
+
+export const STAGE_B_BLOCKERS = [
+  ...STAGE_B_EXECUTION_BLOCKERS,
   SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER,
 ] as const;
 
@@ -327,6 +427,7 @@ export type VersionValidationStatus = {
 export type PlanResult = {
   mode: typeof STAGE_A_MODE;
   coreValidation: PureOutcome;
+  structuralValidation?: StructuralValidationOutcome;
   executionState: 'EXECUTION_LOCKED';
   selectedVersions: VersionLabel[];
   authorityIdentities: {
@@ -341,10 +442,13 @@ export type PlanResult = {
   executionLock: typeof STAGE_A_EXECUTION_LOCK;
   targetFingerprintReadiness: 'REQUIRED_NOT_FROZEN';
   holdReasonCode?: string;
-  expectedPreImplementationHead: typeof EXPECTED_SOURCE_AUTHORITY_HEAD;
+  sourceAuthorityBase: typeof EXPECTED_SOURCE_AUTHORITY_BASE;
+  baselineStageACommit: typeof BASELINE_STAGE_A_COMMIT;
+  bindingAddendumPath: typeof STAGE_A_BINDING_ADDENDUM_REL_PATH;
+  bindingAddendumCanonicalPayloadSha256?: string;
   planOnlyPassIsNotExecutionAuthorization: true;
   executionRemainsLocked: true;
-  sourceAuthorityHeadRebindBlocker: typeof SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER;
+  externalPlanAttestationRequired: true;
 };
 
 export type PlanCoreEvaluationResult = {
@@ -354,6 +458,7 @@ export type PlanCoreEvaluationResult = {
   holdReasonCode?: string;
   evaluatedFromValidatedWorkspaceFacts: true;
   actualGitInspectionPerformed: false;
+  ancestryValidationPerformed: false;
 };
 
 type ContractFailureRegistryEntry = {
@@ -937,6 +1042,17 @@ const HOLD_REASON_BASE_ALLOWLIST = new Set<string>([
   'UNKNOWN_ARGUMENT',
   'PRE_DB_HOLD',
   'DB_TRANSPORT_INSTANTIATION_FORBIDDEN',
+  'STAGE_A_BINDING_ADDENDUM_MISSING',
+  'STAGE_A_BINDING_ADDENDUM_MALFORMED',
+  'STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH',
+  'STAGE_A_BINDING_BASELINE_ANCESTRY_FAILURE',
+  'STAGE_A_BINDING_IMPLEMENTATION_ANCESTRY_FAILURE',
+  'STAGE_A_BINDING_GEN0_HISTORICAL_IDENTITY_MISMATCH',
+  'STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH',
+  'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH',
+  'STAGE_A_BINDING_CANONICAL_PAYLOAD_MISMATCH',
+  'STAGE_A_BINDING_UNAUTHORIZED_PROTECTED_FILE_CHANGE',
+  'PLAN_ONLY_EXTERNAL_ATTESTATION_REQUIRED',
 ]);
 
 function validateContractVersionIdentities(contract: ContractBindingSource): void {
@@ -1710,15 +1826,515 @@ function validateNormalization(
   };
 }
 
+export type BindingFileIdentity = {
+  path: string;
+  bytes: number;
+  sha256: string;
+  classification: string;
+};
+
+export type StageABindingAddendum = {
+  schema: string;
+  schema_version: string;
+  revision: string;
+  status: string;
+  authority_role: string;
+  execution_status: string;
+  execution_authorization: boolean;
+  remote_apply_authorization: boolean;
+  local_db_authorization: boolean;
+  implementation_authorization: boolean;
+  plan_only_pass_is_not_execution_authorization: boolean;
+  external_plan_attestation_required: boolean;
+  external_execution_attestation_required: boolean;
+  no_automatic_next_gate: boolean;
+  parent_authority: {
+    contract: BindingFileIdentity;
+    matrix: BindingFileIdentity;
+    parser_evidence: BindingFileIdentity;
+  };
+  contract_revision_fulfillment: {
+    satisfies_head_change_requires_contract_revision: boolean;
+    trigger: string;
+    frozen_source_authority_head: string;
+    baseline_stage_a_commit: string;
+    does_not_mutate_revision_7_bytes: boolean;
+    supersedes_plan_only_checks: string[];
+    does_not_change_transaction_or_execution_semantics: boolean;
+  };
+  workspace_binding: {
+    expected_repo_root: string;
+    expected_branch: string;
+    source_authority_base_commit: string;
+    baseline_stage_a_commit: string;
+    binding_policy_identifier: string;
+  };
+  generation_0_historical_identities: {
+    anchor_commit: string;
+    files: BindingFileIdentity[];
+  };
+  generation_1_protected_runtime_identities: {
+    files: BindingFileIdentity[];
+  };
+  generation_1_review_evidence: {
+    files: BindingFileIdentity[];
+  };
+  execution_identities: {
+    approved_preview_target_fingerprint: string;
+    executor_artifact_identity: string;
+    execution_package_identity: string;
+  };
+  integrity: {
+    self_commit_sha_forbidden: boolean;
+    full_file_sha_self_reference_forbidden: boolean;
+    canonical_serialization: string;
+    canonical_payload_sha256: string;
+    canonical_payload_exclusions: string[];
+    canonical_payload_sha256_role: string;
+    external_full_file_sha_attestation_required: boolean;
+  };
+};
+
+export type StageABindingValidation = {
+  addendum: StageABindingAddendum;
+  canonicalPayloadSha256: string;
+};
+
+export type ExternalPlanAttestation = {
+  schema: string;
+  revision: string;
+  execution_status: string;
+  authority_role: string;
+  rebind_commit_sha: string;
+  binding_addendum_full_file_sha256: string;
+  binding_addendum_canonical_payload_sha256: string;
+  attestation_scope: string;
+  execution_authorization: boolean;
+  remote_apply_authorization: boolean;
+  local_db_authorization: boolean;
+};
+
+function canonicalSerialize(value: unknown): string {
+  if (value === null || typeof value === 'boolean' || typeof value === 'number') {
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'string') {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((entry) => canonicalSerialize(entry)).join(',')}]`;
+  }
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  return `{${keys.map((key) => `${JSON.stringify(key)}:${canonicalSerialize(record[key])}`).join(',')}}`;
+}
+
+export function computeCanonicalPayloadSha256(addendum: StageABindingAddendum): string {
+  const clone = structuredClone(addendum) as StageABindingAddendum;
+  const integrityRecord = { ...clone.integrity } as Record<string, unknown>;
+  delete integrityRecord.canonical_payload_sha256;
+  const payload = {
+    ...clone,
+    integrity: integrityRecord,
+  };
+  const serialized = canonicalSerialize(payload);
+  return createHash('sha256').update(serialized, 'utf8').digest('hex');
+}
+
+/** Test-only comparator proving blank substitution is not accepted exclusion semantics. */
+export function computeCanonicalPayloadSha256WithBlankSubstitution(addendum: StageABindingAddendum): string {
+  const clone = structuredClone(addendum) as StageABindingAddendum;
+  clone.integrity.canonical_payload_sha256 = '';
+  const serialized = canonicalSerialize(clone);
+  return createHash('sha256').update(serialized, 'utf8').digest('hex');
+}
+
+function readBindingAddendumJson(repoRoot: string): StageABindingAddendum {
+  const abs = join(repoRoot, STAGE_A_BINDING_ADDENDUM_REL_PATH);
+  if (!existsSync(abs)) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MISSING');
+  }
+  return JSON.parse(readFileSync(abs, 'utf8')) as StageABindingAddendum;
+}
+
+function validateBindingFileIdentityAgainstLive(
+  repoRoot: string,
+  expected: BindingFileIdentity,
+  errorCode: 'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH' | 'STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH',
+): void {
+  const actual = sha256File(join(repoRoot, expected.path));
+  if (actual.bytes !== expected.bytes || actual.sha256 !== expected.sha256) {
+    throw new Error(errorCode);
+  }
+}
+
+function validateExactIdentityRegistry(
+  actual: readonly BindingFileIdentity[],
+  expected: readonly ExpectedBindingFileIdentity[],
+  errorCode:
+    | 'STAGE_A_BINDING_GEN0_HISTORICAL_IDENTITY_MISMATCH'
+    | 'STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH'
+    | 'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH',
+): void {
+  if (actual.length !== expected.length) {
+    throw new Error(errorCode);
+  }
+  for (let i = 0; i < expected.length; i++) {
+    const exp = expected[i];
+    const act = actual[i];
+    if (!exp || !act) {
+      throw new Error(errorCode);
+    }
+    if (
+      act.path !== exp.path ||
+      act.bytes !== exp.bytes ||
+      act.sha256 !== exp.sha256 ||
+      act.classification !== exp.classification
+    ) {
+      throw new Error(errorCode);
+    }
+  }
+}
+
+function validateIntegrityBlockExact(addendum: StageABindingAddendum): void {
+  const integrity = addendum.integrity;
+  if (integrity.self_commit_sha_forbidden !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.full_file_sha_self_reference_forbidden !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.canonical_serialization !== 'm55.canonical_json.sorted_keys_utf8_no_whitespace.v1') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.canonical_payload_exclusions.length !== 1) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.canonical_payload_exclusions[0] !== '/integrity/canonical_payload_sha256') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.canonical_payload_sha256_role !== 'ACCIDENTAL_INTERNAL_CORRUPTION_DETECTION_ONLY') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (integrity.external_full_file_sha_attestation_required !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+}
+
+function validateContractRevisionFulfillmentExact(addendum: StageABindingAddendum): void {
+  const fulfillment = addendum.contract_revision_fulfillment;
+  if (fulfillment.satisfies_head_change_requires_contract_revision !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (fulfillment.trigger !== 'workspace_implementation_head_advanced_beyond_frozen_source_authority_head') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (fulfillment.frozen_source_authority_head !== EXPECTED_SOURCE_AUTHORITY_BASE) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (fulfillment.baseline_stage_a_commit !== BASELINE_STAGE_A_COMMIT) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (fulfillment.does_not_mutate_revision_7_bytes !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (fulfillment.does_not_change_transaction_or_execution_semantics !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (
+    fulfillment.supersedes_plan_only_checks.length !== 1 ||
+    fulfillment.supersedes_plan_only_checks[0] !== 'repo_root_branch_head_exact'
+  ) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+}
+
+function validateParentAuthorityClassificationsExact(addendum: StageABindingAddendum): void {
+  if (addendum.parent_authority.contract.classification !== 'authority_contract') {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+  if (addendum.parent_authority.matrix.classification !== 'authority_matrix') {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+  if (addendum.parent_authority.parser_evidence.classification !== 'authority_parser_evidence') {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+}
+
+function assertBindingParentAuthority(addendum: StageABindingAddendum): void {
+  const contract = addendum.parent_authority.contract;
+  const matrix = addendum.parent_authority.matrix;
+  const parserEvidence = addendum.parent_authority.parser_evidence;
+  validateParentAuthorityClassificationsExact(addendum);
+  if (
+    contract.path !== AUTHORITY_CONTRACT_REL_PATH ||
+    contract.bytes !== AUTHORITY_FILE_EXPECTATIONS.contract.bytes ||
+    contract.sha256 !== AUTHORITY_FILE_EXPECTATIONS.contract.sha256
+  ) {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+  if (
+    matrix.path !== AUTHORITY_MATRIX_REL_PATH ||
+    matrix.bytes !== AUTHORITY_FILE_EXPECTATIONS.matrix.bytes ||
+    matrix.sha256 !== AUTHORITY_FILE_EXPECTATIONS.matrix.sha256
+  ) {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+  if (
+    parserEvidence.path !== AUTHORITY_PARSER_EVIDENCE_REL_PATH ||
+    parserEvidence.bytes !== AUTHORITY_FILE_EXPECTATIONS.parserEvidence.bytes ||
+    parserEvidence.sha256 !== AUTHORITY_FILE_EXPECTATIONS.parserEvidence.sha256
+  ) {
+    throw new Error('STAGE_A_BINDING_PARENT_AUTHORITY_MISMATCH');
+  }
+}
+
+function assertAddendumSelfIdentityRules(addendum: StageABindingAddendum): void {
+  const serialized = JSON.stringify(addendum);
+  validateIntegrityBlockExact(addendum);
+  if (serialized.includes('full_file_sha256') || serialized.includes('git_blob') || serialized.includes('git_commit_sha')) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  for (const file of addendum.generation_1_protected_runtime_identities.files) {
+    if (file.path === STAGE_A_BINDING_ADDENDUM_REL_PATH) {
+      throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+    }
+  }
+}
+
+function validateGeneration1ProtectedStructure(addendum: StageABindingAddendum): void {
+  const protectedFiles = addendum.generation_1_protected_runtime_identities.files;
+  const expectedProtectedPaths = [
+    AUTHORITY_CONTRACT_REL_PATH,
+    AUTHORITY_MATRIX_REL_PATH,
+    AUTHORITY_PARSER_EVIDENCE_REL_PATH,
+    'lib/m55/transactionNormalized/splitAndTrim.ts',
+    'lib/m55/transactionNormalized/statementStream.ts',
+    GEN1_REBIND_CORE_REL_PATH,
+    GEN1_REBIND_CLI_REL_PATH,
+  ];
+  if (protectedFiles.length !== expectedProtectedPaths.length) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  for (let i = 0; i < expectedProtectedPaths.length; i++) {
+    if (protectedFiles[i]?.path !== expectedProtectedPaths[i]) {
+      throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+    }
+  }
+  validateExactIdentityRegistry(
+    protectedFiles.slice(0, 5),
+    EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES,
+    'STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH',
+  );
+  const coreEntry = protectedFiles[5];
+  const cliEntry = protectedFiles[6];
+  if (!coreEntry || !cliEntry) {
+    throw new Error('STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  }
+  if (coreEntry.classification !== EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS.core) {
+    throw new Error('STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  }
+  if (cliEntry.classification !== EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS.cli) {
+    throw new Error('STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  }
+}
+
+function validateReviewEvidenceExact(addendum: StageABindingAddendum): void {
+  const reviewFiles = addendum.generation_1_review_evidence.files;
+  if (reviewFiles.length !== 1) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  const reviewEntry = reviewFiles[0];
+  if (!reviewEntry || reviewEntry.path !== GEN1_REVIEW_TEST_REL_PATH) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (reviewEntry.classification !== EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS.review) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+}
+
+/** Shared semantic validator used by production loader and tests. */
+export function validateStageABindingAddendumSemantics(addendum: StageABindingAddendum): string {
+  if (addendum.schema !== 'm55.preview.transaction_normalized.stage_a_binding.v1') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.schema_version !== 'm55.preview.transaction_normalized.stage_a_binding.v1.draft') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.revision !== 'STAGE-A-BINDING-v1') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.status !== 'DRAFT') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.authority_role !== 'REVISION_7_STAGE_A_BINDING_CONTRACT_ADDENDUM') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.execution_status !== 'NOT EXECUTED') {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (
+    addendum.execution_authorization !== false ||
+    addendum.remote_apply_authorization !== false ||
+    addendum.local_db_authorization !== false ||
+    addendum.implementation_authorization !== false
+  ) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.plan_only_pass_is_not_execution_authorization !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.external_plan_attestation_required !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.external_execution_attestation_required !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+  if (addendum.no_automatic_next_gate !== true) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+
+  assertBindingParentAuthority(addendum);
+  assertAddendumSelfIdentityRules(addendum);
+  validateContractRevisionFulfillmentExact(addendum);
+
+  const workspace = addendum.workspace_binding;
+  if (
+    workspace.expected_repo_root !== EXPECTED_REPO_ROOT ||
+    workspace.expected_branch !== EXPECTED_BRANCH ||
+    workspace.source_authority_base_commit !== EXPECTED_SOURCE_AUTHORITY_BASE ||
+    workspace.baseline_stage_a_commit !== BASELINE_STAGE_A_COMMIT ||
+    workspace.binding_policy_identifier !== BINDING_POLICY_IDENTIFIER
+  ) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+
+  if (addendum.generation_0_historical_identities.anchor_commit !== BASELINE_STAGE_A_COMMIT) {
+    throw new Error('STAGE_A_BINDING_GEN0_HISTORICAL_IDENTITY_MISMATCH');
+  }
+  validateExactIdentityRegistry(
+    addendum.generation_0_historical_identities.files,
+    EXPECTED_GENERATION0_BASELINE_IDENTITIES,
+    'STAGE_A_BINDING_GEN0_HISTORICAL_IDENTITY_MISMATCH',
+  );
+
+  validateGeneration1ProtectedStructure(addendum);
+  validateReviewEvidenceExact(addendum);
+
+  if (
+    addendum.execution_identities.approved_preview_target_fingerprint !== FINGERPRINT_PLACEHOLDER ||
+    addendum.execution_identities.executor_artifact_identity !== FINGERPRINT_PLACEHOLDER ||
+    addendum.execution_identities.execution_package_identity !== FINGERPRINT_PLACEHOLDER
+  ) {
+    throw new Error('STAGE_A_BINDING_ADDENDUM_MALFORMED');
+  }
+
+  const canonicalPayloadSha256 = computeCanonicalPayloadSha256(addendum);
+  if (addendum.integrity.canonical_payload_sha256 !== canonicalPayloadSha256) {
+    throw new Error('STAGE_A_BINDING_CANONICAL_PAYLOAD_MISMATCH');
+  }
+
+  return canonicalPayloadSha256;
+}
+
+export function loadStageABindingAddendum(repoRoot: string): StageABindingValidation {
+  const addendum = readBindingAddendumJson(repoRoot);
+  const canonicalPayloadSha256 = validateStageABindingAddendumSemantics(addendum);
+
+  for (const file of EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES) {
+    validateBindingFileIdentityAgainstLive(repoRoot, file, 'STAGE_A_BINDING_IMMUTABLE_CARRY_FORWARD_MISMATCH');
+  }
+
+  const protectedFiles = addendum.generation_1_protected_runtime_identities.files;
+  const coreEntry = protectedFiles[5];
+  const cliEntry = protectedFiles[6];
+  if (!coreEntry || !cliEntry) {
+    throw new Error('STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  }
+  validateBindingFileIdentityAgainstLive(repoRoot, coreEntry, 'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  validateBindingFileIdentityAgainstLive(repoRoot, cliEntry, 'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+
+  for (const file of addendum.generation_1_review_evidence.files) {
+    validateBindingFileIdentityAgainstLive(repoRoot, file, 'STAGE_A_BINDING_GEN1_PROTECTED_IDENTITY_MISMATCH');
+  }
+
+  return { addendum, canonicalPayloadSha256 };
+}
+
+export function isGitAncestor(repoRoot: string, ancestor: string, descendant: string): boolean {
+  try {
+    execSync(`git merge-base --is-ancestor ${ancestor} ${descendant}`, {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function validateWorkspaceAncestryFromGit(repoRoot: string, currentHead: string): void {
+  if (!isGitAncestor(repoRoot, EXPECTED_SOURCE_AUTHORITY_BASE, BASELINE_STAGE_A_COMMIT)) {
+    throw new Error('STAGE_A_BINDING_BASELINE_ANCESTRY_FAILURE');
+  }
+  if (!isGitAncestor(repoRoot, BASELINE_STAGE_A_COMMIT, currentHead)) {
+    throw new Error('STAGE_A_BINDING_IMPLEMENTATION_ANCESTRY_FAILURE');
+  }
+}
+
+/** Later-gate pure verifier — not wired to public PLAN_ONLY_PASS in this implementation. */
+export function verifyExternalPlanAttestation(
+  attestation: ExternalPlanAttestation,
+  expected: {
+    rebindCommitSha: string;
+    addendumFullFileSha256: string;
+    addendumCanonicalPayloadSha256: string;
+  },
+): 'PASS' | 'HOLD' {
+  if (attestation.authority_role !== 'STAGE_A_PLAN_ONLY_REVIEW_ATTESTATION') {
+    return 'HOLD';
+  }
+  if (attestation.execution_status !== 'NOT EXECUTED') {
+    return 'HOLD';
+  }
+  if (
+    attestation.execution_authorization !== false ||
+    attestation.remote_apply_authorization !== false ||
+    attestation.local_db_authorization !== false
+  ) {
+    return 'HOLD';
+  }
+  if (attestation.attestation_scope !== 'PLAN_ONLY_SOURCE_VALIDATION') {
+    return 'HOLD';
+  }
+  if (attestation.rebind_commit_sha !== expected.rebindCommitSha) {
+    return 'HOLD';
+  }
+  if (attestation.binding_addendum_full_file_sha256 !== expected.addendumFullFileSha256) {
+    return 'HOLD';
+  }
+  if (attestation.binding_addendum_canonical_payload_sha256 !== expected.addendumCanonicalPayloadSha256) {
+    return 'HOLD';
+  }
+  return 'PASS';
+}
+
 function validateWorkspaceFactsAfterGit(workspace: WorkspaceFacts): void {
   if (workspace.branch !== EXPECTED_BRANCH) throw new Error('WORKSPACE_BRANCH_MISMATCH');
-  if (workspace.head !== EXPECTED_SOURCE_AUTHORITY_HEAD) throw new Error('WORKSPACE_HEAD_MISMATCH');
   if (!workspace.cleanWorktree || !workspace.cleanIndex) throw new Error('WORKSPACE_NOT_CLEAN');
 }
 
-function validateWorkspaceGate(repoRoot: string, workspace: WorkspaceFacts): void {
+function validateWorkspaceGate(repoRoot: string, workspace: WorkspaceFacts, requireGitAncestry: boolean): void {
   validateRepoRootGateBeforeGit(repoRoot);
   validateWorkspaceFactsAfterGit(workspace);
+  if (requireGitAncestry) {
+    validateWorkspaceAncestryFromGit(repoRoot, workspace.head);
+  }
+}
+
+function validateStageABindingGate(repoRoot: string): StageABindingValidation {
+  return loadStageABindingAddendum(repoRoot);
 }
 
 function executePlanCore(
@@ -1769,22 +2385,35 @@ function executePlanCore(
   };
 }
 
-function buildPlanEvidenceFields(): Pick<
+function buildPlanEvidenceFields(
+  binding?: StageABindingValidation,
+): Pick<
   PlanResult,
-  | 'expectedPreImplementationHead'
+  | 'sourceAuthorityBase'
+  | 'baselineStageACommit'
+  | 'bindingAddendumPath'
+  | 'bindingAddendumCanonicalPayloadSha256'
   | 'planOnlyPassIsNotExecutionAuthorization'
   | 'executionRemainsLocked'
-  | 'sourceAuthorityHeadRebindBlocker'
+  | 'externalPlanAttestationRequired'
 > {
   return {
-    expectedPreImplementationHead: EXPECTED_SOURCE_AUTHORITY_HEAD,
+    sourceAuthorityBase: EXPECTED_SOURCE_AUTHORITY_BASE,
+    baselineStageACommit: BASELINE_STAGE_A_COMMIT,
+    bindingAddendumPath: STAGE_A_BINDING_ADDENDUM_REL_PATH,
+    bindingAddendumCanonicalPayloadSha256: binding?.canonicalPayloadSha256,
     planOnlyPassIsNotExecutionAuthorization: true,
     executionRemainsLocked: true,
-    sourceAuthorityHeadRebindBlocker: SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER,
+    externalPlanAttestationRequired: true,
   };
 }
 
-function buildHoldResult(selectedVersions: VersionLabel[], holdReasonCode: string): PlanResult {
+function buildHoldResult(
+  selectedVersions: VersionLabel[],
+  holdReasonCode: string,
+  binding?: StageABindingValidation,
+): PlanResult {
+  const bindingValidated = binding !== undefined;
   return {
     mode: STAGE_A_MODE,
     coreValidation: 'PRE_DB_HOLD',
@@ -1798,11 +2427,33 @@ function buildHoldResult(selectedVersions: VersionLabel[], holdReasonCode: strin
       executionStatus: 'NOT EXECUTED',
     },
     perVersionStatus: [],
-    stageBBlockers: [...STAGE_B_BLOCKERS],
+    stageBBlockers: bindingValidated ? [...STAGE_B_EXECUTION_BLOCKERS] : [...STAGE_B_BLOCKERS],
     executionLock: STAGE_A_EXECUTION_LOCK,
     targetFingerprintReadiness: 'REQUIRED_NOT_FROZEN',
     holdReasonCode: sanitizeHoldReasonCode(holdReasonCode),
-    ...buildPlanEvidenceFields(),
+    ...buildPlanEvidenceFields(binding),
+  };
+}
+
+function buildStructuralHoldResult(
+  selectedVersions: VersionLabel[],
+  perVersionStatus: VersionValidationStatus[],
+  authorityIdentities: PlanResult['authorityIdentities'],
+  binding: StageABindingValidation,
+): PlanResult {
+  return {
+    mode: STAGE_A_MODE,
+    coreValidation: 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED',
+    structuralValidation: 'PLAN_STRUCTURE_VALIDATED',
+    executionState: 'EXECUTION_LOCKED',
+    selectedVersions,
+    authorityIdentities,
+    perVersionStatus,
+    stageBBlockers: [...STAGE_B_EXECUTION_BLOCKERS],
+    executionLock: STAGE_A_EXECUTION_LOCK,
+    targetFingerprintReadiness: 'REQUIRED_NOT_FROZEN',
+    holdReasonCode: PLAN_ONLY_EXTERNAL_ATTESTATION_HOLD,
+    ...buildPlanEvidenceFields(binding),
   };
 }
 
@@ -1820,20 +2471,23 @@ export function evaluatePlanCoreFromValidatedWorkspaceFacts(
       holdReasonCode: 'PLAN_SELECTOR_INVALID',
       evaluatedFromValidatedWorkspaceFacts: true,
       actualGitInspectionPerformed: false,
+      ancestryValidationPerformed: false,
     };
   }
 
   const selected = expandPlanSelector(selector);
   try {
     const repoRoot = resolve(input.repoRoot);
-    validateWorkspaceGate(repoRoot, workspace);
+    validateWorkspaceGate(repoRoot, workspace, false);
+    const binding = validateStageABindingGate(repoRoot);
     const core = executePlanCore(repoRoot, selected);
     return {
-      coreValidation: 'PURE_CORE_VALIDATION_PASS',
+      coreValidation: 'PURE_BINDING_AND_CORE_VALIDATED_WITHOUT_GIT_ANCESTRY',
       selectedVersions: selected,
       perVersionStatus: core.perVersionStatus,
       evaluatedFromValidatedWorkspaceFacts: true,
       actualGitInspectionPerformed: false,
+      ancestryValidationPerformed: false,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'UNKNOWN_HOLD';
@@ -1844,6 +2498,7 @@ export function evaluatePlanCoreFromValidatedWorkspaceFacts(
       holdReasonCode: sanitizeHoldReasonCode(message),
       evaluatedFromValidatedWorkspaceFacts: true,
       actualGitInspectionPerformed: false,
+      ancestryValidationPerformed: false,
     };
   }
 }
@@ -1852,6 +2507,7 @@ export function formatRedactedPlanEvidence(result: PlanResult): string {
   const payload = {
     mode: result.mode,
     coreValidation: result.coreValidation,
+    structuralValidation: result.structuralValidation,
     executionState: result.executionState,
     selectedVersions: result.selectedVersions,
     authorityIdentities: result.authorityIdentities,
@@ -1871,10 +2527,13 @@ export function formatRedactedPlanEvidence(result: PlanResult): string {
     executionLock: result.executionLock,
     targetFingerprintReadiness: result.targetFingerprintReadiness,
     holdReasonCode: result.holdReasonCode,
-    expectedPreImplementationHead: result.expectedPreImplementationHead,
+    sourceAuthorityBase: result.sourceAuthorityBase,
+    baselineStageACommit: result.baselineStageACommit,
+    bindingAddendumPath: result.bindingAddendumPath,
+    bindingAddendumCanonicalPayloadSha256: result.bindingAddendumCanonicalPayloadSha256,
     planOnlyPassIsNotExecutionAuthorization: result.planOnlyPassIsNotExecutionAuthorization,
     executionRemainsLocked: result.executionRemainsLocked,
-    sourceAuthorityHeadRebindBlocker: result.sourceAuthorityHeadRebindBlocker,
+    externalPlanAttestationRequired: result.externalPlanAttestationRequired,
   };
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
@@ -1897,21 +2556,11 @@ export function runTransactionNormalizedPlan(input: TransactionNormalizedPlanInp
     const repoRoot = resolve(input.repoRoot);
     validateRepoRootGateBeforeGit(repoRoot);
     const workspace = readWorkspaceFacts(repoRoot);
-    validateWorkspaceFactsAfterGit(workspace);
+    validateWorkspaceGate(repoRoot, workspace, true);
+    const binding = validateStageABindingGate(repoRoot);
     const core = executePlanCore(repoRoot, selected);
 
-    return {
-      mode: STAGE_A_MODE,
-      coreValidation: 'PLAN_ONLY_PASS',
-      executionState: 'EXECUTION_LOCKED',
-      selectedVersions: selected,
-      authorityIdentities: core.authorityIdentities,
-      perVersionStatus: core.perVersionStatus,
-      stageBBlockers: [...STAGE_B_BLOCKERS],
-      executionLock: STAGE_A_EXECUTION_LOCK,
-      targetFingerprintReadiness: 'REQUIRED_NOT_FROZEN',
-      ...buildPlanEvidenceFields(),
-    };
+    return buildStructuralHoldResult(selected, core.perVersionStatus, core.authorityIdentities, binding);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'UNKNOWN_HOLD';
     return buildHoldResult(selected, message);

@@ -5,8 +5,9 @@ import { fileURLToPath } from 'node:url';
 import {
   EXPECTED_BRANCH,
   EXPECTED_REPO_ROOT,
-  EXPECTED_SOURCE_AUTHORITY_HEAD,
-  SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER,
+  EXPECTED_SOURCE_AUTHORITY_BASE,
+  BASELINE_STAGE_A_COMMIT,
+  STAGE_A_BINDING_ADDENDUM_REL_PATH,
   AUTHORITY_CONTRACT_REL_PATH,
   AUTHORITY_MATRIX_REL_PATH,
   AUTHORITY_PARSER_EVIDENCE_REL_PATH,
@@ -23,6 +24,7 @@ const FORBIDDEN_ARG_FRAGMENTS = [
   'password',
   'remote',
   'apply',
+  'attestation',
 ] as const;
 
 function findRepoRoot(): string {
@@ -61,13 +63,17 @@ function formatCliOutput(result: ReturnType<typeof runTransactionNormalizedPlan>
   const payload = {
     mode: result.mode,
     coreValidation: result.coreValidation,
+    structuralValidation: result.structuralValidation,
     executionState: result.executionState,
     selectedVersions: result.selectedVersions,
     authorityIdentities: {
       ...result.authorityIdentities,
       expectedRepoRoot: EXPECTED_REPO_ROOT,
       expectedBranch: EXPECTED_BRANCH,
-      expectedHead: EXPECTED_SOURCE_AUTHORITY_HEAD,
+      sourceAuthorityBase: EXPECTED_SOURCE_AUTHORITY_BASE,
+      baselineStageACommit: BASELINE_STAGE_A_COMMIT,
+      bindingAddendumPath: STAGE_A_BINDING_ADDENDUM_REL_PATH,
+      bindingAddendumCanonicalPayloadSha256: result.bindingAddendumCanonicalPayloadSha256,
       contractPath: AUTHORITY_CONTRACT_REL_PATH,
       matrixPath: AUTHORITY_MATRIX_REL_PATH,
       parserEvidencePath: AUTHORITY_PARSER_EVIDENCE_REL_PATH,
@@ -77,10 +83,9 @@ function formatCliOutput(result: ReturnType<typeof runTransactionNormalizedPlan>
     executionLock: result.executionLock,
     targetFingerprintReadiness: result.targetFingerprintReadiness,
     holdReasonCode: result.holdReasonCode,
-    expectedPreImplementationHead: EXPECTED_SOURCE_AUTHORITY_HEAD,
     planOnlyPassIsNotExecutionAuthorization: true,
     executionRemainsLocked: true,
-    sourceAuthorityHeadRebindBlocker: SOURCE_AUTHORITY_HEAD_REBIND_BLOCKER,
+    externalPlanAttestationRequired: true,
   };
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
@@ -110,7 +115,10 @@ function main(argv: string[]): number {
       planVersionSelector: selector,
     });
     process.stdout.write(formatCliOutput(result));
-    return result.coreValidation === 'PLAN_ONLY_PASS' ? 0 : 1;
+    return result.coreValidation === 'PLAN_ONLY_HOLD_EXTERNAL_ATTESTATION_REQUIRED' &&
+      result.structuralValidation === 'PLAN_STRUCTURE_VALIDATED'
+      ? 1
+      : 1;
   } catch (error) {
     const code = sanitizeHoldReasonCode(error instanceof Error ? error.message : 'INVALID_ARGUMENT');
     process.stderr.write(`${code}\n`);

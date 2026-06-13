@@ -1,0 +1,179 @@
+{
+  "schema": "m55.preview.transaction_normalized.stage_a_binding.v1",
+  "schema_version": "m55.preview.transaction_normalized.stage_a_binding.v1.draft",
+  "revision": "STAGE-A-BINDING-v1",
+  "status": "DRAFT",
+  "authority_role": "REVISION_7_STAGE_A_BINDING_CONTRACT_ADDENDUM",
+  "execution_status": "NOT EXECUTED",
+  "execution_authorization": false,
+  "remote_apply_authorization": false,
+  "local_db_authorization": false,
+  "implementation_authorization": false,
+  "plan_only_pass_is_not_execution_authorization": true,
+  "external_plan_attestation_required": true,
+  "external_execution_attestation_required": true,
+  "no_automatic_next_gate": true,
+  "parent_authority": {
+    "contract": {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
+      "bytes": 309607,
+      "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c",
+      "classification": "authority_contract"
+    },
+    "matrix": {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
+      "bytes": 110904,
+      "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93",
+      "classification": "authority_matrix"
+    },
+    "parser_evidence": {
+      "path": "docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZATION_EXACT_PARSER_EVIDENCE.json",
+      "bytes": 208050,
+      "sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+      "classification": "authority_parser_evidence"
+    }
+  },
+  "contract_revision_fulfillment": {
+    "satisfies_head_change_requires_contract_revision": true,
+    "trigger": "workspace_implementation_head_advanced_beyond_frozen_source_authority_head",
+    "frozen_source_authority_head": "ceee04aab0a94376a55a576900cb2f8d597c19f4",
+    "baseline_stage_a_commit": "66b6bf2431b979b777d63f7d4b2b5c5c2a4a3bdc",
+    "does_not_mutate_revision_7_bytes": true,
+    "supersedes_plan_only_checks": [
+      "repo_root_branch_head_exact"
+    ],
+    "does_not_change_transaction_or_execution_semantics": true
+  },
+  "workspace_binding": {
+    "expected_repo_root": "/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1",
+    "expected_branch": "feat/m55-paid-lp-canonical-wave1",
+    "source_authority_base_commit": "ceee04aab0a94376a55a576900cb2f8d597c19f4",
+    "baseline_stage_a_commit": "66b6bf2431b979b777d63f7d4b2b5c5c2a4a3bdc",
+    "binding_policy_identifier": "stage_a_ancestor_and_protected_file_v1"
+  },
+  "generation_0_historical_identities": {
+    "anchor_commit": "66b6bf2431b979b777d63f7d4b2b5c5c2a4a3bdc",
+    "files": [
+      {
+        "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
+        "bytes": 309607,
+        "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c",
+        "classification": "authority_contract"
+      },
+      {
+        "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
+        "bytes": 110904,
+        "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93",
+        "classification": "authority_matrix"
+      },
+      {
+        "path": "docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZATION_EXACT_PARSER_EVIDENCE.json",
+        "bytes": 208050,
+        "sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+        "classification": "authority_parser_evidence"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/splitAndTrim.ts",
+        "bytes": 9803,
+        "sha256": "404feb5c68a656aebed29cfc81d80d49a22cc2812589d36ce148f1491d855b04",
+        "classification": "parser_port"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/statementStream.ts",
+        "bytes": 4060,
+        "sha256": "1a3faaeed3eaefb25e5b5cedb7ece422d537126caef2eaf17a8c10c794953a13",
+        "classification": "statement_stream"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/transactionNormalizedCore.ts",
+        "bytes": 72195,
+        "sha256": "48f45dc6136ccb71c06e80c1631e995f416be778af82afd7daf7fa351e506ff7",
+        "classification": "baseline_core"
+      },
+      {
+        "path": "lib/m55/transactionNormalized.core.local.test.ts",
+        "bytes": 51580,
+        "sha256": "d38cfeae877876ad4d45862f8aa22d52c3d47e4f2b762639a2dfc70f447a621c",
+        "classification": "baseline_test"
+      },
+      {
+        "path": "scripts/m55/runTransactionNormalizedPlan.ts",
+        "bytes": 3791,
+        "sha256": "7d88446115941337ed45cdcee2075beeb513dfc8203ff5a53a8ed903aec75d9b",
+        "classification": "baseline_plan_cli"
+      }
+    ]
+  },
+  "generation_1_protected_runtime_identities": {
+    "files": [
+      {
+        "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
+        "bytes": 309607,
+        "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c",
+        "classification": "authority_contract"
+      },
+      {
+        "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
+        "bytes": 110904,
+        "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93",
+        "classification": "authority_matrix"
+      },
+      {
+        "path": "docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZATION_EXACT_PARSER_EVIDENCE.json",
+        "bytes": 208050,
+        "sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+        "classification": "authority_parser_evidence"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/splitAndTrim.ts",
+        "bytes": 9803,
+        "sha256": "404feb5c68a656aebed29cfc81d80d49a22cc2812589d36ce148f1491d855b04",
+        "classification": "parser_port"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/statementStream.ts",
+        "bytes": 4060,
+        "sha256": "1a3faaeed3eaefb25e5b5cedb7ece422d537126caef2eaf17a8c10c794953a13",
+        "classification": "statement_stream"
+      },
+      {
+        "path": "lib/m55/transactionNormalized/transactionNormalizedCore.ts",
+        "bytes": 96725,
+        "sha256": "a85d428231116891b7ad94aed0fcf57e243e7309e19df2694e35987124637bda",
+        "classification": "rebind_core"
+      },
+      {
+        "path": "scripts/m55/runTransactionNormalizedPlan.ts",
+        "bytes": 4110,
+        "sha256": "b13f5dfc1177c673f3bda20be90d4011d84b7b8d9c42949f8c8e0f1a81d2c26f",
+        "classification": "rebind_plan_cli"
+      }
+    ]
+  },
+  "generation_1_review_evidence": {
+    "files": [
+      {
+        "path": "lib/m55/transactionNormalized.core.local.test.ts",
+        "bytes": 68361,
+        "sha256": "c9e852d0caafeab459b0db587c1acf0c138bec71d6f37c8dbae3babc88ef405e",
+        "classification": "rebind_test_review_evidence"
+      }
+    ]
+  },
+  "execution_identities": {
+    "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+    "executor_artifact_identity": "REQUIRED_NOT_FROZEN",
+    "execution_package_identity": "REQUIRED_NOT_FROZEN"
+  },
+  "integrity": {
+    "self_commit_sha_forbidden": true,
+    "full_file_sha_self_reference_forbidden": true,
+    "canonical_serialization": "m55.canonical_json.sorted_keys_utf8_no_whitespace.v1",
+    "canonical_payload_sha256": "71215fdf5cd34c1025c69b498b8e8bbf9806af7a10f4deab1c616ad90335e52e",
+    "canonical_payload_exclusions": [
+      "/integrity/canonical_payload_sha256"
+    ],
+    "canonical_payload_sha256_role": "ACCIDENTAL_INTERNAL_CORRUPTION_DETECTION_ONLY",
+    "external_full_file_sha_attestation_required": true
+  }
+}
