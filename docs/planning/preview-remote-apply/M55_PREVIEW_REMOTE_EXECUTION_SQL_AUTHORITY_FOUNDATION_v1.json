@@ -1,0 +1,741 @@
+{
+  "identifier": "M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1",
+  "execution_authorization": false,
+  "db_connection_remote": false,
+  "sql_executed_remote": false,
+  "migration_apply_authorized": false,
+  "workspace_binding": {
+    "repository_identity_contract": "lib/m55/previewRemoteApply/types.ts:EXPECTED_BRANCH",
+    "expected_branch": "feat/m55-paid-lp-canonical-wave1",
+    "base_head_commit_sha": "9af0df4fad8e545871648da39690dec9f1d639da"
+  },
+  "frozen_source_identities": {
+    "previewBaselineDisposableRuntime": {
+      "path": "scripts/m55/previewBaselineDisposableRuntime.ts",
+      "bytes": 113501,
+      "sha256": "6b82c8e11e21c2e04121da0fb171265858f65a45243c1c174ac3ce12053b5c73"
+    },
+    "previewBaselineTool": {
+      "path": "scripts/m55/previewBaselineTool.ts",
+      "bytes": 228708,
+      "sha256": "d660c9212a0aed62acaf602183504a90d926facdbebd449ce399ff5ed8033f78"
+    },
+    "original_collectRuntimeCatalogSql": {
+      "bytes": 11075,
+      "sha256": "f1e62c72d10c0a40753c3f8df8ac41171a46a04783e91b7eed9a225cc74da9e9"
+    },
+    "buildFunctionParitySql": {
+      "bytes": 1268,
+      "sha256": "0322d98ef02c095ff0942bb7498ff625bee67766597ee78aefa30aca56e806ed"
+    },
+    "execution_oracle": {
+      "path": "docs/planning/preview-baseline/preview_baseline_execution_oracle_v1.json",
+      "sha256": "52832c14d55bba8b6194065aa17901c7373d39d208e8175781d729be17855062",
+      "mutation_forbidden": true
+    },
+    "revision7_contract": {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
+      "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c"
+    },
+    "revision7_matrix": {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
+      "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93"
+    },
+    "timeoutPolicy": {
+      "path": "lib/m55/previewRemoteApply/timeoutPolicy.ts",
+      "sha256": "9ae3067eb912c72711477ec9507c5c26ad90768f238ef83034aa0a79af642efa"
+    },
+    "historyBootstrapSpec": {
+      "path": "lib/m55/previewRemoteApply/historyBootstrapSpec.ts",
+      "sha256": "f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55"
+    },
+    "statementStream": {
+      "path": "lib/m55/transactionNormalized/statementStream.ts",
+      "sha256": "1a3faaeed3eaefb25e5b5cedb7ece422d537126caef2eaf17a8c10c794953a13"
+    },
+    "types": {
+      "path": "lib/m55/previewRemoteApply/types.ts",
+      "sha256": "a1f325a308f99c149a065e531d938756db6f3ae200b9a14042184ff55f5d22b7"
+    }
+  },
+  "p0_preflight_patch2": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql",
+    "bytes": 21188,
+    "sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff"
+  },
+  "pure_application_relation_counts_v2": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_APPLICATION_RELATION_COUNTS_PURE_SELECT_v2.sql",
+    "bytes": 1647,
+    "sha256": "fbea819218345a5cf2f0d10e0704100beb0ae876ecc4dd26bbc422244ef97905",
+    "helper_elimination_patch1_verdict": "PURE_SELECT_APPLICATION_RELATION_COUNTS_EQUIVALENCE_PATCH1_CLOSED_GREEN",
+    "equivalence_cases": 9
+  },
+  "remote_catalog_extractor": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1.sql",
+    "bytes": 11114,
+    "sha256": "dff8152e5af9735e43952c71000f52a3c84cb5f27f700e98f7faa09a2fb3be1d",
+    "source_collector_sha256": "f1e62c72d10c0a40753c3f8df8ac41171a46a04783e91b7eed9a225cc74da9e9",
+    "allowed_transformations": [
+      "remove_pg_temp_helper_drop_create_block",
+      "embed_pure_select_v2_application_relation_counts_scalar",
+      "replace_m55_fixture_meta_applied_migrations_with_supabase_migrations_schema_migrations_version"
+    ],
+    "forbidden_remaining": [
+      "pg_temp",
+      "m55_fixture_meta",
+      "helper_function_call"
+    ],
+    "application_relation_counts_json_type": "object"
+  },
+  "remote_function_parity_extractor": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_FUNCTION_PARITY_EXTRACTOR_v1.sql",
+    "bytes": 1268,
+    "sha256": "0322d98ef02c095ff0942bb7498ff625bee67766597ee78aefa30aca56e806ed",
+    "rewrite_forbidden": true
+  },
+  "post_connect_identity": {
+    "sql": "SELECT current_database()::text AS current_database_name, current_user::text AS current_user_name;",
+    "sql_sha256": "99f233b1b1daae53391d51c986ffcf335639d19aa60044ecca1ef443f3895536",
+    "expected": {
+      "current_database_name": "postgres",
+      "current_user_name": "postgres",
+      "row_count": 1
+    },
+    "host_path_secret_output_forbidden": true
+  },
+  "session_settings": {
+    "placement": "before_BEGIN",
+    "timeout_policy_source": "lib/m55/previewRemoteApply/timeoutPolicy.ts",
+    "timeout_policy_sha256": "9ae3067eb912c72711477ec9507c5c26ad90768f238ef83034aa0a79af642efa",
+    "statements": [
+      {
+        "ordinal": 1,
+        "sql": "SET lock_timeout TO '30000ms';",
+        "sql_sha256": "1944c4c2fbc2d6e87bad74810b7b6e28737fa872b0d3a61638a2999519889231"
+      },
+      {
+        "ordinal": 2,
+        "sql": "SET statement_timeout TO '120000ms';",
+        "sql_sha256": "519c1875fa8ed7f28d594ca70bfc18be886de15e6fee9b823a23e8266b31637e"
+      },
+      {
+        "ordinal": 3,
+        "sql": "SET idle_in_transaction_session_timeout TO '180000ms';",
+        "sql_sha256": "1c3a0e3e67aa96ef992a08bc20a5bb020bfd67324ca372fdb3bd2c0a9a192202"
+      }
+    ]
+  },
+  "policy2_history_insert": {
+    "sql": "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2::text[], $3)",
+    "source": "lib/m55/previewRemoteApply/types.ts:HISTORY_INSERT_SQL_METADATA",
+    "source_sha256": "a1f325a308f99c149a065e531d938756db6f3ae200b9a14042184ff55f5d22b7",
+    "parameters": [
+      "version",
+      "statements text[]",
+      "name"
+    ]
+  },
+  "classifiers": {
+    "oracle_sha256": "52832c14d55bba8b6194065aa17901c7373d39d208e8175781d729be17855062",
+    "bindings": [
+      {
+        "export_name": "parseRuntimeCatalogOutput",
+        "source_path": "scripts/m55/previewBaselineDisposableRuntime.ts",
+        "source_file_sha256": "6b82c8e11e21c2e04121da0fb171265858f65a45243c1c174ac3ce12053b5c73",
+        "function_source_sha256": "3967f899e8cdf13797c287120b82198e56ad4e94afcdd7ff2f95bce95389233c",
+        "db_independent_after_parse": true
+      },
+      {
+        "export_name": "normalizeRuntimeCatalog",
+        "source_path": "scripts/m55/previewBaselineDisposableRuntime.ts",
+        "source_file_sha256": "6b82c8e11e21c2e04121da0fb171265858f65a45243c1c174ac3ce12053b5c73",
+        "function_source_sha256": "cfec399963a31d086ccc895a6e13c9d6c5818030691af84e01734041819bed39",
+        "db_independent_after_parse": true
+      },
+      {
+        "export_name": "deriveRuntimePhaseSnapshot",
+        "source_path": "scripts/m55/previewBaselineDisposableRuntime.ts",
+        "source_file_sha256": "6b82c8e11e21c2e04121da0fb171265858f65a45243c1c174ac3ce12053b5c73",
+        "function_source_sha256": "5e23aaf0b525ef09305faec9303b1f74be3fa37bbdacd2970346c05bb16e2fc1",
+        "db_independent_after_parse": true
+      },
+      {
+        "export_name": "compareRuntimePhaseSnapshot",
+        "source_path": "scripts/m55/previewBaselineDisposableRuntime.ts",
+        "source_file_sha256": "6b82c8e11e21c2e04121da0fb171265858f65a45243c1c174ac3ce12053b5c73",
+        "function_source_sha256": "65f3e40b15b1d7880eb45f2790de2e3ffc6e0af524ae7778953174198ee63f78",
+        "db_independent_after_parse": true
+      }
+    ]
+  },
+  "lifecycle": {
+    "version_registry": [
+      "20260614000000",
+      "20260615000001",
+      "20260615000002",
+      "20260615000003",
+      "20260615000004",
+      "20260615000005",
+      "20260615000006"
+    ],
+    "phases": [
+      {
+        "phase_id": "P1",
+        "prior": {
+          "expected_oracle_phase": "P0",
+          "expected_history_prefix": [],
+          "extractor": null,
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": false,
+          "status": "MISSING_SEPARATE_AUTHORITY",
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P1",
+          "expected_history_prefix": [
+            "20260614000000"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P1",
+          "expected_history_prefix": [
+            "20260614000000"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P2",
+        "prior": {
+          "expected_oracle_phase": "P1",
+          "expected_history_prefix": [
+            "20260614000000"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P2",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P2",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P3",
+        "prior": {
+          "expected_oracle_phase": "P2",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P3",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P3",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P4",
+        "prior": {
+          "expected_oracle_phase": "P3",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P4",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P4",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P5",
+        "prior": {
+          "expected_oracle_phase": "P4",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P5",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P5",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P6",
+        "prior": {
+          "expected_oracle_phase": "P5",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P6",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004",
+            "20260615000005"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P6",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004",
+            "20260615000005"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      },
+      {
+        "phase_id": "P7",
+        "prior": {
+          "expected_oracle_phase": "P6",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004",
+            "20260615000005"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "in_tx_post": {
+          "expected_oracle_phase": "P7",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004",
+            "20260615000005",
+            "20260615000006"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "after_mutation_history_insert_before_COMMIT",
+          "fresh_connection_required": false,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        },
+        "post_commit": {
+          "expected_oracle_phase": "P7",
+          "expected_history_prefix": [
+            "20260614000000",
+            "20260615000001",
+            "20260615000002",
+            "20260615000003",
+            "20260615000004",
+            "20260615000005",
+            "20260615000006"
+          ],
+          "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+          "classifier_exports": [
+            "parseRuntimeCatalogOutput",
+            "normalizeRuntimeCatalog",
+            "deriveRuntimePhaseSnapshot",
+            "compareRuntimePhaseSnapshot"
+          ],
+          "transaction_placement": "fresh_readonly_connection_after_original_close",
+          "fresh_connection_required": true,
+          "authority_semantics_frozen": true,
+          "orchestration_implemented": false,
+          "execution_authorized": false
+        }
+      }
+    ],
+    "final_p7": {
+      "phase_id": "FINAL_P7",
+      "expected_oracle_phase": "P7",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "extractor": "M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1",
+      "classifier_exports": [
+        "parseRuntimeCatalogOutput",
+        "normalizeRuntimeCatalog",
+        "deriveRuntimePhaseSnapshot",
+        "compareRuntimePhaseSnapshot"
+      ],
+      "transaction_placement": "fresh_readonly_connection_after_original_close",
+      "fresh_connection_required": true,
+      "authority_semantics_frozen": true,
+      "orchestration_implemented": false,
+      "execution_authorized": false
+    },
+    "ack_classifier_authority": {
+      "frozen": false,
+      "orchestration_implemented": false
+    },
+    "pre_commit_failure_classifier_authority": {
+      "frozen": false,
+      "orchestration_implemented": false
+    },
+    "fresh_post_commit_connection_lifecycle": {
+      "frozen": false,
+      "orchestration_implemented": false
+    }
+  },
+  "p1_bootstrap": {
+    "ddl_source_path": "lib/m55/previewRemoteApply/historyBootstrapSpec.ts",
+    "ddl_source_sha256": "f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55",
+    "precondition_status": "MISSING_SEPARATE_AUTHORITY"
+  },
+  "local_full_extractor_equivalence": {
+    "verdict": "TEMP_FIRST_GREEN",
+    "pinned_postgres_image": "postgres@sha256:5d11ffb37e58a7c9a2285359e50f7674e216c99b9114e47b0e7f21187c11252c",
+    "container_count": 1,
+    "cases": [
+      {
+        "case": "empty_no_tables",
+        "equal": true,
+        "orig_hash": "7965628e1cab02c30a8010399fbb9c7f9c8f12ea040c3805a3e5d53d780702fc",
+        "remote_hash": "7965628e1cab02c30a8010399fbb9c7f9c8f12ea040c3805a3e5d53d780702fc",
+        "counts_type": "object"
+      },
+      {
+        "case": "subset_partial_history",
+        "equal": true,
+        "orig_hash": "143f8cfb2619daacd2459d2316d60b8f5fbb13c1d1c4b2b9232a44bd2ba5242b",
+        "remote_hash": "143f8cfb2619daacd2459d2316d60b8f5fbb13c1d1c4b2b9232a44bd2ba5242b",
+        "counts_type": "object"
+      },
+      {
+        "case": "all_varying_full_history",
+        "equal": true,
+        "orig_hash": "33347db2b7fceefcc34b89257d316513f5fae25597751efd2f1b9a9655dd73df",
+        "remote_hash": "33347db2b7fceefcc34b89257d316513f5fae25597751efd2f1b9a9655dd73df",
+        "counts_type": "object"
+      },
+      {
+        "case": "non_table_objects",
+        "equal": true,
+        "orig_hash": "a5f1f6d27db326398e57b20895106cf49a81ff48987829cc1e692ed02038e421",
+        "remote_hash": "a5f1f6d27db326398e57b20895106cf49a81ff48987829cc1e692ed02038e421",
+        "counts_type": "object"
+      },
+      {
+        "case": "untracked_ignored",
+        "equal": true,
+        "orig_hash": "1f7175989a319e45243844d664dd910a51e365a7b88c34efa48bf4dfe3d1f7c5",
+        "remote_hash": "1f7175989a319e45243844d664dd910a51e365a7b88c34efa48bf4dfe3d1f7c5",
+        "counts_type": "object"
+      },
+      {
+        "case": "REPEATABILITY",
+        "equal": true,
+        "hashes": [
+          "1f7175989a319e45243844d664dd910a51e365a7b88c34efa48bf4dfe3d1f7c5",
+          "1f7175989a319e45243844d664dd910a51e365a7b88c34efa48bf4dfe3d1f7c5",
+          "1f7175989a319e45243844d664dd910a51e365a7b88c34efa48bf4dfe3d1f7c5"
+        ]
+      }
+    ]
+  },
+  "missing_authorities": [
+    "ACK classifier authority",
+    "pre-commit failure classifier authority",
+    "fresh post-commit connection lifecycle",
+    "P1_PRIOR_BOOTSTRAP_PRECONDITION_EXECUTABLE_AUTHORITY",
+    "credential acquisition",
+    "target connection binding",
+    "remote executor implementation"
+  ]
+}
