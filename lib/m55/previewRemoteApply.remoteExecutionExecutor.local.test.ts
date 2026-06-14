@@ -36,6 +36,7 @@ import {
   FRESH_READONLY_BEGIN_SQL,
   buildFreshLocalStatementTimeoutSql,
   loadVerifiedProbeSqlBundle,
+  parseCanonicalPgInt8WireString,
   resultContainsForbiddenEvidence,
   serializePreviewRemoteExecutionResult,
   type PreviewRemoteExecutionDeps,
@@ -52,6 +53,7 @@ import {
   createDefaultExecutionPgClient,
   createExecutionPgTransport,
   createFakeExecutionPgClientFactory,
+  resolveExecutionPgTransportEvidenceProfile,
   type ExecutionPgClientConfig,
   type ExecutionPgQueryResult,
   type ExecutionPgTransportFactoryDeps,
@@ -222,7 +224,6 @@ type FakeTransportDeps = {
   credentialAcquirerDeps?: CredentialAcquirerDeps;
   transportFactory?: ExecutionPgTransportFactoryDeps;
   verifierTransportFactory?: ExecutionPgTransportFactoryDeps;
-  transportProfile?: 'TEST_INJECTED' | 'REAL_REMOTE';
   nowMs?: () => number;
   deadlineRunner?: {
     isExceeded: (startedAtMs: number, deadlineMs: number) => boolean;
@@ -375,10 +376,10 @@ function fullP1BootstrapRow(overrides: Record<string, unknown> = {}): Record<str
     history_live_column_count: 0,
     history_relation_exact_shape: false,
     history_primary_key_on_version_exact: false,
-    history_row_count: 0,
-    applied_versions: null,
-    duplicate_versions: null,
-    unexpected_history_versions: null,
+    history_row_count: '0',
+    applied_versions: [],
+    duplicate_versions: [],
+    unexpected_history_versions: [],
     ...overrides,
   };
 }
@@ -511,7 +512,6 @@ function createFakeTransportDeps(options: {
     verifierTransportFactory: {
       createClient: (config) => verifierFactory.createClient(config),
     },
-    transportProfile: 'TEST_INJECTED',
     mutationFactory,
     verifierFactory,
   };
@@ -989,7 +989,6 @@ describe('remote execution executor X1-X30', () => {
       {
         repositoryFacts: () => validRepositoryFacts(),
         transportFactory: { createClient: (config) => factory.createClient(config) },
-        transportProfile: 'TEST_INJECTED',
       },
     );
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
@@ -3160,5 +3159,93 @@ describe('remote execution executor pooler tls ca pinning correction-1 Y11-Y12',
     assert.equal(serialized.includes('prod-ca-2021'), false);
     assert.equal(serialized.includes('/Users/'), false);
     assertNoSentinel(result);
+  });
+});
+
+describe('remote execution executor p1 bootstrap pg int8 wire correction-1 AA1-AA10', () => {
+  function p1BootstrapDepsWithRow(row: Record<string, unknown>) {
+    const catalogHandler = createCatalogQueryHandler({ stepId: 'P1' });
+    const factory = createFakeExecutionPgClientFactory({
+      queryHandler: (sql) => {
+        if (sql.includes('bootstrap_precondition_classification')) {
+          return { rows: [row], rowCount: 1 };
+        }
+        return catalogHandler(sql);
+      },
+    });
+    const deps = qFakeTransportDeps({ stepId: 'P1', verifierPostPhaseId: 'P1' });
+    deps.transportFactory = { createClient: (config) => factory.createClient(config) };
+    deps.verifierTransportFactory = { createClient: (config) => factory.createClient(config) };
+    return { deps, factory };
+  }
+
+  it('AA1 real pg-shaped CLEANLY_ABSENT row with history_row_count "0" proceeds', async () => {
+    const { deps } = p1BootstrapDepsWithRow(fullP1BootstrapRow());
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P1' }), 'P1', deps);
+    assert.notEqual(
+      result.mode === 'PREVIEW_REMOTE_EXECUTION_HOLD' &&
+        result.holdReasonCode === 'HOLD_BOOTSTRAP_PRECONDITION',
+      true,
+    );
+    assert.equal(result.runtimeEvidence.transactionBegan, true);
+    assertNoSentinel(result);
+  });
+
+  it('AA2 numeric history_row_count 0 is rejected', () => {
+    assert.equal(parseCanonicalPgInt8WireString(0), null);
+    assert.equal(parseCanonicalPgInt8WireString(0n), null);
+    const row = fullP1BootstrapRow({ history_row_count: 0 });
+    assert.equal(parseCanonicalPgInt8WireString(row.history_row_count), null);
+  });
+
+  it('AA3 canonical positive int8 string is parsed deterministically', () => {
+    assert.equal(parseCanonicalPgInt8WireString('0'), 0);
+    assert.equal(parseCanonicalPgInt8WireString('42'), 42);
+    assert.equal(parseCanonicalPgInt8WireString('9007199254740991'), 9007199254740991);
+  });
+
+  it('AA4 leading-zero string rejected', () => {
+    assert.equal(parseCanonicalPgInt8WireString('00'), null);
+    assert.equal(parseCanonicalPgInt8WireString('01'), null);
+  });
+
+  it('AA5 whitespace/plus/minus/decimal/exponent forms rejected', () => {
+    for (const value of [' 0', '0 ', '+0', '-0', '1.0', '1e0', '']) {
+      assert.equal(parseCanonicalPgInt8WireString(value), null);
+    }
+  });
+
+  it('AA6 unsafe integer string rejected', () => {
+    assert.equal(parseCanonicalPgInt8WireString('9007199254740992'), null);
+  });
+
+  it('AA7 accessor/coercible object rejected without getter invocation', () => {
+    const boxed = new String('0');
+    assert.equal(parseCanonicalPgInt8WireString(boxed), null);
+    const coercible = {
+      toString() {
+        throw new Error('getter invoked');
+      },
+    };
+    assert.equal(parseCanonicalPgInt8WireString(coercible), null);
+  });
+
+  it('AA8 all positive P1 fake rows use canonical int8 strings', () => {
+    const row = fullP1BootstrapRow();
+    assert.equal(typeof row.history_row_count, 'string');
+    assert.equal(row.history_row_count, '0');
+    assert.equal(parseCanonicalPgInt8WireString(row.history_row_count), 0);
+  });
+
+  it('AA9 default real transport evidence profile is PG_REAL_SESSION_POOLER_TLS_PINNED_V1', () => {
+    assert.equal(resolveExecutionPgTransportEvidenceProfile({}), 'PG_REAL_SESSION_POOLER_TLS_PINNED_V1');
+  });
+
+  it('AA10 injected fake transport evidence profile remains TEST_INJECTED', () => {
+    const factory = createFakeExecutionPgClientFactory();
+    assert.equal(
+      resolveExecutionPgTransportEvidenceProfile({ createClient: (config) => factory.createClient(config) }),
+      'TEST_INJECTED',
+    );
   });
 });

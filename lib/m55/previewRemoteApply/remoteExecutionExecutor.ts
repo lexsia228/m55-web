@@ -56,6 +56,8 @@ import {
   buildClientConfig,
   createExecutionPgTransport,
   normalizeExecutionTransportError,
+  resolveExecutionPgTransportEvidenceProfile,
+  type ExecutionPgTransportEvidenceProfile,
   type ExecutionPgClient,
   type ExecutionPgQueryResult,
   type ExecutionPgTransportFactoryDeps,
@@ -104,7 +106,7 @@ export type RuntimeExecutionEvidence = {
   readonly commitResponseClass: CommitResponseClass | null;
   readonly freshReadonlyCheckExecuted: boolean;
   readonly freshReadonlyCheckCompleted: boolean;
-  readonly transportProfile: 'TEST_INJECTED' | 'REAL_REMOTE' | null;
+  readonly transportProfile: ExecutionPgTransportEvidenceProfile | null;
   readonly executionStageReached: ExecutionStage;
 };
 
@@ -164,7 +166,6 @@ export type PreviewRemoteExecutionDeps = {
   readonly transportFactory?: ExecutionPgTransportFactoryDeps;
   readonly verifierTransportFactory?: ExecutionPgTransportFactoryDeps;
   readonly credentialAcquirerDeps?: CredentialAcquirerDeps;
-  readonly transportProfile?: 'TEST_INJECTED' | 'REAL_REMOTE';
   readonly nowMs?: () => number;
   readonly deadlineRunner?: {
     readonly isExceeded: (startedAtMs: number, deadlineMs: number) => boolean;
@@ -276,10 +277,48 @@ function withRuntimeStage(
   };
 }
 
-function resolveTransportProfile(deps: PreviewRemoteExecutionDeps): RuntimeExecutionEvidence['transportProfile'] {
-  if (deps.transportProfile) return deps.transportProfile;
-  if (deps.transportFactory || deps.verifierTransportFactory) return 'TEST_INJECTED';
-  return 'REAL_REMOTE';
+function resolveTransportProfile(deps: PreviewRemoteExecutionDeps): ExecutionPgTransportEvidenceProfile {
+  const mutationProfile = resolveExecutionPgTransportEvidenceProfile(deps.transportFactory ?? {});
+  const verifierProfile = resolveExecutionPgTransportEvidenceProfile(
+    deps.verifierTransportFactory ?? deps.transportFactory ?? {},
+  );
+  if (
+    mutationProfile === 'TEST_INJECTED' ||
+    verifierProfile === 'TEST_INJECTED'
+  ) {
+    return 'TEST_INJECTED';
+  }
+  return 'PG_REAL_SESSION_POOLER_TLS_PINNED_V1';
+}
+
+export function parseCanonicalPgInt8WireString(value: unknown): number | null {
+  if (typeof value === 'object' && value !== null) {
+    return null;
+  }
+  if (typeof value !== 'string') {
+    return null;
+  }
+  if (value.length === 0) {
+    return null;
+  }
+  if (/\s/.test(value)) {
+    return null;
+  }
+  if (!/^(0|[1-9][0-9]*)$/.test(value)) {
+    return null;
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    return null;
+  }
+  return parsed;
+}
+
+function parseFinitePgInt4WireNumber(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value) || !Number.isInteger(value)) {
+    return null;
+  }
+  return value;
 }
 
 function buildHold(
@@ -495,13 +534,20 @@ function parseP1PriorBootstrapResult(result: ExecutionPgQueryResult): {
       throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
     }
   }
-  if (typeof row.history_live_column_count !== 'number' || typeof row.history_row_count !== 'number') {
+  if (parseFinitePgInt4WireNumber(row.history_live_column_count) === null) {
+    throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
+  }
+  const historyRowCount = parseCanonicalPgInt8WireString(row.history_row_count);
+  if (historyRowCount === null) {
     throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
   }
   if (proceed === true && hold === true) {
     throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
   }
   if (proceed === true && classification !== 'CLEANLY_ABSENT') {
+    throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
+  }
+  if (proceed === true && classification === 'CLEANLY_ABSENT' && historyRowCount !== 0) {
     throw new Error('HOLD_BOOTSTRAP_PRECONDITION');
   }
   return {

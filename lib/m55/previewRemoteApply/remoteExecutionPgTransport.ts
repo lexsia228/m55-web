@@ -55,6 +55,23 @@ export type ExecutionPgTransportFactoryDeps = {
   readonly createClient?: (config: ExecutionPgClientConfig) => ExecutionPgClient;
 };
 
+export const EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE = {
+  PG_REAL_SESSION_POOLER_TLS_PINNED_V1: 'PG_REAL_SESSION_POOLER_TLS_PINNED_V1',
+  TEST_INJECTED: 'TEST_INJECTED',
+} as const;
+
+export type ExecutionPgTransportEvidenceProfile =
+  (typeof EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE)[keyof typeof EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE];
+
+export function resolveExecutionPgTransportEvidenceProfile(
+  deps: ExecutionPgTransportFactoryDeps = {},
+): ExecutionPgTransportEvidenceProfile {
+  if (deps.createClient) {
+    return EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.TEST_INJECTED;
+  }
+  return EXECUTION_PG_TRANSPORT_EVIDENCE_PROFILE.PG_REAL_SESSION_POOLER_TLS_PINNED_V1;
+}
+
 type PgQueryError = Error & {
   readonly code?: string;
 };

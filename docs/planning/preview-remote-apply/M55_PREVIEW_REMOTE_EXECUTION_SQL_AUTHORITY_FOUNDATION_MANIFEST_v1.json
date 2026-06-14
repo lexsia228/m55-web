@@ -41,7 +41,7 @@
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json",
       "bytes": 31185,
-      "sha256": "c4113848dee40401b0b2a91cbe2c89dc0602094b4fdeb954e1f4616b2990e15d",
+      "sha256": "2b55d632786c6ec98e521631ba96334843db2d9c4a92a12dcfa0ce4ebbc197d0",
       "classification": "foundation_json"
     },
     {
@@ -101,7 +101,7 @@
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
       "bytes": 2542,
-      "sha256": "e1c02f371cb6a8335ea2d448f05a2e000b1e922a17d35828a981dd6a5cedde71",
+      "sha256": "66675035583f45bba40de5b024200cc93297c3c40d676862c2cd3a81c0686916",
       "classification": "remote_executor_implementation_json"
     },
     {
@@ -112,14 +112,14 @@
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
-      "bytes": 16330,
-      "sha256": "66a296f611f1efa9a9ac20c2e36bbe70451e672da675a6150c640e6328c325bd",
+      "bytes": 17005,
+      "sha256": "d657cc2403f74afaa15b05beb074ebc1a0a477d3a1fd78d40ef2e2871e9fb738",
       "classification": "remote_execution_pg_transport"
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",
-      "bytes": 50793,
-      "sha256": "2cbaa582f645f652266bb27b69456f5c459fe7f16242705a04cd314cfa7b3024",
+      "bytes": 52034,
+      "sha256": "031e61387f71ec52feff002c2c44168029c31332b1ad0602c6a0e71d4c3473b5",
       "classification": "remote_execution_executor"
     },
     {
@@ -130,14 +130,14 @@
     },
     {
       "path": "lib/m55/previewRemoteApply.remoteExecutionExecutor.local.test.ts",
-      "bytes": 133818,
-      "sha256": "de890f9b42d67a9a71e2c9da78a7252a70202f7c05f7f3c15b7cd22baa937e80",
+      "bytes": 137427,
+      "sha256": "663402321509ed9e653b1f6c4166be6652f84c882ec9c84b5c956697d9b73b34",
       "classification": "remote_execution_executor_tests"
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json",
       "bytes": 6302,
-      "sha256": "4ba369718134c1bc1fba4e6012f325d3419c042c200413388dd3686468fb56e7",
+      "sha256": "3401aca23e53d6738f4a31005111acbe76b8a7404d069d65d92017e5f027cb0d",
       "classification": "foundation_manifest"
     }
   ]
