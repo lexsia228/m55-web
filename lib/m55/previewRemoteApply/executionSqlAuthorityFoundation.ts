@@ -7,6 +7,11 @@ import {
   validateRemoteExecutionLifecycleAuthorityDocument,
   type RemoteExecutionLifecycleAuthorityDocument,
 } from './remoteExecutionLifecycleAuthority.ts';
+import {
+  EXPECTED_REMOTE_CONNECTION_AUTHORITY_BINDING,
+  validateRemoteConnectionAuthorityDocument,
+  type RemoteConnectionAuthorityDocument,
+} from './remoteConnectionAuthority.ts';
 import { canonicalSerializePreviewRemoteApply } from './types.ts';
 
 export const EXECUTION_SQL_AUTHORITY_FOUNDATION_ID =
@@ -35,12 +40,16 @@ export const FOUNDATION_REL_PATHS = {
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json',
   lifecycleAuthorityJson:
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_v1.json',
+  connectionAuthorityJson:
+    'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CONNECTION_AUTHORITY_v1.json',
   manifestJson:
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json',
   loader: 'lib/m55/previewRemoteApply/executionSqlAuthorityFoundation.ts',
   tests: 'lib/m55/previewRemoteApply.executionSqlAuthorityFoundation.local.test.ts',
   lifecycleAuthority: 'lib/m55/previewRemoteApply/remoteExecutionLifecycleAuthority.ts',
   lifecycleAuthorityTests: 'lib/m55/previewRemoteApply.remoteExecutionLifecycleAuthority.local.test.ts',
+  connectionAuthority: 'lib/m55/previewRemoteApply/remoteConnectionAuthority.ts',
+  connectionAuthorityTests: 'lib/m55/previewRemoteApply.remoteConnectionAuthority.local.test.ts',
   validator: 'scripts/m55/validatePreviewRemoteExecutionSqlAuthorityFoundation.ts',
 } as const;
 
@@ -127,13 +136,9 @@ export const FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS = {
   ] as const,
 } as const;
 
-export const FOUNDATION_MISSING_AUTHORITIES = [
-  'credential acquisition',
-  'target connection binding',
-  'remote executor implementation',
-] as const;
+export const FOUNDATION_MISSING_AUTHORITIES = ['remote executor implementation'] as const;
 
-export { EXPECTED_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_BINDING };
+export { EXPECTED_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_BINDING, EXPECTED_REMOTE_CONNECTION_AUTHORITY_BINDING };
 
 export const P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS = [
   'CLEANLY_ABSENT',
@@ -178,10 +183,13 @@ export const EXACT_MANIFEST_ORDER = [
   FOUNDATION_REL_PATHS.functionParityExtractor,
   FOUNDATION_REL_PATHS.foundationJson,
   FOUNDATION_REL_PATHS.lifecycleAuthorityJson,
+  FOUNDATION_REL_PATHS.connectionAuthorityJson,
   FOUNDATION_REL_PATHS.loader,
   FOUNDATION_REL_PATHS.tests,
   FOUNDATION_REL_PATHS.lifecycleAuthority,
   FOUNDATION_REL_PATHS.lifecycleAuthorityTests,
+  FOUNDATION_REL_PATHS.connectionAuthority,
+  FOUNDATION_REL_PATHS.connectionAuthorityTests,
   FOUNDATION_REL_PATHS.validator,
   FOUNDATION_REL_PATHS.manifestJson,
 ] as const;
@@ -362,10 +370,13 @@ export const MANIFEST_FILE_CLASSIFICATIONS: Readonly<Record<string, string>> = {
   [FOUNDATION_REL_PATHS.functionParityExtractor]: 'remote_function_parity_extractor',
   [FOUNDATION_REL_PATHS.foundationJson]: 'foundation_json',
   [FOUNDATION_REL_PATHS.lifecycleAuthorityJson]: 'remote_execution_lifecycle_authority_json',
+  [FOUNDATION_REL_PATHS.connectionAuthorityJson]: 'remote_connection_authority_json',
   [FOUNDATION_REL_PATHS.loader]: 'foundation_loader',
   [FOUNDATION_REL_PATHS.tests]: 'foundation_tests',
   [FOUNDATION_REL_PATHS.lifecycleAuthority]: 'remote_execution_lifecycle_authority',
   [FOUNDATION_REL_PATHS.lifecycleAuthorityTests]: 'remote_execution_lifecycle_authority_tests',
+  [FOUNDATION_REL_PATHS.connectionAuthority]: 'remote_connection_authority',
+  [FOUNDATION_REL_PATHS.connectionAuthorityTests]: 'remote_connection_authority_tests',
   [FOUNDATION_REL_PATHS.validator]: 'foundation_validator',
   [FOUNDATION_REL_PATHS.manifestJson]: 'foundation_manifest',
 };
@@ -437,6 +448,19 @@ export type ExecutionSqlAuthorityFoundationDocument = {
     readonly path?: string;
     readonly bytes?: number;
     readonly sha256?: string;
+  };
+  readonly remote_connection_authority?: {
+    readonly path?: string;
+    readonly bytes?: number;
+    readonly sha256?: string;
+  };
+  readonly credential_acquisition_authority?: {
+    readonly frozen?: boolean;
+    readonly acquisition_implemented?: boolean;
+  };
+  readonly target_connection_binding_authority?: {
+    readonly frozen?: boolean;
+    readonly target_binding_implemented?: boolean;
   };
   readonly local_full_extractor_equivalence?: {
     readonly verdict?: string;
@@ -783,7 +807,7 @@ function validateManifestEntries(
 ): void {
   const actualPaths = manifest.files.map((entry) => entry.path);
   const expectedPaths = [...EXACT_MANIFEST_ORDER];
-  if (manifest.files.length !== 13) mismatches.push('manifest:file_count');
+  if (manifest.files.length !== 16) mismatches.push('manifest:file_count');
   if (new Set(actualPaths).size !== actualPaths.length) mismatches.push('manifest:duplicate_path');
   const actualSet = new Set<string>(actualPaths);
   const expectedSet = new Set<string>(expectedPaths);
@@ -970,6 +994,43 @@ export function validateExecutionSqlAuthorityFoundation(
       if (block?.orchestration_implemented !== false) {
         mismatches.push(`lifecycle:${authorityKey}:orchestration_implemented`);
       }
+    }
+  }
+
+  checkedCategories.push('connection_authority_json');
+  const connectionAuthorityPath = join(workspaceRoot, FOUNDATION_REL_PATHS.connectionAuthorityJson);
+  let connectionAuthorityText: string;
+  try {
+    connectionAuthorityText = readFileSync(connectionAuthorityPath, 'utf8');
+  } catch {
+    mismatches.push('connection_authority_json:missing');
+    connectionAuthorityText = '';
+  }
+  if (connectionAuthorityText) {
+    const connectionAuthority = JSON.parse(connectionAuthorityText) as RemoteConnectionAuthorityDocument;
+    const connectionValidation = validateRemoteConnectionAuthorityDocument(connectionAuthority);
+    if (!connectionValidation.ok) {
+      mismatches.push(...connectionValidation.mismatchCategories.map((entry) => `connection_authority_json:${entry}`));
+    }
+    const connectionBytes = Buffer.byteLength(connectionAuthorityText, 'utf8');
+    const connectionSha = createHash('sha256').update(connectionAuthorityText).digest('hex');
+    const connectionBinding = foundation.remote_connection_authority;
+    if (connectionBinding?.path !== FOUNDATION_REL_PATHS.connectionAuthorityJson) {
+      mismatches.push('remote_connection_authority:path');
+    }
+    if (connectionBinding?.bytes !== connectionBytes) mismatches.push('remote_connection_authority:bytes');
+    if (connectionBinding?.sha256 !== connectionSha) mismatches.push('remote_connection_authority:sha256');
+    if (foundation.credential_acquisition_authority?.frozen !== true) {
+      mismatches.push('credential_acquisition_authority:frozen');
+    }
+    if (foundation.credential_acquisition_authority?.acquisition_implemented !== false) {
+      mismatches.push('credential_acquisition_authority:acquisition_implemented');
+    }
+    if (foundation.target_connection_binding_authority?.frozen !== true) {
+      mismatches.push('target_connection_binding_authority:frozen');
+    }
+    if (foundation.target_connection_binding_authority?.target_binding_implemented !== false) {
+      mismatches.push('target_connection_binding_authority:target_binding_implemented');
     }
   }
 
