@@ -1,0 +1,63 @@
+{
+  "identifier": "M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1",
+  "implementation_id": "M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1",
+  "base_head_commit_sha": "b784996d51e9dda147c92f2f30cb87bdd5872213",
+  "expected_branch": "feat/m55-paid-lp-canonical-wave1",
+  "code_implemented": true,
+  "fake_transport_verified": true,
+  "real_connection_executed": false,
+  "credential_secret_read_in_gate": false,
+  "sql_executed": false,
+  "migration_applied": false,
+  "execution_authorized": false,
+  "automatic_next_step": false,
+  "same_run_retry": false,
+  "one_selected_step_only": true,
+  "stage_b_plan_only_unchanged": true,
+  "executable_credential_methods": [
+    "SECURE_STDIN_CONNECTION_CONFIG_v1"
+  ],
+  "unavailable_approved_methods": [
+    "TEMP_PGPASSFILE_0600_v1"
+  ],
+  "source_modules": {
+    "credentialAcquirer": {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionCredentialAcquirer.ts",
+      "sha256": "d2ff45f397da7db637842562ebcebc7c04d05c25c00767c28d7b759d14fa11e3"
+    },
+    "pgTransport": {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
+      "sha256": "1e11107c90eaadea6d4f9ca8844ce02640542ef1fe2233489fcb717bd016fe8a"
+    },
+    "executor": {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",
+      "sha256": "c784c3052df83c9b76617a4aee293631bea866c09e8885b5e9832dae75adcb10"
+    },
+    "runPreviewRemoteExecution": {
+      "path": "scripts/m55/runPreviewRemoteExecution.ts",
+      "sha256": "a11b8274580be3b027813671b08ebdf055ad61d9313094170a420342348b5e5b"
+    }
+  },
+  "stage_b_immutable_identities": {
+    "transactionNormalizedRemoteExecutor": {
+      "path": "lib/m55/previewRemoteApply/transactionNormalizedRemoteExecutor.ts",
+      "sha256": "95839c46baa17f0927815ca17b5d25d77bad1269047539f8b825d012604ea56f"
+    },
+    "pgTransportAdapter": {
+      "path": "lib/m55/previewRemoteApply/pgTransportAdapter.ts",
+      "sha256": "0337e8257c548b3d3e27a401e15d739dcd2ae078bfe45045b5f322200dab12c6"
+    },
+    "runPreviewRemoteApplyPlan": {
+      "path": "scripts/m55/runPreviewRemoteApplyPlan.ts",
+      "sha256": "fabb195616c06b07857cbd6c31e03df03dde50c346125bc358ef235c46f4a89c"
+    },
+    "historyBootstrapSpec": {
+      "path": "lib/m55/previewRemoteApply/historyBootstrapSpec.ts",
+      "sha256": "f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55"
+    },
+    "timeoutPolicy": {
+      "path": "lib/m55/previewRemoteApply/timeoutPolicy.ts",
+      "sha256": "9ae3067eb912c72711477ec9507c5c26ad90768f238ef83034aa0a79af642efa"
+    }
+  }
+}

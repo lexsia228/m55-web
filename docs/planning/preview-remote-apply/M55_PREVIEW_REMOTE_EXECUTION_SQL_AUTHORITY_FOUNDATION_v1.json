@@ -787,9 +787,7 @@
       }
     ]
   },
-  "missing_authorities": [
-    "remote executor implementation"
-  ],
+  "missing_authorities": [],
   "remote_execution_lifecycle_authority": {
     "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_v1.json",
     "bytes": 13183,
@@ -807,5 +805,13 @@
   "target_connection_binding_authority": {
     "frozen": true,
     "target_binding_implemented": false
+  },
+  "remote_executor_implementation": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
+    "bytes": 2542,
+    "sha256": "56001bb3a5f370f496be4bc2148c92bbc3aef35ee83df1fbeab144d8a1907b72",
+    "code_implemented": true,
+    "execution_authorized": false,
+    "real_connection_executed": false
   }
 }

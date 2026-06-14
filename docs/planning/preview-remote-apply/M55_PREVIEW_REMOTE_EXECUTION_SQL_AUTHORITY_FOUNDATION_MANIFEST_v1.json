@@ -6,9 +6,7 @@
   "db_connection_remote": false,
   "sql_executed_remote": false,
   "migration_apply_authorized": false,
-  "missing_authorities": [
-    "remote executor implementation"
-  ],
+  "missing_authorities": [],
   "files": [
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql",
@@ -42,8 +40,8 @@
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json",
-      "bytes": 30877,
-      "sha256": "4aeb7f9883824f6d89a8d7622765dc187f966319aa553be4f73c72baa0481dd6",
+      "bytes": 31185,
+      "sha256": "cfea2a35f7d7cd142af9878f2f9c3908108f8be71d57a9dcba4c12dac655fd01",
       "classification": "foundation_json"
     },
     {
@@ -60,8 +58,8 @@
     },
     {
       "path": "lib/m55/previewRemoteApply/executionSqlAuthorityFoundation.ts",
-      "bytes": 50800,
-      "sha256": "e23236b432c0aa087cd96d18c467bab729a330db4e6b10fdeb6814298a2049f1",
+      "bytes": 58601,
+      "sha256": "0f87fc54962aa928ce758d6652b7563a35e59eb9bdd7c5db270d9c8c1073f414",
       "classification": "foundation_loader"
     },
     {
@@ -101,9 +99,45 @@
       "classification": "foundation_validator"
     },
     {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
+      "bytes": 2542,
+      "sha256": "56001bb3a5f370f496be4bc2148c92bbc3aef35ee83df1fbeab144d8a1907b72",
+      "classification": "remote_executor_implementation_json"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionCredentialAcquirer.ts",
+      "bytes": 12391,
+      "sha256": "d2ff45f397da7db637842562ebcebc7c04d05c25c00767c28d7b759d14fa11e3",
+      "classification": "remote_execution_credential_acquirer"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
+      "bytes": 14380,
+      "sha256": "1e11107c90eaadea6d4f9ca8844ce02640542ef1fe2233489fcb717bd016fe8a",
+      "classification": "remote_execution_pg_transport"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",
+      "bytes": 50945,
+      "sha256": "c784c3052df83c9b76617a4aee293631bea866c09e8885b5e9832dae75adcb10",
+      "classification": "remote_execution_executor"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteExecutionCredentialAndTransport.local.test.ts",
+      "bytes": 22785,
+      "sha256": "cef627d5622a05c371af91b98c96d55bf6391ed0c390ae6c9f05fa6d664453cb",
+      "classification": "remote_execution_credential_tests"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteExecutionExecutor.local.test.ts",
+      "bytes": 115903,
+      "sha256": "1f88a93b138e0a4d7e9ce2a0922f5695611b9ceb341ab1351a10dc7e3d3cffb1",
+      "classification": "remote_execution_executor_tests"
+    },
+    {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json",
-      "bytes": 4770,
-      "sha256": "aba93e5f67b0858d512f98d1dfd22fb7352ef277aeffc44ab39bf0475c89d0ba",
+      "bytes": 6302,
+      "sha256": "8748f142ec5655eb812e32d7902d00151fe672005d36dab9858a8d9bfc349b75",
       "classification": "foundation_manifest"
     }
   ]
