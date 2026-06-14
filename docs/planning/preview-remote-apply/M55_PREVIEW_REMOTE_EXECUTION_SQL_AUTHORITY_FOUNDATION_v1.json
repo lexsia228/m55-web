@@ -719,15 +719,15 @@
       "orchestration_implemented": false
     },
     "ack_classifier_authority": {
-      "frozen": false,
+      "frozen": true,
       "orchestration_implemented": false
     },
     "pre_commit_failure_classifier_authority": {
-      "frozen": false,
+      "frozen": true,
       "orchestration_implemented": false
     },
     "fresh_post_commit_connection_lifecycle": {
-      "frozen": false,
+      "frozen": true,
       "orchestration_implemented": false
     }
   },
@@ -788,11 +788,13 @@
     ]
   },
   "missing_authorities": [
-    "ACK classifier authority",
-    "pre-commit failure classifier authority",
-    "fresh post-commit connection lifecycle",
     "credential acquisition",
     "target connection binding",
     "remote executor implementation"
-  ]
+  ],
+  "remote_execution_lifecycle_authority": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_v1.json",
+    "bytes": 13183,
+    "sha256": "4ceef48c7539364116c60606058c446b1648476c5e60730d84ab0249ff194c3f"
+  }
 }

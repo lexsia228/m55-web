@@ -2,6 +2,11 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  EXPECTED_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_BINDING,
+  validateRemoteExecutionLifecycleAuthorityDocument,
+  type RemoteExecutionLifecycleAuthorityDocument,
+} from './remoteExecutionLifecycleAuthority.ts';
 import { canonicalSerializePreviewRemoteApply } from './types.ts';
 
 export const EXECUTION_SQL_AUTHORITY_FOUNDATION_ID =
@@ -28,10 +33,14 @@ export const FOUNDATION_REL_PATHS = {
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_FUNCTION_PARITY_EXTRACTOR_v1.sql',
   foundationJson:
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json',
+  lifecycleAuthorityJson:
+    'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_v1.json',
   manifestJson:
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json',
   loader: 'lib/m55/previewRemoteApply/executionSqlAuthorityFoundation.ts',
   tests: 'lib/m55/previewRemoteApply.executionSqlAuthorityFoundation.local.test.ts',
+  lifecycleAuthority: 'lib/m55/previewRemoteApply/remoteExecutionLifecycleAuthority.ts',
+  lifecycleAuthorityTests: 'lib/m55/previewRemoteApply.remoteExecutionLifecycleAuthority.local.test.ts',
   validator: 'scripts/m55/validatePreviewRemoteExecutionSqlAuthorityFoundation.ts',
 } as const;
 
@@ -119,13 +128,12 @@ export const FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS = {
 } as const;
 
 export const FOUNDATION_MISSING_AUTHORITIES = [
-  'ACK classifier authority',
-  'pre-commit failure classifier authority',
-  'fresh post-commit connection lifecycle',
   'credential acquisition',
   'target connection binding',
   'remote executor implementation',
 ] as const;
+
+export { EXPECTED_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_BINDING };
 
 export const P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS = [
   'CLEANLY_ABSENT',
@@ -169,8 +177,11 @@ export const EXACT_MANIFEST_ORDER = [
   FOUNDATION_REL_PATHS.catalogExtractor,
   FOUNDATION_REL_PATHS.functionParityExtractor,
   FOUNDATION_REL_PATHS.foundationJson,
+  FOUNDATION_REL_PATHS.lifecycleAuthorityJson,
   FOUNDATION_REL_PATHS.loader,
   FOUNDATION_REL_PATHS.tests,
+  FOUNDATION_REL_PATHS.lifecycleAuthority,
+  FOUNDATION_REL_PATHS.lifecycleAuthorityTests,
   FOUNDATION_REL_PATHS.validator,
   FOUNDATION_REL_PATHS.manifestJson,
 ] as const;
@@ -350,8 +361,11 @@ export const MANIFEST_FILE_CLASSIFICATIONS: Readonly<Record<string, string>> = {
   [FOUNDATION_REL_PATHS.catalogExtractor]: 'remote_catalog_extractor',
   [FOUNDATION_REL_PATHS.functionParityExtractor]: 'remote_function_parity_extractor',
   [FOUNDATION_REL_PATHS.foundationJson]: 'foundation_json',
+  [FOUNDATION_REL_PATHS.lifecycleAuthorityJson]: 'remote_execution_lifecycle_authority_json',
   [FOUNDATION_REL_PATHS.loader]: 'foundation_loader',
   [FOUNDATION_REL_PATHS.tests]: 'foundation_tests',
+  [FOUNDATION_REL_PATHS.lifecycleAuthority]: 'remote_execution_lifecycle_authority',
+  [FOUNDATION_REL_PATHS.lifecycleAuthorityTests]: 'remote_execution_lifecycle_authority_tests',
   [FOUNDATION_REL_PATHS.validator]: 'foundation_validator',
   [FOUNDATION_REL_PATHS.manifestJson]: 'foundation_manifest',
 };
@@ -400,9 +414,30 @@ export type ExecutionSqlAuthorityFoundationDocument = {
     readonly version_registry?: readonly string[];
     readonly phases?: readonly LifecyclePhaseSpec[];
     readonly final_p7?: LifecycleSlotSpec & { readonly phase_id: string };
+    readonly p1_prior_bootstrap_precondition_executable_authority?: {
+      readonly frozen?: boolean;
+      readonly orchestration_implemented?: boolean;
+    };
+    readonly ack_classifier_authority?: {
+      readonly frozen?: boolean;
+      readonly orchestration_implemented?: boolean;
+    };
+    readonly pre_commit_failure_classifier_authority?: {
+      readonly frozen?: boolean;
+      readonly orchestration_implemented?: boolean;
+    };
+    readonly fresh_post_commit_connection_lifecycle?: {
+      readonly frozen?: boolean;
+      readonly orchestration_implemented?: boolean;
+    };
   };
   readonly p1_bootstrap?: { readonly precondition_status?: string };
   readonly p1_prior_bootstrap_precondition?: Record<string, unknown>;
+  readonly remote_execution_lifecycle_authority?: {
+    readonly path?: string;
+    readonly bytes?: number;
+    readonly sha256?: string;
+  };
   readonly local_full_extractor_equivalence?: {
     readonly verdict?: string;
     readonly cases?: readonly Record<string, unknown>[];
@@ -748,7 +783,7 @@ function validateManifestEntries(
 ): void {
   const actualPaths = manifest.files.map((entry) => entry.path);
   const expectedPaths = [...EXACT_MANIFEST_ORDER];
-  if (manifest.files.length !== 10) mismatches.push('manifest:file_count');
+  if (manifest.files.length !== 13) mismatches.push('manifest:file_count');
   if (new Set(actualPaths).size !== actualPaths.length) mismatches.push('manifest:duplicate_path');
   const actualSet = new Set<string>(actualPaths);
   const expectedSet = new Set<string>(expectedPaths);
@@ -893,6 +928,50 @@ export function validateExecutionSqlAuthorityFoundation(
 
   checkedCategories.push('local_equivalence_evidence');
   validateLocalEquivalenceEvidence(foundation, mismatches);
+
+  checkedCategories.push('lifecycle_authority_json');
+  const lifecycleAuthorityPath = join(workspaceRoot, FOUNDATION_REL_PATHS.lifecycleAuthorityJson);
+  let lifecycleAuthorityText: string;
+  try {
+    lifecycleAuthorityText = readFileSync(lifecycleAuthorityPath, 'utf8');
+  } catch {
+    mismatches.push('lifecycle_authority_json:missing');
+    lifecycleAuthorityText = '';
+  }
+  if (lifecycleAuthorityText) {
+    const lifecycleAuthority = JSON.parse(lifecycleAuthorityText) as RemoteExecutionLifecycleAuthorityDocument;
+    const lifecycleValidation = validateRemoteExecutionLifecycleAuthorityDocument(lifecycleAuthority);
+    if (!lifecycleValidation.ok) {
+      mismatches.push(...lifecycleValidation.mismatchCategories.map((entry) => `lifecycle_authority_json:${entry}`));
+    }
+    const lifecycleBytes = Buffer.byteLength(lifecycleAuthorityText, 'utf8');
+    const lifecycleSha = createHash('sha256').update(lifecycleAuthorityText).digest('hex');
+    const lifecycleBinding = foundation.remote_execution_lifecycle_authority;
+    if (lifecycleBinding?.path !== FOUNDATION_REL_PATHS.lifecycleAuthorityJson) {
+      mismatches.push('remote_execution_lifecycle_authority:path');
+    }
+    if (lifecycleBinding?.bytes !== lifecycleBytes) mismatches.push('remote_execution_lifecycle_authority:bytes');
+    if (lifecycleBinding?.sha256 !== lifecycleSha) mismatches.push('remote_execution_lifecycle_authority:sha256');
+    if (foundation.lifecycle?.ack_classifier_authority?.frozen !== true) {
+      mismatches.push('lifecycle:ack_classifier_authority_frozen');
+    }
+    if (foundation.lifecycle?.pre_commit_failure_classifier_authority?.frozen !== true) {
+      mismatches.push('lifecycle:pre_commit_failure_classifier_authority_frozen');
+    }
+    if (foundation.lifecycle?.fresh_post_commit_connection_lifecycle?.frozen !== true) {
+      mismatches.push('lifecycle:fresh_post_commit_connection_lifecycle_frozen');
+    }
+    for (const authorityKey of [
+      'ack_classifier_authority',
+      'pre_commit_failure_classifier_authority',
+      'fresh_post_commit_connection_lifecycle',
+    ] as const) {
+      const block = foundation.lifecycle?.[authorityKey] as { frozen?: boolean; orchestration_implemented?: boolean } | undefined;
+      if (block?.orchestration_implemented !== false) {
+        mismatches.push(`lifecycle:${authorityKey}:orchestration_implemented`);
+      }
+    }
+  }
 
   checkedCategories.push('manifest_file_identities');
   validateManifestEntries(workspaceRoot, manifest, mismatches);
