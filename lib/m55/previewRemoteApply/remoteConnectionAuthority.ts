@@ -32,6 +32,11 @@ export const APPROVED_PREVIEW_PROJECT_REF = 'sbogwyzldjxxouhqtpnq' as const;
 export const SESSION_POOLER_HOST = 'aws-1-ap-northeast-1.pooler.supabase.com' as const;
 export const SESSION_POOLER_HOST_FINGERPRINT_SHA256 =
   '4982c8162697c153b25d2a028af3b46fba2ad2d4c3f65351feca495aa81df75e' as const;
+export const TLS_TRUST_PROFILE = 'SUPABASE_ROOT_2021_CA_PINNED_V1' as const;
+export const SUPABASE_ROOT_2021_CA_DER_SHA256 =
+  '807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa' as const;
+export const TLS_CA_PEM_MAX_BYTES = 4096 as const;
+export const SESSION_POOLER_TLS_SERVER_NAME = SESSION_POOLER_HOST;
 
 export function expectedConnectionUserForProjectRef(projectRef: string): string {
   return `postgres.${projectRef}`;
@@ -573,9 +578,9 @@ function validateDensePlainStringArray(value: unknown): DensePlainStringArrayRes
       return { ok: false, hold: 'HOLD_CREDENTIAL_METHOD_INVALID' };
     }
 
-    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const descriptors = Object.getOwnPropertyDescriptors(value as object);
     const ownKeys = Reflect.ownKeys(value);
-    const lengthDescriptor = descriptors.length;
+    const lengthDescriptor = Object.getOwnPropertyDescriptor(value, 'length');
     if (
       !lengthDescriptor ||
       lengthDescriptor.get !== undefined ||
@@ -1231,6 +1236,11 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
     credentials_never_from_ambient_pguser: true,
     credentials_never_from_ambient_pgpassword: true,
     credentials_never_from_ambient_pgdatabase: true,
+    credentials_never_from_ambient_node_extra_ca_certs: true,
+    credentials_never_from_ambient_node_tls_reject_unauthorized: true,
+    credentials_never_from_ambient_pgsslrootcert: true,
+    credentials_never_from_ambient_ssl_cert_file: true,
+    credentials_never_from_ambient_ssl_cert_dir: true,
     full_connection_url_forbidden: true,
     automatic_credential_fallback_forbidden: true,
     method_must_be_explicitly_selected: true,
@@ -1245,7 +1255,10 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
     identifier: 'SECURE_STDIN_CONNECTION_CONFIG_v1',
     input_channel: 'stdin_only',
     payload_format: 'one_bounded_json_object',
-    allowed_secret_bearing_fields: ['host', 'port', 'database', 'user', 'password', 'sslmode'],
+    allowed_secret_bearing_fields: ['host', 'port', 'database', 'user', 'password', 'sslmode', 'tlsCaPem'],
+    tls_ca_pem_max_bytes: TLS_CA_PEM_MAX_BYTES,
+    exactly_one_pem_certificate_block_required: true,
+    canonical_der_sha256_must_match_pinned_supabase_root_2021: true,
     reject_unknown_fields: true,
     reject_duplicate_fields: true,
     reject_trailing_data: true,
@@ -1443,6 +1456,20 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
     execution_authorized: false,
     target_binding_implemented: false,
   },
+  tls_trust_profile: {
+    identifier: TLS_TRUST_PROFILE,
+    tls_trust_profile: TLS_TRUST_PROFILE,
+    canonical_der_sha256: SUPABASE_ROOT_2021_CA_DER_SHA256,
+    expected_server_name: SESSION_POOLER_TLS_SERVER_NAME,
+    reject_unauthorized: true,
+    certificate_count_exactly_one: true,
+    arbitrary_system_or_ambient_ca_fallback_forbidden: true,
+    ca_certificate_public_not_credential_secret: true,
+    ca_filesystem_path_forbidden_in_authority_json: true,
+    pem_physical_sha256_evidence_only: true,
+    execution_authorized: false,
+    target_binding_implemented: false,
+  },
   expected_vs_observed_binding: {
     expected_authorization_binding_fields: [
       'environment',
@@ -1622,6 +1649,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'exact_approved_preview_project_ref',
       'exact_connection_user_derivation',
       'exact_session_pooler_host_fingerprint_consistency',
+      'exact_pinned_tls_trust_profile',
+      'exact_session_pooler_tls_server_name',
       'direct_host_rejected_for_session_pooler',
       'execution_authorization_identity',
       'authority_manifest_identities',

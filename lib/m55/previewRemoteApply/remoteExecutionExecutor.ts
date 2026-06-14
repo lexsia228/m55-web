@@ -42,6 +42,7 @@ import {
   REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_ID,
   type AckClassifierInput,
   type CommitResponseClass,
+  type P2ThroughP7AckPredicateFacts,
   type PreCommitFailureClass,
 } from './remoteExecutionLifecycleAuthority.ts';
 import {
@@ -515,8 +516,8 @@ export function loadVerifiedProbeSqlBundle(
   | { readonly ok: true; readonly bundle: VerifiedProbeSqlBundle }
   | { readonly ok: false; readonly holdReasonCode: PreviewRemoteApplyHoldCode } {
   const foundationValidation = validateExecutionSqlAuthorityFoundation(repoRoot);
-  if (!foundationValidation.ok) {
-    return { ok: false, holdReasonCode: 'HOLD_FOUNDATION_AUTHORITY_MISMATCH' };
+  if (foundationValidation.ok !== true) {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
   const p1Path = join(repoRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
   const catalogPath = join(repoRoot, FOUNDATION_REL_PATHS.catalogExtractor);
@@ -526,7 +527,7 @@ export function loadVerifiedProbeSqlBundle(
     p1Bytes = readFileSync(p1Path);
     catalogBytes = readFileSync(catalogPath);
   } catch {
-    return { ok: false, holdReasonCode: 'HOLD_FOUNDATION_AUTHORITY_MISMATCH' };
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
   const p1Expected = FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.p1PriorBootstrapPrecondition;
   const catalogExpected = FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.catalogExtractor;
@@ -534,13 +535,13 @@ export function loadVerifiedProbeSqlBundle(
     p1Bytes.length !== p1Expected.bytes ||
     createHash('sha256').update(p1Bytes).digest('hex') !== p1Expected.sha256
   ) {
-    return { ok: false, holdReasonCode: 'HOLD_FOUNDATION_AUTHORITY_MISMATCH' };
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
   if (
     catalogBytes.length !== catalogExpected.bytes ||
     createHash('sha256').update(catalogBytes).digest('hex') !== catalogExpected.sha256
   ) {
-    return { ok: false, holdReasonCode: 'HOLD_FOUNDATION_AUTHORITY_MISMATCH' };
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
   return {
     ok: true,
@@ -628,26 +629,30 @@ function historyPrefixMatches(snapshot: PhaseSnapshot, expectedPrefix: readonly 
   return true;
 }
 
-function buildP1AckPredicates(
-  priorSnapshot: PhaseSnapshot,
-  postSnapshot: PhaseSnapshot,
-  priorCompareOk: boolean,
-  postCompareOk: boolean,
-  bootstrap: { readonly classification: string; readonly proceed: boolean },
-): AckClassifierInput['predicates'] {
-  const bootstrapCleanlyAbsent = bootstrap.classification === 'CLEANLY_ABSENT' && bootstrap.proceed;
-  return {
-    historyRelationAbsent: bootstrapCleanlyAbsent,
-    exactP0OraclePhase: priorCompareOk,
-    p1DeltaAbsent: priorCompareOk,
-    unexpectedDeltaZero:
-      (priorSnapshot.forbidden_violations as string[]).length === 0 &&
-      (postSnapshot.forbidden_violations as string[]).length === 0,
-    targetIdentityExact: true,
-    historyRelationExact: postCompareOk,
-    historyPrefixExactlyP1: historyPrefixMatches(postSnapshot, expectedHistoryPrefixForStep('P1', 'post')),
-    exactP1OraclePhase: postCompareOk,
-  };
+type CatalogOracleCompare = {
+  readonly snapshot: PhaseSnapshot;
+  readonly ok: boolean;
+};
+
+function phaseAlignedUnexpectedDeltaZero(
+  priorCompare: CatalogOracleCompare,
+  nextCompare: CatalogOracleCompare,
+): boolean {
+  const priorExact = priorCompare.ok;
+  const nextExact = nextCompare.ok;
+  if (priorExact && !nextExact) {
+    return (priorCompare.snapshot.forbidden_violations as string[]).length === 0;
+  }
+  if (nextExact && !priorExact) {
+    return (nextCompare.snapshot.forbidden_violations as string[]).length === 0;
+  }
+  if (priorExact && nextExact) {
+    return (
+      (priorCompare.snapshot.forbidden_violations as string[]).length === 0 &&
+      (nextCompare.snapshot.forbidden_violations as string[]).length === 0
+    );
+  }
+  return false;
 }
 
 function buildP2ThroughP7AckPredicates(
@@ -656,14 +661,15 @@ function buildP2ThroughP7AckPredicates(
   postSnapshot: PhaseSnapshot,
   priorCompareOk: boolean,
   postCompareOk: boolean,
-): AckClassifierInput['predicates'] {
+): P2ThroughP7AckPredicateFacts {
   return {
     exactPriorHistoryPrefix: historyPrefixMatches(priorSnapshot, expectedHistoryPrefixForStep(stepId, 'prior')),
     exactPriorOraclePhase: priorCompareOk,
     currentVersionDeltaAbsent: priorCompareOk && !postCompareOk,
-    unexpectedDeltaZero:
-      (priorSnapshot.forbidden_violations as string[]).length === 0 &&
-      (postSnapshot.forbidden_violations as string[]).length === 0,
+    unexpectedDeltaZero: phaseAlignedUnexpectedDeltaZero(
+      { snapshot: priorSnapshot, ok: priorCompareOk },
+      { snapshot: postSnapshot, ok: postCompareOk },
+    ),
     targetIdentityExact: true,
     exactNextHistoryPrefix: historyPrefixMatches(postSnapshot, expectedHistoryPrefixForStep(stepId, 'post')),
     exactNextOraclePhase: postCompareOk,
@@ -739,7 +745,7 @@ function validateFreshTargetGate(
   if (repoHold) return repoHold;
   const foundationValidation = validateExecutionSqlAuthorityFoundation(repoRoot);
   if (!foundationValidation.ok) {
-    return 'HOLD_FOUNDATION_AUTHORITY_MISMATCH';
+    return 'HOLD_AUTHORITY_IDENTITY_MISMATCH';
   }
   return null;
 }
@@ -749,7 +755,7 @@ async function runFreshReadonlyAckClassification(
   authorizationDocument: unknown,
   binding: ExpectedAuthorizationBinding,
   probeBundle: VerifiedProbeSqlBundle,
-  secretsRelease: () => { host: string; port: number; database: string; user: string; password: string; sslmode: 'require' },
+  secretsRelease: () => ParsedConnectionSecrets,
   deps: PreviewRemoteExecutionDeps,
   lifecycle: 'POST_COMMIT_READONLY_VERIFICATION_LIFECYCLE' | 'ACK_STATE_READONLY_CLASSIFICATION_LIFECYCLE',
   stepId: StepId,
@@ -916,7 +922,7 @@ async function runFreshReadonlyAckClassification(
     const nextOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(stepId, 'post'));
     const priorCompare = classifyCatalogQueryResult(catalogResult, priorOracle);
     const nextCompare = classifyCatalogQueryResult(catalogResult, nextOracle);
-    const ackInput: AckClassifierInput = {
+    const ackInput = {
       phase: stepId as Exclude<StepId, 'P1'>,
       predicates: buildP2ThroughP7AckPredicates(
         stepId,
@@ -925,7 +931,7 @@ async function runFreshReadonlyAckClassification(
         priorCompare.ok,
         nextCompare.ok,
       ),
-    };
+    } satisfies AckClassifierInput;
     void commitResponseClass;
     const ack = classifyAckState(ackInput);
     return { ackState: ack.ackState, disposition: ack.disposition, postCommitLifecycle: lifecycle, completed: true };

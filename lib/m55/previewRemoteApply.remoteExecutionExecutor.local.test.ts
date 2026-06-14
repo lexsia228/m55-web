@@ -20,6 +20,7 @@ import {
   formatPsqlJsonOutput,
   parseRuntimeCatalogOutput,
   compareRuntimePhaseSnapshot,
+  type RuntimeCatalogRaw,
 } from '../../scripts/m55/previewBaselineDisposableRuntime.ts';
 import { REQUIRED_RELATIONS } from '../../scripts/m55/previewBaselineTool.ts';
 import {
@@ -53,6 +54,7 @@ import {
   createFakeExecutionPgClientFactory,
   type ExecutionPgClientConfig,
   type ExecutionPgQueryResult,
+  type ExecutionPgTransportFactoryDeps,
 } from './previewRemoteApply/remoteExecutionPgTransport.ts';
 import {
   APPROVED_PREVIEW_PROJECT_REF,
@@ -72,6 +74,7 @@ import {
   EXPECTED_REPO_ROOT,
   HISTORY_INSERT_SQL_METADATA,
   REPOSITORY_FACTS_SOURCE,
+  type CredentialMethodId,
   type RepositoryIdentityFacts,
   type StepId,
 } from './previewRemoteApply/types.ts';
@@ -81,6 +84,48 @@ const SENTINEL = '__M55_SYNTHETIC_SENTINEL_SECRET__';
 const VALID_PROJECT_REF = APPROVED_PREVIEW_PROJECT_REF;
 const VALID_HOST = SESSION_POOLER_HOST;
 const VALID_CONNECTION_USER = expectedConnectionUserForProjectRef(VALID_PROJECT_REF);
+const SUPABASE_ROOT_2021_CA_PEM = `-----BEGIN CERTIFICATE-----
+MIIDxDCCAqygAwIBAgIUbLxMod62P2ktCiAkxnKJwtE9VPYwDQYJKoZIhvcNAQEL
+BQAwazELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0RlbHdhcmUxEzARBgNVBAcMCk5l
+dyBDYXN0bGUxFTATBgNVBAoMDFN1cGFiYXNlIEluYzEeMBwGA1UEAwwVU3VwYWJh
+c2UgUm9vdCAyMDIxIENBMB4XDTIxMDQyODEwNTY1M1oXDTMxMDQyNjEwNTY1M1ow
+azELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0RlbHdhcmUxEzARBgNVBAcMCk5ldyBD
+YXN0bGUxFTATBgNVBAoMDFN1cGFiYXNlIEluYzEeMBwGA1UEAwwVU3VwYWJhc2Ug
+Um9vdCAyMDIxIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQXW
+QyHOB+qR2GJobCq/CBmQ40G0oDmCC3mzVnn8sv4XNeWtE5XcEL0uVih7Jo4Dkx1Q
+DmGHBH1zDfgs2qXiLb6xpw/CKQPypZW1JssOTMIfQppNQ87K75Ya0p25Y3ePS2t2
+GtvHxNjUV6kjOZjEn2yWEcBdpOVCUYBVFBNMB4YBHkNRDa/+S4uywAoaTWnCJLUi
+cvTlHmMw6xSQQn1UfRQHk50DMCEJ7Cy1RxrZJrkXXRP3LqQL2ijJ6F4yMfh+Gyb4
+O4XajoVj/+R4GwywKYrrS8PrSNtwxr5StlQO8zIQUSMiq26wM8mgELFlS/32Uclt
+NaQ1xBRizkzpZct9DwIDAQABo2AwXjALBgNVHQ8EBAMCAQYwHQYDVR0OBBYEFKjX
+uXY32CztkhImng4yJNUtaUYsMB8GA1UdIwQYMBaAFKjXuXY32CztkhImng4yJNUt
+aUYsMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAB8spzNn+4VU
+tVxbdMaX+39Z50sc7uATmus16jmmHjhIHz+l/9GlJ5KqAMOx26mPZgfzG7oneL2b
+VW+WgYUkTT3XEPFWnTp2RJwQao8/tYPXWEJDc0WVQHrpmnWOFKU/d3MqBgBm5y+6
+jB81TU/RG2rVerPDWP+1MMcNNy0491CTL5XQZ7JfDJJ9CCmXSdtTl4uUQnSuv/Qx
+Cea13BX2ZgJc7Au30vihLhub52De4P/4gonKsNHYdbWjg7OWKwNv/zitGDVDB9Y2
+CMTyZKG3XEu5Ghl1LEnI3QmEKsqaCLv12BnVjbkSeZsMnevJPs1Ye6TjjJwdik5P
+o/bKiIz+Fq8=
+-----END CERTIFICATE-----`;
+const WRONG_CA_PEM = `-----BEGIN CERTIFICATE-----
+MIIDETCCAfmgAwIBAgIUPAk3c9/lYYXGY5R7JtuKMBVwAScwDQYJKoZIhvcNAQEL
+BQAwGDEWMBQGA1UEAwwNV3JvbmcgVGVzdCBDQTAeFw0yNjA2MTQxNjM3NDNaFw0z
+NjA2MTExNjM3NDNaMBgxFjAUBgNVBAMMDVdyb25nIFRlc3QgQ0EwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCltgVXhJltZKNgcFTK5j8fNFcsz2BJhIMO
+wchmgWzAZBcp+5CxIY6bsPT+9oeFupfzHeuCiWM4c/ZJlhkDMkBEv8fEoZPLd/L0
+5VRmMknVK0RbpN6w0PQISbsS5GCzdgRdzFrq4FnzIeTYW11n530s0cLVr1C3+GnT
++WDp8cLcdKQTzMH/uXQbN+YRP0C2PopK1MOjLBOeT9t41ffnrUEkYC7DOrAHUIFa
+NU7AJYSoD0iH1TyKpB+bBTHRPchgUSlELq/G+sYeznSV1RbczxZLxwdeHXDIX1qZ
+wMBJqkac/ayDBUU6SQvL+wY2zSW1MGctQbrK0WDBF8Y2/vDW9OQXAgMBAAGjUzBR
+MB0GA1UdDgQWBBTi1PFyXGkk2tCroiHeO/1xUNSEzjAfBgNVHSMEGDAWgBTi1PFy
+XGkk2tCroiHeO/1xUNSEzjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+A4IBAQBE/VpkfVl37MYOav5F25uvwpEGL35t1NUOiF7N8vRSHJFO6DmrzOPVedWo
+SoBjFHr4qP11Wwr3C9bcHBM3tc4pMJEY4YmiJQuruih3W58zbZtjT4Zzygno/c5r
+B4CY8bH0xWBot7C/jayyHsYtyNWYLXJZm0mDgKPODebzV7zrRvJH8DQvhQDRXasA
++QJXm5KlM5N8g9rqwqtpf5nTd6InwDUBi+gXLjkXEbTvWN1GKIG8zMnsJLGQByAV
+R4uxffsd7onCccnROGbd5vnmLhgdKAKysxYomt6rhd31hd0Xi8iRbFi8rzyJy2ay
+fdJkFVMUgUwJpuwtSvE0xFycF6Di
+-----END CERTIFICATE-----`;
 const HUMAN_EXEC_AUTH_ID = 'M55-HUMAN-EXEC-AUTH-TEST-001';
 const ALT_TREE = 'cccccccccccccccccccccccccccccccccccccccc';
 const CONTRACT_MATRIX = JSON.parse(
@@ -168,14 +213,28 @@ function hybridRawCatalogForPhase(phaseId: string) {
   }
   const oracle = oraclePhaseById(phaseId);
   const raw = decodeCatalogFingerprintsToRawCatalog(oracle);
-  raw.internal_trigger_groups = literalCatalogFromMatrix(phaseId).internal_trigger_groups;
+  raw.internal_trigger_groups = literalCatalogFromMatrix(phaseId).internal_trigger_groups as typeof raw.internal_trigger_groups;
   return raw;
 }
+
+type FakeTransportDeps = {
+  repositoryFacts?: () => RepositoryIdentityFacts;
+  credentialAcquirerDeps?: CredentialAcquirerDeps;
+  transportFactory?: ExecutionPgTransportFactoryDeps;
+  verifierTransportFactory?: ExecutionPgTransportFactoryDeps;
+  transportProfile?: 'TEST_INJECTED' | 'REAL_REMOTE';
+  nowMs?: () => number;
+  deadlineRunner?: {
+    isExceeded: (startedAtMs: number, deadlineMs: number) => boolean;
+  };
+  mutationFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
+  verifierFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
+};
 
 function catalogRowsForPhase(phaseId: string): ExecutionPgQueryResult {
   const raw = hybridRawCatalogForPhase(phaseId);
   const oracle = oraclePhaseById(phaseId);
-  const snapshot = deriveRuntimePhaseSnapshot(raw, oracle);
+  const snapshot = deriveRuntimePhaseSnapshot(raw as RuntimeCatalogRaw, oracle);
   const comparison = compareRuntimePhaseSnapshot(snapshot, oracle);
   assert.equal(comparison.ok, true, `${phaseId}:${comparison.mismatches.join(',')}`);
   return {
@@ -280,7 +339,7 @@ function validRepositoryFacts(overrides: Partial<RepositoryIdentityFacts> = {}):
   };
 }
 
-function validStdinBytes(): Buffer {
+function validStdinBytes(overrides: Record<string, unknown> = {}): Buffer {
   return Buffer.from(
     JSON.stringify({
       host: VALID_HOST,
@@ -289,6 +348,8 @@ function validStdinBytes(): Buffer {
       user: VALID_CONNECTION_USER,
       password: SENTINEL,
       sslmode: 'require',
+      tlsCaPem: SUPABASE_ROOT_2021_CA_PEM,
+      ...overrides,
     }),
     'utf8',
   );
@@ -392,10 +453,7 @@ function createFakeTransportDeps(options: {
   verifierP1Proceed?: boolean;
   rollbackAcknowledged?: boolean;
   transportLossOnCommit?: boolean;
-} = {}): PreviewRemoteExecutionDeps & {
-  mutationFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
-  verifierFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
-} {
+} = {}): FakeTransportDeps {
   const stepId = options.stepId ?? 'P1';
   const mutationFactory = createFakeExecutionPgClientFactory({
     commitResponseClass: options.commitResponseClass ?? 'DEFINITIVE_COMMIT_ACK',
@@ -479,16 +537,13 @@ function createStrictClassifierDeps(
 function executeWithEnvelope(
   envelope: ReturnType<typeof validAuthorizationEnvelope>,
   selectedStep: StepId,
-  deps: PreviewRemoteExecutionDeps & {
-    mutationFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
-    verifierFactory?: ReturnType<typeof createFakeExecutionPgClientFactory>;
-  },
+  deps: FakeTransportDeps,
 ) {
   return executePreviewRemoteExecution(
     {
       repoRoot: EXPECTED_REPO_ROOT,
       authorizationDocument: envelope,
-      credentialMethod: envelope.expected.credentialMethod,
+      credentialMethod: envelope.expected.credentialMethod as CredentialMethodId,
       selectedStep,
     },
     deps,
@@ -518,16 +573,37 @@ describe('remote execution executor X1-X30', () => {
   });
 
   it('X4 target gate before credential acquisition', async () => {
+    let credentialRead = 0;
+    let clientCreate = 0;
     const deps = createFakeTransportDeps();
+    const baseRead = deps.credentialAcquirerDeps!.readBytes!;
+    deps.credentialAcquirerDeps = {
+      readBytes: () => {
+        credentialRead += 1;
+        return baseRead();
+      },
+    };
+    const baseCreateClient = deps.transportFactory!.createClient!;
+    deps.transportFactory = {
+      createClient: (config) => {
+        clientCreate += 1;
+        return baseCreateClient(config);
+      },
+    };
+    const invalidRef = '';
+    const expected = validExpectedBinding({ projectRef: invalidRef });
+    const observed = observedFromExpected({ ...expected, projectRef: invalidRef });
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ projectRef: '' }) },
+        authorizationDocument: { expected, observed },
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
       deps,
     );
+    assert.equal(credentialRead, 0);
+    assert.equal(clientCreate, 0);
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
     assert.equal(result.holdReasonCode, 'HOLD_TARGET_FINGERPRINT_INCOMPLETE');
   });
@@ -552,7 +628,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -567,7 +643,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -594,7 +670,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P1' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P1' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -618,7 +694,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P2' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P2' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P2',
       },
@@ -647,7 +723,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P1' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P1' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -670,7 +746,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P5' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P5' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P5',
       },
@@ -688,7 +764,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P3' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P3' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P3',
       },
@@ -708,7 +784,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P4' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P4' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P4',
       },
@@ -724,7 +800,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P2' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P2' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P2',
       },
@@ -745,7 +821,7 @@ describe('remote execution executor X1-X30', () => {
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -759,7 +835,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P6' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P6' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P6',
       },
@@ -780,7 +856,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -803,7 +879,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ selectedStep: 'P1' }) },
+        authorizationDocument: validAuthorizationEnvelope({ selectedStep: 'P1' }),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -816,7 +892,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -829,7 +905,7 @@ describe('remote execution executor X1-X30', () => {
     const result = await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding() },
+        authorizationDocument: validAuthorizationEnvelope(),
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -968,15 +1044,21 @@ describe('remote execution executor X1-X30', () => {
     const acquire = await acquireSecureStdinConnectionConfig({ readBytes: () => validStdinBytes() });
     assert.equal(acquire.ok, true);
     if (acquire.ok) {
-      acquire.cleanup = () => {
-        cleaned = true;
-        acquire.cleanup();
-      };
+      const originalCleanup = acquire.cleanup;
+      Object.defineProperty(acquire, 'cleanup', {
+        configurable: true,
+        value: () => {
+          cleaned = true;
+          originalCleanup();
+        },
+      });
     }
+    const invalidRef = '';
+    const expected = validExpectedBinding({ projectRef: invalidRef });
     await executePreviewRemoteExecution(
       {
         repoRoot: EXPECTED_REPO_ROOT,
-        authorizationDocument: { expected: validExpectedBinding({ projectRef: '' }) },
+        authorizationDocument: { expected, observed: observedFromExpected({ ...expected, projectRef: invalidRef }) },
         credentialMethod: CREDENTIAL_METHOD_IDS[0],
         selectedStep: 'P1',
       },
@@ -1040,7 +1122,7 @@ describe('remote execution executor R9-R36', () => {
       {
         repoRoot: EXPECTED_REPO_ROOT,
         authorizationDocument: envelope,
-        credentialMethod: envelope.expected.credentialMethod,
+        credentialMethod: envelope.expected.credentialMethod as CredentialMethodId,
         selectedStep: 'P1',
       },
       {
@@ -1098,12 +1180,16 @@ describe('remote execution executor R9-R36', () => {
     assertNoSentinel(result);
   });
 
-  it('R14 test-only authority-validation bypass unavailable publicly', () => {
+  it('R14 test-only authority-validation bypass unavailable publicly', async () => {
+    const executorModule = await import('./previewRemoteApply/remoteExecutionExecutor.ts');
+    assert.equal('INTERNAL_SKIP_IMPLEMENTATION_AUTHORITY_VALIDATION' in executorModule, false);
+    assert.equal('skipImplementationAuthorityValidation' in executorModule, false);
     const publicDeps: PreviewRemoteExecutionDeps = {
       repositoryFacts: () => validRepositoryFacts(),
     };
     assert.equal('skipImplementationAuthorityValidation' in publicDeps, false);
-    assert.equal(typeof INTERNAL_SKIP_IMPLEMENTATION_AUTHORITY_VALIDATION, 'symbol');
+    assert.equal('INTERNAL_SKIP_IMPLEMENTATION_AUTHORITY_VALIDATION' in publicDeps, false);
+    assertNoSentinel(publicDeps);
   });
 
   it('R15 P1 non-CLEANLY_ABSENT blocks before bootstrap/mutation', async () => {
@@ -1271,7 +1357,7 @@ describe('remote execution executor R9-R36', () => {
     );
     const historyPrefixMatches = (snapshot: ReturnType<typeof deriveRuntimePhaseSnapshot>, prefixLen: number) => {
       const expected = LIFECYCLE_VERSION_REGISTRY.slice(0, prefixLen);
-      const actual = [...snapshot.history_prefix].map(String).sort();
+      const actual = [...(snapshot.history_prefix as readonly unknown[])].map(String).sort();
       return JSON.stringify(actual) === JSON.stringify([...expected].sort());
     };
     const roundTripOk = (oracle: OraclePhase, catalogOracle: OraclePhase) => {
@@ -1402,19 +1488,24 @@ describe('remote execution executor R9-R36', () => {
   });
 
   it('R33 in-transaction server rejection rollback acknowledged then fresh classifier', async () => {
-    const deps = createStrictClassifierDeps({ stepId: 'P2', priorPhaseId: 'P0' });
+    const deps = createStrictClassifierDeps({ stepId: 'P2', priorPhaseId: 'P0', verifierPostPhaseId: 'P1' });
     const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P2' }), 'P2', deps);
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
     assert.equal(deps.mutationFactory!.clients[0]?.calls.includes('rollback'), true);
-    assert.equal(deps.verifierFactory!.clients.length, 0);
+    assert.equal(deps.verifierFactory!.clients.length, 1);
+    assert.equal(result.postCommitLifecycle, 'ACK_STATE_READONLY_CLASSIFICATION_LIFECYCLE');
+    assert.notEqual(deps.mutationFactory!.clients[0], deps.verifierFactory!.clients[0]);
     assertNoSentinel(result);
   });
 
   it('R34 transport loss / rollback uncertainty invokes fresh classifier', async () => {
-    const deps = createFakeTransportDeps({ stepId: 'P2', failAt: 'commit' });
+    const deps = createFakeTransportDeps({ stepId: 'P2', failAt: 'commit', verifierPostPhaseId: 'P1' });
     const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P2' }), 'P2', deps);
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
-    assert.equal(deps.verifierFactory!.clients.length, 0);
+    assert.equal(deps.mutationFactory!.clients[0]?.calls.includes('rollback'), false);
+    assert.equal(deps.verifierFactory!.clients.length, 1);
+    assert.equal(deps.mutationFactory!.clients[0]?.getConnectionState(), 'closed');
+    assert.notEqual(deps.mutationFactory!.clients[0], deps.verifierFactory!.clients[0]);
     assertNoSentinel(result);
   });
 
@@ -1570,8 +1661,11 @@ describe('remote execution executor Q1-Q28 CORRECTION-2', () => {
 
   it('Q10 supplied observed repo HEAD mismatch rejected, not overwritten', async () => {
     const envelope = validAuthorizationEnvelope({ selectedStep: 'P1' });
-    envelope.observed.repositoryHead = 'd'.repeat(40);
-    const result = await executeWithEnvelope(envelope, 'P1', qFakeTransportDeps({ stepId: 'P1' }));
+    const mismatched = {
+      ...envelope,
+      observed: { ...envelope.observed, repositoryHead: 'd'.repeat(40) },
+    };
+    const result = await executeWithEnvelope(mismatched, 'P1', qFakeTransportDeps({ stepId: 'P1' }));
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
     assert.equal(result.holdReasonCode, 'HOLD_REPO_IDENTITY_MISMATCH');
     assertNoSentinel(result);
@@ -1579,8 +1673,11 @@ describe('remote execution executor Q1-Q28 CORRECTION-2', () => {
 
   it('Q11 supplied observed tree mismatch rejected', async () => {
     const envelope = validAuthorizationEnvelope({ selectedStep: 'P1' });
-    envelope.observed.repositoryTree = 'e'.repeat(40);
-    const result = await executeWithEnvelope(envelope, 'P1', qFakeTransportDeps({ stepId: 'P1' }));
+    const mismatched = {
+      ...envelope,
+      observed: { ...envelope.observed, repositoryTree: 'e'.repeat(40) },
+    };
+    const result = await executeWithEnvelope(mismatched, 'P1', qFakeTransportDeps({ stepId: 'P1' }));
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
     assert.equal(result.holdReasonCode, 'HOLD_REPO_IDENTITY_MISMATCH');
     assertNoSentinel(result);
@@ -1593,7 +1690,7 @@ describe('remote execution executor Q1-Q28 CORRECTION-2', () => {
       {
         repoRoot: EXPECTED_REPO_ROOT,
         authorizationDocument: envelope,
-        credentialMethod: envelope.expected.credentialMethod,
+        credentialMethod: envelope.expected.credentialMethod as CredentialMethodId,
         selectedStep: 'P1',
       },
       {
@@ -1994,7 +2091,7 @@ describe('remote execution executor S1-S24 CORRECTION-3', () => {
     const raw = hybridRawCatalogForPhase('P2');
     raw.history_prefix = ['20260615000002', '20260615000001'];
     const oracle = oraclePhaseById('P2');
-    const snapshot = deriveRuntimePhaseSnapshot(raw, oracle);
+    const snapshot = deriveRuntimePhaseSnapshot(raw as RuntimeCatalogRaw, oracle);
     const comparison = compareRuntimePhaseSnapshot(snapshot, oracle);
     assert.equal(comparison.ok, false);
     assertNoSentinel({ ok: comparison.ok });
@@ -2004,9 +2101,9 @@ describe('remote execution executor S1-S24 CORRECTION-3', () => {
     const raw = hybridRawCatalogForPhase('P2');
     raw.history_prefix = ['20260615000001', '20260615000001'];
     const oracle = oraclePhaseById('P2');
-    const snapshot = deriveRuntimePhaseSnapshot(raw, oracle);
+    const snapshot = deriveRuntimePhaseSnapshot(raw as RuntimeCatalogRaw, oracle);
     const expected = LIFECYCLE_VERSION_REGISTRY.slice(0, 2);
-    const actual = snapshot.history_prefix.map(String);
+    const actual = (snapshot.history_prefix as readonly unknown[]).map(String);
     assert.notEqual(actual.length, expected.length);
     assertNoSentinel({ actual, expected });
   });
@@ -2328,9 +2425,10 @@ describe('remote execution executor T1-T26 CORRECTION-4', () => {
         host: VALID_HOST,
         port: 5432,
         database: 'postgres',
-        user: 'postgres',
+        user: VALID_CONNECTION_USER,
         password: SENTINEL,
         sslmode: 'require',
+        tlsCaPem: SUPABASE_ROOT_2021_CA_PEM,
       }) as ExecutionPgClientConfig,
     );
     assert.equal(factory.clients[0]!.config.connectionTimeoutMillis, 15000);
@@ -2837,6 +2935,230 @@ describe('remote execution executor session pooler correction-2 W5', () => {
     assert.equal(credentialRead, false);
     assert.equal(deps.mutationFactory!.clients.length, 0);
     assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assertNoSentinel(result);
+  });
+});
+
+describe('remote execution executor pooler tls ca pinning correction-5 Z1-Z8', () => {
+  it('Z1 P2 actual exact prior -> DEFINITELY_NOT_COMMITTED', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierPostPhaseId: 'P1',
+      }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.ackState, 'DEFINITELY_NOT_COMMITTED');
+    assertNoSentinel(result);
+  });
+
+  it('Z2 P2 actual exact next -> DEFINITELY_COMMITTED', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierPostPhaseId: 'P2',
+      }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    if (result.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED') {
+      assert.equal(result.ackState, 'DEFINITELY_COMMITTED');
+    }
+    assertNoSentinel(result);
+  });
+
+  it('Z3 P2 exact next ignores prior-oracle forbidden objects caused only by the P2 expected delta', async () => {
+    const priorOracle = oraclePhaseById('P1');
+    const nextOracle = oraclePhaseById('P2');
+    const raw = hybridRawCatalogForPhase('P2');
+    const parsed = parseRuntimeCatalogOutput(formatPsqlJsonOutput(raw).trim());
+    const priorSnapshot = deriveRuntimePhaseSnapshot(parsed, priorOracle);
+    assert.ok((priorSnapshot.forbidden_violations as string[]).length > 0);
+    const nextSnapshot = deriveRuntimePhaseSnapshot(parsed, nextOracle);
+    assert.equal((nextSnapshot.forbidden_violations as string[]).length, 0);
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierPostPhaseId: 'P2',
+      }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    if (result.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED') {
+      assert.equal(result.ackState, 'DEFINITELY_COMMITTED');
+    }
+    assertNoSentinel(result);
+  });
+
+  it('Z4 actual drift matching neither Oracle -> CONTRADICTORY_OR_DRIFTED', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierPostPhaseId: 'P3',
+      }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.ackState, 'CONTRADICTORY_OR_DRIFTED');
+    assertNoSentinel(result);
+  });
+
+  it('Z5 actual exact phase with a genuine unexpected object remains fail-closed', async () => {
+    const raw = hybridRawCatalogForPhase('P2');
+    raw.relations = [...raw.relations, '__unexpected_probe_relation__'].sort();
+    const brokenCatalog = {
+      rows: [{ json_build_object: formatPsqlJsonOutput(raw).trim() }],
+      rowCount: 1,
+    };
+    const verifierFactory = createFakeExecutionPgClientFactory({
+      queryHandler: (sql) => {
+        if (sql === POST_CONNECT_GUARD_SQL) {
+          return { rows: [{ current_database_name: 'postgres', current_user_name: 'postgres' }], rowCount: 1 };
+        }
+        if (sql === FRESH_READONLY_BEGIN_SQL || sql.trim() === 'ROLLBACK') {
+          return { rows: [], rowCount: 0 };
+        }
+        if (sql.startsWith('SET ')) {
+          return { rows: [], rowCount: 0 };
+        }
+        if (sql.startsWith('WITH tracked')) {
+          return brokenCatalog;
+        }
+        return { rows: [], rowCount: 0 };
+      },
+    });
+    const deps = createFakeTransportDeps({
+      stepId: 'P2',
+      commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+    });
+    deps.verifierTransportFactory = {
+      createClient: (config) => verifierFactory.createClient(config),
+    };
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P2' }), 'P2', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.disposition, 'MANDATORY_STOP');
+    assertNoSentinel(result);
+  });
+
+  it('Z6 identical actual next catalog classifies committed for both ACK_UNCERTAIN_OR_MISSING and DEFINITIVE_TRANSACTION_REJECTION', async () => {
+    const ackUncertain = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierPostPhaseId: 'P2',
+      }),
+    );
+    const rejection = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P2' }),
+      'P2',
+      createFakeTransportDeps({
+        stepId: 'P2',
+        commitResponseClass: 'DEFINITIVE_TRANSACTION_REJECTION',
+        verifierPostPhaseId: 'P2',
+      }),
+    );
+    assert.equal(ackUncertain.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    assert.equal(rejection.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    if (
+      ackUncertain.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED' &&
+      rejection.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED'
+    ) {
+      assert.equal(ackUncertain.ackState, 'DEFINITELY_COMMITTED');
+      assert.equal(rejection.ackState, 'DEFINITELY_COMMITTED');
+      assert.notEqual(ackUncertain.commitResponseClass, rejection.commitResponseClass);
+    }
+    assertNoSentinel({ ackUncertain, rejection });
+  });
+
+  for (const stepId of ['P3', 'P4', 'P5', 'P6', 'P7'] as const) {
+    it(`Z7 ${stepId} exact-next classification remains committed`, async () => {
+      const result = await executeWithEnvelope(
+        validAuthorizationEnvelope({ selectedStep: stepId }),
+        stepId,
+        createFakeTransportDeps({
+          stepId,
+          commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+          verifierPostPhaseId: stepId,
+        }),
+      );
+      assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+      if (result.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED') {
+        assert.equal(result.ackState, 'DEFINITELY_COMMITTED');
+      }
+      assertNoSentinel(result);
+    });
+  }
+
+  it('Z8 P1 classifier behavior is unchanged', async () => {
+    const absent = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P1' }),
+      'P1',
+      createFakeTransportDeps({
+        stepId: 'P1',
+        commitResponseClass: 'ACK_UNCERTAIN_OR_MISSING',
+        verifierP1Classification: 'CLEANLY_ABSENT',
+        verifierP1Proceed: true,
+      }),
+    );
+    assert.equal(absent.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(absent.ackState, 'DEFINITELY_NOT_COMMITTED');
+
+    const committed = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P1' }),
+      'P1',
+      createFakeTransportDeps({
+        stepId: 'P1',
+        commitResponseClass: 'DEFINITIVE_COMMIT_ACK',
+        verifierPostPhaseId: 'P1',
+      }),
+    );
+    assert.equal(committed.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    if (committed.mode === 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED') {
+      assert.equal(committed.ackState, 'DEFINITELY_COMMITTED');
+    }
+    assertNoSentinel({ absent, committed });
+  });
+});
+
+describe('remote execution executor pooler tls ca pinning correction-1 Y11-Y12', () => {
+  it('Y11 wrong CA fails before pg client creation and before any SQL', async () => {
+    let credentialRead = false;
+    const deps = createFakeTransportDeps({ stepId: 'P1' });
+    deps.credentialAcquirerDeps = {
+      readBytes: () => {
+        credentialRead = true;
+        return validStdinBytes({ tlsCaPem: WRONG_CA_PEM });
+      },
+    };
+    const result = await executeWithEnvelope(validAuthorizationEnvelope(), 'P1', deps);
+    assert.equal(credentialRead, true);
+    assert.equal(deps.mutationFactory!.clients.length, 0);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assertNoSentinel(result);
+  });
+
+  it('Y12 exact CA fixture reaches fake client; password/PEM/path absent from all public result/evidence/error output', async () => {
+    const deps = createFakeTransportDeps({ stepId: 'P1' });
+    const result = await executeWithEnvelope(validAuthorizationEnvelope(), 'P1', deps);
+    assert.equal(deps.mutationFactory!.clients.length, 1);
+    assert.equal(deps.mutationFactory!.clients[0]!.config.tlsCaPem, SUPABASE_ROOT_2021_CA_PEM);
+    const serialized = JSON.stringify(result);
+    assert.equal(serialized.includes(SENTINEL), false);
+    assert.equal(serialized.includes('BEGIN CERTIFICATE'), false);
+    assert.equal(serialized.toLowerCase().includes('password'), false);
+    assert.equal(serialized.includes('prod-ca-2021'), false);
+    assert.equal(serialized.includes('/Users/'), false);
     assertNoSentinel(result);
   });
 });

@@ -41,7 +41,7 @@
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json",
       "bytes": 31185,
-      "sha256": "f9faf6eb61a0c1981ea0c73d2580d26e747a42d9aa2a2e451428078c63a3a610",
+      "sha256": "c4113848dee40401b0b2a91cbe2c89dc0602094b4fdeb954e1f4616b2990e15d",
       "classification": "foundation_json"
     },
     {
@@ -52,8 +52,8 @@
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CONNECTION_AUTHORITY_v1.json",
-      "bytes": 17868,
-      "sha256": "bd16e70dee3870041ebb668f102c0f2008a27d917ec022204e8058ecf8aaa518",
+      "bytes": 19132,
+      "sha256": "054e922839e3e90d1683c3580049f62f9670e5f3ad168a81a05df66fcc08db11",
       "classification": "remote_connection_authority_json"
     },
     {
@@ -82,14 +82,14 @@
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteConnectionAuthority.ts",
-      "bytes": 61844,
-      "sha256": "624492324197b963bdcf3526e4fc254dcafaaf182e1c0bd0bd9adb4cfdd63c99",
+      "bytes": 63361,
+      "sha256": "4ba41d7035f3743d7c980e1dae442b67552c06beeaa64ffe387bc0f9c53c0be0",
       "classification": "remote_connection_authority"
     },
     {
       "path": "lib/m55/previewRemoteApply.remoteConnectionAuthority.local.test.ts",
-      "bytes": 61157,
-      "sha256": "27554341c9235c6d2d178110da1bc13ebf74191d93d2537b4235351397ea717b",
+      "bytes": 61975,
+      "sha256": "74867e57cbd0447ae279ed7ee2aa514c28b72d168a15e599f48c18a877c7686c",
       "classification": "remote_connection_authority_tests"
     },
     {
@@ -101,43 +101,43 @@
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
       "bytes": 2542,
-      "sha256": "d4559c4c1b0853c813c5a644150f7b3aef3e2c34dddd0e59785804202ab861e5",
+      "sha256": "e1c02f371cb6a8335ea2d448f05a2e000b1e922a17d35828a981dd6a5cedde71",
       "classification": "remote_executor_implementation_json"
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteExecutionCredentialAcquirer.ts",
-      "bytes": 12391,
-      "sha256": "d2ff45f397da7db637842562ebcebc7c04d05c25c00767c28d7b759d14fa11e3",
+      "bytes": 13708,
+      "sha256": "2d43169eaaf6d658c6ec31f713dd3178162985fe2ae68a801689ab448c0fcb97",
       "classification": "remote_execution_credential_acquirer"
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
-      "bytes": 14375,
-      "sha256": "b16e61144952b6a68090e891b9b7e545cee349c0d151454df2d8e1778e7f8f90",
+      "bytes": 16330,
+      "sha256": "66a296f611f1efa9a9ac20c2e36bbe70451e672da675a6150c640e6328c325bd",
       "classification": "remote_execution_pg_transport"
     },
     {
       "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",
-      "bytes": 50945,
-      "sha256": "c784c3052df83c9b76617a4aee293631bea866c09e8885b5e9832dae75adcb10",
+      "bytes": 50793,
+      "sha256": "2cbaa582f645f652266bb27b69456f5c459fe7f16242705a04cd314cfa7b3024",
       "classification": "remote_execution_executor"
     },
     {
       "path": "lib/m55/previewRemoteApply.remoteExecutionCredentialAndTransport.local.test.ts",
-      "bytes": 25397,
-      "sha256": "219f73f94d6eb62adb0e9f2dea7602b55c361b90c22fdaaab2f22b436acde6d0",
+      "bytes": 30863,
+      "sha256": "7a5bb6eee969d6dc1e0b1007ab6c23e9d2d356cae0b9bedd9fea2e444f9347aa",
       "classification": "remote_execution_credential_tests"
     },
     {
       "path": "lib/m55/previewRemoteApply.remoteExecutionExecutor.local.test.ts",
-      "bytes": 119646,
-      "sha256": "7456b2c57444bc92ca086ee792e0ac2d4384147bb067a60f2682f5bb42d82f26",
+      "bytes": 133818,
+      "sha256": "de890f9b42d67a9a71e2c9da78a7252a70202f7c05f7f3c15b7cd22baa937e80",
       "classification": "remote_execution_executor_tests"
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json",
       "bytes": 6302,
-      "sha256": "bc84415fbb2e90bb92ef10a38a8058a98269c46360abe65ea588f76f439663f7",
+      "sha256": "4ba369718134c1bc1fba4e6012f325d3419c042c200413388dd3686468fb56e7",
       "classification": "foundation_manifest"
     }
   ]

@@ -1,10 +1,12 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, X509Certificate } from 'node:crypto';
 import { stdin } from 'node:process';
 
 import {
   EXPECTED_DATABASE_NAME,
   EXPECTED_PORT,
   EXPECTED_SSLMODE,
+  SUPABASE_ROOT_2021_CA_DER_SHA256,
+  TLS_CA_PEM_MAX_BYTES,
   URI_SCHEME_PATTERN,
   type ExpectedAuthorizationBinding,
   type TargetBindingReceipt,
@@ -24,6 +26,7 @@ export const SECURE_STDIN_ALLOWED_FIELDS = [
   'user',
   'password',
   'sslmode',
+  'tlsCaPem',
 ] as const;
 
 export type SecureStdinAllowedField = (typeof SECURE_STDIN_ALLOWED_FIELDS)[number];
@@ -35,6 +38,7 @@ export type ParsedConnectionSecrets = {
   readonly user: string;
   readonly password: string;
   readonly sslmode: typeof EXPECTED_SSLMODE;
+  readonly tlsCaPem: string;
 };
 
 export type ExecutionCredentialPublicHandle = {
@@ -66,6 +70,8 @@ export type CredentialAcquirerDeps = {
 
 const SEALED_SECRETS = new WeakMap<ExecutionCredentialPublicHandle, SealedConnectionSecrets>();
 const CLEANUP_REGISTRY = new WeakMap<ExecutionCredentialPublicHandle, () => void>();
+const PEM_BEGIN = '-----BEGIN CERTIFICATE-----';
+const PEM_END = '-----END CERTIFICATE-----';
 
 function redactedHold(code: PreviewRemoteApplyHoldCode): PreviewRemoteApplyHoldCode {
   return sanitizePreviewRemoteApplyHoldCode(code);
@@ -117,6 +123,26 @@ function rejectNonPrimitiveField(value: unknown): boolean {
   const kind = typeof value;
   if (kind === 'string' || kind === 'number' || kind === 'boolean') return false;
   return true;
+}
+
+export function validatePinnedTlsCaPem(tlsCaPem: string): boolean {
+  if (typeof tlsCaPem !== 'string') return false;
+  if (Buffer.byteLength(tlsCaPem, 'utf8') > TLS_CA_PEM_MAX_BYTES) return false;
+  const beginCount = tlsCaPem.split(PEM_BEGIN).length - 1;
+  const endCount = tlsCaPem.split(PEM_END).length - 1;
+  if (beginCount !== 1 || endCount !== 1) return false;
+  const firstBegin = tlsCaPem.indexOf(PEM_BEGIN);
+  const firstEnd = tlsCaPem.indexOf(PEM_END);
+  if (firstBegin < 0 || firstEnd < 0 || firstEnd <= firstBegin) return false;
+  const afterBlock = tlsCaPem.slice(firstEnd + PEM_END.length);
+  if (afterBlock.trim().length > 0) return false;
+  try {
+    const cert = new X509Certificate(tlsCaPem.trim());
+    const derSha256 = createHash('sha256').update(cert.raw).digest('hex');
+    return derSha256 === SUPABASE_ROOT_2021_CA_DER_SHA256;
+  } catch {
+    return false;
+  }
 }
 
 function parseSingleJsonObject(text: string): Record<string, unknown> | null {
@@ -193,6 +219,7 @@ function validateSecureStdinObject(record: Record<string, unknown>): ParsedConne
   const user = record.user;
   const password = record.password;
   const sslmode = record.sslmode;
+  const tlsCaPem = record.tlsCaPem;
   if (typeof host !== 'string' || host.trim().length === 0) return null;
   if (URI_SCHEME_PATTERN.test(host)) return null;
   if (host.includes('@')) return null;
@@ -203,6 +230,8 @@ function validateSecureStdinObject(record: Record<string, unknown>): ParsedConne
   if (typeof user !== 'string' || user.trim().length === 0) return null;
   if (typeof password !== 'string' || password.length === 0) return null;
   if (sslmode !== EXPECTED_SSLMODE) return null;
+  if (typeof tlsCaPem !== 'string' || tlsCaPem.length === 0) return null;
+  if (!validatePinnedTlsCaPem(tlsCaPem)) return null;
   if (database !== EXPECTED_DATABASE_NAME) return null;
   if (port !== EXPECTED_PORT) return null;
   return {
@@ -212,6 +241,7 @@ function validateSecureStdinObject(record: Record<string, unknown>): ParsedConne
     user,
     password,
     sslmode: EXPECTED_SSLMODE,
+    tlsCaPem,
   };
 }
 
@@ -267,6 +297,7 @@ function registerHandle(
         user: sealed.user,
         password: sealed.password,
         sslmode: sealed.sslmode,
+        tlsCaPem: sealed.tlsCaPem,
       };
     },
     cleanup: () => {

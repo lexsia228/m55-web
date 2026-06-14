@@ -1,10 +1,16 @@
 import type { ExpectedAuthorizationBinding } from './remoteConnectionAuthority.ts';
+import {
+  SESSION_POOLER_HOST,
+  SESSION_POOLER_TLS_SERVER_NAME,
+  TLS_TRUST_PROFILE,
+} from './remoteConnectionAuthority.ts';
 import { TIMEOUT_POLICY } from './timeoutPolicy.ts';
 import {
   sanitizePreviewRemoteApplyHoldCode,
   type PreviewRemoteApplyHoldCode,
 } from './types.ts';
 import type { ParsedConnectionSecrets } from './remoteExecutionCredentialAcquirer.ts';
+import { validatePinnedTlsCaPem } from './remoteExecutionCredentialAcquirer.ts';
 import {
   COMMIT_RESPONSE_CLASSES,
   type CommitResponseClass,
@@ -19,6 +25,9 @@ export type ExecutionPgClientConfig = {
   readonly user: string;
   readonly password: string;
   readonly sslmode: 'require';
+  readonly tlsCaPem: string;
+  readonly tlsTrustProfile: typeof TLS_TRUST_PROFILE;
+  readonly tlsServerName: typeof SESSION_POOLER_TLS_SERVER_NAME;
   readonly connectionTimeoutMillis: number;
 };
 
@@ -87,9 +96,26 @@ type PgModuleClient = {
   end(): Promise<void>;
 };
 
-type PgModule = {
-  Client: new (config: Record<string, unknown>) => PgModuleClient;
-};
+export function buildRealPgSslConfig(config: ExecutionPgClientConfig): {
+  readonly rejectUnauthorized: true;
+  readonly ca: string;
+  readonly servername: typeof SESSION_POOLER_TLS_SERVER_NAME;
+} {
+  if (!validatePinnedTlsCaPem(config.tlsCaPem)) {
+    throw new Error('HOLD_CREDENTIAL_METHOD_INVALID');
+  }
+  if (config.tlsTrustProfile !== TLS_TRUST_PROFILE) {
+    throw new Error('HOLD_CREDENTIAL_METHOD_INVALID');
+  }
+  if (config.tlsServerName !== SESSION_POOLER_TLS_SERVER_NAME) {
+    throw new Error('HOLD_CREDENTIAL_METHOD_INVALID');
+  }
+  return {
+    rejectUnauthorized: true,
+    ca: config.tlsCaPem,
+    servername: config.tlsServerName,
+  };
+}
 
 export function buildClientConfig(
   binding: ExpectedAuthorizationBinding,
@@ -100,11 +126,15 @@ export function buildClientConfig(
     secrets.port !== binding.port ||
     secrets.database !== binding.databaseName ||
     secrets.user !== binding.connectionUser ||
-    secrets.sslmode !== binding.sslmode
+    secrets.sslmode !== binding.sslmode ||
+    binding.host !== SESSION_POOLER_HOST
   ) {
     return 'HOLD_CREDENTIAL_METHOD_INVALID';
   }
   if (secrets.sslmode !== 'require') {
+    return 'HOLD_CREDENTIAL_METHOD_INVALID';
+  }
+  if (!validatePinnedTlsCaPem(secrets.tlsCaPem)) {
     return 'HOLD_CREDENTIAL_METHOD_INVALID';
   }
   return {
@@ -114,6 +144,9 @@ export function buildClientConfig(
     user: secrets.user,
     password: secrets.password,
     sslmode: 'require',
+    tlsCaPem: secrets.tlsCaPem,
+    tlsTrustProfile: TLS_TRUST_PROFILE,
+    tlsServerName: SESSION_POOLER_TLS_SERVER_NAME,
     connectionTimeoutMillis: TIMEOUT_POLICY.values.connectMs,
   };
 }
@@ -210,6 +243,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
   private readonly connectDatabase: string;
   private readonly connectUser: string;
   private connectPassword: string;
+  private readonly sslConfig: ReturnType<typeof buildRealPgSslConfig>;
 
   constructor(config: ExecutionPgClientConfig) {
     this.connectionTimeoutMillis = config.connectionTimeoutMillis;
@@ -218,22 +252,31 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
     this.connectDatabase = config.database;
     this.connectUser = config.user;
     this.connectPassword = config.password;
+    this.sslConfig = buildRealPgSslConfig(config);
   }
 
   async connect(): Promise<void> {
     if (this.state !== 'open') {
       throw new Error('HOLD_UNEXPECTED_INTERNAL');
     }
-    assertNoProcessEnvPgFallback();
-    const pg = (await import('pg')) as PgModule;
-    this.pgClient = new pg.Client({
+    assertNoAmbientPgOrTlsFallback();
+    const pgModule: unknown = await import('pg');
+    if (pgModule === null || typeof pgModule !== 'object') {
+      throw new Error('HOLD_UNEXPECTED_INTERNAL');
+    }
+    const ClientCandidate = Reflect.get(pgModule, 'Client');
+    if (typeof ClientCandidate !== 'function') {
+      throw new Error('HOLD_UNEXPECTED_INTERNAL');
+    }
+    const Client = ClientCandidate as new (config: Record<string, unknown>) => PgModuleClient;
+    this.pgClient = new Client({
       host: this.connectHost,
       port: this.connectPort,
       database: this.connectDatabase,
       user: this.connectUser,
       password: this.connectPassword,
       connectionTimeoutMillis: this.connectionTimeoutMillis,
-      ssl: { rejectUnauthorized: true },
+      ssl: this.sslConfig,
     });
     await this.pgClient.connect();
     this.connectPassword = '';
@@ -267,7 +310,7 @@ class RealLazyPgExecutionClient implements ExecutionPgClient {
     } catch (error) {
       this.inTransaction = false;
       const code = getPgErrorCode(error);
-      if (this.state === 'unusable' || isConnectionLossPgError(error) || !code) {
+      if (isConnectionLossPgError(error) || !code) {
         this.markUnusable();
         return { responseClass: 'ACK_UNCERTAIN_OR_MISSING' };
       }
@@ -467,11 +510,28 @@ export function normalizeExecutionTransportError(error: unknown): PreviewRemoteA
   return 'HOLD_UNEXPECTED_INTERNAL';
 }
 
-export function assertNoProcessEnvPgFallback(): void {
-  const forbidden = ['PGHOST', 'PGPORT', 'PGUSER', 'PGPASSWORD', 'PGDATABASE', 'DATABASE_URL'];
+export function assertNoAmbientPgOrTlsFallback(): void {
+  const forbidden = [
+    'PGHOST',
+    'PGPORT',
+    'PGUSER',
+    'PGPASSWORD',
+    'PGDATABASE',
+    'DATABASE_URL',
+    'NODE_EXTRA_CA_CERTS',
+    'NODE_TLS_REJECT_UNAUTHORIZED',
+    'PGSSLROOTCERT',
+    'SSL_CERT_FILE',
+    'SSL_CERT_DIR',
+  ];
   for (const key of forbidden) {
     if (Object.prototype.hasOwnProperty.call(process.env, key)) {
       throw new Error('HOLD_CREDENTIAL_METHOD_INVALID');
     }
   }
+}
+
+/** @deprecated use assertNoAmbientPgOrTlsFallback */
+export function assertNoProcessEnvPgFallback(): void {
+  assertNoAmbientPgOrTlsFallback();
 }

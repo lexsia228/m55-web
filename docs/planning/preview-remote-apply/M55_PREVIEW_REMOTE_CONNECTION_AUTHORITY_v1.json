@@ -20,6 +20,11 @@
     "credentials_never_from_ambient_pguser": true,
     "credentials_never_from_ambient_pgpassword": true,
     "credentials_never_from_ambient_pgdatabase": true,
+    "credentials_never_from_ambient_node_extra_ca_certs": true,
+    "credentials_never_from_ambient_node_tls_reject_unauthorized": true,
+    "credentials_never_from_ambient_pgsslrootcert": true,
+    "credentials_never_from_ambient_ssl_cert_file": true,
+    "credentials_never_from_ambient_ssl_cert_dir": true,
     "full_connection_url_forbidden": true,
     "automatic_credential_fallback_forbidden": true,
     "method_must_be_explicitly_selected": true,
@@ -40,8 +45,12 @@
       "database",
       "user",
       "password",
-      "sslmode"
+      "sslmode",
+      "tlsCaPem"
     ],
+    "tls_ca_pem_max_bytes": 4096,
+    "exactly_one_pem_certificate_block_required": true,
+    "canonical_der_sha256_must_match_pinned_supabase_root_2021": true,
     "reject_unknown_fields": true,
     "reject_duplicate_fields": true,
     "reject_trailing_data": true,
@@ -268,6 +277,20 @@
     "execution_authorized": false,
     "target_binding_implemented": false
   },
+  "tls_trust_profile": {
+    "identifier": "SUPABASE_ROOT_2021_CA_PINNED_V1",
+    "tls_trust_profile": "SUPABASE_ROOT_2021_CA_PINNED_V1",
+    "canonical_der_sha256": "807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa",
+    "expected_server_name": "aws-1-ap-northeast-1.pooler.supabase.com",
+    "reject_unauthorized": true,
+    "certificate_count_exactly_one": true,
+    "arbitrary_system_or_ambient_ca_fallback_forbidden": true,
+    "ca_certificate_public_not_credential_secret": true,
+    "ca_filesystem_path_forbidden_in_authority_json": true,
+    "pem_physical_sha256_evidence_only": true,
+    "execution_authorized": false,
+    "target_binding_implemented": false
+  },
   "expected_vs_observed_binding": {
     "expected_authorization_binding_fields": [
       "environment",
@@ -456,6 +479,8 @@
       "exact_approved_preview_project_ref",
       "exact_connection_user_derivation",
       "exact_session_pooler_host_fingerprint_consistency",
+      "exact_pinned_tls_trust_profile",
+      "exact_session_pooler_tls_server_name",
       "direct_host_rejected_for_session_pooler",
       "execution_authorization_identity",
       "authority_manifest_identities",

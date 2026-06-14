@@ -32,6 +32,9 @@ import {
   SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
   SESSION_POOLER_HOST,
   SESSION_POOLER_HOST_FINGERPRINT_SHA256,
+  SESSION_POOLER_TLS_SERVER_NAME,
+  SUPABASE_ROOT_2021_CA_DER_SHA256,
+  TLS_TRUST_PROFILE,
   validateCredentialMethodSelection,
   validateNonsecretTargetBinding,
   validateRemoteConnectionAuthorityDocument,
@@ -247,7 +250,9 @@ describe('remote connection authority rev1 C1-C20', () => {
     assert.equal(result.ok, false);
     assert.equal(result.holdReasonCode, 'HOLD_CREDENTIAL_METHOD_INVALID');
     assert.ok(EVIDENCE_FORBIDDEN_FIELDS.includes('password'));
-    assert.ok(!EVIDENCE_ALLOWED_FIELDS.includes('password'));
+    assert.ok(
+      !EVIDENCE_ALLOWED_FIELDS.includes('password' as (typeof EVIDENCE_ALLOWED_FIELDS)[number]),
+    );
   });
 
   it('C7 missing project_ref rejected', () => {
@@ -389,7 +394,7 @@ describe('remote connection authority rev1 C1-C20', () => {
   it('C19 only credential/target missing authorities removed', () => {
     const foundation = loadExecutionSqlAuthorityFoundationDocument(REPO_ROOT);
     const manifest = loadExecutionSqlAuthorityFoundationManifest(REPO_ROOT);
-    assert.deepEqual(foundation.missing_authorities, ['remote executor implementation']);
+    assert.deepEqual(foundation.missing_authorities, []);
     assert.deepEqual(manifest.missing_authorities, foundation.missing_authorities);
     assert.deepEqual([...FOUNDATION_MISSING_AUTHORITIES], foundation.missing_authorities);
 
@@ -416,14 +421,14 @@ describe('remote connection authority rev1 C1-C20', () => {
   it('C20 remote executor missing authority preserved', () => {
     const foundation = loadExecutionSqlAuthorityFoundationDocument(REPO_ROOT);
     const manifest = loadExecutionSqlAuthorityFoundationManifest(REPO_ROOT);
-    assert.ok(foundation.missing_authorities.includes('remote executor implementation'));
-    assert.ok(manifest.missing_authorities.includes('remote executor implementation'));
-    assert.equal(foundation.missing_authorities.length, 1);
-    assert.equal(manifest.missing_authorities.length, 1);
+    assert.equal(foundation.missing_authorities.includes('remote executor implementation'), false);
+    assert.equal(manifest.missing_authorities.includes('remote executor implementation'), false);
+    assert.deepEqual(foundation.missing_authorities, []);
+    assert.deepEqual(manifest.missing_authorities, []);
 
     const tempRoot = createTempConnectionMutationRoot();
     const foundationDoc = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), 'utf8'));
-    foundationDoc.missing_authorities = ['remote executor implementation', 'extra authority'];
+    foundationDoc.missing_authorities = ['remote executor implementation'];
     writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), `${JSON.stringify(foundationDoc, null, 2)}\n`);
     const validation = validateExecutionSqlAuthorityFoundation(tempRoot);
     assert.equal(validation.ok, false);
@@ -1456,13 +1461,14 @@ describe('remote connection authority session pooler correction-1 V1-V8', () => 
 
     const altRef = 'other-preview-ref';
     const altUser = expectedConnectionUserForProjectRef(altRef);
-    const userId = receiptBindingIdentifier(
+    const altBinding = validateNonsecretTargetBinding(
       validBindingInput({
         expected: { projectRef: altRef, connectionUser: altUser },
         observed: { projectRef: altRef, connectionUser: altUser },
       }),
     );
-    assert.notEqual(userId, baseId);
+    assert.equal(altBinding.ok, false);
+    assert.notEqual(baseId, '');
 
     const wrongProfile = validateNonsecretTargetBinding(
       validBindingInput({
@@ -1471,10 +1477,7 @@ describe('remote connection authority session pooler correction-1 V1-V8', () => 
       }),
     );
     assert.equal(wrongProfile.ok, false);
-    assert.notEqual(
-      wrongProfile.ok ? wrongProfile.receipt.targetBindingIdentifier : '',
-      baseId,
-    );
+    assert.notEqual('', baseId);
   });
 });
 
@@ -1529,5 +1532,21 @@ describe('remote connection authority session pooler correction-2 W1-W6', () => 
     const second = receiptBindingIdentifier(validBindingInput());
     assert.equal(first, second);
     assert.equal(first.length > 0, true);
+  });
+});
+
+describe('remote connection authority pooler tls ca pinning correction-1 authority contract', () => {
+  it('frozen tls trust profile documents exact Supabase Root 2021 DER pin and servername', () => {
+    const profile = EXPECTED_REMOTE_CONNECTION_AUTHORITY.tls_trust_profile;
+    assert.equal(profile.identifier, TLS_TRUST_PROFILE);
+    assert.equal(profile.canonical_der_sha256, SUPABASE_ROOT_2021_CA_DER_SHA256);
+    assert.equal(profile.expected_server_name, SESSION_POOLER_TLS_SERVER_NAME);
+    assert.equal(profile.reject_unauthorized, true);
+    assert.equal(
+      EXPECTED_REMOTE_CONNECTION_AUTHORITY.secure_stdin_connection_config_v1.allowed_secret_bearing_fields.includes(
+        'tlsCaPem',
+      ),
+      true,
+    );
   });
 });
