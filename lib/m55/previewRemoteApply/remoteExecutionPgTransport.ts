@@ -99,7 +99,7 @@ export function buildClientConfig(
     secrets.host !== binding.host ||
     secrets.port !== binding.port ||
     secrets.database !== binding.databaseName ||
-    secrets.user !== binding.expectedCurrentUser ||
+    secrets.user !== binding.connectionUser ||
     secrets.sslmode !== binding.sslmode
   ) {
     return 'HOLD_CREDENTIAL_METHOD_INVALID';

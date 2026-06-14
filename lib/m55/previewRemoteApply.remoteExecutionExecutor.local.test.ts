@@ -55,8 +55,12 @@ import {
   type ExecutionPgQueryResult,
 } from './previewRemoteApply/remoteExecutionPgTransport.ts';
 import {
+  APPROVED_PREVIEW_PROJECT_REF,
   calculateCanonicalHostFingerprint,
+  expectedConnectionUserForProjectRef,
   POST_CONNECT_GUARD_SQL,
+  SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+  SESSION_POOLER_HOST,
   validateNonsecretTargetBinding,
   type ExpectedAuthorizationBinding,
   type ObservedPreConnectFacts,
@@ -74,8 +78,9 @@ import {
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const SENTINEL = '__M55_SYNTHETIC_SENTINEL_SECRET__';
-const VALID_PROJECT_REF = 'preview-test-ref';
-const VALID_HOST = `db.${VALID_PROJECT_REF}.supabase.co`;
+const VALID_PROJECT_REF = APPROVED_PREVIEW_PROJECT_REF;
+const VALID_HOST = SESSION_POOLER_HOST;
+const VALID_CONNECTION_USER = expectedConnectionUserForProjectRef(VALID_PROJECT_REF);
 const HUMAN_EXEC_AUTH_ID = 'M55-HUMAN-EXEC-AUTH-TEST-001';
 const ALT_TREE = 'cccccccccccccccccccccccccccccccccccccccc';
 const CONTRACT_MATRIX = JSON.parse(
@@ -196,6 +201,8 @@ function observedFromExpected(expected: ExpectedAuthorizationBinding): ObservedP
     databaseSource: expected.databaseSource,
     databaseName: expected.databaseName,
     expectedCurrentUser: expected.expectedCurrentUser,
+    connectionEndpointProfile: expected.connectionEndpointProfile,
+    connectionUser: expected.connectionUser,
     projectRef: expected.projectRef,
     host: expected.host,
     hostFingerprintSha256: expected.hostFingerprintSha256,
@@ -239,6 +246,8 @@ function validExpectedBinding(
     databaseSource: 'Primary Database',
     databaseName: 'postgres',
     expectedCurrentUser: 'postgres',
+    connectionEndpointProfile: SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+    connectionUser: VALID_CONNECTION_USER,
     projectRef: VALID_PROJECT_REF,
     host: VALID_HOST,
     hostFingerprintSha256: validHostFingerprint(),
@@ -277,7 +286,7 @@ function validStdinBytes(): Buffer {
       host: VALID_HOST,
       port: 5432,
       database: 'postgres',
-      user: 'postgres',
+      user: VALID_CONNECTION_USER,
       password: SENTINEL,
       sslmode: 'require',
     }),
@@ -2746,5 +2755,88 @@ describe('remote execution executor U4-U7 CORRECTION-5', () => {
     assert.ok(probeIdx > timeoutIdx);
     assert.equal(TIMEOUT_POLICY.values.ackClassifierMs, 180000);
     assertNoSentinel({ beginIdx, timeoutIdx, probeIdx });
+  });
+});
+
+describe('remote execution executor session pooler correction-1 V12', () => {
+  it('V12 executor fixture with exact pooler binding reaches fake client creation; malformed creates no client', async () => {
+    let credentialRead = false;
+    const validDeps = createFakeTransportDeps({ stepId: 'P1' });
+    const baseRead = validDeps.credentialAcquirerDeps!.readBytes!;
+    validDeps.credentialAcquirerDeps = {
+      ...validDeps.credentialAcquirerDeps,
+      readBytes: () => {
+        credentialRead = true;
+        return baseRead();
+      },
+    };
+    await executeWithEnvelope(validAuthorizationEnvelope(), 'P1', validDeps);
+    assert.equal(credentialRead, true);
+    assert.equal(validDeps.mutationFactory!.clients.length, 1);
+    assert.equal(validDeps.mutationFactory!.clients[0]!.config.user, VALID_CONNECTION_USER);
+    assertNoSentinel({ clientCount: validDeps.mutationFactory!.clients.length });
+
+    let malformedCredentialRead = false;
+    const malformedDeps = createFakeTransportDeps({ stepId: 'P1' });
+    malformedDeps.credentialAcquirerDeps = {
+      readBytes: () => {
+        malformedCredentialRead = true;
+        return validStdinBytes();
+      },
+    };
+    const full = validExpectedBinding();
+    const malformedExpected = { ...full } as Record<string, unknown>;
+    const malformedObserved = { ...observedFromExpected(full) } as Record<string, unknown>;
+    delete malformedExpected.connectionEndpointProfile;
+    delete malformedObserved.connectionEndpointProfile;
+    const malformedResult = await executePreviewRemoteExecution(
+      {
+        repoRoot: EXPECTED_REPO_ROOT,
+        authorizationDocument: {
+          expected: malformedExpected as ExpectedAuthorizationBinding,
+          observed: malformedObserved as ObservedPreConnectFacts,
+        },
+        credentialMethod: CREDENTIAL_METHOD_IDS[0],
+        selectedStep: 'P1',
+      },
+      malformedDeps,
+    );
+    assert.equal(malformedCredentialRead, false);
+    assert.equal(malformedDeps.mutationFactory!.clients.length, 0);
+    assert.equal(malformedResult.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assertNoSentinel(malformedResult);
+  });
+});
+
+describe('remote execution executor session pooler correction-2 W5', () => {
+  it('W5 wrong projectRef fails before credential read and client creation', async () => {
+    let credentialRead = false;
+    const deps = createFakeTransportDeps({ stepId: 'P1' });
+    deps.credentialAcquirerDeps = {
+      readBytes: () => {
+        credentialRead = true;
+        return validStdinBytes();
+      },
+    };
+    const altRef = 'other-preview-ref';
+    const altUser = expectedConnectionUserForProjectRef(altRef);
+    const expected = validExpectedBinding({
+      projectRef: altRef,
+      connectionUser: altUser,
+    });
+    const observed = observedFromExpected(expected);
+    const result = await executePreviewRemoteExecution(
+      {
+        repoRoot: EXPECTED_REPO_ROOT,
+        authorizationDocument: { expected, observed },
+        credentialMethod: CREDENTIAL_METHOD_IDS[0],
+        selectedStep: 'P1',
+      },
+      deps,
+    );
+    assert.equal(credentialRead, false);
+    assert.equal(deps.mutationFactory!.clients.length, 0);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assertNoSentinel(result);
   });
 });

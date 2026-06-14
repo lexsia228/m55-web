@@ -27,7 +27,7 @@
     },
     "pgTransport": {
       "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
-      "sha256": "1e11107c90eaadea6d4f9ca8844ce02640542ef1fe2233489fcb717bd016fe8a"
+      "sha256": "b16e61144952b6a68090e891b9b7e545cee349c0d151454df2d8e1778e7f8f90"
     },
     "executor": {
       "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",

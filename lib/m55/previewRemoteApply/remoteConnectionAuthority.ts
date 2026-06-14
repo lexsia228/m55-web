@@ -27,6 +27,16 @@ export const EXPECTED_CURRENT_USER = 'postgres' as const;
 export const EXPECTED_PORT = 5432 as const;
 export const EXPECTED_SSLMODE = 'require' as const;
 
+export const SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE = 'SESSION_POOLER_IPV4_V1' as const;
+export const APPROVED_PREVIEW_PROJECT_REF = 'sbogwyzldjxxouhqtpnq' as const;
+export const SESSION_POOLER_HOST = 'aws-1-ap-northeast-1.pooler.supabase.com' as const;
+export const SESSION_POOLER_HOST_FINGERPRINT_SHA256 =
+  '4982c8162697c153b25d2a028af3b46fba2ad2d4c3f65351feca495aa81df75e' as const;
+
+export function expectedConnectionUserForProjectRef(projectRef: string): string {
+  return `postgres.${projectRef}`;
+}
+
 export const EXECUTION_SQL_AUTHORITY_FOUNDATION_ID =
   'M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1' as const;
 
@@ -151,6 +161,8 @@ export type ExpectedAuthorizationBinding = {
   readonly databaseSource: string;
   readonly databaseName: string;
   readonly expectedCurrentUser: string;
+  readonly connectionEndpointProfile: string;
+  readonly connectionUser: string;
   readonly projectRef: string;
   readonly host: string;
   readonly hostFingerprintSha256: string;
@@ -177,6 +189,8 @@ export type ObservedPreConnectFacts = {
   readonly databaseSource: string;
   readonly databaseName: string;
   readonly expectedCurrentUser: string;
+  readonly connectionEndpointProfile: string;
+  readonly connectionUser: string;
   readonly projectRef: string;
   readonly host: string;
   readonly hostFingerprintSha256: string;
@@ -253,6 +267,7 @@ export type RemoteConnectionAuthorityDocument = {
   readonly outer_binding_envelope_validation: Record<string, unknown>;
   readonly credential_method_selection_input_validation: Record<string, unknown>;
   readonly dense_plain_string_array_validation: Record<string, unknown>;
+  readonly session_pooler_ipv4_v1: Record<string, unknown>;
   readonly plan_requires_validated_binding_receipt: true;
   readonly validated_receipt_is_only_public_binding_identifier_source: true;
   readonly target_connection_binding: Record<string, unknown>;
@@ -276,6 +291,8 @@ export const EXPECTED_AUTHORIZATION_BINDING_REQUIRED_KEYS = [
   'databaseSource',
   'databaseName',
   'expectedCurrentUser',
+  'connectionEndpointProfile',
+  'connectionUser',
   'projectRef',
   'host',
   'hostFingerprintSha256',
@@ -319,6 +336,8 @@ export const OBSERVED_PRE_CONNECT_REQUIRED_KEYS = [
   'databaseSource',
   'databaseName',
   'expectedCurrentUser',
+  'connectionEndpointProfile',
+  'connectionUser',
   'projectRef',
   'host',
   'hostFingerprintSha256',
@@ -781,8 +800,8 @@ function containsForbiddenHostLiteral(normalizedHost: string): boolean {
   return PRIVATE_IPV4_PREFIXES.some((prefix) => normalizedHost.startsWith(prefix));
 }
 
-function expectedHostForProjectRef(projectRef: string): string {
-  return `db.${projectRef.trim().toLowerCase()}.supabase.co`;
+function isDirectSupabaseDatabaseHost(normalizedHost: string): boolean {
+  return normalizedHost.startsWith('db.') && normalizedHost.endsWith('.supabase.co');
 }
 
 export function calculateCanonicalHostFingerprint(host: string): CanonicalHostFingerprintResult {
@@ -912,21 +931,39 @@ function validateExpectedBindingRules(
   if (!credentialHold.ok) {
     return credentialHold.holdReasonCode ?? 'HOLD_CREDENTIAL_METHOD_INVALID';
   }
-  if (!expected.projectRef || expected.projectRef.trim().length === 0) {
+  if (!expected.projectRef || expected.projectRef.length === 0) {
     return 'HOLD_TARGET_FINGERPRINT_INCOMPLETE';
+  }
+  if (expected.projectRef !== APPROVED_PREVIEW_PROJECT_REF) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
   }
   if (!expected.hostFingerprintSha256 || !isSha256Hex(expected.hostFingerprintSha256)) {
     return 'HOLD_TARGET_FINGERPRINT_INCOMPLETE';
+  }
+  if (expected.connectionEndpointProfile !== SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
+  }
+  const approvedConnectionUser = expectedConnectionUserForProjectRef(APPROVED_PREVIEW_PROJECT_REF);
+  if (expected.connectionUser !== approvedConnectionUser) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
+  }
+  if (expected.connectionUser === expected.expectedCurrentUser) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
   }
   const hostResult = calculateCanonicalHostFingerprint(expected.host);
   if (!hostResult.ok) {
     return hostResult.rejectionReason;
   }
-  const derivedHost = expectedHostForProjectRef(expected.projectRef);
-  if (hostResult.normalizedHost !== derivedHost) {
+  if (isDirectSupabaseDatabaseHost(hostResult.normalizedHost)) {
     return 'HOLD_TARGET_IDENTITY_MISMATCH';
   }
-  if (hostResult.fingerprintSha256 !== expected.hostFingerprintSha256) {
+  if (hostResult.normalizedHost !== SESSION_POOLER_HOST) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
+  }
+  if (hostResult.fingerprintSha256 !== SESSION_POOLER_HOST_FINGERPRINT_SHA256) {
+    return 'HOLD_TARGET_IDENTITY_MISMATCH';
+  }
+  if (expected.hostFingerprintSha256 !== SESSION_POOLER_HOST_FINGERPRINT_SHA256) {
     return 'HOLD_TARGET_IDENTITY_MISMATCH';
   }
   if (expected.port !== EXPECTED_PORT || expected.sslmode !== EXPECTED_SSLMODE) {
@@ -973,7 +1010,9 @@ function compareExpectedObservedBinding(
   if (
     expected.projectRef !== observed.projectRef ||
     expected.host !== observed.host ||
-    expected.hostFingerprintSha256 !== observed.hostFingerprintSha256
+    expected.hostFingerprintSha256 !== observed.hostFingerprintSha256 ||
+    expected.connectionEndpointProfile !== observed.connectionEndpointProfile ||
+    expected.connectionUser !== observed.connectionUser
   ) {
     return 'HOLD_TARGET_IDENTITY_MISMATCH';
   }
@@ -1022,6 +1061,8 @@ function computeTargetBindingIdentifier(expected: ExpectedAuthorizationBinding):
         databaseSource: expected.databaseSource,
         databaseName: expected.databaseName,
         expectedCurrentUser: expected.expectedCurrentUser,
+        connectionEndpointProfile: expected.connectionEndpointProfile,
+        connectionUser: expected.connectionUser,
         projectRef: expected.projectRef,
         host: expected.host,
         hostFingerprintSha256: expected.hostFingerprintSha256,
@@ -1267,6 +1308,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'databaseSource',
       'databaseName',
       'expectedCurrentUser',
+      'connectionEndpointProfile',
+      'connectionUser',
       'projectRef',
       'host',
       'hostFingerprintSha256',
@@ -1291,6 +1334,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'databaseSource',
       'databaseName',
       'expectedCurrentUser',
+      'connectionEndpointProfile',
+      'connectionUser',
       'projectRef',
       'host',
       'hostFingerprintSha256',
@@ -1383,6 +1428,21 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
     acquisition_implemented: false,
     target_binding_implemented: false,
   },
+  session_pooler_ipv4_v1: {
+    identifier: 'SESSION_POOLER_IPV4_V1',
+    connection_endpoint_profile: 'SESSION_POOLER_IPV4_V1',
+    exact_host: 'aws-1-ap-northeast-1.pooler.supabase.com',
+    exact_host_fingerprint_sha256: '4982c8162697c153b25d2a028af3b46fba2ad2d4c3f65351feca495aa81df75e',
+    exact_port: 5432,
+    region_profile: 'ap-northeast-1 shared/session pooler',
+    approved_project_ref: APPROVED_PREVIEW_PROJECT_REF,
+    connection_user_derivation: 'postgres_dot_approved_preview_project_ref',
+    direct_supabase_database_host_forbidden: true,
+    transaction_pooler_forbidden: true,
+    wildcard_or_partial_pooler_host_forbidden: true,
+    execution_authorized: false,
+    target_binding_implemented: false,
+  },
   expected_vs_observed_binding: {
     expected_authorization_binding_fields: [
       'environment',
@@ -1391,6 +1451,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'database_source',
       'database_name',
       'expected_current_user',
+      'connection_endpoint_profile',
+      'connection_user',
       'project_ref',
       'host',
       'host_fingerprint_sha256',
@@ -1414,6 +1476,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'database_source',
       'database_name',
       'expected_current_user',
+      'connection_endpoint_profile',
+      'connection_user',
       'project_ref',
       'host',
       'host_fingerprint_sha256',
@@ -1453,6 +1517,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'database_source',
       'database_name',
       'expected_current_user',
+      'connection_endpoint_profile',
+      'connection_user',
       'project_ref',
       'host',
       'host_fingerprint_sha256',
@@ -1476,6 +1542,11 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       database_source: 'Primary Database',
       database_name: 'postgres',
       expected_current_user: 'postgres',
+      connection_endpoint_profile: 'SESSION_POOLER_IPV4_V1',
+      connection_user: 'postgres.sbogwyzldjxxouhqtpnq',
+      project_ref: 'sbogwyzldjxxouhqtpnq',
+      host: 'aws-1-ap-northeast-1.pooler.supabase.com',
+      host_fingerprint_sha256: '4982c8162697c153b25d2a028af3b46fba2ad2d4c3f65351feca495aa81df75e',
       port: 5432,
       sslmode: 'require',
       repository_branch: 'feat/m55-paid-lp-canonical-wave1',
@@ -1492,7 +1563,11 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       reject_characters: ['@', ':', '/', '?', '#'],
       reject_uri_schemes: true,
     },
-    project_ref_host_consistency_rule: 'normalized_host_must_equal_db_dot_project_ref_dot_supabase_dot_co',
+    approved_preview_project_ref: APPROVED_PREVIEW_PROJECT_REF,
+    project_ref_exact_rule: 'project_ref_must_exactly_equal_approved_preview_project_ref',
+    project_ref_host_consistency_rule: 'session_pooler_ipv4_v1_exact_host_and_fingerprint_required',
+    connection_user_consistency_rule: 'connection_user_must_equal_postgres_dot_approved_preview_project_ref',
+    direct_host_rejection_rule: 'db_dot_project_ref_dot_supabase_dot_co_forbidden_for_session_pooler_profile',
     forbidden_hosts: {
       literals: ['localhost', '127.0.0.1', '::1'],
       private_ipv4_prefixes: [
@@ -1524,6 +1599,8 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'project_ref',
       'host',
       'host_fingerprint_sha256',
+      'connection_endpoint_profile',
+      'connection_user',
       'execution_authorization_id',
     ],
     all_fields_required_before_credential_acquisition: true,
@@ -1541,7 +1618,11 @@ export const EXPECTED_REMOTE_CONNECTION_AUTHORITY = {
       'exact_preview_organization_project_source_database_user',
       'exact_selected_step',
       'exact_credential_method',
-      'exact_project_ref_host_fingerprint_consistency',
+      'exact_connection_endpoint_profile',
+      'exact_approved_preview_project_ref',
+      'exact_connection_user_derivation',
+      'exact_session_pooler_host_fingerprint_consistency',
+      'direct_host_rejected_for_session_pooler',
       'execution_authorization_identity',
       'authority_manifest_identities',
       'no_credential_material_in_nonsecret_binding',

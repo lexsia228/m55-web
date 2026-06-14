@@ -795,8 +795,8 @@
   },
   "remote_connection_authority": {
     "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CONNECTION_AUTHORITY_v1.json",
-    "bytes": 15876,
-    "sha256": "eb8fca2854902e5ff2c88843ddcbc564c64d6ea3ca0344dfd632c86b619bd127"
+    "bytes": 17868,
+    "sha256": "bd16e70dee3870041ebb668f102c0f2008a27d917ec022204e8058ecf8aaa518"
   },
   "credential_acquisition_authority": {
     "frozen": true,
@@ -809,7 +809,7 @@
   "remote_executor_implementation": {
     "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
     "bytes": 2542,
-    "sha256": "56001bb3a5f370f496be4bc2148c92bbc3aef35ee83df1fbeab144d8a1907b72",
+    "sha256": "d4559c4c1b0853c813c5a644150f7b3aef3e2c34dddd0e59785804202ab861e5",
     "code_implemented": true,
     "execution_authorized": false,
     "real_connection_executed": false

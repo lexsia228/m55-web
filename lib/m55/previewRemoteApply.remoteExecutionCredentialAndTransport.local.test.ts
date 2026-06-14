@@ -23,14 +23,20 @@ import {
   type ExecutionPgClientConfig,
 } from './previewRemoteApply/remoteExecutionPgTransport.ts';
 import {
+  APPROVED_PREVIEW_PROJECT_REF,
   calculateCanonicalHostFingerprint,
+  expectedConnectionUserForProjectRef,
+  POST_CONNECT_GUARD_SQL,
+  SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+  SESSION_POOLER_HOST,
   type ExpectedAuthorizationBinding,
 } from './previewRemoteApply/remoteConnectionAuthority.ts';
 import { EXPECTED_BRANCH } from './previewRemoteApply/types.ts';
 
 const SENTINEL = '__M55_SYNTHETIC_SENTINEL_SECRET__';
-const VALID_PROJECT_REF = 'preview-test-ref';
-const VALID_HOST = `db.${VALID_PROJECT_REF}.supabase.co`;
+const VALID_PROJECT_REF = APPROVED_PREVIEW_PROJECT_REF;
+const VALID_HOST = SESSION_POOLER_HOST;
+const VALID_CONNECTION_USER = expectedConnectionUserForProjectRef(VALID_PROJECT_REF);
 
 function validBinding(overrides: Partial<ExpectedAuthorizationBinding> = {}): ExpectedAuthorizationBinding {
   const fingerprint = calculateCanonicalHostFingerprint(VALID_HOST);
@@ -42,6 +48,8 @@ function validBinding(overrides: Partial<ExpectedAuthorizationBinding> = {}): Ex
     databaseSource: 'Primary Database',
     databaseName: 'postgres',
     expectedCurrentUser: 'postgres',
+    connectionEndpointProfile: SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+    connectionUser: VALID_CONNECTION_USER,
     projectRef: VALID_PROJECT_REF,
     host: VALID_HOST,
     hostFingerprintSha256: fingerprint.fingerprintSha256,
@@ -67,7 +75,7 @@ function validStdinJson(overrides: Record<string, unknown> = {}): Buffer {
     host: VALID_HOST,
     port: 5432,
     database: 'postgres',
-    user: 'postgres',
+    user: VALID_CONNECTION_USER,
     password: SENTINEL,
     sslmode: 'require',
     ...overrides,
@@ -260,7 +268,7 @@ describe('remote execution credential and transport E1-E20', () => {
       host: binding.host,
       port: binding.port,
       database: binding.databaseName,
-      user: binding.expectedCurrentUser,
+      user: binding.connectionUser,
       password: SENTINEL,
       sslmode: 'require',
       connectionTimeoutMillis: 15000,
@@ -606,5 +614,65 @@ describe('remote execution credential U1-U3 CORRECTION-5', () => {
     await assert.rejects(errorRead, /STREAM_READ_FAILED/);
     assert.equal(errorChunk.every((byte) => byte === 0), true);
     assertNoSentinel({ overflow: true, error: true });
+  });
+});
+
+describe('remote execution credential session pooler correction-1 V9-V11', () => {
+  it('V9 buildClientConfig accepts pooler login user', () => {
+    const binding = validBinding();
+    const config = buildClientConfig(binding, {
+      host: binding.host,
+      port: binding.port,
+      database: binding.databaseName,
+      user: binding.connectionUser,
+      password: SENTINEL,
+      sslmode: 'require',
+    });
+    assert.notEqual(typeof config, 'string');
+    if (typeof config !== 'string') {
+      assert.equal(config.user, VALID_CONNECTION_USER);
+      assert.equal(config.host, VALID_HOST);
+      assertNoSentinel({ user: config.user, host: config.host });
+    }
+  });
+
+  it('V10 buildClientConfig rejects user=postgres for pooler binding', () => {
+    const binding = validBinding();
+    const config = buildClientConfig(binding, {
+      host: binding.host,
+      port: binding.port,
+      database: binding.databaseName,
+      user: 'postgres',
+      password: SENTINEL,
+      sslmode: 'require',
+    });
+    assert.equal(config, 'HOLD_CREDENTIAL_METHOD_INVALID');
+    assertNoSentinel(config);
+  });
+
+  it('V11 post-connect guard still accepts current_user_name=postgres', async () => {
+    const factory = createFakeExecutionPgClientFactory({
+      postConnectRows: [{ current_database_name: 'postgres', current_user_name: 'postgres' }],
+    });
+    const transport = createExecutionPgTransport({ createClient: (config) => factory.createClient(config) });
+    const binding = validBinding();
+    const config = buildClientConfig(binding, {
+      host: binding.host,
+      port: binding.port,
+      database: binding.databaseName,
+      user: binding.connectionUser,
+      password: SENTINEL,
+      sslmode: 'require',
+      connectionTimeoutMillis: 15000,
+    });
+    assert.notEqual(typeof config, 'string');
+    const client = transport.createClient(config as ExecutionPgClientConfig);
+    await client.connect();
+    const guard = await client.query(POST_CONNECT_GUARD_SQL);
+    assert.equal(guard.rows[0]?.current_database_name, 'postgres');
+    assert.equal(guard.rows[0]?.current_user_name, 'postgres');
+    assert.equal(config.user, VALID_CONNECTION_USER);
+    await client.close();
+    assertNoSentinel(guard);
   });
 });

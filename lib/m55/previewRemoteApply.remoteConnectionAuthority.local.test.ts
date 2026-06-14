@@ -16,17 +16,22 @@ import {
 } from './previewRemoteApply/executionSqlAuthorityFoundation.ts';
 import {
   APPROVED_CREDENTIAL_METHODS,
+  APPROVED_PREVIEW_PROJECT_REF,
   calculateCanonicalHostFingerprint,
   buildCredentialAcquisitionPlan,
   EVIDENCE_ALLOWED_FIELDS,
   EVIDENCE_FORBIDDEN_FIELDS,
   EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_ID,
   EXPECTED_REMOTE_CONNECTION_AUTHORITY,
+  expectedConnectionUserForProjectRef,
   POST_CONNECT_GUARD_BINDING,
   POST_CONNECT_GUARD_SQL,
   POST_CONNECT_GUARD_SQL_SHA256,
   REMOTE_CONNECTION_AUTHORITY_ID,
   REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_ID,
+  SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+  SESSION_POOLER_HOST,
+  SESSION_POOLER_HOST_FINGERPRINT_SHA256,
   validateCredentialMethodSelection,
   validateNonsecretTargetBinding,
   validateRemoteConnectionAuthorityDocument,
@@ -38,8 +43,9 @@ import { EXPECTED_BRANCH } from './previewRemoteApply/types.ts';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CONNECTION_JSON_PATH = FOUNDATION_REL_PATHS.connectionAuthorityJson;
-const VALID_PROJECT_REF = 'preview-test-ref';
-const VALID_HOST = `db.${VALID_PROJECT_REF}.supabase.co`;
+const VALID_PROJECT_REF = APPROVED_PREVIEW_PROJECT_REF;
+const VALID_HOST = SESSION_POOLER_HOST;
+const VALID_CONNECTION_USER = expectedConnectionUserForProjectRef(VALID_PROJECT_REF);
 const HUMAN_EXEC_AUTH_ID = 'M55-HUMAN-EXEC-AUTH-TEST-001';
 const ALT_VALID_HEAD = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 const ALT_VALID_TREE = 'cccccccccccccccccccccccccccccccccccccccc';
@@ -51,6 +57,7 @@ function readRepo(relPath: string): string {
 function validHostFingerprint(): string {
   const result = calculateCanonicalHostFingerprint(VALID_HOST);
   assert.equal(result.ok, true);
+  assert.equal(result.fingerprintSha256, SESSION_POOLER_HOST_FINGERPRINT_SHA256);
   return result.fingerprintSha256;
 }
 
@@ -64,6 +71,8 @@ function validExpectedBinding(
     databaseSource: 'Primary Database',
     databaseName: 'postgres',
     expectedCurrentUser: 'postgres',
+    connectionEndpointProfile: SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE,
+    connectionUser: VALID_CONNECTION_USER,
     projectRef: VALID_PROJECT_REF,
     host: VALID_HOST,
     hostFingerprintSha256: validHostFingerprint(),
@@ -91,6 +100,8 @@ function toObservedFacts(binding: ExpectedAuthorizationBinding): ObservedPreConn
     databaseSource: binding.databaseSource,
     databaseName: binding.databaseName,
     expectedCurrentUser: binding.expectedCurrentUser,
+    connectionEndpointProfile: binding.connectionEndpointProfile,
+    connectionUser: binding.connectionUser,
     projectRef: binding.projectRef,
     host: binding.host,
     hostFingerprintSha256: binding.hostFingerprintSha256,
@@ -467,7 +478,7 @@ describe('remote connection authority correction-1 C21-C32', () => {
 
   it('C25 project_ref/host/fingerprint mismatch rejected', () => {
     const altRef = 'other-preview-ref';
-    const altHost = `db.${altRef}.supabase.co`;
+    const altHost = 'aws-0-us-east-1.pooler.supabase.com';
     const altFingerprint = calculateCanonicalHostFingerprint(altHost);
     assert.equal(altFingerprint.ok, true);
 
@@ -1338,5 +1349,185 @@ describe('remote connection authority correction-2 C33-C42', () => {
     assert.equal(JSON.stringify(result).includes('password'), false);
     assert.equal(JSON.stringify(result).includes('token'), false);
     assert.equal(JSON.stringify(result).includes('secret'), false);
+  });
+});
+
+describe('remote connection authority session pooler correction-1 V1-V8', () => {
+  it('V1 exact Session pooler expected/observed binding passes', () => {
+    const binding = validBindingInput();
+    const result = validateNonsecretTargetBinding(binding);
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.receipt.outcome, 'PASS_TARGET_BINDING');
+    assert.equal(binding.expected.connectionEndpointProfile, SESSION_POOLER_CONNECTION_ENDPOINT_PROFILE);
+    assert.equal(binding.expected.connectionUser, VALID_CONNECTION_USER);
+    assert.equal(binding.expected.host, SESSION_POOLER_HOST);
+  });
+
+  it('V2 Direct host rejected for SESSION_POOLER_IPV4_V1', () => {
+    const directHost = `db.${VALID_PROJECT_REF}.supabase.co`;
+    const directFingerprint = calculateCanonicalHostFingerprint(directHost);
+    assert.equal(directFingerprint.ok, true);
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: {
+          host: directHost,
+          hostFingerprintSha256: directFingerprint.fingerprintSha256,
+        },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V3 wrong pooler region/host rejected', () => {
+    const wrongHost = 'aws-0-us-east-1.pooler.supabase.com';
+    const wrongFingerprint = calculateCanonicalHostFingerprint(wrongHost);
+    assert.equal(wrongFingerprint.ok, true);
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: {
+          host: wrongHost,
+          hostFingerprintSha256: wrongFingerprint.fingerprintSha256,
+        },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V4 wrong host fingerprint rejected', () => {
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({ expected: { hostFingerprintSha256: 'f'.repeat(64) } }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V5 missing/wrong connectionEndpointProfile rejected', () => {
+    const full = validExpectedBinding();
+    const observedFull = toObservedFacts(full);
+    const missingExpected = { ...full } as Record<string, unknown>;
+    const missingObserved = { ...observedFull } as Record<string, unknown>;
+    delete missingExpected.connectionEndpointProfile;
+    delete missingObserved.connectionEndpointProfile;
+    const missing = validateNonsecretTargetBinding({
+      expected: missingExpected as ExpectedAuthorizationBinding,
+      observed: missingObserved as ObservedPreConnectFacts,
+    });
+    assert.equal(missing.ok, false);
+    assert.equal(missing.outcome, 'HOLD_EXECUTION_NOT_AUTHORIZED');
+
+    const wrong = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { connectionEndpointProfile: 'DIRECT_IPV4_V1' },
+        observed: { connectionEndpointProfile: 'DIRECT_IPV4_V1' },
+      }),
+    );
+    assert.equal(wrong.ok, false);
+    assert.equal(wrong.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V6 connectionUser must equal postgres.<projectRef>', () => {
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { connectionUser: 'postgres' },
+        observed: { connectionUser: 'postgres' },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V7 expected/observed connectionUser mismatch rejected', () => {
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { connectionUser: VALID_CONNECTION_USER },
+        observed: { connectionUser: 'postgres.other-preview-ref' },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('V8 full binding identifier changes with connectionUser/profile', () => {
+    const base = validBindingInput();
+    const baseId = receiptBindingIdentifier(base);
+
+    const altRef = 'other-preview-ref';
+    const altUser = expectedConnectionUserForProjectRef(altRef);
+    const userId = receiptBindingIdentifier(
+      validBindingInput({
+        expected: { projectRef: altRef, connectionUser: altUser },
+        observed: { projectRef: altRef, connectionUser: altUser },
+      }),
+    );
+    assert.notEqual(userId, baseId);
+
+    const wrongProfile = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { connectionEndpointProfile: 'DIRECT_IPV4_V1' },
+        observed: { connectionEndpointProfile: 'DIRECT_IPV4_V1' },
+      }),
+    );
+    assert.equal(wrongProfile.ok, false);
+    assert.notEqual(
+      wrongProfile.ok ? wrongProfile.receipt.targetBindingIdentifier : '',
+      baseId,
+    );
+  });
+});
+
+describe('remote connection authority session pooler correction-2 W1-W6', () => {
+  it('W1 exact approved projectRef + exact pooler user passes', () => {
+    const result = validateNonsecretTargetBinding(validBindingInput());
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.receipt.outcome, 'PASS_TARGET_BINDING');
+    assert.equal(result.receipt.targetBindingIdentifier.length > 0, true);
+  });
+
+  it('W2 arbitrary projectRef + matching postgres.<arbitrary> is rejected', () => {
+    const altRef = 'other-preview-ref';
+    const altUser = expectedConnectionUserForProjectRef(altRef);
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { projectRef: altRef, connectionUser: altUser },
+        observed: { projectRef: altRef, connectionUser: altUser },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('W3 blank/case-changed/whitespace-padded approved projectRef is rejected', () => {
+    for (const badRef of ['', ' ', ` ${VALID_PROJECT_REF}`, VALID_PROJECT_REF.toUpperCase()]) {
+      const result = validateNonsecretTargetBinding(
+        validBindingInput({
+          expected: { projectRef: badRef },
+          observed: { projectRef: badRef },
+        }),
+      );
+      assert.equal(result.ok, false);
+      assert.notEqual(result.outcome, 'PASS_TARGET_BINDING');
+    }
+  });
+
+  it('W4 expected/observed projectRef mismatch is rejected', () => {
+    const result = validateNonsecretTargetBinding(
+      validBindingInput({
+        expected: { projectRef: VALID_PROJECT_REF },
+        observed: { projectRef: 'other-preview-ref' },
+      }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.outcome, 'HOLD_TARGET_IDENTITY_MISMATCH');
+  });
+
+  it('W6 target-binding identifier remains deterministic for the exact approved target', () => {
+    const first = receiptBindingIdentifier(validBindingInput());
+    const second = receiptBindingIdentifier(validBindingInput());
+    assert.equal(first, second);
+    assert.equal(first.length > 0, true);
   });
 });
