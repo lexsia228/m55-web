@@ -15,8 +15,12 @@ export const EXPECTED_FOUNDATION_BASE_HEAD = '9af0df4fad8e545871648da39690dec9f1
 export const REPOSITORY_IDENTITY_CONTRACT =
   'lib/m55/previewRemoteApply/types.ts:EXPECTED_BRANCH' as const;
 
+export const P1_PRIOR_BOOTSTRAP_PRECONDITION_ID = 'P1_PRIOR_BOOTSTRAP_PRECONDITION_v1' as const;
+
 export const FOUNDATION_REL_PATHS = {
   p0: 'docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql',
+  p1PriorBootstrapPrecondition:
+    'docs/planning/preview-remote-apply/M55_PREVIEW_P1_PRIOR_BOOTSTRAP_PRECONDITION_v1.sql',
   pureCountsV2:
     'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_APPLICATION_RELATION_COUNTS_PURE_SELECT_v2.sql',
   catalogExtractor: 'docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1.sql',
@@ -52,6 +56,10 @@ export const CATALOG_EXTRACTOR_ID = 'M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1' as
 
 export const FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS = {
   p0: { bytes: 21188, sha256: '9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff' },
+  p1PriorBootstrapPrecondition: {
+    bytes: 11617,
+    sha256: '6f7874f6e4b16accf3eedb5c57b9f5e5847df6a9917f82a85aef5c705338e855',
+  },
   pureCountsV2: {
     bytes: 1647,
     sha256: 'fbea819218345a5cf2f0d10e0704100beb0ae876ecc4dd26bbc422244ef97905',
@@ -98,7 +106,7 @@ export const FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS = {
   timeoutPolicySha256: '9ae3067eb912c72711477ec9507c5c26ad90768f238ef83034aa0a79af642efa',
   historyBootstrapSource: 'lib/m55/previewRemoteApply/historyBootstrapSpec.ts',
   historyBootstrapSha256: 'f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55',
-  p1BootstrapPreconditionStatus: 'MISSING_SEPARATE_AUTHORITY' as const,
+  p1BootstrapPreconditionStatus: 'FROZEN_EXECUTABLE_AUTHORITY' as const,
   localEquivalenceVerdict: 'TEMP_FIRST_GREEN' as const,
   localEquivalenceCases: [
     { case: 'empty_no_tables', equal: true, orig_hash: '7965628e1cab02c30a8010399fbb9c7f9c8f12ea040c3805a3e5d53d780702fc', remote_hash: '7965628e1cab02c30a8010399fbb9c7f9c8f12ea040c3805a3e5d53d780702fc', counts_type: 'object' },
@@ -114,14 +122,49 @@ export const FOUNDATION_MISSING_AUTHORITIES = [
   'ACK classifier authority',
   'pre-commit failure classifier authority',
   'fresh post-commit connection lifecycle',
-  'P1_PRIOR_BOOTSTRAP_PRECONDITION_EXECUTABLE_AUTHORITY',
   'credential acquisition',
   'target connection binding',
   'remote executor implementation',
 ] as const;
 
+export const P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS = [
+  'CLEANLY_ABSENT',
+  'EXACT_COMPATIBLE_EMPTY',
+  'EXACT_COMPATIBLE_WITH_VERSIONS',
+  'MALFORMED_RELATION',
+  'UNKNOWN_OR_AMBIGUOUS',
+] as const;
+
+export const P1_PRIOR_BOOTSTRAP_PRECONDITION_PROCEED_CLASSIFICATIONS = ['CLEANLY_ABSENT'] as const;
+
+export const P1_PRIOR_BOOTSTRAP_PRECONDITION_HOLD_CLASSIFICATIONS = [
+  'EXACT_COMPATIBLE_EMPTY',
+  'EXACT_COMPATIBLE_WITH_VERSIONS',
+  'MALFORMED_RELATION',
+  'UNKNOWN_OR_AMBIGUOUS',
+] as const;
+
+export const P1_PRIOR_BOOTSTRAP_PRECONDITION_RESULT_COLUMNS = [
+  'bootstrap_precondition_classification',
+  'bootstrap_precondition_proceed',
+  'bootstrap_precondition_hold',
+  'history_schema_exists',
+  'history_schema_owner',
+  'history_relation_exists',
+  'history_relation_relkind',
+  'history_relation_owner',
+  'history_live_column_count',
+  'history_relation_exact_shape',
+  'history_primary_key_on_version_exact',
+  'history_row_count',
+  'applied_versions',
+  'duplicate_versions',
+  'unexpected_history_versions',
+] as const;
+
 export const EXACT_MANIFEST_ORDER = [
   FOUNDATION_REL_PATHS.p0,
+  FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition,
   FOUNDATION_REL_PATHS.pureCountsV2,
   FOUNDATION_REL_PATHS.catalogExtractor,
   FOUNDATION_REL_PATHS.functionParityExtractor,
@@ -275,11 +318,34 @@ export const EXPECTED_POLICY2_HISTORY_INSERT = {
 export const EXPECTED_P1_BOOTSTRAP = {
   ddl_source_path: 'lib/m55/previewRemoteApply/historyBootstrapSpec.ts',
   ddl_source_sha256: 'f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55',
-  precondition_status: 'MISSING_SEPARATE_AUTHORITY',
+  precondition_status: 'FROZEN_EXECUTABLE_AUTHORITY',
+} as const;
+
+export const EXPECTED_P1_PRIOR_BOOTSTRAP_PRECONDITION = {
+  path: 'docs/planning/preview-remote-apply/M55_PREVIEW_P1_PRIOR_BOOTSTRAP_PRECONDITION_v1.sql',
+  bytes: 11617,
+  sha256: '6f7874f6e4b16accf3eedb5c57b9f5e5847df6a9917f82a85aef5c705338e855',
+  provenance_bootstrap_spec_path: 'lib/m55/previewRemoteApply/historyBootstrapSpec.ts',
+  provenance_bootstrap_spec_sha256: 'f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55',
+  provenance_p0_source_path: 'docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql',
+  provenance_p0_source_sha256: '9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff',
+  provenance_roles: {
+    bootstrap_exact_shape: 'historyBootstrapSpec.ts',
+    absence_safe_version_read: 'M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql',
+  },
+  exact_shape_column_order: ['version', 'statements', 'name'],
+  bootstrap_proceed_classifications: [...P1_PRIOR_BOOTSTRAP_PRECONDITION_PROCEED_CLASSIFICATIONS],
+  bootstrap_hold_classifications: [...P1_PRIOR_BOOTSTRAP_PRECONDITION_HOLD_CLASSIFICATIONS],
+  statement_count: 1,
+  read_only: true,
+  top_level_select_stmt: true,
+  classifications: [...P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS],
+  result_columns: [...P1_PRIOR_BOOTSTRAP_PRECONDITION_RESULT_COLUMNS],
 } as const;
 
 export const MANIFEST_FILE_CLASSIFICATIONS: Readonly<Record<string, string>> = {
   [FOUNDATION_REL_PATHS.p0]: 'p0_preflight_patch2',
+  [FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition]: 'p1_prior_bootstrap_precondition',
   [FOUNDATION_REL_PATHS.pureCountsV2]: 'pure_application_relation_counts_v2',
   [FOUNDATION_REL_PATHS.catalogExtractor]: 'remote_catalog_extractor',
   [FOUNDATION_REL_PATHS.functionParityExtractor]: 'remote_function_parity_extractor',
@@ -336,6 +402,7 @@ export type ExecutionSqlAuthorityFoundationDocument = {
     readonly final_p7?: LifecycleSlotSpec & { readonly phase_id: string };
   };
   readonly p1_bootstrap?: { readonly precondition_status?: string };
+  readonly p1_prior_bootstrap_precondition?: Record<string, unknown>;
   readonly local_full_extractor_equivalence?: {
     readonly verdict?: string;
     readonly cases?: readonly Record<string, unknown>[];
@@ -389,12 +456,12 @@ function buildLifecycleSlot(phaseNumber: number, slot: 'prior' | 'in_tx_post' | 
       return {
         expected_oracle_phase: 'P0',
         expected_history_prefix: [],
-        extractor: null,
+        extractor: P1_PRIOR_BOOTSTRAP_PRECONDITION_ID,
         classifier_exports: CLASSIFIER_EXPORTS,
-        transaction_placement: 'inside_mutation_transaction_after_BEGIN_before_mutation',
+        transaction_placement: 'inside_transaction_after_BEGIN_before_bootstrap_DDL',
         fresh_connection_required: false,
-        authority_semantics_frozen: false,
-        status: 'MISSING_SEPARATE_AUTHORITY',
+        authority_semantics_frozen: true,
+        status: 'FROZEN_EXECUTABLE_AUTHORITY',
         orchestration_implemented: false,
         execution_authorized: false,
       };
@@ -472,12 +539,63 @@ function validateSqlArtifact(
   category: string,
 ): void {
   const abs = join(workspaceRoot, relPath);
-  const bytes = readFileSync(abs);
+  let bytes: Buffer;
+  try {
+    bytes = readFileSync(abs);
+  } catch {
+    mismatches.push(`${category}:missing`);
+    return;
+  }
   if (bytes.length !== expected.bytes) {
     mismatches.push(`${category}:bytes`);
   }
   if (sha256File(abs) !== expected.sha256) {
     mismatches.push(`${category}:sha256`);
+  }
+}
+
+function validateP1PriorBootstrapPreconditionSql(sql: string, mismatches: string[]): void {
+  const trimmed = sql.trim();
+  if ((trimmed.match(/;/g) ?? []).length !== 1) mismatches.push('p1_prior_bootstrap_precondition:semicolon_count');
+  const withoutLeadingComments = trimmed.replace(/^(?:\s*--[^\n]*\n)+/m, '').trim();
+  if (!/^WITH\b/i.test(withoutLeadingComments)) {
+    mismatches.push('p1_prior_bootstrap_precondition:top_level_select_stmt');
+  }
+  if (/\b(CREATE|INSERT|UPDATE|DELETE|DROP|ALTER|DO|CALL|COPY)\b/i.test(sql)) {
+    mismatches.push('p1_prior_bootstrap_precondition:mutation_forbidden');
+  }
+  if (!sql.includes('historyBootstrapSpec.ts')) mismatches.push('p1_prior_bootstrap_precondition:provenance_bootstrap_spec');
+  if (!sql.includes('M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql')) {
+    mismatches.push('p1_prior_bootstrap_precondition:provenance_p0_source');
+  }
+  if (!sql.includes('history_schema_exists')) mismatches.push('p1_prior_bootstrap_precondition:history_schema_exists');
+  if (!sql.includes('history_relation_exact_shape')) mismatches.push('p1_prior_bootstrap_precondition:history_relation_exact_shape');
+  if (!sql.includes('history_primary_key_on_version_exact')) {
+    mismatches.push('p1_prior_bootstrap_precondition:history_primary_key_on_version_exact');
+  }
+  if (!sql.includes('bootstrap_precondition_proceed')) mismatches.push('p1_prior_bootstrap_precondition:bootstrap_precondition_proceed');
+  if (!sql.includes('bootstrap_precondition_hold')) mismatches.push('p1_prior_bootstrap_precondition:bootstrap_precondition_hold');
+  if (!sql.includes('WHEN es.history_relation_exact_shape THEN query_to_xml')) {
+    mismatches.push('p1_prior_bootstrap_precondition:unsafe_version_read_gating');
+  }
+  if (!sql.includes("ARRAY['version', 'statements', 'name']")) {
+    mismatches.push('p1_prior_bootstrap_precondition:exact_shape_column_order');
+  }
+  if (!sql.includes("history_schema_owner = 'postgres'")) mismatches.push('p1_prior_bootstrap_precondition:schema_owner_predicate');
+  if (!sql.includes("history_relation_owner = 'postgres'")) mismatches.push('p1_prior_bootstrap_precondition:relation_owner_predicate');
+  const finalSelect = sql.slice(sql.lastIndexOf('SELECT'));
+  for (const column of P1_PRIOR_BOOTSTRAP_PRECONDITION_RESULT_COLUMNS) {
+    if (!finalSelect.includes(column)) mismatches.push(`p1_prior_bootstrap_precondition:result_column:${column}`);
+  }
+  for (const classification of P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS) {
+    if (!sql.includes(`'${classification}'`)) mismatches.push(`p1_prior_bootstrap_precondition:classification:${classification}`);
+  }
+  const unsafeRangeVar = /FROM\s+supabase_migrations\.schema_migrations/i;
+  for (const line of sql.split('\n')) {
+    if (unsafeRangeVar.test(line) && !line.includes('history_query_text')) {
+      mismatches.push('p1_prior_bootstrap_precondition:unsafe_rangevar');
+      break;
+    }
   }
 }
 
@@ -618,6 +736,9 @@ function validateFoundationMetadataBlocks(
   if (stable(foundation.p1_bootstrap ?? null) !== stable(EXPECTED_P1_BOOTSTRAP)) {
     mismatches.push('p1_bootstrap:metadata');
   }
+  if (stable(foundation.p1_prior_bootstrap_precondition ?? null) !== stable(EXPECTED_P1_PRIOR_BOOTSTRAP_PRECONDITION)) {
+    mismatches.push('p1_prior_bootstrap_precondition:metadata');
+  }
 }
 
 function validateManifestEntries(
@@ -627,7 +748,7 @@ function validateManifestEntries(
 ): void {
   const actualPaths = manifest.files.map((entry) => entry.path);
   const expectedPaths = [...EXACT_MANIFEST_ORDER];
-  if (manifest.files.length !== 9) mismatches.push('manifest:file_count');
+  if (manifest.files.length !== 10) mismatches.push('manifest:file_count');
   if (new Set(actualPaths).size !== actualPaths.length) mismatches.push('manifest:duplicate_path');
   const actualSet = new Set<string>(actualPaths);
   const expectedSet = new Set<string>(expectedPaths);
@@ -644,7 +765,13 @@ function validateManifestEntries(
       mismatches.push(`manifest:classification:${entry.path}`);
     }
     const abs = join(workspaceRoot, entry.path);
-    const content = readFileSync(abs);
+    let content: Buffer;
+    try {
+      content = readFileSync(abs);
+    } catch {
+      mismatches.push(`manifest_file:${entry.path}:missing`);
+      continue;
+    }
     const actualBytes = content.length;
     if (entry.path === FOUNDATION_REL_PATHS.manifestJson) {
       if (actualBytes !== entry.bytes) mismatches.push(`manifest_file:${entry.path}:bytes`);
@@ -727,6 +854,22 @@ export function validateExecutionSqlAuthorityFoundation(
 
   checkedCategories.push('p0');
   validateSqlArtifact(workspaceRoot, FOUNDATION_REL_PATHS.p0, FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.p0, mismatches, 'p0');
+  checkedCategories.push('p1_prior_bootstrap_precondition');
+  validateSqlArtifact(
+    workspaceRoot,
+    FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition,
+    FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.p1PriorBootstrapPrecondition,
+    mismatches,
+    'p1_prior_bootstrap_precondition',
+  );
+  const p1SqlPath = join(workspaceRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+  try {
+    validateP1PriorBootstrapPreconditionSql(readFileSync(p1SqlPath, 'utf8'), mismatches);
+  } catch {
+    if (!mismatches.includes('p1_prior_bootstrap_precondition:missing')) {
+      mismatches.push('p1_prior_bootstrap_precondition:missing');
+    }
+  }
   checkedCategories.push('pure_counts_v2');
   validateSqlArtifact(workspaceRoot, FOUNDATION_REL_PATHS.pureCountsV2, FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.pureCountsV2, mismatches, 'pure_counts_v2');
   checkedCategories.push('catalog_extractor');
@@ -783,6 +926,6 @@ export function getExecutionSqlAuthorityFoundationPublicSummary(workspaceRoot: s
     local_equivalence_verdict: foundation.local_full_extractor_equivalence?.verdict ?? null,
     lifecycle_orchestration_implemented: false,
     p1_bootstrap_precondition_status: FROZEN_FOUNDATION_ARTIFACT_EXPECTATIONS.p1BootstrapPreconditionStatus,
-    p1_prior_authority_semantics_frozen: false,
+    p1_prior_authority_semantics_frozen: true,
   };
 }

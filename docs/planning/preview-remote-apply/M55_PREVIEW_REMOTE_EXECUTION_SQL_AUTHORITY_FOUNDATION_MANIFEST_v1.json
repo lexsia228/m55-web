@@ -10,7 +10,6 @@
     "ACK classifier authority",
     "pre-commit failure classifier authority",
     "fresh post-commit connection lifecycle",
-    "P1_PRIOR_BOOTSTRAP_PRECONDITION_EXECUTABLE_AUTHORITY",
     "credential acquisition",
     "target connection binding",
     "remote executor implementation"
@@ -21,6 +20,12 @@
       "bytes": 21188,
       "sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff",
       "classification": "p0_preflight_patch2"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_P1_PRIOR_BOOTSTRAP_PRECONDITION_v1.sql",
+      "bytes": 11617,
+      "sha256": "6f7874f6e4b16accf3eedb5c57b9f5e5847df6a9917f82a85aef5c705338e855",
+      "classification": "p1_prior_bootstrap_precondition"
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_APPLICATION_RELATION_COUNTS_PURE_SELECT_v2.sql",
@@ -42,20 +47,20 @@
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json",
-      "bytes": 28243,
-      "sha256": "49fdac3ec6869ce64a8de9e8f156a21ae6ba96cf07396534282df964d9197734",
+      "bytes": 30362,
+      "sha256": "780b7c2d86d519fdeea87e21ad5f607e2884e69c0c6cb5c4cfcc6a1adfe0061d",
       "classification": "foundation_json"
     },
     {
       "path": "lib/m55/previewRemoteApply/executionSqlAuthorityFoundation.ts",
-      "bytes": 36544,
-      "sha256": "343d87b141d77e4f97ddef26016c6d95075429a649b0088412b57ba77d11b1bb",
+      "bytes": 43447,
+      "sha256": "d33d86568ac28f11cef41ecff14e5e2ef5fb5be5018e00b110f5b7937ac85e88",
       "classification": "foundation_loader"
     },
     {
       "path": "lib/m55/previewRemoteApply.executionSqlAuthorityFoundation.local.test.ts",
-      "bytes": 34733,
-      "sha256": "d21f86df85c6d717730d3652f39a3a1dc316661825d461c58d1c871ccebcb0db",
+      "bytes": 50409,
+      "sha256": "5e51eb1e77bab471e9d2933f06c3504cbd63f364c4c0e9cfb813ae173b89613d",
       "classification": "foundation_tests"
     },
     {
@@ -66,8 +71,8 @@
     },
     {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json",
-      "bytes": 3112,
-      "sha256": "71140876fb21b98be02082efc40b831d26bb273a1449350e418348a2814ba83c",
+      "bytes": 3332,
+      "sha256": "a68c566f984f137e55ded2ad754a544eae7f615cc773e84b0248d7112d732c91",
       "classification": "foundation_manifest"
     }
   ]

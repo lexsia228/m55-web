@@ -93,6 +93,60 @@
     "sha256": "0322d98ef02c095ff0942bb7498ff625bee67766597ee78aefa30aca56e806ed",
     "rewrite_forbidden": true
   },
+  "p1_prior_bootstrap_precondition": {
+    "path": "docs/planning/preview-remote-apply/M55_PREVIEW_P1_PRIOR_BOOTSTRAP_PRECONDITION_v1.sql",
+    "bytes": 11617,
+    "sha256": "6f7874f6e4b16accf3eedb5c57b9f5e5847df6a9917f82a85aef5c705338e855",
+    "provenance_bootstrap_spec_path": "lib/m55/previewRemoteApply/historyBootstrapSpec.ts",
+    "provenance_bootstrap_spec_sha256": "f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55",
+    "provenance_p0_source_path": "docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql",
+    "provenance_p0_source_sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff",
+    "provenance_roles": {
+      "bootstrap_exact_shape": "historyBootstrapSpec.ts",
+      "absence_safe_version_read": "M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql"
+    },
+    "exact_shape_column_order": [
+      "version",
+      "statements",
+      "name"
+    ],
+    "bootstrap_proceed_classifications": [
+      "CLEANLY_ABSENT"
+    ],
+    "bootstrap_hold_classifications": [
+      "EXACT_COMPATIBLE_EMPTY",
+      "EXACT_COMPATIBLE_WITH_VERSIONS",
+      "MALFORMED_RELATION",
+      "UNKNOWN_OR_AMBIGUOUS"
+    ],
+    "statement_count": 1,
+    "read_only": true,
+    "top_level_select_stmt": true,
+    "classifications": [
+      "CLEANLY_ABSENT",
+      "EXACT_COMPATIBLE_EMPTY",
+      "EXACT_COMPATIBLE_WITH_VERSIONS",
+      "MALFORMED_RELATION",
+      "UNKNOWN_OR_AMBIGUOUS"
+    ],
+    "result_columns": [
+      "bootstrap_precondition_classification",
+      "bootstrap_precondition_proceed",
+      "bootstrap_precondition_hold",
+      "history_schema_exists",
+      "history_schema_owner",
+      "history_relation_exists",
+      "history_relation_relkind",
+      "history_relation_owner",
+      "history_live_column_count",
+      "history_relation_exact_shape",
+      "history_primary_key_on_version_exact",
+      "history_row_count",
+      "applied_versions",
+      "duplicate_versions",
+      "unexpected_history_versions"
+    ]
+  },
   "post_connect_identity": {
     "sql": "SELECT current_database()::text AS current_database_name, current_user::text AS current_user_name;",
     "sql_sha256": "99f233b1b1daae53391d51c986ffcf335639d19aa60044ecca1ef443f3895536",
@@ -184,17 +238,17 @@
         "prior": {
           "expected_oracle_phase": "P0",
           "expected_history_prefix": [],
-          "extractor": null,
+          "extractor": "P1_PRIOR_BOOTSTRAP_PRECONDITION_v1",
           "classifier_exports": [
             "parseRuntimeCatalogOutput",
             "normalizeRuntimeCatalog",
             "deriveRuntimePhaseSnapshot",
             "compareRuntimePhaseSnapshot"
           ],
-          "transaction_placement": "inside_mutation_transaction_after_BEGIN_before_mutation",
+          "transaction_placement": "inside_transaction_after_BEGIN_before_bootstrap_DDL",
           "fresh_connection_required": false,
-          "authority_semantics_frozen": false,
-          "status": "MISSING_SEPARATE_AUTHORITY",
+          "authority_semantics_frozen": true,
+          "status": "FROZEN_EXECUTABLE_AUTHORITY",
           "orchestration_implemented": false,
           "execution_authorized": false
         },
@@ -660,6 +714,10 @@
       "orchestration_implemented": false,
       "execution_authorized": false
     },
+    "p1_prior_bootstrap_precondition_executable_authority": {
+      "frozen": true,
+      "orchestration_implemented": false
+    },
     "ack_classifier_authority": {
       "frozen": false,
       "orchestration_implemented": false
@@ -676,7 +734,7 @@
   "p1_bootstrap": {
     "ddl_source_path": "lib/m55/previewRemoteApply/historyBootstrapSpec.ts",
     "ddl_source_sha256": "f8adec57ab5b65e78a2896a40e254874c25ccf010739fab41cbc2eca7b1c5e55",
-    "precondition_status": "MISSING_SEPARATE_AUTHORITY"
+    "precondition_status": "FROZEN_EXECUTABLE_AUTHORITY"
   },
   "local_full_extractor_equivalence": {
     "verdict": "TEMP_FIRST_GREEN",
@@ -733,7 +791,6 @@
     "ACK classifier authority",
     "pre-commit failure classifier authority",
     "fresh post-commit connection lifecycle",
-    "P1_PRIOR_BOOTSTRAP_PRECONDITION_EXECUTABLE_AUTHORITY",
     "credential acquisition",
     "target connection binding",
     "remote executor implementation"

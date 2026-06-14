@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 
 import {
@@ -21,6 +21,10 @@ import {
   LIFECYCLE_VERSION_REGISTRY,
   loadExecutionSqlAuthorityFoundationDocument,
   loadExecutionSqlAuthorityFoundationManifest,
+  P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS,
+  P1_PRIOR_BOOTSTRAP_PRECONDITION_HOLD_CLASSIFICATIONS,
+  P1_PRIOR_BOOTSTRAP_PRECONDITION_ID,
+  P1_PRIOR_BOOTSTRAP_PRECONDITION_PROCEED_CLASSIFICATIONS,
   REPOSITORY_IDENTITY_CONTRACT,
   validateExecutionSqlAuthorityFoundation,
 } from './previewRemoteApply/executionSqlAuthorityFoundation.ts';
@@ -253,9 +257,9 @@ describe('execution sql authority foundation rev2 patch1', () => {
     const p1Prior = phases[0]?.prior;
     assert.equal(p1Prior?.expected_oracle_phase, 'P0');
     assert.deepEqual(p1Prior?.expected_history_prefix, []);
-    assert.equal(p1Prior?.extractor, null);
-    assert.equal(p1Prior?.authority_semantics_frozen, false);
-    assert.equal(p1Prior?.status, 'MISSING_SEPARATE_AUTHORITY');
+    assert.equal(p1Prior?.extractor, P1_PRIOR_BOOTSTRAP_PRECONDITION_ID);
+    assert.equal(p1Prior?.authority_semantics_frozen, true);
+    assert.equal(p1Prior?.status, 'FROZEN_EXECUTABLE_AUTHORITY');
     for (const phase of phases.slice(1)) {
       for (const slot of ['prior', 'in_tx_post', 'post_commit'] as const) {
         const block = phase[slot];
@@ -268,11 +272,11 @@ describe('execution sql authority foundation rev2 patch1', () => {
     assert.deepEqual(phases, buildExpectedLifecyclePhases());
   });
 
-  it('21 P1 bootstrap precondition remains MISSING_SEPARATE_AUTHORITY', () => {
+  it('21 P1 bootstrap precondition remains FROZEN_EXECUTABLE_AUTHORITY', () => {
     const doc = loadExecutionSqlAuthorityFoundationDocument(REPO_ROOT);
     assert.equal(
       (doc as { p1_bootstrap?: { precondition_status?: string } }).p1_bootstrap?.precondition_status,
-      'MISSING_SEPARATE_AUTHORITY',
+      'FROZEN_EXECUTABLE_AUTHORITY',
     );
   });
 
@@ -686,5 +690,324 @@ describe('execution sql authority foundation correction1 mutation tests', () => 
     foundation.frozen_source_identities.unexpectedIdentity = { sha256: '0'.repeat(64) };
     writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), `${JSON.stringify(foundation, null, 2)}\n`);
     expectValidationFail(tempRoot, 'frozen_source_identities:keys');
+  });
+});
+
+describe('execution sql authority foundation P1 prior bootstrap precondition REV1 mutation tests', () => {
+  function syncManifestEntry(tempRoot: string, manifestDoc: Record<string, unknown>, relPath: string): void {
+    const files = manifestDoc.files as Array<{ path: string; bytes: number; sha256: string; classification: string }>;
+    const entry = files.find((file) => file.path === relPath);
+    assert.ok(entry);
+    const content = readFileSync(join(tempRoot, relPath));
+    entry.bytes = content.length;
+    entry.sha256 = createHash('sha256').update(content).digest('hex');
+    syncManifestSelfEntry(manifestDoc);
+  }
+
+  it('P1A rejects SQL body mutation', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    const sql = readFileSync(sqlPath, 'utf8').replace("'CLEANLY_ABSENT'", "'MUTATED_ABSENT'");
+    writeFileSync(sqlPath, sql);
+    const manifest = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), 'utf8'));
+    syncManifestEntry(tempRoot, manifest, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), `${JSON.stringify(manifest, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:classification:CLEANLY_ABSENT');
+  });
+
+  it('P1B rejects matching-SHA mutation with wrong result columns', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    const sql = readFileSync(sqlPath, 'utf8').replace(
+      `SELECT
+  c.bootstrap_precondition_classification,
+  c.history_relation_exists,
+  c.history_relation_is_supported,
+  c.history_row_count,
+  c.applied_versions,
+  c.duplicate_versions,
+  c.unexpected_history_versions
+FROM classification c;`,
+      `SELECT
+  c.history_relation_exists,
+  c.history_relation_is_supported,
+  c.history_row_count,
+  c.applied_versions,
+  c.duplicate_versions,
+  c.unexpected_history_versions
+FROM classification c;`,
+    );
+    writeFileSync(sqlPath, sql);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:result_column:bootstrap_precondition_classification');
+  });
+
+  it('P1C rejects non-SelectStmt', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    const sql = `CREATE TABLE p1_probe(id int);\n${readFileSync(sqlPath, 'utf8')}`;
+    writeFileSync(sqlPath, sql);
+    const manifest = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), 'utf8'));
+    syncManifestEntry(tempRoot, manifest, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), `${JSON.stringify(manifest, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:mutation_forbidden');
+  });
+
+  it('P1D rejects unsafe direct RangeVar reference to missing history relation', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    const sql = `${readFileSync(sqlPath, 'utf8')}\n-- probe\nSELECT 1 FROM supabase_migrations.schema_migrations;`;
+    writeFileSync(sqlPath, sql);
+    const manifest = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), 'utf8'));
+    syncManifestEntry(tempRoot, manifest, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), `${JSON.stringify(manifest, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:unsafe_rangevar');
+  });
+
+  it('P1E rejects wrong controlled classification registry', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    const sql = readFileSync(sqlPath, 'utf8').replaceAll("'UNKNOWN_OR_AMBIGUOUS'", "'WRONG_CLASS'");
+    writeFileSync(sqlPath, sql);
+    const manifest = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), 'utf8'));
+    syncManifestEntry(tempRoot, manifest, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.manifestJson), `${JSON.stringify(manifest, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:classification:UNKNOWN_OR_AMBIGUOUS');
+  });
+
+  it('P1F rejects P1 PRIOR marked frozen without SQL artifact', () => {
+    const tempRoot = createTempFoundationRoot();
+    const sqlPath = join(tempRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
+    unlinkSync(sqlPath);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:missing');
+  });
+
+  it('P1G rejects wrong transaction placement', () => {
+    const tempRoot = createTempFoundationRoot();
+    const foundation = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), 'utf8'));
+    foundation.lifecycle.phases[0].prior.transaction_placement = 'inside_mutation_transaction_after_BEGIN_before_mutation';
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), `${JSON.stringify(foundation, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'lifecycle:P1:prior');
+  });
+
+  it('P1H rejects removal of any other missing authority', () => {
+    const tempRoot = createTempFoundationRoot();
+    const foundation = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), 'utf8'));
+    foundation.missing_authorities = foundation.missing_authorities.filter(
+      (entry: string) => entry !== 'credential acquisition',
+    );
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), `${JSON.stringify(foundation, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'missing_authorities:foundation');
+  });
+
+  it('P1I rejects wrong P0 provenance', () => {
+    const tempRoot = createTempFoundationRoot();
+    const foundation = JSON.parse(readFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), 'utf8'));
+    foundation.p1_prior_bootstrap_precondition.provenance_p0_source_sha256 = '0'.repeat(64);
+    writeFileSync(join(tempRoot, FOUNDATION_REL_PATHS.foundationJson), `${JSON.stringify(foundation, null, 2)}\n`);
+    expectValidationFail(tempRoot, 'p1_prior_bootstrap_precondition:metadata');
+  });
+
+  it('P1J accepts exact new authority', () => {
+    const result = validateExecutionSqlAuthorityFoundation(REPO_ROOT);
+    assert.equal(result.ok, true, result.mismatchCategories.join(','));
+    assert.deepEqual(P1_PRIOR_BOOTSTRAP_PRECONDITION_CLASSIFICATIONS, [
+      'CLEANLY_ABSENT',
+      'EXACT_COMPATIBLE_EMPTY',
+      'EXACT_COMPATIBLE_WITH_VERSIONS',
+      'MALFORMED_RELATION',
+      'UNKNOWN_OR_AMBIGUOUS',
+    ]);
+  });
+});
+
+const PINNED_POSTGRES_IMAGE =
+  'postgres@sha256:5d11ffb37e58a7c9a2285359e50f7674e216c99b9114e47b0e7f21187c11252c';
+
+type P1PreconditionRow = {
+  bootstrap_precondition_classification: string;
+  bootstrap_precondition_proceed: boolean;
+  bootstrap_precondition_hold: boolean;
+};
+
+function dockerAvailable(): boolean {
+  return spawnSync('docker', ['info'], { encoding: 'utf8' }).status === 0;
+}
+
+function docker(args: string[]): { status: number; stdout: string; stderr: string } {
+  const result = spawnSync('docker', args, { encoding: 'utf8' });
+  return { status: result.status ?? 1, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
+}
+
+function waitForPostgresReady(containerId: string): void {
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    if (docker(['exec', containerId, 'pg_isready', '-U', 'postgres']).status === 0) return;
+  }
+  throw new Error('postgres_not_ready');
+}
+
+function execPsql(containerId: string, sql: string): void {
+  let last = '';
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const result = docker(['exec', containerId, 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c', sql]);
+    if (result.status === 0) return;
+    last = result.stderr || result.stdout;
+    waitForPostgresReady(containerId);
+  }
+  assert.equal(0, 1, last);
+}
+
+function queryP1Precondition(containerId: string, setupSql: string): P1PreconditionRow {
+  waitForPostgresReady(containerId);
+  execPsql(containerId, 'DROP SCHEMA IF EXISTS supabase_migrations CASCADE;');
+  if (setupSql.trim()) execPsql(containerId, setupSql);
+  const p1Sql = readFileSync(join(REPO_ROOT, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition), 'utf8').trim();
+  const wrapped = `SELECT row_to_json(t) FROM (${p1Sql.replace(/;\s*$/, '')}) t`;
+  const result = docker(['exec', containerId, 'psql', '-U', 'postgres', '-t', '-A', '-c', wrapped]);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return JSON.parse(result.stdout.trim()) as P1PreconditionRow;
+}
+
+const EXACT_BOOTSTRAP_DDL = `
+CREATE SCHEMA supabase_migrations;
+ALTER SCHEMA supabase_migrations OWNER TO postgres;
+CREATE TABLE supabase_migrations.schema_migrations (
+  version text NOT NULL PRIMARY KEY,
+  statements text[],
+  name text
+);
+ALTER TABLE supabase_migrations.schema_migrations OWNER TO postgres;
+`;
+
+describe('execution sql authority foundation P1 prior bootstrap precondition CORRECTION-1 runtime semantics', () => {
+  let containerId = '';
+
+  it('P1 runtime container bootstrap', { skip: !dockerAvailable() }, () => {
+    const containerName = `m55-p1-corr1-${createHash('sha256').update(String(Date.now())).digest('hex').slice(0, 12)}`;
+    const run = docker([
+      'run',
+      '--network',
+      'none',
+      '-e',
+      'POSTGRES_PASSWORD=m55local',
+      '-d',
+      '--name',
+      containerName,
+      PINNED_POSTGRES_IMAGE,
+    ]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+    containerId = run.stdout.trim();
+    waitForPostgresReady(containerId);
+    assert.ok(containerId.length > 0);
+  });
+
+  it('P1K schema exists table absent => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(containerId, 'CREATE SCHEMA supabase_migrations; ALTER SCHEMA supabase_migrations OWNER TO postgres;');
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+    assert.equal(row.bootstrap_precondition_proceed, false);
+    assert.equal(row.bootstrap_precondition_hold, true);
+  });
+
+  it('P1L exact absent schema+table => CLEANLY_ABSENT', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(containerId, '');
+    assert.equal(row.bootstrap_precondition_classification, 'CLEANLY_ABSENT');
+    assert.equal(row.bootstrap_precondition_proceed, true);
+    assert.equal(row.bootstrap_precondition_hold, false);
+  });
+
+  it('P1M wrong version type => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(
+      containerId,
+      EXACT_BOOTSTRAP_DDL.replace('version text NOT NULL PRIMARY KEY', 'version integer NOT NULL PRIMARY KEY'),
+    );
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+  });
+
+  it('P1N missing statements column => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(
+      containerId,
+      `CREATE SCHEMA supabase_migrations; ALTER SCHEMA supabase_migrations OWNER TO postgres;
+       CREATE TABLE supabase_migrations.schema_migrations (version text NOT NULL PRIMARY KEY, name text);
+       ALTER TABLE supabase_migrations.schema_migrations OWNER TO postgres;`,
+    );
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+  });
+
+  it('P1O extra column => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(containerId, EXACT_BOOTSTRAP_DDL.replace('name text', 'name text, extra_col text'));
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+  });
+
+  it('P1P wrong schema/table owner => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(
+      containerId,
+      `CREATE ROLE m55_wrong_owner LOGIN; CREATE SCHEMA supabase_migrations AUTHORIZATION m55_wrong_owner;
+       CREATE TABLE supabase_migrations.schema_migrations (version text NOT NULL PRIMARY KEY, statements text[], name text);
+       ALTER TABLE supabase_migrations.schema_migrations OWNER TO m55_wrong_owner;`,
+    );
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+  });
+
+  it('P1Q wrong/missing PK => MALFORMED_RELATION', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(
+      containerId,
+      `CREATE SCHEMA supabase_migrations; ALTER SCHEMA supabase_migrations OWNER TO postgres;
+       CREATE TABLE supabase_migrations.schema_migrations (version text NOT NULL, statements text[], name text);
+       ALTER TABLE supabase_migrations.schema_migrations OWNER TO postgres;`,
+    );
+    assert.equal(row.bootstrap_precondition_classification, 'MALFORMED_RELATION');
+  });
+
+  it('P1R exact empty => EXACT_COMPATIBLE_EMPTY', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(containerId, EXACT_BOOTSTRAP_DDL);
+    assert.equal(row.bootstrap_precondition_classification, 'EXACT_COMPATIBLE_EMPTY');
+    assert.equal(row.bootstrap_precondition_proceed, false);
+    assert.equal(row.bootstrap_precondition_hold, true);
+  });
+
+  it('P1S exact with expected versions => EXACT_COMPATIBLE_WITH_VERSIONS', { skip: !dockerAvailable() }, () => {
+    const row = queryP1Precondition(
+      containerId,
+      `${EXACT_BOOTSTRAP_DDL}
+       INSERT INTO supabase_migrations.schema_migrations(version, statements, name)
+       VALUES ('20260614000000', ARRAY['SELECT 1'], 'p1');`,
+    );
+    assert.equal(row.bootstrap_precondition_classification, 'EXACT_COMPATIBLE_WITH_VERSIONS');
+  });
+
+  it('P1T only CLEANLY_ABSENT is proceed; all others hold', { skip: !dockerAvailable() }, () => {
+    const scenarios = [
+      { setup: '', classification: 'CLEANLY_ABSENT', proceed: true, hold: false },
+      {
+        setup: 'CREATE SCHEMA supabase_migrations; ALTER SCHEMA supabase_migrations OWNER TO postgres;',
+        classification: 'MALFORMED_RELATION',
+        proceed: false,
+        hold: true,
+      },
+      { setup: EXACT_BOOTSTRAP_DDL, classification: 'EXACT_COMPATIBLE_EMPTY', proceed: false, hold: true },
+      {
+        setup: `${EXACT_BOOTSTRAP_DDL} INSERT INTO supabase_migrations.schema_migrations(version, statements, name) VALUES ('20260614000000', ARRAY['SELECT 1'], 'p1');`,
+        classification: 'EXACT_COMPATIBLE_WITH_VERSIONS',
+        proceed: false,
+        hold: true,
+      },
+    ];
+    for (const scenario of scenarios) {
+      const row = queryP1Precondition(containerId, scenario.setup);
+      assert.equal(row.bootstrap_precondition_classification, scenario.classification);
+      assert.equal(row.bootstrap_precondition_proceed, scenario.proceed);
+      assert.equal(row.bootstrap_precondition_hold, scenario.hold);
+    }
+    assert.deepEqual([...P1_PRIOR_BOOTSTRAP_PRECONDITION_PROCEED_CLASSIFICATIONS], ['CLEANLY_ABSENT']);
+    assert.deepEqual([...P1_PRIOR_BOOTSTRAP_PRECONDITION_HOLD_CLASSIFICATIONS], [
+      'EXACT_COMPATIBLE_EMPTY',
+      'EXACT_COMPATIBLE_WITH_VERSIONS',
+      'MALFORMED_RELATION',
+      'UNKNOWN_OR_AMBIGUOUS',
+    ]);
+  });
+
+  it('P1 runtime container cleanup', { skip: !dockerAvailable() }, () => {
+    if (containerId) docker(['rm', '-f', containerId]);
+    containerId = '';
   });
 });
