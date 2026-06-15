@@ -39,6 +39,8 @@ import {
   parseCanonicalPgInt8WireString,
   resultContainsForbiddenEvidence,
   validateInTransactionPostProbe,
+  buildInTransactionPostProbeDiagnostic,
+  sanitizePublicMismatchCategories,
   serializePreviewRemoteExecutionResult,
   type PreviewRemoteExecutionDeps,
 } from './previewRemoteApply/remoteExecutionExecutor.ts';
@@ -3382,5 +3384,223 @@ describe('remote execution executor p3 in-transaction post-probe correction-1 AB
     assert.equal(serialized.includes('WITH tracked'), false);
     assert.equal(serialized.includes('/Users/'), false);
     assert.notEqual(result.disposition, 'HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION');
+  });
+});
+
+describe('remote execution executor p3 post-probe diagnostic evidence revision-1 AC1-AC10', () => {
+  it('AC1 failed POST_P3 returns every diagnostic boolean truthfully', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    const diagnostic = result.runtimeEvidence.inTransactionPostProbeDiagnostic;
+    assert.ok(diagnostic);
+    assert.equal(diagnostic!.selectedStep, 'P3');
+    assert.equal(diagnostic!.postProbeId, 'POST_P3');
+    assert.equal(diagnostic!.registryProbeFound, true);
+    assert.equal(diagnostic!.registryKindOrdinary, true);
+    assert.equal(diagnostic!.registryIdMatch, true);
+    assert.equal(diagnostic!.registryPhaseMatch, true);
+    assert.equal(diagnostic!.registryPrefixMatch, true);
+    assert.equal(diagnostic!.historyPrefixExact, false);
+    assert.equal(diagnostic!.postCompareOk, false);
+    assert.equal(diagnostic!.normalizationProfile, 'CATALOG_PG_WIRE_CANONICAL_V1');
+  });
+
+  it('AC2 expected and observed prefix arrays are copied and bounded', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    const diagnostic = result.runtimeEvidence.inTransactionPostProbeDiagnostic!;
+    assert.deepEqual(diagnostic.expectedHistoryPrefix, [
+      '20260614000000',
+      '20260615000001',
+      '20260615000002',
+    ]);
+    assert.ok(Array.isArray(diagnostic.observedHistoryPrefix));
+    assert.ok(diagnostic.observedHistoryPrefix.length <= 7);
+    for (const version of diagnostic.observedHistoryPrefix) {
+      assert.match(version, /^[0-9]{14}$/);
+    }
+    assert.notEqual(diagnostic.expectedHistoryPrefix, diagnostic.observedHistoryPrefix);
+  });
+
+  it('AC3 prior/post mismatch categories are sorted/deduplicated', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    const diagnostic = result.runtimeEvidence.inTransactionPostProbeDiagnostic!;
+    const priorSorted = [...diagnostic.priorMismatchCategories].sort();
+    const postSorted = [...diagnostic.postMismatchCategories].sort();
+    assert.deepEqual(diagnostic.priorMismatchCategories, priorSorted);
+    assert.deepEqual(diagnostic.postMismatchCategories, postSorted);
+    assert.equal(new Set(diagnostic.priorMismatchCategories).size, diagnostic.priorMismatchCategories.length);
+    assert.equal(new Set(diagnostic.postMismatchCategories).size, diagnostic.postMismatchCategories.length);
+    assert.ok(Number.isInteger(diagnostic.priorMismatchCount) && diagnostic.priorMismatchCount >= 0);
+    assert.ok(Number.isInteger(diagnostic.postMismatchCount) && diagnostic.postMismatchCount >= 0);
+    assert.ok(diagnostic.postMismatchCategories.length > 0);
+  });
+
+  it('AC4 unsafe mismatch text is suppressed', () => {
+    assert.deepEqual(
+      sanitizePublicMismatchCategories(['history_prefix_mismatch', 'bad category']),
+      ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED'],
+    );
+    assert.deepEqual(sanitizePublicMismatchCategories(['z_mismatch', 'a_mismatch']), ['a_mismatch', 'z_mismatch']);
+  });
+
+  it('AC5 no SQL/raw catalog/secret/path appears in serialized result', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    const serialized = serializePreviewRemoteExecutionResult(result);
+    assert.equal(serialized.includes('WITH tracked'), false);
+    assert.equal(serialized.includes('json_build_object'), false);
+    assert.equal(serialized.includes('/Users/'), false);
+    assert.equal(serialized.includes('password'), false);
+    assert.equal(resultContainsForbiddenEvidence(result), false);
+  });
+
+  it('AC6 diagnostic survives rollback and fresh classifier', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    assert.equal(result.ackState, 'DEFINITELY_NOT_COMMITTED');
+    assert.equal(result.runtimeEvidence.freshReadonlyCheckCompleted, true);
+    assert.ok(result.runtimeEvidence.inTransactionPostProbeDiagnostic);
+    assert.equal(result.runtimeEvidence.inTransactionPostProbeDiagnostic!.postProbeId, 'POST_P3');
+  });
+
+  it('AC7 post mismatch still sends no COMMIT', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' });
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.runtimeEvidence.commitSent, false);
+    assert.equal(deps.mutationFactory!.clients[0]?.calls.includes('commit') ?? false, false);
+  });
+
+  it('AC8 exact successful P3 path retains existing success behavior', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    assert.equal(result.runtimeEvidence.inTransactionPostProbeDiagnostic ?? null, null);
+    assert.equal(deps.mutationFactory!.clients[0]!.calls.filter((call) => call === 'commit').length, 1);
+  });
+
+  it('AC9 pre-post-probe failures do not fabricate a diagnostic', async () => {
+    const deps = createStrictClassifierDeps({ stepId: 'P3', priorPhaseId: 'P0' });
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.holdReasonCode, 'HOLD_INVALID_HISTORY_PREFIX');
+    assert.equal(result.runtimeEvidence.inTransactionPostProbeDiagnostic ?? null, null);
+  });
+
+  it('AC10 runtime result remains JSON-serializable and finite', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    const serialized = serializePreviewRemoteExecutionResult(result);
+    const parsed = JSON.parse(serialized);
+    assert.equal(typeof parsed, 'object');
+    assert.ok(parsed.runtimeEvidence.inTransactionPostProbeDiagnostic);
+    assert.equal(JSON.stringify(parsed.runtimeEvidence.inTransactionPostProbeDiagnostic).length < 8192, true);
+  });
+});
+
+describe('remote execution executor p3 post-probe diagnostic evidence rev1 patch-1 AD1-AD8', () => {
+  it('AD1 non-string mismatch entry is suppressed without coercion', () => {
+    assert.deepEqual(sanitizePublicMismatchCategories(['history_prefix_mismatch', 42]), [
+      'UNSAFE_MISMATCH_CATEGORY_SUPPRESSED',
+    ]);
+    assert.deepEqual(sanitizePublicMismatchCategories([null]), ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED']);
+  });
+
+  it('AD2 object with throwing toString / valueOf is not invoked', () => {
+    const evil = {
+      toString() {
+        throw new Error('coercion invoked');
+      },
+      valueOf() {
+        throw new Error('coercion invoked');
+      },
+    };
+    assert.deepEqual(sanitizePublicMismatchCategories([evil]), ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED']);
+  });
+
+  it('AD3 unsafe entry at position 33 suppresses the entire list', () => {
+    const categories = [
+      ...Array.from({ length: 32 }, (_, index) => `safe_${index}`),
+      'bad category',
+    ];
+    assert.deepEqual(sanitizePublicMismatchCategories(categories), ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED']);
+  });
+
+  it('AD4 source length greater than 32 suppresses the entire list', () => {
+    const categories = Array.from({ length: 33 }, (_, index) => `safe_${index}`);
+    assert.deepEqual(sanitizePublicMismatchCategories(categories), ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED']);
+  });
+
+  it('AD5 suppressed list retains original raw mismatch count', () => {
+    const rawLength = 35;
+    const source = Array.from({ length: rawLength }, (_, index) => `safe_${index}`);
+    const publicList = sanitizePublicMismatchCategories(source);
+    assert.deepEqual(publicList, ['UNSAFE_MISMATCH_CATEGORY_SUPPRESSED']);
+    assert.equal(publicList.length, 1);
+    assert.equal(source.length, rawLength);
+
+    const diagnostic = buildInTransactionPostProbeDiagnostic('P3', catalogRowsForPhase('P2'), loadOraclePhases());
+    assert.ok(Number.isInteger(diagnostic.priorMismatchCount) && diagnostic.priorMismatchCount >= 0);
+    assert.ok(Number.isInteger(diagnostic.postMismatchCount) && diagnostic.postMismatchCount >= 0);
+    if (diagnostic.postMismatchCategories[0] === 'UNSAFE_MISMATCH_CATEGORY_SUPPRESSED') {
+      assert.ok(diagnostic.postMismatchCount > diagnostic.postMismatchCategories.length);
+    }
+  });
+
+  it('AD6 invalid observed prefix returns [] plus HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID', () => {
+    const raw = hybridRawCatalogForPhase('P2');
+    raw.history_prefix = [12345 as unknown as string];
+    const queryResult: ExecutionPgQueryResult = {
+      rows: [{ json_build_object: formatPsqlJsonOutput(raw).trim() }],
+      rowCount: 1,
+    };
+    const diagnostic = buildInTransactionPostProbeDiagnostic('P3', queryResult, loadOraclePhases());
+    assert.deepEqual(diagnostic.observedHistoryPrefix, []);
+    assert.equal(diagnostic.postMismatchCategories.includes('HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID'), true);
+  });
+
+  it('AD7 valid observed prefix adds no synthetic category', () => {
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsForPhase('P3'),
+      loadOraclePhases(),
+    );
+    assert.ok(diagnostic.observedHistoryPrefix.length > 0);
+    assert.equal(diagnostic.postMismatchCategories.includes('HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID'), false);
+  });
+
+  it('AD8 serialized HOLD result contains no unsafe raw value, SQL, secret, or path', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    const serialized = serializePreviewRemoteExecutionResult(result);
+    assert.equal(serialized.includes('WITH tracked'), false);
+    assert.equal(serialized.includes('json_build_object'), false);
+    assert.equal(serialized.includes('/Users/'), false);
+    assert.equal(serialized.includes('password'), false);
+    assert.equal(serialized.includes('bad category'), false);
+    assert.equal(resultContainsForbiddenEvidence(result), false);
   });
 });

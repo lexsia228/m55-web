@@ -109,6 +109,30 @@ export type RuntimeExecutionEvidence = {
   readonly freshReadonlyCheckCompleted: boolean;
   readonly transportProfile: ExecutionPgTransportEvidenceProfile | null;
   readonly executionStageReached: ExecutionStage;
+  readonly inTransactionPostProbeDiagnostic?: InTransactionPostProbeDiagnostic | null;
+};
+
+export type InTransactionPostProbeDiagnostic = {
+  readonly selectedStep: StepId;
+  readonly postProbeId: string;
+  readonly registryProbeFound: boolean;
+  readonly registryKindOrdinary: boolean;
+  readonly registryIdMatch: boolean;
+  readonly registryPhaseMatch: boolean;
+  readonly registryPrefixMatch: boolean;
+  readonly expectedHistoryPrefix: readonly string[];
+  readonly observedHistoryPrefix: readonly string[];
+  readonly historyPrefixExact: boolean;
+  readonly priorCompareOk: boolean;
+  readonly postCompareOk: boolean;
+  readonly currentVersionDeltaPresent: boolean;
+  readonly unexpectedDeltaZero: boolean;
+  readonly priorMismatchCategories: readonly string[];
+  readonly postMismatchCategories: readonly string[];
+  readonly priorMismatchCount: number;
+  readonly postMismatchCount: number;
+  readonly postForbiddenViolationCount: number;
+  readonly normalizationProfile: 'CATALOG_PG_WIRE_CANONICAL_V1';
 };
 
 export type StaticExecutionGateRecord = {
@@ -491,10 +515,66 @@ function normalizeCatalogRawWireShapes(raw: RuntimeCatalogRaw): RuntimeCatalogRa
   };
 }
 
+const MISMATCH_CATEGORY_PATTERN = /^[A-Za-z0-9_.:-]+$/;
+const MAX_PUBLIC_MISMATCH_ENTRIES = 32;
+const MAX_PUBLIC_MISMATCH_ENTRY_LENGTH = 96;
+const CANONICAL_MIGRATION_VERSION_PATTERN = /^[0-9]{14}$/;
+const MAX_OBSERVED_HISTORY_PREFIX_ENTRIES = 7;
+const UNSAFE_MISMATCH_CATEGORY_SUPPRESSED = 'UNSAFE_MISMATCH_CATEGORY_SUPPRESSED' as const;
+const HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID = 'HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID' as const;
+const CATALOG_PG_WIRE_NORMALIZATION_PROFILE = 'CATALOG_PG_WIRE_CANONICAL_V1' as const;
+
+function isSafePublicMismatchCategory(entry: unknown): entry is string {
+  if (typeof entry !== 'string') {
+    return false;
+  }
+  if (entry.length === 0 || entry.length > MAX_PUBLIC_MISMATCH_ENTRY_LENGTH) {
+    return false;
+  }
+  return MISMATCH_CATEGORY_PATTERN.test(entry);
+}
+
+export function sanitizePublicMismatchCategories(categories: readonly unknown[]): readonly string[] {
+  if (categories.length > MAX_PUBLIC_MISMATCH_ENTRIES) {
+    return [UNSAFE_MISMATCH_CATEGORY_SUPPRESSED];
+  }
+  const validated: string[] = [];
+  for (const entry of categories) {
+    if (!isSafePublicMismatchCategory(entry)) {
+      return [UNSAFE_MISMATCH_CATEGORY_SUPPRESSED];
+    }
+    validated.push(entry);
+  }
+  return [...new Set(validated)].sort();
+}
+
+type ObservedHistoryPrefixExtraction = {
+  readonly values: readonly string[];
+  readonly valid: boolean;
+};
+
+function extractObservedHistoryPrefixShape(snapshot: PhaseSnapshot): ObservedHistoryPrefixExtraction {
+  const raw = snapshot.history_prefix;
+  if (!Array.isArray(raw)) {
+    return { values: [], valid: false };
+  }
+  if (raw.length > MAX_OBSERVED_HISTORY_PREFIX_ENTRIES) {
+    return { values: [], valid: false };
+  }
+  const observed: string[] = [];
+  for (const entry of raw) {
+    if (typeof entry !== 'string' || !CANONICAL_MIGRATION_VERSION_PATTERN.test(entry)) {
+      return { values: [], valid: false };
+    }
+    observed.push(entry);
+  }
+  return { values: observed, valid: true };
+}
+
 function classifyCatalogQueryResult(
   result: ExecutionPgQueryResult,
   oraclePhase: OraclePhase,
-): { ok: boolean; snapshot: PhaseSnapshot } {
+): { ok: boolean; snapshot: PhaseSnapshot; mismatches: readonly string[] } {
   const stdout = extractCatalogJsonLine(result);
   const raw = normalizeCatalogRawWireShapes(parseRuntimeCatalogOutput(stdout));
   const snapshot = deriveRuntimePhaseSnapshot(raw, oraclePhase);
@@ -502,6 +582,7 @@ function classifyCatalogQueryResult(
   return {
     ok: comparison.ok,
     snapshot,
+    mismatches: comparison.mismatches,
   };
 }
 
@@ -517,6 +598,59 @@ export type InTransactionPostProbeValidation = {
   readonly unexpectedDeltaZero: boolean;
   readonly ok: boolean;
 };
+
+export function buildInTransactionPostProbeDiagnostic(
+  stepId: StepId,
+  result: ExecutionPgQueryResult,
+  oraclePhases: readonly OraclePhase[],
+): InTransactionPostProbeDiagnostic {
+  const postProbeId = STEP_TO_POST_PROBE[stepId];
+  const registryProbe = getRuntimeProbeById(postProbeId);
+  const registryProbeFound = registryProbe !== null && registryProbe !== undefined;
+  const registryKindOrdinary = registryProbeFound && registryProbe!.kind === 'ORDINARY';
+  const postOraclePhase = expectedOraclePhaseForStep(stepId, 'post');
+  const expectedPostHistoryPrefix = expectedHistoryPrefixForStep(stepId, 'post');
+  const priorOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(stepId, 'prior'));
+  const postOracle = getOraclePhase(oraclePhases, postOraclePhase);
+  const priorCompare = classifyCatalogQueryResult(result, priorOracle);
+  const postCompare = classifyCatalogQueryResult(result, postOracle);
+  const observedHistoryPrefixShape = extractObservedHistoryPrefixShape(postCompare.snapshot);
+  const observedHistoryPrefix = observedHistoryPrefixShape.valid ? observedHistoryPrefixShape.values : [];
+  const historyPrefixExact = historyPrefixMatches(postCompare.snapshot, expectedPostHistoryPrefix);
+  const postForbiddenViolations = postCompare.snapshot.forbidden_violations as string[];
+  const unexpectedDeltaZero = postForbiddenViolations.length === 0;
+  const currentVersionDeltaPresent = !priorCompare.ok;
+  const priorMismatchCategories = sanitizePublicMismatchCategories(priorCompare.mismatches);
+  const postMismatchSources: unknown[] = [...postCompare.mismatches];
+  if (!observedHistoryPrefixShape.valid) {
+    postMismatchSources.push(HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID);
+  }
+  const postMismatchCategories = sanitizePublicMismatchCategories(postMismatchSources);
+  return {
+    selectedStep: stepId,
+    postProbeId,
+    registryProbeFound,
+    registryKindOrdinary,
+    registryIdMatch: registryKindOrdinary && registryProbe!.id === postProbeId,
+    registryPhaseMatch: registryKindOrdinary && registryProbe!.phase === postOraclePhase,
+    registryPrefixMatch:
+      registryKindOrdinary &&
+      stableHistoryPrefix(registryProbe!.expectedHistoryPrefix) === stableHistoryPrefix(expectedPostHistoryPrefix),
+    expectedHistoryPrefix: [...expectedPostHistoryPrefix],
+    observedHistoryPrefix,
+    historyPrefixExact,
+    priorCompareOk: priorCompare.ok,
+    postCompareOk: postCompare.ok,
+    currentVersionDeltaPresent,
+    unexpectedDeltaZero,
+    priorMismatchCategories,
+    postMismatchCategories,
+    priorMismatchCount: priorCompare.mismatches.length,
+    postMismatchCount: postCompare.mismatches.length,
+    postForbiddenViolationCount: postForbiddenViolations.length,
+    normalizationProfile: CATALOG_PG_WIRE_NORMALIZATION_PROFILE,
+  };
+}
 
 export function validateInTransactionPostProbe(
   stepId: StepId,
@@ -1331,6 +1465,13 @@ export async function executePreviewRemoteExecution(
     );
     const postValidation = validateInTransactionPostProbe(input.selectedStep, postResult, oraclePhases);
     if (!postValidation.ok) {
+      runtimeEvidence = withRuntimeStage(runtimeEvidence, executionStage, {
+        inTransactionPostProbeDiagnostic: buildInTransactionPostProbeDiagnostic(
+          input.selectedStep,
+          postResult,
+          oraclePhases,
+        ),
+      });
       return await finishPreCommitHold('HOLD_INVALID_HISTORY_PREFIX', 'IN_TRANSACTION_SERVER_REJECTION');
     }
 
