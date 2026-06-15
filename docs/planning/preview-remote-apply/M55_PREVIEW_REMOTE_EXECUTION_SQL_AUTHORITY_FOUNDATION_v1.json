@@ -18,7 +18,7 @@
     "previewBaselineTool": {
       "path": "scripts/m55/previewBaselineTool.ts",
       "bytes": 228708,
-      "sha256": "d660c9212a0aed62acaf602183504a90d926facdbebd449ce399ff5ed8033f78"
+      "sha256": "406535528ae96a46994157e84510534f8df23cb298236d218f5fd45cedd80847"
     },
     "original_collectRuntimeCatalogSql": {
       "bytes": 11075,
@@ -30,16 +30,16 @@
     },
     "execution_oracle": {
       "path": "docs/planning/preview-baseline/preview_baseline_execution_oracle_v1.json",
-      "sha256": "52832c14d55bba8b6194065aa17901c7373d39d208e8175781d729be17855062",
+      "sha256": "6a68c442141a7306d1c9237c72a113f301f372ffeca809dcff0c2223caf04bbb",
       "mutation_forbidden": true
     },
     "revision7_contract": {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
-      "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c"
+      "sha256": "ad429820c689c58db5d29d7d772db2fd9ad13b6e05bb30ca1a65ca0e6de33ba0"
     },
     "revision7_matrix": {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
-      "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93"
+      "sha256": "0c56313c3df157f81552eb21ebbfcd87a9c1ad04f1f5cdb4fa999909ef6b000f"
     },
     "timeoutPolicy": {
       "path": "lib/m55/previewRemoteApply/timeoutPolicy.ts",
@@ -190,7 +190,7 @@
     ]
   },
   "classifiers": {
-    "oracle_sha256": "52832c14d55bba8b6194065aa17901c7373d39d208e8175781d729be17855062",
+    "oracle_sha256": "6a68c442141a7306d1c9237c72a113f301f372ffeca809dcff0c2223caf04bbb",
     "bindings": [
       {
         "export_name": "parseRuntimeCatalogOutput",

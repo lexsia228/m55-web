@@ -17,19 +17,19 @@
     "contract": {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
       "bytes": 309607,
-      "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c",
+      "sha256": "ad429820c689c58db5d29d7d772db2fd9ad13b6e05bb30ca1a65ca0e6de33ba0",
       "classification": "authority_contract"
     },
     "matrix": {
       "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
       "bytes": 110904,
-      "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93",
+      "sha256": "0c56313c3df157f81552eb21ebbfcd87a9c1ad04f1f5cdb4fa999909ef6b000f",
       "classification": "authority_matrix"
     },
     "parser_evidence": {
       "path": "docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZATION_EXACT_PARSER_EVIDENCE.json",
-      "bytes": 208050,
-      "sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+      "bytes": 208072,
+      "sha256": "65df70ae620da0a44e3adabf929fd369b3d4f8d580aab73c08c37290e188c927",
       "classification": "authority_parser_evidence"
     }
   },
@@ -109,19 +109,19 @@
       {
         "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_EXECUTION_CONTRACT_v1_REVISION-7.json",
         "bytes": 309607,
-        "sha256": "d6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c",
+        "sha256": "ad429820c689c58db5d29d7d772db2fd9ad13b6e05bb30ca1a65ca0e6de33ba0",
         "classification": "authority_contract"
       },
       {
         "path": "docs/planning/preview-remote-apply/M55_PREVIEW_TRANSACTION_NORMALIZED_STEP_MATRIX_v1_REVISION-7.json",
         "bytes": 110904,
-        "sha256": "6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93",
+        "sha256": "0c56313c3df157f81552eb21ebbfcd87a9c1ad04f1f5cdb4fa999909ef6b000f",
         "classification": "authority_matrix"
       },
       {
         "path": "docs/planning/preview-remote-apply/M55_TRANSACTION_NORMALIZATION_EXACT_PARSER_EVIDENCE.json",
-        "bytes": 208050,
-        "sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+        "bytes": 208072,
+        "sha256": "65df70ae620da0a44e3adabf929fd369b3d4f8d580aab73c08c37290e188c927",
         "classification": "authority_parser_evidence"
       },
       {
@@ -138,8 +138,8 @@
       },
       {
         "path": "lib/m55/transactionNormalized/transactionNormalizedCore.ts",
-        "bytes": 96725,
-        "sha256": "a85d428231116891b7ad94aed0fcf57e243e7309e19df2694e35987124637bda",
+        "bytes": 97394,
+        "sha256": "ea94ba83ff71ead28b4b9ac6d7694352a2f4d76ef5c5b2cc1f29fda6bb893fd4",
         "classification": "rebind_core"
       },
       {
@@ -169,7 +169,7 @@
     "self_commit_sha_forbidden": true,
     "full_file_sha_self_reference_forbidden": true,
     "canonical_serialization": "m55.canonical_json.sorted_keys_utf8_no_whitespace.v1",
-    "canonical_payload_sha256": "71215fdf5cd34c1025c69b498b8e8bbf9806af7a10f4deab1c616ad90335e52e",
+    "canonical_payload_sha256": "a598594bba6ffba0253433e1a8564f0ccd728e234e9dd56ccddff0ff5aaea116",
     "canonical_payload_exclusions": [
       "/integrity/canonical_payload_sha256"
     ],

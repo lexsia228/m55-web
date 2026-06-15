@@ -21,7 +21,7 @@
     {
       "version": "20260615000002",
       "path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
-      "sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5"
+      "sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667"
     },
     {
       "version": "20260615000003",
@@ -3103,10 +3103,10 @@
     {
       "version": "20260615000002",
       "path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
-      "frozen_sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
-      "measured_sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+      "frozen_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
+      "measured_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
       "sha256_match": true,
-      "byte_length": 1583,
+      "byte_length": 1597,
       "newline_mode": "LF",
       "crlf_count": 0,
       "statement_count": 7,
@@ -3141,10 +3141,10 @@
         },
         {
           "ordinal": 4,
-          "utf8_bytes": 66,
-          "sha256": "add28ae0ba47e7d006c50102d81f46ca0a8b3e5d9a517610c9375f7e6540952d",
-          "first160_escaped": "\"REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated\"",
-          "last160_escaped": "\"REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated\""
+          "utf8_bytes": 80,
+          "sha256": "4ba8fca94191e2a47449ba9bdca708d13821fba6b036e98e171a22bad6814f5e",
+          "first160_escaped": "\"REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated, service_role\"",
+          "last160_escaped": "\"REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated, service_role\""
         },
         {
           "ordinal": 5,
@@ -3161,7 +3161,7 @@
           "last160_escaped": "\"COMMENT ON TABLE public.clerk_webhook_events IS\\n  'Account deletion webhook ledger. Pseudonymous deletion_subject_id only; no raw Clerk ID storage.'\""
         }
       ],
-      "first_statement_full_escaped": "\"-- M55 Account Deletion — clerk webhook ledger (2026-06-08)\\n-- LOCAL only until Human apply gate. No raw Clerk ID or event body storage.\\n\\nCREATE TABLE public.clerk_webhook_events (\\n  svix_id text PRIMARY KEY,\\n  event_type text NOT NULL,\\n  deletion_subject_id text NULL,\\n  status text NOT NULL,\\n  attempt_count integer NOT NULL DEFAULT 0,\\n  error_code text NULL,\\n  created_at timestamptz NOT NULL DEFAULT now(),\\n  updated_at timestamptz NOT NULL DEFAULT now(),\\n  completed_at timestamptz NULL,\\n  CONSTRAINT clerk_webhook_events_status_check\\n    CHECK (status IN ('pending', 'processing', 'succeeded', 'failed')),\\n  CONSTRAINT clerk_webhook_events_deletion_subject_id_check\\n    CHECK (\\n      deletion_subject_id IS NULL\\n      OR deletion_subject_id ~ '^m55-del:[0-9a-f]{32}$'\\n    ),\\n  CONSTRAINT clerk_webhook_events_attempt_count_check\\n    CHECK (attempt_count \\u003e= 0),\\n  CONSTRAINT clerk_webhook_events_error_code_check\\n    CHECK (\\n      error_code IS NULL\\n      OR error_code IN (\\n        'INVALID_PROCESSING_STATE',\\n        'CLEANUP_FAILED',\\n        'VERIFICATION_FAILED'\\n      )\\n    )\\n)\"",
+      "first_statement_full_escaped": "\"-- M55 Account Deletion — clerk webhook ledger (2026-06-08)\\n-- LOCAL only until Human apply gate. No raw Clerk ID or event body storage.\\n\\nCREATE TABLE public.clerk_webhook_events (\\n  svix_id text PRIMARY KEY,\\n  event_type text NOT NULL,\\n  deletion_subject_id text NULL,\\n  status text NOT NULL,\\n  attempt_count integer NOT NULL DEFAULT 0,\\n  error_code text NULL,\\n  created_at timestamptz NOT NULL DEFAULT now(),\\n  updated_at timestamptz NOT NULL DEFAULT now(),\\n  completed_at timestamptz NULL,\\n  CONSTRAINT clerk_webhook_events_status_check\\n    CHECK (status IN ('pending', 'processing', 'succeeded', 'failed')),\\n  CONSTRAINT clerk_webhook_events_deletion_subject_id_check\\n    CHECK (\\n      deletion_subject_id IS NULL\\n      OR deletion_subject_id ~ '^m55-del:[0-9a-f]{32}$'\\n    ),\\n  CONSTRAINT clerk_webhook_events_attempt_count_check\\n    CHECK (attempt_count >= 0),\\n  CONSTRAINT clerk_webhook_events_error_code_check\\n    CHECK (\\n      error_code IS NULL\\n      OR error_code IN (\\n        'INVALID_PROCESSING_STATE',\\n        'CLEANUP_FAILED',\\n        'VERIFICATION_FAILED'\\n      )\\n    )\\n)\"",
       "last_statement_full_escaped": "\"COMMENT ON TABLE public.clerk_webhook_events IS\\n  'Account deletion webhook ledger. Pseudonymous deletion_subject_id only; no raw Clerk ID storage.'\"",
       "transaction_control_classification": {
         "per_statement": [

@@ -37,7 +37,7 @@
   },
   "manifest_revision": "PREVIEW-BASELINE-MANIFEST-v1-REVISION-8",
   "matrix_revision": "PREVIEW-BASELINE-CONTRACT-MATRIX-v1-REVISION-7",
-  "migration_tuple_hash": "78266476d402a65e053c8ff5206df59578af5b83887b7d851b1606134abf8ab4",
+  "migration_tuple_hash": "6de8dcba929c94df2be16bd5d475a4ac838161663fb0858e5cf9864e17c34868",
   "migrations": [
     {
       "byte_length": 44535,
@@ -110,7 +110,7 @@
       "version": "20260615000001"
     },
     {
-      "byte_length": 1583,
+      "byte_length": 1597,
       "copy_mode": "byte_identical",
       "expected_delta": {
         "migration_version": "20260615000002",
@@ -125,7 +125,7 @@
         "20260615000001"
       ],
       "sequence": 3,
-      "sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+      "sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
       "source_class": "canonical",
       "source_path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
       "state_from": "P2",

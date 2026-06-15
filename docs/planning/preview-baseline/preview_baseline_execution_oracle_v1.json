@@ -1,7 +1,7 @@
 {
   "canonical_migration_shas": {
     "20260615000001": "d4a2f09058eac13aaea054cafaa47ca7b4288e38871973e16d99a51263d2459c",
-    "20260615000002": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+    "20260615000002": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
     "20260615000003": "25597665f594dfef6c60fb5af500e70105535c786f85c3c3b4f817c1da82567c",
     "20260615000004": "40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d",
     "20260615000005": "b283aa73ea4b004c006229dfc6afec222b44ea71422b34cb7a3fa3f46862d8f6",
@@ -2549,7 +2549,7 @@
         "relation_created": "clerk_webhook_events",
         "rls_enabled": true,
         "service_role_grants": "SELECT,INSERT,UPDATE",
-        "source_sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5"
+        "source_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667"
       },
       "forbidden_delta": [],
       "function_acl": [
@@ -2660,7 +2660,7 @@
         "group:public|reply_wallet_ledgers|reply_ticket_wallets|pg_catalog|RI_FKey_check_ins|INSERT|AFTER|O|SYSTEM_INTERNAL|referencing|public|reply_wallet_ledgers|reply_ticket_wallets|pg_catalog|RI_FKey_check_ins|INSERT|AFTER|O|SYSTEM_INTERNAL|referencing|1|1|UNAMBIGUOUS|internal_fk:public.reply_wallet_ledgers:reply_wallet_ledgers_wallet_id_fkey|internal_fk:public.reply_wallet_ledgers:reply_wallet_ledgers_wallet_id_fkey|true",
         "group:public|reply_wallet_ledgers|reply_ticket_wallets|pg_catalog|RI_FKey_check_upd|UPDATE|AFTER|O|SYSTEM_INTERNAL|referencing|public|reply_wallet_ledgers|reply_ticket_wallets|pg_catalog|RI_FKey_check_upd|UPDATE|AFTER|O|SYSTEM_INTERNAL|referencing|1|1|UNAMBIGUOUS|internal_fk:public.reply_wallet_ledgers:reply_wallet_ledgers_wallet_id_fkey|internal_fk:public.reply_wallet_ledgers:reply_wallet_ledgers_wallet_id_fkey|true"
       ],
-      "oracle_contract_hash": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "oracle_contract_hash": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "phase": "P3",
       "policies": [
         "public|entitlements|Enable read access for all users|SELECT|PUBLIC|PERMISSIVE|true|"
@@ -6919,7 +6919,7 @@
   ],
   "schema_version": "1",
   "source_baseline_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
-  "source_manifest_sha256": "5c698f95448f823bf19bd12f44f36ea07d3c52befcf903708ab6d65442f37e20",
+  "source_manifest_sha256": "ffb6bf9ec1961ebb965339b2e1e9143c8be98630f04a5366f2d9ef4fdb968cc1",
   "source_matrix_sha256": "d5d34b135acabe3cd7fc41144069d9deee133472810264e1b397cf5bd3a19257",
   "strategy": "PREVIEW_ONLY_BASELINE_PLUS_ORIGINAL_CANONICAL_CHAIN"
 }

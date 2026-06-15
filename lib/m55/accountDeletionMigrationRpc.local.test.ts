@@ -2,6 +2,14 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+
+import { splitAndTrim } from './transactionNormalized/splitAndTrim.ts';
+import {
+  compositeStreamSha256,
+  statementSha256,
+  statementUtf8ByteLength,
+} from './transactionNormalized/statementStream.ts';
 
 const M1 = join(
   process.cwd(),
@@ -138,12 +146,15 @@ describe('accountDeletionMigrationRpc — M1 ledger', () => {
     assert.doesNotMatch(sql, /'LEDGER_CLAIM_FAILED'/);
   });
 
-  it('enables RLS and revokes PUBLIC/anon/authenticated', () => {
+  it('enables RLS and revokes PUBLIC/anon/authenticated/service_role', () => {
     const sql = readM1();
     assert.match(sql, /ENABLE ROW LEVEL SECURITY/);
     assert.match(sql, /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM PUBLIC/);
     assert.match(sql, /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM anon/);
-    assert.match(sql, /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM authenticated/);
+    assert.match(
+      sql,
+      /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM authenticated, service_role/
+    );
     assert.doesNotMatch(sql, /CREATE POLICY/i);
   });
 
@@ -166,6 +177,105 @@ describe('accountDeletionMigrationRpc — M1 ledger', () => {
     assert.doesNotMatch(sql, /\bmetadata\b/i);
     assert.doesNotMatch(sql, /raw_metadata/i);
     assert.doesNotMatch(sql, /\bpayload\b/i);
+  });
+
+  it('keeps exactly seven executable statements', () => {
+    const statements = splitAndTrim(readM1());
+    assert.equal(statements.length, 7);
+  });
+
+  it('binds frozen P3 source identity and ordinal-4 statement identity', () => {
+    const sql = readM1();
+    const bytes = Buffer.byteLength(sql, 'utf8');
+    const sha = createHash('sha256').update(sql, 'utf8').digest('hex');
+    assert.equal(bytes, 1597);
+    assert.equal(sha, '6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667');
+    const statements = splitAndTrim(sql);
+    assert.equal(statementUtf8ByteLength(statements[4]), 80);
+    assert.equal(
+      statementSha256(statements[4]),
+      '4ba8fca94191e2a47449ba9bdca708d13821fba6b036e98e171a22bad6814f5e'
+    );
+    assert.equal(
+      compositeStreamSha256(statements),
+      '7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436'
+    );
+  });
+});
+
+describe('accountDeletionMigrationRpc — M1 P3 privilege reset negative guards', () => {
+  const GRANT_ONLY_SQL = readM1().replace(
+    /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM authenticated, service_role;/,
+    'REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated;'
+  );
+
+  const PRIVILEGE_CELLS = [
+    'REFERENCES',
+    'TRIGGER',
+    'TRUNCATE',
+  ] as const;
+
+  function modelServiceRoleExtras(sql: string): string[] {
+    const hasServiceRoleRevoke =
+      /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM authenticated, service_role/.test(sql);
+    const hasGrant =
+      /GRANT SELECT, INSERT, UPDATE ON TABLE public\.clerk_webhook_events TO service_role/.test(sql);
+    if (!hasGrant) return [];
+    if (hasServiceRoleRevoke) return [];
+    return PRIVILEGE_CELLS.map((priv) => `priv.clerk_webhook_events.service_role.${priv}|1`);
+  }
+
+  it('rejects GRANT-only form that leaves default service_role extras', () => {
+    const extras = modelServiceRoleExtras(GRANT_ONLY_SQL);
+    assert.deepEqual(extras, [
+      'priv.clerk_webhook_events.service_role.REFERENCES|1',
+      'priv.clerk_webhook_events.service_role.TRIGGER|1',
+      'priv.clerk_webhook_events.service_role.TRUNCATE|1',
+    ]);
+    assert.equal(modelServiceRoleExtras(readM1()).length, 0);
+  });
+
+  it('rejects authenticated-only REVOKE without service_role', () => {
+    assert.doesNotMatch(
+      GRANT_ONLY_SQL,
+      /REVOKE ALL ON TABLE public\.clerk_webhook_events FROM authenticated, service_role/
+    );
+  });
+
+  it('rejects DELETE grant additions', () => {
+    const sql = readM1();
+    assert.doesNotMatch(sql, /GRANT[\s\S]*DELETE[\s\S]*service_role/i);
+  });
+
+  it('rejects an eighth privilege statement', () => {
+    const extra = `${readM1().trimEnd()}\nREVOKE ALL ON TABLE public.clerk_webhook_events FROM service_role;`;
+    assert.equal(splitAndTrim(extra).length, 8);
+    assert.equal(splitAndTrim(readM1()).length, 7);
+  });
+
+  it('keeps frozen P3 oracle privilege contract for clerk_webhook_events service_role', () => {
+    const oraclePath = join(
+      process.cwd(),
+      'docs/planning/preview-baseline/preview_baseline_execution_oracle_v1.json'
+    );
+    const oracle = JSON.parse(readFileSync(oraclePath, 'utf8')) as {
+      phases: Array<{ phase: string; privileges?: string[]; oracle_contract_hash?: string }>;
+    };
+    const p3 = oracle.phases.find((phase) => phase.phase === 'P3');
+    assert.ok(p3);
+    assert.equal(
+      p3.oracle_contract_hash,
+      '26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5'
+    );
+    const priv = new Set(p3.privileges ?? []);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.SELECT|1'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.INSERT|1'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.UPDATE|1'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.DELETE|0'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.TRUNCATE|0'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.REFERENCES|0'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.TRIGGER|0'), true);
+    assert.equal(priv.has('priv.clerk_webhook_events.service_role.TRUNCATE|1'), false);
   });
 });
 

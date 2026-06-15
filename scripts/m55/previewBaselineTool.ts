@@ -222,7 +222,7 @@ export const EXPECTED_BASELINE_ARTIFACT_SHA256 =
 export const EXPECTED_MATRIX_ARTIFACT_SHA256 =
   'd5d34b135acabe3cd7fc41144069d9deee133472810264e1b397cf5bd3a19257' as const;
 export const EXPECTED_MANIFEST_ARTIFACT_SHA256 =
-  '5c698f95448f823bf19bd12f44f36ea07d3c52befcf903708ab6d65442f37e20' as const;
+  'ffb6bf9ec1961ebb965339b2e1e9143c8be98630f04a5366f2d9ef4fdb968cc1' as const;
 export const FIXTURE_META_SCHEMA = 'm55_fixture_meta' as const;
 export const FIXTURE_META_RELATION = 'fixture_identity' as const;
 
@@ -244,8 +244,8 @@ export const CANONICAL_MIGRATIONS = [
     filename: '20260615000002_m55_account_deletion_ledger_v1.sql',
     sourcePath: 'supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql',
     sourceClass: 'canonical' as const,
-    sha256: 'fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5',
-    byteLength: 1583,
+    sha256: '6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667',
+    byteLength: 1597,
     stateFrom: 'P2',
     stateTo: 'P3',
   },

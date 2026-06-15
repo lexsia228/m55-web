@@ -35,7 +35,7 @@ ALTER TABLE public.clerk_webhook_events ENABLE ROW LEVEL SECURITY;
 
 REVOKE ALL ON TABLE public.clerk_webhook_events FROM PUBLIC;
 REVOKE ALL ON TABLE public.clerk_webhook_events FROM anon;
-REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated;
+REVOKE ALL ON TABLE public.clerk_webhook_events FROM authenticated, service_role;
 
 GRANT SELECT, INSERT, UPDATE ON TABLE public.clerk_webhook_events TO service_role;
 

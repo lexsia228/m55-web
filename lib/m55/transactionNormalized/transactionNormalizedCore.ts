@@ -120,9 +120,6 @@ export const EXPECTED_GENERATION0_BASELINE_IDENTITIES: readonly ExpectedBindingF
   },
 ] as const;
 
-export const EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES: readonly ExpectedBindingFileIdentity[] =
-  EXPECTED_GENERATION0_BASELINE_IDENTITIES.slice(0, 5);
-
 export const EXPECTED_GEN1_REBIND_MUTABLE_CLASSIFICATIONS = {
   core: 'rebind_core',
   cli: 'rebind_plan_cli',
@@ -138,20 +135,43 @@ export const FINGERPRINT_PLACEHOLDER = 'REQUIRED_NOT_FROZEN' as const;
 export const AUTHORITY_FILE_EXPECTATIONS = {
   contract: {
     bytes: 309607,
-    sha256: 'd6231f698850a16760704c08052986194c3059d95ec9df2ba1ea47d83904954c',
+    sha256: 'ad429820c689c58db5d29d7d772db2fd9ad13b6e05bb30ca1a65ca0e6de33ba0',
     classification: 'authority_contract',
   },
   matrix: {
     bytes: 110904,
-    sha256: '6d677b02ff9c73591cbea151444d5dc61ea766bda7ed6cd0598e63ad16ca9f93',
+    sha256: '0c56313c3df157f81552eb21ebbfcd87a9c1ad04f1f5cdb4fa999909ef6b000f',
     classification: 'authority_matrix',
   },
   parserEvidence: {
-    bytes: 208050,
-    sha256: 'bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442',
+    bytes: 208072,
+    sha256: '65df70ae620da0a44e3adabf929fd369b3d4f8d580aab73c08c37290e188c927',
     classification: 'authority_parser_evidence',
   },
 } as const;
+
+export const EXPECTED_IMMUTABLE_CARRY_FORWARD_IDENTITIES: readonly ExpectedBindingFileIdentity[] = [
+  {
+    path: AUTHORITY_CONTRACT_REL_PATH,
+    bytes: AUTHORITY_FILE_EXPECTATIONS.contract.bytes,
+    sha256: AUTHORITY_FILE_EXPECTATIONS.contract.sha256,
+    classification: 'authority_contract',
+  },
+  {
+    path: AUTHORITY_MATRIX_REL_PATH,
+    bytes: AUTHORITY_FILE_EXPECTATIONS.matrix.bytes,
+    sha256: AUTHORITY_FILE_EXPECTATIONS.matrix.sha256,
+    classification: 'authority_matrix',
+  },
+  {
+    path: AUTHORITY_PARSER_EVIDENCE_REL_PATH,
+    bytes: AUTHORITY_FILE_EXPECTATIONS.parserEvidence.bytes,
+    sha256: AUTHORITY_FILE_EXPECTATIONS.parserEvidence.sha256,
+    classification: 'authority_parser_evidence',
+  },
+  EXPECTED_GENERATION0_BASELINE_IDENTITIES[3]!,
+  EXPECTED_GENERATION0_BASELINE_IDENTITIES[4]!,
+];
 
 export type PlanVersionSelector =
   | 'P1'

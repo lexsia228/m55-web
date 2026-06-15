@@ -7,9 +7,9 @@
     "baseline_source_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
     "matrix_sha256": "d5d34b135acabe3cd7fc41144069d9deee133472810264e1b397cf5bd3a19257",
     "manifest_sha256": "5c698f95448f823bf19bd12f44f36ea07d3c52befcf903708ab6d65442f37e20",
-    "execution_oracle_sha256": "52832c14d55bba8b6194065aa17901c7373d39d208e8175781d729be17855062",
+    "execution_oracle_sha256": "6a68c442141a7306d1c9237c72a113f301f372ffeca809dcff0c2223caf04bbb",
     "patch_2_preflight_sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff",
-    "primary_evidence_sha256": "bd05c68a337abbe5a29dff04d8d1e46ca3509f664e9b2d0d89959c387d822442",
+    "primary_evidence_sha256": "65df70ae620da0a44e3adabf929fd369b3d4f8d580aab73c08c37290e188c927",
     "review_bundle_sha256": "38d58aa29f6623a90440394e9680832610df9e684bc0242959fa2c626c315a2d"
   },
   "lifecycle_step_template_section_5c": [
@@ -406,7 +406,7 @@
         "20260615000001",
         "20260615000002"
       ],
-      "oracle_contract_hash_sha256_after_success": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "oracle_contract_hash_sha256_after_success": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "prior_history_prefix_required": [
         "20260614000000",
         "20260615000001"
@@ -481,11 +481,11 @@
         }
       ],
       "source_path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
-      "frozen_source_sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+      "frozen_source_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
       "original_statement_count": 7,
-      "original_stream_composite_sha256": "317c2c159d2f8342cbf27e241c4be8df8ac71658190647a302124410582b759a",
+      "original_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
       "normalized_statement_count": 7,
-      "normalized_stream_composite_sha256": "317c2c159d2f8342cbf27e241c4be8df8ac71658190647a302124410582b759a",
+      "normalized_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
       "removed_token_ordinals": [],
       "removed_token_count": 0,
       "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -501,7 +501,7 @@
       "prior_oracle_phase": "P2",
       "next_oracle_phase": "P3",
       "prior_oracle_contract_hash_sha256": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
-      "next_oracle_contract_hash_sha256": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "next_oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
       "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
       "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
@@ -577,7 +577,7 @@
         "20260615000001",
         "20260615000002"
       ],
-      "prior_oracle_contract_hash_sha256_required": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "prior_oracle_contract_hash_sha256_required": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "lifecycle_steps": [
         {
           "step": 1,
@@ -668,7 +668,7 @@
       ],
       "prior_oracle_phase": "P3",
       "next_oracle_phase": "P4",
-      "prior_oracle_contract_hash_sha256": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "prior_oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "next_oracle_contract_hash_sha256": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
       "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
       "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
@@ -1640,11 +1640,11 @@
       "version": "20260615000002",
       "path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
       "name": "m55_account_deletion_ledger_v1",
-      "frozen_source_sha256": "fa7cb92edb43b858d7fdbad249620a4a01fdb2c4c18c61d6079b8831aba4d8f5",
+      "frozen_source_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
       "original_statement_count": 7,
-      "original_stream_composite_sha256": "317c2c159d2f8342cbf27e241c4be8df8ac71658190647a302124410582b759a",
+      "original_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
       "normalized_statement_count": 7,
-      "normalized_stream_composite_sha256": "317c2c159d2f8342cbf27e241c4be8df8ac71658190647a302124410582b759a",
+      "normalized_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
       "removed_token_ordinals": [],
       "removed_token_count": 0,
       "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -1787,7 +1787,7 @@
         "20260615000001",
         "20260615000002"
       ],
-      "oracle_contract_hash_sha256": "a37c214b6722e86e0235a37dbef2274edc271e4736f400b1cda512aeda7768b2",
+      "oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
       "prior_ack_context": "exact_prior_history_prefix_and_phase"
     },
     {
