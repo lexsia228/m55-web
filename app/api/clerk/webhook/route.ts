@@ -9,9 +9,13 @@ import {
   isValidClerkUserId,
   isValidSvixId,
   listMissingSvixHeaders,
+  classifyRpcTransportFailure,
+  formatSafeRpcTransportFailureForLog,
   parseKnownRpcFailure,
   rpcFailureResponseKey,
 } from '../../../../lib/m55/accountDeletionClerkWebhookContract';
+
+const SUPABASE_JS_EXACT_VERSION = '2.97.0';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -85,12 +89,31 @@ export async function POST(req: NextRequest) {
       p_user_ref_hash: userRefHash,
     });
     if (error) {
-      logSafeError({ stage: 'rpc_transport', error_code: 'UPSTREAM_ERROR' });
+      logSafeError({
+        stage: 'rpc_transport',
+        runtime: 'nodejs',
+        supabase_js_exact_version: SUPABASE_JS_EXACT_VERSION,
+        project_ref: 'preview',
+        svix_id: svixId,
+        ...formatSafeRpcTransportFailureForLog(
+          classifyRpcTransportFailure(error, {
+            requestDispatched: true,
+            responseReceived: true,
+          }),
+        ),
+      });
       return NextResponse.json({ error: 'upstream_error' }, { status: 500 });
     }
     rpcData = data;
-  } catch {
-    logSafeError({ stage: 'rpc_transport', error_code: 'UPSTREAM_ERROR' });
+  } catch (thrown) {
+    logSafeError({
+      stage: 'rpc_transport',
+      runtime: 'nodejs',
+      supabase_js_exact_version: SUPABASE_JS_EXACT_VERSION,
+      project_ref: 'preview',
+      svix_id: svixId,
+      ...formatSafeRpcTransportFailureForLog(classifyRpcTransportFailure(thrown)),
+    });
     return NextResponse.json({ error: 'upstream_error' }, { status: 500 });
   }
 

@@ -10,10 +10,12 @@ import {
   isValidClerkUserId,
   isValidSvixId,
   listMissingSvixHeaders,
+  classifyRpcTransportFailure,
+  formatSafeRpcTransportFailureForLog,
   parseKnownRpcFailure,
   rpcFailureResponseKey,
-} from './accountDeletionClerkWebhookContract';
-import { hashUserIdForLedgerLog } from './reply/readReplyWalletProbe';
+} from './accountDeletionClerkWebhookContract.ts';
+import { hashUserIdForLedgerLog } from './reply/readReplyWalletProbe.ts';
 
 const ROUTE = join(process.cwd(), 'app/api/clerk/webhook/route.ts');
 const CONTRACT = join(process.cwd(), 'lib/m55/accountDeletionClerkWebhookContract.ts');
@@ -219,13 +221,16 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.doesNotMatch(src, /NEXT_PUBLIC_SUPABASE_ANON/);
   });
 
-  it('does not log raw clerk id hash or svix id', () => {
+  it('does not log raw clerk id hash or svix id outside rpc_transport classifier logs', () => {
     const body = postHandlerBody(readRoute());
     const logCalls = body.match(/logSafe(?:Warn|Error)?\(\{[^}]+\}\)/g) ?? [];
     assert.ok(logCalls.length > 0, 'log calls missing');
     for (const call of logCalls) {
       assert.doesNotMatch(call, /clerkUserId/);
-      assert.doesNotMatch(call, /svixId/);
+      if (!call.includes("stage: 'rpc_transport'")) {
+        assert.doesNotMatch(call, /svixId/);
+        assert.doesNotMatch(call, /svix_id:/);
+      }
       assert.doesNotMatch(call, /user_ref_hash/);
       assert.doesNotMatch(call, /hashUserIdForLedgerLog/);
       assert.doesNotMatch(call, /userRefHash/);
@@ -377,9 +382,16 @@ describe('accountDeletionClerkWebhook — RPC result validator', () => {
     const body = postHandlerBody(readRoute());
     assert.match(body, /upstream_error/);
     assert.match(body, /stage: 'rpc_transport'/);
-    assert.match(body, /error_code: 'UPSTREAM_ERROR'/);
+    assert.match(body, /classifyRpcTransportFailure/);
+    assert.match(body, /formatSafeRpcTransportFailureForLog/);
     assert.doesNotMatch(body, /error\.message/);
     assert.doesNotMatch(body, /console\.error\([^)]*error/);
+    const transportBlocks = body.split("stage: 'rpc_transport'");
+    for (const block of transportBlocks.slice(1)) {
+      assert.doesNotMatch(block.slice(0, 600), /clerkUserId/);
+      assert.doesNotMatch(block.slice(0, 600), /p_clerk_user_id/);
+      assert.doesNotMatch(block.slice(0, 600), /data\.id/);
+    }
   });
 
   it('maps known RPC failures to HTTP 500 in route handler', () => {
@@ -426,4 +438,140 @@ describe('accountDeletionClerkWebhook — HTTP status matrix copy', () => {
       assert.match(readContract(), new RegExp(`'${key}'`));
     });
   }
+});
+
+const SECRET_SAMPLES = {
+  serviceRole:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.service_role_secret_sample',
+  bearer: 'Bearer sk_live_sample_token_value',
+  clerkSignature: 'v1,sample_svix_signature_value_abcdef',
+  pii: 'user@example.com',
+};
+
+function classifierOutputText(input: unknown, options?: Parameters<typeof classifyRpcTransportFailure>[1]): string {
+  return JSON.stringify(classifyRpcTransportFailure(input, options));
+}
+
+describe('accountDeletionClerkWebhook — rpc transport classifier', () => {
+  it('classifies PGRST202 as POSTGREST_STRUCTURED_ERROR', () => {
+    const out = classifyRpcTransportFailure({
+      name: 'PostgrestError',
+      code: 'PGRST202',
+      message: 'function not found in schema cache',
+      status: 404,
+    });
+    assert.equal(out.message_class, 'POSTGREST_STRUCTURED_ERROR');
+    assert.equal(out.postgrest_code, 'PGRST202');
+    assert.equal(out.error_code, 'PGRST202');
+    assert.equal(out.request_dispatched, true);
+    assert.equal(out.response_received, true);
+  });
+
+  it('classifies ENOTFOUND as FETCH_DNS_ERROR', () => {
+    const out = classifyRpcTransportFailure({ name: 'FetchError', code: 'ENOTFOUND' });
+    assert.equal(out.message_class, 'FETCH_DNS_ERROR');
+    assert.equal(out.cause_code, 'ENOTFOUND');
+  });
+
+  it('classifies ECONNREFUSED as FETCH_CONNECT_ERROR', () => {
+    const out = classifyRpcTransportFailure({
+      name: 'FetchError',
+      cause: { code: 'ECONNREFUSED', errno: -61 },
+    });
+    assert.equal(out.message_class, 'FETCH_CONNECT_ERROR');
+    assert.equal(out.cause_code, 'ECONNREFUSED');
+    assert.equal(out.cause_errno, -61);
+  });
+
+  it('classifies ETIMEDOUT as FETCH_CONNECT_ERROR not FETCH_ABORTED', () => {
+    const input = {
+      name: 'FetchError',
+      cause: { code: 'ETIMEDOUT', errno: -60 },
+      message: 'connect ETIMEDOUT secret-host:443',
+    };
+    const out = classifyRpcTransportFailure(input);
+    assert.equal(out.message_class, 'FETCH_CONNECT_ERROR');
+    assert.equal(out.cause_code, 'ETIMEDOUT');
+    assert.equal(out.cause_errno, -60);
+    assert.equal(out.timeout_or_abort, null);
+    const serialized = classifierOutputText(input);
+    assert.doesNotMatch(serialized, /secret-host/);
+    assert.doesNotMatch(serialized, /ETIMEDOUT secret/);
+  });
+
+  it('classifies UNABLE_TO_VERIFY_LEAF_SIGNATURE as FETCH_TLS_ERROR', () => {
+    const out = classifyRpcTransportFailure({
+      name: 'FetchError',
+      cause: { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' },
+    });
+    assert.equal(out.message_class, 'FETCH_TLS_ERROR');
+    assert.equal(out.cause_code, 'UNABLE_TO_VERIFY_LEAF_SIGNATURE');
+  });
+
+  it('classifies AbortError as FETCH_ABORTED', () => {
+    const out = classifyRpcTransportFailure({ name: 'AbortError', code: 'ABORT_ERR' });
+    assert.equal(out.message_class, 'FETCH_ABORTED');
+    assert.equal(out.timeout_or_abort, true);
+  });
+
+  it('classifies unknown input as UNKNOWN_TRANSPORT_ERROR without raw text', () => {
+    const out = classifyRpcTransportFailure('upstream secret failure text');
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+    const serialized = classifierOutputText('upstream secret failure text');
+    assert.doesNotMatch(serialized, /secret failure/);
+    assert.doesNotMatch(serialized, /REDACTED_UNCLASSIFIED/);
+  });
+
+  it('never emits secret substrings from hostile error payloads', () => {
+    const hostile = {
+      name: 'FetchError',
+      code: 'SECRET_NOT_ALLOWLISTED',
+      message: SECRET_SAMPLES.serviceRole,
+      details: SECRET_SAMPLES.bearer,
+      hint: SECRET_SAMPLES.clerkSignature,
+      cause: {
+        code: 'SECRET_NOT_ALLOWLISTED',
+        message: SECRET_SAMPLES.pii,
+      },
+    };
+    const out = classifyRpcTransportFailure(hostile);
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+    const logPayload = formatSafeRpcTransportFailureForLog(out);
+    const combined = JSON.stringify({ ...logPayload, stage: 'rpc_transport' });
+    for (const sample of Object.values(SECRET_SAMPLES)) {
+      assert.doesNotMatch(combined, new RegExp(sample.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+  });
+
+  it('does not throw for null, primitive, circular object, or hostile getter', () => {
+    assert.doesNotThrow(() => classifyRpcTransportFailure(null));
+    assert.doesNotThrow(() => classifyRpcTransportFailure(42));
+    const circular: Record<string, unknown> = { name: 'FetchError', code: 'ECONNRESET' };
+    circular.self = circular;
+    assert.doesNotThrow(() => classifyRpcTransportFailure(circular));
+    const hostileGetter = {
+      get message() {
+        throw new Error('hostile');
+      },
+      name: 'FetchError',
+      code: 'ECONNRESET',
+    };
+    assert.doesNotThrow(() => classifyRpcTransportFailure(hostileGetter));
+    assert.equal(classifyRpcTransportFailure(hostileGetter).message_class, 'FETCH_CONNECT_ERROR');
+  });
+
+  it('keeps RPC name and argument keys unchanged in route', () => {
+    const body = postHandlerBody(readRoute());
+    assert.match(body, /m55_account_deletion_process_v1/);
+    assert.match(body, /p_svix_id:/);
+    assert.match(body, /p_event_type:/);
+    assert.match(body, /p_clerk_user_id:/);
+    assert.match(body, /p_user_ref_hash:/);
+  });
+
+  it('does not introduce retry or replay constructs in route', () => {
+    const body = routeSourceWithoutComments(readRoute());
+    assert.doesNotMatch(body, /\bretry\b/i);
+    assert.doesNotMatch(body, /\breplay\b/i);
+  });
 });
