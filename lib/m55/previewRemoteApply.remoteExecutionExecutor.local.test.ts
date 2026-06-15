@@ -16,6 +16,7 @@ import {
 import {
   decodeCatalogFingerprintsToRawCatalog,
   deriveRuntimePhaseSnapshot,
+  decodePrivilegeFingerprint,
   expectedPhaseHistoryPrefix,
   formatPsqlJsonOutput,
   parseRuntimeCatalogOutput,
@@ -40,6 +41,7 @@ import {
   resultContainsForbiddenEvidence,
   validateInTransactionPostProbe,
   buildInTransactionPostProbeDiagnostic,
+  buildPrivilegeDiffDiagnostic,
   sanitizePublicMismatchCategories,
   serializePreviewRemoteExecutionResult,
   type PreviewRemoteExecutionDeps,
@@ -245,6 +247,29 @@ function catalogRowsForPhase(phaseId: string): ExecutionPgQueryResult {
     rows: [{ json_build_object: formatPsqlJsonOutput(raw).trim() }],
     rowCount: 1,
   };
+}
+
+function catalogRowsForPhaseWithPrivilegeFingerprints(
+  phaseId: string,
+  privilegeFingerprints: readonly string[],
+): ExecutionPgQueryResult {
+  const raw = hybridRawCatalogForPhase(phaseId);
+  raw.privileges = privilegeFingerprints.map((fingerprint) => decodePrivilegeFingerprint(fingerprint));
+  return {
+    rows: [{ json_build_object: formatPsqlJsonOutput(raw).trim() }],
+    rowCount: 1,
+  };
+}
+
+function catalogRowsFromRawCatalog(raw: Record<string, unknown>): ExecutionPgQueryResult {
+  return {
+    rows: [{ json_build_object: formatPsqlJsonOutput(raw).trim() }],
+    rowCount: 1,
+  };
+}
+
+function p3OraclePrivilegeFingerprints(): string[] {
+  return [...(oraclePhaseById('P3').privileges as string[])];
 }
 
 function priorOraclePhaseForStep(stepId: StepId): string {
@@ -3602,5 +3627,291 @@ describe('remote execution executor p3 post-probe diagnostic evidence rev1 patch
     assert.equal(serialized.includes('password'), false);
     assert.equal(serialized.includes('bad category'), false);
     assert.equal(resultContainsForbiddenEvidence(result), false);
+  });
+});
+
+describe('remote execution executor p3 privilege diff diagnostic revision-1 AE1-AE10', () => {
+  it('AE1 one missing expected privilege fingerprint is reported exactly', () => {
+    const expected = p3OraclePrivilegeFingerprints();
+    const missing = expected[0]!;
+    const actual = expected.filter((entry) => entry !== missing);
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsForPhaseWithPrivilegeFingerprints('P3', actual),
+      loadOraclePhases(),
+    );
+    assert.ok(diagnostic.privilegeDiff);
+    assert.deepEqual(diagnostic.privilegeDiff!.missingExpected, [missing]);
+    assert.equal(diagnostic.privilegeDiff!.missingExpectedCount, 1);
+    assert.equal(diagnostic.privilegeDiff!.unexpectedActualCount, 0);
+    assert.equal(diagnostic.postMismatchCategories.includes('privileges_mismatch'), true);
+  });
+
+  it('AE2 one unexpected actual privilege fingerprint is reported exactly', () => {
+    const expected = p3OraclePrivilegeFingerprints();
+    const unexpected = 'priv.consult_messages.anon.DELETE|0';
+    const actual = [...expected, unexpected];
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsForPhaseWithPrivilegeFingerprints('P3', actual),
+      loadOraclePhases(),
+    );
+    assert.ok(diagnostic.privilegeDiff);
+    assert.deepEqual(diagnostic.privilegeDiff!.unexpectedActual, [unexpected]);
+    assert.equal(diagnostic.privilegeDiff!.unexpectedActualCount, 1);
+    assert.equal(diagnostic.privilegeDiff!.missingExpectedCount, 0);
+  });
+
+  it('AE3 multiple differences are sorted deterministically', () => {
+    const expected = p3OraclePrivilegeFingerprints();
+    const removeA = expected[0]!;
+    const removeB = expected[1]!;
+    const unexpectedA = 'priv.consult_messages.anon.DELETE|0';
+    const unexpectedB = 'priv.consult_messages.anon.INSERT|0';
+    const actual = expected.filter((entry) => entry !== removeA && entry !== removeB).concat([unexpectedB, unexpectedA]);
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsForPhaseWithPrivilegeFingerprints('P3', actual),
+      loadOraclePhases(),
+    );
+    const diff = diagnostic.privilegeDiff!;
+    const missingSorted = [...diff.missingExpected].sort();
+    const unexpectedSorted = [...diff.unexpectedActual].sort();
+    assert.deepEqual(diff.missingExpected, missingSorted);
+    assert.deepEqual(diff.unexpectedActual, unexpectedSorted);
+    assert.deepEqual(diff.missingExpected, [removeA, removeB].sort());
+    assert.deepEqual(diff.unexpectedActual, [unexpectedA, unexpectedB].sort());
+  });
+
+  it('AE4 duplicates counted but deduplicated in public diff', () => {
+    const base = p3OraclePrivilegeFingerprints().slice(0, 2);
+    const duplicated = [base[0]!, base[0]!, base[1]!];
+    const diff = buildPrivilegeDiffDiagnostic(duplicated, base);
+    assert.equal(diff.duplicateExpectedCount, 1);
+    assert.equal(diff.duplicateActualCount, 0);
+    assert.equal(diff.missingExpectedCount, 0);
+    assert.equal(diff.unexpectedActualCount, 0);
+  });
+
+  it('AE5 non-string/coercible entry suppresses output without invoking coercion', () => {
+    const evil = {
+      toString() {
+        throw new Error('coercion invoked');
+      },
+      valueOf() {
+        throw new Error('coercion invoked');
+      },
+    };
+    const diff = buildPrivilegeDiffDiagnostic(['priv.consult_messages.anon.DELETE|1'], [evil]);
+    assert.equal(diff.truncatedOrSuppressed, true);
+    assert.deepEqual(diff.missingExpected, []);
+    assert.deepEqual(diff.unexpectedActual, []);
+    assert.equal(diff.expectedCount, 0);
+    assert.equal(diff.actualCount, 0);
+  });
+
+  it('AE6 invalid privilege fingerprint suppresses output', () => {
+    const diff = buildPrivilegeDiffDiagnostic(
+      ['priv.consult_messages.anon.DELETE|1'],
+      ['not-a-valid-privilege-fingerprint'],
+    );
+    assert.equal(diff.truncatedOrSuppressed, true);
+    assert.equal(diff.missingExpectedCount, 0);
+    assert.equal(diff.unexpectedActualCount, 0);
+  });
+
+  it('AE7 diff side >32 suppresses output', () => {
+    const expected = Array.from({ length: 33 }, (_, index) => `priv.t${index}.anon.SELECT|1`);
+    const actual: string[] = [];
+    const diff = buildPrivilegeDiffDiagnostic(expected, actual);
+    assert.equal(diff.truncatedOrSuppressed, true);
+    assert.deepEqual(diff.missingExpected, []);
+    assert.deepEqual(diff.unexpectedActual, []);
+    assert.equal(diff.missingExpectedCount, 33);
+    assert.equal(diff.unexpectedActualCount, 0);
+  });
+
+  it('AE8 exact privileges produce zero counts and empty arrays', () => {
+    const expected = p3OraclePrivilegeFingerprints();
+    const diff = buildPrivilegeDiffDiagnostic(expected, expected);
+    assert.equal(diff.missingExpectedCount, 0);
+    assert.equal(diff.unexpectedActualCount, 0);
+    assert.deepEqual(diff.missingExpected, []);
+    assert.deepEqual(diff.unexpectedActual, []);
+    assert.equal(diff.truncatedOrSuppressed, false);
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsForPhase('P3'),
+      loadOraclePhases(),
+    );
+    assert.equal(diagnostic.postCompareOk, true);
+    assert.equal(diagnostic.privilegeDiff ?? null, null);
+  });
+
+  it('AE9 non-privilege mismatch does not fabricate privilegeDiff', () => {
+    const raw = hybridRawCatalogForPhase('P3') as Record<string, unknown>;
+    const columns = (raw.columns as unknown[]).slice(1);
+    raw.columns = columns;
+    const diagnostic = buildInTransactionPostProbeDiagnostic(
+      'P3',
+      catalogRowsFromRawCatalog(raw),
+      loadOraclePhases(),
+    );
+    assert.equal(diagnostic.postCompareOk, false);
+    assert.equal(diagnostic.postMismatchCategories.includes('privileges_mismatch'), false);
+    assert.equal(diagnostic.privilegeDiff ?? null, null);
+  });
+
+  it('AE10 serialized HOLD evidence contains no unsafe raw value, SQL, secret, or path and decision is unchanged', async () => {
+    const expected = p3OraclePrivilegeFingerprints();
+    const actual = expected.slice(1);
+    let historyInsertSeen = false;
+    const catalogHandler = createCatalogQueryHandler({ stepId: 'P3' });
+    const factory = createFakeExecutionPgClientFactory({
+      queryHandler: (sql) => {
+        if (sql.startsWith('INSERT INTO supabase_migrations.schema_migrations')) {
+          historyInsertSeen = true;
+        }
+        if (sql.trim().startsWith('WITH tracked') && historyInsertSeen) {
+          return catalogRowsForPhaseWithPrivilegeFingerprints('P3', actual);
+        }
+        return catalogHandler(sql);
+      },
+    });
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    deps.transportFactory = { createClient: (config) => factory.createClient(config) };
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.holdReasonCode, 'HOLD_INVALID_HISTORY_PREFIX');
+    assert.equal(result.runtimeEvidence.commitSent, false);
+    assert.ok(result.runtimeEvidence.inTransactionPostProbeDiagnostic?.privilegeDiff);
+    const serialized = serializePreviewRemoteExecutionResult(result);
+    assert.equal(serialized.includes('WITH tracked'), false);
+    assert.equal(serialized.includes('/Users/'), false);
+    assert.equal(serialized.includes('password'), false);
+    assert.equal(resultContainsForbiddenEvidence(result), false);
+  });
+});
+
+describe('remote execution executor p3 privilege diff diagnostic rev1 patch-1 AF1-AF8', () => {
+  const validFingerprintA = 'priv.consult_messages.anon.SELECT|1';
+  const validFingerprintB = 'priv.consult_threads.anon.SELECT|1';
+
+  it('AF1 dense plain primitive-string arrays are accepted', () => {
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], [validFingerprintB]);
+    assert.equal(diff.truncatedOrSuppressed, false);
+    assert.equal(diff.expectedCount, 1);
+    assert.equal(diff.actualCount, 1);
+    assert.deepEqual(diff.missingExpected, [validFingerprintA]);
+    assert.deepEqual(diff.unexpectedActual, [validFingerprintB]);
+  });
+
+  it('AF2 sparse privilege array is suppressed', () => {
+    const sparse: string[] = [];
+    sparse.length = 2;
+    sparse[1] = validFingerprintA;
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], sparse);
+    assert.equal(diff.truncatedOrSuppressed, true);
+    assert.equal(diff.expectedCount, 0);
+    assert.deepEqual(diff.missingExpected, []);
+  });
+
+  it('AF3 accessor index is suppressed without invoking getter', () => {
+    const accessor: string[] = [];
+    Object.defineProperty(accessor, 'length', {
+      value: 1,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+    Object.defineProperty(accessor, '0', {
+      get() {
+        throw new Error('getter invoked');
+      },
+      enumerable: true,
+      configurable: true,
+    });
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], accessor);
+    assert.equal(diff.truncatedOrSuppressed, true);
+    assert.deepEqual(diff.unexpectedActual, []);
+  });
+
+  it('AF4 setter-only/accessor descriptor is suppressed', () => {
+    const setterOnly: string[] = [];
+    Object.defineProperty(setterOnly, 'length', {
+      value: 1,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+    Object.defineProperty(setterOnly, '0', {
+      set() {
+        throw new Error('setter invoked');
+      },
+      enumerable: true,
+      configurable: true,
+    });
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], setterOnly);
+    assert.equal(diff.truncatedOrSuppressed, true);
+  });
+
+  it('AF5 array with extra own string property is suppressed', () => {
+    const extra: string[] = [validFingerprintA];
+    Object.defineProperty(extra, 'extra', {
+      value: 'bad',
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], extra);
+    assert.equal(diff.truncatedOrSuppressed, true);
+  });
+
+  it('AF6 array with own symbol property is suppressed', () => {
+    const withSymbol: string[] = [validFingerprintA];
+    Object.defineProperty(withSymbol, Symbol('marker'), {
+      value: 'bad',
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], withSymbol);
+    assert.equal(diff.truncatedOrSuppressed, true);
+  });
+
+  it('AF7 array subclass/custom prototype is suppressed', () => {
+    class SubArray extends Array {}
+    const subclass = Object.create(SubArray.prototype) as string[];
+    Object.defineProperty(subclass, 'length', {
+      value: 1,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+    Object.defineProperty(subclass, '0', {
+      value: validFingerprintA,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    const diff = buildPrivilegeDiffDiagnostic([validFingerprintA], subclass);
+    assert.equal(diff.truncatedOrSuppressed, true);
+  });
+
+  it('AF8 ASCII set differences use deterministic code-unit order and do not call localeCompare', () => {
+    const left = [
+      'priv.z_table.anon.SELECT|1',
+      'priv.a_table.anon.SELECT|1',
+      'priv.m_table.anon.SELECT|1',
+    ];
+    const right = ['priv.m_table.anon.SELECT|1'];
+    const diff = buildPrivilegeDiffDiagnostic(left, right);
+    assert.deepEqual(diff.missingExpected, [
+      'priv.a_table.anon.SELECT|1',
+      'priv.z_table.anon.SELECT|1',
+    ]);
+    const sortedCopy = [...diff.missingExpected];
+    sortedCopy.sort();
+    assert.deepEqual(diff.missingExpected, sortedCopy);
   });
 });

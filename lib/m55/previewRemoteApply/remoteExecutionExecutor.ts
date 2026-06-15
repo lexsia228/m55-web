@@ -133,6 +133,20 @@ export type InTransactionPostProbeDiagnostic = {
   readonly postMismatchCount: number;
   readonly postForbiddenViolationCount: number;
   readonly normalizationProfile: 'CATALOG_PG_WIRE_CANONICAL_V1';
+  readonly privilegeDiff?: PrivilegeDiffDiagnostic | null;
+};
+
+export type PrivilegeDiffDiagnostic = {
+  readonly expectedCount: number;
+  readonly actualCount: number;
+  readonly missingExpectedCount: number;
+  readonly unexpectedActualCount: number;
+  readonly missingExpected: readonly string[];
+  readonly unexpectedActual: readonly string[];
+  readonly duplicateExpectedCount: number;
+  readonly duplicateActualCount: number;
+  readonly truncatedOrSuppressed: boolean;
+  readonly fingerprintProfile: 'TABLE_PRIVILEGE_FINGERPRINT_V1';
 };
 
 export type StaticExecutionGateRecord = {
@@ -523,6 +537,11 @@ const MAX_OBSERVED_HISTORY_PREFIX_ENTRIES = 7;
 const UNSAFE_MISMATCH_CATEGORY_SUPPRESSED = 'UNSAFE_MISMATCH_CATEGORY_SUPPRESSED' as const;
 const HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID = 'HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID' as const;
 const CATALOG_PG_WIRE_NORMALIZATION_PROFILE = 'CATALOG_PG_WIRE_CANONICAL_V1' as const;
+const MAX_PUBLIC_PRIVILEGE_DIFF_ENTRIES = 32;
+const MAX_PRIVILEGE_FINGERPRINT_LENGTH = 128;
+const PRIVILEGE_FINGERPRINT_PATTERN =
+  /^priv\.[a-z][a-z0-9_]*\.(PUBLIC|anon|authenticated|service_role)\.(SELECT|INSERT|UPDATE|DELETE|TRUNCATE|REFERENCES|TRIGGER)\|[01]$/;
+const TABLE_PRIVILEGE_FINGERPRINT_PROFILE = 'TABLE_PRIVILEGE_FINGERPRINT_V1' as const;
 
 function isSafePublicMismatchCategory(entry: unknown): entry is string {
   if (typeof entry !== 'string') {
@@ -546,6 +565,164 @@ export function sanitizePublicMismatchCategories(categories: readonly unknown[])
     validated.push(entry);
   }
   return [...new Set(validated)].sort();
+}
+
+type ValidatedPrivilegeFingerprintArray = {
+  readonly valid: boolean;
+  readonly values: readonly string[];
+};
+
+function isPrivilegeFingerprintString(entry: unknown): entry is string {
+  if (typeof entry !== 'string') {
+    return false;
+  }
+  if (entry.length === 0 || entry.length > MAX_PRIVILEGE_FINGERPRINT_LENGTH) {
+    return false;
+  }
+  return PRIVILEGE_FINGERPRINT_PATTERN.test(entry);
+}
+
+function isOwnDataDescriptorWithValue(
+  descriptor: PropertyDescriptor | undefined,
+): descriptor is PropertyDescriptor & { value: unknown } {
+  if (descriptor === undefined) {
+    return false;
+  }
+  if (descriptor.get !== undefined || descriptor.set !== undefined) {
+    return false;
+  }
+  return Object.prototype.hasOwnProperty.call(descriptor, 'value');
+}
+
+function validatePrivilegeFingerprintArray(source: unknown): ValidatedPrivilegeFingerprintArray {
+  if (!Array.isArray(source)) {
+    return { valid: false, values: [] };
+  }
+  if (Object.getPrototypeOf(source) !== Array.prototype) {
+    return { valid: false, values: [] };
+  }
+  if (Object.getOwnPropertySymbols(source).length > 0) {
+    return { valid: false, values: [] };
+  }
+  const descriptors: Record<string, PropertyDescriptor> = Object.getOwnPropertyDescriptors(source);
+  const lengthDescriptor = descriptors['length'];
+  if (!isOwnDataDescriptorWithValue(lengthDescriptor)) {
+    return { valid: false, values: [] };
+  }
+  const lengthValue = lengthDescriptor.value;
+  if (typeof lengthValue !== 'number' || !Number.isSafeInteger(lengthValue) || lengthValue < 0) {
+    return { valid: false, values: [] };
+  }
+  const length = lengthValue;
+  if (source.length !== length) {
+    return { valid: false, values: [] };
+  }
+  const expectedKeys = new Set<string>(['length']);
+  for (let index = 0; index < length; index += 1) {
+    expectedKeys.add(String(index));
+  }
+  const ownStringKeys = Object.keys(descriptors);
+  if (ownStringKeys.length !== expectedKeys.size) {
+    return { valid: false, values: [] };
+  }
+  for (const key of ownStringKeys) {
+    if (!expectedKeys.has(key)) {
+      return { valid: false, values: [] };
+    }
+  }
+  const values: string[] = [];
+  for (let index = 0; index < length; index += 1) {
+    const indexDescriptor = descriptors[String(index)];
+    if (!isOwnDataDescriptorWithValue(indexDescriptor)) {
+      return { valid: false, values: [] };
+    }
+    const entry = indexDescriptor.value;
+    if (!isPrivilegeFingerprintString(entry)) {
+      return { valid: false, values: [] };
+    }
+    values.push(entry);
+  }
+  return { valid: true, values };
+}
+
+function countDuplicatePrivilegeFingerprints(values: readonly string[]): number {
+  const seen = new Set<string>();
+  let duplicateCount = 0;
+  for (const entry of values) {
+    if (seen.has(entry)) {
+      duplicateCount += 1;
+    } else {
+      seen.add(entry);
+    }
+  }
+  return duplicateCount;
+}
+
+function sortedPrivilegeSetDifference(
+  left: readonly string[],
+  right: readonly string[],
+): readonly string[] {
+  const rightSet = new Set(right);
+  return [...new Set(left)].filter((entry) => !rightSet.has(entry)).sort();
+}
+
+function buildSuppressedPrivilegeDiffDiagnostic(): PrivilegeDiffDiagnostic {
+  return {
+    expectedCount: 0,
+    actualCount: 0,
+    missingExpectedCount: 0,
+    unexpectedActualCount: 0,
+    missingExpected: [],
+    unexpectedActual: [],
+    duplicateExpectedCount: 0,
+    duplicateActualCount: 0,
+    truncatedOrSuppressed: true,
+    fingerprintProfile: TABLE_PRIVILEGE_FINGERPRINT_PROFILE,
+  };
+}
+
+export function buildPrivilegeDiffDiagnostic(
+  expectedSource: unknown,
+  actualSource: unknown,
+): PrivilegeDiffDiagnostic {
+  const expected = validatePrivilegeFingerprintArray(expectedSource);
+  const actual = validatePrivilegeFingerprintArray(actualSource);
+  if (!expected.valid || !actual.valid) {
+    return buildSuppressedPrivilegeDiffDiagnostic();
+  }
+  const missingFull = sortedPrivilegeSetDifference(expected.values, actual.values);
+  const unexpectedFull = sortedPrivilegeSetDifference(actual.values, expected.values);
+  const truncatedOrSuppressed =
+    missingFull.length > MAX_PUBLIC_PRIVILEGE_DIFF_ENTRIES ||
+    unexpectedFull.length > MAX_PUBLIC_PRIVILEGE_DIFF_ENTRIES;
+  return {
+    expectedCount: expected.values.length,
+    actualCount: actual.values.length,
+    missingExpectedCount: missingFull.length,
+    unexpectedActualCount: unexpectedFull.length,
+    missingExpected: truncatedOrSuppressed ? [] : missingFull,
+    unexpectedActual: truncatedOrSuppressed ? [] : unexpectedFull,
+    duplicateExpectedCount: countDuplicatePrivilegeFingerprints(expected.values),
+    duplicateActualCount: countDuplicatePrivilegeFingerprints(actual.values),
+    truncatedOrSuppressed,
+    fingerprintProfile: TABLE_PRIVILEGE_FINGERPRINT_PROFILE,
+  };
+}
+
+function resolvePrivilegeDiffDiagnostic(
+  stepId: StepId,
+  postCompareOk: boolean,
+  postMismatchCategories: readonly string[],
+  postOracle: OraclePhase,
+  postSnapshot: PhaseSnapshot,
+): PrivilegeDiffDiagnostic | null {
+  if (STEP_INDEX[stepId] < 2 || postCompareOk || !postMismatchCategories.includes('privileges_mismatch')) {
+    return null;
+  }
+  if (!('privileges' in postOracle) || !('privileges' in postSnapshot)) {
+    return null;
+  }
+  return buildPrivilegeDiffDiagnostic(postOracle.privileges, postSnapshot.privileges);
 }
 
 type ObservedHistoryPrefixExtraction = {
@@ -626,6 +803,13 @@ export function buildInTransactionPostProbeDiagnostic(
     postMismatchSources.push(HISTORY_PREFIX_DIAGNOSTIC_SHAPE_INVALID);
   }
   const postMismatchCategories = sanitizePublicMismatchCategories(postMismatchSources);
+  const privilegeDiff = resolvePrivilegeDiffDiagnostic(
+    stepId,
+    postCompare.ok,
+    postMismatchCategories,
+    postOracle,
+    postCompare.snapshot,
+  );
   return {
     selectedStep: stepId,
     postProbeId,
@@ -649,6 +833,7 @@ export function buildInTransactionPostProbeDiagnostic(
     postMismatchCount: postCompare.mismatches.length,
     postForbiddenViolationCount: postForbiddenViolations.length,
     normalizationProfile: CATALOG_PG_WIRE_NORMALIZATION_PROFILE,
+    ...(privilegeDiff === null ? {} : { privilegeDiff }),
   };
 }
 
