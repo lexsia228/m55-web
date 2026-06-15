@@ -38,6 +38,7 @@ import {
   loadVerifiedProbeSqlBundle,
   parseCanonicalPgInt8WireString,
   resultContainsForbiddenEvidence,
+  validateInTransactionPostProbe,
   serializePreviewRemoteExecutionResult,
   type PreviewRemoteExecutionDeps,
 } from './previewRemoteApply/remoteExecutionExecutor.ts';
@@ -394,8 +395,8 @@ function createCatalogQueryHandler(
     failAt?: 'query';
   } = {},
 ) {
-  let catalogCalls = 0;
   let bootstrapSeen = false;
+  let historyInsertSeen = false;
   return (sql: string): ExecutionPgQueryResult => {
     if (overrides.failAt === 'query') {
       throw new Error('HOLD_UNEXPECTED_INTERNAL');
@@ -403,6 +404,9 @@ function createCatalogQueryHandler(
     const trimmed = sql.trim();
     if (sql.includes('CREATE SCHEMA supabase_migrations')) {
       bootstrapSeen = true;
+    }
+    if (sql.startsWith('INSERT INTO supabase_migrations.schema_migrations')) {
+      historyInsertSeen = true;
     }
     if (sql === POST_CONNECT_GUARD_SQL) {
       return {
@@ -427,12 +431,14 @@ function createCatalogQueryHandler(
       };
     }
     if (trimmed.startsWith('WITH tracked')) {
-      catalogCalls += 1;
-      if (bootstrapSeen || overrides.stepId === 'P1') {
+      const stepId = overrides.stepId ?? 'P2';
+      if (bootstrapSeen || stepId === 'P1') {
+        if (!historyInsertSeen) {
+          return catalogRowsForPhase(overrides.priorPhaseId ?? priorOraclePhaseForStep('P1'));
+        }
         return catalogRowsForPhase(overrides.postPhaseId ?? postOraclePhaseForStep('P1'));
       }
-      const stepId = overrides.stepId ?? 'P2';
-      if (catalogCalls === 1) {
+      if (!historyInsertSeen) {
         return catalogRowsForPhase(overrides.priorPhaseId ?? priorOraclePhaseForStep(stepId));
       }
       return catalogRowsForPhase(overrides.postPhaseId ?? postOraclePhaseForStep(stepId));
@@ -3247,5 +3253,134 @@ describe('remote execution executor p1 bootstrap pg int8 wire correction-1 AA1-A
       resolveExecutionPgTransportEvidenceProfile({ createClient: (config) => factory.createClient(config) }),
       'TEST_INJECTED',
     );
+  });
+});
+
+describe('remote execution executor p3 in-transaction post-probe correction-1 AB1-AB10', () => {
+  it('AB1 P3 after INSERT selects POST_P3, never PRIOR_P3', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    const queries = deps.mutationFactory!.clients[0]!.queries;
+    const insertIdx = queries.findIndex((entry) => entry.sql === HISTORY_INSERT_SQL_METADATA);
+    const catalogQueries = queries.filter((entry) => entry.sql.trim().startsWith('WITH tracked'));
+    assert.ok(insertIdx >= 0);
+    assert.equal(catalogQueries.length, 2);
+    const priorIdx = queries.findIndex((entry) => entry.sql.trim().startsWith('WITH tracked'));
+    assert.ok(priorIdx >= 0 && priorIdx < insertIdx);
+    const postIdx = queries.findIndex((entry, index) => index > insertIdx && entry.sql.trim().startsWith('WITH tracked'));
+    assert.ok(postIdx > insertIdx);
+    const bundle = loadVerifiedProbeSqlBundle(REPO_ROOT);
+    assert.equal(bundle.ok, true);
+    if (bundle.ok) {
+      assert.equal(queries[priorIdx]!.sql, bundle.bundle.catalogExtractorSql);
+      assert.equal(queries[postIdx]!.sql, bundle.bundle.catalogExtractorSql);
+      assert.notEqual(queries[priorIdx]!.sql.includes('bootstrap_precondition_classification'), true);
+    }
+  });
+
+  it('AB2 POST_P3 executes on the same mutation client inside the open transaction', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(deps.mutationFactory!.clients.length, 1);
+    const client = deps.mutationFactory!.clients[0]!;
+    assert.equal(client.calls.includes('begin'), true);
+    assert.equal(client.calls.includes('commit'), true);
+    const commitIdx = client.calls.indexOf('commit');
+    const lastQueryIdx = client.calls.lastIndexOf('query');
+    assert.ok(commitIdx > lastQueryIdx);
+  });
+
+  it('AB3 POST_P3 expects exact P1,P2,P3 prefix', () => {
+    const validation = validateInTransactionPostProbe('P3', catalogRowsForPhase('P3'), loadOraclePhases());
+    assert.equal(validation.postProbeId, 'POST_P3');
+    assert.equal(validation.historyPrefixExact, true);
+    assert.deepEqual(validation.expectedPostHistoryPrefix, [
+      '20260614000000',
+      '20260615000001',
+      '20260615000002',
+    ]);
+  });
+
+  it('AB4 POST_P3 expects Oracle phase P3', () => {
+    const validation = validateInTransactionPostProbe('P3', catalogRowsForPhase('P3'), loadOraclePhases());
+    assert.equal(validation.postOraclePhase, 'P3');
+    assert.equal(validation.priorOraclePhase, 'P2');
+    assert.equal(validation.postCompareOk, true);
+  });
+
+  it('AB5 POST_P3 requires current-version delta present', () => {
+    const validation = validateInTransactionPostProbe('P3', catalogRowsForPhase('P3'), loadOraclePhases());
+    assert.equal(validation.priorCompareOk, false);
+    assert.equal(validation.currentVersionDeltaPresent, true);
+    assert.equal(validation.ok, true);
+  });
+
+  it('AB6 exact in-transaction P3 next state sends COMMIT once', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HUMAN_REVIEW_REQUIRED');
+    assert.equal(deps.mutationFactory!.clients[0]!.calls.filter((call) => call === 'commit').length, 1);
+    assert.equal(result.runtimeEvidence.commitSent, true);
+  });
+
+  it('AB7 post probe sees uncommitted history INSERT on the same fake client', async () => {
+    const deps = qFakeTransportDeps({ stepId: 'P3', verifierPostPhaseId: 'P3' });
+    await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    const queries = deps.mutationFactory!.clients[0]!.queries;
+    const insertIdx = queries.findIndex((entry) => entry.sql === HISTORY_INSERT_SQL_METADATA);
+    const postIdx = queries.findIndex((entry, index) => index > insertIdx && entry.sql.trim().startsWith('WITH tracked'));
+    assert.ok(insertIdx >= 0 && postIdx > insertIdx);
+    const validation = validateInTransactionPostProbe('P3', catalogRowsForPhase('P3'), loadOraclePhases());
+    assert.equal(validation.ok, true);
+  });
+
+  it('AB8 post probe on a fresh client seeing prior P2 state fails and sends no COMMIT', async () => {
+    let historyInsertSeen = false;
+    const catalogHandler = createCatalogQueryHandler({ stepId: 'P3', postPhaseId: 'P2' });
+    const factory = createFakeExecutionPgClientFactory({
+      queryHandler: (sql) => {
+        if (sql.startsWith('INSERT INTO supabase_migrations.schema_migrations')) {
+          historyInsertSeen = true;
+        }
+        if (sql.trim().startsWith('WITH tracked') && historyInsertSeen) {
+          return catalogRowsForPhase('P2');
+        }
+        return catalogHandler(sql);
+      },
+    });
+    const deps = qFakeTransportDeps({ stepId: 'P3' });
+    deps.transportFactory = { createClient: (config) => factory.createClient(config) };
+    const result = await executeWithEnvelope(validAuthorizationEnvelope({ selectedStep: 'P3' }), 'P3', deps);
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.holdReasonCode, 'HOLD_INVALID_HISTORY_PREFIX');
+    assert.equal(result.runtimeEvidence.commitSent, false);
+  });
+
+  it('AB9 post mismatch rolls back then fresh classifier returns DEFINITELY_NOT_COMMITTED', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    assert.equal(result.mode, 'PREVIEW_REMOTE_EXECUTION_HOLD');
+    assert.equal(result.holdReasonCode, 'HOLD_INVALID_HISTORY_PREFIX');
+    assert.equal(result.ackState, 'DEFINITELY_NOT_COMMITTED');
+    assert.equal(result.runtimeEvidence.commitSent, false);
+    assert.equal(result.runtimeEvidence.freshReadonlyCheckExecuted, true);
+  });
+
+  it('AB10 no automatic rerun/P4 and no secret/SQL/path evidence', async () => {
+    const result = await executeWithEnvelope(
+      validAuthorizationEnvelope({ selectedStep: 'P3' }),
+      'P3',
+      qFakeTransportDeps({ stepId: 'P3', postPhaseId: 'P2', verifierPostPhaseId: 'P2' }),
+    );
+    assert.equal(result.automaticNextStep, false);
+    assert.equal(result.executionAuthorized, false);
+    const serialized = JSON.stringify(result);
+    assert.equal(serialized.includes(SENTINEL), false);
+    assert.equal(serialized.includes('WITH tracked'), false);
+    assert.equal(serialized.includes('/Users/'), false);
+    assert.notEqual(result.disposition, 'HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION');
   });
 });

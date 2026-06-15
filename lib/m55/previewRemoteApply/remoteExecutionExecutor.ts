@@ -6,6 +6,7 @@ import {
   compareRuntimePhaseSnapshot,
   deriveRuntimePhaseSnapshot,
   parseRuntimeCatalogOutput,
+  type RuntimeCatalogRaw,
 } from '../../../scripts/m55/previewBaselineDisposableRuntime.ts';
 import { splitAndTrim } from '../transactionNormalized/splitAndTrim.ts';
 import {
@@ -457,18 +458,110 @@ function extractCatalogJsonLine(result: ExecutionPgQueryResult): string {
   throw new Error('HOLD_UNEXPECTED_INTERNAL');
 }
 
+function normalizeCatalogRelationCountWireValue(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value) && Number.isInteger(value)) {
+    return value;
+  }
+  const parsed = parseCanonicalPgInt8WireString(value);
+  if (parsed === null) {
+    throw new Error('HOLD_UNEXPECTED_INTERNAL');
+  }
+  return parsed;
+}
+
+function normalizeCatalogRawWireShapes(raw: RuntimeCatalogRaw): RuntimeCatalogRaw {
+  const application_relation_counts = Object.fromEntries(
+    Object.entries(raw.application_relation_counts ?? {}).map(([key, value]) => [
+      key,
+      normalizeCatalogRelationCountWireValue(value),
+    ]),
+  );
+  const internal_trigger_groups = (raw.internal_trigger_groups ?? []).map((group) => {
+    const row = group as RuntimeCatalogRaw['internal_trigger_groups'][number];
+    return {
+      ...row,
+      expected_count: normalizeCatalogRelationCountWireValue(row.expected_count),
+      actual_count: normalizeCatalogRelationCountWireValue(row.actual_count),
+    };
+  });
+  return {
+    ...raw,
+    application_relation_counts,
+    internal_trigger_groups,
+  };
+}
+
 function classifyCatalogQueryResult(
   result: ExecutionPgQueryResult,
   oraclePhase: OraclePhase,
 ): { ok: boolean; snapshot: PhaseSnapshot } {
   const stdout = extractCatalogJsonLine(result);
-  const raw = parseRuntimeCatalogOutput(stdout);
+  const raw = normalizeCatalogRawWireShapes(parseRuntimeCatalogOutput(stdout));
   const snapshot = deriveRuntimePhaseSnapshot(raw, oraclePhase);
   const comparison = compareRuntimePhaseSnapshot(snapshot, oraclePhase);
   return {
     ok: comparison.ok,
     snapshot,
   };
+}
+
+export type InTransactionPostProbeValidation = {
+  readonly postProbeId: string;
+  readonly priorOraclePhase: string;
+  readonly postOraclePhase: string;
+  readonly expectedPostHistoryPrefix: readonly string[];
+  readonly priorCompareOk: boolean;
+  readonly postCompareOk: boolean;
+  readonly historyPrefixExact: boolean;
+  readonly currentVersionDeltaPresent: boolean;
+  readonly unexpectedDeltaZero: boolean;
+  readonly ok: boolean;
+};
+
+export function validateInTransactionPostProbe(
+  stepId: StepId,
+  result: ExecutionPgQueryResult,
+  oraclePhases: readonly OraclePhase[],
+): InTransactionPostProbeValidation {
+  const postProbeId = STEP_TO_POST_PROBE[stepId];
+  const registryProbe = getRuntimeProbeById(postProbeId);
+  if (!registryProbe || registryProbe.kind !== 'ORDINARY') {
+    throw new Error('HOLD_RUNTIME_PROBE_REGISTRY');
+  }
+  const priorOraclePhase = expectedOraclePhaseForStep(stepId, 'prior');
+  const postOraclePhase = expectedOraclePhaseForStep(stepId, 'post');
+  const expectedPostHistoryPrefix = expectedHistoryPrefixForStep(stepId, 'post');
+  const priorOracle = getOraclePhase(oraclePhases, priorOraclePhase);
+  const postOracle = getOraclePhase(oraclePhases, postOraclePhase);
+  const priorCompare = classifyCatalogQueryResult(result, priorOracle);
+  const postCompare = classifyCatalogQueryResult(result, postOracle);
+  const historyPrefixExact = historyPrefixMatches(postCompare.snapshot, expectedPostHistoryPrefix);
+  const unexpectedDeltaZero = (postCompare.snapshot.forbidden_violations as string[]).length === 0;
+  const currentVersionDeltaPresent = !priorCompare.ok;
+  const ok =
+    registryProbe.id === postProbeId &&
+    registryProbe.phase === postOraclePhase &&
+    stableHistoryPrefix(registryProbe.expectedHistoryPrefix) === stableHistoryPrefix(expectedPostHistoryPrefix) &&
+    historyPrefixExact &&
+    currentVersionDeltaPresent &&
+    postCompare.ok &&
+    unexpectedDeltaZero;
+  return {
+    postProbeId,
+    priorOraclePhase,
+    postOraclePhase,
+    expectedPostHistoryPrefix,
+    priorCompareOk: priorCompare.ok,
+    postCompareOk: postCompare.ok,
+    historyPrefixExact,
+    currentVersionDeltaPresent,
+    unexpectedDeltaZero,
+    ok,
+  };
+}
+
+function stableHistoryPrefix(prefix: readonly string[]): string {
+  return prefix.join('\u001f');
 }
 
 function resolveNowMs(deps: PreviewRemoteExecutionDeps): () => number {
@@ -1236,9 +1329,8 @@ export async function executePreviewRemoteExecution(
     const postResult = await mutationClient.query(
       resolveProbeSqlFromBundle(probeBundle, STEP_TO_POST_PROBE[input.selectedStep]),
     );
-    const postOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(input.selectedStep, 'post'));
-    const postCompare = classifyCatalogQueryResult(postResult, postOracle);
-    if (!postCompare.ok) {
+    const postValidation = validateInTransactionPostProbe(input.selectedStep, postResult, oraclePhases);
+    if (!postValidation.ok) {
       return await finishPreCommitHold('HOLD_INVALID_HISTORY_PREFIX', 'IN_TRANSACTION_SERVER_REJECTION');
     }
 
