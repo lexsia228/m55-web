@@ -1,184 +1,187 @@
 # M55 Production Purchase Smoke — Wave1 Human Runbook
 
-**Status:** execution-ready planning artifact (no credentials)  
-**Branch authority:** `feat/m55-paid-lp-canonical-wave1`  
-**Commit placeholder:** `APPROVED_COMMIT_SHA`  
-**Harness:** `scripts/production/m55_production_purchase_smoke_wave1.ts`  
+**Status:** execution-ready planning artifact (no credentials)
+**Branch authority:** `feat/m55-paid-lp-canonical-wave1`
+**Harness:** `scripts/production/m55_production_purchase_smoke_wave1.ts`
+**Wave authority:** `scripts/production/m55_production_purchase_wave_authority.ts`
 **Postcheck SQL:** `scripts/sql/production/m55_production_purchase_smoke_wave1_postcheck.sql`
 
 ## Purpose
 
 Execute four mandatory Production purchase scenarios before public release:
 
-1. Light purchase (`dtr_core_light_v1`, ¥1,000)
-2. Light→FULL conversion (`dtr_core_light_to_full_upgrade_v1`, ¥600 differential)
-3. Duplicate FULL rejection (no second charge / no state delta)
-4. Fresh FULL purchase on a separate subject (`dtr_core_full_v1`, ¥1,480)
+1. Light purchase (`dtr_core_light_v1`, ¥1,000) — Subject A (`M55_PROD_PURCHASE_A`)
+2. Light→FULL conversion (`dtr_core_light_to_full_upgrade_v1`, ¥600) — Subject A
+3. Duplicate FULL rejection (no second charge / no state delta) — Subject A
+4. Fresh FULL purchase (`dtr_core_full_v1`, ¥1,480) — Subject B (`M55_PROD_PURCHASE_B`)
 
-Controlled account deletion is **excluded** from this wave and remains a separate later gate.
+Controlled account deletion is **excluded** from this wave.
 
-## Prerequisites
+**Production execution authorized now: false**
 
-- Human approval for Production money-moving actions (separate from this document)
-- Current deployed commit equals approved commit SHA
-- Production identity confirmed: Vercel project `m55-webv2`, Production environment, live Stripe mode
-- Two dedicated test subjects (no real customers):
-  - **Subject A:** Light → conversion → duplicate rejection
-  - **Subject B:** fresh FULL only
-- Env/price binding verified locally without sharing values:
-  - Human compares Production env keys to expected names only
-  - Return to harness/logs: `EXACT_MATCH` or `MISMATCH` (never paste values)
-- Supabase DNS / account-deletion lane may remain blocked independently
+## Prerequisites (all required before any money movement)
+
+1. DNS blocker resolved
+2. Preview deletion smoke `CLOSED_GREEN`
+3. Final integrated RC `CLOSED_GREEN`
+4. Main integration complete; remote `origin/main` exact
+5. Compatibility audit `GREEN` against final main and current Production schema
+6. Exact required Production migrations complete; postcheck `PRODUCTION_CHAIN_GREEN`
+7. Exact Production deployment `READY` with alias exact
+8. All binding confirmations `EXACT_MATCH` (see below)
+9. Subject A and Subject B clean-state precheck `SUBJECT_READY_CLEAN`
+10. Valid single-use `PurchaseWaveAuthority` token (not expired/consumed)
+
+## Binding confirmations (Human returns booleans only — never paste values)
+
+| Confirmation | Required value |
+|---|---|
+| Vercel Production binding | `EXACT_MATCH` |
+| Supabase Production binding | `EXACT_MATCH` |
+| Clerk live instance binding | `EXACT_MATCH` |
+| Stripe live mode | `EXACT_MATCH` |
+| Light price binding | `EXACT_MATCH` |
+| FULL price binding | `EXACT_MATCH` |
+| Upgrade price binding | `EXACT_MATCH` |
+
+Raw price IDs, API keys, and env values must **never** appear in evidence.
+
+## ONE_PURCHASE_WAVE_APPROVAL
+
+One Human approval authorizes subject creation/verification and the entire bounded wave.
+
+- Human click required for **each** payment (max 3 successful charges)
+- Duplicate successful FULL charge count = **0**
+- Any HOLD ends the wave — no retry, no refund, no deletion
+- Approval phrase format (placeholders only):
+
+`APPROVE CATEGORY-1-M55-PRODUCTION-PURCHASE-WAVE-EXECUTION MAIN_<safe-short-sha> DEPLOYMENT_<safe-id> AUTHORITY_<safe-hash>`
+
+## 19-step Human action sequence (maps to internal W0–W11)
+
+| Human | Action | Internal state |
+|---|---|---|
+| W0 | Authority + Production identity confirmation | W0_AUTHORITY_CONFIRMATION |
+| W1 | Subject A/B labels confirmed; clean precheck GREEN | W1_TEST_SUBJECTS_CONFIRMED |
+| W2 | Human opens Light checkout for Subject A | W2_LIGHT_PURCHASE_HUMAN_ACTION_REQUIRED |
+| W3 | Human completes exactly one Light payment (¥1,000) | W2 (payment sub-step) |
+| W4 | Classify payment outcome (combined evidence) | W2 (classification sub-step) |
+| W5 | Machine read-only Light postcheck | W3_LIGHT_POSTCHECK |
+| W6 | Human opens Light→FULL checkout for Subject A | W4_LIGHT_TO_FULL_HUMAN_ACTION_REQUIRED |
+| W7 | Human completes exactly one upgrade payment (¥600) | W4 (payment sub-step) |
+| W8 | Machine read-only conversion postcheck | W5_CONVERSION_POSTCHECK |
+| W9 | Attempt duplicate FULL for Subject A | W6_DUPLICATE_FULL_REJECTION_CHECK |
+| W10 | Require rejection before charge (409/422 or no-op) | W6 (Human evidence) |
+| W11 | Machine duplicate no-write postcheck | W6 (SQL + Human no-charge marker) |
+| W12 | Human opens FULL checkout for Subject B | W7_FRESH_FULL_HUMAN_ACTION_REQUIRED |
+| W13 | Human completes exactly one FULL payment (¥1,480) | W7 (payment sub-step) |
+| W14 | Machine read-only FULL postcheck | W8_FULL_POSTCHECK |
+| W15 | Integrated idempotency/cross-subject closure | W9_IDEMPOTENCY_AND_EXACTNESS_CLOSURE |
+| W16 | Purchase wave CLOSED or HOLD | W11_PURCHASE_WAVE_COMPLETE_DELETION_SEPARATE |
+| W17 | Refund decision deferred (optional) | W10_REFUND_CLEANUP_HUMAN_DECISION |
+| W18 | Controlled deletion deferred to separate gate | W11 |
+
+Payment outcome classes (each money action):
+
+- `PAYMENT_CONFIRMED_AND_APPLICATION_PENDING` → STOP (no repeat payment)
+- `PAYMENT_CONFIRMED_AND_APPLICATION_GREEN` → proceed only with combined evidence
+- `PAYMENT_DECLINED_NO_CHARGE` → STOP
+- `CHECKOUT_NOT_CREATED` → STOP
+- `CHECKOUT_CREATED_PAYMENT_NOT_ATTEMPTED` → STOP
+- `PAYMENT_STATUS_AMBIGUOUS` → STOP, no retry
+- `DUPLICATE_CHARGE_RISK` → STOP
+- `UNKNOWN` → STOP
+
+Combined evidence required for GREEN: Stripe dashboard outcome + application access + machine postcheck. Success page alone, Stripe alone, application alone, or DB alone is **insufficient**.
+
+## Postcheck SQL modes
+
+Set session GUC `m55.purchase_smoke.scenario_mode` before each run:
+
+1. `SUBJECT_PRECHECK` — clean state before first payment
+2. `LIGHT_POSTCHECK`
+3. `CONVERSION_POSTCHECK`
+4. `DUPLICATE_REJECTION_POSTCHECK` — requires Human `human_no_charge_confirmed=true` and `human_rejection_code`
+5. `FRESH_FULL_POSTCHECK`
+6. `INTEGRATED_CLOSURE` — both subjects; only `PURCHASE_WAVE_GREEN` permits next gate
+
+Duplicate rejection: SQL verifies no application-state delta; it does **not** infer charge result from DB alone.
 
 ## STOP rules (non-negotiable)
 
 - STOP at first failed predicate
-- No retry after ambiguous payment, HTTP, or DB evidence
+- No retry after ambiguous payment
 - No webhook Replay
 - No fifth deletion webhook
-- No broad Production DB queries
 - No manual SQL mutation
 - No manual entitlement/wallet/snapshot cleanup
 - No Production account deletion in this wave
-- No secret, card, email, or raw ID sharing in chat/logs/evidence
+- No secret, card, email, or raw ID sharing
 
-## W0 — Authority confirmation
+## Rollback / STOP matrix
 
-**Machine step:**
+<!-- PURCHASE-WAVE-STOP-MATRIX-BEGIN -->
 
-```bash
-node --experimental-strip-types scripts/production/m55_production_purchase_smoke_wave1.ts --dry-run-local
-```
+| Row | First predicate | Immediate STOP | Retry | Next money action |
+|---|---|---|---|---|
+| ROLLBACK-STOP-ROW-1 | HOLD_PRODUCTION_PURCHASE_BINDING_MISMATCH | yes | no | blocked |
+| ROLLBACK-STOP-ROW-2 | HOLD_SUBJECT_PRECHECK_NOT_CLEAN | yes | no | blocked |
+| ROLLBACK-STOP-ROW-3 | HOLD_CHECKOUT_NOT_CREATED | yes | no | blocked |
+| ROLLBACK-STOP-ROW-4 | HOLD_PAYMENT_DECLINED_NO_CHARGE | yes | no | blocked |
+| ROLLBACK-STOP-ROW-5 | HOLD_PAYMENT_AMBIGUOUS_NO_RETRY | yes | no | blocked |
+| ROLLBACK-STOP-ROW-6 | HOLD_DUPLICATE_CHARGE_RISK | yes | no | blocked |
+| ROLLBACK-STOP-ROW-7 | HOLD_PAYMENT_FULFILLMENT_PENDING_NO_RETRY | yes | no | blocked |
+| ROLLBACK-STOP-ROW-8 | HOLD_LIGHT mismatch | yes | no | blocked |
+| ROLLBACK-STOP-ROW-9 | HOLD_CONVERSION mismatch | yes | no | blocked |
+| ROLLBACK-STOP-ROW-10 | HOLD_DUPLICATE_FULL_CHARGE_CREATED | yes | no | blocked |
+| ROLLBACK-STOP-ROW-11 | HOLD_DUPLICATE_FULL_STATE_DELTA | yes | no | blocked |
+| ROLLBACK-STOP-ROW-12 | HOLD_FRESH_FULL mismatch | yes | no | blocked |
+| ROLLBACK-STOP-ROW-13 | HOLD_IDEMPOTENCY mismatch | yes | no | blocked |
+| ROLLBACK-STOP-ROW-14 | HOLD_FAILED_FULFILLMENTS | yes | no | blocked |
+| ROLLBACK-STOP-ROW-15 | HOLD_POSTCHECK_UNKNOWN_FLAGS | yes | no | blocked |
+| ROLLBACK-STOP-ROW-16 | HOLD_CROSS_SUBJECT_CONTAMINATION | yes | no | blocked |
+| ROLLBACK-STOP-ROW-17 | HOLD_CHARGE_BUDGET_EXCEEDED | yes | no | blocked |
+| ROLLBACK-STOP-ROW-18 | HOLD_PRODUCTION_INCIDENT | yes | no | blocked |
+| ROLLBACK-STOP-ROW-19 | HOLD_DNS_BLOCKER_REAPPEARED | yes | no | blocked |
+| ROLLBACK-STOP-ROW-20 | HOLD_WAVE_AUTHORITY_INVALID | yes | no | blocked |
 
-**Human steps:**
+<!-- PURCHASE-WAVE-STOP-MATRIX-END -->
 
-1. Confirm branch/commit match approved release candidate
-2. Confirm Production project/environment identity
-3. Confirm live Stripe mode intent
-4. Verify env binding via dashboard only; record `EXACT_MATCH` or `MISMATCH` per key name (no values)
-
-**Safe evidence to record:** `W0_AUTHORITY_GREEN`
-
-## W1 — Test subjects confirmed
-
-**Human steps:**
-
-1. Create or designate Subject A label (outside logs: your internal label only)
-2. Create or designate Subject B label (must differ from A)
-3. Confirm neither subject is a real customer
-
-**Safe evidence:** `W1_SUBJECTS_CONFIRMED`
-
-## W2 — Light purchase (Subject A)
-
-**Human browser steps:**
-
-1. Sign in as Subject A
-2. Complete profile prerequisites if checkout returns profile gate
-3. Start Light checkout (`dtr_core_light_v1`) via approved UI entry
-4. Complete exactly **one** live test payment (¥1,000 policy)
-5. Wait for success/processing path (no second payment attempt)
-
-**Safe evidence:** opaque label only, e.g. `LIGHT_CHECKOUT_REF_<label>`
-
-## W3 — Light postcheck (Subject A)
-
-**Machine step:**
-
-```bash
-# Set subject locally in psql session only — never commit the id
-# SET m55.purchase_smoke.user_id = '<Subject A Clerk user id>';
-psql "$APPROVED_READONLY_DB_URL" -v ON_ERROR_STOP=1 -f scripts/sql/production/m55_production_purchase_smoke_wave1_postcheck.sql
-```
-
-**Expected:** `scenario_classification=LIGHT_GREEN`, `overall_predicate=true`, failed_flags empty
-
-## W4 — Light→FULL conversion (Subject A)
-
-**Human browser steps:**
-
-1. Remain signed in as Subject A (Light state must exist)
-2. Start upgrade checkout via `/api/reply-tickets/checkout` UI path
-3. Product: `dtr_core_light_to_full_upgrade_v1`
-4. Complete exactly **one** ¥600 payment
-5. Do not attempt legacy ¥500 add-on lane
-
-**Safe evidence:** `UPGRADE_CHECKOUT_REF_<label>`
-
-## W5 — Conversion postcheck (Subject A)
-
-Re-run postcheck SQL for Subject A.
-
-**Expected:** wallet `purchased_count=4`, total capability 5, `CONVERSION_GREEN` or consistent flags
-
-## W6 — Duplicate FULL rejection (Subject A)
-
-**Human browser steps:**
-
-1. Attempt duplicate FULL or upgrade checkout again on Subject A
-2. Expect pre-checkout rejection:
-   - `409 already_purchased` on DTR checkout **or**
-   - `422 cap_reached` on reply-tickets checkout
-3. Confirm **no new Stripe Checkout Session** and **no new charge**
-
-**Application evidence required:** HTTP status + rejection code only (no payload)
-
-**Optional fulfillment defense check:** if a duplicate event exists, status must be `duplicate_noop`, `already_full_equivalent`, or `skipped_cap` with zero state delta
-
-## W7 — Fresh FULL purchase (Subject B)
-
-**Human browser steps:**
-
-1. Sign in as Subject B (must be clean: no prior wave1 purchase)
-2. Start FULL checkout (`dtr_core_full_v1`)
-3. Complete exactly **one** ¥1,480 payment
-
-**Safe evidence:** `FULL_CHECKOUT_REF_<label>`
-
-## W8 — FULL postcheck (Subject B)
-
-Re-run postcheck SQL for Subject B.
-
-**Expected:** `FRESH_FULL_GREEN`, `purchased_count=4`, `available_count=5`
-
-## W9 — Idempotency and exactness closure
-
-**Human steps:**
-
-1. Confirm no duplicate fulfillment rows for a single checkout session
-2. Confirm stripe event dedupe prevented double-grant
-3. Confirm no extra wallet/ledger/snapshot rows beyond contract
-
-**Safe evidence:** `IDEMPOTENCY_GREEN`
-
-## W10 — Refund / cleanup decision (optional, separate)
-
-- **No automatic refund** in this wave
-- Refund requires separate Human-approved Stripe action **after** evidence closure
-- **Refund revocation semantics:** `UNKNOWN_FAIL_CLOSED` — do not assume entitlement revocation unless separately proven by authoritative SSOT/code review gate
-- Never manually delete DB rows
-- Retain safe transaction/ticket references only
-
-## W11 — Purchase wave complete / deletion separate
-
-- Mark purchase wave complete only if W0–W9 are GREEN
-- Hand off to **Production controlled deletion smoke** under a separate Human-approved gate
-- Do not combine deletion with purchase wave
+Rules: Ambiguous payment — **no retry**. Automatic rollback — **forbidden**. Automatic refund — **forbidden**.
 
 ## Refund policy boundary
 
 | Action | Allowed in purchase wave? |
 |---|---|
-| Live purchase | Yes (Human, once per scenario) |
+| Live purchase | Yes (Human, max 3 successful charges) |
 | Automatic refund | No |
 | Manual DB cleanup | No |
 | Controlled deletion | No (separate gate) |
 | Webhook Replay | No |
 
+Refund revocation semantics: `UNKNOWN_FAIL_CLOSED`. Purchase wave may close GREEN without executing refund.
+
+## Internal W0–W11 reference (orchestrator)
+
+- **W0** — Authority confirmation
+- **W1** — Test subjects confirmed
+- **W2** — Light purchase (Human action)
+- **W3** — Light postcheck
+- **W4** — Light→FULL (Human action)
+- **W5** — Conversion postcheck
+- **W6** — Duplicate FULL rejection check
+- **W7** — Fresh FULL (Human action)
+- **W8** — FULL postcheck
+- **W9** — Idempotency closure
+- **W10** — Refund decision (deferred)
+- **W11** — Wave complete; deletion separate
+
 ## Final handoff
 
-Next gate after commit/push of harness artifacts:
+Next gate after commit/push of wave authority artifacts:
 
-`CATEGORY-1-M55-PRODUCTION-PURCHASE-SMOKE-HARNESS-COMMIT-AND-PUSH-PLANNING`
+`CATEGORY-1-M55-PRODUCTION-PURCHASE-WAVE-AUTHORITY-COMMIT-AND-PUSH-PLANNING`
 
-Production execution gate requires separate Human approval with authority object (commit SHA, subject labels, expiry, approval phrase hash).
+Only exact `PURCHASE_WAVE_GREEN` in integrated closure permits:
+
+`CATEGORY-1-M55-PRODUCTION-CONTROLLED-DELETION-SMOKE-PLAN-DELTA-REVIEW`

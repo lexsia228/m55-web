@@ -7,6 +7,35 @@
  */
 
 import { createHash } from 'node:crypto';
+import {
+  MAX_DUPLICATE_FULL_CHARGE_COUNT,
+  MAX_FRESH_FULL_CHARGE_COUNT,
+  MAX_LIGHT_CHARGE_COUNT,
+  MAX_SUCCESSFUL_CHARGE_COUNT,
+  MAX_UPGRADE_CHARGE_COUNT,
+  SUBJECT_LABEL_A,
+  SUBJECT_LABEL_B,
+  evaluateCombinedPaymentEvidence,
+  paymentOutcomeAllowsCharge,
+  paymentOutcomeIsAmbiguous,
+  validatePurchaseWaveAuthority,
+  type PaymentOutcomeClass,
+  type PurchaseWaveAuthority,
+} from './m55_production_purchase_wave_authority.ts';
+
+export {
+  HUMAN_ACTION_STEPS,
+  HUMAN_TO_INTERNAL_STATE_MAP,
+  PAYMENT_OUTCOME_CLASSES,
+  SUBJECT_LABEL_A,
+  SUBJECT_LABEL_B,
+  evaluateCombinedPaymentEvidence,
+  humanActionMapIsConsistent,
+  paymentOutcomeAllowsCharge,
+  paymentOutcomeIsAmbiguous,
+} from './m55_production_purchase_wave_authority.ts';
+
+export type { PaymentOutcomeClass, PurchaseWaveAuthority } from './m55_production_purchase_wave_authority.ts';
 
 export const HARNESS_SCHEMA_VERSION = 'm55_production_purchase_smoke_wave1_v1' as const;
 
@@ -27,8 +56,8 @@ export const WAVE_STATES = [
 
 export type WaveState = (typeof WAVE_STATES)[number];
 
-export const SUBJECT_A = 'SUBJECT_A_LIGHT_CONVERSION_DUPLICATE' as const;
-export const SUBJECT_B = 'SUBJECT_B_FRESH_FULL' as const;
+export const SUBJECT_A = SUBJECT_LABEL_A;
+export const SUBJECT_B = SUBJECT_LABEL_B;
 
 export const PRODUCT_LIGHT = 'dtr_core_light_v1' as const;
 export const PRODUCT_FULL = 'dtr_core_full_v1' as const;
@@ -187,8 +216,17 @@ export type HarnessOptions = {
   branch?: string;
   commitSha?: string;
   authority?: ProductionSmokeAuthority | null;
+  waveAuthority?: PurchaseWaveAuthority | null;
   now?: () => Date;
   transports?: Partial<HarnessTransports>;
+};
+
+export type ChargeBudget = {
+  light: number;
+  upgrade: number;
+  fresh_full: number;
+  duplicate_full: number;
+  total: number;
 };
 
 const FORBIDDEN_OUTPUT_PATTERNS = [
@@ -380,6 +418,7 @@ export class PurchaseSmokeWave1Harness {
   readonly branch: string;
   readonly commitSha: string;
   readonly authority: ProductionSmokeAuthority | null;
+  readonly waveAuthority: PurchaseWaveAuthority | null;
   readonly transports: HarnessTransports;
   readonly now: () => Date;
 
@@ -389,14 +428,27 @@ export class PurchaseSmokeWave1Harness {
   private firstFailure: string | null = null;
   private bindingReport: SafeBindingReport | null = null;
   private halted = false;
+  private subjectPrecheckGreen = false;
+  private chargesConsumed: ChargeBudget = {
+    light: 0,
+    upgrade: 0,
+    fresh_full: 0,
+    duplicate_full: 0,
+    total: 0,
+  };
 
   constructor(options: HarnessOptions = {}) {
     this.mode = options.mode ?? 'local_dry_run';
     this.branch = options.branch ?? 'feat/m55-paid-lp-canonical-wave1';
     this.commitSha = options.commitSha ?? '3e298c2eed7dc4e75509efe245edc3cdc92624f7';
     this.authority = options.authority ?? null;
+    this.waveAuthority = options.waveAuthority ?? null;
     this.now = options.now ?? (() => new Date());
     this.transports = { ...defaultTransports, ...options.transports };
+  }
+
+  get chargeBudget(): ChargeBudget {
+    return { ...this.chargesConsumed };
   }
 
   get currentState(): WaveState {
@@ -442,14 +494,27 @@ export class PurchaseSmokeWave1Harness {
       return;
     }
     if (this.mode === 'production_execution') {
-      const result = validateAuthority(this.authority, {
-        branch: this.branch,
-        commitSha: this.commitSha,
-        now: this.now(),
-      });
-      if (!result.ok) {
-        this.hold(result.predicate);
-        return;
+      if (this.waveAuthority) {
+        const waveResult = validatePurchaseWaveAuthority(this.waveAuthority, {
+          now: this.now(),
+          observedMainCommit: this.commitSha,
+          observedDeploymentCommit: this.waveAuthority.approved_production_deployment_commit,
+          chargesConsumed: this.chargesConsumed,
+        });
+        if (!waveResult.ready) {
+          this.hold(waveResult.failed_flags[0] ?? 'HOLD_WAVE_AUTHORITY_INVALID');
+          return;
+        }
+      } else {
+        const result = validateAuthority(this.authority, {
+          branch: this.branch,
+          commitSha: this.commitSha,
+          now: this.now(),
+        });
+        if (!result.ok) {
+          this.hold(result.predicate);
+          return;
+        }
       }
     }
     this.bindingReport = evaluateBindingReport({
@@ -465,11 +530,16 @@ export class PurchaseSmokeWave1Harness {
     this.completeStep({ step: 'W0_AUTHORITY_CONFIRMATION', authority_valid: true });
   }
 
-  runW1TestSubjectsConfirmed(): void {
+  runW1TestSubjectsConfirmed(subjectPrecheckGreen = true): void {
     if (!this.assertStepOrder('W1_TEST_SUBJECTS_CONFIRMED')) {
       this.hold('HOLD_STEP_ORDER_VIOLATION');
       return;
     }
+    if (!subjectPrecheckGreen) {
+      this.hold('HOLD_SUBJECT_PRECHECK_NOT_CLEAN');
+      return;
+    }
+    this.subjectPrecheckGreen = true;
     this.completeStep({
       step: 'W1_TEST_SUBJECTS_CONFIRMED',
       subject_a: SUBJECT_A,
@@ -477,16 +547,100 @@ export class PurchaseSmokeWave1Harness {
     });
   }
 
-  recordHumanPayment(step: 'W2_LIGHT_PURCHASE_HUMAN_ACTION_REQUIRED' | 'W4_LIGHT_TO_FULL_HUMAN_ACTION_REQUIRED' | 'W7_FRESH_FULL_HUMAN_ACTION_REQUIRED', humanRef: OpaqueHumanRef, paymentAmbiguous = false): void {
+  private assertChargeBudget(
+    kind: 'light' | 'upgrade' | 'fresh_full' | 'duplicate_full',
+  ): boolean {
+    if (kind === 'light' && this.chargesConsumed.light >= MAX_LIGHT_CHARGE_COUNT) {
+      this.hold('HOLD_LIGHT_CHARGE_BUDGET_EXCEEDED');
+      return false;
+    }
+    if (kind === 'upgrade' && this.chargesConsumed.upgrade >= MAX_UPGRADE_CHARGE_COUNT) {
+      this.hold('HOLD_UPGRADE_CHARGE_BUDGET_EXCEEDED');
+      return false;
+    }
+    if (kind === 'fresh_full' && this.chargesConsumed.fresh_full >= MAX_FRESH_FULL_CHARGE_COUNT) {
+      this.hold('HOLD_FRESH_FULL_CHARGE_BUDGET_EXCEEDED');
+      return false;
+    }
+    if (
+      kind === 'duplicate_full' &&
+      this.chargesConsumed.duplicate_full >= MAX_DUPLICATE_FULL_CHARGE_COUNT
+    ) {
+      this.hold('HOLD_DUPLICATE_CHARGE_BUDGET_EXCEEDED');
+      return false;
+    }
+    if (this.chargesConsumed.total >= MAX_SUCCESSFUL_CHARGE_COUNT && kind !== 'duplicate_full') {
+      this.hold('HOLD_TOTAL_CHARGE_BUDGET_EXCEEDED');
+      return false;
+    }
+    return true;
+  }
+
+  private recordSuccessfulCharge(kind: 'light' | 'upgrade' | 'fresh_full'): void {
+    if (kind === 'light') this.chargesConsumed.light += 1;
+    if (kind === 'upgrade') this.chargesConsumed.upgrade += 1;
+    if (kind === 'fresh_full') this.chargesConsumed.fresh_full += 1;
+    this.chargesConsumed.total =
+      this.chargesConsumed.light + this.chargesConsumed.upgrade + this.chargesConsumed.fresh_full;
+  }
+
+  recordHumanPayment(
+    step: 'W2_LIGHT_PURCHASE_HUMAN_ACTION_REQUIRED' | 'W4_LIGHT_TO_FULL_HUMAN_ACTION_REQUIRED' | 'W7_FRESH_FULL_HUMAN_ACTION_REQUIRED',
+    humanRef: OpaqueHumanRef,
+    paymentOutcome: PaymentOutcomeClass = 'PAYMENT_CONFIRMED_AND_APPLICATION_GREEN',
+    evidence?: {
+      stripe_success_observed?: boolean;
+      success_page_observed?: boolean;
+      application_access_observed?: boolean;
+      postcheck_green?: boolean;
+    },
+  ): void {
     if (this.halted) return;
+    if (!this.subjectPrecheckGreen) {
+      this.hold('HOLD_SUBJECT_PRECHECK_REQUIRED');
+      return;
+    }
     if (!this.assertStepOrder(step)) {
       this.hold('HOLD_STEP_ORDER_VIOLATION');
       return;
     }
-    if (paymentAmbiguous) {
+    if (paymentOutcomeIsAmbiguous(paymentOutcome)) {
       this.hold('HOLD_PAYMENT_AMBIGUOUS_NO_RETRY');
       return;
     }
+    if (paymentOutcome === 'PAYMENT_CONFIRMED_AND_APPLICATION_PENDING') {
+      this.hold('HOLD_PAYMENT_FULFILLMENT_PENDING_NO_RETRY');
+      return;
+    }
+    const chargeKind =
+      step === 'W2_LIGHT_PURCHASE_HUMAN_ACTION_REQUIRED'
+        ? 'light'
+        : step === 'W4_LIGHT_TO_FULL_HUMAN_ACTION_REQUIRED'
+          ? 'upgrade'
+          : 'fresh_full';
+    if (!this.assertChargeBudget(chargeKind)) return;
+
+    if (paymentOutcomeAllowsCharge(paymentOutcome)) {
+      const combined = evaluateCombinedPaymentEvidence({
+        payment_outcome: paymentOutcome,
+        stripe_success_observed: evidence?.stripe_success_observed ?? true,
+        success_page_observed: evidence?.success_page_observed ?? false,
+        application_access_observed: evidence?.application_access_observed ?? true,
+        postcheck_green: evidence?.postcheck_green ?? false,
+      });
+      if (!combined && this.mode === 'production_execution') {
+        this.hold('HOLD_PAYMENT_COMBINED_EVIDENCE_INSUFFICIENT');
+        return;
+      }
+      this.recordSuccessfulCharge(chargeKind);
+    } else if (
+      paymentOutcome === 'PAYMENT_DECLINED_NO_CHARGE' ||
+      paymentOutcome === 'CHECKOUT_NOT_CREATED'
+    ) {
+      this.hold('HOLD_PAYMENT_NOT_COMPLETED');
+      return;
+    }
+
     assertSecretSafeOutput(humanRef.label);
     this.completeStep({ step, human_ref: humanRef, payment_ambiguous: false });
   }
@@ -520,6 +674,11 @@ export class PurchaseSmokeWave1Harness {
   runW6DuplicateFullRejection(evidence: DuplicateFullEvidence): void {
     if (!this.assertStepOrder('W6_DUPLICATE_FULL_REJECTION_CHECK')) {
       this.hold('HOLD_STEP_ORDER_VIOLATION');
+      return;
+    }
+    if (evidence.charge_created) {
+      this.chargesConsumed.duplicate_full += 1;
+      this.hold('HOLD_DUPLICATE_FULL_CHARGE_CREATED');
       return;
     }
     const failure = evaluateDuplicateFull(evidence);
@@ -584,6 +743,10 @@ export class PurchaseSmokeWave1Harness {
     this.recordHumanPayment('W2_LIGHT_PURCHASE_HUMAN_ACTION_REQUIRED', {
       label: 'opaque_light_checkout_ref',
       recorded_at: this.now().toISOString(),
+    }, 'PAYMENT_CONFIRMED_AND_APPLICATION_GREEN', {
+      stripe_success_observed: true,
+      application_access_observed: true,
+      postcheck_green: true,
     });
     this.runW3LightPostcheck({
       product_id: PRODUCT_LIGHT,
@@ -599,6 +762,10 @@ export class PurchaseSmokeWave1Harness {
     this.recordHumanPayment('W4_LIGHT_TO_FULL_HUMAN_ACTION_REQUIRED', {
       label: 'opaque_upgrade_checkout_ref',
       recorded_at: this.now().toISOString(),
+    }, 'PAYMENT_CONFIRMED_AND_APPLICATION_GREEN', {
+      stripe_success_observed: true,
+      application_access_observed: true,
+      postcheck_green: true,
     });
     this.runW5ConversionPostcheck({
       upgrade_product: PRODUCT_UPGRADE,
@@ -621,6 +788,10 @@ export class PurchaseSmokeWave1Harness {
     this.recordHumanPayment('W7_FRESH_FULL_HUMAN_ACTION_REQUIRED', {
       label: 'opaque_full_checkout_ref',
       recorded_at: this.now().toISOString(),
+    }, 'PAYMENT_CONFIRMED_AND_APPLICATION_GREEN', {
+      stripe_success_observed: true,
+      application_access_observed: true,
+      postcheck_green: true,
     });
     this.runW8FullPostcheck({
       product_id: PRODUCT_FULL,
@@ -729,11 +900,25 @@ export function sqlScenarioClassificationCount(sql: string): number {
   const markers = [
     'LIGHT_GREEN',
     'CONVERSION_GREEN',
-    'DUPLICATE_FULL_REJECTED_GREEN',
+    'DUPLICATE_REJECTED_NO_WRITE_GREEN',
     'FRESH_FULL_GREEN',
     'IDEMPOTENCY_GREEN',
+    'PURCHASE_WAVE_GREEN',
+    'SUBJECT_READY_CLEAN',
     'HOLD_EXACT_REASON',
     'UNKNOWN',
   ];
   return markers.filter((m) => sql.includes(m)).length;
+}
+
+export function sqlPostcheckModeCount(sql: string): number {
+  const modes = [
+    'SUBJECT_PRECHECK',
+    'LIGHT_POSTCHECK',
+    'CONVERSION_POSTCHECK',
+    'DUPLICATE_REJECTION_POSTCHECK',
+    'FRESH_FULL_POSTCHECK',
+    'INTEGRATED_CLOSURE',
+  ];
+  return modes.filter((m) => sql.includes(m)).length;
 }
