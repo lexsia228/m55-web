@@ -120,6 +120,22 @@ export type RpcTransportFailureContext = {
   responseStatus?: unknown;
 };
 
+export type SafeFetchTransportObservation = {
+  transport_event: 'fetch_rejected';
+  message_class: SafeRpcTransportMessageClass;
+  error_name: string | null;
+  error_code: string | null;
+  error_errno: number | null;
+  cause_name: string | null;
+  cause_code: string | null;
+  cause_errno: number | null;
+  timeout_or_abort: boolean | null;
+  request_dispatched: true;
+  response_received: false;
+  runtime: 'nodejs';
+};
+
+const ABORT_CODES = new Set(['ABORT_ERR']);
 const DNS_CAUSE_CODES = new Set(['ENOTFOUND', 'EAI_AGAIN']);
 const CONNECT_CAUSE_CODES = new Set([
   'ECONNREFUSED',
@@ -261,11 +277,61 @@ function safeAllowlistedCauseCode(value: unknown): string | null {
     DNS_CAUSE_CODES.has(value) ||
     CONNECT_CAUSE_CODES.has(value) ||
     TLS_CAUSE_CODES.has(value) ||
-    INVALID_URL_CODES.has(value)
+    INVALID_URL_CODES.has(value) ||
+    ABORT_CODES.has(value)
   ) {
     return value;
   }
   return null;
+}
+
+function safeExactAbortCode(value: unknown): 'ABORT_ERR' | null {
+  return value === 'ABORT_ERR' ? 'ABORT_ERR' : null;
+}
+
+function emptySafeFetchTransportObservation(
+  messageClass: SafeRpcTransportMessageClass,
+  overrides: Partial<
+    Omit<SafeFetchTransportObservation, 'transport_event' | 'request_dispatched' | 'response_received' | 'runtime'>
+  > = {},
+): SafeFetchTransportObservation {
+  return {
+    transport_event: 'fetch_rejected',
+    message_class: messageClass,
+    error_name: null,
+    error_code: null,
+    error_errno: null,
+    cause_name: null,
+    cause_code: null,
+    cause_errno: null,
+    timeout_or_abort: null,
+    request_dispatched: true,
+    response_received: false,
+    runtime: 'nodejs',
+    ...overrides,
+  };
+}
+
+function safeReadExactStringCode(value: unknown): string | null {
+  try {
+    return typeof value === 'string' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function isFetchAbortSignal(
+  errorName: string | null,
+  errorCodeRaw: string | null,
+  causeName: string | null,
+  causeCodeRaw: string | null,
+): boolean {
+  return (
+    errorName === 'AbortError' ||
+    causeName === 'AbortError' ||
+    errorCodeRaw === 'ABORT_ERR' ||
+    causeCodeRaw === 'ABORT_ERR'
+  );
 }
 
 function safeCauseErrno(value: unknown): number | null {
@@ -458,6 +524,88 @@ export function classifyRpcTransportFailure(
     response_received: responseReceived,
     timeout_or_abort: timeoutOrAbort ? true : null,
   });
+}
+
+export function classifyFetchTransportRejection(input: unknown): SafeFetchTransportObservation {
+  try {
+    const row = readErrorRow(input);
+    if (!row) {
+      return emptySafeFetchTransportObservation('UNKNOWN_TRANSPORT_ERROR');
+    }
+
+    const errorName = safeAllowlistedErrorName(row.name);
+    const errorCodeRaw = safeReadExactStringCode(row.code);
+    const errorCode = safeAllowlistedCauseCode(row.code);
+    const errorErrno = safeCauseErrno(row.errno);
+    const cause = readCause(row);
+    const causeName = cause ? safeAllowlistedErrorName(cause.name) : null;
+    const causeCodeRaw = cause ? safeReadExactStringCode(cause.code) : null;
+    const causeCode = cause ? safeAllowlistedCauseCode(cause.code) : null;
+    const causeErrno = cause ? safeCauseErrno(cause.errno) : null;
+
+    if (isFetchAbortSignal(errorName, errorCodeRaw, causeName, causeCodeRaw)) {
+      return emptySafeFetchTransportObservation('FETCH_ABORTED', {
+        error_name: errorName ?? causeName,
+        error_code: safeExactAbortCode(errorCodeRaw) ?? safeExactAbortCode(causeCodeRaw) ?? errorCode ?? causeCode,
+        error_errno: errorErrno,
+        cause_name: causeName,
+        cause_code: causeCode,
+        cause_errno: causeErrno,
+        timeout_or_abort: true,
+      });
+    }
+
+    const classified = classifyRpcTransportFailure(input, {
+      requestDispatched: true,
+      responseStatus: 0,
+    });
+
+    return emptySafeFetchTransportObservation(classified.message_class, {
+      error_name: classified.error_name,
+      error_code: classified.error_code ?? errorCode,
+      error_errno: errorErrno,
+      cause_name: classified.cause_name,
+      cause_code: classified.cause_code ?? causeCode,
+      cause_errno: classified.cause_errno ?? causeErrno,
+      timeout_or_abort: classified.timeout_or_abort,
+    });
+  } catch {
+    return emptySafeFetchTransportObservation('UNKNOWN_TRANSPORT_ERROR');
+  }
+}
+
+export function formatSafeFetchTransportObservationForLog(
+  observation: SafeFetchTransportObservation,
+): Record<string, string> {
+  const out: Record<string, string> = {
+    transport_event: observation.transport_event,
+    message_class: observation.message_class,
+    runtime: observation.runtime,
+    request_dispatched: 'true',
+    response_received: 'false',
+  };
+  if (observation.error_name !== null) {
+    out.error_name = observation.error_name;
+  }
+  if (observation.error_code !== null) {
+    out.error_code = observation.error_code;
+  }
+  if (observation.error_errno !== null) {
+    out.error_errno = String(observation.error_errno);
+  }
+  if (observation.cause_name !== null) {
+    out.cause_name = observation.cause_name;
+  }
+  if (observation.cause_code !== null) {
+    out.cause_code = observation.cause_code;
+  }
+  if (observation.cause_errno !== null) {
+    out.cause_errno = String(observation.cause_errno);
+  }
+  if (observation.timeout_or_abort !== null) {
+    out.timeout_or_abort = observation.timeout_or_abort ? 'true' : 'false';
+  }
+  return out;
 }
 
 export function formatSafeRpcTransportFailureForLog(

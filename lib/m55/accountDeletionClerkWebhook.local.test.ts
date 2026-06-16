@@ -11,14 +11,23 @@ import {
   isValidSvixId,
   listMissingSvixHeaders,
   classifyRpcTransportFailure,
+  classifyFetchTransportRejection,
+  formatSafeFetchTransportObservationForLog,
   formatSafeRpcTransportFailureForLog,
   parseKnownRpcFailure,
   rpcFailureResponseKey,
+  type SafeFetchTransportObservation,
 } from './accountDeletionClerkWebhookContract.ts';
+import {
+  createObservingFetch,
+  withAccountDeletionSupabaseClientObservation,
+} from './accountDeletionSupabaseClient.ts';
 import { hashUserIdForLedgerLog } from './reply/readReplyWalletProbe.ts';
 
 const ROUTE = join(process.cwd(), 'app/api/clerk/webhook/route.ts');
 const CONTRACT = join(process.cwd(), 'lib/m55/accountDeletionClerkWebhookContract.ts');
+const HELPER = join(process.cwd(), 'lib/m55/accountDeletionSupabaseClient.ts');
+const SUPABASE_ADMIN = join(process.cwd(), 'lib/supabaseAdmin.ts');
 const MIDDLEWARE = join(process.cwd(), 'middleware.ts');
 
 function readRoute(): string {
@@ -136,7 +145,7 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.match(missingBlock, /missing_signature/);
     assert.match(missingBlock, /status: 400/);
     assert.doesNotMatch(missingBlock, /verifyWebhook/);
-    assert.doesNotMatch(missingBlock, /getSupabaseAdmin/);
+    assert.doesNotMatch(missingBlock, /withAccountDeletionSupabaseClientObservation/);
   });
 
   it('returns webhook_not_configured before verifyWebhook when env missing', () => {
@@ -148,7 +157,7 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.match(envBlock, /webhook_not_configured/);
     assert.match(envBlock, /status: 503/);
     assert.doesNotMatch(envBlock, /verifyWebhook/);
-    assert.doesNotMatch(envBlock, /getSupabaseAdmin/);
+    assert.doesNotMatch(envBlock, /withAccountDeletionSupabaseClientObservation/);
   });
 
   it('maps invalid signature to 400 without raw Error logging', () => {
@@ -180,7 +189,7 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.match(body, /p_clerk_user_id: clerkUserId/);
   });
 
-  it('rejects invalid Svix ID before getSupabaseAdmin in POST scope', () => {
+  it('rejects invalid Svix ID before dedicated Supabase helper in POST scope', () => {
     const body = postHandlerBody(readRoute());
     const svixBlock = body.slice(
       body.indexOf('isValidSvixId'),
@@ -189,20 +198,20 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.match(svixBlock, /extract_svix_id/);
     assert.match(svixBlock, /invalid_payload/);
     assert.match(svixBlock, /status: 400/);
-    assert.doesNotMatch(svixBlock, /getSupabaseAdmin/);
+    assert.doesNotMatch(svixBlock, /withAccountDeletionSupabaseClientObservation/);
     assert.doesNotMatch(svixBlock, /\.rpc\(/);
   });
 
-  it('rejects invalid hash before getSupabaseAdmin in POST scope', () => {
+  it('rejects invalid hash before dedicated Supabase helper in POST scope', () => {
     const body = postHandlerBody(readRoute());
     const hashBlock = body.slice(
       body.indexOf('USER_REF_HASH_RE.test'),
-      body.indexOf('getSupabaseAdmin')
+      body.indexOf('withAccountDeletionSupabaseClientObservation')
     );
     assert.match(hashBlock, /invalid_rpc_input/);
     assert.match(hashBlock, /status: 500/);
     assert.match(hashBlock, /stage: 'hash'/);
-    assert.doesNotMatch(hashBlock, /getSupabaseAdmin/);
+    assert.doesNotMatch(hashBlock, /withAccountDeletionSupabaseClientObservation/);
     assert.doesNotMatch(hashBlock, /\.rpc\(/);
   });
 
@@ -214,9 +223,10 @@ describe('accountDeletionClerkWebhook — route static contract', () => {
     assert.doesNotMatch(src, /UPDATE public\./i);
   });
 
-  it('uses getSupabaseAdmin service-role path only', () => {
+  it('uses dedicated account-deletion Supabase helper only for RPC', () => {
     const src = readRoute();
-    assert.match(src, /getSupabaseAdmin/);
+    assert.match(src, /withAccountDeletionSupabaseClientObservation/);
+    assert.doesNotMatch(src, /getSupabaseAdmin/);
     assert.doesNotMatch(src, /createClient\(/);
     assert.doesNotMatch(src, /NEXT_PUBLIC_SUPABASE_ANON/);
   });
@@ -382,6 +392,8 @@ describe('accountDeletionClerkWebhook — RPC result validator', () => {
     const body = postHandlerBody(readRoute());
     assert.match(body, /upstream_error/);
     assert.match(body, /stage: 'rpc_transport'/);
+    assert.match(body, /transportObservation/);
+    assert.match(body, /formatSafeFetchTransportObservationForLog/);
     assert.match(body, /classifyRpcTransportFailure/);
     assert.match(body, /formatSafeRpcTransportFailureForLog/);
     assert.doesNotMatch(body, /error\.message/);
@@ -578,7 +590,7 @@ describe('accountDeletionClerkWebhook — rpc transport classifier', () => {
   it('passes RPC result status into classifier without statusText', () => {
     const body = postHandlerBody(readRoute());
     assert.match(body, /status: rpcStatus/);
-    assert.match(body, /responseStatus: rpcStatus/);
+    assert.match(body, /responseStatus: rpcResult\.status/);
     assert.doesNotMatch(body, /statusText/);
   });
 });
@@ -716,5 +728,335 @@ describe('accountDeletionClerkWebhook — rpc transport response status context'
     }
     assert.doesNotMatch(combined, /statusText/);
     assert.doesNotMatch(combined, /Authorization/);
+  });
+});
+
+function fetchObservationText(input: unknown): string {
+  return JSON.stringify(classifyFetchTransportRejection(input));
+}
+
+describe('accountDeletionClerkWebhook — fetch transport rejection classifier', () => {
+  it('classifies cause.code=ENOTFOUND as FETCH_DNS_ERROR with response_received=false', () => {
+    const out = classifyFetchTransportRejection({
+      name: 'TypeError',
+      cause: { code: 'ENOTFOUND', errno: -3008 },
+    });
+    assert.equal(out.transport_event, 'fetch_rejected');
+    assert.equal(out.message_class, 'FETCH_DNS_ERROR');
+    assert.equal(out.cause_code, 'ENOTFOUND');
+    assert.equal(out.response_received, false);
+    assert.equal(out.request_dispatched, true);
+    assert.equal(out.runtime, 'nodejs');
+  });
+
+  it('classifies cause.code=EAI_AGAIN as FETCH_DNS_ERROR', () => {
+    const out = classifyFetchTransportRejection({
+      name: 'FetchError',
+      cause: { code: 'EAI_AGAIN' },
+    });
+    assert.equal(out.message_class, 'FETCH_DNS_ERROR');
+    assert.equal(out.cause_code, 'EAI_AGAIN');
+  });
+
+  it('classifies cause.code=ECONNREFUSED as FETCH_CONNECT_ERROR', () => {
+    const out = classifyFetchTransportRejection({
+      name: 'TypeError',
+      cause: { code: 'ECONNREFUSED', errno: -61 },
+    });
+    assert.equal(out.message_class, 'FETCH_CONNECT_ERROR');
+    assert.equal(out.cause_code, 'ECONNREFUSED');
+    assert.equal(out.cause_errno, -61);
+  });
+
+  it('classifies cause.code=ETIMEDOUT as FETCH_CONNECT_ERROR with timeout_or_abort null', () => {
+    const out = classifyFetchTransportRejection({
+      name: 'FetchError',
+      cause: { code: 'ETIMEDOUT', errno: -60 },
+      message: 'connect ETIMEDOUT secret-host:443',
+    });
+    assert.equal(out.message_class, 'FETCH_CONNECT_ERROR');
+    assert.equal(out.cause_code, 'ETIMEDOUT');
+    assert.equal(out.timeout_or_abort, null);
+    const serialized = fetchObservationText({
+      name: 'FetchError',
+      cause: { code: 'ETIMEDOUT', errno: -60 },
+      message: 'connect ETIMEDOUT secret-host:443',
+    });
+    assert.doesNotMatch(serialized, /secret-host/);
+  });
+
+  it('classifies UNABLE_TO_VERIFY_LEAF_SIGNATURE as FETCH_TLS_ERROR', () => {
+    const out = classifyFetchTransportRejection({
+      name: 'FetchError',
+      cause: { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' },
+    });
+    assert.equal(out.message_class, 'FETCH_TLS_ERROR');
+    assert.equal(out.cause_code, 'UNABLE_TO_VERIFY_LEAF_SIGNATURE');
+  });
+
+  it('classifies AbortError and ABORT_ERR as FETCH_ABORTED', () => {
+    const byName = classifyFetchTransportRejection({ name: 'AbortError', code: 'ABORT_ERR' });
+    assert.equal(byName.message_class, 'FETCH_ABORTED');
+    assert.equal(byName.timeout_or_abort, true);
+    const byCode = classifyFetchTransportRejection({ name: 'TypeError', code: 'ABORT_ERR' });
+    assert.equal(byCode.message_class, 'FETCH_ABORTED');
+    assert.equal(byCode.error_code, 'ABORT_ERR');
+  });
+
+  it('classifies unknown message-only error as UNKNOWN_TRANSPORT_ERROR without unsafe fields', () => {
+    const out = classifyFetchTransportRejection({
+      message: SECRET_SAMPLES.bearer,
+      details: SECRET_SAMPLES.serviceRole,
+    });
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+    const logPayload = formatSafeFetchTransportObservationForLog(out);
+    const combined = JSON.stringify(logPayload);
+    assert.doesNotMatch(combined, /Bearer/);
+    assert.doesNotMatch(combined, /service_role/);
+    assert.doesNotMatch(combined, /"message":/);
+    assert.doesNotMatch(combined, /"details":/);
+  });
+
+  it('does not throw for hostile getter, proxy, or circular fetch rejection input', () => {
+    const circular: Record<string, unknown> = { name: 'FetchError', code: 'ECONNRESET' };
+    circular.self = circular;
+    assert.doesNotThrow(() => classifyFetchTransportRejection(circular));
+    const hostileGetter = {
+      get message() {
+        throw new Error('hostile');
+      },
+      name: 'FetchError',
+      cause: { code: 'ECONNRESET' },
+    };
+    assert.doesNotThrow(() => classifyFetchTransportRejection(hostileGetter));
+    assert.equal(classifyFetchTransportRejection(hostileGetter).message_class, 'FETCH_CONNECT_ERROR');
+  });
+
+  it('never emits secret-shaped fixtures from fetch observation formatter', () => {
+    const hostile = {
+      name: 'FetchError',
+      message: SECRET_SAMPLES.serviceRole,
+      cause: {
+        code: 'SECRET_NOT_ALLOWLISTED',
+        message: SECRET_SAMPLES.pii,
+      },
+    };
+    const out = classifyFetchTransportRejection(hostile);
+    const combined = JSON.stringify(formatSafeFetchTransportObservationForLog(out));
+    for (const sample of Object.values(SECRET_SAMPLES)) {
+      assert.doesNotMatch(combined, new RegExp(sample.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+    assert.doesNotMatch(combined, /Authorization/);
+    assert.doesNotMatch(combined, /svix-signature/);
+    assert.doesNotMatch(combined, /https:\/\//);
+  });
+});
+
+describe('accountDeletionClerkWebhook — dedicated supabase client helper', () => {
+  const priorUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const priorKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  function restoreEnv(): void {
+    if (priorUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    } else {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = priorUrl;
+    }
+    if (priorKey === undefined) {
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    } else {
+      process.env.SUPABASE_SERVICE_ROLE_KEY = priorKey;
+    }
+  }
+
+  it('rethrows the exact same fetch rejection reference from observing fetch', async () => {
+    const original = Object.assign(new TypeError('fetch failed'), {
+      cause: { code: 'ECONNREFUSED', errno: -61 },
+    });
+    const prior = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw original;
+    }) as typeof fetch;
+    try {
+      let caughtViaWrapper: unknown;
+      const wrapper = createObservingFetch(() => undefined, () => undefined);
+      try {
+        await wrapper('https://example.invalid', { method: 'GET' });
+      } catch (thrown) {
+        caughtViaWrapper = thrown;
+      }
+      assert.equal(caughtViaWrapper, original);
+    } finally {
+      globalThis.fetch = prior;
+    }
+  });
+
+  it('records only the first sanitized rejection observation', async () => {
+    const observations: string[] = [];
+    let rejectionCount = 0;
+    const prior = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw Object.assign(new TypeError('fetch failed'), {
+        cause: { code: rejectionCount === 0 ? 'ENOTFOUND' : 'ECONNREFUSED' },
+      });
+    }) as typeof fetch;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.invalid';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+    try {
+      const { transportObservation, fetchRejectionCount } =
+        await withAccountDeletionSupabaseClientObservation(async (client) =>
+          (client as any).rpc('m55_account_deletion_process_v1', {
+            p_svix_id: 'msg_test',
+            p_event_type: 'user.deleted',
+            p_clerk_user_id: 'user_test',
+            p_user_ref_hash: '0123456789abcdef',
+          }),
+        );
+      if (transportObservation) {
+        observations.push(transportObservation.message_class);
+      }
+      assert.equal(fetchRejectionCount, 1);
+      assert.equal(transportObservation?.message_class, 'FETCH_DNS_ERROR');
+      assert.equal(observations.length, 1);
+    } finally {
+      globalThis.fetch = prior;
+      restoreEnv();
+    }
+  });
+
+  it('returns no transport observation on successful fetch', async () => {
+    const prior = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ ok: true, status: 'succeeded' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })) as typeof fetch;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.invalid';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+    try {
+      const { transportObservation, fetchRejectionCount } =
+        await withAccountDeletionSupabaseClientObservation(async (client) =>
+          (client as any).rpc('m55_account_deletion_process_v1', {
+            p_svix_id: 'msg_test',
+            p_event_type: 'user.deleted',
+            p_clerk_user_id: 'user_test',
+            p_user_ref_hash: '0123456789abcdef',
+          }),
+        );
+      assert.equal(transportObservation, null);
+      assert.equal(fetchRejectionCount, 0);
+    } finally {
+      globalThis.fetch = prior;
+      restoreEnv();
+    }
+  });
+
+  it('keeps concurrent helper invocations isolated', async () => {
+    const prior = globalThis.fetch;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.invalid';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+    try {
+      const captured: {
+        dns: SafeFetchTransportObservation | null;
+        connect: SafeFetchTransportObservation | null;
+      } = { dns: null, connect: null };
+      let dnsRejections = 0;
+      let connectRejections = 0;
+
+      globalThis.fetch = (async () => {
+        throw Object.assign(new TypeError('fetch failed'), {
+          cause: { code: 'ENOTFOUND' },
+        });
+      }) as typeof fetch;
+      const dnsFetch = createObservingFetch(
+        (observation) => {
+          captured.dns = observation;
+        },
+        () => {
+          dnsRejections += 1;
+        },
+      );
+      globalThis.fetch = (async () => {
+        throw Object.assign(new TypeError('fetch failed'), {
+          cause: { code: 'ECONNREFUSED' },
+        });
+      }) as typeof fetch;
+      const connectFetch = createObservingFetch(
+        (observation) => {
+          captured.connect = observation;
+        },
+        () => {
+          connectRejections += 1;
+        },
+      );
+
+      await Promise.all([
+        dnsFetch('https://example.invalid').catch(() => undefined),
+        connectFetch('https://example.invalid').catch(() => undefined),
+      ]);
+
+      assert.equal(captured.dns?.message_class, 'FETCH_DNS_ERROR');
+      assert.equal(captured.connect?.message_class, 'FETCH_CONNECT_ERROR');
+      assert.equal(dnsRejections, 1);
+      assert.equal(connectRejections, 1);
+    } finally {
+      globalThis.fetch = prior;
+      restoreEnv();
+    }
+  });
+
+  it('does not retain stale observation after a later successful invocation', async () => {
+    const prior = globalThis.fetch;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.invalid';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+    try {
+      globalThis.fetch = (async () => {
+        throw Object.assign(new TypeError('fetch failed'), {
+          cause: { code: 'ENOTFOUND' },
+        });
+      }) as typeof fetch;
+      const failed = await withAccountDeletionSupabaseClientObservation(async (client) =>
+        (client as any).rpc('m55_account_deletion_process_v1', {
+          p_svix_id: 'msg_fail',
+          p_event_type: 'user.deleted',
+          p_clerk_user_id: 'user_fail',
+          p_user_ref_hash: '0123456789abcdef',
+        }),
+      );
+      assert.equal(failed.transportObservation?.message_class, 'FETCH_DNS_ERROR');
+
+      globalThis.fetch = (async () =>
+        new Response(JSON.stringify({ ok: true, status: 'succeeded' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })) as typeof fetch;
+      const succeeded = await withAccountDeletionSupabaseClientObservation(async (client) =>
+        (client as any).rpc('m55_account_deletion_process_v1', {
+          p_svix_id: 'msg_ok',
+          p_event_type: 'user.deleted',
+          p_clerk_user_id: 'user_ok',
+          p_user_ref_hash: '0123456789abcdef',
+        }),
+      );
+      assert.equal(succeeded.transportObservation, null);
+      assert.equal(succeeded.fetchRejectionCount, 0);
+    } finally {
+      globalThis.fetch = prior;
+      restoreEnv();
+    }
+  });
+
+  it('does not log from fetch wrapper source', () => {
+    const helperSrc = readFileSync(HELPER, 'utf8');
+    assert.doesNotMatch(helperSrc, /console\.(info|warn|error|log)/);
+    assert.doesNotMatch(helperSrc, /AsyncLocalStorage/);
+    assert.doesNotMatch(helperSrc, /input\.headers|init\.headers|JSON\.stringify\(input/);
+  });
+
+  it('leaves lib/supabaseAdmin.ts unchanged and route off shared singleton', () => {
+    const adminSrc = readFileSync(SUPABASE_ADMIN, 'utf8');
+    assert.match(adminSrc, /let _admin/);
+    assert.match(readRoute(), /withAccountDeletionSupabaseClientObservation/);
+    assert.doesNotMatch(readRoute(), /getSupabaseAdmin/);
   });
 });

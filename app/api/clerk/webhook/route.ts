@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { verifyWebhook } from '@clerk/nextjs/webhooks';
-import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
+import { withAccountDeletionSupabaseClientObservation } from '../../../../lib/m55/accountDeletionSupabaseClient';
 import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
 import {
   USER_REF_HASH_RE,
@@ -10,6 +10,7 @@ import {
   isValidSvixId,
   listMissingSvixHeaders,
   classifyRpcTransportFailure,
+  formatSafeFetchTransportObservationForLog,
   formatSafeRpcTransportFailureForLog,
   parseKnownRpcFailure,
   rpcFailureResponseKey,
@@ -81,30 +82,38 @@ export async function POST(req: NextRequest) {
 
   let rpcData: unknown;
   try {
-    const db = getSupabaseAdmin() as any;
-    const { data, error, status: rpcStatus } = await db.rpc('m55_account_deletion_process_v1', {
-      p_svix_id: svixId,
-      p_event_type: evt.type,
-      p_clerk_user_id: clerkUserId,
-      p_user_ref_hash: userRefHash,
-    });
-    if (error) {
+    const { result: rpcResult, transportObservation } =
+      await withAccountDeletionSupabaseClientObservation(async (db) => {
+        const { data, error, status: rpcStatus } = await (db as any).rpc(
+          'm55_account_deletion_process_v1',
+          {
+            p_svix_id: svixId,
+            p_event_type: evt.type,
+            p_clerk_user_id: clerkUserId,
+            p_user_ref_hash: userRefHash,
+          },
+        );
+        return { data, error, status: rpcStatus };
+      });
+    if (rpcResult.error) {
       logSafeError({
         stage: 'rpc_transport',
         runtime: 'nodejs',
         supabase_js_exact_version: SUPABASE_JS_EXACT_VERSION,
         project_ref: 'preview',
         svix_id: svixId,
-        ...formatSafeRpcTransportFailureForLog(
-          classifyRpcTransportFailure(error, {
-            requestDispatched: true,
-            responseStatus: rpcStatus,
-          }),
-        ),
+        ...(transportObservation
+          ? formatSafeFetchTransportObservationForLog(transportObservation)
+          : formatSafeRpcTransportFailureForLog(
+              classifyRpcTransportFailure(rpcResult.error, {
+                requestDispatched: true,
+                responseStatus: rpcResult.status,
+              }),
+            )),
       });
       return NextResponse.json({ error: 'upstream_error' }, { status: 500 });
     }
-    rpcData = data;
+    rpcData = rpcResult.data;
   } catch (thrown) {
     logSafeError({
       stage: 'rpc_transport',
