@@ -574,4 +574,147 @@ describe('accountDeletionClerkWebhook — rpc transport classifier', () => {
     assert.doesNotMatch(body, /\bretry\b/i);
     assert.doesNotMatch(body, /\breplay\b/i);
   });
+
+  it('passes RPC result status into classifier without statusText', () => {
+    const body = postHandlerBody(readRoute());
+    assert.match(body, /status: rpcStatus/);
+    assert.match(body, /responseStatus: rpcStatus/);
+    assert.doesNotMatch(body, /statusText/);
+  });
+});
+
+describe('accountDeletionClerkWebhook — rpc transport response status context', () => {
+  it('classifies empty-code error with responseStatus=500 as SUPABASE_AUTH_OR_API_ERROR', () => {
+    const input = {
+      message: 'TypeError: fetch failed',
+      details: 'stack redacted',
+      hint: '',
+      code: '',
+    };
+    const out = classifyRpcTransportFailure(input, {
+      requestDispatched: true,
+      responseStatus: 500,
+    });
+    assert.equal(out.message_class, 'SUPABASE_AUTH_OR_API_ERROR');
+    assert.equal(out.error_status, 500);
+    assert.equal(out.response_received, true);
+    const logPayload = formatSafeRpcTransportFailureForLog(out);
+    const combined = JSON.stringify(logPayload);
+    assert.doesNotMatch(combined, /TypeError/);
+    assert.doesNotMatch(combined, /stack redacted/);
+    assert.doesNotMatch(combined, /statusText/);
+  });
+
+  it('classifies responseStatus=401 as SUPABASE_AUTH_OR_API_ERROR', () => {
+    const out = classifyRpcTransportFailure(
+      { message: 'JWT invalid', code: '', details: '', hint: '' },
+      { responseStatus: 401 },
+    );
+    assert.equal(out.message_class, 'SUPABASE_AUTH_OR_API_ERROR');
+    assert.equal(out.error_status, 401);
+  });
+
+  it('classifies responseStatus=403 as SUPABASE_AUTH_OR_API_ERROR', () => {
+    const out = classifyRpcTransportFailure(
+      { message: 'Forbidden', code: '', details: '', hint: '' },
+      { responseStatus: 403 },
+    );
+    assert.equal(out.message_class, 'SUPABASE_AUTH_OR_API_ERROR');
+    assert.equal(out.error_status, 403);
+  });
+
+  it('treats responseStatus=0 as no HTTP response with UNKNOWN unless stronger cause', () => {
+    const out = classifyRpcTransportFailure(
+      { message: 'FetchError: failed', code: '', details: '', hint: '' },
+      { responseStatus: 0 },
+    );
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+    assert.equal(out.error_status, null);
+    assert.equal(out.response_received, false);
+  });
+
+  it('rejects numeric string responseStatus', () => {
+    const out = classifyRpcTransportFailure(
+      { message: 'upstream', code: '', details: '', hint: '' },
+      { responseStatus: '500' },
+    );
+    assert.equal(out.error_status, null);
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+  });
+
+  for (const invalidStatus of [99, 600, 500.5, NaN, Infinity]) {
+    it(`rejects invalid responseStatus=${String(invalidStatus)}`, () => {
+      const out = classifyRpcTransportFailure(
+        { message: 'upstream', code: '', details: '', hint: '' },
+        { responseStatus: invalidStatus },
+      );
+      assert.equal(out.error_status, null);
+    });
+  }
+
+  it('preserves PGRST202 precedence with responseStatus=404', () => {
+    const out = classifyRpcTransportFailure(
+      { code: 'PGRST202', message: 'function not found', details: '', hint: null },
+      { responseStatus: 404 },
+    );
+    assert.equal(out.message_class, 'POSTGREST_STRUCTURED_ERROR');
+    assert.equal(out.postgrest_code, 'PGRST202');
+    assert.equal(out.error_status, 404);
+  });
+
+  it('preserves ENOTFOUND precedence with responseStatus=0 and response_received=false', () => {
+    const out = classifyRpcTransportFailure(
+      { name: 'FetchError', code: 'ENOTFOUND' },
+      { responseStatus: 0 },
+    );
+    assert.equal(out.message_class, 'FETCH_DNS_ERROR');
+    assert.equal(out.cause_code, 'ENOTFOUND');
+    assert.equal(out.response_received, false);
+  });
+
+  it('does not classify HTTP 200 status alone as SUPABASE_AUTH_OR_API_ERROR', () => {
+    const out = classifyRpcTransportFailure(
+      { message: 'unexpected body', code: '', details: '', hint: '' },
+      { responseStatus: 200 },
+    );
+    assert.equal(out.message_class, 'UNKNOWN_TRANSPORT_ERROR');
+    assert.equal(out.error_status, 200);
+  });
+
+  it('does not throw for hostile responseStatus getter', () => {
+    const hostileContext = {
+      get responseStatus() {
+        throw new Error('hostile status getter');
+      },
+    };
+    assert.doesNotThrow(() =>
+      classifyRpcTransportFailure(
+        { name: 'FetchError', code: 'ECONNRESET' },
+        hostileContext,
+      ),
+    );
+    const out = classifyRpcTransportFailure(
+      { name: 'FetchError', code: 'ECONNRESET' },
+      hostileContext,
+    );
+    assert.equal(out.message_class, 'FETCH_CONNECT_ERROR');
+    const serialized = JSON.stringify(formatSafeRpcTransportFailureForLog(out));
+    assert.doesNotMatch(serialized, /hostile/);
+  });
+
+  it('never emits secret substrings from response status context fixtures', () => {
+    const input = {
+      message: SECRET_SAMPLES.bearer,
+      details: SECRET_SAMPLES.serviceRole,
+      hint: SECRET_SAMPLES.clerkSignature,
+      code: '',
+    };
+    const out = classifyRpcTransportFailure(input, { responseStatus: 500 });
+    const combined = JSON.stringify(formatSafeRpcTransportFailureForLog(out));
+    for (const sample of Object.values(SECRET_SAMPLES)) {
+      assert.doesNotMatch(combined, new RegExp(sample.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    }
+    assert.doesNotMatch(combined, /statusText/);
+    assert.doesNotMatch(combined, /Authorization/);
+  });
 });

@@ -114,6 +114,12 @@ export type SafeRpcTransportFailure = {
   timeout_or_abort: boolean | null;
 };
 
+export type RpcTransportFailureContext = {
+  requestDispatched?: boolean | null;
+  responseReceived?: boolean | null;
+  responseStatus?: unknown;
+};
+
 const DNS_CAUSE_CODES = new Set(['ENOTFOUND', 'EAI_AGAIN']);
 const CONNECT_CAUSE_CODES = new Set([
   'ECONNREFUSED',
@@ -178,10 +184,66 @@ function safeHttpStatus(value: unknown): number | null {
     return null;
   }
   const status = Math.trunc(value);
+  if (status !== value) {
+    return null;
+  }
   if (status < 100 || status > 599) {
     return null;
   }
   return status;
+}
+
+function safeReadResponseStatus(value: unknown): number | null {
+  try {
+    return safeHttpStatus(value);
+  } catch {
+    return null;
+  }
+}
+
+function responseReceivedFromContextStatus(value: unknown): boolean | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return null;
+  }
+  const status = Math.trunc(value);
+  if (status === 0) {
+    return false;
+  }
+  if (status >= 100 && status <= 599) {
+    return true;
+  }
+  return null;
+}
+
+function safeReadContextResponseStatus(options: RpcTransportFailureContext): number | null {
+  try {
+    if (options.responseStatus === undefined) {
+      return null;
+    }
+    return safeReadResponseStatus(options.responseStatus);
+  } catch {
+    return null;
+  }
+}
+
+function resolveResponseReceived(
+  options: RpcTransportFailureContext,
+  resolvedStatus: number | null,
+): boolean | null {
+  if (options.responseReceived !== undefined) {
+    return options.responseReceived;
+  }
+  try {
+    if (options.responseStatus !== undefined) {
+      return responseReceivedFromContextStatus(options.responseStatus);
+    }
+  } catch {
+    return null;
+  }
+  if (resolvedStatus !== null) {
+    return true;
+  }
+  return null;
 }
 
 function safeAllowlistedErrorName(value: unknown): string | null {
@@ -288,24 +350,24 @@ function classifyFromCause(
 
 export function classifyRpcTransportFailure(
   input: unknown,
-  options: { requestDispatched?: boolean | null; responseReceived?: boolean | null } = {},
+  options: RpcTransportFailureContext = {},
 ): SafeRpcTransportFailure {
   const requestDispatched =
     options.requestDispatched === undefined ? null : options.requestDispatched;
-  const responseReceived =
-    options.responseReceived === undefined ? null : options.responseReceived;
 
   const row = readErrorRow(input);
   if (!row) {
     return emptySafeRpcTransportFailure('UNKNOWN_TRANSPORT_ERROR', {
       request_dispatched: requestDispatched,
-      response_received: responseReceived,
+      response_received: resolveResponseReceived(options, null),
     });
   }
 
+  const contextStatus = safeReadContextResponseStatus(options);
   const errorName = safeAllowlistedErrorName(row.name);
   const errorCode = safeAllowlistedCauseCode(row.code);
-  const errorStatus = safeHttpStatus(row.status);
+  const errorStatus = safeHttpStatus(row.status) ?? contextStatus;
+  const responseReceived = resolveResponseReceived(options, errorStatus);
   const postgrestCode = safePostgrestCode(row.code);
   const cause = readCause(row);
   const causeName = cause ? safeAllowlistedErrorName(cause.name) : null;
@@ -373,6 +435,15 @@ export function classifyRpcTransportFailure(
       error_code: errorCode,
       request_dispatched: requestDispatched ?? false,
       response_received: responseReceived ?? false,
+    });
+  }
+
+  if (errorStatus !== null && errorStatus >= 400 && errorStatus <= 599) {
+    return emptySafeRpcTransportFailure('SUPABASE_AUTH_OR_API_ERROR', {
+      error_name: errorName,
+      error_status: errorStatus,
+      request_dispatched: requestDispatched ?? true,
+      response_received: responseReceived ?? true,
     });
   }
 

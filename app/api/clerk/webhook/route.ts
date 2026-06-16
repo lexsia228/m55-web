@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   let rpcData: unknown;
   try {
     const db = getSupabaseAdmin() as any;
-    const { data, error } = await db.rpc('m55_account_deletion_process_v1', {
+    const { data, error, status: rpcStatus } = await db.rpc('m55_account_deletion_process_v1', {
       p_svix_id: svixId,
       p_event_type: evt.type,
       p_clerk_user_id: clerkUserId,
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         ...formatSafeRpcTransportFailureForLog(
           classifyRpcTransportFailure(error, {
             requestDispatched: true,
-            responseReceived: true,
+            responseStatus: rpcStatus,
           }),
         ),
       });
