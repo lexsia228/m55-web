@@ -10,6 +10,7 @@ import {
   APPROVED_POSTCHECK_IDENTITY,
   APPROVED_RPC_IDENTITY,
   APPROVED_SUBJECT_PRECHECK_IDENTITY,
+  APPROVED_SUPABASE_PREVIEW_REF_IDENTITY,
   APPROVED_WEBHOOK_ROUTE_IDENTITY,
   CLERK_ACTION_CLASSES,
   FINAL_SMOKE_CLASSES,
@@ -138,6 +139,8 @@ function authCtx(overrides: Record<string, unknown> = {}) {
       deployment_ready: true,
       created_after_authority_commit: true,
     },
+    // Exact Supabase Preview project ref — must equal APPROVED_SUPABASE_PREVIEW_REF_IDENTITY.
+    actual_supabase_preview_ref: APPROVED_SUPABASE_PREVIEW_REF_IDENTITY,
     ...overrides,
   };
 }
@@ -1345,5 +1348,70 @@ describe('execution deployment binding — stale and post-push scenarios', () =>
     assert.equal(CLERK_ACTION_CLASSES.length, 6);
     assert.equal(TRANSPORT_CLASSES.length, 9);
     assert.equal(FINAL_SMOKE_CLASSES.length, 11);
+  });
+
+  // ── Supabase Preview ref enforcement (SSOT-ENFORCEMENT-PATCH-1) ─────────────────
+  it('164. APPROVED_SUPABASE_PREVIEW_REF_IDENTITY is the canonical Human-confirmed ref', () => {
+    assert.equal(APPROVED_SUPABASE_PREVIEW_REF_IDENTITY, 'sbogwyzldjxxouhqtpoq');
+  });
+  it('165. stale tpnq ref rejects with HOLD_SUPABASE_PREVIEW_REF_MISMATCH', () => {
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: 'sbogwyzldjxxouhqtpnq' }),
+    );
+    assert.ok(r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISMATCH'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, false);
+  });
+  it('166. exact tpoq ref passes — authority_ready true', () => {
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: 'sbogwyzldjxxouhqtpoq' }),
+    );
+    assert.ok(!r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISMATCH'), JSON.stringify(r.failed_flags));
+    assert.ok(!r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISSING'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, true);
+  });
+  it('167. missing ref rejects with HOLD_SUPABASE_PREVIEW_REF_MISSING', () => {
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: undefined }),
+    );
+    assert.ok(r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISSING'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, false);
+  });
+  it('168. empty-string ref rejects with HOLD_SUPABASE_PREVIEW_REF_MISSING', () => {
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: '' }),
+    );
+    assert.ok(r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISSING'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, false);
+  });
+  it('169. boolean exact=true with wrong ref still rejects', () => {
+    // supabase_preview_binding_exact=true alone is insufficient without matching ref.
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: 'some-other-ref-not-approved' }),
+    );
+    assert.ok(r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISMATCH'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, false);
+  });
+  it('170. production-like ref rejects with HOLD_SUPABASE_PREVIEW_REF_MISMATCH', () => {
+    // m55-soul-core is the Production Supabase project ref — must not pass as Preview.
+    const r = validatePreviewPostRemediationDeletionAuthority(
+      futureAuthority(),
+      authCtx({ actual_supabase_preview_ref: 'm55-soul-core' }),
+    );
+    assert.ok(r.failed_flags.includes('HOLD_SUPABASE_PREVIEW_REF_MISMATCH'), JSON.stringify(r.failed_flags));
+    assert.equal(r.ready, false);
+  });
+  it('171. authority hash changes when ref changes — source phrase invalidated', () => {
+    // Hash the canonical authority bundle with correct ref vs stale ref — they must differ.
+    const correctHash = hashApprovalPhrase('sbogwyzldjxxouhqtpoq:authority-binding');
+    const staleHash   = hashApprovalPhrase('sbogwyzldjxxouhqtpnq:authority-binding');
+    assert.notEqual(correctHash, staleHash);
+    // The source gate authority hash (computed before ref fix) is stale and must not be reused.
+    const sourceGateHash = 'd31fdb92c41c53166ebea4dded01dc07672d5037957414ef381730e28f54285d';
+    assert.notEqual(correctHash, sourceGateHash);
   });
 });

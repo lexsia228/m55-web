@@ -26,7 +26,7 @@ export const APPROVED_BRANCH_ALIAS_IDENTITY =
   'm55-webv2-git-feat-m55-paid-lp-canonical-wave1-m55-official.vercel.app' as const;
 export const APPROVED_SUPABASE_PREVIEW_ORG = 'm55-preview' as const;
 export const APPROVED_SUPABASE_PREVIEW_PROJECT = 'm55-soul-preview' as const;
-export const APPROVED_SUPABASE_PREVIEW_REF_IDENTITY = 'sbogwyzldjxxouhqtpnq' as const;
+export const APPROVED_SUPABASE_PREVIEW_REF_IDENTITY = 'sbogwyzldjxxouhqtpoq' as const;
 export const APPROVED_CLERK_DEVELOPMENT_INSTANCE_IDENTITY = 'clerk-development-instance-v1' as const;
 export const APPROVED_CLERK_DEVELOPMENT_ENDPOINT_IDENTITY =
   'clerk-development-user-deleted-endpoint-v1' as const;
@@ -362,6 +362,9 @@ export function validatePreviewPostRemediationDeletionAuthority(
     requestedManualDbRepair?: boolean;
     requestedSubjectRecreation?: boolean;
     executionDeployment?: ExecutionDeploymentBinding;
+    // Exact Supabase Preview project ref — must equal APPROVED_SUPABASE_PREVIEW_REF_IDENTITY.
+    // Required for GREEN; boolean-only confirmation is insufficient.
+    actual_supabase_preview_ref?: string;
   },
 ): PreviewAuthorityValidationResult {
   const failed: string[] = [];
@@ -569,6 +572,12 @@ export function validatePreviewPostRemediationDeletionAuthority(
     failed.push('HOLD_PRODUCTION_BINDING_OBSERVED');
   }
   if (!bc.supabase_preview_binding_exact) failed.push('HOLD_SUPABASE_PREVIEW_BINDING_MISMATCH');
+  // Exact ref equality is required — boolean confirmation alone is insufficient.
+  if (!ctx.actual_supabase_preview_ref || ctx.actual_supabase_preview_ref.length === 0) {
+    failed.push('HOLD_SUPABASE_PREVIEW_REF_MISSING');
+  } else if (ctx.actual_supabase_preview_ref !== APPROVED_SUPABASE_PREVIEW_REF_IDENTITY) {
+    failed.push('HOLD_SUPABASE_PREVIEW_REF_MISMATCH');
+  }
   if (!bc.clerk_development_instance_exact) {
     failed.push('HOLD_CLERK_DEVELOPMENT_INSTANCE_MISMATCH');
   }
