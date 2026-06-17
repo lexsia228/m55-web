@@ -38,6 +38,7 @@ import {
   type SmokeState,
   type TransportClass,
 } from './m55_preview_post_remediation_deletion_authority.ts';
+import { validatePrecheckEvidence } from './m55_preview_deletion_evidence_chain.ts';
 
 export {
   APPROVED_DEPLOYMENT_ID,
@@ -127,6 +128,7 @@ export type StepEvidence =
   | { step: 'S0_AUTHORITY_VALIDATION'; authority_valid: boolean }
   | { step: 'S1_PREVIEW_BINDING_REVERIFY'; bindings_exact: boolean }
   | { step: 'S2_SYNTHETIC_SUBJECT_CREATION_REQUIRED'; human_ref: OpaqueHumanRef }
+  | { step: 'S2_SYNTHETIC_SUBJECT_CREATION_REQUIRED'; subject_label: typeof SUBJECT_LABEL; precreated: true }
   | { step: 'S3_SAFE_LABEL_MAPPING'; subject_label: typeof SUBJECT_LABEL }
   | { step: 'S4_PREDELETE_READONLY_PRECHECK'; evidence: DeploymentSubjectPrecheckEvidence }
   | { step: 'S5_HUMAN_CONFIRMATION_BEFORE_DELETE'; human_ref: OpaqueHumanRef }
@@ -237,6 +239,7 @@ export class PreviewPostRemediationDeletionSmokeHarness {
   private halted = false;
   private precheckGreen = false;
   private subjectCreated = false;
+  private precheckEvidenceSha256: string | null = null;
   private clerkAction: ClerkActionClass | null = null;
   private transportClass: TransportClass | null = null;
   private humanClerkMarkerPresent = false;
@@ -400,6 +403,40 @@ export class PreviewPostRemediationDeletionSmokeHarness {
     this.actionsConsumed.subject_create += 1;
     this.subjectCreated = true;
     this.completeStep({ step: 'S2_SYNTHETIC_SUBJECT_CREATION_REQUIRED', human_ref: humanRef });
+  }
+
+
+  recordHumanSubjectPrecreated(): void {
+    if (this.halted) return;
+    if (!this.assertStepOrder('S2_SYNTHETIC_SUBJECT_CREATION_REQUIRED')) {
+      this.hold('HOLD_STEP_ORDER_VIOLATION');
+      return;
+    }
+    this.actionsConsumed.subject_create = MAX_SUBJECT_CREATE_COUNT;
+    this.subjectCreated = true;
+    this.completeStep({
+      step: 'S2_SYNTHETIC_SUBJECT_CREATION_REQUIRED',
+      subject_label: SUBJECT_LABEL,
+      precreated: true,
+    });
+  }
+
+  recordValidatedPrecheckEvidence(evidence: unknown): string | null {
+    const result = validatePrecheckEvidence(evidence);
+    if (!result.ready || !result.sha256) {
+      this.hold(result.failed_flags[0] ?? 'HOLD_PRECHECK_EVIDENCE_INVALID');
+      return null;
+    }
+    this.precheckEvidenceSha256 = result.sha256;
+    return result.sha256;
+  }
+
+  canIssueDeletionAuthority(): boolean {
+    return this.precheckGreen && this.precheckEvidenceSha256 !== null;
+  }
+
+  canGeneratePostcheckFromBoundEvidence(evidenceSha256: string): boolean {
+    return this.precheckEvidenceSha256 === evidenceSha256;
   }
 
   runS3SafeLabelMapping(labelMatches = true): void {

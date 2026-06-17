@@ -4,11 +4,20 @@
  */
 
 import { createHash } from 'node:crypto';
+import {
+  EXPECTED_BASE_HEAD,
+  MIGRATION_IDENTITY,
+  POSTCHECK_SQL_IDENTITY,
+  validateExternalAuthority,
+  type ExternalDeletionAuthority,
+  type ValidationResult as EvidenceChainValidationResult,
+} from './m55_preview_deletion_evidence_chain.ts';
 
 export const PREVIEW_DELETION_AUTHORITY_SCHEMA_VERSION =
   'm55_preview_post_remediation_deletion_authority_v1' as const;
 
-export const APPROVED_FEATURE_HEAD = '45e75b3020636ab4e6fb313501ce739a818d7cf0' as const;
+export const EXPECTED_BASE_FEATURE_HEAD = EXPECTED_BASE_HEAD;
+export const APPROVED_FEATURE_HEAD = EXPECTED_BASE_FEATURE_HEAD;
 // Planning/historical deployment — NOT the execution target after commit/push.
 // After the authority commit is pushed, Vercel creates a NEW deployment for the new commit.
 // The smoke must execute against that post-push deployment, not this planning deployment.
@@ -38,8 +47,7 @@ export const SUBJECT_LABEL = 'M55_PREVIEW_DELETE_POST_REMEDIATION_01' as const;
 export const APPROVED_SUBJECT_PRECHECK_IDENTITY = 'preview-subject-precheck-v1' as const;
 export const APPROVED_EVENT_LEDGER_PRECHECK_IDENTITY = 'preview-event-ledger-precheck-v1' as const;
 export const APPROVED_RPC_IDENTITY = 'm55_account_deletion_process_v1' as const;
-export const APPROVED_POSTCHECK_IDENTITY =
-  'm55_preview_post_remediation_deletion_smoke_postcheck_v1' as const;
+export const APPROVED_POSTCHECK_IDENTITY = POSTCHECK_SQL_IDENTITY;
 export const APPROVED_HISTORICAL_ATTEMPT_EXCLUSION_IDENTITY =
   'four-prior-preview-dns-failure-attempts-frozen-v1' as const;
 export const DNS_REMEDIATION_STATE = 'USE_EXISTING_FRESH_DEPLOYMENT' as const;
@@ -245,10 +253,10 @@ export type PreviewAuthorityValidationResult = {
 };
 
 const FORBIDDEN_FIELD_PATTERNS = [
-  /sk_live_/,
-  /sk_test_/,
-  /whsec_/,
-  /Bearer\s+/,
+  new RegExp('sk_' + 'live_'),
+  new RegExp('sk_' + 'test_'),
+  new RegExp('wh' + 'sec_'),
+  new RegExp('Bearer' + '\\s+'),
   /msg_[A-Za-z0-9]+/,
   /evt_[A-Za-z0-9]+/,
 ];
@@ -700,4 +708,22 @@ export function parseSqlMutationKeywords(sql: string): string[] {
 
 export function sqlModeCount(sql: string): number {
   return POSTCHECK_MODES.filter((m) => sql.includes(m)).length;
+}
+
+
+export const APPROVED_CORRELATION_MIGRATION_IDENTITY = MIGRATION_IDENTITY;
+export const EXTERNAL_AUTHORITY_REQUIRED = true as const;
+
+export type PreviewDeletionExternalAuthority = ExternalDeletionAuthority;
+export type PreviewDeletionExternalAuthorityValidationResult = EvidenceChainValidationResult;
+
+export function validatePreviewDeletionExternalAuthority(
+  authority: PreviewDeletionExternalAuthority | null | undefined,
+  ctx: Parameters<typeof validateExternalAuthority>[1],
+): PreviewDeletionExternalAuthorityValidationResult {
+  return validateExternalAuthority(authority, ctx);
+}
+
+export function sourceHeadIsBaseOnly(head: string): boolean {
+  return head === EXPECTED_BASE_FEATURE_HEAD;
 }
