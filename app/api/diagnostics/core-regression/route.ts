@@ -133,6 +133,13 @@ function run3(input: VectorInput, fixedNow?: string) {
 }
 
 export async function GET(req: NextRequest) {
+  if (process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { 'Cache-Control': 'no-store' },
+    });
+  }
+
   const fixedNow = req.nextUrl.searchParams.get('fixedNow') ?? undefined;
   const country = req.nextUrl.searchParams.get('country') ?? undefined;
 

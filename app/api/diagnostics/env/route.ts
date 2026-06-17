@@ -11,6 +11,13 @@ const KEYS = [
 ] as const;
 
 export async function GET() {
+  if (process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+
   const present = Object.fromEntries(
     KEYS.map((k) => [k, process.env[k] ? `len=${String(process.env[k]).length}` : "MISSING"])
   );
