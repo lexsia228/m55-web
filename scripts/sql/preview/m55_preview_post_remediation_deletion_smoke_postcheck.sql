@@ -116,10 +116,41 @@ WITH params AS (
       )
     ) AS unrelated_segment_bundle
   FROM ff_post fp
-), classified AS (
+), unrelated_evidence AS (
   SELECT
     us.*,
-    md5(us.unrelated_segment_bundle::text) AS unrelated_surface_digest_sql,
+    encode(
+      digest(
+        (
+          SELECT jsonb_agg(
+            (seg - 'segment_digest_sql')
+            || jsonb_build_object(
+              'segment_sha256',
+              encode(
+                digest(
+                  jsonb_build_object(
+                    'row_count', (seg->>'row_count')::integer,
+                    'segment_digest_sql', seg->>'segment_digest_sql',
+                    'segment_id', seg->>'segment_id'
+                  )::text,
+                  'sha256'
+                ),
+                'hex'
+              )
+            )
+            ORDER BY ord
+          )::text
+          FROM jsonb_array_elements(us.unrelated_segment_bundle) WITH ORDINALITY AS bundle(seg, ord)
+        ),
+        'sha256'
+      ),
+      'hex'
+    ) AS unrelated_surface_digest_evidence_chain
+  FROM unrelated_segments us
+), classified AS (
+  SELECT
+    ue.*,
+    ue.unrelated_surface_digest_evidence_chain AS unrelated_surface_digest_sql,
     ARRAY_REMOVE(ARRAY[
       CASE WHEN NOT mode_known THEN 'mode_unknown' END,
       CASE WHEN NOT raw_subject_present THEN 'raw_subject_missing' END,
@@ -137,12 +168,12 @@ WITH params AS (
       CASE WHEN scenario_mode IN ('POST_DELETE_TARGET_RETAINED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND (subject_entitlements_count <> 0 OR subject_otf_count <> 0 OR subject_consult_threads_count <> 0 OR subject_reply_sessions_count <> 0 OR subject_guest_drafts_count <> 0 OR subject_snapshots_count <> 0) THEN 'raw_subject_rows_remain' END,
       CASE WHEN scenario_mode IN ('POST_DELETE_TARGET_RETAINED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND bound_ff_existing_count <> cardinality(bound_failed_fulfillment_ids) THEN 'failed_fulfillment_missing_exact_id' END,
       CASE WHEN scenario_mode IN ('POST_DELETE_TARGET_RETAINED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND bound_ff_scrubbed_count <> cardinality(bound_failed_fulfillment_ids) THEN 'failed_fulfillment_not_scrubbed' END,
-      CASE WHEN scenario_mode IN ('POST_DELETE_UNRELATED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND precheck_unrelated_surface_sha256 <> '' AND precheck_unrelated_surface_sha256 <> md5(unrelated_segment_bundle::text) THEN 'unrelated_surface_changed' END
+      CASE WHEN scenario_mode IN ('POST_DELETE_UNRELATED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND precheck_unrelated_surface_sha256 <> '' AND precheck_unrelated_surface_sha256 <> unrelated_surface_digest_evidence_chain THEN 'unrelated_surface_changed' END
     ], NULL) AS failed_flags,
     ARRAY_REMOVE(ARRAY[
       CASE WHEN scenario_mode IN ('POST_DELETE_EVENT_LEDGER_RPC','POST_DELETE_TARGET_RETAINED','POST_DELETE_UNRELATED','INTEGRATED_PREVIEW_DELETION_CLOSURE') AND deletion_subject_id IS NULL THEN 'deletion_subject_unknown' END
     ], NULL) AS unknown_flags
-  FROM unrelated_segments us
+  FROM unrelated_evidence ue
 )
 SELECT jsonb_build_object(
   'schema_version','m55_preview_post_remediation_deletion_smoke_postcheck_v2',
@@ -160,7 +191,7 @@ SELECT jsonb_build_object(
   ),
   'failed_fulfillments',jsonb_build_object('sorted_uuid_list',failed_fulfillment_uuid_list,'count',failed_fulfillment_count,'digest_sql_md5',failed_fulfillment_uuid_digest_sql),
   'unrelated_surface_registry',jsonb_build_object('registry_id','M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1','registry_schema_version','m55_unrelated_surface_registry_v1','registry_sha256','834107bbf22b02a5ea12c5c6c089aa683517765948baf6200d7c4dfe518d87ee'),
-  'unrelated_audited_surface',jsonb_build_object('segments',unrelated_segment_bundle,'digest_sql_md5',unrelated_surface_digest_sql),
+  'unrelated_audited_surface',jsonb_build_object('segments',unrelated_segment_bundle,'digest_sha256',unrelated_surface_digest_sql),
   'postdelete',jsonb_build_object('correlated_succeeded_event_count',correlated_succeeded_event_count,'deletion_subject_id_valid',deletion_subject_id ~ '^m55-del:[0-9a-f]{32}$','failed_fulfillment_exact_ids_existing',bound_ff_existing_count,'failed_fulfillment_exact_ids_scrubbed',bound_ff_scrubbed_count),
   'failed_flags',to_jsonb(failed_flags),
   'unknown_flags',to_jsonb(unknown_flags),
