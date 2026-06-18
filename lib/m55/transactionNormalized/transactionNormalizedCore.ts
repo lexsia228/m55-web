@@ -140,7 +140,7 @@ export const AUTHORITY_FILE_EXPECTATIONS = {
   },
   matrix: {
     bytes: 119937,
-    sha256: 'e1dea75de6edb29dcc85440d3f21021b2b176c87141e4e1995a4d6bbf139f554',
+    sha256: '68aa6d2fc5e78b443eee42727e1a4c8be877abfabb359f406769c7d47c079985',
     classification: 'authority_matrix',
   },
   parserEvidence: {

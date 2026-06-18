@@ -234,6 +234,20 @@ describe('P8 correlation transport FINAL-SURGICAL-CORRECTION', () => {
     assert.doesNotMatch(P8_USER_REF_HASH_CHECK_DEFINITIONS[1]!, /LIKE/);
   });
 
+  it('post probe index authority: accepts PostgreSQL pretty partial-index deparse without outer parens', () => {
+    assert.match(P8_POST_PROBE_SQL, /pg_get_expr\(i\.indpred, i\.indrelid, true\) = 'user_ref_hash IS NOT NULL'/);
+    assert.doesNotMatch(P8_POST_PROBE_SQL, /pg_get_expr\(i\.indpred, i\.indrelid, true\) = '\(user_ref_hash IS NOT NULL\)'/);
+  });
+
+  it('post verifier: competing user_ref_hash index count must be zero', () => {
+    assert.equal(
+      validateP8PostProbeResult(
+        buildMockP8PostProbeRow({ competing_user_ref_hash_index_count_zero: false, probe_green: false }),
+      ).ok,
+      false,
+    );
+  });
+
   it('probe bundle: foundation mismatch fails before returning bundle', () => {
     const tempRoot = mkdtempSync(join(tmpdir(), 'm55-p8-foundation-'));
     try {

@@ -1281,7 +1281,7 @@
         "20260615000006",
         "20260617000001"
       ],
-      "oracle_contract_hash_sha256_after_success": "244ffafaa932fa2606d647b1a84fc799dac4ecdc5147b45f8ca7d2d8c1d0f655",
+      "oracle_contract_hash_sha256_after_success": "b308e7872483b7fe2104b42f0312263223336b79e01bc02e002878fdbc0fe244",
       "prior_history_prefix_required": [
         "20260614000000",
         "20260615000001",
@@ -1391,7 +1391,7 @@
       "prior_oracle_phase": "P7",
       "next_oracle_phase": "P8",
       "prior_oracle_contract_hash_sha256": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
-      "next_oracle_contract_hash_sha256": "244ffafaa932fa2606d647b1a84fc799dac4ecdc5147b45f8ca7d2d8c1d0f655",
+      "next_oracle_contract_hash_sha256": "b308e7872483b7fe2104b42f0312263223336b79e01bc02e002878fdbc0fe244",
       "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P8.DEFINITELY_NOT_COMMITTED",
       "definitely_committed_predicate_reference": "ack_classifiers.predicates.P8.DEFINITELY_COMMITTED",
       "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
