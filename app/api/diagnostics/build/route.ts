@@ -8,5 +8,7 @@ export async function GET() {
     vercel_git_sha: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
     vercel_branch: process.env.VERCEL_GIT_COMMIT_REF ?? null,
     node_env: process.env.NODE_ENV ?? null,
+  }, {
+    headers: { "Cache-Control": "no-store" },
   });
 }

@@ -7,7 +7,11 @@ import {
   normalizeConsultReplyParagraphs,
 } from '../../lib/m55/consult/consultReplyDisplaySections';
 import { resolveConsultReplyLensByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
-import { PAID_DTR_CONSULT_ROOM_UI } from '../../lib/m55/paidDtrProductCopy';
+import {
+  PAID_DTR_CONSULT_ENTRY_NEUTRAL,
+  PAID_DTR_CONSULT_ROOM_UI,
+  formatConsultUsedCountLine,
+} from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyStructureMiniViz from './ConsultReplyStructureMiniViz';
 import ConsultReplyThemeLens from './ConsultReplyThemeLens';
 import styles from './ConsultRoom.module.css';
@@ -19,7 +23,6 @@ type Props = {
   stemIdx: number;
   usedCount: number;
   remainingCount: number;
-  canPurchaseMoreCount: number;
   /** When true (default), body/viz/CTA hidden until user expands. */
   compactInitially?: boolean;
   /** Shows latest-reply badge on compact header. */
@@ -42,7 +45,6 @@ export default function ConsultReplyCard({
   stemIdx,
   usedCount,
   remainingCount,
-  canPurchaseMoreCount,
   compactInitially = true,
   isLatest = false,
 }: Props) {
@@ -60,8 +62,12 @@ export default function ConsultReplyCard({
 
   const todayStep = bodies.today.trim() || null;
   const auxBody = bodies.aux.trim();
-  const usageCompact = `使用 ${usedCount} / 5件`;
-  const usageFull = `${usageCompact} · 残り ${remainingCount}件`;
+  const usageCompact = formatConsultUsedCountLine(usedCount);
+  const usageRemaining = PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(
+    '{count}',
+    String(remainingCount)
+  );
+  const usageFull = `${usageCompact} · ${usageRemaining}`;
 
   const quotePreview = userQuote ? trimLines(userQuote, 2) : null;
   const quoteDisplay = collapsed && quotePreview ? quotePreview : userQuote;
@@ -177,10 +183,12 @@ export default function ConsultReplyCard({
             <Link href={`#${lens.anchor}`} className={styles.replyPrimaryLink}>
               保存版を読み返す
             </Link>
-            <p className={styles.replySecondaryAction}>追加返書を使う</p>
-            <p className={styles.replyFooterMeta}>残り {remainingCount}件 / 合計5件まで</p>
-            <p className={styles.replyFooterMeta}>追加相談返書 1件 500円</p>
-            <p className={styles.replyFooterMeta}>追加で使える件数 {canPurchaseMoreCount}件</p>
+            <p className={styles.replyFooterMeta}>
+              {PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(
+                '{count}',
+                String(remainingCount)
+              )}
+            </p>
           </footer>
 
           {compactInitially ? (

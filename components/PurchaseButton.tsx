@@ -4,20 +4,35 @@ import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { ProfileRepository } from '../lib/soul/profile';
 import { validateDtrCheckoutProfile } from '../lib/m55/compositeStem/checkoutProfileGate';
+import {
+  DTR_CORE_FULL_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_STATIC_V1,
+  isDtrCoreSavedReportOneTimeProduct,
+} from '../lib/oneTimeCheckout';
 import type { BirthProfile } from '../lib/soul/profile';
 
+/** Saved-report checkout SKUs that require birth profile before Stripe session. */
+const DTR_SAVED_REPORT_PROFILE_GATED = new Set<string>([
+  DTR_CORE_STATIC_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_FULL_V1,
+]);
+
 /**
- * productId → 環境変数マッピング
- * DTR_CORE_STATIC_V1 は STRIPE_PRICE_DTR_CORE_STATIC_V1 を参照
+ * productId → 環境変数マッピング (display / diagnostics only; checkout route resolves env).
  */
 const PRODUCT_ID_TO_ENV: Record<string, string> = {
-  DTR_CORE_STATIC_V1: 'STRIPE_PRICE_DTR_CORE_STATIC_V1',
+  [DTR_CORE_STATIC_V1]: 'STRIPE_PRICE_DTR_CORE_STATIC_V1',
+  [DTR_CORE_LIGHT_V1]: 'STRIPE_PRICE_DTR_CORE_LIGHT_V1',
+  [DTR_CORE_FULL_V1]: 'STRIPE_PRICE_DTR_CORE_FULL_V1',
 };
 
 export type PurchaseButtonProps = {
   productId: string;
   children?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 /**
@@ -28,6 +43,7 @@ export default function PurchaseButton({
   productId,
   children = '購入する',
   className,
+  style,
 }: PurchaseButtonProps) {
   const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -43,13 +59,18 @@ export default function PurchaseButton({
     try {
       const profile =
         userId ? ProfileRepository.get(userId) : null;
-      if (productId === 'DTR_CORE_STATIC_V1') {
+      if (DTR_SAVED_REPORT_PROFILE_GATED.has(productId)) {
         const gate = validateDtrCheckoutProfile(profile);
         if (!gate.ok) {
           setNeedsProfile(true);
           setLoading(false);
           return;
         }
+      }
+      if (!isDtrCoreSavedReportOneTimeProduct(productId)) {
+        setError('この商品は現在ご購入いただけません。');
+        setLoading(false);
+        return;
       }
       const payload: { productId: string; profile?: BirthProfile } = {
         productId,
@@ -123,6 +144,7 @@ export default function PurchaseButton({
         onClick={handleClick}
         disabled={loading}
         className={className}
+        style={style}
         aria-busy={loading}
         aria-live="polite"
       >

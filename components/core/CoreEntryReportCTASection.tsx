@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { STATIC_CTA, withNickname } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
@@ -43,7 +44,7 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
       aria-labelledby="core-saved-report-cta"
       data-core-reveal
     >
-      <span className={styles.tierAOverline}>保存版レポート</span>
+      <span className={styles.tierAOverline}>{TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.overlineJa}</span>
       <h2 id="core-saved-report-cta" className={styles.ctaTitle}>
         {STATIC_CTA.title}
       </h2>
@@ -63,8 +64,8 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
 
       <p className={styles.ctaBundleNote} style={{ marginTop: 16 }}>{STATIC_CTA.bundleNote}</p>
 
-      <Link href="/dtr/lp" className={styles.ctaTeaserCta}>
-        本質の読み解きを見る →
+      <Link href={TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref} className={styles.ctaTeaserCta}>
+        {TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansJa} →
       </Link>
     </section>
   );

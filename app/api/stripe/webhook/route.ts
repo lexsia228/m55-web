@@ -25,6 +25,7 @@ import {
   m55OpsEventInternalProcessingFailed,
   m55OpsEventMissingClientReferenceId,
 } from '../../../../lib/m55/ops/m55OpsNotify';
+import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -32,16 +33,9 @@ export const dynamic = 'force-dynamic';
 /** TODO(M55 reply ticket diagnostic): remove `[reply-ticket-diagnostic:*]` logs after observation SSOT. */
 
 const PRODUCT_ID_FROM_META = 'DTR_CORE_STATIC_V1';
-const STRIPE_PRICE_PREMIUM_MONTHLY = 'STRIPE_PRICE_PREMIUM_MONTHLY';
 /** 本丸イベント: 内部処理失敗時は 500 + failed_fulfillments 記録 */
 const ONE_TIME_KEY_EVENTS: ReadonlySet<string> = new Set(['checkout.session.completed', 'charge.refunded']);
-
-/**
- * Payment-failure state machine (conservative):
- * - Do NOT immediately revoke access on a single failed renewal.
- * - Use grace period / dunning / Stripe retry before any entitlement revoke.
- * - invoice.payment_failed handling (if added) must not revoke on first failure.
- */
+const USER_REF_HASH_RE = /^[0-9a-f]{16}$/;
 
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -74,7 +68,7 @@ export async function POST(req: NextRequest) {
   const db = supabase as any;
   const { data: existing } = await db
     .from('stripe_events')
-    .select('id')
+    .select('event_id')
     .eq('event_id', event.id)
     .limit(1)
     .maybeSingle();
@@ -129,8 +123,18 @@ export async function POST(req: NextRequest) {
 
   const eventType = event.type ?? 'unknown';
 
-  // 非対象イベント（completed/refunded 以外）: stripe_events 記録後 200 early return
-  if (!ONE_TIME_KEY_EVENTS.has(event.type ?? '') && event.type !== 'invoice.paid') {
+  // 非対象イベント（one-time completed/refunded 以外）: stripe_events 記録後 200 early return
+  if (!ONE_TIME_KEY_EVENTS.has(event.type ?? '')) {
+    if (event.type === 'invoice.paid') {
+      console.warn(
+        '[webhook] legacy_invoice_paid_ignored',
+        JSON.stringify({
+          event_id: event.id,
+          event_type: event.type,
+          lane: 'legacy_invoice_paid_ignored',
+        })
+      );
+    }
     const { error: insErr } = await db.from('stripe_events').insert({ event_id: event.id, event_type: eventType });
     if (insErr?.code === '23505') {
       return NextResponse.json({ received: true }, { status: 200 });
@@ -141,9 +145,7 @@ export async function POST(req: NextRequest) {
   const stripe = getStripe();
   let res: NextResponse;
 
-  if (event.type === 'invoice.paid') {
-    res = await handleInvoicePaid(stripe, event, db);
-  } else if (event.type === 'checkout.session.completed') {
+  if (event.type === 'checkout.session.completed') {
     res = await handleCheckoutCompleted(stripe, event, db);
   } else if (event.type === 'charge.refunded') {
     res = await handleChargeRefunded(stripe, event, db);
@@ -202,7 +204,23 @@ export async function POST(req: NextRequest) {
           ? await lookupCheckoutSessionForRefund(db, event)
           : (event.data?.object as Stripe.Checkout.Session | undefined)?.id ?? null;
       if (checkoutSessionId) {
-        await insertFailedFulfillment(db, event.id, checkoutSessionId, 'stripe_events_insert_failed', { error: String(insertErr?.message ?? insertErr) });
+        let stripeEventsInsertFailedUserRefHash: string | null = null;
+        if (event.type === 'checkout.session.completed') {
+          const session = event.data?.object as Stripe.Checkout.Session | undefined;
+          const clientReferenceId =
+            typeof session?.client_reference_id === 'string' ? session.client_reference_id.trim() : '';
+          if (clientReferenceId.length > 0) {
+            stripeEventsInsertFailedUserRefHash = hashUserIdForLedgerLog(clientReferenceId);
+          }
+        }
+        await insertFailedFulfillment(
+          db,
+          event.id,
+          checkoutSessionId,
+          'stripe_events_insert_failed',
+          null,
+          stripeEventsInsertFailedUserRefHash
+        );
       }
       return NextResponse.json({ error: 'Idempotency failed' }, { status: 500 });
     }
@@ -236,9 +254,8 @@ export async function POST(req: NextRequest) {
 }
 
 /**
- * checkout.session.completed: route to subscription or one-time lane.
- * - Subscription: mode=subscription, session.subscription set → subscription lane (unchanged).
- * - One-time: mode=payment, no subscription → one-time lane.
+ * checkout.session.completed: one-time lane only (payment mode).
+ * Legacy subscription checkout sessions are ignored with 200 (no DB fulfillment).
  */
 async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
   const session = event.data.object as Stripe.Checkout.Session;
@@ -246,33 +263,21 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_FROM_META;
 
   if (!userId) {
-    await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', session.metadata ?? null);
+    await insertFailedFulfillment(db, event.id, session.id, 'missing_client_reference_id', null, null);
     console.error('[webhook] lane=checkout event_id=', event.id, 'checkout_session_id=', session.id, 'failure=missing_client_reference_id');
     notifyM55OpsFireAndForget(m55OpsEventMissingClientReferenceId());
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
-  // Subscription lane: unchanged
   if (session.subscription && typeof session.subscription === 'string') {
-    const subErr = await upsertSubscriptionMapping(stripe, db, userId, session.subscription, session.customer as string);
-    if (subErr) return subErr;
-    const { error: upsertErr } = await db
-      .from('entitlements')
-      .upsert(
-        {
-          user_id: userId,
-          product_id: productId,
-          grant_type: 'subscription',
-          source: 'stripe_subscription',
-          status: 'active',
-          stripe_session_id: session.id,
-        },
-        { onConflict: 'user_id,product_id' }
-      );
-    if (upsertErr) {
-      console.error('[webhook] lane=subscription event_id=', event.id, 'failure=entitlements_upsert', upsertErr);
-      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-    }
+    console.warn(
+      '[webhook] legacy_subscription_checkout_ignored',
+      JSON.stringify({
+        event_id: event.id,
+        event_type: event.type,
+        lane: 'legacy_subscription_checkout_ignored',
+      })
+    );
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
@@ -319,7 +324,14 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   }
 
   if (!ALLOWED_ONE_TIME_PRODUCTS.has(productId)) {
-    await insertFailedFulfillment(db, event.id, session.id, 'product_mismatch', { productId, ...(session.metadata ?? {}) });
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      'product_mismatch',
+      { productId },
+      hashUserIdForLedgerLog(userId)
+    );
     console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=product_mismatch product_id=', productId);
     return NextResponse.json({ received: true }, { status: 200 });
   }
@@ -327,13 +339,28 @@ async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: 
   return handleCheckoutCompletedOneTime(stripe, event, db, session, userId, productId);
 }
 
-async function insertFailedFulfillment(db: any, eventId: string, checkoutSessionId: string, reason: string, metadata: Record<string, unknown> | null): Promise<void> {
+async function insertFailedFulfillment(
+  db: any,
+  eventId: string,
+  checkoutSessionId: string,
+  failureReason: string,
+  rawMetadata: Record<string, unknown> | null,
+  userRefHash: string | null
+): Promise<void> {
+  if (userRefHash !== null && !USER_REF_HASH_RE.test(userRefHash)) {
+    console.error(
+      '[webhook] failed_fulfillments_validation_failed',
+      JSON.stringify({ error_code: 'INVALID_USER_REF_HASH' })
+    );
+    return;
+  }
   try {
     await db.from('failed_fulfillments').insert({
       event_id: eventId,
       checkout_session_id: checkoutSessionId,
-      failure_reason: reason,
-      raw_metadata: metadata ? (metadata as object) : null,
+      failure_reason: failureReason,
+      raw_metadata: rawMetadata ? (rawMetadata as object) : null,
+      user_ref_hash: userRefHash,
     });
   } catch (e) {
     console.error('[webhook] failed_fulfillments insert failed', e);
@@ -384,10 +411,14 @@ async function handleCheckoutCompletedOneTime(
   }
 
   if (result.reason === 'payment_not_paid') {
-    await insertFailedFulfillment(db, event.id, session.id, 'payment_status_not_paid', {
-      payment_status: result.detail,
-      ...(session.metadata ?? {}),
-    });
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      'payment_status_not_paid',
+      { payment_status: result.detail ?? null },
+      hashUserIdForLedgerLog(userId)
+    );
     console.error(
       '[webhook] lane=one_time event_id=',
       event.id,
@@ -406,15 +437,26 @@ async function handleCheckoutCompletedOneTime(
     result.reason === 'not_payment' ||
     result.reason === 'product_not_allowed'
   ) {
-    await insertFailedFulfillment(db, event.id, session.id, `fulfill_${result.reason}`, session.metadata ?? null);
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      `fulfill_${result.reason}`,
+      null,
+      hashUserIdForLedgerLog(userId)
+    );
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
   console.error('[webhook] lane=one_time event_id=', event.id, 'checkout_session_id=', session.id, 'failure=', result);
-  await insertFailedFulfillment(db, event.id, session.id, 'internal_processing_failed', {
-    reason: result.reason,
-    detail: result.detail,
-  });
+  await insertFailedFulfillment(
+    db,
+    event.id,
+    session.id,
+    'internal_processing_failed',
+    null,
+    hashUserIdForLedgerLog(userId)
+  );
   notifyM55OpsFireAndForget(m55OpsEventInternalProcessingFailed(result.reason));
   return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
 }
@@ -423,7 +465,7 @@ async function handleCheckoutCompletedOneTime(
  * charge.refunded: one-time lane only. Full refund = revoke; partial refund = keep access.
  * - Full: amount_refunded >= amount → revoke entitlement.
  * - Partial: amount_refunded < amount → no revoke (policy: partial refund keeps access).
- * Subscription refunds are out of scope (invoice lane unchanged).
+ * Subscription refunds are out of scope.
  */
 async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
   const charge = event.data.object as Stripe.Charge;
@@ -458,179 +500,18 @@ async function handleChargeRefunded(stripe: Stripe, event: Stripe.Event, db: any
     console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'user_id=', userId, 'refund_type=full', 'status=revoked');
   } catch (e) {
     if (checkoutSessionId) {
-      await insertFailedFulfillment(db, event.id, checkoutSessionId, 'revoke_failed', { payment_intent_id: paymentIntentId, error: String((e as Error)?.message ?? e) });
+      await insertFailedFulfillment(
+        db,
+        event.id,
+        checkoutSessionId,
+        'revoke_failed',
+        null,
+        hashUserIdForLedgerLog(userId)
+      );
     }
     console.error('[webhook] lane=one_time event_type=charge.refunded event_id=', event.id, 'payment_intent_id=', paymentIntentId, 'failure=', e);
     return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
-}
-
-async function upsertSubscriptionMapping(
-  stripe: Stripe,
-  db: any,
-  userId: string,
-  subscriptionId: string,
-  customerId: string
-): Promise<NextResponse | null> {
-  try {
-    const sub = (await stripe.subscriptions.retrieve(subscriptionId)) as Stripe.Subscription;
-    const priceId = sub.items.data[0]?.price?.id;
-    const premiumPriceId = process.env[STRIPE_PRICE_PREMIUM_MONTHLY];
-    const tier = premiumPriceId && priceId === premiumPriceId ? 'premium' : 'standard';
-
-    const { error } = await db
-      .from('subscriptions')
-      .upsert(
-        {
-          user_id: userId,
-          tier,
-          status: sub.status === 'active' ? 'active' : sub.status,
-          current_period_end: (() => {
-            const cpe = (sub as unknown as { current_period_end?: number }).current_period_end;
-            return cpe ? new Date(cpe * 1000).toISOString() : null;
-          })(),
-          stripe_customer_id: customerId,
-          stripe_subscription_id: subscriptionId,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' }
-      );
-
-    if (error) {
-      console.error('[webhook] subscriptions upsert failed:', error);
-      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-    }
-  } catch (e) {
-    console.error('[webhook] subscription fetch failed:', e);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-  return null;
-}
-
-function hasSufficientPaymentData(invoice: Record<string, unknown>): boolean {
-  if (invoice.paid_out_of_band !== undefined) return true;
-  const payments = (invoice as { payments?: { data?: unknown[] } }).payments;
-  if (payments && typeof payments === 'object' && Array.isArray(payments.data)) return true;
-  const inv = invoice as { payment_intent?: string; charge?: string };
-  return !!(inv.payment_intent || inv.charge);
-}
-
-function isOutOfBandInvoice(invoice: Record<string, unknown>): boolean {
-  if (invoice.paid_out_of_band === true) return true;
-
-  const payments = (invoice as { payments?: { data?: Array<{ payment?: { charge?: string; payment_intent?: string } }> } })
-    .payments;
-  if (payments && typeof payments === 'object' && Array.isArray(payments.data)) {
-    const hasStripePayment = payments.data.some((p) => {
-      const pmt = p?.payment;
-      return !!(pmt?.charge || pmt?.payment_intent);
-    });
-    if (!hasStripePayment) return true;
-    return false;
-  }
-
-  return false;
-}
-
-const OK_200 = () => NextResponse.json({ received: true }, { status: 200 });
-
-async function handleInvoicePaid(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
-  let invoice = event.data.object as Stripe.Invoice;
-  let inv = invoice as unknown as Record<string, unknown>;
-
-  if (!hasSufficientPaymentData(inv)) {
-    try {
-      const fetched = await stripe.invoices.retrieve(invoice.id, { expand: ['payments'] });
-      invoice = fetched as Stripe.Invoice;
-      inv = fetched as unknown as Record<string, unknown>;
-    } catch (e) {
-      console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'failure=invoice_fetch', e);
-      return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-    }
-  }
-
-  if (isOutOfBandInvoice(inv)) return OK_200();
-
-  const premiumPriceId = process.env[STRIPE_PRICE_PREMIUM_MONTHLY];
-  if (!premiumPriceId) return OK_200();
-
-  const isPremium =
-    invoice.lines?.data?.some((l) => {
-      const li = l as { price?: { id?: string }; price_id?: string };
-      return li.price?.id === premiumPriceId || li.price_id === premiumPriceId;
-    }) ?? false;
-  if (!isPremium) return OK_200();
-
-  const invSub = (invoice as unknown as { subscription?: string | { id?: string } }).subscription;
-  const subscriptionId = typeof invSub === 'string' ? invSub : invSub?.id;
-  if (!subscriptionId) return OK_200();
-
-  const { data: existing } = await db.from('invoice_dtr_grants').select('invoice_id').eq('invoice_id', invoice.id).maybeSingle();
-  if (existing) return OK_200();
-
-  let sub: Stripe.Subscription;
-  try {
-    sub = (await stripe.subscriptions.retrieve(subscriptionId)) as Stripe.Subscription;
-  } catch (e) {
-    console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'failure=subscription_fetch', e);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-
-  let userId: string | null =
-    (sub.metadata?.user_id as string) ?? null;
-  if (!userId) {
-    const { data: subRow } = await db
-      .from('subscriptions')
-      .select('user_id')
-      .eq('stripe_subscription_id', subscriptionId)
-      .maybeSingle();
-    userId = (subRow as { user_id?: string } | null)?.user_id ?? null;
-  }
-  if (!userId) {
-    console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'failure=user_resolution subscription_id=', subscriptionId);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-
-  const invPeriod = invoice as unknown as { period_end?: number; period_start?: number };
-  const subPeriod = sub as unknown as { current_period_end?: number; current_period_start?: number };
-  const periodTs = invPeriod.period_end ?? invPeriod.period_start ?? subPeriod.current_period_end ?? subPeriod.current_period_start;
-  if (!periodTs) {
-    console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'user_id=', userId, 'failure=period_derivation');
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-  const monthKey = new Date(periodTs * 1000).toISOString().slice(0, 7);
-  const rightKey = `m55_p:month:${monthKey}`;
-
-  const { error: upsertErr } = await db
-    .from('entitlement_rights')
-    .upsert(
-      {
-        user_id: userId,
-        right_key: rightKey,
-        right_value: '1',
-        source: `invoice:${invoice.id}`,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,right_key' }
-    );
-
-  if (upsertErr) {
-    console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'user_id=', userId, 'failure=entitlement_rights_upsert', upsertErr);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-
-  const { error: insertGrantErr } = await db.from('invoice_dtr_grants').insert({
-    invoice_id: invoice.id,
-    user_id: userId,
-  });
-
-  if (insertGrantErr) {
-    if (insertGrantErr.code === '23505') return OK_200();
-    console.error('[webhook] event_type=invoice.paid invoice_id=', invoice.id, 'user_id=', userId, 'failure=invoice_dtr_grants_insert', insertGrantErr);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
-  }
-
-  return OK_200();
 }

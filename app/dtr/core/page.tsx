@@ -12,9 +12,9 @@ import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
 
-import { LABEL_PRODUCT_JP } from "../../../lib/m55/dtrProductLabels";
+import { LABEL_SAVED_REPORT_METADATA_JP } from "../../../lib/m55/dtrProductLabels";
 
-export const metadata = { title: `${LABEL_PRODUCT_JP} | M55` };
+export const metadata = { title: `${LABEL_SAVED_REPORT_METADATA_JP} | M55` };
 
 export default async function DtrCorePage() {
   const { userId } = await auth();

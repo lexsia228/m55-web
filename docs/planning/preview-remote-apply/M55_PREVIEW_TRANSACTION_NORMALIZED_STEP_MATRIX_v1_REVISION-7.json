@@ -1,0 +1,2715 @@
+{
+  "schema_version": "m55.preview.transaction_normalized_step_matrix.v1.revision-7.draft",
+  "execution_status": "NOT EXECUTED",
+  "generated_at_utc": "2026-06-13T09:57:10Z",
+  "frozen_authority": {
+    "feature_head_git_sha": "ceee04aab0a94376a55a576900cb2f8d597c19f4",
+    "baseline_source_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
+    "matrix_sha256": "d5d34b135acabe3cd7fc41144069d9deee133472810264e1b397cf5bd3a19257",
+    "manifest_sha256": "5c698f95448f823bf19bd12f44f36ea07d3c52befcf903708ab6d65442f37e20",
+    "execution_oracle_sha256": "6a68c442141a7306d1c9237c72a113f301f372ffeca809dcff0c2223caf04bbb",
+    "patch_2_preflight_sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff",
+    "primary_evidence_sha256": "65df70ae620da0a44e3adabf929fd369b3d4f8d580aab73c08c37290e188c927",
+    "review_bundle_sha256": "38d58aa29f6623a90440394e9680832610df9e684bc0242959fa2c626c315a2d"
+  },
+  "lifecycle_step_template_section_5c": [
+    {
+      "step": 1,
+      "identifier": "CREATE_FRESH_CONNECTION",
+      "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+    },
+    {
+      "step": 2,
+      "identifier": "TARGET_ROLE_GUARD",
+      "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+    },
+    {
+      "step": 3,
+      "identifier": "BOUNDED_SESSION_SETTINGS",
+      "description": "Apply bounded session settings."
+    },
+    {
+      "step": 4,
+      "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+      "description": "Begin executor-owned transaction."
+    },
+    {
+      "step": 5,
+      "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+      "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7."
+    },
+    {
+      "step": 6,
+      "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+      "description": "Execute normalized statement stream sequentially."
+    },
+    {
+      "step": 7,
+      "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+      "description": "Execute narrow postconditions inside the transaction."
+    },
+    {
+      "step": 8,
+      "identifier": "INSERT_EXACT_HISTORY_ROW",
+      "description": "Insert exact history row per Policy 2 normalized executed stream."
+    },
+    {
+      "step": 9,
+      "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+      "description": "Verify exact history prefix and oracle phase inside the transaction."
+    },
+    {
+      "step": 10,
+      "identifier": "COMMIT_ONCE",
+      "description": "Commit once; executor owns COMMIT."
+    },
+    {
+      "step": 11,
+      "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+      "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+      "response_classes": [
+        "DEFINITIVE_COMMIT_ACK",
+        "ACK_UNCERTAIN_OR_MISSING",
+        "DEFINITIVE_TRANSACTION_REJECTION"
+      ]
+    },
+    {
+      "step": 12,
+      "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+      "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+    }
+  ],
+  "version_matrices": [
+    {
+      "label": "P1",
+      "version": "20260614000000",
+      "migration_name": "preview_production_aligned_baseline_p1",
+      "expected_history_prefix_after_success": [
+        "20260614000000"
+      ],
+      "oracle_contract_hash_sha256_after_success": "77ba63b64fee47ca9b6deec00bb76f90fe239f6b236994116afdf8be9735fc0c",
+      "prior_history_prefix_required": [],
+      "prior_oracle_contract_hash_sha256_required": "85ac8761006ba1f9bf1f1cbfcd7940f81e21fb393eb50d1289ac31fd894f6792",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": true
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "docs/planning/preview-baseline/migrations/20260614000000_preview_production_aligned_baseline_p1.sql",
+      "frozen_source_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
+      "original_statement_count": 209,
+      "original_stream_composite_sha256": "a71aa6f1225f8731d51ff45887130fc6e78bfcc2d6cb50771065970594562aea",
+      "normalized_statement_count": 207,
+      "normalized_stream_composite_sha256": "19abbb111d0420b21cb9d5f540c722785f9e9bc52799664c27dc49046a3933b8",
+      "removed_token_ordinals": [
+        0,
+        208
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "6986299a07b4e74c3509fd64806bb01a5d323c754e7eea8d506f742bea7945ae",
+      "exact_prior_history_prefix": [],
+      "exact_next_history_prefix": [
+        "20260614000000"
+      ],
+      "prior_oracle_phase": "P0",
+      "next_oracle_phase": "P1",
+      "prior_oracle_contract_hash_sha256": "85ac8761006ba1f9bf1f1cbfcd7940f81e21fb393eb50d1289ac31fd894f6792",
+      "next_oracle_contract_hash_sha256": "77ba63b64fee47ca9b6deec00bb76f90fe239f6b236994116afdf8be9735fc0c",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P1.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P1.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": true,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P1",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P1.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P2",
+      "version": "20260615000001",
+      "migration_name": "failed_fulfillments_user_ref_hash",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "oracle_contract_hash_sha256_after_success": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
+      "prior_history_prefix_required": [
+        "20260614000000"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "77ba63b64fee47ca9b6deec00bb76f90fe239f6b236994116afdf8be9735fc0c",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000001_failed_fulfillments_user_ref_hash.sql",
+      "frozen_source_sha256": "d4a2f09058eac13aaea054cafaa47ca7b4288e38871973e16d99a51263d2459c",
+      "original_statement_count": 4,
+      "original_stream_composite_sha256": "d942c353cde2e38f39ad4c69ddd54f0baed346525635637b7e2da012bb9cd048",
+      "normalized_statement_count": 4,
+      "normalized_stream_composite_sha256": "d942c353cde2e38f39ad4c69ddd54f0baed346525635637b7e2da012bb9cd048",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_prior_history_prefix": [
+        "20260614000000"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "prior_oracle_phase": "P1",
+      "next_oracle_phase": "P2",
+      "prior_oracle_contract_hash_sha256": "77ba63b64fee47ca9b6deec00bb76f90fe239f6b236994116afdf8be9735fc0c",
+      "next_oracle_contract_hash_sha256": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P3",
+      "version": "20260615000002",
+      "migration_name": "m55_account_deletion_ledger_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "oracle_contract_hash_sha256_after_success": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
+      "frozen_source_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
+      "original_statement_count": 7,
+      "original_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
+      "normalized_statement_count": 7,
+      "normalized_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "prior_oracle_phase": "P2",
+      "next_oracle_phase": "P3",
+      "prior_oracle_contract_hash_sha256": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
+      "next_oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P4",
+      "version": "20260615000003",
+      "migration_name": "m55_account_deletion_process_rpc_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "oracle_contract_hash_sha256_after_success": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000003_m55_account_deletion_process_rpc_v1.sql",
+      "frozen_source_sha256": "25597665f594dfef6c60fb5af500e70105535c786f85c3c3b4f817c1da82567c",
+      "original_statement_count": 7,
+      "original_stream_composite_sha256": "5f6971736b4750af15c7d3e60cea96a445430e9141590929033ef1c65780ea58",
+      "normalized_statement_count": 7,
+      "normalized_stream_composite_sha256": "5f6971736b4750af15c7d3e60cea96a445430e9141590929033ef1c65780ea58",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "prior_oracle_phase": "P3",
+      "next_oracle_phase": "P4",
+      "prior_oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
+      "next_oracle_contract_hash_sha256": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P5",
+      "version": "20260615000004",
+      "migration_name": "m55_entitlements_and_rights_access_security_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "oracle_contract_hash_sha256_after_success": "154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000004_m55_entitlements_and_rights_access_security_v1.sql",
+      "frozen_source_sha256": "40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "670b38c23de5862a614348de2d5ec0b457489091dea237660e4f18095bbf7d74",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "fed82110e09737a2a1d7f807cf9aa86185cd08bb8c94d45ea19f29c1fff872cb",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "034e1b8a147fae04a255ca0f7a86859376e46cfcfc11860114c4bbf44f4af370",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "prior_oracle_phase": "P4",
+      "next_oracle_phase": "P5",
+      "prior_oracle_contract_hash_sha256": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
+      "next_oracle_contract_hash_sha256": "154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P6",
+      "version": "20260615000005",
+      "migration_name": "m55_dtr_visible_report_uniqueness_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "oracle_contract_hash_sha256_after_success": "a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000005_m55_dtr_visible_report_uniqueness_v1.sql",
+      "frozen_source_sha256": "b283aa73ea4b004c006229dfc6afec222b44ea71422b34cb7a3fa3f46862d8f6",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "c416f3bc47e49263bd7770e4320a1b18222da6b41f57e1fa9cf048740582572f",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "b731e64b320373a1bddbc6e627b1b871cd4fc4dc4182e793a550ccbc33a321bd",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "8174f834af247fb3823141697ba67fde444c7f97306886e71be2ad60e8372bcd",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "prior_oracle_phase": "P5",
+      "next_oracle_phase": "P6",
+      "prior_oracle_contract_hash_sha256": "154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139",
+      "next_oracle_contract_hash_sha256": "a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P7",
+      "version": "20260615000006",
+      "migration_name": "m55_entitlements_unique_index_cleanup_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "oracle_contract_hash_sha256_after_success": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260615000006_m55_entitlements_unique_index_cleanup_v1.sql",
+      "frozen_source_sha256": "c9ddd37396985fdfb116365073a330fbd4b31b4b592f7cec661ec157b2f8903e",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "159b9eee40b125caf6c4500852cd3cf6b15f233efadf6989ae9a8268a7d503ba",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "c91beeb9d180589c0db0661774e468533f8570a61d88da1cd42c7b885037a66c",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "286e3fca55bc49ab1ab704db60c4415bf8f58aacd8e6e70051ee8f00f8a602c9",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "prior_oracle_phase": "P6",
+      "next_oracle_phase": "P7",
+      "prior_oracle_contract_hash_sha256": "a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2",
+      "next_oracle_contract_hash_sha256": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+      "pre_mutation_prior_state_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P2_through_P7.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION",
+      "next_version_after_success_forbidden": true,
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    },
+    {
+      "label": "P8",
+      "version": "20260617000001",
+      "migration_name": "m55_clerk_webhook_user_ref_hash_v1",
+      "expected_history_prefix_after_success": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006",
+        "20260617000001"
+      ],
+      "oracle_contract_hash_sha256_after_success": "b308e7872483b7fe2104b42f0312263223336b79e01bc02e002878fdbc0fe244",
+      "prior_history_prefix_required": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "prior_oracle_contract_hash_sha256_required": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
+      "lifecycle_steps": [
+        {
+          "step": 1,
+          "identifier": "CREATE_FRESH_CONNECTION",
+          "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+        },
+        {
+          "step": 2,
+          "identifier": "TARGET_ROLE_GUARD",
+          "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+        },
+        {
+          "step": 3,
+          "identifier": "BOUNDED_SESSION_SETTINGS",
+          "description": "Apply bounded session settings."
+        },
+        {
+          "step": 4,
+          "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+          "description": "Begin executor-owned transaction."
+        },
+        {
+          "step": 5,
+          "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+          "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P8.",
+          "applies": false
+        },
+        {
+          "step": 6,
+          "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+          "description": "Execute normalized statement stream sequentially."
+        },
+        {
+          "step": 7,
+          "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+          "description": "Execute narrow postconditions inside the transaction."
+        },
+        {
+          "step": 8,
+          "identifier": "INSERT_EXACT_HISTORY_ROW",
+          "description": "Insert exact history row per Policy 2 normalized executed stream."
+        },
+        {
+          "step": 9,
+          "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+          "description": "Verify exact history prefix and oracle phase inside the transaction."
+        },
+        {
+          "step": 10,
+          "identifier": "COMMIT_ONCE",
+          "description": "Commit once; executor owns COMMIT."
+        },
+        {
+          "step": 11,
+          "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+          "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+          "response_classes": [
+            "DEFINITIVE_COMMIT_ACK",
+            "ACK_UNCERTAIN_OR_MISSING",
+            "DEFINITIVE_TRANSACTION_REJECTION"
+          ]
+        },
+        {
+          "step": 12,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+          "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+        }
+      ],
+      "source_path": "supabase/migrations/20260617000001_m55_clerk_webhook_user_ref_hash_v1.sql",
+      "frozen_source_sha256": "ce74cb109db130ddd7381ba25ab24bd255dcb92c330c48baa2da03c636b93ea1",
+      "original_statement_count": 14,
+      "original_stream_composite_sha256": "d621d944330967d965fd6e1d31957a20a6183684ebfe6709daea7804065c16df",
+      "normalized_statement_count": 14,
+      "normalized_stream_composite_sha256": "d621d944330967d965fd6e1d31957a20a6183684ebfe6709daea7804065c16df",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_prior_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "exact_next_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006",
+        "20260617000001"
+      ],
+      "prior_oracle_phase": "P7",
+      "next_oracle_phase": "P8",
+      "prior_oracle_contract_hash_sha256": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
+      "next_oracle_contract_hash_sha256": "b308e7872483b7fe2104b42f0312263223336b79e01bc02e002878fdbc0fe244",
+      "definitely_not_committed_predicate_reference": "ack_classifiers.predicates.P8.DEFINITELY_NOT_COMMITTED",
+      "definitely_committed_predicate_reference": "ack_classifiers.predicates.P8.DEFINITELY_COMMITTED",
+      "stop_classifier_reference": "ack_classifiers.predicates.CONTRADICTORY_OR_DRIFTED",
+      "history_bootstrap_applies": false,
+      "runtime_probe_status": "IMPLEMENTED",
+      "execution_authorization": false,
+      "pre_connect_target_identity_gate_required": true,
+      "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+      "pre_connect_gate_position": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+      "pre_mutation_prior_state_gate_required": true,
+      "pre_mutation_prior_state_gate_position": "after_normal_step_4_before_steps_5_and_6",
+      "pre_mutation_prior_state_predicate_reference": "pre_mutation_prior_state_gate.predicates.P8",
+      "pre_mutation_prior_state_runtime_probe_status": "IMPLEMENTED",
+      "post_commit_readonly_verification_required": true,
+      "post_commit_next_predicate_reference": "ack_classifiers.predicates.P8.DEFINITELY_COMMITTED",
+      "post_commit_probe_status": "IMPLEMENTED",
+      "next_version_authorization": false,
+      "pre_connection_client_policy_required": true,
+      "pre_connection_client_policy_position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+      "pre_connection_client_policy_runtime_probe_status": "IMPLEMENTED",
+      "successful_terminal_outcome": "HUMAN_REVIEW_REQUIRED_FOR_CORRELATION_MIGRATION_COMPLETION",
+      "next_version_after_success_forbidden": true,
+      "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+      "pre_connection_client_policy_reference": "pre_connection_client_policy",
+      "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+      "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+      "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+      "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+      "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+      "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+      "failure_entry_steps": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "pre_commit_failure_runtime_probe_status": "IMPLEMENTED",
+      "pre_commit_failure_same_run_retry": false,
+      "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+      "pre_commit_failure_domain_event_identifiers": [
+        "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "CREATE_FRESH_CONNECTION_FAILURE",
+        "TARGET_ROLE_GUARD_REJECTION",
+        "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "PRE_COMMIT_TRANSPORT_LOSS",
+        "ROLLBACK_ACK_UNCERTAIN"
+      ]
+    }
+  ],
+  "revision": "REVISION-7",
+  "source_workspace_identity": {
+    "expected_repo_root": "/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1",
+    "expected_branch": "feat/m55-paid-lp-canonical-wave1",
+    "current_source_authority_head": "ceee04aab0a94376a55a576900cb2f8d597c19f4",
+    "head_change_requires_contract_revision": true,
+    "executor_artifact_identity": "REQUIRED_NOT_FROZEN",
+    "execution_package_identity": "REQUIRED_NOT_FROZEN",
+    "execution_authorization": false
+  },
+  "pre_connect_target_identity_gate": {
+    "identifier": "PRE_CONNECT_TARGET_IDENTITY_GATE",
+    "mandatory_before_any_db_connection": true,
+    "position_relative_to_normal_lifecycle": "before_normal_step_1_CREATE_FRESH_CONNECTION",
+    "approved_organization_label": "m55-preview",
+    "approved_project_label": "m55-soul-preview",
+    "provider_database_tier_label": "Primary Database",
+    "approved_preview_target_fingerprint": "REQUIRED_NOT_FROZEN",
+    "forbidden_production_identity": {
+      "organization_label": "m55-soul",
+      "project_label": "m55-soul-core"
+    },
+    "missing_ambiguous_unapproved_or_production_matching_target_stop": true,
+    "no_credential_or_full_connection_string_logged": true,
+    "organization_project_labels_not_inferred_from_current_database": true,
+    "position_relative_to_pre_connection_client_policy": "before_PRE_CONNECTION_CLIENT_POLICY"
+  },
+  "pre_mutation_prior_state_gate": {
+    "identifier": "PRE_MUTATION_PRIOR_STATE_GATE",
+    "position_relative_to_normal_lifecycle": "after_normal_step_4_BEGIN_before_steps_5_and_6",
+    "read_only_probes_inside_executor_owned_transaction": true,
+    "predicates": {
+      "P1": {
+        "predicate_reference": "pre_mutation_prior_state_gate.predicates.P1",
+        "all_required": [
+          "target_identity_exact",
+          "history_relation_absent",
+          "exact_P0_oracle_phase",
+          "P1_delta_absent",
+          "unexpected_delta_zero"
+        ]
+      },
+      "P2_through_P7": {
+        "predicate_reference": "pre_mutation_prior_state_gate.predicates.P2_through_P7",
+        "all_required": [
+          "target_identity_exact",
+          "exact_prior_history_prefix",
+          "exact_prior_oracle_phase",
+          "current_version_delta_absent",
+          "unexpected_delta_zero"
+        ]
+      }
+    },
+    "failure_behavior": {
+      "issue_no_migration_statement": true,
+      "rollback_transaction": true,
+      "emit_first_failure_without_secrets": true,
+      "mandatory_STOP": true,
+      "no_automatic_retry": true
+    },
+    "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+    "execution_authorization": false
+  },
+  "post_commit_readonly_verification_lifecycle": {
+    "identifier": "POST_COMMIT_READONLY_VERIFICATION_LIFECYCLE",
+    "separate_from_normal_12_step_lifecycle": true,
+    "mandatory_after_definitive_commit_before_next_version": true,
+    "read_only_only": true,
+    "mutation_on_verification_connection_forbidden": true,
+    "in_transaction_verification_necessary_not_sufficient": true,
+    "successful_commit_response_alone_does_not_authorize_next_version": true,
+    "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+    "next_version_authorization": false,
+    "ordered_steps": [
+      {
+        "step": 1,
+        "identifier": "RUN_PRE_CONNECT_TARGET_IDENTITY_GATE",
+        "description": "Run PRE_CONNECT_TARGET_IDENTITY_GATE before any new connection (mutation connection already closed in normal step 12)."
+      },
+      {
+        "step": 2,
+        "identifier": "RUN_PRE_CONNECTION_CLIENT_POLICY",
+        "description": "Apply PRE_CONNECTION_CLIENT_POLICY bounded connect timeout before opening verification or classifier connection."
+      },
+      {
+        "step": 3,
+        "identifier": "OPEN_FRESH_READ_ONLY_VERIFICATION_CONNECTION",
+        "description": "Open a fresh read-only verification connection."
+      },
+      {
+        "step": 4,
+        "identifier": "RUN_POST_CONNECT_DATABASE_ROLE_GUARD",
+        "description": "Run post-connect database/current_user guard (postgres/postgres, read-only probes)."
+      },
+      {
+        "step": 5,
+        "identifier": "ESTABLISH_EXPLICIT_READ_ONLY_VERIFICATION_SESSION",
+        "description": "Establish an explicitly read-only verification transaction/session."
+      },
+      {
+        "step": 6,
+        "identifier": "INSPECT_EXACT_HISTORY_RELATION_AND_NEXT_PREFIX",
+        "description": "Inspect exact history relation and exact next prefix."
+      },
+      {
+        "step": 7,
+        "identifier": "EXECUTE_EXACT_NEXT_ORACLE_PHASE_PROBE",
+        "description": "Execute exact next Oracle phase probe."
+      },
+      {
+        "step": 8,
+        "identifier": "INSPECT_UNEXPECTED_AND_CURRENT_VERSION_DELTAS",
+        "description": "Inspect unexpected and current-version deltas."
+      },
+      {
+        "step": 9,
+        "identifier": "REQUIRE_DEFINITELY_COMMITTED",
+        "description": "Require DEFINITELY_COMMITTED predicate match."
+      },
+      {
+        "step": 10,
+        "identifier": "EMIT_NONSECRET_VERIFICATION_EVIDENCE",
+        "description": "Emit nonsecret verification evidence."
+      },
+      {
+        "step": 11,
+        "identifier": "CLOSE_VERIFICATION_CONNECTION",
+        "description": "Close verification connection."
+      },
+      {
+        "step": 12,
+        "identifier": "EMIT_HUMAN_REVIEW_REQUIRED_OUTCOME",
+        "description": "Emit HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION (P1-P6) or HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION (P7); does not authorize automatic next version."
+      }
+    ],
+    "branch_entry_after_normal_step_12_only": true,
+    "post_commit_outcome_disposition": {
+      "success": {
+        "P1_through_P6": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+        "P7": "HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION",
+        "emit_step_identifier": "EMIT_HUMAN_REVIEW_REQUIRED_OUTCOME"
+      },
+      "failure": {
+        "CONTRADICTORY_OR_DRIFTED": {
+          "mandatory_STOP": true
+        }
+      }
+    }
+  },
+  "pre_connection_client_policy": {
+    "identifier": "PRE_CONNECTION_CLIENT_POLICY",
+    "mandatory_before_connection_attempt": true,
+    "position": "after_PRE_CONNECT_TARGET_IDENTITY_GATE_before_CREATE_FRESH_CONNECTION",
+    "bounded_connect_timeout_required": true,
+    "exact_connect_timeout_value": "REQUIRED_NOT_FROZEN",
+    "credential_logging_forbidden": true,
+    "full_connection_string_logging_forbidden": true,
+    "approved_target_fingerprint_binding_required": true,
+    "implementation_status": "REQUIRED_NOT_IMPLEMENTED",
+    "execution_authorization": false
+  },
+  "commit_response_class_branches_after_step_12": {
+    "DEFINITIVE_COMMIT_ACK": "post_commit_readonly_verification_lifecycle",
+    "ACK_UNCERTAIN_OR_MISSING": "ack_state_readonly_classification_lifecycle",
+    "DEFINITIVE_TRANSACTION_REJECTION": "ack_state_readonly_classification_lifecycle"
+  },
+  "ack_state_readonly_classification_lifecycle": {
+    "separate_from_normal_12_step_lifecycle": true,
+    "read_only_only": true,
+    "transport_error_timeout_missing_commit_ack_not_proof_of_rollback": true,
+    "no_connection_before_pre_connect_target_pass": true,
+    "classifier_session_must_be_explicitly_read_only": true,
+    "no_ddl_dml_history_mutation": true,
+    "ordered_steps": [
+      {
+        "step": 1,
+        "identifier": "RUN_PRE_CONNECT_TARGET_IDENTITY_GATE",
+        "description": "Run PRE_CONNECT_TARGET_IDENTITY_GATE before any new connection (mutation connection already closed in normal step 12)."
+      },
+      {
+        "step": 2,
+        "identifier": "RUN_PRE_CONNECTION_CLIENT_POLICY",
+        "description": "Apply PRE_CONNECTION_CLIENT_POLICY bounded connect timeout before opening verification or classifier connection."
+      },
+      {
+        "step": 3,
+        "identifier": "OPEN_FRESH_READ_ONLY_CLASSIFIER_CONNECTION",
+        "description": "Open fresh read-only classifier connection only after pre-connect and pre-connection client policy PASS."
+      },
+      {
+        "step": 4,
+        "identifier": "RUN_POST_CONNECT_DATABASE_ROLE_GUARD",
+        "description": "Run post-connect database/current_user guard (postgres/postgres, read-only probes)."
+      },
+      {
+        "step": 5,
+        "identifier": "ESTABLISH_EXPLICIT_READ_ONLY_CLASSIFIER_SESSION",
+        "description": "Establish an explicitly read-only classifier session."
+      },
+      {
+        "step": 6,
+        "identifier": "INSPECT_HISTORY_RELATION_AND_PREFIX",
+        "description": "Inspect exact history relation and prefix."
+      },
+      {
+        "step": 7,
+        "identifier": "EXECUTE_PRIOR_AND_NEXT_ORACLE_PHASE_PROBES",
+        "description": "Execute exact prior and next Oracle phase probes."
+      },
+      {
+        "step": 8,
+        "identifier": "INSPECT_CURRENT_AND_UNEXPECTED_DELTAS",
+        "description": "Inspect current-version and unexpected deltas."
+      },
+      {
+        "step": 9,
+        "identifier": "CLASSIFY_ACK_STATE",
+        "description": "Classify DEFINITELY_NOT_COMMITTED, DEFINITELY_COMMITTED, or CONTRADICTORY_OR_DRIFTED."
+      },
+      {
+        "step": 10,
+        "identifier": "APPLY_ACK_OUTCOME_DISPOSITION",
+        "description": "Apply ack_outcome_disposition; no same-run retry or automatic next version."
+      },
+      {
+        "step": 11,
+        "identifier": "EMIT_CLASSIFICATION_EVIDENCE_NO_SECRETS",
+        "description": "Emit disposition evidence without secrets."
+      },
+      {
+        "step": 12,
+        "identifier": "CLOSE_CLASSIFIER_CONNECTION",
+        "description": "Close classifier connection."
+      }
+    ],
+    "identifier": "ACK_STATE_READONLY_CLASSIFICATION_LIFECYCLE",
+    "renamed_from": "ack_uncertain_recovery_lifecycle",
+    "branch_entry_after_normal_step_12_only": true,
+    "ack_outcome_disposition": {
+      "DEFINITELY_NOT_COMMITTED": {
+        "disposition": "HUMAN_REVIEW_REQUIRED_FOR_RERUN",
+        "same_run_retry_forbidden": true,
+        "automatic_next_version_forbidden": true,
+        "automatic_rerun_forbidden": true
+      },
+      "DEFINITELY_COMMITTED": {
+        "P1_through_P6": "HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION",
+        "P7": "HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION",
+        "same_run_retry_forbidden": true,
+        "automatic_next_version_forbidden": true
+      },
+      "CONTRADICTORY_OR_DRIFTED": {
+        "mandatory_STOP": true
+      }
+    }
+  },
+  "section_8_version_matrix_row_mandatory_reference_fields": {
+    "pre_connect_target_identity_gate_reference": "pre_connect_target_identity_gate",
+    "pre_connection_client_policy_reference": "pre_connection_client_policy",
+    "pre_mutation_prior_state_gate_reference": "pre_mutation_prior_state_gate",
+    "post_commit_readonly_verification_reference": "post_commit_readonly_verification_lifecycle",
+    "ack_state_readonly_classification_reference": "ack_state_readonly_classification_lifecycle",
+    "ack_outcome_disposition_reference": "ack_state_readonly_classification_lifecycle.ack_outcome_disposition",
+    "post_commit_outcome_disposition_reference": "post_commit_readonly_verification_lifecycle.post_commit_outcome_disposition",
+    "successful_terminal_outcome": "P1-P6 HUMAN_REVIEW_REQUIRED_FOR_NEXT_VERSION; P7 HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION",
+    "execution_authorization": false,
+    "next_version_authorization": false,
+    "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+    "pre_commit_failure_handling_reference": "pre_commit_failure_handling_lifecycle",
+    "failure_entry_steps": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "pre_commit_failure_runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+    "pre_commit_failure_same_run_retry": false,
+    "pre_commit_failure_domain_registry_reference": "pre_commit_failure_domain_registry",
+    "pre_commit_failure_domain_event_identifiers": [
+      "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+      "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+      "CREATE_FRESH_CONNECTION_FAILURE",
+      "TARGET_ROLE_GUARD_REJECTION",
+      "BOUNDED_SESSION_SETTINGS_REJECTION",
+      "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+      "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+      "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+      "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+      "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+      "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+      "INSERT_EXACT_HISTORY_ROW_FAILURE",
+      "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+      "PRE_COMMIT_TRANSPORT_LOSS",
+      "ROLLBACK_ACK_UNCERTAIN"
+    ]
+  },
+  "parser": {
+    "tag": "v2.106.0",
+    "commit": "bd39bcf5e613be87943f8bb8fe4ce75c8dfd84de",
+    "entrypoint": "SplitAndTrim",
+    "source_sha256": {
+      "token.go": "244aea79f3b7065b4151f642c9111cf58b3cb23b792201dbcff80d83491e6f04",
+      "state.go": "d0dafd2d8661d19c3e058899943d32e785e12eaeed2c127a3eda92f874e1c942"
+    }
+  },
+  "normalization": {
+    "representation": "OPTION_A_DROP_WHOLE_AUTHORIZED_WRAPPER_TOKENS",
+    "statement_stream_serialization": "m55.statement_stream.u64be_length_utf8.v1",
+    "removed_ordinals_by_label": {
+      "P1": [
+        0,
+        208
+      ],
+      "P2": [],
+      "P3": [],
+      "P4": [],
+      "P5": [
+        0,
+        2
+      ],
+      "P6": [
+        0,
+        2
+      ],
+      "P7": [
+        0,
+        2
+      ]
+    }
+  },
+  "versions": [
+    {
+      "label": "P1",
+      "version": "20260614000000",
+      "path": "docs/planning/preview-baseline/migrations/20260614000000_preview_production_aligned_baseline_p1.sql",
+      "name": "preview_production_aligned_baseline_p1",
+      "frozen_source_sha256": "a897251fe465294918f69aad5a2fc120fb594c71d5f51cbfd90eb1a36aec01f0",
+      "original_statement_count": 209,
+      "original_stream_composite_sha256": "a71aa6f1225f8731d51ff45887130fc6e78bfcc2d6cb50771065970594562aea",
+      "normalized_statement_count": 207,
+      "normalized_stream_composite_sha256": "19abbb111d0420b21cb9d5f540c722785f9e9bc52799664c27dc49046a3933b8",
+      "removed_token_ordinals": [
+        0,
+        208
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "6986299a07b4e74c3509fd64806bb01a5d323c754e7eea8d506f742bea7945ae",
+      "p1_history_bootstrap_in_transaction": true
+    },
+    {
+      "label": "P2",
+      "version": "20260615000001",
+      "path": "supabase/migrations/20260615000001_failed_fulfillments_user_ref_hash.sql",
+      "name": "failed_fulfillments_user_ref_hash",
+      "frozen_source_sha256": "d4a2f09058eac13aaea054cafaa47ca7b4288e38871973e16d99a51263d2459c",
+      "original_statement_count": 4,
+      "original_stream_composite_sha256": "d942c353cde2e38f39ad4c69ddd54f0baed346525635637b7e2da012bb9cd048",
+      "normalized_statement_count": 4,
+      "normalized_stream_composite_sha256": "d942c353cde2e38f39ad4c69ddd54f0baed346525635637b7e2da012bb9cd048",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P3",
+      "version": "20260615000002",
+      "path": "supabase/migrations/20260615000002_m55_account_deletion_ledger_v1.sql",
+      "name": "m55_account_deletion_ledger_v1",
+      "frozen_source_sha256": "6d7bfdf798e1821d4e0b8189d19ac810d6c740e572be6f3ae91b22e66be87667",
+      "original_statement_count": 7,
+      "original_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
+      "normalized_statement_count": 7,
+      "normalized_stream_composite_sha256": "7c75ad01dc4b3f49c4b93ef75bcb68f30be90ddfeee8a2b96ab1e356c06b3436",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P4",
+      "version": "20260615000003",
+      "path": "supabase/migrations/20260615000003_m55_account_deletion_process_rpc_v1.sql",
+      "name": "m55_account_deletion_process_rpc_v1",
+      "frozen_source_sha256": "25597665f594dfef6c60fb5af500e70105535c786f85c3c3b4f817c1da82567c",
+      "original_statement_count": 7,
+      "original_stream_composite_sha256": "5f6971736b4750af15c7d3e60cea96a445430e9141590929033ef1c65780ea58",
+      "normalized_statement_count": 7,
+      "normalized_stream_composite_sha256": "5f6971736b4750af15c7d3e60cea96a445430e9141590929033ef1c65780ea58",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P5",
+      "version": "20260615000004",
+      "path": "supabase/migrations/20260615000004_m55_entitlements_and_rights_access_security_v1.sql",
+      "name": "m55_entitlements_and_rights_access_security_v1",
+      "frozen_source_sha256": "40d865c874152c49706ea1fbf2eb9bb873d2d629aa758ff77877dcc25967492d",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "670b38c23de5862a614348de2d5ec0b457489091dea237660e4f18095bbf7d74",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "fed82110e09737a2a1d7f807cf9aa86185cd08bb8c94d45ea19f29c1fff872cb",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "034e1b8a147fae04a255ca0f7a86859376e46cfcfc11860114c4bbf44f4af370",
+      "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P6",
+      "version": "20260615000005",
+      "path": "supabase/migrations/20260615000005_m55_dtr_visible_report_uniqueness_v1.sql",
+      "name": "m55_dtr_visible_report_uniqueness_v1",
+      "frozen_source_sha256": "b283aa73ea4b004c006229dfc6afec222b44ea71422b34cb7a3fa3f46862d8f6",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "c416f3bc47e49263bd7770e4320a1b18222da6b41f57e1fa9cf048740582572f",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "b731e64b320373a1bddbc6e627b1b871cd4fc4dc4182e793a550ccbc33a321bd",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "8174f834af247fb3823141697ba67fde444c7f97306886e71be2ad60e8372bcd",
+      "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P7",
+      "version": "20260615000006",
+      "path": "supabase/migrations/20260615000006_m55_entitlements_unique_index_cleanup_v1.sql",
+      "name": "m55_entitlements_unique_index_cleanup_v1",
+      "frozen_source_sha256": "c9ddd37396985fdfb116365073a330fbd4b31b4b592f7cec661ec157b2f8903e",
+      "original_statement_count": 3,
+      "original_stream_composite_sha256": "159b9eee40b125caf6c4500852cd3cf6b15f233efadf6989ae9a8268a7d503ba",
+      "normalized_statement_count": 1,
+      "normalized_stream_composite_sha256": "c91beeb9d180589c0db0661774e468533f8570a61d88da1cd42c7b885037a66c",
+      "removed_token_ordinals": [
+        0,
+        2
+      ],
+      "removed_token_count": 2,
+      "removed_token_stream_composite_sha256": "286e3fca55bc49ab1ab704db60c4415bf8f58aacd8e6e70051ee8f00f8a602c9",
+      "p1_history_bootstrap_in_transaction": false
+    }
+  ],
+  "history": {
+    "policy": "POLICY_2_NORMALIZED_EXECUTED_STREAM",
+    "relation": "supabase_migrations.schema_migrations",
+    "columns": [
+      "version text NOT NULL PRIMARY KEY",
+      "statements text[]",
+      "name text"
+    ],
+    "separate_committed_history_bootstrap_forbidden": true,
+    "columns_semantic": [
+      "version text NOT NULL PRIMARY KEY",
+      "statements text[]",
+      "name text"
+    ],
+    "p1_bootstrap_inside_p1_transaction": true,
+    "duplicate_prevention": "version_primary_key",
+    "history_row_parameterized_not_interpolated": true,
+    "version_and_name_from_filename_rule_exact": true,
+    "statements_preserves_normalized_array_order_and_utf8_text": true,
+    "history_insert_after_normalized_statements_and_postconditions": true,
+    "in_transaction_prefix_check_after_insert_before_commit": true,
+    "history_only_mutation_forbidden": true,
+    "repair_forbidden": true,
+    "unexpected_or_duplicate_version_forbidden": true,
+    "bootstrap_ddl_text_and_executor_binding_required_before_runtime": true,
+    "executable_sql_in_artifacts_forbidden": true
+  },
+  "cli_consumer_classification": "CLI_2_106_0_VERSION_SYNC_COMPATIBLE_BUT_OTHER_BEHAVIOR_DIFFERS",
+  "transaction_model": {
+    "fresh_connection_per_version": true,
+    "executor_owns_begin_commit": true,
+    "p1_bootstrap_same_transaction_as_normalized_p1": true,
+    "separate_committed_history_bootstrap_forbidden": true,
+    "per_version_atomicity": true,
+    "seven_version_chain_prefix_progressive_not_one_global_transaction": true
+  },
+  "oracle_phases": [
+    {
+      "phase": "P0",
+      "expected_history_prefix": [],
+      "oracle_contract_hash_sha256": "85ac8761006ba1f9bf1f1cbfcd7940f81e21fb393eb50d1289ac31fd894f6792",
+      "prior_ack_context": "catalog_baseline_no_history_relation"
+    },
+    {
+      "phase": "P1",
+      "expected_history_prefix": [
+        "20260614000000"
+      ],
+      "oracle_contract_hash_sha256": "77ba63b64fee47ca9b6deec00bb76f90fe239f6b236994116afdf8be9735fc0c",
+      "prior_ack_context": "history_relation_absent_exact_p0_catalog"
+    },
+    {
+      "phase": "P2",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001"
+      ],
+      "oracle_contract_hash_sha256": "6bc6fef759709ae8212c47c364fe34b9af6eb4e751633e128d222293e2af44b8",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    },
+    {
+      "phase": "P3",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002"
+      ],
+      "oracle_contract_hash_sha256": "26d9eec63ea50365008298a4a62b931638dba2ad285ffff8a2ba371d25d296b5",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    },
+    {
+      "phase": "P4",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003"
+      ],
+      "oracle_contract_hash_sha256": "dd80ce8029453c787ad4d645b5902038cb48b19c775f9ceff0d018fa59cead5b",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    },
+    {
+      "phase": "P5",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004"
+      ],
+      "oracle_contract_hash_sha256": "154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    },
+    {
+      "phase": "P6",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005"
+      ],
+      "oracle_contract_hash_sha256": "a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    },
+    {
+      "phase": "P7",
+      "expected_history_prefix": [
+        "20260614000000",
+        "20260615000001",
+        "20260615000002",
+        "20260615000003",
+        "20260615000004",
+        "20260615000005",
+        "20260615000006"
+      ],
+      "oracle_contract_hash_sha256": "04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3",
+      "prior_ack_context": "exact_prior_history_prefix_and_phase"
+    }
+  ],
+  "ack_classifiers": {
+    "identifiers": [
+      "DEFINITELY_NOT_COMMITTED",
+      "DEFINITELY_COMMITTED",
+      "CONTRADICTORY_OR_DRIFTED"
+    ],
+    "rules": {
+      "no_blind_retry": true,
+      "no_automatic_retry": true,
+      "no_silent_skip": true,
+      "only_DEFINITELY_NOT_COMMITTED_may_be_human_approved_rerun_candidate": true,
+      "every_other_state_is_CONTRADICTORY_OR_DRIFTED_and_mandatory_STOP": true,
+      "ack_outcome_disposition_required": true,
+      "same_run_retry_forbidden": true,
+      "automatic_next_version_forbidden": true,
+      "DEFINITELY_COMMITTED_requires_human_review_not_automatic_advance": true
+    },
+    "predicates": {
+      "P1": {
+        "DEFINITELY_NOT_COMMITTED": {
+          "all_required": [
+            "history_relation_absent",
+            "exact_P0_oracle_phase",
+            "P1_delta_absent",
+            "unexpected_delta_zero",
+            "target_identity_exact"
+          ]
+        },
+        "DEFINITELY_COMMITTED": {
+          "all_required": [
+            "history_relation_exact",
+            "history_prefix_exactly_20260614000000",
+            "exact_P1_oracle_phase",
+            "unexpected_delta_zero",
+            "target_identity_exact"
+          ]
+        }
+      },
+      "P2_through_P7": {
+        "DEFINITELY_NOT_COMMITTED": {
+          "all_required": [
+            "exact_prior_history_prefix",
+            "exact_prior_oracle_phase",
+            "current_version_delta_absent",
+            "unexpected_delta_zero",
+            "target_identity_exact"
+          ]
+        },
+        "DEFINITELY_COMMITTED": {
+          "all_required": [
+            "exact_next_history_prefix",
+            "exact_next_oracle_phase",
+            "unexpected_delta_zero",
+            "target_identity_exact"
+          ]
+        }
+      },
+      "CONTRADICTORY_OR_DRIFTED": {
+        "definition": "any_state_not_matching_DEFINITELY_NOT_COMMITTED_or_DEFINITELY_COMMITTED_predicates",
+        "mandatory_STOP": true
+      },
+      "P8": {
+        "DEFINITELY_NOT_COMMITTED": {
+          "all_required": [
+            "exact_prior_history_prefix",
+            "exact_prior_p8_probe_green",
+            "target_version_delta_absent",
+            "target_identity_exact"
+          ]
+        },
+        "DEFINITELY_COMMITTED": {
+          "all_required": [
+            "exact_post_p8_probe_green",
+            "exact_p8_history_prefix",
+            "target_identity_exact"
+          ]
+        }
+      }
+    },
+    "p1_prior_state_reference": {
+      "history_relation_absent": true,
+      "exact_p0_catalog": true
+    },
+    "p2_through_p7_prior_state_reference": {
+      "exact_prior_history_prefix": true,
+      "exact_prior_phase": true
+    }
+  },
+  "prohibited_operations": [
+    "supabase db push",
+    "migration repair",
+    "supabase link",
+    "supabase db fetch for apply lane",
+    "SQL Editor apply",
+    "unmodified CLI apply",
+    "Production m55-soul-core execution"
+  ],
+  "lifecycle_steps_reference_section_5c": [
+    {
+      "step": 1,
+      "identifier": "CREATE_FRESH_CONNECTION",
+      "description": "Create fresh connection for the version only after PRE_CONNECT_TARGET_IDENTITY_GATE PASS and PRE_CONNECTION_CLIENT_POLICY PASS."
+    },
+    {
+      "step": 2,
+      "identifier": "TARGET_ROLE_GUARD",
+      "description": "Post-connect target guard: expected database postgres and role postgres via read-only identity probes; organization/project labels are not inferred from current_database()."
+    },
+    {
+      "step": 3,
+      "identifier": "BOUNDED_SESSION_SETTINGS",
+      "description": "Apply bounded session settings."
+    },
+    {
+      "step": 4,
+      "identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION",
+      "description": "Begin executor-owned transaction."
+    },
+    {
+      "step": 5,
+      "identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+      "description": "For P1 only: bootstrap supabase_migrations.schema_migrations inside the transaction; no-op for P2-P7."
+    },
+    {
+      "step": 6,
+      "identifier": "EXECUTE_NORMALIZED_STATEMENTS",
+      "description": "Execute normalized statement stream sequentially."
+    },
+    {
+      "step": 7,
+      "identifier": "EXECUTE_NARROW_POSTCONDITIONS",
+      "description": "Execute narrow postconditions inside the transaction."
+    },
+    {
+      "step": 8,
+      "identifier": "INSERT_EXACT_HISTORY_ROW",
+      "description": "Insert exact history row per Policy 2 normalized executed stream."
+    },
+    {
+      "step": 9,
+      "identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE",
+      "description": "Verify exact history prefix and oracle phase inside the transaction."
+    },
+    {
+      "step": 10,
+      "identifier": "COMMIT_ONCE",
+      "description": "Commit once; executor owns COMMIT."
+    },
+    {
+      "step": 11,
+      "identifier": "CLASSIFY_COMMIT_RESPONSE_CLASS",
+      "description": "Classify commit response into DEFINITIVE_COMMIT_ACK, ACK_UNCERTAIN_OR_MISSING, or DEFINITIVE_TRANSACTION_REJECTION; defer branch lifecycles until after step 12.",
+      "response_classes": [
+        "DEFINITIVE_COMMIT_ACK",
+        "ACK_UNCERTAIN_OR_MISSING",
+        "DEFINITIVE_TRANSACTION_REJECTION"
+      ]
+    },
+    {
+      "step": 12,
+      "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+      "description": "Close or retire the original mutation connection after commit response classification; branch lifecycles begin only after this step completes."
+    }
+  ],
+  "unresolved_implementation_requirements": [
+    "Controlled executor identity/source bound to executor_artifact_identity",
+    "Exact approved Preview project-ref/host fingerprint (approved_preview_target_fingerprint)",
+    "Exact execution package identity frozen before runtime",
+    "Controlled executor source implementing pre-DB fingerprint gates",
+    "Policy 2 statements text[] serialization exact bytes contract",
+    "P1 bootstrap DDL text bound to manifest without repo mutation",
+    "In-transaction oracle narrow postcondition probes per phase bound to frozen Oracle extractor",
+    "Pre-mutation prior-state gate runtime probes per P1 and P2-P7 predicates",
+    "Explicit read-only verifier/classifier session enforcement",
+    "Post-commit read-only verification lifecycle implementation",
+    "Commit acknowledgement probe implementation without secret logging",
+    "Target identity fail-closed dual-channel guard for forbidden m55-soul-core",
+    "Post-connect identity probe implementation (postgres/postgres read-only)",
+    "Exact numeric session timeout values frozen before LOCAL runtime validation",
+    "PRE_CONNECTION_CLIENT_POLICY bounded connect timeout with exact_connect_timeout_value frozen before runtime",
+    "ack_outcome_disposition enforcement without same-run retry or automatic next version",
+    "post_commit_outcome_disposition EMIT_HUMAN_REVIEW_REQUIRED_OUTCOME without automatic next version"
+  ],
+  "target_identity": {
+    "expected_organization_label": "m55-preview",
+    "expected_project_label": "m55-soul-preview",
+    "database_tier": "Primary Database",
+    "expected_database_name": "postgres",
+    "expected_role": "postgres",
+    "forbidden_production_identity": {
+      "organization_label": "m55-soul",
+      "project_label": "m55-soul-core"
+    },
+    "dual_channel_guard_required": true,
+    "pre_connect_preview_project_ref_host_fingerprint_required": true,
+    "post_connect_database_role_probes_required": true,
+    "organization_project_labels_not_proven_by_current_database_alone": true,
+    "secrets_in_logs_forbidden": true
+  },
+  "pre_db_gate": {
+    "must_complete_before_any_db_connection": true,
+    "stop_on_any_mismatch": true,
+    "ordered_steps": [
+      {
+        "step": 1,
+        "check": "repo_root_branch_head_exact"
+      },
+      {
+        "step": 2,
+        "check": "clean_worktree_and_empty_index"
+      },
+      {
+        "step": 3,
+        "check": "each_source_path_exact"
+      },
+      {
+        "step": 4,
+        "check": "each_frozen_source_sha256_exact"
+      },
+      {
+        "step": 5,
+        "check": "parser_tag_commit_source_shas_exact"
+      },
+      {
+        "step": 6,
+        "check": "parser_statement_count_exact"
+      },
+      {
+        "step": 7,
+        "check": "original_stream_composite_sha256_exact"
+      },
+      {
+        "step": 8,
+        "check": "top_level_transaction_control_inventory_exact"
+      },
+      {
+        "step": 9,
+        "check": "removed_ordinal_set_exact"
+      },
+      {
+        "step": 10,
+        "check": "removed_stream_composite_sha256_exact"
+      },
+      {
+        "step": 11,
+        "check": "normalized_statement_count_exact"
+      },
+      {
+        "step": 12,
+        "check": "normalized_stream_composite_sha256_exact"
+      },
+      {
+        "step": 13,
+        "check": "filename_derived_version_and_name_exact"
+      },
+      {
+        "step": 14,
+        "check": "no_unexpected_transaction_control_statement"
+      },
+      {
+        "step": 15,
+        "check": "all_seven_chain_versions_exact_and_ordered"
+      }
+    ]
+  },
+  "session_settings": {
+    "fresh_connection_per_version_required": true,
+    "utf8_client_encoding_required": true,
+    "bounded_lock_timeout_required": true,
+    "bounded_statement_timeout_required": true,
+    "bounded_idle_in_transaction_timeout_required": true,
+    "no_cross_version_connection_reuse": true,
+    "no_reliance_on_reset_all": true,
+    "target_guard_after_connection_before_begin": true,
+    "exact_numeric_timeout_values_implementation_blocking": true,
+    "numeric_timeout_values_in_artifacts_forbidden": true,
+    "bounded_connect_timeout_enforcement_delegated_to_pre_connection_client_policy": true
+  },
+  "oracle_contract": {
+    "oracle_contract_hash_reference_only": true,
+    "hash_alone_not_sql_predicate": true,
+    "implementation_must_bind_p0_through_p7_to_frozen_oracle_extractor": true,
+    "each_probe_must_distinguish_exact_prior_exact_next_partial_unexpected_delta": true,
+    "migration_apply_authorization_requires_independent_probe_review": true,
+    "do_not_regenerate_oracle_in_this_patch": true
+  },
+  "evidence_logging": {
+    "allowed_fields": [
+      "timestamp_utc",
+      "timestamp_jst",
+      "target_organization_label",
+      "target_project_label",
+      "masked_nonsecret_target_fingerprint",
+      "database_name",
+      "current_user_role",
+      "version",
+      "name",
+      "source_sha256",
+      "parser_identity",
+      "statement_counts",
+      "original_normalized_removed_composite_sha256",
+      "current_statement_ordinal",
+      "transaction_phase",
+      "commit_response_class",
+      "history_prefix_result",
+      "phase_probe_result",
+      "first_error_only",
+      "ack_classification"
+    ],
+    "forbidden_fields": [
+      "password",
+      "full_db_url",
+      "access_token",
+      "refresh_token",
+      "service_role_value",
+      "clerk_secret",
+      "stripe_secret",
+      "webhook_secret",
+      "private_key",
+      "unmasked_credential_bearing_hostname_or_query_string"
+    ]
+  },
+  "stop_conditions": [
+    "repo_root_branch_head_mismatch",
+    "dirty_worktree_or_nonempty_index",
+    "source_path_or_sha_mismatch",
+    "parser_identity_mismatch",
+    "statement_count_or_composite_mismatch",
+    "wrapper_inventory_mismatch",
+    "normalized_derivative_mismatch",
+    "filename_version_or_name_mismatch",
+    "chain_order_or_version_mismatch",
+    "target_identity_mismatch",
+    "production_identity_detected",
+    "role_or_database_mismatch",
+    "history_relation_malformed",
+    "prior_prefix_mismatch",
+    "prior_oracle_phase_mismatch",
+    "postcondition_mismatch",
+    "history_insert_failure",
+    "duplicate_or_unexpected_version",
+    "commit_acknowledgement_uncertainty_until_read_only_classification",
+    "unexpected_object_or_delta",
+    "secret_exposure_risk",
+    "classifier_result_CONTRADICTORY_OR_DRIFTED",
+    "expected_repo_root_missing_or_mismatch",
+    "expected_branch_missing_or_mismatch",
+    "execution_package_identity_not_frozen",
+    "executor_artifact_identity_not_frozen",
+    "approved_preview_target_fingerprint_not_frozen",
+    "pre_connect_target_guard_not_passed",
+    "forbidden_production_target_fingerprint_detected",
+    "pre_mutation_prior_state_gate_not_implemented",
+    "pre_mutation_prior_state_gate_failed",
+    "post_commit_readonly_verification_not_implemented",
+    "post_commit_readonly_verification_failed",
+    "successful_commit_response_without_post_commit_phase_proof",
+    "pre_connection_client_policy_not_implemented",
+    "connect_timeout_value_not_frozen",
+    "connection_attempt_before_pre_connection_policy_pass",
+    "ack_outcome_disposition_missing",
+    "same_run_retry_attempted",
+    "automatic_next_version_attempted",
+    "p7_treated_as_having_next_version",
+    "pre_commit_failure_lifecycle_not_implemented",
+    "continued_execution_after_first_error",
+    "commit_attempted_after_pre_commit_failure",
+    "rollback_ack_uncertain_until_read_only_classification",
+    "pre_commit_failure_same_run_retry_attempted",
+    "partial_state_classifier_used",
+    "classifier_post_connect_identity_guard_missing",
+    "classifier_explicit_read_only_session_missing"
+  ],
+  "contract_status": "DRAFT",
+  "execution_authorization": false,
+  "remote_apply_authorization": false,
+  "implementation_authorization": false,
+  "next_gate_authorization": "CONTRACT_REVIEW_ONLY",
+  "pre_commit_failure_handling_lifecycle": {
+    "identifier": "PRE_COMMIT_FAILURE_HANDLING_LIFECYCLE",
+    "separate_from_normal_12_step_lifecycle": true,
+    "commit_once_forbidden_after_prior_failure": true,
+    "continued_execution_after_first_error_forbidden": true,
+    "same_run_retry_forbidden": true,
+    "failure_entry_normal_lifecycle_steps": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "failure_classes": [
+      "PRE_TRANSACTION_SETUP_REJECTION",
+      "IN_TRANSACTION_SERVER_REJECTION",
+      "PRE_COMMIT_TRANSPORT_LOSS",
+      "ROLLBACK_ACK_UNCERTAIN"
+    ],
+    "before_active_transaction": {
+      "no_migration_or_history_mutation_allowed": true,
+      "close_or_retire_connection_required": true,
+      "emit_step_identifier": "EMIT_FIRST_ERROR_EVIDENCE_NO_SECRETS",
+      "mandatory_stop": true,
+      "same_run_retry_forbidden": true,
+      "human_review_required_before_new_attempt": true
+    },
+    "healthy_connection_server_rejection": {
+      "ordered_steps": [
+        {
+          "step": 1,
+          "identifier": "STOP_STATEMENT_STREAM_IMMEDIATELY"
+        },
+        {
+          "step": 2,
+          "identifier": "PRESERVE_FIRST_ERROR_ONLY"
+        },
+        {
+          "step": 3,
+          "identifier": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE"
+        },
+        {
+          "step": 4,
+          "identifier": "CLASSIFY_ROLLBACK_RESPONSE"
+        },
+        {
+          "step": 5,
+          "identifier": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION"
+        },
+        {
+          "step": 6,
+          "identifier": "FORBID_SAME_RUN_RETRY"
+        },
+        {
+          "step": 7,
+          "identifier": "INVOKE_ACK_STATE_READONLY_CLASSIFICATION_LIFECYCLE"
+        },
+        {
+          "step": 8,
+          "identifier": "APPLY_ACK_OUTCOME_DISPOSITION_FOR_PRE_COMMIT_REJECTION"
+        }
+      ],
+      "only_definitely_not_committed_may_emit_human_review_required_for_rerun": true,
+      "any_other_state_is_contradictory_or_drifted_and_stop": true
+    },
+    "transport_or_uncertain_rollback_acknowledgement": {
+      "driver_error_does_not_prove_rollback": true,
+      "ordered_steps": [
+        {
+          "step": 1,
+          "identifier": "MARK_ORIGINAL_CONNECTION_UNUSABLE"
+        },
+        {
+          "step": 2,
+          "identifier": "FORBID_FURTHER_COMMAND_ON_ORIGINAL_CONNECTION"
+        },
+        {
+          "step": 3,
+          "identifier": "CLOSE_OR_RETIRE_CONNECTION_LOCALLY"
+        },
+        {
+          "step": 4,
+          "identifier": "INVOKE_ACK_STATE_READONLY_CLASSIFICATION_LIFECYCLE"
+        }
+      ]
+    },
+    "runtime_probe_status": "REQUIRED_NOT_IMPLEMENTED",
+    "canonical_state_classifier_reference": "ack_state_readonly_classification_lifecycle",
+    "partial_classifier_implementation_forbidden": true,
+    "post_connect_target_guard_required_in_classifier": true,
+    "explicit_read_only_session_required_in_classifier": true
+  },
+  "contract_matrix_shared_semantics": {
+    "identifier": "m55.contract_matrix_shared_semantics.v1",
+    "shared_pointer_registry": [
+      "/frozen_authority",
+      "/source_workspace_identity",
+      "/parser",
+      "/normalization",
+      "/versions",
+      "/history",
+      "/cli_consumer_classification",
+      "/transaction_model",
+      "/oracle_phases",
+      "/ack_classifiers",
+      "/prohibited_operations",
+      "/lifecycle_steps_reference_section_5c",
+      "/unresolved_implementation_requirements",
+      "/revision",
+      "/target_identity",
+      "/pre_db_gate",
+      "/session_settings",
+      "/oracle_contract",
+      "/evidence_logging",
+      "/stop_conditions",
+      "/contract_status",
+      "/execution_authorization",
+      "/remote_apply_authorization",
+      "/implementation_authorization",
+      "/next_gate_authorization",
+      "/pre_connect_target_identity_gate",
+      "/pre_mutation_prior_state_gate",
+      "/pre_connection_client_policy",
+      "/pre_commit_failure_handling_lifecycle",
+      "/pre_commit_failure_domain_registry",
+      "/post_commit_readonly_verification_lifecycle",
+      "/commit_response_class_branches_after_step_12",
+      "/ack_state_readonly_classification_lifecycle"
+    ],
+    "projection_serialization_identifier": "m55.canonical_json.sorted_keys_utf8_no_whitespace.v1",
+    "projection_sha256": "42b47b91b32ce5016bf9b26efc90d5d372a6790b540d2d18e1246502b1724a50",
+    "semantic_leaf_count": 824
+  },
+  "schema": "revision-7.draft",
+  "pre_commit_failure_domain_registry": {
+    "identifier": "PRE_COMMIT_FAILURE_DOMAIN_REGISTRY",
+    "registry_complete_reference_required_in_matrix_rows": true,
+    "entries": [
+      {
+        "event_identifier": "PRE_CONNECT_TARGET_IDENTITY_GATE_FAILURE",
+        "lifecycle_gate_source": "pre_connect_target_identity_gate",
+        "transaction_state_class": "NO_CONNECTION_ESTABLISHED",
+        "original_connection_disposition": "NO_CONNECTION_OPENED",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "PRE_CONNECTION_CLIENT_POLICY_FAILURE",
+        "lifecycle_gate_source": "pre_connection_client_policy",
+        "transaction_state_class": "NO_CONNECTION_ESTABLISHED",
+        "original_connection_disposition": "NO_CONNECTION_OPENED",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "CREATE_FRESH_CONNECTION_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_1_CREATE_FRESH_CONNECTION",
+        "transaction_state_class": "NO_CONNECTION_ESTABLISHED",
+        "original_connection_disposition": "CONNECTION_CREATION_FAILED",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "TARGET_ROLE_GUARD_REJECTION",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_2_TARGET_ROLE_GUARD",
+        "transaction_state_class": "CONNECTED_NO_ACTIVE_TRANSACTION",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "BOUNDED_SESSION_SETTINGS_REJECTION",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_3_BOUNDED_SESSION_SETTINGS",
+        "transaction_state_class": "CONNECTED_NO_ACTIVE_TRANSACTION",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION_REJECTION",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_4_BEGIN_EXECUTOR_OWNED_TRANSACTION",
+        "transaction_state_class": "CONNECTED_NO_ACTIVE_TRANSACTION",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+        "rollback_action": "NO_ROLLBACK_APPLICABLE",
+        "classifier_required": false,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "BEGIN_EXECUTOR_OWNED_TRANSACTION_UNCERTAINTY",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_4_BEGIN_EXECUTOR_OWNED_TRANSACTION",
+        "transaction_state_class": "TRANSACTION_STATE_UNCERTAIN",
+        "original_connection_disposition": "MARK_ORIGINAL_CONNECTION_UNUSABLE",
+        "rollback_action": "ROLLBACK_ACK_UNCERTAIN",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "PRE_MUTATION_PRIOR_STATE_GATE_FAILURE",
+        "lifecycle_gate_source": "pre_mutation_prior_state_gate",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "P1_HISTORY_BOOTSTRAP_IN_TRANSACTION_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_5_P1_HISTORY_BOOTSTRAP_IN_TRANSACTION",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "EXECUTE_NORMALIZED_STATEMENTS_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_6_EXECUTE_NORMALIZED_STATEMENTS",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "EXECUTE_NARROW_POSTCONDITIONS_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_7_EXECUTE_NARROW_POSTCONDITIONS",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "INSERT_EXACT_HISTORY_ROW_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_8_INSERT_EXACT_HISTORY_ROW",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "VERIFY_HISTORY_PREFIX_AND_PHASE_FAILURE",
+        "lifecycle_gate_source": "lifecycle_steps_reference_section_5c.step_9_VERIFY_HISTORY_PREFIX_AND_PHASE",
+        "transaction_state_class": "TRANSACTION_ACTIVE",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_AFTER_ROLLBACK",
+        "rollback_action": "ISSUE_ONE_EXPLICIT_ROLLBACK_IF_TRANSACTION_ACTIVE",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "PRE_COMMIT_TRANSPORT_LOSS",
+        "lifecycle_gate_source": "pre_commit_failure_handling_lifecycle.transport_or_uncertain_rollback_acknowledgement",
+        "transaction_state_class": "TRANSACTION_ACTIVE_OR_UNCERTAIN",
+        "original_connection_disposition": "MARK_ORIGINAL_CONNECTION_UNUSABLE_AND_CLOSE",
+        "rollback_action": "ROLLBACK_ACK_UNCERTAIN",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      },
+      {
+        "event_identifier": "ROLLBACK_ACK_UNCERTAIN",
+        "lifecycle_gate_source": "pre_commit_failure_handling_lifecycle.healthy_connection_server_rejection",
+        "transaction_state_class": "TRANSACTION_ACTIVE_OR_UNCERTAIN",
+        "original_connection_disposition": "CLOSE_OR_RETIRE_ORIGINAL_CONNECTION",
+        "rollback_action": "ROLLBACK_ACK_UNCERTAIN",
+        "classifier_required": true,
+        "terminal_outcome": "MANDATORY_STOP_HUMAN_REVIEW_BEFORE_NEW_ATTEMPT",
+        "same_run_retry": false
+      }
+    ]
+  },
+  "artifact_metadata_validation": {
+    "contract_revision_label": "REVISION-7",
+    "matrix_revision_label": "REVISION-7",
+    "contract_schema": "revision-7.draft",
+    "matrix_schema": "revision-7.draft",
+    "contract_schema_version": "m55.preview.transaction_normalized_execution_contract.v1.revision-7.draft",
+    "matrix_schema_version": "m55.preview.transaction_normalized_step_matrix.v1.revision-7.draft",
+    "stale_revision_reference_count": 0,
+    "metadata_mismatch_count": 0,
+    "contract_timestamp_occurrence_count": 1,
+    "matrix_timestamp_occurrence_count": 1,
+    "markdown_timestamp_occurrence_count": 1,
+    "review_timestamp_occurrence_count": 1,
+    "four_artifact_timestamp_match": true,
+    "all_artifact_metadata_pass": true
+  }
+}

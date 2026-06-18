@@ -1,103 +1,94 @@
 .wrap {
-  max-width: 420px;
+  max-width: min(640px, calc(100vw - 40px));
   margin: 0 auto;
-  padding: 12px 12px 24px;
+  padding: clamp(16px, 4vw, 32px) clamp(16px, 4vw, 32px) 24px;
   color: #2c233a;
-}
-
-/* Phase 5: 先に「どこへ行くか」を示す（プロフィールより上） */
-.quickNav {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(177, 156, 255, 0.09);
-  border: 1px solid rgba(177, 156, 255, 0.22);
-  font-size: 13px;
-  font-weight: 500;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.quickNav a {
-  color: #5a4d9e;
-  text-decoration: none;
+@media (max-width: 639px) {
+  .wrap {
+    padding: 16px 16px 24px;
+    gap: 16px;
+  }
 }
 
-.quickNav a:hover {
-  text-decoration: underline;
+.hero {
+  margin: 0;
 }
 
-.quickNavSep {
-  opacity: 0.4;
-  user-select: none;
-  font-weight: 400;
+.signedInStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+@media (max-width: 639px) {
+  .signedInStack {
+    gap: 16px;
+  }
 }
 
 .card {
   border-radius: 16px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 245, 255, 0.98));
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 18px 40px rgba(29, 24, 61, 0.12);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(107, 95, 168, 0.13);
+  box-shadow: 0 18px 60px rgba(29, 24, 61, 0.045);
 }
 
 .h1 {
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 600;
   margin: 0 0 8px;
 }
 
 .lead {
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.7;
   color: #6b667a;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
-.blockLabel {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #8a8499;
-  margin: 12px 0 4px;
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.blockLabelFirst {
-  margin-top: 0;
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  color: #2c233a;
 }
 
 .sectionIntro {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.7;
   color: #6b667a;
-  line-height: 1.55;
   margin: 0 0 12px;
 }
 
 .body {
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.7;
   color: #3a3448;
+  margin: 0 0 12px;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  font-size: 14px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(177, 156, 255, 0.12);
-}
-
-.row:last-child {
-  border-bottom: none;
+.body:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Owned report list (hub) ───────────────────────────────────── */
 .reportList {
   list-style: none;
-  margin: 0;
+  margin: 0 0 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -106,10 +97,9 @@
 
 .reportItem {
   border-radius: 12px;
-  padding: 12px 12px 10px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(177, 156, 255, 0.22);
-  box-shadow: 0 4px 14px rgba(29, 24, 61, 0.06);
+  border: 1px solid rgba(107, 95, 168, 0.13);
 }
 
 .reportItemTop {
@@ -117,21 +107,13 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
-  margin-bottom: 8px;
 }
 
 .reportTitle {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #2c233a;
   line-height: 1.35;
-}
-
-.reportItemCta {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  min-height: 28px;
 }
 
 .statusBadge {
@@ -159,57 +141,28 @@
   color: #5c5668;
 }
 
-.ctaOpen {
+.ctaPrimary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 16px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background: #7c6fd6;
   color: #fff;
   text-decoration: none;
+  box-sizing: border-box;
 }
 
-.ctaOpen:hover {
+.ctaPrimary:hover {
   filter: brightness(1.05);
 }
 
-.ctaBuy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  background: rgba(124, 111, 214, 0.12);
-  color: #5a4d9e;
-  text-decoration: none;
-  border: 1px solid rgba(124, 111, 214, 0.35);
-}
-
-.ctaBuy:hover {
-  background: rgba(124, 111, 214, 0.2);
-}
-
-.ctaSecondaryLink {
-  font-size: 13px;
-  font-weight: 500;
-  color: #7c6fd6;
-  text-decoration: none;
-}
-
-.ctaSecondaryLink:hover {
-  text-decoration: underline;
-}
-
-.emptyOwned {
-  font-size: 14px;
-  color: #6b667a;
-  line-height: 1.55;
-  margin: 0 0 10px;
+.ctaPrimary:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
 }
 
 .hubLinks {
@@ -217,61 +170,61 @@
   flex-direction: column;
   gap: 6px;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .hubLinks a {
   color: #7c6fd6;
   text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .hubLinks a:hover {
   text-decoration: underline;
 }
 
-.hubLinksMuted {
-  font-size: 12px;
-  color: #8a8499;
-  line-height: 1.45;
-  margin: 4px 0 0;
+.hubLinks a:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.helpSubsection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(107, 95, 168, 0.13);
+}
+
+.helpSubTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #2c233a;
 }
 
 .muted {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.7;
   color: #6b667a;
-  line-height: 1.5;
-}
-
-.badge {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(177, 156, 255, 0.15);
-  color: #5c5668;
+  margin: 0 0 8px;
 }
 
 .links {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
-  font-size: 13px;
+  margin-top: 4px;
 }
 
-.openLink {
-  font-size: 13px;
-  font-weight: 500;
-  color: #7c6fd6;
-  text-decoration: none;
-}
-
-.links a {
-  color: #7c6fd6;
-  text-decoration: none;
-}
-
-.links a:hover {
-  text-decoration: underline;
+.links a:focus-visible,
+.saveBtn:focus-visible,
+.cancelBtn:focus-visible,
+.editBtn:focus-visible,
+.deleteReportBtn:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
 }
 
 /* Profile intake form */
@@ -279,12 +232,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 10px;
+}
+
+.inputGroup:first-of-type {
+  margin-top: 0;
 }
 
 .inputLabel {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: #8a8499;
 }
 
@@ -292,7 +249,7 @@
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(177, 156, 255, 0.35);
+  border: 1px solid rgba(107, 95, 168, 0.25);
   background: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   color: #2c233a;
@@ -304,12 +261,26 @@
   border-color: #7c6fd6;
 }
 
+.inputField:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
+}
+
+.formActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .saveBtn {
-  padding: 7px 18px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: 999px;
   background: #7c6fd6;
   color: #fff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -321,23 +292,28 @@
 }
 
 .cancelBtn {
-  padding: 7px 14px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: 999px;
   background: transparent;
   color: #6b667a;
-  font-size: 13px;
-  border: 1px solid rgba(177, 156, 255, 0.3);
+  font-size: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.25);
   cursor: pointer;
 }
 
 .editBtn {
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 500;
   color: #7c6fd6;
   background: none;
   border: none;
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .deleteReportBtn {
@@ -349,7 +325,7 @@
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
-  margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .deleteReportBtn:disabled {
@@ -384,5 +360,10 @@
   font-size: 12px;
   color: #8b4d5c;
   margin: 6px 0 0;
-  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaPrimary:hover {
+    filter: none;
+  }
 }

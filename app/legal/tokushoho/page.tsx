@@ -65,19 +65,48 @@ export default function TokushohoPage() {
           商品・価格
         </h2>
 
-        <p style={{
-          margin: "0 0 6px",
-        }}>
-          <strong>DTR Core Static V1</strong>
+        <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.9 }}>
+          いずれも4章の保存版を含むデジタル商品です。決済完了後にウェブ上で閲覧できます（物理配送はありません）。
         </p>
 
-        <ul style={{
-          margin: 0,
-          paddingLeft: 18,
-        }}>
-          <li>販売価格：¥1,000（税込）</li>
-          <li>提供方法：決済完了後にウェブ上でデジタル閲覧（ダウンロード販売ではなく、サイト内での閲覧を主とします）。物理配送はありません。</li>
-          <li>付帯：商品に記載の範囲で、購入者専用の相談室（レポートに紐づくやりとり）を利用できます。一般公開のチャットではありません。</li>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <p style={{ margin: "0 0 4px" }}>
+              <strong>保存版ライト</strong>
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              <li>販売価格：¥1,000（税込）</li>
+              <li>内容：4章の保存版</li>
+              <li>相談返書：1件</li>
+            </ul>
+          </div>
+
+          <div>
+            <p style={{ margin: "0 0 4px" }}>
+              <strong>保存版FULL</strong>
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              <li>販売価格：¥1,480（税込）</li>
+              <li>内容：4章の保存版</li>
+              <li>相談返書：合計5件</li>
+            </ul>
+          </div>
+
+          <div>
+            <p style={{ margin: "0 0 4px" }}>
+              <strong>ライトからFULL化</strong>
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              <li>販売価格：¥600（税込）</li>
+              <li>対象：保存版ライトを購入済みの方</li>
+              <li>FULL化後：相談返書を合計5件利用できます</li>
+            </ul>
+          </div>
+        </div>
+
+        <ul style={{ margin: "14px 0 0", paddingLeft: 18 }}>
+          <li>提供方法：決済完了後にウェブ上でデジタル閲覧（ダウンロード販売ではなく、サイト内での閲覧を主とします）。</li>
+          <li>相談返書は、保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。</li>
           <li>支払方法：クレジットカード（Link対応）</li>
           <li>代金の支払時期：ご注文時に決済が確定します。なお、実際の引落時期は、お客様がご利用の決済手段（クレジットカード等）の契約内容や各社の定めにより異なります。</li>
         </ul>

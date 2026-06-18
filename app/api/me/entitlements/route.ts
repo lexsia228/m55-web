@@ -24,8 +24,7 @@ export async function GET() {
   try {
     const db = getSupabaseAdmin();
 
-    const [subRes, rightsRes, entRes] = await Promise.all([
-      db.from('subscriptions').select('tier, status').eq('user_id', userId).maybeSingle(),
+    const [rightsRes, entRes] = await Promise.all([
       db.from('entitlement_rights').select('right_key, right_value, expires_at').eq('user_id', userId),
       db
         .from('entitlements')
@@ -36,8 +35,7 @@ export async function GET() {
         .maybeSingle(),
     ]);
 
-    const sub = subRes.data as unknown as { status?: string | null; tier?: string | null } | null;
-    const tier = sub?.status === 'active' && sub?.tier ? sub.tier : 'free';
+    const tier = 'free';
     const dtrRights: string[] = [];
 
     const rightsRows = (rightsRes.data ?? []) as Array<{ right_key?: string; expires_at?: string | null }>;

@@ -1,4 +1,16 @@
 import Link from "next/link";
+import {
+  ACCOUNT_DATA_SUPPORT_AFTER_VERIFY,
+  ACCOUNT_DATA_SUPPORT_CONTACT_NOTE,
+  ACCOUNT_DATA_SUPPORT_INTRO,
+  ACCOUNT_DATA_SUPPORT_REQUEST_INFO,
+  ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY,
+  ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY,
+  ACCOUNT_DATA_SUPPORT_SECTION_ID,
+  ACCOUNT_DATA_SUPPORT_SECTION_TITLE,
+  ACCOUNT_DATA_SUPPORT_SECURITY_NOTE,
+  ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES,
+} from "../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "サポート | M55",
@@ -25,7 +37,50 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>返信について</h2>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          通常、1〜3営業日程度でご返信するよう努めております（状況により前後します）。
+          通常、2〜5営業日程度でご返信するよう努めております（状況により前後します）。
+        </p>
+      </section>
+
+      <section id={ACCOUNT_DATA_SUPPORT_SECTION_ID} style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>
+          {ACCOUNT_DATA_SUPPORT_SECTION_TITLE}
+        </h2>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_INTRO}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_REQUEST_INFO}</p>
+        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>対象例：</p>
+        <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
+          {ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_AFTER_VERIFY}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_SECURITY_NOTE}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY}</p>
+        <p style={{ margin: "0 0 10px", opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY}</p>
+        <p style={{ margin: 0, opacity: 0.9 }}>{ACCOUNT_DATA_SUPPORT_CONTACT_NOTE}</p>
+      </section>
+
+      <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>保存版のプランの違い</h2>
+        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
+          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。
+        </p>
+        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
+          違いは相談返書の件数です。
+        </p>
+        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8 }}>
+          <li><strong>保存版ライト</strong>：相談返書1件</li>
+          <li><strong>保存版FULL</strong>：相談返書合計5件</li>
+        </ul>
+      </section>
+
+      <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
+        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
+          保存版ライトの購入後は、¥600でFULL化できます。
+        </p>
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          FULL化後は、相談返書を合計5件利用できます。
         </p>
       </section>
 
@@ -43,19 +98,19 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、本質・今日・今週の見取り図と、5つの解析軸のバランスを無料で読めます。より詳しい内容や相談機能は、有料レポートの対象です。
+              プロフィール保存後、本質・今日・今週の見取り図と、5つの解析軸のバランスを無料で読めます。より詳しい内容や相談返書は、有料の保存版の対象です。
             </p>
           </article>
           <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料レポートで見られる内容は？</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              無料面と同じ土台の本質を、章立てのレポートとしてウェブ上で閲覧できる形に整理したものです。物理の発送はありません。相談が一定回数付属します（詳細は商品ページと特商法表記をご確認ください）。
+              無料面と同じ土台の本質を、4章の保存版としてウェブ上で閲覧できる形に整理したものです。物理の発送はありません。相談返書の件数はプランにより異なります（詳細は商品ページと特商法表記をご確認ください）。
             </p>
           </article>
           <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>相談室では何ができますか</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>相談返書では何ができますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              有料レポートを購入した方だけが使える、レポートに紐づく専用のやりとりです。レポートの読み取りを補足する範囲の返答を想定しており、公開チャットや無制限の相談ではありません。
+              保存版を購入した方だけが利用できる、保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。レポートの内容に沿った整理を目的としています。
             </p>
           </article>
           <article>
@@ -83,36 +138,24 @@ export default function SupportPage() {
         </ul>
       </section>
 
-      {/* SSOT M55_AI_CONSULT_SAFETY_AND_LIMITS_SSOT_v1 section 6.2 required FAQ items */}
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>相談ルームについて</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>相談返書について</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
           <li>
-            <strong>相談1回とは何ですか？</strong>
-            ：ユーザーが送信した質問1件に対してAIが返答を1件返すまでが「相談1回」です。
-            返答が正常に記録された時点でのみ1回を消費します。
+            <strong>相談返書とは何ですか？</strong>
+            ：保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。
           </li>
           <li>
-            <strong>何回まで相談できますか？</strong>
-            ：1レポートにつき相談返書は合計5件まで。付属1件＋追加購入最大4件まで。
-            上限に達した後は新たな送信はできませんが、過去のやりとりは引き続き確認できます。
+            <strong>何件まで利用できますか？</strong>
+            ：保存版ライトは相談返書1件、保存版FULLは相談返書合計5件です。ライト購入後にFULL化した場合も、合計5件です。
           </li>
           <li>
-            <strong>相談ルームはどこで使えますか？</strong>
-            ：Entry Reportを購入したユーザーのみ、レポート閲覧ページ内で利用できます。
-            一般公開されたチャット画面ではありません。
+            <strong>どこで利用できますか？</strong>
+            ：保存版を購入した方は、保存版の閲覧ページ内から利用できます。
           </li>
           <li>
-            <strong>AIの返答はどのくらいの長さですか？</strong>
-            ：レポートの内容に沿った簡潔な補足を返します。長文エッセイやレポート外の新規診断は行いません。
-          </li>
-          <li>
-            <strong>送信がブロックされた場合、相談回数は消費されますか？</strong>
-            ：危機的・不適切と判断された内容はブロックされますが、その場合は相談回数を消費しません。
-          </li>
-          <li>
-            <strong>入力文字数に制限はありますか？</strong>
-            ：1メッセージあたり10〜500文字です。10文字未満は送信できません。
+            <strong>送信がブロックされた場合、件数は消費されますか？</strong>
+            ：危機的・不適切と判断された内容はブロックされますが、その場合は相談返書の件数を消費しません。
           </li>
         </ul>
       </section>

@@ -611,20 +611,32 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
     '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。',
 } as const;
 
-/** Consult usage card — CTA-first display copy (display-only). */
+/** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
 export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
   availablePrimaryJa: '相談返書を1件使えます。',
   availableSecondaryJa: '今気になっていることを、1テーマだけ書けます。',
+  /** Legacy SSOT for in-flight tests; not used on consult entry UI surfaces. */
   purchasePrimaryLine1Ja: '今は残り0件です。',
   purchasePrimaryLine2Ja:
     '保存版に紐づく相談返書を、あと{count}件まで追加できます。',
+  exhaustedPrimaryJa: '今は相談返書を使えません。',
+  exhaustedSecondaryJa: '残数はこの入口で確認できます。',
   capReachedPrimaryJa: 'この保存版で使える相談返書は上限に達しています。',
   capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
-  usedCountTemplateJa: '使用済み {used} / {cap}件',
-  remainingCompactTemplateJa: '残り {count} 件',
+  usedCountTemplateJa: '使用済み {used}件',
+  remainingCompactTemplateJa: '残り {count}件',
+  /** Legacy SSOT; not rendered on consult entry UI surfaces. */
   additionalPurchasableTemplateJa: 'あと購入できる {count}件',
 } as const;
 
+/** Consult entry LOCAL wave — neutral wallet lines (consult/my only; not LP). */
+export const PAID_DTR_CONSULT_ENTRY_NEUTRAL = {
+  walletRemainingTemplateJa: '残り {count}件',
+  walletUsedTemplateJa: '使用済み {used}件',
+  walletExhaustedJa: '今は相談返書を使えません。残数はこの入口で確認できます。',
+} as const;
+
+/** Legacy formatter; consult entry UI uses PAID_DTR_CONSULT_ENTRY_NEUTRAL instead. */
 export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: number): string {
   return PAID_DTR_CONSULT_USAGE_DISPLAY.purchasePrimaryLine2Ja.replace(
     '{count}',
@@ -632,10 +644,14 @@ export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: numbe
   );
 }
 
-export function formatConsultUsedCountLine(used: number, cap: number): string {
-  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa
-    .replace('{used}', String(used))
-    .replace('{cap}', String(cap));
+export function formatConsultUsedCountLine(used: number, cap?: number): string {
+  if (cap !== undefined) {
+    return `使用済み ${used} / ${cap}件`;
+  }
+  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa.replace(
+    '{used}',
+    String(used)
+  );
 }
 
 export type PaidDtrReportPartView = {
@@ -855,15 +871,9 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   usageAdditionalPurchasableLabelJa: 'あと購入できる',
   walletLoadingJa: '残数確認中です。しばらくお待ちください。',
   savedReportLinkNoteJa:
-    'この本質の読み解きに紐づいて、4章の内容を深掘りできます。',
-  addOnCapNoteJa: '付属1件 + 追加購入4件までが上限です。',
-  limitReachedAdditionalJa:
-    'このレポートで利用できる追加相談返書は上限に達しました。',
+    'この保存版に紐づいて、4章の内容を深掘りできます。',
   limitReachedReadOnlyJa:
     '相談返書の利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
-  purchaseOnlyInRoomPrefixJa:
-    '追加相談返書の購入はこの保存版の相談返書画面内でのみ申し込み可能です。上限は合計',
-  purchaseOnlyInRoomSuffixJa: '件です。',
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
   emptyThreadJa:
@@ -893,8 +903,6 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
     '現在、このレポートに紐づく追加購入をご利用いただけません。',
   walletPurchaseReportMissingJa:
     '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
-  walletPurchaseRetryNoteJa: '保存版に紐づく相談返書を1件追加できます。',
-  addOnPurchaseNoteJa: '保存版に紐づく相談返書を1件追加できます。',
   valueDeliverablesTitleJa: 'この返書で整理すること',
   historyMessagesAriaJa: 'これまでの相談返書',
   /** {count} = assistant reply count in thread */
@@ -910,21 +918,22 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   composePanelTitleJa: '今の1テーマを書く',
 } as const;
 
-/** My page consult block (functional UI only — not emotional story). */
+/** My page consult block — IA SSOT v1 (2-state copy; owned CTA only when snapshot ready). */
 export const PAID_DTR_MY_PAGE_CONSULT = {
-  blockTitleJa: '相談返書（保存版に紐づく）',
+  blockTitleJa: '相談返書',
   blockIntroJa:
-    '保存版の再開・相談返書の残数確認の入口です（機能案内）。',
+    '相談返書は、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。',
   linkedScopeJa:
     '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。',
   capSummaryJa:
-    '付属1件 + 追加最大4件 = 合計5件まで（残数・送信は相談返書の入口で確認）',
+    '相談返書の利用状況は、保存版内の相談返書画面で確認できます。',
+  walletFactNoteJa:
+    '利用状況の確認と送信は、保存版を開いたあとの相談返書画面で行えます。',
   remainingNoteJa:
-    '相談返書の残り回数・送信は、保存版レポート内の相談返書の入口で確認できます。',
-  reopenNoteJa:
-    '保存版の再開は、上のレポート一覧またはレポート棚から行えます。',
-  openRoomLinkJa: '保存版で相談返書を開く',
-  sectionAriaJa: '相談と保存の目安',
+    '1回の相談につき、一つのテーマを書いて返書を受け取ります。',
+  reopenNoteJa: '',
+  openRoomLinkJa: '相談返書を確認する',
+  sectionAriaJa: '相談返書',
 } as const;
 
 export type PaidDtrAccessFlowStepId =
@@ -1077,6 +1086,240 @@ export const PAID_DTR_FORBIDDEN_CLAIMS = [
 ] as const;
 
 /** Collect all user-facing Japanese strings for static checks (tests, lint helpers). */
+/** Paid LP surface copy — Human-approved M55_PAID_LP_FINAL_COPY_SSOT_v1 (display-only). */
+export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v1' as const;
+
+export const PAID_DTR_LP = {
+  version: PAID_DTR_LP_COPY_VERSION,
+  hero: {
+    subheadlineJa: '迷ったときに読み返すための4章を、手元に。',
+    headlineJa: '入力した情報から、\n自分の出方と、いまのテーマを読み解く。',
+    bodyJa:
+      'M55は、あなたが入力した情報をもとに、\n比較的変わりにくい自分の出方を、\n4章の保存版として整理するパーソナルシステムです。\n\n相談返書では、その保存版に今回書いた相談文を重ね、\nいま気になっている一つのテーマを読み直します。',
+    ctaLabelJa: 'FULLとライトを比べる',
+    compareSectionId: 'dtr-lp-tiers',
+  },
+  about: {
+    sectionTitleJa: 'M55とは',
+    oneSentenceJa:
+      'M55は、入力された情報と言葉をもとに、\n自分の出方と今のテーマを読み直し、\n本人が確かめられる視点として渡す\nパーソナルシステムです。',
+    principleJa:
+      '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。',
+  },
+  informationLayers: {
+    sectionTitleJa: '保存版と相談返書の情報二層',
+    savedReportJa:
+      '保存版では、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を4章で整理します。',
+    consultReplyJa:
+      '相談返書では、その保存版に、\n今回入力した一つの相談テーマを重ねます。\n\n書かれた内容や言葉の選び方、言い回し、文の流れ、\n繰り返し表れるテーマを手がかりに、\nいま気になっているテーマを読み直します。',
+  },
+  savedReport: {
+    sectionTitleJa: '保存版とは',
+    headlineJa: '自分の出方を、4章の流れで読み直す。',
+    bodyJa:
+      '保存版は、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n後から読み返すための\n4章の保存版として残します。\n\n保存版の4章は、\nライトとFULLで共通です。',
+  },
+  freeComparison: {
+    sectionTitleJa: '無料ページと保存版の違い',
+    bodyJa:
+      '無料ページは、M55の読み解きに触れる入口です。\n保存版では、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。',
+  },
+  chapters: {
+    sectionTitleJa: '正式4章',
+    items: [
+      {
+        roman: 'Ⅰ',
+        titleJa: '輪郭を見る',
+        introJa: 'まず、自分に出やすい傾向をつかみます。',
+      },
+      {
+        roman: 'Ⅱ',
+        titleJa: '構造を読む',
+        introJa: '考え方や動き方が、どのようにつながっているかを見ます。',
+      },
+      {
+        roman: 'Ⅲ',
+        titleJa: '無理を知る',
+        introJa: '負担が重なりやすい場面と、無理の出方を確かめます。',
+      },
+      {
+        roman: 'Ⅳ',
+        titleJa: '楽に扱う',
+        introJa: '自分を変えすぎず、日常で扱いやすくする方法を整理します。',
+      },
+    ] as const,
+  },
+  consultReply: {
+    sectionTitleJa: '相談返書とは',
+    bodyJa:
+      '保存版に紐づく、一つの相談テーマへの返書です。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。\n会話を続ける形式ではありません。',
+  },
+  tiers: {
+    sectionTitleJa: 'FULL／ライト比較',
+    full: {
+      planNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
+      priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
+      savedReportLabelJa: '保存版:',
+      savedReportValueJa: '正式4章',
+      consultReplyLabelJa: '相談返書:',
+      consultReplyValueJa: '合計5件',
+      bodyJa:
+        '保存版を土台に、\n相談返書を合計5件利用したい方へ。\n\n最初からFULLを選ぶ場合は、\nライト購入後にFULL化する場合より\n¥120低い価格です。',
+      ctaLabelJa: '保存版FULLを購入する',
+      productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
+    },
+    light: {
+      planNameJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
+      priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
+      savedReportLabelJa: '保存版:',
+      savedReportValueJa: '正式4章',
+      consultReplyLabelJa: '相談返書:',
+      consultReplyValueJa: '1件',
+      bodyJa: '相談返書1件とともに、\n4章の保存版を持ちたい方へ。',
+      ctaLabelJa: '保存版ライトを購入する',
+      productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
+    },
+  },
+  upgrade: {
+    sectionTitleJa: 'ライトからFULL化',
+    paragraphsJa: [
+      'ライト購入後は、FULL化できます。',
+      'ライト購入後は、¥600でFULL化できます。\nFULL化すると、相談返書を合計5件利用できます。',
+      'ライト ¥1,000 ＋ FULL化 ¥600 ＝ ¥1,600\n最初からFULL ¥1,480',
+      '差額は¥120です。',
+    ] as const,
+  },
+  purchaseNotes: {
+    sectionTitleJa: '購入前の確認',
+    paragraphsJa: [
+      '価格はすべて税込です。',
+      'ライトとFULLの保存版は、同じ正式4章です。',
+      '相談返書は、ライトが1件、FULLが合計5件です。',
+      'ライト購入後にFULL化する場合は¥600で、\n合計¥1,600です。\n最初からFULLを選ぶ場合は¥1,480です。',
+      '購入前に、プランの内容と相談返書の件数をご確認ください。',
+    ] as const,
+    legalLinks: [
+      { labelJa: '利用規約', href: '/legal/terms' },
+      { labelJa: 'プライバシーポリシー', href: '/legal/privacy' },
+      { labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
+    ] as const,
+  },
+  faq: {
+    sectionTitleJa: 'FAQ',
+    items: [
+      {
+        questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
+        answerJa:
+          '保存版の4章は共通です。\n違いは、利用できる相談返書の件数です。\nライトは1件、FULLは合計5件です。',
+      },
+      {
+        questionJa: '相談返書とは何ですか？',
+        answerJa:
+          '保存版に紐づく、一つの相談テーマへの返書です。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。\n会話を続ける形式ではありません。',
+      },
+      {
+        questionJa: 'ライト購入後にFULL化できますか？',
+        answerJa:
+          '¥600でFULL化できます。\nFULL化後は、相談返書を合計5件利用できます。\nライトとFULL化の合計は¥1,600です。\n最初からFULLを選ぶ場合は¥1,480です。',
+      },
+      {
+        questionJa: '無料ページとの違いは何ですか？',
+        answerJa:
+          '無料ページは、M55の読み解きに触れる入口です。\n保存版では、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。',
+      },
+    ] as const,
+  },
+  cta: {
+    sectionTitleJa: '最終導線',
+    finalCompareLabelJa: 'プランをもう一度確認する',
+  },
+  operational: {
+    ownedState: {
+      statusLeadJa: '保存版の閲覧・準備状況はこちらから進められます。',
+      openReportCtaJa: 'レポートを開く',
+      recoveryLeadJa:
+        '購入済みです。保存版の準備状況を確認できます（再購入は不要です）。',
+      recoveryCtaJa: '準備状況を確認する',
+      supportCtaJa: 'サポートに相談する',
+      pendingLeadJa:
+        '本文の準備が完了すると閲覧できます。しばらくしてから再度お試しください。',
+      pendingCtaJa: 'レポートの準備中',
+      expiredNoticeLeadJa: 'このレポートへのアクセス有効期限が切れています。',
+      expiredNoticeSupportPrefixJa: 'ご不明な点は',
+      expiredNoticeSupportLinkJa: 'サポート',
+      expiredNoticeSupportSuffixJa: 'までご連絡ください。',
+    },
+  },
+} as const;
+
+/** Collect all Paid LP public strings for grep / regression tests. */
+export function collectPaidDtrLpCopyStrings(): string[] {
+  const lp = PAID_DTR_LP;
+  const { full, light } = lp.tiers;
+  const os = lp.operational.ownedState;
+
+  const strings: string[] = [
+    lp.hero.subheadlineJa,
+    lp.hero.headlineJa,
+    lp.hero.bodyJa,
+    lp.hero.ctaLabelJa,
+    lp.about.sectionTitleJa,
+    lp.about.oneSentenceJa,
+    lp.about.principleJa,
+    lp.informationLayers.sectionTitleJa,
+    lp.informationLayers.savedReportJa,
+    lp.informationLayers.consultReplyJa,
+    lp.savedReport.sectionTitleJa,
+    lp.savedReport.headlineJa,
+    lp.savedReport.bodyJa,
+    lp.freeComparison.sectionTitleJa,
+    lp.freeComparison.bodyJa,
+    lp.chapters.sectionTitleJa,
+    ...lp.chapters.items.flatMap((c) => [c.roman, c.titleJa, c.introJa]),
+    lp.consultReply.sectionTitleJa,
+    lp.consultReply.bodyJa,
+    lp.tiers.sectionTitleJa,
+    full.planNameJa,
+    full.priceLabelJa,
+    full.savedReportLabelJa,
+    full.savedReportValueJa,
+    full.consultReplyLabelJa,
+    full.consultReplyValueJa,
+    full.bodyJa,
+    full.ctaLabelJa,
+    light.planNameJa,
+    light.priceLabelJa,
+    light.savedReportLabelJa,
+    light.savedReportValueJa,
+    light.consultReplyLabelJa,
+    light.consultReplyValueJa,
+    light.bodyJa,
+    light.ctaLabelJa,
+    lp.upgrade.sectionTitleJa,
+    ...lp.upgrade.paragraphsJa,
+    lp.purchaseNotes.sectionTitleJa,
+    ...lp.purchaseNotes.paragraphsJa,
+    ...lp.purchaseNotes.legalLinks.map((l) => l.labelJa),
+    lp.faq.sectionTitleJa,
+    ...lp.faq.items.flatMap((f) => [f.questionJa, f.answerJa]),
+    lp.cta.sectionTitleJa,
+    lp.cta.finalCompareLabelJa,
+    os.statusLeadJa,
+    os.openReportCtaJa,
+    os.recoveryLeadJa,
+    os.recoveryCtaJa,
+    os.supportCtaJa,
+    os.pendingLeadJa,
+    os.pendingCtaJa,
+    os.expiredNoticeLeadJa,
+    os.expiredNoticeSupportPrefixJa,
+    os.expiredNoticeSupportLinkJa,
+    os.expiredNoticeSupportSuffixJa,
+  ];
+
+  return strings.filter((s) => typeof s === 'string' && s.length > 0);
+}
+
 export function collectPaidDtrPublicCopyStrings(): string[] {
   const parts: string[] = [
     PAID_DTR_VALUE_PROPOSITION.oneSentenceJa,

@@ -5,3 +5,6 @@
 *.ps1 text eol=crlf
 *.bat text eol=crlf
 *.cmd text eol=crlf
+
+# P1 baseline embeds Production pg_get_functiondef CRLF bytes inside function bodies.
+docs/planning/preview-baseline/migrations/20260614000000_preview_production_aligned_baseline_p1.sql -text

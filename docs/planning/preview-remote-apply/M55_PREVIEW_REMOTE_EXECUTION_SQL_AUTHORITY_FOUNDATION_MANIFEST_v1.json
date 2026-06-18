@@ -1,0 +1,144 @@
+{
+  "identifier": "M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1",
+  "base_head_commit_sha": "9af0df4fad8e545871648da39690dec9f1d639da",
+  "expected_branch": "feat/m55-paid-lp-canonical-wave1",
+  "execution_authorization": false,
+  "db_connection_remote": false,
+  "sql_executed_remote": false,
+  "migration_apply_authorized": false,
+  "missing_authorities": [],
+  "files": [
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_DB_PREAPPLY_READONLY_PREFLIGHT_PATCH_2.sql",
+      "bytes": 21188,
+      "sha256": "9ec4a50420169a15fcdb96fc20cc7284ffd603a8a14db810ef6de0f1af65faff",
+      "classification": "p0_preflight_patch2"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_P1_PRIOR_BOOTSTRAP_PRECONDITION_v1.sql",
+      "bytes": 11617,
+      "sha256": "6f7874f6e4b16accf3eedb5c57b9f5e5847df6a9917f82a85aef5c705338e855",
+      "classification": "p1_prior_bootstrap_precondition"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_APPLICATION_RELATION_COUNTS_PURE_SELECT_v2.sql",
+      "bytes": 1647,
+      "sha256": "fbea819218345a5cf2f0d10e0704100beb0ae876ecc4dd26bbc422244ef97905",
+      "classification": "pure_application_relation_counts_v2"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CATALOG_EXTRACTOR_v1.sql",
+      "bytes": 11114,
+      "sha256": "dff8152e5af9735e43952c71000f52a3c84cb5f27f700e98f7faa09a2fb3be1d",
+      "classification": "remote_catalog_extractor"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_FUNCTION_PARITY_EXTRACTOR_v1.sql",
+      "bytes": 1268,
+      "sha256": "0322d98ef02c095ff0942bb7498ff625bee67766597ee78aefa30aca56e806ed",
+      "classification": "remote_function_parity_extractor"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_v1.json",
+      "bytes": 31185,
+      "sha256": "39c27235c5fe249c0b743568318db19ca1f824fa74717b5bd7165512e580d2b1",
+      "classification": "foundation_json"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_LIFECYCLE_AUTHORITY_v1.json",
+      "bytes": 13183,
+      "sha256": "4ceef48c7539364116c60606058c446b1648476c5e60730d84ab0249ff194c3f",
+      "classification": "remote_execution_lifecycle_authority_json"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_CONNECTION_AUTHORITY_v1.json",
+      "bytes": 19132,
+      "sha256": "054e922839e3e90d1683c3580049f62f9670e5f3ad168a81a05df66fcc08db11",
+      "classification": "remote_connection_authority_json"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/executionSqlAuthorityFoundation.ts",
+      "bytes": 58601,
+      "sha256": "887936ebd28850ab7ee5c254b4444b656d32e692fdb2289d6acdd18c5b4997e7",
+      "classification": "foundation_loader"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.executionSqlAuthorityFoundation.local.test.ts",
+      "bytes": 50409,
+      "sha256": "5e51eb1e77bab471e9d2933f06c3504cbd63f364c4c0e9cfb813ae173b89613d",
+      "classification": "foundation_tests"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionLifecycleAuthority.ts",
+      "bytes": 30366,
+      "sha256": "92bdb44d8f2d40bb3588596b122a0ba6d59efb22e11c75de4bc58f72b01e5815",
+      "classification": "remote_execution_lifecycle_authority"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteExecutionLifecycleAuthority.local.test.ts",
+      "bytes": 23514,
+      "sha256": "935d65b5b3491a68d9ce1089036beaedfc2d1d3f1960783a3ecb860e261abd38",
+      "classification": "remote_execution_lifecycle_authority_tests"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteConnectionAuthority.ts",
+      "bytes": 63367,
+      "sha256": "89e97e6e794449c1172d6482b50cf2bbbf0d83dc70095d050b5b0170c1a8f422",
+      "classification": "remote_connection_authority"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteConnectionAuthority.local.test.ts",
+      "bytes": 61975,
+      "sha256": "74867e57cbd0447ae279ed7ee2aa514c28b72d168a15e599f48c18a877c7686c",
+      "classification": "remote_connection_authority_tests"
+    },
+    {
+      "path": "scripts/m55/validatePreviewRemoteExecutionSqlAuthorityFoundation.ts",
+      "bytes": 1811,
+      "sha256": "30228c07573fac0b69623cdaecf46a2dc9d30476697c4bcd6ffdac752f6e1be6",
+      "classification": "foundation_validator"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTOR_IMPLEMENTATION_v1.json",
+      "bytes": 2542,
+      "sha256": "bcfc76303627584c40450c840c3e0f9e9b41878f133e9aa7155601008f3403da",
+      "classification": "remote_executor_implementation_json"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionCredentialAcquirer.ts",
+      "bytes": 13708,
+      "sha256": "2d43169eaaf6d658c6ec31f713dd3178162985fe2ae68a801689ab448c0fcb97",
+      "classification": "remote_execution_credential_acquirer"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionPgTransport.ts",
+      "bytes": 17005,
+      "sha256": "d657cc2403f74afaa15b05beb074ebc1a0a477d3a1fd78d40ef2e2871e9fb738",
+      "classification": "remote_execution_pg_transport"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply/remoteExecutionExecutor.ts",
+      "bytes": 72084,
+      "sha256": "2546a9a0f36894d4b1213b0748539e5a8ca90ece20ee117c45f8e973be7fd7bb",
+      "classification": "remote_execution_executor"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteExecutionCredentialAndTransport.local.test.ts",
+      "bytes": 30863,
+      "sha256": "7a5bb6eee969d6dc1e0b1007ab6c23e9d2d356cae0b9bedd9fea2e444f9347aa",
+      "classification": "remote_execution_credential_tests"
+    },
+    {
+      "path": "lib/m55/previewRemoteApply.remoteExecutionExecutor.local.test.ts",
+      "bytes": 168100,
+      "sha256": "dfc52f3f6e028b67bb7123cc2b1721dad256d4ea655d157b0bddbffae2089569",
+      "classification": "remote_execution_executor_tests"
+    },
+    {
+      "path": "docs/planning/preview-remote-apply/M55_PREVIEW_REMOTE_EXECUTION_SQL_AUTHORITY_FOUNDATION_MANIFEST_v1.json",
+      "bytes": 6302,
+      "sha256": "9898070c6e7e056b395fedb472d5fc53b8d82949028a0ec1ebc8ebe2cda111d6",
+      "classification": "foundation_manifest"
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 import Link from 'next/link';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
 import styles from '../how-it-works.module.css';
+
+const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
+const cta = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 export function NextStepSection() {
   return (
@@ -11,17 +15,15 @@ export function NextStepSection() {
       <h2 id="how-m55-next-title" className={styles.visuallyHidden}>
         次のステップ
       </h2>
-      <p className={styles.nextLead}>まずは、無料 /core で自分の輪郭を確認してみてください。</p>
-      <p className={styles.nextSub}>
-        その先で必要になったら、Entry Report で構造を読み返し、含まれている相談返書で今の悩みへつなげていけます。
-      </p>
+      <p className={styles.nextLead}>{copy.nextLeadJa}</p>
+      <p className={styles.nextSub}>{copy.nextSubJa}</p>
 
       <div className={styles.ctaStack}>
-        <Link href="/core" className={styles.primaryCta}>
-          無料 /core で輪郭を確認する
+        <Link href={cta.coreFreeHref} className={styles.primaryCta}>
+          無料の見取り図を確認する
         </Link>
-        <Link href="/dtr/lp" className={styles.secondaryCta}>
-          Entry Report を見る
+        <Link href={cta.viewSavedPlansHref} className={styles.secondaryCta}>
+          {cta.viewSavedPlansJa}
         </Link>
       </div>
 

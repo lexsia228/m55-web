@@ -1,4 +1,7 @@
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
 import styles from '../how-it-works.module.css';
+
+const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
 
 export function WhatYouCanDoSection() {
   return (
@@ -8,7 +11,7 @@ export function WhatYouCanDoSection() {
         M55で受け取れるもの
       </h2>
 
-      <p className={styles.sectionLead}>まず無料 /core では、自分の輪郭を受け取ります。</p>
+      <p className={styles.sectionLead}>{copy.receiveFreeLeadJa}</p>
       <p className={styles.sectionLead}>
         本質ポスター、傾向の輪郭、M55の読み方、傾向と負荷、このタイプはどう出やすいか、まず整えるとよいこと、観測までを通して、今の自分がどう出やすいかをつかんでいきます。
       </p>
@@ -16,15 +19,9 @@ export function WhatYouCanDoSection() {
         ここで渡すのは、すべての答えではなく、まず見取り図です。
       </p>
 
-      <p className={styles.sectionLead}>
-        次に Entry Report では、入口として見えていた傾向が、生活の中でどう表れやすいか、どこで負荷になりやすいか、どの順番で整えると使いやすいかを、より深く章立てで受け取れます。
-      </p>
-      <p className={styles.sectionLead}>無料が輪郭なら、Entry Report は構造です。</p>
-      <p className={styles.sectionLead}>
-        Entry Report では、
-        <br />
-        レポートに加えて相談返書も受け取れます。
-      </p>
+      <p className={styles.sectionLead}>{copy.receiveSavedLeadJa}</p>
+      <p className={styles.sectionLead}>{copy.receiveContrastJa}</p>
+      <p className={styles.sectionLead}>{copy.receiveConsultJa}</p>
       <p className={styles.sectionLead}>
         見えている傾向を前提に、
         <br />
@@ -37,15 +34,13 @@ export function WhatYouCanDoSection() {
         <br />
         すでに見えている傾向や組み合わせを踏まえて、
         <br />
-        今の悩みへつなげていきます。
+        今のテーマを読み直していきます。
       </p>
 
       <div className={`${styles.depthDiagram} ${styles.receiveFlowBlock}`}>
-        <p className={styles.depthDiagramKicker}>無料（輪郭）→ Entry Report（構造＋相談返書）</p>
+        <p className={styles.depthDiagramKicker}>{copy.flowKickerJa}</p>
         <p className={`${styles.sectionLead} ${styles.receiveFlowNote}`}>
-          相談返書は独立した商品ではなく、
-          <br />
-          Entry Report に含まれる価値です。
+          {copy.flowNoteJa}
         </p>
       </div>
     </section>

@@ -12,6 +12,13 @@ function mustEnv(name: string): string {
 }
 
 export async function POST() {
+  if (process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -70,4 +77,18 @@ export async function POST() {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  return new NextResponse(null, {
+    status: 404,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
+export async function HEAD() {
+  return new NextResponse(null, {
+    status: 404,
+    headers: { "Cache-Control": "no-store" },
+  });
 }
