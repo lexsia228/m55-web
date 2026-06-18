@@ -91,10 +91,10 @@ WITH params AS (
     fp.*,
     jsonb_build_array(
       jsonb_build_object(
-        'segment_id','stripe_events_all_v1','schema_name','public','relation_name','stripe_events','relation','public.stripe_events','segment_schema_version','stripe_events_v1','sort_key_columns',jsonb_build_array('event_id'),'audited_columns',jsonb_build_array('event_id','event_type','processed_at'),'canonical_encoding_version','ordered_jsonb_build_array_v1','pre_delete_exclusion_policy_id','exclude_none_v1','post_delete_exclusion_policy_id','exclude_none_v1','authorized_change_policy_id','none_v1','empty_set_representation','EMPTY_SET','row_count',
+        'segment_id','stripe_events_all_v1','schema_name','public','relation_name','stripe_events','relation','public.stripe_events','segment_schema_version','stripe_events_v1','sort_key_columns',jsonb_build_array('event_id'),'audited_columns',jsonb_build_array('event_id','event_type','received_at'),'canonical_encoding_version','ordered_jsonb_build_array_v1','pre_delete_exclusion_policy_id','exclude_none_v1','post_delete_exclusion_policy_id','exclude_none_v1','authorized_change_policy_id','none_v1','empty_set_representation','EMPTY_SET','row_count',
         (SELECT COUNT(*)::integer FROM public.stripe_events),
         'segment_digest_sql',
-        (SELECT md5(COALESCE(string_agg(jsonb_build_array(se.event_id,se.event_type,se.processed_at)::text, '|' ORDER BY se.event_id), 'EMPTY_SET')) FROM public.stripe_events se)
+        (SELECT md5(COALESCE(string_agg(jsonb_build_array(se.event_id,se.event_type,se.received_at)::text, '|' ORDER BY se.event_id), 'EMPTY_SET')) FROM public.stripe_events se)
       ),
       jsonb_build_object(
         'segment_id','stripe_processed_events_all_v1','schema_name','public','relation_name','stripe_processed_events','relation','public.stripe_processed_events','segment_schema_version','stripe_processed_events_v1','sort_key_columns',jsonb_build_array('event_id'),'audited_columns',jsonb_build_array('event_id','processed_at'),'canonical_encoding_version','ordered_jsonb_build_array_v1','pre_delete_exclusion_policy_id','exclude_none_v1','post_delete_exclusion_policy_id','exclude_none_v1','authorized_change_policy_id','none_v1','empty_set_representation','EMPTY_SET','row_count',
@@ -159,7 +159,7 @@ SELECT jsonb_build_object(
     'dtr_report_snapshots',subject_snapshots_count
   ),
   'failed_fulfillments',jsonb_build_object('sorted_uuid_list',failed_fulfillment_uuid_list,'count',failed_fulfillment_count,'digest_sql_md5',failed_fulfillment_uuid_digest_sql),
-  'unrelated_surface_registry',jsonb_build_object('registry_id','M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1','registry_schema_version','m55_unrelated_surface_registry_v1','registry_sha256','61c88fdd7cec1bfe857414f6507900355834c0d05f848be2c300ab5eaea1f0ed'),
+  'unrelated_surface_registry',jsonb_build_object('registry_id','M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1','registry_schema_version','m55_unrelated_surface_registry_v1','registry_sha256','7be3f9c84bbe41a8cacb9ae793d03dd1c7a44e6feb03ea202851109e06d319a1'),
   'unrelated_audited_surface',jsonb_build_object('segments',unrelated_segment_bundle,'digest_sql_md5',unrelated_surface_digest_sql),
   'postdelete',jsonb_build_object('correlated_succeeded_event_count',correlated_succeeded_event_count,'deletion_subject_id_valid',deletion_subject_id ~ '^m55-del:[0-9a-f]{32}$','failed_fulfillment_exact_ids_existing',bound_ff_existing_count,'failed_fulfillment_exact_ids_scrubbed',bound_ff_scrubbed_count),
   'failed_flags',to_jsonb(failed_flags),

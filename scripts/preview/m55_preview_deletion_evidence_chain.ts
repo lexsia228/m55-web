@@ -118,7 +118,7 @@ const UNRELATED_SURFACE_REGISTRY_DEFINITION = {
       relation: 'public.stripe_events',
       segment_schema_version: 'stripe_events_v1',
       sort_key_columns: ['event_id'],
-      audited_columns: ['event_id', 'event_type', 'processed_at'],
+      audited_columns: ['event_id', 'event_type', 'received_at'],
       canonical_encoding_version: 'ordered_jsonb_build_array_v1',
       pre_delete_exclusion_policy_id: 'exclude_none_v1',
       post_delete_exclusion_policy_id: 'exclude_none_v1',

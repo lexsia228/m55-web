@@ -265,6 +265,12 @@ describe('hash and evidence chain helper', () => {
     assert.equal(validatePrecheckEvidence(evidence({ unrelated_surface_registry: { ...M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_BINDING, registry_sha256: '3'.repeat(64) } })).ready, false);
   });
 
+  it('stripe_events registry binds required core columns without processed_at', () => {
+    const stripeEvents = M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments[0];
+    assert.deepEqual(stripeEvents.audited_columns, ['event_id', 'event_type', 'received_at']);
+    assert.equal(M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.registry_sha256, '7be3f9c84bbe41a8cacb9ae793d03dd1c7a44e6feb03ea202851109e06d319a1');
+  });
+
   it('exact immutable registry with valid DB-derived segment results passes', () => {
     assert.equal(validatePrecheckEvidence(evidence()).ready, true);
   });
@@ -481,6 +487,20 @@ describe('SQL static contract', () => {
     assert.match(sql, /jsonb_build_array/);
     assert.match(sql, /ORDER BY/);
     assert.match(sql, /EMPTY_SET/);
+  });
+
+  it('stripe_events segment avoids optional processed_at and uses received_at', () => {
+    assert.doesNotMatch(sql, /\bse\.processed_at\b/);
+    assert.match(sql, /\bse\.received_at\b/);
+    assert.match(sql, /'audited_columns',jsonb_build_array\('event_id','event_type','received_at'\)/);
+    const stripeEventsBlock = sql.slice(sql.indexOf('stripe_events_all_v1'), sql.indexOf('stripe_processed_events_all_v1'));
+    assert.doesNotMatch(stripeEventsBlock, /\bprocessed_at\b/);
+  });
+
+  it('stripe_processed_events segment may retain processed_at on spe alias only', () => {
+    assert.match(sql, /\bspe\.processed_at\b/);
+    const stripeEventsBlock = sql.slice(sql.indexOf('stripe_events_all_v1'), sql.indexOf('stripe_processed_events_all_v1'));
+    assert.doesNotMatch(stripeEventsBlock, /\bprocessed_at\b/);
   });
 
   it('does not output raw or hash as selected fields', () => {
