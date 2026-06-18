@@ -28,9 +28,11 @@ import {
   PRECHECK_EVIDENCE_SCHEMA_VERSION,
   buildFailedFulfillmentBundle,
   buildUnrelatedSurfaceDigest,
+  canonicalJson,
   canonicalSha256,
   deriveUserRefHash,
   generatePreviewSqlPackage,
+  sha256Hex,
   validateExternalAuthority,
   validatePrecheckEvidence,
   type ExternalDeletionAuthority,
@@ -45,6 +47,70 @@ const RUNBOOK_PATH = join(ROOT, 'docs/planning/m55_preview_post_remediation_dele
 const AUTHORITY_PATH = join(ROOT, 'scripts/preview/m55_preview_post_remediation_deletion_authority.ts');
 const ORCHESTRATOR_PATH = join(ROOT, 'scripts/preview/m55_preview_post_remediation_deletion_smoke.ts');
 const HELPER_PATH = join(ROOT, 'scripts/preview/m55_preview_deletion_evidence_chain.ts');
+
+const EMPTY_SEGMENT_DIGEST_SQL = 'beaf7711345d6d299ecedc43e53111d7';
+const PRECHECK_EMPTY_UNRELATED_SURFACE_SHA256 =
+  'c5c6b420608e6193614480387ca0c33eb9a6bc202a6626beb882f8d5c87953f7';
+
+function compactSegmentInnerJson(row_count: number, segment_digest_sql: string, segment_id: string) {
+  return `{"row_count":${row_count},"segment_digest_sql":"${segment_digest_sql}","segment_id":"${segment_id}"}`;
+}
+
+function compactSqlEvidenceSegment(
+  contract: (typeof M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments)[number],
+  row_count: number,
+  segment_digest_sql: string,
+) {
+  const inner_sha = sha256Hex(compactSegmentInnerJson(row_count, segment_digest_sql, contract.segment_id));
+  switch (contract.segment_id) {
+    case 'stripe_events_all_v1':
+      return `{"audited_columns":["event_id","event_type","received_at"],"authorized_change_policy_id":"none_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_none_v1","pre_delete_exclusion_policy_id":"exclude_none_v1","relation":"public.stripe_events","relation_name":"stripe_events","row_count":${row_count},"schema_name":"public","segment_id":"stripe_events_all_v1","segment_schema_version":"stripe_events_v1","segment_sha256":"${inner_sha}","sort_key_columns":["event_id"]}`;
+    case 'stripe_processed_events_all_v1':
+      return `{"audited_columns":["stripe_event_id","processed_at"],"authorized_change_policy_id":"none_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_none_v1","pre_delete_exclusion_policy_id":"exclude_none_v1","relation":"public.stripe_processed_events","relation_name":"stripe_processed_events","row_count":${row_count},"schema_name":"public","segment_id":"stripe_processed_events_all_v1","segment_schema_version":"stripe_processed_events_v1","segment_sha256":"${inner_sha}","sort_key_columns":["stripe_event_id"]}`;
+    case 'clerk_webhook_events_excluding_subject_v1':
+      return `{"audited_columns":["event_type","status","error_code"],"authorized_change_policy_id":"expected_subject_event_only_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_subject_user_ref_hash_v1","pre_delete_exclusion_policy_id":"exclude_subject_user_ref_hash_v1","relation":"public.clerk_webhook_events","relation_name":"clerk_webhook_events","row_count":${row_count},"schema_name":"public","segment_id":"clerk_webhook_events_excluding_subject_v1","segment_schema_version":"clerk_webhook_events_excluding_subject_v1","segment_sha256":"${inner_sha}","sort_key_columns":["created_at","event_type"]}`;
+    case 'failed_fulfillments_excluding_bound_v1':
+      return `{"audited_columns":["id","failure_reason","created_at"],"authorized_change_policy_id":"scrub_bound_failed_fulfillments_only_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_bound_failed_fulfillment_ids_v1","pre_delete_exclusion_policy_id":"exclude_bound_failed_fulfillment_ids_v1","relation":"public.failed_fulfillments","relation_name":"failed_fulfillments","row_count":${row_count},"schema_name":"public","segment_id":"failed_fulfillments_excluding_bound_v1","segment_schema_version":"failed_fulfillments_excluding_bound_v1","segment_sha256":"${inner_sha}","sort_key_columns":["id"]}`;
+    default:
+      throw new Error('unknown_segment');
+  }
+}
+
+function compactSqlUnrelatedSurfaceDigest(
+  segments: { segment_id: string; row_count: number; segment_digest_sql: string }[],
+) {
+  const parts = M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments.map((contract) => {
+    const seg = segments.find((item) => item.segment_id === contract.segment_id);
+    if (!seg) throw new Error('missing_segment');
+    return compactSqlEvidenceSegment(contract, seg.row_count, seg.segment_digest_sql);
+  });
+  return sha256Hex(`[${parts.join(',')}]`);
+}
+
+function mapSqlSegmentsForTest(
+  sqlSegments: { segment_id: string; row_count: number; segment_digest_sql: string }[],
+): UnrelatedSegment[] {
+  return M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments.map((contract) => {
+    const segment = sqlSegments.find((item) => item.segment_id === contract.segment_id);
+    if (!segment) throw new Error('missing_segment');
+    const segment_sha256 = sha256Hex(
+      canonicalJson({
+        segment_id: contract.segment_id,
+        row_count: segment.row_count,
+        segment_digest_sql: segment.segment_digest_sql,
+      }),
+    );
+    return { ...contract, row_count: segment.row_count, segment_sha256 };
+  });
+}
+
+function emptySqlSegments() {
+  return M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments.map((contract) => ({
+    segment_id: contract.segment_id,
+    row_count: 0,
+    segment_digest_sql: EMPTY_SEGMENT_DIGEST_SQL,
+  }));
+}
 
 const DEPLOYMENT_ID = 'dpl_POST_PUSH_READY_123456789';
 const FINAL_HEAD = 'f'.repeat(40);
@@ -146,6 +212,22 @@ describe('hash and evidence chain helper', () => {
 
   it('unrelated segment digest binds relation names and counts', () => {
     assert.match(buildUnrelatedSurfaceDigest(segments()), /^[0-9a-f]{64}$/);
+  });
+
+  it('compact SQL digest matches evidence-chain precheck digest for empty unchanged surfaces', () => {
+    const sqlSegments = emptySqlSegments();
+    const evidenceDigest = buildUnrelatedSurfaceDigest(mapSqlSegmentsForTest(sqlSegments));
+    const sqlDigest = compactSqlUnrelatedSurfaceDigest(sqlSegments);
+    assert.equal(evidenceDigest, PRECHECK_EMPTY_UNRELATED_SURFACE_SHA256);
+    assert.equal(sqlDigest, evidenceDigest);
+  });
+
+  it('compact SQL digest changes when unrelated surface segment digest changes', () => {
+    const sqlSegments = emptySqlSegments();
+    sqlSegments[0] = { ...sqlSegments[0], segment_digest_sql: 'ffffffffffffffffffffffffffffffff' };
+    const evidenceDigest = buildUnrelatedSurfaceDigest(mapSqlSegmentsForTest(sqlSegments));
+    assert.notEqual(evidenceDigest, PRECHECK_EMPTY_UNRELATED_SURFACE_SHA256);
+    assert.notEqual(compactSqlUnrelatedSurfaceDigest(sqlSegments), PRECHECK_EMPTY_UNRELATED_SURFACE_SHA256);
   });
 
   it('precheck evidence schema validates and produces SHA', () => {
@@ -493,6 +575,22 @@ describe('SQL static contract', () => {
     assert.match(sql, /jsonb_build_array/);
     assert.match(sql, /ORDER BY/);
     assert.match(sql, /EMPTY_SET/);
+  });
+
+  it('unrelated evidence digest uses compact canonical JSON without jsonb text serialization', () => {
+    const block = sql.slice(sql.indexOf('unrelated_evidence AS'), sql.indexOf('), classified AS'));
+    assert.doesNotMatch(block, /jsonb_agg\(/);
+    assert.doesNotMatch(block, /::text/);
+    assert.match(
+      block,
+      /format\(\s*'\{"row_count":%s,"segment_digest_sql":"%s","segment_id":"%s"\}'/,
+    );
+    assert.match(block, /unrelated_surface_digest_evidence_chain/);
+  });
+
+  it('surface digest output uses digest_sha256 not digest_sql_md5', () => {
+    assert.match(sql, /'digest_sha256',unrelated_surface_digest_sql/);
+    assert.doesNotMatch(sql, /'digest_sql_md5',unrelated_surface_digest_sql/);
   });
 
   it('stripe_events segment avoids optional processed_at and uses received_at', () => {

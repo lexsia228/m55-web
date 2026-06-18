@@ -121,27 +121,53 @@ WITH params AS (
     us.*,
     encode(
       digest(
-        (
-          SELECT jsonb_agg(
-            (seg - 'segment_digest_sql')
-            || jsonb_build_object(
-              'segment_sha256',
-              encode(
+        '[' || COALESCE(
+          (
+            SELECT string_agg(mapped.seg_compact, ',' ORDER BY mapped.ord)
+            FROM jsonb_array_elements(us.unrelated_segment_bundle) WITH ORDINALITY AS bundle(seg, ord)
+            CROSS JOIN LATERAL (
+              SELECT encode(
                 digest(
-                  jsonb_build_object(
-                    'row_count', (seg->>'row_count')::integer,
-                    'segment_digest_sql', seg->>'segment_digest_sql',
-                    'segment_id', seg->>'segment_id'
-                  )::text,
+                  format(
+                    '{"row_count":%s,"segment_digest_sql":"%s","segment_id":"%s"}',
+                    bundle.seg->>'row_count',
+                    bundle.seg->>'segment_digest_sql',
+                    bundle.seg->>'segment_id'
+                  ),
                   'sha256'
                 ),
                 'hex'
-              )
-            )
-            ORDER BY ord
-          )::text
-          FROM jsonb_array_elements(us.unrelated_segment_bundle) WITH ORDINALITY AS bundle(seg, ord)
-        ),
+              ) AS inner_sha
+            ) inner_hash
+            CROSS JOIN LATERAL (
+              SELECT
+                bundle.ord,
+                CASE bundle.seg->>'segment_id'
+                  WHEN 'stripe_events_all_v1' THEN format(
+                    '{"audited_columns":["event_id","event_type","received_at"],"authorized_change_policy_id":"none_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_none_v1","pre_delete_exclusion_policy_id":"exclude_none_v1","relation":"public.stripe_events","relation_name":"stripe_events","row_count":%s,"schema_name":"public","segment_id":"stripe_events_all_v1","segment_schema_version":"stripe_events_v1","segment_sha256":"%s","sort_key_columns":["event_id"]}',
+                    bundle.seg->>'row_count',
+                    inner_hash.inner_sha
+                  )
+                  WHEN 'stripe_processed_events_all_v1' THEN format(
+                    '{"audited_columns":["stripe_event_id","processed_at"],"authorized_change_policy_id":"none_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_none_v1","pre_delete_exclusion_policy_id":"exclude_none_v1","relation":"public.stripe_processed_events","relation_name":"stripe_processed_events","row_count":%s,"schema_name":"public","segment_id":"stripe_processed_events_all_v1","segment_schema_version":"stripe_processed_events_v1","segment_sha256":"%s","sort_key_columns":["stripe_event_id"]}',
+                    bundle.seg->>'row_count',
+                    inner_hash.inner_sha
+                  )
+                  WHEN 'clerk_webhook_events_excluding_subject_v1' THEN format(
+                    '{"audited_columns":["event_type","status","error_code"],"authorized_change_policy_id":"expected_subject_event_only_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_subject_user_ref_hash_v1","pre_delete_exclusion_policy_id":"exclude_subject_user_ref_hash_v1","relation":"public.clerk_webhook_events","relation_name":"clerk_webhook_events","row_count":%s,"schema_name":"public","segment_id":"clerk_webhook_events_excluding_subject_v1","segment_schema_version":"clerk_webhook_events_excluding_subject_v1","segment_sha256":"%s","sort_key_columns":["created_at","event_type"]}',
+                    bundle.seg->>'row_count',
+                    inner_hash.inner_sha
+                  )
+                  WHEN 'failed_fulfillments_excluding_bound_v1' THEN format(
+                    '{"audited_columns":["id","failure_reason","created_at"],"authorized_change_policy_id":"scrub_bound_failed_fulfillments_only_v1","canonical_encoding_version":"ordered_jsonb_build_array_v1","empty_set_representation":"EMPTY_SET","post_delete_exclusion_policy_id":"exclude_bound_failed_fulfillment_ids_v1","pre_delete_exclusion_policy_id":"exclude_bound_failed_fulfillment_ids_v1","relation":"public.failed_fulfillments","relation_name":"failed_fulfillments","row_count":%s,"schema_name":"public","segment_id":"failed_fulfillments_excluding_bound_v1","segment_schema_version":"failed_fulfillments_excluding_bound_v1","segment_sha256":"%s","sort_key_columns":["id"]}',
+                    bundle.seg->>'row_count',
+                    inner_hash.inner_sha
+                  )
+                END AS seg_compact
+            ) mapped
+          ),
+          ''
+        ) || ']',
         'sha256'
       ),
       'hex'
