@@ -268,7 +268,13 @@ describe('hash and evidence chain helper', () => {
   it('stripe_events registry binds required core columns without processed_at', () => {
     const stripeEvents = M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments[0];
     assert.deepEqual(stripeEvents.audited_columns, ['event_id', 'event_type', 'received_at']);
-    assert.equal(M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.registry_sha256, '7be3f9c84bbe41a8cacb9ae793d03dd1c7a44e6feb03ea202851109e06d319a1');
+  });
+
+  it('stripe_processed_events registry binds stripe_event_id without optional event_id', () => {
+    const stripeProcessed = M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.segments[1];
+    assert.deepEqual(stripeProcessed.sort_key_columns, ['stripe_event_id']);
+    assert.deepEqual(stripeProcessed.audited_columns, ['stripe_event_id', 'processed_at']);
+    assert.equal(M55_PREVIEW_DELETION_UNRELATED_SURFACE_REGISTRY_V1.registry_sha256, '834107bbf22b02a5ea12c5c6c089aa683517765948baf6200d7c4dfe518d87ee');
   });
 
   it('exact immutable registry with valid DB-derived segment results passes', () => {
@@ -495,6 +501,16 @@ describe('SQL static contract', () => {
     assert.match(sql, /'audited_columns',jsonb_build_array\('event_id','event_type','received_at'\)/);
     const stripeEventsBlock = sql.slice(sql.indexOf('stripe_events_all_v1'), sql.indexOf('stripe_processed_events_all_v1'));
     assert.doesNotMatch(stripeEventsBlock, /\bprocessed_at\b/);
+  });
+
+  it('stripe_processed_events segment avoids optional event_id and uses stripe_event_id', () => {
+    assert.doesNotMatch(sql, /\bspe\.event_id\b/);
+    assert.match(sql, /\bspe\.stripe_event_id\b/);
+    assert.match(sql, /'audited_columns',jsonb_build_array\('stripe_event_id','processed_at'\)/);
+    const stripeProcessedBlock = sql.slice(sql.indexOf('stripe_processed_events_all_v1'), sql.indexOf('clerk_webhook_events_excluding_subject_v1'));
+    assert.doesNotMatch(stripeProcessedBlock, /\bspe\.event_id\b/);
+    assert.doesNotMatch(stripeProcessedBlock, /'sort_key_columns',jsonb_build_array\('event_id'\)/);
+    assert.match(stripeProcessedBlock, /stripe_event_id/);
   });
 
   it('stripe_processed_events segment may retain processed_at on spe alias only', () => {

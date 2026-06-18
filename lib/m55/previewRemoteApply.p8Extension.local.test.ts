@@ -80,7 +80,7 @@ const POSTCHECK = join(
   ROOT,
   'scripts/sql/preview/m55_preview_post_remediation_deletion_smoke_postcheck.sql',
 );
-const POSTCHECK_SHA = 'ed5e856c0b3abcc75724f3b3c2c25fff95cfdb3ce4ae22b9d81009d2a0221286';
+const POSTCHECK_SHA = '18db4a66debf1a14945fe1f936a23a1addc4d757f0f758767c6d50c10a01b9a9';
 
 const REPOSITORY = {
   repoRoot: ROOT,
