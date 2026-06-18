@@ -6,6 +6,13 @@ import {
   type PhaseId,
   type StepId,
 } from './types.ts';
+import {
+  P8_MIGRATION_VERSION,
+  P8_POST_HISTORY_PREFIX,
+  P8_POST_PROBE_SQL_BYTES,
+  P8_POST_PROBE_SQL_SHA256,
+  P8_PRIOR_HISTORY_PREFIX,
+} from './types.ts';
 
 export const M55_PREVIEW_REMOTE_APPLY_RUNTIME_PROBE_REGISTRY_V1 =
   'M55_PREVIEW_REMOTE_APPLY_RUNTIME_PROBE_REGISTRY_v1' as const;
@@ -77,6 +84,7 @@ const ORACLE_HASHES = {
   P5: '154852f6c7681262c3e615a61df342a3e21ef8fd4d6bbbf642d38c5d3ac85139',
   P6: 'a70ed4282d55552c2a3bd1ef9448cecba5f01847b23de03f8e2c64ffbd9017d2',
   P7: '04860bcbfccb948acf5682c0bd4f787b9356b479ef18805834416f2f8e15a8e3',
+  P8: P8_POST_PROBE_SQL_SHA256,
 } as const;
 
 const HISTORY_PREFIXES = {
@@ -109,6 +117,7 @@ const HISTORY_PREFIXES = {
     '20260615000005',
     '20260615000006',
   ] as const,
+  P8: P8_POST_HISTORY_PREFIX,
 } as const;
 
 const EXPECTED_PROBE_IDS = [
@@ -120,6 +129,7 @@ const EXPECTED_PROBE_IDS = [
   'PRIOR_P5',
   'PRIOR_P6',
   'PRIOR_P7',
+  'PRIOR_P8',
   'POST_P1',
   'POST_P2',
   'POST_P3',
@@ -127,6 +137,7 @@ const EXPECTED_PROBE_IDS = [
   'POST_P5',
   'POST_P6',
   'POST_P7',
+  'POST_P8',
   'ACK_CLASSIFIER',
   'FINAL_P7_CHAIN',
 ] as const;
@@ -144,6 +155,8 @@ function priorPrefix(step: keyof typeof HISTORY_PREFIXES): readonly string[] {
   if (step === 'P4') return HISTORY_PREFIXES.P3;
   if (step === 'P5') return HISTORY_PREFIXES.P4;
   if (step === 'P6') return HISTORY_PREFIXES.P5;
+  if (step === 'P7') return HISTORY_PREFIXES.P6;
+  if (step === 'P8') return HISTORY_PREFIXES.P7;
   return HISTORY_PREFIXES.P6;
 }
 
@@ -154,6 +167,8 @@ function priorOracle(step: keyof typeof ORACLE_HASHES): string {
   if (step === 'P4') return ORACLE_HASHES.P3;
   if (step === 'P5') return ORACLE_HASHES.P4;
   if (step === 'P6') return ORACLE_HASHES.P5;
+  if (step === 'P7') return ORACLE_HASHES.P6;
+  if (step === 'P8') return ORACLE_HASHES.P7;
   return ORACLE_HASHES.P6;
 }
 
@@ -297,6 +312,21 @@ export const RUNTIME_PROBE_ENTRIES: readonly RuntimeProbeEntry[] = [
   },
   {
     kind: 'ORDINARY',
+    id: 'PRIOR_P8',
+    probeClass: 'B',
+    phase: 'P7',
+    expectedHistoryPrefix: priorPrefix('P8'),
+    oracleContractHashSha256: priorOracle('P8'),
+    currentVersionDeltaRule: 'current_version_delta_absent',
+    unexpectedDeltaRule: 'unexpected_delta_zero',
+    targetIdentityRequired: true,
+    insideTransaction: true,
+    readOnly: true,
+    expectedResultShape: 'single_json_row',
+    holdCode: 'HOLD_INVALID_HISTORY_PREFIX',
+  },
+  {
+    kind: 'ORDINARY',
     id: 'POST_P1',
     probeClass: 'C',
     phase: 'P1',
@@ -401,6 +431,26 @@ export const RUNTIME_PROBE_ENTRIES: readonly RuntimeProbeEntry[] = [
     holdCode: 'HOLD_INVALID_HISTORY_PREFIX',
   },
   {
+    kind: 'ORDINARY',
+    id: 'POST_P8',
+    probeClass: 'C',
+    phase: 'P8',
+    expectedHistoryPrefix: HISTORY_PREFIXES.P8,
+    oracleContractHashSha256: ORACLE_HASHES.P8,
+    currentVersionDeltaRule: 'current_version_delta_present',
+    unexpectedDeltaRule: 'unexpected_delta_zero',
+    targetIdentityRequired: true,
+    insideTransaction: false,
+    readOnly: true,
+    expectedResultShape: 'single_json_row',
+    holdCode: 'HOLD_INVALID_HISTORY_PREFIX',
+    externalSqlAuthority: {
+      filename: 'P8_POST_PROBE_SQL',
+      bytes: P8_POST_PROBE_SQL_BYTES,
+      sha256: P8_POST_PROBE_SQL_SHA256,
+    },
+  },
+  {
     kind: 'ACK_CLASSIFIER',
     id: 'ACK_CLASSIFIER',
     probeClass: 'D',
@@ -481,12 +531,12 @@ function outcomesEqual(
 }
 
 function parsePriorStepId(id: string): StepId | null {
-  const match = /^PRIOR_(P[1-7])$/.exec(id);
+  const match = /^PRIOR_(P[1-8])$/.exec(id);
   return match ? (match[1] as StepId) : null;
 }
 
 function parsePostStepId(id: string): StepId | null {
-  const match = /^POST_(P[1-7])$/.exec(id);
+  const match = /^POST_(P[1-8])$/.exec(id);
   return match ? (match[1] as StepId) : null;
 }
 
@@ -527,9 +577,10 @@ function validateOrdinaryEntryContract(entry: OrdinaryRuntimeProbeEntry): void {
 
   const priorStep = parsePriorStepId(entry.id);
   if (priorStep) {
+    const expectedPriorPhase: PhaseId = priorStep === 'P8' ? 'P7' : priorStep;
     if (
       entry.probeClass !== 'B' ||
-      entry.phase !== priorStep ||
+      entry.phase !== expectedPriorPhase ||
       !prefixEqual(entry.expectedHistoryPrefix, priorPrefix(priorStep)) ||
       entry.oracleContractHashSha256 !== priorOracle(priorStep) ||
       entry.currentVersionDeltaRule !== 'current_version_delta_absent' ||
@@ -546,6 +597,26 @@ function validateOrdinaryEntryContract(entry: OrdinaryRuntimeProbeEntry): void {
 
   const postStep = parsePostStepId(entry.id);
   if (postStep) {
+    if (postStep === 'P8') {
+      if (
+        entry.probeClass !== 'C' ||
+        entry.phase !== 'P8' ||
+        !prefixEqual(entry.expectedHistoryPrefix, HISTORY_PREFIXES.P8) ||
+        entry.oracleContractHashSha256 !== ORACLE_HASHES.P8 ||
+        entry.currentVersionDeltaRule !== 'current_version_delta_present' ||
+        entry.unexpectedDeltaRule !== 'unexpected_delta_zero' ||
+        entry.insideTransaction !== false ||
+        entry.expectedResultShape !== 'single_json_row' ||
+        entry.holdCode !== 'HOLD_INVALID_HISTORY_PREFIX' ||
+        !entry.externalSqlAuthority ||
+        entry.externalSqlAuthority.filename !== 'P8_POST_PROBE_SQL' ||
+        entry.externalSqlAuthority.bytes !== P8_POST_PROBE_SQL_BYTES ||
+        entry.externalSqlAuthority.sha256 !== P8_POST_PROBE_SQL_SHA256
+      ) {
+        throw new Error('HOLD_RUNTIME_PROBE_REGISTRY');
+      }
+      return;
+    }
     if (
       entry.probeClass !== 'C' ||
       entry.phase !== postStep ||

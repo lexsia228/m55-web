@@ -29,6 +29,7 @@ import {
   EXPECTED_REPO_ROOT,
   REPOSITORY_FACTS_SOURCE,
   sanitizePreviewRemoteApplyHoldCode,
+  validateDedicatedP8StepSelection,
   type CredentialMethodId,
   type RepositoryIdentityFacts,
   type StepId,
@@ -61,6 +62,10 @@ export type RunPreviewRemoteExecutionCliDeps = PreviewRemoteExecutionDeps & {
   readonly credentialAcquirerDeps?: CredentialAcquirerDeps;
   readonly transportFactory?: ExecutionPgTransportFactoryDeps;
   readonly verifierTransportFactory?: ExecutionPgTransportFactoryDeps;
+  readonly executePreviewRemoteExecution?: (
+    input: PreviewRemoteExecutionInput,
+    deps?: PreviewRemoteExecutionDeps,
+  ) => ReturnType<typeof executePreviewRemoteExecution>;
 };
 
 function classifyForbiddenFlag(token: string): PreviewRemoteExecutionResult['holdReasonCode'] | null {
@@ -229,9 +234,16 @@ export async function runPreviewRemoteExecutionCli(
 
     const selectedStep = bindingResult.receipt.selectedStep;
     const authorizedMethod = bindingResult.receipt.credentialMethod;
-    if (!/^P[1-7]$/.test(selectedStep)) {
+    if (!/^P[1-8]$/.test(selectedStep)) {
       const output = serializePreviewRemoteExecutionResult(buildHoldOutput('HOLD_EXECUTION_NOT_AUTHORIZED'));
       return { exitCode: 1, stdout: `${output}\n`, stderr: '' };
+    }
+    if (selectedStep === 'P8') {
+      const dedicatedSelection = validateDedicatedP8StepSelection('P8');
+      if (!dedicatedSelection.ok) {
+        const output = serializePreviewRemoteExecutionResult(buildHoldOutput('HOLD_EXECUTION_NOT_AUTHORIZED'));
+        return { exitCode: 1, stdout: `${output}\n`, stderr: '' };
+      }
     }
     if (authorizedMethod !== parsed.credentialMethod) {
       const output = serializePreviewRemoteExecutionResult(buildHoldOutput('HOLD_CREDENTIAL_METHOD_INVALID'));
@@ -249,7 +261,8 @@ export async function runPreviewRemoteExecutionCli(
 
     void createExecutionPgTransport(deps.transportFactory ?? defaultCliTransportDeps());
 
-    const result = await executePreviewRemoteExecution(input, {
+    const executor = deps.executePreviewRemoteExecution ?? executePreviewRemoteExecution;
+    const result = await executor(input, {
       ...deps,
       repositoryFacts: () => repository,
       credentialAcquirerDeps: deps.credentialAcquirerDeps ?? defaultCliCredentialDeps(parsed.credentialMethod),

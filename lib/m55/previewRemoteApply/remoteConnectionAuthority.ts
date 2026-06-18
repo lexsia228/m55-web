@@ -140,7 +140,7 @@ export const PRIVATE_IPV4_PREFIXES = [
 
 export const URI_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:\/\//i;
 
-export const STEP_IDS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'] as const;
+export const STEP_IDS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'] as const;
 
 export type ConnectionAuthorityStepId = (typeof STEP_IDS)[number];
 

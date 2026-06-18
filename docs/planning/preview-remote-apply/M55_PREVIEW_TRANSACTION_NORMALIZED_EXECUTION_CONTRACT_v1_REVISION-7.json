@@ -169,6 +169,21 @@
       "removed_token_count": 2,
       "removed_token_stream_composite_sha256": "286e3fca55bc49ab1ab704db60c4415bf8f58aacd8e6e70051ee8f00f8a602c9",
       "p1_history_bootstrap_in_transaction": false
+    },
+    {
+      "label": "P8",
+      "version": "20260617000001",
+      "path": "supabase/migrations/20260617000001_m55_clerk_webhook_user_ref_hash_v1.sql",
+      "name": "m55_clerk_webhook_user_ref_hash_v1",
+      "frozen_source_sha256": "ce74cb109db130ddd7381ba25ab24bd255dcb92c330c48baa2da03c636b93ea1",
+      "original_statement_count": 14,
+      "original_stream_composite_sha256": "d621d944330967d965fd6e1d31957a20a6183684ebfe6709daea7804065c16df",
+      "normalized_statement_count": 14,
+      "normalized_stream_composite_sha256": "d621d944330967d965fd6e1d31957a20a6183684ebfe6709daea7804065c16df",
+      "removed_token_ordinals": [],
+      "removed_token_count": 0,
+      "removed_token_stream_composite_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "p1_history_bootstrap_in_transaction": false
     }
   ],
   "history": {

@@ -16,6 +16,7 @@ import {
   type VersionLabel,
 } from '../transactionNormalized/statementStream.ts';
 import {
+  EXPECTED_P8_VERSION_IDENTITY,
   EXPECTED_REVISION7_VERSION_IDENTITIES,
   loadAuthorityBundle,
   validateMigrationSourceBytes,
@@ -70,6 +71,21 @@ import {
   type ObservedPreConnectFacts,
 } from './remoteConnectionAuthority.ts';
 import { getRuntimeProbeById, RUNTIME_PROBE_REGISTRY, validateRuntimeProbeRegistry } from './runtimeProbeRegistry.ts';
+import {
+  buildP8NormalizedStatements,
+  HOLD_P8_POSTCONDITION_MISMATCH,
+  isP8StepId,
+  P8_MIGRATION_SHA256,
+  P8_MIGRATION_VERSION,
+  P8_NORMALIZED_STREAM_COMPOSITE_SHA256,
+  P8_POST_PROBE_SQL,
+  P8_POST_PROBE_SQL_SHA256,
+  P8_PRIOR_PROBE_SQL,
+  P8_PRIOR_PROBE_SQL_SHA256,
+  validateDedicatedP8StepSelection,
+  validateP8PostProbeResult,
+  validateP8PriorProbeResult,
+} from './types.ts';
 import { TIMEOUT_POLICY, validateTimeoutPolicyInvariants } from './timeoutPolicy.ts';
 import {
   EXPECTED_BRANCH,
@@ -198,6 +214,8 @@ export function buildFreshLocalStatementTimeoutSql(deadlineMs: number): string {
 export type VerifiedProbeSqlBundle = {
   readonly p1PriorBootstrapPreconditionSql: string;
   readonly catalogExtractorSql: string;
+  readonly p8PriorProbeSql: string;
+  readonly p8PostProbeSql: string;
 };
 
 export type PreviewRemoteExecutionDeps = {
@@ -263,6 +281,7 @@ const STEP_TO_PRIOR_PROBE: Readonly<Record<StepId, string>> = {
   P5: 'PRIOR_P5',
   P6: 'PRIOR_P6',
   P7: 'PRIOR_P7',
+  P8: 'PRIOR_P8',
 };
 
 const STEP_TO_POST_PROBE: Readonly<Record<StepId, string>> = {
@@ -273,6 +292,7 @@ const STEP_TO_POST_PROBE: Readonly<Record<StepId, string>> = {
   P5: 'POST_P5',
   P6: 'POST_P6',
   P7: 'POST_P7',
+  P8: 'POST_P8',
 };
 
 const STEP_INDEX: Readonly<Record<StepId, number>> = {
@@ -283,7 +303,15 @@ const STEP_INDEX: Readonly<Record<StepId, number>> = {
   P5: 5,
   P6: 6,
   P7: 7,
+  P8: 8,
 };
+
+const EXECUTION_LIFECYCLE_VERSION_REGISTRY = [
+  ...LIFECYCLE_VERSION_REGISTRY,
+  P8_MIGRATION_VERSION,
+] as const;
+
+export { validateDedicatedP8StepSelection };
 
 function createInitialRuntimeEvidence(
   stage: ExecutionStage,
@@ -460,9 +488,9 @@ function getOraclePhase(phases: readonly OraclePhase[], phaseId: string): Oracle
 function expectedHistoryPrefixForStep(stepId: StepId, slot: 'prior' | 'post'): readonly string[] {
   const index = STEP_INDEX[stepId];
   if (slot === 'prior') {
-    return LIFECYCLE_VERSION_REGISTRY.slice(0, index - 1);
+    return EXECUTION_LIFECYCLE_VERSION_REGISTRY.slice(0, index - 1);
   }
-  return LIFECYCLE_VERSION_REGISTRY.slice(0, index);
+  return EXECUTION_LIFECYCLE_VERSION_REGISTRY.slice(0, index);
 }
 
 function expectedOraclePhaseForStep(stepId: StepId, slot: 'prior' | 'post'): string {
@@ -850,9 +878,29 @@ export function validateInTransactionPostProbe(
   const priorOraclePhase = expectedOraclePhaseForStep(stepId, 'prior');
   const postOraclePhase = expectedOraclePhaseForStep(stepId, 'post');
   const expectedPostHistoryPrefix = expectedHistoryPrefixForStep(stepId, 'post');
+  if (isP8StepId(stepId)) {
+    const postValidation = validateP8PostProbeResult(result);
+    return {
+      postProbeId,
+      priorOraclePhase,
+      postOraclePhase,
+      expectedPostHistoryPrefix,
+      priorCompareOk: false,
+      postCompareOk: postValidation.ok,
+      historyPrefixExact: postValidation.fields.history_prefix_exact === true,
+      currentVersionDeltaPresent: postValidation.fields.target_version_count_one === true,
+      unexpectedDeltaZero: postValidation.ok,
+      ok:
+        registryProbe.id === postProbeId &&
+        registryProbe.phase === postOraclePhase &&
+        stableHistoryPrefix(registryProbe.expectedHistoryPrefix) ===
+          stableHistoryPrefix(expectedPostHistoryPrefix) &&
+        postValidation.ok,
+    };
+  }
   const priorOracle = getOraclePhase(oraclePhases, priorOraclePhase);
-  const postOracle = getOraclePhase(oraclePhases, postOraclePhase);
   const priorCompare = classifyCatalogQueryResult(result, priorOracle);
+  const postOracle = getOraclePhase(oraclePhases, postOraclePhase);
   const postCompare = classifyCatalogQueryResult(result, postOracle);
   const historyPrefixExact = historyPrefixMatches(postCompare.snapshot, expectedPostHistoryPrefix);
   const unexpectedDeltaZero = (postCompare.snapshot.forbidden_violations as string[]).length === 0;
@@ -881,6 +929,10 @@ export function validateInTransactionPostProbe(
 
 function stableHistoryPrefix(prefix: readonly string[]): string {
   return prefix.join('\u001f');
+}
+
+function prefixEqual(left: readonly string[], right: readonly string[]): boolean {
+  return stableHistoryPrefix(left) === stableHistoryPrefix(right);
 }
 
 function resolveNowMs(deps: PreviewRemoteExecutionDeps): () => number {
@@ -973,8 +1025,13 @@ export function loadVerifiedProbeSqlBundle(
 ):
   | { readonly ok: true; readonly bundle: VerifiedProbeSqlBundle }
   | { readonly ok: false; readonly holdReasonCode: PreviewRemoteApplyHoldCode } {
-  const foundationValidation = validateExecutionSqlAuthorityFoundation(repoRoot);
-  if (foundationValidation.ok !== true) {
+  let foundationValidation;
+  try {
+    foundationValidation = validateExecutionSqlAuthorityFoundation(repoRoot);
+  } catch {
+    return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
+  }
+  if (!foundationValidation.ok) {
     return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
   const p1Path = join(repoRoot, FOUNDATION_REL_PATHS.p1PriorBootstrapPrecondition);
@@ -1001,20 +1058,41 @@ export function loadVerifiedProbeSqlBundle(
   ) {
     return { ok: false, holdReasonCode: 'HOLD_AUTHORITY_IDENTITY_MISMATCH' };
   }
+  const p8ProbeHold = verifyEmbeddedP8ProbeSql();
+  if (p8ProbeHold) {
+    return { ok: false, holdReasonCode: p8ProbeHold };
+  }
   return {
     ok: true,
     bundle: {
       p1PriorBootstrapPreconditionSql: p1Bytes.toString('utf8').trim(),
       catalogExtractorSql: catalogBytes.toString('utf8').trim(),
+      p8PriorProbeSql: P8_PRIOR_PROBE_SQL.trim(),
+      p8PostProbeSql: P8_POST_PROBE_SQL.trim(),
     },
   };
 }
 
-function resolveProbeSqlFromBundle(bundle: VerifiedProbeSqlBundle, probeId: string): string {
+export function resolveProbeSqlFromBundle(bundle: VerifiedProbeSqlBundle, probeId: string): string {
   if (probeId === 'PRIOR_P1') {
     return bundle.p1PriorBootstrapPreconditionSql;
   }
+  if (probeId === 'PRIOR_P8') {
+    return bundle.p8PriorProbeSql;
+  }
+  if (probeId === 'POST_P8') {
+    return bundle.p8PostProbeSql;
+  }
   return bundle.catalogExtractorSql;
+}
+
+function verifyEmbeddedP8ProbeSql(): PreviewRemoteApplyHoldCode | null {
+  const priorSha = createHash('sha256').update(P8_PRIOR_PROBE_SQL, 'utf8').digest('hex');
+  const postSha = createHash('sha256').update(P8_POST_PROBE_SQL, 'utf8').digest('hex');
+  if (priorSha !== P8_PRIOR_PROBE_SQL_SHA256 || postSha !== P8_POST_PROBE_SQL_SHA256) {
+    return 'HOLD_AUTHORITY_IDENTITY_MISMATCH';
+  }
+  return null;
 }
 
 function loadNormalizedStatements(
@@ -1023,6 +1101,16 @@ function loadNormalizedStatements(
   expectedSourceSha256: string,
   expectedCompositeSha256: string,
 ): readonly string[] {
+  if (isP8StepId(stepId)) {
+    const statements = buildP8NormalizedStatements(repoRoot);
+    if (expectedSourceSha256 !== P8_MIGRATION_SHA256) {
+      throw new Error('HOLD_MIGRATION_IDENTITY_MISMATCH');
+    }
+    if (expectedCompositeSha256 !== P8_NORMALIZED_STREAM_COMPOSITE_SHA256) {
+      throw new Error('HOLD_NORMALIZED_STREAM_MISMATCH');
+    }
+    return statements;
+  }
   const identity = EXPECTED_REVISION7_VERSION_IDENTITIES.find((entry) => entry.label === stepId);
   if (!identity) {
     throw new Error('HOLD_MIGRATION_IDENTITY_MISMATCH');
@@ -1374,16 +1462,36 @@ async function runFreshReadonlyAckClassification(
       };
     }
 
-    const extractorSql = resolveProbeSqlFromBundle(probeBundle, STEP_TO_POST_PROBE[stepId]);
+    if (isP8StepId(stepId)) {
+      const postResult = await client.query(resolveProbeSqlFromBundle(probeBundle, STEP_TO_POST_PROBE.P8));
+      const postValidation = validateP8PostProbeResult(postResult);
+      if (!postValidation.ok) {
+        return {
+          ackState: 'CONTRADICTORY_OR_DRIFTED',
+          disposition: 'MANDATORY_STOP',
+          postCommitLifecycle: lifecycle,
+          completed: true,
+        };
+      }
+      return {
+        ackState: 'DEFINITELY_COMMITTED',
+        disposition: 'HUMAN_REVIEW_REQUIRED_FOR_CORRELATION_MIGRATION_COMPLETION',
+        postCommitLifecycle: lifecycle,
+        completed: true,
+      };
+    }
+
+    const p2ThroughP7StepId = stepId as Exclude<StepId, 'P1' | 'P8'>;
+    const extractorSql = resolveProbeSqlFromBundle(probeBundle, STEP_TO_POST_PROBE[p2ThroughP7StepId]);
     const catalogResult = await client.query(extractorSql);
-    const priorOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(stepId, 'prior'));
-    const nextOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(stepId, 'post'));
+    const priorOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(p2ThroughP7StepId, 'prior'));
+    const nextOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(p2ThroughP7StepId, 'post'));
     const priorCompare = classifyCatalogQueryResult(catalogResult, priorOracle);
     const nextCompare = classifyCatalogQueryResult(catalogResult, nextOracle);
     const ackInput = {
-      phase: stepId as Exclude<StepId, 'P1'>,
+      phase: p2ThroughP7StepId,
       predicates: buildP2ThroughP7AckPredicates(
-        stepId,
+        p2ThroughP7StepId,
         priorCompare.snapshot,
         nextCompare.snapshot,
         priorCompare.ok,
@@ -1587,6 +1695,11 @@ export async function executePreviewRemoteExecution(
       for (const ddl of HISTORY_BOOTSTRAP_DDL_STATEMENTS) {
         await mutationClient.query(ddl.sql);
       }
+    } else if (isP8StepId(input.selectedStep)) {
+      const priorValidation = validateP8PriorProbeResult(priorResult);
+      if (!priorValidation.ok) {
+        return await finishPreCommitHold(HOLD_P8_POSTCONDITION_MISMATCH, 'IN_TRANSACTION_SERVER_REJECTION');
+      }
     } else {
       const priorOracle = getOraclePhase(oraclePhases, expectedOraclePhaseForStep(input.selectedStep, 'prior'));
       const priorCompare = classifyCatalogQueryResult(priorResult, priorOracle);
@@ -1621,10 +1734,12 @@ export async function executePreviewRemoteExecution(
 
     executionStage = 'IN_TRANSACTION_HISTORY';
     runtimeEvidence = withRuntimeStage(runtimeEvidence, executionStage);
-    const identity = EXPECTED_REVISION7_VERSION_IDENTITIES.find((entry) => entry.label === input.selectedStep)!;
+    const stepIdentity = isP8StepId(input.selectedStep)
+      ? EXPECTED_P8_VERSION_IDENTITY
+      : EXPECTED_REVISION7_VERSION_IDENTITIES.find((entry) => entry.label === input.selectedStep)!;
     const historyPayload = buildPolicy2HistoryPayload({
-      version: identity.version,
-      name: identity.name,
+      version: stepIdentity.version,
+      name: stepIdentity.name,
       normalizedStatements,
       expectedNormalizedCompositeSha256: contractVersion.normalized_stream_composite_sha256,
     });
@@ -1651,13 +1766,14 @@ export async function executePreviewRemoteExecution(
     const postValidation = validateInTransactionPostProbe(input.selectedStep, postResult, oraclePhases);
     if (!postValidation.ok) {
       runtimeEvidence = withRuntimeStage(runtimeEvidence, executionStage, {
-        inTransactionPostProbeDiagnostic: buildInTransactionPostProbeDiagnostic(
-          input.selectedStep,
-          postResult,
-          oraclePhases,
-        ),
+        inTransactionPostProbeDiagnostic: isP8StepId(input.selectedStep)
+          ? null
+          : buildInTransactionPostProbeDiagnostic(input.selectedStep, postResult, oraclePhases),
       });
-      return await finishPreCommitHold('HOLD_INVALID_HISTORY_PREFIX', 'IN_TRANSACTION_SERVER_REJECTION');
+      const postHold = isP8StepId(input.selectedStep)
+        ? HOLD_P8_POSTCONDITION_MISMATCH
+        : 'HOLD_INVALID_HISTORY_PREFIX';
+      return await finishPreCommitHold(postHold, 'IN_TRANSACTION_SERVER_REJECTION');
     }
 
     if (isDeadlineExceeded(deps, mutationStartedAtMs, TIMEOUT_POLICY.values.mutationDeadlineMs)) {

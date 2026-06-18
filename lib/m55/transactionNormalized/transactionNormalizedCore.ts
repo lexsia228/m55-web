@@ -134,13 +134,13 @@ export const FINGERPRINT_PLACEHOLDER = 'REQUIRED_NOT_FROZEN' as const;
 
 export const AUTHORITY_FILE_EXPECTATIONS = {
   contract: {
-    bytes: 309607,
-    sha256: 'ad429820c689c58db5d29d7d772db2fd9ad13b6e05bb30ca1a65ca0e6de33ba0',
+    bytes: 310451,
+    sha256: '778502a5b292332007fc626c0a9b5861ae6877879ad3000fad22bfd309d31bed',
     classification: 'authority_contract',
   },
   matrix: {
-    bytes: 110904,
-    sha256: '0c56313c3df157f81552eb21ebbfcd87a9c1ad04f1f5cdb4fa999909ef6b000f',
+    bytes: 119937,
+    sha256: 'e1dea75de6edb29dcc85440d3f21021b2b176c87141e4e1995a4d6bbf139f554',
     classification: 'authority_matrix',
   },
   parserEvidence: {
@@ -181,9 +181,10 @@ export type PlanVersionSelector =
   | 'P5'
   | 'P6'
   | 'P7'
+  | 'P8'
   | 'ALL';
 
-export type ExecutionVersionSelector = VersionLabel;
+export type ExecutionVersionSelector = VersionLabel | 'P8';
 
 export type TransactionNormalizedPlanInput = {
   repoRoot: string;
@@ -855,6 +856,12 @@ const EXPECTED_MATRIX_VERSION_ROWS = [
     migration_name: 'm55_entitlements_unique_index_cleanup_v1',
     successful_terminal_outcome: 'HUMAN_REVIEW_REQUIRED_FOR_CHAIN_COMPLETION',
   },
+  {
+    label: 'P8',
+    version: '20260617000001',
+    migration_name: 'm55_clerk_webhook_user_ref_hash_v1',
+    successful_terminal_outcome: 'HUMAN_REVIEW_REQUIRED_FOR_CORRELATION_MIGRATION_COMPLETION',
+  },
 ] as const;
 
 export const EXPECTED_REVISION7_VERSION_IDENTITIES = [
@@ -900,6 +907,18 @@ export const EXPECTED_REVISION7_VERSION_IDENTITIES = [
     name: 'm55_entitlements_unique_index_cleanup_v1',
     path: 'supabase/migrations/20260615000006_m55_entitlements_unique_index_cleanup_v1.sql',
   },
+] as const;
+
+export const EXPECTED_P8_VERSION_IDENTITY = {
+  label: 'P8',
+  version: '20260617000001',
+  name: 'm55_clerk_webhook_user_ref_hash_v1',
+  path: 'supabase/migrations/20260617000001_m55_clerk_webhook_user_ref_hash_v1.sql',
+} as const;
+
+export const EXPECTED_REVISION7_TRANSPORT_VERSION_IDENTITIES = [
+  ...EXPECTED_REVISION7_VERSION_IDENTITIES,
+  EXPECTED_P8_VERSION_IDENTITY,
 ] as const;
 
 export const STAGE_A_CONTRACT_BINDING_HOLD_CODES = [
@@ -1076,13 +1095,13 @@ const HOLD_REASON_BASE_ALLOWLIST = new Set<string>([
 ]);
 
 function validateContractVersionIdentities(contract: ContractBindingSource): void {
-  if (contract.versions.length !== EXPECTED_REVISION7_VERSION_IDENTITIES.length) {
+  if (contract.versions.length !== EXPECTED_REVISION7_TRANSPORT_VERSION_IDENTITIES.length) {
     throw new Error('STAGE_A_CONTRACT_BINDING_MISMATCH:VERSION_IDENTITIES');
   }
   const seenLabels = new Set<string>();
   const seenVersions = new Set<string>();
-  for (let i = 0; i < EXPECTED_REVISION7_VERSION_IDENTITIES.length; i++) {
-    const expected = EXPECTED_REVISION7_VERSION_IDENTITIES[i];
+  for (let i = 0; i < EXPECTED_REVISION7_TRANSPORT_VERSION_IDENTITIES.length; i++) {
+    const expected = EXPECTED_REVISION7_TRANSPORT_VERSION_IDENTITIES[i];
     const actual = contract.versions[i];
     if (!expected || !actual) {
       throw new Error('STAGE_A_CONTRACT_BINDING_MISMATCH:VERSION_IDENTITIES');
@@ -1301,7 +1320,7 @@ export function validateStageACoreContractBindings(
 
   validateContractVersionIdentities(contract);
 
-  if (matrix.version_matrices.length !== 7) {
+  if (matrix.version_matrices.length !== EXPECTED_MATRIX_VERSION_ROWS.length) {
     throw new Error('STAGE_A_CONTRACT_BINDING_MISMATCH:MATRIX_ROWS');
   }
   for (let i = 0; i < EXPECTED_MATRIX_VERSION_ROWS.length; i++) {
@@ -1421,7 +1440,7 @@ export function validateWorkspaceRepoRoot(resolvedRoot: string): void {
 }
 
 export function parsePlanVersionSelector(value: string): PlanVersionSelector | null {
-  if (value === 'P1' || value === 'P2' || value === 'P3' || value === 'P4' || value === 'P5' || value === 'P6' || value === 'P7' || value === 'ALL') {
+  if (value === 'P1' || value === 'P2' || value === 'P3' || value === 'P4' || value === 'P5' || value === 'P6' || value === 'P7' || value === 'P8' || value === 'ALL') {
     return value;
   }
   return null;
@@ -1489,7 +1508,9 @@ export function loadAuthorityBundle(repoRoot: string): AuthorityBundle {
   if (contract.frozen_authority.primary_evidence_sha256 !== AUTHORITY_FILE_EXPECTATIONS.parserEvidence.sha256) {
     throw new Error('CONTRACT_PRIMARY_EVIDENCE_SHA_MISMATCH');
   }
-  if (contract.versions.length !== 7) throw new Error('CONTRACT_VERSION_COUNT_MISMATCH');
+  if (contract.versions.length !== EXPECTED_REVISION7_TRANSPORT_VERSION_IDENTITIES.length) {
+    throw new Error('CONTRACT_VERSION_COUNT_MISMATCH');
+  }
 
   if (matrix.schema_version !== 'm55.preview.transaction_normalized_step_matrix.v1.revision-7.draft') {
     throw new Error('MATRIX_SCHEMA_VERSION_MISMATCH');
@@ -1529,7 +1550,7 @@ export function readWorkspaceFacts(repoRoot: string): WorkspaceFacts {
 
 export function parseExecutionVersionSelector(value: string): ExecutionVersionSelector {
   if (value === 'ALL') throw new Error('EXECUTION_SELECTOR_ALL_FORBIDDEN');
-  if (!['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'].includes(value)) {
+  if (!['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'].includes(value)) {
     throw new Error('EXECUTION_SELECTOR_INVALID');
   }
   return value as ExecutionVersionSelector;
@@ -1537,6 +1558,7 @@ export function parseExecutionVersionSelector(value: string): ExecutionVersionSe
 
 export function expandPlanSelector(selector: PlanVersionSelector): VersionLabel[] {
   if (selector === 'ALL') return ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+  if (selector === 'P8') throw new Error('EXECUTION_SELECTOR_P8_REQUIRES_DEDICATED_ROUTE');
   return [selector];
 }
 

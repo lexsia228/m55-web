@@ -11,6 +11,7 @@ import {
   type VersionLabel,
 } from '../transactionNormalized/statementStream.ts';
 import {
+  EXPECTED_P8_VERSION_IDENTITY,
   EXPECTED_REVISION7_VERSION_IDENTITIES,
   loadAuthorityBundle,
   validateAuthorityBytes,
@@ -25,6 +26,7 @@ import {
   APPROVED_PREVIEW_DATABASE_TIER,
   APPROVED_PREVIEW_ORGANIZATION,
   APPROVED_PREVIEW_PROJECT,
+  buildP8NormalizedStatements,
   CREDENTIAL_METHOD_IDS,
   EXPECTED_BRANCH,
   EXPECTED_NORMALIZED_STATEMENT_COUNTS,
@@ -32,10 +34,15 @@ import {
   FORBIDDEN_PRODUCTION_ORGANIZATION,
   FORBIDDEN_PRODUCTION_PROJECT,
   HISTORY_INSERT_SQL_METADATA,
+  isP8StepId,
   P0_PREFLIGHT_PATCH2_AUTHORITY,
+  P8_MIGRATION_SHA256,
+  P8_NORMALIZED_STREAM_COMPOSITE_SHA256,
+  P8_STEP_ID,
   REMOTE_BOOTSTRAP_OBSERVATION_STATUS,
   REPOSITORY_FACTS_SOURCE,
   sanitizePreviewRemoteApplyHoldCode,
+  validateDedicatedP8StepSelection,
   type CredentialMethodId,
   type DeterministicPlanStep,
   type P1HistoryBootstrapObservedFacts,
@@ -103,7 +110,10 @@ export function buildHistoryPayloadForStep(input: {
     throw new Error('HOLD_NORMALIZED_STREAM_MISMATCH');
   }
 
-  const identity = EXPECTED_REVISION7_VERSION_IDENTITIES.find((entry) => entry.label === input.stepId);
+  const identity =
+    input.stepId === P8_STEP_ID
+      ? EXPECTED_P8_VERSION_IDENTITY
+      : EXPECTED_REVISION7_VERSION_IDENTITIES.find((entry) => entry.label === input.stepId);
   if (!identity) {
     throw new Error('HOLD_MIGRATION_IDENTITY_MISMATCH');
   }
@@ -218,16 +228,26 @@ function buildTargetBinding(
 
 function buildNormalizedStatements(
   repoRoot: string,
-  label: VersionLabel,
+  label: VersionLabel | StepId,
   path: string,
   expectedSha256: string,
   expectedCompositeSha256: string,
 ): readonly string[] {
+  if (isP8StepId(label as StepId)) {
+    const statements = buildP8NormalizedStatements(repoRoot);
+    if (expectedSha256 !== P8_MIGRATION_SHA256) {
+      throw new Error('HOLD_MIGRATION_IDENTITY_MISMATCH');
+    }
+    if (expectedCompositeSha256 !== P8_NORMALIZED_STREAM_COMPOSITE_SHA256) {
+      throw new Error('HOLD_NORMALIZED_STREAM_MISMATCH');
+    }
+    return statements;
+  }
   const rawBytes = readFileSync(join(repoRoot, path));
-  validateMigrationSourceBytes(rawBytes, expectedSha256, label);
+  validateMigrationSourceBytes(rawBytes, expectedSha256, label as VersionLabel);
   const statements = splitAndTrim(rawBytes.toString('utf8'));
-  const { normalized } = applyOptionARemoval(label, statements);
-  if (normalized.length !== EXPECTED_NORMALIZED_STATEMENT_COUNTS[label]) {
+  const { normalized } = applyOptionARemoval(label as VersionLabel, statements);
+  if (normalized.length !== EXPECTED_NORMALIZED_STATEMENT_COUNTS[label as StepId]) {
     throw new Error('HOLD_NORMALIZED_STREAM_MISMATCH');
   }
   const composite = compositeStreamSha256(normalized);
@@ -235,6 +255,67 @@ function buildNormalizedStatements(
     throw new Error('HOLD_NORMALIZED_STREAM_MISMATCH');
   }
   return normalized;
+}
+
+function buildDedicatedP8PlanStep(
+  input: PreviewRemoteApplyPlanInput,
+  bundle: ReturnType<typeof loadAuthorityBundle>,
+): DeterministicPlanStep | PreviewRemoteApplyPlanResult {
+  const stepId = P8_STEP_ID;
+  const identity = EXPECTED_P8_VERSION_IDENTITY;
+  const contractVersion = bundle.contract.versions.find(
+    (entry) => (entry as { label: string }).label === stepId,
+  );
+  if (!contractVersion) {
+    return buildHoldResult('HOLD_AUTHORITY_IDENTITY_MISMATCH');
+  }
+  const parsed = parseMigrationFilename(identity.path);
+  if (parsed.version !== identity.version || parsed.name !== identity.name) {
+    return buildHoldResult('HOLD_MIGRATION_IDENTITY_MISMATCH');
+  }
+  const normalizedStatements = buildNormalizedStatements(
+    input.repoRoot,
+    stepId,
+    identity.path,
+    contractVersion.frozen_source_sha256,
+    contractVersion.normalized_stream_composite_sha256,
+  );
+  const historyPayload = buildHistoryPayloadForStep({
+    stepId,
+    version: identity.version,
+    name: identity.name,
+    normalizedStatements,
+    expectedNormalizedCompositeSha256: contractVersion.normalized_stream_composite_sha256,
+  });
+  const priorProbe = getRuntimeProbeById(`PRIOR_${stepId}`);
+  const postProbe = getRuntimeProbeById(`POST_${stepId}`);
+  if (!priorProbe || !postProbe || priorProbe.kind !== 'ORDINARY' || postProbe.kind !== 'ORDINARY') {
+    return buildHoldResult('HOLD_RUNTIME_PROBE_REGISTRY');
+  }
+  const rawBytes = readFileSync(join(input.repoRoot, identity.path));
+  return {
+    stepId,
+    phaseId: stepId,
+    migration: {
+      stepId,
+      phaseId: stepId,
+      version: identity.version,
+      name: identity.name,
+      path: identity.path,
+      bytes: rawBytes.length,
+      sha256: contractVersion.frozen_source_sha256,
+    },
+    normalizedStream: {
+      stepId,
+      statementCount: normalizedStatements.length,
+      normalizedStreamCompositeSha256: historyPayload.normalizedStreamCompositeSha256,
+      serialization: STATEMENT_STREAM_SERIALIZATION,
+    },
+    historyPayload: toPolicy2HistoryFacts(historyPayload),
+    bootstrapSpecId: null,
+    priorProbeId: priorProbe.id,
+    postProbeId: postProbe.id,
+  };
 }
 
 export function buildPreviewRemoteApplyPlan(
@@ -266,6 +347,32 @@ export function buildPreviewRemoteApplyPlan(
     validateTimeoutPolicyInvariants();
     validateRuntimeProbeRegistry();
     const bundle = loadAuthorityBundle(input.repoRoot);
+
+    if (input.dedicatedStepId === P8_STEP_ID) {
+      const dedicated = buildDedicatedP8PlanStep(input, bundle);
+      if ('mode' in dedicated) {
+        return dedicated;
+      }
+      return {
+        mode: 'PREVIEW_REMOTE_APPLY_DRY_RUN_PLAN',
+        holdReasonCode: null,
+        repository: input.repository,
+        target: buildTargetBinding(input.target, input.credentialMethod),
+        bootstrapPrecondition: {
+          requiredPreconditionIdentifier: HISTORY_BOOTSTRAP_SPEC.strictPrecondition,
+          remoteObservationStatus: REMOTE_BOOTSTRAP_OBSERVATION_STATUS,
+          p0PreflightAuthority: P0_PREFLIGHT_PATCH2_AUTHORITY,
+        },
+        bootstrapSpecId: HISTORY_BOOTSTRAP_SPEC.identifier,
+        bootstrapSpecCanonicalPayloadSha256: HISTORY_BOOTSTRAP_SPEC.canonical_payload_sha256,
+        timeoutPolicyId: TIMEOUT_POLICY.identifier,
+        timeoutPolicyCanonicalPayloadSha256: TIMEOUT_POLICY.canonical_payload_sha256,
+        runtimeProbeRegistryId: RUNTIME_PROBE_REGISTRY.identifier,
+        runtimeProbeRegistryCanonicalPayloadSha256: RUNTIME_PROBE_REGISTRY.canonical_payload_sha256,
+        steps: [dedicated],
+        ...EXECUTION_DISABLEMENT,
+      };
+    }
 
     const steps: DeterministicPlanStep[] = [];
 
@@ -361,4 +468,104 @@ export function buildPreviewRemoteApplyPlan(
     }
     return buildHoldResult('HOLD_UNEXPECTED_INTERNAL');
   }
+}
+
+export type DedicatedP8PlanCliArgs = {
+  readonly dedicatedStep: typeof P8_STEP_ID;
+  readonly organization: string;
+  readonly project: string;
+  readonly databaseTier: string;
+  readonly projectRef: string | null;
+  readonly hostFingerprintSha256: string | null;
+  readonly credentialMethod: CredentialMethodId;
+};
+
+export function parseDedicatedP8PlanCliArgs(
+  argv: string[],
+): DedicatedP8PlanCliArgs | { holdReasonCode: PreviewRemoteApplyHoldCode } {
+  let dedicatedStep: string | null = null;
+  let organization: string = APPROVED_PREVIEW_ORGANIZATION;
+  let project: string = APPROVED_PREVIEW_PROJECT;
+  let databaseTier: string = APPROVED_PREVIEW_DATABASE_TIER;
+  let projectRef: string | null = null;
+  let hostFingerprintSha256: string | null = null;
+  let credentialMethod: CredentialMethodId = 'SECURE_STDIN_CONNECTION_CONFIG_v1';
+  const seen = new Set<string>();
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (!token.startsWith('--')) {
+      return { holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL' };
+    }
+    if (seen.has(token)) {
+      return { holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL' };
+    }
+    seen.add(token);
+    const value = argv[index + 1];
+    if (!value || value.startsWith('--')) {
+      return { holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL' };
+    }
+    switch (token) {
+      case '--dedicated-step':
+        dedicatedStep = value;
+        break;
+      case '--organization':
+        organization = value;
+        break;
+      case '--project':
+        project = value;
+        break;
+      case '--database-tier':
+        databaseTier = value;
+        break;
+      case '--project-ref':
+        projectRef = value;
+        break;
+      case '--host-fingerprint-sha256':
+        hostFingerprintSha256 = value;
+        break;
+      case '--credential-method':
+        credentialMethod = value as CredentialMethodId;
+        break;
+      default:
+        return { holdReasonCode: 'HOLD_UNEXPECTED_INTERNAL' };
+    }
+    index += 1;
+  }
+  const selection = validateDedicatedP8StepSelection(dedicatedStep);
+  if (!selection.ok) {
+    return { holdReasonCode: 'HOLD_EXECUTION_NOT_AUTHORIZED' };
+  }
+  if (!CREDENTIAL_METHOD_IDS.includes(credentialMethod)) {
+    return { holdReasonCode: 'HOLD_CREDENTIAL_METHOD_INVALID' };
+  }
+  return {
+    dedicatedStep: selection.stepId,
+    organization,
+    project,
+    databaseTier,
+    projectRef,
+    hostFingerprintSha256,
+    credentialMethod,
+  };
+}
+
+export function runPreviewRemoteApplyDedicatedPlanCli(input: {
+  readonly repoRoot: string;
+  readonly repository: RepositoryIdentityFacts;
+  readonly cli: DedicatedP8PlanCliArgs;
+}): PreviewRemoteApplyPlanResult {
+  return buildPreviewRemoteApplyPlan({
+    repoRoot: input.repoRoot,
+    repository: input.repository,
+    target: {
+      organization: input.cli.organization,
+      project: input.cli.project,
+      databaseTier: input.cli.databaseTier,
+      projectRef: input.cli.projectRef,
+      hostFingerprintSha256: input.cli.hostFingerprintSha256,
+    },
+    credentialMethod: input.cli.credentialMethod,
+    executionEnablement: false,
+    dedicatedStepId: input.cli.dedicatedStep,
+  });
 }
