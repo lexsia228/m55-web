@@ -39,6 +39,16 @@ export const DTR_CORE_SAVED_REPORT_ONE_TIME_PRODUCTS: ReadonlySet<string> = new 
   DTR_CORE_FULL_V1,
 ]);
 
+/**
+ * Saved-report ownership / visible snapshot resolution order (highest tier first).
+ * Upgrade SKU is excluded — it grants wallet delta, not a separate saved-report body.
+ */
+export const DTR_SAVED_REPORT_OWNERSHIP_PRODUCT_IDS = [
+  DTR_CORE_FULL_V1,
+  DTR_CORE_LIGHT_V1,
+  DTR_CORE_STATIC_V1,
+] as const;
+
 export function isAllowedOneTimeProduct(productId: string): boolean {
   return ALLOWED_ONE_TIME_PRODUCTS.has(productId);
 }

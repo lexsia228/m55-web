@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
-import { DTR_CORE_STATIC_V1 } from '../../../../lib/oneTimeCheckout';
+import { DTR_SAVED_REPORT_OWNERSHIP_PRODUCT_IDS } from '../../../../lib/oneTimeCheckout';
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 
 export const dynamic = 'force-dynamic';
@@ -30,9 +30,9 @@ export async function GET() {
         .from('entitlements')
         .select('id')
         .eq('user_id', userId)
-        .eq('product_id', DTR_CORE_STATIC_V1)
         .eq('status', 'active')
-        .maybeSingle(),
+        .in('product_id', [...DTR_SAVED_REPORT_OWNERSHIP_PRODUCT_IDS])
+        .limit(1),
     ]);
 
     const tier = 'free';
@@ -47,7 +47,11 @@ export async function GET() {
     }
 
     const hasCoreInList = dtrRights.includes(DTR_CORE_RIGHT_KEY);
-    const hasActiveProductRow = !entRes.error && !!(entRes.data as { id?: string } | null)?.id;
+    const hasActiveProductRow =
+      !entRes.error &&
+      Array.isArray(entRes.data) &&
+      entRes.data.length > 0 &&
+      !!(entRes.data[0] as { id?: string } | undefined)?.id;
     if (hasActiveProductRow && !hasCoreInList) {
       dtrRights.push(DTR_CORE_RIGHT_KEY);
     }

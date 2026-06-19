@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
-import { DTR_CORE_STATIC_V1 } from '../../../lib/oneTimeCheckout';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
 import {
@@ -11,7 +10,7 @@ import {
   isDtrOwnedHiddenOnlyState,
 } from '../../../lib/m55/dtrShelfAccess';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
-import { getVisibleDtrReportSnapshot } from '../../../lib/m55/dtrDraftDb';
+import { getVisibleSavedReportSnapshot } from '../../../lib/m55/dtrSavedReportOwnership';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
 import { LABEL_FORMAT_SAVED, LABEL_SAVED_REPORT_METADATA_JP } from '../../../lib/m55/dtrProductLabels';
 import styles from './processing.module.css';
@@ -104,7 +103,7 @@ export default async function DtrProcessingPage(props: {
       redirect('/dtr/lp');
     }
 
-    const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snap = await getVisibleSavedReportSnapshot(userId);
     if (snap) {
       redirect('/dtr/core');
     }
@@ -177,7 +176,7 @@ export default async function DtrProcessingPage(props: {
     redirect('/dtr/lp');
   }
 
-  const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+  const snap = await getVisibleSavedReportSnapshot(userId);
   if (snap) {
     redirect('/dtr/core');
   }

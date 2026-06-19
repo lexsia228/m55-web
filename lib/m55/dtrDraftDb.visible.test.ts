@@ -47,21 +47,26 @@ describe('consumer read paths use visible snapshot', () => {
   const visibleConsumers = [
     'app/dtr/core/page.tsx',
     'app/dtr/processing/page.tsx',
-    'lib/m55/dtrOwnershipGate.ts',
   ];
 
   for (const rel of visibleConsumers) {
-    it(`${rel} imports getVisibleDtrReportSnapshot`, () => {
+    it(`${rel} imports getVisibleSavedReportSnapshot`, () => {
       const src = readFileSync(join(process.cwd(), rel), 'utf8');
-      assert.ok(src.includes('getVisibleDtrReportSnapshot'));
+      assert.ok(src.includes('getVisibleSavedReportSnapshot'));
       assert.equal(src.includes('getLatestDtrReportSnapshotIncludingHidden'), false);
     });
   }
 
-  it('dtrShelfAccess uses visible for shelf and including-hidden for hidden-only gate only', () => {
+  it('dtrOwnershipGate uses saved-report visible snapshot helper', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/dtrOwnershipGate.ts'), 'utf8');
+    assert.ok(src.includes('getVisibleSavedReportSnapshot'));
+    assert.equal(src.includes('getLatestDtrReportSnapshotIncludingHidden'), false);
+  });
+
+  it('dtrShelfAccess uses saved-report snapshot helpers', () => {
     const src = readFileSync(join(process.cwd(), 'lib/m55/dtrShelfAccess.ts'), 'utf8');
-    assert.ok(src.includes('getVisibleDtrReportSnapshot'));
-    assert.ok(src.includes('getLatestDtrReportSnapshotIncludingHidden'));
+    assert.ok(src.includes('getVisibleSavedReportSnapshot'));
+    assert.ok(src.includes('hasHiddenOnlySavedReportSnapshot'));
     assert.ok(src.includes('isDtrOwnedHiddenOnlyState'));
     assert.equal(src.includes('resolveStoredEnvelopeRead'), false);
   });
@@ -82,9 +87,9 @@ describe('consumer read paths use visible snapshot', () => {
 });
 
 describe('stored envelope read contract', () => {
-  it('/dtr/core still uses resolveStoredEnvelopeRead with visible snapshot fetch', () => {
+  it('/dtr/core still uses resolveStoredEnvelopeRead with saved-report snapshot fetch', () => {
     const src = readFileSync(join(process.cwd(), 'app/dtr/core/page.tsx'), 'utf8');
-    assert.ok(src.includes('getVisibleDtrReportSnapshot'));
+    assert.ok(src.includes('getVisibleSavedReportSnapshot'));
     assert.ok(src.includes('resolveStoredEnvelopeRead'));
     assert.equal(src.includes('runDtrEngine'), false);
   });
