@@ -1,17 +1,8 @@
 'use client';
 
 /**
- * HomePanel — current Home (v11 structure transplant).
- *
- * Logic layer preserved as-is:
- *   engines, FiveElementRing, DTR_TEASER_SECTIONS, view.kind branching.
- * JSX/CSS structure transplanted from v11 skeleton.
- *
- * Field exposure per M55_PAGE_OUTPUT_MAPPING_SSOT_v1 §2 (Home allowed):
- *   essence.summaryShort, essence.keywords,
- *   today.heading, today.summaryShort, today.focus,
- *   weekly.heading, weekly.weeklyKey
- *   dtr: chapter titles only (muted teaser, §4.1) — no fullSections/rawTraits/rawSignals
+ * HomePanel — 販売・導入の主舞台。無料説明・探索・保存版案内は消さない。
+ * Home 上では個人結果（5軸個人図・今の焦点・今日/今週・要約カード等）を一切出さない。
  */
 
 import Image from 'next/image';
@@ -19,133 +10,23 @@ import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { ProfileRepository } from '../../lib/soul/profile';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeCoreAnalyzingOverlay from './HomeCoreAnalyzingOverlay';
-import { essenceStemLaneIndex, runEssenceEngine } from '../../lib/m55/essenceEngine';
-import { runTodayEngine } from '../../lib/m55/todayEngine';
-import { runWeeklyEngine } from '../../lib/m55/weeklyEngine';
-import { TEN_STEM_DISPLAY } from '../../lib/m55/tenStemCatalog';
+import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
-/* ── Five-element constants ──────────────────────────────────────────────────── */
+const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+const learnMoreCopy = TOP_FREE_ENTRY_PUBLIC_COPY.learnMore;
+const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
-const FIVE_ELEMENTS = [
-  { char: '木', code: 'C', axis: 'Create', genre: '創造・成長', color: '#7cb87a' },
-  { char: '火', code: 'E', axis: 'Express', genre: '表現・情熱', color: '#d4795c' },
-  { char: '土', code: 'S', axis: 'Support', genre: '基盤・育成', color: '#c4982a' },
-  { char: '金', code: 'D', axis: 'Decide', genre: '決断・洗練', color: '#9090ac' },
-  { char: '水', code: 'L', axis: 'Logic', genre: '知性・流動', color: '#5a8fc4' },
-] as const;
-
-function stemToElemIdx(stemIdx: number): number {
-  return Math.floor(stemIdx / 2);
-}
-
-function getFiveElementWeights(stemIdx: number): [number, number, number, number, number] {
-  const p = stemToElemIdx(stemIdx);
-  const w: [number, number, number, number, number] = [0, 0, 0, 0, 0];
-  w[p] = 38;
-  w[(p + 1) % 5] = 22;
-  w[(p + 4) % 5] = 18;
-  w[(p + 2) % 5] = 12;
-  w[(p + 3) % 5] = 10;
-  return w;
-}
-
-/** 3-step relative quantity (non-score); matches prior weight thresholds */
-function axisIntensityBlocks(w: number): string {
-  const filled = w >= 30 ? 3 : w >= 16 ? 2 : 1;
-  return `${'▮'.repeat(filled)}${'▯'.repeat(3 - filled)}`;
-}
-
-function roleQualityLine(displayOneLine: string): string {
-  return displayOneLine.replace(/人$/, '資質');
-}
-
-function FiveElementRing({
-  weights,
-  primaryElemIdx,
-  size = 76,
-}: {
-  weights: readonly number[];
-  primaryElemIdx: number;
-  size?: number;
-}) {
-  const r = 30;
-  const cx = 43;
-  const cy = 43;
-  const circ = 2 * Math.PI * r;
-  const gap = 2.5;
-  let cumPct = 0;
-
-  const arcs = FIVE_ELEMENTS.map((elem, i) => {
-    const w = weights[i] ?? 0;
-    const segLen = Math.max(0, (w / 100) * circ - gap);
-    const rot = (cumPct / 100) * 360 - 90;
-    cumPct += w;
-    return (
-      <circle
-        key={elem.char}
-        cx={cx} cy={cy} r={r}
-        fill="none"
-        stroke={elem.color}
-        strokeWidth="11"
-        strokeDasharray={`${segLen} ${circ}`}
-        strokeDashoffset="0"
-        transform={`rotate(${rot}, ${cx}, ${cy})`}
-      />
-    );
-  });
-
-  const pElem = FIVE_ELEMENTS[primaryElemIdx]!;
-
-  return (
-    <svg
-      viewBox="0 0 86 86"
-      width={size}
-      height={size}
-      role="img"
-      aria-label="5つの解析軸のバランス"
-      style={{ flexShrink: 0 }}
-    >
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(177,156,255,0.12)" strokeWidth="11" />
-      {arcs}
-      <text
-        x={cx} y={cy + 1}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize="15"
-        fontWeight="700"
-        fill={pElem.color}
-      >
-        {pElem.code}
-      </text>
-    </svg>
-  );
-}
-
-/* ── DTR teaser (chapter titles only — 4 of 8, muted + truncated) ───────────── */
-
-const DTR_TEASER_SECTIONS = [
-  { id: 's1', title: 'あなたという人物' },
-  { id: 's2', title: '構成と傾向の全体像' },
-  { id: 's3', title: '本質と安定の条件' },
-  { id: 's4', title: '活きる力' },
-  { id: 's5', title: '注意と盲点' },
-  { id: 's6', title: 'コミュニケーションの形' },
-  { id: 's7', title: '仕事と生活の取扱いヒント' },
-  { id: 's8', title: 'まとめと相談について' },
-] as const;
+const FORMAL_CHAPTER_CHIPS = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch, index) => ({
+  id: `ch${index + 1}`,
+  title: ch.labelJa,
+}));
 
 /* ── Helpers ─────────────────────────────────────────────────────────────────── */
-
-function todayIso(): string {
-  const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${mm}-${dd}`;
-}
 
 const POSTER_FIVE_AXIS_COLORS = ['#7cb87a', '#d4795c', '#c4982a', '#9090ac', '#5a8fc4'] as const;
 
@@ -229,45 +110,11 @@ export default function HomePanel() {
     if (!isLoaded) return { kind: 'loading' as const };
     const profile = ProfileRepository.get(ownerId);
     if (!profile?.birthDate || !profile.nickname?.trim()) return { kind: 'no_profile' as const };
-
-    const today = todayIso();
-    const base = { birthDate: profile.birthDate, nickname: profile.nickname, locale: 'ja-JP', nowDate: today };
-
-    try {
-      const essEnv = runEssenceEngine({ ...base, contextScope: 'essence' });
-      const todayEnv = runTodayEngine({ ...base, contextScope: 'today' });
-      const weekEnv = runWeeklyEngine({ ...base, contextScope: 'weekly' });
-
-      const lane = essenceStemLaneIndex(profile.birthDate);
-      const stem = TEN_STEM_DISPLAY[lane]!;
-
-      return {
-        kind: 'ready' as const,
-        stem,
-        elemIdx: stemToElemIdx(lane),
-        fiveWeights: getFiveElementWeights(lane),
-        essence: {
-          summaryShort: essEnv.payload.summaryShort,
-          keywords: essEnv.payload.keywords,
-        },
-        today: {
-          heading: todayEnv.payload.heading,
-          summaryShort: todayEnv.payload.summaryShort,
-          focus: todayEnv.payload.focus,
-        },
-        weekly: {
-          heading: weekEnv.payload.heading,
-          weeklyKey: weekEnv.payload.weeklyKey,
-        },
-      };
-    } catch {
-      return { kind: 'no_profile' as const };
-    }
+    return { kind: 'has_profile' as const };
   }, [isLoaded, ownerId, profileEpoch]);
 
-  const personal = view.kind === 'ready' ? view : null;
-  /** Observation mode = personalized engines; otherwise public understanding mode */
-  const observation = !!personal;
+  const hasProfile = view.kind === 'has_profile';
+  const showPublicValueBlocks = isLoaded && view.kind !== 'loading';
 
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
@@ -294,39 +141,49 @@ export default function HomePanel() {
                   className={styles.posterHeroBaseImage}
                   priority
                 />
+                <HeroBackgroundMedia />
               </div>
               <div className={styles.posterHeroReadabilityVeil} />
             </div>
             <div className={styles.posterHeroOverlay}>
-              <div className={styles.posterHeroCopy}>
-                <div className={styles.posterHeroLabelGroup}>
-                  <p className={styles.posterHeroBrandM55}>M55</p>
-                  <p className={styles.posterHeroProductTitle}>Entry Report</p>
+              <div className={styles.posterHeroFoot}>
+                <div className={styles.posterHeroCopy}>
+                  <div className={styles.posterHeroTopBlock}>
+                    <div className={styles.posterHeroLabelGroup}>
+                      <p className={styles.posterHeroBrandM55}>M55</p>
+                      <p className={styles.posterHeroProductTitle}>{homeCopy.heroProductLabelJa}</p>
+                    </div>
+                    <h1 className={styles.posterHeroTitleBlite}>
+                      <span className={styles.posterHeroTitleLine}>生まれた日からひらく</span>
+                      <span className={styles.posterHeroTitleLine}>強みの見取り図</span>
+                    </h1>
+                  </div>
+                  <div className={styles.posterHeroBreathing} aria-hidden />
+                  <div className={styles.posterHeroBottomStack}>
+                    {isLoaded && view.kind === 'no_profile' && (
+                      <button
+                        type="button"
+                        className={styles.posterHeroCta}
+                        data-testid="m55-home-open-birth-intake"
+                        onClick={() => setBirthIntakeOpen(true)}
+                      >
+                        {ctaCopy.openFreeMapJa}
+                      </button>
+                    )}
+                    {hasProfile && (
+                      <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
+                        <Link href="/core" className={styles.posterHeroCoreLinkA}>
+                          本質ページを開く →
+                        </Link>
+                      </p>
+                    )}
+                    <p className={styles.posterHeroSupportInline}>
+                      生まれた日から個人向けの見取り図が開きます。
+                      <br />
+                      無料ではまず輪郭まで見えます。
+                    </p>
+                  </div>
                 </div>
-                <h1 className={styles.posterHeroTitleBlite}>
-                  <span className={styles.posterHeroTitleLine}>生まれた日からひらく、</span>
-                  <span className={styles.posterHeroTitleLine}>あなたの強みの見取り図</span>
-                </h1>
-                <p className={styles.posterHeroSupportInline}>
-                  生まれた日から個人向けの見取り図が開きます。無料ではまず輪郭まで見えます。
-                </p>
-                {isLoaded && view.kind === 'no_profile' && (
-                  <button
-                    type="button"
-                    className={styles.posterHeroCta}
-                    data-testid="m55-home-open-birth-intake"
-                    onClick={() => setBirthIntakeOpen(true)}
-                  >
-                    無料で見取り図を開く
-                  </button>
-                )}
-                {isLoaded && personal && (
-                  <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
-                    <Link href="/core" className={styles.posterHeroCoreLinkA}>
-                      本質ページを開く →
-                    </Link>
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -337,7 +194,7 @@ export default function HomePanel() {
         className={`${styles.homeSurfaceShell} ${styles.homeBelowHeroStack}`}
         data-testid="m55-home-public-surface-shell"
       >
-      {isLoaded && view.kind === 'no_profile' && (
+      {showPublicValueBlocks && (
         <div
           className={`${styles.homeSurfaceCard} ${styles.homeTierStack}`}
           data-testid="m55-home-tier-stack"
@@ -345,20 +202,22 @@ export default function HomePanel() {
         >
           <div className={styles.homeTierRow}>
             <span className={styles.homeTierBadge}>無料</span>
-            <p className={styles.homeTierText}>
-              生まれた日から5つの視点の見取り図（傾向のバランス）が開きます。
-            </p>
+            <p className={styles.homeTierText}>{homeCopy.tierFreeContourJa}</p>
           </div>
           <div className={styles.homeTierRow}>
             <span className={styles.homeTierBadge}>無料</span>
+            <p className={styles.homeTierText}>{homeCopy.tierFreeExploreJa}</p>
+          </div>
+          <div className={styles.homeTierRow}>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.reportLightEyebrowJa}</span>
             <p className={styles.homeTierText}>
-              仕組みと読み方、10通りの資質の地図はページから読めます。
+              {homeCopy.reportLightSummaryJa}
             </p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>Entry Report</span>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.reportFullEyebrowJa}</span>
             <p className={styles.homeTierText}>
-              同じ本質を章立てで深く整理し、手元に残して読み返せます（¥1,000・税込）。
+              {homeCopy.reportFullSummaryJa}（{homeCopy.reportFullPriceJa}）
             </p>
           </div>
         </div>
@@ -367,7 +226,7 @@ export default function HomePanel() {
       {/* ═══════════════════════════════════════════════════════════════════
           UNDERSTANDING MODE — public education only (no personal result UI)
           ═══════════════════════════════════════════════════════════════════ */}
-      {isLoaded && view.kind === 'no_profile' && (
+      {showPublicValueBlocks && (
         <section
           className={styles.useExploreSection}
           data-testid="m55-home-understanding"
@@ -390,7 +249,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>M55の見方を知る</span>
-                <span className={styles.useExploreSub}>仕組みと無料範囲 →</span>
+                <span className={styles.useExploreSub}>輪郭から構造、返書まで →</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -416,7 +275,7 @@ export default function HomePanel() {
         </section>
       )}
 
-      {isLoaded && view.kind === 'no_profile' && (
+      {showPublicValueBlocks && (
         <section
           className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardSoft} ${styles.fiveAxisReadCard}`}
           data-testid="m55-home-five-axis-read"
@@ -425,24 +284,24 @@ export default function HomePanel() {
           <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
             5つの解析軸の見方
           </h2>
-          <p className={styles.fiveAxisReadLead}>円のバランスでいまの出方をざっと整理します。</p>
+          <p className={styles.fiveAxisReadLead}>{homeCopy.fiveAxisLeadJa}</p>
           <div className={styles.fiveAxisReadMeterWrap}>
             <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
           </div>
           <div className={styles.fiveAxisReadCardGrid}>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                5つの視点の配分をひとつの見取り図として見ます。
+                {homeCopy.algorithmNoteJa}
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                順位ではなく、あなたの中の傾向として読みます。
+                資質の名前は10通りですが、内側の質感はもっと細かく分かれます。分類で決めつけず、地図の入口だと捉えてください。
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                詳しい読み方は「M55の見方を知る」から。
+                円に映る五つの視点は、順位ではなく、いまのバランスの感触をつかむためのものです。人生を一言に要約するより、見つめ直す入口として使えます。
               </p>
             </div>
           </div>
@@ -450,105 +309,6 @@ export default function HomePanel() {
       )}
 
       </div>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          OBSERVATION MODE — personal computed surfaces only
-          ═══════════════════════════════════════════════════════════════════ */}
-      {observation && personal && (
-        <div data-testid="m55-home-observation">
-          <section className={styles.previewSection} aria-label="本質の概観">
-            <p className={styles.previewEyebrow}>あなたの本質</p>
-
-            <div className={styles.identityCard}>
-              <div className={styles.roleCardHeader}>
-                <p className={styles.roleCardUpper}>10通りの資質のひとつ</p>
-                <p className={styles.roleCardTitle}>{personal.stem.publicTitle}</p>
-                <p className={styles.roleCardDesc}>{roleQualityLine(personal.stem.displayOneLine)}</p>
-              </div>
-
-              <p className={styles.essenceSummary}>{personal.essence.summaryShort}</p>
-
-              <div className={styles.keywords}>
-                {personal.essence.keywords.slice(0, 3).map((kw) => (
-                  <span key={kw} className={styles.keywordPill}>{kw}</span>
-                ))}
-              </div>
-
-              <div className={styles.supportNotes}>
-                <p className={styles.supportNote}>上記は無料の見取り図です。</p>
-                <p className={styles.supportNote}>本質ページでさらに深く読めます。</p>
-              </div>
-
-              <Link href="/core" className={styles.cardLink}>本質をさらに読む →</Link>
-            </div>
-
-            <p className={styles.freeSurfaceNote}>
-              無料面は見取り図です。Entry Report で構造化された版を所有できます。
-            </p>
-          </section>
-
-          <section className={styles.shelfSection}>
-            <div
-              className={styles.elementCard}
-              aria-label="5つの解析軸のバランス"
-              data-testid="m55-home-five-element-card"
-            >
-              <p className={styles.elementLabel}>5つの解析軸</p>
-
-              <div className={`${styles.elementInnerRow} ${styles.elementInnerRowObs}`}>
-                <FiveElementRing
-                  weights={personal.fiveWeights}
-                  primaryElemIdx={personal.elemIdx}
-                  size={86}
-                />
-                <div className={styles.obsLegendColumn}>
-                  {FIVE_ELEMENTS.map((elem, i) => {
-                    const w = personal.fiveWeights[i] ?? 0;
-                    return (
-                      <div
-                        key={elem.char}
-                        className={w >= 16 ? styles.obsLegendRow : styles.obsLegendRowMuted}
-                      >
-                        <span className={styles.legendDot} style={{ background: elem.color }} />
-                        <span className={styles.obsLegendText} style={{ color: elem.color }}>
-                          {elem.code} · {elem.axis} / {elem.char}
-                        </span>
-                        <span className={styles.legendIntensity} aria-hidden>
-                          {axisIntensityBlocks(w)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <p className={styles.chartDisclaimerTight}>見取り · 内省の補助として</p>
-            </div>
-
-            <div className={styles.focusCard}>
-              <p className={styles.focusEyebrow}>今の焦点</p>
-              <p className={styles.focusText}>{personal.today.focus}</p>
-            </div>
-
-            <div className={styles.shelfRow}>
-              <section className={styles.shelfCard} aria-label="今日の観測">
-                <p className={styles.shelfLabel}>今日</p>
-                <p className={styles.shelfHeading}>{personal.today.heading}</p>
-                <p className={styles.shelfSummary}>{personal.today.summaryShort}</p>
-                <p className={`${styles.shelfSupport} ${styles.shelfSupportOneLine}`}>/今日 で全文</p>
-                <Link href="/today" className={styles.shelfLink}>読む →</Link>
-              </section>
-              <section className={styles.shelfCard} aria-label="今週の観測">
-                <p className={styles.shelfLabel}>今週</p>
-                <p className={styles.shelfHeading}>{personal.weekly.heading}</p>
-                <p className={styles.shelfKey}>{personal.weekly.weeklyKey}</p>
-                <p className={`${styles.shelfSupport} ${styles.shelfSupportOneLine}`}>/今週 で全文</p>
-                <Link href="/weekly" className={styles.shelfLink}>読む →</Link>
-              </section>
-            </div>
-          </section>
-        </div>
-      )}
 
       <div
         className={`${styles.homeSurfaceShell} ${styles.homeBelowHeroStack}`}
@@ -558,8 +318,8 @@ export default function HomePanel() {
           FOLD 5: ENTRY REPORT MONETIZATION LAYER (always visible)
           One hero only — no second product or second price.
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className={styles.reportSection} aria-label="Entry Report">
-          <p className={styles.reportSectionEyebrow}>有料レポート</p>
+      <section className={styles.reportSection} aria-label={homeCopy.reportSectionEyebrowJa}>
+          <p className={styles.reportSectionEyebrow}>{homeCopy.reportSectionEyebrowJa}</p>
 
           <div
             className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardPaid} ${styles.valueCard}`}
@@ -577,15 +337,17 @@ export default function HomePanel() {
 
           <div className={styles.reportCardBody}>
             <div className={styles.reportCardColMain}>
-              <p className={styles.valueEyebrow}>Entry Report</p>
-              <p className={styles.valuePrice}>¥1,000（税込）</p>
+              <p className={styles.valueEyebrow}>{homeCopy.reportLightEyebrowJa}</p>
+              <p className={styles.valuePrice}>{homeCopy.reportLightPriceJa}</p>
 
-              <p className={styles.depthNote}>無料の見取り図と同じ本質を章立てで深く読む版です。</p>
+              <p className={styles.depthNote}>{homeCopy.reportDepthNoteJa}</p>
 
               <ul className={styles.featureListLoose}>
-                <li className={styles.featureItemLoose}>本質を章立てで深く読む</li>
-                <li className={styles.featureItemLoose}>相談返書1件付随（購入後の閲覧ページ）</li>
-                <li className={styles.featureItemLoose}>購入後に見返せます・物理配送なし</li>
+                <li className={styles.featureItemLoose}>{homeCopy.reportLightSummaryJa}</li>
+                <li className={styles.featureItemLoose}>
+                  {homeCopy.reportFullEyebrowJa}（{homeCopy.reportFullPriceJa}）：{homeCopy.reportFullSummaryJa}
+                </li>
+                <li className={styles.featureItemLoose}>物理配送なし・ウェブ上で閲覧</li>
               </ul>
             </div>
 
@@ -593,26 +355,22 @@ export default function HomePanel() {
               <div className={styles.reportCardLower}>
                 {/* Chapter preview — chips / mini-cards (no blur) */}
                 <div className={styles.chapterPreview}>
-                  <p className={styles.chapterPreviewLabel}>収録内容プレビュー</p>
+                  <p className={styles.chapterPreviewLabel}>{homeCopy.chapterPreviewLabelJa}</p>
                   <div className={styles.chapterChipWrap}>
-                    {DTR_TEASER_SECTIONS.slice(0, 4).map((s) => (
+                    {FORMAL_CHAPTER_CHIPS.map((s) => (
                       <span key={s.id} className={styles.chapterChip}>
                         {s.title}
                       </span>
                     ))}
                   </div>
-                  <p className={styles.chapterMore}>ほかにも章を収録</p>
-                  <p className={styles.valueGapNote}>
-                    無料＝見取り図／有料＝章立てレポート（保存・深読み）。
-                  </p>
+                  <p className={styles.chapterMore}>{homeCopy.chapterMoreJa}</p>
+                  <p className={styles.valueGapNote}>{homeCopy.valueGapNoteJa}</p>
                 </div>
 
-                <p className={styles.reportAuxCard}>
-                  購入後の閲覧ページで、保存版レポートに沿った相談返書として読み直せます。
-                </p>
+                <p className={styles.reportAuxCard}>{homeCopy.reportAuxJa}</p>
 
-                <Link href="/dtr/lp" className={styles.reportCta}>
-                  Entry Reportを見る →
+                <Link href={ctaCopy.viewSavedPlansHref} className={styles.reportCta}>
+                  {ctaCopy.viewSavedPlansJa} →
                 </Link>
               </div>
             </div>
@@ -620,24 +378,23 @@ export default function HomePanel() {
           </div>
       </section>
 
-      </div>
+      <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
+        <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
+        <nav className={styles.learnMoreLinks} aria-label="理解を深める">
+          <Link href="/how-m55-works">M55の使い方</Link>
+          <Link href="/ten-views">10通りの資質</Link>
+        </nav>
+        <p className={styles.learnMoreLead}>{homeCopy.algorithmNoteJa}</p>
+        <ul className={styles.rulesList}>
+          {learnMoreCopy.rulesJa.map((rule) => (
+            <li key={rule} className={styles.ruleItem}>
+              {rule}
+            </li>
+          ))}
+        </ul>
+      </details>
 
-      {observation && personal && (
-        <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
-          <summary className={styles.learnMoreSummary}>M55の仕組みと資料</summary>
-          <nav className={styles.learnMoreLinks} aria-label="理解を深める">
-            <Link href="/how-m55-works">M55の使い方</Link>
-            <Link href="/ten-views">10通りの資質</Link>
-          </nav>
-          <ul className={styles.rulesList}>
-            <li className={styles.ruleItem}>無料では基礎の見取り図が見えます</li>
-            <li className={styles.ruleItem}>Entry Report では同じ本質を深く整理します</li>
-            <li className={styles.ruleItem}>レポートには相談1回がつきます</li>
-            <li className={styles.ruleItem}>追加相談はその保存版の閲覧ページだけで行えます</li>
-            <li className={styles.ruleItem}>1レポートの相談は最大3回です</li>
-          </ul>
-        </details>
-      )}
+      </div>
 
       {/* ═══════════════════════════════════════════════════════════════════
           FOLD 6: TRUST FOOTER (always visible)
