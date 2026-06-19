@@ -11,6 +11,8 @@ import {
 } from "../../../lib/m55/dtrShelfAccess";
 import { PAID_DTR_LP } from "../../../lib/m55/paidDtrProductCopy";
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from "../../../lib/oneTimeCheckout";
+import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
+import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import styles from "./lp.module.css";
 
 export const metadata = { title: "本質の読み解き | M55" };
@@ -216,6 +218,7 @@ export default async function DtrLpPage({
   const { userId } = await auth();
 
   const access = await resolveDtrShelfAccess(userId);
+  const tier = userId ? await resolveSavedReportTierSummary(userId) : null;
   const lpCtaMode = lpCtaModeFromAccess(access, isExpiredParam);
   const showExpiredBanner =
     isExpiredParam || (access.kind === "authenticated" && access.unlockState === "expired");
@@ -228,6 +231,8 @@ export default async function DtrLpPage({
       lpCtaMode === "expired");
 
   const showTierPurchase = !hidePriceAndTrust && lpCtaMode !== "expired";
+  const showLightUpgradeCta =
+    Boolean(tier?.canUpgradeFromLight && tier.reportInstanceId);
 
   return (
     <PublicShell>
@@ -257,6 +262,20 @@ export default async function DtrLpPage({
         </p>
 
         {showExpiredBanner && <ExpiredNotice />}
+
+        {showLightUpgradeCta && tier?.reportInstanceId && (
+          <section aria-labelledby="dtr-lp-owned-upgrade" style={{ ...SECTION_STYLE, marginTop: 0 }}>
+            <h2 id="dtr-lp-owned-upgrade" style={H2_STYLE}>
+              {PAID_DTR_LP.upgrade.sectionTitleJa}
+            </h2>
+            <p style={{ ...BODY_STYLE, marginTop: 12 }}>
+              {PAID_DTR_LP.upgrade.paragraphsJa[0]}
+            </p>
+            <div style={{ marginTop: 14 }}>
+              <LightToFullUpgradeCta reportInstanceId={tier.reportInstanceId} />
+            </div>
+          </section>
+        )}
 
         {/* 1. Hero */}
         <section
@@ -417,7 +436,7 @@ export default async function DtrLpPage({
                 gap: 12,
               }}
             >
-              <TierCard tier={PAID_DTR_LP.tiers.full} productId={DTR_CORE_FULL_V1} showPurchase={showTierPurchase} />
+              <TierCard tier={PAID_DTR_LP.tiers.full} productId={DTR_CORE_FULL_V1} showPurchase={showTierPurchase && !showLightUpgradeCta} />
               <TierCard tier={PAID_DTR_LP.tiers.light} productId={DTR_CORE_LIGHT_V1} showPurchase={showTierPurchase} />
             </div>
             {showTierPurchase && (

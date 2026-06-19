@@ -61,6 +61,10 @@ export const MY_SAVED_REPORT_CTA_PLAN_LABEL = '保存版のプランを見る';
 export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
 export const MY_SAVED_REPORT_CTA_OPEN_LABEL = '保存版を開く';
 export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
+/** Light owner → FULL upgrade (reply-tickets checkout lane). */
+export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'FULL化する（¥600）';
+export const DTR_LIGHT_TO_FULL_UPGRADE_NOTE =
+  '相談返書を合計5件まで利用できます';
 export const MY_SAVED_REPORT_ENT_ERROR =
   '利用状況を確認できませんでした。時間をおいて再度お試しください。';
 export const MY_SAVED_REPORT_SNAP_ERROR =

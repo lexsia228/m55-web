@@ -392,3 +392,7 @@
     transform: none !important;
   }
 }
+
+.upgradeShelfItem {
+  margin-top: 12px;
+}

@@ -17,6 +17,7 @@ import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import DtrCatalogStrip from './DtrCatalogStrip';
+import LightToFullUpgradeCta from './LightToFullUpgradeCta';
 import styles from './DtrShelfPanel.module.css';
 
 /**
@@ -47,6 +48,8 @@ type Props = {
   ownedShelfDisplay?: DtrShelfStemDisplay | null;
   /** Pre-purchase locked: server v2 composite preview (must not use client pipeline). */
   lockedShelfDisplay?: DtrShelfStemDisplay | null;
+  canUpgradeFromLight?: boolean;
+  upgradeReportInstanceId?: string | null;
 };
 
 function EntryReportCard({
@@ -250,6 +253,8 @@ export default function DtrShelfPanel({
   shelfCta,
   ownedShelfDisplay = null,
   lockedShelfDisplay = null,
+  canUpgradeFromLight = false,
+  upgradeReportInstanceId = null,
 }: Props) {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
@@ -298,6 +303,13 @@ export default function DtrShelfPanel({
             shelfCta={shelfCta}
           />
         </div>
+        {ownershipState === 'owned' &&
+          canUpgradeFromLight &&
+          upgradeReportInstanceId && (
+            <div role="listitem" className={styles.upgradeShelfItem}>
+              <LightToFullUpgradeCta reportInstanceId={upgradeReportInstanceId} />
+            </div>
+          )}
       </div>
 
       <section className={styles.catalogBlock} aria-labelledby="dtr-catalog-heading">
