@@ -280,7 +280,7 @@ function validateShellLayoutNoAutoBirthGateOnHome() {
   }
 }
 
-/** Stable hooks for manual / future E2E: Home = value surface only; no personal observation shelf on Home. */
+/** Home surface: public education + profile-backed preview/shelf on /home (03ce0be^ rollback baseline). */
 function validateHomeRegressionTestIds() {
   const panel = path.join(ROOT, 'components', 'home', 'HomePanel.tsx');
   if (!exists(panel)) return;
@@ -291,8 +291,20 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('data-testid="m55-home-tier-stack"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-tier-stack" (free / paid value rows)');
   }
-  if (t.includes('data-testid="m55-home-observation"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must not mount m55-home-observation (personal results belong off Home)');
+  if (!t.includes('data-testid="m55-home-observation"')) {
+    add(
+      rel(panel),
+      'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-observation" (profile-backed preview + shelf)',
+    );
+  }
+  if (!t.includes('previewSection')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must retain previewSection in observation mode');
+  }
+  if (!t.includes('shelfSection')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must retain shelfSection in observation mode');
+  }
+  if (!t.includes('learnMoreDetails')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must retain learnMoreDetails (M55 rules footer)');
   }
   if (!t.includes('data-testid="m55-home-has-profile-hero"')) {
     add(
