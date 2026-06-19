@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { resolveDtrShelfAccess } from '../../lib/m55/dtrShelfAccess';
+import { resolveSavedReportTierSummary } from '../../lib/m55/dtrSavedReportTier';
 import { PublicHeader } from '../../components/shell/PublicHeader';
 import { PublicFooter } from '../_components/PublicFooter';
 import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
@@ -18,6 +19,7 @@ export const metadata = { title: 'レポート | M55' };
 export default async function DtrPage() {
   const { userId } = await auth();
   const access = await resolveDtrShelfAccess(userId);
+  const tier = userId ? await resolveSavedReportTierSummary(userId) : null;
 
   const ownershipState =
     access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
@@ -38,6 +40,8 @@ export default async function DtrPage() {
           shelfCta={shelfCta}
           ownedShelfDisplay={ownedShelfDisplay}
           lockedShelfDisplay={lockedShelfDisplay}
+          canUpgradeFromLight={tier?.canUpgradeFromLight ?? false}
+          upgradeReportInstanceId={tier?.reportInstanceId ?? null}
         />
       </main>
       <PublicFooter />

@@ -4,6 +4,7 @@ import {
   resolveDtrShelfAccess,
   type DtrShelfUxState,
 } from '../../../../lib/m55/dtrShelfAccess';
+import { resolveSavedReportTierSummary } from '../../../../lib/m55/dtrSavedReportTier';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,7 @@ export async function GET() {
   }
 
   const access = await resolveDtrShelfAccess(userId);
+  const tier = await resolveSavedReportTierSummary(userId);
 
   const ownershipState =
     access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
@@ -51,5 +53,11 @@ export async function GET() {
     showPurchaseCta,
     ownershipState,
     uxState,
+    savedReportTier: {
+      hasLight: tier.hasLight,
+      hasFull: tier.hasFull,
+      canUpgradeFromLight: tier.canUpgradeFromLight,
+      reportInstanceId: tier.reportInstanceId,
+    },
   });
 }

@@ -7,8 +7,10 @@ import {
 } from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getVisibleSavedReportSnapshot } from "../../../lib/m55/dtrSavedReportOwnership";
+import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
+import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import styles from "./core.module.css";
 
 import { LABEL_SAVED_REPORT_METADATA_JP } from "../../../lib/m55/dtrProductLabels";
@@ -29,6 +31,7 @@ export default async function DtrCorePage() {
   if (ownership.unlockState === "expired") redirect("/dtr/lp?state=expired");
 
   const snap = await getVisibleSavedReportSnapshot(userId);
+  const tier = await resolveSavedReportTierSummary(userId);
 
   if (snap) {
     const read = resolveStoredEnvelopeRead(snap);
@@ -55,6 +58,14 @@ export default async function DtrCorePage() {
             profile: read.profile,
           }}
         />
+        {tier.canUpgradeFromLight && tier.reportInstanceId && (
+          <div className={styles.upgradeAssist}>
+            <LightToFullUpgradeCta
+              reportInstanceId={tier.reportInstanceId}
+              variant="subtle"
+            />
+          </div>
+        )}
       </main>
     );
   }

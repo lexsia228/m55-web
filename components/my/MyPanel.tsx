@@ -54,6 +54,7 @@ import {
   MY_SIGNED_OUT_HUB_BODY,
 } from '../../lib/m55/dtrProductLabels';
 import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
+import LightToFullUpgradeCta from '../dtr/LightToFullUpgradeCta';
 import SavedReportDeleteDialog from './SavedReportDeleteDialog';
 import {
   DTR_SAVED_REPORT_DELETE_ERROR_GENERIC,
@@ -81,6 +82,12 @@ type SnapshotReadyResponse = {
   ready: boolean;
   hasOwnership: boolean;
   hasPurchaseSnapshot: boolean;
+  savedReportTier?: {
+    hasLight: boolean;
+    hasFull: boolean;
+    canUpgradeFromLight: boolean;
+    reportInstanceId: string | null;
+  };
 };
 
 type ProfileState = 'no_profile' | 'ready' | 'editing';
@@ -417,6 +424,12 @@ function SavedReportSection({
               {MY_SAVED_REPORT_CTA_OPEN_LABEL}
             </Link>
           </div>
+          {snap?.savedReportTier?.canUpgradeFromLight &&
+            snap.savedReportTier.reportInstanceId && (
+              <LightToFullUpgradeCta
+                reportInstanceId={snap.savedReportTier.reportInstanceId}
+              />
+            )}
           {deleteToastVisible && (
             <div
               className={styles.deleteToast}

@@ -3,3 +3,9 @@
   background: #0d0b15;
   background-attachment: local;
 }
+
+.upgradeAssist {
+  max-width: min(680px, calc(100vw - 24px));
+  margin: 0 auto;
+  padding: 0 12px 32px;
+}
