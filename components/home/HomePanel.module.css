@@ -1761,6 +1761,51 @@
   margin: 0 0 8px;
 }
 
+.learnMoreDetails {
+  margin: 16px 4px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(177, 156, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0 12px 12px;
+}
+
+.learnMoreSummary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b5f8a;
+  padding: 12px 4px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.learnMoreSummary::-webkit-details-marker {
+  display: none;
+}
+
+.learnMoreLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.learnMoreLinks a {
+  color: #7c6fd6;
+  text-decoration: none;
+}
+
+.learnMoreLinks a:hover {
+  text-decoration: underline;
+}
+
+.learnMoreLead {
+  font-size: 12px;
+  color: #6b5f8a;
+  line-height: 1.75;
+  margin: 0 0 10px;
+}
+
 .rulesList {
   list-style: none;
   padding: 0;
