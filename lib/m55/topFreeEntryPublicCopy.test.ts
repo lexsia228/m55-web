@@ -68,34 +68,34 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /自分の出方/);
     assert.match(blob, /今のテーマ/);
     assert.match(blob, /無料の見取り図/);
-    assert.match(blob, /4章の保存版/);
+    assert.match(blob, /保存版レポート/);
+    assert.match(blob, /統合アルゴリズム/);
     assert.match(blob, /相談返書/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
 
-  it('includes storefront and home product truth with FULL before light', () => {
+  it('includes storefront and home product truth with light before FULL on home', () => {
     const copy = readPage(COPY_FILE);
     const storefront = readPage(ROUTE_FILES['/']);
     const home = readPage(ROUTE_FILES['/home']);
-    const { storefront: sf } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    const { storefront: sf, home: homeCopy } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(sf.fullPlanNameJa, '保存版FULL');
     assert.equal(sf.fullPriceLabelJa, '¥1,480（税込）');
     assert.equal(sf.fullConsultReplyJa, '相談返書合計5件');
     assert.equal(sf.lightPlanNameJa, '保存版ライト');
     assert.equal(sf.lightPriceLabelJa, '¥1,000（税込）');
     assert.equal(sf.lightConsultReplyJa, '相談返書1件');
+    assert.equal(homeCopy.reportLightEyebrowJa, '保存版ライト');
+    assert.equal(homeCopy.reportLightPriceJa, '¥1,000（税込）');
     assert.match(copy, /相談返書合計5件/);
     assert.match(copy, /相談返書1件/);
-    assert.match(home, /storefront\.fullPlanNameJa/);
-    assert.match(home, /storefront\.lightPlanNameJa/);
+    assert.match(home, /reportLightEyebrowJa/);
+    assert.match(home, /reportFullEyebrowJa/);
     assert.ok(
-      storefront.indexOf('fullPlanNameJa') < storefront.indexOf('lightPlanNameJa'),
-      'storefront renders FULL before light',
+      home.indexOf('reportLightEyebrowJa') < home.indexOf('reportFullEyebrowJa'),
+      'home tier stack renders light before FULL',
     );
-    assert.ok(
-      home.indexOf('storefront.fullPlanNameJa') < home.indexOf('storefront.lightPlanNameJa'),
-      'home tier stack renders FULL before light',
-    );
+    assert.match(home, /m55-home-learn-more/);
   });
 
   it('includes formal four chapters and saved-plan CTA targets', () => {

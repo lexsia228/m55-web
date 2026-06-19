@@ -18,6 +18,7 @@ import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+const learnMoreCopy = TOP_FREE_ENTRY_PUBLIC_COPY.learnMore;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 const FORMAL_CHAPTER_CHIPS = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch, index) => ({
@@ -208,17 +209,15 @@ export default function HomePanel() {
             <p className={styles.homeTierText}>{homeCopy.tierFreeExploreJa}</p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{TOP_FREE_ENTRY_PUBLIC_COPY.storefront.fullPlanNameJa}</span>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.reportLightEyebrowJa}</span>
             <p className={styles.homeTierText}>
-              {homeCopy.reportSummaryFullJa}（{TOP_FREE_ENTRY_PUBLIC_COPY.storefront.fullPriceLabelJa}）
+              {homeCopy.reportLightSummaryJa}
             </p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{TOP_FREE_ENTRY_PUBLIC_COPY.storefront.lightPlanNameJa}</span>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.reportFullEyebrowJa}</span>
             <p className={styles.homeTierText}>
-              {TOP_FREE_ENTRY_PUBLIC_COPY.storefront.lightSavedReportJa}・
-              {TOP_FREE_ENTRY_PUBLIC_COPY.storefront.lightConsultReplyJa}（
-              {TOP_FREE_ENTRY_PUBLIC_COPY.storefront.lightPriceLabelJa}）
+              {homeCopy.reportFullSummaryJa}（{homeCopy.reportFullPriceJa}）
             </p>
           </div>
         </div>
@@ -292,7 +291,7 @@ export default function HomePanel() {
           <div className={styles.fiveAxisReadCardGrid}>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                {`${TOP_FREE_ENTRY_PUBLIC_COPY.m55Definition.shortJa.replace(/\n/g, '')}${TOP_FREE_ENTRY_PUBLIC_COPY.m55Definition.principleJa.replace(/\n/g, '')}`}
+                {homeCopy.algorithmNoteJa}
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
@@ -319,8 +318,8 @@ export default function HomePanel() {
           FOLD 5: ENTRY REPORT MONETIZATION LAYER (always visible)
           One hero only — no second product or second price.
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className={styles.reportSection} aria-label="4章の保存版">
-          <p className={styles.reportSectionEyebrow}>4章の保存版</p>
+      <section className={styles.reportSection} aria-label={homeCopy.reportSectionEyebrowJa}>
+          <p className={styles.reportSectionEyebrow}>{homeCopy.reportSectionEyebrowJa}</p>
 
           <div
             className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardPaid} ${styles.valueCard}`}
@@ -338,14 +337,16 @@ export default function HomePanel() {
 
           <div className={styles.reportCardBody}>
             <div className={styles.reportCardColMain}>
-              <p className={styles.valueEyebrow}>{homeCopy.reportEyebrowFullJa}</p>
-              <p className={styles.valuePrice}>{homeCopy.reportPriceFullJa}</p>
+              <p className={styles.valueEyebrow}>{homeCopy.reportLightEyebrowJa}</p>
+              <p className={styles.valuePrice}>{homeCopy.reportLightPriceJa}</p>
 
               <p className={styles.depthNote}>{homeCopy.reportDepthNoteJa}</p>
 
               <ul className={styles.featureListLoose}>
-                <li className={styles.featureItemLoose}>{homeCopy.reportSummaryFullJa}</li>
-                <li className={styles.featureItemLoose}>{homeCopy.reportSummaryLightJa}</li>
+                <li className={styles.featureItemLoose}>{homeCopy.reportLightSummaryJa}</li>
+                <li className={styles.featureItemLoose}>
+                  {homeCopy.reportFullEyebrowJa}（{homeCopy.reportFullPriceJa}）：{homeCopy.reportFullSummaryJa}
+                </li>
                 <li className={styles.featureItemLoose}>物理配送なし・ウェブ上で閲覧</li>
               </ul>
             </div>
@@ -376,6 +377,24 @@ export default function HomePanel() {
           </div>
           </div>
       </section>
+
+      {showPublicValueBlocks && (
+        <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
+          <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
+          <nav className={styles.learnMoreLinks} aria-label="理解を深める">
+            <Link href="/how-m55-works">M55の使い方</Link>
+            <Link href="/ten-views">10通りの資質</Link>
+          </nav>
+          <p className={styles.learnMoreLead}>{homeCopy.algorithmNoteJa}</p>
+          <ul className={styles.rulesList}>
+            {learnMoreCopy.rulesJa.map((rule) => (
+              <li key={rule} className={styles.ruleItem}>
+                {rule}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       </div>
 
