@@ -31,16 +31,16 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await page.screenshot({ path: path.join(OUT, '01-home-before-profile.png'), fullPage: true });
   });
 
-  test('02 /home 鑑定後（個人結果ブロックなし）', async ({ page, context }) => {
+  test('02 /home 鑑定後（preview + shelf + learnMore）', async ({ page, context }) => {
     await addInitScriptSeedGuestProfile(context);
     await page.goto('/home');
-    await expect(page.getByTestId('m55-home-tier-stack')).toBeVisible();
-    await expect(page.getByTestId('m55-home-understanding')).toBeVisible();
-    await expect(page.getByTestId('m55-home-five-axis-read')).toBeVisible();
     await expect(page.getByTestId('m55-home-has-profile-hero')).toBeVisible();
-    await expect(page.getByText('今の焦点')).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: '今日の観測' })).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: '今週の観測' })).toHaveCount(0);
+    await expect(page.getByTestId('m55-home-observation')).toBeVisible();
+    await expect(page.getByLabel('本質の概観')).toBeVisible();
+    await expect(page.getByLabel('今日の観測')).toBeVisible();
+    await expect(page.getByLabel('今週の観測')).toBeVisible();
+    await expect(page.getByTestId('m55-home-learn-more')).toBeVisible();
+    await expect(page.getByTestId('m55-home-report-shell')).toBeVisible();
     await page.screenshot({ path: path.join(OUT, '02-home-after-profile.png'), fullPage: true });
   });
 
