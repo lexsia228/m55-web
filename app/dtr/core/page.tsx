@@ -6,9 +6,8 @@ import {
   isDtrOwnedHiddenOnlyState,
 } from "../../../lib/m55/dtrShelfAccess";
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
-import { getVisibleDtrReportSnapshot } from "../../../lib/m55/dtrDraftDb";
+import { getVisibleSavedReportSnapshot } from "../../../lib/m55/dtrSavedReportOwnership";
 import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
-import { DTR_CORE_STATIC_V1 } from "../../../lib/oneTimeCheckout";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import styles from "./core.module.css";
 
@@ -29,7 +28,7 @@ export default async function DtrCorePage() {
   if (ownership.unlockState === "locked") redirect("/dtr/lp");
   if (ownership.unlockState === "expired") redirect("/dtr/lp?state=expired");
 
-  const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+  const snap = await getVisibleSavedReportSnapshot(userId);
 
   if (snap) {
     const read = resolveStoredEnvelopeRead(snap);

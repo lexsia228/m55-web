@@ -11,9 +11,12 @@
  * - mismatch / unknown -> fail-closed (redirect to LP for gated routes)
  */
 import { getSupabaseAdmin } from '../supabaseAdmin';
-import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { DTR_CORE_RIGHT_KEY } from './dtrCoreCheckoutFulfillment';
-import { getVisibleDtrReportSnapshot } from './dtrDraftDb';
+import {
+  findActiveSavedReportEntitlement,
+  getVisibleSavedReportSnapshot,
+  hasSavedReportPaymentBacking,
+} from './dtrSavedReportOwnership';
 
 export type DtrUnlockState = 'owned' | 'locked' | 'expired';
 
@@ -30,14 +33,14 @@ export type DtrOwnershipResult =
   | { unlockState: 'expired' };
 
 /**
- * Resolves ownership for the static Entry Report (product DTR_CORE_STATIC_V1 / right m55_p:core_origin).
+ * Resolves ownership for saved-report SKUs (light / FULL / legacy static) via m55_p:core_origin.
  * Fail-closed: any error returns 'locked'.
  */
 export async function resolveEntryReportOwnership(userId: string): Promise<DtrOwnershipResult> {
   try {
     const db = getSupabaseAdmin();
 
-    const snapRow = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snapRow = await getVisibleSavedReportSnapshot(userId);
     if (snapRow) {
       console.info(
         '[dtrOwnershipGate]',
@@ -46,7 +49,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
           unlockState: 'owned',
           grantSource: 'dtr_report_snapshots',
           grantDetail: '保存版レポート行あり（購入フロー完了）',
-          productId: DTR_CORE_STATIC_V1,
+          productId: snapRow.product_id,
         })
       );
       return {
@@ -85,24 +88,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
         return { unlockState: 'expired' };
       }
 
-      const { data: entForRights } = await db
-        .from('entitlements')
-        .select('id, product_id, status')
-        .eq('user_id', userId)
-        .eq('product_id', DTR_CORE_STATIC_V1)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      const { data: otfForRights } = await db
-        .from('one_time_fulfillments')
-        .select('checkout_session_id')
-        .eq('user_id', userId)
-        .eq('product_id', DTR_CORE_STATIC_V1)
-        .order('fulfilled_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const hasPaymentBacking = !!(entForRights ?? otfForRights);
+      const hasPaymentBacking = await hasSavedReportPaymentBacking(db, userId);
 
       if (hasPaymentBacking) {
         console.info(
@@ -113,8 +99,6 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
             grantSource: 'entitlement_rights_plus_payment_backing',
             grantDetail:
               'entitlement_rights に行があり、かつ entitlements(active) または one_time_fulfillments がある（Stripe 決済完了後の通常状態）',
-            hasEntitlementsRow: !!entForRights,
-            hasOneTimeFulfillmentRow: !!otfForRights,
             rightKey: rightRow.right_key,
             expiresAt: rightRow.expires_at,
           })
@@ -140,18 +124,9 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
       return { unlockState: 'locked' };
     }
 
-    const { data: entRow, error: entErr } = await db
-      .from('entitlements')
-      .select('id, product_id, status')
-      .eq('user_id', userId)
-      .eq('product_id', DTR_CORE_STATIC_V1)
-      .eq('status', 'active')
-      .maybeSingle() as unknown as {
-      data: { id: string; product_id: string; status: string } | null;
-      error: unknown;
-    };
+    const entRow = await findActiveSavedReportEntitlement(db, userId);
 
-    if (!entErr && entRow) {
+    if (entRow) {
       const { error: repairErr } = await (db as any).from('entitlement_rights').upsert(
         { user_id: userId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
         { onConflict: 'user_id,right_key' }
@@ -166,7 +141,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
           unlockState: 'owned',
           grantSource: 'entitlements_active_repair_entitlement_rights',
           grantDetail:
-            'entitlements に product_id=DTR_CORE_STATIC_V1 かつ status=active の行があり、entitlement_rights を repair したため owned（Webhook/processing の片側失敗時の補修）',
+            'entitlements に saved-report SKU（light/full/static）かつ status=active の行があり、entitlement_rights を repair したため owned',
           table: 'entitlements',
           entitlementId: entRow.id,
           productId: entRow.product_id,
@@ -188,7 +163,6 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
         unlockState: 'locked',
         basis: 'no_row',
         entitlementRightsError: rightErr ? String((rightErr as { message?: string }).message ?? rightErr) : null,
-        entitlementsError: entErr ? String((entErr as { message?: string }).message ?? entErr) : null,
       })
     );
     return { unlockState: 'locked' };

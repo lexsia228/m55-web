@@ -2,18 +2,19 @@
  * Server-only: unified DTR shelf / LP access state (ownership + snapshotReady + CTA routing).
  * Keeps resolveEntryReportOwnership semantics; separates purchase CTA from owned-not-ready paths.
  */
-import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { ariaLabelForDtrShelf } from './dtrProductLabels';
 import { deriveLockedShelfStemPreviewFromDraft } from './compositeStem/deriveLockedShelfStemPreview';
 import {
   getLatestDraftForUser,
-  getLatestDtrReportSnapshotIncludingHidden,
-  getVisibleDtrReportSnapshot,
 } from './dtrDraftDb';
 import {
   resolveEntryReportOwnership,
   type DtrUnlockState,
 } from './dtrOwnershipGate';
+import {
+  getVisibleSavedReportSnapshot,
+  hasHiddenOnlySavedReportSnapshot,
+} from './dtrSavedReportOwnership';
 import { deriveDtrShelfStemDisplayFromSnapshot } from './compositeStem/storedEnvelopeRead';
 import type { DtrShelfStemDisplay } from './dtrShelfStemDisplay';
 
@@ -29,14 +30,8 @@ export const DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp';
  * Owned entitlement with no visible snapshot but at least one hidden row (soft-hide / 削除後).
  * Not for UI envelope display.
  */
-export async function isDtrOwnedHiddenOnlyState(
-  userId: string,
-  productId: string = DTR_CORE_STATIC_V1,
-): Promise<boolean> {
-  const visible = await getVisibleDtrReportSnapshot(userId, productId);
-  if (visible) return false;
-  const latestIncludingHidden = await getLatestDtrReportSnapshotIncludingHidden(userId, productId);
-  return latestIncludingHidden != null;
+export async function isDtrOwnedHiddenOnlyState(userId: string): Promise<boolean> {
+  return hasHiddenOnlySavedReportSnapshot(userId);
 }
 
 function shelfCtaForHiddenOnlyRepurchase(): DtrShelfCta {
@@ -243,7 +238,7 @@ export async function resolveDtrShelfAccess(
       );
     }
 
-    const snap = await getVisibleDtrReportSnapshot(userId, DTR_CORE_STATIC_V1);
+    const snap = await getVisibleSavedReportSnapshot(userId);
     const snapshotReady = snap != null;
     const ownedShelfDisplay = snap ? deriveDtrShelfStemDisplayFromSnapshot(snap) : null;
     const uxState: DtrShelfUxState = snapshotReady
@@ -251,11 +246,7 @@ export async function resolveDtrShelfAccess(
       : 'owned_snapshot_not_ready';
     let hiddenOnlyRepurchase = false;
     if (!snapshotReady) {
-      const latestIncludingHidden = await getLatestDtrReportSnapshotIncludingHidden(
-        userId,
-        DTR_CORE_STATIC_V1,
-      );
-      hiddenOnlyRepurchase = latestIncludingHidden != null;
+      hiddenOnlyRepurchase = await hasHiddenOnlySavedReportSnapshot(userId);
     }
 
     return buildAuthenticated(
