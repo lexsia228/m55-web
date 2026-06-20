@@ -1,9 +1,8 @@
 import Link from "next/link";
 import styles from "./PublicFooter.module.css";
 
-/** Site-wide footer link SSOT — order must not change. */
+/** Site-wide footer link SSOT — support/legal/privacy trust links only (no product shelf). */
 export const FOOTER_LINKS = [
-  { label: "レポート", href: "/dtr" },
   { label: "サポート", href: "/support" },
   { label: "返金", href: "/legal/refund" },
   { label: "特商法", href: "/legal/tokushoho" },
