@@ -1,4 +1,4 @@
-import { PAID_DTR_LP, PAID_DTR_PUBLIC_SCOPE_CLARITY, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 
 /** Top / free-entry public copy — references PAID_DTR_LP SSOT; no long LP duplication. */
 export const TOP_FREE_ENTRY_PUBLIC_COPY = {
@@ -75,8 +75,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   learnMore: {
     summaryJa: 'M55の仕組みと資料',
     rulesJa: [
-      '無料では基礎の見取り図が見えます。「今日」「今週」は入力・表示時点の補助表現です。',
-      PAID_DTR_PUBLIC_SCOPE_CLARITY.notDailyWeeklyMonthlyServiceJa,
+      '無料では基礎の見取り図が見えます。',
       '保存版レポートでは、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
       '保存版ライト（¥1,000）は相談返書1件。まず保存版を読みたい方向けです。',
       '保存版FULL（¥1,480）は相談返書合計5件。返書で複数回深めたい方向けです。',
