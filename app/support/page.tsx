@@ -69,24 +69,24 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>保存版のプランの違い</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。
+          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。違いは相談返書の件数と、選び方です。
         </p>
-        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          違いは相談返書の件数です。
-        </p>
-        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8 }}>
-          <li><strong>保存版ライト</strong>：相談返書1件</li>
-          <li><strong>保存版FULL</strong>：相談返書合計5件</li>
+        <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
+          <li><strong>保存版ライト（¥1,000）</strong>：まず保存版を読み、輪郭を整理したい方向け。相談返書1件。</li>
+          <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、返書で複数回深めたい方向け。相談返書合計5件。</li>
         </ul>
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          ライト購入後にFULL化する場合は¥600（合計¥1,600）。最初からFULLを選ぶ場合は¥1,480です。
+        </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトの購入後は、¥600でFULL化できます。
+          保存版ライトを購入済みの方は、¥600でFULL化できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          FULL化後は、相談返書を合計5件利用できます。
+          FULL化後は、相談返書を合計5件利用できます（ライト+FULL化の合計は¥1,600、最初からFULLは¥1,480）。
         </p>
       </section>
 
@@ -98,25 +98,25 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>M55は何を見るのですか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              生年月日を手がかりに、10通りの資質と5つの解析軸から、本質・今日・今週といった輪郭を文章で整理します。吉凶の断定や順位づけではなく、自己観測のための読み取りです。
+              生年月日を手がかりに、10通りの資質と5つの解析軸から、本質や今の状態の見取り図を文章で整理します。日次・週次・月次の鑑定を継続して提供するサービスではありません。吉凶の断定や順位づけではなく、自己観測のための読み取りです。
             </p>
           </article>
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、本質・今日・今週の見取り図と、5つの解析軸のバランスを無料で読めます。より詳しい内容や相談返書は、有料の保存版の対象です。
+              プロフィール保存後、本質と、入力・表示時点の見取り図（「今日」「今週」）および5つの解析軸のバランスを無料で読めます。より詳しい読み返し用の保存版や相談返書は、有料の保存版の対象です。
             </p>
           </article>
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              無料面と同じ土台の本質を、4章の保存版としてウェブ上で閲覧できる形に整理したものです。物理の発送はありません。相談返書の件数はプランにより異なります（詳細は商品ページと特商法表記をご確認ください）。
+              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。相談返書はプランにより1件または合計5件です（詳細は下記と特商法表記をご確認ください）。
             </p>
           </article>
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>相談返書では何ができますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              保存版を購入した方だけが利用できる、保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。レポートの内容に沿った整理を目的としています。
+              保存版を購入した方だけが利用できる、保存版に紐づく一つの相談テーマへの返書です。件数内での利用であり、会話を継続する形式ではありません。時期や状況の深掘りも、一テーマごと・件数内の範囲で扱います。
             </p>
           </article>
           <article>
@@ -136,7 +136,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>同じ入力で結果は変わりますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              同じ入力を同じルールで読む限り、骨組みはぶれにくい設計です。日付が変わる「今日」「今週」など、時間に応じて更新される部分は自然に変わります。
+              同じ入力を同じルールで読む限り、骨組みはぶれにくい設計です。無料の「今日」「今週」は入力・表示時点の見取り図であり、日付が変われば更新される部分は自然に変わります。保存版は購入時点の内容をもとにした読み返し用レポートです。
             </p>
           </article>
         </div>
@@ -157,7 +157,7 @@ export default function SupportPage() {
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
           <li>
             <strong>相談返書とは何ですか？</strong>
-            ：保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。
+            ：保存版に紐づく一つの相談テーマへの返書です。件数内での利用であり、会話を継続する形式ではありません。
           </li>
           <li>
             <strong>何件まで利用できますか？</strong>

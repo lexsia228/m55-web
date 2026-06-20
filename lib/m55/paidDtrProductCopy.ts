@@ -742,6 +742,18 @@ export const PAID_DTR_LIFE_USE_CASES = [
   },
 ] as const;
 
+/** Public scope boundaries — display-only; no product spec change. */
+export const PAID_DTR_PUBLIC_SCOPE_CLARITY = {
+  notDailyWeeklyMonthlyServiceJa:
+    'M55は、日次・週次・月次の鑑定を継続して提供するサービスではありません。',
+  freeTodayWeeklyContextJa:
+    '無料の「今日」「今週」は、入力・表示時点の見取り図として読む補助表現です。',
+  savedReportReadbackJa:
+    '保存版は、購入時点の入力内容をもとにした読み返し用レポートです。',
+  consultReplyDepthJa:
+    '時期や状況の深掘りは、保存版に紐づく相談返書の範囲で、件数内・一テーマごとに扱います。',
+} as const;
+
 /** Saved-report pricing tiers — Product Truth SSOT (2026-06). Checkout/UI wiring is later gates. */
 export const PAID_DTR_SAVED_REPORT_PRICING = {
   light: {
@@ -750,7 +762,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     priceLabelJa: '¥1,000（税込）',
     planNameJa: '保存版ライト',
     headlineJa: '保存版レポート + 相談返書1件つき',
-    audienceJa: 'まずは1テーマだけ整理したい方向け',
+    audienceJa: 'まず保存版を読んで、自分の輪郭を整理したい人向け',
     includedReplyCount: REPLY_TICKET_INCLUDED_COUNT,
   },
   full: {
@@ -760,7 +772,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     planNameJa: '保存版FULL',
     recommended: true,
     headlineJa: '保存版レポート + 相談返書 合計5件まで',
-    audienceJa: '複数テーマで整理したい方向け',
+    audienceJa: '保存版を読んだ後、返書で複数回深めたい人向け',
     totalReplyCap: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
     /** FULL初回: initial_included=1 + purchased_count=4（合計5枠） */
     initialIncludedCount: REPLY_TICKET_INCLUDED_COUNT,
@@ -1152,7 +1164,7 @@ export const PAID_DTR_LP = {
   consultReply: {
     sectionTitleJa: '相談返書とは',
     bodyJa:
-      '保存版に紐づく、一つの相談テーマへの返書です。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。\n会話を続ける形式ではありません。',
+      '保存版に紐づく、一つの相談テーマへの返書です。\n件数内での利用であり、会話を続ける形式ではありません。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。',
   },
   tiers: {
     sectionTitleJa: 'FULL／ライト比較',
@@ -1164,7 +1176,7 @@ export const PAID_DTR_LP = {
       consultReplyLabelJa: '相談返書:',
       consultReplyValueJa: '合計5件',
       bodyJa:
-        '保存版を土台に、\n相談返書を合計5件利用したい方へ。\n\n最初からFULLを選ぶ場合は、\nライト購入後にFULL化する場合より\n¥120低い価格です。',
+        '保存版を読んだあと、返書で複数回深めたい方へ。\n4章の保存版 + 相談返書合計5件。\n最初からFULLなら¥1,480（ライト+FULL化は合計¥1,600）。',
       ctaLabelJa: '保存版FULLを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
@@ -1175,7 +1187,7 @@ export const PAID_DTR_LP = {
       savedReportValueJa: '正式4章',
       consultReplyLabelJa: '相談返書:',
       consultReplyValueJa: '1件',
-      bodyJa: '相談返書1件とともに、\n4章の保存版を持ちたい方へ。',
+      bodyJa: 'まず保存版を読み、輪郭を整理したい方へ。\n4章の保存版 + 相談返書1件。',
       ctaLabelJa: '保存版ライトを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
@@ -1185,7 +1197,7 @@ export const PAID_DTR_LP = {
     paragraphsJa: [
       'ライト購入後は、FULL化できます。',
       'ライト購入後は、¥600でFULL化できます。\nFULL化すると、相談返書を合計5件利用できます。',
-      'ライト ¥1,000 ＋ FULL化 ¥600 ＝ ¥1,600\n最初からFULL ¥1,480',
+      'ライト ¥1,000 ＋ FULL化 ¥600 ＝ 合計¥1,600\n最初からFULL ¥1,480',
       '差額は¥120です。',
     ] as const,
   },
@@ -1195,6 +1207,7 @@ export const PAID_DTR_LP = {
       '価格はすべて税込です。',
       'ライトとFULLの保存版は、同じ正式4章です。',
       '相談返書は、ライトが1件、FULLが合計5件です。',
+      'ライト：まず保存版を読みたい方向け。FULL：返書で複数回深めたい方向け。',
       'ライト購入後にFULL化する場合は¥600で、\n合計¥1,600です。\n最初からFULLを選ぶ場合は¥1,480です。',
       '購入前に、プランの内容と相談返書の件数をご確認ください。',
     ] as const,
@@ -1212,12 +1225,12 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
         answerJa:
-          '保存版の4章は共通です。\n違いは、利用できる相談返書の件数です。\nライトは1件、FULLは合計5件です。',
+          '保存版の4章は共通です。\n違いは、利用できる相談返書の件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは返書で複数回深めたい方向けです。',
       },
       {
         questionJa: '相談返書とは何ですか？',
         answerJa:
-          '保存版に紐づく、一つの相談テーマへの返書です。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。\n会話を続ける形式ではありません。',
+          '保存版に紐づく、一つの相談テーマへの返書です。\n件数内での利用であり、会話を続ける形式ではありません。\n今回入力した相談文を保存版の内容と重ね、\n書かれた内容や言葉の選び方、文の流れなどを手がかりに、\nそのテーマを読み直します。',
       },
       {
         questionJa: 'ライト購入後にFULL化できますか？',
@@ -1227,7 +1240,7 @@ export const PAID_DTR_LP = {
       {
         questionJa: '無料ページとの違いは何ですか？',
         answerJa:
-          '無料ページは、M55の読み解きに触れる入口です。\n保存版では、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。',
+          '無料ページは、M55の読み解きに触れる入口です。\n「今日」「今週」は入力・表示時点の見取り図です。\n保存版では、購入時点の入力内容をもとに、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。',
       },
     ] as const,
   },

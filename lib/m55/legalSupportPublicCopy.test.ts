@@ -60,14 +60,16 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(tokushoho, /ライトからFULL化/);
     assert.match(tokushoho, /¥600（税込）/);
     assert.match(tokushoho, /FULL化後：相談返書を合計5件/);
+    assert.match(tokushoho, /合計¥1,600/);
+    assert.match(tokushoho, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('includes terms consult reply counts for light, full, and upgrade', () => {
     const terms = readPage(ROUTE_FILES['/legal/terms']);
-    assert.match(terms, /保存版ライトには相談返書1件/);
-    assert.match(terms, /保存版FULLには相談返書が合計5件/);
-    assert.match(terms, /ライト購入後にFULL化した場合も、利用可能な相談返書は合計5件/);
-    assert.match(terms, /会話を継続する形式ではありません/);
+    assert.match(terms, /保存版ライト（¥1,000）には相談返書1件/);
+    assert.match(terms, /保存版FULL（¥1,480）には相談返書が合計5件/);
+    assert.match(terms, /ライト購入後にFULL化/);
+    assert.match(terms, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('includes support plan difference and full upgrade guidance', () => {
@@ -76,7 +78,9 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(support, /保存版ライト.*相談返書1件/s);
     assert.match(support, /保存版FULL.*相談返書合計5件/s);
     assert.match(support, /¥600でFULL化/);
-    assert.match(support, /FULL化後は、相談返書を合計5件/);
+    assert.match(support, /合計¥1,600/);
+    assert.match(support, /最初からFULL.*¥1,480/s);
+    assert.match(support, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('does not expose forbidden legacy or sales terms in public legal/support copy', () => {

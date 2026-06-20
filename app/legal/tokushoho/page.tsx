@@ -73,13 +73,13 @@ export default function TokushohoPage() {
         </h2>
 
         <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.9 }}>
-          いずれも4章の保存版を含むデジタル商品です。決済完了後にウェブ上で閲覧できます（物理配送はありません）。
+          いずれも4章の保存版を含むデジタル商品です。決済完了後にウェブ上で閲覧できます（物理配送はありません）。保存版は購入時点の入力内容をもとにした読み返し用レポートです。日次・週次・月次の鑑定を継続して提供するサービスではありません。
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
             <p style={{ margin: "0 0 4px" }}>
-              <strong>保存版ライト</strong>
+              <strong>保存版ライト</strong> — まず保存版を読み、輪郭を整理したい方向け
             </p>
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               <li>販売価格：¥1,000（税込）</li>
@@ -90,7 +90,7 @@ export default function TokushohoPage() {
 
           <div>
             <p style={{ margin: "0 0 4px" }}>
-              <strong>保存版FULL</strong>
+              <strong>保存版FULL</strong> — 保存版を読んだあと、返書で複数回深めたい方向け
             </p>
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               <li>販売価格：¥1,480（税込）</li>
@@ -101,19 +101,20 @@ export default function TokushohoPage() {
 
           <div>
             <p style={{ margin: "0 0 4px" }}>
-              <strong>ライトからFULL化</strong>
+              <strong>ライトからFULL化</strong> — ライト購入後、相談返書を合計5件まで増やす追加選択
             </p>
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               <li>販売価格：¥600（税込）</li>
               <li>対象：保存版ライトを購入済みの方</li>
               <li>FULL化後：相談返書を合計5件利用できます</li>
+              <li>参考：ライト ¥1,000 ＋ FULL化 ¥600 ＝ 合計¥1,600（最初からFULL ¥1,480）</li>
             </ul>
           </div>
         </div>
 
         <ul style={{ margin: "14px 0 0", paddingLeft: 18 }}>
           <li>提供方法：決済完了後にウェブ上でデジタル閲覧（ダウンロード販売ではなく、サイト内での閲覧を主とします）。</li>
-          <li>相談返書は、保存版に紐づく一つの相談テーマへの返書です。会話を継続する形式ではありません。</li>
+          <li>相談返書は、保存版に紐づく一つの相談テーマへの返書です。件数内での利用であり、会話を継続する形式ではありません。</li>
           <li>支払方法：クレジットカード（Link対応）</li>
           <li>代金の支払時期：ご注文時に決済が確定します。なお、実際の引落時期は、お客様がご利用の決済手段（クレジットカード等）の契約内容や各社の定めにより異なります。</li>
           <li>表示価格以外の追加料金はありません。ただし、通信料等は利用者の負担となります。</li>
