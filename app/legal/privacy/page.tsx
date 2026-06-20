@@ -80,9 +80,7 @@ export default function PrivacyPage() {
         <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_DEVICE_P3}</p>
         <p style={{ margin: "0 0 10px" }}>{ACCOUNT_DATA_PRIVACY_SAVED_REPORT_BOUNDARY}</p>
         <p style={{ margin: 0 }}>
-          申請窓口は{" "}
-          <Link href={ACCOUNT_DATA_REQUEST_HREF}>{ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL}</Link>
-          {" "}をご覧ください。
+          申請方法は、下記「開示・訂正・削除等」をご確認ください。
         </p>
       </section>
 

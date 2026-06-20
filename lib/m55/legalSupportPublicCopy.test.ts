@@ -105,11 +105,46 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.equal(terms.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
     assert.equal(privacy.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
     assert.match(refund, /href="\/support"/);
-    assert.match(terms, /href="\/support"/);
+    assert.equal(terms.includes('href="/support"'), false);
+    assert.equal(terms.includes('href="/legal/'), false);
     assert.match(privacy, /ACCOUNT_DATA_REQUEST_HREF/);
 
     const blob = combinedPublicCopy();
     assert.equal(blob.includes('lexsia228@gmail.com'), false);
     assert.equal(blob.includes('lexsia228@gmail'), false);
+  });
+});
+
+describe('legalSupportPublicCopy — body link dedup policy', () => {
+  function countMatches(text: string, pattern: RegExp): number {
+    return (text.match(pattern) || []).length;
+  }
+
+  it('support: no legal body links; mailto once', () => {
+    const support = readPage(ROUTE_FILES['/support']);
+    assert.equal(countMatches(support, /href="\/legal\//g), 0);
+    assert.equal(countMatches(support, /href=\{M55_PUBLIC_SUPPORT_MAILTO\}/g), 1);
+  });
+
+  it('refund: support link once in body', () => {
+    const refund = readPage(ROUTE_FILES['/legal/refund']);
+    assert.equal(countMatches(refund, /href="\/support"/g), 1);
+  });
+
+  it('terms: no body cross-page links', () => {
+    const terms = readPage(ROUTE_FILES['/legal/terms']);
+    assert.equal(countMatches(terms, /href="\/(support|legal)/g), 0);
+  });
+
+  it('tokushoho: mailto once; refund link once; no support link', () => {
+    const tokushoho = readPage(ROUTE_FILES['/legal/tokushoho']);
+    assert.equal(countMatches(tokushoho, /href=\{M55_PUBLIC_SUPPORT_MAILTO\}/g), 1);
+    assert.equal(countMatches(tokushoho, /href="\/legal\/refund"/g), 1);
+    assert.equal(countMatches(tokushoho, /href="\/support"/g), 0);
+  });
+
+  it('privacy: support/data request link once', () => {
+    const privacy = readPage(ROUTE_FILES['/legal/privacy']);
+    assert.equal(countMatches(privacy, /href=\{ACCOUNT_DATA_REQUEST_HREF\}/g), 1);
   });
 });

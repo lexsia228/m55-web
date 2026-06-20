@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export const metadata = {
   title: "利用規約 | M55",
 };
@@ -67,8 +65,7 @@ export default function TermsPage() {
       <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>返金・問い合わせ</h2>
         <p style={{ margin: 0 }}>
-          返金条件は <Link href="/legal/refund">返金・キャンセル</Link> を参照してください。
-          お問い合わせは <Link href="/support">サポート窓口</Link> からご連絡ください。
+          返金条件およびお問い合わせ方法は、サイト下部の各ページをご確認ください。
         </p>
       </section>
 

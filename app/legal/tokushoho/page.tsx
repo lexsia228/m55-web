@@ -119,9 +119,6 @@ export default function TokushohoPage() {
           <li>代金の支払時期：ご注文時に決済が確定します。なお、実際の引落時期は、お客様がご利用の決済手段（クレジットカード等）の契約内容や各社の定めにより異なります。</li>
           <li>表示価格以外の追加料金はありません。ただし、通信料等は利用者の負担となります。</li>
         </ul>
-        <p style={{ margin: "10px 0 0", fontSize: 13, opacity: 0.9 }}>
-          サポート・お問い合わせは <Link href="/support">サポート窓口</Link> にて受け付けます。
-        </p>
       </section>
 
       <section style={{
