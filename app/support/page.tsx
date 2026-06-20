@@ -29,14 +29,10 @@ export default function SupportPage() {
           このページでは、よくある質問と、
           ご連絡前に確認していただきたい内容をまとめています。
         </p>
-        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
+        <p style={{ margin: 0, opacity: 0.9 }}>
           購入・利用・請求・返金に関するお問い合わせは{" "}
           <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
           {" "}までご連絡ください。
-        </p>
-        <p style={{ margin: 0, opacity: 0.9 }}>
-          事業者情報は「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」に記載しています。
-          ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」もご確認ください。
         </p>
       </section>
 
@@ -110,7 +106,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。相談返書はプランにより1件または合計5件です（詳細は下記と特商法表記をご確認ください）。
+              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。相談返書はプランにより1件または合計5件です。
             </p>
           </article>
           <article>
@@ -122,9 +118,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>ログインできない場合</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は、本ページ上部のお問い合わせについて、または
-              <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
-              の連絡先からお問い合わせください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
+              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は、本ページ上部の問い合わせ先へご連絡ください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
             </p>
           </article>
           <article>
@@ -172,16 +166,6 @@ export default function SupportPage() {
             ：危機的・不適切と判断された内容はブロックされますが、その場合は相談返書の件数を消費しません。
           </li>
         </ul>
-      </section>
-
-      <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ご連絡について</h2>
-        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
-          返金・閲覧不具合に関するご連絡も、本ページ上部のお問い合わせについてに記載の窓口で受け付けています。
-        </p>
-        <p style={{ margin: 0, opacity: 0.9 }}>
-          ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」のページもご確認ください。
-        </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>

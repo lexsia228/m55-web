@@ -55,7 +55,7 @@ export const ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY =
   '法令・決済・不正防止・監査等により保持が必要な記録は、削除対象外となる場合があります。';
 
 export const ACCOUNT_DATA_SUPPORT_CONTACT_NOTE =
-  '申請方法は、特定商取引法に基づく表記に記載の連絡先、または本ページ下部のご連絡についてをご確認ください。';
+  '申請は、本ページ上部の問い合わせ先へご連絡ください。';
 
 /** Privacy — アカウント・データの削除 */
 export const ACCOUNT_DATA_PRIVACY_SECTION_TITLE = 'アカウント・データの削除';

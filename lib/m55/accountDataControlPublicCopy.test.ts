@@ -142,7 +142,8 @@ describe('accountDataControlPublicCopy — public support contact', () => {
     assert.equal(TERMS.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
     assert.equal(PRIVACY.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
     assert.match(REFUND, /href="\/support"/);
-    assert.match(TERMS, /href="\/support"/);
+    assert.equal(TERMS.includes('href="/support"'), false);
+    assert.equal(TERMS.includes('href="/legal/'), false);
     assert.match(PRIVACY, /ACCOUNT_DATA_REQUEST_HREF/);
   });
 });
