@@ -1,5 +1,7 @@
 import Link from "next/link";
 import {
+  M55_PUBLIC_SUPPORT_EMAIL,
+  M55_PUBLIC_SUPPORT_MAILTO,
   ACCOUNT_DATA_SUPPORT_AFTER_VERIFY,
   ACCOUNT_DATA_SUPPORT_CONTACT_NOTE,
   ACCOUNT_DATA_SUPPORT_INTRO,
@@ -27,9 +29,13 @@ export default function SupportPage() {
           このページでは、よくある質問と、
           ご連絡前に確認していただきたい内容をまとめています。
         </p>
+        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
+          購入・利用・請求・返金に関するお問い合わせは{" "}
+          <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
+          {" "}までご連絡ください。
+        </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          購入・利用・請求・返金に関する連絡先は、
-          「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」に記載しています。
+          事業者情報は「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」に記載しています。
           ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」もご確認ください。
         </p>
       </section>
@@ -171,9 +177,13 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ご連絡について</h2>
         <p style={{ margin: "0 0 6px", opacity: 0.9 }}>お問い合わせについて</p>
+        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
+          購入、利用、返金に関するお問い合わせは{" "}
+          <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
+          {" "}までご連絡ください。
+        </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          購入、利用、返金に関するご連絡先は
-          「<Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>」にまとめています。
+          返金・閲覧不具合に関するご連絡も同じ窓口で受け付けています。
           ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」のページもご確認ください。
         </p>
       </section>

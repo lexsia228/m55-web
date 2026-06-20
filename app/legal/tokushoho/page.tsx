@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  M55_PUBLIC_SUPPORT_EMAIL,
+  M55_PUBLIC_SUPPORT_MAILTO,
+} from "../../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "特定商取引法に基づく表記 | M55",
@@ -46,7 +50,10 @@ export default function TokushohoPage() {
           paddingLeft: 18,
         }}>
           <li>販売事業者：M55 Project</li>
-          <li>連絡先メールアドレス：lexsia228@gmail.com</li>
+          <li>
+            連絡先メールアドレス：
+            <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
+          </li>
           <li>所在地・電話番号：ご請求をいただければ遅滞なく開示いたします。</li>
         </ul>
       </section>

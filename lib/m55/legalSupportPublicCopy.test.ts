@@ -21,6 +21,8 @@ const FORBIDDEN_PUBLIC_TERMS = [
 
 const ROUTE_FILES = {
   '/legal/terms': 'app/legal/terms/page.tsx',
+  '/legal/refund': 'app/legal/refund/page.tsx',
+  '/legal/privacy': 'app/legal/privacy/page.tsx',
   '/legal/tokushoho': 'app/legal/tokushoho/page.tsx',
   '/support': 'app/support/page.tsx',
 } as const;
@@ -82,5 +84,16 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     for (const term of FORBIDDEN_PUBLIC_TERMS) {
       assert.equal(blob.includes(term), false, `forbidden term in legal/support: ${term}`);
     }
+  });
+
+  it('uses unified public support email and mailto across legal/support routes', () => {
+    const blob = combinedPublicCopy();
+    const ssot = readPage('lib/m55/accountDataControlPublicCopy.ts');
+    assert.match(ssot, /support@m-55\.jp/);
+    assert.match(ssot, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.match(blob, /M55_PUBLIC_SUPPORT_EMAIL/);
+    assert.match(blob, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.equal(blob.includes('lexsia228@gmail.com'), false);
+    assert.equal(blob.includes('lexsia228@gmail'), false);
   });
 });

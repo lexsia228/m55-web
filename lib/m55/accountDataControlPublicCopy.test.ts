@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  M55_PUBLIC_SUPPORT_EMAIL,
+  M55_PUBLIC_SUPPORT_MAILTO,
   ACCOUNT_DATA_MY_BODY_P1,
   ACCOUNT_DATA_MY_BODY_P2,
   ACCOUNT_DATA_MY_DEVICE_NOTE,
@@ -49,8 +51,11 @@ const FORBIDDEN_TERMS = [
 const MY_PANEL = readRepo('components/my/MyPanel.tsx');
 const SUPPORT = readRepo('app/support/page.tsx');
 const PRIVACY = readRepo('app/legal/privacy/page.tsx');
+const TOKUSHOHO = readRepo('app/legal/tokushoho/page.tsx');
+const REFUND = readRepo('app/legal/refund/page.tsx');
+const TERMS = readRepo('app/legal/terms/page.tsx');
 const COPY_MODULE = readRepo('lib/m55/accountDataControlPublicCopy.ts');
-const COMBINED = [COPY_MODULE, MY_PANEL, SUPPORT, PRIVACY].join('\n');
+const COMBINED = [COPY_MODULE, MY_PANEL, SUPPORT, PRIVACY, TOKUSHOHO, REFUND, TERMS].join('\n');
 
 describe('accountDataControlPublicCopy — My', () => {
   it('exports My section copy and CTA href', () => {
@@ -112,6 +117,20 @@ describe('accountDataControlPublicCopy — Privacy', () => {
     assert.match(PRIVACY, /ACCOUNT_DATA_REQUEST_HREF/);
     assert.match(PRIVACY, /ACCOUNT_DATA_PRIVACY_SECTION_TITLE/);
     assert.match(PRIVACY, /accountDataControlPublicCopy/);
+  });
+});
+
+describe('accountDataControlPublicCopy — public support contact', () => {
+  it('exports unified public support email SSOT', () => {
+    assert.equal(M55_PUBLIC_SUPPORT_EMAIL, 'support@m-55.jp');
+    assert.equal(M55_PUBLIC_SUPPORT_MAILTO, 'mailto:support@m-55.jp');
+  });
+
+  it('does not expose personal Gmail in user-facing legal/support pages', () => {
+    for (const blob of [SUPPORT, PRIVACY, TOKUSHOHO, REFUND, TERMS]) {
+      assert.equal(blob.includes('lexsia228@gmail.com'), false);
+      assert.equal(blob.includes('lexsia228@gmail'), false);
+    }
   });
 });
 
