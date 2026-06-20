@@ -236,8 +236,10 @@ flags AS (
         THEN 'TARGET_RETAINED_GREEN'
       WHEN pd.scenario_mode = 'POST_DELETE_TARGET_RETAINED' THEN 'HOLD_TARGET_DATA_REMAINS'
       WHEN pd.scenario_mode = 'POST_DELETE_CONTROL_UNRELATED'
+        AND pd.labels_exact
+        AND length(trim(pd.control_baseline_fingerprint)) > 0
+        AND length(trim(pd.observed_control_fingerprint)) > 0
         AND pd.observed_control_fingerprint = pd.control_baseline_fingerprint
-        AND pd.control_prior_event_count = 0
         THEN 'CONTROL_UNRELATED_GREEN'
       WHEN pd.scenario_mode = 'POST_DELETE_CONTROL_UNRELATED'
         AND pd.observed_control_fingerprint <> pd.control_baseline_fingerprint
