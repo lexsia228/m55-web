@@ -1,4 +1,4 @@
-import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { PAID_DTR_LP, PAID_DTR_PUBLIC_SCOPE_CLARITY, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 
 /** Top / free-entry public copy — references PAID_DTR_LP SSOT; no long LP duplication. */
 export const TOP_FREE_ENTRY_PUBLIC_COPY = {
@@ -43,7 +43,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     lightPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     lightSavedReportJa: '正式4章',
     lightConsultReplyJa: '相談返書1件',
-    upgradeNoteJa: 'ライト購入後は、¥600でFULL化できます。',
+    upgradeNoteJa: 'ライト購入後は、¥600でFULL化できます（合計¥1,600）。最初からFULLなら¥1,480です。',
   },
   home: {
     heroProductLabelJa: '個人向けの見取り図',
@@ -52,20 +52,20 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     tierFreeExploreJa:
       '仕組みと読み方、10通りの資質の地図はページから読めます。',
     fiveAxisLeadJa:
-      '無料では傾向の輪郭まで確認できます。保存版レポートでは統合アルゴリズムで読み解きを深め、相談返書では一つの相談テーマを読み直します。',
+      '無料では傾向の輪郭まで確認できます。保存版レポートでは同じ土台を読み返し用4章に整理し、相談返書では一つの相談テーマを件数内で読み直します。',
     algorithmNoteJa:
       'M55は、入力された情報と言葉をもとに、統合アルゴリズムで自分の出方を読み解くパーソナルシステムです。',
     reportSectionEyebrowJa: '保存版レポート',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
-      '保存版レポートと相談返書1件。決済完了後にウェブ上で閲覧できます（物理配送なし）。',
+      'まず保存版を読みたい方向け。4章の保存版 + 相談返書1件。決済完了後にウェブ上で閲覧できます（物理配送なし）。',
     reportFullEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     reportFullPriceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     reportFullSummaryJa:
-      '上位選択。相談返書を合計5件まで利用できます。',
+      '返書で複数回深めたい方向け。4章の保存版 + 相談返書合計5件。',
     reportDepthNoteJa:
-      '無料の見取り図と同じ土台を、あなた専用の読み解きとして保存版に整理します。',
+      '無料の見取り図と同じ土台を、購入時点の入力内容をもとに読み返せる保存版に整理します。',
     reportAuxJa:
       '相談返書は、保存版に今回入力した一つの相談テーマを重ねて読み直す補助価値です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '今回の保存版では',
@@ -75,11 +75,14 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   learnMore: {
     summaryJa: 'M55の仕組みと資料',
     rulesJa: [
-      '無料では基礎の見取り図が見えます。',
-      '保存版レポートでは、統合アルゴリズムで同じ土台を深く整理して読み返せます。',
-      '保存版ライトには相談返書1件が付随します。会話を続ける形式ではありません。',
+      '無料では基礎の見取り図が見えます。「今日」「今週」は入力・表示時点の補助表現です。',
+      PAID_DTR_PUBLIC_SCOPE_CLARITY.notDailyWeeklyMonthlyServiceJa,
+      '保存版レポートでは、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
+      '保存版ライト（¥1,000）は相談返書1件。まず保存版を読みたい方向けです。',
+      '保存版FULL（¥1,480）は相談返書合計5件。返書で複数回深めたい方向けです。',
+      'ライト購入後のFULL化は¥600（合計¥1,600）。最初からFULLなら¥1,480です。',
+      '相談返書は保存版に紐づく一テーマへの返書で、会話を続ける形式ではありません。',
       '購入後はウェブ上で閲覧できます。物理配送はありません。',
-      '保存版FULLは上位選択で、より多くの相談返書を利用できます。',
     ] as const,
   },
   coreBoundary: {

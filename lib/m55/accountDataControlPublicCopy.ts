@@ -3,6 +3,10 @@
  * Deletion is support-request only — no automated deletion promises.
  */
 
+/** Public-facing support contact (display + mailto only). */
+export const M55_PUBLIC_SUPPORT_EMAIL = 'support@m-55.jp';
+export const M55_PUBLIC_SUPPORT_MAILTO = `mailto:${M55_PUBLIC_SUPPORT_EMAIL}` as const;
+
 /** My — subsection under ヘルプ・お問い合わせ */
 export const ACCOUNT_DATA_MY_SECTION_TITLE = 'アカウント削除・データ消去';
 
