@@ -111,3 +111,4 @@ ops/runs/local/
 # Allowlist: track Control Plane prompts only (does not un-ignore other *.txt)
 !prompts/ops/*.txt
 
+.vercel
