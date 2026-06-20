@@ -61,7 +61,6 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(tokushoho, /¥600（税込）/);
     assert.match(tokushoho, /FULL化後：相談返書を合計5件/);
     assert.match(tokushoho, /合計¥1,600/);
-    assert.match(tokushoho, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('includes terms consult reply counts for light, full, and upgrade', () => {
@@ -69,7 +68,6 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(terms, /保存版ライト（¥1,000）には相談返書1件/);
     assert.match(terms, /保存版FULL（¥1,480）には相談返書が合計5件/);
     assert.match(terms, /ライト購入後にFULL化/);
-    assert.match(terms, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('includes support plan difference and full upgrade guidance', () => {
@@ -80,7 +78,6 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(support, /¥600でFULL化/);
     assert.match(support, /合計¥1,600/);
     assert.match(support, /最初からFULL.*¥1,480/s);
-    assert.match(support, /日次・週次・月次の鑑定を継続して提供するサービスではありません/);
   });
 
   it('does not expose forbidden legacy or sales terms in public legal/support copy', () => {

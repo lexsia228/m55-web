@@ -31,7 +31,6 @@ export default function TermsPage() {
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>提供内容</h2>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>本サービスは、ユーザー入力に基づく情報整理のレポートを提供します。</li>
-          <li>本サービスは、日次・週次・月次の鑑定を継続して提供するサービスではありません。</li>
           <li>保存版は、購入時点の入力内容をもとにした読み返し用レポートです。</li>
           <li>決済完了後、ウェブ上で閲覧可能です（物理配送はありません）。</li>
         </ul>
