@@ -132,6 +132,19 @@ describe('accountDataControlPublicCopy — public support contact', () => {
       assert.equal(blob.includes('lexsia228@gmail'), false);
     }
   });
+
+  it('limits direct support email display to support and tokushoho pages', () => {
+    assert.match(SUPPORT, /M55_PUBLIC_SUPPORT_EMAIL/);
+    assert.match(SUPPORT, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.match(TOKUSHOHO, /M55_PUBLIC_SUPPORT_EMAIL/);
+    assert.match(TOKUSHOHO, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.equal(REFUND.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.equal(TERMS.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.equal(PRIVACY.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.match(REFUND, /href="\/support"/);
+    assert.match(TERMS, /href="\/support"/);
+    assert.match(PRIVACY, /ACCOUNT_DATA_REQUEST_HREF/);
+  });
 });
 
 describe('accountDataControlPublicCopy — forbidden promises', () => {

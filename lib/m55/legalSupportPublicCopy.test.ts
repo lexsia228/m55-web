@@ -86,13 +86,28 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     }
   });
 
-  it('uses unified public support email and mailto across legal/support routes', () => {
-    const blob = combinedPublicCopy();
+  it('limits direct support email display to support and tokushoho pages', () => {
+    const support = readPage(ROUTE_FILES['/support']);
+    const tokushoho = readPage(ROUTE_FILES['/legal/tokushoho']);
+    const refund = readPage(ROUTE_FILES['/legal/refund']);
+    const terms = readPage(ROUTE_FILES['/legal/terms']);
+    const privacy = readPage(ROUTE_FILES['/legal/privacy']);
     const ssot = readPage('lib/m55/accountDataControlPublicCopy.ts');
+
     assert.match(ssot, /support@m-55\.jp/);
     assert.match(ssot, /M55_PUBLIC_SUPPORT_MAILTO/);
-    assert.match(blob, /M55_PUBLIC_SUPPORT_EMAIL/);
-    assert.match(blob, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.match(support, /M55_PUBLIC_SUPPORT_EMAIL/);
+    assert.match(support, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.match(tokushoho, /M55_PUBLIC_SUPPORT_EMAIL/);
+    assert.match(tokushoho, /M55_PUBLIC_SUPPORT_MAILTO/);
+    assert.equal(refund.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.equal(terms.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.equal(privacy.includes('M55_PUBLIC_SUPPORT_EMAIL'), false);
+    assert.match(refund, /href="\/support"/);
+    assert.match(terms, /href="\/support"/);
+    assert.match(privacy, /ACCOUNT_DATA_REQUEST_HREF/);
+
+    const blob = combinedPublicCopy();
     assert.equal(blob.includes('lexsia228@gmail.com'), false);
     assert.equal(blob.includes('lexsia228@gmail'), false);
   });

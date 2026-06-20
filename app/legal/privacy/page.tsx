@@ -1,7 +1,5 @@
 import Link from "next/link";
 import {
-  M55_PUBLIC_SUPPORT_EMAIL,
-  M55_PUBLIC_SUPPORT_MAILTO,
   ACCOUNT_DATA_PRIVACY_AFTER_VERIFY,
   ACCOUNT_DATA_PRIVACY_DEVICE_P1,
   ACCOUNT_DATA_PRIVACY_DEVICE_P2,
@@ -92,8 +90,6 @@ export default function PrivacyPage() {
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>開示・訂正・削除等</h2>
         <p style={{ margin: 0 }}>
           お問い合わせは{" "}
-          <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
-          {" "}、または{" "}
           <Link href={ACCOUNT_DATA_REQUEST_HREF}>サポート窓口（{ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL}）</Link>
           {" "}よりご連絡ください。
         </p>

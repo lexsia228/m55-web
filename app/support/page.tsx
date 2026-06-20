@@ -122,9 +122,9 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>ログインできない場合</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は
+              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は、本ページ上部のお問い合わせについて、または
               <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
-              の連絡先、または本ページ下部のご連絡についてからお問い合わせください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
+              の連絡先からお問い合わせください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
             </p>
           </article>
           <article>
@@ -176,14 +176,10 @@ export default function SupportPage() {
 
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ご連絡について</h2>
-        <p style={{ margin: "0 0 6px", opacity: 0.9 }}>お問い合わせについて</p>
         <p style={{ margin: "0 0 6px", opacity: 0.9 }}>
-          購入、利用、返金に関するお問い合わせは{" "}
-          <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
-          {" "}までご連絡ください。
+          返金・閲覧不具合に関するご連絡も、本ページ上部のお問い合わせについてに記載の窓口で受け付けています。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          返金・閲覧不具合に関するご連絡も同じ窓口で受け付けています。
           ご連絡前に、「<Link href="/legal/refund">返金・キャンセル</Link>」のページもご確認ください。
         </p>
       </section>

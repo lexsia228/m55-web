@@ -1,8 +1,4 @@
 import Link from "next/link";
-import {
-  M55_PUBLIC_SUPPORT_EMAIL,
-  M55_PUBLIC_SUPPORT_MAILTO,
-} from "../../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "利用規約 | M55",
@@ -71,9 +67,7 @@ export default function TermsPage() {
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>返金・問い合わせ</h2>
         <p style={{ margin: 0 }}>
           返金条件は <Link href="/legal/refund">返金・キャンセル</Link> を参照してください。
-          お問い合わせは{" "}
-          <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
-          {" "}または <Link href="/support">サポート窓口</Link> からご連絡ください。
+          お問い合わせは <Link href="/support">サポート窓口</Link> からご連絡ください。
         </p>
       </section>
 

@@ -1,8 +1,4 @@
 ﻿import Link from "next/link";
-import {
-  M55_PUBLIC_SUPPORT_EMAIL,
-  M55_PUBLIC_SUPPORT_MAILTO,
-} from "../../../lib/m55/accountDataControlPublicCopy";
 
 export const metadata = {
   title: "返金・キャンセル | M55",
@@ -19,7 +15,7 @@ export default function RefundPage() {
           M55の保存版レポートは、決済完了後にウェブ上で閲覧できるデジタル提供です。物理配送はありません。
           ログイン状態、通信環境、決済の反映状況などにより、すぐに閲覧できない場合があります。そのときは
           <Link href="/support">サポート窓口</Link>
-          （<a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>）へご連絡ください。
+          へご連絡ください。
         </p>
       </section>
 
@@ -45,7 +41,6 @@ export default function RefundPage() {
         <ol style={{ margin: 0, paddingLeft: 18 }}>
           <li>
             <Link href="/support">サポート窓口</Link>
-            （<a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>）
             からご連絡ください（状況確認のため、決済日時などを伺うことがあります）。
           </li>
           <li>内容確認のうえ、対応可否と手続きをご案内します。</li>
