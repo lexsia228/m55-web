@@ -114,6 +114,14 @@ export default function SupportPage() {
             </p>
           </article>
           <article>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>ログインできない場合</h3>
+            <p style={{ margin: 0, opacity: 0.9 }}>
+              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は
+              <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
+              の連絡先、または本ページ下部のご連絡についてからお問い合わせください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
+            </p>
+          </article>
+          <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>入力した情報は何に使われますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
               ニックネーム・生年月日などのプロフィールは読み取りの生成に使います。決済やアカウントに関する情報は提供・決済のために必要な範囲で取り扱います。詳細はプライバシーポリシーをご覧ください。
