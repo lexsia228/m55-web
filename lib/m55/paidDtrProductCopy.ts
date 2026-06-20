@@ -1199,9 +1199,11 @@ export const PAID_DTR_LP = {
       '購入前に、プランの内容と相談返書の件数をご確認ください。',
     ] as const,
     legalLinks: [
+      { labelJa: 'サポート', href: '/support' },
+      { labelJa: '返金', href: '/legal/refund' },
+      { labelJa: '特商法', href: '/legal/tokushoho' },
       { labelJa: '利用規約', href: '/legal/terms' },
-      { labelJa: 'プライバシーポリシー', href: '/legal/privacy' },
-      { labelJa: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
+      { labelJa: 'プライバシー', href: '/legal/privacy' },
     ] as const,
   },
   faq: {

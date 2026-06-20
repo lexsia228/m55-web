@@ -10,9 +10,20 @@ export default function RefundPage() {
       <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 12px" }}>返金・キャンセル</h1>
 
       <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>提供形態</h2>
+        <p style={{ margin: 0 }}>
+          M55の保存版レポートは、決済完了後にウェブ上で閲覧できるデジタル提供です。物理配送はありません。
+          ログイン状態、通信環境、決済の反映状況などにより、すぐに閲覧できない場合があります。そのときは
+          <Link href="/support">サポート窓口</Link>
+          へご連絡ください。
+        </p>
+      </section>
+
+      <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>返金について</h2>
         <p style={{ margin: 0 }}>
           デジタルコンテンツの性質上、原則として返金は行いません。
+          内容の好みの違いや、閲覧後の自己都合によるキャンセルは、原則として返金対象外です。
         </p>
       </section>
 
@@ -29,9 +40,11 @@ export default function RefundPage() {
         <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 8px" }}>手続き</h2>
         <ol style={{ margin: 0, paddingLeft: 18 }}>
           <li>
-            <Link href="/support">/support</Link> からご連絡ください（状況確認のため、決済日時などを伺うことがあります）。
+            <Link href="/support">サポート窓口</Link>
+            からご連絡ください（状況確認のため、決済日時などを伺うことがあります）。
           </li>
           <li>内容確認のうえ、対応可否と手続きをご案内します。</li>
+          <li>通常、2〜5営業日程度でご返信するよう努めております（状況により前後します）。</li>
         </ol>
       </section>
     </main>

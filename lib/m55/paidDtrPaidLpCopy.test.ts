@@ -181,6 +181,12 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('includes legal link targets for purchase notes', () => {
     const hrefs = PAID_DTR_LP.purchaseNotes.legalLinks.map((l) => l.href);
-    assert.deepEqual(hrefs, ['/legal/terms', '/legal/privacy', '/legal/tokushoho']);
+    assert.deepEqual(hrefs, [
+      '/support',
+      '/legal/refund',
+      '/legal/tokushoho',
+      '/legal/terms',
+      '/legal/privacy',
+    ]);
   });
 });

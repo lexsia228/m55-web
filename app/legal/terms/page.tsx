@@ -66,7 +66,7 @@ export default function TermsPage() {
       <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>返金・問い合わせ</h2>
         <p style={{ margin: 0 }}>
-          返金条件は <Link href="/legal/refund">/legal/refund</Link> を、サポート窓口は <Link href="/support">/support</Link> を参照してください。
+          返金条件は <Link href="/legal/refund">返金・キャンセル</Link> を、サポート窓口は <Link href="/support">サポート窓口</Link> を参照してください。
         </p>
       </section>
 

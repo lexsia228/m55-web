@@ -11,7 +11,7 @@
   max-width: min(680px, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
   padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x) 56px;
-  background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #faf9fb 100%);
+  background: linear-gradient(180deg, #faf8f6 0%, #f7f5f8 42%, #f9f7f4 100%);
   background-attachment: local;
 }
 
