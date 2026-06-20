@@ -91,7 +91,7 @@ export default function TodayPanel() {
 
         <nav className={styles.bridges} aria-label="次のステップ">
           <Link href="/weekly">今週の焦点へ</Link>
-          <Link href="/dtr/lp">Entry Report について</Link>
+          <Link href="/dtr/lp">保存版レポートについて</Link>
         </nav>
       </section>
     </div>
