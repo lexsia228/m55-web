@@ -7,9 +7,9 @@ export const metadata = {
 export default function TokushohoPage() {
   return (
     <main style={{
-      maxWidth: 860,
+      maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
-      padding: "24px 16px 56px",
+      padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
       lineHeight: 1.7,
     }}>
       <h1 style={{
@@ -111,7 +111,7 @@ export default function TokushohoPage() {
           <li>代金の支払時期：ご注文時に決済が確定します。なお、実際の引落時期は、お客様がご利用の決済手段（クレジットカード等）の契約内容や各社の定めにより異なります。</li>
         </ul>
         <p style={{ margin: "10px 0 0", fontSize: 13, opacity: 0.9 }}>
-          サポート・お問い合わせは <Link href="/support">/support</Link> の窓口にて受け付けます。
+          サポート・お問い合わせは <Link href="/support">サポート窓口</Link> にて受け付けます。
         </p>
       </section>
 
