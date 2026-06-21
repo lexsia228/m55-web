@@ -119,6 +119,34 @@ describe('stored envelope read path', () => {
     assert.equal(src.includes('runDtrEngine'), false);
     assert.ok(src.includes('resolveStoredEnvelopeRead'));
   });
+
+  it('/dtr/core page passes storedEnvelopeReadMode to DtrFullReader', () => {
+    const src = readFileSync(join(process.cwd(), 'app/dtr/core/page.tsx'), 'utf8');
+    assert.ok(src.includes('storedEnvelopeReadMode={read.mode}'));
+  });
+
+  it('1992-12-19 legacy snapshot => mode legacy / lane 5 / プロデューサー unchanged', () => {
+    const envelope = runDtrEngine({
+      birthDate: '1992-12-19',
+      nickname: 'mi',
+      locale: 'ja-JP',
+      contextScope: 'dtr',
+    });
+    const row = baseRow({
+      envelope_json: envelope,
+      engine_version: null,
+      engine_context_json: null,
+      profile_snapshot: { nickname: 'mi', birthDate: '1992-12-19' },
+    });
+    const read = resolveStoredEnvelopeRead(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    assert.equal(read.mode, 'legacy');
+    assert.equal(read.envelope.auditMeta.stemLaneIndex, 5);
+    const shelf = deriveDtrShelfStemDisplayFromSnapshot(row);
+    assert.ok(shelf);
+    assert.equal(shelf!.publicTitle, 'プロデューサー');
+  });
 });
 
 describe('GX-01 golden (pipeline)', () => {

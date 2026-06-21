@@ -71,6 +71,12 @@ import {
   type DrawerHubOpenPanel,
   type DrawerHubPanelId,
 } from './PremiumDrawerHub';
+import type { StoredEnvelopeReadMode } from '../../lib/m55/compositeStem/storedEnvelopeRead';
+import {
+  SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
+  SAVED_SNAPSHOT_NOTICE_PRIMARY,
+  shouldShowLegacySnapshotNotice,
+} from '../../lib/m55/dtrSavedReportCopy';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -334,6 +340,8 @@ type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
+  /** From resolveStoredEnvelopeRead — legacy snapshots only show extra notice. */
+  storedEnvelopeReadMode?: StoredEnvelopeReadMode;
   /** Immutable paid body from dtr_report_snapshots (required; server gate ensures presence). */
   purchasedSnapshot: {
     envelope: DtrEnvelope;
@@ -734,10 +742,12 @@ function ReportFooterMetaCard({
   aiConsultIncluded,
   expiresAt,
   stemTitle,
+  storedEnvelopeReadMode,
 }: {
   aiConsultIncluded: boolean;
   expiresAt: string | null;
   stemTitle: string;
+  storedEnvelopeReadMode?: StoredEnvelopeReadMode;
 }) {
   return (
     <section className={styles.reportMetaCard} aria-label="保存版の情報">
@@ -759,7 +769,10 @@ function ReportFooterMetaCard({
           <span className={styles.reportMetaItemValue}>{stemTitle}</span>
         </p>
       </div>
-      <p className={styles.reportMetaNote}>この保存版は、購入時点のプロフィールをもとに作成・保存されています。</p>
+      <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_PRIMARY}</p>
+      {shouldShowLegacySnapshotNotice(storedEnvelopeReadMode) ? (
+        <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_LEGACY_MODE}</p>
+      ) : null}
     </section>
   );
 }
@@ -2785,6 +2798,7 @@ export default function DtrFullReader({
   ownershipType,
   aiConsultIncluded,
   expiresAt,
+  storedEnvelopeReadMode,
   purchasedSnapshot,
   consultDevPreviewRoomData,
 }: Props) {
@@ -3186,6 +3200,7 @@ export default function DtrFullReader({
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}
           stemTitle={stem.publicTitle}
+          storedEnvelopeReadMode={storedEnvelopeReadMode}
         />
       </div>
     </div>

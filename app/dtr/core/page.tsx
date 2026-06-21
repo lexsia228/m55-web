@@ -53,6 +53,7 @@ export default async function DtrCorePage() {
           ownershipType={ownership.ownershipType}
           aiConsultIncluded={ownership.aiConsultIncluded}
           expiresAt={ownership.expiresAt}
+          storedEnvelopeReadMode={read.mode}
           purchasedSnapshot={{
             envelope: read.envelope,
             profile: read.profile,
