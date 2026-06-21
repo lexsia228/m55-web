@@ -65,11 +65,11 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('includes M55 definition and three-layer free/saved/consult copy', () => {
     const blob = combinedPublicCopy();
-    assert.match(blob, /自分の出方/);
     assert.match(blob, /今のテーマ/);
     assert.match(blob, /無料の見取り図/);
     assert.match(blob, /4章の保存版/);
-    assert.match(blob, /統合アルゴリズム/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /自分の傾向/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /整理するための仕組み/);
     assert.match(blob, /相談返書/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
@@ -78,7 +78,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     const copy = readPage(COPY_FILE);
     const storefront = readPage(ROUTE_FILES['/']);
     const home = readPage(ROUTE_FILES['/home']);
-    const { storefront: sf, home: homeCopy } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    const { storefront: sf, home: homeCopy, learnMore } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(sf.fullPlanNameJa, '保存版FULL');
     assert.equal(sf.fullPriceLabelJa, '¥1,480（税込）');
     assert.equal(sf.fullConsultReplyJa, '相談返書合計5件');
@@ -87,15 +87,18 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(sf.lightConsultReplyJa, '相談返書1件');
     assert.equal(homeCopy.reportLightEyebrowJa, '保存版ライト');
     assert.equal(homeCopy.reportLightPriceJa, '¥1,000（税込）');
+    assert.equal(learnMore.rulesJa.length, 4);
     assert.match(copy, /相談返書合計5件/);
     assert.match(copy, /相談返書1件/);
     assert.match(home, /reportLightEyebrowJa/);
-    assert.match(home, /reportFullEyebrowJa/);
+    assert.match(home, /reportFullLineJa/);
     assert.ok(
-      home.indexOf('reportLightEyebrowJa') < home.indexOf('reportFullEyebrowJa'),
-      'home tier stack renders light before FULL',
+      home.indexOf('reportLightEyebrowJa') < home.indexOf('reportFullLineJa'),
+      'home report card renders light before FULL',
     );
     assert.match(home, /m55-home-learn-more/);
+    assert.match(home, /heroSupportJa/);
+    assert.match(home, /tierStackAriaLabelJa/);
   });
 
   it('includes formal four chapters and saved-plan CTA targets', () => {
@@ -121,8 +124,13 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('omits detailed plan arithmetic from top/free entry SSOT', () => {
     const copy = readPage(COPY_FILE);
+    const homePanel = readPage(ROUTE_FILES['/home']);
     for (const term of ['合計¥1,600', '最初からFULL ¥1,480', '差額は¥120', '差額¥120'] as const) {
       assert.equal(copy.includes(term), false, `must not include: ${term}`);
+    }
+    for (const term of ['有料レポート', '構造化レポート', '返書まで'] as const) {
+      assert.equal(copy.includes(term), false, `must not include: ${term}`);
+      assert.equal(homePanel.includes(term), false, `home must not include: ${term}`);
     }
     assert.match(copy, /必要になったらFULL化/);
     assert.match(copy, /相談返書1件/);
