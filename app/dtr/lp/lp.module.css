@@ -1,5 +1,320 @@
-/* DTR Paid LP — scoped CTA styles (local wrapper required for CSS modules) */
+/* DTR Paid LP — scoped layout, CTA hierarchy, mobile polish */
 
+.lpRoot {
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif;
+  color: #3d3d3d;
+  max-width: min(640px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: clamp(16px, 4vw, 32px) 0 clamp(64px, 10vw, 96px);
+  box-sizing: border-box;
+  line-height: 1.75;
+}
+
+.lpBreadcrumb {
+  margin: 0 0 20px;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+
+.lpSection {
+  margin-top: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(107, 95, 168, 0.13);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 18px 60px rgba(29, 24, 61, 0.045);
+  padding: 18px 16px;
+}
+
+.lpSectionPreTier {
+  composes: lpSection;
+}
+
+.lpH2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: rgba(60, 50, 86, 0.9);
+}
+
+.lpBody {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: rgba(60, 50, 86, 0.78);
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.lpBodyTight {
+  composes: lpBody;
+  margin-top: 10px;
+}
+
+.lpSavedHeadline {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.9);
+  line-height: 1.65;
+}
+
+.lpHeroSection {
+  composes: lpSection;
+  margin-top: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.lpHeroDark {
+  background: linear-gradient(145deg, #1a1230 0%, #261740 55%, #1c1438 100%);
+  padding: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 28px) clamp(18px, 3.5vw, 24px);
+}
+
+.lpHeroSubhead {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+}
+
+.lpHeroTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(21px, 4.2vw, 25px);
+  font-weight: 500;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.94);
+  letter-spacing: 0.02em;
+  line-height: 1.42;
+  white-space: pre-line;
+}
+
+.lpHeroBody {
+  margin: 0;
+  font-size: clamp(13px, 2.5vw, 14px);
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.lpHeroFooter {
+  padding: clamp(18px, 3.5vw, 22px) clamp(18px, 3.5vw, 24px);
+  background: radial-gradient(120% 90% at 50% -4%, rgba(245, 236, 255, 0.55), transparent 55%),
+    linear-gradient(172deg, rgba(253, 247, 238, 0.99) 0%, rgba(247, 241, 252, 0.98) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lpPriceChips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lpPriceChip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  min-width: 0;
+}
+
+.lpPriceChipFull {
+  composes: lpPriceChip;
+  border-color: rgba(107, 95, 168, 0.28);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 240, 255, 0.92) 100%);
+  box-shadow: 0 0 0 1px rgba(124, 111, 214, 0.1);
+}
+
+.lpPriceChipLabel {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.88);
+  line-height: 1.35;
+}
+
+.lpPriceChipValue {
+  font-size: clamp(15px, 3.6vw, 17px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #121212;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.lpPriceChipMeta {
+  font-size: 11px;
+  color: rgba(60, 50, 86, 0.72);
+  line-height: 1.45;
+}
+
+.lpChapterList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpChapterItem {
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 12px 14px;
+}
+
+.lpChapterTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.9);
+}
+
+.lpChapterIntro {
+  margin: 6px 0 0;
+  font-size: 12.9px;
+  color: rgba(60, 50, 86, 0.75);
+  line-height: 1.65;
+}
+
+.lpTierStack {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lpTierCard {
+  border-radius: 16px;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpTierCardFull {
+  composes: lpTierCard;
+  border-color: rgba(107, 95, 168, 0.3);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(247, 243, 255, 0.88) 100%);
+  box-shadow: 0 10px 32px rgba(61, 50, 98, 0.08), 0 0 0 1px rgba(124, 111, 214, 0.12);
+}
+
+.lpTierCardLight {
+  composes: lpTierCard;
+}
+
+.lpTierPlanName {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.92);
+}
+
+.lpTierPrice {
+  font-size: clamp(22px, 4.8vw, 28px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #121212;
+  letter-spacing: -0.01em;
+}
+
+.lpTierMeta {
+  font-size: 12.8px;
+  color: rgba(60, 50, 86, 0.82);
+  line-height: 1.65;
+}
+
+.lpTierBody {
+  margin: 0;
+  font-size: 12.9px;
+  color: rgba(60, 50, 86, 0.75);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.lpTierHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lpFaqList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lpFaqItem {
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 12px 14px;
+}
+
+.lpFaqQuestion {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(38, 36, 42, 0.9);
+}
+
+.lpFaqAnswer {
+  margin: 8px 0 0;
+  font-size: 12.9px;
+  color: rgba(60, 50, 86, 0.75);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.lpTrustWrap {
+  margin-top: 14px;
+}
+
+.lpLegalLinks {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(80, 65, 120, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 12.7px;
+  line-height: 1.75;
+  color: rgba(60, 50, 86, 0.78);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lpFinalCtaWrap {
+  margin-top: 14px;
+}
+
+.lpOwnedBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lpOwnedLead {
+  font-size: 13px;
+  color: rgba(107, 95, 168, 0.85);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.lpExpiredNotice {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: #5a4ea0;
+  padding: 10px 14px;
+  background: rgba(124, 111, 214, 0.06);
+  border-radius: 8px;
+  line-height: 1.65;
+}
+
+/* ── CTA hierarchy ── */
 .lpRoot :global(.m55-lp-cta-btn) {
   display: flex !important;
   align-items: center !important;
@@ -23,6 +338,19 @@
   line-height: 1 !important;
 }
 
+.lpRoot :global(.m55-lp-cta-btn--secondary) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #534a72 !important;
+  box-shadow: none !important;
+  border: 1.5px solid rgba(107, 95, 168, 0.28) !important;
+  font-weight: 600 !important;
+}
+
+.lpRoot :global(.m55-lp-cta-btn--muted-primary) {
+  background: linear-gradient(135deg, #4a4068 0%, #5f567e 100%) !important;
+  box-shadow: 0 5px 18px rgba(61, 50, 98, 0.22) !important;
+}
+
 .lpRoot :global(.m55-lp-cta-btn:hover:not(:disabled)) {
   opacity: 0.9 !important;
 }
@@ -35,4 +363,126 @@
 .lpRoot :global(.m55-lp-cta-btn:disabled) {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
+}
+
+/* TrustRow hint — LP scope only */
+.lpRoot :global([class*="CheckoutTrustRow_hint"]) {
+  font-size: 11px;
+  line-height: 1.58;
+}
+
+@media (max-width: 639px) {
+  .lpRoot {
+    max-width: min(640px, calc(100vw - 28px));
+    padding: 14px 0 clamp(52px, 12vw, 80px);
+  }
+
+  .lpBreadcrumb {
+    margin-bottom: 14px;
+  }
+
+  .lpSection,
+  .lpSectionPreTier {
+    margin-top: 14px;
+    padding: 14px 13px;
+    border-radius: 18px;
+  }
+
+  .lpSectionPreTier {
+    margin-top: 12px;
+    padding: 13px 12px;
+  }
+
+  .lpH2 {
+    font-size: 15px;
+  }
+
+  .lpBody,
+  .lpSavedHeadline,
+  .lpTierMeta,
+  .lpTierBody,
+  .lpChapterIntro,
+  .lpFaqAnswer,
+  .lpOwnedLead,
+  .lpExpiredNotice {
+    font-size: 14px;
+  }
+
+  .lpHeroDark {
+    padding: 18px 16px 16px;
+  }
+
+  .lpHeroFooter {
+    padding: 14px 14px 16px;
+    gap: 10px;
+  }
+
+  .lpPriceChips {
+    gap: 7px;
+  }
+
+  .lpPriceChip,
+  .lpPriceChipFull {
+    padding: 9px 10px;
+  }
+
+  .lpPriceChipLabel {
+    font-size: 11px;
+  }
+
+  .lpPriceChipMeta {
+    font-size: 10.5px;
+  }
+
+  .lpChapterList {
+    margin-top: 10px;
+    gap: 8px;
+  }
+
+  .lpChapterItem {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .lpChapterTitle {
+    font-size: 14px;
+  }
+
+  .lpTierStack {
+    margin-top: 12px;
+    gap: 10px;
+  }
+
+  .lpTierCard,
+  .lpTierCardFull,
+  .lpTierCardLight {
+    padding: 14px 12px;
+    gap: 9px;
+  }
+
+  .lpFaqList {
+    gap: 10px;
+  }
+
+  .lpFaqItem {
+    padding: 10px 12px;
+  }
+
+  .lpFaqQuestion {
+    font-size: 14px;
+  }
+
+  .lpRoot :global(.m55-lp-cta-btn) {
+    padding: 15px 18px !important;
+  }
+
+  .lpRoot :global([class*="CheckoutTrustRow_hint"]) {
+    font-size: 11.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lpRoot :global(.m55-lp-cta-btn) {
+    transition: none !important;
+  }
 }
