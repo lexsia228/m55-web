@@ -8,7 +8,6 @@ import {
   DEFAULT_COUNTRY,
   SUPPORTED_COUNTRIES,
   enrichBirthProfileForSave,
-  profileFormatLabel,
 } from '../../lib/soul/birthProfileV2';
 import {
   displayLabelForDtrRightKey,
@@ -788,11 +787,6 @@ function ProfileSection({ userId }: { userId: string }) {
           {MY_PROFILE_EDIT_CTA_LABEL}
         </button>
       </div>
-      {profile && (
-        <p className={styles.muted} style={{ fontSize: 11 }}>
-          {profileFormatLabel(profile)}
-        </p>
-      )}
       <p className={styles.body}>{profile?.nickname}</p>
       {formattedBirth && <p className={styles.muted}>{formattedBirth}</p>}
       {timeLine && <p className={styles.muted}>{timeLine}</p>}
