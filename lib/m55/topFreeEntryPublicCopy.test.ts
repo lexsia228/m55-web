@@ -92,6 +92,8 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(copy, /相談返書1件/);
     assert.match(home, /reportLightEyebrowJa/);
     assert.match(home, /reportFullLineJa/);
+    assert.match(home, /reportFullUpgradeNoteJa/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.reportFullUpgradeNoteJa, /FULL化/);
     assert.ok(
       home.indexOf('reportLightEyebrowJa') < home.indexOf('reportFullLineJa'),
       'home report card renders light before FULL',

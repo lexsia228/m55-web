@@ -77,6 +77,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '相談返書合計5件まで深めたい方向け（保存版FULL）。',
     reportFullLineJa:
       '保存版FULL（¥1,480（税込））：相談返書合計5件。',
+    reportFullUpgradeNoteJa:
+      'ライトで始めたあとも、必要に応じてFULL化できます。',
     reportDepthNoteJa:
       '無料の見取り図と同じ土台を、購入時点の入力内容をもとに読み返せる保存版に整理します。',
     reportAuxJa:

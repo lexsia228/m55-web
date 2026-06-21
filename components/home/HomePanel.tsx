@@ -335,6 +335,7 @@ export default function HomePanel() {
               <ul className={styles.featureListLoose}>
                 <li className={styles.featureItemLoose}>{homeCopy.reportLightSummaryJa}</li>
                 <li className={styles.featureItemLoose}>{homeCopy.reportFullLineJa}</li>
+                <li className={styles.featureItemLoose}>{homeCopy.reportFullUpgradeNoteJa}</li>
               </ul>
             </div>
 
