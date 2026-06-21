@@ -116,7 +116,7 @@ export default function DtrCatalogStrip({
     : DTR_PRODUCT_CATALOG;
 
   const rowClass = variant === 'dtr' ? `${styles.row} ${styles.rowDtr}` : styles.row;
-  const listAriaLabel = variant === 'my' ? 'サービス一覧' : 'レポートとサービスのカタログ';
+  const listAriaLabel = variant === 'my' ? 'サービス一覧' : '保存版とサービスのカタログ';
 
   return (
     <ul className={styles.list} role="list" aria-label={listAriaLabel}>

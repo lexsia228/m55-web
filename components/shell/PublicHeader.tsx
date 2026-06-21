@@ -9,7 +9,7 @@ type TabId = '/core' | '/dtr' | '/my';
 
 const TABS: { href: TabId; label: string }[] = [
   { href: '/core', label: '本質' },
-  { href: '/dtr', label: 'レポート' },
+  { href: '/dtr', label: '保存版' },
   { href: '/my', label: 'マイページ' },
 ];
 
