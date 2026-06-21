@@ -43,7 +43,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     lightPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     lightSavedReportJa: '正式4章',
     lightConsultReplyJa: '相談返書1件',
-    upgradeNoteJa: 'ライト購入後は、¥600でFULL化できます（合計¥1,600）。最初からFULLなら¥1,480です。',
+    upgradeNoteJa:
+      'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
     heroProductLabelJa: '個人向けの見取り図',
@@ -69,7 +70,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     reportAuxJa:
       '相談返書は、保存版に今回入力した一つの相談テーマを重ねて読み直す補助価値です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '今回の保存版では',
-    chapterMoreJa: '今回のレポートでは、複数の観点から整理します。',
+    chapterMoreJa: '今回の保存版では、複数の観点から整理します。',
     valueGapNoteJa: '無料＝見取り図／保存版＝読み返しできる構造化レポート。',
   },
   learnMore: {
@@ -77,9 +78,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     rulesJa: [
       '無料では基礎の見取り図が見えます。',
       '4章の保存版では、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
-      '保存版ライト（¥1,000）は相談返書1件。まず保存版を読みたい方向けです。',
-      '保存版FULL（¥1,480）は相談返書合計5件。返書で複数回深めたい方向けです。',
-      'ライト購入後のFULL化は¥600（合計¥1,600）。最初からFULLなら¥1,480です。',
+      'ライトは、まず保存版を読み、1回だけ相談したい方向けです。',
+      'FULLは、何度か相談しながら深く整理したい方向けです。',
+      'ライト購入後でも、必要になったらFULL化できます。',
       '相談返書は保存版に紐づく一テーマへの返書で、会話を続ける形式ではありません。',
       '購入後はウェブ上で閲覧できます。物理配送はありません。',
     ] as const,

@@ -76,8 +76,8 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(support, /保存版ライト.*相談返書1件/s);
     assert.match(support, /保存版FULL.*相談返書合計5件/s);
     assert.match(support, /¥600でFULL化/);
-    assert.match(support, /合計¥1,600/);
-    assert.match(support, /最初からFULL.*¥1,480/s);
+    assert.match(support, /必要になったらFULL化/);
+    assert.equal(support.includes('合計¥1,600'), false);
   });
 
   it('does not expose forbidden legacy or sales terms in public legal/support copy', () => {

@@ -119,6 +119,16 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     }
   });
 
+  it('omits detailed plan arithmetic from top/free entry SSOT', () => {
+    const copy = readPage(COPY_FILE);
+    for (const term of ['合計¥1,600', '最初からFULL ¥1,480', '差額は¥120', '差額¥120'] as const) {
+      assert.equal(copy.includes(term), false, `must not include: ${term}`);
+    }
+    assert.match(copy, /必要になったらFULL化/);
+    assert.match(copy, /相談返書1件/);
+    assert.match(copy, /相談返書合計5件/);
+  });
+
   it('uses saved-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
     assert.match(activeCopy, /4章の保存版/);
