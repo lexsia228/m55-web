@@ -116,8 +116,16 @@ export const ProfileRepository = {
  * Post-purchase: copy device-local profile (free /core guest key) to Clerk user key.
  * Checkout leaves Clerk signed-in while localStorage still holds profile under device id.
  */
+/** Signed-in canonical profile is complete when birthDate is present (primary persistence guard). */
+export function hasCompleteCanonicalProfile(userId: string | null | undefined): boolean {
+  const birthDate = ProfileRepository.get(userId)?.birthDate?.trim();
+  return !!birthDate;
+}
+
 export function promoteGuestProfileToClerkUser(userId: string): boolean {
   if (!isClient() || !userId?.trim()) return false;
+  if (hasCompleteCanonicalProfile(userId)) return false;
+
   const guestOwnerId = getOrCreateDeviceId();
   const clerkOwnerId = resolveOwnerId(userId);
   if (guestOwnerId === clerkOwnerId) return false;

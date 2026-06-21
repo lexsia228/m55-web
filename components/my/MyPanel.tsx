@@ -617,6 +617,11 @@ function ProfileSection({ userId }: { userId: string }) {
     ProfileRepository.save(userId, p);
     setProfile(p);
     setMode('ready');
+    try {
+      window.dispatchEvent(new Event('m55:profile_updated'));
+    } catch {
+      /* no-op */
+    }
   };
 
   const handleEdit = () => {
