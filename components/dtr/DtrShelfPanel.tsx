@@ -6,9 +6,12 @@ import { useMemo } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import {
   LABEL_FORMAT_SAVED,
-  LABEL_PRODUCT_EN,
   LABEL_PRODUCT_JP,
+  LABEL_SAVED_REPORT_METADATA_JP,
   LABEL_STATE_OWNED,
+  MY_CONSULT_SECTION_TITLE,
+  MY_SAVED_REPORT_CTA_OPEN_LABEL,
+  MY_SAVED_REPORT_CTA_PLAN_LABEL,
   SHELF_HINT_OWNED_PENDING,
   SHELF_HINT_OWNED_READY,
   SHELF_OVERLINE,
@@ -90,7 +93,7 @@ function EntryReportCard({
     const nick = nickname?.trim();
     if (nick) return `${nick}さんの取り扱い説明書`;
     if (cardProfile.kind === 'generic' && !isOwned) {
-      return '本質の読み解きレポート（保存版）';
+      return LABEL_SAVED_REPORT_METADATA_JP;
     }
     return LABEL_PRODUCT_JP;
   })();
@@ -98,12 +101,12 @@ function EntryReportCard({
   const ctaLabel =
     shelfCta?.label ??
     (isOwned && snapshotReady
-      ? 'レポートを開く'
+      ? MY_SAVED_REPORT_CTA_OPEN_LABEL
       : isOwned
       ? 'レポートの準備中'
       : isExpired
       ? 'サポートに相談する'
-      : '1,000円で入手する');
+      : MY_SAVED_REPORT_CTA_PLAN_LABEL);
 
   const ariaLabel = shelfCta?.ariaLabel ?? `${LABEL_PRODUCT_JP} — レポート`;
 
@@ -123,11 +126,9 @@ function EntryReportCard({
         <div className={styles.cardPosterContent}>
           <div className={styles.cardBadgeRow}>
             <span className={styles.cardBrandWord}>M55</span>
-            {isOwned ? (
-              <span className={styles.cardProductPill}>{LABEL_PRODUCT_JP}</span>
-            ) : (
-              <span className={styles.cardProductPill}>{LABEL_PRODUCT_EN}</span>
-            )}
+            <span className={styles.cardProductPill}>
+              {isOwned ? LABEL_PRODUCT_JP : LABEL_SAVED_REPORT_METADATA_JP}
+            </span>
             {isOwned && (
               <span className={styles.cardSavedPill}>{LABEL_STATE_OWNED}</span>
             )}
@@ -161,7 +162,7 @@ function EntryReportCard({
                 <span className={styles.cardMetaValue}>無期限</span>
               </div>
               <div className={styles.cardMetaItem}>
-                <span className={styles.cardMetaLabel}>相談枠</span>
+                <span className={styles.cardMetaLabel}>{MY_CONSULT_SECTION_TITLE}</span>
                 <span className={styles.cardMetaValue}>1件付帯</span>
               </div>
               {stem && (
@@ -178,7 +179,7 @@ function EntryReportCard({
                 <span className={styles.cardMetaValue}>永続</span>
               </div>
               <div className={styles.cardMetaItem}>
-                <span className={styles.cardMetaLabel}>相談枠</span>
+                <span className={styles.cardMetaLabel}>{MY_CONSULT_SECTION_TITLE}</span>
                 <span className={styles.cardMetaValue}>1件付帯</span>
               </div>
               <div className={styles.cardMetaItem}>

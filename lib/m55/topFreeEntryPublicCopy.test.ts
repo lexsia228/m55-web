@@ -68,7 +68,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /自分の出方/);
     assert.match(blob, /今のテーマ/);
     assert.match(blob, /無料の見取り図/);
-    assert.match(blob, /保存版レポート/);
+    assert.match(blob, /4章の保存版/);
     assert.match(blob, /統合アルゴリズム/);
     assert.match(blob, /相談返書/);
     assert.match(blob, /会話を続ける形式ではありません/);

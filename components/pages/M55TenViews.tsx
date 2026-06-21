@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import styles from "./M55TenViews.module.css";
+
+const storefrontCopy = TOP_FREE_ENTRY_PUBLIC_COPY.storefront;
+const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 /**
  * M55TenViews — 「10通りの資質」informational page
@@ -181,15 +185,15 @@ export default function M55TenViews() {
       <section className={styles.depthBridgeFold}>
         <h2 className={styles.depthTitle}>さらに深く読む</h2>
         <div className={styles.depthProductBlock}>
-          <p className={styles.depthProductEyebrow}>Entry Report</p>
+          <p className={styles.depthProductEyebrow}>{storefrontCopy.lightPlanNameJa}</p>
           <p className={styles.depthBody}>
-            Entry Report では、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
+            保存版では、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
           </p>
           <p className={styles.depthPriceLine}>
-            ¥1,000｜ウェブで閲覧するデジタルレポート
+            {storefrontCopy.lightPriceLabelJa}｜ウェブで閲覧するデジタルレポート
           </p>
           <Link href="/dtr/lp" className={styles.depthPrimaryCta}>
-            Entry Report を見る
+            {ctaCopy.viewSavedPlansJa}
           </Link>
         </div>
       </section>

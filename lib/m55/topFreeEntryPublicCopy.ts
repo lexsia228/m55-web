@@ -52,10 +52,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     tierFreeExploreJa:
       '仕組みと読み方、10通りの資質の地図はページから読めます。',
     fiveAxisLeadJa:
-      '無料では傾向の輪郭まで確認できます。保存版レポートでは同じ土台を読み返し用4章に整理し、相談返書では一つの相談テーマを件数内で読み直します。',
+      '無料では傾向の輪郭まで確認できます。4章の保存版では同じ土台を読み返し用4章に整理し、相談返書では一つの相談テーマを件数内で読み直します。',
     algorithmNoteJa:
       'M55は、入力された情報と言葉をもとに、統合アルゴリズムで自分の出方を読み解くパーソナルシステムです。',
-    reportSectionEyebrowJa: '保存版レポート',
+    reportSectionEyebrowJa: '4章の保存版',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
@@ -76,7 +76,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     summaryJa: 'M55の仕組みと資料',
     rulesJa: [
       '無料では基礎の見取り図が見えます。',
-      '保存版レポートでは、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
+      '4章の保存版では、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
       '保存版ライト（¥1,000）は相談返書1件。まず保存版を読みたい方向けです。',
       '保存版FULL（¥1,480）は相談返書合計5件。返書で複数回深めたい方向けです。',
       'ライト購入後のFULL化は¥600（合計¥1,600）。最初からFULLなら¥1,480です。',

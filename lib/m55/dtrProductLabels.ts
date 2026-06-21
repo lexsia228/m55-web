@@ -3,10 +3,10 @@
  * Internal keys (m55_p:core_origin, DTR_CORE_STATIC_V1) must not appear as primary UI copy.
  */
 
-/** JP primary product name — LP / legacy marketing surfaces only. */
-export const LABEL_PRODUCT_JP = '本質の読み解き';
+/** JP tier-neutral saved-report label (shelf / owned surfaces). LP chrome uses PAID_DTR_LP. */
+export const LABEL_PRODUCT_JP = '保存版';
 
-/** EN auxiliary — unowned / LP only. */
+/** @deprecated Internal legacy EN key only — do not render as primary public UI copy. */
 export const LABEL_PRODUCT_EN = 'Entry Report';
 
 /** Processing eyebrow + /dtr/core document title (tier-neutral). */
@@ -123,16 +123,16 @@ export type DtrShelfAriaAction =
   | 'open_not_ready'
   | 'connection_error';
 
-/** aria-label prefix: saved-report JP for owned; EN auxiliary for unowned. */
+/** aria-label prefix: saved-report JP for owned and unowned purchase surfaces. */
 export function ariaLabelForDtrShelf(action: DtrShelfAriaAction, owned: boolean): string {
-  const prefix = owned ? LABEL_SAVED_REPORT_MY_JP : LABEL_PRODUCT_EN;
+  const prefix = owned ? LABEL_SAVED_REPORT_MY_JP : LABEL_SAVED_REPORT_METADATA_JP;
   switch (action) {
     case 'purchase':
-      return `${prefix} — 入手する`;
+      return `${prefix} — ${MY_SAVED_REPORT_CTA_PLAN_LABEL}`;
     case 'expired':
       return `${prefix} — 期限切れ`;
     case 'open_ready':
-      return `${LABEL_SAVED_REPORT_MY_JP} — ${LABEL_STATE_OWNED}。レポートを開く`;
+      return `${LABEL_SAVED_REPORT_MY_JP} — ${LABEL_STATE_OWNED}。${MY_SAVED_REPORT_CTA_OPEN_LABEL}`;
     case 'open_not_ready':
       return `${LABEL_SAVED_REPORT_MY_JP} — ${LABEL_STATE_OWNED}。レポートの準備状況を確認する`;
     case 'connection_error':

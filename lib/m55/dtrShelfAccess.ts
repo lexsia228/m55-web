@@ -2,7 +2,7 @@
  * Server-only: unified DTR shelf / LP access state (ownership + snapshotReady + CTA routing).
  * Keeps resolveEntryReportOwnership semantics; separates purchase CTA from owned-not-ready paths.
  */
-import { ariaLabelForDtrShelf } from './dtrProductLabels';
+import { ariaLabelForDtrShelf, MY_SAVED_REPORT_CTA_OPEN_LABEL, MY_SAVED_REPORT_CTA_PLAN_LABEL } from './dtrProductLabels';
 import { deriveLockedShelfStemPreviewFromDraft } from './compositeStem/deriveLockedShelfStemPreview';
 import {
   getLatestDraftForUser,
@@ -89,7 +89,7 @@ export type DtrShelfAccessResolved =
 function shelfCtaForLocked(): DtrShelfCta {
   return {
     href: '/dtr/lp',
-    label: '1,000円で入手する',
+    label: MY_SAVED_REPORT_CTA_PLAN_LABEL,
     ariaLabel: ariaLabelForDtrShelf('purchase', false),
   };
 }
@@ -105,7 +105,7 @@ function shelfCtaForExpired(): DtrShelfCta {
 function shelfCtaForOwnedReady(): DtrShelfCta {
   return {
     href: '/dtr/core',
-    label: 'レポートを開く',
+    label: MY_SAVED_REPORT_CTA_OPEN_LABEL,
     ariaLabel: ariaLabelForDtrShelf('open_ready', true),
   };
 }
@@ -212,7 +212,7 @@ export async function resolveDtrShelfAccess(
       lpCtaMode: 'signin',
       shelfCta: {
         href: '/dtr/lp',
-        label: '1,000円で入手する',
+        label: MY_SAVED_REPORT_CTA_PLAN_LABEL,
         ariaLabel: ariaLabelForDtrShelf('purchase', false),
       },
     };

@@ -15,7 +15,7 @@ export default function CoreLockedState() {
             まずは、無料の範囲で輪郭を確認してみてください。
           </h1>
           <p className={styles.coreProfileGateSupport}>
-            本質ページは、プロフィール保存後に開きます。
+            無料の見取り図は、プロフィール保存後に開きます。
           </p>
           <p className={styles.coreProfileGateSupport}>
             無料の見取り図はホームから確認できます。
