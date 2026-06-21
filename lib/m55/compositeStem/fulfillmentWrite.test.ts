@@ -2,17 +2,19 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { resetCalendarBundleCacheForTests } from '../calendar/loadCalendarBundle';
+import { buildCoreResult } from '../coreResult/buildCoreResult';
+import { enrichBirthProfileForSave } from '../../soul/birthProfileV2';
 import { GOLDEN_1983_02_28_V2 } from './pipeline.golden.test';
 import { runM55CompositeStemPipeline } from './pipeline';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
 import { isCompositeV2FulfillmentWriteEnabled } from './featureFlag';
 import {
   isV2FulfillmentProfileComplete,
-  resolveFulfillmentProfileFields,
 } from './parseFulfillmentMetadata';
 import { M55CompositeStemError } from './types';
 import { ENGINE_VERSION_V2 } from './constants';
 import { essenceStemLaneIndex } from '../essenceEngine';
+import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 
 const GOLDEN_FULFILLMENT_FIELDS = {
   nickname: 'golden',
@@ -23,6 +25,28 @@ const GOLDEN_FULFILLMENT_FIELDS = {
   birthplace: '東京都',
   timezone: 'Asia/Tokyo',
 };
+
+const FIELDS_1992_12_19 = {
+  nickname: 'mi',
+  birthDate: '1992-12-19',
+  birthTime: null as string | null,
+  birthTimeUnknown: true,
+  country: 'JP',
+  birthplace: null as string | null,
+  timezone: 'Asia/Tokyo',
+};
+
+function withEnvFlag(value: string | undefined, fn: () => void): void {
+  const prev = process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
+  if (value === undefined) delete process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
+  else process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED = value;
+  try {
+    fn();
+  } finally {
+    if (prev === undefined) delete process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
+    else process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED = prev;
+  }
+}
 
 test('GOLDEN_1983_02_28_V2 pipeline — GX-01 still pass', () => {
   resetCalendarBundleCacheForTests();
@@ -43,6 +67,7 @@ test('v2 context builder — 1983 golden fulfillment snapshot', () => {
   assert.equal(built.envelope_json.contractVersion, 'v2');
   assert.equal(built.envelope_json.auditMeta.stemLaneIndex, 9);
   assert.equal(built.envelope_json.auditMeta.stemChar, '癸');
+  assert.equal(built.envelope_json.auditMeta.derivation, 'm55_composite_stem_v2_p_lunar');
   assert.equal(built.engine_context_json.stemLaneIndex, 9);
   assert.equal(built.engine_context_json.stemChar, '癸');
   assert.ok(built.engine_context_json.boundaryMetadata.lunarDayKey);
@@ -50,14 +75,52 @@ test('v2 context builder — 1983 golden fulfillment snapshot', () => {
   assert.equal(built.engine_context_json.boundaryMetadata.lunarYearKey, 1983);
 });
 
-test('legacy path — flag off omits v2 engine columns in builder contract', () => {
-  const prev = process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
-  process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED = 'false';
+test('v2 fulfillment — 1992-12-19 lane 1 / プランナー regardless of env flag', () => {
+  resetCalendarBundleCacheForTests();
+  for (const flag of [undefined, 'false', 'true'] as const) {
+    withEnvFlag(flag, () => {
+      const built = buildV2FulfillmentSnapshotFromFields(FIELDS_1992_12_19);
+      assert.equal(built.engine_version, ENGINE_VERSION_V2, `flag=${String(flag)}`);
+      assert.equal(built.envelope_json.auditMeta.stemLaneIndex, 1, `flag=${String(flag)}`);
+      assert.equal(built.envelope_json.auditMeta.derivation, 'm55_composite_stem_v2_p_lunar', `flag=${String(flag)}`);
+      assert.equal(TEN_STEM_DISPLAY[built.envelope_json.auditMeta.stemLaneIndex]!.publicTitle, 'プランナー', `flag=${String(flag)}`);
+      assert.equal(built.engine_context_json.stemLaneIndex, 1, `flag=${String(flag)}`);
+      assert.notEqual(built.envelope_json.auditMeta.stemLaneIndex, essenceStemLaneIndex('1992-12-19'), `flag=${String(flag)}`);
+    });
+  }
+});
+
+test('paid fulfillment parity — 1983-02-28 and 1992-12-19 match free v2 lane', () => {
+  resetCalendarBundleCacheForTests();
+  for (const fields of [GOLDEN_FULFILLMENT_FIELDS, FIELDS_1992_12_19]) {
+    const profile = enrichBirthProfileForSave({
+      nickname: fields.nickname,
+      birthDate: fields.birthDate,
+      birthTime: fields.birthTime,
+      birthTimeUnknown: fields.birthTimeUnknown,
+      country: fields.country,
+      birthplace: fields.birthplace,
+      timezone: fields.timezone,
+    });
+    const core = buildCoreResult(profile);
+    const built = buildV2FulfillmentSnapshotFromFields(fields);
+    assert.equal(
+      built.envelope_json.auditMeta.stemLaneIndex,
+      core.stemLaneIndex,
+      fields.birthDate,
+    );
+    assert.equal(
+      TEN_STEM_DISPLAY[built.envelope_json.auditMeta.stemLaneIndex]!.publicTitle,
+      TEN_STEM_DISPLAY[core.stemLaneIndex]!.publicTitle,
+      fields.birthDate,
+    );
+  }
+});
+
+test('legacy JDN lane differs from v2 — audit guard only (not new paid expected)', () => {
+  assert.equal(essenceStemLaneIndex('1983-02-28'), 3);
+  assert.equal(essenceStemLaneIndex('1992-12-19'), 5);
   assert.equal(isCompositeV2FulfillmentWriteEnabled(), false);
-  const legacyStem = essenceStemLaneIndex('1983-02-28');
-  assert.equal(legacyStem, 3);
-  if (prev === undefined) delete process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
-  else process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED = prev;
 });
 
 test('fail-closed — incomplete v2 profile', () => {
@@ -86,11 +149,24 @@ test('fail-closed — no JDN fallback in v2 builder', () => {
   assert.notEqual(built.engine_context_json.stemLaneIndex, essenceStemLaneIndex('1983-02-28'));
 });
 
+test('dtrDraftDb — v2-only fulfillment write (no legacy branch)', () => {
+  const src = readFileSync(new URL('../dtrDraftDb.ts', import.meta.url), 'utf8');
+  const upsert = src.slice(src.indexOf('upsertDtrReportSnapshotAtFulfillment'));
+  assert.ok(upsert.includes('buildV2FulfillmentSnapshot'));
+  assert.doesNotMatch(upsert, /isCompositeV2FulfillmentWriteEnabled/);
+  assert.doesNotMatch(upsert, /runDtrEngine\s*\(/);
+  assert.doesNotMatch(upsert, /essenceStemLaneIndex/);
+  assert.doesNotMatch(upsert, /jdn_offset_provisional_v1/);
+  assert.doesNotMatch(upsert, /dtr-v1-jdn-day-stem-provisional/);
+  assert.ok(upsert.includes('engine_context_json'));
+  assert.ok(upsert.includes('engine_version'));
+});
+
 test('dtrDraftDb — insert-only, no UPDATE/DELETE/backfill in source', () => {
   const src = readFileSync(new URL('../dtrDraftDb.ts', import.meta.url), 'utf8');
   assert.equal(/\.\s*update\s*\(/i.test(src), false);
   assert.equal(/\bDELETE\b/i.test(src), false);
   assert.equal(/backfill/i.test(src), false);
   assert.ok(src.includes('.insert('));
-  assert.ok(src.includes('if (existing)'));
+  assert.ok(src.includes('existingVisible'));
 });

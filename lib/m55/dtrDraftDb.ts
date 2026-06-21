@@ -4,13 +4,12 @@
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { DTR_CORE_STATIC_V1 } from '../oneTimeCheckout';
 import { buildV2FulfillmentSnapshot } from './compositeStem/buildV2FulfillmentSnapshot';
-import { isCompositeV2FulfillmentWriteEnabled } from './compositeStem/featureFlag';
 import {
   resolveFulfillmentProfileFields,
 } from './compositeStem/parseFulfillmentMetadata';
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import { M55CompositeStemError } from './compositeStem/types';
-import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from './dtrEngine';
+import type { DtrEnvelope } from './dtrEngine';
 
 export type GuestDraftRow = {
   id: string;
@@ -166,7 +165,7 @@ export type UpsertDtrReportSnapshotAtFulfillmentResult =
 /**
  * Build immutable snapshot at fulfillment. INSERT-only for new visible rows.
  * Hidden-only prior rows do not block INSERT (soft-hide repurchase).
- * v2 columns written only when M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED=true and pipeline succeeds.
+ * Canonical v2-only write — buildV2FulfillmentSnapshot; no legacy JDN fallback.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
   userId: string;
@@ -207,33 +206,18 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 
   let profile_snapshot: Record<string, unknown>;
   let envelope: DtrEnvelope;
-  let engine_context_json: Record<string, unknown> | undefined;
-  let engine_version: string | undefined;
+  let engine_context_json: EngineContextJson;
+  let engine_version: string;
 
-  if (isCompositeV2FulfillmentWriteEnabled()) {
-    try {
-      const v2 = buildV2FulfillmentSnapshot(params.sessionMetadata, draft);
-      profile_snapshot = v2.profile_snapshot;
-      envelope = v2.envelope_json;
-      engine_context_json = v2.engine_context_json;
-      engine_version = v2.engine_version;
-    } catch (e) {
-      const code = e instanceof M55CompositeStemError ? e.code : 'composite_v2_build_failed';
-      return { ok: false, reason: code };
-    }
-  } else {
-    const input: DtrCanonicalInput = {
-      birthDate: fields.birthDate,
-      nickname: fields.nickname,
-      locale: 'ja-JP',
-      contextScope: 'dtr',
-    };
-    try {
-      envelope = runDtrEngine(input);
-    } catch (e) {
-      return { ok: false, reason: String(e) };
-    }
-    profile_snapshot = { nickname: fields.nickname, birthDate: fields.birthDate };
+  try {
+    const v2 = buildV2FulfillmentSnapshot(params.sessionMetadata, draft);
+    profile_snapshot = v2.profile_snapshot;
+    envelope = v2.envelope_json;
+    engine_context_json = v2.engine_context_json;
+    engine_version = v2.engine_version;
+  } catch (e) {
+    const code = e instanceof M55CompositeStemError ? e.code : 'composite_v2_build_failed';
+    return { ok: false, reason: code };
   }
 
   const insertRow: Record<string, unknown> = {
@@ -243,11 +227,9 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     profile_snapshot,
     draft_snapshot: draftSnapshot,
     envelope_json: envelope as unknown as Record<string, unknown>,
+    engine_context_json,
+    engine_version,
   };
-  if (engine_context_json != null && engine_version != null) {
-    insertRow.engine_context_json = engine_context_json;
-    insertRow.engine_version = engine_version;
-  }
 
   try {
     const db = getSupabaseAdmin() as any;
