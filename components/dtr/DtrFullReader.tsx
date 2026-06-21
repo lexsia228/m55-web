@@ -71,7 +71,7 @@ import {
   type DrawerHubOpenPanel,
   type DrawerHubPanelId,
 } from './PremiumDrawerHub';
-import type { StoredEnvelopeReadMode } from '../../lib/m55/compositeStem/storedEnvelopeRead';
+import type { DisplayedEnvelopeReadMode } from '../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope';
 import {
   SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
   SAVED_SNAPSHOT_NOTICE_PRIMARY,
@@ -340,8 +340,8 @@ type Props = {
   ownershipType: string;
   aiConsultIncluded: boolean;
   expiresAt: string | null;
-  /** From resolveStoredEnvelopeRead — legacy snapshots only show extra notice. */
-  storedEnvelopeReadMode?: StoredEnvelopeReadMode;
+  /** From resolveDisplayedDtrEnvelope — legacy notice hidden after v2 rebuild. */
+  displayedEnvelopeReadMode?: DisplayedEnvelopeReadMode;
   /** Immutable paid body from dtr_report_snapshots (required; server gate ensures presence). */
   purchasedSnapshot: {
     envelope: DtrEnvelope;
@@ -742,12 +742,12 @@ function ReportFooterMetaCard({
   aiConsultIncluded,
   expiresAt,
   stemTitle,
-  storedEnvelopeReadMode,
+  displayedEnvelopeReadMode,
 }: {
   aiConsultIncluded: boolean;
   expiresAt: string | null;
   stemTitle: string;
-  storedEnvelopeReadMode?: StoredEnvelopeReadMode;
+  displayedEnvelopeReadMode?: DisplayedEnvelopeReadMode;
 }) {
   return (
     <section className={styles.reportMetaCard} aria-label="保存版の情報">
@@ -770,7 +770,7 @@ function ReportFooterMetaCard({
         </p>
       </div>
       <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_PRIMARY}</p>
-      {shouldShowLegacySnapshotNotice(storedEnvelopeReadMode) ? (
+      {shouldShowLegacySnapshotNotice(displayedEnvelopeReadMode) ? (
         <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_LEGACY_MODE}</p>
       ) : null}
     </section>
@@ -2798,7 +2798,7 @@ export default function DtrFullReader({
   ownershipType,
   aiConsultIncluded,
   expiresAt,
-  storedEnvelopeReadMode,
+  displayedEnvelopeReadMode,
   purchasedSnapshot,
   consultDevPreviewRoomData,
 }: Props) {
@@ -3200,7 +3200,7 @@ export default function DtrFullReader({
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}
           stemTitle={stem.publicTitle}
-          storedEnvelopeReadMode={storedEnvelopeReadMode}
+          displayedEnvelopeReadMode={displayedEnvelopeReadMode}
         />
       </div>
     </div>

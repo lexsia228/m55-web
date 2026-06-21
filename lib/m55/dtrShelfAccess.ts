@@ -15,7 +15,7 @@ import {
   getVisibleSavedReportSnapshot,
   hasHiddenOnlySavedReportSnapshot,
 } from './dtrSavedReportOwnership';
-import { deriveDtrShelfStemDisplayFromSnapshot } from './compositeStem/storedEnvelopeRead';
+import { deriveDtrShelfStemDisplayFromSnapshot } from './compositeStem/deriveDisplayedDtrShelfStem';
 import type { DtrShelfStemDisplay } from './dtrShelfStemDisplay';
 
 export type { DtrShelfStemDisplay };

@@ -42,9 +42,11 @@ describe('dtrSavedReportCopy — legacy notice', () => {
     }
   });
 
-  it('shouldShowLegacySnapshotNotice — legacy true / v2 false / undefined false', () => {
+  it('shouldShowLegacySnapshotNotice — legacy true / displayed modes false / undefined false', () => {
     assert.equal(shouldShowLegacySnapshotNotice('legacy'), true);
     assert.equal(shouldShowLegacySnapshotNotice('v2'), false);
+    assert.equal(shouldShowLegacySnapshotNotice('stored_v2'), false);
+    assert.equal(shouldShowLegacySnapshotNotice('rebuilt_v2_from_legacy'), false);
     assert.equal(shouldShowLegacySnapshotNotice(undefined), false);
   });
 
@@ -52,6 +54,6 @@ describe('dtrSavedReportCopy — legacy notice', () => {
     const src = readFileSync(join(process.cwd(), 'components/dtr/DtrFullReader.tsx'), 'utf8');
     assert.ok(src.includes('shouldShowLegacySnapshotNotice'));
     assert.ok(src.includes('SAVED_SNAPSHOT_NOTICE_LEGACY_MODE'));
-    assert.ok(src.includes('storedEnvelopeReadMode'));
+    assert.ok(src.includes('displayedEnvelopeReadMode'));
   });
 });

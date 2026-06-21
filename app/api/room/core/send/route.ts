@@ -21,7 +21,7 @@ import { auth } from '@clerk/nextjs/server';
 import OpenAI from 'openai';
 import { getSupabaseAdmin } from '../../../../../lib/supabaseAdmin';
 import { buildConsultReportContextFromEnvelope } from '../../../../../lib/m55/consult/consultReportContext';
-import { resolveStoredEnvelopeRead } from '../../../../../lib/m55/compositeStem/storedEnvelopeRead';
+import { resolveDisplayedDtrEnvelope } from '../../../../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope';
 import { getVisibleDtrReportSnapshotByInstanceId } from '../../../../../lib/m55/dtrDraftDb';
 import { resolveEntryReportOwnership } from '../../../../../lib/m55/dtrOwnershipGate';
 import { hashUserIdForLedgerLog } from '../../../../../lib/m55/reply/readReplyWalletProbe';
@@ -302,15 +302,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const storedRead = resolveStoredEnvelopeRead(snapRow);
-  if (!storedRead.ok) {
+  const displayedRead = resolveDisplayedDtrEnvelope(snapRow);
+  if (!displayedRead.ok) {
     return NextResponse.json(
       { error: 'Report context missing. Reload and try again.' },
-      { status: 409, headers: NO_STORE }
+      { status: 409, headers: NO_STORE },
     );
   }
 
-  const reportContext = buildConsultReportContextFromEnvelope(storedRead.envelope, {
+  const reportContext = buildConsultReportContextFromEnvelope(displayedRead.envelope, {
     redactNickname: typeof body.nickname === 'string' ? body.nickname.trim() : '',
   });
   if (!reportContext) {

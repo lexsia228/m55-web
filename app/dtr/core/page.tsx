@@ -8,7 +8,7 @@ import {
 import { resolveEntryReportOwnership } from "../../../lib/m55/dtrOwnershipGate";
 import { getVisibleSavedReportSnapshot } from "../../../lib/m55/dtrSavedReportOwnership";
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
-import { resolveStoredEnvelopeRead } from "../../../lib/m55/compositeStem/storedEnvelopeRead";
+import { resolveDisplayedDtrEnvelope } from "../../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import styles from "./core.module.css";
@@ -34,13 +34,13 @@ export default async function DtrCorePage() {
   const tier = await resolveSavedReportTierSummary(userId);
 
   if (snap) {
-    const read = resolveStoredEnvelopeRead(snap);
+    const read = resolveDisplayedDtrEnvelope(snap);
     if (!read.ok) {
       console.info(
         "[dtr/core]",
         JSON.stringify({
-          event: "stored_envelope_read_fail",
-          code: read.code,
+          event: "displayed_envelope_read_fail",
+          reason: read.reason,
           engineVersion: snap.engine_version ?? null,
         }),
       );
@@ -53,7 +53,7 @@ export default async function DtrCorePage() {
           ownershipType={ownership.ownershipType}
           aiConsultIncluded={ownership.aiConsultIncluded}
           expiresAt={ownership.expiresAt}
-          storedEnvelopeReadMode={read.mode}
+          displayedEnvelopeReadMode={read.mode}
           purchasedSnapshot={{
             envelope: read.envelope,
             profile: read.profile,
