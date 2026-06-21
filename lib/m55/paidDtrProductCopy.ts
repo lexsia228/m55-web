@@ -1176,7 +1176,7 @@ export const PAID_DTR_LP = {
       consultReplyLabelJa: '相談返書:',
       consultReplyValueJa: '合計5件',
       bodyJa:
-        '保存版を読んだあと、返書で複数回深めたい方へ。\n4章の保存版 + 相談返書合計5件。\n最初からFULLなら¥1,480（ライト+FULL化は合計¥1,600）。',
+        '何度か相談しながら、深く整理したい方へ。\nライトとの差額 ¥480 で、相談返書が4件増えます。',
       ctaLabelJa: '保存版FULLを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
@@ -1187,7 +1187,8 @@ export const PAID_DTR_LP = {
       savedReportValueJa: '正式4章',
       consultReplyLabelJa: '相談返書:',
       consultReplyValueJa: '1件',
-      bodyJa: 'まず保存版を読み、輪郭を整理したい方へ。\n4章の保存版 + 相談返書1件。',
+      bodyJa:
+        'まず保存版を読み、1回だけ相談したい方へ。\n価格を抑えて、必要な要点から確認できます。\n後からFULL化できます（追加 ¥600）。',
       ctaLabelJa: '保存版ライトを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
@@ -1195,10 +1196,9 @@ export const PAID_DTR_LP = {
   upgrade: {
     sectionTitleJa: 'ライトからFULL化',
     paragraphsJa: [
-      'ライト購入後は、FULL化できます。',
-      'ライト購入後は、¥600でFULL化できます。\nFULL化すると、相談返書を合計5件利用できます。',
-      'ライト ¥1,000 ＋ FULL化 ¥600 ＝ 合計¥1,600\n最初からFULL ¥1,480',
-      '差額は¥120です。',
+      'ライト購入後でも、必要になったらFULL化できます。',
+      '保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
+      'FULL化すると、相談返書の利用上限が合計5件になります。',
     ] as const,
   },
   purchaseNotes: {
@@ -1206,10 +1206,9 @@ export const PAID_DTR_LP = {
     paragraphsJa: [
       '価格はすべて税込です。',
       'ライトとFULLの保存版は、同じ正式4章です。',
-      '相談返書は、ライトが1件、FULLが合計5件です。',
-      'ライト：まず保存版を読みたい方向け。FULL：返書で複数回深めたい方向け。',
-      'ライト購入後にFULL化する場合は¥600で、\n合計¥1,600です。\n最初からFULLを選ぶ場合は¥1,480です。',
-      '購入前に、プランの内容と相談返書の件数をご確認ください。',
+      '違いは、相談返書の件数です。',
+      'ライトは1件、FULLは合計5件です。',
+      '購入前に、いま必要な相談返書の件数をご確認ください。',
     ] as const,
     legalLinks: [
       { labelJa: 'サポート', href: '/support' },
@@ -1235,7 +1234,7 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライト購入後にFULL化できますか？',
         answerJa:
-          '¥600でFULL化できます。\nFULL化後は、相談返書を合計5件利用できます。\nライトとFULL化の合計は¥1,600です。\n最初からFULLを選ぶ場合は¥1,480です。',
+          'はい。必要になったら、あとからFULL化できます。\nFULL化すると、相談返書の利用上限が合計5件になります。\nまずライトで試してから、必要に応じて広げられます。',
       },
       {
         questionJa: '無料ページとの違いは何ですか？',
