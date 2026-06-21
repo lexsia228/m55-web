@@ -72,7 +72,7 @@ export default function SupportPage() {
           <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、返書で複数回深めたい方向け。相談返書合計5件。</li>
         </ul>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          ライト購入後にFULL化する場合は¥600（合計¥1,600）。最初からFULLを選ぶ場合は¥1,480です。
+          ライトは相談返書1件、FULLは合計5件です。保存版の4章は共通です。ライト購入後でも、必要になったらFULL化できます。
         </p>
       </section>
 
@@ -82,7 +82,7 @@ export default function SupportPage() {
           保存版ライトを購入済みの方は、¥600でFULL化できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          FULL化後は、相談返書を合計5件利用できます（ライト+FULL化の合計は¥1,600、最初からFULLは¥1,480）。
+          FULL化後は、相談返書を合計5件利用できます。
         </p>
       </section>
 
