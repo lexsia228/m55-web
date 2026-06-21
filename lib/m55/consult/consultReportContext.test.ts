@@ -104,7 +104,7 @@ describe('Lane A send route context source draft contract', () => {
     const src = readFileSync(SEND_ROUTE, 'utf8');
     assert.equal(src.includes('runDtrEngine'), false);
     assert.ok(src.includes('getVisibleDtrReportSnapshotByInstanceId'));
-    assert.ok(src.includes('resolveStoredEnvelopeRead'));
+    assert.ok(src.includes('resolveDisplayedDtrEnvelope'));
     assert.ok(src.includes('buildConsultReportContextFromEnvelope'));
   });
 

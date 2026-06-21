@@ -87,10 +87,10 @@ describe('consumer read paths use visible snapshot', () => {
 });
 
 describe('stored envelope read contract', () => {
-  it('/dtr/core still uses resolveStoredEnvelopeRead with saved-report snapshot fetch', () => {
+  it('/dtr/core uses resolveDisplayedDtrEnvelope with saved-report snapshot fetch', () => {
     const src = readFileSync(join(process.cwd(), 'app/dtr/core/page.tsx'), 'utf8');
     assert.ok(src.includes('getVisibleSavedReportSnapshot'));
-    assert.ok(src.includes('resolveStoredEnvelopeRead'));
+    assert.ok(src.includes('resolveDisplayedDtrEnvelope'));
     assert.equal(src.includes('runDtrEngine'), false);
   });
 });

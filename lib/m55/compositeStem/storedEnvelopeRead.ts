@@ -117,19 +117,3 @@ export function resolveStoredEnvelopeRead(row: DtrReportSnapshotReadRow): Stored
     },
   };
 }
-
-/** Shelf stem from snapshot stored envelope/context — never client ProfileRepository when owned. */
-export function deriveDtrShelfStemDisplayFromSnapshot(
-  row: DtrReportSnapshotReadRow,
-): DtrShelfStemDisplay | null {
-  const read = resolveStoredEnvelopeRead(row);
-  if (!read.ok) return null;
-  const stem = TEN_STEM_DISPLAY[read.envelope.auditMeta.stemLaneIndex];
-  if (!stem) return null;
-  return {
-    stemLaneIndex: read.envelope.auditMeta.stemLaneIndex,
-    publicTitle: stem.publicTitle,
-    displayOneLine: stem.displayOneLine,
-    nickname: read.profile.nickname,
-  };
-}

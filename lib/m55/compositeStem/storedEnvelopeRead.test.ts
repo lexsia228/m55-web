@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { runDtrEngine } from '../dtrEngine';
 import { ENGINE_VERSION_V2 } from './constants';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
+import { deriveDtrShelfStemDisplayFromSnapshot } from './deriveDisplayedDtrShelfStem';
 import {
-  deriveDtrShelfStemDisplayFromSnapshot,
   isReadableStoredEnvelope,
   resolveStoredEnvelopeRead,
   type DtrReportSnapshotReadRow,
@@ -117,15 +117,16 @@ describe('stored envelope read path', () => {
   it('/dtr/core page does not import runDtrEngine', () => {
     const src = readFileSync(join(process.cwd(), 'app/dtr/core/page.tsx'), 'utf8');
     assert.equal(src.includes('runDtrEngine'), false);
-    assert.ok(src.includes('resolveStoredEnvelopeRead'));
+    assert.ok(src.includes('resolveDisplayedDtrEnvelope'));
   });
 
-  it('/dtr/core page passes storedEnvelopeReadMode to DtrFullReader', () => {
+  it('/dtr/core page passes displayedEnvelopeReadMode to DtrFullReader', () => {
     const src = readFileSync(join(process.cwd(), 'app/dtr/core/page.tsx'), 'utf8');
-    assert.ok(src.includes('storedEnvelopeReadMode={read.mode}'));
+    assert.ok(src.includes('displayedEnvelopeReadMode={read.mode}'));
+    assert.ok(src.includes('resolveDisplayedDtrEnvelope'));
   });
 
-  it('1992-12-19 legacy snapshot => mode legacy / lane 5 / プロデューサー unchanged', () => {
+  it('1992-12-19 legacy snapshot => stored legacy mode / shelf shows rebuilt v2 プランナー', () => {
     const envelope = runDtrEngine({
       birthDate: '1992-12-19',
       nickname: 'mi',
@@ -145,7 +146,8 @@ describe('stored envelope read path', () => {
     assert.equal(read.envelope.auditMeta.stemLaneIndex, 5);
     const shelf = deriveDtrShelfStemDisplayFromSnapshot(row);
     assert.ok(shelf);
-    assert.equal(shelf!.publicTitle, 'プロデューサー');
+    assert.equal(shelf!.publicTitle, 'プランナー');
+    assert.equal(shelf!.stemLaneIndex, 1);
   });
 });
 
