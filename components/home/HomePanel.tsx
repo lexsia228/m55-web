@@ -173,7 +173,7 @@ export default function HomePanel() {
                     {hasProfile && (
                       <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
                         <Link href="/core" className={styles.posterHeroCoreLinkA}>
-                          本質ページを開く →
+                          {ctaCopy.viewFreeMapJa} →
                         </Link>
                       </p>
                     )}

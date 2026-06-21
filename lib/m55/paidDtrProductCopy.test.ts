@@ -40,8 +40,10 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);
     assert.equal(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen, 600);
     assert.match(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa, /後からFULL化/);
-    assert.match(PAID_DTR_SAVED_REPORT_PRICING.light.audienceJa, /1テーマ/);
-    assert.match(PAID_DTR_SAVED_REPORT_PRICING.full.audienceJa, /複数テーマ/);
+    assert.match(PAID_DTR_SAVED_REPORT_PRICING.light.audienceJa, /保存版を読/);
+    assert.match(PAID_DTR_SAVED_REPORT_PRICING.full.audienceJa, /返書で複数回/);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.includedReplyCount, 1);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.totalReplyCap, 5);
     assert.match(
       PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
       /追加1件売りではありません/
@@ -63,7 +65,7 @@ describe('paidDtrProductCopy SSOT', () => {
   });
 
   it('uses Japanese primary product identity', () => {
-    assert.equal(PAID_DTR_PRODUCT_IDENTITY.primaryNameJa, '本質の読み解き');
+    assert.equal(PAID_DTR_PRODUCT_IDENTITY.primaryNameJa, '保存版');
     assert.equal(PAID_DTR_PRODUCT_IDENTITY.formatLabel, '保存版');
     assert.equal(PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa, '相談返書');
   });

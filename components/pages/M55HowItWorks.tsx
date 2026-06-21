@@ -3,8 +3,12 @@
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { ProfileRepository } from '../../lib/soul/profile';
 import styles from './M55HowItWorks.module.css';
+
+const storefrontCopy = TOP_FREE_ENTRY_PUBLIC_COPY.storefront;
+const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 const FREE_ITEMS = [
   {
@@ -77,13 +81,13 @@ export default function M55HowItWorks() {
         </div>
       </section>
 
-      {/* ── Fold 3: Entry Report（C） ── */}
+      {/* ── Fold 3: 4章の保存版（C） ── */}
       <section className={styles.fold3}>
         <div className={styles.reportCard}>
-          <div className={styles.reportEyebrow}>Entry Report</div>
-          <h2 className={styles.reportTitle}>同じ本質を、章立てで深く整理する</h2>
+          <div className={styles.reportEyebrow}>4章の保存版</div>
+          <h2 className={styles.reportTitle}>同じ輪郭を、章立てで深く整理する</h2>
           <p className={styles.reportDesc}>
-            無料の見取り図と同じ土台のまま、10通りの資質の重なりと読み取りを文章として所有できる版です。
+            無料の見取り図と同じ土台のまま、10通りの資質の重なりと読み取りを文章として読み返せる形に整理します。
             ウェブ上で閲覧するデジタルレポートです（物理配送はありません）。
           </p>
           <div className={styles.chapterList}>
@@ -96,20 +100,20 @@ export default function M55HowItWorks() {
           <div className={styles.reportFooter}>
             <span className={styles.reportPrice}>¥1,000</span>
             <Link href="/dtr/lp" className={styles.reportCta}>
-              Entry Report を見る
+              {ctaCopy.viewSavedPlansJa}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Fold 4: 相談室（D） ── */}
+      {/* ── Fold 4: 相談返書（D） ── */}
       <section className={styles.fold4}>
         <div className={styles.roomCard}>
-          <div className={styles.roomEyebrow}>相談室</div>
-          <h2 className={styles.roomTitle}>相談室とは何か</h2>
+          <div className={styles.roomEyebrow}>相談返書</div>
+          <h2 className={styles.roomTitle}>相談返書とは</h2>
           <p className={styles.roomDesc}>
-            Entry Report を購入した方だけが使える、レポートに紐づく専用のやりとり空間です。
-            公開チャットではなく、購入したレポートの文脈のなかで補足を返すための場所です。
+            保存版を購入した方だけが使える、保存版に紐づく一つの相談テーマへの返書です。
+            公開チャットではなく、購入した保存版の章に沿って、いまの1テーマを整理するためのものです。
           </p>
         </div>
       </section>

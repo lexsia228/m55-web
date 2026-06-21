@@ -8,6 +8,7 @@
  * teaserSections: public-safe titles + teaser summary (no body text).
  */
 import { essenceStemLaneIndex } from './essenceEngine';
+import { LABEL_SAVED_REPORT_MY_JP } from './dtrProductLabels';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';
 
 export type DtrCanonicalInput = {
@@ -894,7 +895,7 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
   }));
 
   const payload: DtrPayload = {
-    title: `Entry Report — ${nick}さんの取り扱い説明書`,
+    title: `${LABEL_SAVED_REPORT_MY_JP} — ${nick}さんの取り扱い説明書`,
     teaserSections,
     fullSections,
     ownershipType: 'static',

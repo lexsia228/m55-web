@@ -100,7 +100,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、本質ページと見取り図の一部を無料で読めます。より詳しい読み返し用の保存版と相談返書は、有料の保存版の対象です。
+              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用の保存版と相談返書は、有料の保存版の対象です。
             </p>
           </article>
           <article>

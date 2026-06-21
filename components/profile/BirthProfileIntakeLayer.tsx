@@ -127,7 +127,7 @@ export default function BirthProfileIntakeLayer({
           プロフィールを保存
         </h2>
         <p className={styles.lead}>
-          端末に保存されます。本質ページで無料の輪郭が開き、今日・今週はそれぞれのページから読めます。マイページでいつでも変更できます。
+          端末に保存されます。無料の見取り図で輪郭が開き、今日・今週はそれぞれのページから読めます。マイページでいつでも変更できます。
         </p>
 
         <div className={styles.fieldBlock}>
