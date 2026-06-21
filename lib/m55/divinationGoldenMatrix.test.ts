@@ -106,6 +106,6 @@ describe('divinationGoldenMatrixAudit', () => {
   });
 
   it('full matrix case count', () => {
-    assert.equal(DIVINATION_GOLDEN_MATRIX_CASES.length, 19);
+    assert.equal(DIVINATION_GOLDEN_MATRIX_CASES.length, 34);
   });
 });

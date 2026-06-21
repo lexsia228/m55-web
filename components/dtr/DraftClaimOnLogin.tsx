@@ -2,7 +2,11 @@
 
 import { useAuth } from '@clerk/nextjs';
 import { useEffect, useRef } from 'react';
-import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
+import {
+  hasCompleteCanonicalProfile,
+  ProfileRepository,
+  promoteGuestProfileToClerkUser,
+} from '../../lib/soul/profile';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 
 /**
@@ -22,7 +26,9 @@ export function DraftClaimOnLogin() {
     if (hydratedForUserRef.current === userId) return;
     hydratedForUserRef.current = userId;
 
-    promoteGuestProfileToClerkUser(userId);
+    if (!hasCompleteCanonicalProfile(userId)) {
+      promoteGuestProfileToClerkUser(userId);
+    }
     promoteGuestCoreSnapshotToClerkUser(userId);
     try {
       window.dispatchEvent(new Event('m55:profile_updated'));
@@ -33,7 +39,7 @@ export function DraftClaimOnLogin() {
     void (async () => {
       try {
         await fetch('/api/dtr/draft/claim', { method: 'POST', credentials: 'include' });
-        if (ProfileRepository.get(userId)?.birthDate) {
+        if (hasCompleteCanonicalProfile(userId)) {
           window.dispatchEvent(new Event('m55:profile_updated'));
           return;
         }
