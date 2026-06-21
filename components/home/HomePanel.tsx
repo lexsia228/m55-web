@@ -178,9 +178,7 @@ export default function HomePanel() {
                       </p>
                     )}
                     <p className={styles.posterHeroSupportInline}>
-                      生まれた日から個人向けの見取り図が開きます。
-                      <br />
-                      無料ではまず輪郭まで見えます。
+                      {homeCopy.heroSupportJa}
                     </p>
                   </div>
                 </div>
@@ -198,7 +196,7 @@ export default function HomePanel() {
         <div
           className={`${styles.homeSurfaceCard} ${styles.homeTierStack}`}
           data-testid="m55-home-tier-stack"
-          aria-label="無料で得られるもの、このサイトで読めること、有料レポートの違い"
+          aria-label={homeCopy.tierStackAriaLabelJa}
         >
           <div className={styles.homeTierRow}>
             <span className={styles.homeTierBadge}>無料</span>
@@ -209,16 +207,8 @@ export default function HomePanel() {
             <p className={styles.homeTierText}>{homeCopy.tierFreeExploreJa}</p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{homeCopy.reportLightEyebrowJa}</span>
-            <p className={styles.homeTierText}>
-              {homeCopy.reportLightSummaryJa}
-            </p>
-          </div>
-          <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{homeCopy.reportFullEyebrowJa}</span>
-            <p className={styles.homeTierText}>
-              {homeCopy.reportFullSummaryJa}（{homeCopy.reportFullPriceJa}）
-            </p>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.reportSectionEyebrowJa}</span>
+            <p className={styles.homeTierText}>{homeCopy.tierSavedPointerJa}</p>
           </div>
         </div>
       )}
@@ -249,7 +239,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>M55の見方を知る</span>
-                <span className={styles.useExploreSub}>輪郭から構造、返書まで →</span>
+                <span className={styles.useExploreSub}>{homeCopy.exploreHowSubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -267,7 +257,7 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>10通りの資質から読む</span>
-                <span className={styles.useExploreSub}>資質の地図へ →</span>
+                <span className={styles.useExploreSub}>{homeCopy.exploreQualitiesSubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
@@ -296,12 +286,12 @@ export default function HomePanel() {
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                資質の名前は10通りですが、内側の質感はもっと細かく分かれます。分類で決めつけず、地図の入口だと捉えてください。
+                {homeCopy.fiveAxisQualitiesNoteJa}
               </p>
             </div>
             <div className={styles.fiveAxisReadMiniCard}>
               <p className={styles.fiveAxisReadMiniCardText}>
-                円に映る五つの視点は、順位ではなく、いまのバランスの感触をつかむためのものです。人生を一言に要約するより、見つめ直す入口として使えます。
+                {homeCopy.fiveAxisMeterNoteJa}
               </p>
             </div>
           </div>
@@ -344,10 +334,7 @@ export default function HomePanel() {
 
               <ul className={styles.featureListLoose}>
                 <li className={styles.featureItemLoose}>{homeCopy.reportLightSummaryJa}</li>
-                <li className={styles.featureItemLoose}>
-                  {homeCopy.reportFullEyebrowJa}（{homeCopy.reportFullPriceJa}）：{homeCopy.reportFullSummaryJa}
-                </li>
-                <li className={styles.featureItemLoose}>物理配送なし・ウェブ上で閲覧</li>
+                <li className={styles.featureItemLoose}>{homeCopy.reportFullLineJa}</li>
               </ul>
             </div>
 

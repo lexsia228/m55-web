@@ -48,41 +48,50 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   home: {
     heroProductLabelJa: '個人向けの見取り図',
+    heroSupportJa: '無料では、まず輪郭まで見取り図を確認できます。',
+    tierStackAriaLabelJa: '無料で得られるものと、4章の保存版の違い',
     tierFreeContourJa:
       '生まれた日から5つの視点の見取り図（傾向のバランス）が開きます。',
     tierFreeExploreJa:
       '仕組みと読み方、10通りの資質の地図はページから読めます。',
+    tierSavedPointerJa:
+      '4章の保存版（ライト・FULL）の詳細は、下の案内で確認できます。',
+    exploreHowSubJa: '輪郭から構造、保存版まで →',
+    exploreQualitiesSubJa: '資質の地図へ →',
     fiveAxisLeadJa:
-      '無料では傾向の輪郭まで確認できます。4章の保存版では同じ土台を読み返し用4章に整理し、相談返書では一つの相談テーマを件数内で読み直します。',
+      '無料では輪郭まで見えます。保存版では同じ土台を4章で読み返せます。',
     algorithmNoteJa:
-      'M55は、入力された情報と言葉をもとに、統合アルゴリズムで自分の出方を読み解くパーソナルシステムです。',
+      'M55は、入力された情報をもとに、自分の傾向を整理するための仕組みです。',
+    fiveAxisQualitiesNoteJa:
+      '資質は10通りの地図です。決めつけず、入口として使えます。',
+    fiveAxisMeterNoteJa:
+      '五つの視点は順位ではなく、いまのバランスをつかむためのものです。',
     reportSectionEyebrowJa: '4章の保存版',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
-      'まず保存版を読みたい方向け。4章の保存版 + 相談返書1件。決済完了後にウェブ上で閲覧できます（物理配送なし）。',
+      '4章の保存版 + 相談返書1件。ウェブ上で閲覧（物理配送なし）。',
     reportFullEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     reportFullPriceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     reportFullSummaryJa:
-      '返書で複数回深めたい方向け。4章の保存版 + 相談返書合計5件。',
+      '相談返書合計5件まで深めたい方向け（保存版FULL）。',
+    reportFullLineJa:
+      '保存版FULL（¥1,480（税込））：相談返書合計5件。',
     reportDepthNoteJa:
       '無料の見取り図と同じ土台を、購入時点の入力内容をもとに読み返せる保存版に整理します。',
     reportAuxJa:
-      '相談返書は、保存版に今回入力した一つの相談テーマを重ねて読み直す補助価値です。会話を続ける形式ではありません。',
+      '相談返書は、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '今回の保存版では',
-    chapterMoreJa: '今回の保存版では、複数の観点から整理します。',
-    valueGapNoteJa: '無料＝見取り図／保存版＝読み返しできる構造化レポート。',
+    chapterMoreJa: '複数の観点から整理します。',
+    valueGapNoteJa: '無料＝見取り図／保存版＝読み返せる4章。',
   },
   learnMore: {
     summaryJa: 'M55の仕組みと資料',
     rulesJa: [
-      '無料では基礎の見取り図が見えます。',
-      '4章の保存版では、購入時点の入力内容をもとに同じ土台を4章で読み返せます。',
-      'ライトは、まず保存版を読み、1回だけ相談したい方向けです。',
-      'FULLは、何度か相談しながら深く整理したい方向けです。',
+      '無料では見取り図の輪郭まで確認できます。',
+      '4章の保存版は、同じ土台を読み返せる形に整理した有料の読み物です。',
       'ライト購入後でも、必要になったらFULL化できます。',
-      '相談返書は保存版に紐づく一テーマへの返書で、会話を続ける形式ではありません。',
-      '購入後はウェブ上で閲覧できます。物理配送はありません。',
+      'プランの詳細は「保存版のプランを見る」から確認できます。',
     ] as const,
   },
   coreBoundary: {
