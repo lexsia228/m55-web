@@ -1,0 +1,9 @@
+.shell {
+  min-height: 100%;
+}
+
+@media print {
+  .shell > :global(header[aria-label="ナビゲーション"]) {
+    display: none !important;
+  }
+}
