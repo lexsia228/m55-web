@@ -1,0 +1,183 @@
+{
+  "version": "m55-canonical-reference-map-v1",
+  "baseline_commit": "7986ba74fe3ed80d2735e4363a46f2c42dab3ec3",
+  "branch": "fix/m55-copy-lifestyle-language-ssot",
+  "markdown_path": "docs/ssot/M55_CANONICAL_REFERENCE_MAP_v1.md",
+  "accepted_gates": [
+    "CATEGORY-1 CLOSED GREEN",
+    "CATEGORY-2 COPY_AUDIT_PLANNING_GREEN",
+    "CATEGORY-2 COPY_PROPAGATION_CONTRACT_GREEN",
+    "CATEGORY-2 PRIOR_COPY_SSOT_RECOVERY_GREEN",
+    "CATEGORY-2 REFERENCE_MAP_PLANNING_GREEN"
+  ],
+  "logic_owner_files": [
+    "lib/m55/compositeStem/pipeline.ts",
+    "lib/m55/compositeStem/stemLane.ts",
+    "lib/m55/compositeStem/buildV2FulfillmentSnapshot.ts",
+    "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+    "lib/m55/compositeStem/storedEnvelopeRead.ts",
+    "lib/m55/coreResult/resolveCoreStemAuthority.ts",
+    "lib/m55/dtrEngine.ts"
+  ],
+  "display_copy_owner_files": [
+    "lib/m55/tenStemCatalog.ts",
+    "lib/m55/dtrEngine.ts",
+    "lib/m55/coreResult/typeCatalog.ts",
+    "components/core/corePublicCopy.ts",
+    "components/core/CoreHeroSection.tsx"
+  ],
+  "product_copy_ssot_files": [
+    "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
+    "lib/m55/paidDtrProductCopy.ts",
+    "lib/m55/dtrReportBridgeCopy.ts"
+  ],
+  "prior_language_model_files": [
+    "docs/review/M55_PAID_DTR_WORD_POLISHING_OUTPUT_REVIEW_MAPPING_v1.md",
+    "lib/m55/dtrEngine.ts"
+  ],
+  "obsolete_sources": [
+    "00_PRIMARY_ACTIVE_LAW/M55_TEN_STEM_PROFESSIONAL_MAPPING_SSOT_20260324_v1.md"
+  ],
+  "surfaces": {
+    "core_free": {
+      "path": "/core",
+      "lane_source": "lib/m55/coreResult/resolveCoreStemAuthority.ts",
+      "title_source": "lib/m55/publicStemDisplay.ts",
+      "one_line_source": "lib/m55/tenStemCatalog.ts",
+      "body_source": "lib/m55/coreResult/typeCatalog.ts",
+      "consult_source": null,
+      "displayed_envelope": false
+    },
+    "dtr_core_reader": {
+      "path": "/dtr/core",
+      "lane_source": "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+      "title_source": "lib/m55/tenStemCatalog.ts",
+      "one_line_source": "lib/m55/tenStemCatalog.ts",
+      "body_source": "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+      "consult_source": null,
+      "displayed_envelope": true
+    },
+    "dtr_shelf_owned": {
+      "path": "/dtr",
+      "lane_source": "lib/m55/compositeStem/deriveDisplayedDtrShelfStem.ts",
+      "title_source": "lib/m55/tenStemCatalog.ts",
+      "one_line_source": "lib/m55/tenStemCatalog.ts",
+      "body_source": null,
+      "consult_source": null,
+      "displayed_envelope": true
+    },
+    "consult_send": {
+      "path": "app/api/room/core/send/route.ts",
+      "lane_source": "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+      "title_source": null,
+      "one_line_source": null,
+      "body_source": "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+      "consult_source": "lib/m55/consult/consultReportContext.ts",
+      "displayed_envelope": true
+    }
+  },
+  "forbidden_imports_or_direct_uses": [
+    {
+      "symbol": "resolveStoredEnvelopeRead",
+      "forbidden_in": [
+        "app/dtr/core/page.tsx",
+        "app/api/room/core/send/route.ts"
+      ],
+      "allowed_in": [
+        "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+        "lib/m55/compositeStem/storedEnvelopeRead.ts"
+      ]
+    },
+    {
+      "symbol": "essenceStemLaneIndex",
+      "forbidden_in": [
+        "lib/m55/dtrDraftDb.ts",
+        "app/dtr/core/page.tsx",
+        "app/api/room/core/send/route.ts",
+        "lib/m55/dtrShelfAccess.ts"
+      ],
+      "allowed_in": [
+        "lib/m55/essenceEngine.ts",
+        "lib/m55/dtrEngine.ts",
+        "lib/m55/divinationGoldenMatrixAudit.ts"
+      ]
+    },
+    {
+      "symbol": "jdn_offset_provisional_v1",
+      "forbidden_in": [
+        "lib/m55/dtrDraftDb.ts"
+      ],
+      "allowed_in": [
+        "lib/m55/essenceEngine.ts"
+      ]
+    },
+    {
+      "symbol": "deriveDtrShelfStemDisplay",
+      "pattern": "deriveDtrShelfStemDisplay[^F]",
+      "forbidden_in": [
+        "lib/m55/dtrShelfAccess.ts"
+      ],
+      "allowed_in": [
+        "lib/m55/dtrShelfStemDisplay.ts"
+      ]
+    }
+  ],
+  "forbidden_mutation_paths": [
+    "app/home/**",
+    "components/home/**",
+    "app/note/**",
+    "components/note/**",
+    "lib/m55/reply/replyTicketCheckoutConstants.ts",
+    "supabase/migrations/**",
+    ".env",
+    ".env.local"
+  ],
+  "allowed_future_copy_gate_files": [
+    "lib/m55/tenStemCatalog.ts",
+    "lib/m55/dtrEngine.ts",
+    "lib/m55/coreResult/typeCatalog.ts",
+    "components/core/CoreHeroSection.tsx",
+    "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts",
+    "lib/m55/birthdaySsotCrossSurfaceParityFreeze.ts",
+    "lib/m55/compositeStem/canonicalV2GeneratedOutputAudit.ts"
+  ],
+  "required_tests": [
+    "lib/m55/canonicalReferenceMap.static.test.ts",
+    "lib/m55/compositeStem/resolveDisplayedDtrEnvelope.test.ts",
+    "lib/m55/compositeStem/canonicalV2CrossSurfaceStress.test.ts",
+    "lib/m55/birthdaySsotCrossSurfaceParity.test.ts",
+    "lib/m55/paidDtrProductCopy.test.ts",
+    "lib/m55/compositeStem/fulfillmentWrite.test.ts"
+  ],
+  "canonical_pipeline_steps": [
+    "runM55CompositeStemPipeline",
+    "stemLaneIndex",
+    "runDtrEngine",
+    "m55_composite_stem_v2_p_lunar",
+    "resolveDisplayedDtrEnvelope"
+  ],
+  "copy_ssot_ranks": {
+    "T1": [
+      "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
+      "lib/m55/paidDtrProductCopy.ts"
+    ],
+    "T1b": [
+      "lib/m55/dtrReportBridgeCopy.ts"
+    ],
+    "T2": [
+      "docs/review/M55_PAID_DTR_WORD_POLISHING_OUTPUT_REVIEW_MAPPING_v1.md"
+    ],
+    "T3": [
+      "lib/m55/dtrEngine.ts"
+    ]
+  },
+  "display_propagation_contract": {
+    "status": "planned_option_b",
+    "db_rewrite": false,
+    "raw_stored_role": "purchase_artifact_and_audit",
+    "user_facing_source": "displayed_envelope_from_current_copy_catalog",
+    "stored_v2_normalize_at_read_time": true,
+    "legacy_full_rebuild_unchanged": true
+  },
+  "ai_handoff_rule": "Before Category-2 copy or display-normalize work, read docs/ssot/M55_CANONICAL_REFERENCE_MAP_v1.md and this JSON; edit only allowed_future_copy_gate_files; do not use obsolete_sources for tone; report Reference Map updated yes or no in PR."
+}
