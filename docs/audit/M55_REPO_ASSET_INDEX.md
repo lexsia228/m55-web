@@ -1,7 +1,7 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-06-21T22:35:34.748939+00:00
-Total records: 671
+Generated: 2026-06-22T22:54:22.812895+00:00
+Total records: 673
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
 - [ssot] `docs/ssot/DESKTOP_PACK_SCAN_REPORT_2026-02-26.md` (3948 bytes)
@@ -12,6 +12,8 @@ Total records: 671
 - [ssot] `docs/ssot/M55_BACKEND_COMMERCE_CONTRACT_A_REFUND_POLICY_CLOSEOUT_2026-05-26.md` (11121 bytes)
 - [ssot] `docs/ssot/M55_BACKEND_COMMERCE_CONTRACT_C_FRESH_LANE_COMPOSITE_CLOSE_R_2026-05-25.md` (10319 bytes)
 - [ssot] `docs/ssot/M55_BASELINE_FREEZE_20260330.md` (6333 bytes)
+- [ssot] `docs/ssot/M55_CANONICAL_REFERENCE_MAP_MACHINE_v1.json` (6374 bytes)
+- [ssot] `docs/ssot/M55_CANONICAL_REFERENCE_MAP_v1.md` (10417 bytes)
 - [ssot] `docs/ssot/M55_CHECKPOINT_UPDATE_20260330_v3.md` (3545 bytes)
 - [ssot] `docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md` (4728 bytes)
 - [ssot] `docs/ssot/M55_DEPRECATION_MAP_20260330.md` (6382 bytes)
