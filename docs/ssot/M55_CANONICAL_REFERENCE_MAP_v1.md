@@ -174,6 +174,7 @@ Current code (baseline): stored_v2 may passthrough stored body until normalize g
 | `lib/m55/birthdaySsotCrossSurfaceParity.test.ts` | cross-surface freeze |
 | `lib/m55/paidDtrProductCopy.test.ts` | T1 product truth regression |
 | `lib/m55/compositeStem/fulfillmentWrite.test.ts` | no legacy JDN on v2 write path |
+| `lib/m55/tenStemLifestyleLanguageAudit.test.ts` | 10-stem lifestyle copy / forbidden work-org term guard |
 
 ---
 

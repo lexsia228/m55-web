@@ -58,7 +58,7 @@ export default function CoreHeroSection({
   const obsDateLabel = formatRecordDateLabel(result.lockedAt);
   const obsMeta = obsDateLabel ? `First Record ${obsDateLabel}` : 'First Record';
   const traitLabel = '特質性';
-  const classLabelJa = '分析類型';
+  const classLabelJa = '出方';
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrowPcFlat = useNarrowPcCoreHeroLayout();
 
