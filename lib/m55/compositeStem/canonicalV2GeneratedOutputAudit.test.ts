@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
+import { resetCalendarBundleCacheForTests } from '../calendar/loadCalendarBundle';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
+import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
+import { ENGINE_VERSION_V2 } from './constants';
 import {
   AUDIT_JSON_PATH,
   AUDIT_MD_PATH,
@@ -9,6 +12,7 @@ import {
   formatOutputAuditMarkdown,
   runCanonicalV2GeneratedOutputAudit,
 } from './canonicalV2GeneratedOutputAudit';
+import { resolveDisplayedDtrEnvelope } from './resolveDisplayedDtrEnvelope';
 
 describe('canonical v2 generated output audit', () => {
   const report = runCanonicalV2GeneratedOutputAudit();
@@ -123,5 +127,46 @@ describe('canonical v2 generated output audit', () => {
         spec.expectedV2Title,
       );
     }
+  });
+
+  it('stored_v2 display normalize — stale stored body does not leak to displayed output', () => {
+    resetCalendarBundleCacheForTests();
+    const paid = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'AuditGX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const staleEnvelope = structuredClone(paid.envelope_json);
+    const staleMarker = 'STALE_OUTPUT_AUDIT_MARKER_合意形成';
+    const s2 = staleEnvelope.payload.fullSections.find((s) => s.id === 's2_composition');
+    assert.ok(s2);
+    s2!.body = `${s2!.body}\n${staleMarker}`;
+
+    const row = {
+      reportInstanceId: 'snap-audit-v2',
+      user_id: 'user-audit',
+      product_id: 'DTR_CORE_STATIC_V1',
+      checkout_session_id: null,
+      profile_snapshot: paid.profile_snapshot,
+      draft_snapshot: null,
+      envelope_json: staleEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: paid.engine_context_json,
+    };
+
+    const displayed = resolveDisplayedDtrEnvelope(row);
+    assert.equal(displayed.ok, true);
+    if (!displayed.ok) return;
+    assert.equal(displayed.mode, 'stored_v2');
+    const displayedText = displayed.envelope.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(displayedText.includes(staleMarker), false);
+    assert.equal(
+      displayed.envelope.payload.fullSections.find((s) => s.id === 's2_composition')!.body,
+      paid.envelope_json.payload.fullSections.find((s) => s.id === 's2_composition')!.body,
+    );
   });
 });
