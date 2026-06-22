@@ -46,6 +46,7 @@ import {
   PAID_DTR_BENEFIT_BULLETS,
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
+  PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA,
   PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_DEEP_READING_SECTION_TITLE_JA,
   PAID_DTR_DEEP_READING_TAKEAWAYS,
@@ -465,13 +466,6 @@ function sectionOpeningLede(body: string): string | null {
   return lede ?? null;
 }
 
-function chapterBridgeLedeHint(lede?: string | null): string | null {
-  if (!lede) return null;
-  const one = firstSentence(lede).replace(/\s+/g, ' ').trim();
-  if (!one) return null;
-  return one.length > 36 ? `${one.slice(0, 35)}…` : one;
-}
-
 function stripTrailingHonorific(raw: string): string {
   return raw.replace(/\s+/g, '').replace(/(さん|様)+$/u, '');
 }
@@ -594,25 +588,21 @@ function DrawerChapterPersonalLead({
 function ChapterConsultNextAction({
   partId,
   nickname,
-  ledeHint,
   onOpenConsult,
 }: {
   partId: PaidDtrReportPartId;
   nickname?: string;
-  ledeHint?: string | null;
   onOpenConsult: () => void;
 }) {
   const copy = PAID_DTR_CHAPTER_BRIDGE_COPY[partId];
   const nick = nickname?.trim();
   const consultNick = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const tendencyLine = copy.tendencyJa.replace('{nickname}', consultNick);
-  const lifeLine = ledeHint
-    ? `${copy.lifeJa}（保存版では「${ledeHint}」という出方も見えています。）`
-    : copy.lifeJa;
   return (
     <div className={styles.chapterConsultAction} aria-label="この章を返書で深める入口">
       <p className={styles.chapterConsultReinforcement}>{tendencyLine}</p>
-      <p className={styles.chapterConsultReinforcement}>{lifeLine}</p>
+      <p className={styles.chapterConsultReinforcement}>{copy.lifeJa}</p>
+      <p className={styles.chapterConsultReinforcement}>{PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.actionJa}</p>
       <p className={styles.chapterConsultQuestionLabel}>返書で深めるなら、この問い</p>
       <p className={styles.chapterConsultQuestion}>{copy.consultQuestionJa}</p>
@@ -2926,7 +2916,6 @@ export default function DtrFullReader({
                     <ChapterConsultNextAction
                       partId="1"
                       nickname={view.nickname}
-                      ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s1?.body ?? ''))}
                       onOpenConsult={() => selectPanel('consult')}
                     />
                   </>
@@ -2985,7 +2974,6 @@ export default function DtrFullReader({
                 <ChapterConsultNextAction
                   partId="2"
                   nickname={view.nickname}
-                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(s3?.body ?? ''))}
                   onOpenConsult={() => selectPanel('consult')}
                 />
               ) : null}
@@ -3046,7 +3034,6 @@ export default function DtrFullReader({
                 <ChapterConsultNextAction
                   partId="3"
                   nickname={view.nickname}
-                  ledeHint={chapterBridgeLedeHint(sectionOpeningLede(gridS5?.body ?? ''))}
                   onOpenConsult={() => selectPanel('consult')}
                 />
               ) : null}

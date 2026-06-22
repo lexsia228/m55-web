@@ -2606,6 +2606,12 @@
   }
 }
 
+@media print {
+  .readingGuideFab {
+    display: none !important;
+  }
+}
+
 @media (max-width: 480px) {
   .readingGuideFab {
     width: 44px;
