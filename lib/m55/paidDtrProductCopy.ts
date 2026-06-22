@@ -418,6 +418,10 @@ export const PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA =
 export const PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA =
   '保存版に紐づく1テーマだけを扱います。送信するまで相談返書は使いません。' as const;
 
+/** Chapter-end consult bridge — fixed life-language supplement (no dynamic body excerpt). */
+export const PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA =
+  'この章では、今の動き方の手がかりも一緒に見ています。' as const;
+
 /** W-B3 refine: unified chapter opening (user-specific, life-language, display-only). */
 export type PaidDtrChapterOpeningCopy = {
   headingSuffixJa: string;
@@ -613,7 +617,7 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
 
 /** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
 export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
-  availablePrimaryJa: '相談返書を1件使えます。',
+  availablePrimaryJa: '相談返書を使って、1テーマだけ整理できます。',
   availableSecondaryJa: '今気になっていることを、1テーマだけ書けます。',
   /** Legacy SSOT for in-flight tests; not used on consult entry UI surfaces. */
   purchasePrimaryLine1Ja: '今は残り0件です。',

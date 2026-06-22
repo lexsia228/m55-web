@@ -157,7 +157,8 @@ describe('paidDtrProductCopy SSOT', () => {
     );
     assert.equal(formatConsultUsedCountLine(1, 5), '使用済み 1 / 5件');
     const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
-    assert.match(usage, /相談返書を1件使えます/);
+    assert.match(usage, /相談返書を使って、1テーマだけ整理できます/);
+    assert.equal(usage.includes('相談返書を1件使えます'), false);
     assert.match(usage, /今は残り0件です/);
     assert.equal(usage.includes('相談返書ルーム'), false);
     assert.equal(usage.includes('返書ルーム'), false);
