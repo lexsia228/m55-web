@@ -348,7 +348,7 @@ export const PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA = 'この図で見ること'
 
 export const PAID_DTR_CHAPTER_GRAPH_CAPTIONS: Record<PaidDtrChapterGraphCaptionId, string> = {
   'ch1-identity-design': '出るとき・崩れやすいとき・戻すとき',
-  'ch1-structure-radar': '傾向が重なる様子',
+  'ch1-structure-radar': '出方が重なるところ',
   'ch1-five-axis': '5つの力のバランス',
   'ch2-stability-panel': '力が出やすい条件と詰まりやすい条件',
   'ch2-strengths-lift': '力が自然に出やすい場面',
@@ -564,7 +564,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
 export const PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID: Readonly<
   Record<string, string>
 > = {
-  s2_composition: '傾向が重なる様子',
+  s2_composition: '出方が重なるところ',
   s3_essence: '力が出やすい条件と安定',
 };
 

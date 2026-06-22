@@ -10,6 +10,10 @@ import {
   runDtrEngine,
 } from './dtrEngine';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';
+import {
+  PAID_DTR_CHAPTER_GRAPH_CAPTIONS,
+  PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID,
+} from './paidDtrProductCopy';
 
 const LOCKED_PUBLIC_TITLES = [
   'プレジデント',
@@ -50,6 +54,20 @@ const FORBIDDEN_TERMS = [
   '実務',
 ] as const;
 
+const RESIDUAL_OLD_TONE_TERMS = [
+  '傾向が重なる様子',
+  'ハブ調整型',
+  '流量を調整',
+  '関わり方の命名',
+  '安定のスイッチ',
+  '依存関係の形成',
+  '決断の遅さ',
+  'スピードが必要な場面',
+  '後手に回る',
+  '話し合いが空転',
+  '誰が何を決めれば良いか',
+] as const;
+
 const HARD_ABSTRACT_TERMS = [
   '構造として言語化',
   '意味を輸送',
@@ -77,6 +95,12 @@ const OCCUPATIONAL_TECHNICAL_TERMS = [
   '仕様',
   '体系',
   '指標',
+] as const;
+
+const TEXT_QUALITY_MICRO_REGRESSION_PATTERNS: readonly { label: string; pattern: RegExp }[] = [
+  { label: '重なるところは〜重なります', pattern: /重なるところは、.*重なります/ },
+  { label: '柔らかい思考', pattern: /柔らかい思考/ },
+  { label: '場所・関係を支える安定感', pattern: /場所・関係を支える安定感/ },
 ] as const;
 
 const GRAMMAR_REGRESSION_PATTERNS: readonly { label: string; pattern: RegExp }[] = [
@@ -319,6 +343,13 @@ function dtrEngineCopy(lane: number): string {
   return [...sectionChunks, ...vizChunks].join('\n');
 }
 
+function paidDtrProductDisplayCopy(): string {
+  return [
+    ...Object.values(PAID_DTR_CHAPTER_GRAPH_CAPTIONS),
+    ...Object.values(PAID_DTR_DRAWER_SECTION_DISPLAY_TITLE_BY_ID),
+  ].join('\n');
+}
+
 function stemAndDtrCopy(lane: number): string {
   return [stemCatalogCopy(lane), dtrEngineCopy(lane)].join('\n');
 }
@@ -333,6 +364,10 @@ function patternHits(copy: string, rules: readonly { label: string; pattern: Reg
 
 function forbiddenHits(copy: string): string[] {
   return FORBIDDEN_TERMS.filter((term) => copy.includes(term));
+}
+
+function residualOldToneHits(copy: string): string[] {
+  return RESIDUAL_OLD_TONE_TERMS.filter((term) => copy.includes(term));
 }
 
 function hardAbstractHits(copy: string): string[] {
@@ -436,8 +471,20 @@ describe('tenStem lifestyle language audit — lane coverage', () => {
   });
 });
 
+describe('tenStem lifestyle language audit — paid DTR display copy', () => {
+  it('paidDtrProductCopy display titles have no residual old-tone phrases', () => {
+    const copy = paidDtrProductDisplayCopy();
+    assert.deepEqual(residualOldToneHits(copy), [], 'paidDtrProductCopy residual old tone');
+  });
+});
+
 describe('tenStem lifestyle language audit — forbidden and caution terms', () => {
   for (let lane = 0; lane < 10; lane += 1) {
+    it(`lane ${lane} (${LOCKED_PUBLIC_TITLES[lane]}) has no residual old-tone phrases in stem+dtr copy`, () => {
+      const copy = stemAndDtrCopy(lane);
+      assert.deepEqual(residualOldToneHits(copy), [], `lane ${lane} residual old tone`);
+    });
+
     it(`lane ${lane} (${LOCKED_PUBLIC_TITLES[lane]}) has no forbidden work/org terms`, () => {
       const copy = laneUserFacingCopy(lane);
       assert.deepEqual(forbiddenHits(copy), [], `lane ${lane} forbidden`);
@@ -469,6 +516,15 @@ describe('tenStem lifestyle language audit — forbidden and caution terms', () 
 
 describe('tenStem lifestyle language audit — grammar and tone regressions', () => {
   for (let lane = 0; lane < 10; lane += 1) {
+    it(`lane ${lane} (${LOCKED_PUBLIC_TITLES[lane]}) has no text-quality micro regression patterns in stem+dtr copy`, () => {
+      const copy = stemAndDtrCopy(lane);
+      assert.deepEqual(
+        patternHits(copy, TEXT_QUALITY_MICRO_REGRESSION_PATTERNS),
+        [],
+        `lane ${lane} text-quality micro regression`,
+      );
+    });
+
     it(`lane ${lane} (${LOCKED_PUBLIC_TITLES[lane]}) has no grammar regression patterns`, () => {
       const copy = stemAndDtrCopy(lane);
       assert.deepEqual(patternHits(copy, GRAMMAR_REGRESSION_PATTERNS), [], `lane ${lane} grammar`);
@@ -529,6 +585,7 @@ export function lifestyleAuditLaneReport(lane: number) {
     publicTitle: TEN_STEM_DISPLAY[lane]!.publicTitle,
     displayOneLine: TEN_STEM_DISPLAY[lane]!.displayOneLine,
     forbidden: forbiddenHits(all),
+    residualOldTone: residualOldToneHits(stemDtr),
     hardAbstract: hardAbstractHits(all),
     occupational: occupationalHits(stemDtr),
     grammar: patternHits(stemDtr, GRAMMAR_REGRESSION_PATTERNS),
