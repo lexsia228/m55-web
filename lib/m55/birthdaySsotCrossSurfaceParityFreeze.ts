@@ -25,6 +25,8 @@ export type BirthdaySsotFrozenCase = {
   contentSource: 'TYPE_CATALOG+STEM_BODIES';
 };
 
+export const BIRTHDAY_SSOT_AUDIT_FREEZE_GENERATED_AT = '2026-06-22';
+
 export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFrozenCase[] = [
   {
     "case_id": "DM-GX-01",
@@ -43,10 +45,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "統合設計型",
     "expectedCoreType": "TYPE_10",
     "expectedCoreSummary": "バラバラの要素を一つの形にまとめ、全体として意味を持たせようとする本質です。統合と設計の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロダクトオーナー・事業企画など、横断する役割で力を発揮しやすい観測です。",
+    "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:73559756",
-    "expectedPaidCompositionFingerprint": "djb2:14785b40",
-    "expectedPaidEssenceFingerprint": "djb2:37fc95bf",
+    "expectedPaidCompositionFingerprint": "djb2:72fe3c33",
+    "expectedPaidEssenceFingerprint": "djb2:5bd920b3",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -66,10 +68,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "観測深化型",
     "expectedCoreType": "TYPE_01",
     "expectedCoreSummary": "表面で終わらず、小さな差分や意味の層を拾い上げて深めようとする本質です。静かに精度を上げるタイプの観測です。",
-    "expectedWorkStyleSummary": "裁量があり、静かに深掘りできる仕事で力を発揮しやすい観測です。雑音の少ない環境ほど輪郭がはっきりします。",
-    "expectedPaidIdentityFingerprint": "djb2:8466c2c3",
-    "expectedPaidCompositionFingerprint": "djb2:33a8f194",
-    "expectedPaidEssenceFingerprint": "djb2:fb22dc8a",
+    "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
+    "expectedPaidIdentityFingerprint": "djb2:76b981e0",
+    "expectedPaidCompositionFingerprint": "djb2:88a1863b",
+    "expectedPaidEssenceFingerprint": "djb2:b8d7718a",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -89,10 +91,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "共鳴受容型",
     "expectedCoreType": "TYPE_02",
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
-    "expectedWorkStyleSummary": "人と協働する仕事、合意形成の場で力を出しやすい観測です。一人完結よりチームの潤滑油として効きやすいです。",
+    "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:5096d118",
-    "expectedPaidEssenceFingerprint": "djb2:83ae79ec",
+    "expectedPaidCompositionFingerprint": "djb2:ca79d8fa",
+    "expectedPaidEssenceFingerprint": "djb2:24aeb111",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -112,10 +114,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "構造探求型",
     "expectedCoreType": "TYPE_03",
     "expectedCoreSummary": "物事の骨格や因果をつかみ、筋の良い形に直そうとする本質です。整理と構造化の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "設計・分析・運用設計など、頭を使って形にする仕事で伸びやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:a2791fa2",
+    "expectedWorkStyleSummary": "散らかったことを順番に整え、自分が納得できる形に近づけられるときに伸びやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:dde14f2b",
     "expectedPaidCompositionFingerprint": "djb2:52a04920",
-    "expectedPaidEssenceFingerprint": "djb2:fafe3c45",
+    "expectedPaidEssenceFingerprint": "djb2:af13d566",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -135,10 +137,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "調和観測型",
     "expectedCoreType": "TYPE_05",
     "expectedCoreSummary": "全体のバランスを見ながら、衝突をほどいて進めようとする本質です。調和と観測の両立が出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロジェクト調整・ステークホルダー対応など、人と進行の両方が絡む役割で伸びやすいです。",
-    "expectedPaidIdentityFingerprint": "djb2:d39ccb5c",
-    "expectedPaidCompositionFingerprint": "djb2:6cd736a9",
-    "expectedPaidEssenceFingerprint": "djb2:0c723678",
+    "expectedWorkStyleSummary": "近い人との距離や、日々の流れを整えながら進めるときに伸びやすいです。",
+    "expectedPaidIdentityFingerprint": "djb2:4cc440b1",
+    "expectedPaidCompositionFingerprint": "djb2:f563682d",
+    "expectedPaidEssenceFingerprint": "djb2:7ffe952b",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -158,10 +160,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "直観展開型",
     "expectedCoreType": "TYPE_06",
     "expectedCoreSummary": "ひらめきと勢いで仮説を広げ、場を前に動かそうとする本質です。展開と熱量の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "立ち上げ・企画・ファシリテーションなど、前に出る役割で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:7b30ab94",
-    "expectedPaidCompositionFingerprint": "djb2:1065085f",
-    "expectedPaidEssenceFingerprint": "djb2:3c2d0a6a",
+    "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:d803f226",
+    "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
+    "expectedPaidEssenceFingerprint": "djb2:72fd0261",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -181,10 +183,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "調和観測型",
     "expectedCoreType": "TYPE_05",
     "expectedCoreSummary": "全体のバランスを見ながら、衝突をほどいて進めようとする本質です。調和と観測の両立が出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロジェクト調整・ステークホルダー対応など、人と進行の両方が絡む役割で伸びやすいです。",
-    "expectedPaidIdentityFingerprint": "djb2:d39ccb5c",
-    "expectedPaidCompositionFingerprint": "djb2:6cd736a9",
-    "expectedPaidEssenceFingerprint": "djb2:0c723678",
+    "expectedWorkStyleSummary": "近い人との距離や、日々の流れを整えながら進めるときに伸びやすいです。",
+    "expectedPaidIdentityFingerprint": "djb2:4cc440b1",
+    "expectedPaidCompositionFingerprint": "djb2:f563682d",
+    "expectedPaidEssenceFingerprint": "djb2:7ffe952b",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -204,10 +206,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "直観展開型",
     "expectedCoreType": "TYPE_06",
     "expectedCoreSummary": "ひらめきと勢いで仮説を広げ、場を前に動かそうとする本質です。展開と熱量の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "立ち上げ・企画・ファシリテーションなど、前に出る役割で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:7b30ab94",
-    "expectedPaidCompositionFingerprint": "djb2:1065085f",
-    "expectedPaidEssenceFingerprint": "djb2:3c2d0a6a",
+    "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:d803f226",
+    "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
+    "expectedPaidEssenceFingerprint": "djb2:72fd0261",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -227,10 +229,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "直観展開型",
     "expectedCoreType": "TYPE_06",
     "expectedCoreSummary": "ひらめきと勢いで仮説を広げ、場を前に動かそうとする本質です。展開と熱量の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "立ち上げ・企画・ファシリテーションなど、前に出る役割で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:7b30ab94",
-    "expectedPaidCompositionFingerprint": "djb2:1065085f",
-    "expectedPaidEssenceFingerprint": "djb2:3c2d0a6a",
+    "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:d803f226",
+    "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
+    "expectedPaidEssenceFingerprint": "djb2:72fd0261",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -250,10 +252,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "核心追究型",
     "expectedCoreType": "TYPE_07",
     "expectedCoreSummary": "表面で終わらず、物事の核と意味をつかもうとする本質です。深さと筋の良さを優先する観測が強いタイプです。",
-    "expectedWorkStyleSummary": "裁量があり、深く考えて組み立てられる仕事で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:723f336f",
-    "expectedPaidCompositionFingerprint": "djb2:f063e3b0",
-    "expectedPaidEssenceFingerprint": "djb2:df409929",
+    "expectedWorkStyleSummary": "深く考えて整えられる時間と、自分の範囲が分かるときに力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:61f81f88",
+    "expectedPaidCompositionFingerprint": "djb2:7fe09bf1",
+    "expectedPaidEssenceFingerprint": "djb2:ccbd6490",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -273,10 +275,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "核心追究型",
     "expectedCoreType": "TYPE_07",
     "expectedCoreSummary": "表面で終わらず、物事の核と意味をつかもうとする本質です。深さと筋の良さを優先する観測が強いタイプです。",
-    "expectedWorkStyleSummary": "裁量があり、深く考えて組み立てられる仕事で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:723f336f",
-    "expectedPaidCompositionFingerprint": "djb2:f063e3b0",
-    "expectedPaidEssenceFingerprint": "djb2:df409929",
+    "expectedWorkStyleSummary": "深く考えて整えられる時間と、自分の範囲が分かるときに力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:61f81f88",
+    "expectedPaidCompositionFingerprint": "djb2:7fe09bf1",
+    "expectedPaidEssenceFingerprint": "djb2:ccbd6490",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -296,10 +298,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "推進整理型",
     "expectedCoreType": "TYPE_08",
     "expectedCoreSummary": "迷いを減らし、次の一手を決めて進めようとする本質です。実行と整理のバランスが取りやすいタイプの観測です。",
-    "expectedWorkStyleSummary": "PM・オペレーション・実行責任者など、進行を握る役割で力を出しやすいです。",
+    "expectedWorkStyleSummary": "優先順位が見え、完了まで自分のペースで進められるときに力を出しやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:e2e494d4",
-    "expectedPaidCompositionFingerprint": "djb2:2b4240ec",
-    "expectedPaidEssenceFingerprint": "djb2:b5d93c04",
+    "expectedPaidCompositionFingerprint": "djb2:28b34cf6",
+    "expectedPaidEssenceFingerprint": "djb2:e4de13b7",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -319,10 +321,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "関係洞察型",
     "expectedCoreType": "TYPE_09",
     "expectedCoreSummary": "人と人の間に起きていることを読み取り、関係性の質を上げようとする本質です。洞察と配慮の観測が強いタイプです。",
-    "expectedWorkStyleSummary": "人事・CS・営業同行など、人の感情が絡む役割で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:27a68e75",
-    "expectedPaidCompositionFingerprint": "djb2:9a9be22f",
-    "expectedPaidEssenceFingerprint": "djb2:65ee770f",
+    "expectedWorkStyleSummary": "近い人の言葉や距離に関わる場面で、力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:5ad4ecc0",
+    "expectedPaidCompositionFingerprint": "djb2:b7b5465a",
+    "expectedPaidEssenceFingerprint": "djb2:42a11519",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -342,10 +344,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "関係洞察型",
     "expectedCoreType": "TYPE_09",
     "expectedCoreSummary": "人と人の間に起きていることを読み取り、関係性の質を上げようとする本質です。洞察と配慮の観測が強いタイプです。",
-    "expectedWorkStyleSummary": "人事・CS・営業同行など、人の感情が絡む役割で力を発揮しやすい観測です。",
-    "expectedPaidIdentityFingerprint": "djb2:27a68e75",
-    "expectedPaidCompositionFingerprint": "djb2:9a9be22f",
-    "expectedPaidEssenceFingerprint": "djb2:65ee770f",
+    "expectedWorkStyleSummary": "近い人の言葉や距離に関わる場面で、力を発揮しやすい観測です。",
+    "expectedPaidIdentityFingerprint": "djb2:5ad4ecc0",
+    "expectedPaidCompositionFingerprint": "djb2:b7b5465a",
+    "expectedPaidEssenceFingerprint": "djb2:42a11519",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -365,10 +367,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "統合設計型",
     "expectedCoreType": "TYPE_10",
     "expectedCoreSummary": "バラバラの要素を一つの形にまとめ、全体として意味を持たせようとする本質です。統合と設計の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロダクトオーナー・事業企画など、横断する役割で力を発揮しやすい観測です。",
+    "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:73559756",
-    "expectedPaidCompositionFingerprint": "djb2:14785b40",
-    "expectedPaidEssenceFingerprint": "djb2:37fc95bf",
+    "expectedPaidCompositionFingerprint": "djb2:72fe3c33",
+    "expectedPaidEssenceFingerprint": "djb2:5bd920b3",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -388,10 +390,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "統合設計型",
     "expectedCoreType": "TYPE_10",
     "expectedCoreSummary": "バラバラの要素を一つの形にまとめ、全体として意味を持たせようとする本質です。統合と設計の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロダクトオーナー・事業企画など、横断する役割で力を発揮しやすい観測です。",
+    "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:73559756",
-    "expectedPaidCompositionFingerprint": "djb2:14785b40",
-    "expectedPaidEssenceFingerprint": "djb2:37fc95bf",
+    "expectedPaidCompositionFingerprint": "djb2:72fe3c33",
+    "expectedPaidEssenceFingerprint": "djb2:5bd920b3",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -411,10 +413,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "統合設計型",
     "expectedCoreType": "TYPE_10",
     "expectedCoreSummary": "バラバラの要素を一つの形にまとめ、全体として意味を持たせようとする本質です。統合と設計の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロダクトオーナー・事業企画など、横断する役割で力を発揮しやすい観測です。",
+    "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:73559756",
-    "expectedPaidCompositionFingerprint": "djb2:14785b40",
-    "expectedPaidEssenceFingerprint": "djb2:37fc95bf",
+    "expectedPaidCompositionFingerprint": "djb2:72fe3c33",
+    "expectedPaidEssenceFingerprint": "djb2:5bd920b3",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -434,10 +436,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "観測深化型",
     "expectedCoreType": "TYPE_01",
     "expectedCoreSummary": "表面で終わらず、小さな差分や意味の層を拾い上げて深めようとする本質です。静かに精度を上げるタイプの観測です。",
-    "expectedWorkStyleSummary": "裁量があり、静かに深掘りできる仕事で力を発揮しやすい観測です。雑音の少ない環境ほど輪郭がはっきりします。",
-    "expectedPaidIdentityFingerprint": "djb2:8466c2c3",
-    "expectedPaidCompositionFingerprint": "djb2:33a8f194",
-    "expectedPaidEssenceFingerprint": "djb2:fb22dc8a",
+    "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
+    "expectedPaidIdentityFingerprint": "djb2:76b981e0",
+    "expectedPaidCompositionFingerprint": "djb2:88a1863b",
+    "expectedPaidEssenceFingerprint": "djb2:b8d7718a",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -457,10 +459,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "共鳴受容型",
     "expectedCoreType": "TYPE_02",
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
-    "expectedWorkStyleSummary": "人と協働する仕事、合意形成の場で力を出しやすい観測です。一人完結よりチームの潤滑油として効きやすいです。",
+    "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:5096d118",
-    "expectedPaidEssenceFingerprint": "djb2:83ae79ec",
+    "expectedPaidCompositionFingerprint": "djb2:ca79d8fa",
+    "expectedPaidEssenceFingerprint": "djb2:24aeb111",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -480,10 +482,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "統合設計型",
     "expectedCoreType": "TYPE_10",
     "expectedCoreSummary": "バラバラの要素を一つの形にまとめ、全体として意味を持たせようとする本質です。統合と設計の観測が前に出やすいタイプです。",
-    "expectedWorkStyleSummary": "プロダクトオーナー・事業企画など、横断する役割で力を発揮しやすい観測です。",
+    "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:73559756",
-    "expectedPaidCompositionFingerprint": "djb2:14785b40",
-    "expectedPaidEssenceFingerprint": "djb2:37fc95bf",
+    "expectedPaidCompositionFingerprint": "djb2:72fe3c33",
+    "expectedPaidEssenceFingerprint": "djb2:5bd920b3",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -503,10 +505,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "観測深化型",
     "expectedCoreType": "TYPE_01",
     "expectedCoreSummary": "表面で終わらず、小さな差分や意味の層を拾い上げて深めようとする本質です。静かに精度を上げるタイプの観測です。",
-    "expectedWorkStyleSummary": "裁量があり、静かに深掘りできる仕事で力を発揮しやすい観測です。雑音の少ない環境ほど輪郭がはっきりします。",
-    "expectedPaidIdentityFingerprint": "djb2:8466c2c3",
-    "expectedPaidCompositionFingerprint": "djb2:33a8f194",
-    "expectedPaidEssenceFingerprint": "djb2:fb22dc8a",
+    "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
+    "expectedPaidIdentityFingerprint": "djb2:76b981e0",
+    "expectedPaidCompositionFingerprint": "djb2:88a1863b",
+    "expectedPaidEssenceFingerprint": "djb2:b8d7718a",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -526,12 +528,10 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreLabel": "静観分析型",
     "expectedCoreType": "TYPE_04",
     "expectedCoreSummary": "動きの前に観測を置き、状況を分解してから動こうとする本質です。静けさの中で精度を上げるタイプの観測です。",
-    "expectedWorkStyleSummary": "分析・監査・改善など、観測と検証が中心の役割で力を発揮しやすいです。",
+    "expectedWorkStyleSummary": "静かに観察し、小さな変化から読み直せる時間があるときに力を発揮しやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:d33fc8f2",
     "expectedPaidCompositionFingerprint": "djb2:c35207e7",
-    "expectedPaidEssenceFingerprint": "djb2:b58ee0f1",
+    "expectedPaidEssenceFingerprint": "djb2:f2cbc5d5",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   }
 ] as const;
-
-export const BIRTHDAY_SSOT_AUDIT_FREEZE_GENERATED_AT = '2026-06-22';

@@ -147,7 +147,8 @@
     "lib/m55/compositeStem/canonicalV2CrossSurfaceStress.test.ts",
     "lib/m55/birthdaySsotCrossSurfaceParity.test.ts",
     "lib/m55/paidDtrProductCopy.test.ts",
-    "lib/m55/compositeStem/fulfillmentWrite.test.ts"
+    "lib/m55/compositeStem/fulfillmentWrite.test.ts",
+    "lib/m55/tenStemLifestyleLanguageAudit.test.ts"
   ],
   "canonical_pipeline_steps": [
     "runM55CompositeStemPipeline",

@@ -18,7 +18,7 @@ describe('divinationGoldenMatrixAudit', () => {
     assert.equal(row.stemLaneIndex, 9);
     assert.equal(row.publicTitle, 'アナリスト');
     assert.equal(row.imagePath, '/ten-views/analyst.webp');
-    assert.equal(row.displayOneLine, '小さな変化を拾い、深く読み解く人');
+    assert.equal(row.displayOneLine, '小さな変化に気づき、深く読み解く人');
     assert.ok(row.solarTermKey);
     assert.ok(row.solarTermBoundaryInstant);
     assert.ok(row.lunarDayKey);
