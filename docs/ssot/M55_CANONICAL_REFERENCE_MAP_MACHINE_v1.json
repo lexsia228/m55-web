@@ -173,7 +173,8 @@
     ]
   },
   "display_propagation_contract": {
-    "status": "planned_option_b",
+    "status": "implemented_option_b_phase_b_local",
+    "implementation_gate": "CATEGORY-2-M55-STORED-V2-DISPLAY-NORMALIZE-PHASE-B-LOCAL-IMPLEMENTATION-REV1",
     "db_rewrite": false,
     "raw_stored_role": "purchase_artifact_and_audit",
     "user_facing_source": "displayed_envelope_from_current_copy_catalog",

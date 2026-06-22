@@ -115,7 +115,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
     assert.equal(read.reason, 'M55_COMPOSITE_DATE_OUT_OF_RANGE');
   });
 
-  it('stored v2 row → stored_v2 passthrough', () => {
+  it('stored v2 row → display-normalized from current catalog, raw artifact preserved', () => {
     resetCalendarBundleCacheForTests();
     const built = buildV2FulfillmentSnapshotFromFields({
       nickname: 'GX',
@@ -126,18 +126,90 @@ describe('resolveDisplayedDtrEnvelope', () => {
       birthplace: '東京都',
       timezone: 'Asia/Tokyo',
     });
+    const staleEnvelope = structuredClone(built.envelope_json);
+    const staleMarker = 'STALE_PHASE0_MARKER_業務プロジェクト型';
+    const s1 = staleEnvelope.payload.fullSections.find((s) => s.id === 's1_identity');
+    assert.ok(s1);
+    s1!.body = `${s1!.body}\n${staleMarker}`;
+
     const row = baseRow({
-      envelope_json: built.envelope_json,
+      envelope_json: staleEnvelope,
       engine_version: ENGINE_VERSION_V2,
       engine_context_json: built.engine_context_json,
       profile_snapshot: built.profile_snapshot,
     });
+
     const read = resolveDisplayedDtrEnvelope(row);
     assert.equal(read.ok, true);
     if (!read.ok) return;
     assert.equal(read.mode, 'stored_v2');
-    assert.equal(read.envelope, built.envelope_json);
     assert.equal(read.rawMeta.storedMode, 'v2');
+    assert.equal(read.rawMeta.displayNormalizeSource, 'current_dtr_engine_catalog');
+    assert.ok(read.rawMeta.rawBodyFingerprint.startsWith('djb2:'));
+    assert.equal(read.rawMeta.storedSectionCount, staleEnvelope.payload.fullSections.length);
+
+    const displayedBodies = read.envelope.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(displayedBodies.includes(staleMarker), false);
+    const rawBodies = row.envelope_json.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(rawBodies.includes(staleMarker), true);
+    assert.notEqual(read.envelope, row.envelope_json);
+
+    const expectedEnvelope = runDtrEngine(
+      {
+        birthDate: built.profile_snapshot.birthDate,
+        nickname: built.profile_snapshot.nickname,
+        locale: 'ja-JP',
+        contextScope: 'dtr',
+      },
+      {
+        stemLaneIndex: staleEnvelope.auditMeta.stemLaneIndex,
+        engineVersion: ENGINE_VERSION_V2,
+        derivation: staleEnvelope.auditMeta.derivation,
+        contractVersion: 'v2',
+      },
+    );
+
+    assert.equal(read.envelope.auditMeta.stemLaneIndex, staleEnvelope.auditMeta.stemLaneIndex);
+    assert.equal(
+      TEN_STEM_DISPLAY[read.envelope.auditMeta.stemLaneIndex]!.publicTitle,
+      TEN_STEM_DISPLAY[staleEnvelope.auditMeta.stemLaneIndex]!.publicTitle,
+    );
+    const displayedById = Object.fromEntries(
+      read.envelope.payload.fullSections.map((s) => [s.id, s.body] as const),
+    );
+    const expectedById = Object.fromEntries(
+      expectedEnvelope.payload.fullSections.map((s) => [s.id, s.body] as const),
+    );
+    for (const sectionId of ['s1_identity', 's2_composition', 's3_essence', 's4_strengths', 's5_friction', 's6_relation', 's7_work', 's8_bridge']) {
+      assert.equal(displayedById[sectionId], expectedById[sectionId], sectionId);
+    }
+  });
+
+  it('stored v2 row with jdn provisional derivation → fail-closed', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const staleEnvelope = structuredClone(built.envelope_json);
+    staleEnvelope.auditMeta.derivation = 'jdn_offset_provisional_v1';
+
+    const row = baseRow({
+      envelope_json: staleEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+    });
+
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, false);
+    if (read.ok) return;
+    assert.equal(read.reason, 'jdn_provisional_derivation_forbidden');
   });
 });
 

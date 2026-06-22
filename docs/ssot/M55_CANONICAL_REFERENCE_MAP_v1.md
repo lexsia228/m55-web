@@ -125,17 +125,17 @@ Forbidden: new fortune authority; job-first default tone; surface-specific catal
 
 ---
 
-## 8. Display propagation contract (planned — not implemented in this gate)
+## 8. Display propagation contract (implemented — Phase B local)
 
-**Target (COPY_PROPAGATION_CONTRACT_GREEN):** Option B — read-time display-normalize.
+**Status (COPY_PROPAGATION_CONTRACT_GREEN / Phase B):** Option B — read-time display-normalize for `stored_v2`.
 
 - **Raw stored** `envelope_json` remains in DB unchanged (purchase artifact / audit).
 - **User-facing** reader, shelf, consult use **displayed envelope** built from current copy SSOT catalog.
-- **stored_v2:** normalize copy at read time using **stored** `stemLaneIndex` + profile — **do not** re-run pipeline for lane.
-- **legacy:** existing full rebuild path unchanged.
+- **stored_v2:** normalize copy at read time using **stored** `stemLaneIndex` + profile via `runDtrEngine` — **do not** re-run pipeline for lane.
+- **legacy:** existing full rebuild path unchanged (`rebuilt_v2_from_legacy`).
 - **No DB rewrite.**
 
-Current code (baseline): stored_v2 may passthrough stored body until normalize gate lands. Reference map documents both **current** and **target** contract.
+`resolveDisplayedDtrEnvelope` retains raw traceability in `rawMeta` (`rawBodyFingerprint`, `storedSectionCount`, `displayNormalizeSource`).
 
 ---
 

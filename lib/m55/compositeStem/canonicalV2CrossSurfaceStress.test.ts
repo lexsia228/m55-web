@@ -279,6 +279,50 @@ describe('canonical v2 cross-surface stress — calendar edge fail-close', () =>
   }
 });
 
+describe('canonical v2 cross-surface stress — stored_v2 display normalize', () => {
+  it('stored_v2 row displays current catalog body while raw envelope stays stale', () => {
+    resetCalendarBundleCacheForTests();
+    const fields = defaultFields('1983-02-28');
+    const paid = buildV2FulfillmentSnapshotFromFields(fields);
+    const staleEnvelope = structuredClone(paid.envelope_json);
+    const staleMarker = 'STALE_CROSS_SURFACE_MARKER_ステークホルダー';
+    const s3 = staleEnvelope.payload.fullSections.find((s) => s.id === 's3_essence');
+    assert.ok(s3);
+    s3!.body = `${s3!.body}\n${staleMarker}`;
+
+    const row: DtrReportSnapshotReadRow = {
+      reportInstanceId: 'snap-stored-v2',
+      user_id: 'user-stress',
+      product_id: 'DTR_CORE_STATIC_V1',
+      checkout_session_id: null,
+      profile_snapshot: paid.profile_snapshot,
+      draft_snapshot: null,
+      envelope_json: staleEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: paid.engine_context_json,
+    };
+
+    const displayed = resolveDisplayedDtrEnvelope(row);
+    assert.equal(displayed.ok, true);
+    if (!displayed.ok) return;
+    assert.equal(displayed.mode, 'stored_v2');
+    assert.equal(displayed.envelope.auditMeta.stemLaneIndex, paid.envelope_json.auditMeta.stemLaneIndex);
+
+    const displayedText = displayed.envelope.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(displayedText.includes(staleMarker), false);
+    const rawText = row.envelope_json.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(rawText.includes(staleMarker), true);
+
+    for (const sectionId of BODY_SECTION_IDS) {
+      assert.equal(
+        sectionBody(displayed.envelope, sectionId),
+        sectionBody(paid.envelope_json, sectionId),
+        `stored_v2 normalize ${sectionId}`,
+      );
+    }
+  });
+});
+
 describe('canonical v2 cross-surface stress — out-of-range fail-close', () => {
   for (const birthDate of OUT_OF_RANGE_DATES) {
     it(`${birthDate} → resolveDisplayedDtrEnvelope ok:false`, () => {
