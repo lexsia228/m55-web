@@ -9,7 +9,9 @@ import { ENGINE_VERSION_V2 } from './constants';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
 import { deriveDtrShelfStemDisplayFromSnapshot } from './deriveDisplayedDtrShelfStem';
 import {
+  findStoredV2DisplayStem1Chapter1OldToneLeak,
   resolveDisplayedDtrEnvelope,
+  STORED_V2_DISPLAY_FORBIDDEN_STEM1_CHAPTER1_PHRASES,
 } from './resolveDisplayedDtrEnvelope';
 import type { DtrReportSnapshotReadRow } from './storedEnvelopeRead';
 
@@ -210,6 +212,121 @@ describe('resolveDisplayedDtrEnvelope', () => {
     assert.equal(read.ok, false);
     if (read.ok) return;
     assert.equal(read.reason, 'jdn_provisional_derivation_forbidden');
+  });
+
+  it('stored v2 stem1 row with old chapter-I body in raw → display excludes old tone, preserves rawMeta', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'mi',
+      birthDate: '1992-12-19',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const staleEnvelope = structuredClone(built.envelope_json);
+    assert.equal(staleEnvelope.auditMeta.stemLaneIndex, 1);
+
+    const oldChapter1Body = [
+      '傾向が重なる様子',
+      '構成は、柔らかい思考と、場所・関係を支える安定感の二層です',
+      '話し合いが空転するときほど、誰が何を決めれば良いかを静かに差し出せます',
+      'つなぎとして流量を調整する型です',
+      'ハブ調整型',
+      '関わり方の命名が安定のスイッチになります',
+    ].join('\n\n');
+
+    const s2 = staleEnvelope.payload.fullSections.find((s) => s.id === 's2_composition');
+    assert.ok(s2);
+    s2!.body = oldChapter1Body;
+
+    const s5 = staleEnvelope.payload.fullSections.find((s) => s.id === 's5_friction');
+    assert.ok(s5);
+    s5!.body = `${s5!.body}\n依存関係の形成\n決断の遅さ\n後手に回る`;
+
+    const row = baseRow({
+      envelope_json: staleEnvelope,
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+    });
+
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    assert.equal(read.mode, 'stored_v2');
+    assert.equal(read.envelope.auditMeta.stemLaneIndex, 1);
+    assert.equal(TEN_STEM_DISPLAY[read.envelope.auditMeta.stemLaneIndex]!.publicTitle, 'プランナー');
+
+    const displayedS2 = read.envelope.payload.fullSections.find((s) => s.id === 's2_composition');
+    assert.ok(displayedS2);
+    for (const phrase of STORED_V2_DISPLAY_FORBIDDEN_STEM1_CHAPTER1_PHRASES) {
+      assert.equal(
+        displayedS2!.body.includes(phrase),
+        false,
+        `display s2 must not include old phrase: ${phrase}`,
+      );
+    }
+    assert.ok(
+      displayedS2!.body.includes(
+        'miさんは、その場の空気を素早く読みながら、人との関係の土台も同時に確かめながら動きます。',
+      ),
+    );
+    assert.ok(displayedS2!.body.includes('人との間にある流れを整えやすい形です'));
+
+    const displayedS5 = read.envelope.payload.fullSections.find((s) => s.id === 's5_friction');
+    assert.ok(displayedS5);
+    assert.ok(displayedS5!.body.includes('頼られすぎてしまうこと'));
+    assert.ok(displayedS5!.body.includes('動き出しが遅くなること'));
+    assert.ok(displayedS5!.body.includes('急かされる場面では、自分のペースを失いやすくなります'));
+    assert.equal(displayedS5!.body.includes('依存関係の形成'), false);
+    assert.equal(displayedS5!.body.includes('決断の遅さ'), false);
+    assert.equal(displayedS5!.body.includes('後手に回る'), false);
+
+    const rawBodies = row.envelope_json.payload.fullSections.map((s) => s.body).join('\n');
+    assert.equal(rawBodies.includes('傾向が重なる様子'), true);
+    assert.equal(rawBodies.includes('依存関係の形成'), true);
+    assert.notEqual(read.envelope, row.envelope_json);
+    assert.ok(read.rawMeta.rawBodyFingerprint.startsWith('djb2:'));
+    assert.equal(read.rawMeta.storedMode, 'v2');
+    assert.equal(read.rawMeta.displayNormalizeSource, 'current_dtr_engine_catalog');
+    assert.equal(read.rawMeta.storedStemLaneIndex, 1);
+
+    for (const section of read.envelope.payload.fullSections) {
+      assert.ok(section.id.length > 0);
+    }
+  });
+
+  it('stored v2 display old-tone guard detects forbidden phrase in display text', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'mi',
+      birthDate: '1992-12-19',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const leakyEnvelope = structuredClone(built.envelope_json);
+    const s2 = leakyEnvelope.payload.fullSections.find((s) => s.id === 's2_composition');
+    assert.ok(s2);
+    s2!.body = `${s2!.body}\nハブ調整型`;
+
+    assert.equal(findStoredV2DisplayStem1Chapter1OldToneLeak(leakyEnvelope), 'ハブ調整型');
+
+    const row = baseRow({
+      envelope_json: structuredClone(built.envelope_json),
+      engine_version: ENGINE_VERSION_V2,
+      engine_context_json: built.engine_context_json,
+      profile_snapshot: built.profile_snapshot,
+    });
+
+    const storedRead = resolveDisplayedDtrEnvelope(row);
+    assert.equal(storedRead.ok, true);
+    if (!storedRead.ok) return;
+    assert.equal(findStoredV2DisplayStem1Chapter1OldToneLeak(storedRead.envelope), null);
   });
 });
 

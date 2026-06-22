@@ -47,6 +47,44 @@ export type ResolveDisplayedDtrEnvelopeResult =
   | ResolveDisplayedDtrEnvelopeOk
   | ResolveDisplayedDtrEnvelopeFail;
 
+/** Stem 1 chapter I — observed pre-lifestyle stored raw phrases (display leak guard). */
+export const STORED_V2_DISPLAY_FORBIDDEN_STEM1_CHAPTER1_PHRASES = [
+  '傾向が重なる様子',
+  '構成は、柔らかい思考',
+  '場所・関係を支える安定感',
+  '二層です',
+  '頭は素早く今の流れを更新',
+  '話し合いが空転',
+  '誰が何を決めれば良いか',
+  '流量を調整',
+  'ハブ調整型',
+  '全体のバランスを見るほど',
+  '関わり方の命名',
+  '安定のスイッチ',
+  '流量の調整',
+] as const;
+
+export const STORED_V2_DISPLAY_STEM1_CHAPTER1_OLD_TONE_LEAK_REASON =
+  'stored_v2_display_stem1_chapter1_old_tone_leak' as const;
+
+function collectDisplayEnvelopeUserFacingText(envelope: DtrEnvelope): string {
+  const sectionText = envelope.payload.fullSections
+    .flatMap((section) => [section.title, section.summary, section.body])
+    .join('\n');
+  return [envelope.payload.title, sectionText].filter(Boolean).join('\n');
+}
+
+/** Returns the first forbidden stem-1 chapter-I phrase found in display text, if any. */
+export function findStoredV2DisplayStem1Chapter1OldToneLeak(
+  displayEnvelope: DtrEnvelope,
+): string | null {
+  const text = collectDisplayEnvelopeUserFacingText(displayEnvelope);
+  for (const phrase of STORED_V2_DISPLAY_FORBIDDEN_STEM1_CHAPTER1_PHRASES) {
+    if (text.includes(phrase)) return phrase;
+  }
+  return null;
+}
+
 function fingerprintEnvelopeBodies(envelope: DtrEnvelope): string {
   let h = 5381;
   const text = envelope.payload.fullSections.map((s) => s.body).join('\n');
@@ -106,6 +144,11 @@ function resolveStoredV2DisplayEnvelope(
   }
   if (displayEnvelope.auditMeta.derivation === 'jdn_offset_provisional_v1') {
     return { ok: false, reason: 'jdn_provisional_derivation_forbidden' };
+  }
+
+  const oldToneLeak = findStoredV2DisplayStem1Chapter1OldToneLeak(displayEnvelope);
+  if (oldToneLeak) {
+    return { ok: false, reason: STORED_V2_DISPLAY_STEM1_CHAPTER1_OLD_TONE_LEAK_REASON };
   }
 
   return { ok: true, envelope: displayEnvelope };
