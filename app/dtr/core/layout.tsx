@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { PublicHeader } from '../../../components/shell/PublicHeader';
 import { PublicFooter } from '../../_components/PublicFooter';
+import styles from './layout.module.css';
 
 /**
  * Entry Report 閲覧 — ShellLayout 外でドキュメントスクロール。
@@ -9,10 +10,10 @@ import { PublicFooter } from '../../_components/PublicFooter';
  */
 export default function DtrCoreLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <div className={styles.shell} data-m55-dtr-reader-shell="true">
       <PublicHeader />
       {children}
       <PublicFooter />
-    </>
+    </div>
   );
 }
