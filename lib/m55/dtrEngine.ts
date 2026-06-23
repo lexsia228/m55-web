@@ -534,7 +534,7 @@ const COMPOSITION_STRUCTURE_VIZ: readonly CompositionStructureViz[] = [
   },
   {
     patternLabel: '人と人の間をつなぐ形',
-    patternCaption: '周りの様子を見るほど自分のいる場所がぼやけやすいので、自分のいる場所を短く言葉にすることが大切です。',
+    patternCaption: '周りの様子を見るほど自分のいる場所がぼやけやすいので、「自分はここにいる」と短く確かめるだけで戻りやすくなります。',
     axisRoles: {
       思考: 'strong',
       推進: 'quiet',
