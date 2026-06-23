@@ -11,7 +11,9 @@ import styles from './layout.module.css';
 export default function DtrCoreLayout({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell} data-m55-dtr-reader-shell="true">
-      <PublicHeader />
+      <div className={styles.printHiddenHeader} data-m55-dtr-reader-public-header="true">
+        <PublicHeader />
+      </div>
       {children}
       <PublicFooter />
     </div>
