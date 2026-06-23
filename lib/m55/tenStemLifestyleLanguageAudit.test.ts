@@ -28,6 +28,17 @@ const LOCKED_PUBLIC_TITLES = [
   'アナリスト',
 ] as const;
 
+/** stem1 / Ⅱ章「仕事・これからの進め方」— Phase2 business-org tone removal (display copy only). */
+const CH2_PHASE2_STEM1_FORBIDDEN_TERMS = [
+  '接続と調整の能力',
+  '合意より先に',
+  '短い打ち返し',
+  '中間確認',
+  '舵取りのない集団',
+  '優先を言語化',
+  '関わり方の更新',
+] as const;
+
 const FORBIDDEN_TERMS = [
   '業務',
   'ステークホルダー',
@@ -317,6 +328,38 @@ function stemCatalogCopy(lane: number): string {
   return [stem.displayOneLine, ...stem.keywordPool, ...stem.focusPool].join('\n');
 }
 
+function stem1Chapter2UserFacingCopy(): string {
+  const envelope = runDtrEngine(
+    {
+      birthDate: '2000-06-15',
+      nickname: 'lifestyle-audit',
+      locale: 'ja-JP',
+      contextScope: 'dtr',
+    },
+    {
+      stemLaneIndex: 1,
+      engineVersion: ENGINE_VERSION_V2,
+      derivation: 'm55_composite_stem_v2_p_lunar',
+      contractVersion: 'v2',
+    },
+  );
+  const byId = new Map(envelope.payload.fullSections.map((section) => [section.id, section.body]));
+  const viz = essenceStabilityVizForStem(1);
+  return [
+    byId.get('s3_essence') ?? '',
+    byId.get('s4_strengths') ?? '',
+    byId.get('s7_work') ?? '',
+    viz.stabilize,
+    viz.maximize,
+    viz.collapse,
+    viz.guard,
+  ].join('\n');
+}
+
+function ch2Phase2Stem1ForbiddenHits(copy: string): string[] {
+  return CH2_PHASE2_STEM1_FORBIDDEN_TERMS.filter((term) => copy.includes(term));
+}
+
 function dtrEngineCopy(lane: number): string {
   const envelope = runDtrEngine(
     {
@@ -468,6 +511,13 @@ describe('tenStem lifestyle language audit — lane coverage', () => {
       const copy = dtrEngineCopy(lane);
       assert.ok(copy.trim().length > 0, `lane ${lane}: dtrEngine copy non-empty`);
     }
+  });
+});
+
+describe('tenStem lifestyle language audit — stem1 chapter II phase2 copy', () => {
+  it('stem1 (プランナー) chapter II surfaces have no business/org phase2 forbidden phrases', () => {
+    const copy = stem1Chapter2UserFacingCopy();
+    assert.deepEqual(ch2Phase2Stem1ForbiddenHits(copy), [], 'stem1 chapter II phase2 forbidden');
   });
 });
 
