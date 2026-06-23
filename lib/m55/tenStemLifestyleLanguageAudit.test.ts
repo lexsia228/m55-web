@@ -52,6 +52,15 @@ const CH1_PHASE2_STEM1_COMPOSITION_VIZ_REQUIRED_TERMS = [
   '合わせすぎて、気づかないうちに自分の気持ち',
 ] as const;
 
+const CH1_OPTIONAL_FINAL_STEM1_PATTERN_CAPTION_FORBIDDEN_TERMS = [
+  'ことが大切です',
+] as const;
+
+const CH1_OPTIONAL_FINAL_STEM1_PATTERN_CAPTION_REQUIRED_TERMS = [
+  '自分はここにいる',
+  '短く確かめるだけで戻りやすくなります',
+] as const;
+
 const FORBIDDEN_TERMS = [
   '業務',
   'ステークホルダー',
@@ -386,6 +395,19 @@ function ch1Phase2Stem1CompositionVizRequiredHits(copy: string): string[] {
   return CH1_PHASE2_STEM1_COMPOSITION_VIZ_REQUIRED_TERMS.filter((term) => !copy.includes(term));
 }
 
+function stem1PatternCaptionCopy(): string {
+  const viz = compositionStructureVizForStem(1);
+  return viz.patternCaption;
+}
+
+function ch1OptionalFinalStem1PatternCaptionForbiddenHits(copy: string): string[] {
+  return CH1_OPTIONAL_FINAL_STEM1_PATTERN_CAPTION_FORBIDDEN_TERMS.filter((term) => copy.includes(term));
+}
+
+function ch1OptionalFinalStem1PatternCaptionRequiredHits(copy: string): string[] {
+  return CH1_OPTIONAL_FINAL_STEM1_PATTERN_CAPTION_REQUIRED_TERMS.filter((term) => !copy.includes(term));
+}
+
 function dtrEngineCopy(lane: number): string {
   const envelope = runDtrEngine(
     {
@@ -563,6 +585,26 @@ describe('tenStem lifestyle language audit — stem1 chapter I phase2 compositio
       ch1Phase2Stem1CompositionVizRequiredHits(copy),
       [],
       'stem1 chapter I composition viz phase2 required',
+    );
+  });
+});
+
+describe('tenStem lifestyle language audit — stem1 chapter I optional final pattern caption copy', () => {
+  it('stem1 (プランナー) patternCaption has no optional-final forbidden phrase', () => {
+    const copy = stem1PatternCaptionCopy();
+    assert.deepEqual(
+      ch1OptionalFinalStem1PatternCaptionForbiddenHits(copy),
+      [],
+      'stem1 chapter I patternCaption optional-final forbidden',
+    );
+  });
+
+  it('stem1 (プランナー) patternCaption includes optional-final lifestyle replacements', () => {
+    const copy = stem1PatternCaptionCopy();
+    assert.deepEqual(
+      ch1OptionalFinalStem1PatternCaptionRequiredHits(copy),
+      [],
+      'stem1 chapter I patternCaption optional-final required',
     );
   });
 });

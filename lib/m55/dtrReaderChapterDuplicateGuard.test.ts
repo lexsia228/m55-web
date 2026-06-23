@@ -45,4 +45,10 @@ describe('dtrReader chapter duplicate guard', () => {
     assert.equal(block.includes('学びやスキル'), false);
     assert.ok(block.includes('身につけてきたこと'));
   });
+
+  it('EssenceArticleWithViz uses optional-final lifestyle copy for chapter-2 pilot', () => {
+    const block = extractFunctionBlock(readerSource, 'EssenceArticleWithViz');
+    assert.equal(block.includes('今日の優先を一つに絞ります'), false);
+    assert.ok(block.includes('今日やることを一つだけに絞ります'));
+  });
 });
