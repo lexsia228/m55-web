@@ -2,8 +2,12 @@
   min-height: 100%;
 }
 
+.printHiddenHeader {
+  display: contents;
+}
+
 @media print {
-  .shell > :global(header[aria-label="ナビゲーション"]) {
+  .printHiddenHeader {
     display: none !important;
   }
 }
