@@ -1737,11 +1737,6 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch3-comm-flow" />
       <CommFlowFigures body={section.body} />
-      <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
-        {section.body.split('\n\n').map((para, i) => (
-          <BodyPara key={i} para={para} compact />
-        ))}
-      </div>
     </article>
   );
 }
@@ -2582,7 +2577,7 @@ function ChapterFourWorkLead({
         ))}
       </div>
       <p className={styles.chapterPilotGuideText}>
-        この図では、{displayName}さんが疲れたときに、どこから余白を戻しやすいかを見ます。お金や生活の不安は、一気に答えを出すより、まず負担を一つ軽くするほうが扱いやすくなります。
+        この図では、{displayName}さんが疲れたときに、どこから余白を戻しやすいかを見ます。
       </p>
       <WorkGuideCards workSection={workSection} lifeTopicBodies />
       <LifeMarginRecoveryFigures />
