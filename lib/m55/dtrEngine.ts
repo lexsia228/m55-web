@@ -548,8 +548,8 @@ const COMPOSITION_STRUCTURE_VIZ: readonly CompositionStructureViz[] = [
       ['安定', '感受'],
     ],
     strengthEmergence:
-      '思考が今の流れを更新し、安定が土台、感受が関わりとして重なると、人との間の流れを整えやすくなります。',
-    flipRisk: '適応が過剰になり、自分の希望が後回しに見えないまま置き去りになります。',
+      '場の空気を感じ取る力と、人との関係を支える安定感が重なると、人との間の流れが整いやすくなります。',
+    flipRisk: '合わせすぎて、気づかないうちに自分の気持ちが後回しになってしまいます。',
   },
   {
     patternLabel: 'ポンプ出力型',

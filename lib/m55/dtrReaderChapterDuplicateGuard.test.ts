@@ -39,4 +39,10 @@ describe('dtrReader chapter duplicate guard', () => {
     const bridgeLifeJa = PAID_DTR_CHAPTER_BRIDGE_COPY['4'].lifeJa;
     assert.equal(block.includes(bridgeLifeJa), false);
   });
+
+  it('ChapterFourWorkLead uses phase2 lifestyle copy without 学びやスキル', () => {
+    const block = extractFunctionBlock(readerSource, 'ChapterFourWorkLead');
+    assert.equal(block.includes('学びやスキル'), false);
+    assert.ok(block.includes('身につけてきたこと'));
+  });
 });

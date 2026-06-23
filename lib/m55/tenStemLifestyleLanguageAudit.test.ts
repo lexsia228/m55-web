@@ -39,6 +39,19 @@ const CH2_PHASE2_STEM1_FORBIDDEN_TERMS = [
   '関わり方の更新',
 ] as const;
 
+/** stem1 / Ⅰ章 composition structure viz — Phase2 residual lifestyle copy (display copy only). */
+const CH1_PHASE2_STEM1_COMPOSITION_VIZ_FORBIDDEN_TERMS = [
+  '感受が関わりとして',
+  '安定が土台',
+  '適応が過剰',
+  '置き去りになります',
+] as const;
+
+const CH1_PHASE2_STEM1_COMPOSITION_VIZ_REQUIRED_TERMS = [
+  '場の空気を感じ取る力',
+  '合わせすぎて、気づかないうちに自分の気持ち',
+] as const;
+
 const FORBIDDEN_TERMS = [
   '業務',
   'ステークホルダー',
@@ -360,6 +373,19 @@ function ch2Phase2Stem1ForbiddenHits(copy: string): string[] {
   return CH2_PHASE2_STEM1_FORBIDDEN_TERMS.filter((term) => copy.includes(term));
 }
 
+function stem1CompositionVizCopy(): string {
+  const viz = compositionStructureVizForStem(1);
+  return [viz.strengthEmergence, viz.flipRisk].join('\n');
+}
+
+function ch1Phase2Stem1CompositionVizForbiddenHits(copy: string): string[] {
+  return CH1_PHASE2_STEM1_COMPOSITION_VIZ_FORBIDDEN_TERMS.filter((term) => copy.includes(term));
+}
+
+function ch1Phase2Stem1CompositionVizRequiredHits(copy: string): string[] {
+  return CH1_PHASE2_STEM1_COMPOSITION_VIZ_REQUIRED_TERMS.filter((term) => !copy.includes(term));
+}
+
 function dtrEngineCopy(lane: number): string {
   const envelope = runDtrEngine(
     {
@@ -518,6 +544,26 @@ describe('tenStem lifestyle language audit — stem1 chapter II phase2 copy', ()
   it('stem1 (プランナー) chapter II surfaces have no business/org phase2 forbidden phrases', () => {
     const copy = stem1Chapter2UserFacingCopy();
     assert.deepEqual(ch2Phase2Stem1ForbiddenHits(copy), [], 'stem1 chapter II phase2 forbidden');
+  });
+});
+
+describe('tenStem lifestyle language audit — stem1 chapter I phase2 composition viz copy', () => {
+  it('stem1 (プランナー) composition structure viz has no phase2 residual forbidden phrases', () => {
+    const copy = stem1CompositionVizCopy();
+    assert.deepEqual(
+      ch1Phase2Stem1CompositionVizForbiddenHits(copy),
+      [],
+      'stem1 chapter I composition viz phase2 forbidden',
+    );
+  });
+
+  it('stem1 (プランナー) composition structure viz includes phase2 lifestyle replacements', () => {
+    const copy = stem1CompositionVizCopy();
+    assert.deepEqual(
+      ch1Phase2Stem1CompositionVizRequiredHits(copy),
+      [],
+      'stem1 chapter I composition viz phase2 required',
+    );
   });
 });
 
