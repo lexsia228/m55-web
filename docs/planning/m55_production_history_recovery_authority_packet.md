@@ -22,13 +22,30 @@
 
 ---
 
-## Bound artifacts (SHA256 at LOCAL-REV1 generation)
+## Bound artifacts (SHA256 bind)
 
-| Artifact | Path | SHA256 | Bytes | Lines |
-|---|---|---|---|---|
-| Precheck | `scripts/sql/production/m55_production_history_recovery_precheck.sql` | `1a4d4828c66c54e56cb2024ecc55f9b19ed994a333882e1212f75d00691736b7` | 9899 | 265 |
-| Execute | `scripts/sql/production/m55_production_history_recovery_execute.sql` | `602f14df9191d4f193e42d54974886af02cfaf1e03ab2124197ecac88ead7c5c` | 118903 | 3072 |
-| Postcheck | `scripts/sql/production/m55_production_history_recovery_postcheck.sql` | `42861c05adb5c22c569a7376d3739b26b508b93ba39aeda6f113448c71054982` | 11296 | 312 |
+| Artifact | Path | SHA256 | Bytes | Lines | Role |
+|---|---|---|---|---|---|
+| Precheck | `scripts/sql/production/m55_production_history_recovery_precheck.sql` | `1a4d4828c66c54e56cb2024ecc55f9b19ed994a333882e1212f75d00691736b7` | 9899 | 265 | READ-ONLY precheck |
+| Execute — Human executed raw | `scripts/sql/production/m55_production_history_recovery_execute.sql` | `602f14df9191d4f193e42d54974886af02cfaf1e03ab2124197ecac88ead7c5c` | 118903 | 3072 | Production Run artifact (CRLF line endings) |
+| Execute — repo committed normalized | `scripts/sql/production/m55_production_history_recovery_execute.sql` | `761706583a96dd55d677dca02dcb534f30c2a87b98e35836f0df35b36e7ac56f` | 118327 | 3072 | Archival copy in commit `ce55131` (LF at git add) |
+| Postcheck | `scripts/sql/production/m55_production_history_recovery_postcheck.sql` | `42861c05adb5c22c569a7376d3739b26b508b93ba39aeda6f113448c71054982` | 11296 | 312 | READ-ONLY postcheck |
+
+### Execute artifact SHA consistency (B-04 bundle `ce55131`)
+
+| Field | Human executed raw | Repo committed normalized |
+|---|---|---|
+| SHA256 | `602f14df9191d4f193e42d54974886af02cfaf1e03ab2124197ecac88ead7c5c` | `761706583a96dd55d677dca02dcb534f30c2a87b98e35836f0df35b36e7ac56f` |
+| Bytes | 118903 | 118327 |
+| Lines | 3072 | 3072 |
+
+**Difference cause:** Git line-ending normalization **CRLF → LF** at `git add` during B-04 closure commit `ce55131770d55742d037cef23026cd53a5e5c976`.
+
+**Semantics:** SQL statement semantics are **unchanged**; the repo version is the normalized archival copy. Human Production execution bound to the raw SHA above; audit reconciliation must compare both SHAs explicitly.
+
+**Push:** Not performed. Local `main` remains ahead of `origin/main` by 1 commit until a separate push authority gate.
+
+**B-04:** Remains **CLOSED GREEN**. **B-05** purchase wave remains separate and **not** executed.
 
 **Related read-only (not mutated by recovery):**
 
