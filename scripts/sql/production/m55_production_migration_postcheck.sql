@@ -77,7 +77,7 @@ history_eval AS (
 required_tables AS (
   SELECT
     COUNT(*) FILTER (WHERE to_regclass(format('public.%I', t.name)) IS NOT NULL)::integer AS present_count,
-    17::integer AS expected_count
+    COUNT(*)::integer AS expected_count
   FROM (
     VALUES
       ('consult_messages'),
@@ -100,55 +100,95 @@ required_tables AS (
 ),
 function_eval AS (
   SELECT
-    to_regprocedure('public.m55_account_deletion_process_v1(text,text,text)') IS NOT NULL AS deletion_rpc_present,
-    EXISTS (
-      SELECT 1
-      FROM pg_proc p
-      JOIN pg_namespace n ON n.oid = p.pronamespace
-      WHERE n.nspname = 'public'
-        AND p.proname = 'm55_account_deletion_process_v1'
-        AND p.prosecdef
+    to_regprocedure('public.m55_account_deletion_process_v1(text,text,text,text)') IS NOT NULL AS deletion_rpc_present,
+    COALESCE(
+      (
+        SELECT p.prosecdef
+        FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+        WHERE n.nspname = 'public'
+          AND p.proname = 'm55_account_deletion_process_v1'
+          AND pg_catalog.pg_get_function_identity_arguments(p.oid) = 'p_svix_id text, p_event_type text, p_clerk_user_id text, p_user_ref_hash text'
+        LIMIT 1
+      ),
+      false
     ) AS deletion_rpc_security_definer,
     EXISTS (
       SELECT 1
-      FROM pg_proc p
-      JOIN pg_namespace n ON n.oid = p.pronamespace
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = 'public'
         AND p.proname = 'm55_account_deletion_process_v1'
-        AND pg_get_function_identity_arguments(p.oid) = 'p_clerk_user_id text, p_svix_id text, p_user_ref_hash text'
+        AND pg_catalog.pg_get_function_identity_arguments(p.oid) = 'p_svix_id text, p_event_type text, p_clerk_user_id text, p_user_ref_hash text'
     ) AS deletion_rpc_signature_exact
 ),
 index_eval AS (
   SELECT
-    EXISTS (
-      SELECT 1
-      FROM pg_class ic
-      JOIN pg_index i ON i.indexrelid = ic.oid
-      JOIN pg_class rc ON rc.oid = i.indrelid
-      WHERE rc.relname = 'entitlements'
-        AND ic.relname = 'entitlements_user_id_key_unique'
-        AND i.indisunique
+    (
+      EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class ic
+        JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+        JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND ic.relname = 'entitlements_user_id_product_id_key'
+          AND i.indisunique
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_constraint con
+        JOIN pg_catalog.pg_class rc ON rc.oid = con.conrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND con.conname = 'entitlements_user_id_product_id_key'
+          AND con.contype = 'u'
+      )
     ) AS entitlements_canonical_unique,
     EXISTS (
       SELECT 1
-      FROM pg_class ic
-      JOIN pg_index i ON i.indexrelid = ic.oid
-      JOIN pg_class rc ON rc.oid = i.indrelid
-      WHERE rc.relname = 'dtr_report_snapshots'
+      FROM pg_catalog.pg_class ic
+      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'dtr_report_snapshots'
         AND ic.relname LIKE '%visible%'
         AND i.indisunique
-    ) AS dtr_visible_unique
+    ) AS dtr_visible_unique,
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_class ic
+      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'entitlements'
+        AND ic.relname = 'entitlements_user_product_uq'
+    ) AS p7_dup_index_user_product_uq_absent,
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_class ic
+      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'entitlements'
+        AND ic.relname = 'uq_entitlements_user_product'
+    ) AS p7_dup_index_uq_entitlements_user_product_absent
 ),
 privilege_eval AS (
   SELECT
     EXISTS (
       SELECT 1
-      FROM pg_proc p
-      JOIN pg_namespace n ON n.oid = p.pronamespace
-      JOIN pg_roles r ON r.oid = p.proowner
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = 'public'
         AND p.proname = 'm55_account_deletion_process_v1'
-        AND has_function_privilege('service_role', p.oid, 'EXECUTE')
+        AND pg_catalog.pg_get_function_identity_arguments(p.oid) = 'p_svix_id text, p_event_type text, p_clerk_user_id text, p_user_ref_hash text'
+        AND pg_catalog.has_function_privilege('service_role', p.oid, 'EXECUTE')
     ) AS deletion_rpc_service_role_execute,
     EXISTS (
       SELECT 1
@@ -292,6 +332,8 @@ summary AS (
       AND fe.deletion_rpc_signature_exact
       AND ie.entitlements_canonical_unique
       AND ie.dtr_visible_unique
+      AND ie.p7_dup_index_user_product_uq_absent
+      AND ie.p7_dup_index_uq_entitlements_user_product_absent
     ) AS objects_green,
     (
       pe.deletion_rpc_service_role_execute
@@ -306,6 +348,7 @@ summary AS (
     (
       fe.deletion_rpc_present
       AND fe.deletion_rpc_security_definer
+      AND fe.deletion_rpc_signature_exact
       AND pe.deletion_rpc_service_role_execute
     ) AS deletion_contract_green,
     (
@@ -388,5 +431,10 @@ SELECT
   c.approved_set_respected,
   c.current_schema_identity,
   (c.production_chain_classification = 'PRODUCTION_CHAIN_GREEN') AS purchase_wave_allowed,
-  'CATEGORY-1-M55-PRODUCTION-PURCHASE-WAVE-AUTHORITY-PLANNING'::text AS next_gate
+  CASE
+    WHEN c.production_chain_classification = 'PRODUCTION_CHAIN_GREEN' THEN
+      'CATEGORY-1-M55-PRODUCTION-PURCHASE-WAVE-AUTHORITY-PLANNING'::text
+    ELSE
+      'CATEGORY-1-M55-PRODUCTION-MIGRATION-POSTCHECK-HOLD-REV1'::text
+  END AS next_gate
 FROM classification c;

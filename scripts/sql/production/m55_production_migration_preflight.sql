@@ -64,11 +64,11 @@ session_identity AS (
 ),
 ui_identity AS (
   SELECT
-    (hi.human_org = p.expected_org) AS ui_org_exact,
-    (hi.human_project = p.expected_project) AS ui_project_exact,
-    (hi.human_environment = p.expected_environment) AS ui_environment_exact,
-    (si.current_database_name = p.expected_database) AS database_exact,
-    (si.current_user_name = p.expected_role) AS role_exact
+    COALESCE(hi.human_org = p.expected_org, false) AS ui_org_exact,
+    COALESCE(hi.human_project = p.expected_project, false) AS ui_project_exact,
+    COALESCE(hi.human_environment = p.expected_environment, false) AS ui_environment_exact,
+    COALESCE(si.current_database_name = p.expected_database, false) AS database_exact,
+    COALESCE(si.current_user_name = p.expected_role, false) AS role_exact
   FROM params p
   CROSS JOIN human_identity hi
   CROSS JOIN session_identity si
@@ -209,21 +209,37 @@ baseline_summary AS (
 chain_objects AS (
   SELECT
     to_regclass('public.clerk_webhook_events') IS NOT NULL AS has_clerk_webhook_events,
-    to_regprocedure('public.m55_account_deletion_process_v1(text,text,text)') IS NOT NULL AS has_deletion_rpc,
-    EXISTS (
-      SELECT 1
-      FROM pg_catalog.pg_class ic
-      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
-      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
-      WHERE rc.relname = 'entitlements'
-        AND ic.relname = 'entitlements_user_id_key_unique'
+    to_regprocedure('public.m55_account_deletion_process_v1(text,text,text,text)') IS NOT NULL AS has_deletion_rpc,
+    (
+      EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class ic
+        JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+        JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND ic.relname = 'entitlements_user_id_product_id_key'
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_constraint con
+        JOIN pg_catalog.pg_class rc ON rc.oid = con.conrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND con.conname = 'entitlements_user_id_product_id_key'
+          AND con.contype = 'u'
+      )
     ) AS has_canonical_entitlements_unique,
     EXISTS (
       SELECT 1
       FROM pg_catalog.pg_class ic
       JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
       JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
-      WHERE rc.relname = 'dtr_report_snapshots'
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'dtr_report_snapshots'
         AND ic.relname LIKE '%visible%'
     ) AS has_dtr_visible_index,
     EXISTS (
@@ -236,7 +252,81 @@ chain_objects AS (
         AND a.attname = 'user_ref_hash'
         AND a.attnum > 0
         AND NOT a.attisdropped
-    ) AS has_failed_fulfillments_user_ref_hash
+    ) AS has_failed_fulfillments_user_ref_hash,
+    EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_class ic
+      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'entitlements'
+        AND ic.relname = 'entitlements_user_product_uq'
+    ) AS has_entitlements_dup_user_product_uq,
+    EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_class ic
+      JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+      JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+      WHERE rn.nspname = 'public'
+        AND rc.relname = 'entitlements'
+        AND ic.relname = 'uq_entitlements_user_product'
+    ) AS has_entitlements_dup_uq_entitlements_user_product,
+    (
+      (
+        EXISTS (
+          SELECT 1
+          FROM pg_catalog.pg_class ic
+          JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+          JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+          JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+          WHERE rn.nspname = 'public'
+            AND rc.relname = 'entitlements'
+            AND ic.relname = 'entitlements_user_id_product_id_key'
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM pg_catalog.pg_constraint con
+          JOIN pg_catalog.pg_class rc ON rc.oid = con.conrelid
+          JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+          WHERE rn.nspname = 'public'
+            AND rc.relname = 'entitlements'
+            AND con.conname = 'entitlements_user_id_product_id_key'
+            AND con.contype = 'u'
+        )
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class ic
+        JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+        JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'dtr_report_snapshots'
+          AND ic.relname LIKE '%visible%'
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class ic
+        JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+        JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND ic.relname = 'entitlements_user_product_uq'
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_class ic
+        JOIN pg_catalog.pg_index i ON i.indexrelid = ic.oid
+        JOIN pg_catalog.pg_class rc ON rc.oid = i.indrelid
+        JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.relnamespace
+        WHERE rn.nspname = 'public'
+          AND rc.relname = 'entitlements'
+          AND ic.relname = 'uq_entitlements_user_product'
+      )
+    ) AS has_p7_final_state
 ),
 chain_registry AS (
   SELECT
@@ -261,18 +351,26 @@ classification_inputs AS (
     bs.baseline_malformed_count,
     cr.chain_object_present_count,
     cr.chain_object_expected_count,
-    (ui.ui_org_exact AND ui.ui_project_exact AND ui.ui_environment_exact AND ui.database_exact AND ui.role_exact) AS ui_identity_exact
+    co.has_p7_final_state,
+    (
+      COALESCE(ui.ui_org_exact, false)
+      AND COALESCE(ui.ui_project_exact, false)
+      AND COALESCE(ui.ui_environment_exact, false)
+      AND COALESCE(ui.database_exact, false)
+      AND COALESCE(ui.role_exact, false)
+    ) AS ui_identity_exact
   FROM ui_identity ui
   CROSS JOIN history_shape_safe hs
   CROSS JOIN history_analysis ha
   CROSS JOIN baseline_summary bs
   CROSS JOIN chain_registry cr
+  CROSS JOIN chain_objects co
 ),
 classification AS (
   SELECT
     ci.*,
     CASE
-      WHEN NOT ci.ui_identity_exact THEN 'HOLD_UNKNOWN'
+      WHEN NOT COALESCE(ci.ui_identity_exact, false) THEN 'HOLD_UNKNOWN'
       WHEN ci.has_duplicate_versions OR cardinality(ci.unexpected_versions) > 0 THEN 'HOLD_UNKNOWN'
       WHEN ci.baseline_malformed_count > 0 THEN 'PARTIAL_STATE_RECONCILIATION_REQUIRED'
       WHEN ci.history_relation_exists
@@ -294,7 +392,18 @@ classification AS (
         AND ci.baseline_missing_count > 0
         THEN 'HISTORY_ONLY_DRIFT'
       WHEN NOT ci.history_relation_exists
+        AND ci.baseline_missing_count = 0
+        AND ci.baseline_malformed_count = 0
+        AND ci.chain_object_present_count = ci.chain_object_expected_count
+        AND ci.has_p7_final_state
+        THEN 'HISTORY_ABSENT_OBJECTS_EXACT'
+      WHEN NOT ci.history_relation_exists
+        AND ci.baseline_missing_count = 0
         AND ci.chain_object_present_count > 0
+        AND (
+          ci.chain_object_present_count < ci.chain_object_expected_count
+          OR NOT ci.has_p7_final_state
+        )
         THEN 'SCHEMA_ONLY_DRIFT'
       WHEN ci.baseline_missing_count > 0
         AND ci.chain_object_present_count > 0
@@ -307,13 +416,14 @@ flags AS (
   SELECT
     c.*,
     ARRAY_REMOVE(ARRAY[
-      CASE WHEN NOT c.ui_identity_exact THEN 'ui_identity_mismatch' END,
+      CASE WHEN NOT COALESCE(c.ui_identity_exact, false) THEN 'ui_identity_mismatch' END,
       CASE WHEN c.has_duplicate_versions THEN 'duplicate_migration_versions' END,
       CASE WHEN cardinality(c.unexpected_versions) > 0 THEN 'unexpected_migration_versions' END,
       CASE WHEN c.baseline_malformed_count > 0 THEN 'baseline_relation_malformed' END,
       CASE WHEN c.preflight_classification = 'PARTIAL_STATE_RECONCILIATION_REQUIRED' THEN 'partial_state_detected' END,
       CASE WHEN c.preflight_classification = 'HISTORY_ONLY_DRIFT' THEN 'history_only_drift' END,
-      CASE WHEN c.preflight_classification = 'SCHEMA_ONLY_DRIFT' THEN 'schema_only_drift' END
+      CASE WHEN c.preflight_classification = 'SCHEMA_ONLY_DRIFT' THEN 'schema_only_drift' END,
+      CASE WHEN c.preflight_classification = 'HISTORY_ABSENT_OBJECTS_EXACT' THEN 'history_absent_objects_exact' END
     ], NULL) AS failed_flags,
     ARRAY_REMOVE(ARRAY[
       CASE WHEN c.preflight_classification = 'HOLD_UNKNOWN' THEN 'unknown_state' END
@@ -332,7 +442,7 @@ version_object_state AS (
       WHEN '20260615000003' THEN f.chain_object_present_count >= 3
       WHEN '20260615000004' THEN f.chain_object_present_count >= 4
       WHEN '20260615000005' THEN f.chain_object_present_count >= 5
-      WHEN '20260615000006' THEN f.chain_object_present_count = f.chain_object_expected_count
+      WHEN '20260615000006' THEN f.has_p7_final_state
       ELSE false
     END AS object_exact
   FROM flags f
@@ -357,6 +467,11 @@ version_plan_raw AS (
         'HISTORY_ONLY_DRIFT',
         'SCHEMA_ONLY_DRIFT'
       ) THEN 'OBJECT_STATE_PARTIAL'
+      WHEN f.preflight_classification = 'HISTORY_ABSENT_OBJECTS_EXACT' THEN
+        CASE
+          WHEN vos.object_exact THEN 'HISTORY_ABSENT_OBJECT_EXACT'
+          ELSE 'OBJECT_STATE_PARTIAL'
+        END
       WHEN f.preflight_classification = 'HOLD_UNKNOWN' THEN 'UNKNOWN'
       WHEN f.preflight_classification = 'ALREADY_APPLIED' THEN
         CASE WHEN vos.in_history AND vos.object_exact THEN 'APPLIED_EXACT' ELSE 'HISTORY_SCHEMA_CONFLICT' END
@@ -384,6 +499,7 @@ version_plan_final AS (
   SELECT
     vpo.version,
     vpo.ordinal,
+    vpo.predecessor_ready,
     CASE
       WHEN vpo.version_status = 'REQUIRED_APPLY' AND NOT vpo.predecessor_ready THEN 'BLOCKED_BY_PREDECESSOR'
       ELSE vpo.version_status
@@ -444,6 +560,7 @@ apply_plan_resolved AS (
         'PARTIAL_STATE_RECONCILIATION_REQUIRED',
         'HISTORY_ONLY_DRIFT',
         'SCHEMA_ONLY_DRIFT',
+        'HISTORY_ABSENT_OBJECTS_EXACT',
         'HOLD_UNKNOWN',
         'ALREADY_APPLIED'
       ) THEN ARRAY[]::text[]
@@ -489,6 +606,7 @@ SELECT
       'PARTIAL_STATE_RECONCILIATION_REQUIRED',
       'HISTORY_ONLY_DRIFT',
       'SCHEMA_ONLY_DRIFT',
+      'HISTORY_ABSENT_OBJECTS_EXACT',
       'HOLD_UNKNOWN'
     )
     OR cardinality(apr.blocked_versions) > 0
@@ -500,5 +618,23 @@ SELECT
   true AS unconditional_apply_forbidden,
   apr.current_schema_identity,
   false AS compatibility_inputs_known,
-  'CATEGORY-1-M55-PRODUCTION-MIGRATION-APPLY-AUTHORITY-REVIEW'::text AS next_gate
+  CASE
+    WHEN apr.preflight_classification = 'HISTORY_ABSENT_OBJECTS_EXACT' THEN
+      'CATEGORY-1-M55-PRODUCTION-MIGRATION-HISTORY-RECOVERY-PLANNING-REV1'::text
+    WHEN (
+      apr.preflight_classification IN (
+        'PARTIAL_STATE_RECONCILIATION_REQUIRED',
+        'HISTORY_ONLY_DRIFT',
+        'SCHEMA_ONLY_DRIFT',
+        'HISTORY_ABSENT_OBJECTS_EXACT',
+        'HOLD_UNKNOWN'
+      )
+      OR cardinality(apr.blocked_versions) > 0
+      OR cardinality(apr.conflicting_versions) > 0
+      OR cardinality(apr.unknown_versions) > 0
+    ) THEN
+      'CATEGORY-1-M55-PRODUCTION-MIGRATION-HISTORY-RECOVERY-PLANNING-REV1'::text
+    ELSE
+      'CATEGORY-1-M55-PRODUCTION-MIGRATION-APPLY-AUTHORITY-REVIEW'::text
+  END AS next_gate
 FROM apply_plan_resolved apr;
