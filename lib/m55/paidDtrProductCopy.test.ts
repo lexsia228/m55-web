@@ -9,12 +9,18 @@ import {
   PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
   PAID_DTR_SAVED_REPORT_PRICING,
   formatConsultPurchaseAddOnLine,
+  formatConsultAvailableCountLine,
+  formatConsultAvailableWithGrantedLine,
   formatConsultUsedCountLine,
   PAID_DTR_MY_PAGE_CONSULT,
   PAID_DTR_PRODUCT_IDENTITY,
   PAID_DTR_VALUE_PROPOSITION,
   collectPaidDtrPublicCopyStrings,
 } from './paidDtrProductCopy';
+import {
+  hasValidConsultWalletDenominator,
+  isConsultWalletDisplaySnapshotUsable,
+} from './reply/consultWalletDisplaySnapshot';
 
 describe('paidDtrProductCopy SSOT', () => {
   it('uses 4 chapters as current product truth', () => {
@@ -162,6 +168,37 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(usage, /今は残り0件です/);
     assert.equal(usage.includes('相談返書ルーム'), false);
     assert.equal(usage.includes('返書ルーム'), false);
+  });
+
+  it('consult wallet display formatters use wallet-granted total not hardcoded cap', () => {
+    assert.equal(formatConsultAvailableWithGrantedLine(5, 5), '現在使える相談返書：5 / 5件');
+    assert.equal(formatConsultAvailableWithGrantedLine(1, 1), '現在使える相談返書：1 / 1件');
+    assert.equal(formatConsultAvailableCountLine(3), '現在使える相談返書：3件');
+    assert.equal(formatConsultUsedCountLine(0), '使用済み：0件');
+  });
+
+  it('consult wallet snapshot helpers validate denominator from wallet fields', () => {
+    const full = {
+      availableCount: 5,
+      consumedCount: 0,
+      totalGrantedCount: 5,
+      status: 'active',
+    };
+    const light = {
+      availableCount: 1,
+      consumedCount: 0,
+      totalGrantedCount: 1,
+      status: 'active',
+    };
+    assert.equal(isConsultWalletDisplaySnapshotUsable(full), true);
+    assert.equal(isConsultWalletDisplaySnapshotUsable(light), true);
+    assert.equal(hasValidConsultWalletDenominator(full), true);
+    assert.equal(hasValidConsultWalletDenominator(light), true);
+    assert.equal(
+      hasValidConsultWalletDenominator({ ...full, totalGrantedCount: 0 }),
+      false,
+    );
+    assert.equal(isConsultWalletDisplaySnapshotUsable({ ...full, status: 'closed' }), false);
   });
 
   it('consult copy states one-theme and cap product truth', () => {

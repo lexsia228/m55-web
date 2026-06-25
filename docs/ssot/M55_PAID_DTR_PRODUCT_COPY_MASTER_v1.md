@@ -381,16 +381,24 @@ consultGroundingJa:
 | Surface | Shows | Must NOT imply |
 |---------|-------|----------------|
 | **相談返書入口（ConsultRoom）** | `現在使える相談返書：{count}件` · `使用済み：{used}件` — **current live usable balance** | bare `残り {n}件`（static cap に読める） |
-| **保存版の情報（ReportFooterMetaCard）** | tier-neutral 利用枠 + balance pointer（`上の入口で残数を確認`） | fixed `1件` / `初回付与`（FULL 5件ユーザーと矛盾） |
+| **保存版の情報（ReportFooterMetaCard）** | tier-neutral 利用枠 + wallet snapshot（利用可時）または neutral fallback | fixed `1件` / `初回付与` / location-dependent `上の入口` |
 
 **Canonical strings (`PAID_DTR_INTRO_CONSULT_NOTE`):**
 
 - `lineJa`: この保存版には、相談返書の利用枠が付いています。
-- `balancePointerJa`: 現在使える件数は、上の相談返書入口に表示されます。
-- `metaLabelJa`: 相談返書
-- `metaIncludedValueJa`: 上の入口で残数を確認
+- `balanceFallbackJa`: 現在使える件数は、相談返書の入口で確認できます。
+- `metaLabelJa`: 相談返書（fallback のみ）
+- `metaIncludedValueJa`: 入口で確認（fallback のみ）
 
-**Tier-neutral rule:** 保存版情報カードに固定の `1件` や `初回付与` を出さない。Light / FULL / upgrade / 追加購入 / 使用済みのいずれでも、live balance は相談入口のみが正本。
+**Saved-report wallet snapshot display (when server prop available + status active):**
+
+- `formatConsultAvailableWithGrantedLine(available, totalGranted)` → `現在使える相談返書：{available} / {totalGranted}件`
+- `formatConsultUsedCountLine(consumed)` → `使用済み：{consumed}件`
+- `totalGranted` = wallet `initial_included_count + purchased_count`（hardcode `/5` 禁止）
+- Denominator invalid → `formatConsultAvailableCountLine(available)` only
+- Snapshot unavailable → `balanceFallbackJa` only
+
+**Tier-neutral rule:** 保存版情報カードに固定の `1件` や `初回付与` を出さない。Light / FULL / upgrade / 追加購入 / 使用済みのいずれでも、live balance は相談入口が正本。保存版情報は server wallet snapshot を **表示のみ** 反映可（read-only、mutation なし）。
 
 **Consult entrance wallet display (`PAID_DTR_CONSULT_ENTRY_NEUTRAL`):**
 

@@ -58,6 +58,9 @@ import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_INTRO_CONSULT_NOTE,
+  formatConsultAvailableCountLine,
+  formatConsultAvailableWithGrantedLine,
+  formatConsultUsedCountLine,
   drawerSectionDisplayTitleJa,
   PAID_DTR_INTRO_PANEL_01,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
@@ -67,6 +70,11 @@ import {
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
+import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
+import {
+  hasValidConsultWalletDenominator,
+  isConsultWalletDisplaySnapshotUsable,
+} from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import {
   PremiumDrawerHub,
   type DrawerHubOpenPanel,
@@ -350,6 +358,8 @@ type Props = {
   };
   /** Dev-only (/dev/dtr-drawer-preview): inject consult UI without /api/room/core. */
   consultDevPreviewRoomData?: ConsultRoomPreviewRoomData;
+  /** Server read-only wallet snapshot for saved-report info (display only). */
+  consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -733,32 +743,54 @@ function ReportFooterMetaCard({
   expiresAt,
   stemTitle,
   displayedEnvelopeReadMode,
+  consultWalletSnapshot,
 }: {
   aiConsultIncluded: boolean;
   expiresAt: string | null;
   stemTitle: string;
   displayedEnvelopeReadMode?: DisplayedEnvelopeReadMode;
+  consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
 }) {
+  const walletUsable =
+    aiConsultIncluded && isConsultWalletDisplaySnapshotUsable(consultWalletSnapshot);
+  const wallet = walletUsable ? consultWalletSnapshot : null;
+
   return (
     <section className={styles.reportMetaCard} aria-label="保存版の情報">
       <p className={styles.reportMetaHeading}>保存版の情報</p>
       <p className={styles.reportMetaLead}>
         {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、相談返書は付いていません。'}
       </p>
-      {aiConsultIncluded ? (
-        <p className={styles.reportMetaNote}>{PAID_DTR_INTRO_CONSULT_NOTE.balancePointerJa}</p>
+      {aiConsultIncluded && wallet ? (
+        <>
+          <p className={styles.reportMetaWalletAvailable}>
+            {hasValidConsultWalletDenominator(wallet)
+              ? formatConsultAvailableWithGrantedLine(
+                  wallet.availableCount,
+                  wallet.totalGrantedCount,
+                )
+              : formatConsultAvailableCountLine(wallet.availableCount)}
+          </p>
+          <p className={styles.reportMetaWalletUsed}>
+            {formatConsultUsedCountLine(wallet.consumedCount)}
+          </p>
+        </>
+      ) : aiConsultIncluded ? (
+        <p className={styles.reportMetaNote}>{PAID_DTR_INTRO_CONSULT_NOTE.balanceFallbackJa}</p>
       ) : null}
       <div className={styles.reportMetaGrid} role="list">
         <p className={styles.reportMetaItem} role="listitem">
           <span className={styles.reportMetaItemLabel}>有効期限</span>
           <span className={styles.reportMetaItemValue}>{expiresAt ?? '無期限'}</span>
         </p>
-        <p className={styles.reportMetaItem} role="listitem">
-          <span className={styles.reportMetaItemLabel}>{PAID_DTR_INTRO_CONSULT_NOTE.metaLabelJa}</span>
-          <span className={styles.reportMetaItemValue}>
-            {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.metaIncludedValueJa : 'なし'}
-          </span>
-        </p>
+        {aiConsultIncluded && !wallet ? (
+          <p className={styles.reportMetaItem} role="listitem">
+            <span className={styles.reportMetaItemLabel}>{PAID_DTR_INTRO_CONSULT_NOTE.metaLabelJa}</span>
+            <span className={styles.reportMetaItemValue}>
+              {PAID_DTR_INTRO_CONSULT_NOTE.metaIncludedValueJa}
+            </span>
+          </p>
+        ) : null}
         <p className={styles.reportMetaItem} role="listitem">
           <span className={styles.reportMetaItemLabel}>傾向名</span>
           <span className={styles.reportMetaItemValue}>{stemTitle}</span>
@@ -2791,6 +2823,7 @@ export default function DtrFullReader({
   displayedEnvelopeReadMode,
   purchasedSnapshot,
   consultDevPreviewRoomData,
+  consultWalletSnapshot = null,
 }: Props) {
   const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
   const { user, isLoaded } = useUser();
@@ -3188,6 +3221,7 @@ export default function DtrFullReader({
           expiresAt={expiresAt}
           stemTitle={stem.publicTitle}
           displayedEnvelopeReadMode={displayedEnvelopeReadMode}
+          consultWalletSnapshot={consultWalletSnapshot}
         />
       </div>
     </div>

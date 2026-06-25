@@ -2245,6 +2245,23 @@
   color: rgba(230, 220, 245, 0.72);
 }
 
+.reportMetaWalletAvailable {
+  margin: 8px 0 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+}
+
+.reportMetaWalletUsed {
+  margin: 0 0 8px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(188, 175, 220, 0.62);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Saved snapshot notice — editorial strip (not notification UI) */
 .savedSnapshotNotice {
   margin: clamp(10px, 2vw, 14px) 0 clamp(12px, 2.2vw, 16px);

@@ -658,6 +658,14 @@ export function formatConsultAvailableCountLine(available: number): string {
   );
 }
 
+/** Saved-report info — available with wallet-granted total (not hardcoded cap). */
+export function formatConsultAvailableWithGrantedLine(
+  available: number,
+  totalGranted: number,
+): string {
+  return `現在使える相談返書：${available} / ${totalGranted}件`;
+}
+
 export function formatConsultUsedCountLine(used: number, cap?: number): string {
   if (cap !== undefined) {
     return `使用済み：${used} / ${cap}件`;
@@ -713,10 +721,12 @@ export const PAID_DTR_INTRO_PANEL_01 = {
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
   /** Consult reply entitlement exists — tier/count agnostic; not the live remaining count. */
   lineJa: 'この保存版には、相談返書の利用枠が付いています。',
-  /** Points users to ConsultRoom wallet display for current available_count. */
-  balancePointerJa: '現在使える件数は、上の相談返書入口に表示されます。',
+  /** When server wallet snapshot is unavailable — location-neutral (not “上の入口”). */
+  balanceFallbackJa: '現在使える件数は、相談返書の入口で確認できます。',
+  /** @deprecated Use balanceFallbackJa — kept for SSOT history only. */
+  balancePointerJa: '現在使える件数は、相談返書の入口で確認できます。',
   metaLabelJa: '相談返書',
-  metaIncludedValueJa: '上の入口で残数を確認',
+  metaIncludedValueJa: '入口で確認',
 } as const;
 
 export const PAID_DTR_LIFE_USE_CASES = [

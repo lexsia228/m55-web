@@ -11,6 +11,7 @@ import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTi
 import { resolveDisplayedDtrEnvelope } from "../../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
+import { readConsultWalletDisplaySnapshot } from "../../../lib/m55/reply/consultWalletDisplaySnapshot";
 import styles from "./core.module.css";
 
 import { LABEL_SAVED_REPORT_METADATA_JP } from "../../../lib/m55/dtrProductLabels";
@@ -47,6 +48,11 @@ export default async function DtrCorePage() {
       redirect(DTR_OWNED_RECOVERY_PROCESSING_PATH);
     }
 
+    const consultWalletSnapshot =
+      ownership.aiConsultIncluded && ownership.reportInstanceId
+        ? await readConsultWalletDisplaySnapshot(userId, ownership.reportInstanceId)
+        : null;
+
     return (
       <main className={styles.page}>
         <DtrFullReader
@@ -54,6 +60,7 @@ export default async function DtrCorePage() {
           aiConsultIncluded={ownership.aiConsultIncluded}
           expiresAt={ownership.expiresAt}
           displayedEnvelopeReadMode={read.mode}
+          consultWalletSnapshot={consultWalletSnapshot}
           purchasedSnapshot={{
             envelope: read.envelope,
             profile: read.profile,
