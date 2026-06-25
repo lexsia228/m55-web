@@ -746,6 +746,35 @@ export const PAID_DTR_LIFE_USE_CASES = [
   },
 ] as const;
 
+/**
+ * Paid DTR individualization framing — user-facing copy for purchase-time
+ * individualized blocks (本質リズム / 補助整理) inside the 保存版 reader.
+ *
+ * DO NOT expose: lunarMonthKey / solarTermKey / lunarDayKey / boundaryMetadata /
+ * stemLaneIndex / djb2 / 甲乙丙丁戊己庚辛壬癸 in UI surfaces.
+ * These strings are for display framing only; engine logic is unchanged.
+ */
+export const PAID_DTR_INDIVIDUALIZATION_FRAMING = {
+  /**
+   * Shown near individualization blocks in the 保存版 reader
+   * (e.g. just above 【この保存版だけの本質リズム】 / 【この保存版だけの補助整理】 headings).
+   */
+  readerContextJa:
+    '保存版では、10資質の入口に加えて、生年月日から出る複合的な読み取りを、購入時点のプロフィールに合わせて本文内に整理しています。',
+  /** Clarifies this is NOT a separate 鑑定 — use near the same blocks. */
+  notSeparateReadingJa:
+    'これは別の鑑定を追加するものではなく、この保存版を読むための補助整理です。',
+  /** Snapshot-fixed notice — used on reader or My copy near individualization blocks. */
+  snapshotFixedJa:
+    'この補助整理は、購入時点のプロフィールをもとに保存されています。',
+  /**
+   * Consult-room grounding statement: keeps 相談返書 anchored to 保存版 SSOT.
+   * (Supplements PAID_DTR_CONSULT_ENTRY_LAYOUT; does not replace it.)
+   */
+  consultGroundingJa:
+    '相談返書では、この保存版に保存された内容をもとに、今の相談を1テーマずつ整理します。',
+} as const;
+
 /** Public scope boundaries — display-only; no product spec change. */
 export const PAID_DTR_PUBLIC_SCOPE_CLARITY = {
   notDailyWeeklyMonthlyServiceJa:

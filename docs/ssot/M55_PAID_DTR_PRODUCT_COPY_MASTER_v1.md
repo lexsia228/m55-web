@@ -328,6 +328,54 @@ My page（`/my`）のコピーは **機能 UI**（再開・カード・残数・
 
 ---
 
+## 16. Paid 保存版 individualization framing
+
+**Added:** 2026-06-25 — Gate `CATEGORY-1-M55-EXTERNAL-NOTE-PRE-COPY-INDIVIDUALIZATION-FRAMING-REV1`
+
+### 16.1 Context
+
+保存版には、購入時点プロフィール（生年月日）から出る複合的な読み取りを本文内に整理した**補助整理ブロック**が含まれます。
+ユーザーが初めて読んだとき「これは何か」と感じた場合の最小説明コピーを定めます。
+
+### 16.2 User-facing labels and their framing
+
+| Block label (body only; not product name) | User-facing framing |
+|---|---|
+| 【この保存版だけの本質リズム】 | 生年月日から出る月ごとのリズムを、購入時点のプロフィールに合わせて整理したもの |
+| 【この保存版だけの補助整理】 | 購入時点のプロフィールから整理した、力が出やすいタイミングと注意しやすい場面の傾向 |
+| 【保存版の本質リズム（購入時固定）】 | 相談返書の接地コンテキスト内のみ。ユーザー向けに露出しない |
+| 【保存版の補助整理（購入時固定）】 | 同上 |
+
+### 16.3 Canonical copy strings (runtime: `PAID_DTR_INDIVIDUALIZATION_FRAMING`)
+
+```
+readerContextJa:
+  保存版では、10資質の入口に加えて、生年月日から出る複合的な読み取りを、
+  購入時点のプロフィールに合わせて本文内に整理しています。
+
+notSeparateReadingJa:
+  これは別の鑑定を追加するものではなく、この保存版を読むための補助整理です。
+
+snapshotFixedJa:
+  この補助整理は、購入時点のプロフィールをもとに保存されています。
+
+consultGroundingJa:
+  相談返書では、この保存版に保存された内容をもとに、今の相談を1テーマずつ整理します。
+```
+
+### 16.4 Rules
+
+- **禁止:** engine 内部キー（lunarMonthKey / solarTermKey / lunarDayKey / boundaryMetadata / stemLaneIndex / djb2 / 干支記号）を UI 文字列に含めない
+- **禁止:** 「別の鑑定」「占いの追加」「AI再判定」として誤解させる表現
+- **禁止:** 「このタイプ」を paid-user 向け body に使用
+- **必須:** 「購入時点固定」であることを最小1文で示す
+- 相談返書の「保存版紐づき」フレーミングを維持する（§7.1 との整合）
+- `readerContextJa` / `notSeparateReadingJa` は reader 表面（保存版4章）に隣接表示可
+- `consultGroundingJa` は ConsultRoom の接地コピーの補助として使用可
+- 「外部NOTE」とは note.com 等へのURL公開導線を指す。相談返書・ConsultRoom を「NOTE」と呼ばない
+
+---
+
 ## Evidence
 
 | ID | Note |
