@@ -263,11 +263,12 @@ export default function ConsultRoom({
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(() => new Set());
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [expandLatestReply, setExpandLatestReply] = useState(false);
+  const latestReplyCardRef = useRef<HTMLDivElement>(null);
 
   const sendLock = useRef(false);
   /** True only after user send; reload/focus must not scroll the thread. */
-  const shouldScrollThreadToEndRef = useRef(false);
+  const shouldScrollToLatestReplyRef = useRef(false);
   const activeIdempotencyKeyRef = useRef<string | null>(null);
   const activeSnapshotHashRef = useRef<string | null>(null);
 
@@ -347,18 +348,15 @@ export default function ConsultRoom({
 
   useEffect(() => {
     if (!roomData) return;
-    if (!shouldScrollThreadToEndRef.current) return;
-    if (roomData.messages.length === 0) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [roomData?.messages]);
+    if (!shouldScrollToLatestReplyRef.current) return;
+    if (replyCount === 0) return;
 
-  useEffect(() => {
-    if (sending || !shouldScrollThreadToEndRef.current) return;
-    const id = requestAnimationFrame(() => {
-      shouldScrollThreadToEndRef.current = false;
+    const frame = requestAnimationFrame(() => {
+      latestReplyCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      shouldScrollToLatestReplyRef.current = false;
     });
-    return () => cancelAnimationFrame(id);
-  }, [sending]);
+    return () => cancelAnimationFrame(frame);
+  }, [roomData?.messages, replyCount, expandLatestReply]);
 
   const toggleQuestion = (id: string) => {
     setSelectedQuestionIds((prev) => {
@@ -421,7 +419,8 @@ export default function ConsultRoom({
     sendLock.current = true;
     setSending(true);
     setSendError(null);
-    shouldScrollThreadToEndRef.current = true;
+    shouldScrollToLatestReplyRef.current = true;
+    setExpandLatestReply(true);
 
     const optimisticMsg: Message = { role: 'user', content: msg };
     setRoomData((prev) => (prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev));
@@ -440,7 +439,7 @@ export default function ConsultRoom({
       const data = await res.json();
 
       if (!res.ok) {
-        shouldScrollThreadToEndRef.current = false;
+        shouldScrollToLatestReplyRef.current = false;
         setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
         setSendError(
           mapConsultRoomSendErrorToUserMessage(
@@ -459,7 +458,7 @@ export default function ConsultRoom({
       activeSnapshotHashRef.current = null;
       setRoomData((prev) => (prev ? { thread, messages: [...prev.messages, reply] } : null));
     } catch {
-      shouldScrollThreadToEndRef.current = false;
+      shouldScrollToLatestReplyRef.current = false;
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
       setSendError('送信に失敗しました。ネットワークを確認して再度お試しください。');
       setInputText(snapshot.free);
@@ -591,7 +590,7 @@ export default function ConsultRoom({
   ) : null;
 
   const valueDeliverablesDetails = !walletLoading ? (
-    <details className={styles.entryDetails}>
+    <details className={`${styles.entryDetails} ${styles.entryDetailsLower}`}>
       <summary className={styles.entryDetailsSummary}>
         {PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDetailsSummaryJa}
       </summary>
@@ -737,7 +736,7 @@ export default function ConsultRoom({
   ) : null;
 
   const messagesBlock = (
-    <div className={styles.historySection}>
+    <div className={replyCount > 0 ? `${styles.historySection} ${styles.historySectionActive}` : styles.historySection}>
       {replyCount > 0 ? (
         <div className={styles.historyHeader}>
           <div className={styles.historyHeaderText}>
@@ -766,19 +765,29 @@ export default function ConsultRoom({
         {replyCount === 0 && !isReadOnly && (
           <p className={styles.emptyMsg}>{PAID_DTR_CONSULT_ROOM_UI.emptyThreadJa}</p>
         )}
-        {visibleReplies.map((entry) => (
-          <ConsultReplyCard
-            key={entry.messageKey}
-            assistantContent={entry.msg.content}
-            theme={entry.theme}
-            userQuote={entry.userQuote}
-            stemIdx={stemIdx}
-            usedCount={usedCount}
-            remainingCount={wallet?.available_count ?? effectiveRemaining}
-            compactInitially
-            isLatest={entry.messageKey === latestReplyKey}
-          />
-        ))}
+        {visibleReplies.map((entry) => {
+          const isLatest = entry.messageKey === latestReplyKey;
+          return (
+            <div
+              key={entry.messageKey}
+              ref={isLatest ? latestReplyCardRef : undefined}
+              className={isLatest ? styles.latestReplyAnchor : undefined}
+            >
+              <ConsultReplyCard
+                assistantContent={entry.msg.content}
+                theme={entry.theme}
+                userQuote={entry.userQuote}
+                stemIdx={stemIdx}
+                usedCount={usedCount}
+                remainingCount={wallet?.available_count ?? effectiveRemaining}
+                compactInitially={!(isLatest && expandLatestReply)}
+                initialExpanded={isLatest && expandLatestReply}
+                isLatest={isLatest}
+                highlightLatest={isLatest && expandLatestReply}
+              />
+            </div>
+          );
+        })}
         {!showAllHistory && hasMoreReplies ? (
           <button
             type="button"
@@ -796,7 +805,6 @@ export default function ConsultRoom({
             {PAID_DTR_CONSULT_ROOM_UI.generatingReplyJa}
           </p>
         )}
-        <div ref={messagesEndRef} aria-hidden="true" />
       </div>
     </div>
   );

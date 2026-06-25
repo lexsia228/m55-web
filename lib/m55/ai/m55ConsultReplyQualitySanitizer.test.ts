@@ -50,6 +50,8 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     const input = '【本質と安定の条件】\n本文では負荷を整理します。';
     const r = applyM55ConsultReplyQualityPasses(input);
     assert.ok(r.text.startsWith('【本質と安定の条件】'));
+    assert.ok(r.text.includes('無理'));
+    assert.equal(r.text.includes('負荷'), false);
   });
 
   it('does not add Product Truth forbidden promo wording', () => {
@@ -63,7 +65,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
   it('does not empty or over-shorten allowed output', () => {
     const long =
       'レポートの「無理が出やすいところ」に沿うと、言葉が先に走りやすい場面が見えます。' +
-      'ここでは負荷の整理に留めます。';
+      'ここでは無理の整理に留めます。';
     const r = applyM55ConsultReplyQualityPasses(long);
     assert.ok(r.text.length >= 50);
     assert.ok(r.text.includes('無理が出やすい'));
@@ -92,5 +94,45 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     );
     const count = (r.text.match(/かもしれません/g) ?? []).length;
     assert.ok(count <= 2);
+  });
+
+  it('does not map repeated 重要です / 大切です to the same template phrase', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      'この点は重要です。次の段も大切です。三つ目も重要です。'
+    );
+    assert.equal(r.text.includes('ここが論点になりやすいです'), false);
+    const handgrip = (r.text.match(/ここを手がかりに見ると整理しやすいです/g) ?? []).length;
+    assert.ok(handgrip <= 1);
+  });
+
+  it('avoids ことがを when regex rewrites できるでしょう after ことが', () => {
+    const r = applyM55ConsultReplyQualityPasses('回復させることができるでしょう。');
+    assert.equal(r.text.includes('ことがを'), false);
+    assert.ok(r.text.includes('選び直しやすくなる'));
+  });
+
+  it('rewrites forbidden cold and self-help phrasing in paid reply output', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '保存版の章を読み返すと、いまの場面が少し見えやすくなります。' +
+        '周囲とのコミュニケーションを増やす。リフレッシュの時間を設定する。自分自身を労わる。フィードバックループ。' +
+        '今日はここまでに留め、保存版の観点だけを手がかりにします。'
+    );
+    assert.equal(r.text.includes('コミュニケーションを増やす'), false);
+    assert.equal(r.text.includes('リフレッシュ'), false);
+    assert.equal(r.text.includes('自分自身を労わる'), false);
+    assert.equal(r.text.includes('フィードバックループ'), false);
+  });
+
+  it('final output never contains template leakage or broken particles', () => {
+    const samples = [
+      'ここが論点になりやすいです。重要です。大切です。',
+      '回復させることができるでしょう。ストレスと不安が要因です。',
+      '再構築は有効です。軽減できます。',
+    ];
+    for (const input of samples) {
+      const r = applyM55ConsultReplyQualityPasses(input);
+      assert.equal(r.text.includes('ここが論点になりやすいです'), false);
+      assert.equal(r.text.includes('ことがを'), false);
+    }
   });
 });

@@ -186,6 +186,34 @@
   margin-top: 12px;
 }
 
+.historySectionActive {
+  margin-top: 16px;
+  padding-top: 4px;
+}
+
+.latestReplyAnchor {
+  scroll-margin-top: 12px;
+}
+
+.entryDetailsLower {
+  margin-top: 18px;
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(8, 10, 18, 0.35);
+}
+
+.entryDetailsLower .entryDetailsSummary {
+  color: rgba(188, 175, 220, 0.62);
+  font-weight: 500;
+}
+
+.entryDetailsLower .valueDeliverablesList li {
+  color: rgba(188, 175, 220, 0.68);
+}
+
+.entryDetailsLower .valueDeliverablesNote {
+  color: rgba(160, 145, 195, 0.55);
+}
+
 .usageStatusLabel {
   margin: 0 0 8px;
   font-size: 10px;
@@ -453,12 +481,20 @@
   font-size: 0.66rem;
 }
 
+.replyCardLatest {
+  border-color: rgba(186, 158, 255, 0.48);
+  background: rgba(22, 24, 42, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(186, 158, 255, 0.12) inset,
+    0 8px 24px rgba(8, 6, 20, 0.35);
+}
+
 .replyLatestBadge {
-  margin: 0 0 2px;
+  margin: 0 0 4px;
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: rgba(196, 178, 245, 0.92);
+  color: rgba(210, 188, 255, 0.96);
 }
 
 .replyCompactMetaRow {

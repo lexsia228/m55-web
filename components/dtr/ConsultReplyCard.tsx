@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   mapConsultReplyBodyForDisplay,
   normalizeConsultReplyParagraphs,
@@ -25,8 +25,12 @@ type Props = {
   remainingCount: number;
   /** When true (default), body/viz/CTA hidden until user expands. */
   compactInitially?: boolean;
+  /** Expands the card when set (e.g. after a fresh send). */
+  initialExpanded?: boolean;
   /** Shows latest-reply badge on compact header. */
   isLatest?: boolean;
+  /** Stronger surface for the freshly opened latest reply. */
+  highlightLatest?: boolean;
 };
 
 function trimLines(input: string, maxLines: number): string {
@@ -46,16 +50,24 @@ export default function ConsultReplyCard({
   usedCount,
   remainingCount,
   compactInitially = true,
+  initialExpanded = false,
   isLatest = false,
+  highlightLatest = false,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(() => !compactInitially);
+  const [isExpanded, setIsExpanded] = useState(() => initialExpanded || !compactInitially);
   const collapsed = compactInitially && !isExpanded;
+
+  useEffect(() => {
+    if (initialExpanded) {
+      setIsExpanded(true);
+    }
+  }, [initialExpanded]);
 
   const lens = resolveConsultReplyLensByTheme(theme);
   const paragraphs = normalizeConsultReplyParagraphs(assistantContent);
   const bodies = mapConsultReplyBodyForDisplay(paragraphs);
   const sections = [
-    { label: '今の場面の整理', body: bodies.scene },
+    { label: '今の場面をいったん言葉にする', body: bodies.scene },
     { label: '保存版から見ると', body: bodies.report },
     { label: '少しほどく見方', body: bodies.alt },
   ].filter((s) => s.body);
@@ -72,35 +84,40 @@ export default function ConsultReplyCard({
   const quotePreview = userQuote ? trimLines(userQuote, 2) : null;
   const quoteDisplay = collapsed && quotePreview ? quotePreview : userQuote;
 
+  const cardClassName = [
+    styles.replyCard,
+    collapsed ? styles.replyCardCompact : '',
+    highlightLatest && !collapsed ? styles.replyCardLatest : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <article
-      className={collapsed ? `${styles.replyCard} ${styles.replyCardCompact}` : styles.replyCard}
-      aria-label="相談返書"
-    >
+    <article className={cardClassName} aria-label="相談返書">
       <header className={collapsed ? `${styles.replyCardHeader} ${styles.replyCardHeaderCompact}` : styles.replyCardHeader}>
-        {isLatest && collapsed ? (
+        {isLatest ? (
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>
         ) : null}
         <div className={styles.replyTagRow}>
           <span className={styles.replyTag}>相談返書</span>
-          <span className={styles.replyTag}>保存版に紐づく返書</span>
+          <span className={styles.replyTag}>保存版をもとにした返書</span>
         </div>
         {!collapsed ? (
           <>
-            <p className={styles.replyCardLead}>保存版に紐づく相談</p>
+            <p className={styles.replyCardLead}>保存版をもとにした相談</p>
             <h3 className={styles.replyCardTitle}>相談返書</h3>
           </>
         ) : null}
         {collapsed ? (
           <p className={styles.replyCompactMetaRow}>
-            <span>関連章 {lens.roman} {lens.name}</span>
+            <span>この相談で見ているところ</span>
             <span className={styles.replyCompactMetaSep} aria-hidden>
               ·
             </span>
             <span>{usageCompact}</span>
           </p>
         ) : (
-          <p className={styles.replyMeta}>関連章 {lens.roman} {lens.name}</p>
+          <p className={styles.replyMeta}>この相談で見ているところ</p>
         )}
         {theme ? (
           collapsed ? (
@@ -152,7 +169,7 @@ export default function ConsultReplyCard({
             ))}
             {auxBody ? (
               <div className={styles.replyReadingSection}>
-                <p className={styles.replySectionTitle}>視点の補助線</p>
+                <p className={styles.replySectionTitle}>見方の補助線</p>
                 <p className={styles.replySectionBody}>{auxBody}</p>
               </div>
             ) : null}
@@ -162,7 +179,7 @@ export default function ConsultReplyCard({
             <section className={styles.replyTodayBox} aria-label="今日の一手">
               <div className={styles.replyTodayHead}>
                 <p className={styles.replyTodayTitle}>今日の一手</p>
-                <p className={styles.replyTodayMeta}>1〜3 · 相談に紐づく小さな一手</p>
+                <p className={styles.replyTodayMeta}>1〜3 · 今日できる小さな一歩</p>
               </div>
               <p className={styles.replyTodayText}>{todayStep}</p>
             </section>

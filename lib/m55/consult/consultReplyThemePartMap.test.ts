@@ -8,6 +8,7 @@ import {
 } from '../paidDtrProductCopy';
 import {
   resolveConsultReplyPartByTheme,
+  resolveConsultReplyLensByTheme,
   isKnownConsultTheme,
 } from './consultReplyThemePartMap';
 
@@ -44,5 +45,15 @@ describe('consultReplyThemePartMap', () => {
     assert.equal(src.includes('themeChipRoman'), false);
     assert.equal(src.includes('resolveConsultReplyPartByTheme'), false);
     assert.equal(src.includes('composeStepBadgeRequired'), false);
+  });
+
+  it('uses living-language lens labels without 優先順位 or 読み返す視点', () => {
+    const workLens = resolveConsultReplyLensByTheme('仕事・これからの進め方');
+    assert.equal(workLens.lensTitle, 'この相談で見返すところ');
+    const labels = workLens.lensRows.map((row) => row.label);
+    assert.ok(labels.includes('動きやすい場面'));
+    assert.ok(labels.includes('何から始めるか'));
+    assert.equal(labels.includes('優先順位'), false);
+    assert.equal(labels.includes('力が出る条件'), false);
   });
 });

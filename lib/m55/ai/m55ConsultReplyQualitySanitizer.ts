@@ -104,7 +104,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'over_empathy_counseling',
     from: '心的負担',
-    to: '負荷がたまりやすい状態',
+    to: '心が張りつめやすい状態',
   },
   {
     category: 'over_empathy_counseling',
@@ -134,12 +134,12 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '重要です',
-    to: 'ここが論点になりやすいです',
+    to: 'ここを手がかりに見ると整理しやすいです',
   },
   {
     category: 'generic_advice',
     from: '大切です',
-    to: 'ここが論点になりやすいです',
+    to: 'ここに意識を向けると見えやすくなります',
   },
   {
     category: 'over_empathy_counseling',
@@ -159,7 +159,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'over_empathy_counseling',
     from: 'まずは受け入れることが大切',
-    to: 'いまの負荷の置き所を見る',
+    to: 'いまの無理の置き所を見る',
   },
   {
     category: 'generic_advice',
@@ -209,14 +209,44 @@ const REGEX_RULES: RegexRule[] = [
   {
     category: 'outcome_guarantee',
     pattern: /([^。\n]{1,40})につながります/g,
-    replace: (lead) => `${lead}を見えやすくする材料になります`,
+    replace: (lead) => `${lead.trimEnd()}を見えやすくする材料になります`,
   },
   {
     category: 'outcome_guarantee',
     pattern: /([^。\n]{1,40})できるでしょう/g,
-    replace: (lead) => `${lead}を選び直しやすくなるかもしれません`,
+    replace: (lead) => {
+      const trimmed = lead.trimEnd();
+      if (trimmed.endsWith('ことが')) {
+        return `${trimmed}選び直しやすくなるかもしれません`;
+      }
+      return `${trimmed}を選び直しやすくなるかもしれません`;
+    },
   },
 ];
+
+/** Living-language rewrites for cold/generic paid-reply wording (post-pass). */
+const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
+  { category: 'generic_advice', from: '周囲とのコミュニケーションを増やす', to: '伝え方を少し変えてみる' },
+  { category: 'generic_advice', from: 'コミュニケーションを増やす', to: '伝え方を少し変えてみる' },
+  { category: 'generic_advice', from: 'リフレッシュの時間を設定する', to: '短く休む時間を先に決める' },
+  { category: 'generic_advice', from: 'リフレッシュ', to: '短い休息' },
+  { category: 'generic_advice', from: '自分自身を労わる', to: '今日は一段小さく休む' },
+  { category: 'generic_advice', from: 'フィードバックループ', to: '短い往復' },
+  { category: 'over_empathy_counseling', from: '自己否定', to: '自分を責めやすい状態' },
+  { category: 'generic_advice', from: '再構築', to: '組み直し' },
+  { category: 'generic_advice', from: '軽減', to: '和らげる' },
+  { category: 'generic_advice', from: '有効です', to: '使いやすいです' },
+  { category: 'generic_advice', from: '有効な', to: '使いやすい' },
+  { category: 'over_empathy_counseling', from: 'ストレス', to: '張りつめ' },
+  { category: 'over_empathy_counseling', from: '不安', to: '心配' },
+  { category: 'over_empathy_counseling', from: '消耗', to: '疲れがたまる' },
+  { category: 'over_empathy_counseling', from: '要因', to: '背景' },
+  { category: 'over_empathy_counseling', from: '負荷', to: '無理' },
+  { category: 'generic_advice', from: 'ここが論点になりやすいです', to: 'ここを手がかりに見ると整理しやすいです' },
+];
+const LIVING_LANGUAGE_OUTPUT_REWRITES_SORTED = [...LIVING_LANGUAGE_OUTPUT_REWRITES].sort(
+  (a, b) => b.from.length - a.from.length,
+);
 
 const PHRASE_OCCURRENCE_LIMITS: {
   phrase: string;
@@ -226,9 +256,9 @@ const PHRASE_OCCURRENCE_LIMITS: {
 }[] = [
   { phrase: 'かもしれません', maxKeep: 2, replacement: 'なりやすいです', category: 'generic_advice' },
   {
-    phrase: 'ここが論点になりやすいです',
-    maxKeep: 2,
-    replacement: 'ここが論点になりやすいです',
+    phrase: 'ここを手がかりに見ると整理しやすいです',
+    maxKeep: 1,
+    replacement: 'ここに意識を向けると見えやすくなります',
     category: 'generic_advice',
   },
 ];
@@ -306,6 +336,27 @@ function limitPhraseOccurrences(
   return { text: out, count };
 }
 
+function applyLivingLanguageOutputRewrites(
+  line: string,
+  categories: Set<M55ConsultReplyQualityCategory>,
+): { text: string; count: number } {
+  let text = line;
+  let count = 0;
+  for (const rule of LIVING_LANGUAGE_OUTPUT_REWRITES_SORTED) {
+    if (!text.includes(rule.from)) continue;
+    const parts = text.split(rule.from);
+    if (parts.length <= 1) continue;
+    text = parts.join(rule.to);
+    count += parts.length - 1;
+    categories.add(rule.category);
+  }
+  return { text, count };
+}
+
+function repairBrokenJapaneseParticles(text: string): string {
+  return text.replace(/ことがを/g, 'ことを').replace(/ものがを/g, 'ものを');
+}
+
 function applyToLine(
   line: string,
   categories: Set<M55ConsultReplyQualityCategory>,
@@ -315,8 +366,9 @@ function applyToLine(
   }
 
   const phrase = applyPhraseRules(line, categories);
-  const regex = applyRegexRules(phrase.text, categories);
-  return { text: regex.text, count: phrase.count + regex.count };
+  const living = applyLivingLanguageOutputRewrites(phrase.text, categories);
+  const regex = applyRegexRules(living.text, categories);
+  return { text: regex.text, count: phrase.count + living.count + regex.count };
 }
 
 /**
@@ -346,6 +398,8 @@ export function applyM55ConsultReplyQualityPasses(
   const limited = limitPhraseOccurrences(text, categories);
   text = limited.text;
   replacementCount += limited.count;
+
+  text = repairBrokenJapaneseParticles(text);
 
   // Fail-closed only when a long reply would be over-shortened by replacements.
   if (

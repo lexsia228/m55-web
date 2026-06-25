@@ -84,10 +84,10 @@ const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     part: PRIMARY_THEME_PART_MAP['仕事・これからの進め方']!,
     visualKind: 'stability',
     lensRows: [
-      { label: '力が出る条件' },
-      { label: '優先順位' },
-      { label: '進め方' },
-      { label: '整え方' },
+      { label: '動きやすい場面' },
+      { label: '何から始めるか' },
+      { label: '無理の少ない進め方' },
+      { label: '今日小さく整えること' },
     ],
   },
   'お金・生活・疲れの整え方': {
@@ -95,7 +95,7 @@ const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     visualKind: 'stability',
     lensRows: [
       { label: '生活リズム' },
-      { label: '不安の出方' },
+      { label: '心配の出方' },
       { label: '使い方の整理' },
       { label: '休む余白' },
     ],
@@ -104,7 +104,7 @@ const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     part: PRIMARY_THEME_PART_MAP['これからの動き方']!,
     visualKind: 'stability',
     lensRows: [
-      { label: '優先順位' },
+      { label: '何から始めるか' },
       { label: '選び方' },
       { label: '迷いの整理' },
       { label: '次の一手' },
@@ -148,7 +148,7 @@ const LEGACY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
     lensRows: [
       { label: '歩調を合わせすぎる' },
       { label: '疲れが残る' },
-      { label: '断る前に消耗する' },
+      { label: '断る前に疲れがたまる' },
     ],
   },
   平気なふりをしてしまうとき: {
@@ -216,7 +216,7 @@ export function resolveConsultReplyLensByTheme(theme: string | null): ConsultRep
   return {
     ...themed.part,
     visualKind: themed.visualKind,
-    lensTitle: '読み返す視点',
+    lensTitle: 'この相談で見返すところ',
     lensCaption: LENS_CAPTION_BY_KIND[themed.visualKind],
     lensRows: themed.lensRows,
     showBaseRadar: false,
