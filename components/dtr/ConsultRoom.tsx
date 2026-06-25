@@ -7,7 +7,7 @@
  * Constraints:
  * - Shows only when ownership is confirmed (server gate already checked).
  * - Input: min=10, warning=450, hard max=500 chars.
- * - Output target: 700-900 chars, hard cap 1000.
+ * - Output target: 1,200-1,800 JA chars (SSOT §7.2); server validates before commit.
  * - Thread cap display: 5 tickets per report (included 1 + purchased max 4).
  * - Read-only when credits_remaining=0 (prior messages remain visible).
  * - Add-on CTA: room-only, no public lane.
@@ -25,6 +25,7 @@ import {
   mapConsultRoomLoadErrorToUserMessage,
   mapConsultRoomSendErrorToUserMessage,
 } from '../../lib/m55/consult/consultRoomUserFacingErrors';
+import { resolveConsultReplyPartByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
@@ -32,6 +33,7 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
+  PAID_DTR_DRAWER_THEME_ENTRIES,
   formatConsultAvailableCountLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
@@ -203,6 +205,11 @@ function buildComposedMessage(
   return parts.join('\n\n');
 }
 
+/** Drawer sublabels keyed by theme label (Product Truth). */
+const THEME_CHIP_SUBLABEL_BY_LABEL = Object.fromEntries(
+  PAID_DTR_DRAWER_THEME_ENTRIES.map((entry) => [entry.labelJa, entry.sublabelJa]),
+) as Record<Theme, string>;
+
 function ThemeChip({
   theme,
   selected,
@@ -212,6 +219,8 @@ function ThemeChip({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const part = resolveConsultReplyPartByTheme(theme);
+  const sublabel = THEME_CHIP_SUBLABEL_BY_LABEL[theme];
   return (
     <button
       type="button"
@@ -219,7 +228,13 @@ function ThemeChip({
       onClick={onSelect}
       aria-pressed={selected}
     >
-      {theme}
+      <span className={styles.themeChipMain}>
+        <span className={styles.themeChipRoman} aria-hidden="true">
+          {part.roman}
+        </span>{' '}
+        {theme}
+      </span>
+      {sublabel ? <span className={styles.themeChipSublabel}>{sublabel}</span> : null}
     </button>
   );
 }
@@ -651,6 +666,7 @@ export default function ConsultRoom({
           <span className={styles.composeStepBadgeRequired}>{ROOM_UI_COPY.step1Badge}</span>
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
+        <p className={styles.composeHintMuted}>{PAID_DTR_CONSULT_ROOM_UI.step1ChapterBaseLensNoteJa}</p>
         <div className={styles.themeRow}>
           {THEMES.map((t) => (
             <ThemeChip

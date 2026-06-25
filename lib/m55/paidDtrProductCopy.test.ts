@@ -127,6 +127,19 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(boundary, /無制限/);
   });
 
+  it('consult theme chips align with drawer chapter labels and Chapter I base note', () => {
+    assert.deepEqual(PAID_DTR_CONSULT_REPLY.themeExamplesJa, [
+      '恋人・近い人との向き合い方',
+      '仕事・これからの進め方',
+      'お金・生活・疲れの整え方',
+      'これからの動き方',
+      '疲れたときの戻り方',
+    ]);
+    assert.match(PAID_DTR_CONSULT_ROOM_UI.step1ChapterBaseLensNoteJa, /Ⅰ「自分の形を知る」/);
+    assert.equal(PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes('仕事・スキルの伸ばし方'), false);
+    assert.equal(PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes('お金・生活の整え方'), false);
+  });
+
   it('consult history collapse copy uses count template and avoids forbidden labels', () => {
     const history = [
       PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa,

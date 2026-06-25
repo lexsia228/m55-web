@@ -159,6 +159,23 @@
 | **禁止** | 無制限相談・なんでも答える・通知/メール約束・**辞めろ/別れろ** 等の絶対助言・医療/治療/法律/投資/転職/退職の代替。 |
 | **締め** | 保存版に根ざした整理のうえ、**小さな一手を1つ**（prompt 実装は別 GO）。 |
 
+### 7.2 相談返書 — reply generation contract（Lane A）
+
+| Field | Policy |
+|-------|--------|
+| **Scope** | **1テーマのみ**。購入済み**保存版に接地**した相談返書。汎用チャットではない。 |
+| **Chapter I** | **Ⅰ「自分の形を知る」**は Step 1 の独立 chip ではない。**全テーマの土台**として返書内で参照される。 |
+| **Theme → chapter map（Step 1 chips）** | 恋人・近い人との向き合い方 → **Ⅲ**；仕事・これからの進め方 → **Ⅱ**；お金・生活・疲れの整え方 → **Ⅳ**；これからの動き方 → **Ⅱ**（support / cross）；疲れたときの戻り方 → **Ⅳ**（support） |
+| **Target length** | **1,200–1,800** 日本語文字（標準帯） |
+| **Minimum acceptable** | **1,000** 日本語文字（safety refusal / 入力が曖昧すぎる場合を除く） |
+| **Upper guidance** | **2,200** 日本語文字（prompt 上の soft cap） |
+| **Server hard cap** | **2,400** 日本語文字（超過は commit 前に reject；mid-cut 保存禁止） |
+| **RPC assistant_message max** | **2,800** 日本語文字（migration 適用後；未適用 production は **1,000** のまま → 別 gate） |
+| **Structure** | **4–5 ブロック**（空行区切り）。見出し・番号・箇条書き記号なし。 |
+| **Tone** | 生活感のある日本語。内部ラベル・engine 用語・資質の再判定・占い再鑑定は禁止。 |
+| **Truncation / incomplete** | `…` 終端・句点未完・最小長未満・ブロック不足は **RPC 前に fail**。ticket **未消費**。ユーザーには再試行またはサポート案内のみ。 |
+| **max_tokens（OpenAI）** | **2,400**（日本語 1,800 字 + 構造余白） |
+
 ---
 
 ## 8. Purchase and access flow

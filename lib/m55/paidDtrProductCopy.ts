@@ -185,8 +185,8 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   },
   {
     id: 'theme-work',
-    labelJa: '仕事・スキルの伸ばし方',
-    sublabelJa: '力が出やすい条件と、詰まりやすい流れを見る',
+    labelJa: '仕事・これからの進め方',
+    sublabelJa: '力が出る条件と、優先順位を見る',
     primaryPanel: 'chapter-2',
     primaryChapterJa: 'Ⅱ 構造を読む',
     relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅲ 無理を知る'],
@@ -194,8 +194,8 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   },
   {
     id: 'theme-money',
-    labelJa: 'お金・生活の整え方',
-    sublabelJa: '生活の余白と、日々の判断の整え方を見る',
+    labelJa: 'お金・生活・疲れの整え方',
+    sublabelJa: '生活の余白と、戻り方を見る',
     primaryPanel: 'chapter-4',
     primaryChapterJa: 'Ⅳ 楽に扱う',
     relatedChaptersJa: ['Ⅲ 無理を知る'],
@@ -893,15 +893,15 @@ export const PAID_DTR_CONSULT_REPLY = {
     '汎用のAIチャットではありません。見えている傾向と購入した保存版を土台に、今回の論点を整理します。',
   themeExamplesJa: [
     '恋人・近い人との向き合い方',
-    '仕事・スキルの伸ばし方',
-    'お金・生活の整え方',
+    '仕事・これからの進め方',
+    'お金・生活・疲れの整え方',
     'これからの動き方',
     '疲れたときの戻り方',
   ] as const,
   goodQuestionExamplesJa: [
     '恋人への伝え方に迷っています。保存版の対話の章を踏まえ、距離と受け取り方を整理したいです',
-    '仕事でいま伸ばすところが分からず、構造の章から進め方を絞りたいです',
-    'お金や生活の不安で落ち着きません。戻し方の章に沿って、いま整えられることを整理したいです',
+    '仕事でいま進め方が分からず、構造の章から優先順位を絞りたいです',
+    'お金や生活・疲れで落ち着きません。戻し方の章に沿って、いま整えられることを整理したいです',
   ] as const,
   outOfScopeExamplesJa: [
     'レポートと無関係な別テーマの相談',
@@ -955,6 +955,8 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   composeThemeSectionLabelJa: '用途を選択（1テーマ）',
   composeThemeHintJa:
     '1回の相談返書は1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
+  step1ChapterBaseLensNoteJa:
+    'Ⅰ「自分の形を知る」は、どのテーマでも土台として参照されます。',
   composeSupplementaryLabelJa: '補助質問（最大3つ）',
   composeSupplementaryHintJa: '当てはまるものがあれば選択してください',
   composeFreeInputLabelJa: '自由入力',

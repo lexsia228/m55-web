@@ -89,7 +89,7 @@ export const CONSULT_ROOM_PREVIEW_EXHAUSTED: ConsultRoomPreviewRoomData = roomDa
     {
       id: 'preview-user-1',
       role: 'user',
-      content: '【テーマ】お金・生活の整え方\n\n今月の支出の見直し方を整理したい',
+      content: '【テーマ】お金・生活・疲れの整え方\n\n今月の支出の見直し方を整理したい',
     },
     {
       id: 'preview-assistant-1',
@@ -115,7 +115,7 @@ const PREVIEW_HISTORY_MESSAGES: ConsultRoomPreviewRoomData['messages'] = [
   {
     id: 'preview-user-1',
     role: 'user',
-    content: '【テーマ】お金・生活の整え方\n\n今月の支出の見直し方を整理したい',
+    content: '【テーマ】お金・生活・疲れの整え方\n\n今月の支出の見直し方を整理したい',
   },
   {
     id: 'preview-assistant-1',

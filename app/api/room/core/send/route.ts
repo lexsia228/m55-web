@@ -5,7 +5,7 @@
  * Rules (M55_AI_CONSULT_SAFETY_AND_LIMITS_SSOT_v1 + M55_REPORT_CONCIERGE_ROOM_SSOT_v1):
  * - Ownership gate: fail-closed
  * - Input min=10, hard max=500 chars
- * - Output target 700-900 chars, hard cap 1000
+ * - Output target 1,200-1,800 JA chars (SSOT §7.2); server hard cap 2,400; no mid-cut save
  * - Ticket only consumed when RPC succeeds (messages + wallet + ledger atomic)
  * - High-risk patterns: block send, do not consume ticket
  * - When credits_remaining reaches 0: thread → read_only
@@ -35,6 +35,11 @@ import {
   sanitizeM55AiTextOutput,
 } from '../../../../../lib/m55/ai/m55AiOutputSanitizer';
 import { applyM55ConsultReplyQualityPasses } from '../../../../../lib/m55/ai/m55ConsultReplyQualitySanitizer';
+import {
+  CONSULT_REPLY_GENERATION,
+  CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA,
+  validateConsultReplyCompleteness,
+} from '../../../../../lib/m55/consult/consultReplyGenerationContract';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -42,7 +47,6 @@ export const runtime = 'nodejs';
 const REPORT_KEY = 'm55_p:core_origin';
 const INPUT_MIN = 10;
 const INPUT_MAX = 500;
-const OUTPUT_HARD_CAP = 1000;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
 type RpcCommitResult = {
@@ -58,11 +62,6 @@ type RpcCommitResult = {
   error_code?: string;
   message?: string;
 };
-
-function clampOutput(text: string): string {
-  if (text.length <= OUTPUT_HARD_CAP) return text;
-  return text.slice(0, OUTPUT_HARD_CAP - 1) + '…';
-}
 
 function parseRpcResult(raw: unknown): RpcCommitResult | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -131,13 +130,14 @@ const CONSULT_PROMPT_GROUNDING_JA = `【相談返書の商品境界】
 - 一般論・自己啓発・比較・カフェや外出など相談と無関係な例は入れない。
 
 【返書の出力形式 — 必須（画面表示と一致）】
-- 必ず5つの段落だけに分け、段落と段落の間は空行1つ（改行2つ）だけにする。見出し・番号・箇条書き記号は付けない。
-- 1段落目＝今の場面の整理：相談文から論点を3〜5個拾い、どこに負荷が寄ったかを示す。今回扱う範囲と扱わない範囲を1文ずつ入れる。
-- 2段落目＝保存版から見ると：主章1つ（補助章は最大1つ）を名指しし、傾向語2〜4個をそのまま使って相談と接続する。
-- 3段落目＝少しほどく見方：反対視点または現実的制約を1つ（非断罪）。責任を決める前に言葉・伝わり方・距離など2〜3点に分ける。
-- 4段落目＝視点の補助線：言葉・距離・タイミング・疲れ・期待のずれのうち、関係するものだけを短く整理する。
-- 5段落目＝今日の一手：相談の具体に紐づく行動を1〜3個、各1行以内。話し合い・相手確認・関係修復を最初の一手にしない。末尾に保存版の章を読み返す問いを1文入れる（新しい診断ではなく読み直し）。
-- 長文化ではなく密度を上げる。同じ慰めの言い回しを繰り返さない。
+- 必ず4〜5ブロック（段落）に分け、ブロック間は空行1つ（改行2つ）だけにする。見出し・番号・箇条書き記号は付けない。
+- Ⅰ「自分の形を知る」（保存版の輪郭章）は独立テーマではないが、全返書の土台として2ブロック目以降で参照してよい。
+- 1ブロック目＝今の場面の整理：相談文から論点を3〜5個拾い、どこに負荷が寄ったかを示す。今回扱う範囲と扱わない範囲を1文ずつ入れる。
+- 2ブロック目＝保存版から見ると：主章1つ（補助章は最大1つ）を名指しし、傾向語2〜4個をそのまま使って相談と接続する。
+- 3ブロック目＝少しほどく見方：反対視点または現実的制約を1つ（非断罪）。責任を決める前に言葉・伝わり方・距離など2〜3点に分ける。
+- 4ブロック目＝視点の補助線：言葉・距離・タイミング・疲れ・期待のずれのうち、関係するものだけを短く整理する。
+- 5ブロック目（任意）＝今日の一手：相談の具体に紐づく行動を1〜3個、各1行以内。話し合い・相手確認・関係修復を最初の一手にしない。末尾に保存版の章を読み返す問いを1文入れる（新しい診断ではなく読み直し）。
+- 4ブロックのみのときは4ブロック目に「今日の一手」を含めてよい。同じ慰めの言い回しを繰り返さない。
 
 【資質名・表現】
 - レポートに現れる資質名（例：プロデューサー等）は改名・別名化・新ラベルへの作り替えをしない。
@@ -185,8 +185,8 @@ ${CONSULT_PROMPT_GROUNDING_JA}
 - 医療・法律・投資等の専門的助言は行わないこと
 - 危機的・自傷的な内容を検知した場合は相談窓口等の安全な案内のみ行うこと
 
-回答は700〜900文字を目安にし、1000文字を超えないこと。
-必ず5段落・段落間は空行1つのみ。簡潔で密度の高い落ち着いたトーンで書くこと。`;
+回答は1,200〜1,800日本語文字を目標とし、2,200文字を超えないこと。
+必ず4〜5ブロック・ブロック間は空行1つのみ。生活感のある落ち着いた日本語で書くこと。`;
 }
 
 export async function POST(req: NextRequest) {
@@ -334,16 +334,25 @@ export async function POST(req: NextRequest) {
     const openai = new OpenAI({ apiKey });
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      max_tokens: 800,
+      max_tokens: CONSULT_REPLY_GENERATION.openAiMaxTokens,
       temperature: 0.55,
       messages: [
         { role: 'system', content: buildSystemPrompt(reportContext, userMessage) },
         { role: 'user', content: userMessage },
       ],
     });
-    aiContent = clampOutput(
-      completion.choices[0]?.message?.content?.trim() ?? '（返答を生成できませんでした）'
-    );
+    aiContent = completion.choices[0]?.message?.content?.trim() ?? '';
+
+    if (!aiContent) {
+      console.error(
+        '[room/core/send] AI returned empty content',
+        JSON.stringify({ userHash: hashUserIdForLedgerLog(userId), reportInstanceIdPresent: true })
+      );
+      return NextResponse.json(
+        { error: CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA },
+        { status: 503, headers: NO_STORE }
+      );
+    }
 
     const outputSafety = sanitizeM55AiTextOutput(aiContent, { surface: 'consult', locale: 'ja-JP' });
     if (isConsultOutputSafetyBlocked(outputSafety)) {
@@ -358,6 +367,23 @@ export async function POST(req: NextRequest) {
     aiContent = outputSafety.safeText;
     const qualityResult = applyM55ConsultReplyQualityPasses(aiContent);
     aiContent = qualityResult.text;
+
+    const completeness = validateConsultReplyCompleteness(aiContent);
+    if (!completeness.ok) {
+      console.error(
+        '[room/core/send] consult reply completeness failed',
+        JSON.stringify({
+          userHash: hashUserIdForLedgerLog(userId),
+          reportInstanceIdPresent: true,
+          reason: completeness.reason,
+          length: aiContent.length,
+        })
+      );
+      return NextResponse.json(
+        { error: CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA },
+        { status: 503, headers: NO_STORE }
+      );
+    }
   } catch (e) {
     console.error(
       '[room/core/send] AI call failed',

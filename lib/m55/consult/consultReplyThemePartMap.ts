@@ -31,10 +31,16 @@ const DEFAULT_PART: ConsultReplyPartInfo = {
 /** Current Step 1 chips (Product Truth themeExamplesJa). */
 const PRIMARY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
   '恋人・近い人との向き合い方': { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
-  '仕事・スキルの伸ばし方': { roman: 'Ⅱ', name: '構造を読む', anchor: 'section-structure' },
-  'お金・生活の整え方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
+  '仕事・これからの進め方': { roman: 'Ⅱ', name: '構造を読む', anchor: 'section-structure' },
+  'お金・生活・疲れの整え方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
   'これからの動き方': { roman: 'Ⅱ', name: '構造を読む', anchor: 'section-structure' },
   '疲れたときの戻り方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
+};
+
+/** Renamed theme labels — resolve legacy stored user messages. */
+const RENAMED_THEME_PART_ALIASES: Record<string, string> = {
+  '仕事・スキルの伸ばし方': '仕事・これからの進め方',
+  'お金・生活の整え方': 'お金・生活・疲れの整え方',
 };
 
 /** Legacy themes stored in past consult messages (not shown as new chips). */
@@ -49,6 +55,12 @@ const LEGACY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
 const THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
   ...PRIMARY_THEME_PART_MAP,
   ...LEGACY_THEME_PART_MAP,
+  ...Object.fromEntries(
+    Object.entries(RENAMED_THEME_PART_ALIASES).map(([legacy, canonical]) => [
+      legacy,
+      PRIMARY_THEME_PART_MAP[canonical]!,
+    ]),
+  ),
 };
 
 type ThemeLensConfig = {
@@ -68,18 +80,18 @@ const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
       { label: '会話のリズム' },
     ],
   },
-  '仕事・スキルの伸ばし方': {
-    part: PRIMARY_THEME_PART_MAP['仕事・スキルの伸ばし方']!,
+  '仕事・これからの進め方': {
+    part: PRIMARY_THEME_PART_MAP['仕事・これからの進め方']!,
     visualKind: 'stability',
     lensRows: [
       { label: '力が出る条件' },
-      { label: '詰まりやすさ' },
+      { label: '優先順位' },
       { label: '進め方' },
       { label: '整え方' },
     ],
   },
-  'お金・生活の整え方': {
-    part: PRIMARY_THEME_PART_MAP['お金・生活の整え方']!,
+  'お金・生活・疲れの整え方': {
+    part: PRIMARY_THEME_PART_MAP['お金・生活・疲れの整え方']!,
     visualKind: 'stability',
     lensRows: [
       { label: '生活リズム' },
@@ -162,6 +174,12 @@ const LEGACY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
 const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
   ...PRIMARY_THEME_LENS_MAP,
   ...LEGACY_THEME_LENS_MAP,
+  ...Object.fromEntries(
+    Object.entries(RENAMED_THEME_PART_ALIASES).map(([legacy, canonical]) => [
+      legacy,
+      PRIMARY_THEME_LENS_MAP[canonical]!,
+    ]),
+  ),
 };
 
 const BALANCE_LENS: ConsultReplyLensInfo = {

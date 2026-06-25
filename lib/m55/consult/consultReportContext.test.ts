@@ -129,12 +129,14 @@ describe('Lane A send route context source draft contract', () => {
     assert.ok(src.includes('buildConsultReportContextFromEnvelope'));
   });
 
-  it('send route prompt aligns with five-paragraph renderer contract', () => {
+  it('send route prompt aligns with four-to-five-block renderer contract', () => {
     const src = readFileSync(SEND_ROUTE, 'utf8');
-    assert.ok(src.includes('必ず5つの段落'));
+    assert.ok(src.includes('4〜5ブロック'));
     assert.ok(src.includes('buildConsultUserAnchors'));
-    assert.ok(src.includes('max_tokens: 800'));
+    assert.ok(src.includes('CONSULT_REPLY_GENERATION.openAiMaxTokens'));
     assert.equal(src.includes('temperature: 0.7'), false);
+    assert.equal(src.includes('700〜900'), false);
+    assert.equal(src.includes('clampOutput'), false);
   });
 
   it('instance snapshot helper is SELECT-only in dtrDraftDb', () => {
