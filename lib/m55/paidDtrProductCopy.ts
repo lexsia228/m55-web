@@ -709,14 +709,14 @@ export const PAID_DTR_INTRO_PANEL_01 = {
     'このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。',
 } as const;
 
-/** /dtr/core reader — saved-report info card (initial included ticket; not current wallet balance). */
+/** /dtr/core reader — saved-report info card (tier-neutral; not current wallet balance). */
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
-  /** Base included reply attached at purchase — not the live remaining count. */
-  lineJa: 'この保存版には、初回の相談返書が1件付いています。',
+  /** Consult reply entitlement exists — tier/count agnostic; not the live remaining count. */
+  lineJa: 'この保存版には、相談返書の利用枠が付いています。',
   /** Points users to ConsultRoom wallet display for current available_count. */
-  balancePointerJa: '現在の残り件数は、上の相談返書入口に表示されます。',
-  metaLabelJa: '初回付与',
-  metaIncludedValueJa: '1件',
+  balancePointerJa: '現在使える件数は、上の相談返書入口に表示されます。',
+  metaLabelJa: '相談返書',
+  metaIncludedValueJa: '上の入口で残数を確認',
 } as const;
 
 export const PAID_DTR_LIFE_USE_CASES = [

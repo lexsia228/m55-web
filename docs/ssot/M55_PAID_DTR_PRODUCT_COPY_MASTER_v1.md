@@ -381,14 +381,16 @@ consultGroundingJa:
 | Surface | Shows | Must NOT imply |
 |---------|-------|----------------|
 | **相談返書入口（ConsultRoom）** | `現在使える相談返書：{count}件` · `使用済み：{used}件` — **current live usable balance** | bare `残り {n}件`（static cap に読める） |
-| **保存版の情報（ReportFooterMetaCard）** | 初回付与 1件 + balance pointer | current remaining = 1 when wallet shows 5 |
+| **保存版の情報（ReportFooterMetaCard）** | tier-neutral 利用枠 + balance pointer（`上の入口で残数を確認`） | fixed `1件` / `初回付与`（FULL 5件ユーザーと矛盾） |
 
 **Canonical strings (`PAID_DTR_INTRO_CONSULT_NOTE`):**
 
-- `lineJa`: この保存版には、初回の相談返書が1件付いています。
-- `balancePointerJa`: 現在の残り件数は、上の相談返書入口に表示されます。
-- `metaLabelJa`: 初回付与
-- `metaIncludedValueJa`: 1件
+- `lineJa`: この保存版には、相談返書の利用枠が付いています。
+- `balancePointerJa`: 現在使える件数は、上の相談返書入口に表示されます。
+- `metaLabelJa`: 相談返書
+- `metaIncludedValueJa`: 上の入口で残数を確認
+
+**Tier-neutral rule:** 保存版情報カードに固定の `1件` や `初回付与` を出さない。Light / FULL / upgrade / 追加購入 / 使用済みのいずれでも、live balance は相談入口のみが正本。
 
 **Consult entrance wallet display (`PAID_DTR_CONSULT_ENTRY_NEUTRAL`):**
 
