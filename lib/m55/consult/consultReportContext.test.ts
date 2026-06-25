@@ -49,6 +49,7 @@ describe('buildConsultReportContextFromEnvelope', () => {
     assert.equal(built.engine_version, ENGINE_VERSION_V2);
     const context = buildConsultReportContextFromEnvelope(built.envelope_json);
     assert.ok(context.length > 0);
+    assert.ok(context.includes('【保存版の補助整理（購入時固定）】'));
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });
 

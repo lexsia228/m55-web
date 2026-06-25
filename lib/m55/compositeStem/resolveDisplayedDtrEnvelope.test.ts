@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { resetCalendarBundleCacheForTests } from '../calendar/loadCalendarBundle';
 import { runDtrEngine } from '../dtrEngine';
+import { buildPaidDtrIndividualizationFromEngineContext } from '../dtrPaidIndividualization';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 import { ENGINE_VERSION_V2 } from './constants';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
@@ -168,6 +169,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
         engineVersion: ENGINE_VERSION_V2,
         derivation: staleEnvelope.auditMeta.derivation,
         contractVersion: 'v2',
+        paidIndividualization: buildPaidDtrIndividualizationFromEngineContext(built.engine_context_json),
       },
     );
 

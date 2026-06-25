@@ -7,6 +7,11 @@
  * fullSections: owned state only.
  * teaserSections: public-safe titles + teaser summary (no body text).
  */
+import {
+  buildPaidDtrS7IndividualizationPrefix,
+  toPaidDtrIndividualizationAuditMeta,
+  type PaidDtrIndividualization,
+} from './dtrPaidIndividualization';
 import { essenceStemLaneIndex } from './essenceEngine';
 import { LABEL_SAVED_REPORT_MY_JP } from './dtrProductLabels';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';
@@ -36,10 +41,18 @@ export type DtrPayload = {
   version: 'v1';
 };
 
+export type DtrPaidIndividualizationAuditMeta = {
+  fingerprint: string;
+  auxiliaryReading: string;
+  handlingHint: string;
+};
+
 export type DtrAuditMeta = {
   stemLaneIndex: number;
   stemChar: string;
   derivation: string;
+  /** v2 paid — DOB-derived auxiliary context saved for reload and consult grounding. */
+  paidIndividualization?: DtrPaidIndividualizationAuditMeta;
 };
 
 export type DtrEngineRunOptions = {
@@ -48,6 +61,8 @@ export type DtrEngineRunOptions = {
   engineVersion?: string;
   derivation?: string;
   contractVersion?: 'v1' | 'v2';
+  /** v2 paid — deterministic DOB boundary individualization (no trait rejudgment). */
+  paidIndividualization?: PaidDtrIndividualization;
 };
 
 export type DtrEnvelope = {
@@ -873,6 +888,9 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
         : 'この保存版で見えている傾向では、力は、';
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
     }
+    if (spec.id === 's7_work' && options?.paidIndividualization) {
+      body = buildPaidDtrS7IndividualizationPrefix(options.paidIndividualization) + body;
+    }
     const title =
       spec.id === 's1_identity'  ? s1Overline :
       spec.id === 's4_strengths' ? '力が出やすい場面' :
@@ -908,6 +926,9 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
     stemLaneIndex: idx,
     stemChar: stem.stemChar,
     derivation: options?.derivation ?? 'jdn_offset_provisional_v1',
+    ...(options?.paidIndividualization
+      ? { paidIndividualization: toPaidDtrIndividualizationAuditMeta(options.paidIndividualization) }
+      : {}),
   };
 
   return {

@@ -1,3 +1,4 @@
+import { buildPaidDtrIndividualizationFromComposite } from '../dtrPaidIndividualization';
 import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from '../dtrEngine';
 import {
   CORRECTION_VERSION,
@@ -97,11 +98,14 @@ export function buildV2FulfillmentSnapshot(
     contextScope: 'dtr',
   };
 
+  const paidIndividualization = buildPaidDtrIndividualizationFromComposite(composite);
+
   const envelope = runDtrEngine(dtrInput, {
     stemLaneIndex: composite.stemLaneIndex,
     engineVersion: ENGINE_VERSION_V2,
     derivation: 'm55_composite_stem_v2_p_lunar',
     contractVersion: 'v2',
+    paidIndividualization,
   });
 
   assertEnvelopeConsistent(envelope, composite);

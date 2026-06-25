@@ -94,6 +94,15 @@ export function buildConsultReportContextFromEnvelope(
     sectionParts.push(`${header}\n${body}`);
   }
 
+  const paidIndividualization = envelope.auditMeta?.paidIndividualization;
+  if (paidIndividualization?.auxiliaryReading?.trim()) {
+    const auxiliary = redactNicknameInExcerpt(
+      excerptBody(paidIndividualization.auxiliaryReading.trim(), 240),
+      nickname,
+    );
+    metaParts.push(`【保存版の補助整理（購入時固定）】\n${auxiliary}`);
+  }
+
   const tendencyTerms = extractTendencyTerms(primaryBodies, nickname);
   if (tendencyTerms.length > 0) {
     metaParts.push(`【抜粋からそのまま使える傾向語の例】\n${tendencyTerms.join(' / ')}`);

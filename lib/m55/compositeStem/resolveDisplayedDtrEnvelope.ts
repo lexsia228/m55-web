@@ -3,8 +3,10 @@
  * Legacy stored rows are rebuilt to canonical v2 at read-time (no DB mutation).
  * stored_v2 rows normalize user-facing copy from current DTR catalog at read-time.
  */
+import { buildPaidDtrIndividualizationFromEngineContext } from '../dtrPaidIndividualization';
 import { runDtrEngine, type DtrEnvelope } from '../dtrEngine';
 import { ENGINE_VERSION_V2 } from './constants';
+import type { EngineContextJson } from './buildV2FulfillmentSnapshot';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
 import { M55CompositeStemError } from './types';
 import { parseStoredSnapshotProfileFields } from './parseStoredSnapshotProfileFields';
@@ -113,6 +115,7 @@ function buildRawMeta(
 function resolveStoredV2DisplayEnvelope(
   storedEnvelope: DtrEnvelope,
   profile: { nickname: string; birthDate: string },
+  engineContext: EngineContextJson,
 ): { ok: true; envelope: DtrEnvelope } | { ok: false; reason: string } {
   const storedLane = storedEnvelope.auditMeta.stemLaneIndex;
   const derivation = storedEnvelope.auditMeta.derivation ?? 'm55_composite_stem_v2_p_lunar';
@@ -120,6 +123,8 @@ function resolveStoredV2DisplayEnvelope(
   if (derivation === 'jdn_offset_provisional_v1') {
     return { ok: false, reason: 'jdn_provisional_derivation_forbidden' };
   }
+
+  const paidIndividualization = buildPaidDtrIndividualizationFromEngineContext(engineContext);
 
   const displayEnvelope = runDtrEngine(
     {
@@ -133,6 +138,7 @@ function resolveStoredV2DisplayEnvelope(
       engineVersion: ENGINE_VERSION_V2,
       derivation,
       contractVersion: 'v2',
+      paidIndividualization,
     },
   );
 
@@ -167,7 +173,12 @@ export function resolveDisplayedDtrEnvelope(
       return { ok: false, reason: storedRead.code };
     }
 
-    const display = resolveStoredV2DisplayEnvelope(storedRead.envelope, storedRead.profile);
+    const engineContext = row.engine_context_json as EngineContextJson;
+    const display = resolveStoredV2DisplayEnvelope(
+      storedRead.envelope,
+      storedRead.profile,
+      engineContext,
+    );
     if (!display.ok) {
       return { ok: false, reason: display.reason };
     }
