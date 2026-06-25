@@ -54,7 +54,8 @@ export default function TokushohoPage() {
             連絡先メールアドレス：
             <a href={M55_PUBLIC_SUPPORT_MAILTO}>{M55_PUBLIC_SUPPORT_EMAIL}</a>
           </li>
-          <li>所在地・電話番号：ご請求をいただければ遅滞なく開示いたします。</li>
+          <li>所在地：〒107-0062 東京都港区南青山3丁目1番36号 青山丸竹ビル6F</li>
+          <li>電話番号：ご請求をいただければ遅滞なく開示いたします。</li>
         </ul>
       </section>
 
