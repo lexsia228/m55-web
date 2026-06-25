@@ -627,7 +627,7 @@ export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
   exhaustedSecondaryJa: '残数はこの入口で確認できます。',
   capReachedPrimaryJa: 'この保存版で使える相談返書は上限に達しています。',
   capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
-  usedCountTemplateJa: '使用済み {used}件',
+  usedCountTemplateJa: '使用済み：{used}件',
   remainingCompactTemplateJa: '残り {count}件',
   /** Legacy SSOT; not rendered on consult entry UI surfaces. */
   additionalPurchasableTemplateJa: 'あと購入できる {count}件',
@@ -635,8 +635,11 @@ export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
 
 /** Consult entry LOCAL wave — neutral wallet lines (consult/my only; not LP). */
 export const PAID_DTR_CONSULT_ENTRY_NEUTRAL = {
-  walletRemainingTemplateJa: '残り {count}件',
-  walletUsedTemplateJa: '使用済み {used}件',
+  /** Current usable reply balance at the consultation entrance (live wallet). */
+  walletAvailableTemplateJa: '現在使える相談返書：{count}件',
+  /** @deprecated Prefer walletAvailableTemplateJa — kept for compact inline surfaces. */
+  walletRemainingTemplateJa: '現在使える相談返書：{count}件',
+  walletUsedTemplateJa: '使用済み：{used}件',
   walletExhaustedJa: '今は相談返書を使えません。残数はこの入口で確認できます。',
 } as const;
 
@@ -648,14 +651,18 @@ export function formatConsultPurchaseAddOnLine(additionalPurchasableCount: numbe
   );
 }
 
+export function formatConsultAvailableCountLine(available: number): string {
+  return PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletAvailableTemplateJa.replace(
+    '{count}',
+    String(available)
+  );
+}
+
 export function formatConsultUsedCountLine(used: number, cap?: number): string {
   if (cap !== undefined) {
-    return `使用済み ${used} / ${cap}件`;
+    return `使用済み：${used} / ${cap}件`;
   }
-  return PAID_DTR_CONSULT_USAGE_DISPLAY.usedCountTemplateJa.replace(
-    '{used}',
-    String(used)
-  );
+  return PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletUsedTemplateJa.replace('{used}', String(used));
 }
 
 export type PaidDtrReportPartView = {
@@ -702,9 +709,14 @@ export const PAID_DTR_INTRO_PANEL_01 = {
     'このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。',
 } as const;
 
-/** /dtr/core reader hero — consult inclusion note (informational only; action via drawer hub). */
+/** /dtr/core reader — saved-report info card (initial included ticket; not current wallet balance). */
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
-  lineJa: 'このレポートには、相談返書\u00a01件が付いています。',
+  /** Base included reply attached at purchase — not the live remaining count. */
+  lineJa: 'この保存版には、初回の相談返書が1件付いています。',
+  /** Points users to ConsultRoom wallet display for current available_count. */
+  balancePointerJa: '現在の残り件数は、上の相談返書入口に表示されます。',
+  metaLabelJa: '初回付与',
+  metaIncludedValueJa: '1件',
 } as const;
 
 export const PAID_DTR_LIFE_USE_CASES = [

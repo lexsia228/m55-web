@@ -745,14 +745,19 @@ function ReportFooterMetaCard({
       <p className={styles.reportMetaLead}>
         {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、相談返書は付いていません。'}
       </p>
+      {aiConsultIncluded ? (
+        <p className={styles.reportMetaNote}>{PAID_DTR_INTRO_CONSULT_NOTE.balancePointerJa}</p>
+      ) : null}
       <div className={styles.reportMetaGrid} role="list">
         <p className={styles.reportMetaItem} role="listitem">
           <span className={styles.reportMetaItemLabel}>有効期限</span>
           <span className={styles.reportMetaItemValue}>{expiresAt ?? '無期限'}</span>
         </p>
         <p className={styles.reportMetaItem} role="listitem">
-          <span className={styles.reportMetaItemLabel}>相談返書</span>
-          <span className={styles.reportMetaItemValue}>{aiConsultIncluded ? '相談返書 1件' : 'なし'}</span>
+          <span className={styles.reportMetaItemLabel}>{PAID_DTR_INTRO_CONSULT_NOTE.metaLabelJa}</span>
+          <span className={styles.reportMetaItemValue}>
+            {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.metaIncludedValueJa : 'なし'}
+          </span>
         </p>
         <p className={styles.reportMetaItem} role="listitem">
           <span className={styles.reportMetaItemLabel}>傾向名</span>

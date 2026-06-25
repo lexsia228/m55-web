@@ -142,6 +142,15 @@
   color: rgba(220, 212, 245, 0.82);
 }
 
+.usageStatAvailable {
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
 .usageStatCompact {
   margin: 0;
   font-size: 0.76rem;

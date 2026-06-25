@@ -155,7 +155,7 @@ describe('paidDtrProductCopy SSOT', () => {
       formatConsultPurchaseAddOnLine(4),
       '保存版に紐づく相談返書を、あと4件まで追加できます。'
     );
-    assert.equal(formatConsultUsedCountLine(1, 5), '使用済み 1 / 5件');
+    assert.equal(formatConsultUsedCountLine(1, 5), '使用済み：1 / 5件');
     const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
     assert.match(usage, /相談返書を使って、1テーマだけ整理できます/);
     assert.equal(usage.includes('相談返書を1件使えます'), false);

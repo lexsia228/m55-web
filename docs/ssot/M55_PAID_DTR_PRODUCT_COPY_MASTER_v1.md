@@ -374,6 +374,29 @@ consultGroundingJa:
 - `consultGroundingJa` は ConsultRoom の接地コピーの補助として使用可
 - 「外部NOTE」とは note.com 等へのURL公開導線を指す。相談返書・ConsultRoom を「NOTE」と呼ばない
 
+### 16.5 Consult ticket count copy clarity（保存版情報 vs 相談入口）
+
+**Added:** 2026-06-25 — Gate `CATEGORY-1-M55-CONSULT-TICKET-COPY-COUNT-CLARITY-REV1`
+
+| Surface | Shows | Must NOT imply |
+|---------|-------|----------------|
+| **相談返書入口（ConsultRoom）** | `現在使える相談返書：{count}件` · `使用済み：{used}件` — **current live usable balance** | bare `残り {n}件`（static cap に読める） |
+| **保存版の情報（ReportFooterMetaCard）** | 初回付与 1件 + balance pointer | current remaining = 1 when wallet shows 5 |
+
+**Canonical strings (`PAID_DTR_INTRO_CONSULT_NOTE`):**
+
+- `lineJa`: この保存版には、初回の相談返書が1件付いています。
+- `balancePointerJa`: 現在の残り件数は、上の相談返書入口に表示されます。
+- `metaLabelJa`: 初回付与
+- `metaIncludedValueJa`: 1件
+
+**Consult entrance wallet display (`PAID_DTR_CONSULT_ENTRY_NEUTRAL`):**
+
+- `walletAvailableTemplateJa`: 現在使える相談返書：{count}件 — **live current balance** (prominent)
+- `walletUsedTemplateJa`: 使用済み：{used}件 — secondary line
+
+Do not use bare `残り {n}件` on the consultation entrance; it reads like a static product cap.
+
 ---
 
 ## Evidence

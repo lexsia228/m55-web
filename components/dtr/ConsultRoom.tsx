@@ -32,6 +32,7 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
+  formatConsultAvailableCountLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyCard from './ConsultReplyCard';
@@ -68,6 +69,25 @@ const ROOM_UI_COPY = {
 const THEMES = PAID_DTR_CONSULT_REPLY.themeExamplesJa;
 
 type Theme = (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number];
+
+function WalletBalanceStats({
+  availableCount,
+  usedCount,
+  availableClassName,
+  usedClassName,
+}: {
+  availableCount: number;
+  usedCount: number;
+  availableClassName: string;
+  usedClassName: string;
+}) {
+  return (
+    <>
+      <p className={availableClassName}>{formatConsultAvailableCountLine(availableCount)}</p>
+      <p className={usedClassName}>{formatConsultUsedCountLine(usedCount)}</p>
+    </>
+  );
+}
 
 const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
   { id: 'q1', label: '恋人や近い人に、どう伝えればいいか迷っている' },
@@ -526,14 +546,12 @@ export default function ConsultRoom({
           <p className={styles.usageSecondaryLead}>
             {PAID_DTR_CONSULT_USAGE_DISPLAY.availableSecondaryJa}
           </p>
-          <p className={styles.usageStatCompact}>
-            {PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(
-              '{count}',
-              String(wallet.available_count)
-            )}
-            {' · '}
-            {formatConsultUsedCountLine(usedCount)}
-          </p>
+          <WalletBalanceStats
+            availableCount={wallet.available_count}
+            usedCount={usedCount}
+            availableClassName={styles.usageStatAvailable}
+            usedClassName={styles.usageStatCompact}
+          />
         </>
       ) : showExhausted ? (
         <>
@@ -541,7 +559,12 @@ export default function ConsultRoom({
           <p className={styles.usageSecondaryLead}>
             {PAID_DTR_CONSULT_USAGE_DISPLAY.exhaustedSecondaryJa}
           </p>
-          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
+          <WalletBalanceStats
+            availableCount={wallet.available_count}
+            usedCount={usedCount}
+            availableClassName={styles.usageStatAvailable}
+            usedClassName={styles.usageStatCompact}
+          />
         </>
       ) : showCapReached ? (
         <>
@@ -549,12 +572,22 @@ export default function ConsultRoom({
           <p className={styles.usageSecondaryLead}>
             {PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedSecondaryJa}
           </p>
-          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
+          <WalletBalanceStats
+            availableCount={wallet.available_count}
+            usedCount={usedCount}
+            availableClassName={styles.usageStatAvailable}
+            usedClassName={styles.usageStatCompact}
+          />
         </>
       ) : (
         <>
           <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedPrimaryJa}</p>
-          <p className={styles.usageStatCompact}>{formatConsultUsedCountLine(usedCount)}</p>
+          <WalletBalanceStats
+            availableCount={wallet.available_count}
+            usedCount={usedCount}
+            availableClassName={styles.usageStatAvailable}
+            usedClassName={styles.usageStatCompact}
+          />
         </>
       )}
     </div>
