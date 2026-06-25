@@ -47,14 +47,8 @@ const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
 /** Entry-only display copy (Product Truth constants unchanged). */
 const ROOM_UI_COPY = {
   valueCardTitle: PAID_DTR_CONSULT_ROOM_UI.valueDeliverablesTitleJa,
-  valueItems: [
-    '今の場面の整理',
-    '保存版から見る見方',
-    '別視点（少しほどく見方）',
-    '今日の一手',
-  ] as const,
-  valueCardNote:
-    '保存版の章に沿った整理です。結果や未来の保証ではありません。',
+  valueItems: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableItemsJa,
+  valueCardNote: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableFooterJa,
   composePanelTitle: PAID_DTR_CONSULT_ROOM_UI.composePanelTitleJa,
   historyTitle: 'これまでの相談返書',
   step1Title: 'Step 1 いちばん気になるテーマを選ぶ',

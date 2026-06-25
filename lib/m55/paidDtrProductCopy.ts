@@ -582,14 +582,23 @@ export function drawerSectionDisplayTitleJa(section: {
 /** Consult grounding band — life-language labels (W-B1 patch). */
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
   titleLine2Ja: '今気になっていることを、1テーマだけ書いてください',
-  dividerChipJa: '保存版に紐づく相談返書',
+  dividerChipJa: 'この保存版の相談返書',
   entryContextAriaJa: '相談返書の入口のコンテキスト',
   continuousSupportOverlineJa: '状況が変わったときの使い方',
   continuousSupportBodyJa:
-    '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを相談返書で整理できます。',
+    '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを相談返書で見ていけます。',
   continuousSupportScopeJa:
-    '※転職・異動・恋愛・相性・仕事特化など、別レポートで扱うべき領域までは、この解析では広げません。',
+    '※転職・異動・恋愛・相性・仕事に特化した詳しい内容などは、この返書の対象外です。',
   pillarFlowRefJa: '進め方を見る',
+  pillarFlowTextJa:
+    'この保存版で見てきた内容から、その場面で出やすい反応を見ます。',
+  pillarOverlapLabelJa: '重なりを見る',
+  pillarOverlapTextJa:
+    'いくつかの出方が重なるとき、どこで無理がたまりやすいかを見ます。',
+  pillarRecoveryLabelJa: '戻り方を見る',
+  pillarRecoveryTextJa:
+    '疲れが出るタイミングに合わせて、戻りやすい方向を見ます。',
+  groundingMetaLabelJa: 'もとにしている内容',
   metaReadAxesJa: '自分の形 · 進め方 · 近い人 · 整え方 · 戻し方',
 } as const;
 
@@ -598,21 +607,31 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
   essentialNotesJa: [
     'なんでも答えるAIではありません。',
     'あなたの保存版をもとに、いまの迷いや気になることを見ていきます。',
-    '相談返書を1件使うのは、送信したときだけです。',
+    '送信するまで相談返書は使いません。',
   ] as const,
-  valueDetailsSummaryJa: '返書で整理できること',
+  valueDetailsSummaryJa: '相談返書で見られること',
+  valueDeliverableItemsJa: [
+    '今の場面をいったん言葉にする',
+    '保存版から見た、あなたに出やすい流れを見る',
+    '少し楽に見るための別の見方を出す',
+    '今日できる小さな一歩を考える',
+  ] as const,
+  valueDeliverableFooterJa:
+    '保存版をもとにした返書です。結果や未来を保証するものではありません。',
   savedReportAboutSummaryJa: 'この保存版と相談返書について',
+  savedReportIntroTemplateJa: 'このレポートは、{nickname}個人の出方をまとめた保存版です。',
+  savedReportIntroFallbackJa: 'このレポートは、個人の出方をまとめた保存版です。',
   savedReportConsultLeadJa:
-    '相談返書では、この保存版をもとに、今気になっていることを1テーマだけ整理します。',
+    '相談返書では、この保存版をもとに、今気になっていることを1テーマだけ見ていきます。',
   fixedReportBulletsJa: [
-    'レポート本文は購入時点の内容として固定されます',
-    '今の感じ方や迷いは相談返書で整理できます',
-    '相談返書はこのレポートに紐づいて作成されます',
+    'レポート本文は、購入時点の内容のまま変わりません',
+    '今の感じ方や迷いは、相談返書であとから書けます',
+    '相談返書は、この保存版をもとに作ります',
   ] as const,
   groundingNoteTemplateJa:
-    '一般的なアドバイスではなく、{nickname}向けのこの解析内容に基づいた相談返書を作成します。',
+    '一般的なアドバイスではなく、{nickname}専用のこの保存版をもとに、相談返書を作ります。',
   groundingNoteFallbackJa:
-    '一般的なアドバイスではなく、この解析内容に基づいた相談返書を作成します。',
+    '一般的なアドバイスではなく、この保存版をもとに、相談返書を作ります。',
 } as const;
 
 /** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
@@ -951,7 +970,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
   emptyThreadJa:
-    '保存版の章に沿って、いまの1テーマをここで整理できます。',
+    'この保存版をもとに、今の1テーマをここで書けます。',
   composeThemeSectionLabelJa: '用途を選択（1テーマ）',
   composeThemeHintJa:
     '1回の相談返書は1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
@@ -979,7 +998,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
     '現在、このレポートに紐づく追加購入をご利用いただけません。',
   walletPurchaseReportMissingJa:
     '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
-  valueDeliverablesTitleJa: 'この返書で整理すること',
+  valueDeliverablesTitleJa: '相談返書で見られること',
   historyMessagesAriaJa: 'これまでの相談返書',
   /** {count} = assistant reply count in thread */
   historyCountTemplateJa: '{count}件の相談返書があります',

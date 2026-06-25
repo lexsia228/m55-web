@@ -2669,8 +2669,8 @@ function ConsultSavedReportAboutBody({ readerDisplayName }: { readerDisplayName:
   const nick = readerDisplayName.trim();
   const savedLead =
     nick.length > 0
-      ? `このレポートは、${nick}さん個人の傾向を整理した保存版です。`
-      : 'このレポートは、個人の傾向を整理した保存版です。';
+      ? PAID_DTR_CONSULT_ENTRY_LAYOUT.savedReportIntroTemplateJa.replace('{nickname}', `${nick}さん`)
+      : PAID_DTR_CONSULT_ENTRY_LAYOUT.savedReportIntroFallbackJa;
   return (
     <div className={styles.consultAboutBody}>
       <p className={styles.consultAboutLead}>{savedLead}</p>
@@ -2777,31 +2777,37 @@ function GroundingPanel({
               </span>
             </div>
             <p className={styles.groundingPillarText}>
-              このレポートで見てきた傾向から、その状況で出やすい反応を読み解きます。
+              {PAID_DTR_CONSULT_GROUNDING_COPY.pillarFlowTextJa}
             </p>
           </div>
           <div className={styles.groundingPillar}>
             <div className={styles.groundingPillarHead}>
               <span className={`${styles.groundingPillarDot} ${styles.groundingPillarDotAmber}`} aria-hidden />
-              <span className={styles.groundingPillarLabel}>重なりを扱う</span>
+              <span className={styles.groundingPillarLabel}>
+                {PAID_DTR_CONSULT_GROUNDING_COPY.pillarOverlapLabelJa}
+              </span>
             </div>
             <p className={styles.groundingPillarText}>
-              複数の傾向が重なる場面で、どこに負荷が寄りやすいかを扱います。
+              {PAID_DTR_CONSULT_GROUNDING_COPY.pillarOverlapTextJa}
             </p>
           </div>
           <div className={styles.groundingPillar}>
             <div className={styles.groundingPillarHead}>
               <span className={`${styles.groundingPillarDot} ${styles.groundingPillarDotRose}`} aria-hidden />
-              <span className={styles.groundingPillarLabel}>回復の方向</span>
+              <span className={styles.groundingPillarLabel}>
+                {PAID_DTR_CONSULT_GROUNDING_COPY.pillarRecoveryLabelJa}
+              </span>
             </div>
             <p className={styles.groundingPillarText}>
-              消耗の出方に合わせて、無理のない回復の方向を提案します。
+              {PAID_DTR_CONSULT_GROUNDING_COPY.pillarRecoveryTextJa}
             </p>
           </div>
         </div>
 
         <div className={styles.groundingMeta}>
-          <span className={styles.groundingMetaLabel}>参照している読み</span>
+          <span className={styles.groundingMetaLabel}>
+            {PAID_DTR_CONSULT_GROUNDING_COPY.groundingMetaLabelJa}
+          </span>
           <span className={styles.groundingMetaValue}>
             {PAID_DTR_CONSULT_GROUNDING_COPY.metaReadAxesJa}
           </span>
