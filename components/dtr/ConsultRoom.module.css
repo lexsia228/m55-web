@@ -1030,11 +1030,6 @@
   line-height: 1.35;
 }
 
-.themeChipRoman {
-  font-weight: 600;
-  color: rgba(200, 190, 240, 0.85);
-}
-
 .themeChipSublabel {
   display: block;
   font-size: 0.78rem;

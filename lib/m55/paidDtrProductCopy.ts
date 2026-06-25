@@ -892,10 +892,10 @@ export const PAID_DTR_CONSULT_REPLY = {
   notGenericChatJa:
     '汎用のAIチャットではありません。見えている傾向と購入した保存版を土台に、今回の論点を整理します。',
   themeExamplesJa: [
-    '恋人・近い人との向き合い方',
     '仕事・これからの進め方',
-    'お金・生活・疲れの整え方',
     'これからの動き方',
+    '恋人・近い人との向き合い方',
+    'お金・生活・疲れの整え方',
     '疲れたときの戻り方',
   ] as const,
   goodQuestionExamplesJa: [

@@ -129,10 +129,10 @@ describe('paidDtrProductCopy SSOT', () => {
 
   it('consult theme chips align with drawer chapter labels and Chapter I base note', () => {
     assert.deepEqual(PAID_DTR_CONSULT_REPLY.themeExamplesJa, [
-      '恋人・近い人との向き合い方',
       '仕事・これからの進め方',
-      'お金・生活・疲れの整え方',
       'これからの動き方',
+      '恋人・近い人との向き合い方',
+      'お金・生活・疲れの整え方',
       '疲れたときの戻り方',
     ]);
     assert.match(PAID_DTR_CONSULT_ROOM_UI.step1ChapterBaseLensNoteJa, /Ⅰ「自分の形を知る」/);

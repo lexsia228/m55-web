@@ -25,7 +25,6 @@ import {
   mapConsultRoomLoadErrorToUserMessage,
   mapConsultRoomSendErrorToUserMessage,
 } from '../../lib/m55/consult/consultRoomUserFacingErrors';
-import { resolveConsultReplyPartByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
@@ -219,7 +218,6 @@ function ThemeChip({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const part = resolveConsultReplyPartByTheme(theme);
   const sublabel = THEME_CHIP_SUBLABEL_BY_LABEL[theme];
   return (
     <button
@@ -228,12 +226,7 @@ function ThemeChip({
       onClick={onSelect}
       aria-pressed={selected}
     >
-      <span className={styles.themeChipMain}>
-        <span className={styles.themeChipRoman} aria-hidden="true">
-          {part.roman}
-        </span>{' '}
-        {theme}
-      </span>
+      <span className={styles.themeChipMain}>{theme}</span>
       {sublabel ? <span className={styles.themeChipSublabel}>{sublabel}</span> : null}
     </button>
   );

@@ -37,11 +37,11 @@ describe('consultReplyThemePartMap', () => {
     }
   });
 
-  it('ConsultRoom shows chapter roman, sublabel, and Chapter I base note', () => {
+  it('ConsultRoom shows purpose sublabels and Chapter I base note without chip roman numerals', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
     assert.ok(src.includes('step1ChapterBaseLensNoteJa'));
-    assert.ok(src.includes('themeChipRoman'));
     assert.ok(src.includes('themeChipSublabel'));
-    assert.ok(src.includes('resolveConsultReplyPartByTheme'));
+    assert.equal(src.includes('themeChipRoman'), false);
+    assert.equal(src.includes('resolveConsultReplyPartByTheme'), false);
   });
 });
