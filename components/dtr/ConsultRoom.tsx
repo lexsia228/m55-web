@@ -57,8 +57,7 @@ const ROOM_UI_COPY = {
     '保存版の章に沿った整理です。結果や未来の保証ではありません。',
   composePanelTitle: PAID_DTR_CONSULT_ROOM_UI.composePanelTitleJa,
   historyTitle: 'これまでの相談返書',
-  step1Title: 'Step 1 用途を選ぶ',
-  step1Badge: '必須',
+  step1Title: 'Step 1 いちばん気になるテーマを選ぶ',
   step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
   step2Title: 'Step 2 相談を書く',
   step2Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
@@ -550,10 +549,6 @@ export default function ConsultRoom({
     >
       {showComposeFirst ? (
         <>
-          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.availablePrimaryJa}</p>
-          <p className={styles.usageSecondaryLead}>
-            {PAID_DTR_CONSULT_USAGE_DISPLAY.availableSecondaryJa}
-          </p>
           <WalletBalanceStats
             availableCount={wallet.available_count}
             usedCount={usedCount}
@@ -656,10 +651,8 @@ export default function ConsultRoom({
           <h4 id="consult-step-1" className={styles.composeStepTitle}>
             {ROOM_UI_COPY.step1Title}
           </h4>
-          <span className={styles.composeStepBadgeRequired}>{ROOM_UI_COPY.step1Badge}</span>
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
-        <p className={styles.composeHintMuted}>{PAID_DTR_CONSULT_ROOM_UI.step1ChapterBaseLensNoteJa}</p>
         <div className={styles.themeRow}>
           {THEMES.map((t) => (
             <ThemeChip

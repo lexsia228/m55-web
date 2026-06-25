@@ -37,11 +37,12 @@ describe('consultReplyThemePartMap', () => {
     }
   });
 
-  it('ConsultRoom shows purpose sublabels and Chapter I base note without chip roman numerals', () => {
+  it('ConsultRoom shows purpose sublabels without chip roman numerals or Chapter I selection note', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
-    assert.ok(src.includes('step1ChapterBaseLensNoteJa'));
+    assert.equal(src.includes('step1ChapterBaseLensNoteJa'), false);
     assert.ok(src.includes('themeChipSublabel'));
     assert.equal(src.includes('themeChipRoman'), false);
     assert.equal(src.includes('resolveConsultReplyPartByTheme'), false);
+    assert.equal(src.includes('composeStepBadgeRequired'), false);
   });
 });

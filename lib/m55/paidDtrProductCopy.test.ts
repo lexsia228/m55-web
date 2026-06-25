@@ -2,10 +2,12 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   PAID_DTR_CHAPTERS,
+  PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
+  PAID_DTR_DRAWER_THEME_ENTRIES,
   PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
   PAID_DTR_SAVED_REPORT_PRICING,
   PAID_DTR_SHELF_CONSULT_META,
@@ -123,11 +125,21 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_MY_PAGE_CONSULT.linkedScopeJa,
     ].join('\n');
     assert.match(boundary, /保存版に紐づく相談/);
-    assert.match(boundary, /汎用チャットではなく/);
     assert.match(boundary, /無制限/);
   });
 
-  it('consult theme chips align with drawer chapter labels and Chapter I base note', () => {
+  it('consult entry intro uses living language without generic-chat wording', () => {
+    const intro = [
+      PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja,
+      ...PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa,
+    ].join('\n');
+    assert.match(intro, /1テーマだけ書いてください/);
+    assert.match(intro, /送信したときだけ/);
+    assert.equal(intro.includes('汎用チャット'), false);
+    assert.equal(intro.includes('参照されます'), false);
+  });
+
+  it('consult theme chips align with drawer chapter labels', () => {
     assert.deepEqual(PAID_DTR_CONSULT_REPLY.themeExamplesJa, [
       '仕事・これからの進め方',
       'これからの動き方',
@@ -135,9 +147,11 @@ describe('paidDtrProductCopy SSOT', () => {
       'お金・生活・疲れの整え方',
       '疲れたときの戻り方',
     ]);
-    assert.match(PAID_DTR_CONSULT_ROOM_UI.step1ChapterBaseLensNoteJa, /Ⅰ「自分の形を知る」/);
     assert.equal(PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes('仕事・スキルの伸ばし方'), false);
     assert.equal(PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes('お金・生活の整え方'), false);
+    const work = PAID_DTR_DRAWER_THEME_ENTRIES.find((e) => e.labelJa === '仕事・これからの進め方');
+    assert.match(work!.sublabelJa, /何から始めるか/);
+    assert.equal(work!.sublabelJa.includes('優先順位'), false);
   });
 
   it('consult history collapse copy uses count template and avoids forbidden labels', () => {
@@ -177,7 +191,7 @@ describe('paidDtrProductCopy SSOT', () => {
     );
     assert.equal(formatConsultUsedCountLine(1, 5), '使用済み：1 / 5件');
     const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
-    assert.match(usage, /相談返書を使って、1テーマだけ整理できます/);
+    assert.match(usage, /この保存版で相談返書を使えます/);
     assert.equal(usage.includes('相談返書を1件使えます'), false);
     assert.match(usage, /今は残り0件です/);
     assert.equal(usage.includes('相談返書ルーム'), false);

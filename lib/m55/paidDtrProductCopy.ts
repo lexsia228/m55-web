@@ -177,7 +177,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-relationship',
     labelJa: '恋人・近い人との向き合い方',
-    sublabelJa: '距離感・言葉選び・無理の出方を見る',
+    sublabelJa: '近づき方、伝え方、無理しやすい場面を見る',
     primaryPanel: 'chapter-3',
     primaryChapterJa: 'Ⅲ 無理を知る',
     relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅱ 構造を読む'],
@@ -186,7 +186,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-work',
     labelJa: '仕事・これからの進め方',
-    sublabelJa: '力が出る条件と、優先順位を見る',
+    sublabelJa: '動きやすい場面と、何から始めるかを見る',
     primaryPanel: 'chapter-2',
     primaryChapterJa: 'Ⅱ 構造を読む',
     relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅲ 無理を知る'],
@@ -195,7 +195,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-money',
     labelJa: 'お金・生活・疲れの整え方',
-    sublabelJa: '生活の余白と、戻り方を見る',
+    sublabelJa: '生活を詰めすぎない整え方を見る',
     primaryPanel: 'chapter-4',
     primaryChapterJa: 'Ⅳ 楽に扱う',
     relatedChaptersJa: ['Ⅲ 無理を知る'],
@@ -204,7 +204,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-forward',
     labelJa: 'これからの動き方',
-    sublabelJa: '今の優先と、負荷の少ない進め方を見る',
+    sublabelJa: '今どこから動くか、無理の少ない進め方を見る',
     primaryPanel: 'chapter-2',
     primaryChapterJa: 'Ⅱ 構造を読む',
     relatedChaptersJa: ['Ⅳ 楽に扱う', 'Ⅰ 輪郭を見る'],
@@ -213,7 +213,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-rest',
     labelJa: '疲れたときの戻り方',
-    sublabelJa: '無理のサインと、戻り方を見る',
+    sublabelJa: '疲れが出るタイミングと、戻り方を見る',
     primaryPanel: 'chapter-4',
     primaryChapterJa: 'Ⅳ 楽に扱う',
     relatedChaptersJa: ['Ⅲ 無理を知る'],
@@ -581,7 +581,7 @@ export function drawerSectionDisplayTitleJa(section: {
 
 /** Consult grounding band — life-language labels (W-B1 patch). */
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
-  titleLine2Ja: 'この保存版をもとに、今気になっていることを1テーマだけ整理します',
+  titleLine2Ja: '今気になっていることを、1テーマだけ書いてください',
   dividerChipJa: '保存版に紐づく相談返書',
   entryContextAriaJa: '相談返書の入口のコンテキスト',
   continuousSupportOverlineJa: '状況が変わったときの使い方',
@@ -596,9 +596,9 @@ export const PAID_DTR_CONSULT_GROUNDING_COPY = {
 /** Consult entry-first layout — display-only (W-B2). */
 export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
   essentialNotesJa: [
-    '汎用チャットではなく、無制限の相談でもありません。',
-    '保存版に紐づく1テーマだけを扱います。',
-    '送信するまで相談返書は使いません。',
+    'なんでも答えるAIではありません。',
+    'あなたの保存版をもとに、いまの迷いや気になることを見ていきます。',
+    '相談返書を1件使うのは、送信したときだけです。',
   ] as const,
   valueDetailsSummaryJa: '返書で整理できること',
   savedReportAboutSummaryJa: 'この保存版と相談返書について',
@@ -617,8 +617,8 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
 
 /** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
 export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
-  availablePrimaryJa: '相談返書を使って、1テーマだけ整理できます。',
-  availableSecondaryJa: '今気になっていることを、1テーマだけ書けます。',
+  availablePrimaryJa: 'この保存版で相談返書を使えます。',
+  availableSecondaryJa: '残数は下記で確認できます。',
   /** Legacy SSOT for in-flight tests; not used on consult entry UI surfaces. */
   purchasePrimaryLine1Ja: '今は残り0件です。',
   purchasePrimaryLine2Ja:
@@ -720,7 +720,7 @@ export const PAID_DTR_INTRO_PANEL_01 = {
 /** /dtr/core reader — saved-report info card (tier-neutral; not current wallet balance). */
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
   /** Consult reply entitlement exists — tier/count agnostic; not the live remaining count. */
-  lineJa: 'この保存版には、相談返書の利用枠が付いています。',
+  lineJa: 'この保存版で使える相談返書があります。',
   /** When server wallet snapshot is unavailable — location-neutral (not “上の入口”). */
   balanceFallbackJa: '現在使える件数は、相談返書の入口で確認できます。',
   /** @deprecated Use balanceFallbackJa — kept for SSOT history only. */
