@@ -8,6 +8,7 @@ import {
   PAID_DTR_CONSULT_USAGE_DISPLAY,
   PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
   PAID_DTR_SAVED_REPORT_PRICING,
+  PAID_DTR_SHELF_CONSULT_META,
   formatConsultPurchaseAddOnLine,
   formatConsultAvailableCountLine,
   formatConsultAvailableWithGrantedLine,
@@ -168,6 +169,15 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(usage, /今は残り0件です/);
     assert.equal(usage.includes('相談返書ルーム'), false);
     assert.equal(usage.includes('返書ルーム'), false);
+  });
+
+  it('shelf consult meta is tier-neutral and avoids fixed one-ticket copy', () => {
+    assert.equal(PAID_DTR_SHELF_CONSULT_META.labelJa, '相談返書');
+    assert.equal(PAID_DTR_SHELF_CONSULT_META.valueJa, '相談返書の利用枠あり');
+    const shelfMeta = Object.values(PAID_DTR_SHELF_CONSULT_META).join('\n');
+    assert.equal(shelfMeta.includes('1件付帯'), false);
+    assert.equal(shelfMeta.includes('初回付与'), false);
+    assert.equal(shelfMeta.includes('残り1件'), false);
   });
 
   it('consult wallet display formatters use wallet-granted total not hardcoded cap', () => {

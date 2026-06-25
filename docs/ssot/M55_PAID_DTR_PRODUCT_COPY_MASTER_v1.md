@@ -407,6 +407,26 @@ consultGroundingJa:
 
 Do not use bare `残り {n}件` on the consultation entrance; it reads like a static product cap.
 
+### 16.6 `/dtr` shelf card consult meta（tier-neutral）
+
+**Added:** 2026-06-25 — Gate `CATEGORY-1-M55-CONSULT-TICKET-FIXED-ONE-COPY-SURFACE-PATCH-REV1`
+
+| Surface | Shows | Must NOT imply |
+|---------|-------|----------------|
+| **`/dtr` 保存版棚カード（owned / locked preview）** | `相談返書` · `相談返書の利用枠あり` — **tier-neutral meta only** | fixed universal `1件付帯` / `初回付与` / `残り1件` / hardcoded `/5` |
+
+**Canonical strings (`PAID_DTR_SHELF_CONSULT_META`):**
+
+- `labelJa`: 相談返書
+- `valueJa`: 相談返書の利用枠あり
+
+**Rules:**
+
+- Shelf card must **not** show fixed universal `1件付帯` or any count that reads like every saved report has exactly one ticket.
+- When wallet balance is **unavailable** on `/dtr` shelf, use tier-neutral copy only — do **not** infer Light / FULL from `available_count`.
+- Live balance belongs on **ConsultRoom entrance** and **保存版の情報（ReportFooterMetaCard）** where wallet data is safely available.
+- Do **not** hardcode `5` on shelf. Optional later gate may pass server wallet snapshot to shelf; this gate is copy-only.
+
 ---
 
 ## Evidence

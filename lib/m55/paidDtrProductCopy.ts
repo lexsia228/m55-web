@@ -729,6 +729,13 @@ export const PAID_DTR_INTRO_CONSULT_NOTE = {
   metaIncludedValueJa: '入口で確認',
 } as const;
 
+/** /dtr shelf card — consult meta row (tier-neutral; no live wallet balance). */
+export const PAID_DTR_SHELF_CONSULT_META = {
+  labelJa: '相談返書',
+  /** Not a fixed ticket count — wallet balance lives on ConsultRoom / report info. */
+  valueJa: '相談返書の利用枠あり',
+} as const;
+
 export const PAID_DTR_LIFE_USE_CASES = [
   {
     id: 'work_role',

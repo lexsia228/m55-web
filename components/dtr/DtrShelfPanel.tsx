@@ -9,13 +9,13 @@ import {
   LABEL_PRODUCT_JP,
   LABEL_SAVED_REPORT_METADATA_JP,
   LABEL_STATE_OWNED,
-  MY_CONSULT_SECTION_TITLE,
   MY_SAVED_REPORT_CTA_OPEN_LABEL,
   MY_SAVED_REPORT_CTA_PLAN_LABEL,
   SHELF_HINT_OWNED_PENDING,
   SHELF_HINT_OWNED_READY,
   SHELF_OVERLINE,
 } from '../../lib/m55/dtrProductLabels';
+import { PAID_DTR_SHELF_CONSULT_META } from '../../lib/m55/paidDtrProductCopy';
 import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
@@ -162,8 +162,8 @@ function EntryReportCard({
                 <span className={styles.cardMetaValue}>無期限</span>
               </div>
               <div className={styles.cardMetaItem}>
-                <span className={styles.cardMetaLabel}>{MY_CONSULT_SECTION_TITLE}</span>
-                <span className={styles.cardMetaValue}>1件付帯</span>
+                <span className={styles.cardMetaLabel}>{PAID_DTR_SHELF_CONSULT_META.labelJa}</span>
+                <span className={styles.cardMetaValue}>{PAID_DTR_SHELF_CONSULT_META.valueJa}</span>
               </div>
               {stem && (
                 <div className={styles.cardMetaItem}>
@@ -179,8 +179,8 @@ function EntryReportCard({
                 <span className={styles.cardMetaValue}>永続</span>
               </div>
               <div className={styles.cardMetaItem}>
-                <span className={styles.cardMetaLabel}>{MY_CONSULT_SECTION_TITLE}</span>
-                <span className={styles.cardMetaValue}>1件付帯</span>
+                <span className={styles.cardMetaLabel}>{PAID_DTR_SHELF_CONSULT_META.labelJa}</span>
+                <span className={styles.cardMetaValue}>{PAID_DTR_SHELF_CONSULT_META.valueJa}</span>
               </div>
               <div className={styles.cardMetaItem}>
                 <span className={styles.cardMetaLabel}>買い切り</span>
