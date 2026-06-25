@@ -93,8 +93,8 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
     "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:ca79d8fa",
-    "expectedPaidEssenceFingerprint": "djb2:24aeb111",
+    "expectedPaidCompositionFingerprint": "djb2:bf0ccb72",
+    "expectedPaidEssenceFingerprint": "djb2:6fbd92bf",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -461,8 +461,8 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
     "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:ca79d8fa",
-    "expectedPaidEssenceFingerprint": "djb2:24aeb111",
+    "expectedPaidCompositionFingerprint": "djb2:bf0ccb72",
+    "expectedPaidEssenceFingerprint": "djb2:6fbd92bf",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
