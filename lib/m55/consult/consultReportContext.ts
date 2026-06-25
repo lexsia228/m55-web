@@ -95,6 +95,13 @@ export function buildConsultReportContextFromEnvelope(
   }
 
   const paidIndividualization = envelope.auditMeta?.paidIndividualization;
+  if (paidIndividualization?.essenceRhythmNote?.trim()) {
+    const essence = redactNicknameInExcerpt(
+      excerptBody(paidIndividualization.essenceRhythmNote.trim(), 200),
+      nickname,
+    );
+    metaParts.push(`【保存版の本質リズム（購入時固定）】\n${essence}`);
+  }
   if (paidIndividualization?.auxiliaryReading?.trim()) {
     const auxiliary = redactNicknameInExcerpt(
       excerptBody(paidIndividualization.auxiliaryReading.trim(), 240),

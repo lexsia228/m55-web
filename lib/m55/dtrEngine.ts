@@ -8,6 +8,7 @@
  * teaserSections: public-safe titles + teaser summary (no body text).
  */
 import {
+  buildPaidDtrS3IndividualizationPrefix,
   buildPaidDtrS7IndividualizationPrefix,
   toPaidDtrIndividualizationAuditMeta,
   type PaidDtrIndividualization,
@@ -45,6 +46,7 @@ export type DtrPaidIndividualizationAuditMeta = {
   fingerprint: string;
   auxiliaryReading: string;
   handlingHint: string;
+  essenceRhythmNote: string;
 };
 
 export type DtrAuditMeta = {
@@ -887,6 +889,9 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
         ? `${clamp(trimmedNick, 20)}さんの力は、`
         : 'この保存版で見えている傾向では、力は、';
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
+    }
+    if (spec.id === 's3_essence' && options?.paidIndividualization) {
+      body = buildPaidDtrS3IndividualizationPrefix(options.paidIndividualization) + body;
     }
     if (spec.id === 's7_work' && options?.paidIndividualization) {
       body = buildPaidDtrS7IndividualizationPrefix(options.paidIndividualization) + body;

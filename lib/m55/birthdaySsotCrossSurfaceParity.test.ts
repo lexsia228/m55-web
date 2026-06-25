@@ -31,7 +31,8 @@ import {
 import { enrichBirthProfileForSave } from '../soul/birthProfileV2';
 import type { BirthProfile } from '../soul/profile';
 
-const PAID_CATALOG_SECTION_IDS = ['s1_identity', 's2_composition', 's3_essence'] as const;
+const PAID_CATALOG_SECTION_IDS = ['s1_identity', 's2_composition'] as const;
+const PAID_INDIVIDUALIZED_SECTION_ID = 's3_essence' as const;
 
 function djb2Fingerprint(text: string): string {
   let h = 5381;
@@ -41,7 +42,7 @@ function djb2Fingerprint(text: string): string {
 
 function paidSectionBody(
   snap: V2FulfillmentSnapshotBuild,
-  sectionId: (typeof PAID_CATALOG_SECTION_IDS)[number],
+  sectionId: (typeof PAID_CATALOG_SECTION_IDS)[number] | typeof PAID_INDIVIDUALIZED_SECTION_ID,
 ): string {
   const section = snap.envelope_json.payload.fullSections.find((s) => s.id === sectionId);
   assert.ok(section, `${sectionId}: paid section exists`);
@@ -97,7 +98,6 @@ function assertPaidContentMapping(
   const frozenFingerprints: Record<(typeof PAID_CATALOG_SECTION_IDS)[number], string> = {
     s1_identity: frozen.expectedPaidIdentityFingerprint,
     s2_composition: frozen.expectedPaidCompositionFingerprint,
-    s3_essence: frozen.expectedPaidEssenceFingerprint,
   };
 
   for (const sectionId of PAID_CATALOG_SECTION_IDS) {
@@ -110,6 +110,16 @@ function assertPaidContentMapping(
       `${frozen.case_id}: paid ${sectionId} fingerprint`,
     );
   }
+
+  const s3Actual = paidSectionBody(snap, PAID_INDIVIDUALIZED_SECTION_ID);
+  const s3Catalog = refEnvelope.payload.fullSections.find((s) => s.id === PAID_INDIVIDUALIZED_SECTION_ID)!.body;
+  assert.ok(s3Actual.endsWith(s3Catalog), `${frozen.case_id}: paid s3 catalog suffix preserved`);
+  assert.match(s3Actual, /【この保存版だけの本質リズム】/, `${frozen.case_id}: paid s3 individualization prefix`);
+  assert.equal(
+    djb2Fingerprint(s3Actual),
+    frozen.expectedPaidEssenceFingerprint,
+    `${frozen.case_id}: paid s3_essence fingerprint`,
+  );
 
   const wrongLane = (frozen.stemLaneIndex + 5) % 10;
   const wrongEnvelope = runDtrEngine(

@@ -36,6 +36,25 @@ describe('buildConsultReportContextFromEnvelope', () => {
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });
 
+  it('old snapshot without essenceRhythmNote in auditMeta does not crash consult context', () => {
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    });
+    const envelope = structuredClone(built.envelope_json);
+    if (envelope.auditMeta.paidIndividualization) {
+      delete (envelope.auditMeta.paidIndividualization as { essenceRhythmNote?: string }).essenceRhythmNote;
+    }
+    const context = buildConsultReportContextFromEnvelope(envelope);
+    assert.ok(context.length > 0);
+    assert.ok(context.includes('【本質と安定の条件】'));
+  });
+
   it('works with v2 fulfillment envelope fixture', () => {
     const built = buildV2FulfillmentSnapshotFromFields({
       nickname: 'GX',
@@ -49,6 +68,7 @@ describe('buildConsultReportContextFromEnvelope', () => {
     assert.equal(built.engine_version, ENGINE_VERSION_V2);
     const context = buildConsultReportContextFromEnvelope(built.envelope_json);
     assert.ok(context.length > 0);
+    assert.ok(context.includes('【保存版の本質リズム（購入時固定）】'));
     assert.ok(context.includes('【保存版の補助整理（購入時固定）】'));
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });

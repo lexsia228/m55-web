@@ -12,12 +12,15 @@ export type PaidDtrIndividualization = {
   auxiliaryReading: string;
   /** Calm handling hint for s7「日々の取扱いヒント」. */
   handlingHint: string;
+  /** Calm month-rhythm note for s3「本質と安定の条件」. */
+  essenceRhythmNote: string;
 };
 
 export type PaidDtrIndividualizationAuditMeta = {
   fingerprint: string;
   auxiliaryReading: string;
   handlingHint: string;
+  essenceRhythmNote: string;
 };
 
 /** Solar term keys → calm season rhythm (no raw term names in output). */
@@ -62,19 +65,55 @@ const LUNAR_PHASE_HANDLING: Readonly<Record<LunarPhaseBucket, string>> = {
     '区切るときは、一度手を止めて残りを見直すと、戻りやすい扱い方の読み取りです。',
 };
 
+/** Lunar month number (1–12) → calm essence rhythm (no raw month keys in output). */
+const LUNAR_MONTH_ESSENCE_READINGS: Readonly<Record<number, string>> = {
+  1: '年の始めに近い時期の生まれです。いきなり大きく動くより、生活の土台を確かめてから始めるほうが落ち着きやすい読み取りです。',
+  2: '冬から春へ移りゆく時期の生まれです。寒暖の差を意識し、ペースをゆっくり整えると力の出方が安定しやすい読み取りです。',
+  3: '春の息吹が戻りやすい時期の生まれです。小さな一歩から始め、区切りを短く取るほうが無理が出にくい読み取りです。',
+  4: '春が深まる時期の生まれです。一度立てた流れを確かめてから次へ進むと、戻りやすい読み取りです。',
+  5: '初夏に近づく時期の生まれです。勢いより休息と水分のリズムを先に整えると、後半の消耗が減りやすい読み取りです。',
+  6: '夏へ向かう準備期の生まれです。小さく試してから広げるほうが、負荷が出にくい読み取りです。',
+  7: '夏の盛りに近い時期の生まれです。集中と休息の切り替えをはっきりさせると、安定しやすい読み取りです。',
+  8: '夏の後半に入る時期の生まれです。ペースを落とし、体調を先に守るほうが整えやすい読み取りです。',
+  9: '秋の入り口に近い時期の生まれです。一度区切りをつけ、残りを見直すと戻りやすい読み取りです。',
+  10: '秋が深まる時期の生まれです。急いで決めず、短い区切りで確かめるほうが落ち着きやすい読み取りです。',
+  11: '冬の入り口に近い時期の生まれです。新しいことを始めるより、土台を整えるほうが合いやすい読み取りです。',
+  12: '一年の折り返しに近い時期の生まれです。区切りをつけてから次の一歩を考えると、輪郭が戻りやすい読み取りです。',
+};
+
+const DEFAULT_ESSENCE_RHYTHM_NOTE =
+  '月ごとの生活リズムを意識すると、ペースの調整がしやすい読み取りです。';
+
+const BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX =
+  '生まれ時刻が未入力のため、生活リズムは正午基準で整理した読み取りです。';
+
 const FORBIDDEN_USERFacingSubstrings = [
   '甲乙丙丁',
   '戊己庚辛',
   '壬癸',
+  '甲',
+  '乙',
+  '丙',
+  '丁',
+  '戊',
+  '己',
+  '庚',
+  '辛',
+  '壬',
+  '癸',
   'solarTerm',
   'lunarDay',
   'lunarMonth',
+  'boundaryMetadata',
+  'engine_context_json',
+  'engine_context',
   'stemLane',
   'stemChar',
   'djb2:',
   'm55_day_boundary',
   'p_lunar',
   'composite',
+  'このタイプ',
 ] as const;
 
 function lunarPhaseBucket(lunarDayKey: string): LunarPhaseBucket {
@@ -89,18 +128,37 @@ function seasonReadingForTerm(solarTermKey: string): string {
   return SOLAR_TERM_SEASON_READINGS[solarTermKey] ?? DEFAULT_SEASON_READING;
 }
 
+function lunarMonthNumberFromKey(lunarMonthKey: string): number | null {
+  const monthToken = lunarMonthKey.split('-').pop() ?? '';
+  const month = Number.parseInt(monthToken, 10);
+  if (!Number.isFinite(month) || month < 1 || month > 12) return null;
+  return month;
+}
+
+function essenceRhythmNoteForMonth(lunarMonthKey: string, birthTimeUnknown: boolean): string {
+  const month = lunarMonthNumberFromKey(lunarMonthKey);
+  const base = month != null ? (LUNAR_MONTH_ESSENCE_READINGS[month] ?? DEFAULT_ESSENCE_RHYTHM_NOTE) : DEFAULT_ESSENCE_RHYTHM_NOTE;
+  if (!birthTimeUnknown) return base;
+  return `${BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX}\n${base}`;
+}
+
 export function buildPaidDtrIndividualizationFromEngineContext(
   ctx: EngineContextJson,
 ): PaidDtrIndividualization {
-  const { boundaryMetadata } = ctx;
+  const { boundaryMetadata, normalizedBirthContext } = ctx;
   const seasonReading = seasonReadingForTerm(boundaryMetadata.solarTermKey);
   const handlingHint = LUNAR_PHASE_HANDLING[lunarPhaseBucket(boundaryMetadata.lunarDayKey)];
   const auxiliaryReading = [seasonReading, handlingHint].join('\n');
+  const essenceRhythmNote = essenceRhythmNoteForMonth(
+    boundaryMetadata.lunarMonthKey,
+    normalizedBirthContext.birthTimeUnknown,
+  );
 
   return {
     fingerprint: ctx.displayFingerprint,
     auxiliaryReading,
     handlingHint,
+    essenceRhythmNote,
   };
 }
 
@@ -128,12 +186,18 @@ export function toPaidDtrIndividualizationAuditMeta(
     fingerprint: ind.fingerprint,
     auxiliaryReading: ind.auxiliaryReading,
     handlingHint: ind.handlingHint,
+    essenceRhythmNote: ind.essenceRhythmNote,
   };
 }
 
 /** Prefix inserted into paid s7 before catalog body. */
 export function buildPaidDtrS7IndividualizationPrefix(ind: PaidDtrIndividualization): string {
   return ['【この保存版だけの補助整理】', ind.auxiliaryReading, ind.handlingHint, ''].join('\n');
+}
+
+/** Prefix inserted into paid s3 before catalog body (consult excerpt captures from start). */
+export function buildPaidDtrS3IndividualizationPrefix(ind: PaidDtrIndividualization): string {
+  return ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
 }
 
 /** Guard for tests — user-facing fragments must not leak internal keys. */
