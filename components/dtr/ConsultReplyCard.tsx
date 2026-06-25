@@ -6,6 +6,7 @@ import {
   mapConsultReplyBodyForDisplay,
   normalizeConsultReplyParagraphs,
 } from '../../lib/m55/consult/consultReplyDisplaySections';
+import { normalizeConsultReplyDisplayText } from '../../lib/m55/consult/normalizeConsultReplyDisplayText';
 import { resolveConsultReplyLensByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
 import {
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
@@ -64,7 +65,8 @@ export default function ConsultReplyCard({
   }, [initialExpanded]);
 
   const lens = resolveConsultReplyLensByTheme(theme);
-  const paragraphs = normalizeConsultReplyParagraphs(assistantContent);
+  const displayContent = normalizeConsultReplyDisplayText(assistantContent);
+  const paragraphs = normalizeConsultReplyParagraphs(displayContent);
   const bodies = mapConsultReplyBodyForDisplay(paragraphs);
   const sections = [
     { label: '今の場面をいったん言葉にする', body: bodies.scene },
@@ -99,14 +101,10 @@ export default function ConsultReplyCard({
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>
         ) : null}
         <div className={styles.replyTagRow}>
-          <span className={styles.replyTag}>相談返書</span>
           <span className={styles.replyTag}>保存版をもとにした返書</span>
         </div>
         {!collapsed ? (
-          <>
-            <p className={styles.replyCardLead}>保存版をもとにした相談</p>
-            <h3 className={styles.replyCardTitle}>相談返書</h3>
-          </>
+          <h3 className={styles.replyCardTitle}>{theme ?? '相談返書'}</h3>
         ) : null}
         {collapsed ? (
           <p className={styles.replyCompactMetaRow}>
@@ -119,13 +117,7 @@ export default function ConsultReplyCard({
         ) : (
           <p className={styles.replyMeta}>この相談で見ているところ</p>
         )}
-        {theme ? (
-          collapsed ? (
-            <p className={styles.replyListTheme}>{theme}</p>
-          ) : (
-            <p className={styles.replyMeta}>テーマ {theme}</p>
-          )
-        ) : null}
+        {theme && collapsed ? <p className={styles.replyListTheme}>{theme}</p> : null}
         {!collapsed ? <p className={styles.replyUsage}>{usageFull}</p> : null}
       </header>
 

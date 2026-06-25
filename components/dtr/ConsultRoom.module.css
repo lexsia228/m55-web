@@ -938,6 +938,10 @@
 }
 
 /* Composer — step panel */
+.composePanelScrollAnchor {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
+}
+
 .composePanel {
   display: flex;
   flex-direction: column;

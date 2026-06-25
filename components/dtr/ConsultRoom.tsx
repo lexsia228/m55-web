@@ -36,6 +36,7 @@ import {
   formatConsultAvailableCountLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
+import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
@@ -636,7 +637,7 @@ export default function ConsultRoom({
     ) : null;
 
   const composeBlock = !isReadOnly ? (
-    <div className={styles.composePanel}>
+    <div id={CONSULT_COMPOSE_PANEL_ID} className={`${styles.composePanel} ${styles.composePanelScrollAnchor}`}>
       <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
 
       <section className={styles.composeStep} aria-labelledby="consult-step-1">

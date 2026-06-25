@@ -86,6 +86,7 @@ import {
   SAVED_SNAPSHOT_NOTICE_PRIMARY,
   shouldShowLegacySnapshotNotice,
 } from '../../lib/m55/dtrSavedReportCopy';
+import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -119,6 +120,13 @@ function m55DtrScrollToDrawerHub(): void {
 }
 
 function m55DtrScrollToDrawerPanel(panel: DrawerHubPanelId): void {
+  if (panel === 'consult') {
+    const compose = document.getElementById(CONSULT_COMPOSE_PANEL_ID);
+    if (compose instanceof HTMLElement) {
+      m55DtrScrollToElement(compose);
+      return;
+    }
+  }
   const el = document.querySelector(m55DtrDrawerPanelSelector(panel));
   if (el instanceof HTMLElement) m55DtrScrollToElement(el);
 }
