@@ -19,7 +19,12 @@
  * - High-risk block response shows safe guidance only.
  */
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  mapConsultRoomLoadErrorToUserMessage,
+  mapConsultRoomSendErrorToUserMessage,
+} from '../../lib/m55/consult/consultRoomUserFacingErrors';
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
@@ -201,6 +206,27 @@ function ThemeChip({
 
 const DEV_PREVIEW_SEND_BLOCKED_JA = 'プレビューでは送信できません。';
 
+function ConsultRoomIssueNotice({
+  message,
+  messageClassName,
+}: {
+  message: string;
+  messageClassName: string;
+}) {
+  return (
+    <div className={styles.issueNotice} role="alert">
+      <p className={messageClassName}>{message}</p>
+      <p className={styles.issueSupport}>
+        解決しない場合は{' '}
+        <Link href="/support" className={styles.issueSupportLink}>
+          サポート
+        </Link>
+        をご利用ください。
+      </p>
+    </div>
+  );
+}
+
 export default function ConsultRoom({
   birthDate,
   nickname,
@@ -262,13 +288,7 @@ export default function ConsultRoom({
         const d = await res.json().catch(() => ({}));
         if (!cancelledRef?.cancelled) {
           const apiErr = (d as { error?: string }).error;
-          const statusLabel =
-            apiErr && apiErr !== 'Not owned'
-              ? apiErr
-              : PAID_DTR_CONSULT_ROOM_UI.loadErrorJa;
-          setLoadError(
-            res.status === 404 ? PAID_DTR_CONSULT_ROOM_UI.loadErrorJa : `${statusLabel} (${res.status})`
-          );
+          setLoadError(mapConsultRoomLoadErrorToUserMessage(apiErr, res.status));
         }
         return;
       }
@@ -402,9 +422,10 @@ export default function ConsultRoom({
         shouldScrollThreadToEndRef.current = false;
         setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
         setSendError(
-          (data as { safeMessage?: string }).safeMessage ??
-            (data as { error?: string }).error ??
-            `送信エラー (${res.status})`
+          mapConsultRoomSendErrorToUserMessage(
+            (data as { safeMessage?: string }).safeMessage,
+            (data as { error?: string }).error,
+          ),
         );
         setInputText(snapshot.free);
         setSelectedQuestionIds(snapshot.questions);
@@ -432,7 +453,7 @@ export default function ConsultRoom({
   if (loadError) {
     return (
       <div className={styles.room} aria-label={PAID_DTR_CONSULT_ROOM_UI.ariaLabelJa}>
-        <p className={styles.errorMsg}>{loadError}</p>
+        <ConsultRoomIssueNotice message={loadError} messageClassName={styles.errorMsg} />
       </div>
     );
   }
@@ -775,7 +796,9 @@ export default function ConsultRoom({
           {statusNotice}
         </>
       )}
-      {sendError ? <p className={styles.sendError} role="alert">{sendError}</p> : null}
+      {sendError ? (
+        <ConsultRoomIssueNotice message={sendError} messageClassName={styles.sendError} />
+      ) : null}
       {messagesBlock}
       {valueDeliverablesDetails}
     </section>

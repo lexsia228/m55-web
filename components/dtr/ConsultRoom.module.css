@@ -859,12 +859,37 @@
 .sendError {
   font-size: 0.875rem;
   color: #c0392b;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  line-height: 1.6;
+}
+
+.issueNotice {
   margin: 0 0 16px;
   padding: 10px 14px;
   border-radius: 8px;
   background: rgba(192, 57, 43, 0.06);
   border: 1px solid rgba(192, 57, 43, 0.15);
+}
+
+.issueSupport {
+  margin: 10px 0 0;
+  font-size: 0.8125rem;
   line-height: 1.6;
+  color: rgba(185, 165, 230, 0.72);
+}
+
+.issueSupportLink {
+  color: rgba(210, 195, 245, 0.95);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.issueSupportLink:hover {
+  color: rgba(230, 220, 255, 1);
 }
 
 /* Composer — step panel */

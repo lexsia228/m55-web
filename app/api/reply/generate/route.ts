@@ -7,6 +7,11 @@ import { replyPayloadV11Schema } from '../../../../lib/m55/reply/replyPayload.zo
 import { logReplyGenerateEvent } from '../../../../lib/m55/reply/observability';
 import { classifyM55AiSafetyInput } from '../../../../lib/m55/ai/m55AiSafetyPolicy';
 import { sanitizeM55ReplyJsonOutput } from '../../../../lib/m55/ai/m55AiOutputSanitizer';
+import {
+  isLaneBReplySurfaceEnabled,
+  LANE_B_DISABLED_ERROR_CODE,
+  LANE_B_DISABLED_USER_MESSAGE_JA,
+} from '../../../../lib/m55/reply/laneBProductionFailClosed';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -124,6 +129,21 @@ async function getReplyWalletState(db: any, userId: string) {
 export async function POST(req: NextRequest) {
   const startedAt = Date.now();
   const requestId = createRequestId();
+
+  if (!isLaneBReplySurfaceEnabled()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        request_id: requestId,
+        error: {
+          code: LANE_B_DISABLED_ERROR_CODE,
+          message: LANE_B_DISABLED_USER_MESSAGE_JA,
+        },
+      },
+      { status: 410 },
+    );
+  }
+
   const idemKey = req.headers.get('x-idempotency-key')?.trim() ?? '';
   let userId = '';
   let replySessionId: string | null = null;
