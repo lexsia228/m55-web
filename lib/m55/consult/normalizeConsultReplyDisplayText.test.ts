@@ -192,6 +192,46 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('なることが多いです') || out.includes('なることが多い'));
   });
 
+  it('repairs 自己評価が低下し forms in stored reply body', () => {
+    const stored =
+      '自己評価が低下しやすく、疲れがたまりやすいです。自己評価が低下して、次の一手が重くなります。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('自己評価が低下しやすく'), false, '低下しやすく must be repaired');
+    assert.equal(out.includes('自己評価が低下して'), false, '低下して must be repaired');
+    assert.ok(out.includes('自分を責める方向に寄りやすく') || out.includes('自分を責める'));
+    assert.ok(out.includes('自分を責める気持ちが強くなり') || out.includes('気持ちが強く'));
+  });
+
+  it('repairs 考慮する exact forms without creating 見るすると or 見るして', () => {
+    const stored =
+      '相手の状況や心情を考慮することも大切です。相手の状況や心情を考慮すると、返しやすくなります。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('相手の状況や心情を考慮'), false, '考慮 must be repaired');
+    assert.equal(out.includes('見るすると'), false, '見るすると must not appear');
+    assert.equal(out.includes('見るして'), false, '見るして must not appear');
+    assert.equal(out.includes('見るしながら'), false, '見るしながら must not appear');
+    assert.ok(out.includes('相手が返しやすい状態かを見ること') || out.includes('相手が返しやすい状態かを見ると'));
+  });
+
+  it('repairs より良い反応 and 関係性を再確認する in stored reply body', () => {
+    const stored =
+      'より良い反応が得られやすくなります。相手との関係性を再確認することで、距離が整います。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('より良い反応'), false, 'より良い反応 must be repaired');
+    assert.equal(out.includes('相手との関係性を再確認する'), false, '再確認する must be repaired');
+    assert.ok(out.includes('返しやすい反応'));
+    assert.ok(out.includes('相手との距離感を見直す'));
+  });
+
+  it('repairs ことをまずはここからで十分です awkward splice in stored reply', () => {
+    const stored =
+      '今日の一手は、相手が10秒で返せる確認を1つ送ることをまずはここからで十分です。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('ことをまずはここからで十分'), false, 'awkward splice must be absent');
+    assert.ok(out.includes('まずはここからで十分です'));
+    assert.ok(out.includes('ことです。') || out.includes('送ること'));
+  });
+
   it('leaves empty input unchanged', () => {
     assert.equal(normalizeConsultReplyDisplayText(''), '');
     assert.equal(normalizeConsultReplyDisplayText('   '), '');
