@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-24T22:39:24.477578+00:00",
+  "generated_at_utc": "2026-06-25T22:44:54.977903+00:00",
   "count": 673,
   "records": [
     {
@@ -220,7 +220,7 @@
     {
       "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
       "category": "ssot",
-      "bytes": 18128
+      "bytes": 25965
     },
     {
       "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
