@@ -44,6 +44,7 @@ import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA,
   CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA,
+  countConsultReplyBlocks,
   normalizeConsultReplyParagraphBreaks,
   validateConsultReplyCompleteness,
 } from '../../../../../lib/m55/consult/consultReplyGenerationContract';
@@ -366,6 +367,8 @@ export async function POST(req: NextRequest) {
           reportInstanceIdPresent: true,
           reason: completeness.reason,
           length: aiContent.length,
+          blockCount: countConsultReplyBlocks(aiContent),
+          isThemeOnly: inputValidation.parsed.isThemeOnly,
         })
       );
       return NextResponse.json(

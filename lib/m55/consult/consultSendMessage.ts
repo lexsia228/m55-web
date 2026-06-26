@@ -4,6 +4,7 @@
  */
 
 import { PAID_DTR_DRAWER_THEME_ENTRIES } from '../paidDtrProductCopy';
+import { CONSULT_REPLY_GENERATION } from './consultReplyGenerationContract';
 import {
   isKnownConsultTheme,
   resolveConsultReplyPartByTheme,
@@ -27,6 +28,10 @@ export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ�
 - ユーザーは自由記述を空欄にしています。これは不備ではありません。
 - 選択されたテーマと保存版の内容だけをもとに、今の相談として成立する返書を作成してください。
 - ユーザーに「詳しく書いてください」「相談内容がありません」と返さず、このテーマで今できる整理と今日の一手まで書いてください。
+- 自由記述が空欄でも、短く済ませず、選択テーマを今の相談の枠として扱ってください。テーマの見方から場面を一つ具体化し、保存版の傾向とつなげ、無理が出やすいところ、少しほどく見方、見直す目印、今日の一手まで書き切ってください。
+- ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
+- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。テーマ・テーマの見方・保存版の傾向から場面を深め、各段落に役割を持たせて書くこと。
+- 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
 - テーマラベルとテーマの見方をもとに、今の場面を具体化して書いてください。一般論や汎用コーチングで埋めないでください。`;
 
 export function resolveConsultThemeDescription(theme: string): string {
@@ -104,7 +109,8 @@ export function buildConsultUserAnchors(parsed: ParsedConsultUserMessage): strin
 - テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
 - 主章候補: ${part.roman}「${part.name}」
 ${CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA}
-- 1段落目は、このテーマで今しんどくなりやすい場面を保存版の傾向語と接続して具体化すること
+- 1段落目は、このテーマで今しんどくなりやすい場面を保存版の傾向語と接続して具体化すること（テーマの見方から場面を一つ選ぶ）
+- 2〜4段落目は保存版の傾向・別の見方・見直す目印を、このテーマの場面に沿って深めること
 - 5段落目は必ず「今日やることは1つだけです。」で始め、このテーマに紐づく行動を1つだけ書くこと`;
   }
 
