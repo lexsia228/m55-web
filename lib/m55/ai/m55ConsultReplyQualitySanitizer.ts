@@ -138,8 +138,18 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   },
   {
     category: 'generic_advice',
+    from: 'ことが重要です',
+    to: '最初の手がかりになります',
+  },
+  {
+    category: 'generic_advice',
     from: '大切です',
     to: 'ここに意識を向けると見えやすくなります',
+  },
+  {
+    category: 'generic_advice',
+    from: 'ことが大切です',
+    to: '最初の手がかりになります',
   },
   {
     category: 'over_empathy_counseling',
@@ -226,17 +236,76 @@ const REGEX_RULES: RegexRule[] = [
 
 /** Living-language rewrites for cold/generic paid-reply wording (post-pass). */
 const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
-  { category: 'generic_advice', from: '周囲とのコミュニケーションを増やす', to: '伝え方を少し変えてみる' },
-  { category: 'generic_advice', from: 'コミュニケーションを増やす', to: '伝え方を少し変えてみる' },
-  { category: 'generic_advice', from: 'リフレッシュの時間を設定する', to: '短く休む時間を先に決める' },
-  { category: 'generic_advice', from: 'リフレッシュ', to: '短い休息' },
+  {
+    category: 'generic_advice',
+    from: '実践可能な整え方を提案していきます',
+    to: '今日から試せる整え方を見ていきます',
+  },
+  {
+    category: 'generic_advice',
+    from: '意図的にコミュニケーションの機会を増やすことが必要です',
+    to: '意識して、短くやりとりする機会を作ると整理しやすいです',
+  },
+  {
+    category: 'generic_advice',
+    from: '意図的にコミュニケーションの機会を増やす',
+    to: '意識して、短くやりとりする機会を作る',
+  },
+  {
+    category: 'generic_advice',
+    from: '自分自身を労わることも忘れずに行ってみてください',
+    to: '今日は一段小さく休むことも試してみてください',
+  },
+  {
+    category: 'generic_advice',
+    from: '周囲とのコミュニケーションを増やす',
+    to: '伝え方を少し変えてみる',
+  },
+  {
+    category: 'generic_advice',
+    from: 'コミュニケーションの機会を増やす',
+    to: '短くやりとりする機会を作る',
+  },
+  {
+    category: 'generic_advice',
+    from: 'コミュニケーションを増やす',
+    to: '伝え方を少し変えてみる',
+  },
+  {
+    category: 'generic_advice',
+    from: 'リフレッシュの時間を設定する',
+    to: '短く休む時間を先に決める',
+  },
+  {
+    category: 'generic_advice',
+    from: '考えてみることが必要です',
+    to: '少し視点を変えてみるだけでも、楽になることがあります',
+  },
+  {
+    category: 'generic_advice',
+    from: '忘れずに行ってみてください',
+    to: '試してみてください',
+  },
+  {
+    category: 'generic_advice',
+    from: 'エネルギーを回復させること',
+    to: '力を戻すこと',
+  },
+  {
+    category: 'generic_advice',
+    from: 'エネルギーを維持しやすくなる',
+    to: '動きやすさを保ちやすくなる',
+  },
+  { category: 'generic_advice', from: '再構築する', to: '少し組み直す' },
+  { category: 'generic_advice', from: '軽減する', to: '和らげる' },
   { category: 'generic_advice', from: '自分自身を労わる', to: '今日は一段小さく休む' },
-  { category: 'generic_advice', from: 'フィードバックループ', to: '短い往復' },
+  { category: 'generic_advice', from: 'フィードバックループ', to: '短いやりとり' },
   { category: 'over_empathy_counseling', from: '自己否定', to: '自分を責めやすい状態' },
   { category: 'generic_advice', from: '再構築', to: '組み直し' },
   { category: 'generic_advice', from: '軽減', to: '和らげる' },
   { category: 'generic_advice', from: '有効です', to: '使いやすいです' },
   { category: 'generic_advice', from: '有効な', to: '使いやすい' },
+  { category: 'generic_advice', from: 'リフレッシュ', to: '休息' },
   { category: 'over_empathy_counseling', from: 'ストレス', to: '張りつめ' },
   { category: 'over_empathy_counseling', from: '不安', to: '心配' },
   { category: 'over_empathy_counseling', from: '消耗', to: '疲れがたまる' },
@@ -357,6 +426,34 @@ function repairBrokenJapaneseParticles(text: string): string {
   return text.replace(/ことがを/g, 'ことを').replace(/ものがを/g, 'ものを');
 }
 
+/** Repair duplicate-verb and splice artifacts from phrase/regex rewrites. */
+export function repairConsultReplyGrammarArtifacts(text: string): string {
+  let out = repairBrokenJapaneseParticles(text);
+  const replacements: [string, string][] = [
+    ['和らげるする手助け', '和らげる手がかり'],
+    ['手がかり手助け', '手がかり'],
+    ['短い短い往復', '短いやりとり'],
+    ['短い往復', '短いやりとり'],
+    ['組み直しする', '少し組み直す'],
+    ['和らげるする', '和らげる'],
+    ['短い短い', '短い'],
+    ['短いやりとりのやりとり', '短いやりとり'],
+    ['短い休息する', '少し休む'],
+    ['休息する時間', '少し休む時間'],
+    ['ことがここに意識を向けると見えやすくなります', '最初の手がかりになります'],
+    ['ことがここを手がかりに見ると整理しやすいです', '最初の手がかりになります'],
+    ['ことが必要です', '整理しやすくなります'],
+    ['コミュニケーションの機会を増やす', '短くやりとりする機会を作る'],
+    ['自分自身を労わる', '今日は一段小さく休む'],
+    ['忘れずに行ってみてください', '試してみてください'],
+  ];
+  for (const [from, to] of replacements) {
+    if (!out.includes(from)) continue;
+    out = out.split(from).join(to);
+  }
+  return out;
+}
+
 function applyToLine(
   line: string,
   categories: Set<M55ConsultReplyQualityCategory>,
@@ -399,7 +496,7 @@ export function applyM55ConsultReplyQualityPasses(
   text = limited.text;
   replacementCount += limited.count;
 
-  text = repairBrokenJapaneseParticles(text);
+  text = repairConsultReplyGrammarArtifacts(text);
 
   // Fail-closed only when a long reply would be over-shortened by replacements.
   if (

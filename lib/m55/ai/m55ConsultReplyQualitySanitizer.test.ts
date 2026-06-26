@@ -133,6 +133,27 @@ describe('applyM55ConsultReplyQualityPasses', () => {
       const r = applyM55ConsultReplyQualityPasses(input);
       assert.equal(r.text.includes('ここが論点になりやすいです'), false);
       assert.equal(r.text.includes('ことがを'), false);
+      assert.equal(r.text.includes('組み直しする'), false);
+      assert.equal(r.text.includes('和らげるする'), false);
+      assert.equal(r.text.includes('短い短い'), false);
+      assert.equal(r.text.includes('短い往復'), false);
+      assert.equal(r.text.includes('手がかり手助け'), false);
+      assert.equal(r.text.includes('ことがここに意識'), false);
     }
+  });
+
+  it('repairs 再構築する and 軽減する without duplicate verbs', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '関係性を再構築することが、張りつめを軽減する手助けになるでしょう。相手との短いフィードバックループがある。' +
+        '保存版の章を読み返すと、いまの場面が少し見えやすくなります。'
+    );
+    assert.equal(r.text.includes('組み直しする'), false);
+    assert.equal(r.text.includes('和らげるする'), false);
+    assert.equal(r.text.includes('短い短い'), false);
+    assert.equal(r.text.includes('短い往復'), false);
+    assert.equal(r.text.includes('手がかり手助け'), false);
+    assert.ok(r.text.includes('少し組み直す') || r.text.includes('組み直'));
+    assert.ok(r.text.includes('和らげる手がかり') || r.text.includes('和らげる'));
+    assert.ok(r.text.includes('短いやりとり'));
   });
 });
