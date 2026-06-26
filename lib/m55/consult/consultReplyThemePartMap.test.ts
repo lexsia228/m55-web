@@ -101,5 +101,7 @@ describe('consultReplyThemePartMap', () => {
     assert.ok(src.includes('次に相談するなら'));
     assert.ok(src.includes('resolveConsultReplyNextUseSuggestions'));
     assert.ok(src.includes('remainingCount > 0'));
+    assert.ok(src.includes('この返書の続きとして、残り'));
+    assert.ok(src.includes('replyNextUseBridge'));
   });
 });

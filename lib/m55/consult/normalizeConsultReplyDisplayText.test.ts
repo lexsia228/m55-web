@@ -1,6 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeConsultReplyDisplayText } from './normalizeConsultReplyDisplayText';
+import {
+  normalizeConsultReplyDisplayText,
+  normalizeConsultReplyTodayStepDisplayText,
+} from './normalizeConsultReplyDisplayText';
 
 const LEGACY_DEFECT_FIXTURE =
   '仕事の場面ではここが論点になりやすいです。' +
@@ -45,6 +48,9 @@ const RESIDUAL_DEFECT_FIXTURE =
 const MICRO_PATCH_FIXTURE =
   'いましんどさが出やすいのは、たとえばこんな場面です、特に「燃焼後の急な落差」や「受け取ってもらえないときの疲れがたまる」が重なる場面です。' +
   'これらの背景が影響していることが多いです。見方の補助線として、保存版の章を読み返すと見えやすくなります。';
+
+const OLD_TODAY_STEP_FIXTURE =
+  '今日の一手としては、まず周囲との短いやりとりを少し増やすことを試してみてください。具体的には、短いフィードバックを求める形で話し合いを持ち、自分の発信がどのように受け取られているかを確認してみると、今の進め方を整えやすくなります。また、疲れを感じた際には、少し休む時間を作り、今日は一段小さく休むことも試してみてください。最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
 
 describe('normalizeConsultReplyDisplayText', () => {
   it('removes legacy template leakage and broken particles from display text', () => {
@@ -167,5 +173,29 @@ describe('normalizeConsultReplyDisplayText', () => {
   it('leaves empty input unchanged', () => {
     assert.equal(normalizeConsultReplyDisplayText(''), '');
     assert.equal(normalizeConsultReplyDisplayText('   '), '');
+  });
+});
+
+describe('normalizeConsultReplyTodayStepDisplayText', () => {
+  it('removes saved-report reread instruction from old stored 今日の一手 body', () => {
+    const out = normalizeConsultReplyTodayStepDisplayText(OLD_TODAY_STEP_FIXTURE);
+    assert.equal(out.includes('保存版の内容を再度読み返し'), false);
+    assert.equal(out.includes('最後に、保存版'), false);
+    assert.equal(out.includes('どのように自分の進め方を整えるかを考えてみてください'), false);
+    assert.ok(out.includes('相手が短く返せる確認を1つ送ってみることです'));
+    assert.ok(out.includes('方向だけ、OKか修正ありで教えてください'));
+    assert.ok(out.includes('疲れを感じたら、今日は一段小さく休むことも十分な一歩です'));
+  });
+
+  it('strips saved-report reread variants from partial today-step text', () => {
+    const partial =
+      '今日は短い確認を1つ送ってみてください。最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
+    const out = normalizeConsultReplyTodayStepDisplayText(partial);
+    assert.equal(out.includes('保存版の内容を再度読み返し'), false);
+    assert.ok(out.includes('短い確認を1つ送ってみてください'));
+  });
+
+  it('leaves empty today-step input unchanged', () => {
+    assert.equal(normalizeConsultReplyTodayStepDisplayText(''), '');
   });
 });

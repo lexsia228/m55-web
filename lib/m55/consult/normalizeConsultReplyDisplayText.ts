@@ -69,6 +69,27 @@ const DISPLAY_NATURALNESS_REPAIRS: [string, string][] = [
   ],
 ];
 
+/** Display-only repairs scoped to 今日の一手 body (stored legacy replies). */
+const TODAY_STEP_DISPLAY_REPAIRS: [string, string][] = [
+  [
+    '今日の一手としては、まず周囲との短いやりとりを少し増やすことを試してみてください。具体的には、短いフィードバックを求める形で話し合いを持ち、自分の発信がどのように受け取られているかを確認してみると、今の進め方を整えやすくなります。また、疲れを感じた際には、少し休む時間を作り、今日は一段小さく休むことも試してみてください。最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。',
+    '今日の一手としては、相手が短く返せる確認を1つ送ってみることです。たとえば「ここまで進めています。方向だけ、OKか修正ありで教えてください」と聞いてみてください。疲れを感じたら、今日は一段小さく休むことも十分な一歩です。',
+  ],
+  ['最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。', ''],
+  ['最後に、保存版の内容を再度読み返し、', ''],
+  ['保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。', ''],
+  ['保存版の内容を再度読み返し、', ''],
+  ['どのように自分の進め方を整えるかを考えてみてください。', ''],
+  ['保存版の章を読み返し、どのように自分の進め方を整えるかを考えてみてください。', ''],
+  ['保存版の章を読み返す問いを1文入れる', ''],
+];
+
+const TODAY_STEP_STRIP_PATTERNS: RegExp[] = [
+  /最後に、保存版(?:の内容|の章)?を(?:再度)?読み返し[^。]*。/g,
+  /保存版(?:の内容|の章)?を(?:再度)?読み返し[^。]*。/g,
+  /どのように自分の進め方を整えるかを考えてみてください。/g,
+];
+
 const FIRST_HANDGRIP_PHRASE = '最初の手がかりになります';
 const FIRST_HANDGRIP_MAX = 2;
 const FIRST_HANDGRIP_OVERFLOW = '整理しやすくなります';
@@ -95,6 +116,30 @@ function repairConsultReplyDisplayNaturalness(text: string): string {
     FIRST_HANDGRIP_OVERFLOW,
   );
   return out;
+}
+
+function stripTodayStepSavedReportReread(text: string): string {
+  let out = text;
+  for (const pattern of TODAY_STEP_STRIP_PATTERNS) {
+    out = out.replace(pattern, '');
+  }
+  return out
+    .replace(/。また、+/g, '。')
+    .replace(/。{2,}/g, '。')
+    .replace(/^\s*[。、]\s*/g, '')
+    .trim();
+}
+
+/**
+ * Display-only cleanup for 今日の一手 body in stored consult replies.
+ * Removes saved-report reread instructions; UI CTA handles reread separately.
+ */
+export function normalizeConsultReplyTodayStepDisplayText(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  let out = applyReplacementList(trimmed, TODAY_STEP_DISPLAY_REPAIRS);
+  out = stripTodayStepSavedReportReread(out);
+  return out.trim();
 }
 
 /**

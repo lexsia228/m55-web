@@ -6,7 +6,7 @@ import {
   mapConsultReplyBodyForDisplay,
   normalizeConsultReplyParagraphs,
 } from '../../lib/m55/consult/consultReplyDisplaySections';
-import { normalizeConsultReplyDisplayText } from '../../lib/m55/consult/normalizeConsultReplyDisplayText';
+import { normalizeConsultReplyDisplayText, normalizeConsultReplyTodayStepDisplayText } from '../../lib/m55/consult/normalizeConsultReplyDisplayText';
 import {
   resolveConsultReplyLensByTheme,
   resolveConsultReplyNextUseSuggestions,
@@ -78,7 +78,10 @@ export default function ConsultReplyCard({
     { label: '少しほどく見方', body: bodies.alt },
   ].filter((s) => s.body);
 
-  const todayStep = bodies.today.trim() || null;
+  const todayStepRaw = bodies.today.trim() || null;
+  const todayStep = todayStepRaw
+    ? normalizeConsultReplyTodayStepDisplayText(todayStepRaw) || null
+    : null;
   const auxBody = bodies.aux.trim();
   const usageCompact = formatConsultUsedCountLine(usedCount);
   const usageRemaining = PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(
@@ -192,6 +195,9 @@ export default function ConsultReplyCard({
           {remainingCount > 0 ? (
             <section className={styles.replyNextUse} aria-label="次に相談するなら">
               <p className={styles.replyNextUseTitle}>次に相談するなら</p>
+              <p className={styles.replyNextUseBridge}>
+                この返書の続きとして、残り{remainingCount}件ではこんなテーマを見られます。
+              </p>
               <ul className={styles.replyNextUseList}>
                 {nextUseSuggestions.map((suggestion) => (
                   <li key={suggestion} className={styles.replyNextUseItem}>
