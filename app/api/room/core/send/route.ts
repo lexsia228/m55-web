@@ -4,7 +4,7 @@
  *
  * Rules (M55_AI_CONSULT_SAFETY_AND_LIMITS_SSOT_v1 + M55_REPORT_CONCIERGE_ROOM_SSOT_v1):
  * - Ownership gate: fail-closed
- * - Input min=10, hard max=500 chars
+ * - Input: theme required; free body optional; hard max=500 chars (theme included)
  * - Output target 1,200-1,800 JA chars (SSOT §7.2); server hard cap 2,400; no mid-cut save
  * - Ticket only consumed when RPC succeeds (messages + wallet + ledger atomic)
  * - High-risk patterns: block send, do not consume ticket
@@ -36,6 +36,11 @@ import {
 } from '../../../../../lib/m55/ai/m55AiOutputSanitizer';
 import { applyM55ConsultReplyQualityPasses } from '../../../../../lib/m55/ai/m55ConsultReplyQualitySanitizer';
 import {
+  buildConsultUserAnchors,
+  parseConsultUserMessage,
+  validateConsultSendInput,
+} from '../../../../../lib/m55/consult/consultSendMessage';
+import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA,
   CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA,
@@ -47,8 +52,6 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 const REPORT_KEY = 'm55_p:core_origin';
-const INPUT_MIN = 10;
-const INPUT_MAX = 500;
 const NO_STORE = { 'Cache-Control': 'private, no-store, max-age=0' };
 
 type RpcCommitResult = {
@@ -154,31 +157,11 @@ ${CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA}
 - 周囲とのコミュニケーションを増やす、リフレッシュの時間を設定する、自分自身を労わる等の汎用アドバイスは入れない。
 - 同じ言い回しを段落ごとに繰り返さない。`;
 
-/** User-message anchors for grounding (prompt-only; no ticket / wallet impact). */
-function buildConsultUserAnchors(userMessage: string): string {
-  const lines = userMessage
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const themeLine = lines.find((line) => line.startsWith('【テーマ】'));
-  const theme = themeLine ? themeLine.replace('【テーマ】', '').trim() : '';
-  const quote = lines
-    .filter((line) => !line.startsWith('【テーマ】') && !line.startsWith('【補助'))
-    .join(' ')
-    .trim()
-    .slice(0, 280);
-  if (!theme && !quote) return '';
-
-  return `【今回の相談アンカー（ユーザー原文）】
-- テーマ: ${theme || '（未指定）'}
-- 具体語は本文に必ず戻す: ${quote || '（短文）'}
-- 相談文から拾った論点（3〜5個）を1段落目に反映すること`;
-}
-
 /** Build report-scoped system prompt (no generic chat). */
 function buildSystemPrompt(reportSections: string, userMessage: string): string {
   const safetyPrefix = buildM55AiSafetySystemInstruction('consult');
-  const userAnchors = buildConsultUserAnchors(userMessage);
+  const parsed = parseConsultUserMessage(userMessage);
+  const userAnchors = buildConsultUserAnchors(parsed);
   const anchorsBlock = userAnchors ? `\n${userAnchors}\n` : '';
 
   return `${safetyPrefix}
@@ -239,17 +222,11 @@ export async function POST(req: NextRequest) {
 
   const userMessage = typeof body.message === 'string' ? body.message.trim() : '';
 
-  // Input validation (server authority — client counter is advisory only)
-  if (userMessage.length < INPUT_MIN) {
+  const inputValidation = validateConsultSendInput(userMessage);
+  if (!inputValidation.ok) {
     return NextResponse.json(
-      { error: `メッセージは${INPUT_MIN}文字以上で入力してください。` },
-      { status: 422, headers: NO_STORE }
-    );
-  }
-  if (userMessage.length > INPUT_MAX) {
-    return NextResponse.json(
-      { error: `メッセージは${INPUT_MAX}文字以内で入力してください。` },
-      { status: 422, headers: NO_STORE }
+      { error: inputValidation.error },
+      { status: inputValidation.status, headers: NO_STORE },
     );
   }
 

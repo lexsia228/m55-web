@@ -1,0 +1,126 @@
+/**
+ * Lane A consult send — user message parsing and theme-only input contract.
+ * Used by ConsultRoom (client compose) and /api/room/core/send (server validation).
+ */
+
+import { PAID_DTR_DRAWER_THEME_ENTRIES } from '../paidDtrProductCopy';
+import {
+  isKnownConsultTheme,
+  resolveConsultReplyPartByTheme,
+} from './consultReplyThemePartMap';
+
+export const CONSULT_SEND_INPUT_MAX = 500;
+
+export type ParsedConsultUserMessage = {
+  theme: string | null;
+  supplementaryLines: string[];
+  freeBody: string;
+  isThemeOnly: boolean;
+};
+
+export type ConsultSendInputValidationResult =
+  | { ok: true; parsed: ParsedConsultUserMessage }
+  | { ok: false; error: string; status: 422 };
+
+/** Theme-only generation instruction — appended to system prompt anchors when body is blank. */
+export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ相談 — 有効な相談として扱う】
+- ユーザーは自由記述を空欄にしています。これは不備ではありません。
+- 選択されたテーマと保存版の内容だけをもとに、今の相談として成立する返書を作成してください。
+- ユーザーに「詳しく書いてください」「相談内容がありません」と返さず、このテーマで今できる整理と今日の一手まで書いてください。
+- テーマラベルとテーマの見方をもとに、今の場面を具体化して書いてください。一般論や汎用コーチングで埋めないでください。`;
+
+export function resolveConsultThemeDescription(theme: string): string {
+  const entry = PAID_DTR_DRAWER_THEME_ENTRIES.find((e) => e.labelJa === theme);
+  return entry?.sublabelJa ?? '';
+}
+
+/** Parse composed consult message (theme line + optional supplementary + optional free body). */
+export function parseConsultUserMessage(raw: string): ParsedConsultUserMessage {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return { theme: null, supplementaryLines: [], freeBody: '', isThemeOnly: false };
+  }
+
+  let theme: string | null = null;
+  const supplementaryLines: string[] = [];
+  const freeBodyParts: string[] = [];
+
+  for (const block of trimmed.split(/\n{2,}/)) {
+    const b = block.trim();
+    if (!b) continue;
+    if (b.startsWith('【テーマ】')) {
+      theme = b.replace('【テーマ】', '').trim() || null;
+      continue;
+    }
+    if (b.startsWith('【補助')) {
+      for (const line of b.split('\n')) {
+        const t = line.trim();
+        if (t.startsWith('・')) supplementaryLines.push(t);
+      }
+      continue;
+    }
+    freeBodyParts.push(b);
+  }
+
+  const freeBody = freeBodyParts.join('\n\n').trim();
+  const isThemeOnly = Boolean(theme) && !freeBody && supplementaryLines.length === 0;
+
+  return { theme, supplementaryLines, freeBody, isThemeOnly };
+}
+
+/** Server-side send input validation — theme required; free body optional. */
+export function validateConsultSendInput(raw: string): ConsultSendInputValidationResult {
+  const trimmed = raw.trim();
+  const parsed = parseConsultUserMessage(trimmed);
+
+  if (!parsed.theme) {
+    return { ok: false, error: 'テーマを選択してください。', status: 422 };
+  }
+  if (!isKnownConsultTheme(parsed.theme)) {
+    return { ok: false, error: '有効なテーマを選択してください。', status: 422 };
+  }
+  if (trimmed.length > CONSULT_SEND_INPUT_MAX) {
+    return {
+      ok: false,
+      error: `メッセージは${CONSULT_SEND_INPUT_MAX}文字以内で入力してください。`,
+      status: 422,
+    };
+  }
+
+  return { ok: true, parsed };
+}
+
+/** Build user-message anchors for system prompt (prompt-only; no ticket impact). */
+export function buildConsultUserAnchors(parsed: ParsedConsultUserMessage): string {
+  const theme = parsed.theme?.trim() ?? '';
+  if (!theme) return '';
+
+  const themeDescription = resolveConsultThemeDescription(theme);
+  const part = resolveConsultReplyPartByTheme(theme);
+
+  if (parsed.isThemeOnly) {
+    return `【今回の相談アンカー（テーマのみ — 有効）】
+- テーマ: ${theme}
+- テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
+- 主章候補: ${part.roman}「${part.name}」
+${CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA}
+- 1段落目は、このテーマで今しんどくなりやすい場面を保存版の傾向語と接続して具体化すること
+- 5段落目は必ず「今日やることは1つだけです。」で始め、このテーマに紐づく行動を1つだけ書くこと`;
+  }
+
+  const quoteParts = [...parsed.supplementaryLines, parsed.freeBody].filter(Boolean);
+  const quote = quoteParts.join(' ').trim().slice(0, 280);
+
+  return `【今回の相談アンカー（ユーザー原文）】
+- テーマ: ${theme}
+- テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
+- 主章候補: ${part.roman}「${part.name}」
+- 具体語は本文に必ず戻す: ${quote || '（短文）'}
+- 相談文から拾った論点（3〜5個）を1段落目に反映すること
+- 自由記述は補助情報として使い、テーマと保存版の接地を優先すること`;
+}
+
+/** Composed message for theme-only send (client/server contract). */
+export function buildThemeOnlyConsultMessage(theme: string): string {
+  return `【テーマ】${theme}`;
+}

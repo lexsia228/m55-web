@@ -6,7 +6,7 @@
  *
  * Constraints:
  * - Shows only when ownership is confirmed (server gate already checked).
- * - Input: min=10, warning=450, hard max=500 chars.
+ * - Input: theme required; free body optional; warning=450, hard max=500 chars (theme included).
  * - Output target: 1,200-1,800 JA chars (SSOT §7.2); server validates before commit.
  * - Thread cap display: 5 tickets per report (included 1 + purchased max 4).
  * - Read-only when credits_remaining=0 (prior messages remain visible).
@@ -41,7 +41,6 @@ import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrol
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
-const INPUT_MIN = 10;
 const INPUT_WARN = 450;
 const INPUT_MAX = 500;
 const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
@@ -55,8 +54,12 @@ const ROOM_UI_COPY = {
   historyTitle: 'これまでの相談返書',
   step1Title: 'Step 1 いちばん気になるテーマを選ぶ',
   step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
-  step2Title: 'Step 2 相談を書く',
-  step2Hint: `1テーマに絞って書きます（${INPUT_MIN}〜${INPUT_MAX}文字）。短文でも構いません。`,
+  step2Title: 'Step 2 相談を書く（任意）',
+  step2Hint: 'テーマだけでも返書を作れます。',
+  step2HintSub: 'もう少し詳しく見てほしいことがあれば、下に短く書いてください。',
+  inputPlaceholder:
+    '書ける人だけ、今気になっていることを短く書いてください。空欄でも大丈夫です。',
+  counterHelper: '選んだテーマも含めて送信します。相談文は空欄でも大丈夫です。',
   step3Title: 'Step 3 相談返書を作成する',
   step3Consume: 'この送信で相談返書を1件使用します。',
 } as const;
@@ -296,7 +299,6 @@ export default function ConsultRoom({
 
   const composedLen = composedMessage.length;
   const isOverMax = composedLen > INPUT_MAX;
-  const isUnderMin = composedMessage.trim().length < INPUT_MIN;
   const isWarn = composedLen >= INPUT_WARN && !isOverMax;
 
   const reloadRoom = useCallback(async (cancelledRef?: { cancelled: boolean }) => {
@@ -386,7 +388,7 @@ export default function ConsultRoom({
     if (!selectedTheme) return;
 
     const msg = composedMessage.trim();
-    if (msg.length < INPUT_MIN) return;
+    if (!msg) return;
     if (msg.length > INPUT_MAX) return;
     const liveWallet = roomData.wallet ?? null;
     const liveHasWalletRow = roomData.has_wallet_row === true;
@@ -519,7 +521,7 @@ export default function ConsultRoom({
 
   const actionLocked = sending || walletLoading;
   const submitDisabled =
-    actionLocked || sending || !selectedTheme || isOverMax || isUnderMin || isReadOnly;
+    actionLocked || sending || !selectedTheme || isOverMax || isReadOnly;
   const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
   const showExhausted =
     !walletLoading &&
@@ -668,16 +670,17 @@ export default function ConsultRoom({
           </h4>
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
+        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
         <label htmlFor="consult-input" className={styles.srOnly}>
           {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
-          {INPUT_MIN}〜{INPUT_MAX}文字）
+          （任意・全体で{INPUT_MAX}文字まで）
         </label>
         <textarea
           id="consult-input"
           className={styles.textarea}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={PAID_DTR_CONSULT_ROOM_UI.inputPlaceholderJa}
+          placeholder={ROOM_UI_COPY.inputPlaceholder}
           rows={5}
           maxLength={INPUT_MAX + 80}
           disabled={actionLocked}
@@ -689,11 +692,12 @@ export default function ConsultRoom({
             className={isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter}
             aria-live="polite"
           >
-            送信内容全体 {composedLen} / {INPUT_MAX}
+            送信内容（選んだテーマを含む） {composedLen} / {INPUT_MAX}
             {selectedTheme == null && ' — テーマを選択してください'}
             {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
             {isOverMax && ' — 上限を超えています。短くしてください'}
           </span>
+          <span className={styles.composeHintMuted}>{ROOM_UI_COPY.counterHelper}</span>
         </div>
       </section>
 
