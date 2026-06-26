@@ -328,6 +328,21 @@ const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
   { category: 'generic_advice', from: '高いエネルギー', to: '強く動く力' },
   { category: 'over_empathy_counseling', from: '疲労感', to: '疲れ' },
   { category: 'generic_advice', from: '試みてください', to: '試してみてください' },
+  { category: 'generic_advice', from: '視点の補助線として', to: '見直すときの目印として' },
+  { category: 'generic_advice', from: '見方の補助線として', to: '見直すときの目印として' },
+  { category: 'generic_advice', from: '視点の補助線', to: '見直すときの目印' },
+  { category: 'generic_advice', from: '見方の補助線', to: '見直すときの目印' },
+  {
+    category: 'generic_advice',
+    from: '無理が出やすい状況に直面した際には',
+    to: 'しんどさが出てきたときは',
+  },
+  {
+    category: 'generic_advice',
+    from: '無理が出やすい場面を考えると',
+    to: 'いましんどさが出やすいのは、たとえばこんな場面です',
+  },
+  { category: 'generic_advice', from: 'これらの背景が影響して', to: 'この流れが重なると' },
   {
     category: 'generic_advice',
     from: '言葉や行動で伝えることに得意なあなた',
@@ -477,6 +492,9 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
     ['コミュニケーションの機会を増やす', '短くやりとりする機会を作る'],
     ['自分自身を労わる', '今日は一段小さく休む'],
     ['忘れずに行ってみてください', '試してみてください'],
+    ['まずまずは', 'まずは'],
+    ['少し休む時間を作るし', '少し休む時間を作り'],
+    ['届きやすくなるようになります', '届きやすくなります'],
     ['少し視点を変えて少し視点を変えてみる', '少し視点を変えてみる'],
     [
       '短くやりとりする機会を作る最初の手がかりになります',

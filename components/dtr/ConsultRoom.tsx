@@ -33,6 +33,7 @@ import {
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
   PAID_DTR_DRAWER_THEME_ENTRIES,
+  THEME_CHIP_DISPLAY_LABEL_OVERRIDES,
   formatConsultAvailableCountLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
@@ -213,6 +214,7 @@ function ThemeChip({
   onSelect: () => void;
 }) {
   const sublabel = THEME_CHIP_SUBLABEL_BY_LABEL[theme];
+  const displayLabel = THEME_CHIP_DISPLAY_LABEL_OVERRIDES[theme] ?? theme;
   return (
     <button
       type="button"
@@ -220,7 +222,7 @@ function ThemeChip({
       onClick={onSelect}
       aria-pressed={selected}
     >
-      <span className={styles.themeChipMain}>{theme}</span>
+      <span className={styles.themeChipMain}>{displayLabel}</span>
       {sublabel ? <span className={styles.themeChipSublabel}>{sublabel}</span> : null}
     </button>
   );

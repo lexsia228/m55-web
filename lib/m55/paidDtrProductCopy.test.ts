@@ -133,7 +133,7 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja,
       ...PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa,
     ].join('\n');
-    assert.match(intro, /1テーマだけ書いてください/);
+    assert.match(intro, /1テーマだけ整理します/);
     assert.match(intro, /送信するまで相談返書は使いません/);
     assert.equal(intro.includes('汎用チャット'), false);
     assert.equal(intro.includes('参照されます'), false);
@@ -152,6 +152,8 @@ describe('paidDtrProductCopy SSOT', () => {
     const work = PAID_DTR_DRAWER_THEME_ENTRIES.find((e) => e.labelJa === '仕事・これからの進め方');
     assert.match(work!.sublabelJa, /何から始めるか/);
     assert.equal(work!.sublabelJa.includes('優先順位'), false);
+    const forward = PAID_DTR_DRAWER_THEME_ENTRIES.find((e) => e.labelJa === 'これからの動き方');
+    assert.match(forward!.sublabelJa, /今どこから動くか/);
   });
 
   it('consult history collapse copy uses count template and avoids forbidden labels', () => {

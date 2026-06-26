@@ -186,7 +186,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-work',
     labelJa: '仕事・これからの進め方',
-    sublabelJa: '動きやすい場面と、何から始めるかを見る',
+    sublabelJa: '仕事で無理が出やすい場面と、何から始めるかを見る',
     primaryPanel: 'chapter-2',
     primaryChapterJa: 'Ⅱ 構造を読む',
     relatedChaptersJa: ['Ⅰ 輪郭を見る', 'Ⅲ 無理を知る'],
@@ -204,7 +204,7 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
   {
     id: 'theme-forward',
     labelJa: 'これからの動き方',
-    sublabelJa: '今どこから動くか、無理の少ない進め方を見る',
+    sublabelJa: '今どこから動くか、無理の少ない順番を見る',
     primaryPanel: 'chapter-2',
     primaryChapterJa: 'Ⅱ 構造を読む',
     relatedChaptersJa: ['Ⅳ 楽に扱う', 'Ⅰ 輪郭を見る'],
@@ -220,6 +220,16 @@ export const PAID_DTR_DRAWER_THEME_ENTRIES: readonly PaidDtrDrawerThemeEntry[] =
     pillLabelJa: '読',
   },
 ] as const;
+
+/**
+ * Display-only label overrides for theme chips.
+ * Keys = stored theme key (themeExamplesJa); values = shorter user-facing chip label.
+ * Does NOT change the stored key or any mapping logic.
+ */
+export const THEME_CHIP_DISPLAY_LABEL_OVERRIDES: Readonly<Partial<Record<string, string>>> = {
+  '仕事・これからの進め方': '仕事の進め方',
+  'これからの動き方': '今の優先順位と動き方',
+} as const;
 
 /** PremiumDrawerHub — 4-chapter integrated surface (user-interest labels; Ⅰ〜Ⅳ skeleton preserved). */
 export type PaidDtrDrawerChapterEntryId =
@@ -413,10 +423,10 @@ export const PAID_DTR_CHAPTER_BRIDGE_COPY: Record<PaidDtrReportPartId, PaidDtrCh
 } as const;
 
 export const PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA =
-  'この章の悩みを、相談返書でひとつに絞る' as const;
+  '相談返書で整理する' as const;
 
 export const PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA =
-  '保存版に紐づく1テーマだけを扱います。送信するまで相談返書は使いません。' as const;
+  '保存版をもとに、今の悩みを1テーマだけ整理する。送信するまで相談返書は使いません。' as const;
 
 /** Chapter-end consult bridge — fixed life-language supplement (no dynamic body excerpt). */
 export const PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA =
@@ -581,7 +591,7 @@ export function drawerSectionDisplayTitleJa(section: {
 
 /** Consult grounding band — life-language labels (W-B1 patch). */
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
-  titleLine2Ja: '今気になっていることを、1テーマだけ書いてください',
+  titleLine2Ja: '保存版をもとに、今気になっていることを1テーマだけ整理します',
   dividerChipJa: 'この保存版の相談返書',
   entryContextAriaJa: '相談返書の入口のコンテキスト',
   continuousSupportOverlineJa: '状況が変わったときの使い方',
@@ -606,7 +616,7 @@ export const PAID_DTR_CONSULT_GROUNDING_COPY = {
 export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
   essentialNotesJa: [
     'なんでも答えるAIではありません。',
-    'あなたの保存版をもとに、いまの迷いや気になることを見ていきます。',
+    '新しい診断ではなく、今の迷いを言葉にして整えていきます。',
     '送信するまで相談返書は使いません。',
   ] as const,
   valueDetailsSummaryJa: '相談返書で見られること',

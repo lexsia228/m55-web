@@ -34,6 +34,14 @@ const NATURALNESS_FIXTURE =
   '効果的に届く距離を保ち、コミュニケーションを意識的に増やし、休息の時間を設定して試みてください。' +
   '保存版の章を読み返すと、いまの場面が少し見えやすくなります。';
 
+const RESIDUAL_DEFECT_FIXTURE =
+  '周囲の反応を意識し、意識して、短くやりとりする機会を作ると、整理しやすくなります。' +
+  'まずまずは、自分の気持ちに目を向けてみてください。' +
+  'あなたの発信がより届きやすくなるようになります。' +
+  '少し休む時間を作るし、今日は一段小さく休むことも試してみてください。' +
+  '視点の補助線として、保存版の章を読み返すと見えやすくなります。' +
+  '無理が出やすい場面を考えると、これらの背景が影響していることが多いです。';
+
 describe('normalizeConsultReplyDisplayText', () => {
   it('removes legacy template leakage and broken particles from display text', () => {
     const out = normalizeConsultReplyDisplayText(LEGACY_DEFECT_FIXTURE);
@@ -67,6 +75,21 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('少し休む') || out.includes('休息'));
     assert.ok(out.includes('短くやりとり') || out.includes('やりとり'));
     assert.ok(out.includes('試してみてください'));
+  });
+
+  it('repairs visible production defects in stored reply display', () => {
+    const out = normalizeConsultReplyDisplayText(RESIDUAL_DEFECT_FIXTURE);
+    assert.equal(out.includes('周囲の反応を意識し、意識して'), false);
+    assert.equal(out.includes('まずまずは'), false);
+    assert.equal(out.includes('より届きやすくなるようになります'), false);
+    assert.equal(out.includes('少し休む時間を作るし'), false);
+    assert.ok(out.includes('周囲の反応を見ながら'));
+    assert.ok(out.includes('まずは'));
+    assert.ok(out.includes('届きやすくなります'));
+    assert.ok(out.includes('少し休む時間を作り'));
+    assert.ok(out.includes('見直すときの目印'));
+    assert.ok(out.includes('いましんどさが出やすいのは、たとえばこんな場面です'));
+    assert.ok(out.includes('この流れが重なると'));
   });
 
   it('softens unnatural repeated repair phrasing and stiff wording', () => {
