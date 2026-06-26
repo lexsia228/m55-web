@@ -106,6 +106,7 @@ export const CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA =
  */
 export const CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA = `【完了条件 — サーバー検証（必須）】
 - 必ず5段落に分ける（最低4段落）。段落間は空行1つ（改行2つ）だけにする。見出し・番号・箇条書き記号は付けない。
+- 段落と段落の間は必ず空行（改行を2回）で区切る。空行で区切られていない出力は段落数1と判定されて保存されない。
 - 段落内では改行しない。改行は段落と段落の間だけ使う。
 - 1段落に1役割だけ。同じ助言を段落ごとに繰り返さない。
 - 各段落は2〜4文。1段落だけ・箇条書きだけ・極端に短い返答は不可。
@@ -113,14 +114,54 @@ export const CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA = `【完了条件 
 - 最終文は必ず「。」で終える。「…」「...」で終わらせない。
 - 5段落目（今日の一手）は必ず「今日やることは1つだけです。」で始め、行動は1つだけ。例文は1つまで。本文に「保存版を読み返す」「保存版の内容を再度読み返し」を入れない。` as const;
 
-/** Normalize paragraph breaks before completeness check (display-only shape repair). */
+/**
+ * Section boundary starters used by normalizeConsultReplyParagraphBreaks.
+ * Block 5 always starts with 今日やることは1つだけです (required by prompt).
+ * Blocks 2–4 are identified by content patterns the send-route prompt instructs.
+ * Exported for test visibility.
+ */
+export const CONSULT_REPLY_SECTION_BOUNDARY_STARTERS = [
+  '今日やることは1つだけです',
+  '保存版のⅠ',
+  '保存版のⅡ',
+  '保存版のⅢ',
+  '保存版のⅣ',
+  '保存版から見ると',
+  '少しほどく',
+  '見直すときの目印',
+] as const;
+
+/**
+ * Normalize paragraph breaks before completeness check (section-boundary repair only).
+ *
+ * Strategy:
+ *   1. If output already has ≥ minBlockCount blank-line blocks, return unchanged.
+ *   2. Otherwise insert blank lines before known M55 section starters only —
+ *      do NOT promote every sentence-end \n to \n\n (that creates 40+ micro-blocks).
+ *   3. Hard guard: if normalized block count still exceeds maxBlockCount + 1,
+ *      revert to the triple-newline-collapsed original to avoid too_many_blocks.
+ */
 export function normalizeConsultReplyParagraphBreaks(text: string): string {
   let out = text.replace(/\r\n/g, '\n').trim();
   out = out.replace(/\n{3,}/g, '\n\n');
+
   if (countConsultReplyBlocks(out) >= CONSULT_REPLY_GENERATION.minBlockCount) {
     return out;
   }
-  // Promote single newlines after sentence ends to paragraph breaks (common LLM shape drift).
-  out = out.replace(/([。！？!?」』])\n(?!\n)([^\n])/g, '$1\n\n$2');
-  return out.replace(/\n{3,}/g, '\n\n').trim();
+
+  for (const starter of CONSULT_REPLY_SECTION_BOUNDARY_STARTERS) {
+    // Replace a single \n immediately before a section starter with \n\n.
+    // (?<!\n) negative lookbehind ensures we don't double-up already blank lines.
+    out = out.replace(new RegExp(`(?<!\n)\n(${starter})`, 'g'), '\n\n$1');
+  }
+
+  out = out.replace(/\n{3,}/g, '\n\n').trim();
+
+  // Hard guard: if section-marker insertion over-fired (e.g. repeated starters),
+  // revert to triple-newline-only collapse rather than returning too many blocks.
+  if (countConsultReplyBlocks(out) > CONSULT_REPLY_GENERATION.maxBlockCount + 1) {
+    return text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  return out;
 }

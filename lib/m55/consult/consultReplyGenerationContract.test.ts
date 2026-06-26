@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA,
+  CONSULT_REPLY_SECTION_BOUNDARY_STARTERS,
   countConsultReplyBlocks,
   normalizeConsultReplyParagraphBreaks,
   validateConsultReplyCompleteness,
@@ -18,6 +19,48 @@ function makeValidReply(charCount = 1300): string {
   const sentence = `${'保存版の傾向に沿って場面を整理する。'.repeat(Math.ceil(perBlock / 20))}。`;
   const block = sentence.slice(0, perBlock);
   return [block, block, block, block].join('\n\n');
+}
+
+/**
+ * Production-like fixture: 5 sections, each with multiple sentence-per-line rows,
+ * ALL separated by single \n (no blank lines anywhere).
+ * Mirrors the gpt-4o-mini output shape that caused the second live-send failure.
+ */
+function makeProductionLikeSingleNlReply(): string {
+  const filler = '今の場面と保存版の傾向を照らし合わせながら整理します。相談文の具体語を各段落に戻します。';
+  function padTo(base: string, n: number): string {
+    let s = base;
+    while (s.length < n) s += filler;
+    return `${s.slice(0, n)}。`;
+  }
+  const sec1Lines = [
+    padTo('返事を待つあいだに不安が強くなりやすい場面は仕事全体を早く終わらせようとする動きと重なりやすいです', 120),
+    padTo('相手の返事が来ないと次の作業に進んでよいかどうかの判断が止まりやすくそこで疲れが出やすくなります', 120),
+    padTo('今回は待ち時間の扱い方と今日確認できる一つの行動だけを見ていきます', 80),
+  ];
+  const sec2Lines = [
+    padTo('保存版のⅡ章「構造を読む」では物事を順序立てて進めたい傾向と全体を確認してから動きたい傾向が出やすいと書かれています', 130),
+    padTo('傾向語として先を確かめてから動くという動きが返事待ちの不安を長引かせやすくしています', 100),
+  ];
+  const sec3Lines = [
+    padTo('少しほどくと返事がない時間を自分への否定として扱わなくてよい場面もあります', 100),
+    padTo('相手の都合や確認のタイミングがずれることも必ずしもあなたの進め方だけの問題ではありません', 110),
+  ];
+  const sec4Lines = [
+    padTo('見直すときの目印として返事がない時間が続くほど自分を責めやすくなるサインが出やすいです', 110),
+    padTo('一度手を止めて今日は確認だけに絞ると全体の負担が小さくなります', 80),
+  ];
+  const sec5Lines = [
+    padTo('今日やることは1つだけです。今進めている仕事について相手が10秒で返せる確認を1つ送ってください', 130),
+    padTo('たとえばここまで進めています方向だけOKか修正ありで教えてくださいと聞いてみてください', 100),
+  ];
+  return [
+    sec1Lines.join('\n'),
+    sec2Lines.join('\n'),
+    sec3Lines.join('\n'),
+    sec4Lines.join('\n'),
+    sec5Lines.join('\n'),
+  ].join('\n');
 }
 
 function makeFiveBlockWorkReply(): string {
@@ -141,17 +184,79 @@ describe('consultReplyGenerationContract', () => {
     assert.deepEqual(validateConsultReplyCompleteness(text), { ok: true });
   });
 
-  it('normalizeConsultReplyParagraphBreaks repairs single-newline paragraph drift', () => {
-    const drifted = [
-      '段落1の1文目。段落1の2文目。',
-      '段落2の1文目。段落2の2文目。',
-      '段落3の1文目。段落3の2文目。',
-      '段落4の1文目。段落4の2文目。',
-    ].join('\n');
-    const padded = `${drifted}${'保存版の傾向に沿って場面を整理する。'.repeat(80)}`;
-    assert.equal(countConsultReplyBlocks(padded), 1);
-    const repaired = normalizeConsultReplyParagraphBreaks(padded);
-    assert.ok(countConsultReplyBlocks(repaired) >= CONSULT_REPLY_GENERATION.minBlockCount);
+  it('normalizeConsultReplyParagraphBreaks inserts blank lines before known section starters', () => {
+    const filler = '今の場面と保存版の傾向を照らし合わせながら整理します。';
+    const sec1 = `返事を待つ場面が出やすいです。${filler.repeat(4)}`;
+    const sec2 = `保存版のⅡ章では傾向が出やすいと書かれています。${filler.repeat(4)}`;
+    const sec3 = `少しほどくと別の見方も出てきます。${filler.repeat(4)}`;
+    const sec4 = `見直すときの目印として確認できます。${filler.repeat(4)}`;
+    const sec5 = `今日やることは1つだけです。確認を1つ送ってください。${filler.repeat(4)}`;
+    const singleNl = [sec1, sec2, sec3, sec4, sec5].join('\n');
+    assert.equal(countConsultReplyBlocks(singleNl), 1, 'should start as 1 block');
+    const normalized = normalizeConsultReplyParagraphBreaks(singleNl);
+    assert.equal(countConsultReplyBlocks(normalized), 5, 'should become 5 blocks after normalization');
+  });
+
+  it('normalizeConsultReplyParagraphBreaks fixes production-like sentence-per-line drift to 5 blocks', () => {
+    const fixture = makeProductionLikeSingleNlReply();
+    assert.equal(countConsultReplyBlocks(fixture), 1, 'all-single-newline output starts as 1 block');
+    assert.ok(fixture.length >= CONSULT_REPLY_GENERATION.minimumAcceptableJa, 'fixture meets minimum length');
+    const normalized = normalizeConsultReplyParagraphBreaks(fixture);
+    assert.equal(countConsultReplyBlocks(normalized), 5, 'must normalize to exactly 5 blocks');
+    assert.deepEqual(validateConsultReplyCompleteness(normalized), { ok: true });
+  });
+
+  it('normalizeConsultReplyParagraphBreaks does not explode generic content into too_many_blocks', () => {
+    const noMarkers = '汎用テキストです。保存版を読み返す。相談文の整理をします。'.repeat(50);
+    const normalized = normalizeConsultReplyParagraphBreaks(noMarkers);
+    assert.ok(
+      countConsultReplyBlocks(normalized) <= CONSULT_REPLY_GENERATION.maxBlockCount + 1,
+      'block count must not exceed max+1',
+    );
+    const result = validateConsultReplyCompleteness(normalized);
+    if (!result.ok) assert.notEqual(result.reason, 'too_many_blocks', 'normalize must never cause too_many_blocks');
+  });
+
+  it('normalizeConsultReplyParagraphBreaks hard guard reverts when repeated starters would exceed max', () => {
+    // 7 occurrences of the required section-5 starter — more than maxBlockCount + 1
+    const manyStarters = Array.from({ length: 7 }, (_, i) =>
+      `今日やることは1つだけです。テスト${i}の行です。保存版に沿って整理します。`,
+    ).join('\n');
+    const normalized = normalizeConsultReplyParagraphBreaks(manyStarters);
+    assert.ok(
+      countConsultReplyBlocks(normalized) <= CONSULT_REPLY_GENERATION.maxBlockCount + 1,
+      'hard guard must cap blocks at maxBlockCount + 1',
+    );
+    const result = validateConsultReplyCompleteness(normalized);
+    if (!result.ok) assert.notEqual(result.reason, 'too_many_blocks', 'hard guard must prevent too_many_blocks');
+  });
+
+  it('normalizeConsultReplyParagraphBreaks leaves already-valid blocks unchanged', () => {
+    const valid = makeValidReply(1300);
+    const normalized = normalizeConsultReplyParagraphBreaks(valid);
+    assert.equal(countConsultReplyBlocks(normalized), countConsultReplyBlocks(valid));
+    assert.deepEqual(validateConsultReplyCompleteness(normalized), { ok: true });
+  });
+
+  it('CONSULT_REPLY_SECTION_BOUNDARY_STARTERS includes required block-5 starter and report markers', () => {
+    assert.ok(
+      CONSULT_REPLY_SECTION_BOUNDARY_STARTERS.includes('今日やることは1つだけです'),
+      'must include required block-5 opener',
+    );
+    assert.ok(
+      CONSULT_REPLY_SECTION_BOUNDARY_STARTERS.includes('少しほどく'),
+      'must include block-3 marker',
+    );
+    assert.ok(
+      CONSULT_REPLY_SECTION_BOUNDARY_STARTERS.includes('見直すときの目印'),
+      'must include block-4 marker',
+    );
+    assert.ok(
+      (['保存版のⅠ', '保存版のⅡ', '保存版のⅢ', '保存版のⅣ'] as const).every((s) =>
+        CONSULT_REPLY_SECTION_BOUNDARY_STARTERS.includes(s),
+      ),
+      'must include chapter markers for block-2',
+    );
   });
 
   it('rejects insufficient blocks and incomplete sentence end', () => {
