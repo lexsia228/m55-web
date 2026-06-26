@@ -42,6 +42,10 @@ const RESIDUAL_DEFECT_FIXTURE =
   '視点の補助線として、保存版の章を読み返すと見えやすくなります。' +
   '無理が出やすい場面を考えると、これらの背景が影響していることが多いです。';
 
+const MICRO_PATCH_FIXTURE =
+  'いましんどさが出やすいのは、たとえばこんな場面です、特に「燃焼後の急な落差」や「受け取ってもらえないときの疲れがたまる」が重なる場面です。' +
+  'これらの背景が影響していることが多いです。見方の補助線として、保存版の章を読み返すと見えやすくなります。';
+
 describe('normalizeConsultReplyDisplayText', () => {
   it('removes legacy template leakage and broken particles from display text', () => {
     const out = normalizeConsultReplyDisplayText(LEGACY_DEFECT_FIXTURE);
@@ -89,7 +93,19 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('少し休む時間を作り'));
     assert.ok(out.includes('見直すときの目印'));
     assert.ok(out.includes('いましんどさが出やすいのは、たとえばこんな場面です'));
-    assert.ok(out.includes('この流れが重なると'));
+    assert.ok(out.includes('この流れが重なることが多い'));
+  });
+
+  it('repairs Human recheck micro-patch punctuation and heading phrases', () => {
+    const out = normalizeConsultReplyDisplayText(MICRO_PATCH_FIXTURE);
+    assert.equal(out.includes('場面です、特に'), false);
+    assert.equal(out.includes('重なるといる'), false);
+    assert.equal(out.includes('重なるとことが'), false);
+    assert.equal(out.includes('これらの背景が影響'), false);
+    assert.equal(out.includes('見方の補助線'), false);
+    assert.ok(out.includes('場面です。特に') || out.includes('が重なる場面です'));
+    assert.ok(out.includes('この流れが重なることが多い'));
+    assert.ok(out.includes('見直すときの目印'));
   });
 
   it('softens unnatural repeated repair phrasing and stiff wording', () => {

@@ -7,6 +7,7 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
+  PAID_DTR_DRAWER_HUB,
   PAID_DTR_DRAWER_THEME_ENTRIES,
   PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET,
   PAID_DTR_SAVED_REPORT_PRICING,
@@ -137,6 +138,14 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.match(intro, /送信するまで相談返書は使いません/);
     assert.equal(intro.includes('汎用チャット'), false);
     assert.equal(intro.includes('参照されます'), false);
+  });
+
+  it('drawer consult CTA uses bridge sublabel not legacy bound phrase', () => {
+    assert.equal(
+      PAID_DTR_DRAWER_HUB.consultSublabelJa,
+      '保存版をもとに、今の悩みを1テーマだけ整理する',
+    );
+    assert.equal(PAID_DTR_DRAWER_HUB.consultSublabelJa.includes('保存版に紐づく'), false);
   });
 
   it('consult theme chips align with drawer chapter labels', () => {

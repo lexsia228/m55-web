@@ -161,7 +161,7 @@ export default function ConsultReplyCard({
             ))}
             {auxBody ? (
               <div className={styles.replyReadingSection}>
-                <p className={styles.replySectionTitle}>見方の補助線</p>
+                <p className={styles.replySectionTitle}>見直すときの目印</p>
                 <p className={styles.replySectionBody}>{auxBody}</p>
               </div>
             ) : null}
@@ -169,10 +169,7 @@ export default function ConsultReplyCard({
 
           {todayStep ? (
             <section className={styles.replyTodayBox} aria-label="今日の一手">
-              <div className={styles.replyTodayHead}>
-                <p className={styles.replyTodayTitle}>今日の一手</p>
-                <p className={styles.replyTodayMeta}>1〜3 · 今日できる小さな一歩</p>
-              </div>
+              <p className={styles.replyTodayTitle}>今日の一手</p>
               <p className={styles.replyTodayText}>{todayStep}</p>
             </section>
           ) : null}

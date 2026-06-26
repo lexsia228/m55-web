@@ -13,6 +13,7 @@ import {
 } from './consultReplyThemePartMap';
 
 const CONSULT_ROOM = join(process.cwd(), 'components/dtr/ConsultRoom.tsx');
+const CONSULT_REPLY_CARD = join(process.cwd(), 'components/dtr/ConsultReplyCard.tsx');
 
 describe('consultReplyThemePartMap', () => {
   it('maps current theme chips to chapters including cross/support themes', () => {
@@ -55,5 +56,12 @@ describe('consultReplyThemePartMap', () => {
     assert.ok(labels.includes('何から始めるか'));
     assert.equal(labels.includes('優先順位'), false);
     assert.equal(labels.includes('力が出る条件'), false);
+  });
+
+  it('ConsultReplyCard shows 今日の一手 without redundant step meta label', () => {
+    const src = readFileSync(CONSULT_REPLY_CARD, 'utf8');
+    assert.ok(src.includes('今日の一手'));
+    assert.equal(src.includes('1〜3 · 今日できる小さな一歩'), false);
+    assert.equal(src.includes('replyTodayMeta'), false);
   });
 });

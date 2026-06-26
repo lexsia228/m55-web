@@ -142,7 +142,7 @@ export const PAID_DTR_DRAWER_HUB = {
     '戻し方と使い方を読む',
   ] as const,
   consultLabelJa: '相談返書で整理する',
-  consultSublabelJa: '保存版に紐づく相談',
+  consultSublabelJa: '保存版をもとに、今の悩みを1テーマだけ整理する',
 } as const;
 
 /** PremiumDrawerHub theme-first entry rows — labels align with PAID_DTR_CONSULT_REPLY.themeExamplesJa. */
