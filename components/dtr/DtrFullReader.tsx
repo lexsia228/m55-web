@@ -2840,6 +2840,8 @@ export default function DtrFullReader({
   consultWalletSnapshot = null,
 }: Props) {
   const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
+  // Footer snapshot starts from SSR prop; updated after successful send via callback.
+  const [footerWalletSnapshot, setFooterWalletSnapshot] = useState(consultWalletSnapshot);
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
 
@@ -3184,6 +3186,7 @@ export default function DtrFullReader({
                     nickname={view.nickname}
                     stemIdx={stemIdx}
                     devPreviewRoomData={consultDevPreviewRoomData}
+                    onWalletSnapshotChange={setFooterWalletSnapshot}
                   />
                 </div>
                 <div className={styles.consultSupplementStack}>
@@ -3235,7 +3238,7 @@ export default function DtrFullReader({
           expiresAt={expiresAt}
           stemTitle={stem.publicTitle}
           displayedEnvelopeReadMode={displayedEnvelopeReadMode}
-          consultWalletSnapshot={consultWalletSnapshot}
+          consultWalletSnapshot={footerWalletSnapshot}
         />
       </div>
     </div>

@@ -38,6 +38,10 @@ import {
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
+import {
+  type ConsultWalletDisplaySnapshot,
+  walletRowToConsultDisplaySnapshot,
+} from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
@@ -131,6 +135,8 @@ type Props = {
   stemIdx: number;
   /** Dev-only: fixture data for /dev/dtr-drawer-preview (skips /api/room/core). */
   devPreviewRoomData?: RoomData | null;
+  /** Called after a successful send so the saved-report footer can sync its wallet snapshot. */
+  onWalletSnapshotChange?: (snapshot: ConsultWalletDisplaySnapshot | null) => void;
 };
 
 function extractThemeAndQuoteFromUserMessage(content: string): { theme: string | null; quote: string | null } {
@@ -259,6 +265,7 @@ export default function ConsultRoom({
   nickname,
   stemIdx,
   devPreviewRoomData = null,
+  onWalletSnapshotChange,
 }: Props) {
   const isDevPreview = devPreviewRoomData != null;
   const [roomData, setRoomData] = useState<RoomData | null>(devPreviewRoomData);
@@ -461,7 +468,24 @@ export default function ConsultRoom({
       const { reply, thread } = data as { reply: Message; thread: ThreadState };
       activeIdempotencyKeyRef.current = null;
       activeSnapshotHashRef.current = null;
-      setRoomData((prev) => (prev ? { thread, messages: [...prev.messages, reply] } : null));
+      // Optimistically decrement wallet so all counters agree immediately.
+      const prevWallet = roomData?.wallet ?? null;
+      const updatedWallet = prevWallet
+        ? {
+            ...prevWallet,
+            consumed_count: prevWallet.consumed_count + 1,
+            available_count: Math.max(0, prevWallet.available_count - 1),
+          }
+        : null;
+      setRoomData((prev) =>
+        prev
+          ? { ...prev, thread, messages: [...prev.messages, reply], wallet: updatedWallet }
+          : null,
+      );
+      if (onWalletSnapshotChange && updatedWallet) {
+        const snap = walletRowToConsultDisplaySnapshot(updatedWallet);
+        onWalletSnapshotChange(snap);
+      }
     } catch {
       shouldScrollToLatestReplyRef.current = false;
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));

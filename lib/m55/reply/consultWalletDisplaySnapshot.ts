@@ -30,6 +30,40 @@ export function hasValidConsultWalletDenominator(snapshot: ConsultWalletDisplayS
   );
 }
 
+/**
+ * Pure client-side mapper: converts the wallet shape from GET /api/room/core
+ * into ConsultWalletDisplaySnapshot so the footer can be updated without a
+ * server round-trip after a successful send.
+ * Returns null if any required field is invalid.
+ */
+export function walletRowToConsultDisplaySnapshot(wallet: {
+  initial_included_count: number;
+  purchased_count: number;
+  consumed_count: number;
+  available_count: number;
+  status: string;
+}): ConsultWalletDisplaySnapshot | null {
+  const pic = wallet.initial_included_count;
+  const pc = wallet.purchased_count;
+  const cc = wallet.consumed_count;
+  const ac = wallet.available_count;
+  if (
+    typeof wallet.status !== 'string' ||
+    !Number.isFinite(pic) || pic < 0 ||
+    !Number.isFinite(pc) || pc < 0 ||
+    !Number.isFinite(cc) || cc < 0 ||
+    !Number.isFinite(ac) || ac < 0
+  ) {
+    return null;
+  }
+  return {
+    availableCount: Math.trunc(ac),
+    consumedCount: Math.trunc(cc),
+    totalGrantedCount: Math.trunc(pic) + Math.trunc(pc),
+    status: wallet.status,
+  };
+}
+
 export async function readConsultWalletDisplaySnapshot(
   userId: string,
   reportInstanceId: string,
