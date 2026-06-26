@@ -312,6 +312,37 @@ const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
   { category: 'over_empathy_counseling', from: '要因', to: '背景' },
   { category: 'over_empathy_counseling', from: '負荷', to: '無理' },
   { category: 'generic_advice', from: 'ここが論点になりやすいです', to: 'ここを手がかりに見ると整理しやすいです' },
+  {
+    category: 'generic_advice',
+    from: 'コミュニケーションを意識的に増やす',
+    to: '短いやりとりを少し増やす',
+  },
+  {
+    category: 'generic_advice',
+    from: 'コミュニケーションを意識的に増やし',
+    to: '短いやりとりを少し増やし',
+  },
+  { category: 'generic_advice', from: '休息の時間を設定して', to: '少し休む時間を作って' },
+  { category: 'generic_advice', from: '休息の時間を設定', to: '少し休む時間を作る' },
+  { category: 'generic_advice', from: '効果的に届く', to: '届きやすくなる' },
+  { category: 'generic_advice', from: '高いエネルギー', to: '強く動く力' },
+  { category: 'over_empathy_counseling', from: '疲労感', to: '疲れ' },
+  { category: 'generic_advice', from: '試みてください', to: '試してみてください' },
+  {
+    category: 'generic_advice',
+    from: '言葉や行動で伝えることに得意なあなた',
+    to: '言葉や行動で伝えることが得意なあなた',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: '自分を責めやすい状態の感情',
+    to: '自分を責めやすい気持ち',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: '無理となっているようです',
+    to: 'しんどさにつながっているようです',
+  },
 ];
 const LIVING_LANGUAGE_OUTPUT_REWRITES_SORTED = [...LIVING_LANGUAGE_OUTPUT_REWRITES].sort(
   (a, b) => b.from.length - a.from.length,
@@ -446,12 +477,57 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
     ['コミュニケーションの機会を増やす', '短くやりとりする機会を作る'],
     ['自分自身を労わる', '今日は一段小さく休む'],
     ['忘れずに行ってみてください', '試してみてください'],
+    ['少し視点を変えて少し視点を変えてみる', '少し視点を変えてみる'],
+    [
+      '短くやりとりする機会を作る最初の手がかりになります',
+      '短くやりとりする機会を作ると、整理しやすくなります',
+    ],
+    [
+      '自分自身の感情に目を向ける最初の手がかりになります',
+      'まずは、自分の気持ちに目を向けてみてください',
+    ],
+    [
+      'その感覚に気づく最初の手がかりになります',
+      'その感覚に気づくことが、最初の手がかりになります',
+    ],
+    [
+      '確認する最初の手がかりになります',
+      '確認してみると、今の進め方を整えやすくなります',
+    ],
+    ['作るして', '作って'],
   ];
   for (const [from, to] of replacements) {
     if (!out.includes(from)) continue;
     out = out.split(from).join(to);
   }
   return out;
+}
+
+const FIRST_HANDGRIP_PHRASE = '最初の手がかりになります';
+const FIRST_HANDGRIP_MAX = 2;
+const FIRST_HANDGRIP_OVERFLOW = '整理しやすくなります';
+
+/** Cap repeated repair-phrase injection in one reply. */
+export function limitConsultReplyPhraseOccurrences(
+  text: string,
+  phrase: string,
+  maxKeep: number,
+  replacement: string,
+): string {
+  if (!text.includes(phrase)) return text;
+  const parts = text.split(phrase);
+  if (parts.length <= 1) return text;
+
+  let seen = 0;
+  const rebuilt: string[] = [];
+  for (let i = 0; i < parts.length; i += 1) {
+    rebuilt.push(parts[i] ?? '');
+    if (i < parts.length - 1) {
+      seen += 1;
+      rebuilt.push(seen <= maxKeep ? phrase : replacement);
+    }
+  }
+  return rebuilt.join('');
 }
 
 function applyToLine(
@@ -497,6 +573,12 @@ export function applyM55ConsultReplyQualityPasses(
   replacementCount += limited.count;
 
   text = repairConsultReplyGrammarArtifacts(text);
+  text = limitConsultReplyPhraseOccurrences(
+    text,
+    FIRST_HANDGRIP_PHRASE,
+    FIRST_HANDGRIP_MAX,
+    FIRST_HANDGRIP_OVERFLOW,
+  );
 
   // Fail-closed only when a long reply would be over-shortened by replacements.
   if (

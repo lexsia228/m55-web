@@ -23,6 +23,17 @@ const PRESERVE_M55_PHRASE_FIXTURE =
   '少しほどく見方で、今日できる小さな一歩として一段小さく休む。' +
   '発信と届く距離を見る。';
 
+const NATURALNESS_FIXTURE =
+  '短くやりとりする機会を作る最初の手がかりになります。' +
+  '自分自身の感情に目を向ける最初の手がかりになります。' +
+  'その感覚に気づく最初の手がかりになります。' +
+  '確認する最初の手がかりになります。' +
+  '少し視点を変えて少し視点を変えてみるだけでも、楽になることがあります。' +
+  '言葉や行動で伝えることに得意なあなたは、高いエネルギーを使い、疲労感がたまりやすいです。' +
+  '自分を責めやすい状態の感情も出やすい。無理となっているようです。' +
+  '効果的に届く距離を保ち、コミュニケーションを意識的に増やし、休息の時間を設定して試みてください。' +
+  '保存版の章を読み返すと、いまの場面が少し見えやすくなります。';
+
 describe('normalizeConsultReplyDisplayText', () => {
   it('removes legacy template leakage and broken particles from display text', () => {
     const out = normalizeConsultReplyDisplayText(LEGACY_DEFECT_FIXTURE);
@@ -52,10 +63,52 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('少し組み直す') || out.includes('組み直'));
     assert.ok(out.includes('和らげる手がかり'));
     assert.ok(out.includes('短いやりとり'));
-    assert.ok(out.includes('最初の手がかり'));
+    assert.ok(out.includes('その感覚に気づくことが、最初の手がかりになります'));
     assert.ok(out.includes('少し休む') || out.includes('休息'));
     assert.ok(out.includes('短くやりとり') || out.includes('やりとり'));
     assert.ok(out.includes('試してみてください'));
+  });
+
+  it('softens unnatural repeated repair phrasing and stiff wording', () => {
+    const out = normalizeConsultReplyDisplayText(NATURALNESS_FIXTURE);
+    assert.equal(
+      out.includes('短くやりとりする機会を作る最初の手がかりになります'),
+      false,
+    );
+    assert.equal(
+      out.includes('自分自身の感情に目を向ける最初の手がかりになります'),
+      false,
+    );
+    assert.equal(out.includes('その感覚に気づく最初の手がかりになります'), false);
+    assert.equal(out.includes('確認する最初の手がかりになります'), false);
+    assert.equal(out.includes('少し視点を変えて少し視点を変えて'), false);
+    assert.equal(out.includes('言葉や行動で伝えることに得意'), false);
+    assert.equal(out.includes('自分を責めやすい状態の感情'), false);
+    assert.equal(out.includes('無理となっているようです'), false);
+    assert.equal(out.includes('高いエネルギー'), false);
+    assert.equal(out.includes('疲労感'), false);
+    assert.equal(out.includes('効果的に届く'), false);
+    assert.equal(out.includes('コミュニケーションを意識的に増やす'), false);
+    assert.equal(out.includes('休息の時間を設定'), false);
+    assert.equal(out.includes('試みてください'), false);
+
+    assert.ok(out.includes('短くやりとりする機会を作ると、整理しやすくなります'));
+    assert.ok(out.includes('まずは、自分の気持ちに目を向けてみてください'));
+    assert.ok(out.includes('その感覚に気づくことが、最初の手がかりになります'));
+    assert.ok(out.includes('確認してみると、今の進め方を整えやすくなります'));
+    assert.ok(out.includes('少し視点を変えてみるだけでも'));
+    assert.ok(out.includes('言葉や行動で伝えることが得意'));
+    assert.ok(out.includes('自分を責めやすい気持ち'));
+    assert.ok(out.includes('しんどさにつながっているようです'));
+    assert.ok(out.includes('強く動く力'));
+    assert.ok(out.includes('疲れ'));
+    assert.ok(out.includes('届きやすくなる'));
+    assert.ok(out.includes('短いやりとりを少し増やし') || out.includes('短いやりとりを少し増やす'));
+    assert.ok(out.includes('少し休む時間を作って') || out.includes('少し休む時間を作る'));
+    assert.ok(out.includes('試してみてください'));
+
+    const count = (out.match(/最初の手がかりになります/g) ?? []).length;
+    assert.ok(count <= 2, `expected at most 2 handgrip phrases, got ${count}`);
   });
 
   it('preserves good M55 phrasing when already natural', () => {

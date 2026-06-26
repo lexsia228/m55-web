@@ -156,4 +156,23 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.ok(r.text.includes('和らげる手がかり') || r.text.includes('和らげる'));
     assert.ok(r.text.includes('短いやりとり'));
   });
+
+  it('softens stiff wording and removes duplicate perspective phrase', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '少し視点を変えて少し視点を変えてみるだけでも、高いエネルギーと疲労感が出やすいです。' +
+        '言葉や行動で伝えることに得意なあなたは、効果的に届く距離を保てます。' +
+        'コミュニケーションを意識的に増やし、休息の時間を設定して試みてください。' +
+        '保存版の章を読み返すと、いまの場面が少し見えやすくなります。'
+    );
+    assert.equal(r.text.includes('少し視点を変えて少し視点を変えて'), false);
+    assert.equal(r.text.includes('高いエネルギー'), false);
+    assert.equal(r.text.includes('疲労感'), false);
+    assert.equal(r.text.includes('効果的に届く'), false);
+    assert.equal(r.text.includes('試みてください'), false);
+    assert.ok(r.text.includes('少し視点を変えてみるだけでも'));
+    assert.ok(r.text.includes('強く動く力'));
+    assert.ok(r.text.includes('疲れ'));
+    assert.ok(r.text.includes('届きやすくなる'));
+    assert.ok(r.text.includes('試してみてください'));
+  });
 });
