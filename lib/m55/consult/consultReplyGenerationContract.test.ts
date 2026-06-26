@@ -70,6 +70,23 @@ describe('consultReplyGenerationContract', () => {
     assert.ok(src.includes('CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA'));
   });
 
+  it('send route prompt constrains 今日の一手 to one action, not 1-3', () => {
+    const src = readFileSync(SEND_ROUTE, 'utf8');
+    assert.ok(src.includes('今日やることは1つだけです'), 'prompt must include single-action opener');
+    assert.ok(src.includes('行動を1つだけ書く'), 'prompt must say 1 action only');
+    assert.equal(src.includes('行動を1〜3個'), false, 'old multi-action rule must not be present');
+    assert.equal(src.includes('末尾に保存版の章を読み返す問いを1文入れる'), false, 'saved-report CTA must not be inside today block');
+  });
+
+  it('send route prompt defines distinct section roles to prevent repetition', () => {
+    const src = readFileSync(SEND_ROUTE, 'utf8');
+    assert.ok(src.includes('今どこがしんどいか'), 'section 1 role defined');
+    assert.ok(src.includes('保存版のどことつながるか'), 'section 2 role defined');
+    assert.ok(src.includes('別の見方はないか'), 'section 3 role defined');
+    assert.ok(src.includes('どのサインが出たら小さく区切るか'), 'section 4 role defined');
+    assert.ok(src.includes('今日の1つの行動'), 'section 5 role defined');
+  });
+
   it('SSOT documents reply length contract in §7.2', () => {
     const doc = readFileSync(SSOT, 'utf8');
     assert.ok(doc.includes('### 7.2 相談返書 — reply generation contract'));

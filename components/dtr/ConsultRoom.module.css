@@ -865,6 +865,45 @@
   color: rgba(247, 243, 255, 0.93);
 }
 
+.replyNextUse {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 140, 220, 0.16);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.replyNextUseTitle {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  color: rgba(184, 170, 217, 0.85);
+  letter-spacing: 0.01em;
+}
+
+.replyNextUseList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.replyNextUseItem {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(220, 210, 248, 0.82);
+  padding-left: 0.9em;
+  position: relative;
+}
+
+.replyNextUseItem::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: rgba(160, 140, 220, 0.5);
+}
+
 .replyFooter {
   margin-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);

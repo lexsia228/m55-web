@@ -235,3 +235,55 @@ export function isKnownConsultTheme(theme: string): theme is (typeof PAID_DTR_CO
 export function isLegacyConsultTheme(theme: string): boolean {
   return theme in LEGACY_THEME_PART_MAP && !(theme in PRIMARY_THEME_PART_MAP);
 }
+
+/**
+ * Display-only next-use theme suggestions per theme bucket.
+ * Shown in expanded reply card to help user plan remaining tickets.
+ * No ticket consumption — read-only guidance.
+ */
+export const CONSULT_REPLY_NEXT_USE_SUGGESTIONS: Record<string, readonly string[]> = {
+  '仕事・これからの進め方': [
+    '返事がない相手との距離の取り方',
+    '疲れた日の仕事量の下げ方',
+    '伝え方を短くする練習',
+    '今の進め方を続けるか、一度整えるか',
+  ],
+  'これからの動き方': [
+    '次の一手を1つに絞る方法',
+    '迷いが続くときの小さな整え方',
+    '判断を急がないための目安',
+    '保存版の傾向を今の状況に当てる',
+  ],
+  '恋人・近い人との向き合い方': [
+    '反応がない相手との距離の取り方',
+    '言葉を選びすぎてしまう場面',
+    '伝えたいのに届かないときの整え方',
+    '近い人と疲れずにいる距離感',
+  ],
+  'お金・生活・疲れの整え方': [
+    '疲れた日の仕事量の下げ方',
+    'ひとりで戻る時間の作り方',
+    '心配が続くときの小さな区切り方',
+    '生活のリズムを整える最初の一手',
+  ],
+  '疲れたときの戻り方': [
+    '疲れが出やすい場面と戻り方',
+    '休んでも戻れないときの整え方',
+    'ひとりで戻る時間の作り方',
+    '保存版の傾向から疲れの出方を読む',
+  ],
+};
+
+const DEFAULT_NEXT_USE_SUGGESTIONS: readonly string[] = [
+  '今回の続きとして気になること',
+  '疲れた日の小さな戻し方',
+  '近い人との距離の整え方',
+  '次の一手を1つに絞る',
+];
+
+/** Resolve next-use suggestions for display (fallback to generic if theme unknown). */
+export function resolveConsultReplyNextUseSuggestions(theme: string | null): readonly string[] {
+  if (!theme) return DEFAULT_NEXT_USE_SUGGESTIONS;
+  const canonical = RENAMED_THEME_PART_ALIASES[theme] ?? theme;
+  return CONSULT_REPLY_NEXT_USE_SUGGESTIONS[canonical] ?? DEFAULT_NEXT_USE_SUGGESTIONS;
+}

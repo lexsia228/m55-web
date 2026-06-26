@@ -7,7 +7,10 @@ import {
   normalizeConsultReplyParagraphs,
 } from '../../lib/m55/consult/consultReplyDisplaySections';
 import { normalizeConsultReplyDisplayText } from '../../lib/m55/consult/normalizeConsultReplyDisplayText';
-import { resolveConsultReplyLensByTheme } from '../../lib/m55/consult/consultReplyThemePartMap';
+import {
+  resolveConsultReplyLensByTheme,
+  resolveConsultReplyNextUseSuggestions,
+} from '../../lib/m55/consult/consultReplyThemePartMap';
 import {
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
   PAID_DTR_CONSULT_ROOM_UI,
@@ -65,6 +68,7 @@ export default function ConsultReplyCard({
   }, [initialExpanded]);
 
   const lens = resolveConsultReplyLensByTheme(theme);
+  const nextUseSuggestions = resolveConsultReplyNextUseSuggestions(theme);
   const displayContent = normalizeConsultReplyDisplayText(assistantContent);
   const paragraphs = normalizeConsultReplyParagraphs(displayContent);
   const bodies = mapConsultReplyBodyForDisplay(paragraphs);
@@ -184,6 +188,19 @@ export default function ConsultReplyCard({
           ) : (
             <ConsultReplyThemeLens lens={lens} />
           )}
+
+          {remainingCount > 0 ? (
+            <section className={styles.replyNextUse} aria-label="次に相談するなら">
+              <p className={styles.replyNextUseTitle}>次に相談するなら</p>
+              <ul className={styles.replyNextUseList}>
+                {nextUseSuggestions.map((suggestion) => (
+                  <li key={suggestion} className={styles.replyNextUseItem}>
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <footer className={styles.replyFooter}>
             <Link href={`#${lens.anchor}`} className={styles.replyPrimaryLink}>

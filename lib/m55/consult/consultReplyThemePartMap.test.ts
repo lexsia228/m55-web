@@ -9,6 +9,8 @@ import {
 import {
   resolveConsultReplyPartByTheme,
   resolveConsultReplyLensByTheme,
+  resolveConsultReplyNextUseSuggestions,
+  CONSULT_REPLY_NEXT_USE_SUGGESTIONS,
   isKnownConsultTheme,
 } from './consultReplyThemePartMap';
 
@@ -63,5 +65,41 @@ describe('consultReplyThemePartMap', () => {
     assert.ok(src.includes('今日の一手'));
     assert.equal(src.includes('1〜3 · 今日できる小さな一歩'), false);
     assert.equal(src.includes('replyTodayMeta'), false);
+  });
+
+  it('each primary theme has next-use suggestions with at least 2 items', () => {
+    const primaryThemes = [
+      '仕事・これからの進め方',
+      'これからの動き方',
+      '恋人・近い人との向き合い方',
+      'お金・生活・疲れの整え方',
+      '疲れたときの戻り方',
+    ] as const;
+    for (const theme of primaryThemes) {
+      const suggestions = CONSULT_REPLY_NEXT_USE_SUGGESTIONS[theme];
+      assert.ok(suggestions, `missing next-use suggestions for ${theme}`);
+      assert.ok(suggestions.length >= 2, `${theme} must have at least 2 suggestions`);
+    }
+  });
+
+  it('resolveConsultReplyNextUseSuggestions returns themed suggestions for known themes', () => {
+    const work = resolveConsultReplyNextUseSuggestions('仕事・これからの進め方');
+    assert.ok(work.length >= 2);
+    const relation = resolveConsultReplyNextUseSuggestions('恋人・近い人との向き合い方');
+    assert.ok(relation.length >= 2);
+  });
+
+  it('resolveConsultReplyNextUseSuggestions returns fallback for unknown or null theme', () => {
+    const unknown = resolveConsultReplyNextUseSuggestions('不明なテーマ');
+    assert.ok(unknown.length >= 2);
+    const none = resolveConsultReplyNextUseSuggestions(null);
+    assert.ok(none.length >= 2);
+  });
+
+  it('ConsultReplyCard renders next-use block when remainingCount > 0', () => {
+    const src = readFileSync(CONSULT_REPLY_CARD, 'utf8');
+    assert.ok(src.includes('次に相談するなら'));
+    assert.ok(src.includes('resolveConsultReplyNextUseSuggestions'));
+    assert.ok(src.includes('remainingCount > 0'));
   });
 });
