@@ -99,3 +99,28 @@ export function validateConsultReplyCompleteness(
 
 export const CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA =
   '返書の作成が完了しませんでした。しばらくしてから再度お試しください。解決しない場合はサポートをご利用ください。';
+
+/**
+ * Prompt block appended to send-route grounding — must stay aligned with validateConsultReplyCompleteness.
+ * Headings are UI-only; model output uses blank-line paragraphs without labels.
+ */
+export const CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA = `【完了条件 — サーバー検証（必須）】
+- 必ず5段落に分ける（最低4段落）。段落間は空行1つ（改行2つ）だけにする。見出し・番号・箇条書き記号は付けない。
+- 段落内では改行しない。改行は段落と段落の間だけ使う。
+- 1段落に1役割だけ。同じ助言を段落ごとに繰り返さない。
+- 各段落は2〜4文。1段落だけ・箇条書きだけ・極端に短い返答は不可。
+- 全体で1,200〜1,800日本語文字を目標とする。${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満・${CONSULT_REPLY_GENERATION.outputHardCapJa}文字超は保存されない。
+- 最終文は必ず「。」で終える。「…」「...」で終わらせない。
+- 5段落目（今日の一手）は必ず「今日やることは1つだけです。」で始め、行動は1つだけ。例文は1つまで。本文に「保存版を読み返す」「保存版の内容を再度読み返し」を入れない。` as const;
+
+/** Normalize paragraph breaks before completeness check (display-only shape repair). */
+export function normalizeConsultReplyParagraphBreaks(text: string): string {
+  let out = text.replace(/\r\n/g, '\n').trim();
+  out = out.replace(/\n{3,}/g, '\n\n');
+  if (countConsultReplyBlocks(out) >= CONSULT_REPLY_GENERATION.minBlockCount) {
+    return out;
+  }
+  // Promote single newlines after sentence ends to paragraph breaks (common LLM shape drift).
+  out = out.replace(/([。！？!?」』])\n(?!\n)([^\n])/g, '$1\n\n$2');
+  return out.replace(/\n{3,}/g, '\n\n').trim();
+}
