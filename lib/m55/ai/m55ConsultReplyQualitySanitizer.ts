@@ -358,6 +358,38 @@ const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
     from: '無理となっているようです',
     to: 'しんどさにつながっているようです',
   },
+  // Generic coaching leakage
+  {
+    category: 'generic_advice',
+    from: 'より良いコミュニケーションを',
+    to: '伝わりやすいやりとりを',
+  },
+  {
+    category: 'generic_advice',
+    from: 'より良いコミュニケーション',
+    to: '伝わりやすいやりとり',
+  },
+  {
+    category: 'generic_advice',
+    from: 'コミュニケーションが生まれます',
+    to: 'やりとりが生まれやすくなります',
+  },
+  // Cold language leakage
+  {
+    category: 'over_empathy_counseling',
+    from: '自己評価が低下しやすい',
+    to: '自分を責める方向に寄りやすい',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: '自己評価が低下します',
+    to: '気持ちが沈みやすくなります',
+  },
+  {
+    category: 'over_empathy_counseling',
+    from: '自己評価が低下する',
+    to: '気持ちが沈みやすい',
+  },
 ];
 const LIVING_LANGUAGE_OUTPUT_REWRITES_SORTED = [...LIVING_LANGUAGE_OUTPUT_REWRITES].sort(
   (a, b) => b.from.length - a.from.length,
@@ -369,7 +401,7 @@ const PHRASE_OCCURRENCE_LIMITS: {
   replacement: string;
   category: M55ConsultReplyQualityCategory;
 }[] = [
-  { phrase: 'かもしれません', maxKeep: 2, replacement: 'なりやすいです', category: 'generic_advice' },
+  { phrase: 'かもしれません', maxKeep: 2, replacement: 'ことが多いです', category: 'generic_advice' },
   {
     phrase: 'ここを手がかりに見ると整理しやすいです',
     maxKeep: 1,
@@ -488,7 +520,7 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
     ['休息する時間', '少し休む時間'],
     ['ことがここに意識を向けると見えやすくなります', '最初の手がかりになります'],
     ['ことがここを手がかりに見ると整理しやすいです', '最初の手がかりになります'],
-    ['ことが必要です', '整理しやすくなります'],
+    ['ことが必要です', 'ことで、整理しやすくなります'],
     ['コミュニケーションの機会を増やす', '短くやりとりする機会を作る'],
     ['自分自身を労わる', '今日は一段小さく休む'],
     ['忘れずに行ってみてください', '試してみてください'],

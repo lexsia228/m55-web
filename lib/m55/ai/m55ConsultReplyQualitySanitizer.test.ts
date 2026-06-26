@@ -142,6 +142,46 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     }
   });
 
+  it('fixes ことが必要です splice: no verb-stem before 整理しやすくなります', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '言葉の選び方や伝え方を工夫することが必要です。'
+    );
+    assert.equal(r.text.includes('工夫する整理しやすく'), false, 'splice artifact must not appear');
+    assert.equal(r.text.includes('工夫する整理'), false);
+    const broken = /[^。\n]{2,}する整理しやすく/.test(r.text);
+    assert.equal(broken, false, 'bare verb stem before 整理しやすく must not appear');
+    assert.ok(r.text.includes('工夫することで、整理しやすくなります') || r.text.includes('工夫する'), 'output should be readable');
+  });
+
+  it('fixes かもしれません overflow: no なるなりやすい fusion', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。選び直しやすくなるかもしれません。'
+    );
+    assert.equal(r.text.includes('なるなりやすい'), false, 'fusion artifact must not appear');
+    assert.equal(r.text.includes('なるなりやすいです'), false);
+    const count = (r.text.match(/かもしれません/g) ?? []).length;
+    assert.ok(count <= 2, `かもしれません should appear at most 2 times, got ${count}`);
+    assert.ok(r.text.includes('ことが多いです'), 'overflow replacement should be ことが多いです');
+  });
+
+  it('rewrites より良いコミュニケーション to living-language', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      'より良いコミュニケーションが必要だと感じる場面もあります。'
+    );
+    assert.equal(r.text.includes('より良いコミュニケーション'), false);
+    assert.ok(r.text.includes('伝わりやすいやりとり'));
+    assert.ok(r.categoriesTriggered.includes('generic_advice'));
+  });
+
+  it('rewrites 自己評価が低下しやすい to living-language', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '自己評価が低下しやすいときは、一度区切るサインです。'
+    );
+    assert.equal(r.text.includes('自己評価が低下しやすい'), false);
+    assert.ok(r.text.includes('自分を責める方向に寄りやすい'));
+    assert.ok(r.categoriesTriggered.includes('over_empathy_counseling'));
+  });
+
   it('repairs 再構築する and 軽減する without duplicate verbs', () => {
     const r = applyM55ConsultReplyQualityPasses(
       '関係性を再構築することが、張りつめを軽減する手助けになるでしょう。相手との短いフィードバックループがある。' +

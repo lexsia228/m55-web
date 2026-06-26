@@ -170,6 +170,28 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('届く距離'));
   });
 
+  it('repairs sanitizer_grammar_splice artifact from stored reply', () => {
+    const stored =
+      '言葉の選び方や伝え方を工夫する整理しやすくなります。自己評価が低下しやすいときは、一度区切るサインです。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('工夫する整理しやすく'), false, 'splice artifact must be absent');
+    assert.ok(
+      out.includes('工夫することで、整理しやすくなります') ||
+        out.includes('工夫する'),
+      'repaired phrase should be present',
+    );
+    assert.equal(out.includes('自己評価が低下しやすい'), false, 'cold language must be rewritten');
+  });
+
+  it('repairs kamo_shirenai_overflow_fusion artifact from stored reply', () => {
+    const stored =
+      '選び直しやすくなるなりやすいです。見直しやすくなるなりやすい場面もあります。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('なるなりやすいです'), false, 'fusion artifact must be absent');
+    assert.equal(out.includes('なるなりやすい'), false);
+    assert.ok(out.includes('なることが多いです') || out.includes('なることが多い'));
+  });
+
   it('leaves empty input unchanged', () => {
     assert.equal(normalizeConsultReplyDisplayText(''), '');
     assert.equal(normalizeConsultReplyDisplayText('   '), '');

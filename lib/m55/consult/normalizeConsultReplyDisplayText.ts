@@ -17,6 +17,11 @@ const DISPLAY_PRE_REPAIR: [string, string][] = [
   ['ことがここを手がかりに見ると整理しやすいです', '最初の手がかりになります'],
   ['ことがを', 'ことを'],
   ['少し視点を変えて少し視点を変えてみる', '少し視点を変えてみる'],
+  // Repair sanitizer_grammar_splice artifact: stored reply から ことが必要です → 整理しやすくなります 置換後の splice
+  ['工夫する整理しやすくなります', '工夫することで、整理しやすくなります'],
+  // Repair kamo_shirenai_overflow_fusion artifact: なる + なりやすいです 融合
+  ['なるなりやすいです', 'なることが多いです'],
+  ['なるなりやすい', 'なることが多い'],
 ];
 
 /** Display-only naturalness repairs after sanitizer/grammar passes. */
