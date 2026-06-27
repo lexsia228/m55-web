@@ -696,8 +696,7 @@ export default function ConsultRoom({
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
         <label htmlFor="consult-input" className={styles.srOnly}>
-          {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}
-          （任意・全体で{INPUT_MAX}文字まで）
+          {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}（任意・{INPUT_MAX}文字まで）
         </label>
         <textarea
           id="consult-input"
@@ -721,8 +720,8 @@ export default function ConsultRoom({
             {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
             {isOverMax && ' — 上限を超えています。短くしてください'}
           </span>
-          <span className={styles.composeHintMuted}>{ROOM_UI_COPY.counterHelper}</span>
         </div>
+        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.counterHelper}</p>
       </section>
 
       <section className={styles.composeStepSubmit} aria-labelledby="consult-step-3">

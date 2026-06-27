@@ -989,7 +989,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   composeSupplementaryLabelJa: '補助質問（最大3つ）',
   composeSupplementaryHintJa: '当てはまるものがあれば選択してください',
   composeFreeInputLabelJa: '自由入力',
-  composeFreeInputAriaJa: '相談内容を入力（1テーマ・全体で',
+  composeFreeInputAriaJa: '相談内容を入力',
   inputPlaceholderJa:
     '今気になっていること（1テーマ）。短く書いても構いません',
   expressionHintJa:

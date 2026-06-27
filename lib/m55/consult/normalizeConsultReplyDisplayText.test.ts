@@ -223,6 +223,37 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('相手との距離感を見直す'));
   });
 
+  it('repairs 自己評価が低下し、 continuative form in stored reply', () => {
+    const stored = '自己評価が低下し、次の一手が重くなる場面が続きます。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(out.includes('自己評価が低下し、'), false, '低下し、must be repaired');
+    assert.ok(out.includes('自分を責める気持ちが強くなり、'));
+  });
+
+  it('repairs repeated 距離感を見直し distance phrase in stored reply', () => {
+    const stored =
+      '距離感を見直し、相手との距離感を見直すことで、やりとりが整いやすくなります。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(
+      out.includes('距離感を見直し、相手との距離感を見直す'),
+      false,
+      'repeated distance phrase must be absent',
+    );
+    assert.ok(out.includes('今の距離感を少し見直すことで'));
+  });
+
+  it('repairs 返しやすい反応を引き出すことが選び直しやすくなる awkward phrase in stored reply', () => {
+    const stored =
+      '返しやすい反応を引き出すことが選び直しやすくなる場面もあります。';
+    const out = normalizeConsultReplyDisplayText(stored);
+    assert.equal(
+      out.includes('返しやすい反応を引き出すことが選び直しやすくなる'),
+      false,
+      'awkward phrase must be absent',
+    );
+    assert.ok(out.includes('相手が返しやすい形に整えやすくなる'));
+  });
+
   it('repairs ことをまずはここからで十分です awkward splice in stored reply', () => {
     const stored =
       '今日の一手は、相手が10秒で返せる確認を1つ送ることをまずはここからで十分です。';

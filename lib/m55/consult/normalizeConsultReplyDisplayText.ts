@@ -25,6 +25,7 @@ const DISPLAY_PRE_REPAIR: [string, string][] = [
   // 自己評価が低下し forms not covered by existing sanitizer rules (形容詞連用形など)
   ['自己評価が低下しやすく', '自分を責める方向に寄りやすく'],
   ['自己評価が低下して', '自分を責める気持ちが強くなり'],
+  ['自己評価が低下し、', '自分を責める気持ちが強くなり、'],
   // Exact-form 考慮 display repairs: 動詞語尾を含めてマッチすることで 見るすると 融合を防ぐ
   ['相手の状況や心情を考慮することも', '相手が返しやすい状態かを見ることも'],
   ['相手の状況や心情を考慮する', '相手が返しやすい状態かを見る'],
@@ -82,6 +83,9 @@ const DISPLAY_NATURALNESS_REPAIRS: [string, string][] = [
   ['相手との関係性を再確認する', '相手との距離感を見直す'],
   // 今日の一手 awkward phrase: お勧めします sanitizer artifact が ことを+まずはここから に splice された形
   ['ことをまずはここからで十分です', 'ことです。まずはここからで十分です'],
+  // Stored reply human-reported residual phrases
+  ['距離感を見直し、相手との距離感を見直すことで', '今の距離感を少し見直すことで'],
+  ['返しやすい反応を引き出すことが選び直しやすくなる', '相手が返しやすい形に整えやすくなる'],
 ];
 
 /** Display-only repairs scoped to 今日の一手 body (stored legacy replies). */
