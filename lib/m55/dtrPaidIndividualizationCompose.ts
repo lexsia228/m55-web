@@ -13,7 +13,9 @@ import {
 import {
   buildPaidDtrIndividualizationV2FromEngineContext,
   DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+  DOB_PERSONALIZATION_V21_CATALOG_VERSION,
 } from './dtrDobPersonalizationV2';
+import { buildPaidDtrIndividualizationV21FromEngineContext } from './dtrDobPersonalizationV21';
 import { checkNaturalness } from './dtrVisibleCopyNaturalness';
 import {
   buildDobV2VisibleCopyEvent,
@@ -47,8 +49,10 @@ export function resolveDobV2CatalogBuilder(
   if (catalogVersion === DOB_PERSONALIZATION_V2_CATALOG_VERSION || catalogVersion == null) {
     return buildPaidDtrIndividualizationV2FromEngineContext;
   }
-  // Future: 'dob-v2.1-2026-07' will add a branch here once the corpus is implemented.
-  // For now, any unrecognised catalog safely falls back to old v2.
+  if (catalogVersion === DOB_PERSONALIZATION_V21_CATALOG_VERSION) {
+    return buildPaidDtrIndividualizationV21FromEngineContext;
+  }
+  // Unknown / future catalogs fall back to old v2 (safe).
   return buildPaidDtrIndividualizationV2FromEngineContext;
 }
 

@@ -594,3 +594,21 @@ describe('v1 individualization source inspection — forbidden terms must not ap
     assert.equal(result.pass, true, `v1 birth time prefix failed guard: ${JSON.stringify(result.violations)}`);
   });
 });
+
+describe('v2.1 source inspection — forbidden terms must not appear', () => {
+  const v21Src = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), 'dtrDobPersonalizationV21.ts'),
+    'utf8',
+  );
+
+  const FORBIDDEN_V21 = [
+    'miさん', '読み取りです', '正午基準', '補正した読み取り',
+    '外部化', '感受の解像度', '微細な信号', '観測所型', 'このタイプ', '分析結果',
+  ];
+
+  for (const term of FORBIDDEN_V21) {
+    it(`v2.1 corpus source does not contain "${term}"`, () => {
+      assert.ok(!v21Src.includes(term), `v2.1 corpus must not contain "${term}"`);
+    });
+  }
+});

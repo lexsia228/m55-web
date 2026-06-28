@@ -99,9 +99,7 @@ describe('paid DTR individualization compose', () => {
     assert.match(ind.essenceRhythmNote, /生年月日の細かなリズム/);
   });
 
-  it('v2 + v2.1 reserved catalog → old v2 fallback (corpus not yet implemented)', () => {
-    // DOB_PERSONALIZATION_V21_CATALOG_VERSION is reserved but v2.1 builder not yet wired.
-    // Must fall back safely to old v2 rather than crash or use placeholder corpus.
+  it('v2 + dob-v2.1-2026-07 → new v2.1 builder (distinct from old v2)', () => {
     const ctx = {
       ...baseContext(),
       paidIndividualizationVersion: 'v2' as const,
@@ -109,16 +107,46 @@ describe('paid DTR individualization compose', () => {
     };
     const ind = composePaidIndividualizationFromEngineContext(ctx);
     assert.equal(ind.version, 'v2');
+    assert.equal(ind.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+    // v2.1 essenceRhythmNote still contains the known opening.
     assert.match(ind.essenceRhythmNote, /生年月日の細かなリズム/);
+    // v2.1 fingerprint uses the v2.1 prefix — distinct from old v2 fingerprint.
+    assert.match(ind.fingerprint, /^dobv21-/);
+    // v2-only section fields must also be present.
+    assert.ok(ind.s1IdentityRhythmNote && ind.s1IdentityRhythmNote.length > 10);
+    assert.ok(ind.s2CompositionRhythmNote && ind.s2CompositionRhythmNote.length > 10);
+    assert.ok(ind.s4StrengthsRhythmNote && ind.s4StrengthsRhythmNote.length > 10);
   });
 
-  it('resolveDobV2CatalogBuilder: old catalog and null both return old v2 builder', () => {
+  it('resolveDobV2CatalogBuilder: old catalog and null return old v2 builder; v2.1 returns v2.1 builder', () => {
     const builderOld = resolveDobV2CatalogBuilder(DOB_PERSONALIZATION_V2_CATALOG_VERSION);
     const builderNull = resolveDobV2CatalogBuilder(undefined);
     const builderUnknown = resolveDobV2CatalogBuilder('dob-unknown');
-    // All three should be the same function reference (old v2 builder).
+    const builderV21 = resolveDobV2CatalogBuilder(DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+    // old / null / unknown → same old v2 builder
     assert.strictEqual(builderOld, builderNull);
     assert.strictEqual(builderOld, builderUnknown);
+    // v2.1 → distinct builder
+    assert.notStrictEqual(builderV21, builderOld);
+  });
+
+  it('v2 old catalog and v2.1 catalog produce different fingerprints for same DOB', () => {
+    const base = baseContext();
+    const ctxOld = {
+      ...base,
+      paidIndividualizationVersion: 'v2' as const,
+      dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+    };
+    const ctxNew = {
+      ...base,
+      paidIndividualizationVersion: 'v2' as const,
+      dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V21_CATALOG_VERSION as string,
+    };
+    const indOld = composePaidIndividualizationFromEngineContext(ctxOld);
+    const indNew = composePaidIndividualizationFromEngineContext(ctxNew);
+    assert.notEqual(indOld.fingerprint, indNew.fingerprint);
+    assert.match(indOld.fingerprint, /^dobv2-/);
+    assert.match(indNew.fingerprint, /^dobv21-/);
   });
 
   it('compose does not read feature flag and v1 module does not import compose', () => {
