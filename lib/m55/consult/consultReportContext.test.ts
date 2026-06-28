@@ -73,6 +73,41 @@ describe('buildConsultReportContextFromEnvelope', () => {
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });
 
+  it('v2 DOB envelope context prioritizes v2 grounding under cap', () => {
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    }, { dobPersonalizationV2Enabled: true });
+    const context = buildConsultReportContextFromEnvelope(built.envelope_json);
+    assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
+    assert.ok(context.startsWith('【保存版の本質リズム（購入時固定）】'));
+    assert.ok(context.includes('生年月日の細かなリズムから見ると'));
+    assert.ok(context.includes('【保存版の扱い方ヒント（購入時固定）】'));
+    assert.equal(built.envelope_json.auditMeta.paidIndividualization?.version, 'v2');
+  });
+
+  it('v1 context remains regression-compatible after v2 code exists', () => {
+    const built = buildV2FulfillmentSnapshotFromFields({
+      nickname: 'GX',
+      birthDate: '1983-02-28',
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    }, { dobPersonalizationV2Enabled: false });
+    const context = buildConsultReportContextFromEnvelope(built.envelope_json);
+    assert.ok(context.includes('【保存版の本質リズム（購入時固定）】'));
+    assert.ok(context.includes('【保存版の補助整理（購入時固定）】'));
+    assert.doesNotMatch(context, /生年月日の細かなリズム/);
+    assert.equal(built.envelope_json.auditMeta.paidIndividualization?.version, undefined);
+  });
+
   it('returns empty string when fullSections missing', () => {
     const envelope = runDtrEngine({
       birthDate: '1983-02-28',

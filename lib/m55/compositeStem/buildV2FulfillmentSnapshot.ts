@@ -1,5 +1,7 @@
-import { buildPaidDtrIndividualizationFromComposite } from '../dtrPaidIndividualization';
 import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from '../dtrEngine';
+import { isDobPersonalizationV2FulfillmentEnabled } from '../dobPersonalizationFeatureFlag';
+import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
+import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import {
   CORRECTION_VERSION,
   ENGINE_VERSION_V2,
@@ -26,6 +28,8 @@ export type EngineContextJson = {
   boundaryMetadata: CompositeStemResult['boundaryMetadata'];
   staticFingerprint: string;
   displayFingerprint: string;
+  paidIndividualizationVersion?: 'v1' | 'v2';
+  dobPersonalizationCatalogVersion?: string;
 };
 
 export type DtrProfileSnapshotStored = {
@@ -47,6 +51,10 @@ export type V2FulfillmentSnapshotBuild = {
   envelope_json: DtrEnvelope;
   engine_context_json: EngineContextJson;
   engine_version: typeof ENGINE_VERSION_V2;
+};
+
+export type BuildV2FulfillmentSnapshotOptions = {
+  dobPersonalizationV2Enabled?: boolean;
 };
 
 export function buildEngineContextJson(composite: CompositeStemResult): EngineContextJson {
@@ -82,6 +90,7 @@ function assertEnvelopeConsistent(envelope: DtrEnvelope, composite: CompositeSte
 export function buildV2FulfillmentSnapshot(
   sessionMetadata: Record<string, string> | null | undefined,
   draft: FulfillmentDraftRow | null,
+  options: BuildV2FulfillmentSnapshotOptions = {},
 ): V2FulfillmentSnapshotBuild {
   const fields = resolveFulfillmentProfileFields(sessionMetadata, draft);
   if (!fields) {
@@ -98,7 +107,16 @@ export function buildV2FulfillmentSnapshot(
     contextScope: 'dtr',
   };
 
-  const paidIndividualization = buildPaidDtrIndividualizationFromComposite(composite);
+  const engineContext: EngineContextJson = {
+    ...buildEngineContextJson(composite),
+    ...((options.dobPersonalizationV2Enabled ?? isDobPersonalizationV2FulfillmentEnabled())
+      ? {
+          paidIndividualizationVersion: 'v2' as const,
+          dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+        }
+      : {}),
+  };
+  const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
 
   const envelope = runDtrEngine(dtrInput, {
     stemLaneIndex: composite.stemLaneIndex,
@@ -127,7 +145,7 @@ export function buildV2FulfillmentSnapshot(
   return {
     profile_snapshot,
     envelope_json: envelope,
-    engine_context_json: buildEngineContextJson(composite),
+    engine_context_json: engineContext,
     engine_version: ENGINE_VERSION_V2,
   };
 }
@@ -135,6 +153,7 @@ export function buildV2FulfillmentSnapshot(
 /** Test helper — golden fulfillment fixture without DB. */
 export function buildV2FulfillmentSnapshotFromFields(
   fields: FulfillmentProfileFields,
+  options: BuildV2FulfillmentSnapshotOptions = {},
 ): V2FulfillmentSnapshotBuild {
   assertV2ProfileOrThrow(fields);
   return buildV2FulfillmentSnapshot(
@@ -148,5 +167,6 @@ export function buildV2FulfillmentSnapshotFromFields(
       profileTimezone: fields.timezone ?? '',
     },
     null,
+    options,
   );
 }

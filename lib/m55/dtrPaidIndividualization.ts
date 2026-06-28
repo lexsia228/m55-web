@@ -5,7 +5,13 @@
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import type { CompositeStemResult } from './compositeStem/types';
 
+export type PaidDtrIndividualizationVersion = 'v1' | 'v2';
+
 export type PaidDtrIndividualization = {
+  /** Missing version is treated as v1 for pre-v2 purchased snapshots. */
+  version?: PaidDtrIndividualizationVersion;
+  /** Static corpus version for deterministic DOB personalization layers. */
+  dobPersonalizationCatalogVersion?: string;
   /** Stable v2 display fingerprint — same profile input => same value. */
   fingerprint: string;
   /** Calm auxiliary reading for chapter intros / consult grounding. */
@@ -17,6 +23,8 @@ export type PaidDtrIndividualization = {
 };
 
 export type PaidDtrIndividualizationAuditMeta = {
+  version?: PaidDtrIndividualizationVersion;
+  dobPersonalizationCatalogVersion?: string;
   fingerprint: string;
   auxiliaryReading: string;
   handlingHint: string;
@@ -142,7 +150,7 @@ function essenceRhythmNoteForMonth(lunarMonthKey: string, birthTimeUnknown: bool
   return `${BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX}\n${base}`;
 }
 
-export function buildPaidDtrIndividualizationFromEngineContext(
+export function buildPaidDtrIndividualizationV1FromEngineContext(
   ctx: EngineContextJson,
 ): PaidDtrIndividualization {
   const { boundaryMetadata, normalizedBirthContext } = ctx;
@@ -162,10 +170,16 @@ export function buildPaidDtrIndividualizationFromEngineContext(
   };
 }
 
+export function buildPaidDtrIndividualizationFromEngineContext(
+  ctx: EngineContextJson,
+): PaidDtrIndividualization {
+  return buildPaidDtrIndividualizationV1FromEngineContext(ctx);
+}
+
 export function buildPaidDtrIndividualizationFromComposite(
   composite: CompositeStemResult,
 ): PaidDtrIndividualization {
-  return buildPaidDtrIndividualizationFromEngineContext({
+  return buildPaidDtrIndividualizationV1FromEngineContext({
     engineVersion: composite.engineVersion,
     inputVersion: composite.inputVersion,
     correctionVersion: composite.correctionVersion,
@@ -183,6 +197,10 @@ export function toPaidDtrIndividualizationAuditMeta(
   ind: PaidDtrIndividualization,
 ): PaidDtrIndividualizationAuditMeta {
   return {
+    ...(ind.version ? { version: ind.version } : {}),
+    ...(ind.dobPersonalizationCatalogVersion
+      ? { dobPersonalizationCatalogVersion: ind.dobPersonalizationCatalogVersion }
+      : {}),
     fingerprint: ind.fingerprint,
     auxiliaryReading: ind.auxiliaryReading,
     handlingHint: ind.handlingHint,

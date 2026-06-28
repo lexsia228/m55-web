@@ -15,6 +15,7 @@ import { M55CompositeStemError } from './types';
 import { ENGINE_VERSION_V2 } from './constants';
 import { essenceStemLaneIndex } from '../essenceEngine';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
+import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 
 const GOLDEN_FULFILLMENT_FIELDS = {
   nickname: 'golden',
@@ -45,6 +46,18 @@ function withEnvFlag(value: string | undefined, fn: () => void): void {
   } finally {
     if (prev === undefined) delete process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED;
     else process.env.M55_COMPOSITE_ENGINE_V2_FULFILLMENT_WRITE_ENABLED = prev;
+  }
+}
+
+function withDobV2Flag(value: string | undefined, fn: () => void): void {
+  const prev = process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+  if (value === undefined) delete process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+  else process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED = value;
+  try {
+    fn();
+  } finally {
+    if (prev === undefined) delete process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+    else process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED = prev;
   }
 }
 
@@ -115,6 +128,47 @@ test('paid fulfillment parity — 1983-02-28 and 1992-12-19 match free v2 lane',
       fields.birthDate,
     );
   }
+});
+
+test('DOB personalization flag OFF — fulfillment stores v1-compatible envelope', () => {
+  withDobV2Flag(undefined, () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields(FIELDS_1992_12_19);
+    const s3 = built.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    const s7 = built.envelope_json.payload.fullSections.find((s) => s.id === 's7_work')!.body;
+
+    assert.equal(built.engine_context_json.paidIndividualizationVersion, undefined);
+    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, undefined);
+    assert.equal(built.envelope_json.auditMeta.paidIndividualization?.version, undefined);
+    assert.doesNotMatch(s3, /生年月日の細かなリズム/);
+    assert.doesNotMatch(s7, /生年月日の細かなリズム/);
+    assert.equal(
+      built.envelope_json.auditMeta.paidIndividualization?.fingerprint,
+      built.engine_context_json.displayFingerprint,
+    );
+  });
+});
+
+test('DOB personalization flag ON — fulfillment stores v2-consistent envelope', () => {
+  withDobV2Flag('true', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields(FIELDS_1992_12_19);
+    const s3 = built.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+    const s7 = built.envelope_json.payload.fullSections.find((s) => s.id === 's7_work')!.body;
+    const audit = built.envelope_json.auditMeta.paidIndividualization;
+
+    assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
+    assert.equal(
+      built.engine_context_json.dobPersonalizationCatalogVersion,
+      DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+    );
+    assert.equal(audit?.version, 'v2');
+    assert.equal(audit?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+    assert.ok(audit?.fingerprint.startsWith('dobv2-'));
+    assert.match(s3, /生年月日の細かなリズム/);
+    assert.match(s7, /生年月日の細かなリズム/);
+    assert.notEqual(audit?.fingerprint, built.engine_context_json.displayFingerprint);
+  });
 });
 
 test('legacy JDN lane differs from v2 — audit guard only (not new paid expected)', () => {

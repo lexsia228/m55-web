@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { resetCalendarBundleCacheForTests } from '../calendar/loadCalendarBundle';
 import { runDtrEngine } from '../dtrEngine';
-import { buildPaidDtrIndividualizationFromEngineContext } from '../dtrPaidIndividualization';
+import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
+import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 import { ENGINE_VERSION_V2 } from './constants';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
@@ -38,6 +39,18 @@ function baseRow(overrides: Partial<DtrReportSnapshotReadRow>): DtrReportSnapsho
     engine_context_json: overrides.engine_context_json ?? null,
     ...overrides,
   };
+}
+
+function withDobV2Flag(value: string | undefined, fn: () => void): void {
+  const prev = process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+  if (value === undefined) delete process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+  else process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED = value;
+  try {
+    fn();
+  } finally {
+    if (prev === undefined) delete process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED;
+    else process.env.M55_DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED = prev;
+  }
 }
 
 describe('resolveDisplayedDtrEnvelope', () => {
@@ -169,7 +182,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
         engineVersion: ENGINE_VERSION_V2,
         derivation: staleEnvelope.auditMeta.derivation,
         contractVersion: 'v2',
-        paidIndividualization: buildPaidDtrIndividualizationFromEngineContext(built.engine_context_json),
+        paidIndividualization: composePaidIndividualizationFromEngineContext(built.engine_context_json),
       },
     );
 
@@ -329,6 +342,71 @@ describe('resolveDisplayedDtrEnvelope', () => {
     assert.equal(storedRead.ok, true);
     if (!storedRead.ok) return;
     assert.equal(findStoredV2DisplayStem1Chapter1OldToneLeak(storedRead.envelope), null);
+  });
+
+  it('display path does not import DOB personalization feature flag', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/compositeStem/resolveDisplayedDtrEnvelope.ts'), 'utf8');
+    assert.doesNotMatch(src, /isDobPersonalizationV2FulfillmentEnabled/);
+    assert.doesNotMatch(src, /dobPersonalizationFeatureFlag/);
+    assert.doesNotMatch(src, /DOB_PERSONALIZATION_V2_FULFILLMENT_ENABLED/);
+  });
+
+  it('env flag ON with stored missing version still renders v1', () => {
+    withDobV2Flag('true', () => {
+      resetCalendarBundleCacheForTests();
+      const built = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'mi',
+        birthDate: '1992-12-19',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: false });
+
+      const row = baseRow({
+        envelope_json: built.envelope_json,
+        engine_version: ENGINE_VERSION_V2,
+        engine_context_json: built.engine_context_json,
+        profile_snapshot: built.profile_snapshot,
+      });
+      const read = resolveDisplayedDtrEnvelope(row);
+      assert.equal(read.ok, true);
+      if (!read.ok) return;
+      const s3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+      assert.doesNotMatch(s3, /生年月日の細かなリズム/);
+      assert.equal(read.envelope.auditMeta.paidIndividualization?.version, undefined);
+    });
+  });
+
+  it('stored v2 context renders v2 using stored version only', () => {
+    withDobV2Flag(undefined, () => {
+      resetCalendarBundleCacheForTests();
+      const built = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'mi',
+        birthDate: '1992-12-19',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: true });
+
+      assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
+      assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+      const row = baseRow({
+        envelope_json: built.envelope_json,
+        engine_version: ENGINE_VERSION_V2,
+        engine_context_json: built.engine_context_json,
+        profile_snapshot: built.profile_snapshot,
+      });
+      const read = resolveDisplayedDtrEnvelope(row);
+      assert.equal(read.ok, true);
+      if (!read.ok) return;
+      const s3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
+      assert.match(s3, /生年月日の細かなリズム/);
+      assert.equal(read.envelope.auditMeta.paidIndividualization?.version, 'v2');
+    });
   });
 });
 

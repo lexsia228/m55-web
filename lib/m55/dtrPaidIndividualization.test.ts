@@ -8,6 +8,9 @@ import { runDtrEngine } from './dtrEngine';
 import {
   buildPaidDtrIndividualizationFromComposite,
   buildPaidDtrIndividualizationFromEngineContext,
+  buildPaidDtrIndividualizationV1FromEngineContext,
+  buildPaidDtrS3IndividualizationPrefix,
+  buildPaidDtrS7IndividualizationPrefix,
   findForbiddenPaidIndividualizationLeak,
 } from './dtrPaidIndividualization';
 import { enrichBirthProfileForSave } from '../soul/birthProfileV2';
@@ -218,6 +221,27 @@ describe('paid DTR individualization — deterministic DOB layer', () => {
     const src = readFileSync(new URL('./dtrPaidIndividualization.ts', import.meta.url), 'utf8');
     assert.doesNotMatch(src, /openai|fetch\s*\(|generateText|chat\.completions/i);
     assert.doesNotMatch(src, /stemLaneIndex\s*[+\-*\/]|essenceStemLaneIndex/);
+  });
+
+  it('v1 builder and legacy exports remain signature-compatible', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields(fulfillmentFields('1980-01-07'));
+    const legacy = buildPaidDtrIndividualizationFromEngineContext(built.engine_context_json);
+    const v1 = buildPaidDtrIndividualizationV1FromEngineContext(built.engine_context_json);
+
+    assert.deepEqual(legacy, v1);
+    assert.equal(v1.version, undefined);
+    assert.equal(v1.fingerprint, built.engine_context_json.displayFingerprint);
+    assert.match(buildPaidDtrS3IndividualizationPrefix(v1), /^【この保存版だけの本質リズム】\n/);
+    assert.match(buildPaidDtrS7IndividualizationPrefix(v1), /^【この保存版だけの補助整理】\n/);
+    assert.equal(
+      buildPaidDtrS3IndividualizationPrefix(v1),
+      ['【この保存版だけの本質リズム】', v1.essenceRhythmNote, ''].join('\n'),
+    );
+    assert.equal(
+      buildPaidDtrS7IndividualizationPrefix(v1),
+      ['【この保存版だけの補助整理】', v1.auxiliaryReading, v1.handlingHint, ''].join('\n'),
+    );
   });
 
   it('s3 body includes individualized prefix marker', () => {

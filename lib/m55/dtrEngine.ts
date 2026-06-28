@@ -8,9 +8,10 @@
  * teaserSections: public-safe titles + teaser summary (no body text).
  */
 import {
-  buildPaidDtrS3IndividualizationPrefix,
-  buildPaidDtrS7IndividualizationPrefix,
-  toPaidDtrIndividualizationAuditMeta,
+  buildPaidDtrSectionIndividualizationPrefix,
+  toComposedPaidDtrIndividualizationAuditMeta,
+} from './dtrPaidIndividualizationCompose';
+import {
   type PaidDtrIndividualization,
 } from './dtrPaidIndividualization';
 import { essenceStemLaneIndex } from './essenceEngine';
@@ -43,6 +44,8 @@ export type DtrPayload = {
 };
 
 export type DtrPaidIndividualizationAuditMeta = {
+  version?: 'v1' | 'v2';
+  dobPersonalizationCatalogVersion?: string;
   fingerprint: string;
   auxiliaryReading: string;
   handlingHint: string;
@@ -891,10 +894,10 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
     }
     if (spec.id === 's3_essence' && options?.paidIndividualization) {
-      body = buildPaidDtrS3IndividualizationPrefix(options.paidIndividualization) + body;
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }
     if (spec.id === 's7_work' && options?.paidIndividualization) {
-      body = buildPaidDtrS7IndividualizationPrefix(options.paidIndividualization) + body;
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }
     const title =
       spec.id === 's1_identity'  ? s1Overline :
@@ -932,7 +935,7 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
     stemChar: stem.stemChar,
     derivation: options?.derivation ?? 'jdn_offset_provisional_v1',
     ...(options?.paidIndividualization
-      ? { paidIndividualization: toPaidDtrIndividualizationAuditMeta(options.paidIndividualization) }
+      ? { paidIndividualization: toComposedPaidDtrIndividualizationAuditMeta(options.paidIndividualization) }
       : {}),
   };
 

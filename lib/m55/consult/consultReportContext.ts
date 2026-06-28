@@ -8,7 +8,7 @@ import type { DtrEnvelope } from '../dtrEngine';
 const SECTION_LIMITS: { id: string; maxBodyChars: number; role: 'support' | 'primary' }[] = [
   { id: 's1_identity', maxBodyChars: 120, role: 'support' },
   { id: 's2_composition', maxBodyChars: 120, role: 'support' },
-  { id: 's3_essence', maxBodyChars: 360, role: 'primary' },
+  { id: 's3_essence', maxBodyChars: 400, role: 'primary' },
   { id: 's4_strengths', maxBodyChars: 360, role: 'primary' },
   { id: 's5_friction', maxBodyChars: 360, role: 'primary' },
 ];
@@ -95,6 +95,7 @@ export function buildConsultReportContextFromEnvelope(
   }
 
   const paidIndividualization = envelope.auditMeta?.paidIndividualization;
+  const isDobV2 = paidIndividualization?.version === 'v2';
   if (paidIndividualization?.essenceRhythmNote?.trim()) {
     const essence = redactNicknameInExcerpt(
       excerptBody(paidIndividualization.essenceRhythmNote.trim(), 200),
@@ -109,6 +110,13 @@ export function buildConsultReportContextFromEnvelope(
     );
     metaParts.push(`【保存版の補助整理（購入時固定）】\n${auxiliary}`);
   }
+  if (isDobV2 && paidIndividualization?.handlingHint?.trim()) {
+    const handling = redactNicknameInExcerpt(
+      excerptBody(paidIndividualization.handlingHint.trim(), 180),
+      nickname,
+    );
+    metaParts.push(`【保存版の扱い方ヒント（購入時固定）】\n${handling}`);
+  }
 
   const tendencyTerms = extractTendencyTerms(primaryBodies, nickname);
   if (tendencyTerms.length > 0) {
@@ -121,7 +129,10 @@ export function buildConsultReportContextFromEnvelope(
       '- 購入時点の保存版の読み直し（新しい鑑定ではない）。'
   );
 
-  let context = [...sectionParts, ...metaParts].join('\n\n').trim();
+  let context = [
+    ...(isDobV2 ? metaParts : sectionParts),
+    ...(isDobV2 ? sectionParts : metaParts),
+  ].join('\n\n').trim();
   if (context.length > CONSULT_REPORT_CONTEXT_TOTAL_CAP) {
     context = context.slice(0, CONSULT_REPORT_CONTEXT_TOTAL_CAP - 1) + '…';
   }

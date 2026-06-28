@@ -3,7 +3,7 @@
  * Legacy stored rows are rebuilt to canonical v2 at read-time (no DB mutation).
  * stored_v2 rows normalize user-facing copy from current DTR catalog at read-time.
  */
-import { buildPaidDtrIndividualizationFromEngineContext } from '../dtrPaidIndividualization';
+import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
 import { runDtrEngine, type DtrEnvelope } from '../dtrEngine';
 import { ENGINE_VERSION_V2 } from './constants';
 import type { EngineContextJson } from './buildV2FulfillmentSnapshot';
@@ -124,7 +124,7 @@ function resolveStoredV2DisplayEnvelope(
     return { ok: false, reason: 'jdn_provisional_derivation_forbidden' };
   }
 
-  const paidIndividualization = buildPaidDtrIndividualizationFromEngineContext(engineContext);
+  const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
 
   const displayEnvelope = runDtrEngine(
     {
@@ -210,7 +210,9 @@ export function resolveDisplayedDtrEnvelope(
   }
 
   try {
-    const built = buildV2FulfillmentSnapshotFromFields(parsed.fields);
+    const built = buildV2FulfillmentSnapshotFromFields(parsed.fields, {
+      dobPersonalizationV2Enabled: false,
+    });
     const rawMeta = buildRawMeta(
       row,
       'legacy',
