@@ -915,6 +915,24 @@ function SectionBlock({
   );
 }
 
+/** Minimum paragraph count for snapshot body to be displayed preferentially over hardcoded fallback. */
+const SNAPSHOT_BODY_MIN_PARAS = 2;
+
+/** Parse snapshot section body into display paragraphs, preserving 【〜】 block format for BodyPara. */
+function snapshotBodyParas(body: string): string[] {
+  return body.split('\n\n').map((p) => p.trim()).filter(Boolean);
+}
+
+/** True when snapshot body has enough paragraphs to display preferentially. */
+function hasSnapshotBody(body: string): boolean {
+  return snapshotBodyParas(body).length >= SNAPSHOT_BODY_MIN_PARAS;
+}
+
+/** Extract individualization prefix blocks (【この保存版だけ〜】) from a section body for separate display. */
+function extractDobV2IndividualizationBlocks(body: string): string[] {
+  return snapshotBodyParas(body).filter((p) => /^【この保存版だけ/.test(p));
+}
+
 function clampTensionBias(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(-1, Math.min(1, n));
@@ -1089,24 +1107,26 @@ function IdentityArticleWithBlueprint({
   nickname?: string;
   openingLedeShown?: boolean;
 }) {
-  const paras = section.body.split('\n\n').filter((p) => p.trim());
+  const paras = snapshotBodyParas(section.body);
+  const useSnapshot = hasSnapshotBody(section.body);
   const nick = nickname?.trim();
   const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
-  const bodyParas = [
+  const hardcodedBodyParas = [
     `${displayName}さんは、ひとつのことにじっくり向き合うほど、力が出やすくなります。いろいろなことを一気に広げるより、同じことを少しずつ良くしていく中で、自分らしさがはっきりしていきます。`,
     'やりがいを感じやすいのは、「前より良くなった」と実感できるときです。完成した瞬間だけでなく、直しながら良くなっていく過程にも手応えがあります。',
     `${displayName}さん自身が納得できる形まで向き合えることが、いちばん大切です。雑に済ませたくない気持ちは、弱さではなく、納得できる形まで向き合おうとする力です。ただし、細かい割り込みが続いたり、急かされる流れが続くと、自分のペースを失いやすくなります。`,
   ];
-  const inlineLede = openingLedeShown ? null : paras[0];
+  const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
+  const inlineLede = openingLedeShown ? null : (paras[0] ?? null);
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
       {!openingLedeShown ? (
         <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
       ) : null}
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
-      {bodyParas.length > 0 ? (
+      {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {bodyParas.map((para, i) => (
+          {displayBodyParas.map((para, i) => (
             <BodyPara key={i} para={para} compact={false} />
           ))}
         </div>
@@ -1452,22 +1472,24 @@ function EssenceArticleWithViz({
   nickname?: string;
   openingLedeShown?: boolean;
 }) {
-  const paras = section.body.split('\n\n').filter((p) => p.trim());
+  const paras = snapshotBodyParas(section.body);
+  const useSnapshot = hasSnapshotBody(section.body);
   const nick = nickname?.trim();
   const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
-  const bodyParas = [
+  const hardcodedBodyParas = [
     `${displayName}さんは、動き始める前に「何を先に整えるか」が見えると、力を出しやすくなります。勢いだけで進めるより、順番や置き方が見えるほうが、自分の力を使いやすくなります。`,
     '同時にいくつものことを求められたり、急かされる流れが続くと、どこから手をつけるかが見えにくくなります。その状態で無理に進めようとすると、動いているのに疲れだけが残りやすくなります。',
     'まずは、今日やることを一つだけに絞ります。全部を整えてから進むのではなく、「ここだけ先に整える」と決めると、動き出しやすくなります。',
   ];
-  const inlineLede = openingLedeShown ? null : paras[0];
+  const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
+  const inlineLede = (!useSnapshot && !openingLedeShown) ? (paras[0] ?? null) : null;
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
-      {bodyParas.length > 0 ? (
+      {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {bodyParas.map((para, i) => (
+          {displayBodyParas.map((para, i) => (
             <BodyPara key={i} para={para} compact={false} />
           ))}
         </div>
@@ -1747,22 +1769,24 @@ function GridArticleFrictionViz({
   nickname?: string;
   openingLedeShown?: boolean;
 }) {
-  const paras = section.body.split('\n\n').filter((p) => p.trim());
+  const paras = snapshotBodyParas(section.body);
+  const useSnapshot = hasSnapshotBody(section.body);
   const nick = nickname?.trim();
   const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
-  const bodyParas = [
+  const hardcodedBodyParas = [
     `${displayName}さんは、大切な人との関係ほど、雑に済ませず丁寧に向き合おうとします。相手の言葉や表情、少しの変化にも気づきやすく、関係を大事にしようとする力があります。`,
     'ただし、近い人とのやりとりでは、分かってほしい気持ちが強くなるほど、言葉を選びすぎたり、逆に強く出てしまうことがあります。相手の反応を気にしすぎると、自分の中で抱え込みやすくなります。',
     'まずは、相手を変えようとする前に、自分の言葉と距離を少し整えます。すぐに結論を出そうとせず、「今は近づきすぎていないか」「言葉が強くなっていないか」を見るだけでも、関係を扱いやすくなります。',
   ];
-  const inlineLede = openingLedeShown ? null : paras[0];
+  const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
+  const inlineLede = (!useSnapshot && !openingLedeShown) ? (paras[0] ?? null) : null;
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
-      {bodyParas.length > 0 ? (
+      {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
-          {bodyParas.map((para, i) => (
+          {displayBodyParas.map((para, i) => (
             <BodyPara key={i} para={para} compact={false} />
           ))}
         </div>
@@ -2614,6 +2638,7 @@ function ChapterFourWorkLead({
     'まずは、大きく変える前に、今日決めなくていいことを一つ横に置きます。全部を立て直そうとするより、休める時間、減らせる予定、後回しにできることを一つ選ぶほうが、戻る場所が見えやすくなります。',
   ];
 
+  const indBlocks = extractDobV2IndividualizationBlocks(workSection.body);
   return (
     <>
       <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
@@ -2621,6 +2646,13 @@ function ChapterFourWorkLead({
           <BodyPara key={i} para={para} compact={false} />
         ))}
       </div>
+      {indBlocks.length > 0 ? (
+        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+          {indBlocks.map((para, i) => (
+            <BodyPara key={`ind-${i}`} para={para} compact={false} />
+          ))}
+        </div>
+      ) : null}
       <p className={styles.chapterPilotGuideText}>
         この図では、{displayName}さんが疲れたときに、どこから余白を戻しやすいかを見ます。
       </p>
