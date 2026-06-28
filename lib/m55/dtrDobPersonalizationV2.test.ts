@@ -57,7 +57,9 @@ describe('paid DTR DOB personalization v2', () => {
     const unknown = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1992-12-19', true));
     assert.notEqual(known.fingerprint, unknown.fingerprint);
     assert.notEqual(known.essenceRhythmNote, unknown.essenceRhythmNote);
-    assert.match(unknown.essenceRhythmNote, /正午基準/);
+    // P0: 正午基準 removed; naturalized note used instead
+    assert.match(unknown.essenceRhythmNote, /大きな流れを中心に見ています/);
+    assert.doesNotMatch(unknown.essenceRhythmNote, /正午基準/);
   });
 
   it('20 synthetic DOBs achieve at least 60 percent unique v2 fingerprints', () => {
@@ -84,5 +86,47 @@ describe('paid DTR DOB personalization v2', () => {
   it('source uses no runtime AI or network generation', () => {
     const src = readFileSync(new URL('./dtrDobPersonalizationV2.ts', import.meta.url), 'utf8');
     assert.doesNotMatch(src, /openai|gemini|fetch\s*\(|generateText|chat\.completions/i);
+  });
+
+  it('v2 output includes s1IdentityRhythmNote, s2CompositionRhythmNote, s4StrengthsRhythmNote', () => {
+    const ind = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1983-02-28'));
+    assert.ok(ind.s1IdentityRhythmNote && ind.s1IdentityRhythmNote.length > 10, 's1IdentityRhythmNote must be set');
+    assert.ok(ind.s2CompositionRhythmNote && ind.s2CompositionRhythmNote.length > 10, 's2CompositionRhythmNote must be set');
+    assert.ok(ind.s4StrengthsRhythmNote && ind.s4StrengthsRhythmNote.length > 10, 's4StrengthsRhythmNote must be set');
+  });
+
+  it('same stem + different DOB produces different s1/s2/s4 rhythm notes', () => {
+    const leftCtx = contextFor('1980-01-07');
+    const rightCtx = contextFor('1980-07-07');
+    // They may or may not share the same stem — this just validates that different DOBs yield different chapter notes
+    const left = buildPaidDtrIndividualizationV2FromEngineContext(leftCtx);
+    const right = buildPaidDtrIndividualizationV2FromEngineContext(rightCtx);
+    // At least one chapter note should differ (different season/month/phase)
+    const anyDiff =
+      left.s1IdentityRhythmNote !== right.s1IdentityRhythmNote ||
+      left.s2CompositionRhythmNote !== right.s2CompositionRhythmNote ||
+      left.s4StrengthsRhythmNote !== right.s4StrengthsRhythmNote;
+    assert.ok(anyDiff, 'at least one chapter note should differ across summer vs winter DOBs');
+  });
+
+  it('s3 essenceRhythmNote now includes phase blend sentence', () => {
+    // Phase blend adds month-position note to essenceRhythmNote
+    const ind = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1980-01-07'));
+    // essenceRhythmNote must still start with the canonical opening
+    assert.match(ind.essenceRhythmNote, /生年月日の細かなリズムから見ると/);
+    // Phase blend text patterns
+    assert.ok(
+      /月初めに近い生まれとして/.test(ind.essenceRhythmNote) ||
+      /月の中頃の生まれとして/.test(ind.essenceRhythmNote) ||
+      /月の後半に近い生まれとして/.test(ind.essenceRhythmNote),
+      'essenceRhythmNote should contain a phase blend sentence',
+    );
+  });
+
+  it('v2 chapter notes pass forbidden leak and overclaim scan', () => {
+    const ind = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1994-07-27'));
+    const chapterNotes = [ind.s1IdentityRhythmNote ?? '', ind.s2CompositionRhythmNote ?? '', ind.s4StrengthsRhythmNote ?? ''].join('\n');
+    assert.doesNotMatch(chapterNotes, /読み取りです|正午基準|このタイプ|感受の解像度|観測|外部化/);
+    assert.doesNotMatch(chapterNotes, /必ず|絶対|運命|治療|診断|投資|保証/);
   });
 });

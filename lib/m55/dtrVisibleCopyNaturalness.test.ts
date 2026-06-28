@@ -243,6 +243,44 @@ describe('DOB-v2 source inspection — forbidden terms must not appear', () => {
     assert.ok(!block.includes('読み取りです\n'), 'STEM_RHYTHM_LEADS must not contain 読み取りです (newline)');
   });
 
+  it('S1_STEM_IDENTITY_LEADS does not contain forbidden terms', () => {
+    const match = dobV2Src.match(/S1_STEM_IDENTITY_LEADS[\s\S]*?\] as const/);
+    assert.ok(match, 'S1_STEM_IDENTITY_LEADS block should be found');
+    const block = match[0];
+    assert.ok(!block.includes('読み取りです'), 'S1_STEM_IDENTITY_LEADS must not contain 読み取りです');
+    assert.ok(!block.includes('このタイプ'), 'S1_STEM_IDENTITY_LEADS must not contain このタイプ');
+    assert.ok(!block.includes('観測'), 'S1_STEM_IDENTITY_LEADS must not contain 観測');
+  });
+
+  it('S2_SEASON_COMPOSITION and S2_PHASE_COMPOSITION do not contain forbidden terms', () => {
+    assert.ok(!dobV2Src.includes('S2_SEASON_COMPOSITION') || (() => {
+      const m = dobV2Src.match(/S2_SEASON_COMPOSITION[\s\S]*?\};/);
+      return m ? (!m[0].includes('読み取りです') && !m[0].includes('このタイプ')) : true;
+    })(), 'S2_SEASON_COMPOSITION must not contain forbidden terms');
+    assert.ok(!dobV2Src.includes('S2_PHASE_COMPOSITION') || (() => {
+      const m = dobV2Src.match(/S2_PHASE_COMPOSITION[\s\S]*?\};/);
+      return m ? (!m[0].includes('読み取りです') && !m[0].includes('このタイプ')) : true;
+    })(), 'S2_PHASE_COMPOSITION must not contain forbidden terms');
+  });
+
+  it('S4_MONTH_STRENGTHS does not contain forbidden terms', () => {
+    const match = dobV2Src.match(/S4_MONTH_STRENGTHS[\s\S]*?\] as const/);
+    assert.ok(match, 'S4_MONTH_STRENGTHS block should be found');
+    const block = match[0];
+    assert.ok(!block.includes('読み取りです'), 'S4_MONTH_STRENGTHS must not contain 読み取りです');
+    assert.ok(!block.includes('このタイプ'), 'S4_MONTH_STRENGTHS must not contain このタイプ');
+    assert.ok(!block.includes('観測'), 'S4_MONTH_STRENGTHS must not contain 観測');
+  });
+
+  it('S3_PHASE_BLEND does not contain forbidden terms', () => {
+    const match = dobV2Src.match(/S3_PHASE_BLEND[\s\S]*?\};/);
+    assert.ok(match, 'S3_PHASE_BLEND block should be found');
+    const block = match[0];
+    assert.ok(!block.includes('読み取りです'), 'S3_PHASE_BLEND must not contain 読み取りです');
+    assert.ok(!block.includes('正午基準'), 'S3_PHASE_BLEND must not contain 正午基準');
+    assert.ok(!block.includes('このタイプ'), 'S3_PHASE_BLEND must not contain このタイプ');
+  });
+
   it('MONTH_RHYTHMS does not contain 読み取りです。', () => {
     const match = dobV2Src.match(/MONTH_RHYTHMS[^][\s\S]*?\] as const/);
     assert.ok(match, 'MONTH_RHYTHMS block should be found');
@@ -328,6 +366,31 @@ describe('DOB-v2 source inspection — forbidden terms must not appear', () => {
     assert.ok(
       !engineSrc.includes('外からは慎重に見えても'),
       'stem 9 must not contain 外からは慎重に見えても after patch',
+    );
+  });
+
+  // ── C1: S1/S2/S4 v2-only gate inspection ─────────────────────────────────
+  it('dtrEngine.ts s1 prefix is gated by paidIndividualization presence [C1]', () => {
+    assert.match(
+      engineSrc,
+      /s1_identity.*paidIndividualization/s,
+      'dtrEngine.ts must gate s1 prefix on paidIndividualization',
+    );
+  });
+
+  it('dtrEngine.ts s1 prefix skips AI-generated body [C1]', () => {
+    assert.match(
+      engineSrc,
+      /s1_identity.*generatedChapterBodies.*s1_identity/s,
+      'dtrEngine.ts must skip s1 prefix when generatedChapterBodies.s1_identity is present',
+    );
+  });
+
+  it('dtrPaidIndividualizationCompose.ts s1 prefix checks ind.s1IdentityRhythmNote presence [C1]', () => {
+    assert.match(
+      composeSrc,
+      /s1_identity.*s1IdentityRhythmNote/s,
+      'compose must gate s1 prefix on ind.s1IdentityRhythmNote',
     );
   });
 });

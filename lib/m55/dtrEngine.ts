@@ -930,8 +930,21 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
         : 'この保存版で見えている傾向では、力は、';
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
     }
+    // DOB-v2 prefix for s1: v2-only (guard is ind.s1IdentityRhythmNote presence; absent in v1).
+    // Skip when AI-generated body is supplied (it already embeds DOB material).
+    if (spec.id === 's1_identity' && options?.paidIndividualization && !options.generatedChapterBodies?.s1_identity) {
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
+    }
+    // DOB-v2 prefix for s2: v2-only (guard is ind.s2CompositionRhythmNote presence).
+    if (spec.id === 's2_composition' && options?.paidIndividualization && !options.generatedChapterBodies?.s2_composition) {
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
+    }
     // DOB-v2 prefix for s3: skip when a generated body is supplied (it already embeds DOB material).
     if (spec.id === 's3_essence' && options?.paidIndividualization && !options.generatedChapterBodies?.s3_essence) {
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
+    }
+    // DOB-v2 prefix for s4: v2-only (guard is ind.s4StrengthsRhythmNote presence).
+    if (spec.id === 's4_strengths' && options?.paidIndividualization && !options.generatedChapterBodies?.s4_strengths) {
       body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }
     if (spec.id === 's7_work' && options?.paidIndividualization) {

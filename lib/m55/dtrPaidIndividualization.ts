@@ -20,6 +20,21 @@ export type PaidDtrIndividualization = {
   handlingHint: string;
   /** Calm month-rhythm note for s3「本質と安定の条件」. */
   essenceRhythmNote: string;
+  /**
+   * v2-only: short DOB-derived prefix for s1「あなたという人物」.
+   * Absent in v1 — presence check acts as v2 gate in the engine.
+   */
+  s1IdentityRhythmNote?: string;
+  /**
+   * v2-only: short DOB-derived prefix for s2「構成と傾向の全体像」.
+   * Absent in v1 — presence check acts as v2 gate in the engine.
+   */
+  s2CompositionRhythmNote?: string;
+  /**
+   * v2-only: short DOB-derived prefix for s4「自分の出やすい面」.
+   * Absent in v1 — presence check acts as v2 gate in the engine.
+   */
+  s4StrengthsRhythmNote?: string;
 };
 
 export type PaidDtrIndividualizationAuditMeta = {

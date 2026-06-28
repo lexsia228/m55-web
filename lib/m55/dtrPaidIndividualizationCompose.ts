@@ -36,8 +36,17 @@ export function buildPaidDtrSectionIndividualizationPrefix(
   ind: PaidDtrIndividualization,
 ): string {
   let prefix = '';
-  if (sectionId === 's3_essence') {
+  if (sectionId === 's1_identity' && ind.s1IdentityRhythmNote) {
+    // v2-only: ind.s1IdentityRhythmNote absent in v1 → no prefix for existing snapshots.
+    prefix = [ind.s1IdentityRhythmNote, ''].join('\n');
+  } else if (sectionId === 's2_composition' && ind.s2CompositionRhythmNote) {
+    // v2-only: ind.s2CompositionRhythmNote absent in v1.
+    prefix = [ind.s2CompositionRhythmNote, ''].join('\n');
+  } else if (sectionId === 's3_essence') {
     prefix = ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
+  } else if (sectionId === 's4_strengths' && ind.s4StrengthsRhythmNote) {
+    // v2-only: ind.s4StrengthsRhythmNote absent in v1.
+    prefix = [ind.s4StrengthsRhythmNote, ''].join('\n');
   } else if (sectionId === 's7_work') {
     // auxiliaryReading already contains handlingHint; omit it here to prevent duplicate sentences.
     prefix = ['【この保存版だけの補助整理】', ind.auxiliaryReading, ''].join('\n');

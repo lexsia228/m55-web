@@ -54,6 +54,92 @@ const MONTH_RHYTHMS: readonly string[] = [
 const BIRTH_TIME_UNKNOWN_NOTE =
   '生まれ時刻が未入力の場合でも、ここでは一日の細かな時間より、大きな流れを中心に見ています。';
 
+/**
+ * S3 phase blend — 1 sentence appended to essenceRhythmNote.
+ * Distinct phrasing from PHASE_HANDLING (which targets auxiliaryReading/s7).
+ */
+const S3_PHASE_BLEND: Readonly<Record<LunarPhaseBucket, string>> = {
+  early: '月初めに近い生まれとして、始める前に手元を整えておくほど、動き出しがスムーズになります。',
+  mid: '月の中頃の生まれとして、一度立てた流れを途中で確かめるほど、力が続きやすくなります。',
+  late: '月の後半に近い生まれとして、終えるものを先に整えてから次へ進むほど、戻りやすくなります。',
+};
+
+/**
+ * S1「あなたという人物」stem-indexed identity lead.
+ * Each item is a short sentence about "自分の形・力の出やすい場面".
+ * Different phrasing from STEM_RHYTHM_LEADS (which targets S3 essenceRhythmNote).
+ */
+const S1_STEM_IDENTITY_LEADS: readonly string[] = [
+  '向きを先に決めると力が入りやすい形です。',
+  '場の流れを読む力が自然に出やすい形です。',
+  '表現が前に出ると反応が戻りやすい形です。',
+  'ひとつに深く向き合うほど力が出やすい形です。',
+  '続けることで力の伝わり方が安定する形です。',
+  '育てる・まとめる力が前に出やすい形です。',
+  '区切りをつけて進める力が前に出やすい形です。',
+  '丁寧に整える力が輪郭として出やすい形です。',
+  '外へのつながりで輪郭が立ち上がりやすい形です。',
+  '静かに深く読む力が前に出やすい形です。',
+] as const;
+
+/**
+ * S1 season context — connects birth season to "自分の輪郭/力の出やすさ".
+ * Different framing from SEASON_GROUPS (which targets S3 essenceRhythmNote).
+ */
+const S1_SEASON_IDENTITY: Readonly<Record<SeasonGroup, string>> = {
+  winter: '寒さが増す時期の生まれです。土台を先に整えるほど、力の出方が安定しやすくなります。',
+  spring: '芽吹きの時期の生まれです。小さく始めて確かめるほど、自分の輪郭がはっきりしてきます。',
+  summer: '熱が前に向きやすい時期の生まれです。休息のリズムを置くほど、力が長く続きやすくなります。',
+  autumn: '整理の時期の生まれです。残すものを先に決めるほど、自分らしく動きやすくなります。',
+};
+
+/**
+ * S2「構成と傾向の全体像」season context — converts season to 進め方・ペース.
+ */
+const S2_SEASON_COMPOSITION: Readonly<Record<SeasonGroup, string>> = {
+  winter: '冬に近い時期の生まれとして、急に広げるより先に手順を整えるほど、進め方が安定しやすくなります。',
+  spring: '春に近い時期の生まれとして、小さく始めて早めに確かめるほど、進め方が整いやすくなります。',
+  summer: '夏に近い時期の生まれとして、動く前にペースを決めておくほど、後半の疲れを減らしやすくなります。',
+  autumn: '秋に近い時期の生まれとして、残す課題を先に絞るほど、進め方を落ち着かせやすくなります。',
+};
+
+/**
+ * S2 phase context — converts phase to 段取り・組み立て方.
+ */
+const S2_PHASE_COMPOSITION: Readonly<Record<LunarPhaseBucket, string>> = {
+  early: '始める段階では、小さく試してから広げるほうが、全体を抱えすぎずに進めやすくなります。',
+  mid: '進める段階では、一度立てた流れを短く確かめるほうが、後から戻りやすくなります。',
+  late: '整える段階では、先に終えるものを決めてから動くほうが、次の一歩が軽くなります。',
+};
+
+/**
+ * S4「自分の出やすい面」month context — converts lunar month to 力の出方・持続のコツ.
+ * Focus: "この時期の生まれとして、力をどう出しやすくするか".
+ */
+const S4_MONTH_STRENGTHS: readonly string[] = [
+  '年始に近い時期の生まれです。始めるよりも整えるほうが先に力が出やすくなります。',
+  '寒暖が変わりやすい時期の生まれです。体のリズムを守るほど、力が安定しやすくなります。',
+  '動きが戻りやすい時期の生まれです。小さく動いて確かめるほど、力を出しやすくなります。',
+  '流れが整いやすい時期の生まれです。立てた流れを続けるほど、力が伝わりやすくなります。',
+  '熱が上がる前の時期の生まれです。休息を先に置くほど、力が長く続きやすくなります。',
+  '勢いが出やすい時期の生まれです。小さく始めて広げるほど、力を消耗しにくくなります。',
+  '集中が強い時期の生まれです。切り替えをはっきり置くほど、力が安定しやすくなります。',
+  '後半に入りやすい時期の生まれです。ペースを落とすほど、力が整いやすくなります。',
+  '区切りに向かう時期の生まれです。一度立ち止まるほど、力が戻りやすくなります。',
+  '落ち着く時期の生まれです。急いで決めずに確かめるほど、力を出しやすくなります。',
+  '整える時期の生まれです。新しいことより手元を守るほど、力が合いやすくなります。',
+  '折り返しに近い時期の生まれです。終えたことを確かめてから次へ進むほど、力が戻りやすくなります。',
+] as const;
+
+/**
+ * S4 phase context — 力の持続・回復のコツ.
+ */
+const S4_PHASE_STRENGTHS: Readonly<Record<LunarPhaseBucket, string>> = {
+  early: '始める場面では、手元から小さく動くほど、力が無理なく出やすくなります。',
+  mid: '続ける場面では、短く区切って確かめるほど、力が持続しやすくなります。',
+  late: '整える場面では、終えるものを先に決めてから次へ進むほど、力が戻りやすくなります。',
+};
+
 function djb2Hex(text: string): string {
   let h = 5381;
   for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) >>> 0;
@@ -85,10 +171,19 @@ function lunarMonthIndex(lunarMonthKey: string): number {
 export function buildPaidDtrIndividualizationV2FromEngineContext(
   ctx: EngineContextJson,
 ): PaidDtrIndividualization {
-  const season = SEASON_GROUPS[seasonGroupForTerm(ctx.boundaryMetadata.solarTermKey)];
-  const phase = PHASE_HANDLING[lunarPhaseBucket(ctx.boundaryMetadata.lunarDayKey)];
-  const month = MONTH_RHYTHMS[lunarMonthIndex(ctx.boundaryMetadata.lunarMonthKey)];
-  const stem = STEM_RHYTHM_LEADS[Math.max(0, Math.min(9, ctx.stemLaneIndex))]!;
+  const stemIdx = Math.max(0, Math.min(9, ctx.stemLaneIndex));
+  const seasonKey = seasonGroupForTerm(ctx.boundaryMetadata.solarTermKey);
+  const phaseKey = lunarPhaseBucket(ctx.boundaryMetadata.lunarDayKey);
+  const monthIdx = lunarMonthIndex(ctx.boundaryMetadata.lunarMonthKey);
+
+  const season = SEASON_GROUPS[seasonKey];
+  const phase = PHASE_HANDLING[phaseKey];
+  const month = MONTH_RHYTHMS[monthIdx]!;
+  const stem = STEM_RHYTHM_LEADS[stemIdx]!;
+
+  // S3 phase blend — 1 sentence added after month rhythm
+  const s3PhaseBlend = S3_PHASE_BLEND[phaseKey];
+
   const timeNote = ctx.normalizedBirthContext.birthTimeUnknown
     ? `\n${BIRTH_TIME_UNKNOWN_NOTE}`
     : '';
@@ -101,6 +196,24 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
     ctx.normalizedBirthContext.birthTimeUnknown ? 'unknown-time' : 'known-time',
   ].join('|'))}`;
 
+  // S1: stem × season (自分の形/輪郭)
+  const s1IdentityRhythmNote = [
+    S1_STEM_IDENTITY_LEADS[stemIdx]!,
+    S1_SEASON_IDENTITY[seasonKey],
+  ].join('\n');
+
+  // S2: season × phase (進め方/段取り)
+  const s2CompositionRhythmNote = [
+    S2_SEASON_COMPOSITION[seasonKey],
+    S2_PHASE_COMPOSITION[phaseKey],
+  ].join('\n');
+
+  // S4: month × phase (力の出方/持続)
+  const s4StrengthsRhythmNote = [
+    S4_MONTH_STRENGTHS[monthIdx === 0 ? 0 : Math.min(monthIdx, 11)]!,
+    S4_PHASE_STRENGTHS[phaseKey],
+  ].join('\n');
+
   return {
     version: 'v2',
     dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
@@ -110,6 +223,7 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
       stem,
       season,
       month,
+      s3PhaseBlend,
       timeNote,
     ].join('\n').trim(),
     auxiliaryReading: [
@@ -118,5 +232,8 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
       season,
     ].join('\n'),
     handlingHint: phase,
+    s1IdentityRhythmNote,
+    s2CompositionRhythmNote,
+    s4StrengthsRhythmNote,
   };
 }
