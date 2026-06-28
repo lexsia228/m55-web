@@ -45,6 +45,7 @@ function readSrc(relPath: string): string {
 const dobV2Src = readSrc('lib/m55/dtrDobPersonalizationV2.ts');
 const engineSrc = readSrc('lib/m55/dtrEngine.ts');
 const composeSrc = readSrc('lib/m55/dtrPaidIndividualizationCompose.ts');
+const indV1Src = readSrc('lib/m55/dtrPaidIndividualization.ts');
 
 describe('DTR Visible Copy Naturalness Guardrail — pure function tests', () => {
   // ── 1. Reject internal analysis terms ────────────────────────────────────
@@ -424,5 +425,109 @@ describe('Seed body / engine source inspection — forbidden terms must not appe
     const result = checkNaturalness(badBody);
     assert.equal(result.pass, false, 'Body with internal terms must fail guard');
     assert.ok(result.violations.length >= 2, 'Should catch multiple violations');
+  });
+
+  // ── stem 1 composition hardcode regression guard ───────────────────────────
+  it('dtrEngine.ts STEM_SEED_BODIES does not contain hardcoded name "miさん"', () => {
+    assert.ok(
+      !engineSrc.includes('miさん'),
+      'dtrEngine.ts must not contain hardcoded "miさん" in seed bodies',
+    );
+  });
+});
+
+describe('v1 individualization source inspection — forbidden terms must not appear', () => {
+  // Coverage: 11. v1 path text (SOLAR_TERM_SEASON_READINGS, LUNAR_PHASE_HANDLING,
+  //               LUNAR_MONTH_ESSENCE_READINGS, BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX)
+  //               must not contain mechanical/computation phrases after the P0 naturalness patch.
+
+  it('v1 SOLAR_TERM_SEASON_READINGS does not contain 読み取りです', () => {
+    const match = indV1Src.match(/SOLAR_TERM_SEASON_READINGS[\s\S]*?\};/);
+    assert.ok(match, 'SOLAR_TERM_SEASON_READINGS block should be found');
+    const block = match[0];
+    assert.ok(
+      !block.includes('読み取りです'),
+      'SOLAR_TERM_SEASON_READINGS must not contain 読み取りです after naturalness patch',
+    );
+  });
+
+  it('v1 LUNAR_PHASE_HANDLING does not contain 読み取りです', () => {
+    const match = indV1Src.match(/LUNAR_PHASE_HANDLING[\s\S]*?\};/);
+    assert.ok(match, 'LUNAR_PHASE_HANDLING block should be found');
+    const block = match[0];
+    assert.ok(
+      !block.includes('読み取りです'),
+      'LUNAR_PHASE_HANDLING must not contain 読み取りです after naturalness patch',
+    );
+  });
+
+  it('v1 LUNAR_MONTH_ESSENCE_READINGS does not contain 読み取りです', () => {
+    const match = indV1Src.match(/LUNAR_MONTH_ESSENCE_READINGS[\s\S]*?\};/);
+    assert.ok(match, 'LUNAR_MONTH_ESSENCE_READINGS block should be found');
+    const block = match[0];
+    assert.ok(
+      !block.includes('読み取りです'),
+      'LUNAR_MONTH_ESSENCE_READINGS must not contain 読み取りです after naturalness patch',
+    );
+  });
+
+  it('v1 DEFAULT_ESSENCE_RHYTHM_NOTE does not contain 読み取りです', () => {
+    assert.ok(
+      !indV1Src.includes('調整がしやすい読み取りです'),
+      'DEFAULT_ESSENCE_RHYTHM_NOTE must not contain 読み取りです',
+    );
+  });
+
+  it('v1 BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX does not contain 正午基準', () => {
+    assert.ok(
+      !indV1Src.includes('正午基準'),
+      'dtrPaidIndividualization.ts must not contain 正午基準 after P0 patch',
+    );
+  });
+
+  it('v1 BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX does not contain 補正した読み取り', () => {
+    assert.ok(
+      !indV1Src.includes('補正した読み取り'),
+      'dtrPaidIndividualization.ts must not contain 補正した読み取り',
+    );
+  });
+
+  it('v1 source does not contain 観測所型', () => {
+    assert.ok(
+      !indV1Src.includes('観測所型'),
+      'dtrPaidIndividualization.ts must not contain 観測所型',
+    );
+  });
+
+  it('v1 source does not contain 外部化', () => {
+    assert.ok(
+      !indV1Src.includes('外部化'),
+      'dtrPaidIndividualization.ts must not contain 外部化',
+    );
+  });
+
+  it('v1 source does not contain 感受の解像度', () => {
+    assert.ok(
+      !indV1Src.includes('感受の解像度'),
+      'dtrPaidIndividualization.ts must not contain 感受の解像度',
+    );
+  });
+
+  it('v1 naturalness fixture: naturalized v1 season text passes guard', () => {
+    const fixture = '冬の後半です。体と心を温めながら、次の一歩を静かに準備しやすい時期です。';
+    const result = checkNaturalness(fixture);
+    assert.equal(result.pass, true, `v1 season fixture failed guard: ${JSON.stringify(result.violations)}`);
+  });
+
+  it('v1 naturalness fixture: naturalized v1 phase text passes guard', () => {
+    const fixture = '始めるときは、小さく試してから広げる方が、無理が出にくくなります。';
+    const result = checkNaturalness(fixture);
+    assert.equal(result.pass, true, `v1 phase fixture failed guard: ${JSON.stringify(result.violations)}`);
+  });
+
+  it('v1 naturalness fixture: naturalized BIRTH_TIME_UNKNOWN prefix passes guard', () => {
+    const fixture = '生まれ時刻が未入力の場合、大きな季節のリズムを中心に見ています。';
+    const result = checkNaturalness(fixture);
+    assert.equal(result.pass, true, `v1 birth time prefix failed guard: ${JSON.stringify(result.violations)}`);
   });
 });
