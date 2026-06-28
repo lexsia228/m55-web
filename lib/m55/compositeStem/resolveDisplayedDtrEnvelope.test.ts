@@ -283,11 +283,13 @@ describe('resolveDisplayedDtrEnvelope', () => {
         `display s2 must not include old phrase: ${phrase}`,
       );
     }
+    // P0: stem1 s2 no longer hardcodes nickname; display uses catalog lifestyle phrasing.
     assert.ok(
       displayedS2!.body.includes(
-        'miさんは、その場の空気を素早く読みながら、人との関係の土台も同時に確かめながら動きます。',
+        'この保存版で見えている形では、その場の空気を素早く読みながら、人との関係の土台も同時に確かめながら動きます。',
       ),
     );
+    assert.doesNotMatch(displayedS2!.body, /miさん/);
     assert.ok(displayedS2!.body.includes('人との間にある流れを整えやすい形です'));
 
     const displayedS5 = read.envelope.payload.fullSections.find((s) => s.id === 's5_friction');
