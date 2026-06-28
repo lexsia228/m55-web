@@ -7,6 +7,14 @@ import type { PaidDtrIndividualization } from './dtrPaidIndividualization';
 
 export const DOB_PERSONALIZATION_V2_CATALOG_VERSION = 'dob-v2-2026-06' as const;
 
+/**
+ * Reserved catalog version for the upcoming 1000-uniqueness expansion.
+ * New fulfillments must NOT be routed here until the v2.1 corpus builder
+ * is implemented and separately gated.
+ * @see CATEGORY-2-M55-PAID-DTR-DOB-V21-CORPUS-IMPL-REV1
+ */
+export const DOB_PERSONALIZATION_V21_CATALOG_VERSION = 'dob-v2.1-2026-07' as const;
+
 type LunarPhaseBucket = 'early' | 'mid' | 'late';
 type SeasonGroup = 'winter' | 'spring' | 'summer' | 'autumn';
 

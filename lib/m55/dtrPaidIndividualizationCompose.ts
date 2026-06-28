@@ -10,7 +10,10 @@ import {
   type PaidDtrIndividualizationAuditMeta,
   type PaidDtrIndividualizationVersion,
 } from './dtrPaidIndividualization';
-import { buildPaidDtrIndividualizationV2FromEngineContext } from './dtrDobPersonalizationV2';
+import {
+  buildPaidDtrIndividualizationV2FromEngineContext,
+  DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+} from './dtrDobPersonalizationV2';
 import { checkNaturalness } from './dtrVisibleCopyNaturalness';
 import {
   buildDobV2VisibleCopyEvent,
@@ -23,11 +26,40 @@ export function resolvePaidIndividualizationVersion(
   return ctx.paidIndividualizationVersion === 'v2' ? 'v2' : 'v1';
 }
 
+/**
+ * Catalog version router — resolves which corpus builder to use.
+ *
+ * Safety rules (fail-closed):
+ *   - missing/unknown catalog  → old v2 builder (dob-v2-2026-06)
+ *   - 'dob-v2-2026-06'        → old v2 builder (preserves existing snapshots)
+ *   - future 'dob-v2.1-...'   → reserved: falls back to old v2 until v2.1 builder ships
+ *
+ * This function must NEVER silently route to a new corpus when the caller
+ * intends old-catalog display. New catalog variants must be explicitly
+ * added here after the corresponding builder is implemented and tested.
+ */
+export function resolveDobV2CatalogBuilder(
+  catalogVersion: string | undefined,
+): (ctx: EngineContextJson) => PaidDtrIndividualization {
+  // Only the known current catalog gets the current v2 builder.
+  // Unknown / future catalogs fall back to old v2 (safe) until their
+  // builder is explicitly wired in here.
+  if (catalogVersion === DOB_PERSONALIZATION_V2_CATALOG_VERSION || catalogVersion == null) {
+    return buildPaidDtrIndividualizationV2FromEngineContext;
+  }
+  // Future: 'dob-v2.1-2026-07' will add a branch here once the corpus is implemented.
+  // For now, any unrecognised catalog safely falls back to old v2.
+  return buildPaidDtrIndividualizationV2FromEngineContext;
+}
+
 export function composePaidIndividualizationFromEngineContext(
   ctx: EngineContextJson,
 ): PaidDtrIndividualization {
   const version = resolvePaidIndividualizationVersion(ctx);
-  if (version === 'v2') return buildPaidDtrIndividualizationV2FromEngineContext(ctx);
+  if (version === 'v2') {
+    const builder = resolveDobV2CatalogBuilder(ctx.dobPersonalizationCatalogVersion);
+    return builder(ctx);
+  }
   return buildPaidDtrIndividualizationV1FromEngineContext(ctx);
 }
 
