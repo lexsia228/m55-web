@@ -1,4 +1,4 @@
-import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope } from '../dtrEngine';
+import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope, type PaidDtrGeneratedChapterBodies } from '../dtrEngine';
 import { isDobPersonalizationV2FulfillmentEnabled } from '../dobPersonalizationFeatureFlag';
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
 import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
@@ -55,6 +55,12 @@ export type V2FulfillmentSnapshotBuild = {
 
 export type BuildV2FulfillmentSnapshotOptions = {
   dobPersonalizationV2Enabled?: boolean;
+  /**
+   * Pre-generated chapter bodies from the AI pipeline (flag-gated, test-injectable).
+   * When provided, passed through to runDtrEngine which uses them for s1/s2/s3/s4.
+   * Production activation of AI generation is a separate gate — do not set in production.
+   */
+  generatedChapterBodies?: PaidDtrGeneratedChapterBodies;
 };
 
 export function buildEngineContextJson(composite: CompositeStemResult): EngineContextJson {
@@ -124,6 +130,8 @@ export function buildV2FulfillmentSnapshot(
     derivation: 'm55_composite_stem_v2_p_lunar',
     contractVersion: 'v2',
     paidIndividualization,
+    // Pass through pre-generated chapter bodies when provided (flag-gated, test-injectable).
+    generatedChapterBodies: options.generatedChapterBodies,
   });
 
   assertEnvelopeConsistent(envelope, composite);

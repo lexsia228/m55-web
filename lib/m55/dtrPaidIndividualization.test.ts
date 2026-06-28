@@ -144,7 +144,7 @@ describe('paid DTR individualization — deterministic DOB layer', () => {
     assert.notEqual(s7a, s7b);
   });
 
-  it('catalog chapters s1–s2 remain STEM_BODIES-only (s3 adds paid prefix only)', () => {
+  it('flag OFF (default): s1/s2 use STEM_SEED_BODIES only (s3 adds paid DOB-v2 prefix)', () => {
     resetCalendarBundleCacheForTests();
     const fields = fulfillmentFields('1980-01-07');
     const built = buildV2FulfillmentSnapshotFromFields(fields);

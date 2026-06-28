@@ -68,6 +68,12 @@ export type DtrEngineRunOptions = {
   contractVersion?: 'v1' | 'v2';
   /** v2 paid — deterministic DOB boundary individualization (no trait rejudgment). */
   paidIndividualization?: PaidDtrIndividualization;
+  /**
+   * AI-generated chapter bodies (flag-gated, test-injectable).
+   * When provided, overrides STEM_SEED_BODIES for s1/s2/s3/s4.
+   * Production activation requires M55_DTR_CHAPTER_BODY_GEN_ENABLED=true (separate gate).
+   */
+  generatedChapterBodies?: PaidDtrGeneratedChapterBodies;
 };
 
 export type DtrEnvelope = {
@@ -80,7 +86,7 @@ export type DtrEnvelope = {
 
 /* ─── Text body catalog: 10 stems × 8 sections ──────────────────────────── */
 
-type StemSectionBodies = {
+export type StemSectionBodies = {
   identity: string;      // S1 cover/identity
   composition: string;   // S2 composition board
   essence: string;       // S3 core essence
@@ -89,6 +95,18 @@ type StemSectionBodies = {
   relation: string;      // S6 relation / communication
   work: string;          // S7 work / life manual
   bridge: string; // S8 は runDtrEngine で組み立て（ニックネーム対応の地図・返書導線）。STEM ごとの値は参照されない。
+};
+
+/**
+ * Paid DTR chapter bodies to override seed bodies in runDtrEngine.
+ * Populated by the AI chapter body generation pipeline (flag-gated).
+ * When present, these replace STEM_SEED_BODIES for the corresponding sections.
+ */
+export type PaidDtrGeneratedChapterBodies = {
+  s1_identity?: string;
+  s2_composition?: string;
+  s3_essence?: string;
+  s4_strengths?: string;
 };
 
 /**
@@ -118,7 +136,15 @@ const STEM3_IDENTITY_CORE_TOKEN = '{{DTR_STEM3_ID_CORE}}';
 /** stem 3「本質と安定の条件」先頭：ニックネーム有無で主語を差し替え */
 const STEM3_ESSENCE_OPEN_TOKEN = '{{DTR_STEM3_ESS_OPEN}}';
 
-const STEM_BODIES: readonly StemSectionBodies[] = [
+/**
+ * Seed bodies for paid DTR chapter generation.
+ *
+ * NOT fixed-distribution final output — this is the style baseline, generation seed,
+ * fallback, and constraint source for the AI chapter body pipeline.
+ * The AI generation pipeline uses these as お題 / 文体基準 / 品質制約 / fallback,
+ * NOT as verbatim output to distribute.
+ */
+export const STEM_SEED_BODIES: readonly StemSectionBodies[] = [
   /* stem 0 */
   {
     identity:
@@ -826,7 +852,7 @@ function clamp(s: string, max: number): string {
 export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOptions): DtrEnvelope {
   const idx = options?.stemLaneIndex ?? essenceStemLaneIndex(input.birthDate);
   const stem = TEN_STEM_DISPLAY[idx]!;
-  const bodies = STEM_BODIES[idx]!;
+  const bodies = STEM_SEED_BODIES[idx]!;
   const nick = input.nickname ? clamp(input.nickname, 20) : 'あなた';
 
   const s1Overline = input.nickname
@@ -856,6 +882,17 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
     }
 
     let body = bodies[spec.bodyKey] as string;
+
+    // AI-generated chapter bodies override seed for s1–s4 (flag-gated; test-injectable).
+    // Generated bodies already embed DOB-v2 material, so DOB prefix is skipped for s3.
+    if (options?.generatedChapterBodies) {
+      const gen = options.generatedChapterBodies;
+      if (spec.id === 's1_identity' && gen.s1_identity != null) body = gen.s1_identity;
+      else if (spec.id === 's2_composition' && gen.s2_composition != null) body = gen.s2_composition;
+      else if (spec.id === 's3_essence' && gen.s3_essence != null) body = gen.s3_essence;
+      else if (spec.id === 's4_strengths' && gen.s4_strengths != null) body = gen.s4_strengths;
+    }
+
     if (
       spec.bodyKey === 'composition' &&
       body.includes(STEM3_COMPOSITION_INTRO_TOKEN)
@@ -893,7 +930,8 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
         : 'この保存版で見えている傾向では、力は、';
       body = body.replace(STEM3_ESSENCE_OPEN_TOKEN, essOpen);
     }
-    if (spec.id === 's3_essence' && options?.paidIndividualization) {
+    // DOB-v2 prefix for s3: skip when a generated body is supplied (it already embeds DOB material).
+    if (spec.id === 's3_essence' && options?.paidIndividualization && !options.generatedChapterBodies?.s3_essence) {
       body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }
     if (spec.id === 's7_work' && options?.paidIndividualization) {
