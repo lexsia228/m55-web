@@ -17,6 +17,11 @@ import {
   type ChapterBodyRepairProvider,
 } from './dtrPaidChapterBodyRepair';
 import type { PaidDtrGeneratedChapterBodies } from './dtrEngine';
+import { checkNaturalness } from './dtrVisibleCopyNaturalness';
+import {
+  buildPaidDtrChapterBodyEvent,
+  emitGenerationQualityEvent,
+} from './generationQualityAnalytics';
 
 // ── Types ──
 
@@ -142,6 +147,26 @@ export async function runChapterBodyGenPipeline(
   // 2. Judge
   const judgeResult = judgePaidDtrChapterBodies(generated, materialPack);
   if (judgeResult.verdict === 'PASS') {
+    // Analytics: emit per-section quality metrics (fire-and-forget; does not block)
+    for (const section of judgeResult.sections) {
+      const sectionBody = (generated as Record<string, string>)[section.sectionId] ?? '';
+      emitGenerationQualityEvent(buildPaidDtrChapterBodyEvent(
+        sectionBody,
+        checkNaturalness(sectionBody),
+        judgeResult,
+        {
+          provider_id: 'fake_deterministic',
+          stem_lane_index: materialPack.stemLaneIndex,
+          chapter_id: section.sectionId,
+          dob_v2_flags: {
+            season_group: materialPack.seasonGroup ?? null,
+            lunar_phase_bucket: materialPack.lunarPhase ?? null,
+            birth_time_unknown: materialPack.birthTimeUnknown ?? false,
+          },
+          final_status: 'accepted',
+        },
+      ));
+    }
     return {
       ok: true,
       bodies: generated,
@@ -150,6 +175,26 @@ export async function runChapterBodyGenPipeline(
   }
 
   if (judgeResult.verdict === 'FAIL') {
+    // Analytics: emit failure metrics per section
+    for (const section of judgeResult.sections.filter((s) => s.verdict === 'FAIL')) {
+      const sectionBody = (generated as Record<string, string>)[section.sectionId] ?? '';
+      emitGenerationQualityEvent(buildPaidDtrChapterBodyEvent(
+        sectionBody,
+        checkNaturalness(sectionBody),
+        judgeResult,
+        {
+          provider_id: 'fake_deterministic',
+          stem_lane_index: materialPack.stemLaneIndex,
+          chapter_id: section.sectionId,
+          dob_v2_flags: {
+            season_group: materialPack.seasonGroup ?? null,
+            lunar_phase_bucket: materialPack.lunarPhase ?? null,
+            birth_time_unknown: materialPack.birthTimeUnknown ?? false,
+          },
+          final_status: 'rejected',
+        },
+      ));
+    }
     return {
       ok: false,
       reason: 'judge_fail',
@@ -181,6 +226,28 @@ export async function runChapterBodyGenPipeline(
   // 4. Re-judge
   const reJudgeResult = judgePaidDtrChapterBodies(repairedBodies, materialPack);
   if (reJudgeResult.verdict === 'PASS') {
+    // Analytics: emit post-repair success metrics
+    for (const section of reJudgeResult.sections) {
+      const sectionBody = (repairedBodies as Record<string, string>)[section.sectionId] ?? '';
+      emitGenerationQualityEvent(buildPaidDtrChapterBodyEvent(
+        sectionBody,
+        checkNaturalness(sectionBody),
+        reJudgeResult,
+        {
+          provider_id: 'fake_deterministic',
+          stem_lane_index: materialPack.stemLaneIndex,
+          chapter_id: section.sectionId,
+          dob_v2_flags: {
+            season_group: materialPack.seasonGroup ?? null,
+            lunar_phase_bucket: materialPack.lunarPhase ?? null,
+            birth_time_unknown: materialPack.birthTimeUnknown ?? false,
+          },
+          repair_attempted: true,
+          repair_count: 1,
+          final_status: 'accepted',
+        },
+      ));
+    }
     return {
       ok: true,
       bodies: repairedBodies,
@@ -189,6 +256,28 @@ export async function runChapterBodyGenPipeline(
   }
 
   // Repair did not resolve all issues — fail-closed
+  // Analytics: emit repair failure
+  for (const section of reJudgeResult.sections.filter((s) => s.verdict !== 'PASS')) {
+    const sectionBody = (repairedBodies as Record<string, string>)[section.sectionId] ?? '';
+    emitGenerationQualityEvent(buildPaidDtrChapterBodyEvent(
+      sectionBody,
+      checkNaturalness(sectionBody),
+      reJudgeResult,
+      {
+        provider_id: 'fake_deterministic',
+        stem_lane_index: materialPack.stemLaneIndex,
+        chapter_id: section.sectionId,
+        dob_v2_flags: {
+          season_group: materialPack.seasonGroup ?? null,
+          lunar_phase_bucket: materialPack.lunarPhase ?? null,
+          birth_time_unknown: materialPack.birthTimeUnknown ?? false,
+        },
+        repair_attempted: true,
+        repair_count: 1,
+        final_status: 'failed_guardrail',
+      },
+    ));
+  }
   return {
     ok: false,
     reason: 'repair_rejudge_fail',

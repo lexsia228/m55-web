@@ -261,6 +261,12 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
       return { ok: false, reason: 'snapshot_id_missing_after_insert' };
     }
 
+    // paid_dtr_snapshot section-level analytics are deferred to a separate gate:
+    // CATEGORY-2-M55-SNAPSHOT-ANALYTICS-HOOK-REV1
+    // Rationale: DtrEnvelope contains fullSections[].body (full paid report text).
+    // JSON.stringify(envelope) must not be used for naturalness analysis.
+    // Section-level hooks will be designed in that future gate.
+
     return { ok: true, snapshotId };
   } catch (e) {
     return { ok: false, reason: String(e) };

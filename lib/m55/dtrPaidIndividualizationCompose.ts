@@ -11,6 +11,11 @@ import {
   type PaidDtrIndividualizationVersion,
 } from './dtrPaidIndividualization';
 import { buildPaidDtrIndividualizationV2FromEngineContext } from './dtrDobPersonalizationV2';
+import { checkNaturalness } from './dtrVisibleCopyNaturalness';
+import {
+  buildDobV2VisibleCopyEvent,
+  emitGenerationQualityEvent,
+} from './generationQualityAnalytics';
 
 export function resolvePaidIndividualizationVersion(
   ctx: Pick<EngineContextJson, 'paidIndividualizationVersion'>,
@@ -30,14 +35,33 @@ export function buildPaidDtrSectionIndividualizationPrefix(
   sectionId: string,
   ind: PaidDtrIndividualization,
 ): string {
+  let prefix = '';
   if (sectionId === 's3_essence') {
-    return ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
-  }
-  if (sectionId === 's7_work') {
+    prefix = ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
+  } else if (sectionId === 's7_work') {
     // auxiliaryReading already contains handlingHint; omit it here to prevent duplicate sentences.
-    return ['【この保存版だけの補助整理】', ind.auxiliaryReading, ''].join('\n');
+    prefix = ['【この保存版だけの補助整理】', ind.auxiliaryReading, ''].join('\n');
   }
-  return '';
+
+  // Analytics: emit DOB-v2 visible copy quality metrics (fire-and-forget; does not block)
+  // The prefix text itself is NOT stored — only counts/scores derived from it.
+  if (prefix) {
+    try {
+      emitGenerationQualityEvent(buildDobV2VisibleCopyEvent(
+        prefix,
+        checkNaturalness(prefix),
+        {
+          provider_id: 'fake_deterministic',
+          chapter_id: sectionId,
+          final_status: 'accepted',
+        },
+      ));
+    } catch {
+      // Intentionally swallowed: analytics must never break the compose path.
+    }
+  }
+
+  return prefix;
 }
 
 export function toComposedPaidDtrIndividualizationAuditMeta(
