@@ -34,7 +34,8 @@ export function buildPaidDtrSectionIndividualizationPrefix(
     return ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
   }
   if (sectionId === 's7_work') {
-    return ['【この保存版だけの補助整理】', ind.auxiliaryReading, ind.handlingHint, ''].join('\n');
+    // auxiliaryReading already contains handlingHint; omit it here to prevent duplicate sentences.
+    return ['【この保存版だけの補助整理】', ind.auxiliaryReading, ''].join('\n');
   }
   return '';
 }
