@@ -1,0 +1,141 @@
+/**
+ * Hybrid AI snapshot generation provider interface.
+ *
+ * This module defines the contract for AI-based paid DTR body generation.
+ * No real AI provider is called here — production integration is a separate gate.
+ *
+ * Design principles:
+ * - Provider receives a structured HybridAiPromptPayload; it must not receive raw
+ *   internal labels, stem codes, or DB identifiers.
+ * - Provider must return the four section bodies (s1–s4) or throw.
+ * - Caller is responsible for quality validation and fail-closed fallback.
+ */
+import type { HybridAiPromptPayload } from './dtrHybridAiPrompt';
+
+// ── Output type ────────────────────────────────────────────────────────────────
+
+export type HybridAiProviderOutput = {
+  s1_identity: string;
+  s2_composition: string;
+  s3_essence: string;
+  s4_strengths: string;
+  /** Internal provider metadata — must NOT appear in user-facing text. */
+  providerMeta?: {
+    modelName?: string;
+    promptVersion?: string;
+    tokensUsed?: number;
+  };
+};
+
+// ── Provider interface ─────────────────────────────────────────────────────────
+
+/**
+ * Interface for any AI provider that generates paid DTR section bodies.
+ *
+ * Contract:
+ * - Receives only HybridAiPromptPayload — no raw DB IDs, stem codes, or internal labels.
+ * - Returns four section bodies when generation succeeds.
+ * - Throws on timeout, network error, or malformed response (caller handles as fallback).
+ * - Provider MUST NOT persist any user data or self-learn.
+ * - Real provider implementations are a separate gate.
+ */
+export type HybridAiProvider = {
+  readonly providerId: string;
+  generate(payload: HybridAiPromptPayload): Promise<HybridAiProviderOutput>;
+};
+
+// ── Mock / test providers ──────────────────────────────────────────────────────
+
+/**
+ * Mock provider that returns plausible, quality-passing bodies.
+ * For tests — never called in production.
+ */
+export function createMockHybridAiProvider(
+  overrides?: Partial<HybridAiProviderOutput>,
+): HybridAiProvider {
+  return {
+    providerId: 'mock_pass',
+    async generate(payload): Promise<HybridAiProviderOutput> {
+      const trait = payload.traitContext.publicTitle;
+      const season = payload.dobContext.seasonDescription;
+      const phase = payload.dobContext.phaseDescription;
+      const interNote = payload.traitContext.interactionNote;
+      return {
+        s1_identity: overrides?.s1_identity ??
+          `${trait}の力は、方向が決まるほど安定しやすくなります。${season}として、始めるときに向きを確かめるほど動き出しが整いやすくなります。自分の輪郭が出やすい場面を先に把握しておくことが、長く続けるための土台になります。${interNote}この形を知っておくと、力が出やすい場面を自分で作りやすくなります。`,
+        s2_composition: overrides?.s2_composition ??
+          `進め方を組み立てるとき、${phase}として、試す範囲を先に決めるほど扱いやすくなります。${trait}の構成として、一手ずつ確かめながら進む形が合いやすくなります。段取りの最初を小さく置くほど、後から修正しやすくなります。${season}の生まれとして、ペースを整えながら進む動き方が続きやすくなります。`,
+        s3_essence: overrides?.s3_essence ??
+          `生年月日の細かなリズムから見ると、${season}として、土台を先に整えるほど安定しやすくなります。${trait}の本質は、急がず確かめる場面で力を発揮しやすい形にあります。${phase}として、流れを一度確かめることが安定の核心になります。節目を意識することで、このリズムを長く続けるための軸が生まれます。`,
+        s4_strengths: overrides?.s4_strengths ??
+          `生活のリズムとして、${season}の生まれとして疲れが出やすい場面を先に把握しておくほど、戻しやすくなります。${phase}として、短く区切って休む時間を入れるほど力が持続します。切り替えのサインを自分で決めておくと、消耗を抑えやすくなります。小さな区切りを習慣にすることが、長く動き続けるための助けになります。`,
+        providerMeta: { modelName: 'mock', promptVersion: payload.promptVersion },
+      };
+    },
+  };
+}
+
+/**
+ * Mock provider that always throws — for testing fallback behaviour.
+ */
+export function createThrowingMockProvider(): HybridAiProvider {
+  return {
+    providerId: 'mock_throw',
+    async generate(): Promise<never> {
+      throw new Error('mock provider error: simulated timeout');
+    },
+  };
+}
+
+/**
+ * Mock provider that returns a forbidden-phrase body — for testing quality rejection.
+ */
+export function createForbiddenPhraseMockProvider(
+  phrase = 'このタイプの人は必ず成功します',
+): HybridAiProvider {
+  return {
+    providerId: 'mock_forbidden',
+    async generate(): Promise<HybridAiProviderOutput> {
+      return {
+        s1_identity: phrase,
+        s2_composition: phrase,
+        s3_essence: phrase,
+        s4_strengths: phrase,
+      };
+    },
+  };
+}
+
+/**
+ * Mock provider that returns too-short bodies — for testing length rejection.
+ */
+export function createTooShortMockProvider(): HybridAiProvider {
+  return {
+    providerId: 'mock_too_short',
+    async generate(): Promise<HybridAiProviderOutput> {
+      return {
+        s1_identity: '短い。',
+        s2_composition: '短い。',
+        s3_essence: '短い。',
+        s4_strengths: '短い。',
+      };
+    },
+  };
+}
+
+/**
+ * Mock provider that returns malformed output (missing required sections).
+ */
+export function createMalformedMockProvider(): HybridAiProvider {
+  return {
+    providerId: 'mock_malformed',
+    async generate(): Promise<HybridAiProviderOutput> {
+      return {
+        s1_identity: '',
+        s2_composition: '',
+        s3_essence: '',
+        s4_strengths: '',
+      };
+    },
+  };
+}
