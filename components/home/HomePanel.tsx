@@ -151,12 +151,11 @@ export default function HomePanel() {
                   <div className={styles.posterHeroTopBlock}>
                     <div className={styles.posterHeroLabelGroup}>
                       <p className={styles.posterHeroBrandM55}>M55</p>
-                      <p className={styles.posterHeroProductTitle}>{homeCopy.heroProductLabelJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>生まれた日からひらく</span>
-                      <span className={styles.posterHeroTitleLine}>強みの見取り図</span>
+                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleJa}</span>
                     </h1>
+                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroSubJa}</p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -200,15 +199,15 @@ export default function HomePanel() {
         >
           <div className={styles.homeTierRow}>
             <span className={styles.homeTierBadge}>無料</span>
-            <p className={styles.homeTierText}>{homeCopy.tierFreeContourJa}</p>
+            <p className={styles.homeTierText}>{homeCopy.tierFreeJa}</p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadge}>無料</span>
-            <p className={styles.homeTierText}>{homeCopy.tierFreeExploreJa}</p>
+            <span className={styles.homeTierBadgePaid}>{homeCopy.tierSavedBadgeJa}</span>
+            <p className={styles.homeTierText}>{homeCopy.tierSavedJa}</p>
           </div>
           <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{homeCopy.reportSectionEyebrowJa}</span>
-            <p className={styles.homeTierText}>{homeCopy.tierSavedPointerJa}</p>
+            <span className={styles.homeTierBadge}>{homeCopy.tierConsultBadgeJa}</span>
+            <p className={styles.homeTierText}>{homeCopy.tierConsultJa}</p>
           </div>
         </div>
       )}
