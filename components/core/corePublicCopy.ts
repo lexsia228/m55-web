@@ -1,6 +1,10 @@
-import { AXIS_ORDER } from '../../lib/m55/coreResult/axisMeta';
-import type { AxisKey, CoreResult } from '../../lib/m55/coreResult/types';
-import { AXIS_FORMAL_JA } from './corePublicAxisLabels';
+import type { CoreResult } from '../../lib/m55/coreResult/types';
+import {
+  freeCoreAlignSteps,
+  freeCoreAxisRowsForResult,
+  freeCoreLifestyleTriptych,
+  freeCoreObservationBullets,
+} from '../../lib/m55/coreFreePublicDisplay';
 
 /** ニックネームを差し込み（主語「あなた」は使わない） */
 export function withNickname(text: string, nickname: string): string {
@@ -137,7 +141,7 @@ export const STATIC_AI_EXPLAINER = {
 export const STATIC_CTA = {
   title: '4章の保存版',
   intro:
-    '無料で見えた輪郭を、\n力が出やすい場面・無理がたまりやすい条件・戻し方まで含め、\n4章の保存版として読み返せる形に整理します。',
+    '無料で見えた輪郭は、まだ入口です。\n保存版では、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
   benefitsHeading: '保存版で深まること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
@@ -148,22 +152,6 @@ export const STATIC_CTA = {
   bundleNote:
     'その先で必要になったら、相談返書で保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
 } as const;
-
-const TENDENCY_LIFE_SUFFIX: readonly string[] = [
-  ' 日々の場面でも、だいたい同じ感触が立ち上がりやすいです。',
-  ' 仕事や学びの場面でも、同じ読み方で捉えやすいです。',
-  ' 人との距離やペースの場面で、こう感じやすい傾向が表れやすいです。',
-  ' 関係の調整や判断の場面で、同じ感触が出やすいです。',
-  ' 段取りや進め方の場面で、こう扱いやすい傾向が表れやすいです。',
-];
-
-const TENDENCY_LOAD_PREFIX: readonly string[] = [
-  '負荷が集中すると、',
-  '余力が浅いときほど、',
-  '切迫が続くと、',
-  '詰まりが続くと、',
-  '押し切られると、',
-];
 
 function splitSummaryTwo(summary: string): [string, string] {
   const s = summary.trim();
@@ -194,67 +182,17 @@ export function heroNarrative(result: CoreResult): {
 }
 
 export function tendencyAxesForResult(result: CoreResult) {
-  if (result.coreType === 'TYPE_04') {
-    return FREEZE_TYPE_04.tendencyAxes.map((row) => ({
-      formal: AXIS_FORMAL_JA[row.key],
-      tendency: row.hook,
-      life: row.body,
-      load: row.load,
-    }));
-  }
-  const byKey = new Map<AxisKey, (typeof result.axisDetails)[0]>();
-  for (const d of result.axisDetails) byKey.set(d.key, d);
-  return AXIS_ORDER.map((key, i) => {
-    const d = byKey.get(key)!;
-    return {
-      formal: AXIS_FORMAL_JA[key],
-      tendency: d.strength,
-      life: `${d.summary}${TENDENCY_LIFE_SUFFIX[i % TENDENCY_LIFE_SUFFIX.length]}`,
-      load: `${TENDENCY_LOAD_PREFIX[i % TENDENCY_LOAD_PREFIX.length]}${d.caution}`,
-    };
-  });
+  return freeCoreAxisRowsForResult(result);
 }
 
 export function lifestyleTriptych(result: CoreResult) {
-  if (result.coreType === 'TYPE_04') {
-    return [...FREEZE_TYPE_04.lifestyle];
-  }
-  return [
-    {
-      title: '仕事や判断の場面で',
-      body: '整った流れの中では、理解の深さと丁寧さが信頼につながりやすくなります。資料を読む、課題を進める、議論する場面では、結論を急かされないほど本来の質が出やすいです。',
-    },
-    {
-      title: '人との距離感の中で',
-      body: '広く浅く関わるより、信頼できる相手と深くつながるほうが自然です。対面やチャットの距離感が読みにくい場面では、少人数のほうが負荷がたまりにくいです。',
-    },
-    {
-      title: '近い関係の中で',
-      body: '安心できる距離が保てるほど、本来のやさしさや誠実さが出やすくなります。親しい相手との約束や衝突の場面では、落ち着いて言葉を選びやすいです。',
-    },
-  ] as const;
+  return freeCoreLifestyleTriptych(result);
 }
 
 export function alignStepsForResult(result: CoreResult) {
-  if (result.coreType === 'TYPE_04') {
-    return [...FREEZE_TYPE_04.alignSteps];
-  }
-  return [
-    { phase: 'まず', body: '落ち着いて考えを整理できる時間を作る' },
-    { phase: '次に', body: '急な変更や、見通しのない流れに負荷が集まりやすいことを意識する' },
-    { phase: 'そして', body: '順番を作り、考えを置ける余白を確保する' },
-  ];
+  return freeCoreAlignSteps(result);
 }
 
 export function observationBulletsForResult(result: CoreResult): string[] {
-  if (result.coreType === 'TYPE_04') {
-    return [...FREEZE_TYPE_04.observationBullets];
-  }
-  return [
-    '深さで理解する傾向があります。',
-    '速さより、納得を大事にします。',
-    '刺激より、整った流れで力が出ます。',
-    '小さな違和感を見落としにくいです。',
-    '準備があるほど本来の力が出ます。',
-  ];
+  return freeCoreObservationBullets(result);
 }

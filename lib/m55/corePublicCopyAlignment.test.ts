@@ -19,6 +19,7 @@ const CORE_COPY_FILES = [
   'components/core/CoreEntryReportCTASection.tsx',
   'components/core/CoreAiChatExplainerSection.tsx',
   'lib/m55/topFreeEntryPublicCopy.ts',
+  'lib/m55/coreFreePublicDisplay.ts',
 ] as const;
 
 const LEGACY_CORE_TERMS = [
@@ -36,6 +37,9 @@ const LEGACY_CORE_TERMS = [
   '1000通り完全鑑定',
   'AIがすべてを書きます',
   '独自アルゴリズムで完全判定',
+  'このタイプ',
+  'タイプの人',
+  '判定します',
 ] as const;
 
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +107,8 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('CTA copy clarifies saved-report depth and consult one-theme boundary', () => {
-    assert.match(STATIC_CTA.intro, /4章の保存版/);
+    assert.match(STATIC_CTA.intro, /まだ入口/);
+    assert.match(STATIC_CTA.intro, /4章で読み返せる形に残します/);
     assert.match(STATIC_CTA.bundleNote, /いまの1テーマ/);
     assert.match(STATIC_CTA.bundleNote, /会話を続ける形式ではありません/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.introJa, /力が出やすい場面/);

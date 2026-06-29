@@ -10,18 +10,17 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
       aria-labelledby="core-how-m55-reads"
     >
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>
-        {withNickname('M55は、tさんの傾向をこう読みます', nick)}
+        {withNickname('M55は、tさんの輪郭をこう見ています', nick)}
       </h2>
-      <p className={styles.tierBSummary}>生まれた日を起点に、個人の傾向を整理しています</p>
+      <p className={styles.tierBSummary}>
+        生まれた日と入力情報から、いま出やすい傾向を短く整理しています
+      </p>
 
       <p className={styles.sectionLead}>
-        M55では、生まれた日と入力された情報をもとに、傾向を読み返しやすい形に整理しています。
+        同じ資質名でも、生まれた日や入力情報の組み合わせによって、見え方は少しずつ変わります。
       </p>
       <p className={styles.sectionLead}>
-        {withNickname(
-          'ここに表示されるのは、誰にでも同じ説明文ではなく、tさんの輪郭として読み出されたものです。',
-          nick,
-        )}
+        ここでは、その入口になる輪郭だけを短く確認します。
       </p>
 
       <ol className={styles.freezeStepList}>

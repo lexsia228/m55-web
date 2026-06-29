@@ -3,9 +3,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
-  observationTraitNameFromCoreLabel,
-  resolveCorePublicStemDisplay,
-} from '../../lib/m55/publicStemDisplay';
+  coreReadingStyleNoteFromCoreLabel,
+  coreTraitDisplayFromCoreLabel,
+} from '../../lib/m55/coreFreePublicDisplay';
+import { resolveCorePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
 import styles from './CoreExperience.module.css';
 
 /** ヒーローカード内背景動画の再生速度（1 より小さいほど静かに流れる） */
@@ -50,7 +51,8 @@ export default function CoreHeroSection({
 }) {
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
-  const observationTraitName = observationTraitNameFromCoreLabel(result.coreLabel);
+  const observationTraitName = coreTraitDisplayFromCoreLabel(result.coreLabel);
+  const readingStyleNote = coreReadingStyleNoteFromCoreLabel(result.coreLabel);
   const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
   const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
   const traitLabel = '読み方';
@@ -139,6 +141,9 @@ export default function CoreHeroSection({
                   <span className={styles.corePosterTraitRowSep}>/</span>
                   <span className={styles.corePosterTraitRowName}>{observationTraitName}</span>
                 </p>
+                {readingStyleNote ? (
+                  <p className={styles.corePosterHeroLead}>{readingStyleNote}</p>
+                ) : null}
                 <p className={styles.corePosterHeroLead}>{stemDisplay.displayOneLine}</p>
               </div>
             </div>
