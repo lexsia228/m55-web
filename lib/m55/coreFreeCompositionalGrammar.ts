@@ -61,6 +61,139 @@ const DAY_RHYTHM_NOTE: Readonly<Record<DayBand, string>> = {
   late: '終えるものを先に決めると、次の一歩が軽くなりやすいです。',
 };
 
+const MONTH_DAY_TAIL: Readonly<Record<DayBand, string>> = {
+  early: '始め方にも合いやすくなります。',
+  mid: '途中のペースにも合いやすくなります。',
+  late: '区切りにも合いやすくなります。',
+};
+
+/** Axis0 openings — と/条件形で dayBand lead と二重「では」を避ける。 */
+const LIFE_AXIS0_OPEN: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly string[] }>> = {
+  socialEnergy: {
+    hi: ['初対面が続く場面では少人数を選ぶと', '会議や雑談が続く日は余白を先に置くと'],
+    lo: ['信頼できる相手との距離を大切にすると', '近い人との関係を深く育てると'],
+  },
+  stability: {
+    hi: ['予定や空気が急に変わる日は', '刺激が続く場では早めに整えると'],
+    lo: ['静かな環境を先に整えると', '変化の予告がある流れを保つと'],
+  },
+  openness: {
+    hi: ['選択肢が増える場面では', '話題が次々に増える日は'],
+    lo: ['一つの論点に向き合う時間を確保すると', '深く詰める場面では'],
+  },
+  cooperation: {
+    hi: ['合わせが続く場面では', '調整役が求められる日は'],
+    lo: ['線引きをはっきり置ける関係を選ぶと', '期待が曖昧になりやすい場では'],
+  },
+  structure: {
+    hi: ['段取りが見える場面では', '優先順位がはっきりした流れでは'],
+    lo: ['整えてから着手すると', '急な変更が重なる場面では'],
+  },
+};
+
+function traitEmbedLead(traitMicro: string): string {
+  if (traitMicro.endsWith('ながら')) {
+    return traitMicro.replace(/ながら$/, 'やすいぶん、');
+  }
+  const toHodo: Readonly<Record<string, string>> = {
+    '順番が見えると': '順番を先に置くほど',
+    '全体をつなげて整えると': '全体をつなげて整えるほど',
+    '意味の層まで確かめると': '意味の層まで確かめるほど',
+    '落ち着いて分解すると': '落ち着いて分解するほど',
+    '全体像が先に見えると': '全体像を先に置くほど',
+    '根っこまで確かめると': '根っこまで確かめるほど',
+    '小さく動いて流れを作ると': '小さく動いて流れを作るほど',
+    '距離と言葉を読むと': '距離と言葉を読むほど',
+  };
+  return toHodo[traitMicro] ?? traitMicro.replace(/と$/, 'ほど');
+}
+
+function finishEffect(effect: string): string {
+  const trimmed = effect.trim();
+  if (trimmed.includes('一方、')) {
+    const [positive, negative] = trimmed.split('一方、');
+    const pos = positive!.trim();
+    const neg = negative!.trim().replace(/やすい$/, 'すぎると').replace(/にくい$/, 'すぎると');
+    return `${pos}一方、${neg}疲れが残りやすくなります。`;
+  }
+  if (trimmed.endsWith('やすい')) return `${trimmed.replace(/やすい$/, 'やすく')}なります。`;
+  if (trimmed.endsWith('にくい')) return `${trimmed.replace(/にくい$/, 'にくく')}なります。`;
+  return `${trimmed}。`;
+}
+
+function finishAxis0Tail(effect: string): string {
+  const trimmed = effect.trim();
+  if (trimmed.includes('一方、')) {
+    const [positive, negative] = trimmed.split('一方、');
+    const pos = positive!.trim();
+    const neg = negative!.trim().replace(/やすい$/, 'すぎると').replace(/にくい$/, 'すぎると');
+    return `、${pos}一方、${neg}疲れが残りやすくなります。`;
+  }
+  if (trimmed.startsWith('深く関わる')) {
+    return '、深く関わる力が出やすくなります。';
+  }
+  return `、${finishEffect(trimmed)}`;
+}
+
+function weaveTraitLife(scene: string, effect: string, traitMicro: string): string {
+  const embed = traitEmbedLead(traitMicro);
+  if (traitMicro.endsWith('ながら')) {
+    if (effect.includes('一方、')) {
+      const [, negative] = effect.split('一方、');
+      const neg = negative!.trim();
+      if (neg.includes('期待') || neg.includes('本音')) {
+        return `${embed}期待を飲み込みすぎると、疲れが残りやすくなります。`;
+      }
+      return `${embed}${neg.replace(/やすい$/, 'すぎると')}疲れが残りやすくなります。`;
+    }
+    return `${scene}では、${embed}${finishEffect(effect)}`;
+  }
+  const outcome = effect.includes('一方、') ? effect.split('一方、')[0]!.trim() : effect.trim();
+  const tail = outcome
+    .replace(/本来の力が出やすい$/, '本来の力が出やすくなります。')
+    .replace(/力が出やすい$/, '力が出やすくなります。')
+    .replace(/動きやすい$/, '動きやすくなります。')
+    .replace(/整いやすい$/, '整いやすくなります。')
+    .replace(/出やすい$/, '出やすくなります。');
+  return `${scene}では、${embed}${tail.endsWith('。') ? tail : `${tail}。`}`;
+}
+
+function monthRhythmWithDayBand(ctx: CopySelectContext): string {
+  const base = MONTH_RHYTHM_NOTE[ctx.monthBand]!;
+  const tail = MONTH_DAY_TAIL[ctx.dayBand];
+  return `${base.replace(/。$/, '')}。${tail}`;
+}
+
+function composeLifeCore(scene: string, effect: string, traitMicro?: string): string {
+  if (traitMicro) return weaveTraitLife(scene, effect, traitMicro);
+  return `${scene}では、${finishEffect(effect)}`;
+}
+
+function composeAxis0Life(ctx: CopySelectContext, axisKey: AxisKey, hi: boolean): string {
+  const openPool = LIFE_AXIS0_OPEN[axisKey][hi ? 'hi' : 'lo'];
+  const effectPool = LIFE_EFFECT[axisKey][hi ? 'hi' : 'lo'];
+  const scenePool = LIFE_SCENE[axisKey][hi ? 'hi' : 'lo'];
+  const oi = selectIndex(ctx, 1, openPool.length);
+  const ei = selectIndex(ctx, 2, effectPool.length);
+  const opening = openPool[oi] ?? openPool[0]!;
+  const effect = effectPool[ei] ?? effectPool[0]!;
+  const traitMicro = axisKey === ctx.dominantAxis ? TRAIT_MICRO[ctx.coreType] : undefined;
+
+  let body: string;
+  if (traitMicro) {
+    const scene = scenePool[selectIndex(ctx, 4, scenePool.length)] ?? scenePool[0]!;
+    body = weaveTraitLife(scene, effect, traitMicro);
+  } else if (opening.endsWith('と')) {
+    body = `${opening}${finishAxis0Tail(effect)}`;
+  } else if (opening.endsWith('は') || opening.endsWith('では')) {
+    body = `${opening}、${finishEffect(effect)}`;
+  } else {
+    body = `${opening}${finishEffect(effect)}`;
+  }
+
+  return `${DAY_BAND_LEAD[ctx.dayBand]}${body.charAt(0).toLowerCase()}${body.slice(1)}${monthRhythmWithDayBand(ctx)}`;
+}
+
 /** Tendency hook slots — axis × band only. */
 const TENDENCY_SLOT: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly string[] }>> = {
   socialEnergy: {
@@ -279,22 +412,18 @@ function composeLifeLine(
   axisIndex: number,
   hi: boolean,
 ): string {
+  if (axisIndex === 0) {
+    return composeAxis0Life(ctx, axisKey, hi);
+  }
+
   const scenePool = LIFE_SCENE[axisKey][hi ? 'hi' : 'lo'];
   const effectPool = LIFE_EFFECT[axisKey][hi ? 'hi' : 'lo'];
   const si = selectIndex(ctx, axisIndex * 3 + 1, scenePool.length);
   const ei = selectIndex(ctx, axisIndex * 3 + 2, effectPool.length);
   const scene = scenePool[si] ?? scenePool[0]!;
   const effect = effectPool[ei] ?? effectPool[0]!;
-  let line = `${scene}では、${effect}。`;
   const traitMicro = axisKey === ctx.dominantAxis ? TRAIT_MICRO[ctx.coreType] : undefined;
-  if (traitMicro) {
-    line = `${line.slice(0, -1)}。${traitMicro}。`;
-  }
-  if (axisIndex === 0) {
-    line = `${DAY_BAND_LEAD[ctx.dayBand]}${line.charAt(0).toLowerCase()}${line.slice(1)}`;
-    line = `${line}${MONTH_RHYTHM_NOTE[ctx.monthBand]}`;
-    return line;
-  }
+  let line = composeLifeCore(scene, effect, traitMicro);
   if (axisIndex === (ctx.month + ctx.stemLaneIndex) % 5) {
     line = `${line}${DAY_RHYTHM_NOTE[ctx.dayBand]}`;
   }
@@ -396,5 +525,5 @@ export function composeObservationBullets(
 }
 
 export function monthRhythmNoteForContext(ctx: CopySelectContext): string {
-  return MONTH_RHYTHM_NOTE[ctx.monthBand]!;
+  return monthRhythmWithDayBand(ctx);
 }

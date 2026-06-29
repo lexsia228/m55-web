@@ -50,6 +50,29 @@ function renderedBlob(birthDate: string): string {
   ].join('\n');
 }
 
+describe('/core compositional copy grammar — micro-fix guards', () => {
+  const DANGLING_TRAIT_RE = /。(順番が見える|全体をつなげて整える|相手の温度を受け取りながら|ながら|と)。/;
+  const DEHA_DUP_RE = /[^。]{0,30}では、[^。]{0,30}では/;
+
+  for (const birthDate of ANCHOR_DATES) {
+    it(`${birthDate} life lines avoid dangling trait micro and double では`, () => {
+      const rows = freeCoreAxisRowsForResult(buildFor(birthDate));
+      for (const row of rows) {
+        assert.doesNotMatch(row.life, DANGLING_TRAIT_RE, `life dangling: ${row.life}`);
+        assert.doesNotMatch(row.life, DEHA_DUP_RE, `life double では: ${row.life}`);
+        assert.match(row.life, /。$/, `life must end with 。: ${row.life}`);
+      }
+    });
+  }
+
+  it('1983-02-01 and 1983-02-28 month rhythm tails differ on axis0', () => {
+    const feb01 = freeCoreAxisRowsForResult(buildFor('1983-02-01'))[0]!.life;
+    const feb28 = freeCoreAxisRowsForResult(buildFor('1983-02-28'))[0]!.life;
+    assert.match(feb01, /始め方にも合いやすくなります。/);
+    assert.match(feb28, /区切りにも合いやすくなります。/);
+  });
+});
+
 describe('/core compositional copy grammar — CATEGORY-2-M55-CORE-FREE-COMPOSITIONAL-COPY-GRAMMAR-REV1', () => {
   it('maps TYPE_03 and TYPE_10 to living-language display alias', () => {
     assert.equal(coreTraitDisplayFromCoreType('TYPE_03'), '納得して組み立てる');
