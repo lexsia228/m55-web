@@ -938,6 +938,17 @@ function isHybridAiDisplayedSnapshot(mode?: DisplayedEnvelopeReadMode): boolean 
   return mode === 'stored_v2_hybrid_ai';
 }
 
+/**
+ * hybrid_ai visible chapter (Ⅰ–Ⅳ / part 1–4) → stored AI section id.
+ * Display-only mapping; envelope storage unchanged.
+ */
+const HYBRID_AI_VISIBLE_CHAPTER_SECTION: Record<PaidDtrReportPartId, string> = {
+  '1': 's1_identity',
+  '2': 's2_composition',
+  '3': 's3_essence',
+  '4': 's4_strengths',
+};
+
 /** hybrid_ai s1–s4: suppress PAID_DTR_CHAPTER_OPENING_COPY template lead before stored AI body. */
 function shouldSuppressDrawerChapterOpeningLead(
   mode: DisplayedEnvelopeReadMode | undefined,
@@ -950,19 +961,12 @@ function shouldSuppressDrawerChapterOpeningLead(
   },
 ): boolean {
   if (!isHybridAiDisplayedSnapshot(mode)) return false;
-  if (partId === '1') {
-    return Boolean(
-      (sections.s1 && hasSnapshotBody(sections.s1.body)) ||
-      (sections.s2 && hasSnapshotBody(sections.s2.body)),
-    );
-  }
-  if (partId === '2') {
-    return Boolean(
-      (sections.s3 && hasSnapshotBody(sections.s3.body)) ||
-      (sections.s4 && hasSnapshotBody(sections.s4.body)),
-    );
-  }
-  return false;
+  const section =
+    partId === '1' ? sections.s1 :
+    partId === '2' ? sections.s2 :
+    partId === '3' ? sections.s3 :
+    sections.s4;
+  return Boolean(section && hasSnapshotBody(section.body));
 }
 
 function hybridAiPrimarySectionBody(
@@ -1802,10 +1806,28 @@ function CommFlowFigures({ body }: { body: string }) {
 function GridArticleStrengthsViz({
   section,
   nickname,
+  hybridAiPrimaryBody = false,
 }: {
   section: DtrSection;
   nickname?: string;
+  hybridAiPrimaryBody?: boolean;
 }) {
+  if (hybridAiPrimaryBody && hasSnapshotBody(section.body)) {
+    const paras = snapshotBodyParas(section.body);
+    return (
+      <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
+        <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
+        {paras.length > 0 ? (
+          <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
+            {paras.map((para, i) => (
+              <BodyPara key={i} para={para} compact={false} />
+            ))}
+          </div>
+        ) : null}
+      </article>
+    );
+  }
+
   const strengthItems = parseBlockItems(section.body);
   const remainingItems = strengthItems.slice(3);
 
@@ -3021,6 +3043,8 @@ export default function DtrFullReader({
   const s1 = sec('s1_identity');
   const s2 = sec('s2_composition');
   const s3 = sec('s3_essence');
+  const hybridAiVisible = isHybridAiDisplayedSnapshot(displayedEnvelopeReadMode);
+  const hybridLeadSections = { s1, s2, s3, s4: gridS4 };
 
   const renderDrawerPanelBody = (panel: DrawerHubPanelId): ReactNode => {
     switch (panel) {
@@ -3034,7 +3058,7 @@ export default function DtrFullReader({
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="1" />
-                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', { s1, s2 }) ? (
+                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
                   <DrawerChapterPersonalLead
                     partId="1"
                     nickname={view.nickname}
@@ -3052,7 +3076,7 @@ export default function DtrFullReader({
                     }
                   />
                 ) : null}
-                {s2 ? (
+                {!hybridAiVisible && s2 ? (
                   <>
                     <CompositionArticleWithViz
                       section={s2}
@@ -3077,6 +3101,13 @@ export default function DtrFullReader({
                       onOpenConsult={() => selectPanel('consult')}
                     />
                   </>
+                ) : null}
+                {hybridAiVisible && s1 ? (
+                  <ChapterConsultNextAction
+                    partId="1"
+                    nickname={view.nickname}
+                    onOpenConsult={() => selectPanel('consult')}
+                  />
                 ) : null}
               </div>
             </section>
@@ -3110,13 +3141,20 @@ export default function DtrFullReader({
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" />
-                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', { s3, s4: gridS4 }) ? (
+                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', hybridLeadSections) ? (
                   <DrawerChapterPersonalLead
                     partId="2"
                     nickname={view.nickname}
                   />
                 ) : null}
-                {s3 ? (
+                {hybridAiVisible && s2 ? (
+                  <CompositionArticleWithViz
+                    section={s2}
+                    stemIdx={stemIdx}
+                    hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s2.body)}
+                  />
+                ) : null}
+                {!hybridAiVisible && s3 ? (
                   <EssenceArticleWithViz
                     section={s3}
                     stemIdx={stemIdx}
@@ -3129,12 +3167,12 @@ export default function DtrFullReader({
                   />
                 ) : null}
               </div>
-              {gridS4 ? (
+              {!hybridAiVisible && gridS4 ? (
                 <div className={styles.savedWideStack}>
                   <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
                 </div>
               ) : null}
-              {s3 ? (
+              {(hybridAiVisible && s2) || (!hybridAiVisible && s3) ? (
                 <ChapterConsultNextAction
                   partId="2"
                   nickname={view.nickname}
@@ -3177,10 +3215,21 @@ export default function DtrFullReader({
               aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['3'].hubLabelJa}
             >
               <ReportPartBand partId="3" />
-              <DrawerChapterPersonalLead
-                partId="3"
-                nickname={view.nickname}
-              />
+              {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections) ? (
+                <DrawerChapterPersonalLead
+                  partId="3"
+                  nickname={view.nickname}
+                />
+              ) : null}
+              {hybridAiVisible && s3 ? (
+                <EssenceArticleWithViz
+                  section={s3}
+                  stemIdx={stemIdx}
+                  nickname={view.nickname}
+                  hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s3.body)}
+                  openingLedeShown={false}
+                />
+              ) : null}
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
                   {gridS5 ? (
@@ -3230,39 +3279,55 @@ export default function DtrFullReader({
             </div>
           </>
         );
-      case 'chapter-4':
+      case 'chapter-4': {
+        const hybridCh4 = hybridAiVisible && gridS4 && hasSnapshotBody(gridS4.body);
+        const legacyCh4 = Boolean(sec('s7_work') && sec('s6_relation'));
+        if (!hybridCh4 && !legacyCh4) return null;
         return (
           <>
-            {sec('s7_work') && sec('s6_relation') ? (
-              <div className={styles.drawerChapterLead}>
-                <ReportPartBand partId="4" />
+            <div className={styles.drawerChapterLead}>
+              <ReportPartBand partId="4" />
+              {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '4', hybridLeadSections) ? (
                 <DrawerChapterPersonalLead
                   partId="4"
                   nickname={view.nickname}
                 />
+              ) : null}
+              {hybridCh4 && gridS4 ? (
+                <GridArticleStrengthsViz
+                  section={gridS4}
+                  nickname={view.nickname}
+                  hybridAiPrimaryBody
+                />
+              ) : null}
+              {!hybridAiVisible && sec('s7_work') ? (
                 <ChapterFourWorkLead
                   workSection={sec('s7_work')!}
                   nickname={view.nickname}
                 />
-                <SectionDivider label="お金・生活・疲れを軽くする一手" premium />
-                <section
-                  className={styles.practicalShell}
-                  aria-label="お金・生活・疲れを軽くする一手"
-                >
-                  <PracticalGuidanceSection
-                    workSection={sec('s7_work')!}
-                    relationSection={sec('s6_relation')!}
-                    stemIdx={stemIdx}
-                    lifeTopicGuidance
-                  />
-                </section>
-                <ChapterConsultNextAction
-                  partId="4"
-                  nickname={view.nickname}
-                  onOpenConsult={() => selectPanel('consult')}
-                />
-              </div>
-            ) : null}
+              ) : null}
+              {legacyCh4 ? (
+                <>
+                  <SectionDivider label="お金・生活・疲れを軽くする一手" premium />
+                  <section
+                    className={styles.practicalShell}
+                    aria-label="お金・生活・疲れを軽くする一手"
+                  >
+                    <PracticalGuidanceSection
+                      workSection={sec('s7_work')!}
+                      relationSection={sec('s6_relation')!}
+                      stemIdx={stemIdx}
+                      lifeTopicGuidance
+                    />
+                  </section>
+                </>
+              ) : null}
+              <ChapterConsultNextAction
+                partId="4"
+                nickname={view.nickname}
+                onOpenConsult={() => selectPanel('consult')}
+              />
+            </div>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <ChapterDeepReadingTakeaways partId="4" />
@@ -3290,6 +3355,7 @@ export default function DtrFullReader({
             </div>
           </>
         );
+      }
       case 'consult':
         return (
           <div className={styles.drawerConsultPanel}>
