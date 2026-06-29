@@ -88,7 +88,7 @@ export default function CoreEssencePanel() {
       <CoreAlignFlowSection result={result} />
       <CoreObservationListSection result={result} />
       <CoreAiChatExplainerSection />
-      <CoreEntryReportCTASection />
+      <CoreEntryReportCTASection result={result} nickname={nickname} />
     </div>
   );
 }

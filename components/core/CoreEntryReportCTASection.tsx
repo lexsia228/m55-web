@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import type { CoreResult } from '../../lib/m55/coreResult/types';
+import { freeCorePaidHook } from '../../lib/m55/coreFreePublicDisplay';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { STATIC_CTA, withNickname } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
 interface Props {
   nickname?: string;
+  result?: CoreResult;
 }
 
 function CheckIcon(props: { className?: string }) {
@@ -29,8 +32,9 @@ function CheckIcon(props: { className?: string }) {
   );
 }
 
-export default function CoreEntryReportCTASection({ nickname }: Props) {
+export default function CoreEntryReportCTASection({ nickname, result }: Props) {
   const nick = nickname?.trim() ?? '';
+  const paidHook = result ? freeCorePaidHook(result) : null;
   const renderLine = (line: string) => {
     if (!nick) {
       return line.replace(/\btさん\b/g, '').replace(/\bt\b/g, '');
@@ -48,6 +52,10 @@ export default function CoreEntryReportCTASection({ nickname }: Props) {
       <h2 id="core-saved-report-cta" className={styles.ctaTitle}>
         {STATIC_CTA.title}
       </h2>
+
+      {paidHook ? (
+        <p className={styles.ctaPurchaseIntro}>{renderLine(paidHook)}</p>
+      ) : null}
 
       <p className={styles.ctaPurchaseIntro}>{renderLine(STATIC_CTA.intro)}</p>
 

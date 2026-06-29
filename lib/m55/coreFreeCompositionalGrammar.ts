@@ -13,11 +13,15 @@ export type CopySelectContext = {
   dominantAxis: AxisKey;
   secondaryAxis: AxisKey;
   birthDate: string;
+  birthDateHash: number;
   day: number;
   month: number;
   dayBand: DayBand;
   monthBand: number;
   stemLaneIndex: number;
+  socialBand: AxisBand;
+  cooperationBand: AxisBand;
+  opennessBand: AxisBand;
 };
 
 const DAY_BAND_LEAD: Readonly<Record<DayBand, string>> = {
@@ -56,9 +60,9 @@ const MONTH_RHYTHM_NOTE: readonly string[] = [
 ];
 
 const DAY_RHYTHM_NOTE: Readonly<Record<DayBand, string>> = {
-  early: '始める前に短く整えると、動き出しがスムーズになりやすいです。',
+  early: '始める前に短く整えると、最初の一歩が軽くなりやすいです。',
   mid: '途中で一度確かめると、疲れがたまりにくくなります。',
-  late: '終えるものを先に決めると、次の一歩が軽くなりやすいです。',
+  late: '終えるものを先に決めると、次の一歩が選びやすくなります。',
 };
 
 const MONTH_DAY_TAIL: Readonly<Record<DayBand, string>> = {
@@ -79,7 +83,7 @@ const CONDITIONAL_AXIS0_ACTION: Readonly<Record<string, string>> = {
 /** Axis0 openings — と/条件形で dayBand lead と二重「では」を避ける。 */
 const LIFE_AXIS0_OPEN: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly string[] }>> = {
   socialEnergy: {
-    hi: ['初対面が続く場面では少人数を選ぶと', '会議や雑談が続く日は余白を先に置くと'],
+    hi: ['初対面が続く場面に入ると少人数を選ぶと', '会議や雑談が続く日は余白を先に置くと'],
     lo: ['信頼できる相手との距離を大切にすると', '近い人との関係を深く育てると'],
   },
   stability: {
@@ -87,16 +91,16 @@ const LIFE_AXIS0_OPEN: Readonly<Record<AxisKey, { hi: readonly string[]; lo: rea
     lo: ['静かな環境を先に整えると', '変化の予告がある流れを保つと'],
   },
   openness: {
-    hi: ['選択肢が増える場面では', '話題が次々に増える日は'],
-    lo: ['一つの論点に向き合う時間を確保すると', '深く詰める場面では'],
+    hi: ['選択肢が増える場面に入ると', '話題が次々に増える日は'],
+    lo: ['一つの論点に向き合う時間を確保すると', '深く詰める場面に入ると'],
   },
   cooperation: {
-    hi: ['合わせが続く場面では', '調整役が求められる日は'],
+    hi: ['合わせが続く場面に入ると', '調整役が求められる日は'],
     lo: ['線引きをはっきり置ける関係を選ぶと', '期待が曖昧になりやすい場では先に線引きを短く言葉にすると'],
   },
   structure: {
-    hi: ['段取りが見える場面では', '優先順位がはっきりした流れでは'],
-    lo: ['整えてから着手すると', '急な変更が重なる場面では'],
+    hi: ['段取りが見える場面に入ると', '優先順位がはっきりした流れに入ると'],
+    lo: ['整えてから着手すると', '急な変更が重なる場面に入ると'],
   },
 };
 
@@ -346,50 +350,127 @@ const RECOVERY_MICRO: Readonly<Record<AxisKey, readonly string[]>> = {
   structure: ['順番を見える形にすると、戻しやすい', '整え直す時間を短く確保すると、整えやすい'],
 };
 
-const SCENE_WORK: readonly string[] = [
-  '整った流れの中では、丁寧さが信頼につながりやすくなります。結論を急かされないほど、本来の質が出やすいです。',
-  '段取りが見える場面ほど力が出やすく、急な変更が続くと整え直しに時間を取りやすくなります。',
-  '小さく始めて確かめるほど手ごたえを得やすく、最初から抱えすぎないほうが安定しやすいです。',
+const SCENE_WORK_LEAD: Readonly<Record<AxisKey, readonly string[]>> = {
+  socialEnergy: [
+    '必要な場面では前に出やすく、',
+    '少人数の場では深く関わりやすく、',
+    '初対面が続く日は余白を先に置くと、',
+  ],
+  stability: [
+    '日常のリズムが保てると、',
+    '小さな違和感を早めに拾えると、',
+    '静かな環境を先に整えると、',
+  ],
+  openness: [
+    '視点を広げられる場面では、',
+    '一つの論点に向き合えると、',
+    '深く詰める時間があると、',
+  ],
+  cooperation: [
+    '相手の温度を見ながら進めると、',
+    '線引きがはっきりしていると、',
+    '合わせが続く場面では、',
+  ],
+  structure: [
+    '段取りが見える場面ほど力が出やすく、',
+    '整ってから着手できると、',
+    '優先順位がはっきりした流れでは、',
+  ],
+};
+
+const SCENE_WORK_OUTCOME: readonly string[] = [
+  '結論を急かされないほど、本来の質が出やすいです。',
+  '小さく始めて確かめるほど、手ごたえを得やすいです。',
+  '急な変更が続くと、整え直しに時間を取りやすくなります。',
+  '最初から抱えすぎないほうが、負荷がたまりにくいです。',
 ];
 
-const SCENE_RELATION: readonly string[] = [
-  '信頼できる相手と深くつながるほうが自然です。少人数のほうが、無理がたまりにくいです。',
+const SCENE_RELATION_SOCIAL_HI: readonly string[] = [
   '相手の温度を見すぎると本音が後回しになりやすいので、線引きを短く言葉にすると整えやすくなります。',
-  '距離感が読みにくい場面では、一度ペースを落として確認するほうが、関係を続けやすくなります。',
+  '合わせが続く場面では、一度ペースを落として確認するほうが、関係を続けやすくなります。',
+  '初対面が続く予定の前後に、短い余白を確保すると、距離を整えやすくなります。',
 ];
 
-const SCENE_CLOSE: readonly string[] = [
+const SCENE_RELATION_SOCIAL_LO: readonly string[] = [
+  '信頼できる相手と深くつながるほうが自然です。少人数のほうが、無理がたまりにくいです。',
+  '距離感が読みにくい場面では、短く具体に伝えるほうが、誤解が減りやすいです。',
+  '近い人とのやり取りでは、一度区切りを置くほうが、負荷がたまりにくいです。',
+];
+
+const SCENE_RELATION_COOP_HI: readonly string[] = [
+  '調整役が続く日は、自分の意見を一つだけ先に出すと、負荷を抑えやすくなります。',
+  '期待を飲み込みそうな場面では、一度保留すると、ペースを取り戻しやすくなります。',
+];
+
+const SCENE_RELATION_COOP_LO: readonly string[] = [
+  '線引きをはっきり置ける関係ほど、長く続きやすいです。',
+  '合わせる前に、自分の線引きを短く言葉にすると、関係を整えやすくなります。',
+];
+
+const SCENE_CLOSE_POOL: readonly string[] = [
   '安心できる距離が保てるほど、やさしさや誠実さが出やすくなります。近い関係ほど、短く具体に伝えるほうが誤解が減りやすいです。',
   '期待を飲み込みすぎないほうが、長く続く関係を保ちやすくなります。',
   '衝突の場面では、落ち着いて言葉を選ぶほうが、あとから振り返っても崩れにくい関係を残しやすいです。',
+  '近い人との約束では、一度区切りを置くほうが、負荷がたまりにくいです。',
+  '本音を短く言葉にすると、近い関係が続きやすくなります。',
+  '小さな違和感を抱えたまま進まないほうが、関係を戻しやすくなります。',
+  '相手の温度を確かめてから進むほうが、誤解が減りやすいです。',
+  '距離を急に広げないよう、返事の速度を一度落とすと、関係を整えやすくなります。',
+  '近い人との時間を先に確保すると、日常が整いやすくなります。',
+  '保留を一度置くと、次のやり取りを選びやすくなります。',
 ];
 
-const RECOVERY_STEP: Readonly<Record<AxisKey, readonly [string, string, string]>> = {
+const RECOVERY_STEP_POOL: Readonly<Record<AxisKey, readonly string[]>> = {
   socialEnergy: [
     '少人数で整えられる時間を先に置く',
     '初対面が続く予定の前後に、短い余白を確保する',
     '距離を急に広げないよう、返事の速度を一度落とす',
+    '疲れが見えたら、一度人数を絞る',
+    '近い人との時間を先に確保する',
   ],
   stability: [
     '変化の多い日ほど、睡眠と食事のリズムを先に整える',
     '予定が急に変わる前に、一度立ち止まって確認する',
     '小さな違和感を抱えたまま進まないよう、短くメモする',
+    '刺激が多い日は、休息を先に置く',
+    'ペースを落としてから次へ進む',
   ],
   openness: [
     '選択肢を増やす前に、いまの論点を一つに絞る',
     '話題が増えたら、残すものを先に決める',
     '深掘りする時間と、切り替える時間を分ける',
+    '比較が続く前に、残す軸を一つ決める',
+    '視点を増やす前に、手元を一つに絞る',
   ],
   cooperation: [
     '合わせる前に、自分の線引きを短く言葉にする',
     '期待を飲み込みそうな場面では、一度保留する',
     '調整役が続く日は、自分の意見を一つだけ先に出す',
+    '進める前に、相手へ確認する一文を置く',
+    '本音を後回しにしそうな場面では、短く言葉にする',
   ],
   structure: [
     'やることの順番を先に見える形にする',
     '急な変更が来たら、整え直す時間を短く確保する',
     '完璧を待たず、小さく始めてから整える',
+    'まず今日やることを一つに絞る',
+    '先に終えるものを決める',
+    '迷ったら、手元の順番だけ書き出す',
+    '進める前に、相手へ確認する一文を置く',
   ],
+};
+
+const PAID_HOOK_BY_AXIS: Readonly<Record<AxisKey, string>> = {
+  structure:
+    'この輪郭は、保存版では「どこから整えると戻りやすいか」まで読み返せる形になります。',
+  cooperation:
+    'この輪郭は、保存版では「どこで無理を飲み込みやすいか」まで読み返せる形になります。',
+  openness:
+    'この輪郭は、保存版では「選択肢が増えたとき、何を残すと進みやすいか」まで読み返せる形になります。',
+  stability:
+    'この輪郭は、保存版では「疲れが残りやすい条件と戻し方」まで読み返せる形になります。',
+  socialEnergy:
+    'この輪郭は、保存版では「人との距離で力が出る場面と疲れやすい条件」まで読み返せる形になります。',
 };
 
 const SUMMARY_LEAD: readonly string[] = [
@@ -402,10 +483,28 @@ export function isHighBand(band: AxisBand): boolean {
   return band === 'very-high' || band === 'high';
 }
 
+export function birthDateHash(birthDate: string): number {
+  const m = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return 0;
+  return Number(m[1]) * 371 + Number(m[2]) * 31 + Number(m[3]);
+}
+
 export function selectIndex(ctx: CopySelectContext, salt: number, poolSize: number): number {
   if (poolSize <= 1) return 0;
   const typeNum = Number(ctx.coreType.replace(/\D/g, '')) || 0;
-  return (ctx.day + ctx.month + ctx.stemLaneIndex + salt + typeNum) % poolSize;
+  const secondaryNum = AXIS_ORDER.indexOf(ctx.secondaryAxis);
+  const traitSeed = ctx.publicTrait.length;
+  const seed =
+    ctx.day +
+    ctx.month * 3 +
+    ctx.stemLaneIndex * 7 +
+    salt * 13 +
+    typeNum * 17 +
+    secondaryNum * 19 +
+    ctx.monthBand * 23 +
+    traitSeed * 29 +
+    (ctx.birthDateHash % 997);
+  return ((seed % poolSize) + poolSize) % poolSize;
 }
 
 export function buildCopySelectContext(
@@ -419,17 +518,22 @@ export function buildCopySelectContext(
   const dayBand: DayBand = day <= 10 ? 'early' : day <= 20 ? 'mid' : 'late';
   const dominant = result.composition.dominantAxes[0] ?? 'structure';
   const secondary = result.composition.dominantAxes[1] ?? result.composition.secondaryAxes[0] ?? 'cooperation';
+  const byKey = new Map(result.axisDetails.map((d) => [d.key, d]));
   return {
     coreType: result.coreType,
     publicTrait,
     dominantAxis: dominant,
     secondaryAxis: secondary,
     birthDate,
+    birthDateHash: birthDateHash(birthDate),
     day,
     month,
     dayBand,
     monthBand: Math.max(0, Math.min(11, month - 1)),
     stemLaneIndex: result.stemLaneIndex,
+    socialBand: byKey.get('socialEnergy')?.band ?? 'mid',
+    cooperationBand: byKey.get('cooperation')?.band ?? 'mid',
+    opennessBand: byKey.get('openness')?.band ?? 'mid',
   };
 }
 
@@ -503,36 +607,79 @@ export function composeAxisRows(
   });
 }
 
+function composeWorkSceneBody(ctx: CopySelectContext): string {
+  const leadPool = SCENE_WORK_LEAD[ctx.dominantAxis] ?? SCENE_WORK_LEAD.structure;
+  const lead = leadPool[selectIndex(ctx, 10, leadPool.length)] ?? leadPool[0]!;
+  const outcome = SCENE_WORK_OUTCOME[selectIndex(ctx, 11, SCENE_WORK_OUTCOME.length)]!;
+  return `${lead}${outcome}`;
+}
+
+function composeRelationSceneBody(ctx: CopySelectContext): string {
+  const socialPool = isHighBand(ctx.socialBand) ? SCENE_RELATION_SOCIAL_HI : SCENE_RELATION_SOCIAL_LO;
+  const coopPool = isHighBand(ctx.cooperationBand) ? SCENE_RELATION_COOP_HI : SCENE_RELATION_COOP_LO;
+  const useCoop = selectIndex(ctx, 15, 2) === 0;
+  const pool = useCoop ? coopPool : socialPool;
+  return pool[selectIndex(ctx, 16 + ctx.month, pool.length)] ?? pool[0]!;
+}
+
+function composeCloseSceneBody(ctx: CopySelectContext): string {
+  return SCENE_CLOSE_POOL[selectIndex(ctx, 12 + ctx.stemLaneIndex, SCENE_CLOSE_POOL.length)]!;
+}
+
+function sceneRhythmTail(ctx: CopySelectContext, target: 0 | 1): string {
+  if (target === 0) {
+    return MONTH_RHYTHM_NOTE[ctx.monthBand]!.replace(/。$/, '') + '。';
+  }
+  const altMid = '区切りを一度置くと、ペースを保ちやすくなります。';
+  const altLate = '終える順番を先に決めると、次が選びやすくなります。';
+  if (ctx.dayBand === 'mid') return altMid;
+  if (ctx.dayBand === 'late') return altLate;
+  return DAY_RHYTHM_NOTE[ctx.dayBand];
+}
+
 export function composeLifestyleTriptych(ctx: CopySelectContext): readonly { title: string; body: string }[] {
-  const monthNote = MONTH_RHYTHM_NOTE[ctx.monthBand]!;
-  const dayNote = DAY_RHYTHM_NOTE[ctx.dayBand];
-  const wi = selectIndex(ctx, 10, SCENE_WORK.length);
-  const ri = selectIndex(ctx, 11 + ctx.month, SCENE_RELATION.length);
-  const ci = selectIndex(ctx, 12 + ctx.day, SCENE_CLOSE.length);
+  const work = composeWorkSceneBody(ctx);
+  const relation = composeRelationSceneBody(ctx);
+  const close = composeCloseSceneBody(ctx);
+  const tailTarget = selectIndex(ctx, 14, 3);
+  const workBody = tailTarget === 0 ? `${work} ${sceneRhythmTail(ctx, 0)}` : work;
+  const relationBody = tailTarget === 1 ? `${relation} ${sceneRhythmTail(ctx, 1)}` : relation;
   return [
-    {
-      title: '仕事や判断の場面で',
-      body: `${SCENE_WORK[wi]!} ${monthNote}`,
-    },
-    {
-      title: '人との距離感の中で',
-      body: `${SCENE_RELATION[ri]!} ${dayNote}`,
-    },
-    {
-      title: '近い関係の中で',
-      body: SCENE_CLOSE[ci]!,
-    },
+    { title: '仕事や判断の場面で', body: workBody },
+    { title: '人との距離感の中で', body: relationBody },
+    { title: '近い関係の中で', body: close },
   ] as const;
 }
 
+export function sceneOpeningPair(body: string): string {
+  const parts = body.split(/(?<=。)/).map((s) => s.trim()).filter(Boolean);
+  return parts.slice(0, 2).join('');
+}
+
 export function composeAlignSteps(ctx: CopySelectContext): readonly { phase: string; body: string }[] {
-  const steps = RECOVERY_STEP[ctx.dominantAxis] ?? RECOVERY_STEP.structure;
-  const offset = ctx.dayBand === 'early' ? 0 : ctx.dayBand === 'mid' ? 1 : 2;
+  const primaryPool = RECOVERY_STEP_POOL[ctx.dominantAxis] ?? RECOVERY_STEP_POOL.structure;
+  const secondaryPool = RECOVERY_STEP_POOL[ctx.secondaryAxis] ?? [];
+  const merged = [...primaryPool];
+  for (const step of secondaryPool) {
+    if (!merged.includes(step)) merged.push(step);
+  }
+  const picks: string[] = [];
+  for (let salt = 40; picks.length < 3 && salt < 55; salt++) {
+    const step = merged[selectIndex(ctx, salt, merged.length)]!;
+    if (!picks.includes(step)) picks.push(step);
+  }
+  while (picks.length < 3) {
+    picks.push(`短く立ち止まって、次の一歩を一つ選ぶ`);
+  }
   return [
-    { phase: 'まず', body: steps[offset % 3]! },
-    { phase: '次に', body: steps[(offset + 1) % 3]! },
-    { phase: 'そして', body: steps[(offset + 2) % 3]! },
+    { phase: 'まず', body: picks[0]! },
+    { phase: '次に', body: picks[1]! },
+    { phase: 'そして', body: picks[2]! },
   ];
+}
+
+export function composePaidHook(ctx: CopySelectContext): string {
+  return PAID_HOOK_BY_AXIS[ctx.dominantAxis] ?? PAID_HOOK_BY_AXIS.structure;
 }
 
 export function composeObservationBullets(

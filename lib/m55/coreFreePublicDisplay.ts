@@ -10,6 +10,7 @@ import {
   composeAxisRows,
   composeLifestyleTriptych,
   composeObservationBullets,
+  composePaidHook,
   monthRhythmNoteForContext,
   type CopySelectContext,
   type DayBand,
@@ -76,17 +77,26 @@ export function freeCoreObservationBullets(result: CoreResult): string[] {
   return composeObservationBullets(ctx, result);
 }
 
-export function freeCorePersonalizationFingerprint(result: CoreResult): string {
-  const axes = freeCoreAxisRowsForResult(result);
-  const lifestyle = freeCoreLifestyleTriptych(result);
-  const align = freeCoreAlignSteps(result);
-  const bullets = freeCoreObservationBullets(result);
+export function freeCorePaidHook(result: CoreResult): string {
+  return composePaidHook(resolveCopyContext(result));
+}
+
+export function collectFreeCoreDynamicCopy(result: CoreResult): string[] {
+  const ctx = resolveCopyContext(result);
+  const axes = composeAxisRows(ctx, result.axisDetails, AXIS_FORMAL_JA);
+  const lifestyle = composeLifestyleTriptych(ctx);
+  const align = composeAlignSteps(ctx);
+  const bullets = composeObservationBullets(ctx, result);
   return [
-    coreTraitDisplayFromCoreType(result.coreType),
-    coreHeroSelfLanguageFingerprint(result),
-    ...axes.map((r) => `${r.tendency}|${r.life}|${r.load}`),
-    ...lifestyle.map((c) => c.body),
-    ...align.map((s) => s.body),
+    ...coreHeroSelfLanguageFingerprint(result).split('\n'),
+    ...axes.flatMap((row) => [row.tendency, row.life, row.load]),
+    ...lifestyle.map((card) => card.body),
+    ...align.map((step) => step.body),
     ...bullets,
-  ].join('\n');
+    freeCorePaidHook(result),
+  ];
+}
+
+export function freeCorePersonalizationFingerprint(result: CoreResult): string {
+  return collectFreeCoreDynamicCopy(result).join('\n');
 }
