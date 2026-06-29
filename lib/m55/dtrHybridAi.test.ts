@@ -432,19 +432,26 @@ describe('Hybrid AI → generation DB payload', () => {
     assert.ok(dbPayload.generation_meta_json.fallbackReasonCode?.includes('quality_fail'));
   });
 
-  it('legacy path: no generationDbPayload means columns are null (source inspection)', () => {
+  it('legacy path: inactive env means no generation columns in insert (source inspection)', () => {
     const src = readFileSync(
       new URL('./dtrDraftDb.ts', import.meta.url),
       'utf8',
     );
-    // generationDbPayload must be optional
+    // generationDbPayload must be optional (test override)
     assert.ok(src.includes('generationDbPayload?: DtrSnapshotGenerationDbPayload'));
     // Generation columns only written in conditional block
-    assert.ok(src.includes('if (params.generationDbPayload)'));
+    assert.ok(src.includes('if (generationDbPayload)'));
+    // Hybrid resolution runs after existingVisible check
+    assert.ok(src.includes('resolveFulfillmentSnapshotGenerationResolution'));
+    const upsertBlock = src.slice(src.indexOf('export async function upsertDtrReportSnapshotAtFulfillment'));
+    assert.ok(
+      upsertBlock.indexOf('getVisibleDtrReportSnapshot') <
+        upsertBlock.indexOf('resolveFulfillmentSnapshotGenerationResolution'),
+    );
     // Base insertRow must not have generation_mode unconditionally
     const baseInsertBlock = src.slice(
       src.indexOf('const insertRow: Record<string, unknown>'),
-      src.indexOf('if (params.generationDbPayload)'),
+      src.indexOf('if (generationDbPayload)'),
     );
     assert.ok(!baseInsertBlock.includes('generation_mode'));
     assert.ok(!baseInsertBlock.includes('quality_passed'));

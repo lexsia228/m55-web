@@ -9,8 +9,13 @@ import {
 } from './compositeStem/parseFulfillmentMetadata';
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import { M55CompositeStemError } from './compositeStem/types';
-import type { DtrEnvelope } from './dtrEngine';
+import type { DtrEnvelope, PaidDtrGeneratedChapterBodies } from './dtrEngine';
 import type { DtrSnapshotGenerationDbPayload } from './dtrSnapshotGenerationMeta';
+import { composePaidIndividualizationFromEngineContext } from './dtrPaidIndividualizationCompose';
+import {
+  resolveFulfillmentSnapshotGenerationResolution,
+  resolveMockDtrHybridAiProvider,
+} from './dtrFulfillmentSnapshotGenerationHook';
 
 export type GuestDraftRow = {
   id: string;
@@ -168,16 +173,19 @@ export type UpsertDtrReportSnapshotAtFulfillmentResult =
  * Hidden-only prior rows do not block INSERT (soft-hide repurchase).
  * Canonical v2-only write — buildV2FulfillmentSnapshot; no legacy JDN fallback.
  *
- * Optional `generationDbPayload`: when provided by the Hybrid AI orchestration path,
- * generation_mode / quality_passed / generation_meta_json are written to the row.
- * When absent (legacy deterministic path), these columns remain NULL.
+ * Hybrid AI resolution runs only after existingVisible check (idempotent skip before provider).
+ * When DTR_HYBRID_AI_ENABLED is unset, resolution is inactive and generation columns stay NULL.
+ * AI success: generatedChapterBodies + hybrid_ai metadata; fallback: deterministic body + fallback metadata.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
   userId: string;
   productId: string;
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
+  /** Test override — production leaves unset for internal resolution after existingVisible check. */
   generationDbPayload?: DtrSnapshotGenerationDbPayload;
+  /** Test override — must accompany hybrid_ai generationDbPayload for body/metadata consistency. */
+  generatedChapterBodies?: PaidDtrGeneratedChapterBodies;
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
   const existingVisible = await getVisibleDtrReportSnapshot(params.userId, params.productId);
   if (existingVisible) {
@@ -214,9 +222,28 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
   let envelope: DtrEnvelope;
   let engine_context_json: EngineContextJson;
   let engine_version: string;
+  let generationDbPayload = params.generationDbPayload;
+  let generatedChapterBodies = params.generatedChapterBodies;
 
   try {
-    const v2 = buildV2FulfillmentSnapshot(params.sessionMetadata, draft);
+    const v2Base = buildV2FulfillmentSnapshot(params.sessionMetadata, draft);
+
+    // Internal Hybrid AI resolution (after existingVisible — no provider on idempotent skip).
+    if (generationDbPayload === undefined && generatedChapterBodies === undefined) {
+      const fallbackInd = composePaidIndividualizationFromEngineContext(v2Base.engine_context_json);
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: v2Base.engine_context_json,
+        fallbackInd,
+        provider: resolveMockDtrHybridAiProvider(),
+      });
+      generationDbPayload = resolution.generationDbPayload;
+      generatedChapterBodies = resolution.generatedChapterBodies;
+    }
+
+    const v2 = generatedChapterBodies
+      ? buildV2FulfillmentSnapshot(params.sessionMetadata, draft, { generatedChapterBodies })
+      : v2Base;
+
     profile_snapshot = v2.profile_snapshot;
     envelope = v2.envelope_json;
     engine_context_json = v2.engine_context_json;
@@ -239,10 +266,10 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
 
   // Optional generation metadata (Hybrid AI path only).
   // Legacy deterministic path omits generationDbPayload → columns stay NULL.
-  if (params.generationDbPayload) {
-    insertRow.generation_mode = params.generationDbPayload.generation_mode;
-    insertRow.quality_passed = params.generationDbPayload.quality_passed;
-    insertRow.generation_meta_json = params.generationDbPayload.generation_meta_json;
+  if (generationDbPayload) {
+    insertRow.generation_mode = generationDbPayload.generation_mode;
+    insertRow.quality_passed = generationDbPayload.quality_passed;
+    insertRow.generation_meta_json = generationDbPayload.generation_meta_json;
   }
 
   try {

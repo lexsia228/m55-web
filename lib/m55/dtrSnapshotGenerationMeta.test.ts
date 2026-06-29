@@ -283,7 +283,7 @@ describe('dtrDraftDb.ts legacy path compatibility', () => {
 
   it('generation columns only written when generationDbPayload is provided', () => {
     assert.ok(
-      DRAFT_DB_SRC.includes('if (params.generationDbPayload)'),
+      DRAFT_DB_SRC.includes('if (generationDbPayload)'),
       'generation columns must be conditionally written',
     );
   });
@@ -292,7 +292,7 @@ describe('dtrDraftDb.ts legacy path compatibility', () => {
     // Verify that the base insertRow does not include generation_mode unconditionally
     const insertRowBlock = DRAFT_DB_SRC.slice(
       DRAFT_DB_SRC.indexOf('const insertRow: Record<string, unknown>'),
-      DRAFT_DB_SRC.indexOf('if (params.generationDbPayload)'),
+      DRAFT_DB_SRC.indexOf('if (generationDbPayload)'),
     );
     assert.ok(!insertRowBlock.includes('generation_mode'));
     assert.ok(!insertRowBlock.includes('quality_passed'));

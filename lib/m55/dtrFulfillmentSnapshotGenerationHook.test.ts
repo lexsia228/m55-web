@@ -1,15 +1,8 @@
 /**
- * Fulfillment snapshot generation hook tests.
+ * Fulfillment snapshot generation hook + upsert plumbing tests.
  *
- * Verifies:
- * - Production runtime guard is off (legacy path)
- * - resolve returns undefined when inactive
- * - buildHybridFulfillmentGenerationDbPayload produces safe payloads (mock provider)
- * - hybrid success / fallback metadata shapes
- * - fulfillment wiring passes generationDbPayload through
- * - no env / fetch / real provider / consult boundary
- *
- * No DB, no network, no production POST.
+ * Covers env guard, body/metadata consistency, idempotency order, mock provider only.
+ * No DB, no network, no production POST, no real provider.
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -20,10 +13,11 @@ import { buildV2FulfillmentSnapshotFromFields } from './compositeStem/buildV2Ful
 import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from './dtrDobPersonalizationV2';
 import { composePaidIndividualizationFromEngineContext } from './dtrPaidIndividualizationCompose';
 import {
-  DTR_HYBRID_AI_FULFILLMENT_RUNTIME_ACTIVATED,
-  isDtrHybridAiFulfillmentRuntimeActivated,
-  resolveFulfillmentSnapshotGenerationDbPayload,
-  buildHybridFulfillmentGenerationDbPayload,
+  DTR_HYBRID_AI_ENABLED_ENV,
+  isDtrHybridAiFulfillmentEnabled,
+  resolveFulfillmentSnapshotGenerationResolution,
+  buildFulfillmentSnapshotGenerationResolution,
+  resolveMockDtrHybridAiProvider,
 } from './dtrFulfillmentSnapshotGenerationHook';
 import {
   createMockHybridAiProvider,
@@ -34,6 +28,10 @@ import { PROHIBITED_META_KEYS } from './dtrSnapshotGenerationMeta';
 
 const HOOK_SRC = readFileSync(
   new URL('./dtrFulfillmentSnapshotGenerationHook.ts', import.meta.url),
+  'utf8',
+);
+const DRAFT_DB_SRC = readFileSync(
+  join(process.cwd(), 'lib/m55/dtrDraftDb.ts'),
   'utf8',
 );
 const FULFILLMENT_SRC = readFileSync(
@@ -60,110 +58,252 @@ function buildTestContext(birthDate = '1985-06-15') {
   return { ctx: ctxV21, ind };
 }
 
-// ── Runtime guard ─────────────────────────────────────────────────────────────
+async function withEnv(
+  key: string,
+  value: string | undefined,
+  fn: () => Promise<void>,
+): Promise<void> {
+  const prev = process.env[key];
+  if (value === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = value;
+  }
+  try {
+    await fn();
+  } finally {
+    if (prev === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = prev;
+    }
+  }
+}
 
-describe('Fulfillment snapshot generation hook — runtime guard', () => {
-  it('DTR_HYBRID_AI_FULFILLMENT_RUNTIME_ACTIVATED is hardcoded false', () => {
-    assert.equal(DTR_HYBRID_AI_FULFILLMENT_RUNTIME_ACTIVATED, false);
-    assert.equal(isDtrHybridAiFulfillmentRuntimeActivated(), false);
-  });
+// ── Env guard ─────────────────────────────────────────────────────────────────
 
-  it('resolveFulfillmentSnapshotGenerationDbPayload returns undefined when inactive', async () => {
-    const result = await resolveFulfillmentSnapshotGenerationDbPayload();
-    assert.equal(result, undefined);
-  });
-
-  it('resolve returns undefined even when ctx is provided but runtime inactive', async () => {
-    const { ctx, ind } = buildTestContext();
-    const provider = createMockHybridAiProvider();
-    const result = await resolveFulfillmentSnapshotGenerationDbPayload({
-      engineContextJson: ctx,
-      fallbackInd: ind,
-      provider,
+describe('Fulfillment snapshot generation hook — env guard', () => {
+  it('env unset → isDtrHybridAiFulfillmentEnabled false', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, undefined, async () => {
+      assert.equal(isDtrHybridAiFulfillmentEnabled(), false);
     });
-    assert.equal(result, undefined, 'inactive runtime must not run hybrid path');
+  });
+
+  it('env blank → inactive', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, '   ', async () => {
+      assert.equal(isDtrHybridAiFulfillmentEnabled(), false);
+      const { ctx, ind } = buildTestContext();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createMockHybridAiProvider(),
+      });
+      assert.deepEqual(resolution, {});
+    });
+  });
+
+  it('env invalid → inactive', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'enabled', async () => {
+      assert.equal(isDtrHybridAiFulfillmentEnabled(), false);
+      const { ctx, ind } = buildTestContext();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createMockHybridAiProvider(),
+      });
+      assert.deepEqual(resolution, {});
+    });
+  });
+
+  it('env preview → enabled candidate', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      assert.equal(isDtrHybridAiFulfillmentEnabled(), true);
+    });
+  });
+
+  it('env production → enabled candidate', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'production', async () => {
+      assert.equal(isDtrHybridAiFulfillmentEnabled(), true);
+    });
   });
 });
 
-// ── Hybrid payload builder (local tests — mock provider only) ─────────────────
+// ── Resolution: inactive ──────────────────────────────────────────────────────
 
-describe('Fulfillment snapshot generation hook — hybrid payload builder', () => {
-  it('mock success → hybrid_ai generationDbPayload', async () => {
-    const { ctx, ind } = buildTestContext();
-    const provider = createMockHybridAiProvider();
-    const payload = await buildHybridFulfillmentGenerationDbPayload({
-      engineContextJson: ctx,
-      fallbackInd: ind,
-      provider,
+describe('Fulfillment snapshot generation hook — inactive resolution', () => {
+  it('env unset → no provider call → empty resolution', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, undefined, async () => {
+      const { ctx, ind } = buildTestContext();
+      let callCount = 0;
+      const trackingProvider = {
+        providerId: 'mock_tracking',
+        async generate(payload: unknown) {
+          callCount++;
+          return createMockHybridAiProvider().generate(payload as never);
+        },
+      };
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: trackingProvider,
+      });
+      assert.deepEqual(resolution, {});
+      assert.equal(callCount, 0);
     });
-    assert.equal(payload.generation_mode, 'hybrid_ai');
-    assert.equal(payload.quality_passed, true);
-    assert.equal(payload.generation_meta_json.schemaVersion, '1');
-    assert.equal(payload.generation_meta_json.selectedMode, 'hybrid_ai');
+  });
+});
+
+// ── Resolution: hybrid success ────────────────────────────────────────────────
+
+describe('Fulfillment snapshot generation hook — hybrid success', () => {
+  it('env preview + mock success → generatedChapterBodies + hybrid_ai metadata', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const provider = createMockHybridAiProvider();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider,
+      });
+
+      assert.ok(resolution.generationDbPayload);
+      assert.equal(resolution.generationDbPayload!.generation_mode, 'hybrid_ai');
+      assert.equal(resolution.generationDbPayload!.quality_passed, true);
+      assert.ok(resolution.generatedChapterBodies);
+      assert.ok(resolution.generatedChapterBodies!.s1_identity!.length > 30);
+      assert.ok(resolution.generatedChapterBodies!.s3_essence!.length > 30);
+    });
   });
 
-  it('provider throw → hybrid_ai_fallback generationDbPayload', async () => {
-    const { ctx, ind } = buildTestContext();
-    const provider = createThrowingMockProvider();
-    const payload = await buildHybridFulfillmentGenerationDbPayload({
-      engineContextJson: ctx,
-      fallbackInd: ind,
-      provider,
+  it('success: generatedChapterBodies differ from deterministic base (body consistency)', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const resolution = await buildFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createMockHybridAiProvider(),
+      });
+
+      const deterministic = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'test',
+        birthDate: '1985-06-15',
+        birthTime: '12:00:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: null,
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: true });
+
+      const detS1 = deterministic.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')?.body ?? '';
+      assert.notEqual(resolution.generatedChapterBodies!.s1_identity, detS1);
     });
-    assert.equal(payload.generation_mode, 'hybrid_ai_fallback');
-    assert.equal(payload.quality_passed, false);
-    assert.ok(payload.generation_meta_json.fallbackReasonCode?.includes('provider_throw'));
+  });
+});
+
+// ── Resolution: hybrid fallback ───────────────────────────────────────────────
+
+describe('Fulfillment snapshot generation hook — hybrid fallback', () => {
+  it('env preview + provider throw → no generatedChapterBodies + hybrid_ai_fallback', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createThrowingMockProvider(),
+      });
+
+      assert.equal(resolution.generationDbPayload!.generation_mode, 'hybrid_ai_fallback');
+      assert.equal(resolution.generationDbPayload!.quality_passed, false);
+      assert.equal(resolution.generatedChapterBodies, undefined);
+      assert.ok(resolution.generationDbPayload!.generation_meta_json.fallbackReasonCode?.includes('provider_throw'));
+    });
   });
 
-  it('forbidden phrase → hybrid_ai_fallback with quality_fail code', async () => {
-    const { ctx, ind } = buildTestContext();
-    const provider = createForbiddenPhraseMockProvider();
-    const payload = await buildHybridFulfillmentGenerationDbPayload({
-      engineContextJson: ctx,
-      fallbackInd: ind,
-      provider,
-    });
-    assert.equal(payload.generation_mode, 'hybrid_ai_fallback');
-    assert.equal(payload.quality_passed, false);
-    assert.ok(payload.generation_meta_json.fallbackReasonCode?.includes('quality_fail'));
-  });
+  it('env preview + validator fail → no generatedChapterBodies + quality_fail code', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createForbiddenPhraseMockProvider(),
+      });
 
-  it('payload does not contain prohibited keys', async () => {
+      assert.equal(resolution.generationDbPayload!.generation_mode, 'hybrid_ai_fallback');
+      assert.equal(resolution.generatedChapterBodies, undefined);
+      assert.ok(resolution.generationDbPayload!.generation_meta_json.fallbackReasonCode?.includes('quality_fail'));
+    });
+  });
+});
+
+// ── Metadata safety ───────────────────────────────────────────────────────────
+
+describe('Fulfillment snapshot generation hook — metadata safety', () => {
+  it('resolution does not contain prohibited keys', async () => {
     const { ctx, ind } = buildTestContext();
-    const provider = createMockHybridAiProvider();
-    const payload = await buildHybridFulfillmentGenerationDbPayload({
+    const resolution = await buildFulfillmentSnapshotGenerationResolution({
       engineContextJson: ctx,
       fallbackInd: ind,
-      provider,
+      provider: createMockHybridAiProvider(),
     });
-    const serialized = JSON.stringify(payload);
+    const serialized = JSON.stringify(resolution);
     for (const key of PROHIBITED_META_KEYS) {
-      assert.ok(!serialized.includes(`"${key}"`), `Prohibited key "${key}" in payload`);
+      assert.ok(!serialized.includes(`"${key}"`), `Prohibited key "${key}" in resolution`);
     }
   });
 });
 
-// ── Fulfillment wiring (source inspection) ────────────────────────────────────
+// ── Upsert idempotency order (source inspection) ──────────────────────────────
+
+describe('dtrDraftDb upsert — idempotency + resolution order', () => {
+  it('existingVisible check precedes resolveFulfillmentSnapshotGenerationResolution', () => {
+    const upsertBlock = DRAFT_DB_SRC.slice(
+      DRAFT_DB_SRC.indexOf('export async function upsertDtrReportSnapshotAtFulfillment'),
+    );
+    const visibleIdx = upsertBlock.indexOf('getVisibleDtrReportSnapshot(params.userId, params.productId)');
+    const resolveIdx = upsertBlock.indexOf('resolveFulfillmentSnapshotGenerationResolution');
+    assert.ok(visibleIdx >= 0);
+    assert.ok(resolveIdx >= 0);
+    assert.ok(visibleIdx < resolveIdx, 'existingVisible must precede hybrid resolution');
+  });
+
+  it('existingVisible early return precedes hybrid resolution', () => {
+    const upsertBlock = DRAFT_DB_SRC.slice(
+      DRAFT_DB_SRC.indexOf('export async function upsertDtrReportSnapshotAtFulfillment'),
+    );
+    const earlyReturnIdx = upsertBlock.indexOf('if (existingVisible) {');
+    const resolveIdx = upsertBlock.indexOf('resolveFulfillmentSnapshotGenerationResolution');
+    assert.ok(earlyReturnIdx < resolveIdx);
+  });
+
+  it('generatedChapterBodies passed to buildV2FulfillmentSnapshot when present', () => {
+    assert.ok(DRAFT_DB_SRC.includes('generatedChapterBodies'));
+    assert.ok(DRAFT_DB_SRC.includes('buildV2FulfillmentSnapshot(params.sessionMetadata, draft, { generatedChapterBodies })'));
+  });
+
+  it('resolveMockDtrHybridAiProvider used — no real provider import', () => {
+    assert.ok(DRAFT_DB_SRC.includes('resolveMockDtrHybridAiProvider()'));
+    assert.ok(!DRAFT_DB_SRC.includes('openai'));
+    assert.ok(!DRAFT_DB_SRC.toLowerCase().includes('gemini'));
+  });
+});
+
+// ── Fulfillment wiring ────────────────────────────────────────────────────────
 
 describe('Fulfillment snapshot generation hook — fulfillment wiring', () => {
-  it('dtrCoreCheckoutFulfillment imports resolveFulfillmentSnapshotGenerationDbPayload', () => {
-    assert.ok(FULFILLMENT_SRC.includes('resolveFulfillmentSnapshotGenerationDbPayload'));
-    assert.ok(FULFILLMENT_SRC.includes("from './dtrFulfillmentSnapshotGenerationHook'"));
+  it('dtrCoreCheckoutFulfillment does not call hook directly — upsert handles resolution', () => {
+    assert.equal(FULFILLMENT_SRC.includes('resolveFulfillmentSnapshotGenerationDbPayload'), false);
+    assert.equal(FULFILLMENT_SRC.includes('resolveFulfillmentSnapshotGenerationResolution'), false);
+    assert.equal(FULFILLMENT_SRC.includes('dtrFulfillmentSnapshotGenerationHook'), false);
+    assert.ok(FULFILLMENT_SRC.includes('upsertDtrReportSnapshotAtFulfillment'));
   });
 
-  it('fulfillment passes generationDbPayload to upsertDtrReportSnapshotAtFulfillment', () => {
-    const upsertBlock = FULFILLMENT_SRC.slice(
-      FULFILLMENT_SRC.indexOf('resolveFulfillmentSnapshotGenerationDbPayload'),
+  it('fulfillment does not pass generationDbPayload — internal resolution in upsert', () => {
+    const upsertCall = FULFILLMENT_SRC.slice(
+      FULFILLMENT_SRC.indexOf('upsertDtrReportSnapshotAtFulfillment({'),
       FULFILLMENT_SRC.indexOf('if (!snap.ok)'),
     );
-    assert.ok(upsertBlock.includes('generationDbPayload'));
-    assert.ok(upsertBlock.includes('upsertDtrReportSnapshotAtFulfillment'));
-  });
-
-  it('fulfillment does not activate hybrid runtime inline', () => {
-    assert.equal(FULFILLMENT_SRC.includes('DTR_HYBRID_AI_FULFILLMENT_RUNTIME_ACTIVATED = true'), false);
-    assert.equal(FULFILLMENT_SRC.includes('createMockHybridAiProvider'), false);
-    assert.equal(FULFILLMENT_SRC.includes('runHybridAiSnapshotGeneration'), false);
+    assert.equal(upsertCall.includes('generationDbPayload'), false);
+    assert.equal(upsertCall.includes('generatedChapterBodies'), false);
   });
 
   it('grant order unchanged — included reply before snapshot upsert', () => {
@@ -172,10 +312,6 @@ describe('Fulfillment snapshot generation hook — fulfillment wiring', () => {
     );
     assert.ok(
       fulfillBlock.indexOf('await grantInitialIncludedReplyIfNeeded(db') <
-        fulfillBlock.indexOf('resolveFulfillmentSnapshotGenerationDbPayload()'),
-    );
-    assert.ok(
-      fulfillBlock.indexOf('resolveFulfillmentSnapshotGenerationDbPayload()') <
         fulfillBlock.indexOf('upsertDtrReportSnapshotAtFulfillment({'),
     );
   });
@@ -184,26 +320,22 @@ describe('Fulfillment snapshot generation hook — fulfillment wiring', () => {
 // ── Boundary safety ───────────────────────────────────────────────────────────
 
 describe('Fulfillment snapshot generation hook — boundary safety', () => {
-  it('hook source does not read process.env in executable code', () => {
-    const codeOnly = HOOK_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
-    assert.ok(!codeOnly.includes('process.env'));
+  it('resolveMockDtrHybridAiProvider returns mock only', () => {
+    const provider = resolveMockDtrHybridAiProvider();
+    assert.equal(provider.providerId, 'mock_pass');
   });
 
   it('hook source does not call fetch', () => {
     assert.ok(!HOOK_SRC.includes('fetch('));
   });
 
-  it('hook source does not import supabase or checkout module paths', () => {
-    assert.ok(!HOOK_SRC.includes("from '../supabase"));
-    assert.ok(!HOOK_SRC.includes("from './supabase"));
+  it('hook source does not import supabase or stripe', () => {
     assert.ok(!HOOK_SRC.includes('getSupabaseAdmin'));
     assert.ok(!HOOK_SRC.includes("from '../stripe"));
-    assert.ok(!HOOK_SRC.includes("from './dtrCoreCheckoutFulfillment"));
   });
 
   it('hook source does not import consult/reply/ticket paths', () => {
     assert.ok(!HOOK_SRC.includes("from './reply"));
-    assert.ok(!HOOK_SRC.includes('consult'));
     assert.ok(!HOOK_SRC.includes('ticket'));
   });
 

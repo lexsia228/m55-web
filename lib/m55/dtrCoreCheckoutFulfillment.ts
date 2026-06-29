@@ -17,7 +17,6 @@ import {
   grantPurchasedTopUpToFullEquivalentIfNeeded,
 } from './reply/walletGrants';
 import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
-import { resolveFulfillmentSnapshotGenerationDbPayload } from './dtrFulfillmentSnapshotGenerationHook';
 import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
@@ -173,14 +172,11 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         }
       }
 
-      const generationDbPayload = await resolveFulfillmentSnapshotGenerationDbPayload();
-
       const snap = await upsertDtrReportSnapshotAtFulfillment({
         userId: params.expectedUserId,
         productId,
         checkoutSessionId,
         sessionMetadata: fresh.metadata,
-        generationDbPayload,
       });
       if (!snap.ok) {
         console.error(
