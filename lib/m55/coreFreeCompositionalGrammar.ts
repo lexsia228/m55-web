@@ -659,14 +659,25 @@ export function sceneOpeningPair(body: string): string {
 export function composeAlignSteps(ctx: CopySelectContext): readonly { phase: string; body: string }[] {
   const primaryPool = RECOVERY_STEP_POOL[ctx.dominantAxis] ?? RECOVERY_STEP_POOL.structure;
   const secondaryPool = RECOVERY_STEP_POOL[ctx.secondaryAxis] ?? [];
+  const picks: string[] = [];
+
+  const pickFrom = (pool: readonly string[], salt: number) => {
+    if (pool.length === 0 || picks.length >= 3) return;
+    const step = pool[selectIndex(ctx, salt, pool.length)]!;
+    if (!picks.includes(step)) picks.push(step);
+  };
+
+  pickFrom(primaryPool, 40);
+  pickFrom(primaryPool, 41);
+  for (let salt = 42; picks.length < 3 && salt < 48; salt++) {
+    pickFrom(secondaryPool, salt);
+  }
   const merged = [...primaryPool];
   for (const step of secondaryPool) {
     if (!merged.includes(step)) merged.push(step);
   }
-  const picks: string[] = [];
-  for (let salt = 40; picks.length < 3 && salt < 55; salt++) {
-    const step = merged[selectIndex(ctx, salt, merged.length)]!;
-    if (!picks.includes(step)) picks.push(step);
+  for (let salt = 48; picks.length < 3 && salt < 55; salt++) {
+    pickFrom(merged, salt);
   }
   while (picks.length < 3) {
     picks.push(`短く立ち止まって、次の一歩を一つ選ぶ`);
