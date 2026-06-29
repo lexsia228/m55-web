@@ -3,10 +3,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
-  coreHeroSelfLanguageFingerprint,
+  CORE_HERO_EVERYDAY_LABEL,
   coreHeroSelfLanguageForResult,
 } from '../../lib/m55/coreHeroSelfLanguage';
-import { coreTraitDisplayFromCoreType } from '../../lib/m55/coreFreePublicDisplay';
 import { resolveCorePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
 import styles from './CoreExperience.module.css';
 
@@ -52,11 +51,10 @@ export default function CoreHeroSection({
 }) {
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
-  const observationTraitName = coreTraitDisplayFromCoreType(result.coreType);
+  const observationTraitName = heroSelfLanguage.displayTrait;
   const heroSelfLanguage = coreHeroSelfLanguageForResult(result);
   const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
   const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
-  const traitLabel = '読み方';
   const classLabelJa = '資質';
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrowPcFlat = useNarrowPcCoreHeroLayout();
@@ -138,10 +136,9 @@ export default function CoreHeroSection({
                   <span className={styles.corePosterMainHeadlineName}>{stemDisplay.publicTitle}</span>
                 </p>
                 <p className={styles.corePosterTraitRow}>
-                  <span className={styles.corePosterTraitRowBadge}>{traitLabel}</span>
-                  <span className={styles.corePosterTraitRowSep}>/</span>
-                  <span className={styles.corePosterTraitRowName}>{observationTraitName}</span>
+                  <span className={styles.corePosterTraitRowBadge}>{CORE_HERO_EVERYDAY_LABEL}</span>
                 </p>
+                <p className={styles.corePosterTraitRowName}>{observationTraitName}</p>
                 <p className={styles.corePosterHeroLead}>{heroSelfLanguage.primary}</p>
                 <p className={styles.corePosterHeroLead}>{heroSelfLanguage.secondary}</p>
               </div>
