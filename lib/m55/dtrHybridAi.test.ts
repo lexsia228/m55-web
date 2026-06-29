@@ -22,6 +22,10 @@ import {
   HYBRID_AI_QUALITY_VERSION,
 } from './dtrHybridAiSnapshotGeneration';
 import {
+  buildDtrSnapshotGenerationDbPayload,
+  PROHIBITED_META_KEYS,
+} from './dtrSnapshotGenerationMeta';
+import {
   createMockHybridAiProvider,
   createThrowingMockProvider,
   createForbiddenPhraseMockProvider,
@@ -365,5 +369,84 @@ describe('Hybrid AI boundary safety', () => {
     assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
     // Must still be old catalog — fulfillment switch (Commit B) not applied
     assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, 'dob-v2-2026-06');
+  });
+});
+
+// ── Generation DB payload integration ────────────────────────────────────────
+
+describe('Hybrid AI → generation DB payload', () => {
+  it('hybrid_ai success candidate produces valid DB payload', async () => {
+    const { ctx, ind } = buildTestContext();
+    const provider = createMockHybridAiProvider();
+    const result = await runHybridAiSnapshotGeneration(ctx, ind, provider);
+    assert.equal(result.ok, true);
+
+    // Build DB payload from meta
+    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
+    assert.equal(dbPayload.generation_mode, 'hybrid_ai');
+    assert.equal(dbPayload.quality_passed, true);
+    assert.equal(dbPayload.generation_meta_json.schemaVersion, '1');
+    assert.equal(dbPayload.generation_meta_json.selectedMode, 'hybrid_ai');
+  });
+
+  it('hybrid_ai_fallback candidate produces valid DB payload with quality_passed=false', async () => {
+    const { ctx, ind } = buildTestContext();
+    const provider = createThrowingMockProvider();
+    const result = await runHybridAiSnapshotGeneration(ctx, ind, provider);
+    assert.equal(result.ok, false);
+    assert.equal(result.mode, 'hybrid_ai_fallback');
+
+    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
+    assert.equal(dbPayload.generation_mode, 'hybrid_ai_fallback');
+    assert.equal(dbPayload.quality_passed, false);
+    assert.ok(dbPayload.generation_meta_json.fallbackReasonCode?.includes('provider_throw'));
+  });
+
+  it('deterministic candidate produces valid DB payload', () => {
+    const { ind } = buildTestContext();
+    const result = buildDeterministicSnapshotCandidate(ind);
+    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
+    assert.equal(dbPayload.generation_mode, 'deterministic');
+    assert.equal(dbPayload.quality_passed, true);
+  });
+
+  it('generation DB payload does not contain prohibited keys', async () => {
+    const { ctx, ind } = buildTestContext();
+    const provider = createMockHybridAiProvider();
+    const result = await runHybridAiSnapshotGeneration(ctx, ind, provider);
+    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
+    const serialized = JSON.stringify(dbPayload);
+    for (const key of PROHIBITED_META_KEYS) {
+      assert.ok(!serialized.includes(`"${key}"`), `Prohibited key "${key}" found in DB payload`);
+    }
+  });
+
+  it('generation DB payload for fallback (forbidden phrase) contains failure code', async () => {
+    const { ctx, ind } = buildTestContext();
+    const provider = createForbiddenPhraseMockProvider();
+    const result = await runHybridAiSnapshotGeneration(ctx, ind, provider);
+    assert.equal(result.ok, false);
+
+    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
+    assert.equal(dbPayload.generation_mode, 'hybrid_ai_fallback');
+    assert.ok(dbPayload.generation_meta_json.fallbackReasonCode?.includes('quality_fail'));
+  });
+
+  it('legacy path: no generationDbPayload means columns are null (source inspection)', () => {
+    const src = readFileSync(
+      new URL('./dtrDraftDb.ts', import.meta.url),
+      'utf8',
+    );
+    // generationDbPayload must be optional
+    assert.ok(src.includes('generationDbPayload?: DtrSnapshotGenerationDbPayload'));
+    // Generation columns only written in conditional block
+    assert.ok(src.includes('if (params.generationDbPayload)'));
+    // Base insertRow must not have generation_mode unconditionally
+    const baseInsertBlock = src.slice(
+      src.indexOf('const insertRow: Record<string, unknown>'),
+      src.indexOf('if (params.generationDbPayload)'),
+    );
+    assert.ok(!baseInsertBlock.includes('generation_mode'));
+    assert.ok(!baseInsertBlock.includes('quality_passed'));
   });
 });

@@ -10,6 +10,7 @@ import {
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import { M55CompositeStemError } from './compositeStem/types';
 import type { DtrEnvelope } from './dtrEngine';
+import type { DtrSnapshotGenerationDbPayload } from './dtrSnapshotGenerationMeta';
 
 export type GuestDraftRow = {
   id: string;
@@ -166,12 +167,17 @@ export type UpsertDtrReportSnapshotAtFulfillmentResult =
  * Build immutable snapshot at fulfillment. INSERT-only for new visible rows.
  * Hidden-only prior rows do not block INSERT (soft-hide repurchase).
  * Canonical v2-only write — buildV2FulfillmentSnapshot; no legacy JDN fallback.
+ *
+ * Optional `generationDbPayload`: when provided by the Hybrid AI orchestration path,
+ * generation_mode / quality_passed / generation_meta_json are written to the row.
+ * When absent (legacy deterministic path), these columns remain NULL.
  */
 export async function upsertDtrReportSnapshotAtFulfillment(params: {
   userId: string;
   productId: string;
   checkoutSessionId: string;
   sessionMetadata: Record<string, string> | null | undefined;
+  generationDbPayload?: DtrSnapshotGenerationDbPayload;
 }): Promise<UpsertDtrReportSnapshotAtFulfillmentResult> {
   const existingVisible = await getVisibleDtrReportSnapshot(params.userId, params.productId);
   if (existingVisible) {
@@ -230,6 +236,14 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
     engine_context_json,
     engine_version,
   };
+
+  // Optional generation metadata (Hybrid AI path only).
+  // Legacy deterministic path omits generationDbPayload → columns stay NULL.
+  if (params.generationDbPayload) {
+    insertRow.generation_mode = params.generationDbPayload.generation_mode;
+    insertRow.quality_passed = params.generationDbPayload.quality_passed;
+    insertRow.generation_meta_json = params.generationDbPayload.generation_meta_json;
+  }
 
   try {
     const db = getSupabaseAdmin() as any;
