@@ -53,6 +53,14 @@ describe('/core hero first-view clarity — CATEGORY-2-M55-CORE-HERO-FIRST-VIEW-
     assert.doesNotMatch(src, /corePosterTraitRowSep/);
   });
 
+  it('avoids double なりやすくなります in hero secondary lines', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/coreHeroSelfLanguage.ts'), 'utf8');
+    assert.doesNotMatch(src, /なりやすくなります/);
+    for (const { birthDate } of HERO_DOBS) {
+      const hero = coreHeroSelfLanguageForResult(buildFor(birthDate));
+      assert.doesNotMatch(`${hero.primary}\n${hero.secondary}`, /なりやすくなります/);
+    }
+  });
   it('uses compositional slots, not per-trait full-paragraph maps', () => {
     const src = readFileSync(join(process.cwd(), 'lib/m55/coreHeroSelfLanguage.ts'), 'utf8');
     assert.doesNotMatch(src, /1983-02-01/);

@@ -87,7 +87,7 @@ const HERO_SECONDARY_BY_LANE: Readonly<Record<number, readonly string[]>> = {
   ],
   9: [
     '小さな変化に気づいたら、一度立ち止まると選びやすくなります',
-    '深く確かめてから進むと、次の一歩が軽くなりやすくなります',
+    '深く確かめてから進むと、次の一歩を選びやすくなります',
   ],
 };
 
