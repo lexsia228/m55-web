@@ -91,7 +91,11 @@ const PHASE_DESCRIPTIONS: Readonly<Record<string, string>> = {
 const SYSTEM_FORBIDDEN_PHRASES: readonly string[] = [
   'このタイプ', '分析', '判定', '観測', '外部化',
   '感受の解像度', '微細な信号', '観測所型', '読み取りです', '正午基準',
-  '補正した読み取り', 'miさん', '甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸',
+  '補正した読み取り', 'miさん',
+  // Astrological specialist terms (full terms, not individual chars — 辛い/丁寧/甲斐 etc. are allowed)
+  '天干', '地支', '五行', '節気',
+  '甲木', '乙木', '丙火', '丁火', '戊土', '己土', '庚金', '辛金', '壬水', '癸水',
+  // Solar term romanized codes
   'xiaohan', 'dahan', 'lichun', 'yushui', 'jingzhe', 'chunfen',
   'qingming', 'guyu', 'lixia', 'xiaoman', 'mangzhong', 'xiazhi',
   'xiaoshu', 'dashu', 'liqiu', 'chushu', 'bailu', 'qiufen',
@@ -175,6 +179,7 @@ export function buildHybridAiPromptPayload(
         '保存版だけで完結しすぎず、返書購入につながる余白を残すこと。',
         '見出し・markdown記法は使わないこと。',
         '章の役割を必ず守ること。',
+        '天干・地支・五行・節気などの中国思想専門語や、甲木・乙木・丙火などの干支コードは出力に使わないこと。辛い・辛さ・丁寧・甲斐・乙女などの一般的な日本語は問題なく使ってよい。',
       ].join('\n'),
       roleGuidance: [
         '生年月日のリズムを根拠に、その人固有の傾向を生活語で伝えること。',

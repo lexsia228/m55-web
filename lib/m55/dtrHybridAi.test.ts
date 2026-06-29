@@ -209,6 +209,44 @@ describe('Hybrid AI quality validator', () => {
     assert.ok(result.overallFailCodes.includes('internal_label'));
   });
 
+  it('common Japanese words containing stem chars pass (辛い, 辛さ, 丁寧, 甲斐, 乙女)', () => {
+    // 辛い, 辛さ, 丁寧, 甲斐, 乙女 must NOT trigger internal_label — they are ordinary Japanese.
+    const body = goodBody('自分') +
+      '辛い時期がある。辛さを整えながら進む。丁寧に積み上げることで形になる。甲斐を感じる場面が増える。乙女のような繊細さがある。';
+    const result = validateHybridAiOutput({
+      s1_identity: body,
+      s2_composition: goodBody('進め方'),
+      s3_essence: goodBody('安定'),
+      s4_strengths: goodBody('生活'),
+    });
+    assert.ok(
+      !result.overallFailCodes.includes('internal_label'),
+      `Common Japanese words should not flag internal_label. Got: ${result.overallFailCodes.join(',')}`,
+    );
+  });
+
+  it('stem+element astrological label (甲木) → fail with internal_label', () => {
+    const result = validateHybridAiOutput({
+      s1_identity: goodBody('自分') + '甲木の性質です。',
+      s2_composition: goodBody('進め方'),
+      s3_essence: goodBody('安定'),
+      s4_strengths: goodBody('生活'),
+    });
+    assert.equal(result.pass, false);
+    assert.ok(result.overallFailCodes.includes('internal_label'));
+  });
+
+  it('天干 astrological terminology → fail with internal_label', () => {
+    const result = validateHybridAiOutput({
+      s1_identity: goodBody('自分') + '天干は甲です。',
+      s2_composition: goodBody('進め方'),
+      s3_essence: goodBody('安定'),
+      s4_strengths: goodBody('生活'),
+    });
+    assert.equal(result.pass, false);
+    assert.ok(result.overallFailCodes.includes('internal_label'));
+  });
+
   it('repeated sentence (3+ times) → fail with repeated_sentence', () => {
     const repeated = 'このリズムを日常に取り入れることで、自分のペースが保てます。';
     const result = validateHybridAiOutput({

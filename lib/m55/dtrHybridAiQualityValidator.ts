@@ -55,11 +55,18 @@ const FORBIDDEN_PHRASES: readonly string[] = [
 ];
 
 const FORBIDDEN_INTERNAL_LABELS: readonly RegExp[] = [
-  /[甲乙丙丁戊己庚辛壬癸]/,
+  // Heavenly stem + element combination used as astrological label
+  // (甲木, 乙木, 丙火, 丁火, 戊土, 己土, 庚金, 辛金, 壬水, 癸水).
+  // Bare stem chars like 辛 in 辛い or 丁 in 丁寧 are NOT matched here.
+  /[甲乙丙丁戊己庚辛壬癸][木火土金水]/,
+  // Astrological specialist terms that must not appear as labels in output
+  /天干|地支|五行|節気/,
+  // Solar term romanized codes (exact word boundary)
   /\b(xiaohan|dahan|lichun|yushui|jingzhe|chunfen|qingming|guyu)\b/,
   /\b(lixia|xiaoman|mangzhong|xiazhi|xiaoshu|dashu)\b/,
   /\b(liqiu|chushu|bailu|qiufen|hanlu|shuangjiang)\b/,
   /\b(lidong|xiaoxue|daxue|dongzhi)\b/,
+  // Internal field names
   /stemLane|stemIdx|lunarDay|solarTerm|lunarMonth/,
 ];
 
