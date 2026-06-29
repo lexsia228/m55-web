@@ -934,6 +934,44 @@ function hasSnapshotBody(body: string): boolean {
   return trimmed.length >= SNAPSHOT_BODY_MIN_CHARS;
 }
 
+function isHybridAiDisplayedSnapshot(mode?: DisplayedEnvelopeReadMode): boolean {
+  return mode === 'stored_v2_hybrid_ai';
+}
+
+/** hybrid_ai s1–s4: suppress PAID_DTR_CHAPTER_OPENING_COPY template lead before stored AI body. */
+function shouldSuppressDrawerChapterOpeningLead(
+  mode: DisplayedEnvelopeReadMode | undefined,
+  partId: PaidDtrReportPartId,
+  sections: {
+    s1?: DtrSection | null;
+    s2?: DtrSection | null;
+    s3?: DtrSection | null;
+    s4?: DtrSection | null;
+  },
+): boolean {
+  if (!isHybridAiDisplayedSnapshot(mode)) return false;
+  if (partId === '1') {
+    return Boolean(
+      (sections.s1 && hasSnapshotBody(sections.s1.body)) ||
+      (sections.s2 && hasSnapshotBody(sections.s2.body)),
+    );
+  }
+  if (partId === '2') {
+    return Boolean(
+      (sections.s3 && hasSnapshotBody(sections.s3.body)) ||
+      (sections.s4 && hasSnapshotBody(sections.s4.body)),
+    );
+  }
+  return false;
+}
+
+function hybridAiPrimarySectionBody(
+  mode: DisplayedEnvelopeReadMode | undefined,
+  body: string,
+): boolean {
+  return isHybridAiDisplayedSnapshot(mode) && hasSnapshotBody(body);
+}
+
 /** Extract individualization prefix blocks (【この保存版だけ〜】) from a section body for separate display. */
 function extractDobV2IndividualizationBlocks(body: string): string[] {
   return snapshotBodyParas(body).filter((p) => /^【この保存版だけ/.test(p));
@@ -1107,11 +1145,13 @@ function IdentityArticleWithBlueprint({
   stemIdx,
   nickname,
   openingLedeShown = false,
+  hybridAiPrimaryBody = false,
 }: {
   section: DtrSection;
   stemIdx: number;
   nickname?: string;
   openingLedeShown?: boolean;
+  hybridAiPrimaryBody?: boolean;
 }) {
   const paras = snapshotBodyParas(section.body);
   const useSnapshot = hasSnapshotBody(section.body);
@@ -1123,10 +1163,11 @@ function IdentityArticleWithBlueprint({
     `${displayName}さん自身が納得できる形まで向き合えることが、いちばん大切です。雑に済ませたくない気持ちは、弱さではなく、納得できる形まで向き合おうとする力です。ただし、細かい割り込みが続いたり、急かされる流れが続くと、自分のペースを失いやすくなります。`,
   ];
   const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
-  const inlineLede = openingLedeShown ? null : (paras[0] ?? null);
+  const showSectionTitle = hybridAiPrimaryBody || !openingLedeShown;
+  const inlineLede = (hybridAiPrimaryBody || openingLedeShown) ? null : (paras[0] ?? null);
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
-      {!openingLedeShown ? (
+      {showSectionTitle ? (
         <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
       ) : null}
       {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
@@ -1357,11 +1398,29 @@ function StructureInteractionMapFigures({ stemIdx }: { stemIdx: number }) {
 function CompositionArticleWithViz({
   section,
   stemIdx,
+  hybridAiPrimaryBody = false,
 }: {
   section: DtrSection;
   stemIdx: number;
+  hybridAiPrimaryBody?: boolean;
 }) {
   const paras = section.body.split('\n\n').filter((p) => p.trim());
+  if (hybridAiPrimaryBody && hasSnapshotBody(section.body)) {
+    return (
+      <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
+        <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
+        {paras.length > 0 ? (
+          <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+            {paras.map((para, i) => (
+              <BodyPara key={i} para={para} compact={false} />
+            ))}
+          </div>
+        ) : null}
+        <GraphCaption id="ch1-structure-radar" />
+        <StructureInteractionMapFigures stemIdx={stemIdx} />
+      </article>
+    );
+  }
   const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
@@ -1472,11 +1531,13 @@ function EssenceArticleWithViz({
   stemIdx,
   nickname,
   openingLedeShown = false,
+  hybridAiPrimaryBody = false,
 }: {
   section: DtrSection;
   stemIdx: number;
   nickname?: string;
   openingLedeShown?: boolean;
+  hybridAiPrimaryBody?: boolean;
 }) {
   const paras = snapshotBodyParas(section.body);
   const useSnapshot = hasSnapshotBody(section.body);
@@ -1488,7 +1549,7 @@ function EssenceArticleWithViz({
     'まずは、今日やることを一つだけに絞ります。全部を整えてから進むのではなく、「ここだけ先に整える」と決めると、動き出しやすくなります。',
   ];
   const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
-  const inlineLede = (!useSnapshot && !openingLedeShown) ? (paras[0] ?? null) : null;
+  const inlineLede = (hybridAiPrimaryBody || !useSnapshot || openingLedeShown) ? null : (paras[0] ?? null);
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
@@ -2973,21 +3034,31 @@ export default function DtrFullReader({
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="1" />
-                <DrawerChapterPersonalLead
-                  partId="1"
-                  nickname={view.nickname}
-                />
+                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', { s1, s2 }) ? (
+                  <DrawerChapterPersonalLead
+                    partId="1"
+                    nickname={view.nickname}
+                  />
+                ) : null}
                 {s1 ? (
                   <IdentityArticleWithBlueprint
                     section={s1}
                     stemIdx={stemIdx}
                     nickname={view.nickname}
-                    openingLedeShown={Boolean(sectionOpeningLede(s1.body))}
+                    hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s1.body)}
+                    openingLedeShown={
+                      !hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s1.body) &&
+                      Boolean(sectionOpeningLede(s1.body))
+                    }
                   />
                 ) : null}
                 {s2 ? (
                   <>
-                    <CompositionArticleWithViz section={s2} stemIdx={stemIdx} />
+                    <CompositionArticleWithViz
+                      section={s2}
+                      stemIdx={stemIdx}
+                      hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s2.body)}
+                    />
                     <div className={styles.chapterPilotBranchGuide} aria-label="次に読む章の目安">
                       <p className={styles.chapterPilotBranchLead}>
                         {PAID_DTR_CHAPTER1_PILOT_GUIDE.branchLeadJa}
@@ -3039,16 +3110,22 @@ export default function DtrFullReader({
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" />
-                <DrawerChapterPersonalLead
-                  partId="2"
-                  nickname={view.nickname}
-                />
+                {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', { s3, s4: gridS4 }) ? (
+                  <DrawerChapterPersonalLead
+                    partId="2"
+                    nickname={view.nickname}
+                  />
+                ) : null}
                 {s3 ? (
                   <EssenceArticleWithViz
                     section={s3}
                     stemIdx={stemIdx}
                     nickname={view.nickname}
-                    openingLedeShown={Boolean(sectionOpeningLede(s3.body))}
+                    hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s3.body)}
+                    openingLedeShown={
+                      !hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s3.body) &&
+                      Boolean(sectionOpeningLede(s3.body))
+                    }
                   />
                 ) : null}
               </div>

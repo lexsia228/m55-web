@@ -223,4 +223,61 @@ describe('dtrReader snapshot body wiring', () => {
     assert.equal(block.includes('section.body.split'), false);
     assert.equal(block.includes('savedGridBody'), false);
   });
+
+  // ── hybrid_ai template dominance fix ────────────────────────────────────────
+
+  it('isHybridAiDisplayedSnapshot helper is defined', () => {
+    assert.ok(readerSource.includes('function isHybridAiDisplayedSnapshot('));
+    assert.ok(readerSource.includes("mode === 'stored_v2_hybrid_ai'"));
+  });
+
+  it('shouldSuppressDrawerChapterOpeningLead helper is defined', () => {
+    assert.ok(readerSource.includes('function shouldSuppressDrawerChapterOpeningLead('));
+  });
+
+  it('chapter-1 suppresses DrawerChapterPersonalLead when hybrid_ai stored body present', () => {
+    assert.ok(
+      readerSource.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', { s1, s2 })"),
+    );
+    assert.ok(readerSource.includes('hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s1.body)'));
+  });
+
+  it('chapter-2 suppresses DrawerChapterPersonalLead when hybrid_ai stored body present', () => {
+    assert.ok(
+      readerSource.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', { s3, s4: gridS4 })"),
+    );
+    assert.ok(readerSource.includes('hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s3.body)'));
+  });
+
+  it('IdentityArticleWithBlueprint accepts hybridAiPrimaryBody prop', () => {
+    const block = extractFunctionBlock(readerSource, 'IdentityArticleWithBlueprint');
+    assert.ok(block.includes('hybridAiPrimaryBody'));
+    assert.ok(block.includes('showSectionTitle'));
+  });
+
+  it('CompositionArticleWithViz accepts hybridAiPrimaryBody prop for full stored body', () => {
+    const block = extractFunctionBlock(readerSource, 'CompositionArticleWithViz');
+    assert.ok(block.includes('hybridAiPrimaryBody'));
+    assert.ok(block.includes('hasSnapshotBody(section.body)'));
+  });
+
+  it('EssenceArticleWithViz accepts hybridAiPrimaryBody prop', () => {
+    const block = extractFunctionBlock(readerSource, 'EssenceArticleWithViz');
+    assert.ok(block.includes('hybridAiPrimaryBody'));
+  });
+
+  it('chapter-3 and chapter-4 still render DrawerChapterPersonalLead unconditionally', () => {
+    const renderBlockStart = readerSource.indexOf('const renderDrawerPanelBody');
+    assert.ok(renderBlockStart >= 0);
+    const chapter3 = readerSource.indexOf("case 'chapter-3':", renderBlockStart);
+    const chapter4 = readerSource.indexOf("case 'chapter-4':", renderBlockStart);
+    assert.ok(chapter3 >= 0 && chapter4 >= 0);
+    const ch3Slice = readerSource.slice(chapter3, chapter4);
+    assert.ok(ch3Slice.includes('<DrawerChapterPersonalLead'));
+    assert.equal(ch3Slice.includes('shouldSuppressDrawerChapterOpeningLead'), false);
+    const ch4End = readerSource.indexOf("case 'consult':", chapter4);
+    const ch4Slice = readerSource.slice(chapter4, ch4End >= 0 ? ch4End : chapter4 + 1200);
+    assert.ok(ch4Slice.includes('<DrawerChapterPersonalLead'));
+    assert.equal(ch4Slice.includes('shouldSuppressDrawerChapterOpeningLead'), false);
+  });
 });
