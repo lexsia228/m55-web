@@ -47,23 +47,19 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
-    heroTitleJa: '生まれた日から、今の自分の輪郭を見る',
-    heroSubJa:
-      '無料では、5つの視点から出やすい傾向を短く確認できます。保存版では、その輪郭を4章で読み返せる形に残します。',
-    heroSupportJa: 'まずは無料で輪郭を確認できます。',
-    tierStackAriaLabelJa: '無料で見えること、保存版で深まること、相談返書でできること',
-    tierFreeJa:
-      '5つの視点から、自分に出やすい傾向の輪郭を短く確認できます。',
+    heroTitleLine1Ja: '生まれた日から、',
+    heroTitleLine2Ja: '自分の輪郭を見る',
+    heroSubJa: '無料で、まず輪郭を見られます。',
+    heroSupportJa: 'まず無料で輪郭を確認できます。',
+    tierStackAriaLabelJa: '無料、保存版、相談返書',
+    tierFreeJa: '5つの視点で、今の輪郭を見る。',
     tierSavedBadgeJa: '保存版',
-    tierSavedJa:
-      'その輪郭を、力が出やすい場面・無理がたまりやすい条件・戻し方まで含め、4章で読み返せる形に残します。',
+    tierSavedJa: '輪郭を4章で読み返せる形に残す。',
     tierConsultBadgeJa: '相談返書',
-    tierConsultJa:
-      '保存版に紐づく、いまの1テーマだけを整理する返書です。会話を続ける形式ではありません。',
-    exploreHowSubJa: 'M55の見方や資料へ →',
-    exploreQualitiesSubJa: '10通りの資質の資料へ →',
-    fiveAxisLeadJa:
-      '無料では、この5つの視点から輪郭まで確認できます。',
+    tierConsultJa: '保存版に沿って、いまの1テーマを整理する。',
+    exploreHowSubJa: 'M55の見方を見る →',
+    exploreQualitiesSubJa: '10通りの資質を見る →',
+    fiveAxisLeadJa: '五つの視点は、いまのバランスをつかむためのものです。',
     algorithmNoteJa:
       'M55は、入力された情報をもとに、自分の傾向を整理するための仕組みです。',
     fiveAxisQualitiesNoteJa:
@@ -83,19 +79,16 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '保存版FULL（¥1,480（税込））：相談返書合計5件。',
     reportFullUpgradeNoteJa:
       'ライトで始めたあとも、必要に応じてFULL化できます。',
-    reportDepthNoteJa:
-      '無料で見えた輪郭を、購入時点の入力内容をもとに4章で読み返せる形に整理します。',
+    reportDepthNoteJa: '無料で見えた輪郭を、4章で読み返せる形に残します。',
     reportAuxJa:
       '相談返書は、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '保存版では、次の4章で整理します',
-    chapterMoreJa: '力が出やすい場面から、戻し方まで読み返せます。',
-    valueGapNoteJa: '無料で輪郭を見て、保存版で読み返せる4章に残します。',
   },
   learnMore: {
-    summaryJa: 'M55の仕組みと資料',
+    summaryJa: 'M55の仕組み',
     rulesJa: [
-      '無料では、5つの視点から輪郭まで確認できます。',
-      '保存版は、同じ土台を4章で読み返せる形に整理した有料の読み物です。',
+      '無料では、輪郭まで確認できます。',
+      '保存版は、4章で読み返せる形に整理した有料の読み物です。',
       'ライト購入後でも、必要になったらFULL化できます。',
       'プランの詳細は「保存版のプランを見る」から確認できます。',
     ] as const,
@@ -145,8 +138,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'M55の読み方を、無料の見取り図、4章の保存版、相談返書の順で静かに説明します。',
   },
   cta: {
-    openFreeMapJa: '無料の本質を見る',
-    viewFreeMapJa: '無料の本質を見る',
+    openFreeMapJa: '無料の見取り図を見る',
+    viewFreeMapJa: '無料の見取り図を見る',
     viewSavedPlansJa: '保存版のプランを見る',
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',

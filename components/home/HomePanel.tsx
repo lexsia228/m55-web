@@ -153,7 +153,8 @@ export default function HomePanel() {
                       <p className={styles.posterHeroBrandM55}>M55</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleJa}</span>
+                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
+                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
                     <p className={styles.posterHeroSupportInline}>{homeCopy.heroSubJa}</p>
                   </div>
@@ -164,6 +165,7 @@ export default function HomePanel() {
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-open-birth-intake"
+                        aria-label={`${ctaCopy.openFreeMapJa}。${homeCopy.heroSupportJa}`}
                         onClick={() => setBirthIntakeOpen(true)}
                       >
                         {ctaCopy.openFreeMapJa}
@@ -171,14 +173,15 @@ export default function HomePanel() {
                     )}
                     {hasProfile && (
                       <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
-                        <Link href="/core" className={styles.posterHeroCoreLinkA}>
+                        <Link
+                          href="/core"
+                          className={styles.posterHeroCoreLinkA}
+                          aria-label={`${ctaCopy.viewFreeMapJa}。${homeCopy.heroSupportJa}`}
+                        >
                           {ctaCopy.viewFreeMapJa} →
                         </Link>
                       </p>
                     )}
-                    <p className={styles.posterHeroSupportInline}>
-                      {homeCopy.heroSupportJa}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -350,8 +353,6 @@ export default function HomePanel() {
                       </span>
                     ))}
                   </div>
-                  <p className={styles.chapterMore}>{homeCopy.chapterMoreJa}</p>
-                  <p className={styles.valueGapNote}>{homeCopy.valueGapNoteJa}</p>
                 </div>
 
                 <p className={styles.reportAuxCard}>{homeCopy.reportAuxJa}</p>
