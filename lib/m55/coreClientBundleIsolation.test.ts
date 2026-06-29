@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 /** /core client seal + free display path — must not embed internal Japanese trait labels. */
 const CLIENT_SEAL_PATH_FILES = [
   'lib/m55/coreFreePublicDisplay.ts',
+  'lib/m55/coreFreeCompositionalGrammar.ts',
   'lib/m55/coreResult/store.ts',
   'lib/m55/coreResult/migrateV1.ts',
   'lib/m55/coreResult/buildCoreResult.client.ts',

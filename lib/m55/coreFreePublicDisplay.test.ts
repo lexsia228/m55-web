@@ -8,7 +8,9 @@ import {
   freeCoreAxisRowsForResult,
   freeCorePersonalizationFingerprint,
 } from './coreFreePublicDisplay';
+import { buildCopySelectContext, composeAxisRows } from './coreFreeCompositionalGrammar';
 import { tendencyAxesForResult } from '../../components/core/corePublicCopy';
+import { AXIS_FORMAL_JA } from '../../components/core/corePublicAxisLabels';
 
 const FORBIDDEN_DISPLAY_TERMS = [
   '構造探求',
@@ -24,12 +26,32 @@ const FORBIDDEN_DISPLAY_TERMS = [
   '読み取れます',
 ] as const;
 
+const PAID_LEAK_MARKERS = [
+  'dtrDobPersonalizationV2',
+  'PAID_DTR',
+  'buildPaidDtrIndividualization',
+  'chapter_id',
+  's3_essence',
+  's7_work',
+] as const;
+
+const ANCHOR_DATES = ['1983-02-01', '1983-02-28', '1992-12-19'] as const;
+
 function buildFor(birthDate: string) {
   return buildCoreResultClient({ nickname: 't', birthDate });
 }
 
-describe('/core free public display — CATEGORY-2-M55-CORE-PAGE-FREE-TO-PAID-PERSONALIZATION-COPY', () => {
-  it('maps TYPE_03 to living-language display alias', () => {
+function renderedBlob(birthDate: string): string {
+  const result = buildFor(birthDate);
+  return [
+    coreTraitDisplayFromCoreType(result.coreType),
+    ...freeCoreAxisRowsForResult(result).flatMap((row) => [row.tendency, row.life, row.load]),
+    freeCorePersonalizationFingerprint(result),
+  ].join('\n');
+}
+
+describe('/core compositional copy grammar — CATEGORY-2-M55-CORE-FREE-COMPOSITIONAL-COPY-GRAMMAR-REV1', () => {
+  it('maps TYPE_03 and TYPE_10 to living-language display alias', () => {
     assert.equal(coreTraitDisplayFromCoreType('TYPE_03'), '納得して組み立てる');
     assert.equal(coreTraitDisplayFromCoreType('TYPE_10'), '全体をつなげて整える');
   });
@@ -40,54 +62,90 @@ describe('/core free public display — CATEGORY-2-M55-CORE-PAGE-FREE-TO-PAID-PE
     assert.equal(coreTraitDisplayFromCoreType(buildFor('1992-12-19').coreType), '関係の温度を受け取る');
   });
 
+  it('1983-02-01 / 1983-02-28 / 1992-12-19 produce distinct personalization fingerprints', () => {
+    const fps = ANCHOR_DATES.map((d) => freeCorePersonalizationFingerprint(buildFor(d)));
+    assert.notEqual(fps[0], fps[1]);
+    assert.notEqual(fps[1], fps[2]);
+    assert.notEqual(fps[0], fps[2]);
+  });
+
+  it('1983-02-01 and 1983-02-28 differ by day band on first-axis life line', () => {
+    const feb01 = tendencyAxesForResult(buildFor('1983-02-01'));
+    const feb28 = tendencyAxesForResult(buildFor('1983-02-28'));
+    assert.match(feb01[0]!.life, /月初めに近い生まれでは、/);
+    assert.match(feb28[0]!.life, /月の後半に近い生まれでは、/);
+    assert.notEqual(feb01[0]!.life, feb28[0]!.life);
+  });
+
+  it('1992-12-19 differs from 1983-02-28 beyond trait name alone', () => {
+    const dec = buildFor('1992-12-19');
+    const feb = buildFor('1983-02-28');
+    const decRows = freeCoreAxisRowsForResult(dec);
+    const febRows = freeCoreAxisRowsForResult(feb);
+    assert.notEqual(dec.coreType, feb.coreType);
+    assert.notDeepEqual(
+      decRows.map((r) => r.life),
+      febRows.map((r) => r.life),
+    );
+  });
+
+  it('5-axis life bodies avoid verbatim repetition for one profile', () => {
+    const rows = tendencyAxesForResult(buildFor('1983-02-28'));
+    const lifeBodies = rows.map((row) => row.life);
+    const uniqueLife = new Set(lifeBodies);
+    assert.ok(uniqueLife.size >= 4, `expected >=4 unique life lines, got ${uniqueLife.size}`);
+  });
+
+  it('axis score band changes copy when band is toggled for one axis', () => {
+    const result = buildFor('1983-02-01');
+    const ctx = buildCopySelectContext(
+      result,
+      '1983-02-01',
+      coreTraitDisplayFromCoreType(result.coreType),
+    );
+    const hiRows = composeAxisRows(ctx, result.axisDetails, AXIS_FORMAL_JA);
+    const flipped = result.axisDetails.map((d) =>
+      d.key === 'openness'
+        ? { ...d, band: d.band === 'low' || d.band === 'mid-low' ? ('high' as const) : ('low' as const) }
+        : d,
+    );
+    const loRows = composeAxisRows(ctx, flipped, AXIS_FORMAL_JA);
+    const oi = result.axisDetails.findIndex((d) => d.key === 'openness');
+    assert.notEqual(hiRows[oi]!.tendency, loRows[oi]!.tendency);
+    assert.notEqual(hiRows[oi]!.life, loRows[oi]!.life);
+  });
+
   it('keeps forbidden internal labels out of rendered free-core copy surfaces', () => {
-    const dates = ['1983-02-01', '1983-02-28', '1992-12-19'];
-    for (const birthDate of dates) {
-      const result = buildFor(birthDate);
-      const blob = [
-        coreTraitDisplayFromCoreType(result.coreType),
-        ...freeCoreAxisRowsForResult(result).flatMap((row) => [row.tendency, row.life, row.load]),
-        freeCorePersonalizationFingerprint(result),
-      ].join('\n');
+    for (const birthDate of ANCHOR_DATES) {
+      const blob = renderedBlob(birthDate);
       for (const term of FORBIDDEN_DISPLAY_TERMS) {
         assert.equal(blob.includes(term), false, `${birthDate}: forbidden term ${term}`);
       }
     }
   });
 
-  it('1983-02-01 and 1983-02-28 produce clearly different free-core personalization', () => {
-    const feb01 = buildFor('1983-02-01');
-    const feb28 = buildFor('1983-02-28');
-    const fp01 = freeCorePersonalizationFingerprint(feb01);
-    const fp28 = freeCorePersonalizationFingerprint(feb28);
-    assert.notEqual(fp01, fp28);
-
-    const axes01 = tendencyAxesForResult(feb01);
-    const axes28 = tendencyAxesForResult(feb28);
-    assert.notDeepEqual(axes01, axes28);
-
-    assert.match(axes01[0]!.life, /月初めに近い生まれでは、/);
-    assert.match(axes28[0]!.life, /月の後半に近い生まれでは、/);
+  it('uses paid-style living language without paid corpus leakage', () => {
+    const grammarSrc = readFileSync(join(process.cwd(), 'lib/m55/coreFreeCompositionalGrammar.ts'), 'utf8');
+    const displaySrc = readFileSync(join(process.cwd(), 'lib/m55/coreFreePublicDisplay.ts'), 'utf8');
+    for (const marker of PAID_LEAK_MARKERS) {
+      assert.equal(grammarSrc.includes(marker), false, `grammar leak: ${marker}`);
+      assert.equal(displaySrc.includes(marker), false, `display leak: ${marker}`);
+    }
+    assert.match(grammarSrc, /力が出やすい/);
+    assert.match(grammarSrc, /無理がたまりやすい/);
+    assert.match(grammarSrc, /戻しやすい/);
+    assert.match(grammarSrc, /整え/);
+    assert.match(grammarSrc, /読み返/);
   });
 
-  it('1992-12-19 differs from 1983-02-28 anchor personalization', () => {
-    const dec19 = buildFor('1992-12-19');
-    const feb28 = buildFor('1983-02-28');
-    assert.notEqual(
-      freeCorePersonalizationFingerprint(dec19),
-      freeCorePersonalizationFingerprint(feb28),
-    );
+  it('does not define per-trait full-paragraph copy maps', () => {
+    const grammarSrc = readFileSync(join(process.cwd(), 'lib/m55/coreFreeCompositionalGrammar.ts'), 'utf8');
+    assert.doesNotMatch(grammarSrc, /TYPE_0[1-9]: ['"]{10,}/);
+    assert.doesNotMatch(grammarSrc, /FREE_.*TYPE_/);
   });
+});
 
-  it('5-axis bodies are not identical sentence templates across axes for one profile', () => {
-    const result = buildFor('1983-02-28');
-    const rows = tendencyAxesForResult(result);
-    const lifeBodies = rows.map((row) => row.life);
-    const uniqueLife = new Set(lifeBodies);
-    assert.equal(uniqueLife.size, lifeBodies.length, 'life bodies must not repeat verbatim');
-    assert.equal(lifeBodies.some((body) => body.includes('読み取れます')), false);
-  });
-
+describe('/core free public display — legacy personalization guards', () => {
   it('does not import paid saved-report deep-read corpus into free display module', () => {
     const src = readFileSync(join(process.cwd(), 'lib/m55/coreFreePublicDisplay.ts'), 'utf8');
     assert.doesNotMatch(src, /dtrDobPersonalizationV2/);
