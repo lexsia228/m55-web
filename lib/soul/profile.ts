@@ -95,6 +95,47 @@ export const ProfileRepository = {
     });
   },
 
+  /**
+   * My Page nickname edit — never fabricates birthDate/country.
+   * Full draft sync runs only when an existing birthDate is present.
+   */
+  saveNicknameOnly: (userId: string | null | undefined, nickname: string): BirthProfile | null => {
+    if (!isClient()) return null;
+    const trimmed = nickname.trim();
+    if (!trimmed) return null;
+
+    const existing = ProfileRepository.get(userId);
+    const ownerId = resolveOwnerId(userId);
+    const key = KEY_PROFILE_PREFIX + ownerId;
+
+    if (existing?.birthDate?.trim()) {
+      const normalized = enrichBirthProfileForSave({
+        nickname: trimmed,
+        birthDate: existing.birthDate,
+        birthTime: existing.birthTime ?? null,
+        birthTimeUnknown: Boolean(existing.birthTimeUnknown),
+        country: existing.country,
+        birthplace: existing.birthplace ?? null,
+        timezone: existing.timezone ?? null,
+        profileFormat: existing.profileFormat,
+      });
+      ProfileRepository.save(userId, normalized);
+      return normalized;
+    }
+
+    const partial: Partial<BirthProfile> & { nickname: string } = { nickname: trimmed };
+    if (existing?.birthTime != null) partial.birthTime = existing.birthTime;
+    if (existing?.birthTimeUnknown != null) partial.birthTimeUnknown = existing.birthTimeUnknown;
+    if (existing?.country) partial.country = existing.country;
+    if (existing?.birthplace != null) partial.birthplace = existing.birthplace;
+    if (existing?.timezone) partial.timezone = existing.timezone;
+    if (existing?.profileFormat) partial.profileFormat = existing.profileFormat;
+
+    localStorage.setItem(key, JSON.stringify(partial));
+    localStorage.removeItem(KEY_DISMISS_PREFIX + ownerId);
+    return partial as BirthProfile;
+  },
+
   exists: (userId?: string | null): boolean => {
     return !!ProfileRepository.get(userId);
   },

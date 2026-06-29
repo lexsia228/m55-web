@@ -2,13 +2,8 @@
 
 import Link from 'next/link';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
-import {
-  DEFAULT_COUNTRY,
-  SUPPORTED_COUNTRIES,
-  enrichBirthProfileForSave,
-} from '../../lib/soul/birthProfileV2';
 import {
   displayLabelForDtrRightKey,
   isEntryReportCoreRight,
@@ -282,7 +277,7 @@ export default function MyPanel() {
             <ConsultSection ownedReady={ownedReady} />
           )}
 
-          {user && profileState === 'ready' && entReady && (
+          {user && entReady && (profileState === 'ready' || hasEditableMyProfile(user.id)) && (
             <ProfileSection userId={user.id} />
           )}
         </div>
@@ -576,44 +571,31 @@ function useMyProfileState(userId: string | undefined): ProfileState | null {
   return state;
 }
 
+function hasEditableMyProfile(userId: string): boolean {
+  const p = ProfileRepository.get(userId);
+  return Boolean(p?.nickname?.trim());
+}
+
 function ProfileSection({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<BirthProfile | null>(null);
   const [nick, setNick] = useState('');
-  const [birth, setBirth] = useState('');
-  const [birthTime, setBirthTime] = useState('');
-  const [birthTimeUnknown, setBirthTimeUnknown] = useState(false);
-  const [country, setCountry] = useState(DEFAULT_COUNTRY);
-  const [birthplace, setBirthplace] = useState('');
   const [mode, setMode] = useState<'ready' | 'editing'>('ready');
-  const birthRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const p = ProfileRepository.get(userId);
-    if (p?.birthDate) {
+    if (p?.nickname?.trim() || p?.birthDate) {
       setProfile(p);
-      setNick(p.nickname);
-      setBirth(p.birthDate);
-      setBirthTime(p.birthTime ?? '');
-      setBirthTimeUnknown(Boolean(p.birthTimeUnknown));
-      setCountry(p.country ?? DEFAULT_COUNTRY);
-      setBirthplace(p.birthplace ?? '');
+      setNick(p.nickname ?? '');
     }
   }, [userId, mode]);
 
-  const canSave = nick.trim().length > 0 && !!birth;
+  const canSave = nick.trim().length > 0;
 
   const handleSave = () => {
     const trimmed = nick.trim();
-    if (!trimmed || !birth || !canSave) return;
-    const p = enrichBirthProfileForSave({
-      nickname: trimmed,
-      birthDate: birth,
-      birthTime: birthTimeUnknown ? null : birthTime || null,
-      birthTimeUnknown,
-      country,
-      birthplace: birthplace.trim() || null,
-    });
-    ProfileRepository.save(userId, p);
+    if (!trimmed || !canSave) return;
+    const p = ProfileRepository.saveNicknameOnly(userId, trimmed);
+    if (!p) return;
     setProfile(p);
     setMode('ready');
     try {
@@ -626,11 +608,6 @@ function ProfileSection({ userId }: { userId: string }) {
   const handleEdit = () => {
     if (profile) {
       setNick(profile.nickname);
-      setBirth(profile.birthDate);
-      setBirthTime(profile.birthTime ?? '');
-      setBirthTimeUnknown(Boolean(profile.birthTimeUnknown));
-      setCountry(profile.country ?? DEFAULT_COUNTRY);
-      setBirthplace(profile.birthplace ?? '');
     }
     setMode('editing');
   };
@@ -640,13 +617,6 @@ function ProfileSection({ userId }: { userId: string }) {
   };
 
   const handleNickKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      e.preventDefault();
-      birthRef.current?.focus();
-    }
-  };
-
-  const handleBirthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && canSave) handleSave();
   };
 
@@ -674,85 +644,7 @@ function ProfileSection({ userId }: { userId: string }) {
             maxLength={30}
           />
         </div>
-        <div className={styles.inputGroup}>
-          <label className={styles.inputLabel} htmlFor="mp-birth">
-            生年月日
-          </label>
-          <input
-            id="mp-birth"
-            type="date"
-            value={birth}
-            onChange={(e) => setBirth(e.target.value)}
-            onKeyDown={handleBirthKeyDown}
-            ref={birthRef}
-            className={styles.inputField}
-            max={new Date().toISOString().slice(0, 10)}
-          />
-        </div>
-        <div className={styles.inputGroup}>
-          <label className={styles.inputLabel} htmlFor="mp-birth-time">
-            出生時刻（任意）
-          </label>
-          <input
-            id="mp-birth-time"
-            type="time"
-            value={birthTime}
-            onChange={(e) => {
-              setBirthTime(e.target.value);
-              if (e.target.value) setBirthTimeUnknown(false);
-            }}
-            disabled={birthTimeUnknown}
-            className={styles.inputField}
-          />
-        </div>
-        <div className={styles.inputGroup}>
-          <label
-            className={styles.inputLabel}
-            style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}
-          >
-            <input
-              type="checkbox"
-              checked={birthTimeUnknown}
-              onChange={(e) => {
-                setBirthTimeUnknown(e.target.checked);
-                if (e.target.checked) setBirthTime('');
-              }}
-            />
-            出生時刻は不明
-          </label>
-        </div>
-        <div className={styles.inputGroup}>
-          <label className={styles.inputLabel} htmlFor="mp-country">
-            国（必須）
-          </label>
-          <select
-            id="mp-country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className={styles.inputField}
-          >
-            {SUPPORTED_COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.inputGroup}>
-          <label className={styles.inputLabel} htmlFor="mp-birthplace">
-            出生地（任意）
-          </label>
-          <input
-            id="mp-birthplace"
-            type="text"
-            value={birthplace}
-            onChange={(e) => setBirthplace(e.target.value)}
-            placeholder="例：東京都"
-            className={styles.inputField}
-            maxLength={120}
-          />
-        </div>
-        {!canSave && birth && (
+        {!canSave && (
           <p className={styles.muted}>ニックネームを入力してください。</p>
         )}
         <div className={styles.formActions}>
@@ -767,18 +659,6 @@ function ProfileSection({ userId }: { userId: string }) {
     );
   }
 
-  const formattedBirth = profile?.birthDate
-    ? profile.birthDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1年$2月$3日')
-    : '';
-  const timeLine = profile?.birthTimeUnknown
-    ? '出生時刻：不明'
-    : profile?.birthTime
-    ? `出生時刻：${profile.birthTime.slice(0, 5)}`
-    : null;
-  const countryLabel =
-    SUPPORTED_COUNTRIES.find((c) => c.code === (profile?.country ?? DEFAULT_COUNTRY))?.label ??
-    profile?.country;
-
   return (
     <section className={styles.card} aria-label={MY_PROFILE_SECTION_TITLE}>
       <div className={styles.sectionHead}>
@@ -788,20 +668,6 @@ function ProfileSection({ userId }: { userId: string }) {
         </button>
       </div>
       <p className={styles.body}>{profile?.nickname}</p>
-      {formattedBirth && <p className={styles.muted}>{formattedBirth}</p>}
-      {timeLine && <p className={styles.muted}>{timeLine}</p>}
-      {countryLabel && <p className={styles.muted}>国：{countryLabel}</p>}
-      {profile?.birthplace && <p className={styles.muted}>出生地：{profile.birthplace}</p>}
-      {profile?.timezone && (
-        <p className={styles.muted} style={{ fontSize: 11 }}>
-          タイムゾーン：{profile.timezone}
-        </p>
-      )}
-      {profile && !profile.birthTime && (
-        <p className={styles.muted} style={{ fontSize: 12 }}>
-          出生時刻が未入力の場合は、時刻不明として扱います。
-        </p>
-      )}
     </section>
   );
 }

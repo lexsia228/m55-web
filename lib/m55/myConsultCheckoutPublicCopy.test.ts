@@ -221,7 +221,7 @@ describe('myConsultCheckoutPublicCopy — ShellLayout SoulBirthGate boundary (PA
     assert.equal(MY_FIRST_TIME_CTA_HREF, '/home');
     assert.match(EDITING_PROFILE_BRANCH, /mp-nick/);
     assert.match(EDITING_PROFILE_BRANCH, /保存する/);
-    assert.match(PROFILE_SECTION_BLOCK, /MY_PROFILE_EDIT_CTA_LABEL/);
+    assert.match(PROFILE_SECTION_BLOCK, /ProfileRepository\.saveNicknameOnly/);
   });
 });
 
@@ -260,7 +260,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.match(SIGNED_IN_BLOCK, /\{entReady &&/);
     assert.match(SIGNED_IN_BLOCK, /ConsultSection ownedReady/);
     assert.match(SIGNED_IN_BLOCK, /profileState === 'no_profile' && entReady/);
-    assert.match(SIGNED_IN_BLOCK, /profileState === 'ready' && entReady/);
+    assert.match(SIGNED_IN_BLOCK, /profileState === 'ready' \|\| hasEditableMyProfile\(user\.id\)/);
   });
 
   it('limits primary CTAs by state in SavedReportSection and ConsultSection', () => {

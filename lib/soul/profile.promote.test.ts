@@ -6,6 +6,7 @@ import {
   hasCompleteCanonicalProfile,
   ProfileRepository,
   promoteGuestProfileToClerkUser,
+  type BirthProfile,
 } from './profile';
 
 const DEVICE_ID = 'test-device-uuid-promote';
@@ -105,10 +106,65 @@ describe('promoteGuestProfileToClerkUser — fill-empty-only', () => {
   });
 });
 
+describe('ProfileRepository.saveNicknameOnly', () => {
+  let fetchCalls = 0;
+
+  beforeEach(() => {
+    installBrowserGlobals();
+    resetStorage();
+    fetchCalls = 0;
+    Object.defineProperty(globalThis, 'fetch', {
+      value: async () => {
+        fetchCalls += 1;
+        return { ok: true };
+      },
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    storage.clear();
+  });
+
+  it('updates nickname while preserving birthDate and birth metadata', () => {
+    ProfileRepository.save(CLERK_ID, {
+      nickname: 'mi',
+      birthDate: '1992-12-19',
+      birthTime: '08:30',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: 'Tokyo',
+    });
+
+    const saved = ProfileRepository.saveNicknameOnly(CLERK_ID, 'sora');
+
+    assert.equal(saved?.nickname, 'sora');
+    assert.equal(saved?.birthDate, '1992-12-19');
+    assert.equal(saved?.birthTime, '08:30');
+    assert.equal(saved?.birthplace, 'Tokyo');
+    assert.equal(fetchCalls, 2);
+  });
+
+  it('stores nickname-only profile without fabricating birthDate or syncing draft', () => {
+    storage.set(clerkKey(), JSON.stringify({ nickname: 'old' }));
+
+    const saved = ProfileRepository.saveNicknameOnly(CLERK_ID, 'sora');
+
+    assert.equal(saved?.nickname, 'sora');
+    assert.equal(saved?.birthDate, undefined);
+    const raw = JSON.parse(storage.get(clerkKey()) ?? '{}') as BirthProfile;
+    assert.equal(raw.nickname, 'sora');
+    assert.equal(raw.birthDate, undefined);
+    assert.equal(raw.country, undefined);
+    assert.equal(fetchCalls, 0);
+  });
+});
+
 describe('MyPanel profile save event', () => {
   it('Test D: handleSave dispatches m55:profile_updated', () => {
     const src = readFileSync(join(process.cwd(), 'components/my/MyPanel.tsx'), 'utf8');
-    assert.match(src, /ProfileRepository\.save\(userId, p\)/);
+    assert.match(src, /ProfileRepository\.saveNicknameOnly\(userId, trimmed\)/);
     assert.match(src, /window\.dispatchEvent\(new Event\('m55:profile_updated'\)\)/);
   });
 });
