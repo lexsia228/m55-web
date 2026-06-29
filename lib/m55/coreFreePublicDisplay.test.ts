@@ -68,8 +68,8 @@ describe('/core compositional copy grammar — micro-fix guards', () => {
   it('1983-02-01 and 1983-02-28 month rhythm tails differ on axis0', () => {
     const feb01 = freeCoreAxisRowsForResult(buildFor('1983-02-01'))[0]!.life;
     const feb28 = freeCoreAxisRowsForResult(buildFor('1983-02-28'))[0]!.life;
-    assert.match(feb01, /始め方にも合いやすくなります。/);
-    assert.match(feb28, /区切りにも合いやすくなります。/);
+    assert.match(feb01, /始め方が自然に決まりやすくなります。/);
+    assert.match(feb28, /区切りを置きやすくなります。/);
   });
 });
 

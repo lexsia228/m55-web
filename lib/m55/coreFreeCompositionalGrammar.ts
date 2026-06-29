@@ -49,7 +49,7 @@ const MONTH_RHYTHM_NOTE: readonly string[] = [
   '範囲を絞ってから動くほど、無理がたまりにくくなります。',
   '切り替えをはっきり置くほど、整えやすくなります。',
   'ペースを落として確認するほど、戻しやすくなります。',
-  '一度立ち止まるほど、読み返しやすくなります。',
+  '一度立ち止まるほど、次の動きを選びやすくなります。',
   '短く検討するほど、落ち着きやすくなります。',
   '手元を守るほど、日常に合いやすくなります。',
   '終えたことを確かめてから次へ進むほど、安定しやすくなります。',
@@ -62,9 +62,18 @@ const DAY_RHYTHM_NOTE: Readonly<Record<DayBand, string>> = {
 };
 
 const MONTH_DAY_TAIL: Readonly<Record<DayBand, string>> = {
-  early: '始め方にも合いやすくなります。',
-  mid: '途中のペースにも合いやすくなります。',
-  late: '区切りにも合いやすくなります。',
+  early: '始め方が自然に決まりやすくなります。',
+  mid: '途中のペースを保ちやすくなります。',
+  late: '区切りを置きやすくなります。',
+};
+
+/** 条件 scene → 解決動作（life 文に必ず挿入）。 */
+const CONDITIONAL_LIFE_ACTION: Readonly<Record<string, string>> = {
+  期待が曖昧になりやすい場: '先に線引きを短く言葉にすると、',
+};
+
+const CONDITIONAL_AXIS0_ACTION: Readonly<Record<string, string>> = {
+  '期待が曖昧になりやすい場では': '先に線引きを短く言葉にすると、',
 };
 
 /** Axis0 openings — と/条件形で dayBand lead と二重「では」を避ける。 */
@@ -83,7 +92,7 @@ const LIFE_AXIS0_OPEN: Readonly<Record<AxisKey, { hi: readonly string[]; lo: rea
   },
   cooperation: {
     hi: ['合わせが続く場面では', '調整役が求められる日は'],
-    lo: ['線引きをはっきり置ける関係を選ぶと', '期待が曖昧になりやすい場では'],
+    lo: ['線引きをはっきり置ける関係を選ぶと', '期待が曖昧になりやすい場では先に線引きを短く言葉にすると'],
   },
   structure: {
     hi: ['段取りが見える場面では', '優先順位がはっきりした流れでは'],
@@ -108,12 +117,25 @@ function traitEmbedLead(traitMicro: string): string {
   return toHodo[traitMicro] ?? traitMicro.replace(/と$/, 'ほど');
 }
 
+function formatContrastNegative(neg: string): string {
+  const n = neg.trim();
+  if (n.includes('追いつ') && n.includes('にく')) return '手元の整理が追いつかなくなると';
+  if (n.includes('本音')) return '本音が後回しになりすぎると';
+  if (n.includes('期待') && n.includes('飲み込')) return '期待を飲み込みすぎると';
+  if (n.includes('迷い')) return '迷いが増えると';
+  if (n.includes('神経')) return '神経が張り続けると';
+  if (n.includes('無理') && n.includes('たま')) return '無理がたまりすぎると';
+  if (n.endsWith('やすい')) return n.replace(/やすい$/, 'すぎると');
+  if (n.endsWith('にくい')) return n.replace(/にくい$/, 'くなると');
+  return `${n}と`;
+}
+
 function finishEffect(effect: string): string {
   const trimmed = effect.trim();
   if (trimmed.includes('一方、')) {
     const [positive, negative] = trimmed.split('一方、');
     const pos = positive!.trim();
-    const neg = negative!.trim().replace(/やすい$/, 'すぎると').replace(/にくい$/, 'すぎると');
+    const neg = formatContrastNegative(negative!.trim());
     return `${pos}一方、${neg}疲れが残りやすくなります。`;
   }
   if (trimmed.endsWith('やすい')) return `${trimmed.replace(/やすい$/, 'やすく')}なります。`;
@@ -126,7 +148,7 @@ function finishAxis0Tail(effect: string): string {
   if (trimmed.includes('一方、')) {
     const [positive, negative] = trimmed.split('一方、');
     const pos = positive!.trim();
-    const neg = negative!.trim().replace(/やすい$/, 'すぎると').replace(/にくい$/, 'すぎると');
+    const neg = formatContrastNegative(negative!.trim());
     return `、${pos}一方、${neg}疲れが残りやすくなります。`;
   }
   if (trimmed.startsWith('深く関わる')) {
@@ -144,7 +166,7 @@ function weaveTraitLife(scene: string, effect: string, traitMicro: string): stri
       if (neg.includes('期待') || neg.includes('本音')) {
         return `${embed}期待を飲み込みすぎると、疲れが残りやすくなります。`;
       }
-      return `${embed}${neg.replace(/やすい$/, 'すぎると')}疲れが残りやすくなります。`;
+      return `${embed}${formatContrastNegative(neg)}疲れが残りやすくなります。`;
     }
     return `${scene}では、${embed}${finishEffect(effect)}`;
   }
@@ -166,6 +188,10 @@ function monthRhythmWithDayBand(ctx: CopySelectContext): string {
 
 function composeLifeCore(scene: string, effect: string, traitMicro?: string): string {
   if (traitMicro) return weaveTraitLife(scene, effect, traitMicro);
+  const action = CONDITIONAL_LIFE_ACTION[scene];
+  if (action) {
+    return `${scene}では、${action}${finishEffect(effect)}`;
+  }
   return `${scene}では、${finishEffect(effect)}`;
 }
 
@@ -186,7 +212,8 @@ function composeAxis0Life(ctx: CopySelectContext, axisKey: AxisKey, hi: boolean)
   } else if (opening.endsWith('と')) {
     body = `${opening}${finishAxis0Tail(effect)}`;
   } else if (opening.endsWith('は') || opening.endsWith('では')) {
-    body = `${opening}、${finishEffect(effect)}`;
+    const axis0Action = CONDITIONAL_AXIS0_ACTION[opening] ?? '';
+    body = `${opening}${axis0Action}${finishEffect(effect)}`;
   } else {
     body = `${opening}${finishEffect(effect)}`;
   }
@@ -238,7 +265,7 @@ const LIFE_SCENE: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly
   },
   structure: {
     hi: ['段取りが見える場面', '優先順位がはっきりした流れ'],
-    lo: ['段取りが曖昧なまま進む日', '急な変更が重なる場面'],
+    lo: ['段取りを先に確認できる日', '急な変更が重なる場面'],
   },
 };
 
@@ -312,10 +339,10 @@ const LOAD_EFFECT: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonl
 };
 
 const RECOVERY_MICRO: Readonly<Record<AxisKey, readonly string[]>> = {
-  socialEnergy: ['短い余白を確保すると戻しやすい', '距離を一度整えると、読み返しやすい'],
+  socialEnergy: ['短い余白を確保すると戻しやすい', '距離を一度整えると、関係を戻しやすい'],
   stability: ['リズムを先に整えると、戻しやすい', '小さな違和感を短くメモすると、整えやすい'],
   openness: ['論点を一つに絞ると、戻しやすい', '残すものを先に決めると、整えやすい'],
-  cooperation: ['線引きを短く言葉にすると、戻しやすい', '一度保留すると、読み返しやすい'],
+  cooperation: ['線引きを短く言葉にすると、戻しやすい', '一度保留すると、ペースを取り戻しやすい'],
   structure: ['順番を見える形にすると、戻しやすい', '整え直す時間を短く確保すると、整えやすい'],
 };
 
@@ -334,7 +361,7 @@ const SCENE_RELATION: readonly string[] = [
 const SCENE_CLOSE: readonly string[] = [
   '安心できる距離が保てるほど、やさしさや誠実さが出やすくなります。近い関係ほど、短く具体に伝えるほうが誤解が減りやすいです。',
   '期待を飲み込みすぎないほうが、長く続く関係を保ちやすくなります。',
-  '衝突の場面では、落ち着いて言葉を選ぶほうが、読み返しやすい関係を残しやすいです。',
+  '衝突の場面では、落ち着いて言葉を選ぶほうが、あとから振り返っても崩れにくい関係を残しやすいです。',
 ];
 
 const RECOVERY_STEP: Readonly<Record<AxisKey, readonly [string, string, string]>> = {
