@@ -391,15 +391,20 @@ describe('Hybrid AI → generation DB payload', () => {
 
   it('hybrid_ai_fallback candidate produces valid DB payload with quality_passed=false', async () => {
     const { ctx, ind } = buildTestContext();
-    const provider = createThrowingMockProvider();
-    const result = await runHybridAiSnapshotGeneration(ctx, ind, provider);
-    assert.equal(result.ok, false);
-    assert.equal(result.mode, 'hybrid_ai_fallback');
+    const { buildFulfillmentSnapshotGenerationResolution } = await import('./dtrFulfillmentSnapshotGenerationHook');
+    const result = await buildFulfillmentSnapshotGenerationResolution({
+      engineContextJson: ctx,
+      fallbackInd: ind,
+      provider: createThrowingMockProvider(),
+    });
+    assert.ok(result.generationDbPayload);
+    assert.equal(result.generationDbPayload!.generation_mode, 'hybrid_ai_fallback');
+    assert.equal(result.generationDbPayload!.quality_passed, false);
 
-    const dbPayload = buildDtrSnapshotGenerationDbPayload(result.meta);
-    assert.equal(dbPayload.generation_mode, 'hybrid_ai_fallback');
-    assert.equal(dbPayload.quality_passed, false);
+    const dbPayload = result.generationDbPayload!;
     assert.ok(dbPayload.generation_meta_json.fallbackReasonCode?.includes('provider_throw'));
+    assert.ok(!dbPayload.generation_meta_json.fallbackReasonCode?.includes('Error:'));
+    assert.ok(!dbPayload.generation_meta_json.fallbackReasonCode?.includes('mock provider'));
   });
 
   it('deterministic candidate produces valid DB payload', () => {

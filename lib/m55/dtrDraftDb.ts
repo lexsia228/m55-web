@@ -14,7 +14,7 @@ import type { DtrSnapshotGenerationDbPayload } from './dtrSnapshotGenerationMeta
 import { composePaidIndividualizationFromEngineContext } from './dtrPaidIndividualizationCompose';
 import {
   resolveFulfillmentSnapshotGenerationResolution,
-  resolveMockDtrHybridAiProvider,
+  resolveFulfillmentHybridAiProvider,
 } from './dtrFulfillmentSnapshotGenerationHook';
 
 export type GuestDraftRow = {
@@ -234,7 +234,7 @@ export async function upsertDtrReportSnapshotAtFulfillment(params: {
       const resolution = await resolveFulfillmentSnapshotGenerationResolution({
         engineContextJson: v2Base.engine_context_json,
         fallbackInd,
-        provider: resolveMockDtrHybridAiProvider(),
+        provider: resolveFulfillmentHybridAiProvider(),
       });
       generationDbPayload = resolution.generationDbPayload;
       generatedChapterBodies = resolution.generatedChapterBodies;

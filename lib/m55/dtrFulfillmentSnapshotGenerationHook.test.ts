@@ -18,6 +18,8 @@ import {
   resolveFulfillmentSnapshotGenerationResolution,
   buildFulfillmentSnapshotGenerationResolution,
   resolveMockDtrHybridAiProvider,
+  resolveFulfillmentHybridAiProvider,
+  sanitizeHybridAiFallbackReason,
 } from './dtrFulfillmentSnapshotGenerationHook';
 import {
   createMockHybridAiProvider,
@@ -215,7 +217,11 @@ describe('Fulfillment snapshot generation hook — hybrid fallback', () => {
       assert.equal(resolution.generationDbPayload!.generation_mode, 'hybrid_ai_fallback');
       assert.equal(resolution.generationDbPayload!.quality_passed, false);
       assert.equal(resolution.generatedChapterBodies, undefined);
-      assert.ok(resolution.generationDbPayload!.generation_meta_json.fallbackReasonCode?.includes('provider_throw'));
+      const code = resolution.generationDbPayload!.generation_meta_json.fallbackReasonCode;
+      assert.ok(code?.includes('provider_throw'));
+      assert.ok(!code?.includes('Error:'));
+      assert.ok(!code?.includes('simulated'));
+      assert.ok(!code?.includes('mock provider'));
     });
   });
 
@@ -280,8 +286,9 @@ describe('dtrDraftDb upsert — idempotency + resolution order', () => {
     assert.ok(DRAFT_DB_SRC.includes('buildV2FulfillmentSnapshot(params.sessionMetadata, draft, { generatedChapterBodies })'));
   });
 
-  it('resolveMockDtrHybridAiProvider used — no real provider import', () => {
-    assert.ok(DRAFT_DB_SRC.includes('resolveMockDtrHybridAiProvider()'));
+  it('resolveFulfillmentHybridAiProvider used — no direct openai import in dtrDraftDb', () => {
+    assert.ok(DRAFT_DB_SRC.includes('resolveFulfillmentHybridAiProvider()'));
+    assert.ok(!DRAFT_DB_SRC.includes('resolveMockDtrHybridAiProvider()'));
     assert.ok(!DRAFT_DB_SRC.includes('openai'));
     assert.ok(!DRAFT_DB_SRC.toLowerCase().includes('gemini'));
   });
@@ -344,5 +351,125 @@ describe('Fulfillment snapshot generation hook — boundary safety', () => {
     assert.ok(!HOOK_SRC.includes('読み取りです'));
     assert.ok(!HOOK_SRC.includes('このタイプ'));
     assert.ok(!HOOK_SRC.includes('miさん'));
+  });
+});
+
+// ── Provider resolver wiring ────────────────────────────────────────────────────
+
+describe('Fulfillment snapshot generation hook — provider resolver wiring', () => {
+  it('env unset → resolveFulfillmentHybridAiProvider returns mock only', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, undefined, async () => {
+      const provider = resolveFulfillmentHybridAiProvider();
+      assert.equal(provider.providerId, 'mock_pass');
+    });
+  });
+
+  it('env invalid → resolveFulfillmentHybridAiProvider returns mock only', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'enabled', async () => {
+      const provider = resolveFulfillmentHybridAiProvider();
+      assert.equal(provider.providerId, 'mock_pass');
+    });
+  });
+
+  it('env preview → resolveFulfillmentHybridAiProvider returns openai provider id', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const provider = resolveFulfillmentHybridAiProvider();
+      assert.equal(provider.providerId, 'openai_gpt-4.1-mini');
+    });
+  });
+
+  it('env production → resolveFulfillmentHybridAiProvider returns openai provider id', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'production', async () => {
+      const provider = resolveFulfillmentHybridAiProvider();
+      assert.equal(provider.providerId.startsWith('openai_'), true);
+    });
+  });
+
+  it('env preview + explicit mock provider in resolution → mock used, no API key needed', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const savedKey = process.env['OPENAI_API_KEY'];
+      delete process.env['OPENAI_API_KEY'];
+      try {
+        const { ctx, ind } = buildTestContext();
+        const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+          engineContextJson: ctx,
+          fallbackInd: ind,
+          provider: createMockHybridAiProvider(),
+        });
+        assert.equal(resolution.generationDbPayload!.generation_mode, 'hybrid_ai');
+      } finally {
+        if (savedKey !== undefined) process.env['OPENAI_API_KEY'] = savedKey;
+      }
+    });
+  });
+});
+
+// ── fallbackReason sanitize ─────────────────────────────────────────────────────
+
+describe('Fulfillment snapshot generation hook — fallbackReason sanitize', () => {
+  it('sanitize maps raw SDK timeout error to provider_timeout', () => {
+    const raw = 'provider_throw: Error: mock provider error: simulated timeout';
+    assert.equal(sanitizeHybridAiFallbackReason(raw), 'provider_throw: provider_timeout');
+  });
+
+  it('sanitize maps missing api key error to provider_missing_api_key', () => {
+    const raw = 'provider_throw: Error: openai_provider_missing_api_key';
+    assert.equal(sanitizeHybridAiFallbackReason(raw), 'provider_throw: provider_missing_api_key');
+  });
+
+  it('sanitize maps malformed output error safely', () => {
+    const raw = 'provider_throw: Error: provider_malformed_output: invalid JSON';
+    const safe = sanitizeHybridAiFallbackReason(raw);
+    assert.equal(safe, 'provider_throw: provider_malformed_output: invalid json');
+  });
+
+  it('sanitize strips api key patterns from reason', () => {
+    const raw = 'provider_throw: Error: Authentication failed sk-abc123secretkey';
+    assert.equal(sanitizeHybridAiFallbackReason(raw), 'provider_throw');
+  });
+
+  it('sanitize strips stack traces from reason', () => {
+    const raw = 'provider_throw: Error: fail\n    at Object.generate (/path/file.ts:10:5)';
+    assert.equal(sanitizeHybridAiFallbackReason(raw), 'provider_throw');
+  });
+
+  it('quality_fail codes preserved safely', () => {
+    const raw = 'quality_fail:forbidden_phrase,section_too_short';
+    assert.equal(sanitizeHybridAiFallbackReason(raw), 'quality_fail:forbidden_phrase,section_too_short');
+  });
+
+  it('provider timeout via OpenAI provider throw → safe metadata only', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const throwingProvider = {
+        providerId: 'mock_timeout',
+        async generate(): Promise<never> {
+          throw new Error('provider_timeout');
+        },
+      };
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: throwingProvider,
+      });
+      const code = resolution.generationDbPayload!.generation_meta_json.fallbackReasonCode;
+      assert.equal(code, 'provider_throw: provider_timeout');
+      assert.ok(!JSON.stringify(resolution).includes('sk-'));
+    });
+  });
+
+  it('metadata does not contain raw prompt/response/body on fallback', async () => {
+    await withEnv(DTR_HYBRID_AI_ENABLED_ENV, 'preview', async () => {
+      const { ctx, ind } = buildTestContext();
+      const resolution = await resolveFulfillmentSnapshotGenerationResolution({
+        engineContextJson: ctx,
+        fallbackInd: ind,
+        provider: createThrowingMockProvider(),
+      });
+      const serialized = JSON.stringify(resolution);
+      for (const banned of ['choices', 'messages', 'rawPrompt', 'rawResponse', 'birth_date', 'email']) {
+        assert.ok(!serialized.includes(`"${banned}"`), `Banned key "${banned}" in resolution`);
+      }
+    });
   });
 });

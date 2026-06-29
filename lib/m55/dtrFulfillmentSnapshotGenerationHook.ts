@@ -78,7 +78,6 @@ export function resolveMockDtrHybridAiProvider(): HybridAiProvider {
  * Reads DTR_HYBRID_AI_PROVIDER (default: 'openai') and DTR_HYBRID_AI_MODEL (default: 'gpt-4.1-mini').
  * Does NOT activate the fulfillment runtime — isDtrHybridAiFulfillmentEnabled() controls that.
  * OPENAI_API_KEY is read lazily inside the provider's generate() call, not here.
- * For wiring in a later gate when DTR_HYBRID_AI_ENABLED=preview|production.
  */
 export function resolveRealDtrHybridAiProvider(): HybridAiProvider {
   const providerName = (process.env['DTR_HYBRID_AI_PROVIDER'] ?? 'openai').trim().toLowerCase();
@@ -90,6 +89,115 @@ export function resolveRealDtrHybridAiProvider(): HybridAiProvider {
 
   // Unknown provider name: fall back to mock (safe; env guard controls actual activation)
   return createMockHybridAiProvider();
+}
+
+/**
+ * Fulfillment-time provider resolver.
+ * - env inactive: mock only (never called — resolveFulfillmentSnapshotGenerationResolution returns {} first)
+ * - env preview|production: real provider resolver (OpenAI by default; API key lazy at generate())
+ */
+export function resolveFulfillmentHybridAiProvider(): HybridAiProvider {
+  if (!isDtrHybridAiFulfillmentEnabled()) {
+    return createMockHybridAiProvider();
+  }
+  return resolveRealDtrHybridAiProvider();
+}
+
+/** Safe provider-throw sub-codes allowed in metadata. */
+const SAFE_PROVIDER_THROW_CODES = [
+  'provider_timeout',
+  'provider_missing_api_key',
+  'provider_malformed_output',
+  'provider_throw',
+] as const;
+
+/**
+ * Normalize fallbackReason / failReason for DB-safe metadata.
+ * Strips raw SDK messages, secrets, stack traces, prompts, and PII.
+ */
+export function sanitizeHybridAiFallbackReason(reason: string): string {
+  const trimmed = reason.trim();
+  if (!trimmed) return 'provider_throw';
+
+  if (trimmed.startsWith('quality_fail:')) {
+    const codes = trimmed
+      .slice('quality_fail:'.length)
+      .split(',')
+      .map((c) => c.trim())
+      .filter((c) => /^[a-z0-9_]+$/.test(c));
+    return codes.length > 0 ? `quality_fail:${codes.join(',')}` : 'quality_fail';
+  }
+
+  if (trimmed.startsWith('provider_throw:')) {
+    const rawMsg = trimmed.slice('provider_throw:'.length).replace(/^Error:\s*/i, '').trim();
+
+    if (rawMsg.includes('provider_timeout') || /\btimeout\b/i.test(rawMsg)) {
+      return 'provider_throw: provider_timeout';
+    }
+    if (
+      rawMsg.includes('openai_provider_missing_api_key') ||
+      rawMsg.includes('provider_missing_api_key')
+    ) {
+      return 'provider_throw: provider_missing_api_key';
+    }
+    if (rawMsg.includes('provider_malformed_output')) {
+      const lower = rawMsg.toLowerCase();
+      if (lower.includes('empty content')) {
+        return 'provider_throw: provider_malformed_output: empty content';
+      }
+      if (lower.includes('invalid json')) {
+        return 'provider_throw: provider_malformed_output: invalid json';
+      }
+      if (lower.includes('missing or empty required sections')) {
+        return 'provider_throw: provider_malformed_output: missing or empty required sections';
+      }
+      return 'provider_throw: provider_malformed_output';
+    }
+
+    for (const code of SAFE_PROVIDER_THROW_CODES) {
+      if (rawMsg.includes(code)) {
+        return `provider_throw: ${code}`;
+      }
+    }
+
+    return 'provider_throw';
+  }
+
+  if (trimmed === 'deterministic_path_selected') {
+    return trimmed;
+  }
+
+  if (/sk-[a-z0-9]/i.test(trimmed) || /api[_-]?key/i.test(trimmed)) {
+    return 'provider_throw';
+  }
+  if (trimmed.includes('\n') || /\s at \S+\.\S+/.test(trimmed)) {
+    return 'provider_throw';
+  }
+
+  if (trimmed.length > 120) {
+    return 'provider_throw';
+  }
+
+  const stripped = trimmed.replace(/[^a-z0-9_:,\-\s]/gi, '').slice(0, 120).trim();
+  return stripped || 'provider_throw';
+}
+
+function applySanitizedFallbackReason(
+  candidate: Awaited<ReturnType<typeof runHybridAiSnapshotGeneration>>,
+): Awaited<ReturnType<typeof runHybridAiSnapshotGeneration>> {
+  if (candidate.ok) return candidate;
+
+  const safeReason = sanitizeHybridAiFallbackReason(
+    candidate.meta.fallbackReason ?? candidate.failReason,
+  );
+  return {
+    ...candidate,
+    failReason: safeReason,
+    meta: {
+      ...candidate.meta,
+      fallbackReason: safeReason,
+    },
+  };
 }
 
 function mapHybridSectionsToGeneratedBodies(
@@ -115,11 +223,12 @@ function mapHybridSectionsToGeneratedBodies(
 export async function buildFulfillmentSnapshotGenerationResolution(
   ctx: FulfillmentSnapshotGenerationContext,
 ): Promise<FulfillmentSnapshotGenerationResolution> {
-  const candidate = await runHybridAiSnapshotGeneration(
+  const rawCandidate = await runHybridAiSnapshotGeneration(
     ctx.engineContextJson,
     ctx.fallbackInd,
     ctx.provider,
   );
+  const candidate = applySanitizedFallbackReason(rawCandidate);
   const generationDbPayload = buildDtrSnapshotGenerationDbPayload(candidate.meta);
 
   if (candidate.ok) {
