@@ -21,6 +21,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/diagnostics/env',
   '/api/diagnostics/build',
   '/api/diagnostics/core-regression',
+  '/api/diagnostics/hybrid-ai-probe',
   '/api/reply/generate',
   '/api/dtr/draft',
   '/api/dtr/report-snapshot-ready',
