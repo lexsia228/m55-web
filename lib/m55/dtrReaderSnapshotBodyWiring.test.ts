@@ -267,7 +267,9 @@ describe('dtrReader snapshot body wiring', () => {
     assert.ok(chapter3 >= 0 && chapter4 >= 0);
     const ch3Slice = readerSource.slice(chapter3, chapter4);
     assert.ok(ch3Slice.includes("shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections)"));
-    assert.ok(ch3Slice.includes('hybridAiVisible && s3'));
+    assert.ok(ch3Slice.includes('hybridAiChapter3UsesPrimaryBody(s3.body)'));
+    assert.ok(ch3Slice.includes('HybridAiRelationshipNarrativeArticle'));
+    assert.equal(ch3Slice.includes('EssenceArticleWithViz'), false);
   });
 
   it('chapter-4 suppresses DrawerChapterPersonalLead and shows s4 for hybrid_ai', () => {

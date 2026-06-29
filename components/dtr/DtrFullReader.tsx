@@ -81,6 +81,7 @@ import {
   type DrawerHubPanelId,
 } from './PremiumDrawerHub';
 import type { DisplayedEnvelopeReadMode } from '../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope';
+import { hybridAiChapter3PrimaryEligible } from '../../lib/m55/dtrHybridAiChapterSemanticGuard';
 import {
   SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
   SAVED_SNAPSHOT_NOTICE_PRIMARY,
@@ -945,9 +946,14 @@ function isHybridAiDisplayedSnapshot(mode?: DisplayedEnvelopeReadMode): boolean 
 const HYBRID_AI_VISIBLE_CHAPTER_SECTION: Record<PaidDtrReportPartId, string> = {
   '1': 's1_identity',
   '2': 's2_composition',
+  /** s3 only when relationship semantic guard passes; else s5/s6 deterministic */
   '3': 's3_essence',
   '4': 's4_strengths',
 };
+
+function hybridAiChapter3UsesPrimaryBody(body: string): boolean {
+  return hasSnapshotBody(body) && hybridAiChapter3PrimaryEligible(body);
+}
 
 /** hybrid_ai s1–s4: suppress PAID_DTR_CHAPTER_OPENING_COPY template lead before stored AI body. */
 function shouldSuppressDrawerChapterOpeningLead(
@@ -961,10 +967,12 @@ function shouldSuppressDrawerChapterOpeningLead(
   },
 ): boolean {
   if (!isHybridAiDisplayedSnapshot(mode)) return false;
+  if (partId === '3') {
+    return Boolean(sections.s3 && hybridAiChapter3UsesPrimaryBody(sections.s3.body));
+  }
   const section =
     partId === '1' ? sections.s1 :
     partId === '2' ? sections.s2 :
-    partId === '3' ? sections.s3 :
     sections.s4;
   return Boolean(section && hasSnapshotBody(section.body));
 }
@@ -1800,6 +1808,22 @@ function CommFlowFigures({ body }: { body: string }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function HybridAiRelationshipNarrativeArticle({ section }: { section: DtrSection }) {
+  const paras = snapshotBodyParas(section.body);
+  return (
+    <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
+      <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
+      {paras.length > 0 ? (
+        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+          {paras.map((para, i) => (
+            <BodyPara key={i} para={para} compact={false} />
+          ))}
+        </div>
+      ) : null}
+    </article>
   );
 }
 
@@ -3221,14 +3245,8 @@ export default function DtrFullReader({
                   nickname={view.nickname}
                 />
               ) : null}
-              {hybridAiVisible && s3 ? (
-                <EssenceArticleWithViz
-                  section={s3}
-                  stemIdx={stemIdx}
-                  nickname={view.nickname}
-                  hybridAiPrimaryBody={hybridAiPrimarySectionBody(displayedEnvelopeReadMode, s3.body)}
-                  openingLedeShown={false}
-                />
+              {hybridAiVisible && s3 && hybridAiChapter3UsesPrimaryBody(s3.body) ? (
+                <HybridAiRelationshipNarrativeArticle section={s3} />
               ) : null}
               {gridSections.length > 0 ? (
                 <div className={styles.savedGridThree}>
