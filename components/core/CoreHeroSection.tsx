@@ -51,8 +51,8 @@ export default function CoreHeroSection({
 }) {
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
-  const observationTraitName = heroSelfLanguage.displayTrait;
   const heroSelfLanguage = coreHeroSelfLanguageForResult(result);
+  const observationTraitName = heroSelfLanguage.displayTrait;
   const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
   const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
   const classLabelJa = '資質';
