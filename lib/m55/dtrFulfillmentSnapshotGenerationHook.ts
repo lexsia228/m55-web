@@ -8,6 +8,10 @@
  * Activation: DTR_HYBRID_AI_ENABLED=preview|production (set in a later gate; not configured here).
  *
  * No real AI provider, no fetch, no DB writes in this module.
+ *
+ * resolveRealDtrHybridAiProvider() is defined here for wiring in a later gate.
+ * It reads DTR_HYBRID_AI_PROVIDER / DTR_HYBRID_AI_MODEL from env at call time.
+ * It does NOT activate the runtime — only isDtrHybridAiFulfillmentEnabled() controls that.
  */
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import type { PaidDtrIndividualization } from './dtrPaidIndividualization';
@@ -16,6 +20,7 @@ import {
   createMockHybridAiProvider,
   type HybridAiProvider,
 } from './dtrHybridAiProvider';
+import { createOpenAiHybridAiProvider } from './dtrOpenAiHybridAiProvider';
 import { runHybridAiSnapshotGeneration } from './dtrHybridAiSnapshotGeneration';
 import {
   buildDtrSnapshotGenerationDbPayload,
@@ -65,6 +70,25 @@ export type FulfillmentSnapshotGenerationResolution = {
 
 /** Mock/noop provider for local tests and pre-real-provider activation gates. */
 export function resolveMockDtrHybridAiProvider(): HybridAiProvider {
+  return createMockHybridAiProvider();
+}
+
+/**
+ * Resolve the real AI provider from env at call time.
+ * Reads DTR_HYBRID_AI_PROVIDER (default: 'openai') and DTR_HYBRID_AI_MODEL (default: 'gpt-4.1-mini').
+ * Does NOT activate the fulfillment runtime — isDtrHybridAiFulfillmentEnabled() controls that.
+ * OPENAI_API_KEY is read lazily inside the provider's generate() call, not here.
+ * For wiring in a later gate when DTR_HYBRID_AI_ENABLED=preview|production.
+ */
+export function resolveRealDtrHybridAiProvider(): HybridAiProvider {
+  const providerName = (process.env['DTR_HYBRID_AI_PROVIDER'] ?? 'openai').trim().toLowerCase();
+  const modelName = (process.env['DTR_HYBRID_AI_MODEL'] ?? 'gpt-4.1-mini').trim();
+
+  if (providerName === 'openai') {
+    return createOpenAiHybridAiProvider({ model: modelName });
+  }
+
+  // Unknown provider name: fall back to mock (safe; env guard controls actual activation)
   return createMockHybridAiProvider();
 }
 
