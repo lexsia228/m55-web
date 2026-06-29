@@ -127,7 +127,7 @@ describe('OpenAI provider — default model', () => {
   });
 });
 
-// ── Test 2: default timeout is 10s ───────────────────────────────────────────
+// ── Test 2: timeout behaviour (default is 25s; tests use explicit short values) ──
 
 describe('OpenAI provider — timeout', () => {
   it('times out when provider is slow (using short timeoutMs)', async () => {

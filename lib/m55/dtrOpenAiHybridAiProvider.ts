@@ -18,7 +18,7 @@ import type { HybridAiPromptPayload } from './dtrHybridAiPrompt';
 // ── Defaults ──────────────────────────────────────────────────────────────────
 
 export const OPENAI_DEFAULT_MODEL = 'gpt-4.1-mini' as const;
-const DEFAULT_TIMEOUT_MS = 10_000;
+const DEFAULT_TIMEOUT_MS = 25_000;
 const GENERATE_TEMPERATURE = 0.55;
 const GENERATE_MAX_TOKENS = 2000;
 
