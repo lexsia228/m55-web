@@ -14,6 +14,7 @@ import {
   type CopySelectContext,
   type DayBand,
 } from './coreFreeCompositionalGrammar';
+import { coreHeroSelfLanguageFingerprint } from './coreHeroSelfLanguage';
 
 /** coreType → user-facing living phrase (no 「型」). */
 const CORE_TRAIT_DISPLAY_BY_TYPE: Readonly<Record<string, string>> = {
@@ -27,19 +28,6 @@ const CORE_TRAIT_DISPLAY_BY_TYPE: Readonly<Record<string, string>> = {
   TYPE_08: 'まず動いて流れを作る',
   TYPE_09: '距離と言葉を読む',
   TYPE_10: '全体をつなげて整える',
-};
-
-const READING_STYLE_NOTES: Readonly<Record<string, string>> = {
-  納得して組み立てる: '理由や順番を見つけながら、自分のペースで整えていく読み方',
-  静かに深く見る: '表面で終わらず、意味の層まで確かめながら読む読み方',
-  関係の温度を受け取る: '相手の空気を受け取りながら、自分の線引きも保つ読み方',
-  落ち着いて確かめる: '動く前に状況を分解し、納得してから進む読み方',
-  関係の空気を整える: '場の温度を整えながら、無理のない距離を保つ読み方',
-  先に全体像をつかむ: '細部の前に、全体の流れを先に置く読み方',
-  本質まで掘り下げる: '表面的な答えより、根っこまで確かめる読み方',
-  まず動いて流れを作る: '完璧を待たず、小さく動いて流れを確かめる読み方',
-  距離と言葉を読む: '言葉選びと距離感から、関係の負荷を見る読み方',
-  全体をつなげて整える: 'バラバラな要素をつなげ、全体の流れに戻す読み方',
 };
 
 export type { CopySelectContext, DayBand };
@@ -57,11 +45,6 @@ function resolveCopyContext(result: CoreResult): CopySelectContext {
 
 export function coreTraitDisplayFromCoreType(coreType: string): string {
   return CORE_TRAIT_DISPLAY_BY_TYPE[coreType.trim()] ?? coreType.trim();
-}
-
-export function coreReadingStyleNoteFromCoreType(coreType: string): string | null {
-  const display = coreTraitDisplayFromCoreType(coreType);
-  return READING_STYLE_NOTES[display] ?? null;
 }
 
 export function freeCoreMonthRhythmNote(ctx: CopySelectContext): string {
@@ -100,7 +83,7 @@ export function freeCorePersonalizationFingerprint(result: CoreResult): string {
   const bullets = freeCoreObservationBullets(result);
   return [
     coreTraitDisplayFromCoreType(result.coreType),
-    coreReadingStyleNoteFromCoreType(result.coreType) ?? '',
+    coreHeroSelfLanguageFingerprint(result),
     ...axes.map((r) => `${r.tendency}|${r.life}|${r.load}`),
     ...lifestyle.map((c) => c.body),
     ...align.map((s) => s.body),

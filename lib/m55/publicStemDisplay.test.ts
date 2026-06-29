@@ -128,7 +128,9 @@ describe('core hero hierarchy P-CORE-HERO-HIERARCHY-01', () => {
   it('LH-03: CoreHero main headline binds stemDisplay.publicTitle', () => {
     const src = coreHeroSrc();
     assert.match(src, /corePosterMainHeadlineName\}>\{stemDisplay\.publicTitle\}/);
-    assert.match(src, /corePosterHeroLead\}>\{stemDisplay\.displayOneLine\}/);
+    assert.match(src, /corePosterHeroLead\}>\{heroSelfLanguage\.primary\}/);
+    assert.match(src, /corePosterHeroLead\}>\{heroSelfLanguage\.secondary\}/);
+    assert.doesNotMatch(src, /displayOneLine\}/);
     assert.doesNotMatch(src, /corePosterHeroEyebrowEn/);
   });
 

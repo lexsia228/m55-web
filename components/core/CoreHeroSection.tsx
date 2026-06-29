@@ -3,9 +3,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
-  coreReadingStyleNoteFromCoreType,
-  coreTraitDisplayFromCoreType,
-} from '../../lib/m55/coreFreePublicDisplay';
+  coreHeroSelfLanguageFingerprint,
+  coreHeroSelfLanguageForResult,
+} from '../../lib/m55/coreHeroSelfLanguage';
+import { coreTraitDisplayFromCoreType } from '../../lib/m55/coreFreePublicDisplay';
 import { resolveCorePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
 import styles from './CoreExperience.module.css';
 
@@ -52,7 +53,7 @@ export default function CoreHeroSection({
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
   const observationTraitName = coreTraitDisplayFromCoreType(result.coreType);
-  const readingStyleNote = coreReadingStyleNoteFromCoreType(result.coreType);
+  const heroSelfLanguage = coreHeroSelfLanguageForResult(result);
   const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
   const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
   const traitLabel = '読み方';
@@ -141,10 +142,8 @@ export default function CoreHeroSection({
                   <span className={styles.corePosterTraitRowSep}>/</span>
                   <span className={styles.corePosterTraitRowName}>{observationTraitName}</span>
                 </p>
-                {readingStyleNote ? (
-                  <p className={styles.corePosterHeroLead}>{readingStyleNote}</p>
-                ) : null}
-                <p className={styles.corePosterHeroLead}>{stemDisplay.displayOneLine}</p>
+                <p className={styles.corePosterHeroLead}>{heroSelfLanguage.primary}</p>
+                <p className={styles.corePosterHeroLead}>{heroSelfLanguage.secondary}</p>
               </div>
             </div>
           </div>

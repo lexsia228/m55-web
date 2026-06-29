@@ -15,6 +15,7 @@ const CLIENT_SEAL_PATH_FILES = [
   'lib/m55/coreResult/typeCatalogScores.ts',
   'lib/m55/coreResult/coreEngineVersion.ts',
   'components/core/CoreEssencePanel.tsx',
+  'lib/m55/coreHeroSelfLanguage.ts',
   'components/core/CoreHeroSection.tsx',
 ] as const;
 
