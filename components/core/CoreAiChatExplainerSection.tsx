@@ -9,9 +9,7 @@ export default function CoreAiChatExplainerSection({ nickname }: Props) {
   const nick = nickname?.trim() ?? '';
 
   const renderLead = (text: string) => {
-    if (!nick) {
-      return text.replace('先に見えている tさん固有の傾向を土台にして、', 'すでに見えている傾向を土台にして、');
-    }
+    if (!nick) return text;
     return withNickname(text, nick);
   };
 

@@ -118,7 +118,7 @@ export default function CoreRadarSection({
         <p className={styles.tierASummary}>5つの軸を、ひとつの輪郭として見ます</p>
         <p className={styles.sectionLead}>
           {withNickname(
-            'これは良し悪しではなく、tさんがふだんどんな出方をしやすいかを、5つの視点で見た輪郭です。',
+            'これは良し悪しではなく、tさんがふだんどんな傾向が出やすいかを、5つの視点で見た輪郭です。',
             nick,
           )}
         </p>

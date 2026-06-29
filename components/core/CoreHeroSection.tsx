@@ -28,21 +28,17 @@ function useNarrowPcCoreHeroLayout() {
   return narrowPcFlat;
 }
 
-function formatRecordDateLabel(isoLike: string): string {
-  const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function formatRecordDateLabelJa(isoLike: string): string {
   const parsed = isoLike.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
   if (parsed) {
     const year = parsed[1];
-    const monthIdx = Number(parsed[2]) - 1;
-    const day = String(Number(parsed[3])).padStart(2, '0');
-    if (monthIdx >= 0 && monthIdx < mon.length) return `${year}.${mon[monthIdx]}.${day}`;
+    const month = Number(parsed[2]);
+    const day = Number(parsed[3]);
+    return `${year}年${month}月${day}日`;
   }
   const d = new Date(isoLike);
   if (Number.isNaN(d.getTime())) return '';
-  const year = d.getUTCFullYear();
-  const month = mon[d.getUTCMonth()]!;
-  const day = String(d.getUTCDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
+  return `${d.getUTCFullYear()}年${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
 }
 
 export default function CoreHeroSection({
@@ -55,10 +51,10 @@ export default function CoreHeroSection({
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
   const observationTraitName = observationTraitNameFromCoreLabel(result.coreLabel);
-  const obsDateLabel = formatRecordDateLabel(result.lockedAt);
-  const obsMeta = obsDateLabel ? `First Record ${obsDateLabel}` : 'First Record';
-  const traitLabel = '特質性';
-  const classLabelJa = '出方';
+  const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
+  const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
+  const traitLabel = '読み方';
+  const classLabelJa = '資質';
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrowPcFlat = useNarrowPcCoreHeroLayout();
 
@@ -119,10 +115,10 @@ export default function CoreHeroSection({
               <div className={styles.corePosterHeroTopBlock}>
                 <div className={styles.corePosterMetaRow}>
                   <h1 className={styles.corePosterEssenceTitle}>
-                    <span className={styles.corePosterEssenceTitlePrefix}>Blueprint of</span>
-                    <span className={styles.corePosterEssenceTitleName}>{nick || 'You'}</span>
+                    <span className={styles.corePosterEssenceTitlePrefix}>本質の見取り図</span>
+                    <span className={styles.corePosterEssenceTitleName}>{nick || 'あなた'}</span>
                   </h1>
-                  <p className={styles.corePosterObsDate}>{obsMeta}</p>
+                  {obsMeta ? <p className={styles.corePosterObsDate}>{obsMeta}</p> : null}
                 </div>
               </div>
               <img

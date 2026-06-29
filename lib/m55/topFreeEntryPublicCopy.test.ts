@@ -145,5 +145,6 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(activeCopy, /保存版に紐づく相談返書/);
     assert.match(activeCopy, /読み直す/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
+    assert.equal(activeCopy.includes('基本の出方'), false);
   });
 });

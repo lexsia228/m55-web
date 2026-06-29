@@ -12,14 +12,14 @@ export default function CoreHowM55ReadsSection({ nickname }: { nickname: string 
       <h2 id="core-how-m55-reads" className={styles.sectionTitle}>
         {withNickname('M55は、tさんの傾向をこう読みます', nick)}
       </h2>
-      <p className={styles.tierBSummary}>生まれた日を起点に、個別の出方を整理しています</p>
+      <p className={styles.tierBSummary}>生まれた日を起点に、個人の傾向を整理しています</p>
 
       <p className={styles.sectionLead}>
-        M55では、生まれた日をもとに、独自のパーソナルアルゴリズムで傾向を整理しています。
+        M55では、生まれた日と入力された情報をもとに、傾向を読み返しやすい形に整理しています。
       </p>
       <p className={styles.sectionLead}>
         {withNickname(
-          'ここに表示されるのは、誰にでも同じ説明文ではなく、tさんの出方として読み出された輪郭です。',
+          'ここに表示されるのは、誰にでも同じ説明文ではなく、tさんの輪郭として読み出されたものです。',
           nick,
         )}
       </p>
