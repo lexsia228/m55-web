@@ -106,7 +106,7 @@ describe('promoteGuestProfileToClerkUser — fill-empty-only', () => {
   });
 });
 
-describe('ProfileRepository.saveNicknameOnly', () => {
+describe('ProfileRepository.saveMyProfileBasics', () => {
   let fetchCalls = 0;
 
   beforeEach(() => {
@@ -127,7 +127,7 @@ describe('ProfileRepository.saveNicknameOnly', () => {
     storage.clear();
   });
 
-  it('updates nickname while preserving birthDate and birth metadata', () => {
+  it('updates nickname and birthDate while preserving birth metadata when country exists', () => {
     ProfileRepository.save(CLERK_ID, {
       nickname: 'mi',
       birthDate: '1992-12-19',
@@ -137,34 +137,57 @@ describe('ProfileRepository.saveNicknameOnly', () => {
       birthplace: 'Tokyo',
     });
 
-    const saved = ProfileRepository.saveNicknameOnly(CLERK_ID, 'sora');
+    const saved = ProfileRepository.saveMyProfileBasics(CLERK_ID, 'sora', '1990-01-15');
 
     assert.equal(saved?.nickname, 'sora');
-    assert.equal(saved?.birthDate, '1992-12-19');
+    assert.equal(saved?.birthDate, '1990-01-15');
     assert.equal(saved?.birthTime, '08:30');
     assert.equal(saved?.birthplace, 'Tokyo');
+    assert.equal(saved?.country, 'JP');
     assert.equal(fetchCalls, 2);
   });
 
-  it('stores nickname-only profile without fabricating birthDate or syncing draft', () => {
+  it('stores nickname and birthDate without fabricating country or syncing defaults', () => {
     storage.set(clerkKey(), JSON.stringify({ nickname: 'old' }));
 
-    const saved = ProfileRepository.saveNicknameOnly(CLERK_ID, 'sora');
+    const saved = ProfileRepository.saveMyProfileBasics(CLERK_ID, 'sora', '1990-01-15');
 
     assert.equal(saved?.nickname, 'sora');
-    assert.equal(saved?.birthDate, undefined);
+    assert.equal(saved?.birthDate, '1990-01-15');
+    assert.equal(saved?.country, undefined);
     const raw = JSON.parse(storage.get(clerkKey()) ?? '{}') as BirthProfile;
     assert.equal(raw.nickname, 'sora');
-    assert.equal(raw.birthDate, undefined);
+    assert.equal(raw.birthDate, '1990-01-15');
     assert.equal(raw.country, undefined);
-    assert.equal(fetchCalls, 0);
+    assert.equal(raw.birthTime, undefined);
+    assert.equal(fetchCalls, 1);
+  });
+
+  it('preserves existing birth metadata when saving new birthDate without country', () => {
+    storage.set(
+      clerkKey(),
+      JSON.stringify({
+        nickname: 'old',
+        birthDate: '1985-05-05',
+        birthTime: '12:00',
+        birthplace: 'Osaka',
+      }),
+    );
+
+    const saved = ProfileRepository.saveMyProfileBasics(CLERK_ID, 'sora', '1990-01-15');
+
+    assert.equal(saved?.nickname, 'sora');
+    assert.equal(saved?.birthDate, '1990-01-15');
+    assert.equal(saved?.birthTime, '12:00');
+    assert.equal(saved?.birthplace, 'Osaka');
+    assert.equal(saved?.country, undefined);
   });
 });
 
 describe('MyPanel profile save event', () => {
   it('Test D: handleSave dispatches m55:profile_updated', () => {
     const src = readFileSync(join(process.cwd(), 'components/my/MyPanel.tsx'), 'utf8');
-    assert.match(src, /ProfileRepository\.saveNicknameOnly\(userId, trimmed\)/);
+    assert.match(src, /ProfileRepository\.saveMyProfileBasics\(userId, trimmed, birth\)/);
     assert.match(src, /window\.dispatchEvent\(new Event\('m55:profile_updated'\)\)/);
   });
 });

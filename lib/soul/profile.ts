@@ -96,44 +96,66 @@ export const ProfileRepository = {
   },
 
   /**
-   * My Page nickname edit — never fabricates birthDate/country.
-   * Full draft sync runs only when an existing birthDate is present.
+   * My Page basics — nickname + birthDate only in UI; never fabricates country/birthTime/birthplace.
+   * Full enrich + draft sync with country default runs only when existing country is present.
    */
-  saveNicknameOnly: (userId: string | null | undefined, nickname: string): BirthProfile | null => {
+  saveMyProfileBasics: (
+    userId: string | null | undefined,
+    nickname: string,
+    birthDate: string,
+  ): BirthProfile | null => {
     if (!isClient()) return null;
-    const trimmed = nickname.trim();
-    if (!trimmed) return null;
+    const trimmedNick = nickname.trim();
+    const trimmedDate = birthDate.trim().slice(0, 10);
+    if (!trimmedNick || !trimmedDate) return null;
 
     const existing = ProfileRepository.get(userId);
     const ownerId = resolveOwnerId(userId);
     const key = KEY_PROFILE_PREFIX + ownerId;
 
-    if (existing?.birthDate?.trim()) {
-      const normalized = enrichBirthProfileForSave({
-        nickname: trimmed,
-        birthDate: existing.birthDate,
-        birthTime: existing.birthTime ?? null,
-        birthTimeUnknown: Boolean(existing.birthTimeUnknown),
-        country: existing.country,
-        birthplace: existing.birthplace ?? null,
-        timezone: existing.timezone ?? null,
-        profileFormat: existing.profileFormat,
-      });
+    const merged: BirthProfile = {
+      nickname: trimmedNick,
+      birthDate: trimmedDate,
+    };
+    if (existing?.birthTime != null) merged.birthTime = existing.birthTime;
+    if (existing?.birthTimeUnknown != null) merged.birthTimeUnknown = existing.birthTimeUnknown;
+    if (existing?.country) merged.country = existing.country;
+    if (existing?.birthplace != null) merged.birthplace = existing.birthplace;
+    if (existing?.timezone) merged.timezone = existing.timezone;
+    if (existing?.profileFormat) merged.profileFormat = existing.profileFormat;
+
+    if (existing?.country) {
+      const normalized = enrichBirthProfileForSave(merged);
       ProfileRepository.save(userId, normalized);
       return normalized;
     }
 
-    const partial: Partial<BirthProfile> & { nickname: string } = { nickname: trimmed };
-    if (existing?.birthTime != null) partial.birthTime = existing.birthTime;
-    if (existing?.birthTimeUnknown != null) partial.birthTimeUnknown = existing.birthTimeUnknown;
-    if (existing?.country) partial.country = existing.country;
-    if (existing?.birthplace != null) partial.birthplace = existing.birthplace;
-    if (existing?.timezone) partial.timezone = existing.timezone;
-    if (existing?.profileFormat) partial.profileFormat = existing.profileFormat;
-
-    localStorage.setItem(key, JSON.stringify(partial));
+    localStorage.setItem(key, JSON.stringify(merged));
     localStorage.removeItem(KEY_DISMISS_PREFIX + ownerId);
-    return partial as BirthProfile;
+    if (!userId) {
+      try {
+        localStorage.setItem(
+          'm55_profile_v1',
+          JSON.stringify({ nickname: trimmedNick, birthDateISO: trimmedDate }),
+        );
+      } catch {
+        /* no-op */
+      }
+    }
+
+    const extraJson: Record<string, unknown> = {};
+    if (existing?.birthTime != null) extraJson.birthTime = existing.birthTime;
+    if (existing?.birthTimeUnknown != null) extraJson.birthTimeUnknown = existing.birthTimeUnknown;
+    if (existing?.birthplace != null) extraJson.birthplace = existing.birthplace;
+    if (existing?.timezone) extraJson.timezone = existing.timezone;
+    if (existing?.profileFormat) extraJson.profileFormat = existing.profileFormat;
+
+    queueDtrDraftSync(userId ?? null, {
+      nickname: trimmedNick,
+      birthDate: trimmedDate,
+      ...(Object.keys(extraJson).length > 0 ? { extraJson } : {}),
+    });
+    return merged;
   },
 
   exists: (userId?: string | null): boolean => {

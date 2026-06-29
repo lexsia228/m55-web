@@ -178,8 +178,13 @@ describe('myConsultCheckoutPublicCopy — My first-time guide (PATCH-2)', () => 
 
   it('keeps profile edit form only in editing branch', () => {
     assert.match(EDITING_PROFILE_BRANCH, /mp-nick/);
+    assert.match(EDITING_PROFILE_BRANCH, /mp-birth/);
     assert.match(EDITING_PROFILE_BRANCH, /保存する/);
     assert.equal(EDITING_PROFILE_BRANCH.includes('はじめて使う方へ'), false);
+    assert.equal(EDITING_PROFILE_BRANCH.includes('mp-birth-time'), false);
+    assert.equal(EDITING_PROFILE_BRANCH.includes('mp-country'), false);
+    assert.equal(EDITING_PROFILE_BRANCH.includes('mp-birthplace'), false);
+    assert.equal(EDITING_PROFILE_BRANCH.includes('出生時刻は不明'), false);
   });
 
   it('uses formal /home href from dtrProductLabels', () => {
@@ -220,8 +225,12 @@ describe('myConsultCheckoutPublicCopy — ShellLayout SoulBirthGate boundary (PA
     assert.match(FIRST_TIME_BLOCK, /MY_FIRST_TIME_CTA_HREF/);
     assert.equal(MY_FIRST_TIME_CTA_HREF, '/home');
     assert.match(EDITING_PROFILE_BRANCH, /mp-nick/);
+    assert.match(EDITING_PROFILE_BRANCH, /mp-birth/);
     assert.match(EDITING_PROFILE_BRANCH, /保存する/);
-    assert.match(PROFILE_SECTION_BLOCK, /ProfileRepository\.saveNicknameOnly/);
+    assert.match(PROFILE_SECTION_BLOCK, /ProfileRepository\.saveMyProfileBasics/);
+    assert.equal(PROFILE_SECTION_BLOCK.includes('mp-birth-time'), false);
+    assert.equal(PROFILE_SECTION_BLOCK.includes('mp-country'), false);
+    assert.equal(PROFILE_SECTION_BLOCK.includes('mp-birthplace'), false);
   });
 });
 

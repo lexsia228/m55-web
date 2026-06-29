@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ProfileRepository, BirthProfile } from '../../lib/soul/profile';
 import {
   displayLabelForDtrRightKey,
@@ -579,22 +579,25 @@ function hasEditableMyProfile(userId: string): boolean {
 function ProfileSection({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<BirthProfile | null>(null);
   const [nick, setNick] = useState('');
+  const [birth, setBirth] = useState('');
   const [mode, setMode] = useState<'ready' | 'editing'>('ready');
+  const birthRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const p = ProfileRepository.get(userId);
     if (p?.nickname?.trim() || p?.birthDate) {
       setProfile(p);
       setNick(p.nickname ?? '');
+      setBirth(p.birthDate ?? '');
     }
   }, [userId, mode]);
 
-  const canSave = nick.trim().length > 0;
+  const canSave = nick.trim().length > 0 && !!birth;
 
   const handleSave = () => {
     const trimmed = nick.trim();
-    if (!trimmed || !canSave) return;
-    const p = ProfileRepository.saveNicknameOnly(userId, trimmed);
+    if (!trimmed || !birth || !canSave) return;
+    const p = ProfileRepository.saveMyProfileBasics(userId, trimmed, birth);
     if (!p) return;
     setProfile(p);
     setMode('ready');
@@ -608,6 +611,7 @@ function ProfileSection({ userId }: { userId: string }) {
   const handleEdit = () => {
     if (profile) {
       setNick(profile.nickname);
+      setBirth(profile.birthDate ?? '');
     }
     setMode('editing');
   };
@@ -617,6 +621,13 @@ function ProfileSection({ userId }: { userId: string }) {
   };
 
   const handleNickKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      birthRef.current?.focus();
+    }
+  };
+
+  const handleBirthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && canSave) handleSave();
   };
 
@@ -644,8 +655,23 @@ function ProfileSection({ userId }: { userId: string }) {
             maxLength={30}
           />
         </div>
+        <div className={styles.inputGroup}>
+          <label className={styles.inputLabel} htmlFor="mp-birth">
+            生年月日
+          </label>
+          <input
+            id="mp-birth"
+            type="date"
+            value={birth}
+            onChange={(e) => setBirth(e.target.value)}
+            onKeyDown={handleBirthKeyDown}
+            ref={birthRef}
+            className={styles.inputField}
+            max={new Date().toISOString().slice(0, 10)}
+          />
+        </div>
         {!canSave && (
-          <p className={styles.muted}>ニックネームを入力してください。</p>
+          <p className={styles.muted}>ニックネームと生年月日を入力してください。</p>
         )}
         <div className={styles.formActions}>
           <button type="button" onClick={handleSave} disabled={!canSave} className={styles.saveBtn}>
@@ -659,6 +685,10 @@ function ProfileSection({ userId }: { userId: string }) {
     );
   }
 
+  const formattedBirth = profile?.birthDate
+    ? profile.birthDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1年$2月$3日')
+    : '';
+
   return (
     <section className={styles.card} aria-label={MY_PROFILE_SECTION_TITLE}>
       <div className={styles.sectionHead}>
@@ -668,6 +698,7 @@ function ProfileSection({ userId }: { userId: string }) {
         </button>
       </div>
       <p className={styles.body}>{profile?.nickname}</p>
+      {formattedBirth && <p className={styles.muted}>{formattedBirth}</p>}
     </section>
   );
 }
