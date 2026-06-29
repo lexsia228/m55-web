@@ -152,10 +152,12 @@ describe('DTR Visible Copy Naturalness Guardrail — pure function tests', () =>
     assert.equal(result.pass, true, `Expected pass but got violations: ${JSON.stringify(result.violations)}`);
   });
 
-  it('accepts natural 生まれ時刻 note without 正午基準', () => {
-    const natural = '生まれ時刻が未入力の場合でも、ここでは一日の細かな時間より、大きな流れを中心に見ています。';
-    const result = checkNaturalness(natural);
-    assert.equal(result.pass, true, `Expected pass: ${JSON.stringify(result.violations)}`);
+  it('birth-time note removed from dtrDobPersonalizationV2.ts (UI has no birth-time input)', () => {
+    // BIRTH_TIME_UNKNOWN_NOTE is no longer used; source must not contain 生まれ時刻が未入力
+    assert.ok(
+      !dobV2Src.includes('生まれ時刻が未入力'),
+      'dtrDobPersonalizationV2.ts must not contain 生まれ時刻が未入力 after birth-time cleanup',
+    );
   });
 
   it('accepts natural STEM_RHYTHM_LEAD (no 読み取りです)', () => {
@@ -463,10 +465,16 @@ describe('Seed body / engine source inspection — forbidden terms must not appe
     assert.equal(result.pass, true, `DOB-v2 essence fixture failed: ${JSON.stringify(result.violations)}`);
   });
 
-  it('replacement BIRTH_TIME_UNKNOWN_NOTE fixture passes naturalness guard', () => {
-    const note = '生まれ時刻が未入力の場合でも、ここでは一日の細かな時間より、大きな流れを中心に見ています。';
-    const result = checkNaturalness(note);
-    assert.equal(result.pass, true, `Birth time note failed: ${JSON.stringify(result.violations)}`);
+  it('BIRTH_TIME_UNKNOWN_NOTE removed from dtrDobPersonalizationV2.ts source', () => {
+    // The constant and its text have been removed; verify neither phrase appears in source.
+    assert.ok(
+      !dobV2Src.includes('BIRTH_TIME_UNKNOWN_NOTE'),
+      'BIRTH_TIME_UNKNOWN_NOTE constant must be removed from dtrDobPersonalizationV2.ts',
+    );
+    assert.ok(
+      !dobV2Src.includes('一日の細かな時間'),
+      'dtrDobPersonalizationV2.ts must not contain 一日の細かな時間',
+    );
   });
 
   // ── 10. Future AI-generated body must pass before activation ──────────────
@@ -588,10 +596,16 @@ describe('v1 individualization source inspection — forbidden terms must not ap
     assert.equal(result.pass, true, `v1 phase fixture failed guard: ${JSON.stringify(result.violations)}`);
   });
 
-  it('v1 naturalness fixture: naturalized BIRTH_TIME_UNKNOWN prefix passes guard', () => {
-    const fixture = '生まれ時刻が未入力の場合、大きな季節のリズムを中心に見ています。';
-    const result = checkNaturalness(fixture);
-    assert.equal(result.pass, true, `v1 birth time prefix failed guard: ${JSON.stringify(result.violations)}`);
+  it('BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX removed from dtrPaidIndividualization.ts source', () => {
+    // The constant and its text have been removed; verify neither phrase appears in source.
+    assert.ok(
+      !indV1Src.includes('BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX'),
+      'BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX must be removed from dtrPaidIndividualization.ts',
+    );
+    assert.ok(
+      !indV1Src.includes('生まれ時刻が未入力'),
+      'dtrPaidIndividualization.ts must not contain 生まれ時刻が未入力 after birth-time cleanup',
+    );
   });
 });
 

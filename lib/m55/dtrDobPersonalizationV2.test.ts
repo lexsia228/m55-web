@@ -52,14 +52,12 @@ describe('paid DTR DOB personalization v2', () => {
     assert.notEqual(left.essenceRhythmNote, right.essenceRhythmNote);
   });
 
-  it('birthTimeUnknown branch changes output', () => {
+  it('birthTimeUnknown does not affect essenceRhythmNote (birth-time UI removed)', () => {
+    // M55 UI does not collect birth time: essenceRhythmNote must be same regardless of birthTimeUnknown flag.
     const known = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1992-12-19'));
     const unknown = buildPaidDtrIndividualizationV2FromEngineContext(contextFor('1992-12-19', true));
-    assert.notEqual(known.fingerprint, unknown.fingerprint);
-    assert.notEqual(known.essenceRhythmNote, unknown.essenceRhythmNote);
-    // P0: 正午基準 removed; naturalized note used instead
-    assert.match(unknown.essenceRhythmNote, /大きな流れを中心に見ています/);
-    assert.doesNotMatch(unknown.essenceRhythmNote, /正午基準/);
+    assert.equal(known.essenceRhythmNote, unknown.essenceRhythmNote);
+    assert.doesNotMatch(unknown.essenceRhythmNote, /生まれ時刻|正午基準|一日の細かな時間/);
   });
 
   it('20 synthetic DOBs achieve at least 60 percent unique v2 fingerprints', () => {

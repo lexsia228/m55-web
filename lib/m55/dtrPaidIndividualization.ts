@@ -107,8 +107,6 @@ const LUNAR_MONTH_ESSENCE_READINGS: Readonly<Record<number, string>> = {
 const DEFAULT_ESSENCE_RHYTHM_NOTE =
   '月ごとの生活リズムを意識すると、ペースの調整がしやすくなります。';
 
-const BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX =
-  '生まれ時刻が未入力の場合、大きな季節のリズムを中心に見ています。';
 
 const FORBIDDEN_USERFacingSubstrings = [
   '甲乙丙丁',
@@ -158,11 +156,9 @@ function lunarMonthNumberFromKey(lunarMonthKey: string): number | null {
   return month;
 }
 
-function essenceRhythmNoteForMonth(lunarMonthKey: string, birthTimeUnknown: boolean): string {
+function essenceRhythmNoteForMonth(lunarMonthKey: string): string {
   const month = lunarMonthNumberFromKey(lunarMonthKey);
-  const base = month != null ? (LUNAR_MONTH_ESSENCE_READINGS[month] ?? DEFAULT_ESSENCE_RHYTHM_NOTE) : DEFAULT_ESSENCE_RHYTHM_NOTE;
-  if (!birthTimeUnknown) return base;
-  return `${BIRTH_TIME_UNKNOWN_ESSENCE_PREFIX}\n${base}`;
+  return month != null ? (LUNAR_MONTH_ESSENCE_READINGS[month] ?? DEFAULT_ESSENCE_RHYTHM_NOTE) : DEFAULT_ESSENCE_RHYTHM_NOTE;
 }
 
 export function buildPaidDtrIndividualizationV1FromEngineContext(
@@ -172,10 +168,7 @@ export function buildPaidDtrIndividualizationV1FromEngineContext(
   const seasonReading = seasonReadingForTerm(boundaryMetadata.solarTermKey);
   const handlingHint = LUNAR_PHASE_HANDLING[lunarPhaseBucket(boundaryMetadata.lunarDayKey)];
   const auxiliaryReading = [seasonReading, handlingHint].join('\n');
-  const essenceRhythmNote = essenceRhythmNoteForMonth(
-    boundaryMetadata.lunarMonthKey,
-    normalizedBirthContext.birthTimeUnknown,
-  );
+  const essenceRhythmNote = essenceRhythmNoteForMonth(boundaryMetadata.lunarMonthKey);
 
   return {
     fingerprint: ctx.displayFingerprint,

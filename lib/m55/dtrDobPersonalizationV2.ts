@@ -59,9 +59,6 @@ const MONTH_RHYTHMS: readonly string[] = [
   '折り返しを意識しやすいリズムがあります。終えたことを確認してから次へ進むほど、安定しやすくなります。',
 ] as const;
 
-const BIRTH_TIME_UNKNOWN_NOTE =
-  '生まれ時刻が未入力の場合でも、ここでは一日の細かな時間より、大きな流れを中心に見ています。';
-
 /**
  * S3 phase blend — 1 sentence appended to essenceRhythmNote.
  * Distinct phrasing from PHASE_HANDLING (which targets auxiliaryReading/s7).
@@ -192,9 +189,6 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
   // S3 phase blend — 1 sentence added after month rhythm
   const s3PhaseBlend = S3_PHASE_BLEND[phaseKey];
 
-  const timeNote = ctx.normalizedBirthContext.birthTimeUnknown
-    ? `\n${BIRTH_TIME_UNKNOWN_NOTE}`
-    : '';
   const fingerprint = `dobv2-${djb2Hex([
     DOB_PERSONALIZATION_V2_CATALOG_VERSION,
     ctx.stemLaneIndex,
@@ -232,7 +226,6 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
       season,
       month,
       s3PhaseBlend,
-      timeNote,
     ].join('\n').trim(),
     auxiliaryReading: [
       '生年月日の細かなリズムから見ると、日々の扱い方は次のように整えやすくなります。',
