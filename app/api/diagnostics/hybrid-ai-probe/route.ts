@@ -14,14 +14,14 @@
  * Branch: preview/hybrid-ai-activation-check
  */
 import { NextRequest, NextResponse } from "next/server";
-import { buildV2FulfillmentSnapshotFromFields } from "@/lib/m55/compositeStem/buildV2FulfillmentSnapshot";
-import { composePaidIndividualizationFromEngineContext } from "@/lib/m55/dtrPaidIndividualizationCompose";
-import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from "@/lib/m55/dtrDobPersonalizationV2";
+import { buildV2FulfillmentSnapshotFromFields } from "../../../../lib/m55/compositeStem/buildV2FulfillmentSnapshot";
+import { composePaidIndividualizationFromEngineContext } from "../../../../lib/m55/dtrPaidIndividualizationCompose";
+import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from "../../../../lib/m55/dtrDobPersonalizationV2";
 import {
   buildFulfillmentSnapshotGenerationResolution,
   resolveRealDtrHybridAiProvider,
-} from "@/lib/m55/dtrFulfillmentSnapshotGenerationHook";
-import { PROHIBITED_META_KEYS } from "@/lib/m55/dtrSnapshotGenerationMeta";
+} from "../../../../lib/m55/dtrFulfillmentSnapshotGenerationHook";
+import { PROHIBITED_META_KEYS } from "../../../../lib/m55/dtrSnapshotGenerationMeta";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
