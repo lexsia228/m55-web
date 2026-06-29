@@ -316,26 +316,27 @@ export default function HomePanel() {
           <div
             className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardPaid} ${styles.valueCard}`}
           >
-          <div className={styles.reportCardHeroBand} aria-hidden>
+          <div className={styles.reportCardHeroBand}>
             <Image
-              src="/home/card-entry-report.webp"
+              src="/home/hero-tech-map.webp"
               alt=""
               fill
               sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
               className={styles.reportCardHeroBandImg}
             />
-            <div className={styles.reportCardHeroBandVeil} />
+            <div className={styles.reportCardHeroBandVeil} aria-hidden />
+            <div className={styles.reportCardHeroOverlay}>
+              <p className={styles.reportCardHeroOverlayEyebrow}>{homeCopy.reportLightEyebrowJa}</p>
+              <p className={styles.reportCardHeroOverlayPrice}>{homeCopy.reportLightPriceJa}</p>
+              <p className={styles.reportCardHeroOverlayLead}>{homeCopy.reportDepthNoteJa}</p>
+            </div>
           </div>
 
           <div className={styles.reportCardBody}>
             <div className={styles.reportCardColMain}>
-              <p className={styles.valueEyebrow}>{homeCopy.reportLightEyebrowJa}</p>
-              <p className={styles.valuePrice}>{homeCopy.reportLightPriceJa}</p>
-
-              <p className={styles.depthNote}>{homeCopy.reportDepthNoteJa}</p>
+              <p className={styles.reportCardSupplement}>{homeCopy.reportLightSummaryJa}</p>
 
               <ul className={styles.featureListLoose}>
-                <li className={styles.featureItemLoose}>{homeCopy.reportLightSummaryJa}</li>
                 <li className={styles.featureItemLoose}>{homeCopy.reportFullLineJa}</li>
                 <li className={styles.featureItemLoose}>{homeCopy.reportFullUpgradeNoteJa}</li>
               </ul>

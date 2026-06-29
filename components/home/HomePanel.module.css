@@ -1859,20 +1859,21 @@
   margin: 0 0 10px;
 }
 
-/* Entry Report：カード先頭のワイドバンド（カード角に沿って一体化） */
+/* Entry Report：カード先頭のワイドバンド（画像上に商品コピーを重ねる） */
 .reportCardHeroBand {
   position: relative;
-  height: 112px;
-  margin: -20px -20px 16px -20px;
+  height: clamp(148px, 42vw, 192px);
+  margin: -20px -20px 12px -20px;
   width: calc(100% + 40px);
   border-bottom: 1px solid rgba(124, 111, 214, 0.18);
   box-sizing: border-box;
+  overflow: hidden;
   background: linear-gradient(180deg, rgba(236, 230, 248, 0.35) 0%, rgba(252, 250, 255, 0.2) 100%);
 }
 
 @media (min-width: 1024px) {
   .reportCardHeroBand {
-    margin: -24px -28px 20px -28px;
+    margin: -24px -28px 16px -28px;
     width: calc(100% + 56px);
   }
 }
@@ -1885,13 +1886,71 @@
 .reportCardHeroBandVeil {
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(252, 250, 255, 0.06) 0%,
-    rgba(248, 245, 255, 0.42) 50%,
-    rgba(244, 240, 252, 0.58) 100%
+    rgba(252, 250, 255, 0.04) 0%,
+    rgba(248, 245, 255, 0.18) 34%,
+    rgba(244, 240, 252, 0.62) 68%,
+    rgba(238, 232, 248, 0.9) 100%
   );
+}
+
+.reportCardHeroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px 16px 16px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.reportCardHeroOverlayEyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b5fa8;
+  margin: 0 0 4px;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.82),
+    0 1px 2px rgba(255, 255, 255, 0.92);
+}
+
+.reportCardHeroOverlayPrice {
+  font-size: clamp(22px, 6vw, 26px);
+  font-weight: 700;
+  color: #1e1730;
+  margin: 0 0 6px;
+  line-height: 1.15;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.78),
+    0 1px 2px rgba(255, 255, 255, 0.94);
+}
+
+.reportCardHeroOverlayLead {
+  font-size: clamp(12px, 3.2vw, 13px);
+  font-weight: 500;
+  color: #2d2a33;
+  line-height: 1.65;
+  margin: 0;
+  max-width: min(30ch, 100%);
+  text-wrap: balance;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.72),
+    0 1px 2px rgba(255, 255, 255, 0.88);
+}
+
+.reportCardSupplement {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.85);
+  line-height: 1.7;
+  margin: 0 0 4px;
+  padding: 0 0 11px;
+  border-bottom: 1px solid rgba(124, 111, 214, 0.09);
 }
 
 .reportCardBody {
