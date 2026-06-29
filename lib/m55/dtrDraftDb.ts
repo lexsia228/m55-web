@@ -56,10 +56,13 @@ export type DtrReportSnapshotRow = {
   envelope_json: DtrEnvelope;
   engine_version: string | null;
   engine_context_json: EngineContextJson | Record<string, unknown> | null;
+  /** Present when Hybrid AI fulfillment wrote generation columns (read-only display routing). */
+  generation_mode?: string | null;
+  quality_passed?: boolean | null;
 };
 
 const DTR_REPORT_SNAPSHOT_SELECT =
-  'id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json,engine_version,engine_context_json';
+  'id,user_id,product_id,checkout_session_id,profile_snapshot,draft_snapshot,envelope_json,engine_version,engine_context_json,generation_mode,quality_passed';
 
 function mapDtrReportSnapshotRow(data: Record<string, unknown>): DtrReportSnapshotRow | null {
   const idRaw = data.id as unknown;
@@ -75,6 +78,8 @@ function mapDtrReportSnapshotRow(data: Record<string, unknown>): DtrReportSnapsh
     engine_version: (data.engine_version as string | null) ?? null,
     engine_context_json:
       (data.engine_context_json as EngineContextJson | Record<string, unknown> | null) ?? null,
+    generation_mode: (data.generation_mode as string | null) ?? null,
+    quality_passed: typeof data.quality_passed === 'boolean' ? data.quality_passed : null,
   };
 }
 

@@ -917,15 +917,21 @@ function SectionBlock({
 
 /** Minimum paragraph count for snapshot body to be displayed preferentially over hardcoded fallback. */
 const SNAPSHOT_BODY_MIN_PARAS = 2;
+/** Single-paragraph hybrid/AI bodies still qualify when substantial (quality min ≈120 chars). */
+const SNAPSHOT_BODY_MIN_CHARS = 120;
 
 /** Parse snapshot section body into display paragraphs, preserving 【〜】 block format for BodyPara. */
 function snapshotBodyParas(body: string): string[] {
   return body.split('\n\n').map((p) => p.trim()).filter(Boolean);
 }
 
-/** True when snapshot body has enough paragraphs to display preferentially. */
+/** True when snapshot body has enough content to display preferentially over hardcoded fallback. */
 function hasSnapshotBody(body: string): boolean {
-  return snapshotBodyParas(body).length >= SNAPSHOT_BODY_MIN_PARAS;
+  const trimmed = body.trim();
+  if (!trimmed) return false;
+  const paras = snapshotBodyParas(body);
+  if (paras.length >= SNAPSHOT_BODY_MIN_PARAS) return true;
+  return trimmed.length >= SNAPSHOT_BODY_MIN_CHARS;
 }
 
 /** Extract individualization prefix blocks (【この保存版だけ〜】) from a section body for separate display. */

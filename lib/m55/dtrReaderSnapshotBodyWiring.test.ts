@@ -173,9 +173,17 @@ describe('dtrReader snapshot body wiring', () => {
     assert.equal(paras.length >= 2, false, 'empty body should not qualify');
   });
 
-  it('hasSnapshotBody returns false for single-para body', () => {
+  it('hasSnapshotBody returns false for single-para body under min chars', () => {
     const paras = '一段落だけ'.split('\n\n').map((p) => p.trim()).filter(Boolean);
-    assert.equal(paras.length >= 2, false, 'single para should not qualify');
+    assert.equal(paras.length >= 2, false, 'single para should not qualify by count');
+    assert.equal('一段落だけ'.trim().length >= 120, false, 'short single para should not qualify');
+  });
+
+  it('hasSnapshotBody returns true for single substantial para (hybrid AI)', () => {
+    const body = 'あ'.repeat(130);
+    const paras = body.split('\n\n').map((p) => p.trim()).filter(Boolean);
+    assert.equal(paras.length >= 2, false);
+    assert.equal(body.trim().length >= 120, true);
   });
 
   it('hasSnapshotBody returns true for 2+ para body', () => {

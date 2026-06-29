@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { resetCalendarBundleCacheForTests } from '../calendar/loadCalendarBundle';
 import { runDtrEngine } from '../dtrEngine';
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
+import { createMockHybridAiProvider } from '../dtrHybridAiProvider';
+import { runHybridAiSnapshotGeneration } from '../dtrHybridAiSnapshotGeneration';
 import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 import { ENGINE_VERSION_V2 } from './constants';
@@ -409,6 +412,92 @@ describe('resolveDisplayedDtrEnvelope', () => {
       assert.match(s3, /生年月日の細かなリズム/);
       assert.equal(read.envelope.auditMeta.paidIndividualization?.version, 'v2');
     });
+  });
+});
+
+function bodyHash(body: string): string {
+  return createHash('sha256').update(body).digest('hex').slice(0, 16);
+}
+
+async function buildHybridAiStoredRow(birthDate: string, nickname: string) {
+  resetCalendarBundleCacheForTests();
+  const built = buildV2FulfillmentSnapshotFromFields({
+    nickname,
+    birthDate,
+    birthTime: '12:00',
+    birthTimeUnknown: false,
+    country: 'JP',
+    birthplace: '東京都',
+    timezone: 'Asia/Tokyo',
+  });
+  const ind = composePaidIndividualizationFromEngineContext(built.engine_context_json);
+  const candidate = await runHybridAiSnapshotGeneration(
+    built.engine_context_json,
+    ind,
+    createMockHybridAiProvider(),
+  );
+  assert.equal(candidate.ok, true);
+  if (!candidate.ok) throw new Error('hybrid fixture failed');
+  const hybridBuilt = buildV2FulfillmentSnapshotFromFields(
+    {
+      nickname,
+      birthDate,
+      birthTime: '12:00',
+      birthTimeUnknown: false,
+      country: 'JP',
+      birthplace: '東京都',
+      timezone: 'Asia/Tokyo',
+    },
+    { generatedChapterBodies: candidate.sections },
+  );
+  return baseRow({
+    envelope_json: hybridBuilt.envelope_json,
+    engine_version: ENGINE_VERSION_V2,
+    engine_context_json: hybridBuilt.engine_context_json,
+    profile_snapshot: hybridBuilt.profile_snapshot,
+    generation_mode: 'hybrid_ai',
+    quality_passed: true,
+  });
+}
+
+describe('resolveDisplayedDtrEnvelope — hybrid_ai stored snapshots', () => {
+  it('hybrid_ai row → stored_v2_hybrid_ai mode preserves AI s1–s4 bodies', async () => {
+    const row = await buildHybridAiStoredRow('1983-02-28', 'GX');
+    const storedS1 = row.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    const read = resolveDisplayedDtrEnvelope(row);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    assert.equal(read.mode, 'stored_v2_hybrid_ai');
+    assert.equal(read.rawMeta.displayNormalizeSource, 'stored_hybrid_ai_fulfillment_snapshot');
+    const displayedS1 = read.envelope.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    assert.equal(displayedS1, storedS1);
+    assert.notEqual(displayedS1.slice(0, 20), '動き始めるのは、表面の静');
+  });
+
+  it('hybrid_ai row without generation_mode still uses catalog normalization', async () => {
+    const row = await buildHybridAiStoredRow('1983-02-28', 'GX');
+    const storedS1 = row.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    const legacyRow = { ...row, generation_mode: null };
+    const read = resolveDisplayedDtrEnvelope(legacyRow);
+    assert.equal(read.ok, true);
+    if (!read.ok) return;
+    assert.equal(read.mode, 'stored_v2');
+    const displayedS1 = read.envelope.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    assert.notEqual(displayedS1, storedS1);
+  });
+
+  it('1983-02-01 vs 1983-02-28 hybrid_ai displayed s1 hashes differ', async () => {
+    const rowA = await buildHybridAiStoredRow('1983-02-01', 'A');
+    const rowB = await buildHybridAiStoredRow('1983-02-28', 'B');
+    const readA = resolveDisplayedDtrEnvelope(rowA);
+    const readB = resolveDisplayedDtrEnvelope(rowB);
+    assert.equal(readA.ok, true);
+    assert.equal(readB.ok, true);
+    if (!readA.ok || !readB.ok) return;
+    const s1A = readA.envelope.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    const s1B = readB.envelope.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    assert.notEqual(bodyHash(s1A), bodyHash(s1B));
+    assert.notEqual(s1A.slice(0, 40), s1B.slice(0, 40));
   });
 });
 

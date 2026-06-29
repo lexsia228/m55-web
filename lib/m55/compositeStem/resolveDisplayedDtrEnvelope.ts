@@ -16,10 +16,14 @@ import {
   type DtrReportSnapshotReadRow,
 } from './storedEnvelopeRead';
 
-export type DisplayedEnvelopeReadMode = 'stored_v2' | 'rebuilt_v2_from_legacy';
+export type DisplayedEnvelopeReadMode =
+  | 'stored_v2'
+  | 'stored_v2_hybrid_ai'
+  | 'rebuilt_v2_from_legacy';
 
 export type DisplayNormalizeSource =
   | 'current_dtr_engine_catalog'
+  | 'stored_hybrid_ai_fulfillment_snapshot'
   | 'legacy_pipeline_rebuild';
 
 export type DisplayedDtrEnvelopeRawMeta = {
@@ -160,6 +164,33 @@ function resolveStoredV2DisplayEnvelope(
   return { ok: true, envelope: displayEnvelope };
 }
 
+function isHybridAiStoredSnapshot(row: DtrReportSnapshotReadRow): boolean {
+  return row.generation_mode === 'hybrid_ai';
+}
+
+/**
+ * Hybrid AI fulfillment snapshots: display stored envelope_json as SSOT.
+ * Catalog read-time normalization would discard AI-generated s1–s4 bodies.
+ */
+function resolveStoredV2HybridAiDisplayEnvelope(
+  storedEnvelope: DtrEnvelope,
+  engineContext: EngineContextJson,
+): { ok: true; envelope: DtrEnvelope } | { ok: false; reason: string } {
+  const derivation = storedEnvelope.auditMeta.derivation ?? 'm55_composite_stem_v2_p_lunar';
+
+  if (derivation === 'jdn_offset_provisional_v1') {
+    return { ok: false, reason: 'jdn_provisional_derivation_forbidden' };
+  }
+  if (storedEnvelope.auditMeta.stemLaneIndex !== engineContext.stemLaneIndex) {
+    return { ok: false, reason: 'stored_lane_context_mismatch' };
+  }
+  if (storedEnvelope.auditMeta.stemChar !== engineContext.stemChar) {
+    return { ok: false, reason: 'stored_stem_char_context_mismatch' };
+  }
+
+  return { ok: true, envelope: storedEnvelope };
+}
+
 /**
  * Resolve envelope for user-facing display and consult grounding.
  * Fail-closed on rebuild failure — no legacy envelope fallback.
@@ -174,6 +205,33 @@ export function resolveDisplayedDtrEnvelope(
     }
 
     const engineContext = row.engine_context_json as EngineContextJson;
+
+    if (isHybridAiStoredSnapshot(row)) {
+      const display = resolveStoredV2HybridAiDisplayEnvelope(
+        storedRead.envelope,
+        engineContext,
+      );
+      if (!display.ok) {
+        return { ok: false, reason: display.reason };
+      }
+
+      const rawMeta = buildRawMeta(
+        row,
+        'v2',
+        storedRead.envelope,
+        'stored_hybrid_ai_fulfillment_snapshot',
+      );
+      if (!rawMeta) return { ok: false, reason: 'invalid_envelope' };
+
+      return {
+        ok: true,
+        mode: 'stored_v2_hybrid_ai',
+        envelope: display.envelope,
+        profile: storedRead.profile,
+        rawMeta,
+      };
+    }
+
     const display = resolveStoredV2DisplayEnvelope(
       storedRead.envelope,
       storedRead.profile,
