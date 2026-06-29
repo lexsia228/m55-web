@@ -1,6 +1,7 @@
 import type { BirthProfile } from '../../soul/profile';
 import { ProfileRepository } from '../../soul/profile';
-import { buildCoreResult, CORE_ENGINE_VERSION } from './buildCoreResult';
+import { buildCoreResultClient } from './buildCoreResult.client';
+import { CORE_ENGINE_VERSION } from './coreEngineVersion';
 import { isLegacyV1, migrateLegacyV1ToCoreResult, wrapV3 } from './migrateV1';
 import type { CoreResult, SealedCoreEnvelopeV3 } from './types';
 
@@ -53,6 +54,10 @@ function profilesMatch(
   );
 }
 
+function buildFreshCoreResult(profile: BirthProfile): CoreResult {
+  return buildCoreResultClient(profile);
+}
+
 /** True when sealed v3 envelope must be rebuilt (engine parity bump). */
 export function coreEnvelopeRequiresReseal(envelope: SealedCoreEnvelopeV3 | null): boolean {
   if (!envelope) return true;
@@ -87,7 +92,7 @@ export function ensureSealedCoreResult(
     return migrated;
   }
 
-  const built = buildCoreResult(cur);
+  const built = buildFreshCoreResult(cur);
   writeV3(ownerId, wrapV3(cur, built));
   return built;
 }

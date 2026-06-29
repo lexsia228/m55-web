@@ -1,7 +1,7 @@
 import type { BirthProfile } from '../../soul/profile';
 import { buildAxisDetails } from './axisMeta';
+import { buildCoreResultClient } from './buildCoreResult.client';
 import type { CoreResult, SealedCoreEnvelopeV3 } from './types';
-import { buildCoreResult } from './buildCoreResult';
 
 /** Legacy persisted shape (pre m55-core-2026-04). */
 export type LegacyCoreResultV1 = {
@@ -36,7 +36,7 @@ export function isLegacyV1(obj: unknown): obj is LegacyCoreResultV1 {
  * 新規ユーザーは `buildCoreResult` のみ（TYPE 正式ラベル）。
  */
 export function migrateLegacyV1ToCoreResult(v1: LegacyCoreResultV1, profile: BirthProfile): CoreResult {
-  const built = buildCoreResult(profile);
+  const built = buildCoreResultClient(profile);
   const displayLabel = v1.publicTitle?.trim() || built.coreLabel;
   const displaySummary = v1.summaryShort?.trim() || built.coreSummary;
 

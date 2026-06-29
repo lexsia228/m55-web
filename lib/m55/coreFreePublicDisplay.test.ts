@@ -2,9 +2,9 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildCoreResult } from './coreResult/buildCoreResult';
+import { buildCoreResultClient } from './coreResult/buildCoreResult.client';
 import {
-  coreTraitDisplayFromCoreLabel,
+  coreTraitDisplayFromCoreType,
   freeCoreAxisRowsForResult,
   freeCorePersonalizationFingerprint,
 } from './coreFreePublicDisplay';
@@ -25,13 +25,19 @@ const FORBIDDEN_DISPLAY_TERMS = [
 ] as const;
 
 function buildFor(birthDate: string) {
-  return buildCoreResult({ nickname: 't', birthDate });
+  return buildCoreResultClient({ nickname: 't', birthDate });
 }
 
 describe('/core free public display — CATEGORY-2-M55-CORE-PAGE-FREE-TO-PAID-PERSONALIZATION-COPY', () => {
-  it('maps 構造探求型 to living-language display alias', () => {
-    assert.equal(coreTraitDisplayFromCoreLabel('構造探求型'), '納得して組み立てる');
-    assert.equal(coreTraitDisplayFromCoreLabel('構造探求'), '納得して組み立てる');
+  it('maps TYPE_03 to living-language display alias', () => {
+    assert.equal(coreTraitDisplayFromCoreType('TYPE_03'), '納得して組み立てる');
+    assert.equal(coreTraitDisplayFromCoreType('TYPE_10'), '全体をつなげて整える');
+  });
+
+  it('DOB anchors resolve to expected living-language trait display', () => {
+    assert.equal(coreTraitDisplayFromCoreType(buildFor('1983-02-01').coreType), '納得して組み立てる');
+    assert.equal(coreTraitDisplayFromCoreType(buildFor('1983-02-28').coreType), '全体をつなげて整える');
+    assert.equal(coreTraitDisplayFromCoreType(buildFor('1992-12-19').coreType), '関係の温度を受け取る');
   });
 
   it('keeps forbidden internal labels out of rendered free-core copy surfaces', () => {
@@ -39,7 +45,7 @@ describe('/core free public display — CATEGORY-2-M55-CORE-PAGE-FREE-TO-PAID-PE
     for (const birthDate of dates) {
       const result = buildFor(birthDate);
       const blob = [
-        coreTraitDisplayFromCoreLabel(result.coreLabel),
+        coreTraitDisplayFromCoreType(result.coreType),
         ...freeCoreAxisRowsForResult(result).flatMap((row) => [row.tendency, row.life, row.load]),
         freeCorePersonalizationFingerprint(result),
       ].join('\n');

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { CORE_ENGINE_VERSION } from './buildCoreResult';
+import { CORE_ENGINE_VERSION } from './coreEngineVersion';
 import { coreEnvelopeRequiresReseal } from './store';
 import type { CoreResult, SealedCoreEnvelopeV3 } from './types';
 

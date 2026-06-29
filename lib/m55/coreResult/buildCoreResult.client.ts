@@ -1,13 +1,11 @@
 import type { BirthProfile } from '../../soul/profile';
 import { CORE_ENGINE_VERSION } from './coreEngineVersion';
-import { runCanonicalCorePipeline } from './canonicalBoundary';
+import { runCanonicalCorePipelineClient } from './canonicalBoundary.client';
 import type { CoreResult } from './types';
 
-export { CORE_ENGINE_VERSION };
-
-/** Fresh build from profile (deterministic). Use only when no sealed snapshot matches. */
-export function buildCoreResult(profile: BirthProfile): CoreResult {
-  const canonical = runCanonicalCorePipeline({
+/** Client-only seal build — no internal Japanese trait labels in bundled catalog. */
+export function buildCoreResultClient(profile: BirthProfile): CoreResult {
+  const canonical = runCanonicalCorePipelineClient({
     birthDate: profile.birthDate,
     birthTime: profile.birthTime,
     country: profile.country,
@@ -16,23 +14,10 @@ export function buildCoreResult(profile: BirthProfile): CoreResult {
   const seed = canonical.staticCore;
   const typeSeed = canonical.typeSeed;
 
-  // Mandatory deterministic regression logging for host3000 diagnosis.
-  console.info('[m55-core-canonical]', {
-    normalizedGregorianDate: canonical.normalized.normalizedGregorianDate,
-    canonicalTimezone: canonical.normalized.canonicalTimezone,
-    solarTermBoundaryDecision: canonical.boundary.solarTermBoundary,
-    lunarBoundaryDecision: canonical.boundary.lunarBoundary,
-    fallbackMode: canonical.boundary.fallbackMode,
-    staticFingerprint: canonical.staticCore.staticFingerprint,
-    displayFingerprint: canonical.staticCore.displayFingerprint,
-    engineVersion: canonical.engineVersion,
-    regressionAnchorMatched: canonical.regressionAnchorMatched,
-  });
-
   return {
     stemLaneIndex: seed.stemLaneIndex,
     coreType: `TYPE_${String(seed.typeIndex + 1).padStart(2, '0')}`,
-    coreLabel: seed.longTermTheme,
+    coreLabel: typeSeed.coreType,
     coreSummary: seed.staticEssence,
     coreAxisScores: {
       socialEnergy: canonical.axisDetails.find((d) => d.key === 'socialEnergy')!.score,

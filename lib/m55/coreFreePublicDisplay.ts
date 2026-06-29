@@ -1,28 +1,23 @@
 /**
  * /core free surface — living-language display aliases and DOB-flavored copy.
- * Internal engine labels (coreLabel, TYPE_*) stay unchanged; only user-facing text uses this layer.
+ * Keys use stable coreType ids (TYPE_01–10); internal Japanese labels stay server-side.
  */
 import { AXIS_ORDER } from './coreResult/axisMeta';
 import type { AxisBand, AxisKey, CoreResult } from './coreResult/types';
 import { AXIS_FORMAL_JA } from '../../components/core/corePublicAxisLabels';
-import { observationTraitNameFromCoreLabel } from './publicStemDisplay';
 
-/** Internal trait token → user-facing living phrase (no 「型」). */
-const CORE_TRAIT_DISPLAY_ALIAS: Readonly<Record<string, string>> = {
-  観測深化: '静かに深く見る',
-  共鳴受容: '関係の温度を受け取る',
-  構造探求: '納得して組み立てる',
-  静観分析: '落ち着いて確かめる',
-  調和観測: '関係の空気を整える',
-  直観展開: '先に全体像をつかむ',
-  核心追究: '本質まで掘り下げる',
-  推進整理: 'まず動いて流れを作る',
-  関係洞察: '距離と言葉を読む',
-  統合設計: '全体をつなげて整える',
-  感受拡張: '変化を受け取りやすい',
-  推進先行: 'まず動いて流れを作る',
-  調和優先: '関係の空気を整える',
-  慎重整理: '整えてから進める',
+/** coreType → user-facing living phrase (no 「型」). */
+const CORE_TRAIT_DISPLAY_BY_TYPE: Readonly<Record<string, string>> = {
+  TYPE_01: '静かに深く見る',
+  TYPE_02: '関係の温度を受け取る',
+  TYPE_03: '納得して組み立てる',
+  TYPE_04: '落ち着いて確かめる',
+  TYPE_05: '関係の空気を整える',
+  TYPE_06: '先に全体像をつかむ',
+  TYPE_07: '本質まで掘り下げる',
+  TYPE_08: 'まず動いて流れを作る',
+  TYPE_09: '距離と言葉を読む',
+  TYPE_10: '全体をつなげて整える',
 };
 
 const READING_STYLE_NOTES: Readonly<Record<string, string>> = {
@@ -216,13 +211,12 @@ function isHighBand(band: AxisBand): boolean {
   return band === 'very-high' || band === 'high';
 }
 
-export function coreTraitDisplayFromCoreLabel(coreLabel: string): string {
-  const internal = observationTraitNameFromCoreLabel(coreLabel);
-  return CORE_TRAIT_DISPLAY_ALIAS[internal] ?? internal;
+export function coreTraitDisplayFromCoreType(coreType: string): string {
+  return CORE_TRAIT_DISPLAY_BY_TYPE[coreType.trim()] ?? coreType.trim();
 }
 
-export function coreReadingStyleNoteFromCoreLabel(coreLabel: string): string | null {
-  const display = coreTraitDisplayFromCoreLabel(coreLabel);
+export function coreReadingStyleNoteFromCoreType(coreType: string): string | null {
+  const display = coreTraitDisplayFromCoreType(coreType);
   return READING_STYLE_NOTES[display] ?? null;
 }
 
@@ -377,8 +371,8 @@ export function freeCorePersonalizationFingerprint(result: CoreResult): string {
   const align = freeCoreAlignSteps(result);
   const bullets = freeCoreObservationBullets(result);
   return [
-    coreTraitDisplayFromCoreLabel(result.coreLabel),
-    coreReadingStyleNoteFromCoreLabel(result.coreLabel) ?? '',
+    coreTraitDisplayFromCoreType(result.coreType),
+    coreReadingStyleNoteFromCoreType(result.coreType) ?? '',
     ...axes.map((r) => `${r.tendency}|${r.life}|${r.load}`),
     ...lifestyle.map((c) => c.body),
     ...align.map((s) => s.body),

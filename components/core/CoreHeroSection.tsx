@@ -3,8 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
-  coreReadingStyleNoteFromCoreLabel,
-  coreTraitDisplayFromCoreLabel,
+  coreReadingStyleNoteFromCoreType,
+  coreTraitDisplayFromCoreType,
 } from '../../lib/m55/coreFreePublicDisplay';
 import { resolveCorePublicStemDisplay } from '../../lib/m55/publicStemDisplay';
 import styles from './CoreExperience.module.css';
@@ -51,8 +51,8 @@ export default function CoreHeroSection({
 }) {
   const nick = nickname.trim();
   const stemDisplay = resolveCorePublicStemDisplay(result);
-  const observationTraitName = coreTraitDisplayFromCoreLabel(result.coreLabel);
-  const readingStyleNote = coreReadingStyleNoteFromCoreLabel(result.coreLabel);
+  const observationTraitName = coreTraitDisplayFromCoreType(result.coreType);
+  const readingStyleNote = coreReadingStyleNoteFromCoreType(result.coreType);
   const obsDateLabel = formatRecordDateLabelJa(result.lockedAt);
   const obsMeta = obsDateLabel ? `生年月日 ${obsDateLabel}` : '';
   const traitLabel = '読み方';

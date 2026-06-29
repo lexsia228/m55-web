@@ -1,32 +1,23 @@
 import { buildAxisDetails, compositionFromScores } from './axisMeta';
-import { affinityForTypeIndex, TYPE_CATALOG, type TypeCatalogSeed, typeIndexFromStemLane } from './typeCatalog';
 import type { BirthProfile } from '../../soul/profile';
 import {
   birthProfileFromNormalizeInput,
   resolveCoreStemAuthority,
   resolveCoreStemAuthorityFromNormalizeInput,
 } from './resolveCoreStemAuthority';
+import { TYPE_SCORE_SEEDS, typeIndexFromStemLane } from './typeCatalogScores';
 import {
   computeDynamicObservation,
   hashFingerprint,
   normalizeBirthContext,
   resolveBoundaryContext,
   type BoundaryContext,
-  type DynamicObservation,
   type NormalizeBirthInput,
   type NormalizedBirthContext,
   type StaticCoreDeterministic,
 } from './canonicalBirthBoundary';
 
-export type {
-  BoundaryContext,
-  DynamicObservation,
-  NormalizeBirthInput,
-  NormalizedBirthContext,
-  StaticCoreDeterministic,
-} from './canonicalBirthBoundary';
-
-export function computeStaticCoreDeterministic(
+function computeStaticCoreClient(
   normalizedInput: NormalizedBirthContext,
   boundaryContext: BoundaryContext,
   profile: BirthProfile,
@@ -37,7 +28,8 @@ export function computeStaticCoreDeterministic(
   }
   const lane = authority.stemLaneIndex;
   const idx = typeIndexFromStemLane(lane);
-  const seed = TYPE_CATALOG[idx]!;
+  const seed = TYPE_SCORE_SEEDS[idx]!;
+  const publicTheme = seed.coreType;
   const staticFingerprint = hashFingerprint({
     date: normalizedInput.normalizedGregorianDate,
     lane,
@@ -49,7 +41,7 @@ export function computeStaticCoreDeterministic(
   const displayFingerprint = hashFingerprint({
     personaCode49: `PC49-${String(idx + 1).padStart(2, '0')}`,
     staticEssence: seed.coreSummary,
-    longTermTheme: seed.coreLabel,
+    longTermTheme: publicTheme,
     relationBaseline: seed.relationships.summary,
     workResourceBaseline: seed.workStyle.summary,
     boundary: {
@@ -63,7 +55,7 @@ export function computeStaticCoreDeterministic(
     staticEssence: seed.coreSummary,
     strengths: [...seed.strengths],
     distortionTendencies: [...seed.cautions],
-    longTermTheme: seed.coreLabel,
+    longTermTheme: publicTheme,
     relationBaseline: seed.relationships.summary,
     workResourceBaseline: seed.workStyle.summary,
     staticFingerprint,
@@ -73,35 +65,38 @@ export function computeStaticCoreDeterministic(
   };
 }
 
-export type CanonicalCorePipelineOutput = {
-  normalized: NormalizedBirthContext;
-  boundary: BoundaryContext;
-  staticCore: StaticCoreDeterministic;
-  dynamic: DynamicObservation;
-  axisDetails: ReturnType<typeof buildAxisDetails>;
-  composition: ReturnType<typeof compositionFromScores>;
-  affinities: ReturnType<typeof affinityForTypeIndex>;
-  typeSeed: TypeCatalogSeed;
-  engineVersion: string;
-  regressionAnchorMatched: boolean;
-};
+function affinityForTypeIndexClient(self: number) {
+  const items: { type: string; label: string; score: number }[] = [];
+  for (let j = 0; j < 10; j++) {
+    if (j === self) continue;
+    const d = Math.abs(self - j);
+    const ring = Math.min(d, 10 - d);
+    const score = Math.max(12, 100 - ring * 11);
+    const t = TYPE_SCORE_SEEDS[j]!;
+    items.push({ type: t.coreType, label: t.coreType, score });
+  }
+  return items
+    .sort((a, b) => (b.score - a.score) || a.type.localeCompare(b.type))
+    .slice(0, 5);
+}
 
-const ANCHOR_DATE = '1983-02-28';
-
-export function runCanonicalCorePipeline(input: NormalizeBirthInput, fixedNow = '2026-01-01T00:00:00.000Z'): CanonicalCorePipelineOutput {
+export function runCanonicalCorePipelineClient(
+  input: NormalizeBirthInput,
+  fixedNow = '2026-01-01T00:00:00.000Z',
+) {
   const profile = birthProfileFromNormalizeInput(input);
   const normalized = normalizeBirthContext(input);
   const boundary = resolveBoundaryContext(normalized);
-  const staticCore = computeStaticCoreDeterministic(normalized, boundary, profile);
+  const staticCore = computeStaticCoreClient(normalized, boundary, profile);
   const dynamic = computeDynamicObservation(boundary, fixedNow);
-  const seed = TYPE_CATALOG[staticCore.typeIndex]!;
-  const axisDetails = buildAxisDetails(seed.coreLabel, seed.coreAxisScores);
+  const seed = TYPE_SCORE_SEEDS[staticCore.typeIndex]!;
+  const axisDetails = buildAxisDetails(seed.coreType, seed.coreAxisScores);
   const composition = compositionFromScores(seed.coreAxisScores);
-  const affinities = affinityForTypeIndex(staticCore.typeIndex);
+  const affinities = affinityForTypeIndexClient(staticCore.typeIndex);
   const stemAuthority = resolveCoreStemAuthorityFromNormalizeInput(input);
   const engineVersion = stemAuthority?.engineVersion ?? 'm55-composite-stem-v2';
   const regressionAnchorMatched =
-    normalized.normalizedGregorianDate === ANCHOR_DATE && stemAuthority?.stemLaneIndex === 9;
+    normalized.normalizedGregorianDate === '1983-02-28' && stemAuthority?.stemLaneIndex === 9;
   return {
     normalized,
     boundary,
@@ -115,5 +110,3 @@ export function runCanonicalCorePipeline(input: NormalizeBirthInput, fixedNow = 
     regressionAnchorMatched,
   };
 }
-
-export { computeDynamicObservation, normalizeBirthContext, resolveBoundaryContext };
