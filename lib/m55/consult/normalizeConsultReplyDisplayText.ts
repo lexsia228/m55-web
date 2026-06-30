@@ -130,8 +130,12 @@ function applyDisplayPreRepair(raw: string): string {
   return applyReplacementList(raw, DISPLAY_PRE_REPAIR);
 }
 
+function applyDisplayNaturalnessReplacements(text: string): string {
+  return applyReplacementList(text, DISPLAY_NATURALNESS_REPAIRS);
+}
+
 function repairConsultReplyDisplayNaturalness(text: string): string {
-  let out = applyReplacementList(text, DISPLAY_NATURALNESS_REPAIRS);
+  let out = applyDisplayNaturalnessReplacements(text);
   out = limitConsultReplyPhraseOccurrences(
     out,
     FIRST_HANDGRIP_PHRASE,
@@ -173,7 +177,8 @@ export function normalizeConsultReplyDisplayText(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return trimmed;
   const pre = applyDisplayPreRepair(trimmed);
-  const passed = applyM55ConsultReplyQualityPasses(pre);
+  const preNatural = applyDisplayNaturalnessReplacements(pre);
+  const passed = applyM55ConsultReplyQualityPasses(preNatural);
   const grammar = repairConsultReplyGrammarArtifacts(passed.text);
   return repairConsultReplyDisplayNaturalness(grammar);
 }

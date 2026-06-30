@@ -3,14 +3,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  buildConsultUserAnchors,
-  buildThemeOnlyConsultMessage,
   CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA,
   CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA,
+  buildConsultUserAnchors,
+  buildThemeOnlyConsultMessage,
   parseConsultUserMessage,
   validateConsultSendInput,
 } from './consultSendMessage';
-import { CONSULT_REPLY_GENERATION } from './consultReplyGenerationContract';
+import {
+  CONSULT_REPLY_GENERATION,
+  CONSULT_REPLY_QUALITY_VOICE_JA,
+} from './consultReplyGenerationContract';
 
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const CONSULT_ROOM = join(process.cwd(), 'components/dtr/ConsultRoom.tsx');
@@ -132,6 +135,13 @@ describe('consultSendMessage', () => {
     assert.ok(anchors.includes('少しほどく'));
     assert.ok(anchors.includes('見直すときの目印'));
     assert.ok(anchors.includes('書き切る'));
+  });
+
+  it('generation instructions include quality voice contract', () => {
+    assert.ok(CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA.includes('弱い一般論を避ける'));
+    assert.ok(CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA.includes('弱い一般論を避ける'));
+    assert.ok(CONSULT_REPLY_QUALITY_VOICE_JA.includes('区切り動作'));
+    assert.ok(CONSULT_REPLY_QUALITY_VOICE_JA.includes('止められない'));
   });
 
   it('body-present anchors keep user detail and theme frame', () => {

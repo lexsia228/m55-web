@@ -87,6 +87,14 @@ describe('consultReplyLengthRepair', () => {
     assert.deepEqual(validateConsultReplyCompleteness(expanded), { ok: true });
   });
 
+  it('repair prompt includes quality voice contract', () => {
+    const src = readFileSync(
+      join(process.cwd(), 'lib/m55/consult/consultReplyLengthRepair.ts'),
+      'utf8',
+    );
+    assert.ok(src.includes('CONSULT_REPLY_QUALITY_VOICE_JA'));
+  });
+
   it('send route wires bounded repair before RPC and logs redacted fields only', () => {
     const src = readFileSync(SEND_ROUTE, 'utf8');
     assert.ok(src.includes('attemptConsultReplyLengthRepair'));

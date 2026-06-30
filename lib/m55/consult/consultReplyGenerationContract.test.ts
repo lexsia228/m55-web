@@ -137,7 +137,7 @@ describe('consultReplyGenerationContract', () => {
   it('send route prompt constrains 今日の一手 to one action, not 1-3', () => {
     const src = readFileSync(SEND_ROUTE, 'utf8');
     assert.ok(src.includes('今日やることは1つだけです'), 'prompt must include single-action opener');
-    assert.ok(src.includes('行動を1つだけ書く'), 'prompt must say 1 action only');
+    assert.ok(src.includes('行動を1つだけ書く') || src.includes('区切り動作を1つだけ書く'), 'prompt must say 1 action only');
     assert.equal(src.includes('行動を1〜3個'), false, 'old multi-action rule must not be present');
     assert.equal(src.includes('末尾に保存版の章を読み返す問いを1文入れる'), false, 'saved-report CTA must not be inside today block');
   });
@@ -272,6 +272,14 @@ describe('consultReplyGenerationContract', () => {
     const endResult = validateConsultReplyCompleteness(noEnd);
     assert.equal(endResult.ok, false);
     if (!endResult.ok) assert.equal(endResult.reason, 'incomplete_sentence_end');
+  });
+
+  it('send route includes quality voice and today-action polish in grounding', () => {
+    const src = readFileSync(SEND_ROUTE, 'utf8');
+    assert.ok(src.includes('CONSULT_REPLY_QUALITY_VOICE_JA'));
+    assert.ok(src.includes('区切り動作'));
+    assert.ok(src.includes('止められない'));
+    assert.ok(src.includes('ここまでで閉じる'));
   });
 
   it('SSOT documents reply length contract in §7.2', () => {

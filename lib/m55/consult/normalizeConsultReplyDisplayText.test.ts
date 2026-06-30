@@ -153,7 +153,7 @@ describe('normalizeConsultReplyDisplayText', () => {
     assert.ok(out.includes('試してみてください'));
 
     const count = (out.match(/最初の手がかりになります/g) ?? []).length;
-    assert.ok(count <= 2, `expected at most 2 handgrip phrases, got ${count}`);
+    assert.ok(count <= 1, `expected at most 1 handgrip phrase in polished output, got ${count}`);
   });
 
   it('preserves good M55 phrasing when already natural', () => {

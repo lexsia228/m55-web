@@ -4,7 +4,10 @@
  */
 
 import { PAID_DTR_DRAWER_THEME_ENTRIES } from '../paidDtrProductCopy';
-import { CONSULT_REPLY_GENERATION } from './consultReplyGenerationContract';
+import {
+  CONSULT_REPLY_GENERATION,
+  CONSULT_REPLY_QUALITY_VOICE_JA,
+} from './consultReplyGenerationContract';
 import {
   isKnownConsultTheme,
   resolveConsultReplyPartByTheme,
@@ -30,7 +33,9 @@ export const CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA = `【相談返書 �
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
 - 水増しや同じ言い回しの繰り返しで長さを稼がないこと。相談の論点・保存版の傾向・別の見方・見直す目印・今日の一手まで各段落に役割を持たせて書くこと。
 - 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
-- 相談文から拾った論点（3〜5個）を1段落目に反映し、今日の一手まで必ず書き切ること。`;
+- 相談文から拾った論点（3〜5個）を1段落目に反映し、今日の一手まで必ず書き切ること。
+
+${CONSULT_REPLY_QUALITY_VOICE_JA}`;
 
 /** Theme-only generation instruction — appended to system prompt anchors when body is blank. */
 export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ相談 — 有効な相談として扱う】
@@ -41,7 +46,9 @@ export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ�
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
 - 水増しや同じ言い回しの繰り返しで長さを稼がないこと。テーマ・テーマの見方・保存版の傾向から場面を深め、各段落に役割を持たせて書くこと。
 - 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
-- テーマラベルとテーマの見方をもとに、今の場面を具体化して書いてください。一般論や汎用コーチングで埋めないでください。`;
+- テーマラベルとテーマの見方をもとに、今の場面を具体化して書いてください。一般論や汎用コーチングで埋めないでください。
+
+${CONSULT_REPLY_QUALITY_VOICE_JA}`;
 
 export function resolveConsultThemeDescription(theme: string): string {
   const entry = PAID_DTR_DRAWER_THEME_ENTRIES.find((e) => e.labelJa === theme);

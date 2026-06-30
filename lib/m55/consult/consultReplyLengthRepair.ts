@@ -7,6 +7,7 @@ import type OpenAI from 'openai';
 import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA,
+  CONSULT_REPLY_QUALITY_VOICE_JA,
   type ConsultReplyCompletenessFailureReason,
 } from './consultReplyGenerationContract';
 
@@ -36,6 +37,8 @@ export const CONSULT_REPLY_LENGTH_REPAIR_USER_PREFIX_JA = `【返書の長さ補
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満・${CONSULT_REPLY_GENERATION.outputHardCapJa}文字超は保存されない。最終文は必ず「。」で終える。
 
 ${CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA}
+
+${CONSULT_REPLY_QUALITY_VOICE_JA}
 
 --- ドラフト（このまま保存不可） ---
 `;

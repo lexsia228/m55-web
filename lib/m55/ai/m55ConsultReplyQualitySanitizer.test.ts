@@ -7,8 +7,8 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     const r = applyM55ConsultReplyQualityPasses(
       'この進め方は効果的です。役立つかもしれません。'
     );
-    assert.ok(r.text.includes('整理しやすくなります'));
-    assert.ok(r.text.includes('保存版の観点で見直しやすくなります'));
+    assert.ok(r.text.includes('使いやすいです'));
+    assert.ok(r.text.includes('相談の場面に戻しやすいです'));
     assert.equal(r.replacementCount >= 2, true);
     assert.ok(r.categoriesTriggered.includes('generic_advice'));
   });
@@ -76,7 +76,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
       'この症状は何の病気か診断してほしい。効果的です。';
     const r = applyM55ConsultReplyQualityPasses(input);
     assert.ok(r.text.includes('診断して'));
-    assert.ok(r.text.includes('整理しやすくなります'));
+    assert.ok(r.text.includes('使いやすいです'));
   });
 
   it('rewrites listed generic coaching phrases', () => {
@@ -93,7 +93,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
       '整理できるかもしれません。見直せるかもしれません。戻せるかもしれません。'
     );
     const count = (r.text.match(/かもしれません/g) ?? []).length;
-    assert.ok(count <= 2);
+    assert.ok(count <= 1);
   });
 
   it('does not map repeated 重要です / 大切です to the same template phrase', () => {
@@ -101,14 +101,14 @@ describe('applyM55ConsultReplyQualityPasses', () => {
       'この点は重要です。次の段も大切です。三つ目も重要です。'
     );
     assert.equal(r.text.includes('ここが論点になりやすいです'), false);
-    const handgrip = (r.text.match(/ここを手がかりに見ると整理しやすいです/g) ?? []).length;
+    const handgrip = (r.text.match(/最初の手がかりになります/g) ?? []).length;
     assert.ok(handgrip <= 1);
   });
 
   it('avoids ことがを when regex rewrites できるでしょう after ことが', () => {
     const r = applyM55ConsultReplyQualityPasses('回復させることができるでしょう。');
     assert.equal(r.text.includes('ことがを'), false);
-    assert.ok(r.text.includes('選び直しやすくなる'));
+    assert.ok(r.text.includes('選び直しやすくなります'));
   });
 
   it('rewrites forbidden cold and self-help phrasing in paid reply output', () => {
@@ -160,8 +160,8 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.equal(r.text.includes('なるなりやすい'), false, 'fusion artifact must not appear');
     assert.equal(r.text.includes('なるなりやすいです'), false);
     const count = (r.text.match(/かもしれません/g) ?? []).length;
-    assert.ok(count <= 2, `かもしれません should appear at most 2 times, got ${count}`);
-    assert.ok(r.text.includes('ことが多いです'), 'overflow replacement should be ことが多いです');
+    assert.ok(count <= 1, `かもしれません should appear at most 1 time, got ${count}`);
+    assert.ok(r.text.includes('出やすいです'), 'overflow replacement should be 出やすいです');
   });
 
   it('rewrites より良いコミュニケーション to living-language', () => {
@@ -214,5 +214,45 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     assert.ok(r.text.includes('疲れ'));
     assert.ok(r.text.includes('届きやすくなる'));
     assert.ok(r.text.includes('試してみてください'));
+  });
+
+  it('limits weak hedges かもしれません / 可能性があります / ことが多いです', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '作業をやめたいのに止められない場面では、影響するかもしれません。' +
+        '進められる可能性があります。良いことが多いです。手助けになることが多いです。' +
+        '保存版の傾向に沿って、区切りを置きにくい流れとして見えます。'
+    );
+    assert.ok((r.text.match(/かもしれません/g) ?? []).length <= 1);
+    assert.ok((r.text.match(/可能性があります/g) ?? []).length <= 1);
+    assert.ok((r.text.match(/ことが多いです/g) ?? []).length <= 2);
+    assert.equal(r.text.includes('手助けになることが多いです'), false);
+    assert.equal(r.text.includes('良いことが多いです'), false);
+  });
+
+  it('repairs grammar splice artifacts from weak template rewrites', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '疲れや張りつめ、そして期待がどのように変化しているかを意識する整理しやすくなります。' +
+        '少しずつ進めていく整理しやすくなります。解消していくことができることが多いです。'
+    );
+    assert.equal(r.text.includes('を意識する整理しやすく'), false);
+    assert.equal(r.text.includes('していく整理しやすく'), false);
+    assert.equal(r.text.includes('できることが多いです'), false);
+    assert.ok(r.text.includes('を意識すると整理しやすく') || r.text.includes('意識すると'));
+  });
+
+  it('caps 最初の手がかりになります near-duplicate overflow', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '確認することが最初の手がかりになります。整理することが最初の手がかりになります。' +
+        '見直すことが最初の手がかりになります。'
+    );
+    assert.ok((r.text.match(/最初の手がかりになります/g) ?? []).length <= 1);
+  });
+
+  it('rewrites observed weak generic phrases from production-like output', () => {
+    const r = applyM55ConsultReplyQualityPasses(
+      '心に影響を与えているかもしれません。スムーズに進められる可能性があります。'
+    );
+    assert.equal(r.text.includes('心に影響を与えているかもしれません'), false);
+    assert.equal(r.text.includes('スムーズに進められる可能性があります'), false);
   });
 });

@@ -115,6 +115,25 @@ export const CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA = `【完了条件 
 - 5段落目（今日の一手）は必ず「今日やることは1つだけです。」で始め、行動は1つだけ。例文は1つまで。本文に「保存版を読み返す」「保存版の内容を再度読み返し」を入れない。` as const;
 
 /**
+ * Voice / quality contract for generation and post-generation polish (prompt-only + sanitizer alignment).
+ */
+export const CONSULT_REPLY_QUALITY_VOICE_JA = `【返書文体 — 弱い一般論を避ける】
+- 「かもしれません」「可能性があります」「ことが多いです」は返書全体で各1〜2回まで。断定しすぎず、しかし遠回しで弱くならない文にする。
+- 「最初の手がかりになります」を近接・連続で繰り返さない。同一フレーズの重複は禁止。
+- 抽象語だけ（季節・リズム・土台・エネルギー）で段落を埋めない。相談文の具体語を各段落に必ず戻す。
+- 一文は長くしすぎない。ですます調を維持する。
+- 次のような弱い一般論は使わない: 心に影響を与えているかもしれません / スムーズに進められる可能性があります / 良いことが多いです / 手助けになることが多いです / 解消していくことができることが多いです / 〜を意識する整理しやすくなります / 〜していく整理しやすくなります
+
+【保存版接続 — 2段落目】
+- 資質名や章タイトルを並べるだけにしない。相談の迷い（例: やめたいのに止められない、区切りが置けない、終えるタイミングが見えない）に、保存版の傾向語を1〜2文で直接接続する。
+- 季節・リズム・土台など相談と無関係な抽象語は入れない。
+
+【今日の一手 — 5段落目】
+- 「今日やることは1つだけです。」の後は2〜3文以内。具体動作を1つに絞る。
+- 「休息を取る」「少しずつ進める」「あと10分だけやる」だけで終えない。区切り動作を明確にする。
+- 例: 「ここまでで閉じる」と紙かメモに1行書いてから手を止める。` as const;
+
+/**
  * Section boundary starters used by normalizeConsultReplyParagraphBreaks.
  * Block 5 always starts with 今日やることは1つだけです (required by prompt).
  * Blocks 2–4 are identified by content patterns the send-route prompt instructs.

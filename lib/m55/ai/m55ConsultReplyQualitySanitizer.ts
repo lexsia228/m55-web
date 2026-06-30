@@ -37,6 +37,36 @@ const MIN_OUTPUT_LENGTH = 50;
  */
 const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
+    category: 'generic_advice',
+    from: '心に影響を与えているかもしれません',
+    to: '心が張りつめやすい状態につながりやすいです',
+  },
+  {
+    category: 'generic_advice',
+    from: 'スムーズに進められる可能性があります',
+    to: '進め方を選び直しやすくなります',
+  },
+  {
+    category: 'generic_advice',
+    from: '良いことが多いです',
+    to: '良い面もあります',
+  },
+  {
+    category: 'generic_advice',
+    from: '手助けになることが多いです',
+    to: '手助けになります',
+  },
+  {
+    category: 'generic_advice',
+    from: '解消していくことができることが多いです',
+    to: '解消していきやすいです',
+  },
+  {
+    category: 'generic_advice',
+    from: 'できることが多いです',
+    to: 'できます',
+  },
+  {
     category: 'other_check_first',
     from: '相手の意見や気持ちを確認する',
     to: 'いまの中で、言葉と距離を一度分けてみる',
@@ -54,17 +84,17 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '手助けになると思います',
-    to: '整理の材料になりやすいです',
+    to: '相談の場面に戻しやすいです',
   },
   {
     category: 'generic_advice',
     from: '役立つかもしれません',
-    to: '保存版の観点で見直しやすくなります',
+    to: '相談の場面に戻しやすいです',
   },
   {
     category: 'generic_advice',
     from: '役に立つかもしれません',
-    to: '保存版の観点で見直しやすくなります',
+    to: '相談の場面に戻しやすいです',
   },
   {
     category: 'heavy_self_mgmt',
@@ -124,22 +154,22 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '効果的です',
-    to: '整理しやすくなります',
+    to: '使いやすいです',
   },
   {
     category: 'generic_advice',
     from: '効果的な',
-    to: '整理しやすい',
+    to: '使いやすい',
   },
   {
     category: 'generic_advice',
     from: '重要です',
-    to: 'ここを手がかりに見ると整理しやすいです',
+    to: 'ここに立ち返ると見えやすいです',
   },
   {
     category: 'generic_advice',
     from: 'ことが重要です',
-    to: '最初の手がかりになります',
+    to: '手がかりになります',
   },
   {
     category: 'generic_advice',
@@ -149,7 +179,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: 'ことが大切です',
-    to: '最初の手がかりになります',
+    to: '手がかりになります',
   },
   {
     category: 'over_empathy_counseling',
@@ -227,9 +257,9 @@ const REGEX_RULES: RegexRule[] = [
     replace: (lead) => {
       const trimmed = lead.trimEnd();
       if (trimmed.endsWith('ことが')) {
-        return `${trimmed}選び直しやすくなるかもしれません`;
+        return `${trimmed}選び直しやすくなります`;
       }
-      return `${trimmed}を選び直しやすくなるかもしれません`;
+      return `${trimmed}選び直しやすくなります`;
     },
   },
 ];
@@ -311,7 +341,7 @@ const LIVING_LANGUAGE_OUTPUT_REWRITES: PhraseRule[] = [
   { category: 'over_empathy_counseling', from: '消耗', to: '疲れがたまる' },
   { category: 'over_empathy_counseling', from: '要因', to: '背景' },
   { category: 'over_empathy_counseling', from: '負荷', to: '無理' },
-  { category: 'generic_advice', from: 'ここが論点になりやすいです', to: 'ここを手がかりに見ると整理しやすいです' },
+  { category: 'generic_advice', from: 'ここが論点になりやすいです', to: 'ここに立ち返ると見えやすいです' },
   {
     category: 'generic_advice',
     from: 'コミュニケーションを意識的に増やす',
@@ -401,11 +431,29 @@ const PHRASE_OCCURRENCE_LIMITS: {
   replacement: string;
   category: M55ConsultReplyQualityCategory;
 }[] = [
-  { phrase: 'かもしれません', maxKeep: 2, replacement: 'ことが多いです', category: 'generic_advice' },
+  { phrase: 'かもしれません', maxKeep: 1, replacement: '出やすいです', category: 'generic_advice' },
   {
-    phrase: 'ここを手がかりに見ると整理しやすいです',
+    phrase: '可能性があります',
     maxKeep: 1,
-    replacement: 'ここに意識を向けると見えやすくなります',
+    replacement: '見えやすいです',
+    category: 'generic_advice',
+  },
+  {
+    phrase: 'ことが多いです',
+    maxKeep: 2,
+    replacement: '出やすいです',
+    category: 'generic_advice',
+  },
+  {
+    phrase: '最初の手がかりになります',
+    maxKeep: 1,
+    replacement: '手がかりになります',
+    category: 'generic_advice',
+  },
+  {
+    phrase: '整理しやすくなります',
+    maxKeep: 2,
+    replacement: '見えやすくなります',
     category: 'generic_advice',
   },
 ];
@@ -518,8 +566,8 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
     ['短いやりとりのやりとり', '短いやりとり'],
     ['短い休息する', '少し休む'],
     ['休息する時間', '少し休む時間'],
-    ['ことがここに意識を向けると見えやすくなります', '最初の手がかりになります'],
-    ['ことがここを手がかりに見ると整理しやすいです', '最初の手がかりになります'],
+    ['ことがここに意識を向けると見えやすくなります', '手がかりになります'],
+    ['ことがここを手がかりに見ると整理しやすいです', '手がかりになります'],
     ['ことが必要です', 'ことで、整理しやすくなります'],
     ['コミュニケーションの機会を増やす', '短くやりとりする機会を作る'],
     ['自分自身を労わる', '今日は一段小さく休む'],
@@ -555,12 +603,24 @@ export function repairConsultReplyGrammarArtifacts(text: string): string {
     if (!out.includes(from)) continue;
     out = out.split(from).join(to);
   }
+  out = out.replace(
+    /([^。]{1,40})する整理しやすくなります/g,
+    '$1すると整理しやすくなります',
+  );
+  out = out.replace(
+    /([^。]{1,40})していく整理しやすくなります/g,
+    '$1していくと整理しやすくなります',
+  );
+  out = out.replace(/([^。]{1,40})を意識する整理しやすくなります/g, '$1を意識すると整理しやすくなります');
+  out = out.replace(/手助けになることが多いです/g, '手助けになります');
+  out = out.replace(/できることが多いです/g, 'できます');
+  out = out.replace(/良いことが多いです/g, '良い面もあります');
   return out;
 }
 
 const FIRST_HANDGRIP_PHRASE = '最初の手がかりになります';
-const FIRST_HANDGRIP_MAX = 2;
-const FIRST_HANDGRIP_OVERFLOW = '整理しやすくなります';
+const FIRST_HANDGRIP_MAX = 1;
+const FIRST_HANDGRIP_OVERFLOW = '手がかりになります';
 
 /** Cap repeated repair-phrase injection in one reply. */
 export function limitConsultReplyPhraseOccurrences(
