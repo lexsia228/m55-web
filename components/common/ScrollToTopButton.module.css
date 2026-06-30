@@ -1,13 +1,14 @@
 /* ── Scroll-to-top floating button ─────────────────────────────────────────
    Mounted globally in app/layout.tsx.
-   Position: bottom-center, clear of CTA / input areas and browser chrome.
+   Position: bottom-right — clears centered footer © and avoids footer padding reserve.
    ─────────────────────────────────────────────────────────────────────────── */
 
 .btn {
   position: fixed;
-  bottom: clamp(24px, 4vw, 36px);
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
+  bottom: calc(clamp(20px, 4vw, 28px) + env(safe-area-inset-bottom, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  transform: translateY(8px);
   z-index: 1500;
 
   /* size */
@@ -32,10 +33,10 @@
   color: rgba(205, 195, 235, 0.82);
   cursor: pointer;
 
-  /* hidden by default — fade + float up (translateX(-50%) keeps center alignment) */
+  /* hidden by default — fade + float up */
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(8px);
+  transform: translateY(8px);
   transition:
     opacity 0.22s ease,
     transform 0.22s ease,
@@ -48,7 +49,7 @@
 .btnVisible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 /* hover */
@@ -63,7 +64,7 @@
 
 /* active */
 .btn:active {
-  transform: translateX(-50%) translateY(0) scale(0.93);
+  transform: translateY(0) scale(0.93);
   transition: transform 0.08s ease;
 }
 
@@ -83,10 +84,10 @@
 @media (prefers-reduced-motion: reduce) {
   .btn {
     transition: opacity 0.12s ease;
-    transform: translateX(-50%) !important;
+    transform: none !important;
   }
   .btn:active {
-    transform: translateX(-50%) !important;
+    transform: none !important;
   }
 }
 
@@ -95,8 +96,8 @@
   .btn {
     width: 44px;
     height: 44px;
-    bottom: 24px;
-    /* left: 50% is already set; no override needed */
+    right: max(14px, env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
   .icon {
     width: 20px;
