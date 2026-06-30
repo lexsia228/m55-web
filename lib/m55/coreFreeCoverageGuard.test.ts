@@ -164,7 +164,7 @@ describe('/core free compositional coverage — CATEGORY-2-M55-CORE-FREE-COMPOSI
     assert.ok(hooks.size >= 2, 'expected axis-based paid hook variation');
     for (const hook of hooks) {
       assert.match(hook, /いま見えた輪郭は、保存版では/);
-      assert.match(hook, /まで読み返せます。$/);
+      assert.match(hook, /の中で読み返せます。$/);
       assert.doesNotMatch(hook, /chapter|s3_essence|s7_work/);
     }
   });

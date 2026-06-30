@@ -83,24 +83,24 @@ const CONDITIONAL_AXIS0_ACTION: Readonly<Record<string, string>> = {
 /** Axis0 openings — と/条件形で dayBand lead と二重「では」を避ける。 */
 const LIFE_AXIS0_OPEN: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly string[] }>> = {
   socialEnergy: {
-    hi: ['初対面が続く場面に入ると少人数を選ぶと', '会議や雑談が続く日は余白を先に置くと'],
+    hi: ['初対面が続く日は、少人数で関われるほうが', '会議や雑談が続く日は、余白を先に置くと'],
     lo: ['信頼できる相手との距離を大切にすると', '近い人との関係を深く育てると'],
   },
   stability: {
-    hi: ['予定や空気が急に変わる日は', '刺激が続く場では早めに整えると'],
+    hi: ['予定や空気が急に変わる日は', '刺激が続く場では'],
     lo: ['静かな環境を先に整えると', '変化の予告がある流れを保つと'],
   },
   openness: {
-    hi: ['選択肢が増える場面に入ると', '話題が次々に増える日は'],
-    lo: ['一つの論点に向き合う時間を確保すると', '深く詰める場面に入ると'],
+    hi: ['選択肢が増える場面では', '話題が次々に増える日は'],
+    lo: ['一つの論点に向き合う時間を確保すると', '深く詰める場面では'],
   },
   cooperation: {
-    hi: ['合わせが続く場面に入ると', '調整役が求められる日は'],
-    lo: ['線引きをはっきり置ける関係を選ぶと', '期待が曖昧になりやすい場では先に線引きを短く言葉にすると'],
+    hi: ['合わせが続く場面では', '調整役が求められる日は'],
+    lo: ['線引きをはっきり置ける関係では', '期待が曖昧になりやすい場では'],
   },
   structure: {
-    hi: ['段取りが見える場面に入ると', '優先順位がはっきりした流れに入ると'],
-    lo: ['整えてから着手すると', '急な変更が重なる場面に入ると'],
+    hi: ['段取りが見える場面では', '優先順位がはっきりした流れでは'],
+    lo: ['整えてから着手すると', '急な変更が重なる場面では'],
   },
 };
 
@@ -161,6 +161,46 @@ function finishAxis0Tail(effect: string): string {
   return `、${finishEffect(trimmed)}`;
 }
 
+function axis0PositiveFinish(effect: string): string {
+  const pos = effect.includes('一方、') ? effect.split('一方、')[0]!.trim() : effect.trim();
+  if (pos.endsWith('やすい')) return `${pos.replace(/やすい$/, 'やすく')}なります。`;
+  if (pos.endsWith('にくい')) return `${pos.replace(/にくい$/, 'にくく')}なります。`;
+  if (pos.startsWith('深く関わる')) return '深く関わる力が出やすくなります。';
+  return finishEffect(pos);
+}
+
+function finishLoadMain(scene: string, effect: string): string {
+  const trimmed = effect.trim();
+  if (trimmed.endsWith('たくなる')) {
+    return `${scene}、${trimmed.replace(/たくなる$/, 'たくなります')}。`;
+  }
+  if (trimmed.endsWith('たまる')) {
+    return `${scene}、${trimmed.replace(/たまる$/, 'たまりやすくなります')}。`;
+  }
+  if (trimmed.endsWith('なりやすい')) {
+    return `${scene}、${trimmed.replace(/なりやすい$/, 'なりやすくなります')}。`;
+  }
+  if (trimmed.endsWith('やすい')) {
+    return `${scene}、${trimmed.replace(/やすい$/, 'やすく')}なります。`;
+  }
+  if (trimmed.endsWith('にくい')) {
+    return `${scene}、${trimmed.replace(/にくい$/, 'にくく')}なります。`;
+  }
+  if (trimmed.endsWith('ます') || trimmed.endsWith('です')) {
+    return `${scene}、${trimmed}。`;
+  }
+  return `${scene}、${trimmed}。`;
+}
+
+function finishRecoveryLine(recovery: string): string {
+  const trimmed = recovery.trim().replace(/。$/, '');
+  if (trimmed.endsWith('ます') || trimmed.endsWith('です')) return `${trimmed}。`;
+  if (trimmed.endsWith('戻しやすい')) return `${trimmed.replace(/戻しやすい$/, '戻しやすく')}なります。`;
+  if (trimmed.endsWith('整えやすい')) return `${trimmed.replace(/整えやすい$/, '整えやすく')}なります。`;
+  if (trimmed.endsWith('やすい')) return `${trimmed.replace(/やすい$/, 'やすく')}なります。`;
+  return `${trimmed}。`;
+}
+
 function weaveTraitLife(scene: string, effect: string, traitMicro: string): string {
   const embed = traitEmbedLead(traitMicro);
   if (traitMicro.endsWith('ながら')) {
@@ -215,6 +255,8 @@ function composeAxis0Life(ctx: CopySelectContext, axisKey: AxisKey, hi: boolean)
     body = weaveTraitLife(scene, effect, traitMicro);
   } else if (opening.endsWith('と')) {
     body = `${opening}${finishAxis0Tail(effect)}`;
+  } else if (opening.endsWith('が')) {
+    body = `${opening}${axis0PositiveFinish(effect)}`;
   } else if (opening.endsWith('は') || opening.endsWith('では')) {
     const axis0Action = CONDITIONAL_AXIS0_ACTION[opening] ?? '';
     body = `${opening}${axis0Action}${finishEffect(effect)}`;
@@ -321,7 +363,7 @@ const LOAD_SCENE: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly
 
 const LOAD_EFFECT: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonly string[] }>> = {
   socialEnergy: {
-    hi: ['返事の速度だけが先に走り、無理がたまりやすい', '笑顔のまま疲れが残り、早めに距離を整えたくなる'],
+    hi: ['返事の速度だけが先に走り、無理がたまりやすい', '笑顔のまま疲れが残りやすい'],
     lo: ['様子を見る時間が長くなり、意図と違う距離感に見られやすい', '本音より距離調整に時間がかかりやすい'],
   },
   stability: {
@@ -329,7 +371,7 @@ const LOAD_EFFECT: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonl
     lo: ['整える前に次へ進み、ペースを取り戻しにくい', '安心条件が崩れた感覚が続きやすい'],
   },
   openness: {
-    hi: ['比較が続き、着手が遅れやすい', 'どれを残すか決めきれず、疲れが静かにたまる'],
+    hi: ['比較が続き、着手が遅れやすい', 'どれを残すか決めきれず、疲れが静かにたまりやすい'],
     lo: ['納得より速度が先に立ち、後から戻りにくい', '自分の軸が見えにくく、判断が重く感じられやすい'],
   },
   cooperation: {
@@ -343,11 +385,26 @@ const LOAD_EFFECT: Readonly<Record<AxisKey, { hi: readonly string[]; lo: readonl
 };
 
 const RECOVERY_MICRO: Readonly<Record<AxisKey, readonly string[]>> = {
-  socialEnergy: ['短い余白を確保すると戻しやすい', '距離を一度整えると、関係を戻しやすい'],
-  stability: ['リズムを先に整えると、戻しやすい', '小さな違和感を短くメモすると、整えやすい'],
-  openness: ['論点を一つに絞ると、戻しやすい', '残すものを先に決めると、整えやすい'],
-  cooperation: ['線引きを短く言葉にすると、戻しやすい', '一度保留すると、ペースを取り戻しやすい'],
-  structure: ['順番を見える形にすると、戻しやすい', '整え直す時間を短く確保すると、整えやすい'],
+  socialEnergy: [
+    '短い余白を確保すると、戻しやすくなります',
+    '早めに距離を整えると、関係も自分のペースも戻しやすくなります',
+  ],
+  stability: [
+    'リズムを先に整えると、戻しやすくなります',
+    '小さな違和感を短くメモすると、整えやすくなります',
+  ],
+  openness: [
+    '論点を一つに絞ると、戻しやすくなります',
+    '残すものを先に決めると、整えやすくなります',
+  ],
+  cooperation: [
+    '線引きを短く言葉にすると、戻しやすくなります',
+    '一度保留すると、ペースを取り戻しやすくなります',
+  ],
+  structure: [
+    '順番を見える形にすると、戻しやすくなります',
+    '整え直す時間を短く確保すると、整えやすくなります',
+  ],
 };
 
 const SCENE_WORK_LEAD: Readonly<Record<AxisKey, readonly string[]>> = {
@@ -462,42 +519,62 @@ const RECOVERY_STEP_POOL: Readonly<Record<AxisKey, readonly string[]>> = {
 
 const PAID_HOOK_BY_AXIS: Readonly<Record<AxisKey, string>> = {
   structure:
-    'いま見えた輪郭は、保存版では「どこから整えると戻りやすいか」まで読み返せます。',
+    'いま見えた輪郭は、保存版では「どこから整えると戻りやすいか」まで、仕事・人間関係・戻し方の中で読み返せます。',
   cooperation:
-    'いま見えた輪郭は、保存版では「どこで無理を飲み込みやすいか」まで読み返せます。',
+    'いま見えた輪郭は、保存版では「どこで無理を飲み込みやすいか」まで、仕事・人間関係・戻し方の中で読み返せます。',
   openness:
-    'いま見えた輪郭は、保存版では「選択肢が増えたとき、何を残すと進みやすいか」まで読み返せます。',
+    'いま見えた輪郭は、保存版では「何を広げて、何を残すか」まで、仕事・人間関係・戻し方の中で読み返せます。',
   stability:
-    'いま見えた輪郭は、保存版では「疲れが残りやすい条件と戻し方」まで読み返せます。',
+    'いま見えた輪郭は、保存版では「疲れが残りやすい条件と戻し方」まで、仕事・人間関係・戻し方の中で読み返せます。',
   socialEnergy:
-    'いま見えた輪郭は、保存版では「人との距離で力が出る場面と疲れやすい条件」まで読み返せます。',
+    'いま見えた輪郭は、保存版では「人との距離で力が出る場面と疲れやすい条件」まで、仕事・人間関係・戻し方の中で読み返せます。',
 };
 
 const CLOSING_SUMMARY_BY_AXIS: Readonly<Record<AxisKey, readonly string[]>> = {
   socialEnergy: [
-    '人との距離が合うと、本来の力が出やすい方です。',
-    '少人数で深く関われるほど、輪郭がはっきりしやすい方です。',
+    '必要な場面で前に出る力があるぶん、予定が詰まると疲れが残りやすい方です。',
+    '少人数で深く関われるほど輪郭がはっきりする一方、初対面が続くと無理がたまりやすい方です。',
   ],
   stability: [
-    '静かな流れの中では、感受性が生きやすい方です。',
-    '急な切り替えが続くと、疲れがたまりやすくなる方です。',
+    '静かな流れの中では感受性が生きやすい一方、切り替えが急になると疲れが残りやすい方です。',
+    '日常のリズムを守る力があるぶん、予定が次々に変わると神経が張り続けやすい方です。',
   ],
   openness: [
-    '一つの論点に向き合えるほど、深さが出やすい方です。',
-    '選択肢が増えすぎると、手元が散らかりやすくなる方です。',
+    '選択肢を広げる力があるぶん、増えすぎると手元が散らかりやすい方です。',
+    '一つの論点に向き合えるほど深さが出やすい一方、比較が続くと迷いが残りやすい方です。',
   ],
   cooperation: [
     '人に合わせる力があるぶん、期待を飲み込みすぎると疲れが残りやすい方です。',
-    '場の空気を整える力があるぶん、自分の本音が後ろに回りやすい方です。',
+    '場の空気を整える力があるぶん、本音が後ろに回ると負荷がたまりやすい方です。',
   ],
   structure: [
-    '順番が見えると、判断が安定しやすくなる方です。',
-    '整えてから動くほど、本来の落ち着きが出やすい方です。',
+    '順番が見えると判断が安定しやすい一方、段取り前に進むと手元が散らかりやすい方です。',
+    '整えてから動く力があるぶん、見通しが途切れるとペースが止まりやすい方です。',
   ],
 };
 
-const CLOSING_BRIDGE =
-  'この輪郭は、保存版でさらに具体的に読み返せます。' as const;
+const CLOSING_RECOVERY_BY_AXIS: Readonly<Record<AxisKey, readonly string[]>> = {
+  socialEnergy: [
+    '短い余白を確保すると、距離もペースも戻しやすくなります。',
+    '早めに距離を整えると、関係も自分のペースも戻しやすくなります。',
+  ],
+  stability: [
+    'リズムを先に整えると、戻しやすくなります。',
+    '小さな違和感を短くメモすると、整えやすくなります。',
+  ],
+  openness: [
+    '残すものを先に決めると、次に動く場所が見えやすくなります。',
+    '論点を一つに絞ると、手元が整いやすくなります。',
+  ],
+  cooperation: [
+    '線引きを短く言葉にすると、戻しやすくなります。',
+    '一度保留すると、ペースを取り戻しやすくなります。',
+  ],
+  structure: [
+    '順番を見える形にすると、次に動く場所が見えやすくなります。',
+    '整え直す時間を短く確保すると、ペースを取り戻しやすくなります。',
+  ],
+};
 
 const SUMMARY_LEAD: readonly string[] = [
   'ふだんの輪郭は、保存版で読み返す土台になります。',
@@ -597,7 +674,7 @@ function composeLoadLine(ctx: CopySelectContext, axisKey: AxisKey, axisIndex: nu
   const scene = scenePool[si] ?? scenePool[0]!;
   const effect = effectPool[ei] ?? effectPool[0]!;
   const recovery = recoveryPool[ri] ?? recoveryPool[0]!;
-  return `${scene}、${effect}。${recovery}。`;
+  return `${finishLoadMain(scene, effect)}${finishRecoveryLine(recovery)}`;
 }
 
 function composeTendencyLine(ctx: CopySelectContext, axisKey: AxisKey, axisIndex: number, hi: boolean): string {
@@ -720,9 +797,11 @@ export function composePaidHook(ctx: CopySelectContext): string {
 }
 
 export function composeClosingSummary(ctx: CopySelectContext): { line1: string; line2: string } {
-  const pool = CLOSING_SUMMARY_BY_AXIS[ctx.dominantAxis] ?? CLOSING_SUMMARY_BY_AXIS.structure;
-  const line1 = pool[selectIndex(ctx, 60, pool.length)]!;
-  return { line1, line2: CLOSING_BRIDGE };
+  const summaryPool = CLOSING_SUMMARY_BY_AXIS[ctx.dominantAxis] ?? CLOSING_SUMMARY_BY_AXIS.structure;
+  const recoveryPool = CLOSING_RECOVERY_BY_AXIS[ctx.dominantAxis] ?? CLOSING_RECOVERY_BY_AXIS.structure;
+  const line1 = summaryPool[selectIndex(ctx, 60, summaryPool.length)]!;
+  const line2 = recoveryPool[selectIndex(ctx, 61, recoveryPool.length)]!;
+  return { line1, line2 };
 }
 
 export function composeObservationBullets(
