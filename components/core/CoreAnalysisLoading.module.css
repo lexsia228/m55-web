@@ -1,0 +1,979 @@
+/* REV5 — Tech Occult / Astral Interface (final polish) */
+
+.root {
+  --tech-teal-deep: rgba(10, 38, 44, 0.96);
+  --tech-teal-mid: rgba(18, 58, 64, 0.88);
+  --tech-cyan: rgba(72, 188, 196, 0.72);
+  --tech-cyan-soft: rgba(72, 188, 196, 0.28);
+  --tech-gold: rgba(196, 168, 108, 0.55);
+  --tech-gold-soft: rgba(196, 168, 108, 0.22);
+  --tech-ink: rgba(220, 236, 238, 0.94);
+  --tech-ink-muted: rgba(168, 196, 200, 0.78);
+  --tech-panel: rgba(248, 252, 253, 0.09);
+  --tech-card: rgba(236, 246, 248, 0.88);
+  --tech-card-border: rgba(72, 168, 178, 0.38);
+  --snap-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 100002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 24px);
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rootFading {
+  opacity: 0;
+}
+
+/* ── Background layers ── */
+
+.veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    168deg,
+    rgba(8, 32, 38, 0.88) 0%,
+    rgba(12, 42, 50, 0.84) 42%,
+    rgba(14, 36, 46, 0.9) 100%
+  );
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.veilGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(72, 188, 196, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 188, 196, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, black 20%, transparent 78%);
+}
+
+.veilNoise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.veilArcLeft,
+.veilArcRight {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border: 1px solid rgba(72, 188, 196, 0.1);
+  pointer-events: none;
+}
+
+.veilArcLeft {
+  left: -120px;
+  top: 18%;
+  border-color: rgba(196, 168, 108, 0.08);
+}
+
+.veilArcRight {
+  right: -100px;
+  bottom: 12%;
+}
+
+/* ── Panel shell ── */
+
+.panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 392px);
+  padding: clamp(20px, 4.5vw, 26px) clamp(18px, 4vw, 24px) clamp(18px, 4vw, 22px);
+  border-radius: 18px;
+  background: linear-gradient(
+    168deg,
+    rgba(14, 44, 50, 0.94) 0%,
+    rgba(12, 38, 46, 0.92) 55%,
+    rgba(16, 48, 54, 0.93) 100%
+  );
+  border: 1px solid rgba(72, 168, 178, 0.22);
+  box-shadow:
+    0 32px 64px rgba(4, 16, 20, 0.45),
+    0 0 48px rgba(48, 140, 150, 0.08),
+    inset 0 1px 0 rgba(220, 236, 238, 0.06);
+  text-align: center;
+}
+
+.panelMark {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  opacity: 0.42;
+  filter: saturate(0.85);
+}
+
+.stage {
+  position: relative;
+  min-height: clamp(228px, 54vw, 272px);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 481px) {
+  .panel {
+    width: min(100%, 418px);
+    padding: clamp(22px, 4.8vw, 28px) clamp(20px, 4.2vw, 26px) clamp(20px, 4.2vw, 24px);
+  }
+
+  .stage {
+    min-height: clamp(248px, 52vw, 288px);
+  }
+
+  .resultCard {
+    width: min(100%, 334px);
+    padding: clamp(16px, 3.4vw, 19px) clamp(15px, 3.2vw, 18px) clamp(13px, 2.8vw, 16px);
+  }
+}
+
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: coreRev4ParticleIn 0.5s var(--snap-ease) forwards;
+}
+
+.particleCyan {
+  background: var(--tech-cyan-soft);
+  box-shadow: 0 0 6px rgba(72, 188, 196, 0.15);
+}
+
+.particleGold {
+  background: var(--tech-gold-soft);
+  box-shadow: 0 0 5px rgba(196, 168, 108, 0.12);
+}
+
+.particle:nth-child(1) { animation-delay: 0.04s; }
+.particle:nth-child(2) { animation-delay: 0.09s; }
+.particle:nth-child(3) { animation-delay: 0.06s; }
+.particle:nth-child(4) { animation-delay: 0.12s; }
+.particle:nth-child(5) { animation-delay: 0.08s; }
+.particle:nth-child(6) { animation-delay: 0.14s; }
+.particle:nth-child(7) { animation-delay: 0.1s; }
+.particle:nth-child(8) { animation-delay: 0.16s; }
+.particle:nth-child(n + 9) { animation-delay: 0.18s; }
+
+@keyframes coreRev4ParticleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ── Astral chart (occult, not radar) ── */
+
+.astroSvg {
+  position: absolute;
+  width: min(94%, 252px);
+  height: auto;
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 0.28s var(--snap-ease),
+    transform 0.28s var(--snap-ease);
+  z-index: 1;
+}
+
+.root[data-scene='1'] .astroSvg,
+.root[data-scene='2'] .astroSvg,
+.root[data-scene='3'] .astroSvg,
+.root[data-scene='4'] .astroSvg {
+  opacity: 0.62;
+  transform: scale(1);
+}
+
+.root[data-scene='2'] .astroSvg {
+  opacity: 0.72;
+  transform: scale(1.02);
+}
+
+.astroArcGhost {
+  fill: none;
+  stroke: rgba(72, 188, 196, 0.08);
+  stroke-width: 0.6;
+  stroke-dasharray: 4 12;
+}
+
+.astroRingOuter,
+.astroRingMid,
+.astroRingInner {
+  fill: none;
+  stroke-width: 0.75;
+}
+
+.astroRingOuter {
+  stroke: rgba(72, 168, 178, 0.28);
+}
+
+.astroRingMid {
+  stroke: var(--tech-cyan-soft);
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  transition: stroke-dashoffset 0.48s var(--snap-ease);
+}
+
+.astroRingInner {
+  stroke: var(--tech-gold-soft);
+}
+
+.root[data-scene='1'] .astroRingMid,
+.root[data-scene='2'] .astroRingMid,
+.root[data-scene='3'] .astroRingMid,
+.root[data-scene='4'] .astroRingMid {
+  stroke-dashoffset: 0;
+}
+
+.astroSpoke {
+  stroke: rgba(72, 168, 178, 0.18);
+  stroke-width: 0.55;
+  stroke-dasharray: 78;
+  stroke-dashoffset: 78;
+  transition: stroke-dashoffset 0.26s var(--snap-ease);
+}
+
+.root[data-scene='1'] .astroSpoke,
+.root[data-scene='2'] .astroSpoke,
+.root[data-scene='3'] .astroSpoke,
+.root[data-scene='4'] .astroSpoke {
+  stroke-dashoffset: 0;
+}
+
+.astroNode {
+  fill: var(--tech-gold);
+  opacity: 0;
+  transition: opacity 0.22s var(--snap-ease);
+}
+
+.root[data-scene='1'] .astroNode,
+.root[data-scene='2'] .astroNode,
+.root[data-scene='3'] .astroNode,
+.root[data-scene='4'] .astroNode {
+  opacity: 0.85;
+}
+
+.astroCore {
+  fill: rgba(72, 188, 196, 0.65);
+}
+
+/* ── Analysis card panel ── */
+
+.resultCard {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 312px);
+  padding: clamp(15px, 3.6vw, 18px) clamp(14px, 3.5vw, 17px) clamp(12px, 3vw, 15px);
+  border-radius: 12px;
+  background: linear-gradient(
+    168deg,
+    rgba(244, 250, 251, 0.94) 0%,
+    rgba(228, 242, 244, 0.9) 100%
+  );
+  border: 1px solid var(--tech-card-border);
+  box-shadow:
+    0 16px 40px rgba(4, 20, 24, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  text-align: left;
+  transform: translateY(12px) scale(0.95);
+  opacity: 0;
+  transition:
+    transform 0.3s var(--snap-ease),
+    opacity 0.3s var(--snap-ease),
+    border-color 0.26s ease,
+    box-shadow 0.26s ease;
+  overflow: hidden;
+}
+
+.root[data-scene='0'] .resultCard,
+.root[data-scene='1'] .resultCard,
+.root[data-scene='2'] .resultCard,
+.root[data-scene='3'] .resultCard,
+.root[data-scene='4'] .resultCard {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.root[data-scene='2'] .resultCard {
+  transform: translateY(-2px) scale(1.008);
+  border-color: rgba(72, 188, 196, 0.45);
+  box-shadow:
+    0 18px 44px rgba(4, 20, 24, 0.32),
+    0 0 24px rgba(72, 188, 196, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.root[data-scene='3'] .resultCard {
+  transform: translateY(0) scale(1);
+  border-color: rgba(72, 178, 188, 0.42);
+}
+
+.root[data-scene='4'] .resultCard,
+.resultCard[data-complete='1'] {
+  border-color: rgba(72, 188, 196, 0.58);
+  box-shadow:
+    0 20px 48px rgba(4, 20, 24, 0.34),
+    0 0 32px rgba(72, 188, 196, 0.14),
+    inset 0 0 0 1px rgba(196, 168, 108, 0.16);
+  animation: coreRev5CardComplete 0.3s var(--snap-ease);
+}
+
+@keyframes coreRev5CardComplete {
+  0% {
+    transform: scale(1);
+    border-color: rgba(72, 178, 188, 0.42);
+  }
+  38% {
+    transform: scale(0.987);
+    border-color: rgba(72, 196, 204, 0.72);
+    box-shadow:
+      0 18px 44px rgba(4, 20, 24, 0.32),
+      0 0 36px rgba(72, 188, 196, 0.22),
+      inset 0 0 0 1px rgba(196, 168, 108, 0.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cardGlowEdge {
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(72, 188, 196, 0.35) 0%,
+    transparent 42%,
+    transparent 58%,
+    rgba(196, 168, 108, 0.22) 100%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+  transition: opacity 0.28s var(--snap-ease);
+}
+
+.root[data-scene='2'] .cardGlowEdge,
+.root[data-scene='3'] .cardGlowEdge {
+  opacity: 0.85;
+}
+
+.root[data-scene='4'] .cardGlowEdge,
+.resultCard[data-complete='1'] .cardGlowEdge {
+  opacity: 1;
+  animation: coreRev5EdgeFlash 0.3s var(--snap-ease);
+}
+
+@keyframes coreRev5EdgeFlash {
+  0% {
+    opacity: 0.5;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.88;
+  }
+}
+
+.cardInnerGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(72, 168, 178, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 168, 178, 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.scanLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(72, 188, 196, 0.65) 40%,
+    rgba(196, 168, 108, 0.4) 60%,
+    transparent
+  );
+  box-shadow: 0 0 8px rgba(72, 188, 196, 0.35);
+  animation: coreRev4ScanOnce 0.62s var(--snap-ease) forwards;
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes coreRev4ScanOnce {
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(172px);
+    opacity: 0;
+  }
+}
+
+/* ── Identity block ── */
+
+.cardHeader {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 10px;
+}
+
+.nickLine {
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+.nickValue {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(19px, 4.8vw, 22px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(16, 44, 50, 0.96);
+}
+
+.nickSuffix {
+  font-size: clamp(14px, 3.5vw, 15px);
+  color: rgba(48, 82, 88, 0.78);
+  margin-left: 2px;
+}
+
+.dateBlock {
+  position: relative;
+}
+
+.dateLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+
+.dateLabel {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(56, 98, 104, 0.68);
+  font-weight: 500;
+}
+
+.dateStatusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(72, 148, 158, 0.22);
+  border: 1px solid rgba(72, 148, 158, 0.18);
+  flex-shrink: 0;
+  transition:
+    background 0.24s var(--snap-ease),
+    box-shadow 0.24s var(--snap-ease),
+    border-color 0.24s var(--snap-ease);
+}
+
+.dateStatusDotLit {
+  background: rgba(72, 188, 196, 0.82);
+  border-color: rgba(72, 188, 196, 0.55);
+  box-shadow: 0 0 6px rgba(72, 188, 196, 0.35);
+  animation: coreRev5DateAck 0.28s var(--snap-ease);
+}
+
+@keyframes coreRev5DateAck {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  55% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dateMachine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 1px;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  font-size: clamp(13px, 3.2vw, 14px);
+  letter-spacing: 0.02em;
+  color: rgba(24, 58, 64, 0.92);
+}
+
+.dateGroup {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.dateChar {
+  display: inline-block;
+  opacity: 0.25;
+  transform: translateY(5px) scale(0.88);
+  transition:
+    opacity 0.24s var(--snap-ease),
+    transform 0.24s var(--snap-ease),
+    letter-spacing 0.24s var(--snap-ease);
+}
+
+.dateMachine[data-scene='0'] .dateChar {
+  opacity: 0.45;
+  transform: translateY(2px) scale(0.96);
+}
+
+.dateMachine[data-scene='1'] .dateChar,
+.dateMachine[data-scene='2'] .dateChar,
+.dateMachine[data-scene='3'] .dateChar,
+.dateMachine[data-scene='4'] .dateChar {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.dateMachine[data-scene='1'] .dateGroup[data-group='y'] .dateChar {
+  letter-spacing: 0.06em;
+}
+
+.dateSep {
+  display: inline-block;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  color: rgba(72, 148, 158, 0.55);
+  font-size: 12px;
+  transition:
+    opacity 0.2s var(--snap-ease),
+    width 0.2s var(--snap-ease),
+    margin 0.2s var(--snap-ease);
+  margin: 0;
+}
+
+.dateMachine[data-scene='1'] .dateSep,
+.dateMachine[data-scene='2'] .dateSep,
+.dateMachine[data-scene='3'] .dateSep,
+.dateMachine[data-scene='4'] .dateSep {
+  width: 0.55em;
+  opacity: 1;
+  margin: 0 2px;
+}
+
+.dateMachine[data-scene='1'] .dateSep:nth-of-type(1) {
+  transition-delay: 0.16s;
+}
+
+.dateMachine[data-scene='1'] .dateSep:nth-of-type(2) {
+  transition-delay: 0.28s;
+}
+
+.dateReadable {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: rgba(56, 92, 98, 0.62);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.26s var(--snap-ease),
+    transform 0.26s var(--snap-ease);
+}
+
+.dateMachine[data-scene='1'] ~ .dateReadable,
+.dateMachine[data-scene='2'] ~ .dateReadable,
+.dateMachine[data-scene='3'] ~ .dateReadable,
+.dateMachine[data-scene='4'] ~ .dateReadable {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dateConnector {
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin-top: 4px;
+  overflow: visible;
+}
+
+.dateConnectorLine {
+  stroke: rgba(72, 168, 178, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  transition: stroke-dashoffset 0.38s var(--snap-ease);
+}
+
+.dateMachine[data-scene='1'] ~ .dateConnector .dateConnectorLine,
+.dateMachine[data-scene='2'] ~ .dateConnector .dateConnectorLine,
+.dateMachine[data-scene='3'] ~ .dateConnector .dateConnectorLine,
+.dateMachine[data-scene='4'] ~ .dateConnector .dateConnectorLine {
+  stroke-dashoffset: 0;
+  stroke: rgba(72, 188, 196, 0.42);
+}
+
+/* ── Data tags ── */
+
+.fragmentField {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 48px;
+  margin-bottom: 8px;
+  transition: gap 0.28s var(--snap-ease);
+}
+
+.fragmentField[data-settled='1'] {
+  gap: 4px;
+}
+
+.fragment {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  letter-spacing: 0.06em;
+  color: rgba(48, 82, 88, 0.72);
+  background: rgba(236, 248, 250, 0.45);
+  border: 1px solid rgba(72, 148, 158, 0.2);
+  opacity: 0;
+  transform: translate(8px, 12px) scale(0.9);
+  transition:
+    opacity 0.2s var(--snap-ease),
+    transform 0.22s var(--snap-ease),
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.fragmentVisible {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+  border-color: rgba(72, 168, 178, 0.32);
+  background: rgba(228, 244, 246, 0.62);
+  box-shadow: none;
+}
+
+.fragmentPulse {
+  animation: coreRev5TagPulse 0.2s var(--snap-ease) forwards;
+}
+
+@keyframes coreRev5TagPulse {
+  0% {
+    border-color: rgba(72, 196, 204, 0.62);
+    background: rgba(220, 244, 246, 0.82);
+    box-shadow: 0 0 10px rgba(72, 188, 196, 0.14);
+    transform: translate(0, -1px) scale(1.02);
+  }
+  100% {
+    border-color: rgba(72, 168, 178, 0.34);
+    background: rgba(228, 244, 246, 0.62);
+    box-shadow: none;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.root[data-scene='2'] .fragmentVisible {
+  transform: translate(0, 0) scale(1);
+}
+
+.fragmentField[data-settled='1'] .fragmentVisible {
+  transform: translate(0, 0) scale(0.97);
+  opacity: 0.82;
+  border-color: rgba(72, 148, 158, 0.24);
+  background: rgba(236, 246, 248, 0.5);
+}
+
+/* ── Preview lines (generation) ── */
+
+.previewBlock {
+  position: relative;
+  z-index: 2;
+  min-height: 52px;
+  margin-bottom: 8px;
+}
+
+.previewLine {
+  margin: 0 0 5px;
+  height: 11px;
+  border-radius: 3px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  background: linear-gradient(
+    90deg,
+    rgba(200, 228, 230, 0.85) 0%,
+    rgba(228, 242, 244, 0.35) 100%
+  );
+  transition:
+    opacity 0.26s var(--snap-ease),
+    transform 0.26s var(--snap-ease),
+    height 0.26s var(--snap-ease),
+    background 0.26s ease;
+}
+
+.previewLineVisible {
+  opacity: 1;
+  transform: translateX(0);
+  height: auto;
+  background: transparent;
+}
+
+.root[data-scene='4'] .previewLineVisible,
+.resultCard[data-complete='1'] .previewLineVisible {
+  opacity: 1;
+}
+
+.root[data-scene='4'] .previewLineText,
+.resultCard[data-complete='1'] .previewLineText {
+  color: rgba(32, 62, 68, 0.72);
+}
+
+.previewLineText {
+  display: block;
+  padding: 2px 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(36, 68, 74, 0.62);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Card footer ── */
+
+.cardFooter {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(72, 148, 158, 0.16);
+  opacity: 0.35;
+  transition: opacity 0.28s var(--snap-ease);
+}
+
+.root[data-scene='4'] .cardFooter {
+  opacity: 1;
+}
+
+.cardFooterMark {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, rgba(72, 188, 196, 0.75), rgba(196, 168, 108, 0.55));
+}
+
+.cardFooterText {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(56, 92, 98, 0.62);
+  font-family: ui-monospace, 'SF Mono', monospace;
+}
+
+.cardFooterStatus {
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(72, 188, 196, 0.55);
+  opacity: 0;
+  transition: opacity 0.22s var(--snap-ease);
+}
+
+.root[data-scene='4'] .cardFooterStatus,
+.resultCard[data-complete='1'] .cardFooterStatus {
+  opacity: 1;
+  animation: coreRev5StatusDot 0.28s var(--snap-ease);
+  box-shadow: 0 0 8px rgba(72, 188, 196, 0.45);
+}
+
+@keyframes coreRev5StatusDot {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── Status copy ── */
+
+.stepText {
+  margin: 0;
+  min-height: 2.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(14px, 3.5vw, 15px);
+  font-weight: 500;
+  line-height: 1.52;
+  letter-spacing: 0.03em;
+  color: var(--tech-ink);
+  transition: opacity 0.22s var(--snap-ease);
+}
+
+.slowMsg {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--tech-ink-muted);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Mobile ── */
+
+@media (max-width: 480px) {
+  .panel {
+    width: min(100%, calc(100vw - 28px));
+  }
+
+  .veilGrid {
+    opacity: 0.72;
+  }
+
+  .stage {
+    min-height: 218px;
+  }
+
+  .resultCard {
+    width: 100%;
+  }
+
+  .fragmentField {
+    gap: 4px;
+  }
+
+  .fragment {
+    font-size: 8px;
+    padding: 3px 6px;
+  }
+
+  .nickValue {
+    font-size: 18px;
+  }
+
+  .dateMachine {
+    font-size: 13px;
+  }
+
+  .particle:nth-child(n + 9) {
+    display: none;
+  }
+
+  .veilArcLeft,
+  .veilArcRight {
+    display: none;
+  }
+
+  .cardGlowEdge {
+    opacity: 0.7 !important;
+  }
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .rootFading {
+    transition-duration: 0.1s !important;
+  }
+
+  .particle {
+    animation: none !important;
+    opacity: 0.14;
+  }
+
+  .astroSvg,
+  .astroRingMid,
+  .astroSpoke,
+  .astroNode,
+  .resultCard,
+  .dateChar,
+  .dateSep,
+  .dateReadable,
+  .dateConnectorLine,
+  .fragment,
+  .fragmentPulse,
+  .dateStatusDotLit,
+  .previewLine,
+  .cardFooter,
+  .cardGlowEdge,
+  .stepText {
+    transition-duration: 0.1s !important;
+  }
+
+  .fragmentPulse,
+  .dateStatusDotLit,
+  .cardFooterStatus {
+    animation: none !important;
+  }
+
+  .resultCard {
+    animation: none !important;
+  }
+
+  .scanLine {
+    animation: none !important;
+    display: none;
+  }
+}

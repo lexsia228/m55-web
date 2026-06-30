@@ -14,6 +14,19 @@
   background: #f9f7f5;
 }
 
+.pageFreshReveal {
+  animation: corePageFreshReveal 0.48s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes corePageFreshReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (min-width: 640px) {
   .page {
     padding-top: clamp(12px, 1.6vw, 16px);
@@ -2813,6 +2826,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pageFreshReveal {
+    animation: none;
+  }
+
   .corePosterMainVisualStack {
     display: none;
   }

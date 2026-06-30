@@ -12,8 +12,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { ProfileRepository } from '../../lib/soul/profile';
+import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
-import HomeCoreAnalyzingOverlay from './HomeCoreAnalyzingOverlay';
 import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
@@ -90,21 +90,13 @@ export default function HomePanel() {
   const [profileEpoch, setProfileEpoch] = useState(0);
   const [birthIntakeOpen, setBirthIntakeOpen] = useState(false);
   const [coreAnalyzing, setCoreAnalyzing] = useState(false);
+  const [coreAnalyzeError, setCoreAnalyzeError] = useState<string | null>(null);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
     window.addEventListener('m55:profile_updated', bump);
     return () => window.removeEventListener('m55:profile_updated', bump);
   }, []);
-
-  useEffect(() => {
-    if (!coreAnalyzing) return;
-    const t = window.setTimeout(() => {
-      setCoreAnalyzing(false);
-      router.push('/core');
-    }, 3000);
-    return () => window.clearTimeout(t);
-  }, [coreAnalyzing, router]);
 
   const view = useMemo(() => {
     if (!isLoaded) return { kind: 'loading' as const };
@@ -397,7 +389,29 @@ export default function HomePanel() {
         dataTestId="m55-home-birth-intake-layer"
       />
 
-      <HomeCoreAnalyzingOverlay open={coreAnalyzing} />
+      {coreAnalyzeError ? (
+        <div className={styles.coreAnalyzeError} role="alert">
+          {coreAnalyzeError}
+        </div>
+      ) : null}
+
+      <CoreAnalysisLoading
+        open={coreAnalyzing}
+        ownerId={ownerId}
+        onComplete={() => {
+          setCoreAnalyzing(false);
+          try {
+            sessionStorage.setItem('m55:core_fresh_reveal', '1');
+          } catch {
+            /* no-op */
+          }
+          router.push('/core');
+        }}
+        onError={(message) => {
+          setCoreAnalyzing(false);
+          setCoreAnalyzeError(message);
+        }}
+      />
 
     </div>
   );

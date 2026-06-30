@@ -2267,6 +2267,18 @@
    REDUCED MOTION
    ═══════════════════════════════════════════════════════════════════ */
 
+.coreAnalyzeError {
+  margin: 16px auto 0;
+  max-width: min(680px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(180, 80, 80, 0.35);
+  background: rgba(255, 248, 248, 0.92);
+  font-size: 14px;
+  line-height: 1.55;
+  color: #5a3030;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .inputGateCta,
   .reportCta,

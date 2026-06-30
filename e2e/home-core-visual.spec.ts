@@ -73,7 +73,7 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await page.getByPlaceholder('表示名').fill('試験');
     await page.locator('input[type="date"]').fill('1990-05-15');
     await page.getByRole('button', { name: '保存して開く' }).click();
-    await expect(page.getByTestId('m55-home-core-analyzing')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('m55-core-analysis-loading')).toBeVisible({ timeout: 5000 });
     await page.screenshot({ path: path.join(OUT, '04-analyzing-overlay.png'), fullPage: true });
     await page.waitForURL('**/core', { timeout: 12_000 });
     await expect(page.locator('h1').first()).toContainText('さん', { timeout: 15_000 });

@@ -300,11 +300,11 @@ function validateHomeRegressionTestIds() {
       'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-has-profile-hero" (quiet /core link in hero)',
     );
   }
-  const overlay = path.join(ROOT, 'components', 'home', 'HomeCoreAnalyzingOverlay.tsx');
-  if (exists(overlay) && !readText(overlay).includes('data-testid="m55-home-core-analyzing"')) {
+  const overlay = path.join(ROOT, 'components', 'core', 'CoreAnalysisLoading.tsx');
+  if (exists(overlay) && !readText(overlay).includes('data-testid="m55-core-analysis-loading"')) {
     add(
       rel(overlay),
-      'REGRESSION GUARD: HomeCoreAnalyzingOverlay must expose data-testid="m55-home-core-analyzing" (post-save → /core)',
+      'REGRESSION GUARD: CoreAnalysisLoading must expose data-testid="m55-core-analysis-loading" (post-save → /core)',
     );
   }
   if (!t.includes('data-testid="m55-home-understanding"')) {
@@ -322,8 +322,8 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('BirthProfileIntakeLayer')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must mount BirthProfileIntakeLayer for CTA-driven birth intake');
   }
-  if (!t.includes('HomeCoreAnalyzingOverlay')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomeCoreAnalyzingOverlay after profile save');
+  if (!t.includes('CoreAnalysisLoading')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount CoreAnalysisLoading after profile save');
   }
   if (!/nicknameHint=\{nicknameHint\}/.test(t)) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must pass nicknameHint to BirthProfileIntakeLayer');

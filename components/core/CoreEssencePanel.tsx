@@ -30,11 +30,24 @@ export default function CoreEssencePanel() {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
+  const [freshReveal, setFreshReveal] = useState(false);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
     window.addEventListener('m55:profile_updated', bump);
     return () => window.removeEventListener('m55:profile_updated', bump);
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('m55:core_fresh_reveal') !== '1') return;
+      sessionStorage.removeItem('m55:core_fresh_reveal');
+      setFreshReveal(true);
+      const t = window.setTimeout(() => setFreshReveal(false), 520);
+      return () => window.clearTimeout(t);
+    } catch {
+      return undefined;
+    }
   }, []);
 
   const sealed: SealedState = useMemo(() => {
@@ -78,7 +91,9 @@ export default function CoreEssencePanel() {
   const nickname = profile.nickname.trim();
 
   return (
-    <div className={CoreExperienceStyles.page}>
+    <div
+      className={`${CoreExperienceStyles.page}${freshReveal ? ` ${CoreExperienceStyles.pageFreshReveal}` : ''}`}
+    >
       <CoreScrollReveal />
       <CoreHeroSection result={result} nickname={nickname} />
       <CoreFreeSavedBoundarySection />
