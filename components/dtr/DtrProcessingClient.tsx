@@ -5,10 +5,11 @@
  */
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
+import { useEffect, useMemo, useState } from 'react';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
+import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import styles from '../../app/dtr/processing/processing.module.css';
+import PaidDtrAnalysisLoading from './PaidDtrAnalysisLoading';
 
 const POLL_MS = 2500;
 const MAX_POLLS = 120;
@@ -30,6 +31,17 @@ export function DtrProcessingClient({
   const { userId, isLoaded } = useAuth();
   const router = useRouter();
   const [stuck, setStuck] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(true);
+  const [processingComplete, setProcessingComplete] = useState(false);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+
+  const profile = useMemo(() => {
+    if (!isLoaded || !userId) return null;
+    return ProfileRepository.get(userId);
+  }, [isLoaded, userId]);
+
+  const nickname = profile?.nickname?.trim() ?? '';
+  const birthDate = profile?.birthDate?.trim().slice(0, 10) ?? '';
 
   useEffect(() => {
     if (!isLoaded || !userId) return;
@@ -61,7 +73,8 @@ export function DtrProcessingClient({
             showPurchaseCta?: boolean;
           };
           if (d.ready === true && d.hasOwnership === true && d.hasPurchaseSnapshot === true) {
-            router.replace(CORE_READY);
+            setProcessingComplete(true);
+            setPendingNav(CORE_READY);
             return;
           }
           if (
@@ -70,7 +83,8 @@ export function DtrProcessingClient({
             d.hasPurchaseSnapshot !== true &&
             d.showPurchaseCta === true
           ) {
-            router.replace(HIDDEN_ONLY_REPURCHASE_LP);
+            setProcessingComplete(true);
+            setPendingNav(HIDDEN_ONLY_REPURCHASE_LP);
             return;
           }
         }
@@ -79,6 +93,7 @@ export function DtrProcessingClient({
       }
       if (cancelled) return;
       if (polls >= MAX_POLLS) {
+        setShowAnimation(false);
         setStuck(true);
         return;
       }
@@ -93,23 +108,38 @@ export function DtrProcessingClient({
       cancelled = true;
       if (timeoutId !== undefined) clearTimeout(timeoutId);
     };
-  }, [isLoaded, userId, router]);
+  }, [isLoaded, userId, isOwnedRecovery]);
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+    if (pendingNav) {
+      router.replace(pendingNav);
+    }
+  };
 
   return (
     <>
-      <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
-        {isOwnedRecovery ? '保存版を確認中です' : '解析中です'}
-      </p>
-      <div className={styles.animWrap} aria-hidden>
-        <span className={styles.dot} />
-        <span className={styles.dot} />
-        <span className={styles.dot} />
-      </div>
-      <p className={styles.desc} style={{ margin: 0 }}>
-        {isOwnedRecovery
-          ? '購入済みの保存版を読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
-          : '購入済みレポートの保存版を準備しています。完了すると自動で開きます。'}
-      </p>
+      <PaidDtrAnalysisLoading
+        open={showAnimation}
+        nickname={nickname}
+        birthDate={birthDate}
+        processingComplete={processingComplete}
+        onComplete={handleAnimationComplete}
+      />
+
+      {!showAnimation && (
+        <>
+          <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
+            {isOwnedRecovery ? '保存版を確認中です' : '保存版を準備しています'}
+          </p>
+          <p className={styles.desc} style={{ margin: 0 }}>
+            {isOwnedRecovery
+              ? '購入済みの保存版を読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
+              : '購入済みレポートの保存版を準備しています。完了すると自動で開きます。'}
+          </p>
+        </>
+      )}
+
       {stuck && (
         <p role="alert" className={styles.desc} style={{ marginTop: 16, color: '#5a4ea0' }}>
           準備に時間がかかっています。保存版が未生成の間は /dtr/core へ直接進みません。
@@ -133,20 +163,22 @@ export function DtrProcessingClient({
           するか、サポートへお問い合わせください。
         </p>
       )}
-      {recoveryRef && (
+      {recoveryRef && !showAnimation && (
         <p className={styles.desc} style={{ marginTop: 12, fontSize: 11 }}>
           お問い合わせ時のお控え: {recoveryRef}
         </p>
       )}
-      <p className={styles.secondaryRow}>
-        <a href="/my" className={styles.secondaryLink}>
-          マイページ
-        </a>
-        <span className={styles.linkSep}> · </span>
-        <a href={supportUrl} className={styles.supportLink}>
-          サポート
-        </a>
-      </p>
+      {!showAnimation && (
+        <p className={styles.secondaryRow}>
+          <a href="/my" className={styles.secondaryLink}>
+            マイページ
+          </a>
+          <span className={styles.linkSep}> · </span>
+          <a href={supportUrl} className={styles.supportLink}>
+            サポート
+          </a>
+        </p>
+      )}
     </>
   );
 }
