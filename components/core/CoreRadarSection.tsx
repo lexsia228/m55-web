@@ -115,10 +115,10 @@ export default function CoreRadarSection({
         <h2 id="core-radar-title" className={styles.sectionTitle}>
           傾向の輪郭
         </h2>
-        <p className={styles.tierASummary}>5つの軸を、ひとつの輪郭として見ます</p>
+        <p className={styles.tierASummary}>5つの視点を、ひとつの形として見ます</p>
         <p className={styles.sectionLead}>
           {withNickname(
-            'これは良し悪しではなく、tさんがふだんどんな傾向が出やすいかを、5つの視点で見た輪郭です。',
+            '良し悪しではなく、tさんがふだんどんな傾向が出やすいかを、5つの視点で見た結果です。',
             nick,
           )}
         </p>
@@ -203,7 +203,7 @@ export default function CoreRadarSection({
         <div className={styles.radarSummaryCard}>
           <div className={styles.radarSummaryBadge} aria-hidden>
             <span className={styles.radarSummaryBadgeDot} />
-            輪郭の読み取り
+            まとめ
           </div>
           <p>{summary.line1}</p>
           <p>{summary.line2}</p>

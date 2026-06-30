@@ -163,8 +163,8 @@ describe('/core free compositional coverage — CATEGORY-2-M55-CORE-FREE-COMPOSI
     const hooks = new Set(ANCHOR_DOBS.map((d) => freeCorePaidHook(buildFor(d))));
     assert.ok(hooks.size >= 2, 'expected axis-based paid hook variation');
     for (const hook of hooks) {
-      assert.match(hook, /この輪郭は、保存版では/);
-      assert.match(hook, /読み返せる形になります。$/);
+      assert.match(hook, /いま見えた輪郭は、保存版では/);
+      assert.match(hook, /まで読み返せます。$/);
       assert.doesNotMatch(hook, /chapter|s3_essence|s7_work/);
     }
   });

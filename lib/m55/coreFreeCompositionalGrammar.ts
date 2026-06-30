@@ -462,21 +462,47 @@ const RECOVERY_STEP_POOL: Readonly<Record<AxisKey, readonly string[]>> = {
 
 const PAID_HOOK_BY_AXIS: Readonly<Record<AxisKey, string>> = {
   structure:
-    'この輪郭は、保存版では「どこから整えると戻りやすいか」まで読み返せる形になります。',
+    'いま見えた輪郭は、保存版では「どこから整えると戻りやすいか」まで読み返せます。',
   cooperation:
-    'この輪郭は、保存版では「どこで無理を飲み込みやすいか」まで読み返せる形になります。',
+    'いま見えた輪郭は、保存版では「どこで無理を飲み込みやすいか」まで読み返せます。',
   openness:
-    'この輪郭は、保存版では「選択肢が増えたとき、何を残すと進みやすいか」まで読み返せる形になります。',
+    'いま見えた輪郭は、保存版では「選択肢が増えたとき、何を残すと進みやすいか」まで読み返せます。',
   stability:
-    'この輪郭は、保存版では「疲れが残りやすい条件と戻し方」まで読み返せる形になります。',
+    'いま見えた輪郭は、保存版では「疲れが残りやすい条件と戻し方」まで読み返せます。',
   socialEnergy:
-    'この輪郭は、保存版では「人との距離で力が出る場面と疲れやすい条件」まで読み返せる形になります。',
+    'いま見えた輪郭は、保存版では「人との距離で力が出る場面と疲れやすい条件」まで読み返せます。',
 };
+
+const CLOSING_SUMMARY_BY_AXIS: Readonly<Record<AxisKey, readonly string[]>> = {
+  socialEnergy: [
+    '人との距離が合うと、本来の力が出やすい方です。',
+    '少人数で深く関われるほど、輪郭がはっきりしやすい方です。',
+  ],
+  stability: [
+    '静かな流れの中では、感受性が生きやすい方です。',
+    '急な切り替えが続くと、疲れがたまりやすくなる方です。',
+  ],
+  openness: [
+    '一つの論点に向き合えるほど、深さが出やすい方です。',
+    '選択肢が増えすぎると、手元が散らかりやすくなる方です。',
+  ],
+  cooperation: [
+    '人に合わせる力があるぶん、期待を飲み込みすぎると疲れが残りやすい方です。',
+    '場の空気を整える力があるぶん、自分の本音が後ろに回りやすい方です。',
+  ],
+  structure: [
+    '順番が見えると、判断が安定しやすくなる方です。',
+    '整えてから動くほど、本来の落ち着きが出やすい方です。',
+  ],
+};
+
+const CLOSING_BRIDGE =
+  'この輪郭は、保存版でさらに具体的に読み返せます。' as const;
 
 const SUMMARY_LEAD: readonly string[] = [
   'ふだんの輪郭は、保存版で読み返す土台になります。',
-  'いま見えている傾向は、今の悩みを読み直す入口になります。',
-  'ここまでの整理は、4章の保存版へつながる入口です。',
+  'いま見えている傾向は、今の悩みを読み直す手がかりになります。',
+  'ここまでの整理は、保存版へつながる土台になります。',
 ];
 
 export function isHighBand(band: AxisBand): boolean {
@@ -691,6 +717,12 @@ export function composeAlignSteps(ctx: CopySelectContext): readonly { phase: str
 
 export function composePaidHook(ctx: CopySelectContext): string {
   return PAID_HOOK_BY_AXIS[ctx.dominantAxis] ?? PAID_HOOK_BY_AXIS.structure;
+}
+
+export function composeClosingSummary(ctx: CopySelectContext): { line1: string; line2: string } {
+  const pool = CLOSING_SUMMARY_BY_AXIS[ctx.dominantAxis] ?? CLOSING_SUMMARY_BY_AXIS.structure;
+  const line1 = pool[selectIndex(ctx, 60, pool.length)]!;
+  return { line1, line2: CLOSING_BRIDGE };
 }
 
 export function composeObservationBullets(

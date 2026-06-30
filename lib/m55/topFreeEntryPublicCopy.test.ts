@@ -142,8 +142,8 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
   it('uses saved-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
     assert.match(activeCopy, /4章の保存版/);
-    assert.match(activeCopy, /保存版に紐づく相談返書/);
-    assert.match(activeCopy, /読み直す/);
+    assert.match(activeCopy, /相談返書で/);
+    assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
     assert.equal(activeCopy.includes('基本の出方'), false);
   });

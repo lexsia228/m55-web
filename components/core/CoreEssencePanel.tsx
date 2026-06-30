@@ -7,6 +7,7 @@ import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import CoreAiChatExplainerSection from './CoreAiChatExplainerSection';
 import CoreAlignFlowSection from './CoreAlignFlowSection';
+import CoreClosingSummarySection from './CoreClosingSummarySection';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
 import CoreFreeSavedBoundarySection from './CoreFreeSavedBoundarySection';
 import CoreExperienceStyles from './CoreExperience.module.css';
@@ -87,7 +88,8 @@ export default function CoreEssencePanel() {
       <CoreTypeEaseSection result={result} />
       <CoreAlignFlowSection result={result} />
       <CoreObservationListSection result={result} />
-      <CoreAiChatExplainerSection />
+      <CoreClosingSummarySection result={result} nickname={nickname} />
+      <CoreAiChatExplainerSection nickname={nickname} />
       <CoreEntryReportCTASection result={result} nickname={nickname} />
     </div>
   );

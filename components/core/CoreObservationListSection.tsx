@@ -9,8 +9,8 @@ export default function CoreObservationListSection({ result }: { result: CoreRes
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.surfaceObserve} ${styles.tierBSection}`}
       aria-labelledby="core-observation-list"
     >
-      <h2 id="core-observation-list" className={styles.sectionTitle}>この輪郭から見えていること</h2>
-      <p className={styles.tierBSummary}>見えている傾向を短く整理したものです</p>
+      <h2 id="core-observation-list" className={styles.sectionTitle}>いま見えていること</h2>
+      <p className={styles.tierBSummary}>輪郭から拾えた傾向を、短くまとめています</p>
       <div className={styles.observationChipList}>
         {bullets.map((t, i) => (
           <span

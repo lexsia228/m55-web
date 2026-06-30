@@ -8,6 +8,7 @@ import {
   buildCopySelectContext,
   composeAlignSteps,
   composeAxisRows,
+  composeClosingSummary,
   composeLifestyleTriptych,
   composeObservationBullets,
   composePaidHook,
@@ -81,6 +82,10 @@ export function freeCorePaidHook(result: CoreResult): string {
   return composePaidHook(resolveCopyContext(result));
 }
 
+export function freeCoreClosingSummary(result: CoreResult): { line1: string; line2: string } {
+  return composeClosingSummary(resolveCopyContext(result));
+}
+
 export function collectFreeCoreDynamicCopy(result: CoreResult): string[] {
   const ctx = resolveCopyContext(result);
   const axes = composeAxisRows(ctx, result.axisDetails, AXIS_FORMAL_JA);
@@ -94,6 +99,7 @@ export function collectFreeCoreDynamicCopy(result: CoreResult): string[] {
     ...align.map((step) => step.body),
     ...bullets,
     freeCorePaidHook(result),
+    ...Object.values(freeCoreClosingSummary(result)),
   ];
 }
 
