@@ -23,6 +23,15 @@ export type ConsultSendInputValidationResult =
   | { ok: true; parsed: ParsedConsultUserMessage }
   | { ok: false; error: string; status: 422 };
 
+/** Body-present generation instruction — appended when user supplied free text (non-theme-only). */
+export const CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA = `【相談返書 — 自由記述あり（必須の長さ・構成）】
+- ユーザーはテーマに加えて具体の相談文を書いています。この具体語を各段落に必ず戻してください。
+- 抽象的な短文や汎用アドバイスで終わらせないこと。相談テーマと保存版の傾向から場面を具体化し、5段落すべて書き切ってください。
+- ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
+- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。相談の論点・保存版の傾向・別の見方・見直す目印・今日の一手まで各段落に役割を持たせて書くこと。
+- 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
+- 相談文から拾った論点（3〜5個）を1段落目に反映し、今日の一手まで必ず書き切ること。`;
+
 /** Theme-only generation instruction — appended to system prompt anchors when body is blank. */
 export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ相談 — 有効な相談として扱う】
 - ユーザーは自由記述を空欄にしています。これは不備ではありません。
@@ -122,6 +131,7 @@ ${CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA}
 - テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
 - 主章候補: ${part.roman}「${part.name}」
 - 具体語は本文に必ず戻す: ${quote || '（短文）'}
+${CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA}
 - 相談文から拾った論点（3〜5個）を1段落目に反映すること
 - 自由記述は補助情報として使い、テーマと保存版の接地を優先すること`;
 }

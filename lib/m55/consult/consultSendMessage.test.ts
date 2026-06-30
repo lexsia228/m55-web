@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import {
   buildConsultUserAnchors,
   buildThemeOnlyConsultMessage,
+  CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA,
   CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA,
   parseConsultUserMessage,
   validateConsultSendInput,
@@ -112,6 +113,25 @@ describe('consultSendMessage', () => {
     assert.equal(anchors.includes('テーマのみ — 有効'), false);
     assert.equal(anchors.includes('短く済ませず'), false);
     assert.equal(anchors.includes(CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA), false);
+  });
+
+  it('body-present anchors include minimum length and completion contract', () => {
+    const parsed = parseConsultUserMessage(
+      '【テーマ】疲れたときの戻り方\n\n休むタイミングが分かりません。',
+    );
+    const anchors = buildConsultUserAnchors(parsed);
+    assert.ok(anchors.includes(CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA));
+    assert.ok(anchors.includes(String(CONSULT_REPLY_GENERATION.minimumAcceptableJa)));
+    assert.ok(anchors.includes(String(CONSULT_REPLY_GENERATION.targetMinJa)));
+    assert.ok(anchors.includes(String(CONSULT_REPLY_GENERATION.targetMaxJa)));
+    assert.ok(anchors.includes('文字未満は保存されません'));
+    assert.ok(anchors.includes('途中で終えない'));
+    assert.ok(anchors.includes('水増し'));
+    assert.ok(anchors.includes('今日やることは1つだけです。'));
+    assert.ok(anchors.includes('保存版から見ると'));
+    assert.ok(anchors.includes('少しほどく'));
+    assert.ok(anchors.includes('見直すときの目印'));
+    assert.ok(anchors.includes('書き切る'));
   });
 
   it('body-present anchors keep user detail and theme frame', () => {

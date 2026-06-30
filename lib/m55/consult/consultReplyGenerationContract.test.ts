@@ -129,6 +129,8 @@ describe('consultReplyGenerationContract', () => {
     assert.equal(src.includes('700〜900'), false);
     assert.equal(src.includes('max_tokens: 800'), false);
     assert.ok(src.includes('completeness failed'));
+    assert.ok(src.includes('retryAttempted'));
+    assert.ok(src.includes('repairSucceeded'));
     assert.ok(src.includes('CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA'));
   });
 

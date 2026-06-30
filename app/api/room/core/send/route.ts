@@ -47,7 +47,12 @@ import {
   countConsultReplyBlocks,
   normalizeConsultReplyParagraphBreaks,
   validateConsultReplyCompleteness,
+  type ConsultReplyCompletenessResult,
 } from '../../../../../lib/m55/consult/consultReplyGenerationContract';
+import {
+  attemptConsultReplyLengthRepair,
+  isConsultReplyLengthRepairable,
+} from '../../../../../lib/m55/consult/consultReplyLengthRepair';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -181,7 +186,81 @@ ${CONSULT_PROMPT_GROUNDING_JA}
 - 危機的・自傷的な内容を検知した場合は相談窓口等の安全な案内のみ行うこと
 
 回答は1,200〜1,800日本語文字を目標とし、2,200文字を超えないこと。
-必ず5段落（最低4段落）・段落間は空行1つ（改行2つ）のみ・最終文は「。」で終えること。${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されない。保存版を読み返すような日常語で、冷たいビジネス語やセルフヘルプ定型句を避けて書くこと。`;
+必ず5段落（最低4段落）・段落間は空行1つ（改行2つ）のみ・最終文は「。」で終えること。${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されない。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字。保存版を読み返すような日常語で、冷たいビジネス語やセルフヘルプ定型句を避けて書くこと。抽象的な短文で終わらせず、今日の一手まで書き切ること。`;
+}
+
+function postProcessConsultReplyDraft(raw: string): string {
+  const outputSafety = sanitizeM55AiTextOutput(raw, { surface: 'consult', locale: 'ja-JP' });
+  if (isConsultOutputSafetyBlocked(outputSafety)) {
+    throw new ConsultReplyOutputBlockedError(outputSafety.safeText);
+  }
+  let text = outputSafety.safeText;
+  const qualityResult = applyM55ConsultReplyQualityPasses(text);
+  text = qualityResult.text;
+  return normalizeConsultReplyParagraphBreaks(text);
+}
+
+class ConsultReplyOutputBlockedError extends Error {
+  readonly safeText: string;
+
+  constructor(safeText: string) {
+    super('consult_output_blocked');
+    this.name = 'ConsultReplyOutputBlockedError';
+    this.safeText = safeText;
+  }
+}
+
+type ConsultReplyFinalizeResult = {
+  content: string;
+  completeness: ConsultReplyCompletenessResult;
+  retryAttempted: boolean;
+  repairSucceeded: boolean;
+};
+
+async function finalizeConsultReplyWithOptionalRepair(
+  openai: OpenAI,
+  systemPrompt: string,
+  initialRaw: string,
+): Promise<ConsultReplyFinalizeResult> {
+  let retryAttempted = false;
+  let raw = initialRaw;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const content = postProcessConsultReplyDraft(raw);
+    const completeness = validateConsultReplyCompleteness(content);
+    if (completeness.ok) {
+      return {
+        content,
+        completeness,
+        retryAttempted,
+        repairSucceeded: retryAttempted,
+      };
+    }
+
+    const canRepair =
+      attempt === 0 &&
+      !completeness.ok &&
+      isConsultReplyLengthRepairable(completeness.reason);
+    if (!canRepair) {
+      return { content, completeness, retryAttempted, repairSucceeded: false };
+    }
+
+    retryAttempted = true;
+    const repair = await attemptConsultReplyLengthRepair(openai, systemPrompt, content);
+    if (!repair.repairedText) {
+      return { content, completeness, retryAttempted, repairSucceeded: false };
+    }
+    raw = repair.repairedText;
+  }
+
+  const content = postProcessConsultReplyDraft(raw);
+  const completeness = validateConsultReplyCompleteness(content);
+  return {
+    content,
+    completeness,
+    retryAttempted,
+    repairSucceeded: false,
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -321,18 +400,19 @@ export async function POST(req: NextRequest) {
   let aiContent: string;
   try {
     const openai = new OpenAI({ apiKey });
+    const systemPrompt = buildSystemPrompt(reportContext, userMessage);
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       max_tokens: CONSULT_REPLY_GENERATION.openAiMaxTokens,
       temperature: 0.55,
       messages: [
-        { role: 'system', content: buildSystemPrompt(reportContext, userMessage) },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
     });
-    aiContent = completion.choices[0]?.message?.content?.trim() ?? '';
+    const initialRaw = completion.choices[0]?.message?.content?.trim() ?? '';
 
-    if (!aiContent) {
+    if (!initialRaw) {
       console.error(
         '[room/core/send] AI returned empty content',
         JSON.stringify({ userHash: hashUserIdForLedgerLog(userId), reportInstanceIdPresent: true })
@@ -343,22 +423,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const outputSafety = sanitizeM55AiTextOutput(aiContent, { surface: 'consult', locale: 'ja-JP' });
-    if (isConsultOutputSafetyBlocked(outputSafety)) {
-      return NextResponse.json(
-        {
-          error: 'blocked',
-          safeMessage: outputSafety.safeText,
-        },
-        { status: 422, headers: NO_STORE }
+    let finalized: ConsultReplyFinalizeResult;
+    try {
+      finalized = await finalizeConsultReplyWithOptionalRepair(
+        openai,
+        systemPrompt,
+        initialRaw,
       );
+    } catch (e) {
+      if (e instanceof ConsultReplyOutputBlockedError) {
+        return NextResponse.json(
+          {
+            error: 'blocked',
+            safeMessage: e.safeText,
+          },
+          { status: 422, headers: NO_STORE }
+        );
+      }
+      throw e;
     }
-    aiContent = outputSafety.safeText;
-    const qualityResult = applyM55ConsultReplyQualityPasses(aiContent);
-    aiContent = qualityResult.text;
 
-    aiContent = normalizeConsultReplyParagraphBreaks(aiContent);
-    const completeness = validateConsultReplyCompleteness(aiContent);
+    aiContent = finalized.content;
+    const { completeness, retryAttempted, repairSucceeded } = finalized;
     if (!completeness.ok) {
       console.error(
         '[room/core/send] consult reply completeness failed',
@@ -369,6 +455,8 @@ export async function POST(req: NextRequest) {
           length: aiContent.length,
           blockCount: countConsultReplyBlocks(aiContent),
           isThemeOnly: inputValidation.parsed.isThemeOnly,
+          retryAttempted,
+          repairSucceeded,
         })
       );
       return NextResponse.json(
