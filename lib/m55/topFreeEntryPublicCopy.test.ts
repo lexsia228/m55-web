@@ -185,6 +185,18 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(readPage('app/home/layout.tsx'), /homeTitleJa/);
   });
 
+  it('HOME birthday explore card omits duplicate subcopy', () => {
+    const { home: homeCopy } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    const homePanel = readPage(ROUTE_FILES['/home']);
+    assert.equal(homeCopy.exploreBirthdayTitleJa, '誕生日をどう見ているか知る');
+    assert.equal(homeCopy.exploreBirthdaySubJa, '');
+    assert.equal(homeCopy.exploreBirthdaySubJa.includes('→'), false);
+    assert.equal(homeCopy.exploreMechanismSubJa, 'M55の仕組みを見る →');
+    assert.equal(homeCopy.exploreFeelingsSubJa, '感じ方・疲れ方・人との距離感を見る →');
+    assert.match(homePanel, /exploreBirthdayTitleJa/);
+    assert.equal(homePanel.includes('exploreBirthdaySubJa'), false);
+  });
+
   it('P0 SSOT avoids hype and ten-type-only framing', () => {
     const copy = readPage(COPY_FILE);
     for (const term of [

@@ -68,7 +68,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreMechanismSubJa: 'M55の仕組みを見る →',
     exploreMechanismHref: '/how-m55-works',
     exploreBirthdayTitleJa: '誕生日をどう見ているか知る',
-    exploreBirthdaySubJa: '誕生日をどう見ているか知る →',
+    exploreBirthdaySubJa: '',
     exploreBirthdayHref: '/how-m55-works',
     exploreFeelingsTitleJa: '感じ方・疲れ方・人との距離感を見る',
     exploreFeelingsSubJa: '感じ方・疲れ方・人との距離感を見る →',

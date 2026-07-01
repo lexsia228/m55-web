@@ -197,7 +197,6 @@ export default function HomePanel() {
               </span>
               <span className={styles.useExploreBody}>
                 <span className={styles.useExploreTitle}>{homeCopy.exploreBirthdayTitleJa}</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreBirthdaySubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
