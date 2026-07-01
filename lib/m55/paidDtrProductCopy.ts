@@ -31,7 +31,7 @@ export const PAID_DTR_PRODUCT_IDENTITY = {
   formatLabel: LABEL_FORMAT_SAVED,
   ownedStateLabel: LABEL_STATE_OWNED,
   auxiliaryNameEn: LABEL_PRODUCT_EN,
-  shortNameJa: '本質の読み解き',
+  shortNameJa: '本質を見つめ直す',
   /** User-facing primary term for the consultation feature */
   consultPrimaryTermJa: '相談返書',
   /** Explanatory bridge only — not the default UI label */
@@ -737,7 +737,7 @@ export const PAID_DTR_BENEFIT_BULLETS = [
 /** /dtr/core reader intro — panel 01 (pre-W1 copy, display-only). */
 export const PAID_DTR_INTRO_PANEL_01 = {
   stepLabel: '01',
-  overlineJa: '本質の読み解き',
+  overlineJa: '本質を見つめ直す',
   leadLinesJa: [
     '自分を無理に変えなくていい。',
     '「自分の形」から、今の悩みを読み直すための土台です。',
@@ -1197,7 +1197,7 @@ export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v1' as const;
 export const PAID_DTR_LP = {
   version: PAID_DTR_LP_COPY_VERSION,
   hero: {
-    subheadlineJa: '迷ったときに読み返すための4章を、手元に。',
+    subheadlineJa: '迷ったときに、自分を少し離れて見つめ直すための4章を、手元に。',
     headlineJa: '生年月日から、\n自分の動き方と戻し方を読み返す。',
     bodyJa:
       '10資質レーンを土台に、生年月日の暦リズムまで重ねて、自分の出方を4章で整理します。\n\n4章本文は生成AIでその都度書き換えるものではなく、M55の固定ルールで組み立てる保存版です。\n\n相談返書のみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。',

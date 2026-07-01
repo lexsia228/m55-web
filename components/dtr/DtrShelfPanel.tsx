@@ -147,7 +147,7 @@ function EntryReportCard({
             <p className={styles.cardOneLine}>
               {stem
                 ? stem.displayOneLine
-                : 'あなたの本質を、構造として読み解く'}
+                : 'あなたの本質を、構造として見つめ直す'}
             </p>
           </div>
         </div>

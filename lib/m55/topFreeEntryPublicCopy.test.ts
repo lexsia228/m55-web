@@ -106,6 +106,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(home, /tenViewsLearnLinkJa/);
     assert.equal(homeCopy.exploreQualitiesTitleJa, '10資質レーンから読む');
     assert.equal(homeCopy.tenViewsLearnLinkJa, '10資質レーン');
+    assert.match(homeCopy.heroSupportJa, /自分を少し離れて見つめ直す/);
     assert.match(home, /tierStackAriaLabelJa/);
   });
 

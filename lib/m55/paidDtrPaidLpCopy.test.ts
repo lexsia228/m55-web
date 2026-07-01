@@ -159,6 +159,9 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('defines hero compare anchor and CTA labels', () => {
     assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'FULLとライトを比べる');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
+    assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
+    assert.match(lpPageSource, /本質を見つめ直す \| M55/);
+    assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '保存版FULLを購入する');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '保存版ライトを購入する');
     assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');

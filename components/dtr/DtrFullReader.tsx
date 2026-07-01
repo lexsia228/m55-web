@@ -402,7 +402,7 @@ const REPORT_PARTS = PAID_DTR_REPORT_PARTS;
 /** Intro panels 01 + 02 — between hero poster and drawer hub (no 03 TOC). */
 function PremiumIntroValueBand() {
   return (
-    <div className={styles.premiumIntroValueBand} aria-label="本質の読み解きの説明">
+    <div className={styles.premiumIntroValueBand} aria-label="本質を見つめ直すための説明">
       <div className={styles.premiumIntroPanelSection}>
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           {PAID_DTR_INTRO_PANEL_01.stepLabel}
@@ -1025,7 +1025,7 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
   const ge = clampTensionBias(viz.tension.guardExpress);
 
   return (
-    <div className={styles.idDesignShell} aria-label="力の出方をひとつずつ見る（本質の読み解き）">
+    <div className={styles.idDesignShell} aria-label="力の出方をひとつずつ見る（本質を見つめ直す）">
       <p className={styles.idDesignOverline}>深読み · 力の出方をひとつずつ見る</p>
 
       <div className={styles.idDesignBlock}>
@@ -1462,7 +1462,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
   ];
 
   return (
-    <div className={styles.idDesignShell} aria-label="安定条件パネル（本質の読み解き）">
+    <div className={styles.idDesignShell} aria-label="安定条件パネル（本質を見つめ直す）">
       <p className={styles.idDesignOverline}>深読み · 安定条件</p>
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>安定しやすい4つの条件</h3>
@@ -2648,7 +2648,7 @@ function PracticalGuidanceSection({
 
 /* ─────────────────────────────────────────────────────────────────────────────
    D2. Work Guide Cards — S7 本文の4ブロックを読みやすい4枚カードで先出し。
-   PracticalGuidanceSection（日常要約版）の手前に置き、本質の読み解きの具体本文へ誘導。
+   PracticalGuidanceSection（日常要約版）の手前に置き、本質を見つめ直す具体本文へ誘導。
    ───────────────────────────────────────────────────────────────────────────── */
 
 const WORK_CARD_META: {

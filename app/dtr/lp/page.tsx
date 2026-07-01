@@ -15,7 +15,7 @@ import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTi
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import styles from "./lp.module.css";
 
-export const metadata = { title: "本質の読み解き | M55" };
+export const metadata = { title: "本質を見つめ直す | M55" };
 
 const OWNED = PAID_DTR_LP.operational.ownedState;
 const { full: FULL_TIER, light: LIGHT_TIER } = PAID_DTR_LP.tiers;

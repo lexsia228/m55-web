@@ -17,7 +17,7 @@ export function IntroSection() {
         <p className={styles.introEmphasis}>
           M55は、そんなときに立ち返れる
           <br className={styles.introBr} />
-          <strong>自分を見つめ直すための地図</strong>です。
+          <strong>自分を少し離れて見つめ直すための地図</strong>です。
         </p>
       </div>
       <div className={styles.introRule} aria-hidden />

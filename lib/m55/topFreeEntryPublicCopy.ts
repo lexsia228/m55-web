@@ -50,7 +50,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroTitleLine1Ja: '生まれた日から、',
     heroTitleLine2Ja: '自分の動き方が見える',
     heroSubJa: '無料で輪郭を確認。保存版では、疲れ方・戻し方まで4章で読み返せます。',
-    heroSupportJa: 'まず無料で輪郭を確認できます。',
+    heroSupportJa: 'まず無料で輪郭を確認できます。自分を少し離れて見つめ直す入口です。',
     tierStackAriaLabelJa: '無料、保存版、相談返書',
     tierFreeJa: '10資質レーンと5つの視点で、いまの輪郭を見る。',
     tierSavedBadgeJa: '保存版',
