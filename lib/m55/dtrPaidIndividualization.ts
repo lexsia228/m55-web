@@ -35,6 +35,16 @@ export type PaidDtrIndividualization = {
    * Absent in v1 — presence check acts as v2 gate in the engine.
    */
   s4StrengthsRhythmNote?: string;
+  /**
+   * v2.1-only: short DOB-derived prefix for s5「無理が出やすいところ」.
+   * Absent in v2 / v1 — presence check acts as v2.1 gate in the engine.
+   */
+  s5FrictionRhythmNote?: string;
+  /**
+   * v2.1-only: short DOB-derived prefix for s6「人とのやりとりの癖」.
+   * Absent in v2 / v1 — presence check acts as v2.1 gate in the engine.
+   */
+  s6RelationRhythmNote?: string;
 };
 
 export type PaidDtrIndividualizationAuditMeta = {

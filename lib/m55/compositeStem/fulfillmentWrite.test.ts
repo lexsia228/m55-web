@@ -15,7 +15,8 @@ import { M55CompositeStemError } from './types';
 import { ENGINE_VERSION_V2 } from './constants';
 import { essenceStemLaneIndex } from '../essenceEngine';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
-import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { DOB_PERSONALIZATION_V21_CATALOG_VERSION, DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
 
 const GOLDEN_FULFILLMENT_FIELDS = {
   nickname: 'golden',
@@ -190,7 +191,7 @@ test('DOB v2.1 — same stem lane different DOB yields different s1 bodies', () 
   });
 });
 
-test('DOB v2.1 — s5/s6 remain lane-fixed for same stem lane', () => {
+test('DOB v2.1 — same stem lane different DOB yields different s5/s6 bodies', () => {
   withDobV2Flag('true', () => {
     resetCalendarBundleCacheForTests();
     const a = buildV2FulfillmentSnapshotFromFields({
@@ -206,8 +207,45 @@ test('DOB v2.1 — s5/s6 remain lane-fixed for same stem lane', () => {
     for (const id of ['s5_friction', 's6_relation'] as const) {
       const bodyA = a.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
       const bodyB = b.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
+      assert.notEqual(bodyA, bodyB, id);
+    }
+  });
+});
+
+test('DOB v2.1 — same DOB yields identical s5/s6 bodies', () => {
+  withDobV2Flag('true', () => {
+    resetCalendarBundleCacheForTests();
+    const a = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-01-07',
+    });
+    resetCalendarBundleCacheForTests();
+    const b = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-01-07',
+    });
+    for (const id of ['s5_friction', 's6_relation', 's1_identity', 's3_essence'] as const) {
+      const bodyA = a.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
+      const bodyB = b.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
       assert.equal(bodyA, bodyB, id);
     }
+  });
+});
+
+test('DOB v2-06 catalog — s5/s6 remain STEM_SEED-only (no v2.1 prefix)', () => {
+  withDobV2Flag('true', () => {
+    resetCalendarBundleCacheForTests();
+    const built = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-01-07',
+    }, { dobPersonalizationV2Enabled: true });
+    const oldCtx = {
+      ...built.engine_context_json,
+      dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+    };
+    const ind = composePaidIndividualizationFromEngineContext(oldCtx);
+    assert.equal(ind.s5FrictionRhythmNote, undefined);
+    assert.equal(ind.s6RelationRhythmNote, undefined);
   });
 });
 

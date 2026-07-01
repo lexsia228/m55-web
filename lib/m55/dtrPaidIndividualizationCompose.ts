@@ -83,6 +83,12 @@ export function buildPaidDtrSectionIndividualizationPrefix(
   } else if (sectionId === 's4_strengths' && ind.s4StrengthsRhythmNote) {
     // v2-only: ind.s4StrengthsRhythmNote absent in v1.
     prefix = [ind.s4StrengthsRhythmNote, ''].join('\n');
+  } else if (sectionId === 's5_friction' && ind.s5FrictionRhythmNote) {
+    // v2.1-only: ind.s5FrictionRhythmNote absent in v2 / v1.
+    prefix = [ind.s5FrictionRhythmNote, ''].join('\n');
+  } else if (sectionId === 's6_relation' && ind.s6RelationRhythmNote) {
+    // v2.1-only: ind.s6RelationRhythmNote absent in v2 / v1.
+    prefix = [ind.s6RelationRhythmNote, ''].join('\n');
   } else if (sectionId === 's7_work') {
     // auxiliaryReading already contains handlingHint; omit it here to prevent duplicate sentences.
     prefix = ['【この保存版だけの補助整理】', ind.auxiliaryReading, ''].join('\n');

@@ -947,6 +947,12 @@ export function runDtrEngine(input: DtrCanonicalInput, options?: DtrEngineRunOpt
     if (spec.id === 's4_strengths' && options?.paidIndividualization && !options.generatedChapterBodies?.s4_strengths) {
       body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }
+    if (spec.id === 's5_friction' && options?.paidIndividualization) {
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
+    }
+    if (spec.id === 's6_relation' && options?.paidIndividualization) {
+      body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
+    }
     if (spec.id === 's7_work' && options?.paidIndividualization) {
       body = buildPaidDtrSectionIndividualizationPrefix(spec.id, options.paidIndividualization) + body;
     }

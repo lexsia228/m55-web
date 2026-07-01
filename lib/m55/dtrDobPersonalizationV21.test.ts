@@ -51,12 +51,24 @@ describe('DOB personalization v2.1 builder', () => {
     assert.match(ind.essenceRhythmNote, /^生年月日の細かなリズムから見ると、/);
   });
 
-  it('s1/s2/s4 rhythm notes are non-empty', () => {
+  it('s1/s2/s4/s5/s6 rhythm notes are non-empty', () => {
     const ctx = ctx21('1990-08-22');
     const ind = buildPaidDtrIndividualizationV21FromEngineContext(ctx);
     assert.ok(ind.s1IdentityRhythmNote && ind.s1IdentityRhythmNote.length >= 20);
     assert.ok(ind.s2CompositionRhythmNote && ind.s2CompositionRhythmNote.length >= 20);
     assert.ok(ind.s4StrengthsRhythmNote && ind.s4StrengthsRhythmNote.length >= 20);
+    assert.ok(ind.s5FrictionRhythmNote && ind.s5FrictionRhythmNote.length >= 20);
+    assert.ok(ind.s6RelationRhythmNote && ind.s6RelationRhythmNote.length >= 20);
+  });
+
+  it('same stem lane different DOB yields different s5/s6 rhythm notes', () => {
+    const leftCtx = ctx21('1980-01-07');
+    const rightCtx = ctx21('1980-03-07');
+    assert.equal(leftCtx.stemLaneIndex, rightCtx.stemLaneIndex);
+    const left = buildPaidDtrIndividualizationV21FromEngineContext(leftCtx);
+    const right = buildPaidDtrIndividualizationV21FromEngineContext(rightCtx);
+    assert.notEqual(left.s5FrictionRhythmNote, right.s5FrictionRhythmNote);
+    assert.notEqual(left.s6RelationRhythmNote, right.s6RelationRhythmNote);
   });
 
   it('same DOB is deterministic', () => {
@@ -93,6 +105,8 @@ describe('DOB personalization v2.1 builder', () => {
         ['s2', ind.s2CompositionRhythmNote ?? ''],
         ['s3', ind.essenceRhythmNote],
         ['s4', ind.s4StrengthsRhythmNote ?? ''],
+        ['s5', ind.s5FrictionRhythmNote ?? ''],
+        ['s6', ind.s6RelationRhythmNote ?? ''],
       ] as const) {
         const result = checkNaturalness(text);
         assert.ok(
@@ -132,6 +146,8 @@ describe('DOB v2.1 forbidden phrase scan', () => {
         ind.s2CompositionRhythmNote ?? '',
         ind.essenceRhythmNote,
         ind.s4StrengthsRhythmNote ?? '',
+        ind.s5FrictionRhythmNote ?? '',
+        ind.s6RelationRhythmNote ?? '',
       ];
       for (const text of texts) {
         for (const term of FORBIDDEN) {

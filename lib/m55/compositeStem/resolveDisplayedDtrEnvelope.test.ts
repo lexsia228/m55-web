@@ -412,6 +412,60 @@ describe('resolveDisplayedDtrEnvelope', () => {
       assert.match(s3, /生年月日の細かなリズム/);
       assert.equal(read.envelope.auditMeta.paidIndividualization?.version, 'v2');
       assert.equal(read.envelope.auditMeta.paidIndividualization?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+      const s5 = read.envelope.payload.fullSections.find((s) => s.id === 's5_friction')!.body;
+      const s6 = read.envelope.payload.fullSections.find((s) => s.id === 's6_relation')!.body;
+      assert.ok(s5.length > 200, 's5 includes v2.1 prefix + seed');
+      assert.ok(s6.length > 200, 's6 includes v2.1 prefix + seed');
+    });
+  });
+
+  it('stored v2.1 display recompose — same lane different DOB differs in s5/s6', () => {
+    withDobV2Flag(undefined, () => {
+      resetCalendarBundleCacheForTests();
+      const builtA = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'mi',
+        birthDate: '1980-01-07',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: true });
+      resetCalendarBundleCacheForTests();
+      const builtB = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'mi',
+        birthDate: '1980-03-07',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: true });
+      assert.equal(
+        builtA.engine_context_json.stemLaneIndex,
+        builtB.engine_context_json.stemLaneIndex,
+      );
+      const readA = resolveDisplayedDtrEnvelope(baseRow({
+        envelope_json: builtA.envelope_json,
+        engine_version: ENGINE_VERSION_V2,
+        engine_context_json: builtA.engine_context_json,
+        profile_snapshot: { nickname: 'mi', birthDate: '1980-01-07' },
+      }));
+      const readB = resolveDisplayedDtrEnvelope(baseRow({
+        envelope_json: builtB.envelope_json,
+        engine_version: ENGINE_VERSION_V2,
+        engine_context_json: builtB.engine_context_json,
+        profile_snapshot: { nickname: 'mi', birthDate: '1980-03-07' },
+      }));
+      assert.equal(readA.ok, true);
+      assert.equal(readB.ok, true);
+      if (!readA.ok || !readB.ok) return;
+      const s5a = readA.envelope.payload.fullSections.find((s) => s.id === 's5_friction')!.body;
+      const s5b = readB.envelope.payload.fullSections.find((s) => s.id === 's5_friction')!.body;
+      const s6a = readA.envelope.payload.fullSections.find((s) => s.id === 's6_relation')!.body;
+      const s6b = readB.envelope.payload.fullSections.find((s) => s.id === 's6_relation')!.body;
+      assert.notEqual(s5a, s5b);
+      assert.notEqual(s6a, s6b);
     });
   });
 
@@ -457,6 +511,8 @@ describe('resolveDisplayedDtrEnvelope', () => {
       if (!read.ok) return;
       assert.equal(read.envelope.auditMeta.paidIndividualization?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
       assert.ok(read.envelope.auditMeta.paidIndividualization?.fingerprint.startsWith('dobv2-'));
+      assert.equal(oldInd.s5FrictionRhythmNote, undefined);
+      assert.equal(oldInd.s6RelationRhythmNote, undefined);
     });
   });
 });
