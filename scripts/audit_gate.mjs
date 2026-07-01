@@ -288,8 +288,8 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('data-testid="m55-home-hero"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-hero"');
   }
-  if (!t.includes('data-testid="m55-home-tier-stack"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-tier-stack" (free / paid value rows)');
+  if (!t.includes('data-testid="m55-home-seen-things-bridge"')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-seen-things-bridge" (poster follow-on self-recognition copy)');
   }
   if (t.includes('data-testid="m55-home-observation"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must not mount m55-home-observation (personal results belong off Home)');

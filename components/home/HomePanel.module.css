@@ -481,6 +481,106 @@
   }
 }
 
+/* ポスター直下 — 見えてくること（Editorial Premium 面：カード/フォーム部品にしない） */
+.homeSeenBridge {
+  position: relative;
+  margin: -6px 0 22px;
+  padding: clamp(28px, 5.2vw, 42px) clamp(18px, 4vw, 28px) clamp(32px, 5.5vw, 46px);
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(
+    168deg,
+    rgba(252, 250, 255, 0.92) 0%,
+    rgba(246, 243, 252, 0.86) 48%,
+    rgba(240, 236, 248, 0.8) 100%
+  );
+  box-shadow: 0 10px 36px rgba(139, 122, 168, 0.05);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-align: center;
+}
+
+.homeSeenBridgeInner {
+  position: relative;
+  z-index: 1;
+  max-width: 26rem;
+  margin: 0 auto;
+}
+
+.homeSeenBridgeLabel {
+  margin: 0 0 clamp(14px, 2.8vw, 18px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(10px, 2.2vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #8b7aa8;
+  line-height: 1.4;
+}
+
+.homeSeenBridgeHeadline {
+  margin: 0 0 clamp(22px, 4.2vw, 30px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(1.35rem, 4.2vw, 1.68rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.48;
+  color: #2d2a33;
+  text-wrap: balance;
+}
+
+.homeSeenBridgeHeadlineLine {
+  display: block;
+}
+
+.homeSeenBridgeHeadlineLine:first-child {
+  margin-bottom: 0.08em;
+}
+
+.homeSeenBridgeList {
+  list-style: none;
+  margin: 0 0 clamp(22px, 4vw, 28px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2.6vw, 16px);
+}
+
+.homeSeenBridgeListItem {
+  margin: 0;
+  padding: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(13px, 2.6vw, 14px);
+  font-weight: 400;
+  line-height: 1.72;
+  color: rgba(45, 42, 51, 0.62);
+  letter-spacing: 0.02em;
+}
+
+.homeSeenBridgeListItem:nth-child(2) {
+  color: rgba(45, 42, 51, 0.56);
+}
+
+.homeSeenBridgeListItem:nth-child(3) {
+  color: rgba(45, 42, 51, 0.5);
+}
+
+.homeSeenBridgeClosing {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(13px, 2.5vw, 14px);
+  font-weight: 400;
+  line-height: 1.78;
+  color: rgba(45, 42, 51, 0.52);
+  letter-spacing: 0.04em;
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .homeSeenBridgeInner {
+    max-width: 28rem;
+  }
+}
+
 /* 無料 / 読める / 有料 — 短文モジュール（長文の説明にしない） */
 .homeTierStack {
   margin-bottom: 16px;
