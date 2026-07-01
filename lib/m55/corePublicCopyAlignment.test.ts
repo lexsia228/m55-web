@@ -83,8 +83,9 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   it('aligns free vs saved boundary with 4-chapter saved-report value', () => {
     const { coreBoundary } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.match(coreBoundary.freeLeadJa, /輪郭/);
+    assert.match(coreBoundary.freeLeadJa, /10資質レーン/);
     assert.match(coreBoundary.savedLeadJa, /4章/);
-    assert.match(coreBoundary.savedLeadJa, /力が出やすい場面/);
+    assert.match(coreBoundary.savedLeadJa, /動き方・疲れ方・戻し方/);
     assert.match(coreBoundary.savedLeadJa, /相談返書/);
     assert.doesNotMatch(coreBoundary.savedLeadJa, /正式4章で整理します。$/);
   });

@@ -40,7 +40,7 @@ const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 const SAVED_REPORT_HEADLINE_JA = '自分の出方を、4章の流れで読み直す。';
 
 const SAVED_REPORT_BODY_JA =
-  '保存版は、購入時までに入力された情報をもとに、\n比較的変わりにくい自分の出方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n後から読み返すための\n4章の保存版として残します。\n\n保存版の4章は、\nライトとFULLで共通です。';
+  '保存版は、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールで組み立てられ、\n同じ入力なら同じ保存版に戻れます。\n\n保存版の4章は、\nライトとFULLで共通です。';
 
 const OWNED_STATE_STRINGS = [
   '保存版の閲覧・準備状況はこちらから進められます。',
@@ -103,8 +103,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.match(blob, /¥1,000/);
     assert.match(blob, /¥1,480/);
     assert.match(blob, /¥600/);
-    assert.match(blob, /¥1,600/);
-    assert.match(blob, /¥120/);
+    assert.match(blob, /¥480/);
     assert.match(blob, /1件/);
     assert.match(blob, /合計5件/);
   });
@@ -127,8 +126,8 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.ok(blob.includes(PAID_DTR_LP.chapters.sectionTitleJa));
     assert.ok(blob.includes(PAID_DTR_LP.cta.finalCompareLabelJa));
     assert.ok(blob.includes('利用規約'));
-    assert.ok(blob.includes('プライバシーポリシー'));
-    assert.ok(blob.includes('特定商取引法に基づく表記'));
+    assert.ok(blob.includes('プライバシー'));
+    assert.ok(blob.includes('特商法'));
     assert.ok(blob.includes(PAID_DTR_LP.faq.items[0]!.questionJa));
     assert.ok(blob.includes(PAID_DTR_LP.faq.items[0]!.answerJa));
     assert.ok(blob.includes(PAID_DTR_LP.chapters.items[0]!.titleJa));
@@ -176,6 +175,27 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
     for (const oldTitle of OLD_CHAPTER_TITLES) {
       assert.equal(blob.includes(oldTitle), false, `old chapter title: ${oldTitle}`);
+    }
+  });
+
+  it('states calendar rhythm and deterministic saved-report product truth', () => {
+    const blob = collectPaidDtrLpCopyStrings().join('\n');
+    assert.match(blob, /10資質レーン/);
+    assert.match(blob, /暦リズム/);
+    assert.match(blob, /固定ルール/);
+    assert.match(blob, /生成AIでその都度書き換えるものではなく/);
+    assert.match(blob, /相談返書のみ/);
+    for (const term of [
+      '完全オリジナル',
+      '数千通り',
+      'AI鑑定',
+      '科学的証明',
+      '未来を予測',
+      '四柱推命',
+      '宿曜',
+      '算命学',
+    ] as const) {
+      assert.equal(blob.includes(term), false, `forbidden term in LP copy: ${term}`);
     }
   });
 

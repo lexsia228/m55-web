@@ -65,11 +65,12 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('includes M55 definition and three-layer free/saved/consult copy', () => {
     const blob = combinedPublicCopy();
-    assert.match(blob, /今のテーマ/);
+    assert.match(blob, /10資質レーン/);
+    assert.match(blob, /動き方・疲れ方・戻し方|動き方/);
     assert.match(blob, /無料の見取り図/);
     assert.match(blob, /4章の保存版/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /自分の傾向/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /整理するための仕組み/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /生年月日/);
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /10資質レーン/);
     assert.match(blob, /相談返書/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
@@ -146,5 +147,24 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
     assert.equal(activeCopy.includes('基本の出方'), false);
+  });
+
+  it('P0 SSOT avoids hype and ten-type-only framing', () => {
+    const copy = readPage(COPY_FILE);
+    for (const term of [
+      '完全オリジナル',
+      '数千通り',
+      'AI鑑定',
+      '科学的証明',
+      '未来を予測',
+      '四柱推命',
+      '宿曜',
+      '算命学',
+      '10通りの説明書',
+    ] as const) {
+      assert.equal(copy.includes(term), false, `forbidden term in topFreeEntry SSOT: ${term}`);
+    }
+    assert.match(copy, /10資質レーン/);
+    assert.match(copy, /固定ルール/);
   });
 });
