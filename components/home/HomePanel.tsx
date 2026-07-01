@@ -26,6 +26,61 @@ const FORMAL_CHAPTER_CHIPS = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch, 
   title: ch.labelJa,
 }));
 
+/* ── Helpers ─────────────────────────────────────────────────────────────────── */
+
+const POSTER_FIVE_AXIS_COLORS = ['#7cb87a', '#d4795c', '#c4982a', '#9090ac', '#5a8fc4'] as const;
+
+/** 探索カード1用：5分割円弧メーター（ラスタより一瞥で「5軸」の読みを返す） */
+const EXPLORE_METER_WEIGHTS = [22, 20, 18, 22, 18] as const;
+
+function ExploreFiveAxisMeter({ className }: { className?: string }) {
+  const r = 23.5;
+  const cx = 32;
+  const cy = 32;
+  const circ = 2 * Math.PI * r;
+  const gap = 0.88;
+  let cumPct = 0;
+  const arcs = EXPLORE_METER_WEIGHTS.map((w, i) => {
+    const segLen = Math.max(0, (w / 100) * circ - gap);
+    const rot = (cumPct / 100) * 360 - 90;
+    cumPct += w;
+    return { segLen, rot, color: POSTER_FIVE_AXIS_COLORS[i]!, key: i };
+  });
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 64 64"
+      width={64}
+      height={64}
+      aria-hidden
+    >
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke="rgba(92, 78, 160, 0.5)"
+        strokeWidth="5.6"
+      />
+      {arcs.map(({ segLen, rot, color, key }) => (
+        <circle
+          key={key}
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="6.6"
+          strokeOpacity={0.97}
+          strokeLinecap="round"
+          strokeDasharray={`${segLen} ${circ}`}
+          transform={`rotate(${rot}, ${cx}, ${cy})`}
+        />
+      ))}
+    </svg>
+  );
+}
+
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
 export default function HomePanel() {
@@ -87,14 +142,13 @@ export default function HomePanel() {
                 <div className={styles.posterHeroCopy}>
                   <div className={styles.posterHeroTopBlock}>
                     <div className={styles.posterHeroLabelGroup}>
-                      <p className={styles.posterHeroBrandM55}>{homeCopy.heroLabelJa}</p>
+                      <p className={styles.posterHeroBrandM55}>M55</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroDescriptionJa}</p>
-                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroPromiseJa}</p>
+                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroSubJa}</p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -164,7 +218,7 @@ export default function HomePanel() {
         >
           <div className={styles.useExploreRule} aria-hidden />
           <div className={styles.useExploreGrid} role="navigation" aria-label="探索への入口">
-            <Link href={homeCopy.exploreMechanismHref} className={styles.useExploreCard}>
+            <Link href="/how-m55-works" className={styles.useExploreCard}>
               <span
                 className={styles.useExploreIconThumbExplore}
                 data-testid="m55-home-demo-five-element"
@@ -178,12 +232,12 @@ export default function HomePanel() {
                 />
               </span>
               <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>{homeCopy.exploreMechanismTitleJa}</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreMechanismSubJa}</span>
+                <span className={styles.useExploreTitle}>M55の見方を知る</span>
+                <span className={styles.useExploreSub}>{homeCopy.exploreHowSubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
-            <Link href={homeCopy.exploreBirthdayHref} className={styles.useExploreCard}>
+            <Link href="/ten-views" className={styles.useExploreCard}>
               <span
                 className={`${styles.useExploreIconThumbExplore} ${styles.useExploreIconThumbQualities}`}
               >
@@ -196,29 +250,44 @@ export default function HomePanel() {
                 />
               </span>
               <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>{homeCopy.exploreBirthdayTitleJa}</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreBirthdaySubJa}</span>
+                <span className={styles.useExploreTitle}>{homeCopy.exploreQualitiesTitleJa}</span>
+                <span className={styles.useExploreSub}>{homeCopy.exploreQualitiesSubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
-            <Link href={homeCopy.exploreFeelingsHref} className={styles.useExploreCard}>
-              <span
-                className={`${styles.useExploreIconThumbExplore} ${styles.useExploreIconThumbQualities}`}
-              >
-                <Image
-                  src="/home/card-qualities-flower.webp"
-                  alt=""
-                  fill
-                  sizes="60px"
-                  className={`${styles.useExploreThumbImage} ${styles.useExploreThumbImageQualities}`}
-                />
-              </span>
-              <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>{homeCopy.exploreFeelingsTitleJa}</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreFeelingsSubJa}</span>
-              </span>
-              <span className={styles.useExploreChevron} aria-hidden>›</span>
-            </Link>
+          </div>
+        </section>
+      )}
+
+      {showPublicValueBlocks && (
+        <section
+          className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardSoft} ${styles.fiveAxisReadCard}`}
+          data-testid="m55-home-five-axis-read"
+          aria-labelledby="m55-home-five-axis-read-title"
+        >
+          <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
+            {homeCopy.fiveAxisSectionTitleJa}
+          </h2>
+          <p className={styles.fiveAxisReadLead}>{homeCopy.fiveAxisLeadJa}</p>
+          <div className={styles.fiveAxisReadMeterWrap}>
+            <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
+          </div>
+          <div className={styles.fiveAxisReadCardGrid}>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                {homeCopy.algorithmNoteJa}
+              </p>
+            </div>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                {homeCopy.fiveAxisQualitiesNoteJa}
+              </p>
+            </div>
+            <div className={styles.fiveAxisReadMiniCard}>
+              <p className={styles.fiveAxisReadMiniCardText}>
+                {homeCopy.fiveAxisMeterNoteJa}
+              </p>
+            </div>
           </div>
         </section>
       )}
@@ -293,9 +362,10 @@ export default function HomePanel() {
       <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
         <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
         <nav className={styles.learnMoreLinks} aria-label="理解を深める">
-          <Link href={homeCopy.exploreMechanismHref}>{homeCopy.exploreMechanismTitleJa}</Link>
-          <Link href={homeCopy.exploreFeelingsHref}>{homeCopy.exploreFeelingsTitleJa}</Link>
+          <Link href="/how-m55-works">M55の使い方</Link>
+          <Link href="/ten-views">{homeCopy.tenViewsLearnLinkJa}</Link>
         </nav>
+        <p className={styles.learnMoreLead}>{homeCopy.algorithmNoteJa}</p>
         <ul className={styles.rulesList}>
           {learnMoreCopy.rulesJa.map((rule) => (
             <li key={rule} className={styles.ruleItem}>

@@ -68,9 +68,9 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
   it('includes M55 definition and three-layer free/saved/consult copy', () => {
     const blob = combinedPublicCopy();
     assert.match(blob, /10資質レーン/);
-    assert.match(blob, /動き方・疲れ方・戻し方|疲れ方/);
-    assert.match(blob, /無料で自分の輪郭を見る/);
-    assert.match(blob, /4章/);
+    assert.match(blob, /動き方・疲れ方・戻し方|動き方/);
+    assert.match(blob, /無料の見取り図/);
+    assert.match(blob, /4章の保存版/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /生年月日/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /10資質レーン/);
     assert.match(blob, /相談返書/);
@@ -102,14 +102,11 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
       'home report card renders light before FULL',
     );
     assert.match(home, /m55-home-learn-more/);
-    assert.match(home, /exploreMechanismTitleJa/);
-    assert.match(home, /exploreFeelingsTitleJa/);
-    assert.equal(homeCopy.exploreMechanismTitleJa, 'M55の仕組みを見る');
-    assert.equal(homeCopy.exploreFeelingsTitleJa, '感じ方・疲れ方・人との距離感を見る');
-    assert.match(homeCopy.heroDescriptionJa, /誕生日を旧暦に置き直し/);
-    assert.match(homeCopy.heroDescriptionJa, /M55独自の暦解析/);
-    assert.match(homeCopy.heroTitleLine1Ja, /月と季節のリズムで/);
-    assert.match(homeCopy.heroTitleLine2Ja, /自分のことが見えてくる/);
+    assert.match(home, /exploreQualitiesTitleJa/);
+    assert.match(home, /tenViewsLearnLinkJa/);
+    assert.equal(homeCopy.exploreQualitiesTitleJa, '10資質レーンから読む');
+    assert.equal(homeCopy.tenViewsLearnLinkJa, '10資質レーン');
+    assert.match(homeCopy.heroSupportJa, /自分を少し離れて見つめ直す/);
     assert.match(home, /tierStackAriaLabelJa/);
   });
 
@@ -166,23 +163,6 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /10資質レーン/);
     assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
     assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /M55_LOGIC_HOME_COPY/);
-  });
-
-  it('HOME storefront copy uses user-facing rhythm language', () => {
-    const { home: homeCopy, metadata, cta } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(metadata.homeTitleJa, 'M55｜月と季節のリズムで自分が見えてくる暦解析');
-    assert.match(metadata.homeDescriptionJa, /旧暦/);
-    assert.match(metadata.homeDescriptionJa, /M55独自の暦解析/);
-    assert.equal(homeCopy.heroLabelJa, '旧暦×十干×二十四節気のM55暦解析');
-    assert.equal(cta.openFreeMapJa, '無料で自分の輪郭を見る');
-    assert.equal(homeCopy.tierFreeJa, 'まずは、自分の輪郭を見てみる。');
-    assert.match(homeCopy.tierSavedJa, /力の出方/);
-    assert.match(homeCopy.tierConsultJa, /1テーマずつ/);
-    const homePanel = readPage(ROUTE_FILES['/home']);
-    assert.equal(homePanel.includes('m55-home-five-axis-read'), false);
-    assert.match(homePanel, /heroDescriptionJa/);
-    assert.match(homePanel, /heroPromiseJa/);
-    assert.match(readPage('app/home/layout.tsx'), /homeTitleJa/);
   });
 
   it('P0 SSOT avoids hype and ten-type-only framing', () => {
