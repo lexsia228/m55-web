@@ -71,6 +71,33 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreQualitiesTitleJa: '10資質レーンから読む',
     exploreQualitiesSubJa: '10資質レーンを見る →',
     tenViewsLearnLinkJa: '10資質レーン',
+    methodFlowLabelJa: 'M55の見方',
+    methodFlowHeadlineLine1Ja: '生年月日を、',
+    methodFlowHeadlineLine2Ja: '暦の体系で読み直す。',
+    methodFlowBodyJa:
+      'M55は、生まれた日を旧暦に置き直し、\n十干と二十四節気の重なりから、\nいつもの自分の輪郭を見ていきます。',
+    methodFlowNodesJa: [
+      {
+        layerId: 'lunar',
+        leadJa: '月と季節の流れ',
+        titleJa: '旧暦',
+        descJa: '生まれた日を、時間の流れに置き直す',
+      },
+      {
+        layerId: 'stems',
+        leadJa: '生まれた日に重なる質',
+        titleJa: '十干',
+        descJa: 'その日に出やすい傾向を見る',
+      },
+      {
+        layerId: 'terms',
+        leadJa: '季節の節目',
+        titleJa: '二十四節気',
+        descJa: '変わり目に現れるパターンを見る',
+      },
+    ] as const,
+    methodFlowClosingJa:
+      'この3つの暦体系の重なりから、\n5つの視点で今のあなたのバランスを\n読み解いていきます。',
     fiveAxisLeadJa: '五つの視点は、いまのバランスをつかむためのものです。',
     fiveAxisSectionTitleJa: '5つの視点の見方',
     algorithmNoteJa:
