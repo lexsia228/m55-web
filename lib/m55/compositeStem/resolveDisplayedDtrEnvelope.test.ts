@@ -8,7 +8,7 @@ import { runDtrEngine } from '../dtrEngine';
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
 import { createMockHybridAiProvider } from '../dtrHybridAiProvider';
 import { runHybridAiSnapshotGeneration } from '../dtrHybridAiSnapshotGeneration';
-import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { DOB_PERSONALIZATION_V21_CATALOG_VERSION, DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 import { ENGINE_VERSION_V2 } from './constants';
 import { buildV2FulfillmentSnapshotFromFields } from './buildV2FulfillmentSnapshot';
@@ -384,7 +384,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
     });
   });
 
-  it('stored v2 context renders v2 using stored version only', () => {
+  it('stored v2.1 context renders v2.1 using stored version only', () => {
     withDobV2Flag(undefined, () => {
       resetCalendarBundleCacheForTests();
       const built = buildV2FulfillmentSnapshotFromFields({
@@ -398,7 +398,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
       }, { dobPersonalizationV2Enabled: true });
 
       assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
-      assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+      assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
       const row = baseRow({
         envelope_json: built.envelope_json,
         engine_version: ENGINE_VERSION_V2,
@@ -411,6 +411,52 @@ describe('resolveDisplayedDtrEnvelope', () => {
       const s3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
       assert.match(s3, /生年月日の細かなリズム/);
       assert.equal(read.envelope.auditMeta.paidIndividualization?.version, 'v2');
+      assert.equal(read.envelope.auditMeta.paidIndividualization?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+    });
+  });
+
+  it('stored old v2 catalog (dob-v2-2026-06) still renders via old v2 builder', () => {
+    withDobV2Flag(undefined, () => {
+      resetCalendarBundleCacheForTests();
+      const built = buildV2FulfillmentSnapshotFromFields({
+        nickname: 'mi',
+        birthDate: '1992-12-19',
+        birthTime: '12:00',
+        birthTimeUnknown: false,
+        country: 'JP',
+        birthplace: '東京都',
+        timezone: 'Asia/Tokyo',
+      }, { dobPersonalizationV2Enabled: true });
+
+      const oldCtx = {
+        ...built.engine_context_json,
+        dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+      };
+      const oldInd = composePaidIndividualizationFromEngineContext(oldCtx);
+      const envelope = runDtrEngine({
+        birthDate: '1992-12-19',
+        nickname: 'mi',
+        locale: 'ja-JP',
+        contextScope: 'dtr',
+      }, {
+        stemLaneIndex: oldCtx.stemLaneIndex,
+        engineVersion: ENGINE_VERSION_V2,
+        derivation: 'm55_composite_stem_v2_p_lunar',
+        contractVersion: 'v2',
+        paidIndividualization: oldInd,
+      });
+
+      const row = baseRow({
+        envelope_json: envelope,
+        engine_version: ENGINE_VERSION_V2,
+        engine_context_json: oldCtx,
+        profile_snapshot: { nickname: 'mi', birthDate: '1992-12-19' },
+      });
+      const read = resolveDisplayedDtrEnvelope(row);
+      assert.equal(read.ok, true);
+      if (!read.ok) return;
+      assert.equal(read.envelope.auditMeta.paidIndividualization?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+      assert.ok(read.envelope.auditMeta.paidIndividualization?.fingerprint.startsWith('dobv2-'));
     });
   });
 });

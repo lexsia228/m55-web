@@ -1,7 +1,7 @@
 import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope, type PaidDtrGeneratedChapterBodies } from '../dtrEngine';
 import { isDobPersonalizationV2FulfillmentEnabled } from '../dobPersonalizationFeatureFlag';
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
-import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 import {
   CORRECTION_VERSION,
   ENGINE_VERSION_V2,
@@ -118,7 +118,7 @@ export function buildV2FulfillmentSnapshot(
     ...((options.dobPersonalizationV2Enabled ?? isDobPersonalizationV2FulfillmentEnabled())
       ? {
           paidIndividualizationVersion: 'v2' as const,
-          dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+          dobPersonalizationCatalogVersion: DOB_PERSONALIZATION_V21_CATALOG_VERSION,
         }
       : {}),
   };

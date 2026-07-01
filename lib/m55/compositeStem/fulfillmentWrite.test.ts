@@ -15,7 +15,7 @@ import { M55CompositeStemError } from './types';
 import { ENGINE_VERSION_V2 } from './constants';
 import { essenceStemLaneIndex } from '../essenceEngine';
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
-import { DOB_PERSONALIZATION_V2_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 
 const GOLDEN_FULFILLMENT_FIELDS = {
   nickname: 'golden',
@@ -160,14 +160,54 @@ test('DOB personalization flag ON — fulfillment stores v2-consistent envelope'
     assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
     assert.equal(
       built.engine_context_json.dobPersonalizationCatalogVersion,
-      DOB_PERSONALIZATION_V2_CATALOG_VERSION,
+      DOB_PERSONALIZATION_V21_CATALOG_VERSION,
     );
     assert.equal(audit?.version, 'v2');
-    assert.equal(audit?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
-    assert.ok(audit?.fingerprint.startsWith('dobv2-'));
+    assert.equal(audit?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+    assert.ok(audit?.fingerprint.startsWith('dobv21-'));
     assert.match(s3, /生年月日の細かなリズム/);
     assert.match(s7, /生年月日の細かなリズム/);
     assert.notEqual(audit?.fingerprint, built.engine_context_json.displayFingerprint);
+  });
+});
+
+test('DOB v2.1 — same stem lane different DOB yields different s1 bodies', () => {
+  withDobV2Flag('true', () => {
+    resetCalendarBundleCacheForTests();
+    const a = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-01-07',
+    });
+    resetCalendarBundleCacheForTests();
+    const b = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-03-07',
+    });
+    assert.equal(a.envelope_json.auditMeta.stemLaneIndex, b.envelope_json.auditMeta.stemLaneIndex);
+    const s1a = a.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    const s1b = b.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
+    assert.notEqual(s1a, s1b);
+  });
+});
+
+test('DOB v2.1 — s5/s6 remain lane-fixed for same stem lane', () => {
+  withDobV2Flag('true', () => {
+    resetCalendarBundleCacheForTests();
+    const a = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-01-07',
+    });
+    resetCalendarBundleCacheForTests();
+    const b = buildV2FulfillmentSnapshotFromFields({
+      ...FIELDS_1992_12_19,
+      birthDate: '1980-03-07',
+    });
+    assert.equal(a.envelope_json.auditMeta.stemLaneIndex, b.envelope_json.auditMeta.stemLaneIndex);
+    for (const id of ['s5_friction', 's6_relation'] as const) {
+      const bodyA = a.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
+      const bodyB = b.envelope_json.payload.fullSections.find((s) => s.id === id)!.body;
+      assert.equal(bodyA, bodyB, id);
+    }
   });
 });
 

@@ -20,8 +20,8 @@ import { resetCalendarBundleCacheForTests } from './calendar/loadCalendarBundle'
 import { buildV2FulfillmentSnapshotFromFields } from './compositeStem/buildV2FulfillmentSnapshot';
 import { runDtrEngine, type DtrCanonicalInput } from './dtrEngine';
 import {
-  DOB_PERSONALIZATION_V2_CATALOG_VERSION,
   DOB_PERSONALIZATION_V21_CATALOG_VERSION,
+  DOB_PERSONALIZATION_V2_CATALOG_VERSION,
 } from './dtrDobPersonalizationV2';
 import { composePaidIndividualizationFromEngineContext } from './dtrPaidIndividualizationCompose';
 import { checkNaturalness } from './dtrVisibleCopyNaturalness';
@@ -269,13 +269,13 @@ describe('1000-DOB version safety — v1 path unchanged', () => {
     assert.equal(built.engine_context_json.paidIndividualizationVersion, undefined);
   });
 
-  it('new fulfillment still saves old v2 catalog (v2.1 switch held for Commit B)', () => {
+  it('new fulfillment saves v2.1 catalog default', () => {
     resetCalendarBundleCacheForTests();
     const built = buildV2FulfillmentSnapshotFromFields(
       { nickname: 'test', birthDate: '1980-01-07', birthTime: '12:00:00', birthTimeUnknown: false, country: 'JP', birthplace: null, timezone: 'Asia/Tokyo' },
       { dobPersonalizationV2Enabled: true },
     );
     assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
-    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
   });
 });

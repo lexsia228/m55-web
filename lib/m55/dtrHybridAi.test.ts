@@ -332,7 +332,7 @@ describe('Hybrid AI prompt builder', () => {
 // ── Boundary tests ────────────────────────────────────────────────────────────
 
 describe('Hybrid AI boundary safety', () => {
-  it('existing deterministic v2 fallback still available — old v2 ind is valid', () => {
+  it('existing deterministic v2 fallback still available — stored old v2 catalog', () => {
     resetCalendarBundleCacheForTests();
     const built = buildV2FulfillmentSnapshotFromFields({
       nickname: 'test',
@@ -343,8 +343,11 @@ describe('Hybrid AI boundary safety', () => {
       birthplace: null,
       timezone: 'Asia/Tokyo',
     }, { dobPersonalizationV2Enabled: true });
-    // Old v2 catalog (dob-v2-2026-06)
-    const ind = composePaidIndividualizationFromEngineContext(built.engine_context_json);
+    const oldCtx = {
+      ...built.engine_context_json,
+      dobPersonalizationCatalogVersion: 'dob-v2-2026-06' as const,
+    };
+    const ind = composePaidIndividualizationFromEngineContext(oldCtx);
     const candidate = buildDeterministicSnapshotCandidate(ind);
     assert.equal(candidate.mode, 'deterministic');
     assert.ok(!candidate.ok && candidate.fallbackInd.fingerprint.startsWith('dobv2-'));
@@ -393,7 +396,7 @@ describe('Hybrid AI boundary safety', () => {
     }
   });
 
-  it('buildV2FulfillmentSnapshot.ts unchanged — new fulfillment still old v2 catalog', () => {
+  it('buildV2FulfillmentSnapshot — new fulfillment uses v2.1 catalog default', () => {
     resetCalendarBundleCacheForTests();
     const built = buildV2FulfillmentSnapshotFromFields({
       nickname: 'test',
@@ -405,8 +408,7 @@ describe('Hybrid AI boundary safety', () => {
       timezone: 'Asia/Tokyo',
     }, { dobPersonalizationV2Enabled: true });
     assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
-    // Must still be old catalog — fulfillment switch (Commit B) not applied
-    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, 'dob-v2-2026-06');
+    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, 'dob-v2.1-2026-07');
   });
 });
 

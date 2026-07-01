@@ -145,8 +145,8 @@ describe('DOB v2.1 forbidden phrase scan', () => {
   });
 });
 
-describe('v2.1 fulfillment integration (Commit B held)', () => {
-  it('flag ON → new fulfillment still saves old v2 catalog (v2.1 switch not active)', () => {
+describe('v2.1 fulfillment integration', () => {
+  it('flag ON → new fulfillment saves v2.1 catalog default', () => {
     resetCalendarBundleCacheForTests();
     const built = buildV2FulfillmentSnapshotFromFields(
       {
@@ -161,7 +161,8 @@ describe('v2.1 fulfillment integration (Commit B held)', () => {
       { dobPersonalizationV2Enabled: true },
     );
     assert.equal(built.engine_context_json.paidIndividualizationVersion, 'v2');
-    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V2_CATALOG_VERSION);
+    assert.equal(built.engine_context_json.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
+    assert.ok(built.envelope_json.auditMeta.paidIndividualization?.fingerprint.startsWith('dobv21-'));
   });
 
   it('flag OFF → engine_context_json has no version (v1 path)', () => {

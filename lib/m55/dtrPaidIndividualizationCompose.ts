@@ -34,7 +34,7 @@ export function resolvePaidIndividualizationVersion(
  * Safety rules (fail-closed):
  *   - missing/unknown catalog  → old v2 builder (dob-v2-2026-06)
  *   - 'dob-v2-2026-06'        → old v2 builder (preserves existing snapshots)
- *   - future 'dob-v2.1-...'   → reserved: falls back to old v2 until v2.1 builder ships
+ *   - 'dob-v2.1-2026-07'      → v2.1 builder (new fulfillment default)
  *
  * This function must NEVER silently route to a new corpus when the caller
  * intends old-catalog display. New catalog variants must be explicitly
