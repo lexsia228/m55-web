@@ -1088,109 +1088,240 @@
   }
 }
 
-/* 5軸：公開向け・極軽量（メーター＋リード＋短文チップのみ） — 外殻は homeSurface* */
-.fiveAxisReadCard {
-  margin: 0 0 18px;
+/* M55の見方 — 精密テキストレイヤー（旧暦 / 十干 / 二十四節気） */
+@keyframes homeMethodLayerSectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.fiveAxisReadTitle {
+@keyframes homeMethodLayerRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.homeMethodLayer {
+  position: relative;
+  margin: 28px 0 40px;
+  padding: clamp(34px, 5.5vw, 48px) clamp(16px, 4vw, 26px) clamp(38px, 6vw, 52px);
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(
+    168deg,
+    rgba(248, 246, 252, 0.98) 0%,
+    rgba(241, 237, 250, 0.94) 42%,
+    rgba(232, 227, 244, 0.9) 100%
+  );
+  box-shadow: 0 14px 44px rgba(45, 38, 72, 0.06);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-align: center;
+  animation: homeMethodLayerSectionIn 0.75s ease both;
+}
+
+@supports (animation-timeline: view()) {
+  .homeMethodLayer {
+    animation: homeMethodLayerSectionIn 0.75s ease both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 26%;
+  }
+}
+
+.homeMethodLayerInner {
+  position: relative;
+  z-index: 1;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.homeMethodLayerLabel {
+  margin: 0 0 clamp(14px, 2.8vw, 18px);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: 20px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin: 0 0 8px;
-  text-align: center;
-  line-height: 1.28;
-  letter-spacing: -0.022em;
+  font-size: clamp(10px, 2.2vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #7a6a96;
+  line-height: 1.4;
 }
 
-.fiveAxisReadLead {
-  font-size: 14px;
-  color: #3d3d3d;
-  line-height: 1.8;
-  margin: 0 0 10px;
-  text-align: center;
+.homeMethodLayerHeadline {
+  margin: 0 0 clamp(16px, 3.2vw, 20px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(1.38rem, 4.4vw, 1.72rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.46;
+  color: #25222c;
   text-wrap: balance;
-  font-weight: 500;
 }
 
-.fiveAxisReadMeterWrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 0 10px;
-}
-
-.fiveAxisReadMeterSvg {
+.homeMethodLayerHeadlineLine {
   display: block;
-  width: clamp(84px, 22vw, 96px);
-  height: clamp(84px, 22vw, 96px);
 }
 
-.fiveAxisReadCardGrid {
+.homeMethodLayerHeadlineLine:first-child {
+  margin-bottom: 0.08em;
+}
+
+.homeMethodLayerBody {
+  margin: 0 0 clamp(24px, 4.5vw, 30px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(13px, 2.6vw, 14.5px);
+  font-weight: 400;
+  line-height: 1.82;
+  color: rgba(38, 34, 46, 0.76);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.homeMethodLayerStage {
+  margin: 0 0 clamp(26px, 4.8vw, 32px);
+}
+
+.homeMethodLayerStack {
+  position: relative;
+  margin: 0 auto;
+  max-width: 22rem;
+  padding-left: clamp(16px, 3.6vw, 20px);
+  text-align: left;
+  pointer-events: none;
+  user-select: none;
+}
+
+.homeMethodLayerStack::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 122, 168, 0.1) 0%,
+    rgba(139, 122, 168, 0.32) 16%,
+    rgba(180, 150, 110, 0.28) 50%,
+    rgba(120, 168, 148, 0.3) 84%,
+    rgba(139, 122, 168, 0.1) 100%
+  );
+}
+
+.homeMethodLayerTextRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin: 0;
+  gap: clamp(22px, 4.5vw, 28px);
 }
 
-.fiveAxisReadMiniCard {
+.homeMethodLayerTextRow {
+  position: relative;
   margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
+  padding-left: clamp(14px, 3.2vw, 18px);
+  animation: homeMethodLayerRowIn 0.6s ease both;
 }
 
-.fiveAxisReadMiniCardText {
-  margin: 0;
-  font-size: 13px;
+.homeMethodLayerTextRow:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.homeMethodLayerTextRow:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.homeMethodLayerTextRow:nth-child(3) {
+  animation-delay: 0.34s;
+}
+
+.homeMethodLayerTextRow::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.78em;
+  width: clamp(10px, 2.6vw, 14px);
+  height: 1px;
+  background: rgba(139, 122, 168, 0.38);
+}
+
+.homeMethodLayerTextRow[data-layer='stems']::before {
+  background: rgba(180, 150, 110, 0.4);
+}
+
+.homeMethodLayerTextRow[data-layer='terms']::before {
+  background: rgba(120, 168, 148, 0.38);
+}
+
+.homeMethodLayerRowLead {
+  margin: 0 0 5px;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(10px, 2.1vw, 11px);
   font-weight: 500;
-  line-height: 1.7;
-  color: rgba(60, 60, 60, 0.8);
-  text-align: left;
+  letter-spacing: 0.12em;
+  line-height: 1.5;
+  color: rgba(38, 34, 46, 0.46);
+}
+
+.homeMethodLayerRowTitle {
+  margin: 0 0 7px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(15px, 3.2vw, 17px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.38;
+  color: rgba(32, 28, 40, 0.94);
+}
+
+.homeMethodLayerRowDesc {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12px, 2.4vw, 13px);
+  font-weight: 400;
+  line-height: 1.72;
+  color: rgba(38, 34, 46, 0.6);
+  letter-spacing: 0.02em;
+}
+
+.homeMethodLayerClosing {
+  margin: 0;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(12.5px, 2.4vw, 13.5px);
+  font-weight: 400;
+  line-height: 1.78;
+  color: rgba(38, 34, 46, 0.5);
+  letter-spacing: 0.03em;
+  text-wrap: balance;
 }
 
 @media (min-width: 768px) {
-  .fiveAxisReadCard {
-    display: grid;
-    grid-template-columns: minmax(104px, 120px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
-    column-gap: 22px;
-    row-gap: 8px;
-    align-items: start;
+  .homeMethodLayerInner {
+    max-width: 42rem;
   }
 
-  .fiveAxisReadTitle {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    text-align: left;
-    margin-bottom: 4px;
+  .homeMethodLayerStack {
+    max-width: 24rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homeMethodLayer {
+    animation: none;
   }
 
-  .fiveAxisReadLead {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    text-align: left;
-    max-width: 48ch;
-    margin-bottom: 6px;
-  }
-
-  .fiveAxisReadMeterWrap {
-    grid-column: 1;
-    grid-row: 3;
-    margin: 0;
-    justify-content: flex-start;
-    align-self: start;
-    padding-top: 2px;
-  }
-
-  .fiveAxisReadCardGrid {
-    grid-column: 2;
-    grid-row: 3;
-    margin: 0;
-    align-self: start;
+  .homeMethodLayerTextRow {
+    animation: none;
   }
 }
 

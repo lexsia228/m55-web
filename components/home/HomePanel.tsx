@@ -26,61 +26,6 @@ const FORMAL_CHAPTER_CHIPS = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch, 
   title: ch.labelJa,
 }));
 
-/* ── Helpers ─────────────────────────────────────────────────────────────────── */
-
-const POSTER_FIVE_AXIS_COLORS = ['#7cb87a', '#d4795c', '#c4982a', '#9090ac', '#5a8fc4'] as const;
-
-/** 探索カード1用：5分割円弧メーター（ラスタより一瞥で「5軸」の読みを返す） */
-const EXPLORE_METER_WEIGHTS = [22, 20, 18, 22, 18] as const;
-
-function ExploreFiveAxisMeter({ className }: { className?: string }) {
-  const r = 23.5;
-  const cx = 32;
-  const cy = 32;
-  const circ = 2 * Math.PI * r;
-  const gap = 0.88;
-  let cumPct = 0;
-  const arcs = EXPLORE_METER_WEIGHTS.map((w, i) => {
-    const segLen = Math.max(0, (w / 100) * circ - gap);
-    const rot = (cumPct / 100) * 360 - 90;
-    cumPct += w;
-    return { segLen, rot, color: POSTER_FIVE_AXIS_COLORS[i]!, key: i };
-  });
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 64 64"
-      width={64}
-      height={64}
-      aria-hidden
-    >
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="none"
-        stroke="rgba(92, 78, 160, 0.5)"
-        strokeWidth="5.6"
-      />
-      {arcs.map(({ segLen, rot, color, key }) => (
-        <circle
-          key={key}
-          cx={cx}
-          cy={cy}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="6.6"
-          strokeOpacity={0.97}
-          strokeLinecap="round"
-          strokeDasharray={`${segLen} ${circ}`}
-          transform={`rotate(${rot}, ${cx}, ${cy})`}
-        />
-      ))}
-    </svg>
-  );
-}
-
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
 export default function HomePanel() {
@@ -266,33 +211,39 @@ export default function HomePanel() {
 
       {showPublicValueBlocks && (
         <section
-          className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardSoft} ${styles.fiveAxisReadCard}`}
+          className={styles.homeMethodLayer}
           data-testid="m55-home-five-axis-read"
-          aria-labelledby="m55-home-five-axis-read-title"
+          aria-labelledby="m55-home-method-layer-title"
         >
-          <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
-            {homeCopy.fiveAxisSectionTitleJa}
-          </h2>
-          <p className={styles.fiveAxisReadLead}>{homeCopy.fiveAxisLeadJa}</p>
-          <div className={styles.fiveAxisReadMeterWrap}>
-            <ExploreFiveAxisMeter className={styles.fiveAxisReadMeterSvg} />
-          </div>
-          <div className={styles.fiveAxisReadCardGrid}>
-            <div className={styles.fiveAxisReadMiniCard}>
-              <p className={styles.fiveAxisReadMiniCardText}>
-                {homeCopy.algorithmNoteJa}
-              </p>
+          <div className={styles.homeMethodLayerInner}>
+            <p className={styles.homeMethodLayerLabel}>{homeCopy.methodFlowLabelJa}</p>
+            <h2 id="m55-home-method-layer-title" className={styles.homeMethodLayerHeadline}>
+              <span className={styles.homeMethodLayerHeadlineLine}>{homeCopy.methodFlowHeadlineLine1Ja}</span>
+              <span className={styles.homeMethodLayerHeadlineLine}>{homeCopy.methodFlowHeadlineLine2Ja}</span>
+            </h2>
+            <p className={styles.homeMethodLayerBody} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.methodFlowBodyJa}
+            </p>
+            <div className={styles.homeMethodLayerStage}>
+              <div className={styles.homeMethodLayerStack}>
+                <ol className={styles.homeMethodLayerTextRows}>
+                  {homeCopy.methodFlowNodesJa.map((node) => (
+                    <li
+                      key={node.layerId}
+                      className={styles.homeMethodLayerTextRow}
+                      data-layer={node.layerId}
+                    >
+                      <p className={styles.homeMethodLayerRowLead}>{node.leadJa}</p>
+                      <p className={styles.homeMethodLayerRowTitle}>{node.titleJa}</p>
+                      <p className={styles.homeMethodLayerRowDesc}>{node.descJa}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </div>
-            <div className={styles.fiveAxisReadMiniCard}>
-              <p className={styles.fiveAxisReadMiniCardText}>
-                {homeCopy.fiveAxisQualitiesNoteJa}
-              </p>
-            </div>
-            <div className={styles.fiveAxisReadMiniCard}>
-              <p className={styles.fiveAxisReadMiniCardText}>
-                {homeCopy.fiveAxisMeterNoteJa}
-              </p>
-            </div>
+            <p className={styles.homeMethodLayerClosing} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.methodFlowClosingJa}
+            </p>
           </div>
         </section>
       )}
