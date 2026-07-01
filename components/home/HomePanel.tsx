@@ -148,7 +148,7 @@ export default function HomePanel() {
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroSubJa}</p>
+                    <p className={styles.posterHeroSupportInline} style={{ whiteSpace: 'pre-line' }}>{homeCopy.heroSubJa}</p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -160,7 +160,7 @@ export default function HomePanel() {
                         aria-label={`${ctaCopy.openFreeMapJa}。${homeCopy.heroSupportJa}`}
                         onClick={() => setBirthIntakeOpen(true)}
                       >
-                        {ctaCopy.openFreeMapJa}
+                        {ctaCopy.openFreeMapJa} →
                       </button>
                     )}
                     {hasProfile && (
@@ -187,24 +187,29 @@ export default function HomePanel() {
         data-testid="m55-home-public-surface-shell"
       >
       {showPublicValueBlocks && (
-        <div
-          className={`${styles.homeSurfaceCard} ${styles.homeTierStack}`}
-          data-testid="m55-home-tier-stack"
-          aria-label={homeCopy.tierStackAriaLabelJa}
+        <section
+          className={styles.homeSeenBridge}
+          data-testid="m55-home-seen-things-bridge"
+          aria-labelledby="m55-home-seen-things-bridge-title"
         >
-          <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadge}>無料</span>
-            <p className={styles.homeTierText}>{homeCopy.tierFreeJa}</p>
+          <div className={styles.homeSeenBridgeInner}>
+            <p className={styles.homeSeenBridgeLabel}>{homeCopy.seenThingsBridgeLabelJa}</p>
+            <h2 id="m55-home-seen-things-bridge-title" className={styles.homeSeenBridgeHeadline}>
+              <span className={styles.homeSeenBridgeHeadlineLine}>{homeCopy.seenThingsBridgeHeadlineLine1Ja}</span>
+              <span className={styles.homeSeenBridgeHeadlineLine}>{homeCopy.seenThingsBridgeHeadlineLine2Ja}</span>
+            </h2>
+            <ul className={styles.homeSeenBridgeList}>
+              {homeCopy.seenThingsBridgeItemsJa.map((item) => (
+                <li key={item} className={styles.homeSeenBridgeListItem}>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className={styles.homeSeenBridgeClosing} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.seenThingsBridgeClosingJa}
+            </p>
           </div>
-          <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadgePaid}>{homeCopy.tierSavedBadgeJa}</span>
-            <p className={styles.homeTierText}>{homeCopy.tierSavedJa}</p>
-          </div>
-          <div className={styles.homeTierRow}>
-            <span className={styles.homeTierBadge}>{homeCopy.tierConsultBadgeJa}</span>
-            <p className={styles.homeTierText}>{homeCopy.tierConsultJa}</p>
-          </div>
-        </div>
+        </section>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════

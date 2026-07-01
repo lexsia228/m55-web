@@ -24,7 +24,7 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     });
     await page.goto('/home');
     await expect(page.getByTestId('m55-home-hero')).toBeVisible();
-    await expect(page.getByTestId('m55-home-tier-stack')).toBeVisible();
+    await expect(page.getByTestId('m55-home-seen-things-bridge')).toBeVisible();
     await expect(page.getByTestId('m55-home-understanding')).toBeVisible();
     await expect(page.getByTestId('m55-home-five-axis-read')).toBeVisible();
     await expect(page.getByTestId('m55-home-open-birth-intake')).toBeVisible();
@@ -36,7 +36,7 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
   test('02 /home 鑑定後（個人結果ブロックなし）', async ({ page, context }) => {
     await addInitScriptSeedGuestProfile(context);
     await page.goto('/home');
-    await expect(page.getByTestId('m55-home-tier-stack')).toBeVisible();
+    await expect(page.getByTestId('m55-home-seen-things-bridge')).toBeVisible();
     await expect(page.getByTestId('m55-home-understanding')).toBeVisible();
     await expect(page.getByTestId('m55-home-five-axis-read')).toBeVisible();
     await expect(page.getByTestId('m55-home-has-profile-hero')).toBeVisible();
