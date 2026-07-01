@@ -47,16 +47,32 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
-    heroTitleLine1Ja: '生まれた日から、',
-    heroTitleLine2Ja: '自分の動き方が見える',
-    heroSubJa: '無料で輪郭を確認。保存版では、疲れ方・戻し方まで4章で読み返せます。',
-    heroSupportJa: 'まず無料で輪郭を確認できます。自分を少し離れて見つめ直す入口です。',
+    heroLabelJa: '旧暦×十干×二十四節気のM55暦解析',
+    heroTitleLine1Ja: '月と季節のリズムで、',
+    heroTitleLine2Ja: '自分のことが見えてくる。',
+    heroDescriptionJa:
+      'M55は、誕生日を旧暦に置き直し、十干の周期と二十四節気の季節位置を重ねて、自分でも気づきにくい感じ方、疲れ方、人との距離感を見える化するM55独自の暦解析です。',
+    heroPromiseJa:
+      '未来を決めつけるものではありません。毎日を少し扱いやすくするための手がかりとして使えます。',
+    heroSubJa:
+      'M55は、誕生日を旧暦に置き直し、十干の周期と二十四節気の季節位置を重ねて、自分でも気づきにくい感じ方、疲れ方、人との距離感を見える化するM55独自の暦解析です。',
+    heroSupportJa:
+      '誕生日を旧暦に置き直し、十干と二十四節気で感じ方・疲れ方・人との距離感を見える化するM55独自の暦解析。未来を決めつけるものではありません。',
     tierStackAriaLabelJa: '無料、保存版、相談返書',
-    tierFreeJa: '10資質レーンと5つの視点で、いまの輪郭を見る。',
+    tierFreeJa: 'まずは、自分の輪郭を見てみる。',
     tierSavedBadgeJa: '保存版',
-    tierSavedJa: '動き方・疲れ方・戻し方を4章で読み返せる形に残す。',
+    tierSavedJa: '疲れ方・力の出方・戻し方を、4章で読み返せる形に残す。',
     tierConsultBadgeJa: '相談返書',
-    tierConsultJa: '保存版に沿って、いまの1テーマを整理する。',
+    tierConsultJa: '保存版をもとに、今の悩みを1テーマずつ整理する。',
+    exploreMechanismTitleJa: 'M55の仕組みを見る',
+    exploreMechanismSubJa: 'M55の仕組みを見る →',
+    exploreMechanismHref: '/how-m55-works',
+    exploreBirthdayTitleJa: '誕生日をどう見ているか知る',
+    exploreBirthdaySubJa: '誕生日をどう見ているか知る →',
+    exploreBirthdayHref: '/how-m55-works',
+    exploreFeelingsTitleJa: '感じ方・疲れ方・人との距離感を見る',
+    exploreFeelingsSubJa: '感じ方・疲れ方・人との距離感を見る →',
+    exploreFeelingsHref: '/ten-views',
     exploreHowSubJa: 'M55の見方を見る →',
     exploreQualitiesTitleJa: '10資質レーンから読む',
     exploreQualitiesSubJa: '10資質レーンを見る →',
@@ -69,7 +85,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '10資質レーンは入口の地図です。決めつけず、生年月日の暦リズムと重ねて読みます。',
     fiveAxisMeterNoteJa:
       '五つの視点は順位ではなく、いまのバランスをつかむためのものです。',
-    reportSectionEyebrowJa: '4章の保存版',
+    reportSectionEyebrowJa: '保存版',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
@@ -82,16 +98,16 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '保存版FULL（¥1,480（税込））：相談返書合計5件。',
     reportFullUpgradeNoteJa:
       'ライトで始めたあとも、必要に応じてFULL化できます。',
-    reportDepthNoteJa: '無料で見えた輪郭を、暦リズム込みで4章に深めます。',
+    reportDepthNoteJa: '無料で見えた輪郭を、4章で深めます。',
     reportAuxJa:
       '相談返書は、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '保存版では、次の4章で整理します',
   },
   learnMore: {
-    summaryJa: 'M55の仕組み',
+    summaryJa: 'M55の仕組みを見る',
     rulesJa: [
-      '無料では、10資質レーンと5つの視点で輪郭まで確認できます。',
-      '保存版は、暦リズム込みで4章読み返せる固定ルールの読み物です。',
+      'まずは無料で、自分の輪郭から見てみられます。',
+      '保存版では、疲れ方・力の出方・戻し方を4章で読み返せます。',
       'ライト購入後でも、必要になったらFULL化できます。',
       'プランの詳細は「保存版のプランを見る」から確認できます。',
     ] as const,
@@ -138,12 +154,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'その先で必要になったら、4章の保存版で読み返し、相談返書でいまのテーマを読み直せます。',
   },
   metadata: {
+    homeTitleJa: 'M55｜月と季節のリズムで自分が見えてくる暦解析',
+    homeDescriptionJa:
+      '誕生日を旧暦に置き直し、十干の周期と二十四節気の季節位置を重ねて、感じ方・疲れ方・人との距離感を見える化するM55独自の暦解析。',
     howM55WorksDescriptionJa:
       'M55の読み方を、無料の見取り図、4章の保存版、相談返書の順で静かに説明します。',
   },
   cta: {
-    openFreeMapJa: '無料の見取り図を見る',
-    viewFreeMapJa: '無料の見取り図を見る',
+    openFreeMapJa: '無料で自分の輪郭を見る',
+    viewFreeMapJa: '無料で自分の輪郭を見る',
     viewSavedPlansJa: '保存版のプランを見る',
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',
