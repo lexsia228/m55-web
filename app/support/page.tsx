@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import {
   M55_PUBLIC_SUPPORT_EMAIL,
   M55_PUBLIC_SUPPORT_MAILTO,
@@ -94,7 +95,11 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>M55は何を見るのですか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              生年月日を手がかりに、10通りの資質と5つの解析軸から、本質や今の状態の見取り図を文章で整理します。吉凶の断定や順位づけではなく、自己観測のための読み取りです。
+              {TOP_FREE_ENTRY_PUBLIC_COPY.m55Definition.centerJa.replace(/\n/g, " ")}
+              {" "}
+              {TOP_FREE_ENTRY_PUBLIC_COPY.home.tierFreeJa}
+              {" "}
+              吉凶の断定や順位づけではなく、自己観測のための読み取りです。
             </p>
           </article>
           <article>

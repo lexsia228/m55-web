@@ -58,8 +58,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     tierConsultBadgeJa: '相談返書',
     tierConsultJa: '保存版に沿って、いまの1テーマを整理する。',
     exploreHowSubJa: 'M55の見方を見る →',
+    exploreQualitiesTitleJa: '10資質レーンから読む',
     exploreQualitiesSubJa: '10資質レーンを見る →',
+    tenViewsLearnLinkJa: '10資質レーン',
     fiveAxisLeadJa: '五つの視点は、いまのバランスをつかむためのものです。',
+    fiveAxisSectionTitleJa: '5つの視点の見方',
     algorithmNoteJa:
       '生年月日を入口に、10資質レーンと5つの視点でいまの輪郭をつかみます。',
     fiveAxisQualitiesNoteJa:

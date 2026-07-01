@@ -11,9 +11,9 @@ const VERTICES: [number, number][] = [
 export function WhatBecomesVisibleSection() {
   return (
     <section className={styles.shellWide} aria-labelledby="how-m55-visible-title">
-      <p className={styles.sectionKicker}>03 — 5つの解析軸の見方</p>
+      <p className={styles.sectionKicker}>03 — 5つの視点の見方</p>
       <h2 id="how-m55-visible-title" className={styles.visuallyHidden}>
-        5つの解析軸の見方
+        5つの視点の見方
       </h2>
       <p className={styles.sectionLead}>
         M55では、まず5つの固定観測軸を使って、今の自分を読みやすく整理します。
@@ -66,7 +66,7 @@ export function WhatBecomesVisibleSection() {
             <circle key={`d-${i}`} cx={x} cy={y} r="4" fill="rgba(107,95,168,0.25)" />
           ))}
         </svg>
-        <p className={styles.visualCaption}>5つの解析軸（抽象イメージ）</p>
+        <p className={styles.visualCaption}>5つの視点（抽象イメージ）</p>
       </div>
     </section>
   );

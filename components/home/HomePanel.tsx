@@ -250,7 +250,7 @@ export default function HomePanel() {
                 />
               </span>
               <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>10通りの資質から読む</span>
+                <span className={styles.useExploreTitle}>{homeCopy.exploreQualitiesTitleJa}</span>
                 <span className={styles.useExploreSub}>{homeCopy.exploreQualitiesSubJa}</span>
               </span>
               <span className={styles.useExploreChevron} aria-hidden>›</span>
@@ -266,7 +266,7 @@ export default function HomePanel() {
           aria-labelledby="m55-home-five-axis-read-title"
         >
           <h2 id="m55-home-five-axis-read-title" className={styles.fiveAxisReadTitle}>
-            5つの解析軸の見方
+            {homeCopy.fiveAxisSectionTitleJa}
           </h2>
           <p className={styles.fiveAxisReadLead}>{homeCopy.fiveAxisLeadJa}</p>
           <div className={styles.fiveAxisReadMeterWrap}>
@@ -363,7 +363,7 @@ export default function HomePanel() {
         <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
         <nav className={styles.learnMoreLinks} aria-label="理解を深める">
           <Link href="/how-m55-works">M55の使い方</Link>
-          <Link href="/ten-views">10通りの資質</Link>
+          <Link href="/ten-views">{homeCopy.tenViewsLearnLinkJa}</Link>
         </nav>
         <p className={styles.learnMoreLead}>{homeCopy.algorithmNoteJa}</p>
         <ul className={styles.rulesList}>

@@ -39,6 +39,8 @@ const ROUTE_FILES = {
   '/how-m55-works/receive': 'app/how-m55-works/components/what-you-can-do-section.tsx',
   '/how-m55-works/next': 'app/how-m55-works/components/next-step-section.tsx',
   '/how-m55-works/framework': 'app/how-m55-works/components/framework-section.tsx',
+  '/how-m55-works/what-is': 'app/how-m55-works/components/what-is-section.tsx',
+  '/support': 'app/support/page.tsx',
 } as const;
 
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -100,7 +102,10 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
       'home report card renders light before FULL',
     );
     assert.match(home, /m55-home-learn-more/);
-    assert.match(home, /heroSupportJa/);
+    assert.match(home, /exploreQualitiesTitleJa/);
+    assert.match(home, /tenViewsLearnLinkJa/);
+    assert.equal(homeCopy.exploreQualitiesTitleJa, '10資質レーンから読む');
+    assert.equal(homeCopy.tenViewsLearnLinkJa, '10資質レーン');
     assert.match(home, /tierStackAriaLabelJa/);
   });
 
@@ -147,6 +152,16 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
     assert.equal(activeCopy.includes('基本の出方'), false);
+  });
+
+  it('P1 surface avoids legacy ten-type-only framing on how-m55-works and support', () => {
+    const blob = combinedPublicCopy();
+    for (const term of ['10通りの資質', '5つの解析軸', 'パーソナルアルゴリズム', '読み解いていきます'] as const) {
+      assert.equal(blob.includes(term), false, `legacy P1 term must not remain: ${term}`);
+    }
+    assert.match(blob, /10資質レーン/);
+    assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
+    assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /M55_LOGIC_HOME_COPY/);
   });
 
   it('P0 SSOT avoids hype and ten-type-only framing', () => {

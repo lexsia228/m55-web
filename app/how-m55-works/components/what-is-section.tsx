@@ -1,5 +1,9 @@
 import Image from 'next/image';
+import { M55_LOGIC_HOME_COPY } from '../../../lib/m55/m55LogicPublicCopy';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
 import styles from '../how-it-works.module.css';
+
+const { home, m55Definition } = TOP_FREE_ENTRY_PUBLIC_COPY;
 
 export function WhatIsSection() {
   return (
@@ -13,6 +17,7 @@ export function WhatIsSection() {
         自分を見つめ直すための地図として届ける読み物です。
       </h2>
       <div>
+        <p className={styles.sectionLead}>{M55_LOGIC_HOME_COPY.bodyParagraphsJa[0]}</p>
         <p className={styles.sectionLead}>
           M55が大切にしているのは、人をひとつの言葉で決めることではありません。
         </p>
@@ -28,6 +33,7 @@ export function WhatIsSection() {
         <p className={styles.sectionLead}>
           そうした感覚を、見えやすい入口から整理し、言葉に変えていきます。
         </p>
+        <p className={styles.sectionLead}>{m55Definition.principleJa.replace(/\n/g, ' ')}</p>
       </div>
 
       <div className={styles.inputCallout}>
@@ -43,9 +49,7 @@ export function WhatIsSection() {
           </div>
           <div>
             <p className={styles.inputCalloutTitle}>生まれた日</p>
-            <p className={styles.inputCalloutText}>
-              生まれた日を入口に、10通りの資質と5つの解析軸を通して、今の自分の輪郭を読み解いていきます。
-            </p>
+            <p className={styles.inputCalloutText}>{home.algorithmNoteJa}</p>
           </div>
         </div>
       </div>
