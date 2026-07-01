@@ -148,7 +148,7 @@ export default function HomePanel() {
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <p className={styles.posterHeroSupportInline}>{homeCopy.heroSubJa}</p>
+                    <p className={styles.posterHeroSupportInline} style={{ whiteSpace: 'pre-line' }}>{homeCopy.heroSubJa}</p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -160,7 +160,7 @@ export default function HomePanel() {
                         aria-label={`${ctaCopy.openFreeMapJa}。${homeCopy.heroSupportJa}`}
                         onClick={() => setBirthIntakeOpen(true)}
                       >
-                        {ctaCopy.openFreeMapJa}
+                        {ctaCopy.openFreeMapJa} →
                       </button>
                     )}
                     {hasProfile && (
