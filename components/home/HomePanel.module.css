@@ -885,127 +885,91 @@
 
 /* ── Understanding mode (no personal profile) — REGRESSION: separate from observation blocks ── */
 
-/* no_profile: 視覚付き探索カード2枚（有料深度は reportSection のみ） */
-.useExploreSection {
-  padding: 16px 0 14px;
+/* no_profile: M55をもう少し深く — 理解導線2枚（/how-m55-works · /ten-views） */
+.homeReadNextSection {
+  padding: clamp(18px, 3.5vw, 22px) 0 clamp(16px, 3vw, 20px);
+  margin: 0;
 }
 
-.useExploreRule {
-  width: 48px;
-  height: 2px;
-  margin: 0 auto 14px;
-  border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(124, 111, 214, 0.35) 20%,
-    rgba(124, 111, 214, 0.35) 80%,
-    transparent
-  );
+.homeReadNextSectionTitle {
+  margin: 0 0 clamp(14px, 2.8vw, 18px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(12px, 2.6vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #5e4f78;
+  line-height: 1.45;
+  text-align: center;
 }
 
-/* Grid owns layout only — column max-width is .homeSurfaceShell on the parent stack. */
-.useExploreGrid {
+.homeReadNextGrid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
   box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  .useExploreGrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    width: 100%;
-    align-items: stretch;
-  }
-}
-
-.useExploreCard {
-  composes: homeSurfaceCard;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 14px;
-  min-height: 72px;
+.homeReadNextCard {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: clamp(12px, 2.8vw, 14px);
+  padding: clamp(14px, 3vw, 16px) clamp(14px, 3.2vw, 18px);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 122, 168, 0.1);
+  background: linear-gradient(
+    168deg,
+    rgba(252, 250, 255, 0.9) 0%,
+    rgba(246, 243, 252, 0.84) 100%
+  );
+  box-shadow: 0 6px 22px rgba(45, 38, 72, 0.04);
   text-decoration: none;
   color: inherit;
+  box-sizing: border-box;
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.15s ease;
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* 大画面: 行ストレッチ時も thumb / 本文 / chevron を縦方向に揃えた pair 感（start だと列ごと上寄せで重心がズレる） */
-@media (min-width: 768px) {
-  .useExploreCard {
-    height: 100%;
-    min-height: 0;
-    align-self: stretch;
-    align-items: center;
-  }
+.homeReadNextCard:hover {
+  border-color: rgba(139, 122, 168, 0.2);
+  background: linear-gradient(
+    168deg,
+    rgba(253, 251, 255, 0.96) 0%,
+    rgba(248, 245, 252, 0.92) 100%
+  );
+  box-shadow: 0 8px 26px rgba(45, 38, 72, 0.06);
 }
 
-.useExploreCard:hover {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 1) inset,
-    0 2px 4px rgba(0, 0, 0, 0.05),
-    0 14px 36px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
+.homeReadNextCard:focus-visible {
+  outline: 2px solid rgba(139, 122, 168, 0.45);
+  outline-offset: 2px;
 }
 
-.useExploreCard:active {
-  transform: translateY(0);
-}
-
-.useExploreCard:focus-visible {
-  outline: 2px solid #1d4ed8;
-  outline-offset: 3px;
-}
-
-/* 探索カード左：2枚同一タイル（webp サムネ） */
-.useExploreIconThumbExplore {
+.homeReadNextThumb {
   position: relative;
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
-  border-radius: 15px;
+  width: clamp(48px, 11vw, 52px);
+  height: clamp(48px, 11vw, 52px);
+  border-radius: 10px;
   overflow: hidden;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(124, 111, 214, 0.08);
-  border: 1px solid rgba(124, 111, 214, 0.18);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 1) inset;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(139, 122, 168, 0.1);
 }
 
-.useExploreFiveAxisMeterSvg {
-  display: block;
-  flex-shrink: 0;
-  width: 56px;
-  height: 56px;
+.homeReadNextThumbQualities {
+  box-shadow: none;
 }
 
-.useExploreThumbImage {
+.homeReadNextThumbImage {
   object-fit: cover;
   object-position: center center;
 }
 
-/* 「10通りの資質から読む」左サムネのみ：内側の白リング抑止＋画像をタイル全面に敷く */
-.useExploreIconThumbQualities {
-  box-shadow: none;
-}
-
-.useExploreThumbImageQualities {
+.homeReadNextThumbImageQualities {
   display: block;
   width: 100%;
   height: 100%;
@@ -1013,79 +977,86 @@
   min-height: 100%;
   object-fit: cover;
   object-position: center center;
-  /* card-qualities-flower.webp にラスタ内の白余白がある前提で、枠内をわずかに拡大して隠す（親は overflow: hidden で角丸維持） */
   transform: scale(1.12);
   transform-origin: center center;
 }
 
-.useExploreBody {
+.homeReadNextBody {
+  flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   text-align: left;
 }
 
-.useExploreTitle {
-  display: block;
-  font-size: clamp(16px, 3.9vw, 18px);
-  font-weight: 800;
-  color: #0a0a0c;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.useExploreSub {
-  display: block;
-  font-size: clamp(11px, 2.7vw, 13px);
-  font-weight: 500;
-  color: #636366;
-  line-height: 1.42;
-  margin-top: 5px;
-  letter-spacing: 0.02em;
-}
-
-.useExploreChevron {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: end;
-  font-size: 22px;
+.homeReadNextCardTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(15px, 3.2vw, 16px);
   font-weight: 600;
-  color: #4a3d8a;
-  line-height: 1;
-  border-radius: 11px;
-  background: rgba(124, 111, 214, 0.12);
-  border: 1px solid rgba(91, 77, 184, 0.28);
-  box-sizing: border-box;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+  letter-spacing: 0.04em;
+  line-height: 1.38;
+  color: rgba(32, 28, 40, 0.92);
 }
 
-/* デスクトップのみ：探索2枚の外寸・サムネ・chevron を拡大（モバイル／タブレットは未変更） */
-@media (min-width: 1024px) {
-  .useExploreGrid {
-    gap: 28px;
+.homeReadNextCardDesc {
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12px, 2.4vw, 13px);
+  font-weight: 400;
+  line-height: 1.62;
+  color: rgba(38, 34, 46, 0.72);
+  letter-spacing: 0.01em;
+}
+
+.homeReadNextCta {
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12px, 2.4vw, 12.5px);
+  font-weight: 600;
+  line-height: 1.45;
+  color: #5a4872;
+  letter-spacing: 0.03em;
+  margin-top: 6px;
+  text-decoration: underline;
+  text-decoration-color: rgba(90, 72, 114, 0.38);
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.homeReadNextCard:hover .homeReadNextCta {
+  color: #463858;
+  text-decoration-color: rgba(70, 56, 88, 0.55);
+}
+
+@media (min-width: 768px) {
+  .homeReadNextGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
   }
 
-  .useExploreCard {
-    min-height: 168px;
-    grid-template-columns: 88px minmax(0, 1fr) 64px;
-    column-gap: 18px;
-    align-items: center;
+  .homeReadNextCard {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homeReadNextCard {
+    transition: none;
   }
 
-  .useExploreIconThumbExplore {
-    width: 88px;
-    height: 88px;
-    border-radius: 24px;
+  .homeReadNextCta {
+    transition: none;
   }
+}
 
-  .useExploreChevron {
-    width: 56px;
-    height: 56px;
-    border-radius: 15px;
-    font-size: 26px;
-  }
+.useExploreFiveAxisMeterSvg {
+  display: block;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
 }
 
 /* M55の見方 — 精密テキストレイヤー（旧暦 / 十干 / 二十四節気） */
@@ -1519,10 +1490,6 @@
 
   .supportCtaCard:active {
     transform: none;
-  }
-
-  .useExploreCard {
-    transition: none;
   }
 
   .inlineIntakeCta:hover:not(:disabled) {

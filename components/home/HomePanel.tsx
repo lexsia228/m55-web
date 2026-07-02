@@ -162,48 +162,48 @@ export default function HomePanel() {
           ═══════════════════════════════════════════════════════════════════ */}
       {showPublicValueBlocks && (
         <section
-          className={styles.useExploreSection}
+          className={styles.homeReadNextSection}
           data-testid="m55-home-understanding"
-          aria-label="次の一歩"
+          aria-labelledby="m55-home-read-next-title"
         >
-          <div className={styles.useExploreRule} aria-hidden />
-          <div className={styles.useExploreGrid} role="navigation" aria-label="探索への入口">
-            <Link href="/how-m55-works" className={styles.useExploreCard}>
+          <h2 id="m55-home-read-next-title" className={styles.homeReadNextSectionTitle}>
+            {homeCopy.readNextSectionTitleJa}
+          </h2>
+          <div className={styles.homeReadNextGrid} role="navigation" aria-label={homeCopy.readNextSectionTitleJa}>
+            <Link href="/how-m55-works" className={styles.homeReadNextCard}>
               <span
-                className={styles.useExploreIconThumbExplore}
+                className={styles.homeReadNextThumb}
                 data-testid="m55-home-demo-five-element"
               >
                 <Image
                   src="/home/card-how-to-read.webp"
                   alt=""
                   fill
-                  sizes="60px"
-                  className={styles.useExploreThumbImage}
+                  sizes="52px"
+                  className={styles.homeReadNextThumbImage}
                 />
               </span>
-              <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>M55の見方を知る</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreHowSubJa}</span>
+              <span className={styles.homeReadNextBody}>
+                <span className={styles.homeReadNextCardTitle}>{homeCopy.readNextHowTitleJa}</span>
+                <span className={styles.homeReadNextCardDesc}>{homeCopy.readNextHowDescJa}</span>
+                <span className={styles.homeReadNextCta}>{homeCopy.readNextHowCtaJa}</span>
               </span>
-              <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
-            <Link href="/ten-views" className={styles.useExploreCard}>
-              <span
-                className={`${styles.useExploreIconThumbExplore} ${styles.useExploreIconThumbQualities}`}
-              >
+            <Link href="/ten-views" className={styles.homeReadNextCard}>
+              <span className={`${styles.homeReadNextThumb} ${styles.homeReadNextThumbQualities}`}>
                 <Image
                   src="/home/card-qualities-flower.webp"
                   alt=""
                   fill
-                  sizes="60px"
-                  className={`${styles.useExploreThumbImage} ${styles.useExploreThumbImageQualities}`}
+                  sizes="52px"
+                  className={`${styles.homeReadNextThumbImage} ${styles.homeReadNextThumbImageQualities}`}
                 />
               </span>
-              <span className={styles.useExploreBody}>
-                <span className={styles.useExploreTitle}>{homeCopy.exploreQualitiesTitleJa}</span>
-                <span className={styles.useExploreSub}>{homeCopy.exploreQualitiesSubJa}</span>
+              <span className={styles.homeReadNextBody}>
+                <span className={styles.homeReadNextCardTitle}>{homeCopy.readNextQualitiesTitleJa}</span>
+                <span className={styles.homeReadNextCardDesc}>{homeCopy.readNextQualitiesDescJa}</span>
+                <span className={styles.homeReadNextCta}>{homeCopy.readNextQualitiesCtaJa}</span>
               </span>
-              <span className={styles.useExploreChevron} aria-hidden>›</span>
             </Link>
           </div>
         </section>
