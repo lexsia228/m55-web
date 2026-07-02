@@ -114,6 +114,56 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     fiveAxisMeterNoteJa:
       '五つの視点は順位ではなく、いまのバランスをつかむためのものです。',
     reportSectionEyebrowJa: '4章の保存版',
+    paidPlanLabelJa: 'M55の詳しい結果',
+    paidPlanHeadlineLine1Ja: 'その誕生日を、',
+    paidPlanHeadlineLine2Ja: '一般論で終わらせない。',
+    paidPlanLeadJa:
+      'M55独自の複合暦アルゴリズムで、\n10資質・旧暦・二十四節気・節入り調整を重ねます。\n\n性格の傾向、無理が出やすい場面、\n人との距離、疲れたときの戻り方まで、\nあなた専用の4テーマ保存版として整理します。',
+    paidPlanUniquenessChipsJa: [
+      '10資質',
+      '旧暦',
+      '二十四節気',
+      '節入り調整',
+      '見方と整え方',
+    ] as const,
+    paidPlanValueHeadingJa: '¥1,000で見られること',
+    paidPlanCardsJa: [
+      {
+        titleJa: '自分の傾向を深く見る',
+        descJa:
+          '10資質・旧暦・二十四節気・節入り調整を重ねて、\nあなたに無理が出やすい条件まで整理します。',
+      },
+      {
+        titleJa: '4テーマで自分を確認する',
+        descJa:
+          '性格の傾向、無理が出やすい場面、\n人との距離、疲れたときの戻り方まで見られます。',
+        themeChipsJa: [
+          '性格の傾向',
+          '無理が出やすい場面',
+          '人との距離',
+          '疲れたときの戻り方',
+        ] as const,
+      },
+      {
+        titleJa: '気になることを、M55と見直す',
+        descJa:
+          '保存版で見えた自分をもとに、\nいま気になることを短く書けます。\nM55が保存版に照らして、\n見方と次に整えることを返します。',
+      },
+    ] as const,
+    paidPlanPriceLeadJa: 'まずは¥1,000で、\nあなた専用の4テーマ保存版と「見方と整え方」。',
+    paidPlanPriceJa: '¥1,000（税込）',
+    paidPlanSpecJa: 'M55の詳しい結果｜4テーマ保存版｜見方と整え方つき',
+    paidPlanCtaJa: '有料プランの内容を見る',
+    paidPlanFootnotePrimaryJa: '購入後、Webでいつでも見返せます。',
+    paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
+    freeBridgeNoProfileTitleJa: 'まだ生年月日を入力していない方へ',
+    freeBridgeNoProfileBodyJa:
+      'まずは無料で、自分の輪郭を確認できます。\n生年月日を入力すると、10資質から今の自分の輪郭を見られます。\n結果を見てから、詳しい保存版へ進めます。',
+    freeBridgeNoProfileCtaJa: '無料で自分の輪郭を見る',
+    freeBridgeHasProfileTitleJa: '無料結果をもう一度確認したい方へ',
+    freeBridgeHasProfileBodyJa:
+      '本質ページで、あなたの無料結果を確認できます。\nその結果を見てから、詳しい保存版へ進めます。',
+    freeBridgeHasProfileCtaJa: '本質ページを見る',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
@@ -133,6 +183,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   learnMore: {
     summaryJa: 'M55の仕組み',
+    homeHowLinkJa: 'M55の見方',
+    homeTenViewsLinkJa: '10資質レーン',
+    homeIntroJa:
+      'M55は、生年月日を手がかりに、\n10資質と旧暦・二十四節気・節入り調整などを重ねて、\n自分の輪郭を整理します。',
+    homeFreeNoteJa: '無料では、まず自分の輪郭まで確認できます。',
+    homePaidNoteJa:
+      'M55の詳しい結果では、\n旧暦・二十四節気・節入り調整まで重ねて、\n4テーマ保存版として見返せます。',
+    homeUpgradeNoteJa: '必要に応じて、あとからさらに詳しい内容へ広げられます。',
+    homeCtaJa: '有料プランの内容を見る',
     rulesJa: [
       '無料では、10資質レーンと5つの視点で輪郭まで確認できます。',
       '保存版は、暦リズム込みで4章読み返せる固定ルールの読み物です。',

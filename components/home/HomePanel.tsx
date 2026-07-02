@@ -21,11 +21,6 @@ const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const learnMoreCopy = TOP_FREE_ENTRY_PUBLIC_COPY.learnMore;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
-const FORMAL_CHAPTER_CHIPS = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch, index) => ({
-  id: `ch${index + 1}`,
-  title: ch.labelJa,
-}));
-
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
 export default function HomePanel() {
@@ -258,77 +253,121 @@ export default function HomePanel() {
           FOLD 5: ENTRY REPORT MONETIZATION LAYER (always visible)
           One hero only — no second product or second price.
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className={styles.reportSection} aria-label={homeCopy.reportSectionEyebrowJa}>
-          <p className={styles.reportSectionEyebrow}>{homeCopy.reportSectionEyebrowJa}</p>
+      <section
+        className={styles.reportSection}
+        aria-labelledby="m55-home-paid-plan-title"
+        data-testid="m55-home-paid-plan"
+      >
+        <div className={styles.homePaidPlan}>
+          <div className={styles.homePaidPlanInner}>
+            <p className={styles.homePaidPlanLabel}>{homeCopy.paidPlanLabelJa}</p>
+            <h2 id="m55-home-paid-plan-title" className={styles.homePaidPlanHeadline}>
+              <span className={styles.homePaidPlanHeadlineLine}>{homeCopy.paidPlanHeadlineLine1Ja}</span>
+              <span className={styles.homePaidPlanHeadlineLine}>{homeCopy.paidPlanHeadlineLine2Ja}</span>
+            </h2>
+            <p className={styles.homePaidPlanLead} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.paidPlanLeadJa}
+            </p>
 
-          <div
-            className={`${styles.homeSurfaceCard} ${styles.homeSurfaceCardPaid} ${styles.valueCard}`}
-          >
-          <div className={styles.reportCardHeroBand}>
-            <Image
-              src="/home/hero-tech-map.webp"
-              alt=""
-              fill
-              sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
-              className={styles.reportCardHeroBandImg}
-            />
-            <div className={styles.reportCardHeroBandVeil} aria-hidden />
-            <div className={styles.reportCardHeroOverlay}>
-              <p className={styles.reportCardHeroOverlayEyebrow}>{homeCopy.reportLightEyebrowJa}</p>
-              <p className={styles.reportCardHeroOverlayPrice}>{homeCopy.reportLightPriceJa}</p>
-              <p className={styles.reportCardHeroOverlayLead}>{homeCopy.reportDepthNoteJa}</p>
-            </div>
-          </div>
-
-          <div className={styles.reportCardBody}>
-            <div className={styles.reportCardColMain}>
-              <p className={styles.reportCardSupplement}>{homeCopy.reportLightSummaryJa}</p>
-
-              <ul className={styles.featureListLoose}>
-                <li className={styles.featureItemLoose}>{homeCopy.reportFullLineJa}</li>
-                <li className={styles.featureItemLoose}>{homeCopy.reportFullUpgradeNoteJa}</li>
-              </ul>
+            <div className={styles.homePaidPlanUniquenessChips}>
+              {homeCopy.paidPlanUniquenessChipsJa.map((chip) => (
+                <span key={chip} className={styles.homePaidPlanUniquenessChip}>
+                  {chip}
+                </span>
+              ))}
             </div>
 
-            <div className={styles.reportCardColAside}>
-              <div className={styles.reportCardLower}>
-                {/* Chapter preview — chips / mini-cards (no blur) */}
-                <div className={styles.chapterPreview}>
-                  <p className={styles.chapterPreviewLabel}>{homeCopy.chapterPreviewLabelJa}</p>
-                  <div className={styles.chapterChipWrap}>
-                    {FORMAL_CHAPTER_CHIPS.map((s) => (
-                      <span key={s.id} className={styles.chapterChip}>
-                        {s.title}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+            <h3 className={styles.homePaidPlanValueHeading}>{homeCopy.paidPlanValueHeadingJa}</h3>
 
-                <p className={styles.reportAuxCard}>{homeCopy.reportAuxJa}</p>
+            <ul className={styles.homePaidPlanCards}>
+              {homeCopy.paidPlanCardsJa.map((card) => (
+                <li key={card.titleJa} className={styles.homePaidPlanCard}>
+                  <p className={styles.homePaidPlanCardTitle}>{card.titleJa}</p>
+                  <p className={styles.homePaidPlanCardDesc} style={{ whiteSpace: 'pre-line' }}>
+                    {card.descJa}
+                  </p>
+                  {'themeChipsJa' in card && (
+                    <div className={styles.homePaidPlanThemeChips}>
+                      {card.themeChipsJa.map((theme) => (
+                        <span key={theme} className={styles.homePaidPlanThemeChip}>
+                          {theme}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
 
-                <Link href={ctaCopy.viewSavedPlansHref} className={styles.reportCta}>
-                  {ctaCopy.viewSavedPlansJa} →
-                </Link>
-              </div>
+            <p className={styles.homePaidPlanPriceLead} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.paidPlanPriceLeadJa}
+            </p>
+
+            <div className={styles.homePaidPlanPriceBox}>
+              <p className={styles.homePaidPlanPrice}>{homeCopy.paidPlanPriceJa}</p>
+              <p className={styles.homePaidPlanSpec}>{homeCopy.paidPlanSpecJa}</p>
+            </div>
+
+            <Link href={ctaCopy.viewSavedPlansHref} className={styles.reportCta}>
+              {homeCopy.paidPlanCtaJa} →
+            </Link>
+
+            <div className={styles.homePaidPlanFootnotes}>
+              <p className={styles.homePaidPlanFootnote}>{homeCopy.paidPlanFootnotePrimaryJa}</p>
+              <p className={styles.homePaidPlanFootnote}>{homeCopy.paidPlanFootnoteUpgradeJa}</p>
             </div>
           </div>
-          </div>
+        </div>
       </section>
+
+      {isLoaded && view.kind !== 'loading' && (
+        <section className={styles.homeFreeBridge} data-testid="m55-home-free-bridge">
+          <h3 className={styles.homeFreeBridgeTitle}>
+            {view.kind === 'no_profile'
+              ? homeCopy.freeBridgeNoProfileTitleJa
+              : homeCopy.freeBridgeHasProfileTitleJa}
+          </h3>
+          <p className={styles.homeFreeBridgeBody} style={{ whiteSpace: 'pre-line' }}>
+            {view.kind === 'no_profile'
+              ? homeCopy.freeBridgeNoProfileBodyJa
+              : homeCopy.freeBridgeHasProfileBodyJa}
+          </p>
+          <div className={styles.homeFreeBridgeActions}>
+            {view.kind === 'no_profile' ? (
+              <button
+                type="button"
+                className={styles.homeFreeBridgePrimaryCta}
+                data-testid="m55-home-free-bridge-intake"
+                onClick={() => setBirthIntakeOpen(true)}
+              >
+                {homeCopy.freeBridgeNoProfileCtaJa} →
+              </button>
+            ) : (
+              <Link
+                href={ctaCopy.coreFreeHref}
+                className={styles.homeFreeBridgePrimaryCta}
+                data-testid="m55-home-free-bridge-core"
+              >
+                {homeCopy.freeBridgeHasProfileCtaJa} →
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
 
       <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
         <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
         <nav className={styles.learnMoreLinks} aria-label="理解を深める">
-          <Link href="/how-m55-works">M55の使い方</Link>
-          <Link href="/ten-views">{homeCopy.tenViewsLearnLinkJa}</Link>
+          <Link href="/how-m55-works">{learnMoreCopy.homeHowLinkJa}</Link>
+          <Link href="/ten-views">{learnMoreCopy.homeTenViewsLinkJa}</Link>
         </nav>
-        <p className={styles.learnMoreLead}>{homeCopy.algorithmNoteJa}</p>
-        <ul className={styles.rulesList}>
-          {learnMoreCopy.rulesJa.map((rule) => (
-            <li key={rule} className={styles.ruleItem}>
-              {rule}
-            </li>
-          ))}
-        </ul>
+        <p className={styles.learnMoreLead} style={{ whiteSpace: 'pre-line' }}>
+          {learnMoreCopy.homeIntroJa}
+        </p>
+        <p className={styles.ruleItem}>{learnMoreCopy.homeFreeNoteJa}</p>
+        <p className={styles.ruleItem} style={{ whiteSpace: 'pre-line' }}>
+          {learnMoreCopy.homePaidNoteJa}
+        </p>
       </details>
 
       </div>

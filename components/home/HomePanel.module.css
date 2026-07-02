@@ -2017,6 +2017,98 @@
   padding-left: 16px;
 }
 
+/* HOME最下部 — 無料導線ブリッジ（有料より控えめ） */
+.homeFreeBridge {
+  margin: clamp(14px, 3vw, 18px) 0 0;
+  padding: clamp(18px, 4vw, 24px) clamp(16px, 3.6vw, 20px);
+  border-radius: 12px;
+  border: 1px solid rgba(124, 111, 214, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.homeFreeBridgeTitle {
+  margin: 0 0 clamp(10px, 2.4vw, 12px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(0.95rem, 3.2vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: #3d3558;
+  text-wrap: balance;
+}
+
+.homeFreeBridgeBody {
+  margin: 0 0 clamp(16px, 3.4vw, 18px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12px, 2.7vw, 13px);
+  font-weight: 400;
+  line-height: 1.72;
+  color: rgba(45, 40, 58, 0.74);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.homeFreeBridgeActions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  max-width: min(20rem, 100%);
+  margin: 0 auto;
+}
+
+.homeFreeBridgePrimaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: clamp(13px, 3vw, 14px);
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.4;
+  color: #5b4f8a;
+  background: rgba(124, 111, 214, 0.1);
+  border: 1px solid rgba(124, 111, 214, 0.26);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.homeFreeBridgePrimaryCta:hover {
+  background: rgba(124, 111, 214, 0.16);
+}
+
+.homeFreeBridgeSecondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  font-size: clamp(12px, 2.8vw, 13px);
+  font-weight: 500;
+  line-height: 1.4;
+  color: #7c6fd6;
+  text-decoration: none;
+  border-radius: 999px;
+}
+
+.homeFreeBridgeSecondaryCta:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+  .homeFreeBridgeActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    max-width: none;
+    gap: 12px;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    FOLD 5: ENTRY REPORT MONETIZATION LAYER
    One hero only. No second product. No second price.
@@ -2024,6 +2116,274 @@
 
 .reportSection {
   padding-top: 14px;
+}
+
+/* M55有料導線 — HOME最下部（独自性 → 価値 → 価格 → CTA） */
+.homePaidPlan {
+  position: relative;
+  margin: 0;
+  padding: clamp(28px, 5vw, 40px) clamp(16px, 4vw, 28px) clamp(32px, 5.5vw, 44px);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 122, 168, 0.14);
+  background: linear-gradient(
+    168deg,
+    rgba(248, 246, 252, 0.98) 0%,
+    rgba(241, 237, 250, 0.94) 42%,
+    rgba(232, 227, 244, 0.9) 100%
+  );
+  box-shadow: 0 14px 44px rgba(45, 38, 72, 0.06);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-align: center;
+}
+
+.homePaidPlanInner {
+  position: relative;
+  z-index: 1;
+  max-width: min(42rem, 100%);
+  margin: 0 auto;
+}
+
+.homePaidPlanLabel {
+  margin: 0 0 clamp(12px, 2.6vw, 16px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(10px, 2.2vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #7a6a96;
+  line-height: 1.4;
+}
+
+.homePaidPlanHeadline {
+  margin: 0 0 clamp(14px, 3vw, 18px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(1.32rem, 4.2vw, 1.68rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.46;
+  color: #25222c;
+  text-wrap: balance;
+}
+
+.homePaidPlanHeadlineLine {
+  display: block;
+}
+
+.homePaidPlanHeadlineLine:first-child {
+  margin-bottom: 0.08em;
+}
+
+.homePaidPlanLead {
+  margin: 0 0 clamp(16px, 3.4vw, 20px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(13px, 2.6vw, 14.5px);
+  font-weight: 400;
+  line-height: 1.78;
+  color: rgba(38, 34, 46, 0.76);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.homePaidPlanUniquenessChips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 1.6vw, 8px);
+  margin: 0 0 clamp(20px, 4vw, 26px);
+}
+
+.homePaidPlanUniquenessChip {
+  font-size: clamp(10px, 2.3vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #4a4260;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(124, 111, 214, 0.26);
+  line-height: 1.35;
+}
+
+.homePaidPlanValueHeading {
+  margin: 0 0 clamp(14px, 3.2vw, 18px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(1.05rem, 3.6vw, 1.22rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: #2d2840;
+  text-wrap: balance;
+}
+
+.homePaidPlanCards {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 clamp(22px, 4.5vw, 28px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(12px, 3vw, 14px);
+  width: 100%;
+}
+
+.homePaidPlanCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(8px, 2vw, 10px);
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(18px, 4vw, 20px) clamp(16px, 3.6vw, 20px);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(124, 111, 214, 0.22);
+  box-shadow: 0 8px 24px rgba(45, 38, 72, 0.05);
+  box-sizing: border-box;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.homePaidPlanCardTitle {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(0.98rem, 3.8vw, 1.08rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: #252030;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.homePaidPlanCardDesc {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  font-size: clamp(12px, 2.8vw, 13.5px);
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(45, 40, 58, 0.76);
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.homePaidPlanThemeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.homePaidPlanThemeChip {
+  font-size: clamp(10px, 2.4vw, 11px);
+  font-weight: 600;
+  color: #4a4260;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(124, 111, 214, 0.24);
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.homePaidPlanPriceLead {
+  margin: 0 0 clamp(14px, 3vw, 18px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12.5px, 2.8vw, 14px);
+  font-weight: 500;
+  line-height: 1.68;
+  color: rgba(38, 34, 46, 0.78);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+@media (max-width: 767px) {
+  .homePaidPlanInner {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .homePaidPlanCards {
+    grid-template-columns: 1fr;
+  }
+
+  .homePaidPlanCard {
+    align-items: flex-start;
+  }
+
+  .homePaidPlanPriceBox,
+  .homePaidPlan .reportCta {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 768px) {
+  .homePaidPlanCards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(10px, 2vw, 14px);
+  }
+
+  .homePaidPlanCard {
+    align-items: stretch;
+    height: 100%;
+  }
+}
+
+.homePaidPlanPriceBox {
+  margin: 0 0 clamp(18px, 3.6vw, 22px);
+  padding: clamp(14px, 3vw, 16px) clamp(14px, 3.5vw, 18px);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(124, 111, 214, 0.16);
+  box-sizing: border-box;
+}
+
+.homePaidPlanPrice {
+  margin: 0 0 5px;
+  font-size: clamp(14px, 3vw, 15px);
+  font-weight: 600;
+  color: rgba(38, 34, 46, 0.82);
+  line-height: 1.4;
+}
+
+.homePaidPlanSpec {
+  margin: 0;
+  font-size: clamp(11px, 2.5vw, 12px);
+  font-weight: 500;
+  color: rgba(60, 55, 72, 0.72);
+  line-height: 1.55;
+}
+
+.homePaidPlan .reportCta {
+  margin-top: 0;
+  margin-bottom: clamp(16px, 3.2vw, 20px);
+}
+
+.homePaidPlanFootnotes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.homePaidPlanFootnote {
+  margin: 0;
+  font-size: clamp(11px, 2.4vw, 12px);
+  line-height: 1.65;
+  color: rgba(60, 60, 60, 0.66);
+  text-wrap: balance;
 }
 
 /* Section-level eyebrow — marks transition from free to paid surface */
