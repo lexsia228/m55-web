@@ -134,7 +134,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
           '10資質・旧暦・二十四節気・節入り調整を重ねて、\nあなたに無理が出やすい条件まで整理します。',
       },
       {
-        titleJa: '4テーマで自分を確認する',
+        titleJa: '4テーマで読み返す',
         descJa:
           '性格の傾向、無理が出やすい場面、\n人との距離、疲れたときの戻り方まで見られます。',
         themeChipsJa: [
@@ -156,14 +156,14 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     paidPlanCtaJa: '有料プランの内容を見る',
     paidPlanFootnotePrimaryJa: '購入後、Webでいつでも見返せます。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
-    freeBridgeNoProfileTitleJa: 'まだ生年月日を入力していない方へ',
+    freeBridgeNoProfileTitleJa: 'まずは、生年月日から見る',
     freeBridgeNoProfileBodyJa:
-      'まずは無料で、自分の輪郭を確認できます。\n生年月日を入力すると、10資質から今の自分の輪郭を見られます。\n結果を見てから、詳しい保存版へ進めます。',
+      'まずは無料で、自分の輪郭を確認できます。\n生年月日を入力すると、10通りの資質から今の自分の輪郭を見られます。\n結果を見てから、詳しい保存版へ進めます。',
     freeBridgeNoProfileCtaJa: '無料で自分の輪郭を見る',
-    freeBridgeHasProfileTitleJa: '無料結果をもう一度確認したい方へ',
+    freeBridgeHasProfileTitleJa: '無料結果をもう一度見る',
     freeBridgeHasProfileBodyJa:
-      '本質ページで、あなたの無料結果を確認できます。\nその結果を見てから、詳しい保存版へ進めます。',
-    freeBridgeHasProfileCtaJa: '本質ページを見る',
+      '無料結果ページで、あなたの結果を確認できます。\n結果を見直してから、詳しい保存版へ進めます。',
+    freeBridgeHasProfileCtaJa: '無料結果を見る',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:

@@ -2255,8 +2255,9 @@
   line-height: 1.45;
   color: #252030;
   text-wrap: balance;
+  line-break: strict;
   overflow-wrap: break-word;
-  word-break: normal;
+  word-break: keep-all;
 }
 
 .homePaidPlanCardDesc {
