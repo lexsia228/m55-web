@@ -1960,7 +1960,7 @@
 }
 
 .learnMoreDetails {
-  margin: 16px 4px 0;
+  margin: clamp(18px, 3.6vw, 22px) 4px 0;
   border-radius: 12px;
   border: 1px solid rgba(177, 156, 255, 0.15);
   background: rgba(255, 255, 255, 0.5);
@@ -2015,98 +2015,6 @@
   color: #8a8499;
   line-height: 1.85;
   padding-left: 16px;
-}
-
-/* HOME最下部 — 無料導線ブリッジ（有料より控えめ） */
-.homeFreeBridge {
-  margin: clamp(14px, 3vw, 18px) 0 0;
-  padding: clamp(18px, 4vw, 24px) clamp(16px, 3.6vw, 20px);
-  border-radius: 12px;
-  border: 1px solid rgba(124, 111, 214, 0.12);
-  background: rgba(255, 255, 255, 0.78);
-  box-sizing: border-box;
-  text-align: center;
-}
-
-.homeFreeBridgeTitle {
-  margin: 0 0 clamp(10px, 2.4vw, 12px);
-  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: clamp(0.95rem, 3.2vw, 1.05rem);
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  line-height: 1.45;
-  color: #3d3558;
-  text-wrap: balance;
-}
-
-.homeFreeBridgeBody {
-  margin: 0 0 clamp(16px, 3.4vw, 18px);
-  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  font-size: clamp(12px, 2.7vw, 13px);
-  font-weight: 400;
-  line-height: 1.72;
-  color: rgba(45, 40, 58, 0.74);
-  letter-spacing: 0.02em;
-  text-wrap: balance;
-}
-
-.homeFreeBridgeActions {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  max-width: min(20rem, 100%);
-  margin: 0 auto;
-}
-
-.homeFreeBridgePrimaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  font-size: clamp(13px, 3vw, 14px);
-  font-weight: 600;
-  font-family: inherit;
-  line-height: 1.4;
-  color: #5b4f8a;
-  background: rgba(124, 111, 214, 0.1);
-  border: 1px solid rgba(124, 111, 214, 0.26);
-  border-radius: 999px;
-  text-decoration: none;
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.homeFreeBridgePrimaryCta:hover {
-  background: rgba(124, 111, 214, 0.16);
-}
-
-.homeFreeBridgeSecondaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 16px;
-  font-size: clamp(12px, 2.8vw, 13px);
-  font-weight: 500;
-  line-height: 1.4;
-  color: #7c6fd6;
-  text-decoration: none;
-  border-radius: 999px;
-}
-
-.homeFreeBridgeSecondaryCta:hover {
-  text-decoration: underline;
-}
-
-@media (min-width: 640px) {
-  .homeFreeBridgeActions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    max-width: none;
-    gap: 12px;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

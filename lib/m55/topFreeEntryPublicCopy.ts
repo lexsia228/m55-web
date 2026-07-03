@@ -165,14 +165,6 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '無料結果の先では、\n本質・特質性をさらにひも解き、\nあなた固有の取扱説明書として受け取れます。',
     paidPlanSavedInfoPriceJa: '保存版は ¥1,000（税込）です。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
-    freeBridgeNoProfileTitleJa: 'まずは、生年月日から見る',
-    freeBridgeNoProfileBodyJa:
-      'まずは無料で、自分の輪郭を確認できます。\n生年月日を入力すると、10通りの資質から今の自分の輪郭を見られます。\n結果を見てから、詳しい保存版へ進めます。',
-    freeBridgeNoProfileCtaJa: '無料で見てみる',
-    freeBridgeHasProfileTitleJa: 'まずは無料結果を見る',
-    freeBridgeHasProfileBodyJa:
-      '無料結果ページで、あなたの輪郭を確認できます。\n保存版へ進む前に、まずは無料でM55を試せます。',
-    freeBridgeHasProfileCtaJa: '無料で見てみる',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:

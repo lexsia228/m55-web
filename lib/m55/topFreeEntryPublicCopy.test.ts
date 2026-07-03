@@ -109,7 +109,19 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(homeCopy.paidPlanSavedInfoPriceJa, '保存版は ¥1,000（税込）です。');
     assert.equal(homeCopy.heroTitleLine2Ja, '自分が見える。');
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.openFreeMapJa, '無料で見てみる');
-    assert.equal(homeCopy.freeBridgeHasProfileTitleJa, 'まずは無料結果を見る');
+    assert.equal(home.includes('m55-home-free-bridge'), false);
+    assert.equal(home.includes('homeFreeBridge'), false);
+    assert.match(homeCopy.paidPlanFunnelBodyJa, /M55は、無料結果から始められます。/);
+    assert.match(homeCopy.paidPlanFunnelBodyJa, /保存版は、無料結果を見たあと、\nもっと深く知りたい人のためのものです。/);
+    assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, '保存版について');
+    for (const removed of [
+      'まずは無料結果を見る',
+      '無料結果ページで、あなたの輪郭を確認できます。',
+      '保存版へ進む前に、まずは無料でM55を試せます。',
+    ] as const) {
+      assert.equal(home.includes(removed), false, `home must not include removed bridge copy: ${removed}`);
+      assert.equal(homeCopy.paidPlanFunnelBodyJa.includes(removed), false);
+    }
   });
 
   it('includes formal four chapters and saved-plan CTA targets', () => {

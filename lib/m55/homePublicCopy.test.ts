@@ -31,6 +31,9 @@ const HOME_FORBIDDEN_PRIMARY_TERMS = [
   'さらに本質と特質性を深く知りたい人のためのものです',
   '保存版で自分を深める',
   '無料結果をもう一度見る',
+  'まずは無料結果を見る',
+  '無料結果ページで、あなたの輪郭を確認できます。',
+  '保存版へ進む前に、まずは無料でM55を試せます。',
   '¥1,000で手に入るもの',
   '自分を責めるための診断',
   '何度も読み返せる',
@@ -104,12 +107,6 @@ function homeRenderedCopyBlob(): string {
     home.paidPlanSavedInfoHeadingJa,
     home.paidPlanSavedInfoBodyJa,
     home.paidPlanSavedInfoPriceJa,
-    home.freeBridgeNoProfileTitleJa,
-    home.freeBridgeNoProfileBodyJa,
-    home.freeBridgeNoProfileCtaJa,
-    home.freeBridgeHasProfileTitleJa,
-    home.freeBridgeHasProfileBodyJa,
-    home.freeBridgeHasProfileCtaJa,
     learnMore.summaryJa,
     learnMore.homeHowLinkJa,
     learnMore.homeTenViewsLinkJa,
@@ -143,10 +140,18 @@ describe('homePublicCopy — composite calendar value prop', () => {
     assert.equal(home.paidPlanFunnelTitleJa, 'まずは無料で、自分を見てみる');
     assert.match(home.paidPlanFunnelBodyJa, /無料結果から始められます/);
     assert.match(home.paidPlanFunnelBodyJa, /もっと深く知りたい人のためのものです/);
+    assert.equal(home.paidPlanSavedInfoHeadingJa, '保存版について');
     assert.equal(home.paidPlanSavedInfoPriceJa, '保存版は ¥1,000（税込）です。');
     assert.equal(home.paidPlanCtaJa.includes('保存版で自分を深める'), false);
-    assert.equal(home.freeBridgeHasProfileTitleJa, 'まずは無料結果を見る');
-    assert.equal(home.freeBridgeHasProfileTitleJa.includes('もう一度'), false);
+  });
+
+  it('removes duplicate bottom free bridge and keeps a single funnel CTA', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(homePanelSource.includes('m55-home-free-bridge'), false);
+    assert.equal(homePanelSource.includes('homeFreeBridge'), false);
+    assert.equal(homePanelSource.includes('freeBridgeHasProfileTitleJa'), false);
+    assert.equal('freeBridgeHasProfileTitleJa' in home, false);
+    assert.equal('freeBridgeNoProfileTitleJa' in home, false);
   });
 
   it('centers essence, trait, and owner manual framing in paid body copy', () => {

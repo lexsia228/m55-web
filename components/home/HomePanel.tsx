@@ -356,41 +356,6 @@ export default function HomePanel() {
         </div>
       </section>
 
-      {isLoaded && view.kind !== 'loading' && (
-        <section className={styles.homeFreeBridge} data-testid="m55-home-free-bridge">
-          <h3 className={styles.homeFreeBridgeTitle}>
-            {view.kind === 'no_profile'
-              ? homeCopy.freeBridgeNoProfileTitleJa
-              : homeCopy.freeBridgeHasProfileTitleJa}
-          </h3>
-          <p className={styles.homeFreeBridgeBody} style={{ whiteSpace: 'pre-line' }}>
-            {view.kind === 'no_profile'
-              ? homeCopy.freeBridgeNoProfileBodyJa
-              : homeCopy.freeBridgeHasProfileBodyJa}
-          </p>
-          <div className={styles.homeFreeBridgeActions}>
-            {view.kind === 'no_profile' ? (
-              <button
-                type="button"
-                className={styles.homeFreeBridgePrimaryCta}
-                data-testid="m55-home-free-bridge-intake"
-                onClick={() => setBirthIntakeOpen(true)}
-              >
-                {homeCopy.freeBridgeNoProfileCtaJa} →
-              </button>
-            ) : (
-              <Link
-                href={ctaCopy.coreFreeHref}
-                className={styles.homeFreeBridgePrimaryCta}
-                data-testid="m55-home-free-bridge-core"
-              >
-                {homeCopy.freeBridgeHasProfileCtaJa} →
-              </Link>
-            )}
-          </div>
-        </section>
-      )}
-
       <details className={styles.learnMoreDetails} data-testid="m55-home-learn-more">
         <summary className={styles.learnMoreSummary}>{learnMoreCopy.summaryJa}</summary>
         <nav className={styles.learnMoreLinks} aria-label="理解を深める">
