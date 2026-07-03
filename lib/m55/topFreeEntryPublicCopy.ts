@@ -62,9 +62,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     seenThingsBridgeClosingJa: 'M55で見えてくるのは、\nいつもの自分の輪郭。',
     seenThingsBridgeAriaLabelJa: '見えてくること',
     tierStackAriaLabelJa: '無料、保存版、相談返書',
-    tierFreeJa: '10資質レーンと5つの視点で、いまの輪郭を見る。',
+    tierFreeJa: '10資質レーンで、いまの輪郭を見る。',
     tierSavedBadgeJa: '保存版',
-    tierSavedJa: '動き方・疲れ方・戻し方を4章で読み返せる形に残す。',
+    tierSavedJa: '動き方・疲れ方・戻し方を、読める言葉に整理して残す。',
     tierConsultBadgeJa: '相談返書',
     tierConsultJa: '保存版に沿って、いまの1テーマを整理する。',
     exploreHowSubJa: 'M55の見方を見る →',
@@ -78,7 +78,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     readNextQualitiesDescJa: '自分の輪郭を、10の資質の語彙で確認する。',
     readNextQualitiesCtaJa: '資質を読む →',
     tenViewsLearnLinkJa: '10資質レーン',
-    methodFlowLabelJa: 'M55の見方',
+    methodFlowLabelJa: 'M55複合暦解析',
     methodFlowHeadlineLine1Ja: '生年月日を、',
     methodFlowHeadlineLine2Ja: '暦の体系で読み直す。',
     methodFlowBodyJa:
@@ -104,21 +104,21 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       },
     ] as const,
     methodFlowClosingJa:
-      'この3つの暦体系の重なりから、\n5つの視点で今のあなたのバランスを\n読み解いていきます。',
-    fiveAxisLeadJa: '五つの視点は、いまのバランスをつかむためのものです。',
-    fiveAxisSectionTitleJa: '5つの視点の見方',
+      'この3つの暦体系を重ね、\nあなたの生年月日から、あなた固有の理由と扱い方を導きます。',
+    fiveAxisLeadJa: 'いまのバランスをつかむための見方です。',
+    fiveAxisSectionTitleJa: '輪郭の見方',
     algorithmNoteJa:
-      '生年月日を入口に、10資質レーンと5つの視点でいまの輪郭をつかみます。',
+      '生年月日を入口に、10資質レーンとM55複合暦解析でいまの輪郭をつかみます。',
     fiveAxisQualitiesNoteJa:
       '10資質レーンは入口の地図です。決めつけず、生年月日の暦リズムと重ねて読みます。',
     fiveAxisMeterNoteJa:
-      '五つの視点は順位ではなく、いまのバランスをつかむためのものです。',
-    reportSectionEyebrowJa: '4章の保存版',
-    paidPlanLabelJa: 'M55の詳しい結果',
+      '順位ではなく、いまのバランスをつかむための見方です。',
+    reportSectionEyebrowJa: '保存版',
+    paidPlanLabelJa: '個別解析結果',
     paidPlanHeadlineLine1Ja: 'その誕生日を、',
     paidPlanHeadlineLine2Ja: '一般論で終わらせない。',
     paidPlanLeadJa:
-      'M55独自の複合暦アルゴリズムで、\n10資質・旧暦・二十四節気・節入り調整を重ねます。\n\n性格の傾向、無理が出やすい場面、\n人との距離、疲れたときの戻り方まで、\nあなた専用の4テーマ保存版として整理します。',
+      'M55複合暦解析で、10通りの資質・旧暦・二十四節気・節入り調整を重ね、\nあなたの生年月日から、あなた固有の理由と扱い方を導きます。\n\nなぜそう感じるのか、どこで無理が出やすいのか、\n疲れたときどう戻ればいいのか——保存版で、日常で使える形として受け取れます。',
     paidPlanUniquenessChipsJa: [
       '10資質',
       '旧暦',
@@ -126,35 +126,38 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '節入り調整',
       '見方と整え方',
     ] as const,
-    paidPlanValueHeadingJa: '¥1,000で見られること',
+    paidPlanValueHeadingJa: '¥1,000で手に入るもの',
+    paidPlanSavedPreviewLabelJa: '自分の扱い方が見える',
+    paidPlanSavedPreviewNoteJa:
+      '感じ方、無理の出方、疲れたときの戻り方まで、\nあなた固有の理由と扱い方として見ていきます。',
+    paidPlanSavedPreviewChaptersJa: [
+      { roman: 'Ⅰ', titleJa: '輪郭を見る', teaserJa: '自分に出やすい傾向をつかむ' },
+      { roman: 'Ⅱ', titleJa: '構造を読む', teaserJa: '考え方と動き方のつながり' },
+      { roman: 'Ⅲ', titleJa: '無理を知る', teaserJa: '負荷がたまりやすい条件' },
+      { roman: 'Ⅳ', titleJa: '楽に扱う', teaserJa: '疲れたときの戻り方' },
+    ] as const,
     paidPlanCardsJa: [
       {
-        titleJa: '自分の傾向を深く見る',
+        titleJa: 'あなた固有の理由と扱い方',
         descJa:
-          '10資質・旧暦・二十四節気・節入り調整を重ねて、\nあなたに無理が出やすい条件まで整理します。',
+          '同じ資質でも、生まれた日によって出方は変わります。\nその違いを、自分の感じ方と扱い方として見ていきます。',
       },
       {
-        titleJa: '4テーマで読み返す',
+        titleJa: '無理が出やすい場面と、戻し方',
         descJa:
-          '性格の傾向、無理が出やすい場面、\n人との距離、疲れたときの戻り方まで見られます。',
-        themeChipsJa: [
-          '性格の傾向',
-          '無理が出やすい場面',
-          '人との距離',
-          '疲れたときの戻り方',
-        ] as const,
+          '力が出やすい場面と、無理が出やすい場面を分け、\n疲れたときの戻り方まで見ていきます。',
       },
       {
         titleJa: '気になることを、M55と見直す',
         descJa:
-          '保存版で見えた自分をもとに、\nいま気になることを短く書けます。\nM55が保存版に照らして、\n見方と次に整えることを返します。',
+          '保存版で見えた自分をもとに、\nいま気になることをM55に渡せます。\n保存版に照らして、\n見方と次に整えることを返します。',
       },
     ] as const,
-    paidPlanPriceLeadJa: 'まずは¥1,000で、\nあなた専用の4テーマ保存版と「見方と整え方」。',
+    paidPlanPriceLeadJa: '¥1,000で、あなた固有の理由と扱い方を整理した保存版へ。',
+    paidPlanPriceWhatJa: 'あなた固有の理由と扱い方（保存版）',
     paidPlanPriceJa: '¥1,000（税込）',
-    paidPlanSpecJa: 'M55の詳しい結果｜4テーマ保存版｜見方と整え方つき',
-    paidPlanCtaJa: '有料プランの内容を見る',
-    paidPlanFootnotePrimaryJa: '購入後、Webでいつでも見返せます。',
+    paidPlanSpecJa: '個別解析結果｜保存版｜見方と整え方つき',
+    paidPlanCtaJa: '自分の理由と扱い方を見る',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
     freeBridgeNoProfileTitleJa: 'まずは、生年月日から見る',
     freeBridgeNoProfileBodyJa:
@@ -176,10 +179,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '保存版FULL（¥1,480（税込））：相談返書合計5件。',
     reportFullUpgradeNoteJa:
       'ライトで始めたあとも、必要に応じてFULL化できます。',
-    reportDepthNoteJa: '無料で見えた輪郭を、暦リズム込みで4章に深めます。',
+    reportDepthNoteJa: '無料で見えた輪郭を、暦リズム込みで保存版に深めます。',
     reportAuxJa:
       '相談返書は、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
-    chapterPreviewLabelJa: '保存版では、次の4章で整理します',
+    chapterPreviewLabelJa: '保存版では、次の整理で深めます',
   },
   learnMore: {
     summaryJa: 'M55の仕組み',
@@ -189,12 +192,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'M55は、生年月日を手がかりに、\n10資質と旧暦・二十四節気・節入り調整などを重ねて、\n自分の輪郭を整理します。',
     homeFreeNoteJa: '無料では、まず自分の輪郭まで確認できます。',
     homePaidNoteJa:
-      'M55の詳しい結果では、\n旧暦・二十四節気・節入り調整まで重ねて、\n4テーマ保存版として見返せます。',
+      '保存版では、あなた固有の理由と扱い方まで見ていきます。',
     homeUpgradeNoteJa: '必要に応じて、あとからさらに詳しい内容へ広げられます。',
-    homeCtaJa: '有料プランの内容を見る',
+    homeCtaJa: '自分の理由と扱い方を見る',
     rulesJa: [
-      '無料では、10資質レーンと5つの視点で輪郭まで確認できます。',
-      '保存版は、暦リズム込みで4章読み返せる固定ルールの読み物です。',
+      '無料では、10資質レーンで輪郭まで確認できます。',
+      '保存版は、暦リズム込みで固定ルールの読み物です。',
       'ライト購入後でも、必要になったらFULL化できます。',
       'プランの詳細は「保存版のプランを見る」から確認できます。',
     ] as const,

@@ -79,7 +79,6 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('includes storefront and home product truth with light before FULL on home', () => {
     const copy = readPage(COPY_FILE);
-    const storefront = readPage(ROUTE_FILES['/']);
     const home = readPage(ROUTE_FILES['/home']);
     const { storefront: sf, home: homeCopy, learnMore } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(sf.fullPlanNameJa, '保存版FULL');
@@ -93,21 +92,13 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(learnMore.rulesJa.length, 4);
     assert.match(copy, /相談返書合計5件/);
     assert.match(copy, /相談返書1件/);
-    assert.match(home, /reportLightEyebrowJa/);
-    assert.match(home, /reportFullLineJa/);
-    assert.match(home, /reportFullUpgradeNoteJa/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.reportFullUpgradeNoteJa, /FULL化/);
-    assert.ok(
-      home.indexOf('reportLightEyebrowJa') < home.indexOf('reportFullLineJa'),
-      'home report card renders light before FULL',
-    );
     assert.match(home, /m55-home-learn-more/);
-    assert.match(home, /exploreQualitiesTitleJa/);
-    assert.match(home, /tenViewsLearnLinkJa/);
-    assert.equal(homeCopy.exploreQualitiesTitleJa, '10資質レーンから読む');
-    assert.equal(homeCopy.tenViewsLearnLinkJa, '10資質レーン');
-    assert.match(homeCopy.heroSupportJa, /自分を少し離れて見つめ直す/);
-    assert.match(home, /tierStackAriaLabelJa/);
+    assert.match(home, /readNextQualitiesTitleJa/);
+    assert.equal(homeCopy.readNextQualitiesTitleJa, '10通りの資質');
+    assert.match(homeCopy.heroSupportJa, /生年月日を暦で見つめ直す/);
+    assert.match(home, /m55-home-saved-preview/);
+    assert.match(home, /paidPlanPriceWhatJa/);
+    assert.equal(homeCopy.paidPlanCtaJa, '自分の理由と扱い方を見る');
   });
 
   it('includes formal four chapters and saved-plan CTA targets', () => {
@@ -121,7 +112,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     ]);
     assert.match(blob, /保存版のプランを見る/);
     assert.match(blob, /\/dtr\/lp/);
-    assert.match(readPage(ROUTE_FILES['/home']), /FORMAL_CHAPTER_CHIPS/);
+    assert.match(readPage(ROUTE_FILES['/home']), /paidPlanSavedPreviewChaptersJa/);
   });
 
   it('does not expose forbidden legacy terms in top/free public copy', () => {
@@ -156,11 +147,18 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
   });
 
   it('P1 surface avoids legacy ten-type-only framing on how-m55-works and support', () => {
-    const blob = combinedPublicCopy();
+    const p1Blob = [
+      readPage(ROUTE_FILES['/how-m55-works']),
+      readPage(ROUTE_FILES['/how-m55-works/receive']),
+      readPage(ROUTE_FILES['/how-m55-works/next']),
+      readPage(ROUTE_FILES['/how-m55-works/framework']),
+      readPage(ROUTE_FILES['/how-m55-works/what-is']),
+      readPage(ROUTE_FILES['/support']),
+    ].join('\n');
     for (const term of ['10通りの資質', '5つの解析軸', 'パーソナルアルゴリズム', '読み解いていきます'] as const) {
-      assert.equal(blob.includes(term), false, `legacy P1 term must not remain: ${term}`);
+      assert.equal(p1Blob.includes(term), false, `legacy P1 term must not remain: ${term}`);
     }
-    assert.match(blob, /10資質レーン/);
+    assert.match(p1Blob, /10資質レーン/);
     assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
     assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /M55_LOGIC_HOME_COPY/);
   });

@@ -277,6 +277,28 @@ export default function HomePanel() {
               ))}
             </div>
 
+            <div
+              className={styles.homePaidPlanSavedPreview}
+              data-testid="m55-home-saved-preview"
+              aria-labelledby="m55-home-saved-preview-title"
+            >
+              <p id="m55-home-saved-preview-title" className={styles.homePaidPlanSavedPreviewLabel}>
+                {homeCopy.paidPlanSavedPreviewLabelJa}
+              </p>
+              <p className={styles.homePaidPlanSavedPreviewNote}>{homeCopy.paidPlanSavedPreviewNoteJa}</p>
+              <div className={styles.homePaidPlanSavedPreviewGrid}>
+                {homeCopy.paidPlanSavedPreviewChaptersJa.map((chapter) => (
+                  <article key={chapter.roman} className={styles.homePaidPlanSavedPreviewCard}>
+                    <div className={styles.homePaidPlanSavedPreviewCardHeader}>
+                      <span className={styles.homePaidPlanSavedPreviewRoman}>{chapter.roman}</span>
+                      <span className={styles.homePaidPlanSavedPreviewCardTitle}>{chapter.titleJa}</span>
+                    </div>
+                    <p className={styles.homePaidPlanSavedPreviewTeaser}>{chapter.teaserJa}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+
             <h3 className={styles.homePaidPlanValueHeading}>{homeCopy.paidPlanValueHeadingJa}</h3>
 
             <ul className={styles.homePaidPlanCards}>
@@ -286,15 +308,6 @@ export default function HomePanel() {
                   <p className={styles.homePaidPlanCardDesc} style={{ whiteSpace: 'pre-line' }}>
                     {card.descJa}
                   </p>
-                  {'themeChipsJa' in card && (
-                    <div className={styles.homePaidPlanThemeChips}>
-                      {card.themeChipsJa.map((theme) => (
-                        <span key={theme} className={styles.homePaidPlanThemeChip}>
-                          {theme}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </li>
               ))}
             </ul>
@@ -304,6 +317,7 @@ export default function HomePanel() {
             </p>
 
             <div className={styles.homePaidPlanPriceBox}>
+              <p className={styles.homePaidPlanPriceWhat}>{homeCopy.paidPlanPriceWhatJa}</p>
               <p className={styles.homePaidPlanPrice}>{homeCopy.paidPlanPriceJa}</p>
               <p className={styles.homePaidPlanSpec}>{homeCopy.paidPlanSpecJa}</p>
             </div>
@@ -313,7 +327,6 @@ export default function HomePanel() {
             </Link>
 
             <div className={styles.homePaidPlanFootnotes}>
-              <p className={styles.homePaidPlanFootnote}>{homeCopy.paidPlanFootnotePrimaryJa}</p>
               <p className={styles.homePaidPlanFootnote}>{homeCopy.paidPlanFootnoteUpgradeJa}</p>
             </div>
           </div>
