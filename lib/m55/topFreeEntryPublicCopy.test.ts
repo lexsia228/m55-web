@@ -96,9 +96,20 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(home, /readNextQualitiesTitleJa/);
     assert.equal(homeCopy.readNextQualitiesTitleJa, '10通りの資質');
     assert.match(homeCopy.heroSupportJa, /生年月日を暦で見つめ直す/);
+    assert.match(homeCopy.heroSupportJa, /自己理解の入口です/);
     assert.match(home, /m55-home-saved-preview/);
-    assert.match(home, /paidPlanPriceWhatJa/);
-    assert.equal(homeCopy.paidPlanCtaJa, '自分の理由と扱い方を見る');
+    assert.match(home, /paidPlanFunnelTitleJa/);
+    assert.match(home, /paidPlanSavedInfoPriceJa/);
+    assert.match(home, /m55-home-bottom-funnel/);
+    assert.equal(homeCopy.paidPlanCtaJa, 'まずは無料で見てみる');
+    assert.equal(homeCopy.paidPlanValueHeadingJa, '無料結果の先で深まること');
+    assert.equal(homeCopy.paidPlanSavedPreviewLabelJa, '保存版の中身');
+    assert.equal(homeCopy.paidPlanFunnelTitleJa, 'まずは無料で、自分を見てみる');
+    assert.equal(homeCopy.paidPlanLabelJa, '保存版');
+    assert.equal(homeCopy.paidPlanSavedInfoPriceJa, '保存版は ¥1,000（税込）です。');
+    assert.equal(homeCopy.heroTitleLine2Ja, '自分が見える。');
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.openFreeMapJa, '無料で見てみる');
+    assert.equal(homeCopy.freeBridgeHasProfileTitleJa, 'まずは無料結果を見る');
   });
 
   it('includes formal four chapters and saved-plan CTA targets', () => {

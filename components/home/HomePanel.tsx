@@ -300,6 +300,7 @@ export default function HomePanel() {
             </div>
 
             <h3 className={styles.homePaidPlanValueHeading}>{homeCopy.paidPlanValueHeadingJa}</h3>
+            <p className={styles.homePaidPlanValueSubheading}>{homeCopy.paidPlanValueSubheadingJa}</p>
 
             <ul className={styles.homePaidPlanCards}>
               {homeCopy.paidPlanCardsJa.map((card) => (
@@ -312,22 +313,44 @@ export default function HomePanel() {
               ))}
             </ul>
 
-            <p className={styles.homePaidPlanPriceLead} style={{ whiteSpace: 'pre-line' }}>
-              {homeCopy.paidPlanPriceLeadJa}
-            </p>
+            <div
+              className={styles.homePaidPlanFunnel}
+              data-testid="m55-home-bottom-funnel"
+            >
+              <h3 className={styles.homePaidPlanFunnelTitle}>{homeCopy.paidPlanFunnelTitleJa}</h3>
+              <p className={styles.homePaidPlanFunnelBody} style={{ whiteSpace: 'pre-line' }}>
+                {homeCopy.paidPlanFunnelBodyJa}
+              </p>
 
-            <div className={styles.homePaidPlanPriceBox}>
-              <p className={styles.homePaidPlanPriceWhat}>{homeCopy.paidPlanPriceWhatJa}</p>
-              <p className={styles.homePaidPlanPrice}>{homeCopy.paidPlanPriceJa}</p>
-              <p className={styles.homePaidPlanSpec}>{homeCopy.paidPlanSpecJa}</p>
-            </div>
+              {isLoaded && view.kind === 'no_profile' && (
+                <button
+                  type="button"
+                  className={styles.homePaidPlanFreeCta}
+                  data-testid="m55-home-bottom-funnel-intake"
+                  aria-label={`${homeCopy.paidPlanCtaJa}。${homeCopy.paidPlanFunnelBodyJa.replace(/\n/g, ' ')}`}
+                  onClick={() => setBirthIntakeOpen(true)}
+                >
+                  {homeCopy.paidPlanCtaJa} →
+                </button>
+              )}
+              {isLoaded && hasProfile && (
+                <Link
+                  href={ctaCopy.coreFreeHref}
+                  className={styles.homePaidPlanFreeCta}
+                  data-testid="m55-home-bottom-funnel-core"
+                  aria-label={`${homeCopy.paidPlanCtaJa}。${homeCopy.paidPlanFunnelBodyJa.replace(/\n/g, ' ')}`}
+                >
+                  {homeCopy.paidPlanCtaJa} →
+                </Link>
+              )}
 
-            <Link href={ctaCopy.viewSavedPlansHref} className={styles.reportCta}>
-              {homeCopy.paidPlanCtaJa} →
-            </Link>
-
-            <div className={styles.homePaidPlanFootnotes}>
-              <p className={styles.homePaidPlanFootnote}>{homeCopy.paidPlanFootnoteUpgradeJa}</p>
+              <div className={styles.homePaidPlanSavedInfo}>
+                <p className={styles.homePaidPlanSavedInfoHeading}>{homeCopy.paidPlanSavedInfoHeadingJa}</p>
+                <p className={styles.homePaidPlanSavedInfoBody} style={{ whiteSpace: 'pre-line' }}>
+                  {homeCopy.paidPlanSavedInfoBodyJa}
+                </p>
+                <p className={styles.homePaidPlanSavedInfoPrice}>{homeCopy.paidPlanSavedInfoPriceJa}</p>
+              </div>
             </div>
           </div>
         </div>

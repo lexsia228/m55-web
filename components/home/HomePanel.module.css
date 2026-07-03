@@ -2279,13 +2279,24 @@
 }
 
 .homePaidPlanValueHeading {
+  margin: 0 0 clamp(8px, 2vw, 10px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(0.98rem, 3.2vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: rgba(45, 40, 58, 0.88);
+  text-wrap: balance;
+}
+
+.homePaidPlanValueSubheading {
   margin: 0 0 clamp(14px, 3.2vw, 18px);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: clamp(1.05rem, 3.6vw, 1.22rem);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-  color: #2d2840;
+  font-size: clamp(0.92rem, 3vw, 1.02rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: rgba(45, 40, 58, 0.82);
   text-wrap: balance;
 }
 
@@ -2429,6 +2440,98 @@
   text-wrap: balance;
 }
 
+.homePaidPlanFunnel {
+  margin: clamp(18px, 3.6vw, 24px) 0 0;
+  padding: clamp(18px, 4vw, 22px) clamp(16px, 3.6vw, 20px);
+  border-radius: 12px;
+  border: 1px solid rgba(124, 111, 214, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.homePaidPlanFunnelTitle {
+  margin: 0 0 clamp(10px, 2.4vw, 12px);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(0.98rem, 3.2vw, 1.08rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: #3d3558;
+  text-wrap: balance;
+}
+
+.homePaidPlanFunnelBody {
+  margin: 0 0 clamp(16px, 3.4vw, 18px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-size: clamp(12px, 2.7vw, 13px);
+  font-weight: 400;
+  line-height: 1.72;
+  color: rgba(45, 40, 58, 0.76);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.homePaidPlanFreeCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: min(20rem, 100%);
+  margin: 0 auto clamp(18px, 3.6vw, 22px);
+  padding: 11px 22px;
+  font-size: clamp(13px, 3vw, 14px);
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.4;
+  color: #5b4f8a;
+  background: rgba(124, 111, 214, 0.12);
+  border: 1px solid rgba(124, 111, 214, 0.28);
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.homePaidPlanFreeCta:hover {
+  background: rgba(124, 111, 214, 0.18);
+}
+
+.homePaidPlanSavedInfo {
+  margin: 0;
+  padding: clamp(12px, 2.8vw, 14px) clamp(12px, 3vw, 16px);
+  border-radius: 8px;
+  border: 1px solid rgba(124, 111, 214, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+  text-align: left;
+}
+
+.homePaidPlanSavedInfoHeading {
+  margin: 0 0 8px;
+  font-size: clamp(10px, 2.4vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(124, 111, 214, 0.72);
+  line-height: 1.4;
+}
+
+.homePaidPlanSavedInfoBody {
+  margin: 0 0 8px;
+  font-size: clamp(11px, 2.5vw, 12px);
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(45, 40, 58, 0.72);
+  text-wrap: balance;
+}
+
+.homePaidPlanSavedInfoPrice {
+  margin: 0;
+  font-size: clamp(10.5px, 2.4vw, 11.5px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(60, 55, 72, 0.62);
+}
+
 @media (max-width: 767px) {
   .homePaidPlanInner {
     width: 100%;
@@ -2447,8 +2550,8 @@
     align-items: flex-start;
   }
 
-  .homePaidPlanPriceBox,
-  .homePaidPlan .reportCta {
+  .homePaidPlanFunnel,
+  .homePaidPlanFreeCta {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -2476,10 +2579,20 @@
   box-sizing: border-box;
 }
 
+.homePaidPlanPriceLabel {
+  margin: 0 0 6px;
+  font-size: clamp(10px, 2.4vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(124, 111, 214, 0.72);
+  line-height: 1.4;
+  text-transform: none;
+}
+
 .homePaidPlanPriceWhat {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: clamp(13px, 2.8vw, 14px);
+  font-size: clamp(14px, 3.2vw, 15.5px);
   font-weight: 600;
   letter-spacing: 0.03em;
   color: #2d2840;
@@ -2488,10 +2601,10 @@
 }
 
 .homePaidPlanPrice {
-  margin: 0 0 5px;
-  font-size: clamp(14px, 3vw, 15px);
-  font-weight: 600;
-  color: rgba(38, 34, 46, 0.82);
+  margin: 0 0 6px;
+  font-size: clamp(12px, 2.6vw, 13px);
+  font-weight: 500;
+  color: rgba(38, 34, 46, 0.68);
   line-height: 1.4;
 }
 

@@ -59,7 +59,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'なぜか疲れやすい場面。',
       '人との距離で、無理をする自分。',
     ] as const,
-    seenThingsBridgeClosingJa: 'M55で見えてくるのは、\nいつもの自分の輪郭。',
+    seenThingsBridgeClosingJa:
+      'M55で見えてくるのは、\nいつもの自分の輪郭。\n\n保存版では、\nその輪郭をさらに深くひも解きます。',
     seenThingsBridgeAriaLabelJa: '見えてくること',
     tierStackAriaLabelJa: '無料、保存版、相談返書',
     tierFreeJa: '10資質レーンで、いまの輪郭を見る。',
@@ -104,7 +105,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       },
     ] as const,
     methodFlowClosingJa:
-      'この3つの暦体系を重ね、\nあなたの生年月日から、あなた固有の理由と扱い方を導きます。',
+      'この3つの暦体系を重ね、\nその人に出やすい本質と特質性を見ていきます。',
     fiveAxisLeadJa: 'いまのバランスをつかむための見方です。',
     fiveAxisSectionTitleJa: '輪郭の見方',
     algorithmNoteJa:
@@ -114,11 +115,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     fiveAxisMeterNoteJa:
       '順位ではなく、いまのバランスをつかむための見方です。',
     reportSectionEyebrowJa: '保存版',
-    paidPlanLabelJa: '個別解析結果',
+    paidPlanLabelJa: '保存版',
     paidPlanHeadlineLine1Ja: 'その誕生日を、',
     paidPlanHeadlineLine2Ja: '一般論で終わらせない。',
     paidPlanLeadJa:
-      'M55複合暦解析で、10通りの資質・旧暦・二十四節気・節入り調整を重ね、\nあなたの生年月日から、あなた固有の理由と扱い方を導きます。\n\nなぜそう感じるのか、どこで無理が出やすいのか、\n疲れたときどう戻ればいいのか——保存版で、日常で使える形として受け取れます。',
+      'M55複合暦解析で、10通りの資質・旧暦・二十四節気・節入り調整を重ね、\n生年月日から、その人に出やすい本質と特質性を読み解きます。\n\n保存版では、その輪郭をもとに、\n感じ方、無理の出方、戻り方までをひも解き、\nあなた固有の取扱説明書として受け取れます。',
     paidPlanUniquenessChipsJa: [
       '10資質',
       '旧暦',
@@ -126,10 +127,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '節入り調整',
       '見方と整え方',
     ] as const,
-    paidPlanValueHeadingJa: '¥1,000で手に入るもの',
-    paidPlanSavedPreviewLabelJa: '自分の扱い方が見える',
+    paidPlanValueHeadingJa: '無料結果の先で深まること',
+    paidPlanValueSubheadingJa: '本質を、もう少し深くひも解く',
+    paidPlanSavedPreviewLabelJa: '保存版の中身',
     paidPlanSavedPreviewNoteJa:
-      '感じ方、無理の出方、疲れたときの戻り方まで、\nあなた固有の理由と扱い方として見ていきます。',
+      '本質の輪郭から、感じ方、無理の出方、戻り方までをひも解いていきます。',
     paidPlanSavedPreviewChaptersJa: [
       { roman: 'Ⅰ', titleJa: '輪郭を見る', teaserJa: '自分に出やすい傾向をつかむ' },
       { roman: 'Ⅱ', titleJa: '構造を読む', teaserJa: '考え方と動き方のつながり' },
@@ -138,35 +140,39 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     paidPlanCardsJa: [
       {
-        titleJa: 'あなた固有の理由と扱い方',
+        titleJa: '本質の輪郭を深く見る',
         descJa:
-          '同じ資質でも、生まれた日によって出方は変わります。\nその違いを、自分の感じ方と扱い方として見ていきます。',
+          '同じ資質でも、生まれた日によって出方は変わります。\n保存版では、その違いをあなた固有の特質性として見ていきます。',
       },
       {
-        titleJa: '無理が出やすい場面と、戻し方',
+        titleJa: '無理が出やすい条件を知る',
         descJa:
-          '力が出やすい場面と、無理が出やすい場面を分け、\n疲れたときの戻り方まで見ていきます。',
+          '本質が悪いのではなく、負荷がたまりやすい条件があります。\n保存版では、その条件をひも解いていきます。',
       },
       {
         titleJa: '気になることを、M55と見直す',
         descJa:
-          '保存版で見えた自分をもとに、\nいま気になることをM55に渡せます。\n保存版に照らして、\n見方と次に整えることを返します。',
+          '保存版でひも解いた自分をもとに、\nいま気になることをM55に渡せます。\n保存版に照らして、\n見方と次に整えることを返します。',
       },
     ] as const,
-    paidPlanPriceLeadJa: '¥1,000で、あなた固有の理由と扱い方を整理した保存版へ。',
-    paidPlanPriceWhatJa: 'あなた固有の理由と扱い方（保存版）',
-    paidPlanPriceJa: '¥1,000（税込）',
-    paidPlanSpecJa: '個別解析結果｜保存版｜見方と整え方つき',
-    paidPlanCtaJa: '自分の理由と扱い方を見る',
+    paidPlanPriceLeadJa: '保存版では、本質と特質性をもとに、自分を深めていきます。',
+    paidPlanFunnelTitleJa: 'まずは無料で、自分を見てみる',
+    paidPlanFunnelBodyJa:
+      'M55は、無料結果から始められます。\n保存版は、無料結果を見たあと、\nもっと深く知りたい人のためのものです。',
+    paidPlanCtaJa: 'まずは無料で見てみる',
+    paidPlanSavedInfoHeadingJa: '保存版について',
+    paidPlanSavedInfoBodyJa:
+      '無料結果の先では、\n本質・特質性をさらにひも解き、\nあなた固有の取扱説明書として受け取れます。',
+    paidPlanSavedInfoPriceJa: '保存版は ¥1,000（税込）です。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
     freeBridgeNoProfileTitleJa: 'まずは、生年月日から見る',
     freeBridgeNoProfileBodyJa:
       'まずは無料で、自分の輪郭を確認できます。\n生年月日を入力すると、10通りの資質から今の自分の輪郭を見られます。\n結果を見てから、詳しい保存版へ進めます。',
-    freeBridgeNoProfileCtaJa: '無料で自分の輪郭を見る',
-    freeBridgeHasProfileTitleJa: '無料結果をもう一度見る',
+    freeBridgeNoProfileCtaJa: '無料で見てみる',
+    freeBridgeHasProfileTitleJa: 'まずは無料結果を見る',
     freeBridgeHasProfileBodyJa:
-      '無料結果ページで、あなたの結果を確認できます。\n結果を見直してから、詳しい保存版へ進めます。',
-    freeBridgeHasProfileCtaJa: '無料結果を見る',
+      '無料結果ページで、あなたの輪郭を確認できます。\n保存版へ進む前に、まずは無料でM55を試せます。',
+    freeBridgeHasProfileCtaJa: '無料で見てみる',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
@@ -192,9 +198,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'M55は、生年月日を手がかりに、\n10資質と旧暦・二十四節気・節入り調整などを重ねて、\n自分の輪郭を整理します。',
     homeFreeNoteJa: '無料では、まず自分の輪郭まで確認できます。',
     homePaidNoteJa:
-      '保存版では、あなた固有の理由と扱い方まで見ていきます。',
+      '保存版では、本質と特質性をもとに、自分を深めていきます。',
     homeUpgradeNoteJa: '必要に応じて、あとからさらに詳しい内容へ広げられます。',
-    homeCtaJa: '自分の理由と扱い方を見る',
+    homeCtaJa: 'まずは無料で見てみる',
     rulesJa: [
       '無料では、10資質レーンで輪郭まで確認できます。',
       '保存版は、暦リズム込みで固定ルールの読み物です。',
