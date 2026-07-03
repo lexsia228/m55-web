@@ -102,18 +102,27 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(home, /paidPlanSavedInfoPriceJa/);
     assert.match(home, /m55-home-bottom-funnel/);
     assert.equal(homeCopy.paidPlanCtaJa, 'まずは無料で見てみる');
-    assert.equal(homeCopy.paidPlanValueHeadingJa, '無料結果の先で深まること');
-    assert.equal(homeCopy.paidPlanSavedPreviewLabelJa, '保存版の中身');
-    assert.equal(homeCopy.paidPlanFunnelTitleJa, 'まずは無料で、自分を見てみる');
-    assert.equal(homeCopy.paidPlanLabelJa, '保存版');
-    assert.equal(homeCopy.paidPlanSavedInfoPriceJa, '保存版は ¥1,000（税込）です。');
+    assert.equal(homeCopy.paidPlanValueHeadingJa, '無料では、自分の入口を。\n深く見るほど、自分が具体的になる。');
+    assert.equal(homeCopy.paidPlanSavedPreviewLabelJa, '深く見るほど、見えてくること');
+    assert.equal(homeCopy.paidPlanFunnelTitleJa, 'まずは無料で、自分の入口を見る');
+    assert.equal(homeCopy.paidPlanLabelJa, '');
+    assert.equal(homeCopy.methodFlowLabelJa, 'M55複合暦解析とは');
+    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /M55複合暦解析は ¥1,000（税込）です/);
+    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /M55追加解析 1回分つき/);
+    assert.equal(homeCopy.paidPlanSavedInfoPriceJa.includes('含まれます'), false);
+    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /\n/);
     assert.equal(homeCopy.heroTitleLine2Ja, '自分が見える。');
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.openFreeMapJa, '無料で見てみる');
     assert.equal(home.includes('m55-home-free-bridge'), false);
     assert.equal(home.includes('homeFreeBridge'), false);
-    assert.match(homeCopy.paidPlanFunnelBodyJa, /M55は、無料結果から始められます。/);
-    assert.match(homeCopy.paidPlanFunnelBodyJa, /保存版は、無料結果を見たあと、\nもっと深く知りたい人のためのものです。/);
-    assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, '保存版について');
+    assert.match(homeCopy.paidPlanFunnelBodyJa, /無料で、自分の入口を見る/);
+    assert.match(homeCopy.paidPlanFunnelBodyJa, /M55複合暦解析で、自分を深く読み解く/);
+    assert.match(homeCopy.paidPlanFunnelBodyJa, /追加解析で、今の自分と対話する/);
+    assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, 'さらに深く、自分を読み解く');
+    assert.equal(home.includes('m55-home-hero-funnel'), false);
+    assert.equal(home.includes('heroFunnelLinesJa'), false);
+    assert.match(home, /m55-home-open-birth-intake/);
+    assert.match(home, /paidPlanFunnelBodyJa/);
     for (const removed of [
       'まずは無料結果を見る',
       '無料結果ページで、あなたの輪郭を確認できます。',

@@ -97,22 +97,21 @@ export default function HomePanel() {
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-open-birth-intake"
-                        aria-label={`${ctaCopy.openFreeMapJa}。${homeCopy.heroSupportJa}`}
+                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
                         onClick={() => setBirthIntakeOpen(true)}
                       >
-                        {ctaCopy.openFreeMapJa} →
+                        {homeCopy.heroFunnelCtaJa} →
                       </button>
                     )}
-                    {hasProfile && (
-                      <p className={styles.posterHeroCoreLink} data-testid="m55-home-has-profile-hero">
-                        <Link
-                          href="/core"
-                          className={styles.posterHeroCoreLinkA}
-                          aria-label={`${ctaCopy.viewFreeMapJa}。${homeCopy.heroSupportJa}`}
-                        >
-                          {ctaCopy.viewFreeMapJa} →
-                        </Link>
-                      </p>
+                    {isLoaded && hasProfile && (
+                      <Link
+                        href={ctaCopy.coreFreeHref}
+                        className={styles.posterHeroCta}
+                        data-testid="m55-home-has-profile-hero"
+                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
+                      >
+                        {homeCopy.heroFunnelCtaJa} →
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -299,8 +298,12 @@ export default function HomePanel() {
               </div>
             </div>
 
-            <h3 className={styles.homePaidPlanValueHeading}>{homeCopy.paidPlanValueHeadingJa}</h3>
-            <p className={styles.homePaidPlanValueSubheading}>{homeCopy.paidPlanValueSubheadingJa}</p>
+            <h3 className={styles.homePaidPlanValueHeading} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.paidPlanValueHeadingJa}
+            </h3>
+            <p className={styles.homePaidPlanValueSubheading} style={{ whiteSpace: 'pre-line' }}>
+              {homeCopy.paidPlanValueSubheadingJa}
+            </p>
 
             <ul className={styles.homePaidPlanCards}>
               {homeCopy.paidPlanCardsJa.map((card) => (
@@ -349,7 +352,9 @@ export default function HomePanel() {
                 <p className={styles.homePaidPlanSavedInfoBody} style={{ whiteSpace: 'pre-line' }}>
                   {homeCopy.paidPlanSavedInfoBodyJa}
                 </p>
-                <p className={styles.homePaidPlanSavedInfoPrice}>{homeCopy.paidPlanSavedInfoPriceJa}</p>
+                <p className={styles.homePaidPlanSavedInfoPrice} style={{ whiteSpace: 'pre-line' }}>
+                  {homeCopy.paidPlanSavedInfoPriceJa}
+                </p>
               </div>
             </div>
           </div>

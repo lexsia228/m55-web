@@ -111,12 +111,15 @@
 
 .posterHeroTopBlock {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* 見出し群の下〜CTA 上までの呼吸域 */
+/* 見出し群の下〜CTA 上までの呼吸域（PCではCTAを下寄りへ） */
 .posterHeroBreathing {
   flex: 1 1 auto;
-  min-height: clamp(56px, 14vh, 140px);
+  min-height: clamp(12px, 3vh, 24px);
   width: 100%;
 }
 
@@ -125,11 +128,82 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(14px, 2.5vw, 20px);
+  justify-content: center;
   width: 100%;
+  margin-top: clamp(18px, 4.5vw, 28px);
+  padding-bottom: clamp(14px, 3.5vw, 20px);
+  box-sizing: border-box;
 }
 
-/* M55 / Entry Report — v0 ラベルに近い締まりと階層 */
+@media (min-width: 768px) {
+  .posterHeroBreathing {
+    min-height: clamp(40px, 10vh, 96px);
+  }
+
+  .posterHeroBottomStack {
+    margin-top: auto;
+    padding-bottom: clamp(36px, 11vh, 92px);
+  }
+}
+
+.posterHeroCta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: auto;
+  max-width: calc(100% - 12px);
+  min-height: 44px;
+  margin: 0 auto;
+  padding: 12px clamp(24px, 5.5vw, 36px);
+  border-radius: 9999px;
+  border: 1px solid rgba(124, 111, 214, 0.28);
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #5c4f8a;
+  font-size: clamp(13px, 2.8vw, 15px);
+  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.85) inset,
+    0 4px 16px rgba(139, 122, 168, 0.14);
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
+}
+
+.posterHeroCta:hover {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(124, 111, 214, 0.42);
+  color: #4a3f72;
+  transform: translateY(-1px);
+}
+
+.posterHeroCta:active {
+  transform: translateY(0);
+}
+
+.posterHeroCta:focus-visible {
+  outline: 2px solid rgba(124, 111, 214, 0.45);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posterHeroCta {
+    transition: none;
+  }
+
+  .posterHeroCta:hover,
+  .posterHeroCta:active {
+    transform: none;
+  }
+}
+
 .posterHeroLabelGroup {
   margin: clamp(2px, 0.4vw, 4px) 0 clamp(18px, 3.2vw, 26px);
   padding: 0;
@@ -199,63 +273,6 @@
   text-shadow:
     0 0 12px rgba(255, 255, 255, 0.52),
     0 1px 2px rgba(255, 255, 255, 0.8);
-}
-
-.posterHeroCta {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  width: auto;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 14px clamp(28px, 6vw, 40px);
-  border-radius: 9999px;
-  border: none;
-  background: #8b7aa8;
-  color: #ffffff;
-  font-size: 15px;
-  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  box-sizing: border-box;
-  box-shadow: 0 2px 10px rgba(139, 122, 168, 0.22);
-  transition: background-color 0.2s ease, transform 0.15s ease;
-}
-
-.posterHeroCta:hover {
-  background: #7a6a97;
-  transform: translateY(-1px);
-}
-
-.posterHeroCta:active {
-  transform: translateY(0);
-}
-
-.posterHeroCta:focus-visible {
-  outline: 2px solid rgba(139, 122, 168, 0.55);
-  outline-offset: 3px;
-}
-
-.posterHeroCoreLink {
-  margin: 0;
-  text-align: center;
-}
-
-.posterHeroCoreLinkA {
-  font-size: 14px;
-  font-weight: 600;
-  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-  color: #534a72;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-}
-
-.posterHeroCoreLinkA:hover {
-  text-decoration: underline;
 }
 
 /* ベース写真＋ごく弱いトーンヴェール（画像主役） */
@@ -484,8 +501,8 @@
 /* ポスター直下 — 見えてくること（Editorial Premium 面：カード/フォーム部品にしない） */
 .homeSeenBridge {
   position: relative;
-  margin: -6px 0 22px;
-  padding: clamp(28px, 5.2vw, 42px) clamp(18px, 4vw, 28px) clamp(32px, 5.5vw, 46px);
+  margin: -4px 0 18px;
+  padding: clamp(24px, 4.6vw, 38px) clamp(18px, 4vw, 28px) clamp(26px, 4.8vw, 38px);
   border-radius: 12px;
   border: none;
   background: linear-gradient(
@@ -518,7 +535,7 @@
 }
 
 .homeSeenBridgeHeadline {
-  margin: 0 0 clamp(22px, 4.2vw, 30px);
+  margin: 0 0 clamp(18px, 3.6vw, 26px);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(1.35rem, 4.2vw, 1.68rem);
   font-weight: 600;
@@ -538,11 +555,11 @@
 
 .homeSeenBridgeList {
   list-style: none;
-  margin: 0 0 clamp(22px, 4vw, 28px);
+  margin: 0 0 clamp(18px, 3.6vw, 24px);
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(12px, 2.6vw, 16px);
+  gap: clamp(10px, 2.2vw, 14px);
 }
 
 .homeSeenBridgeListItem {
@@ -551,17 +568,17 @@
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: clamp(13px, 2.6vw, 14px);
   font-weight: 400;
-  line-height: 1.72;
-  color: rgba(45, 42, 51, 0.62);
+  line-height: 1.66;
+  color: rgba(45, 42, 51, 0.72);
   letter-spacing: 0.02em;
 }
 
 .homeSeenBridgeListItem:nth-child(2) {
-  color: rgba(45, 42, 51, 0.56);
+  color: rgba(45, 42, 51, 0.7);
 }
 
 .homeSeenBridgeListItem:nth-child(3) {
-  color: rgba(45, 42, 51, 0.5);
+  color: rgba(45, 42, 51, 0.68);
 }
 
 .homeSeenBridgeClosing {
@@ -569,8 +586,8 @@
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: clamp(13px, 2.5vw, 14px);
   font-weight: 400;
-  line-height: 1.78;
-  color: rgba(45, 42, 51, 0.52);
+  line-height: 1.72;
+  color: rgba(45, 42, 51, 0.64);
   letter-spacing: 0.04em;
   text-wrap: balance;
 }
@@ -887,7 +904,7 @@
 
 /* no_profile: M55をもう少し深く — 理解導線2枚（/how-m55-works · /ten-views） */
 .homeReadNextSection {
-  padding: clamp(18px, 3.5vw, 22px) 0 clamp(16px, 3vw, 20px);
+  padding: clamp(14px, 3vw, 20px) 0 clamp(14px, 2.8vw, 18px);
   margin: 0;
 }
 
@@ -905,7 +922,7 @@
 .homeReadNextGrid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(10px, 2.4vw, 12px);
   width: 100%;
   box-sizing: border-box;
 }
@@ -916,6 +933,7 @@
   align-items: flex-start;
   gap: clamp(12px, 2.8vw, 14px);
   padding: clamp(14px, 3vw, 16px) clamp(14px, 3.2vw, 18px);
+  min-height: 72px;
   border-radius: 12px;
   border: 1px solid rgba(139, 122, 168, 0.1);
   background: linear-gradient(
@@ -1004,8 +1022,8 @@
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: clamp(12px, 2.4vw, 13px);
   font-weight: 400;
-  line-height: 1.62;
-  color: rgba(38, 34, 46, 0.72);
+  line-height: 1.58;
+  color: rgba(38, 34, 46, 0.78);
   letter-spacing: 0.01em;
 }
 
@@ -1014,11 +1032,11 @@
   font-size: clamp(12px, 2.4vw, 12.5px);
   font-weight: 600;
   line-height: 1.45;
-  color: #5a4872;
+  color: #534366;
   letter-spacing: 0.03em;
-  margin-top: 6px;
+  margin-top: 8px;
   text-decoration: underline;
-  text-decoration-color: rgba(90, 72, 114, 0.38);
+  text-decoration-color: rgba(83, 67, 102, 0.42);
   text-underline-offset: 3px;
   transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
@@ -2438,6 +2456,16 @@
   font-weight: 500;
   line-height: 1.5;
   color: rgba(60, 55, 72, 0.62);
+}
+
+@media (max-width: 767px) {
+  .heroSection {
+    min-height: auto;
+  }
+
+  .posterMainVisual {
+    min-height: clamp(280px, 62dvh, 420px);
+  }
 }
 
 @media (max-width: 767px) {
