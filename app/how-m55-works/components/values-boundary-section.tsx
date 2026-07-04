@@ -3,14 +3,17 @@ import styles from '../how-it-works.module.css';
 
 const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
 
-export function WhatIsSection() {
+export function ValuesBoundarySection() {
   return (
-    <section className={styles.shellNarrow} aria-labelledby="how-m55-what-is-title">
-      <p className={styles.sectionKicker}>{copy.section01KickerJa}</p>
-      <h2 id="how-m55-what-is-title" className={styles.sectionTitle}>
-        {copy.section01TitleJa}
+    <section
+      className={`${styles.shellNarrow} ${styles.foldAlt}`}
+      aria-labelledby="how-m55-values-title"
+    >
+      <p className={styles.sectionKicker}>{copy.section06KickerJa}</p>
+      <h2 id="how-m55-values-title" className={styles.sectionTitle}>
+        {copy.section06TitleJa}
       </h2>
-      {copy.section01ParagraphsJa.map((paragraph) => (
+      {copy.section06ParagraphsJa.map((paragraph) => (
         <p key={paragraph.slice(0, 24)} className={styles.sectionLead}>
           {paragraph.split('\n').map((line, index, lines) => (
             <span key={`${line}-${index}`}>
@@ -21,7 +24,7 @@ export function WhatIsSection() {
         </p>
       ))}
       <p className={`${styles.sectionLead} ${styles.sectionLanding}`}>
-        {copy.section01LandingJa.split('\n').map((line, index, lines) => (
+        {copy.section06LandingJa.split('\n').map((line, index, lines) => (
           <span key={`${line}-${index}`}>
             {line}
             {index < lines.length - 1 ? <br /> : null}

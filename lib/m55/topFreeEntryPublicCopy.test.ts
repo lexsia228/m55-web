@@ -38,10 +38,51 @@ const ROUTE_FILES = {
   '/how-m55-works': 'app/how-m55-works/page.tsx',
   '/how-m55-works/receive': 'app/how-m55-works/components/what-you-can-do-section.tsx',
   '/how-m55-works/next': 'app/how-m55-works/components/next-step-section.tsx',
+  '/how-m55-works/calendar': 'app/how-m55-works/components/calendar-layers-section.tsx',
   '/how-m55-works/framework': 'app/how-m55-works/components/framework-section.tsx',
   '/how-m55-works/what-is': 'app/how-m55-works/components/what-is-section.tsx',
+  '/how-m55-works/intro': 'app/how-m55-works/components/intro-section.tsx',
+  '/how-m55-works/values': 'app/how-m55-works/components/values-boundary-section.tsx',
   '/support': 'app/support/page.tsx',
 } as const;
+
+const HOW_M55_WORKS_PAGE_PATHS = [
+  ROUTE_FILES['/how-m55-works'],
+  ROUTE_FILES['/how-m55-works/intro'],
+  ROUTE_FILES['/how-m55-works/what-is'],
+  ROUTE_FILES['/how-m55-works/calendar'],
+  ROUTE_FILES['/how-m55-works/framework'],
+  ROUTE_FILES['/how-m55-works/receive'],
+  ROUTE_FILES['/how-m55-works/values'],
+  ROUTE_FILES['/how-m55-works/next'],
+  'app/how-m55-works/components/suitable-for-section.tsx',
+] as const;
+
+const HOW_M55_FORBIDDEN_DISPLAY_TERMS = [
+  '保存版',
+  '保存版では',
+  '保存版のプランを見る',
+  'あなた専用の保存版',
+  'ただの読み物ではありません',
+  '読み物',
+  '読み返せる',
+  '深く読める',
+  '整理します',
+  '深く整理します',
+  '読みやすく整理します',
+  '受け取れるのは',
+  '要エンジン照合',
+  '占い',
+  '鑑定',
+] as const;
+
+function howM55WorksDisplayBlob(): string {
+  const hw = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
+  return [
+    JSON.stringify(hw),
+    ...HOW_M55_WORKS_PAGE_PATHS.map((path) => readPage(path)),
+  ].join('\n');
+}
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
@@ -180,11 +221,16 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('P1 surface avoids legacy ten-type-only framing on how-m55-works and support', () => {
     const p1Blob = [
+      JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works),
       readPage(ROUTE_FILES['/how-m55-works']),
       readPage(ROUTE_FILES['/how-m55-works/receive']),
       readPage(ROUTE_FILES['/how-m55-works/next']),
       readPage(ROUTE_FILES['/how-m55-works/framework']),
       readPage(ROUTE_FILES['/how-m55-works/what-is']),
+      readPage(ROUTE_FILES['/how-m55-works/calendar']),
+      readPage(ROUTE_FILES['/how-m55-works/intro']),
+      readPage(ROUTE_FILES['/how-m55-works/values']),
+      readPage('app/how-m55-works/components/suitable-for-section.tsx'),
       readPage(ROUTE_FILES['/support']),
     ].join('\n');
     for (const term of ['10通りの資質', '5つの解析軸', 'パーソナルアルゴリズム', '読み解いていきます'] as const) {
@@ -192,38 +238,46 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     }
     assert.match(p1Blob, /10資質レーン/);
     assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
-    assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /M55_LOGIC_HOME_COPY/);
+    assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /section01ParagraphsJa/);
   });
 
-  it('howM55Works exposes commercial three-tier funnel with operational layers', () => {
+  it('howM55Works method page copy aligns with commercial method funnel', () => {
     const hw = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
-    const hwBlob = JSON.stringify(hw);
+    const displayBlob = howM55WorksDisplayBlob();
     const receivePage = readPage(ROUTE_FILES['/how-m55-works/receive']);
     const nextPage = readPage(ROUTE_FILES['/how-m55-works/next']);
+    const introPage = readPage(ROUTE_FILES['/how-m55-works/intro']);
+    const calendarPage = readPage(ROUTE_FILES['/how-m55-works/calendar']);
 
-    for (const term of ['無料で見る', '複合解析', '追加解析'] as const) {
-      assert.match(hwBlob, new RegExp(term), `howM55Works must include: ${term}`);
+    assert.match(introPage, /heroHookJa/);
+    assert.equal(hw.heroHookJa, '生まれた日から、自分が見える。');
+    assert.match(receivePage, /section05CompositeHookJa/);
+    assert.equal(hw.section05CompositeHookJa, '無料で見えた輪郭の先へ。');
+    assert.match(displayBlob, /あなた専用の解析体験/);
+    for (const term of ['旧暦', '十干', '二十四節気', '節入り'] as const) {
+      assert.match(displayBlob, new RegExp(term), `calendar layer must include: ${term}`);
     }
-    assert.match(hw.commercialFlowKickerJa, /無料で見る → 複合解析 → 追加解析/);
-    assert.match(hw.operationalFlowKickerJa, /無料の見取り図 → 保存版 → 相談返書/);
-    for (const term of ['無料の見取り図', '保存版', '相談返書'] as const) {
-      assert.match(hwBlob, new RegExp(term), `howM55Works must retain: ${term}`);
-    }
+    assert.match(calendarPage, /calendarLayersJa/);
+    assert.match(receivePage, /section05CompositeExperienceJa/);
+    assert.match(receivePage, /section05AddOnJa/);
     assert.match(
       TOP_FREE_ENTRY_PUBLIC_COPY.metadata.howM55WorksDescriptionJa,
-      /無料で見る・複合解析・追加解析/,
+      /生まれた日を暦の層で読み直し/,
     );
-    assert.match(receivePage, /threeTierItemsJa/);
-    assert.match(receivePage, /commercialFlowKickerJa/);
-    assert.match(receivePage, /boundaryJa/);
     assert.equal(nextPage.includes('copy.primaryCtaJa'), true);
+    assert.equal(nextPage.includes('copy.secondaryCtaJa'), true);
     assert.equal(hw.primaryCtaJa, '無料で見てみる');
-    assert.match(hw.receiveFreeLeadJa, /無料で見る/);
-    assert.match(hw.receiveSavedLeadJa, /M55複合暦解析/);
-    assert.match(hw.receiveConsultJa, /M55追加解析/);
-    assert.match(hw.boundaryJa, /未来を当てる/);
-    assert.equal(hw.boundaryJa.includes('占い'), false);
-    assert.equal(hw.boundaryJa.includes('鑑定'), false);
+    assert.equal(hw.secondaryCtaJa, '複合解析のプランを見る');
+    assert.match(nextPage, /viewSavedPlansHref/);
+    for (const term of HOW_M55_FORBIDDEN_DISPLAY_TERMS) {
+      assert.equal(
+        displayBlob.includes(term),
+        false,
+        `how-m55-works display copy must not include: ${term}`,
+      );
+    }
+    assert.match(displayBlob, /複合解析/);
+    assert.match(displayBlob, /追加解析/);
   });
 
   it('P0 SSOT avoids hype and ten-type-only framing', () => {

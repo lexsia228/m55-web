@@ -117,6 +117,38 @@
   margin: 0 0 24px;
 }
 
+.heroTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(24px, 4.8vw, 32px);
+  font-weight: 500;
+  color: #1a1a1a;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  margin: 0 0 20px;
+}
+
+.heroHook {
+  font-size: clamp(20px, 4vw, 26px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(26, 26, 26, 0.94);
+  margin: 0 0 24px;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+}
+
+.heroLead {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.85;
+  color: rgba(60, 60, 60, 0.78);
+  margin: 0 0 8px;
+}
+
+.sectionLanding {
+  margin-top: 28px;
+  color: rgba(26, 26, 26, 0.88);
+}
+
 .introEmphasisBlock {
   margin-top: 8px;
 }
@@ -877,4 +909,96 @@
   color: rgba(60, 60, 60, 0.58);
   line-height: 1.75;
   margin: 0;
+}
+
+/* ── Calendar layers (2×2 / mobile stack) ── */
+.calendarLayerGrid {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (min-width: 768px) {
+  .calendarLayerGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+.calendarLayerCard {
+  padding: 20px 18px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 10px;
+}
+
+.calendarLayerHeader {
+  margin-bottom: 14px;
+}
+
+.calendarLayerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.calendarLayerSub {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(107, 95, 168, 0.85);
+  margin: 0;
+}
+
+.calendarLayerLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(60, 60, 60, 0.5);
+  margin: 0 0 6px;
+}
+
+.calendarLayerBody {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.75);
+  margin: 0 0 14px;
+  line-height: 1.7;
+}
+
+.calendarLayerBody:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Composite block (§05) ── */
+.compositeBlockTitle {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 28px 0 12px;
+}
+
+.compositeHighlight {
+  margin-top: 32px;
+  padding: 24px 20px;
+  background: rgba(107, 95, 168, 0.05);
+  border: 1px solid rgba(107, 95, 168, 0.12);
+  border-radius: 10px;
+}
+
+.compositeHook {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.compositeAddOn {
+  font-size: 14px;
+  color: rgba(60, 60, 60, 0.68);
+  margin-top: 28px;
 }

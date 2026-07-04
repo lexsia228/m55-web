@@ -8,28 +8,55 @@ const cta = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 export function NextStepSection() {
   return (
     <section
-      className={`${styles.shellNarrow} ${styles.foldAlt} ${styles.nextSection}`}
+      className={`${styles.shellNarrow} ${styles.nextSection}`}
       aria-labelledby="how-m55-next-title"
     >
-      <p className={styles.sectionKicker}>06 — 次のステップ</p>
+      <p className={styles.sectionKicker}>{copy.section07KickerJa}</p>
       <h2 id="how-m55-next-title" className={styles.visuallyHidden}>
-        次のステップ
+        {copy.section07TitleJa}
       </h2>
-      <p className={styles.nextLead}>{copy.nextLeadJa}</p>
-      <p className={styles.nextSub}>{copy.nextSubJa}</p>
+      <p className={styles.nextLead}>
+        {copy.nextLeadJa.split('\n').map((line, index, lines) => (
+          <span key={`lead-${index}`}>
+            {line}
+            {index < lines.length - 1 ? <br /> : null}
+          </span>
+        ))}
+      </p>
+      <p className={styles.nextSub}>
+        {copy.nextSubJa.split('\n').map((line, index, lines) => (
+          <span key={`sub-${index}`}>
+            {line}
+            {index < lines.length - 1 ? <br /> : null}
+          </span>
+        ))}
+      </p>
 
       <div className={styles.ctaStack}>
         <Link href={cta.coreFreeHref} className={styles.primaryCta}>
           {copy.primaryCtaJa}
         </Link>
         <Link href={cta.viewSavedPlansHref} className={styles.secondaryCta}>
-          {cta.viewSavedPlansJa}
+          {copy.secondaryCtaJa}
         </Link>
       </div>
 
       <div className={styles.nextFoot}>
         <p className={styles.nextFootText}>
-          M55は、今の自分を読みやすくし、扱いやすくするためにあります。
+          {copy.nextFootJa.split('\n').map((line, index, lines) => (
+            <span key={`foot-${index}`}>
+              {line}
+              {index < lines.length - 1 ? <br /> : null}
+            </span>
+          ))}
+        </p>
+        <p className={styles.nextFootText}>
+          {copy.nextClosingJa.split('\n').map((line, index, lines) => (
+            <span key={`close-${index}`}>
+              {line}
+              {index < lines.length - 1 ? <br /> : null}
+            </span>
+          ))}
         </p>
       </div>
     </section>

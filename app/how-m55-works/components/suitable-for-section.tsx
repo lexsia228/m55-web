@@ -1,56 +1,35 @@
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
 import styles from '../how-it-works.module.css';
 
-const SITUATIONS = [
-  {
-    text: 'なんとなく疲れる理由を整理したい',
-    subtext: '',
-  },
-  {
-    text: '人との距離の取り方を見直したい',
-    subtext: '',
-  },
-  {
-    text: '自分に合う動き方を理解したい',
-    subtext: '',
-  },
-  {
-    text: '迷いやすい場面の傾向をつかみたい',
-    subtext: '',
-  },
-  {
-    text: '大事な時期に、自分の整え方を思い出したい',
-    subtext: '',
-  },
-] as const;
+const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
 
 export function SuitableForSection() {
   return (
-    <section className={styles.shellNarrow} aria-labelledby="how-m55-suitable-title">
-      <p className={styles.sectionKicker}>05 — こんなときに</p>
-      <h2 id="how-m55-suitable-title" className={styles.visuallyHidden}>
-        こんなときに
+    <section
+      className={`${styles.shellNarrow} ${styles.foldAlt}`}
+      aria-labelledby="how-m55-reflect-title"
+    >
+      <p className={styles.sectionKicker}>{copy.section04KickerJa}</p>
+      <h2 id="how-m55-reflect-title" className={styles.sectionTitle}>
+        {copy.section04TitleJa}
       </h2>
-
-      <ul className={styles.suitableList}>
-        {SITUATIONS.map((s) => (
-          <li key={s.text} className={styles.suitableItem}>
-            <div className={styles.suitableItemInner}>
-              <div className={styles.suitableDot} aria-hidden>
-                <div className={styles.suitableDotInner} />
-              </div>
-              <div>
-                <p className={styles.suitableTitle}>{s.text}</p>
-                {s.subtext ? <p className={styles.suitableSub}>{s.subtext}</p> : null}
-              </div>
-            </div>
-          </li>
+      {copy.section04ParagraphsJa.map((paragraph) => (
+        <p key={paragraph.slice(0, 24)} className={styles.sectionLead}>
+          {paragraph.split('\n').map((line, index, lines) => (
+            <span key={`${line}-${index}`}>
+              {line}
+              {index < lines.length - 1 ? <br /> : null}
+            </span>
+          ))}
+        </p>
+      ))}
+      <p className={`${styles.sectionLead} ${styles.sectionLanding}`}>
+        {copy.section04LandingJa.split('\n').map((line, index, lines) => (
+          <span key={`${line}-${index}`}>
+            {line}
+            {index < lines.length - 1 ? <br /> : null}
+          </span>
         ))}
-      </ul>
-
-      <p className={styles.suitableFootnote}>
-        M55が渡したいのは、ひとつの答えではありません。
-        <br />
-        今の自分を読みやすくし、扱いやすくするための見取り図です。
       </p>
     </section>
   );
