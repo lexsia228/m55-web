@@ -4,7 +4,7 @@ export const metadata = { title: "料金とプラン | M55" };
 
 export default function PricingPage() {
   return (
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: "24px 16px 56px" }}>
+    <main style={{ maxWidth: "min(56rem, calc(100vw - 32px))", margin: "0 auto", padding: "24px 16px 56px" }}>
       <p style={{ margin: "0 0 10px" }}>
         <Link href="/home">ホームへ戻る</Link>
       </p>

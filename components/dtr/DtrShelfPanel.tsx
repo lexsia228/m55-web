@@ -112,8 +112,7 @@ function EntryReportCard({
 
   return (
     <Link href={ctaHref} className={styles.reportCard} aria-label={ariaLabel}>
-
-      <div className={styles.cardPoster}>
+      <div className={styles.cardFeaturedVisual} aria-hidden>
         {typeImage && (
           <img
             className={styles.cardPosterTypeImg}
@@ -123,37 +122,36 @@ function EntryReportCard({
             aria-hidden
           />
         )}
-        <div className={styles.cardPosterContent}>
-          <div className={styles.cardBadgeRow}>
-            <span className={styles.cardBrandWord}>M55</span>
-            <span className={styles.cardProductPill}>
-              {isOwned ? LABEL_PRODUCT_JP : LABEL_SAVED_REPORT_METADATA_JP}
-            </span>
-            {isOwned && (
-              <span className={styles.cardSavedPill}>{LABEL_STATE_OWNED}</span>
-            )}
-            {isExpired && (
-              <span className={styles.cardExpiredPill}>期限切れ</span>
-            )}
-          </div>
-
-          <div className={styles.cardPosterBottom}>
-            {hasProfile && stem && (
-              <p className={styles.cardEyebrow}>
-                資質&thinsp;/&thinsp;{stem.publicTitle}
-              </p>
-            )}
-            <h2 className={styles.cardTitle}>{cardTitle}</h2>
-            <p className={styles.cardOneLine}>
-              {stem
-                ? stem.displayOneLine
-                : 'あなたの本質を、構造として見つめ直す'}
-            </p>
-          </div>
-        </div>
       </div>
 
-      <div className={styles.cardBody}>
+      <div className={styles.cardFeaturedCopy}>
+        <div className={styles.cardBadgeRow}>
+          <span className={styles.cardBrandWord}>M55</span>
+          <span className={styles.cardProductPill}>
+            {isOwned ? LABEL_PRODUCT_JP : LABEL_SAVED_REPORT_METADATA_JP}
+          </span>
+          {isOwned && (
+            <span className={styles.cardSavedPill}>{LABEL_STATE_OWNED}</span>
+          )}
+          {isExpired && (
+            <span className={styles.cardExpiredPill}>期限切れ</span>
+          )}
+        </div>
+
+        <div className={styles.cardPosterBottom}>
+          {hasProfile && stem && (
+            <p className={styles.cardEyebrow}>
+              資質&thinsp;/&thinsp;{stem.publicTitle}
+            </p>
+          )}
+          <h2 className={styles.cardTitle}>{cardTitle}</h2>
+          <p className={styles.cardOneLine}>
+            {stem
+              ? stem.displayOneLine
+              : 'あなたの本質を、構造として見つめ直す'}
+          </p>
+        </div>
+
         <div className={styles.cardMeta}>
           {isOwned ? (
             <>
