@@ -195,6 +195,37 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /M55_LOGIC_HOME_COPY/);
   });
 
+  it('howM55Works exposes commercial three-tier funnel with operational layers', () => {
+    const hw = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
+    const hwBlob = JSON.stringify(hw);
+    const receivePage = readPage(ROUTE_FILES['/how-m55-works/receive']);
+    const nextPage = readPage(ROUTE_FILES['/how-m55-works/next']);
+
+    for (const term of ['無料で見る', '複合解析', '追加解析'] as const) {
+      assert.match(hwBlob, new RegExp(term), `howM55Works must include: ${term}`);
+    }
+    assert.match(hw.commercialFlowKickerJa, /無料で見る → 複合解析 → 追加解析/);
+    assert.match(hw.operationalFlowKickerJa, /無料の見取り図 → 保存版 → 相談返書/);
+    for (const term of ['無料の見取り図', '保存版', '相談返書'] as const) {
+      assert.match(hwBlob, new RegExp(term), `howM55Works must retain: ${term}`);
+    }
+    assert.match(
+      TOP_FREE_ENTRY_PUBLIC_COPY.metadata.howM55WorksDescriptionJa,
+      /無料で見る・複合解析・追加解析/,
+    );
+    assert.match(receivePage, /threeTierItemsJa/);
+    assert.match(receivePage, /commercialFlowKickerJa/);
+    assert.match(receivePage, /boundaryJa/);
+    assert.equal(nextPage.includes('copy.primaryCtaJa'), true);
+    assert.equal(hw.primaryCtaJa, '無料で見てみる');
+    assert.match(hw.receiveFreeLeadJa, /無料で見る/);
+    assert.match(hw.receiveSavedLeadJa, /M55複合暦解析/);
+    assert.match(hw.receiveConsultJa, /M55追加解析/);
+    assert.match(hw.boundaryJa, /未来を当てる/);
+    assert.equal(hw.boundaryJa.includes('占い'), false);
+    assert.equal(hw.boundaryJa.includes('鑑定'), false);
+  });
+
   it('P0 SSOT avoids hype and ten-type-only framing', () => {
     const copy = readPage(COPY_FILE);
     for (const term of [

@@ -20,7 +20,7 @@ export function NextStepSection() {
 
       <div className={styles.ctaStack}>
         <Link href={cta.coreFreeHref} className={styles.primaryCta}>
-          無料の見取り図を確認する
+          {copy.primaryCtaJa}
         </Link>
         <Link href={cta.viewSavedPlansHref} className={styles.secondaryCta}>
           {cta.viewSavedPlansJa}
