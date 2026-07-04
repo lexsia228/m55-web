@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../../lib/m55/topFreeEntryPublicCopy';
+import { BackToPreviousButton } from './back-to-previous-button';
 import styles from '../how-it-works.module.css';
 
 const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
@@ -39,6 +40,7 @@ export function NextStepSection() {
         <Link href={cta.viewSavedPlansHref} className={styles.secondaryCta}>
           {copy.secondaryCtaJa}
         </Link>
+        <BackToPreviousButton labelJa={copy.backButtonJa} fallbackHref={cta.homeHref} />
       </div>
 
       <div className={styles.nextFoot}>

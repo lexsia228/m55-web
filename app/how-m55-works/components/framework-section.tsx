@@ -3,14 +3,6 @@ import styles from '../how-it-works.module.css';
 
 const copy = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
 
-const VERTICES: [number, number][] = [
-  [100, 20],
-  [180, 75],
-  [155, 165],
-  [45, 165],
-  [20, 75],
-];
-
 export function FrameworkSection() {
   return (
     <section className={styles.shellWide} aria-labelledby="how-m55-individual-title">
@@ -29,32 +21,18 @@ export function FrameworkSection() {
         </p>
       ))}
 
-      <div className={`${styles.frameworkVisual} ${styles.visibleAxisFigure}`}>
-        <svg className={styles.pentagonSvg} viewBox="0 0 200 200" aria-hidden>
-          <polygon
-            points="100,20 180,75 155,165 45,165 20,75"
-            fill="none"
-            stroke="rgba(0,0,0,0.12)"
-            strokeWidth="1"
-          />
-          <circle cx="100" cy="100" r="3" fill="rgba(60,60,60,0.35)" />
-          {VERTICES.map(([x, y], i) => (
-            <line
-              key={`l-${i}`}
-              x1="100"
-              y1="100"
-              x2={x}
-              y2={y}
-              stroke="rgba(0,0,0,0.1)"
-              strokeWidth="1"
-              strokeDasharray="2 4"
-            />
+      <div className={styles.fiveViewPanel} aria-labelledby="how-m55-five-views-title">
+        <p id="how-m55-five-views-title" className={styles.fiveViewLead}>
+          {copy.section03FiveViewsLeadJa}
+        </p>
+        <ul className={styles.fiveViewGrid}>
+          {copy.section03FiveViewLabelsJa.map((label) => (
+            <li key={label} className={styles.fiveViewChip}>
+              <span className={styles.fiveViewChipDot} aria-hidden />
+              <span className={styles.fiveViewChipLabel}>{label}</span>
+            </li>
           ))}
-          {VERTICES.map(([x, y], i) => (
-            <circle key={`d-${i}`} cx={x} cy={y} r="4" fill="rgba(107,95,168,0.25)" />
-          ))}
-        </svg>
-        <p className={styles.visualCaption}>5つの視点（抽象イメージ）</p>
+        </ul>
       </div>
 
       <p className={`${styles.sectionLead} ${styles.sectionLanding}`}>

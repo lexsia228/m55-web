@@ -141,7 +141,46 @@
   font-weight: 400;
   line-height: 1.85;
   color: rgba(60, 60, 60, 0.78);
+  margin: 0 0 20px;
+}
+
+.heroBridge {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: rgba(60, 60, 60, 0.62);
   margin: 0 0 8px;
+  max-width: 36rem;
+}
+
+.heroCtaRow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 28px;
+  margin-bottom: 12px;
+  max-width: 22rem;
+}
+
+@media (min-width: 640px) {
+  .heroCtaRow {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: none;
+  }
+
+  .heroCtaRow .primaryCta,
+  .heroCtaRow .secondaryCta {
+    width: auto;
+  }
+}
+
+.heroCtaRow .primaryCta,
+.heroCtaRow .secondaryCta {
+  width: 100%;
+  text-align: center;
 }
 
 .sectionLanding {
@@ -340,6 +379,74 @@
 
 .visibleAxisFigure {
   margin-top: 32px;
+}
+
+/* ── §03 five views ── */
+.fiveViewPanel {
+  margin-top: 32px;
+  padding: 28px 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.fiveViewLead {
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(16px, 3.2vw, 18px);
+  font-weight: 500;
+  color: #1a1a1a;
+  line-height: 1.55;
+  margin: 0 0 20px;
+  letter-spacing: 0.02em;
+}
+
+.fiveViewGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .fiveViewGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .fiveViewGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.fiveViewChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: rgba(107, 95, 168, 0.04);
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  border-radius: 10px;
+}
+
+.fiveViewChipDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(107, 95, 168, 0.55);
+}
+
+.fiveViewChipLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(26, 26, 26, 0.9);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
 }
 
 .receiveFlowBlock {
@@ -876,12 +983,15 @@
   padding: 10px 20px;
   font-size: 13px;
   font-weight: 600;
+  font-family: inherit;
   color: #534a72;
   text-decoration: none;
   background: transparent;
   border: 1px solid rgba(107, 95, 168, 0.28);
   border-radius: 8px;
   margin-top: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
@@ -971,7 +1081,7 @@
   margin-bottom: 0;
 }
 
-/* ── Composite block (§05) ── */
+/* ── Composite block (§04) ── */
 .compositeBlockTitle {
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 18px;
@@ -1001,4 +1111,83 @@
   font-size: 14px;
   color: rgba(60, 60, 60, 0.68);
   margin-top: 28px;
+}
+
+.compositeClosing {
+  font-size: 14px;
+  color: rgba(60, 60, 60, 0.68);
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+.valueCardGrid {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (min-width: 768px) {
+  .valueCardGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+.valueCard {
+  padding: 18px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 10px;
+}
+
+.valueCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+
+.valueCardBody {
+  font-size: 13px;
+  color: rgba(60, 60, 60, 0.75);
+  margin: 0;
+  line-height: 1.65;
+}
+
+.midFlowWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+  margin-bottom: 44px;
+}
+
+.midFlowLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #534a72;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid rgba(107, 95, 168, 0.24);
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.midFlowLink:hover {
+  background: rgba(107, 95, 168, 0.05);
+  border-color: rgba(107, 95, 168, 0.36);
+  color: #453d62;
+}
+
+.midFlowLink:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.4);
+  outline-offset: 3px;
 }

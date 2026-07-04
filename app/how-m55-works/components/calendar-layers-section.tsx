@@ -27,7 +27,7 @@ export function CalendarLayersSection() {
         ))}
       </p>
 
-      <div className={styles.calendarLayerGrid} aria-label="4つの暦レイヤー">
+      <div className={styles.calendarLayerGrid} aria-label={copy.section02GridAriaLabelJa}>
         {copy.calendarLayersJa.map((layer) => (
           <article key={layer.layerId} className={styles.calendarLayerCard}>
             <div className={styles.calendarLayerHeader}>
@@ -43,7 +43,7 @@ export function CalendarLayersSection() {
                 </span>
               ))}
             </p>
-            <p className={styles.calendarLayerLabel}>M55ではどう使うか</p>
+            <p className={styles.calendarLayerLabel}>{copy.calendarLayerHowLabelJa}</p>
             <p className={styles.calendarLayerBody}>
               {layer.howJa.split('\n').map((line, index, lines) => (
                 <span key={`how-${index}`}>

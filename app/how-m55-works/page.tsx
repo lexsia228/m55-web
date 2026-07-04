@@ -23,8 +23,8 @@ export default function HowM55WorksPage() {
         <WhatIsSection />
         <CalendarLayersSection />
         <FrameworkSection />
-        <SuitableForSection />
         <WhatYouCanDoSection />
+        <SuitableForSection />
         <ValuesBoundarySection />
         <NextStepSection />
       </div>
