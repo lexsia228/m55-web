@@ -87,21 +87,34 @@ function grep(files, re, reason, opts = {}) {
   }
 }
 
-function validateRequiredFiles() {
-  if (!exists(LEGACY)) add('public/legacy', 'Legacy RC1 bundle missing');
+/** Stripe crawler guard: public/legacy must not serve HTML or iframe targets. */
+function validateLegacyPublicExposureRemoved() {
+  if (!exists(LEGACY)) return;
 
-  // Layer1 contracts: must exist.
-  const requiredPolicies = [
-    path.join(LEGACY, 'policies', 'm55_entitlements_v1_0.json'),
-    path.join(LEGACY, 'policies', 'm55_retention_v1_0.json'),
-    path.join(LEGACY, 'policies', 'm55_dtr_cooldowns_v1_0.json')
-  ];
-  for (const p of requiredPolicies) {
-    if (!exists(p)) add(rel(p), 'Layer1 policy missing');
+  for (const f of walk(LEGACY)) {
+    if (f.endsWith('.html')) {
+      add(rel(f), 'Stripe crawler guard: public/legacy HTML must not be publicly servable');
+    }
   }
+}
 
-  // Integrity JSON must exist.
-  if (!exists(NAME_ANALYSIS_JSON)) add(rel(NAME_ANALYSIS_JSON), 'Required logic data missing (JSON single source)');
+function validateLegacyIframeRoutesRemoved() {
+  const routes = [
+    path.join(ROOT, 'app', 'ai-chat', 'page.tsx'),
+    path.join(ROOT, 'app', 'tarot', 'page.tsx'),
+    path.join(ROOT, 'app', 'meter', 'page.tsx'),
+    path.join(ROOT, 'app', 'calendar', 'page.tsx'),
+  ];
+  for (const p of routes) {
+    if (!exists(p)) continue;
+    const t = readText(p);
+    if (t.includes('/legacy/')) {
+      add(rel(p), 'Legacy iframe route must not reference /legacy/');
+    }
+    if (!t.includes('notFound(')) {
+      add(rel(p), 'Legacy iframe route must fail closed with notFound()');
+    }
+  }
 }
 
 function validateIntegrityHash() {
@@ -444,7 +457,8 @@ function validatePublicClaimsBanlist() {
 }
 
 function main() {
-  validateRequiredFiles();
+  validateLegacyPublicExposureRemoved();
+  validateLegacyIframeRoutesRemoved();
 
   validateShellLayoutNoAutoBirthGateOnHome();
   validateHomeRegressionTestIds();
