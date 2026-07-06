@@ -593,7 +593,7 @@ export function drawerSectionDisplayTitleJa(section: {
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
   titleLine2Ja: '保存版をもとに、今気になっていることを1テーマだけ整理します',
   dividerChipJa: 'この保存版の相談返書',
-  entryContextAriaJa: '相談返書の入口のコンテキスト',
+  entryContextAriaJa: '追加読み解きの入口のコンテキスト',
   continuousSupportOverlineJa: '状況が変わったときの使い方',
   continuousSupportBodyJa:
     '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを相談返書で見ていけます。',
@@ -665,9 +665,9 @@ export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
 /** Consult entry LOCAL wave — neutral wallet lines (consult/my only; not LP). */
 export const PAID_DTR_CONSULT_ENTRY_NEUTRAL = {
   /** Current usable reply balance at the consultation entrance (live wallet). */
-  walletAvailableTemplateJa: '現在使える相談返書：{count}件',
+  walletAvailableTemplateJa: '現在使える追加読み解き：{count}件',
   /** @deprecated Prefer walletAvailableTemplateJa — kept for compact inline surfaces. */
-  walletRemainingTemplateJa: '現在使える相談返書：{count}件',
+  walletRemainingTemplateJa: '現在使える追加読み解き：{count}件',
   walletUsedTemplateJa: '使用済み：{used}件',
   walletExhaustedJa: '今は相談返書を使えません。残数はこの入口で確認できます。',
 } as const;
@@ -692,7 +692,7 @@ export function formatConsultAvailableWithGrantedLine(
   available: number,
   totalGranted: number,
 ): string {
-  return `現在使える相談返書：${available} / ${totalGranted}件`;
+  return `現在使える追加読み解き：${available} / ${totalGranted}件`;
 }
 
 export function formatConsultUsedCountLine(used: number, cap?: number): string {
@@ -941,7 +941,7 @@ export const PAID_DTR_CONSULT_REPLY = {
   whereToUseJa:
     '購入後、保存版レポート（/dtr/core）内の相談返書の入口で利用します。マイページやレポート棚からレポートを開いたあと、画面内の相談返書へ進みます。',
   consumeNoteJa:
-    '1回の送信で相談返書1件を使用します。送信後の取り消しはできません。返書は保存されます。',
+    '1回の送信で追加読み解き1件を使用します。送信後の取り消しはできません。作成した内容は保存されます。',
   capSummaryJa: '付属1件 + 追加購入最大4件まで（合計5件まで）',
   avoidOverpromisingJa: [
     '無制限の相談やチャットではありません',
@@ -962,8 +962,8 @@ export const PAID_DTR_CONSULT_REPLY = {
 
 /** Consult entry / ticket wallet UI copy (display-only). */
 export const PAID_DTR_CONSULT_ROOM_UI = {
-  ariaLabelJa: '相談返書の入口（purchaser-only）',
-  roomTitleJa: '相談返書の入口',
+  ariaLabelJa: '追加読み解きの入口（purchaser-only）',
+  roomTitleJa: '追加読み解きの入口',
   roomLeadJa:
     '購入した保存版に紐づく相談です。汎用チャットではなく、無制限の相談でもありません。いまの1テーマを、章に沿って整理します。',
   standalonePageLeadJa:
@@ -996,7 +996,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
     '返書は、状況に合わせてそっと整理する・はっきり整理する・順番にほどく、のいずれかの方向です（モード選択はありません）。',
   observationInputJa:
     '書いたことや気づいたことに触れながら整理します。正しさの判定や、なんでも肯定する約束はしません。',
-  submitLabelJa: '相談返書を作成する',
+  submitLabelJa: '追加読み解きを作成する',
   submittingLabelJa: '作成中',
   generatingReplyJa: '返答を生成しています…',
   walletLoadingShortJa: '残数確認中...',

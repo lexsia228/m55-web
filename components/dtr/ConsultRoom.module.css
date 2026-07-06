@@ -1013,6 +1013,259 @@
   letter-spacing: 0.02em;
 }
 
+/* ── Reply wizard — progressive disclosure compose ── */
+.replyWizard {
+  gap: 18px;
+}
+
+.wizardProgress {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: 2px 0 4px;
+}
+
+.wizardProgressItem {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.wizardProgressItem:first-child {
+  flex: 0 0 auto;
+}
+
+.wizardConnector {
+  flex: 1;
+  height: 2px;
+  margin: 0 6px;
+  border-radius: 999px;
+  background: rgba(160, 140, 220, 0.18);
+}
+
+.wizardConnectorActive {
+  background: rgba(160, 140, 220, 0.42);
+}
+
+.wizardStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 4.5rem;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(160, 140, 220, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+}
+
+.wizardStepPending {
+  opacity: 0.55;
+}
+
+.wizardStepActive {
+  border-color: rgba(186, 158, 255, 0.48);
+  background: rgba(86, 74, 136, 0.22);
+  box-shadow: 0 0 0 1px rgba(186, 158, 255, 0.1) inset;
+}
+
+.wizardStepDone {
+  border-color: rgba(160, 140, 220, 0.32);
+  background: rgba(86, 74, 136, 0.12);
+}
+
+.wizardStepNum {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(188, 175, 220, 0.72);
+}
+
+.wizardStepActive .wizardStepNum {
+  color: rgba(220, 210, 255, 0.92);
+}
+
+.wizardStepLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(210, 198, 240, 0.82);
+}
+
+.wizardStepActive .wizardStepLabel {
+  color: rgba(236, 230, 252, 0.96);
+}
+
+.wizardStepPanel {
+  margin: 0;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wizardStepPanelActive {
+  border-top-color: rgba(160, 140, 220, 0.14);
+}
+
+.stepEyebrow {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(185, 165, 230, 0.68);
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.choiceCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(140, 120, 200, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.choiceCard:hover {
+  border-color: rgba(160, 140, 220, 0.42);
+  color: rgba(255, 255, 255, 0.92);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(8, 6, 20, 0.22);
+}
+
+.choiceCard:focus-visible {
+  outline: none;
+  border-color: rgba(186, 158, 255, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(107, 95, 168, 0.28),
+    0 6px 18px rgba(8, 6, 20, 0.18);
+}
+
+.choiceCardSelected {
+  border-color: rgba(186, 158, 255, 0.55);
+  background: rgba(107, 95, 168, 0.24);
+  color: rgba(236, 230, 252, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(186, 158, 255, 0.14) inset,
+    0 8px 22px rgba(80, 60, 160, 0.18);
+  transform: translateY(-1px);
+}
+
+.choiceCardTitle {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.choiceCardDescription {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(188, 175, 220, 0.72);
+}
+
+.choiceCardSelected .choiceCardDescription {
+  color: rgba(220, 210, 255, 0.78);
+}
+
+.selectionMemory {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(160, 140, 220, 0.22);
+  background: rgba(34, 32, 55, 0.45);
+}
+
+.selectionMemoryEyebrow {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(185, 165, 230, 0.72);
+}
+
+.selectionMemoryValue {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(236, 230, 252, 0.94);
+}
+
+.selectionMemoryPrompt {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(200, 188, 230, 0.82);
+}
+
+.confirmPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(160, 140, 220, 0.24);
+  background: rgba(22, 20, 38, 0.55);
+}
+
+.confirmRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 10px;
+}
+
+.confirmLabel {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(185, 165, 230, 0.72);
+}
+
+.confirmValue {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(236, 230, 252, 0.94);
+}
+
+.checkMark {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(196, 178, 245, 0.92);
+}
+
+@media (min-width: 640px) {
+  .choiceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .composeGroundingHint {
   font-size: 0.82rem;
   color: rgba(210, 198, 240, 0.78);
@@ -1321,8 +1574,18 @@
   .textarea,
   .submitBtn,
   .themeChip,
-  .questionToggle {
+  .questionToggle,
+  .choiceCard,
+  .historyHeaderAction,
+  .historyShowMoreBtn,
+  .replyExpandBtn,
+  .replyExpandBtnCompact {
     transition: none;
+  }
+
+  .choiceCard:hover,
+  .choiceCardSelected {
+    transform: none;
   }
 
   .submitSpinner {

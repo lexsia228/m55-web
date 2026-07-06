@@ -14,11 +14,15 @@ import {
   validateComposedReplyMessage,
   validateConsultSendInput,
 } from './consultSendMessage';
-import { resolveReplyQuestion } from './consultQuestionCatalog.v1';
+import { resolveReplyQuestion, REPLY_THEME_IDS, getQuestionsForTheme } from './consultQuestionCatalog.v1';
 import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_QUALITY_VOICE_JA,
 } from './consultReplyGenerationContract';
+import {
+  PAID_DTR_CONSULT_REPLY,
+  PAID_DTR_CONSULT_ROOM_UI,
+} from '../paidDtrProductCopy';
 
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const CONSULT_ROOM = join(process.cwd(), 'components/dtr/ConsultRoom.tsx');
@@ -144,12 +148,35 @@ describe('consultSendMessage', () => {
     assert.equal(src.includes('inputText'), false);
     assert.ok(src.includes('reply_theme_id'));
     assert.ok(src.includes('reply_question_id'));
-    assert.ok(src.includes('読み返したい焦点を選ぶ'));
-    assert.ok(src.includes('保存版に沿って追加読み解きを作成'));
+    assert.ok(src.includes('今いちばん近い入口を選ぶ'));
+    assert.ok(src.includes('今回深く見るところを選ぶ'));
+    assert.ok(src.includes('selectionMemory'));
+    assert.ok(src.includes('WizardProgress'));
     assert.equal(src.includes('相談内容を入力'), false);
     assert.equal(src.includes('自由に相談'), false);
     assert.equal(src.includes('追加解析'), false);
-    assert.ok(src.includes('追加読み解きを1件使用します'));
+    assert.ok(src.includes('追加読み解き1件を使用します'));
+    assert.equal(PAID_DTR_CONSULT_ROOM_UI.submitLabelJa, '追加読み解きを作成する');
+    assert.match(PAID_DTR_CONSULT_REPLY.consumeNoteJa, /追加読み解き1件/);
+    assert.equal(src.includes('相談返書を作成する'), false);
+    assert.equal(src.includes('Ⅲ無理 + 対話章'), false);
+    assert.equal(src.includes('Ⅰ + 傾向語'), false);
+    assert.equal(src.includes('4章 + Ⅰ土台'), false);
+  });
+
+  it('ConsultRoom shows 4 question chips per theme and disables send until both are selected', () => {
+    const src = readFileSync(CONSULT_ROOM, 'utf8');
+    for (const themeId of REPLY_THEME_IDS) {
+      assert.equal(getQuestionsForTheme(themeId).length, 4);
+    }
+    assert.ok(src.includes('getQuestionsForTheme(selectedThemeId)'));
+    assert.ok(src.includes('themeQuestions.map'));
+    assert.ok(src.includes('!selectedThemeId'));
+    assert.ok(src.includes('!selectedQuestionId'));
+    assert.ok(src.includes('submitDisabled'));
+    assert.ok(src.includes('disabled={submitDisabled}'));
+    assert.ok(src.includes('confirmPanel'));
+    assert.ok(src.includes('Step 1 / 3'));
   });
 
   it('ConsultReplyCard prioritizes question quote label for history', () => {
