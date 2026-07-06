@@ -32,19 +32,19 @@ import {
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
   PAID_DTR_CONSULT_USAGE_DISPLAY,
-  PAID_DTR_DRAWER_THEME_ENTRIES,
-  THEME_CHIP_DISPLAY_LABEL_OVERRIDES,
   formatConsultAvailableCountLine,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
 import {
-  CONSULT_QUESTION_CATALOG_V1,
   REPLY_THEME_IDS,
-  REPLY_THEME_LABEL_JA,
   getQuestionsForTheme,
   type ReplyThemeId,
 } from '../../lib/m55/consult/consultQuestionCatalog.v1';
+import {
+  WIZARD_ENTRY_CARD_DISPLAY,
+  wizardQuestionLabelJa,
+} from '../../lib/m55/consult/consultReplyWizardDisplay.v1';
 import {
   type ConsultWalletDisplaySnapshot,
   walletRowToConsultDisplaySnapshot,
@@ -59,22 +59,28 @@ const ROOM_UI_COPY = {
   valueCardTitle: PAID_DTR_CONSULT_ROOM_UI.valueDeliverablesTitleJa,
   valueItems: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableItemsJa,
   valueCardNote: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableFooterJa,
-  composePanelTitle: PAID_DTR_CONSULT_ROOM_UI.composePanelTitleJa,
+  composePanelTitle: '保存版から、今のあなたに合う読み解きを選ぶ',
   historyTitle: 'これまでの相談返書',
-  step1Title: 'Step 1 テーマを選ぶ',
-  step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
-  step2Title: 'Step 2 読み返したい焦点を選ぶ',
-  step2Hint: '保存版に沿って追加読み解きを作成します。',
-  step2HintSub: '選んだテーマに沿った4つの焦点から、いま読み返したいものを1つ選んでください。',
-  counterHelper: '選んだテーマと焦点を送信します。',
-  step3Title: 'Step 3 追加読み解きを作成する',
-  step3Consume: 'この送信で追加読み解きを1件使用します。',
+  step1Title: '今いちばん近い入口を選ぶ',
+  step1Hint:
+    '保存版から、今のあなたに近い入口を1つ選んでください。迷ったら、いちばん目に止まるものを選んで大丈夫です。',
+  step2Title: '今回深く見るところを選ぶ',
+  step2Hint: '選んだ入口に合わせて、保存版から4つの焦点を出します。',
+  step2HintSub: 'いま読み返したいものを1つ選んでください。',
+  selectionMemoryEyebrow: '今回の入口',
+  selectionMemoryPrompt: 'では、今回はどこを深く見ますか？',
+  step3Title: '今回見る内容を確認する',
+  step3Lead: '保存版に沿って、この内容で追加読み解きを作成します。',
+  step3Consume: 'この送信で追加読み解き1件を使用します。',
+  confirmEntryLabel: '入口',
+  confirmFocusLabel: '焦点',
 } as const;
 
-const REPLY_THEMES = REPLY_THEME_IDS.map((id) => ({
-  id,
-  labelJa: REPLY_THEME_LABEL_JA[id],
-}));
+const WIZARD_STEPS = [
+  { n: 1 as const, shortLabel: '入口' },
+  { n: 2 as const, shortLabel: '焦点' },
+  { n: 3 as const, shortLabel: '確認' },
+];
 
 function WalletBalanceStats({
   availableCount,
@@ -192,41 +198,82 @@ function formatHistoryCountSummary(count: number): string {
   return PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa.replace('{count}', String(count));
 }
 
-/** Drawer sublabels keyed by reply theme label. */
-const THEME_CHIP_SUBLABEL_BY_LABEL = Object.fromEntries(
-  PAID_DTR_DRAWER_THEME_ENTRIES.map((entry) => [entry.labelJa, entry.sublabelJa]),
-) as Record<string, string>;
+function deriveWizardActiveStep(
+  themeId: ReplyThemeId | null,
+  questionId: string | null,
+): 1 | 2 | 3 {
+  if (themeId && questionId) return 3;
+  if (themeId) return 2;
+  return 1;
+}
 
-function ThemeChip({
+function WizardProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
+  return (
+    <div className={styles.wizardProgress} aria-label="追加読み解きの進行">
+      {WIZARD_STEPS.map((step, index) => {
+        const done = step.n < activeStep;
+        const active = step.n === activeStep;
+        const pending = step.n > activeStep;
+        return (
+          <div key={step.n} className={styles.wizardProgressItem}>
+            {index > 0 ? (
+              <div
+                className={
+                  done || active
+                    ? `${styles.wizardConnector} ${styles.wizardConnectorActive}`
+                    : styles.wizardConnector
+                }
+                aria-hidden
+              />
+            ) : null}
+            <div
+              className={[
+                styles.wizardStep,
+                done ? styles.wizardStepDone : '',
+                active ? styles.wizardStepActive : '',
+                pending ? styles.wizardStepPending : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <span className={styles.wizardStepNum}>Step {step.n} / 3</span>
+              <span className={styles.wizardStepLabel}>{step.shortLabel}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function EntryChoiceCard({
   themeId,
-  labelJa,
   selected,
   onSelect,
 }: {
   themeId: ReplyThemeId;
-  labelJa: string;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const sublabel =
-    THEME_CHIP_SUBLABEL_BY_LABEL[labelJa] ??
-    CONSULT_QUESTION_CATALOG_V1.find((entry) => entry.reply_theme_id === themeId)?.grounding_target ??
-    null;
-  const displayLabel = THEME_CHIP_DISPLAY_LABEL_OVERRIDES[labelJa] ?? labelJa;
+  const card = WIZARD_ENTRY_CARD_DISPLAY[themeId];
   return (
     <button
       type="button"
-      className={selected ? `${styles.themeChip} ${styles.themeChipSelected}` : styles.themeChip}
+      className={
+        selected
+          ? `${styles.choiceCard} ${styles.choiceCardSelected}`
+          : styles.choiceCard
+      }
       onClick={onSelect}
       aria-pressed={selected}
     >
-      <span className={styles.themeChipMain}>{displayLabel}</span>
-      {sublabel ? <span className={styles.themeChipSublabel}>{sublabel}</span> : null}
+      <span className={styles.choiceCardTitle}>{card.label}</span>
+      <span className={styles.choiceCardDescription}>{card.description}</span>
     </button>
   );
 }
 
-function QuestionChip({
+function FocusChoiceCard({
   labelJa,
   selected,
   onSelect,
@@ -239,12 +286,15 @@ function QuestionChip({
     <button
       type="button"
       className={
-        selected ? `${styles.questionToggle} ${styles.questionToggleSelected}` : styles.questionToggle
+        selected
+          ? `${styles.choiceCard} ${styles.choiceCardSelected}`
+          : styles.choiceCard
       }
       onClick={onSelect}
       aria-pressed={selected}
+      role="option"
     >
-      {labelJa}
+      <span className={styles.choiceCardTitle}>{labelJa}</span>
     </button>
   );
 }
@@ -679,93 +729,129 @@ export default function ConsultRoom({
       </div>
     ) : null;
 
-  const composeBlock = !isReadOnly ? (
-    <div id={CONSULT_COMPOSE_PANEL_ID} className={`${styles.composePanel} ${styles.composePanelScrollAnchor}`}>
-      <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
+  const wizardActiveStep = deriveWizardActiveStep(selectedThemeId, selectedQuestionId);
+  const selectedEntryLabel =
+    selectedThemeId != null ? WIZARD_ENTRY_CARD_DISPLAY[selectedThemeId].label : null;
+  const selectedFocusLabel = selectedCatalogEntry
+    ? wizardQuestionLabelJa(selectedCatalogEntry.reply_question_id, selectedCatalogEntry.labelJa)
+    : null;
 
-      <section className={styles.composeStep} aria-labelledby="consult-step-1">
-        <div className={styles.composeStepHead}>
-          <h4 id="consult-step-1" className={styles.composeStepTitle}>
-            {ROOM_UI_COPY.step1Title}
-          </h4>
-        </div>
+  const composeBlock = !isReadOnly ? (
+    <div
+      id={CONSULT_COMPOSE_PANEL_ID}
+      className={`${styles.composePanel} ${styles.composePanelScrollAnchor} ${styles.replyWizard}`}
+    >
+      <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
+      <WizardProgress activeStep={wizardActiveStep} />
+
+      <section
+        className={`${styles.wizardStepPanel} ${wizardActiveStep === 1 ? styles.wizardStepPanelActive : ''}`}
+        aria-labelledby="consult-step-1"
+      >
+        <p className={styles.stepEyebrow}>Step 1 / 3</p>
+        <h4 id="consult-step-1" className={styles.composeStepTitle}>
+          {ROOM_UI_COPY.step1Title}
+        </h4>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
-        <div className={styles.themeRow}>
-          {REPLY_THEMES.map((theme) => (
-            <ThemeChip
-              key={theme.id}
-              themeId={theme.id}
-              labelJa={theme.labelJa}
-              selected={selectedThemeId === theme.id}
-              onSelect={() => selectTheme(theme.id)}
+        <div className={styles.choiceGrid} role="list">
+          {REPLY_THEME_IDS.map((themeId) => (
+            <EntryChoiceCard
+              key={themeId}
+              themeId={themeId}
+              selected={selectedThemeId === themeId}
+              onSelect={() => selectTheme(themeId)}
             />
           ))}
         </div>
       </section>
 
-      <section className={styles.composeStep} aria-labelledby="consult-step-2">
-        <div className={styles.composeStepHead}>
+      {selectedThemeId ? (
+        <section
+          className={`${styles.wizardStepPanel} ${wizardActiveStep === 2 ? styles.wizardStepPanelActive : ''}`}
+          aria-labelledby="consult-step-2"
+        >
+          <p className={styles.stepEyebrow}>Step 2 / 3</p>
           <h4 id="consult-step-2" className={styles.composeStepTitle}>
             {ROOM_UI_COPY.step2Title}
           </h4>
-        </div>
-        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
-        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
-        {selectedThemeId ? (
-          <div className={styles.questionList} role="listbox" aria-label="読み返したい焦点">
+          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
+          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
+          <div className={styles.selectionMemory} aria-live="polite">
+            <p className={styles.selectionMemoryEyebrow}>{ROOM_UI_COPY.selectionMemoryEyebrow}</p>
+            <p className={styles.selectionMemoryValue}>{selectedEntryLabel}</p>
+            <p className={styles.selectionMemoryPrompt}>{ROOM_UI_COPY.selectionMemoryPrompt}</p>
+          </div>
+          <div className={styles.choiceGrid} role="listbox" aria-label="今回深く見る焦点">
             {themeQuestions.map((entry) => (
-              <QuestionChip
+              <FocusChoiceCard
                 key={entry.reply_question_id}
-                labelJa={entry.labelJa}
+                labelJa={wizardQuestionLabelJa(entry.reply_question_id, entry.labelJa)}
                 selected={selectedQuestionId === entry.reply_question_id}
                 onSelect={() => setSelectedQuestionId(entry.reply_question_id)}
               />
             ))}
           </div>
-        ) : (
-          <p className={styles.composeHintMuted}>先にテーマを選んでください。</p>
-        )}
-        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.counterHelper}</p>
-      </section>
+        </section>
+      ) : null}
 
-      <section className={styles.composeStepSubmit} aria-labelledby="consult-step-3">
-        <h4 id="consult-step-3" className={styles.composeStepTitle}>
-          {ROOM_UI_COPY.step3Title}
-        </h4>
-        <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step3Consume}</p>
-        <button
-          type="button"
-          className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
-          onClick={handleSend}
-          disabled={submitDisabled}
-          aria-busy={sending}
+      {selectedThemeId && selectedQuestionId && selectedCatalogEntry ? (
+        <section
+          className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive} ${styles.composeStepSubmit}`}
+          aria-labelledby="consult-step-3"
         >
-          {sending ? (
-            <span className={styles.submitBtnInner}>
-              <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
-                <circle
-                  className={styles.submitSpinnerTrack}
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                />
-                <path
-                  className={styles.submitSpinnerArc}
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
-            </span>
-          ) : (
-            PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
-          )}
-        </button>
-        <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
-      </section>
+          <p className={styles.stepEyebrow}>Step 3 / 3</p>
+          <h4 id="consult-step-3" className={styles.composeStepTitle}>
+            {ROOM_UI_COPY.step3Title}
+          </h4>
+          <div className={styles.confirmPanel}>
+            <div className={styles.confirmRow}>
+              <span className={styles.confirmLabel}>{ROOM_UI_COPY.confirmEntryLabel}</span>
+              <span className={styles.confirmValue}>{selectedEntryLabel}</span>
+            </div>
+            <div className={styles.confirmRow}>
+              <span className={styles.confirmLabel}>{ROOM_UI_COPY.confirmFocusLabel}</span>
+              <span className={styles.confirmValue}>{selectedFocusLabel}</span>
+              <span className={styles.checkMark} aria-hidden>
+                ✓
+              </span>
+            </div>
+          </div>
+          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step3Lead}</p>
+          <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step3Consume}</p>
+          <button
+            type="button"
+            className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+            onClick={handleSend}
+            disabled={submitDisabled}
+            aria-busy={sending}
+          >
+            {sending ? (
+              <span className={styles.submitBtnInner}>
+                <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
+                  <circle
+                    className={styles.submitSpinnerTrack}
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  />
+                  <path
+                    className={styles.submitSpinnerArc}
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
+              </span>
+            ) : (
+              PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
+            )}
+          </button>
+          <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
+        </section>
+      ) : null}
     </div>
   ) : null;
 

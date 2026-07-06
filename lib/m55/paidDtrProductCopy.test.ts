@@ -192,7 +192,7 @@ describe('paidDtrProductCopy SSOT', () => {
     ].join('\n');
     assert.equal(consultUi.includes('相談返書ルーム'), false);
     assert.equal(consultUi.includes('返書ルーム'), false);
-    assert.match(consultUi, /相談返書の入口/);
+    assert.match(consultUi, /追加読み解きの入口/);
   });
 
   it('consult usage display copy prioritizes add-on over giant remaining-zero hero', () => {
@@ -219,9 +219,9 @@ describe('paidDtrProductCopy SSOT', () => {
   });
 
   it('consult wallet display formatters use wallet-granted total not hardcoded cap', () => {
-    assert.equal(formatConsultAvailableWithGrantedLine(5, 5), '現在使える相談返書：5 / 5件');
-    assert.equal(formatConsultAvailableWithGrantedLine(1, 1), '現在使える相談返書：1 / 1件');
-    assert.equal(formatConsultAvailableCountLine(3), '現在使える相談返書：3件');
+    assert.equal(formatConsultAvailableWithGrantedLine(5, 5), '現在使える追加読み解き：5 / 5件');
+    assert.equal(formatConsultAvailableWithGrantedLine(1, 1), '現在使える追加読み解き：1 / 1件');
+    assert.equal(formatConsultAvailableCountLine(3), '現在使える追加読み解き：3件');
     assert.equal(formatConsultUsedCountLine(0), '使用済み：0件');
   });
 

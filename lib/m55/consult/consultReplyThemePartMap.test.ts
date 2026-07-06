@@ -41,11 +41,14 @@ describe('consultReplyThemePartMap', () => {
     }
   });
 
-  it('ConsultRoom shows purpose sublabels without chip roman numerals or Chapter I selection note', () => {
+  it('ConsultRoom wizard compose hides internal meta and uses entry cards', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
     assert.equal(src.includes('step1ChapterBaseLensNoteJa'), false);
-    assert.ok(src.includes('themeChipSublabel'));
+    assert.equal(src.includes('grounding_target'), false);
+    assert.equal(src.includes('themeChipSublabel'), false);
     assert.equal(src.includes('themeChipRoman'), false);
+    assert.ok(src.includes('WIZARD_ENTRY_CARD_DISPLAY'));
+    assert.ok(src.includes('choiceCard'));
     assert.equal(src.includes('resolveConsultReplyPartByTheme'), false);
     assert.equal(src.includes('composeStepBadgeRequired'), false);
   });
