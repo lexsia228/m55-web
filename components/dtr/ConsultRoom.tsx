@@ -6,7 +6,7 @@
  *
  * Constraints:
  * - Shows only when ownership is confirmed (server gate already checked).
- * - Input: theme required; free body optional; warning=450, hard max=500 chars (theme included).
+ * - Input: reply_theme_id + reply_question_id selection only (no free text).
  * - Output target: 1,200-1,800 JA chars (SSOT §7.2); server validates before commit.
  * - Thread cap display: 5 tickets per report (included 1 + purchased max 4).
  * - Read-only when credits_remaining=0 (prior messages remain visible).
@@ -39,14 +39,19 @@ import {
 } from '../../lib/m55/paidDtrProductCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
 import {
+  CONSULT_QUESTION_CATALOG_V1,
+  REPLY_THEME_IDS,
+  REPLY_THEME_LABEL_JA,
+  getQuestionsForTheme,
+  type ReplyThemeId,
+} from '../../lib/m55/consult/consultQuestionCatalog.v1';
+import {
   type ConsultWalletDisplaySnapshot,
   walletRowToConsultDisplaySnapshot,
 } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
-const INPUT_WARN = 450;
-const INPUT_MAX = 500;
 const DISPLAY_CAP_PER_REPORT = PAID_DTR_CONSULT_REPLY.totalCapPerReport;
 
 /** Entry-only display copy (Product Truth constants unchanged). */
@@ -56,22 +61,20 @@ const ROOM_UI_COPY = {
   valueCardNote: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableFooterJa,
   composePanelTitle: PAID_DTR_CONSULT_ROOM_UI.composePanelTitleJa,
   historyTitle: 'これまでの相談返書',
-  step1Title: 'Step 1 いちばん気になるテーマを選ぶ',
+  step1Title: 'Step 1 テーマを選ぶ',
   step1Hint: '1テーマだけ選びます。迷ったら、いちばん近いものを選んでください。',
-  step2Title: 'Step 2 相談を書く（任意）',
-  step2Hint: 'テーマだけでも返書を作れます。',
-  step2HintSub: 'もう少し詳しく見てほしいことがあれば、下に短く書いてください。',
-  inputPlaceholder:
-    '書ける人だけ、今気になっていることを短く書いてください。空欄でも大丈夫です。',
-  counterHelper: '選んだテーマも含めて送信します。相談文は空欄でも大丈夫です。',
-  step3Title: 'Step 3 相談返書を作成する',
-  step3Consume: 'この送信で相談返書を1件使用します。',
+  step2Title: 'Step 2 読み返したい焦点を選ぶ',
+  step2Hint: '保存版に沿って追加読み解きを作成します。',
+  step2HintSub: '選んだテーマに沿った4つの焦点から、いま読み返したいものを1つ選んでください。',
+  counterHelper: '選んだテーマと焦点を送信します。',
+  step3Title: 'Step 3 追加読み解きを作成する',
+  step3Consume: 'この送信で追加読み解きを1件使用します。',
 } as const;
 
-/** 用途ラベル（1テーマ）— copy master themeExamplesJa */
-const THEMES = PAID_DTR_CONSULT_REPLY.themeExamplesJa;
-
-type Theme = (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number];
+const REPLY_THEMES = REPLY_THEME_IDS.map((id) => ({
+  id,
+  labelJa: REPLY_THEME_LABEL_JA[id],
+}));
 
 function WalletBalanceStats({
   availableCount,
@@ -91,14 +94,6 @@ function WalletBalanceStats({
     </>
   );
 }
-
-const SUPPLEMENTARY_QUESTIONS: { id: string; label: string }[] = [
-  { id: 'q1', label: '恋人や近い人に、どう伝えればいいか迷っている' },
-  { id: 'q2', label: '仕事やスキルで、いま伸ばすところが分からない' },
-  { id: 'q3', label: 'お金や生活の不安で、気持ちが落ち着かない' },
-  { id: 'q4', label: 'これから何を優先すればいいか迷っている' },
-  { id: 'q5', label: '疲れていて、まずどこから戻せばいいか知りたい' },
-];
 
 type Message = {
   id?: string;
@@ -146,6 +141,13 @@ function extractThemeAndQuoteFromUserMessage(content: string): { theme: string |
     .filter(Boolean);
   const themeLine = lines.find((line) => line.startsWith('【テーマ】'));
   const theme = themeLine ? themeLine.replace('【テーマ】', '').trim() : null;
+  const questionLine = lines.find((line) => line.startsWith('【質問】'));
+  if (questionLine) {
+    return {
+      theme,
+      quote: questionLine.replace('【質問】', '').trim() || null,
+    };
+  }
   const quoteLine = lines.find((line) => !line.startsWith('【テーマ】') && !line.startsWith('【補助'));
   return {
     theme,
@@ -190,40 +192,27 @@ function formatHistoryCountSummary(count: number): string {
   return PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa.replace('{count}', String(count));
 }
 
-function buildComposedMessage(
-  theme: Theme | null,
-  selectedIds: Set<string>,
-  freeText: string
-): string {
-  const parts: string[] = [];
-  if (theme) parts.push(`【テーマ】${theme}`);
-  if (selectedIds.size > 0) {
-    const labels = SUPPLEMENTARY_QUESTIONS.filter((q) => selectedIds.has(q.id)).map(
-      (q) => `・${q.label}`
-    );
-    parts.push(`【補助（最大3つ）】\n${labels.join('\n')}`);
-  }
-  const body = freeText.trim();
-  if (body) parts.push(body);
-  return parts.join('\n\n');
-}
-
-/** Drawer sublabels keyed by theme label (Product Truth). */
+/** Drawer sublabels keyed by reply theme label. */
 const THEME_CHIP_SUBLABEL_BY_LABEL = Object.fromEntries(
   PAID_DTR_DRAWER_THEME_ENTRIES.map((entry) => [entry.labelJa, entry.sublabelJa]),
-) as Record<Theme, string>;
+) as Record<string, string>;
 
 function ThemeChip({
-  theme,
+  themeId,
+  labelJa,
   selected,
   onSelect,
 }: {
-  theme: Theme;
+  themeId: ReplyThemeId;
+  labelJa: string;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const sublabel = THEME_CHIP_SUBLABEL_BY_LABEL[theme];
-  const displayLabel = THEME_CHIP_DISPLAY_LABEL_OVERRIDES[theme] ?? theme;
+  const sublabel =
+    THEME_CHIP_SUBLABEL_BY_LABEL[labelJa] ??
+    CONSULT_QUESTION_CATALOG_V1.find((entry) => entry.reply_theme_id === themeId)?.grounding_target ??
+    null;
+  const displayLabel = THEME_CHIP_DISPLAY_LABEL_OVERRIDES[labelJa] ?? labelJa;
   return (
     <button
       type="button"
@@ -233,6 +222,29 @@ function ThemeChip({
     >
       <span className={styles.themeChipMain}>{displayLabel}</span>
       {sublabel ? <span className={styles.themeChipSublabel}>{sublabel}</span> : null}
+    </button>
+  );
+}
+
+function QuestionChip({
+  labelJa,
+  selected,
+  onSelect,
+}: {
+  labelJa: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={
+        selected ? `${styles.questionToggle} ${styles.questionToggleSelected}` : styles.questionToggle
+      }
+      onClick={onSelect}
+      aria-pressed={selected}
+    >
+      {labelJa}
     </button>
   );
 }
@@ -271,10 +283,9 @@ export default function ConsultRoom({
   const [roomData, setRoomData] = useState<RoomData | null>(devPreviewRoomData);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [inputText, setInputText] = useState('');
   const [sendError, setSendError] = useState<string | null>(null);
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
-  const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(() => new Set());
+  const [selectedThemeId, setSelectedThemeId] = useState<ReplyThemeId | null>(null);
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
   const [showAllHistory, setShowAllHistory] = useState(false);
   const [expandLatestReply, setExpandLatestReply] = useState(false);
   const latestReplyCardRef = useRef<HTMLDivElement>(null);
@@ -285,9 +296,16 @@ export default function ConsultRoom({
   const activeIdempotencyKeyRef = useRef<string | null>(null);
   const activeSnapshotHashRef = useRef<string | null>(null);
 
-  const composedMessage = useMemo(
-    () => buildComposedMessage(selectedTheme, selectedQuestionIds, inputText),
-    [selectedTheme, selectedQuestionIds, inputText]
+  const themeQuestions = useMemo(
+    () => (selectedThemeId ? getQuestionsForTheme(selectedThemeId) : []),
+    [selectedThemeId],
+  );
+  const selectedCatalogEntry = useMemo(
+    () =>
+      selectedThemeId && selectedQuestionId
+        ? themeQuestions.find((entry) => entry.reply_question_id === selectedQuestionId) ?? null
+        : null,
+    [selectedThemeId, selectedQuestionId, themeQuestions],
   );
 
   const historyMessages = roomData?.messages ?? [];
@@ -303,10 +321,6 @@ export default function ConsultRoom({
   const hasMoreReplies = replyCount > 1;
   const visibleReplies = showAllHistory ? repliesNewestFirst : repliesNewestFirst.slice(0, 1);
   const latestReplyKey = repliesNewestFirst[0]?.messageKey ?? null;
-
-  const composedLen = composedMessage.length;
-  const isOverMax = composedLen > INPUT_MAX;
-  const isWarn = composedLen >= INPUT_WARN && !isOverMax;
 
   const reloadRoom = useCallback(async (cancelledRef?: { cancelled: boolean }) => {
     if (isDevPreview && devPreviewRoomData) {
@@ -370,20 +384,13 @@ export default function ConsultRoom({
     return () => cancelAnimationFrame(frame);
   }, [roomData?.messages, replyCount, expandLatestReply]);
 
-  const toggleQuestion = (id: string) => {
-    setSelectedQuestionIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else if (next.size < 3) next.add(id);
-      return next;
-    });
+  const selectTheme = (themeId: ReplyThemeId) => {
+    setSelectedThemeId(themeId);
+    setSelectedQuestionId(null);
   };
 
-  const buildSnapshotHash = (
-    msg: string,
-    theme: Theme | null,
-    questionIds: Set<string>
-  ): string => `${theme ?? ''}|${[...questionIds].sort().join(',')}|${msg}`;
+  const buildSnapshotHash = (themeId: ReplyThemeId | null, questionId: string | null): string =>
+    `${themeId ?? ''}|${questionId ?? ''}`;
 
   const handleSend = async () => {
     if (isDevPreview) {
@@ -392,11 +399,7 @@ export default function ConsultRoom({
     }
     if (sendLock.current) return;
     if (!roomData) return;
-    if (!selectedTheme) return;
-
-    const msg = composedMessage.trim();
-    if (!msg) return;
-    if (msg.length > INPUT_MAX) return;
+    if (!selectedThemeId || !selectedQuestionId || !selectedCatalogEntry) return;
     const liveWallet = roomData.wallet ?? null;
     const liveHasWalletRow = roomData.has_wallet_row === true;
     const liveWalletUsable =
@@ -416,17 +419,20 @@ export default function ConsultRoom({
     if (liveEffectiveRemaining <= 0) return;
 
     const snapshot = {
-      free: inputText,
-      questions: new Set(selectedQuestionIds),
-      theme: selectedTheme,
+      themeId: selectedThemeId,
+      questionId: selectedQuestionId,
     };
 
-    const snapshotHash = buildSnapshotHash(msg, selectedTheme, selectedQuestionIds);
+    const snapshotHash = buildSnapshotHash(selectedThemeId, selectedQuestionId);
     if (activeSnapshotHashRef.current !== snapshotHash) {
       activeIdempotencyKeyRef.current = crypto.randomUUID();
       activeSnapshotHashRef.current = snapshotHash;
     }
     const idempotencyKey = activeIdempotencyKeyRef.current!;
+
+    const themeId = selectedThemeId;
+    const questionId = selectedQuestionId;
+    const catalogEntry = selectedCatalogEntry;
 
     sendLock.current = true;
     setSending(true);
@@ -434,10 +440,12 @@ export default function ConsultRoom({
     shouldScrollToLatestReplyRef.current = true;
     setExpandLatestReply(true);
 
-    const optimisticMsg: Message = { role: 'user', content: msg };
+    const optimisticMsg: Message = {
+      role: 'user',
+      content: `【テーマ】${catalogEntry.themeLabelJa}\n【質問】${catalogEntry.labelJa}`,
+    };
     setRoomData((prev) => (prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev));
-    setInputText('');
-    setSelectedQuestionIds(new Set());
+    setSelectedQuestionId(null);
 
     try {
       const res = await fetch('/api/room/core/send', {
@@ -446,7 +454,12 @@ export default function ConsultRoom({
           'Content-Type': 'application/json',
           'X-Idempotency-Key': idempotencyKey,
         },
-        body: JSON.stringify({ message: msg, birthDate, nickname }),
+        body: JSON.stringify({
+          reply_theme_id: themeId,
+          reply_question_id: questionId,
+          birthDate,
+          nickname,
+        }),
       });
       const data = await res.json();
 
@@ -459,9 +472,8 @@ export default function ConsultRoom({
             (data as { error?: string }).error,
           ),
         );
-        setInputText(snapshot.free);
-        setSelectedQuestionIds(snapshot.questions);
-        setSelectedTheme(snapshot.theme);
+        setSelectedThemeId(snapshot.themeId);
+        setSelectedQuestionId(snapshot.questionId);
         return;
       }
 
@@ -490,9 +502,8 @@ export default function ConsultRoom({
       shouldScrollToLatestReplyRef.current = false;
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
       setSendError('送信に失敗しました。ネットワークを確認して再度お試しください。');
-      setInputText(snapshot.free);
-      setSelectedQuestionIds(snapshot.questions);
-      setSelectedTheme(snapshot.theme);
+      setSelectedThemeId(snapshot.themeId);
+      setSelectedQuestionId(snapshot.questionId);
     } finally {
       sendLock.current = false;
       setSending(false);
@@ -545,7 +556,11 @@ export default function ConsultRoom({
 
   const actionLocked = sending || walletLoading;
   const submitDisabled =
-    actionLocked || sending || !selectedTheme || isOverMax || isReadOnly;
+    actionLocked ||
+    sending ||
+    !selectedThemeId ||
+    !selectedQuestionId ||
+    isReadOnly;
   const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
   const showExhausted =
     !walletLoading &&
@@ -676,12 +691,13 @@ export default function ConsultRoom({
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
         <div className={styles.themeRow}>
-          {THEMES.map((t) => (
+          {REPLY_THEMES.map((theme) => (
             <ThemeChip
-              key={t}
-              theme={t}
-              selected={selectedTheme === t}
-              onSelect={() => setSelectedTheme(t)}
+              key={theme.id}
+              themeId={theme.id}
+              labelJa={theme.labelJa}
+              selected={selectedThemeId === theme.id}
+              onSelect={() => selectTheme(theme.id)}
             />
           ))}
         </div>
@@ -695,32 +711,20 @@ export default function ConsultRoom({
         </div>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
-        <label htmlFor="consult-input" className={styles.srOnly}>
-          {PAID_DTR_CONSULT_ROOM_UI.composeFreeInputAriaJa}（任意・{INPUT_MAX}文字まで）
-        </label>
-        <textarea
-          id="consult-input"
-          className={styles.textarea}
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder={ROOM_UI_COPY.inputPlaceholder}
-          rows={5}
-          maxLength={INPUT_MAX + 80}
-          disabled={actionLocked}
-          aria-describedby="char-counter"
-        />
-        <div className={styles.counterRow}>
-          <span
-            id="char-counter"
-            className={isOverMax ? styles.counterOver : isWarn ? styles.counterWarn : styles.counter}
-            aria-live="polite"
-          >
-            送信内容（選んだテーマを含む） {composedLen} / {INPUT_MAX}
-            {selectedTheme == null && ' — テーマを選択してください'}
-            {isWarn && ` — あと${INPUT_MAX - composedLen}文字`}
-            {isOverMax && ' — 上限を超えています。短くしてください'}
-          </span>
-        </div>
+        {selectedThemeId ? (
+          <div className={styles.questionList} role="listbox" aria-label="読み返したい焦点">
+            {themeQuestions.map((entry) => (
+              <QuestionChip
+                key={entry.reply_question_id}
+                labelJa={entry.labelJa}
+                selected={selectedQuestionId === entry.reply_question_id}
+                onSelect={() => setSelectedQuestionId(entry.reply_question_id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className={styles.composeHintMuted}>先にテーマを選んでください。</p>
+        )}
         <p className={styles.composeHintMuted}>{ROOM_UI_COPY.counterHelper}</p>
       </section>
 

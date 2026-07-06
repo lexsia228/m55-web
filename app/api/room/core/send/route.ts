@@ -4,7 +4,7 @@
  *
  * Rules (M55_AI_CONSULT_SAFETY_AND_LIMITS_SSOT_v1 + M55_REPORT_CONCIERGE_ROOM_SSOT_v1):
  * - Ownership gate: fail-closed
- * - Input: theme required; free body optional; hard max=500 chars (theme included)
+ * - Input: reply_theme_id + reply_question_id only; server composes user message; hard max=500 chars
  * - Output target 1,200-1,800 JA chars (SSOT §7.2); server hard cap 2,400; no mid-cut save
  * - Ticket only consumed when RPC succeeds (messages + wallet + ledger atomic)
  * - High-risk patterns: block send, do not consume ticket
@@ -38,8 +38,9 @@ import { applyM55ConsultReplyQualityPasses } from '../../../../../lib/m55/ai/m55
 import {
   buildConsultUserAnchors,
   parseConsultUserMessage,
-  validateConsultSendInput,
 } from '../../../../../lib/m55/consult/consultSendMessage';
+import { validateConsultSendRequest } from '../../../../../lib/m55/consult/consultSendRequest.zod';
+import type { ConsultQuestionCatalogEntry } from '../../../../../lib/m55/consult/consultQuestionCatalog.v1';
 import {
   CONSULT_REPLY_GENERATION,
   CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA,
@@ -167,10 +168,14 @@ ${CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA}
 ${CONSULT_REPLY_QUALITY_VOICE_JA}`;
 
 /** Build report-scoped system prompt (no generic chat). */
-function buildSystemPrompt(reportSections: string, userMessage: string): string {
+function buildSystemPrompt(
+  reportSections: string,
+  userMessage: string,
+  catalogEntry?: ConsultQuestionCatalogEntry | null,
+): string {
   const safetyPrefix = buildM55AiSafetySystemInstruction('consult');
   const parsed = parseConsultUserMessage(userMessage);
-  const userAnchors = buildConsultUserAnchors(parsed);
+  const userAnchors = buildConsultUserAnchors(parsed, catalogEntry);
   const anchorsBlock = userAnchors ? `\n${userAnchors}\n` : '';
 
   return `${safetyPrefix}
@@ -296,22 +301,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { message?: string; birthDate?: string; nickname?: string };
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400, headers: NO_STORE });
   }
 
-  const userMessage = typeof body.message === 'string' ? body.message.trim() : '';
-
-  const inputValidation = validateConsultSendInput(userMessage);
-  if (!inputValidation.ok) {
+  const requestValidation = validateConsultSendRequest(body);
+  if (!requestValidation.ok) {
     return NextResponse.json(
-      { error: inputValidation.error },
-      { status: inputValidation.status, headers: NO_STORE },
+      { error: requestValidation.error },
+      { status: requestValidation.status, headers: NO_STORE },
     );
   }
+
+  const { composedUserMessage: userMessage, catalogEntry } = requestValidation;
+  const parsedUserMessage = parseConsultUserMessage(userMessage);
 
   // Shared safety guard (no ticket consumption on block — SSOT §5, §3.3)
   const safety = classifyM55AiSafetyInput(userMessage, { surface: 'consult' });
@@ -382,7 +388,10 @@ export async function POST(req: NextRequest) {
   }
 
   const reportContext = buildConsultReportContextFromEnvelope(displayedRead.envelope, {
-    redactNickname: typeof body.nickname === 'string' ? body.nickname.trim() : '',
+    redactNickname:
+      typeof requestValidation.data.nickname === 'string'
+        ? requestValidation.data.nickname.trim()
+        : '',
   });
   if (!reportContext) {
     return NextResponse.json(
@@ -403,7 +412,7 @@ export async function POST(req: NextRequest) {
   let aiContent: string;
   try {
     const openai = new OpenAI({ apiKey });
-    const systemPrompt = buildSystemPrompt(reportContext, userMessage);
+    const systemPrompt = buildSystemPrompt(reportContext, userMessage, catalogEntry);
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       max_tokens: CONSULT_REPLY_GENERATION.openAiMaxTokens,
@@ -457,7 +466,7 @@ export async function POST(req: NextRequest) {
           reason: completeness.reason,
           length: aiContent.length,
           blockCount: countConsultReplyBlocks(aiContent),
-          isThemeOnly: inputValidation.parsed.isThemeOnly,
+          isQuestionSelect: parsedUserMessage.isQuestionSelect,
           retryAttempted,
           repairSucceeded,
         })

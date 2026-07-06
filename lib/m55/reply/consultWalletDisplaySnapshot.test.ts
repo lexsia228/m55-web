@@ -103,9 +103,12 @@ describe('walletRowToConsultDisplaySnapshot', () => {
     // The callback is only invoked in the try-success branch, not in the error/catch branch.
     const src = readFileSync(CONSULT_ROOM, 'utf8');
     assert.ok(src.includes('onWalletSnapshotChange(snap)'), 'callback call must exist');
-    // The handleSend catch block contains setSendError and setInputText(snapshot.free).
-    // Extract it and confirm onWalletSnapshotChange(snap) is absent from that block.
-    const catchMatch = src.match(/\} catch \{([\s\S]*?)setInputText\(snapshot\.free\)/);
+    assert.ok(src.includes('reply_theme_id'), 'send payload uses reply_theme_id');
+    assert.ok(src.includes('reply_question_id'), 'send payload uses reply_question_id');
+    assert.equal(src.includes('setInputText'), false, 'free input state must not be restored');
+    assert.equal(src.includes('<textarea'), false, 'textarea must not be restored');
+    // Catch block restores theme/question selection and must not call wallet snapshot callback.
+    const catchMatch = src.match(/\} catch \{([\s\S]*?)setSelectedQuestionId\(snapshot\.questionId\)/);
     assert.ok(catchMatch !== null, 'handleSend catch block must exist');
     assert.ok(
       !catchMatch![0].includes('onWalletSnapshotChange(snap)'),

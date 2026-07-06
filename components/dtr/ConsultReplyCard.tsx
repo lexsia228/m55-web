@@ -131,9 +131,9 @@ export default function ConsultReplyCard({
       {userQuote ? (
         <section
           className={collapsed ? `${styles.replyUserQuote} ${styles.replyUserQuoteCompact}` : styles.replyUserQuote}
-          aria-label="相談内容"
+          aria-label="読み返したい焦点"
         >
-          <p className={collapsed ? styles.replyQuoteLabel : styles.replySectionTitle}>相談内容</p>
+          <p className={collapsed ? styles.replyQuoteLabel : styles.replySectionTitle}>読み返したい焦点</p>
           <p
             className={
               collapsed ? `${styles.replyQuoteText} ${styles.replyQuoteClamp}` : styles.replyQuoteText
