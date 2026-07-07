@@ -27,6 +27,7 @@ import {
 
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const CONSULT_ROOM = join(process.cwd(), 'components/dtr/ConsultRoom.tsx');
+const CONSULT_ROOM_CSS = join(process.cwd(), 'components/dtr/ConsultRoom.module.css');
 const CONSULT_REPLY_CARD = join(process.cwd(), 'components/dtr/ConsultReplyCard.tsx');
 
 describe('consultSendMessage', () => {
@@ -187,6 +188,32 @@ describe('consultSendMessage', () => {
         note.includes('送信するまで追加読み解きは使いません'),
       ),
     );
+  });
+
+  it('ConsultRoom wizard uses scoped typography hierarchy classes', () => {
+    const src = readFileSync(CONSULT_ROOM, 'utf8');
+    const css = readFileSync(CONSULT_ROOM_CSS, 'utf8');
+    for (const className of [
+      'wizTypoPanelTitle',
+      'wizTypoStepHeading',
+      'wizTypoCaption',
+      'wizTypoBody',
+      'wizTypoEmphasis',
+      'wizTypoEmphasisNote',
+      'wizTypoCardTitle',
+      'wizTypoCardCaption',
+      'wizTypoCtaNote',
+    ]) {
+      assert.ok(src.includes(className), `missing ${className} in ConsultRoom.tsx`);
+      assert.ok(css.includes(`.replyWizard .${className}`), `missing scoped ${className} in CSS`);
+    }
+    assert.ok(css.includes('--wiz-text-primary'));
+    assert.ok(css.includes('--wiz-space-steps'));
+    assert.equal(/\n:root\s*\{/.test(css), false);
+    assert.equal(/\nbody\s*\{/.test(css), false);
+    assert.equal(/\nhtml\s*\{/.test(css), false);
+    assert.ok(src.includes('inputNote'));
+    assert.ok(src.includes('stepConsumeNote'));
   });
 
   it('ConsultReplyCard prioritizes question quote label for history', () => {
