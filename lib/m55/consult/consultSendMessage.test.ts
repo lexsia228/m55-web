@@ -28,6 +28,7 @@ import {
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const CONSULT_ROOM = join(process.cwd(), 'components/dtr/ConsultRoom.tsx');
 const CONSULT_ROOM_CSS = join(process.cwd(), 'components/dtr/ConsultRoom.module.css');
+const DTR_FULL_READER_CSS = join(process.cwd(), 'components/dtr/DtrFullReader.module.css');
 const CONSULT_REPLY_CARD = join(process.cwd(), 'components/dtr/ConsultReplyCard.tsx');
 
 describe('consultSendMessage', () => {
@@ -214,6 +215,49 @@ describe('consultSendMessage', () => {
     assert.equal(/\nhtml\s*\{/.test(css), false);
     assert.ok(src.includes('inputNote'));
     assert.ok(src.includes('stepConsumeNote'));
+  });
+
+  it('ConsultRoom page context keeps secondary surfaces below replyWizard hierarchy', () => {
+    const css = readFileSync(CONSULT_ROOM_CSS, 'utf8');
+    const wizardStart = css.indexOf('.replyWizard {');
+    assert.ok(wizardStart > 0, 'replyWizard block missing');
+    const preWizardCss = css.slice(0, wizardStart);
+    for (const selector of [
+      '.usageStatusCard',
+      '.entryEssentialNotes',
+      '.historyTitle',
+      '.historyShowMoreBtn',
+      '.entryDetailsLower',
+      '.replyCardCompact',
+      '.replyLatestBadge',
+    ]) {
+      assert.ok(preWizardCss.includes(selector), `missing secondary selector ${selector}`);
+    }
+    assert.ok(preWizardCss.includes('.usageStatAvailable'));
+    assert.equal(/\n:root\s*\{/.test(css), false);
+    assert.equal(/\nbody\s*\{/.test(css), false);
+    assert.equal(/\nhtml\s*\{/.test(css), false);
+    assert.ok(css.includes('.replyWizard .wizTypoPanelTitle'));
+    assert.ok(css.includes('--wiz-text-primary'));
+  });
+
+  it('DtrFullReader consult supplement and report meta use tertiary page context styling', () => {
+    const css = readFileSync(DTR_FULL_READER_CSS, 'utf8');
+    for (const selector of [
+      '.consultEntryDetails',
+      '.consultEntryDetailsSummary',
+      '.reportMetaCard',
+      '.reportMetaHeading',
+      '.reportMetaWalletAvailable',
+    ]) {
+      assert.ok(css.includes(selector), `missing tertiary selector ${selector}`);
+    }
+    assert.equal(/\n:root\s*\{/.test(css), false);
+    assert.equal(/\nbody\s*\{/.test(css), false);
+    assert.equal(/\nhtml\s*\{/.test(css), false);
+    const heroStart = css.indexOf('.premiumHero');
+    const metaStart = css.indexOf('.reportMetaCard');
+    assert.ok(heroStart >= 0 && metaStart > heroStart, 'report meta should follow hero block');
   });
 
   it('ConsultReplyCard prioritizes question quote label for history', () => {
