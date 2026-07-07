@@ -284,8 +284,10 @@ function EntryChoiceCard({
       aria-selected={selected}
     >
       <span className={styles.choiceCardBody}>
-        <span className={styles.choiceCardTitle}>{card.label}</span>
-        <span className={styles.choiceCardDescription}>{card.description}</span>
+        <span className={`${styles.choiceCardTitle} ${styles.wizTypoCardTitle}`}>{card.label}</span>
+        <span className={`${styles.choiceCardDescription} ${styles.wizTypoCardCaption}`}>
+          {card.description}
+        </span>
       </span>
       {selected ? (
         <span className={styles.choiceCardCheck} aria-hidden>
@@ -319,7 +321,7 @@ function FocusChoiceCard({
       role="option"
     >
       <span className={styles.choiceCardBody}>
-        <span className={styles.choiceCardTitle}>{labelJa}</span>
+        <span className={`${styles.choiceCardTitle} ${styles.wizTypoCardTitle}`}>{labelJa}</span>
       </span>
       {selected ? (
         <span className={styles.choiceCardCheck} aria-hidden>
@@ -772,18 +774,20 @@ export default function ConsultRoom({
       id={CONSULT_COMPOSE_PANEL_ID}
       className={`${styles.composePanel} ${styles.composePanelScrollAnchor} ${styles.replyWizard}`}
     >
-      <h3 className={styles.composePanelTitle}>{ROOM_UI_COPY.composePanelTitle}</h3>
+      <h3 className={`${styles.composePanelTitle} ${styles.wizTypoPanelTitle}`}>
+        {ROOM_UI_COPY.composePanelTitle}
+      </h3>
       <WizardProgress activeStep={wizardActiveStep} />
 
       <section
         className={`${styles.wizardStepPanel} ${wizardActiveStep === 1 ? styles.wizardStepPanelActive : ''}`}
         aria-labelledby="consult-step-1"
       >
-        <p className={styles.stepEyebrow}>Step 1 / 3</p>
-        <h4 id="consult-step-1" className={styles.composeStepTitle}>
+        <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 1 / 3</p>
+        <h4 id="consult-step-1" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
           {ROOM_UI_COPY.step1Title}
         </h4>
-        <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step1Hint}</p>
+        <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step1Hint}</p>
         <div className={styles.choiceGrid} role="list">
           {REPLY_THEME_IDS.map((themeId) => (
             <EntryChoiceCard
@@ -801,16 +805,20 @@ export default function ConsultRoom({
           className={`${styles.wizardStepPanel} ${wizardActiveStep === 2 ? styles.wizardStepPanelActive : ''}`}
           aria-labelledby="consult-step-2"
         >
-          <p className={styles.stepEyebrow}>Step 2 / 3</p>
-          <h4 id="consult-step-2" className={styles.composeStepTitle}>
+          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 2 / 3</p>
+          <h4 id="consult-step-2" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
             {ROOM_UI_COPY.step2Title}
           </h4>
-          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2Hint}</p>
-          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step2HintSub}</p>
+          <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step2Hint}</p>
+          <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step2HintSub}</p>
           <div className={styles.selectionMemory} aria-live="polite">
-            <p className={styles.selectionMemoryEyebrow}>{ROOM_UI_COPY.selectionMemoryEyebrow}</p>
-            <p className={styles.selectionMemoryValue}>{selectedEntryLabel}</p>
-            <p className={styles.selectionMemoryPrompt}>{ROOM_UI_COPY.selectionMemoryPrompt}</p>
+            <p className={`${styles.selectionMemoryEyebrow} ${styles.wizTypoCaption}`}>
+              {ROOM_UI_COPY.selectionMemoryEyebrow}
+            </p>
+            <p className={`${styles.selectionMemoryValue} ${styles.wizTypoEmphasis}`}>{selectedEntryLabel}</p>
+            <p className={`${styles.selectionMemoryPrompt} ${styles.wizTypoBody}`}>
+              {ROOM_UI_COPY.selectionMemoryPrompt}
+            </p>
           </div>
           <div className={styles.choiceGrid} role="listbox" aria-label="今回深く見る焦点">
             {themeQuestions.map((entry) => (
@@ -830,25 +838,29 @@ export default function ConsultRoom({
           className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive} ${styles.composeStepSubmit}`}
           aria-labelledby="consult-step-3"
         >
-          <p className={styles.stepEyebrow}>Step 3 / 3</p>
-          <h4 id="consult-step-3" className={styles.composeStepTitle}>
+          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 3 / 3</p>
+          <h4 id="consult-step-3" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
             {ROOM_UI_COPY.step3Title}
           </h4>
           <div className={styles.confirmPanel}>
             <div className={styles.confirmRow}>
-              <span className={styles.confirmLabel}>{ROOM_UI_COPY.confirmEntryLabel}</span>
-              <span className={styles.confirmValue}>{selectedEntryLabel}</span>
+              <span className={`${styles.confirmLabel} ${styles.wizTypoCaption}`}>
+                {ROOM_UI_COPY.confirmEntryLabel}
+              </span>
+              <span className={`${styles.confirmValue} ${styles.wizTypoEmphasis}`}>{selectedEntryLabel}</span>
             </div>
             <div className={styles.confirmRow}>
-              <span className={styles.confirmLabel}>{ROOM_UI_COPY.confirmFocusLabel}</span>
-              <span className={styles.confirmValue}>{selectedFocusLabel}</span>
+              <span className={`${styles.confirmLabel} ${styles.wizTypoCaption}`}>
+                {ROOM_UI_COPY.confirmFocusLabel}
+              </span>
+              <span className={`${styles.confirmValue} ${styles.wizTypoEmphasis}`}>{selectedFocusLabel}</span>
               <span className={styles.checkMark} aria-hidden>
                 ✓
               </span>
             </div>
           </div>
-          <p className={styles.composeHintMuted}>{ROOM_UI_COPY.step3Lead}</p>
-          <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step3Consume}</p>
+          <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step3Lead}</p>
+          <p className={`${styles.stepConsumeNote} ${styles.wizTypoEmphasisNote}`}>{ROOM_UI_COPY.step3Consume}</p>
           <button
             type="button"
             className={
@@ -884,7 +896,7 @@ export default function ConsultRoom({
               PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
             )}
           </button>
-          <p className={styles.inputNote}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
+          <p className={`${styles.inputNote} ${styles.wizTypoCtaNote}`}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
         </section>
       ) : null}
     </div>
