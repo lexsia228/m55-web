@@ -88,14 +88,21 @@
 }
 
 .drawerChapterPersonalLead {
-  margin: 0 0 clamp(14px, 2.4vw, 18px);
+  margin: 0 0 clamp(16px, 2.8vw, 22px);
+  padding-bottom: clamp(14px, 2.6vw, 18px);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2.2vw, 14px);
 }
 
 .chapterOpeningPoints {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0 0;
+  gap: 8px;
+  margin: clamp(4px, 1vw, 6px) 0 0;
+  padding-top: clamp(8px, 1.8vw, 12px);
+  border-top: 1px solid rgba(107, 95, 168, 0.08);
 }
 
 .chapterOpeningPoint {
@@ -110,11 +117,11 @@
 }
 
 .chapterPersonalHeading {
-  margin: 0 0 clamp(8px, 1.5vw, 10px);
+  margin: 0;
   font-family: var(--dtr-serif);
-  font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+  font-size: clamp(1.08rem, 2.5vw, 1.22rem);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.38;
   letter-spacing: 0.04em;
   color: var(--dtr-text);
   overflow-wrap: anywhere;
@@ -123,8 +130,8 @@
 .chapterOpeningLede {
   margin: 0;
   font-size: clamp(0.92rem, 2.1vw, 1rem);
-  line-height: 1.75;
-  color: rgba(235, 230, 248, 0.94);
+  line-height: 1.78;
+  color: rgba(228, 222, 242, 0.9);
   overflow-wrap: anywhere;
 }
 
@@ -290,6 +297,10 @@
   padding-bottom: 10px;
 }
 
+.pmInDrawer .pmBodyOpen .pmBodyInner {
+  padding-top: clamp(16px, 3vw, 20px);
+}
+
 .pmInDrawer .pmExpandChip {
   font-size: 10px;
   border-color: rgba(156, 188, 220, 0.26);
@@ -342,7 +353,7 @@
 .savedWideStack {
   display: flex;
   flex-direction: column;
-  gap: clamp(22px, 4vw, 30px);
+  gap: clamp(24px, 4.2vw, 32px);
 }
 
 .savedWideArticle {
@@ -363,13 +374,13 @@
 .savedWideBody {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: clamp(20px, 3.6vw, 24px);
   max-width: 34em;
 }
 
 .savedWidePara {
   font-size: clamp(16px, 3.2vw, 17px);
-  line-height: 1.88;
+  line-height: 1.9;
   color: var(--dtr-body);
   margin: 0;
   white-space: pre-line;
@@ -390,18 +401,18 @@
 .sectionBlockGroup {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding-top: 2px;
+  gap: clamp(7px, 1.6vw, 9px);
+  padding-top: clamp(4px, 1vw, 6px);
 }
 
 .sectionBlockLabel {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   color: var(--dtr-accent);
-  opacity: 0.82;
+  opacity: 0.88;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 /* Continuation of narrative after figure blocks ?Ereduces ?double preview?Efeel */
 .dtrNarrativeBody {
@@ -1476,7 +1487,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: clamp(26px, 4.5vw, 36px) 0;
+  padding: clamp(22px, 4vw, 32px) 0;
 }
 
 .prDividerRule {
@@ -3254,12 +3265,12 @@
 .sectionBody {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: clamp(14px, 2.8vw, 18px);
 }
 
 .para {
   font-size: clamp(14px, 2.8vw, 15.5px);
-  line-height: 1.82;
+  line-height: 1.86;
   color: var(--dtr-body);
   margin: 0;
   white-space: pre-line;
@@ -4715,4 +4726,89 @@
   cursor: pointer;
   text-align: center;
   box-sizing: border-box;
+}
+
+/* ── Saved report chapter mobile readability (1–4 drawer panels) ── */
+@media (max-width: 639px) {
+  .savedReportShellInDrawer {
+    padding: clamp(6px, 1.4vw, 10px) 0 clamp(10px, 2vw, 14px);
+  }
+
+  .savedWideStack {
+    gap: clamp(26px, 5vw, 34px);
+  }
+
+  .savedWideBody {
+    gap: clamp(22px, 4.4vw, 28px);
+  }
+
+  .savedWidePara {
+    line-height: 1.94;
+  }
+
+  .drawerChapterPersonalLead {
+    margin-bottom: clamp(18px, 3.6vw, 24px);
+    padding-bottom: clamp(16px, 3.2vw, 20px);
+    gap: clamp(12px, 2.8vw, 16px);
+  }
+
+  .chapterPersonalHeading {
+    font-size: clamp(1.1rem, 4.8vw, 1.24rem);
+    line-height: 1.36;
+  }
+
+  .chapterOpeningLede {
+    font-size: clamp(0.9rem, 3.8vw, 0.98rem);
+    line-height: 1.82;
+  }
+
+  .chapterOpeningPoints {
+    gap: 7px;
+    padding-top: clamp(10px, 2.4vw, 14px);
+  }
+
+  .sectionBlockGroup {
+    gap: clamp(8px, 2vw, 10px);
+    padding-top: clamp(6px, 1.4vw, 8px);
+  }
+
+  .sectionBlockLabel {
+    font-size: 0.72rem;
+  }
+
+  .dtrNarrativeBody {
+    margin-top: clamp(10px, 2.2vw, 14px);
+    padding-top: clamp(14px, 3vw, 18px);
+  }
+
+  .drawerDeepReadBlock {
+    margin-top: clamp(18px, 3.6vw, 24px);
+    padding-top: clamp(14px, 2.8vw, 18px);
+  }
+
+  .drawerDeepReadBlock .prSectionDivider {
+    padding: clamp(10px, 2.2vw, 14px) 0 clamp(12px, 2.6vw, 16px);
+  }
+
+  .prSectionDivider {
+    padding: clamp(18px, 3.6vw, 24px) 0;
+  }
+
+  .pmInDrawer .pmBodyOpen .pmBodyInner {
+    padding-top: clamp(18px, 3.6vw, 22px);
+  }
+
+  .chapterTakeawayBlock {
+    margin-bottom: clamp(16px, 3.2vw, 20px);
+    padding: clamp(14px, 3vw, 18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .savedReportShellInDrawer,
+  .savedWideStack,
+  .savedWideBody,
+  .drawerChapterPersonalLead {
+    transition: none;
+  }
 }
