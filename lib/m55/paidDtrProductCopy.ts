@@ -617,7 +617,7 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
   essentialNotesJa: [
     'なんでも答えるAIではありません。',
     '新しい診断ではなく、今の迷いを言葉にして整えていきます。',
-    '送信するまで相談返書は使いません。',
+    '送信するまで追加読み解きは使いません。',
   ] as const,
   valueDetailsSummaryJa: '相談返書で見られること',
   valueDeliverableItemsJa: [

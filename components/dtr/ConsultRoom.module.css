@@ -1015,7 +1015,26 @@
 
 /* ── Reply wizard — progressive disclosure compose ── */
 .replyWizard {
+  --wiz-bg-panel: rgba(36, 32, 58, 0.82);
+  --wiz-bg-card: rgba(48, 42, 78, 0.68);
+  --wiz-bg-elevated: rgba(58, 48, 96, 0.72);
+  --wiz-bg-selected: rgba(78, 62, 132, 0.58);
+  --wiz-accent: rgba(196, 172, 255, 0.94);
+  --wiz-accent-border: rgba(186, 158, 255, 0.72);
+  --wiz-accent-soft: rgba(160, 140, 220, 0.48);
+  --wiz-text-bright: rgba(242, 236, 255, 0.96);
+  --wiz-text-muted: rgba(188, 175, 220, 0.68);
   gap: 18px;
+}
+
+.composePanel.replyWizard {
+  border-color: rgba(160, 140, 220, 0.38);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(96, 72, 168, 0.16) 0%, transparent 62%),
+    var(--wiz-bg-panel);
+  box-shadow:
+    0 0 0 1px rgba(186, 158, 255, 0.1) inset,
+    0 8px 28px rgba(40, 28, 80, 0.22);
 }
 
 .wizardProgress {
@@ -1023,6 +1042,8 @@
   align-items: stretch;
   gap: 0;
   margin: 2px 0 4px;
+  padding: 0;
+  list-style: none;
 }
 
 .wizardProgressItem {
@@ -1039,41 +1060,72 @@
 .wizardConnector {
   flex: 1;
   height: 2px;
+  min-width: 8px;
   margin: 0 6px;
   border-radius: 999px;
-  background: rgba(160, 140, 220, 0.18);
+  background: rgba(140, 120, 200, 0.16);
 }
 
 .wizardConnectorActive {
   background: rgba(160, 140, 220, 0.42);
 }
 
+.wizardConnectorDone {
+  background: rgba(186, 158, 255, 0.52);
+}
+
 .wizardStep {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   min-width: 4.5rem;
-  padding: 6px 8px;
+  min-height: 44px;
+  padding: 6px 10px;
   border-radius: 10px;
-  border: 1px solid rgba(160, 140, 220, 0.14);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(140, 120, 200, 0.2);
+  background: rgba(255, 255, 255, 0.03);
   text-align: center;
 }
 
 .wizardStepPending {
-  opacity: 0.55;
+  opacity: 0.48;
+  border-color: rgba(120, 105, 170, 0.14);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.wizardStepPending .wizardStepNum,
+.wizardStepPending .wizardStepLabel {
+  color: var(--wiz-text-muted);
 }
 
 .wizardStepActive {
-  border-color: rgba(186, 158, 255, 0.48);
-  background: rgba(86, 74, 136, 0.22);
-  box-shadow: 0 0 0 1px rgba(186, 158, 255, 0.1) inset;
+  border-color: var(--wiz-accent-border);
+  background: var(--wiz-bg-selected);
+  box-shadow:
+    0 0 0 1px rgba(196, 172, 255, 0.16) inset,
+    0 4px 14px rgba(72, 56, 140, 0.24);
 }
 
 .wizardStepDone {
-  border-color: rgba(160, 140, 220, 0.32);
-  background: rgba(86, 74, 136, 0.12);
+  border-color: rgba(160, 140, 220, 0.38);
+  background: rgba(68, 58, 108, 0.32);
+}
+
+.wizardStepCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wiz-accent);
+  background: rgba(196, 172, 255, 0.14);
+  border: 1px solid rgba(186, 158, 255, 0.42);
 }
 
 .wizardStepNum {
@@ -1084,7 +1136,11 @@
 }
 
 .wizardStepActive .wizardStepNum {
-  color: rgba(220, 210, 255, 0.92);
+  color: var(--wiz-accent);
+}
+
+.wizardStepDone .wizardStepLabel {
+  color: rgba(210, 198, 240, 0.82);
 }
 
 .wizardStepLabel {
@@ -1094,7 +1150,7 @@
 }
 
 .wizardStepActive .wizardStepLabel {
-  color: rgba(236, 230, 252, 0.96);
+  color: var(--wiz-text-bright);
 }
 
 .wizardStepPanel {
@@ -1104,7 +1160,7 @@
 }
 
 .wizardStepPanelActive {
-  border-top-color: rgba(160, 140, 220, 0.14);
+  border-top-color: rgba(160, 140, 220, 0.2);
 }
 
 .stepEyebrow {
@@ -1112,7 +1168,7 @@
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: rgba(185, 165, 230, 0.68);
+  color: rgba(196, 172, 255, 0.78);
 }
 
 .choiceGrid {
@@ -1122,16 +1178,18 @@
 }
 
 .choiceCard {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 6px;
+  gap: 10px;
   width: 100%;
-  padding: 14px 16px;
+  min-height: 44px;
+  padding: 14px 16px 14px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(140, 120, 200, 0.22);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(140, 120, 200, 0.28);
+  background: var(--wiz-bg-card);
+  color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
   font-family: inherit;
   text-align: left;
@@ -1143,29 +1201,80 @@
     box-shadow 0.18s ease;
 }
 
+.choiceCardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
 .choiceCard:hover {
-  border-color: rgba(160, 140, 220, 0.42);
-  color: rgba(255, 255, 255, 0.92);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(8, 6, 20, 0.22);
+  border-color: rgba(160, 140, 220, 0.48);
+  background: var(--wiz-bg-elevated);
+  color: rgba(255, 255, 255, 0.94);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(8, 6, 20, 0.28);
+}
+
+.choiceCard:active {
+  transform: translateY(0) scale(0.985);
+  box-shadow: 0 2px 8px rgba(8, 6, 20, 0.18);
 }
 
 .choiceCard:focus-visible {
   outline: none;
-  border-color: rgba(186, 158, 255, 0.55);
+  border-color: var(--wiz-accent-border);
   box-shadow:
-    0 0 0 3px rgba(107, 95, 168, 0.28),
-    0 6px 18px rgba(8, 6, 20, 0.18);
+    0 0 0 3px rgba(107, 95, 168, 0.38),
+    0 6px 18px rgba(8, 6, 20, 0.2);
 }
 
 .choiceCardSelected {
-  border-color: rgba(186, 158, 255, 0.55);
-  background: rgba(107, 95, 168, 0.24);
-  color: rgba(236, 230, 252, 0.96);
+  border-color: var(--wiz-accent-border);
+  border-width: 2px;
+  padding-left: 15px;
+  background: var(--wiz-bg-selected);
+  color: var(--wiz-text-bright);
   box-shadow:
-    0 0 0 1px rgba(186, 158, 255, 0.14) inset,
-    0 8px 22px rgba(80, 60, 160, 0.18);
+    0 0 0 1px rgba(196, 172, 255, 0.18) inset,
+    0 8px 24px rgba(80, 60, 160, 0.26);
   transform: translateY(-1px);
+}
+
+.choiceCardSelected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--wiz-accent);
+  box-shadow: 0 0 10px rgba(196, 172, 255, 0.35);
+}
+
+.choiceCardSelected:hover {
+  border-color: rgba(196, 172, 255, 0.82);
+  background: rgba(86, 68, 148, 0.62);
+}
+
+.choiceCardCheck {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 2px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wiz-accent);
+  background: rgba(196, 172, 255, 0.16);
+  border: 1px solid rgba(186, 158, 255, 0.48);
 }
 
 .choiceCardTitle {
@@ -1183,49 +1292,58 @@
 }
 
 .choiceCardSelected .choiceCardDescription {
-  color: rgba(220, 210, 255, 0.78);
+  color: rgba(220, 210, 255, 0.82);
 }
 
 .selectionMemory {
   margin: 0 0 14px;
-  padding: 12px 14px;
+  padding: 14px 16px 14px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(160, 140, 220, 0.22);
-  background: rgba(34, 32, 55, 0.45);
+  border: 1px solid rgba(160, 140, 220, 0.32);
+  border-left: 3px solid var(--wiz-accent);
+  background: var(--wiz-bg-elevated);
+  box-shadow:
+    0 0 0 1px rgba(186, 158, 255, 0.08) inset,
+    0 4px 16px rgba(40, 28, 80, 0.18);
 }
 
 .selectionMemoryEyebrow {
   margin: 0 0 4px;
   font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: rgba(185, 165, 230, 0.72);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: rgba(196, 172, 255, 0.82);
 }
 
 .selectionMemoryValue {
   margin: 0 0 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   line-height: 1.4;
-  color: rgba(236, 230, 252, 0.94);
+  color: var(--wiz-text-bright);
 }
 
 .selectionMemoryPrompt {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   line-height: 1.55;
-  color: rgba(200, 188, 230, 0.82);
+  font-weight: 500;
+  color: rgba(210, 198, 240, 0.88);
 }
 
 .confirmPanel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 0 0 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(160, 140, 220, 0.24);
-  background: rgba(22, 20, 38, 0.55);
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(186, 158, 255, 0.38);
+  background: rgba(52, 44, 88, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(196, 172, 255, 0.12) inset,
+    0 6px 22px rgba(40, 28, 80, 0.24);
 }
 
 .confirmRow {
@@ -1247,10 +1365,10 @@
 .confirmValue {
   flex: 1;
   min-width: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.94rem;
+  font-weight: 700;
   line-height: 1.45;
-  color: rgba(236, 230, 252, 0.94);
+  color: var(--wiz-text-bright, rgba(236, 230, 252, 0.94));
 }
 
 .checkMark {
@@ -1336,9 +1454,61 @@
 .stepConsumeNote {
   margin: 0 0 12px;
   font-size: 0.86rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.88);
-  line-height: 1.55;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(210, 198, 240, 0.9);
+}
+
+/* Reply wizard primary CTA — distinct from choice cards */
+.replyWizard .submitBtnPrimary {
+  min-height: 44px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(196, 172, 255, 0.42);
+  background: linear-gradient(180deg, rgba(108, 82, 178, 0.95) 0%, rgba(82, 62, 148, 0.98) 100%);
+  color: rgba(255, 255, 255, 0.98);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 6px 20px rgba(72, 52, 140, 0.32);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.replyWizard .submitBtnPrimary:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(122, 94, 196, 0.98) 0%, rgba(92, 72, 162, 1) 100%);
+  border-color: rgba(210, 190, 255, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 8px 24px rgba(80, 58, 160, 0.38);
+}
+
+.replyWizard .submitBtnPrimary:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.replyWizard .submitBtnPrimary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(107, 95, 168, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 6px 20px rgba(72, 52, 140, 0.32);
+}
+
+.replyWizard .submitBtnPrimary.submitBtnDisabled,
+.replyWizard .submitBtnPrimary:disabled {
+  background: rgba(68, 58, 108, 0.42);
+  border-color: rgba(140, 120, 200, 0.22);
+  color: rgba(255, 255, 255, 0.52);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 .themeRow {
@@ -1584,7 +1754,9 @@
   }
 
   .choiceCard:hover,
-  .choiceCardSelected {
+  .choiceCardSelected,
+  .choiceCard:active,
+  .replyWizard .submitBtnPrimary:active:not(:disabled) {
     transform: none;
   }
 

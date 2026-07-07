@@ -209,19 +209,21 @@ function deriveWizardActiveStep(
 
 function WizardProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
   return (
-    <div className={styles.wizardProgress} aria-label="追加読み解きの進行">
+    <ol className={styles.wizardProgress} aria-label="追加読み解きの進行">
       {WIZARD_STEPS.map((step, index) => {
         const done = step.n < activeStep;
         const active = step.n === activeStep;
         const pending = step.n > activeStep;
         return (
-          <div key={step.n} className={styles.wizardProgressItem}>
+          <li key={step.n} className={styles.wizardProgressItem}>
             {index > 0 ? (
               <div
                 className={
-                  done || active
-                    ? `${styles.wizardConnector} ${styles.wizardConnectorActive}`
-                    : styles.wizardConnector
+                  done
+                    ? `${styles.wizardConnector} ${styles.wizardConnectorDone}`
+                    : active
+                      ? `${styles.wizardConnector} ${styles.wizardConnectorActive}`
+                      : styles.wizardConnector
                 }
                 aria-hidden
               />
@@ -235,14 +237,27 @@ function WizardProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
               ]
                 .filter(Boolean)
                 .join(' ')}
+              aria-current={active ? 'step' : undefined}
             >
-              <span className={styles.wizardStepNum}>Step {step.n} / 3</span>
-              <span className={styles.wizardStepLabel}>{step.shortLabel}</span>
+              {done ? (
+                <>
+                  <span className={styles.wizardStepCheck} aria-hidden>
+                    ✓
+                  </span>
+                  <span className={styles.wizardStepLabel}>{step.shortLabel}</span>
+                  <span className={styles.srOnly}>完了</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.wizardStepNum}>Step {step.n} / 3</span>
+                  <span className={styles.wizardStepLabel}>{step.shortLabel}</span>
+                </>
+              )}
             </div>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }
 
@@ -266,9 +281,17 @@ function EntryChoiceCard({
       }
       onClick={onSelect}
       aria-pressed={selected}
+      aria-selected={selected}
     >
-      <span className={styles.choiceCardTitle}>{card.label}</span>
-      <span className={styles.choiceCardDescription}>{card.description}</span>
+      <span className={styles.choiceCardBody}>
+        <span className={styles.choiceCardTitle}>{card.label}</span>
+        <span className={styles.choiceCardDescription}>{card.description}</span>
+      </span>
+      {selected ? (
+        <span className={styles.choiceCardCheck} aria-hidden>
+          ✓
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -292,9 +315,17 @@ function FocusChoiceCard({
       }
       onClick={onSelect}
       aria-pressed={selected}
+      aria-selected={selected}
       role="option"
     >
-      <span className={styles.choiceCardTitle}>{labelJa}</span>
+      <span className={styles.choiceCardBody}>
+        <span className={styles.choiceCardTitle}>{labelJa}</span>
+      </span>
+      {selected ? (
+        <span className={styles.choiceCardCheck} aria-hidden>
+          ✓
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -820,7 +851,11 @@ export default function ConsultRoom({
           <p className={styles.stepConsumeNote}>{ROOM_UI_COPY.step3Consume}</p>
           <button
             type="button"
-            className={submitDisabled ? `${styles.submitBtn} ${styles.submitBtnDisabled}` : styles.submitBtn}
+            className={
+              submitDisabled
+                ? `${styles.submitBtn} ${styles.submitBtnPrimary} ${styles.submitBtnDisabled}`
+                : `${styles.submitBtn} ${styles.submitBtnPrimary}`
+            }
             onClick={handleSend}
             disabled={submitDisabled}
             aria-busy={sending}
