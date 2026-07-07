@@ -135,7 +135,7 @@ describe('paidDtrProductCopy SSOT', () => {
       ...PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa,
     ].join('\n');
     assert.match(intro, /1テーマだけ整理します/);
-    assert.match(intro, /送信するまで相談返書は使いません/);
+    assert.match(intro, /送信するまで追加読み解きは使いません/);
     assert.equal(intro.includes('汎用チャット'), false);
     assert.equal(intro.includes('参照されます'), false);
   });
