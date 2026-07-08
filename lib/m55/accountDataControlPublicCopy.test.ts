@@ -87,7 +87,7 @@ describe('accountDataControlPublicCopy — Support', () => {
       'アカウント',
       'プロフィール',
       '保存版',
-      '相談返書',
+      '追加読み解き',
       'この端末に保存された情報',
     ]);
     assert.match(ACCOUNT_DATA_SUPPORT_AFTER_VERIFY, /本人確認後/);

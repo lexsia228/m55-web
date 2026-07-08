@@ -107,7 +107,7 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
   });
 
   it('removes legacy ¥500 sales UI from consult entry surfaces', () => {
-    for (const term of ['500円', '追加相談返書 1件 500円', 'additionalPriceLabelJa']) {
+    for (const term of ['500円', '追加読み解き 1件 500円', 'additionalPriceLabelJa']) {
       assert.equal(CONSULT_ENTRY_SURFACES.includes(term), false, `forbidden: ${term}`);
     }
   });
@@ -147,7 +147,7 @@ describe('myConsultCheckoutPublicCopy — My public catalog (PATCH-1)', () => {
   it('omits add-on consult product labels from public catalog copy', () => {
     const catalog = publicCatalogCopyBlob();
     assert.equal(catalog.includes('追加相談枠'), false);
-    assert.equal(catalog.includes('追加相談返書'), false);
+    assert.equal(catalog.includes('追加読み解き 1件 500円'), false);
     assert.equal(catalog.includes('レポートに沿った深掘り相談'), false);
   });
 
@@ -256,7 +256,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
   it('uses formal section titles and saved-report copy constants', () => {
     assert.equal(MY_SAVED_REPORT_SECTION_TITLE, 'あなたの保存版');
     assert.equal(MY_SERVICES_SECTION_TITLE, 'サービス一覧');
-    assert.equal(MY_CONSULT_SECTION_TITLE, '相談返書');
+    assert.equal(MY_CONSULT_SECTION_TITLE, '追加読み解き');
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_SECTION_TITLE/);
     assert.match(MY_PANEL_SOURCE, /MY_SERVICES_SECTION_TITLE/);
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_INTRO_COMMON/);
@@ -284,7 +284,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.equal(MY_CONSULT_CTA_HREF, '/dtr/core');
     assert.equal(MY_SAVED_REPORT_CTA_PLAN_LABEL, '保存版のプランを見る');
     assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, '保存版を開く');
-    assert.equal(MY_CONSULT_CTA_LABEL, '相談返書を確認する');
+    assert.equal(MY_CONSULT_CTA_LABEL, '追加読み解きを確認する');
   });
 
   it('shows owned intro and notes only in owned_ready branch', () => {

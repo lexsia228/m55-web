@@ -13,7 +13,7 @@ import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../oneTimeCheckout';
 
 const FORBIDDEN_LP_TERMS = [
   '¥500',
-  '追加相談返書',
+  '追加読み解き 1件 500円',
   'Entry Report',
   '購入者専用ルーム',
   '相談ルーム',
@@ -47,7 +47,7 @@ const OWNED_STATE_STRINGS = [
   'レポートを開く',
   '購入済みです。保存版の準備状況を確認できます（再購入は不要です）。',
   '準備状況を確認する',
-  'サポートに相談する',
+  'サポートへ問い合わせる',
   '本文の準備が完了すると閲覧できます。しばらくしてから再度お試しください。',
   'レポートの準備中',
   'このレポートへのアクセス有効期限が切れています。',
@@ -187,7 +187,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.match(blob, /暦リズム/);
     assert.match(blob, /固定ルール/);
     assert.match(blob, /生成AIでその都度書き換えるものではなく/);
-    assert.match(blob, /相談返書のみ/);
+    assert.match(blob, /追加読み解きのみ/);
     for (const term of [
       '完全オリジナル',
       '数千通り',

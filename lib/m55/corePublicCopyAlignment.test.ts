@@ -86,7 +86,7 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.match(coreBoundary.freeLeadJa, /10資質レーン/);
     assert.match(coreBoundary.savedLeadJa, /4章/);
     assert.match(coreBoundary.savedLeadJa, /動き方・疲れ方・戻し方/);
-    assert.match(coreBoundary.savedLeadJa, /相談返書/);
+    assert.match(coreBoundary.savedLeadJa, /追加読み解き/);
     assert.doesNotMatch(coreBoundary.savedLeadJa, /正式4章で整理します。$/);
   });
 

@@ -106,13 +106,13 @@ export default function M55HowItWorks() {
         </div>
       </section>
 
-      {/* ── Fold 4: 相談返書（D） ── */}
+      {/* ── Fold 4: 追加読み解き（D） ── */}
       <section className={styles.fold4}>
         <div className={styles.roomCard}>
-          <div className={styles.roomEyebrow}>相談返書</div>
-          <h2 className={styles.roomTitle}>相談返書とは</h2>
+          <div className={styles.roomEyebrow}>追加読み解き</div>
+          <h2 className={styles.roomTitle}>追加読み解きとは</h2>
           <p className={styles.roomDesc}>
-            保存版を購入した方だけが使える、保存版に紐づく一つの相談テーマへの返書です。
+            保存版を購入した方だけが使える、保存版に紐づく一つの読み解きテーマへの返書です。
             公開チャットではなく、購入した保存版の章に沿って、いまの1テーマを整理するためのものです。
           </p>
         </div>

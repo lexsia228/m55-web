@@ -8,7 +8,7 @@ export const LANE_B_CONSULT_REDIRECT_PATH = '/dtr/core#consultation-room' as con
 export const LANE_B_DISABLED_ERROR_CODE = 'LANE_B_DISABLED' as const;
 
 export const LANE_B_DISABLED_USER_MESSAGE_JA =
-  '相談返書は保存版内からご利用いただけます。保存版を開いてお試しください。';
+  '追加読み解きは保存版内からご利用いただけます。保存版を開いてお試しください。';
 
 /** Non-production only: preserves dev/e2e smoke for /api/reply/generate. */
 export function isLaneBReplySurfaceEnabled(): boolean {

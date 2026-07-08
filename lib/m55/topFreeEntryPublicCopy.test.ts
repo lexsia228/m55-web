@@ -142,7 +142,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /4章の保存版/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /生年月日/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /10資質レーン/);
-    assert.match(blob, /相談返書/);
+    assert.match(blob, /追加読み解き/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
 
@@ -152,15 +152,15 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     const { storefront: sf, home: homeCopy, learnMore } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(sf.fullPlanNameJa, '保存版FULL');
     assert.equal(sf.fullPriceLabelJa, '¥1,480（税込）');
-    assert.equal(sf.fullConsultReplyJa, '相談返書合計5件');
+    assert.equal(sf.fullConsultReplyJa, '追加読み解き合計5件');
     assert.equal(sf.lightPlanNameJa, '保存版ライト');
     assert.equal(sf.lightPriceLabelJa, '¥1,000（税込）');
-    assert.equal(sf.lightConsultReplyJa, '相談返書1件');
+    assert.equal(sf.lightConsultReplyJa, '追加読み解き1件');
     assert.equal(homeCopy.reportLightEyebrowJa, '保存版ライト');
     assert.equal(homeCopy.reportLightPriceJa, '¥1,000（税込）');
     assert.equal(learnMore.rulesJa.length, 4);
-    assert.match(copy, /相談返書合計5件/);
-    assert.match(copy, /相談返書1件/);
+    assert.match(copy, /追加読み解き合計5件/);
+    assert.match(copy, /追加読み解き1件/);
     assert.match(home, /m55-home-learn-more/);
     assert.match(home, /readNextQualitiesTitleJa/);
     assert.equal(homeCopy.readNextQualitiesTitleJa, '10通りの資質');
@@ -234,14 +234,14 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
       assert.equal(homePanel.includes(term), false, `home must not include: ${term}`);
     }
     assert.match(copy, /必要になったらFULL化/);
-    assert.match(copy, /相談返書1件/);
-    assert.match(copy, /相談返書合計5件/);
+    assert.match(copy, /追加読み解き1件/);
+    assert.match(copy, /追加読み解き合計5件/);
   });
 
   it('uses saved-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
     assert.match(activeCopy, /4章の保存版/);
-    assert.match(activeCopy, /相談返書で/);
+    assert.match(activeCopy, /追加読み解きで/);
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
     assert.equal(activeCopy.includes('基本の出方'), false);

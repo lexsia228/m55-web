@@ -3,6 +3,7 @@
  * Keeps resolveEntryReportOwnership semantics; separates purchase CTA from owned-not-ready paths.
  */
 import { ariaLabelForDtrShelf, MY_SAVED_REPORT_CTA_OPEN_LABEL, MY_SAVED_REPORT_CTA_PLAN_LABEL } from './dtrProductLabels';
+import { PAID_DTR_LP } from './paidDtrProductCopy';
 import { deriveLockedShelfStemPreviewFromDraft } from './compositeStem/deriveLockedShelfStemPreview';
 import {
   getLatestDraftForUser,
@@ -97,7 +98,7 @@ function shelfCtaForLocked(): DtrShelfCta {
 function shelfCtaForExpired(): DtrShelfCta {
   return {
     href: '/dtr/lp?state=expired',
-    label: 'サポートに相談する',
+    label: PAID_DTR_LP.operational.ownedState.supportCtaJa,
     ariaLabel: ariaLabelForDtrShelf('expired', false),
   };
 }
@@ -266,7 +267,7 @@ export async function resolveDtrShelfAccess(
       showPurchaseCta: false,
       shelfCta: {
         href: '/support',
-        label: 'サポートに相談する',
+        label: PAID_DTR_LP.operational.ownedState.supportCtaJa,
         ariaLabel: ariaLabelForDtrShelf('connection_error', false),
       },
       lpCtaMode: 'recovery',

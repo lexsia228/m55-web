@@ -10,7 +10,7 @@ export const SAVED_SNAPSHOT_NOTICE_PRIMARY =
 
 /** Legacy stored snapshot only — purchase-time fixed content vs current free preview. */
 export const SAVED_SNAPSHOT_NOTICE_LEGACY_MODE =
-  'この保存版は、購入時点のプロフィールと内容で固定されています。現在の無料鑑定と表示名が異なる場合があります。保存版の本文と相談返書では、購入時の内容を基準に扱います。';
+  'この保存版は、購入時点のプロフィールと内容で固定されています。現在の無料鑑定と表示名が異なる場合があります。保存版の本文と追加読み解きでは、購入時の内容を基準に扱います。';
 
 export function shouldShowLegacySnapshotNotice(
   mode: DisplayedEnvelopeReadMode | StoredEnvelopeReadMode | undefined,

@@ -12,7 +12,7 @@ function messageForUpgradeCheckoutError(code: string | undefined): string {
       return '保存版の確認ができませんでした。';
     case 'wallet_not_found':
     case 'wallet_not_active':
-      return '相談返書の準備が完了していません。しばらくしてからお試しください。';
+      return '追加読み解きの準備が完了していません。しばらくしてからお試しください。';
     case 'cap_reached':
       return 'すでにFULL相当のご利用枠です。';
     case 'invalid_product':

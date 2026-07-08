@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'blocked',
-        safeMessage: safety.safeMessage ?? 'この内容はこのレポートの相談では扱えません。',
+        safeMessage: safety.safeMessage ?? 'この内容は、この保存版をもとにした読み解きでは扱えません。',
       },
       { status: 422, headers: NO_STORE }
     );
@@ -365,7 +365,7 @@ export async function POST(req: NextRequest) {
   const wallet = walletRaw as { status: string; available_count: number };
   if (wallet.status !== 'active' || wallet.available_count <= 0) {
     return NextResponse.json(
-      { error: '相談回数の残りがありません。' },
+      { error: '追加読み解きの利用枠が残っていません。' },
       { status: 403, headers: NO_STORE }
     );
   }

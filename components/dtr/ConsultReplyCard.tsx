@@ -14,6 +14,7 @@ import {
 import {
   PAID_DTR_CONSULT_ENTRY_NEUTRAL,
   PAID_DTR_CONSULT_ROOM_UI,
+  PAID_DTR_PRODUCT_IDENTITY,
   formatConsultUsedCountLine,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultReplyStructureMiniViz from './ConsultReplyStructureMiniViz';
@@ -102,7 +103,7 @@ export default function ConsultReplyCard({
     .join(' ');
 
   return (
-    <article className={cardClassName} aria-label="相談返書">
+    <article className={cardClassName} aria-label={PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}>
       <header className={collapsed ? `${styles.replyCardHeader} ${styles.replyCardHeaderCompact}` : styles.replyCardHeader}>
         {isLatest ? (
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>
@@ -111,18 +112,18 @@ export default function ConsultReplyCard({
           <span className={styles.replyTag}>保存版をもとにした返書</span>
         </div>
         {!collapsed ? (
-          <h3 className={styles.replyCardTitle}>{theme ?? '相談返書'}</h3>
+          <h3 className={styles.replyCardTitle}>{theme ?? PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}</h3>
         ) : null}
         {collapsed ? (
           <p className={styles.replyCompactMetaRow}>
-            <span>この相談で見ているところ</span>
+            <span>この読み解きで見ているところ</span>
             <span className={styles.replyCompactMetaSep} aria-hidden>
               ·
             </span>
             <span>{usageCompact}</span>
           </p>
         ) : (
-          <p className={styles.replyMeta}>この相談で見ているところ</p>
+          <p className={styles.replyMeta}>この読み解きで見ているところ</p>
         )}
         {theme && collapsed ? <p className={styles.replyListTheme}>{theme}</p> : null}
         {!collapsed ? <p className={styles.replyUsage}>{usageFull}</p> : null}
@@ -193,8 +194,8 @@ export default function ConsultReplyCard({
           )}
 
           {remainingCount > 0 ? (
-            <section className={styles.replyNextUse} aria-label="次に相談するなら">
-              <p className={styles.replyNextUseTitle}>次に相談するなら</p>
+            <section className={styles.replyNextUse} aria-label="次に読み解くなら">
+              <p className={styles.replyNextUseTitle}>次に読み解くなら</p>
               <p className={styles.replyNextUseBridge}>
                 この返書の続きとして、残り{remainingCount}件ではこんなテーマを見られます。
               </p>

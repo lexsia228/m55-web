@@ -38,7 +38,7 @@ export const ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES = [
   'アカウント',
   'プロフィール',
   '保存版',
-  '相談返書',
+  '追加読み解き',
   'この端末に保存された情報',
 ] as const;
 
