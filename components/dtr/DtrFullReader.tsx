@@ -2840,9 +2840,18 @@ function ConsultSavedReportAboutBody({ readerDisplayName }: { readerDisplayName:
 function ContinuousSupportCompact() {
   return (
     <div className={styles.supportRepeatCompact}>
-      <p className={styles.supportRepeatText}>{PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportBodyJa}</p>
       <p className={`${styles.supportRepeatText} ${styles.supportRepeatScopeNote}`}>
         {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportScopeJa}
+      </p>
+    </div>
+  );
+}
+
+function ContinuousSupportSurface() {
+  return (
+    <div className={styles.consultContinuousSupportSurface} role="note">
+      <p className={styles.consultContinuousSupportText}>
+        {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportBodyJa}
       </p>
     </div>
   );
@@ -3119,19 +3128,7 @@ export default function DtrFullReader({
                         ))}
                       </ul>
                     </div>
-                    <ChapterConsultNextAction
-                      partId="1"
-                      nickname={view.nickname}
-                      onOpenConsult={() => selectPanel('consult')}
-                    />
                   </>
-                ) : null}
-                {hybridAiVisible && s1 ? (
-                  <ChapterConsultNextAction
-                    partId="1"
-                    nickname={view.nickname}
-                    onOpenConsult={() => selectPanel('consult')}
-                  />
                 ) : null}
               </div>
             </section>
@@ -3154,6 +3151,20 @@ export default function DtrFullReader({
                 </PaidModuleShell>
               </div>
             </div>
+            {!hybridAiVisible && s2 ? (
+              <ChapterConsultNextAction
+                partId="1"
+                nickname={view.nickname}
+                onOpenConsult={() => selectPanel('consult')}
+              />
+            ) : null}
+            {hybridAiVisible && s1 ? (
+              <ChapterConsultNextAction
+                partId="1"
+                nickname={view.nickname}
+                onOpenConsult={() => selectPanel('consult')}
+              />
+            ) : null}
           </>
         );
       case 'chapter-2':
@@ -3196,13 +3207,6 @@ export default function DtrFullReader({
                   <GridArticleStrengthsViz key={gridS4.id} section={gridS4} nickname={view.nickname} />
                 </div>
               ) : null}
-              {(hybridAiVisible && s2) || (!hybridAiVisible && s3) ? (
-                <ChapterConsultNextAction
-                  partId="2"
-                  nickname={view.nickname}
-                  onOpenConsult={() => selectPanel('consult')}
-                />
-              ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
@@ -3229,6 +3233,13 @@ export default function DtrFullReader({
                 ) : null}
               </div>
             </div>
+            {(hybridAiVisible && s2) || (!hybridAiVisible && s3) ? (
+              <ChapterConsultNextAction
+                partId="2"
+                nickname={view.nickname}
+                onOpenConsult={() => selectPanel('consult')}
+              />
+            ) : null}
           </>
         );
       case 'chapter-3':
@@ -3261,13 +3272,6 @@ export default function DtrFullReader({
                   {gridS6 ? <GridArticleCommViz key={gridS6.id} section={gridS6} /> : null}
                 </div>
               ) : null}
-              {gridSections.length > 0 ? (
-                <ChapterConsultNextAction
-                  partId="3"
-                  nickname={view.nickname}
-                  onOpenConsult={() => selectPanel('consult')}
-                />
-              ) : null}
             </section>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
@@ -3295,6 +3299,13 @@ export default function DtrFullReader({
                 ) : null}
               </div>
             </div>
+            {gridSections.length > 0 ? (
+              <ChapterConsultNextAction
+                partId="3"
+                nickname={view.nickname}
+                onOpenConsult={() => selectPanel('consult')}
+              />
+            ) : null}
           </>
         );
       case 'chapter-4': {
@@ -3340,11 +3351,6 @@ export default function DtrFullReader({
                   </section>
                 </>
               ) : null}
-              <ChapterConsultNextAction
-                partId="4"
-                nickname={view.nickname}
-                onOpenConsult={() => selectPanel('consult')}
-              />
             </div>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
@@ -3371,6 +3377,11 @@ export default function DtrFullReader({
                 ) : null}
               </div>
             </div>
+            <ChapterConsultNextAction
+              partId="4"
+              nickname={view.nickname}
+              onOpenConsult={() => selectPanel('consult')}
+            />
           </>
         );
       }
@@ -3379,6 +3390,7 @@ export default function DtrFullReader({
           <div className={styles.drawerConsultPanel}>
             {aiConsultIncluded ? (
               <div className={styles.consultLayer} id="consultation-room">
+                <ContinuousSupportSurface />
                 <div className={styles.consultRoomBand}>
                   <ConsultRoom
                     birthDate={view.birthDate}
