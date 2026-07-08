@@ -27,7 +27,7 @@ export const DTR_DISPLAY_FALLBACK_TIMING =
 export const DTR_DISPLAY_FALLBACK_NEUTRAL = '今はまだはっきり出ていない傾向です。';
 export const DTR_DISPLAY_FALLBACK_SOFT = DTR_DISPLAY_FALLBACK_LOAD;
 export const DTR_DISPLAY_FALLBACK_CONSULT =
-  '気になる場面は、相談返書で一緒に整理できます。';
+  '気になる場面は、追加読み解きで一緒に整理できます。';
 export const DTR_DISPLAY_FALLBACK_UNWORDED = DTR_DISPLAY_FALLBACK_RECOVERY;
 
 /** Blocks career-heavy copy on 出方 / 戻し方 / タイミング (not プロデューサー title). */

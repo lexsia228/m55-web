@@ -77,7 +77,7 @@ describe('paidDtrProductCopy SSOT', () => {
   it('uses Japanese primary product identity', () => {
     assert.equal(PAID_DTR_PRODUCT_IDENTITY.primaryNameJa, '保存版');
     assert.equal(PAID_DTR_PRODUCT_IDENTITY.formatLabel, '保存版');
-    assert.equal(PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa, '相談返書');
+    assert.equal(PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa, '追加読み解き');
   });
 
   it('primary value proposition avoids obsolete product truth and notification promises', () => {
@@ -125,7 +125,7 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_CONSULT_ROOM_UI.roomLeadJa,
       PAID_DTR_MY_PAGE_CONSULT.linkedScopeJa,
     ].join('\n');
-    assert.match(boundary, /保存版に紐づく相談/);
+    assert.match(boundary, /保存版に紐づく読み解き/);
     assert.match(boundary, /無制限/);
   });
 
@@ -143,7 +143,7 @@ describe('paidDtrProductCopy SSOT', () => {
   it('drawer consult CTA uses bridge sublabel not legacy bound phrase', () => {
     assert.equal(
       PAID_DTR_DRAWER_HUB.consultSublabelJa,
-      '保存版をもとに、今の悩みを1テーマだけ整理する',
+      '保存版をもとに、いま気になっていることを1テーマだけ整理する',
     );
     assert.equal(PAID_DTR_DRAWER_HUB.consultSublabelJa.includes('保存版に紐づく'), false);
   });
@@ -173,7 +173,7 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_CONSULT_ROOM_UI.openToReadJa,
       PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa,
     ].join('\n');
-    assert.match(history, /\{count\}件の相談返書があります/);
+    assert.match(history, /\{count\}件の追加読み解きがあります/);
     assert.match(history, /すべて見る/);
     assert.match(history, /開いて読む/);
     assert.equal(history.includes('ルーム'), false);
@@ -198,20 +198,20 @@ describe('paidDtrProductCopy SSOT', () => {
   it('consult usage display copy prioritizes add-on over giant remaining-zero hero', () => {
     assert.equal(
       formatConsultPurchaseAddOnLine(4),
-      '保存版に紐づく相談返書を、あと4件まで追加できます。'
+      '保存版に紐づく追加読み解きを、あと4件まで追加できます。'
     );
     assert.equal(formatConsultUsedCountLine(1, 5), '使用済み：1 / 5件');
     const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
-    assert.match(usage, /この保存版で相談返書を使えます/);
-    assert.equal(usage.includes('相談返書を1件使えます'), false);
+    assert.match(usage, /この保存版で追加読み解きを使えます/);
+    assert.equal(usage.includes('追加読み解きを1件使えます'), false);
     assert.match(usage, /今は残り0件です/);
-    assert.equal(usage.includes('相談返書ルーム'), false);
+    assert.equal(usage.includes('追加読み解きルーム'), false);
     assert.equal(usage.includes('返書ルーム'), false);
   });
 
   it('shelf consult meta is tier-neutral and avoids fixed one-ticket copy', () => {
-    assert.equal(PAID_DTR_SHELF_CONSULT_META.labelJa, '相談返書');
-    assert.equal(PAID_DTR_SHELF_CONSULT_META.valueJa, '相談返書の利用枠あり');
+    assert.equal(PAID_DTR_SHELF_CONSULT_META.labelJa, '追加読み解き');
+    assert.equal(PAID_DTR_SHELF_CONSULT_META.valueJa, '追加読み解きの利用枠あり');
     const shelfMeta = Object.values(PAID_DTR_SHELF_CONSULT_META).join('\n');
     assert.equal(shelfMeta.includes('1件付帯'), false);
     assert.equal(shelfMeta.includes('初回付与'), false);
@@ -284,7 +284,22 @@ describe('paidDtrProductCopy SSOT', () => {
     for (const term of forbidden) {
       assert.equal(tierCopy.includes(term), false, `tier copy must not include: ${term}`);
     }
-    assert.match(tierCopy, /相談返書/);
+    assert.match(tierCopy, /追加読み解き/);
+  });
+
+  it('public copy corpus omits legacy consult product terms', () => {
+    const corpus = collectPaidDtrPublicCopyStrings().join('\n');
+    const forbidden = [
+      '相談返書',
+      '相談内容',
+      '相談回数',
+      'サポートに相談',
+      '次に相談',
+    ] as const;
+    for (const term of forbidden) {
+      assert.equal(corpus.includes(term), false, `corpus must not include: ${term}`);
+    }
+    assert.equal(PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa, '追加読み解き');
   });
 
   it('consult copy avoids unsafe external and selector wording in user-facing strings', () => {

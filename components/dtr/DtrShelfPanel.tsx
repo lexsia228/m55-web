@@ -15,7 +15,7 @@ import {
   SHELF_HINT_OWNED_READY,
   SHELF_OVERLINE,
 } from '../../lib/m55/dtrProductLabels';
-import { PAID_DTR_SHELF_CONSULT_META } from '../../lib/m55/paidDtrProductCopy';
+import { PAID_DTR_LP, PAID_DTR_SHELF_CONSULT_META } from '../../lib/m55/paidDtrProductCopy';
 import type { DtrShelfStemDisplay } from '../../lib/m55/dtrShelfStemDisplay';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
@@ -105,7 +105,7 @@ function EntryReportCard({
       : isOwned
       ? '保存版の準備中'
       : isExpired
-      ? 'サポートに相談する'
+      ? PAID_DTR_LP.operational.ownedState.supportCtaJa
       : MY_SAVED_REPORT_CTA_PLAN_LABEL);
 
   const ariaLabel = shelfCta?.ariaLabel ?? `${LABEL_PRODUCT_JP} — 保存版`;

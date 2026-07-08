@@ -87,7 +87,7 @@ function messageForCheckoutError(code: string | undefined): string {
     case "forbidden_not_owner":
       return "このレポートに対する利用権限を確認できませんでした"
     case "wallet_not_found":
-      return "相談返書の利用情報が見つかりませんでした"
+      return '追加読み解きの利用情報が見つかりませんでした';
     case "wallet_not_active":
       return "現在、追加購入を受け付けていません"
     case "cap_reached":

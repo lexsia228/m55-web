@@ -11,9 +11,9 @@ const ENGLISH_SEND_ERROR_MAP: Record<string, string> = {
   'Report context missing. Reload and try again.':
     'レポートの読み込みに失敗しました。ページを再読み込みしてお試しください。',
   'Reply wallet not found. Reload and try again.':
-    '相談返書の利用情報を確認できませんでした。ページを再読み込みしてお試しください。',
+  '追加読み解きの利用情報を確認できませんでした。ページを再読み込みしてお試しください。',
   'Thread not found. Reload and try again.':
-    '相談返書の読み込みに失敗しました。ページを再読み込みしてお試しください。',
+  '追加読み解きの読み込みに失敗しました。ページを再読み込みしてお試しください。',
   'AI service is not configured.':
     '返書の準備に失敗しました。時間をおいてもう一度お試しください。',
 };
@@ -28,7 +28,7 @@ export function mapConsultRoomSendErrorToUserMessage(
   const raw = apiError?.trim() ?? '';
   if (!raw) return '送信に失敗しました。時間をおいてもう一度お試しください。';
   if (ENGLISH_SEND_ERROR_MAP[raw]) return ENGLISH_SEND_ERROR_MAP[raw];
-  if (/相談回数|メッセージは|文字|この内容は/.test(raw)) return raw;
+  if (/利用枠|追加読み解きの残り|メッセージは|文字|この内容は/.test(raw)) return raw;
   if (/[\u3040-\u30ff\u4e00-\u9fff]/.test(raw)) return raw;
   return '時間をおいてもう一度お試しください。';
 }

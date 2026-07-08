@@ -60,7 +60,7 @@ const ROOM_UI_COPY = {
   valueItems: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableItemsJa,
   valueCardNote: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableFooterJa,
   composePanelTitle: '保存版から、今のあなたに合う読み解きを選ぶ',
-  historyTitle: 'これまでの相談返書',
+  historyTitle: PAID_DTR_CONSULT_ROOM_UI.historyMessagesAriaJa,
   step1Title: '今いちばん近い入口を選ぶ',
   step1Hint:
     '保存版から、今のあなたに近い入口を1つ選んでください。迷ったら、いちばん目に止まるものを選んで大丈夫です。',

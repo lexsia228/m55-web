@@ -20,13 +20,13 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   consultReply: {
     definitionJa:
-      '相談返書では、保存版に今回入力した\n一つの相談テーマを重ねて読み直します。',
+      '追加読み解きでは、保存版に今回入力した\n一つの読み解きテーマを重ねて読み直します。',
     notConversationJa: '会話を続ける形式ではありません。',
     coreStaticJa:
-      '相談返書は、\n保存版に今回入力した一つの相談テーマを重ねて\n読み直す返書です。',
+      '追加読み解きは、\n保存版に今回入力した一つの読み解きテーマを重ねて\n読み直す返書です。',
   },
   threeLayerOrderJa:
-    '無料の見取り図 → 4章の保存版 → 保存版に紐づく相談返書',
+    '無料の見取り図 → 4章の保存版 → 保存版に紐づく追加読み解き',
   formalChapters: PAID_DTR_LP.chapters.items.map((ch) => ({
     roman: ch.roman,
     titleJa: ch.titleJa,
@@ -38,11 +38,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     fullPlanNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     fullPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     fullSavedReportJa: '正式4章',
-    fullConsultReplyJa: '相談返書合計5件',
+    fullConsultReplyJa: '追加読み解き合計5件',
     lightPlanNameJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     lightPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     lightSavedReportJa: '正式4章',
-    lightConsultReplyJa: '相談返書1件',
+    lightConsultReplyJa: '追加読み解き1件',
     upgradeNoteJa:
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
@@ -68,11 +68,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     seenThingsBridgeClosingJa:
       'M55で見えてくるのは、\nいつもの自分の輪郭。\n\nさらに深く見ることで、\nその輪郭をもっと具体的に読み解いていきます。',
     seenThingsBridgeAriaLabelJa: '見えてくること',
-    tierStackAriaLabelJa: '無料、保存版、相談返書',
+    tierStackAriaLabelJa: '無料、保存版、追加読み解き',
     tierFreeJa: '10資質レーンで、いまの輪郭を見る。',
     tierSavedBadgeJa: '保存版',
     tierSavedJa: '動き方・疲れ方・戻し方を、読める言葉に整理して残す。',
-    tierConsultBadgeJa: '相談返書',
+    tierConsultBadgeJa: '追加読み解き',
     tierConsultJa: '保存版に沿って、いまの1テーマを整理する。',
     exploreHowSubJa: 'M55の見方を見る →',
     exploreQualitiesTitleJa: '10資質レーンから読む',
@@ -176,18 +176,18 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     reportLightSummaryJa:
-      '4章の保存版 + 相談返書1件。ウェブ上で閲覧（物理配送なし）。',
+      '4章の保存版 + 追加読み解き1件。ウェブ上で閲覧（物理配送なし）。',
     reportFullEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     reportFullPriceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     reportFullSummaryJa:
-      '相談返書合計5件まで深めたい方向け（保存版FULL）。',
+      '追加読み解き合計5件まで深めたい方向け（保存版FULL）。',
     reportFullLineJa:
-      '保存版FULL（¥1,480（税込））：相談返書合計5件。',
+      '保存版FULL（¥1,480（税込））：追加読み解き合計5件。',
     reportFullUpgradeNoteJa:
       'ライトで始めたあとも、必要に応じてFULL化できます。',
     reportDepthNoteJa: '無料で見えた輪郭を、暦リズム込みで保存版に深めます。',
     reportAuxJa:
-      '相談返書は、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
+      '追加読み解きは、保存版に紐づく一テーマへの返書です。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '保存版では、次の整理で深めます',
   },
   learnMore: {
@@ -213,7 +213,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     freeLeadJa:
       '無料の見取り図では、\n10資質レーンと5つの視点で、\n自分に出やすい輪郭を短く確認できます。',
     savedLeadJa:
-      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\n4章で読み返せる形に残します。\n相談返書では、保存版に沿って、いまの1テーマだけ整理します。',
+      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\n4章で読み返せる形に残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
   },
   coreCta: {
     overlineJa: '保存版',
@@ -228,7 +228,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '自分をどこから整えると戻りやすいか',
     ] as const,
     bundleNoteJa:
-      'その先で必要になったら、相談返書で保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
+      'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
     linkLabelJa: '保存版のプランを見る',
   },
   howM55Works: {

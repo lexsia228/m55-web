@@ -64,7 +64,7 @@ export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
 /** Light owner → FULL upgrade (reply-tickets checkout lane). */
 export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'FULL化する（¥600）';
 export const DTR_LIGHT_TO_FULL_UPGRADE_NOTE =
-  '相談返書を合計5件まで利用できます';
+  '追加読み解きを合計5件まで利用できます';
 export const MY_SAVED_REPORT_ENT_ERROR =
   '利用状況を確認できませんでした。時間をおいて再度お試しください。';
 export const MY_SAVED_REPORT_SNAP_ERROR =
@@ -79,15 +79,15 @@ export const MY_SERVICES_SECTION_TITLE = 'サービス一覧';
 export const MY_SERVICES_INTRO =
   '利用できるサービスと、未購入・近日公開の状態を確認できます。';
 
-/** §5 相談返書 */
-export const MY_CONSULT_SECTION_TITLE = '相談返書';
+/** §5 追加読み解き */
+export const MY_CONSULT_SECTION_TITLE = '追加読み解き';
 export const MY_CONSULT_BODY_PRE_OWNED =
-  '相談返書は、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。';
+  '追加読み解きは、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。';
 export const MY_CONSULT_BODY_OWNED_P1 =
-  '相談返書は、保存版に紐づく機能です。1回の相談につき、一つのテーマを書いて返書を受け取ります。';
+  '追加読み解きは、保存版に紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて返書を受け取ります。';
 export const MY_CONSULT_BODY_OWNED_P2 =
-  '利用状況の確認と送信は、保存版を開いたあとの相談返書画面で行えます。';
-export const MY_CONSULT_CTA_LABEL = '相談返書を確認する';
+  '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。';
+export const MY_CONSULT_CTA_LABEL = '追加読み解きを確認する';
 export const MY_CONSULT_CTA_HREF = '/dtr/core';
 
 /** §6 プロフィール */

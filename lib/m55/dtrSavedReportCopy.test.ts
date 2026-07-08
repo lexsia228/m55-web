@@ -35,7 +35,7 @@ describe('dtrSavedReportCopy — legacy notice', () => {
   it('SAVED_SNAPSHOT_NOTICE_LEGACY_MODE uses approved neutral copy', () => {
     assert.equal(
       SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
-      'この保存版は、購入時点のプロフィールと内容で固定されています。現在の無料鑑定と表示名が異なる場合があります。保存版の本文と相談返書では、購入時の内容を基準に扱います。',
+      'この保存版は、購入時点のプロフィールと内容で固定されています。現在の無料鑑定と表示名が異なる場合があります。保存版の本文と追加読み解きでは、購入時の内容を基準に扱います。',
     );
     for (const word of FORBIDDEN_LEGACY_NOTICE_WORDS) {
       assert.doesNotMatch(SAVED_SNAPSHOT_NOTICE_LEGACY_MODE, new RegExp(word, 'i'));

@@ -768,7 +768,7 @@ function ReportFooterMetaCard({
     <section className={styles.reportMetaCard} aria-label="保存版の情報">
       <p className={styles.reportMetaHeading}>保存版の情報</p>
       <p className={styles.reportMetaLead}>
-        {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、相談返書は付いていません。'}
+        {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、追加読み解きは付いていません。'}
       </p>
       {aiConsultIncluded && wallet ? (
         <>

@@ -33,7 +33,7 @@ export const PAID_DTR_PRODUCT_IDENTITY = {
   auxiliaryNameEn: LABEL_PRODUCT_EN,
   shortNameJa: '本質を見つめ直す',
   /** User-facing primary term for the consultation feature */
-  consultPrimaryTermJa: '相談返書',
+  consultPrimaryTermJa: '追加読み解き',
   /** Explanatory bridge only — not the default UI label */
   consultBridgeTermJa: 'AI往復券',
   termsNotForPrimaryUse: [
@@ -55,7 +55,7 @@ export const PAID_DTR_VALUE_PROPOSITION = {
   oneSentenceJa:
     '無料の見取り図で見えた輪郭を土台に、保存版は章立てで読み返しながら、近い人との距離・消耗・迷い・整え方を自分の暮らしの中で読み直せる有料レポートです。',
   leadParagraphJa:
-    '自分の形を知ると、少し楽になる。M55は、そのための見取り図です。保存版では、いまの傾向を章立てで深く整理し、必要なときに相談返書で論点を絞り込めます。',
+    '自分の形を知ると、少し楽になる。M55は、そのための見取り図です。保存版では、いまの傾向を章立てで深く整理し、必要なときに追加読み解きで論点を絞り込めます。',
   notAClaim: [
     '占いや鑑定の結果ではありません',
     '汎用の会話ボットではありません',
@@ -74,10 +74,10 @@ export const PAID_DTR_FREE_VS_PAID = {
   paidAdds: [
     '4章構成で読み返せる保存版レポート（購入時プロフィールに基づく）',
     '力が出やすい場面・無理がたまりやすい条件・戻し方を順に整理',
-    '購入に付帯する相談返書 1件（レポートの章に沿った深掘り）',
+    '購入に付帯する追加読み解き 1件（レポートの章に沿った深掘り）',
   ] as const,
-  paidIsNotMerely: '無料ページの長文コピーではありません。章立て・保存・相談返書まで含む別商品です。',
-  bundleNoteJa: `${LABEL_PRODUCT_JP}に加え、相談返書の利用が含まれます。`,
+  paidIsNotMerely: '無料ページの長文コピーではありません。章立て・保存・追加読み解きまで含む別商品です。',
+  bundleNoteJa: `${LABEL_PRODUCT_JP}に加え、追加読み解きの利用が含まれます。`,
 } as const;
 
 export type PaidDtrChapterId = 'outline' | 'structure' | 'strain' | 'ease';
@@ -141,8 +141,8 @@ export const PAID_DTR_DRAWER_HUB = {
     '無理が出やすい場面を読む',
     '戻し方と使い方を読む',
   ] as const,
-  consultLabelJa: '相談返書で整理する',
-  consultSublabelJa: '保存版をもとに、今の悩みを1テーマだけ整理する',
+  consultLabelJa: '追加読み解きで整理する',
+  consultSublabelJa: '保存版をもとに、いま気になっていることを1テーマだけ整理する',
 } as const;
 
 /** PremiumDrawerHub theme-first entry rows — labels align with PAID_DTR_CONSULT_REPLY.themeExamplesJa. */
@@ -252,7 +252,7 @@ export const PAID_DTR_DRAWER_CHAPTER_ENTRIES: readonly PaidDtrDrawerChapterEntry
     id: 'chapter-entry-1',
     pillLabelJa: 'Ⅰ',
     labelJa: '自分の形を知る',
-    sublabelJa: '今の悩みを読み直す土台',
+    sublabelJa: 'いま気になっていることを読み直す土台',
     panel: 'chapter-1',
     primaryChapterJa: 'Ⅰ 輪郭を見る',
   },
@@ -312,7 +312,7 @@ export const PAID_DTR_CHAPTER_DRAWER_INTRO: Record<PaidDtrReportPartId, PaidDtrC
   '1': {
     partId: '1',
     hubLabelJa: '自分の形を知る',
-    hubSublabelJa: '今の悩みを読み直す土台',
+    hubSublabelJa: 'いま気になっていることを読み直す土台',
     personalHeadingSuffixJa: 'の形',
     legacyChapterTitleJa: '輪郭を見る',
   },
@@ -388,7 +388,7 @@ export const PAID_DTR_CHAPTER_BRIDGE_COPY: Record<PaidDtrReportPartId, PaidDtrCh
     actionJa:
       'まずは、今いちばん気になる場面をひとつ選んで、そこで自分の出方がどう重なるかを見てみてください。',
     consultQuestionJa:
-      '今の悩みは、私のどの出方が重なって起きていますか？',
+      'いま気になっていることは、私のどの出方が重なって起きていますか？',
   },
   '2': {
     tendencyJa:
@@ -423,10 +423,10 @@ export const PAID_DTR_CHAPTER_BRIDGE_COPY: Record<PaidDtrReportPartId, PaidDtrCh
 } as const;
 
 export const PAID_DTR_CHAPTER_CONSULT_CTA_LABEL_JA =
-  '相談返書で整理する' as const;
+  '追加読み解きで整理する' as const;
 
 export const PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA =
-  '保存版をもとに、今の悩みを1テーマだけ整理する。送信するまで相談返書は使いません。' as const;
+  '保存版をもとに、いま気になっていることを1テーマだけ整理する。送信するまで追加読み解きは使いません。' as const;
 
 /** Chapter-end consult bridge — fixed life-language supplement (no dynamic body excerpt). */
 export const PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA =
@@ -456,7 +456,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
     lifeJa:
       'そう読んだ理由は、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
     actionJa:
-      'まずは、今の悩みを責めずに見直し、力が戻りやすい場所から読んでいきます。',
+      'まずは、いま気になっていることを責めずに見直し、力が戻りやすい場所から読んでいきます。',
     pointsJa: ['一つを深く見られる人', '細かく直して良くできる人', '納得できる形まで整えたい人'],
   },
   '2': {
@@ -512,7 +512,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
 /** W-B3c1 pilot: chapter-1 only graph-reading and chapter-branch guidance. */
 export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
   beforeIdentityGraphJa:
-    'まずは「力が出やすいとき」と「止まりやすいとき」の2つを見ると、今の悩みの位置がつかみやすくなります。',
+    'まずは「力が出やすいとき」と「止まりやすいとき」の2つを見ると、いま気になっていることの位置がつかみやすくなります。',
   branchLeadJa:
     '形が見えたら、次は今いちばん重い場面へ進みます。',
   branchItemsJa: [
@@ -539,7 +539,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 一つのことに深く向き合い、少しずつ良くしていけるとき。',
       '止まりやすいとき: 急かされたり、途中で細かく割り込まれて、自分のペースを失うとき。',
       'まず意識すること: 始める前に「今日はここまで」と自分の言葉で決めると、力が戻りやすくなります。',
-      '返書で深める問い: 今の悩みは、私のどの出方が重なって起きていますか？',
+      '返書で深める問い: いま気になっていることは、私のどの出方が重なって起きていますか？',
     ],
   },
   '2': {
@@ -592,11 +592,11 @@ export function drawerSectionDisplayTitleJa(section: {
 /** Consult grounding band — life-language labels (W-B1 patch). */
 export const PAID_DTR_CONSULT_GROUNDING_COPY = {
   titleLine2Ja: '保存版をもとに、今気になっていることを1テーマだけ整理します',
-  dividerChipJa: 'この保存版の相談返書',
+  dividerChipJa: 'この保存版の追加読み解き',
   entryContextAriaJa: '追加読み解きの入口のコンテキスト',
   continuousSupportOverlineJa: '状況が変わったときの使い方',
   continuousSupportBodyJa:
-    '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを相談返書で見ていけます。',
+    '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを追加読み解きで見ていけます。',
   continuousSupportScopeJa:
     '※転職・異動・恋愛・相性・仕事に特化した詳しい内容などは、この返書の対象外です。',
   pillarFlowRefJa: '進め方を見る',
@@ -619,7 +619,7 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
     '新しい診断ではなく、今の迷いを言葉にして整えていきます。',
     '送信するまで追加読み解きは使いません。',
   ] as const,
-  valueDetailsSummaryJa: '相談返書で見られること',
+  valueDetailsSummaryJa: '追加読み解きで見られること',
   valueDeliverableItemsJa: [
     '今の場面をいったん言葉にする',
     '保存版から見た、あなたに出やすい流れを見る',
@@ -628,33 +628,33 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
   ] as const,
   valueDeliverableFooterJa:
     '保存版をもとにした返書です。結果や未来を保証するものではありません。',
-  savedReportAboutSummaryJa: 'この保存版と相談返書について',
+  savedReportAboutSummaryJa: 'この保存版と追加読み解きについて',
   savedReportIntroTemplateJa: 'このレポートは、{nickname}個人の出方をまとめた保存版です。',
   savedReportIntroFallbackJa: 'このレポートは、個人の出方をまとめた保存版です。',
   savedReportConsultLeadJa:
-    '相談返書では、この保存版をもとに、今気になっていることを1テーマだけ見ていきます。',
+    '追加読み解きでは、この保存版をもとに、今気になっていることを1テーマだけ見ていきます。',
   fixedReportBulletsJa: [
     'レポート本文は、購入時点の内容のまま変わりません',
-    '今の感じ方や迷いは、相談返書であとから書けます',
-    '相談返書は、この保存版をもとに作ります',
+    '今の感じ方や迷いは、追加読み解きであとから書けます',
+    '追加読み解きは、この保存版をもとに作ります',
   ] as const,
   groundingNoteTemplateJa:
-    '一般的なアドバイスではなく、{nickname}専用のこの保存版をもとに、相談返書を作ります。',
+    '一般的なアドバイスではなく、{nickname}専用のこの保存版をもとに、追加読み解きを作ります。',
   groundingNoteFallbackJa:
-    '一般的なアドバイスではなく、この保存版をもとに、相談返書を作ります。',
+    '一般的なアドバイスではなく、この保存版をもとに、追加読み解きを作ります。',
 } as const;
 
 /** Consult usage card — entry display copy (tier-neutral; no fixed cap table). */
 export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
-  availablePrimaryJa: 'この保存版で相談返書を使えます。',
+  availablePrimaryJa: 'この保存版で追加読み解きを使えます。',
   availableSecondaryJa: '残数は下記で確認できます。',
   /** Legacy SSOT for in-flight tests; not used on consult entry UI surfaces. */
   purchasePrimaryLine1Ja: '今は残り0件です。',
   purchasePrimaryLine2Ja:
-    '保存版に紐づく相談返書を、あと{count}件まで追加できます。',
-  exhaustedPrimaryJa: '今は相談返書を使えません。',
+    '保存版に紐づく追加読み解きを、あと{count}件まで追加できます。',
+  exhaustedPrimaryJa: '今は追加読み解きを使えません。',
   exhaustedSecondaryJa: '残数はこの入口で確認できます。',
-  capReachedPrimaryJa: 'この保存版で使える相談返書は上限に達しています。',
+  capReachedPrimaryJa: 'この保存版で使える追加読み解きは上限に達しています。',
   capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
   usedCountTemplateJa: '使用済み：{used}件',
   remainingCompactTemplateJa: '残り {count}件',
@@ -669,7 +669,7 @@ export const PAID_DTR_CONSULT_ENTRY_NEUTRAL = {
   /** @deprecated Prefer walletAvailableTemplateJa — kept for compact inline surfaces. */
   walletRemainingTemplateJa: '現在使える追加読み解き：{count}件',
   walletUsedTemplateJa: '使用済み：{used}件',
-  walletExhaustedJa: '今は相談返書を使えません。残数はこの入口で確認できます。',
+  walletExhaustedJa: '今は追加読み解きを使えません。残数はこの入口で確認できます。',
 } as const;
 
 /** Legacy formatter; consult entry UI uses PAID_DTR_CONSULT_ENTRY_NEUTRAL instead. */
@@ -740,7 +740,7 @@ export const PAID_DTR_INTRO_PANEL_01 = {
   overlineJa: '本質を見つめ直す',
   leadLinesJa: [
     '自分を無理に変えなくていい。',
-    '「自分の形」から、今の悩みを読み直すための土台です。',
+    '「自分の形」から、いま気になっていることを読み直すための土台です。',
   ],
   bodyJa:
     'このレポートでは、力が出やすい場面、無理がたまりやすい条件、戻りやすい整え方を順番に見ていきます。',
@@ -749,20 +749,20 @@ export const PAID_DTR_INTRO_PANEL_01 = {
 /** /dtr/core reader — saved-report info card (tier-neutral; not current wallet balance). */
 export const PAID_DTR_INTRO_CONSULT_NOTE = {
   /** Consult reply entitlement exists — tier/count agnostic; not the live remaining count. */
-  lineJa: 'この保存版で使える相談返書があります。',
+  lineJa: 'この保存版で使える追加読み解きがあります。',
   /** When server wallet snapshot is unavailable — location-neutral (not “上の入口”). */
-  balanceFallbackJa: '現在使える件数は、相談返書の入口で確認できます。',
+  balanceFallbackJa: '現在使える件数は、追加読み解きの入口で確認できます。',
   /** @deprecated Use balanceFallbackJa — kept for SSOT history only. */
-  balancePointerJa: '現在使える件数は、相談返書の入口で確認できます。',
-  metaLabelJa: '相談返書',
+  balancePointerJa: '現在使える件数は、追加読み解きの入口で確認できます。',
+  metaLabelJa: '追加読み解き',
   metaIncludedValueJa: '入口で確認',
 } as const;
 
 /** /dtr shelf card — consult meta row (tier-neutral; no live wallet balance). */
 export const PAID_DTR_SHELF_CONSULT_META = {
-  labelJa: '相談返書',
+  labelJa: '追加読み解き',
   /** Not a fixed ticket count — wallet balance lives on ConsultRoom / report info. */
-  valueJa: '相談返書の利用枠あり',
+  valueJa: '追加読み解きの利用枠あり',
 } as const;
 
 export const PAID_DTR_LIFE_USE_CASES = [
@@ -798,9 +798,9 @@ export const PAID_DTR_LIFE_USE_CASES = [
   },
   {
     id: 'consult_moment',
-    titleJa: '相談したいとき',
+    titleJa: '読み解きを重ねたいとき',
     bodyJa:
-      '保存版を読んだうえで、いまの悩みをレポートの章に沿って相談返書で深める',
+      '保存版を読んだうえで、いまの悩みをレポートの章に沿って追加読み解きで深める',
   },
 ] as const;
 
@@ -826,11 +826,11 @@ export const PAID_DTR_INDIVIDUALIZATION_FRAMING = {
   snapshotFixedJa:
     'この補助整理は、購入時点のプロフィールをもとに保存されています。',
   /**
-   * Consult-room grounding statement: keeps 相談返書 anchored to 保存版 SSOT.
+   * Consult-room grounding statement: keeps 追加読み解き anchored to 保存版 SSOT.
    * (Supplements PAID_DTR_CONSULT_ENTRY_LAYOUT; does not replace it.)
    */
   consultGroundingJa:
-    '相談返書では、この保存版に保存された内容をもとに、今の相談を1テーマずつ整理します。',
+    '追加読み解きでは、この保存版に保存された内容をもとに、今の読み解きを1テーマずつ整理します。',
 } as const;
 
 /** Public scope boundaries — display-only; no product spec change. */
@@ -842,7 +842,7 @@ export const PAID_DTR_PUBLIC_SCOPE_CLARITY = {
   savedReportReadbackJa:
     '保存版は、購入時点の入力内容をもとにした読み返し用レポートです。',
   consultReplyDepthJa:
-    '時期や状況の深掘りは、保存版に紐づく相談返書の範囲で、件数内・一テーマごとに扱います。',
+    '時期や状況の深掘りは、保存版に紐づく追加読み解きの範囲で、件数内・一テーマごとに扱います。',
 } as const;
 
 /** Saved-report pricing tiers — Product Truth SSOT (2026-06). Checkout/UI wiring is later gates. */
@@ -852,7 +852,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     priceYen: 1000,
     priceLabelJa: '¥1,000（税込）',
     planNameJa: '保存版ライト',
-    headlineJa: '保存版レポート + 相談返書1件つき',
+    headlineJa: '保存版レポート + 追加読み解き1件つき',
     audienceJa: 'まず保存版を読んで、自分の輪郭を整理したい人向け',
     includedReplyCount: REPLY_TICKET_INCLUDED_COUNT,
   },
@@ -862,7 +862,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     priceLabelJa: '¥1,480（税込）',
     planNameJa: '保存版FULL',
     recommended: true,
-    headlineJa: '保存版レポート + 相談返書 合計5件まで',
+    headlineJa: '保存版レポート + 追加読み解き 合計5件まで',
     audienceJa: '保存版を読んだ後、返書で複数回深めたい人向け',
     totalReplyCap: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
     /** FULL初回: initial_included=1 + purchased_count=4（合計5枠） */
@@ -874,9 +874,9 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     priceYen: 600,
     priceLabelJa: '¥600（税込）',
     planNameJa: '後からFULL化',
-    headlineJa: 'ライト購入後、相談返書を合計5件まで使えるようにする',
+    headlineJa: 'ライト購入後、追加読み解きを合計5件まで使えるようにする',
     descriptionJa:
-      'ライト購入者向け。相談返書枠を合計5件まで増やします。追加1件売りではありません。',
+      'ライト購入者向け。追加読み解き枠を合計5件まで増やします。追加1件売りではありません。',
     targetPurchasedCount: REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
   },
   walletModelJa:
@@ -884,19 +884,19 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
 } as const;
 
 /**
- * @legacy ¥500 単品追加相談返書 — 新規販売停止。webhook/RPC 移行完了まで product_key を残す。
+ * @legacy ¥500 単品追加読み解き — 新規販売停止。webhook/RPC 移行完了まで product_key を残す。
  */
 export const PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET = {
   productKey: ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
   priceYen: LEGACY_ADDITIONAL_REPLY_TICKET_PRICE_YEN,
-  priceLabelJa: '追加相談返書 1件 500円',
+  priceLabelJa: '追加読み解き 1件 500円',
   newSalesStopped: true as const,
   noteJa:
     '移行中の Stripe セッション完了時の付与用。新 Product Truth の購入導線では使用しない。',
 } as const;
 
 export const PAID_DTR_CONSULT_REPLY = {
-  primaryTermJa: '相談返書',
+  primaryTermJa: '追加読み解き',
   bridgeTermJa: 'AI往復券',
   includedCount: REPLY_TICKET_INCLUDED_COUNT,
   additionalMaxPurchased: REPLY_TICKET_FULL_MAX_PURCHASED_COUNT,
@@ -917,7 +917,7 @@ export const PAID_DTR_CONSULT_REPLY = {
   /** @deprecated Use {@link PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa} in new copy; UI bridge until price-copy lane. */
   additionalPriceLabelJa: PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET.priceLabelJa,
   groundedInReportJa:
-    '相談返書は、購入した保存版レポートの章に沿って深掘りするためのものです。別テーマの質問や、レポートと関係のない相談にはお答えできません。',
+    '追加読み解きは、購入した保存版レポートの章に沿って深掘りするためのものです。別テーマの質問や、レポートと関係のない別テーマにはお答えできません。',
   notGenericChatJa:
     '汎用のAIチャットではありません。見えている傾向と購入した保存版を土台に、今回の論点を整理します。',
   themeExamplesJa: [
@@ -933,25 +933,25 @@ export const PAID_DTR_CONSULT_REPLY = {
     'お金や生活・疲れで落ち着きません。戻し方の章に沿って、いま整えられることを整理したいです',
   ] as const,
   outOfScopeExamplesJa: [
-    'レポートと無関係な別テーマの相談',
+    'レポートと無関係な別テーマ',
     '他者の性格や相性の鑑定',
     '医療・法律・投資の判断や緊急対応',
     '結果や未来の断定・保証の要求',
   ] as const,
   whereToUseJa:
-    '購入後、保存版レポート（/dtr/core）内の相談返書の入口で利用します。マイページやレポート棚からレポートを開いたあと、画面内の相談返書へ進みます。',
+    '購入後、保存版レポート（/dtr/core）内の追加読み解きの入口で利用します。マイページやレポート棚からレポートを開いたあと、画面内の追加読み解きへ進みます。',
   consumeNoteJa:
     '1回の送信で追加読み解き1件を使用します。送信後の取り消しはできません。作成した内容は保存されます。',
   capSummaryJa: '付属1件 + 追加購入最大4件まで（合計5件まで）',
   avoidOverpromisingJa: [
-    '無制限の相談やチャットではありません',
+    '無制限の読み解きやチャットではありません',
     'なんでも答えるボットではありません',
     'レポート本文の生成完了をメールでお知らせする、とは約束しません',
   ] as const,
   /** 保存版紐づき・非汎用・非無制限（room / My 用の短い境界） */
   savedReportLinkedShortJa:
-    '保存版に紐づく相談です。汎用チャットではなく、無制限の相談でもありません。',
-  oneThemeJa: '1回の相談返書は1テーマに絞ります。',
+    '保存版に紐づく読み解きです。汎用チャットではなく、無制限の読み解きでもありません。',
+  oneThemeJa: '1回の追加読み解きは1テーマに絞ります。',
   shortInputOkJa: '短文でも始められます。',
   longInputNarrowJa: '長文の場合は、1テーマに絞って送ってください。',
   strongEmotionJa:
@@ -965,9 +965,9 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   ariaLabelJa: '追加読み解きの入口（purchaser-only）',
   roomTitleJa: '追加読み解きの入口',
   roomLeadJa:
-    '購入した保存版に紐づく相談です。汎用チャットではなく、無制限の相談でもありません。いまの1テーマを、章に沿って整理します。',
+    '購入した保存版に紐づく読み解きです。汎用チャットではなく、無制限の読み解きでもありません。いまの1テーマを、章に沿って整理します。',
   standalonePageLeadJa:
-    '保存版に紐づく相談返書です。見えている傾向を土台に、今回の1テーマを整理します。',
+    '保存版に紐づく追加読み解きです。見えている傾向を土台に、今回の1テーマを整理します。',
   usageLabelJa: '利用状態',
   /** Display-only wallet usage lines (counts come from API; cap from Product Truth constants). */
   usageUsedCountLabelJa: '使用済み',
@@ -976,20 +976,20 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   savedReportLinkNoteJa:
     'この保存版に紐づいて、4章の内容を深掘りできます。',
   limitReachedReadOnlyJa:
-    '相談返書の利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
+    '追加読み解きの利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
   emptyThreadJa:
     'この保存版をもとに、今の1テーマをここで書けます。',
   composeThemeSectionLabelJa: '用途を選択（1テーマ）',
   composeThemeHintJa:
-    '1回の相談返書は1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
+    '1回の追加読み解きは1テーマに絞ります。短文でも始められます。長い場合は1テーマに絞ってください。',
   step1ChapterBaseLensNoteJa:
     'Ⅰ「自分の形を知る」は、どのテーマでも土台として参照されます。',
   composeSupplementaryLabelJa: '補助質問（最大3つ）',
   composeSupplementaryHintJa: '当てはまるものがあれば選択してください',
   composeFreeInputLabelJa: '自由入力',
-  composeFreeInputAriaJa: '相談内容を入力',
+  composeFreeInputAriaJa: '今回のテーマを入力',
   inputPlaceholderJa:
     '今気になっていること（1テーマ）。短く書いても構いません',
   expressionHintJa:
@@ -1001,17 +1001,17 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   generatingReplyJa: '返答を生成しています…',
   walletLoadingShortJa: '残数確認中...',
   walletLimitReachedBodyJa:
-    'このレポートで利用できる相談返書は上限に達しました。',
+    'このレポートで利用できる追加読み解きは上限に達しました。',
   walletLimitReachedHintJa:
     '別のテーマを深く扱う場合は、今後の専用レポートで整理できます。',
   walletPurchaseUnavailableJa:
     '現在、このレポートに紐づく追加購入をご利用いただけません。',
   walletPurchaseReportMissingJa:
     '追加購入の準備に必要なレポート情報を確認できませんでした。ページを再読み込みするか、しばらくしてからお試しください。',
-  valueDeliverablesTitleJa: '相談返書で見られること',
-  historyMessagesAriaJa: 'これまでの相談返書',
+  valueDeliverablesTitleJa: '追加読み解きで見られること',
+  historyMessagesAriaJa: 'これまでの追加読み解き',
   /** {count} = assistant reply count in thread */
-  historyCountTemplateJa: '{count}件の相談返書があります',
+  historyCountTemplateJa: '{count}件の追加読み解きがあります',
   historyShowAllJa: 'すべて見る',
   historyShowLessJa: '閉じる',
   /** {count} = hidden reply count when collapsed */
@@ -1019,26 +1019,26 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   openToReadJa: '開いて読む',
   closeReadJa: '閉じる',
   latestReplyBadgeJa: '最新の返書',
-  loadErrorJa: '相談返書の読み込みに失敗しました。ページを再読み込みしてください。',
+  loadErrorJa: '追加読み解きの読み込みに失敗しました。ページを再読み込みしてください。',
   composePanelTitleJa: '今の1テーマを書く',
 } as const;
 
 /** My page consult block — IA SSOT v1 (2-state copy; owned CTA only when snapshot ready). */
 export const PAID_DTR_MY_PAGE_CONSULT = {
-  blockTitleJa: '相談返書',
+  blockTitleJa: '追加読み解き',
   blockIntroJa:
-    '相談返書は、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。',
+    '追加読み解きは、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。',
   linkedScopeJa:
-    '相談は保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の相談でもありません。',
+    '読み解きは保存版レポートに紐づく範囲です。汎用チャットではなく、無制限の読み解きでもありません。',
   capSummaryJa:
-    '相談返書の利用状況は、保存版内の相談返書画面で確認できます。',
+    '追加読み解きの利用状況は、保存版内の追加読み解き画面で確認できます。',
   walletFactNoteJa:
-    '利用状況の確認と送信は、保存版を開いたあとの相談返書画面で行えます。',
+    '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。',
   remainingNoteJa:
-    '1回の相談につき、一つのテーマを書いて返書を受け取ります。',
+    '1回の追加読み解きにつき、一つのテーマを書いて返書を受け取ります。',
   reopenNoteJa: '',
-  openRoomLinkJa: '相談返書を確認する',
-  sectionAriaJa: '相談返書',
+  openRoomLinkJa: '追加読み解きを確認する',
+  sectionAriaJa: '追加読み解き',
 } as const;
 
 export type PaidDtrAccessFlowStepId =
@@ -1086,8 +1086,8 @@ export const PAID_DTR_PURCHASE_ACCESS_FLOW = [
   },
   {
     id: 'consult_room' as const,
-    titleJa: '相談返書の入口',
-    bodyJa: '保存版を読んだうえで、付属の相談返書（必要なら追加購入）を利用します。',
+    titleJa: '追加読み解きの入口',
+    bodyJa: '保存版を読んだうえで、付属の追加読み解き（必要なら追加購入）を利用します。',
   },
   {
     id: 'support' as const,
@@ -1200,7 +1200,7 @@ export const PAID_DTR_LP = {
     subheadlineJa: '迷ったときに、自分を少し離れて見つめ直すための4章を、手元に。',
     headlineJa: '生年月日から、\n自分の動き方と戻し方を読み返す。',
     bodyJa:
-      '10資質レーンを土台に、生年月日の暦リズムまで重ねて、自分の出方を4章で整理します。\n\n4章本文は生成AIでその都度書き換えるものではなく、M55の固定ルールで組み立てる保存版です。\n\n相談返書のみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。',
+      '10資質レーンを土台に、生年月日の暦リズムまで重ねて、自分の出方を4章で整理します。\n\n4章本文は生成AIでその都度書き換えるものではなく、M55の固定ルールで組み立てる保存版です。\n\n追加読み解きのみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。',
     ctaLabelJa: 'FULLとライトを比べる',
     compareSectionId: 'dtr-lp-tiers',
   },
@@ -1212,11 +1212,11 @@ export const PAID_DTR_LP = {
       '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。\n未来予測や吉凶の断定ではありません。',
   },
   informationLayers: {
-    sectionTitleJa: '保存版と相談返書の情報二層',
+    sectionTitleJa: '保存版と追加読み解きの情報二層',
     savedReportJa:
       '保存版では、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を4章で整理します。\n4章本文は固定ルールで組み立てられ、同じ入力なら同じ保存版に戻れます。',
     consultReplyJa:
-      '相談返書では、その保存版に、\n今回入力した一つの相談テーマを重ねます。\n\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+      '追加読み解きでは、その保存版に、\n今回入力した一つの読み解きテーマを重ねます。\n\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   savedReport: {
     sectionTitleJa: '保存版とは',
@@ -1227,7 +1227,7 @@ export const PAID_DTR_LP = {
   freeComparison: {
     sectionTitleJa: '無料ページと保存版の違い',
     bodyJa:
-      '無料ページは、10資質レーンと5つの視点で輪郭に触れる入口です。\n保存版では、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。\n違いは保存版の章ではなく、相談返書の件数です。',
+      '無料ページは、10資質レーンと5つの視点で輪郭に触れる入口です。\n保存版では、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた追加読み解きが含まれます。\n違いは保存版の章ではなく、追加読み解きの件数です。',
   },
   chapters: {
     sectionTitleJa: '正式4章',
@@ -1255,9 +1255,9 @@ export const PAID_DTR_LP = {
     ] as const,
   },
   consultReply: {
-    sectionTitleJa: '相談返書とは',
+    sectionTitleJa: '追加読み解きとは',
     bodyJa:
-      '保存版に紐づく、一つの相談テーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+      '保存版に紐づく、一つの読み解きテーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   tiers: {
     sectionTitleJa: 'FULL／ライト比較',
@@ -1266,10 +1266,10 @@ export const PAID_DTR_LP = {
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
       savedReportLabelJa: '保存版:',
       savedReportValueJa: '正式4章',
-      consultReplyLabelJa: '相談返書:',
+      consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '合計5件',
       bodyJa:
-        '何度か相談しながら、深く整理したい方へ。\nライトとの差額 ¥480 で、相談返書が4件増えます。',
+        '何度か読み解きを重ねながら、深く整理したい方へ。\nライトとの差額 ¥480 で、追加読み解きが4件増えます。',
       ctaLabelJa: '保存版FULLを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
@@ -1278,10 +1278,10 @@ export const PAID_DTR_LP = {
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
       savedReportLabelJa: '保存版:',
       savedReportValueJa: '正式4章',
-      consultReplyLabelJa: '相談返書:',
+      consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '1件',
       bodyJa:
-        'まず保存版を読み、1回だけ相談したい方へ。\n価格を抑えて、必要な要点から確認できます。\n後からFULL化できます（追加 ¥600）。',
+        'まず保存版を読み、1回だけ読み解きを重ねたい方へ。\n価格を抑えて、必要な要点から確認できます。\n後からFULL化できます（追加 ¥600）。',
       ctaLabelJa: '保存版ライトを購入する',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
@@ -1291,7 +1291,7 @@ export const PAID_DTR_LP = {
     paragraphsJa: [
       'ライト購入後でも、必要になったらFULL化できます。',
       '保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
-      'FULL化すると、相談返書の利用上限が合計5件になります。',
+      'FULL化すると、追加読み解きの利用上限が合計5件になります。',
     ] as const,
   },
   purchaseNotes: {
@@ -1299,12 +1299,12 @@ export const PAID_DTR_LP = {
     paragraphsJa: [
       '保存版は、購入時点の生年月日・プロフィールにもとづく固定ルールの読み物です。未来予測や吉凶の断定ではありません。',
       '同じ入力内容なら、同じ保存版に戻れます。',
-      '相談返書のみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。会話を続ける形式ではありません。',
+      '追加読み解きのみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。会話を続ける形式ではありません。',
       '価格はすべて税込です。',
       'ライトとFULLの保存版は、同じ正式4章です。',
-      '違いは、相談返書の件数です。',
+      '違いは、追加読み解きの件数です。',
       'ライトは1件、FULLは合計5件です。',
-      '購入前に、いま必要な相談返書の件数をご確認ください。',
+      '購入前に、いま必要な追加読み解きの件数をご確認ください。',
     ] as const,
     legalLinks: [
       { labelJa: 'サポート', href: '/support' },
@@ -1320,22 +1320,22 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
         answerJa:
-          '保存版の4章は共通です。\n違いは、利用できる相談返書の件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは返書で複数回深めたい方向けです。',
+          '保存版の4章は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは返書で複数回深めたい方向けです。',
       },
       {
-        questionJa: '相談返書とは何ですか？',
+        questionJa: '追加読み解きとは何ですか？',
         answerJa:
-          '保存版に紐づく、一つの相談テーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+          '保存版に紐づく、一つの読み解きテーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
       },
       {
         questionJa: 'ライト購入後にFULL化できますか？',
         answerJa:
-          'はい。必要になったら、あとからFULL化できます。\nFULL化すると、相談返書の利用上限が合計5件になります。\nまずライトで試してから、必要に応じて広げられます。',
+          'はい。必要になったら、あとからFULL化できます。\nFULL化すると、追加読み解きの利用上限が合計5件になります。\nまずライトで試してから、必要に応じて広げられます。',
       },
       {
         questionJa: '無料ページとの違いは何ですか？',
         answerJa:
-          '無料ページは、10資質レーンと5つの視点で輪郭に触れる入口です。\n保存版では、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた相談返書が含まれます。\n違いは保存版の章ではなく、相談返書の件数です。',
+          '無料ページは、10資質レーンと5つの視点で輪郭に触れる入口です。\n保存版では、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を正式4章で整理します。\n保存版には、選んだプランに応じた追加読み解きが含まれます。\n違いは保存版の章ではなく、追加読み解きの件数です。',
       },
     ] as const,
   },
@@ -1350,7 +1350,7 @@ export const PAID_DTR_LP = {
       recoveryLeadJa:
         '購入済みです。保存版の準備状況を確認できます（再購入は不要です）。',
       recoveryCtaJa: '準備状況を確認する',
-      supportCtaJa: 'サポートに相談する',
+      supportCtaJa: 'サポートへ問い合わせる',
       pendingLeadJa:
         '本文の準備が完了すると閲覧できます。しばらくしてから再度お試しください。',
       pendingCtaJa: 'レポートの準備中',
