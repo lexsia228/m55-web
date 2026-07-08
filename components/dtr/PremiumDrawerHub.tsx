@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import {
+  PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_DRAWER_CHAPTER_ENTRIES,
   PAID_DTR_DRAWER_HUB,
 } from '../../lib/m55/paidDtrProductCopy';
@@ -89,16 +90,48 @@ function shouldMountPanelBody(
   return panel === 'consult' && aiConsultIncluded;
 }
 
+function DrawerHubEntryListItem({
+  item,
+  activeEntryId,
+  onSelect,
+}: {
+  item: DrawerHubEntryRow;
+  activeEntryId: string | null;
+  onSelect: (item: DrawerHubEntryRow) => void;
+}) {
+  const isEntryActive = activeEntryId === item.entryId;
+  const isConsult = item.panel === 'consult';
+
+  return (
+    <li
+      className={`${hubStyles.drawerHubRow}${isEntryActive ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}`}
+    >
+      <button
+        type="button"
+        className={`${hubStyles.drawerHubTrigger}${isConsult ? ` ${hubStyles.drawerHubTriggerConsult}` : ''}`}
+        onClick={() => onSelect(item)}
+        aria-expanded={isEntryActive}
+        aria-controls={`drawer-hub-body-${item.panel}`}
+      >
+        <span className={hubStyles.drawerHubTriggerLeading} aria-hidden>
+          <span className={hubStyles.drawerHubPill}>{item.pill}</span>
+        </span>
+        <span className={hubStyles.drawerHubTriggerText}>
+          <span className={hubStyles.drawerHubLabel}>{item.label}</span>
+          <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
+        </span>
+        <DrawerHubChevron open={isEntryActive} />
+      </button>
+    </li>
+  );
+}
+
 export function PremiumDrawerHub({
   openPanel,
   onSelectPanel,
   aiConsultIncluded,
   renderPanelBody,
 }: Props) {
-  const entryRows = aiConsultIncluded
-    ? [...DRAWER_HUB_CHAPTER_ROWS, DRAWER_HUB_CONSULT_ROW]
-    : DRAWER_HUB_CHAPTER_ROWS;
-
   const panelsToMount = drawerHubPanelsToMount(aiConsultIncluded);
 
   /** Which Hub row looks active (chevron / highlight). Separate from openPanel (which body to show). */
@@ -132,39 +165,39 @@ export function PremiumDrawerHub({
         <div className={hubStyles.drawerHubHeader}>
           <p className={hubStyles.drawerHubOverline}>{PAID_DTR_DRAWER_HUB.overlineJa}</p>
           <h2 className={hubStyles.drawerHubTitle}>{PAID_DTR_DRAWER_HUB.titleJa}</h2>
-          <p className={hubStyles.drawerHubLead}>{PAID_DTR_DRAWER_HUB.leadJa}</p>
         </div>
 
-        <ul className={hubStyles.drawerHubList}>
-          {entryRows.map((item) => {
-            const isEntryActive = activeEntryId === item.entryId;
-            const isConsult = item.panel === 'consult';
-
-            return (
-              <li
+        <div className={hubStyles.drawerHubReadZone}>
+          <p className={hubStyles.drawerHubZoneLead}>{PAID_DTR_DRAWER_HUB.leadJa}</p>
+          <ul className={hubStyles.drawerHubList}>
+            {DRAWER_HUB_CHAPTER_ROWS.map((item) => (
+              <DrawerHubEntryListItem
                 key={item.entryId}
-                className={`${hubStyles.drawerHubRow}${isEntryActive ? ` ${hubStyles.drawerHubRowOpen}` : ''}${isConsult ? ` ${hubStyles.drawerHubRowConsult}` : ''}`}
-              >
-                <button
-                  type="button"
-                  className={`${hubStyles.drawerHubTrigger}${isConsult ? ` ${hubStyles.drawerHubTriggerConsult}` : ''}`}
-                  onClick={() => selectEntry(item)}
-                  aria-expanded={isEntryActive}
-                  aria-controls={`drawer-hub-body-${item.panel}`}
-                >
-                  <span className={hubStyles.drawerHubTriggerLeading} aria-hidden>
-                    <span className={hubStyles.drawerHubPill}>{item.pill}</span>
-                  </span>
-                  <span className={hubStyles.drawerHubTriggerText}>
-                    <span className={hubStyles.drawerHubLabel}>{item.label}</span>
-                    <span className={hubStyles.drawerHubSublabel}>{item.sublabel}</span>
-                  </span>
-                  <DrawerHubChevron open={isEntryActive} />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                item={item}
+                activeEntryId={activeEntryId}
+                onSelect={selectEntry}
+              />
+            ))}
+          </ul>
+        </div>
+
+        {aiConsultIncluded ? (
+          <div className={hubStyles.drawerHubConsultZone}>
+            <p className={hubStyles.drawerHubZoneOverline}>
+              {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportOverlineJa}
+            </p>
+            <p className={hubStyles.drawerHubContinuousSupportSurface}>
+              {PAID_DTR_CONSULT_GROUNDING_COPY.continuousSupportBodyJa}
+            </p>
+            <ul className={`${hubStyles.drawerHubList} ${hubStyles.drawerHubConsultList}`}>
+              <DrawerHubEntryListItem
+                item={DRAWER_HUB_CONSULT_ROW}
+                activeEntryId={activeEntryId}
+                onSelect={selectEntry}
+              />
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       <div
