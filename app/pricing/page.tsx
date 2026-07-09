@@ -20,10 +20,10 @@ export default function PricingPage() {
         <h2 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>プランの選び方</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
           <li>
-            <strong>保存版ライト</strong>：まず保存版を読み、1回だけ相談したい方向け（相談返書1件）
+            <strong>保存版ライト</strong>：まず保存版を読み、1テーマだけ整理したい方向け（追加読み解き1件）
           </li>
           <li>
-            <strong>保存版FULL</strong>：何度か相談しながら、深く整理したい方向け（相談返書合計5件）
+            <strong>保存版FULL</strong>：追加読み解きで何度か、深く整理したい方向け（追加読み解き合計5件）
           </li>
         </ul>
         <p style={{ margin: "12px 0 0", lineHeight: 1.7 }}>
