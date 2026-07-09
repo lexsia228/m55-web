@@ -217,19 +217,20 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   coreCta: {
     overlineJa: '保存版',
-    titleJa: '4章の保存版',
+    titleJa: '保存版で読めること',
     introJa:
-      '無料では、輪郭まで確認できました。\n保存版では、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
-    benefitsHeadingJa: '保存版で深まること',
+      '無料の見取り図では、いま強く出ている一部だけを表示しています。\nこのページは、生年月日から見える出方の輪郭です。',
+    benefitsHeadingJa: '保存版で深められる視点',
     benefitsJa: [
-      '仕事や学びで、どこに力が出やすいか',
-      '人間関係で、どこで無理がたまりやすいか',
-      '疲れやすい条件と、崩れやすい流れ',
-      '自分をどこから整えると戻りやすいか',
+      '内側の動き',
+      '人との距離感',
+      '判断が止まりやすい場面',
+      '変化の前に出やすい反応',
+      '追加で深めやすい視点',
     ] as const,
     bundleNoteJa:
       'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
-    linkLabelJa: '保存版のプランを見る',
+    linkLabelJa: '保存版で続きを読む',
   },
   howM55Works: {
     heroTitleJa: 'M55の見方を知る',
@@ -382,6 +383,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     openFreeMapJa: '無料で見てみる',
     viewFreeMapJa: '無料で見てみる',
     viewSavedPlansJa: '保存版のプランを見る',
+    /** Primary /core conversion CTA (Phase1). Same href as viewSavedPlans. */
+    continueSavedReportJa: '保存版で続きを読む',
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',
     coreFreeHref: '/core',

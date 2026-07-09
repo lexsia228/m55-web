@@ -105,7 +105,7 @@ export default function CoreEssencePanel() {
       <CoreObservationListSection result={result} />
       <CoreClosingSummarySection result={result} nickname={nickname} />
       <CoreAiChatExplainerSection nickname={nickname} />
-      <CoreEntryReportCTASection result={result} nickname={nickname} />
+      <CoreEntryReportCTASection />
     </div>
   );
 }
