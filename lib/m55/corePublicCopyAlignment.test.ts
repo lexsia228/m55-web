@@ -5,10 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
   STATIC_AI_EXPLAINER,
+  STATIC_COMMERCIAL_CONVERSION,
   STATIC_CTA,
   STATIC_M55_READ_STEPS,
 } from '../../components/core/corePublicCopy';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
+import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 
 const CORE_COPY_FILES = [
   'components/core/corePublicCopy.ts',
@@ -17,8 +19,8 @@ const CORE_COPY_FILES = [
   'components/core/CoreRadarSection.tsx',
   'components/core/CoreFreeSavedBoundarySection.tsx',
   'components/core/CoreEntryReportCTASection.tsx',
+  'components/core/CoreCommercialConversionBlock.tsx',
   'components/core/CoreAiChatExplainerSection.tsx',
-  'lib/m55/topFreeEntryPublicCopy.ts',
   'lib/m55/coreFreePublicDisplay.ts',
 ] as const;
 
@@ -114,6 +116,30 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.match(STATIC_CTA.intro, /4章で読み返せる形に残します/);
     assert.match(STATIC_CTA.bundleNote, /いまの1テーマ/);
     assert.match(STATIC_CTA.bundleNote, /会話を続ける形式ではありません/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.introJa, /力が出やすい場面/);
+  });
+
+  it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
+    assert.match(STATIC_COMMERCIAL_CONVERSION.title, /保存版で読めること/);
+    assert.match(STATIC_COMMERCIAL_CONVERSION.intro, /無料の見取り図では/);
+    assert.match(STATIC_COMMERCIAL_CONVERSION.intro, /生年月日から見える出方の輪郭/);
+    assert.equal(STATIC_COMMERCIAL_CONVERSION.ctaLabel, '保存版で続きを読む');
+    assert.match(STATIC_COMMERCIAL_CONVERSION.safetyNote, /診断/);
+    assert.match(STATIC_COMMERCIAL_CONVERSION.safetyNote, /ではありません/);
+    assert.match(STATIC_COMMERCIAL_CONVERSION.priceValueTemplate, /\{planName\}/);
+    assert.match(STATIC_COMMERCIAL_CONVERSION.priceValueTemplate, /\{priceLabel\}/);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
+    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.continueSavedReportJa, '保存版で続きを読む');
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref, '/dtr/lp');
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.linkLabelJa, '保存版で続きを読む');
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.introJa, /生年月日から見える出方の輪郭/);
+    assert.equal(STATIC_COMMERCIAL_CONVERSION.previewRows.length, 5);
+
+    const conversionSrc = readRepoFile('components/core/CoreCommercialConversionBlock.tsx');
+    assert.match(conversionSrc, /PAID_DTR_SAVED_REPORT_PRICING/);
+    assert.match(conversionSrc, /viewSavedPlansHref/);
+    assert.equal(conversionSrc.includes('PurchaseButton'), false);
+    assert.equal(conversionSrc.includes('/api/purchase'), false);
   });
 });

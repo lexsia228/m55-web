@@ -153,6 +153,45 @@ export const STATIC_CTA = {
     'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
 } as const;
 
+/** Phase1 commercial conversion block on /core (CTA region). Hero-safe; no fp-v1 wiring. */
+export const STATIC_COMMERCIAL_CONVERSION = {
+  overline: '保存版',
+  title: '保存版で読めること',
+  intro:
+    '無料の見取り図では、いま強く出ている一部だけを表示しています。\nこのページは、生年月日から見える出方の輪郭です。',
+  previewHeading: '保存版で深められる視点',
+  previewRows: [
+    {
+      label: '内側の動き',
+      teaser: '章ごとに、無理がたまりやすい条件まで整理します。',
+    },
+    {
+      label: '人との距離感',
+      teaser: '近い関係で出やすい反応の手がかりを残せます。',
+    },
+    {
+      label: '判断が止まりやすい場面',
+      teaser: '迷いが出やすい分岐を、読み返せる形にします。',
+    },
+    {
+      label: '変化の前に出やすい反応',
+      teaser: '動き出す前後で現れやすい出方を整理します。',
+    },
+    {
+      label: '追加で深めやすい視点',
+      teaser: '保存版に沿って、いまの1テーマだけ整理できます。',
+    },
+  ] as const,
+  /** Price sentence template: {planName} / {priceLabel} filled from Product Truth. */
+  priceValueTemplate:
+    '{planName}（{priceLabel}）では、出方を4章に整理し、あとから読み返せる形で残せます。追加読み解き1件つき。',
+  fullCompareNoteTemplate:
+    'さらに深めたい場合の{fullPlanName}（{fullPriceLabel}）や、後からFULL化（{upgradePriceLabel}）は、保存版のプラン画面で確認できます。',
+  ctaLabel: '保存版で続きを読む',
+  safetyNote:
+    '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは保存版をもとにした1テーマ整理です。',
+} as const;
+
 function splitSummaryTwo(summary: string): [string, string] {
   const s = summary.trim();
   const i = s.indexOf('。');

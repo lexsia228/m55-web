@@ -2824,6 +2824,139 @@
   letter-spacing: 0.02em;
 }
 
+/* Phase1 commercial conversion block (/core CTA region; not poster hero) */
+.commercialConversion {
+  margin-top: clamp(36px, 8vw, 52px);
+  padding: clamp(24px, 4.5vw, 34px) clamp(20px, 4vw, 28px) clamp(26px, 5vw, 36px);
+  border-radius: 22px;
+  background: linear-gradient(168deg, rgba(253, 249, 242, 0.98) 0%, rgba(248, 244, 255, 0.95) 100%);
+  border: 1px solid rgba(107, 95, 168, 0.1);
+  box-shadow: 0 16px 44px rgba(29, 24, 61, 0.058);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.commercialOverline {
+  font-size: clamp(10px, 2vw, 11px);
+  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.58);
+  margin-bottom: 8px;
+}
+
+.commercialTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(22px, 4.4vw, 26px);
+  margin: 0 0 14px;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+}
+
+.commercialIntro {
+  font-size: clamp(15px, 2.85vw, 17px);
+  margin: 0 0 18px;
+  max-width: 38em;
+  line-height: 1.78;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.commercialPreviewHeading {
+  font-size: clamp(14px, 2.6vw, 15px);
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: #1f1f1f;
+  letter-spacing: 0.02em;
+}
+
+.commercialPreview {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.commercialPreviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(107, 95, 168, 0.08);
+}
+
+.commercialPreviewLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(40, 38, 44, 0.92);
+}
+
+.commercialPreviewTeaser {
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(60, 60, 60, 0.78);
+}
+
+.priceValue {
+  font-size: clamp(14px, 2.7vw, 16px);
+  margin: 0 0 8px;
+  max-width: 38em;
+  line-height: 1.75;
+  color: rgba(40, 38, 44, 0.92);
+  font-weight: 500;
+}
+
+.priceCompareNote {
+  font-size: 13px;
+  margin: 0 0 4px;
+  max-width: 38em;
+  line-height: 1.7;
+  color: rgba(60, 60, 60, 0.72);
+}
+
+.conversionCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(62, 52, 88, 0.95);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  box-shadow: 0 4px 14px rgba(83, 74, 114, 0.1);
+  letter-spacing: 0.02em;
+  transition: background 200ms ease, box-shadow 200ms ease;
+  align-self: flex-start;
+}
+
+.conversionCta:hover {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 6px 20px rgba(83, 74, 114, 0.16);
+}
+
+.safetyNote {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(60, 60, 60, 0.62);
+  max-width: 40em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .conversionCta {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pageFreshReveal {
     animation: none;
