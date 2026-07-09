@@ -66,14 +66,14 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>保存版のプランの違い</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。違いは相談返書の件数と、選び方です。
+          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。違いは追加読み解きの件数と、選び方です。
         </p>
         <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
-          <li><strong>保存版ライト（¥1,000）</strong>：まず保存版を読み、輪郭を整理したい方向け。相談返書1件。</li>
-          <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、返書で複数回深めたい方向け。相談返書合計5件。</li>
+          <li><strong>保存版ライト（¥1,000）</strong>：まず保存版を読み、輪郭を整理したい方向け。追加読み解き1件。</li>
+          <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。</li>
         </ul>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          ライトは相談返書1件、FULLは合計5件です。保存版の4章は共通です。ライト購入後でも、必要になったらFULL化できます。
+          ライトは追加読み解き1件、FULLは合計5件です。保存版の4章は共通です。ライト購入後でも、必要になったらFULL化できます。
         </p>
       </section>
 
@@ -83,7 +83,7 @@ export default function SupportPage() {
           保存版ライトを購入済みの方は、¥600でFULL化できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          FULL化後は、相談返書を合計5件利用できます。
+          FULL化後は、追加読み解きを合計5件利用できます。
         </p>
       </section>
 
@@ -105,19 +105,19 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用の保存版と相談返書は、有料の保存版の対象です。
+              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用の保存版と追加読み解きは、有料の保存版の対象です。
             </p>
           </article>
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。相談返書はプランにより1件または合計5件です。
+              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。追加読み解きはプランにより1件または合計5件です。
             </p>
           </article>
           <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>相談返書では何ができますか</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>追加読み解きでは何ができますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              保存版を購入した方だけが利用できる、保存版に紐づく一つの相談テーマへの返書です。件数内で一テーマずつ整理できます。会話を継続する形式ではありません。
+              保存版を購入した方だけが利用できる、保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内で一テーマずつ整理できます。会話を継続する形式ではありません。
             </p>
           </article>
           <article>
@@ -152,15 +152,15 @@ export default function SupportPage() {
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>相談返書について</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>追加読み解きについて</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
           <li>
-            <strong>相談返書とは何ですか？</strong>
-            ：保存版に紐づく一つの相談テーマへの返書です。件数内での利用であり、会話を継続する形式ではありません。
+            <strong>追加読み解きとは何ですか？</strong>
+            ：保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。
           </li>
           <li>
             <strong>何件まで利用できますか？</strong>
-            ：保存版ライトは相談返書1件、保存版FULLは相談返書合計5件です。ライト購入後にFULL化した場合も、合計5件です。
+            ：保存版ライトは追加読み解き1件、保存版FULLは追加読み解き合計5件です。ライト購入後にFULL化した場合も、合計5件です。
           </li>
           <li>
             <strong>どこで利用できますか？</strong>
@@ -168,7 +168,7 @@ export default function SupportPage() {
           </li>
           <li>
             <strong>送信がブロックされた場合、件数は消費されますか？</strong>
-            ：危機的・不適切と判断された内容はブロックされますが、その場合は相談返書の件数を消費しません。
+            ：危機的・不適切と判断された内容はブロックされますが、その場合は追加読み解きの件数を消費しません。
           </li>
         </ul>
       </section>
