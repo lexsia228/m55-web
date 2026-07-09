@@ -26,7 +26,7 @@ export default function ReplyHistoryList({
   return (
     <aside className="border border-border/40 rounded-sm bg-foreground/[0.02] p-4 lg:p-5">
       <h2 className="text-xs font-medium tracking-wider text-muted-foreground uppercase mb-4">
-        最近の返書
+        最近の追加読み解き
       </h2>
       <ul className="space-y-2">
         {items.map((item) => {

@@ -16,9 +16,9 @@ export function ReportBridgeBand({ partId }: { partId: ReportBridgePartId }) {
   return (
     <aside
       className={styles.bridge}
-      aria-label={`${ROMAN[partId]} 返書への橋渡し`}
+      aria-label={`${ROMAN[partId]} 追加読み解きへの橋渡し`}
     >
-      <p className={styles.bridgeOverline}>返書で深める</p>
+      <p className={styles.bridgeOverline}>追加読み解きで深める</p>
       <h3 className={styles.bridgeHeading}>
         <span className={styles.bridgeRoman} aria-hidden>
           {ROMAN[partId]}
@@ -26,7 +26,7 @@ export function ReportBridgeBand({ partId }: { partId: ReportBridgePartId }) {
         この章で見えたこと
       </h3>
       <p className={styles.bridgeSeen}>{block.seenOneLiner}</p>
-      <h4 className={styles.bridgeSubheading}>返書で扱うと深まる問い</h4>
+      <h4 className={styles.bridgeSubheading}>追加読み解きで扱うと深まる問い</h4>
       <ol className={styles.bridgeList}>
         {block.questions.map((q, i) => (
           <li key={i} className={styles.bridgeItem}>
@@ -35,7 +35,7 @@ export function ReportBridgeBand({ partId }: { partId: ReportBridgePartId }) {
         ))}
       </ol>
       <p className={styles.bridgeNote}>
-        答え合わせは返書で。ここでは、いま持ち帰る問いだけ置いておきます。
+        答え合わせは追加読み解きで。ここでは、いま持ち帰る問いだけ置いておきます。
       </p>
     </aside>
   );

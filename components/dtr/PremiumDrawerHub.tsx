@@ -36,7 +36,7 @@ const DRAWER_HUB_CONSULT_ROW: DrawerHubEntryRow = {
   panel: 'consult',
   label: PAID_DTR_DRAWER_HUB.consultLabelJa,
   sublabel: PAID_DTR_DRAWER_HUB.consultSublabelJa,
-  pill: '返書',
+  pill: '読み解き',
 };
 
 const DRAWER_HUB_PANEL_ORDER: DrawerHubPanelId[] = [

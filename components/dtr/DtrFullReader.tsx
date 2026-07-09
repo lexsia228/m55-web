@@ -618,12 +618,12 @@ function ChapterConsultNextAction({
   const consultNick = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const tendencyLine = copy.tendencyJa.replace('{nickname}', consultNick);
   return (
-    <div className={styles.chapterConsultAction} aria-label="この章を返書で深める入口">
+    <div className={styles.chapterConsultAction} aria-label="この章を追加読み解きで深める入口">
       <p className={styles.chapterConsultReinforcement}>{tendencyLine}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.lifeJa}</p>
       <p className={styles.chapterConsultReinforcement}>{PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.actionJa}</p>
-      <p className={styles.chapterConsultQuestionLabel}>返書で深めるなら、この問い</p>
+      <p className={styles.chapterConsultQuestionLabel}>追加読み解きで深めるなら、この問い</p>
       <p className={styles.chapterConsultQuestion}>{copy.consultQuestionJa}</p>
       <button
         type="button"

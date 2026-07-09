@@ -84,7 +84,7 @@ export const MY_CONSULT_SECTION_TITLE = '追加読み解き';
 export const MY_CONSULT_BODY_PRE_OWNED =
   '追加読み解きは、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。';
 export const MY_CONSULT_BODY_OWNED_P1 =
-  '追加読み解きは、保存版に紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて返書を受け取ります。';
+  '追加読み解きは、保存版に紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて追加読み解きを確認します。';
 export const MY_CONSULT_BODY_OWNED_P2 =
   '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。';
 export const MY_CONSULT_CTA_LABEL = '追加読み解きを確認する';

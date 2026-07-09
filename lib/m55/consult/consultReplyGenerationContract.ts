@@ -98,7 +98,7 @@ export function validateConsultReplyCompleteness(
 }
 
 export const CONSULT_REPLY_GENERATION_INCOMPLETE_USER_MESSAGE_JA =
-  '返書の作成が完了しませんでした。しばらくしてから再度お試しください。解決しない場合はサポートをご利用ください。';
+  '追加読み解きの作成が完了しませんでした。しばらくしてから再度お試しください。解決しない場合はサポートをご利用ください。';
 
 /**
  * Prompt block appended to send-route grounding — must stay aligned with validateConsultReplyCompleteness.

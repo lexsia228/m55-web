@@ -4,7 +4,7 @@ const ENGLISH_SEND_ERROR_MAP: Record<string, string> = {
   'Ticket consumption failed. Please reload and try again.':
     '保存に失敗しました。ページを再読み込みしてもう一度お試しください。',
   'AI service error. Please try again.':
-    '返書の準備に失敗しました。時間をおいてもう一度お試しください。',
+    '追加読み解きの準備に失敗しました。時間をおいてもう一度お試しください。',
   'Invalid commit response. Please reload and try again.':
     '保存に失敗しました。ページを再読み込みしてもう一度お試しください。',
   Unauthorized: 'サインインの状態を確認してください。',
@@ -15,7 +15,7 @@ const ENGLISH_SEND_ERROR_MAP: Record<string, string> = {
   'Thread not found. Reload and try again.':
   '追加読み解きの読み込みに失敗しました。ページを再読み込みしてお試しください。',
   'AI service is not configured.':
-    '返書の準備に失敗しました。時間をおいてもう一度お試しください。',
+    '追加読み解きの準備に失敗しました。時間をおいてもう一度お試しください。',
 };
 
 export function mapConsultRoomSendErrorToUserMessage(

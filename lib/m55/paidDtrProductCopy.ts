@@ -539,7 +539,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 一つのことに深く向き合い、少しずつ良くしていけるとき。',
       '止まりやすいとき: 急かされたり、途中で細かく割り込まれて、自分のペースを失うとき。',
       'まず意識すること: 始める前に「今日はここまで」と自分の言葉で決めると、力が戻りやすくなります。',
-      '返書で深める問い: いま気になっていることは、私のどの出方が重なって起きていますか？',
+      '追加読み解きで深める問い: いま気になっていることは、私のどの出方が重なって起きていますか？',
     ],
   },
   '2': {
@@ -549,7 +549,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: やることの順番が見え、先に整える場所を一つ決められるとき。',
       '止まりやすいとき: 同時進行や急かしが重なり、どこから手をつけるか分からなくなるとき。',
       'まず意識すること: 今日進めることを一つに絞ると、動き出す場所が見えやすくなります。',
-      '返書で深める問い: 今の仕事やこれからの動きで、先に整えると楽になる場所はどこですか？',
+      '追加読み解きで深める問い: 今の仕事やこれからの動きで、先に整えると楽になる場所はどこですか？',
     ],
   },
   '3': {
@@ -559,7 +559,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 落ち着いて相手の言葉を聞き、自分の気持ちも少しずつ言葉にできるとき。',
       '止まりやすいとき: 分かってほしい気持ちが強くなり、言葉が強くなったり距離が近くなりすぎるとき。',
       'まず意識すること: 相手を変えようとする前に、自分の言葉と距離を少し整えると、無理が減りやすくなります。',
-      '返書で深める問い: 近い人とのやりとりで、言葉と距離をどう置くと無理が減りますか？',
+      '追加読み解きで深める問い: 近い人とのやりとりで、言葉と距離をどう置くと無理が減りますか？',
     ],
   },
   '4': {
@@ -569,7 +569,7 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 余白があり、今やることを少なくできるとき。',
       '止まりやすいとき: 不安・予定・疲れが重なり、全部を一度に決めようとするとき。',
       'まず意識すること: 見える化・減らす・守る——続けられる習慣として、まず一つだけ見直すと、戻る場所が見えやすくなります。',
-      '返書で深める問い: 今の疲れや不安を軽くするために、まず一つ減らすなら何ですか？',
+      '追加読み解きで深める問い: 今の疲れや不安を軽くするために、まず一つ減らすなら何ですか？',
     ],
   },
 } as const;
@@ -598,7 +598,7 @@ export const PAID_DTR_CONSULT_GROUNDING_COPY = {
   continuousSupportBodyJa:
     '状況が変わったときは、この保存版をもとに、今の感じ方や迷いを追加読み解きで見ていけます。',
   continuousSupportScopeJa:
-    '※転職・異動・恋愛・相性・仕事に特化した詳しい内容などは、この返書の対象外です。',
+    '※転職・異動・恋愛・相性・仕事に特化した詳しい内容などは、この読み解きの対象外です。',
   pillarFlowRefJa: '進め方を見る',
   pillarFlowTextJa:
     'この保存版で見てきた内容から、その場面で出やすい反応を見ます。',
@@ -627,7 +627,7 @@ export const PAID_DTR_CONSULT_ENTRY_LAYOUT = {
     '今日できる小さな一歩を考える',
   ] as const,
   valueDeliverableFooterJa:
-    '保存版をもとにした返書です。結果や未来を保証するものではありません。',
+    '保存版をもとにした追加読み解きです。結果や未来を保証するものではありません。',
   savedReportAboutSummaryJa: 'この保存版と追加読み解きについて',
   savedReportIntroTemplateJa: 'このレポートは、{nickname}個人の出方をまとめた保存版です。',
   savedReportIntroFallbackJa: 'このレポートは、個人の出方をまとめた保存版です。',
@@ -655,7 +655,7 @@ export const PAID_DTR_CONSULT_USAGE_DISPLAY = {
   exhaustedPrimaryJa: '今は追加読み解きを使えません。',
   exhaustedSecondaryJa: '残数はこの入口で確認できます。',
   capReachedPrimaryJa: 'この保存版で使える追加読み解きは上限に達しています。',
-  capReachedSecondaryJa: 'これまでの返書は引き続き確認できます。',
+  capReachedSecondaryJa: 'これまでの追加読み解きは引き続き確認できます。',
   usedCountTemplateJa: '使用済み：{used}件',
   remainingCompactTemplateJa: '残り {count}件',
   /** Legacy SSOT; not rendered on consult entry UI surfaces. */
@@ -863,7 +863,7 @@ export const PAID_DTR_SAVED_REPORT_PRICING = {
     planNameJa: '保存版FULL',
     recommended: true,
     headlineJa: '保存版レポート + 追加読み解き 合計5件まで',
-    audienceJa: '保存版を読んだ後、返書で複数回深めたい人向け',
+    audienceJa: '保存版を読んだ後、追加読み解きで複数回深めたい人向け',
     totalReplyCap: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
     /** FULL初回: initial_included=1 + purchased_count=4（合計5枠） */
     initialIncludedCount: REPLY_TICKET_INCLUDED_COUNT,
@@ -905,7 +905,7 @@ export const PAID_DTR_CONSULT_REPLY = {
   upgradeToFullPriceYen: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen,
   upgradeToFullPriceLabelJa: '後からFULL化 ¥600',
   upgradeToFullDescriptionJa: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.descriptionJa,
-  oneThemeConsultPhraseJa: '今の1テーマを整理する返書',
+  oneThemeConsultPhraseJa: 'いまの1テーマだけ整理する追加読み解き',
   /**
    * @legacy UI / 進行中 checkout 表示ブリッジ — {@link PAID_DTR_LEGACY_ADDITIONAL_REPLY_TICKET}
    * LP・ConsultRoom レーンまで変更しない。
@@ -976,7 +976,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   savedReportLinkNoteJa:
     'この保存版に紐づいて、4章の内容を深掘りできます。',
   limitReachedReadOnlyJa:
-    '追加読み解きの利用回数の上限に達しました。これまでの返書は引き続き確認できます。',
+    '追加読み解きの利用回数の上限に達しました。これまでの追加読み解きは引き続き確認できます。',
   cannotPurchaseReportInfoJa:
     '追加購入に必要なレポート情報を確認できないため、購入操作を表示していません。',
   emptyThreadJa:
@@ -993,7 +993,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   inputPlaceholderJa:
     '今気になっていること（1テーマ）。短く書いても構いません',
   expressionHintJa:
-    '返書は、状況に合わせてそっと整理する・はっきり整理する・順番にほどく、のいずれかの方向です（モード選択はありません）。',
+    '追加読み解きは、状況に合わせてそっと整理する・はっきり整理する・順番にほどく、のいずれかの方向です（モード選択はありません）。',
   observationInputJa:
     '書いたことや気づいたことに触れながら整理します。正しさの判定や、なんでも肯定する約束はしません。',
   submitLabelJa: '追加読み解きを作成する',
@@ -1018,7 +1018,7 @@ export const PAID_DTR_CONSULT_ROOM_UI = {
   historyShowMoreTemplateJa: 'さらに{count}件を表示',
   openToReadJa: '開いて読む',
   closeReadJa: '閉じる',
-  latestReplyBadgeJa: '最新の返書',
+  latestReplyBadgeJa: '最新の追加読み解き',
   loadErrorJa: '追加読み解きの読み込みに失敗しました。ページを再読み込みしてください。',
   composePanelTitleJa: '今の1テーマを書く',
 } as const;
@@ -1035,7 +1035,7 @@ export const PAID_DTR_MY_PAGE_CONSULT = {
   walletFactNoteJa:
     '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。',
   remainingNoteJa:
-    '1回の追加読み解きにつき、一つのテーマを書いて返書を受け取ります。',
+    '1回の追加読み解きにつき、一つのテーマを書いて追加読み解きを確認します。',
   reopenNoteJa: '',
   openRoomLinkJa: '追加読み解きを確認する',
   sectionAriaJa: '追加読み解き',
@@ -1257,7 +1257,7 @@ export const PAID_DTR_LP = {
   consultReply: {
     sectionTitleJa: '追加読み解きとは',
     bodyJa:
-      '保存版に紐づく、一つの読み解きテーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+      '保存版に紐づく、一つの読み解きテーマを整理する追加読み解きです。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   tiers: {
     sectionTitleJa: 'FULL／ライト比較',
@@ -1320,12 +1320,12 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
         answerJa:
-          '保存版の4章は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは返書で複数回深めたい方向けです。',
+          '保存版の4章は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは追加読み解きで複数回深めたい方向けです。',
       },
       {
         questionJa: '追加読み解きとは何ですか？',
         answerJa:
-          '保存版に紐づく、一つの読み解きテーマへの返書です。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+          '保存版に紐づく、一つの読み解きテーマを整理する追加読み解きです。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
       },
       {
         questionJa: 'ライト購入後にFULL化できますか？',

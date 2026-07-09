@@ -18,7 +18,7 @@ describe('consultRoomUserFacingErrors', () => {
     );
     assert.equal(
       mapConsultRoomSendErrorToUserMessage(undefined, 'AI service error. Please try again.'),
-      '返書の準備に失敗しました。時間をおいてもう一度お試しください。',
+      '追加読み解きの準備に失敗しました。時間をおいてもう一度お試しください。',
     );
   });
 

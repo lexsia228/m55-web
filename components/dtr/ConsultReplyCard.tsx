@@ -109,7 +109,7 @@ export default function ConsultReplyCard({
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>
         ) : null}
         <div className={styles.replyTagRow}>
-          <span className={styles.replyTag}>保存版をもとにした返書</span>
+          <span className={styles.replyTag}>保存版をもとにした追加読み解き</span>
         </div>
         {!collapsed ? (
           <h3 className={styles.replyCardTitle}>{theme ?? PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}</h3>
@@ -197,7 +197,7 @@ export default function ConsultReplyCard({
             <section className={styles.replyNextUse} aria-label="次に読み解くなら">
               <p className={styles.replyNextUseTitle}>次に読み解くなら</p>
               <p className={styles.replyNextUseBridge}>
-                この返書の続きとして、残り{remainingCount}件ではこんなテーマを見られます。
+                この読み解きの続きとして、残り{remainingCount}件ではこんなテーマを見られます。
               </p>
               <ul className={styles.replyNextUseList}>
                 {nextUseSuggestions.map((suggestion) => (

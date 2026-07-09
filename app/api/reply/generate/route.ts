@@ -423,7 +423,7 @@ export async function POST(req: NextRequest) {
             request_id: requestId,
             error: {
               code: 'FORBIDDEN',
-              message: '現在ご利用いただける返書がありません',
+              message: '現在ご利用いただける追加読み解きがありません',
             },
           },
           { status: 403 },
