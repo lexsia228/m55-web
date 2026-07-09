@@ -222,7 +222,7 @@ export default function ReplyResultPageClient() {
             {PAID_DTR_CONSULT_ROOM_UI.roomTitleJa}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。保存された返書を読み返せます。
+            {PAID_DTR_CONSULT_GROUNDING_COPY.titleLine2Ja}。保存された追加読み解きを読み返せます。
           </p>
         </div>
       </header>
@@ -245,11 +245,11 @@ export default function ReplyResultPageClient() {
             {historyGate === "loading" && !sessionParam ? <ResultSkeleton /> : null}
 
             {showEmpty ? (
-              <MessagePanel>まだ保存された返書がありません</MessagePanel>
+              <MessagePanel>まだ保存された追加読み解きがありません</MessagePanel>
             ) : null}
 
             {showPick ? (
-              <MessagePanel>最近の返書一覧から、読み返す返書をお選びください</MessagePanel>
+              <MessagePanel>最近の追加読み解き一覧から、読み返す読み解きをお選びください</MessagePanel>
             ) : null}
 
             {sessionParam && mainForSession === "loading" ? <ResultSkeleton /> : null}
@@ -257,7 +257,7 @@ export default function ReplyResultPageClient() {
               <MessagePanel>サインイン後にご利用いただけます</MessagePanel>
             ) : null}
             {mainForSession === "404" ? (
-              <MessagePanel>返書が見つかりません</MessagePanel>
+              <MessagePanel>追加読み解きが見つかりません</MessagePanel>
             ) : null}
             {mainForSession === "error" ? (
               <MessagePanel>時間をおいてもう一度お試しください</MessagePanel>

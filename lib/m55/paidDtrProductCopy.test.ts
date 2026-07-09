@@ -51,7 +51,7 @@ describe('paidDtrProductCopy SSOT', () => {
     assert.equal(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceYen, 600);
     assert.match(PAID_DTR_CONSULT_REPLY.upgradeToFullPriceLabelJa, /後からFULL化/);
     assert.match(PAID_DTR_SAVED_REPORT_PRICING.light.audienceJa, /保存版を読/);
-    assert.match(PAID_DTR_SAVED_REPORT_PRICING.full.audienceJa, /返書で複数回/);
+    assert.match(PAID_DTR_SAVED_REPORT_PRICING.full.audienceJa, /追加読み解きで複数回/);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.includedReplyCount, 1);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.totalReplyCap, 5);
     assert.match(

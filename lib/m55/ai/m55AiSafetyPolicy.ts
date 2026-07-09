@@ -150,7 +150,7 @@ export function buildDeterministicPredictionRefusalMessage(): string {
 }
 
 export function buildReplyOffScopeRedirectMessage(): string {
-  return '返書は、ご購入のDTRレポートを深めるためのものです。レポートと無関係な一般チャットや、医療・法律・金融の具体的判断はお受けできません。テーマに沿った質問をお送りください。';
+  return '追加読み解きは、ご購入のDTRレポートを深めるためのものです。レポートと無関係な一般チャットや、医療・法律・金融の具体的判断はお受けできません。テーマに沿った質問をお送りください。';
 }
 
 export function buildJailbreakBlockMessage(): string {
@@ -166,7 +166,7 @@ export function buildPrivacyInvasiveRefusalMessage(): string {
 }
 
 export function buildGenericRefusalMessage(): string {
-  return 'この内容は、M55のレポートや返書の範囲を超える専門的な助言になります。医療・法律・金融の判断は、それぞれの専門家や公的機関にご相談ください。レポートで整理できる「いまの傾向」や「扱い方」については、具体的な状況を教えていただければ、そこに沿ってお手伝いします。';
+  return 'この内容は、M55のレポートや追加読み解きの範囲を超える専門的な助言になります。医療・法律・金融の判断は、それぞれの専門家や公的機関にご相談ください。レポートで整理できる「いまの傾向」や「扱い方」については、具体的な状況を教えていただければ、そこに沿ってお手伝いします。';
 }
 
 export function safeMessageForCategory(category: M55AiSafetyCategory): string {

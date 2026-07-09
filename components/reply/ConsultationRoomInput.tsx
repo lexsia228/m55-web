@@ -66,13 +66,13 @@ function messageForStatus(status: number): string {
     case 401:
       return "サインイン後にご利用いただけます"
     case 403:
-      return "現在ご利用いただける返書がありません"
+      return "現在ご利用いただける追加読み解きがありません"
     case 400:
       return "入力内容を確認してください"
     case 409:
       return "送信内容が更新されています。もう一度お試しください"
     case 422:
-      return "返書の準備に失敗しました。もう一度お試しください"
+      return "追加読み解きの準備に失敗しました。もう一度お試しください"
     case 500:
       return "時間をおいてもう一度お試しください"
     default:
@@ -319,7 +319,7 @@ export default function ConsultationRoomInput({
       if (res.ok) {
         const payload = data as { reply_document?: { version?: string } }
         if (payload.reply_document?.version !== "1.1") {
-          setFeedbackError("返書の準備に失敗しました。もう一度お試しください")
+          setFeedbackError("追加読み解きの準備に失敗しました。もう一度お試しください")
           return
         }
         try {
@@ -459,7 +459,7 @@ export default function ConsultationRoomInput({
           {!canGenerateReply ? (
             <div className="rounded-sm border border-border/60 bg-muted/20 px-4 py-3">
               <p className="text-sm text-muted-foreground" role="status">
-                現在ご利用いただける返書がありません
+                現在ご利用いただける追加読み解きがありません
               </p>
               <a
                 href="/dtr/lp"
@@ -497,7 +497,7 @@ export default function ConsultationRoomInput({
                   作成中
                 </span>
               ) : (
-                "返書を作成する"
+                "追加読み解きを作成する"
               )}
             </button>
           </div>
