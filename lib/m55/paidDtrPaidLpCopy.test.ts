@@ -181,6 +181,23 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
   });
 
+  it('aligns LP copy with analysis authority reference model vocabulary', () => {
+    const blob = collectPaidDtrLpCopyStrings().join('\n');
+    assert.match(blob, /日本の暦文化/);
+    assert.match(blob, /回答差分/);
+    assert.match(blob, /本人の回答/);
+    assert.match(blob, /自己理解/);
+    assert.match(blob, /関係性整理/);
+    assert.match(blob, /医学的診断/);
+    assert.match(blob, /心理検査/);
+    assert.match(blob, /将来の不確実な事実を断定/);
+    assert.ok(blob.includes(PAID_DTR_LP.authorityNote.sectionTitleJa));
+    assert.ok(blob.includes(PAID_DTR_LP.authorityNote.headlineJa));
+    for (const para of PAID_DTR_LP.authorityNote.bodyParagraphsJa) {
+      assert.ok(blob.includes(para), `missing authority paragraph: ${para.slice(0, 24)}…`);
+    }
+  });
+
   it('states calendar rhythm and deterministic saved-report product truth', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
     assert.match(blob, /10資質レーン/);

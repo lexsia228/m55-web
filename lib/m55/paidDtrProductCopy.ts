@@ -1211,6 +1211,15 @@ export const PAID_DTR_LP = {
     principleJa:
       '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。\n未来予測や吉凶の断定ではありません。',
   },
+  authorityNote: {
+    sectionTitleJa: 'M55が見ているもの',
+    headlineJa: '生年月日と回答差分を、読み解きの材料にします',
+    bodyParagraphsJa: [
+      'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて読み解きます。',
+      '保存版では、その初期ベースと回答差分をもとに、自己理解と関係性整理に使える形へ整えます。',
+      '表示内容は参考情報であり、医学的診断、心理検査、または将来の不確実な事実を断定するものではありません。',
+    ] as const,
+  },
   informationLayers: {
     sectionTitleJa: '保存版と追加読み解きの情報二層',
     savedReportJa:
@@ -1376,6 +1385,9 @@ export function collectPaidDtrLpCopyStrings(): string[] {
     lp.about.sectionTitleJa,
     lp.about.oneSentenceJa,
     lp.about.principleJa,
+    lp.authorityNote.sectionTitleJa,
+    lp.authorityNote.headlineJa,
+    ...lp.authorityNote.bodyParagraphsJa,
     lp.informationLayers.sectionTitleJa,
     lp.informationLayers.savedReportJa,
     lp.informationLayers.consultReplyJa,
