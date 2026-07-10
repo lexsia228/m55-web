@@ -1,3 +1,8 @@
+import {
+  M55_LEGAL_SAFETY_BOUNDARIES,
+  M55_USER_FACING_POSITIONING_COPY,
+} from "../../../lib/m55/analysisAuthorityReferenceModel";
+
 export const metadata = {
   title: "利用規約 | M55",
 };
@@ -24,6 +29,20 @@ export default function TermsPage() {
       }}>
         本規約は、M55 Project（以下「当社」）が提供するデジタルコンテンツ（レポート）の閲覧サービス（以下「本サービス」）の利用条件を定めるものです。
       </p>
+
+      <section style={{ margin: "0 0 16px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>サービスの性質</h2>
+        {M55_USER_FACING_POSITIONING_COPY.map((paragraph) => (
+          <p key={paragraph.slice(0, 24)} style={{ margin: "0 0 10px", opacity: 0.9 }}>
+            {paragraph}
+          </p>
+        ))}
+        <ul style={{ margin: 0, paddingLeft: 18 }}>
+          {M55_LEGAL_SAFETY_BOUNDARIES.isNotJa.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
 
       <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>提供内容</h2>
@@ -59,7 +78,11 @@ export default function TermsPage() {
 
       <section style={{ margin: "0 0 16px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>免責・責任制限</h2>
-        <p style={{ margin: 0 }}>本サービスはユーザー入力に基づく情報整理のレポートであり、医療・法律・投資等の助言ではありません。</p>
+        <p style={{ margin: 0 }}>
+          本サービスはユーザー入力に基づく情報整理のレポートであり、自己理解・関係性整理のための参考情報です。
+          医学的診断、心理検査、治療、カウンセリング、または将来の不確実な事実を断定するものではありません。
+          占い・鑑定・診断・相談としての断定サービスではなく、医療・法律・投資等の専門的助言ではありません。
+        </p>
       </section>
 
       <section style={{ margin: "0 0 16px" }}>

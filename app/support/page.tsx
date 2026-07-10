@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  M55_LEGAL_SAFETY_BOUNDARIES,
+  M55_USER_FACING_POSITIONING_COPY,
+} from "../../lib/m55/analysisAuthorityReferenceModel";
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import {
   M55_PUBLIC_SUPPORT_EMAIL,
@@ -87,6 +91,18 @@ export default function SupportPage() {
         </p>
       </section>
 
+      <section style={{ margin: "0 0 18px" }}>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>M55の説明</h2>
+        {M55_USER_FACING_POSITIONING_COPY.map((paragraph) => (
+          <p key={paragraph.slice(0, 24)} style={{ margin: "0 0 10px", opacity: 0.9 }}>
+            {paragraph}
+          </p>
+        ))}
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          {M55_LEGAL_SAFETY_BOUNDARIES.isNotJa.join(" ")}
+        </p>
+      </section>
+
       <section style={{ margin: "0 0 22px" }} aria-labelledby="m55-faq-service">
         <h2 id="m55-faq-service" style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px" }}>
           よくある質問（M55について）
@@ -95,7 +111,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>M55は何を見るのですか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              {TOP_FREE_ENTRY_PUBLIC_COPY.m55Definition.centerJa.replace(/\n/g, " ")}
+              生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて、自己理解と関係性の距離を読み解く参考情報です。
               {" "}
               {TOP_FREE_ENTRY_PUBLIC_COPY.home.tierFreeJa}
               {" "}
@@ -129,7 +145,9 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>入力した情報は何に使われますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              ニックネーム・生年月日などのプロフィールは読み取りの生成に使います。決済やアカウントに関する情報は提供・決済のために必要な範囲で取り扱います。詳細はプライバシーポリシーをご覧ください。
+              ニックネーム・生年月日などのプロフィールは、自己理解・関係性整理のための読み取り生成に使います。
+              追加読み解きでは、本人の回答による現在の感じ方・行動傾向の差分を補正するために、選択したテーマと質問への回答を使います。
+              決済やアカウントに関する情報は提供・決済のために必要な範囲で取り扱います。詳細はプライバシーポリシーをご覧ください。
             </p>
           </article>
           <article>

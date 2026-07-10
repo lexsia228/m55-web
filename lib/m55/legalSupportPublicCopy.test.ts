@@ -19,6 +19,16 @@ const FORBIDDEN_PUBLIC_TERMS = [
   '何度でも',
 ] as const;
 
+const POSITIONING_DANGEROUS_TERMS = [
+  '規約回避',
+  'クローラー無力化',
+  'Stripe通過保証',
+  '審査突破保証',
+  '検知回避',
+  '言葉のロンダリング',
+  '絶対に安全',
+] as const;
+
 const ROUTE_FILES = {
   '/legal/terms': 'app/legal/terms/page.tsx',
   '/legal/refund': 'app/legal/refund/page.tsx',
@@ -113,6 +123,56 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.equal(blob.includes('lexsia228@gmail.com'), false);
     assert.equal(blob.includes('lexsia228@gmail'), false);
   });
+});
+
+describe('legalSupportPublicCopy — analysis authority reference model alignment', () => {
+  it('explains calendar-cultural basis and answer-based deltas', () => {
+    const blob = combinedPublicCopy();
+    assert.match(blob, /日本の暦文化|暦文化上の手がかり/);
+    assert.match(blob, /本人の回答による現在の感じ方|回答による現在の感じ方|回答差分/);
+  });
+
+  it('explains self-understanding and relationship organization', () => {
+    const blob = combinedPublicCopy();
+    assert.match(blob, /自己理解/);
+    assert.match(blob, /関係性整理|関係性の距離/);
+  });
+
+  it('states medical and psychological boundaries', () => {
+    const blob = combinedPublicCopy();
+    assert.match(blob, /医学的診断/);
+    assert.match(blob, /心理検査/);
+    assert.match(blob, /将来の不確実な事実を断定/);
+  });
+
+  it('maintains professional advice boundaries', () => {
+    const blob = combinedPublicCopy();
+    assert.match(blob, /医療・法律・投資/);
+    assert.match(blob, /助言ではありません|専門的助言ではありません/);
+  });
+
+  it('wires legal/support surfaces to analysis authority SSOT', () => {
+    for (const rel of [
+      ROUTE_FILES['/legal/terms'],
+      ROUTE_FILES['/support'],
+      ROUTE_FILES['/legal/tokushoho'],
+      ROUTE_FILES['/legal/privacy'],
+    ]) {
+      const page = readPage(rel);
+      assert.match(page, /analysisAuthorityReferenceModel/);
+    }
+    const terms = readPage(ROUTE_FILES['/legal/terms']);
+    const support = readPage(ROUTE_FILES['/support']);
+    assert.match(terms, /M55_USER_FACING_POSITIONING_COPY/);
+    assert.match(support, /M55_USER_FACING_POSITIONING_COPY/);
+  });
+
+  for (const term of POSITIONING_DANGEROUS_TERMS) {
+    it(`excludes dangerous positioning term "${term}" from legal/support copy`, () => {
+      const blob = combinedPublicCopy();
+      assert.equal(blob.includes(term), false, `dangerous positioning term: ${term}`);
+    });
+  }
 });
 
 describe('legalSupportPublicCopy — body link dedup policy', () => {

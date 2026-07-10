@@ -1,5 +1,8 @@
 import Link from "next/link";
 import {
+  M55_USER_FACING_POSITIONING_COPY,
+} from "../../../lib/m55/analysisAuthorityReferenceModel";
+import {
   ACCOUNT_DATA_PRIVACY_AFTER_VERIFY,
   ACCOUNT_DATA_PRIVACY_DEVICE_P1,
   ACCOUNT_DATA_PRIVACY_DEVICE_P2,
@@ -42,10 +45,10 @@ export default function PrivacyPage() {
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>取得する情報</h2>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>アカウント情報（認証サービス経由で提供される識別子・メールアドレス等）</li>
-          <li>プロフィールとしてお預かりする表示名（ニックネーム）および生年月日（読み取り生成のため）</li>
+          <li>プロフィールとしてお預かりする表示名（ニックネーム）および生年月日（日本の暦文化上の参照と読み取り生成のため）</li>
           <li>連絡先（メールアドレス等）</li>
           <li>決済の確認に必要な取引情報（決済の処理は外部の決済事業者を利用します）</li>
-          <li>レポート生成や保存版に紐づく追加読み解きに関するユーザー入力（必要な範囲）</li>
+          <li>レポート生成や保存版に紐づく追加読み解きに関するユーザー入力（本人の回答による現在の感じ方・行動傾向の差分補正に必要な範囲）</li>
           <li>アクセスログ等の技術情報（不正対策・障害対応のため）</li>
         </ul>
         <p style={{ margin: "10px 0 0", fontSize: 13, opacity: 0.9 }}>
@@ -57,6 +60,7 @@ export default function PrivacyPage() {
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>利用目的</h2>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>本サービスの提供、本人確認、購入状況の確認</li>
+          <li>生年月日・回答情報に基づく自己理解・関係性整理のための読み取り生成（医学的診断・心理検査・治療・カウンセリングではありません）</li>
           <li>サポート対応および不正利用の防止</li>
           <li>品質改善のための分析（個人を特定しない形で実施します）</li>
         </ul>
@@ -94,7 +98,9 @@ export default function PrivacyPage() {
       </section>
 
       <p style={{ margin: 0, fontSize: 12, opacity: 0.75 }}>
-        本サービスはユーザー入力に基づく情報整理のレポートであり、医療・法律・投資等の助言ではありません。
+        {M55_USER_FACING_POSITIONING_COPY[2]}
+        {" "}
+        医療・法律・投資等の専門的助言ではありません。
       </p>
     </main>
   );

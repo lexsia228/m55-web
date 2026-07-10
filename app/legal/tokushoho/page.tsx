@@ -1,5 +1,8 @@
 import Link from "next/link";
 import {
+  M55_USER_FACING_POSITIONING_COPY,
+} from "../../../lib/m55/analysisAuthorityReferenceModel";
+import {
   M55_PUBLIC_SUPPORT_EMAIL,
   M55_PUBLIC_SUPPORT_MAILTO,
 } from "../../../lib/m55/accountDataControlPublicCopy";
@@ -29,6 +32,8 @@ export default function TokushohoPage() {
         opacity: 0.9,
       }}>
         当サイトは、オンラインで提供するデジタルコンテンツ（レポート）を販売しています。
+        {M55_USER_FACING_POSITIONING_COPY[0]}
+        表示内容は、自己理解・関係性整理のための参考情報であり、医学的診断・心理検査・治療・カウンセリング、または将来の不確実な事実を断定するものではありません。
       </p>
 
       <section style={{
@@ -148,7 +153,9 @@ export default function TokushohoPage() {
         fontSize: 12,
         opacity: 0.75,
       }}>
-        本サービスはユーザー入力に基づく情報整理のレポートであり、医療・法律・投資等の助言ではありません。
+        {M55_USER_FACING_POSITIONING_COPY[2]}
+        {" "}
+        医療・法律・投資等の専門的助言ではありません。
       </p>
     </main>
   );
