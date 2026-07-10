@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { collectViolationsForLine, PUBLIC_SCAN_ROOTS, RESERVE_SCAN_ROOTS } from "./ssot-public-vocabulary-rules.mjs";
 const ROOT = process.cwd();
+const PUBLIC_SCAN_FILES = ["app/dtr/page.tsx"];
 const EXT = new Set([".ts", ".tsx", ".js", ".jsx"]);
 const SKIP_DIR = new Set(["node_modules", ".next", ".git", "dist", "build", "coverage"]);
 const reserveScan = process.argv.includes("--reserve-scan");
@@ -16,7 +17,7 @@ function walkFiles(dir, out) {
     else if (e.isFile() && EXT.has(path.extname(e.name))) out.push(p);
   }
 }
-function collectRoots() {
+function collectPublicScanFiles() {
   const roots = [...PUBLIC_SCAN_ROOTS];
   if (reserveScan) roots.push(...RESERVE_SCAN_ROOTS);
   const files = [];
@@ -24,6 +25,12 @@ function collectRoots() {
     const abs = path.join(ROOT, r);
     if (!fs.existsSync(abs)) continue;
     if (fs.statSync(abs).isDirectory()) walkFiles(abs, files);
+  }
+  for (const rel of PUBLIC_SCAN_FILES) {
+    const abs = path.join(ROOT, rel);
+    if (fs.existsSync(abs) && fs.statSync(abs).isFile() && EXT.has(path.extname(rel))) {
+      files.push(abs);
+    }
   }
   return [...new Set(files)].sort();
 }
@@ -43,7 +50,7 @@ function severityOrder(s) {
   if (s === "major") return 1;
   return 2;
 }
-const files = collectRoots();
+const files = collectPublicScanFiles();
 let all = [];
 for (const f of files) all.push(...scanFile(f));
 all.sort((a, b) => {

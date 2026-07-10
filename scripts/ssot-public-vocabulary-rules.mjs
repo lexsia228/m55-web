@@ -28,6 +28,7 @@ export function collectViolationsForLine(line, fileRel, lineNumber) {
 
 export const PUBLIC_SCAN_ROOTS = [
   'app/home', 'app/how-m55-works', 'app/ten-views', 'app/support', 'app/legal', 'app/purchase',
+  'app/dtr/lp', 'app/pricing',
   'components/home', 'components/pages', 'components/shell',
 ];
 export const RESERVE_SCAN_ROOTS = ['app/api'];
