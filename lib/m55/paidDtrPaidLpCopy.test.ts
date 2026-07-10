@@ -10,6 +10,9 @@ import {
   collectPaidDtrLpCopyStrings,
 } from './paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../oneTimeCheckout';
+import {
+  assertAuthorityVocabularyPresent,
+} from './testSupport/analysisAuthorityCopyAssertions';
 
 const FORBIDDEN_LP_TERMS = [
   '¥500',
@@ -183,11 +186,8 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('aligns LP copy with analysis authority reference model vocabulary', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assert.match(blob, /日本の暦文化/);
-    assert.match(blob, /回答差分/);
+    assertAuthorityVocabularyPresent(blob);
     assert.match(blob, /本人の回答/);
-    assert.match(blob, /自己理解/);
-    assert.match(blob, /関係性整理/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);
     assert.match(blob, /将来の不確実な事実を断定/);

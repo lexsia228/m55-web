@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import {
+  POSITIONING_DANGEROUS_TERMS,
+} from './testSupport/analysisAuthorityCopyAssertions';
 
 const FORBIDDEN_PUBLIC_TERMS = [
   'Entry Report',
@@ -17,16 +20,6 @@ const FORBIDDEN_PUBLIC_TERMS = [
   '永久',
   '無期限',
   '何度でも',
-] as const;
-
-const POSITIONING_DANGEROUS_TERMS = [
-  '規約回避',
-  'クローラー無力化',
-  'Stripe通過保証',
-  '審査突破保証',
-  '検知回避',
-  '言葉のロンダリング',
-  '絶対に安全',
 ] as const;
 
 const ROUTE_FILES = {
