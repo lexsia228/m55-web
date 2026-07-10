@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PAID_DTR_PRICING_AUTHORITY_NOTE_JA } from "../../lib/m55/paidDtrProductCopy";
 
 export const metadata = { title: "料金とプラン | M55" };
 
@@ -14,6 +15,10 @@ export default function PricingPage() {
       <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
         M55の保存版は、現在「保存版ライト」と「保存版FULL」から選べます。
         詳しい違いと購入前の確認は、保存版の案内ページで確認できます。
+      </p>
+
+      <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
+        {PAID_DTR_PRICING_AUTHORITY_NOTE_JA}
       </p>
 
       <section style={{ margin: "0 0 18px" }}>

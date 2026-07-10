@@ -1190,6 +1190,10 @@ export const PAID_DTR_FORBIDDEN_CLAIMS = [
   'generic public AI chat',
 ] as const;
 
+/** /pricing hub — lightweight authority note (display-only; not LP duplicate). */
+export const PAID_DTR_PRICING_AUTHORITY_NOTE_JA =
+  'M55の保存版は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による回答差分をもとに、自己理解と関係性整理に使える形へ整える参考情報です。' as const;
+
 /** Collect all user-facing Japanese strings for static checks (tests, lint helpers). */
 /** Paid LP surface copy — Human-approved M55_PAID_LP_FINAL_COPY_SSOT_v1 (display-only). */
 export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v1' as const;
