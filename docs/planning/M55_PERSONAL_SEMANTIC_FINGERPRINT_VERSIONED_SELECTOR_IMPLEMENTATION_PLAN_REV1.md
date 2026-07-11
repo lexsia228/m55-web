@@ -902,14 +902,30 @@ fail-closed count
 
 ## 24. Proposed File Allowlist
 
+**Reconciliation（OPTION B / repo 実測 2026-07-12）:** Gate 3 は `index.ts` を変更せず、`individualizationV1.test.ts` を最小更新する。Gate 4 は既存 `individualizationV1.variance.test.ts` を MODIFY し、同名の新規 variance file は作らない。
+
 ### 24.1 既存変更（implementation gate）
 
 | path | 変更内容 | gate |
 |---|---|---|
+| `lib/m55/individualization/versions.ts` | `INDIVIDUALIZATION_SELECTOR_VERSION_V1`（Gate 1）、`GENERATION_META_FIELD_NAMING_VERSION_V2`（Gate 3） | 1, 3 |
 | `lib/m55/individualization/types.ts` | `selectors?`、fail codes、`SourceVersions.selectorVersion` | 3 |
-| `lib/m55/individualization/versions.ts` | `INDIVIDUALIZATION_SELECTOR_VERSION_V1`、`OUTPUT_HASH_VERSION_V2` | 1, 3 |
 | `lib/m55/individualization/buildIndividualizationV1.ts` | resolver 呼び出し、`gmfn-v2` 分岐、`selectorVersion` audit | 3 |
-| `lib/m55/individualization/index.ts` | 新 export | 3 |
+| `lib/m55/individualization/individualizationV1.test.ts` | public builder regression（`gmfn-v2`、`selectors`、provenance 最小 assertion） | 3 |
+| `lib/m55/individualization/individualizationV1.variance.test.ts` | selector-enabled / `gmfn-v2` variance expectation 更新 | 4 |
+
+**Gate 3 で変更しない既存 file（explicit excluded）:**
+
+```text
+lib/m55/individualization/index.ts
+lib/m55/individualization/outputHashV1.ts
+lib/m55/individualization/resolveIndividualizationSelectorsV1.ts
+lib/m55/individualization/individualizationSelectorTypesV1.ts
+lib/m55/individualization/individualizationSelectorCatalogV1.ts
+lib/m55/individualization/individualizationV1.variance.test.ts
+```
+
+`index.ts` の新 export は **runtime external consumer が存在するまで延期**（現状 barrel consumer 0、direct import で Gate 3 完結）。
 
 ### 24.2 新規
 
@@ -917,12 +933,21 @@ fail-closed count
 |---|---|---|
 | `lib/m55/individualization/individualizationSelectorTypesV1.ts` | ID union types + bundle type | 1 |
 | `lib/m55/individualization/individualizationSelectorCatalogV1.ts` | catalog data + priority + lineage metadata | 1 |
-| `lib/m55/individualization/resolveIndividualizationSelectorsV1.ts` | pure resolver（lineage-aware） | 2 |
-| `lib/m55/individualization/outputHashV2.ts` | `gmfn-v2` implementation | 3 |
 | `lib/m55/individualization/individualizationSelectorCatalogV1.test.ts` | catalog-focused tests | 1 |
+| `lib/m55/individualization/resolveIndividualizationSelectorsV1.ts` | pure resolver（lineage-aware） | 2 |
 | `lib/m55/individualization/individualizationSelectorV1.test.ts` | resolver focused tests | 2 |
-| `lib/m55/individualization/outputHashV2.test.ts` | gmfn-v2 focused tests | 3 |
-| `lib/m55/individualization/individualizationSelectorV1.variance.test.ts` | variance QA | 4 |
+| `lib/m55/individualization/outputHashV2.ts` | `gmfn-v2` implementation | 3 |
+| `lib/m55/individualization/outputHashV2.test.ts` | gmfn-v2 / version matrix / snapshot atomicity tests | 3 |
+
+**Gate 3 exact allowlist（OPTION B）:**
+
+| action | path |
+|---|---|
+| MODIFY | `versions.ts`, `types.ts`, `buildIndividualizationV1.ts`, `individualizationV1.test.ts` |
+| NEW | `outputHashV2.ts`, `outputHashV2.test.ts` |
+| Gate 3 totals | modified **4** / new **2** / files **6** |
+
+**Gate 4:** genuinely new files **0**。既存 `individualizationV1.variance.test.ts` のみ MODIFY（rename / delete / 同義 duplicate file 禁止）。
 
 ### 24.3 変更しない
 
@@ -930,15 +955,54 @@ fail-closed count
 app/**, components/**, scripts/**, supabase/**
 answerIdMapsV1.ts（ID 不変）
 dobAxisLookupV1.ts, freeExpressionV1.ts（authority 不変）
+outputHashV1.ts（gmfn-v1 immutable）
+index.ts（Gate 3 mutable scope 外）
 UI / route / DB / Stripe / compatibility
 ```
 
-### 24.4 見積
+### 24.4 見積と file-count contract
 
 | 項目 | 値 |
 |---|---|
-| total files | **12**（既存 4 変更 + 新規 8） |
-| estimated diff | **~1,500–2,200 lines**（catalog + resolver + gmfn-v2 + tests） |
+| Gate 3 files | modified **4** + new **2** = **6** |
+| cumulative after Gate 3 | modified existing unique **4** + new unique **7** = overall **11** |
+| Gate 4 | MODIFY `individualizationV1.variance.test.ts` only; new **0** |
+| final selector implementation | modified existing unique **5** + new unique **7** = overall unique paths **12** |
+| estimated diff（Gate 3） | **~600–850 lines**（builder + gmfn-v2 + focused tests） |
+
+**Modified existing unique — 5:**
+
+```text
+lib/m55/individualization/versions.ts
+lib/m55/individualization/types.ts
+lib/m55/individualization/buildIndividualizationV1.ts
+lib/m55/individualization/individualizationV1.test.ts
+lib/m55/individualization/individualizationV1.variance.test.ts
+```
+
+**New unique — 7:**
+
+```text
+lib/m55/individualization/individualizationSelectorTypesV1.ts
+lib/m55/individualization/individualizationSelectorCatalogV1.ts
+lib/m55/individualization/individualizationSelectorCatalogV1.test.ts
+lib/m55/individualization/resolveIndividualizationSelectorsV1.ts
+lib/m55/individualization/individualizationSelectorV1.test.ts
+lib/m55/individualization/outputHashV2.ts
+lib/m55/individualization/outputHashV2.test.ts
+```
+
+**Arithmetic:** `5 + 7 = 12`（modified / new の path 重複なし）。
+
+### 24.5 Test ownership
+
+| file | gate | owner scope |
+|---|---|---|
+| `individualizationV1.test.ts` | 3 MODIFY | legacy `gmfn-v1` direct fixture 維持；new builder で `selectors` present、`sourceVersions.selectorVersion = selectors-v1`、`fieldNamingVersion = gmfn-v2`；public builder regression |
+| `outputHashV2.test.ts` | 3 NEW | gmfn-v2 serialization、selector sensitivity、empty category、legacy/new version matrix、snapshot atomicity、resolver failure propagation |
+| `individualizationV1.variance.test.ts` | 4 MODIFY | selector-enabled variance、`gmfn-v2` variance、output collapse checks |
+
+同一 behavior を `individualizationV1.test.ts` と `outputHashV2.test.ts` で重複所有しない。
 
 ---
 
@@ -948,10 +1012,10 @@ UI / route / DB / Stripe / compatibility
 
 | # | Gate | scope |
 |---|---|---|
-| 1 | selector types + version + catalog | types, catalog, versions, catalog-focused tests。**builder 非接触** |
-| 2 | pure resolver | lineage-aware `resolveIndividualizationSelectorsV1.ts` + focused resolver tests |
-| 3 | fp-v1 integration | optional bundle, legacy absence validation, `audit.sourceVersions.selectorVersion`, `gmfn-v2`, snapshot/hash tests |
-| 4 | full variance QA | 1,215 × DOB matrix + distribution metrics |
+| 1 | selector types + version + catalog | NEW types/catalog + catalog tests；`versions.ts` initial selector version。**builder 非接触** |
+| 2 | pure resolver | `resolveIndividualizationSelectorsV1.ts` + focused resolver tests |
+| 3 | fp-v1 integration（OPTION B） | MODIFY `versions.ts` / `types.ts` / `buildIndividualizationV1.ts` / `individualizationV1.test.ts`；NEW `outputHashV2.ts` / `outputHashV2.test.ts`；optional bundle、provenance、`gmfn-v2`、hash/snapshot tests。**`index.ts` 非変更** |
+| 4 | variance QA extension | MODIFY existing `individualizationV1.variance.test.ts` only；genuinely new files **0** |
 | 5 | actual-diff review / commit / push | — |
 
 **Gate 1 に含めない:** builder integration / gmfn-v2 runtime connection / snapshot mutation / composition / UI / DB / Stripe。
