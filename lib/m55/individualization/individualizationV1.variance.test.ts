@@ -594,3 +594,221 @@ describe('fp-v1 variance QA — anti-template', () => {
     );
   });
 });
+
+describe('fp-v1 variance QA — selectors-v1 and gmfn-v2', () => {
+  const DOB = '1992-07-15';
+  const STEM = 3;
+
+  function assertSelectorDraftOk(
+    draft: ReturnType<typeof buildIndividualizationDraftSnapshotV1>,
+    label: string,
+  ) {
+    assert.equal(draft.ok, true, label);
+    if (!draft.ok) return;
+    assert.ok(draft.value.fingerprint.selectors, `${label}: selectors missing`);
+    assert.equal(draft.value.fingerprint.selectors!.version, 'selectors-v1', label);
+    assert.equal(
+      draft.value.audit.sourceVersions.selectorVersion,
+      'selectors-v1',
+      label,
+    );
+    assert.equal(draft.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2', label);
+    assert.ok(
+      draft.value.fingerprint.selectors!.freeBlockSelectorIds.length > 0,
+      `${label}: empty free selector bundle`,
+    );
+    assertNoLeakage(JSON.stringify(draft.value), label);
+  }
+
+  it('selector-enabled drafts are present on representative variance fixtures', () => {
+    for (const birthDate of DECADE_DOBS.slice(0, 3)) {
+      assertSelectorDraftOk(
+        draftOf({
+          birthDate,
+          stemLaneIndex: 2,
+          freeAnswerSet: freeSet(),
+          paidAnswerSet: paidSet(),
+        }),
+        birthDate,
+      );
+    }
+  });
+
+  it('same input determinism holds for selectors and gmfn-v2 hash', () => {
+    const input = {
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+    };
+    const a = draftOf(input);
+    const b = draftOf(input);
+    assert.equal(a.ok && b.ok, true);
+    if (!a.ok || !b.ok) return;
+    assert.deepEqual(a.value.fingerprint.selectors, b.value.fingerprint.selectors);
+    assert.equal(a.value.audit.outputHash, b.value.audit.outputHash);
+    assert.equal(a.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+  });
+
+  it('same DOB changed free answers produce selector and hash differences', () => {
+    const base = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+    });
+    const changed = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet({
+        'free.distance_style': 'free.distance_style.solo_reset',
+      }),
+      paidAnswerSet: paidSet(),
+    });
+    assert.equal(base.ok && changed.ok, true);
+    if (!base.ok || !changed.ok) return;
+    assert.notDeepEqual(base.value.fingerprint.selectors, changed.value.fingerprint.selectors);
+    assert.notEqual(base.value.audit.outputHash, changed.value.audit.outputHash);
+  });
+
+  it('same DOB changed primary theme produces theme-dependent selector/hash difference', () => {
+    const base = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet({ 'free.primary_theme': 'free.primary_theme.work' }),
+      paidAnswerSet: paidSet(),
+    });
+    const theme = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet({ 'free.primary_theme': 'free.primary_theme.fatigue' }),
+      paidAnswerSet: paidSet(),
+    });
+    assert.equal(base.ok && theme.ok, true);
+    if (!base.ok || !theme.ok) return;
+    assert.notDeepEqual(base.value.fingerprint.selectors, theme.value.fingerprint.selectors);
+    assert.notEqual(base.value.audit.outputHash, theme.value.audit.outputHash);
+  });
+
+  it('paid answer change produces paid selector and gmfn-v2 hash difference', () => {
+    const base = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+    });
+    const changed = draftOf({
+      birthDate: DOB,
+      stemLaneIndex: STEM,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet({
+        'paid.work_focus': 'paid.work_focus.pace',
+        'paid.decision_friction': 'paid.decision_friction.fear_mistake',
+        'paid.relation_focus': 'paid.relation_focus.timing',
+        'paid.fatigue_signal': 'paid.fatigue_signal.long_stretch',
+      }),
+    });
+    assert.equal(base.ok && changed.ok, true);
+    if (!base.ok || !changed.ok) return;
+    assert.notDeepEqual(base.value.fingerprint.paidDepth, changed.value.fingerprint.paidDepth);
+    assert.notEqual(base.value.audit.outputHash, changed.value.audit.outputHash);
+  });
+
+  it('free-v1 full answer-state matrix connects to selector projection variance', () => {
+    const starts = [
+      'free.start_style.map_first',
+      'free.start_style.try_first',
+      'free.start_style.ask_first',
+    ] as const;
+    const decisions = [
+      'free.decision_style.sort_first',
+      'free.decision_style.deadline_first',
+      'free.decision_style.wait_first',
+    ] as const;
+    const recoveries = [
+      'free.recovery_style.pause_short',
+      'free.recovery_style.shrink_task',
+      'free.recovery_style.change_scene',
+    ] as const;
+    const distances = [
+      'free.distance_style.close_careful',
+      'free.distance_style.middle_steady',
+      'free.distance_style.solo_reset',
+    ] as const;
+    const changes = [
+      'free.change_style.observe_first',
+      'free.change_style.adjust_fast',
+      'free.change_style.rebuild_slow',
+    ] as const;
+    const themes = [
+      'free.primary_theme.work',
+      'free.primary_theme.relation',
+      'free.primary_theme.fatigue',
+      'free.primary_theme.tendency',
+      'free.primary_theme.report_preview',
+    ] as const;
+
+    const hashes = new Set<string>();
+    const selectorBundles = new Set<string>();
+    let validCount = 0;
+
+    for (const start of starts) {
+      for (const decision of decisions) {
+        for (const recovery of recoveries) {
+          for (const distance of distances) {
+            for (const change of changes) {
+              for (const theme of themes) {
+                const draft = draftOf({
+                  birthDate: DOB,
+                  stemLaneIndex: STEM,
+                  freeAnswerSet: {
+                    'free.start_style': start,
+                    'free.decision_style': decision,
+                    'free.recovery_style': recovery,
+                    'free.distance_style': distance,
+                    'free.change_style': change,
+                    'free.primary_theme': theme,
+                  },
+                  paidAnswerSet: paidSet(),
+                });
+                assert.equal(draft.ok, true);
+                if (!draft.ok) continue;
+                validCount += 1;
+                assert.ok(draft.value.fingerprint.selectors);
+                assert.ok(
+                  draft.value.fingerprint.selectors!.freeBlockSelectorIds.length > 0,
+                );
+                hashes.add(draft.value.audit.outputHash);
+                selectorBundles.add(JSON.stringify(draft.value.fingerprint.selectors));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    assert.equal(validCount, 1215);
+    assert.ok(selectorBundles.size > 1, 'selector bundle variance collapsed');
+    assert.ok(hashes.size > 1, 'gmfn-v2 hash variance collapsed');
+  });
+
+  it('no mixed-version state and no selector omission collapse on valid drafts', () => {
+    const draft = draftOf({
+      birthDate: '1983-04-11',
+      stemLaneIndex: 4,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+    });
+    assert.equal(draft.ok, true);
+    if (!draft.ok) return;
+    assert.equal(draft.value.fingerprint.fingerprintSpecVersion, 'fp-v1');
+    assert.equal(draft.value.fingerprint.selectors!.version, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.selectorVersion, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+    assert.notEqual(
+      JSON.stringify(draft.value.fingerprint).includes('"selectors":null'),
+      true,
+    );
+    assert.notEqual(draft.value.audit.outputHash, '');
+  });
+});
