@@ -115,14 +115,14 @@ export default function CoreRadarSection({
         <h2 id="core-radar-title" className={styles.sectionTitle}>
           傾向の輪郭
         </h2>
-        <p className={styles.tierASummary}>5つの視点を、ひとつの形として見ます</p>
+        <p className={styles.tierASummary}>生年月日から見る輪郭を、ひとつの形として見ます</p>
         <p className={styles.sectionLead}>
           {withNickname(
-            '良し悪しではなく、tさんがふだんどんな傾向が出やすいかを、5つの視点で見た結果です。',
+            '良し悪しではなく、tさんの生年月日から見えやすい土台の傾向を見た結果です。回答から見る5つの視点とは別の層です。',
             nick,
           )}
         </p>
-        <p className={styles.radarTip}>外に開くほど、その視点が表に出やすい傾向があります。</p>
+        <p className={styles.radarTip}>外に開くほど、その軸が表に出やすい傾向があります。</p>
       </div>
 
       {!revealed && (
@@ -141,7 +141,7 @@ export default function CoreRadarSection({
             私の輪郭を見る
           </button>
           <p className={styles.radarRevealHelper}>
-            タップすると、5つの軸の形が表示されます
+            タップすると、生年月日から見る輪郭の形が表示されます
           </p>
         </div>
       )}
@@ -152,7 +152,7 @@ export default function CoreRadarSection({
           viewBox={`0 0 ${VB} ${VB}`}
           role="img"
           aria-label={
-            revealed ? `傾向の輪郭: ${summary.line1}` : '五つの視点の輪郭図（ボタンを押すと表示）'
+            revealed ? `傾向の輪郭: ${summary.line1}` : '生年月日から見る輪郭図（ボタンを押すと表示）'
           }
         >
           {gridPolys.map((p, idx) => (
