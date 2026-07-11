@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { buildIndividualizationDraftSnapshotV1 } from '../individualization/buildIndividualizationV1';
 import { buildFreeFiveViewCompositionV1 } from './buildFreeFiveViewCompositionV1';
 
 function freeSet(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
@@ -171,5 +172,36 @@ describe('buildFreeFiveViewCompositionV1 — CATEGORY-2-M55-FREE-PERSONAL-RESULT
       }),
     });
     assert.equal(r.ok, false);
+  });
+
+  it('engine draft for same inputs remains selectors-v1 / gmfn-v2', () => {
+    const freeAnswerSet = freeSet();
+    const draft = buildIndividualizationDraftSnapshotV1({
+      birthDate: BASE.birthDate,
+      stemLaneIndex: BASE.stemLaneIndex,
+      freeAnswerSet,
+      paidAnswerSet: null,
+      engineVersion: 'free-result-v1',
+      catalogVersion: 'free-result-v1',
+      reportLogicVersion: 'free-result-v1',
+      generatedAt: '1970-01-01T00:00:00.000Z',
+      templateBlockIds: ['free-five-view'],
+    });
+    assert.equal(draft.ok, true);
+    if (!draft.ok) return;
+    assert.equal(draft.value.fingerprint.fingerprintSpecVersion, 'fp-v1');
+    assert.ok(draft.value.fingerprint.selectors);
+    assert.equal(draft.value.fingerprint.selectors!.version, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.selectorVersion, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+
+    const composition = buildFreeFiveViewCompositionV1({
+      ...BASE,
+      freeAnswerSet,
+    });
+    assert.equal(composition.ok, true);
+    if (!composition.ok) return;
+    assert.equal(composition.value.meta.selectorVersion, 'selectors-v1');
+    assert.equal(composition.value.meta.fieldNamingVersion, 'gmfn-v2');
   });
 });

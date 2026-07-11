@@ -1,16 +1,29 @@
 /**
  * Deterministic free five-view composition (answer-derived public copy).
- * Pure — no I/O, no provider, no random.
+ * Client-safe pure module — no node:crypto, no draft/hash builders.
  */
 
-import { buildIndividualizationDraftSnapshotV1 } from '../individualization/buildIndividualizationV1';
+import {
+  buildAlignDivergeItemsV1,
+} from '../individualization/alignDivergeV1';
+import {
+  FREE_CHANGE_ANSWER_TO_TENDENCY,
+  FREE_DECISION_ANSWER_TO_TENDENCY,
+  FREE_DISTANCE_ANSWER_TO_TENDENCY,
+  FREE_QUESTION_IDS,
+  FREE_RECOVERY_ANSWER_TO_TENDENCY,
+  FREE_START_ANSWER_TO_TENDENCY,
+  isFreePrimaryThemeAnswerId,
+} from '../individualization/answerIdMapsV1';
+import { mapPrimaryThemeToReplyThemeV1 } from '../individualization/primaryThemeReplyMapV1';
 import type {
   AlignDivergeItem,
   ChangeTendency,
+  DayBand,
   DecisionTendency,
   DistanceTendency,
+  ExpressionAxes,
   ExpressionAxisId,
-  IndividualizationDraft,
   RecoveryTendency,
   ReplyThemeId,
   Result,
@@ -65,6 +78,24 @@ const AXIS_TITLE_JA: Readonly<Record<ExpressionAxisId, string>> = {
   distance: '距離の取り方',
   change: '変化への向き合い方',
 };
+
+const START_BY_DAY_BAND: Readonly<Record<DayBand, StartTendency>> = {
+  early: 'try',
+  mid: 'map',
+  late: 'ask',
+};
+
+const DECISION_TABLE: Readonly<Record<DayBand, readonly DecisionTendency[]>> = {
+  early: ['sort', 'deadline', 'wait'],
+  mid: ['deadline', 'wait', 'sort'],
+  late: ['wait', 'sort', 'deadline'],
+};
+
+const RECOVERY_BY_SEASON3: readonly RecoveryTendency[] = ['pause', 'shrink', 'scene'];
+const DISTANCE_BY_MOD: readonly DistanceTendency[] = ['close', 'middle', 'solo'];
+const CHANGE_BY_KEY: readonly ChangeTendency[] = ['observe', 'adjust', 'rebuild'];
+
+const DOB_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const START_COPY: Readonly<
   Record<StartTendency, { label: string; body: string; note: string }>
@@ -190,6 +221,107 @@ const AXIS_COPY = {
   change: CHANGE_COPY,
 } as const;
 
+function dayBandFromDay(day: number): DayBand {
+  if (day <= 10) return 'early';
+  if (day <= 20) return 'mid';
+  return 'late';
+}
+
+function dayBandIndex(dayBand: DayBand): 0 | 1 | 2 {
+  if (dayBand === 'early') return 0;
+  if (dayBand === 'mid') return 1;
+  return 2;
+}
+
+function resolveDobAxes(input: {
+  birthDate: string;
+  stemLaneIndex: number;
+}): Result<ExpressionAxes> {
+  const m = input.birthDate.match(DOB_RE);
+  if (!m) return { ok: false, code: 'invalid_dob' };
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return { ok: false, code: 'invalid_dob' };
+  }
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return { ok: false, code: 'invalid_dob' };
+  }
+  const dt = new Date(Date.UTC(year, month - 1, day));
+  if (
+    dt.getUTCFullYear() !== year ||
+    dt.getUTCMonth() !== month - 1 ||
+    dt.getUTCDate() !== day
+  ) {
+    return { ok: false, code: 'invalid_dob' };
+  }
+  if (
+    !Number.isFinite(input.stemLaneIndex) ||
+    !Number.isInteger(input.stemLaneIndex) ||
+    input.stemLaneIndex < 0 ||
+    input.stemLaneIndex > 9
+  ) {
+    return { ok: false, code: 'missing_stem' };
+  }
+
+  const dayBand = dayBandFromDay(day);
+  const season3 = (month - 1) % 3;
+  const dbi = dayBandIndex(dayBand);
+  return {
+    ok: true,
+    value: {
+      start: START_BY_DAY_BAND[dayBand],
+      decision: DECISION_TABLE[dayBand][season3]!,
+      recovery: RECOVERY_BY_SEASON3[season3]!,
+      distance: DISTANCE_BY_MOD[input.stemLaneIndex % 3]!,
+      change: CHANGE_BY_KEY[(input.stemLaneIndex + dbi) % 3]!,
+    },
+  };
+}
+
+function resolveFreeAxes(
+  freeAnswerSet: Record<string, string>,
+): Result<{
+  axes: ExpressionAxes;
+  primaryReplyTheme: ReplyThemeId;
+  secondaryReplyTheme: ReplyThemeId;
+}> {
+  for (const qid of FREE_QUESTION_IDS) {
+    if (typeof freeAnswerSet[qid] !== 'string' || freeAnswerSet[qid]!.length === 0) {
+      return { ok: false, code: 'missing_free_answers' };
+    }
+  }
+
+  const start = FREE_START_ANSWER_TO_TENDENCY[freeAnswerSet['free.start_style']!];
+  const decision =
+    FREE_DECISION_ANSWER_TO_TENDENCY[freeAnswerSet['free.decision_style']!];
+  const recovery =
+    FREE_RECOVERY_ANSWER_TO_TENDENCY[freeAnswerSet['free.recovery_style']!];
+  const distance =
+    FREE_DISTANCE_ANSWER_TO_TENDENCY[freeAnswerSet['free.distance_style']!];
+  const change = FREE_CHANGE_ANSWER_TO_TENDENCY[freeAnswerSet['free.change_style']!];
+  const themeId = freeAnswerSet['free.primary_theme']!;
+
+  if (!start || !decision || !recovery || !distance || !change) {
+    return { ok: false, code: 'unknown_answer_id' };
+  }
+  if (!isFreePrimaryThemeAnswerId(themeId)) {
+    return { ok: false, code: 'unknown_answer_id' };
+  }
+  const mapped = mapPrimaryThemeToReplyThemeV1(themeId);
+  if (!mapped.ok) return mapped;
+
+  return {
+    ok: true,
+    value: {
+      axes: { start, decision, recovery, distance, change },
+      primaryReplyTheme: mapped.value.primaryReplyTheme,
+      secondaryReplyTheme: mapped.value.secondaryReplyTheme,
+    },
+  };
+}
+
 function axisTendencyLabel(
   axisId: ExpressionAxisId,
   tendency: string,
@@ -198,15 +330,13 @@ function axisTendencyLabel(
     string,
     { label: string; body: string; note: string }
   >;
-  const hit = table[tendency];
-  if (!hit) {
-    return {
+  return (
+    table[tendency] ?? {
       label: 'いまの表れ方',
       body: 'いまの回答から、この視点の表れ方が見えています。',
       note: '無理のない条件のほうが、本来の動きやすさが出やすいです。',
-    };
-  }
-  return hit;
+    }
+  );
 }
 
 function summarizeAlign(items: readonly AlignDivergeItem[]): string {
@@ -232,7 +362,7 @@ function summarizeDiverge(items: readonly AlignDivergeItem[]): string {
 }
 
 function assertNoInternalLeak(text: string): void {
-  const banned = [
+  for (const token of [
     'free.',
     'strain__',
     'recovery__',
@@ -241,20 +371,35 @@ function assertNoInternalLeak(text: string): void {
     'selectors-v',
     'fp-v1',
     'dal-v1',
-  ];
-  for (const token of banned) {
+  ]) {
     if (text.includes(token)) {
       throw new Error(`internal token leaked into public copy: ${token}`);
     }
   }
 }
 
-function composeFromDraft(draft: IndividualizationDraft): FreeFiveViewComposition {
-  const { fingerprint } = draft;
-  const axes = fingerprint.freeExpression.axes;
+/**
+ * Build public free five-view composition from DOB + free-v1 answers.
+ * Fail-closed: returns Result Err without partial public output.
+ */
+export function buildFreeFiveViewCompositionV1(
+  input: FreeFiveViewInput,
+): Result<FreeFiveViewComposition> {
+  const dobAxes = resolveDobAxes(input);
+  if (!dobAxes.ok) return dobAxes;
+
+  const free = resolveFreeAxes(input.freeAnswerSet);
+  if (!free.ok) return free;
+
+  const alignDiv = buildAlignDivergeItemsV1({
+    dobAxes: dobAxes.value,
+    freeAxes: free.value.axes,
+    freeAnswerSet: input.freeAnswerSet,
+  });
+  if (!alignDiv.ok) return alignDiv;
+
   const views: FreeFiveViewCard[] = AXIS_ORDER.map((axisId) => {
-    const tendency = axes[axisId];
-    const copy = axisTendencyLabel(axisId, tendency);
+    const copy = axisTendencyLabel(axisId, free.value.axes[axisId]);
     return {
       axisId,
       titleJa: AXIS_TITLE_JA[axisId],
@@ -264,20 +409,16 @@ function composeFromDraft(draft: IndividualizationDraft): FreeFiveViewCompositio
     };
   });
 
-  const primary =
-    fingerprint.freeExpression.primaryReplyTheme ?? 'tendency';
-  const secondary =
-    fingerprint.freeExpression.secondaryReplyTheme ?? 'report';
-
+  const primary = free.value.primaryReplyTheme;
   const composition: FreeFiveViewComposition = {
     views,
     theme: {
       primaryLabelJa: THEME_LABEL_JA[primary],
-      secondaryLabelJa: THEME_LABEL_JA[secondary],
+      secondaryLabelJa: THEME_LABEL_JA[free.value.secondaryReplyTheme],
     },
     synthesis: {
-      alignSummaryJa: summarizeAlign(fingerprint.alignItems),
-      divergeSummaryJa: summarizeDiverge(fingerprint.divergeItems),
+      alignSummaryJa: summarizeAlign(alignDiv.value.alignItems),
+      divergeSummaryJa: summarizeDiverge(alignDiv.value.divergeItems),
       primaryThemeJa: `いまの読みの入口は、「${THEME_LABEL_JA[primary]}」に近いところです。`,
       smallActionJa: THEME_ACTION_JA[primary],
     },
@@ -302,42 +443,12 @@ function composeFromDraft(draft: IndividualizationDraft): FreeFiveViewCompositio
     composition.synthesis.primaryThemeJa,
     composition.synthesis.smallActionJa,
   ].join('\n');
-  assertNoInternalLeak(publicText);
-  return composition;
-}
-
-/**
- * Build public free five-view composition from DOB + free-v1 answers.
- * Fail-closed: returns Result Err without partial public output.
- */
-export function buildFreeFiveViewCompositionV1(
-  input: FreeFiveViewInput,
-): Result<FreeFiveViewComposition> {
-  const draft = buildIndividualizationDraftSnapshotV1({
-    birthDate: input.birthDate,
-    stemLaneIndex: input.stemLaneIndex,
-    freeAnswerSet: input.freeAnswerSet,
-    paidAnswerSet: null,
-    engineVersion: 'free-result-v1',
-    catalogVersion: 'free-result-v1',
-    reportLogicVersion: 'free-result-v1',
-    generatedAt: '1970-01-01T00:00:00.000Z',
-    templateBlockIds: ['free-five-view'],
-  });
-  if (!draft.ok) return draft;
-
-  if (
-    !draft.value.fingerprint.selectors ||
-    draft.value.fingerprint.selectors.version !== 'selectors-v1' ||
-    draft.value.audit.sourceVersions.selectorVersion !== 'selectors-v1' ||
-    draft.value.audit.sourceVersions.fieldNamingVersion !== 'gmfn-v2'
-  ) {
-    return { ok: false, code: 'selector_version_mismatch' };
-  }
 
   try {
-    return { ok: true, value: composeFromDraft(draft.value) };
+    assertNoInternalLeak(publicText);
   } catch {
     return { ok: false, code: 'selector_resolution_failed' };
   }
+
+  return { ok: true, value: composition };
 }
