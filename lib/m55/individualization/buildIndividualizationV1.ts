@@ -10,14 +10,20 @@ import {
 import { buildDobAxisLookupV1 } from './dobAxisLookupV1';
 import { buildFreeExpressionV1, hashFreeAnswerSet } from './freeExpressionV1';
 import { buildIndividualizationOutputHashV1 } from './outputHashV1';
+import { buildIndividualizationOutputHashV2 } from './outputHashV2';
 import { buildPaidDepthV1, hashPaidAnswerSet } from './paidDepthV1';
 import { buildReplyAffinityV1 } from './replyAffinityV1';
+import {
+  resolveIndividualizationSelectorsV1,
+  type ResolveIndividualizationSelectorsErrorV1,
+} from './resolveIndividualizationSelectorsV1';
 import {
   buildHesitationV1,
   buildIntensityV1,
   buildReactiveContextV1,
 } from './signalsV1';
 import type {
+  FailCode,
   IndividualizationDraft,
   IndividualizationFingerprint,
   Result,
@@ -26,7 +32,8 @@ import {
   DOB_AXIS_LOOKUP_VERSION,
   FINGERPRINT_SPEC_VERSION,
   FREE_QUESTIONNAIRE_VERSION,
-  GENERATION_META_FIELD_NAMING_VERSION,
+  GENERATION_META_FIELD_NAMING_VERSION_V2,
+  INDIVIDUALIZATION_SELECTOR_VERSION_V1,
   PAID_QUESTIONNAIRE_VERSION,
   PRIMARY_THEME_REPLY_MAP_VERSION,
   REPLY_QUESTION_CATALOG_VERSION,
@@ -53,6 +60,12 @@ export type BuildFingerprintOk = {
 
 function cloneAnswerSet(set: Record<string, string>): Record<string, string> {
   return { ...set };
+}
+
+function mapResolverFailure(
+  error: ResolveIndividualizationSelectorsErrorV1,
+): { ok: false; code: FailCode } {
+  return { ok: false, code: error.code };
 }
 
 export function buildIndividualizationFingerprintV1(
@@ -142,18 +155,45 @@ export function buildIndividualizationDraftSnapshotV1(
     freeAnswerHash,
     paidAnswerHash,
     internalSelectors,
+    freePick,
   } = built.value;
 
+  const resolved = resolveIndividualizationSelectorsV1({
+    selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+    fingerprintSpecVersion: fingerprint.fingerprintSpecVersion,
+    dobBase: fingerprint.dobBase,
+    freeExpression: fingerprint.freeExpression,
+    alignItems: fingerprint.alignItems,
+    divergeItems: fingerprint.divergeItems,
+    intensity: fingerprint.intensity,
+    hesitation: fingerprint.hesitation,
+    reactiveContext: fingerprint.reactiveContext,
+    replyAffinity: fingerprint.replyAffinity,
+    paidDepth: fingerprint.paidDepth,
+    freePick,
+  });
+  if (!resolved.ok) return mapResolverFailure(resolved.error);
+
+  const fingerprintWithSelectors: IndividualizationFingerprint = {
+    ...fingerprint,
+    selectors: resolved.value,
+  };
+
   const templateBlockIds = [...(input.templateBlockIds ?? [])].map(String);
-  const outputHash = buildIndividualizationOutputHashV1({
-    dobFp: fingerprint.dobBase.dobFp,
+  const outputHashResult = buildIndividualizationOutputHashV2({
+    dobFp: fingerprintWithSelectors.dobBase.dobFp,
     freeAnswerHash,
     paidAnswerHash,
     templateBlockIds,
     engineVersion: input.engineVersion,
     catalogVersion: input.catalogVersion,
     reportLogicVersion: input.reportLogicVersion,
+    selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+    selectors: resolved.value,
   });
+  if (!outputHashResult.ok) return outputHashResult;
+
+  const outputHash = outputHashResult.value;
 
   const paidPresent = input.paidAnswerSet != null;
 
@@ -168,7 +208,7 @@ export function buildIndividualizationDraftSnapshotV1(
       primaryThemeAnswerId: fingerprint.freeExpression.primaryThemeAnswerId,
       confirmationAcceptedAt: input.confirmationAcceptedAt ?? null,
     },
-    fingerprint,
+    fingerprint: fingerprintWithSelectors,
     audit: {
       outputHash,
       templateBlockIds: [...templateBlockIds].sort(),
@@ -183,7 +223,8 @@ export function buildIndividualizationDraftSnapshotV1(
         freeQuestionnaireVersion: FREE_QUESTIONNAIRE_VERSION,
         paidQuestionnaireVersion: paidPresent ? PAID_QUESTIONNAIRE_VERSION : null,
         replyQuestionCatalogVersion: REPLY_QUESTION_CATALOG_VERSION,
-        fieldNamingVersion: GENERATION_META_FIELD_NAMING_VERSION,
+        fieldNamingVersion: GENERATION_META_FIELD_NAMING_VERSION_V2,
+        selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
       },
     },
   };

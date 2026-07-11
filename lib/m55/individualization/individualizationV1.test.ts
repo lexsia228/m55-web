@@ -11,10 +11,12 @@ import {
 import { buildDobAxisLookupV1, dayBandFromDay } from './dobAxisLookupV1';
 import { buildFreeExpressionV1 } from './freeExpressionV1';
 import { buildIndividualizationOutputHashV1 } from './outputHashV1';
+import { buildIndividualizationOutputHashV2 } from './outputHashV2';
 import { mapPrimaryThemeToReplyThemeV1 } from './primaryThemeReplyMapV1';
 import { buildReplyAffinityV1 } from './replyAffinityV1';
 import { buildIntensityV1, buildHesitationV1 } from './signalsV1';
 import { buildPaidDepthV1 } from './paidDepthV1';
+import { INDIVIDUALIZATION_SELECTOR_VERSION_V1 } from './versions';
 
 function freeSet(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
   return {
@@ -285,7 +287,11 @@ describe('gmfn draft + outputHash + anti-template', () => {
     assert.ok(o.fingerprint.dobBase.dobFp);
     assert.ok(o.questionnaire.freeAnswerHash);
     assert.ok(o.questionnaire.paidAnswerHash);
-    assert.equal(o.audit.sourceVersions.fieldNamingVersion, 'gmfn-v1');
+    assert.equal(o.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+    assert.equal(o.audit.sourceVersions.selectorVersion, 'selectors-v1');
+    assert.ok(o.fingerprint.selectors);
+    assert.equal(o.fingerprint.selectors!.version, 'selectors-v1');
+    assert.ok(o.fingerprint.selectors!.freeBlockSelectorIds.length > 0);
 
     const raw = JSON.stringify(o);
     for (const bad of [
@@ -325,7 +331,7 @@ describe('gmfn draft + outputHash + anti-template', () => {
     });
     assert.equal(a.ok, true);
     if (!a.ok) return;
-    const h = buildIndividualizationOutputHashV1({
+    const h = buildIndividualizationOutputHashV2({
       dobFp: a.value.fingerprint.dobBase.dobFp,
       freeAnswerHash: a.value.questionnaire.freeAnswerHash,
       paidAnswerHash: a.value.questionnaire.paidAnswerHash ?? '',
@@ -333,9 +339,13 @@ describe('gmfn draft + outputHash + anti-template', () => {
       engineVersion: 'e1',
       catalogVersion: 'c1',
       reportLogicVersion: 'r1',
+      selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+      selectors: a.value.fingerprint.selectors!,
     });
-    assert.equal(h, a.value.audit.outputHash);
-    assert.equal(h.length, 64);
+    assert.equal(h.ok, true);
+    if (!h.ok) return;
+    assert.equal(h.value, a.value.audit.outputHash);
+    assert.equal(h.value.length, 64);
   });
 
   it('same DOB same free different paid changes fingerprint paidDepth', () => {
@@ -398,5 +408,100 @@ describe('gmfn draft + outputHash + anti-template', () => {
     if (!d.ok) return;
     assert.equal(d.value.fingerprint.paidDepth, null);
     assert.equal(d.value.questionnaire.paidVersion, null);
+    assert.ok(d.value.fingerprint.selectors);
+    assert.equal(d.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+  });
+});
+
+describe('gmfn-v1 legacy direct fixture', () => {
+  it('preserves fixed gmfn-v1 vector independent of new builder output', () => {
+    const legacyHash = buildIndividualizationOutputHashV1({
+      dobFp: 'dob-fp-legacy-fixture',
+      freeAnswerHash: 'free-hash-legacy-fixture',
+      paidAnswerHash: 'paid-hash-legacy-fixture',
+      templateBlockIds: ['legacy-a', 'legacy-b'],
+      engineVersion: 'legacy-engine',
+      catalogVersion: 'legacy-catalog',
+      reportLogicVersion: 'legacy-report',
+    });
+    assert.equal(
+      legacyHash,
+      '7a3fedace5c4bfc6c6ced51079171a9a0ea46eab57ea5060ed70b26262a55501',
+    );
+    assert.equal(legacyHash.length, 64);
+  });
+});
+
+describe('selectors-v1 builder regression', () => {
+  it('new builder output always includes selectors-v1 provenance and gmfn-v2 hash', () => {
+    const draft = buildIndividualizationDraftSnapshotV1({
+      birthDate: '1990-01-15',
+      stemLaneIndex: 1,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+      engineVersion: 'engine-test',
+      catalogVersion: 'catalog-test',
+      reportLogicVersion: 'report-test',
+      generatedAt: '2026-07-09T00:00:00.000Z',
+      templateBlockIds: ['b2', 'b1'],
+    });
+    assert.equal(draft.ok, true);
+    if (!draft.ok) return;
+
+    const directHash = buildIndividualizationOutputHashV2({
+      dobFp: draft.value.fingerprint.dobBase.dobFp,
+      freeAnswerHash: draft.value.questionnaire.freeAnswerHash,
+      paidAnswerHash: draft.value.questionnaire.paidAnswerHash ?? '',
+      templateBlockIds: draft.value.audit.templateBlockIds,
+      engineVersion: 'engine-test',
+      catalogVersion: 'catalog-test',
+      reportLogicVersion: 'report-test',
+      selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+      selectors: draft.value.fingerprint.selectors!,
+    });
+    assert.equal(directHash.ok, true);
+    if (!directHash.ok) return;
+
+    assert.equal(draft.value.fingerprint.selectors!.version, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.selectorVersion, 'selectors-v1');
+    assert.equal(draft.value.audit.sourceVersions.fieldNamingVersion, 'gmfn-v2');
+    assert.equal(draft.value.audit.outputHash, directHash.value);
+  });
+
+  it('resolver failure returns no partial draft snapshot', () => {
+    const built = buildIndividualizationFingerprintV1({
+      birthDate: '1990-01-15',
+      stemLaneIndex: 0,
+      freeAnswerSet: freeSet(),
+      paidAnswerSet: paidSet(),
+    });
+    assert.equal(built.ok, true);
+    if (!built.ok) return;
+
+    const hashOnly = buildIndividualizationOutputHashV2({
+      dobFp: built.value.fingerprint.dobBase.dobFp,
+      freeAnswerHash: built.value.freeAnswerHash,
+      paidAnswerHash: built.value.paidAnswerHash,
+      templateBlockIds: ['x'],
+      engineVersion: 'e',
+      catalogVersion: 'c',
+      reportLogicVersion: 'r',
+      selectorVersion: INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+      selectors: {
+        version: 'selectors-v1',
+        strainSelectorIds: [],
+        recoverySelectorIds: [],
+        freeBlockSelectorIds: [],
+        paidChapterEmphasisIds: {
+          chapter1: [],
+          chapter2: [],
+          chapter3: [],
+          chapter4: [],
+        },
+      },
+    });
+    assert.equal(hashOnly.ok, false);
+    if (hashOnly.ok) return;
+    assert.equal(hashOnly.code, 'invalid_selector_bundle');
   });
 });

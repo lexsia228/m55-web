@@ -3,6 +3,13 @@
  * Pure types only — no I/O, no UI, no DB.
  */
 
+import type { IndividualizationSelectorBundleV1 } from './individualizationSelectorTypesV1';
+import type {
+  GENERATION_META_FIELD_NAMING_VERSION,
+  GENERATION_META_FIELD_NAMING_VERSION_V2,
+  INDIVIDUALIZATION_SELECTOR_VERSION_V1,
+} from './versions';
+
 export type DayBand = 'early' | 'mid' | 'late';
 
 export type StartTendency = 'map' | 'try' | 'ask';
@@ -46,7 +53,15 @@ export type FailCode =
   | 'missing_stem'
   | 'missing_free_answers'
   | 'unknown_answer_id'
-  | 'missing_paid_answers';
+  | 'missing_paid_answers'
+  | 'unknown_selector_version'
+  | 'unknown_selector_id'
+  | 'duplicate_selector_id'
+  | 'selector_count_overflow'
+  | 'contradictory_selector_state'
+  | 'invalid_selector_bundle'
+  | 'selector_version_mismatch'
+  | 'selector_resolution_failed';
 
 export type OkResult<T> = { ok: true; value: T };
 export type ErrResult = { ok: false; code: FailCode };
@@ -128,6 +143,7 @@ export type IndividualizationFingerprint = {
   hesitation: Hesitation;
   reactiveContext: ReactiveContext;
   replyAffinity: ReplyAffinity;
+  selectors?: IndividualizationSelectorBundleV1;
 };
 
 export type IndividualizationQuestionnaire = {
@@ -148,7 +164,10 @@ export type SourceVersions = {
   freeQuestionnaireVersion: 'free-v1';
   paidQuestionnaireVersion: 'paid-v1' | null;
   replyQuestionCatalogVersion: 'reply-v1';
-  fieldNamingVersion: 'gmfn-v1';
+  fieldNamingVersion:
+    | typeof GENERATION_META_FIELD_NAMING_VERSION
+    | typeof GENERATION_META_FIELD_NAMING_VERSION_V2;
+  selectorVersion?: typeof INDIVIDUALIZATION_SELECTOR_VERSION_V1;
 };
 
 export type IndividualizationAudit = {
