@@ -1,0 +1,803 @@
+/**
+ * selectors-v1 readonly catalog metadata (pure static data; no I/O).
+ */
+
+import { INDIVIDUALIZATION_SELECTOR_VERSION_V1 } from './versions';
+import type {
+  ChapterHintId,
+  ExpressionAxisId,
+  ReplyThemeId,
+} from './types';
+import type {
+  FreeBlockRoleV1,
+  FreeBlockSelectorIdV1,
+  PaidChapterEmphasisIdV1,
+  RecoverySelectorIdV1,
+  RootEvidenceLineageV1,
+  StrainSelectorIdV1,
+  SuppressionRuleIdV1,
+} from './individualizationSelectorTypesV1';
+
+/** Repo-aligned axis priority for catalog metadata (inline SSOT; not imported from answerIdMapsV1). */
+export const SELECTOR_AXIS_PRIORITY_V1 = [
+  'distance',
+  'recovery',
+  'decision',
+  'start',
+  'change',
+] as const satisfies readonly ExpressionAxisId[];
+
+export type StrainCatalogEntryV1 = {
+  readonly id: StrainSelectorIdV1;
+  readonly category: 'strain';
+  readonly catalogOrder: number;
+  readonly targetAxis: ExpressionAxisId;
+  readonly minimumRootEvidenceCount: 2;
+  readonly minimumNonTargetQuestionLineage: true;
+  readonly rootEvidenceLineages: readonly RootEvidenceLineageV1[];
+  readonly forbiddenDuplicateLineages: readonly string[];
+  readonly priority: number;
+  readonly maxSelectedCount: 1;
+  readonly allowsDerivedDoubleCount: false;
+  readonly applicableSuppressionRules: readonly SuppressionRuleIdV1[];
+};
+
+export type RecoveryCatalogEntryV1 = {
+  readonly id: RecoverySelectorIdV1;
+  readonly category: 'recovery';
+  readonly catalogOrder: number;
+  readonly primaryAxisRef: string;
+  readonly secondaryLineageTypes: readonly RootEvidenceLineageV1[];
+  readonly priority: number;
+  readonly maxSelectedCount: 1;
+  readonly applicableSuppressionRules: readonly SuppressionRuleIdV1[];
+};
+
+export type FreeBlockCatalogEntryV1 = {
+  readonly id: FreeBlockSelectorIdV1;
+  readonly category: 'free_block';
+  readonly catalogOrder: number;
+  readonly role: FreeBlockRoleV1;
+  readonly required: boolean;
+  readonly optionalSuppressible: boolean;
+  readonly replyThemeId: ReplyThemeId | null;
+  readonly targetAxis: ExpressionAxisId | null;
+  readonly alignDivergeRelation: 'align' | 'diverge' | null;
+  readonly chapterHint: ChapterHintId | null;
+};
+
+export type PaidChapterEmphasisCatalogEntryV1 = {
+  readonly id: PaidChapterEmphasisIdV1;
+  readonly category: 'paid_chapter_emphasis';
+  readonly catalogOrder: number;
+  readonly chapter: ChapterHintId;
+  readonly priority: number;
+  readonly maxSelectedPerChapter: 3;
+  readonly minSelectedPerChapter: 1;
+};
+
+const STRAIN_SUPPRESSION_RULES = [
+  'SUPPRESS_SAME_LINEAGE_DOUBLE_COUNT',
+  'SUPPRESS_FREE_PICK_AS_EVIDENCE',
+  'SUPPRESS_SAME_AXIS_REACTIVE_CONTEXT',
+  'SUPPRESS_DIVERGE_ONLY_STRAIN',
+  'SUPPRESS_ALIGN_ONLY_STRAIN',
+  'SUPPRESS_THEME_ONLY',
+  'SUPPRESS_REPLY_AFFINITY_ONLY',
+  'SUPPRESS_STRAIN_CH4_DUP',
+] as const satisfies readonly SuppressionRuleIdV1[];
+
+const RECOVERY_SUPPRESSION_RULES = [
+  'SUPPRESS_SAME_LINEAGE_DOUBLE_COUNT',
+  'SUPPRESS_FREE_PICK_AS_EVIDENCE',
+  'SUPPRESS_RECOVERY_CONTRA',
+] as const satisfies readonly SuppressionRuleIdV1[];
+
+export const STRAIN_SELECTOR_CATALOG_V1 = [
+  {
+    id: 'strain__pace_mismatch',
+    category: 'strain',
+    catalogOrder: 1,
+    targetAxis: 'start',
+    minimumRootEvidenceCount: 2,
+    minimumNonTargetQuestionLineage: true,
+    rootEvidenceLineages: ['DERIVED_RELATION', 'CROSS_AXIS_AGGREGATE_ROOT'],
+    forbiddenDuplicateLineages: [
+      'Q1+freePick(start)',
+      'Q1+reactiveContext from Q1',
+    ],
+    priority: 50,
+    maxSelectedCount: 1,
+    allowsDerivedDoubleCount: false,
+    applicableSuppressionRules: STRAIN_SUPPRESSION_RULES,
+  },
+  {
+    id: 'strain__decision_overload',
+    category: 'strain',
+    catalogOrder: 2,
+    targetAxis: 'decision',
+    minimumRootEvidenceCount: 2,
+    minimumNonTargetQuestionLineage: true,
+    rootEvidenceLineages: ['DERIVED_RELATION', 'CROSS_AXIS_AGGREGATE_ROOT'],
+    forbiddenDuplicateLineages: [
+      'Q2+freePick(decision)',
+      'Q6 theme alone',
+    ],
+    priority: 40,
+    maxSelectedCount: 1,
+    allowsDerivedDoubleCount: false,
+    applicableSuppressionRules: STRAIN_SUPPRESSION_RULES,
+  },
+  {
+    id: 'strain__distance_tension',
+    category: 'strain',
+    catalogOrder: 3,
+    targetAxis: 'distance',
+    minimumRootEvidenceCount: 2,
+    minimumNonTargetQuestionLineage: true,
+    rootEvidenceLineages: [
+      'DERIVED_RELATION',
+      'QUESTIONNAIRE_THEME_ROOT',
+      'CROSS_AXIS_AGGREGATE_ROOT',
+    ],
+    forbiddenDuplicateLineages: [
+      'Q4+reactiveContext.close_careful',
+      'Q4+freePick(distance)',
+    ],
+    priority: 60,
+    maxSelectedCount: 1,
+    allowsDerivedDoubleCount: false,
+    applicableSuppressionRules: STRAIN_SUPPRESSION_RULES,
+  },
+  {
+    id: 'strain__recovery_delay',
+    category: 'strain',
+    catalogOrder: 4,
+    targetAxis: 'recovery',
+    minimumRootEvidenceCount: 2,
+    minimumNonTargetQuestionLineage: true,
+    rootEvidenceLineages: ['DERIVED_RELATION', 'CROSS_AXIS_AGGREGATE_ROOT'],
+    forbiddenDuplicateLineages: [
+      'Q3+reactiveContext.short_pause',
+      'Q3+freePick(recovery)',
+    ],
+    priority: 55,
+    maxSelectedCount: 1,
+    allowsDerivedDoubleCount: false,
+    applicableSuppressionRules: STRAIN_SUPPRESSION_RULES,
+  },
+  {
+    id: 'strain__change_uncertainty',
+    category: 'strain',
+    catalogOrder: 5,
+    targetAxis: 'change',
+    minimumRootEvidenceCount: 2,
+    minimumNonTargetQuestionLineage: true,
+    rootEvidenceLineages: ['DERIVED_RELATION', 'CROSS_AXIS_AGGREGATE_ROOT'],
+    forbiddenDuplicateLineages: [
+      'Q5+freePick(change)',
+      'Q6 primary+secondary alone',
+    ],
+    priority: 45,
+    maxSelectedCount: 1,
+    allowsDerivedDoubleCount: false,
+    applicableSuppressionRules: STRAIN_SUPPRESSION_RULES,
+  },
+] as const satisfies readonly StrainCatalogEntryV1[];
+
+export const RECOVERY_SELECTOR_CATALOG_V1 = [
+  {
+    id: 'recovery__small_start',
+    category: 'recovery',
+    catalogOrder: 1,
+    primaryAxisRef: 'start',
+    secondaryLineageTypes: [
+      'DERIVED_RELATION',
+      'CROSS_AXIS_AGGREGATE_ROOT',
+    ],
+    priority: 10,
+    maxSelectedCount: 1,
+    applicableSuppressionRules: RECOVERY_SUPPRESSION_RULES,
+  },
+  {
+    id: 'recovery__sort_materials',
+    category: 'recovery',
+    catalogOrder: 2,
+    primaryAxisRef: 'decision:sort',
+    secondaryLineageTypes: [
+      'CROSS_AXIS_AGGREGATE_ROOT',
+      'DERIVED_RELATION',
+    ],
+    priority: 30,
+    maxSelectedCount: 1,
+    applicableSuppressionRules: RECOVERY_SUPPRESSION_RULES,
+  },
+  {
+    id: 'recovery__pause_first',
+    category: 'recovery',
+    catalogOrder: 3,
+    primaryAxisRef: 'recovery:pause',
+    secondaryLineageTypes: ['DERIVED_RELATION'],
+    priority: 40,
+    maxSelectedCount: 1,
+    applicableSuppressionRules: RECOVERY_SUPPRESSION_RULES,
+  },
+  {
+    id: 'recovery__speak_to_trusted_person',
+    category: 'recovery',
+    catalogOrder: 4,
+    primaryAxisRef: 'distance:close',
+    secondaryLineageTypes: ['QUESTIONNAIRE_THEME_ROOT'],
+    priority: 35,
+    maxSelectedCount: 1,
+    applicableSuppressionRules: RECOVERY_SUPPRESSION_RULES,
+  },
+  {
+    id: 'recovery__reduce_change_scope',
+    category: 'recovery',
+    catalogOrder: 5,
+    primaryAxisRef: 'change:observe|change:adjust',
+    secondaryLineageTypes: ['DERIVED_RELATION'],
+    priority: 25,
+    maxSelectedCount: 1,
+    applicableSuppressionRules: RECOVERY_SUPPRESSION_RULES,
+  },
+] as const satisfies readonly RecoveryCatalogEntryV1[];
+
+export const FREE_BLOCK_SELECTOR_CATALOG_V1 = [
+  {
+    id: 'free__intro__welcome',
+    category: 'free_block',
+    catalogOrder: 1,
+    role: 'intro',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__dob_baseline__five_axes',
+    category: 'free_block',
+    catalogOrder: 2,
+    role: 'dob_baseline',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__current_expression__projection',
+    category: 'free_block',
+    catalogOrder: 3,
+    role: 'current_expression',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__primary_theme__work',
+    category: 'free_block',
+    catalogOrder: 4,
+    role: 'primary_theme',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: 'work',
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__primary_theme__relation',
+    category: 'free_block',
+    catalogOrder: 5,
+    role: 'primary_theme',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: 'relation',
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__primary_theme__fatigue',
+    category: 'free_block',
+    catalogOrder: 6,
+    role: 'primary_theme',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: 'fatigue',
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__primary_theme__tendency',
+    category: 'free_block',
+    catalogOrder: 7,
+    role: 'primary_theme',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: 'tendency',
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__primary_theme__report_scene',
+    category: 'free_block',
+    catalogOrder: 8,
+    role: 'primary_theme',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: 'report',
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__distance_diverge',
+    category: 'free_block',
+    catalogOrder: 9,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'distance',
+    alignDivergeRelation: 'diverge',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__distance_align',
+    category: 'free_block',
+    catalogOrder: 10,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'distance',
+    alignDivergeRelation: 'align',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__recovery_diverge',
+    category: 'free_block',
+    catalogOrder: 11,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'recovery',
+    alignDivergeRelation: 'diverge',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__recovery_align',
+    category: 'free_block',
+    catalogOrder: 12,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'recovery',
+    alignDivergeRelation: 'align',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__decision_diverge',
+    category: 'free_block',
+    catalogOrder: 13,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'decision',
+    alignDivergeRelation: 'diverge',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__decision_align',
+    category: 'free_block',
+    catalogOrder: 14,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'decision',
+    alignDivergeRelation: 'align',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__start_diverge',
+    category: 'free_block',
+    catalogOrder: 15,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'start',
+    alignDivergeRelation: 'diverge',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__start_align',
+    category: 'free_block',
+    catalogOrder: 16,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'start',
+    alignDivergeRelation: 'align',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__change_diverge',
+    category: 'free_block',
+    catalogOrder: 17,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'change',
+    alignDivergeRelation: 'diverge',
+    chapterHint: null,
+  },
+  {
+    id: 'free__align_diverge__change_align',
+    category: 'free_block',
+    catalogOrder: 18,
+    role: 'align_diverge',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'change',
+    alignDivergeRelation: 'align',
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__pace_mismatch',
+    category: 'free_block',
+    catalogOrder: 19,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'start',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__decision_overload',
+    category: 'free_block',
+    catalogOrder: 20,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'decision',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__distance_tension',
+    category: 'free_block',
+    catalogOrder: 21,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'distance',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__recovery_delay',
+    category: 'free_block',
+    catalogOrder: 22,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'recovery',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__change_uncertainty',
+    category: 'free_block',
+    catalogOrder: 23,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: 'change',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__strain__none',
+    category: 'free_block',
+    catalogOrder: 24,
+    role: 'strain',
+    required: false,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__recovery__small_start',
+    category: 'free_block',
+    catalogOrder: 25,
+    role: 'recovery',
+    required: false,
+    optionalSuppressible: true,
+    replyThemeId: null,
+    targetAxis: 'start',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__recovery__sort_materials',
+    category: 'free_block',
+    catalogOrder: 26,
+    role: 'recovery',
+    required: false,
+    optionalSuppressible: true,
+    replyThemeId: null,
+    targetAxis: 'decision',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__recovery__pause_first',
+    category: 'free_block',
+    catalogOrder: 27,
+    role: 'recovery',
+    required: false,
+    optionalSuppressible: true,
+    replyThemeId: null,
+    targetAxis: 'recovery',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__recovery__speak_to_trusted_person',
+    category: 'free_block',
+    catalogOrder: 28,
+    role: 'recovery',
+    required: false,
+    optionalSuppressible: true,
+    replyThemeId: null,
+    targetAxis: 'distance',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__recovery__reduce_change_scope',
+    category: 'free_block',
+    catalogOrder: 29,
+    role: 'recovery',
+    required: false,
+    optionalSuppressible: true,
+    replyThemeId: null,
+    targetAxis: 'change',
+    alignDivergeRelation: null,
+    chapterHint: null,
+  },
+  {
+    id: 'free__paid_depth_point__chapter_I',
+    category: 'free_block',
+    catalogOrder: 30,
+    role: 'paid_depth_point',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: 'I',
+  },
+  {
+    id: 'free__paid_depth_point__chapter_II',
+    category: 'free_block',
+    catalogOrder: 31,
+    role: 'paid_depth_point',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: 'II',
+  },
+  {
+    id: 'free__paid_depth_point__chapter_III',
+    category: 'free_block',
+    catalogOrder: 32,
+    role: 'paid_depth_point',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: 'III',
+  },
+  {
+    id: 'free__paid_depth_point__chapter_IV',
+    category: 'free_block',
+    catalogOrder: 33,
+    role: 'paid_depth_point',
+    required: true,
+    optionalSuppressible: false,
+    replyThemeId: null,
+    targetAxis: null,
+    alignDivergeRelation: null,
+    chapterHint: 'IV',
+  },
+] as const satisfies readonly FreeBlockCatalogEntryV1[];
+
+export const PAID_CHAPTER_EMPHASIS_CATALOG_V1 = [
+  {
+    id: 'paid_ch1__baseline_landscape',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 1,
+    chapter: 'I',
+    priority: 1,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch1__expression_mirror',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 2,
+    chapter: 'I',
+    priority: 2,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch1__align_diverge_bridge',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 3,
+    chapter: 'I',
+    priority: 3,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch2__start_rhythm',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 4,
+    chapter: 'II',
+    priority: 1,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch2__decision_flow',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 5,
+    chapter: 'II',
+    priority: 2,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch2__change_adaptation',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 6,
+    chapter: 'II',
+    priority: 3,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch3__distance_posture',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 7,
+    chapter: 'III',
+    priority: 1,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch3__decision_in_relation',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 8,
+    chapter: 'III',
+    priority: 2,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch3__recovery_connection',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 9,
+    chapter: 'III',
+    priority: 3,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch4__recovery_pace',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 10,
+    chapter: 'IV',
+    priority: 1,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch4__change_life_load',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 11,
+    chapter: 'IV',
+    priority: 2,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch4__distance_boundary',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 12,
+    chapter: 'IV',
+    priority: 3,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+  {
+    id: 'paid_ch4__strain_life_context',
+    category: 'paid_chapter_emphasis',
+    catalogOrder: 13,
+    chapter: 'IV',
+    priority: 4,
+    maxSelectedPerChapter: 3,
+    minSelectedPerChapter: 1,
+  },
+] as const satisfies readonly PaidChapterEmphasisCatalogEntryV1[];
+
+export const INDIVIDUALIZATION_SELECTOR_CATALOG_VERSION_V1 =
+  INDIVIDUALIZATION_SELECTOR_VERSION_V1;
+
+export const STRAIN_SELECTOR_IDS_V1 = STRAIN_SELECTOR_CATALOG_V1.map(
+  (entry) => entry.id,
+) as readonly StrainSelectorIdV1[];
+
+export const RECOVERY_SELECTOR_IDS_V1 = RECOVERY_SELECTOR_CATALOG_V1.map(
+  (entry) => entry.id,
+) as readonly RecoverySelectorIdV1[];
+
+export const FREE_BLOCK_SELECTOR_IDS_V1 = FREE_BLOCK_SELECTOR_CATALOG_V1.map(
+  (entry) => entry.id,
+) as readonly FreeBlockSelectorIdV1[];
+
+export const PAID_CHAPTER_EMPHASIS_IDS_V1 = PAID_CHAPTER_EMPHASIS_CATALOG_V1.map(
+  (entry) => entry.id,
+) as readonly PaidChapterEmphasisIdV1[];
+
+export const FREE_BLOCK_ROLE_ORDER_V1 = [
+  'intro',
+  'dob_baseline',
+  'current_expression',
+  'primary_theme',
+  'align_diverge',
+  'strain',
+  'recovery',
+  'paid_depth_point',
+] as const satisfies readonly FreeBlockRoleV1[];
+
+export const PAID_CHAPTER_EMPHASIS_BY_CHAPTER_V1 = {
+  I: PAID_CHAPTER_EMPHASIS_CATALOG_V1.filter((entry) => entry.chapter === 'I'),
+  II: PAID_CHAPTER_EMPHASIS_CATALOG_V1.filter((entry) => entry.chapter === 'II'),
+  III: PAID_CHAPTER_EMPHASIS_CATALOG_V1.filter(
+    (entry) => entry.chapter === 'III',
+  ),
+  IV: PAID_CHAPTER_EMPHASIS_CATALOG_V1.filter((entry) => entry.chapter === 'IV'),
+} as const;
