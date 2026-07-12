@@ -3217,6 +3217,10 @@
 }
 
 .freeQuestionnaireChoice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   min-height: 3rem;
   padding: 0.85rem 1rem;
   text-align: left;
@@ -3380,4 +3384,222 @@
   .freeQuestionnaireSecondaryBtn {
     width: 100%;
   }
+
+  .freeResultSummaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .freeJourneyStepperList {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+}
+
+/* ── guest-first journey + result hub ── */
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.freeJourneyStepper {
+  margin: 0 0 1rem;
+}
+
+.freeJourneyStepperList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.freeJourneyStepperItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  color: rgba(55, 48, 82, 0.72);
+}
+
+.freeJourneyStepperItemDone {
+  border-color: rgba(107, 95, 168, 0.28);
+  background: rgba(107, 95, 168, 0.08);
+}
+
+.freeJourneyStepperItemCurrent {
+  border-color: rgba(107, 95, 168, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(107, 95, 168, 0.12);
+  color: rgba(28, 24, 48, 0.92);
+  font-weight: 600;
+}
+
+.freeJourneyStepperMarker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  min-height: 1.35rem;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.14);
+  font-size: 0.75rem;
+}
+
+.freeJourneyStepperSub {
+  font-weight: 500;
+  opacity: 0.82;
+}
+
+.freeResultSummaryHub {
+  margin-top: 0.75rem;
+}
+
+.freeResultSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.freeResultSummaryCard {
+  padding: 0.95rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.freeResultSummaryCardAction {
+  border-color: rgba(107, 95, 168, 0.22);
+  background: rgba(107, 95, 168, 0.06);
+}
+
+.freeResultSummaryCardTitle {
+  margin: 0 0 0.4rem;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.72);
+}
+
+.freeResultSummaryCardBody,
+.freeResultSummaryActionBody {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.65;
+  color: rgba(28, 24, 48, 0.9);
+}
+
+.freeResultSectionNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.86rem;
+}
+
+.freeResultSectionNav a {
+  color: rgba(78, 68, 128, 0.92);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.freeGuestSaveCta {
+  margin-top: 0.5rem;
+}
+
+.freeGuestSaveTitle {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.freeGuestSaveBody {
+  margin: 0 0 0.9rem;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: rgba(45, 40, 70, 0.8);
+}
+
+.freeGuestSaveBtn {
+  min-height: 2.75rem;
+  padding: 0.65rem 1.2rem;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: rgba(45, 40, 70, 0.9);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.freeGuestSaveBtn:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.72);
+  outline-offset: 2px;
+}
+
+.freeDetailsToggle {
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.62);
+  color: rgba(45, 40, 70, 0.88);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.freeDetailsPanel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.freeReanswerDialogBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(29, 24, 61, 0.42);
+}
+
+.freeReanswerDialog,
+.freeReanswerFinalize {
+  width: min(520px, 100%);
+  padding: 1.15rem 1.2rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 40px rgba(28, 24, 48, 0.12);
+}
+
+.freeReanswerFinalizeActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.freeQuestionnaireChoiceLabel {
+  flex: 1;
+}
+
+.freeQuestionnaireChoiceMark {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(78, 68, 128, 0.92);
 }

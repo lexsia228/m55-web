@@ -5,24 +5,25 @@ import styles from './CoreExperience.module.css';
 
 type Props = {
   composition: FreeFiveViewComposition;
-  onReanswer: () => void;
+  onRequestReanswer: () => void;
 };
 
 export default function CoreFiveViewResultSection({
   composition,
-  onReanswer,
+  onRequestReanswer,
 }: Props) {
   return (
     <section
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeFiveViewSection}`}
       aria-labelledby="core-five-view-title"
+      id="core-five-views"
     >
       <span className={styles.tierAOverline}>いまの表れ方</span>
       <h2 id="core-five-view-title" className={styles.sectionTitle}>
-        6つの答えから見える傾向
+        いまの5つの視点
       </h2>
       <p className={styles.sectionLead}>
-        生年月日の土台とは別に、いまの感じ方から見えやすい動き方を5つの視点で整理します。
+        6つの答えから見える、いま表れやすい動き方です。生年月日の土台とは別の層です。
       </p>
 
       <div className={styles.freeFiveViewStack}>
@@ -42,23 +43,13 @@ export default function CoreFiveViewResultSection({
         <p className={styles.freeSynthesisLine}>{composition.synthesis.divergeSummaryJa}</p>
       </article>
 
-      <article className={styles.freeThemeCard}>
-        <h3 className={styles.freeThemeTitle}>いまの読みの入口</h3>
-        <p className={styles.freeThemePrimary}>{composition.theme.primaryLabelJa}</p>
-        <p className={styles.freeThemeSecondary}>
-          あわせて気になりやすい入口: {composition.theme.secondaryLabelJa}
-        </p>
-        <p className={styles.freeSynthesisLine}>{composition.synthesis.primaryThemeJa}</p>
-        <p className={styles.freeSynthesisAction}>{composition.synthesis.smallActionJa}</p>
-      </article>
-
       <div className={styles.freeReanswerWrap}>
         <button
           type="button"
           className={styles.freeQuestionnaireSecondaryBtn}
-          onClick={onReanswer}
+          onClick={onRequestReanswer}
         >
-          もう一度答える
+          回答を見直す
         </button>
       </div>
     </section>

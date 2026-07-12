@@ -5,18 +5,24 @@ import {
   FREE_QUESTIONNAIRE_COPY_V1,
   type FreeQuestionId,
 } from '../../lib/m55/freeResult/questionnaireCopyV1';
+import { REANSWER_CONFIRM_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
+import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import styles from './CoreExperience.module.css';
 
 type Props = {
   answers: Record<string, string>;
   onChange: (questionId: FreeQuestionId, answerId: string) => void;
   onComplete: () => void;
+  isReanswerFlow?: boolean;
+  onIndexChange?: (index: number) => void;
 };
 
 export default function CoreFreeQuestionnaireLayer({
   answers,
   onChange,
   onComplete,
+  isReanswerFlow = false,
+  onIndexChange,
 }: Props) {
   const [index, setIndex] = useState(0);
   const headingId = useId();
@@ -25,24 +31,34 @@ export default function CoreFreeQuestionnaireLayer({
   const selected = answers[current.questionId] ?? '';
   const progressLabel = `${index + 1}/${total}`;
 
+  function setIndexAndNotify(next: number) {
+    setIndex(next);
+    onIndexChange?.(next);
+  }
+
   function goNext() {
     if (!selected) return;
     if (index >= total - 1) {
       onComplete();
       return;
     }
-    setIndex((n) => Math.min(n + 1, total - 1));
+    setIndexAndNotify(Math.min(index + 1, total - 1));
   }
 
   function goBack() {
-    setIndex((n) => Math.max(n - 1, 0));
+    setIndexAndNotify(Math.max(index - 1, 0));
   }
+
+  const completeLabel = isReanswerFlow
+    ? REANSWER_CONFIRM_COPY_V1.finalizeJa
+    : '答えをそろえる';
 
   return (
     <section
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeQuestionnaireSection}`}
       aria-labelledby={headingId}
     >
+      <CoreFreeJourneyStepper currentStep="questions" questionLabel={progressLabel} />
       <span className={styles.tierAOverline}>6つの問い</span>
       <h2 id={headingId} className={styles.sectionTitle}>
         いまの感じ方を、1問ずつ選びます
@@ -71,13 +87,7 @@ export default function CoreFreeQuestionnaireLayer({
             ]
               .filter(Boolean)
               .join(' ');
-            return (
-              <span
-                key={item.questionId}
-                className={nodeClass}
-                aria-hidden={!isCurrent}
-              />
-            );
+            return <span key={item.questionId} className={nodeClass} aria-hidden={!isCurrent} />;
           })}
         </div>
         <div className={styles.freeQuestionnaireProgressTrack} aria-hidden>
@@ -116,7 +126,12 @@ export default function CoreFreeQuestionnaireLayer({
                 }
               }}
             >
-              {choice.labelJa}
+              <span className={styles.freeQuestionnaireChoiceLabel}>{choice.labelJa}</span>
+              {isSelected ? (
+                <span className={styles.freeQuestionnaireChoiceMark} aria-hidden>
+                  選択中
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -137,7 +152,7 @@ export default function CoreFreeQuestionnaireLayer({
           onClick={goNext}
           disabled={!selected}
         >
-          {index >= total - 1 ? '答えをそろえる' : '次へ'}
+          {index >= total - 1 ? completeLabel : '次へ'}
         </button>
       </div>
     </section>

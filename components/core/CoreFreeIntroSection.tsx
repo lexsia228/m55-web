@@ -1,5 +1,6 @@
 'use client';
 
+import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -13,6 +14,7 @@ export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Prop
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeIntroSection}`}
       aria-labelledby="core-free-intro-title"
     >
+      <CoreFreeJourneyStepper currentStep="questions" />
       <span className={styles.tierAOverline}>いまの表れ方</span>
       <h2 id="core-free-intro-title" className={styles.sectionTitle}>
         生年月日の土台に、今の感じ方を重ねます

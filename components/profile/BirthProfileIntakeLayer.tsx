@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ProfileRepository, type BirthProfile } from '../../lib/soul/profile';
+import { GUEST_PROFILE_INTAKE_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
 import styles from './BirthProfileIntakeLayer.module.css';
 
 type Props = {
@@ -124,10 +125,11 @@ export default function BirthProfileIntakeLayer({
       />
       <div className={styles.panel}>
         <h2 id={`${id}-title`} className={styles.title}>
-          プロフィールを保存
+          {GUEST_PROFILE_INTAKE_COPY_V1.titleJa}
         </h2>
-        <p className={styles.lead}>
-          端末に保存されます。無料の見取り図で輪郭が開き、今日・今週はそれぞれのページから読めます。マイページでいつでも変更できます。
+        <p className={styles.lead}>{GUEST_PROFILE_INTAKE_COPY_V1.leadJa}</p>
+        <p className={styles.lead} style={{ fontSize: '0.82rem', opacity: 0.88 }}>
+          {GUEST_PROFILE_INTAKE_COPY_V1.loginHintJa}
         </p>
 
         <div className={styles.fieldBlock}>
@@ -180,8 +182,9 @@ export default function BirthProfileIntakeLayer({
             className={styles.btnPrimary}
             onClick={handleSave}
             disabled={!canSave}
+            data-testid="m55-birth-intake-start"
           >
-            保存して開く
+            {GUEST_PROFILE_INTAKE_COPY_V1.primaryActionJa}
           </button>
         </div>
       </div>
