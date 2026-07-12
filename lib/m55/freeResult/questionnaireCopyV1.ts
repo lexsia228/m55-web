@@ -23,7 +23,9 @@ export type FreeQuestionCopy = {
   acknowledgementJa: string;
 };
 
-export const FREE_QUESTIONNAIRE_COPY_V1: readonly FreeQuestionCopy[] = [
+export const FREE_FIVE_QUESTION_COUNT = 5 as const;
+
+export const FREE_FIVE_QUESTIONS_COPY_V1: readonly FreeQuestionCopy[] = [
   {
     questionId: 'free.start_style',
     shortLabelJa: 'はじめの一歩',
@@ -123,28 +125,31 @@ export const FREE_QUESTIONNAIRE_COPY_V1: readonly FreeQuestionCopy[] = [
         labelJa: '一度土台から作り直す',
       },
     ],
-    acknowledgementJa: '受け取りました。最後に、いまの読みの入口を選びます。',
+    acknowledgementJa: '受け取りました。次に、今の関心を選びます。',
   },
-  {
-    questionId: 'free.primary_theme',
-    shortLabelJa: 'いまの入口',
-    questionJa: 'いま、いちばん読み返してみたいのはどれに近いですか。',
-    sceneContextJa:
-      '正解はありません。いまの関心に近いものを選んでください。まだ保存版を持っていなくても、「あとでじっくり読み返せる形にしたい」という今の関心として選べます。',
-    choices: [
-      { answerId: 'free.primary_theme.work', labelJa: '仕事・進め方' },
-      { answerId: 'free.primary_theme.relation', labelJa: '人との関係' },
-      { answerId: 'free.primary_theme.fatigue', labelJa: '疲れ・生活のリズム' },
-      {
-        answerId: 'free.primary_theme.tendency',
-        labelJa: '自分の傾向の読み方',
-      },
-      {
-        answerId: 'free.primary_theme.report_preview',
-        labelJa: 'あとでじっくり読み返せる形にしたい',
-      },
-    ],
-    acknowledgementJa:
-      '6つの選択を受け取りました。いまの見取り図を組み立てます。',
-  },
+] as const;
+
+export const FREE_CURRENT_INTEREST_COPY_V1: FreeQuestionCopy = {
+  questionId: 'free.primary_theme',
+  shortLabelJa: '今の関心',
+  questionJa: '今の自分を客観的に見るなら、どこから確かめたいですか？',
+  sceneContextJa:
+    'ここでは性格を決めません。見取り図の中で、先に確認したい場面を選びます。迷う場合は「自分全体をまとめて見たい」を選べます。',
+  choices: [
+    { answerId: 'free.primary_theme.work', labelJa: '仕事や物事の進め方' },
+    { answerId: 'free.primary_theme.relation', labelJa: '人との距離や関わり方' },
+    { answerId: 'free.primary_theme.fatigue', labelJa: '疲れたときの戻り方' },
+    { answerId: 'free.primary_theme.tendency', labelJa: '判断や迷いが出るとき' },
+    {
+      answerId: 'free.primary_theme.report_preview',
+      labelJa: '自分全体をまとめて見たい',
+    },
+  ],
+  acknowledgementJa: '選択を受け取りました。いまの見取り図を組み立てます。',
+};
+
+/** Full questionnaire order (5 self-understanding + current interest). */
+export const FREE_QUESTIONNAIRE_COPY_V1: readonly FreeQuestionCopy[] = [
+  ...FREE_FIVE_QUESTIONS_COPY_V1,
+  FREE_CURRENT_INTEREST_COPY_V1,
 ] as const;

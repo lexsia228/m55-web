@@ -1,5 +1,6 @@
 'use client';
 
+import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -13,12 +14,15 @@ export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Prop
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeIntroSection}`}
       aria-labelledby="core-free-intro-title"
     >
-      <span className={styles.tierAOverline}>いまの表れ方</span>
+      <CoreFreeJourneyStepper currentStep="questions" />
+      <span className={styles.tierAOverline}>5つの問い</span>
       <h2 id="core-free-intro-title" className={styles.sectionTitle}>
         生年月日の土台に、今の感じ方を重ねます
       </h2>
       <p className={styles.sectionLead}>
-        6つの短い問いに答えると、変わりにくい傾向と、今の表れ方を分けて見られます。
+        5つの短い問いと、今の関心を1つ選びます。
+        <br />
+        約1分で、自分の輪郭を確認できます。
       </p>
 
       <div className={styles.freeIntroDobCard}>
@@ -27,12 +31,12 @@ export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Prop
       </div>
 
       <ul className={styles.freeIntroMetaList}>
-        <li>6問・約1分</li>
+        <li>5問＋関心・約1分</li>
         <li>正解はありません</li>
       </ul>
 
       <button type="button" className={styles.freeIntroPrimaryBtn} onClick={onStart}>
-        6つの問いを始める
+        5つの問いを始める
       </button>
     </section>
   );

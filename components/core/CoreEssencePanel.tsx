@@ -2,10 +2,11 @@
 
 import { useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ProfileRepository } from '../../lib/soul/profile';
+import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
-import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
+import { ensureSealedCoreResult, promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
+import { coreHeroSelfLanguageForResult } from '../../lib/m55/coreHeroSelfLanguage';
 import {
   buildFreeFiveViewCompositionV1,
   type FreeFiveViewComposition,
@@ -17,14 +18,16 @@ import {
   shouldShowHero,
   shouldShowIntro,
   shouldShowQuestionnaire,
+  shouldShowReanswerFinalize,
   shouldShowRevealing,
   shouldShowResultSections,
   transitionOnIntroStart,
   transitionOnQuestionnaireComplete,
-  transitionOnReanswer,
+  transitionOnReanswerEditStart,
   transitionOnRevealComplete,
   type FreeRevealUxPhase,
 } from '../../lib/m55/freeResult/coreFreeRevealUxState';
+import { REANSWER_CONFIRM_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
 import { FREE_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
 import type { FreeQuestionId } from '../../lib/m55/freeResult/questionnaireCopyV1';
 import CoreAiChatExplainerSection from './CoreAiChatExplainerSection';
@@ -33,9 +36,12 @@ import CoreClosingSummarySection from './CoreClosingSummarySection';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
 import CoreFiveViewResultSection from './CoreFiveViewResultSection';
 import CoreFreeIntroSection from './CoreFreeIntroSection';
+import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
+import CoreFreeResultSummaryHub from './CoreFreeResultSummaryHub';
 import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreFreeSavedBoundarySection from './CoreFreeSavedBoundarySection';
+import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreHeroSection from './CoreHeroSection';
 import CoreHowM55ReadsSection from './CoreHowM55ReadsSection';
@@ -66,19 +72,31 @@ function formatBirthDateLabelJa(isoDate: string): string {
 }
 
 export default function CoreEssencePanel() {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
   const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>(resolveInitialUxPhase);
   const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
+  const [committedAnswers, setCommittedAnswers] = useState<Record<string, string>>({});
+  const [isReanswerFlow, setIsReanswerFlow] = useState(false);
+  const [showReanswerConfirm, setShowReanswerConfirm] = useState(false);
   const [compositionError, setCompositionError] = useState<string | null>(null);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
     window.addEventListener('m55:profile_updated', bump);
     return () => window.removeEventListener('m55:profile_updated', bump);
   }, []);
+
+  useEffect(() => {
+    if (!isLoaded || !user?.id) return;
+    promoteGuestProfileToClerkUser(user.id);
+    promoteGuestCoreSnapshotToClerkUser(user.id);
+    setProfileEpoch((n) => n + 1);
+  }, [isLoaded, user?.id]);
 
   const sealed: SealedState = useMemo(() => {
     if (!isLoaded) return { kind: 'loading' };
@@ -95,19 +113,19 @@ export default function CoreEssencePanel() {
     }
   }, [isLoaded, ownerId, profileEpoch]);
 
-  const answersComplete = isCompleteFreeAnswerSet(answers);
-  const questionnaireDone = isQuestionnaireCompleteForComposition(uxPhase, answersComplete);
+  const committedComplete = isCompleteFreeAnswerSet(committedAnswers);
+  const questionnaireDone = isQuestionnaireCompleteForComposition(uxPhase, committedComplete);
 
   const composition: FreeFiveViewComposition | null = useMemo(() => {
     if (sealed.kind !== 'ready' || !questionnaireDone) return null;
     const built = buildFreeFiveViewCompositionV1({
       birthDate: sealed.profile.birthDate,
       stemLaneIndex: sealed.result.stemLaneIndex,
-      freeAnswerSet: answers,
+      freeAnswerSet: committedAnswers,
     });
     if (!built.ok) return null;
     return built.value;
-  }, [answers, questionnaireDone, sealed]);
+  }, [committedAnswers, questionnaireDone, sealed]);
 
   useEffect(() => {
     if (!questionnaireDone) {
@@ -118,10 +136,10 @@ export default function CoreEssencePanel() {
       setCompositionError(null);
       return;
     }
-    if (answersComplete) {
+    if (committedComplete) {
       setCompositionError('見取り図を組み立てられませんでした。もう一度答え直してください。');
     }
-  }, [answers, answersComplete, composition, questionnaireDone]);
+  }, [committedAnswers, committedComplete, composition, questionnaireDone]);
 
   const persistAnswersForCheckout = useCallback(
     (answerSet: Record<string, string>) => {
@@ -168,9 +186,10 @@ export default function CoreEssencePanel() {
   const nickname = profile.nickname.trim();
   const birthDateLabelJa = formatBirthDateLabelJa(profile.birthDate);
   const hideResult = shouldHideResultDuringQuestionnaire(uxPhase);
+  const heroLanguage = coreHeroSelfLanguageForResult(result);
 
   function handleAnswerChange(questionId: FreeQuestionId, answerId: string) {
-    setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+    setDraftAnswers((prev) => ({ ...prev, [questionId]: answerId }));
   }
 
   function handleIntroStart() {
@@ -178,25 +197,55 @@ export default function CoreEssencePanel() {
   }
 
   function handleQuestionnaireComplete() {
-    if (!answersComplete) return;
-    persistAnswersForCheckout(answers);
-    setUxPhase(transitionOnQuestionnaireComplete());
+    if (!isCompleteFreeAnswerSet(draftAnswers)) return;
+    setUxPhase(transitionOnQuestionnaireComplete(isReanswerFlow));
   }
 
   function handleRevealComplete() {
+    setCommittedAnswers({ ...draftAnswers });
+    persistAnswersForCheckout(draftAnswers);
+    setIsReanswerFlow(false);
     setUxPhase(transitionOnRevealComplete());
   }
 
-  function handleReanswer() {
-    setUxPhase(transitionOnReanswer());
-    setAnswers({});
-    setCompositionError(null);
-    setQuestionnaireFlowKey((n) => n + 1);
+  function handleRequestReanswer() {
+    setShowReanswerConfirm(true);
   }
+
+  function handleReanswerCancel() {
+    setShowReanswerConfirm(false);
+  }
+
+  function handleReanswerConfirm() {
+    setShowReanswerConfirm(false);
+    setIsReanswerFlow(true);
+    setDraftAnswers({ ...committedAnswers });
+    setUxPhase(transitionOnReanswerEditStart());
+    setQuestionnaireFlowKey((n) => n + 1);
+    setQuestionIndex(0);
+  }
+
+  function handleReanswerFinalizeConfirm() {
+    if (!isCompleteFreeAnswerSet(draftAnswers)) return;
+    setUxPhase('REVEALING');
+  }
+
+  function handleReanswerFinalizeCancel() {
+    setUxPhase(transitionOnReanswerEditStart());
+  }
+
+  const currentExpressionSummary =
+    composition?.synthesis.currentExpressionSummaryJa ??
+    composition?.views[0]?.tendencyLabelJa ??
+    '5つの答えから見える、いまの表れ方です。';
 
   return (
     <div className={CoreExperienceStyles.page}>
       <CoreScrollReveal />
+
+      {uxPhase === 'RESULT' ? (
+        <CoreFreeJourneyStepper currentStep="result" />
+      ) : null}
 
       {shouldShowIntro(uxPhase) ? (
         <CoreFreeIntroSection birthDateLabelJa={birthDateLabelJa} onStart={handleIntroStart} />
@@ -206,9 +255,11 @@ export default function CoreEssencePanel() {
         <>
           <CoreFreeQuestionnaireLayer
             key={questionnaireFlowKey}
-            answers={answers}
+            answers={draftAnswers}
             onChange={handleAnswerChange}
             onComplete={handleQuestionnaireComplete}
+            isReanswerFlow={isReanswerFlow}
+            onIndexChange={setQuestionIndex}
           />
           {compositionError ? (
             <div className={CoreExperienceStyles.errorBox} role="alert">
@@ -218,8 +269,68 @@ export default function CoreEssencePanel() {
         </>
       ) : null}
 
+      {shouldShowReanswerFinalize(uxPhase) ? (
+        <section
+          className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface} ${CoreExperienceStyles.freeReanswerFinalize}`}
+          aria-labelledby="core-reanswer-finalize"
+        >
+          <h2 id="core-reanswer-finalize" className={CoreExperienceStyles.sectionTitle}>
+            {REANSWER_CONFIRM_COPY_V1.finalizeTitleJa}
+          </h2>
+          <p className={CoreExperienceStyles.sectionLead}>{REANSWER_CONFIRM_COPY_V1.bodyJa}</p>
+          <div className={CoreExperienceStyles.freeReanswerFinalizeActions}>
+            <button
+              type="button"
+              className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}
+              onClick={handleReanswerFinalizeCancel}
+            >
+              {REANSWER_CONFIRM_COPY_V1.cancelJa}
+            </button>
+            <button
+              type="button"
+              className={CoreExperienceStyles.freeQuestionnairePrimaryBtn}
+              onClick={handleReanswerFinalizeConfirm}
+            >
+              {REANSWER_CONFIRM_COPY_V1.finalizeJa}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       {shouldShowRevealing(uxPhase) ? (
         <CoreFreeRevealTransition onComplete={handleRevealComplete} />
+      ) : null}
+
+      {showReanswerConfirm ? (
+        <div className={CoreExperienceStyles.freeReanswerDialogBackdrop} role="presentation">
+          <div
+            className={CoreExperienceStyles.freeReanswerDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="core-reanswer-dialog-title"
+          >
+            <h2 id="core-reanswer-dialog-title" className={CoreExperienceStyles.sectionTitle}>
+              {REANSWER_CONFIRM_COPY_V1.titleJa}
+            </h2>
+            <p className={CoreExperienceStyles.sectionLead}>{REANSWER_CONFIRM_COPY_V1.bodyJa}</p>
+            <div className={CoreExperienceStyles.freeReanswerFinalizeActions}>
+              <button
+                type="button"
+                className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}
+                onClick={handleReanswerCancel}
+              >
+                {REANSWER_CONFIRM_COPY_V1.cancelJa}
+              </button>
+              <button
+                type="button"
+                className={CoreExperienceStyles.freeQuestionnairePrimaryBtn}
+                onClick={handleReanswerConfirm}
+              >
+                {REANSWER_CONFIRM_COPY_V1.confirmJa}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       {hideResult ? null : (
@@ -232,13 +343,29 @@ export default function CoreEssencePanel() {
 
           {shouldShowResultSections(uxPhase) && composition ? (
             <>
+              <nav className={CoreExperienceStyles.freeResultSectionNav} aria-label="見取り図のセクション">
+                <a href="#core-summary">概要</a>
+                <a href="#core-five-views">5つの視点</a>
+                <a href="#core-daily">日常での出方</a>
+                <a href="#core-paid">保存版</a>
+              </nav>
+
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreFreeResultSummaryHub
+                  composition={composition}
+                  stableSummaryJa={heroLanguage.primary}
+                  currentExpressionSummaryJa={currentExpressionSummary}
+                />
+              </div>
+
               <div
                 className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.freeStableBaselineLead}`}
+                id="core-stable"
               >
                 <span className={CoreExperienceStyles.tierAOverline}>変わりにくい土台</span>
                 <h2 className={CoreExperienceStyles.sectionTitle}>生年月日から見る傾向</h2>
                 <p className={CoreExperienceStyles.sectionLead}>
-                  ここから先は、登録中の生年月日から読み取れる、変わりにくい土台の輪郭です。
+                  登録中の生年月日から読み取れる、変わりにくい土台の輪郭です。
                 </p>
               </div>
 
@@ -249,36 +376,62 @@ export default function CoreEssencePanel() {
               <div className={CoreExperienceStyles.freeResultRevealItem}>
                 <CoreFiveViewResultSection
                   composition={composition}
-                  onReanswer={handleReanswer}
+                  onRequestReanswer={handleRequestReanswer}
                 />
               </div>
 
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreHowM55ReadsSection nickname={nickname} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreTendencyLoadSection result={result} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreTypeEaseSection result={result} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreAlignFlowSection result={result} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreObservationListSection result={result} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreClosingSummarySection result={result} nickname={nickname} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreAiChatExplainerSection nickname={nickname} />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
+              {!isSignedIn ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CoreGuestSaveResultCTA />
+                </div>
+              ) : null}
+
+              <div className={CoreExperienceStyles.freeResultRevealItem} id="core-paid">
                 <CoreFreeSavedBoundarySection />
               </div>
               <div className={CoreExperienceStyles.freeResultRevealItem}>
                 <CoreEntryReportCTASection />
+              </div>
+
+              <div className={CoreExperienceStyles.freeResultRevealItem} id="core-daily">
+                <div
+                  className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}
+                  aria-labelledby="core-free-detail-outline"
+                >
+                  <span className={CoreExperienceStyles.tierAOverline}>詳しい読み方</span>
+                  <h2 id="core-free-detail-outline" className={CoreExperienceStyles.sectionTitle}>
+                    無料で読める詳細
+                  </h2>
+                  <p className={CoreExperienceStyles.sectionLead}>
+                    要約のあとにも、自分を客観的に見るための読み方が続きます。
+                  </p>
+                  <ul className={CoreExperienceStyles.freeIntroMetaList}>
+                    <li>傾向と負荷</li>
+                    <li>場面ごとに、こう出やすい</li>
+                    <li>まず整えるとよいこと</li>
+                    <li>いま見えていること</li>
+                    <li>まとめ</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  className={CoreExperienceStyles.freeDetailsToggle}
+                  aria-expanded={detailsExpanded}
+                  onClick={() => setDetailsExpanded((v) => !v)}
+                >
+                  {detailsExpanded ? '詳しく読むを閉じる' : '詳しく読む'}
+                </button>
+                {detailsExpanded ? (
+                  <div className={CoreExperienceStyles.freeDetailsPanel}>
+                    <CoreHowM55ReadsSection nickname={nickname} />
+                    <CoreTendencyLoadSection result={result} />
+                    <CoreTypeEaseSection result={result} />
+                    <CoreAlignFlowSection result={result} />
+                    <CoreObservationListSection result={result} />
+                    <CoreClosingSummarySection result={result} nickname={nickname} />
+                    <CoreAiChatExplainerSection nickname={nickname} />
+                  </div>
+                ) : null}
               </div>
             </>
           ) : null}

@@ -96,7 +96,7 @@ describe('buildFreeFiveViewCompositionV1 — CATEGORY-2-M55-FREE-PERSONAL-RESULT
     assert.notDeepEqual(base.value.views[4], changed.value.views[4]);
   });
 
-  it('same DOB + changed primary theme → theme/synthesis changes', () => {
+  it('same DOB + changed primary theme → focus changes, five views unchanged', () => {
     const base = buildFreeFiveViewCompositionV1({ ...BASE, freeAnswerSet: freeSet() });
     const changed = buildFreeFiveViewCompositionV1({
       ...BASE,
@@ -106,15 +106,48 @@ describe('buildFreeFiveViewCompositionV1 — CATEGORY-2-M55-FREE-PERSONAL-RESULT
     });
     assert.equal(base.ok && changed.ok, true);
     if (!base.ok || !changed.ok) return;
-    assert.notDeepEqual(base.value.theme, changed.value.theme);
+    assert.deepEqual(base.value.views, changed.value.views);
+    assert.equal(base.value.synthesis.alignSummaryJa, changed.value.synthesis.alignSummaryJa);
+    assert.equal(base.value.synthesis.divergeSummaryJa, changed.value.synthesis.divergeSummaryJa);
+    assert.equal(
+      base.value.synthesis.currentExpressionSummaryJa,
+      changed.value.synthesis.currentExpressionSummaryJa,
+    );
     assert.notEqual(
-      base.value.synthesis.primaryThemeJa,
-      changed.value.synthesis.primaryThemeJa,
+      base.value.synthesis.focusThemeLabelJa,
+      changed.value.synthesis.focusThemeLabelJa,
     );
     assert.notEqual(
       base.value.synthesis.smallActionJa,
       changed.value.synthesis.smallActionJa,
     );
+  });
+
+  it('same DOB + changed start answer → current expression changes, focus unchanged', () => {
+    const base = buildFreeFiveViewCompositionV1({ ...BASE, freeAnswerSet: freeSet() });
+    const changed = buildFreeFiveViewCompositionV1({
+      ...BASE,
+      freeAnswerSet: freeSet({ 'free.start_style': 'free.start_style.try_first' }),
+    });
+    assert.equal(base.ok && changed.ok, true);
+    if (!base.ok || !changed.ok) return;
+    assert.notEqual(
+      base.value.synthesis.currentExpressionSummaryJa,
+      changed.value.synthesis.currentExpressionSummaryJa,
+    );
+    assert.equal(
+      base.value.synthesis.focusThemeLabelJa,
+      changed.value.synthesis.focusThemeLabelJa,
+    );
+  });
+
+  it('current expression is not a focus theme label', () => {
+    const r = buildFreeFiveViewCompositionV1({ ...BASE, freeAnswerSet: freeSet() });
+    assert.equal(r.ok, true);
+    if (!r.ok) return;
+    assert.doesNotMatch(r.value.synthesis.currentExpressionSummaryJa, /仕事・進め方|人との関係/);
+    assert.match(r.value.synthesis.currentExpressionSummaryJa, /状態です。$/);
+    assert.equal(r.value.synthesis.focusThemeLabelJa, '仕事や物事の進め方');
   });
 
   it('no empty view and public titles are five views', () => {
@@ -153,6 +186,9 @@ describe('buildFreeFiveViewCompositionV1 — CATEGORY-2-M55-FREE-PERSONAL-RESULT
       r.value.theme.secondaryLabelJa,
       r.value.synthesis.alignSummaryJa,
       r.value.synthesis.divergeSummaryJa,
+      r.value.synthesis.currentExpressionSummaryJa,
+      r.value.synthesis.focusThemeLabelJa,
+      r.value.synthesis.focusThemeHelperJa,
       r.value.synthesis.primaryThemeJa,
       r.value.synthesis.smallActionJa,
     ].join('\n');
