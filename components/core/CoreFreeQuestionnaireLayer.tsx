@@ -43,24 +43,44 @@ export default function CoreFreeQuestionnaireLayer({
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeQuestionnaireSection}`}
       aria-labelledby={headingId}
     >
-      <span className={styles.tierAOverline}>いまの表れ方</span>
+      <span className={styles.tierAOverline}>6つの問い</span>
       <h2 id={headingId} className={styles.sectionTitle}>
-        6つの問い
+        いまの感じ方を、1問ずつ選びます
       </h2>
       <p className={styles.sectionLead}>
-        生年月日の土台に加えて、いまの感じ方を6問で見ます。1問ずつ選べます。
+        正解はありません。いちばん近い感じを選んでください。
       </p>
 
       <div className={styles.freeQuestionnaireProgress} aria-live="polite">
         <span className={styles.freeQuestionnaireProgressLabel}>{progressLabel}</span>
         <div
-          className={styles.freeQuestionnaireProgressTrack}
+          className={styles.freeQuestionnaireProgressNodes}
           role="progressbar"
           aria-valuemin={1}
           aria-valuemax={total}
           aria-valuenow={index + 1}
           aria-label={`質問 ${progressLabel}`}
         >
+          {FREE_QUESTIONNAIRE_COPY_V1.map((item, nodeIndex) => {
+            const answered = Boolean(answers[item.questionId]);
+            const isCurrent = nodeIndex === index;
+            const nodeClass = [
+              styles.freeQuestionnaireProgressNode,
+              answered ? styles.freeQuestionnaireProgressNodeAnswered : '',
+              isCurrent ? styles.freeQuestionnaireProgressNodeCurrent : '',
+            ]
+              .filter(Boolean)
+              .join(' ');
+            return (
+              <span
+                key={item.questionId}
+                className={nodeClass}
+                aria-hidden={!isCurrent}
+              />
+            );
+          })}
+        </div>
+        <div className={styles.freeQuestionnaireProgressTrack} aria-hidden>
           <span
             className={styles.freeQuestionnaireProgressFill}
             style={{ width: `${((index + 1) / total) * 100}%` }}
@@ -117,7 +137,7 @@ export default function CoreFreeQuestionnaireLayer({
           onClick={goNext}
           disabled={!selected}
         >
-          {index >= total - 1 ? '結果を見る' : '次へ'}
+          {index >= total - 1 ? '答えをそろえる' : '次へ'}
         </button>
       </div>
     </section>

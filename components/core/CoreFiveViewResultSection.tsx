@@ -17,21 +17,13 @@ export default function CoreFiveViewResultSection({
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeFiveViewSection}`}
       aria-labelledby="core-five-view-title"
     >
-      <span className={styles.tierAOverline}>回答から見る</span>
+      <span className={styles.tierAOverline}>いまの表れ方</span>
       <h2 id="core-five-view-title" className={styles.sectionTitle}>
-        5つの視点
+        6つの答えから見える傾向
       </h2>
       <p className={styles.sectionLead}>
-        6問の回答から見える、いま表れやすい動き方です。生年月日から見る輪郭とは別の層です。
+        生年月日の土台とは別に、いまの感じ方から見えやすい動き方を5つの視点で整理します。
       </p>
-
-      <article className={styles.freeThemeCard}>
-        <h3 className={styles.freeThemeTitle}>いまの読みの入口</h3>
-        <p className={styles.freeThemePrimary}>{composition.theme.primaryLabelJa}</p>
-        <p className={styles.freeThemeSecondary}>
-          あわせて気になりやすい入口: {composition.theme.secondaryLabelJa}
-        </p>
-      </article>
 
       <div className={styles.freeFiveViewStack}>
         {composition.views.map((view) => (
@@ -48,6 +40,14 @@ export default function CoreFiveViewResultSection({
         <h3 className={styles.freeSynthesisTitle}>土台と今の見取り</h3>
         <p className={styles.freeSynthesisLine}>{composition.synthesis.alignSummaryJa}</p>
         <p className={styles.freeSynthesisLine}>{composition.synthesis.divergeSummaryJa}</p>
+      </article>
+
+      <article className={styles.freeThemeCard}>
+        <h3 className={styles.freeThemeTitle}>いまの読みの入口</h3>
+        <p className={styles.freeThemePrimary}>{composition.theme.primaryLabelJa}</p>
+        <p className={styles.freeThemeSecondary}>
+          あわせて気になりやすい入口: {composition.theme.secondaryLabelJa}
+        </p>
         <p className={styles.freeSynthesisLine}>{composition.synthesis.primaryThemeJa}</p>
         <p className={styles.freeSynthesisAction}>{composition.synthesis.smallActionJa}</p>
       </article>
