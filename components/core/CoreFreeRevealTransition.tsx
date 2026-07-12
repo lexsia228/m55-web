@@ -22,7 +22,7 @@ export default function CoreFreeRevealTransition({ onComplete }: Props) {
       aria-live="polite"
       aria-busy="true"
     >
-      <p className={styles.freeRevealTransitionLead}>6つの答えがそろいました</p>
+      <p className={styles.freeRevealTransitionLead}>5つの答えと今の関心がそろいました</p>
       <p className={styles.freeRevealTransitionSub}>
         生年月日の土台と重ねて、今の輪郭を開きます
       </p>

@@ -53,6 +53,9 @@ export type FreeFiveViewComposition = {
   synthesis: {
     alignSummaryJa: string;
     divergeSummaryJa: string;
+    currentExpressionSummaryJa: string;
+    focusThemeLabelJa: string;
+    focusThemeHelperJa: string;
     primaryThemeJa: string;
     smallActionJa: string;
   };
@@ -197,20 +200,41 @@ const CHANGE_COPY: Readonly<
   },
 };
 
-const THEME_LABEL_JA: Readonly<Record<ReplyThemeId, string>> = {
-  work: '仕事・進め方',
-  relation: '人との関係',
-  fatigue: '疲れ・生活のリズム',
-  tendency: '自分の傾向の読み方',
-  report: 'あとでじっくり読み返せる形',
+const FOCUS_THEME_LABEL_JA: Readonly<Record<ReplyThemeId, string>> = {
+  work: '仕事や物事の進め方',
+  relation: '人との距離や関わり方',
+  fatigue: '疲れたときの戻り方',
+  tendency: '判断や迷いが出るとき',
+  report: '自分全体をまとめて見たい',
 };
 
-const THEME_ACTION_JA: Readonly<Record<ReplyThemeId, string>> = {
-  work: '今日の進め方を一つだけ書き出して、最初の区切りを決めてみてください。',
-  relation: '近い相手との距離感を、一言だけ自分の言葉で確認してみてください。',
-  fatigue: '短い休みか、やることを一つ減らす区切りを先に置いてみてください。',
-  tendency: 'いま表に出やすい傾向を一つ選び、役立つ条件だけ書き留めてみてください。',
-  report: 'いま気になる一点だけを残し、あとで読み返せる形にメモしてみてください。',
+const FOCUS_THEME_HELPER_JA =
+  '見取り図の中で、ここに関係する部分から確認します。' as const;
+
+const START_EXPRESSION_PHRASE: Readonly<Record<StartTendency, string>> = {
+  map: '整理してから始めやすく',
+  try: '小さく試しながら進めやすく',
+  ask: '情報や相談を足してから動きやすく',
+};
+
+const DECISION_EXPRESSION_PHRASE: Readonly<Record<DecisionTendency, string>> = {
+  sort: '比較できる材料があると判断しやすい',
+  deadline: '区切りがあると決めやすい',
+  wait: '少し時間を置くと判断しやすい',
+};
+
+const RECOVERY_ACTION_PHRASE: Readonly<Record<RecoveryTendency, string>> = {
+  pause: '短く立ち止まって休む余白を先に置く',
+  shrink: 'やることを一つ小さくする区切りを決める',
+  scene: '場所や雰囲気を少し変えて整える',
+};
+
+const FOCUS_SCENE_PREFIX_JA: Readonly<Record<ReplyThemeId, string>> = {
+  work: '仕事や物事の進め方に関係する場面なら、',
+  relation: '人との距離や関わり方に関係する場面なら、',
+  fatigue: '疲れたときの戻り方に関係する場面なら、',
+  tendency: '判断や迷いが出るときなら、',
+  report: '',
 };
 
 const AXIS_COPY = {
@@ -339,6 +363,16 @@ function axisTendencyLabel(
   );
 }
 
+function buildCurrentExpressionSummaryJa(axes: ExpressionAxes): string {
+  return `${START_EXPRESSION_PHRASE[axes.start]}、${DECISION_EXPRESSION_PHRASE[axes.decision]}状態です。`;
+}
+
+function buildSmallActionJa(axes: ExpressionAxes, focusTheme: ReplyThemeId): string {
+  const base = `今日は、${RECOVERY_ACTION_PHRASE[axes.recovery]}ことを一つだけ試してみてください。`;
+  const prefix = FOCUS_SCENE_PREFIX_JA[focusTheme];
+  return prefix ? `${prefix}${base}` : base;
+}
+
 function summarizeAlign(items: readonly AlignDivergeItem[]): string {
   if (items.length === 0) {
     return '土台と今の表れ方が、大きく重なる軸はいま見えていません。';
@@ -410,17 +444,22 @@ export function buildFreeFiveViewCompositionV1(
   });
 
   const primary = free.value.primaryReplyTheme;
+  const currentExpressionSummaryJa = buildCurrentExpressionSummaryJa(free.value.axes);
+  const focusThemeLabelJa = FOCUS_THEME_LABEL_JA[primary];
   const composition: FreeFiveViewComposition = {
     views,
     theme: {
-      primaryLabelJa: THEME_LABEL_JA[primary],
-      secondaryLabelJa: THEME_LABEL_JA[free.value.secondaryReplyTheme],
+      primaryLabelJa: focusThemeLabelJa,
+      secondaryLabelJa: FOCUS_THEME_LABEL_JA[free.value.secondaryReplyTheme],
     },
     synthesis: {
       alignSummaryJa: summarizeAlign(alignDiv.value.alignItems),
       divergeSummaryJa: summarizeDiverge(alignDiv.value.divergeItems),
-      primaryThemeJa: `いまの読みの入口は、「${THEME_LABEL_JA[primary]}」に近いところです。`,
-      smallActionJa: THEME_ACTION_JA[primary],
+      currentExpressionSummaryJa,
+      focusThemeLabelJa,
+      focusThemeHelperJa: FOCUS_THEME_HELPER_JA,
+      primaryThemeJa: focusThemeLabelJa,
+      smallActionJa: buildSmallActionJa(free.value.axes, primary),
     },
     meta: {
       fingerprintSpecVersion: 'fp-v1',
@@ -440,6 +479,9 @@ export function buildFreeFiveViewCompositionV1(
     composition.theme.secondaryLabelJa,
     composition.synthesis.alignSummaryJa,
     composition.synthesis.divergeSummaryJa,
+    composition.synthesis.currentExpressionSummaryJa,
+    composition.synthesis.focusThemeLabelJa,
+    composition.synthesis.focusThemeHelperJa,
     composition.synthesis.primaryThemeJa,
     composition.synthesis.smallActionJa,
   ].join('\n');

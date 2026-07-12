@@ -235,9 +235,9 @@ export default function CoreEssencePanel() {
   }
 
   const currentExpressionSummary =
-    composition?.theme.primaryLabelJa ??
+    composition?.synthesis.currentExpressionSummaryJa ??
     composition?.views[0]?.tendencyLabelJa ??
-    '6つの答えから見える、いまの表れ方です。';
+    '5つの答えから見える、いまの表れ方です。';
 
   return (
     <div className={CoreExperienceStyles.page}>
@@ -394,6 +394,25 @@ export default function CoreEssencePanel() {
               </div>
 
               <div className={CoreExperienceStyles.freeResultRevealItem} id="core-daily">
+                <div
+                  className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}
+                  aria-labelledby="core-free-detail-outline"
+                >
+                  <span className={CoreExperienceStyles.tierAOverline}>詳しい読み方</span>
+                  <h2 id="core-free-detail-outline" className={CoreExperienceStyles.sectionTitle}>
+                    無料で読める詳細
+                  </h2>
+                  <p className={CoreExperienceStyles.sectionLead}>
+                    要約のあとにも、自分を客観的に見るための読み方が続きます。
+                  </p>
+                  <ul className={CoreExperienceStyles.freeIntroMetaList}>
+                    <li>傾向と負荷</li>
+                    <li>場面ごとに、こう出やすい</li>
+                    <li>まず整えるとよいこと</li>
+                    <li>いま見えていること</li>
+                    <li>まとめ</li>
+                  </ul>
+                </div>
                 <button
                   type="button"
                   className={CoreExperienceStyles.freeDetailsToggle}

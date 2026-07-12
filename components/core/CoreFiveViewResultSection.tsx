@@ -23,7 +23,7 @@ export default function CoreFiveViewResultSection({
         いまの5つの視点
       </h2>
       <p className={styles.sectionLead}>
-        6つの答えから見える、いま表れやすい動き方です。生年月日の土台とは別の層です。
+        5つの答えから見える、いま表れやすい動き方です。生年月日の土台とは別の層です。
       </p>
 
       <div className={styles.freeFiveViewStack}>

@@ -21,6 +21,10 @@ import {
   transitionOnRevealComplete,
 } from './coreFreeRevealUxState';
 import {
+  FREE_CURRENT_INTEREST_COPY_V1,
+  FREE_FIVE_QUESTION_COUNT,
+} from './questionnaireCopyV1';
+import {
   GUEST_PROFILE_HANDOFF_COPY_V1,
   GUEST_PROFILE_INTAKE_COPY_V1,
   REANSWER_CONFIRM_COPY_V1,
@@ -84,7 +88,8 @@ describe('core free reveal UX state', () => {
 
   it('journey stepper maps phases', () => {
     assert.equal(resolveJourneyStep('INTRO').step, 'questions');
-    assert.equal(resolveJourneyStep('QUESTIONNAIRE', 1, 6).questionLabel, '2/6');
+    assert.equal(resolveJourneyStep('QUESTIONNAIRE', 1, FREE_FIVE_QUESTION_COUNT).questionLabel, '2/5');
+    assert.equal(resolveJourneyStep('QUESTIONNAIRE', undefined, undefined, true).step, 'interest');
     assert.equal(resolveJourneyStep('RESULT').step, 'result');
   });
 
@@ -102,10 +107,10 @@ describe('guest free journey presentation copy', () => {
     assert.doesNotMatch(GUEST_PROFILE_INTAKE_COPY_V1.primaryActionJa, /保存して開く/);
   });
 
-  it('handoff copy avoids fake analysis wording', () => {
-    const serialized = JSON.stringify(GUEST_PROFILE_HANDOFF_COPY_V1);
-    assert.doesNotMatch(serialized, /照合|解析|AI|%/);
-    assert.match(serialized, /入力を受け取りました/);
+  it('handoff copy reflects five questions and current interest', () => {
+    assert.match(GUEST_PROFILE_HANDOFF_COPY_V1.subJa, /5つの問いと今の関心/);
+    assert.doesNotMatch(GUEST_PROFILE_HANDOFF_COPY_V1.subJa, /6問/);
+    assert.doesNotMatch(GUEST_PROFILE_HANDOFF_COPY_V1.subJa, /6つの問い/);
   });
 
   it('re-answer confirmation copy present', () => {
@@ -135,11 +140,85 @@ describe('guest free journey source guards', () => {
     assert.doesNotMatch(src, /もう一度答える/);
   });
 
+  it('CoreLockedState uses five questions and current interest copy', () => {
+    const src = read('components/core/CoreLockedState.tsx');
+    assert.match(src, /5つの問いと今の関心/);
+    assert.match(src, /見取り図/);
+    assert.doesNotMatch(src, /6問/);
+    assert.doesNotMatch(src, /6つの問い/);
+  });
+
   it('CoreEssencePanel keeps committed vs draft answer separation', () => {
     const src = read('components/core/CoreEssencePanel.tsx');
     assert.match(src, /committedAnswers/);
     assert.match(src, /draftAnswers/);
     assert.match(src, /CoreFreeResultSummaryHub/);
     assert.match(src, /promoteGuestProfileToClerkUser/);
+  });
+});
+
+describe('free self-understanding semantics copy', () => {
+  it('Q6 avoids paid-intent questionnaire wording', () => {
+    const serialized = JSON.stringify(FREE_CURRENT_INTEREST_COPY_V1);
+    assert.doesNotMatch(serialized, /あとでじっくり読み返せる形にしたい/);
+    assert.doesNotMatch(serialized, /いちばん読み返してみたい/);
+    assert.match(FREE_CURRENT_INTEREST_COPY_V1.questionJa, /今の自分を客観的に見るなら/);
+    assert.match(FREE_CURRENT_INTEREST_COPY_V1.sceneContextJa, /迷う場合は「自分全体をまとめて見たい」を選べます/);
+    assert.match(
+      FREE_CURRENT_INTEREST_COPY_V1.choices.map((c) => c.labelJa).join('\n'),
+      /自分全体をまとめて見たい/,
+    );
+  });
+
+  it('free flow copy avoids stale six-question wording', () => {
+    const flowSources = [
+      read('components/core/CoreFreeIntroSection.tsx'),
+      read('components/core/CoreFreeJourneyStepper.tsx'),
+      read('components/core/CoreFiveViewResultSection.tsx'),
+      read('components/core/CoreLockedState.tsx'),
+      read('lib/m55/freeResult/guestFreeJourneyCopyV1.ts'),
+      read('lib/m55/freeResult/questionnaireCopyV1.ts'),
+    ].join('\n');
+    assert.match(flowSources, /5つの問い/);
+    assert.match(flowSources, /今の関心/);
+    assert.doesNotMatch(flowSources, /6問/);
+    assert.doesNotMatch(flowSources, /6つの問い/);
+    assert.doesNotMatch(flowSources, /6つの短い問い/);
+  });
+
+  it('intro section uses recommended duration copy', () => {
+    const src = read('components/core/CoreFreeIntroSection.tsx');
+    assert.match(src, /5つの短い問いと、今の関心を1つ選びます/);
+    assert.match(src, /約1分で、自分の輪郭を確認できます/);
+  });
+
+  it('result summary hub separates focus theme label', () => {
+    const src = read('components/core/CoreFreeResultSummaryHub.tsx');
+    assert.match(src, /今回、先に見るテーマ/);
+    assert.match(src, /focusThemeLabelJa/);
+    assert.match(src, /いまの表れ方/);
+  });
+});
+
+describe('free journey stepper presentation', () => {
+  it('renders four stages with responsive grid contract', () => {
+    const src = read('components/core/CoreFreeJourneyStepper.tsx');
+    assert.match(src, /基本情報/);
+    assert.match(src, /5つの問い/);
+    assert.match(src, /今の関心/);
+    assert.match(src, /見取り図/);
+    assert.match(src, /aria-current=\{current \? 'step' : undefined\}/);
+    assert.match(src, /gridTemplateColumns: `repeat\(\$\{columns\}, minmax\(0, 1fr\)\)`/);
+    assert.match(src, /w >= 900 \? 4 : 2/);
+    assert.doesNotMatch(src, /freeJourneyStepperItemFinal/);
+    assert.doesNotMatch(src, /isolated/);
+  });
+
+  it('public header uses compact labels on narrow viewports', () => {
+    const src = read('components/shell/PublicHeader.tsx');
+    assert.match(src, /shortLabel/);
+    assert.match(src, /max-width: 480px/);
+    assert.match(src, /title=\{compactNav \? tab\.label : undefined\}/);
+    assert.match(src, /ログイン/);
   });
 });

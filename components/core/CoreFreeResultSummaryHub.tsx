@@ -43,8 +43,9 @@ export default function CoreFreeResultSummaryHub({
           <p className={styles.freeResultSummaryCardBody}>{composition.synthesis.divergeSummaryJa}</p>
         </article>
         <article className={styles.freeResultSummaryCard}>
-          <h3 className={styles.freeResultSummaryCardTitle}>いまのテーマ</h3>
-          <p className={styles.freeResultSummaryCardBody}>{composition.synthesis.primaryThemeJa}</p>
+          <h3 className={styles.freeResultSummaryCardTitle}>今回、先に見るテーマ</h3>
+          <p className={styles.freeResultSummaryCardBody}>{composition.synthesis.focusThemeLabelJa}</p>
+          <p className={styles.freeFiveViewNote}>{composition.synthesis.focusThemeHelperJa}</p>
         </article>
         <article className={`${styles.freeResultSummaryCard} ${styles.freeResultSummaryCardAction}`}>
           <h3 className={styles.freeResultSummaryCardTitle}>今日の一歩</h3>

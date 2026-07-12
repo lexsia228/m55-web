@@ -129,6 +129,7 @@
   display: inline-flex;
   align-items: center;
   padding: 6px 11px;
+  min-height: 2.75rem;
   height: auto;
   font-size: 13.5px;
   color: rgba(255, 255, 255, 0.48);
@@ -162,7 +163,7 @@
 
 .authButton {
   min-width: 44px;
-  min-height: 32px;
+  min-height: 2.75rem;
   padding: 5px 14px;
   font-size: 13px;
   font-family: inherit;

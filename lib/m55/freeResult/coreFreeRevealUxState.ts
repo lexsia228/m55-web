@@ -10,7 +10,7 @@ export type FreeRevealUxPhase =
   | 'REVEALING'
   | 'RESULT';
 
-export type FreeJourneyStep = 'profile' | 'questions' | 'result';
+export type FreeJourneyStep = 'profile' | 'questions' | 'interest' | 'result';
 
 export const FREE_REVEAL_TRANSITION_MS = 750 as const;
 
@@ -46,8 +46,10 @@ export function resolveJourneyStep(
   phase: FreeRevealUxPhase,
   questionIndex?: number,
   questionTotal?: number,
+  isInterestStep?: boolean,
 ): { step: FreeJourneyStep; questionLabel?: string } {
   if (phase === 'RESULT') return { step: 'result' };
+  if (isInterestStep) return { step: 'interest' };
   if (phase === 'INTRO' || phase === 'QUESTIONNAIRE' || phase === 'REANSWER_FINAL' || phase === 'REVEALING') {
     const label =
       typeof questionIndex === 'number' && typeof questionTotal === 'number'

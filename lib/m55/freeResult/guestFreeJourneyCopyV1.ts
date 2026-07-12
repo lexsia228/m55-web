@@ -11,7 +11,7 @@ export const GUEST_PROFILE_INTAKE_COPY_V1 = {
 
 export const GUEST_PROFILE_HANDOFF_COPY_V1 = {
   leadJa: '入力を受け取りました',
-  subJa: '続いて、今の感じ方を6問で重ねます',
+  subJa: '続いて、5つの問いと今の関心を確認します',
 } as const;
 
 export const GUEST_SAVE_RESULT_COPY_V1 = {

@@ -12,7 +12,7 @@ export default function CoreLockedState() {
             まずは、無料の見取り図から始められます。
           </h1>
           <p className={styles.coreProfileGateSupport}>
-            ニックネームと生年月日を入力すると、6つの問いから無料結果を開けます。
+            基本情報のあと、5つの問いと今の関心を選ぶと、無料の見取り図を開けます。
           </p>
           <p className={styles.coreProfileGateSupport}>
             ログインは、あとから結果を保存するときに使えます。
