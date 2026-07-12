@@ -3,7 +3,10 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
-import { getLatestDraftForUser } from '../../../../lib/m55/dtrDraftDb';
+import {
+  getLatestDraftForUser,
+  upsertGuestDraftPurchaseContext,
+} from '../../../../lib/m55/dtrDraftDb';
 import { resolveDtrCoreCheckoutSnapshotGate } from '../../../../lib/m55/dtrCheckoutRepurchaseLane';
 import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillment';
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
@@ -14,7 +17,17 @@ import {
   isDtrCoreSavedReportOneTimeProduct,
 } from '../../../../lib/oneTimeCheckout';
 import { validateDtrCheckoutProfile } from '../../../../lib/m55/compositeStem/checkoutProfileGate';
-import { buildStripeCheckoutMetadataFromProfile } from '../../../../lib/m55/compositeStem/stripeCheckoutMetadata';
+import { INPUT_VERSION_V1, ENGINE_VERSION_V2 } from '../../../../lib/m55/compositeStem/constants';
+import { runM55CompositeStemPipeline } from '../../../../lib/m55/compositeStem/pipeline';
+import { toCompositeCanonicalInput } from '../../../../lib/m55/compositeStem/parseFulfillmentMetadata';
+import {
+  buildPurchaseInputSnapshotV1,
+  purchaseInputExtraJson,
+} from '../../../../lib/m55/paidResult/purchaseInputSnapshotV1';
+import {
+  buildOpaqueStripeCheckoutMetadata,
+  hashOpaqueUserRef,
+} from '../../../../lib/m55/paidResult/stripeOpaqueCheckoutRefs';
 import {
   birthProfileFromCheckoutBody,
   mergeBirthProfileWithDraftExtra,
@@ -145,6 +158,8 @@ export async function POST(req: NextRequest) {
       birthplace?: string | null;
       timezone?: string | null;
     };
+    freeAnswerSet?: Record<string, string>;
+    paidAnswerSet?: Record<string, string>;
   };
   try {
     body = await req.json();
@@ -307,9 +322,11 @@ export async function POST(req: NextRequest) {
 
   let resolvedProfile: BirthProfile | null = birthProfileFromCheckoutBody(body.profile);
   let draftExtra: Record<string, unknown> | null = null;
+  let draftIdForContext: string | null = null;
   try {
     const draft = await getLatestDraftForUser(userId);
     if (draft?.nickname && draft.birth_date) {
+      draftIdForContext = draft.id;
       const base =
         resolvedProfile ??
         ({
@@ -346,9 +363,73 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const metadata: Record<string, string> = { productId };
-  if (resolvedProfile?.nickname && resolvedProfile.birthDate) {
-    Object.assign(metadata, buildStripeCheckoutMetadataFromProfile(resolvedProfile, productId));
+  const freeAnswerSet =
+    body.freeAnswerSet ??
+    ((draftExtra?.freeAnswerSet as Record<string, string> | undefined) ?? {});
+  const paidAnswerSet =
+    body.paidAnswerSet ??
+    ((draftExtra?.paidAnswerSet as Record<string, string> | undefined) ?? {});
+
+  let purchaseContextId = draftIdForContext ?? crypto.randomUUID();
+  let metadata: Record<string, string> = { productId };
+
+  if (isDtrCoreSavedReportOneTimeProduct(productId) && resolvedProfile) {
+    const fields = toCompositeCanonicalInput({
+      nickname: resolvedProfile.nickname.trim(),
+      birthDate: resolvedProfile.birthDate,
+      birthTime: resolvedProfile.birthTime ?? null,
+      birthTimeUnknown: resolvedProfile.birthTimeUnknown ?? !resolvedProfile.birthTime,
+      country: resolvedProfile.country ?? 'JP',
+      birthplace: resolvedProfile.birthplace ?? null,
+      timezone: resolvedProfile.timezone ?? null,
+    });
+    const composite = runM55CompositeStemPipeline(fields);
+    const snapBuilt = buildPurchaseInputSnapshotV1({
+      userId,
+      productId,
+      profile: {
+        nickname: resolvedProfile.nickname.trim(),
+        birthDate: resolvedProfile.birthDate,
+        birthTime: resolvedProfile.birthTime ?? null,
+        birthTimeUnknown: resolvedProfile.birthTimeUnknown,
+        country: resolvedProfile.country,
+        birthplace: resolvedProfile.birthplace ?? null,
+        timezone: resolvedProfile.timezone ?? null,
+      },
+      freeAnswerSet,
+      paidAnswerSet,
+      stemLaneIndex: composite.stemLaneIndex,
+    });
+    if (!snapBuilt.ok) {
+      return NextResponse.json(
+        { code: 'purchase_input_incomplete', error: snapBuilt.code },
+        { status: 400 },
+      );
+    }
+
+    const extraJson = purchaseInputExtraJson(snapBuilt.value, draftExtra);
+    extraJson.freeAnswerSet = freeAnswerSet;
+    extraJson.paidAnswerSet = paidAnswerSet;
+
+    const upserted = await upsertGuestDraftPurchaseContext({
+      userId,
+      draftId: purchaseContextId,
+      nickname: resolvedProfile.nickname.trim(),
+      birthDate: resolvedProfile.birthDate,
+      extraJson,
+    });
+    if (!upserted.ok) {
+      return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
+    }
+    purchaseContextId = upserted.draftId;
+
+    metadata = buildOpaqueStripeCheckoutMetadata({
+      productId,
+      purchaseContextId,
+      opaqueUserRef: hashOpaqueUserRef(userId),
+      inputVersion: INPUT_VERSION_V1,
+      engineVersionCandidate: ENGINE_VERSION_V2,
+    });
   }
 
   if (isDtrCoreSavedReportOneTimeProduct(productId)) {
@@ -378,7 +459,7 @@ export async function POST(req: NextRequest) {
       ],
       success_url: `${origin}/dtr/processing?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dtr/lp?checkout=cancelled`,
-      client_reference_id: userId,
+      client_reference_id: purchaseContextId,
       metadata,
       locale: 'ja',
       payment_intent_data: {
@@ -401,8 +482,8 @@ export async function POST(req: NextRequest) {
       JSON.stringify({
         event: 'stripe_checkout_session_created',
         sessionId: session.id,
-        hasProfileMetadata: !!(metadata.profileNickname && metadata.profileBirthDate),
-        hasV2Metadata: !!metadata.inputVersion,
+        hasPurchaseContext: !!metadata.purchaseContextId,
+        hasOpaqueUserRef: !!metadata.opaqueUserRef,
       })
     );
 

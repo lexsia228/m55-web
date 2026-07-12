@@ -2,6 +2,9 @@ import { runDtrEngine, type DtrCanonicalInput, type DtrEnvelope, type PaidDtrGen
 import { isDobPersonalizationV2FulfillmentEnabled } from '../dobPersonalizationFeatureFlag';
 import { composePaidIndividualizationFromEngineContext } from '../dtrPaidIndividualizationCompose';
 import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
+import { buildPaidDtrChapterMaterialPack } from '../dtrPaidChapterMaterialPack';
+import { buildPaidSavedReportChapterBodiesV1 } from '../paidResult/buildPaidSavedReportChapterBodiesV1';
+import { readPurchaseInputSnapshotV1 } from '../paidResult/purchaseInputSnapshotV1';
 import {
   CORRECTION_VERSION,
   ENGINE_VERSION_V2,
@@ -124,14 +127,26 @@ export function buildV2FulfillmentSnapshot(
   };
   const paidIndividualization = composePaidIndividualizationFromEngineContext(engineContext);
 
+  const purchaseSnap = readPurchaseInputSnapshotV1(draft?.extra_json ?? null);
+  let chapterBodies = options.generatedChapterBodies;
+  if (!chapterBodies && purchaseSnap) {
+    const materialPack = buildPaidDtrChapterMaterialPack(
+      engineContext,
+      paidIndividualization,
+    );
+    chapterBodies = buildPaidSavedReportChapterBodiesV1({
+      draft: purchaseSnap.individualization,
+      materialPack,
+    });
+  }
+
   const envelope = runDtrEngine(dtrInput, {
     stemLaneIndex: composite.stemLaneIndex,
     engineVersion: ENGINE_VERSION_V2,
     derivation: 'm55_composite_stem_v2_p_lunar',
     contractVersion: 'v2',
     paidIndividualization,
-    // Pass through pre-generated chapter bodies when provided (flag-gated, test-injectable).
-    generatedChapterBodies: options.generatedChapterBodies,
+    generatedChapterBodies: chapterBodies,
   });
 
   assertEnvelopeConsistent(envelope, composite);
