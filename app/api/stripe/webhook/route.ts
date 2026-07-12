@@ -26,6 +26,7 @@ import {
   m55OpsEventMissingClientReferenceId,
 } from '../../../../lib/m55/ops/m55OpsNotify';
 import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
+import { resolveCheckoutOwnerUserId } from '../../../../lib/m55/paidResult/resolveCheckoutOwnerUserId';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -259,7 +260,7 @@ export async function POST(req: NextRequest) {
  */
 async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
   const session = event.data.object as Stripe.Checkout.Session;
-  const userId = session.client_reference_id ?? null;
+  const userId = await resolveCheckoutOwnerUserId(session);
   const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_FROM_META;
 
   if (!userId) {

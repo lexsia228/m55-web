@@ -28,6 +28,7 @@ export type GuestDraftRow = {
 };
 
 /** Latest draft row for this Clerk user (after guest promote or logged-in sync). */
+/** Latest draft row for this Clerk user (after guest promote or logged-in sync). */
 export async function getLatestDraftForUser(userId: string): Promise<GuestDraftRow | null> {
   try {
     const db = getSupabaseAdmin() as any;
@@ -42,6 +43,55 @@ export async function getLatestDraftForUser(userId: string): Promise<GuestDraftR
     return data as GuestDraftRow;
   } catch {
     return null;
+  }
+}
+
+/** Draft row by UUID (purchase context / opaque client_reference_id). */
+export async function getDraftById(draftId: string): Promise<GuestDraftRow | null> {
+  try {
+    const db = getSupabaseAdmin() as any;
+    const { data, error } = await db
+      .from('dtr_guest_drafts')
+      .select('id,nickname,birth_date,extra_json,user_id,linked_at,updated_at')
+      .eq('id', draftId)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data as GuestDraftRow;
+  } catch {
+    return null;
+  }
+}
+
+export async function upsertGuestDraftPurchaseContext(params: {
+  userId: string;
+  draftId?: string | null;
+  nickname: string;
+  birthDate: string;
+  extraJson: Record<string, unknown>;
+}): Promise<{ ok: true; draftId: string } | { ok: false; reason: string }> {
+  try {
+    const db = getSupabaseAdmin() as any;
+    const existing = await getLatestDraftForUser(params.userId);
+    const draftId = params.draftId ?? existing?.id ?? crypto.randomUUID();
+    const now = new Date().toISOString();
+    const { error } = await db.from('dtr_guest_drafts').upsert(
+      {
+        id: draftId,
+        nickname: params.nickname,
+        birth_date: params.birthDate,
+        extra_json: params.extraJson,
+        user_id: params.userId,
+        linked_at: now,
+        updated_at: now,
+      },
+      { onConflict: 'id' },
+    );
+    if (error) {
+      return { ok: false, reason: String(error.message ?? error) };
+    }
+    return { ok: true, draftId };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : 'draft_upsert_failed' };
   }
 }
 

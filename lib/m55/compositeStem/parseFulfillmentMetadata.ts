@@ -37,15 +37,16 @@ export function resolveFulfillmentProfileFields(
   draft: FulfillmentDraftRow | null,
 ): FulfillmentProfileFields | null {
   const meta = sessionMetadata ?? {};
-  let nickname = metaString(meta, 'profileNickname');
-  let birthDate = metaString(meta, 'profileBirthDate');
+  let nickname = '';
+  let birthDate = '';
 
-  if (!nickname || !birthDate) {
-    if (draft?.nickname && draft.birth_date) {
-      if (!nickname) nickname = draft.nickname.trim();
-      if (!birthDate) birthDate = String(draft.birth_date).slice(0, 10);
-    }
+  if (draft?.nickname && draft.birth_date) {
+    nickname = draft.nickname.trim();
+    birthDate = String(draft.birth_date).slice(0, 10);
   }
+
+  if (!nickname) nickname = metaString(meta, 'profileNickname');
+  if (!birthDate) birthDate = metaString(meta, 'profileBirthDate');
 
   if (!nickname || !birthDate) return null;
 
