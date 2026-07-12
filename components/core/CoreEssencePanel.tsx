@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
@@ -10,6 +10,21 @@ import {
   buildFreeFiveViewCompositionV1,
   type FreeFiveViewComposition,
 } from '../../lib/m55/freeResult/buildFreeFiveViewCompositionV1';
+import {
+  isQuestionnaireCompleteForComposition,
+  resolveInitialUxPhase,
+  shouldHideResultDuringQuestionnaire,
+  shouldShowHero,
+  shouldShowIntro,
+  shouldShowQuestionnaire,
+  shouldShowRevealing,
+  shouldShowResultSections,
+  transitionOnIntroStart,
+  transitionOnQuestionnaireComplete,
+  transitionOnReanswer,
+  transitionOnRevealComplete,
+  type FreeRevealUxPhase,
+} from '../../lib/m55/freeResult/coreFreeRevealUxState';
 import { FREE_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
 import type { FreeQuestionId } from '../../lib/m55/freeResult/questionnaireCopyV1';
 import CoreAiChatExplainerSection from './CoreAiChatExplainerSection';
@@ -17,7 +32,9 @@ import CoreAlignFlowSection from './CoreAlignFlowSection';
 import CoreClosingSummarySection from './CoreClosingSummarySection';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
 import CoreFiveViewResultSection from './CoreFiveViewResultSection';
+import CoreFreeIntroSection from './CoreFreeIntroSection';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
+import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreFreeSavedBoundarySection from './CoreFreeSavedBoundarySection';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreHeroSection from './CoreHeroSection';
@@ -39,31 +56,28 @@ function isCompleteFreeAnswerSet(answers: Record<string, string>): boolean {
   return FREE_QUESTION_IDS.every((id) => Boolean(answers[id]));
 }
 
+function formatBirthDateLabelJa(isoDate: string): string {
+  const parsed = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!parsed) return isoDate;
+  const year = parsed[1];
+  const month = Number(parsed[2]);
+  const day = Number(parsed[3]);
+  return `${year}年${month}月${day}日`;
+}
+
 export default function CoreEssencePanel() {
   const { user, isLoaded } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
-  const [freshReveal, setFreshReveal] = useState(false);
+  const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>(resolveInitialUxPhase);
+  const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [questionnaireDone, setQuestionnaireDone] = useState(false);
   const [compositionError, setCompositionError] = useState<string | null>(null);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
     window.addEventListener('m55:profile_updated', bump);
     return () => window.removeEventListener('m55:profile_updated', bump);
-  }, []);
-
-  useEffect(() => {
-    try {
-      if (sessionStorage.getItem('m55:core_fresh_reveal') !== '1') return;
-      sessionStorage.removeItem('m55:core_fresh_reveal');
-      setFreshReveal(true);
-      const t = window.setTimeout(() => setFreshReveal(false), 520);
-      return () => window.clearTimeout(t);
-    } catch {
-      return undefined;
-    }
   }, []);
 
   const sealed: SealedState = useMemo(() => {
@@ -81,9 +95,11 @@ export default function CoreEssencePanel() {
     }
   }, [isLoaded, ownerId, profileEpoch]);
 
+  const answersComplete = isCompleteFreeAnswerSet(answers);
+  const questionnaireDone = isQuestionnaireCompleteForComposition(uxPhase, answersComplete);
+
   const composition: FreeFiveViewComposition | null = useMemo(() => {
     if (sealed.kind !== 'ready' || !questionnaireDone) return null;
-    if (!isCompleteFreeAnswerSet(answers)) return null;
     const built = buildFreeFiveViewCompositionV1({
       birthDate: sealed.profile.birthDate,
       stemLaneIndex: sealed.result.stemLaneIndex,
@@ -102,10 +118,29 @@ export default function CoreEssencePanel() {
       setCompositionError(null);
       return;
     }
-    if (isCompleteFreeAnswerSet(answers)) {
+    if (answersComplete) {
       setCompositionError('見取り図を組み立てられませんでした。もう一度答え直してください。');
     }
-  }, [answers, composition, questionnaireDone]);
+  }, [answers, answersComplete, composition, questionnaireDone]);
+
+  const persistAnswersForCheckout = useCallback(
+    (answerSet: Record<string, string>) => {
+      if (sealed.kind !== 'ready') return;
+      const { profile } = sealed;
+      if (!profile.birthDate || !profile.nickname?.trim()) return;
+      queueDtrDraftSync(ownerId, {
+        nickname: profile.nickname.trim(),
+        birthDate: profile.birthDate,
+        extraJson: { freeAnswerSet: answerSet },
+      });
+      try {
+        sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(answerSet));
+      } catch {
+        /* no-op */
+      }
+    },
+    [ownerId, sealed],
+  );
 
   if (sealed.kind === 'loading') {
     return (
@@ -131,47 +166,49 @@ export default function CoreEssencePanel() {
 
   const { result, profile } = sealed;
   const nickname = profile.nickname.trim();
+  const birthDateLabelJa = formatBirthDateLabelJa(profile.birthDate);
+  const hideResult = shouldHideResultDuringQuestionnaire(uxPhase);
 
   function handleAnswerChange(questionId: FreeQuestionId, answerId: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
   }
 
-  function handleComplete() {
-    if (!isCompleteFreeAnswerSet(answers)) return;
-    setQuestionnaireDone(true);
-    if (profile.birthDate && profile.nickname?.trim()) {
-      queueDtrDraftSync(ownerId, {
-        nickname: profile.nickname.trim(),
-        birthDate: profile.birthDate,
-        extraJson: { freeAnswerSet: answers },
-      });
-      try {
-        sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(answers));
-      } catch {
-        /* no-op */
-      }
-    }
+  function handleIntroStart() {
+    setUxPhase(transitionOnIntroStart());
+  }
+
+  function handleQuestionnaireComplete() {
+    if (!answersComplete) return;
+    persistAnswersForCheckout(answers);
+    setUxPhase(transitionOnQuestionnaireComplete());
+  }
+
+  function handleRevealComplete() {
+    setUxPhase(transitionOnRevealComplete());
   }
 
   function handleReanswer() {
-    setQuestionnaireDone(false);
+    setUxPhase(transitionOnReanswer());
     setAnswers({});
     setCompositionError(null);
+    setQuestionnaireFlowKey((n) => n + 1);
   }
 
   return (
-    <div
-      className={`${CoreExperienceStyles.page}${freshReveal ? ` ${CoreExperienceStyles.pageFreshReveal}` : ''}`}
-    >
+    <div className={CoreExperienceStyles.page}>
       <CoreScrollReveal />
-      <CoreHeroSection result={result} nickname={nickname} />
 
-      {!questionnaireDone || !composition ? (
+      {shouldShowIntro(uxPhase) ? (
+        <CoreFreeIntroSection birthDateLabelJa={birthDateLabelJa} onStart={handleIntroStart} />
+      ) : null}
+
+      {shouldShowQuestionnaire(uxPhase) ? (
         <>
           <CoreFreeQuestionnaireLayer
+            key={questionnaireFlowKey}
             answers={answers}
             onChange={handleAnswerChange}
-            onComplete={handleComplete}
+            onComplete={handleQuestionnaireComplete}
           />
           {compositionError ? (
             <div className={CoreExperienceStyles.errorBox} role="alert">
@@ -179,22 +216,72 @@ export default function CoreEssencePanel() {
             </div>
           ) : null}
         </>
-      ) : (
+      ) : null}
+
+      {shouldShowRevealing(uxPhase) ? (
+        <CoreFreeRevealTransition onComplete={handleRevealComplete} />
+      ) : null}
+
+      {hideResult ? null : (
         <>
-          <CoreFreeSavedBoundarySection />
-          <CoreFiveViewResultSection
-            composition={composition}
-            onReanswer={handleReanswer}
-          />
-          <CoreRadarSection result={result} nickname={nickname} />
-          <CoreHowM55ReadsSection nickname={nickname} />
-          <CoreTendencyLoadSection result={result} />
-          <CoreTypeEaseSection result={result} />
-          <CoreAlignFlowSection result={result} />
-          <CoreObservationListSection result={result} />
-          <CoreClosingSummarySection result={result} nickname={nickname} />
-          <CoreAiChatExplainerSection nickname={nickname} />
-          <CoreEntryReportCTASection />
+          {shouldShowHero(uxPhase) ? (
+            <div className={CoreExperienceStyles.freeResultRevealItem}>
+              <CoreHeroSection result={result} nickname={nickname} />
+            </div>
+          ) : null}
+
+          {shouldShowResultSections(uxPhase) && composition ? (
+            <>
+              <div
+                className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.freeStableBaselineLead}`}
+              >
+                <span className={CoreExperienceStyles.tierAOverline}>変わりにくい土台</span>
+                <h2 className={CoreExperienceStyles.sectionTitle}>生年月日から見る傾向</h2>
+                <p className={CoreExperienceStyles.sectionLead}>
+                  ここから先は、登録中の生年月日から読み取れる、変わりにくい土台の輪郭です。
+                </p>
+              </div>
+
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreRadarSection result={result} nickname={nickname} />
+              </div>
+
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreFiveViewResultSection
+                  composition={composition}
+                  onReanswer={handleReanswer}
+                />
+              </div>
+
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreHowM55ReadsSection nickname={nickname} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreTendencyLoadSection result={result} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreTypeEaseSection result={result} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreAlignFlowSection result={result} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreObservationListSection result={result} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreClosingSummarySection result={result} nickname={nickname} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreAiChatExplainerSection nickname={nickname} />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreFreeSavedBoundarySection />
+              </div>
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreEntryReportCTASection />
+              </div>
+            </>
+          ) : null}
         </>
       )}
     </div>
