@@ -13,6 +13,7 @@ import { PAID_DTR_LP } from "../../../lib/m55/paidDtrProductCopy";
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from "../../../lib/oneTimeCheckout";
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
+import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import styles from "./lp.module.css";
 
 export const metadata = { title: "本質を見つめ直す | M55" };
@@ -327,6 +328,7 @@ export default async function DtrLpPage({
             <h2 id="dtr-lp-tiers-heading" className={styles.lpH2}>
               {PAID_DTR_LP.tiers.sectionTitleJa}
             </h2>
+            <DtrPaidPurchasePrep>
             <div className={styles.lpTierStack}>
               <TierCard
                 tier={PAID_DTR_LP.tiers.light}
@@ -346,6 +348,7 @@ export default async function DtrLpPage({
                 <CheckoutTrustRow />
               </div>
             )}
+            </DtrPaidPurchasePrep>
           </section>
         )}
 

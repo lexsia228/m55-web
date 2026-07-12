@@ -3,6 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
+import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
@@ -138,6 +139,18 @@ export default function CoreEssencePanel() {
   function handleComplete() {
     if (!isCompleteFreeAnswerSet(answers)) return;
     setQuestionnaireDone(true);
+    if (profile.birthDate && profile.nickname?.trim()) {
+      queueDtrDraftSync(ownerId, {
+        nickname: profile.nickname.trim(),
+        birthDate: profile.birthDate,
+        extraJson: { freeAnswerSet: answers },
+      });
+      try {
+        sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(answers));
+      } catch {
+        /* no-op */
+      }
+    }
   }
 
   function handleReanswer() {

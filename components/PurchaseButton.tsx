@@ -72,11 +72,24 @@ export default function PurchaseButton({
         setLoading(false);
         return;
       }
-      const payload: { productId: string; profile?: BirthProfile } = {
+      const payload: {
+        productId: string;
+        profile?: BirthProfile;
+        freeAnswerSet?: Record<string, string>;
+        paidAnswerSet?: Record<string, string>;
+      } = {
         productId,
       };
       if (profile?.birthDate && profile.nickname?.trim()) {
         payload.profile = profile;
+      }
+      try {
+        const freeRaw = sessionStorage.getItem('m55_free_answers_v1');
+        const paidRaw = sessionStorage.getItem('m55_paid_answers_v1');
+        if (freeRaw) payload.freeAnswerSet = JSON.parse(freeRaw) as Record<string, string>;
+        if (paidRaw) payload.paidAnswerSet = JSON.parse(paidRaw) as Record<string, string>;
+      } catch {
+        /* no-op */
       }
       const res = await fetch('/api/purchase/checkout', {
         method: 'POST',

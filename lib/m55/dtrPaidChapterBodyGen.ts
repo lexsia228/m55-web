@@ -59,7 +59,7 @@ const CHAPTER_HINTS: Readonly<Record<string, string>> = {
   s4_strengths:   '強みを活かすために、日々の場面でこのリズムを意識します。',
 };
 
-function buildFakeSectionBody(
+export function buildFakeSectionBody(
   materialPack: ChapterMaterialPack,
   sectionId: string,
 ): string {
