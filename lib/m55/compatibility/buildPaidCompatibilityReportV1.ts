@@ -14,6 +14,13 @@ import type {
   RelationStatusId,
   TemperatureId,
 } from './pairReadingTypes';
+import {
+  buildCompatibilityCurrentContextChapterVariation,
+  buildCompatibilityCurrentContextDisplay,
+  bodyAnswersFromCurrentContext,
+  type CompatibilityCurrentContextAnswers,
+  type CompatibilityCurrentContextDisplay,
+} from './currentContextContract.v1';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
@@ -24,6 +31,7 @@ export type PaidCompatibilityReportInput = {
   relationStatusId: RelationStatusId;
   temperatureId: TemperatureId;
   personAUsesFirstPerspective: boolean;
+  currentContext?: CompatibilityCurrentContextAnswers;
 };
 
 export type PaidCompatibilityChapter = {
@@ -49,6 +57,7 @@ export type PaidCompatibilityReportSnapshot = {
   readonly differentFoundation: string;
   readonly recurringLoop: string;
   readonly highlightedChapterKeys: readonly ChapterId[];
+  readonly currentContext?: CompatibilityCurrentContextDisplay;
   readonly chapters: readonly PaidCompatibilityChapter[];
   readonly safetyNote: string;
 };
@@ -262,12 +271,12 @@ function perspectiveText(
   statusContext: string,
 ): string {
   const templates = [
-    `予定を決める場面で、${role}は自分が動ける輪郭を先に確かめたくなります。背景には「${perspective}」という見え方があります。`,
-    `反応がまだ見えない場面で、${role}は受け取った合図の置き方を慎重に扱います。その合図を「${perspective}」という見え方から受け取ります。`,
-    `意見が分かれると、${role}には話の内容と安心できる順序のどちらを先に置くかが表れます。順序を選ぶ土台には「${perspective}」という見え方があります。`,
-    `「${topicLabel}」を扱うとき、${role}は話題へ入る間合いを自分の順序で整えます。話題への入り口では「${perspective}」という見え方が表れます。`,
-    `この場面で、${role}は${statusContext}を自分のペースで確かめようとします。距離を測る土台には「${perspective}」という見え方があります。`,
-    `元の距離へ戻るとき、${role}は関係を一つの説明に固定せず、小さな接点から様子を見ます。接点を探すときには「${perspective}」という見え方が表れます。`,
+    `予定を決める場面では、${role}には${perspective}ことが自然に見えます。自分が動ける輪郭を先に確かめたくなります。`,
+    `反応がまだ見えない場面では、${role}から見ると${perspective}ところがあります。受け取った合図の置き方を慎重に扱います。`,
+    `意見が分かれる場面では、${role}には${perspective}進め方がなじみます。話の内容と安心できる順序のどちらを先に置くかが表れます。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspective}流れが自然です。話題へ入る間合いを自分の順序で整えます。`,
+    `少し距離を置きたくなる場面では、${role}には${perspective}動きが見えます。${statusContext}を自分のペースで確かめようとします。`,
+    `元の距離へ戻る場面では、${role}から見ると${perspective}ことが入口になります。関係を一つの説明に固定せず、小さな接点から様子を見ます。`,
   ] as const;
   return templates[chapterIndex]!;
 }
@@ -306,6 +315,12 @@ function buildChapter(
   const topicLabel = getTopicLabel(input.paidTopicId);
   const topicAction = TOPIC_IMMEDIATE_ACTIONS[input.paidTopicId];
   const phrase = chapterPhrase(key, input.pairAxisId, roles);
+  const contextVariation = input.currentContext
+    ? buildCompatibilityCurrentContextChapterVariation(
+      key,
+      bodyAnswersFromCurrentContext(input.currentContext),
+    )
+    : null;
   const topicScene = key === 'ch_topic_deep'
     ? `${focus.scene}。ここでは「${topicLabel}」に場面を絞ります`
     : focus.scene;
@@ -327,12 +342,15 @@ function buildChapter(
     `今週、${topicAction.situation}に、${focus.experimentAction}。`,
     '一回分の場面だけを見て、次も続けるかはそのあとで選びます。',
   ].join('');
+  const contextualPhrase = contextVariation
+    ? `${phrase.text.split('、')[0]?.replace(/[？。]$/u, '') ?? phrase.text}、${contextVariation.usablePhrase}`
+    : phrase.text;
 
   return Object.freeze({
     key,
     number: index + 1,
     title: getChapterTitle(key, input.paidTopicId),
-    scene: topicScene,
+    scene: contextVariation ? `${topicScene}。${contextVariation.sceneSuffix}` : topicScene,
     personAPerspective: personA,
     personBPerspective: personB,
     relationshipLoop: Object.freeze([
@@ -340,13 +358,23 @@ function buildChapter(
       `${roles.second.role}が${focus.secondReception}`,
       `${roles.second.role}が${focus.secondAction}`,
       `${roles.first.role}が${focus.firstReception}`,
-      `二人の間で、${focus.continuation}`,
+      contextVariation
+        ? `二人の間で、${focus.continuation}。今は、${contextVariation.relationshipLoopTail}`
+        : `二人の間で、${focus.continuation}`,
     ]),
-    resetSteps: Object.freeze([...focus.resetSteps]),
+    resetSteps: contextVariation
+      ? Object.freeze([
+        focus.resetSteps[0]!,
+        contextVariation.resetStep,
+        focus.resetSteps[focus.resetSteps.length - 1]!,
+      ])
+      : Object.freeze([...focus.resetSteps]),
     phraseSpeaker: phrase.speaker,
-    usablePhrase: phrase.text,
-    smallExperiment,
-    reflectionQuestion: focus.reflectionQuestion,
+    usablePhrase: contextualPhrase,
+    smallExperiment: contextVariation ? contextVariation.smallExperiment : smallExperiment,
+    reflectionQuestion: contextVariation
+      ? contextVariation.reflectionQuestion
+      : focus.reflectionQuestion,
   });
 }
 
@@ -358,10 +386,14 @@ export function buildPaidCompatibilityReportV1(
   const chapters = CHAPTER_IDS.map((key, index) =>
     buildChapter(key, index, input, roles),
   );
-  const highlightedChapterKeys = Object.freeze([
-    'ch_pair_gap',
-    'ch_topic_deep',
-  ] satisfies ChapterId[]);
+  const currentContext = input.currentContext
+    ? buildCompatibilityCurrentContextDisplay(input.currentContext)
+    : undefined;
+  const highlightedChapterKeys = currentContext?.highlightedChapterKeys
+    ?? Object.freeze([
+      'ch_pair_gap',
+      'ch_topic_deep',
+    ] satisfies ChapterId[]);
 
   return Object.freeze({
     version: PAID_COMPATIBILITY_REPORT_VERSION,
@@ -373,8 +405,11 @@ export function buildPaidCompatibilityReportV1(
     ].join(''),
     sharedFoundation: authority.overlap,
     differentFoundation: authority.difference,
-    recurringLoop: `二人の間では、${authority.dynamicOutcome}。`,
+    recurringLoop: currentContext
+      ? currentContext.relationshipLoop
+      : `二人の間では、${authority.dynamicOutcome}。`,
     highlightedChapterKeys,
+    ...(currentContext ? { currentContext } : {}),
     chapters: Object.freeze(chapters),
     safetyNote:
       'このレポートは、関係や相手の気持ち、これからの結果を決めるものではありません。対話を続けるかどうかも、それぞれが選べます。恐怖や暴力、強制がある場合は、このレポートより安全の確保を優先してください。',

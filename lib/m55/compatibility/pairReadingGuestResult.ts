@@ -10,10 +10,11 @@ import {
   type CompatibilityGuestInput,
   type CompatibilityGuestResultOutcome,
   type CompatibilityMappedChapter,
-  type CompatibilityPublicChapter,
 } from './pairReadingGuestContract';
 import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
+import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
+import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
 import type {
   ChapterId,
   PaidTopicId,
@@ -52,25 +53,10 @@ type CompatibilityMatrixState = {
   pairAxisOverride?: PairAxisId;
 };
 
-function firstParagraph(value: string): string {
-  return value.split(/\n\s*\n/u)[0]?.trim() ?? value.trim();
-}
-
-function toPublicChapter(chapter: {
-  chapterId: ChapterId;
-  chapterTitle: string;
-  chapterBody: string;
-}): CompatibilityPublicChapter {
-  return {
-    chapterId: chapter.chapterId,
-    chapterTitle: chapter.chapterTitle,
-    actualContent: firstParagraph(chapter.chapterBody),
-  };
-}
-
 export function buildCompatibilityPublicResult(
   guestInput: CompatibilityGuestInput,
   stateOverride?: CompatibilityMatrixState,
+  currentContext?: CompatibilityCurrentContextAnswers,
 ): CompatibilityGuestResultOutcome {
   if (!isCompleteCompatibilityGuestInput(guestInput)) {
     return { ok: false, message: '二人分の有効な生年月日を入力してください。' };
@@ -105,17 +91,36 @@ export function buildCompatibilityPublicResult(
     paidTopicId: state.paidTopicId,
     personAUsesFirstPerspective,
   });
-  const allChapters = rendered.paidReport.chapters.map(toPublicChapter);
-  const mappedIds = [
+  const paidSnapshot = buildPaidCompatibilityReportV1({
+    pairAxisId: rendered.pairFingerprint.pairAxisId,
+    paidTopicId: state.paidTopicId,
+    relationStatusId: state.relationStatusId,
+    temperatureId: state.temperatureId,
+    personAUsesFirstPerspective,
+    ...(currentContext ? { currentContext } : {}),
+  });
+  const allChapters = paidSnapshot.chapters.map((chapter) => ({
+    chapterId: chapter.key,
+    chapterTitle: chapter.title,
+    actualContent: chapter.scene,
+  }));
+  const mappedIds = paidSnapshot.currentContext?.highlightedChapterKeys ?? [
     PAIR_AXIS_PAID_CHAPTER_MAPPING[rendered.pairFingerprint.pairAxisId],
     TOPIC_PAID_CHAPTER_MAPPING[state.paidTopicId],
   ] as const;
   const mappedChapters = mappedIds.map((chapterId, index) => {
     const chapter = allChapters.find((candidate) => candidate.chapterId === chapterId);
     if (!chapter) throw new Error('compatibility chapter mapping is incomplete');
+    const preview = paidSnapshot.currentContext?.chapterPreview[index];
     return {
       ...chapter,
       freeConnection: index === 0 ? free.difference : free.relationshipDynamic,
+      ...(preview
+        ? {
+          currentConnection: preview.reason,
+          concreteValue: preview.concreteValue,
+        }
+        : {}),
     };
   }) as [CompatibilityMappedChapter, CompatibilityMappedChapter];
 
@@ -124,6 +129,9 @@ export function buildCompatibilityPublicResult(
     value: {
       free,
       freeTeaser: rendered.freeTeaser.teaserText,
+      ...(paidSnapshot.currentContext
+        ? { currentContext: paidSnapshot.currentContext }
+        : {}),
       mappedChapters,
       allChapters,
     },

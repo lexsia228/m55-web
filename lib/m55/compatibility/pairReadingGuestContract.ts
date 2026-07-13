@@ -5,8 +5,9 @@ import type {
   RelationStatusId,
   TemperatureId,
 } from './pairReadingTypes';
+import type { CompatibilityCurrentContextDisplay } from './currentContextContract.v1';
 
-export const COMPATIBILITY_GUEST_SESSION_KEY = 'm55_compatibility_guest_input_v1' as const;
+export const COMPATIBILITY_GUEST_SESSION_KEY = 'm55_compatibility_guest_journey_v2' as const;
 
 export const COMPATIBILITY_GUEST_DEFAULT_STATE = {
   relationStatusId: 'R2',
@@ -31,11 +32,14 @@ export type CompatibilityPublicChapter = {
 
 export type CompatibilityMappedChapter = CompatibilityPublicChapter & {
   freeConnection: string;
+  currentConnection?: string;
+  concreteValue?: string;
 };
 
 export type CompatibilityPublicResult = {
   free: CompatibilityFreeResultFragments;
   freeTeaser: string;
+  currentContext?: CompatibilityCurrentContextDisplay;
   mappedChapters: [CompatibilityMappedChapter, CompatibilityMappedChapter];
   allChapters: CompatibilityPublicChapter[];
 };

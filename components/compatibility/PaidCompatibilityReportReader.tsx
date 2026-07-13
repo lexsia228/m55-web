@@ -108,8 +108,15 @@ export default function PaidCompatibilityReportReader({
         <h1 id="paid-report-title">{snapshot.reportTitle}</h1>
         <p className={styles.subtitle}>6つの場面から、関係の扱い方を読みます</p>
         <p className={styles.readingGuide}>
-          最初から通して読む必要はありません。今気になる場面の章から開いてください。
+          {snapshot.currentContext?.readingGuide
+            ?? '最初から通して読む必要はありません。今気になる場面の章から開いてください。'}
         </p>
+        <div className={styles.readingMoments} aria-label="レポートを使う場面">
+          <span>会話の前に読む</span>
+          <span>すれ違った時に読む</span>
+          <span>距離を戻したい時に読む</span>
+          <span>あとで振り返る</span>
+        </div>
       </header>
 
       <section className={styles.overview} aria-labelledby="relationship-overview-title">
@@ -127,19 +134,48 @@ export default function PaidCompatibilityReportReader({
           </div>
         </div>
         <div className={styles.recurringLoop}>
-          <h3>二人の間で続きやすい連鎖</h3>
+          <h3>
+            {snapshot.currentContext
+              ? '今の回答から見える、続きやすい連鎖'
+              : '二人の間で続きやすい連鎖'}
+          </h3>
           <p>{snapshot.recurringLoop}</p>
         </div>
+        {snapshot.currentContext ? (
+          <div className={styles.contextProof}>
+            <div>
+              <h3>生年月日から見える土台</h3>
+              <p>重なりやすい土台と、違いが出やすい土台として残しています。</p>
+            </div>
+            <div>
+              <h3>今の回答から重なったこと</h3>
+              <p>{snapshot.currentContext.currentExpression}</p>
+            </div>
+          </div>
+        ) : null}
         <div className={styles.highlighted}>
-          <h3>今の見取り図と直接つながる2章</h3>
+          <h3>
+            {snapshot.currentContext
+              ? `「${snapshot.currentContext.focusLabel}」から最初に読む2章`
+              : '今の見取り図と直接つながる2章'}
+          </h3>
           <div>
             {snapshot.highlightedChapterKeys.map((key) => {
               const chapter = snapshot.chapters.find((candidate) => candidate.key === key);
+              const preview = snapshot.currentContext?.chapterPreview.find(
+                (candidate) => candidate.chapterKey === key,
+              );
               if (!chapter) return null;
               return (
                 <button key={key} type="button" onClick={() => openChapter(chapter)}>
                   <span>第{chapter.number}章</span>
-                  {chapter.title}
+                  <strong>{chapter.title}</strong>
+                  {preview ? (
+                    <>
+                      <small>{preview.reason}</small>
+                      <em>{preview.concreteValue}</em>
+                    </>
+                  ) : null}
                 </button>
               );
             })}
