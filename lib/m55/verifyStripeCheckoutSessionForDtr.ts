@@ -9,6 +9,10 @@ import {
   resolveCheckoutPurchaseContextOwner,
   type PurchaseContextLookup,
 } from './paidResult/resolveCheckoutOwnerUserId';
+import {
+  verifyDtrCheckoutPurchaseFromStripe,
+  type DtrCheckoutPurchaseFailureReason,
+} from './paidResult/verifyDtrCheckoutPurchase';
 
 export type DtrCheckoutVerificationFailureReason =
   | 'session_status_not_complete'
@@ -18,12 +22,14 @@ export type DtrCheckoutVerificationFailureReason =
   | 'purchase_context_invalid'
   | 'purchase_context_owner_missing'
   | 'purchase_context_owner_mismatch'
+  | 'product_mismatch'
   | 'product_not_allowed'
   | 'payment_status_not_paid'
-  | 'retrieve_failed';
+  | 'retrieve_failed'
+  | DtrCheckoutPurchaseFailureReason;
 
 export type DtrCheckoutVerificationResult =
-  | { valid: true; sessionId: string }
+  | { valid: true; sessionId: string; canonicalProductId: string }
   | { valid: false; reason: DtrCheckoutVerificationFailureReason };
 
 export async function verifyRetrievedStripeCheckoutSessionForDtrUser(
@@ -46,15 +52,22 @@ export async function verifyRetrievedStripeCheckoutSessionForDtrUser(
     return { valid: false, reason: 'purchase_context_owner_mismatch' };
   }
 
-  const productId = (session.metadata?.productId as string) ?? DTR_CORE_STATIC_V1;
-  if (!ALLOWED_ONE_TIME_PRODUCTS.has(productId)) {
+  const metadataProductId = (session.metadata?.productId as string) ?? DTR_CORE_STATIC_V1;
+  if (metadataProductId !== resolvedOwner.canonicalProductId) {
+    return { valid: false, reason: 'product_mismatch' };
+  }
+  if (!ALLOWED_ONE_TIME_PRODUCTS.has(resolvedOwner.canonicalProductId)) {
     return { valid: false, reason: 'product_not_allowed' };
   }
   if (session.payment_status !== 'paid') {
     return { valid: false, reason: 'payment_status_not_paid' };
   }
 
-  return { valid: true, sessionId: session.id };
+  return {
+    valid: true,
+    sessionId: session.id,
+    canonicalProductId: resolvedOwner.canonicalProductId,
+  };
 }
 
 export async function verifyStripeCheckoutSessionForDtrUser(
@@ -64,7 +77,19 @@ export async function verifyStripeCheckoutSessionForDtrUser(
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    const result = await verifyRetrievedStripeCheckoutSessionForDtrUser(session, userId);
+    const basicResult = await verifyRetrievedStripeCheckoutSessionForDtrUser(session, userId);
+    const result: DtrCheckoutVerificationResult = basicResult.valid
+      ? await (async () => {
+          const purchase = await verifyDtrCheckoutPurchaseFromStripe(
+            stripe,
+            session,
+            basicResult.canonicalProductId,
+          );
+          return purchase.ok
+            ? basicResult
+            : { valid: false as const, reason: purchase.reason };
+        })()
+      : basicResult;
 
     const payload = {
       sessionId,

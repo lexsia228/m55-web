@@ -18,6 +18,7 @@ import {
 } from './reply/walletGrants';
 import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
 import { resolveCheckoutPurchaseContextOwner } from './paidResult/resolveCheckoutOwnerUserId';
+import { verifyDtrCheckoutPurchaseFromStripe } from './paidResult/verifyDtrCheckoutPurchase';
 import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
@@ -37,7 +38,9 @@ export type FulfillFromCheckoutSessionResult =
       ok: false;
       reason:
         | 'retrieve_failed'
+        | 'session_incomplete'
         | 'purchase_context_invalid'
+        | 'purchase_validation_failed'
         | 'not_payment'
         | 'user_mismatch'
         | 'payment_not_paid'
@@ -69,7 +72,20 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
     return { ok: false, reason: 'retrieve_failed', detail: String(e) };
   }
 
-  const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_DEFAULT;
+  if (session.status !== 'complete') {
+    return { ok: false, reason: 'session_incomplete', detail: session.status ?? 'unknown' };
+  }
+  if (session.mode !== 'payment') {
+    return { ok: false, reason: 'not_payment' };
+  }
+  if (session.payment_status !== 'paid') {
+    return {
+      ok: false,
+      reason: 'payment_not_paid',
+      detail: session.payment_status ?? 'unknown',
+    };
+  }
+
   const resolvedOwner = await resolveCheckoutPurchaseContextOwner(session);
 
   if (!resolvedOwner.ok) {
@@ -84,32 +100,26 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
     return { ok: false, reason: 'user_mismatch' };
   }
   const ownerUserId = resolvedOwner.ownerUserId;
-
-  if (session.mode !== 'payment') {
-    return { ok: false, reason: 'not_payment' };
-  }
+  const productId = resolvedOwner.canonicalProductId || PRODUCT_ID_DEFAULT;
 
   if (!ALLOWED_ONE_TIME_PRODUCTS.has(productId)) {
     return { ok: false, reason: 'product_not_allowed', detail: productId };
   }
 
-  let fresh: Stripe.Checkout.Session;
-  try {
-    fresh = await stripe.checkout.sessions.retrieve(session.id);
-  } catch (e) {
-    return { ok: false, reason: 'retrieve_failed', detail: String(e) };
+  const verifiedPurchase = await verifyDtrCheckoutPurchaseFromStripe(stripe, session, productId);
+  if (!verifiedPurchase.ok) {
+    return {
+      ok: false,
+      reason: 'purchase_validation_failed',
+      detail: verifiedPurchase.reason,
+    };
   }
 
-  const paymentStatus = fresh.payment_status ?? 'unknown';
-  if (paymentStatus !== 'paid') {
-    return { ok: false, reason: 'payment_not_paid', detail: paymentStatus };
-  }
-
-  const checkoutSessionId = fresh.id;
+  const checkoutSessionId = session.id;
   const paymentIntentId =
-    typeof fresh.payment_intent === 'string'
-      ? fresh.payment_intent
-      : (fresh.payment_intent as Stripe.PaymentIntent)?.id ?? null;
+    typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : (session.payment_intent as Stripe.PaymentIntent)?.id ?? null;
 
   try {
     const db = getSupabaseAdmin() as any;
@@ -197,7 +207,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         userId: ownerUserId,
         productId,
         checkoutSessionId,
-        sessionMetadata: fresh.metadata,
+        sessionMetadata: session.metadata,
       });
       if (!snap.ok) {
         console.error(

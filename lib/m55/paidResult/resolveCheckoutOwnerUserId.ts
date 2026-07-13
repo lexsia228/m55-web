@@ -15,6 +15,7 @@ export type ResolvedPurchaseContextOwner =
       ok: true;
       purchaseContextId: string;
       ownerUserId: string;
+      canonicalProductId: string;
       context: GuestDraftRow;
     }
   | {
@@ -27,10 +28,15 @@ export type PurchaseContextLookup = (purchaseContextId: string) => Promise<Guest
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function hasFrozenPurchaseInput(context: GuestDraftRow): boolean {
+function frozenPurchaseInput(
+  context: GuestDraftRow,
+): { frozen: true; productId: string } | null {
   const raw = context.extra_json?.purchaseInputV1;
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false;
-  return (raw as { frozen?: unknown }).frozen === true;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const candidate = raw as { frozen?: unknown; productId?: unknown };
+  if (candidate.frozen !== true || typeof candidate.productId !== 'string') return null;
+  const productId = candidate.productId.trim();
+  return productId ? { frozen: true, productId } : null;
 }
 
 /**
@@ -56,11 +62,12 @@ export async function resolvePurchaseContextOwner(
   if (!context) {
     return { ok: false, reason: 'purchase_context_not_found' };
   }
+  const purchaseInput = frozenPurchaseInput(context);
   if (
     context.id !== normalized ||
     !context.linked_at ||
     !Number.isFinite(Date.parse(context.updated_at)) ||
-    !hasFrozenPurchaseInput(context)
+    !purchaseInput
   ) {
     return { ok: false, reason: 'purchase_context_invalid' };
   }
@@ -74,6 +81,7 @@ export async function resolvePurchaseContextOwner(
     ok: true,
     purchaseContextId: normalized,
     ownerUserId,
+    canonicalProductId: purchaseInput.productId,
     context,
   };
 }
