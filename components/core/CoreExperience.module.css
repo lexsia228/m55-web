@@ -2838,6 +2838,219 @@
   text-align: left;
 }
 
+/* Free→paid conversion bridge — quiet premium, single primary CTA */
+.conversionBridge {
+  margin-top: clamp(28px, 6vw, 40px);
+  padding: clamp(22px, 4vw, 32px) clamp(18px, 3.5vw, 28px) clamp(24px, 4.5vw, 34px);
+  border-radius: 20px;
+  background: rgba(252, 249, 245, 0.96);
+  border: 1px solid rgba(90, 78, 120, 0.1);
+  box-shadow: 0 12px 32px rgba(29, 24, 61, 0.045);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.conversionBridgeOverline {
+  font-size: clamp(10px, 2vw, 11px);
+  letter-spacing: 0.14em;
+  color: rgba(62, 52, 88, 0.55);
+  margin-bottom: 8px;
+}
+
+.conversionBridgeTitle {
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(20px, 4.2vw, 24px);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+  line-height: 1.45;
+}
+
+.conversionBridgeContext {
+  margin: 0 0 18px;
+  font-size: clamp(14px, 2.7vw, 16px);
+  line-height: 1.75;
+  color: rgba(40, 38, 44, 0.9);
+  max-width: 38em;
+}
+
+.conversionBridgeLayers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+@media (min-width: 720px) {
+  .conversionBridgeLayers {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+.conversionBridgeLayer {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 78, 120, 0.08);
+}
+
+.conversionBridgeLayerLabel {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(40, 38, 44, 0.92);
+}
+
+.conversionBridgeLayerBody {
+  margin: 0;
+  font-size: clamp(13px, 2.5vw, 15px);
+  line-height: 1.7;
+  color: rgba(50, 46, 58, 0.88);
+}
+
+.conversionBridgeChaptersHeading {
+  margin: 0 0 10px;
+  font-size: clamp(13px, 2.5vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(40, 38, 44, 0.9);
+}
+
+.conversionBridgeChapters {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .conversionBridgeChapters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.conversionBridgeChapterItem {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(90, 78, 120, 0.07);
+}
+
+.conversionBridgeChapterRoman {
+  flex: 0 0 auto;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(62, 52, 88, 0.62);
+  min-width: 1.25em;
+}
+
+.conversionBridgeChapterTitle {
+  font-size: clamp(13px, 2.5vw, 14px);
+  line-height: 1.5;
+  color: rgba(30, 28, 36, 0.94);
+}
+
+.conversionBridgePriceNote {
+  margin: 0 0 16px;
+  font-size: clamp(12px, 2.3vw, 13px);
+  line-height: 1.65;
+  color: rgba(62, 52, 88, 0.72);
+  max-width: 40em;
+}
+
+.conversionBridgeActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.conversionBridgePrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(52, 44, 78, 0.92);
+  color: #faf8f5;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(52, 44, 78, 0.2);
+  box-shadow: 0 8px 20px rgba(29, 24, 61, 0.12);
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.conversionBridgePrimary:hover {
+  background: rgba(42, 35, 66, 0.96);
+  box-shadow: 0 10px 24px rgba(29, 24, 61, 0.16);
+}
+
+.conversionBridgeSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(50, 44, 68, 0.82);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(90, 78, 120, 0.18);
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.conversionBridgeSecondary:hover {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(90, 78, 120, 0.28);
+}
+
+.conversionBridgeSafety {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(62, 52, 88, 0.58);
+  max-width: 42em;
+}
+
+@media (min-width: 900px) {
+  .conversionBridge {
+    max-width: 42rem;
+  }
+
+  .conversionBridgeActions {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .conversionBridgePrimary {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 12rem;
+  }
+
+  .conversionBridgeSecondary {
+    width: auto;
+    flex: 0 1 auto;
+    min-width: 11rem;
+  }
+}
+
 .commercialOverline {
   font-size: clamp(10px, 2vw, 11px);
   letter-spacing: 0.14em;

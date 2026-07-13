@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import {
   PAID_QUESTIONNAIRE_COPY_V1,
   type PaidQuestionId,
@@ -9,6 +9,11 @@ import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { useAuth } from '@clerk/nextjs';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelAction,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from '../core/CoreExperience.module.css';
 
 type Props = {
@@ -29,6 +34,14 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
   const selected = answers[current.questionId] ?? '';
   const progressLabel = `${index + 1}/${total}`;
 
+  useEffect(() => {
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.paidQuestionnaireStart,
+      'dtr_paid_questionnaire',
+      'dtr-paid-questionnaire-start',
+    );
+  }, []);
+
   function goNext() {
     if (!selected) return;
     if (index >= total - 1) {
@@ -47,6 +60,10 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       } catch {
         /* no-op */
       }
+      trackFunnelAction(
+        M55_FUNNEL_EVENTS.paidQuestionnaireComplete,
+        'dtr_paid_questionnaire',
+      );
       onComplete?.();
       return;
     }

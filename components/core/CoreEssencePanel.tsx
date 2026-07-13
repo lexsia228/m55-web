@@ -40,7 +40,6 @@ import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
 import CoreFreeResultSummaryHub from './CoreFreeResultSummaryHub';
 import CoreFreeRevealTransition from './CoreFreeRevealTransition';
-import CoreFreeSavedBoundarySection from './CoreFreeSavedBoundarySection';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreHeroSection from './CoreHeroSection';
@@ -48,6 +47,10 @@ import CoreHowM55ReadsSection from './CoreHowM55ReadsSection';
 import CoreLockedState from './CoreLockedState';
 import CoreObservationListSection from './CoreObservationListSection';
 import CoreRadarSection from './CoreRadarSection';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import CoreScrollReveal from './CoreScrollReveal';
 import CoreTendencyLoadSection from './CoreTendencyLoadSection';
 import CoreTypeEaseSection from './CoreTypeEaseSection';
@@ -126,6 +129,15 @@ export default function CoreEssencePanel() {
     if (!built.ok) return null;
     return built.value;
   }, [committedAnswers, questionnaireDone, sealed]);
+
+  useEffect(() => {
+    if (!shouldShowResultSections(uxPhase) || !composition) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.freeResultView,
+      'core_free_result',
+      'core-free-result-view',
+    );
+  }, [uxPhase, composition]);
 
   useEffect(() => {
     if (!questionnaireDone) {
@@ -358,6 +370,12 @@ export default function CoreEssencePanel() {
                 />
               </div>
 
+              <div className={CoreExperienceStyles.freeResultRevealItem}>
+                <CoreEntryReportCTASection
+                  focusThemeLabelJa={composition.synthesis.focusThemeLabelJa}
+                />
+              </div>
+
               <div
                 className={`${CoreExperienceStyles.freeResultRevealItem} ${CoreExperienceStyles.freeStableBaselineLead}`}
                 id="core-stable"
@@ -385,13 +403,6 @@ export default function CoreEssencePanel() {
                   <CoreGuestSaveResultCTA />
                 </div>
               ) : null}
-
-              <div className={CoreExperienceStyles.freeResultRevealItem} id="core-paid">
-                <CoreFreeSavedBoundarySection />
-              </div>
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreEntryReportCTASection />
-              </div>
 
               <div className={CoreExperienceStyles.freeResultRevealItem} id="core-daily">
                 <div
