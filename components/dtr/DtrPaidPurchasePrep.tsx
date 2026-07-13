@@ -2,15 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
+import PurchaseButton from '../PurchaseButton';
+import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
 import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
+import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
+import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
   children: React.ReactNode;
 };
+
+type GatePhase = 'questionnaire' | 'plans' | 'checkout';
+type PlanKey = 'light' | 'full';
 
 function readPaidComplete(): boolean {
   if (typeof window === 'undefined') return false;
@@ -24,28 +32,155 @@ function readPaidComplete(): boolean {
   }
 }
 
-export default function DtrPaidPurchasePrep({ children }: Props) {
-  const [ready, setReady] = useState(false);
+export default function DtrPaidPurchasePrep({ children: _children }: Props) {
+  const [gate, setGate] = useState<GatePhase>('questionnaire');
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
 
   useEffect(() => {
-    setReady(readPaidComplete());
+    if (readPaidComplete()) {
+      setGate('plans');
+    }
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
+    if (gate !== 'plans') return;
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.paidPlanView,
       'dtr_paid_plan',
       'dtr-paid-plan-view',
     );
-  }, [ready]);
+  }, [gate]);
+
+  if (gate === 'questionnaire') {
+    return (
+      <DtrPaidQuestionnaireLayer
+        onComplete={() => {
+          setSelectedPlan(null);
+          setGate('plans');
+        }}
+      />
+    );
+  }
+
+  const light = PAID_DTR_LP.tiers.light;
+  const full = PAID_DTR_LP.tiers.full;
+
+  if (gate === 'checkout' && selectedPlan) {
+    const plan = selectedPlan === 'light' ? light : full;
+    const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
+    const included =
+      selectedPlan === 'light'
+        ? `${light.savedReportValueJa} + 追加読み解き${light.consultReplyValueJa}`
+        : `${full.savedReportValueJa} + 追加読み解き ${full.consultReplyValueJa}`;
+
+    return (
+      <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">
+        <p className={styles.overline}>保存版プラン</p>
+        <h3 className={styles.title}>支払い画面へ進む前に</h3>
+        <div className={styles.confirmCard}>
+          <div className={styles.confirmRow}>
+            <span>選択したプラン</span>
+            <strong>{plan.planNameJa}</strong>
+          </div>
+          <div className={styles.confirmRow}>
+            <span>価格</span>
+            <strong>{plan.priceLabelJa}</strong>
+          </div>
+          <div className={styles.confirmRow}>
+            <span>お支払い</span>
+            <strong>{plan.oneTimeLabelJa}</strong>
+          </div>
+          <div className={styles.confirmRow}>
+            <span>含まれる内容</span>
+            <strong>{included}</strong>
+          </div>
+        </div>
+        <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setGate('plans')}
+          >
+            プラン選択に戻る
+          </button>
+          <PurchaseButton productId={productId} className="m55-lp-cta-btn">
+            <span>支払い画面へ進む</span>
+          </PurchaseButton>
+        </div>
+        <div className={styles.planNote}>
+          <CheckoutTrustRow />
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <>
-      {!ready ? (
-        <DtrPaidQuestionnaireLayer onComplete={() => setReady(true)} />
-      ) : null}
-      {ready ? children : null}
-    </>
+    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="保存版プラン選択">
+      <p className={styles.overline}>保存版プラン</p>
+      <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
+      <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
+      <div className={styles.planStack}>
+        <article
+          className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}
+        >
+          <div className={styles.planHeader}>
+            <span className={styles.planName}>{light.planNameJa}</span>
+            <span className={styles.planPrice}>{light.priceLabelJa}</span>
+          </div>
+          <div className={styles.planMeta}>
+            <div>{light.oneTimeLabelJa}</div>
+            <div>
+              {light.savedReportLabelJa} {light.savedReportValueJa}
+            </div>
+            <div>
+              {light.consultReplyLabelJa} {light.consultReplyValueJa}
+            </div>
+            <div>あとからFULL化可能</div>
+          </div>
+          <p className={styles.planAudience}>{light.bodyJa}</p>
+          <p className={styles.planNote}>{light.upgradeNoteJa}</p>
+          <button
+            type="button"
+            className={styles.primaryBtn}
+            onClick={() => {
+              setSelectedPlan('light');
+              setGate('checkout');
+            }}
+          >
+            {light.ctaLabelJa}
+          </button>
+        </article>
+
+        <article
+          className={`${styles.planCard}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
+        >
+          <div className={styles.planHeader}>
+            <span className={styles.planName}>{full.planNameJa}</span>
+            <span className={styles.planPrice}>{full.priceLabelJa}</span>
+          </div>
+          <div className={styles.planMeta}>
+            <div>{full.oneTimeLabelJa}</div>
+            <div>
+              {full.savedReportLabelJa} {full.savedReportValueJa}
+            </div>
+            <div>
+              {full.consultReplyLabelJa} {full.consultReplyValueJa}
+            </div>
+          </div>
+          <p className={styles.planAudience}>{full.bodyJa}</p>
+          <button
+            type="button"
+            className={styles.primaryBtn}
+            onClick={() => {
+              setSelectedPlan('full');
+              setGate('checkout');
+            }}
+          >
+            {full.ctaLabelJa}
+          </button>
+        </article>
+      </div>
+    </section>
   );
 }

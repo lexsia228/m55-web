@@ -127,8 +127,10 @@ describe('privacy-safe funnel analytics', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(q, /paidQuestionnaireStart/);
+    assert.match(q, /startQuestionnaire/);
     assert.match(q, /paidQuestionnaireComplete/);
     assert.match(prep, /paidPlanView/);
+    assert.doesNotMatch(q, /trackFunnelImpressionOnce\(\s*M55_FUNNEL_EVENTS\.paidQuestionnaireStart/);
     assert.doesNotMatch(q + prep, /focusThemeLabelJa/);
     assert.doesNotMatch(q + prep, /m55_paid_bridge/);
   });
