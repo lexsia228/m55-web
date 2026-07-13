@@ -62,7 +62,7 @@
 }
 
 .overview {
-  margin-top: clamp(42px, 7vw, 72px);
+  margin-top: clamp(30px, 5vw, 50px);
   padding: clamp(22px, 5vw, 44px);
 }
 

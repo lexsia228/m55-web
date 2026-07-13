@@ -416,6 +416,55 @@
   line-height: 1.65;
 }
 
+.commerceOffer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 26px;
+  padding: 18px;
+  border: 1px solid rgba(82, 62, 103, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.commerceOffer div {
+  display: grid;
+  gap: 4px;
+}
+
+.commerceOffer strong {
+  font-size: 16px;
+}
+
+.commerceOffer span {
+  color: #4e405b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.commerceOffer small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.purchaseLink {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #665184;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
 .bridgeActions {
   display: flex;
   flex-wrap: wrap;
@@ -488,6 +537,14 @@
     grid-template-columns: 1fr;
   }
 
+  .commerceOffer {
+    grid-template-columns: 1fr;
+  }
+
+  .purchaseLink {
+    width: 100%;
+  }
+
   .bridgeActions {
     flex-direction: column;
   }
@@ -500,6 +557,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .submit,
+  .purchaseLink,
   .primaryLink,
   .secondaryLink {
     transition: none !important;

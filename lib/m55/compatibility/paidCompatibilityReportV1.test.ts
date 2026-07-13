@@ -239,7 +239,10 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
     ]) {
       assert.ok(bridge.includes(copy));
     }
-    assert.doesNotMatch(bridge, /PurchaseButton|checkout|\/api\/purchase|価格|今だけ|高精度|完全版/);
+    assert.match(bridge, /commerceEnabled \? \(/);
+    assert.match(bridge, /¥1,480（税込）/);
+    assert.match(bridge, /\/synastry\/purchase\/confirm/);
+    assert.doesNotMatch(bridge, /PurchaseButton|\/api\/purchase|今だけ|高精度|完全版/);
   });
 
   it('uses allowlisted analytics with no chapter, phrase, experiment, matrix, or user data', () => {

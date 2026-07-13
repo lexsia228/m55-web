@@ -26,6 +26,8 @@ import {
   m55OpsEventMissingClientReferenceId,
 } from '../../../../lib/m55/ops/m55OpsNotify';
 import { hashUserIdForLedgerLog } from '../../../../lib/m55/reply/readReplyWalletProbe';
+import { fulfillCompatibilityCheckoutSession } from '../../../../lib/m55/compatibility/compatibilityCheckoutFulfillment';
+import { COMPATIBILITY_REPORT_FULL_PRODUCT_KEY } from '../../../../lib/m55/compatibility/compatibilityCommerceAuthority';
 import { resolveCheckoutOwnerUserId } from '../../../../lib/m55/paidResult/resolveCheckoutOwnerUserId';
 
 export const runtime = 'nodejs';
@@ -260,6 +262,32 @@ export async function POST(req: NextRequest) {
  */
 async function handleCheckoutCompleted(stripe: Stripe, event: Stripe.Event, db: any): Promise<NextResponse> {
   const session = event.data.object as Stripe.Checkout.Session;
+  if (session.metadata?.product_key === COMPATIBILITY_REPORT_FULL_PRODUCT_KEY) {
+    const result = await fulfillCompatibilityCheckoutSession(stripe, session);
+    if (result.ok) {
+      try {
+        revalidatePath('/my');
+      } catch {
+        /* Delivery is authoritative even if cache invalidation is unavailable. */
+      }
+      return NextResponse.json({ received: true }, { status: 200 });
+    }
+    await insertFailedFulfillment(
+      db,
+      event.id,
+      session.id,
+      `compatibility_${result.reason}`,
+      null,
+      null,
+    );
+    const retryable =
+      result.reason === 'db_error' ||
+      result.reason === 'line_item_retrieve_failed';
+    return NextResponse.json(
+      retryable ? { error: 'fulfillment_failed' } : { received: true },
+      { status: retryable ? 500 : 200 },
+    );
+  }
   const userId = await resolveCheckoutOwnerUserId(session);
   const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_FROM_META;
 

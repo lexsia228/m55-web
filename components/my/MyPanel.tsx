@@ -69,6 +69,7 @@ import {
 } from '../../lib/m55/accountDataControlPublicCopy';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import { buildPostPurchaseRetentionHubModel } from '../../lib/m55/postPurchaseRetentionHub';
+import CompatibilitySavedReportsLibrary from './CompatibilitySavedReportsSection';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -270,6 +271,8 @@ export default function MyPanel() {
           {profileState === 'no_profile' && entReady && (
             <FirstTimeGuideSection />
           )}
+
+          <CompatibilitySavedReportsLibrary />
 
           <SavedReportSection
             state={savedReportState}
