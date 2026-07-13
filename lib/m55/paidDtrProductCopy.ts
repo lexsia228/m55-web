@@ -728,10 +728,10 @@ export const PAID_DTR_REPORT_PARTS: readonly PaidDtrReportPartView[] = PAID_DTR_
 export const PAID_DTR_BENEFITS_HEADING = 'このレポートで分かること' as const;
 
 export const PAID_DTR_BENEFIT_BULLETS = [
-  '近い人との関係で、自分らしくいられる距離感',
-  '人との距離や言葉選びで、どこで無理がたまりやすいか',
-  '疲れやすい条件と、崩れやすい流れ',
-  '自分をどこから整えると戻りやすいか',
+  '自分に出やすい形と、力が戻りやすい場所',
+  '仕事や判断で、力が出やすい条件と止まりやすい条件',
+  '近い人との距離と言葉選びで、無理の出やすいところ',
+  '疲れや生活の負担を、どこから軽くすると戻りやすいか',
 ] as const;
 
 /** /dtr/core reader intro — panel 01 (pre-W1 copy, display-only). */

@@ -46,7 +46,6 @@ import {
   PAID_DTR_BENEFIT_BULLETS,
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
-  PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA,
   PAID_DTR_CHAPTER_OPENING_COPY,
   PAID_DTR_DEEP_READING_SECTION_TITLE_JA,
   PAID_DTR_DEEP_READING_TAKEAWAYS,
@@ -239,20 +238,24 @@ function stripDtrTokens(body: string): string {
 
 function domainSocialReceiveLoad(receiveWay: string): string {
   return (
-    pickSentenceWithKeyword(receiveWay, /受け取りすぎ|深く受け取|疲れる/) ||
+    pickSentenceWithKeyword(receiveWay, /受け取りすぎ|深く受け取|疲れる|後回しにして|読み続けること/) ||
     afterFirstSentence(receiveWay) ||
     firstSentence(receiveWay)
   );
 }
 
 function domainSocialRecovery(convRhythm: string): string {
-  const tail = afterFirstSentence(convRhythm);
-  return tail ? firstSentence(tail) : firstSentence(convRhythm);
+  return (
+    pickSentenceWithKeyword(convRhythm, /言葉に|戻りやす|感じたこと|一つだけ/) ||
+    afterFirstSentence(convRhythm) ||
+    firstSentence(convRhythm)
+  );
 }
 
 function domainCloseLoad(withdrawWay: string): string {
   return (
-    pickSentenceWithKeyword(withdrawWay, /距離を置|説明を|疲れ/) ||
+    pickSentenceWithKeyword(withdrawWay, /考え続けて疲れ|言葉にできないまま|疲れやすく/) ||
+    pickSentenceWithKeyword(withdrawWay, /疲れ|考え続け|言葉にできない|距離を置|説明を/) ||
     afterFirstSentence(withdrawWay) ||
     firstSentence(withdrawWay)
   );
@@ -260,9 +263,14 @@ function domainCloseLoad(withdrawWay: string): string {
 
 function domainJudgmentStrength(essenceBody: string): string {
   const stripped = stripDtrTokens(essenceBody);
-  const blocks = stripped.split(/\n\n/).map((p) => p.trim()).filter(Boolean);
+  // Strip leading 【内部見出し】 individualization prefix block (format: 【...】\n<note>\n)
+  const withoutPrefix = stripped.replace(/^【[^】]+】\n[^\n]*\n/, '').trim();
+  const content = withoutPrefix || stripped;
+  const blocks = content.split(/\n\n/).map((p) => p.trim()).filter(Boolean);
   const pick =
-    blocks.find((p) => /集中し続け|集中できる|ひとつのこと/.test(p)) ?? blocks[0] ?? stripped;
+    blocks.find((p) => /集中し続け|集中できる|ひとつのこと/.test(p)) ??
+    blocks[0] ??
+    content;
   return firstSentence(pick);
 }
 
@@ -271,7 +279,7 @@ function domainJudgmentLoad(essenceBody: string, workStuck: string): string {
   const stuck = stripDtrTokens(workStuck);
   return (
     pickSentenceWithKeyword(stripped, /自由が大きすぎ|口を出され|ほどけにくく/) ||
-    pickSentenceWithKeyword(stripped, /集中|決め|迷い|負担|重く/) ||
+    pickSentenceWithKeyword(stripped, /削られ|集中|決め|迷い|負担|重く/) ||
     pickSentenceWithKeyword(stuck, /細切れ|区切り|切り替え|妥協|詰ま/) ||
     firstSentence(stuck)
   );
@@ -284,8 +292,9 @@ function domainJudgmentRecoveryCandidates(
   const comp = compositionBody ? stripDtrTokens(compositionBody) : '';
   const hint = stripDtrTokens(workHint);
   return [
-    pickSentenceWithKeyword(comp, /ここまで|一度出す|決めておく|区切り/),
+    pickSentenceWithKeyword(comp, /ここまで|一度出す|決めておく|区切り|範囲を小さく/),
     pickSentenceWithKeyword(hint, /ための時間|区切り|ここまで|休み|静か|何もしない/),
+    '確かめたい点を一つに絞り、今日決める範囲を小さくすると判断へ戻りやすくなります。',
   ];
 }
 
@@ -302,7 +311,34 @@ function domainRecoveryLoad(workStuck: string): string {
   if (/細切れ|仕上げる前|妥協/.test(oneLine)) {
     return '細かく区切られた時間や切り替えが続くと、休める余白が減りやすいです。';
   }
+  const actionableLoad =
+    pickSentenceWithKeyword(workStuck, /切り替わり|休め|疲れ|余白が減|頭が/) ||
+    afterFirstSentence(workStuck);
+  if (actionableLoad && !/繰り返す場面/.test(actionableLoad)) {
+    return actionableLoad;
+  }
   return firstSentence(workStuck);
+}
+
+function domainRecoveryStrengthCandidates(workCond: string, workHint: string): string[] {
+  return [
+    firstSentence(workCond),
+    pickSentenceWithKeyword(workHint, /手ごたえ|続く|整える/),
+    '小さな手ごたえが見えると、少しずつ動きを戻しやすいです。',
+  ];
+}
+
+function domainRecoveryRecoveryCandidates(
+  workHint: string,
+  essenceBody: string,
+): string[] {
+  const hint = stripDtrTokens(workHint);
+  const essence = stripDtrTokens(essenceBody);
+  return [
+    ...domainLifeRecoveryCandidates(hint),
+    pickSentenceWithKeyword(essence, /止め|確保|戻りやす|余白|切り替え/),
+    '短い即答をいったん止め、見直す時間を先に確保すると戻りやすくなります。',
+  ];
 }
 
 type DomainDisplaySlot = 'strength' | 'load' | 'recovery';
@@ -621,7 +657,6 @@ function ChapterConsultNextAction({
     <div className={styles.chapterConsultAction} aria-label="この章を追加読み解きで深める入口">
       <p className={styles.chapterConsultReinforcement}>{tendencyLine}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.lifeJa}</p>
-      <p className={styles.chapterConsultReinforcement}>{PAID_DTR_CHAPTER_BRIDGE_LIFE_SUPPLEMENT_JA}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.actionJa}</p>
       <p className={styles.chapterConsultQuestionLabel}>追加読み解きで深めるなら、この問い</p>
       <p className={styles.chapterConsultQuestion}>{copy.consultQuestionJa}</p>
@@ -2196,7 +2231,7 @@ function DomainMatrixModule({
       recovery: resolveDomainSlot(
         'recovery',
         [
-          pickSentenceWithKeyword(withdrawWay, /急かされない時間|整理する時間/),
+          pickSentenceWithKeyword(withdrawWay, /急かされない時間|整理する時間|外に出す|言葉にして/),
           firstSentence(withdrawWay),
         ],
         usedDisplay,
@@ -2228,17 +2263,14 @@ function DomainMatrixModule({
       title: '回復',
       strength: resolveDomainSlot(
         'strength',
-        [
-          firstSentence(workCond),
-          pickSentenceWithKeyword(workHint, /手ごたえ|続く|整える/),
-        ],
+        domainRecoveryStrengthCandidates(workCond, workHint),
         usedDisplay,
         true,
       ),
-      load: resolveDomainSlot('load', [domainRecoveryLoad(workStuck)], usedDisplay),
+      load: resolveDomainSlot('load', [domainRecoveryLoad(workStuck), afterFirstSentence(workStuck)], usedDisplay),
       recovery: resolveDomainSlot(
         'recovery',
-        domainLifeRecoveryCandidates(workHint),
+        domainRecoveryRecoveryCandidates(workHint, essenceSection.body),
         usedDisplay,
         true,
       ),
