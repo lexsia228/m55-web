@@ -14,8 +14,42 @@ describe('consultSendRequest.zod', () => {
     if (result.ok) {
       assert.ok(result.composedUserMessage.includes('【テーマ】'));
       assert.ok(result.composedUserMessage.includes('【質問】'));
-      assert.equal(result.catalogEntry.reply_question_id, 'work.priority');
+      assert.equal(result.catalogEntry?.reply_question_id, 'work.priority');
     }
+  });
+
+  it('accepts theme-only without optional context', () => {
+    const result = validateConsultSendRequest({
+      reply_theme_id: 'work',
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.catalogEntry, null);
+      assert.equal(result.composedUserMessage.includes('【質問】'), false);
+      assert.equal(result.composedUserMessage.includes('【テーマ】'), true);
+    }
+  });
+
+  it('accepts a short optional context with the selected theme', () => {
+    const result = validateConsultSendRequest({
+      reply_theme_id: 'fatigue',
+      optional_context: '休むタイミングを整理したいです。',
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.catalogEntry, null);
+      assert.ok(result.composedUserMessage.includes('休むタイミング'));
+    }
+  });
+
+  it('rejects question selection combined with optional context', () => {
+    const result = validateConsultSendRequest({
+      reply_theme_id: 'work',
+      reply_question_id: 'work.priority',
+      optional_context: '補足',
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.match(result.error, /同時に指定できません/);
   });
 
   it('rejects message field via strict schema', () => {

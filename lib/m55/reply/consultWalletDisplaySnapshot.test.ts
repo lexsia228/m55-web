@@ -104,11 +104,11 @@ describe('walletRowToConsultDisplaySnapshot', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
     assert.ok(src.includes('onWalletSnapshotChange(snap)'), 'callback call must exist');
     assert.ok(src.includes('reply_theme_id'), 'send payload uses reply_theme_id');
-    assert.ok(src.includes('reply_question_id'), 'send payload uses reply_question_id');
+    assert.ok(src.includes('optional_context'), 'send payload supports optional context');
     assert.equal(src.includes('setInputText'), false, 'free input state must not be restored');
-    assert.equal(src.includes('<textarea'), false, 'textarea must not be restored');
-    // Catch block restores theme/question selection and must not call wallet snapshot callback.
-    const catchMatch = src.match(/\} catch \{([\s\S]*?)setSelectedQuestionId\(snapshot\.questionId\)/);
+    assert.equal(src.includes('<textarea'), true, 'optional context textarea must exist');
+    // Catch block restores the review state and must not call wallet snapshot callback.
+    const catchMatch = src.match(/\} catch \{([\s\S]*?)setWizardActiveStep\(snapshot\.wizardActiveStep\)/);
     assert.ok(catchMatch !== null, 'handleSend catch block must exist');
     assert.ok(
       !catchMatch![0].includes('onWalletSnapshotChange(snap)'),

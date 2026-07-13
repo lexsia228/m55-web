@@ -22,7 +22,6 @@ import {
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
   PAID_DTR_CONSULT_REPLY,
-  PAID_DTR_CONSULT_ROOM_UI,
 } from '../paidDtrProductCopy';
 
 const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
@@ -145,21 +144,20 @@ describe('consultSendMessage', () => {
     assert.ok(src.includes('countConsultReplyBlocks(aiContent)'));
   });
 
-  it('ConsultRoom removes textarea and sends reply_theme_id + reply_question_id', () => {
+  it('ConsultRoom supports theme-only plus optional context review', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
-    assert.equal(src.includes('<textarea'), false);
-    assert.equal(src.includes('inputText'), false);
+    assert.ok(src.includes('<textarea'));
+    assert.ok(src.includes('optionalContext'));
     assert.ok(src.includes('reply_theme_id'));
-    assert.ok(src.includes('reply_question_id'));
-    assert.ok(src.includes('今いちばん近い入口を選ぶ'));
-    assert.ok(src.includes('今回深く見るところを選ぶ'));
+    assert.ok(src.includes('optional_context'));
+    assert.ok(src.includes('今、どこから整理しますか？'));
+    assert.ok(src.includes('必要なら補足する'));
+    assert.ok(src.includes('テーマだけでも作れます。'));
     assert.ok(src.includes('selectionMemory'));
     assert.ok(src.includes('WizardProgress'));
-    assert.equal(src.includes('相談内容を入力'), false);
     assert.equal(src.includes('自由に相談'), false);
     assert.equal(src.includes('追加解析'), false);
-    assert.ok(src.includes('追加読み解き1件を使用します'));
-    assert.equal(PAID_DTR_CONSULT_ROOM_UI.submitLabelJa, '追加読み解きを作成する');
+    assert.ok(src.includes('この内容で1件使って作る'));
     assert.match(PAID_DTR_CONSULT_REPLY.consumeNoteJa, /追加読み解き1件/);
     assert.equal(src.includes('相談返書を作成する'), false);
     assert.equal(src.includes('Ⅲ無理 + 対話章'), false);
@@ -167,22 +165,22 @@ describe('consultSendMessage', () => {
     assert.equal(src.includes('4章 + Ⅰ土台'), false);
   });
 
-  it('ConsultRoom shows 4 question chips per theme and disables send until both are selected', () => {
+  it('ConsultRoom blocks progress until a theme and keeps optional input optional', () => {
     const src = readFileSync(CONSULT_ROOM, 'utf8');
     for (const themeId of REPLY_THEME_IDS) {
       assert.equal(getQuestionsForTheme(themeId).length, 4);
     }
-    assert.ok(src.includes('getQuestionsForTheme(selectedThemeId)'));
-    assert.ok(src.includes('themeQuestions.map'));
     assert.ok(src.includes('!selectedThemeId'));
-    assert.ok(src.includes('!selectedQuestionId'));
     assert.ok(src.includes('submitDisabled'));
     assert.ok(src.includes('disabled={submitDisabled}'));
+    assert.ok(src.includes('disabled={!selectedThemeId}'));
     assert.ok(src.includes('confirmPanel'));
     assert.ok(src.includes('Step 1 / 3'));
     assert.ok(src.includes('aria-current={active ? \'step\' : undefined}'));
     assert.ok(src.includes('aria-selected={selected}'));
     assert.ok(src.includes('submitBtnPrimary'));
+    assert.ok(src.includes('内容を見直す'));
+    assert.ok(src.includes('setWizardActiveStep(2)'));
     assert.equal(src.includes('送信するまで相談返書は使いません'), false);
     assert.ok(
       PAID_DTR_CONSULT_ENTRY_LAYOUT.essentialNotesJa.some((note) =>
@@ -200,7 +198,6 @@ describe('consultSendMessage', () => {
       'wizTypoCaption',
       'wizTypoBody',
       'wizTypoEmphasis',
-      'wizTypoEmphasisNote',
       'wizTypoCardTitle',
       'wizTypoCardCaption',
       'wizTypoCtaNote',
@@ -214,7 +211,7 @@ describe('consultSendMessage', () => {
     assert.equal(/\nbody\s*\{/.test(css), false);
     assert.equal(/\nhtml\s*\{/.test(css), false);
     assert.ok(src.includes('inputNote'));
-    assert.ok(src.includes('stepConsumeNote'));
+    assert.ok(src.includes('consumptionProjection'));
   });
 
   it('ConsultRoom page context keeps secondary surfaces below replyWizard hierarchy', () => {

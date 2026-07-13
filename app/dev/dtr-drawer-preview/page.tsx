@@ -17,7 +17,11 @@ export const metadata = {
 export default async function DtrDrawerPreviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ withConsult?: string; consultWallet?: string }>;
+  searchParams: Promise<{
+    withConsult?: string;
+    consultWallet?: string;
+    lightUpgrade?: string;
+  }>;
 }) {
   if (isPreviewBlockedInProduction()) {
     notFound();
@@ -29,7 +33,10 @@ export default async function DtrDrawerPreviewPage({
 
   return (
     <main className={styles.page} data-m55-dev-preview="dtr-drawer">
-      <DtrDrawerPreviewClient {...readerProps} />
+      <DtrDrawerPreviewClient
+        {...readerProps}
+        showLightUpgrade={sp.lightUpgrade === '1'}
+      />
     </main>
   );
 }
