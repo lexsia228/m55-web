@@ -434,6 +434,7 @@ async function handleCheckoutCompletedOneTime(
   }
 
   if (
+    result.reason === 'purchase_context_invalid' ||
     result.reason === 'user_mismatch' ||
     result.reason === 'not_payment' ||
     result.reason === 'product_not_allowed'

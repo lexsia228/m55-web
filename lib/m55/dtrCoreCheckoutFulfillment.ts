@@ -17,6 +17,7 @@ import {
   grantPurchasedTopUpToFullEquivalentIfNeeded,
 } from './reply/walletGrants';
 import { upsertDtrReportSnapshotAtFulfillment } from './dtrDraftDb';
+import { resolveCheckoutPurchaseContextOwner } from './paidResult/resolveCheckoutOwnerUserId';
 import { notifyM55OpsFireAndForget, m55OpsEventSnapshotSkip } from './ops/m55OpsNotify';
 
 export const DTR_CORE_RIGHT_KEY = 'm55_p:core_origin';
@@ -32,7 +33,18 @@ const DTR_CORE_PRODUCTS_WITH_ENTITLEMENT_GRANT: ReadonlySet<string> = new Set([
 
 export type FulfillFromCheckoutSessionResult =
   | { ok: true }
-  | { ok: false; reason: 'retrieve_failed' | 'not_payment' | 'user_mismatch' | 'payment_not_paid' | 'product_not_allowed' | 'db_error'; detail?: string };
+  | {
+      ok: false;
+      reason:
+        | 'retrieve_failed'
+        | 'purchase_context_invalid'
+        | 'not_payment'
+        | 'user_mismatch'
+        | 'payment_not_paid'
+        | 'product_not_allowed'
+        | 'db_error';
+      detail?: string;
+    };
 
 /**
  * Re-fetch session from Stripe, verify one-time paid lane, upsert DB rows.
@@ -57,12 +69,21 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
     return { ok: false, reason: 'retrieve_failed', detail: String(e) };
   }
 
-  const userId = session.client_reference_id ?? null;
   const productId = (session.metadata?.productId as string) ?? PRODUCT_ID_DEFAULT;
+  const resolvedOwner = await resolveCheckoutPurchaseContextOwner(session);
 
-  if (userId !== params.expectedUserId) {
+  if (!resolvedOwner.ok) {
+    return {
+      ok: false,
+      reason: 'purchase_context_invalid',
+      detail: resolvedOwner.reason,
+    };
+  }
+
+  if (resolvedOwner.ownerUserId !== params.expectedUserId) {
     return { ok: false, reason: 'user_mismatch' };
   }
+  const ownerUserId = resolvedOwner.ownerUserId;
 
   if (session.mode !== 'payment') {
     return { ok: false, reason: 'not_payment' };
@@ -104,7 +125,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         checkout_session_id: checkoutSessionId,
         payment_intent_id: paymentIntentId,
         event_id: params.eventIdForFulfillmentRow,
-        user_id: params.expectedUserId,
+        user_id: ownerUserId,
         product_id: productId,
         fulfilled_at: new Date().toISOString(),
       });
@@ -119,7 +140,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
 
     const { error: upsertEntErr } = await db.from('entitlements').upsert(
       {
-        user_id: params.expectedUserId,
+        user_id: ownerUserId,
         product_id: productId,
         grant_type: 'one_time',
         source: 'stripe_checkout',
@@ -134,7 +155,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
 
     if (DTR_CORE_PRODUCTS_WITH_ENTITLEMENT_GRANT.has(productId)) {
       const { error: upsertRightErr } = await db.from('entitlement_rights').upsert(
-        { user_id: params.expectedUserId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
+        { user_id: ownerUserId, right_key: DTR_CORE_RIGHT_KEY, right_value: '1' },
         { onConflict: 'user_id,right_key' }
       );
       if (upsertRightErr) {
@@ -146,19 +167,19 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
         JSON.stringify({
           where: 'fulfillDtrCoreFromCheckoutSessionId',
           trigger: 'stripe_checkout_session_paid',
-          userId: params.expectedUserId,
+          userId: ownerUserId,
           rightKey: DTR_CORE_RIGHT_KEY,
           productId,
           checkoutSessionId,
         })
       );
 
-      await grantInitialIncludedReplyIfNeeded(db, params.expectedUserId);
+      await grantInitialIncludedReplyIfNeeded(db, ownerUserId);
 
       if (productId === DTR_CORE_FULL_V1) {
         const fullTopUp = await grantPurchasedTopUpToFullEquivalentIfNeeded(
           db,
-          params.expectedUserId
+          ownerUserId
         );
         if (process.env.NODE_ENV !== 'production') {
           console.info(
@@ -173,7 +194,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
       }
 
       const snap = await upsertDtrReportSnapshotAtFulfillment({
-        userId: params.expectedUserId,
+        userId: ownerUserId,
         productId,
         checkoutSessionId,
         sessionMetadata: fresh.metadata,
@@ -184,7 +205,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
           JSON.stringify({
             reason: snap.reason,
             checkoutSessionId,
-            userId: params.expectedUserId,
+            userId: ownerUserId,
             hint:
               snap.reason.includes('PGRST205') || /schema cache|not find/i.test(snap.reason)
                 ? 'PostgREST: run migration 20260421000000 or NOTIFY pgrst reload; ensure 20260420000000 applied'
@@ -203,7 +224,7 @@ export async function fulfillDtrCoreFromCheckoutSessionId(params: {
             report_instance_id: snap.snapshotId,
             updated_at: new Date().toISOString(),
           })
-          .eq('user_id', params.expectedUserId)
+          .eq('user_id', ownerUserId)
           .eq('status', 'active')
           .select('id');
 
