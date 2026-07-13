@@ -33,6 +33,11 @@ export const M55_FUNNEL_EVENTS = {
   compatibilityPaidChapterOpen: 'm55_compatibility_paid_chapter_open',
   compatibilityPhraseCopy: 'm55_compatibility_phrase_copy',
   compatibilityExperimentView: 'm55_compatibility_experiment_view',
+  compatibilityPurchaseView: 'm55_compatibility_purchase_view',
+  compatibilityCheckoutIntent: 'm55_compatibility_checkout_intent',
+  compatibilityCheckoutRedirect: 'm55_compatibility_checkout_redirect',
+  compatibilitySavedReportView: 'm55_compatibility_saved_report_view',
+  compatibilityOwnedReportOpen: 'm55_compatibility_owned_report_open',
   compatibilityQuestionnaireView: 'm55_compatibility_questionnaire_view',
   compatibilityQuestionnaireStart: 'm55_compatibility_questionnaire_start',
   compatibilityQuestionnaireComplete: 'm55_compatibility_questionnaire_complete',
@@ -54,7 +59,9 @@ export type M55FunnelSurface =
   | 'dtr_saved_report'
   | 'dtr_additional_reading'
   | 'compatibility_guest'
-  | 'compatibility_paid_report';
+  | 'compatibility_paid_report'
+  | 'compatibility_purchase'
+  | 'compatibility_saved_report';
 
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {

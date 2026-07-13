@@ -230,16 +230,18 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
   it('updates the free bridge only with implemented deliverables', () => {
     const bridge = read('components/compatibility/CompatibilityGuestExperience.tsx');
     for (const copy of [
-      '二人それぞれから見えること',
-      'すれ違いが続く連鎖',
       '場面から戻る手順',
       'そのまま使える一言',
-      '今週試せる小さな実験',
-      '6章の振り返り',
+      '今週一度だけ試すこと',
+      'あとで振り返る一問',
+      '6章の使い方',
     ]) {
       assert.ok(bridge.includes(copy));
     }
-    assert.doesNotMatch(bridge, /PurchaseButton|checkout|\/api\/purchase|価格|今だけ|高精度|完全版/);
+    assert.match(bridge, /commerceEnabled \? \(/);
+    assert.match(bridge, /¥1,480（税込）/);
+    assert.match(bridge, /\/synastry\/purchase\/confirm/);
+    assert.doesNotMatch(bridge, /PurchaseButton|\/api\/purchase|今だけ|高精度|完全版/);
   });
 
   it('uses allowlisted analytics with no chapter, phrase, experiment, matrix, or user data', () => {

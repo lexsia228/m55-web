@@ -154,7 +154,8 @@ describe('compatibility paid bridge', () => {
     const source = read('components/compatibility/CompatibilityGuestExperience.tsx');
     assert.match(source, /場面から戻る手順/);
     assert.match(source, /そのまま使える一言/);
-    assert.match(source, /今週試せる小さな実験/);
+    assert.match(source, /今週一度だけ試すこと/);
+    assert.match(source, /あとで振り返る一問/);
     assert.doesNotMatch(source, /relevance|recommendation/);
     assert.doesNotMatch(source, /PurchaseButton|checkout|\/api\/purchase/);
   });

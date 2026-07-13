@@ -23,26 +23,38 @@ function chapterAnchor(chapter: PaidCompatibilityChapter): string {
 
 export default function PaidCompatibilityReportReader({
   snapshot,
+  owned = false,
+  analyticsEnabled = true,
 }: {
   snapshot: PaidCompatibilityReportSnapshot;
+  owned?: boolean;
+  analyticsEnabled?: boolean;
 }) {
   const [openChapterKeys, setOpenChapterKeys] = useState<readonly string[]>([]);
   const [copyState, setCopyState] = useState<CopyState>(null);
 
   useEffect(() => {
+    if (!analyticsEnabled) return;
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.compatibilityPaidReportView,
       'compatibility_paid_report',
       'compatibility-paid-report-view',
     );
-  }, []);
+    if (owned) {
+      trackFunnelImpressionOnce(
+        M55_FUNNEL_EVENTS.compatibilityOwnedReportOpen,
+        'compatibility_saved_report',
+        'compatibility-owned-report-open',
+      );
+    }
+  }, [analyticsEnabled, owned]);
 
   function openChapter(chapter: PaidCompatibilityChapter) {
     const alreadyOpen = openChapterKeys.includes(chapter.key);
     setOpenChapterKeys((current) =>
       current.includes(chapter.key) ? current : [...current, chapter.key],
     );
-    if (!alreadyOpen) {
+    if (!alreadyOpen && analyticsEnabled) {
       trackFunnelAction(
         M55_FUNNEL_EVENTS.compatibilityPaidChapterOpen,
         'compatibility_paid_report',
@@ -78,10 +90,12 @@ export default function PaidCompatibilityReportReader({
       if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
       await navigator.clipboard.writeText(chapter.usablePhrase);
       setCopyState({ chapterKey: chapter.key, status: 'success' });
-      trackFunnelAction(
-        M55_FUNNEL_EVENTS.compatibilityPhraseCopy,
-        'compatibility_paid_report',
-      );
+      if (analyticsEnabled) {
+        trackFunnelAction(
+          M55_FUNNEL_EVENTS.compatibilityPhraseCopy,
+          'compatibility_paid_report',
+        );
+      }
     } catch {
       setCopyState({ chapterKey: chapter.key, status: 'failure' });
     }

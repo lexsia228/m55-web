@@ -51,7 +51,11 @@ function restoreSessionJourney(): {
   }
 }
 
-export default function CompatibilityGuestExperience() {
+export default function CompatibilityGuestExperience({
+  commerceEnabled = false,
+}: {
+  commerceEnabled?: boolean;
+}) {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [input, setInput] = useState<CompatibilityGuestInput>(EMPTY_INPUT);
   const [answers, setAnswers] = useState<PartialCurrentContext>({});
@@ -439,6 +443,25 @@ export default function CompatibilityGuestExperience() {
               <span>距離を戻したい時に読む</span>
               <span>あとで振り返る</span>
             </div>
+            {commerceEnabled ? (
+              <div className={styles.commerceOffer}>
+                <div>
+                  <strong>二人の相性レポート</strong>
+                  <span>6章レポート1件・¥1,480（税込）</span>
+                  <small>買い切りで、自動更新はありません。購入後はマイページから読み返せます。</small>
+                </div>
+                <a
+                  className={styles.purchaseLink}
+                  href="/synastry/purchase/confirm"
+                  onClick={() => trackFunnelAction(
+                    M55_FUNNEL_EVENTS.compatibilityPaidBridgeClick,
+                    'compatibility_guest',
+                  )}
+                >
+                  商品内容と価格を確認する
+                </a>
+              </div>
+            ) : null}
             <div className={styles.bridgeActions}>
               <a
                 className={styles.primaryLink}
