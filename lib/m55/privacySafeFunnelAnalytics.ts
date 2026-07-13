@@ -24,6 +24,11 @@ export const M55_FUNNEL_EVENTS = {
   additionalReadingThemeSelected: 'm55_additional_reading_theme_selected',
   additionalReadingReviewView: 'm55_additional_reading_review_view',
   additionalReadingSendIntent: 'm55_additional_reading_send_intent',
+  compatibilityInputView: 'm55_compatibility_input_view',
+  compatibilityFreeResultView: 'm55_compatibility_free_result_view',
+  compatibilityActionView: 'm55_compatibility_action_view',
+  compatibilityPaidBridgeView: 'm55_compatibility_paid_bridge_view',
+  compatibilityPaidBridgeClick: 'm55_compatibility_paid_bridge_click',
 } as const;
 
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
@@ -35,7 +40,8 @@ export type M55FunnelSurface =
   | 'dtr_paid_plan'
   | 'my_saved_report'
   | 'dtr_saved_report'
-  | 'dtr_additional_reading';
+  | 'dtr_additional_reading'
+  | 'compatibility_guest';
 
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {
@@ -47,7 +53,7 @@ export type M55FunnelPayload = {
 const ALLOWED_KEYS = new Set(['eventVersion', 'surface', 'occurredAt'] as const);
 
 const FORBIDDEN_KEY_PATTERN =
-  /dob|birth|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question/i;
+  /dob|birth|hash|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question|axis|topic|status|temperature|action|mapping|resultText/i;
 
 const firedImpressions = new Set<string>();
 

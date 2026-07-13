@@ -156,6 +156,27 @@ export type PairReadingRenderFailure = {
 
 export type PairReadingRenderOutcome = PairReadingRenderResult | PairReadingRenderFailure;
 
+export type CompatibilityImmediateActionFragment = {
+  situation: string;
+  action: string;
+};
+
+export type CompatibilityFreeResultFragments = {
+  semanticKeys: {
+    overlap: string;
+    difference: string;
+    relationshipDynamic: string;
+  };
+  overlap: string;
+  difference: string;
+  perspectives: {
+    personA: string;
+    personB: string;
+  };
+  relationshipDynamic: string;
+  immediateAction: CompatibilityImmediateActionFragment;
+};
+
 export type SafetyAuditResult = {
   ok: boolean;
   hits: string[];

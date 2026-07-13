@@ -4,6 +4,8 @@
  */
 
 import type {
+  CompatibilityFreeResultFragments,
+  CompatibilityImmediateActionFragment,
   PaidTopicId,
   PairAxisId,
   RelationStatusId,
@@ -130,6 +132,141 @@ export const TOPIC_CLUE_CORE: Readonly<Record<PaidTopicId, string>> = {
   T4: '今日見るなら、反応の有無ではなく、反応の温度です。',
   T5: '今日見るなら、勇気の有無ではなく、今の距離の温度です。',
 };
+
+type CompatibilityFreeAxisAuthority = {
+  semanticKeys: CompatibilityFreeResultFragments['semanticKeys'];
+  overlap: string;
+  difference: string;
+  perspectiveOne: string;
+  perspectiveTwo: string;
+  dynamicOutcome: string;
+};
+
+/**
+ * Guest-free relationship-map authority.
+ * Perspective one/two are assigned canonically, so reversing A/B only swaps
+ * the visible person perspectives and never changes relationship semantics.
+ */
+export const PAIR_AXIS_FREE_RESULT_FRAGMENTS: Readonly<
+  Record<PairAxisId, CompatibilityFreeAxisAuthority>
+> = {
+  A1: {
+    semanticKeys: {
+      overlap: 'free_overlap_shared_forecast',
+      difference: 'free_difference_decision_pace',
+      relationshipDynamic: 'free_dynamic_early_reply_and_settling_time',
+    },
+    overlap:
+      '二人とも、予定や返事の見通しが一つあると、次の動きを選びやすいところが重なります。',
+    difference:
+      'その場で輪郭を決めたいときと、自分の中で整えてから返したいときに、進め方の違いが表れやすいです。',
+    perspectiveOne:
+      '予定の輪郭が先に見えると動きやすく、返事も早めに置きやすい',
+    perspectiveTwo:
+      '自分の中で予定を整えてから、返事を置きやすい',
+    dynamicOutcome:
+      '返事を待つ時間の意味がずれ、急いでいるようにも、関心が薄いようにも受け取りやすくなります',
+  },
+  A2: {
+    semanticKeys: {
+      overlap: 'free_overlap_received_signal',
+      difference: 'free_difference_response_visibility',
+      relationshipDynamic: 'free_dynamic_visible_and_quiet_response',
+    },
+    overlap:
+      '二人とも、受け取ったことが分かる小さな合図があると、会話を続けやすいところが重なります。',
+    difference:
+      '反応をすぐ言葉にする場面と、考えている間は表に出さない場面で、受け取り方の違いが表れやすいです。',
+    perspectiveOne:
+      '受け取った反応を言葉や表情に出しながら整理しやすい',
+    perspectiveTwo:
+      '受け取った内容を内側で整理してから反応を出しやすい',
+    dynamicOutcome:
+      '見える反応の量だけで温度を判断し、届いていないようにも、急かされているようにも受け取りやすくなります',
+  },
+  A3: {
+    semanticKeys: {
+      overlap: 'free_overlap_received_before_discussion',
+      difference: 'free_difference_reassurance_timing',
+      relationshipDynamic: 'free_dynamic_explanation_and_reassurance',
+    },
+    overlap:
+      '二人とも、意見が違うときも、まず受け取られたと分かると、話を続けやすいところが重なります。',
+    difference:
+      '理由を先に説明したい場面と、安心できる合図を先に受け取りたい場面で、順序の違いが表れやすいです。',
+    perspectiveOne:
+      '違いが出たとき、理由を順に説明することで整理しやすい',
+    perspectiveTwo:
+      '違いが出たとき、受け止められた合図があると整理しやすい',
+    dynamicOutcome:
+      '説明を重ねるほど安心の確認が後ろに回り、話の中身より受け止め方のずれが残りやすくなります',
+  },
+  A4: {
+    semanticKeys: {
+      overlap: 'free_overlap_small_entry',
+      difference: 'free_difference_conversation_entry',
+      relationshipDynamic: 'free_dynamic_direct_and_gradual_entry',
+    },
+    overlap:
+      '二人とも、短く自然なきっかけがあると、無理なく会話を始めやすいところが重なります。',
+    difference:
+      '本題から入りたい場面と、前置きや日常の話から入りたい場面で、会話の入口の違いが表れやすいです。',
+    perspectiveOne:
+      '話したい内容が決まると、本題から会話を始めやすい',
+    perspectiveTwo:
+      '日常の短いやり取りを重ねてから、本題へ入りやすい',
+    dynamicOutcome:
+      '入口が合わないまま内容を進め、唐突なようにも、話を避けているようにも受け取りやすくなります',
+  },
+};
+
+export const TOPIC_IMMEDIATE_ACTIONS: Readonly<
+  Record<PaidTopicId, CompatibilityImmediateActionFragment>
+> = {
+  T1: {
+    situation: '次に二人で会う予定や連絡のきっかけを決めるとき',
+    action: '返事をする時間を一つ決めてみてください。',
+  },
+  T2: {
+    situation: '次に意見が分かれたとき',
+    action: '相手の意図を一文で確認してみてください。',
+  },
+  T3: {
+    situation: '次に返事を待つ場面ができたとき',
+    action: '返事が必要な時間を一つ決めてみてください。',
+  },
+  T4: {
+    situation: '次に相手の反応が分かりにくいと感じたとき',
+    action: '反応が出た場面を一行だけ記録してみてください。',
+  },
+  T5: {
+    situation: '次に大切な話を始めるとき',
+    action: '話し始める時間を一つ決めてみてください。',
+  },
+};
+
+export function buildCompatibilityFreeResultFragments(args: {
+  pairAxisId: PairAxisId;
+  paidTopicId: PaidTopicId;
+  personAUsesFirstPerspective: boolean;
+}): CompatibilityFreeResultFragments {
+  const axis = PAIR_AXIS_FREE_RESULT_FRAGMENTS[args.pairAxisId];
+  const personA = args.personAUsesFirstPerspective
+    ? axis.perspectiveOne
+    : axis.perspectiveTwo;
+  const personB = args.personAUsesFirstPerspective
+    ? axis.perspectiveTwo
+    : axis.perspectiveOne;
+
+  return {
+    semanticKeys: axis.semanticKeys,
+    overlap: axis.overlap,
+    difference: axis.difference,
+    perspectives: { personA, personB },
+    relationshipDynamic: `あなた側は、${personA}傾向があります。相手側は、${personB}傾向があります。そのため二人の間では、${axis.dynamicOutcome}。`,
+    immediateAction: TOPIC_IMMEDIATE_ACTIONS[args.paidTopicId],
+  };
+}
 
 export const PERSON_A_BODY =
   [

@@ -1,11 +1,10 @@
-'use client';
-
-import PlaceholderShell from '../home/PlaceholderShell';
+import { PublicShell } from '../_components/PublicShell';
+import CompatibilityGuestExperience from '../../components/compatibility/CompatibilityGuestExperience';
 
 export default function SynastryPage() {
   return (
-    <PlaceholderShell>
-      <p style={{ padding: 24, textAlign: 'center', color: 'var(--text-sub)' }}>絶対に大丈夫！</p>
-    </PlaceholderShell>
+    <PublicShell>
+      <CompatibilityGuestExperience />
+    </PublicShell>
   );
 }
