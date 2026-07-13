@@ -481,6 +481,18 @@
   }
 }
 
+/* Focus the paid decision vertical: hide surrounding LP chrome while prep is active. */
+.lpRoot:has([data-m55-paid-phase]) > .lpBreadcrumb,
+.lpRoot:has([data-m55-paid-phase]) > .lpSectionPreTier,
+.lpRoot:has([data-m55-paid-phase]) > .lpSection:not(:has([data-m55-paid-phase])) {
+  display: none;
+}
+
+/* Tier section page heading is replaced by in-flow decision titles. */
+.lpSection:has([data-m55-paid-phase]) > .lpH2 {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lpRoot :global(.m55-lp-cta-btn) {
     transition: none !important;
