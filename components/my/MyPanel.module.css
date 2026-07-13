@@ -1,7 +1,9 @@
 .wrap {
-  max-width: min(640px, calc(100vw - 40px));
+  width: 100%;
+  max-width: min(760px, calc(100vw - 24px));
   margin: 0 auto;
   padding: clamp(16px, 4vw, 32px) clamp(16px, 4vw, 32px) 24px;
+  box-sizing: border-box;
   color: #2c233a;
   display: flex;
   flex-direction: column;
@@ -85,10 +87,96 @@
   margin-bottom: 0;
 }
 
+.ownedValueSummary {
+  margin: 4px 0 14px;
+}
+
+.ownedValueTitle {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #2c233a;
+}
+
+.ownedValueBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6b667a;
+}
+
+.usageSummary {
+  margin: 0 0 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(107, 95, 168, 0.13);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.usageLabel {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b667a;
+}
+
+.usageCount {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.5;
+  color: #2c233a;
+  font-variant-numeric: tabular-nums;
+}
+
+.usageUsed,
+.usageUnavailable {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6b667a;
+}
+
+.consultContext {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #3a3448;
+}
+
+.actionStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.25);
+  color: #5a4d9e;
+  background: rgba(255, 255, 255, 0.45);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.ownedContinuityNote {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(107, 95, 168, 0.13);
+}
+
 /* ── Owned report list (hub) ───────────────────────────────────── */
 .reportList {
   list-style: none;
-  margin: 0 0 12px;
+  margin: 12px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -161,6 +249,11 @@
 }
 
 .ctaPrimary:focus-visible {
+  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline-offset: 2px;
+}
+
+.ctaSecondary:focus-visible {
   outline: 2px solid rgba(104, 84, 182, 0.9);
   outline-offset: 2px;
 }
@@ -319,12 +412,13 @@
 .deleteReportBtn {
   font-size: 12px;
   font-weight: 500;
-  color: #8b4d5c;
+  color: #777180;
   background: none;
   border: none;
   cursor: pointer;
   text-decoration: underline;
-  padding: 0;
+  padding: 0 4px;
+  min-height: 44px;
   flex-shrink: 0;
 }
 

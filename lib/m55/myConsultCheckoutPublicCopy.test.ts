@@ -61,6 +61,7 @@ function extractProfileBranch(profileBlock: string): string {
 
 const SHELL_LAYOUT_SOURCE = readRepo('components/shell/ShellLayout.tsx');
 const MY_PANEL_SOURCE = readRepo('components/my/MyPanel.tsx');
+const POST_PURCHASE_SOURCE = readRepo('lib/m55/postPurchaseRetentionHub.ts');
 const DTR_CATALOG_SOURCE = readRepo('components/dtr/DtrCatalogStrip.tsx');
 const FIRST_TIME_BLOCK = extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'FirstTimeGuideSection');
 const PROFILE_SECTION_BLOCK = extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'ProfileSection');
@@ -91,10 +92,12 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
     assert.equal(MY_PANEL_SOURCE.includes('マイハブ'), false);
   });
 
-  it('does not assert 保存版ライト or 保存版FULL on tier-unknown UI surfaces', () => {
-    const tierNeutral = [MY_PANEL_SOURCE, CONSULT_ENTRY_SURFACES].join('\n');
-    assert.equal(tierNeutral.includes('保存版ライト'), false);
-    assert.equal(tierNeutral.includes('保存版FULL'), false);
+  it('shows Light or FULL only through the actual purchased tier model', () => {
+    assert.match(POST_PURCHASE_SOURCE, /plan === 'full' \? '保存版FULL'/);
+    assert.match(POST_PURCHASE_SOURCE, /plan === 'light' \? '保存版ライト'/);
+    assert.match(MY_PANEL_SOURCE, /purchasedHub\.planLabel/);
+    assert.equal(CONSULT_ENTRY_SURFACES.includes('保存版ライト'), false);
+    assert.equal(CONSULT_ENTRY_SURFACES.includes('保存版FULL'), false);
   });
 
   it('processing eyebrow and core metadata use 4章の保存版', () => {
@@ -281,10 +284,10 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.match(consultBlock, /MY_CONSULT_CTA_HREF/);
     assert.equal(MY_SAVED_REPORT_CTA_PLAN_HREF, '/dtr/lp');
     assert.equal(MY_SAVED_REPORT_CTA_OPEN_HREF, '/dtr/core');
-    assert.equal(MY_CONSULT_CTA_HREF, '/dtr/core');
     assert.equal(MY_SAVED_REPORT_CTA_PLAN_LABEL, '保存版のプランを見る');
-    assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, '保存版を開く');
-    assert.equal(MY_CONSULT_CTA_LABEL, '追加読み解きを確認する');
+    assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, '保存版を読み返す');
+    assert.equal(MY_CONSULT_CTA_LABEL, '追加読み解きを始める');
+    assert.equal(MY_CONSULT_CTA_HREF, '/dtr/core#consultation-room');
   });
 
   it('shows owned intro and notes only in owned_ready branch', () => {
@@ -346,7 +349,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
 
   it('applies Visual SSOT tokens in MyPanel CSS', () => {
     const css = readRepo('components/my/MyPanel.module.css');
-    assert.match(css, /max-width:\s*min\(640px, calc\(100vw - 40px\)\)/);
+    assert.match(css, /max-width:\s*min\(760px, calc\(100vw - 24px\)\)/);
     assert.match(css, /clamp\(16px, 4vw, 32px\)/);
     assert.match(css, /rgba\(255, 255, 255, 0\.55\)/);
     assert.match(css, /rgba\(107, 95, 168, 0\.13\)/);
