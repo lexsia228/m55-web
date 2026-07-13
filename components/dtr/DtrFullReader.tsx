@@ -143,7 +143,7 @@ function runAfterDrawerPanelPaint(fn: () => void): void {
 
 const DRAWER_HUB_SCROLL_FAB_THRESHOLD_PX = 400;
 
-function DrawerHubScrollFab() {
+function DrawerHubScrollFab({ hidden = false }: { hidden?: boolean }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -167,11 +167,11 @@ function DrawerHubScrollFab() {
   return (
     <button
       type="button"
-      className={`${styles.readingGuideFab}${visible ? ` ${styles.readingGuideFabVisible}` : ''}`}
+      className={`${styles.readingGuideFab}${visible && !hidden ? ` ${styles.readingGuideFabVisible}` : ''}`}
       onClick={() => m55DtrScrollToDrawerHub()}
       aria-label="保存版の入口へ戻る"
-      aria-hidden={!visible}
-      tabIndex={visible ? 0 : -1}
+      aria-hidden={!visible || hidden}
+      tabIndex={visible && !hidden ? 0 : -1}
     >
       <svg
         className={styles.readingGuideFabIcon}
@@ -3488,7 +3488,7 @@ export default function DtrFullReader({
 
   return (
     <div className={styles.reportRoot} data-m55-dtr-scroll-root="true">
-      <DrawerHubScrollFab />
+      <DrawerHubScrollFab hidden={openPanel === 'consult'} />
       <div className={styles.reportMain}>
         <PremiumHero
           stem={stem}

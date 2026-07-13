@@ -6,7 +6,7 @@
  *
  * Constraints:
  * - Shows only when ownership is confirmed (server gate already checked).
- * - Input: reply_theme_id + reply_question_id selection only (no free text).
+ * - Input: reply_theme_id required; short context is optional.
  * - Output target: 1,200-1,800 JA chars (SSOT §7.2); server validates before commit.
  * - Thread cap display: 5 tickets per report (included 1 + purchased max 4).
  * - Read-only when credits_remaining=0 (prior messages remain visible).
@@ -27,7 +27,6 @@ import {
 } from '../../lib/m55/consult/consultRoomUserFacingErrors';
 import {
   PAID_DTR_CONSULT_ENTRY_LAYOUT,
-  PAID_DTR_CONSULT_ENTRY_NEUTRAL,
   PAID_DTR_CONSULT_GROUNDING_COPY,
   PAID_DTR_CONSULT_REPLY,
   PAID_DTR_CONSULT_ROOM_UI,
@@ -43,12 +42,20 @@ import {
 } from '../../lib/m55/consult/consultQuestionCatalog.v1';
 import {
   WIZARD_ENTRY_CARD_DISPLAY,
-  wizardQuestionLabelJa,
 } from '../../lib/m55/consult/consultReplyWizardDisplay.v1';
+import {
+  CONSULT_SEND_INPUT_MAX,
+  buildThemeOnlyConsultMessage,
+} from '../../lib/m55/consult/consultSendMessage';
 import {
   type ConsultWalletDisplaySnapshot,
   walletRowToConsultDisplaySnapshot,
 } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelAction,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import ConsultReplyCard from './ConsultReplyCard';
 import styles from './ConsultRoom.module.css';
 
@@ -59,26 +66,28 @@ const ROOM_UI_COPY = {
   valueCardTitle: PAID_DTR_CONSULT_ROOM_UI.valueDeliverablesTitleJa,
   valueItems: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableItemsJa,
   valueCardNote: PAID_DTR_CONSULT_ENTRY_LAYOUT.valueDeliverableFooterJa,
-  composePanelTitle: '保存版から、今のあなたに合う読み解きを選ぶ',
-  historyTitle: PAID_DTR_CONSULT_ROOM_UI.historyMessagesAriaJa,
-  step1Title: '今いちばん近い入口を選ぶ',
-  step1Hint:
-    '保存版から、今のあなたに近い入口を1つ選んでください。迷ったら、いちばん目に止まるものを選んで大丈夫です。',
-  step2Title: '今回深く見るところを選ぶ',
-  step2Hint: '選んだ入口に合わせて、保存版から4つの焦点を出します。',
-  step2HintSub: 'いま読み返したいものを1つ選んでください。',
-  selectionMemoryEyebrow: '今回の入口',
-  selectionMemoryPrompt: 'では、今回はどこを深く見ますか？',
-  step3Title: '今回見る内容を確認する',
+  composePanelTitle: '追加読み解きを作る',
+  historyTitle: '最近の追加読み解き',
+  step1Title: '今、どこから整理しますか？',
+  step1Hint: '保存版をもとに、今気になっていることを一つのテーマで整理します。',
+  step2Title: '必要なら補足する',
+  step2Hint: 'テーマだけでも作れます。',
+  step2HintSub:
+    'もっと具体的に見てほしいことがあれば、下に短く書いてください。',
+  selectionMemoryEyebrow: '選んだテーマ',
+  selectionMemoryPrompt: 'このテーマをもとに整理します。',
+  step3Title: '内容を確認する',
   step3Lead: '保存版に沿って、この内容で追加読み解きを作成します。',
-  step3Consume: 'この送信で追加読み解き1件を使用します。',
-  confirmEntryLabel: '入口',
-  confirmFocusLabel: '焦点',
+  confirmEntryLabel: '選んだテーマ',
+  confirmContextLabel: '補足内容',
+  reviewCurrentLabel: '現在',
+  reviewUseLabel: '今回',
+  reviewAfterLabel: '作成後',
 } as const;
 
 const WIZARD_STEPS = [
   { n: 1 as const, shortLabel: '入口' },
-  { n: 2 as const, shortLabel: '焦点' },
+  { n: 2 as const, shortLabel: '補足' },
   { n: 3 as const, shortLabel: '確認' },
 ];
 
@@ -198,13 +207,15 @@ function formatHistoryCountSummary(count: number): string {
   return PAID_DTR_CONSULT_ROOM_UI.historyCountTemplateJa.replace('{count}', String(count));
 }
 
-function deriveWizardActiveStep(
-  themeId: ReplyThemeId | null,
-  questionId: string | null,
-): 1 | 2 | 3 {
-  if (themeId && questionId) return 3;
-  if (themeId) return 2;
-  return 1;
+function formatStoredResultDate(createdAt?: string): string | null {
+  if (!createdAt) return null;
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
 }
 
 function WizardProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
@@ -298,40 +309,6 @@ function EntryChoiceCard({
   );
 }
 
-function FocusChoiceCard({
-  labelJa,
-  selected,
-  onSelect,
-}: {
-  labelJa: string;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={
-        selected
-          ? `${styles.choiceCard} ${styles.choiceCardSelected}`
-          : styles.choiceCard
-      }
-      onClick={onSelect}
-      aria-pressed={selected}
-      aria-selected={selected}
-      role="option"
-    >
-      <span className={styles.choiceCardBody}>
-        <span className={`${styles.choiceCardTitle} ${styles.wizTypoCardTitle}`}>{labelJa}</span>
-      </span>
-      {selected ? (
-        <span className={styles.choiceCardCheck} aria-hidden>
-          ✓
-        </span>
-      ) : null}
-    </button>
-  );
-}
-
 const DEV_PREVIEW_SEND_BLOCKED_JA = 'プレビューでは送信できません。';
 
 function ConsultRoomIssueNotice({
@@ -368,7 +345,8 @@ export default function ConsultRoom({
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [selectedThemeId, setSelectedThemeId] = useState<ReplyThemeId | null>(null);
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+  const [optionalContext, setOptionalContext] = useState('');
+  const [wizardActiveStep, setWizardActiveStep] = useState<1 | 2 | 3>(1);
   const [showAllHistory, setShowAllHistory] = useState(false);
   const [expandLatestReply, setExpandLatestReply] = useState(false);
   const latestReplyCardRef = useRef<HTMLDivElement>(null);
@@ -378,18 +356,6 @@ export default function ConsultRoom({
   const shouldScrollToLatestReplyRef = useRef(false);
   const activeIdempotencyKeyRef = useRef<string | null>(null);
   const activeSnapshotHashRef = useRef<string | null>(null);
-
-  const themeQuestions = useMemo(
-    () => (selectedThemeId ? getQuestionsForTheme(selectedThemeId) : []),
-    [selectedThemeId],
-  );
-  const selectedCatalogEntry = useMemo(
-    () =>
-      selectedThemeId && selectedQuestionId
-        ? themeQuestions.find((entry) => entry.reply_question_id === selectedQuestionId) ?? null
-        : null,
-    [selectedThemeId, selectedQuestionId, themeQuestions],
-  );
 
   const historyMessages = roomData?.messages ?? [];
   const assistantReplies = useMemo(
@@ -445,6 +411,24 @@ export default function ConsultRoom({
   }, [reloadRoom, isDevPreview]);
 
   useEffect(() => {
+    if (!roomData) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.additionalReadingFlowView,
+      'dtr_additional_reading',
+      'dtr-additional-reading-flow-view',
+    );
+  }, [roomData]);
+
+  useEffect(() => {
+    if (wizardActiveStep !== 3) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.additionalReadingReviewView,
+      'dtr_additional_reading',
+      'dtr-additional-reading-review-view',
+    );
+  }, [wizardActiveStep]);
+
+  useEffect(() => {
     if (isDevPreview) return;
     const onFocus = () => {
       void reloadRoom();
@@ -469,20 +453,27 @@ export default function ConsultRoom({
 
   const selectTheme = (themeId: ReplyThemeId) => {
     setSelectedThemeId(themeId);
-    setSelectedQuestionId(null);
+    trackFunnelAction(
+      M55_FUNNEL_EVENTS.additionalReadingThemeSelected,
+      'dtr_additional_reading',
+    );
   };
 
-  const buildSnapshotHash = (themeId: ReplyThemeId | null, questionId: string | null): string =>
-    `${themeId ?? ''}|${questionId ?? ''}`;
+  const buildSnapshotHash = (themeId: ReplyThemeId | null, context: string): string =>
+    `${themeId ?? ''}|${context.trim()}`;
 
   const handleSend = async () => {
+    if (sendLock.current) return;
+    trackFunnelAction(
+      M55_FUNNEL_EVENTS.additionalReadingSendIntent,
+      'dtr_additional_reading',
+    );
     if (isDevPreview) {
       setSendError(DEV_PREVIEW_SEND_BLOCKED_JA);
       return;
     }
-    if (sendLock.current) return;
     if (!roomData) return;
-    if (!selectedThemeId || !selectedQuestionId || !selectedCatalogEntry) return;
+    if (!selectedThemeId) return;
     const liveWallet = roomData.wallet ?? null;
     const liveHasWalletRow = roomData.has_wallet_row === true;
     const liveWalletUsable =
@@ -503,10 +494,11 @@ export default function ConsultRoom({
 
     const snapshot = {
       themeId: selectedThemeId,
-      questionId: selectedQuestionId,
+      optionalContext,
+      wizardActiveStep,
     };
 
-    const snapshotHash = buildSnapshotHash(selectedThemeId, selectedQuestionId);
+    const snapshotHash = buildSnapshotHash(selectedThemeId, optionalContext);
     if (activeSnapshotHashRef.current !== snapshotHash) {
       activeIdempotencyKeyRef.current = crypto.randomUUID();
       activeSnapshotHashRef.current = snapshotHash;
@@ -514,8 +506,10 @@ export default function ConsultRoom({
     const idempotencyKey = activeIdempotencyKeyRef.current!;
 
     const themeId = selectedThemeId;
-    const questionId = selectedQuestionId;
-    const catalogEntry = selectedCatalogEntry;
+    const themeLabel =
+      getQuestionsForTheme(themeId)[0]?.themeLabelJa ??
+      WIZARD_ENTRY_CARD_DISPLAY[themeId].label;
+    const trimmedContext = optionalContext.trim();
 
     sendLock.current = true;
     setSending(true);
@@ -525,10 +519,11 @@ export default function ConsultRoom({
 
     const optimisticMsg: Message = {
       role: 'user',
-      content: `【テーマ】${catalogEntry.themeLabelJa}\n【質問】${catalogEntry.labelJa}`,
+      content: trimmedContext
+        ? `${buildThemeOnlyConsultMessage(themeLabel)}\n\n${trimmedContext}`
+        : buildThemeOnlyConsultMessage(themeLabel),
     };
     setRoomData((prev) => (prev ? { ...prev, messages: [...prev.messages, optimisticMsg] } : prev));
-    setSelectedQuestionId(null);
 
     try {
       const res = await fetch('/api/room/core/send', {
@@ -539,7 +534,7 @@ export default function ConsultRoom({
         },
         body: JSON.stringify({
           reply_theme_id: themeId,
-          reply_question_id: questionId,
+          optional_context: trimmedContext || undefined,
           birthDate,
           nickname,
         }),
@@ -556,13 +551,17 @@ export default function ConsultRoom({
           ),
         );
         setSelectedThemeId(snapshot.themeId);
-        setSelectedQuestionId(snapshot.questionId);
+        setOptionalContext(snapshot.optionalContext);
+        setWizardActiveStep(snapshot.wizardActiveStep);
         return;
       }
 
       const { reply, thread } = data as { reply: Message; thread: ThreadState };
       activeIdempotencyKeyRef.current = null;
       activeSnapshotHashRef.current = null;
+      setSelectedThemeId(null);
+      setOptionalContext('');
+      setWizardActiveStep(1);
       // Optimistically decrement wallet so all counters agree immediately.
       const prevWallet = roomData?.wallet ?? null;
       const updatedWallet = prevWallet
@@ -586,7 +585,8 @@ export default function ConsultRoom({
       setRoomData((prev) => (prev ? { ...prev, messages: prev.messages.slice(0, -1) } : prev));
       setSendError('送信に失敗しました。ネットワークを確認して再度お試しください。');
       setSelectedThemeId(snapshot.themeId);
-      setSelectedQuestionId(snapshot.questionId);
+      setOptionalContext(snapshot.optionalContext);
+      setWizardActiveStep(snapshot.wizardActiveStep);
     } finally {
       sendLock.current = false;
       setSending(false);
@@ -642,7 +642,6 @@ export default function ConsultRoom({
     actionLocked ||
     sending ||
     !selectedThemeId ||
-    !selectedQuestionId ||
     isReadOnly;
   const showComposeFirst = !walletLoading && effectiveRemaining > 0 && !isReadOnly;
   const showExhausted =
@@ -676,25 +675,10 @@ export default function ConsultRoom({
             usedClassName={styles.usageStatCompact}
           />
         </>
-      ) : showExhausted ? (
+      ) : showExhausted || showCapReached ? (
         <>
-          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.exhaustedPrimaryJa}</p>
-          <p className={styles.usageSecondaryLead}>
-            {PAID_DTR_CONSULT_USAGE_DISPLAY.exhaustedSecondaryJa}
-          </p>
-          <WalletBalanceStats
-            availableCount={wallet.available_count}
-            usedCount={usedCount}
-            availableClassName={styles.usageStatAvailable}
-            usedClassName={styles.usageStatCompact}
-          />
-        </>
-      ) : showCapReached ? (
-        <>
-          <p className={styles.usagePrimaryLead}>{PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedPrimaryJa}</p>
-          <p className={styles.usageSecondaryLead}>
-            {PAID_DTR_CONSULT_USAGE_DISPLAY.capReachedSecondaryJa}
-          </p>
+          <p className={styles.usagePrimaryLead}>追加読み解きはすべて利用済みです。</p>
+          <p className={styles.usageSecondaryLead}>保存版はいつでも読み返せます。</p>
           <WalletBalanceStats
             availableCount={wallet.available_count}
             usedCount={usedCount}
@@ -752,9 +736,11 @@ export default function ConsultRoom({
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
         <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ROOM_UI.cannotPurchaseReportInfoJa}</p>
       </div>
-    ) : showExhausted ? (
+    ) : showExhausted || (showCapReached && isReadOnly) ? (
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
-        <p className={styles.readOnlyText}>{PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletExhaustedJa}</p>
+        <Link href="/dtr/core" className={styles.zeroStatePrimaryLink}>
+          保存版を読み返す
+        </Link>
       </div>
     ) : isReadOnly ? (
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
@@ -762,12 +748,9 @@ export default function ConsultRoom({
       </div>
     ) : null;
 
-  const wizardActiveStep = deriveWizardActiveStep(selectedThemeId, selectedQuestionId);
   const selectedEntryLabel =
     selectedThemeId != null ? WIZARD_ENTRY_CARD_DISPLAY[selectedThemeId].label : null;
-  const selectedFocusLabel = selectedCatalogEntry
-    ? wizardQuestionLabelJa(selectedCatalogEntry.reply_question_id, selectedCatalogEntry.labelJa)
-    : null;
+  const projectedRemaining = Math.max(0, effectiveRemaining - 1);
 
   const composeBlock = !isReadOnly ? (
     <div
@@ -779,30 +762,42 @@ export default function ConsultRoom({
       </h3>
       <WizardProgress activeStep={wizardActiveStep} />
 
-      <section
-        className={`${styles.wizardStepPanel} ${wizardActiveStep === 1 ? styles.wizardStepPanelActive : ''}`}
-        aria-labelledby="consult-step-1"
-      >
-        <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 1 / 3</p>
-        <h4 id="consult-step-1" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
-          {ROOM_UI_COPY.step1Title}
-        </h4>
-        <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step1Hint}</p>
-        <div className={styles.choiceGrid} role="list">
-          {REPLY_THEME_IDS.map((themeId) => (
-            <EntryChoiceCard
-              key={themeId}
-              themeId={themeId}
-              selected={selectedThemeId === themeId}
-              onSelect={() => selectTheme(themeId)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {selectedThemeId ? (
+      {wizardActiveStep === 1 ? (
         <section
-          className={`${styles.wizardStepPanel} ${wizardActiveStep === 2 ? styles.wizardStepPanelActive : ''}`}
+          className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive}`}
+          aria-labelledby="consult-step-1"
+        >
+          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 1 / 3</p>
+          <h4 id="consult-step-1" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
+            {ROOM_UI_COPY.step1Title}
+          </h4>
+          <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step1Hint}</p>
+          <div className={styles.choiceGrid} role="list">
+            {REPLY_THEME_IDS.map((themeId) => (
+              <EntryChoiceCard
+                key={themeId}
+                themeId={themeId}
+                selected={selectedThemeId === themeId}
+                onSelect={() => selectTheme(themeId)}
+              />
+            ))}
+          </div>
+          <div className={styles.wizardActions}>
+            <button
+              type="button"
+              className={`${styles.submitBtn} ${styles.submitBtnPrimary}`}
+              disabled={!selectedThemeId}
+              onClick={() => setWizardActiveStep(2)}
+            >
+              次へ
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {wizardActiveStep === 2 && selectedThemeId ? (
+        <section
+          className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive}`}
           aria-labelledby="consult-step-2"
         >
           <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 2 / 3</p>
@@ -820,20 +815,42 @@ export default function ConsultRoom({
               {ROOM_UI_COPY.selectionMemoryPrompt}
             </p>
           </div>
-          <div className={styles.choiceGrid} role="listbox" aria-label="今回深く見る焦点">
-            {themeQuestions.map((entry) => (
-              <FocusChoiceCard
-                key={entry.reply_question_id}
-                labelJa={wizardQuestionLabelJa(entry.reply_question_id, entry.labelJa)}
-                selected={selectedQuestionId === entry.reply_question_id}
-                onSelect={() => setSelectedQuestionId(entry.reply_question_id)}
-              />
-            ))}
+          <label className={styles.optionalInputLabel} htmlFor="consult-optional-context">
+            補足（任意）
+          </label>
+          <textarea
+            id="consult-optional-context"
+            className={styles.textarea}
+            value={optionalContext}
+            onChange={(event) => setOptionalContext(event.target.value)}
+            maxLength={CONSULT_SEND_INPUT_MAX}
+            placeholder="例：最近、仕事の進め方を見直したいと感じています。"
+          />
+          <div className={styles.counterRow}>
+            <span className={styles.counter}>
+              {optionalContext.length} / {CONSULT_SEND_INPUT_MAX}文字
+            </span>
+          </div>
+          <div className={styles.wizardActions}>
+            <button
+              type="button"
+              className={styles.wizardSecondaryButton}
+              onClick={() => setWizardActiveStep(1)}
+            >
+              入口を見直す
+            </button>
+            <button
+              type="button"
+              className={`${styles.submitBtn} ${styles.submitBtnPrimary}`}
+              onClick={() => setWizardActiveStep(3)}
+            >
+              内容を確認する
+            </button>
           </div>
         </section>
       ) : null}
 
-      {selectedThemeId && selectedQuestionId && selectedCatalogEntry ? (
+      {wizardActiveStep === 3 && selectedThemeId ? (
         <section
           className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive} ${styles.composeStepSubmit}`}
           aria-labelledby="consult-step-3"
@@ -849,53 +866,54 @@ export default function ConsultRoom({
               </span>
               <span className={`${styles.confirmValue} ${styles.wizTypoEmphasis}`}>{selectedEntryLabel}</span>
             </div>
-            <div className={styles.confirmRow}>
-              <span className={`${styles.confirmLabel} ${styles.wizTypoCaption}`}>
-                {ROOM_UI_COPY.confirmFocusLabel}
-              </span>
-              <span className={`${styles.confirmValue} ${styles.wizTypoEmphasis}`}>{selectedFocusLabel}</span>
-              <span className={styles.checkMark} aria-hidden>
-                ✓
-              </span>
-            </div>
+            {optionalContext.trim() ? (
+              <div className={styles.confirmRow}>
+                <span className={`${styles.confirmLabel} ${styles.wizTypoCaption}`}>
+                  {ROOM_UI_COPY.confirmContextLabel}
+                </span>
+                <span className={`${styles.confirmValue} ${styles.wizTypoEmphasis}`}>
+                  {optionalContext.trim()}
+                </span>
+              </div>
+            ) : null}
           </div>
           <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step3Lead}</p>
-          <p className={`${styles.stepConsumeNote} ${styles.wizTypoEmphasisNote}`}>{ROOM_UI_COPY.step3Consume}</p>
-          <button
-            type="button"
-            className={
-              submitDisabled
-                ? `${styles.submitBtn} ${styles.submitBtnPrimary} ${styles.submitBtnDisabled}`
-                : `${styles.submitBtn} ${styles.submitBtnPrimary}`
-            }
-            onClick={handleSend}
-            disabled={submitDisabled}
-            aria-busy={sending}
-          >
-            {sending ? (
-              <span className={styles.submitBtnInner}>
-                <svg className={styles.submitSpinner} viewBox="0 0 24 24" aria-hidden>
-                  <circle
-                    className={styles.submitSpinnerTrack}
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                  />
-                  <path
-                    className={styles.submitSpinnerArc}
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                {PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa}
-              </span>
-            ) : (
-              PAID_DTR_CONSULT_ROOM_UI.submitLabelJa
-            )}
-          </button>
+          <div className={styles.consumptionProjection} aria-label="追加読み解きの使用確認">
+            <p>
+              <span>{ROOM_UI_COPY.reviewCurrentLabel}</span>
+              <strong>{effectiveRemaining}件</strong>
+            </p>
+            <p>
+              <span>{ROOM_UI_COPY.reviewUseLabel}</span>
+              <strong>1件使用</strong>
+            </p>
+            <p>
+              <span>{ROOM_UI_COPY.reviewAfterLabel}</span>
+              <strong>{projectedRemaining}件</strong>
+            </p>
+          </div>
+          <div className={styles.wizardActions}>
+            <button
+              type="button"
+              className={styles.wizardSecondaryButton}
+              onClick={() => setWizardActiveStep(2)}
+            >
+              内容を見直す
+            </button>
+            <button
+              type="button"
+              className={
+                submitDisabled
+                  ? `${styles.submitBtn} ${styles.submitBtnPrimary} ${styles.submitBtnDisabled}`
+                  : `${styles.submitBtn} ${styles.submitBtnPrimary}`
+              }
+              onClick={handleSend}
+              disabled={submitDisabled}
+              aria-busy={sending}
+            >
+              {sending ? PAID_DTR_CONSULT_ROOM_UI.submittingLabelJa : 'この内容で1件使って作る'}
+            </button>
+          </div>
           <p className={`${styles.inputNote} ${styles.wizTypoCtaNote}`}>{PAID_DTR_CONSULT_REPLY.consumeNoteJa}</p>
         </section>
       ) : null}
@@ -934,12 +952,16 @@ export default function ConsultRoom({
         )}
         {visibleReplies.map((entry) => {
           const isLatest = entry.messageKey === latestReplyKey;
+          const createdDate = formatStoredResultDate(entry.msg.created_at);
           return (
             <div
               key={entry.messageKey}
               ref={isLatest ? latestReplyCardRef : undefined}
               className={isLatest ? styles.latestReplyAnchor : undefined}
             >
+              {createdDate ? (
+                <p className={styles.storedResultDate}>作成日 {createdDate}</p>
+              ) : null}
               <ConsultReplyCard
                 assistantContent={entry.msg.content}
                 theme={entry.theme}

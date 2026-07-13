@@ -20,6 +20,10 @@ export const M55_FUNNEL_EVENTS = {
   savedReportOpen: 'm55_saved_report_open',
   additionalReadingEntryView: 'm55_additional_reading_entry_view',
   additionalReadingStartClick: 'm55_additional_reading_start_click',
+  additionalReadingFlowView: 'm55_additional_reading_flow_view',
+  additionalReadingThemeSelected: 'm55_additional_reading_theme_selected',
+  additionalReadingReviewView: 'm55_additional_reading_review_view',
+  additionalReadingSendIntent: 'm55_additional_reading_send_intent',
 } as const;
 
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];

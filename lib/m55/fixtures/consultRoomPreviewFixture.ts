@@ -8,7 +8,11 @@ export type ConsultRoomPreviewWalletScenario =
   | 'available'
   | 'purchase'
   | 'exhausted'
-  | 'history';
+  | 'history'
+  | 'full3'
+  | 'full0'
+  | 'light1'
+  | 'light0';
 
 export type ConsultRoomPreviewRoomData = {
   thread: {
@@ -54,6 +58,20 @@ function roomData(
   };
 }
 
+/** FULL controlled-QA state — total 5, used 2, remaining 3. */
+export const CONSULT_ROOM_PREVIEW_FULL3: ConsultRoomPreviewRoomData = roomData({
+  thread: { credits_total: 5, credits_remaining: 3, state: 'writable' },
+  messages: [],
+  wallet: {
+    ...BASE_WALLET,
+    purchased_count: PAID_DTR_CONSULT_REPLY.additionalMaxPurchased,
+    consumed_count: 2,
+    available_count: 3,
+  },
+  effective_credits_remaining: 3,
+  effective_state: 'writable',
+});
+
 /** Remaining ≥1 — compose form visible at top. */
 export const CONSULT_ROOM_PREVIEW_AVAILABLE: ConsultRoomPreviewRoomData = roomData({
   thread: { credits_total: 1, credits_remaining: 1, state: 'writable' },
@@ -94,6 +112,7 @@ export const CONSULT_ROOM_PREVIEW_EXHAUSTED: ConsultRoomPreviewRoomData = roomDa
     {
       id: 'preview-assistant-1',
       role: 'assistant',
+      created_at: '2026-06-12T09:00:00.000Z',
       content:
         '今の場面では、先に負担が集中しやすい流れが見えます。\n\n' +
         '保存版の生活の整え方の章から見ると、いまは大きな決断より、小さく整える順番が合いやすい状態です。\n\n' +
@@ -120,6 +139,7 @@ const PREVIEW_HISTORY_MESSAGES: ConsultRoomPreviewRoomData['messages'] = [
   {
     id: 'preview-assistant-1',
     role: 'assistant',
+    created_at: '2026-06-12T09:00:00.000Z',
     content:
       '今の場面では、先に負担が集中しやすい流れが見えます。\n\n' +
       '保存版の生活の整え方の章から見ると、いまは大きな決断より、小さく整える順番が合いやすい状態です。\n\n' +
@@ -135,6 +155,7 @@ const PREVIEW_HISTORY_MESSAGES: ConsultRoomPreviewRoomData['messages'] = [
   {
     id: 'preview-assistant-2',
     role: 'assistant',
+    created_at: '2026-07-05T09:00:00.000Z',
     content:
       '今の場面では、伝える前に自分の言葉を整えたい気持ちが強く出ています。\n\n' +
       '保存版の対人の章から見ると、いまは結論より「一度書き出す」段階が合いやすいです。\n\n' +
@@ -145,29 +166,46 @@ const PREVIEW_HISTORY_MESSAGES: ConsultRoomPreviewRoomData['messages'] = [
 
 /** Remaining ≥1 with prior replies — history band visible (2 replies, newest last). */
 export const CONSULT_ROOM_PREVIEW_HISTORY: ConsultRoomPreviewRoomData = roomData({
-  thread: { credits_total: 2, credits_remaining: 1, state: 'writable' },
+  thread: { credits_total: 5, credits_remaining: 3, state: 'writable' },
   messages: PREVIEW_HISTORY_MESSAGES,
   wallet: {
     ...BASE_WALLET,
-    purchased_count: 1,
-    consumed_count: 1,
-    available_count: 1,
+    purchased_count: PAID_DTR_CONSULT_REPLY.additionalMaxPurchased,
+    consumed_count: 2,
+    available_count: 3,
   },
-  effective_credits_remaining: 1,
+  effective_credits_remaining: 3,
   effective_state: 'writable',
 });
+
+export const CONSULT_ROOM_PREVIEW_LIGHT1 = CONSULT_ROOM_PREVIEW_AVAILABLE;
+export const CONSULT_ROOM_PREVIEW_LIGHT0 = CONSULT_ROOM_PREVIEW_PURCHASE;
+export const CONSULT_ROOM_PREVIEW_FULL0 = CONSULT_ROOM_PREVIEW_EXHAUSTED;
 
 const SCENARIO_MAP: Record<ConsultRoomPreviewWalletScenario, ConsultRoomPreviewRoomData> = {
   available: CONSULT_ROOM_PREVIEW_AVAILABLE,
   purchase: CONSULT_ROOM_PREVIEW_PURCHASE,
   exhausted: CONSULT_ROOM_PREVIEW_EXHAUSTED,
   history: CONSULT_ROOM_PREVIEW_HISTORY,
+  full3: CONSULT_ROOM_PREVIEW_FULL3,
+  full0: CONSULT_ROOM_PREVIEW_FULL0,
+  light1: CONSULT_ROOM_PREVIEW_LIGHT1,
+  light0: CONSULT_ROOM_PREVIEW_LIGHT0,
 };
 
 export function resolveConsultRoomPreviewScenario(
   raw: string | undefined
 ): ConsultRoomPreviewWalletScenario {
-  if (raw === 'available' || raw === 'purchase' || raw === 'exhausted' || raw === 'history') {
+  if (
+    raw === 'available' ||
+    raw === 'purchase' ||
+    raw === 'exhausted' ||
+    raw === 'history' ||
+    raw === 'full3' ||
+    raw === 'full0' ||
+    raw === 'light1' ||
+    raw === 'light0'
+  ) {
     return raw;
   }
   return 'purchase';

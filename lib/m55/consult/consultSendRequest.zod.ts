@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import {
+  CONSULT_SEND_INPUT_MAX,
+  buildThemeOnlyConsultMessage,
   composeReplyUserMessage,
   validateComposedReplyMessage,
+  validateConsultSendInput,
 } from './consultSendMessage';
 import {
   REPLY_THEME_IDS,
+  getQuestionsForTheme,
   resolveReplyQuestion,
   type ConsultQuestionCatalogEntry,
   type ReplyThemeId,
@@ -15,7 +19,8 @@ export { REPLY_THEME_IDS };
 export const consultSendRequestSchema = z
   .object({
     reply_theme_id: z.enum(REPLY_THEME_IDS),
-    reply_question_id: z.string().min(3).max(64),
+    reply_question_id: z.string().min(3).max(64).optional(),
+    optional_context: z.string().max(CONSULT_SEND_INPUT_MAX).optional(),
     birthDate: z.string().optional(),
     nickname: z.string().optional(),
   })
@@ -27,7 +32,7 @@ export type ConsultSendRequestValidationResult =
   | {
       ok: true;
       data: ConsultSendRequest;
-      catalogEntry: ConsultQuestionCatalogEntry;
+      catalogEntry: ConsultQuestionCatalogEntry | null;
       composedUserMessage: string;
     }
   | { ok: false; error: string; status: 422 };
@@ -76,32 +81,60 @@ export function validateConsultSendRequest(body: unknown): ConsultSendRequestVal
     return { ok: false, error: 'リクエスト形式が不正です。', status: 422 };
   }
 
-  const { reply_theme_id, reply_question_id } = parsed.data;
-  const catalogEntry = resolveReplyQuestion(reply_theme_id as ReplyThemeId, reply_question_id);
-  if (!catalogEntry) {
-    if (!reply_question_id.startsWith(`${reply_theme_id}.`)) {
+  const { reply_theme_id, reply_question_id, optional_context } = parsed.data;
+  if (reply_question_id) {
+    if (optional_context?.trim()) {
       return {
         ok: false,
-        error: '選択した質問がテーマと一致しません。',
+        error: '質問選択と補足内容は同時に指定できません。',
         status: 422,
       };
     }
-    return { ok: false, error: '有効な質問を選択してください。', status: 422 };
+    const catalogEntry = resolveReplyQuestion(reply_theme_id as ReplyThemeId, reply_question_id);
+    if (!catalogEntry) {
+      if (!reply_question_id.startsWith(`${reply_theme_id}.`)) {
+        return {
+          ok: false,
+          error: '選択した質問がテーマと一致しません。',
+          status: 422,
+        };
+      }
+      return {
+        ok: false,
+        error: '有効な質問を選択してください。',
+        status: 422,
+      };
+    }
+
+    const composedUserMessage = composeReplyUserMessage(
+      catalogEntry.themeLabelJa,
+      catalogEntry.labelJa,
+    );
+    const composeValidation = validateComposedReplyMessage(composedUserMessage);
+    if (!composeValidation.ok) {
+      return { ok: false, error: composeValidation.error, status: 422 };
+    }
+    return {
+      ok: true,
+      data: parsed.data,
+      catalogEntry,
+      composedUserMessage,
+    };
   }
 
-  const composedUserMessage = composeReplyUserMessage(
-    catalogEntry.themeLabelJa,
-    catalogEntry.labelJa,
-  );
-  const composeValidation = validateComposedReplyMessage(composedUserMessage);
+  const themeLabelJa =
+    getQuestionsForTheme(reply_theme_id as ReplyThemeId)[0]?.themeLabelJa ?? '';
+  const themeOnlyMessage = buildThemeOnlyConsultMessage(themeLabelJa);
+  const context = optional_context?.trim() ?? '';
+  const composedUserMessage = context ? `${themeOnlyMessage}\n\n${context}` : themeOnlyMessage;
+  const composeValidation = validateConsultSendInput(composedUserMessage);
   if (!composeValidation.ok) {
     return { ok: false, error: composeValidation.error, status: 422 };
   }
-
   return {
     ok: true,
     data: parsed.data,
-    catalogEntry,
+    catalogEntry: null,
     composedUserMessage,
   };
 }
