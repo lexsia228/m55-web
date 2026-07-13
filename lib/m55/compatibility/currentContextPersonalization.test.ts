@@ -151,11 +151,36 @@ describe('current-context questionnaire contract', () => {
 
   it('implements one-question navigation, answer retention, and no result auth wall', () => {
     const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.match(component, /questionIndex \+ 1\}\/6/);
+    assert.match(component, /整理 \{questionIndex \+ 1\}\/6/);
     assert.match(component, /disabled=\{!selectedAnswer \|\| isPending\}/);
     assert.match(component, /setQuestionIndex\(\(current\) => Math\.max\(0, current - 1\)\)/);
     assert.match(component, /setAnswers\(\(current\) => \(\{ \.\.\.current/);
     assert.doesNotMatch(component, /useUser|SignedIn|SignInButton|auth wall/i);
+  });
+
+  it('shows trust strip, compressed questionnaire chrome, toolkit tiles, and aligned CTA', () => {
+    const component = read('components/compatibility/CompatibilityGuestExperience.tsx');
+    const css = read('components/compatibility/CompatibilityGuestExperience.module.css');
+    assert.match(component, /回答するのはあなた一人です/);
+    assert.match(component, /相手の本音や性格を当てるものではありません/);
+    assert.match(component, /このあと、無料の見取り図まで進めます/);
+    assert.match(component, /questionIndex === 0 \? styles\.questionPurpose : styles\.questionPurposeCompact/);
+    assert.match(component, /同じ生年月日でも、今の距離や会話によって内容が変わります。/);
+    assert.doesNotMatch(component, /質問 \{questionIndex \+ 1\}\/6/);
+    assert.match(component, /場面から戻る手順/);
+    assert.match(component, /そのまま使える一言/);
+    assert.match(component, /今週一度だけ試すこと/);
+    assert.match(component, /あとで振り返る一問/);
+    assert.match(component, /今つながる2章を見る/);
+    assert.match(component, /href="#compatibility-mapped-chapters"/);
+    assert.match(component, /id="compatibility-mapped-chapters"/);
+    assert.match(component, /loopSteps/);
+    assert.match(component, /glanceLabel/);
+    assert.match(component, /土台は生年月日、表れ方と連鎖は今の回答を重ねています。/);
+    assert.doesNotMatch(component, /質問が重なったところ/);
+    assert.doesNotMatch(component, /購入する|永久保存|ずっと見返せる|今だけ|人気/);
+    assert.match(css, /transition: border-color 200ms ease, background-color 200ms ease/);
+    assert.match(css, /prefers-reduced-motion: reduce/);
   });
 });
 
@@ -206,9 +231,40 @@ describe('same-pair current-context variance', () => {
       b.value.currentContext?.relationshipLoop,
     );
     assert.notEqual(
+      a.value.currentContext?.relationshipLoopSteps,
+      b.value.currentContext?.relationshipLoopSteps,
+    );
+    assert.notEqual(
+      a.value.currentContext?.glanceLabel,
+      b.value.currentContext?.glanceLabel,
+    );
+    assert.notEqual(
       a.value.currentContext?.immediateAction,
       b.value.currentContext?.immediateAction,
     );
+  });
+
+  it('exposes deterministic glance labels and three relationship loop steps', () => {
+    const displayA = buildCompatibilityCurrentContextDisplay(CONTEXT_A);
+    const displayB = buildCompatibilityCurrentContextDisplay(CONTEXT_B);
+    const displayC = buildCompatibilityCurrentContextDisplay(CONTEXT_C);
+    for (const display of [displayA, displayB, displayC]) {
+      assert.equal(display.relationshipLoopSteps.length, 3);
+      assert.ok(display.glanceLabel.length > 0);
+      assert.equal(
+        display.relationshipLoop,
+        display.relationshipLoopSteps.map((step) => step.replace(/。$/u, '')).join('。') + '。',
+      );
+    }
+    assert.deepEqual(
+      buildCompatibilityCurrentContextDisplay(CONTEXT_A),
+      buildCompatibilityCurrentContextDisplay(CONTEXT_A),
+    );
+    assert.notEqual(displayA.glanceLabel, displayB.glanceLabel);
+    assert.notEqual(displayA.glanceLabel, displayC.glanceLabel);
+    assert.notEqual(displayB.glanceLabel, displayC.glanceLabel);
+    assert.notDeepEqual(displayA.relationshipLoopSteps, displayB.relationshipLoopSteps);
+    assert.notDeepEqual(displayA.relationshipLoopSteps, displayC.relationshipLoopSteps);
   });
 
   it('uses Q6 only for reading emphasis, never for six chapter bodies', () => {

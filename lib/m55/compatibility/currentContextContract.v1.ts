@@ -310,10 +310,36 @@ const CHAPTER_SCENE_ENTRY: Readonly<Record<ChapterId, string>> = {
   ch_about: 'すれ違いのあとに戻ろうとするとき',
 };
 
+export const RELATIONSHIP_LOOP_STEP_LABELS = Object.freeze([
+  '違いが出たとき',
+  '距離を取るとき',
+  '元の距離へ戻るとき',
+] as const);
+
+const DISTANCE_GLANCE: Readonly<Record<DistanceAnswer, string>> = {
+  explain_space: '間を取りつつ',
+  go_quiet: '距離が開くと',
+  space_is_hard: '間を作りにくく',
+};
+
+const RETURN_GLANCE: Readonly<Record<ReturnPatternAnswer, string>> = {
+  someone_reaches: '声かけで戻りやすい',
+  time_restores: '時間で自然に戻りやすい',
+  return_is_hard: '戻る入口を作りにくい',
+};
+
+export function buildGlanceLabel(
+  answers: CompatibilityCurrentContextBodyAnswers,
+): string {
+  return `${DISTANCE_GLANCE[answers.distance]}、${RETURN_GLANCE[answers.returnPattern]}今`;
+}
+
 export type CompatibilityCurrentContextDisplay = {
   readonly questionnaireContractVersion: typeof COMPATIBILITY_CURRENT_CONTEXT_VERSION;
   readonly currentExpression: string;
   readonly relationshipLoop: string;
+  readonly relationshipLoopSteps: readonly [string, string, string];
+  readonly glanceLabel: string;
   readonly immediateAction: string;
   readonly focusLabel: string;
   readonly readingGuide: string;
@@ -334,10 +360,21 @@ export function buildCompatibilityCurrentContextDisplay(
   const distance = DISTANCE_COPY[answers.distance];
   const returning = RETURN_COPY[answers.returnPattern];
   const focus = FOCUS_COPY[answers.focus];
+  const bodyAnswers = bodyAnswersFromCurrentContext(answers);
+  const relationshipLoopSteps = Object.freeze([
+    disagreement.loop,
+    distance.loop,
+    returning.loop,
+  ] as const);
+  const relationshipLoop = relationshipLoopSteps
+    .map((step) => step.replace(/。$/u, ''))
+    .join('。') + '。';
   return Object.freeze({
     questionnaireContractVersion: COMPATIBILITY_CURRENT_CONTEXT_VERSION,
     currentExpression: `${decision.expression}${expression.expression}`,
-    relationshipLoop: `${disagreement.loop}。${distance.loop}。${returning.loop}`,
+    relationshipLoopSteps,
+    relationshipLoop,
+    glanceLabel: buildGlanceLabel(bodyAnswers),
     immediateAction: returning.action,
     focusLabel: focus.label,
     readingGuide: focus.readingGuide,

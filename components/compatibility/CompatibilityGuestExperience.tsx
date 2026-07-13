@@ -10,6 +10,7 @@ import {
 } from '../../lib/m55/compatibility/pairReadingGuestContract';
 import {
   COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS,
+  RELATIONSHIP_LOOP_STEP_LABELS,
   isCompleteCompatibilityCurrentContext,
   type CompatibilityCurrentContextAnswers,
   type CompatibilityCurrentQuestionId,
@@ -227,6 +228,15 @@ export default function CompatibilityGuestExperience() {
           <p className={styles.privacyNote}>
             入力はこの結果の組み立てにだけ使い、このタブを閉じると保持されません。
           </p>
+          <ul
+            className={styles.trustStrip}
+            data-testid="compatibility-trust-strip"
+            aria-label="この見取り図の進め方"
+          >
+            <li>回答するのはあなた一人です</li>
+            <li>相手の本音や性格を当てるものではありません</li>
+            <li>このあと、無料の見取り図まで進めます</li>
+          </ul>
           {error ? <p className={styles.error} role="alert">{error}</p> : null}
           <button className={styles.submit} type="submit" disabled={!complete || isPending}>
             今の二人について答える
@@ -241,24 +251,36 @@ export default function CompatibilityGuestExperience() {
           aria-labelledby="compatibility-question-title"
           data-testid="compatibility-question-step"
         >
-          <div className={styles.questionPurpose}>
+          <div
+            className={
+              questionIndex === 0 ? styles.questionPurpose : styles.questionPurposeCompact
+            }
+          >
             <p className={styles.eyebrow}>今の二人を重ねる</p>
-            <p>
-              今の二人の距離や会話の表れ方を重ねることで、同じ生年月日でも現在の関係に近い内容へ変わります。
-            </p>
-            <p className={styles.observationNote}>
-              回答するのは、あなたから観察できる二人の間の状況です。相手が回答したものではありません。
-            </p>
+            {questionIndex === 0 ? (
+              <>
+                <p>
+                  今の二人の距離や会話の表れ方を重ねることで、同じ生年月日でも現在の関係に近い内容へ変わります。
+                </p>
+                <p className={styles.observationNote}>
+                  回答するのは、あなたから観察できる二人の間の状況です。相手が回答したものではありません。
+                </p>
+              </>
+            ) : (
+              <p className={styles.questionShortLine}>
+                同じ生年月日でも、今の距離や会話によって内容が変わります。
+              </p>
+            )}
           </div>
           <div className={styles.progressRow}>
-            <span>質問 {questionIndex + 1}/6</span>
+            <span>整理 {questionIndex + 1}/6</span>
             <div
               className={styles.progressTrack}
               role="progressbar"
               aria-valuemin={1}
               aria-valuemax={6}
               aria-valuenow={questionIndex + 1}
-              aria-label={`質問 ${questionIndex + 1}/6`}
+              aria-label={`整理 ${questionIndex + 1}/6`}
             >
               <span style={{ width: `${((questionIndex + 1) / 6) * 100}%` }} />
             </div>
@@ -332,16 +354,31 @@ export default function CompatibilityGuestExperience() {
           </div>
           </section>
 
-          <section className={styles.dynamicCard} data-testid="compatibility-current-expression">
+          <section
+            className={styles.expressionCard}
+            data-testid="compatibility-current-expression"
+          >
             <p className={styles.cardNumber}>02</p>
             <h3>今の二人に表れやすいこと</h3>
+            <p className={styles.glanceLabel} data-testid="compatibility-glance-label">
+              {context.glanceLabel}
+            </p>
             <p className={styles.dynamicOutcome}>{context.currentExpression}</p>
           </section>
 
-          <section className={styles.dynamicCard} data-testid="compatibility-current-loop">
+          <section className={styles.loopCard} data-testid="compatibility-current-loop">
             <p className={styles.cardNumber}>03</p>
             <h3>二人の間で続きやすい連鎖</h3>
-            <p className={styles.dynamicOutcome}>{context.relationshipLoop}</p>
+            <ol className={styles.loopSteps}>
+              {context.relationshipLoopSteps.map((step, index) => (
+                <li key={RELATIONSHIP_LOOP_STEP_LABELS[index]}>
+                  <span className={styles.loopStepLabel}>
+                    {RELATIONSHIP_LOOP_STEP_LABELS[index]}
+                  </span>
+                  <p>{step}</p>
+                </li>
+              ))}
+            </ol>
           </section>
 
           <section className={styles.actionCard} aria-labelledby="action-title">
@@ -351,27 +388,10 @@ export default function CompatibilityGuestExperience() {
             <p className={styles.actionNote}>結果を決めるためではなく、二人の違いを確かめる一回分の行動です。</p>
           </section>
 
-          <section className={styles.interpretation} aria-labelledby="interpretation-title">
-            <p className={styles.cardNumber}>05</p>
-            <h3 id="interpretation-title">質問が重なったところ</h3>
-            <div className={styles.interpretationGrid}>
-              <div>
-                <h4>生年月日から見る土台</h4>
-                <p>重なりや違いの基礎として、そのまま残しています。</p>
-              </div>
-              <div>
-                <h4>今の回答から重なったこと</h4>
-                <p>距離・会話・戻り方として観察できる状況を反映しています。</p>
-              </div>
-              <div>
-                <h4>現在の二人の見取り図</h4>
-                <p>土台と今の表れ方を合わせ、次に扱える場面へつなげています。</p>
-              </div>
-            </div>
-            <p className={styles.observationNote}>
-              この回答は相手の気持ちや性格を示すものではなく、相手が回答したものでもありません。
-            </p>
-          </section>
+          <p className={styles.contextNote}>
+            土台は生年月日、表れ方と連鎖は今の回答を重ねています。
+            相手本人が回答したものではありません。
+          </p>
 
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
             <p className={styles.eyebrow}>今のfocus：{context.focusLabel}</p>
@@ -379,23 +399,35 @@ export default function CompatibilityGuestExperience() {
             <p className={styles.deliverableLead}>
               二人の生年月日だけでなく、今の距離・会話・すれ違い方を重ねて、6つの場面を整理します。
             </p>
-            <ul className={styles.deliverableList} aria-label="6章で受け取れる内容">
-              <li>現在の二人に合わせた6つの場面</li>
-              <li>二人それぞれから見えること（A／B双方）</li>
-              <li>すれ違いが続く連鎖</li>
-              <li>場面から戻る手順</li>
-              <li>そのまま使える一言</li>
-              <li>今週試せる小さな実験（一度だけ）</li>
-              <li>6章の振り返り</li>
+            <ul className={styles.toolkitTiles} aria-label="6章で受け取れる道具">
+              <li>
+                <strong>場面から戻る手順</strong>
+                <span>すれ違いのあとに戻る、小さな順序</span>
+              </li>
+              <li>
+                <strong>そのまま使える一言</strong>
+                <span>責めずに話を始めるための短い言葉</span>
+              </li>
+              <li>
+                <strong>今週一度だけ試すこと</strong>
+                <span>負担を増やさず、今の二人で試せる一歩</span>
+              </li>
+              <li>
+                <strong>あとで振り返る一問</strong>
+                <span>何が変わったかを見直すための問い</span>
+              </li>
             </ul>
-            <div className={styles.mappedChapters}>
+            <div
+              className={styles.mappedChapters}
+              id="compatibility-mapped-chapters"
+            >
               {result.mappedChapters.map((chapter) => (
                 <article key={chapter.chapterId}>
                   <h4>{chapter.chapterTitle}</h4>
                   <p className={styles.connectionLabel}>今の二人とつながる理由</p>
                   <p>{chapter.currentConnection}</p>
                   <p className={styles.connectionLabel}>この章で得られる具体物</p>
-                  <p>{chapter.concreteValue}</p>
+                  <p className={styles.concreteValue}>{chapter.concreteValue}</p>
                 </article>
               ))}
             </div>
@@ -410,13 +442,13 @@ export default function CompatibilityGuestExperience() {
             <div className={styles.bridgeActions}>
               <a
                 className={styles.primaryLink}
-                href="#compatibility-six-chapters"
+                href="#compatibility-mapped-chapters"
                 onClick={() => trackFunnelAction(
                   M55_FUNNEL_EVENTS.compatibilityPersonalizedPaidBridgeClick,
                   'compatibility_guest',
                 )}
               >
-                6章で受け取れる内容を見る
+                今つながる2章を見る
               </a>
               <a className={styles.secondaryLink} href="#compatibility-free-detail">
                 無料の詳細をこのまま読む
