@@ -1,5 +1,5 @@
 /**
- * Privacy-safe funnel events for free→paid conversion.
+ * Privacy-safe funnel events for conversion and post-purchase use.
  * Transport: existing @vercel/analytics (already in app layout).
  * No new provider / endpoint / DB. No PII / answers / theme / selectors.
  */
@@ -16,6 +16,10 @@ export const M55_FUNNEL_EVENTS = {
   paidQuestionnaireStart: 'm55_paid_questionnaire_start',
   paidQuestionnaireComplete: 'm55_paid_questionnaire_complete',
   paidPlanView: 'm55_paid_plan_view',
+  mySavedReportView: 'm55_my_saved_report_view',
+  savedReportOpen: 'm55_saved_report_open',
+  additionalReadingEntryView: 'm55_additional_reading_entry_view',
+  additionalReadingStartClick: 'm55_additional_reading_start_click',
 } as const;
 
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
@@ -24,7 +28,10 @@ export type M55FunnelSurface =
   | 'core_free_result'
   | 'core_paid_bridge'
   | 'dtr_paid_questionnaire'
-  | 'dtr_paid_plan';
+  | 'dtr_paid_plan'
+  | 'my_saved_report'
+  | 'dtr_saved_report'
+  | 'dtr_additional_reading';
 
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {

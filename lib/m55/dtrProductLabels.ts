@@ -57,9 +57,11 @@ export const MY_SAVED_REPORT_OWNED_NOTE_P1 =
   '保存版は、購入時までに入力された情報をもとに作成・保存されています。';
 export const MY_SAVED_REPORT_OWNED_NOTE_P2 =
   'ここでプロフィールを更新しても、購入済みの保存版の内容は自動では変わりません。';
+export const MY_SAVED_REPORT_VALUE_TITLE = '4章の保存版';
+export const MY_SAVED_REPORT_VALUE_BODY = '購入時の内容をそのまま読み返せます。';
 export const MY_SAVED_REPORT_CTA_PLAN_LABEL = '保存版のプランを見る';
 export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
-export const MY_SAVED_REPORT_CTA_OPEN_LABEL = '保存版を開く';
+export const MY_SAVED_REPORT_CTA_OPEN_LABEL = '保存版を読み返す';
 export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
 /** Light owner → FULL upgrade (reply-tickets checkout lane). */
 export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'FULL化する（¥600）';
@@ -87,8 +89,12 @@ export const MY_CONSULT_BODY_OWNED_P1 =
   '追加読み解きは、保存版に紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて追加読み解きを確認します。';
 export const MY_CONSULT_BODY_OWNED_P2 =
   '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。';
-export const MY_CONSULT_CTA_LABEL = '追加読み解きを確認する';
-export const MY_CONSULT_CTA_HREF = '/dtr/core';
+export const MY_CONSULT_CONTEXT_BODY =
+  '保存版をもとに、今気になっている一つのテーマを整理します。';
+export const MY_CONSULT_USAGE_UNAVAILABLE =
+  '追加読み解きの利用状況は、保存版を開いて確認できます。';
+export const MY_CONSULT_CTA_LABEL = '追加読み解きを始める';
+export const MY_CONSULT_CTA_HREF = '/dtr/core#consultation-room';
 
 /** §6 プロフィール */
 export const MY_PROFILE_SECTION_TITLE = 'プロフィール';

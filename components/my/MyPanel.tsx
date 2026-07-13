@@ -9,15 +9,16 @@ import {
   isEntryReportCoreRight,
 } from '../../lib/m55/myEntitlementLabels';
 import {
-  LABEL_STATE_OWNED,
   MY_BADGE_NOT_PURCHASED,
   MY_BADGE_PREPARING,
   MY_CONSULT_BODY_OWNED_P1,
   MY_CONSULT_BODY_OWNED_P2,
   MY_CONSULT_BODY_PRE_OWNED,
+  MY_CONSULT_CONTEXT_BODY,
   MY_CONSULT_CTA_HREF,
   MY_CONSULT_CTA_LABEL,
   MY_CONSULT_SECTION_TITLE,
+  MY_CONSULT_USAGE_UNAVAILABLE,
   MY_FIRST_TIME_CTA_HREF,
   MY_FIRST_TIME_CTA_LABEL,
   MY_FIRST_TIME_GUIDE_BODY,
@@ -43,6 +44,8 @@ import {
   MY_SAVED_REPORT_PROCESSING,
   MY_SAVED_REPORT_SECTION_TITLE,
   MY_SAVED_REPORT_SNAP_ERROR,
+  MY_SAVED_REPORT_VALUE_BODY,
+  MY_SAVED_REPORT_VALUE_TITLE,
   MY_SERVICES_INTRO,
   MY_SERVICES_SECTION_TITLE,
   MY_SIGNED_OUT_HUB_BODY,
@@ -64,6 +67,13 @@ import {
   ACCOUNT_DATA_REQUEST_CTA_LABEL,
   ACCOUNT_DATA_REQUEST_HREF,
 } from '../../lib/m55/accountDataControlPublicCopy';
+import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
+import { buildPostPurchaseRetentionHubModel } from '../../lib/m55/postPurchaseRetentionHub';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelAction,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './MyPanel.module.css';
 
 type EntitlementsResponse = {
@@ -82,6 +92,7 @@ type SnapshotReadyResponse = {
     canUpgradeFromLight: boolean;
     reportInstanceId: string | null;
   };
+  consultWallet?: ConsultWalletDisplaySnapshot | null;
 };
 
 type ProfileState = 'no_profile' | 'ready' | 'editing';
@@ -217,6 +228,15 @@ export default function MyPanel() {
   const ownedReady = isOwnedSnapshotReady(entError, snapError, ent, snap);
   const entReady = entLoaded && !entError && ent !== null;
 
+  useEffect(() => {
+    if (!ownedReady) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.mySavedReportView,
+      'my_saved_report',
+      'my-saved-report-view',
+    );
+  }, [ownedReady]);
+
   if (!isLoaded) {
     return (
       <div className={styles.wrap}>
@@ -259,7 +279,7 @@ export default function MyPanel() {
             deleteToastVisible={deleteToastVisible}
           />
 
-          {entReady && (
+          {entReady && !ownedReady && (
             <section className={styles.card} aria-label={MY_SERVICES_SECTION_TITLE}>
               <h2 className={styles.sectionTitle}>{MY_SERVICES_SECTION_TITLE}</h2>
               <p className={styles.sectionIntro}>{MY_SERVICES_INTRO}</p>
@@ -273,7 +293,7 @@ export default function MyPanel() {
             </section>
           )}
 
-          {entReady && (
+          {entReady && !ownedReady && (
             <ConsultSection ownedReady={ownedReady} />
           )}
 
@@ -347,13 +367,17 @@ function SavedReportSection({
   onDeleteSuccess: () => void;
   deleteToastVisible: boolean;
 }) {
+  const purchasedHub = buildPostPurchaseRetentionHubModel({
+    tier: snap?.savedReportTier ?? { hasLight: false, hasFull: false },
+    wallet: snap?.consultWallet,
+  });
   const sectionBadge =
     state === 'no_profile' || state === 'ready_unpurchased'
       ? MY_BADGE_NOT_PURCHASED
       : state === 'processing'
       ? MY_BADGE_PREPARING
       : state === 'owned_ready'
-      ? LABEL_STATE_OWNED
+      ? purchasedHub.planLabel
       : null;
 
   return (
@@ -376,14 +400,6 @@ function SavedReportSection({
       </div>
 
       <p className={styles.sectionIntro}>{MY_SAVED_REPORT_INTRO_COMMON}</p>
-
-      {state === 'owned_ready' && (
-        <>
-          <p className={styles.sectionIntro}>{MY_SAVED_REPORT_INTRO_OWNED}</p>
-          <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P1}</p>
-          <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P2}</p>
-        </>
-      )}
 
       {state === 'loading' && <p className={styles.body}>{MY_SAVED_REPORT_LOADING}</p>}
 
@@ -408,16 +424,65 @@ function SavedReportSection({
 
       {state === 'owned_ready' && ent && (
         <>
+          <div className={styles.ownedValueSummary}>
+            <p className={styles.ownedValueTitle}>{MY_SAVED_REPORT_VALUE_TITLE}</p>
+            <p className={styles.ownedValueBody}>{MY_SAVED_REPORT_VALUE_BODY}</p>
+          </div>
+          <div className={styles.usageSummary} aria-label="追加読み解きの利用状況">
+            <p className={styles.usageLabel}>{MY_CONSULT_SECTION_TITLE}</p>
+            {purchasedHub.usage ? (
+              <>
+                <p className={styles.usageCount}>
+                  残り {purchasedHub.usage.remaining}件 / 合計 {purchasedHub.usage.total}件
+                </p>
+                <p className={styles.usageUsed}>{purchasedHub.usage.used}件利用済み</p>
+              </>
+            ) : (
+              <p className={styles.usageUnavailable}>{MY_CONSULT_USAGE_UNAVAILABLE}</p>
+            )}
+          </div>
+          <p className={styles.consultContext}>{MY_CONSULT_CONTEXT_BODY}</p>
+          <div className={styles.actionStack}>
+            {purchasedHub.primaryAction === 'additional_reading' ? (
+              <>
+                <Link
+                  href={MY_CONSULT_CTA_HREF}
+                  className={styles.ctaPrimary}
+                  onClick={() =>
+                    trackFunnelAction(
+                      M55_FUNNEL_EVENTS.additionalReadingStartClick,
+                      'my_saved_report',
+                    )
+                  }
+                >
+                  {MY_CONSULT_CTA_LABEL}
+                </Link>
+                <Link
+                  href={MY_SAVED_REPORT_CTA_OPEN_HREF}
+                  className={styles.ctaSecondary}
+                >
+                  {MY_SAVED_REPORT_CTA_OPEN_LABEL}
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={MY_SAVED_REPORT_CTA_OPEN_HREF}
+                className={styles.ctaPrimary}
+              >
+                {MY_SAVED_REPORT_CTA_OPEN_LABEL}
+              </Link>
+            )}
+          </div>
+          <div className={styles.ownedContinuityNote}>
+            <p className={styles.sectionIntro}>{MY_SAVED_REPORT_INTRO_OWNED}</p>
+            <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P1}</p>
+            <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P2}</p>
+          </div>
           <OwnedReportsList
             ent={ent}
             snap={snap}
             onDeleteSuccess={onDeleteSuccess}
           />
-          <div className={styles.links}>
-            <Link href={MY_SAVED_REPORT_CTA_OPEN_HREF} className={styles.ctaPrimary}>
-              {MY_SAVED_REPORT_CTA_OPEN_LABEL}
-            </Link>
-          </div>
           {snap?.savedReportTier?.canUpgradeFromLight &&
             snap.savedReportTier.reportInstanceId && (
               <LightToFullUpgradeCta

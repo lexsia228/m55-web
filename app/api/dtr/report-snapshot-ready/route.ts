@@ -5,6 +5,8 @@ import {
   type DtrShelfUxState,
 } from '../../../../lib/m55/dtrShelfAccess';
 import { resolveSavedReportTierSummary } from '../../../../lib/m55/dtrSavedReportTier';
+import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
+import { readConsultWalletDisplaySnapshot } from '../../../../lib/m55/reply/consultWalletDisplaySnapshot';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +20,11 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const access = await resolveDtrShelfAccess(userId);
-  const tier = await resolveSavedReportTierSummary(userId);
+  const [access, tier, ownership] = await Promise.all([
+    resolveDtrShelfAccess(userId),
+    resolveSavedReportTierSummary(userId),
+    resolveEntryReportOwnership(userId),
+  ]);
 
   const ownershipState =
     access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
@@ -33,6 +38,10 @@ export async function GET() {
   const ready = hasOwnership && hasPurchaseSnapshot;
   const showPurchaseCta =
     access.kind === 'authenticated' ? access.showPurchaseCta : false;
+  const consultWallet =
+    ready && ownership.unlockState === 'owned' && ownership.reportInstanceId
+      ? await readConsultWalletDisplaySnapshot(userId, ownership.reportInstanceId)
+      : null;
 
   console.info(
     '[report-snapshot-ready]',
@@ -59,5 +68,6 @@ export async function GET() {
       canUpgradeFromLight: tier.canUpgradeFromLight,
       reportInstanceId: tier.reportInstanceId,
     },
+    consultWallet,
   });
 }

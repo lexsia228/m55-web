@@ -87,6 +87,10 @@ import {
   shouldShowLegacySnapshotNotice,
 } from '../../lib/m55/dtrSavedReportCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -3032,6 +3036,13 @@ export default function DtrFullReader({
   const ownerId = user?.id ?? null;
 
   const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
+    if (panel === 'consult') {
+      trackFunnelImpressionOnce(
+        M55_FUNNEL_EVENTS.additionalReadingEntryView,
+        'dtr_additional_reading',
+        'dtr-additional-reading-entry-view',
+      );
+    }
     setOpenPanel(panel);
     runAfterDrawerPanelPaint(() => {
       if (panel === null) {
@@ -3078,6 +3089,20 @@ export default function DtrFullReader({
       nickname: purchasedSnapshot.profile.nickname,
     };
   }, [isLoaded, purchasedSnapshot]);
+
+  useEffect(() => {
+    if (view.kind !== 'ready') return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.savedReportOpen,
+      'dtr_saved_report',
+      'dtr-saved-report-open',
+    );
+  }, [view.kind]);
+
+  useEffect(() => {
+    if (view.kind !== 'ready' || window.location.hash !== '#consultation-room') return;
+    selectPanel('consult');
+  }, [selectPanel, view.kind]);
 
   if (view.kind === 'loading') {
     return (
