@@ -150,8 +150,144 @@
   opacity: 0.38;
 }
 
+.questionnaire {
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 16px 38px rgba(43, 34, 57, 0.06);
+}
+
+.questionPurpose {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.questionPurpose > p:not(.eyebrow),
+.observationNote {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.progressRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-top: 22px;
+  color: var(--plum);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.progressTrack {
+  overflow: hidden;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(75, 59, 96, 0.11);
+}
+
+.progressTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #725d89;
+}
+
+.questionTitle {
+  margin: 26px 0 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(23px, 4vw, 32px);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.choiceList {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.choice,
+.choiceSelected {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 54px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.choiceSelected {
+  border-color: rgba(75, 59, 96, 0.48);
+  background: #f2edf3;
+}
+
+.choiceSelected small {
+  flex: 0 0 auto;
+  color: var(--plum);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.questionActions {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.35fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.backButton,
+.nextButton {
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.backButton {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--plum);
+}
+
+.nextButton {
+  border: 0;
+  background: #352a46;
+  color: #fff;
+}
+
+.nextButton:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.choice:focus-visible,
+.choiceSelected:focus-visible,
+.backButton:focus-visible,
+.nextButton:focus-visible,
+.resetJourney:focus-visible {
+  outline: 2px solid #725d89;
+  outline-offset: 3px;
+}
+
 .result {
-  margin-top: clamp(64px, 10vw, 112px);
+  margin-top: 0;
 }
 
 .resultHeader {
@@ -173,6 +309,20 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.baselineSection {
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.baselineSection > h3 {
+  margin: 0 0 18px;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(21px, 3vw, 27px);
+  font-weight: 500;
+}
+
 .insightCard,
 .dynamicCard,
 .interpretation,
@@ -184,7 +334,10 @@
 }
 
 .insightCard {
-  padding: clamp(20px, 4vw, 30px);
+  padding: clamp(18px, 3vw, 24px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #faf8f7;
 }
 
 .cardNumber {
@@ -376,44 +529,20 @@
   font-size: 18px;
 }
 
-.chapterList {
+.useCases {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 28px;
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: chapter;
+  gap: 9px;
+  margin-top: 16px;
 }
 
-.chapterList li {
-  position: relative;
-  min-width: 0;
-  padding: 15px 0 15px 32px;
-  border-top: 1px solid var(--line);
-  counter-increment: chapter;
-}
-
-.chapterList li::before {
-  position: absolute;
-  top: 16px;
-  left: 0;
-  color: #887b91;
-  content: counter(chapter, decimal-leading-zero);
-  font-size: 10px;
-}
-
-.chapterList span {
-  font-size: 14px;
-  font-weight: 700;
+.useCases span {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: #4f4a57;
+  font-size: 13px;
   line-height: 1.55;
-}
-
-.chapterList p {
-  margin: 7px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.65;
 }
 
 .bridgeActions {
@@ -453,6 +582,21 @@
   padding: clamp(22px, 4vw, 32px);
 }
 
+.resetJourney {
+  min-height: 44px;
+  margin-top: 18px;
+  padding: 9px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--plum);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .anchor {
   display: block;
   height: 1px;
@@ -468,16 +612,12 @@
   .perspectiveGrid,
   .interpretationGrid,
   .mappedChapters,
-  .chapterList {
+  .useCases {
     grid-template-columns: 1fr;
   }
 
   .form {
     margin-top: 26px;
-  }
-
-  .result {
-    margin-top: 68px;
   }
 
   .interpretationGrid {
@@ -496,10 +636,30 @@
   .secondaryLink {
     width: 100%;
   }
+
+  .questionnaire {
+    padding: 18px;
+  }
+
+  .questionPurpose {
+    padding-bottom: 14px;
+  }
+
+  .questionTitle {
+    margin-top: 20px;
+  }
+
+  .choiceList {
+    margin-top: 18px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .submit,
+  .choice,
+  .choiceSelected,
+  .backButton,
+  .nextButton,
   .primaryLink,
   .secondaryLink {
     transition: none !important;

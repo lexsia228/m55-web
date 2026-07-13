@@ -7,6 +7,33 @@ import {
 } from '../../../lib/m55/compatibility/buildPaidCompatibilityReportV1';
 import PaidCompatibilityReportReader from '../PaidCompatibilityReportReader';
 
+const CONTEXT_A = {
+  decisionPace: 'decide_later',
+  disagreement: 'talk_now',
+  distance: 'explain_space',
+  expressionPace: 'words_soon',
+  returnPattern: 'someone_reaches',
+  focus: 'conversation_focus',
+} as const;
+
+const CONTEXT_B = {
+  decisionPace: 'decide_later',
+  disagreement: 'take_space',
+  distance: 'go_quiet',
+  expressionPace: 'words_later',
+  returnPattern: 'return_is_hard',
+  focus: 'return_focus',
+} as const;
+
+const CONTEXT_C = {
+  decisionPace: 'decide_now',
+  disagreement: 'one_carries',
+  distance: 'space_is_hard',
+  expressionPace: 'words_vary',
+  returnPattern: 'time_restores',
+  focus: 'next_step_focus',
+} as const;
+
 const SYNTHETIC_REPORTS: readonly {
   id: string;
   label: string;
@@ -21,6 +48,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R3',
       temperatureId: 'E1',
       personAUsesFirstPerspective: true,
+      currentContext: CONTEXT_A,
     },
   },
   {
@@ -32,6 +60,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R2',
       temperatureId: 'E2',
       personAUsesFirstPerspective: true,
+      currentContext: CONTEXT_B,
     },
   },
   {
@@ -43,6 +72,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R5',
       temperatureId: 'E4',
       personAUsesFirstPerspective: true,
+      currentContext: CONTEXT_C,
     },
   },
   {
@@ -54,6 +84,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R1',
       temperatureId: 'E2',
       personAUsesFirstPerspective: true,
+      currentContext: { ...CONTEXT_A, focus: 'distance_focus' },
     },
   },
   {
@@ -65,6 +96,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R2',
       temperatureId: 'E2',
       personAUsesFirstPerspective: false,
+      currentContext: CONTEXT_A,
     },
   },
   {
@@ -76,6 +108,7 @@ const SYNTHETIC_REPORTS: readonly {
       relationStatusId: 'R6',
       temperatureId: 'E5',
       personAUsesFirstPerspective: true,
+      currentContext: CONTEXT_B,
     },
   },
 ] as const;
