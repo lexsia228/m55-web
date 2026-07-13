@@ -98,6 +98,32 @@
   margin-top: 24px;
 }
 
+.personalization {
+  display: grid;
+  gap: 5px;
+  padding: 15px 16px;
+  border: 1px solid rgba(93, 75, 112, 0.14);
+  border-radius: 14px;
+  background: rgba(111, 91, 132, 0.055);
+}
+
+.personalization strong {
+  color: #352c3f;
+  font-size: 15px;
+}
+
+.personalization span {
+  color: #554560;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.personalization small {
+  color: #696071;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
 .authBoundary {
   padding: 18px;
   border: 1px solid rgba(93, 75, 112, 0.13);

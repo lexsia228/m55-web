@@ -8,32 +8,61 @@ import {
 import PaidCompatibilityReportReader from '../PaidCompatibilityReportReader';
 import { CompatibilitySavedReportsSection } from '../../my/CompatibilitySavedReportsSection';
 import { buildPaidCompatibilityReportV1 } from '../../../lib/m55/compatibility/buildPaidCompatibilityReportV1';
+import type { CompatibilityCurrentContextAnswers } from '../../../lib/m55/compatibility/currentContextContract.v1';
 
 const STATES = [
-  ['off', 'A commerce flag OFF'],
-  ['confirm', 'B purchase confirmation'],
-  ['signed-out', 'C unauthenticated sign-in boundary'],
-  ['redirect', 'D checkout redirect intent'],
-  ['processing', 'E payment processing'],
-  ['owned', 'F fulfilled My Page card'],
-  ['reader', 'G owned six-chapter reader'],
-  ['unauthorized', 'H unauthorized report 404'],
-  ['duplicate', 'I duplicate webhook evidence'],
-  ['mobile-confirm', 'J mobile confirmation'],
+  ['confirm-a', 'A purchase confirmation · context A'],
+  ['confirm-b', 'B purchase confirmation · context B'],
+  ['checkout', 'C checkout boundary'],
+  ['processing', 'D processing'],
+  ['owned', 'E fulfilled My Page'],
+  ['reader-a', 'F owned reader · context A'],
+  ['reader-b', 'G owned reader · context B'],
+  ['reader-focus', 'H Q6-only focus difference'],
+  ['unauthorized', 'I non-owner 404'],
+  ['duplicate', 'J duplicate-webhook evidence'],
+  ['off', 'K commerce flag OFF'],
 ] as const;
 
+const CONTEXT_A: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_later',
+  disagreement: 'talk_now',
+  distance: 'explain_space',
+  expressionPace: 'words_soon',
+  returnPattern: 'someone_reaches',
+  focus: 'conversation_focus',
+};
+const CONTEXT_B: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_later',
+  disagreement: 'take_space',
+  distance: 'go_quiet',
+  expressionPace: 'words_later',
+  returnPattern: 'return_is_hard',
+  focus: 'return_focus',
+};
+const CONTEXT_Q6: CompatibilityCurrentContextAnswers = {
+  ...CONTEXT_A,
+  focus: 'distance_focus',
+};
+
 export default function CompatibilityCommercePreviewClient() {
-  const [state, setState] = useState<(typeof STATES)[number][0]>('confirm');
-  const snapshot = useMemo(
-    () => buildPaidCompatibilityReportV1({
+  const [state, setState] = useState<(typeof STATES)[number][0]>('confirm-a');
+  const snapshots = useMemo(() => {
+    const build = (currentContext: CompatibilityCurrentContextAnswers) =>
+      buildPaidCompatibilityReportV1({
       pairAxisId: 'A3',
       paidTopicId: 'T2',
       relationStatusId: 'R3',
       temperatureId: 'E1',
       personAUsesFirstPerspective: true,
-    }),
-    [],
-  );
+        currentContext,
+      });
+    return {
+      a: build(CONTEXT_A),
+      b: build(CONTEXT_B),
+      q6: build(CONTEXT_Q6),
+    };
+  }, []);
   const sampleReport = {
     id: '11111111-1111-4111-8111-111111111111',
     createdAt: '2026-07-13T09:00:00.000Z',
@@ -41,25 +70,20 @@ export default function CompatibilityCommercePreviewClient() {
   };
 
   let content: React.ReactNode;
-  if (state === 'confirm' || state === 'mobile-confirm') {
+  if (state === 'confirm-a' || state === 'confirm-b') {
     content = (
       <CompatibilityPurchaseConfirmation
         commerceEnabled
         previewAuthState="signed_in"
+        previewCurrentContext={state === 'confirm-a' ? CONTEXT_A : CONTEXT_B}
       />
     );
-  } else if (state === 'signed-out') {
-    content = (
-      <CompatibilityPurchaseConfirmation
-        commerceEnabled
-        previewAuthState="signed_out"
-      />
-    );
-  } else if (state === 'redirect') {
+  } else if (state === 'checkout') {
     content = (
       <CompatibilityPurchaseConfirmation
         commerceEnabled
         previewAuthState="redirecting"
+        previewCurrentContext={CONTEXT_A}
       />
     );
   } else if (state === 'processing') {
@@ -70,7 +94,17 @@ export default function CompatibilityCommercePreviewClient() {
         <CompatibilitySavedReportsSection reports={[sampleReport]} preview />
       </div>
     );
-  } else if (state === 'reader' && snapshot) {
+  } else if (
+    state === 'reader-a' ||
+    state === 'reader-b' ||
+    state === 'reader-focus'
+  ) {
+    const snapshot =
+      state === 'reader-a'
+        ? snapshots.a
+        : state === 'reader-b'
+          ? snapshots.b
+          : snapshots.q6;
     content = (
       <PaidCompatibilityReportReader
         snapshot={snapshot}

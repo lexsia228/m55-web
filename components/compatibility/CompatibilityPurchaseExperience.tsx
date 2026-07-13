@@ -9,6 +9,11 @@ import {
   type CompatibilityGuestInput,
 } from '../../lib/m55/compatibility/pairReadingGuestContract';
 import {
+  buildCompatibilityCurrentContextDisplay,
+  isCompleteCompatibilityCurrentContext,
+  type CompatibilityCurrentContextAnswers,
+} from '../../lib/m55/compatibility/currentContextContract.v1';
+import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
   trackFunnelImpressionOnce,
@@ -17,16 +22,36 @@ import styles from './CompatibilityPurchaseExperience.module.css';
 
 type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
 
-function readPurchaseInput(): CompatibilityGuestInput | null {
+type CompatibilityPurchaseJourney = {
+  input: CompatibilityGuestInput;
+  currentContext: CompatibilityCurrentContextAnswers;
+};
+
+const PREVIEW_CURRENT_CONTEXT: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_later',
+  disagreement: 'talk_now',
+  distance: 'explain_space',
+  expressionPace: 'words_soon',
+  returnPattern: 'someone_reaches',
+  focus: 'conversation_focus',
+};
+
+function readPurchaseInput(): CompatibilityPurchaseJourney | null {
   try {
     const raw = sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<CompatibilityGuestInput>;
-    const candidate = {
-      personA: typeof parsed.personA === 'string' ? parsed.personA : '',
-      personB: typeof parsed.personB === 'string' ? parsed.personB : '',
+    const parsed = JSON.parse(raw) as {
+      input?: Partial<CompatibilityGuestInput>;
+      answers?: unknown;
     };
-    return isCompleteCompatibilityGuestInput(candidate) ? candidate : null;
+    const input = {
+      personA: typeof parsed.input?.personA === 'string' ? parsed.input.personA : '',
+      personB: typeof parsed.input?.personB === 'string' ? parsed.input.personB : '',
+    };
+    return isCompleteCompatibilityGuestInput(input) &&
+      isCompleteCompatibilityCurrentContext(parsed.answers)
+      ? { input, currentContext: parsed.answers }
+      : null;
   } catch {
     return null;
   }
@@ -46,10 +71,10 @@ function ProductDetails() {
         <div><dt>変更・取消</dt><dd>決済前は内容を見直せます</dd></div>
       </dl>
       <p className={styles.note}>
-        このレポートは、関係を診断・保証・予測するものではありません。
+        このレポートは、関係を決めつけたり、改善を保証・予測したりするものではありません。
       </p>
       <p className={styles.privacy}>
-        二人の生年月日はレポート作成時に使用します。購入後に保存されるレポートには、生年月日そのものは含まれません。
+        二人の生年月日と回答はレポート作成時に使用します。購入後のレポートは購入したアカウントに保存され、生年月日や回答IDは含まれません。相手への自動共有はありません。
       </p>
     </>
   );
@@ -83,20 +108,36 @@ export function CompatibilityPurchaseConfirmation({
   commerceEnabled,
   cancelled = false,
   previewAuthState,
+  previewCurrentContext = PREVIEW_CURRENT_CONTEXT,
 }: {
   commerceEnabled: boolean;
   cancelled?: boolean;
   previewAuthState?: PreviewAuthState;
+  previewCurrentContext?: CompatibilityCurrentContextAnswers;
 }) {
-  const [input, setInput] = useState<CompatibilityGuestInput | null>(
-    previewAuthState ? { personA: '1990-01-01', personB: '1992-02-02' } : null,
+  const [journey, setJourney] = useState<CompatibilityPurchaseJourney | null>(
+    previewAuthState
+      ? {
+          input: { personA: '1990-01-01', personB: '1992-02-02' },
+          currentContext: previewCurrentContext,
+        }
+      : null,
   );
   const [loading, setLoading] = useState(previewAuthState === 'redirecting');
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!previewAuthState) return;
+    setJourney({
+      input: { personA: '1990-01-01', personB: '1992-02-02' },
+      currentContext: previewCurrentContext,
+    });
+    setLoading(previewAuthState === 'redirecting');
+  }, [previewAuthState, previewCurrentContext]);
+
+  useEffect(() => {
     if (previewAuthState) return;
-    setInput(readPurchaseInput());
+    setJourney(readPurchaseInput());
     trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.compatibilityPurchaseView,
       'compatibility_purchase',
@@ -105,7 +146,7 @@ export function CompatibilityPurchaseConfirmation({
   }, [previewAuthState]);
 
   async function startCheckout() {
-    if (!input || !commerceEnabled || loading) return;
+    if (!journey || !commerceEnabled || loading) return;
     if (previewAuthState) {
       setLoading(true);
       return;
@@ -121,7 +162,11 @@ export function CompatibilityPurchaseConfirmation({
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        body: JSON.stringify({
+          personA: journey.input.personA,
+          personB: journey.input.personB,
+          currentContext: journey.currentContext,
+        }),
       });
       const data = (await response.json()) as { url?: unknown };
       if (!response.ok || typeof data.url !== 'string') {
@@ -140,11 +185,18 @@ export function CompatibilityPurchaseConfirmation({
 
   if (!commerceEnabled) return null;
 
+  const contextDisplay = journey
+    ? buildCompatibilityCurrentContextDisplay(journey.currentContext)
+    : null;
   const signedInContent = (
     <div className={styles.actionArea}>
-      {input ? (
+      {journey ? (
         <>
-          <p className={styles.inputReady}>二人分の入力内容を確認できました。</p>
+          <div className={styles.personalization}>
+            <strong>現在の二人に合わせた6章</strong>
+            <span>今のfocus：{contextDisplay?.focusLabel}</span>
+            <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
+          </div>
           <button
             type="button"
             className={styles.primary}

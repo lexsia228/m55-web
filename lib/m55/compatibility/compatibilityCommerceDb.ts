@@ -8,6 +8,10 @@ import {
   PAID_TOPIC_CATALOG,
   getChapterTitle,
 } from './pairReadingCatalog.v1';
+import {
+  COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS,
+  COMPATIBILITY_CURRENT_CONTEXT_VERSION,
+} from './currentContextContract.v1';
 import { COMPATIBILITY_REPORT_FULL_PRODUCT_KEY } from './compatibilityCommerceAuthority';
 
 type DbClient = ReturnType<typeof getSupabaseAdmin>;
@@ -37,7 +41,10 @@ const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const RAW_DOB_RE = /\b\d{4}-\d{2}-\d{2}\b/;
 const FORBIDDEN_SNAPSHOT_KEYS =
-  /"(?:birthDate|dob|dobHash|nickname|userId|clerkId|stripeId|matrixScore|prompt|providerMetadata)"\s*:/i;
+  /"(?:birthDate|dob|dobHash|nickname|userId|clerkId|stripeId|matrixScore|prompt|providerMetadata|answers|decisionPace|disagreement|distance|expressionPace|returnPattern|focus)"\s*:/i;
+const RAW_CURRENT_CONTEXT_ANSWER_IDS = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS.flatMap(
+  (question) => question.choices.map((choice) => choice.answerId),
+);
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
@@ -45,6 +52,42 @@ function isNonEmptyString(value: unknown): value is string {
 
 export function isOpaqueCompatibilityId(value: unknown): value is string {
   return typeof value === 'string' && UUID_RE.test(value);
+}
+
+function isDisplaySafeCurrentContext(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const context = value as Record<string, unknown>;
+  if (
+    context.questionnaireContractVersion !== COMPATIBILITY_CURRENT_CONTEXT_VERSION ||
+    !isNonEmptyString(context.currentExpression) ||
+    !isNonEmptyString(context.relationshipLoop) ||
+    !isNonEmptyString(context.glanceLabel) ||
+    !isNonEmptyString(context.immediateAction) ||
+    !isNonEmptyString(context.focusLabel) ||
+    !isNonEmptyString(context.readingGuide) ||
+    !Array.isArray(context.relationshipLoopSteps) ||
+    context.relationshipLoopSteps.length !== 3 ||
+    !context.relationshipLoopSteps.every(isNonEmptyString) ||
+    !Array.isArray(context.highlightedChapterKeys) ||
+    context.highlightedChapterKeys.length !== 2 ||
+    !context.highlightedChapterKeys.every(
+      (key) => typeof key === 'string' && CHAPTER_IDS.includes(key as any),
+    ) ||
+    !Array.isArray(context.chapterPreview) ||
+    context.chapterPreview.length !== 2
+  ) {
+    return false;
+  }
+  return context.chapterPreview.every((preview) => {
+    if (!preview || typeof preview !== 'object' || Array.isArray(preview)) return false;
+    const item = preview as Record<string, unknown>;
+    return (
+      typeof item.chapterKey === 'string' &&
+      CHAPTER_IDS.includes(item.chapterKey as any) &&
+      isNonEmptyString(item.reason) &&
+      isNonEmptyString(item.concreteValue)
+    );
+  });
 }
 
 export function isPaidCompatibilityReportSnapshot(
@@ -62,7 +105,9 @@ export function isPaidCompatibilityReportSnapshot(
     !isNonEmptyString(snapshot.safetyNote) ||
     !Array.isArray(snapshot.highlightedChapterKeys) ||
     !Array.isArray(snapshot.chapters) ||
-    snapshot.chapters.length !== CHAPTER_IDS.length
+    snapshot.chapters.length !== CHAPTER_IDS.length ||
+    (snapshot.currentContext !== undefined &&
+      !isDisplaySafeCurrentContext(snapshot.currentContext))
   ) {
     return false;
   }
@@ -98,7 +143,11 @@ export function isPaidCompatibilityReportSnapshot(
   }
 
   const serialized = JSON.stringify(snapshot);
-  return !RAW_DOB_RE.test(serialized) && !FORBIDDEN_SNAPSHOT_KEYS.test(serialized);
+  return (
+    !RAW_DOB_RE.test(serialized) &&
+    !FORBIDDEN_SNAPSHOT_KEYS.test(serialized) &&
+    !RAW_CURRENT_CONTEXT_ANSWER_IDS.some((answerId) => serialized.includes(answerId))
+  );
 }
 
 export async function createCompatibilityPurchaseContext(

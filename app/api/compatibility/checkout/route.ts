@@ -14,12 +14,27 @@ import {
   createCompatibilityPurchaseContext,
 } from '../../../../lib/m55/compatibility/compatibilityCommerceDb';
 import {
+  isCompleteCompatibilityCurrentContext,
+  type CompatibilityCurrentContextAnswers,
+  type CompatibilityCurrentQuestionId,
+} from '../../../../lib/m55/compatibility/currentContextContract.v1';
+import {
   isCompleteCompatibilityGuestInput,
   type CompatibilityGuestInput,
 } from '../../../../lib/m55/compatibility/pairReadingGuestContract';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const CHECKOUT_INPUT_KEYS = ['currentContext', 'personA', 'personB'] as const;
+const CURRENT_CONTEXT_KEYS: readonly CompatibilityCurrentQuestionId[] = [
+  'decisionPace',
+  'disagreement',
+  'distance',
+  'expressionPace',
+  'returnPattern',
+  'focus',
+];
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -35,12 +50,35 @@ export async function POST(req: NextRequest) {
   }
 
   let input: CompatibilityGuestInput;
+  let currentContext: CompatibilityCurrentContextAnswers;
   try {
     const body = (await req.json()) as Record<string, unknown>;
+    if (
+      Object.keys(body).sort().join('|') !==
+      [...CHECKOUT_INPUT_KEYS].sort().join('|')
+    ) {
+      return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
+    }
     input = {
       personA: typeof body.personA === 'string' ? body.personA : '',
       personB: typeof body.personB === 'string' ? body.personB : '',
     };
+    const rawContext =
+      body.currentContext &&
+      typeof body.currentContext === 'object' &&
+      !Array.isArray(body.currentContext)
+        ? body.currentContext as Record<string, unknown>
+        : {};
+    if (
+      Object.keys(rawContext).sort().join('|') !==
+      [...CURRENT_CONTEXT_KEYS].sort().join('|')
+    ) {
+      return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
+    }
+    if (!isCompleteCompatibilityCurrentContext(rawContext)) {
+      return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
+    }
+    currentContext = rawContext;
   } catch {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
@@ -48,7 +86,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
   }
 
-  const built = buildCanonicalCompatibilityPurchaseSnapshot(input);
+  const built = buildCanonicalCompatibilityPurchaseSnapshot(input, currentContext);
   if (!built.ok) {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 });
   }

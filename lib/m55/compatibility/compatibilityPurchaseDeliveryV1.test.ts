@@ -26,6 +26,7 @@ import {
   isPaidCompatibilityReportSnapshot,
   type CompatibilityPurchaseContextRow,
 } from './compatibilityCommerceDb';
+import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
 import {
   M55_FUNNEL_EVENTS,
   buildPrivacySafeFunnelPayload,
@@ -34,16 +35,42 @@ import {
 const ROOT = join(import.meta.dirname, '../../..');
 const PRICE_ID = 'price_compatibility_test';
 const CONTEXT_ID = '11111111-1111-4111-8111-111111111111';
+const CONTEXT_A: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_later',
+  disagreement: 'talk_now',
+  distance: 'explain_space',
+  expressionPace: 'words_soon',
+  returnPattern: 'someone_reaches',
+  focus: 'conversation_focus',
+};
+const CONTEXT_B: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_later',
+  disagreement: 'take_space',
+  distance: 'go_quiet',
+  expressionPace: 'words_later',
+  returnPattern: 'return_is_hard',
+  focus: 'return_focus',
+};
+const CONTEXT_C: CompatibilityCurrentContextAnswers = {
+  decisionPace: 'decide_now',
+  disagreement: 'one_carries',
+  distance: 'space_is_hard',
+  expressionPace: 'words_vary',
+  returnPattern: 'time_restores',
+  focus: 'next_step_focus',
+};
 
 function read(relativePath: string): string {
   return readFileSync(join(ROOT, relativePath), 'utf8');
 }
 
-function canonicalSnapshot() {
+function canonicalSnapshot(
+  currentContext: CompatibilityCurrentContextAnswers = CONTEXT_A,
+) {
   const result = buildCanonicalCompatibilityPurchaseSnapshot({
     personA: '1990-01-01',
     personB: '1992-02-02',
-  });
+  }, currentContext);
   assert.equal(result.ok, true);
   if (!result.ok) throw new Error('fixture failed');
   return result.snapshot;
@@ -164,24 +191,91 @@ describe('compatibility commerce product authority', () => {
 });
 
 describe('canonical snapshot privacy', () => {
-  it('is deterministic, serializable, and contains no DOB or identity data', () => {
+  it('is deterministic, personalized, serializable, and contains no raw input', () => {
     const first = canonicalSnapshot();
     const second = canonicalSnapshot();
     assert.deepEqual(first, second);
     assert.deepEqual(JSON.parse(JSON.stringify(first)), first);
     assert.equal(isPaidCompatibilityReportSnapshot(first), true);
+    assert.equal(first.currentContext?.questionnaireContractVersion, 'compatibility_current_context_v1');
+    assert.equal(first.currentContext?.relationshipLoopSteps.length, 3);
     const serialized = JSON.stringify(first);
     assert.doesNotMatch(serialized, /1990-01-01|1992-02-02/);
     assert.doesNotMatch(
       serialized,
-      /dobHash|birthDate|nickname|clerk|userId|stripe|matrixScore|prompt|provider/i,
+      /dobHash|birthDate|nickname|clerk|userId|stripe|matrixScore|prompt|provider|decide_later|talk_now|conversation_focus/i,
     );
+  });
+
+  it('materially varies at least four chapters for the same DOB across A, B, and C', () => {
+    const snapshots = [
+      canonicalSnapshot(CONTEXT_A),
+      canonicalSnapshot(CONTEXT_B),
+      canonicalSnapshot(CONTEXT_C),
+    ];
+    const signature = (chapter: (typeof snapshots)[number]['chapters'][number]) =>
+      JSON.stringify({
+        scene: chapter.scene,
+        relationshipLoop: chapter.relationshipLoop,
+        resetSteps: chapter.resetSteps,
+        usablePhrase: chapter.usablePhrase,
+        smallExperiment: chapter.smallExperiment,
+        reflectionQuestion: chapter.reflectionQuestion,
+      });
+    for (const [leftIndex, rightIndex] of [[0, 1], [0, 2], [1, 2]] as const) {
+      const changed = snapshots[leftIndex].chapters.filter(
+        (chapter, index) =>
+          signature(chapter) !== signature(snapshots[rightIndex].chapters[index]!),
+      );
+      assert.ok(changed.length >= 4);
+      assert.equal(
+        snapshots[leftIndex].sharedFoundation,
+        snapshots[rightIndex].sharedFoundation,
+      );
+      assert.equal(
+        snapshots[leftIndex].differentFoundation,
+        snapshots[rightIndex].differentFoundation,
+      );
+    }
+  });
+
+  it('uses Q6 for focus guidance only and keeps all six chapter bodies unchanged', () => {
+    const distance = canonicalSnapshot({ ...CONTEXT_A, focus: 'distance_focus' });
+    const conversation = canonicalSnapshot({
+      ...CONTEXT_A,
+      focus: 'conversation_focus',
+    });
+    assert.deepEqual(distance.chapters, conversation.chapters);
+    assert.notEqual(
+      distance.currentContext?.readingGuide,
+      conversation.currentContext?.readingGuide,
+    );
+    assert.notDeepEqual(
+      distance.highlightedChapterKeys,
+      conversation.highlightedChapterKeys,
+    );
+  });
+
+  it('keeps legacy snapshots without current context readable', () => {
+    const legacy = {
+      ...canonicalSnapshot(),
+      currentContext: undefined,
+    };
+    assert.equal(isPaidCompatibilityReportSnapshot(legacy), true);
   });
 
   it('rejects a saved snapshot containing a raw date', () => {
     const invalid = {
       ...canonicalSnapshot(),
       relationshipSummary: '1990-01-01',
+    };
+    assert.equal(isPaidCompatibilityReportSnapshot(invalid), false);
+  });
+
+  it('rejects saved snapshots containing raw current-context answer IDs', () => {
+    const invalid = {
+      ...canonicalSnapshot(),
+      relationshipSummary: 'decide_later',
     };
     assert.equal(isPaidCompatibilityReportSnapshot(invalid), false);
   });
@@ -209,14 +303,31 @@ describe('checkout source contract', () => {
     assert.doesNotMatch(metadata, /personA|personB|birth|userId|snapshot|chapter/);
   });
 
-  it('parses only DOB inputs and ignores client price or chapter bodies', () => {
+  it('accepts only DOB and current-context answers and rejects client authority overrides', () => {
     const parseBlock = source.slice(
       source.indexOf('const body ='),
-      source.indexOf('if (!isCompleteCompatibilityGuestInput'),
+      source.indexOf('const built ='),
     );
     assert.match(parseBlock, /body\.personA/);
     assert.match(parseBlock, /body\.personB/);
+    assert.match(parseBlock, /body\.currentContext/);
+    assert.match(parseBlock, /isCompleteCompatibilityCurrentContext/);
+    assert.match(parseBlock, /Object\.keys\(body\)/);
     assert.doesNotMatch(parseBlock, /body\.price|body\.amount|body\.chapter|body\.snapshot/);
+  });
+
+  it('sends the complete same-tab journey and never sends a client-built snapshot', () => {
+    const client = read(
+      'components/compatibility/CompatibilityPurchaseExperience.tsx',
+    );
+    assert.match(client, /parsed\.input\?\.personA/);
+    assert.match(client, /isCompleteCompatibilityCurrentContext\(parsed\.answers\)/);
+    assert.match(client, /currentContext: journey\.currentContext/);
+    const requestBody = client.slice(
+      client.indexOf('body: JSON.stringify'),
+      client.indexOf('const data ='),
+    );
+    assert.doesNotMatch(requestBody, /snapshot|chapter|price|amount/);
   });
 });
 
@@ -405,6 +516,9 @@ describe('owned delivery, commercial copy, and analytics', () => {
       '自動更新',
       '支払い確認後にマイページへ表示',
       '決済前は内容を見直せます',
+      '現在の二人に合わせた6章',
+      '購入したアカウントに保存',
+      '相手への自動共有はありません',
       '/legal/tokushoho',
       '/legal/terms',
       '/legal/privacy',
@@ -412,7 +526,10 @@ describe('owned delivery, commercial copy, and analytics', () => {
     ]) {
       assert.match(source, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }
-    assert.doesNotMatch(source, /今だけ|残りわずか|割引前|限定|必ず役立つ|関係が改善/);
+    assert.doesNotMatch(
+      source,
+      /今だけ|残りわずか|割引前|限定|必ず役立つ|関係が改善|永久|一生|無期限|相手の本音/,
+    );
   });
 
   it('keeps the analytics payload to the three-field allowlist', () => {

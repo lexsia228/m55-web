@@ -5,8 +5,13 @@ import {
 } from './pairReadingCatalog.v1';
 import {
   COMPATIBILITY_GUEST_DEFAULT_STATE,
+  isCompleteCompatibilityGuestInput,
   type CompatibilityGuestInput,
 } from './pairReadingGuestContract';
+import {
+  isCompleteCompatibilityCurrentContext,
+  type CompatibilityCurrentContextAnswers,
+} from './currentContextContract.v1';
 import { GUEST_TOPIC_BY_PAIR_AXIS } from './pairReadingGuestResult';
 import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
@@ -26,7 +31,14 @@ export type CanonicalCompatibilityPurchaseSnapshotResult =
  */
 export function buildCanonicalCompatibilityPurchaseSnapshot(
   input: CompatibilityGuestInput,
+  currentContext: CompatibilityCurrentContextAnswers,
 ): CanonicalCompatibilityPurchaseSnapshotResult {
+  if (
+    !isCompleteCompatibilityGuestInput(input) ||
+    !isCompleteCompatibilityCurrentContext(currentContext)
+  ) {
+    return { ok: false, reason: 'invalid_input' };
+  }
   const pairAxisId = derivePairAxisId(input.personA, input.personB);
   const paidTopicId = GUEST_TOPIC_BY_PAIR_AXIS[pairAxisId];
   const pairInput: PairReadingInput = {
@@ -59,6 +71,7 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
       personAUsesFirstPerspective:
         rendered.pairFingerprint.personADobHash <=
         rendered.pairFingerprint.personBDobHash,
+      currentContext,
     }),
   };
 }

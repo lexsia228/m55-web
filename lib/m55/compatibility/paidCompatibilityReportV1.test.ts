@@ -230,12 +230,11 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
   it('updates the free bridge only with implemented deliverables', () => {
     const bridge = read('components/compatibility/CompatibilityGuestExperience.tsx');
     for (const copy of [
-      '二人それぞれから見えること',
-      'すれ違いが続く連鎖',
       '場面から戻る手順',
       'そのまま使える一言',
-      '今週試せる小さな実験',
-      '6章の振り返り',
+      '今週一度だけ試すこと',
+      'あとで振り返る一問',
+      '6章の使い方',
     ]) {
       assert.ok(bridge.includes(copy));
     }
