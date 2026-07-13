@@ -29,6 +29,10 @@ export const M55_FUNNEL_EVENTS = {
   compatibilityActionView: 'm55_compatibility_action_view',
   compatibilityPaidBridgeView: 'm55_compatibility_paid_bridge_view',
   compatibilityPaidBridgeClick: 'm55_compatibility_paid_bridge_click',
+  compatibilityPaidReportView: 'm55_compatibility_paid_report_view',
+  compatibilityPaidChapterOpen: 'm55_compatibility_paid_chapter_open',
+  compatibilityPhraseCopy: 'm55_compatibility_phrase_copy',
+  compatibilityExperimentView: 'm55_compatibility_experiment_view',
 } as const;
 
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
@@ -41,7 +45,8 @@ export type M55FunnelSurface =
   | 'my_saved_report'
   | 'dtr_saved_report'
   | 'dtr_additional_reading'
-  | 'compatibility_guest';
+  | 'compatibility_guest'
+  | 'compatibility_paid_report';
 
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {

@@ -206,6 +206,17 @@ export default function CompatibilityGuestExperience() {
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
             <p className={styles.eyebrow}>6章への接続</p>
             <h3 id="paid-bridge-title">この二人の場合、6章ではここから深めます</h3>
+            <p className={styles.deliverableLead}>
+              レポート本体では、二人の関係を6つの場面に分け、会話や一週間の行動に使える形で読み進めます。
+            </p>
+            <ul className={styles.deliverableList} aria-label="6章で受け取れる内容">
+              <li>二人それぞれから見えること</li>
+              <li>すれ違いが続く連鎖</li>
+              <li>場面から戻る手順</li>
+              <li>そのまま使える一言</li>
+              <li>今週試せる小さな実験</li>
+              <li>6章の振り返り</li>
+            </ul>
             <div className={styles.mappedChapters}>
               {result.mappedChapters.map((chapter) => (
                 <article key={chapter.chapterId}>

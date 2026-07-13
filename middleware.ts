@@ -16,6 +16,7 @@ const isPublicRoute = createRouteMatcher([
   '/how-m55-works',
   '/ten-views',
   '/synastry',
+  '/dev/synastry-paid-report-preview',
   '/api/stripe/webhook',
   '/api/clerk/webhook',
   '/api/purchase/checkout',

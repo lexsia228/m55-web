@@ -1,0 +1,494 @@
+.reader {
+  --ink: #292535;
+  --muted: #6d6876;
+  --line: rgba(55, 45, 70, 0.14);
+  --plum: #4b3b60;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 40px) 96px;
+  box-sizing: border-box;
+  color: var(--ink);
+}
+
+.reportHeader {
+  max-width: 760px;
+}
+
+.eyebrow,
+.blockLabel {
+  margin: 0;
+  color: #786a83;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.reportHeader h1,
+.overview h2,
+.chapterIndex h2 {
+  margin: 8px 0 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.reportHeader h1 {
+  font-size: clamp(32px, 6vw, 52px);
+}
+
+.subtitle {
+  margin: 16px 0 0;
+  font-size: clamp(17px, 2.4vw, 21px);
+  line-height: 1.7;
+}
+
+.readingGuide {
+  max-width: 620px;
+  margin: 22px 0 0;
+  padding-left: 16px;
+  border-left: 2px solid rgba(75, 59, 96, 0.24);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.overview,
+.chapterIndex,
+.chapter,
+.safetyNote {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.overview {
+  margin-top: clamp(42px, 7vw, 72px);
+  padding: clamp(22px, 5vw, 44px);
+}
+
+.overview h2,
+.chapterIndex h2 {
+  font-size: clamp(25px, 4vw, 36px);
+}
+
+.summary {
+  max-width: 760px;
+  margin: 22px 0 0;
+  color: #4f4a57;
+  line-height: 1.95;
+}
+
+.foundationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.foundationGrid > div,
+.recurringLoop {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #faf8f7;
+}
+
+.foundationGrid h3,
+.recurringLoop h3,
+.highlighted h3,
+.safetyNote h2 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.foundationGrid p,
+.recurringLoop p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.recurringLoop {
+  margin-top: 14px;
+}
+
+.highlighted {
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+
+.highlighted > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.highlighted button {
+  min-height: 48px;
+  padding: 10px 15px;
+  border: 1px solid rgba(75, 59, 96, 0.2);
+  border-radius: 10px;
+  background: #f4f0f5;
+  color: var(--plum);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.highlighted button span {
+  display: block;
+  margin-bottom: 2px;
+  color: #8b7f93;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.chapterIndex {
+  margin-top: 24px;
+  padding: clamp(22px, 5vw, 38px);
+  scroll-margin-top: 18px;
+}
+
+.indexHeading {
+  margin-bottom: 22px;
+}
+
+.chapterIndex ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chapterIndex button {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.chapterNumber {
+  padding-top: 2px;
+  color: #8b7f93;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.chapterIndex strong,
+.chapterIndex small {
+  display: block;
+}
+
+.chapterIndex strong {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.chapterIndex small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.chapterStack {
+  display: grid;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.chapter {
+  overflow: clip;
+  scroll-margin-top: 18px;
+}
+
+.chapterToggle {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  min-height: 78px;
+  padding: 18px 22px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.chapterToggle > span {
+  color: #807387;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.chapterToggle > strong {
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(18px, 3vw, 24px);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.chapterToggle > small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.chapterBody {
+  display: grid;
+  gap: 18px;
+  padding: 0 clamp(18px, 5vw, 46px) clamp(28px, 6vw, 52px);
+  border-top: 1px solid var(--line);
+}
+
+.sceneBlock {
+  padding-top: 28px;
+}
+
+.sceneBlock > p:last-child,
+.perspectiveGrid p:last-child,
+.experimentBlock > p:last-child,
+.reflectionBlock > p:last-child {
+  margin: 10px 0 0;
+  line-height: 1.85;
+}
+
+.perspectiveGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.perspectiveGrid section {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #faf8f7;
+}
+
+.loopBlock,
+.resetBlock,
+.phraseBlock,
+.experimentBlock,
+.reflectionBlock {
+  padding: 22px;
+  border-radius: 14px;
+}
+
+.loopBlock {
+  border: 1px solid rgba(75, 59, 96, 0.18);
+  background: #f3eff4;
+}
+
+.loopBlock ol {
+  display: grid;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loopBlock li {
+  position: relative;
+  padding: 10px 12px 10px 32px;
+  border-top: 1px solid rgba(75, 59, 96, 0.1);
+  line-height: 1.7;
+}
+
+.loopBlock li:first-child {
+  border-top: 0;
+}
+
+.loopBlock li::before {
+  position: absolute;
+  left: 8px;
+  color: #887b91;
+  content: "↓";
+}
+
+.loopBlock li:first-child::before {
+  content: "●";
+  font-size: 8px;
+}
+
+.resetBlock {
+  border: 1px solid var(--line);
+}
+
+.resetBlock ol {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 0;
+  counter-reset: reset-step;
+  list-style: none;
+}
+
+.resetBlock li {
+  position: relative;
+  padding-left: 36px;
+  line-height: 1.75;
+  counter-increment: reset-step;
+}
+
+.resetBlock li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgba(75, 59, 96, 0.2);
+  border-radius: 50%;
+  color: var(--plum);
+  content: counter(reset-step);
+  font-size: 11px;
+}
+
+.phraseBlock {
+  border: 1px solid rgba(75, 59, 96, 0.2);
+  background: #eee8f0;
+}
+
+.phraseBlock blockquote {
+  margin: 18px 0;
+  color: #30273d;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(18px, 3vw, 24px);
+  line-height: 1.75;
+}
+
+.phraseBlock button {
+  min-height: 46px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: #352a46;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.copyFeedback {
+  min-height: 20px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.experimentBlock {
+  border: 1px solid #d6c9b8;
+  background: #fbf7f0;
+}
+
+.reflectionBlock {
+  border-left: 3px solid rgba(75, 59, 96, 0.24);
+  background: #faf9f8;
+}
+
+.indexReturn {
+  justify-self: start;
+  min-height: 44px;
+  padding: 11px 4px;
+  color: var(--plum);
+  font-size: 13px;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.safetyNote {
+  margin-top: 32px;
+  padding: 22px;
+}
+
+.safetyNote p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.highlighted button:focus-visible,
+.chapterIndex button:focus-visible,
+.chapterToggle:focus-visible,
+.phraseBlock button:focus-visible,
+.indexReturn:focus-visible {
+  outline: 2px solid #725d89;
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .reader {
+    padding-top: 28px;
+  }
+
+  .foundationGrid,
+  .chapterIndex ol,
+  .perspectiveGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .highlighted > div {
+    display: grid;
+  }
+
+  .highlighted button {
+    width: 100%;
+  }
+
+  .chapterToggle {
+    grid-template-columns: 54px minmax(0, 1fr);
+    padding: 17px;
+  }
+
+  .chapterToggle > small {
+    grid-column: 2;
+  }
+
+  .chapterBody {
+    padding-inline: 14px;
+  }
+
+  .loopBlock,
+  .resetBlock,
+  .phraseBlock,
+  .experimentBlock,
+  .reflectionBlock {
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlighted button,
+  .chapterIndex button,
+  .chapterToggle,
+  .phraseBlock button,
+  .indexReturn {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}

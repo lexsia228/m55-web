@@ -150,9 +150,12 @@ describe('compatibility paid bridge', () => {
     assert.equal(result.allChapters[5]?.chapterId, 'ch_about');
   });
 
-  it('does not promise absent paid deliverables or use an opaque relevance score', () => {
+  it('describes only implemented paid deliverables and uses no opaque relevance score', () => {
     const source = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.doesNotMatch(source, /戻し方|会話に使える一言|小さな実験|relevance|recommendation/);
+    assert.match(source, /場面から戻る手順/);
+    assert.match(source, /そのまま使える一言/);
+    assert.match(source, /今週試せる小さな実験/);
+    assert.doesNotMatch(source, /relevance|recommendation/);
     assert.doesNotMatch(source, /PurchaseButton|checkout|\/api\/purchase/);
   });
 });
