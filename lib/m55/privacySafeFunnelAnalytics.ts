@@ -33,6 +33,14 @@ export const M55_FUNNEL_EVENTS = {
   compatibilityPaidChapterOpen: 'm55_compatibility_paid_chapter_open',
   compatibilityPhraseCopy: 'm55_compatibility_phrase_copy',
   compatibilityExperimentView: 'm55_compatibility_experiment_view',
+  compatibilityQuestionnaireView: 'm55_compatibility_questionnaire_view',
+  compatibilityQuestionnaireStart: 'm55_compatibility_questionnaire_start',
+  compatibilityQuestionnaireComplete: 'm55_compatibility_questionnaire_complete',
+  compatibilityPersonalizedResultView: 'm55_compatibility_personalized_result_view',
+  compatibilityPersonalizedPaidBridgeView:
+    'm55_compatibility_personalized_paid_bridge_view',
+  compatibilityPersonalizedPaidBridgeClick:
+    'm55_compatibility_personalized_paid_bridge_click',
 } as const;
 
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
