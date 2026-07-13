@@ -15,7 +15,7 @@ export const AXIS_LEVEL_LABELS = ['—', '響き合う', '支えになる力', '
 
 /** Wave A1: renderer-only fallbacks when extraction yields empty or em-dash (not stored in snapshot). */
 export const DTR_DISPLAY_FALLBACK_STRENGTH =
-  '小さな手ごたえが見えると、動きやすくなりやすいです。';
+  '小さな手ごたえが見えると、少しずつ動きを戻しやすいです。';
 export const DTR_DISPLAY_FALLBACK_LOAD =
   '決めきれないとき、内側が少し重く感じやすいです。';
 export const DTR_DISPLAY_FALLBACK_RECOVERY =
