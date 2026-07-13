@@ -1,0 +1,104 @@
+/**
+ * Privacy-safe funnel events for free→paid conversion.
+ * Transport: existing @vercel/analytics (already in app layout).
+ * No new provider / endpoint / DB. No PII / answers / theme / selectors.
+ */
+
+import { track } from '@vercel/analytics';
+
+export const M55_FUNNEL_EVENT_VERSION = 'v1' as const;
+
+export const M55_FUNNEL_EVENTS = {
+  freeResultView: 'm55_free_result_view',
+  paidBridgeView: 'm55_paid_bridge_view',
+  paidBridgePrimaryClick: 'm55_paid_bridge_primary_click',
+  paidBridgeContinueFreeClick: 'm55_paid_bridge_continue_free_click',
+  paidQuestionnaireStart: 'm55_paid_questionnaire_start',
+  paidQuestionnaireComplete: 'm55_paid_questionnaire_complete',
+  paidPlanView: 'm55_paid_plan_view',
+} as const;
+
+export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
+
+export type M55FunnelSurface =
+  | 'core_free_result'
+  | 'core_paid_bridge'
+  | 'dtr_paid_questionnaire'
+  | 'dtr_paid_plan';
+
+/** Allowlisted payload keys only. */
+export type M55FunnelPayload = {
+  eventVersion: typeof M55_FUNNEL_EVENT_VERSION;
+  surface: M55FunnelSurface;
+  occurredAt: string;
+};
+
+const ALLOWED_KEYS = new Set(['eventVersion', 'surface', 'occurredAt'] as const);
+
+const FORBIDDEN_KEY_PATTERN =
+  /dob|birth|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question/i;
+
+const firedImpressions = new Set<string>();
+
+export function buildPrivacySafeFunnelPayload(
+  surface: M55FunnelSurface,
+  occurredAt = new Date().toISOString(),
+): M55FunnelPayload {
+  return {
+    eventVersion: M55_FUNNEL_EVENT_VERSION,
+    surface,
+    occurredAt,
+  };
+}
+
+export function assertPrivacySafeFunnelPayload(payload: Record<string, unknown>): void {
+  const keys = Object.keys(payload);
+  for (const key of keys) {
+    if (!ALLOWED_KEYS.has(key as keyof M55FunnelPayload)) {
+      throw new Error(`forbidden funnel payload key: ${key}`);
+    }
+    if (FORBIDDEN_KEY_PATTERN.test(key)) {
+      throw new Error(`forbidden funnel payload key pattern: ${key}`);
+    }
+  }
+  if (payload.eventVersion !== M55_FUNNEL_EVENT_VERSION) {
+    throw new Error('invalid eventVersion');
+  }
+  if (typeof payload.surface !== 'string' || !payload.surface) {
+    throw new Error('surface required');
+  }
+  if (typeof payload.occurredAt !== 'string' || !payload.occurredAt) {
+    throw new Error('occurredAt required');
+  }
+}
+
+function emit(event: M55FunnelEventName, surface: M55FunnelSurface): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const payload = buildPrivacySafeFunnelPayload(surface);
+    assertPrivacySafeFunnelPayload(payload);
+    track(event, payload);
+  } catch {
+    /* analytics must never break UX */
+  }
+}
+
+/** One impression per logical mount key (survives React Strict Mode remount in same session). */
+export function trackFunnelImpressionOnce(
+  event: M55FunnelEventName,
+  surface: M55FunnelSurface,
+  mountKey: string,
+): void {
+  if (firedImpressions.has(mountKey)) return;
+  firedImpressions.add(mountKey);
+  emit(event, surface);
+}
+
+export function trackFunnelAction(event: M55FunnelEventName, surface: M55FunnelSurface): void {
+  emit(event, surface);
+}
+
+/** Test-only reset for impression dedupe. */
+export function resetFunnelImpressionDedupeForTests(): void {
+  firedImpressions.clear();
+}

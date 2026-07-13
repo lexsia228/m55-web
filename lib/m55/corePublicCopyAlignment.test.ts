@@ -7,6 +7,7 @@ import {
   STATIC_AI_EXPLAINER,
   STATIC_COMMERCIAL_CONVERSION,
   STATIC_CTA,
+  STATIC_FREE_TO_PAID_BRIDGE,
   STATIC_M55_READ_STEPS,
 } from '../../components/core/corePublicCopy';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
@@ -20,6 +21,7 @@ const CORE_COPY_FILES = [
   'components/core/CoreFreeSavedBoundarySection.tsx',
   'components/core/CoreEntryReportCTASection.tsx',
   'components/core/CoreCommercialConversionBlock.tsx',
+  'components/core/CoreFreeToPaidConversionBridge.tsx',
   'components/core/CoreAiChatExplainerSection.tsx',
   'lib/m55/coreFreePublicDisplay.ts',
 ] as const;
@@ -119,24 +121,21 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
-    assert.match(STATIC_COMMERCIAL_CONVERSION.title, /保存版で読めること/);
-    assert.match(STATIC_COMMERCIAL_CONVERSION.intro, /無料の見取り図では/);
-    assert.match(STATIC_COMMERCIAL_CONVERSION.intro, /生年月日から見える出方の輪郭/);
-    assert.equal(STATIC_COMMERCIAL_CONVERSION.ctaLabel, '保存版で続きを読む');
-    assert.match(STATIC_COMMERCIAL_CONVERSION.safetyNote, /診断/);
-    assert.match(STATIC_COMMERCIAL_CONVERSION.safetyNote, /ではありません/);
-    assert.match(STATIC_COMMERCIAL_CONVERSION.priceValueTemplate, /\{planName\}/);
-    assert.match(STATIC_COMMERCIAL_CONVERSION.priceValueTemplate, /\{priceLabel\}/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /無料で分かったことと、保存版で深まること/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '保存版の質問へ進む');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{lightPriceLabel\}/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{fullPriceLabel\}/);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);
-    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.continueSavedReportJa, '保存版で続きを読む');
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref, '/dtr/lp');
-    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.linkLabelJa, '保存版で続きを読む');
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.coreCta.introJa, /生年月日から見える出方の輪郭/);
-    assert.equal(STATIC_COMMERCIAL_CONVERSION.previewRows.length, 5);
+    assert.equal(STATIC_COMMERCIAL_CONVERSION.ctaLabel, STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa);
+    assert.equal(STATIC_COMMERCIAL_CONVERSION.previewRows.length, 4);
 
-    const conversionSrc = readRepoFile('components/core/CoreCommercialConversionBlock.tsx');
+    const conversionSrc = readRepoFile('components/core/CoreFreeToPaidConversionBridge.tsx');
     assert.match(conversionSrc, /PAID_DTR_SAVED_REPORT_PRICING/);
     assert.match(conversionSrc, /viewSavedPlansHref/);
     assert.equal(conversionSrc.includes('PurchaseButton'), false);

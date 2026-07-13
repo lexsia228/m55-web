@@ -153,43 +153,48 @@ export const STATIC_CTA = {
     'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
 } as const;
 
-/** Phase1 commercial conversion block on /core (CTA region). Hero-safe; no fp-v1 wiring. */
-export const STATIC_COMMERCIAL_CONVERSION = {
-  overline: '保存版',
-  title: '保存版で読めること',
-  intro:
-    '無料の見取り図では、いま強く出ている一部だけを表示しています。\nこのページは、生年月日から見える出方の輪郭です。',
-  previewHeading: '保存版で深められる視点',
-  previewRows: [
-    {
-      label: '内側の動き',
-      teaser: '章ごとに、無理がたまりやすい条件まで整理します。',
-    },
-    {
-      label: '人との距離感',
-      teaser: '近い関係で出やすい反応の手がかりを残せます。',
-    },
-    {
-      label: '判断が止まりやすい場面',
-      teaser: '迷いが出やすい分岐を、読み返せる形にします。',
-    },
-    {
-      label: '変化の前に出やすい反応',
-      teaser: '動き出す前後で現れやすい出方を整理します。',
-    },
-    {
-      label: '追加で深めやすい視点',
-      teaser: '保存版に沿って、いまの1テーマだけ整理できます。',
-    },
+/**
+ * Free→paid conversion bridge on /core (after summary / 今日の一歩).
+ * One quiet block; Product Truth 4 chapters; no fake urgency.
+ */
+export const STATIC_FREE_TO_PAID_BRIDGE = {
+  overline: '保存版への続き',
+  title: '無料で分かったことと、保存版で深まること',
+  contextTemplateJa: '今回選んだ「{focusTheme}」を、保存版では4つの場面に分けて整理します。',
+  freeLayerLabelJa: '無料の見取り図',
+  freeLayerBodyJa: '土台と、いま表れやすい5つの視点を確認',
+  savedLayerLabelJa: '保存版',
+  savedLayerBodyJa: '仕事・近い関係・生活と疲れまで、4章で読み返せる形に整理',
+  chaptersHeadingJa: '保存版の4章',
+  chapters: [
+    { roman: 'Ⅰ', titleJa: '自分の形を知る' },
+    { roman: 'Ⅱ', titleJa: '仕事・これからの進め方' },
+    { roman: 'Ⅲ', titleJa: '恋人・近い人との向き合い方' },
+    { roman: 'Ⅳ', titleJa: 'お金・生活・疲れの整え方' },
   ] as const,
-  /** Price sentence template: {planName} / {priceLabel} filled from Product Truth. */
-  priceValueTemplate:
-    '{planName}（{priceLabel}）では、出方を4章に整理し、あとから読み返せる形で残せます。追加読み解き1件つき。',
-  fullCompareNoteTemplate:
-    'さらに深めたい場合の{fullPlanName}（{fullPriceLabel}）や、後からFULL化（{upgradePriceLabel}）は、保存版のプラン画面で確認できます。',
-  ctaLabel: '保存版で続きを読む',
+  /** Soft price note only — plan comparison stays on /dtr/lp. */
+  priceNoteTemplate:
+    '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}。詳細な比較は次のプラン画面で確認できます。',
+  primaryCtaJa: '保存版の質問へ進む',
+  secondaryCtaJa: '無料の詳細をこのまま読む',
   safetyNote:
     '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは保存版をもとにした1テーマ整理です。',
+} as const;
+
+/** @deprecated Prefer STATIC_FREE_TO_PAID_BRIDGE — alias for gradual test migration. */
+export const STATIC_COMMERCIAL_CONVERSION = {
+  overline: STATIC_FREE_TO_PAID_BRIDGE.overline,
+  title: STATIC_FREE_TO_PAID_BRIDGE.title,
+  intro: STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa,
+  previewHeading: STATIC_FREE_TO_PAID_BRIDGE.chaptersHeadingJa,
+  previewRows: STATIC_FREE_TO_PAID_BRIDGE.chapters.map((c) => ({
+    label: `${c.roman} ${c.titleJa}`,
+    teaser: '',
+  })),
+  priceValueTemplate: STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate,
+  fullCompareNoteTemplate: '',
+  ctaLabel: STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa,
+  safetyNote: STATIC_FREE_TO_PAID_BRIDGE.safetyNote,
 } as const;
 
 function splitSummaryTwo(summary: string): [string, string] {

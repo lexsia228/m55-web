@@ -1,9 +1,12 @@
-import CoreCommercialConversionBlock from './CoreCommercialConversionBlock';
+import CoreFreeToPaidConversionBridge from './CoreFreeToPaidConversionBridge';
+
+type Props = {
+  focusThemeLabelJa?: string;
+};
 
 /**
- * /core CTA region — Phase1 delegates to commercial conversion block.
- * Kept as a stable import surface for CoreEssencePanel and copy-route tests.
+ * /core CTA region — single free→paid conversion bridge.
  */
-export default function CoreEntryReportCTASection() {
-  return <CoreCommercialConversionBlock />;
+export default function CoreEntryReportCTASection({ focusThemeLabelJa }: Props) {
+  return <CoreFreeToPaidConversionBridge focusThemeLabelJa={focusThemeLabelJa} />;
 }

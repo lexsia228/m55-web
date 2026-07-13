@@ -3,6 +3,10 @@
 import { useEffect, useState } from 'react';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
+import {
+  M55_FUNNEL_EVENTS,
+  trackFunnelImpressionOnce,
+} from '../../lib/m55/privacySafeFunnelAnalytics';
 
 type Props = {
   children: React.ReactNode;
@@ -26,6 +30,15 @@ export default function DtrPaidPurchasePrep({ children }: Props) {
   useEffect(() => {
     setReady(readPaidComplete());
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.paidPlanView,
+      'dtr_paid_plan',
+      'dtr-paid-plan-view',
+    );
+  }, [ready]);
 
   return (
     <>
