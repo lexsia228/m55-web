@@ -5,7 +5,7 @@ import { M55_PUBLIC_COMMERCIAL_TRUTH } from './analysisAuthorityReferenceModel';
 export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   m55Definition: {
     centerJa:
-      'M55は、生年月日の暦リズムと選択式の質問を重ね、\n考え方・動き方・負担が出やすい場面を整理する\n自己理解と関係性整理のための読み解きシステムです。',
+      'M55は、生年月日から得る手がかりと選択式の質問を、\n商品ごとの固定ルールで組み合わせる\n自己理解と関係性整理のための読み解きシステムです。',
     shortJa:
       M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
     principleJa:
@@ -13,11 +13,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   freeEntry: {
     leadJa:
-      'ニックネームと生年月日を入力し、5つの短い質問と今の関心に答えると、\n暦の土台と現在の表れ方を分けた見取り図を無料で確認できます。',
+      'ニックネームと生年月日を入力し、5つの傾向質問と今の関心1問に答えると、\n暦の土台と現在の表れ方を分けた見取り図を無料で確認できます。',
   },
   savedReport: {
     definitionJa:
-      '保存版では、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を\n正式4章で整理します。',
+      '個人の保存版では、無料6回答に購入前の追加6回答と、\nより詳細な暦の手がかりを重ね、\n現在の輪郭を正式4章で整理します。',
   },
   consultReply: {
     definitionJa:
@@ -51,7 +51,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroTitleLine1Ja: '生まれた日と、いまの答えから。',
     heroTitleLine2Ja: '自分の輪郭を、読み解く。',
     heroSubJa:
-      '生年月日の暦リズムと選択式の質問を重ね、\n考え方・動き方・負担が出やすい場面を整理します。',
+      '生年月日から得る手がかりと選択式の質問を重ね、\n考え方・動き方・負担が出やすい場面を整理します。',
     heroSupportJa: M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
     heroTrustJa:
       '未来や性格を断定する診断ではありません。\n入力内容をM55のルールで整理し、見直すための言葉にします。',
@@ -62,6 +62,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     heroFunnelCtaJa: '無料で自分を読み解く',
     heroCompatibilityCtaJa: '二人の関係を無料で見る',
+    introductionLabelJa: 'M55について',
+    introductionTitleJa: '決めつけるためではなく、見直すために。',
+    introductionBodyJa:
+      'M55は、生年月日から得る手がかりと選択式の回答を重ね、現在の傾向を見直しやすい言葉に整理します。',
+    introductionTrustJa:
+      '医学的・心理学的な診断や未来予測ではなく、自分や二人の反応を振り返るための参考情報です。',
     seenThingsBridgeLabelJa: '見えてくること',
     seenThingsBridgeHeadlineLine1Ja: '自分のことほど、',
     seenThingsBridgeHeadlineLine2Ja: '近すぎて見えにくい。',
@@ -74,7 +80,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'M55で見えてくるのは、\nいつもの自分の輪郭。\n\nさらに深く見ることで、\nその輪郭をもっと具体的に読み解いていきます。',
     seenThingsBridgeAriaLabelJa: '見えてくること',
     tierStackAriaLabelJa: '無料、保存版、追加読み解き',
-    tierFreeJa: '生年月日の暦リズムと今の回答から、現在の輪郭を見る。',
+    tierFreeJa: '個人は生年月日から得る無料用の手がかりと合計6回答から、現在の輪郭を見る。',
     tierSavedBadgeJa: '保存版',
     tierSavedJa: '動き方・疲れ方・戻し方を、読める言葉に整理して残す。',
     tierConsultBadgeJa: '追加読み解き',
@@ -84,17 +90,21 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreQualitiesSubJa: '10資質レーンを見る →',
     readNextSectionTitleJa: 'どちらを読みますか',
     readNextHowTitleJa: '自分を読む',
-    readNextHowDescJa: '生年月日の暦リズムと、5つの質問・今の関心から現在の輪郭を整理します。',
+    readNextHowDescJa: '生年月日の暦の手がかりと、5つの傾向質問・今の関心1問の合計6回答から、現在の輪郭を整理します。',
     readNextHowCtaJa: '無料で始める →',
     readNextQualitiesTitleJa: '二人を読む',
     readNextQualitiesDescJa: '二人分の生年月日と、今の距離や会話についての回答から反応の違いを整理します。',
     readNextQualitiesCtaJa: '無料で始める →',
     tenViewsLearnLinkJa: '10資質レーン',
-    methodFlowLabelJa: 'M55の仕組み',
-    methodFlowHeadlineLine1Ja: '生年月日を、',
-    methodFlowHeadlineLine2Ja: '暦の体系で読み直す。',
+    methodFlowLabelJa: '読み解きの方法',
+    methodFlowHeadlineLine1Ja: '自分と二人では、',
+    methodFlowHeadlineLine2Ja: '使う手がかりが異なります。',
     methodFlowBodyJa:
-      'M55は、生まれた日を旧暦に置き直し、\n十干・二十四節気・節入りの重なりを暦の土台として扱います。\nその土台に選択式の質問を重ね、現在の表れ方を整理します。',
+      '自分の読み解きでは段階に応じた暦の手がかりを、二人の読み解きでは二人分の日付から得る比較用の手がかりを使います。\nどちらも現在の回答を重ね、商品ごとの固定ルールで整理します。',
+    methodPreviewFrameworkJa:
+      '10資質は、結果を決めつける分類ではなく、現在の輪郭を整理するためのM55独自フレームです。',
+    methodPreviewLinkJa: '詳しい仕組みを見る',
+    methodPreviewTenViewsLinkJa: '10資質の見方を知る',
     methodFlowNodesJa: [
       {
         layerId: 'lunar',
@@ -130,7 +140,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     paidPlanHeadlineLine1Ja: '今の答えを重ねた輪郭を、',
     paidPlanHeadlineLine2Ja: '4章で読み返せる形に。',
     paidPlanLeadJa:
-      '無料で使った生年月日の暦リズムと回答を土台に、\n日常の場面、負荷が強くなる前のサイン、戻し方までを4章で整理します。\n\n保存版は購入したアカウントに残り、あとから読み返せます。',
+      '個人の保存版では、無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ねます。\n日常の場面、負荷が強くなる前のサイン、戻し方までを4章で整理し、購入したアカウントから読み返せます。',
     paidPlanUniquenessChipsJa: [
       '10通りの資質',
       '旧暦',
@@ -177,6 +187,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'どちらも同じ4章の保存版です。\nライトは追加読み解き1件、FULLは追加読み解き合計5件です。',
     paidPlanSavedInfoPriceJa:
       `${PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa} ${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}・追加読み解き1件\n${PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa} ${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}・追加読み解き合計5件\nいずれも日本円の買い切りです。`,
+    paidPlanDetailsCtaJa: '4章の保存版とプランを見る',
     compatibilitySavedAvailableJa:
       '二人の保存版の商品内容は、無料の見取り図を確認したあとに案内します。',
     compatibilitySavedPausedJa:
@@ -194,17 +205,17 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '保存版FULL（¥1,480（税込））：追加読み解き合計5件。',
     reportFullUpgradeNoteJa:
       'ライトで始めたあとも、必要に応じてFULL化できます。',
-    reportDepthNoteJa: '無料で見えた輪郭を、暦リズム込みで保存版に深めます。',
+    reportDepthNoteJa: '無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ねて保存版に深めます。',
     reportAuxJa:
       '追加読み解きは、保存版に紐づく一テーマを整理する追加読み解きです。会話を続ける形式ではありません。',
     chapterPreviewLabelJa: '保存版では、次の整理で深めます',
   },
   learnMore: {
-    summaryJa: 'M55の仕組み',
-    homeHowLinkJa: 'M55の仕組み',
+    summaryJa: '理解を深める',
+    homeHowLinkJa: '詳しい仕組みを見る',
     homeTenViewsLinkJa: '10資質の見方',
     homeIntroJa:
-      'M55は、生年月日の暦リズムを手がかりに、\nM55独自の10資質フレームと選択式の回答を重ねて、\n現在の自分や二人の関係を整理します。',
+      'M55は、生年月日から得る商品別の手がかりと選択式の回答を重ね、\n現在の自分や二人の関係を整理します。',
     homeFreeNoteJa: '無料では、自分の入口を見ていきます。',
     homePaidNoteJa:
       'さらに深く見ると、感じ方・無理の出方・戻り方まで深めていきます。',
@@ -220,15 +231,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   coreBoundary: {
     titleJa: 'このページと保存版の違い',
     freeLeadJa:
-      '無料の見取り図では、\n生年月日の暦リズムと5つの質問・今の関心から、\n現在の5つの視点と最初の小さな行動まで確認できます。',
+      '無料の見取り図では、\n生年月日から得る無料用の手がかりと5つの傾向質問・今の関心1問から、\n現在の5つの視点と最初の小さな行動まで確認できます。',
     savedLeadJa:
-      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\n4章で読み返せる形に残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
+      '保存版では、\n無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ね、\n動き方・疲れ方・戻し方を\n4章で読み返せる形に残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
   },
   coreCta: {
     overlineJa: '保存版',
     titleJa: '保存版で読めること',
     introJa:
-      '無料の見取り図では、生年月日の暦リズムと現在の回答を重ね、\n5つの視点と最初の小さな行動まで表示しています。',
+      '個人の無料見取り図では、生年月日から得る無料用の手がかりと合計6回答を重ね、\n5つの視点と最初の小さな行動まで表示しています。',
     benefitsHeadingJa: '保存版で深められる視点',
     benefitsJa: [
       '内側の動き',
@@ -245,7 +256,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroTitleJa: 'M55の見方を知る',
     heroHookJa: '生まれた日と、いまの答えから。',
     heroLeadJa:
-      'M55は、生年月日の暦リズムと選択式の質問を重ね、\n自分や二人の関係を少し離れて見つめるための言葉に変えます。',
+      'M55は、生年月日から得る手がかりと選択式の質問を商品ごとのルールで組み合わせ、\n自分や二人の関係を少し離れて見つめるための言葉に変えます。',
     heroBridgeJa:
       '暦の土台、現在の回答、固定ルール、生成AIの使用範囲を分けて説明します。\n無料と保存版の違い、入力の扱い、支払い条件もここで確認できます。',
     section01KickerJa: '01 — 生まれた日は、見つめ直すための入口',
@@ -258,10 +269,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     section01LandingJa:
       'まず、生まれた日を入口に、\n近すぎて見えにくかった自分を、落ち着いて見つめ直せます。',
-    section02KickerJa: '02 — M55が重ねる4つの暦の層',
-    section02TitleJa: 'M55が重ねる4つの暦の層',
+    section02KickerJa: '02 — 個人の保存版で扱う暦の手がかり',
+    section02TitleJa: '個人の保存版で扱う暦の手がかり',
     section02IntroJa:
-      'M55は、生まれた日を一つの暦だけで見ません。\n\n旧暦、十干、二十四節気、節入り。\n4つの暦の層を重ね、\n生まれた日から見える輪郭を、少しずつ立体的にしていきます。\n\nひとつだけでは、見える輪郭に限りがあります。\n重ねて見るほど、\n「なぜ自分には、こういう輪郭があるのか」が、\n自分ごとに見えてきます。',
+      '個人の保存版では、生年月日から得る複数の暦の手がかりを扱います。\n\n旧暦、十干、二十四節気、節入りを参照し、無料6回答と購入前の追加6回答を重ねて、現在の輪郭を4章に整理します。\n\n二人の読み解きは同じ処理ではなく、二人分の日付から得る比較用の手がかりと合計6回答を固定ルールで整理します。',
     section02LandingJa:
       '同じ入口に見えても、\n見えてくる輪郭はそれぞれ変わります。',
     section02GridAriaLabelJa: '4つの暦の層',
@@ -308,8 +319,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section03TitleJa: '4つの層を重ねると、なぜ一人ずつ違って見えるのか',
     section03ParagraphsJa: [
       'M55では、まず生まれた日を入口として使います。\nただし、これは全体を決める答えではありません。\n最初の手がかりです。',
-      'そのうえで、旧暦・十干・二十四節気・節入りを重ねます。\n同じ入口に見えても、\n重なる暦の層が違えば、\n見取り図の中身は同じにはなりません。',
-      'さらに、選択式の質問と今の関心を重ねて、\n現在の表れ方を見やすくします。\n暦だけで結論を出さず、同じ暦の土台でも回答が変われば、現在の見取り図も変わります。',
+      '個人の無料見取り図では無料用の暦の手がかりと合計6回答を使い、保存版では追加6回答と、より詳細な暦の手がかりを重ねます。',
+      '二人の読み解きでは、二人分の日付から得る比較用の手がかりと、距離・会話・焦点を含む合計6回答を使います。個人保存版の暦処理をそのまま適用するものではありません。',
     ] as const,
     section03LandingJa:
       'だからM55は、生まれた日の暦リズムと今の回答から、\nまだ言葉になっていなかった輪郭を整理します。',
@@ -325,7 +336,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section04TitleJa: '無料の見取り図と4章の保存版',
     section04FreeIntroJa: '無料でも、最初の理解を最後まで確認できます。',
     section04FreeMapBodyJa:
-      '無料の見取り図では、\n生年月日の暦リズムと5つの質問・今の関心から、\n現在の輪郭と最初の小さな行動を確認できます。',
+      '個人の無料見取り図では、\n生年月日から得る無料用の手がかりと5つの傾向質問・今の関心1問から、\n現在の輪郭と最初の小さな行動を確認できます。',
     section04CompositeHookJa: '無料で見えた輪郭の先へ。',
     section04CompositeBodyJa:
       '4章の保存版は、\n無料で見えた輪郭を、仕事・近い関係・生活と疲れの具体的な場面へ広げ、\n購入したアカウントで読み返せる形に残します。',
@@ -366,7 +377,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section06TitleJa: 'M55が大切にしていること',
     section06ParagraphsJa: [
       'M55は、未来予測、運命や吉凶の断定、医学的・心理学的な診断ではありません。\n医療・法律・投資などの専門的な判断に代わるものでもありません。',
-      '生年月日の暦リズムと現在の回答を重ね、\n自分や二人の関係を少し離れて見つめるための見取り図です。',
+      '商品ごとに異なる生年月日の手がかりと現在の回答を重ね、\n自分や二人の関係を少し離れて見つめるための見取り図です。',
       '答えを代わりに決めるのではなく、\n今の自分を知るための視点を届けます。',
     ] as const,
     section06LandingJa:
@@ -386,7 +397,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   metadata: {
     howM55WorksDescriptionJa:
-      'M55が生年月日の暦リズムと選択式の質問をどう重ねるか、固定ルールと生成AIの範囲、無料と保存版、個人情報、支払い条件を説明します。',
+      'M55が個人と二人の読み解きで異なる生年月日の手がかりと質問をどう扱うか、固定ルールと生成AIの範囲、無料と保存版、個人情報、支払い条件を説明します。',
   },
   cta: {
     openFreeMapJa: '無料で見てみる',

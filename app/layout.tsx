@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://m55-webv2.vercel.app"),
   title: "M55",
   description:
-    "生年月日の暦リズムと選択式の質問を重ね、現在の自分や二人の関係を整理する読み解きシステムです。",
+    "商品ごとに異なる生年月日の手がかりと選択式の質問を重ね、現在の自分や二人の関係を整理する読み解きシステムです。",
   icons: {
     icon: "/icons/m55-core-logo.png",
     apple: "/icons/m55-core-logo.png",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "M55",
     description:
-      "生年月日の暦リズムと選択式の質問を重ね、現在の自分や二人の関係を整理します。",
+      "商品ごとに異なる生年月日の手がかりと選択式の質問を重ね、現在の自分や二人の関係を整理します。",
     type: "website",
     locale: "ja_JP",
     images: [{ url: "/icons/m55-core-logo.png", alt: "M55" }],

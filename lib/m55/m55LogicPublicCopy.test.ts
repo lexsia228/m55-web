@@ -8,12 +8,11 @@ import {
   m55LogicCopyBlob,
 } from './m55LogicPublicCopy';
 
-describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
-  it('HOME copy states calendar rhythm plus current-answer product truth', () => {
+describe('M55 logic public copy SSOT — product-specific processing alignment', () => {
+  it('HOME copy states product-specific DOB signals plus current-answer truth', () => {
     const blob = M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n');
-    assert.match(blob, /生年月日の暦リズム/);
-    assert.match(blob, /選択式の質問/);
-    assert.match(blob, /5つの質問・今の関心/);
+    assert.match(blob, /商品ごとの固定ルール/);
+    assert.match(blob, /5つの傾向質問・今の関心1問の合計6回答/);
     assert.match(blob, /固定ルール/);
     assert.match(blob, /生成AIを使う場合があります/);
     assert.match(blob, /追加読み解き/);
@@ -22,8 +21,9 @@ describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
   it('CORE copy is compact and bridges free to saved report', () => {
     const blob = M55_LOGIC_CORE_COPY.bodyParagraphsJa.join('\n');
     assert.ok(blob.length < M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n').length);
-    assert.match(blob, /生年月日の暦リズム/);
-    assert.match(blob, /5つの選択式質問/);
+    assert.match(blob, /無料用の暦の手がかり/);
+    assert.match(blob, /5つの傾向質問/);
+    assert.match(blob, /追加6回答/);
     assert.match(blob, /4章へ深めます/);
     assert.match(blob, /1テーマ/);
   });

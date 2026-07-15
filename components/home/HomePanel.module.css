@@ -621,6 +621,22 @@
   text-wrap: balance;
 }
 
+.homeIntroductionBody {
+  max-width: 38rem;
+  margin: 0 0 12px;
+  color: rgba(45, 42, 51, 0.82);
+  font-size: clamp(13px, 2.7vw, 15px);
+  line-height: 1.9;
+}
+
+.homeIntroductionTrust {
+  max-width: 38rem;
+  margin: 0;
+  color: rgba(45, 42, 51, 0.64);
+  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  line-height: 1.75;
+}
+
 @media (min-width: 768px) {
   .homeSeenBridgeInner {
     max-width: 28rem;
@@ -1195,7 +1211,7 @@
 }
 
 .homeMethodLayerBody {
-  margin: 0 0 clamp(24px, 4.5vw, 30px);
+  margin: 0 0 14px;
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   font-size: clamp(13px, 2.6vw, 14.5px);
   font-weight: 400;
@@ -1203,6 +1219,34 @@
   color: rgba(38, 34, 46, 0.76);
   letter-spacing: 0.02em;
   text-wrap: balance;
+}
+
+.homeMethodFramework {
+  max-width: 38rem;
+  margin: 0 0 16px;
+  color: rgba(45, 42, 51, 0.68);
+  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  line-height: 1.75;
+}
+
+.homeMethodLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+
+.homeMethodLinks a {
+  color: #496f69;
+  font-size: clamp(12px, 2.5vw, 13px);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(73, 111, 105, 0.35);
+  text-underline-offset: 4px;
+}
+
+.homeMethodLinks a:focus-visible {
+  outline: 2px solid rgba(73, 111, 105, 0.55);
+  outline-offset: 3px;
 }
 
 .homeMethodLayerStage {
@@ -2494,6 +2538,27 @@
   color: rgba(60, 55, 72, 0.68);
   font-size: clamp(10.5px, 2.4vw, 11.5px);
   line-height: 1.6;
+}
+
+.homePaidPlanDetailsCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 10px 18px;
+  border: 1px solid rgba(73, 111, 105, 0.28);
+  border-radius: 999px;
+  background: rgba(73, 111, 105, 0.1);
+  color: #355f59;
+  font-size: clamp(12px, 2.5vw, 13px);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.homePaidPlanDetailsCta:focus-visible {
+  outline: 2px solid rgba(73, 111, 105, 0.55);
+  outline-offset: 3px;
 }
 
 @media (max-width: 767px) {

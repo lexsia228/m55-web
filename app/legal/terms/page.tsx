@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main style={{
+    <div style={{
       maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
       padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
@@ -108,6 +108,6 @@ export default function TermsPage() {
       <p style={{ margin: 0, fontSize: 12, opacity: 0.75 }}>
         本規約は、必要に応じて改定することがあります。改定後の内容は当サイト上に掲載した時点で効力を生じます。
       </p>
-    </main>
+    </div>
   );
 }

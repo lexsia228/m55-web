@@ -76,13 +76,14 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(terms, /ライト購入後にFULL化/);
   });
 
-  it('includes support plan difference and full upgrade guidance', () => {
+  it('keeps support focused on routes instead of duplicating product pricing', () => {
     const support = readPage(ROUTE_FILES['/support']);
-    assert.match(support, /保存版ライトと保存版FULLでは、4章の保存版の内容は共通/);
-    assert.match(support, /保存版ライト.*追加読み解き1件/s);
-    assert.match(support, /保存版FULL.*追加読み解き合計5件/s);
-    assert.match(support, /lightToFullUpgrade\.priceLabelJa.*FULL化/s);
-    assert.match(support, /必要になったらFULL化/);
+    assert.match(support, /href="\/pricing"/);
+    assert.match(support, /href="\/dtr\/lp"/);
+    assert.match(support, /href="\/dtr"/);
+    assert.match(support, /href="\/legal\/refund"/);
+    assert.doesNotMatch(support, /PAID_DTR_SAVED_REPORT_PRICING|priceLabelJa/);
+    assert.doesNotMatch(support, /追加読み解き1件|追加読み解き合計5件/);
     assert.equal(support.includes('合計¥1,600'), false);
   });
 
@@ -176,9 +177,9 @@ describe('legalSupportPublicCopy — body link dedup policy', () => {
     return (text.match(pattern) || []).length;
   }
 
-  it('support: no legal body links; mailto once', () => {
+  it('support: links once to refund guidance and displays mail once', () => {
     const support = readPage(ROUTE_FILES['/support']);
-    assert.equal(countMatches(support, /href="\/legal\//g), 0);
+    assert.equal(countMatches(support, /href="\/legal\/refund"/g), 1);
     assert.equal(countMatches(support, /href=\{M55_PUBLIC_SUPPORT_MAILTO\}/g), 1);
   });
 

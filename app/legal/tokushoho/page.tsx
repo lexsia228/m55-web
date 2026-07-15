@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function TokushohoPage() {
   return (
-    <main style={{
+    <div style={{
       maxWidth: "min(1320px, calc(100vw - 48px))",
       margin: "0 auto",
       padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)",
@@ -167,6 +167,6 @@ export default function TokushohoPage() {
         {" "}
         医療・法律・投資等の専門的助言ではありません。
       </p>
-    </main>
+    </div>
   );
 }

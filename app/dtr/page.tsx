@@ -16,7 +16,7 @@ import styles from './dtr.module.css';
 export const metadata = {
   title: 'M55の読み解き | 自分と二人の読み解きホーム',
   description:
-    '生年月日の暦リズムと選択式の回答から、自分の輪郭や二人の反応の違いを無料で整理し、購入済みの保存版を再開できます。',
+    '商品ごとに異なる生年月日の手がかりと選択式の回答から、自分の輪郭や二人の反応の違いを無料で整理し、購入済みの保存版を再開できます。',
   alternates: { canonical: '/dtr' },
   openGraph: {
     title: 'M55の読み解き',
@@ -78,6 +78,8 @@ export default async function DtrPage() {
           additionalReadingAvailable={
             isConsultWalletDisplaySnapshotUsable(wallet) && wallet.availableCount > 0
           }
+          canUpgradeFromLight={tier?.canUpgradeFromLight ?? false}
+          upgradeReportInstanceId={tier?.reportInstanceId ?? null}
           compatibilityCommerce={
             isCompatibilityCommerceEnabled() ? 'available' : 'paused'
           }

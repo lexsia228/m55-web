@@ -8,19 +8,20 @@ import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 describe('topFreeEntryPublicCopy — current public truth', () => {
-  it('defines M55 with calendar rhythm plus current answers', () => {
+  it('defines M55 with product-specific DOB signals plus current answers', () => {
     const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.match(copy.m55Definition.centerJa, /生年月日の暦リズム/);
+    assert.match(copy.m55Definition.centerJa, /生年月日から得る手がかり/);
+    assert.match(copy.m55Definition.centerJa, /商品ごとの固定ルール/);
     assert.match(copy.m55Definition.centerJa, /選択式の質問/);
-    assert.match(copy.freeEntry.leadJa, /5つの短い質問/);
-    assert.match(copy.freeEntry.leadJa, /今の関心/);
+    assert.match(copy.freeEntry.leadJa, /5つの傾向質問/);
+    assert.match(copy.freeEntry.leadJa, /今の関心1問/);
   });
 
   it('keeps HOME emotional copy qualified and non-diagnostic', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.heroTitleLine1Ja, '生まれた日と、いまの答えから。');
     assert.equal(home.heroTitleLine2Ja, '自分の輪郭を、読み解く。');
-    assert.match(home.heroSubJa, /生年月日の暦リズム/);
+    assert.match(home.heroSubJa, /生年月日から得る手がかり/);
     assert.match(home.heroSubJa, /選択式の質問/);
     assert.match(home.heroTrustJa, /未来や性格を断定する診断ではありません/);
   });
@@ -40,7 +41,9 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     const truth = read('app/how-m55-works/components/public-product-truth-section.tsx');
     assert.equal(how.heroHookJa, '生まれた日と、いまの答えから。');
     assert.match(how.heroLeadJa, /選択式の質問/);
-    assert.match(how.section04FreeMapBodyJa, /5つの質問・今の関心/);
+    assert.match(how.section04FreeMapBodyJa, /5つの傾向質問・今の関心1問/);
+    assert.match(how.section02TitleJa, /個人の保存版/);
+    assert.match(how.section03ParagraphsJa.join('\n'), /個人保存版の暦処理をそのまま適用するものではありません/);
     assert.match(page, /PublicProductTruthSection/);
     assert.doesNotMatch(truth, /['"]use client['"]/);
   });
@@ -59,7 +62,7 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(copy.cta.coreFreeHref, '/core');
     assert.equal(copy.cta.viewSavedPlansHref, '/dtr/lp');
-    assert.equal(copy.learnMore.homeHowLinkJa, 'M55の仕組み');
+    assert.equal(copy.learnMore.homeHowLinkJa, '詳しい仕組みを見る');
     assert.equal(copy.learnMore.homeTenViewsLinkJa, '10資質の見方');
   });
 

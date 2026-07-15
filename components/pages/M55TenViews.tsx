@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import styles from "./M55TenViews.module.css";
-
-const storefrontCopy = TOP_FREE_ENTRY_PUBLIC_COPY.storefront;
-const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 /**
  * M55TenViews — 「10通りの資質」informational page
@@ -181,20 +177,19 @@ export default function M55TenViews() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          FOLD 5 — Gentle paid-depth bridge → /dtr/lp
+          FOLD 5 — Next-step links
           ══════════════════════════════════════════════════════════════ */}
       <section className={styles.depthBridgeFold}>
-        <h2 className={styles.depthTitle}>さらに深く読む</h2>
+        <h2 className={styles.depthTitle}>読み解きを続ける</h2>
         <div className={styles.depthProductBlock}>
-          <p className={styles.depthProductEyebrow}>{storefrontCopy.lightPlanNameJa}</p>
           <p className={styles.depthBody}>
-            保存版では、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
+            10資質の使い方や商品ごとの違いは、それぞれの案内ページで確認できます。
           </p>
-          <p className={styles.depthPriceLine}>
-            {storefrontCopy.lightPriceLabelJa}｜ウェブで閲覧するデジタルレポート
-          </p>
-          <Link href="/dtr/lp" className={styles.depthPrimaryCta}>
-            {ctaCopy.viewSavedPlansJa}
+          <Link href="/how-m55-works" className={styles.depthPrimaryCta}>
+            M55の仕組みを見る
+          </Link>
+          <Link href="/pricing" className={styles.introSecondaryCta}>
+            料金とプランを見る
           </Link>
         </div>
       </section>

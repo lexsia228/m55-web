@@ -1,3 +1,5 @@
+import { FREE_QUESTION_IDS } from './individualization/answerIdMapsV1';
+
 export type M55IdentityState = 'guest' | 'authenticated';
 export type M55JourneyState = 'unstarted' | 'in_progress' | 'free_complete';
 export type M55OwnershipState = 'not_owned' | 'owned';
@@ -43,6 +45,18 @@ export type M55ExperienceCardModel = M55ExperienceCardInput & {
   showOwnership: boolean;
   canContinue: boolean;
 };
+
+export function hasCompletePersonalFreeAnswers(raw: string | null): boolean {
+  if (!raw) return false;
+  try {
+    const answers = JSON.parse(raw) as Record<string, unknown>;
+    return FREE_QUESTION_IDS.every(
+      (id) => typeof answers[id] === 'string' && answers[id].trim().length > 0,
+    );
+  } catch {
+    return false;
+  }
+}
 
 const FREE_HREF: Record<M55ExperienceKind, string> = {
   personal: '/core',

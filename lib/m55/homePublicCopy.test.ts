@@ -20,7 +20,7 @@ describe('homePublicCopy — public product truth', () => {
       home.heroTrustJa,
     ].join('\n');
     assert.match(blob, /生まれた日と、いまの答え/);
-    assert.match(blob, /生年月日の暦リズム/);
+    assert.match(blob, /生年月日から得る手がかり/);
     assert.match(blob, /選択式の質問/);
     assert.doesNotMatch(blob, /生まれた日から、自分が見える/);
     assert.match(blob, /未来や性格を断定する診断ではありません/);
@@ -39,8 +39,11 @@ describe('homePublicCopy — public product truth', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.readNextHowTitleJa, '自分を読む');
     assert.equal(home.readNextQualitiesTitleJa, '二人を読む');
-    assert.match(homePanelSource, /<Link href="\/core" className=\{styles\.homeReadNextCard\}>/);
-    assert.match(homePanelSource, /<Link href="\/synastry" className=\{styles\.homeReadNextCard\}>/);
+    assert.match(homePanelSource, /href="\/core"[\s\S]*className=\{styles\.homeReadNextCard\}/);
+    assert.match(homePanelSource, /href="\/synastry"[\s\S]*className=\{styles\.homeReadNextCard\}/);
+    assert.match(home.readNextHowDescJa, /5つの傾向質問/);
+    assert.match(home.readNextHowDescJa, /今の関心1問/);
+    assert.match(home.readNextHowDescJa, /合計6回答/);
   });
 
   it('uses current light and FULL product truth without a single-price umbrella', () => {
@@ -62,11 +65,21 @@ describe('homePublicCopy — public product truth', () => {
     assert.match(homePanelSource, /compatibilityCommerceAvailable/);
   });
 
-  it('retains the production HOME poster asset and lower trust links', () => {
+  it('retains the poster and restores one visible introduction and mechanism preview', () => {
     assert.match(homePanelSource, /\/home\/hero-tech-map\.webp/);
-    assert.match(homePanelSource, /m55-home-learn-more/);
-    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.learnMore.homeHowLinkJa, 'M55の仕組み');
-    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.learnMore.homeTenViewsLinkJa, '10資質の見方');
+    assert.match(homePanelSource, /m55-home-visible-introduction/);
+    assert.match(homePanelSource, /introductionBodyJa/);
+    assert.match(homePanelSource, /introductionTrustJa/);
+    assert.doesNotMatch(homePanelSource, /<details|m55-home-learn-more/);
+    assert.equal((homePanelSource.match(/href="\/how-m55-works"/g) ?? []).length, 1);
+    assert.match(homePanelSource, /methodPreviewFrameworkJa/);
+  });
+
+  it('keeps the paid continuation concise and links directly to the personal product page', () => {
+    assert.match(homePanelSource, /data-testid="m55-home-paid-details"/);
+    assert.match(homePanelSource, /href="\/dtr\/lp"/);
+    assert.doesNotMatch(homePanelSource, /m55-home-saved-preview/);
+    assert.doesNotMatch(homePanelSource, /m55-home-bottom-funnel/);
   });
 
   it('does not advertise diagnosis, prediction, urgency, or stale product terms', () => {

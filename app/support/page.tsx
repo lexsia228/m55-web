@@ -3,7 +3,6 @@ import {
   M55_LEGAL_SAFETY_BOUNDARIES,
   M55_USER_FACING_POSITIONING_COPY,
 } from "../../lib/m55/analysisAuthorityReferenceModel";
-import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import {
   M55_PUBLIC_SUPPORT_EMAIL,
   M55_PUBLIC_SUPPORT_MAILTO,
@@ -18,7 +17,6 @@ import {
   ACCOUNT_DATA_SUPPORT_SECURITY_NOTE,
   ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES,
 } from "../../lib/m55/accountDataControlPublicCopy";
-import { PAID_DTR_SAVED_REPORT_PRICING } from "../../lib/m55/paidDtrProductCopy";
 
 export const metadata = {
   title: "サポート | M55",
@@ -28,7 +26,7 @@ export const metadata = {
 
 export default function SupportPage() {
   return (
-    <main style={{ maxWidth: "min(1320px, calc(100vw - 48px))", margin: "0 auto", padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)", lineHeight: 1.7 }}>
+    <div style={{ maxWidth: "min(1320px, calc(100vw - 48px))", margin: "0 auto", padding: "8px clamp(20px, 3vw, 32px) clamp(48px, 7vw, 72px)", lineHeight: 1.7 }}>
       <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 12px" }}>サポート</h1>
 
       <section style={{ margin: "0 0 18px" }}>
@@ -71,108 +69,19 @@ export default function SupportPage() {
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>保存版のプランの違い</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>プランと購入済みレポート</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。違いは追加読み解きの件数と、選び方です。
+          保存版ライト、保存版FULL、FULL化の内容と価格は、料金ページで比較できます。
         </p>
-        <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
-          <li>
-            <strong>
-              {PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa}
-              （{PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}）
-            </strong>
-            ：まず保存版を読み、輪郭を整理したい方向け。追加読み解き1件。
-          </li>
-          <li>
-            <strong>
-              {PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa}
-              （{PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}）
-            </strong>
-            ：保存版を読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。
-          </li>
-        </ul>
-        <p style={{ margin: 0, opacity: 0.9 }}>
-          ライトは追加読み解き1件、FULLは合計5件です。保存版の4章は共通です。ライト購入後でも、必要になったらFULL化できます。
-        </p>
-      </section>
-
-      <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
-        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトを購入済みの方は、
-          {PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}でFULL化できます。
+        <p style={{ margin: "0 0 8px" }}>
+          <Link href="/pricing">料金とプランを見る</Link>
+          {" · "}
+          <Link href="/dtr/lp">個人保存版の商品詳細を見る</Link>
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
-          FULL化後は、追加読み解きを合計5件利用できます。
+          購入済みの保存版は<Link href="/dtr">読み解きホーム</Link>から再開できます。
+          返金・キャンセル条件は<Link href="/legal/refund">専用ページ</Link>をご確認ください。
         </p>
-      </section>
-
-      <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>M55の説明</h2>
-        {M55_USER_FACING_POSITIONING_COPY.map((paragraph) => (
-          <p key={paragraph.slice(0, 24)} style={{ margin: "0 0 10px", opacity: 0.9 }}>
-            {paragraph}
-          </p>
-        ))}
-        <p style={{ margin: 0, opacity: 0.9 }}>
-          {M55_LEGAL_SAFETY_BOUNDARIES.isNotJa.join(" ")}
-        </p>
-      </section>
-
-      <section style={{ margin: "0 0 22px" }} aria-labelledby="m55-faq-service">
-        <h2 id="m55-faq-service" style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px" }}>
-          よくある質問（M55について）
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>M55は何を見るのですか</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて、自己理解と関係性の距離を読み解く参考情報です。
-              {" "}
-              {TOP_FREE_ENTRY_PUBLIC_COPY.home.tierFreeJa}
-              {" "}
-              吉凶の断定や順位づけではなく、自己観測のための読み取りです。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用の保存版と追加読み解きは、有料の保存版の対象です。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              無料面と同じ土台の本質を、購入時点の入力内容をもとに4章の保存版としてウェブ上で読み返せる形に整理したものです。物理の発送はありません。追加読み解きはプランにより1件または合計5件です。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>追加読み解きでは何ができますか</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              保存版を購入した方だけが利用できる、保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内で一テーマずつ整理できます。会話を継続する形式ではありません。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>ログインできない場合</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              登録に使ったメールアドレスやログイン方法（メール/Google 等）をご確認ください。解決しない場合は、本ページ上部の問い合わせ先へご連絡ください。購入済みでレポートが見られない場合は、決済日時と登録メールを添えると確認しやすくなります。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>入力した情報は何に使われますか</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              ニックネーム・生年月日などのプロフィールは、自己理解・関係性整理のための読み取り生成に使います。
-              追加読み解きでは、本人の回答による現在の感じ方・行動傾向の差分を補正するために、選択したテーマと質問への回答を使います。
-              決済やアカウントに関する情報は提供・決済のために必要な範囲で取り扱います。詳細はプライバシーポリシーをご覧ください。
-            </p>
-          </article>
-          <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>同じ入力で結果は変わりますか</h3>
-            <p style={{ margin: 0, opacity: 0.9 }}>
-              同じ入力を同じルールで読む限り、骨組みはぶれにくい設計です。無料の見取り図のうち、日付に応じて更新される部分は自然に変わります。保存版は購入時点の内容をもとにした読み返し用レポートです。
-            </p>
-          </article>
-        </div>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
@@ -186,25 +95,13 @@ export default function SupportPage() {
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>追加読み解きについて</h2>
-        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
-          <li>
-            <strong>追加読み解きとは何ですか？</strong>
-            ：保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。
-          </li>
-          <li>
-            <strong>何件まで利用できますか？</strong>
-            ：保存版ライトは追加読み解き1件、保存版FULLは追加読み解き合計5件です。ライト購入後にFULL化した場合も、合計5件です。
-          </li>
-          <li>
-            <strong>どこで利用できますか？</strong>
-            ：保存版を購入した方は、保存版の閲覧ページ内から利用できます。
-          </li>
-          <li>
-            <strong>送信がブロックされた場合、件数は消費されますか？</strong>
-            ：危機的・不適切と判断された内容はブロックされますが、その場合は追加読み解きの件数を消費しません。
-          </li>
-        </ul>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>サービスの境界</h2>
+        <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
+          {M55_USER_FACING_POSITIONING_COPY[0]}
+        </p>
+        <p style={{ margin: 0, opacity: 0.9 }}>
+          {M55_LEGAL_SAFETY_BOUNDARIES.isNotJa.join(" ")}
+        </p>
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
@@ -217,8 +114,8 @@ export default function SupportPage() {
       </section>
 
       <p style={{ margin: 0 }}>
-        <Link href="/">トップページへ戻る</Link>
+        <Link href="/home">ホームへ戻る</Link>
       </p>
-    </main>
+    </div>
   );
 }

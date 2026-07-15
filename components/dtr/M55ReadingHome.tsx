@@ -7,6 +7,7 @@ import { ProfileRepository } from '../../lib/soul/profile';
 import { COMPATIBILITY_GUEST_SESSION_KEY } from '../../lib/m55/compatibility/pairReadingGuestContract';
 import {
   buildM55ExperienceCardModel,
+  hasCompletePersonalFreeAnswers,
   hasM55ContinueItem,
   type M55CommerceState,
   type M55ExperienceAuthority,
@@ -21,6 +22,7 @@ import {
 import { MY_CONSULT_CTA_HREF } from '../../lib/m55/dtrProductLabels';
 import { M55ExperienceShell, M55StatusPill } from '../experience/M55ExperienceShell';
 import { M55ProductCover } from '../experience/M55ProductCover';
+import LightToFullUpgradeCta from './LightToFullUpgradeCta';
 import styles from './M55ReadingHome.module.css';
 
 export type ReadingHomeCompatibilityReport = {
@@ -36,6 +38,8 @@ type Props = {
   compatibilityAuthorityAvailable: boolean;
   compatibilityCommerce: M55CommerceState;
   additionalReadingAvailable: boolean;
+  canUpgradeFromLight: boolean;
+  upgradeReportInstanceId: string | null;
 };
 
 function IntentSurface({
@@ -51,11 +55,17 @@ function IntentSurface({
   freeValue: string;
   paidValue: readonly string[];
   onPrimary: () => void;
-  secondaryAction?: {
-    href: string;
-    label: string;
-    onClick?: () => void;
-  };
+  secondaryAction?:
+    | {
+        kind: 'link';
+        href: string;
+        label: string;
+        onClick?: () => void;
+      }
+    | {
+        kind: 'upgrade';
+        reportInstanceId: string;
+      };
 }) {
   const personal = model.kind === 'personal';
   return (
@@ -92,13 +102,20 @@ function IntentSurface({
             {model.primaryLabel}
           </Link>
           {secondaryAction ? (
-            <Link
-              className={styles.secondary}
-              href={secondaryAction.href}
-              onClick={secondaryAction.onClick}
-            >
-              {secondaryAction.label}
-            </Link>
+            secondaryAction.kind === 'upgrade' ? (
+              <LightToFullUpgradeCta
+                reportInstanceId={secondaryAction.reportInstanceId}
+                variant="subtle"
+              />
+            ) : (
+              <Link
+                className={styles.secondary}
+                href={secondaryAction.href}
+                onClick={secondaryAction.onClick}
+              >
+                {secondaryAction.label}
+              </Link>
+            )
           ) : null}
         </div>
       </div>
@@ -113,6 +130,8 @@ export default function M55ReadingHome({
   compatibilityAuthorityAvailable,
   compatibilityCommerce,
   additionalReadingAvailable,
+  canUpgradeFromLight,
+  upgradeReportInstanceId,
 }: Props) {
   const { user, isLoaded } = useUser();
   const [hasPersonalFreeResult, setHasPersonalFreeResult] = useState(false);
@@ -120,7 +139,16 @@ export default function M55ReadingHome({
 
   useEffect(() => {
     if (!isLoaded) return;
-    setHasPersonalFreeResult(ProfileRepository.get(user?.id)?.birthDate != null);
+    const hasProfile = ProfileRepository.get(user?.id)?.birthDate != null;
+    let hasCompleteAnswers = false;
+    try {
+      hasCompleteAnswers = hasCompletePersonalFreeAnswers(
+        sessionStorage.getItem('m55_free_answers_v1'),
+      );
+    } catch {
+      hasCompleteAnswers = false;
+    }
+    setHasPersonalFreeResult(hasProfile && hasCompleteAnswers);
     try {
       setHasCompatibilityFreeResult(
         sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY) != null,
@@ -203,7 +231,7 @@ export default function M55ReadingHome({
             <p className={styles.heroEyebrow}>読み解きホーム</p>
             <h1>M55の読み解き</h1>
             <p>
-              生年月日の暦リズムと今の回答から、自分の輪郭や二人の反応の違いを整理します。
+              商品ごとに異なる生年月日の手がかりと今の回答から、自分の輪郭や二人の反応の違いを整理します。
               無料で確かめるところから、保存して読み返すところまでを一つにまとめました。
             </p>
           </div>
@@ -249,7 +277,7 @@ export default function M55ReadingHome({
         <div className={styles.intentStack}>
           <IntentSurface
             model={models[0]}
-            description="生年月日の暦リズムに、5つの質問と今の関心を重ねて、現在の強み、負荷がかかる場面、整え方の輪郭を読みます。"
+            description="生年月日から得る無料用の暦の手がかりに、5つの傾向質問と今の関心1問を重ねて、現在の強み、負荷がかかる場面、整え方の輪郭を読みます。"
             freeValue="暦の土台と今の回答から、5つの視点と最初の小さな行動まで"
             paidValue={[
               '日常の具体的な場面',
@@ -267,16 +295,22 @@ export default function M55ReadingHome({
               )
             }
             secondaryAction={
-              models[0].primaryAction === 'open_owned'
+              canUpgradeFromLight && upgradeReportInstanceId
                 ? {
-                    href: '/dtr/lp',
-                    label: '保存版について確認する',
-                    onClick: () =>
-                      trackFunnelAction(
-                        M55_FUNNEL_EVENTS.purchaseDetailsOpen,
-                        'reading_personal',
-                      ),
+                    kind: 'upgrade',
+                    reportInstanceId: upgradeReportInstanceId,
                   }
+                : models[0].primaryAction === 'open_owned'
+                  ? {
+                      kind: 'link',
+                      href: '/dtr/lp',
+                      label: '保存版について確認する',
+                      onClick: () =>
+                        trackFunnelAction(
+                          M55_FUNNEL_EVENTS.purchaseDetailsOpen,
+                          'reading_personal',
+                        ),
+                    }
                 : undefined
             }
           />
@@ -302,6 +336,7 @@ export default function M55ReadingHome({
             secondaryAction={
               compatibilityReports.length > 1
                 ? {
+                    kind: 'link',
                     href: '/my#my-purchase-heading',
                     label: 'ほかの購入済みレポートを確認する',
                   }

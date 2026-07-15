@@ -2,6 +2,7 @@
 
 import LightToFullUpgradeButton from './LightToFullUpgradeButton';
 import { DTR_LIGHT_TO_FULL_UPGRADE_NOTE } from '../../lib/m55/dtrProductLabels';
+import { PAID_DTR_SAVED_REPORT_PRICING } from '../../lib/m55/paidDtrProductCopy';
 import styles from './LightToFullUpgradeCta.module.css';
 
 export type LightToFullUpgradeCtaProps = {
@@ -25,6 +26,7 @@ export default function LightToFullUpgradeCta({
       <LightToFullUpgradeButton
         reportInstanceId={reportInstanceId}
         className={variant === 'subtle' ? styles.subtleBtn : styles.btn}
+        label={`FULL化する（${PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}）`}
       />
       <p className={styles.note}>{DTR_LIGHT_TO_FULL_UPGRADE_NOTE}</p>
     </div>

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   buildM55ExperienceCardModel,
+  hasCompletePersonalFreeAnswers,
   hasM55ContinueItem,
   type M55ExperienceCardInput,
 } from './m55ExperienceCardModel';
@@ -14,6 +15,28 @@ const base: M55ExperienceCardInput = {
   commerceState: 'available',
   usageState: 'no_balance',
 };
+
+const completeFreeAnswers = {
+  'free.start_style': 'start',
+  'free.decision_style': 'decision',
+  'free.recovery_style': 'recovery',
+  'free.distance_style': 'distance',
+  'free.change_style': 'change',
+  'free.primary_theme': 'theme',
+};
+
+test('personal free completion requires all six existing free answers', () => {
+  assert.equal(hasCompletePersonalFreeAnswers(null), false);
+  assert.equal(hasCompletePersonalFreeAnswers('{}'), false);
+  assert.equal(
+    hasCompletePersonalFreeAnswers(JSON.stringify({
+      ...completeFreeAnswers,
+      'free.primary_theme': '',
+    })),
+    false,
+  );
+  assert.equal(hasCompletePersonalFreeAnswers(JSON.stringify(completeFreeAnswers)), true);
+});
 
 test('guest can start either free experience', () => {
   const personal = buildM55ExperienceCardModel(base);

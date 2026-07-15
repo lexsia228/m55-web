@@ -28,13 +28,20 @@ describe('public commercial truth contracts', () => {
   it('separates personal and compatibility inputs and processing layers', () => {
     const truth = M55_PUBLIC_COMMERCIAL_TRUTH;
     assert.match(truth.inputs.personalJa.join('\n'), /本人の生年月日/);
-    assert.match(truth.inputs.personalJa.join('\n'), /5つの選択式質問/);
+    assert.match(truth.inputs.personalJa.join('\n'), /5つの傾向質問/);
+    assert.match(truth.inputs.personalJa.join('\n'), /合計6回答/);
+    assert.match(truth.inputs.personalJa.join('\n'), /追加6問/);
     assert.match(truth.inputs.compatibilityJa.join('\n'), /二人分の生年月日/);
-    assert.match(truth.inputs.compatibilityJa.join('\n'), /6つの選択式質問/);
-    assert.match(truth.processing.personalFreeJa, /生成AIは使用しません/);
+    assert.match(truth.inputs.compatibilityJa.join('\n'), /合計6回答/);
+    assert.doesNotMatch(truth.inputs.compatibilityJa.join('\n'), /6つ.*焦点.*追加/s);
+    assert.match(truth.processing.personalFreeJa, /生成AIも使用しません/);
+    assert.match(truth.processing.personalFreeJa, /有料保存版の詳細な暦処理は行わず/);
     assert.match(truth.processing.personalSavedJa, /生成AIを使う場合があります/);
+    assert.match(truth.processing.personalSavedJa, /無料6回答/);
+    assert.match(truth.processing.personalSavedJa, /追加6回答/);
     assert.match(truth.processing.personalAdditionalJa, /生成AI/);
     assert.match(truth.processing.compatibilitySavedJa, /生成AIは使用せず/);
+    assert.match(truth.processing.compatibilitySavedJa, /個人保存版の暦処理/);
   });
 
   it('uses product authorities for prices, chapters, replies, and one-time terms', () => {
@@ -89,7 +96,7 @@ describe('public commercial truth contracts', () => {
     const personal = read('components/core/corePublicCopy.ts');
     const personalResult = read('components/core/CoreFreeResultSummaryHub.tsx');
     const compatibility = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.match(personalResult, /5つの回答・今の関心/);
+    assert.match(personalResult, /5つの傾向回答・今の関心1問の合計6回答/);
     assert.match(personal, /今日の一歩/);
     assert.match(personal, /4章/);
     assert.match(compatibility, /最初に確かめる|次に一度だけ試す/);
@@ -147,6 +154,42 @@ describe('public commercial truth contracts', () => {
     assert.match(footer, /M55の仕組み/);
     assert.match(footer, /料金/);
     assert.doesNotMatch(`${layout}\n${sitemap}\n${footer}`, /aggregateRating|reviewCount/);
+  });
+
+  it('integrates pricing into PublicShell with authoritative product states and terms', () => {
+    const pricing = read('app/pricing/page.tsx');
+    const pricingCss = read('app/pricing/pricing.module.css');
+    assert.match(pricing, /<PublicShell>/);
+    assert.doesNotMatch(pricing, /<main/);
+    assert.match(pricing, /PAID_DTR_SAVED_REPORT_PRICING\.light/);
+    assert.match(pricing, /PAID_DTR_SAVED_REPORT_PRICING\.full/);
+    assert.match(pricing, /lightToFullUpgrade/);
+    assert.match(pricing, /COMPATIBILITY_REPORT_PRODUCT_AUTHORITY/);
+    assert.match(pricing, /isCompatibilityCommerceEnabled/);
+    assert.match(pricing, /latestCompatibility/);
+    assert.match(pricing, /billingJa/);
+    assert.match(pricing, /deliveryJa/);
+    assert.match(pricing, /ownershipJa/);
+    assert.match(pricing, /\/legal\/refund/);
+    assert.doesNotMatch(pricing, /href="\/synastry\/purchase\/confirm"/);
+    assert.match(pricingCss, /\.plans/);
+    assert.match(pricingCss, /grid-template-columns/);
+  });
+
+  it('keeps one main landmark in PublicShell routes', () => {
+    const shell = read('app/_components/PublicShell.tsx');
+    assert.equal((shell.match(/<main/g) ?? []).length, 1);
+    assert.match(shell, /<\/main>\s*<PublicFooter \/>/);
+    for (const route of [
+      'app/pricing/page.tsx',
+      'app/support/page.tsx',
+      'app/legal/refund/page.tsx',
+      'app/legal/tokushoho/page.tsx',
+      'app/legal/terms/page.tsx',
+      'app/legal/privacy/page.tsx',
+    ] as const) {
+      assert.doesNotMatch(read(route), /<main/);
+    }
   });
 
   it('uses canonical additional-reading href and privacy-safe existing analytics', () => {

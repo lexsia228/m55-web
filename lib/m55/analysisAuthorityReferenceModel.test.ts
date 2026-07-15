@@ -115,7 +115,7 @@ describe('analysisAuthorityReferenceModel — copy SSOT', () => {
   });
 
   it('separates fixed-rule and generation-AI product layers', () => {
-    assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalFreeJa, /生成AIは使用しません/);
+    assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalFreeJa, /生成AIも使用しません/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalSavedJa, /生成AIを使う場合があります/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalAdditionalJa, /生成AI/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.compatibilitySavedJa, /生成AIは使用せず/);

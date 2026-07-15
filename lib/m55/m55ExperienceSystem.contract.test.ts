@@ -59,6 +59,9 @@ test('reading home has two intent surfaces and conditional continuation', () => 
   assert.match(source, /二人を読む/);
   assert.match(source, /hasM55ContinueItem\(models\)/);
   assert.equal((source.match(/<IntentSurface/g) ?? []).length, 2);
+  assert.match(source, /hasCompletePersonalFreeAnswers/);
+  assert.match(source, /sessionStorage\.getItem\('m55_free_answers_v1'\)/);
+  assert.doesNotMatch(source, /setHasPersonalFreeResult\(ProfileRepository\.get\(user\?\.id\)\?\.birthDate != null\)/);
 });
 
 test('reading home preserves server authority and account center remains secondary', () => {
@@ -69,8 +72,12 @@ test('reading home preserves server authority and account center remains seconda
   assert.match(page, /resolveDtrShelfAccess/);
   assert.match(page, /href: access\.shelfCta\.href/);
   assert.match(page, /label: access\.shelfCta\.label/);
+  assert.match(page, /canUpgradeFromLight=\{tier\?\.canUpgradeFromLight \?\? false\}/);
+  assert.match(page, /upgradeReportInstanceId=\{tier\?\.reportInstanceId \?\? null\}/);
   assert.match(readingHome, /personalAuthority/);
   assert.match(readingHome, /primaryAction === 'recover_owned'/);
+  assert.match(readingHome, /LightToFullUpgradeCta/);
+  assert.match(readingHome, /canUpgradeFromLight && upgradeReportInstanceId/);
   assert.match(readingHome, /href: '\/my#my-purchase-heading'/);
   assert.match(my, /href="\/dtr"/);
   assert.match(my, /CompatibilitySavedReportsLibrary/);
