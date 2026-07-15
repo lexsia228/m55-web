@@ -67,7 +67,7 @@ describe('homePublicCopy — public product truth', () => {
 
   it('retains the poster and restores one visible introduction and mechanism preview', () => {
     assert.match(homePanelSource, /\/home\/hero-tech-map\.webp/);
-    assert.match(homePanelSource, /m55-home-visible-introduction/);
+    assert.match(homePanelSource, /data-m55-visible-introduction="true"/);
     assert.match(homePanelSource, /introductionBodyJa/);
     assert.match(homePanelSource, /introductionTrustJa/);
     assert.doesNotMatch(homePanelSource, /<details|m55-home-learn-more/);

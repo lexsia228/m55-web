@@ -156,7 +156,8 @@ export default function HomePanel({
       {showPublicValueBlocks && (
         <section
           className={styles.homeSeenBridge}
-          data-testid="m55-home-visible-introduction"
+          data-testid="m55-home-seen-things-bridge"
+          data-m55-visible-introduction="true"
           aria-labelledby="m55-home-introduction-title"
         >
           <div className={styles.homeSeenBridgeInner}>
