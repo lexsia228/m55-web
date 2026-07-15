@@ -4,10 +4,8 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import {
   LABEL_PRODUCT_EN,
-  LABEL_PRODUCT_JP,
   LABEL_SAVED_REPORT_METADATA_JP,
   LABEL_SAVED_REPORT_MY_JP,
-  MY_CONSULT_BODY_PRE_OWNED,
   MY_CONSULT_CTA_HREF,
   MY_CONSULT_CTA_LABEL,
   MY_CONSULT_SECTION_TITLE,
@@ -15,20 +13,14 @@ import {
   MY_FIRST_TIME_CTA_LABEL,
   MY_FIRST_TIME_GUIDE_TITLE,
   MY_HELP_SECTION_TITLE,
-  MY_PAGE_HERO_BODY,
   MY_PAGE_TITLE,
   MY_PROFILE_EDIT_CTA_LABEL,
   MY_SAVED_REPORT_CTA_OPEN_HREF,
   MY_SAVED_REPORT_CTA_OPEN_LABEL,
-  MY_SAVED_REPORT_CTA_PLAN_HREF,
-  MY_SAVED_REPORT_CTA_PLAN_LABEL,
-  MY_SAVED_REPORT_EMPTY_NO_PROFILE,
-  MY_SAVED_REPORT_EMPTY_READY,
   MY_SAVED_REPORT_INTRO_COMMON,
   MY_SAVED_REPORT_INTRO_OWNED,
   MY_SAVED_REPORT_LOADING,
   MY_SAVED_REPORT_SECTION_TITLE,
-  MY_SERVICES_SECTION_TITLE,
   MY_SIGNED_OUT_HUB_BODY,
 } from './dtrProductLabels';
 import { displayLabelForDtrRightKey } from './myEntitlementLabels';
@@ -87,7 +79,7 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
     assert.equal(DTR_PRODUCT_CATALOG[0]?.title, LABEL_SAVED_REPORT_MY_JP);
     assert.equal(PAID_DTR_MY_PAGE_CONSULT.capSummaryJa.includes('合計5'), false);
     assert.equal(PAID_DTR_MY_PAGE_CONSULT.capSummaryJa.includes('付属1'), false);
-    assert.equal(MY_PANEL_SOURCE.includes(LABEL_PRODUCT_JP), false);
+    assert.match(MY_PANEL_SOURCE, /保存版/);
     assert.equal(MY_PANEL_SOURCE.includes(LABEL_PRODUCT_EN), false);
     assert.equal(MY_PANEL_SOURCE.includes('マイハブ'), false);
   });
@@ -200,9 +192,10 @@ describe('myConsultCheckoutPublicCopy — My first-time guide (PATCH-2)', () => 
     assert.equal(SIGNED_IN_BLOCK.includes('追加相談返書'), false);
     assert.equal(SIGNED_IN_BLOCK.includes('500円'), false);
     assert.equal(SIGNED_IN_BLOCK.includes('¥500'), false);
-    assert.match(SIGNED_IN_BLOCK, /DtrCatalogStrip/);
-    assert.match(SIGNED_IN_BLOCK, /ConsultSection/);
-    assert.match(extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'ConsultSection'), /MY_CONSULT_SECTION_TITLE/);
+    assert.doesNotMatch(SIGNED_IN_BLOCK, /DtrCatalogStrip|ConsultSection/);
+    assert.match(SIGNED_IN_BLOCK, /購入・利用情報/);
+    assert.match(SIGNED_IN_BLOCK, /CompatibilitySavedReportsLibrary/);
+    assert.match(MY_PANEL_SOURCE, /href="\/dtr"/);
   });
 });
 
@@ -241,8 +234,11 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
   it('uses formal page title and hero copy', () => {
     assert.equal(MY_PAGE_TITLE, 'マイページ');
     assert.match(MY_PANEL_SOURCE, /MY_PAGE_TITLE/);
-    assert.match(MY_PANEL_SOURCE, /MY_PAGE_HERO_BODY/);
-    assert.equal(MY_PAGE_HERO_BODY.includes('登録済みのプロフィール'), true);
+    assert.match(
+      MY_PANEL_SOURCE,
+      /登録情報、購入・利用情報、データ管理を確認できます。読み解きを使うときは「読み解き」へ進んでください。/,
+    );
+    assert.match(MY_PANEL_SOURCE, /href="\/dtr"/);
     assert.equal(MY_PANEL_SOURCE.includes('レポートを再開し、次の一歩を選べます'), false);
     assert.equal(MY_PANEL_SOURCE.includes('quickNav'), false);
   });
@@ -251,40 +247,45 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.equal(MY_SIGNED_OUT_HUB_BODY.includes('保存版や利用状況'), true);
     assert.match(MY_PANEL_SOURCE, /MY_SIGNED_OUT_HUB_BODY/);
     assert.match(MY_PANEL_SOURCE, /MY_HELP_SECTION_TITLE/);
+    assert.match(MY_PANEL_SOURCE, /href="\/support"/);
+    assert.match(MY_PANEL_SOURCE, /href="\/legal\/refund"/);
+    assert.match(MY_PANEL_SOURCE, /href="\/legal\/privacy"/);
+    assert.match(MY_PANEL_SOURCE, /href="\/legal\/tokushoho"/);
     assert.equal(MY_PANEL_SOURCE.includes('購入の明細・領収'), false);
     assert.equal(MY_PANEL_SOURCE.includes('保存の目安'), false);
     assert.equal(SIGNED_IN_BLOCK.includes('retention_days'), false);
   });
 
-  it('uses formal section titles and saved-report copy constants', () => {
+  it('uses account-center section titles and saved-report copy constants', () => {
     assert.equal(MY_SAVED_REPORT_SECTION_TITLE, 'あなたの保存版');
-    assert.equal(MY_SERVICES_SECTION_TITLE, 'サービス一覧');
     assert.equal(MY_CONSULT_SECTION_TITLE, '追加読み解き');
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_SECTION_TITLE/);
-    assert.match(MY_PANEL_SOURCE, /MY_SERVICES_SECTION_TITLE/);
+    assert.match(MY_PANEL_SOURCE, /アカウント/);
+    assert.match(MY_PANEL_SOURCE, /購入・利用情報/);
+    assert.match(MY_PANEL_SOURCE, /データ管理/);
+    assert.match(MY_PANEL_SOURCE, /ヘルプ/);
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_INTRO_COMMON/);
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_LOADING/);
     assert.equal(MY_PANEL_SOURCE.includes('あなたのレポート'), false);
     assert.equal(MY_PANEL_SOURCE.includes('レポートとサービス'), false);
   });
 
-  it('gates services and consult sections on entReady', () => {
-    assert.match(SIGNED_IN_BLOCK, /\{entReady &&/);
-    assert.match(SIGNED_IN_BLOCK, /ConsultSection ownedReady/);
-    assert.match(SIGNED_IN_BLOCK, /profileState === 'no_profile' && entReady/);
+  it('keeps account data independent and gates report states on authority', () => {
+    assert.match(SIGNED_IN_BLOCK, /savedReportState !== 'no_profile'/);
+    assert.match(SIGNED_IN_BLOCK, /savedReportState !== 'ready_unpurchased'/);
+    assert.match(SIGNED_IN_BLOCK, /profileState === 'no_profile' && accountReady/);
     assert.match(SIGNED_IN_BLOCK, /profileState === 'ready' \|\| hasEditableMyProfile\(user\.id\)/);
+    assert.doesNotMatch(SIGNED_IN_BLOCK, /DtrCatalogStrip|ConsultSection/);
   });
 
-  it('limits primary CTAs by state in SavedReportSection and ConsultSection', () => {
+  it('limits report CTAs to recovery, owned reopen, and owned additional reading', () => {
     const savedBlock = extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'SavedReportSection');
-    const consultBlock = extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'ConsultSection');
-    assert.match(savedBlock, /MY_SAVED_REPORT_CTA_PLAN_HREF/);
+    assert.match(savedBlock, /snap\.shelfCta\.href/);
+    assert.match(savedBlock, /snap\.shelfCta\.label/);
     assert.match(savedBlock, /MY_SAVED_REPORT_CTA_OPEN_HREF/);
-    assert.match(consultBlock, /ownedReady \?/);
-    assert.match(consultBlock, /MY_CONSULT_CTA_HREF/);
-    assert.equal(MY_SAVED_REPORT_CTA_PLAN_HREF, '/dtr/lp');
+    assert.match(savedBlock, /MY_CONSULT_CTA_HREF/);
+    assert.doesNotMatch(savedBlock, /MY_SAVED_REPORT_CTA_PLAN_HREF/);
     assert.equal(MY_SAVED_REPORT_CTA_OPEN_HREF, '/dtr/core');
-    assert.equal(MY_SAVED_REPORT_CTA_PLAN_LABEL, '保存版のプランを見る');
     assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, '保存版を読み返す');
     assert.equal(MY_CONSULT_CTA_LABEL, '追加読み解きを始める');
     assert.equal(MY_CONSULT_CTA_HREF, '/dtr/core#consultation-room');
@@ -299,15 +300,15 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.equal(MY_SAVED_REPORT_INTRO_COMMON, '保存版の状態をここで確認できます。');
   });
 
-  it('uses 2-state consult copy without legacy paragraphs', () => {
-    assert.match(MY_PANEL_SOURCE, /MY_CONSULT_BODY_PRE_OWNED/);
-    assert.match(MY_PANEL_SOURCE, /MY_CONSULT_BODY_OWNED_P1/);
-    assert.match(MY_PANEL_SOURCE, /MY_CONSULT_BODY_OWNED_P2/);
+  it('keeps additional reading inside the owned saved-report section', () => {
+    const savedBlock = extractMyPanelFunctionBlock(MY_PANEL_SOURCE, 'SavedReportSection');
+    assert.match(savedBlock, /MY_CONSULT_CTA_HREF/);
+    assert.match(savedBlock, /purchasedHub\.primaryAction === 'additional_reading'/);
+    assert.doesNotMatch(MY_PANEL_SOURCE, /function ConsultSection/);
     assert.equal(MY_PANEL_SOURCE.includes('PAID_DTR_TRUST_BOUNDARIES'), false);
     assert.equal(MY_PANEL_SOURCE.includes('walletFactNoteJa'), false);
     assert.equal(MY_PANEL_SOURCE.includes('remainingNoteJa'), false);
     assert.equal(MY_PANEL_SOURCE.includes('reopenNoteJa'), false);
-    assert.equal(MY_CONSULT_BODY_PRE_OWNED.includes('保存版に紐づく'), true);
   });
 
   it('removes P0 forbidden UI from SignedIn block', () => {
@@ -334,12 +335,12 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.match(myOnlyBlock, /MY_BADGE_NOT_PURCHASED/);
   });
 
-  it('uses state-specific empty copy constants', () => {
-    assert.equal(MY_SAVED_REPORT_EMPTY_NO_PROFILE.includes('無料の見取り図'), true);
-    assert.equal(MY_SAVED_REPORT_EMPTY_READY.includes('商品ページ'), true);
-    assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_EMPTY_NO_PROFILE/);
-    assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_EMPTY_READY/);
+  it('uses state-specific loading, recovery, and quiet empty copy', () => {
+    assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_LOADING/);
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_PROCESSING/);
+    assert.match(MY_PANEL_SOURCE, /snap\.shelfCta\.href/);
+    assert.match(MY_PANEL_SOURCE, /購入済みの個人保存版はありません/);
+    assert.match(MY_PANEL_SOURCE, /savedReportState === 'ready_unpurchased'/);
   });
 
   it('uses profile edit CTA label from SSOT', () => {
@@ -349,12 +350,12 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
 
   it('applies Visual SSOT tokens in MyPanel CSS', () => {
     const css = readRepo('components/my/MyPanel.module.css');
-    assert.match(css, /max-width:\s*min\(760px, calc\(100vw - 24px\)\)/);
+    assert.match(css, /max-width:\s*min\(880px, calc\(100vw - 24px\)\)/);
     assert.match(css, /clamp\(16px, 4vw, 32px\)/);
-    assert.match(css, /rgba\(255, 255, 255, 0\.55\)/);
-    assert.match(css, /rgba\(107, 95, 168, 0\.13\)/);
-    assert.match(css, /0 18px 60px rgba\(29, 24, 61, 0\.045\)/);
+    assert.match(css, /var\(--m55-surface\)/);
+    assert.match(css, /var\(--m55-border\)/);
+    assert.match(css, /var\(--m55-shadow\)/);
     assert.match(css, /min-height:\s*44px/);
-    assert.match(css, /outline:\s*2px solid rgba\(104, 84, 182, 0\.9\)/);
+    assert.match(css, /outline:\s*2px solid var\(--m55-focus\)/);
   });
 });

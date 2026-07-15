@@ -10,14 +10,14 @@ import {
 import { PublicHeader } from '../../components/shell/PublicHeader';
 import { PublicFooter } from '../_components/PublicFooter';
 import M55ReadingHome from '../../components/dtr/M55ReadingHome';
+import type { M55ExperienceAuthority } from '../../lib/m55/m55ExperienceCardModel';
 import styles from './dtr.module.css';
 
 export const metadata = { title: 'M55の読み解き | M55' };
 
 /**
- * /dtr — product shelf.
- * レポートタブの着地点。Entry Report カードを商品棚として提示。
- * 将来の追加商品も同じ棚に並べられる構造。
+ * /dtr — primary Reading Home.
+ * 無料体験の開始・継続と、購入済みレポートの再開をまとめる。
  *
  * Ownership check is done server-side and passed as prop.
  * Entitlement logic is not modified — only the display state changes.
@@ -35,15 +35,33 @@ export default async function DtrPage() {
       : null;
   const personalOwned =
     access.kind === 'authenticated' && access.ownershipState === 'owned';
+  const personalAuthority: M55ExperienceAuthority | null =
+    access.kind === 'authenticated' &&
+    (personalOwned ||
+      access.ownershipState === 'expired' ||
+      access.uxState === 'error_unknown')
+      ? {
+          uxState: access.uxState,
+          action:
+            access.uxState === 'error_unknown'
+              ? 'authority_support'
+              : access.lpCtaMode === 'open'
+                ? 'open_owned'
+                : access.lpCtaMode === 'recovery'
+                  ? 'recover_owned'
+                  : 'view_paid_details',
+          href: access.shelfCta.href,
+          label: access.shelfCta.label,
+        }
+      : null;
 
   return (
     <>
       <PublicHeader />
       <main className={styles.main}>
         <M55ReadingHome
-          personalOwned={personalOwned}
-          personalReady={personalOwned && access.snapshotReady}
-          personalHref={access.shelfCta.href}
+          personalOwnershipState={personalOwned ? 'owned' : 'not_owned'}
+          personalAuthority={personalAuthority}
           compatibilityReports={compatibility.reports}
           compatibilityAuthorityAvailable={compatibility.available}
           additionalReadingAvailable={

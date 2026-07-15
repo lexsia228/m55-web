@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
 import { ProfileRepository } from '../../lib/soul/profile';
+import { COMPATIBILITY_GUEST_SESSION_KEY } from '../../lib/m55/compatibility/pairReadingGuestContract';
 import {
   buildM55ExperienceCardModel,
   hasM55ContinueItem,
   type M55CommerceState,
+  type M55ExperienceAuthority,
   type M55ExperienceCardModel,
+  type M55OwnershipState,
 } from '../../lib/m55/m55ExperienceCardModel';
 import {
   M55_FUNNEL_EVENTS,
@@ -26,9 +29,8 @@ export type ReadingHomeCompatibilityReport = {
 };
 
 type Props = {
-  personalOwned: boolean;
-  personalReady: boolean;
-  personalHref: string;
+  personalOwnershipState: M55OwnershipState;
+  personalAuthority: M55ExperienceAuthority | null;
   compatibilityReports: readonly ReadingHomeCompatibilityReport[];
   compatibilityAuthorityAvailable: boolean;
   compatibilityCommerce: M55CommerceState;
@@ -41,12 +43,18 @@ function IntentSurface({
   freeValue,
   paidValue,
   onPrimary,
+  secondaryAction,
 }: {
   model: M55ExperienceCardModel;
   description: string;
   freeValue: string;
   paidValue: readonly string[];
   onPrimary: () => void;
+  secondaryAction?: {
+    href: string;
+    label: string;
+    onClick?: () => void;
+  };
 }) {
   const personal = model.kind === 'personal';
   return (
@@ -82,18 +90,13 @@ function IntentSurface({
           <Link className={styles.primary} href={model.primaryHref} onClick={onPrimary}>
             {model.primaryLabel}
           </Link>
-          {model.showOwnership && personal ? (
+          {secondaryAction ? (
             <Link
               className={styles.secondary}
-              href="/dtr/lp"
-              onClick={() =>
-                trackFunnelAction(
-                  M55_FUNNEL_EVENTS.purchaseDetailsOpen,
-                  'reading_personal',
-                )
-              }
+              href={secondaryAction.href}
+              onClick={secondaryAction.onClick}
             >
-              保存版について確認する
+              {secondaryAction.label}
             </Link>
           ) : null}
         </div>
@@ -103,9 +106,8 @@ function IntentSurface({
 }
 
 export default function M55ReadingHome({
-  personalOwned,
-  personalReady,
-  personalHref,
+  personalOwnershipState,
+  personalAuthority,
   compatibilityReports,
   compatibilityAuthorityAvailable,
   compatibilityCommerce,
@@ -113,10 +115,18 @@ export default function M55ReadingHome({
 }: Props) {
   const { user, isLoaded } = useUser();
   const [hasPersonalFreeResult, setHasPersonalFreeResult] = useState(false);
+  const [hasCompatibilityFreeResult, setHasCompatibilityFreeResult] = useState(false);
 
   useEffect(() => {
     if (!isLoaded) return;
     setHasPersonalFreeResult(ProfileRepository.get(user?.id)?.birthDate != null);
+    try {
+      setHasCompatibilityFreeResult(
+        sessionStorage.getItem(COMPATIBILITY_GUEST_SESSION_KEY) != null,
+      );
+    } catch {
+      setHasCompatibilityFreeResult(false);
+    }
   }, [isLoaded, user?.id]);
 
   useEffect(() => {
@@ -137,22 +147,30 @@ export default function M55ReadingHome({
       kind: 'personal',
       identityState: user ? 'authenticated' : 'guest',
       journeyState: hasPersonalFreeResult ? 'free_complete' : 'unstarted',
-      ownershipState: personalOwned ? 'owned' : 'not_owned',
+      ownershipState: personalOwnershipState,
       commerceState: 'available',
       usageState: additionalReadingAvailable ? 'available_balance' : 'no_balance',
-      ownedHref: personalOwned && personalReady ? personalHref : null,
+      authority: personalAuthority,
     });
     const latestCompatibility = compatibilityReports[0] ?? null;
     const compatibility = buildM55ExperienceCardModel({
       kind: 'compatibility',
       identityState: user ? 'authenticated' : 'guest',
-      journeyState: latestCompatibility ? 'free_complete' : 'unstarted',
+      journeyState:
+        latestCompatibility || hasCompatibilityFreeResult ? 'free_complete' : 'unstarted',
       ownershipState: latestCompatibility ? 'owned' : 'not_owned',
       commerceState: compatibilityAuthorityAvailable
         ? compatibilityCommerce
         : 'unavailable',
       usageState: 'no_balance',
-      ownedHref: latestCompatibility ? `/synastry/report/${latestCompatibility.id}` : null,
+      authority: latestCompatibility
+        ? {
+            uxState: 'owned_snapshot_ready',
+            action: 'open_owned',
+            href: `/synastry/report/${latestCompatibility.id}`,
+            label: 'レポートを開く',
+          }
+        : null,
     });
     return [personal, compatibility] as const;
   }, [
@@ -160,10 +178,10 @@ export default function M55ReadingHome({
     compatibilityCommerce,
     compatibilityReports,
     additionalReadingAvailable,
+    hasCompatibilityFreeResult,
     hasPersonalFreeResult,
-    personalHref,
-    personalOwned,
-    personalReady,
+    personalAuthority,
+    personalOwnershipState,
     user,
   ]);
 
@@ -187,9 +205,14 @@ export default function M55ReadingHome({
                 <Link
                   key={model.kind}
                   href={model.primaryHref}
-                  onClick={() =>
-                    trackFunnelAction(M55_FUNNEL_EVENTS.ownedReportOpen, 'reading_home')
-                  }
+                  onClick={() => {
+                    if (
+                      model.primaryAction === 'open_owned' ||
+                      model.primaryAction === 'recover_owned'
+                    ) {
+                      trackFunnelAction(M55_FUNNEL_EVENTS.ownedReportOpen, 'reading_home');
+                    }
+                  }}
                 >
                   <span>{model.kind === 'personal' ? '自分の読み解き' : '二人の読み解き'}</span>
                   <strong>{model.primaryLabel}</strong>
@@ -219,6 +242,19 @@ export default function M55ReadingHome({
                 'reading_personal',
               )
             }
+            secondaryAction={
+              models[0].primaryAction === 'open_owned'
+                ? {
+                    href: '/dtr/lp',
+                    label: '保存版について確認する',
+                    onClick: () =>
+                      trackFunnelAction(
+                        M55_FUNNEL_EVENTS.purchaseDetailsOpen,
+                        'reading_personal',
+                      ),
+                  }
+                : undefined
+            }
           />
           <IntentSurface
             model={models[1]}
@@ -238,6 +274,14 @@ export default function M55ReadingHome({
                   : M55_FUNNEL_EVENTS.compatibilityFreeStart,
                 'reading_compatibility',
               )
+            }
+            secondaryAction={
+              compatibilityReports.length > 1
+                ? {
+                    href: '/my#my-purchase-heading',
+                    label: 'ほかの購入済みレポートを確認する',
+                  }
+                : undefined
             }
           />
         </div>

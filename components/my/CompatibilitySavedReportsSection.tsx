@@ -100,7 +100,6 @@ export default function CompatibilitySavedReportsLibrary({
   const [reports, setReports] = useState<CompatibilityReportListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [available, setAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -117,12 +116,10 @@ export default function CompatibilitySavedReportsLibrary({
         };
         if (active) {
           setReports(Array.isArray(data.reports) ? data.reports : []);
-          setAvailable(data.available !== false);
-          setError(false);
+          setError(data.available === false);
         }
       } catch {
         if (active) {
-          setAvailable(true);
           setError(true);
         }
       } finally {
@@ -134,7 +131,6 @@ export default function CompatibilitySavedReportsLibrary({
     };
   }, []);
 
-  if (available !== true) return null;
   if (hideWhenEmpty && !loading && !error && reports.length === 0) return null;
 
   return (

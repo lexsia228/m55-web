@@ -4,6 +4,18 @@ export type M55OwnershipState = 'not_owned' | 'owned';
 export type M55CommerceState = 'available' | 'paused' | 'unavailable';
 export type M55UsageState = 'no_balance' | 'available_balance' | 'previously_used';
 export type M55ExperienceKind = 'personal' | 'compatibility';
+export type M55AuthorityAction =
+  | 'open_owned'
+  | 'recover_owned'
+  | 'authority_support'
+  | 'view_paid_details';
+
+export type M55ExperienceAuthority = {
+  uxState: string;
+  action: M55AuthorityAction;
+  href: string;
+  label: string;
+};
 
 export type M55ExperienceCardInput = {
   kind: M55ExperienceKind;
@@ -12,7 +24,7 @@ export type M55ExperienceCardInput = {
   ownershipState: M55OwnershipState;
   commerceState: M55CommerceState;
   usageState?: M55UsageState;
-  ownedHref?: string | null;
+  authority?: M55ExperienceAuthority | null;
 };
 
 export type M55ExperienceCardModel = M55ExperienceCardInput & {
@@ -21,6 +33,8 @@ export type M55ExperienceCardModel = M55ExperienceCardInput & {
     | 'resume_free'
     | 'view_free_result'
     | 'open_owned'
+    | 'recover_owned'
+    | 'authority_support'
     | 'view_paid_details'
     | 'commerce_paused';
   primaryHref: string;
@@ -43,14 +57,17 @@ const PAID_HREF: Record<M55ExperienceKind, string> = {
 export function buildM55ExperienceCardModel(
   input: M55ExperienceCardInput,
 ): M55ExperienceCardModel {
-  if (input.ownershipState === 'owned' && input.ownedHref) {
+  if (input.authority) {
+    const ownedAction =
+      input.authority.action === 'open_owned' ||
+      input.authority.action === 'recover_owned';
     return {
       ...input,
-      primaryAction: 'open_owned',
-      primaryHref: input.ownedHref,
-      primaryLabel: 'レポートを開く',
-      showPaidDepth: true,
-      showOwnership: true,
+      primaryAction: input.authority.action,
+      primaryHref: input.authority.href,
+      primaryLabel: input.authority.label,
+      showPaidDepth: ownedAction || input.authority.action === 'view_paid_details',
+      showOwnership: ownedAction,
       canContinue: true,
     };
   }

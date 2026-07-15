@@ -62,6 +62,7 @@ export async function GET() {
     showPurchaseCta,
     ownershipState,
     uxState,
+    shelfCta: access.shelfCta,
     savedReportTier: {
       hasLight: tier.hasLight,
       hasFull: tier.hasFull,

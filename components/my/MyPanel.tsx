@@ -9,11 +9,7 @@ import {
   isEntryReportCoreRight,
 } from '../../lib/m55/myEntitlementLabels';
 import {
-  MY_BADGE_NOT_PURCHASED,
   MY_BADGE_PREPARING,
-  MY_CONSULT_BODY_OWNED_P1,
-  MY_CONSULT_BODY_OWNED_P2,
-  MY_CONSULT_BODY_PRE_OWNED,
   MY_CONSULT_CONTEXT_BODY,
   MY_CONSULT_CTA_HREF,
   MY_CONSULT_CTA_LABEL,
@@ -30,10 +26,6 @@ import {
   MY_REPORT_LIST_ARIA_LABEL,
   MY_SAVED_REPORT_CTA_OPEN_HREF,
   MY_SAVED_REPORT_CTA_OPEN_LABEL,
-  MY_SAVED_REPORT_CTA_PLAN_HREF,
-  MY_SAVED_REPORT_CTA_PLAN_LABEL,
-  MY_SAVED_REPORT_EMPTY_NO_PROFILE,
-  MY_SAVED_REPORT_EMPTY_READY,
   MY_SAVED_REPORT_ENT_ERROR,
   MY_SAVED_REPORT_INTRO_COMMON,
   MY_SAVED_REPORT_INTRO_OWNED,
@@ -84,6 +76,12 @@ type SnapshotReadyResponse = {
   ready: boolean;
   hasOwnership: boolean;
   hasPurchaseSnapshot: boolean;
+  uxState: string;
+  shelfCta: {
+    href: string;
+    label: string;
+    ariaLabel: string;
+  };
   savedReportTier?: {
     hasLight: boolean;
     hasFull: boolean;
@@ -121,30 +119,13 @@ function resolveSavedReportState(
   profileState: ProfileState | null
 ): SavedReportVisualState {
   if (entLoading) return 'loading';
-  if (entError) return 'ent_error';
   if (snapError) return 'snap_error';
-  if (!ent) return 'loading';
-
-  const rows = computeRows(ent, snap);
-  const ownsAny = rows.length > 0 || snap?.hasOwnership === true;
-  const canOpenCore = snap?.ready === true;
-
-  if (ownsAny && canOpenCore) return 'owned_ready';
-  if (ownsAny && !canOpenCore) return 'processing';
+  if (!snap) return 'loading';
+  if (snap.hasOwnership && snap.ready) return 'owned_ready';
+  if (snap.hasOwnership) return 'processing';
+  if (entError || !ent) return 'ent_error';
   if (profileState === 'no_profile') return 'no_profile';
   return 'ready_unpurchased';
-}
-
-function isOwnedSnapshotReady(
-  entError: boolean,
-  snapError: boolean,
-  ent: EntitlementsResponse | null,
-  snap: SnapshotReadyResponse | null
-): boolean {
-  if (entError || snapError || !ent) return false;
-  const rows = computeRows(ent, snap);
-  const ownsAny = rows.length > 0 || snap?.hasOwnership === true;
-  return ownsAny && snap?.ready === true;
 }
 
 export default function MyPanel() {
@@ -223,8 +204,8 @@ export default function MyPanel() {
     profileState
   );
 
-  const ownedReady = isOwnedSnapshotReady(entError, snapError, ent, snap);
-  const entReady = entLoaded && !entError && ent !== null;
+  const ownedReady = !snapError && snap?.hasOwnership === true && snap.ready;
+  const accountReady = entLoaded;
 
   useEffect(() => {
     if (!ownedReady) return;
@@ -276,8 +257,8 @@ export default function MyPanel() {
                 <p className={styles.accountOverline}>ACCOUNT</p>
                 <h2 id="my-account-heading">アカウント</h2>
               </div>
-              {profileState === 'no_profile' && entReady ? <FirstTimeGuideSection /> : null}
-              {user && entReady && (profileState === 'ready' || hasEditableMyProfile(user.id)) ? (
+              {profileState === 'no_profile' && accountReady ? <FirstTimeGuideSection /> : null}
+              {user && accountReady && (profileState === 'ready' || hasEditableMyProfile(user.id)) ? (
                 <ProfileSection userId={user.id} />
               ) : null}
             </section>
@@ -289,7 +270,8 @@ export default function MyPanel() {
                 <p>購入済みレポートと利用状況を確認できます。レポートを使う主な入口は「読み解き」です。</p>
               </div>
               <CompatibilitySavedReportsLibrary hideWhenEmpty />
-              {(savedReportState === 'owned_ready' || savedReportState === 'processing') ? (
+              {savedReportState !== 'no_profile' &&
+              savedReportState !== 'ready_unpurchased' ? (
                 <SavedReportSection
                   state={savedReportState}
                   ent={ent}
@@ -298,7 +280,9 @@ export default function MyPanel() {
                   deleteToastVisible={deleteToastVisible}
                 />
               ) : null}
-              {entReady && !ownedReady ? (
+              {accountReady &&
+              (savedReportState === 'no_profile' ||
+                savedReportState === 'ready_unpurchased') ? (
                 <p className={styles.quietEmpty}>購入済みの個人保存版はありません。</p>
               ) : null}
             </section>
@@ -390,9 +374,7 @@ function SavedReportSection({
     wallet: snap?.consultWallet,
   });
   const sectionBadge =
-    state === 'no_profile' || state === 'ready_unpurchased'
-      ? MY_BADGE_NOT_PURCHASED
-      : state === 'processing'
+    state === 'processing'
       ? MY_BADGE_PREPARING
       : state === 'owned_ready'
       ? purchasedHub.planLabel
@@ -425,22 +407,24 @@ function SavedReportSection({
 
       {state === 'snap_error' && <p className={styles.muted}>{MY_SAVED_REPORT_SNAP_ERROR}</p>}
 
-      {state === 'no_profile' && <p className={styles.body}>{MY_SAVED_REPORT_EMPTY_NO_PROFILE}</p>}
-
-      {state === 'ready_unpurchased' && (
+      {state === 'processing' ? (
         <>
-          <p className={styles.body}>{MY_SAVED_REPORT_EMPTY_READY}</p>
-          <div className={styles.links}>
-            <Link href={MY_SAVED_REPORT_CTA_PLAN_HREF} className={styles.ctaPrimary}>
-              {MY_SAVED_REPORT_CTA_PLAN_LABEL}
-            </Link>
-          </div>
+          <p className={styles.body}>{MY_SAVED_REPORT_PROCESSING}</p>
+          {snap?.shelfCta ? (
+            <div className={styles.links}>
+              <Link
+                href={snap.shelfCta.href}
+                className={styles.ctaPrimary}
+                aria-label={snap.shelfCta.ariaLabel}
+              >
+                {snap.shelfCta.label}
+              </Link>
+            </div>
+          ) : null}
         </>
-      )}
+      ) : null}
 
-      {state === 'processing' && <p className={styles.body}>{MY_SAVED_REPORT_PROCESSING}</p>}
-
-      {state === 'owned_ready' && ent && (
+      {state === 'owned_ready' && (
         <>
           <div className={styles.ownedValueSummary}>
             <p className={styles.ownedValueTitle}>{MY_SAVED_REPORT_VALUE_TITLE}</p>
@@ -496,11 +480,13 @@ function SavedReportSection({
             <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P1}</p>
             <p className={styles.muted}>{MY_SAVED_REPORT_OWNED_NOTE_P2}</p>
           </div>
-          <OwnedReportsList
-            ent={ent}
-            snap={snap}
-            onDeleteSuccess={onDeleteSuccess}
-          />
+          {ent ? (
+            <OwnedReportsList
+              ent={ent}
+              snap={snap}
+              onDeleteSuccess={onDeleteSuccess}
+            />
+          ) : null}
           {snap?.savedReportTier?.canUpgradeFromLight &&
             snap.savedReportTier.reportInstanceId && (
               <LightToFullUpgradeCta
@@ -519,27 +505,6 @@ function SavedReportSection({
             </div>
           )}
         </>
-      )}
-    </section>
-  );
-}
-
-function ConsultSection({ ownedReady }: { ownedReady: boolean }) {
-  return (
-    <section className={styles.card} aria-label={MY_CONSULT_SECTION_TITLE}>
-      <h2 className={styles.sectionTitle}>{MY_CONSULT_SECTION_TITLE}</h2>
-      {ownedReady ? (
-        <>
-          <p className={styles.body}>{MY_CONSULT_BODY_OWNED_P1}</p>
-          <p className={styles.body}>{MY_CONSULT_BODY_OWNED_P2}</p>
-          <div className={styles.links}>
-            <Link href={MY_CONSULT_CTA_HREF} className={styles.ctaPrimary}>
-              {MY_CONSULT_CTA_LABEL}
-            </Link>
-          </div>
-        </>
-      ) : (
-        <p className={styles.body}>{MY_CONSULT_BODY_PRE_OWNED}</p>
       )}
     </section>
   );

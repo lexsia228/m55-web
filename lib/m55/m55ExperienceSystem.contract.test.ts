@@ -61,6 +61,41 @@ test('reading home has two intent surfaces and conditional continuation', () => 
   assert.equal((source.match(/<IntentSurface/g) ?? []).length, 2);
 });
 
+test('reading home preserves server authority and account center remains secondary', () => {
+  const page = read('app/dtr/page.tsx');
+  const readingHome = read('components/dtr/M55ReadingHome.tsx');
+  const my = read('components/my/MyPanel.tsx');
+  const readyApi = read('app/api/dtr/report-snapshot-ready/route.ts');
+  assert.match(page, /resolveDtrShelfAccess/);
+  assert.match(page, /href: access\.shelfCta\.href/);
+  assert.match(page, /label: access\.shelfCta\.label/);
+  assert.match(readingHome, /personalAuthority/);
+  assert.match(readingHome, /primaryAction === 'recover_owned'/);
+  assert.match(readingHome, /href: '\/my#my-purchase-heading'/);
+  assert.match(my, /href="\/dtr"/);
+  assert.match(my, /CompatibilitySavedReportsLibrary/);
+  assert.match(readyApi, /shelfCta: access\.shelfCta/);
+});
+
+test('account center does not duplicate product or ownership authority', () => {
+  const source = read('components/my/MyPanel.tsx');
+  assert.doesNotMatch(source, /DtrCatalogStrip|function ConsultSection/);
+  assert.doesNotMatch(source, /const ownsAny/);
+  assert.match(source, /snap\.hasOwnership && snap\.ready/);
+  assert.match(source, /snap\.shelfCta\.href/);
+  assert.equal((source.match(/CompatibilitySavedReportsLibrary/g) ?? []).length, 2);
+});
+
+test('compatibility history retains every exact owned route and owner boundary', () => {
+  const history = read('components/my/CompatibilitySavedReportsSection.tsx');
+  const route = read('app/synastry/report/[reportId]/page.tsx');
+  assert.match(history, /reports\.map\(\(report\)/);
+  assert.match(history, /href=\{`\/synastry\/report\/\$\{report\.id\}`\}/);
+  assert.match(history, /setError\(data\.available === false\)/);
+  assert.match(route, /getOwnedCompatibilityReport\(userId, reportId\)/);
+  assert.match(route, /if \(!report\) notFound\(\)/);
+});
+
 test('account center removes the unpurchased catalog and preserves deletion UI', () => {
   const source = read('components/my/MyPanel.tsx');
   assert.doesNotMatch(source, /DtrCatalogStrip/);

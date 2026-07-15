@@ -54,24 +54,76 @@ test('owned report remains reopenable while commerce is paused', () => {
     journeyState: 'free_complete',
     ownershipState: 'owned',
     commerceState: 'paused',
-    ownedHref: '/dtr/core',
+    authority: {
+      uxState: 'owned_snapshot_ready',
+      action: 'open_owned',
+      href: '/dtr/core',
+      label: '保存版を読み返す',
+    },
   });
   assert.equal(model.primaryAction, 'open_owned');
   assert.equal(model.primaryHref, '/dtr/core');
+  assert.equal(model.primaryLabel, '保存版を読み返す');
   assert.equal(model.showOwnership, true);
+});
+
+test('owned report without a snapshot preserves authoritative recovery', () => {
+  const model = buildM55ExperienceCardModel({
+    ...base,
+    identityState: 'authenticated',
+    ownershipState: 'owned',
+    authority: {
+      uxState: 'owned_snapshot_not_ready',
+      action: 'recover_owned',
+      href: '/dtr/processing?recovery=owned',
+      label: '準備状況を確認する',
+    },
+  });
+  assert.equal(model.primaryAction, 'recover_owned');
+  assert.equal(model.primaryHref, '/dtr/processing?recovery=owned');
+  assert.equal(model.primaryLabel, '準備状況を確認する');
+  assert.equal(model.authority?.uxState, 'owned_snapshot_not_ready');
+  assert.equal(model.showOwnership, true);
+});
+
+test('authority error preserves the support action', () => {
+  const model = buildM55ExperienceCardModel({
+    ...base,
+    identityState: 'authenticated',
+    authority: {
+      uxState: 'error_unknown',
+      action: 'authority_support',
+      href: '/support',
+      label: 'サポートを確認する',
+    },
+  });
+  assert.equal(model.primaryAction, 'authority_support');
+  assert.equal(model.primaryHref, '/support');
+  assert.equal(model.primaryLabel, 'サポートを確認する');
+  assert.equal(model.showOwnership, false);
 });
 
 test('personal-only, compatibility-only, and both-owned continue states resolve', () => {
   const personalOwned = buildM55ExperienceCardModel({
     ...base,
     ownershipState: 'owned',
-    ownedHref: '/dtr/core',
+    authority: {
+      uxState: 'owned_snapshot_ready',
+      action: 'open_owned',
+      href: '/dtr/core',
+      label: '保存版を読み返す',
+    },
   });
   const compatibilityOwned = buildM55ExperienceCardModel({
     ...base,
     kind: 'compatibility',
     ownershipState: 'owned',
-    ownedHref: '/synastry/report/example',
+    authority: {
+      uxState: 'owned_snapshot_ready',
+      action: 'open_owned',
+      href: '/synastry/report/example',
+      label: 'レポートを開く',
+    },
   });
   const empty = buildM55ExperienceCardModel(base);
   assert.equal(hasM55ContinueItem([personalOwned, empty]), true);
