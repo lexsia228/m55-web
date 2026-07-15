@@ -9,23 +9,22 @@ import {
 } from './m55LogicPublicCopy';
 
 describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
-  it('HOME copy states 10-lane plus calendar rhythm product truth', () => {
+  it('HOME copy states calendar rhythm plus current-answer product truth', () => {
     const blob = M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n');
-    assert.match(blob, /10資質レーンへ分けるだけではありません/);
-    assert.match(blob, /旧暦月・季節位置・日帯/);
-    assert.match(blob, /動き方・疲れ方・戻し方/);
+    assert.match(blob, /生年月日の暦リズム/);
+    assert.match(blob, /選択式の質問/);
+    assert.match(blob, /5つの質問・今の関心/);
     assert.match(blob, /固定ルール/);
-    assert.match(blob, /4章で深く読み返せます/);
-    assert.match(blob, /追加読み解きは別のレイヤー/);
-    assert.match(blob, /会話を続ける形式ではありません/);
+    assert.match(blob, /生成AIを使う場合があります/);
+    assert.match(blob, /追加読み解き/);
   });
 
   it('CORE copy is compact and bridges free to saved report', () => {
     const blob = M55_LOGIC_CORE_COPY.bodyParagraphsJa.join('\n');
     assert.ok(blob.length < M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n').length);
-    assert.match(blob, /10資質レーン/);
-    assert.match(blob, /5つの視点/);
-    assert.match(blob, /4章で深く読み返せます/);
+    assert.match(blob, /生年月日の暦リズム/);
+    assert.match(blob, /5つの選択式質問/);
+    assert.match(blob, /4章へ深めます/);
     assert.match(blob, /1テーマ/);
   });
 
@@ -39,10 +38,11 @@ describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
     });
   }
 
-  it('does not frame saved report as mood-based or full AI generation', () => {
+  it('separates fixed-rule foundation from bounded generation AI', () => {
     const blob = m55LogicCopyBlob();
-    assert.match(blob, /固定ルールで組み立てられ/);
-    assert.doesNotMatch(blob, /保存版全文.*生成AI/);
+    assert.match(blob, /固定ルール/);
+    assert.match(blob, /章の文章表現に生成AIを使う場合があります/);
+    assert.match(blob, /追加読み解き.*生成AI/);
     assert.doesNotMatch(blob, /10通りの説明書/);
   });
 });

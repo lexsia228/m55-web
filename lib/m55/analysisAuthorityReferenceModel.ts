@@ -1,10 +1,13 @@
+import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { COMPATIBILITY_REPORT_PRODUCT_AUTHORITY } from './compatibility/compatibilityCommerceAuthority';
+
 /**
- * M55 analysis authority reference model — copy SSOT only.
- * Explains how DOB calendar references + answer deltas become user-facing readings.
- * Not wired to legal/storefront/UI in this patch.
+ * M55 public product-truth SSOT.
+ * Explains how calendar references + answers become user-facing readings and
+ * keeps public product/payment explanations tied to existing product authorities.
  */
 
-export const M55_ANALYSIS_AUTHORITY_REFERENCE_MODEL_VERSION = 'v1' as const;
+export const M55_ANALYSIS_AUTHORITY_REFERENCE_MODEL_VERSION = 'v2' as const;
 
 export type M55AnalysisAuthorityReferenceModelVersion =
   typeof M55_ANALYSIS_AUTHORITY_REFERENCE_MODEL_VERSION;
@@ -238,10 +241,86 @@ export const M55_REFERENCE_SOURCES: readonly M55ReferenceSource[] = [
 ] as const;
 
 export const M55_USER_FACING_POSITIONING_COPY = [
-  'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて、自己理解と関係性の距離を読み解くサービスです。',
+  'M55は、生年月日の暦リズムと、選択式の質問による現在の感じ方を重ねて、自分や二人の関係を整理する読み解きサービスです。',
   '干支、季節、二十四節気などの歴史ある暦の考え方を参照しながら、それを現代の言葉とグラフに翻訳し、ユーザー自身が「なぜそう見えるのか」を理解できる形で表示します。',
-  '本サービスは、医学的診断、心理検査、治療、または将来の不確実な事実を断定するものではありません。自分の傾向、相手との違い、今の距離感を整理するための参考情報として提供されます。',
+  '本サービスは、医学的・心理学的な診断、治療、未来予測、吉凶判定、相性の点数化ではありません。自分の傾向、相手との違い、今の距離感を整理するための参考情報として提供されます。',
 ] as const;
+
+export const M55_PUBLIC_COMMERCIAL_TRUTH = {
+  summaryJa:
+    'M55は、生年月日の暦リズムと選択式の質問を重ね、考え方・動き方・負担が出やすい場面を整理する自己理解と関係性整理のための読み解きシステムです。',
+  inputs: {
+    personalJa: [
+      '本人の生年月日',
+      '現在の表れ方を確認する5つの選択式質問',
+      '今、確かめたい関心テーマ',
+      '保存版では購入前の追加質問',
+    ] as const,
+    compatibilityJa: [
+      '二人分の生年月日',
+      '入力者から観察できる現在の二人についての6つの選択式質問',
+      '今、確かめたい関係の焦点',
+    ] as const,
+  },
+  processing: {
+    frameworkJa:
+      '10資質は、M55独自の整理フレームです。科学的な性格診断や医療・臨床上の分類ではありません。',
+    personalFreeJa:
+      '個人の無料見取り図は、生年月日の暦リズムと選択式回答をM55の固定ルールで組み合わせます。同じ入力には同じ組み立てを返し、生成AIは使用しません。',
+    personalSavedJa:
+      '個人の保存版は、M55の固定ルールと検査済みの文章素材を土台に4章で組み立てます。新しい保存版では、提供設定に応じて章の文章表現に生成AIを使う場合があります。品質条件を満たさない場合は固定ルールの本文へ戻します。',
+    personalAdditionalJa:
+      '追加読み解きは、購入済み保存版と選んだ1テーマを土台に生成AIで文章を組み立てます。汎用チャットではなく、利用可能件数の範囲で1テーマずつ扱います。',
+    compatibilityFreeJa:
+      '二人の無料見取り図は、二人分の生年月日と現在の回答をM55の固定ルールで組み合わせます。同じ入力には同じ結果を返し、生成AIは使用しません。',
+    compatibilitySavedJa:
+      '二人の保存版は、無料結果と同じ入力をM55の固定ルールで6章に展開します。生成AIは使用せず、購入したアカウントへ保存します。',
+  },
+  outputs: {
+    personalFreeJa:
+      '土台と現在の回答を分けて、5つの視点、今の関心、最初の小さな行動まで表示します。',
+    personalSavedJa:
+      '仕事・近い関係・生活と疲れの場面まで、4章の保存版としてウェブ上に保存し、購入したアカウントから読み返せます。',
+    compatibilityFreeJa:
+      '二人の反応の重なりと違い、現在続きやすい連鎖、最初に確かめる行動まで表示します。',
+    compatibilitySavedJa:
+      `場面ごとの深掘り、距離が広がる前のサイン、伝える速度の違い、戻るための言葉と行動を${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件・6章で保存します。`,
+  },
+  limitationsJa: [
+    '医学的・心理学的な診断ではありません。',
+    '未来予測、吉凶判定、運命の断定ではありません。',
+    '相性の点数、順位、優劣を示しません。',
+    '医療・法律・投資その他の専門判断や、本人の意思決定に代わるものではありません。',
+  ] as const,
+  commercial: {
+    personal: {
+      chapterCount: 4,
+      light: PAID_DTR_SAVED_REPORT_PRICING.light,
+      full: PAID_DTR_SAVED_REPORT_PRICING.full,
+      upgrade: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade,
+    },
+    compatibility: {
+      ...COMPATIBILITY_REPORT_PRODUCT_AUTHORITY,
+      chapterCount: 6,
+    },
+    currencyJa: '日本円（JPY）',
+    taxJa: '表示価格は税込です。',
+    billingJa: '買い切りの一回払いです。自動更新はありません。',
+    deliveryJa:
+      '決済確認後に本文を生成し、準備が完了すると購入したアカウントでウェブ閲覧できます。物理配送はありません。',
+    ownershipJa:
+      '購入したアカウントに保存され、読み解きホームから再開し、マイページで履歴を確認できます。',
+    paymentProcessorJa:
+      '支払いはStripe Checkoutで処理されます。選べる決済手段は、利用端末・地域・Checkout環境により異なります。',
+    dataHandlingJa:
+      '入力内容はレポートの組み立てと提供に必要な範囲で扱います。決済情報はStripeが処理し、M55はカード番号を保存しません。',
+    supportHref: '/support',
+    refundHref: '/legal/refund',
+    termsHref: '/legal/terms',
+    privacyHref: '/legal/privacy',
+    businessHref: '/legal/tokushoho',
+  },
+} as const;
 
 /** Flat blob for positioning / compliance audits. */
 export function m55AnalysisAuthorityPositioningBlob(): string {

@@ -416,6 +416,9 @@ function SavedReportSection({
                 href={snap.shelfCta.href}
                 className={styles.ctaPrimary}
                 aria-label={snap.shelfCta.ariaLabel}
+                onClick={() =>
+                  trackFunnelAction(M55_FUNNEL_EVENTS.savedReportOpen, 'my_saved_report')
+                }
               >
                 {snap.shelfCta.label}
               </Link>
@@ -462,6 +465,9 @@ function SavedReportSection({
                 <Link
                   href={MY_SAVED_REPORT_CTA_OPEN_HREF}
                   className={styles.ctaSecondary}
+                  onClick={() =>
+                    trackFunnelAction(M55_FUNNEL_EVENTS.savedReportOpen, 'my_saved_report')
+                  }
                 >
                   {MY_SAVED_REPORT_CTA_OPEN_LABEL}
                 </Link>
@@ -470,6 +476,9 @@ function SavedReportSection({
               <Link
                 href={MY_SAVED_REPORT_CTA_OPEN_HREF}
                 className={styles.ctaPrimary}
+                onClick={() =>
+                  trackFunnelAction(M55_FUNNEL_EVENTS.savedReportOpen, 'my_saved_report')
+                }
               >
                 {MY_SAVED_REPORT_CTA_OPEN_LABEL}
               </Link>

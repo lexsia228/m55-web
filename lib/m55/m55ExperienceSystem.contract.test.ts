@@ -8,7 +8,7 @@ const read = (path: string) => readFileSync(resolve(root, path), 'utf8');
 
 test('four primary surfaces use the shared experience shell', () => {
   for (const path of [
-    'app/core/page.tsx',
+    'app/core/CorePageClient.tsx',
     'app/dtr/core/page.tsx',
     'app/synastry/page.tsx',
     'app/synastry/report/[reportId]/page.tsx',

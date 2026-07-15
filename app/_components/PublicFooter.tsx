@@ -3,6 +3,8 @@ import styles from "./PublicFooter.module.css";
 
 /** Site-wide footer link SSOT — support/legal/privacy trust links only (no product shelf). */
 export const FOOTER_LINKS = [
+  { label: "M55の仕組み", href: "/how-m55-works" },
+  { label: "料金", href: "/pricing" },
   { label: "サポート", href: "/support" },
   { label: "返金", href: "/legal/refund" },
   { label: "特商法", href: "/legal/tokushoho" },

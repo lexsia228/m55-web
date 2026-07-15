@@ -18,9 +18,12 @@ import {
   ACCOUNT_DATA_SUPPORT_SECURITY_NOTE,
   ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES,
 } from "../../lib/m55/accountDataControlPublicCopy";
+import { PAID_DTR_SAVED_REPORT_PRICING } from "../../lib/m55/paidDtrProductCopy";
 
 export const metadata = {
   title: "サポート | M55",
+  description: "M55の購入、利用、請求、返金、保存版、追加読み解き、入力データに関する問い合わせ窓口です。",
+  alternates: { canonical: "/support" },
 };
 
 export default function SupportPage() {
@@ -73,8 +76,20 @@ export default function SupportPage() {
           保存版ライトと保存版FULLでは、4章の保存版の内容は共通です。違いは追加読み解きの件数と、選び方です。
         </p>
         <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
-          <li><strong>保存版ライト（¥1,000）</strong>：まず保存版を読み、輪郭を整理したい方向け。追加読み解き1件。</li>
-          <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。</li>
+          <li>
+            <strong>
+              {PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa}
+              （{PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}）
+            </strong>
+            ：まず保存版を読み、輪郭を整理したい方向け。追加読み解き1件。
+          </li>
+          <li>
+            <strong>
+              {PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa}
+              （{PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}）
+            </strong>
+            ：保存版を読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。
+          </li>
         </ul>
         <p style={{ margin: 0, opacity: 0.9 }}>
           ライトは追加読み解き1件、FULLは合計5件です。保存版の4章は共通です。ライト購入後でも、必要になったらFULL化できます。
@@ -84,7 +99,8 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトを購入済みの方は、¥600でFULL化できます。
+          保存版ライトを購入済みの方は、
+          {PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}でFULL化できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
           FULL化後は、追加読み解きを合計5件利用できます。

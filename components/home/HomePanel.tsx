@@ -23,7 +23,11 @@ const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
-export default function HomePanel() {
+export default function HomePanel({
+  compatibilityCommerceAvailable,
+}: {
+  compatibilityCommerceAvailable: boolean;
+}) {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const ownerId = user?.id ?? null;
@@ -89,6 +93,9 @@ export default function HomePanel() {
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
                     <p className={styles.posterHeroSupportInline} style={{ whiteSpace: 'pre-line' }}>{homeCopy.heroSubJa}</p>
+                    <p className={styles.posterHeroTrust} style={{ whiteSpace: 'pre-line' }}>
+                      {homeCopy.heroTrustJa}
+                    </p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -113,6 +120,9 @@ export default function HomePanel() {
                         {homeCopy.heroFunnelCtaJa} →
                       </Link>
                     )}
+                    <Link href="/synastry" className={styles.posterHeroSecondaryCta}>
+                      {homeCopy.heroCompatibilityCtaJa}
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -164,7 +174,7 @@ export default function HomePanel() {
             {homeCopy.readNextSectionTitleJa}
           </h2>
           <div className={styles.homeReadNextGrid} role="navigation" aria-label={homeCopy.readNextSectionTitleJa}>
-            <Link href="/how-m55-works" className={styles.homeReadNextCard}>
+            <Link href="/core" className={styles.homeReadNextCard}>
               <span
                 className={styles.homeReadNextThumb}
                 data-testid="m55-home-demo-five-element"
@@ -183,7 +193,7 @@ export default function HomePanel() {
                 <span className={styles.homeReadNextCta}>{homeCopy.readNextHowCtaJa}</span>
               </span>
             </Link>
-            <Link href="/ten-views" className={styles.homeReadNextCard}>
+            <Link href="/synastry" className={styles.homeReadNextCard}>
               <span className={`${styles.homeReadNextThumb} ${styles.homeReadNextThumbQualities}`}>
                 <Image
                   src="/home/card-qualities-flower.webp"
@@ -354,6 +364,11 @@ export default function HomePanel() {
                 </p>
                 <p className={styles.homePaidPlanSavedInfoPrice} style={{ whiteSpace: 'pre-line' }}>
                   {homeCopy.paidPlanSavedInfoPriceJa}
+                </p>
+                <p className={styles.homePaidPlanCompatibilityNote}>
+                  {compatibilityCommerceAvailable
+                    ? homeCopy.compatibilitySavedAvailableJa
+                    : homeCopy.compatibilitySavedPausedJa}
                 </p>
               </div>
             </div>

@@ -1,24 +1,12 @@
-'use client';
+import CorePageClient from './CorePageClient';
 
-import { useEffect, useState } from 'react';
-import ShellLayout from '../../components/shell/ShellLayout';
-import CoreEssencePanel from '../../components/core/CoreEssencePanel';
-import { M55ExperienceShell } from '../../components/experience/M55ExperienceShell';
+export const metadata = {
+  title: '自分の輪郭を無料で読み解く | M55',
+  description:
+    '生年月日の暦リズムと5つの選択式質問・今の関心から、現在の5つの視点と最初の小さな行動まで確認できます。',
+  alternates: { canonical: '/core' },
+};
 
 export default function CorePage() {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  if (!ready) return null;
-
-  return (
-    <ShellLayout iframeTitle="M55 本質">
-      <M55ExperienceShell kind="personal" depth="free">
-        <CoreEssencePanel />
-      </M55ExperienceShell>
-    </ShellLayout>
-  );
+  return <CorePageClient />;
 }

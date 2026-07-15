@@ -18,6 +18,8 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import { COMPATIBILITY_REPORT_PRODUCT_AUTHORITY } from '../../lib/m55/compatibility/compatibilityCommerceAuthority';
+import { M55_PUBLIC_COMMERCIAL_TRUTH } from '../../lib/m55/analysisAuthorityReferenceModel';
 import styles from './CompatibilityPurchaseExperience.module.css';
 
 type PreviewAuthState = 'signed_in' | 'signed_out' | 'redirecting';
@@ -58,16 +60,23 @@ function readPurchaseInput(): CompatibilityPurchaseJourney | null {
 }
 
 function ProductDetails() {
+  const product = COMPATIBILITY_REPORT_PRODUCT_AUTHORITY;
   return (
     <>
       <dl className={styles.details}>
-        <div><dt>商品</dt><dd>二人の相性レポート</dd></div>
-        <div><dt>内容</dt><dd>6章レポート1件</dd></div>
-        <div><dt>価格</dt><dd className={styles.price}>¥1,480（税込）</dd></div>
+        <div><dt>商品</dt><dd>{product.publicName}</dd></div>
+        <div>
+          <dt>内容</dt>
+          <dd>
+            {M55_PUBLIC_COMMERCIAL_TRUTH.commercial.compatibility.chapterCount}章レポート
+            {product.reportCount}件
+          </dd>
+        </div>
+        <div><dt>価格</dt><dd className={styles.price}>{product.priceLabel}・日本円（JPY）</dd></div>
         <div><dt>支払</dt><dd>一回払い</dd></div>
         <div><dt>自動更新</dt><dd>なし</dd></div>
-        <div><dt>提供時期</dt><dd>支払い確認後にマイページへ表示</dd></div>
-        <div><dt>閲覧</dt><dd>購入したアカウントのマイページ</dd></div>
+        <div><dt>提供時期</dt><dd>支払い確認後に本文を準備し、完了後にウェブ表示</dd></div>
+        <div><dt>閲覧</dt><dd>購入したアカウントの読み解きホーム・マイページ</dd></div>
         <div><dt>変更・取消</dt><dd>決済前は内容を見直せます</dd></div>
       </dl>
       <p className={styles.note}>
@@ -76,6 +85,7 @@ function ProductDetails() {
       <p className={styles.privacy}>
         二人の生年月日と回答はレポート作成時に使用します。購入後のレポートは購入したアカウントに保存され、生年月日や回答IDは含まれません。相手への自動共有はありません。
       </p>
+      <p className={styles.privacy}>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.paymentProcessorJa}</p>
     </>
   );
 }
@@ -204,7 +214,9 @@ export function CompatibilityPurchaseConfirmation({
             disabled={loading}
             aria-busy={loading}
           >
-            {loading ? '支払い画面を準備しています…' : '¥1,480で購入手続きへ'}
+            {loading
+              ? '支払い画面を準備しています…'
+              : `${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}で購入手続きへ`}
           </button>
         </>
       ) : (
@@ -220,7 +232,7 @@ export function CompatibilityPurchaseConfirmation({
     <main className={styles.page} data-testid="compatibility-purchase-confirmation">
       <article className={styles.card}>
         <p className={styles.eyebrow}>支払い前の最終確認</p>
-        <h1>二人の相性レポート</h1>
+        <h1>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</h1>
         <p className={styles.lead}>購入後はマイページから読み返せます。買い切りで、自動更新はありません。</p>
         {cancelled && (
           <p className={styles.cancelled} role="status">
@@ -247,6 +259,7 @@ export function CompatibilityPurchaseConfirmation({
           <Link href="/legal/terms">利用規約</Link>
           <Link href="/legal/privacy">プライバシー</Link>
           <Link href="/legal/refund">返金・キャンセル</Link>
+          <Link href="/support">サポート</Link>
         </nav>
       </article>
     </main>

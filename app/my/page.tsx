@@ -1,21 +1,12 @@
-'use client';
+import MyPageClient from './MyPageClient';
 
-import { useEffect, useState } from 'react';
-import ShellLayout from '../../components/shell/ShellLayout';
-import MyPanel from '../../components/my/MyPanel';
+export const metadata = {
+  title: 'アカウントと購入履歴 | M55',
+  description:
+    '登録情報、購入・利用情報、保存版の履歴、データ管理、サポートを確認できます。',
+  robots: { index: false, follow: false },
+};
 
 export default function MyPage() {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  if (!ready) return null;
-
-  return (
-    <ShellLayout iframeTitle="M55 My Page">
-      <MyPanel />
-    </ShellLayout>
-  );
+  return <MyPageClient />;
 }

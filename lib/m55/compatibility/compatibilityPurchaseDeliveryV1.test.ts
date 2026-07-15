@@ -509,20 +509,22 @@ describe('owned delivery, commercial copy, and analytics', () => {
       'components/compatibility/CompatibilityPurchaseExperience.tsx',
     );
     for (const term of [
-      '二人の相性レポート',
-      '6章レポート1件',
-      '¥1,480（税込）',
+      'COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName',
+      'M55_PUBLIC_COMMERCIAL_TRUTH.commercial.compatibility.chapterCount',
+      'product.priceLabel',
       '一回払い',
       '自動更新',
-      '支払い確認後にマイページへ表示',
+      '支払い確認後に本文を準備し、完了後にウェブ表示',
       '決済前は内容を見直せます',
       '現在の二人に合わせた6章',
       '購入したアカウントに保存',
       '相手への自動共有はありません',
+      'paymentProcessorJa',
       '/legal/tokushoho',
       '/legal/terms',
       '/legal/privacy',
       '/legal/refund',
+      '/support',
     ]) {
       assert.match(source, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }

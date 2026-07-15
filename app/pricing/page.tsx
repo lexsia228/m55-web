@@ -1,9 +1,19 @@
 import Link from "next/link";
-import { PAID_DTR_PRICING_AUTHORITY_NOTE_JA } from "../../lib/m55/paidDtrProductCopy";
+import {
+  PAID_DTR_PRICING_AUTHORITY_NOTE_JA,
+  PAID_DTR_SAVED_REPORT_PRICING,
+} from "../../lib/m55/paidDtrProductCopy";
+import { isCompatibilityCommerceEnabled } from "../../lib/m55/compatibility/compatibilityCommerceAuthority";
+import { M55_PUBLIC_COMMERCIAL_TRUTH } from "../../lib/m55/analysisAuthorityReferenceModel";
 
-export const metadata = { title: "料金とプラン | M55" };
+export const metadata = {
+  title: "料金とプラン | M55",
+  description: "M55の個人保存版ライト・FULLの価格、含まれる4章と追加読み解き件数、買い切り条件を確認できます。",
+  alternates: { canonical: "/pricing" },
+};
 
 export default function PricingPage() {
+  const compatibilityCommerceAvailable = isCompatibilityCommerceEnabled();
   return (
     <main style={{ maxWidth: "min(56rem, calc(100vw - 32px))", margin: "0 auto", padding: "24px 16px 56px" }}>
       <p style={{ margin: "0 0 10px" }}>
@@ -25,16 +35,30 @@ export default function PricingPage() {
         <h2 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>プランの選び方</h2>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
           <li>
-            <strong>保存版ライト</strong>：まず保存版を読み、1テーマだけ整理したい方向け（追加読み解き1件）
+            <strong>{PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa}</strong>
+            ：{PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}・日本円（JPY）。
+            まず保存版を読み、1テーマだけ整理したい方向け（追加読み解き1件）
           </li>
           <li>
-            <strong>保存版FULL</strong>：追加読み解きで何度か、深く整理したい方向け（追加読み解き合計5件）
+            <strong>{PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa}</strong>
+            ：{PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}・日本円（JPY）。
+            追加読み解きで何度か、深く整理したい方向け（追加読み解き合計5件）
           </li>
         </ul>
         <p style={{ margin: "12px 0 0", lineHeight: 1.7 }}>
           ライト購入後でも、必要になったらFULL化できます。
         </p>
       </section>
+      <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
+        {M55_PUBLIC_COMMERCIAL_TRUTH.commercial.billingJa}
+        {" "}
+        {M55_PUBLIC_COMMERCIAL_TRUTH.commercial.deliveryJa}
+      </p>
+      {!compatibilityCommerceAvailable ? (
+        <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
+          二人の保存版は準備中です。無料の見取り図は利用できます。
+        </p>
+      ) : null}
 
       <p style={{ margin: "0 0 12px", lineHeight: 1.7 }}>
         <Link href="/dtr/lp">保存版のプランを見る</Link>

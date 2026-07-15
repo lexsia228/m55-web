@@ -7,15 +7,20 @@ import { DraftClaimOnLogin } from "../components/dtr/DraftClaimOnLogin";
 import { ScrollToTopButton } from "../components/common/ScrollToTopButton";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://m55-webv2.vercel.app"),
   title: "M55",
-  description: "M55 digital content service.",
+  description:
+    "生年月日の暦リズムと選択式の質問を重ね、現在の自分や二人の関係を整理する読み解きシステムです。",
   icons: {
     icon: "/icons/m55-core-logo.png",
     apple: "/icons/m55-core-logo.png",
   },
   openGraph: {
     title: "M55",
-    description: "M55 digital content service.",
+    description:
+      "生年月日の暦リズムと選択式の質問を重ね、現在の自分や二人の関係を整理します。",
+    type: "website",
+    locale: "ja_JP",
     images: [{ url: "/icons/m55-core-logo.png", alt: "M55" }],
   },
 };

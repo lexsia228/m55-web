@@ -83,7 +83,9 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(prep, /sectionLeadJa/);
     assert.match(prep, /一回払い|oneTimeLabelJa/);
     assert.match(prep, /支払い画面へ進む/);
-    assert.match(prep, /次の画面で支払い内容を確認できます。/);
+    assert.match(prep, /M55_PUBLIC_COMMERCIAL_TRUTH\.commercial\.deliveryJa/);
+    assert.match(prep, /M55_PUBLIC_COMMERCIAL_TRUTH\.commercial\.paymentProcessorJa/);
+    assert.match(prep, /\/legal\/refund/);
     assert.match(prep, /DTR_CORE_LIGHT_V1/);
     assert.match(prep, /DTR_CORE_FULL_V1/);
     assert.match(prep, /PurchaseButton/);

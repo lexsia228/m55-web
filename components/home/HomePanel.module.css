@@ -193,6 +193,23 @@
   outline-offset: 3px;
 }
 
+.posterHeroSecondaryCta {
+  pointer-events: auto;
+  margin-top: 10px;
+  padding: 7px 12px;
+  color: #51466f;
+  font-size: clamp(12px, 2.7vw, 14px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.posterHeroSecondaryCta:focus-visible {
+  outline: 2px solid rgba(124, 111, 214, 0.45);
+  outline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .posterHeroCta {
     transition: none;
@@ -273,6 +290,18 @@
   text-shadow:
     0 0 12px rgba(255, 255, 255, 0.52),
     0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.posterHeroTrust {
+  max-width: 30rem;
+  margin: 10px auto 0;
+  color: rgba(25, 22, 31, 0.78);
+  font-size: clamp(10.5px, 2.25vw, 12px);
+  line-height: 1.65;
+  text-align: center;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.62),
+    0 1px 1px rgba(255, 255, 255, 0.82);
 }
 
 /* ベース写真＋ごく弱いトーンヴェール（画像主役） */
@@ -2458,13 +2487,31 @@
   color: rgba(60, 55, 72, 0.62);
 }
 
+.homePaidPlanCompatibilityNote {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(124, 111, 214, 0.1);
+  color: rgba(60, 55, 72, 0.68);
+  font-size: clamp(10.5px, 2.4vw, 11.5px);
+  line-height: 1.6;
+}
+
 @media (max-width: 767px) {
   .heroSection {
     min-height: auto;
   }
 
   .posterMainVisual {
-    min-height: clamp(280px, 62dvh, 420px);
+    min-height: clamp(520px, 72dvh, 610px);
+  }
+
+  .posterHeroBreathing {
+    min-height: 8px;
+  }
+
+  .posterHeroBottomStack {
+    margin-top: 12px;
+    padding-bottom: 10px;
   }
 }
 

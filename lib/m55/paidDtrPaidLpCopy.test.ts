@@ -43,7 +43,7 @@ const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 const SAVED_REPORT_HEADLINE_JA = '自分の出方を、4章の流れで読み直す。';
 
 const SAVED_REPORT_BODY_JA =
-  '保存版は、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールで組み立てられ、\n同じ入力なら同じ保存版に戻れます。\n\n保存版の4章は、\nライトとFULLで共通です。';
+  '保存版は、M55独自の10資質フレーム、生年月日の暦リズム、質問回答を重ねて、\n比較的変わりにくい土台と現在の表れ方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールを土台にし、\n提供設定に応じて章の文章表現に生成AIを使う場合があります。\n\n保存版の4章は、\nライトとFULLで共通です。';
 
 const OWNED_STATE_STRINGS = [
   '保存版の閲覧・準備状況はこちらから進められます。',
@@ -163,7 +163,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'FULLとライトを比べる');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
     assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
-    assert.match(lpPageSource, /本質を見つめ直す \| M55/);
+    assert.match(lpPageSource, /4章の個人保存版 \| M55/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '保存版FULLを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '保存版ライトを選ぶ');
@@ -205,13 +205,14 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
   });
 
-  it('states calendar rhythm and deterministic saved-report product truth', () => {
+  it('states calendar rhythm, answers, and bounded AI product truth', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assert.match(blob, /10資質レーン/);
+    assert.match(blob, /M55独自の10資質フレーム/);
     assert.match(blob, /暦リズム/);
+    assert.match(blob, /質問回答/);
     assert.match(blob, /固定ルール/);
-    assert.match(blob, /生成AIでその都度書き換えるものではなく/);
-    assert.match(blob, /追加読み解きのみ/);
+    assert.match(blob, /章の文章表現に生成AIを使う場合があります/);
+    assert.match(blob, /追加読み解き.*生成AI/);
     for (const term of [
       '完全オリジナル',
       '数千通り',

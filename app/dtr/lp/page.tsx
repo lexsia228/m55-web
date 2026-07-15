@@ -16,7 +16,18 @@ import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta
 import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import styles from "./lp.module.css";
 
-export const metadata = { title: "本質を見つめ直す | M55" };
+export const metadata = {
+  title: "4章の個人保存版 | M55",
+  description:
+    "生年月日の暦リズムと無料・購入前の質問回答を重ね、仕事、近い関係、生活と疲れの場面を4章で読み返す買い切りの保存版です。",
+  alternates: { canonical: "/dtr/lp" },
+  openGraph: {
+    title: "M55 個人保存版",
+    description:
+      "保存版ライトと保存版FULLの内容、価格、追加読み解き件数、提供条件を確認できます。",
+    url: "/dtr/lp",
+  },
+};
 
 const OWNED = PAID_DTR_LP.operational.ownedState;
 const { full: FULL_TIER, light: LIGHT_TIER } = PAID_DTR_LP.tiers;

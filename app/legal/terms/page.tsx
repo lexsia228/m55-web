@@ -2,9 +2,12 @@ import {
   M55_LEGAL_SAFETY_BOUNDARIES,
   M55_USER_FACING_POSITIONING_COPY,
 } from "../../../lib/m55/analysisAuthorityReferenceModel";
+import { PAID_DTR_SAVED_REPORT_PRICING } from "../../../lib/m55/paidDtrProductCopy";
 
 export const metadata = {
   title: "利用規約 | M55",
+  description: "M55の読み解き、保存版、追加読み解きの提供条件、安全上の境界、返金・問い合わせについて定めています。",
+  alternates: { canonical: "/legal/terms" },
 };
 
 export default function TermsPage() {
@@ -67,9 +70,19 @@ export default function TermsPage() {
         <ul style={{ margin: 0, paddingLeft: 18 }}>
           <li>追加読み解きは、保存版を購入したユーザーのみ利用できます。</li>
           <li>追加読み解きは、保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。</li>
-          <li>保存版ライト（¥1,000）には追加読み解き1件が含まれます。まず保存版を読みたい方向けです。</li>
-          <li>保存版FULL（¥1,480）には追加読み解きが合計5件含まれます。追加読み解きで複数回深めたい方向けです。</li>
-          <li>ライト購入後にFULL化（¥600）した場合も、利用可能な追加読み解きは合計5件です（合計¥1,600）。</li>
+          <li>
+            {PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa}
+            （{PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}）には追加読み解き1件が含まれます。まず保存版を読みたい方向けです。
+          </li>
+          <li>
+            {PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa}
+            （{PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}）には追加読み解きが合計5件含まれます。追加読み解きで複数回深めたい方向けです。
+          </li>
+          <li>
+            ライト購入後にFULL化（
+            {PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}
+            ）した場合も、利用可能な追加読み解きは合計5件です。
+          </li>
           <li>生成された追加読み解きは、レポートの内容に関する整理を目的としており、医療・法律・投資等の専門的助言ではありません。</li>
           <li>危機的・不適切な内容が検知された場合、送信をブロックします。この場合、追加読み解きの件数は消費されません。</li>
           <li>追加読み解きは当該保存版に付随するサービスであり、一般公開された会話サービスではありません。</li>

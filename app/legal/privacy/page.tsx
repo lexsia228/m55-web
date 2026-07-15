@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  M55_PUBLIC_COMMERCIAL_TRUTH,
   M55_USER_FACING_POSITIONING_COPY,
 } from "../../../lib/m55/analysisAuthorityReferenceModel";
 import {
@@ -16,6 +17,8 @@ import {
 
 export const metadata = {
   title: "プライバシーポリシー | M55",
+  description: "M55が扱うアカウント情報、生年月日、質問回答、決済確認情報、保存版データの利用目的と管理方法を説明します。",
+  alternates: { canonical: "/legal/privacy" },
 };
 
 export default function PrivacyPage() {
@@ -47,7 +50,11 @@ export default function PrivacyPage() {
           <li>アカウント情報（認証サービス経由で提供される識別子・メールアドレス等）</li>
           <li>プロフィールとしてお預かりする表示名（ニックネーム）および生年月日（日本の暦文化上の参照と読み取り生成のため）</li>
           <li>連絡先（メールアドレス等）</li>
-          <li>決済の確認に必要な取引情報（決済の処理は外部の決済事業者を利用します）</li>
+          <li>
+            決済の確認に必要な取引情報（
+            {M55_PUBLIC_COMMERCIAL_TRUTH.commercial.dataHandlingJa}
+            ）
+          </li>
           <li>レポート生成や保存版に紐づく追加読み解きに関するユーザー入力（本人の回答による現在の感じ方・行動傾向の差分補正に必要な範囲）</li>
           <li>アクセスログ等の技術情報（不正対策・障害対応のため）</li>
         </ul>

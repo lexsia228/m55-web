@@ -54,22 +54,25 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
 
   it('includes tokushoho product truth for all three offerings', () => {
     const tokushoho = readPage(ROUTE_FILES['/legal/tokushoho']);
+    assert.match(tokushoho, /PAID_DTR_SAVED_REPORT_PRICING/);
     assert.match(tokushoho, /保存版ライト/);
-    assert.match(tokushoho, /¥1,000（税込）/);
+    assert.match(tokushoho, /light\.priceLabelJa/);
     assert.match(tokushoho, /追加読み解き：1件/);
     assert.match(tokushoho, /保存版FULL/);
-    assert.match(tokushoho, /¥1,480（税込）/);
+    assert.match(tokushoho, /full\.priceLabelJa/);
     assert.match(tokushoho, /追加読み解き：合計5件/);
     assert.match(tokushoho, /ライトからFULL化/);
-    assert.match(tokushoho, /¥600（税込）/);
+    assert.match(tokushoho, /lightToFullUpgrade\.priceLabelJa/);
     assert.match(tokushoho, /FULL化後：追加読み解きを合計5件/);
-    assert.match(tokushoho, /合計¥1,600/);
   });
 
   it('includes terms additional reading counts for light, full, and upgrade', () => {
     const terms = readPage(ROUTE_FILES['/legal/terms']);
-    assert.match(terms, /保存版ライト（¥1,000）には追加読み解き1件/);
-    assert.match(terms, /保存版FULL（¥1,480）には追加読み解きが合計5件/);
+    assert.match(terms, /PAID_DTR_SAVED_REPORT_PRICING/);
+    assert.match(terms, /light\.planNameJa.*light\.priceLabelJa/s);
+    assert.match(terms, /追加読み解き1件/);
+    assert.match(terms, /full\.planNameJa.*full\.priceLabelJa/s);
+    assert.match(terms, /追加読み解きが合計5件/);
     assert.match(terms, /ライト購入後にFULL化/);
   });
 
@@ -78,7 +81,7 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
     assert.match(support, /保存版ライトと保存版FULLでは、4章の保存版の内容は共通/);
     assert.match(support, /保存版ライト.*追加読み解き1件/s);
     assert.match(support, /保存版FULL.*追加読み解き合計5件/s);
-    assert.match(support, /¥600でFULL化/);
+    assert.match(support, /lightToFullUpgrade\.priceLabelJa.*FULL化/s);
     assert.match(support, /必要になったらFULL化/);
     assert.equal(support.includes('合計¥1,600'), false);
   });

@@ -18,6 +18,7 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import { MY_CONSULT_CTA_HREF } from '../../lib/m55/dtrProductLabels';
 import { M55ExperienceShell, M55StatusPill } from '../experience/M55ExperienceShell';
 import { M55ProductCover } from '../experience/M55ProductCover';
 import styles from './M55ReadingHome.module.css';
@@ -65,7 +66,7 @@ function IntentSurface({
       <div className={styles.intentCopy}>
         <div className={styles.intentHeading}>
           <div>
-            <p className={styles.eyebrow}>{personal ? 'PERSONAL' : 'COMPATIBILITY'}</p>
+            <p className={styles.eyebrow}>{personal ? '自分の読み解き' : '二人の読み解き'}</p>
             <h2>{personal ? '自分を読む' : '二人を読む'}</h2>
           </div>
           {model.showOwnership ? <M55StatusPill tone="owned">購入済み</M55StatusPill> : null}
@@ -142,6 +143,15 @@ export default function M55ReadingHome({
     );
   }, []);
 
+  useEffect(() => {
+    if (!additionalReadingAvailable) return;
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.additionalReadingEntryView,
+      'dtr_additional_reading',
+      'm55-reading-additional-entry',
+    );
+  }, [additionalReadingAvailable]);
+
   const models = useMemo(() => {
     const personal = buildM55ExperienceCardModel({
       kind: 'personal',
@@ -189,15 +199,29 @@ export default function M55ReadingHome({
     <M55ExperienceShell kind="reading" depth="neutral">
       <div className={styles.page}>
         <header className={styles.hero}>
-          <p className={styles.heroEyebrow}>M55 READING HOME</p>
-          <h1>M55の読み解き</h1>
-          <p>自分の輪郭と、二人の関係。無料で確かめるところから、保存して読み返すところまでを一つにまとめました。</p>
+          <div className={styles.heroCopy}>
+            <p className={styles.heroEyebrow}>読み解きホーム</p>
+            <h1>M55の読み解き</h1>
+            <p>
+              生年月日の暦リズムと今の回答から、自分の輪郭や二人の反応の違いを整理します。
+              無料で確かめるところから、保存して読み返すところまでを一つにまとめました。
+            </p>
+          </div>
+          <div className={styles.brandBridge} aria-hidden="true">
+            <svg viewBox="0 0 360 150" role="img">
+              <path d="M16 94C80 48 122 122 184 79C246 36 284 91 344 55" />
+              <path d="M16 112C76 75 125 139 187 99C249 59 293 108 344 78" />
+              <circle cx="128" cy="72" r="10" />
+              <circle cx="226" cy="80" r="10" />
+              <circle cx="178" cy="96" r="5" />
+            </svg>
+          </div>
         </header>
 
         {hasM55ContinueItem(models) ? (
           <section className={styles.continue} aria-labelledby="m55-continue-title">
             <div>
-              <p className={styles.eyebrow}>CONTINUE</p>
+              <p className={styles.eyebrow}>再開</p>
               <h2 id="m55-continue-title">続きから</h2>
             </div>
             <div className={styles.continueLinks}>
@@ -225,8 +249,8 @@ export default function M55ReadingHome({
         <div className={styles.intentStack}>
           <IntentSurface
             model={models[0]}
-            description="生年月日から、自分の強み、負荷がかかる場面、整え方の輪郭を読みます。"
-            freeValue="いまの自分を捉えるための基本の見取り図"
+            description="生年月日の暦リズムに、5つの質問と今の関心を重ねて、現在の強み、負荷がかかる場面、整え方の輪郭を読みます。"
+            freeValue="暦の土台と今の回答から、5つの視点と最初の小さな行動まで"
             paidValue={[
               '日常の具体的な場面',
               '負荷が強まる前の流れ',
@@ -258,8 +282,8 @@ export default function M55ReadingHome({
           />
           <IntentSurface
             model={models[1]}
-            description="二人それぞれの違いと、いま起きやすいすれ違いを、点数にせず場面として読みます。"
-            freeValue="二人の重なりと違い、いま続きやすい関係の流れ"
+            description="二人分の生年月日と、入力者から観察できる今の距離・会話についての6つの回答を重ね、反応の違いを点数にせず場面として読みます。"
+            freeValue="二人の重なりと違い、今続きやすい連鎖、最初に確かめる行動まで"
             paidValue={[
               'すれ違いが始まる場面',
               '距離が開く前に起きること',
@@ -289,13 +313,13 @@ export default function M55ReadingHome({
         {additionalReadingAvailable ? (
           <section className={styles.supplemental} aria-labelledby="m55-supplemental-title">
             <div>
-              <p className={styles.eyebrow}>ADDITIONAL READING</p>
+              <p className={styles.eyebrow}>追加読み解き</p>
               <h2 id="m55-supplemental-title">保存版から、いま気になることを読む</h2>
               <p>購入済みの保存版を土台に、選んだテーマをもう一段具体的に読み解けます。</p>
             </div>
             <Link
               className={styles.primary}
-              href="/reply"
+              href={MY_CONSULT_CTA_HREF}
               onClick={() =>
                 trackFunnelAction(
                   M55_FUNNEL_EVENTS.additionalReadingStartClick,

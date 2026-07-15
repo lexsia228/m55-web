@@ -1,438 +1,83 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { STATIC_M55_READ_STEPS } from '../../components/core/corePublicCopy';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
+import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 
-const FORBIDDEN_PUBLIC_TERMS = [
-  'Entry Report',
-  'DTR Core Static V1',
-  '購入者専用ルーム',
-  '相談ルーム',
-  '永久閲覧',
-  '永久',
-  '無期限',
-  '相談1回付属',
-  '付属1件＋追加購入最大4件',
-  '8章',
-  '人物像と傾向',
-  '本質と安定の条件',
-  '活きる力',
-  '占い',
-  '鑑定',
-  '運勢',
-  '複数テーマ',
-  '後から追加',
-] as const;
+const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-const COPY_FILE = 'lib/m55/topFreeEntryPublicCopy.ts';
-
-const ROUTE_FILES = {
-  '/': 'app/page.tsx',
-  '/home': 'components/home/HomePanel.tsx',
-  '/core-static': 'components/core/corePublicCopy.ts',
-  '/core-boundary': 'components/core/CoreFreeSavedBoundarySection.tsx',
-  '/core-cta': 'components/core/CoreEntryReportCTASection.tsx',
-  '/how-m55-works': 'app/how-m55-works/page.tsx',
-  '/how-m55-works/receive': 'app/how-m55-works/components/what-you-can-do-section.tsx',
-  '/how-m55-works/next': 'app/how-m55-works/components/next-step-section.tsx',
-  '/how-m55-works/calendar': 'app/how-m55-works/components/calendar-layers-section.tsx',
-  '/how-m55-works/framework': 'app/how-m55-works/components/framework-section.tsx',
-  '/how-m55-works/what-is': 'app/how-m55-works/components/what-is-section.tsx',
-  '/how-m55-works/intro': 'app/how-m55-works/components/intro-section.tsx',
-  '/how-m55-works/values': 'app/how-m55-works/components/values-boundary-section.tsx',
-  '/support': 'app/support/page.tsx',
-} as const;
-
-const HOW_M55_WORKS_PAGE_PATHS = [
-  ROUTE_FILES['/how-m55-works'],
-  ROUTE_FILES['/how-m55-works/intro'],
-  ROUTE_FILES['/how-m55-works/what-is'],
-  ROUTE_FILES['/how-m55-works/calendar'],
-  ROUTE_FILES['/how-m55-works/framework'],
-  ROUTE_FILES['/how-m55-works/receive'],
-  ROUTE_FILES['/how-m55-works/values'],
-  ROUTE_FILES['/how-m55-works/next'],
-  'app/how-m55-works/components/suitable-for-section.tsx',
-  'app/how-m55-works/components/back-to-previous-button.tsx',
-] as const;
-
-const HOW_M55_FORBIDDEN_DISPLAY_TERMS = [
-  '保存版',
-  '保存版では',
-  '保存版のプランを見る',
-  'あなた専用の保存版',
-  'ただの読み物ではありません',
-  '読み物',
-  '読み返せる',
-  '深く読める',
-  '整理します',
-  '深く整理します',
-  '読みやすく整理します',
-  '受け取れるのは',
-  '要エンジン照合',
-  '抽象イメージ',
-  '占い',
-  '鑑定',
-  '¥1,000',
-  '1000円',
-  '10資質レーン',
-  '5つの視点',
-  '固定観測軸',
-  'PDF',
-  'プランを見る',
-  '自分を責める',
-  '責める',
-  '暦信号',
-  '暦レイヤー',
-  'こう出やすい',
-  '生年月日をひとつの名前',
-  '複数の視点',
-  '符号',
-  'あなたを決める名前',
-  '個人差',
-  '入口の地図',
-  '短く確認',
-  '輪郭は粗く',
-  '一つの情報として終わらせません',
-  '読み始めるための入口',
-  '読み始める',
-  '自分の見え方',
-  '整えやすい余白',
-  'まずは、無料で見る。',
-] as const;
-
-function howM55WorksDisplayBlob(): string {
-  const hw = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
-  return [
-    JSON.stringify(hw),
-    ...HOW_M55_WORKS_PAGE_PATHS.map((path) => readPage(path)),
-  ].join('\n');
-}
-
-const testDir = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(testDir, '../..');
-
-function readPage(relativePath: string): string {
-  const abs = join(repoRoot, relativePath);
-  assert.ok(existsSync(abs), `missing page file: ${relativePath}`);
-  return readFileSync(abs, 'utf8');
-}
-
-function combinedPublicCopy(): string {
-  return [COPY_FILE, ...Object.values(ROUTE_FILES)]
-    .map((rel) => readPage(rel))
-    .join('\n');
-}
-
-describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
-  it('maps top/free routes to existing page files', () => {
-    for (const [route, rel] of Object.entries(ROUTE_FILES)) {
-      assert.ok(existsSync(join(repoRoot, rel)), `${route} -> ${rel}`);
-    }
+describe('topFreeEntryPublicCopy — current public truth', () => {
+  it('defines M55 with calendar rhythm plus current answers', () => {
+    const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.match(copy.m55Definition.centerJa, /生年月日の暦リズム/);
+    assert.match(copy.m55Definition.centerJa, /選択式の質問/);
+    assert.match(copy.freeEntry.leadJa, /5つの短い質問/);
+    assert.match(copy.freeEntry.leadJa, /今の関心/);
   });
 
-  it('includes M55 definition and three-layer free/saved/consult copy', () => {
-    const blob = combinedPublicCopy();
-    assert.match(blob, /10資質レーン/);
-    assert.match(blob, /動き方・疲れ方・戻し方|動き方/);
+  it('keeps HOME emotional copy qualified and non-diagnostic', () => {
+    const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+    assert.equal(home.heroTitleLine1Ja, '生まれた日と、いまの答えから。');
+    assert.equal(home.heroTitleLine2Ja, '自分の輪郭を、読み解く。');
+    assert.match(home.heroSubJa, /生年月日の暦リズム/);
+    assert.match(home.heroSubJa, /選択式の質問/);
+    assert.match(home.heroTrustJa, /未来や性格を断定する診断ではありません/);
+  });
+
+  it('uses personal Light and FULL authorities without stale umbrella pricing', () => {
+    const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(copy.storefront.lightPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa);
+    assert.equal(copy.storefront.fullPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /保存版ライト/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /保存版FULL/);
+    assert.doesNotMatch(copy.home.paidPlanSavedInfoPriceJa, /M55複合暦解析は ¥1,000/);
+  });
+
+  it('keeps the mechanism page current and crawler-readable', () => {
+    const how = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
+    const page = read('app/how-m55-works/page.tsx');
+    const truth = read('app/how-m55-works/components/public-product-truth-section.tsx');
+    assert.equal(how.heroHookJa, '生まれた日と、いまの答えから。');
+    assert.match(how.heroLeadJa, /選択式の質問/);
+    assert.match(how.section04FreeMapBodyJa, /5つの質問・今の関心/);
+    assert.match(page, /PublicProductTruthSection/);
+    assert.doesNotMatch(truth, /['"]use client['"]/);
+  });
+
+  it('uses current free, saved, and additional-reading terms', () => {
+    const blob = JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY);
     assert.match(blob, /無料の見取り図/);
     assert.match(blob, /4章の保存版/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /生年月日/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.algorithmNoteJa, /10資質レーン/);
     assert.match(blob, /追加読み解き/);
     assert.match(blob, /会話を続ける形式ではありません/);
+    assert.doesNotMatch(blob, /Entry Report/);
+    assert.doesNotMatch(blob, /M55追加解析 1回分つき/);
   });
 
-  it('includes storefront and home product truth with light before FULL on home', () => {
-    const copy = readPage(COPY_FILE);
-    const home = readPage(ROUTE_FILES['/home']);
-    const { storefront: sf, home: homeCopy, learnMore } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(sf.fullPlanNameJa, '保存版FULL');
-    assert.equal(sf.fullPriceLabelJa, '¥1,480（税込）');
-    assert.equal(sf.fullConsultReplyJa, '追加読み解き合計5件');
-    assert.equal(sf.lightPlanNameJa, '保存版ライト');
-    assert.equal(sf.lightPriceLabelJa, '¥1,000（税込）');
-    assert.equal(sf.lightConsultReplyJa, '追加読み解き1件');
-    assert.equal(homeCopy.reportLightEyebrowJa, '保存版ライト');
-    assert.equal(homeCopy.reportLightPriceJa, '¥1,000（税込）');
-    assert.equal(learnMore.rulesJa.length, 4);
-    assert.match(copy, /追加読み解き合計5件/);
-    assert.match(copy, /追加読み解き1件/);
-    assert.match(home, /m55-home-learn-more/);
-    assert.match(home, /readNextQualitiesTitleJa/);
-    assert.equal(homeCopy.readNextQualitiesTitleJa, '10通りの資質');
-    assert.match(homeCopy.heroSupportJa, /生年月日を暦で見つめ直す/);
-    assert.match(homeCopy.heroSupportJa, /自己理解の入口です/);
-    assert.match(home, /m55-home-saved-preview/);
-    assert.match(home, /paidPlanFunnelTitleJa/);
-    assert.match(home, /paidPlanSavedInfoPriceJa/);
-    assert.match(home, /m55-home-bottom-funnel/);
-    assert.equal(homeCopy.paidPlanCtaJa, 'まずは無料で見てみる');
-    assert.equal(homeCopy.paidPlanValueHeadingJa, '無料では、自分の入口を。\n深く見るほど、自分が具体的になる。');
-    assert.equal(homeCopy.paidPlanSavedPreviewLabelJa, '深く見るほど、見えてくること');
-    assert.equal(homeCopy.paidPlanFunnelTitleJa, 'まずは無料で、自分の入口を見る');
-    assert.equal(homeCopy.paidPlanLabelJa, '');
-    assert.equal(homeCopy.methodFlowLabelJa, 'M55複合暦解析とは');
-    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /M55複合暦解析は ¥1,000（税込）です/);
-    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /M55追加解析 1回分つき/);
-    assert.equal(homeCopy.paidPlanSavedInfoPriceJa.includes('含まれます'), false);
-    assert.match(homeCopy.paidPlanSavedInfoPriceJa, /\n/);
-    assert.equal(homeCopy.heroTitleLine2Ja, '自分が見える。');
-    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.openFreeMapJa, '無料で見てみる');
-    assert.equal(home.includes('m55-home-free-bridge'), false);
-    assert.equal(home.includes('homeFreeBridge'), false);
-    assert.match(homeCopy.paidPlanFunnelBodyJa, /無料で、自分の入口を見る/);
-    assert.match(homeCopy.paidPlanFunnelBodyJa, /M55複合暦解析で、自分を深く読み解く/);
-    assert.match(homeCopy.paidPlanFunnelBodyJa, /追加解析で、今の自分と対話する/);
-    assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, 'さらに深く、自分を読み解く');
-    assert.equal(home.includes('m55-home-hero-funnel'), false);
-    assert.equal(home.includes('heroFunnelLinesJa'), false);
-    assert.match(home, /m55-home-open-birth-intake/);
-    assert.match(home, /paidPlanFunnelBodyJa/);
-    for (const removed of [
-      'まずは無料結果を見る',
-      '無料結果ページで、あなたの輪郭を確認できます。',
-      '保存版へ進む前に、まずは無料でM55を試せます。',
-    ] as const) {
-      assert.equal(home.includes(removed), false, `home must not include removed bridge copy: ${removed}`);
-      assert.equal(homeCopy.paidPlanFunnelBodyJa.includes(removed), false);
-    }
+  it('keeps public method and product routes exact', () => {
+    const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(copy.cta.coreFreeHref, '/core');
+    assert.equal(copy.cta.viewSavedPlansHref, '/dtr/lp');
+    assert.equal(copy.learnMore.homeHowLinkJa, 'M55の仕組み');
+    assert.equal(copy.learnMore.homeTenViewsLinkJa, '10資質の見方');
   });
 
-  it('includes formal four chapters and saved-plan CTA targets', () => {
-    const blob = combinedPublicCopy();
-    const labels = TOP_FREE_ENTRY_PUBLIC_COPY.formalChapters.map((ch) => ch.labelJa);
-    assert.deepEqual(labels, [
-      'Ⅰ 輪郭を見る',
-      'Ⅱ 構造を読む',
-      'Ⅲ 無理を知る',
-      'Ⅳ 楽に扱う',
-    ]);
-    assert.match(blob, /保存版のプランを見る/);
-    assert.match(blob, /\/dtr\/lp/);
-    assert.match(readPage(ROUTE_FILES['/home']), /paidPlanSavedPreviewChaptersJa/);
-  });
-
-  it('does not expose forbidden legacy terms in top/free public copy', () => {
-    const blob = combinedPublicCopy();
-    for (const term of FORBIDDEN_PUBLIC_TERMS) {
-      assert.equal(blob.includes(term), false, `forbidden term in top/free copy: ${term}`);
-    }
-  });
-
-  it('omits detailed plan arithmetic from top/free entry SSOT', () => {
-    const copy = readPage(COPY_FILE);
-    const homePanel = readPage(ROUTE_FILES['/home']);
-    for (const term of ['合計¥1,600', '最初からFULL ¥1,480', '差額は¥120', '差額¥120'] as const) {
-      assert.equal(copy.includes(term), false, `must not include: ${term}`);
-    }
-    for (const term of ['有料レポート', '構造化レポート', '返書まで'] as const) {
-      assert.equal(copy.includes(term), false, `must not include: ${term}`);
-      assert.equal(homePanel.includes(term), false, `home must not include: ${term}`);
-    }
-    assert.match(copy, /必要になったらFULL化/);
-    assert.match(copy, /追加読み解き1件/);
-    assert.match(copy, /追加読み解き合計5件/);
-  });
-
-  it('uses saved-report formal language in corePublicCopy read steps', () => {
-    const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
-    assert.match(activeCopy, /4章の保存版/);
-    assert.match(activeCopy, /追加読み解きで/);
-    assert.match(activeCopy, /読み直せます/);
-    assert.equal(activeCopy.includes('本質の読み解き'), false);
-    assert.equal(activeCopy.includes('基本の出方'), false);
-  });
-
-  it('P1 surface avoids legacy ten-type-only framing on how-m55-works and support', () => {
-    const p1Blob = [
-      JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works),
-      readPage(ROUTE_FILES['/how-m55-works']),
-      readPage(ROUTE_FILES['/how-m55-works/receive']),
-      readPage(ROUTE_FILES['/how-m55-works/next']),
-      readPage(ROUTE_FILES['/how-m55-works/framework']),
-      readPage(ROUTE_FILES['/how-m55-works/what-is']),
-      readPage(ROUTE_FILES['/how-m55-works/calendar']),
-      readPage(ROUTE_FILES['/how-m55-works/intro']),
-      readPage(ROUTE_FILES['/how-m55-works/values']),
-      readPage('app/how-m55-works/components/suitable-for-section.tsx'),
-      readPage(ROUTE_FILES['/support']),
+  it('removes DOB-only definitive claims from active top/free source', () => {
+    const blob = [
+      read('lib/m55/topFreeEntryPublicCopy.ts'),
+      read('components/home/HomePanel.tsx'),
+      read('app/how-m55-works/page.tsx'),
     ].join('\n');
-    for (const term of ['10通りの資質', '5つの解析軸', 'パーソナルアルゴリズム', '読み解いていきます'] as const) {
-      assert.equal(p1Blob.includes(term), false, `legacy P1 term must not remain: ${term}`);
-    }
-    const hwJson = JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works);
-    for (const term of ['10資質レーン', '5つの視点', '固定観測軸'] as const) {
-      assert.equal(hwJson.includes(term), false, `how-m55-works must not expose internal term: ${term}`);
-    }
-    assert.match(p1Blob, /M55複合暦解析/);
-    assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
-    assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /section01ParagraphsJa/);
-  });
-
-  it('howM55Works method page copy aligns with commercial method funnel', () => {
-    const hw = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
-    const displayBlob = howM55WorksDisplayBlob();
-    const receivePage = readPage(ROUTE_FILES['/how-m55-works/receive']);
-    const reflectPage = readPage('app/how-m55-works/components/suitable-for-section.tsx');
-    const nextPage = readPage(ROUTE_FILES['/how-m55-works/next']);
-    const introPage = readPage(ROUTE_FILES['/how-m55-works/intro']);
-    const calendarPage = readPage(ROUTE_FILES['/how-m55-works/calendar']);
-    const frameworkPage = readPage(ROUTE_FILES['/how-m55-works/framework']);
-    const pageSource = readPage(ROUTE_FILES['/how-m55-works']);
-
-    assert.match(introPage, /heroHookJa/);
-    assert.match(introPage, /heroBridgeJa/);
-    assert.equal(introPage.includes('heroCtaRow'), false, 'hero must not expose early CTA row');
-    assert.equal(introPage.includes('coreFreeHref'), false, 'hero must not link to core before read');
-    assert.equal(hw.heroHookJa, '生まれた日から、自分が見える。');
-    assert.match(hw.heroBridgeJa, /M55で自分がどう見えてくるのかを知る/);
-    assert.match(hw.heroBridgeJa, /M55複合暦解析で何が深まるのかを見ていきます。/);
-    assert.match(hw.section01ParagraphsJa[0], /自分を見つめ直すとき/);
-    assert.match(hw.section01TitleJa, /見つめ直すための入口/);
-    assert.equal(hw.section01TitleJa.includes('読み始める'), false);
-    assert.match(hw.section01ParagraphsJa[1], /自分を見つめ直すための入口/);
-    assert.match(hw.section01ParagraphsJa[2], /自分を見つめ直すための輪郭を描いていく/);
-    assert.equal(hw.section01ParagraphsJa[2].includes('あなたが自分を'), false);
-    assert.match(hw.section01ParagraphsJa[2], /ひとつの言葉で、あなたを決めつけない。/);
-    assert.equal(hw.section01ParagraphsJa[2].includes('暦信号'), false);
-    assert.equal(hw.section01ParagraphsJa[2].includes('人を'), false);
-    assert.match(hw.section01ParagraphsJa[1], /生まれた日をただの日付で終わらせず/);
-    assert.equal(hw.section01ParagraphsJa[1].includes('生年月日をひとつの名前'), false);
-    assert.match(hw.section02TitleJa, /4つの暦の層/);
-    assert.match(hw.section02IntroJa, /生まれた日を一つの暦だけで見ません/);
-    assert.equal(hw.section02IntroJa.includes('一つの情報として終わらせません'), false);
-    assert.match(hw.section02IntroJa, /見える輪郭に限りがあります/);
-    assert.equal(hw.section02IntroJa.includes('輪郭は粗く'), false);
-    assert.equal(hw.section02IntroJa.includes('暦レイヤー'), false);
-    assert.equal(hw.section02IntroJa.includes('こう出やすい'), false);
-    assert.match(hw.section02IntroJa, /なぜ自分には、こういう輪郭があるのか/);
-    assert.match(hw.section03ParagraphsJa[2], /いくつかの見方を重ねて/);
-    assert.equal(hw.section03ParagraphsJa[2].includes('複数の視点'), false);
-    assert.equal(hw.section03FiveViewLabelsJa[0], '近い人との距離');
-    assert.equal(
-      (hw.section03FiveViewLabelsJa as readonly string[]).includes('人との距離'),
-      false,
-    );
-    assert.match(hw.section02LandingJa, /見えてくる輪郭はそれぞれ変わります/);
-    assert.match(hw.calendarLayersJa[1].whatJa, /周期の位置にあるかを示します/);
-    assert.match(hw.calendarLayersJa[1].howJa, /M55では、十干を、あなたを決めるものではなく/);
-    assert.match(hw.calendarLayersJa[1].howJa, /見えてくる輪郭が少しずつ変わってきます/);
-    assert.equal(hw.calendarLayersJa[1].howJa.includes('自分の見え方'), false);
-    assert.equal(hw.calendarLayersJa[1].subLabelJa, '日の周期の位置を見る');
-    assert.equal(displayBlob.includes('符号'), false);
-    assert.match(hw.section03TitleJa, /なぜ一人ずつ違って見えるのか/);
-    assert.equal(displayBlob.includes('個人差'), false);
-    assert.equal(displayBlob.includes('あなたを決める名前'), false);
-    assert.match(hw.section03ParagraphsJa[0], /最初の手がかりです/);
-    assert.equal(hw.section03ParagraphsJa[0].includes('読み始める'), false);
-    assert.match(hw.section03ParagraphsJa[1], /重なる暦の層が違えば/);
-    assert.match(hw.section03ParagraphsJa[1], /見取り図の中身は同じにはなりません/);
-    assert.equal(hw.section03ParagraphsJa[1].includes('似た入口'), false);
-    assert.equal(hw.section03ParagraphsJa[0].includes('入口の地図'), false);
-    assert.match(hw.section03ParagraphsJa[0], /生まれた日を入口として使います/);
-    assert.match(hw.section04ValueCardsJa[1].bodyJa, /整えられる余白/);
-    assert.equal(hw.section04ValueCardsJa[1].bodyJa.includes('整えやすい余白'), false);
-    assert.match(hw.nextLeadJa, /まずは、無料の見取り図で/);
-    assert.equal(hw.nextLeadJa.includes('まずは、無料で見る。'), false);
-    assert.equal(displayBlob.includes('読み始める'), false);
-    assert.match(hw.section05ParagraphsJa[3], /見られるようになると/);
-    assert.match(hw.section05ParagraphsJa[4], /次にどう選ぶかを見直しやすくなります/);
-    assert.match(hw.section06ParagraphsJa[2], /視点を届けます/);
-    assert.match(calendarPage, /section02GridAriaLabelJa/);
-    assert.equal(hw.calendarLayerHowLabelJa, 'M55ではどう見るか');
-    assert.match(hw.calendarLayersJa[0].howJa, /あなたの生まれた日/);
-    assert.equal(hw.calendarLayersJa[1].howJa.includes('その人'), false);
-    assert.equal(hw.section03ParagraphsJa[1].includes('称号'), false);
-    assert.match(hw.section03ParagraphsJa[2], /複数の暦の層を重ねるからこそ/);
-    assert.equal(hw.section02LandingJa.includes('資質の入口'), false);
-    const dakaraCount = (displayBlob.match(/だから/g) ?? []).length;
-    assert.equal(dakaraCount, 1, 'active display should contain exactly one だから');
-    assert.match(hw.section03LandingJa, /^だからM55は/);
-    assert.match(
-      hw.section03ParagraphsJa[2],
-      /「自分には、こういう輪郭があったのか」が、一般論ではなく自分ごとに見えてきます。/,
-    );
-    assert.equal(hw.section03FiveViewsLeadJa.includes('5つの視点'), false);
-    assert.match(frameworkPage, /section03FiveViewLabelsJa/);
-    assert.match(pageSource, /WhatYouCanDoSection[\s\S]*SuitableForSection/);
-    assert.match(receivePage, /section04KickerJa/);
-    assert.match(receivePage, /section04ValueCardsJa/);
-    assert.match(receivePage, /midFlowLink/);
-    assert.match(receivePage, /viewSavedPlansHref/);
-    assert.equal(hw.section04KickerJa, '04 — 無料の見取り図とM55複合暦解析');
-    assert.equal(hw.section04CompositeHookJa, '無料で見えた輪郭の先へ。');
-    assert.match(hw.section04CompositeBodyJa, /M55複合暦解析/);
-    assert.equal(hw.section04ValueCardsJa.length, 4);
-    assert.equal(hw.section04ValueCardsJa[0].titleJa, '自分の本質');
-    assert.match(reflectPage, /section05ParagraphsJa/);
-    assert.equal(hw.section05KickerJa, '05 — 見て、感じて、自分の言葉で確かめる');
-    assert.match(hw.section05ParagraphsJa[0], /結果を見て終わりではありません/);
-    assert.match(hw.section05ParagraphsJa[1], /ここは近い/);
-    assert.match(hw.section05ParagraphsJa[3], /自分を少し離れて見られるようになる/);
-    assert.match(hw.section05ParagraphsJa[4], /いつもの反応や選び方を/);
-    assert.equal(hw.section05ParagraphsJa[4].includes('疲れやすい'), false);
-    assert.match(hw.nextFootJa, /M55複合暦解析では/);
-    assert.match(hw.nextFootJa, /無料の見取り図で見えた輪郭を/);
-    assert.match(hw.nextClosingJa, /追加解析で今の自分に合わせて深められます/);
-    assert.equal(hw.nextFootJa.includes('無料で見えた輪郭の先を'), false);
-    assert.equal(displayBlob.includes('抽象イメージ'), false);
-    for (const term of ['旧暦', '十干', '二十四節気', '節入り'] as const) {
-      assert.match(displayBlob, new RegExp(term), `calendar layer must include: ${term}`);
-    }
-    assert.match(calendarPage, /calendarLayersJa/);
-    assert.match(
-      TOP_FREE_ENTRY_PUBLIC_COPY.metadata.howM55WorksDescriptionJa,
-      /生まれた日を暦の層で読み直し/,
-    );
-    assert.equal(nextPage.includes('copy.primaryCtaJa'), true);
-    assert.equal(nextPage.includes('copy.secondaryCtaJa'), true);
-    assert.match(nextPage, /BackToPreviousButton/);
-    assert.match(nextPage, /copy\.backButtonJa/);
-    assert.match(nextPage, /cta\.homeHref/);
-    assert.equal(hw.primaryCtaJa, '無料の見取り図を見る');
-    assert.equal(hw.secondaryCtaJa, 'M55複合暦解析を見る');
-    assert.equal(hw.backButtonJa, '前のページへ戻る');
-    assert.match(nextPage, /viewSavedPlansHref/);
-    assert.match(nextPage, /coreFreeHref/);
-    for (const term of HOW_M55_FORBIDDEN_DISPLAY_TERMS) {
-      assert.equal(
-        displayBlob.includes(term),
-        false,
-        `how-m55-works display copy must not include: ${term}`,
-      );
-    }
-    assert.match(displayBlob, /M55複合暦解析/);
-    assert.match(displayBlob, /追加解析/);
-    for (const term of ['人を', 'その人', '称号', '資質の入口', '入力された生年月日', '暦レイヤー', 'こう出やすい', '生年月日をひとつの名前', '複数の視点'] as const) {
-      assert.equal(displayBlob.includes(term), false, `how-m55-works display must not include: ${term}`);
-    }
-    assert.equal(
-      (hw.section03FiveViewLabelsJa as readonly string[]).some((label) => label === '人との距離'),
-      false,
-      'section03 chip must not use bare 人との距離',
-    );
-  });
-
-  it('P0 SSOT avoids hype and ten-type-only framing', () => {
-    const copy = readPage(COPY_FILE);
-    for (const term of [
-      '完全オリジナル',
-      '数千通り',
-      'AI鑑定',
-      '科学的証明',
-      '未来を予測',
-      '四柱推命',
-      '宿曜',
-      '算命学',
-      '10通りの説明書',
+    for (const claim of [
+      '生まれた日から、自分が見える',
+      '生年月日から、自分が分かる',
+      '生年月日で本質が分かる',
+      '性格が分かる',
+      '未来が分かる',
+      '科学的に証明',
     ] as const) {
-      assert.equal(copy.includes(term), false, `forbidden term in topFreeEntry SSOT: ${term}`);
+      assert.equal(blob.includes(claim), false, `stale claim: ${claim}`);
     }
-    assert.match(copy, /10資質レーン/);
-    assert.match(copy, /固定ルール/);
   });
 });

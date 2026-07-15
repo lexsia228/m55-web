@@ -2,6 +2,8 @@
 
 export const metadata = {
   title: "返金・キャンセル | M55",
+  description: "M55のデジタル保存版に関する提供形態、返金・キャンセル条件、例外対応、問い合わせ手続きを掲載しています。",
+  alternates: { canonical: "/legal/refund" },
 };
 
 export default function RefundPage() {

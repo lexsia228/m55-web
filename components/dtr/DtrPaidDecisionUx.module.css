@@ -336,6 +336,19 @@
   color: rgba(55, 48, 82, 0.68);
 }
 
+.legalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+}
+
+.legalLinks a {
+  color: rgba(55, 48, 82, 0.82);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-underline-offset: 3px;
+}
+
 @media (min-width: 896px) {
   .shell {
     max-width: 40rem;

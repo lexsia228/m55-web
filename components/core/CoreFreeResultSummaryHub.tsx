@@ -24,6 +24,9 @@ export default function CoreFreeResultSummaryHub({
       <h2 id="core-free-result-summary" className={styles.sectionTitle}>
         いまの輪郭を、ひと目で
       </h2>
+      <p className={styles.freeFiveViewNote}>
+        登録中の生年月日から得た暦の土台と、5つの回答・今の関心を重ねた見取り図です。
+      </p>
 
       <div className={styles.freeResultSummaryGrid}>
         <article className={styles.freeResultSummaryCard}>

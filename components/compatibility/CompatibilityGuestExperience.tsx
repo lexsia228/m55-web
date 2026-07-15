@@ -20,6 +20,7 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import { COMPATIBILITY_REPORT_PRODUCT_AUTHORITY } from '../../lib/m55/compatibility/compatibilityCommerceAuthority';
 import styles from './CompatibilityGuestExperience.module.css';
 
 const EMPTY_INPUT: CompatibilityGuestInput = { personA: '', personB: '' };
@@ -446,8 +447,11 @@ export default function CompatibilityGuestExperience({
             {commerceEnabled ? (
               <div className={styles.commerceOffer}>
                 <div>
-                  <strong>二人の相性レポート</strong>
-                  <span>6章レポート1件・¥1,480（税込）</span>
+                  <strong>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</strong>
+                  <span>
+                    6章レポート{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件・
+                    {COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}
+                  </span>
                   <small>買い切りで、自動更新はありません。購入後はマイページから読み返せます。</small>
                 </div>
                 <a
@@ -461,7 +465,14 @@ export default function CompatibilityGuestExperience({
                   商品内容と価格を確認する
                 </a>
               </div>
-            ) : null}
+            ) : (
+              <div className={styles.commerceOffer}>
+                <div>
+                  <strong>二人の保存版は準備中です</strong>
+                  <span>無料の見取り図は、このまま最後まで確認できます。</span>
+                </div>
+              </div>
+            )}
             <div className={styles.bridgeActions}>
               <a
                 className={styles.primaryLink}

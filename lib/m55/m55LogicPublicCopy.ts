@@ -2,6 +2,7 @@
  * M55 engine definition — shared SSOT for HOME (full) and /core free (compact).
  * Calendar-rhythm framing; no fortune-telling / AI-diagnosis language.
  */
+import { M55_PUBLIC_COMMERCIAL_TRUTH } from './analysisAuthorityReferenceModel';
 
 /** 5-axis labels aligned with free /core public surface. */
 export const M55_LOGIC_FIVE_AXES_JA =
@@ -10,20 +11,20 @@ export const M55_LOGIC_FIVE_AXES_JA =
 export const M55_LOGIC_HOME_COPY = {
   titleJa: 'M55とは',
   bodyParagraphsJa: [
-    'M55は、生年月日を10資質レーンへ分けるだけではありません。旧暦月・季節位置・日帯などの暦信号を重ねて、自分の動き方・疲れ方・戻し方まで見える保存版に整えます。',
-    `無料では、生年月日を入口に、10資質レーンと${M55_LOGIC_FIVE_AXES_JA}の5つの視点で、いま出やすい輪郭を短く確認できます。`,
-    '保存版では、同じ根拠を4章で深く読み返せます。本文は固定ルールで組み立てられ、同じ生年月日なら同じ読み方に戻れます。',
-    '追加読み解きは別のレイヤーです。保存版に沿って、いまの1テーマだけ整理する追加読み解きです。会話を続ける形式ではありません。',
-    '吉凶で決めつけたり、未来を当てるものではありません。自分を見つめ直すための、読み返せる見取り図です。',
+    M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
+    `無料では、生年月日の暦リズムと5つの質問・今の関心を重ね、${M55_LOGIC_FIVE_AXES_JA}の5つの視点で現在の輪郭を確認できます。`,
+    M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalSavedJa,
+    M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalAdditionalJa,
+    '未来予測や吉凶の断定、医学的・心理学的な診断ではありません。自分を見つめ直すための、読み返せる見取り図です。',
   ] as const,
 } as const;
 
 export const M55_LOGIC_CORE_COPY = {
   titleJa: 'M55はこう見ています',
   bodyParagraphsJa: [
-    'ここでは、生年月日を入口に、10資質レーンと5つの視点で今の輪郭を短く整理します。',
-    '同じ資質レーンでも、生まれた日によって見え方は少し変わります。',
-    '保存版では、同じ根拠を4章で深く読み返せます。追加読み解きは、保存版に沿って1テーマを整理します。',
+    'ここでは、生年月日の暦リズムを入口に、5つの選択式質問と今の関心を重ね、現在の輪郭を整理します。',
+    '同じ暦の土台でも、現在の回答が変われば表れ方の見取り図も変わります。',
+    '保存版では、同じ入力を土台に4章へ深めます。追加読み解きは、保存版に沿って1テーマを整理します。',
   ] as const,
 } as const;
 

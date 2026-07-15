@@ -76,11 +76,12 @@ describe('post-purchase retention hub model', () => {
 });
 
 describe('post-purchase retention hub wiring', () => {
-  it('preserves unpurchased state and formal plan route', () => {
+  it('preserves unpurchased state and routes product use through reading home', () => {
     const source = readRepo('components/my/MyPanel.tsx');
     assert.match(source, /ready_unpurchased/);
-    assert.match(source, /MY_SAVED_REPORT_CTA_PLAN_HREF/);
-    assert.match(source, /state === 'ready_unpurchased'/);
+    assert.match(source, /href="\/dtr"/);
+    assert.match(source, /購入済みの個人保存版はありません/);
+    assert.match(source, /savedReportState === 'ready_unpurchased'/);
   });
 
   it('uses read-only wallet authority and keeps commerce paths untouched', () => {
@@ -114,7 +115,8 @@ describe('post-purchase retention hub wiring', () => {
     assert.match(source, /purchasedHub\.primaryAction === 'additional_reading'/);
     assert.match(source, /MY_CONSULT_CTA_HREF/);
     assert.match(source, /MY_SAVED_REPORT_CTA_OPEN_HREF/);
-    assert.match(source, /entReady && !ownedReady/);
+    assert.match(source, /state === 'owned_ready'/);
+    assert.match(source, /M55_FUNNEL_EVENTS\.savedReportOpen/);
   });
 
   it('keeps chapters ahead of additional reading and provides the My Page return', () => {

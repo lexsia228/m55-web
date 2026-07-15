@@ -13,7 +13,18 @@ import M55ReadingHome from '../../components/dtr/M55ReadingHome';
 import type { M55ExperienceAuthority } from '../../lib/m55/m55ExperienceCardModel';
 import styles from './dtr.module.css';
 
-export const metadata = { title: 'M55の読み解き | M55' };
+export const metadata = {
+  title: 'M55の読み解き | 自分と二人の読み解きホーム',
+  description:
+    '生年月日の暦リズムと選択式の回答から、自分の輪郭や二人の反応の違いを無料で整理し、購入済みの保存版を再開できます。',
+  alternates: { canonical: '/dtr' },
+  openGraph: {
+    title: 'M55の読み解き',
+    description:
+      '自分と二人の読み解きを無料で始め、購入した保存版を読み返すためのホームです。',
+    url: '/dtr',
+  },
+};
 
 /**
  * /dtr — primary Reading Home.

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
 import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
 import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
+import { M55_PUBLIC_COMMERCIAL_TRUTH } from '../../lib/m55/analysisAuthorityReferenceModel';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelImpressionOnce,
@@ -84,7 +86,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
           </div>
           <div className={styles.confirmRow}>
             <span>価格</span>
-            <strong>{plan.priceLabelJa}</strong>
+            <strong>{plan.priceLabelJa}・日本円（JPY）</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>お支払い</span>
@@ -94,8 +96,25 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             <span>含まれる内容</span>
             <strong>{included}</strong>
           </div>
+          <div className={styles.confirmRow}>
+            <span>自動更新</span>
+            <strong>なし</strong>
+          </div>
+          <div className={styles.confirmRow}>
+            <span>提供</span>
+            <strong>決済確認後に本文を準備し、購入アカウントでウェブ閲覧</strong>
+          </div>
         </div>
-        <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
+        <p className={styles.confirmNote}>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.deliveryJa}</p>
+        <p className={styles.confirmNote}>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.dataHandlingJa}</p>
+        <p className={styles.confirmNote}>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.paymentProcessorJa}</p>
+        <nav className={styles.legalLinks} aria-label="購入条件と問い合わせ">
+          <Link href="/support">サポート</Link>
+          <Link href="/legal/refund">返金・キャンセル</Link>
+          <Link href="/legal/terms">利用規約</Link>
+          <Link href="/legal/privacy">プライバシー</Link>
+          <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
+        </nav>
         <div className={styles.actions}>
           <button
             type="button"
