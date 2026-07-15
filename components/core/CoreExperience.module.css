@@ -317,8 +317,8 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse 90% 55% at 50% 28%, rgba(232, 226, 248, 0.45), transparent 58%),
-    linear-gradient(180deg, #faf9f7 0%, #f3f1f8 48%, #f8f6fb 100%);
+    radial-gradient(ellipse 90% 55% at 50% 28%, rgba(207, 231, 223, 0.46), transparent 58%),
+    linear-gradient(180deg, #faf8f3 0%, #f1f3ed 48%, #f7f4ed 100%);
 }
 
 .coreProfileGate {
@@ -328,8 +328,8 @@
   padding: clamp(20px, 4vw, 32px) clamp(16px, 4vw, 24px);
   text-align: center;
   box-sizing: border-box;
-  background: linear-gradient(168deg, rgba(255, 255, 255, 0.97), rgba(248, 246, 252, 0.99));
-  border: 1px solid rgba(177, 156, 255, 0.2);
+  background: linear-gradient(168deg, rgba(255, 253, 249, 0.98), rgba(244, 248, 243, 0.99));
+  border: 1px solid rgba(47, 118, 111, 0.18);
   border-radius: 18px;
   box-shadow: 0 14px 44px rgba(29, 24, 61, 0.07);
 }
@@ -374,20 +374,20 @@
   padding: 12px 28px;
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
-  background: #8b7aa8;
+  color: #fffdf9;
+  background: #2f766f;
   border: none;
   border-radius: 9999px;
   cursor: pointer;
   font-family: inherit;
   text-decoration: none;
   box-sizing: border-box;
-  box-shadow: 0 2px 12px rgba(139, 122, 168, 0.2);
+  box-shadow: 0 2px 12px rgba(47, 118, 111, 0.18);
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .coreProfileGatePrimary:hover {
-  background: #7a6a97;
+  background: #286760;
   transform: translateY(-1px);
 }
 
@@ -396,7 +396,7 @@
 }
 
 .coreProfileGatePrimary:focus-visible {
-  outline: 2px solid rgba(107, 95, 168, 0.55);
+  outline: 2px solid rgba(47, 118, 111, 0.72);
   outline-offset: 2px;
 }
 

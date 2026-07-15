@@ -1,8 +1,10 @@
 .page {
-  --ink: #292535;
-  --muted: #6d6876;
-  --line: rgba(55, 45, 70, 0.14);
-  --plum: #4b3b60;
+  --ink: #22343a;
+  --muted: #667377;
+  --line: rgba(34, 52, 58, 0.14);
+  --plum: #4e587c;
+  --coral: #aa6558;
+  --focus: #465474;
   width: min(100%, 1040px);
   margin: 0 auto;
   padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 40px) 88px;
@@ -22,7 +24,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  color: #786a83;
+  color: var(--coral);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -55,8 +57,8 @@
   padding: clamp(18px, 4vw, 30px);
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 16px 38px rgba(43, 34, 57, 0.06);
+  background: rgba(255, 253, 249, 0.88);
+  box-shadow: 0 14px 34px rgba(40, 50, 50, 0.055);
 }
 
 .inputGrid,
@@ -86,7 +88,7 @@
   width: fit-content;
   margin-bottom: 12px;
   padding: 4px 9px;
-  border: 1px solid rgba(75, 59, 96, 0.2);
+  border: 1px solid rgba(78, 88, 124, 0.22);
   border-radius: 999px;
   color: var(--plum);
   font-size: 11px;
@@ -115,7 +117,7 @@
 .submit:focus-visible,
 .primaryLink:focus-visible,
 .secondaryLink:focus-visible {
-  outline: 2px solid #725d89;
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -138,8 +140,8 @@
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #faf8f7;
-  color: #4f4a57;
+  background: #f7f2eb;
+  color: var(--ink);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -156,8 +158,8 @@
   margin-top: 18px;
   border: 0;
   border-radius: 11px;
-  background: #352a46;
-  color: #fff;
+  background: var(--plum);
+  color: #fffdf9;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -174,8 +176,8 @@
   padding: clamp(20px, 4vw, 34px);
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 16px 38px rgba(43, 34, 57, 0.06);
+  background: rgba(255, 253, 249, 0.9);
+  box-shadow: 0 14px 34px rgba(40, 50, 50, 0.055);
 }
 
 .questionPurpose {
@@ -216,14 +218,14 @@
   overflow: hidden;
   height: 5px;
   border-radius: 999px;
-  background: rgba(75, 59, 96, 0.11);
+  background: rgba(78, 88, 124, 0.12);
 }
 
 .progressTrack > span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #725d89;
+  background: linear-gradient(90deg, var(--coral), var(--plum));
 }
 
 .questionTitle {
@@ -261,8 +263,8 @@
 }
 
 .choiceSelected {
-  border-color: rgba(75, 59, 96, 0.48);
-  background: #f2edf3;
+  border-color: rgba(78, 88, 124, 0.48);
+  background: #eee9ea;
 }
 
 .choiceSelected small {
@@ -297,8 +299,8 @@
 
 .nextButton {
   border: 0;
-  background: #352a46;
-  color: #fff;
+  background: var(--plum);
+  color: #fffdf9;
 }
 
 .nextButton:disabled {
@@ -311,7 +313,7 @@
 .backButton:focus-visible,
 .nextButton:focus-visible,
 .resetJourney:focus-visible {
-  outline: 2px solid #725d89;
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -342,15 +344,15 @@
   padding: clamp(22px, 4vw, 34px);
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 253, 249, 0.86);
 }
 
 .expressionCard {
   margin-top: 14px;
   padding: clamp(22px, 4vw, 34px);
-  border: 1px solid rgba(75, 59, 96, 0.2);
+  border: 1px solid rgba(78, 88, 124, 0.2);
   border-radius: 18px;
-  background: #f4f0f5;
+  background: #eee9ea;
 }
 
 .loopCard {
@@ -358,8 +360,8 @@
   padding: clamp(22px, 4vw, 34px);
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
-  border-left: 2px solid rgba(75, 59, 96, 0.34);
+  background: rgba(255, 253, 249, 0.86);
+  border-left: 2px solid var(--coral);
 }
 
 .baselineSection > h3 {
@@ -375,14 +377,14 @@
 .freeDetail {
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 253, 249, 0.86);
 }
 
 .insightCard {
   padding: clamp(18px, 3vw, 24px);
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #faf8f7;
+  background: #f8f4ed;
 }
 
 .cardNumber {
@@ -427,8 +429,8 @@
 .perspectiveGrid p {
   margin: 0;
   padding: 17px;
-  border-left: 2px solid rgba(75, 59, 96, 0.24);
-  background: rgba(245, 242, 246, 0.72);
+  border-left: 2px solid var(--coral);
+  background: #f3eee8;
   line-height: 1.75;
 }
 
@@ -498,9 +500,9 @@
 .actionCard {
   margin-top: 34px;
   padding: clamp(24px, 5vw, 42px);
-  border: 1px solid rgba(75, 59, 96, 0.25);
+  border: 1px solid rgba(78, 88, 124, 0.24);
   border-radius: 18px;
-  background: #f0ebf2;
+  background: #ebe6e3;
 }
 
 .actionSituation {
@@ -704,8 +706,8 @@
   box-sizing: border-box;
   padding: 11px 18px;
   border-radius: 999px;
-  background: #665184;
-  color: #fff;
+  background: var(--plum);
+  color: #fffdf9;
   font-size: 13px;
   font-weight: 700;
   text-align: center;
@@ -735,8 +737,8 @@
 }
 
 .primaryLink {
-  background: #352a46;
-  color: #fff;
+  background: var(--plum);
+  color: #fffdf9;
 }
 
 .secondaryLink {

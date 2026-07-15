@@ -19,10 +19,23 @@ test('four primary surfaces use the shared experience shell', () => {
 
 test('procedural covers distinguish personal, compatibility, free, and paid', () => {
   const source = read('components/experience/M55ProductCover.tsx');
+  const css = read('components/experience/M55ExperienceSystem.module.css');
   assert.match(source, /kind: 'personal' \| 'compatibility'/);
   assert.match(source, /depth: 'free' \| 'paid'/);
   assert.match(source, /<svg/);
   assert.doesNotMatch(source, /<img|https?:\/\//);
+  assert.match(css, /--m55-accent:\s*#2f766f/);
+  assert.match(css, /--m55-accent-secondary:\s*#aa6558/);
+  assert.match(css, /\.cover-compatibility \.coverCore/);
+  assert.match(css, /\.cover-compatibility\.cover-paid/);
+});
+
+test('commercial visual authority keeps warm paper, ink text, and quiet account depth', () => {
+  const css = read('components/experience/M55ExperienceSystem.module.css');
+  assert.match(css, /--m55-canvas:\s*#f5f0e8/);
+  assert.match(css, /--m55-text-primary:\s*#22343a/);
+  assert.match(css, /\.account\s*\{[\s\S]*--m55-canvas:\s*#f1eee8/);
+  assert.match(css, /\.paid\s*\{[\s\S]*--m55-canvas:\s*#ebe5dc/);
 });
 
 test('decorative geometry has no private identifier vocabulary', () => {

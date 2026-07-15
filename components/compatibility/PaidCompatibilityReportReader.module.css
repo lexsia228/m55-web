@@ -1,8 +1,10 @@
 .reader {
-  --ink: #292535;
-  --muted: #6d6876;
-  --line: rgba(55, 45, 70, 0.14);
-  --plum: #4b3b60;
+  --ink: #22343a;
+  --muted: #667377;
+  --line: rgba(34, 52, 58, 0.14);
+  --plum: #4e587c;
+  --coral: #aa6558;
+  --focus: #465474;
   width: min(100%, 1040px);
   margin: 0 auto;
   padding: clamp(32px, 6vw, 72px) clamp(18px, 4vw, 40px) 96px;
@@ -17,7 +19,7 @@
 .eyebrow,
 .blockLabel {
   margin: 0;
-  color: #786a83;
+  color: var(--coral);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -46,7 +48,7 @@
   max-width: 620px;
   margin: 22px 0 0;
   padding-left: 16px;
-  border-left: 2px solid rgba(75, 59, 96, 0.24);
+  border-left: 2px solid var(--coral);
   color: var(--muted);
   font-size: 14px;
   line-height: 1.8;
@@ -73,7 +75,7 @@
 .safetyNote {
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 253, 249, 0.9);
 }
 
 .overview {
@@ -87,10 +89,11 @@
 }
 
 .summary {
-  max-width: 760px;
+  max-width: 40em;
   margin: 22px 0 0;
-  color: #4f4a57;
-  line-height: 1.95;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.72;
 }
 
 .foundationGrid {
@@ -105,7 +108,7 @@
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #faf8f7;
+  background: #f7f2eb;
 }
 
 .foundationGrid h3,
@@ -140,7 +143,7 @@
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #faf8f7;
+  background: #f7f2eb;
 }
 
 .contextProof h3 {
@@ -171,9 +174,9 @@
 .highlighted button {
   min-height: 48px;
   padding: 10px 15px;
-  border: 1px solid rgba(75, 59, 96, 0.2);
+  border: 1px solid rgba(78, 88, 124, 0.2);
   border-radius: 10px;
-  background: #f4f0f5;
+  background: #eee9ea;
   color: var(--plum);
   cursor: pointer;
   font: inherit;
@@ -241,7 +244,7 @@
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: #fffdf9;
   color: var(--ink);
   cursor: pointer;
   font: inherit;
@@ -333,7 +336,14 @@
 .experimentBlock > p:last-child,
 .reflectionBlock > p:last-child {
   margin: 10px 0 0;
-  line-height: 1.85;
+  line-height: 1.72;
+}
+
+.sceneBlock > p:last-child,
+.experimentBlock > p:last-child,
+.reflectionBlock > p:last-child {
+  max-width: 40em;
+  font-size: 16px;
 }
 
 .perspectiveGrid {
@@ -346,7 +356,7 @@
   padding: 20px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #faf8f7;
+  background: #f7f2eb;
 }
 
 .loopBlock,
@@ -359,8 +369,8 @@
 }
 
 .loopBlock {
-  border: 1px solid rgba(75, 59, 96, 0.18);
-  background: #f3eff4;
+  border: 1px solid rgba(78, 88, 124, 0.18);
+  background: #eee9ea;
 }
 
 .loopBlock ol {
@@ -430,8 +440,8 @@
 }
 
 .phraseBlock {
-  border: 1px solid rgba(75, 59, 96, 0.2);
-  background: #eee8f0;
+  border: 1px solid rgba(78, 88, 124, 0.2);
+  background: #eae5e5;
 }
 
 .phraseBlock blockquote {
@@ -447,8 +457,8 @@
   padding: 9px 16px;
   border: 0;
   border-radius: 9px;
-  background: #352a46;
-  color: #fff;
+  background: var(--plum);
+  color: #fffdf9;
   cursor: pointer;
   font: inherit;
   font-size: 13px;
@@ -500,7 +510,7 @@
 .chapterToggle:focus-visible,
 .phraseBlock button:focus-visible,
 .indexReturn:focus-visible {
-  outline: 2px solid #725d89;
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 

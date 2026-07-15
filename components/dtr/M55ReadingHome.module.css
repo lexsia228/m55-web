@@ -99,6 +99,18 @@
   box-shadow: var(--m55-shadow);
 }
 
+.intent[data-m55-intent="personal"] {
+  --m55-accent: #2f766f;
+  --m55-accent-secondary: #7a8f83;
+  --m55-accent-soft: rgba(47, 118, 111, 0.12);
+}
+
+.intent[data-m55-intent="compatibility"] {
+  --m55-accent: #4e587c;
+  --m55-accent-secondary: #aa6558;
+  --m55-accent-soft: rgba(78, 88, 124, 0.12);
+}
+
 .coverColumn {
   min-width: 0;
   align-self: start;
@@ -124,6 +136,7 @@
   max-width: 40rem;
   margin: 0.875rem 0 0;
   color: var(--m55-text-secondary);
+  font-size: 1rem;
   line-height: 1.85;
 }
 
@@ -184,7 +197,7 @@
 .primary {
   padding: 0.7rem 1.2rem;
   background: var(--m55-accent);
-  color: white;
+  color: #fffdf9;
 }
 
 .secondary {

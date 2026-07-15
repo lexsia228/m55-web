@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: clamp(16px, 4vw, 32px) clamp(16px, 4vw, 32px) 24px;
   box-sizing: border-box;
-  color: #2c233a;
+  color: var(--m55-text-primary);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -73,7 +73,7 @@
   padding: 14px 16px;
   border: 1px solid var(--m55-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--m55-surface-embedded);
   color: var(--m55-text-muted);
   font-size: 13px;
 }
@@ -108,7 +108,7 @@
 .lead {
   font-size: 14px;
   line-height: 1.7;
-  color: #6b667a;
+  color: var(--m55-text-secondary);
   margin: 0;
 }
 
@@ -131,20 +131,20 @@
   font-size: 14px;
   font-weight: 700;
   margin: 0;
-  color: #2c233a;
+  color: var(--m55-text-primary);
 }
 
 .sectionIntro {
   font-size: 14px;
   line-height: 1.7;
-  color: #6b667a;
+  color: var(--m55-text-secondary);
   margin: 0 0 12px;
 }
 
 .body {
   font-size: 14px;
   line-height: 1.7;
-  color: #3a3448;
+  color: var(--m55-text-primary);
   margin: 0 0 12px;
 }
 
@@ -161,29 +161,29 @@
   font-size: 17px;
   font-weight: 700;
   line-height: 1.45;
-  color: #2c233a;
+  color: var(--m55-text-primary);
 }
 
 .ownedValueBody {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #6b667a;
+  color: var(--m55-text-secondary);
 }
 
 .usageSummary {
   margin: 0 0 12px;
   padding: 14px;
   border-radius: 12px;
-  border: 1px solid rgba(107, 95, 168, 0.13);
-  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--m55-border);
+  background: var(--m55-surface-embedded);
 }
 
 .usageLabel {
   margin: 0 0 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #6b667a;
+  color: var(--m55-text-muted);
 }
 
 .usageCount {
@@ -191,7 +191,7 @@
   font-size: 16px;
   font-weight: 650;
   line-height: 1.5;
-  color: #2c233a;
+  color: var(--m55-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -200,14 +200,14 @@
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 1.6;
-  color: #6b667a;
+  color: var(--m55-text-muted);
 }
 
 .consultContext {
   margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.7;
-  color: #3a3448;
+  color: var(--m55-text-primary);
 }
 
 .actionStack {
@@ -223,9 +223,9 @@
   min-height: 44px;
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(107, 95, 168, 0.25);
-  color: #5a4d9e;
-  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid var(--m55-border);
+  color: var(--m55-accent);
+  background: var(--m55-surface);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -235,7 +235,7 @@
 .ownedContinuityNote {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(107, 95, 168, 0.13);
+  border-top: 1px solid var(--m55-border);
 }
 
 /* ── Owned report list (hub) ───────────────────────────────────── */
@@ -251,8 +251,8 @@
 .reportItem {
   border-radius: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(107, 95, 168, 0.13);
+  background: var(--m55-surface-embedded);
+  border: 1px solid var(--m55-border);
 }
 
 .reportItemTop {
@@ -265,7 +265,7 @@
 .reportTitle {
   font-size: 14px;
   font-weight: 600;
-  color: #2c233a;
+  color: var(--m55-text-primary);
   line-height: 1.35;
 }
 
@@ -280,8 +280,8 @@
 }
 
 .statusPurchased {
-  background: rgba(124, 111, 214, 0.14);
-  color: #5a4d9e;
+  background: rgba(53, 107, 90, 0.12);
+  color: var(--m55-owned);
 }
 
 .statusPending {
@@ -303,8 +303,8 @@
   border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
-  background: #7c6fd6;
-  color: #fff;
+  background: var(--m55-accent);
+  color: #fffdf9;
   text-decoration: none;
   box-sizing: border-box;
 }
@@ -314,12 +314,12 @@
 }
 
 .ctaPrimary:focus-visible {
-  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline: 2px solid var(--m55-focus);
   outline-offset: 2px;
 }
 
 .ctaSecondary:focus-visible {
-  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline: 2px solid var(--m55-focus);
   outline-offset: 2px;
 }
 
@@ -332,7 +332,7 @@
 }
 
 .hubLinks a {
-  color: #7c6fd6;
+  color: var(--m55-accent);
   text-decoration: none;
   min-height: 44px;
   display: inline-flex;
@@ -344,7 +344,7 @@
 }
 
 .hubLinks a:focus-visible {
-  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline: 2px solid var(--m55-focus);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -352,20 +352,20 @@
 .helpSubsection {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid rgba(107, 95, 168, 0.13);
+  border-top: 1px solid var(--m55-border);
 }
 
 .helpSubTitle {
   font-size: 14px;
   font-weight: 700;
   margin: 0 0 8px;
-  color: #2c233a;
+  color: var(--m55-text-primary);
 }
 
 .muted {
   font-size: 14px;
   line-height: 1.7;
-  color: #6b667a;
+  color: var(--m55-text-muted);
   margin: 0 0 8px;
 }
 
@@ -381,7 +381,7 @@
 .cancelBtn:focus-visible,
 .editBtn:focus-visible,
 .deleteReportBtn:focus-visible {
-  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline: 2px solid var(--m55-focus);
   outline-offset: 2px;
 }
 
@@ -400,27 +400,27 @@
 .inputLabel {
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: #8a8499;
+  color: var(--m55-text-muted);
 }
 
 .inputField {
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(107, 95, 168, 0.25);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--m55-border);
+  background: var(--m55-surface);
   font-size: 14px;
-  color: #2c233a;
+  color: var(--m55-text-primary);
   outline: none;
   box-sizing: border-box;
 }
 
 .inputField:focus {
-  border-color: #7c6fd6;
+  border-color: var(--m55-accent);
 }
 
 .inputField:focus-visible {
-  outline: 2px solid rgba(104, 84, 182, 0.9);
+  outline: 2px solid var(--m55-focus);
   outline-offset: 2px;
 }
 
@@ -436,8 +436,8 @@
   min-height: 44px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: #7c6fd6;
-  color: #fff;
+  background: var(--m55-accent);
+  color: #fffdf9;
   font-size: 14px;
   font-weight: 600;
   border: none;
@@ -454,16 +454,16 @@
   padding: 10px 16px;
   border-radius: 999px;
   background: transparent;
-  color: #6b667a;
+  color: var(--m55-text-secondary);
   font-size: 14px;
-  border: 1px solid rgba(107, 95, 168, 0.25);
+  border: 1px solid var(--m55-border);
   cursor: pointer;
 }
 
 .editBtn {
   font-size: 13px;
   font-weight: 500;
-  color: #7c6fd6;
+  color: var(--m55-accent);
   background: none;
   border: none;
   cursor: pointer;
@@ -497,20 +497,20 @@
   margin-top: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(124, 111, 214, 0.1);
-  border: 1px solid rgba(124, 111, 214, 0.22);
+  background: var(--m55-accent-soft);
+  border: 1px solid var(--m55-border);
 }
 
 .deleteToastPrimary {
   font-size: 13px;
   font-weight: 600;
-  color: #2c233a;
+  color: var(--m55-text-primary);
   margin: 0 0 4px;
 }
 
 .deleteToastSecondary {
   font-size: 12px;
-  color: #6b667a;
+  color: var(--m55-text-secondary);
   line-height: 1.5;
   margin: 0;
 }

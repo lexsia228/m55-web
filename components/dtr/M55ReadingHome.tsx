@@ -50,7 +50,7 @@ function IntentSurface({
 }) {
   const personal = model.kind === 'personal';
   return (
-    <article className={styles.intent}>
+    <article className={styles.intent} data-m55-intent={model.kind}>
       <div className={styles.coverColumn}>
         <M55ProductCover kind={model.kind} depth={model.showPaidDepth ? 'paid' : 'free'} />
       </div>
