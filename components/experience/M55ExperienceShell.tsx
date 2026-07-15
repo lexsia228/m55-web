@@ -26,26 +26,6 @@ export function M55ExperienceShell({
   );
 }
 
-export function M55SectionFrame({
-  title,
-  eyebrow,
-  children,
-  className,
-}: {
-  title: string;
-  eyebrow?: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={`${styles.sectionFrame}${className ? ` ${className}` : ''}`}>
-      {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
-      <h2 className={styles.sectionTitle}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-
 export function M55StatusPill({
   tone,
   children,
