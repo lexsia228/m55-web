@@ -10,6 +10,7 @@ import { getVisibleSavedReportSnapshot } from "../../../lib/m55/dtrSavedReportOw
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import { resolveDisplayedDtrEnvelope } from "../../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
+import { M55ExperienceShell } from "../../../components/experience/M55ExperienceShell";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import { readConsultWalletDisplaySnapshot } from "../../../lib/m55/reply/consultWalletDisplaySnapshot";
 import styles from "./core.module.css";
@@ -55,25 +56,27 @@ export default async function DtrCorePage() {
 
     return (
       <main className={styles.page}>
-        <DtrFullReader
-          ownershipType={ownership.ownershipType}
-          aiConsultIncluded={ownership.aiConsultIncluded}
-          expiresAt={ownership.expiresAt}
-          displayedEnvelopeReadMode={read.mode}
-          consultWalletSnapshot={consultWalletSnapshot}
-          purchasedSnapshot={{
-            envelope: read.envelope,
-            profile: read.profile,
-          }}
-        />
-        {tier.canUpgradeFromLight && tier.reportInstanceId && (
-          <div className={styles.upgradeAssist}>
-            <LightToFullUpgradeCta
-              reportInstanceId={tier.reportInstanceId}
-              variant="subtle"
-            />
-          </div>
-        )}
+        <M55ExperienceShell kind="personal" depth="paid">
+          <DtrFullReader
+            ownershipType={ownership.ownershipType}
+            aiConsultIncluded={ownership.aiConsultIncluded}
+            expiresAt={ownership.expiresAt}
+            displayedEnvelopeReadMode={read.mode}
+            consultWalletSnapshot={consultWalletSnapshot}
+            purchasedSnapshot={{
+              envelope: read.envelope,
+              profile: read.profile,
+            }}
+          />
+          {tier.canUpgradeFromLight && tier.reportInstanceId && (
+            <div className={styles.upgradeAssist}>
+              <LightToFullUpgradeCta
+                reportInstanceId={tier.reportInstanceId}
+                variant="subtle"
+              />
+            </div>
+          )}
+        </M55ExperienceShell>
       </main>
     );
   }

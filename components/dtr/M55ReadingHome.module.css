@@ -1,0 +1,299 @@
+.page {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2.5rem) clamp(4rem, 8vw, 6rem);
+  box-sizing: border-box;
+}
+
+.hero {
+  max-width: 46rem;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.heroEyebrow,
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--m55-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.hero h1,
+.continue h2,
+.intent h2 {
+  margin: 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 6vw, 3.35rem);
+}
+
+.hero > p:last-child {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  color: var(--m55-text-secondary);
+  font-size: clamp(0.92rem, 2vw, 1.05rem);
+  line-height: 1.9;
+}
+
+.continue {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 2fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--m55-border);
+  border-radius: var(--m55-radius-md);
+  background: var(--m55-surface);
+}
+
+.continue h2 {
+  font-size: 1.35rem;
+}
+
+.continueLinks {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.continueLinks a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--m55-radius-sm);
+  background: var(--m55-surface-embedded);
+  color: var(--m55-text-primary);
+  text-decoration: none;
+}
+
+.continueLinks span {
+  color: var(--m55-text-muted);
+  font-size: 0.78rem;
+}
+
+.continueLinks strong {
+  font-size: 0.88rem;
+}
+
+.intentStack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.intent {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.86fr) minmax(0, 1.35fr);
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--m55-border);
+  border-radius: var(--m55-radius-lg);
+  background: var(--m55-surface);
+  box-shadow: var(--m55-shadow);
+}
+
+.coverColumn {
+  min-width: 0;
+  align-self: start;
+}
+
+.intentCopy {
+  min-width: 0;
+  align-self: center;
+}
+
+.intentHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.intent h2 {
+  font-size: clamp(1.65rem, 6cqi, 2.35rem);
+}
+
+.description {
+  max-width: 40rem;
+  margin: 0.875rem 0 0;
+  color: var(--m55-text-secondary);
+  line-height: 1.85;
+}
+
+.depth {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.depth > div {
+  padding: 1rem;
+  border: 1px solid var(--m55-border);
+  border-radius: var(--m55-radius-sm);
+  background: var(--m55-surface-embedded);
+}
+
+.depth h3 {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.depth p,
+.depth ul {
+  margin: 0.6rem 0 0;
+  color: var(--m55-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.depth ul {
+  padding-left: 1.15rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform var(--m55-motion-press) var(--m55-ease),
+    background var(--m55-motion-surface) var(--m55-ease);
+}
+
+.primary {
+  padding: 0.7rem 1.2rem;
+  background: var(--m55-accent);
+  color: white;
+}
+
+.secondary {
+  padding: 0.7rem 1rem;
+  color: var(--m55-accent);
+}
+
+.primary:hover,
+.secondary:hover {
+  transform: translateY(-1px);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.continueLinks a:focus-visible,
+.assist a:focus-visible {
+  outline: 2px solid var(--m55-focus);
+  outline-offset: 3px;
+}
+
+.assist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+}
+
+.supplemental {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--m55-border);
+  border-radius: var(--m55-radius-md);
+  background: var(--m55-surface);
+}
+
+.supplemental h2 {
+  margin: 0;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
+  font-weight: 500;
+}
+
+.supplemental p:last-child {
+  margin: 0.5rem 0 0;
+  color: var(--m55-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.assist a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--m55-text-secondary);
+  font-size: 0.82rem;
+}
+
+@container (max-width: 44rem) {
+  .intent {
+    grid-template-columns: 1fr;
+  }
+
+  .coverColumn {
+    width: min(100%, 28rem);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .intent {
+    grid-template-columns: 1fr;
+  }
+
+  .coverColumn {
+    width: min(100%, 28rem);
+  }
+
+  .continue {
+    grid-template-columns: 1fr;
+  }
+
+  .depth {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .supplemental {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .secondary {
+    transition: none;
+    transform: none;
+  }
+}

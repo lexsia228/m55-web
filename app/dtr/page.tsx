@@ -1,12 +1,18 @@
 import { auth } from '@clerk/nextjs/server';
 import { resolveDtrShelfAccess } from '../../lib/m55/dtrShelfAccess';
+import { listOwnedCompatibilityReports } from '../../lib/m55/compatibility/compatibilityCommerceDb';
+import { isCompatibilityCommerceEnabled } from '../../lib/m55/compatibility/compatibilityCommerceAuthority';
 import { resolveSavedReportTierSummary } from '../../lib/m55/dtrSavedReportTier';
+import {
+  isConsultWalletDisplaySnapshotUsable,
+  readConsultWalletDisplaySnapshot,
+} from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import { PublicHeader } from '../../components/shell/PublicHeader';
 import { PublicFooter } from '../_components/PublicFooter';
-import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
+import M55ReadingHome from '../../components/dtr/M55ReadingHome';
 import styles from './dtr.module.css';
 
-export const metadata = { title: '保存版 | M55' };
+export const metadata = { title: 'M55の読み解き | M55' };
 
 /**
  * /dtr — product shelf.
@@ -19,29 +25,33 @@ export const metadata = { title: '保存版 | M55' };
 export default async function DtrPage() {
   const { userId } = await auth();
   const access = await resolveDtrShelfAccess(userId);
+  const compatibility = userId
+    ? await listOwnedCompatibilityReports(userId)
+    : { available: true, reports: [] };
   const tier = userId ? await resolveSavedReportTierSummary(userId) : null;
-
-  const ownershipState =
-    access.kind === 'anonymous' ? 'anonymous' : access.ownershipState;
-  const snapshotReady = access.kind === 'authenticated' ? access.snapshotReady : false;
-  const shelfCta = access.shelfCta;
-  const ownedShelfDisplay =
-    access.kind === 'authenticated' ? access.ownedShelfDisplay : null;
-  const lockedShelfDisplay =
-    access.kind === 'authenticated' ? access.lockedShelfDisplay : null;
+  const wallet =
+    userId && tier?.reportInstanceId
+      ? await readConsultWalletDisplaySnapshot(userId, tier.reportInstanceId)
+      : null;
+  const personalOwned =
+    access.kind === 'authenticated' && access.ownershipState === 'owned';
 
   return (
     <>
       <PublicHeader />
       <main className={styles.main}>
-        <DtrShelfPanel
-          ownershipState={ownershipState}
-          snapshotReady={snapshotReady}
-          shelfCta={shelfCta}
-          ownedShelfDisplay={ownedShelfDisplay}
-          lockedShelfDisplay={lockedShelfDisplay}
-          canUpgradeFromLight={tier?.canUpgradeFromLight ?? false}
-          upgradeReportInstanceId={tier?.reportInstanceId ?? null}
+        <M55ReadingHome
+          personalOwned={personalOwned}
+          personalReady={personalOwned && access.snapshotReady}
+          personalHref={access.shelfCta.href}
+          compatibilityReports={compatibility.reports}
+          compatibilityAuthorityAvailable={compatibility.available}
+          additionalReadingAvailable={
+            isConsultWalletDisplaySnapshotUsable(wallet) && wallet.availableCount > 0
+          }
+          compatibilityCommerce={
+            isCompatibilityCommerceEnabled() ? 'available' : 'paused'
+          }
         />
       </main>
       <PublicFooter />

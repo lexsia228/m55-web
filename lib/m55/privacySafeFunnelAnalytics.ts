@@ -9,6 +9,12 @@ import { track } from '@vercel/analytics';
 export const M55_FUNNEL_EVENT_VERSION = 'v1' as const;
 
 export const M55_FUNNEL_EVENTS = {
+  readingHomeView: 'm55_reading_home_view',
+  personalFreeStart: 'm55_personal_free_start',
+  compatibilityFreeStart: 'm55_compatibility_free_start',
+  paidDepthPreviewView: 'm55_paid_depth_preview_view',
+  purchaseDetailsOpen: 'm55_purchase_details_open',
+  ownedReportOpen: 'm55_owned_report_open',
   freeResultView: 'm55_free_result_view',
   paidBridgeView: 'm55_paid_bridge_view',
   paidBridgePrimaryClick: 'm55_paid_bridge_primary_click',
@@ -51,6 +57,9 @@ export const M55_FUNNEL_EVENTS = {
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
 
 export type M55FunnelSurface =
+  | 'reading_home'
+  | 'reading_personal'
+  | 'reading_compatibility'
   | 'core_free_result'
   | 'core_paid_bridge'
   | 'dtr_paid_questionnaire'

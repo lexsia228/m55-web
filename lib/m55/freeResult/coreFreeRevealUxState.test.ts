@@ -214,11 +214,12 @@ describe('free journey stepper presentation', () => {
     assert.doesNotMatch(src, /isolated/);
   });
 
-  it('public header uses compact labels on narrow viewports', () => {
+  it('public header keeps the same navigation language across viewports', () => {
     const src = read('components/shell/PublicHeader.tsx');
-    assert.match(src, /shortLabel/);
-    assert.match(src, /max-width: 480px/);
-    assert.match(src, /title=\{compactNav \? tab\.label : undefined\}/);
+    assert.match(src, /href: '\/core', label: '無料で見る'/);
+    assert.match(src, /href: '\/dtr', label: '読み解き'/);
+    assert.match(src, /href: '\/my', label: 'マイページ'/);
+    assert.doesNotMatch(src, /shortLabel|compactNav/);
     assert.match(src, /ログイン/);
   });
 });

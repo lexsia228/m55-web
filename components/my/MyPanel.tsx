@@ -24,7 +24,6 @@ import {
   MY_FIRST_TIME_GUIDE_BODY,
   MY_FIRST_TIME_GUIDE_TITLE,
   MY_HELP_SECTION_TITLE,
-  MY_PAGE_HERO_BODY,
   MY_PAGE_TITLE,
   MY_PROFILE_EDIT_CTA_LABEL,
   MY_PROFILE_SECTION_TITLE,
@@ -46,11 +45,8 @@ import {
   MY_SAVED_REPORT_SNAP_ERROR,
   MY_SAVED_REPORT_VALUE_BODY,
   MY_SAVED_REPORT_VALUE_TITLE,
-  MY_SERVICES_INTRO,
-  MY_SERVICES_SECTION_TITLE,
   MY_SIGNED_OUT_HUB_BODY,
 } from '../../lib/m55/dtrProductLabels';
-import DtrCatalogStrip from '../dtr/DtrCatalogStrip';
 import LightToFullUpgradeCta from '../dtr/LightToFullUpgradeCta';
 import SavedReportDeleteDialog from './SavedReportDeleteDialog';
 import {
@@ -76,6 +72,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './MyPanel.module.css';
+import { M55ExperienceShell } from '../experience/M55ExperienceShell';
 
 type EntitlementsResponse = {
   tier?: string;
@@ -247,75 +244,93 @@ export default function MyPanel() {
   }
 
   return (
-    <div className={styles.wrap}>
-      <header className={styles.hero}>
-        <h1 className={styles.h1}>{MY_PAGE_TITLE}</h1>
-        <p className={styles.lead}>{MY_PAGE_HERO_BODY}</p>
-      </header>
+    <M55ExperienceShell kind="account" depth="neutral">
+      <div className={styles.wrap}>
+        <header className={styles.hero}>
+          <p className={styles.accountOverline}>ACCOUNT CENTER</p>
+          <h1 className={styles.h1}>{MY_PAGE_TITLE}</h1>
+          <p className={styles.lead}>
+            登録情報、購入・利用情報、データ管理を確認できます。読み解きを使うときは「読み解き」へ進んでください。
+          </p>
+          <Link href="/dtr" className={styles.readingHomeLink}>M55の読み解きを開く</Link>
+        </header>
 
-      <SignedOut>
-        <section className={styles.card} aria-label="サインイン">
-          <p className={styles.body}>{MY_SIGNED_OUT_HUB_BODY}</p>
-          <div className={styles.links}>
-            <SignInButton mode="modal">
-              <button type="button" className={styles.ctaPrimary} style={{ cursor: 'pointer', border: 'none' }}>
-                サインイン
-              </button>
-            </SignInButton>
-          </div>
-        </section>
-      </SignedOut>
+        <SignedOut>
+          <section className={styles.card} aria-label="アカウント">
+            <h2 className={styles.sectionTitle}>アカウント</h2>
+            <p className={styles.body}>{MY_SIGNED_OUT_HUB_BODY}</p>
+            <div className={styles.links}>
+              <SignInButton mode="modal">
+                <button type="button" className={styles.ctaPrimary} style={{ cursor: 'pointer', border: 'none' }}>
+                  サインイン
+                </button>
+              </SignInButton>
+            </div>
+          </section>
+        </SignedOut>
 
-      <SignedIn>
-        <div className={styles.signedInStack}>
-          {profileState === 'no_profile' && entReady && (
-            <FirstTimeGuideSection />
-          )}
-
-          <CompatibilitySavedReportsLibrary />
-
-          <SavedReportSection
-            state={savedReportState}
-            ent={ent}
-            snap={snap}
-            onDeleteSuccess={handleDeleteSuccess}
-            deleteToastVisible={deleteToastVisible}
-          />
-
-          {entReady && !ownedReady && (
-            <section className={styles.card} aria-label={MY_SERVICES_SECTION_TITLE}>
-              <h2 className={styles.sectionTitle}>{MY_SERVICES_SECTION_TITLE}</h2>
-              <p className={styles.sectionIntro}>{MY_SERVICES_INTRO}</p>
-              <DtrCatalogStrip
-                variant="my"
-                externalData
-                ent={ent}
-                snap={snap}
-                snapError={snapError}
-              />
+        <SignedIn>
+          <div className={styles.signedInStack}>
+            <section className={styles.accountGroup} aria-labelledby="my-account-heading">
+              <div className={styles.groupHead}>
+                <p className={styles.accountOverline}>ACCOUNT</p>
+                <h2 id="my-account-heading">アカウント</h2>
+              </div>
+              {profileState === 'no_profile' && entReady ? <FirstTimeGuideSection /> : null}
+              {user && entReady && (profileState === 'ready' || hasEditableMyProfile(user.id)) ? (
+                <ProfileSection userId={user.id} />
+              ) : null}
             </section>
-          )}
 
-          {entReady && !ownedReady && (
-            <ConsultSection ownedReady={ownedReady} />
-          )}
+            <section className={styles.accountGroup} aria-labelledby="my-purchase-heading">
+              <div className={styles.groupHead}>
+                <p className={styles.accountOverline}>PURCHASE &amp; USE</p>
+                <h2 id="my-purchase-heading">購入・利用情報</h2>
+                <p>購入済みレポートと利用状況を確認できます。レポートを使う主な入口は「読み解き」です。</p>
+              </div>
+              <CompatibilitySavedReportsLibrary hideWhenEmpty />
+              {(savedReportState === 'owned_ready' || savedReportState === 'processing') ? (
+                <SavedReportSection
+                  state={savedReportState}
+                  ent={ent}
+                  snap={snap}
+                  onDeleteSuccess={handleDeleteSuccess}
+                  deleteToastVisible={deleteToastVisible}
+                />
+              ) : null}
+              {entReady && !ownedReady ? (
+                <p className={styles.quietEmpty}>購入済みの個人保存版はありません。</p>
+              ) : null}
+            </section>
 
-          {user && entReady && (profileState === 'ready' || hasEditableMyProfile(user.id)) && (
-            <ProfileSection userId={user.id} />
-          )}
-        </div>
-      </SignedIn>
+            <section className={styles.accountGroup} aria-labelledby="my-data-heading">
+              <div className={styles.groupHead}>
+                <p className={styles.accountOverline}>DATA</p>
+                <h2 id="my-data-heading">データ管理</h2>
+              </div>
+              <section className={styles.card} aria-label={ACCOUNT_DATA_MY_SECTION_TITLE}>
+                <AccountDataDeletionSubsection />
+              </section>
+            </section>
+          </div>
+        </SignedIn>
 
-      <section className={styles.card} aria-label={MY_HELP_SECTION_TITLE}>
-        <h2 className={styles.sectionTitle}>{MY_HELP_SECTION_TITLE}</h2>
-        <nav className={styles.hubLinks} aria-label="サポートと規約">
-          <Link href="/support">よくある質問・サポート</Link>
-          <Link href="/legal/refund">返金・キャンセル</Link>
-          <Link href="/legal/tokushoho">事業者情報・お問い合わせ先（特商法）</Link>
-        </nav>
-        <AccountDataDeletionSubsection />
-      </section>
-    </div>
+        <section className={styles.accountGroup} aria-labelledby="my-help-heading">
+          <div className={styles.groupHead}>
+            <p className={styles.accountOverline}>HELP</p>
+            <h2 id="my-help-heading">ヘルプ</h2>
+          </div>
+          <section className={styles.card} aria-label={MY_HELP_SECTION_TITLE}>
+            <nav className={styles.hubLinks} aria-label="サポートと規約">
+              <Link href="/support">よくある質問・サポート</Link>
+              <Link href="/legal/refund">返金・キャンセル</Link>
+              <Link href="/legal/privacy">プライバシー</Link>
+              <Link href="/legal/tokushoho">事業者情報・お問い合わせ先（特商法）</Link>
+            </nav>
+          </section>
+        </section>
+      </div>
+    </M55ExperienceShell>
   );
 }
 

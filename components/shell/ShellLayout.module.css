@@ -195,6 +195,36 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 430px) {
+  .headerStart {
+    gap: 1px;
+  }
+
+  .brandLockup {
+    padding-right: 3px;
+    margin-right: 0;
+  }
+
+  .brandWordmark {
+    display: none;
+  }
+
+  .topNav {
+    gap: 0;
+  }
+
+  .topNavItem {
+    min-height: 2.75rem;
+    padding-inline: 7px;
+    font-size: 11.5px;
+  }
+
+  .authButton {
+    padding-inline: 10px;
+    font-size: 11.5px;
+  }
+}
+
 /* ── Content area ────────────────────────────────────────────────────────────── */
 
 .main {

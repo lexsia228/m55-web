@@ -92,7 +92,11 @@ export function CompatibilitySavedReportsSection({
   );
 }
 
-export default function CompatibilitySavedReportsLibrary() {
+export default function CompatibilitySavedReportsLibrary({
+  hideWhenEmpty = false,
+}: {
+  hideWhenEmpty?: boolean;
+}) {
   const [reports, setReports] = useState<CompatibilityReportListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -131,6 +135,7 @@ export default function CompatibilitySavedReportsLibrary() {
   }, []);
 
   if (available !== true) return null;
+  if (hideWhenEmpty && !loading && !error && reports.length === 0) return null;
 
   return (
     <CompatibilitySavedReportsSection
