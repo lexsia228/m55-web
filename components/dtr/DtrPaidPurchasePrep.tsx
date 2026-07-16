@@ -93,16 +93,16 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             <strong>{oneTimePrice(plan.priceLabelJa)}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>お支払い</span>
-            <strong>{plan.oneTimeLabelJa}</strong>
+            <span>通貨</span>
+            <strong>日本円（JPY）</strong>
+          </div>
+          <div className={styles.confirmRow}>
+            <span>支払い</span>
+            <strong>買い切り・自動更新なし</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>含まれる内容</span>
             <strong>{included}</strong>
-          </div>
-          <div className={styles.confirmRow}>
-            <span>自動更新</span>
-            <strong>なし</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>提供</span>
@@ -143,6 +143,10 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
       <p className={styles.overline}>個人解析レポート</p>
       <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
       <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
+      <p className={styles.planNote}>
+        通貨：日本円（JPY）<br />
+        支払い：買い切り・自動更新なし
+      </p>
       <div className={styles.planStack}>
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}

@@ -85,7 +85,7 @@ function IntentSurface({
           </div>
           {model.showOwnership ? <M55StatusPill tone="owned">購入済み</M55StatusPill> : null}
           {!model.showOwnership && model.commerceState === 'paused' ? (
-            <M55StatusPill tone="paused">相性解析レポートは準備中</M55StatusPill>
+            <M55StatusPill tone="paused">2人の距離の読み解きは準備中</M55StatusPill>
           ) : null}
         </div>
         <p className={styles.description}>{description}</p>
@@ -324,9 +324,12 @@ export default function M55ReadingHome({
             description="二人の生年月日と6つの質問から、自然に合いやすいところ、互いを補いやすい違い、すれ違いが始まりやすい場面を解析します。"
             freeValue="合いやすいところ、魅力として感じやすい違い、会話や判断のテンポ"
             paidValue={[
+              'あなた側に出やすい反応',
+              '相手側に表れやすい傾向',
+              '二人が自然に合いやすいところ',
+              '互いを補いやすい違い',
               'すれ違いが始まりやすい場面',
-              '距離や気持ちがずれやすい場面',
-              '二人の特徴を6つの場面から詳しく読む',
+              '選んだテーマについての詳しい結果',
             ]}
             onPrimary={() =>
               trackFunnelAction(

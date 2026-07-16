@@ -195,6 +195,14 @@
   background: rgba(255, 253, 249, 0.72);
 }
 
+.purchaseFacts h2 {
+  margin: 0 0 0.75rem;
+  color: #35464b;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 .terms p {
   margin: 0 0 0.55rem;
   color: #4d5d60;

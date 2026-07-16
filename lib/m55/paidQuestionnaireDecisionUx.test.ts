@@ -78,7 +78,11 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.doesNotMatch(q, /約1〜2分/);
     assert.doesNotMatch(q, /無料の6問/);
     assert.doesNotMatch(q, /paid-v1/);
-    assert.doesNotMatch(q, FORBIDDEN_CLAIM);
+    assert.match(q, /未来予測、吉凶判定、相手の本心の断定、医療・心理診断、結果保証ではありません/);
+    assert.doesNotMatch(
+      q.replace('未来予測、吉凶判定、相手の本心の断定、医療・心理診断、結果保証ではありません', ''),
+      FORBIDDEN_CLAIM,
+    );
   });
 
   it('plan choice and checkout boundary stay factual', () => {

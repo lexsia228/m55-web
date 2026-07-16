@@ -14,16 +14,23 @@ describe('homePublicCopy — public product truth', () => {
   it('uses the approved commercial hero without a definitive claim', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     const blob = [
+      home.heroEyebrowJa,
       home.heroTitleLine1Ja,
       home.heroTitleLine2Ja,
       home.heroSubJa,
       home.heroTrustJa,
+      home.heroMetaJa,
+      home.heroFunnelCtaJa,
     ].join('\n');
+    assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
+    assert.equal(home.heroMetaJa, '生年月日＋6つの質問・ログイン不要');
+    assert.equal(home.heroFunnelCtaJa, '無料で見てみる');
     assert.match(blob, /あなたの「いつもこうなる」には/);
     assert.match(blob, /うまくいく時も、迷う時も/);
     assert.match(blob, /生年月日と今の回答/);
     assert.match(blob, /強み、判断の傾向、関係の特徴/);
     assert.match(blob, /「うまくいく条件」/);
+    assert.doesNotMatch(blob, /無料解析|無料分析/);
     assert.doesNotMatch(blob, /原因が分かる|本当の自分|必ず/);
   });
 
@@ -33,7 +40,7 @@ describe('homePublicCopy — public product truth', () => {
       homePanelSource.indexOf('data-testid="m55-home-hero"'),
       homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
     );
-    assert.equal(home.heroFunnelCtaJa, '無料解析を始める');
+    assert.equal(home.heroFunnelCtaJa, '無料で見てみる');
     assert.equal((heroSource.match(/posterHeroCta/g) ?? []).length, 1);
     assert.match(heroSource, /href="#m55-home-free-intents"/);
     assert.doesNotMatch(heroSource, /href="\/core"|href="\/synastry"/);
@@ -42,8 +49,10 @@ describe('homePublicCopy — public product truth', () => {
   it('makes personal and compatibility cards the free-entry authorities', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.readNextSectionTitleJa, 'どちらを解析しますか？');
-    assert.equal(home.personalFreeCardJa.ctaJa, '自分を無料で解析する');
-    assert.equal(home.compatibilityFreeCardJa.ctaJa, '二人の相性を無料で解析する');
+    assert.equal(home.personalFreeCardJa.labelJa, '自分の無料解析');
+    assert.equal(home.personalFreeCardJa.ctaJa, '自分を無料で見てみる');
+    assert.equal(home.compatibilityFreeCardJa.labelJa, '二人の無料相性解析');
+    assert.equal(home.compatibilityFreeCardJa.ctaJa, '二人の相性を無料で見てみる');
     assert.match(homePanelSource, /id="m55-home-free-intents"/);
     assert.match(homePanelSource, /href="\/core"/);
     assert.match(homePanelSource, /href="\/synastry"/);
@@ -90,7 +99,17 @@ describe('homePublicCopy — public product truth', () => {
     assert.match(homePanelSource, /href="\/dtr\/lp"/);
     assert.match(homePanelSource, /compatibilityPaidHeadlineJa/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.paidPlanSavedInfoBodyJa, /仕事や人との関わり/);
-    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.compatibilityPaidBodyJa, /会話や判断のテンポ/);
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.home.compatibilityPaidHeadingJa, '2人の距離の読み解き');
+    assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.home.compatibilityPaidAuxiliaryNameJa, '2人の関係整理レポート');
+    assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.compatibilityPaidBodyJa, /選んだテーマについて詳しく読める/);
+    assert.deepEqual(TOP_FREE_ENTRY_PUBLIC_COPY.home.compatibilityPaidOutcomesJa, [
+      'あなた側に出やすい反応',
+      '相手側に表れやすい傾向',
+      '二人が自然に合いやすいところ',
+      '互いを補いやすい違い',
+      'すれ違いが始まりやすい場面',
+      '選んだテーマについての詳しい結果',
+    ]);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.paidPlanOwnershipNoteJa, /マイページから後で読み返せます/);
     assert.doesNotMatch(homePanelSource, /m55-home-saved-preview/);
     assert.doesNotMatch(homePanelSource, /m55-home-bottom-funnel/);

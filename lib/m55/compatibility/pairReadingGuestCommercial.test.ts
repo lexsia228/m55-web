@@ -152,10 +152,12 @@ describe('compatibility paid bridge', () => {
 
   it('describes only implemented paid deliverables and uses no opaque relevance score', () => {
     const source = read('components/compatibility/CompatibilityGuestExperience.tsx');
-    assert.match(source, /場面から戻る手順/);
-    assert.match(source, /そのまま使える一言/);
-    assert.match(source, /今週一度だけ試すこと/);
-    assert.match(source, /あとで振り返る一問/);
+    assert.match(source, /あなた側に出やすい反応/);
+    assert.match(source, /相手側に表れやすい傾向/);
+    assert.match(source, /二人が自然に合いやすいところ/);
+    assert.match(source, /互いを補いやすい違い/);
+    assert.match(source, /すれ違いが始まりやすい場面/);
+    assert.match(source, /選んだテーマについての詳しい結果/);
     assert.doesNotMatch(source, /relevance|recommendation/);
     assert.doesNotMatch(source, /PurchaseButton|checkout|\/api\/purchase/);
   });

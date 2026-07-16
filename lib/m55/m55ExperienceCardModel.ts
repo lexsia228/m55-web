@@ -125,7 +125,7 @@ export function buildM55ExperienceCardModel(
     ...input,
     primaryAction: 'start_free',
     primaryHref: FREE_HREF[input.kind],
-    primaryLabel: input.kind === 'personal' ? '自分を無料で解析する' : '二人の相性を無料で解析する',
+    primaryLabel: input.kind === 'personal' ? '自分を無料で見てみる' : '二人の相性を無料で見てみる',
     showPaidDepth: false,
     showOwnership: false,
     canContinue: false,

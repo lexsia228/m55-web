@@ -4,9 +4,9 @@ import { isCompatibilityCommerceEnabled } from '../../lib/m55/compatibility/comp
 import { M55ExperienceShell } from '../../components/experience/M55ExperienceShell';
 
 export const metadata = {
-  title: '二人が合うところと違うところを無料解析 | M55',
+  title: '二人の無料相性解析 | M55',
   description:
-    '二人の生年月日と6つの質問から、自然に合いやすいところ、互いを補いやすい違い、すれ違いが始まりやすい場面を無料で解析します。',
+    '二人の生年月日と6つの質問から、自然に合いやすいところ、互いを補いやすい違い、すれ違いが始まりやすい場面を見る無料相性解析です。',
   alternates: { canonical: '/synastry' },
 };
 

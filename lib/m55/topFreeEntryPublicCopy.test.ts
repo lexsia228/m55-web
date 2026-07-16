@@ -19,12 +19,29 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
 
   it('keeps HOME emotional copy qualified and non-diagnostic', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+    assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
     assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
     assert.equal(home.heroTitleLine2Ja, '順番がある。');
     assert.match(home.heroSubJa, /うまくいく時も、迷う時も/);
     assert.match(home.heroSubJa, /自然に合う時も、すれ違う時も/);
     assert.match(home.heroSubJa, /生年月日と今の回答/);
-    assert.doesNotMatch(`${home.heroSubJa}\n${home.heroTrustJa}`, /本当の自分|原因が分かる|必ず/);
+    assert.doesNotMatch(
+      `${home.heroEyebrowJa}\n${home.heroSubJa}\n${home.heroTrustJa}\n${home.heroFunnelCtaJa}`,
+      /無料解析|無料分析|本当の自分|原因が分かる|必ず/,
+    );
+  });
+
+  it('separates free-entry labels from the paid compatibility name', () => {
+    const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+    assert.equal(home.personalFreeCardJa.labelJa, '自分の無料解析');
+    assert.equal(home.compatibilityFreeCardJa.labelJa, '二人の無料相性解析');
+    assert.equal(home.compatibilityFreeCardJa.ctaJa, '二人の相性を無料で見てみる');
+    assert.equal(home.compatibilityPaidHeadingJa, '2人の距離の読み解き');
+    assert.doesNotMatch(home.compatibilityPaidHeadingJa, /相性解析/);
+    assert.equal(
+      home.compatibilitySavedPausedJa,
+      '2人の距離の読み解きは現在準備中です。無料の相性解析は利用できます。',
+    );
   });
 
   it('uses personal Light and FULL authorities without stale umbrella pricing', () => {

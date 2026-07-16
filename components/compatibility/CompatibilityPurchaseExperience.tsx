@@ -65,19 +65,20 @@ function ProductDetails() {
   return (
     <>
       <dl className={styles.details}>
-        <div><dt>商品</dt><dd>M55 二人の相性解析レポート</dd></div>
+        <div><dt>商品</dt><dd>2人の距離の読み解き</dd></div>
         <div>
           <dt>内容</dt>
           <dd>
-            {M55_PUBLIC_COMMERCIAL_TRUTH.commercial.compatibility.chapterCount}章レポート
-            {product.reportCount}件
+            二人が自然に合いやすいところ、互いを補いやすい違い、
+            すれ違いが始まりやすい場面、選んだテーマについて詳しく読めるデジタルレポート
           </dd>
         </div>
         <div><dt>価格</dt><dd className={styles.price}>{oneTimePrice}</dd></div>
-        <div><dt>支払</dt><dd>一回払い</dd></div>
-        <div><dt>自動更新</dt><dd>なし</dd></div>
+        <div><dt>通貨</dt><dd>日本円（JPY）</dd></div>
+        <div><dt>支払い</dt><dd>買い切り・自動更新なし</dd></div>
         <div><dt>提供時期</dt><dd>支払い確認後に本文を準備し、完了後にウェブ表示</dd></div>
         <div><dt>閲覧</dt><dd>購入したアカウントの読み解きホーム・マイページ</dd></div>
+        <div><dt>境界</dt><dd>未来予測、吉凶判定、相手の本心の断定、医療・心理診断、結果保証ではありません</dd></div>
         <div><dt>変更・取消</dt><dd>決済前は内容を見直せます</dd></div>
       </dl>
       <p className={styles.note}>
@@ -204,9 +205,9 @@ export function CompatibilityPurchaseConfirmation({
       {journey ? (
         <>
           <div className={styles.personalization}>
-            <strong>現在の二人に合わせた6章</strong>
-            <span>今のfocus：{contextDisplay?.focusLabel}</span>
-            <small>無料結果で答えた現在の状況を、購入後の6章にも反映します。</small>
+            <strong>選んだテーマについての詳しい結果</strong>
+            <span>今、確かめたいこと：{contextDisplay?.focusLabel}</span>
+            <small>無料結果で答えた現在の状況を、購入後のデジタルレポートにも反映します。</small>
           </div>
           <button
             type="button"
@@ -233,8 +234,8 @@ export function CompatibilityPurchaseConfirmation({
     <main className={styles.page} data-testid="compatibility-purchase-confirmation">
       <article className={styles.card}>
         <p className={styles.eyebrow}>支払い前の最終確認</p>
-        <h1>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</h1>
-        <p className={styles.lead}>購入後はマイページから読み返せます。買い切りで、自動更新はありません。</p>
+        <h1>2人の距離の読み解き</h1>
+        <p className={styles.lead}>2人の関係整理レポートです。購入後はマイページから読み返せます。</p>
         {cancelled && (
           <p className={styles.cancelled} role="status">
             決済は完了していません。内容を確認して、もう一度進めます。
@@ -274,7 +275,7 @@ export function CompatibilityPurchaseSuccess() {
         <p className={styles.eyebrow}>支払い確認中</p>
         <h1>レポートをマイページへ準備しています</h1>
         <p className={styles.lead}>
-          支払い確認後に6章レポートが表示されます。この画面を閉じても、配送処理は継続します。
+          支払い確認後にデジタルレポートが表示されます。この画面を閉じても、配送処理は継続します。
         </p>
         <Link className={styles.primaryLink} href="/my">マイページで確認する</Link>
         <Link className={styles.quietLink} href="/synastry">無料結果へ戻る</Link>

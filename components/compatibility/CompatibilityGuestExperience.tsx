@@ -199,7 +199,7 @@ export default function CompatibilityGuestExperience({
         aria-labelledby="compatibility-title"
         data-testid="compatibility-dob-step"
       >
-        <p className={styles.eyebrow}>二人を知る無料解析</p>
+        <p className={styles.eyebrow}>二人の無料相性解析</p>
         <h1 id="compatibility-title">二人が合うところと、違うところを知る</h1>
         <p className={styles.lead}>
           自然に話が合いやすいところ、互いを補いやすい違い、
@@ -401,26 +401,35 @@ export default function CompatibilityGuestExperience({
 
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
             <p className={styles.eyebrow}>今、確かめたいこと：{context.focusLabel}</p>
-            <h3 id="paid-bridge-title">無料解析の続きを、6章の詳しい相性解析で</h3>
+            <h3 id="paid-bridge-title">2人の距離の読み解き</h3>
             <p className={styles.deliverableLead}>
-              二人の生年月日だけでなく、今の距離・会話・すれ違い方を重ねて、6つの場面を整理します。
+              二人が自然に合いやすいところ、互いを補いやすい違い、すれ違いが始まりやすい場面、
+              選んだテーマについて詳しく読めるデジタルレポートです。
             </p>
-            <ul className={styles.toolkitTiles} aria-label="6章で受け取れる道具">
+            <ul className={styles.toolkitTiles} aria-label="詳しく読める内容">
               <li>
-                <strong>場面から戻る手順</strong>
-                <span>すれ違いのあとに戻る、小さな順序</span>
+                <strong>あなた側に出やすい反応</strong>
+                <span>今の関係で表れやすい反応を確認します</span>
               </li>
               <li>
-                <strong>そのまま使える一言</strong>
-                <span>責めずに話を始めるための短い言葉</span>
+                <strong>相手側に表れやすい傾向</strong>
+                <span>相手本人の回答ではなく、二人の情報から整理します</span>
               </li>
               <li>
-                <strong>今週一度だけ試すこと</strong>
-                <span>負担を増やさず、今の二人で試せる一歩</span>
+                <strong>二人が自然に合いやすいところ</strong>
+                <span>無理なく重なりやすい特徴を読みます</span>
               </li>
               <li>
-                <strong>あとで振り返る一問</strong>
-                <span>何が変わったかを見直すための問い</span>
+                <strong>互いを補いやすい違い</strong>
+                <span>魅力として働きやすい違いを読みます</span>
+              </li>
+              <li>
+                <strong>すれ違いが始まりやすい場面</strong>
+                <span>会話や距離がずれやすい場面を確認します</span>
+              </li>
+              <li>
+                <strong>選んだテーマについての詳しい結果</strong>
+                <span>今、確かめたいテーマに沿って読みます</span>
               </li>
             </ul>
             <div
@@ -438,7 +447,7 @@ export default function CompatibilityGuestExperience({
               ))}
             </div>
 
-            <h4 className={styles.sixTitle} id="compatibility-six-chapters">6章の使い方</h4>
+            <h4 className={styles.sixTitle} id="compatibility-six-chapters">詳しい結果の読み方</h4>
             <div className={styles.useCases}>
               <span>会話の前に読む</span>
               <span>すれ違った時に読む</span>
@@ -448,10 +457,9 @@ export default function CompatibilityGuestExperience({
             {commerceEnabled ? (
               <div className={styles.commerceOffer}>
                 <div>
-                  <strong>{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.publicName}</strong>
+                  <strong>2人の距離の読み解き</strong>
                   <span>
-                    6章レポート{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件・
-                    {COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}
+                    2人の関係整理レポート・{COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}
                   </span>
                   <small>買い切りで、自動更新はありません。購入後はマイページから読み返せます。</small>
                 </div>
@@ -469,8 +477,8 @@ export default function CompatibilityGuestExperience({
             ) : (
               <div className={styles.commerceOffer}>
                 <div>
-                  <strong>二人の相性解析レポートは現在準備中です</strong>
-                  <span>無料の相性解析は、このまま最後まで利用できます。</span>
+                  <strong>2人の距離の読み解きは現在準備中です</strong>
+                  <span>無料の相性解析は利用できます。</span>
                 </div>
               </div>
             )}
@@ -483,7 +491,7 @@ export default function CompatibilityGuestExperience({
                   'compatibility_guest',
                 )}
               >
-                今つながる2章を見る
+                選んだテーマの詳しい結果を見る
               </a>
               <a className={styles.secondaryLink} href="#compatibility-free-detail">
                 無料の詳細をこのまま読む

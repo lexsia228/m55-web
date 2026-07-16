@@ -42,7 +42,7 @@ describe('public commercial truth contracts', () => {
     assert.match(truth.processing.personalSavedJa, /追加6問/);
     assert.match(truth.processing.personalAdditionalJa, /生成AI/);
     assert.match(truth.processing.compatibilitySavedJa, /生成AIは使用せず/);
-    assert.match(truth.processing.compatibilitySavedJa, /6章/);
+    assert.match(truth.processing.compatibilitySavedJa, /2人の距離の読み解き/);
   });
 
   it('uses product authorities for prices, chapters, replies, and one-time terms', () => {
@@ -102,8 +102,9 @@ describe('public commercial truth contracts', () => {
     assert.match(personal, /今日の一歩/);
     assert.match(personal, /4章/);
     assert.match(compatibility, /最初に確かめる|次に一度だけ試す/);
-    assert.match(compatibility, /6つの場面/);
-    assert.match(compatibility, /相性解析レポートは現在準備中/);
+    assert.match(compatibility, /あなた側に出やすい反応/);
+    assert.match(compatibility, /選んだテーマについての詳しい結果/);
+    assert.match(compatibility, /2人の距離の読み解きは現在準備中/);
   });
 
   it('shows material purchase terms and Stripe processing before checkout', () => {
@@ -124,7 +125,8 @@ describe('public commercial truth contracts', () => {
     ] as const) {
       assert.match(combined, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }
-    assert.doesNotMatch(combined, /日本円|JPY/);
+    assert.match(combined, /日本円（JPY）/);
+    assert.match(combined, /買い切り・自動更新なし/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.commercial.paymentProcessorJa, /環境により異なります/);
   });
 
@@ -170,15 +172,17 @@ describe('public commercial truth contracts', () => {
     assert.match(pricing, /COMPATIBILITY_REPORT_PRODUCT_AUTHORITY/);
     assert.match(pricing, /isCompatibilityCommerceEnabled/);
     assert.match(pricing, /latestCompatibility/);
-    assert.match(pricing, /billingJa/);
-    assert.match(pricing, /deliveryJa/);
-    assert.match(pricing, /ownershipJa/);
+    assert.match(pricing, /data-testid="pricing-purchase-facts"/);
+    assert.match(pricing, /通貨：<\/strong>日本円（JPY）/);
+    assert.match(pricing, /支払い：<\/strong>買い切り・自動更新なし/);
+    assert.match(pricing, /支払い確認後、購入したアカウントのマイページへ表示/);
     assert.match(pricing, /\/legal\/refund/);
     assert.doesNotMatch(pricing, /href="\/synastry\/purchase\/confirm"/);
     assert.match(pricing, /priceCurrency: "JPY"/);
-    assert.doesNotMatch(pricing, /日本円/);
+    assert.equal((pricing.match(/日本円（JPY）/g) ?? []).length, 1);
     assert.match(pricing, /個人解析ライト/);
-    assert.match(pricing, /二人の相性解析レポート/);
+    assert.match(pricing, /2人の距離の読み解き/);
+    assert.doesNotMatch(pricing, /相性解析レポート|有料相性解析|相性鑑定/);
     assert.match(pricingCss, /\.plans/);
     assert.match(pricingCss, /grid-template-columns/);
   });

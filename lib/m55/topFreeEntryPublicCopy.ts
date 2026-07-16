@@ -48,6 +48,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
+    heroEyebrowJa: '自分と二人を無料で見る',
     heroTitleLine1Ja: 'あなたの「いつもこうなる」には、',
     heroTitleLine2Ja: '順番がある。',
     heroSubJa:
@@ -55,12 +56,13 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroSupportJa: M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
     heroTrustJa:
       '自分では気づきにくい\n「うまくいく条件」も、\n無料で見えてきます。',
+    heroMetaJa: '生年月日＋6つの質問・ログイン不要',
     heroFunnelLinesJa: [
       '無料で、現在の輪郭を見る。',
       '4章の保存版で、日常の場面まで深める。',
       '追加読み解きで、今の1テーマを整理する。',
     ] as const,
-    heroFunnelCtaJa: '無料解析を始める',
+    heroFunnelCtaJa: '無料で見てみる',
     heroCompatibilityCtaJa: '',
     introductionLabelJa: 'M55について',
     introductionTitleJa: '決めつけるためではなく、見直すために。',
@@ -90,7 +92,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreQualitiesSubJa: '10資質レーンを見る →',
     readNextSectionTitleJa: 'どちらを解析しますか？',
     personalFreeCardJa: {
-      labelJa: '自分を知る無料解析',
+      labelJa: '自分の無料解析',
       headlineJa: '自分の強みと、\nいつものパターンを知る',
       bodyJa:
         'どんな時に自然に力を発揮できるのか。\n何を大切にして選んでいるのか。\nどんな場面で迷いや疲れが始まりやすいのか。\n\n生年月日と6つの質問から、\n今の自分に表れやすい特徴を解析します。',
@@ -103,10 +105,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
         '今の自分に強く表れている傾向',
       ] as const,
       metaJa: ['無料・ログイン不要', '生年月日＋6つの質問'] as const,
-      ctaJa: '自分を無料で解析する',
+      ctaJa: '自分を無料で見てみる',
     },
     compatibilityFreeCardJa: {
-      labelJa: '二人を知る無料解析',
+      labelJa: '二人の無料相性解析',
       headlineJa: '二人が合うところと、\n違うところを知る',
       bodyJa:
         'なぜ自然に話が合いやすいのか。\nどんな違いが互いを補いやすいのか。\nどんな場面で、気持ちやタイミングがずれやすいのか。\n\n二人の生年月日と6つの質問から、\n二人の関係に表れやすい特徴を解析します。',
@@ -119,14 +121,14 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
         'すれ違いが始まりやすい場面',
       ] as const,
       metaJa: ['無料・ログイン不要', '二人の生年月日＋6つの質問'] as const,
-      ctaJa: '二人の相性を無料で解析する',
+      ctaJa: '二人の相性を無料で見てみる',
     },
     readNextHowTitleJa: '自分の強みと、いつものパターンを知る',
     readNextHowDescJa: '生年月日と6つの質問から、今の自分に表れやすい特徴を解析します。',
-    readNextHowCtaJa: '自分を無料で解析する',
+    readNextHowCtaJa: '自分を無料で見てみる',
     readNextQualitiesTitleJa: '二人が合うところと、違うところを知る',
     readNextQualitiesDescJa: '二人の生年月日と6つの質問から、関係に表れやすい特徴を解析します。',
-    readNextQualitiesCtaJa: '二人の相性を無料で解析する',
+    readNextQualitiesCtaJa: '二人の相性を無料で見てみる',
     tenViewsLearnLinkJa: '10資質レーン',
     methodFlowLabelJa: 'M55の違い',
     methodFlowHeadlineLine1Ja: '生年月日だけで決めない。',
@@ -234,14 +236,23 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     paidPlanDetailsCtaJa: '個人解析レポートの内容を見る',
     paidPlanOwnershipNoteJa:
       '購入したレポートは、マイページから後で読み返せます。',
-    compatibilityPaidHeadingJa: 'M55 二人の相性解析レポート',
-    compatibilityPaidHeadlineJa: '無料解析の続きを、6章の詳しい相性解析で。',
+    compatibilityPaidHeadingJa: '2人の距離の読み解き',
+    compatibilityPaidAuxiliaryNameJa: '2人の関係整理レポート',
+    compatibilityPaidHeadlineJa: '二人の関係を、選んだテーマから詳しく読む。',
     compatibilityPaidBodyJa:
-      '二人が自然に合いやすいところ。\n魅力として感じやすい違い。\n会話や判断のテンポ。\n距離や気持ちがずれやすい場面。\n\n二人の関係を、6つの場面から詳しく読み解きます。',
+      '二人が自然に合いやすいところ、\n互いを補いやすい違い、\nすれ違いが始まりやすい場面、\n選んだテーマについて詳しく読める\nデジタルレポートです。',
+    compatibilityPaidOutcomesJa: [
+      'あなた側に出やすい反応',
+      '相手側に表れやすい傾向',
+      '二人が自然に合いやすいところ',
+      '互いを補いやすい違い',
+      'すれ違いが始まりやすい場面',
+      '選んだテーマについての詳しい結果',
+    ] as const,
     compatibilitySavedAvailableJa:
-      '二人の相性解析レポートは、無料解析の結果から内容と購入条件を確認できます。',
+      '2人の距離の読み解きは、無料の相性解析の結果から内容と購入条件を確認できます。',
     compatibilitySavedPausedJa:
-      '二人の相性解析レポートは現在準備中です。無料の相性解析は利用できます。',
+      '2人の距離の読み解きは現在準備中です。無料の相性解析は利用できます。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
@@ -441,7 +452,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '4章の個人解析レポートでは、\n無料解析で見えた全体像を、\n仕事や人との関わりなどの具体的な場面まで深めます。',
     nextClosingJa:
       '気になったテーマは、\n追加読み解きで今の自分に合わせて整理できます。',
-    primaryCtaJa: '自分を無料で解析する',
+    primaryCtaJa: '自分を無料で見てみる',
     secondaryCtaJa: '個人解析レポートの内容を見る',
     backButtonJa: '前のページへ戻る',
   },

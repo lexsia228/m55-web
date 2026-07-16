@@ -88,6 +88,7 @@ export default function HomePanel({
                   <div className={styles.posterHeroTopBlock}>
                     <div className={styles.posterHeroLabelGroup}>
                       <p className={styles.posterHeroBrandM55}>M55</p>
+                      <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
@@ -97,6 +98,7 @@ export default function HomePanel({
                     <p className={styles.posterHeroTrust} style={{ whiteSpace: 'pre-line' }}>
                       {homeCopy.heroTrustJa}
                     </p>
+                    <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -311,8 +313,14 @@ export default function HomePanel({
               <p className={styles.homePaidPlanSavedInfoHeading}>
                 {homeCopy.compatibilityPaidHeadingJa}
               </p>
+              <p className={styles.homePaidPlanCompatibilityAuxiliary}>
+                {homeCopy.compatibilityPaidAuxiliaryNameJa}
+              </p>
               <h3>{homeCopy.compatibilityPaidHeadlineJa}</h3>
               <p style={{ whiteSpace: 'pre-line' }}>{homeCopy.compatibilityPaidBodyJa}</p>
+              <ul className={styles.homePaidPlanCompatibilityOutcomes}>
+                {homeCopy.compatibilityPaidOutcomesJa.map((item) => <li key={item}>{item}</li>)}
+              </ul>
               <p className={styles.homePaidPlanCompatibilityNote}>
                 {compatibilityCommerceAvailable
                   ? homeCopy.compatibilitySavedAvailableJa

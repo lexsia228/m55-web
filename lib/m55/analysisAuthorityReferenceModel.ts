@@ -274,7 +274,7 @@ export const M55_PUBLIC_COMMERCIAL_TRUTH = {
     compatibilityFreeJa:
       '二人の無料解析は、二人分の生年月日と、現在の距離・会話・今確かめたいことを含む6つの質問を、あらかじめ定めた手順で組み合わせます。生成AIは使用しません。',
     compatibilitySavedJa:
-      '二人の相性解析レポートは、無料解析と同じ二人分の生年月日・6つの質問を6章に展開します。生成AIは使用せず、購入したアカウントへ保存します。',
+      '2人の距離の読み解きは、無料解析と同じ二人分の生年月日・6つの質問をもとに詳しいデジタルレポートを組み立てます。生成AIは使用せず、購入したアカウントへ保存します。',
   },
   outputs: {
     personalFreeJa:
@@ -284,7 +284,7 @@ export const M55_PUBLIC_COMMERCIAL_TRUTH = {
     compatibilityFreeJa:
       '自然に合いやすいところ、互いを補いやすい違い、会話や判断のテンポ、すれ違いが始まりやすい場面を表示します。',
     compatibilitySavedJa:
-      `合いやすさ、違い、会話、判断、距離や気持ちがずれやすい場面を、${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.reportCount}件・6章で詳しく読み解きます。`,
+      'あなた側に出やすい反応、相手側に表れやすい傾向、合いやすいところ、補いやすい違い、すれ違いが始まりやすい場面、選んだテーマについて詳しく読み解きます。',
   },
   limitationsJa: [
     '医学的・心理学的な診断ではありません。',

@@ -7,7 +7,6 @@ import {
   isCompatibilityCommerceEnabled,
 } from "../../lib/m55/compatibility/compatibilityCommerceAuthority";
 import { listOwnedCompatibilityReports } from "../../lib/m55/compatibility/compatibilityCommerceDb";
-import { M55_PUBLIC_COMMERCIAL_TRUTH } from "../../lib/m55/analysisAuthorityReferenceModel";
 import { resolveDtrShelfAccess } from "../../lib/m55/dtrShelfAccess";
 import { resolveSavedReportTierSummary } from "../../lib/m55/dtrSavedReportTier";
 import LightToFullUpgradeCta from "../../components/dtr/LightToFullUpgradeCta";
@@ -15,7 +14,7 @@ import styles from "./pricing.module.css";
 
 export const metadata = {
   title: "料金とプラン | M55",
-  description: "M55の無料解析、個人解析ライト・FULL、FULL化、二人の相性解析レポートの内容と買い切り価格を比較できます。",
+  description: "M55の無料解析、個人解析ライト・FULL、FULL化、2人の距離の読み解きの内容と買い切り価格を比較できます。",
   alternates: { canonical: "/pricing" },
 };
 
@@ -64,7 +63,7 @@ export default async function PricingPage() {
       ...(compatibilityCommerceAvailable
         ? [{
             "@type": "Product",
-            name: "M55 二人の相性解析レポート",
+            name: "2人の距離の読み解き",
             offers: {
               "@type": "Offer",
               price: COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceYen,
@@ -120,7 +119,7 @@ export default async function PricingPage() {
                   <li>ログイン不要</li>
                 </ul>
                 <Link className={styles.action} href="/home#m55-home-free-intents">
-                  自分を無料で解析する
+                  自分を無料で見てみる
                 </Link>
               </article>
 
@@ -204,7 +203,7 @@ export default async function PricingPage() {
             <div className={styles.familyHeader}>
               <div>
                 <p className={styles.eyebrow}>二人を知る</p>
-                <h2 id="pricing-compatibility-title">M55 二人の相性解析</h2>
+                <h2 id="pricing-compatibility-title">M55 二人の読み解き</h2>
                 <p className={styles.familyLead}>
                   自然に合いやすいところ、互いを補いやすい違い、会話や判断のテンポ、すれ違いやすい場面を読み解きます。
                 </p>
@@ -220,7 +219,7 @@ export default async function PricingPage() {
 
             <div className={styles.compatibilityPlans}>
               <article className={styles.plan}>
-                <p className={styles.planLabel}>無料解析</p>
+                <p className={styles.planLabel}>二人の無料相性解析</p>
                 <h3>二人が合うところと、違うところ</h3>
                 <p className={styles.price}>無料</p>
                 <ul className={styles.facts}>
@@ -230,20 +229,25 @@ export default async function PricingPage() {
                   <li>ログイン不要</li>
                 </ul>
                 <Link className={styles.action} href="/synastry">
-                  二人の相性を無料で解析する
+                  二人の相性を無料で見てみる
                 </Link>
               </article>
 
               <article className={styles.plan}>
-                <p className={styles.planLabel}>詳しい相性解析</p>
-                <h3>M55 二人の相性解析レポート</h3>
+                <p className={styles.planLabel}>2人の関係整理レポート</p>
+                <h3>2人の距離の読み解き</h3>
                 <p className={styles.price}>
-                  {oneTimePrice(COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel)}
+                  {compatibilityCommerceAvailable || latestCompatibility
+                    ? oneTimePrice(COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel)
+                    : "現在準備中"}
                 </p>
                 <ul className={styles.facts}>
-                  <li>合いやすさと違いを6つの場面から読む</li>
-                  <li>会話、判断、距離のずれを詳しく確認</li>
-                  <li>6章・1レポート</li>
+                  <li>あなた側に出やすい反応</li>
+                  <li>相手側に表れやすい傾向</li>
+                  <li>二人が自然に合いやすいところ</li>
+                  <li>互いを補いやすい違い</li>
+                  <li>すれ違いが始まりやすい場面</li>
+                  <li>選んだテーマについての詳しい結果</li>
                 </ul>
                 {latestCompatibility ? (
                   <Link
@@ -258,7 +262,7 @@ export default async function PricingPage() {
                   </Link>
                 ) : compatibility.available ? (
                   <p className={styles.pausedNote}>
-                    現在準備中です。無料の相性解析は利用できます。
+                    2人の距離の読み解きは現在準備中です。無料の相性解析は利用できます。
                   </p>
                 ) : (
                   <Link className={styles.secondaryAction} href="/support">
@@ -270,10 +274,17 @@ export default async function PricingPage() {
           </section>
         </div>
 
-        <aside className={styles.terms} aria-label="購入と提供に関する共通条件">
-          <p>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.billingJa}</p>
-          <p>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.deliveryJa}</p>
-          <p>{M55_PUBLIC_COMMERCIAL_TRUTH.commercial.ownershipJa}</p>
+        <aside className={styles.terms} aria-label="購入可能な個人解析レポートの購入条件">
+          <div className={styles.purchaseFacts} data-testid="pricing-purchase-facts">
+            <h2>個人解析レポートの購入条件</h2>
+            <p><strong>商品：</strong>M55 個人解析レポート</p>
+            <p><strong>内容：</strong>仕事、人との関わり、判断、迷いや疲れにつながりやすい流れを詳しく読めるデジタルレポート</p>
+            <p><strong>価格：</strong>各プランカードに税込価格を表示</p>
+            <p><strong>通貨：</strong>日本円（JPY）</p>
+            <p><strong>支払い：</strong>買い切り・自動更新なし</p>
+            <p><strong>提供：</strong>支払い確認後、購入したアカウントのマイページへ表示</p>
+            <p><strong>境界：</strong>未来予測、吉凶判定、相手の本心の断定、医療・心理診断、結果保証ではありません。</p>
+          </div>
           <nav className={styles.links} aria-label="料金と購入に関する案内">
             <Link href="/support">サポート</Link>
             <Link href="/legal/refund">返金・キャンセル</Link>

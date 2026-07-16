@@ -125,6 +125,15 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
             <small>4章の個人解析＋追加読み解き合計5件</small>
           </p>
         </div>
+        <div className={styles.purchaseFacts} aria-label="個人解析レポートの購入条件">
+          <p><strong>商品：</strong>M55 個人解析レポート</p>
+          <p><strong>内容：</strong>強み、仕事や人との関わり、迷いや疲れにつながりやすい流れを詳しく読めるデジタルレポート</p>
+          <p><strong>価格：</strong>各プランに税込価格を表示</p>
+          <p><strong>通貨：</strong>日本円（JPY）</p>
+          <p><strong>支払い：</strong>買い切り・自動更新なし</p>
+          <p><strong>提供：</strong>支払い確認後、購入したアカウントのマイページへ表示</p>
+          <p><strong>境界：</strong>未来予測、吉凶判定、相手の本心の断定、医療・心理診断、結果保証ではありません。</p>
+        </div>
         <ul className={styles.metaList}>
           <li>購入前の質問は6問です</li>
           <li>正解はありません</li>

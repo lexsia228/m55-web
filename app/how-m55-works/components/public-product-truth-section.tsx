@@ -73,7 +73,7 @@ export function PublicProductTruthSection() {
         <article>
           <h3>6. 同じ入力を同じ手順で扱う部分</h3>
           <p>
-            個人の無料解析と、二人の無料解析・相性解析レポートは、あらかじめ定めた手順で組み立てます。
+            個人の無料解析と、二人の無料解析・2人の距離の読み解きは、あらかじめ定めた手順で組み立てます。
             同じ生年月日と同じ回答には同じ組み立てを返します。
           </p>
           <p>
@@ -90,7 +90,7 @@ export function PublicProductTruthSection() {
           <h3>8. 個人情報と保存</h3>
           <p>{truth.commercial.dataHandlingJa}</p>
           <p>
-            二人の無料入力はブラウザのタブ内で扱い、購入した相性解析レポートだけを購入アカウントへ保存します。
+            二人の無料入力はブラウザのタブ内で扱い、購入した2人の距離の読み解きだけを購入アカウントへ保存します。
             相手へ自動共有はしません。
           </p>
           <Link href={truth.commercial.privacyHref}>プライバシーポリシーを確認する</Link>
@@ -107,11 +107,11 @@ export function PublicProductTruthSection() {
           </p>
           {compatibilityCommerceAvailable ? (
             <p>
-              二人の相性解析レポートは6章・
+              2人の距離の読み解きは
               {oneTimePrice(truth.commercial.compatibility.priceLabel)}です。
             </p>
           ) : (
-            <p>二人の相性解析レポートは現在準備中です。無料の相性解析は利用できます。</p>
+            <p>2人の距離の読み解きは現在準備中です。無料の相性解析は利用できます。</p>
           )}
           <p>{truth.commercial.billingJa}</p>
           <p>{truth.commercial.deliveryJa}</p>
