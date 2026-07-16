@@ -1,9 +1,9 @@
 import CorePageClient from './CorePageClient';
 
 export const metadata = {
-  title: '自分の輪郭を無料で読み解く | M55',
+  title: '自分の強みといつものパターンを無料解析 | M55',
   description:
-    '生年月日から得る無料用の暦の手がかりと、5つの傾向質問・今の関心1問の合計6回答から、現在の5つの視点と最初の小さな行動まで確認できます。',
+    '生年月日と6つの質問から、自然に力を発揮しやすい場面、自分らしい考え方、迷いや疲れが始まりやすい場面を無料で解析します。',
   alternates: { canonical: '/core' },
 };
 

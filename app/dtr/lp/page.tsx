@@ -17,20 +17,24 @@ import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import styles from "./lp.module.css";
 
 export const metadata = {
-  title: "4章の個人保存版 | M55",
+  title: "M55 個人解析レポート | 4章の詳しい個人解析",
   description:
-    "生年月日の暦リズムと無料・購入前の質問回答を重ね、仕事、近い関係、生活と疲れの場面を4章で読み返す買い切りの保存版です。",
+    "無料解析の続きを、仕事、人との関わり、判断、迷いや疲れにつながりやすい流れまで4章で詳しく読み解く個人解析レポートです。",
   alternates: { canonical: "/dtr/lp" },
   openGraph: {
-    title: "M55 個人保存版",
+    title: "M55 個人解析レポート",
     description:
-      "保存版ライトと保存版FULLの内容、価格、追加読み解き件数、提供条件を確認できます。",
+      "個人解析ライトとFULLの内容、買い切り価格、追加読み解き件数を確認できます。",
     url: "/dtr/lp",
   },
 };
 
 const OWNED = PAID_DTR_LP.operational.ownedState;
 const { full: FULL_TIER, light: LIGHT_TIER } = PAID_DTR_LP.tiers;
+
+function oneTimePrice(label: string): string {
+  return label.replace("（税込）", "（税込・買い切り）");
+}
 
 function ArrowRightIcon() {
   return (
@@ -62,17 +66,17 @@ function CompareAnchorLink({ label }: { label: string }) {
 
 function HeroPriceChips() {
   return (
-    <div className={styles.lpPriceChips} aria-label="保存版プランの価格">
+    <div className={styles.lpPriceChips} aria-label="個人解析レポートの価格">
       <div className={styles.lpPriceChip}>
         <span className={styles.lpPriceChipLabel}>{LIGHT_TIER.planNameJa}</span>
-        <span className={styles.lpPriceChipValue}>{LIGHT_TIER.priceLabelJa}</span>
+        <span className={styles.lpPriceChipValue}>{oneTimePrice(LIGHT_TIER.priceLabelJa)}</span>
         <span className={styles.lpPriceChipMeta}>
           {LIGHT_TIER.consultReplyLabelJa} {LIGHT_TIER.consultReplyValueJa}
         </span>
       </div>
       <div className={styles.lpPriceChipFull}>
         <span className={styles.lpPriceChipLabel}>{FULL_TIER.planNameJa}</span>
-        <span className={styles.lpPriceChipValue}>{FULL_TIER.priceLabelJa}</span>
+        <span className={styles.lpPriceChipValue}>{oneTimePrice(FULL_TIER.priceLabelJa)}</span>
         <span className={styles.lpPriceChipMeta}>
           {FULL_TIER.consultReplyLabelJa} {FULL_TIER.consultReplyValueJa}
         </span>
@@ -144,7 +148,7 @@ function TierCard({
     <div className={cardClass}>
       <div className={styles.lpTierHeader}>
         <span className={styles.lpTierPlanName}>{tier.planNameJa}</span>
-        <span className={styles.lpTierPrice}>{tier.priceLabelJa}</span>
+        <span className={styles.lpTierPrice}>{oneTimePrice(tier.priceLabelJa)}</span>
       </div>
       <div className={styles.lpTierMeta}>
         <div>

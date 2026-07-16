@@ -30,6 +30,39 @@
   color: rgba(45, 40, 70, 0.82);
 }
 
+.priceSummary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.priceSummary p {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0.9rem;
+  border: 1px solid rgba(124, 111, 214, 0.18);
+  border-radius: 0.85rem;
+  background: rgba(248, 246, 252, 0.86);
+}
+
+.priceSummary strong {
+  color: rgba(28, 24, 48, 0.94);
+  font-size: 0.9rem;
+}
+
+.priceSummary span {
+  color: rgba(28, 24, 48, 0.9);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.priceSummary small {
+  color: rgba(45, 40, 70, 0.7);
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
 .metaList {
   margin: 0;
   padding: 0;
@@ -352,6 +385,10 @@
 @media (min-width: 896px) {
   .shell {
     max-width: 40rem;
+  }
+
+  .priceSummary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .planStack {

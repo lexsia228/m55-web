@@ -1201,26 +1201,26 @@ export const PAID_DTR_LP_COPY_VERSION = 'm55-paid-lp-final-copy-v1' as const;
 export const PAID_DTR_LP = {
   version: PAID_DTR_LP_COPY_VERSION,
   hero: {
-    subheadlineJa: '迷ったときに、自分を少し離れて見つめ直すための4章を、手元に。',
-    headlineJa: '生年月日から、\n自分の動き方と戻し方を読み返す。',
+    subheadlineJa: 'M55 個人解析レポート',
+    headlineJa: '無料解析の続きを、\n4章の詳しい個人解析で。',
     bodyJa:
-      'M55独自の10資質フレーム、生年月日の暦リズム、無料・購入前の質問回答を重ねて、自分の出方を4章で整理します。\n\n4章本文はM55の固定ルールと検査済みの文章素材を土台に組み立てます。提供設定に応じて章の文章表現に生成AIを使う場合がありますが、品質条件を満たさないときは固定ルールの本文へ戻します。\n\n追加読み解きは、保存版の内容を土台に1テーマを読み直す生成AIレイヤーです。',
+      '自然に力を発揮しやすい条件、仕事や人との関わりに表れやすい特徴、迷いや疲れにつながりやすい流れ、今の自分に強く出ている傾向。\n\n無料解析では扱わない部分まで、4章の個人解析レポートで詳しく読み解きます。\n\n4章本文は検査済みの文章素材を土台に組み立てます。提供設定に応じて文章表現に生成AIを使う場合がありますが、品質条件を満たさないときはあらかじめ用意した本文へ戻します。',
     ctaLabelJa: 'FULLとライトを比べる',
     compareSectionId: 'dtr-lp-tiers',
   },
   about: {
     sectionTitleJa: 'M55とは',
     oneSentenceJa:
-      'M55は、生年月日を10資質レーンへ分けるだけではありません。\n旧暦月・季節位置・日帯などの暦信号を重ねて、\n自分の動き方・疲れ方・戻し方まで見える保存版に整えます。',
+      'M55は、生年月日と今の回答を重ねて、\n自然にうまくいきやすい流れと、迷いや疲れが始まりやすい流れを、\n良い面と難しい面の両方から詳しく解析します。',
     principleJa:
       '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。\n未来予測や吉凶の断定ではありません。',
   },
   authorityNote: {
-    sectionTitleJa: 'M55が見ているもの',
-    headlineJa: '生年月日と回答差分を、読み解きの材料にします',
+    sectionTitleJa: '解析に使う情報',
+    headlineJa: '生年月日と、今の状態を重ねて読みます',
     bodyParagraphsJa: [
-      'M55は、生年月日から得られる日本の暦文化上の手がかりと、本人の回答による現在の感じ方を組み合わせて読み解きます。',
-      '保存版では、その初期ベースと回答差分をもとに、自己理解と関係性整理に使える形へ整えます。',
+      '生年月日から見る変わりにくい傾向と、質問から見る今の状態を組み合わせて読み解きます。',
+      '個人解析レポートでは、無料解析と購入前の質問をもとに、仕事、人との関わり、判断、迷いや疲れが始まりやすい場面まで詳しく見ていきます。',
       '表示内容は参考情報であり、医学的診断、心理検査、または将来の不確実な事実を断定するものではありません。',
     ] as const,
   },
@@ -1232,18 +1232,18 @@ export const PAID_DTR_LP = {
       '追加読み解きでは、その保存版に、\n今回入力した一つの読み解きテーマを重ねます。\n\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   savedReport: {
-    sectionTitleJa: '保存版とは',
-    headlineJa: '自分の出方を、4章の流れで読み直す。',
+    sectionTitleJa: '個人解析レポートとは',
+    headlineJa: '強みと迷いやすさを、場面ごとに詳しく読む。',
     bodyJa:
-      '保存版は、M55独自の10資質フレーム、生年月日の暦リズム、質問回答を重ねて、\n比較的変わりにくい土台と現在の表れ方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールを土台にし、\n提供設定に応じて章の文章表現に生成AIを使う場合があります。\n\n保存版の4章は、\nライトとFULLで共通です。',
+      '個人解析レポートは、生年月日と質問回答を重ね、\n自然に力を発揮しやすい条件、\n仕事や人との関わりに表れやすい特徴、\n迷いや疲れにつながりやすい流れ、\n今の自分に強く出ている傾向を4章で詳しく読むデジタルレポートです。\n\n購入したレポートは、マイページから後で読み返せます。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。',
   },
   freeComparison: {
-    sectionTitleJa: '無料ページと保存版の違い',
+    sectionTitleJa: '無料解析と個人解析レポートの違い',
     bodyJa:
-      '無料ページは、生年月日から得る無料用の手がかりと5つの傾向質問・今の関心1問で、現在の輪郭に触れる入口です。\n保存版では、無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ね、現在の出方を正式4章で整理します。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。',
+      '無料解析では、生年月日と6つの質問から、強み、考え方、人との距離、迷いやすい場面、今強く表れている傾向という全体像を確認できます。\n個人解析レポートでは、無料解析と購入前の追加6問をもとに、仕事、人との関わり、判断、迷いや疲れにつながる流れを4章で詳しく読み解きます。',
   },
   chapters: {
-    sectionTitleJa: '正式4章',
+    sectionTitleJa: '4章で詳しく読めること',
     items: [
       {
         roman: 'Ⅰ',
@@ -1263,7 +1263,7 @@ export const PAID_DTR_LP = {
       {
         roman: 'Ⅳ',
         titleJa: '楽に扱う',
-        introJa: '自分を変えすぎず、日常で扱いやすくする方法を整理します。',
+        introJa: '自分を変えすぎず、負担を整える方法を確認します。',
       },
     ] as const,
   },
@@ -1273,32 +1273,32 @@ export const PAID_DTR_LP = {
       '保存版に紐づく、一つの読み解きテーマを整理する追加読み解きです。\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
   },
   tiers: {
-    sectionTitleJa: '読み返し方に合わせて選べます',
+    sectionTitleJa: '個人解析レポートのプラン',
     sectionLeadJa:
       'どちらも同じ4章の保存版です。違いは、追加読み解きとして使える回数です。',
     full: {
-      planNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
+      planNameJa: '個人解析FULL',
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '保存版:',
-      savedReportValueJa: '4章の保存版',
+      savedReportLabelJa: '個人解析:',
+      savedReportValueJa: '詳しい4章',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '合計5件',
-      bodyJa: '保存版を読みながら、複数のテーマを続けて整理したい方',
-      ctaLabelJa: '保存版FULLを選ぶ',
+      bodyJa: '詳しい4章を読みながら、複数のテーマを続けて整理したい方',
+      ctaLabelJa: '個人解析FULLを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
     light: {
-      planNameJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
+      planNameJa: '個人解析ライト',
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '保存版:',
-      savedReportValueJa: '4章の保存版',
+      savedReportLabelJa: '個人解析:',
+      savedReportValueJa: '詳しい4章',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '1件',
-      bodyJa: 'まず保存版を読み、必要なときに1テーマだけ深めたい方',
+      bodyJa: 'まず詳しい4章を読み、必要なときに1テーマだけ深めたい方',
       upgradeNoteJa: 'ライト購入後も、¥600（税込）でFULL化できます。',
-      ctaLabelJa: '保存版ライトを選ぶ',
+      ctaLabelJa: '個人解析ライトを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
   },

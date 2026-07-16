@@ -55,8 +55,9 @@ test('reduced motion retains content and removes transitions', () => {
 
 test('reading home has two intent surfaces and conditional continuation', () => {
   const source = read('components/dtr/M55ReadingHome.tsx');
-  assert.match(source, /自分を読む/);
-  assert.match(source, /二人を読む/);
+  assert.match(source, /自分の強みと、いつものパターンを解析する/);
+  assert.match(source, /二人が合うところと、違いが表れやすい場面を解析する/);
+  assert.match(source, /<h1>M55の解析<\/h1>/);
   assert.match(source, /hasM55ContinueItem\(models\)/);
   assert.equal((source.match(/<IntentSurface/g) ?? []).length, 2);
   assert.match(source, /hasCompletePersonalFreeAnswers/);

@@ -14,14 +14,14 @@ import type { M55ExperienceAuthority } from '../../lib/m55/m55ExperienceCardMode
 import styles from './dtr.module.css';
 
 export const metadata = {
-  title: 'M55の読み解き | 自分と二人の読み解きホーム',
+  title: 'M55の解析 | 無料解析と詳しいレポート',
   description:
-    '商品ごとに異なる生年月日の手がかりと選択式の回答から、自分の輪郭や二人の反応の違いを無料で整理し、購入済みの保存版を再開できます。',
+    '自分の強みや迷いやすさ、二人が合うところやすれ違いやすい場面を無料で解析し、購入した詳しいレポートを開けます。',
   alternates: { canonical: '/dtr' },
   openGraph: {
-    title: 'M55の読み解き',
+    title: 'M55の解析',
     description:
-      '自分と二人の読み解きを無料で始め、購入した保存版を読み返すためのホームです。',
+      '自分と二人の無料解析を始め、購入した詳しいレポートを開くためのホームです。',
     url: '/dtr',
   },
 };

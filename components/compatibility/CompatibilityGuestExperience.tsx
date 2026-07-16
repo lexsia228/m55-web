@@ -199,10 +199,11 @@ export default function CompatibilityGuestExperience({
         aria-labelledby="compatibility-title"
         data-testid="compatibility-dob-step"
       >
-        <p className={styles.eyebrow}>二人の関係の見取り図</p>
-        <h1 id="compatibility-title">二人の関係を、重なりと違いから見ます</h1>
+        <p className={styles.eyebrow}>二人を知る無料解析</p>
+        <h1 id="compatibility-title">二人が合うところと、違うところを知る</h1>
         <p className={styles.lead}>
-          良し悪しや点数ではなく、距離・反応・進め方の違いを確認します。
+          自然に話が合いやすいところ、互いを補いやすい違い、
+          気持ちやタイミングがずれやすい場面を解析します。
         </p>
 
         <form className={styles.form} onSubmit={startQuestionnaire} noValidate>
@@ -240,7 +241,7 @@ export default function CompatibilityGuestExperience({
           >
             <li>回答するのはあなた一人です</li>
             <li>相手の本音や性格を当てるものではありません</li>
-            <li>このあと、無料の見取り図まで進めます</li>
+            <li>無料・ログイン不要・6つの質問</li>
           </ul>
           {error ? <p className={styles.error} role="alert">{error}</p> : null}
           <button className={styles.submit} type="submit" disabled={!complete || isPending}>
@@ -268,7 +269,7 @@ export default function CompatibilityGuestExperience({
                   今の二人の距離や会話の表れ方を重ねることで、同じ生年月日でも現在の関係に近い内容へ変わります。
                 </p>
                 <p className={styles.observationNote}>
-                  回答するのは、あなたから観察できる二人の間の状況です。相手が回答したものではありません。
+                  回答するのは、あなたが見ている二人の間の状況です。相手が回答したものではありません。
                 </p>
               </>
             ) : (
@@ -399,8 +400,8 @@ export default function CompatibilityGuestExperience({
           </p>
 
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
-            <p className={styles.eyebrow}>今のfocus：{context.focusLabel}</p>
-            <h3 id="paid-bridge-title">現在の二人と直接つながる2章</h3>
+            <p className={styles.eyebrow}>今、確かめたいこと：{context.focusLabel}</p>
+            <h3 id="paid-bridge-title">無料解析の続きを、6章の詳しい相性解析で</h3>
             <p className={styles.deliverableLead}>
               二人の生年月日だけでなく、今の距離・会話・すれ違い方を重ねて、6つの場面を整理します。
             </p>
@@ -468,8 +469,8 @@ export default function CompatibilityGuestExperience({
             ) : (
               <div className={styles.commerceOffer}>
                 <div>
-                  <strong>二人の保存版は準備中です</strong>
-                  <span>無料の見取り図は、このまま最後まで確認できます。</span>
+                  <strong>二人の相性解析レポートは現在準備中です</strong>
+                  <span>無料の相性解析は、このまま最後まで利用できます。</span>
                 </div>
               </div>
             )}

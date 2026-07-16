@@ -34,6 +34,10 @@ function readPaidComplete(): boolean {
   }
 }
 
+function oneTimePrice(label: string): string {
+  return label.replace('（税込）', '（税込・買い切り）');
+}
+
 export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   const [gate, setGate] = useState<GatePhase>('questionnaire');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
@@ -77,7 +81,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
 
     return (
       <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">
-        <p className={styles.overline}>保存版プラン</p>
+        <p className={styles.overline}>個人解析レポート</p>
         <h3 className={styles.title}>支払い画面へ進む前に</h3>
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
@@ -86,7 +90,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
           </div>
           <div className={styles.confirmRow}>
             <span>価格</span>
-            <strong>{plan.priceLabelJa}・日本円（JPY）</strong>
+            <strong>{oneTimePrice(plan.priceLabelJa)}</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>お支払い</span>
@@ -135,8 +139,8 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   }
 
   return (
-    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="保存版プラン選択">
-      <p className={styles.overline}>保存版プラン</p>
+    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="個人解析レポートのプラン選択">
+      <p className={styles.overline}>個人解析レポート</p>
       <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
       <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
       <div className={styles.planStack}>
@@ -145,7 +149,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
         >
           <div className={styles.planHeader}>
             <span className={styles.planName}>{light.planNameJa}</span>
-            <span className={styles.planPrice}>{light.priceLabelJa}</span>
+            <span className={styles.planPrice}>{oneTimePrice(light.priceLabelJa)}</span>
           </div>
           <div className={styles.planMeta}>
             <div>{light.oneTimeLabelJa}</div>
@@ -176,7 +180,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
         >
           <div className={styles.planHeader}>
             <span className={styles.planName}>{full.planNameJa}</span>
-            <span className={styles.planPrice}>{full.priceLabelJa}</span>
+            <span className={styles.planPrice}>{oneTimePrice(full.priceLabelJa)}</span>
           </div>
           <div className={styles.planMeta}>
             <div>{full.oneTimeLabelJa}</div>

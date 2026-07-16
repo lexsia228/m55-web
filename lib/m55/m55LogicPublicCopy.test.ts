@@ -9,11 +9,11 @@ import {
 } from './m55LogicPublicCopy';
 
 describe('M55 logic public copy SSOT — product-specific processing alignment', () => {
-  it('HOME copy states product-specific DOB signals plus current-answer truth', () => {
+  it('HOME copy states commercial value plus exact personal inputs', () => {
     const blob = M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n');
-    assert.match(blob, /商品ごとの固定ルール/);
+    assert.match(blob, /うまくいく流れとつまずきやすい流れ/);
     assert.match(blob, /5つの傾向質問・今の関心1問の合計6回答/);
-    assert.match(blob, /固定ルール/);
+    assert.match(blob, /検査済みの文章素材/);
     assert.match(blob, /生成AIを使う場合があります/);
     assert.match(blob, /追加読み解き/);
   });
@@ -40,8 +40,8 @@ describe('M55 logic public copy SSOT — product-specific processing alignment',
 
   it('separates fixed-rule foundation from bounded generation AI', () => {
     const blob = m55LogicCopyBlob();
-    assert.match(blob, /固定ルール/);
-    assert.match(blob, /章の文章表現に生成AIを使う場合があります/);
+    assert.match(blob, /検査済みの文章素材/);
+    assert.match(blob, /文章表現に生成AIを使う場合があります/);
     assert.match(blob, /追加読み解き.*生成AI/);
     assert.doesNotMatch(blob, /10通りの説明書/);
   });

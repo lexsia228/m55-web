@@ -61,10 +61,11 @@ function readPurchaseInput(): CompatibilityPurchaseJourney | null {
 
 function ProductDetails() {
   const product = COMPATIBILITY_REPORT_PRODUCT_AUTHORITY;
+  const oneTimePrice = product.priceLabel.replace('（税込）', '（税込・買い切り）');
   return (
     <>
       <dl className={styles.details}>
-        <div><dt>商品</dt><dd>{product.publicName}</dd></div>
+        <div><dt>商品</dt><dd>M55 二人の相性解析レポート</dd></div>
         <div>
           <dt>内容</dt>
           <dd>
@@ -72,7 +73,7 @@ function ProductDetails() {
             {product.reportCount}件
           </dd>
         </div>
-        <div><dt>価格</dt><dd className={styles.price}>{product.priceLabel}・日本円（JPY）</dd></div>
+        <div><dt>価格</dt><dd className={styles.price}>{oneTimePrice}</dd></div>
         <div><dt>支払</dt><dd>一回払い</dd></div>
         <div><dt>自動更新</dt><dd>なし</dd></div>
         <div><dt>提供時期</dt><dd>支払い確認後に本文を準備し、完了後にウェブ表示</dd></div>
@@ -216,7 +217,7 @@ export function CompatibilityPurchaseConfirmation({
           >
             {loading
               ? '支払い画面を準備しています…'
-              : `${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel}で購入手続きへ`}
+              : `${COMPATIBILITY_REPORT_PRODUCT_AUTHORITY.priceLabel.replace('（税込）', '（税込・買い切り）')}で購入手続きへ`}
           </button>
         </>
       ) : (

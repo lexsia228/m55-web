@@ -88,7 +88,7 @@ describe('analysisAuthorityReferenceModel — copy SSOT', () => {
   it('states user-facing positioning is not medical/psychological diagnosis or future certainty', () => {
     const blob = M55_USER_FACING_POSITIONING_COPY.join('\n');
     assert.match(blob, /医学的・心理学的な診断、治療、未来予測/);
-    assert.match(blob, /相性の点数化ではありません/);
+    assert.match(blob, /吉凶判定ではありません/);
     assert.match(blob, /参考情報として提供されます/);
   });
 
@@ -115,7 +115,7 @@ describe('analysisAuthorityReferenceModel — copy SSOT', () => {
   });
 
   it('separates fixed-rule and generation-AI product layers', () => {
-    assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalFreeJa, /生成AIも使用しません/);
+    assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalFreeJa, /生成AIは使用しません/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalSavedJa, /生成AIを使う場合があります/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.personalAdditionalJa, /生成AI/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.processing.compatibilitySavedJa, /生成AIは使用せず/);

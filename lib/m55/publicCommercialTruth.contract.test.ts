@@ -17,6 +17,7 @@ const PUBLIC_COPY_FILES = [
   'app/how-m55-works/components/public-product-truth-section.tsx',
   'components/dtr/M55ReadingHome.tsx',
   'components/core/CoreFreeIntroSection.tsx',
+  'components/core/CoreLockedState.tsx',
   'components/core/CoreFreeResultSummaryHub.tsx',
   'components/compatibility/CompatibilityGuestExperience.tsx',
   'components/compatibility/CompatibilityPurchaseExperience.tsx',
@@ -32,16 +33,16 @@ describe('public commercial truth contracts', () => {
     assert.match(truth.inputs.personalJa.join('\n'), /合計6回答/);
     assert.match(truth.inputs.personalJa.join('\n'), /追加6問/);
     assert.match(truth.inputs.compatibilityJa.join('\n'), /二人分の生年月日/);
-    assert.match(truth.inputs.compatibilityJa.join('\n'), /合計6回答/);
+    assert.match(truth.inputs.compatibilityJa.join('\n'), /合計6問/);
     assert.doesNotMatch(truth.inputs.compatibilityJa.join('\n'), /6つ.*焦点.*追加/s);
-    assert.match(truth.processing.personalFreeJa, /生成AIも使用しません/);
-    assert.match(truth.processing.personalFreeJa, /有料保存版の詳細な暦処理は行わず/);
+    assert.match(truth.processing.personalFreeJa, /生成AIは使用しません/);
+    assert.match(truth.processing.personalFreeJa, /5つの傾向質問・今の関心1問/);
     assert.match(truth.processing.personalSavedJa, /生成AIを使う場合があります/);
-    assert.match(truth.processing.personalSavedJa, /無料6回答/);
-    assert.match(truth.processing.personalSavedJa, /追加6回答/);
+    assert.match(truth.processing.personalSavedJa, /無料の6問/);
+    assert.match(truth.processing.personalSavedJa, /追加6問/);
     assert.match(truth.processing.personalAdditionalJa, /生成AI/);
     assert.match(truth.processing.compatibilitySavedJa, /生成AIは使用せず/);
-    assert.match(truth.processing.compatibilitySavedJa, /個人保存版の暦処理/);
+    assert.match(truth.processing.compatibilitySavedJa, /6章/);
   });
 
   it('uses product authorities for prices, chapters, replies, and one-time terms', () => {
@@ -67,7 +68,7 @@ describe('public commercial truth contracts', () => {
     ].join('\n');
     assert.match(blob, /医学的・心理学的な診断/);
     assert.match(blob, /未来予測/);
-    assert.match(blob, /相性の点数/);
+    assert.match(blob, /相性の優劣を示しません/);
     assert.match(blob, /意思決定に代わるものではありません/);
   });
 
@@ -78,11 +79,11 @@ describe('public commercial truth contracts', () => {
     assert.match(page, /PublicProductTruthSection/);
     for (const heading of [
       '1. 入力するもの',
-      '2. M55が整理する方法',
-      '3. 無料で表示するもの',
-      '4. 保存版で追加されるもの',
+      '2. 生年月日と今の状態を重ねる方法',
+      '3. 無料解析で分かること',
+      '4. 詳しいレポートで読めること',
       '5. 追加読み解き・生成AI',
-      '6. 固定ルール部分',
+      '6. 同じ入力を同じ手順で扱う部分',
       '7. 行わないこと',
       '8. 個人情報と保存',
       '9. 商品と支払い',
@@ -97,11 +98,12 @@ describe('public commercial truth contracts', () => {
     const personalResult = read('components/core/CoreFreeResultSummaryHub.tsx');
     const compatibility = read('components/compatibility/CompatibilityGuestExperience.tsx');
     assert.match(personalResult, /5つの傾向回答・今の関心1問の合計6回答/);
+    assert.match(read('components/core/CoreLockedState.tsx'), /自分の強みと、いつものパターンを無料で解析/);
     assert.match(personal, /今日の一歩/);
     assert.match(personal, /4章/);
     assert.match(compatibility, /最初に確かめる|次に一度だけ試す/);
     assert.match(compatibility, /6つの場面/);
-    assert.match(compatibility, /保存版は準備中/);
+    assert.match(compatibility, /相性解析レポートは現在準備中/);
   });
 
   it('shows material purchase terms and Stripe processing before checkout', () => {
@@ -109,7 +111,7 @@ describe('public commercial truth contracts', () => {
     const compatibility = read('components/compatibility/CompatibilityPurchaseExperience.tsx');
     const combined = `${personal}\n${compatibility}`;
     for (const term of [
-      '日本円（JPY）',
+      '税込・買い切り',
       '自動更新',
       '提供時期',
       '購入したアカウント',
@@ -122,6 +124,7 @@ describe('public commercial truth contracts', () => {
     ] as const) {
       assert.match(combined, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }
+    assert.doesNotMatch(combined, /日本円|JPY/);
     assert.match(M55_PUBLIC_COMMERCIAL_TRUTH.commercial.paymentProcessorJa, /環境により異なります/);
   });
 
@@ -147,7 +150,7 @@ describe('public commercial truth contracts', () => {
     const robots = read('app/robots.ts');
     const footer = read('app/_components/PublicFooter.tsx');
     assert.match(layout, /metadataBase/);
-    assert.match(layout, /選択式の質問/);
+    assert.match(layout, /生年月日と6つの質問/);
     assert.match(sitemap, /\/how-m55-works/);
     assert.match(sitemap, /\/dtr\/lp/);
     assert.match(robots, /\/synastry\/report\//);
@@ -172,6 +175,10 @@ describe('public commercial truth contracts', () => {
     assert.match(pricing, /ownershipJa/);
     assert.match(pricing, /\/legal\/refund/);
     assert.doesNotMatch(pricing, /href="\/synastry\/purchase\/confirm"/);
+    assert.match(pricing, /priceCurrency: "JPY"/);
+    assert.doesNotMatch(pricing, /日本円/);
+    assert.match(pricing, /個人解析ライト/);
+    assert.match(pricing, /二人の相性解析レポート/);
     assert.match(pricingCss, /\.plans/);
     assert.match(pricingCss, /grid-template-columns/);
   });

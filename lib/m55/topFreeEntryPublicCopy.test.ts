@@ -8,30 +8,32 @@ import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 describe('topFreeEntryPublicCopy — current public truth', () => {
-  it('defines M55 with product-specific DOB signals plus current answers', () => {
+  it('defines M55 with the approved commercial positioning', () => {
     const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.match(copy.m55Definition.centerJa, /生年月日から得る手がかり/);
-    assert.match(copy.m55Definition.centerJa, /商品ごとの固定ルール/);
-    assert.match(copy.m55Definition.centerJa, /選択式の質問/);
+    assert.match(copy.m55Definition.centerJa, /うまくいく流れ/);
+    assert.match(copy.m55Definition.centerJa, /つまずきやすい流れ/);
+    assert.match(copy.m55Definition.centerJa, /生年月日と6つの質問/);
     assert.match(copy.freeEntry.leadJa, /5つの傾向質問/);
     assert.match(copy.freeEntry.leadJa, /今の関心1問/);
   });
 
   it('keeps HOME emotional copy qualified and non-diagnostic', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
-    assert.equal(home.heroTitleLine1Ja, '生まれた日と、いまの答えから。');
-    assert.equal(home.heroTitleLine2Ja, '自分の輪郭を、読み解く。');
-    assert.match(home.heroSubJa, /生年月日から得る手がかり/);
-    assert.match(home.heroSubJa, /選択式の質問/);
-    assert.match(home.heroTrustJa, /未来や性格を断定する診断ではありません/);
+    assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
+    assert.equal(home.heroTitleLine2Ja, '順番がある。');
+    assert.match(home.heroSubJa, /うまくいく時も、迷う時も/);
+    assert.match(home.heroSubJa, /自然に合う時も、すれ違う時も/);
+    assert.match(home.heroSubJa, /生年月日と今の回答/);
+    assert.doesNotMatch(`${home.heroSubJa}\n${home.heroTrustJa}`, /本当の自分|原因が分かる|必ず/);
   });
 
   it('uses personal Light and FULL authorities without stale umbrella pricing', () => {
     const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(copy.storefront.lightPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa);
     assert.equal(copy.storefront.fullPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa);
-    assert.match(copy.home.paidPlanSavedInfoPriceJa, /保存版ライト/);
-    assert.match(copy.home.paidPlanSavedInfoPriceJa, /保存版FULL/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /個人解析ライト/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /個人解析FULL/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /税込・買い切り/);
     assert.doesNotMatch(copy.home.paidPlanSavedInfoPriceJa, /M55複合暦解析は ¥1,000/);
   });
 
@@ -39,11 +41,11 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     const how = TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works;
     const page = read('app/how-m55-works/page.tsx');
     const truth = read('app/how-m55-works/components/public-product-truth-section.tsx');
-    assert.equal(how.heroHookJa, '生まれた日と、いまの答えから。');
-    assert.match(how.heroLeadJa, /選択式の質問/);
-    assert.match(how.section04FreeMapBodyJa, /5つの傾向質問・今の関心1問/);
-    assert.match(how.section02TitleJa, /個人の保存版/);
-    assert.match(how.section03ParagraphsJa.join('\n'), /個人保存版の暦処理をそのまま適用するものではありません/);
+    assert.equal(how.heroHookJa, '生年月日だけで決めない。今のあなたまで重ねて読む。');
+    assert.match(how.heroLeadJa, /生年月日から見る、変わりにくい傾向/);
+    assert.match(how.section04FreeMapBodyJa, /生年月日と6つの質問/);
+    assert.match(how.section02TitleJa, /個人解析レポート/);
+    assert.match(how.section03ParagraphsJa.join('\n'), /二人分の生年月日/);
     assert.match(page, /PublicProductTruthSection/);
     assert.doesNotMatch(truth, /['"]use client['"]/);
   });

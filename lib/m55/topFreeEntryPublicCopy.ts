@@ -5,7 +5,7 @@ import { M55_PUBLIC_COMMERCIAL_TRUTH } from './analysisAuthorityReferenceModel';
 export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   m55Definition: {
     centerJa:
-      'M55は、生年月日から得る手がかりと選択式の質問を、\n商品ごとの固定ルールで組み合わせる\n自己理解と関係性整理のための読み解きシステムです。',
+      'M55は、自分や二人に繰り返し現れやすい、うまくいく流れとつまずきやすい流れを、生年月日と6つの質問から詳しく解析するサービスです。',
     shortJa:
       M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
     principleJa:
@@ -48,20 +48,20 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
-    heroTitleLine1Ja: '生まれた日と、いまの答えから。',
-    heroTitleLine2Ja: '自分の輪郭を、読み解く。',
+    heroTitleLine1Ja: 'あなたの「いつもこうなる」には、',
+    heroTitleLine2Ja: '順番がある。',
     heroSubJa:
-      '生年月日から得る手がかりと選択式の質問を重ね、\n考え方・動き方・負担が出やすい場面を整理します。',
+      'うまくいく時も、迷う時も。\n自然に合う時も、すれ違う時も。\n\n自分や二人には、\n何度も現れやすい流れがあります。\n\nM55は、生年月日と今の回答を重ねて、\n強み、判断の傾向、関係の特徴まで\n詳しく解析します。',
     heroSupportJa: M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
     heroTrustJa:
-      '未来や性格を断定する診断ではありません。\n入力内容をM55のルールで整理し、見直すための言葉にします。',
+      '自分では気づきにくい\n「うまくいく条件」も、\n無料で見えてきます。',
     heroFunnelLinesJa: [
       '無料で、現在の輪郭を見る。',
       '4章の保存版で、日常の場面まで深める。',
       '追加読み解きで、今の1テーマを整理する。',
     ] as const,
-    heroFunnelCtaJa: '無料で自分を読み解く',
-    heroCompatibilityCtaJa: '二人の関係を無料で見る',
+    heroFunnelCtaJa: '無料解析を始める',
+    heroCompatibilityCtaJa: '',
     introductionLabelJa: 'M55について',
     introductionTitleJa: '決めつけるためではなく、見直すために。',
     introductionBodyJa:
@@ -88,23 +88,67 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreHowSubJa: 'M55の見方を見る →',
     exploreQualitiesTitleJa: '10資質レーンから読む',
     exploreQualitiesSubJa: '10資質レーンを見る →',
-    readNextSectionTitleJa: 'どちらを読みますか',
-    readNextHowTitleJa: '自分を読む',
-    readNextHowDescJa: '生年月日の暦の手がかりと、5つの傾向質問・今の関心1問の合計6回答から、現在の輪郭を整理します。',
-    readNextHowCtaJa: '無料で始める →',
-    readNextQualitiesTitleJa: '二人を読む',
-    readNextQualitiesDescJa: '二人分の生年月日と、今の距離や会話についての回答から反応の違いを整理します。',
-    readNextQualitiesCtaJa: '無料で始める →',
+    readNextSectionTitleJa: 'どちらを解析しますか？',
+    personalFreeCardJa: {
+      labelJa: '自分を知る無料解析',
+      headlineJa: '自分の強みと、\nいつものパターンを知る',
+      bodyJa:
+        'どんな時に自然に力を発揮できるのか。\n何を大切にして選んでいるのか。\nどんな場面で迷いや疲れが始まりやすいのか。\n\n生年月日と6つの質問から、\n今の自分に表れやすい特徴を解析します。',
+      resultHeadingJa: '無料で見えること',
+      resultItemsJa: [
+        '自然に力が出やすい場面',
+        '自分らしい考え方と決め方',
+        '人との心地よい距離',
+        '迷いや疲れが始まりやすい場面',
+        '今の自分に強く表れている傾向',
+      ] as const,
+      metaJa: ['無料・ログイン不要', '生年月日＋6つの質問'] as const,
+      ctaJa: '自分を無料で解析する',
+    },
+    compatibilityFreeCardJa: {
+      labelJa: '二人を知る無料解析',
+      headlineJa: '二人が合うところと、\n違うところを知る',
+      bodyJa:
+        'なぜ自然に話が合いやすいのか。\nどんな違いが互いを補いやすいのか。\nどんな場面で、気持ちやタイミングがずれやすいのか。\n\n二人の生年月日と6つの質問から、\n二人の関係に表れやすい特徴を解析します。',
+      resultHeadingJa: '無料で見えること',
+      resultItemsJa: [
+        '自然に合いやすいところ',
+        '魅力として感じやすい違い',
+        '互いを補いやすい部分',
+        '会話や判断のテンポ',
+        'すれ違いが始まりやすい場面',
+      ] as const,
+      metaJa: ['無料・ログイン不要', '二人の生年月日＋6つの質問'] as const,
+      ctaJa: '二人の相性を無料で解析する',
+    },
+    readNextHowTitleJa: '自分の強みと、いつものパターンを知る',
+    readNextHowDescJa: '生年月日と6つの質問から、今の自分に表れやすい特徴を解析します。',
+    readNextHowCtaJa: '自分を無料で解析する',
+    readNextQualitiesTitleJa: '二人が合うところと、違うところを知る',
+    readNextQualitiesDescJa: '二人の生年月日と6つの質問から、関係に表れやすい特徴を解析します。',
+    readNextQualitiesCtaJa: '二人の相性を無料で解析する',
     tenViewsLearnLinkJa: '10資質レーン',
-    methodFlowLabelJa: '読み解きの方法',
-    methodFlowHeadlineLine1Ja: '自分と二人では、',
-    methodFlowHeadlineLine2Ja: '使う手がかりが異なります。',
+    methodFlowLabelJa: 'M55の違い',
+    methodFlowHeadlineLine1Ja: '生年月日だけで決めない。',
+    methodFlowHeadlineLine2Ja: '今のあなたまで重ねて読む。',
     methodFlowBodyJa:
-      '自分の読み解きでは段階に応じた暦の手がかりを、二人の読み解きでは二人分の日付から得る比較用の手がかりを使います。\nどちらも現在の回答を重ね、商品ごとの固定ルールで整理します。',
+      '生年月日から見る、変わりにくい傾向。\n6つの質問から見る、今の状態。\n\nM55はこの二つを重ねることで、\n生年月日だけでは分からない\n現在の表れ方まで解析します。\n\n個人では、強みと迷いやすさを。\n二人では、合うところと\nすれ違いやすいところを。\n\n良い面と難しい面の両方から、\n今の自分や二人を詳しく見ていきます。',
     methodPreviewFrameworkJa:
-      '10資質は、結果を決めつける分類ではなく、現在の輪郭を整理するためのM55独自フレームです。',
-    methodPreviewLinkJa: '詳しい仕組みを見る',
-    methodPreviewTenViewsLinkJa: '10資質の見方を知る',
+      'M55は、ひとつのタイプに決めるのではなく、どんな時にどの特徴が表れやすいかを見ます。',
+    methodPreviewLinkJa: 'M55の仕組みを詳しく見る',
+    methodPreviewTenViewsLinkJa: '',
+    methodComparisonJa: [
+      {
+        generalLabelJa: '一般的なタイプ診断',
+        generalBodyJa: 'あなたはこのタイプ',
+        m55BodyJa: 'どんな時に、どの特徴が表れやすいか',
+      },
+      {
+        generalLabelJa: '一般的な相性判定',
+        generalBodyJa: '良い・悪いの判定',
+        m55BodyJa: 'どこが合い、どこで違いが表れやすいか',
+      },
+    ] as const,
     methodFlowNodesJa: [
       {
         layerId: 'lunar',
@@ -134,13 +178,13 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     fiveAxisQualitiesNoteJa:
       '10資質レーンは入口の地図です。決めつけず、生年月日の暦リズムと重ねて読みます。',
     fiveAxisMeterNoteJa:
-      '順位ではなく、いまのバランスをつかむための見方です。',
+      '優劣を比べるものではなく、いまのバランスをつかむための見方です。',
     reportSectionEyebrowJa: '無料で見えた輪郭の、その先へ',
     paidPlanLabelJa: '',
-    paidPlanHeadlineLine1Ja: '今の答えを重ねた輪郭を、',
-    paidPlanHeadlineLine2Ja: '4章で読み返せる形に。',
+    paidPlanHeadlineLine1Ja: '無料で全体像を。',
+    paidPlanHeadlineLine2Ja: '有料では、場面ごとに詳しく。',
     paidPlanLeadJa:
-      '個人の保存版では、無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ねます。\n日常の場面、負荷が強くなる前のサイン、戻し方までを4章で整理し、購入したアカウントから読み返せます。',
+      '無料解析では、\n自分や二人の全体的な特徴を確認できます。\n\n有料レポートでは、\n無料解析をもとに、\n仕事、人との関わり、判断、\n合いやすさやすれ違いやすさなどを\n複数の場面から詳しく読み解きます。',
     paidPlanUniquenessChipsJa: [
       '10通りの資質',
       '旧暦',
@@ -182,16 +226,22 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     paidPlanFunnelBodyJa:
       '無料の見取り図を最後まで確認する。\n必要なら4章の保存版を選ぶ。\n購入後は、読み解きホームからいつでも再開できます。',
     paidPlanCtaJa: '無料で自分を読み解く',
-    paidPlanSavedInfoHeadingJa: '保存版ライトと保存版FULL',
+    paidPlanSavedInfoHeadingJa: 'M55 個人解析レポート',
     paidPlanSavedInfoBodyJa:
-      'どちらも同じ4章の保存版です。\nライトは追加読み解き1件、FULLは追加読み解き合計5件です。',
+      '無料解析の続きを、4章の詳しい個人解析で。\n\n自然に力を発揮しやすい条件。\n仕事や人との関わりに表れやすい特徴。\n迷いや疲れにつながりやすい流れ。\n今の自分に強く出ている傾向。\n\n無料解析では扱わない部分まで、4章の個人解析レポートで詳しく読み解きます。',
     paidPlanSavedInfoPriceJa:
-      `${PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa} ${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa}・追加読み解き1件\n${PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa} ${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa}・追加読み解き合計5件\nいずれも日本円の買い切りです。`,
-    paidPlanDetailsCtaJa: '4章の保存版とプランを見る',
+      `個人解析ライト ${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\n4章の個人解析＋追加読み解き1件\n\n個人解析FULL ${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\n4章の個人解析＋追加読み解き合計5件\n\n後からFULL化 ${PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}`,
+    paidPlanDetailsCtaJa: '個人解析レポートの内容を見る',
+    paidPlanOwnershipNoteJa:
+      '購入したレポートは、マイページから後で読み返せます。',
+    compatibilityPaidHeadingJa: 'M55 二人の相性解析レポート',
+    compatibilityPaidHeadlineJa: '無料解析の続きを、6章の詳しい相性解析で。',
+    compatibilityPaidBodyJa:
+      '二人が自然に合いやすいところ。\n魅力として感じやすい違い。\n会話や判断のテンポ。\n距離や気持ちがずれやすい場面。\n\n二人の関係を、6つの場面から詳しく読み解きます。',
     compatibilitySavedAvailableJa:
-      '二人の保存版の商品内容は、無料の見取り図を確認したあとに案内します。',
+      '二人の相性解析レポートは、無料解析の結果から内容と購入条件を確認できます。',
     compatibilitySavedPausedJa:
-      '二人の保存版は準備中です。無料の見取り図は引き続き利用できます。',
+      '二人の相性解析レポートは現在準備中です。無料の相性解析は利用できます。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
@@ -253,12 +303,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     linkLabelJa: '保存版で続きを読む',
   },
   howM55Works: {
-    heroTitleJa: 'M55の見方を知る',
-    heroHookJa: '生まれた日と、いまの答えから。',
+    heroTitleJa: 'M55の仕組み',
+    heroHookJa: '生年月日だけで決めない。今のあなたまで重ねて読む。',
     heroLeadJa:
-      'M55は、生年月日から得る手がかりと選択式の質問を商品ごとのルールで組み合わせ、\n自分や二人の関係を少し離れて見つめるための言葉に変えます。',
+      '生年月日から見る、変わりにくい傾向。\n6つの質問から見る、今の状態。\nM55はこの二つを重ね、現在の表れ方まで詳しく解析します。',
     heroBridgeJa:
-      '暦の土台、現在の回答、固定ルール、生成AIの使用範囲を分けて説明します。\n無料と保存版の違い、入力の扱い、支払い条件もここで確認できます。',
+      '個人では強みと迷いやすさを、二人では合うところとすれ違いやすいところを、\n良い面と難しい面の両方から見ていきます。',
     section01KickerJa: '01 — 生まれた日は、見つめ直すための入口',
     section01TitleJa: '生まれた日は、見つめ直すための入口',
     section01ParagraphsJa: [
@@ -269,10 +319,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     section01LandingJa:
       'まず、生まれた日を入口に、\n近すぎて見えにくかった自分を、落ち着いて見つめ直せます。',
-    section02KickerJa: '02 — 個人の保存版で扱う暦の手がかり',
-    section02TitleJa: '個人の保存版で扱う暦の手がかり',
+    section02KickerJa: '02 — 個人解析レポートで扱う暦の手がかり',
+    section02TitleJa: '個人解析レポートで扱う暦の手がかり',
     section02IntroJa:
-      '個人の保存版では、生年月日から得る複数の暦の手がかりを扱います。\n\n旧暦、十干、二十四節気、節入りを参照し、無料6回答と購入前の追加6回答を重ねて、現在の輪郭を4章に整理します。\n\n二人の読み解きは同じ処理ではなく、二人分の日付から得る比較用の手がかりと合計6回答を固定ルールで整理します。',
+      '個人解析レポートでは、生年月日から得る複数の暦の手がかりを扱います。\n\n旧暦、十干、二十四節気、節入りを参照し、無料の6問と購入前の追加6問を重ねて、強みと迷いやすさを4章で詳しく読み解きます。\n\n二人の解析では、二人分の生年月日と6つの質問を使い、合いやすいところとすれ違いやすいところを整理します。',
     section02LandingJa:
       '同じ入口に見えても、\n見えてくる輪郭はそれぞれ変わります。',
     section02GridAriaLabelJa: '4つの暦の層',
@@ -319,8 +369,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section03TitleJa: '4つの層を重ねると、なぜ一人ずつ違って見えるのか',
     section03ParagraphsJa: [
       'M55では、まず生まれた日を入口として使います。\nただし、これは全体を決める答えではありません。\n最初の手がかりです。',
-      '個人の無料見取り図では無料用の暦の手がかりと合計6回答を使い、保存版では追加6回答と、より詳細な暦の手がかりを重ねます。',
-      '二人の読み解きでは、二人分の日付から得る比較用の手がかりと、距離・会話・焦点を含む合計6回答を使います。個人保存版の暦処理をそのまま適用するものではありません。',
+      '個人の無料解析では生年月日と6つの質問を使い、個人解析レポートでは購入前の追加6問と、より詳しい暦の手がかりを重ねます。',
+      '二人の解析では、二人分の生年月日と、距離・会話・今確かめたいことを含む6つの質問を使います。',
     ] as const,
     section03LandingJa:
       'だからM55は、生まれた日の暦リズムと今の回答から、\nまだ言葉になっていなかった輪郭を整理します。',
@@ -332,14 +382,14 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '協調',
       '段取り',
     ] as const,
-    section04KickerJa: '04 — 無料の見取り図と保存版',
-    section04TitleJa: '無料の見取り図と4章の保存版',
-    section04FreeIntroJa: '無料でも、最初の理解を最後まで確認できます。',
+    section04KickerJa: '04 — 無料解析と詳しいレポート',
+    section04TitleJa: '無料で全体像を。有料では、場面ごとに詳しく。',
+    section04FreeIntroJa: '無料解析でも、自分や二人の全体的な特徴を最後まで確認できます。',
     section04FreeMapBodyJa:
-      '個人の無料見取り図では、\n生年月日から得る無料用の手がかりと5つの傾向質問・今の関心1問から、\n現在の輪郭と最初の小さな行動を確認できます。',
-    section04CompositeHookJa: '無料で見えた輪郭の先へ。',
+      '個人の無料解析では、生年月日と6つの質問から、\n強み、考え方、人との距離、迷いやすい場面、\n今の自分に強く表れている傾向を確認できます。',
+    section04CompositeHookJa: '無料解析では扱わない場面まで、詳しく。',
     section04CompositeBodyJa:
-      '4章の保存版は、\n無料で見えた輪郭を、仕事・近い関係・生活と疲れの具体的な場面へ広げ、\n購入したアカウントで読み返せる形に残します。',
+      '4章の個人解析レポートでは、\n仕事、人との関わり、判断、迷いや疲れにつながりやすい流れまで、\n複数の場面から詳しく読み解きます。',
     section04ValueCardsJa: [
       {
         cardId: 'essence',
@@ -377,7 +427,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section06TitleJa: 'M55が大切にしていること',
     section06ParagraphsJa: [
       'M55は、未来予測、運命や吉凶の断定、医学的・心理学的な診断ではありません。\n医療・法律・投資などの専門的な判断に代わるものでもありません。',
-      '商品ごとに異なる生年月日の手がかりと現在の回答を重ね、\n自分や二人の関係を少し離れて見つめるための見取り図です。',
+      '生年月日と6つの質問を重ね、\n自分や二人の良い面と難しい面を見つめるための解析です。',
       '答えを代わりに決めるのではなく、\n今の自分を知るための視点を届けます。',
     ] as const,
     section06LandingJa:
@@ -385,19 +435,19 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     section07KickerJa: '07 — 次のステップ',
     section07TitleJa: '次のステップ',
     nextLeadJa:
-      'まずは、無料の見取り図で、\n自分の輪郭を確認してみてください。',
-    nextSubJa: '生まれた日と、いまの答えから。\nここから、M55を始められます。',
+      'まずは無料解析で、\n自分の強みといつものパターンを確認してみてください。',
+    nextSubJa: '生年月日と6つの質問から、無料で始められます。',
     nextFootJa:
-      '4章の保存版では、\n無料の見取り図で見えた輪郭を、\n日常の具体的な場面まで深めて残します。',
+      '4章の個人解析レポートでは、\n無料解析で見えた全体像を、\n仕事や人との関わりなどの具体的な場面まで深めます。',
     nextClosingJa:
       '気になったテーマは、\n追加読み解きで今の自分に合わせて整理できます。',
-    primaryCtaJa: '無料の見取り図を見る',
-    secondaryCtaJa: '4章の保存版を見る',
+    primaryCtaJa: '自分を無料で解析する',
+    secondaryCtaJa: '個人解析レポートの内容を見る',
     backButtonJa: '前のページへ戻る',
   },
   metadata: {
     howM55WorksDescriptionJa:
-      'M55が個人と二人の読み解きで異なる生年月日の手がかりと質問をどう扱うか、固定ルールと生成AIの範囲、無料と保存版、個人情報、支払い条件を説明します。',
+      'M55が生年月日と6つの質問をどう重ね、個人の強みと迷いやすさ、二人の合いやすさとすれ違いやすさを解析するか説明します。',
   },
   cta: {
     openFreeMapJa: '無料で見てみる',

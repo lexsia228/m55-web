@@ -76,22 +76,26 @@ function IntentSurface({
       <div className={styles.intentCopy}>
         <div className={styles.intentHeading}>
           <div>
-            <p className={styles.eyebrow}>{personal ? '自分の読み解き' : '二人の読み解き'}</p>
-            <h2>{personal ? '自分を読む' : '二人を読む'}</h2>
+            <p className={styles.eyebrow}>{personal ? '自分を知る解析' : '二人を知る解析'}</p>
+            <h2>
+              {personal
+                ? '自分の強みと、いつものパターンを解析する'
+                : '二人が合うところと、違いが表れやすい場面を解析する'}
+            </h2>
           </div>
           {model.showOwnership ? <M55StatusPill tone="owned">購入済み</M55StatusPill> : null}
           {!model.showOwnership && model.commerceState === 'paused' ? (
-            <M55StatusPill tone="paused">保存版は準備中</M55StatusPill>
+            <M55StatusPill tone="paused">相性解析レポートは準備中</M55StatusPill>
           ) : null}
         </div>
         <p className={styles.description}>{description}</p>
         <div className={styles.depth}>
           <div>
-            <h3>無料で分かること</h3>
+            <h3>無料解析で分かること</h3>
             <p>{freeValue}</p>
           </div>
           <div>
-            <h3>保存版で深められること</h3>
+            <h3>詳しいレポートで読めること</h3>
             <ul>
               {paidValue.map((item) => <li key={item}>{item}</li>)}
             </ul>
@@ -228,11 +232,12 @@ export default function M55ReadingHome({
       <div className={styles.page}>
         <header className={styles.hero}>
           <div className={styles.heroCopy}>
-            <p className={styles.heroEyebrow}>読み解きホーム</p>
-            <h1>M55の読み解き</h1>
+            <p className={styles.heroEyebrow}>無料解析と購入済みレポート</p>
+            <h1>M55の解析</h1>
             <p>
-              商品ごとに異なる生年月日の手がかりと今の回答から、自分の輪郭や二人の反応の違いを整理します。
-              無料で確かめるところから、保存して読み返すところまでを一つにまとめました。
+              自分の強みや迷いやすさを知りたい時も。二人が合うところや、
+              すれ違いやすいところを知りたい時も。無料解析を始めたり、
+              購入した詳しいレポートを開いたりできます。
             </p>
           </div>
           <div className={styles.brandBridge} aria-hidden="true">
@@ -277,12 +282,12 @@ export default function M55ReadingHome({
         <div className={styles.intentStack}>
           <IntentSurface
             model={models[0]}
-            description="生年月日から得る無料用の暦の手がかりに、5つの傾向質問と今の関心1問を重ねて、現在の強み、負荷がかかる場面、整え方の輪郭を読みます。"
-            freeValue="暦の土台と今の回答から、5つの視点と最初の小さな行動まで"
+            description="生年月日と6つの質問から、自然に力を発揮しやすい場面、自分らしい考え方、迷いや疲れが始まりやすい場面を解析します。"
+            freeValue="強み、考え方、人との距離、迷いやすい場面、今強く表れている傾向"
             paidValue={[
-              '日常の具体的な場面',
-              '負荷が強まる前の流れ',
-              'あとから読み返せる章立て',
+              '仕事や人との関わりに表れやすい特徴',
+              '迷いや疲れにつながりやすい流れ',
+              '今の自分に強く出ている傾向',
             ]}
             onPrimary={() =>
               trackFunnelAction(
@@ -304,7 +309,7 @@ export default function M55ReadingHome({
                   ? {
                       kind: 'link',
                       href: '/dtr/lp',
-                      label: '保存版について確認する',
+                      label: '個人解析レポートについて確認する',
                       onClick: () =>
                         trackFunnelAction(
                           M55_FUNNEL_EVENTS.purchaseDetailsOpen,
@@ -316,12 +321,12 @@ export default function M55ReadingHome({
           />
           <IntentSurface
             model={models[1]}
-            description="二人分の生年月日と、入力者から観察できる今の距離・会話についての6つの回答を重ね、反応の違いを点数にせず場面として読みます。"
-            freeValue="二人の重なりと違い、今続きやすい連鎖、最初に確かめる行動まで"
+            description="二人の生年月日と6つの質問から、自然に合いやすいところ、互いを補いやすい違い、すれ違いが始まりやすい場面を解析します。"
+            freeValue="合いやすいところ、魅力として感じやすい違い、会話や判断のテンポ"
             paidValue={[
-              'すれ違いが始まる場面',
-              '距離が開く前に起きること',
-              '戻るために使える言葉と小さな行動',
+              'すれ違いが始まりやすい場面',
+              '距離や気持ちがずれやすい場面',
+              '二人の特徴を6つの場面から詳しく読む',
             ]}
             onPrimary={() =>
               trackFunnelAction(

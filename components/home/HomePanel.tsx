@@ -22,7 +22,6 @@ import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
-const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
@@ -53,7 +52,6 @@ export default function HomePanel({
   }, [isLoaded, ownerId, profileEpoch]);
 
   const hasProfile = view.kind === 'has_profile';
-  const showPublicValueBlocks = isLoaded && view.kind !== 'loading';
 
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
@@ -102,45 +100,14 @@ export default function HomePanel({
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
-                    {isLoaded && view.kind === 'no_profile' && (
-                      <button
-                        type="button"
-                        className={styles.posterHeroCta}
-                        data-testid="m55-home-open-birth-intake"
-                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
-                        onClick={() => {
-                          trackFunnelAction(M55_FUNNEL_EVENTS.personalFreeStart, 'reading_personal');
-                          setBirthIntakeOpen(true);
-                        }}
-                      >
-                        {homeCopy.heroFunnelCtaJa} →
-                      </button>
-                    )}
-                    {isLoaded && hasProfile && (
-                      <Link
-                        href={ctaCopy.coreFreeHref}
-                        className={styles.posterHeroCta}
-                        data-testid="m55-home-has-profile-hero"
-                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
-                        onClick={() =>
-                          trackFunnelAction(M55_FUNNEL_EVENTS.personalFreeStart, 'reading_personal')
-                        }
-                      >
-                        {homeCopy.heroFunnelCtaJa} →
-                      </Link>
-                    )}
-                    <Link
-                      href="/synastry"
-                      className={styles.posterHeroSecondaryCta}
-                      onClick={() =>
-                        trackFunnelAction(
-                          M55_FUNNEL_EVENTS.compatibilityFreeStart,
-                          'reading_compatibility',
-                        )
-                      }
+                    <a
+                      href="#m55-home-free-intents"
+                      className={styles.posterHeroCta}
+                      data-testid="m55-home-has-profile-hero"
+                      data-m55-hero-intent-anchor="true"
                     >
-                      {homeCopy.heroCompatibilityCtaJa}
-                    </Link>
+                      {homeCopy.heroFunnelCtaJa} →
+                    </a>
                   </div>
                 </div>
               </div>
@@ -153,96 +120,118 @@ export default function HomePanel({
         className={`${styles.homeSurfaceShell} ${styles.homeBelowHeroStack}`}
         data-testid="m55-home-public-surface-shell"
       >
-      {showPublicValueBlocks && (
-        <section
-          className={styles.homeSeenBridge}
-          data-testid="m55-home-seen-things-bridge"
-          data-m55-visible-introduction="true"
-          aria-labelledby="m55-home-introduction-title"
-        >
-          <div className={styles.homeSeenBridgeInner}>
-            <p className={styles.homeSeenBridgeLabel}>{homeCopy.introductionLabelJa}</p>
-            <h2 id="m55-home-introduction-title" className={styles.homeSeenBridgeHeadline}>
-              {homeCopy.introductionTitleJa}
-            </h2>
-            <p className={styles.homeIntroductionBody}>
-              {homeCopy.introductionBodyJa}
-            </p>
-            <p className={styles.homeIntroductionTrust}>
-              {homeCopy.introductionTrustJa}
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          UNDERSTANDING MODE — public education only (no personal result UI)
-          ═══════════════════════════════════════════════════════════════════ */}
-      {showPublicValueBlocks && (
         <section
           className={styles.homeReadNextSection}
-          data-testid="m55-home-understanding"
+          id="m55-home-free-intents"
+          data-testid="m55-home-seen-things-bridge"
+          data-m55-free-intents="true"
           aria-labelledby="m55-home-read-next-title"
         >
           <h2 id="m55-home-read-next-title" className={styles.homeReadNextSectionTitle}>
             {homeCopy.readNextSectionTitleJa}
           </h2>
-          <div className={styles.homeReadNextGrid} role="navigation" aria-label={homeCopy.readNextSectionTitleJa}>
-            <Link
-              href="/core"
-              className={styles.homeReadNextCard}
-              onClick={() =>
-                trackFunnelAction(M55_FUNNEL_EVENTS.personalFreeStart, 'reading_personal')
-              }
-            >
-              <span
-                className={styles.homeReadNextThumb}
-                data-testid="m55-home-demo-five-element"
+          <div className={styles.homeReadNextGrid} data-testid="m55-home-understanding">
+            <article className={`${styles.homeIntentCard} ${styles.homeIntentPersonal}`}>
+              <div className={styles.homeIntentHeading}>
+                <span className={styles.homeReadNextThumb} data-testid="m55-home-demo-five-element">
+                  <Image
+                    src="/home/card-how-to-read.webp"
+                    alt=""
+                    fill
+                    sizes="52px"
+                    className={styles.homeReadNextThumbImage}
+                  />
+                </span>
+                <div>
+                  <p className={styles.homeIntentLabel}>{homeCopy.personalFreeCardJa.labelJa}</p>
+                  <h3 className={styles.homeIntentHeadline} style={{ whiteSpace: 'pre-line' }}>
+                    {homeCopy.personalFreeCardJa.headlineJa}
+                  </h3>
+                </div>
+              </div>
+              <p className={styles.homeIntentBodyText} style={{ whiteSpace: 'pre-line' }}>
+                {homeCopy.personalFreeCardJa.bodyJa}
+              </p>
+              <div className={styles.homeIntentResult}>
+                <p>{homeCopy.personalFreeCardJa.resultHeadingJa}</p>
+                <ul>
+                  {homeCopy.personalFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div className={styles.homeIntentMeta}>
+                {homeCopy.personalFreeCardJa.metaJa.map((item) => <span key={item}>{item}</span>)}
+              </div>
+              {isLoaded && hasProfile ? (
+                <Link
+                  href="/core"
+                  className={styles.homeIntentAction}
+                  onClick={() =>
+                    trackFunnelAction(M55_FUNNEL_EVENTS.personalFreeStart, 'reading_personal')
+                  }
+                >
+                  {homeCopy.personalFreeCardJa.ctaJa}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.homeIntentAction}
+                  data-testid="m55-home-open-birth-intake"
+                  onClick={() => {
+                    trackFunnelAction(M55_FUNNEL_EVENTS.personalFreeStart, 'reading_personal');
+                    setBirthIntakeOpen(true);
+                  }}
+                >
+                  {homeCopy.personalFreeCardJa.ctaJa}
+                </button>
+              )}
+            </article>
+
+            <article className={`${styles.homeIntentCard} ${styles.homeIntentCompatibility}`}>
+              <div className={styles.homeIntentHeading}>
+                <span className={`${styles.homeReadNextThumb} ${styles.homeReadNextThumbQualities}`}>
+                  <Image
+                    src="/home/card-qualities-flower.webp"
+                    alt=""
+                    fill
+                    sizes="52px"
+                    className={`${styles.homeReadNextThumbImage} ${styles.homeReadNextThumbImageQualities}`}
+                  />
+                </span>
+                <div>
+                  <p className={styles.homeIntentLabel}>{homeCopy.compatibilityFreeCardJa.labelJa}</p>
+                  <h3 className={styles.homeIntentHeadline} style={{ whiteSpace: 'pre-line' }}>
+                    {homeCopy.compatibilityFreeCardJa.headlineJa}
+                  </h3>
+                </div>
+              </div>
+              <p className={styles.homeIntentBodyText} style={{ whiteSpace: 'pre-line' }}>
+                {homeCopy.compatibilityFreeCardJa.bodyJa}
+              </p>
+              <div className={styles.homeIntentResult}>
+                <p>{homeCopy.compatibilityFreeCardJa.resultHeadingJa}</p>
+                <ul>
+                  {homeCopy.compatibilityFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+              <div className={styles.homeIntentMeta}>
+                {homeCopy.compatibilityFreeCardJa.metaJa.map((item) => <span key={item}>{item}</span>)}
+              </div>
+              <Link
+                href="/synastry"
+                className={styles.homeIntentAction}
+                onClick={() =>
+                  trackFunnelAction(
+                    M55_FUNNEL_EVENTS.compatibilityFreeStart,
+                    'reading_compatibility',
+                  )
+                }
               >
-                <Image
-                  src="/home/card-how-to-read.webp"
-                  alt=""
-                  fill
-                  sizes="52px"
-                  className={styles.homeReadNextThumbImage}
-                />
-              </span>
-              <span className={styles.homeReadNextBody}>
-                <span className={styles.homeReadNextCardTitle}>{homeCopy.readNextHowTitleJa}</span>
-                <span className={styles.homeReadNextCardDesc}>{homeCopy.readNextHowDescJa}</span>
-                <span className={styles.homeReadNextCta}>{homeCopy.readNextHowCtaJa}</span>
-              </span>
-            </Link>
-            <Link
-              href="/synastry"
-              className={styles.homeReadNextCard}
-              onClick={() =>
-                trackFunnelAction(
-                  M55_FUNNEL_EVENTS.compatibilityFreeStart,
-                  'reading_compatibility',
-                )
-              }
-            >
-              <span className={`${styles.homeReadNextThumb} ${styles.homeReadNextThumbQualities}`}>
-                <Image
-                  src="/home/card-qualities-flower.webp"
-                  alt=""
-                  fill
-                  sizes="52px"
-                  className={`${styles.homeReadNextThumbImage} ${styles.homeReadNextThumbImageQualities}`}
-                />
-              </span>
-              <span className={styles.homeReadNextBody}>
-                <span className={styles.homeReadNextCardTitle}>{homeCopy.readNextQualitiesTitleJa}</span>
-                <span className={styles.homeReadNextCardDesc}>{homeCopy.readNextQualitiesDescJa}</span>
-                <span className={styles.homeReadNextCta}>{homeCopy.readNextQualitiesCtaJa}</span>
-              </span>
-            </Link>
+                {homeCopy.compatibilityFreeCardJa.ctaJa}
+              </Link>
+            </article>
           </div>
         </section>
-      )}
 
-      {showPublicValueBlocks && (
         <section
           className={styles.homeMethodLayer}
           data-testid="m55-home-five-axis-read"
@@ -260,13 +249,25 @@ export default function HomePanel({
             <p className={styles.homeMethodFramework}>
               {homeCopy.methodPreviewFrameworkJa}
             </p>
+            <div className={styles.homeMethodComparison}>
+              {homeCopy.methodComparisonJa.map((item) => (
+                <article key={item.generalLabelJa}>
+                  <div>
+                    <span>{item.generalLabelJa}</span>
+                    <p>{item.generalBodyJa}</p>
+                  </div>
+                  <div>
+                    <span>M55</span>
+                    <p>{item.m55BodyJa}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
             <nav className={styles.homeMethodLinks} aria-label="読み解きの方法を知る">
               <Link href="/how-m55-works">{homeCopy.methodPreviewLinkJa}</Link>
-              <Link href="/ten-views">{homeCopy.methodPreviewTenViewsLinkJa}</Link>
             </nav>
           </div>
         </section>
-      )}
 
       </div>
 
@@ -302,6 +303,16 @@ export default function HomePanel({
               <p className={styles.homePaidPlanSavedInfoPrice} style={{ whiteSpace: 'pre-line' }}>
                 {homeCopy.paidPlanSavedInfoPriceJa}
               </p>
+              <p className={styles.homePaidPlanOwnershipNote}>
+                {homeCopy.paidPlanOwnershipNoteJa}
+              </p>
+            </div>
+            <div className={styles.homePaidPlanCompatibility}>
+              <p className={styles.homePaidPlanSavedInfoHeading}>
+                {homeCopy.compatibilityPaidHeadingJa}
+              </p>
+              <h3>{homeCopy.compatibilityPaidHeadlineJa}</h3>
+              <p style={{ whiteSpace: 'pre-line' }}>{homeCopy.compatibilityPaidBodyJa}</p>
               <p className={styles.homePaidPlanCompatibilityNote}>
                 {compatibilityCommerceAvailable
                   ? homeCopy.compatibilitySavedAvailableJa

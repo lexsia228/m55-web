@@ -10,9 +10,6 @@ import {
   collectPaidDtrLpCopyStrings,
 } from './paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../oneTimeCheckout';
-import {
-  assertAuthorityVocabularyPresent,
-} from './testSupport/analysisAuthorityCopyAssertions';
 
 const FORBIDDEN_LP_TERMS = [
   '¥500',
@@ -40,10 +37,10 @@ const FORBIDDEN_LP_TERMS = [
 
 const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 
-const SAVED_REPORT_HEADLINE_JA = '自分の出方を、4章の流れで読み直す。';
+const SAVED_REPORT_HEADLINE_JA = '強みと迷いやすさを、場面ごとに詳しく読む。';
 
 const SAVED_REPORT_BODY_JA =
-  '保存版は、M55独自の10資質フレーム、生年月日の暦リズム、質問回答を重ねて、\n比較的変わりにくい土台と現在の表れ方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールを土台にし、\n提供設定に応じて章の文章表現に生成AIを使う場合があります。\n\n保存版の4章は、\nライトとFULLで共通です。';
+  '個人解析レポートは、生年月日と質問回答を重ね、\n自然に力を発揮しやすい条件、\n仕事や人との関わりに表れやすい特徴、\n迷いや疲れにつながりやすい流れ、\n今の自分に強く出ている傾向を4章で詳しく読むデジタルレポートです。\n\n購入したレポートは、マイページから後で読み返せます。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。';
 
 const OWNED_STATE_STRINGS = [
   '保存版の閲覧・準備状況はこちらから進められます。',
@@ -74,7 +71,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.tiers.full.productKey, PAID_DTR_SAVED_REPORT_PRICING.full.productKey);
   });
 
-  it('matches frozen savedReport headline and body copy', () => {
+  it('matches the approved commercial report headline and body copy', () => {
     assert.equal(PAID_DTR_LP.savedReport.headlineJa, SAVED_REPORT_HEADLINE_JA);
     assert.equal(PAID_DTR_LP.savedReport.bodyJa, SAVED_REPORT_BODY_JA);
   });
@@ -162,17 +159,18 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('defines hero compare anchor and CTA labels', () => {
     assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'FULLとライトを比べる');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
-    assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
-    assert.match(lpPageSource, /4章の個人保存版 \| M55/);
+    assert.equal(PAID_DTR_LP.hero.subheadlineJa, 'M55 個人解析レポート');
+    assert.match(PAID_DTR_LP.hero.headlineJa, /無料解析の続きを/);
+    assert.match(lpPageSource, /M55 個人解析レポート \| 4章の詳しい個人解析/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
-    assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '保存版FULLを選ぶ');
-    assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '保存版ライトを選ぶ');
-    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み返し方に合わせて選べます');
+    assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '個人解析FULLを選ぶ');
+    assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '個人解析ライトを選ぶ');
+    assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '個人解析レポートのプラン');
     assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じ4章の保存版/);
     assert.equal(PAID_DTR_LP.tiers.full.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '4章の保存版');
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '4章の保存版');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '詳しい4章');
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '詳しい4章');
     assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でFULL化/);
     assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');
   });
@@ -191,10 +189,11 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
   });
 
-  it('aligns LP copy with analysis authority reference model vocabulary', () => {
+  it('aligns LP copy with commercial value and safety boundaries', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assertAuthorityVocabularyPresent(blob);
-    assert.match(blob, /本人の回答/);
+    assert.match(blob, /自然に力を発揮しやすい条件/);
+    assert.match(blob, /迷いや疲れにつながりやすい流れ/);
+    assert.match(blob, /仕事や人との関わり/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);
     assert.match(blob, /将来の不確実な事実を断定/);

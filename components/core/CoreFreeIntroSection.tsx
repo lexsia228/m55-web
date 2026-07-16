@@ -15,14 +15,14 @@ export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Prop
       aria-labelledby="core-free-intro-title"
     >
       <CoreFreeJourneyStepper currentStep="questions" />
-      <span className={styles.tierAOverline}>5つの問い</span>
+      <span className={styles.tierAOverline}>無料解析・6つの質問</span>
       <h2 id="core-free-intro-title" className={styles.sectionTitle}>
-        生年月日の土台に、今の感じ方を重ねます
+        自分の強みと、いつものパターンを知る
       </h2>
       <p className={styles.sectionLead}>
-        5つの短い問いと、今の関心を1つ選びます。
+        生年月日と6つの質問から、自然に力を発揮しやすい場面、
         <br />
-        約1分で、自分の輪郭を確認できます。
+        自分らしい考え方、迷いや疲れが始まりやすい場面を解析します。
       </p>
 
       <div className={styles.freeIntroDobCard}>
@@ -31,12 +31,12 @@ export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Prop
       </div>
 
       <ul className={styles.freeIntroMetaList}>
-        <li>5問＋関心・約1分</li>
+        <li>無料・6つの質問</li>
         <li>正解はありません</li>
       </ul>
 
       <button type="button" className={styles.freeIntroPrimaryBtn} onClick={onStart}>
-        5つの問いを始める
+        6つの質問を始める
       </button>
     </section>
   );
