@@ -86,8 +86,8 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
 
   it('aligns free vs saved boundary with 4-chapter saved-report value', () => {
     const { coreBoundary } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.match(coreBoundary.freeLeadJa, /輪郭/);
-    assert.match(coreBoundary.freeLeadJa, /10資質レーン/);
+    assert.match(coreBoundary.freeLeadJa, /無料用の手がかり/);
+    assert.match(coreBoundary.freeLeadJa, /5つの傾向質問・今の関心1問/);
     assert.match(coreBoundary.savedLeadJa, /4章/);
     assert.match(coreBoundary.savedLeadJa, /動き方・疲れ方・戻し方/);
     assert.match(coreBoundary.savedLeadJa, /追加読み解き/);
@@ -121,9 +121,10 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /無料で分かったことと、保存版で深まること/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '保存版の質問へ進む');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /無料結果では見えなかった、自分の詳しい特徴/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '詳しい個人レポートを見る');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /レポートの内容は同じ/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{lightPriceLabel\}/);

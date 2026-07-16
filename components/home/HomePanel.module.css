@@ -305,12 +305,156 @@
 }
 
 .posterHeroMeta {
-  margin: 8px auto 0;
-  color: rgba(25, 22, 31, 0.62);
-  font-size: clamp(9.5px, 2vw, 10.5px);
+  margin: 10px auto 0;
+  color: rgba(25, 22, 31, 0.72);
+  font-size: clamp(10px, 2vw, 11px);
   line-height: 1.5;
   text-align: center;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.72);
+}
+
+.posterHeroOutcomeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 12px);
+  width: min(100%, 38rem);
+  margin: clamp(14px, 3vw, 20px) auto 0;
+}
+
+.posterHeroOutcomeCard {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 2vw, 12px);
+  min-width: 0;
+  padding: clamp(10px, 2.2vw, 14px);
+  border: 1px solid rgba(47, 118, 111, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.posterHeroOutcomeCompatibility {
+  border-color: rgba(78, 88, 124, 0.22);
+}
+
+.posterHeroOutcomeCard p {
+  margin: 0 0 5px;
+  color: #35665f;
+  font-size: clamp(10px, 2.2vw, 11px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.posterHeroOutcomeCompatibility p {
+  color: #4e587c;
+}
+
+.posterHeroOutcomeCard ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(35, 32, 42, 0.82);
+  font-size: clamp(10px, 2.15vw, 11.5px);
+  line-height: 1.55;
+}
+
+.posterHeroPersonalVisual,
+.posterHeroCompatibilityVisual {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.posterHeroPersonalVisual span,
+.posterHeroPersonalVisual i,
+.posterHeroPersonalVisual b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.posterHeroPersonalVisual span {
+  width: 9px;
+  height: 9px;
+  background: #2f766f;
+}
+
+.posterHeroPersonalVisual i {
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(47, 118, 111, 0.72);
+}
+
+.posterHeroPersonalVisual b {
+  width: 41px;
+  height: 41px;
+  border: 1px solid rgba(47, 118, 111, 0.28);
+}
+
+.posterHeroPersonalVisual::before,
+.posterHeroPersonalVisual::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  width: 1px;
+  height: 38px;
+  background: rgba(47, 118, 111, 0.38);
+  transform-origin: center;
+}
+
+.posterHeroPersonalVisual::after {
+  transform: rotate(90deg);
+}
+
+.posterHeroCompatibilityVisual span,
+.posterHeroCompatibilityVisual i {
+  position: absolute;
+  top: 9px;
+  display: block;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.posterHeroCompatibilityVisual span {
+  left: 2px;
+  border: 2px solid #b96962;
+  background: rgba(185, 105, 98, 0.1);
+}
+
+.posterHeroCompatibilityVisual i {
+  right: 2px;
+  border: 2px solid #4e587c;
+  background: rgba(78, 88, 124, 0.1);
+}
+
+.posterHeroCompatibilityVisual b {
+  position: absolute;
+  left: 18px;
+  top: 15px;
+  display: block;
+  width: 8px;
+  height: 15px;
+  border: 1px solid rgba(73, 67, 90, 0.7);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.posterHeroCompatibilityVisual::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 1px;
+  background: linear-gradient(90deg, #b96962 0 45%, transparent 45% 55%, #4e587c 55% 100%);
 }
 
 /* ベース写真＋ごく弱いトーンヴェール（画像主役） */
@@ -1029,10 +1173,10 @@
 }
 
 .homeIntentBodyText {
-  margin: clamp(16px, 3vw, 20px) 0 0;
+  margin: clamp(12px, 2.6vw, 16px) 0 0;
   color: rgba(45, 42, 51, 0.78);
   font-size: clamp(12.5px, 2.5vw, 14px);
-  line-height: 1.9;
+  line-height: 1.7;
 }
 
 .homeIntentResult {
@@ -1058,11 +1202,26 @@
 }
 
 .homeIntentResult ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
   margin: 0;
-  padding-left: 1.1rem;
+  padding: 0;
+  list-style: none;
   color: rgba(45, 42, 51, 0.78);
   font-size: clamp(11.5px, 2.3vw, 12.5px);
   line-height: 1.75;
+}
+
+.homeIntentResult li {
+  padding: 5px 9px;
+  border: 1px solid rgba(47, 118, 111, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.homeIntentCompatibility .homeIntentResult li {
+  border-color: rgba(78, 88, 124, 0.16);
 }
 
 .homeIntentMeta {
@@ -1251,6 +1410,123 @@
   height: 56px;
 }
 
+.homeResultPreview {
+  margin: clamp(28px, 5vw, 42px) 0;
+  padding: clamp(24px, 4.5vw, 36px) clamp(16px, 4vw, 28px);
+  border: 1px solid rgba(47, 118, 111, 0.13);
+  border-radius: 16px;
+  background: rgba(252, 250, 247, 0.86);
+}
+
+.homeResultPreviewHeading {
+  margin: 0 0 clamp(18px, 3.5vw, 24px);
+  text-align: center;
+}
+
+.homeResultPreviewHeading > p {
+  margin: 0 0 7px;
+  color: rgba(47, 118, 111, 0.72);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.homeResultPreviewHeading h2 {
+  margin: 0;
+  color: #2d2934;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(21px, 4.4vw, 29px);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.homeResultPreviewGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.homeResultPreviewCard {
+  overflow: hidden;
+  border: 1px solid rgba(47, 118, 111, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.homeResultPreviewCard:last-child {
+  border-color: rgba(78, 88, 124, 0.17);
+}
+
+.homeResultPreviewCard header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(45, 42, 51, 0.08);
+  background: rgba(47, 118, 111, 0.055);
+}
+
+.homeResultPreviewCard:last-child header {
+  background: rgba(78, 88, 124, 0.055);
+}
+
+.homeResultPreviewCard header span {
+  color: #46726c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.homeResultPreviewCard:last-child header span {
+  color: #575f86;
+}
+
+.homeResultPreviewCard h3 {
+  margin: 5px 0 0;
+  color: #292530;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(16px, 3.4vw, 19px);
+  font-weight: 500;
+}
+
+.homeResultPreviewCard ul {
+  margin: 0;
+  padding: 6px 16px;
+  list-style: none;
+}
+
+.homeResultPreviewCard li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(45, 42, 51, 0.07);
+}
+
+.homeResultPreviewCard li:last-child {
+  border-bottom: 0;
+}
+
+.homeResultPreviewCard li span {
+  color: rgba(47, 118, 111, 0.6);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 10px;
+}
+
+.homeResultPreviewCard:last-child li span {
+  color: rgba(78, 88, 124, 0.62);
+}
+
+.homeResultPreviewCard li strong {
+  color: rgba(45, 42, 51, 0.8);
+  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+@media (min-width: 768px) {
+  .homeResultPreviewGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* M55の見方 — 精密テキストレイヤー（旧暦 / 十干 / 二十四節気） */
 @keyframes homeMethodLayerSectionIn {
   from {
@@ -1356,6 +1632,42 @@
   color: rgba(45, 42, 51, 0.68);
   font-size: clamp(11.5px, 2.4vw, 12.5px);
   line-height: 1.75;
+}
+
+.homeOutcomeExplanations {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 18px;
+  text-align: left;
+}
+
+.homeOutcomeExplanations article {
+  padding: clamp(15px, 3vw, 19px);
+  border: 1px solid rgba(45, 42, 51, 0.09);
+  border-radius: 12px;
+  background: rgba(255, 253, 249, 0.68);
+}
+
+.homeOutcomeExplanations h3 {
+  margin: 0 0 8px;
+  color: #2d2934;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(15px, 3.1vw, 17px);
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.homeOutcomeExplanations p {
+  margin: 0;
+  color: rgba(45, 42, 51, 0.72);
+  font-size: clamp(12px, 2.5vw, 13px);
+  line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+  .homeOutcomeExplanations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .homeMethodComparison {
@@ -2669,10 +2981,10 @@
 
 .homePaidPlanSavedInfo {
   margin: 0;
-  padding: clamp(12px, 2.8vw, 14px) clamp(12px, 3vw, 16px);
-  border-radius: 8px;
-  border: 1px solid rgba(124, 111, 214, 0.1);
-  background: rgba(255, 255, 255, 0.55);
+  padding: clamp(16px, 3.4vw, 22px);
+  border-radius: 14px;
+  border: 1px solid rgba(124, 111, 214, 0.14);
+  background: rgba(255, 255, 255, 0.68);
   text-align: left;
 }
 
@@ -2686,12 +2998,109 @@
 }
 
 .homePaidPlanSavedInfoBody {
-  margin: 0 0 8px;
-  font-size: clamp(11px, 2.5vw, 12px);
+  margin: 16px 0 0;
+  font-size: clamp(12px, 2.5vw, 13px);
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.75;
   color: rgba(45, 40, 58, 0.72);
   text-wrap: balance;
+}
+
+.homePaidPlanOutcomeList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.homePaidPlanOutcomeList li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 13px;
+  border-left: 2px solid rgba(47, 118, 111, 0.5);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.homePaidPlanOutcomeList strong {
+  color: #2b413e;
+  font-size: clamp(12.5px, 2.7vw, 14px);
+  line-height: 1.5;
+}
+
+.homePaidPlanOutcomeList span {
+  color: rgba(45, 42, 51, 0.68);
+  font-size: clamp(11px, 2.3vw, 12px);
+  line-height: 1.6;
+}
+
+.homePaidPlanComparison {
+  margin: clamp(18px, 3.6vw, 24px) 0 0;
+  padding: clamp(16px, 3.4vw, 22px);
+  border: 1px solid rgba(124, 111, 214, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.homePaidPlanTierGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.homePaidPlanTierGrid article,
+.homePaidPlanUpgrade {
+  padding: 14px;
+  border: 1px solid rgba(124, 111, 214, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  text-align: left;
+}
+
+.homePaidPlanTierGrid h3,
+.homePaidPlanUpgrade h3 {
+  margin: 0;
+  color: #312b43;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(15px, 3.2vw, 18px);
+  font-weight: 600;
+}
+
+.homePaidPlanTierGrid strong,
+.homePaidPlanUpgrade strong {
+  display: block;
+  margin-top: 5px;
+  color: #4a4260;
+  font-size: clamp(12px, 2.6vw, 13px);
+}
+
+.homePaidPlanTierGrid p,
+.homePaidPlanUpgrade p {
+  margin: 9px 0 0;
+  color: rgba(45, 42, 51, 0.7);
+  font-size: clamp(11px, 2.3vw, 12px);
+  line-height: 1.6;
+}
+
+.homePaidPlanUpgrade {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+  .homePaidPlanOutcomeList,
+  .homePaidPlanTierGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .homePaidPlanUpgrade {
+    grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: center;
+  }
+
+  .homePaidPlanUpgrade p {
+    margin-top: 0;
+  }
 }
 
 .homePaidPlanSavedInfoPrice {
@@ -2719,11 +3128,12 @@
 }
 
 .homePaidPlanCompatibility {
-  margin-top: 14px;
-  padding: clamp(14px, 3vw, 18px);
+  max-width: 34rem;
+  margin: 22px auto 0;
+  padding: clamp(13px, 2.8vw, 17px);
   border: 1px solid rgba(78, 88, 124, 0.16);
   border-radius: 14px;
-  background: rgba(78, 88, 124, 0.055);
+  background: rgba(78, 88, 124, 0.045);
   text-align: left;
 }
 
@@ -2751,11 +3161,23 @@
 }
 
 .homePaidPlanCompatibilityOutcomes {
-  margin: 14px 0 0;
-  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px 18px;
+  margin: 12px 0 0;
+  padding-left: 1rem;
   color: rgba(45, 42, 51, 0.7);
   font-size: clamp(10.5px, 2.3vw, 11.5px);
-  line-height: 1.75;
+  line-height: 1.6;
+}
+
+.homePaidPlanCompatibilityFreeCta {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #4e587c;
+  font-size: clamp(11px, 2.4vw, 12px);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .homePaidPlanDetailsCta {
@@ -2779,22 +3201,84 @@
   outline-offset: 3px;
 }
 
+.homeTrust {
+  max-width: 42rem;
+  margin: clamp(24px, 4.5vw, 36px) auto 0;
+  padding: clamp(18px, 3.8vw, 24px);
+  border-top: 1px solid rgba(45, 42, 51, 0.1);
+  text-align: center;
+}
+
+.homeTrust h2 {
+  margin: 0 0 10px;
+  color: #34313a;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: clamp(16px, 3.3vw, 19px);
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.homeTrust p {
+  margin: 0;
+  color: rgba(45, 42, 51, 0.66);
+  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+  .homePaidPlanCompatibilityOutcomes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 767px) {
   .heroSection {
     min-height: auto;
   }
 
   .posterMainVisual {
-    min-height: clamp(520px, 72dvh, 610px);
+    min-height: min(690px, calc(100dvh - 66px));
   }
 
   .posterHeroBreathing {
-    min-height: 8px;
+    min-height: 3px;
   }
 
   .posterHeroBottomStack {
+    margin-top: 8px;
+    padding-bottom: 4px;
+  }
+
+  .posterHeroLabelGroup {
+    margin-bottom: 12px;
+  }
+
+  .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: clamp(20px, 6vw, 24px);
+    line-height: 1.38;
+  }
+
+  .posterHeroOutcomeGrid {
     margin-top: 12px;
-    padding-bottom: 10px;
+  }
+
+  .posterHeroOutcomeCard {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 5px;
+    padding: 8px 7px;
+    text-align: center;
+  }
+
+  .posterHeroPersonalVisual,
+  .posterHeroCompatibilityVisual {
+    width: 38px;
+    height: 38px;
+    transform: scale(0.84);
+  }
+
+  .posterHeroOutcomeCard ul {
+    line-height: 1.48;
   }
 }
 

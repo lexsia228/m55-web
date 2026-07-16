@@ -8,8 +8,8 @@ import styles from './ShellLayout.module.css';
 type TabId = '/core' | '/dtr' | '/my';
 
 const TABS: { href: TabId; label: string }[] = [
-  { href: '/core', label: '無料で見る' },
-  { href: '/dtr', label: '読み解き' },
+  { href: '/core', label: '無料解析' },
+  { href: '/dtr', label: '結果・レポート' },
   { href: '/my', label: 'マイページ' },
 ];
 

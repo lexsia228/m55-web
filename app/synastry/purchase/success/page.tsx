@@ -2,7 +2,7 @@ import { PublicShell } from '../../../_components/PublicShell';
 import { CompatibilityPurchaseSuccess } from '../../../../components/compatibility/CompatibilityPurchaseExperience';
 
 export const metadata = {
-  title: '二人の相性レポート 支払い確認中 | M55',
+  title: '2人の距離の読み解き 支払い確認中 | M55',
   robots: { index: false, follow: false },
 };
 

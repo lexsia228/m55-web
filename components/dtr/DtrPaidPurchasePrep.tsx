@@ -76,8 +76,8 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
     const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
     const included =
       selectedPlan === 'light'
-        ? `${light.savedReportValueJa} + 追加読み解き${light.consultReplyValueJa}`
-        : `${full.savedReportValueJa} + 追加読み解き ${full.consultReplyValueJa}`;
+        ? `${light.savedReportValueJa} + さらに詳しく読めるテーマ ${light.consultReplyValueJa}`
+        : `${full.savedReportValueJa} + さらに詳しく読めるテーマ ${full.consultReplyValueJa}`;
 
     return (
       <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">

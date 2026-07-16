@@ -116,8 +116,8 @@ test('account center removes the unpurchased catalog and preserves deletion UI',
 
 test('navigation uses the required labels and route', () => {
   const source = read('components/shell/PublicHeader.tsx');
-  assert.match(source, /href: '\/core', label: '無料で見る'/);
-  assert.match(source, /href: '\/dtr', label: '読み解き'/);
+  assert.match(source, /href: '\/core', label: '無料解析'/);
+  assert.match(source, /href: '\/dtr', label: '結果・レポート'/);
   assert.match(source, /href: '\/my', label: 'マイページ'/);
 });
 

@@ -51,12 +51,26 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroEyebrowJa: '自分と二人を無料で見る',
     heroTitleLine1Ja: 'あなたの「いつもこうなる」には、',
     heroTitleLine2Ja: '順番がある。',
-    heroSubJa:
-      'うまくいく時も、迷う時も。\n自然に合う時も、すれ違う時も。\n\n自分や二人には、\n何度も現れやすい流れがあります。\n\nM55は、生年月日と今の回答を重ねて、\n強み、判断の傾向、関係の特徴まで\n詳しく解析します。',
+    heroSubJa: '',
     heroSupportJa: M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
-    heroTrustJa:
-      '自分では気づきにくい\n「うまくいく条件」も、\n無料で見えてきます。',
+    heroTrustJa: '',
     heroMetaJa: '生年月日＋6つの質問・ログイン不要',
+    heroPersonalPreviewJa: {
+      labelJa: '自分',
+      outcomesJa: [
+        '強みが出る時',
+        '自分らしい選び方',
+        '迷いやすい時',
+      ] as const,
+    },
+    heroCompatibilityPreviewJa: {
+      labelJa: '二人',
+      outcomesJa: [
+        '合いやすいところ',
+        '補い合いやすい違い',
+        'すれ違いやすい時',
+      ] as const,
+    },
     heroFunnelLinesJa: [
       '無料で、現在の輪郭を見る。',
       '4章の保存版で、日常の場面まで深める。',
@@ -90,37 +104,33 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     exploreHowSubJa: 'M55の見方を見る →',
     exploreQualitiesTitleJa: '10資質レーンから読む',
     exploreQualitiesSubJa: '10資質レーンを見る →',
-    readNextSectionTitleJa: 'どちらを解析しますか？',
+    readNextSectionTitleJa: 'どちらを見てみますか？',
     personalFreeCardJa: {
       labelJa: '自分の無料解析',
-      headlineJa: '自分の強みと、\nいつものパターンを知る',
+      headlineJa: '自分の強みは、どんな時に出る？',
       bodyJa:
-        'どんな時に自然に力を発揮できるのか。\n何を大切にして選んでいるのか。\nどんな場面で迷いや疲れが始まりやすいのか。\n\n生年月日と6つの質問から、\n今の自分に表れやすい特徴を解析します。',
-      resultHeadingJa: '無料で見えること',
+        '自然にうまくいく時と、立ち止まりやすい時の両方を見ます。',
+      resultHeadingJa: '見られること',
       resultItemsJa: [
-        '自然に力が出やすい場面',
-        '自分らしい考え方と決め方',
-        '人との心地よい距離',
-        '迷いや疲れが始まりやすい場面',
-        '今の自分に強く表れている傾向',
+        '力が出やすい場面',
+        '自分らしい決め方',
+        '迷いやすい場面',
       ] as const,
-      metaJa: ['無料・ログイン不要', '生年月日＋6つの質問'] as const,
+      metaJa: ['生年月日＋6問', '無料・ログイン不要'] as const,
       ctaJa: '自分を無料で見てみる',
     },
     compatibilityFreeCardJa: {
       labelJa: '二人の無料相性解析',
-      headlineJa: '二人が合うところと、\n違うところを知る',
+      headlineJa: '二人は、どこで合い、どこで違う？',
       bodyJa:
-        'なぜ自然に話が合いやすいのか。\nどんな違いが互いを補いやすいのか。\nどんな場面で、気持ちやタイミングがずれやすいのか。\n\n二人の生年月日と6つの質問から、\n二人の関係に表れやすい特徴を解析します。',
-      resultHeadingJa: '無料で見えること',
+        '仲の良さも、違いが出やすい時も、二人の関係を両方から見ます。',
+      resultHeadingJa: '見られること',
       resultItemsJa: [
         '自然に合いやすいところ',
-        '魅力として感じやすい違い',
-        '互いを補いやすい部分',
-        '会話や判断のテンポ',
-        'すれ違いが始まりやすい場面',
+        '補い合いやすい違い',
+        'すれ違いやすい場面',
       ] as const,
-      metaJa: ['無料・ログイン不要', '二人の生年月日＋6つの質問'] as const,
+      metaJa: ['二人の生年月日＋6問', '無料・ログイン不要'] as const,
       ctaJa: '二人の相性を無料で見てみる',
     },
     readNextHowTitleJa: '自分の強みと、いつものパターンを知る',
@@ -130,14 +140,48 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     readNextQualitiesDescJa: '二人の生年月日と6つの質問から、関係に表れやすい特徴を解析します。',
     readNextQualitiesCtaJa: '二人の相性を無料で見てみる',
     tenViewsLearnLinkJa: '10資質レーン',
-    methodFlowLabelJa: 'M55の違い',
-    methodFlowHeadlineLine1Ja: '生年月日だけで決めない。',
-    methodFlowHeadlineLine2Ja: '今のあなたまで重ねて読む。',
+    resultPreviewHeadingJa: '答えると、こんな結果が見られます',
+    resultPreviewCaptionJa: '結果画面のイメージ',
+    personalResultPreviewJa: {
+      labelJa: '個人無料結果',
+      titleJa: '今の自分の見取り図',
+      itemsJa: [
+        '今の自分に強く出ている特徴',
+        '自然に力を発揮しやすい場面',
+        '自分らしい考え方と選び方',
+        '迷いやすさが表れやすい場面',
+      ] as const,
+    },
+    compatibilityResultPreviewJa: {
+      labelJa: '二人無料結果',
+      titleJa: '現在の二人の見取り図',
+      itemsJa: [
+        '二人の重なり',
+        '自然に合いやすいところ',
+        '魅力に感じやすい違い',
+        'すれ違いが始まりやすい場面',
+      ] as const,
+    },
+    methodFlowLabelJa: '今だから見えること',
+    methodFlowHeadlineLine1Ja: '今の自分だから、見えてくることがある。',
+    methodFlowHeadlineLine2Ja: '今の二人だから、見えてくる違いがある。',
     methodFlowBodyJa:
-      '生年月日から見る、変わりにくい傾向。\n6つの質問から見る、今の状態。\n\nM55はこの二つを重ねることで、\n生年月日だけでは分からない\n現在の表れ方まで解析します。\n\n個人では、強みと迷いやすさを。\n二人では、合うところと\nすれ違いやすいところを。\n\n良い面と難しい面の両方から、\n今の自分や二人を詳しく見ていきます。',
+      '同じ生年月日でも、今何を大切にしているか、どこで迷っているかによって、結果で強く表れる部分は変わります。',
+    outcomeExplanationsJa: [
+      {
+        titleJa: '今の自分だから、見えてくることがある。',
+        bodyJa:
+          '同じ生年月日でも、今何を大切にしているか、どこで迷っているかによって、結果で強く表れる部分は変わります。',
+      },
+      {
+        titleJa: '今の二人だから、見えてくる違いがある。',
+        bodyJa:
+          '二人の生年月日に、今の距離や会話についての回答を加えることで、現在の関係で表れやすい特徴を見ていきます。',
+      },
+    ] as const,
     methodPreviewFrameworkJa:
       'M55は、ひとつのタイプに決めるのではなく、どんな時にどの特徴が表れやすいかを見ます。',
-    methodPreviewLinkJa: 'M55の仕組みを詳しく見る',
+    methodPreviewLinkJa: '結果ができるまでを見る',
     methodPreviewTenViewsLinkJa: '',
     methodComparisonJa: [
       {
@@ -183,10 +227,10 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '優劣を比べるものではなく、いまのバランスをつかむための見方です。',
     reportSectionEyebrowJa: '無料で見えた輪郭の、その先へ',
     paidPlanLabelJa: '',
-    paidPlanHeadlineLine1Ja: '無料で全体像を。',
-    paidPlanHeadlineLine2Ja: '有料では、場面ごとに詳しく。',
+    paidPlanHeadlineLine1Ja: '自分のことを、もっと詳しく知りたい人へ。',
+    paidPlanHeadlineLine2Ja: '',
     paidPlanLeadJa:
-      '無料解析では、\n自分や二人の全体的な特徴を確認できます。\n\n有料レポートでは、\n無料解析をもとに、\n仕事、人との関わり、判断、\n合いやすさやすれ違いやすさなどを\n複数の場面から詳しく読み解きます。',
+      '無料結果では見えなかった、自分の詳しい特徴を読む。',
     paidPlanUniquenessChipsJa: [
       '10通りの資質',
       '旧暦',
@@ -196,7 +240,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     paidPlanValueHeadingJa: '無料では、現在の輪郭を。\n保存版では、日常の場面と戻し方まで。',
     paidPlanValueSubheadingJa:
-      'ライトとFULLの4章は共通です。\n違いは、保存版を土台に使える追加読み解きの件数です。',
+      'ライトでもFULLでも、自分について詳しく読めるレポートの内容は同じです。\n\n違うのは、読んだ後にさらに詳しく読めるテーマ数です。',
     paidPlanSavedPreviewLabelJa: '深く見るほど、見えてくること',
     paidPlanSavedPreviewNoteJa:
       '本質の輪郭から、感じ方、無理の出方、戻り方までをひも解いていきます。',
@@ -230,15 +274,53 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     paidPlanCtaJa: '無料で自分を読み解く',
     paidPlanSavedInfoHeadingJa: 'M55 個人解析レポート',
     paidPlanSavedInfoBodyJa:
-      '無料解析の続きを、4章の詳しい個人解析で。\n\n自然に力を発揮しやすい条件。\n仕事や人との関わりに表れやすい特徴。\n迷いや疲れにつながりやすい流れ。\n今の自分に強く出ている傾向。\n\n無料解析では扱わない部分まで、4章の個人解析レポートで詳しく読み解きます。',
+      '無料結果で見えた全体的な特徴をもとに、力が出やすい条件、考え方や決め方、人との関わり、迷いや疲れが始まる流れまで、一つのレポートで詳しく読めます。',
+    paidPlanOutcomesJa: [
+      {
+        titleJa: '強みが自然に出やすい条件',
+        bodyJa: 'どんな環境や場面で、自分の良さが表れやすいか。',
+      },
+      {
+        titleJa: '自分らしい考え方と決め方',
+        bodyJa: '何を大切にし、どんな順序で考えると納得しやすいか。',
+      },
+      {
+        titleJa: '人との関わりに表れやすい特徴',
+        bodyJa: '心地よい距離や、無理をしやすい関わり方。',
+      },
+      {
+        titleJa: '迷いや疲れが始まりやすい流れ',
+        bodyJa: 'どんな時に立ち止まりやすく、負担が重なりやすいか。',
+      },
+    ] as const,
+    paidPlanChapterSupportJa:
+      'この4つの内容を、一つの詳しいレポートで順に読めます。購入後はマイページから読み返せます。',
+    paidPlanLightJa: {
+      nameJa: 'ライト',
+      priceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa.replace('（税込）', '（税込・買い切り）'),
+      reportJa: '自分について詳しく読めるレポート',
+      detailJa: '読んだ後に気になったテーマを、さらに1つ詳しく読めます',
+    },
+    paidPlanFullJa: {
+      nameJa: 'FULL',
+      priceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa.replace('（税込）', '（税込・買い切り）'),
+      reportJa: '自分について詳しく読めるレポート',
+      detailJa: '読んだ後に気になったテーマを、合計5つまで詳しく読めます',
+    },
+    paidPlanUpgradeJa: {
+      nameJa: 'あとからFULLに変更',
+      priceJa: PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa,
+      detailJa: 'ライト購入後に、詳しく読めるテーマ数を合計5つまで増やせます',
+    },
     paidPlanSavedInfoPriceJa:
-      `個人解析ライト ${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\n4章の個人解析＋追加読み解き1件\n\n個人解析FULL ${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\n4章の個人解析＋追加読み解き合計5件\n\n後からFULL化 ${PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}`,
-    paidPlanDetailsCtaJa: '個人解析レポートの内容を見る',
+      `ライト ${PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\nFULL ${PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa.replace('（税込）', '（税込・買い切り）')}\nあとからFULLに変更 ${PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}`,
+    paidPlanDetailsCtaJa: '詳しい個人レポートを見る',
     paidPlanOwnershipNoteJa:
       '購入したレポートは、マイページから後で読み返せます。',
     compatibilityPaidHeadingJa: '2人の距離の読み解き',
     compatibilityPaidAuxiliaryNameJa: '2人の関係整理レポート',
-    compatibilityPaidHeadlineJa: '二人の関係を、選んだテーマから詳しく読む。',
+    compatibilityPaidHeadlineJa:
+      '二人が合うところも、違いが出やすいところも。二人の関係をもっと詳しく知る。',
     compatibilityPaidBodyJa:
       '二人が自然に合いやすいところ、\n互いを補いやすい違い、\nすれ違いが始まりやすい場面、\n選んだテーマについて詳しく読める\nデジタルレポートです。',
     compatibilityPaidOutcomesJa: [
@@ -253,6 +335,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '2人の距離の読み解きは、無料の相性解析の結果から内容と購入条件を確認できます。',
     compatibilitySavedPausedJa:
       '2人の距離の読み解きは現在準備中です。無料の相性解析は利用できます。',
+    trustHeadingJa: '結果は、あなたや二人を決めつけるものではありません。',
+    trustBodyJa:
+      '良い面も、難しい面も、今の自分や二人を見直すための参考として表示します。未来や相手の本心を断定するものではなく、医療・心理診断でもありません。',
     paidPlanFootnoteUpgradeJa: '必要に応じて、保存版をもとにさらに見方を深められます。',
     reportLightEyebrowJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     reportLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,

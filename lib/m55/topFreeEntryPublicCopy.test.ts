@@ -22,9 +22,18 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
     assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
     assert.equal(home.heroTitleLine2Ja, '順番がある。');
-    assert.match(home.heroSubJa, /うまくいく時も、迷う時も/);
-    assert.match(home.heroSubJa, /自然に合う時も、すれ違う時も/);
-    assert.match(home.heroSubJa, /生年月日と今の回答/);
+    assert.equal(home.heroSubJa, '');
+    assert.equal(home.heroTrustJa, '');
+    assert.deepEqual(home.heroPersonalPreviewJa.outcomesJa, [
+      '強みが出る時',
+      '自分らしい選び方',
+      '迷いやすい時',
+    ]);
+    assert.deepEqual(home.heroCompatibilityPreviewJa.outcomesJa, [
+      '合いやすいところ',
+      '補い合いやすい違い',
+      'すれ違いやすい時',
+    ]);
     assert.doesNotMatch(
       `${home.heroEyebrowJa}\n${home.heroSubJa}\n${home.heroTrustJa}\n${home.heroFunnelCtaJa}`,
       /無料解析|無料分析|本当の自分|原因が分かる|必ず/,
@@ -48,9 +57,12 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     const copy = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(copy.storefront.lightPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa);
     assert.equal(copy.storefront.fullPriceLabelJa, PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa);
-    assert.match(copy.home.paidPlanSavedInfoPriceJa, /個人解析ライト/);
-    assert.match(copy.home.paidPlanSavedInfoPriceJa, /個人解析FULL/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /ライト/);
+    assert.match(copy.home.paidPlanSavedInfoPriceJa, /FULL/);
     assert.match(copy.home.paidPlanSavedInfoPriceJa, /税込・買い切り/);
+    assert.match(copy.home.paidPlanLightJa.detailJa, /さらに1つ詳しく/);
+    assert.match(copy.home.paidPlanFullJa.detailJa, /合計5つまで詳しく/);
+    assert.match(copy.home.paidPlanUpgradeJa.detailJa, /合計5つまで増やせます/);
     assert.doesNotMatch(copy.home.paidPlanSavedInfoPriceJa, /M55複合暦解析は ¥1,000/);
   });
 

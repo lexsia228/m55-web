@@ -180,7 +180,9 @@ describe('public commercial truth contracts', () => {
     assert.doesNotMatch(pricing, /href="\/synastry\/purchase\/confirm"/);
     assert.match(pricing, /priceCurrency: "JPY"/);
     assert.equal((pricing.match(/日本円（JPY）/g) ?? []).length, 1);
-    assert.match(pricing, /個人解析ライト/);
+    assert.match(pricing, /<h3>ライト<\/h3>/);
+    assert.match(pricing, /<h3>FULL<\/h3>/);
+    assert.match(pricing, /あとからFULLに変更/);
     assert.match(pricing, /2人の距離の読み解き/);
     assert.doesNotMatch(pricing, /相性解析レポート|有料相性解析|相性鑑定/);
     assert.match(pricingCss, /\.plans/);

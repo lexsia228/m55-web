@@ -64,7 +64,10 @@ describe('paid questionnaire decision UX — ids and count', () => {
 describe('paid questionnaire decision UX — flow wiring', () => {
   it('entry / progress / back / next / completion / review are present', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /無料解析の続きを、4章の詳しい個人解析で/);
+    assert.match(q, /無料結果では見えなかった、自分の詳しい特徴を読む/);
+    assert.match(q, /強みが自然に出やすい条件/);
+    assert.match(q, /自分らしい考え方と決め方/);
+    assert.ok(q.indexOf('強みが自然に出やすい条件') < q.indexOf('生年月日と回答をもとに、4章'));
     assert.match(q, /個人解析の6問を始める/);
     assert.match(q, /PAID_DTR_SAVED_REPORT_PRICING\.light\.priceLabelJa/);
     assert.match(q, /PAID_DTR_SAVED_REPORT_PRICING\.full\.priceLabelJa/);
@@ -102,11 +105,13 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 });
 
 describe('paid questionnaire decision UX — Product Truth plans', () => {
-  it('plans differ only by entitlement count; chapters and prices unchanged', () => {
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '詳しい4章');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '詳しい4章');
-    assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
-    assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5件');
+  it('plans share report content and differ only by detailed-theme count', () => {
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '自分について詳しく読める内容');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '自分について詳しく読める内容');
+    assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1つ');
+    assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5つまで');
+    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /レポートの内容は同じ/);
+    assert.match(PAID_DTR_LP.upgrade.paragraphsJa.join('\n'), /合計5つまで増やせます/);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);

@@ -1202,10 +1202,10 @@ export const PAID_DTR_LP = {
   version: PAID_DTR_LP_COPY_VERSION,
   hero: {
     subheadlineJa: 'M55 個人解析レポート',
-    headlineJa: '無料解析の続きを、\n4章の詳しい個人解析で。',
+    headlineJa: '無料結果では見えなかった、\n自分の詳しい特徴を読む。',
     bodyJa:
-      '自然に力を発揮しやすい条件、仕事や人との関わりに表れやすい特徴、迷いや疲れにつながりやすい流れ、今の自分に強く出ている傾向。\n\n無料解析では扱わない部分まで、4章の個人解析レポートで詳しく読み解きます。\n\n4章本文は検査済みの文章素材を土台に組み立てます。提供設定に応じて文章表現に生成AIを使う場合がありますが、品質条件を満たさないときはあらかじめ用意した本文へ戻します。',
-    ctaLabelJa: 'FULLとライトを比べる',
+      '強みが自然に出やすい条件、自分らしい考え方と決め方、人との関わりに表れやすい特徴、迷いや疲れが始まりやすい流れまで、一つのレポートで詳しく読めます。\n\n購入したレポートは、マイページから後で読み返せます。',
+    ctaLabelJa: 'ライトとFULLを比べる',
     compareSectionId: 'dtr-lp-tiers',
   },
   about: {
@@ -1225,17 +1225,17 @@ export const PAID_DTR_LP = {
     ] as const,
   },
   informationLayers: {
-    sectionTitleJa: '保存版と追加読み解きの情報二層',
+    sectionTitleJa: 'レポートと、その後に詳しく読めること',
     savedReportJa:
-      '保存版では、M55独自の10資質フレーム、生年月日の暦リズム、質問回答を重ねて、\n比較的変わりにくい土台と現在の表れ方を4章で整理します。\n固定ルールを土台にし、提供設定に応じて章の文章表現に生成AIを使う場合があります。',
+      '個人解析レポートでは、生年月日の暦リズムと質問回答を重ねて、\n力が出やすい条件、考え方と決め方、人との関わり、迷いや疲れの流れを4章で整理します。',
     consultReplyJa:
-      '追加読み解きでは、その保存版に、\n今回入力した一つの読み解きテーマを重ねます。\n\n保存版の内容を土台に1テーマを読み直す生成レイヤーです。\n件数内で利用でき、会話を続ける形式ではありません。',
+      'レポートを読んだ後は、気になった一つのテーマを選び、\nレポートの内容と重ねてさらに詳しく読めます。\n会話を続ける形式ではありません。',
   },
   savedReport: {
     sectionTitleJa: '個人解析レポートとは',
-    headlineJa: '強みと迷いやすさを、場面ごとに詳しく読む。',
+    headlineJa: '自分のことを、もっと詳しく知りたい人へ。',
     bodyJa:
-      '個人解析レポートは、生年月日と質問回答を重ね、\n自然に力を発揮しやすい条件、\n仕事や人との関わりに表れやすい特徴、\n迷いや疲れにつながりやすい流れ、\n今の自分に強く出ている傾向を4章で詳しく読むデジタルレポートです。\n\n購入したレポートは、マイページから後で読み返せます。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。',
+      '無料結果で見えた全体的な特徴をもとに、\n強みが自然に出やすい条件、\n自分らしい考え方と決め方、\n人との関わりに表れやすい特徴、\n迷いや疲れが始まりやすい流れまで、一つのレポートで詳しく読めます。\n\nこの内容を4章に分けて表示し、購入後はマイページから読み返せます。',
   },
   freeComparison: {
     sectionTitleJa: '無料解析と個人解析レポートの違い',
@@ -1275,39 +1275,38 @@ export const PAID_DTR_LP = {
   tiers: {
     sectionTitleJa: '個人解析レポートのプラン',
     sectionLeadJa:
-      'どちらも同じ4章の保存版です。違いは、追加読み解きとして使える回数です。',
+      'ライトでもFULLでも、自分について詳しく読めるレポートの内容は同じです。\n違うのは、読んだ後にさらに詳しく読めるテーマ数です。',
     full: {
-      planNameJa: '個人解析FULL',
+      planNameJa: 'FULL',
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '個人解析:',
-      savedReportValueJa: '詳しい4章',
-      consultReplyLabelJa: '追加読み解き:',
-      consultReplyValueJa: '合計5件',
-      bodyJa: '詳しい4章を読みながら、複数のテーマを続けて整理したい方',
+      savedReportLabelJa: 'レポート:',
+      savedReportValueJa: '自分について詳しく読める内容',
+      consultReplyLabelJa: 'さらに詳しく読めるテーマ:',
+      consultReplyValueJa: '合計5つまで',
+      bodyJa: '読んだ後に気になったテーマを、合計5つまで詳しく読めます',
       ctaLabelJa: '個人解析FULLを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
     light: {
-      planNameJa: '個人解析ライト',
+      planNameJa: 'ライト',
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '個人解析:',
-      savedReportValueJa: '詳しい4章',
-      consultReplyLabelJa: '追加読み解き:',
-      consultReplyValueJa: '1件',
-      bodyJa: 'まず詳しい4章を読み、必要なときに1テーマだけ深めたい方',
+      savedReportLabelJa: 'レポート:',
+      savedReportValueJa: '自分について詳しく読める内容',
+      consultReplyLabelJa: 'さらに詳しく読めるテーマ:',
+      consultReplyValueJa: '1つ',
+      bodyJa: '読んだ後に気になったテーマを、さらに1つ詳しく読めます',
       upgradeNoteJa: 'ライト購入後も、¥600（税込）でFULL化できます。',
       ctaLabelJa: '個人解析ライトを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
   },
   upgrade: {
-    sectionTitleJa: 'ライトからFULL化',
+    sectionTitleJa: 'あとからFULLに変更',
     paragraphsJa: [
-      'ライト購入後でも、必要になったらFULL化できます。',
-      '保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
-      'FULL化すると、追加読み解きの利用上限が合計5件になります。',
+      'ライト購入後に、詳しく読めるテーマ数を合計5つまで増やせます。',
+      '変更価格は¥600（税込）です。',
     ] as const,
   },
   purchaseNotes: {
@@ -1317,10 +1316,10 @@ export const PAID_DTR_LP = {
       '固定ルールを土台にし、提供設定に応じて章の文章表現に生成AIを使う場合があります。品質条件を満たさないときは固定ルールの本文へ戻します。',
       '追加読み解きは、保存版の内容を土台に1テーマを読み直す生成AIレイヤーです。会話を続ける形式ではありません。',
       '価格はすべて税込です。',
-      'ライトとFULLの保存版は、同じ正式4章です。',
-      '違いは、追加読み解きの件数です。',
-      'ライトは1件、FULLは合計5件です。',
-      '購入前に、いま必要な追加読み解きの件数をご確認ください。',
+      'ライトでもFULLでも、自分について詳しく読めるレポートの内容は同じです。',
+      '違うのは、読んだ後にさらに詳しく読めるテーマ数です。',
+      'ライトはさらに1つ、FULLは合計5つまで詳しく読めます。',
+      '購入前に、詳しく読みたいテーマ数をご確認ください。',
     ] as const,
     legalLinks: [
       { labelJa: 'サポート', href: '/support' },
@@ -1336,7 +1335,7 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
         answerJa:
-          '保存版の4章は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは追加読み解きで複数回深めたい方向けです。',
+          '自分について詳しく読めるレポートの内容は同じです。\n違うのは、読んだ後にさらに詳しく読めるテーマ数です。\nライト（¥1,000）はさらに1つ、FULL（¥1,480）は合計5つまで詳しく読めます。',
       },
       {
         questionJa: '追加読み解きとは何ですか？',
@@ -1346,12 +1345,12 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライト購入後にFULL化できますか？',
         answerJa:
-          'はい。必要になったら、あとからFULL化できます。\nFULL化すると、追加読み解きの利用上限が合計5件になります。\nまずライトで試してから、必要に応じて広げられます。',
+          'はい。¥600（税込）で、あとからFULLに変更できます。\nライト購入後に、詳しく読めるテーマ数を合計5つまで増やせます。',
       },
       {
         questionJa: '無料ページとの違いは何ですか？',
         answerJa:
-          '無料ページは、生年月日から得る無料用の手がかりと合計6回答で現在の輪郭に触れる入口です。\n保存版では、無料6回答に購入前の追加6回答と、より詳細な暦の手がかりを重ねて正式4章に整理します。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。',
+          '無料ページは、生年月日から得る無料用の手がかりと合計6回答で現在の輪郭に触れる入口です。\n個人解析レポートでは、強みが出やすい条件、考え方と決め方、人との関わり、迷いや疲れが始まる流れまで詳しく読めます。\nライトでもFULLでもレポート内容は同じで、違うのはさらに詳しく読めるテーマ数です。',
       },
     ] as const,
   },

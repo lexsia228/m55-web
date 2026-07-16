@@ -17,9 +17,9 @@ import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
 import styles from "./lp.module.css";
 
 export const metadata = {
-  title: "M55 個人解析レポート | 4章の詳しい個人解析",
+  title: "M55 個人解析レポート | 自分の詳しい特徴を読む",
   description:
-    "無料解析の続きを、仕事、人との関わり、判断、迷いや疲れにつながりやすい流れまで4章で詳しく読み解く個人解析レポートです。",
+    "強みが出やすい条件、考え方と決め方、人との関わり、迷いや疲れが始まる流れまで詳しく読める個人解析レポートです。",
   alternates: { canonical: "/dtr/lp" },
   openGraph: {
     title: "M55 個人解析レポート",

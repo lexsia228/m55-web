@@ -107,27 +107,27 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       >
         <p className={styles.overline}>M55 個人解析レポート</p>
         <h2 id={headingId} className={styles.title}>
-          無料解析の続きを、4章の詳しい個人解析で
+          無料結果では見えなかった、自分の詳しい特徴を読む
         </h2>
         <p className={styles.lead}>
-          強み、仕事や人との関わり、迷いや疲れにつながりやすい流れを、
-          無料解析では扱わない場面まで詳しく読み解きます。
+          強みが自然に出やすい条件、自分らしい考え方と決め方、
+          人との関わり、迷いや疲れが始まりやすい流れまで詳しく読めます。
         </p>
         <div className={styles.priceSummary} aria-label="個人解析レポートの価格と内容">
           <p>
-            <strong>個人解析ライト</strong>
+            <strong>ライト</strong>
             <span>{oneTimePrice(PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa)}</span>
-            <small>4章の個人解析＋追加読み解き1件</small>
+            <small>同じ詳しいレポート＋さらに1つのテーマ</small>
           </p>
           <p>
-            <strong>個人解析FULL</strong>
+            <strong>FULL</strong>
             <span>{oneTimePrice(PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa)}</span>
-            <small>4章の個人解析＋追加読み解き合計5件</small>
+            <small>同じ詳しいレポート＋合計5つまでのテーマ</small>
           </p>
         </div>
         <div className={styles.purchaseFacts} aria-label="個人解析レポートの購入条件">
           <p><strong>商品：</strong>M55 個人解析レポート</p>
-          <p><strong>内容：</strong>強み、仕事や人との関わり、迷いや疲れにつながりやすい流れを詳しく読めるデジタルレポート</p>
+          <p><strong>内容：</strong>強みが出やすい条件、考え方と決め方、人との関わり、迷いや疲れが始まる流れを詳しく読めるデジタルレポート</p>
           <p><strong>価格：</strong>各プランに税込価格を表示</p>
           <p><strong>通貨：</strong>日本円（JPY）</p>
           <p><strong>支払い：</strong>買い切り・自動更新なし</p>

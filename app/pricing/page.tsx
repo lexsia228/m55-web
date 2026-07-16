@@ -101,10 +101,15 @@ export default async function PricingPage() {
                 <p className={styles.eyebrow}>自分を知る</p>
                 <h2 id="pricing-personal-title">M55 個人解析</h2>
                 <p className={styles.familyLead}>
-                  強み、判断、人との関わり、迷いや疲れにつながりやすい流れを、無料解析から4章の詳しい個人解析へ深めます。
+                  強みが出やすい条件、考え方と決め方、人との関わり、迷いや疲れが始まる流れまで詳しく読めます。
                 </p>
               </div>
               {personalOwned ? <span className={styles.state}>購入済み</span> : null}
+            </div>
+
+            <div className={styles.planDifference} data-testid="pricing-plan-difference">
+              <p>ライトでもFULLでも、自分について詳しく読めるレポートの内容は同じです。</p>
+              <p>違うのは、読んだ後にさらに詳しく読めるテーマ数です。</p>
             </div>
 
             <div className={styles.plans}>
@@ -125,14 +130,14 @@ export default async function PricingPage() {
 
               <article className={styles.plan}>
                 <p className={styles.planLabel}>M55 個人解析レポート</p>
-                <h3>個人解析ライト</h3>
+                <h3>ライト</h3>
                 <p className={styles.price}>
                   {oneTimePrice(PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa)}
                 </p>
                 <ul className={styles.facts}>
-                  <li>仕事、人との関わり、判断を詳しく読む4章</li>
-                  <li>迷いや疲れにつながる流れ</li>
-                  <li>追加読み解き1件</li>
+                  <li>自分について詳しく読めるレポート</li>
+                  <li>強み、決め方、人との関わり、迷いや疲れの流れ</li>
+                  <li>読んだ後に気になったテーマを、さらに1つ詳しく読めます</li>
                 </ul>
                 {!personalOwned ? (
                   <Link className={styles.action} href="/dtr/lp">
@@ -143,14 +148,14 @@ export default async function PricingPage() {
 
               <article className={styles.plan}>
                 <p className={styles.planLabel}>M55 個人解析レポート</p>
-                <h3>個人解析FULL</h3>
+                <h3>FULL</h3>
                 <p className={styles.price}>
                   {oneTimePrice(PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa)}
                 </p>
                 <ul className={styles.facts}>
-                  <li>ライトと同じ詳しい4章</li>
-                  <li>強みと難しさを場面ごとに確認</li>
-                  <li>追加読み解き合計5件</li>
+                  <li>自分について詳しく読めるレポート</li>
+                  <li>強み、決め方、人との関わり、迷いや疲れの流れ</li>
+                  <li>読んだ後に気になったテーマを、合計5つまで詳しく読めます</li>
                 </ul>
                 {!personalOwned ? (
                   <Link className={styles.action} href="/dtr/lp">
@@ -161,13 +166,13 @@ export default async function PricingPage() {
 
               <article className={styles.plan}>
                 <p className={styles.planLabel}>購入後の選択</p>
-                <h3>後からFULL化</h3>
+                <h3>あとからFULLに変更</h3>
                 <p className={styles.price}>
                   {PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceLabelJa}
                 </p>
                 <ul className={styles.facts}>
                   <li>ライト購入者のみ</li>
-                  <li>追加読み解きを合計5件へ</li>
+                  <li>詳しく読めるテーマ数を合計5つまで増やせます</li>
                   <li>一回払い・自動更新なし</li>
                 </ul>
                 {personalTier?.canUpgradeFromLight && personalTier.reportInstanceId ? (

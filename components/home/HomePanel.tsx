@@ -94,11 +94,52 @@ export default function HomePanel({
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <p className={styles.posterHeroSupportInline} style={{ whiteSpace: 'pre-line' }}>{homeCopy.heroSubJa}</p>
-                    <p className={styles.posterHeroTrust} style={{ whiteSpace: 'pre-line' }}>
-                      {homeCopy.heroTrustJa}
-                    </p>
-                    <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
+                    <div className={styles.posterHeroOutcomeGrid} aria-label="無料で見られる結果">
+                      <article
+                        className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomePersonal}`}
+                        data-testid="m55-home-hero-personal-preview"
+                      >
+                        <div
+                          className={styles.posterHeroPersonalVisual}
+                          role="img"
+                          aria-label="一つの中心から特徴が外側へ広がる図"
+                        >
+                          <span />
+                          <i />
+                          <b />
+                        </div>
+                        <div>
+                          <p>{homeCopy.heroPersonalPreviewJa.labelJa}</p>
+                          <ul>
+                            {homeCopy.heroPersonalPreviewJa.outcomesJa.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </article>
+                      <article
+                        className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomeCompatibility}`}
+                        data-testid="m55-home-hero-compatibility-preview"
+                      >
+                        <div
+                          className={styles.posterHeroCompatibilityVisual}
+                          role="img"
+                          aria-label="二つの中心と、重なり・違いを示す図"
+                        >
+                          <span />
+                          <i />
+                          <b />
+                        </div>
+                        <div>
+                          <p>{homeCopy.heroCompatibilityPreviewJa.labelJa}</p>
+                          <ul>
+                            {homeCopy.heroCompatibilityPreviewJa.outcomesJa.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </article>
+                    </div>
                   </div>
                   <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
@@ -110,6 +151,7 @@ export default function HomePanel({
                     >
                       {homeCopy.heroFunnelCtaJa} →
                     </a>
+                    <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
                   </div>
                 </div>
               </div>
@@ -135,31 +177,22 @@ export default function HomePanel({
           <div className={styles.homeReadNextGrid} data-testid="m55-home-understanding">
             <article className={`${styles.homeIntentCard} ${styles.homeIntentPersonal}`}>
               <div className={styles.homeIntentHeading}>
-                <span className={styles.homeReadNextThumb} data-testid="m55-home-demo-five-element">
-                  <Image
-                    src="/home/card-how-to-read.webp"
-                    alt=""
-                    fill
-                    sizes="52px"
-                    className={styles.homeReadNextThumbImage}
-                  />
-                </span>
                 <div>
                   <p className={styles.homeIntentLabel}>{homeCopy.personalFreeCardJa.labelJa}</p>
-                  <h3 className={styles.homeIntentHeadline} style={{ whiteSpace: 'pre-line' }}>
+                  <h3 className={styles.homeIntentHeadline}>
                     {homeCopy.personalFreeCardJa.headlineJa}
                   </h3>
                 </div>
               </div>
-              <p className={styles.homeIntentBodyText} style={{ whiteSpace: 'pre-line' }}>
-                {homeCopy.personalFreeCardJa.bodyJa}
-              </p>
               <div className={styles.homeIntentResult}>
                 <p>{homeCopy.personalFreeCardJa.resultHeadingJa}</p>
                 <ul>
                   {homeCopy.personalFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </div>
+              <p className={styles.homeIntentBodyText}>
+                {homeCopy.personalFreeCardJa.bodyJa}
+              </p>
               <div className={styles.homeIntentMeta}>
                 {homeCopy.personalFreeCardJa.metaJa.map((item) => <span key={item}>{item}</span>)}
               </div>
@@ -190,31 +223,22 @@ export default function HomePanel({
 
             <article className={`${styles.homeIntentCard} ${styles.homeIntentCompatibility}`}>
               <div className={styles.homeIntentHeading}>
-                <span className={`${styles.homeReadNextThumb} ${styles.homeReadNextThumbQualities}`}>
-                  <Image
-                    src="/home/card-qualities-flower.webp"
-                    alt=""
-                    fill
-                    sizes="52px"
-                    className={`${styles.homeReadNextThumbImage} ${styles.homeReadNextThumbImageQualities}`}
-                  />
-                </span>
                 <div>
                   <p className={styles.homeIntentLabel}>{homeCopy.compatibilityFreeCardJa.labelJa}</p>
-                  <h3 className={styles.homeIntentHeadline} style={{ whiteSpace: 'pre-line' }}>
+                  <h3 className={styles.homeIntentHeadline}>
                     {homeCopy.compatibilityFreeCardJa.headlineJa}
                   </h3>
                 </div>
               </div>
-              <p className={styles.homeIntentBodyText} style={{ whiteSpace: 'pre-line' }}>
-                {homeCopy.compatibilityFreeCardJa.bodyJa}
-              </p>
               <div className={styles.homeIntentResult}>
                 <p>{homeCopy.compatibilityFreeCardJa.resultHeadingJa}</p>
                 <ul>
                   {homeCopy.compatibilityFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </div>
+              <p className={styles.homeIntentBodyText}>
+                {homeCopy.compatibilityFreeCardJa.bodyJa}
+              </p>
               <div className={styles.homeIntentMeta}>
                 {homeCopy.compatibilityFreeCardJa.metaJa.map((item) => <span key={item}>{item}</span>)}
               </div>
@@ -235,6 +259,53 @@ export default function HomePanel({
         </section>
 
         <section
+          className={styles.homeResultPreview}
+          data-testid="m55-home-result-preview"
+          aria-labelledby="m55-home-result-preview-title"
+        >
+          <div className={styles.homeResultPreviewHeading}>
+            <p>{homeCopy.resultPreviewCaptionJa}</p>
+            <h2 id="m55-home-result-preview-title">{homeCopy.resultPreviewHeadingJa}</h2>
+          </div>
+          <div className={styles.homeResultPreviewGrid}>
+            <article
+              className={styles.homeResultPreviewCard}
+              data-testid="m55-home-demo-five-element"
+            >
+              <header>
+                <span>{homeCopy.personalResultPreviewJa.labelJa}</span>
+                <h3>{homeCopy.personalResultPreviewJa.titleJa}</h3>
+              </header>
+              <ul>
+                {homeCopy.personalResultPreviewJa.itemsJa.map((item, index) => (
+                  <li key={item}>
+                    <span aria-hidden>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{item}</strong>
+                  </li>
+                ))}
+              </ul>
+            </article>
+            <article
+              className={styles.homeResultPreviewCard}
+              data-testid="m55-home-demo-compatibility"
+            >
+              <header>
+                <span>{homeCopy.compatibilityResultPreviewJa.labelJa}</span>
+                <h3>{homeCopy.compatibilityResultPreviewJa.titleJa}</h3>
+              </header>
+              <ul>
+                {homeCopy.compatibilityResultPreviewJa.itemsJa.map((item, index) => (
+                  <li key={item}>
+                    <span aria-hidden>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{item}</strong>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section
           className={styles.homeMethodLayer}
           data-testid="m55-home-five-axis-read"
           aria-labelledby="m55-home-method-layer-title"
@@ -242,26 +313,13 @@ export default function HomePanel({
           <div className={styles.homeMethodLayerInner}>
             <p className={styles.homeMethodLayerLabel}>{homeCopy.methodFlowLabelJa}</p>
             <h2 id="m55-home-method-layer-title" className={styles.homeMethodLayerHeadline}>
-              <span className={styles.homeMethodLayerHeadlineLine}>{homeCopy.methodFlowHeadlineLine1Ja}</span>
-              <span className={styles.homeMethodLayerHeadlineLine}>{homeCopy.methodFlowHeadlineLine2Ja}</span>
+              今の回答を重ねて見る理由
             </h2>
-            <p className={styles.homeMethodLayerBody} style={{ whiteSpace: 'pre-line' }}>
-              {homeCopy.methodFlowBodyJa}
-            </p>
-            <p className={styles.homeMethodFramework}>
-              {homeCopy.methodPreviewFrameworkJa}
-            </p>
-            <div className={styles.homeMethodComparison}>
-              {homeCopy.methodComparisonJa.map((item) => (
-                <article key={item.generalLabelJa}>
-                  <div>
-                    <span>{item.generalLabelJa}</span>
-                    <p>{item.generalBodyJa}</p>
-                  </div>
-                  <div>
-                    <span>M55</span>
-                    <p>{item.m55BodyJa}</p>
-                  </div>
+            <div className={styles.homeOutcomeExplanations}>
+              {homeCopy.outcomeExplanationsJa.map((item) => (
+                <article key={item.titleJa}>
+                  <h3>{item.titleJa}</h3>
+                  <p>{item.bodyJa}</p>
                 </article>
               ))}
             </div>
@@ -299,16 +357,52 @@ export default function HomePanel({
 
             <div className={styles.homePaidPlanSavedInfo}>
               <p className={styles.homePaidPlanSavedInfoHeading}>{homeCopy.paidPlanSavedInfoHeadingJa}</p>
-              <p className={styles.homePaidPlanSavedInfoBody} style={{ whiteSpace: 'pre-line' }}>
-                {homeCopy.paidPlanSavedInfoBodyJa}
-              </p>
-              <p className={styles.homePaidPlanSavedInfoPrice} style={{ whiteSpace: 'pre-line' }}>
-                {homeCopy.paidPlanSavedInfoPriceJa}
-              </p>
-              <p className={styles.homePaidPlanOwnershipNote}>
-                {homeCopy.paidPlanOwnershipNoteJa}
-              </p>
+              <ol className={styles.homePaidPlanOutcomeList}>
+                {homeCopy.paidPlanOutcomesJa.map((item) => (
+                  <li key={item.titleJa}>
+                    <strong>{item.titleJa}</strong>
+                    <span>{item.bodyJa}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className={styles.homePaidPlanSavedInfoBody}>{homeCopy.paidPlanSavedInfoBodyJa}</p>
+              <p className={styles.homePaidPlanOwnershipNote}>{homeCopy.paidPlanChapterSupportJa}</p>
             </div>
+
+            <div className={styles.homePaidPlanComparison} data-testid="m55-home-plan-comparison">
+              <p className={styles.homePaidPlanValueSubheading} style={{ whiteSpace: 'pre-line' }}>
+                {homeCopy.paidPlanValueSubheadingJa}
+              </p>
+              <div className={styles.homePaidPlanTierGrid}>
+                {[homeCopy.paidPlanLightJa, homeCopy.paidPlanFullJa].map((plan) => (
+                  <article key={plan.nameJa}>
+                    <h3>{plan.nameJa}</h3>
+                    <strong>{plan.priceJa}</strong>
+                    <p>{plan.reportJa}</p>
+                    <p>{plan.detailJa}</p>
+                  </article>
+                ))}
+              </div>
+              <article className={styles.homePaidPlanUpgrade}>
+                <div>
+                  <h3>{homeCopy.paidPlanUpgradeJa.nameJa}</h3>
+                  <strong>{homeCopy.paidPlanUpgradeJa.priceJa}</strong>
+                </div>
+                <p>{homeCopy.paidPlanUpgradeJa.detailJa}</p>
+              </article>
+            </div>
+
+            <Link
+              href="/dtr/lp"
+              className={styles.homePaidPlanDetailsCta}
+              data-testid="m55-home-paid-details"
+              onClick={() =>
+                trackFunnelAction(M55_FUNNEL_EVENTS.purchaseDetailsOpen, 'reading_personal')
+              }
+            >
+              {homeCopy.paidPlanDetailsCtaJa} →
+            </Link>
+
             <div className={styles.homePaidPlanCompatibility}>
               <p className={styles.homePaidPlanSavedInfoHeading}>
                 {homeCopy.compatibilityPaidHeadingJa}
@@ -326,20 +420,20 @@ export default function HomePanel({
                   ? homeCopy.compatibilitySavedAvailableJa
                   : homeCopy.compatibilitySavedPausedJa}
               </p>
+              {!compatibilityCommerceAvailable ? (
+                <Link className={styles.homePaidPlanCompatibilityFreeCta} href="/synastry">
+                  二人の相性を無料で見てみる
+                </Link>
+              ) : null}
             </div>
-            <Link
-              href="/dtr/lp"
-              className={styles.homePaidPlanDetailsCta}
-              data-testid="m55-home-paid-details"
-              onClick={() =>
-                trackFunnelAction(M55_FUNNEL_EVENTS.purchaseDetailsOpen, 'reading_personal')
-              }
-            >
-              {homeCopy.paidPlanDetailsCtaJa} →
-            </Link>
           </div>
         </div>
       </section>
+
+        <section className={styles.homeTrust} aria-labelledby="m55-home-trust-title">
+          <h2 id="m55-home-trust-title">{homeCopy.trustHeadingJa}</h2>
+          <p>{homeCopy.trustBodyJa}</p>
+        </section>
 
       </div>
 

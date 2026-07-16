@@ -42,7 +42,7 @@ export function CompatibilitySavedReportsSection({
       data-testid="compatibility-saved-reports"
     >
       <p className={styles.eyebrow}>二人の関係</p>
-      <h2 id="compatibility-saved-reports-title">二人の相性レポート</h2>
+      <h2 id="compatibility-saved-reports-title">2人の距離の読み解き</h2>
       {loading ? <p className={styles.body}>購入済みレポートを確認しています…</p> : null}
       {error ? (
         <p className={styles.muted}>レポートを確認できませんでした。時間をおいて再度お試しください。</p>
@@ -60,7 +60,7 @@ export function CompatibilitySavedReportsSection({
           {reports.map((report) => (
             <li key={report.id} className={styles.item}>
               <div>
-                <strong>二人の相性レポート</strong>
+                <strong>2人の距離の読み解き</strong>
                 <span>
                   購入日 {new Intl.DateTimeFormat('ja-JP', {
                     year: 'numeric',

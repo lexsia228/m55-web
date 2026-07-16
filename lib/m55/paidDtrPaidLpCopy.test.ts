@@ -37,10 +37,10 @@ const FORBIDDEN_LP_TERMS = [
 
 const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 
-const SAVED_REPORT_HEADLINE_JA = '強みと迷いやすさを、場面ごとに詳しく読む。';
+const SAVED_REPORT_HEADLINE_JA = '自分のことを、もっと詳しく知りたい人へ。';
 
 const SAVED_REPORT_BODY_JA =
-  '個人解析レポートは、生年月日と質問回答を重ね、\n自然に力を発揮しやすい条件、\n仕事や人との関わりに表れやすい特徴、\n迷いや疲れにつながりやすい流れ、\n今の自分に強く出ている傾向を4章で詳しく読むデジタルレポートです。\n\n購入したレポートは、マイページから後で読み返せます。\nライトとFULLの4章は共通で、違いは追加読み解きの件数です。';
+  '無料結果で見えた全体的な特徴をもとに、\n強みが自然に出やすい条件、\n自分らしい考え方と決め方、\n人との関わりに表れやすい特徴、\n迷いや疲れが始まりやすい流れまで、一つのレポートで詳しく読めます。\n\nこの内容を4章に分けて表示し、購入後はマイページから読み返せます。';
 
 const OWNED_STATE_STRINGS = [
   '保存版の閲覧・準備状況はこちらから進められます。',
@@ -98,13 +98,13 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     }
   });
 
-  it('includes Product Truth prices and reply counts', () => {
+  it('includes Product Truth prices and user-facing theme counts', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
     assert.match(blob, /¥1,000/);
     assert.match(blob, /¥1,480/);
     assert.match(blob, /¥600/);
-    assert.match(blob, /1件/);
-    assert.match(blob, /合計5件/);
+    assert.match(blob, /1つ/);
+    assert.match(blob, /合計5つ/);
     assert.match(blob, /一回払い/);
   });
 
@@ -145,11 +145,13 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     );
   });
 
-  it('orders tiers FULL before light in copy structure', () => {
-    assert.match(PAID_DTR_LP.tiers.full.planNameJa, /FULL/);
-    assert.match(PAID_DTR_LP.tiers.light.planNameJa, /ライト/);
-    assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5件');
-    assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
+  it('states the same report and exact theme-count difference', () => {
+    assert.equal(PAID_DTR_LP.tiers.full.planNameJa, 'FULL');
+    assert.equal(PAID_DTR_LP.tiers.light.planNameJa, 'ライト');
+    assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5つまで');
+    assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1つ');
+    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /レポートの内容は同じ/);
+    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /さらに詳しく読めるテーマ数/);
   });
 
   it('has exactly 4 FAQ items', () => {
@@ -157,20 +159,20 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   });
 
   it('defines hero compare anchor and CTA labels', () => {
-    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'FULLとライトを比べる');
+    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'ライトとFULLを比べる');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
     assert.equal(PAID_DTR_LP.hero.subheadlineJa, 'M55 個人解析レポート');
-    assert.match(PAID_DTR_LP.hero.headlineJa, /無料解析の続きを/);
-    assert.match(lpPageSource, /M55 個人解析レポート \| 4章の詳しい個人解析/);
+    assert.match(PAID_DTR_LP.hero.headlineJa, /無料結果では見えなかった/);
+    assert.match(lpPageSource, /M55 個人解析レポート \| 自分の詳しい特徴を読む/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
     assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '個人解析FULLを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '個人解析ライトを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '個人解析レポートのプラン');
-    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じ4章の保存版/);
+    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /レポートの内容は同じ/);
     assert.equal(PAID_DTR_LP.tiers.full.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '詳しい4章');
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '詳しい4章');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '自分について詳しく読める内容');
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '自分について詳しく読める内容');
     assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でFULL化/);
     assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');
   });
@@ -191,9 +193,10 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('aligns LP copy with commercial value and safety boundaries', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assert.match(blob, /自然に力を発揮しやすい条件/);
-    assert.match(blob, /迷いや疲れにつながりやすい流れ/);
-    assert.match(blob, /仕事や人との関わり/);
+    assert.match(blob, /強みが自然に出やすい条件/);
+    assert.match(blob, /自分らしい考え方と決め方/);
+    assert.match(blob, /人との関わりに表れやすい特徴/);
+    assert.match(blob, /迷いや疲れが始まりやすい流れ/);
     assert.match(blob, /医学的診断/);
     assert.match(blob, /心理検査/);
     assert.match(blob, /将来の不確実な事実を断定/);
@@ -206,7 +209,6 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
 
   it('states calendar rhythm, answers, and bounded AI product truth', () => {
     const blob = collectPaidDtrLpCopyStrings().join('\n');
-    assert.match(blob, /M55独自の10資質フレーム/);
     assert.match(blob, /暦リズム/);
     assert.match(blob, /質問回答/);
     assert.match(blob, /固定ルール/);

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { STATIC_FREE_TO_PAID_BRIDGE } from '../../components/core/corePublicCopy';
-import { PAID_DTR_DRAWER_CHAPTER_ENTRIES, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
 import {
   assertPrivacySafeFunnelPayload,
   buildPrivacySafeFunnelPayload,
@@ -23,18 +23,15 @@ function read(rel: string): string {
 }
 
 describe('free-to-paid conversion bridge — Product Truth', () => {
-  it('exposes exactly four Product Truth chapters', () => {
+  it('exposes exactly four approved personal outcomes before plan details', () => {
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
-    for (let i = 0; i < 4; i++) {
-      assert.equal(
-        STATIC_FREE_TO_PAID_BRIDGE.chapters[i]!.titleJa,
-        PAID_DTR_DRAWER_CHAPTER_ENTRIES[i]!.labelJa,
-      );
-      assert.equal(
-        STATIC_FREE_TO_PAID_BRIDGE.chapters[i]!.roman,
-        PAID_DTR_DRAWER_CHAPTER_ENTRIES[i]!.pillLabelJa,
-      );
-    }
+    assert.deepEqual(STATIC_FREE_TO_PAID_BRIDGE.chapters.map((item) => item.titleJa), [
+      '強みが自然に出やすい条件',
+      '自分らしい考え方と決め方',
+      '人との関わりに表れやすい特徴',
+      '迷いや疲れが始まりやすい流れ',
+    ]);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chaptersHeadingJa, '自分について詳しく読めること');
   });
 
   it('keeps Light/FULL pricing aligned with Product Truth', () => {
@@ -42,10 +39,12 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{lightPriceLabel\}/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{fullPriceLabel\}/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /レポートの内容は同じ/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /さらに詳しく読めるテーマ数/);
   });
 
   it('uses one primary CTA and a secondary free-reading path', () => {
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '保存版の質問へ進む');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '詳しい個人レポートを見る');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料の詳細をこのまま読む');
   });
 

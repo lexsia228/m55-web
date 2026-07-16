@@ -4,7 +4,7 @@ import { CompatibilityPurchaseConfirmation } from '../../../../components/compat
 import { isCompatibilityCommerceEnabled } from '../../../../lib/m55/compatibility/compatibilityCommerceAuthority';
 
 export const metadata = {
-  title: '二人の相性レポート 購入確認 | M55',
+  title: '2人の距離の読み解き 購入確認 | M55',
   robots: { index: false, follow: false },
 };
 

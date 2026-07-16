@@ -158,24 +158,24 @@ export const STATIC_CTA = {
  * One quiet block; Product Truth 4 chapters; no fake urgency.
  */
 export const STATIC_FREE_TO_PAID_BRIDGE = {
-  overline: '保存版への続き',
-  title: '無料で分かったことと、保存版で深まること',
-  contextTemplateJa: '今回選んだ「{focusTheme}」を、保存版では4つの場面に分けて整理します。',
-  freeLayerLabelJa: '無料の見取り図',
+  overline: '詳しい個人レポート',
+  title: '無料結果では見えなかった、自分の詳しい特徴を読む。',
+  contextTemplateJa: '今回選んだ「{focusTheme}」も、今の自分に合わせて詳しく読めます。',
+  freeLayerLabelJa: '無料結果',
   freeLayerBodyJa: '土台と、いま表れやすい5つの視点を確認',
-  savedLayerLabelJa: '保存版',
-  savedLayerBodyJa: '仕事・近い関係・生活と疲れまで、4章で読み返せる形に整理',
-  chaptersHeadingJa: '保存版の4章',
+  savedLayerLabelJa: '個人解析レポート',
+  savedLayerBodyJa: '力が出やすい条件、考え方と決め方、人との関わり、迷いや疲れの流れまで詳しく確認',
+  chaptersHeadingJa: '自分について詳しく読めること',
   chapters: [
-    { roman: 'Ⅰ', titleJa: '自分の形を知る' },
-    { roman: 'Ⅱ', titleJa: '仕事・これからの進め方' },
-    { roman: 'Ⅲ', titleJa: '恋人・近い人との向き合い方' },
-    { roman: 'Ⅳ', titleJa: 'お金・生活・疲れの整え方' },
+    { roman: '01', titleJa: '強みが自然に出やすい条件' },
+    { roman: '02', titleJa: '自分らしい考え方と決め方' },
+    { roman: '03', titleJa: '人との関わりに表れやすい特徴' },
+    { roman: '04', titleJa: '迷いや疲れが始まりやすい流れ' },
   ] as const,
   /** Soft price note only — plan comparison stays on /dtr/lp. */
   priceNoteTemplate:
-    '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}。詳細な比較は次のプラン画面で確認できます。',
-  primaryCtaJa: '保存版の質問へ進む',
+    'ライトでもFULLでも、詳しいレポートの内容は同じです。{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}。違いは、さらに詳しく読めるテーマ数です。',
+  primaryCtaJa: '詳しい個人レポートを見る',
   secondaryCtaJa: '無料の詳細をこのまま読む',
   safetyNote:
     '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは保存版をもとにした1テーマ整理です。',

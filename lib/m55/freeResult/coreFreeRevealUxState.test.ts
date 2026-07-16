@@ -140,12 +140,11 @@ describe('guest free journey source guards', () => {
     assert.doesNotMatch(src, /もう一度答える/);
   });
 
-  it('CoreLockedState uses five questions and current interest copy', () => {
+  it('CoreLockedState uses the approved six-question free-entry copy', () => {
     const src = read('components/core/CoreLockedState.tsx');
-    assert.match(src, /5つの問いと今の関心/);
-    assert.match(src, /見取り図/);
-    assert.doesNotMatch(src, /6問/);
-    assert.doesNotMatch(src, /6つの問い/);
+    assert.match(src, /生年月日と6つの質問/);
+    assert.match(src, /自然に力を発揮しやすい場面/);
+    assert.doesNotMatch(src, /5つの問いと今の関心/);
   });
 
   it('CoreEssencePanel keeps committed vs draft answer separation', () => {
@@ -170,7 +169,7 @@ describe('free self-understanding semantics copy', () => {
     );
   });
 
-  it('free flow copy avoids stale six-question wording', () => {
+  it('free flow copy uses the approved six-question wording', () => {
     const flowSources = [
       read('components/core/CoreFreeIntroSection.tsx'),
       read('components/core/CoreFreeJourneyStepper.tsx'),
@@ -179,17 +178,16 @@ describe('free self-understanding semantics copy', () => {
       read('lib/m55/freeResult/guestFreeJourneyCopyV1.ts'),
       read('lib/m55/freeResult/questionnaireCopyV1.ts'),
     ].join('\n');
+    assert.match(flowSources, /6つの質問/);
     assert.match(flowSources, /5つの問い/);
     assert.match(flowSources, /今の関心/);
-    assert.doesNotMatch(flowSources, /6問/);
-    assert.doesNotMatch(flowSources, /6つの問い/);
-    assert.doesNotMatch(flowSources, /6つの短い問い/);
   });
 
-  it('intro section uses recommended duration copy', () => {
+  it('intro section uses the approved free-entry burden copy', () => {
     const src = read('components/core/CoreFreeIntroSection.tsx');
-    assert.match(src, /5つの短い問いと、今の関心を1つ選びます/);
-    assert.match(src, /約1分で、自分の輪郭を確認できます/);
+    assert.match(src, /無料解析・6つの質問/);
+    assert.match(src, /無料・6つの質問/);
+    assert.match(src, /6つの質問を始める/);
   });
 
   it('result summary hub separates focus theme label', () => {
@@ -216,8 +214,8 @@ describe('free journey stepper presentation', () => {
 
   it('public header keeps the same navigation language across viewports', () => {
     const src = read('components/shell/PublicHeader.tsx');
-    assert.match(src, /href: '\/core', label: '無料で見る'/);
-    assert.match(src, /href: '\/dtr', label: '読み解き'/);
+    assert.match(src, /href: '\/core', label: '無料解析'/);
+    assert.match(src, /href: '\/dtr', label: '結果・レポート'/);
     assert.match(src, /href: '\/my', label: 'マイページ'/);
     assert.doesNotMatch(src, /shortLabel|compactNav/);
     assert.match(src, /ログイン/);
