@@ -57,7 +57,7 @@ export default function ShellLayout({
     <div className={styles.wrapper}>
       <PublicHeader />
 
-      <main className={styles.main}>
+      <main className={`${styles.main}${isCoreRoute ? ` ${styles.coreMain}` : ''}`}>
         {useDataBridge ? (
           <>
             <LegacyFrame src={iframeSrc!} title={iframeTitle} {...iframeProps} />

@@ -68,6 +68,15 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     }
   });
 
+  it('keeps the footer at the end of the short /core viewport without changing shared pages', () => {
+    const shell = readRepoFile('components/shell/ShellLayout.tsx');
+    const shellCss = readRepoFile('components/shell/ShellLayout.module.css');
+
+    assert.match(shell, /isCoreRoute \? ` \$\{styles\.coreMain\}` : ''/);
+    assert.match(shellCss, /\.coreMain\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;/s);
+    assert.match(shellCss, /\.coreMain\s*>\s*footer\s*\{[^}]*margin-top:\s*auto;/s);
+  });
+
   it('removes legacy English labels and hard classification terms from core surface', () => {
     const blob = combinedCoreCopy();
     for (const term of LEGACY_CORE_TERMS) {
