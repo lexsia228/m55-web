@@ -25,14 +25,16 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
     assert.equal(home.heroSubJa, '');
     assert.equal(home.heroTrustJa, '');
     assert.deepEqual(home.heroPersonalPreviewJa.outcomesJa, [
-      '強みが出る時',
-      '自分らしい選び方',
-      '迷いやすい時',
+      '今の自分に出ている特徴',
+      '力が出やすい場面',
+      '自分らしい決め方',
+      '迷いやすい場面',
     ]);
     assert.deepEqual(home.heroCompatibilityPreviewJa.outcomesJa, [
+      '二人の重なり',
       '合いやすいところ',
       '補い合いやすい違い',
-      'すれ違いやすい時',
+      'すれ違いやすい場面',
     ]);
     assert.doesNotMatch(
       `${home.heroEyebrowJa}\n${home.heroSubJa}\n${home.heroTrustJa}\n${home.heroFunnelCtaJa}`,

@@ -58,17 +58,19 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroPersonalPreviewJa: {
       labelJa: '自分',
       outcomesJa: [
-        '強みが出る時',
-        '自分らしい選び方',
-        '迷いやすい時',
+        '今の自分に出ている特徴',
+        '力が出やすい場面',
+        '自分らしい決め方',
+        '迷いやすい場面',
       ] as const,
     },
     heroCompatibilityPreviewJa: {
       labelJa: '二人',
       outcomesJa: [
+        '二人の重なり',
         '合いやすいところ',
         '補い合いやすい違い',
-        'すれ違いやすい時',
+        'すれ違いやすい場面',
       ] as const,
     },
     heroFunnelLinesJa: [
@@ -112,6 +114,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
         '自然にうまくいく時と、立ち止まりやすい時の両方を見ます。',
       resultHeadingJa: '見られること',
       resultItemsJa: [
+        '今の自分に出ている特徴',
         '力が出やすい場面',
         '自分らしい決め方',
         '迷いやすい場面',
@@ -126,7 +129,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
         '仲の良さも、違いが出やすい時も、二人の関係を両方から見ます。',
       resultHeadingJa: '見られること',
       resultItemsJa: [
-        '自然に合いやすいところ',
+        '二人の重なり',
+        '合いやすいところ',
         '補い合いやすい違い',
         'すれ違いやすい場面',
       ] as const,

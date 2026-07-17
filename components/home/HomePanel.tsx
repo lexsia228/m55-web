@@ -18,10 +18,81 @@ import {
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
-import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
+
+const OUTCOME_LABEL_SEGMENTS: Record<string, readonly string[]> = {
+  '今の自分に出ている特徴': ['今の自分に', '出ている特徴'],
+  '力が出やすい場面': ['力が出やすい', '場面'],
+  '自分らしい決め方': ['自分らしい', '決め方'],
+  '迷いやすい場面': ['迷いやすい', '場面'],
+  '二人の重なり': ['二人の重なり'],
+  '合いやすいところ': ['合いやすい', 'ところ'],
+  '補い合いやすい違い': ['補い合いやすい', '違い'],
+  'すれ違いやすい場面': ['すれ違いやすい', '場面'],
+};
+
+function OutcomeLabel({ text }: { text: string }) {
+  const segments = OUTCOME_LABEL_SEGMENTS[text] ?? [text];
+  return (
+    <>
+      {segments.map((segment) => (
+        <span className={styles.homeOutcomeLabelSegment} key={segment}>
+          {segment}
+        </span>
+      ))}
+    </>
+  );
+}
+
+function HomeResultSurface({
+  kind,
+  label,
+  title,
+  items,
+  compact = false,
+  testId,
+}: {
+  kind: 'personal' | 'compatibility';
+  label: string;
+  title: string;
+  items: readonly string[];
+  compact?: boolean;
+  testId: string;
+}) {
+  return (
+    <article
+      className={`${styles.homeResultPreviewCard} ${
+        kind === 'compatibility' ? styles.homeResultPreviewCompatibility : ''
+      } ${compact ? styles.heroProductProofCard : ''}`}
+      data-result-kind={kind}
+      data-result-variant={compact ? 'compact' : 'full'}
+      data-testid={testId}
+    >
+      <header>
+        <span
+          className={`${styles.homeResultAccent} ${
+            kind === 'personal'
+              ? styles.homeResultAccentPersonal
+              : styles.homeResultAccentCompatibility
+          }`}
+          aria-hidden
+        />
+        <span>{label}</span>
+        <h3>{title}</h3>
+      </header>
+      <ul>
+        {items.map((item, index) => (
+          <li key={item}>
+            {compact ? null : <span aria-hidden>{String(index + 1).padStart(2, '0')}</span>}
+            <strong>{compact ? <OutcomeLabel text={item} /> : item}</strong>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
 
 /* ── Component ───────────────────────────────────────────────────────────────── */
 
@@ -78,7 +149,6 @@ export default function HomePanel({
                   className={styles.posterHeroBaseImage}
                   priority
                 />
-                <HeroBackgroundMedia />
               </div>
               <div className={styles.posterHeroReadabilityVeil} />
             </div>
@@ -91,45 +161,33 @@ export default function HomePanel({
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
+                      <span className={styles.posterHeroTitleLine}>
+                        あなたの「いつもこうなる」
+                      </span>
+                      <span className={styles.posterHeroTitleLine}>には、順番がある。</span>
                     </h1>
                   </div>
-                  <div className={styles.posterHeroOutcomeGrid} aria-label="無料で見られる結果">
-                    <article
-                      className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomePersonal}`}
-                      data-testid="m55-home-hero-personal-preview"
-                    >
-                      <span
-                        className={`${styles.posterHeroOutcomeAccent} ${styles.posterHeroPersonalAccent}`}
-                        aria-hidden
-                      />
-                      <div className={styles.posterHeroOutcomeContent}>
-                        <p>{homeCopy.heroPersonalPreviewJa.labelJa}</p>
-                        <ul>
-                          {homeCopy.heroPersonalPreviewJa.outcomesJa.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </article>
-                    <article
-                      className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomeCompatibility}`}
-                      data-testid="m55-home-hero-compatibility-preview"
-                    >
-                      <span
-                        className={`${styles.posterHeroOutcomeAccent} ${styles.posterHeroCompatibilityAccent}`}
-                        aria-hidden
-                      />
-                      <div className={styles.posterHeroOutcomeContent}>
-                        <p>{homeCopy.heroCompatibilityPreviewJa.labelJa}</p>
-                        <ul>
-                          {homeCopy.heroCompatibilityPreviewJa.outcomesJa.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </article>
+                  <div
+                    className={`${styles.posterHeroOutcomeGrid} ${styles.heroProductProof}`}
+                    aria-label="無料で見られる結果"
+                    data-testid="m55-home-hero-product-proof"
+                  >
+                    <HomeResultSurface
+                      kind="personal"
+                      label={homeCopy.personalResultPreviewJa.labelJa}
+                      title={homeCopy.personalResultPreviewJa.titleJa}
+                      items={homeCopy.heroPersonalPreviewJa.outcomesJa}
+                      compact
+                      testId="m55-home-hero-personal-preview"
+                    />
+                    <HomeResultSurface
+                      kind="compatibility"
+                      label={homeCopy.compatibilityResultPreviewJa.labelJa}
+                      title={homeCopy.compatibilityResultPreviewJa.titleJa}
+                      items={homeCopy.heroCompatibilityPreviewJa.outcomesJa}
+                      compact
+                      testId="m55-home-hero-compatibility-preview"
+                    />
                   </div>
                   <div className={styles.posterHeroBottomStack}>
                     <a
@@ -169,14 +227,17 @@ export default function HomePanel({
                 <div>
                   <p className={styles.homeIntentLabel}>{homeCopy.personalFreeCardJa.labelJa}</p>
                   <h3 className={styles.homeIntentHeadline}>
-                    {homeCopy.personalFreeCardJa.headlineJa}
+                    <span>自分の強みは、</span>
+                    <span>どんな時に出る？</span>
                   </h3>
                 </div>
               </div>
               <div className={styles.homeIntentResult}>
                 <p>{homeCopy.personalFreeCardJa.resultHeadingJa}</p>
                 <ul>
-                  {homeCopy.personalFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
+                  {homeCopy.personalFreeCardJa.resultItemsJa.map((item) => (
+                    <li key={item}><OutcomeLabel text={item} /></li>
+                  ))}
                 </ul>
               </div>
               <p className={styles.homeIntentBodyText}>
@@ -215,14 +276,17 @@ export default function HomePanel({
                 <div>
                   <p className={styles.homeIntentLabel}>{homeCopy.compatibilityFreeCardJa.labelJa}</p>
                   <h3 className={styles.homeIntentHeadline}>
-                    {homeCopy.compatibilityFreeCardJa.headlineJa}
+                    <span>二人は、どこで合い、</span>
+                    <span>どこで違う？</span>
                   </h3>
                 </div>
               </div>
               <div className={styles.homeIntentResult}>
                 <p>{homeCopy.compatibilityFreeCardJa.resultHeadingJa}</p>
                 <ul>
-                  {homeCopy.compatibilityFreeCardJa.resultItemsJa.map((item) => <li key={item}>{item}</li>)}
+                  {homeCopy.compatibilityFreeCardJa.resultItemsJa.map((item) => (
+                    <li key={item}><OutcomeLabel text={item} /></li>
+                  ))}
                 </ul>
               </div>
               <p className={styles.homeIntentBodyText}>
@@ -254,43 +318,36 @@ export default function HomePanel({
         >
           <div className={styles.homeResultPreviewHeading}>
             <p>{homeCopy.resultPreviewCaptionJa}</p>
-            <h2 id="m55-home-result-preview-title">{homeCopy.resultPreviewHeadingJa}</h2>
+            <h2 id="m55-home-result-preview-title">
+              <span>答えると、</span>
+              <span>こんな結果が見られます</span>
+            </h2>
           </div>
           <div className={styles.homeResultPreviewGrid}>
-            <article
-              className={styles.homeResultPreviewCard}
+            <div
+              className={styles.homeResultPreviewCardWrap}
               data-testid="m55-home-demo-five-element"
             >
-              <header>
-                <span>{homeCopy.personalResultPreviewJa.labelJa}</span>
-                <h3>{homeCopy.personalResultPreviewJa.titleJa}</h3>
-              </header>
-              <ul>
-                {homeCopy.personalResultPreviewJa.itemsJa.map((item, index) => (
-                  <li key={item}>
-                    <span aria-hidden>{String(index + 1).padStart(2, '0')}</span>
-                    <strong>{item}</strong>
-                  </li>
-                ))}
-              </ul>
-            </article>
-            <article
-              className={styles.homeResultPreviewCard}
+              <HomeResultSurface
+                kind="personal"
+                label={homeCopy.personalResultPreviewJa.labelJa}
+                title={homeCopy.personalResultPreviewJa.titleJa}
+                items={homeCopy.personalResultPreviewJa.itemsJa}
+                testId="m55-home-demo-five-element-surface"
+              />
+            </div>
+            <div
+              className={styles.homeResultPreviewCardWrap}
               data-testid="m55-home-demo-compatibility"
             >
-              <header>
-                <span>{homeCopy.compatibilityResultPreviewJa.labelJa}</span>
-                <h3>{homeCopy.compatibilityResultPreviewJa.titleJa}</h3>
-              </header>
-              <ul>
-                {homeCopy.compatibilityResultPreviewJa.itemsJa.map((item, index) => (
-                  <li key={item}>
-                    <span aria-hidden>{String(index + 1).padStart(2, '0')}</span>
-                    <strong>{item}</strong>
-                  </li>
-                ))}
-              </ul>
-            </article>
+              <HomeResultSurface
+                kind="compatibility"
+                label={homeCopy.compatibilityResultPreviewJa.labelJa}
+                title={homeCopy.compatibilityResultPreviewJa.titleJa}
+                items={homeCopy.compatibilityResultPreviewJa.itemsJa}
+                testId="m55-home-demo-compatibility-surface"
+              />
+            </div>
           </div>
         </section>
 
@@ -389,7 +446,7 @@ export default function HomePanel({
                 trackFunnelAction(M55_FUNNEL_EVENTS.purchaseDetailsOpen, 'reading_personal')
               }
             >
-              {homeCopy.paidPlanDetailsCtaJa} →
+              {homeCopy.paidPlanDetailsCtaJa}
             </Link>
 
             <div className={styles.homePaidPlanCompatibility}>

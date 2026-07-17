@@ -86,7 +86,7 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.88fr) minmax(360px, 1.12fr);
+  grid-template-columns: minmax(0, 0.618fr) minmax(360px, 1fr);
   grid-template-areas:
     "message outcomes"
     "action outcomes";
@@ -205,7 +205,7 @@
 }
 
 .posterHeroBrandM55 {
-  font-size: 12px;
+  font-size: 13px;
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   letter-spacing: 0.2em;
   color: #315f5b;
@@ -226,7 +226,7 @@
 
 .posterHeroOverlay .posterHeroTitleBlite {
   color: #1f3034;
-  font-size: clamp(2.1rem, 3.5vw, 3.45rem);
+  font-size: clamp(1.9rem, 2.2vw, 1.94rem);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-weight: 500;
   line-height: 1.35;
@@ -240,6 +240,10 @@
 
 .posterHeroTitleLine {
   display: block;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: normal;
 }
 
 .posterHeroTitleLine:first-child {
@@ -275,7 +279,7 @@
 .posterHeroMeta {
   margin: 11px 0 0;
   color: #536164;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   text-align: left;
 }
@@ -380,6 +384,7 @@
   min-height: 0;
   display: grid;
   grid-template: 1fr / 1fr;
+  overflow: hidden;
 }
 
 .posterHeroBaseLayer {
@@ -387,12 +392,13 @@
   position: relative;
   z-index: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .posterHeroBaseImage {
   object-fit: cover;
   object-position: center center;
-  filter: saturate(0.78) contrast(0.92);
+  filter: saturate(0.62) contrast(0.86) brightness(1.04);
   transform: scale(1.16);
   transform-origin: center center;
 }
@@ -444,8 +450,8 @@
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(247, 243, 234, 0.93) 0%, rgba(247, 243, 234, 0.78) 42%, rgba(247, 243, 234, 0.34) 68%, rgba(241, 237, 230, 0.46) 100%),
-    linear-gradient(180deg, rgba(255, 253, 248, 0.42), rgba(236, 233, 225, 0.34));
+    linear-gradient(90deg, rgba(247, 243, 234, 0.96) 0%, rgba(247, 243, 234, 0.88) 40%, rgba(247, 243, 234, 0.58) 70%, rgba(241, 237, 230, 0.66) 100%),
+    linear-gradient(180deg, rgba(255, 253, 248, 0.55), rgba(236, 233, 225, 0.46));
 }
 
 @media (max-height: 720px) {
@@ -546,6 +552,13 @@
 /* ── Shared home surface (below hero): one shell + card family ───────────── */
 /* Below hero: single horizontal column — width lives here only (not on each section). */
 .homeSurfaceShell {
+  --home-ink: #20383d;
+  --home-paper: #fbf8f1;
+  --home-paper-strong: #fffdf8;
+  --home-stone-border: rgba(38, 57, 61, 0.14);
+  --home-surface-shadow: 0 14px 36px rgba(35, 50, 53, 0.07);
+  --home-radius-major: 20px;
+  --home-radius-card: 15px;
   width: 100%;
   max-width: min(56rem, 100%);
   margin-left: auto;
@@ -1027,6 +1040,9 @@
   color: #2f2a39;
   line-height: 1.5;
   text-align: center;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .homeReadNextGrid {
@@ -1042,10 +1058,10 @@
   flex-direction: column;
   min-width: 0;
   padding: clamp(18px, 4vw, 26px);
-  border: 1px solid rgba(45, 42, 51, 0.1);
-  border-radius: 18px;
-  background: rgba(255, 253, 249, 0.88);
-  box-shadow: 0 14px 34px rgba(45, 42, 51, 0.055);
+  border: 1px solid var(--home-stone-border);
+  border-radius: var(--home-radius-major);
+  background: var(--home-paper-strong);
+  box-shadow: var(--home-surface-shadow);
 }
 
 .homeIntentPersonal {
@@ -1065,7 +1081,7 @@
 .homeIntentLabel {
   margin: 0 0 6px;
   color: #46726c;
-  font-size: clamp(10px, 2.2vw, 11px);
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -1081,12 +1097,19 @@
   font-size: clamp(19px, 4.2vw, 25px);
   font-weight: 500;
   line-height: 1.5;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.homeIntentHeadline > span {
+  display: block;
 }
 
 .homeIntentBodyText {
   margin: clamp(12px, 2.6vw, 16px) 0 0;
   color: rgba(45, 42, 51, 0.78);
-  font-size: clamp(12.5px, 2.5vw, 14px);
+  font-size: clamp(13px, 2.5vw, 14px);
   line-height: 1.7;
 }
 
@@ -1104,7 +1127,7 @@
 .homeIntentResult > p {
   margin: 0 0 8px;
   color: #355f59;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -1113,22 +1136,35 @@
 }
 
 .homeIntentResult ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(52px, 1fr);
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
   color: rgba(45, 42, 51, 0.78);
-  font-size: clamp(11.5px, 2.3vw, 12.5px);
-  line-height: 1.75;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .homeIntentResult li {
-  padding: 5px 9px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 52px;
+  padding: 8px 10px;
   border: 1px solid rgba(47, 118, 111, 0.16);
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.72);
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.homeOutcomeLabelSegment {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .homeIntentCompatibility .homeIntentResult li {
@@ -1141,7 +1177,7 @@
   gap: 6px 12px;
   margin-top: 14px;
   color: rgba(45, 42, 51, 0.56);
-  font-size: 10.5px;
+  font-size: 13px;
 }
 
 .homeIntentAction {
@@ -1152,18 +1188,25 @@
   margin-top: clamp(18px, 3vw, 22px);
   padding: 11px 18px;
   border: 0;
-  border-radius: 999px;
-  background: #2f766f;
-  color: #fffdf9;
+  border-radius: 12px;
+  background: rgba(47, 118, 111, 0.11);
+  color: #285f59;
   font: inherit;
-  font-size: clamp(12px, 2.5vw, 13px);
+  font-size: 13px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
 }
 
 .homeIntentCompatibility .homeIntentAction {
-  background: #4e587c;
+  background: rgba(78, 88, 124, 0.11);
+  color: #444f77;
+}
+
+@media (max-width: 340px) {
+  .homeIntentResult ul {
+    grid-template-columns: 1fr;
+  }
 }
 
 .homeIntentAction:focus-visible {
@@ -1322,11 +1365,12 @@
 }
 
 .homeResultPreview {
-  margin: clamp(28px, 5vw, 42px) 0;
+  margin: clamp(34px, 5vw, 55px) 0;
   padding: clamp(24px, 4.5vw, 36px) clamp(16px, 4vw, 28px);
-  border: 1px solid rgba(47, 118, 111, 0.13);
-  border-radius: 16px;
-  background: rgba(252, 250, 247, 0.86);
+  border: 1px solid var(--home-stone-border);
+  border-radius: var(--home-radius-major);
+  background: var(--home-paper);
+  box-shadow: var(--home-surface-shadow);
 }
 
 .homeResultPreviewHeading {
@@ -1337,7 +1381,7 @@
 .homeResultPreviewHeading > p {
   margin: 0 0 7px;
   color: rgba(47, 118, 111, 0.72);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.13em;
 }
@@ -1349,6 +1393,13 @@
   font-size: clamp(21px, 4.4vw, 29px);
   font-weight: 500;
   line-height: 1.5;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.homeResultPreviewHeading h2 > span {
+  display: block;
 }
 
 .homeResultPreviewGrid {
@@ -1356,14 +1407,22 @@
   gap: 12px;
 }
 
+.homeResultPreviewCardWrap {
+  min-width: 0;
+}
+
+.homeResultPreviewCardWrap > .homeResultPreviewCard {
+  height: 100%;
+}
+
 .homeResultPreviewCard {
   overflow: hidden;
   border: 1px solid rgba(47, 118, 111, 0.16);
-  border-radius: 14px;
+  border-radius: var(--home-radius-card);
   background: rgba(255, 255, 255, 0.88);
 }
 
-.homeResultPreviewCard:last-child {
+.homeResultPreviewCompatibility {
   border-color: rgba(78, 88, 124, 0.17);
 }
 
@@ -1373,19 +1432,35 @@
   background: rgba(47, 118, 111, 0.055);
 }
 
-.homeResultPreviewCard:last-child header {
+.homeResultPreviewCompatibility header {
   background: rgba(78, 88, 124, 0.055);
 }
 
-.homeResultPreviewCard header span {
+.homeResultPreviewCard header > span:not(.homeResultAccent) {
   color: #46726c;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
-.homeResultPreviewCard:last-child header span {
+.homeResultPreviewCompatibility header > span:not(.homeResultAccent) {
   color: #575f86;
+}
+
+.homeResultAccent {
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin: 0 0 10px;
+  border-radius: 2px;
+}
+
+.homeResultAccentPersonal {
+  background: #2f766f;
+}
+
+.homeResultAccentCompatibility {
+  background: linear-gradient(90deg, #b96962 0 46%, #4e587c 54% 100%);
 }
 
 .homeResultPreviewCard h3 {
@@ -1415,21 +1490,86 @@
   border-bottom: 0;
 }
 
-.homeResultPreviewCard li span {
+.homeResultPreviewCard li > span {
   color: rgba(47, 118, 111, 0.6);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
   font-size: 10px;
 }
 
-.homeResultPreviewCard:last-child li span {
+.homeResultPreviewCompatibility li > span {
   color: rgba(78, 88, 124, 0.62);
 }
 
 .homeResultPreviewCard li strong {
   color: rgba(45, 42, 51, 0.8);
-  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.55;
+}
+
+.heroProductProof {
+  align-items: stretch;
+}
+
+.heroProductProofCard {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  border-color: rgba(47, 89, 85, 0.25);
+  border-radius: 16px;
+  background: rgba(252, 250, 245, 0.94);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 12px 30px rgba(35, 50, 53, 0.09);
+}
+
+.heroProductProofCard.homeResultPreviewCompatibility {
+  border-color: rgba(78, 88, 124, 0.24);
+}
+
+.heroProductProofCard header {
+  padding: 14px 16px 12px;
+}
+
+.heroProductProofCard h3 {
+  font-size: 16px;
+  line-height: 1.45;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.heroProductProofCard ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(58px, 1fr);
+  padding: 0;
+  border-top: 1px solid rgba(45, 42, 51, 0.08);
+}
+
+.heroProductProofCard li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-right: 1px solid rgba(45, 42, 51, 0.07);
+  border-bottom: 1px solid rgba(45, 42, 51, 0.07);
+}
+
+.heroProductProofCard li:nth-child(2n) {
+  border-right: 0;
+}
+
+.heroProductProofCard li:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.heroProductProofCard li strong {
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: normal;
 }
 
 @media (min-width: 768px) {
@@ -1465,29 +1605,17 @@
 
 .homeMethodLayer {
   position: relative;
-  margin: 28px 0 40px;
+  margin: 34px 0 55px;
   padding: clamp(34px, 5.5vw, 48px) clamp(16px, 4vw, 26px) clamp(38px, 6vw, 52px);
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(
-    168deg,
-    rgba(248, 246, 252, 0.98) 0%,
-    rgba(241, 237, 250, 0.94) 42%,
-    rgba(232, 227, 244, 0.9) 100%
-  );
-  box-shadow: 0 14px 44px rgba(45, 38, 72, 0.06);
+  border-radius: var(--home-radius-major);
+  border: 1px solid var(--home-stone-border);
+  background:
+    linear-gradient(155deg, rgba(47, 118, 111, 0.055), transparent 46%),
+    var(--home-paper);
+  box-shadow: var(--home-surface-shadow);
   box-sizing: border-box;
   overflow: hidden;
   text-align: center;
-  animation: homeMethodLayerSectionIn 0.75s ease both;
-}
-
-@supports (animation-timeline: view()) {
-  .homeMethodLayer {
-    animation: homeMethodLayerSectionIn 0.75s ease both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 26%;
-  }
 }
 
 .homeMethodLayerInner {
@@ -1500,7 +1628,7 @@
 .homeMethodLayerLabel {
   margin: 0 0 clamp(14px, 2.8vw, 18px);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: clamp(10px, 2.2vw, 11px);
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.22em;
   color: #7a6a96;
@@ -1516,6 +1644,8 @@
   line-height: 1.46;
   color: #25222c;
   text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .homeMethodLayerHeadlineLine {
@@ -1555,8 +1685,8 @@
 .homeOutcomeExplanations article {
   padding: clamp(15px, 3vw, 19px);
   border: 1px solid rgba(45, 42, 51, 0.09);
-  border-radius: 12px;
-  background: rgba(255, 253, 249, 0.68);
+  border-radius: var(--home-radius-card);
+  background: var(--home-paper-strong);
 }
 
 .homeOutcomeExplanations h3 {
@@ -1566,12 +1696,15 @@
   font-size: clamp(15px, 3.1vw, 17px);
   font-weight: 600;
   line-height: 1.55;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .homeOutcomeExplanations p {
   margin: 0;
   color: rgba(45, 42, 51, 0.72);
-  font-size: clamp(12px, 2.5vw, 13px);
+  font-size: 13px;
   line-height: 1.75;
 }
 
@@ -2516,15 +2649,12 @@
   position: relative;
   margin: 0;
   padding: clamp(28px, 5vw, 40px) clamp(16px, 4vw, 28px) clamp(32px, 5.5vw, 44px);
-  border-radius: 12px;
-  border: 1px solid rgba(139, 122, 168, 0.14);
-  background: linear-gradient(
-    168deg,
-    rgba(248, 246, 252, 0.98) 0%,
-    rgba(241, 237, 250, 0.94) 42%,
-    rgba(232, 227, 244, 0.9) 100%
-  );
-  box-shadow: 0 14px 44px rgba(45, 38, 72, 0.06);
+  border-radius: var(--home-radius-major);
+  border: 1px solid rgba(78, 88, 124, 0.16);
+  background:
+    linear-gradient(155deg, rgba(78, 88, 124, 0.055), transparent 44%),
+    var(--home-paper);
+  box-shadow: var(--home-surface-shadow);
   box-sizing: border-box;
   overflow: hidden;
   text-align: center;
@@ -2540,7 +2670,7 @@
 .homePaidPlanLabel {
   margin: 0 0 clamp(12px, 2.6vw, 16px);
   font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  font-size: clamp(10px, 2.2vw, 11px);
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.22em;
   color: #7a6a96;
@@ -2556,6 +2686,8 @@
   line-height: 1.46;
   color: #25222c;
   text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .homePaidPlanHeadlineLine {
@@ -2893,7 +3025,7 @@
 .homePaidPlanSavedInfo {
   margin: 0;
   padding: clamp(16px, 3.4vw, 22px);
-  border-radius: 14px;
+  border-radius: var(--home-radius-card);
   border: 1px solid rgba(124, 111, 214, 0.14);
   background: rgba(255, 255, 255, 0.68);
   text-align: left;
@@ -2901,7 +3033,7 @@
 
 .homePaidPlanSavedInfoHeading {
   margin: 0 0 8px;
-  font-size: clamp(10px, 2.4vw, 11px);
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: rgba(124, 111, 214, 0.72);
@@ -2941,7 +3073,7 @@
 
 .homePaidPlanOutcomeList span {
   color: rgba(45, 42, 51, 0.68);
-  font-size: clamp(11px, 2.3vw, 12px);
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -2949,7 +3081,7 @@
   margin: clamp(18px, 3.6vw, 24px) 0 0;
   padding: clamp(16px, 3.4vw, 22px);
   border: 1px solid rgba(124, 111, 214, 0.14);
-  border-radius: 14px;
+  border-radius: var(--home-radius-card);
   background: rgba(255, 255, 255, 0.56);
 }
 
@@ -2988,7 +3120,7 @@
 .homePaidPlanUpgrade p {
   margin: 9px 0 0;
   color: rgba(45, 42, 51, 0.7);
-  font-size: clamp(11px, 2.3vw, 12px);
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -3027,14 +3159,14 @@
   padding-top: 10px;
   border-top: 1px solid rgba(124, 111, 214, 0.1);
   color: rgba(60, 55, 72, 0.68);
-  font-size: clamp(10.5px, 2.4vw, 11.5px);
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .homePaidPlanOwnershipNote {
   margin: 12px 0 0;
   color: rgba(60, 55, 72, 0.62);
-  font-size: clamp(10.5px, 2.4vw, 11.5px);
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -3043,7 +3175,7 @@
   margin: 22px auto 0;
   padding: clamp(13px, 2.8vw, 17px);
   border: 1px solid rgba(78, 88, 124, 0.16);
-  border-radius: 14px;
+  border-radius: var(--home-radius-card);
   background: rgba(78, 88, 124, 0.045);
   text-align: left;
 }
@@ -3060,14 +3192,14 @@
 .homePaidPlanCompatibilityAuxiliary {
   margin: -2px 0 10px;
   color: rgba(52, 58, 88, 0.62);
-  font-size: clamp(10px, 2.2vw, 11px);
+  font-size: 13px;
   line-height: 1.5;
 }
 
 .homePaidPlanCompatibility > p:not(.homePaidPlanSavedInfoHeading):not(.homePaidPlanCompatibilityNote):not(.homePaidPlanCompatibilityAuxiliary) {
   margin: 0;
   color: rgba(45, 42, 51, 0.74);
-  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  font-size: 13px;
   line-height: 1.8;
 }
 
@@ -3077,7 +3209,7 @@
   margin: 12px 0 0;
   padding-left: 1rem;
   color: rgba(45, 42, 51, 0.7);
-  font-size: clamp(10.5px, 2.3vw, 11.5px);
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -3085,7 +3217,7 @@
   display: inline-flex;
   margin-top: 12px;
   color: #4e587c;
-  font-size: clamp(11px, 2.4vw, 12px);
+  font-size: 13px;
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -3114,9 +3246,12 @@
 
 .homeTrust {
   max-width: 42rem;
-  margin: clamp(24px, 4.5vw, 36px) auto 0;
+  margin: clamp(34px, 5vw, 55px) auto 0;
   padding: clamp(18px, 3.8vw, 24px);
-  border-top: 1px solid rgba(45, 42, 51, 0.1);
+  border: 1px solid var(--home-stone-border);
+  border-radius: 18px;
+  background: var(--home-paper-strong);
+  box-shadow: 0 10px 28px rgba(35, 50, 53, 0.05);
   text-align: center;
 }
 
@@ -3127,12 +3262,15 @@
   font-size: clamp(16px, 3.3vw, 19px);
   font-weight: 500;
   line-height: 1.55;
+  text-wrap: balance;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .homeTrust p {
   margin: 0;
   color: rgba(45, 42, 51, 0.66);
-  font-size: clamp(11.5px, 2.4vw, 12.5px);
+  font-size: 13px;
   line-height: 1.75;
 }
 
@@ -3148,7 +3286,7 @@
   }
 
   .posterMainVisual {
-    min-height: min(470px, calc(100dvh - 66px));
+    min-height: min(680px, calc(100dvh - 66px));
     border-radius: 16px;
   }
 
@@ -3164,7 +3302,7 @@
       "action";
     grid-template-rows: auto auto auto;
     align-content: start;
-    row-gap: 15px;
+    row-gap: 11px;
     text-align: center;
   }
 
@@ -3179,34 +3317,49 @@
 
   .posterHeroOverlay .posterHeroTitleBlite {
     max-width: 21rem;
-    font-size: clamp(21px, 6vw, 25px);
+    font-size: clamp(20px, 5.6vw, 22px);
     line-height: 1.34;
   }
 
   .posterHeroOutcomeGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
 
-  .posterHeroOutcomeCard {
-    padding: 11px 9px 12px;
+  .heroProductProofCard {
     border-radius: 13px;
-    text-align: left;
   }
 
-  .posterHeroOutcomeAccent {
+  .heroProductProofCard header {
+    padding: 9px 12px 8px;
+  }
+
+  .heroProductProofCard header > span:not(.homeResultAccent) {
+    font-size: 13px;
+  }
+
+  .heroProductProofCard .homeResultAccent {
     width: 34px;
-    margin-bottom: 8px;
-  }
-
-  .posterHeroOutcomeCard p {
     margin-bottom: 6px;
-    font-size: 13px;
   }
 
-  .posterHeroOutcomeCard ul {
+  .heroProductProofCard h3 {
     font-size: 13px;
-    line-height: 1.48;
+    line-height: 1.35;
+  }
+
+  .heroProductProofCard ul {
+    grid-auto-rows: minmax(46px, 1fr);
+  }
+
+  .heroProductProofCard li {
+    min-height: 46px;
+    padding: 7px 10px;
+  }
+
+  .heroProductProofCard li strong {
+    font-size: 13px;
+    line-height: 1.35;
   }
 
   .posterHeroBottomStack {
@@ -3222,7 +3375,7 @@
 
   .posterHeroMeta {
     margin-top: 8px;
-    font-size: 12px;
+    font-size: 13px;
     text-align: center;
   }
 
@@ -3271,12 +3424,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .posterHeroOutcomeCard {
-    padding: 16px 18px 18px;
-  }
-
-  .posterHeroOutcomeAccent {
-    margin-bottom: 11px;
+  .heroProductProofCard li {
+    padding-inline: 10px;
   }
 }
 

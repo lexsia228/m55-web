@@ -29,7 +29,7 @@ const compatibilityStripeAuthoritySource = readFileSync(
 );
 
 describe('homePublicCopy — public product truth', () => {
-  it('renders the approved one-second hero with exact copy and six outcome labels', () => {
+  it('renders the approved one-second hero with exact copy and eight outcome labels', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
     assert.equal(
@@ -39,14 +39,16 @@ describe('homePublicCopy — public product truth', () => {
     assert.equal(home.heroMetaJa, '生年月日＋6つの質問・ログイン不要');
     assert.equal(home.heroFunnelCtaJa, '無料で見てみる');
     assert.deepEqual(home.heroPersonalPreviewJa.outcomesJa, [
-      '強みが出る時',
-      '自分らしい選び方',
-      '迷いやすい時',
+      '今の自分に出ている特徴',
+      '力が出やすい場面',
+      '自分らしい決め方',
+      '迷いやすい場面',
     ]);
     assert.deepEqual(home.heroCompatibilityPreviewJa.outcomesJa, [
+      '二人の重なり',
       '合いやすいところ',
       '補い合いやすい違い',
-      'すれ違いやすい時',
+      'すれ違いやすい場面',
     ]);
     assert.match(homePanelSource, />M55<\/p>/);
     assert.match(homePanelSource, /m55-home-hero-personal-preview/);
@@ -54,13 +56,13 @@ describe('homePublicCopy — public product truth', () => {
     assert.doesNotMatch(homePanelSource, /posterHeroPersonalVisual|posterHeroCompatibilityVisual/);
     assert.doesNotMatch(homePanelSource, /role="img"/);
     assert.doesNotMatch(homeCssSource, /\.posterHeroPersonalVisual|\.posterHeroCompatibilityVisual/);
-    assert.match(homeCssSource, /\.posterHeroOutcomePersonal/);
-    assert.match(homeCssSource, /\.posterHeroOutcomeCompatibility/);
-    assert.match(homeCssSource, /\.posterHeroPersonalAccent/);
-    assert.match(homeCssSource, /\.posterHeroCompatibilityAccent/);
+    assert.match(homePanelSource, /m55-home-hero-product-proof/);
+    assert.match(homePanelSource, /data-result-variant=\{compact \? 'compact' : 'full'\}/);
+    assert.match(homeCssSource, /\.homeResultAccentPersonal/);
+    assert.match(homeCssSource, /\.homeResultAccentCompatibility/);
     assert.match(homeCssSource, /\.posterHeroReadabilityVeil/);
     assert.match(homeCssSource, /\.posterMainVisual/);
-    assert.match(homeCssSource, /background: #2f766f/);
+    assert.match(homeCssSource, /background: #20383d/);
     assert.match(homeCssSource, /#b96962/);
     assert.match(homeCssSource, /#4e587c/);
   });
@@ -85,6 +87,7 @@ describe('homePublicCopy — public product truth', () => {
     assert.doesNotMatch(compatibilityPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
     assert.match(heroSource, /\{homeCopy\.heroFunnelCtaJa\}\s*<\/a>/);
     assert.doesNotMatch(heroSource, /heroSubJa|heroTrustJa|posterHeroSupportInline|posterHeroTrust/);
+    assert.doesNotMatch(heroSource, /HeroBackgroundMedia|<video/);
     assert.doesNotMatch(heroSource, /無料・3分|[\u{1F300}-\u{1FAFF}]/u);
     assert.doesNotMatch(heroSource, /rotateX|rotateY|perspective|mousemove|ripple/);
   });
@@ -92,32 +95,36 @@ describe('homePublicCopy — public product truth', () => {
   it('uses the existing background and premium CSS-first responsive surface', () => {
     assert.match(homePanelSource, /src="\/home\/hero-tech-map\.webp"/);
     assert.match(homeCssSource, /grid-template-areas:\s*"message outcomes"\s*"action outcomes"/);
-    assert.match(homeCssSource, /\.posterHeroOutcomeCard\s*\{[^}]*border:\s*1px/s);
+    assert.match(homeCssSource, /grid-template-columns:\s*minmax\(0,\s*0\.618fr\)\s*minmax\(360px,\s*1fr\)/);
+    assert.match(homeCssSource, /\.heroProductProofCard\s*\{[^}]*grid-template-rows:\s*auto 1fr/s);
+    assert.match(homeCssSource, /\.heroProductProofCard ul\s*\{[^}]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
     assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
     assert.match(homeCssSource, /@media \(prefers-reduced-motion: reduce\)/);
     assert.doesNotMatch(homeCssSource, /rotateX|rotateY|perspective|mousemove/);
   });
 
-  it('makes both intent cards outcome-first with exactly three chips and one CTA', () => {
+  it('makes both intent cards outcome-first with exactly four geometric cells and one CTA', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.readNextSectionTitleJa, 'どちらを見てみますか？');
     assert.equal(home.personalFreeCardJa.labelJa, '自分の無料解析');
     assert.equal(home.personalFreeCardJa.headlineJa, '自分の強みは、どんな時に出る？');
     assert.deepEqual(home.personalFreeCardJa.resultItemsJa, [
+      '今の自分に出ている特徴',
       '力が出やすい場面',
       '自分らしい決め方',
       '迷いやすい場面',
     ]);
-    assert.equal(home.personalFreeCardJa.resultItemsJa.length, 3);
+    assert.equal(home.personalFreeCardJa.resultItemsJa.length, 4);
     assert.equal(home.personalFreeCardJa.ctaJa, '自分を無料で見てみる');
     assert.equal(home.compatibilityFreeCardJa.labelJa, '二人の無料相性解析');
     assert.equal(home.compatibilityFreeCardJa.headlineJa, '二人は、どこで合い、どこで違う？');
     assert.deepEqual(home.compatibilityFreeCardJa.resultItemsJa, [
-      '自然に合いやすいところ',
+      '二人の重なり',
+      '合いやすいところ',
       '補い合いやすい違い',
       'すれ違いやすい場面',
     ]);
-    assert.equal(home.compatibilityFreeCardJa.resultItemsJa.length, 3);
+    assert.equal(home.compatibilityFreeCardJa.resultItemsJa.length, 4);
     assert.equal(home.compatibilityFreeCardJa.ctaJa, '二人の相性を無料で見てみる');
     assert.deepEqual(home.personalFreeCardJa.metaJa, ['生年月日＋6問', '無料・ログイン不要']);
     assert.deepEqual(home.compatibilityFreeCardJa.metaJa, ['二人の生年月日＋6問', '無料・ログイン不要']);
@@ -134,6 +141,8 @@ describe('homePublicCopy — public product truth', () => {
     assert.equal((personalCard.match(/homeIntentAction/g) ?? []).length, 2);
     assert.ok(compatibilityCard.indexOf('resultItemsJa') < compatibilityCard.indexOf('metaJa'));
     assert.equal((compatibilityCard.match(/homeIntentAction/g) ?? []).length, 1);
+    assert.match(homeCssSource, /\.homeIntentResult ul\s*\{[^}]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
+    assert.match(homeCssSource, /@media \(max-width: 340px\)[^{]*\{[\s\S]*?\.homeIntentResult ul\s*\{[^}]*grid-template-columns:\s*1fr/s);
   });
 
   it('renders actual-result previews without fabricated identity or input data', () => {
@@ -159,6 +168,44 @@ describe('homePublicCopy — public product truth', () => {
     assert.match(previewSource, /personalResultPreviewJa/);
     assert.match(previewSource, /compatibilityResultPreviewJa/);
     assert.doesNotMatch(previewSource, /nickname|birthDate|answers|山田|1990/);
+    const resultSurfaceSource = homePanelSource.slice(
+      homePanelSource.indexOf('function HomeResultSurface'),
+      homePanelSource.indexOf('/* ── Component'),
+    );
+    assert.match(resultSurfaceSource, /data-result-kind=\{kind\}/);
+    assert.match(resultSurfaceSource, /data-result-variant=/);
+    assert.doesNotMatch(resultSurfaceSource, /<a(?:\s|>)|<button(?:\s|>)|<Image|<img|birthDate|answers/);
+  });
+
+  it('keeps Japanese headings exact and groups them by meaning', () => {
+    assert.match(
+      homePanelSource,
+      /<span>自分の強みは、<\/span>\s*<span>どんな時に出る？<\/span>/,
+    );
+    assert.match(
+      homePanelSource,
+      /<span>二人は、どこで合い、<\/span>\s*<span>どこで違う？<\/span>/,
+    );
+    assert.match(
+      homePanelSource,
+      /<span>答えると、<\/span>\s*<span>こんな結果が見られます<\/span>/,
+    );
+    assert.match(homeCssSource, /word-break:\s*keep-all/);
+    assert.match(homeCssSource, /line-break:\s*strict/);
+    assert.match(homeCssSource, /text-wrap:\s*balance/);
+    assert.doesNotMatch(homeCssSource, /word-break:\s*break-all/);
+    assert.doesNotMatch(homePanelSource, /無料・3分/);
+  });
+
+  it('uses a HOME-local surface family and distinct CTA tiers', () => {
+    assert.match(homeCssSource, /--home-paper:/);
+    assert.match(homeCssSource, /--home-radius-major:\s*20px/);
+    assert.match(homeCssSource, /--home-radius-card:\s*15px/);
+    assert.match(homeCssSource, /--home-surface-shadow:/);
+    assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
+    assert.match(homeCssSource, /\.homeIntentAction\s*\{[^}]*background:\s*rgba\(47,\s*118,\s*111,\s*0\.11\)/s);
+    assert.match(homeCssSource, /\.homePaidPlanDetailsCta\s*\{[^}]*border:\s*1px/s);
+    assert.doesNotMatch(homeCssSource, /#(?:3b82f6|2563eb|ec4899|db2777|8b5cf6)/i);
   });
 
   it('uses approved user-outcome language and removes developer-facing HOME phrases', () => {
@@ -257,6 +304,20 @@ describe('homePublicCopy — public product truth', () => {
     assert.match(publicHeaderSource, /\{ href: '\/dtr', label: '結果・レポート' \}/);
     assert.match(publicHeaderSource, /\{ href: '\/my', label: 'マイページ' \}/);
     assert.match(publicHeaderSource, /ログイン/);
+  });
+
+  it('keeps desktop navigation and provides an accessible mobile menu', () => {
+    assert.match(publicHeaderSource, /className=\{styles\.topNav\}/);
+    assert.match(publicHeaderSource, /className=\{styles\.mobileMenuButton\}/);
+    assert.match(publicHeaderSource, /aria-expanded=\{mobileMenuOpen\}/);
+    assert.match(publicHeaderSource, /aria-controls="m55-public-mobile-menu"/);
+    assert.match(publicHeaderSource, /aria-label="モバイルナビゲーション"/);
+    assert.match(publicHeaderSource, /event\.key !== 'Escape'/);
+    assert.match(publicHeaderSource, /mobileMenuButtonRef\.current\?\.focus\(\)/);
+    assert.match(publicHeaderSource, /onClick=\{\(\) => setMobileMenuOpen\(false\)\}/);
+    assert.match(publicHeaderSource, /href="\/core"[\s\S]*無料解析/);
+    assert.match(publicHeaderSource, /href="\/dtr"[\s\S]*結果・レポート/);
+    assert.match(publicHeaderSource, /href="\/my"[\s\S]*マイページ/);
   });
 
   it('does not advertise certainty, diagnosis, prediction, ranking, or urgency', () => {
