@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
@@ -14,11 +14,6 @@ const homeHeroSource = homePanelSource.slice(
 );
 const homePageSource = readFileSync(join(repoRoot, 'app/home/page.tsx'), 'utf8');
 const homeCssSource = readFileSync(join(repoRoot, 'components/home/HomePanel.module.css'), 'utf8');
-const flowCanvasSource = readFileSync(join(repoRoot, 'components/home/M55FlowCanvas.tsx'), 'utf8');
-const flowCssSource = readFileSync(
-  join(repoRoot, 'components/home/M55FlowCanvas.module.css'),
-  'utf8',
-);
 const publicHeaderSource = readFileSync(join(repoRoot, 'components/shell/PublicHeader.tsx'), 'utf8');
 const shellCssSource = readFileSync(join(repoRoot, 'components/shell/ShellLayout.module.css'), 'utf8');
 const compatibilityMySource = readFileSync(
@@ -39,7 +34,7 @@ const compatibilityStripeAuthoritySource = readFileSync(
 );
 
 describe('homePublicCopy — public product truth', () => {
-  it('renders the approved one-second hero with exact copy and eight outcome labels', () => {
+  it('restores the temporary pre-Flow hero with exact copy and eight outcome labels', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
     assert.equal(
@@ -60,50 +55,46 @@ describe('homePublicCopy — public product truth', () => {
       '補い合いやすい違い',
       'すれ違いやすい場面',
     ]);
-    assert.match(flowCanvasSource, />M55<\/p>/);
-    assert.match(flowCanvasSource, /m55-home-personal-flow/);
-    assert.match(flowCanvasSource, /m55-home-relationship-flow/);
-    assert.match(flowCanvasSource, /個人の流れ/);
-    assert.match(flowCanvasSource, /二人の関係の流れ/);
-    assert.match(flowCanvasSource, /<FlowLabels labels=\{personalLabels\}/);
-    assert.match(flowCanvasSource, /<FlowLabels labels=\{relationshipLabels\}/);
-    assert.doesNotMatch(homeHeroSource, /posterMainVisual|posterHeroOutcomeGrid|heroProductProof/);
-    assert.doesNotMatch(flowCanvasSource, /HomeResultSurface|data-result-variant|<table|gridcell/);
-    assert.match(flowCssSource, /--m55-teal:\s*#2f766f/);
-    assert.match(flowCssSource, /--m55-coral:\s*#b96962/);
-    assert.match(flowCssSource, /--m55-indigo:\s*#4e587c/);
+    assert.match(homeHeroSource, />M55<\/p>/);
+    assert.match(homeHeroSource, /m55-home-hero-personal-preview/);
+    assert.match(homeHeroSource, /m55-home-hero-compatibility-preview/);
+    assert.match(homeHeroSource, /m55-home-hero-product-proof/);
+    assert.match(homeHeroSource, /posterMainVisual/);
+    assert.doesNotMatch(homeHeroSource, /M55FlowCanvas|<svg|pathLength|PERSONAL FLOW|RELATIONSHIP FLOW/);
+    assert.equal(existsSync(join(repoRoot, 'components/home/M55FlowCanvas.tsx')), false);
+    assert.equal(existsSync(join(repoRoot, 'components/home/M55FlowCanvas.module.css')), false);
   });
 
-  it('keeps one accessible hero action and non-interactive flow labels', () => {
+  it('keeps one accessible hero action and non-interactive result previews', () => {
     const heroSource = homePanelSource.slice(
       homePanelSource.indexOf('data-testid="m55-home-hero"'),
       homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
     );
-    assert.match(heroSource, /<M55FlowCanvas/);
-    assert.equal((flowCanvasSource.match(/<a(?:\s|>)/g) ?? []).length, 1);
-    assert.match(flowCanvasSource, /href="#m55-home-free-intents"/);
-    assert.doesNotMatch(flowCanvasSource, /href="\/core"|href="\/synastry"/);
-    assert.doesNotMatch(flowCanvasSource, /<button(?:\s|>)|role=/);
-    assert.match(flowCanvasSource, /\{ctaLabel\}\s*<\/a>/);
-    assert.doesNotMatch(flowCanvasSource, /<video|<canvas|WebGL|mousemove|ripple/);
-    assert.doesNotMatch(flowCanvasSource, /無料・3分|[\u{1F300}-\u{1FAFF}]/u);
-    assert.doesNotMatch(flowCanvasSource, /rotateX|rotateY|perspective/);
+    const personalPreview = heroSource.slice(
+      heroSource.indexOf('data-testid="m55-home-hero-personal-preview"'),
+      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
+    );
+    const compatibilityPreview = heroSource.slice(
+      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
+      heroSource.indexOf('posterHeroBottomStack'),
+    );
+    assert.equal((heroSource.match(/posterHeroCta/g) ?? []).length, 1);
+    assert.match(heroSource, /href="#m55-home-free-intents"/);
+    assert.doesNotMatch(heroSource, /href="\/core"|href="\/synastry"/);
+    assert.doesNotMatch(personalPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
+    assert.doesNotMatch(compatibilityPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
+    assert.match(heroSource, /\{homeCopy\.heroFunnelCtaJa\}\s*<\/a>/);
+    assert.doesNotMatch(heroSource, /M55FlowCanvas|<svg|pathLength|PERSONAL FLOW|RELATIONSHIP FLOW/);
   });
 
-  it('uses semantic inline SVG and CSS-first responsive flow rendering', () => {
-    assert.match(flowCssSource, /url\("\/home\/hero-tech-map\.webp"\)/);
-    assert.equal((flowCanvasSource.match(/<svg/g) ?? []).length, 4);
-    assert.ok((flowCanvasSource.match(/pathLength="1"/g) ?? []).length >= 6);
-    assert.ok((flowCanvasSource.match(/vectorEffect="non-scaling-stroke"/g) ?? []).length >= 6);
-    assert.ok((flowCanvasSource.match(/aria-hidden="true"/g) ?? []).length >= 4);
-    assert.match(flowCanvasSource, /data-m55-flow-static-fallback="complete"/);
-    assert.match(flowCssSource, /@container \(max-width: 58rem\)/);
-    assert.match(flowCssSource, /@container \(max-width: 41rem\)/);
-    assert.match(flowCssSource, /@media \(prefers-reduced-motion: reduce\)/);
-    assert.match(flowCssSource, /@supports \(color: oklch/);
-    assert.match(flowCssSource, /mask-image:/);
-    assert.doesNotMatch(flowCssSource, /animation:\s*[^;]*(?:linear\s+)?(?:infinite|loop)/i);
-    assert.doesNotMatch(flowCssSource, /will-change|backdrop-filter|rotateX|rotateY|perspective/);
+  it('uses the pre-Flow background and responsive product-proof surface', () => {
+    assert.match(homeHeroSource, /src="\/home\/hero-tech-map\.webp"/);
+    assert.match(homeCssSource, /grid-template-areas:\s*"message outcomes"\s*"action outcomes"/);
+    assert.match(homeCssSource, /grid-template-columns:\s*minmax\(0,\s*0\.618fr\)\s*minmax\(360px,\s*1fr\)/);
+    assert.match(homeCssSource, /\.heroProductProofCard\s*\{[^}]*grid-template-rows:\s*auto 1fr/s);
+    assert.match(homeCssSource, /\.heroProductProofCard ul\s*\{[^}]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
+    assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
+    assert.doesNotMatch(homePanelSource, /M55FlowCanvas/);
   });
 
   it('makes both intent cards outcome-first with exactly four geometric cells and one CTA', () => {
@@ -205,7 +196,7 @@ describe('homePublicCopy — public product truth', () => {
     assert.match(homeCssSource, /--home-radius-major:\s*20px/);
     assert.match(homeCssSource, /--home-radius-card:\s*15px/);
     assert.match(homeCssSource, /--home-surface-shadow:/);
-    assert.match(flowCssSource, /\.cta\s*\{[^}]*background:\s*var\(--m55-ink\)/s);
+    assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
     assert.match(homeCssSource, /\.homeIntentAction\s*\{[^}]*background:\s*rgba\(47,\s*118,\s*111,\s*0\.11\)/s);
     assert.match(homeCssSource, /\.homePaidPlanDetailsCta\s*\{[^}]*border:\s*1px/s);
     assert.doesNotMatch(homeCssSource, /#(?:3b82f6|2563eb|ec4899|db2777|8b5cf6)/i);
