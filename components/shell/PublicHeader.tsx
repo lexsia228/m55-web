@@ -16,6 +16,7 @@ const TABS: { href: TabId; label: string }[] = [
 
 export function PublicHeader() {
   const pathname = usePathname();
+  const isHomeRoute = pathname === '/home';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -40,7 +41,10 @@ export function PublicHeader() {
     href === '/dtr' ? pathname === '/dtr' || pathname.startsWith('/dtr/') : pathname === href;
 
   return (
-    <header className={styles.header} aria-label="ナビゲーション">
+    <header
+      className={`${styles.header}${isHomeRoute ? ` ${styles.homeHeader}` : ''}`}
+      aria-label="ナビゲーション"
+    >
       <div className={styles.headerStart}>
         <Link
           href="/home"
@@ -97,16 +101,33 @@ export function PublicHeader() {
         </SignedIn>
       </div>
       <div className={styles.mobileHeaderActions}>
-        <Link
-          href="/core"
-          className={`${styles.mobileQuickLink}${
-            isTabActive('/core') ? ` ${styles.mobileQuickLinkActive}` : ''
-          }`}
-          aria-current={isTabActive('/core') ? 'page' : undefined}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          無料解析
-        </Link>
+        {isHomeRoute ? (
+          <div className={styles.homeMobileAuth}>
+            <SignedOut>
+              <SignInButton mode="redirect">
+                <button type="button" className={styles.homeMobileAuthButton}>
+                  ログイン
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <span className={styles.homeMobileUserButton}>
+                <UserButton afterSignOutUrl="/" />
+              </span>
+            </SignedIn>
+          </div>
+        ) : (
+          <Link
+            href="/core"
+            className={`${styles.mobileQuickLink}${
+              isTabActive('/core') ? ` ${styles.mobileQuickLinkActive}` : ''
+            }`}
+            aria-current={isTabActive('/core') ? 'page' : undefined}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            無料解析
+          </Link>
+        )}
         <button
           ref={mobileMenuButtonRef}
           type="button"
@@ -127,6 +148,16 @@ export function PublicHeader() {
           className={styles.mobileMenu}
           aria-label="モバイルナビゲーション"
         >
+          {isHomeRoute ? (
+            <Link
+              href="/core"
+              className={isTabActive('/core') ? styles.mobileMenuItemActive : undefined}
+              aria-current={isTabActive('/core') ? 'page' : undefined}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              無料解析
+            </Link>
+          ) : null}
           <Link
             href="/dtr"
             className={isTabActive('/dtr') ? styles.mobileMenuItemActive : undefined}
@@ -143,19 +174,23 @@ export function PublicHeader() {
           >
             マイページ
           </Link>
-          <SignedOut>
-            <SignInButton mode="redirect">
-              <button type="button" onClick={() => setMobileMenuOpen(false)}>
-                ログイン
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <div className={styles.mobileAccountControl}>
-              <span>アカウント</span>
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          </SignedIn>
+          {!isHomeRoute ? (
+            <>
+              <SignedOut>
+                <SignInButton mode="redirect">
+                  <button type="button" onClick={() => setMobileMenuOpen(false)}>
+                    ログイン
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <div className={styles.mobileAccountControl}>
+                  <span>アカウント</span>
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </SignedIn>
+            </>
+          ) : null}
         </nav>
       ) : null}
     </header>

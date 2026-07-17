@@ -5,7 +5,6 @@
  * Home 上では個人結果（5軸個人図・今の焦点・今日/今週・要約カード等）を一切出さない。
  */
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -18,6 +17,7 @@ import {
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
+import { M55FlowCanvas } from './M55FlowCanvas';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
@@ -133,78 +133,14 @@ export default function HomePanel({
           FOLD 1: HERO + SITE STRIP (intake: /my only)
           ═══════════════════════════════════════════════════════════════════ */}
       <section className={styles.heroSection} data-testid="m55-home-hero">
-        <div className={styles.posterStack}>
-          <div
-            className={styles.posterMainVisual}
-            data-testid="m55-home-poster-main-visual"
-            aria-label="M55 メインビジュアル（プレースホルダー）"
-          >
-            <div className={styles.posterMainVisualStack} aria-hidden>
-              <div className={styles.posterHeroBaseLayer}>
-                <Image
-                  src="/home/hero-tech-map.webp"
-                  alt=""
-                  fill
-                  sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
-                  className={styles.posterHeroBaseImage}
-                  priority
-                />
-              </div>
-              <div className={styles.posterHeroReadabilityVeil} />
-            </div>
-            <div className={styles.posterHeroOverlay}>
-              <div className={styles.posterHeroFoot}>
-                <div className={styles.posterHeroCopy}>
-                  <div className={styles.posterHeroMessage}>
-                    <div className={styles.posterHeroLabelGroup}>
-                      <p className={styles.posterHeroBrandM55}>M55</p>
-                      <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
-                    </div>
-                    <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>
-                        あなたの「いつもこうなる」
-                      </span>
-                      <span className={styles.posterHeroTitleLine}>には、順番がある。</span>
-                    </h1>
-                  </div>
-                  <div
-                    className={`${styles.posterHeroOutcomeGrid} ${styles.heroProductProof}`}
-                    aria-label="無料で見られる結果"
-                    data-testid="m55-home-hero-product-proof"
-                  >
-                    <HomeResultSurface
-                      kind="personal"
-                      label={homeCopy.personalResultPreviewJa.labelJa}
-                      title={homeCopy.personalResultPreviewJa.titleJa}
-                      items={homeCopy.heroPersonalPreviewJa.outcomesJa}
-                      compact
-                      testId="m55-home-hero-personal-preview"
-                    />
-                    <HomeResultSurface
-                      kind="compatibility"
-                      label={homeCopy.compatibilityResultPreviewJa.labelJa}
-                      title={homeCopy.compatibilityResultPreviewJa.titleJa}
-                      items={homeCopy.heroCompatibilityPreviewJa.outcomesJa}
-                      compact
-                      testId="m55-home-hero-compatibility-preview"
-                    />
-                  </div>
-                  <div className={styles.posterHeroBottomStack}>
-                    <a
-                      href="#m55-home-free-intents"
-                      className={styles.posterHeroCta}
-                      data-testid="m55-home-has-profile-hero"
-                      data-m55-hero-intent-anchor="true"
-                    >
-                      {homeCopy.heroFunnelCtaJa}
-                    </a>
-                    <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <M55FlowCanvas
+          data-testid="m55-home-has-profile-hero"
+          eyebrow={homeCopy.heroEyebrowJa}
+          ctaLabel={homeCopy.heroFunnelCtaJa}
+          meta={homeCopy.heroMetaJa}
+          personalLabels={homeCopy.heroPersonalPreviewJa.outcomesJa}
+          relationshipLabels={homeCopy.heroCompatibilityPreviewJa.outcomesJa}
+        />
       </section>
 
       <div

@@ -240,6 +240,32 @@
     margin-left: auto;
   }
 
+  .homeHeader .homeMobileAuth,
+  .homeHeader .homeMobileUserButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .homeHeader .homeMobileAuthButton,
+  .homeHeader .homeMobileUserButton {
+    min-width: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .homeHeader .homeMobileAuthButton {
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.82);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
   .mobileQuickLink,
   .mobileMenuButton {
     min-width: 44px;
@@ -288,6 +314,7 @@
   }
 
   .mobileQuickLink:focus-visible,
+  .homeHeader .homeMobileAuthButton:focus-visible,
   .mobileMenuButton:focus-visible,
   .mobileMenu a:focus-visible,
   .mobileMenu button:focus-visible {
