@@ -29,7 +29,7 @@ const compatibilityStripeAuthoritySource = readFileSync(
 );
 
 describe('homePublicCopy — public product truth', () => {
-  it('renders the approved one-second hero with six outcome labels and meaning visuals', () => {
+  it('renders the approved one-second hero with exact copy and six outcome labels', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
     assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
     assert.equal(
@@ -48,26 +48,54 @@ describe('homePublicCopy — public product truth', () => {
       '補い合いやすい違い',
       'すれ違いやすい時',
     ]);
+    assert.match(homePanelSource, />M55<\/p>/);
     assert.match(homePanelSource, /m55-home-hero-personal-preview/);
-    assert.match(homePanelSource, /一つの中心から特徴が外側へ広がる図/);
     assert.match(homePanelSource, /m55-home-hero-compatibility-preview/);
-    assert.match(homePanelSource, /二つの中心と、重なり・違いを示す図/);
-    assert.match(homeCssSource, /\.posterHeroPersonalVisual/);
+    assert.doesNotMatch(homePanelSource, /posterHeroPersonalVisual|posterHeroCompatibilityVisual/);
+    assert.doesNotMatch(homePanelSource, /role="img"/);
+    assert.doesNotMatch(homeCssSource, /\.posterHeroPersonalVisual|\.posterHeroCompatibilityVisual/);
+    assert.match(homeCssSource, /\.posterHeroOutcomePersonal/);
+    assert.match(homeCssSource, /\.posterHeroOutcomeCompatibility/);
+    assert.match(homeCssSource, /\.posterHeroPersonalAccent/);
+    assert.match(homeCssSource, /\.posterHeroCompatibilityAccent/);
+    assert.match(homeCssSource, /\.posterHeroReadabilityVeil/);
+    assert.match(homeCssSource, /\.posterMainVisual/);
     assert.match(homeCssSource, /background: #2f766f/);
-    assert.match(homeCssSource, /\.posterHeroCompatibilityVisual/);
     assert.match(homeCssSource, /#b96962/);
     assert.match(homeCssSource, /#4e587c/);
   });
 
-  it('keeps one hero action, no direct product route, and no long hero paragraph', () => {
+  it('keeps one accessible hero action and non-interactive preview panels', () => {
     const heroSource = homePanelSource.slice(
       homePanelSource.indexOf('data-testid="m55-home-hero"'),
       homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
     );
+    const personalPreview = heroSource.slice(
+      heroSource.indexOf('data-testid="m55-home-hero-personal-preview"'),
+      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
+    );
+    const compatibilityPreview = heroSource.slice(
+      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
+      heroSource.indexOf('posterHeroBottomStack'),
+    );
     assert.equal((heroSource.match(/posterHeroCta/g) ?? []).length, 1);
     assert.match(heroSource, /href="#m55-home-free-intents"/);
     assert.doesNotMatch(heroSource, /href="\/core"|href="\/synastry"/);
+    assert.doesNotMatch(personalPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
+    assert.doesNotMatch(compatibilityPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
+    assert.match(heroSource, /\{homeCopy\.heroFunnelCtaJa\}\s*<\/a>/);
     assert.doesNotMatch(heroSource, /heroSubJa|heroTrustJa|posterHeroSupportInline|posterHeroTrust/);
+    assert.doesNotMatch(heroSource, /無料・3分|[\u{1F300}-\u{1FAFF}]/u);
+    assert.doesNotMatch(heroSource, /rotateX|rotateY|perspective|mousemove|ripple/);
+  });
+
+  it('uses the existing background and premium CSS-first responsive surface', () => {
+    assert.match(homePanelSource, /src="\/home\/hero-tech-map\.webp"/);
+    assert.match(homeCssSource, /grid-template-areas:\s*"message outcomes"\s*"action outcomes"/);
+    assert.match(homeCssSource, /\.posterHeroOutcomeCard\s*\{[^}]*border:\s*1px/s);
+    assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
+    assert.match(homeCssSource, /@media \(prefers-reduced-motion: reduce\)/);
+    assert.doesNotMatch(homeCssSource, /rotateX|rotateY|perspective|mousemove/);
   });
 
   it('makes both intent cards outcome-first with exactly three chips and one CTA', () => {

@@ -85,7 +85,7 @@ export default function HomePanel({
             <div className={styles.posterHeroOverlay}>
               <div className={styles.posterHeroFoot}>
                 <div className={styles.posterHeroCopy}>
-                  <div className={styles.posterHeroTopBlock}>
+                  <div className={styles.posterHeroMessage}>
                     <div className={styles.posterHeroLabelGroup}>
                       <p className={styles.posterHeroBrandM55}>M55</p>
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
@@ -94,54 +94,43 @@ export default function HomePanel({
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <div className={styles.posterHeroOutcomeGrid} aria-label="無料で見られる結果">
-                      <article
-                        className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomePersonal}`}
-                        data-testid="m55-home-hero-personal-preview"
-                      >
-                        <div
-                          className={styles.posterHeroPersonalVisual}
-                          role="img"
-                          aria-label="一つの中心から特徴が外側へ広がる図"
-                        >
-                          <span />
-                          <i />
-                          <b />
-                        </div>
-                        <div>
-                          <p>{homeCopy.heroPersonalPreviewJa.labelJa}</p>
-                          <ul>
-                            {homeCopy.heroPersonalPreviewJa.outcomesJa.map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </article>
-                      <article
-                        className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomeCompatibility}`}
-                        data-testid="m55-home-hero-compatibility-preview"
-                      >
-                        <div
-                          className={styles.posterHeroCompatibilityVisual}
-                          role="img"
-                          aria-label="二つの中心と、重なり・違いを示す図"
-                        >
-                          <span />
-                          <i />
-                          <b />
-                        </div>
-                        <div>
-                          <p>{homeCopy.heroCompatibilityPreviewJa.labelJa}</p>
-                          <ul>
-                            {homeCopy.heroCompatibilityPreviewJa.outcomesJa.map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </article>
-                    </div>
                   </div>
-                  <div className={styles.posterHeroBreathing} aria-hidden />
+                  <div className={styles.posterHeroOutcomeGrid} aria-label="無料で見られる結果">
+                    <article
+                      className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomePersonal}`}
+                      data-testid="m55-home-hero-personal-preview"
+                    >
+                      <span
+                        className={`${styles.posterHeroOutcomeAccent} ${styles.posterHeroPersonalAccent}`}
+                        aria-hidden
+                      />
+                      <div className={styles.posterHeroOutcomeContent}>
+                        <p>{homeCopy.heroPersonalPreviewJa.labelJa}</p>
+                        <ul>
+                          {homeCopy.heroPersonalPreviewJa.outcomesJa.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </article>
+                    <article
+                      className={`${styles.posterHeroOutcomeCard} ${styles.posterHeroOutcomeCompatibility}`}
+                      data-testid="m55-home-hero-compatibility-preview"
+                    >
+                      <span
+                        className={`${styles.posterHeroOutcomeAccent} ${styles.posterHeroCompatibilityAccent}`}
+                        aria-hidden
+                      />
+                      <div className={styles.posterHeroOutcomeContent}>
+                        <p>{homeCopy.heroCompatibilityPreviewJa.labelJa}</p>
+                        <ul>
+                          {homeCopy.heroCompatibilityPreviewJa.outcomesJa.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </article>
+                  </div>
                   <div className={styles.posterHeroBottomStack}>
                     <a
                       href="#m55-home-free-intents"
@@ -149,7 +138,7 @@ export default function HomePanel({
                       data-testid="m55-home-has-profile-hero"
                       data-m55-hero-intent-anchor="true"
                     >
-                      {homeCopy.heroFunnelCtaJa} →
+                      {homeCopy.heroFunnelCtaJa}
                     </a>
                     <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
                   </div>
