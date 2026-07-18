@@ -173,32 +173,47 @@ describe('homePublicCopy — composite calendar value prop', () => {
     assert.equal(homePanelSource.includes('自分が見える。'), false);
   });
 
-  it('renders exactly one Hero action as a state-aware button, no anchor/Link', () => {
+  it('renders exactly one runtime-visible Hero action via mutually exclusive state-aware buttons, no anchor/Link', () => {
     const heroSource = homePanelSource.slice(
       homePanelSource.indexOf('data-testid="m55-home-hero"'),
       homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
     );
-    const heroInteractiveTagMatches = heroSource.match(/<(a|button|Link)(?=[\s/>])/g) ?? [];
-    const heroRoleButtonMatches = heroSource.match(/role=["']button["']/g) ?? [];
-    const heroInteractiveElementCount =
-      heroInteractiveTagMatches.length + heroRoleButtonMatches.length;
-    assert.equal(
-      heroInteractiveElementCount,
-      1,
-      `expected exactly one interactive Hero action, found ${heroInteractiveElementCount}`,
-    );
-    assert.match(heroSource, /<button/);
-    assert.match(heroSource, /type="button"/);
+
+    // Runtime truth: !hasProfile and hasProfile are mutually exclusive, so exactly
+    // one of the two gated buttons below is ever mounted at a time. A naive static
+    // <button> tag count would be 2 and does not represent a rendering regression.
+    const noProfileBranch = heroSource.match(
+      /\{isLoaded && !hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+    )?.[0];
+    const hasProfileBranch = heroSource.match(
+      /\{isLoaded && hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+    )?.[0];
+    assert.ok(noProfileBranch, 'expected an isLoaded && !hasProfile hero CTA branch');
+    assert.ok(hasProfileBranch, 'expected an isLoaded && hasProfile hero CTA branch');
+
+    const withoutGatedButtons = heroSource
+      .replace(noProfileBranch!, '')
+      .replace(hasProfileBranch!, '');
+    assert.equal((withoutGatedButtons.match(/<(a|button|Link)(?=[\s/>])/g) ?? []).length, 0);
+    assert.equal((withoutGatedButtons.match(/role=["']button["']/g) ?? []).length, 0);
+
+    assert.match(noProfileBranch!, /type="button"/);
+    assert.match(noProfileBranch!, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(noProfileBranch!, /className=\{styles\.posterHeroCta\}/);
+    assert.match(noProfileBranch!, /onClick=\{\(\) => setBirthIntakeOpen\(true\)\}/);
+    assert.match(noProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+
+    assert.match(hasProfileBranch!, /type="button"/);
+    assert.match(hasProfileBranch!, /data-testid="m55-home-has-profile-hero"/);
+    assert.match(hasProfileBranch!, /className=\{styles\.posterHeroCta\}/);
+    assert.match(hasProfileBranch!, /onClick=\{\(\) => router\.push\('\/core'\)\}/);
+    assert.match(hasProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+
     assert.equal((heroSource.match(/<a[\s/>]/g) ?? []).length, 0);
     assert.equal((heroSource.match(/<Link[\s/>]/g) ?? []).length, 0);
     assert.equal(heroSource.includes('href="#m55-home-free-intents"'), false);
     assert.equal(heroSource.includes('href="/core"'), false);
     assert.equal(heroSource.includes("href={ctaCopy.coreFreeHref}"), false);
-    assert.match(heroSource, /\{isLoaded && \(/);
-    assert.match(heroSource, /setBirthIntakeOpen\(true\)/);
-    assert.match(heroSource, /router\.push\('\/core'\)/);
-    assert.match(heroSource, /if \(hasProfile\)/);
-    assert.match(heroSource, /\{homeCopy\.heroPosterCtaJa\}/);
     assert.equal(heroSource.includes('{homeCopy.heroFunnelCtaJa}'), false);
     assert.match(heroSource, /\{homeCopy\.heroPosterSupportJa\}/);
     assert.match(heroSource, /\{homeCopy\.heroTrustJa\}/);
@@ -264,7 +279,9 @@ describe('homePublicCopy — composite calendar value prop', () => {
   it('keeps hero poster self-contained without post-hero three-line strip', () => {
     assert.equal(homePanelSource.includes('m55-home-hero-funnel'), false);
     assert.equal(homePanelSource.includes('heroFunnelLinesJa'), false);
-    assert.match(homePanelSource, /m55-home-poster-cta/);
+    assert.equal(homePanelSource.includes('m55-home-poster-cta'), false);
+    assert.match(homePanelSource, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(homePanelSource, /data-testid="m55-home-has-profile-hero"/);
     assert.match(homePanelSource, /paidPlanFunnelBodyJa/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.paidPlanFunnelBodyJa, /追加解析で、今の自分と対話する/);
   });

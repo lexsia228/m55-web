@@ -117,19 +117,22 @@ export default function HomePanel() {
                     </h1>
                   </div>
                   <div className={styles.posterHeroBottomStack}>
-                    {isLoaded && (
+                    {isLoaded && !hasProfile && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
-                        data-testid="m55-home-poster-cta"
-                        onClick={() => {
-                          if (hasProfile) {
-                            router.push('/core');
-                            return;
-                          }
-
-                          setBirthIntakeOpen(true);
-                        }}
+                        data-testid="m55-home-open-birth-intake"
+                        onClick={() => setBirthIntakeOpen(true)}
+                      >
+                        {homeCopy.heroPosterCtaJa}
+                      </button>
+                    )}
+                    {isLoaded && hasProfile && (
+                      <button
+                        type="button"
+                        className={styles.posterHeroCta}
+                        data-testid="m55-home-has-profile-hero"
+                        onClick={() => router.push('/core')}
                       >
                         {homeCopy.heroPosterCtaJa}
                       </button>

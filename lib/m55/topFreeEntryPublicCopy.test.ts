@@ -195,7 +195,9 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, 'さらに深く、自分を読み解く');
     assert.equal(home.includes('m55-home-hero-funnel'), false);
     assert.equal(home.includes('heroFunnelLinesJa'), false);
-    assert.match(home, /m55-home-poster-cta/);
+    assert.match(home, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(home, /data-testid="m55-home-has-profile-hero"/);
+    assert.equal(home.includes('m55-home-poster-cta'), false);
     assert.match(home, /paidPlanFunnelBodyJa/);
     for (const removed of [
       'まずは無料結果を見る',
