@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
 import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+import { M55_PUBLIC_COMMERCIAL_TRUTH } from './analysisAuthorityReferenceModel';
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
@@ -19,11 +20,20 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
 
   it('keeps HOME emotional copy qualified and non-diagnostic', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
-    assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
+    assert.equal(home.heroEyebrowJa, '自分のこと、人との関係を読み解く');
     assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
     assert.equal(home.heroTitleLine2Ja, '順番がある。');
     assert.equal(home.heroSubJa, '');
-    assert.equal(home.heroTrustJa, '');
+    // heroSupportJa is the shared metadata/OG description field — it must
+    // keep its existing (pre-poster) value and must not be repurposed for
+    // Hero-only text. The Hero poster uses heroPosterSupportJa instead.
+    assert.equal(home.heroSupportJa, M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa);
+    assert.equal(
+      home.heroPosterSupportJa,
+      '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。',
+    );
+    assert.equal(home.heroTrustJa, 'ログイン不要');
+    assert.equal(home.heroMetaJa, '');
     assert.deepEqual(home.heroPersonalPreviewJa.outcomesJa, [
       '今の自分に出ている特徴',
       '力が出やすい場面',
@@ -37,8 +47,8 @@ describe('topFreeEntryPublicCopy — current public truth', () => {
       'すれ違いやすい場面',
     ]);
     assert.doesNotMatch(
-      `${home.heroEyebrowJa}\n${home.heroSubJa}\n${home.heroTrustJa}\n${home.heroFunnelCtaJa}`,
-      /無料解析|無料分析|本当の自分|原因が分かる|必ず/,
+      `${home.heroEyebrowJa}\n${home.heroSubJa}\n${home.heroPosterSupportJa}\n${home.heroTrustJa}\n${home.heroFunnelCtaJa}`,
+      /無料解析|無料分析|本当の自分|原因が分かる|必ず|6つの質問|質問数|AI解析/,
     );
   });
 

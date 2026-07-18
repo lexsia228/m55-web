@@ -137,18 +137,46 @@ export default function HomePanel({
           <div
             className={styles.posterMainVisual}
             data-testid="m55-home-poster-main-visual"
-            aria-label="M55 メインビジュアル（プレースホルダー）"
           >
             <div className={styles.posterMainVisualStack} aria-hidden>
               <div className={styles.posterHeroBaseLayer}>
-                <Image
-                  src="/home/hero-tech-map.webp"
-                  alt=""
-                  fill
-                  sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
-                  className={styles.posterHeroBaseImage}
-                  priority
-                />
+                <picture className={styles.posterHeroPicture}>
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.avif"
+                    type="image/avif"
+                  />
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.webp"
+                    type="image/webp"
+                  />
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.jpg"
+                    type="image/jpeg"
+                  />
+                  <source
+                    media="(min-width: 821px)"
+                    srcSet="/home/m55-b2c-r3-hero-desktop.avif"
+                    type="image/avif"
+                  />
+                  <source
+                    media="(min-width: 821px)"
+                    srcSet="/home/m55-b2c-r3-hero-desktop.webp"
+                    type="image/webp"
+                  />
+                  <img
+                    src="/home/m55-b2c-r3-hero-desktop.jpg"
+                    alt=""
+                    width="4320"
+                    height="3000"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    className={styles.posterHeroBaseImage}
+                  />
+                </picture>
               </div>
               <div className={styles.posterHeroReadabilityVeil} />
             </div>
@@ -161,33 +189,9 @@ export default function HomePanel({
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>
-                        あなたの「いつもこうなる」
-                      </span>
-                      <span className={styles.posterHeroTitleLine}>には、順番がある。</span>
+                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
+                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                  </div>
-                  <div
-                    className={`${styles.posterHeroOutcomeGrid} ${styles.heroProductProof}`}
-                    aria-label="無料で見られる結果"
-                    data-testid="m55-home-hero-product-proof"
-                  >
-                    <HomeResultSurface
-                      kind="personal"
-                      label={homeCopy.personalResultPreviewJa.labelJa}
-                      title={homeCopy.personalResultPreviewJa.titleJa}
-                      items={homeCopy.heroPersonalPreviewJa.outcomesJa}
-                      compact
-                      testId="m55-home-hero-personal-preview"
-                    />
-                    <HomeResultSurface
-                      kind="compatibility"
-                      label={homeCopy.compatibilityResultPreviewJa.labelJa}
-                      title={homeCopy.compatibilityResultPreviewJa.titleJa}
-                      items={homeCopy.heroCompatibilityPreviewJa.outcomesJa}
-                      compact
-                      testId="m55-home-hero-compatibility-preview"
-                    />
                   </div>
                   <div className={styles.posterHeroBottomStack}>
                     <a
@@ -198,7 +202,8 @@ export default function HomePanel({
                     >
                       {homeCopy.heroFunnelCtaJa}
                     </a>
-                    <p className={styles.posterHeroMeta}>{homeCopy.heroMetaJa}</p>
+                    <p className={styles.posterHeroSupport}>{homeCopy.heroPosterSupportJa}</p>
+                    <p className={styles.posterHeroTrust}>{homeCopy.heroTrustJa}</p>
                   </div>
                 </div>
               </div>

@@ -48,13 +48,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
-    heroEyebrowJa: '自分と二人を無料で見る',
+    heroEyebrowJa: '自分のこと、人との関係を読み解く',
     heroTitleLine1Ja: 'あなたの「いつもこうなる」には、',
     heroTitleLine2Ja: '順番がある。',
     heroSubJa: '',
     heroSupportJa: M55_PUBLIC_COMMERCIAL_TRUTH.summaryJa,
-    heroTrustJa: '',
-    heroMetaJa: '生年月日＋6つの質問・ログイン不要',
+    /** Hero poster–only support copy. Do not reuse for metadata/OG (heroSupportJa is the shared field). */
+    heroPosterSupportJa: '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。',
+    heroTrustJa: 'ログイン不要',
+    heroMetaJa: '',
     heroPersonalPreviewJa: {
       labelJa: '自分',
       outcomesJa: [

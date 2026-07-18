@@ -34,67 +34,76 @@ const compatibilityStripeAuthoritySource = readFileSync(
 );
 
 describe('homePublicCopy — public product truth', () => {
-  it('restores the temporary pre-Flow hero with exact copy and eight outcome labels', () => {
+  it('uses the approved all-user poster copy without internal question-count language', () => {
     const home = TOP_FREE_ENTRY_PUBLIC_COPY.home;
-    assert.equal(home.heroEyebrowJa, '自分と二人を無料で見る');
+    assert.equal(home.heroEyebrowJa, '自分のこと、人との関係を読み解く');
     assert.equal(
       `${home.heroTitleLine1Ja}${home.heroTitleLine2Ja}`,
       'あなたの「いつもこうなる」には、順番がある。',
     );
-    assert.equal(home.heroMetaJa, '生年月日＋6つの質問・ログイン不要');
+    assert.equal(home.heroPosterSupportJa, '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。');
+    assert.equal(home.heroTrustJa, 'ログイン不要');
+    assert.equal(home.heroMetaJa, '');
     assert.equal(home.heroFunnelCtaJa, '無料で見てみる');
-    assert.deepEqual(home.heroPersonalPreviewJa.outcomesJa, [
-      '今の自分に出ている特徴',
-      '力が出やすい場面',
-      '自分らしい決め方',
-      '迷いやすい場面',
-    ]);
-    assert.deepEqual(home.heroCompatibilityPreviewJa.outcomesJa, [
-      '二人の重なり',
-      '合いやすいところ',
-      '補い合いやすい違い',
-      'すれ違いやすい場面',
-    ]);
     assert.match(homeHeroSource, />M55<\/p>/);
-    assert.match(homeHeroSource, /m55-home-hero-personal-preview/);
-    assert.match(homeHeroSource, /m55-home-hero-compatibility-preview/);
-    assert.match(homeHeroSource, /m55-home-hero-product-proof/);
+    assert.match(homeHeroSource, /\{homeCopy\.heroEyebrowJa\}/);
+    assert.match(homeHeroSource, /\{homeCopy\.heroPosterSupportJa\}/);
+    assert.match(homeHeroSource, /\{homeCopy\.heroTrustJa\}/);
     assert.match(homeHeroSource, /posterMainVisual/);
+    assert.doesNotMatch(homeHeroSource, /自分と二人を無料で見る|6つの質問|質問数/);
+    assert.doesNotMatch(homeHeroSource, /m55-home-hero-product-proof|m55-home-hero-personal-preview/);
     assert.doesNotMatch(homeHeroSource, /M55FlowCanvas|<svg|pathLength|PERSONAL FLOW|RELATIONSHIP FLOW/);
     assert.equal(existsSync(join(repoRoot, 'components/home/M55FlowCanvas.tsx')), false);
     assert.equal(existsSync(join(repoRoot, 'components/home/M55FlowCanvas.module.css')), false);
   });
 
-  it('keeps one accessible hero action and non-interactive result previews', () => {
+  it('keeps exactly one accessible poster action to the unchanged free-intents anchor', () => {
     const heroSource = homePanelSource.slice(
       homePanelSource.indexOf('data-testid="m55-home-hero"'),
       homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
     );
-    const personalPreview = heroSource.slice(
-      heroSource.indexOf('data-testid="m55-home-hero-personal-preview"'),
-      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
-    );
-    const compatibilityPreview = heroSource.slice(
-      heroSource.indexOf('data-testid="m55-home-hero-compatibility-preview"'),
-      heroSource.indexOf('posterHeroBottomStack'),
+    // Structural interactive-element scan: native anchor/button tags, Next.js
+    // <Link>, and any element wearing role="button" all count as an
+    // accessible Hero action — not just elements carrying the posterHeroCta
+    // class name (a differently-classed second action must still be caught).
+    const heroInteractiveTagMatches =
+      heroSource.match(/<(a|button|Link)(?=[\s/>])/g) ?? [];
+    const heroRoleButtonMatches = heroSource.match(/role=["']button["']/g) ?? [];
+    const heroInteractiveElementCount =
+      heroInteractiveTagMatches.length + heroRoleButtonMatches.length;
+    assert.equal(
+      heroInteractiveElementCount,
+      1,
+      `expected exactly one interactive Hero action (a/button/Link/role=button), found ${heroInteractiveElementCount}`,
     );
     assert.equal((heroSource.match(/posterHeroCta/g) ?? []).length, 1);
     assert.match(heroSource, /href="#m55-home-free-intents"/);
     assert.doesNotMatch(heroSource, /href="\/core"|href="\/synastry"/);
-    assert.doesNotMatch(personalPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
-    assert.doesNotMatch(compatibilityPreview, /<a(?:\s|>)|<button(?:\s|>)|role=/);
     assert.match(heroSource, /\{homeCopy\.heroFunnelCtaJa\}\s*<\/a>/);
+    assert.doesNotMatch(heroSource, /posterHeroSecondaryCta|paid|price|purchase/i);
     assert.doesNotMatch(heroSource, /M55FlowCanvas|<svg|pathLength|PERSONAL FLOW|RELATIONSHIP FLOW/);
   });
 
-  it('uses the pre-Flow background and responsive product-proof surface', () => {
-    assert.match(homeHeroSource, /src="\/home\/hero-tech-map\.webp"/);
-    assert.match(homeCssSource, /grid-template-areas:\s*"message outcomes"\s*"action outcomes"/);
-    assert.match(homeCssSource, /grid-template-columns:\s*minmax\(0,\s*0\.618fr\)\s*minmax\(360px,\s*1fr\)/);
-    assert.match(homeCssSource, /\.heroProductProofCard\s*\{[^}]*grid-template-rows:\s*auto 1fr/s);
-    assert.match(homeCssSource, /\.heroProductProofCard ul\s*\{[^}]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
-    assert.match(homeCssSource, /\.posterHeroCta\s*\{[^}]*background:\s*#20383d/s);
-    assert.doesNotMatch(homePanelSource, /M55FlowCanvas/);
+  it('uses responsive approved R3 Web candidates and no review or master images', () => {
+    for (const path of [
+      '/home/m55-b2c-r3-hero-desktop.avif',
+      '/home/m55-b2c-r3-hero-desktop.webp',
+      '/home/m55-b2c-r3-hero-desktop.jpg',
+      '/home/m55-b2c-r3-hero-mobile.avif',
+      '/home/m55-b2c-r3-hero-mobile.webp',
+      '/home/m55-b2c-r3-hero-mobile.jpg',
+    ]) {
+      assert.match(homeHeroSource, new RegExp(path.replaceAll('/', '\\/')));
+      assert.equal(existsSync(join(repoRoot, 'public', path)), true);
+    }
+    assert.match(homeHeroSource, /<picture/);
+    assert.match(homeHeroSource, /width="4320"/);
+    assert.match(homeHeroSource, /height="3000"/);
+    assert.match(homeHeroSource, /alt=""/);
+    assert.match(homeHeroSource, /loading="eager"/);
+    assert.match(homeHeroSource, /fetchPriority="high"/);
+    assert.match(homeHeroSource, /decoding="async"/);
+    assert.doesNotMatch(homeHeroSource, /review|mock|comparison|master-4320x3000|hero-tech-map/);
   });
 
   it('makes both intent cards outcome-first with exactly four geometric cells and one CTA', () => {
