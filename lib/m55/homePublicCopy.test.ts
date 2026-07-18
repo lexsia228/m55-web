@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
@@ -9,7 +9,6 @@ const PRODUCT_NAME = 'M55複合暦解析';
 const MAX_PRODUCT_NAME_IN_HOME_RENDERED = 4;
 
 const HOME_REQUIRED_PRIMARY_TERMS = [
-  '自分が見える',
   '自己理解の入口です',
   '無料で見てみる',
   'まずは無料で見てみる',
@@ -157,12 +156,98 @@ describe('homePublicCopy — composite calendar value prop', () => {
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.home.paidPlanLeadJa.includes('M55複合暦解析'), false);
   });
 
-  it('keeps hero poster copy unchanged', () => {
+  it('uses the approved poster copy without the legacy hero headline', () => {
     const { home, cta } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.heroTitleLine1Ja, '生まれた日から、');
-    assert.equal(home.heroTitleLine2Ja, '自分が見える。');
-    assert.match(home.heroSubJa, /自己理解の入口です/);
+    assert.equal(home.heroEyebrowJa, '自分のこと、人との関係を読み解く');
+    assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
+    assert.equal(home.heroTitleLine2Ja, '順番がある。');
+    assert.equal(home.heroPosterSupportJa, '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。');
+    assert.equal(home.heroTrustJa, 'ログイン不要');
+    assert.equal(home.heroPosterCtaJa, '無料で見てみる');
+    assert.equal(home.heroFunnelCtaJa, 'まずは無料で見てみる');
     assert.equal(cta.openFreeMapJa, '無料で見てみる');
+    // metadata/OG-facing field is a distinct contract and must not change here.
+    assert.match(home.heroSupportJa, /自己理解の入口です/);
+    // legacy Hero headline must no longer be present anywhere in HomePanel.
+    assert.equal(homePanelSource.includes('生まれた日から、'), false);
+    assert.equal(homePanelSource.includes('自分が見える。'), false);
+  });
+
+  it('renders exactly one runtime-visible Hero action via mutually exclusive state-aware buttons, no anchor/Link', () => {
+    const heroSource = homePanelSource.slice(
+      homePanelSource.indexOf('data-testid="m55-home-hero"'),
+      homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
+    );
+
+    // Runtime truth: !hasProfile and hasProfile are mutually exclusive, so exactly
+    // one of the two gated buttons below is ever mounted at a time. A naive static
+    // <button> tag count would be 2 and does not represent a rendering regression.
+    const noProfileBranch = heroSource.match(
+      /\{isLoaded && !hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+    )?.[0];
+    const hasProfileBranch = heroSource.match(
+      /\{isLoaded && hasProfile && \(\s*<button[\s\S]*?<\/button>\s*\)\}/,
+    )?.[0];
+    assert.ok(noProfileBranch, 'expected an isLoaded && !hasProfile hero CTA branch');
+    assert.ok(hasProfileBranch, 'expected an isLoaded && hasProfile hero CTA branch');
+
+    const withoutGatedButtons = heroSource
+      .replace(noProfileBranch!, '')
+      .replace(hasProfileBranch!, '');
+    assert.equal((withoutGatedButtons.match(/<(a|button|Link)(?=[\s/>])/g) ?? []).length, 0);
+    assert.equal((withoutGatedButtons.match(/role=["']button["']/g) ?? []).length, 0);
+
+    assert.match(noProfileBranch!, /type="button"/);
+    assert.match(noProfileBranch!, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(noProfileBranch!, /className=\{styles\.posterHeroCta\}/);
+    assert.match(noProfileBranch!, /onClick=\{\(\) => setBirthIntakeOpen\(true\)\}/);
+    assert.match(noProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+
+    assert.match(hasProfileBranch!, /type="button"/);
+    assert.match(hasProfileBranch!, /data-testid="m55-home-has-profile-hero"/);
+    assert.match(hasProfileBranch!, /className=\{styles\.posterHeroCta\}/);
+    assert.match(hasProfileBranch!, /onClick=\{\(\) => router\.push\('\/core'\)\}/);
+    assert.match(hasProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+
+    assert.equal((heroSource.match(/<a[\s/>]/g) ?? []).length, 0);
+    assert.equal((heroSource.match(/<Link[\s/>]/g) ?? []).length, 0);
+    assert.equal(heroSource.includes('href="#m55-home-free-intents"'), false);
+    assert.equal(heroSource.includes('href="/core"'), false);
+    assert.equal(heroSource.includes("href={ctaCopy.coreFreeHref}"), false);
+    assert.equal(heroSource.includes('{homeCopy.heroFunnelCtaJa}'), false);
+    assert.match(heroSource, /\{homeCopy\.heroPosterSupportJa\}/);
+    assert.match(heroSource, /\{homeCopy\.heroTrustJa\}/);
+    assert.match(heroSource, />M55<\/p>/);
+    assert.match(heroSource, /\{homeCopy\.heroEyebrowJa\}/);
+    assert.match(heroSource, /posterMainVisual/);
+  });
+
+  it('uses responsive approved R3 Web candidates and no review, master, or legacy images in Hero', () => {
+    const heroSource = homePanelSource.slice(
+      homePanelSource.indexOf('data-testid="m55-home-hero"'),
+      homePanelSource.indexOf('data-testid="m55-home-public-surface-shell"'),
+    );
+    for (const path of [
+      '/home/m55-b2c-r3-hero-desktop.avif',
+      '/home/m55-b2c-r3-hero-desktop.webp',
+      '/home/m55-b2c-r3-hero-desktop.jpg',
+      '/home/m55-b2c-r3-hero-mobile.avif',
+      '/home/m55-b2c-r3-hero-mobile.webp',
+      '/home/m55-b2c-r3-hero-mobile.jpg',
+    ]) {
+      assert.match(heroSource, new RegExp(path.replaceAll('/', '\\/')));
+      assert.equal(existsSync(join(repoRoot, 'public', path)), true);
+    }
+    assert.match(heroSource, /<picture/);
+    assert.match(heroSource, /width="4320"/);
+    assert.match(heroSource, /height="3000"/);
+    assert.match(heroSource, /alt=""/);
+    assert.match(heroSource, /loading="eager"/);
+    assert.match(heroSource, /fetchPriority="high"/);
+    assert.match(heroSource, /decoding="async"/);
+    assert.equal(heroSource.includes('hero-tech-map'), false);
+    assert.equal(heroSource.includes('HeroBackgroundMedia'), false);
+    assert.doesNotMatch(heroSource, /review|mock|comparison|master-4320x3000/);
   });
 
   it('places hero funnel catch copy with natural third line', () => {
@@ -194,7 +279,9 @@ describe('homePublicCopy — composite calendar value prop', () => {
   it('keeps hero poster self-contained without post-hero three-line strip', () => {
     assert.equal(homePanelSource.includes('m55-home-hero-funnel'), false);
     assert.equal(homePanelSource.includes('heroFunnelLinesJa'), false);
-    assert.match(homePanelSource, /m55-home-open-birth-intake/);
+    assert.equal(homePanelSource.includes('m55-home-poster-cta'), false);
+    assert.match(homePanelSource, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(homePanelSource, /data-testid="m55-home-has-profile-hero"/);
     assert.match(homePanelSource, /paidPlanFunnelBodyJa/);
     assert.match(TOP_FREE_ENTRY_PUBLIC_COPY.home.paidPlanFunnelBodyJa, /追加解析で、今の自分と対話する/);
   });

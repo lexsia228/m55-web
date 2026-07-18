@@ -47,10 +47,16 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   home: {
-    heroTitleLine1Ja: '生まれた日から、',
-    heroTitleLine2Ja: '自分が見える。',
-    heroSubJa: 'M55は、生年月日を暦で見つめ直す\n自己理解の入口です。',
+    heroEyebrowJa: '自分のこと、人との関係を読み解く',
+    heroTitleLine1Ja: 'あなたの「いつもこうなる」には、',
+    heroTitleLine2Ja: '順番がある。',
+    heroSubJa: '',
     heroSupportJa: 'M55は、生年月日を暦で見つめ直す自己理解の入口です。',
+    /** Hero poster–only support copy. Do not reuse for metadata/OG (heroSupportJa is the shared field). */
+    heroPosterSupportJa: '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。',
+    heroTrustJa: 'ログイン不要',
+    /** Hero poster–only CTA copy. Do not reuse for lower funnel (heroFunnelCtaJa is the shared field). */
+    heroPosterCtaJa: '無料で見てみる',
     heroFunnelLinesJa: [
       '無料で、自分の入口を見る。',
       'M55複合暦解析で、自分を深く読み解く。',

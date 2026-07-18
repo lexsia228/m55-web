@@ -180,8 +180,13 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(homeCopy.paidPlanSavedInfoPriceJa, /M55追加解析 1回分つき/);
     assert.equal(homeCopy.paidPlanSavedInfoPriceJa.includes('含まれます'), false);
     assert.match(homeCopy.paidPlanSavedInfoPriceJa, /\n/);
-    assert.equal(homeCopy.heroTitleLine2Ja, '自分が見える。');
+    assert.equal(homeCopy.heroTitleLine2Ja, '順番がある。');
+    assert.equal(homeCopy.heroPosterCtaJa, '無料で見てみる');
+    assert.equal(homeCopy.heroFunnelCtaJa, 'まずは無料で見てみる');
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.openFreeMapJa, '無料で見てみる');
+    assert.match(home, /\{homeCopy\.heroPosterCtaJa\}/);
+    assert.equal(home.includes('{homeCopy.heroFunnelCtaJa}'), false);
+    assert.match(home, /\{homeCopy\.paidPlanCtaJa\}/);
     assert.equal(home.includes('m55-home-free-bridge'), false);
     assert.equal(home.includes('homeFreeBridge'), false);
     assert.match(homeCopy.paidPlanFunnelBodyJa, /無料で、自分の入口を見る/);
@@ -190,7 +195,9 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(homeCopy.paidPlanSavedInfoHeadingJa, 'さらに深く、自分を読み解く');
     assert.equal(home.includes('m55-home-hero-funnel'), false);
     assert.equal(home.includes('heroFunnelLinesJa'), false);
-    assert.match(home, /m55-home-open-birth-intake/);
+    assert.match(home, /data-testid="m55-home-open-birth-intake"/);
+    assert.match(home, /data-testid="m55-home-has-profile-hero"/);
+    assert.equal(home.includes('m55-home-poster-cta'), false);
     assert.match(home, /paidPlanFunnelBodyJa/);
     for (const removed of [
       'まずは無料結果を見る',
