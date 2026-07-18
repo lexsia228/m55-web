@@ -14,7 +14,6 @@ import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
-import { HeroBackgroundMedia } from './HeroBackgroundMedia';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
@@ -56,63 +55,87 @@ export default function HomePanel() {
       {/* ═══════════════════════════════════════════════════════════════════
           FOLD 1: HERO + SITE STRIP (intake: /my only)
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className={styles.heroSection} data-testid="m55-home-hero">
+      <section className={`${styles.heroSection} ${styles.posterHeroApprovedRoot}`} data-testid="m55-home-hero">
         <div className={styles.posterStack}>
           <div
             className={styles.posterMainVisual}
             data-testid="m55-home-poster-main-visual"
-            aria-label="M55 メインビジュアル（プレースホルダー）"
           >
             <div className={styles.posterMainVisualStack} aria-hidden>
               <div className={styles.posterHeroBaseLayer}>
-                <Image
-                  src="/home/hero-tech-map.webp"
-                  alt=""
-                  fill
-                  sizes="(max-width: 767px) 100vw, min(1320px, 100vw)"
-                  className={styles.posterHeroBaseImage}
-                  priority
-                />
-                <HeroBackgroundMedia />
+                <picture className={styles.posterHeroPicture}>
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.avif"
+                    type="image/avif"
+                  />
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.webp"
+                    type="image/webp"
+                  />
+                  <source
+                    media="(max-width: 820px)"
+                    srcSet="/home/m55-b2c-r3-hero-mobile.jpg"
+                    type="image/jpeg"
+                  />
+                  <source
+                    media="(min-width: 821px)"
+                    srcSet="/home/m55-b2c-r3-hero-desktop.avif"
+                    type="image/avif"
+                  />
+                  <source
+                    media="(min-width: 821px)"
+                    srcSet="/home/m55-b2c-r3-hero-desktop.webp"
+                    type="image/webp"
+                  />
+                  <img
+                    src="/home/m55-b2c-r3-hero-desktop.jpg"
+                    alt=""
+                    width="4320"
+                    height="3000"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    className={styles.posterHeroBaseImage}
+                  />
+                </picture>
               </div>
               <div className={styles.posterHeroReadabilityVeil} />
             </div>
             <div className={styles.posterHeroOverlay}>
               <div className={styles.posterHeroFoot}>
                 <div className={styles.posterHeroCopy}>
-                  <div className={styles.posterHeroTopBlock}>
+                  <div className={styles.posterHeroMessage}>
                     <div className={styles.posterHeroLabelGroup}>
                       <p className={styles.posterHeroBrandM55}>M55</p>
+                      <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite}>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
-                    <p className={styles.posterHeroSupportInline} style={{ whiteSpace: 'pre-line' }}>{homeCopy.heroSubJa}</p>
                   </div>
-                  <div className={styles.posterHeroBreathing} aria-hidden />
                   <div className={styles.posterHeroBottomStack}>
-                    {isLoaded && view.kind === 'no_profile' && (
+                    {isLoaded && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
-                        data-testid="m55-home-open-birth-intake"
-                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
-                        onClick={() => setBirthIntakeOpen(true)}
+                        data-testid="m55-home-poster-cta"
+                        onClick={() => {
+                          if (hasProfile) {
+                            router.push('/core');
+                            return;
+                          }
+
+                          setBirthIntakeOpen(true);
+                        }}
                       >
-                        {homeCopy.heroFunnelCtaJa} →
+                        {homeCopy.heroPosterCtaJa}
                       </button>
                     )}
-                    {isLoaded && hasProfile && (
-                      <Link
-                        href={ctaCopy.coreFreeHref}
-                        className={styles.posterHeroCta}
-                        data-testid="m55-home-has-profile-hero"
-                        aria-label={`${homeCopy.heroFunnelCtaJa}。${homeCopy.heroSupportJa}`}
-                      >
-                        {homeCopy.heroFunnelCtaJa} →
-                      </Link>
-                    )}
+                    <p className={styles.posterHeroSupport}>{homeCopy.heroPosterSupportJa}</p>
+                    <p className={styles.posterHeroTrust}>{homeCopy.heroTrustJa}</p>
                   </div>
                 </div>
               </div>
