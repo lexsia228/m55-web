@@ -301,9 +301,6 @@ function validateHomeRegressionTestIds() {
   if (!t.includes('data-testid="m55-home-hero"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-hero"');
   }
-  if (!t.includes('data-testid="m55-home-seen-things-bridge"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-seen-things-bridge" (poster follow-on self-recognition copy)');
-  }
   if (t.includes('data-testid="m55-home-observation"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must not mount m55-home-observation (personal results belong off Home)');
   }
@@ -320,14 +317,31 @@ function validateHomeRegressionTestIds() {
       'REGRESSION GUARD: CoreAnalysisLoading must expose data-testid="m55-core-analysis-loading" (post-save → /core)',
     );
   }
-  if (!t.includes('data-testid="m55-home-understanding"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-understanding" (explore cards)');
+  const lowerSectionTestIds = [
+    'm55-home-lower',
+    'm55-home-outcome-bridge',
+    'm55-home-mechanism',
+    'm55-home-free-preview',
+    'm55-home-premium-preview',
+    'm55-home-ten-assets',
+    'm55-home-plan-comparison',
+    'm55-home-existing-user',
+    'm55-home-final-cta',
+  ];
+  for (const id of lowerSectionTestIds) {
+    if (!t.includes(`data-testid="${id}"`)) {
+      add(rel(panel), `REGRESSION GUARD: HomePanel must expose data-testid="${id}" (lower HOME IA)`);
+    }
   }
-  if (!t.includes('data-testid="m55-home-demo-five-element"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-demo-five-element" (public sample chart)');
-  }
-  if (!t.includes('data-testid="m55-home-report-shell"')) {
-    add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-report-shell" (Entry Report fold)');
+  for (const removed of [
+    'm55-home-seen-things-bridge',
+    'm55-home-understanding',
+    'm55-home-demo-five-element',
+    'm55-home-report-shell',
+  ]) {
+    if (t.includes(`data-testid="${removed}"`)) {
+      add(rel(panel), `REGRESSION GUARD: HomePanel must not expose removed data-testid="${removed}"`);
+    }
   }
   if (!t.includes('data-testid="m55-home-open-birth-intake"')) {
     add(rel(panel), 'REGRESSION GUARD: HomePanel must expose data-testid="m55-home-open-birth-intake"');

@@ -214,11 +214,12 @@ describe('free journey stepper presentation', () => {
     assert.doesNotMatch(src, /isolated/);
   });
 
-  it('public header uses compact labels on narrow viewports', () => {
+  it('public header uses a mobile menu instead of compact labels on narrow viewports', () => {
     const src = read('components/shell/PublicHeader.tsx');
-    assert.match(src, /shortLabel/);
-    assert.match(src, /max-width: 480px/);
-    assert.match(src, /title=\{compactNav \? tab\.label : undefined\}/);
+    assert.doesNotMatch(src, /shortLabel/);
+    assert.doesNotMatch(src, /compactNav/);
+    assert.match(src, /メニュー/);
+    assert.match(src, /aria-controls="m55-public-mobile-menu"/);
     assert.match(src, /ログイン/);
   });
 });

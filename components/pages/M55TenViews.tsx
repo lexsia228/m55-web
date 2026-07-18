@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { TEN_ASSET_PUBLIC_CATALOG } from "../../lib/m55/tenAssetPublicCatalog";
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from "../../lib/m55/topFreeEntryPublicCopy";
 import styles from "./M55TenViews.module.css";
 
@@ -20,78 +21,45 @@ const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
  * Card order: 甲→乙→丙→丁→戊→己→庚→辛→壬→癸（正本と擬人名の対応固定）
  */
 
-const viewCards = [
-  {
-    persona: "プレジデント",
-    qualityLabel: "突破の資質",
-    desc: "まっすぐ突き進む力。ゼロからイチを作り、自分の旗を立てる。",
-    imageSrc: "/ten-views/president.webp",
-    imageAlt: "president",
-  },
-  {
-    persona: "プランナー",
-    qualityLabel: "適応の資質",
-    desc: "しなやかに広がる力。周囲とつながり、形を変えながら根を張る。",
-    imageSrc: "/ten-views/planner.webp",
-    imageAlt: "planner",
-  },
-  {
-    persona: "インフルエンサー",
-    qualityLabel: "発信の資質",
-    desc: "太陽のように照らす力。存在自体で注目を集め、人を動かす。",
-    imageSrc: "/ten-views/influencer.webp",
-    imageAlt: "influencer",
-  },
-  {
-    persona: "クリエイター",
-    qualityLabel: "凝縮の資質",
-    desc: "静かに燃え続ける力。一点に集中し、深いこだわりで形にする。",
-    imageSrc: "/ten-views/creator.webp",
-    imageAlt: "creator",
-  },
-  {
-    persona: "マネージャー",
-    qualityLabel: "不動の資質",
-    desc: "どっしりと構える力。大きな視点で全体を受け止め、安心感を作る。",
-    imageSrc: "/ten-views/manager.webp",
-    imageAlt: "manager",
-  },
-  {
-    persona: "プロデューサー",
-    qualityLabel: "育成の資質",
-    desc: "丁寧に育む力。身近な人を支え、知識や経験を着実に蓄える。",
-    imageSrc: "/ten-views/producer.webp",
-    imageAlt: "producer",
-  },
-  {
-    persona: "エグゼキューター",
-    qualityLabel: "変革の資質",
-    desc: "古いものを断つ力。迷いを捨てて決断し、新しい秩序を切り拓く。",
-    imageSrc: "/ten-views/executor.webp",
-    imageAlt: "executor",
-  },
-  {
-    persona: "デザイナー",
-    qualityLabel: "研磨の資質",
-    desc: "本質を磨く力。繊細な美意識で、物事の完成度を極限まで高める。",
-    imageSrc: "/ten-views/designer.webp",
-    imageAlt: "designer",
-  },
-  {
-    persona: "グローバルリーダー",
-    qualityLabel: "大局の資質",
-    desc: "流れを読む力。大きな変化を恐れず、ダイナミックに世界を広げる。",
-    imageSrc: "/ten-views/global-leader.webp",
-    imageAlt: "global leader",
-  },
-  {
-    persona: "アナリスト",
-    qualityLabel: "洞察の資質",
-    desc: "深く潜り込む力。目に見えない本質を読み解き、静かに統合する。",
-    imageSrc: "/ten-views/analyst.webp",
-    imageAlt: "analyst",
-  },
-] as const;
+const TEN_VIEW_CARD_DESCRIPTIONS: Record<
+  (typeof TEN_ASSET_PUBLIC_CATALOG)[number]["persona"],
+  string
+> = {
+  プレジデント: "まっすぐ突き進む力。ゼロからイチを作り、自分の旗を立てる。",
+  プランナー: "しなやかに広がる力。周囲とつながり、形を変えながら根を張る。",
+  インフルエンサー: "太陽のように照らす力。存在自体で注目を集め、人を動かす。",
+  クリエイター: "静かに燃え続ける力。一点に集中し、深いこだわりで形にする。",
+  マネージャー: "どっしりと構える力。大きな視点で全体を受け止め、安心感を作る。",
+  プロデューサー: "丁寧に育む力。身近な人を支え、知識や経験を着実に蓄える。",
+  エグゼキューター: "古いものを断つ力。迷いを捨てて決断し、新しい秩序を切り拓く。",
+  デザイナー: "本質を磨く力。繊細な美意識で、物事の完成度を極限まで高める。",
+  グローバルリーダー: "流れを読む力。大きな変化を恐れず、ダイナミックに世界を広げる。",
+  アナリスト: "深く潜り込む力。目に見えない本質を読み解き、静かに統合する。",
+};
+
+const TEN_VIEW_IMAGE_ALT: Record<
+  (typeof TEN_ASSET_PUBLIC_CATALOG)[number]["persona"],
+  string
+> = {
+  プレジデント: "president",
+  プランナー: "planner",
+  インフルエンサー: "influencer",
+  クリエイター: "creator",
+  マネージャー: "manager",
+  プロデューサー: "producer",
+  エグゼキューター: "executor",
+  デザイナー: "designer",
+  グローバルリーダー: "global leader",
+  アナリスト: "analyst",
+};
+
+const viewCards = TEN_ASSET_PUBLIC_CATALOG.map((entry) => ({
+  persona: entry.persona,
+  qualityLabel: entry.qualityLabel,
+  desc: TEN_VIEW_CARD_DESCRIPTIONS[entry.persona],
+  imageSrc: entry.imageSrc,
+  imageAlt: TEN_VIEW_IMAGE_ALT[entry.persona],
+}));
 
 export default function M55TenViews() {
   return (
