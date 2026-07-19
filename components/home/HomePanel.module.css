@@ -800,9 +800,17 @@
 
 .finalCtaGroup {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   margin-top: 8px;
+}
+
+@media (min-width: 481px) {
+  .finalCtaGroup {
+    gap: 10px;
+  }
 }
 
 /* ── CTA + text link family ───────────────────────────────────────────── */
@@ -972,7 +980,110 @@
   }
 }
 
-/* ── §4 mechanism panels ─────────────────────────────────────────────── */
+/* ── Integrated sections (merged IA) ─────────────────────────────────── */
+
+.integratedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.integratedPreviewBlock {
+  margin: 0 0 28px;
+  min-width: 0;
+}
+
+.integratedActions {
+  margin-top: 4px;
+}
+
+.mechanismBand {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.mechanismBand .sectionHeadline {
+  margin-bottom: 12px;
+}
+
+.mechanismBand .sectionBody {
+  margin-bottom: 12px;
+}
+
+.mechanismBand .sectionSupporting {
+  margin-bottom: 20px;
+  font-style: normal;
+}
+
+.premiumIntegrated .sectionLead {
+  margin-bottom: 28px;
+}
+
+.premiumPlanBlock {
+  margin: 0 0 28px;
+  padding-top: 8px;
+}
+
+.planIntro {
+  margin: 0 0 20px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #1b2b3a;
+  max-width: 46ch;
+}
+
+@media (min-width: 768px) {
+  .planIntro {
+    font-size: 16px;
+  }
+
+  .integratedPreviewBlock {
+    margin-bottom: 32px;
+  }
+
+  .premiumPlanBlock {
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .outcomeGrid {
+    margin-bottom: 20px;
+  }
+
+  .integratedSection .sectionLead {
+    margin-bottom: 20px;
+  }
+
+  .premiumIntegrated .planGrid {
+    gap: 16px;
+  }
+}
+
+.finalCtaSecondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(11, 26, 43, 0.62);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.finalCtaSecondaryLink:hover {
+  color: #c46e5a;
+}
+
+.finalCtaSecondaryLink:focus-visible {
+  outline: 2px solid #c46e5a;
+  outline-offset: 2px;
+}
+
+/* ── §4 mechanism panels (legacy — unused on HOME, kept for component file) ── */
 
 .mechanismPanels {
   display: flex;

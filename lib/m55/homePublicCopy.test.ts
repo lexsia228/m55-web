@@ -104,16 +104,12 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
   });
 });
 
-describe('homePublicCopy — lower HOME eleven-section IA (below the frozen poster)', () => {
+describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () => {
   it('renders lower sections in exact SSOT order', () => {
     const testIds = [
-      'm55-home-outcome-bridge',
-      'm55-home-mechanism',
       'm55-home-free-preview',
+      'm55-home-mechanism',
       'm55-home-premium-preview',
-      'm55-home-ten-assets',
-      'm55-home-plan-comparison',
-      'm55-home-existing-user',
       'm55-home-final-cta',
     ] as const;
     const indices = testIds.map((id) => lowerSource.indexOf(`data-testid="${id}"`));
@@ -125,8 +121,13 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
     }
   });
 
-  it('removes old rendered lower HOME sections and legacy funnel scaffolding', () => {
+  it('removes merged-away and legacy lower HOME sections', () => {
     for (const removed of [
+      'm55-home-outcome-bridge',
+      'm55-home-ten-assets',
+      'm55-home-existing-user',
+      'HomeMechanismPanels',
+      'HomeTenAssetTiles',
       'homeReadNextSection',
       'homeMethodLayer',
       'homePaidPlan',
@@ -142,9 +143,13 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
       'paidPlanUniquenessChipsJa',
       'paidPlanSavedPreviewChaptersJa',
       '<details',
+      'm55-home-plan-comparison-cta',
+      'm55-home-existing-report',
+      'm55-home-existing-my',
     ] as const) {
       assert.equal(homePanelSource.includes(removed), false, `must not render removed section/key: ${removed}`);
     }
+    assert.notEqual(homePanelSource.indexOf('data-testid="m55-home-plan-comparison"'), -1);
   });
 
   it('does not expose old product names or forbidden primary labels in rendered HOME copy', () => {
@@ -160,26 +165,34 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
   it('uses approved exact copy freeze strings for key sections', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.outcomeBridgeEyebrowJa, 'M55で見えてくること');
+    assert.equal(home.freeResultHeadlineJa, '無料で、自分に表れやすい流れを知る。');
     assert.equal(
-      home.outcomeBridgeHeadlineJa,
-      '自分でも気づきにくかった「いつもの順番」が、見えてくる。',
+      home.freeResultBodyJa,
+      '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
-    assert.equal(home.mechanismHeadlineJa, '生年月日と今の回答を、重ねて読む。');
+    assert.equal(home.mechanismHeadlineJa, 'M55は、二つの情報を重ねて読みます。');
+    assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
+    assert.equal(home.premiumHeadlineJa, '同じ土台を、4つの章で読み返せます。');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');
-    assert.equal(home.tenAssetsHeadlineJa, '10の資質');
-    assert.equal(home.tenAssetsCtaJa, '10の資質を見る');
-    assert.equal(home.existingUserHeadlineJa, 'すでにM55を利用している方');
+    assert.equal(home.mechanismHowLinkJa, 'M55の仕組みを詳しく見る');
+    assert.equal(home.mechanismTenViewsLinkJa, '10の資質を見る');
   });
 
-  it('implements text-led mechanism panels without accordion/details', () => {
-    assert.match(homePanelSource, /HomeMechanismPanels/);
-    const mechanismComponent = readFileSync(
-      join(repoRoot, 'components/home/HomeMechanismPanels.tsx'),
-      'utf8',
-    );
-    assert.match(mechanismComponent, /data-testid="m55-home-mechanism-panels"/);
+  it('implements short mechanism band with text links and no accordion/panels', () => {
+    assert.doesNotMatch(homePanelSource, /HomeMechanismPanels/);
+    assert.match(homePanelSource, /data-testid="m55-home-mechanism-link"/);
+    assert.match(homePanelSource, /data-testid="m55-home-ten-views-link"/);
+    assert.match(homePanelSource, /href="\/ten-views"/);
     assert.doesNotMatch(lowerSource, /<details/);
+  });
+
+  it('uses a single primary paid CTA in the premium section and a secondary text link in final CTA', () => {
+    assert.match(homePanelSource, /data-testid="m55-home-premium-preview-cta"/);
+    assert.match(homePanelSource, /className=\{styles\.finalCtaSecondaryLink\}/);
+    assert.equal(homePanelSource.includes('data-testid="m55-home-plan-comparison-cta"'), false);
+    const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
+    assert.equal(paidSolidCount, 1);
   });
 
   it('places the poster-to-lower gap in normal flow with no negative overlap', () => {
