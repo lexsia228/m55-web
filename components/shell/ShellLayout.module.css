@@ -157,6 +157,11 @@
   opacity: 1;
 }
 
+.topNavItemActive:hover {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.14);
+}
+
 /* ── Desktop dropdown (≥960px only) ─────────────────────────────────────────── */
 
 .navDropdown {
@@ -168,6 +173,35 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Parent trigger active when an About child route is current (M55について only). */
+.navDropdownAbout:has(.navDropdownLinkActive) .navDropdownTrigger {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 1;
+}
+
+.navDropdownAbout:has(.navDropdownLinkActive) .navDropdownTrigger:hover {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navDropdownTrigger[aria-expanded='true'] {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navDropdownAbout:has(.navDropdownLinkActive) .navDropdownTrigger[aria-expanded='true'] {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navDropdownAbout:has(.navDropdownLinkActive) .navDropdownCaret,
+.navDropdownTrigger[aria-expanded='true'] .navDropdownCaret {
+  opacity: 0.88;
 }
 
 .navDropdownCaret {
