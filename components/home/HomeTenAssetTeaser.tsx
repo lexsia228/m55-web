@@ -16,15 +16,15 @@ export default function HomeTenAssetTeaser({ eyebrowJa, headlineJa, bodyJa, link
       <p className={styles.tenAssetTeaserEyebrow}>{eyebrowJa}</p>
       <h3 className={styles.tenAssetTeaserHeadline}>{headlineJa}</h3>
       <p className={styles.tenAssetTeaserBody}>{bodyJa}</p>
-      <ul className={styles.tenAssetTeaserGrid} aria-label={PUBLIC_NAV_TEN_VIEWS_LABEL_JA}>
+      <ul className={styles.tenAssetIndexGrid} aria-label={PUBLIC_NAV_TEN_VIEWS_LABEL_JA}>
         {TEN_ASSET_PUBLIC_CATALOG.map((entry) => (
-          <li key={entry.stemChar} className={styles.tenAssetTeaserCell}>
-            <p className={styles.tenAssetTeaserPersona}>{entry.persona}</p>
-            <p className={styles.tenAssetTeaserQuality}>{entry.qualityLabel}</p>
+          <li key={entry.stemChar} className={styles.tenAssetIndexCell}>
+            <p className={styles.tenAssetIndexPersona}>{entry.persona}</p>
+            <p className={styles.tenAssetIndexQuality}>{entry.qualityLabel}</p>
           </li>
         ))}
       </ul>
-      <Link href="/ten-views" className={styles.textLink} data-testid="m55-home-ten-asset-teaser-link">
+      <Link href="/ten-views" className={styles.tenAssetTeaserLink} data-testid="m55-home-ten-asset-teaser-link">
         {linkJa}
       </Link>
     </div>

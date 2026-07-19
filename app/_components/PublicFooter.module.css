@@ -1,7 +1,7 @@
 .footer {
   flex-shrink: 0;
-  background: #f9f7f4;
-  border-top: 1px solid rgba(177, 156, 255, 0.1);
+  background: #f3ede2;
+  border-top: 1px solid rgba(11, 26, 43, 0.08);
   padding-top: 10px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   margin-top: 6px;

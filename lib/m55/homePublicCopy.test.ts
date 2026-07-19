@@ -172,7 +172,12 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
       home.freeResultBodyJa,
       '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
-    assert.equal(home.mechanismHeadlineJa, 'M55は、二つの情報を重ねて読みます。');
+    assert.equal(home.mechanismEyebrowJa, 'M55の見方');
+    assert.equal(home.mechanismHeadlineJa, '二つの手がかりを重ねて、今の自分を見る。');
+    assert.equal(
+      home.mechanismBodyJa,
+      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+    );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
     assert.equal(home.premiumHeadlineJa, '同じ土台を、4つの章で読み返せます。');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
@@ -195,6 +200,7 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
   it('implements short mechanism band with how link only and no accordion/panels', () => {
     assert.doesNotMatch(homePanelSource, /HomeMechanismPanels/);
     assert.match(homePanelSource, /data-testid="m55-home-mechanism-link"/);
+    assert.match(homePanelSource, /mechanismDiagram/);
     assert.doesNotMatch(homePanelSource, /data-testid="m55-home-ten-views-link"/);
     assert.doesNotMatch(lowerSource, /<details/);
   });
@@ -207,12 +213,14 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.equal(paidSolidCount, 1);
   });
 
-  it('improves premium preview contrast with readable outer label and clipped body', () => {
+  it('uses editorial outcome columns and premium dark-stage preview on HOME', () => {
+    assert.match(homePanelSource, /outcomeEditorial/);
+    assert.doesNotMatch(homePanelSource, /outcomeGrid[\s\S]*className=\{styles\.card\}/);
+    assert.match(homePanelSource, /premiumDarkStage/);
     const premiumSlice = readFileSync(join(repoRoot, 'components/home/HomePremiumPreviewSlice.tsx'), 'utf8');
-    assert.match(premiumSlice, /previewMetaLabel\}/);
-    assert.doesNotMatch(premiumSlice, /previewMetaLabelDark/);
+    assert.match(premiumSlice, /premiumPreviewProductSheet/);
     assert.match(premiumSlice, /premiumChapterBodyClip/);
-    assert.match(homePanelCss, /\.previewFramePremium\s*\{[^}]*border:\s*1px solid rgba\(11,\s*26,\s*43,\s*0\.22\)/);
+    assert.match(homePanelCss, /\.premiumDarkStage\s*\{[^}]*background:\s*#0b1a2b/);
   });
 
   it('places the poster-to-lower gap in normal flow with no negative overlap', () => {

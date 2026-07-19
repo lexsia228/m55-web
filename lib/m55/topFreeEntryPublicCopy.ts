@@ -95,11 +95,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
 
     /* §4 — Mechanism band */
-    mechanismHeadlineJa: 'M55は、二つの情報を重ねて読みます。',
+    mechanismEyebrowJa: 'M55の見方',
+    mechanismHeadlineJa: '二つの手がかりを重ねて、今の自分を見る。',
     mechanismBodyJa:
-      '生年月日から見える基礎傾向と、いま選んだ答え。二つを重ねて、いまの自分に出やすい流れを読み解きます。',
+      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
     mechanismEthicsJa: '一つの情報だけで、人を決めない。',
     mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
+    mechanismDiagramSource1Ja: '生年月日から見える基礎傾向',
+    mechanismDiagramSource2Ja: 'いま選んだ答え',
+    mechanismDiagramOutputJa: '今の自分に出やすい流れ',
 
     /* §3 continued — FREE result (merged with outcome bridge) */
     freeResultHeadlineJa: '無料で、自分に表れやすい流れを知る。',

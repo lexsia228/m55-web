@@ -170,7 +170,7 @@ export default function HomePanel() {
 
         {/* §3 — Free (outcome + preview merged) */}
         <section
-          className={`${styles.lowerSection} ${styles.integratedSection}`}
+          className={`${styles.lowerSection} ${styles.freeStage}`}
           data-testid="m55-home-free-preview"
           aria-labelledby="m55-home-free-preview-title"
         >
@@ -178,11 +178,12 @@ export default function HomePanel() {
           <h2 id="m55-home-free-preview-title" className={styles.sectionHeadline}>
             {homeCopy.freeResultHeadlineJa}
           </h2>
-          <ul className={styles.outcomeGrid}>
-            {homeCopy.outcomeBridgeItemsJa.map((item) => (
-              <li key={item.titleJa} className={styles.card}>
-                <p className={styles.cardTitle}>{item.titleJa}</p>
-                <p className={styles.cardBody}>{item.bodyJa}</p>
+          <ul className={styles.outcomeEditorial}>
+            {homeCopy.outcomeBridgeItemsJa.map((item, index) => (
+              <li key={item.titleJa} className={styles.outcomeEditorialItem}>
+                <p className={styles.outcomeIndex}>{String(index + 1).padStart(2, '0')}</p>
+                <p className={styles.outcomeEditorialTitle}>{item.titleJa}</p>
+                <p className={styles.outcomeEditorialBody}>{item.bodyJa}</p>
               </li>
             ))}
           </ul>
@@ -213,14 +214,24 @@ export default function HomePanel() {
 
         {/* §4 — Mechanism band */}
         <section
-          className={`${styles.lowerSection} ${styles.mechanismBand}`}
+          className={`${styles.lowerSection} ${styles.mechanismStage}`}
           data-testid="m55-home-mechanism"
           aria-labelledby="m55-home-mechanism-title"
         >
+          <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
           <h2 id="m55-home-mechanism-title" className={styles.sectionHeadline}>
             {homeCopy.mechanismHeadlineJa}
           </h2>
           <p className={styles.sectionBody}>{homeCopy.mechanismBodyJa}</p>
+          <div className={styles.mechanismDiagram} aria-hidden="true">
+            <div className={styles.mechanismDiagramSources}>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource1Ja}</p>
+              <span className={styles.mechanismDiagramPlus}>+</span>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource2Ja}</p>
+            </div>
+            <div className={styles.mechanismDiagramFlow} />
+            <p className={styles.mechanismDiagramOutput}>{homeCopy.mechanismDiagramOutputJa}</p>
+          </div>
           <p className={styles.sectionSupporting}>{homeCopy.mechanismEthicsJa}</p>
           <nav className={styles.mechanismLinks} aria-label="M55の読み方リンク">
             <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
@@ -231,7 +242,7 @@ export default function HomePanel() {
 
         {/* §5 — Premium (preview + plan merged) */}
         <section
-          className={`${styles.lowerSection} ${styles.integratedSection} ${styles.premiumIntegrated}`}
+          className={`${styles.lowerSection} ${styles.premiumDarkStage}`}
           data-testid="m55-home-premium-preview"
           aria-labelledby="m55-home-premium-preview-title"
         >
@@ -244,27 +255,24 @@ export default function HomePanel() {
             <HomePremiumPreviewSlice previewLabelJa={homeCopy.premiumPreviewLabelJa} />
           </div>
           <div
-            className={styles.premiumPlanBlock}
+            className={styles.planComparisonSurface}
             data-testid="m55-home-plan-comparison"
             aria-labelledby="m55-home-plan-comparison-intro"
           >
-            <p id="m55-home-plan-comparison-intro" className={styles.planIntro}>
+            <p id="m55-home-plan-comparison-intro" className={styles.planComparisonLead}>
               {homeCopy.planComparisonIntroJa}
             </p>
-            <div className={styles.planGrid}>
-              <article className={styles.planCard} data-testid="m55-home-plan-light">
-                <div className={styles.planNamePriceGroup}>
-                  <p className={styles.planName}>{homeCopy.planLightNameJa}</p>
-                  <p className={styles.planPrice}>{homeCopy.planLightPriceJa}</p>
-                </div>
-                <p className={styles.planSpec}>{homeCopy.planLightSpecJa}</p>
+            <div className={styles.planComparisonRow}>
+              <article className={styles.planComparisonCol} data-testid="m55-home-plan-light">
+                <p className={styles.planComparisonName}>{homeCopy.planLightNameJa}</p>
+                <p className={styles.planComparisonPrice}>{homeCopy.planLightPriceJa}</p>
+                <p className={styles.planComparisonSpec}>{homeCopy.planLightSpecJa}</p>
               </article>
-              <article className={styles.planCard} data-testid="m55-home-plan-full">
-                <div className={styles.planNamePriceGroup}>
-                  <p className={styles.planName}>{homeCopy.planFullNameJa}</p>
-                  <p className={styles.planPrice}>{homeCopy.planFullPriceJa}</p>
-                </div>
-                <p className={styles.planSpec}>{homeCopy.planFullSpecJa}</p>
+              <div className={styles.planComparisonDivider} aria-hidden="true" />
+              <article className={styles.planComparisonCol} data-testid="m55-home-plan-full">
+                <p className={styles.planComparisonName}>{homeCopy.planFullNameJa}</p>
+                <p className={styles.planComparisonPrice}>{homeCopy.planFullPriceJa}</p>
+                <p className={styles.planComparisonSpec}>{homeCopy.planFullSpecJa}</p>
               </article>
             </div>
             <ul className={styles.planFactsList}>
@@ -284,7 +292,7 @@ export default function HomePanel() {
 
         {/* §6 — Final CTA */}
         <section
-          className={styles.lowerSection}
+          className={`${styles.lowerSection} ${styles.finalLightStage}`}
           data-testid="m55-home-final-cta"
           aria-labelledby="m55-home-final-cta-title"
         >

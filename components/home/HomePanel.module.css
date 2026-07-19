@@ -458,9 +458,9 @@
 
 .lowerWrap {
   width: 100%;
-  background: #f3ede2;
+  background: transparent;
   margin-top: 32px;
-  padding-bottom: 8px;
+  padding-bottom: 0;
 }
 
 @media (min-width: 768px) {
@@ -480,7 +480,7 @@
 .lowerWrap > .lowerSection + .lowerSection,
 .lowerWrap > .lowerSection + details,
 .lowerWrap > details + .lowerSection {
-  margin-top: 64px;
+  margin-top: 0;
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
@@ -492,12 +492,6 @@
 @media (min-width: 768px) {
   .lowerSection {
     padding: 0 32px;
-  }
-
-  .lowerWrap > .lowerSection + .lowerSection,
-  .lowerWrap > .lowerSection + details,
-  .lowerWrap > details + .lowerSection {
-    margin-top: 88px;
   }
 }
 
@@ -607,7 +601,168 @@
   color: rgba(11, 26, 43, 0.68);
 }
 
-/* ── 01 outcome bridge / 02 free result grids ────────────────────────── */
+/* ── Poster-level section rhythm ─────────────────────────────────────── */
+
+.freeStage {
+  background: #f3ede2;
+  padding: 48px 20px 52px;
+  max-width: none;
+}
+
+.mechanismStage {
+  background: #ebe5da;
+  padding: 44px 20px 48px;
+  max-width: none;
+}
+
+.premiumDarkStage {
+  background: #0b1a2b;
+  color: #f1e8d6;
+  padding: 56px 20px 60px;
+  max-width: none;
+}
+
+.finalLightStage {
+  background: #f3ede2;
+  padding: 48px 20px 52px;
+  max-width: none;
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .freeStage,
+  .mechanismStage,
+  .premiumDarkStage,
+  .finalLightStage {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .freeStage,
+  .mechanismStage,
+  .premiumDarkStage,
+  .finalLightStage {
+    padding-top: 64px;
+    padding-bottom: 68px;
+    padding-left: max(32px, calc(50vw - 560px));
+    padding-right: max(32px, calc(50vw - 560px));
+  }
+
+  .premiumDarkStage {
+    padding-top: 72px;
+    padding-bottom: 76px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .freeStage,
+  .mechanismStage,
+  .premiumDarkStage,
+  .finalLightStage {
+    padding-left: max(40px, calc(50vw - 560px));
+    padding-right: max(40px, calc(50vw - 560px));
+  }
+}
+
+.premiumDarkStage .sectionEyebrow {
+  color: #7da8a4;
+}
+
+.premiumDarkStage .sectionHeadline {
+  color: #f1e8d6;
+}
+
+.premiumDarkStage .sectionLead,
+.premiumDarkStage .planComparisonLead,
+.premiumDarkStage .planComparisonName,
+.premiumDarkStage .planComparisonSpec {
+  color: rgba(241, 232, 214, 0.9);
+}
+
+.premiumDarkStage .planComparisonPrice {
+  color: #c46e5a;
+}
+
+.premiumDarkStage .planFactsList {
+  color: rgba(241, 232, 214, 0.68);
+}
+
+.premiumDarkStage .planComparisonDivider {
+  background: rgba(241, 232, 214, 0.18);
+}
+
+.premiumDarkStage .ctaPaidSolid {
+  background: #f1e8d6;
+  color: #0b1a2b;
+  border-color: #f1e8d6;
+}
+
+.premiumDarkStage .ctaPaidSolid:hover {
+  background: #fff8ea;
+  opacity: 1;
+}
+
+/* ── Editorial outcome columns ───────────────────────────────────────── */
+
+.outcomeEditorial {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  border-top: 1px solid rgba(11, 26, 43, 0.14);
+}
+
+.outcomeEditorialItem {
+  padding: 20px 0 22px;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.12);
+}
+
+.outcomeIndex {
+  margin: 0 0 10px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: #496f6d;
+}
+
+.outcomeEditorialTitle {
+  margin: 0 0 8px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #0b1a2b;
+}
+
+.outcomeEditorialBody {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(11, 26, 43, 0.68);
+  max-width: 36ch;
+}
+
+@media (min-width: 768px) {
+  .outcomeEditorial {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0 32px;
+    border-top: none;
+  }
+
+  .outcomeEditorialItem {
+    padding: 0;
+    border-bottom: none;
+    border-top: 1px solid rgba(11, 26, 43, 0.16);
+    padding-top: 14px;
+  }
+}
+
+/* ── 01 outcome bridge / 02 free result grids (legacy) ─────────────────── */
 
 .outcomeGrid,
 .freeResultGrid {
@@ -980,13 +1135,7 @@
   }
 }
 
-/* ── Integrated sections (merged IA) ─────────────────────────────────── */
-
-.integratedSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+/* ── Integrated sections + editorial previews ────────────────────────── */
 
 .integratedPreviewBlock {
   margin: 0 0 28px;
@@ -997,69 +1146,427 @@
   margin-top: 4px;
 }
 
-.mechanismBand {
-  padding-top: 8px;
-  padding-bottom: 8px;
+.previewAnnotation,
+.premiumPreviewAnnotation {
+  margin: 0 0 10px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  color: rgba(11, 26, 43, 0.52);
 }
 
-.mechanismBand .sectionHeadline {
-  margin-bottom: 12px;
+.freePreviewFragment {
+  min-width: 0;
 }
 
-.mechanismBand .sectionBody {
-  margin-bottom: 12px;
+.freePreviewSheet {
+  background: #fffaf1;
+  border-top: 2px solid rgba(196, 110, 90, 0.55);
+  border-bottom: 1px solid rgba(11, 26, 43, 0.14);
+  padding: 22px 20px 24px;
+  box-sizing: border-box;
 }
 
-.mechanismBand .sectionSupporting {
-  margin-bottom: 20px;
-  font-style: normal;
+.freePreviewPersona {
+  margin: 0 0 4px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: #0b1a2b;
 }
 
-.premiumIntegrated .sectionLead {
-  margin-bottom: 28px;
+.freePreviewQuality {
+  margin: 0 0 14px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: #496f6d;
 }
 
-.premiumPlanBlock {
-  margin: 0 0 28px;
-  padding-top: 8px;
-}
-
-.planIntro {
-  margin: 0 0 20px;
+.freePreviewSummary {
+  margin: 0;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 15px;
   line-height: 1.8;
   color: #1b2b3a;
+  max-width: 48ch;
+}
+
+/* ── Mechanism editorial diagram ─────────────────────────────────────── */
+
+.mechanismDiagram {
+  margin: 24px 0 20px;
+  max-width: 36rem;
+}
+
+.mechanismDiagramSources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.mechanismDiagramLabel {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(11, 26, 43, 0.78);
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.16);
+}
+
+.mechanismDiagramPlus {
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: rgba(11, 26, 43, 0.42);
+  line-height: 1;
+}
+
+.mechanismDiagramFlow {
+  width: 1px;
+  height: 24px;
+  margin: 10px auto 10px;
+  background: linear-gradient(180deg, rgba(11, 26, 43, 0.22) 0%, rgba(196, 110, 90, 0.55) 100%);
+}
+
+.mechanismDiagramOutput {
+  margin: 0;
+  text-align: center;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #0b1a2b;
+  padding-top: 8px;
+  border-top: 1px solid rgba(196, 110, 90, 0.45);
+}
+
+.mechanismLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0;
+}
+
+/* ── Premium dark-stage preview ──────────────────────────────────────── */
+
+.premiumPreviewStage {
+  min-width: 0;
+}
+
+.premiumDarkStage .premiumPreviewAnnotation {
+  color: rgba(125, 168, 164, 0.92);
+}
+
+.premiumPreviewProductSheet {
+  background: rgba(13, 11, 21, 0.72);
+  border: 1px solid rgba(241, 232, 214, 0.16);
+  border-top: 2px solid rgba(196, 110, 90, 0.72);
+  padding: 24px 22px 20px;
+  box-sizing: border-box;
+}
+
+.premiumPreviewProduct {
+  margin: 0 0 16px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(241, 232, 214, 0.96);
+}
+
+.premiumChapterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.premiumChapterTab {
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(241, 232, 214, 0.22);
+  color: rgba(241, 232, 214, 0.68);
+  line-height: 1.35;
+}
+
+.premiumChapterTabActive {
+  border-color: rgba(196, 110, 90, 0.72);
+  background: rgba(196, 110, 90, 0.14);
+  color: rgba(241, 232, 214, 0.98);
+}
+
+.premiumChapterHeading {
+  margin: 0 0 12px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: #f1e8d6;
+}
+
+.premiumChapterBodyClip {
+  position: relative;
+  max-height: 5.5rem;
+  overflow: hidden;
+}
+
+.premiumChapterBodyClip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.75rem;
+  background: linear-gradient(180deg, rgba(13, 11, 21, 0) 0%, rgba(13, 11, 21, 0.95) 100%);
+  pointer-events: none;
+}
+
+.premiumChapterBody {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(241, 232, 214, 0.9);
+}
+
+/* ── Plan comparison surface (premium dark stage) ────────────────────── */
+
+.planComparisonSurface {
+  margin: 0 0 28px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(241, 232, 214, 0.12);
+}
+
+.planComparisonLead {
+  margin: 0 0 20px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
   max-width: 46ch;
 }
 
+.planComparisonRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0 0 20px;
+}
+
+  .planComparisonCol {
+    padding: 20px 0;
+  }
+
+  .planComparisonCol + .planComparisonDivider + .planComparisonCol {
+    padding-top: 0;
+  }
+
+  .planComparisonCol:first-child {
+    border-bottom: 1px solid rgba(241, 232, 214, 0.14);
+    padding-bottom: 20px;
+    margin-bottom: 4px;
+  }
+
+.planComparisonDivider {
+  display: none;
+}
+
+.planComparisonName {
+  margin: 0 0 6px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.planComparisonPrice {
+  margin: 0 0 8px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.planComparisonSpec {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.premiumDarkStage .planFactsList {
+  margin: 0 0 24px;
+  padding: 16px 0 0;
+  border-top: 1px solid rgba(241, 232, 214, 0.1);
+}
+
 @media (min-width: 768px) {
-  .planIntro {
-    font-size: 16px;
+  .planComparisonRow {
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0 28px;
+    align-items: stretch;
+  }
+
+  .planComparisonCol {
+    padding: 16px 0 12px;
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .planComparisonDivider {
+    display: block;
+    width: 1px;
+    align-self: stretch;
+    min-height: 100%;
   }
 
   .integratedPreviewBlock {
     margin-bottom: 32px;
   }
+}
 
-  .premiumPlanBlock {
-    margin-bottom: 32px;
+/* ── Ten asset editorial index ───────────────────────────────────────── */
+
+.tenAssetTeaserBand {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(11, 26, 43, 0.12);
+}
+
+.tenAssetTeaserEyebrow {
+  margin: 0 0 6px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #496f6d;
+}
+
+.tenAssetTeaserHeadline {
+  margin: 0 0 10px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  line-height: 1.45;
+  font-weight: 600;
+  color: #0b1a2b;
+  max-width: 36ch;
+}
+
+.tenAssetTeaserBody {
+  margin: 0 0 18px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(11, 26, 43, 0.68);
+  max-width: 42ch;
+  white-space: pre-line;
+}
+
+.tenAssetIndexGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  border-top: 1px solid rgba(11, 26, 43, 0.12);
+}
+
+.tenAssetIndexCell {
+  padding: 12px 10px 12px 0;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.08);
+  box-sizing: border-box;
+}
+
+.tenAssetIndexCell:nth-child(odd) {
+  padding-right: 14px;
+  border-right: 1px solid rgba(11, 26, 43, 0.08);
+}
+
+.tenAssetIndexCell:nth-child(even) {
+  padding-left: 14px;
+}
+
+.tenAssetIndexPersona {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #0b1a2b;
+  word-break: keep-all;
+}
+
+.tenAssetIndexQuality {
+  margin: 3px 0 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 10px;
+  line-height: 1.4;
+  color: rgba(11, 26, 43, 0.52);
+}
+
+.tenAssetTeaserLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(11, 26, 43, 0.58);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tenAssetTeaserLink:hover {
+  color: #c46e5a;
+}
+
+@media (min-width: 768px) {
+  .tenAssetIndexGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .tenAssetIndexCell {
+    padding: 14px 12px;
+    border-right: 1px solid rgba(11, 26, 43, 0.08);
+    border-bottom: 1px solid rgba(11, 26, 43, 0.08);
+  }
+
+  .tenAssetIndexCell:nth-child(5n) {
+    border-right: none;
+  }
+
+  .tenAssetIndexCell:nth-child(odd),
+  .tenAssetIndexCell:nth-child(even) {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .tenAssetIndexPersona {
+    font-size: 13px;
+  }
+
+  .tenAssetIndexQuality {
+    font-size: 11px;
   }
 }
 
 @media (max-width: 480px) {
-  .outcomeGrid {
-    margin-bottom: 20px;
+  .tenAssetTeaserBand {
+    margin-top: 28px;
+    padding-top: 24px;
   }
 
-  .integratedSection .sectionLead {
-    margin-bottom: 20px;
-  }
-
-  .premiumIntegrated .planGrid {
-    gap: 16px;
+  .tenAssetIndexCell {
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 }
+
+/* ── Integrated sections (legacy aliases) ────────────────────────────── */
 
 .finalCtaSecondaryLink {
   display: inline-flex;
