@@ -51,14 +51,15 @@ describe('homeProductStory — pair reading product truth', () => {
 });
 
 describe('homeProductStory — capability map contract', () => {
-  it('renders product map before free detail with editorial 01/02/03 layout', () => {
+  it('renders product map before free detail with parallel editorial layout (no 01/02/03)', () => {
     const mapIndex = homePanelSource.indexOf('data-testid="m55-home-product-map"');
     const freeIndex = homePanelSource.indexOf('data-testid="m55-home-free-preview"');
     assert.ok(mapIndex !== -1 && freeIndex !== -1);
     assert.ok(mapIndex < freeIndex);
     assert.match(productMapSource, /productMapEditorial/);
-    assert.match(productMapSource, /productMapIndex/);
+    assert.doesNotMatch(productMapSource, /productMapIndex/);
     assert.doesNotMatch(productMapSource, /className=\{styles\.card\}/);
+    assert.doesNotMatch(productMapSource, />\s*0[123]\s*</);
   });
 
   it('uses approved product map copy from SSOT', () => {
@@ -66,11 +67,12 @@ describe('homeProductStory — capability map contract', () => {
     assert.equal(home.productMapEyebrowJa, 'M55でできること');
     assert.equal(
       home.productMapHeadlineJa,
-      '自分を見る。人との関係を見る。そこから、深く読み返す。',
+      '自分を見る。二人の関係を見る。そこから、深く読み返す。',
     );
-    assert.equal(home.productMapSelfTitleJa, '自分を読み解く');
-    assert.equal(home.productMapPairTitleJa, '二人の関係を読み解く');
-    assert.equal(home.productMapPremiumTitleJa, 'プレミアムで深く読み返す');
+    assert.equal(home.productMapSelfTitleJa, '自分を見る');
+    assert.equal(home.productMapPairTitleJa, '二人の関係を見る');
+    assert.equal(home.productMapPremiumTitleJa, '深く読み返す');
+    assert.equal(home.productMapPairStatusJa, '無料・ログイン不要');
   });
 
   it('routes self free action through existing intake or /core contract', () => {
@@ -98,26 +100,30 @@ describe('homeProductStory — premium value bridge', () => {
     assert.ok(bridgeIndex < previewIndex);
     assert.ok(bridgeIndex < eyebrowIndex);
     assert.match(valueBridgeSource, /data-testid="m55-home-premium-value-bridge"/);
+    assert.doesNotMatch(valueBridgeSource, /premiumValueBridgeHeadline/);
   });
 
   it('uses approved free-to-premium comparison copy without demeaning free tier', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.premiumValueBridgeEyebrowJa, '無料から、ここまで深く');
-    assert.equal(home.premiumValueBridgeHeadlineJa, '入口だけで終わらず、自分の流れを全体で読み返す。');
     assert.equal(home.premiumValueBridgeFreeItemsJa.length, 3);
-    assert.equal(home.premiumValueBridgePremiumItemsJa.length, 5);
+    assert.equal(home.premiumValueBridgePremiumItemsJa.length, 3);
+    assert.equal(homeBlob.includes('premiumValueBridgeHeadlineJa'), false);
     assert.equal(homeBlob.includes('無料は不完全'), false);
     assert.equal(homeBlob.includes('無料では分からない'), false);
   });
 });
 
 describe('homeProductStory — final CTA and product facts', () => {
-  it('keeps a single paid primary CTA and adds pair secondary only when LIVE_PUBLIC', () => {
+  it('keeps a single paid primary CTA and exactly one pair CTA in product map only', () => {
     const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
     assert.equal(paidSolidCount, 1);
-    assert.match(homePanelSource, /m55-home-final-cta-pair/);
-    assert.match(homePanelSource, /isHomePairReadingLivePublic\(\)/);
-    assert.match(homePanelSource, /ctaCopy\.pairReadingHref/);
+    assert.equal(homePanelSource.includes('m55-home-final-cta-pair'), false);
+    assert.equal(homePanelSource.includes('finalCtaPairSecondaryJa'), false);
+    const pairLinkCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
+    assert.equal(pairLinkCount, 1);
+    assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
+    assert.equal(HOME_PAIR_READING_PUBLIC_HREF, '/synastry');
   });
 
   it('does not change hero poster structure or add extra hero CTAs', () => {

@@ -19,7 +19,6 @@ import HomePremiumValueBridge from './HomePremiumValueBridge';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
-import { isHomePairReadingLivePublic } from '../../lib/m55/homePairReadingPublicContract';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
@@ -186,6 +185,7 @@ export default function HomePanel() {
             selfCtaJa={homeCopy.productMapSelfCtaJa}
             pairTitleJa={homeCopy.productMapPairTitleJa}
             pairBodyJa={homeCopy.productMapPairBodyJa}
+            pairStatusJa={homeCopy.productMapPairStatusJa}
             pairCtaJa={homeCopy.productMapPairCtaJa}
             pairPreparingTitleJa={homeCopy.productMapPairPreparingTitleJa}
             pairPreparingBodyJa={homeCopy.productMapPairPreparingBodyJa}
@@ -283,7 +283,6 @@ export default function HomePanel() {
         >
           <HomePremiumValueBridge
             eyebrowJa={homeCopy.premiumValueBridgeEyebrowJa}
-            headlineJa={homeCopy.premiumValueBridgeHeadlineJa}
             freeHeadingJa={homeCopy.premiumValueBridgeFreeHeadingJa}
             freeItemsJa={homeCopy.premiumValueBridgeFreeItemsJa}
             premiumHeadingJa={homeCopy.premiumValueBridgePremiumHeadingJa}
@@ -361,15 +360,6 @@ export default function HomePanel() {
             >
               {homeCopy.finalCtaSecondaryJa}
             </Link>
-            {isHomePairReadingLivePublic() ? (
-              <Link
-                href={ctaCopy.pairReadingHref}
-                className={styles.finalCtaSecondaryLink}
-                data-testid="m55-home-final-cta-pair"
-              >
-                {homeCopy.finalCtaPairSecondaryJa}
-              </Link>
-            ) : null}
           </div>
         </section>
 

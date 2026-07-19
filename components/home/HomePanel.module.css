@@ -611,7 +611,7 @@
 
 .productMapStage {
   background: #f3ede2;
-  padding: 40px 20px 44px;
+  padding: 36px 20px 40px;
   max-width: none;
   border-bottom: 1px solid rgba(11, 26, 43, 0.08);
 }
@@ -791,43 +791,33 @@
 }
 
 .productMapItem {
-  padding: 20px 0 22px;
-  border-bottom: 1px solid rgba(11, 26, 43, 0.12);
-}
-
-.productMapIndex {
-  margin: 0 0 10px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  font-weight: 600;
-  color: #496f6d;
+  padding: 16px 0 18px;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.1);
 }
 
 .productMapTitle {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.4;
   color: #0b1a2b;
 }
 
 .productMapBody {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 13px;
+  line-height: 1.65;
   color: rgba(11, 26, 43, 0.68);
-  max-width: 38ch;
-  white-space: pre-line;
+  max-width: 34ch;
 }
 
 .productMapStatus,
 .productMapPreparingStatus {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   color: #496f6d;
 }
@@ -840,6 +830,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  margin-top: 2px;
   padding: 0;
   border: none;
   background: none;
@@ -877,21 +868,26 @@
   .productMapItem {
     padding: 0;
     border-bottom: none;
-    border-top: 1px solid rgba(11, 26, 43, 0.16);
-    padding-top: 14px;
+    border-top: 1px solid rgba(11, 26, 43, 0.14);
+    padding-top: 12px;
   }
+}
+
+.productMapStage .sectionHeadline {
+  margin-bottom: 14px;
+  max-width: none;
 }
 
 /* ── Premium value bridge (dark stage) ───────────────────────────────── */
 
 .premiumValueBridge {
-  margin: 0 0 36px;
-  padding-bottom: 28px;
+  margin: 0 0 28px;
+  padding-bottom: 22px;
   border-bottom: 1px solid rgba(241, 232, 214, 0.14);
 }
 
 .premiumValueBridgeEyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 14px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 13px;
   letter-spacing: 0.08em;
@@ -899,30 +895,20 @@
   color: #7da8a4;
 }
 
-.premiumValueBridgeHeadline {
-  margin: 0 0 22px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
-  line-height: 1.45;
-  font-weight: 600;
-  color: #f1e8d6;
-  max-width: 28ch;
-}
-
 .premiumValueBridgeCompare {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 16px;
 }
 
 .premiumValueBridgeColHeading {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   font-weight: 600;
   color: rgba(241, 232, 214, 0.82);
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid rgba(196, 110, 90, 0.42);
 }
 
@@ -935,10 +921,10 @@
 .premiumValueBridgeList li {
   position: relative;
   margin: 0;
-  padding: 0 0 8px 14px;
+  padding: 0 0 6px 14px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 13px;
+  line-height: 1.55;
   color: rgba(241, 232, 214, 0.88);
 }
 
@@ -1790,37 +1776,40 @@
 
 @media (max-width: 480px) {
   .productMapStage {
-    padding-top: 24px;
-    padding-bottom: 28px;
+    padding-top: 22px;
+    padding-bottom: 24px;
   }
 
   .productMapStage .sectionHeadline {
-    margin-bottom: 12px;
-    font-size: clamp(1.4rem, 5.2vw, 1.65rem);
+    margin-bottom: 10px;
+    font-size: clamp(1.32rem, 5vw, 1.55rem);
   }
 
   .productMapItem {
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  .productMapIndex {
-    margin-bottom: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
   }
 
   .productMapTitle {
-    margin-bottom: 4px;
-    font-size: 0.98rem;
+    margin-bottom: 3px;
+    font-size: 0.96rem;
   }
 
   .productMapBody {
-    margin-bottom: 6px;
-    font-size: 13px;
-    line-height: 1.65;
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1.55;
+    max-width: none;
   }
 
   .productMapStatus {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    font-size: 10px;
+  }
+
+  .productMapActionLink {
+    min-height: 40px;
+    font-size: 13px;
   }
 
   .freeStage {
@@ -1829,33 +1818,32 @@
   }
 
   .premiumValueBridge {
-    margin-bottom: 18px;
-    padding-bottom: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
   }
 
-  .premiumValueBridgeHeadline {
-    margin-bottom: 12px;
-    font-size: 1.28rem;
+  .premiumValueBridgeEyebrow {
+    margin-bottom: 10px;
   }
 
   .premiumValueBridgeCompare {
-    gap: 14px;
+    gap: 12px;
   }
 
   .premiumValueBridgeColHeading {
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
   }
 
   .premiumValueBridgeList li {
-    font-size: 13px;
-    line-height: 1.55;
-    padding-bottom: 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    padding-bottom: 4px;
   }
 
   .premiumDarkStage {
-    padding-top: 44px;
-    padding-bottom: 52px;
+    padding-top: 40px;
+    padding-bottom: 48px;
   }
 
   .tenAssetTeaserBand {

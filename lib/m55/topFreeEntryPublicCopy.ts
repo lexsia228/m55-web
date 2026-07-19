@@ -79,23 +79,24 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §2 — Product map (below frozen hero, before free detail) */
     productMapEyebrowJa: 'M55でできること',
-    productMapHeadlineJa: '自分を見る。人との関係を見る。そこから、深く読み返す。',
-    productMapSelfTitleJa: '自分を読み解く',
+    productMapHeadlineJa: '自分を見る。二人の関係を見る。そこから、深く読み返す。',
+    productMapSelfTitleJa: '自分を見る',
     productMapSelfBodyJa:
-      '生年月日と、いま選んだ答えを重ねて、\n自分に出やすい反応や流れを見ていきます。',
+      '生年月日と、いま選んだ答えを重ねて、自分に出やすい反応や流れを見ていきます。',
     productMapSelfStatusJa: '無料・ログイン不要',
     productMapSelfCtaJa: '無料で見てみる',
-    productMapPairTitleJa: '二人の関係を読み解く',
+    productMapPairTitleJa: '二人の関係を見る',
     productMapPairBodyJa:
-      '二人の生年月日と選んだテーマから、\n距離が縮まりやすい入口や、\nすれ違いが生まれやすい場面を見ていきます。',
+      '二人の生年月日と選んだテーマから、距離が縮まりやすい入口や、すれ違いやすい場面を見ていきます。',
+    productMapPairStatusJa: '無料・ログイン不要',
     productMapPairCtaJa: '二人の関係を見てみる',
-    productMapPairPreparingTitleJa: '二人の関係を読み解く',
+    productMapPairPreparingTitleJa: '二人の関係を見る',
     productMapPairPreparingBodyJa:
-      '二人の距離や、すれ違いが生まれやすい場面を\n読み解く体験を準備しています。',
+      '二人の距離や、すれ違いが生まれやすい場面を読み解く体験を準備しています。',
     productMapPairPreparingStatusJa: '準備中',
-    productMapPremiumTitleJa: 'プレミアムで深く読み返す',
+    productMapPremiumTitleJa: '深く読み返す',
     productMapPremiumBodyJa:
-      '無料で見えた入口をもとに、\n動き方・距離感・負担の流れ・整え方を、\n4つの章で整理します。',
+      '無料で見えた入口をもとに、動き方・距離感・負担の流れ・整え方を整理します。',
     productMapPremiumLinkJa: 'プレミアムで深く読み返す',
 
     /* §3 — Free (outcome + preview merged) */
@@ -142,19 +143,16 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §5 — Premium (preview + plan merged) */
     premiumValueBridgeEyebrowJa: '無料から、ここまで深く',
-    premiumValueBridgeHeadlineJa: '入口だけで終わらず、自分の流れを全体で読み返す。',
-    premiumValueBridgeFreeHeadingJa: '無料で見えること',
+    premiumValueBridgeFreeHeadingJa: '無料',
     premiumValueBridgeFreeItemsJa: [
       'いまの自分に近い短い読み解き',
-      '自分に表れやすい資質',
-      '見直すための最初の手がかり',
+      '表れやすい資質',
+      '見直すための入口',
     ] as const,
-    premiumValueBridgePremiumHeadingJa: 'プレミアムで深まること',
+    premiumValueBridgePremiumHeadingJa: 'プレミアム',
     premiumValueBridgePremiumItemsJa: [
-      '自分の動き方',
-      '強みが表れやすい条件',
-      '人との距離感',
-      '負担が重なり始める流れ',
+      '動き方と強みが出やすい条件',
+      '人との距離と負担が重なる流れ',
       '整え直すための手がかり',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
@@ -183,7 +181,6 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     finalCtaBodyJa: '無料の読み解きは、ログインせずに始められます。',
     finalCtaPrimaryJa: '無料で見てみる',
     finalCtaSecondaryJa: 'プレミアムレポートを見る',
-    finalCtaPairSecondaryJa: '二人の関係を見てみる',
   },
   /** 05 — M55の仕組み (closed <details> disclosure; mechanism terms live only here). */
   learnMore: {

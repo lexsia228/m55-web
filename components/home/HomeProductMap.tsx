@@ -21,6 +21,7 @@ type Props = {
   selfCtaJa: string;
   pairTitleJa: string;
   pairBodyJa: string;
+  pairStatusJa: string;
   pairCtaJa: string;
   pairPreparingTitleJa: string;
   pairPreparingBodyJa: string;
@@ -78,6 +79,7 @@ export default function HomeProductMap({
   selfCtaJa,
   pairTitleJa,
   pairBodyJa,
+  pairStatusJa,
   pairCtaJa,
   pairPreparingTitleJa,
   pairPreparingBodyJa,
@@ -92,21 +94,22 @@ export default function HomeProductMap({
   return (
     <div data-testid="m55-home-product-map-inner">
       <p className={styles.sectionEyebrow}>{eyebrowJa}</p>
-      <h2 id="m55-home-product-map-title" className={styles.sectionHeadline}>{headlineJa}</h2>
-      <ol className={styles.productMapEditorial}>
+      <h2 id="m55-home-product-map-title" className={styles.sectionHeadline}>
+        {headlineJa}
+      </h2>
+      <ul className={styles.productMapEditorial} aria-label={eyebrowJa}>
         <li className={styles.productMapItem}>
-          <p className={styles.productMapIndex}>01</p>
           <p className={styles.productMapTitle}>{selfTitleJa}</p>
           <p className={styles.productMapBody}>{selfBodyJa}</p>
           <p className={styles.productMapStatus}>{selfStatusJa}</p>
           <ProductMapSelfAction {...freeCta} label={selfCtaJa} />
         </li>
         <li className={styles.productMapItem}>
-          <p className={styles.productMapIndex}>02</p>
           {pairLive ? (
             <>
               <p className={styles.productMapTitle}>{pairTitleJa}</p>
               <p className={styles.productMapBody}>{pairBodyJa}</p>
+              <p className={styles.productMapStatus}>{pairStatusJa}</p>
               <Link
                 href={HOME_PAIR_READING_PUBLIC_HREF}
                 className={styles.productMapActionLink}
@@ -126,14 +129,17 @@ export default function HomeProductMap({
           )}
         </li>
         <li className={styles.productMapItem}>
-          <p className={styles.productMapIndex}>03</p>
           <p className={styles.productMapTitle}>{premiumTitleJa}</p>
           <p className={styles.productMapBody}>{premiumBodyJa}</p>
-          <a href="#m55-home-premium-preview" className={styles.productMapActionLink} data-testid="m55-home-product-map-premium-link">
+          <a
+            href="#m55-home-premium-preview"
+            className={styles.productMapActionLink}
+            data-testid="m55-home-product-map-premium-link"
+          >
             {premiumLinkJa}
           </a>
         </li>
-      </ol>
+      </ul>
     </div>
   );
 }
