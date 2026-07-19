@@ -20,17 +20,13 @@
   align-items: center;
   justify-content: center;
 
-  /* dark-glass surface */
-  background: rgba(20, 16, 32, 0.72);
-  border: 1px solid rgba(160, 140, 210, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.30),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  /* M55 navy / ivory surface */
+  background: rgba(11, 26, 43, 0.92);
+  border: 1px solid rgba(241, 232, 214, 0.22);
+  box-shadow: 0 2px 10px rgba(11, 26, 43, 0.28);
 
   /* text / icon */
-  color: rgba(205, 195, 235, 0.82);
+  color: rgba(241, 232, 214, 0.92);
   cursor: pointer;
 
   /* hidden by default — fade + float up */
@@ -54,12 +50,10 @@
 
 /* hover */
 .btn:hover {
-  background: rgba(30, 24, 50, 0.88);
-  border-color: rgba(180, 160, 225, 0.30);
-  box-shadow:
-    0 4px 18px rgba(0, 0, 0, 0.40),
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  color: rgba(230, 220, 250, 0.97);
+  background: #0b1a2b;
+  border-color: rgba(196, 110, 90, 0.42);
+  box-shadow: 0 3px 14px rgba(11, 26, 43, 0.34);
+  color: #f1e8d6;
 }
 
 /* active */
@@ -70,7 +64,7 @@
 
 /* focus-visible ring */
 .btn:focus-visible {
-  outline: 2px solid rgba(175, 150, 230, 0.65);
+  outline: 2px solid #c46e5a;
   outline-offset: 3px;
 }
 

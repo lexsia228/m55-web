@@ -611,8 +611,9 @@
 
 .mechanismStage {
   background: #ebe5da;
-  padding: 44px 20px 48px;
+  padding: 48px 20px 52px;
   max-width: none;
+  border-top: 1px solid rgba(11, 26, 43, 0.1);
 }
 
 .premiumDarkStage {
@@ -685,7 +686,7 @@
 }
 
 .premiumDarkStage .planFactsList {
-  color: rgba(241, 232, 214, 0.68);
+  color: rgba(241, 232, 214, 0.76);
 }
 
 .premiumDarkStage .planComparisonDivider {
@@ -1153,11 +1154,17 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   font-weight: 500;
-  color: rgba(11, 26, 43, 0.52);
+  color: #496f6d;
 }
 
 .freePreviewFragment {
   min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .freePreviewFragment {
+    max-width: min(52rem, 100%);
+  }
 }
 
 .freePreviewSheet {
@@ -1196,8 +1203,31 @@
 
 /* ── Mechanism editorial diagram ─────────────────────────────────────── */
 
+.mechanismStage .sectionEyebrow {
+  letter-spacing: 0.1em;
+}
+
+.mechanismStage .sectionHeadline {
+  margin-bottom: 14px;
+}
+
+.mechanismStage .sectionBody {
+  margin-bottom: 22px;
+}
+
+.mechanismStage .sectionSupporting {
+  margin: 22px 0 20px;
+  padding: 0 0 0 14px;
+  border-left: 2px solid rgba(196, 110, 90, 0.42);
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(11, 26, 43, 0.76);
+  max-width: 34ch;
+}
+
 .mechanismDiagram {
-  margin: 24px 0 20px;
+  margin: 0 0 18px;
   max-width: 36rem;
 }
 
@@ -1290,8 +1320,8 @@
   font-size: 11px;
   padding: 6px 10px;
   border-radius: 2px;
-  border: 1px solid rgba(241, 232, 214, 0.22);
-  color: rgba(241, 232, 214, 0.68);
+  border: 1px solid rgba(241, 232, 214, 0.24);
+  color: rgba(241, 232, 214, 0.78);
   line-height: 1.35;
 }
 
@@ -1311,8 +1341,9 @@
 }
 
 .premiumChapterBodyClip {
+  --premium-sheet-bg: rgba(13, 11, 21, 0.72);
   position: relative;
-  max-height: 5.5rem;
+  max-height: 8.4rem;
   overflow: hidden;
 }
 
@@ -1322,8 +1353,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 1.75rem;
-  background: linear-gradient(180deg, rgba(13, 11, 21, 0) 0%, rgba(13, 11, 21, 0.95) 100%);
+  height: 25%;
+  min-height: 1rem;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 11, 21, 0) 0%,
+    var(--premium-sheet-bg) 100%
+  );
   pointer-events: none;
 }
 
@@ -1468,26 +1504,18 @@
 .tenAssetIndexGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  column-gap: 16px;
+  row-gap: 0;
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   padding: 0;
-  border-top: 1px solid rgba(11, 26, 43, 0.12);
+  border-top: 1px solid rgba(11, 26, 43, 0.1);
 }
 
 .tenAssetIndexCell {
-  padding: 12px 10px 12px 0;
-  border-bottom: 1px solid rgba(11, 26, 43, 0.08);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.06);
   box-sizing: border-box;
-}
-
-.tenAssetIndexCell:nth-child(odd) {
-  padding-right: 14px;
-  border-right: 1px solid rgba(11, 26, 43, 0.08);
-}
-
-.tenAssetIndexCell:nth-child(even) {
-  padding-left: 14px;
 }
 
 .tenAssetIndexPersona {
@@ -1495,27 +1523,29 @@
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
   color: #0b1a2b;
   word-break: keep-all;
 }
 
 .tenAssetIndexQuality {
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 10px;
-  line-height: 1.4;
-  color: rgba(11, 26, 43, 0.52);
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgba(11, 26, 43, 0.58);
 }
 
 .tenAssetTeaserLink {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  margin-top: 6px;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(11, 26, 43, 0.58);
+  color: #496f6d;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -1524,25 +1554,20 @@
   color: #c46e5a;
 }
 
+.tenAssetTeaserLink:focus-visible {
+  outline: 2px solid #c46e5a;
+  outline-offset: 2px;
+}
+
 @media (min-width: 768px) {
   .tenAssetIndexGrid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 20px;
   }
 
   .tenAssetIndexCell {
-    padding: 14px 12px;
-    border-right: 1px solid rgba(11, 26, 43, 0.08);
-    border-bottom: 1px solid rgba(11, 26, 43, 0.08);
-  }
-
-  .tenAssetIndexCell:nth-child(5n) {
-    border-right: none;
-  }
-
-  .tenAssetIndexCell:nth-child(odd),
-  .tenAssetIndexCell:nth-child(even) {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(11, 26, 43, 0.06);
   }
 
   .tenAssetIndexPersona {
@@ -1576,7 +1601,7 @@
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(11, 26, 43, 0.62);
+  color: #496f6d;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -1754,104 +1779,7 @@
   color: #f1e8d6;
 }
 
-.premiumPreviewProduct {
-  margin: 0 0 12px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: rgba(241, 232, 214, 0.96);
-}
-
-.premiumChapterRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 14px;
-}
-
-.premiumChapterTab {
-  font-size: 11px;
-  padding: 5px 9px;
-  border-radius: 4px;
-  border: 1px solid rgba(241, 232, 214, 0.24);
-  color: rgba(241, 232, 214, 0.72);
-  line-height: 1.35;
-}
-
-.premiumChapterTabActive {
-  border-color: rgba(196, 110, 90, 0.72);
-  background: rgba(196, 110, 90, 0.16);
-  color: rgba(241, 232, 214, 0.98);
-}
-
-.premiumChapterHeading {
-  margin: 0 0 10px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: 1.08rem;
-  font-weight: 600;
-  color: #f1e8d6;
-}
-
-.premiumChapterBodyClip {
-  position: relative;
-  max-height: 5.25rem;
-  overflow: hidden;
-}
-
-.premiumChapterBodyClip::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1.75rem;
-  background: linear-gradient(180deg, rgba(13, 11, 21, 0) 0%, rgba(13, 11, 21, 0.92) 100%);
-  pointer-events: none;
-}
-
-.premiumChapterBody {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.75;
-  color: rgba(241, 232, 214, 0.9);
-}
-
-/* ── Free section — 10 asset compact teaser ───────────────────────────── */
-
-.tenAssetTeaserBand {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(11, 26, 43, 0.1);
-}
-
-.tenAssetTeaserEyebrow {
-  margin: 0 0 6px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-  color: #496f6d;
-}
-
-.tenAssetTeaserHeadline {
-  margin: 0 0 10px;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
-  line-height: 1.45;
-  font-weight: 600;
-  color: #0b1a2b;
-  max-width: 36ch;
-}
-
-.tenAssetTeaserBody {
-  margin: 0 0 16px;
-  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
-  font-size: 14px;
-  line-height: 1.75;
-  color: rgba(11, 26, 43, 0.68);
-  max-width: 42ch;
-  white-space: pre-line;
-}
+/* ── Free section — 10 asset compact teaser (legacy grid — unused on HOME) ── */
 
 .tenAssetTeaserGrid {
   display: grid;
@@ -1910,11 +1838,6 @@
 }
 
 @media (max-width: 480px) {
-  .tenAssetTeaserBand {
-    margin-top: 24px;
-    padding-top: 20px;
-  }
-
   .tenAssetTeaserGrid {
     gap: 6px;
   }

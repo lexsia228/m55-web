@@ -37,10 +37,15 @@
   align-items: center;
   min-height: 44px;
   padding: 0 2px;
-  color: rgba(60, 60, 60, 0.78);
+  color: rgba(11, 26, 43, 0.82);
   text-decoration: none;
   font-weight: 600;
   font-size: 11px;
+}
+
+.link:focus-visible {
+  outline: 2px solid #c46e5a;
+  outline-offset: 2px;
 }
 
 .link:hover {
