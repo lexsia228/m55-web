@@ -47,9 +47,10 @@ type DropdownProps = {
   items: NavItem[];
   pathname: string;
   menuId: string;
+  aboutDropdown?: boolean;
 };
 
-function HeaderDropdown({ triggerLabel, items, pathname, menuId }: DropdownProps) {
+function HeaderDropdown({ triggerLabel, items, pathname, menuId, aboutDropdown }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -96,7 +97,10 @@ function HeaderDropdown({ triggerLabel, items, pathname, menuId }: DropdownProps
   };
 
   return (
-    <div className={styles.navDropdown} ref={rootRef}>
+    <div
+      className={`${styles.navDropdown}${aboutDropdown ? ` ${styles.navDropdownAbout}` : ''}`}
+      ref={rootRef}
+    >
       <button
         type="button"
         ref={triggerRef}
@@ -242,6 +246,7 @@ export function PublicHeader() {
             items={ABOUT_DROPDOWN_NAV}
             pathname={pathname}
             menuId={aboutMenuId}
+            aboutDropdown
           />
         </nav>
 

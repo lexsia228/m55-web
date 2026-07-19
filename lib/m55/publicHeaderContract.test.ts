@@ -87,6 +87,40 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
     assert.ok(desktopTopNavBlock, 'expected desktop topNav media block');
     assert.match(desktopTopNavBlock!, /overflow:\s*visible/);
   });
+
+  it('scopes About parent active styling to the dedicated About dropdown marker', () => {
+    const aboutDropdownBlock = headerSource.slice(
+      headerSource.indexOf('triggerLabel="M55について"'),
+      headerSource.indexOf('triggerLabel="アカウント"'),
+    );
+    assert.match(aboutDropdownBlock, /aboutDropdown/);
+    assert.match(headerSource, /navDropdownAbout/);
+
+    const accountDropdownBlock = headerSource.slice(headerSource.indexOf('triggerLabel="アカウント"'));
+    assert.doesNotMatch(accountDropdownBlock, /aboutDropdown/);
+
+    assert.match(
+      shellCss,
+      /\.navDropdownAbout:has\(\.navDropdownLinkActive\) \.navDropdownTrigger\s*\{[\s\S]*?background:\s*rgba\(255,\s*255,\s*255,\s*0\.12\)/,
+    );
+    assert.match(
+      shellCss,
+      /\.navDropdownAbout:has\(\.navDropdownLinkActive\) \.navDropdownTrigger:hover\s*\{[\s\S]*?background:\s*rgba\(255,\s*255,\s*255,\s*0\.14\)/,
+    );
+    assert.doesNotMatch(shellCss, /\.navDropdown:has\(\.navDropdownLinkActive\)/);
+    assert.match(shellCss, /\.navDropdownTrigger\s*\{[\s\S]*?background:\s*transparent/);
+    assert.doesNotMatch(
+      shellCss,
+      /\.navDropdownTrigger[^\{]*\{[^}]*background:\s*(#fff|#ffffff|white)\b/,
+    );
+  });
+
+  it('marks active child routes inside about dropdown without changing trigger logic', () => {
+    assert.match(headerSource, /isActiveRoute\(pathname, item\.href\)/);
+    assert.match(headerSource, /navDropdownLinkActive/);
+    assert.doesNotMatch(headerSource, /isAboutActive/);
+    assert.match(headerSource, /onClick=\{\(\) => setOpen\(\(value\) => !value\)\}/);
+  });
 });
 
 describe('publicHeaderContract — compact (≤959px) structure', () => {
