@@ -107,6 +107,7 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
 describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () => {
   it('renders lower sections in exact SSOT order', () => {
     const testIds = [
+      'm55-home-product-map',
       'm55-home-free-preview',
       'm55-home-mechanism',
       'm55-home-premium-preview',

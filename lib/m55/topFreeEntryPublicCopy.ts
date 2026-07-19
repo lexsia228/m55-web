@@ -77,6 +77,27 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     /** Referenced by app/support/page.tsx — keep key + value stable outside this gate's scope. */
     tierFreeJa: '10資質レーンで、いまの輪郭を見る。',
 
+    /* §2 — Product map (below frozen hero, before free detail) */
+    productMapEyebrowJa: 'M55でできること',
+    productMapHeadlineJa: '自分を見る。人との関係を見る。そこから、深く読み返す。',
+    productMapSelfTitleJa: '自分を読み解く',
+    productMapSelfBodyJa:
+      '生年月日と、いま選んだ答えを重ねて、\n自分に出やすい反応や流れを見ていきます。',
+    productMapSelfStatusJa: '無料・ログイン不要',
+    productMapSelfCtaJa: '無料で見てみる',
+    productMapPairTitleJa: '二人の関係を読み解く',
+    productMapPairBodyJa:
+      '二人の生年月日と選んだテーマから、\n距離が縮まりやすい入口や、\nすれ違いが生まれやすい場面を見ていきます。',
+    productMapPairCtaJa: '二人の関係を見てみる',
+    productMapPairPreparingTitleJa: '二人の関係を読み解く',
+    productMapPairPreparingBodyJa:
+      '二人の距離や、すれ違いが生まれやすい場面を\n読み解く体験を準備しています。',
+    productMapPairPreparingStatusJa: '準備中',
+    productMapPremiumTitleJa: 'プレミアムで深く読み返す',
+    productMapPremiumBodyJa:
+      '無料で見えた入口をもとに、\n動き方・距離感・負担の流れ・整え方を、\n4つの章で整理します。',
+    productMapPremiumLinkJa: 'プレミアムで深く読み返す',
+
     /* §3 — Free (outcome + preview merged) */
     outcomeBridgeEyebrowJa: 'M55で見えてくること',
     outcomeBridgeItemsJa: [
@@ -120,6 +141,22 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     tenAssetTeaserLinkJa: '10の資質を詳しく見る',
 
     /* §5 — Premium (preview + plan merged) */
+    premiumValueBridgeEyebrowJa: '無料から、ここまで深く',
+    premiumValueBridgeHeadlineJa: '入口だけで終わらず、自分の流れを全体で読み返す。',
+    premiumValueBridgeFreeHeadingJa: '無料で見えること',
+    premiumValueBridgeFreeItemsJa: [
+      'いまの自分に近い短い読み解き',
+      '自分に表れやすい資質',
+      '見直すための最初の手がかり',
+    ] as const,
+    premiumValueBridgePremiumHeadingJa: 'プレミアムで深まること',
+    premiumValueBridgePremiumItemsJa: [
+      '自分の動き方',
+      '強みが表れやすい条件',
+      '人との距離感',
+      '負担が重なり始める流れ',
+      '整え直すための手がかり',
+    ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
     premiumHeadlineJa: '同じ土台を、4つの章で読み返せます。',
     premiumBodyJa:
@@ -146,6 +183,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     finalCtaBodyJa: '無料の読み解きは、ログインせずに始められます。',
     finalCtaPrimaryJa: '無料で見てみる',
     finalCtaSecondaryJa: 'プレミアムレポートを見る',
+    finalCtaPairSecondaryJa: '二人の関係を見てみる',
   },
   /** 05 — M55の仕組み (closed <details> disclosure; mechanism terms live only here). */
   learnMore: {
@@ -342,5 +380,6 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',
     coreFreeHref: '/core',
+    pairReadingHref: '/synastry',
   },
 } as const;

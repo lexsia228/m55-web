@@ -15,8 +15,11 @@ import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeFreePreviewSlice from './HomeFreePreviewSlice';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
+import HomePremiumValueBridge from './HomePremiumValueBridge';
+import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
+import { isHomePairReadingLivePublic } from '../../lib/m55/homePairReadingPublicContract';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
@@ -168,6 +171,37 @@ export default function HomePanel() {
 
       <div className={styles.lowerWrap} data-testid="m55-home-lower">
 
+        {/* §2 — Product map (below hero, before free detail) */}
+        <section
+          className={`${styles.lowerSection} ${styles.productMapStage}`}
+          data-testid="m55-home-product-map"
+          aria-labelledby="m55-home-product-map-title"
+        >
+          <HomeProductMap
+            eyebrowJa={homeCopy.productMapEyebrowJa}
+            headlineJa={homeCopy.productMapHeadlineJa}
+            selfTitleJa={homeCopy.productMapSelfTitleJa}
+            selfBodyJa={homeCopy.productMapSelfBodyJa}
+            selfStatusJa={homeCopy.productMapSelfStatusJa}
+            selfCtaJa={homeCopy.productMapSelfCtaJa}
+            pairTitleJa={homeCopy.productMapPairTitleJa}
+            pairBodyJa={homeCopy.productMapPairBodyJa}
+            pairCtaJa={homeCopy.productMapPairCtaJa}
+            pairPreparingTitleJa={homeCopy.productMapPairPreparingTitleJa}
+            pairPreparingBodyJa={homeCopy.productMapPairPreparingBodyJa}
+            pairPreparingStatusJa={homeCopy.productMapPairPreparingStatusJa}
+            premiumTitleJa={homeCopy.productMapPremiumTitleJa}
+            premiumBodyJa={homeCopy.productMapPremiumBodyJa}
+            premiumLinkJa={homeCopy.productMapPremiumLinkJa}
+            freeCta={{
+              hasProfile,
+              isLoaded,
+              label: homeCopy.productMapSelfCtaJa,
+              onOpenIntake: openIntake,
+            }}
+          />
+        </section>
+
         {/* §3 — Free (outcome + preview merged) */}
         <section
           className={`${styles.lowerSection} ${styles.freeStage}`}
@@ -245,7 +279,16 @@ export default function HomePanel() {
           className={`${styles.lowerSection} ${styles.premiumDarkStage}`}
           data-testid="m55-home-premium-preview"
           aria-labelledby="m55-home-premium-preview-title"
+          id="m55-home-premium-preview"
         >
+          <HomePremiumValueBridge
+            eyebrowJa={homeCopy.premiumValueBridgeEyebrowJa}
+            headlineJa={homeCopy.premiumValueBridgeHeadlineJa}
+            freeHeadingJa={homeCopy.premiumValueBridgeFreeHeadingJa}
+            freeItemsJa={homeCopy.premiumValueBridgeFreeItemsJa}
+            premiumHeadingJa={homeCopy.premiumValueBridgePremiumHeadingJa}
+            premiumItemsJa={homeCopy.premiumValueBridgePremiumItemsJa}
+          />
           <p className={styles.sectionEyebrow}>{homeCopy.premiumEyebrowJa}</p>
           <h2 id="m55-home-premium-preview-title" className={styles.sectionHeadline}>
             {homeCopy.premiumHeadlineJa}
@@ -318,6 +361,15 @@ export default function HomePanel() {
             >
               {homeCopy.finalCtaSecondaryJa}
             </Link>
+            {isHomePairReadingLivePublic() ? (
+              <Link
+                href={ctaCopy.pairReadingHref}
+                className={styles.finalCtaSecondaryLink}
+                data-testid="m55-home-final-cta-pair"
+              >
+                {homeCopy.finalCtaPairSecondaryJa}
+              </Link>
+            ) : null}
           </div>
         </section>
 
