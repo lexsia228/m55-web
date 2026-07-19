@@ -77,9 +77,30 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     /** Referenced by app/support/page.tsx — keep key + value stable outside this gate's scope. */
     tierFreeJa: '10資質レーンで、いまの輪郭を見る。',
 
-    /* §3 — User outcome bridge */
+    /* §2 — Product map (below frozen hero, before free detail) */
+    productMapEyebrowJa: 'M55でできること',
+    productMapHeadlineJa: '自分を見る。二人の関係を見る。そこから、深く読み返す。',
+    productMapSelfTitleJa: '自分を見る',
+    productMapSelfBodyJa:
+      '生年月日と、いま選んだ答えを重ねて、自分に出やすい反応や流れを見ていきます。',
+    productMapSelfStatusJa: '無料・ログイン不要',
+    productMapSelfCtaJa: '無料で見てみる',
+    productMapPairTitleJa: '二人の関係を見る',
+    productMapPairBodyJa:
+      '二人の生年月日と選んだテーマから、距離が縮まりやすい入口や、すれ違いやすい場面を見ていきます。',
+    productMapPairStatusJa: '無料・ログイン不要',
+    productMapPairCtaJa: '二人の関係を見てみる',
+    productMapPairPreparingTitleJa: '二人の関係を見る',
+    productMapPairPreparingBodyJa:
+      '二人の距離や、すれ違いが生まれやすい場面を読み解く体験を準備しています。',
+    productMapPairPreparingStatusJa: '準備中',
+    productMapPremiumTitleJa: '深く読み返す',
+    productMapPremiumBodyJa:
+      '無料で見えた入口をもとに、動き方・距離感・負担の流れ・整え方を整理します。',
+    productMapPremiumLinkJa: 'プレミアムで深く読み返す',
+
+    /* §3 — Free (outcome + preview merged) */
     outcomeBridgeEyebrowJa: 'M55で見えてくること',
-    outcomeBridgeHeadlineJa: '自分でも気づきにくかった「いつもの順番」が、見えてくる。',
     outcomeBridgeItemsJa: [
       {
         titleJa: '自分に表れやすい反応',
@@ -95,47 +116,55 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       },
     ] as const,
 
-    /* §4 — Mechanism */
-    mechanismEyebrowJa: 'M55の仕組み',
-    mechanismHeadlineJa: '生年月日と今の回答を、重ねて読む。',
+    /* §4 — Mechanism band */
+    mechanismEyebrowJa: 'M55の見方',
+    mechanismHeadlineJa: '二つの手がかりを重ねて、今の自分を見る。',
     mechanismBodyJa:
-      '生年月日から見える基礎傾向と、今の回答に表れる内面。M55は二つを重ね、自分の動き方や、人との関係に表れやすい流れを読み解きます。',
-    mechanismSource1TitleJa: '生年月日',
-    mechanismSource1BodyJa: '生年月日から見える基礎傾向',
-    mechanismSource2TitleJa: '今の回答',
-    mechanismSource2BodyJa: '今の回答に表れる内面',
-    mechanismOutputTitleJa: '二つを重ねて読む',
-    mechanismOutputBodyJa: '自分の動き方や、人との関係に表れやすい流れ',
-    mechanismCtaJa: 'M55の仕組みを見る',
+      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+    mechanismEthicsJa: '一つの情報だけで、人を決めない。',
+    mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
+    mechanismDiagramSource1Ja: '生年月日から見える基礎傾向',
+    mechanismDiagramSource2Ja: 'いま選んだ答え',
+    mechanismDiagramOutputJa: '今の自分に出やすい流れ',
 
-    /* §5 — FREE result */
-    freeResultEyebrowJa: '無料で見られること',
+    /* §3 continued — FREE result (merged with outcome bridge) */
     freeResultHeadlineJa: '無料で、自分に表れやすい流れを知る。',
     freeResultBodyJa:
-      '生年月日から見える基礎傾向と、今の回答に表れる内面を重ね、現在の自分に表れやすい反応や流れを短く整理します。',
+      '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     freeResultPreviewLabelJa: '無料結果の表示例',
     freeResultCtaJa: '無料で見てみる',
     freeResultSupportJa: 'ログイン不要',
 
-    /* §6 — Premium */
+    tenAssetTeaserEyebrowJa: '無料結果の入口',
+    tenAssetTeaserHeadlineJa: '10の資質から、自分に表れやすい動きを見る。',
+    tenAssetTeaserBodyJa:
+      '無料結果では、10の資質のうち、\n自分の動きを見る入口になる資質が表示されます。\n役職や順位を示すものではありません。',
+    tenAssetTeaserLinkJa: '10の資質を詳しく見る',
+
+    /* §5 — Premium (preview + plan merged) */
+    premiumValueBridgeEyebrowJa: '無料から、ここまで深く',
+    premiumValueBridgeFreeHeadingJa: '無料',
+    premiumValueBridgeFreeItemsJa: [
+      'いまの自分に近い短い読み解き',
+      '表れやすい資質',
+      '見直すための入口',
+    ] as const,
+    premiumValueBridgePremiumHeadingJa: 'プレミアム',
+    premiumValueBridgePremiumItemsJa: [
+      '動き方と強みが出やすい条件',
+      '人との距離と負担が重なる流れ',
+      '整え直すための手がかり',
+    ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
-    premiumHeadlineJa: '自分の土台と今の内面、その重なりを詳しく読み解く。',
+    premiumHeadlineJa: '同じ土台を、4つの章で読み返せます。',
     premiumBodyJa:
-      '無料結果と同じ二つの情報をもとに、自分の動き方、人との距離、強みが表れやすい条件、負担が重なり始める流れ、整え直すための手がかりを、複数の視点から詳しく整理します。',
+      '無料結果と同じ二つの情報をもとに、動き方・距離感・負担の流れ・整え方を、複数の視点から整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
     premiumCtaJa: 'プレミアムレポートを見る',
 
-    /* §7 — 10の資質 */
-    tenAssetsEyebrowJa: '生年月日から読み解く',
-    tenAssetsHeadlineJa: '10の資質',
-    tenAssetsBodyJa:
-      'プレジデント、プランナー、クリエイターなど、10の名称で動き方の特徴を表しています。役職や順位を示すものではありません。',
-    tenAssetsCtaJa: '10の資質を見る',
-
-    /* §8 — LIGHT / FULL comparison */
-    planComparisonHeadlineJa: '気になるテーマの数に合わせて選べます。',
+    /* §5 continued — LIGHT / FULL (nested in premium section) */
     planComparisonIntroJa:
-      'ライトとフルで、プレミアムレポート本体の内容は同じです。違いは、レポートを読んだ後に追加で詳しく読み解けるテーマ数です。',
+      'ライトとフルで、プレミアムレポート本体の内容は同じです。違いは、読んだ後に追加で詳しく読み解けるテーマ数です。',
     planLightNameJa: 'ライト',
     planLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     planLightSpecJa: formatHomePlanLightSpecJa(
@@ -147,12 +176,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     planCommonFactsJa: ['買い切り', '自動更新なし', '購入と閲覧にはログインが必要です'] as const,
     planComparisonCtaJa: 'プレミアムレポートを見る',
 
-    /* §9 — Existing users */
-    existingUserHeadlineJa: 'すでにM55を利用している方',
-    existingUserReportLinkJa: 'マイレポートを開く',
-    existingUserMyLinkJa: 'マイページを開く',
-
-    /* §10 — Final CTA */
+    /* §6 — Final CTA */
     finalCtaHeadlineJa: 'まずは、今の自分を見直すところから。',
     finalCtaBodyJa: '無料の読み解きは、ログインせずに始められます。',
     finalCtaPrimaryJa: '無料で見てみる',
@@ -353,5 +377,6 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',
     coreFreeHref: '/core',
+    pairReadingHref: '/synastry',
   },
 } as const;

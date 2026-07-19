@@ -15,46 +15,18 @@ const SUPPORT_LEGAL_GROUP = [
   { label: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
 ] as const;
 
-const groupLabelStyle = {
-  display: 'block',
-  margin: '0 0 10px',
-  fontSize: '11px',
-  fontWeight: 700,
-  letterSpacing: '0.06em',
-  color: 'rgba(60, 60, 60, 0.72)',
-} as const;
-
-const groupWrapStyle = {
-  display: 'flex',
-  flexDirection: 'column' as const,
-  gap: '20px',
-  textAlign: 'left' as const,
-};
-
-const groupLinksStyle = {
-  display: 'flex',
-  flexWrap: 'wrap' as const,
-  gap: '8px 14px',
-  justifyContent: 'flex-start' as const,
-};
-
-function FooterLinkGroup({
-  label,
+function FooterLinkRow({
   items,
 }: {
-  label: string;
   items: readonly { label: string; href: string }[];
 }) {
   return (
-    <div>
-      <p style={groupLabelStyle}>{label}</p>
-      <div style={groupLinksStyle}>
-        {items.map((item) => (
-          <Link key={item.href} href={item.href} className={styles.link} style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>
-            {item.label}
-          </Link>
-        ))}
-      </div>
+    <div className={styles.linkRow}>
+      {items.map((item) => (
+        <Link key={item.href} href={item.href} className={styles.link}>
+          {item.label}
+        </Link>
+      ))}
     </div>
   );
 }
@@ -64,9 +36,13 @@ export function PublicFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.row}>
-        <div style={groupWrapStyle}>
-          <FooterLinkGroup label="製品・理解" items={PRODUCT_GROUP} />
-          <FooterLinkGroup label="サポート・法務" items={SUPPORT_LEGAL_GROUP} />
+        <div className={styles.groups}>
+          <nav aria-label="製品・理解">
+            <FooterLinkRow items={PRODUCT_GROUP} />
+          </nav>
+          <nav aria-label="サポート・法務">
+            <FooterLinkRow items={SUPPORT_LEGAL_GROUP} />
+          </nav>
         </div>
         <p className={styles.copy}>© 2026 M55</p>
       </div>

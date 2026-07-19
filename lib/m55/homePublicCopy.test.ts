@@ -104,16 +104,13 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
   });
 });
 
-describe('homePublicCopy — lower HOME eleven-section IA (below the frozen poster)', () => {
+describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () => {
   it('renders lower sections in exact SSOT order', () => {
     const testIds = [
-      'm55-home-outcome-bridge',
-      'm55-home-mechanism',
+      'm55-home-product-map',
       'm55-home-free-preview',
+      'm55-home-mechanism',
       'm55-home-premium-preview',
-      'm55-home-ten-assets',
-      'm55-home-plan-comparison',
-      'm55-home-existing-user',
       'm55-home-final-cta',
     ] as const;
     const indices = testIds.map((id) => lowerSource.indexOf(`data-testid="${id}"`));
@@ -125,8 +122,15 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
     }
   });
 
-  it('removes old rendered lower HOME sections and legacy funnel scaffolding', () => {
+  it('removes merged-away and legacy lower HOME sections', () => {
     for (const removed of [
+      'm55-home-outcome-bridge',
+      'm55-home-ten-assets',
+      'm55-home-existing-user',
+      'HomeMechanismPanels',
+      'HomeTenAssetTiles',
+      'm55-home-ten-asset-grid',
+      'm55-home-ten-views-link',
       'homeReadNextSection',
       'homeMethodLayer',
       'homePaidPlan',
@@ -142,9 +146,13 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
       'paidPlanUniquenessChipsJa',
       'paidPlanSavedPreviewChaptersJa',
       '<details',
+      'm55-home-plan-comparison-cta',
+      'm55-home-existing-report',
+      'm55-home-existing-my',
     ] as const) {
       assert.equal(homePanelSource.includes(removed), false, `must not render removed section/key: ${removed}`);
     }
+    assert.notEqual(homePanelSource.indexOf('data-testid="m55-home-plan-comparison"'), -1);
   });
 
   it('does not expose old product names or forbidden primary labels in rendered HOME copy', () => {
@@ -160,26 +168,60 @@ describe('homePublicCopy — lower HOME eleven-section IA (below the frozen post
   it('uses approved exact copy freeze strings for key sections', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.outcomeBridgeEyebrowJa, 'M55で見えてくること');
+    assert.equal(home.freeResultHeadlineJa, '無料で、自分に表れやすい流れを知る。');
     assert.equal(
-      home.outcomeBridgeHeadlineJa,
-      '自分でも気づきにくかった「いつもの順番」が、見えてくる。',
+      home.freeResultBodyJa,
+      '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
-    assert.equal(home.mechanismHeadlineJa, '生年月日と今の回答を、重ねて読む。');
+    assert.equal(home.mechanismEyebrowJa, 'M55の見方');
+    assert.equal(home.mechanismHeadlineJa, '二つの手がかりを重ねて、今の自分を見る。');
+    assert.equal(
+      home.mechanismBodyJa,
+      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+    );
+    assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
+    assert.equal(home.premiumHeadlineJa, '同じ土台を、4つの章で読み返せます。');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');
-    assert.equal(home.tenAssetsHeadlineJa, '10の資質');
-    assert.equal(home.tenAssetsCtaJa, '10の資質を見る');
-    assert.equal(home.existingUserHeadlineJa, 'すでにM55を利用している方');
+    assert.equal(home.mechanismHowLinkJa, 'M55の仕組みを詳しく見る');
+    assert.equal(home.tenAssetTeaserEyebrowJa, '無料結果の入口');
+    assert.equal(home.tenAssetTeaserHeadlineJa, '10の資質から、自分に表れやすい動きを見る。');
+    assert.equal(home.tenAssetTeaserLinkJa, '10の資質を詳しく見る');
   });
 
-  it('implements text-led mechanism panels without accordion/details', () => {
-    assert.match(homePanelSource, /HomeMechanismPanels/);
-    const mechanismComponent = readFileSync(
-      join(repoRoot, 'components/home/HomeMechanismPanels.tsx'),
-      'utf8',
-    );
-    assert.match(mechanismComponent, /data-testid="m55-home-mechanism-panels"/);
+  it('embeds compact 10 asset teaser inside the free section using canonical catalog', () => {
+    const teaserSource = readFileSync(join(repoRoot, 'components/home/HomeTenAssetTeaser.tsx'), 'utf8');
+    assert.match(homePanelSource, /HomeTenAssetTeaser/);
+    assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser"/);
+    assert.match(teaserSource, /TEN_ASSET_PUBLIC_CATALOG/);
+    assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser-link"/);
+    assert.doesNotMatch(homePanelSource, /HomeTenAssetTiles/);
+  });
+
+  it('implements short mechanism band with how link only and no accordion/panels', () => {
+    assert.doesNotMatch(homePanelSource, /HomeMechanismPanels/);
+    assert.match(homePanelSource, /data-testid="m55-home-mechanism-link"/);
+    assert.match(homePanelSource, /mechanismDiagram/);
+    assert.doesNotMatch(homePanelSource, /data-testid="m55-home-ten-views-link"/);
     assert.doesNotMatch(lowerSource, /<details/);
+  });
+
+  it('uses a single primary paid CTA in the premium section and a secondary text link in final CTA', () => {
+    assert.match(homePanelSource, /data-testid="m55-home-premium-preview-cta"/);
+    assert.match(homePanelSource, /className=\{styles\.finalCtaSecondaryLink\}/);
+    assert.equal(homePanelSource.includes('data-testid="m55-home-plan-comparison-cta"'), false);
+    const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
+    assert.equal(paidSolidCount, 1);
+  });
+
+  it('uses editorial outcome columns and premium dark-stage preview on HOME', () => {
+    assert.match(homePanelSource, /outcomeEditorial/);
+    assert.doesNotMatch(homePanelSource, /outcomeGrid[\s\S]*className=\{styles\.card\}/);
+    assert.match(homePanelSource, /premiumDarkStage/);
+    const premiumSlice = readFileSync(join(repoRoot, 'components/home/HomePremiumPreviewSlice.tsx'), 'utf8');
+    assert.match(premiumSlice, /premiumPreviewProductSheet/);
+    assert.match(premiumSlice, /premiumChapterBodyClip/);
+    assert.match(homePanelCss, /\.premiumDarkStage\s*\{[^}]*background:\s*#0b1a2b/);
   });
 
   it('places the poster-to-lower gap in normal flow with no negative overlap', () => {

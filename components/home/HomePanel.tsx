@@ -14,9 +14,10 @@ import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeFreePreviewSlice from './HomeFreePreviewSlice';
-import HomeMechanismPanels from './HomeMechanismPanels';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
-import HomeTenAssetTiles from './HomeTenAssetTiles';
+import HomePremiumValueBridge from './HomePremiumValueBridge';
+import HomeProductMap from './HomeProductMap';
+import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
@@ -169,69 +170,62 @@ export default function HomePanel() {
 
       <div className={styles.lowerWrap} data-testid="m55-home-lower">
 
-        {/* §3 — Outcome bridge */}
+        {/* §2 — Product map (below hero, before free detail) */}
         <section
-          className={styles.lowerSection}
-          data-testid="m55-home-outcome-bridge"
-          aria-labelledby="m55-home-outcome-bridge-title"
+          className={`${styles.lowerSection} ${styles.productMapStage}`}
+          data-testid="m55-home-product-map"
+          aria-labelledby="m55-home-product-map-title"
         >
-          <p className={styles.sectionEyebrow}>{homeCopy.outcomeBridgeEyebrowJa}</p>
-          <h2 id="m55-home-outcome-bridge-title" className={styles.sectionHeadline}>
-            {homeCopy.outcomeBridgeHeadlineJa}
-          </h2>
-          <ul className={styles.outcomeGrid}>
-            {homeCopy.outcomeBridgeItemsJa.map((item) => (
-              <li key={item.titleJa} className={styles.card}>
-                <p className={styles.cardTitle}>{item.titleJa}</p>
-                <p className={styles.cardBody}>{item.bodyJa}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* §4 — Mechanism */}
-        <section
-          className={styles.lowerSection}
-          data-testid="m55-home-mechanism"
-          aria-labelledby="m55-home-mechanism-title"
-        >
-          <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
-          <h2 id="m55-home-mechanism-title" className={styles.sectionHeadline}>
-            {homeCopy.mechanismHeadlineJa}
-          </h2>
-          <p className={styles.sectionLead}>{homeCopy.mechanismBodyJa}</p>
-          <HomeMechanismPanels
-            copy={{
-              source1TitleJa: homeCopy.mechanismSource1TitleJa,
-              source1BodyJa: homeCopy.mechanismSource1BodyJa,
-              source2TitleJa: homeCopy.mechanismSource2TitleJa,
-              source2BodyJa: homeCopy.mechanismSource2BodyJa,
-              outputTitleJa: homeCopy.mechanismOutputTitleJa,
-              outputBodyJa: homeCopy.mechanismOutputBodyJa,
+          <HomeProductMap
+            eyebrowJa={homeCopy.productMapEyebrowJa}
+            headlineJa={homeCopy.productMapHeadlineJa}
+            selfTitleJa={homeCopy.productMapSelfTitleJa}
+            selfBodyJa={homeCopy.productMapSelfBodyJa}
+            selfStatusJa={homeCopy.productMapSelfStatusJa}
+            selfCtaJa={homeCopy.productMapSelfCtaJa}
+            pairTitleJa={homeCopy.productMapPairTitleJa}
+            pairBodyJa={homeCopy.productMapPairBodyJa}
+            pairStatusJa={homeCopy.productMapPairStatusJa}
+            pairCtaJa={homeCopy.productMapPairCtaJa}
+            pairPreparingTitleJa={homeCopy.productMapPairPreparingTitleJa}
+            pairPreparingBodyJa={homeCopy.productMapPairPreparingBodyJa}
+            pairPreparingStatusJa={homeCopy.productMapPairPreparingStatusJa}
+            premiumTitleJa={homeCopy.productMapPremiumTitleJa}
+            premiumBodyJa={homeCopy.productMapPremiumBodyJa}
+            premiumLinkJa={homeCopy.productMapPremiumLinkJa}
+            freeCta={{
+              hasProfile,
+              isLoaded,
+              label: homeCopy.productMapSelfCtaJa,
+              onOpenIntake: openIntake,
             }}
           />
-          <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
-            {homeCopy.mechanismCtaJa}
-          </Link>
         </section>
 
-        {/* §5 — Free preview */}
+        {/* §3 — Free (outcome + preview merged) */}
         <section
-          className={`${styles.lowerSection} ${styles.splitSection}`}
+          className={`${styles.lowerSection} ${styles.freeStage}`}
           data-testid="m55-home-free-preview"
           aria-labelledby="m55-home-free-preview-title"
         >
-          <div className={styles.splitCopy}>
-            <p className={styles.sectionEyebrow}>{homeCopy.freeResultEyebrowJa}</p>
-            <h2 id="m55-home-free-preview-title" className={styles.sectionHeadline}>
-              {homeCopy.freeResultHeadlineJa}
-            </h2>
-            <p className={styles.sectionLead}>{homeCopy.freeResultBodyJa}</p>
-          </div>
-          <div className={styles.splitPreview}>
+          <p className={styles.sectionEyebrow}>{homeCopy.outcomeBridgeEyebrowJa}</p>
+          <h2 id="m55-home-free-preview-title" className={styles.sectionHeadline}>
+            {homeCopy.freeResultHeadlineJa}
+          </h2>
+          <ul className={styles.outcomeEditorial}>
+            {homeCopy.outcomeBridgeItemsJa.map((item, index) => (
+              <li key={item.titleJa} className={styles.outcomeEditorialItem}>
+                <p className={styles.outcomeIndex}>{String(index + 1).padStart(2, '0')}</p>
+                <p className={styles.outcomeEditorialTitle}>{item.titleJa}</p>
+                <p className={styles.outcomeEditorialBody}>{item.bodyJa}</p>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.sectionLead}>{homeCopy.freeResultBodyJa}</p>
+          <div className={styles.integratedPreviewBlock}>
             <HomeFreePreviewSlice previewLabelJa={homeCopy.freeResultPreviewLabelJa} />
           </div>
-          <div className={styles.splitActions}>
+          <div className={styles.integratedActions}>
             <FreeCtaButton
               hasProfile={hasProfile}
               isLoaded={isLoaded}
@@ -244,112 +238,103 @@ export default function HomePanel() {
             />
             <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
           </div>
+          <HomeTenAssetTeaser
+            eyebrowJa={homeCopy.tenAssetTeaserEyebrowJa}
+            headlineJa={homeCopy.tenAssetTeaserHeadlineJa}
+            bodyJa={homeCopy.tenAssetTeaserBodyJa}
+            linkJa={homeCopy.tenAssetTeaserLinkJa}
+          />
         </section>
 
-        {/* §6 — Premium preview */}
+        {/* §4 — Mechanism band */}
         <section
-          className={`${styles.lowerSection} ${styles.splitSection} ${styles.splitSectionReverse}`}
+          className={`${styles.lowerSection} ${styles.mechanismStage}`}
+          data-testid="m55-home-mechanism"
+          aria-labelledby="m55-home-mechanism-title"
+        >
+          <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
+          <h2 id="m55-home-mechanism-title" className={styles.sectionHeadline}>
+            {homeCopy.mechanismHeadlineJa}
+          </h2>
+          <p className={styles.sectionBody}>{homeCopy.mechanismBodyJa}</p>
+          <div className={styles.mechanismDiagram} aria-hidden="true">
+            <div className={styles.mechanismDiagramSources}>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource1Ja}</p>
+              <span className={styles.mechanismDiagramPlus}>+</span>
+              <p className={styles.mechanismDiagramLabel}>{homeCopy.mechanismDiagramSource2Ja}</p>
+            </div>
+            <div className={styles.mechanismDiagramFlow} />
+            <p className={styles.mechanismDiagramOutput}>{homeCopy.mechanismDiagramOutputJa}</p>
+          </div>
+          <p className={styles.sectionSupporting}>{homeCopy.mechanismEthicsJa}</p>
+          <nav className={styles.mechanismLinks} aria-label="M55の読み方リンク">
+            <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
+              {homeCopy.mechanismHowLinkJa}
+            </Link>
+          </nav>
+        </section>
+
+        {/* §5 — Premium (preview + plan merged) */}
+        <section
+          className={`${styles.lowerSection} ${styles.premiumDarkStage}`}
           data-testid="m55-home-premium-preview"
           aria-labelledby="m55-home-premium-preview-title"
+          id="m55-home-premium-preview"
         >
-          <div className={styles.splitPreview}>
+          <HomePremiumValueBridge
+            eyebrowJa={homeCopy.premiumValueBridgeEyebrowJa}
+            freeHeadingJa={homeCopy.premiumValueBridgeFreeHeadingJa}
+            freeItemsJa={homeCopy.premiumValueBridgeFreeItemsJa}
+            premiumHeadingJa={homeCopy.premiumValueBridgePremiumHeadingJa}
+            premiumItemsJa={homeCopy.premiumValueBridgePremiumItemsJa}
+          />
+          <p className={styles.sectionEyebrow}>{homeCopy.premiumEyebrowJa}</p>
+          <h2 id="m55-home-premium-preview-title" className={styles.sectionHeadline}>
+            {homeCopy.premiumHeadlineJa}
+          </h2>
+          <p className={styles.sectionLead}>{homeCopy.premiumBodyJa}</p>
+          <div className={styles.integratedPreviewBlock}>
             <HomePremiumPreviewSlice previewLabelJa={homeCopy.premiumPreviewLabelJa} />
           </div>
-          <div className={styles.splitCopy}>
-            <p className={styles.sectionEyebrow}>{homeCopy.premiumEyebrowJa}</p>
-            <h2 id="m55-home-premium-preview-title" className={styles.sectionHeadline}>
-              {homeCopy.premiumHeadlineJa}
-            </h2>
-            <p className={styles.sectionLead}>{homeCopy.premiumBodyJa}</p>
-            <Link
-              href={ctaCopy.viewSavedPlansHref}
-              className={styles.ctaPaidSolid}
-              data-testid="m55-home-premium-preview-cta"
-            >
-              {homeCopy.premiumCtaJa}
-            </Link>
+          <div
+            className={styles.planComparisonSurface}
+            data-testid="m55-home-plan-comparison"
+            aria-labelledby="m55-home-plan-comparison-intro"
+          >
+            <p id="m55-home-plan-comparison-intro" className={styles.planComparisonLead}>
+              {homeCopy.planComparisonIntroJa}
+            </p>
+            <div className={styles.planComparisonRow}>
+              <article className={styles.planComparisonCol} data-testid="m55-home-plan-light">
+                <p className={styles.planComparisonName}>{homeCopy.planLightNameJa}</p>
+                <p className={styles.planComparisonPrice}>{homeCopy.planLightPriceJa}</p>
+                <p className={styles.planComparisonSpec}>{homeCopy.planLightSpecJa}</p>
+              </article>
+              <div className={styles.planComparisonDivider} aria-hidden="true" />
+              <article className={styles.planComparisonCol} data-testid="m55-home-plan-full">
+                <p className={styles.planComparisonName}>{homeCopy.planFullNameJa}</p>
+                <p className={styles.planComparisonPrice}>{homeCopy.planFullPriceJa}</p>
+                <p className={styles.planComparisonSpec}>{homeCopy.planFullSpecJa}</p>
+              </article>
+            </div>
+            <ul className={styles.planFactsList}>
+              {homeCopy.planCommonFactsJa.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
           </div>
-        </section>
-
-        {/* §7 — ten assets */}
-        <section
-          className={styles.lowerSection}
-          data-testid="m55-home-ten-assets"
-          aria-labelledby="m55-home-ten-assets-title"
-        >
-          <p className={styles.sectionEyebrow}>{homeCopy.tenAssetsEyebrowJa}</p>
-          <h2 id="m55-home-ten-assets-title" className={styles.sectionHeadline}>
-            {homeCopy.tenAssetsHeadlineJa}
-          </h2>
-          <p className={styles.sectionLead}>{homeCopy.tenAssetsBodyJa}</p>
-          <HomeTenAssetTiles />
-          <Link href="/ten-views" className={styles.ctaOutline} data-testid="m55-home-ten-assets-cta">
-            {homeCopy.tenAssetsCtaJa}
-          </Link>
-        </section>
-
-        {/* §8 — Plans */}
-        <section
-          className={`${styles.lowerSection} ${styles.planBand}`}
-          data-testid="m55-home-plan-comparison"
-          aria-labelledby="m55-home-plan-comparison-title"
-        >
-          <h2 id="m55-home-plan-comparison-title" className={styles.sectionHeadline}>
-            {homeCopy.planComparisonHeadlineJa}
-          </h2>
-          <p className={styles.sectionLead}>{homeCopy.planComparisonIntroJa}</p>
-          <div className={styles.planGrid}>
-            <article className={styles.planCard} data-testid="m55-home-plan-light">
-              <div className={styles.planNamePriceGroup}>
-                <p className={styles.planName}>{homeCopy.planLightNameJa}</p>
-                <p className={styles.planPrice}>{homeCopy.planLightPriceJa}</p>
-              </div>
-              <p className={styles.planSpec}>{homeCopy.planLightSpecJa}</p>
-            </article>
-            <article className={styles.planCard} data-testid="m55-home-plan-full">
-              <div className={styles.planNamePriceGroup}>
-                <p className={styles.planName}>{homeCopy.planFullNameJa}</p>
-                <p className={styles.planPrice}>{homeCopy.planFullPriceJa}</p>
-              </div>
-              <p className={styles.planSpec}>{homeCopy.planFullSpecJa}</p>
-            </article>
-          </div>
-          <ul className={styles.planFactsList}>
-            {homeCopy.planCommonFactsJa.map((fact) => (
-              <li key={fact}>{fact}</li>
-            ))}
-          </ul>
           <Link
             href={ctaCopy.viewSavedPlansHref}
-            className={styles.ctaPaid}
-            data-testid="m55-home-plan-comparison-cta"
+            className={styles.ctaPaidSolid}
+            data-testid="m55-home-premium-preview-cta"
           >
             {homeCopy.planComparisonCtaJa}
           </Link>
         </section>
 
-        {/* §9 — Existing users */}
+        {/* §6 — Final CTA */}
         <section
-          className={`${styles.lowerSection} ${styles.existingUserBand}`}
-          data-testid="m55-home-existing-user"
-          aria-labelledby="m55-home-existing-user-title"
-        >
-          <h2 id="m55-home-existing-user-title" className={styles.existingUserTitle}>
-            {homeCopy.existingUserHeadlineJa}
-          </h2>
-          <nav className={styles.existingUserLinks} aria-label="既存ユーザー向けリンク">
-            <Link href="/dtr" className={styles.existingUserLink} data-testid="m55-home-existing-report">
-              {homeCopy.existingUserReportLinkJa}
-            </Link>
-            <Link href="/my" className={styles.existingUserLink} data-testid="m55-home-existing-my">
-              {homeCopy.existingUserMyLinkJa}
-            </Link>
-          </nav>
-        </section>
-
-        {/* §10 — Final CTA */}
-        <section
-          className={styles.lowerSection}
+          className={`${styles.lowerSection} ${styles.finalLightStage}`}
           data-testid="m55-home-final-cta"
           aria-labelledby="m55-home-final-cta-title"
         >
@@ -370,7 +355,7 @@ export default function HomePanel() {
             />
             <Link
               href={ctaCopy.viewSavedPlansHref}
-              className={styles.ctaPaid}
+              className={styles.finalCtaSecondaryLink}
               data-testid="m55-home-final-cta-plans"
             >
               {homeCopy.finalCtaSecondaryJa}

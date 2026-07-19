@@ -319,18 +319,48 @@ function validateHomeRegressionTestIds() {
   }
   const lowerSectionTestIds = [
     'm55-home-lower',
-    'm55-home-outcome-bridge',
-    'm55-home-mechanism',
+    'm55-home-product-map',
     'm55-home-free-preview',
+    'm55-home-mechanism',
     'm55-home-premium-preview',
-    'm55-home-ten-assets',
+    'm55-home-premium-value-bridge',
     'm55-home-plan-comparison',
-    'm55-home-existing-user',
     'm55-home-final-cta',
   ];
   for (const id of lowerSectionTestIds) {
+    if (id === 'm55-home-premium-value-bridge') continue;
     if (!t.includes(`data-testid="${id}"`)) {
       add(rel(panel), `REGRESSION GUARD: HomePanel must expose data-testid="${id}" (lower HOME IA)`);
+    }
+  }
+  const valueBridge = path.join(ROOT, 'components', 'home', 'HomePremiumValueBridge.tsx');
+  if (!exists(valueBridge)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel premium section must mount HomePremiumValueBridge');
+  } else {
+    const valueBridgeText = readText(valueBridge);
+    if (!valueBridgeText.includes('data-testid="m55-home-premium-value-bridge"')) {
+      add(rel(valueBridge), 'REGRESSION GUARD: HomePremiumValueBridge must expose data-testid="m55-home-premium-value-bridge"');
+    }
+    if (!t.includes('HomePremiumValueBridge')) {
+      add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomePremiumValueBridge inside premium section');
+    }
+  }
+  const productMap = path.join(ROOT, 'components', 'home', 'HomeProductMap.tsx');
+  if (!exists(productMap)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomeProductMap');
+  } else if (!t.includes('HomeProductMap')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomeProductMap below hero');
+  }
+  const teaser = path.join(ROOT, 'components', 'home', 'HomeTenAssetTeaser.tsx');
+  if (!exists(teaser)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel free section must mount HomeTenAssetTeaser');
+  } else {
+    const teaserText = readText(teaser);
+    if (!teaserText.includes('data-testid="m55-home-ten-asset-teaser"')) {
+      add(rel(teaser), 'REGRESSION GUARD: HomeTenAssetTeaser must expose data-testid="m55-home-ten-asset-teaser"');
+    }
+    if (!t.includes('HomeTenAssetTeaser')) {
+      add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomeTenAssetTeaser inside free section');
     }
   }
   for (const removed of [
@@ -338,6 +368,10 @@ function validateHomeRegressionTestIds() {
     'm55-home-understanding',
     'm55-home-demo-five-element',
     'm55-home-report-shell',
+    'm55-home-outcome-bridge',
+    'm55-home-ten-assets',
+    'm55-home-existing-user',
+    'm55-home-ten-asset-grid',
   ]) {
     if (t.includes(`data-testid="${removed}"`)) {
       add(rel(panel), `REGRESSION GUARD: HomePanel must not expose removed data-testid="${removed}"`);

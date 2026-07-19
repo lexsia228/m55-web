@@ -47,7 +47,7 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
     const aboutBlock = headerSource.slice(aboutBlockStart, aboutBlockEnd);
     assert.match(aboutBlock, /href:\s*'\/how-m55-works',\s*label:\s*'M55の仕組み'/);
     assert.match(aboutBlock, /href:\s*'\/ten-views',\s*label:\s*PUBLIC_NAV_TEN_VIEWS_LABEL_JA/);
-    assert.match(aboutBlock, /href:\s*'\/support',\s*label:\s*'サポート'/);
+    assert.doesNotMatch(aboutBlock, /href:\s*'\/support'/);
   });
 
   it('includes M55について and アカウント dropdown triggers', () => {
@@ -134,7 +134,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
     const navBlockStart = headerSource.indexOf('const MOBILE_MENU_PUBLIC');
     const navBlockEnd = headerSource.indexOf('];', navBlockStart);
     const navBlock = headerSource.slice(navBlockStart, navBlockEnd);
-    const order = ['/dtr/lp', '/how-m55-works', '/ten-views', '/support'];
+    const order = ['/dtr/lp', '/how-m55-works', '/ten-views'];
     const indices = order.map((href) => navBlock.indexOf(`href: '${href}'`));
     for (const [i, href] of order.entries()) {
       assert.notEqual(indices[i], -1, `mobile menu missing item: ${href}`);
@@ -145,7 +145,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
     assert.match(navBlock, /label:\s*'プレミアムレポート'/);
     assert.match(navBlock, /label:\s*'M55の仕組み'/);
     assert.match(navBlock, /label:\s*PUBLIC_NAV_TEN_VIEWS_LABEL_JA/);
-    assert.match(navBlock, /label:\s*'サポート'/);
+    assert.doesNotMatch(navBlock, /href:\s*'\/support'/);
   });
 
   it('includes signed-in マイレポート and マイページ in the mobile menu', () => {

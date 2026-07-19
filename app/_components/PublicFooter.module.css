@@ -1,15 +1,14 @@
 .footer {
   flex-shrink: 0;
-  background: #f9f7f4;
-  border-top: 1px solid rgba(177, 156, 255, 0.14);
-  padding-top: 16px;
-  /* Page-end breathing room only — scroll-to-top FAB is fixed and positioned separately. */
-  padding-bottom: calc(clamp(20px, 4vw, 28px) + env(safe-area-inset-bottom, 0px));
-  margin-top: 10px;
-  font-size: 12px;
-  color: rgba(60, 60, 60, 0.7);
+  background: #f3ede2;
+  border-top: 1px solid rgba(11, 26, 43, 0.08);
+  padding-top: 10px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(60, 60, 60, 0.62);
   text-align: center;
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .row {
@@ -19,24 +18,34 @@
   box-sizing: border-box;
 }
 
-.links {
-  margin: 0;
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkRow {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 4px 0;
-}
-
-.linkGroup {
-  display: inline-flex;
-  align-items: center;
+  gap: 6px 12px;
 }
 
 .link {
-  color: rgba(60, 60, 60, 0.8);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 2px;
+  color: rgba(11, 26, 43, 0.82);
   text-decoration: none;
   font-weight: 600;
+  font-size: 11px;
+}
+
+.link:focus-visible {
+  outline: 2px solid #c46e5a;
+  outline-offset: 2px;
 }
 
 .link:hover {
@@ -44,17 +53,11 @@
   color: #6b5fa8;
 }
 
-.sep {
-  color: rgba(60, 60, 60, 0.5);
-  padding: 0 6px;
-  user-select: none;
-}
-
 .copy {
   display: block;
-  margin-top: 10px;
-  font-size: 12px;
-  color: rgba(60, 60, 60, 0.6);
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(60, 60, 60, 0.52);
   letter-spacing: 0.03em;
 }
 
@@ -63,18 +66,34 @@
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: end;
-    gap: 12px 24px;
+    gap: 8px 20px;
     text-align: left;
   }
 
-  .links {
+  .groups {
+    gap: 6px;
+  }
+
+  .linkRow {
     justify-content: flex-start;
-    gap: 0;
+    flex-wrap: nowrap;
+    gap: 0 14px;
+  }
+
+  .groups nav:last-child .linkRow {
+    flex-wrap: wrap;
+    row-gap: 4px;
   }
 
   .copy {
     margin-top: 0;
     text-align: right;
     justify-self: end;
+  }
+}
+
+@media (max-width: 767px) {
+  .linkRow {
+    gap: 4px 10px;
   }
 }
