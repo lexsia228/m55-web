@@ -1191,10 +1191,11 @@
 
 .previewFramePremium {
   background: #fffaf1;
-  border: 1px solid rgba(11, 26, 43, 0.14);
+  border: 1px solid rgba(11, 26, 43, 0.22);
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
   box-sizing: border-box;
+  box-shadow: 0 8px 24px rgba(11, 26, 43, 0.06);
 }
 
 .freePreviewInner {
@@ -1240,6 +1241,7 @@
 
 .premiumPreviewInset {
   background: #0d0b15;
+  border: 1px solid rgba(241, 232, 214, 0.16);
   border-radius: 8px;
   padding: 16px;
   color: #f1e8d6;
@@ -1247,10 +1249,10 @@
 
 .premiumPreviewProduct {
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: rgba(241, 232, 214, 0.88);
+  color: rgba(241, 232, 214, 0.96);
 }
 
 .premiumChapterRow {
@@ -1262,33 +1264,161 @@
 
 .premiumChapterTab {
   font-size: 11px;
-  padding: 4px 8px;
+  padding: 5px 9px;
   border-radius: 4px;
-  border: 1px solid rgba(241, 232, 214, 0.18);
-  color: rgba(241, 232, 214, 0.55);
+  border: 1px solid rgba(241, 232, 214, 0.24);
+  color: rgba(241, 232, 214, 0.72);
+  line-height: 1.35;
 }
 
 .premiumChapterTabActive {
-  border-color: rgba(196, 110, 90, 0.55);
-  color: rgba(241, 232, 214, 0.92);
+  border-color: rgba(196, 110, 90, 0.72);
+  background: rgba(196, 110, 90, 0.16);
+  color: rgba(241, 232, 214, 0.98);
 }
 
 .premiumChapterHeading {
   margin: 0 0 10px;
   font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 600;
   color: #f1e8d6;
+}
+
+.premiumChapterBodyClip {
+  position: relative;
+  max-height: 5.25rem;
+  overflow: hidden;
+}
+
+.premiumChapterBodyClip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.75rem;
+  background: linear-gradient(180deg, rgba(13, 11, 21, 0) 0%, rgba(13, 11, 21, 0.92) 100%);
+  pointer-events: none;
 }
 
 .premiumChapterBody {
   margin: 0;
   font-size: 13px;
   line-height: 1.75;
-  color: rgba(241, 232, 214, 0.82);
+  color: rgba(241, 232, 214, 0.9);
 }
 
-/* ── §7 ten asset compact tiles ──────────────────────────────────────── */
+/* ── Free section — 10 asset compact teaser ───────────────────────────── */
+
+.tenAssetTeaserBand {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(11, 26, 43, 0.1);
+}
+
+.tenAssetTeaserEyebrow {
+  margin: 0 0 6px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: #496f6d;
+}
+
+.tenAssetTeaserHeadline {
+  margin: 0 0 10px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  line-height: 1.45;
+  font-weight: 600;
+  color: #0b1a2b;
+  max-width: 36ch;
+}
+
+.tenAssetTeaserBody {
+  margin: 0 0 16px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(11, 26, 43, 0.68);
+  max-width: 42ch;
+  white-space: pre-line;
+}
+
+.tenAssetTeaserGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.tenAssetTeaserCell {
+  min-height: 52px;
+  padding: 8px 10px;
+  background: rgba(255, 250, 241, 0.72);
+  border: 1px solid rgba(11, 26, 43, 0.12);
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tenAssetTeaserPersona,
+.tenAssetTeaserQuality {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #0b1a2b;
+  word-break: break-word;
+}
+
+.tenAssetTeaserPersona {
+  font-weight: 600;
+}
+
+.tenAssetTeaserQuality {
+  margin-top: 2px;
+  color: rgba(11, 26, 43, 0.62);
+}
+
+@media (min-width: 768px) {
+  .tenAssetTeaserGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tenAssetTeaserCell {
+    min-height: 56px;
+  }
+
+  .tenAssetTeaserPersona,
+  .tenAssetTeaserQuality {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tenAssetTeaserBand {
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+
+  .tenAssetTeaserGrid {
+    gap: 6px;
+  }
+
+  .tenAssetTeaserCell {
+    min-height: 48px;
+    padding: 7px 8px;
+  }
+}
+
+/* ── §7 ten asset compact tiles (legacy standalone grid) ──────────────── */
 
 .tenAssetGrid {
   display: grid;

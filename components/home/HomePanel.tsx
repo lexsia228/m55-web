@@ -15,6 +15,7 @@ import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeFreePreviewSlice from './HomeFreePreviewSlice';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
+import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
@@ -202,6 +203,12 @@ export default function HomePanel() {
             />
             <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
           </div>
+          <HomeTenAssetTeaser
+            eyebrowJa={homeCopy.tenAssetTeaserEyebrowJa}
+            headlineJa={homeCopy.tenAssetTeaserHeadlineJa}
+            bodyJa={homeCopy.tenAssetTeaserBodyJa}
+            linkJa={homeCopy.tenAssetTeaserLinkJa}
+          />
         </section>
 
         {/* §4 — Mechanism band */}
@@ -218,9 +225,6 @@ export default function HomePanel() {
           <nav className={styles.mechanismLinks} aria-label="M55の読み方リンク">
             <Link href="/how-m55-works" className={styles.textLink} data-testid="m55-home-mechanism-link">
               {homeCopy.mechanismHowLinkJa}
-            </Link>
-            <Link href="/ten-views" className={styles.textLink} data-testid="m55-home-ten-views-link">
-              {homeCopy.mechanismTenViewsLinkJa}
             </Link>
           </nav>
         </section>

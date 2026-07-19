@@ -128,6 +128,8 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
       'm55-home-existing-user',
       'HomeMechanismPanels',
       'HomeTenAssetTiles',
+      'm55-home-ten-asset-grid',
+      'm55-home-ten-views-link',
       'homeReadNextSection',
       'homeMethodLayer',
       'homePaidPlan',
@@ -176,14 +178,24 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');
     assert.equal(home.mechanismHowLinkJa, 'M55の仕組みを詳しく見る');
-    assert.equal(home.mechanismTenViewsLinkJa, '10の資質を見る');
+    assert.equal(home.tenAssetTeaserEyebrowJa, '無料結果の入口');
+    assert.equal(home.tenAssetTeaserHeadlineJa, '10の資質から、自分に表れやすい動きを見る。');
+    assert.equal(home.tenAssetTeaserLinkJa, '10の資質を詳しく見る');
   });
 
-  it('implements short mechanism band with text links and no accordion/panels', () => {
+  it('embeds compact 10 asset teaser inside the free section using canonical catalog', () => {
+    const teaserSource = readFileSync(join(repoRoot, 'components/home/HomeTenAssetTeaser.tsx'), 'utf8');
+    assert.match(homePanelSource, /HomeTenAssetTeaser/);
+    assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser"/);
+    assert.match(teaserSource, /TEN_ASSET_PUBLIC_CATALOG/);
+    assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser-link"/);
+    assert.doesNotMatch(homePanelSource, /HomeTenAssetTiles/);
+  });
+
+  it('implements short mechanism band with how link only and no accordion/panels', () => {
     assert.doesNotMatch(homePanelSource, /HomeMechanismPanels/);
     assert.match(homePanelSource, /data-testid="m55-home-mechanism-link"/);
-    assert.match(homePanelSource, /data-testid="m55-home-ten-views-link"/);
-    assert.match(homePanelSource, /href="\/ten-views"/);
+    assert.doesNotMatch(homePanelSource, /data-testid="m55-home-ten-views-link"/);
     assert.doesNotMatch(lowerSource, /<details/);
   });
 
@@ -193,6 +205,14 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.equal(homePanelSource.includes('data-testid="m55-home-plan-comparison-cta"'), false);
     const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
     assert.equal(paidSolidCount, 1);
+  });
+
+  it('improves premium preview contrast with readable outer label and clipped body', () => {
+    const premiumSlice = readFileSync(join(repoRoot, 'components/home/HomePremiumPreviewSlice.tsx'), 'utf8');
+    assert.match(premiumSlice, /previewMetaLabel\}/);
+    assert.doesNotMatch(premiumSlice, /previewMetaLabelDark/);
+    assert.match(premiumSlice, /premiumChapterBodyClip/);
+    assert.match(homePanelCss, /\.previewFramePremium\s*\{[^}]*border:\s*1px solid rgba\(11,\s*26,\s*43,\s*0\.22\)/);
   });
 
   it('places the poster-to-lower gap in normal flow with no negative overlap', () => {

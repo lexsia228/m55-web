@@ -17,7 +17,6 @@ const DESKTOP_PRIMARY_NAV: NavItem[] = [
 const ABOUT_DROPDOWN_NAV: NavItem[] = [
   { href: '/how-m55-works', label: 'M55の仕組み' },
   { href: '/ten-views', label: PUBLIC_NAV_TEN_VIEWS_LABEL_JA },
-  { href: '/support', label: 'サポート' },
 ];
 
 const ACCOUNT_DROPDOWN_NAV: NavItem[] = [
@@ -29,7 +28,6 @@ const MOBILE_MENU_PUBLIC: NavItem[] = [
   { href: '/dtr/lp', label: 'プレミアムレポート' },
   { href: '/how-m55-works', label: 'M55の仕組み' },
   { href: '/ten-views', label: PUBLIC_NAV_TEN_VIEWS_LABEL_JA },
-  { href: '/support', label: 'サポート' },
 ];
 
 const MOBILE_MENU_SIGNED_IN: NavItem[] = [

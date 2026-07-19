@@ -10,10 +10,10 @@ export default function HomePremiumPreviewSlice({ previewLabelJa }: Props) {
 
   return (
     <div className={styles.previewFramePremium} data-testid="m55-home-premium-preview-slice">
-      <p className={styles.previewMetaLabelDark}>{previewLabelJa}</p>
+      <p className={styles.previewMetaLabel}>{previewLabelJa}</p>
       <div className={styles.premiumPreviewInset}>
         <p className={styles.premiumPreviewProduct}>{fixture.productTitleJa}</p>
-        <div className={styles.premiumChapterRow} aria-hidden>
+        <div className={styles.premiumChapterRow} aria-label="章ラベル">
           {fixture.chapters.map((ch) => (
             <span
               key={ch.roman}
@@ -28,7 +28,9 @@ export default function HomePremiumPreviewSlice({ previewLabelJa }: Props) {
         <h3 className={styles.premiumChapterHeading}>
           {fixture.activeChapterRoman} {fixture.activeChapterTitleJa}
         </h3>
-        <p className={styles.premiumChapterBody}>{fixture.chapterBodyJa}</p>
+        <div className={styles.premiumChapterBodyClip}>
+          <p className={styles.premiumChapterBody}>{fixture.chapterBodyJa}</p>
+        </div>
       </div>
     </div>
   );

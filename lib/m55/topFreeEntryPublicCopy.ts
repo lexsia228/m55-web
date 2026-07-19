@@ -100,7 +100,6 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '生年月日から見える基礎傾向と、いま選んだ答え。二つを重ねて、いまの自分に出やすい流れを読み解きます。',
     mechanismEthicsJa: '一つの情報だけで、人を決めない。',
     mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
-    mechanismTenViewsLinkJa: '10の資質を見る',
 
     /* §3 continued — FREE result (merged with outcome bridge) */
     freeResultHeadlineJa: '無料で、自分に表れやすい流れを知る。',
@@ -109,6 +108,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     freeResultPreviewLabelJa: '無料結果の表示例',
     freeResultCtaJa: '無料で見てみる',
     freeResultSupportJa: 'ログイン不要',
+
+    tenAssetTeaserEyebrowJa: '無料結果の入口',
+    tenAssetTeaserHeadlineJa: '10の資質から、自分に表れやすい動きを見る。',
+    tenAssetTeaserBodyJa:
+      '無料結果では、10の資質のうち、\n自分の動きを見る入口になる資質が表示されます。\n役職や順位を示すものではありません。',
+    tenAssetTeaserLinkJa: '10の資質を詳しく見る',
 
     /* §5 — Premium (preview + plan merged) */
     premiumEyebrowJa: 'M55 プレミアムレポート',
