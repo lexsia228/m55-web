@@ -28,6 +28,26 @@ Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree`:
 
 **Enforcement:** `PENDING_SELF_FUNNEL_IMPLEMENTATION` — do not assert these are fixed until the Self funnel implementation lane merges.
 
+## Accepted V2 decisions — NOT_YET_IMPLEMENTED
+
+These are accepted target decisions for the next Self Funnel implementation lane. They do
+**not** authorize source implementation in the current Build Week operational interrupt.
+
+- Five-question V2 is selected; the current V1 answers remain legacy, read-only evidence.
+- The latest-result boundary is local-only: no cross-device persistence guarantee is made; it
+  implies no account archive, server persistence, or result history.
+- The Self Funnel adds no new Pair link.
+- The same answers with a different DOB must visibly change at least one major result section.
+- Three high-fidelity visual directions exist; Human visual-direction, result-length, and
+  ten-asset presentation selection is pending.
+- No visual direction is selected. Any stated Direction 1 preference is a recommendation only,
+  never a Human selection.
+- HOME-level quality means commercial, editorial, accessible, and controlled downstream quality;
+  it is not satisfied by palette reuse alone.
+
+Decision status and visual artifact references are retained in `M55_DECISION_LOG.md`; this
+contract intentionally does not duplicate their visual prose.
+
 ## Free result center (target)
 
 **含める:**

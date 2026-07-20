@@ -7,6 +7,8 @@
         "guard:clerk": "node .github/scripts/guard_clerk_await.mjs",
         "dev": "node scripts/audit_gate.mjs --fast && next dev",
         "audit": "node scripts/audit_gate.mjs",
+        "audit:m55-handoff": "node scripts/m55-handoff/audit.mjs",
+        "demo:m55-control-plane": "node scripts/m55-handoff/demo.mjs",
         "verify:m55-ssot": "node scripts/verify-m55-commercial-ssot.mjs",
         "build": "next build",
         "build:strict": "node scripts/audit_gate.mjs && next build",

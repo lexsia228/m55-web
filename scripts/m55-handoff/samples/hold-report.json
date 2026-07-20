@@ -1,0 +1,9 @@
+{
+  "checks": [{ "details": {}, "id": "worktree:unregistered", "level": "FAIL", "message": "Live worktree is absent from the registry." }],
+  "generatedAt": null,
+  "reasonCodes": ["WORKTREE_UNREGISTERED"],
+  "repository": { "branch": "feature/example", "clean": true, "gitOperation": "none", "head": "abcdef0123456789", "originMain": "0123456789abcdef", "remote": "https://[REDACTED]@example.invalid/m55.git", "root": "/synthetic/m55", "upstream": "origin/feature/example", "worktrees": [] },
+  "schemaVersion": "1.0.0",
+  "status": "HOLD",
+  "toolVersion": "1.0.0"
+}

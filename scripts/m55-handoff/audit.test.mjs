@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { exitCodeForStatus, htmlEscape, parseWorktrees, redactRemote, safeRead, stableJson } from './engine.mjs';
+import { AUTHORITY_MANIFEST, inspectM55 } from './m55-adapter.mjs';
+import { inspectNebula } from './examples/nebula-adapter.mjs';
+
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const ACTION = 'Human selection of Self Funnel visual direction, result length, and ten-asset presentation. No source implementation is authorized before that selection.';
+
+function fixture(mutator = () => {}) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-handoff-'));
+  const content = {
+    'AGENTS.md': 'agent', 'docs/ssot/README.md': 'readme', 'docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md': 'ssot', 'docs/ssot/M55_DECISION_LOG.md': 'log', 'docs/ssot/M55_ROADMAP.md': '1. Commercial Funnel SSOT',
+    'docs/ssot/M55_CURRENT_STATE.md': `CLOSED_GREEN\n| **postMergeNextSingleAction** | ${ACTION} |`,
+    'docs/ssot/M55_WORKTREE_REGISTRY.md': 'Documented post-merge transition\n### WT-001 — fixture\n| Field | Value |\n|---|---|\n| path | `/fixture` |\n| branch | `main` |\n| lifecycle | **DO_NOT_USE** |\n---',
+    'docs/ssot/M55_SELF_FUNNEL_CONTRACT.md': '## Target flow\n## Current runtime (NOT target)\nNOT_YET_IMPLEMENTED\nno cross-device persistence guarantee\nno new Pair link',
+    'lib/m55/contracts/m55CommercialFunnelContract.ts': "M55_CURRENT_RUNTIME_STATE\npreResultThemeSelection: true\nM55_TARGET_COMMERCIAL_CONTRACT\npreResultThemeSelection: false\nM55_DEFERRED_RUNTIME_ASSERTIONS\nACTIVE_LANE: '個人無料→個人Premiumファネルの一括実装'",
+  };
+  for (const rel of AUTHORITY_MANIFEST) { const file = path.join(root, rel); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content[rel]); }
+  mutator(root);
+  return root;
+}
+function identity(root, extra = {}) { return { root, branch: 'main', head: 'a', originMain: 'a', upstream: 'origin/main', remote: '', clean: true, dirtyFiles: 0, gitOperation: 'none', worktrees: [{ path: '/fixture', branch: 'main', head: 'a', detached: false }], ...extra }; }
+function inspect(root, extra) { try { return inspectM55(root, identity(root, extra)); } finally { fs.rmSync(root, { recursive: true, force: true }); } }
+function replace(root, rel, from, to) { const file = path.join(root, rel); fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace(from, to)); }
+function gitFixture() {
+  const root = fixture((dir) => replace(dir, 'docs/ssot/M55_WORKTREE_REGISTRY.md', '/fixture', fs.realpathSync(dir)));
+  execFileSync('git', ['init', '--quiet', '--initial-branch=main'], { cwd: root });
+  execFileSync('git', ['config', 'user.email', 'fixture@example.invalid'], { cwd: root });
+  execFileSync('git', ['config', 'user.name', 'Fixture'], { cwd: root });
+  execFileSync('git', ['add', '.'], { cwd: root });
+  execFileSync('git', ['commit', '--quiet', '-m', 'fixture'], { cwd: root });
+  execFileSync('git', ['remote', 'add', 'origin', 'https://token-like-secret@example.invalid/m55.git'], { cwd: root });
+  execFileSync('git', ['update-ref', 'refs/remotes/origin/main', 'HEAD'], { cwd: root });
+  return root;
+}
+
+test('01 clean registered repository → READY', () => assert.equal(inspect(fixture()).status, 'READY'));
+test('02 clean explained stale snapshot → READY_WITH_WARNINGS', () => { const home = path.join(os.tmpdir(), 'M55_WORKTREE-home-final-ia-v1'); const root = fixture((dir) => { const registry = path.join(dir, 'docs/ssot/M55_WORKTREE_REGISTRY.md'); fs.writeFileSync(registry, fs.readFileSync(registry, 'utf8').replace('`main`', '`snapshot-branch`').replace('/fixture', home)); }); const report = inspect(root, { worktrees: [{ path: home, branch: 'main' }] }); assert.equal(report.status, 'READY_WITH_WARNINGS'); assert.ok(report.reasonCodes.includes('WORKTREE_DOCUMENTED_TRANSITION')); });
+test('03 documented post-merge transition is warning only', () => { const home = path.join(os.tmpdir(), 'M55_WORKTREE-home-final-ia-v1'); const root = fixture((dir) => { const registry = path.join(dir, 'docs/ssot/M55_WORKTREE_REGISTRY.md'); fs.writeFileSync(registry, fs.readFileSync(registry, 'utf8').replace('`main`', '`old-branch`').replace('/fixture', home)); }); const report = inspect(root, { worktrees: [{ path: home, branch: 'main' }] }); assert.equal(report.status, 'READY_WITH_WARNINGS'); });
+for (const [name, extra] of [['04 dirty tracked → HOLD/GIT_DIRTY', { clean: false, dirtyFiles: 1 }], ['05 staged → HOLD/GIT_DIRTY', { clean: false, dirtyFiles: 1 }], ['06 untracked → HOLD/GIT_DIRTY', { clean: false, dirtyFiles: 1 }]]) test(name, () => { const report = inspect(fixture(), extra); assert.equal(report.status, 'HOLD'); assert.ok(report.reasonCodes.includes('GIT_DIRTY')); });
+for (const operation of ['merge', 'rebase', 'cherry-pick']) test(`07 active ${operation} → HOLD`, () => assert.equal(inspect(fixture(), { gitOperation: operation }).status, 'HOLD'));
+test('08 missing authority → HOLD', () => { const root = fixture((dir) => fs.rmSync(path.join(dir, 'docs/ssot/M55_DECISION_LOG.md'))); assert.equal(inspect(root).status, 'HOLD'); });
+test('09 malformed authority heading → HOLD', () => { const root = fixture((dir) => replace(dir, 'docs/ssot/M55_SELF_FUNNEL_CONTRACT.md', '## Target flow', '## Unknown')); assert.equal(inspect(root).status, 'HOLD'); });
+test('10 unregistered live worktree → HOLD', () => assert.equal(inspect(fixture(), { worktrees: [{ path: '/unregistered', branch: 'main' }] }).status, 'HOLD'));
+test('11 prohibited DO_NOT_USE worktree remains a passing check', () => { const report = inspect(fixture()); assert.equal(report.checks.find((item) => item.id === 'worktree:prohibited').level, 'PASS'); });
+test('12 unexplained branch mismatch → HOLD', () => assert.equal(inspect(fixture(), { worktrees: [{ path: '/fixture', branch: 'other' }] }).status, 'HOLD'));
+test('13 current/target swapped → HOLD', () => { const root = fixture((dir) => { const file = path.join(dir, 'lib/m55/contracts/m55CommercialFunnelContract.ts'); fs.writeFileSync(file, "M55_CURRENT_RUNTIME_STATE\npreResultThemeSelection: false\nM55_TARGET_COMMERCIAL_CONTRACT\npreResultThemeSelection: true\nM55_DEFERRED_RUNTIME_ASSERTIONS\nACTIVE_LANE: '個人無料→個人Premiumファネルの一括実装'"); }); assert.equal(inspect(root).status, 'HOLD'); });
+test('14 target presented as live → HOLD', () => { const root = fixture((dir) => replace(dir, 'docs/ssot/M55_SELF_FUNNEL_CONTRACT.md', 'Current runtime (NOT target)', 'Current runtime')); assert.equal(inspect(root).status, 'HOLD'); });
+test('15 duplicate next single action → HOLD', () => { const root = fixture((dir) => { const file = path.join(dir, 'docs/ssot/M55_CURRENT_STATE.md'); fs.appendFileSync(file, `\n| **postMergeNextSingleAction** | ${ACTION} |`); }); assert.equal(inspect(root).status, 'HOLD'); });
+test('16 remote credential redaction', () => assert.equal(redactRemote('https://token@example.com/a'), 'https://[REDACTED]@example.com/a'));
+test('17 HTML script escaping', () => assert.equal(htmlEscape('<script>alert(1)</script>'), '&lt;script&gt;alert(1)&lt;/script&gt;'));
+test('18 symlink escape rejection', () => { const root = fixture(); const outside = path.join(os.tmpdir(), `m55-outside-${Date.now()}`); fs.writeFileSync(outside, 'token-like-value'); fs.rmSync(path.join(root, 'AGENTS.md')); fs.symlinkSync(outside, path.join(root, 'AGENTS.md')); try { assert.throws(() => safeRead(root, 'AGENTS.md'), /AUTHORITY_SYMLINK_ESCAPE/); } finally { fs.rmSync(root, { recursive: true, force: true }); fs.rmSync(outside, { force: true }); } });
+test('19 stable JSON ordering', () => assert.equal(stableJson({ z: 1, a: { y: 2, b: 3 } }), '{"a":{"b":3,"y":2},"z":1}'));
+test('20 usage error exit 2', () => assert.equal(spawnSync(process.execPath, ['scripts/m55-handoff/audit.mjs'], { cwd: ROOT }).status, 2));
+test('21 HOLD exit 1 and 22 clean success exit 0', () => { const hold = spawnSync(process.execPath, ['scripts/m55-handoff/audit.mjs', '--repo', '.'], { cwd: ROOT }); assert.equal(hold.status, 1); const root = gitFixture(); const out = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-handoff-out-')); try { const ready = spawnSync(process.execPath, [path.join(ROOT, 'scripts/m55-handoff/audit.mjs'), '--repo', root, '--out', out], { encoding: 'utf8' }); assert.equal(ready.status, 0, `${ready.stdout}${ready.stderr}`); const json = fs.readFileSync(path.join(out, 'handoff-report.json'), 'utf8'); assert.ok(!json.includes('token-like-secret')); assert.ok(json.includes('[REDACTED]')); } finally { fs.rmSync(root, { recursive: true, force: true }); fs.rmSync(out, { recursive: true, force: true }); } assert.equal(exitCodeForStatus('READY_WITH_WARNINGS'), 0); });
+test('23 default output leaves Git status unchanged', () => { const before = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }); const result = spawnSync(process.execPath, ['scripts/m55-handoff/audit.mjs', '--repo', '.'], { cwd: ROOT }); const after = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }); assert.equal(result.status, 1); assert.equal(after, before); });
+test('parser rejects duplicate active lane, empty values, and malformed registry', () => { const duplicate = fixture((dir) => fs.appendFileSync(path.join(dir, 'lib/m55/contracts/m55CommercialFunnelContract.ts'), "\nACTIVE_LANE: '個人無料→個人Premiumファネルの一括実装'")); assert.equal(inspect(duplicate).status, 'HOLD'); const empty = fixture((dir) => replace(dir, 'docs/ssot/M55_CURRENT_STATE.md', ACTION, '')); assert.equal(inspect(empty).status, 'HOLD'); const malformed = fixture((dir) => replace(dir, 'docs/ssot/M55_WORKTREE_REGISTRY.md', '| lifecycle | **DO_NOT_USE** |', '| lifecycle |  |')); assert.equal(inspect(malformed).status, 'HOLD'); });
+test('worktree parsing remains deterministic', () => assert.deepEqual(parseWorktrees('worktree /b\nHEAD b\nbranch refs/heads/b\n\nworktree /a\nHEAD a\nbranch refs/heads/a\n'), [{ path: '/a', head: 'a', branch: 'a', detached: false }, { path: '/b', head: 'b', branch: 'b', detached: false }]));
+test('generic non-M55 adapter uses the same status reducer', () => { assert.equal(inspectNebula({ clean: true, authorityText: '## Active delivery lane\n## Next action' }).status, 'READY'); assert.equal(inspectNebula({ clean: false, authorityText: '## Active delivery lane\n## Next action' }).status, 'HOLD'); });
+test('handoff packet writes all four files and HOLD bootstrap blocks implementation', () => { const root = gitFixture(); const out = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-packet-')); try { fs.writeFileSync(path.join(root, 'untracked.txt'), 'fixture'); assert.equal(spawnSync(process.execPath, [path.join(ROOT, 'scripts/m55-handoff/audit.mjs'), '--repo', root, '--out', out]).status, 1); for (const file of ['handoff-report.json', 'handoff-report.html', 'handoff.md', 'agent-bootstrap.txt']) assert.ok(fs.existsSync(path.join(out, file))); assert.match(fs.readFileSync(path.join(out, 'agent-bootstrap.txt'), 'utf8'), /DO NOT BEGIN IMPLEMENTATION/); assert.match(fs.readFileSync(path.join(out, 'handoff.md'), 'utf8'), /DO_NOT_USE worktrees/); } finally { fs.rmSync(root, { recursive: true, force: true }); fs.rmSync(out, { recursive: true, force: true }); } });
+test('judge mode writes five synthetic handoff packets', () => { assert.equal(spawnSync(process.execPath, [path.join(ROOT, 'scripts/m55-handoff/demo.mjs')]).status, 0); const out = path.join(os.tmpdir(), 'm55-control-plane-demo'); for (const name of ['CLEAN_READY', 'DOCUMENTED_TRANSITION_WARNING', 'DIRTY_HOLD', 'UNEXPLAINED_DRIFT_HOLD', 'MISSING_AUTHORITY_HOLD']) assert.ok(fs.existsSync(path.join(out, name, 'handoff.md'))); });

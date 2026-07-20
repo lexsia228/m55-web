@@ -13,6 +13,11 @@ Status: **Decisions authority (Tier E)**
 | 個人無料は Pair を含む M55 全体の信用証明 | Self free が Pair 信頼にも接続 |
 | HOME と下流ページを同等品質へ | HOME だけ高品質は不十分 |
 | SSOT merge 後に新 GPT スレッドへ移行 | 会話ログを authority にしない |
+| Question V2（5問）を選択 | 次の Self Funnel implementation lane の target。現行 V1 回答は legacy read-only |
+| 最新結果は local-only 保存境界 | cross-device 保証なし。実装は NOT_YET_IMPLEMENTED |
+| Self Funnel に新しい Pair 導線を追加しない | Pair runtime を先行させない |
+| 3つの高精度 visual direction を用意 | Human の visual direction / result length / ten-asset presentation 選択待ち。まだ選択なし（Direction 1 は言及時も recommendation のみ） |
+| OpenAI Build Week の一時的 operational interrupt | Product active lane は置換せず、Control Plane は runtime 非変更の独立 operational scope |
 
 ## REJECTED
 

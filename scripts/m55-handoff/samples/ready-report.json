@@ -1,0 +1,10 @@
+{
+  "authority": { "activeLane": "Self Funnel", "completedGreen": true, "currentRuntimeDebt": true, "documentedTransition": true, "nextSingleAction": "Human selection", "targetState": true },
+  "checks": [{ "details": {}, "id": "git:clean", "level": "PASS", "message": "Working tree is clean." }],
+  "generatedAt": null,
+  "reasonCodes": [],
+  "repository": { "branch": "main", "clean": true, "gitOperation": "none", "head": "0123456789abcdef", "originMain": "0123456789abcdef", "remote": "https://[REDACTED]@example.invalid/m55.git", "root": "/synthetic/m55", "upstream": "origin/main", "worktrees": [] },
+  "schemaVersion": "1.0.0",
+  "status": "READY",
+  "toolVersion": "1.0.0"
+}

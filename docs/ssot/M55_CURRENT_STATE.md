@@ -4,7 +4,13 @@ Status: **State registry (Tier E)**
 Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55CommercialFunnelContract.ts`
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 
-Last updated: 2026-07-20 (Post-merge handoff — PR #74)
+Last updated: 2026-07-21 (Build Week Control Plane authority closure)
+
+## Temporary operational interrupt — OpenAI Build Week
+
+`feat/m55-build-week-control-plane-v1` is a temporary, runtime-free operational lane for
+the M55 Control Plane. It does **not** replace the active product lane, alter roadmap order,
+or authorize Self Funnel, HOME, Pair, commerce, database, or deployment implementation.
 
 ## Production main authority
 
@@ -24,7 +30,7 @@ Last updated: 2026-07-20 (Post-merge handoff — PR #74)
 | Field | Value |
 |---|---|
 | **postMergeActiveLane** | 個人無料→個人Premiumファネルの一括実装 |
-| **postMergeNextSingleAction** | PRIMARY_MAIN_HOME で `main` checkout → `origin/main` merge SHA 確認 → `M55_SELF_FUNNEL_CONTRACT.md` target vs current runtime gap 照合 → Self free→Premium 実装 PR スコープ確定 |
+| **postMergeNextSingleAction** | Human selection of Self Funnel visual direction, result length, and ten-asset presentation. No source implementation is authorized before that selection. |
 | **HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT** | NOT_YET |
 | **Pair implementation** | Later lane — roadmap step 3（二人向け無料→有料） |
 | **pairPremium** | NOT_LIVE — Stripe / Pair runtime へ先行しない |

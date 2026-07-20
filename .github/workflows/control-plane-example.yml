@@ -1,0 +1,20 @@
+name: Control Plane example
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/m55-handoff/**'
+      - 'docs/ssot/**'
+
+jobs:
+  handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run audit:m55-handoff -- --repo . --out "$RUNNER_TEMP/m55-handoff"
+      - if: always()
+        run: cat "$RUNNER_TEMP/m55-handoff/handoff-report.json" || true

@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-20**  
+Last verified: **2026-07-21**
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -25,7 +25,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 
 ### Lifecycle status values
 
-`PRIMARY_MAIN` · `ACTIVE` · `PAUSED` · `STALE` · `DO_NOT_USE` · `CLEANUP_PENDING` · `COMPLETED_REMOVABLE` · `UNKNOWN`
+`PRIMARY_MAIN` · `ACTIVE` · `TEMPORARY_ACTIVE` · `PAUSED` · `STALE` · `DO_NOT_USE` · `CLEANUP_PENDING` · `COMPLETED_REMOVABLE` · `UNKNOWN`
 
 `PRIMARY_MAIN` in entry notes means **PRIMARY_MAIN_HOME designation**, not “this worktree is on branch `main` right now”.
 
@@ -203,6 +203,21 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | prohibited operations | edit without explicit HOME reopen |
 | removal eligibility | deferred — human review |
 | notes | Upstream tracks `origin/main` but checked-out branch is feature. Not PRIMARY_MAIN_HOME. |
+
+### WT-009 — OpenAI Build Week / M55 Control Plane
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` |
+| branch | `feat/m55-build-week-control-plane-v1` |
+| HEAD / base | `d8682a121ee54808b1214b9835fa3d936b648ca8` |
+| lifecycle | **TEMPORARY_ACTIVE** |
+| purpose | OpenAI Build Week / M55 Control Plane |
+| productLaneReplacement | false |
+| returnState | `GREEN_SELF_FUNNEL_SPEC_READY_FOR_HUMAN_VISUAL_SELECTION` |
+| allowed operations | control-plane CLI, generic engine, M55 authority adapter, reports, tests, Build Week documentation, minimal authority closure |
+| prohibited operations | Self Funnel runtime · HOME · Pair · Stripe · checkout · DB · migration · Clerk · wallet · ticket · RPC · Production deploy |
+| notes | Temporary operational interrupt. The product active lane and roadmap order remain unchanged. |
 
 ---
 

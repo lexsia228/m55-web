@@ -287,7 +287,7 @@ export const M55_COMMERCIAL_STATE_REGISTRY = {
   COMPLETED_GREEN: 'M55 Commercial Funnel SSOT構築 (PR #74)',
   ACTIVE_LANE: '個人無料→個人Premiumファネルの一括実装',
   POST_MERGE_NEXT_SINGLE_ACTION:
-    'PRIMARY_MAIN_HOME（M55_WORKTREE-home-final-ia-v1）で main を checkout し origin/main の merge SHA を確認 → M55_SELF_FUNNEL_CONTRACT.md の target と current runtime gap を照合 → Self free→Premium 実装 PR のスコープ確定（本 lane では SSOT/docs のみ merge 済み）',
+    'Human selection of Self Funnel visual direction, result length, and ten-asset presentation. No source implementation is authorized before that selection.',
   PAIR_PREMIUM_LANE: 'LATER — roadmap step 3（二人向け無料→有料）',
   PROHIBITED_AHEAD_OF_SELF_FUNNEL: ['Stripe変更', 'Pair runtime変更', 'HOME final SSOT', 'DO_NOT_USE worktree での実装'],
   CURRENT_SAFE_WORKTREE: '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1',
