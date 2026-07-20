@@ -120,6 +120,10 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     for (let i = 1; i < indices.length; i += 1) {
       assert.ok(indices[i] > indices[i - 1], `${testIds[i]} must render after ${testIds[i - 1]}`);
     }
+    const freeIdx = lowerSource.indexOf('data-testid="m55-home-free-preview"');
+    const pairIdx = lowerSource.indexOf('<HomePairFreeSection');
+    const mechanismIdx = lowerSource.indexOf('data-testid="m55-home-mechanism"');
+    assert.ok(pairIdx !== -1 && freeIdx < pairIdx && pairIdx < mechanismIdx);
   });
 
   it('removes merged-away and legacy lower HOME sections', () => {
@@ -180,7 +184,12 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
       '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
-    assert.equal(home.premiumHeadlineJa, '同じ土台を、4つの章で読み返せます。');
+    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み返す。');
+    assert.equal(
+      home.premiumBodyJa,
+      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
+    );
+    assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');
     assert.equal(home.mechanismHowLinkJa, 'M55の仕組みを詳しく見る');
@@ -196,6 +205,15 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.match(teaserSource, /TEN_ASSET_PUBLIC_CATALOG/);
     assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser-link"/);
     assert.doesNotMatch(homePanelSource, /HomeTenAssetTiles/);
+  });
+
+  it('mounts dedicated pair free section after self free using shared structure authority', () => {
+    const pairSource = readFileSync(join(repoRoot, 'components/home/HomePairFreeSection.tsx'), 'utf8');
+    assert.match(homePanelSource, /HomePairFreeSection/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free"/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free-structure"/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free-cta"/);
+    assert.match(pairSource, /pairReadingPublicStructure/);
   });
 
   it('implements short mechanism band with how link only and no accordion/panels', () => {

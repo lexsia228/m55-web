@@ -14,6 +14,8 @@ const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
 const homePanelSource = readFileSync(join(repoRoot, 'components/home/HomePanel.tsx'), 'utf8');
 const productMapSource = readFileSync(join(repoRoot, 'components/home/HomeProductMap.tsx'), 'utf8');
+const pairFreeSource = readFileSync(join(repoRoot, 'components/home/HomePairFreeSection.tsx'), 'utf8');
+const guestSource = readFileSync(join(repoRoot, 'components/compatibility/CompatibilityGuestExperience.tsx'), 'utf8');
 const valueBridgeSource = readFileSync(join(repoRoot, 'components/home/HomePremiumValueBridge.tsx'), 'utf8');
 const homeBlob = JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.home);
 
@@ -89,7 +91,52 @@ describe('homeProductStory — capability map contract', () => {
   });
 });
 
-describe('homeProductStory — premium value bridge', () => {
+describe('homeProductStory — pair free dedicated section', () => {
+  it('renders pair section after self free and before mechanism', () => {
+    const freeIdx = homePanelSource.indexOf('data-testid="m55-home-free-preview"');
+    const pairIdx = homePanelSource.indexOf('<HomePairFreeSection');
+    const mechanismIdx = homePanelSource.indexOf('data-testid="m55-home-mechanism"');
+    const premiumIdx = homePanelSource.indexOf('data-testid="m55-home-premium-preview"');
+    const finalIdx = homePanelSource.indexOf('data-testid="m55-home-final-cta"');
+    assert.ok(freeIdx !== -1 && pairIdx !== -1 && mechanismIdx !== -1);
+    assert.ok(freeIdx < pairIdx && pairIdx < mechanismIdx);
+    assert.ok(mechanismIdx < premiumIdx && premiumIdx < finalIdx);
+    assert.match(pairFreeSource, /data-testid="m55-home-pair-free"/);
+  });
+
+  it('uses approved pair section copy and shared structure authority', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.pairFreeEyebrowJa, '二人の関係を見る');
+    assert.equal(home.pairFreeHeadlineJa, '二人の間に表れやすい流れを、決めつけずに読み解く。');
+    assert.equal(
+      home.pairFreeBodyJa,
+      '二人の生年月日と、いまの関係に近い答えをもとに、重なりや違い、すれ違いが続く順番、次に試せる一つの動きを整理します。',
+    );
+    assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
+    assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
+    assert.match(pairFreeSource, /PAIR_READING_FREE_STRUCTURE_ITEMS/);
+    assert.match(pairFreeSource, /PAIR_READING_GUEST_SUPPORT_LINES/);
+    assert.match(pairFreeSource, /m55-home-pair-free-structure/);
+    assert.doesNotMatch(pairFreeSource, /freePreviewSheet|insightCard|dynamicOutcome/);
+  });
+
+  it('shares structure labels with CompatibilityGuestExperience via single authority', () => {
+    assert.match(guestSource, /PAIR_READING_FREE_STRUCTURE_ITEMS/);
+    assert.match(guestSource, /pairReadingPublicStructure/);
+  });
+});
+
+describe('homeProductStory — premium copy and value bridge', () => {
+  it('uses mandatory value-first premium headline and body', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み返す。');
+    assert.equal(
+      home.premiumBodyJa,
+      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
+    );
+    assert.equal(homeBlob.includes('同じ土台を、4つの章で読み返せます。'), false);
+  });
+
   it('places value bridge at the start of premium dark stage before product preview', () => {
     const premiumStart = homePanelSource.indexOf('data-testid="m55-home-premium-preview"');
     const premiumBlock = homePanelSource.slice(premiumStart);
@@ -115,14 +162,17 @@ describe('homeProductStory — premium value bridge', () => {
 });
 
 describe('homeProductStory — final CTA and product facts', () => {
-  it('keeps a single paid primary CTA and exactly one pair CTA in product map only', () => {
+  it('keeps a single paid primary CTA and exactly two pair CTAs (map + pair section)', () => {
     const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
     assert.equal(paidSolidCount, 1);
     assert.equal(homePanelSource.includes('m55-home-final-cta-pair'), false);
     assert.equal(homePanelSource.includes('finalCtaPairSecondaryJa'), false);
-    const pairLinkCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
-    assert.equal(pairLinkCount, 1);
+    const mapPairCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
+    const sectionPairCount = (pairFreeSource.match(/m55-home-pair-free-cta/g) ?? []).length;
+    assert.equal(mapPairCount, 1);
+    assert.equal(sectionPairCount, 1);
     assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
+    assert.match(pairFreeSource, /HOME_PAIR_READING_PUBLIC_HREF/);
     assert.equal(HOME_PAIR_READING_PUBLIC_HREF, '/synastry');
   });
 

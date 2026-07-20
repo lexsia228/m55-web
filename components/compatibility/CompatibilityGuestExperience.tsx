@@ -15,6 +15,7 @@ import {
   type CompatibilityCurrentContextAnswers,
   type CompatibilityCurrentQuestionId,
 } from '../../lib/m55/compatibility/currentContextContract.v1';
+import { PAIR_READING_FREE_STRUCTURE_ITEMS } from '../../lib/m55/compatibility/pairReadingPublicStructure';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -344,8 +345,8 @@ export default function CompatibilityGuestExperience({
           </section>
 
           <section className={styles.baselineSection} aria-labelledby="baseline-title">
-            <p className={styles.cardNumber}>01</p>
-            <h3 id="baseline-title">二人の変わりにくい土台</h3>
+            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[0].index}</p>
+            <h3 id="baseline-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[0].titleJa}</h3>
           <div className={styles.insightGrid}>
             <article className={styles.insightCard}>
               <h3>重なりやすいところ</h3>
@@ -362,8 +363,8 @@ export default function CompatibilityGuestExperience({
             className={styles.expressionCard}
             data-testid="compatibility-current-expression"
           >
-            <p className={styles.cardNumber}>02</p>
-            <h3>今の二人に表れやすいこと</h3>
+            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[1].index}</p>
+            <h3>{PAIR_READING_FREE_STRUCTURE_ITEMS[1].titleJa}</h3>
             <p className={styles.glanceLabel} data-testid="compatibility-glance-label">
               {context.glanceLabel}
             </p>
@@ -371,8 +372,8 @@ export default function CompatibilityGuestExperience({
           </section>
 
           <section className={styles.loopCard} data-testid="compatibility-current-loop">
-            <p className={styles.cardNumber}>03</p>
-            <h3>二人の間で続きやすい連鎖</h3>
+            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[2].index}</p>
+            <h3>{PAIR_READING_FREE_STRUCTURE_ITEMS[2].titleJa}</h3>
             <ol className={styles.loopSteps}>
               {context.relationshipLoopSteps.map((step, index) => (
                 <li key={RELATIONSHIP_LOOP_STEP_LABELS[index]}>
@@ -386,8 +387,8 @@ export default function CompatibilityGuestExperience({
           </section>
 
           <section className={styles.actionCard} aria-labelledby="action-title">
-            <p className={styles.cardNumber}>04</p>
-            <h3 id="action-title">次に一度だけ試すこと</h3>
+            <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[3].index}</p>
+            <h3 id="action-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[3].titleJa}</h3>
             <p className={styles.actionText}>{context.immediateAction}</p>
             <p className={styles.actionNote}>結果を決めるためではなく、二人の違いを確かめる一回分の行動です。</p>
           </section>

@@ -10,10 +10,12 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
+import { isHomePairReadingLivePublic } from '../../lib/m55/homePairReadingPublicContract';
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeFreePreviewSlice from './HomeFreePreviewSlice';
+import HomePairFreeSection from './HomePairFreeSection';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
 import HomePremiumValueBridge from './HomePremiumValueBridge';
 import HomeProductMap from './HomeProductMap';
@@ -92,6 +94,7 @@ export default function HomePanel() {
   }, [isLoaded, ownerId, profileEpoch]);
 
   const hasProfile = view.kind === 'has_profile';
+  const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
@@ -245,6 +248,17 @@ export default function HomePanel() {
             linkJa={homeCopy.tenAssetTeaserLinkJa}
           />
         </section>
+
+        {/* §3a — Pair free (compact dedicated section) */}
+        <HomePairFreeSection
+          eyebrowJa={homeCopy.pairFreeEyebrowJa}
+          headlineJa={homeCopy.pairFreeHeadlineJa}
+          bodyJa={homeCopy.pairFreeBodyJa}
+          statusJa={homeCopy.pairFreeStatusJa}
+          preparingStatusJa={homeCopy.pairFreePreparingStatusJa}
+          ctaJa={homeCopy.pairFreeCtaJa}
+          pairLive={pairLive}
+        />
 
         {/* §4 — Mechanism band */}
         <section

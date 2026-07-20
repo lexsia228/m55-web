@@ -99,6 +99,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '無料で見えた入口をもとに、動き方・距離感・負担の流れ・整え方を整理します。',
     productMapPremiumLinkJa: 'プレミアムで深く読み返す',
 
+    /* §3a — Pair free (compact dedicated section, after self free) */
+    pairFreeEyebrowJa: '二人の関係を見る',
+    pairFreeHeadlineJa: '二人の間に表れやすい流れを、決めつけずに読み解く。',
+    pairFreeBodyJa:
+      '二人の生年月日と、いまの関係に近い答えをもとに、重なりや違い、すれ違いが続く順番、次に試せる一つの動きを整理します。',
+    pairFreeStatusJa: '無料・ログイン不要',
+    pairFreeCtaJa: '二人の関係を無料で見てみる',
+    pairFreePreparingStatusJa: '準備中',
+
     /* §3 — Free (outcome + preview merged) */
     outcomeBridgeEyebrowJa: 'M55で見えてくること',
     outcomeBridgeItemsJa: [
@@ -156,9 +165,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '整え直すための手がかり',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
-    premiumHeadlineJa: '同じ土台を、4つの章で読み返せます。',
+    premiumHeadlineJa: '自分の流れを、複数の視点から詳しく読み返す。',
     premiumBodyJa:
-      '無料結果と同じ二つの情報をもとに、動き方・距離感・負担の流れ・整え方を、複数の視点から整理します。',
+      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
     premiumCtaJa: 'プレミアムレポートを見る',
 

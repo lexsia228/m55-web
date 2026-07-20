@@ -623,6 +623,204 @@
   border-top: 1px solid rgba(11, 26, 43, 0.1);
 }
 
+.pairFreeStage {
+  background: #efeae0;
+  padding: 40px 20px 44px;
+  max-width: none;
+  border-top: 1px solid rgba(11, 26, 43, 0.12);
+}
+
+.pairStructureIndex {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  border-top: 1px solid rgba(11, 26, 43, 0.14);
+}
+
+.pairStructureIndexItem {
+  padding: 12px 10px 12px 0;
+  border-bottom: 1px solid rgba(11, 26, 43, 0.1);
+}
+
+.pairStructureIndexItem:nth-child(odd) {
+  padding-right: 12px;
+  border-right: 1px solid rgba(11, 26, 43, 0.08);
+}
+
+.pairStructureIndexItem:nth-child(even) {
+  padding-left: 12px;
+}
+
+.pairStructureIndexNumber {
+  margin: 0 0 4px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: #496f6d;
+}
+
+.pairStructureIndexTitle {
+  margin: 0;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #0b1a2b;
+}
+
+.pairFreeSupport {
+  margin: 0 0 10px;
+}
+
+.pairFreeSupport p {
+  margin: 0 0 2px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(11, 26, 43, 0.58);
+}
+
+.pairFreeStatus {
+  margin: 0 0 4px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #496f6d;
+}
+
+.pairFreePreparingStatus {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #496f6d;
+  font-weight: 500;
+}
+
+.pairFreeCtaLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #496f6d;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pairFreeCtaLink:hover {
+  color: #c46e5a;
+}
+
+.pairFreeCtaLink:focus-visible {
+  outline: 2px solid #c46e5a;
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .pairStructureIndex {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 20px;
+  }
+
+  .pairStructureIndexItem {
+    padding: 16px 0 18px;
+    border-right: none;
+    border-bottom: 1px solid rgba(11, 26, 43, 0.12);
+  }
+
+  .pairStructureIndexItem:nth-child(odd),
+  .pairStructureIndexItem:nth-child(even) {
+    padding-left: 0;
+    padding-right: 0;
+    border-right: none;
+  }
+
+  .pairStructureIndexTitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 359px) {
+  .pairStructureIndex {
+    grid-template-columns: 1fr;
+  }
+
+  .pairStructureIndexItem,
+  .pairStructureIndexItem:nth-child(odd),
+  .pairStructureIndexItem:nth-child(even) {
+    padding: 8px 0;
+    border-right: none;
+  }
+
+  .pairFreeStage {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pairFreeStage {
+    padding-top: 26px;
+    padding-bottom: 28px;
+  }
+
+  .pairFreeStage .sectionEyebrow {
+    margin-bottom: 6px;
+  }
+
+  .pairFreeStage .sectionHeadline {
+    margin-bottom: 8px;
+    font-size: clamp(1.26rem, 5vw, 1.48rem);
+    line-height: 1.42;
+  }
+
+  .pairFreeStage .sectionLead {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.58;
+  }
+
+  .pairStructureIndex {
+    margin-bottom: 10px;
+  }
+
+  .pairStructureIndexItem {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .pairStructureIndexNumber {
+    margin-bottom: 3px;
+  }
+
+  .pairStructureIndexTitle {
+    font-size: 0.94rem;
+    line-height: 1.4;
+  }
+
+  .pairFreeSupport {
+    margin-bottom: 8px;
+  }
+
+  .pairFreeSupport p {
+    font-size: 11px;
+    line-height: 1.48;
+  }
+
+  .pairFreeStatus {
+    margin-bottom: 2px;
+  }
+}
+
 .premiumDarkStage {
   background: #0b1a2b;
   color: #f1e8d6;
@@ -639,6 +837,7 @@
 @media (min-width: 481px) and (max-width: 767px) {
   .freeStage,
   .productMapStage,
+  .pairFreeStage,
   .mechanismStage,
   .premiumDarkStage,
   .finalLightStage {
@@ -650,6 +849,7 @@
 @media (min-width: 768px) {
   .freeStage,
   .productMapStage,
+  .pairFreeStage,
   .mechanismStage,
   .premiumDarkStage,
   .finalLightStage {
@@ -664,6 +864,11 @@
     padding-bottom: 52px;
   }
 
+  .pairFreeStage {
+    padding-top: 44px;
+    padding-bottom: 48px;
+  }
+
   .premiumDarkStage {
     padding-top: 72px;
     padding-bottom: 76px;
@@ -673,6 +878,7 @@
 @media (min-width: 1024px) {
   .freeStage,
   .productMapStage,
+  .pairFreeStage,
   .mechanismStage,
   .premiumDarkStage,
   .finalLightStage {
