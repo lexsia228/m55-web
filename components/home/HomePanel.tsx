@@ -18,6 +18,7 @@ import HomeFreePreviewSlice from './HomeFreePreviewSlice';
 import HomePairFreeSection from './HomePairFreeSection';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
 import HomePremiumValueBridge from './HomePremiumValueBridge';
+import HomeEditorialHeadline from './HomeEditorialHeadline';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
@@ -304,9 +305,11 @@ export default function HomePanel() {
             premiumItemsJa={homeCopy.premiumValueBridgePremiumItemsJa}
           />
           <p className={styles.sectionEyebrow}>{homeCopy.premiumEyebrowJa}</p>
-          <h2 id="m55-home-premium-preview-title" className={styles.sectionHeadline}>
-            {homeCopy.premiumHeadlineJa}
-          </h2>
+          <HomeEditorialHeadline
+            id="m55-home-premium-preview-title"
+            className={styles.sectionHeadline}
+            textJa={homeCopy.premiumHeadlineJa}
+          />
           <p className={styles.sectionLead}>{homeCopy.premiumBodyJa}</p>
           <div className={styles.integratedPreviewBlock}>
             <HomePremiumPreviewSlice previewLabelJa={homeCopy.premiumPreviewLabelJa} />

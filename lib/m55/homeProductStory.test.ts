@@ -96,6 +96,14 @@ describe('homeProductStory — capability map contract', () => {
     assert.match(productMapSource, /onOpenIntake/);
   });
 
+  it('uses editorial headline wrapping for product map, pair, and premium H2', () => {
+    assert.match(productMapSource, /HomeEditorialHeadline/);
+    assert.match(pairFreeSource, /HomeEditorialHeadline/);
+    assert.match(homePanelSource, /HomeEditorialHeadline[\s\S]*premiumHeadlineJa/);
+    assert.match(pairFreeSource, /renderProtectedJapaneseLine/);
+    assert.match(pairFreeSource, /headlineSemanticUnit/);
+  });
+
   it('shows pair link only when LIVE_PUBLIC', () => {
     assert.match(productMapSource, /isHomePairReadingLivePublic/);
     assert.match(productMapSource, /m55-home-product-map-pair-link/);

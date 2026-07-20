@@ -4,6 +4,8 @@ import {
   PAIR_READING_GUEST_SUPPORT_LINES,
 } from '../../lib/m55/compatibility/pairReadingPublicStructure';
 import { HOME_PAIR_READING_PUBLIC_HREF } from '../../lib/m55/homePairReadingPublicContract';
+import HomeEditorialHeadline from './HomeEditorialHeadline';
+import { renderProtectedJapaneseLine } from './homeEditorialJapaneseLine';
 import styles from './HomePanel.module.css';
 
 type Props = {
@@ -32,9 +34,11 @@ export default function HomePairFreeSection({
       aria-labelledby="m55-home-pair-free-title"
     >
       <p className={styles.sectionEyebrow}>{eyebrowJa}</p>
-      <h2 id="m55-home-pair-free-title" className={styles.sectionHeadline}>
-        {headlineJa}
-      </h2>
+      <HomeEditorialHeadline
+        id="m55-home-pair-free-title"
+        className={styles.sectionHeadline}
+        textJa={headlineJa}
+      />
       <p className={styles.sectionLead}>{bodyJa}</p>
       <ul
         className={styles.pairStructureIndex}
@@ -44,7 +48,9 @@ export default function HomePairFreeSection({
         {PAIR_READING_FREE_STRUCTURE_ITEMS.map((item) => (
           <li key={item.index} className={styles.pairStructureIndexItem}>
             <p className={styles.pairStructureIndexNumber}>{item.index}</p>
-            <p className={styles.pairStructureIndexTitle}>{item.titleJa}</p>
+            <p className={styles.pairStructureIndexTitle}>
+              {renderProtectedJapaneseLine(item.titleJa, styles.headlineSemanticUnit, item.index)}
+            </p>
           </li>
         ))}
       </ul>

@@ -524,6 +524,13 @@
   font-weight: 600;
   color: #0b1a2b;
   max-width: 40ch;
+  word-break: keep-all;
+  line-break: strict;
+  text-wrap: balance;
+}
+
+.headlineSemanticUnit {
+  white-space: nowrap;
 }
 
 .sectionSubheading {
@@ -803,7 +810,7 @@
 
   .pairFreeStage .sectionHeadline {
     margin-bottom: 8px;
-    font-size: clamp(1.26rem, 5vw, 1.48rem);
+    font-size: clamp(1.28rem, 5.4vw, 1.48rem);
     line-height: 1.42;
   }
 
@@ -829,6 +836,8 @@
   .pairStructureIndexTitle {
     font-size: 0.94rem;
     line-height: 1.4;
+    word-break: keep-all;
+    line-break: strict;
   }
 
   .pairFreeSupport {
@@ -2032,7 +2041,7 @@
 
   .productMapStage .sectionHeadline {
     margin-bottom: 10px;
-    font-size: clamp(1.32rem, 5vw, 1.55rem);
+    font-size: clamp(1.28rem, 5.4vw, 1.55rem);
   }
 
   .productMapItem {
@@ -2094,6 +2103,12 @@
   .premiumDarkStage {
     padding-top: 40px;
     padding-bottom: 48px;
+  }
+
+  .premiumDarkStage .sectionHeadline {
+    font-size: clamp(1.28rem, 5.4vw, 1.58rem);
+    line-height: 1.42;
+    max-width: none;
   }
 
   .tenAssetTeaserBand {
