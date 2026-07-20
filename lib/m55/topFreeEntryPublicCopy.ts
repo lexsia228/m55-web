@@ -79,15 +79,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §2 — Product map (below frozen hero, before free detail) */
     productMapEyebrowJa: 'M55でできること',
-    productMapHeadlineJa: '自分を見る。二人の関係を見る。自分を、さらに深く読み解く。',
-    productMapSelfTitleJa: '自分を見る',
+    productMapHeadlineJa: '自分の反応から、二人の関係、\n力が出やすい条件まで。',
+    productMapSelfTitleJa: '自分の反応を知る',
     productMapSelfBodyJa:
-      '生年月日と、いま選んだ答えを重ねて、自分に出やすい反応や流れを見ていきます。',
+      '生年月日と、いま選んだ答えを重ねて、\n自分に出やすい反応や、\n整え直すための入口を見ていきます。',
     productMapSelfStatusJa: '無料・ログイン不要',
     productMapSelfCtaJa: '無料で見てみる',
-    productMapPairTitleJa: '二人の関係を見る',
+    productMapPairTitleJa: '二人の関係を読み解く',
     productMapPairBodyJa:
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れを見ていきます。',
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
     productMapPairStatusJa: '無料・ログイン不要',
     productMapPairCtaJa: '二人の関係を見てみる',
     productMapPairPreparingTitleJa: '二人の関係を見る',
@@ -101,9 +101,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §3a — Pair free (compact dedicated section, after self free) */
     pairFreeEyebrowJa: '二人の関係を見る',
-    pairFreeHeadlineJa: '二人の間に表れやすい流れを、決めつけずに読み解く。',
+    pairFreeHeadlineJa: 'なぜ話しやすい時と、\nすれ違う時があるのか。',
     pairFreeBodyJa:
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを整理します。',
+      '二人の生年月日と、\nいまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
     pairFreeStatusJa: '無料・ログイン不要',
     pairFreeCtaJa: '二人の関係を無料で見てみる',
     pairFreePreparingStatusJa: '準備中',
@@ -116,7 +116,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
         bodyJa: '同じ場面で、どのような動きが出やすいか。',
       },
       {
-        titleJa: '人との関係に表れやすい流れ',
+        titleJa: '人と関わるときの自分の動き',
         bodyJa: '人と関わるとき、どのような順番で考え、動きやすいか。',
       },
       {
@@ -127,17 +127,17 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §4 — Mechanism band */
     mechanismEyebrowJa: 'M55の見方',
-    mechanismHeadlineJa: '生年月日と、いまの答えを重ねて見る。',
+    mechanismHeadlineJa: '変わりにくい土台と、\nいまの答えを重ねて見る。',
     mechanismBodyJa:
-      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
+      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
     mechanismEthicsJa: '一つの情報だけで、人を決めない。',
     mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
-    mechanismDiagramSource1Ja: '生年月日から見える基礎傾向',
+    mechanismDiagramSource1Ja: '生年月日から見える土台',
     mechanismDiagramSource2Ja: 'いま選んだ答え',
-    mechanismDiagramOutputJa: '今の自分に出やすい流れ',
+    mechanismDiagramOutputJa: '今表れやすい流れ',
 
     /* §3 continued — FREE result (merged with outcome bridge) */
-    freeResultHeadlineJa: '無料で、自分に表れやすい流れを知る。',
+    freeResultHeadlineJa: '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
     freeResultBodyJa:
       '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     freeResultPreviewLabelJa: '無料結果の表示例',
@@ -152,6 +152,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §5 — Premium (preview + plan merged) */
     premiumValueBridgeEyebrowJa: '自分の無料結果から、さらに深く',
+    premiumValueBridgeLeadJa:
+      '無料は、今の自分を見る入口。\nプレミアムは、\nなぜそうなるかと、どう扱うかまで。',
     premiumValueBridgeFreeHeadingJa: '無料結果',
     premiumValueBridgeFreeItemsJa: [
       'いまの自分に近い短い読み解き',
@@ -160,12 +162,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     ] as const,
     premiumValueBridgePremiumHeadingJa: 'プレミアムレポート',
     premiumValueBridgePremiumItemsJa: [
-      '動き方と、強みが表れやすい条件',
+      '動き方と、力が出やすい条件',
       '人との距離感と、負担が重なり始める流れ',
       '整え直すための手がかり',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
-    premiumHeadlineJa: '自分の流れを、複数の視点から詳しく読み解く。',
+    premiumHeadlineJa: '自分の力が出やすい条件と、\n無理が重なる流れを読み解く。',
     premiumBodyJa:
       '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
@@ -173,7 +175,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §5 continued — LIGHT / FULL (nested in premium section) */
     planComparisonIntroJa:
-      'ライトとフルで、プレミアムレポート本体の内容は同じです。違いは、読んだ後に追加で詳しく読み解けるテーマ数です。',
+      'レポート本体は同じです。\nライトは、いちばん気になるテーマを1つ。\nフルは、気になるテーマを合計5つまで\n追加で詳しく読み解けます。',
     planLightNameJa: 'ライト',
     planLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     planLightSpecJa: formatHomePlanLightSpecJa(

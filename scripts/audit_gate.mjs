@@ -415,8 +415,11 @@ function validateHomeRegressionTestIds() {
   const copyPath = path.join(ROOT, 'lib', 'm55', 'topFreeEntryPublicCopy.ts');
   if (exists(copyPath)) {
     const copyText = readText(copyPath);
-    if (!copyText.includes('自分の流れを、複数の視点から詳しく読み解く。')) {
-      add(rel(copyPath), 'REGRESSION GUARD: HOME premiumHeadlineJa must use value-first headline copy');
+    if (!copyText.includes('自分の力が出やすい条件と、')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME premiumHeadlineJa must use commercial value-first headline copy');
+    }
+    if (!copyText.includes('premiumValueBridgeLeadJa')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must expose premiumValueBridgeLeadJa for free-to-paid bridge');
     }
     if (copyText.includes('同じ土台を、4つの章で読み返せます。') || copyText.includes('深く読み返す')) {
       add(rel(copyPath), 'REGRESSION GUARD: HOME must not retain removed premium/product-map copy');

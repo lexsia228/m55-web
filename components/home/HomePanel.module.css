@@ -1125,6 +1125,16 @@
   color: #7da8a4;
 }
 
+.premiumValueBridgeLead {
+  margin: 0 0 16px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.62;
+  color: rgba(241, 232, 214, 0.94);
+  white-space: pre-line;
+}
+
 .premiumValueBridgeCompare {
   display: grid;
   grid-template-columns: 1fr;

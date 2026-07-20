@@ -2,6 +2,7 @@ import styles from './HomePanel.module.css';
 
 type Props = {
   eyebrowJa: string;
+  leadJa: string;
   freeHeadingJa: string;
   freeItemsJa: readonly string[];
   premiumHeadingJa: string;
@@ -10,6 +11,7 @@ type Props = {
 
 export default function HomePremiumValueBridge({
   eyebrowJa,
+  leadJa,
   freeHeadingJa,
   freeItemsJa,
   premiumHeadingJa,
@@ -18,6 +20,7 @@ export default function HomePremiumValueBridge({
   return (
     <div className={styles.premiumValueBridge} data-testid="m55-home-premium-value-bridge">
       <p className={styles.premiumValueBridgeEyebrow}>{eyebrowJa}</p>
+      <p className={styles.premiumValueBridgeLead}>{leadJa}</p>
       <div className={styles.premiumValueBridgeCompare}>
         <div className={styles.premiumValueBridgeCol}>
           <p className={styles.premiumValueBridgeColHeading}>{freeHeadingJa}</p>

@@ -9,6 +9,10 @@ import {
   HOME_PAIR_READING_AVAILABILITY,
   isHomePairReadingLivePublic,
 } from './homePairReadingPublicContract';
+import {
+  PAIR_READING_FREE_STRUCTURE_ITEMS,
+  PAIR_READING_GUEST_SUPPORT_LINES,
+} from './compatibility/pairReadingPublicStructure';
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
@@ -64,20 +68,24 @@ describe('homeProductStory — capability map contract', () => {
     assert.doesNotMatch(productMapSource, />\s*0[123]\s*</);
   });
 
-  it('uses approved product map copy from SSOT', () => {
+  it('uses approved commercial product map copy from SSOT', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.productMapEyebrowJa, 'M55でできること');
     assert.equal(
       home.productMapHeadlineJa,
-      '自分を見る。二人の関係を見る。自分を、さらに深く読み解く。',
+      '自分の反応から、二人の関係、\n力が出やすい条件まで。',
     );
-    assert.equal(home.productMapSelfTitleJa, '自分を見る');
-    assert.equal(home.productMapPairTitleJa, '二人の関係を見る');
-    assert.equal(home.productMapPremiumTitleJa, '自分を深く読み解く');
+    assert.equal(home.productMapSelfTitleJa, '自分の反応を知る');
+    assert.equal(
+      home.productMapSelfBodyJa,
+      '生年月日と、いま選んだ答えを重ねて、\n自分に出やすい反応や、\n整え直すための入口を見ていきます。',
+    );
+    assert.equal(home.productMapPairTitleJa, '二人の関係を読み解く');
     assert.equal(
       home.productMapPairBodyJa,
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れを見ていきます。',
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
     );
+    assert.equal(home.productMapPremiumTitleJa, '自分を深く読み解く');
     assert.equal(home.productMapPremiumLinkJa, 'プレミアムの内容を見る');
     assert.equal(home.productMapPairStatusJa, '無料・ログイン不要');
   });
@@ -112,17 +120,31 @@ describe('homeProductStory — pair free dedicated section', () => {
   it('uses approved pair section copy and shared structure authority', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.pairFreeEyebrowJa, '二人の関係を見る');
-    assert.equal(home.pairFreeHeadlineJa, '二人の間に表れやすい流れを、決めつけずに読み解く。');
+    assert.equal(home.pairFreeHeadlineJa, 'なぜ話しやすい時と、\nすれ違う時があるのか。');
     assert.equal(
       home.pairFreeBodyJa,
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを整理します。',
+      '二人の生年月日と、\nいまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
     );
     assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
+    assert.deepEqual(
+      PAIR_READING_FREE_STRUCTURE_ITEMS.map((item) => item.titleJa),
+      [
+        '二人の変わりにくい土台',
+        '今の二人に表れやすいこと',
+        '二人の間で続きやすい連鎖',
+        '次に一度だけ試すこと',
+      ],
+    );
+    assert.deepEqual(PAIR_READING_GUEST_SUPPORT_LINES, [
+      '回答するのはあなた一人です。',
+      '相手が回答したものではありません。',
+    ]);
     assert.match(pairFreeSource, /PAIR_READING_FREE_STRUCTURE_ITEMS/);
     assert.match(pairFreeSource, /PAIR_READING_GUEST_SUPPORT_LINES/);
     assert.match(pairFreeSource, /m55-home-pair-free-structure/);
     assert.doesNotMatch(pairFreeSource, /freePreviewSheet|insightCard|dynamicOutcome/);
+    assert.equal(pairFreeSource.includes('好きな人、恋人、パートナー、家族、友人'), false);
   });
 
   it('shares structure labels with CompatibilityGuestExperience via single authority', () => {
@@ -131,13 +153,34 @@ describe('homeProductStory — pair free dedicated section', () => {
   });
 });
 
-describe('homeProductStory — premium copy and value bridge', () => {
-  it('uses mandatory value-first premium headline and body', () => {
+describe('homeProductStory — self free commercial copy', () => {
+  it('uses approved self free headline and outcome item 02 title', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み解く。');
+    assert.equal(
+      home.freeResultHeadlineJa,
+      '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
+    );
+    assert.equal(home.outcomeBridgeItemsJa[1].titleJa, '人と関わるときの自分の動き');
+    assert.equal(
+      home.outcomeBridgeItemsJa[1].bodyJa,
+      '人と関わるとき、どのような順番で考え、動きやすいか。',
+    );
+    assert.equal(home.outcomeBridgeItemsJa[0].titleJa, '自分に表れやすい反応');
+    assert.equal(home.outcomeBridgeItemsJa[2].titleJa, '整え直すための手がかり');
+  });
+});
+
+describe('homeProductStory — premium copy and value bridge', () => {
+  it('uses mandatory commercial premium headline, body, and plan intro', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.premiumHeadlineJa, '自分の力が出やすい条件と、\n無理が重なる流れを読み解く。');
     assert.equal(
       home.premiumBodyJa,
       '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+    );
+    assert.equal(
+      home.planComparisonIntroJa,
+      'レポート本体は同じです。\nライトは、いちばん気になるテーマを1つ。\nフルは、気になるテーマを合計5つまで\n追加で詳しく読み解けます。',
     );
     assert.equal(homeBlob.includes('同じ土台を、4つの章で読み返せます。'), false);
   });
@@ -158,6 +201,10 @@ describe('homeProductStory — premium copy and value bridge', () => {
   it('uses approved free-to-premium comparison copy without demeaning free tier', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.premiumValueBridgeEyebrowJa, '自分の無料結果から、さらに深く');
+    assert.equal(
+      home.premiumValueBridgeLeadJa,
+      '無料は、今の自分を見る入口。\nプレミアムは、\nなぜそうなるかと、どう扱うかまで。',
+    );
     assert.equal(home.premiumValueBridgeFreeHeadingJa, '無料結果');
     assert.equal(home.premiumValueBridgePremiumHeadingJa, 'プレミアムレポート');
     assert.deepEqual(home.premiumValueBridgeFreeItemsJa, [
@@ -166,10 +213,11 @@ describe('homeProductStory — premium copy and value bridge', () => {
       '今の状態を整理するための入口',
     ]);
     assert.deepEqual(home.premiumValueBridgePremiumItemsJa, [
-      '動き方と、強みが表れやすい条件',
+      '動き方と、力が出やすい条件',
       '人との距離感と、負担が重なり始める流れ',
       '整え直すための手がかり',
     ]);
+    assert.match(valueBridgeSource, /premiumValueBridgeLead/);
     assert.equal(homeBlob.includes('premiumValueBridgeHeadlineJa'), false);
     assert.equal(homeBlob.includes('無料は不完全'), false);
     assert.equal(homeBlob.includes('無料では分からない'), false);
@@ -177,14 +225,18 @@ describe('homeProductStory — premium copy and value bridge', () => {
 });
 
 describe('homeProductStory — mechanism and final CTA copy', () => {
-  it('explains mechanism for both self and pair without single-signal claims', () => {
+  it('explains mechanism for both self and pair without self-only diagram output', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.mechanismHeadlineJa, '生年月日と、いまの答えを重ねて見る。');
+    assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
+      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
+    assert.equal(home.mechanismDiagramSource1Ja, '生年月日から見える土台');
+    assert.equal(home.mechanismDiagramSource2Ja, 'いま選んだ答え');
+    assert.equal(home.mechanismDiagramOutputJa, '今表れやすい流れ');
+    assert.equal(home.mechanismDiagramOutputJa.includes('自分'), false);
   });
 
   it('uses approved final CTA headline while keeping body and CTAs stable', () => {
@@ -201,10 +253,11 @@ describe('homeProductStory — HOME terminology contract', () => {
     assert.equal(homeBlob.includes('読み返す'), false);
   });
 
-  it('limits 読み解く to product value and headlines, not pair/premium CTAs', () => {
+  it('limits 読み解く to product value and headlines, not CTAs', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.match(home.productMapHeadlineJa, /読み解く/);
     assert.match(home.premiumHeadlineJa, /読み解く/);
+    assert.match(home.productMapPremiumTitleJa, /読み解く/);
+    assert.match(home.productMapPairTitleJa, /読み解く/);
     assert.equal(home.productMapSelfCtaJa.includes('読み解く'), false);
     assert.equal(home.productMapPairCtaJa.includes('読み解く'), false);
     assert.equal(home.pairFreeCtaJa.includes('読み解く'), false);

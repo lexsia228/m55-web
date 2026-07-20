@@ -172,19 +172,24 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
   it('uses approved exact copy freeze strings for key sections', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.outcomeBridgeEyebrowJa, 'M55で見えてくること');
-    assert.equal(home.freeResultHeadlineJa, '無料で、自分に表れやすい流れを知る。');
+    assert.equal(
+      home.freeResultHeadlineJa,
+      '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
+    );
     assert.equal(
       home.freeResultBodyJa,
       '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
+    assert.equal(home.outcomeBridgeItemsJa[1].titleJa, '人と関わるときの自分の動き');
     assert.equal(home.mechanismEyebrowJa, 'M55の見方');
-    assert.equal(home.mechanismHeadlineJa, '生年月日と、いまの答えを重ねて見る。');
+    assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
+      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
-    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み解く。');
+    assert.equal(home.mechanismDiagramOutputJa, '今表れやすい流れ');
+    assert.equal(home.premiumHeadlineJa, '自分の力が出やすい条件と、\n無理が重なる流れを読み解く。');
     assert.equal(
       home.premiumBodyJa,
       '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
@@ -215,6 +220,13 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.match(pairSource, /data-testid="m55-home-pair-free-structure"/);
     assert.match(pairSource, /data-testid="m55-home-pair-free-cta"/);
     assert.match(pairSource, /pairReadingPublicStructure/);
+  });
+
+  it('uses compact single-column pair index layout at 420px and below', () => {
+    assert.match(homePanelCss, /\.pairStructureIndexItem[\s\S]*display:\s*flex/);
+    assert.match(homePanelCss, /@media \(max-width: 420px\)/);
+    assert.match(homePanelCss, /@media \(min-width: 421px\)[\s\S]*grid-template-columns:\s*repeat\(2/);
+    assert.match(homePanelCss, /\.pairStructureIndexTitle[\s\S]*word-break:\s*keep-all/);
   });
 
   it('implements short mechanism band with how link only and no accordion/panels', () => {

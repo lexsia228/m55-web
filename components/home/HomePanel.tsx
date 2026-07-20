@@ -297,6 +297,7 @@ export default function HomePanel() {
         >
           <HomePremiumValueBridge
             eyebrowJa={homeCopy.premiumValueBridgeEyebrowJa}
+            leadJa={homeCopy.premiumValueBridgeLeadJa}
             freeHeadingJa={homeCopy.premiumValueBridgeFreeHeadingJa}
             freeItemsJa={homeCopy.premiumValueBridgeFreeItemsJa}
             premiumHeadingJa={homeCopy.premiumValueBridgePremiumHeadingJa}
