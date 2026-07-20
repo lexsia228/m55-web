@@ -415,8 +415,14 @@ function validateHomeRegressionTestIds() {
   const copyPath = path.join(ROOT, 'lib', 'm55', 'topFreeEntryPublicCopy.ts');
   if (exists(copyPath)) {
     const copyText = readText(copyPath);
-    if (!copyText.includes('自分の力が出やすい条件と、')) {
+    if (!copyText.includes('負担が重なり始める流れを読み解く。')) {
       add(rel(copyPath), 'REGRESSION GUARD: HOME premiumHeadlineJa must use commercial value-first headline copy');
+    }
+    if (!copyText.includes('planLightFitJa') || !copyText.includes('planFullFitJa')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must expose planLightFitJa and planFullFitJa for plan selection clarity');
+    }
+    if (copyText.includes('気になる二人') || copyText.includes('無理が重なる流れ')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must not use removed pair or premium wording');
     }
     if (!copyText.includes('premiumValueBridgeLeadJa')) {
       add(rel(copyPath), 'REGRESSION GUARD: HOME must expose premiumValueBridgeLeadJa for free-to-paid bridge');

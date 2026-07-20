@@ -322,12 +322,14 @@ export default function HomePanel() {
             <div className={styles.planComparisonRow}>
               <article className={styles.planComparisonCol} data-testid="m55-home-plan-light">
                 <p className={styles.planComparisonName}>{homeCopy.planLightNameJa}</p>
+                <p className={styles.planComparisonFit}>{homeCopy.planLightFitJa}</p>
                 <p className={styles.planComparisonPrice}>{homeCopy.planLightPriceJa}</p>
                 <p className={styles.planComparisonSpec}>{homeCopy.planLightSpecJa}</p>
               </article>
               <div className={styles.planComparisonDivider} aria-hidden="true" />
               <article className={styles.planComparisonCol} data-testid="m55-home-plan-full">
                 <p className={styles.planComparisonName}>{homeCopy.planFullNameJa}</p>
+                <p className={styles.planComparisonFit}>{homeCopy.planFullFitJa}</p>
                 <p className={styles.planComparisonPrice}>{homeCopy.planFullPriceJa}</p>
                 <p className={styles.planComparisonSpec}>{homeCopy.planFullSpecJa}</p>
               </article>

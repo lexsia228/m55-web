@@ -922,6 +922,7 @@
 .premiumDarkStage .sectionLead,
 .premiumDarkStage .planComparisonLead,
 .premiumDarkStage .planComparisonName,
+.premiumDarkStage .planComparisonFit,
 .premiumDarkStage .planComparisonSpec {
   color: rgba(241, 232, 214, 0.9);
 }
@@ -1852,6 +1853,15 @@
   font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.planComparisonFit {
+  margin: 0 0 10px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  line-height: 1.62;
+  color: rgba(241, 232, 214, 0.82);
+  white-space: pre-line;
 }
 
 .planComparisonPrice {

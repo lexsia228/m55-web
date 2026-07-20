@@ -87,7 +87,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     productMapSelfCtaJa: '無料で見てみる',
     productMapPairTitleJa: '二人の関係を読み解く',
     productMapPairBodyJa:
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
+      'あなたと、関係を知りたい相手の生年月日と、\n今の二人に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
     productMapPairStatusJa: '無料・ログイン不要',
     productMapPairCtaJa: '二人の関係を見てみる',
     productMapPairPreparingTitleJa: '二人の関係を見る',
@@ -103,7 +103,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     pairFreeEyebrowJa: '二人の関係を見る',
     pairFreeHeadlineJa: 'なぜ話しやすい時と、\nすれ違う時があるのか。',
     pairFreeBodyJa:
-      '二人の生年月日と、\nいまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
+      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
     pairFreeStatusJa: '無料・ログイン不要',
     pairFreeCtaJa: '二人の関係を無料で見てみる',
     pairFreePreparingStatusJa: '準備中',
@@ -167,7 +167,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '整え直すための手がかり',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
-    premiumHeadlineJa: '自分の力が出やすい条件と、\n無理が重なる流れを読み解く。',
+    premiumHeadlineJa: '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
     premiumBodyJa:
       '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
@@ -175,13 +175,15 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §5 continued — LIGHT / FULL (nested in premium section) */
     planComparisonIntroJa:
-      'レポート本体は同じです。\nライトは、いちばん気になるテーマを1つ。\nフルは、気になるテーマを合計5つまで\n追加で詳しく読み解けます。',
+      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
     planLightNameJa: 'ライト',
+    planLightFitJa: 'まず全体像を知り、\nいちばん気になることを1つ深く見たい人へ。',
     planLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
     planLightSpecJa: formatHomePlanLightSpecJa(
       PAID_DTR_SAVED_REPORT_PRICING.light.includedReplyCount,
     ),
     planFullNameJa: 'フル',
+    planFullFitJa: '複数の気になるテーマを、\nまとめて深く見たい人へ。',
     planFullPriceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     planFullSpecJa: formatHomePlanFullSpecJa(PAID_DTR_SAVED_REPORT_PRICING.full.totalReplyCap),
     planCommonFactsJa: ['買い切り', '自動更新なし', '購入と閲覧にはログインが必要です'] as const,

@@ -83,7 +83,7 @@ describe('homeProductStory — capability map contract', () => {
     assert.equal(home.productMapPairTitleJa, '二人の関係を読み解く');
     assert.equal(
       home.productMapPairBodyJa,
-      '二人の生年月日と、いまの関係に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
+      'あなたと、関係を知りたい相手の生年月日と、\n今の二人に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
     );
     assert.equal(home.productMapPremiumTitleJa, '自分を深く読み解く');
     assert.equal(home.productMapPremiumLinkJa, 'プレミアムの内容を見る');
@@ -123,7 +123,7 @@ describe('homeProductStory — pair free dedicated section', () => {
     assert.equal(home.pairFreeHeadlineJa, 'なぜ話しやすい時と、\nすれ違う時があるのか。');
     assert.equal(
       home.pairFreeBodyJa,
-      '二人の生年月日と、\nいまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
+      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
     );
     assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
@@ -145,6 +145,7 @@ describe('homeProductStory — pair free dedicated section', () => {
     assert.match(pairFreeSource, /m55-home-pair-free-structure/);
     assert.doesNotMatch(pairFreeSource, /freePreviewSheet|insightCard|dynamicOutcome/);
     assert.equal(pairFreeSource.includes('好きな人、恋人、パートナー、家族、友人'), false);
+    assert.equal(homeBlob.includes('気になる二人'), false);
   });
 
   it('shares structure labels with CompatibilityGuestExperience via single authority', () => {
@@ -171,17 +172,32 @@ describe('homeProductStory — self free commercial copy', () => {
 });
 
 describe('homeProductStory — premium copy and value bridge', () => {
-  it('uses mandatory commercial premium headline, body, and plan intro', () => {
+  it('uses mandatory commercial premium headline, body, plan intro, and plan fit copy', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.premiumHeadlineJa, '自分の力が出やすい条件と、\n無理が重なる流れを読み解く。');
+    assert.equal(
+      home.premiumHeadlineJa,
+      '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
+    );
     assert.equal(
       home.premiumBodyJa,
       '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     );
     assert.equal(
       home.planComparisonIntroJa,
-      'レポート本体は同じです。\nライトは、いちばん気になるテーマを1つ。\nフルは、気になるテーマを合計5つまで\n追加で詳しく読み解けます。',
+      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
     );
+    assert.equal(
+      home.planLightFitJa,
+      'まず全体像を知り、\nいちばん気になることを1つ深く見たい人へ。',
+    );
+    assert.equal(
+      home.planFullFitJa,
+      '複数の気になるテーマを、\nまとめて深く見たい人へ。',
+    );
+    assert.match(homePanelSource, /planLightFitJa/);
+    assert.match(homePanelSource, /planFullFitJa/);
+    assert.match(homePanelSource, /planComparisonFit/);
+    assert.equal(homeBlob.includes('無理が重なる流れ'), false);
     assert.equal(homeBlob.includes('同じ土台を、4つの章で読み返せます。'), false);
   });
 
