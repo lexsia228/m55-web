@@ -7,6 +7,7 @@
         "guard:clerk": "node .github/scripts/guard_clerk_await.mjs",
         "dev": "node scripts/audit_gate.mjs --fast && next dev",
         "audit": "node scripts/audit_gate.mjs",
+        "verify:m55-ssot": "node scripts/verify-m55-commercial-ssot.mjs",
         "build": "next build",
         "build:strict": "node scripts/audit_gate.mjs && next build",
         "ci:build": "npm run build:strict",
