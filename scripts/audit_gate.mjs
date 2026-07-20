@@ -259,6 +259,23 @@ function validateBindingInventoryPolicyTrace() {
   }
 }
 
+function runNodeVerify(name, scriptRel) {
+  const scriptPath = path.join(ROOT, scriptRel);
+  if (!exists(scriptPath)) {
+    add(scriptRel, `${name}: script missing`);
+    return;
+  }
+  const r = spawnSync(process.execPath, [scriptPath], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    shell: false,
+  });
+  if (r.status !== 0) {
+    const out = `${r.stdout ?? ''}${r.stderr ?? ''}`.trim();
+    add(scriptRel, `${name} failed${out ? `: ${out.split('\n').slice(0, 3).join(' ')}` : ''}`);
+  }
+}
+
 function runGuard(name, pythonScript, args) {
   const scriptPath = path.join(ROOT, 'scripts', 'ci', 'guard', pythonScript);
   if (!exists(scriptPath)) {
@@ -591,6 +608,10 @@ function main() {
   validateMyPanelProfileIntakeTestId();
   validatePurchaseSuccessPage();
   validatePublicClaimsBanlist();
+
+  if (!FAST) {
+    runNodeVerify('verify-m55-commercial-ssot', 'scripts/verify-m55-commercial-ssot.mjs');
+  }
 
   if (!exists(LEGACY)) {
     reportAndExit();

@@ -29,3 +29,6 @@ jobs:
 
       - name: Audit gate
         run: npm run audit
+
+      - name: M55 commercial SSOT verifier
+        run: npm run verify:m55-ssot
