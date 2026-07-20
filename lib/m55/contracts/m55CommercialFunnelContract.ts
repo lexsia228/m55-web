@@ -284,8 +284,12 @@ export const M55_PAIR_RELATION_SUPPORT = {
 export const M55_COMMERCIAL_STATE_REGISTRY = {
   HOME_COMMERCIAL_FOUNDATION: 'CLOSED_GREEN',
   HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT: 'NOT_YET',
-  ACTIVE_LANE: 'M55 Commercial Funnel SSOT構築',
-  NEXT_AFTER_SSOT_MERGE: '個人無料→個人Premiumファネルの一括実装',
+  COMPLETED_GREEN: 'M55 Commercial Funnel SSOT構築 (PR #74)',
+  ACTIVE_LANE: '個人無料→個人Premiumファネルの一括実装',
+  POST_MERGE_NEXT_SINGLE_ACTION:
+    'PRIMARY_MAIN_HOME（M55_WORKTREE-home-final-ia-v1）で main を checkout し origin/main の merge SHA を確認 → M55_SELF_FUNNEL_CONTRACT.md の target と current runtime gap を照合 → Self free→Premium 実装 PR のスコープ確定（本 lane では SSOT/docs のみ merge 済み）',
+  PAIR_PREMIUM_LANE: 'LATER — roadmap step 3（二人向け無料→有料）',
+  PROHIBITED_AHEAD_OF_SELF_FUNNEL: ['Stripe変更', 'Pair runtime変更', 'HOME final SSOT', 'DO_NOT_USE worktree での実装'],
   CURRENT_SAFE_WORKTREE: '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1',
   STALE_DO_NOT_USE_WORKTREE: '/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish',
   STALE_WORKTREE_REASON:

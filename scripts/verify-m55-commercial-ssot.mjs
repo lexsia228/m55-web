@@ -117,8 +117,8 @@ function checkMachineContract(data) {
   if (r.HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT !== 'NOT_YET') {
     fail('HOME final SSOT must be NOT_YET');
   }
-  if (r.ACTIVE_LANE !== 'M55 Commercial Funnel SSOT構築') {
-    fail('ACTIVE_LANE must match exact commercial funnel SSOT lane');
+  if (r.ACTIVE_LANE !== '個人無料→個人Premiumファネルの一括実装') {
+    fail('ACTIVE_LANE must be post-merge Self funnel lane');
   }
   if (enforcement !== 'PENDING_SELF_FUNNEL_IMPLEMENTATION') {
     fail('enforcementStatus must be PENDING_SELF_FUNNEL_IMPLEMENTATION');
@@ -308,6 +308,7 @@ function checkLocalWorktreePreflight() {
   const live = parseWorktreeListPorcelain(result.stdout);
   const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
   const warnings = [];
+  const hasDocumentedTransition = registry.includes('Documented post-merge transition');
 
   for (const entry of live) {
     if (!registry.includes(entry.path)) {
@@ -315,11 +316,38 @@ function checkLocalWorktreePreflight() {
       continue;
     }
     const pathBlock = registry.slice(registry.indexOf(entry.path));
+    const isWt001 = entry.path.endsWith('M55_WORKTREE-home-final-ia-v1');
+    const preMergeSnapshotBranch = 'docs/m55-commercial-funnel-ssot-v1';
+    const postMergeExpectedBranch = 'main';
+
     if (entry.branch && !pathBlock.includes(entry.branch)) {
-      warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
+      if (
+        isWt001 &&
+        hasDocumentedTransition &&
+        entry.branch === postMergeExpectedBranch &&
+        pathBlock.includes(preMergeSnapshotBranch)
+      ) {
+        console.log(
+          '[preflight] WT-001 on main — matches documented post-merge transition (update registry snapshot if not yet done)',
+        );
+      } else if (
+        isWt001 &&
+        hasDocumentedTransition &&
+        entry.branch === preMergeSnapshotBranch
+      ) {
+        // pre-merge snapshot still valid
+      } else {
+        warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
+      }
     }
     if (entry.head && !pathBlock.includes(entry.head.slice(0, 12))) {
-      warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+      if (isWt001 && hasDocumentedTransition && entry.branch === postMergeExpectedBranch) {
+        console.log(
+          '[preflight] WT-001 HEAD differs from pre-merge snapshot — expected after merge; update registry',
+        );
+      } else if (!(isWt001 && hasDocumentedTransition && entry.branch === preMergeSnapshotBranch)) {
+        warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+      }
     }
   }
 
@@ -328,6 +356,40 @@ function checkLocalWorktreePreflight() {
     for (const w of warnings) console.warn(`- ${w}`);
   } else {
     console.log('[preflight] live git worktree list matches registry paths/branches/HEAD prefixes');
+  }
+}
+
+function checkPostMergeHandoff() {
+  const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
+  const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
+  const agents = read('AGENTS.md');
+
+  if (!currentState.includes('postMergeActiveLane')) {
+    fail('M55_CURRENT_STATE.md must define postMergeActiveLane');
+  }
+  if (!currentState.includes('個人無料→個人Premiumファネルの一括実装')) {
+    fail('postMergeActiveLane must be Self free→Premium lane');
+  }
+  if (!currentState.includes('postMergeNextSingleAction')) {
+    fail('M55_CURRENT_STATE.md must define postMergeNextSingleAction');
+  }
+  if (!currentState.includes('NOT_YET')) {
+    fail('HOME final SSOT must remain NOT_YET');
+  }
+  if (!currentState.includes('Pair implementation') && !currentState.includes('pairPremium')) {
+    fail('M55_CURRENT_STATE.md must record Pair as later lane');
+  }
+  if (!currentState.includes('Stripe') || !currentState.includes('Pair runtime')) {
+    fail('M55_CURRENT_STATE.md must prohibit Stripe/Pair ahead of Self funnel');
+  }
+  if (!currentState.includes('Completed GREEN') && !currentState.includes('GREEN')) {
+    fail('M55_CURRENT_STATE.md must record SSOT lane as completed GREEN');
+  }
+  if (!registry.includes('Documented post-merge transition')) {
+    fail('registry must document post-merge transition for WT-001');
+  }
+  if (!agents.includes('Documented post-merge transition')) {
+    fail('AGENTS.md must distinguish unexplained drift vs documented post-merge transition');
   }
 }
 
@@ -348,6 +410,7 @@ function main() {
   checkDocsParity(data);
   checkAgentsReadOrder();
   checkWorktreeRegistry();
+  checkPostMergeHandoff();
   checkDeferredNotEnforcedAsPass();
 
   if (FAILURES.length > 0) {

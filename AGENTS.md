@@ -25,7 +25,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **No unplanned worktrees** — confirm `pwd`, branch, HEAD, `git status`, and `git worktree list` before editing.
 - **Do not infer purpose from folder names** — Git branch, HEAD, and `M55_WORKTREE_REGISTRY.md` are authority.
 - **DO_NOT_USE worktrees** — never edit; never reset / clean / stash dirty trees without explicit human instruction.
-- **Registry drift** — if live `git worktree list` differs from `M55_WORKTREE_REGISTRY.md`, stop and report.
+- **Registry drift** — unexplained drift between live `git worktree list` and `M55_WORKTREE_REGISTRY.md` → **STOP and report**. **Documented post-merge transition** in registry + verified merge SHA on `origin/main` → update registry snapshot (`lastVerifiedAt`, branch, HEAD) and continue.
 - **End-of-task registry check** — after lane work, decide whether to update `M55_WORKTREE_REGISTRY.md` and `M55_CURRENT_STATE.md`.
 - **Branch vs folder mismatch** — when branch name and folder name disagree, trust Git state + registry over folder naming.
 - **Read authority before source changes** — especially price, copy, and funnel flow.
@@ -40,7 +40,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 | B — Commercial principles | `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` |
 | C — Funnel contracts | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` |
 | D — Language / visual | `M55_COPY_AND_CLAIMS.md`, `M55_VISUAL_SYSTEM.md` |
-| E — State / roadmap / decisions | `M55_CURRENT_STATE.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` |
+| E — State / roadmap / decisions | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` |
 
 Subordinate copies must reference primary authority and must not silently override it.
 

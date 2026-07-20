@@ -29,6 +29,17 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 
 `PRIMARY_MAIN` in entry notes means **PRIMARY_MAIN_HOME designation**, not “this worktree is on branch `main` right now”.
 
+### Documented post-merge transition (WT-001)
+
+WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state forever.
+
+| Phase | branch | HEAD | Agent action |
+|---|---|---|---|
+| Pre-merge (PR #74 review) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | Normal SSOT PR work |
+| Post-merge (expected) | `main` | `origin/main` squash merge SHA | checkout `main`, pull, verify merge SHA, **update this registry** + `M55_CURRENT_STATE.md`, re-run live preflight |
+
+**Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + verified merge SHA on `origin/main` → update snapshot and continue (see `AGENTS.md`).
+
 ---
 
 ## Registered worktrees
@@ -38,10 +49,10 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
-| branch | `docs/m55-commercial-funnel-ssot-v1` |
-| HEAD | `31fbb05c7c7f49d07cb57a4f7c9d983ef21ac880` |
+| branch | `docs/m55-commercial-funnel-ssot-v1` (pre-merge snapshot) |
+| HEAD | `86260d50fa132dfd083a0f092f0cfa0c3eaa2adb` |
 | upstream | `origin/docs/m55-commercial-funnel-ssot-v1` |
-| divergence from `origin/main` | 0 behind · 1 ahead |
+| divergence from `origin/main` | 0 behind · 2 ahead |
 | ancestor of `origin/main` | NO (feature commit on top of main) |
 | cleanliness | clean |
 | locked / prunable | none |
@@ -51,7 +62,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | allowed operations | docs/contract/verifier edits on active branch; read authority first |
 | prohibited operations | runtime/UI/route/API/DB/Stripe/Clerk/env changes in this lane |
 | removal eligibility | NO — retain as PRIMARY_MAIN_HOME after merge |
-| notes | **ACTIVE_BRANCH** holder. After PR #74 merge: checkout `main`, pull `origin/main`, use as baseline for next lane (個人無料→個人Premium). Folder name is not authority; branch + registry are. |
+| notes | **ACTIVE_BRANCH** holder (pre-merge). **Post-merge:** checkout `main`, pull `origin/main`, verify merge SHA, update registry snapshot, live preflight. See **Documented post-merge transition** above. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 

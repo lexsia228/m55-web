@@ -67,9 +67,13 @@ describe('m55CommercialFunnelContract — machine product truth', () => {
     assert.ok(M55_DEFERRED_RUNTIME_ASSERTIONS.length >= 3);
   });
 
-  it('registers active lane and HOME final SSOT status', () => {
+  it('registers post-merge active lane and HOME final SSOT status', () => {
     assert.equal(M55_COMMERCIAL_STATE_REGISTRY.HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT, 'NOT_YET');
-    assert.equal(M55_COMMERCIAL_STATE_REGISTRY.ACTIVE_LANE, 'M55 Commercial Funnel SSOT構築');
+    assert.equal(
+      M55_COMMERCIAL_STATE_REGISTRY.ACTIVE_LANE,
+      '個人無料→個人Premiumファネルの一括実装',
+    );
+    assert.match(M55_COMMERCIAL_STATE_REGISTRY.COMPLETED_GREEN, /Commercial Funnel SSOT/);
   });
 
   it('locks roadmap order starting with Commercial Funnel SSOT', () => {
