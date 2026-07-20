@@ -1,4 +1,4 @@
-import { classifyChecks, safeRead } from './engine.mjs';
+import { canonicalPathIdentity, classifyChecks, safeRead } from './engine.mjs';
 
 export const AUTHORITY_MANIFEST = [
   'AGENTS.md', 'docs/ssot/README.md', 'docs/ssot/M55_CURRENT_STATE.md',
@@ -27,6 +27,7 @@ function parseRegistry(text) {
       lifecycle: oneMatch(body, /^\| lifecycle \| \*\*([^*]+)\*\*/gm, 'MALFORMED_WORKTREE_REGISTRY', 'lifecycle'),
     };
   });
+  for (const row of rows) row.pathIdentity = canonicalPathIdentity(row.path);
   const paths = rows.map((row) => row.path);
   if (new Set(paths).size !== paths.length) throw new Error('MALFORMED_WORKTREE_REGISTRY:duplicate-path');
   return rows;
@@ -76,16 +77,17 @@ export function inspectM55(repo, identity) {
       checks.push(check('m55:authority-format', 'PASS', 'Required M55 authority is unambiguous.'));
     } catch (error) { checks.push(fail(error.message.split(':')[0].toLowerCase().replaceAll('_', ':'), 'Required M55 authority is malformed, ambiguous, or contradictory.', { error: error.message })); }
   }
-  const rowByPath = new Map(rows.map((row) => [row.path, row]));
+  const rowByPath = new Map(rows.map((row) => [row.pathIdentity, row]));
   for (const worktree of identity.worktrees) {
-    const row = rowByPath.get(worktree.path);
+    const worktreeIdentity = worktree.pathIdentity || canonicalPathIdentity(worktree.path);
+    const row = rowByPath.get(worktreeIdentity);
     if (!row) { checks.push(fail('worktree:unregistered', 'Live worktree is absent from the registry.', { path: worktree.path })); continue; }
     if (worktree.branch && row.branch !== worktree.branch) {
       if (authority.documentedTransition && worktree.path.endsWith('M55_WORKTREE-home-final-ia-v1') && worktree.branch === 'main') checks.push(check('worktree:documented-transition', 'WARN', 'Documented post-merge transition has a stale snapshot.', { path: worktree.path }));
       else checks.push(fail('worktree:branch-mismatch', 'Live worktree branch differs from the registry without a documented transition.', { path: worktree.path, documented: row.branch, live: worktree.branch }));
     }
   }
-  if (!identity.worktrees.some((worktree) => !rowByPath.has(worktree.path))) checks.push(check('worktree:inventory', 'PASS', 'Every live worktree is registered.'));
+  if (!identity.worktrees.some((worktree) => !rowByPath.has(worktree.pathIdentity || canonicalPathIdentity(worktree.path)))) checks.push(check('worktree:inventory', 'PASS', 'Every live worktree is registered.'));
   if (rows.some((row) => row.lifecycle === 'DO_NOT_USE')) checks.push(check('worktree:prohibited', 'PASS', 'Prohibited DO_NOT_USE worktree remains documented.'));
   else checks.push(fail('worktree:prohibited', 'No DO_NOT_USE worktree is documented.'));
   if (!identity.clean) checks.push(fail('git:dirty', 'Working tree has tracked, staged, or untracked changes.', { dirtyFiles: identity.dirtyFiles }));

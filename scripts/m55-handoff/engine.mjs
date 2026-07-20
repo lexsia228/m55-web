@@ -23,6 +23,28 @@ export function resolveGitExecutable({ platform = process.platform, env = proces
   return 'git.exe';
 }
 
+export function canonicalPathIdentity(value, { platform = process.platform, realpathSync = fs.realpathSync.native } = {}) {
+  const pathApi = platform === 'win32' ? path.win32 : path;
+  const source = platform === 'win32' ? String(value).replaceAll('/', '\\') : String(value);
+  let resolved = pathApi.resolve(source);
+  if (realpathSync) {
+    try { resolved = realpathSync(resolved); } catch { /* absent host path: retain lexical identity */ }
+  }
+  let normalized = pathApi.normalize(resolved);
+  const root = pathApi.parse(normalized).root;
+  while (normalized.length > root.length && normalized.endsWith(pathApi.sep)) normalized = normalized.slice(0, -1);
+  return platform === 'win32' ? normalized.toLowerCase() : normalized;
+}
+
+export function pathIsInside(root, candidate, options = {}) {
+  const platform = options.platform || process.platform;
+  const pathApi = platform === 'win32' ? path.win32 : path;
+  const rootIdentity = canonicalPathIdentity(root, options);
+  const candidateIdentity = canonicalPathIdentity(candidate, options);
+  const prefix = rootIdentity.endsWith(pathApi.sep) ? rootIdentity : `${rootIdentity}${pathApi.sep}`;
+  return candidateIdentity.startsWith(prefix);
+}
+
 export function runGit(repo, args) {
   try {
     return execFileSync(resolveGitExecutable(), ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: false, windowsHide: true, env: process.env }).trim();
@@ -37,7 +59,7 @@ export function parseWorktrees(porcelain = '') {
   for (const line of porcelain.split('\n')) {
     if (line.startsWith('worktree ')) {
       if (entry) entries.push(entry);
-      entry = { path: line.slice(9), head: null, branch: null, detached: false };
+      entry = { path: line.slice(9), pathIdentity: canonicalPathIdentity(line.slice(9)), head: null, branch: null, detached: false };
     } else if (entry && line.startsWith('HEAD ')) entry.head = line.slice(5);
     else if (entry && line.startsWith('branch refs/heads/')) entry.branch = line.slice(18);
     else if (entry && line === 'detached') entry.detached = true;
@@ -76,8 +98,9 @@ export function collectRepository(repo) {
 }
 
 export function validateAuthorityPath(root, candidate, real, label = '') {
-  if (!candidate.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_PATH_ESCAPE:${label}`);
-  if (!real.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_SYMLINK_ESCAPE:${label}`);
+  const options = { realpathSync: null };
+  if (!pathIsInside(root, candidate, options)) throw new Error(`AUTHORITY_PATH_ESCAPE:${label}`);
+  if (!pathIsInside(root, real, options)) throw new Error(`AUTHORITY_SYMLINK_ESCAPE:${label}`);
   return real;
 }
 

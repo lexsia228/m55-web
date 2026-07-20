@@ -210,14 +210,15 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` |
 | branch | `feat/m55-build-week-control-plane-v1` |
-| HEAD / base | `d8682a121ee54808b1214b9835fa3d936b648ca8` |
+| base | `d8682a121ee54808b1214b9835fa3d936b648ca8` |
+| HEAD | rolling feature-branch tip — verify with live Git and pushed-commit evidence |
 | lifecycle | **TEMPORARY_ACTIVE** |
 | purpose | OpenAI Build Week / M55 Control Plane |
 | productLaneReplacement | false |
 | returnState | `GREEN_SELF_FUNNEL_SPEC_READY_FOR_HUMAN_VISUAL_SELECTION` |
 | allowed operations | control-plane CLI, generic engine, M55 authority adapter, reports, tests, Build Week documentation, minimal authority closure |
 | prohibited operations | Self Funnel runtime · HOME · Pair · Stripe · checkout · DB · migration · Clerk · wallet · ticket · RPC · Production deploy |
-| notes | Temporary operational interrupt. The product active lane and roadmap order remain unchanged. |
+| notes | Temporary operational interrupt. Authorized commits advance this `TEMPORARY_ACTIVE` branch, so HEAD is intentionally live-verified rather than frozen in this row. The product active lane and roadmap order remain unchanged. |
 
 ---
 

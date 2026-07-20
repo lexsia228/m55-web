@@ -62,6 +62,16 @@ This completes in seconds and creates five synthetic JSON, HTML, and handoff pac
 platform temporary directory. It does not read M55 Production data or require secrets, a DB,
 Clerk, Stripe, or external services.
 
+The distribution-grade zero-install path is equivalent and requires only Node and the committed
+Control Plane files (Git is needed for repository auditing, not synthetic generation):
+
+```bash
+node scripts/m55-handoff/demo.mjs
+```
+
+Full M55 repository validation remains separate and may require `npm ci` plus project
+dependencies. This does not claim that the M55 application is zero-install.
+
 ## Managed-worktree boundary
 
 A new host checkout is not automatically granted managed-worktree authority: an unregistered

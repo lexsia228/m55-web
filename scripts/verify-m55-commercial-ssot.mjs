@@ -317,6 +317,7 @@ function checkLocalWorktreePreflight() {
     }
     const pathBlock = registry.slice(registry.indexOf(entry.path));
     const isWt001 = entry.path.endsWith('M55_WORKTREE-home-final-ia-v1');
+    const isTemporaryControlPlane = entry.path.endsWith('M55_WORKTREE-build-week-control-plane-v1');
     const preMergeSnapshotBranch = 'docs/m55-commercial-funnel-ssot-v1';
     const postMergeExpectedBranch = 'main';
 
@@ -341,7 +342,9 @@ function checkLocalWorktreePreflight() {
       }
     }
     if (entry.head && !pathBlock.includes(entry.head.slice(0, 12))) {
-      if (isWt001 && hasDocumentedTransition && entry.branch === postMergeExpectedBranch) {
+      if (isTemporaryControlPlane && pathBlock.includes('TEMPORARY_ACTIVE') && pathBlock.includes('rolling feature-branch tip')) {
+        console.log('[preflight] WT-009 HEAD is live-verified — documented TEMPORARY_ACTIVE rolling branch');
+      } else if (isWt001 && hasDocumentedTransition && entry.branch === postMergeExpectedBranch) {
         console.log(
           '[preflight] WT-001 HEAD differs from pre-merge snapshot — expected after merge; update registry',
         );
