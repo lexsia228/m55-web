@@ -7,6 +7,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,6 +36,7 @@ const REQUIRED_SSOT_FILES = [
   'docs/ssot/M55_VISUAL_SYSTEM.md',
   'docs/ssot/M55_DECISION_LOG.md',
   'docs/ssot/M55_CURRENT_STATE.md',
+  'docs/ssot/M55_WORKTREE_REGISTRY.md',
   'docs/ssot/M55_ROADMAP.md',
   'lib/m55/contracts/m55CommercialFunnelContract.ts',
   'lib/m55/contracts/m55CommercialFunnelContract.test.ts',
@@ -180,6 +182,7 @@ function checkAgentsReadOrder() {
     'AGENTS.md',
     'docs/ssot/README.md',
     'M55_CURRENT_STATE.md',
+    'M55_WORKTREE_REGISTRY.md',
     'M55_COMMERCIAL_FUNNEL_SSOT.md',
     'M55_DECISION_LOG.md',
     'M55_ROADMAP.md',
@@ -193,6 +196,138 @@ function checkAgentsReadOrder() {
     }
     if (idx < lastIndex) fail(`AGENTS.md read order out of sequence near: ${item}`);
     lastIndex = idx;
+  }
+}
+
+const LIFECYCLE_STATUSES = [
+  'PRIMARY_MAIN',
+  'ACTIVE',
+  'PAUSED',
+  'STALE',
+  'DO_NOT_USE',
+  'CLEANUP_PENDING',
+  'COMPLETED_REMOVABLE',
+  'UNKNOWN',
+];
+
+function checkWorktreeRegistry() {
+  const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
+  const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
+
+  for (const status of LIFECYCLE_STATUSES) {
+    if (!registry.includes(status)) {
+      fail(`M55_WORKTREE_REGISTRY.md must define lifecycle status: ${status}`);
+    }
+  }
+
+  const requiredPaths = [
+    '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1',
+    '/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish',
+    '/Users/lexsia/Documents/M55_CANONICAL',
+  ];
+
+  for (const wtPath of requiredPaths) {
+    if (!registry.includes(wtPath)) fail(`registry must include worktree path: ${wtPath}`);
+  }
+
+  if (!registry.includes('DO_NOT_USE')) fail('registry must document DO_NOT_USE lifecycle');
+  if (!registry.includes('M55_CANONICAL-cross-page-card-polish')) {
+    fail('registry must mark cross-page-card-polish');
+  }
+  if (!/DO_NOT_USE[\s\S]*M55_CANONICAL-cross-page-card-polish|M55_CANONICAL-cross-page-card-polish[\s\S]*DO_NOT_USE/.test(registry)) {
+    fail('cross-page-card-polish must be classified DO_NOT_USE');
+  }
+  if (!registry.includes('compatibility commerce core')) {
+    fail('DO_NOT_USE reason must mention compatibility commerce core merged to main');
+  }
+  if (!registry.includes('QA') && !registry.includes('qa-screenshots')) {
+    fail('DO_NOT_USE reason must mention QA artifacts');
+  }
+  if (!registry.includes('.gitignore')) {
+    fail('DO_NOT_USE reason must mention uncommitted .gitignore change');
+  }
+  if (!registry.includes('reset') || !registry.includes('stash')) {
+    fail('DO_NOT_USE must prohibit reset / stash');
+  }
+  if (!registry.includes('ACTIVE')) fail('registry must document ACTIVE worktree');
+  if (!registry.includes('PRIMARY_MAIN_HOME')) {
+    fail('registry must distinguish PRIMARY_MAIN_HOME from current branch');
+  }
+  if (!registry.includes('37163a0d473c25365f3bddad579d4844fd8300df')) {
+    fail('registry must record production origin/main SHA');
+  }
+  if (!currentState.includes('M55_WORKTREE_REGISTRY.md')) {
+    fail('M55_CURRENT_STATE.md must reference M55_WORKTREE_REGISTRY.md');
+  }
+  if (!currentState.includes('docs/m55-commercial-funnel-ssot-v1')) {
+    fail('M55_CURRENT_STATE.md must record active branch');
+  }
+
+  const excluded = ['M55_B2C_KEYVISUAL_PRODUCTION_R2', 'M55_PRIVATE_VAULT', 'sparsebundle'];
+  for (const name of excluded) {
+    if (!registry.includes(name)) {
+      fail(`registry must explicitly exclude non-worktree directory: ${name}`);
+    }
+  }
+
+  const worktreeTableSection = registry.split('## Registered worktrees')[1]?.split('## Non-worktree')[0] ?? '';
+  if (/M55_B2C_KEYVISUAL_PRODUCTION_R2|M55_PRIVATE_VAULT/.test(worktreeTableSection)) {
+    fail('non-worktree directories must not appear as registered worktree rows');
+  }
+}
+
+function parseWorktreeListPorcelain(text) {
+  const entries = [];
+  let current = null;
+  for (const line of text.split('\n')) {
+    if (line.startsWith('worktree ')) {
+      if (current) entries.push(current);
+      current = { path: line.slice('worktree '.length), branch: null, head: null };
+    } else if (current && line.startsWith('HEAD ')) {
+      current.head = line.slice('HEAD '.length);
+    } else if (current && line.startsWith('branch ')) {
+      current.branch = line.slice('branch refs/heads/'.length);
+    }
+  }
+  if (current) entries.push(current);
+  return entries;
+}
+
+function checkLocalWorktreePreflight() {
+  if (process.env.CI) return;
+
+  const result = spawnSync('git', ['worktree', 'list', '--porcelain'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) {
+    console.warn('[preflight] git worktree list unavailable — skipping live comparison');
+    return;
+  }
+
+  const live = parseWorktreeListPorcelain(result.stdout);
+  const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
+  const warnings = [];
+
+  for (const entry of live) {
+    if (!registry.includes(entry.path)) {
+      warnings.push(`live worktree missing from registry: ${entry.path}`);
+      continue;
+    }
+    const pathBlock = registry.slice(registry.indexOf(entry.path));
+    if (entry.branch && !pathBlock.includes(entry.branch)) {
+      warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
+    }
+    if (entry.head && !pathBlock.includes(entry.head.slice(0, 12))) {
+      warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+    }
+  }
+
+  if (warnings.length > 0) {
+    console.warn('[preflight] worktree registry drift detected:');
+    for (const w of warnings) console.warn(`- ${w}`);
+  } else {
+    console.log('[preflight] live git worktree list matches registry paths/branches/HEAD prefixes');
   }
 }
 
@@ -212,6 +347,7 @@ function main() {
   checkMachineContract(data);
   checkDocsParity(data);
   checkAgentsReadOrder();
+  checkWorktreeRegistry();
   checkDeferredNotEnforcedAsPass();
 
   if (FAILURES.length > 0) {
@@ -224,6 +360,7 @@ function main() {
   console.log('PASS/FAIL: PASS');
   console.log('M55 Commercial Funnel SSOT verifier: all checks passed');
   console.log(`deferred enforcement: PENDING_SELF_FUNNEL_IMPLEMENTATION`);
+  checkLocalWorktreePreflight();
   process.exit(0);
 }
 

@@ -11,9 +11,18 @@ Machine truth: `lib/m55/contracts/m55CommercialFunnelContract.ts`
 | B | `M55_COMMERCIAL_FUNNEL_SSOT.md` | Commercial principles, psychology, free/paid boundary |
 | C | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` | Funnel flow contracts |
 | D | `M55_COPY_AND_CLAIMS.md`, `M55_VISUAL_SYSTEM.md` | Language and visual rules |
-| E | `M55_CURRENT_STATE.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` | State, sequence, decisions |
+| E | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` | State, worktrees, sequence, decisions |
 | — | `M55_PRODUCT_TRUTH.md` | Human-readable product truth (references machine contract) |
 | Entry | `AGENTS.md` | Read order and agent rules |
+
+## Worktree registry
+
+`M55_WORKTREE_REGISTRY.md` is the **human authority** for registered Git worktrees: path, branch, HEAD, lifecycle status, allowed/prohibited operations, and DO_NOT_USE classifications.
+
+- **Production main authority** lives on `origin/main` (SHA recorded in registry and `M55_CURRENT_STATE.md`).
+- **PRIMARY_MAIN_HOME** is a post-merge baseline designation — not “currently checked out on `main`”.
+- Folder names are not authority; branch + HEAD + registry are.
+- CI verifies document contract only; local preflight may compare live `git worktree list` to registry.
 
 ## Verification
 

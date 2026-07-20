@@ -7,10 +7,11 @@ All AI agents, Cursor sessions, and developers working on M55 commercial funnel 
 1. `AGENTS.md` (this file)
 2. `docs/ssot/README.md`
 3. `docs/ssot/M55_CURRENT_STATE.md`
-4. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-5. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-6. `docs/ssot/M55_DECISION_LOG.md`
-7. `docs/ssot/M55_ROADMAP.md`
+4. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+5. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+6. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+7. `docs/ssot/M55_DECISION_LOG.md`
+8. `docs/ssot/M55_ROADMAP.md`
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts`
 
@@ -21,7 +22,12 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Closed GREEN** — do not re-audit closed GREEN areas (e.g. HOME commercial foundation).
 - **Prohibited lanes** — no runtime UI, DB, Stripe, Clerk, env, checkout, webhook, or Pair runtime changes unless the active lane explicitly requires it.
 - **Runtime truth ≠ target contract** — never describe target contracts as already implemented.
-- **No unplanned worktrees** — confirm current worktree, branch, HEAD, and status before editing.
+- **No unplanned worktrees** — confirm `pwd`, branch, HEAD, `git status`, and `git worktree list` before editing.
+- **Do not infer purpose from folder names** — Git branch, HEAD, and `M55_WORKTREE_REGISTRY.md` are authority.
+- **DO_NOT_USE worktrees** — never edit; never reset / clean / stash dirty trees without explicit human instruction.
+- **Registry drift** — if live `git worktree list` differs from `M55_WORKTREE_REGISTRY.md`, stop and report.
+- **End-of-task registry check** — after lane work, decide whether to update `M55_WORKTREE_REGISTRY.md` and `M55_CURRENT_STATE.md`.
+- **Branch vs folder mismatch** — when branch name and folder name disagree, trust Git state + registry over folder naming.
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Update `M55_CURRENT_STATE.md`** after completing a lane milestone.
 - **Stop and report** if SSOT and code contradict each other without a documented resolution.
