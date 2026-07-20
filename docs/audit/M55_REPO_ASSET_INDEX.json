@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-07-19T22:07:41.684102+00:00",
-  "count": 673,
+  "generated_at_utc": "2026-07-20T22:11:53.675744+00:00",
+  "count": 684,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -63,9 +63,29 @@
       "bytes": 3545
     },
     {
+      "path": "docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md",
+      "category": "ssot",
+      "bytes": 1831
+    },
+    {
+      "path": "docs/ssot/M55_COPY_AND_CLAIMS.md",
+      "category": "ssot",
+      "bytes": 1527
+    },
+    {
+      "path": "docs/ssot/M55_CURRENT_STATE.md",
+      "category": "ssot",
+      "bytes": 2716
+    },
+    {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
       "category": "ssot",
       "bytes": 4728
+    },
+    {
+      "path": "docs/ssot/M55_DECISION_LOG.md",
+      "category": "ssot",
+      "bytes": 1902
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -221,6 +241,11 @@
       "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
       "category": "ssot",
       "bytes": 25965
+    },
+    {
+      "path": "docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md",
+      "category": "ssot",
+      "bytes": 1882
     },
     {
       "path": "docs/ssot/M55_PHASE2_INTEGRATED_DEVELOPMENT_SSOT_2026-03-03.md",
@@ -2138,6 +2163,11 @@
       "bytes": 6724
     },
     {
+      "path": "docs/ssot/M55_PRODUCT_TRUTH.md",
+      "category": "ssot",
+      "bytes": 2055
+    },
+    {
       "path": "docs/ssot/M55_PUBLIC_CLAIMS_ALLOWLIST_v1.md",
       "category": "ssot",
       "bytes": 3853
@@ -2973,6 +3003,16 @@
       "bytes": 5018
     },
     {
+      "path": "docs/ssot/M55_ROADMAP.md",
+      "category": "ssot",
+      "bytes": 807
+    },
+    {
+      "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
+      "category": "ssot",
+      "bytes": 2118
+    },
+    {
       "path": "docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md",
       "category": "ssot",
       "bytes": 9366
@@ -3008,6 +3048,11 @@
       "bytes": 11270
     },
     {
+      "path": "docs/ssot/M55_VISUAL_SYSTEM.md",
+      "category": "ssot",
+      "bytes": 957
+    },
+    {
       "path": "docs/ssot/M55_VISUAL_TOKEN_SPEC_v1.md",
       "category": "ssot",
       "bytes": 4363
@@ -3038,6 +3083,11 @@
       "bytes": 1438
     },
     {
+      "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
+      "category": "ssot",
+      "bytes": 10287
+    },
+    {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
       "category": "ssot",
       "bytes": 3159
@@ -3056,6 +3106,11 @@
       "path": "docs/ssot/PROJECT_B_SSOT_FREEZE.md",
       "category": "ssot",
       "bytes": 1259
+    },
+    {
+      "path": "docs/ssot/README.md",
+      "category": "ssot",
+      "bytes": 2538
     },
     {
       "path": "docs/ssot/SOURCES_USED__PROJECT_B_v8.md",
