@@ -3,6 +3,7 @@ import {
   HOME_PAIR_READING_PUBLIC_HREF,
   isHomePairReadingLivePublic,
 } from '../../lib/m55/homePairReadingPublicContract';
+import HomeEditorialHeadline from './HomeEditorialHeadline';
 import styles from './HomePanel.module.css';
 
 type FreeCtaProps = {
@@ -94,9 +95,11 @@ export default function HomeProductMap({
   return (
     <div data-testid="m55-home-product-map-inner">
       <p className={styles.sectionEyebrow}>{eyebrowJa}</p>
-      <h2 id="m55-home-product-map-title" className={styles.sectionHeadline}>
-        {headlineJa}
-      </h2>
+      <HomeEditorialHeadline
+        id="m55-home-product-map-title"
+        className={styles.sectionHeadline}
+        textJa={headlineJa}
+      />
       <ul className={styles.productMapEditorial} aria-label={eyebrowJa}>
         <li className={styles.productMapItem}>
           <p className={styles.productMapTitle}>{selfTitleJa}</p>

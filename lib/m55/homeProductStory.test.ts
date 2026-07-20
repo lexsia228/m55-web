@@ -9,11 +9,17 @@ import {
   HOME_PAIR_READING_AVAILABILITY,
   isHomePairReadingLivePublic,
 } from './homePairReadingPublicContract';
+import {
+  PAIR_READING_FREE_STRUCTURE_ITEMS,
+  PAIR_READING_GUEST_SUPPORT_LINES,
+} from './compatibility/pairReadingPublicStructure';
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
 const homePanelSource = readFileSync(join(repoRoot, 'components/home/HomePanel.tsx'), 'utf8');
 const productMapSource = readFileSync(join(repoRoot, 'components/home/HomeProductMap.tsx'), 'utf8');
+const pairFreeSource = readFileSync(join(repoRoot, 'components/home/HomePairFreeSection.tsx'), 'utf8');
+const guestSource = readFileSync(join(repoRoot, 'components/compatibility/CompatibilityGuestExperience.tsx'), 'utf8');
 const valueBridgeSource = readFileSync(join(repoRoot, 'components/home/HomePremiumValueBridge.tsx'), 'utf8');
 const homeBlob = JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.home);
 
@@ -62,16 +68,25 @@ describe('homeProductStory — capability map contract', () => {
     assert.doesNotMatch(productMapSource, />\s*0[123]\s*</);
   });
 
-  it('uses approved product map copy from SSOT', () => {
+  it('uses approved commercial product map copy from SSOT', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.productMapEyebrowJa, 'M55でできること');
     assert.equal(
       home.productMapHeadlineJa,
-      '自分を見る。二人の関係を見る。そこから、深く読み返す。',
+      '自分の反応から、二人の関係、\n力が出やすい条件まで。',
     );
-    assert.equal(home.productMapSelfTitleJa, '自分を見る');
-    assert.equal(home.productMapPairTitleJa, '二人の関係を見る');
-    assert.equal(home.productMapPremiumTitleJa, '深く読み返す');
+    assert.equal(home.productMapSelfTitleJa, '自分の反応を知る');
+    assert.equal(
+      home.productMapSelfBodyJa,
+      '生年月日と、いま選んだ答えを重ねて、\n自分に出やすい反応や、\n整え直すための入口を見ていきます。',
+    );
+    assert.equal(home.productMapPairTitleJa, '二人の関係を読み解く');
+    assert.equal(
+      home.productMapPairBodyJa,
+      'あなたと、関係を知りたい相手の生年月日と、\n今の二人に近い答えをもとに、\n話しやすい時と、\nすれ違いが続く時の流れを見ていきます。',
+    );
+    assert.equal(home.productMapPremiumTitleJa, '自分を深く読み解く');
+    assert.equal(home.productMapPremiumLinkJa, 'プレミアムの内容を見る');
     assert.equal(home.productMapPairStatusJa, '無料・ログイン不要');
   });
 
@@ -79,6 +94,14 @@ describe('homeProductStory — capability map contract', () => {
     assert.match(productMapSource, /m55-home-product-map-self-intake/);
     assert.match(productMapSource, /m55-home-product-map-self-core/);
     assert.match(productMapSource, /onOpenIntake/);
+  });
+
+  it('uses editorial headline wrapping for product map, pair, and premium H2', () => {
+    assert.match(productMapSource, /HomeEditorialHeadline/);
+    assert.match(pairFreeSource, /HomeEditorialHeadline/);
+    assert.match(homePanelSource, /HomeEditorialHeadline[\s\S]*premiumHeadlineJa/);
+    assert.match(pairFreeSource, /renderProtectedJapaneseLine/);
+    assert.match(pairFreeSource, /headlineSemanticUnit/);
   });
 
   it('shows pair link only when LIVE_PUBLIC', () => {
@@ -89,7 +112,103 @@ describe('homeProductStory — capability map contract', () => {
   });
 });
 
-describe('homeProductStory — premium value bridge', () => {
+describe('homeProductStory — pair free dedicated section', () => {
+  it('renders pair section after self free and before mechanism', () => {
+    const freeIdx = homePanelSource.indexOf('data-testid="m55-home-free-preview"');
+    const pairIdx = homePanelSource.indexOf('<HomePairFreeSection');
+    const mechanismIdx = homePanelSource.indexOf('data-testid="m55-home-mechanism"');
+    const premiumIdx = homePanelSource.indexOf('data-testid="m55-home-premium-preview"');
+    const finalIdx = homePanelSource.indexOf('data-testid="m55-home-final-cta"');
+    assert.ok(freeIdx !== -1 && pairIdx !== -1 && mechanismIdx !== -1);
+    assert.ok(freeIdx < pairIdx && pairIdx < mechanismIdx);
+    assert.ok(mechanismIdx < premiumIdx && premiumIdx < finalIdx);
+    assert.match(pairFreeSource, /data-testid="m55-home-pair-free"/);
+  });
+
+  it('uses approved pair section copy and shared structure authority', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.pairFreeEyebrowJa, '二人の関係を見る');
+    assert.equal(home.pairFreeHeadlineJa, 'なぜ話しやすい時と、\nすれ違う時があるのか。');
+    assert.equal(
+      home.pairFreeBodyJa,
+      'あなたと、関係を知りたい相手の生年月日を入力し、\n今の二人に近い答えを選びます。\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを、\n決めつけずに読み解きます。',
+    );
+    assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
+    assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
+    assert.deepEqual(
+      PAIR_READING_FREE_STRUCTURE_ITEMS.map((item) => item.titleJa),
+      [
+        '二人の変わりにくい土台',
+        '今の二人に表れやすいこと',
+        '二人の間で続きやすい連鎖',
+        '次に一度だけ試すこと',
+      ],
+    );
+    assert.deepEqual(PAIR_READING_GUEST_SUPPORT_LINES, [
+      '回答するのはあなた一人です。',
+      '相手が回答したものではありません。',
+    ]);
+    assert.match(pairFreeSource, /PAIR_READING_FREE_STRUCTURE_ITEMS/);
+    assert.match(pairFreeSource, /PAIR_READING_GUEST_SUPPORT_LINES/);
+    assert.match(pairFreeSource, /m55-home-pair-free-structure/);
+    assert.doesNotMatch(pairFreeSource, /freePreviewSheet|insightCard|dynamicOutcome/);
+    assert.equal(pairFreeSource.includes('好きな人、恋人、パートナー、家族、友人'), false);
+    assert.equal(homeBlob.includes('気になる二人'), false);
+  });
+
+  it('shares structure labels with CompatibilityGuestExperience via single authority', () => {
+    assert.match(guestSource, /PAIR_READING_FREE_STRUCTURE_ITEMS/);
+    assert.match(guestSource, /pairReadingPublicStructure/);
+  });
+});
+
+describe('homeProductStory — self free commercial copy', () => {
+  it('uses approved self free headline and outcome item 02 title', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(
+      home.freeResultHeadlineJa,
+      '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
+    );
+    assert.equal(home.outcomeBridgeItemsJa[1].titleJa, '人と関わるときの自分の動き');
+    assert.equal(
+      home.outcomeBridgeItemsJa[1].bodyJa,
+      '人と関わるとき、どのような順番で考え、動きやすいか。',
+    );
+    assert.equal(home.outcomeBridgeItemsJa[0].titleJa, '自分に表れやすい反応');
+    assert.equal(home.outcomeBridgeItemsJa[2].titleJa, '整え直すための手がかり');
+  });
+});
+
+describe('homeProductStory — premium copy and value bridge', () => {
+  it('uses mandatory commercial premium headline, body, plan intro, and plan fit copy', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(
+      home.premiumHeadlineJa,
+      '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
+    );
+    assert.equal(
+      home.premiumBodyJa,
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+    );
+    assert.equal(
+      home.planComparisonIntroJa,
+      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
+    );
+    assert.equal(
+      home.planLightFitJa,
+      'まず全体像を知り、\nいちばん気になることを1つ深く見たい人へ。',
+    );
+    assert.equal(
+      home.planFullFitJa,
+      '複数の気になるテーマを、\nまとめて深く見たい人へ。',
+    );
+    assert.match(homePanelSource, /planLightFitJa/);
+    assert.match(homePanelSource, /planFullFitJa/);
+    assert.match(homePanelSource, /planComparisonFit/);
+    assert.equal(homeBlob.includes('無理が重なる流れ'), false);
+    assert.equal(homeBlob.includes('同じ土台を、4つの章で読み返せます。'), false);
+  });
+
   it('places value bridge at the start of premium dark stage before product preview', () => {
     const premiumStart = homePanelSource.indexOf('data-testid="m55-home-premium-preview"');
     const premiumBlock = homePanelSource.slice(premiumStart);
@@ -105,24 +224,84 @@ describe('homeProductStory — premium value bridge', () => {
 
   it('uses approved free-to-premium comparison copy without demeaning free tier', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.premiumValueBridgeEyebrowJa, '無料から、ここまで深く');
-    assert.equal(home.premiumValueBridgeFreeItemsJa.length, 3);
-    assert.equal(home.premiumValueBridgePremiumItemsJa.length, 3);
+    assert.equal(home.premiumValueBridgeEyebrowJa, '自分の無料結果から、さらに深く');
+    assert.equal(
+      home.premiumValueBridgeLeadJa,
+      '無料は、今の自分を見る入口。\nプレミアムは、\nなぜそうなるかと、どう扱うかまで。',
+    );
+    assert.equal(home.premiumValueBridgeFreeHeadingJa, '無料結果');
+    assert.equal(home.premiumValueBridgePremiumHeadingJa, 'プレミアムレポート');
+    assert.deepEqual(home.premiumValueBridgeFreeItemsJa, [
+      'いまの自分に近い短い読み解き',
+      '自分に表れやすい資質',
+      '今の状態を整理するための入口',
+    ]);
+    assert.deepEqual(home.premiumValueBridgePremiumItemsJa, [
+      '動き方と、力が出やすい条件',
+      '人との距離感と、負担が重なり始める流れ',
+      '整え直すための手がかり',
+    ]);
+    assert.match(valueBridgeSource, /premiumValueBridgeLead/);
     assert.equal(homeBlob.includes('premiumValueBridgeHeadlineJa'), false);
     assert.equal(homeBlob.includes('無料は不完全'), false);
     assert.equal(homeBlob.includes('無料では分からない'), false);
   });
 });
 
+describe('homeProductStory — mechanism and final CTA copy', () => {
+  it('explains mechanism for both self and pair without self-only diagram output', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
+    assert.equal(
+      home.mechanismBodyJa,
+      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
+    );
+    assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
+    assert.equal(home.mechanismDiagramSource1Ja, '生年月日から見える土台');
+    assert.equal(home.mechanismDiagramSource2Ja, 'いま選んだ答え');
+    assert.equal(home.mechanismDiagramOutputJa, '今表れやすい流れ');
+    assert.equal(home.mechanismDiagramOutputJa.includes('自分'), false);
+  });
+
+  it('uses approved final CTA headline while keeping body and CTAs stable', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.finalCtaHeadlineJa, 'まずは、今の自分を知るところから。');
+    assert.equal(home.finalCtaBodyJa, '無料の読み解きは、ログインせずに始められます。');
+    assert.equal(home.finalCtaPrimaryJa, '無料で見てみる');
+    assert.equal(home.finalCtaSecondaryJa, 'プレミアムレポートを見る');
+  });
+});
+
+describe('homeProductStory — HOME terminology contract', () => {
+  it('excludes 読み返す from HOME public copy', () => {
+    assert.equal(homeBlob.includes('読み返す'), false);
+  });
+
+  it('limits 読み解く to product value and headlines, not CTAs', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.match(home.premiumHeadlineJa, /読み解く/);
+    assert.match(home.productMapPremiumTitleJa, /読み解く/);
+    assert.match(home.productMapPairTitleJa, /読み解く/);
+    assert.equal(home.productMapSelfCtaJa.includes('読み解く'), false);
+    assert.equal(home.productMapPairCtaJa.includes('読み解く'), false);
+    assert.equal(home.pairFreeCtaJa.includes('読み解く'), false);
+    assert.equal(home.premiumCtaJa.includes('読み解く'), false);
+    assert.equal(home.finalCtaPrimaryJa.includes('読み解く'), false);
+  });
+});
+
 describe('homeProductStory — final CTA and product facts', () => {
-  it('keeps a single paid primary CTA and exactly one pair CTA in product map only', () => {
+  it('keeps a single paid primary CTA and exactly two pair CTAs (map + pair section)', () => {
     const paidSolidCount = (homePanelSource.match(/className=\{styles\.ctaPaidSolid\}/g) ?? []).length;
     assert.equal(paidSolidCount, 1);
     assert.equal(homePanelSource.includes('m55-home-final-cta-pair'), false);
     assert.equal(homePanelSource.includes('finalCtaPairSecondaryJa'), false);
-    const pairLinkCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
-    assert.equal(pairLinkCount, 1);
+    const mapPairCount = (productMapSource.match(/m55-home-product-map-pair-link/g) ?? []).length;
+    const sectionPairCount = (pairFreeSource.match(/m55-home-pair-free-cta/g) ?? []).length;
+    assert.equal(mapPairCount, 1);
+    assert.equal(sectionPairCount, 1);
     assert.match(productMapSource, /HOME_PAIR_READING_PUBLIC_HREF/);
+    assert.match(pairFreeSource, /HOME_PAIR_READING_PUBLIC_HREF/);
     assert.equal(HOME_PAIR_READING_PUBLIC_HREF, '/synastry');
   });
 

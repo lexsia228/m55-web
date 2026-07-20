@@ -10,12 +10,15 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
+import { isHomePairReadingLivePublic } from '../../lib/m55/homePairReadingPublicContract';
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import HomeFreePreviewSlice from './HomeFreePreviewSlice';
+import HomePairFreeSection from './HomePairFreeSection';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
 import HomePremiumValueBridge from './HomePremiumValueBridge';
+import HomeEditorialHeadline from './HomeEditorialHeadline';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import styles from './HomePanel.module.css';
@@ -92,6 +95,7 @@ export default function HomePanel() {
   }, [isLoaded, ownerId, profileEpoch]);
 
   const hasProfile = view.kind === 'has_profile';
+  const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
 
@@ -246,6 +250,17 @@ export default function HomePanel() {
           />
         </section>
 
+        {/* §3a — Pair free (compact dedicated section) */}
+        <HomePairFreeSection
+          eyebrowJa={homeCopy.pairFreeEyebrowJa}
+          headlineJa={homeCopy.pairFreeHeadlineJa}
+          bodyJa={homeCopy.pairFreeBodyJa}
+          statusJa={homeCopy.pairFreeStatusJa}
+          preparingStatusJa={homeCopy.pairFreePreparingStatusJa}
+          ctaJa={homeCopy.pairFreeCtaJa}
+          pairLive={pairLive}
+        />
+
         {/* §4 — Mechanism band */}
         <section
           className={`${styles.lowerSection} ${styles.mechanismStage}`}
@@ -283,15 +298,18 @@ export default function HomePanel() {
         >
           <HomePremiumValueBridge
             eyebrowJa={homeCopy.premiumValueBridgeEyebrowJa}
+            leadJa={homeCopy.premiumValueBridgeLeadJa}
             freeHeadingJa={homeCopy.premiumValueBridgeFreeHeadingJa}
             freeItemsJa={homeCopy.premiumValueBridgeFreeItemsJa}
             premiumHeadingJa={homeCopy.premiumValueBridgePremiumHeadingJa}
             premiumItemsJa={homeCopy.premiumValueBridgePremiumItemsJa}
           />
           <p className={styles.sectionEyebrow}>{homeCopy.premiumEyebrowJa}</p>
-          <h2 id="m55-home-premium-preview-title" className={styles.sectionHeadline}>
-            {homeCopy.premiumHeadlineJa}
-          </h2>
+          <HomeEditorialHeadline
+            id="m55-home-premium-preview-title"
+            className={styles.sectionHeadline}
+            textJa={homeCopy.premiumHeadlineJa}
+          />
           <p className={styles.sectionLead}>{homeCopy.premiumBodyJa}</p>
           <div className={styles.integratedPreviewBlock}>
             <HomePremiumPreviewSlice previewLabelJa={homeCopy.premiumPreviewLabelJa} />
@@ -307,12 +325,14 @@ export default function HomePanel() {
             <div className={styles.planComparisonRow}>
               <article className={styles.planComparisonCol} data-testid="m55-home-plan-light">
                 <p className={styles.planComparisonName}>{homeCopy.planLightNameJa}</p>
+                <p className={styles.planComparisonFit}>{homeCopy.planLightFitJa}</p>
                 <p className={styles.planComparisonPrice}>{homeCopy.planLightPriceJa}</p>
                 <p className={styles.planComparisonSpec}>{homeCopy.planLightSpecJa}</p>
               </article>
               <div className={styles.planComparisonDivider} aria-hidden="true" />
               <article className={styles.planComparisonCol} data-testid="m55-home-plan-full">
                 <p className={styles.planComparisonName}>{homeCopy.planFullNameJa}</p>
+                <p className={styles.planComparisonFit}>{homeCopy.planFullFitJa}</p>
                 <p className={styles.planComparisonPrice}>{homeCopy.planFullPriceJa}</p>
                 <p className={styles.planComparisonSpec}>{homeCopy.planFullSpecJa}</p>
               </article>

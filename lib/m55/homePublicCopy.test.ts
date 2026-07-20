@@ -120,6 +120,10 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     for (let i = 1; i < indices.length; i += 1) {
       assert.ok(indices[i] > indices[i - 1], `${testIds[i]} must render after ${testIds[i - 1]}`);
     }
+    const freeIdx = lowerSource.indexOf('data-testid="m55-home-free-preview"');
+    const pairIdx = lowerSource.indexOf('<HomePairFreeSection');
+    const mechanismIdx = lowerSource.indexOf('data-testid="m55-home-mechanism"');
+    assert.ok(pairIdx !== -1 && freeIdx < pairIdx && pairIdx < mechanismIdx);
   });
 
   it('removes merged-away and legacy lower HOME sections', () => {
@@ -168,19 +172,30 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
   it('uses approved exact copy freeze strings for key sections', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.outcomeBridgeEyebrowJa, 'M55で見えてくること');
-    assert.equal(home.freeResultHeadlineJa, '無料で、自分に表れやすい流れを知る。');
+    assert.equal(
+      home.freeResultHeadlineJa,
+      '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
+    );
     assert.equal(
       home.freeResultBodyJa,
       '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
+    assert.equal(home.outcomeBridgeItemsJa[1].titleJa, '人と関わるときの自分の動き');
     assert.equal(home.mechanismEyebrowJa, 'M55の見方');
-    assert.equal(home.mechanismHeadlineJa, '二つの手がかりを重ねて、今の自分を見る。');
+    assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
-    assert.equal(home.premiumHeadlineJa, '同じ土台を、4つの章で読み返せます。');
+    assert.equal(home.mechanismDiagramOutputJa, '今表れやすい流れ');
+    assert.equal(home.premiumHeadlineJa, '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。');
+    assert.equal(
+      home.premiumBodyJa,
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+    );
+    assert.equal(home.finalCtaHeadlineJa, 'まずは、今の自分を知るところから。');
+    assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');
     assert.equal(home.mechanismHowLinkJa, 'M55の仕組みを詳しく見る');
@@ -196,6 +211,22 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.match(teaserSource, /TEN_ASSET_PUBLIC_CATALOG/);
     assert.match(teaserSource, /data-testid="m55-home-ten-asset-teaser-link"/);
     assert.doesNotMatch(homePanelSource, /HomeTenAssetTiles/);
+  });
+
+  it('mounts dedicated pair free section after self free using shared structure authority', () => {
+    const pairSource = readFileSync(join(repoRoot, 'components/home/HomePairFreeSection.tsx'), 'utf8');
+    assert.match(homePanelSource, /HomePairFreeSection/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free"/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free-structure"/);
+    assert.match(pairSource, /data-testid="m55-home-pair-free-cta"/);
+    assert.match(pairSource, /pairReadingPublicStructure/);
+  });
+
+  it('uses compact single-column pair index layout at 420px and below', () => {
+    assert.match(homePanelCss, /\.pairStructureIndexItem[\s\S]*display:\s*flex/);
+    assert.match(homePanelCss, /@media \(max-width: 420px\)/);
+    assert.match(homePanelCss, /@media \(min-width: 421px\)[\s\S]*grid-template-columns:\s*repeat\(2/);
+    assert.match(homePanelCss, /\.pairStructureIndexTitle[\s\S]*word-break:\s*keep-all/);
   });
 
   it('implements short mechanism band with how link only and no accordion/panels', () => {

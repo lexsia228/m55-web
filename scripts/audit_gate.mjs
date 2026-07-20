@@ -321,6 +321,7 @@ function validateHomeRegressionTestIds() {
     'm55-home-lower',
     'm55-home-product-map',
     'm55-home-free-preview',
+    'm55-home-pair-free',
     'm55-home-mechanism',
     'm55-home-premium-preview',
     'm55-home-premium-value-bridge',
@@ -328,7 +329,7 @@ function validateHomeRegressionTestIds() {
     'm55-home-final-cta',
   ];
   for (const id of lowerSectionTestIds) {
-    if (id === 'm55-home-premium-value-bridge') continue;
+    if (id === 'm55-home-premium-value-bridge' || id === 'm55-home-pair-free') continue;
     if (!t.includes(`data-testid="${id}"`)) {
       add(rel(panel), `REGRESSION GUARD: HomePanel must expose data-testid="${id}" (lower HOME IA)`);
     }
@@ -362,6 +363,83 @@ function validateHomeRegressionTestIds() {
     if (!t.includes('HomeTenAssetTeaser')) {
       add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomeTenAssetTeaser inside free section');
     }
+  }
+  const pairFreeSection = path.join(ROOT, 'components', 'home', 'HomePairFreeSection.tsx');
+  if (!exists(pairFreeSection)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomePairFreeSection after self free section');
+  } else {
+    const pairFreeText = readText(pairFreeSection);
+    if (!pairFreeText.includes('data-testid="m55-home-pair-free"')) {
+      add(rel(pairFreeSection), 'REGRESSION GUARD: HomePairFreeSection must expose data-testid="m55-home-pair-free"');
+    }
+    if (!pairFreeText.includes('data-testid="m55-home-pair-free-structure"')) {
+      add(rel(pairFreeSection), 'REGRESSION GUARD: HomePairFreeSection must expose data-testid="m55-home-pair-free-structure"');
+    }
+    if (!pairFreeText.includes('data-testid="m55-home-pair-free-cta"')) {
+      add(rel(pairFreeSection), 'REGRESSION GUARD: HomePairFreeSection must expose data-testid="m55-home-pair-free-cta"');
+    }
+    if (!pairFreeText.includes('pairReadingPublicStructure')) {
+      add(rel(pairFreeSection), 'REGRESSION GUARD: HomePairFreeSection must import shared pairReadingPublicStructure authority');
+    }
+    if (!t.includes('HomePairFreeSection')) {
+      add(rel(panel), 'REGRESSION GUARD: HomePanel must import and render HomePairFreeSection after self free section');
+    }
+  }
+  const orderedLowerIds = [
+    'm55-home-product-map',
+    'm55-home-free-preview',
+    'm55-home-mechanism',
+    'm55-home-premium-preview',
+    'm55-home-final-cta',
+  ];
+  const orderedIndices = orderedLowerIds.map((id) => t.indexOf(`data-testid="${id}"`));
+  for (const [position, id] of orderedLowerIds.entries()) {
+    if (orderedIndices[position] === -1) {
+      add(rel(panel), `REGRESSION GUARD: HomePanel lower IA missing data-testid="${id}"`);
+    }
+  }
+  for (let i = 1; i < orderedIndices.length; i += 1) {
+    if (orderedIndices[i] !== -1 && orderedIndices[i - 1] !== -1 && orderedIndices[i] <= orderedIndices[i - 1]) {
+      add(
+        rel(panel),
+        `REGRESSION GUARD: HomePanel lower IA order violation — "${orderedLowerIds[i]}" must render after "${orderedLowerIds[i - 1]}"`,
+      );
+    }
+  }
+  const freeIdx = t.indexOf('data-testid="m55-home-free-preview"');
+  const pairMountIdx = t.indexOf('<HomePairFreeSection');
+  const mechanismIdx = t.indexOf('data-testid="m55-home-mechanism"');
+  if (pairMountIdx === -1 || freeIdx === -1 || mechanismIdx === -1 || !(freeIdx < pairMountIdx && pairMountIdx < mechanismIdx)) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must mount HomePairFreeSection after self free and before mechanism');
+  }
+  const copyPath = path.join(ROOT, 'lib', 'm55', 'topFreeEntryPublicCopy.ts');
+  if (exists(copyPath)) {
+    const copyText = readText(copyPath);
+    if (!copyText.includes('負担が重なり始める流れを読み解く。')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME premiumHeadlineJa must use commercial value-first headline copy');
+    }
+    if (!copyText.includes('planLightFitJa') || !copyText.includes('planFullFitJa')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must expose planLightFitJa and planFullFitJa for plan selection clarity');
+    }
+    if (copyText.includes('気になる二人') || copyText.includes('無理が重なる流れ')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must not use removed pair or premium wording');
+    }
+    if (!copyText.includes('premiumValueBridgeLeadJa')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must expose premiumValueBridgeLeadJa for free-to-paid bridge');
+    }
+    if (copyText.includes('同じ土台を、4つの章で読み返せます。') || copyText.includes('深く読み返す')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must not retain removed premium/product-map copy');
+    }
+    const homeBlockMatch = copyText.match(/home:\s*\{([\s\S]*?)\n  \},/);
+    if (homeBlockMatch && homeBlockMatch[1].includes('読み返す')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME public copy must not include 読み返す');
+    }
+  }
+  if (t.includes('m55-home-final-cta-pair')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not expose final pair CTA');
+  }
+  if (t.includes('/synastry/purchase/confirm') || t.includes('isCompatibilityCommerceEnabled')) {
+    add(rel(panel), 'REGRESSION GUARD: HomePanel must not expose paid compatibility commerce routes');
   }
   for (const removed of [
     'm55-home-seen-things-bridge',
