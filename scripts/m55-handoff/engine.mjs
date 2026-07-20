@@ -10,9 +10,22 @@ export function redactRemote(value = '') {
   return value.replace(/(https?:\/\/)([^/@\s]+)@/g, '$1[REDACTED]@');
 }
 
+export function resolveGitExecutable({ platform = process.platform, env = process.env, existsSync = fs.existsSync } = {}) {
+  if (platform !== 'win32') return env.GIT_EXECUTABLE || 'git';
+  if (env.GIT_EXECUTABLE && existsSync(env.GIT_EXECUTABLE)) return env.GIT_EXECUTABLE;
+  const extensions = (env.PATHEXT || '.EXE;.CMD;.BAT').split(';').filter(Boolean);
+  for (const directory of (env.PATH || '').split(';').filter(Boolean)) {
+    for (const extension of extensions) {
+      const candidate = path.win32.join(directory, `git${extension.toLowerCase()}`);
+      if (existsSync(candidate)) return candidate;
+    }
+  }
+  return 'git.exe';
+}
+
 export function runGit(repo, args) {
   try {
-    return execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    return execFileSync(resolveGitExecutable(), ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], shell: false, windowsHide: true, env: process.env }).trim();
   } catch (error) {
     return null;
   }
@@ -62,12 +75,17 @@ export function collectRepository(repo) {
   };
 }
 
+export function validateAuthorityPath(root, candidate, real, label = '') {
+  if (!candidate.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_PATH_ESCAPE:${label}`);
+  if (!real.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_SYMLINK_ESCAPE:${label}`);
+  return real;
+}
+
 export function safeRead(repo, relativePath) {
   const root = fs.realpathSync(repo);
   const candidate = path.resolve(root, relativePath);
-  if (!candidate.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_PATH_ESCAPE:${relativePath}`);
   const real = fs.realpathSync(candidate);
-  if (!real.startsWith(`${root}${path.sep}`)) throw new Error(`AUTHORITY_SYMLINK_ESCAPE:${relativePath}`);
+  validateAuthorityPath(root, candidate, real, relativePath);
   return fs.readFileSync(real, 'utf8');
 }
 

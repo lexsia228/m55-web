@@ -1,8 +1,9 @@
 {
-  "checks": [{ "details": {}, "id": "worktree:unregistered", "level": "FAIL", "message": "Live worktree is absent from the registry." }],
-  "generatedAt": null,
+  "authority": { "activeLane": "Synthetic delivery lane", "completedGreen": true, "currentRuntimeDebt": false, "doNotUseWorktrees": [], "humanDecisionsRequired": [], "nextSingleAction": "Register the worktree or use a managed checkout.", "prohibitedLanes": ["implementation while HOLD"], "readOrder": ["GOVERNANCE.md", "STATE.md"], "runtimeDebts": [], "targetState": true },
+  "checks": [{ "details": {}, "id": "worktree:unregistered", "level": "FAIL", "message": "Synthetic unregistered worktree." }],
+  "generatedAt": "2026-01-01T00:00:00.000Z",
   "reasonCodes": ["WORKTREE_UNREGISTERED"],
-  "repository": { "branch": "feature/example", "clean": true, "gitOperation": "none", "head": "abcdef0123456789", "originMain": "0123456789abcdef", "remote": "https://[REDACTED]@example.invalid/m55.git", "root": "/synthetic/m55", "upstream": "origin/feature/example", "worktrees": [] },
+  "repository": { "branch": "synthetic/main", "clean": true, "gitOperation": "none", "head": "synthetic-unregistered-0001", "originMain": "synthetic-main-0001", "remote": "https://[REDACTED]@example.invalid/control-plane.git", "root": "/synthetic/repository", "upstream": "origin/main", "worktrees": [] },
   "schemaVersion": "1.0.0",
   "status": "HOLD",
   "toolVersion": "1.0.0"

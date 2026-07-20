@@ -1,9 +1,9 @@
 {
-  "authority": { "activeLane": "Self Funnel", "completedGreen": true, "currentRuntimeDebt": true, "documentedTransition": true, "nextSingleAction": "Human selection", "targetState": true },
+  "authority": { "activeLane": "Synthetic delivery lane", "completedGreen": true, "currentRuntimeDebt": false, "doNotUseWorktrees": [], "humanDecisionsRequired": [], "nextSingleAction": "Proceed with the documented read-only review.", "prohibitedLanes": ["unreviewed implementation"], "readOrder": ["GOVERNANCE.md", "STATE.md"], "runtimeDebts": [], "targetState": true },
   "checks": [{ "details": {}, "id": "git:clean", "level": "PASS", "message": "Working tree is clean." }],
-  "generatedAt": null,
+  "generatedAt": "2026-01-01T00:00:00.000Z",
   "reasonCodes": [],
-  "repository": { "branch": "main", "clean": true, "gitOperation": "none", "head": "0123456789abcdef", "originMain": "0123456789abcdef", "remote": "https://[REDACTED]@example.invalid/m55.git", "root": "/synthetic/m55", "upstream": "origin/main", "worktrees": [] },
+  "repository": { "branch": "synthetic/main", "clean": true, "gitOperation": "none", "head": "synthetic-ready-0001", "originMain": "synthetic-main-0001", "remote": "https://[REDACTED]@example.invalid/control-plane.git", "root": "/synthetic/repository", "upstream": "origin/main", "worktrees": [] },
   "schemaVersion": "1.0.0",
   "status": "READY",
   "toolVersion": "1.0.0"

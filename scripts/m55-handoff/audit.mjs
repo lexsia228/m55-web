@@ -1,19 +1,13 @@
 #!/usr/bin/env node
-import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { collectRepository, EXIT_USAGE, exitCodeForStatus, htmlEscape, stableJson } from './engine.mjs';
+import { collectRepository, EXIT_USAGE, exitCodeForStatus } from './engine.mjs';
 import { inspectM55 } from './m55-adapter.mjs';
+import { writeHandoffPacket } from './packet.mjs';
 
 const TOOL_VERSION = '1.0.0';
 function usage(message) { if (message) console.error(message); console.error('Usage: npm run audit:m55-handoff -- --repo <path> [--out <outside-repo-dir>]'); process.exit(EXIT_USAGE); }
 function args(argv) { const value = {}; for (let i = 0; i < argv.length; i += 1) { if (!argv[i].startsWith('--')) usage(`Unexpected argument: ${argv[i]}`); value[argv[i].slice(2)] = argv[++i]; } return value; }
-function renderHtml(report) {
-  const rows = report.checks.map((check) => `<tr><td>${htmlEscape(check.level)}</td><td>${htmlEscape(check.id)}</td><td>${htmlEscape(check.message)}</td></tr>`).join('');
-  const reasons = report.reasonCodes.length ? report.reasonCodes.join(', ') : 'No blocking or warning reasons.';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Control Plane Handoff Report</title><style>body{margin:0;background:#101c31;color:#f7f0e3;font:17px/1.55 Georgia,serif}main{max-width:1080px;margin:auto;padding:44px 28px}header{border-top:7px solid ${report.status==='HOLD'?'#ff836f':report.status==='READY'?'#63c7b8':'#f2bf62'};padding-top:22px}h1{font-size:clamp(2.2rem,7vw,4.8rem);line-height:1;margin:.1em 0}.eyebrow{color:#83d1c7;text-transform:uppercase;letter-spacing:.12em;font:700 .75rem ui-monospace,monospace}.reason{font-size:1.25rem;max-width:48rem}.brief{border-left:3px solid #83d1c7;padding:8px 18px;margin:28px 0}h2{margin-top:34px}table{width:100%;border-collapse:collapse;margin-top:16px;background:#182944}td,th{padding:11px;border-bottom:1px solid #38516f;text-align:left;vertical-align:top}code{font-family:ui-monospace,monospace;word-break:break-all}@media(max-width:390px){main{padding:26px 18px}table{font-size:.82rem}td,th{padding:8px}.brief{margin:20px 0}}</style></head><body><main><header><p class="eyebrow">Control Plane · evidence ${htmlEscape(report.generatedAt)}</p><h1>${htmlEscape(report.status)}</h1><p class="reason">${htmlEscape(reasons)}</p><div class="brief"><strong>Next single action:</strong> ${htmlEscape(report.authority.nextSingleAction || 'Resolve authority before acting.')}<br><strong>Prohibited next action:</strong> ${htmlEscape((report.authority.prohibitedLanes || ['implementation']).join(', '))}<br><strong>Commit:</strong> <code>${htmlEscape(report.repository.head)}</code></div></header><section aria-labelledby="checks"><h2 id="checks">Evidence</h2><table><thead><tr><th>Result</th><th>Check</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table></section></main></body></html>`;
-}
-function handoffMarkdown(report) { const a = report.authority; return `# Control Plane Handoff\n\nStatus: **${report.status}**\n\n- Repository authority: ${a.readOrder?.join(' → ') || 'unavailable'}\n- Branch / HEAD: \`${report.repository.branch}\` / \`${report.repository.head}\`\n- Active lane: ${a.activeLane || 'unavailable'}\n- Completed GREEN: ${a.completedGreen}\n- Current runtime debts: ${(a.runtimeDebts || []).join('; ') || 'unavailable'}\n- Target state: ${a.targetState}\n- Next single action: ${a.nextSingleAction || 'unavailable'}\n- Prohibited lanes: ${(a.prohibitedLanes || []).join(', ')}\n- DO_NOT_USE worktrees: ${(a.doNotUseWorktrees || []).join(', ') || 'none'}\n- Human decisions required: ${(a.humanDecisionsRequired || []).join(', ')}\n\nFirst allowed read-only commands: \`git status --short --branch\`, \`git worktree list\`, \`npm run audit:m55-handoff -- --repo .\`.\n\n${report.status === 'HOLD' ? '**HOLD: do not begin implementation. Resolve the listed reason codes, then rerun the audit.**' : 'Proceed only within the documented allowed lane.'}\n`; }
 const options = args(process.argv.slice(2));
 if (!options.repo) usage('--repo is required.');
 const repo = path.resolve(options.repo);
@@ -23,11 +17,7 @@ const out = path.resolve(options.out || path.join(os.tmpdir(), 'm55-handoff-repo
 if (out === identity.root || out.startsWith(`${identity.root}${path.sep}`)) usage('--out must be outside the repository.');
 const inspection = inspectM55(identity.root, identity);
 const report = { schemaVersion: '1.0.0', toolVersion: TOOL_VERSION, status: inspection.status, reasonCodes: inspection.reasonCodes, checks: inspection.checks, repository: identity, authority: inspection.authority, generatedAt: new Date().toISOString() };
-fs.mkdirSync(out, { recursive: true });
-fs.writeFileSync(path.join(out, 'handoff-report.json'), `${stableJson(report)}\n`);
-fs.writeFileSync(path.join(out, 'handoff-report.html'), renderHtml(report));
-fs.writeFileSync(path.join(out, 'handoff.md'), handoffMarkdown(report));
-fs.writeFileSync(path.join(out, 'agent-bootstrap.txt'), `${report.status === 'HOLD' ? 'HOLD — DO NOT BEGIN IMPLEMENTATION.\n' : 'Read authority before acting.\n'}Read handoff.md, then run only: git status --short --branch; git worktree list; npm run audit:m55-handoff -- --repo .\n`);
+writeHandoffPacket(out, report);
 console.log(`M55 handoff: ${report.status}`);
 console.log(`Reasons: ${report.reasonCodes.length ? report.reasonCodes.join(', ') : 'none'}`);
 console.log(`JSON: ${path.join(out, 'handoff-report.json')}`);

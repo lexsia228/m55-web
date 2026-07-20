@@ -15,8 +15,22 @@ npm run audit:m55-handoff -- --repo . --out "$(node -e 'console.log(require("nod
 The command writes `handoff-report.json`, a self-contained `handoff-report.html`, `handoff.md`,
 and `agent-bootstrap.txt`. A HOLD exits nonzero; malformed usage exits with code 2. The default
 uses Node's platform temporary directory, so it works on macOS, Windows, and Linux without a
-hardcoded `/tmp` path. macOS is locally exercised here; Windows and Linux support is based on
-Node's `os.tmpdir()` / `path.join()` APIs and is not claimed as executed.
+hardcoded `/tmp` path. macOS is locally exercised here. Windows and Linux are not yet
+independently verified.
+
+## Windows install and rerun
+
+Use PowerShell with the executable shim and an explicit TEMP-local npm cache:
+
+```powershell
+npm.cmd ci --cache "$env:TEMP\m55-npm-cache"
+npm.cmd run demo:m55-control-plane
+node --test scripts/m55-handoff/audit.test.mjs
+```
+
+`npm.ps1` may be blocked by local execution policy; `npm.cmd` is the supported alternative.
+Do not weaken PowerShell policy. The package lock must remain unchanged. Windows installation is
+not claimed as verified until this rerun completes successfully.
 
 ## JSON schema
 
@@ -47,6 +61,13 @@ npm run demo:m55-control-plane
 This completes in seconds and creates five synthetic JSON, HTML, and handoff packets in the
 platform temporary directory. It does not read M55 Production data or require secrets, a DB,
 Clerk, Stripe, or external services.
+
+## Managed-worktree boundary
+
+A new host checkout is not automatically granted managed-worktree authority: an unregistered
+live checkout must HOLD. Judge Mode is deliberately separate synthetic evidence. Future
+host-scoped registry support is a limitation, not an ignore-unregistered, bypass, or
+auto-registration mechanism.
 
 ## Privacy, safety, and limits
 
