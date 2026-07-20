@@ -69,11 +69,16 @@ describe('homeProductStory — capability map contract', () => {
     assert.equal(home.productMapEyebrowJa, 'M55でできること');
     assert.equal(
       home.productMapHeadlineJa,
-      '自分を見る。二人の関係を見る。そこから、深く読み返す。',
+      '自分を見る。二人の関係を見る。自分を、さらに深く読み解く。',
     );
     assert.equal(home.productMapSelfTitleJa, '自分を見る');
     assert.equal(home.productMapPairTitleJa, '二人の関係を見る');
-    assert.equal(home.productMapPremiumTitleJa, '深く読み返す');
+    assert.equal(home.productMapPremiumTitleJa, '自分を深く読み解く');
+    assert.equal(
+      home.productMapPairBodyJa,
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れを見ていきます。',
+    );
+    assert.equal(home.productMapPremiumLinkJa, 'プレミアムの内容を見る');
     assert.equal(home.productMapPairStatusJa, '無料・ログイン不要');
   });
 
@@ -110,7 +115,7 @@ describe('homeProductStory — pair free dedicated section', () => {
     assert.equal(home.pairFreeHeadlineJa, '二人の間に表れやすい流れを、決めつけずに読み解く。');
     assert.equal(
       home.pairFreeBodyJa,
-      '二人の生年月日と、いまの関係に近い答えをもとに、重なりや違い、すれ違いが続く順番、次に試せる一つの動きを整理します。',
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを整理します。',
     );
     assert.equal(home.pairFreeStatusJa, '無料・ログイン不要');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
@@ -129,10 +134,10 @@ describe('homeProductStory — pair free dedicated section', () => {
 describe('homeProductStory — premium copy and value bridge', () => {
   it('uses mandatory value-first premium headline and body', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み返す。');
+    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み解く。');
     assert.equal(
       home.premiumBodyJa,
-      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     );
     assert.equal(homeBlob.includes('同じ土台を、4つの章で読み返せます。'), false);
   });
@@ -152,12 +157,59 @@ describe('homeProductStory — premium copy and value bridge', () => {
 
   it('uses approved free-to-premium comparison copy without demeaning free tier', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.premiumValueBridgeEyebrowJa, '無料から、ここまで深く');
-    assert.equal(home.premiumValueBridgeFreeItemsJa.length, 3);
-    assert.equal(home.premiumValueBridgePremiumItemsJa.length, 3);
+    assert.equal(home.premiumValueBridgeEyebrowJa, '自分の無料結果から、さらに深く');
+    assert.equal(home.premiumValueBridgeFreeHeadingJa, '無料結果');
+    assert.equal(home.premiumValueBridgePremiumHeadingJa, 'プレミアムレポート');
+    assert.deepEqual(home.premiumValueBridgeFreeItemsJa, [
+      'いまの自分に近い短い読み解き',
+      '自分に表れやすい資質',
+      '今の状態を整理するための入口',
+    ]);
+    assert.deepEqual(home.premiumValueBridgePremiumItemsJa, [
+      '動き方と、強みが表れやすい条件',
+      '人との距離感と、負担が重なり始める流れ',
+      '整え直すための手がかり',
+    ]);
     assert.equal(homeBlob.includes('premiumValueBridgeHeadlineJa'), false);
     assert.equal(homeBlob.includes('無料は不完全'), false);
     assert.equal(homeBlob.includes('無料では分からない'), false);
+  });
+});
+
+describe('homeProductStory — mechanism and final CTA copy', () => {
+  it('explains mechanism for both self and pair without single-signal claims', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.mechanismHeadlineJa, '生年月日と、いまの答えを重ねて見る。');
+    assert.equal(
+      home.mechanismBodyJa,
+      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
+    );
+    assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
+  });
+
+  it('uses approved final CTA headline while keeping body and CTAs stable', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.equal(home.finalCtaHeadlineJa, 'まずは、今の自分を知るところから。');
+    assert.equal(home.finalCtaBodyJa, '無料の読み解きは、ログインせずに始められます。');
+    assert.equal(home.finalCtaPrimaryJa, '無料で見てみる');
+    assert.equal(home.finalCtaSecondaryJa, 'プレミアムレポートを見る');
+  });
+});
+
+describe('homeProductStory — HOME terminology contract', () => {
+  it('excludes 読み返す from HOME public copy', () => {
+    assert.equal(homeBlob.includes('読み返す'), false);
+  });
+
+  it('limits 読み解く to product value and headlines, not pair/premium CTAs', () => {
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    assert.match(home.productMapHeadlineJa, /読み解く/);
+    assert.match(home.premiumHeadlineJa, /読み解く/);
+    assert.equal(home.productMapSelfCtaJa.includes('読み解く'), false);
+    assert.equal(home.productMapPairCtaJa.includes('読み解く'), false);
+    assert.equal(home.pairFreeCtaJa.includes('読み解く'), false);
+    assert.equal(home.premiumCtaJa.includes('読み解く'), false);
+    assert.equal(home.finalCtaPrimaryJa.includes('読み解く'), false);
   });
 });
 

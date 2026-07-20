@@ -178,17 +178,18 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
       '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
     );
     assert.equal(home.mechanismEyebrowJa, 'M55の見方');
-    assert.equal(home.mechanismHeadlineJa, '二つの手がかりを重ねて、今の自分を見る。');
+    assert.equal(home.mechanismHeadlineJa, '生年月日と、いまの答えを重ねて見る。');
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
-    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み返す。');
+    assert.equal(home.premiumHeadlineJa, '自分の流れを、複数の視点から詳しく読み解く。');
     assert.equal(
       home.premiumBodyJa,
-      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     );
+    assert.equal(home.finalCtaHeadlineJa, 'まずは、今の自分を知るところから。');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');
     assert.equal(home.freeResultPreviewLabelJa, '無料結果の表示例');
     assert.equal(home.premiumPreviewLabelJa, 'M55 プレミアムレポートの表示例');

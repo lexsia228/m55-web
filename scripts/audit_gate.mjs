@@ -415,11 +415,15 @@ function validateHomeRegressionTestIds() {
   const copyPath = path.join(ROOT, 'lib', 'm55', 'topFreeEntryPublicCopy.ts');
   if (exists(copyPath)) {
     const copyText = readText(copyPath);
-    if (!copyText.includes('自分の流れを、複数の視点から詳しく読み返す。')) {
+    if (!copyText.includes('自分の流れを、複数の視点から詳しく読み解く。')) {
       add(rel(copyPath), 'REGRESSION GUARD: HOME premiumHeadlineJa must use value-first headline copy');
     }
-    if (copyText.includes('同じ土台を、4つの章で読み返せます。')) {
-      add(rel(copyPath), 'REGRESSION GUARD: HOME must not retain removed premiumHeadlineJa copy');
+    if (copyText.includes('同じ土台を、4つの章で読み返せます。') || copyText.includes('深く読み返す')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME must not retain removed premium/product-map copy');
+    }
+    const homeBlockMatch = copyText.match(/home:\s*\{([\s\S]*?)\n  \},/);
+    if (homeBlockMatch && homeBlockMatch[1].includes('読み返す')) {
+      add(rel(copyPath), 'REGRESSION GUARD: HOME public copy must not include 読み返す');
     }
   }
   if (t.includes('m55-home-final-cta-pair')) {

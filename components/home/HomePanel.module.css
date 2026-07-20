@@ -632,7 +632,7 @@
 
 .pairStructureIndex {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0;
   list-style: none;
   margin: 0 0 14px;
@@ -641,21 +641,18 @@
 }
 
 .pairStructureIndexItem {
-  padding: 12px 10px 12px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
   border-bottom: 1px solid rgba(11, 26, 43, 0.1);
 }
 
-.pairStructureIndexItem:nth-child(odd) {
-  padding-right: 12px;
-  border-right: 1px solid rgba(11, 26, 43, 0.08);
-}
-
-.pairStructureIndexItem:nth-child(even) {
-  padding-left: 12px;
-}
-
 .pairStructureIndexNumber {
-  margin: 0 0 4px;
+  margin: 0;
+  flex: 0 0 auto;
+  min-width: 1.75em;
   font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
   font-size: 11px;
   letter-spacing: 0.14em;
@@ -665,11 +662,15 @@
 
 .pairStructureIndexTitle {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
   font-size: 0.98rem;
   font-weight: 600;
   line-height: 1.45;
   color: #0b1a2b;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .pairFreeSupport {
@@ -725,6 +726,35 @@
   outline-offset: 2px;
 }
 
+@media (min-width: 421px) {
+  .pairStructureIndex {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pairStructureIndexItem {
+    display: block;
+    padding: 12px 10px 12px 0;
+  }
+
+  .pairStructureIndexItem:nth-child(odd) {
+    padding-right: 12px;
+    border-right: 1px solid rgba(11, 26, 43, 0.08);
+  }
+
+  .pairStructureIndexItem:nth-child(even) {
+    padding-left: 12px;
+  }
+
+  .pairStructureIndexNumber {
+    margin: 0 0 4px;
+    min-width: 0;
+  }
+
+  .pairStructureIndexTitle {
+    word-break: normal;
+  }
+}
+
 @media (min-width: 768px) {
   .pairStructureIndex {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -732,6 +762,7 @@
   }
 
   .pairStructureIndexItem {
+    display: block;
     padding: 16px 0 18px;
     border-right: none;
     border-bottom: 1px solid rgba(11, 26, 43, 0.12);
@@ -749,16 +780,9 @@
   }
 }
 
-@media (max-width: 359px) {
-  .pairStructureIndex {
-    grid-template-columns: 1fr;
-  }
-
-  .pairStructureIndexItem,
-  .pairStructureIndexItem:nth-child(odd),
-  .pairStructureIndexItem:nth-child(even) {
+@media (max-width: 420px) {
+  .pairStructureIndexItem {
     padding: 8px 0;
-    border-right: none;
   }
 
   .pairFreeStage {
@@ -799,7 +823,7 @@
   }
 
   .pairStructureIndexNumber {
-    margin-bottom: 3px;
+    margin-bottom: 0;
   }
 
   .pairStructureIndexTitle {

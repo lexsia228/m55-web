@@ -79,7 +79,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §2 — Product map (below frozen hero, before free detail) */
     productMapEyebrowJa: 'M55でできること',
-    productMapHeadlineJa: '自分を見る。二人の関係を見る。そこから、深く読み返す。',
+    productMapHeadlineJa: '自分を見る。二人の関係を見る。自分を、さらに深く読み解く。',
     productMapSelfTitleJa: '自分を見る',
     productMapSelfBodyJa:
       '生年月日と、いま選んだ答えを重ねて、自分に出やすい反応や流れを見ていきます。',
@@ -87,23 +87,23 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     productMapSelfCtaJa: '無料で見てみる',
     productMapPairTitleJa: '二人の関係を見る',
     productMapPairBodyJa:
-      '二人の生年月日と選んだテーマから、距離が縮まりやすい入口や、すれ違いやすい場面を見ていきます。',
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れを見ていきます。',
     productMapPairStatusJa: '無料・ログイン不要',
     productMapPairCtaJa: '二人の関係を見てみる',
     productMapPairPreparingTitleJa: '二人の関係を見る',
     productMapPairPreparingBodyJa:
       '二人の距離や、すれ違いが生まれやすい場面を読み解く体験を準備しています。',
     productMapPairPreparingStatusJa: '準備中',
-    productMapPremiumTitleJa: '深く読み返す',
+    productMapPremiumTitleJa: '自分を深く読み解く',
     productMapPremiumBodyJa:
-      '無料で見えた入口をもとに、動き方・距離感・負担の流れ・整え方を整理します。',
-    productMapPremiumLinkJa: 'プレミアムで深く読み返す',
+      '無料で見えた自分の入口をもとに、\n動き方、人との距離感、負担が重なり始める流れ、\n整え方まで詳しく整理します。',
+    productMapPremiumLinkJa: 'プレミアムの内容を見る',
 
     /* §3a — Pair free (compact dedicated section, after self free) */
     pairFreeEyebrowJa: '二人の関係を見る',
     pairFreeHeadlineJa: '二人の間に表れやすい流れを、決めつけずに読み解く。',
     pairFreeBodyJa:
-      '二人の生年月日と、いまの関係に近い答えをもとに、重なりや違い、すれ違いが続く順番、次に試せる一つの動きを整理します。',
+      '二人の生年月日と、いまの関係に近い答えをもとに、\n重なりや違い、すれ違いが続く流れと、\n次に一度だけ試せることを整理します。',
     pairFreeStatusJa: '無料・ログイン不要',
     pairFreeCtaJa: '二人の関係を無料で見てみる',
     pairFreePreparingStatusJa: '準備中',
@@ -127,9 +127,9 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
 
     /* §4 — Mechanism band */
     mechanismEyebrowJa: 'M55の見方',
-    mechanismHeadlineJa: '二つの手がかりを重ねて、今の自分を見る。',
+    mechanismHeadlineJa: '生年月日と、いまの答えを重ねて見る。',
     mechanismBodyJa:
-      '生年月日から見える基礎傾向と、いま選んだ答え。どちらか一つで決めず、重なりから、今の自分に出やすい流れを見ていきます。',
+      '生年月日から見える基礎傾向と、いま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\nどちらか一つで決めず、\n重なりから今表れやすい流れを整理します。',
     mechanismEthicsJa: '一つの情報だけで、人を決めない。',
     mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
     mechanismDiagramSource1Ja: '生年月日から見える基礎傾向',
@@ -151,23 +151,23 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     tenAssetTeaserLinkJa: '10の資質を詳しく見る',
 
     /* §5 — Premium (preview + plan merged) */
-    premiumValueBridgeEyebrowJa: '無料から、ここまで深く',
-    premiumValueBridgeFreeHeadingJa: '無料',
+    premiumValueBridgeEyebrowJa: '自分の無料結果から、さらに深く',
+    premiumValueBridgeFreeHeadingJa: '無料結果',
     premiumValueBridgeFreeItemsJa: [
       'いまの自分に近い短い読み解き',
-      '表れやすい資質',
-      '見直すための入口',
+      '自分に表れやすい資質',
+      '今の状態を整理するための入口',
     ] as const,
-    premiumValueBridgePremiumHeadingJa: 'プレミアム',
+    premiumValueBridgePremiumHeadingJa: 'プレミアムレポート',
     premiumValueBridgePremiumItemsJa: [
-      '動き方と強みが出やすい条件',
-      '人との距離と負担が重なる流れ',
+      '動き方と、強みが表れやすい条件',
+      '人との距離感と、負担が重なり始める流れ',
       '整え直すための手がかり',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
-    premiumHeadlineJa: '自分の流れを、複数の視点から詳しく読み返す。',
+    premiumHeadlineJa: '自分の流れを、複数の視点から詳しく読み解く。',
     premiumBodyJa:
-      '無料結果と同じ二つの情報をもとに、動き方・人との距離・負担の流れ・整え方を、4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
     premiumCtaJa: 'プレミアムレポートを見る',
 
@@ -186,7 +186,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     planComparisonCtaJa: 'プレミアムレポートを見る',
 
     /* §6 — Final CTA */
-    finalCtaHeadlineJa: 'まずは、今の自分を見直すところから。',
+    finalCtaHeadlineJa: 'まずは、今の自分を知るところから。',
     finalCtaBodyJa: '無料の読み解きは、ログインせずに始められます。',
     finalCtaPrimaryJa: '無料で見てみる',
     finalCtaSecondaryJa: 'プレミアムレポートを見る',
