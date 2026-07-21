@@ -30,7 +30,17 @@ function parseRegistry(text) {
   for (const row of rows) row.pathIdentity = canonicalPathIdentity(row.path);
   const paths = rows.map((row) => row.path);
   if (new Set(paths).size !== paths.length) throw new Error('MALFORMED_WORKTREE_REGISTRY:duplicate-path');
+  const pathIdentities = rows.map((row) => row.pathIdentity);
+  if (new Set(pathIdentities).size !== pathIdentities.length) throw new Error('MALFORMED_WORKTREE_REGISTRY:conflicting-path-identity');
   return rows;
+}
+
+function parseProhibitedLanes(text) {
+  const sections = [...text.matchAll(/^### Prohibited ahead of Self funnel\s*\n([\s\S]*?)(?=^#{1,3}\s|(?![\s\S]))/gm)];
+  if (sections.length !== 1) throw new Error('MALFORMED_AUTHORITY:prohibited-lanes');
+  const values = [...sections[0][1].matchAll(/^-\s+(.+)$/gm)].map((match) => match[1].trim()).filter(Boolean);
+  if (!values.length) throw new Error('MALFORMED_AUTHORITY:prohibited-lanes');
+  return values;
 }
 
 function parseAuthority(files) {
@@ -43,16 +53,25 @@ function parseAuthority(files) {
   const activeLane = oneMatch(contract, /ACTIVE_LANE:\s*'([^']+)'/g, 'MALFORMED_AUTHORITY', 'active-lane');
   const nextSingleAction = oneMatch(current, /^\| \*\*postMergeNextSingleAction\*\* \| ([^|]+) \|$/gm, 'MALFORMED_AUTHORITY', 'next-single-action');
   if (!/^個人無料→個人Premiumファネル/.test(activeLane)) throw new Error('CONFLICTING_ACTIVE_LANE');
-  if (!/Human selection of Self Funnel visual direction, result length, and ten-asset presentation\./.test(nextSingleAction)) throw new Error('MALFORMED_AUTHORITY:next-single-action-value');
   if (!/^## Target flow$/m.test(self) || !/^## Current runtime \(NOT target\)$/m.test(self)) throw new Error('TARGET_PRESENTED_AS_LIVE');
-  if (!self.includes('NOT_YET_IMPLEMENTED') || !self.includes('no cross-device persistence guarantee') || !self.includes('no new Pair link')) throw new Error('MALFORMED_AUTHORITY:self-v2-boundary');
   const currentBlock = contract.slice(contract.indexOf('M55_CURRENT_RUNTIME_STATE'), contract.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'));
   const targetBlock = contract.slice(contract.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'), contract.indexOf('M55_DEFERRED_RUNTIME_ASSERTIONS'));
   const currentFlag = oneMatch(currentBlock, /preResultThemeSelection:\s*(true|false)/g, 'MALFORMED_AUTHORITY', 'current-runtime-flag');
   const targetFlag = oneMatch(targetBlock, /preResultThemeSelection:\s*(true|false)/g, 'MALFORMED_AUTHORITY', 'target-flag');
   if (currentFlag !== 'true' || targetFlag !== 'false') throw new Error('CURRENT_TARGET_CONTRADICTION');
   if (!/^1\. Commercial Funnel SSOT/m.test(roadmap)) throw new Error('MALFORMED_AUTHORITY:roadmap');
-  return { activeLane, nextSingleAction, registry: parseRegistry(registry), documentedTransition: registry.includes('Documented post-merge transition'), completedGreen: current.includes('CLOSED_GREEN') };
+  const humanDecisionsRequired = /Human (?:visual-direction|selection of Self Funnel visual direction).*?(?:ten-asset presentation).*?(?:pending|selection)/is.test(`${self}\n${nextSingleAction}`)
+    ? ['visual direction', 'result length', 'ten-asset presentation']
+    : [];
+  return {
+    activeLane,
+    nextSingleAction,
+    registry: parseRegistry(registry),
+    documentedTransition: registry.includes('Documented post-merge transition'),
+    completedGreen: current.includes('CLOSED_GREEN'),
+    prohibitedLanes: parseProhibitedLanes(current),
+    humanDecisionsRequired,
+  };
 }
 
 export function inspectM55(repo, identity) {
@@ -62,39 +81,70 @@ export function inspectM55(repo, identity) {
     try { files[rel] = safeRead(repo, rel); checks.push(check(`authority:${rel}`, 'PASS', 'Authority file is readable.')); }
     catch (error) { checks.push(fail('missing:authority', 'Required authority file is unreadable.', { file: rel, error: error.message })); }
   }
-  let authority = { activeLane: null, nextSingleAction: null, documentedTransition: false, completedGreen: false, currentRuntimeDebt: false, targetState: false, readOrder: AUTHORITY_MANIFEST, runtimeDebts: [], prohibitedLanes: [], humanDecisionsRequired: [], doNotUseWorktrees: [] };
+  let authority = {
+    parseStatus: 'UNAVAILABLE', parseReason: 'Authority parsing has not completed.',
+    activeLane: null, nextSingleAction: null, documentedTransition: false, completedGreen: false,
+    currentRuntimeDebt: false, currentState: null, targetState: null, readOrder: AUTHORITY_MANIFEST,
+    runtimeDebts: [], prohibitedLanes: [], humanDecisionsRequired: [], doNotUseWorktrees: [],
+    fieldAvailability: {},
+  };
   let rows = [];
+  let registryParsed = false;
   if (!checks.some((item) => item.level === 'FAIL')) {
     try {
       const parsed = parseAuthority(files);
-      authority = { ...authority, ...parsed, currentRuntimeDebt: true, targetState: true,
+      registryParsed = true;
+      authority = { ...authority, ...parsed, parseStatus: 'PARSED', parseReason: null, currentRuntimeDebt: true,
+        currentState: 'Current runtime retains pre-result theme selection and recorded legacy debt.',
+        targetState: 'Target contract removes pre-result theme selection; target state is not current runtime.',
         runtimeDebts: ['pre-result theme selection exists', 'legacy public terms remain', 'some free-result paths include action suggestions'],
-        prohibitedLanes: ['Self Funnel runtime', 'HOME', 'Pair', 'Stripe', 'checkout', 'DB', 'migration', 'Clerk', 'Production deploy'],
-        humanDecisionsRequired: ['visual direction', 'result length', 'ten-asset presentation'],
         doNotUseWorktrees: parsed.registry.filter((row) => row.lifecycle === 'DO_NOT_USE').map((row) => row.path),
+        fieldAvailability: {
+          activeLane: { status: 'AVAILABLE', reason: null },
+          nextSingleAction: { status: 'AVAILABLE', reason: null },
+          prohibitedActions: { status: 'AVAILABLE', reason: null },
+          humanDecisions: parsed.humanDecisionsRequired.length
+            ? { status: 'AVAILABLE', reason: null }
+            : { status: 'UNAVAILABLE', reason: 'No pending Human-decision declaration is present in this authority revision.' },
+          currentState: { status: 'AVAILABLE', reason: null },
+          targetState: { status: 'AVAILABLE', reason: null },
+        },
       };
       rows = parsed.registry;
       checks.push(check('m55:authority-format', 'PASS', 'Required M55 authority is unambiguous.'));
-    } catch (error) { checks.push(fail(error.message.split(':')[0].toLowerCase().replaceAll('_', ':'), 'Required M55 authority is malformed, ambiguous, or contradictory.', { error: error.message })); }
-  }
-  const rowByPath = new Map(rows.map((row) => [row.pathIdentity, row]));
-  for (const worktree of identity.worktrees) {
-    const worktreeIdentity = worktree.pathIdentity || canonicalPathIdentity(worktree.path);
-    const row = rowByPath.get(worktreeIdentity);
-    if (!row) { checks.push(fail('worktree:unregistered', 'Live worktree is absent from the registry.', { path: worktree.path })); continue; }
-    if (worktree.branch && row.branch !== worktree.branch) {
-      if (authority.documentedTransition && worktree.path.endsWith('M55_WORKTREE-home-final-ia-v1') && worktree.branch === 'main') checks.push(check('worktree:documented-transition', 'WARN', 'Documented post-merge transition has a stale snapshot.', { path: worktree.path }));
-      else checks.push(fail('worktree:branch-mismatch', 'Live worktree branch differs from the registry without a documented transition.', { path: worktree.path, documented: row.branch, live: worktree.branch }));
+    } catch (error) {
+      authority = { ...authority, parseReason: error.message,
+        fieldAvailability: Object.fromEntries(['activeLane', 'nextSingleAction', 'prohibitedActions', 'humanDecisions', 'currentState', 'targetState'].map((field) => [field, { status: 'UNAVAILABLE', reason: error.message }])) };
+      checks.push(fail(error.message.split(':')[0].toLowerCase().replaceAll('_', ':'), 'Required M55 authority is malformed, ambiguous, or contradictory.', { error: error.message }));
     }
   }
-  if (!identity.worktrees.some((worktree) => !rowByPath.has(worktree.pathIdentity || canonicalPathIdentity(worktree.path)))) checks.push(check('worktree:inventory', 'PASS', 'Every live worktree is registered.'));
-  if (rows.some((row) => row.lifecycle === 'DO_NOT_USE')) checks.push(check('worktree:prohibited', 'PASS', 'Prohibited DO_NOT_USE worktree remains documented.'));
-  else checks.push(fail('worktree:prohibited', 'No DO_NOT_USE worktree is documented.'));
+  if (registryParsed) {
+    const rowByPath = new Map(rows.map((row) => [row.pathIdentity, row]));
+    const unregisteredPaths = [];
+    const prohibitedPaths = [];
+    for (const worktree of identity.worktrees) {
+      const worktreeIdentity = worktree.pathIdentity || canonicalPathIdentity(worktree.path);
+      const row = rowByPath.get(worktreeIdentity);
+      if (!row) { unregisteredPaths.push(worktree.path); continue; }
+      if (row.lifecycle === 'DO_NOT_USE') prohibitedPaths.push(worktree.path);
+      if (worktree.branch && row.branch !== worktree.branch) {
+        if (authority.documentedTransition && worktree.path.endsWith('M55_WORKTREE-home-final-ia-v1') && worktree.branch === 'main') checks.push(check('worktree:documented-transition', 'WARN', 'Documented post-merge transition has a stale snapshot.', { path: worktree.path }));
+        else checks.push(fail('worktree:branch-mismatch', 'Live worktree branch differs from the registry without a documented transition.', { path: worktree.path, documented: row.branch, live: worktree.branch }));
+      }
+    }
+    if (unregisteredPaths.length) checks.push(fail('worktree:unregistered', 'One or more live worktrees are absent from the registry.', { paths: unregisteredPaths.sort() }));
+    else checks.push(check('worktree:inventory', 'PASS', 'Every live worktree is registered.'));
+    if (prohibitedPaths.length) checks.push(fail('worktree:prohibited', 'A registered DO_NOT_USE worktree is present in the live worktree inventory.', { paths: prohibitedPaths.sort() }));
+    else checks.push(check('worktree:prohibited', 'PASS', 'No registered DO_NOT_USE worktree is present in the live inventory.'));
+  }
   if (!identity.clean) checks.push(fail('git:dirty', 'Working tree has tracked, staged, or untracked changes.', { dirtyFiles: identity.dirtyFiles }));
   else checks.push(check('git:clean', 'PASS', 'Working tree is clean.'));
   if (identity.gitOperation !== 'none') checks.push(fail('git:operation', 'Git operation is active.', { operation: identity.gitOperation }));
   else checks.push(check('git:operation', 'PASS', 'No Git operation is active.'));
   const status = classifyChecks(checks);
-  const reasonCodes = checks.filter((item) => item.level !== 'PASS').map((item) => item.id.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/_$/, '')).sort();
-  return { status, reasonCodes, checks: checks.sort((a, b) => a.id.localeCompare(b.id)), authority };
+  const nonPass = checks.filter((item) => item.level !== 'PASS');
+  const reasonCode = (item) => item.id.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/_$/, '');
+  const reasonCodes = [...new Set(nonPass.map(reasonCode))].sort();
+  const reasonDetails = nonPass.map((item) => ({ code: reasonCode(item), level: item.level, message: item.message, details: item.details }));
+  return { status, reasonCodes, reasonDetails, checks: checks.sort((a, b) => a.id.localeCompare(b.id)), authority };
 }
