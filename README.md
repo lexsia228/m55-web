@@ -1,5 +1,67 @@
 # M55 Phase6 Next.js Integration Kit (Audit-Gated)
 
+## M55 Control Plane — OpenAI Build Week
+
+**Outcome:** M55 Control Plane stops unsafe AI work and keeps coding agents aligned to current,
+repository-native evidence. It is submitted in the **Developer Tools** category.
+
+AI coding agents can begin from stale, conflicting, or incomplete context. The Control Plane
+solves that problem with two fail-closed layers: Guardrail checks repository identity, authority,
+Git state, and worktree safety; Consistency compares encoded intent without presenting target
+contracts as implemented runtime truth. Both produce deterministic, reviewable handoff evidence.
+
+### Zero-install judge quickstart
+
+Use the exact feature branch reviewed in [PR #75](https://github.com/lexsia228/m55-web/pull/75):
+
+```bash
+git clone --branch feat/m55-build-week-control-plane-v1 \
+  --single-branch https://github.com/lexsia228/m55-web.git
+
+cd m55-web
+
+node --test scripts/m55-handoff/audit.test.mjs
+node --test scripts/m55-handoff/consistency.test.mjs
+node scripts/m55-handoff/consistency-demo.mjs
+```
+
+The Control Plane demo and tests use Node built-ins only: no `node_modules`, API key, or network
+call is required at runtime. Generated reports are written to the operating system's temporary
+directory, outside the repository. The expected real-M55 Consistency verdict is
+`REVIEW_REQUIRED`; that is an explicit Human review gate, not a test failure.
+
+The commands are supported on macOS and Windows and are also compatible with Linux. Native macOS
+verification and a Windows fresh-clone verification both passed. Current evidence includes
+Guardrail **55/55**, Consistency **80/80**, a generic Orbit adapter result, and a real M55 pilot
+that correctly fails closed with complete HOLD handoff evidence.
+
+### Build Week scope and provenance
+
+M55 was a pre-existing product with product runtime, SSOT documents, and a focused SSOT verifier.
+Build Week added the Control Plane under `scripts/m55-handoff`: the generic engine, Guardrail and
+Consistency layers, M55 and Orbit adapters, deterministic reports, fresh-agent packets, samples,
+tests, documentation, and example CI workflow. It did not add or change consumer transactions,
+database migrations, payment behavior, authentication behavior, or production product runtime.
+
+Codex was used as the repository-operating development agent: it read authority, implemented the
+bounded changes, ran verification, produced evidence, and stopped at Human decision gates.
+GPT-5.6 supplied the reasoning and coding capability used through Codex to reconcile repository
+state, design fail-closed contracts, implement deterministic adapters, and review the result.
+Human authority selected scope, approved every state-changing gate, and remains explicit.
+
+### Limits and evidence boundary
+
+- The runtime makes no model or API call.
+- Source-static evidence is not visual approval or production-runtime approval.
+- Raw machine-local JSON is private diagnostic evidence; public packet views redact local identity.
+- A fresh unregistered checkout intentionally returns HOLD until its evidence is reviewed.
+- Human review remains required for `REVIEW_REQUIRED` and all product decisions.
+
+See [the Build Week technical overview](docs/M55_BUILD_WEEK_CONTROL_PLANE.md) and the
+[MIT License](LICENSE).
+
+---
+
 このZIPは **M55 Command Center HQ + Layer1（policies）統合済みの Legacy RC1** を、
 Next.js の最小シェルに **そのまま** 組み込んだ「Phase6 統合キット」です。
 

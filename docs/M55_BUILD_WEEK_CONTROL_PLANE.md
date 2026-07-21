@@ -15,8 +15,8 @@ npm run audit:m55-handoff -- --repo . --out "$(node -e 'console.log(require("nod
 The command writes `handoff-report.json`, a self-contained `handoff-report.html`, `handoff.md`,
 and `agent-bootstrap.txt`. A HOLD exits nonzero; malformed usage exits with code 2. The default
 uses Node's platform temporary directory, so it works on macOS, Windows, and Linux without a
-hardcoded `/tmp` path. macOS is locally exercised here. Windows and Linux are not yet
-independently verified.
+hardcoded `/tmp` path. Native macOS verification and a Windows fresh-clone verification have
+both passed. The runtime uses Node built-ins and makes no network or model/API call.
 
 ## Windows install and rerun
 
@@ -29,8 +29,9 @@ node --test scripts/m55-handoff/audit.test.mjs
 ```
 
 `npm.ps1` may be blocked by local execution policy; `npm.cmd` is the supported alternative.
-Do not weaken PowerShell policy. The package lock must remain unchanged. Windows installation is
-not claimed as verified until this rerun completes successfully.
+Do not weaken PowerShell policy. The package lock must remain unchanged. The final Windows
+fresh-clone evidence passed Guardrail 55/55 and Consistency 80/80 on the reviewed implementation
+commit. Later documentation- or workflow-only commits do not replace that evidence boundary.
 
 ## JSON schema
 
@@ -44,6 +45,26 @@ is intentionally `null` in deterministic snapshots.
 ## What existed and what Build Week adds
 
 Before Build Week, M55 had its SSOT, machine contract, and a focused SSOT verifier. During Build Week, this work adds the generic Git/reporting engine, an M55 authority adapter, stable JSON output, an accessible offline HTML report, handoff reason codes, and synthetic unit coverage. Codex/GPT-5.6 contributed implementation and verification under the repository’s Human authority.
+
+More specifically, Codex operated as the repository-aware development agent: it read the declared
+authority order, implemented only Human-authorized changes, ran native and fresh-clone checks,
+prepared deterministic evidence, and stopped at permission boundaries. GPT-5.6 provided the
+reasoning and coding capability used through Codex for contract reconciliation, fail-closed design,
+implementation, and review. Human decisions remained authoritative throughout.
+
+The pre-existing M55 application remains the inspected consumer. Build Week did not implement or
+change consumer transactions, database migrations, Stripe/payment behavior, authentication, or
+Production runtime. The reusable Orbit Field Notes adapter demonstrates that the Consistency layer
+is not coupled to M55.
+
+## Demonstrated evidence
+
+- Guardrail: 55/55 passing
+- Consistency: 80/80 passing
+- Real M55 pilot: fail-closed HOLD with JSON, HTML, Markdown, and agent-bootstrap evidence
+- Generic adapter: Orbit Field Notes produces a deterministic `CONSISTENT` result
+- Cross-platform: native macOS and Windows fresh-clone verification
+- Expected real-M55 Consistency verdict: `REVIEW_REQUIRED`, requiring explicit Human review
 
 ## Judge path and sample result
 
