@@ -23,12 +23,26 @@ export function resolveGitExecutable({ platform = process.platform, env = proces
   return 'git.exe';
 }
 
-export function canonicalPathIdentity(value, { platform = process.platform, realpathSync = fs.realpathSync.native } = {}) {
-  const pathApi = platform === 'win32' ? path.win32 : path;
+function pathApiForPlatform(platform) {
+  if (platform === 'win32') return path.win32;
+  if (platform === 'darwin' || platform === 'linux') return path.posix;
+  throw new Error(`UNSUPPORTED_PATH_PLATFORM:${platform}`);
+}
+
+export function canonicalPathIdentity(value, options = {}) {
+  const platform = options.targetPlatform || options.platform || process.platform;
+  const pathApi = pathApiForPlatform(platform);
   const source = platform === 'win32' ? String(value).replaceAll('/', '\\') : String(value);
-  let resolved = pathApi.resolve(source);
+  const defaultCwd = platform === process.platform ? process.cwd() : pathApi.parse(source).root || pathApi.sep;
+  const targetCwd = options.targetCwd || options.cwd || defaultCwd;
+  const hasInjectedResolver = Object.hasOwn(options, 'realpathSync');
+  const filesystemResolution = options.filesystemResolution ?? (hasInjectedResolver || platform === process.platform);
+  const realpathSync = filesystemResolution
+    ? (hasInjectedResolver ? options.realpathSync : platform === process.platform ? fs.realpathSync.native : null)
+    : null;
+  let resolved = pathApi.isAbsolute(source) ? pathApi.normalize(source) : pathApi.resolve(targetCwd, source);
   if (realpathSync) {
-    try { resolved = realpathSync(resolved); } catch { /* absent host path: retain lexical identity */ }
+    try { resolved = realpathSync(resolved); } catch { /* absent target path: retain lexical identity */ }
   }
   let normalized = pathApi.normalize(resolved);
   const root = pathApi.parse(normalized).root;
@@ -37,8 +51,8 @@ export function canonicalPathIdentity(value, { platform = process.platform, real
 }
 
 export function pathIsInside(root, candidate, options = {}) {
-  const platform = options.platform || process.platform;
-  const pathApi = platform === 'win32' ? path.win32 : path;
+  const platform = options.targetPlatform || options.platform || process.platform;
+  const pathApi = pathApiForPlatform(platform);
   const rootIdentity = canonicalPathIdentity(root, options);
   const candidateIdentity = canonicalPathIdentity(candidate, options);
   const prefix = rootIdentity.endsWith(pathApi.sep) ? rootIdentity : `${rootIdentity}${pathApi.sep}`;
