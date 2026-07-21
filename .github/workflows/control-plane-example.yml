@@ -15,6 +15,68 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm run audit:m55-handoff -- --repo . --out "$RUNNER_TEMP/m55-handoff"
-      - if: always()
-        run: cat "$RUNNER_TEMP/m55-handoff/handoff-report.json" || true
+      - name: Verify expected unregistered HOLD
+        shell: bash
+        run: |
+          output_dir="$RUNNER_TEMP/m55-handoff"
+
+          set +e
+          npm run audit:m55-handoff -- --repo . --out "$output_dir"
+          audit_exit=$?
+          set -e
+
+          if [ "$audit_exit" -ne 1 ]; then
+            echo "Expected handoff audit exit code 1, received $audit_exit" >&2
+            exit 1
+          fi
+
+          HANDOFF_OUTPUT_DIR="$output_dir" node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const outputDir = process.env.HANDOFF_OUTPUT_DIR;
+          const packetFiles = [
+            'handoff-report.json',
+            'handoff-report.html',
+            'handoff.md',
+            'agent-bootstrap.txt',
+          ];
+
+          for (const name of packetFiles) {
+            const file = path.join(outputDir, name);
+            const stat = fs.statSync(file);
+            if (!stat.isFile() || stat.size === 0) {
+              throw new Error(`Missing or empty packet file: ${name}`);
+            }
+          }
+
+          const report = JSON.parse(
+            fs.readFileSync(path.join(outputDir, 'handoff-report.json'), 'utf8'),
+          );
+          if (report.status !== 'HOLD') {
+            throw new Error(`Expected status HOLD, received ${report.status}`);
+          }
+          if (report.implementationPermission !== 'NO') {
+            throw new Error(
+              `Expected implementation permission NO, received ${report.implementationPermission}`,
+            );
+          }
+
+          const expectedReasons = ['WORKTREE_UNREGISTERED'];
+          const actualReasons = Array.isArray(report.reasonCodes)
+            ? [...report.reasonCodes].sort()
+            : [];
+          if (JSON.stringify(actualReasons) !== JSON.stringify(expectedReasons)) {
+            throw new Error(
+              `Expected reason codes ${expectedReasons.join(', ')}, received ${actualReasons.join(', ')}`,
+            );
+          }
+
+          const bootstrap = fs.readFileSync(
+            path.join(outputDir, 'agent-bootstrap.txt'),
+            'utf8',
+          );
+          if (!bootstrap.startsWith('HOLD — DO NOT BEGIN IMPLEMENTATION.')) {
+            throw new Error('Agent bootstrap does not begin with the required HOLD instruction');
+          }
+          NODE
