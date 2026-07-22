@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-20**  
+Last verified: **2026-07-22** (CATEGORY-2 bootstrap REV2 precheck)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,19 +9,20 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **SHA:** `37163a0d473c25365f3bddad579d4844fd8300df`
+- **Live main baseline (verified 2026-07-22):** `575791f2ab80d57c89317e07da4b8020cfba3485`
+- **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
 - This is the production code authority. It is **not** the same as any local checkout state below.
+- **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
 
 ### PRIMARY_MAIN_HOME vs ACTIVE_BRANCH (do not conflate)
 
 | Concept | Meaning |
 |---|---|
 | **Production main authority** | `origin/main` at the SHA above |
-| **PRIMARY_MAIN_HOME** | Designated **post-merge baseline worktree** — the path where `main` should be checked out **after** PR #74 merges. Not “currently on `main`”. |
-| **ACTIVE_BRANCH** | The branch actively being edited in the current lane (`docs/m55-commercial-funnel-ssot-v1`) |
+| **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
+| **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**Current fact:** No registered worktree is checked out on local `main`.  
-`/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` holds **ACTIVE_BRANCH** today and is designated **PRIMARY_MAIN_HOME** after merge.
+**Current fact (2026-07-22):** WT-001 holds **PRIMARY_MAIN_HOME** on branch `chore/m55-worktree-registry-current-state-bootstrap-rev1` during registry/current-state bootstrap. Local `main` checkout is a **documented post-bootstrap transition** — not current state.
 
 ### Lifecycle status values
 
@@ -35,8 +36,10 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
-| Pre-merge (PR #74 review) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | Normal SSOT PR work |
-| Post-merge (expected) | `main` | `origin/main` squash merge SHA | checkout `main`, pull, verify merge SHA, **update this registry** + `M55_CURRENT_STATE.md`, re-run live preflight |
+| Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
+| Post-merge baseline | `main` | `575791f2…` | Verified on `origin/main` after PR #74 squash merge |
+| Current (bootstrap REV2) | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `575791f2…` | Registry/current-state bootstrap only — **no product source** |
+| Expected post-bootstrap | `main` | `575791f2…` | Human-approved checkout `main`, pull, verify SHA, update registry snapshot |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + verified merge SHA on `origin/main` → update snapshot and continue (see `AGENTS.md`).
 
@@ -44,25 +47,24 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 
 ## Registered worktrees
 
-### WT-001 — Commercial Funnel SSOT (current session)
+### WT-001 — PRIMARY_MAIN_HOME
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
-| branch | `docs/m55-commercial-funnel-ssot-v1` (pre-merge snapshot) |
-| HEAD | `86260d50fa132dfd083a0f092f0cfa0c3eaa2adb` |
-| upstream | `origin/docs/m55-commercial-funnel-ssot-v1` |
-| divergence from `origin/main` | 0 behind · 2 ahead |
-| ancestor of `origin/main` | NO (feature commit on top of main) |
-| cleanliness | clean |
+| branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` (bootstrap snapshot) |
+| HEAD | `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| baseline | `main` @ `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| upstream | bootstrap branch (registry patch gate) |
+| cleanliness | baseline/pre-edit verification: clean · current bootstrap branch: exact-two authorized docs modifications pending review |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** (post-merge designation) |
-| purpose | M55 Commercial Funnel SSOT構築 — PR #74 |
-| related lane / PR | ACTIVE LANE: Commercial Funnel SSOT · PR #74 |
-| allowed operations | docs/contract/verifier edits on active branch; read authority first |
-| prohibited operations | runtime/UI/route/API/DB/Stripe/Clerk/env changes in this lane |
-| removal eligibility | NO — retain as PRIMARY_MAIN_HOME after merge |
-| notes | **ACTIVE_BRANCH** holder (pre-merge). **Post-merge:** checkout `main`, pull `origin/main`, verify merge SHA, update registry snapshot, live preflight. See **Documented post-merge transition** above. |
+| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
+| purpose | **PRIMARY_MAIN_HOME** — post–PR #74 commercial funnel baseline worktree |
+| related lane / PR | PR #74 merged · bootstrap gate CATEGORY-2-REV2 |
+| allowed operations | registry/current-state docs edits during authorized bootstrap gate only |
+| prohibited operations | product source/runtime/UI/route/API/DB/Stripe/Clerk/env changes without explicit lane activation |
+| removal eligibility | NO — retain as PRIMARY_MAIN_HOME |
+| notes | PR #74 commercial funnel SSOT merge completed. Currently on bootstrap branch for registry/current-state patch. **Product source implementation is unauthorized.** After bootstrap completes, documented transition back to `main` checkout required (Human gate). See **Documented post-merge transition** above. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -204,6 +206,26 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | removal eligibility | deferred — human review |
 | notes | Upstream tracks `origin/main` but checked-out branch is feature. Not PRIMARY_MAIN_HOME. |
 
+### WT-009 — Build Week Control Plane (operational freeze)
+
+| Field | Value |
+|---|---|
+| id | WT-009 |
+| path | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` |
+| branch | `feat/m55-build-week-control-plane-v1` |
+| HEAD | `0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75` |
+| upstream | `origin/feat/m55-build-week-control-plane-v1` |
+| cleanliness | clean (verification-time snapshot) |
+| locked / prunable | none |
+| lifecycle | **PAUSED** |
+| operational state | **FROZEN_BY_HUMAN_DECISION** |
+| purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |
+| related lane / PR | PR #75 — **OPEN** (operational freeze by Human decision) |
+| allowed operations | read-only inspection · Control Plane canonical external audit · PR/check status read-only observation |
+| prohibited operations | source/docs/test/config edit · commit · push · rebase · force-push · merge to `main` · product runtime change · Production change · worktree removal |
+| removal eligibility | NO — requires PR #75 final disposition + explicit Human approval in separate gate |
+| notes | Build Week submission evidence preserved under Human decision. Stronger than typical PAUSED: read-only inspection only; no edit/commit/push/rebase/merge without explicit Human gate; no merge to `main`; no product/runtime/Production changes; auto-cleanup/remove prohibited. Removal only after PR #75 final disposition + separate Human gate. |
+
 ---
 
 ## Non-worktree directories explicitly excluded
@@ -223,7 +245,7 @@ Do not infer branch, HEAD, or lane from folder names alone.
 See `AGENTS.md` for full rules. Key points:
 
 - Confirm `pwd` / `branch` / `HEAD` / `status` / `git worktree list` before work
-- Never edit **DO_NOT_USE** worktrees
+- Never edit **DO_NOT_USE** worktrees; never edit WT-009 (operational freeze under PAUSED) without explicit Human gate
 - Never reset / clean / stash dirty worktrees without explicit human instruction
 - Never create new worktrees without plan
 - If registry ≠ live `git worktree list`, **stop and report**
