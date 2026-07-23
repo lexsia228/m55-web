@@ -45,6 +45,8 @@ import {
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASELINE_SHA = '575791f2ab80d57c89317e07da4b8020cfba3485';
 const BOOTSTRAP_BRANCH = 'chore/m55-worktree-registry-current-state-bootstrap-rev1';
+const FIXTURE_BASE_SHA = '3ea803eaffd83a67434ffa032319cb915fd163f9';
+const VERIFIER_REL_PATH = 'scripts/verify-m55-commercial-ssot.mjs';
 
 function runGit(args, cwd) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
@@ -52,6 +54,55 @@ function runGit(args, cwd) {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
   }
   return result.stdout.trim();
+}
+
+function assertGitObjectExists(objectish, cwd) {
+  const result = spawnSync('git', ['cat-file', '-e', objectish], { cwd, encoding: 'utf8' });
+  assert.equal(result.status, 0, `expected git object ${objectish} in ${cwd}`);
+}
+
+function buildCleanStateDisposableFixture() {
+  const fixtureParent = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-clean-proof-'));
+  const fixtureRoot = path.join(fixtureParent, 'repo');
+  const verifierSourcePath = path.join(REPO_ROOT, VERIFIER_REL_PATH);
+
+  assert.ok(fs.existsSync(verifierSourcePath), 'verifier source file must exist');
+  assertGitObjectExists(FIXTURE_BASE_SHA, REPO_ROOT);
+
+  const clone = spawnSync('git', ['clone', REPO_ROOT, fixtureRoot], { encoding: 'utf8' });
+  assert.equal(clone.status, 0, clone.stderr || clone.stdout);
+
+  const cloneTip = runGit(['rev-parse', 'HEAD'], fixtureRoot);
+  runGit(['checkout', FIXTURE_BASE_SHA], fixtureRoot);
+  runGit(['checkout', '-B', BOOTSTRAP_BRANCH], fixtureRoot);
+
+  assert.equal(runGit(['rev-parse', 'HEAD'], fixtureRoot), FIXTURE_BASE_SHA);
+  assert.equal(runGit(['branch', '--show-current'], fixtureRoot), BOOTSTRAP_BRANCH);
+
+  const fixtureVerifierPath = path.join(fixtureRoot, VERIFIER_REL_PATH);
+  fs.writeFileSync(fixtureVerifierPath, fs.readFileSync(verifierSourcePath, 'utf8'));
+
+  const diffNames = runGit(['diff', '--name-only'], fixtureRoot);
+  assert.notEqual(diffNames.trim(), '', 'expected verifier copy to produce a non-empty diff');
+  assert.match(diffNames, /scripts\/verify-m55-commercial-ssot\.mjs/);
+
+  assert.equal(runGit(['diff', '--cached', '--name-only'], fixtureRoot).trim(), '');
+
+  runGit(['add', VERIFIER_REL_PATH], fixtureRoot);
+
+  const stagedPaths = runGit(['diff', '--cached', '--name-only'], fixtureRoot);
+  assert.deepEqual(stagedPaths.split('\n').filter(Boolean), [VERIFIER_REL_PATH]);
+
+  runGit(['commit', '-m', 'temp: disposable clean-state verifier proof'], fixtureRoot);
+
+  const head = runGit(['rev-parse', 'HEAD'], fixtureRoot);
+  assert.notEqual(head, FIXTURE_BASE_SHA, 'temporary commit must be non-empty');
+  assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), FIXTURE_BASE_SHA);
+  assert.equal(runGit(['rev-list', '--count', `${FIXTURE_BASE_SHA}..HEAD`], fixtureRoot), '1');
+  assert.equal(isWorktreeClean(fixtureRoot), true);
+  assert.equal(isAncestorOrEqual(BASELINE_SHA, head, fixtureRoot), true);
+
+  return { fixtureParent, fixtureRoot, head, cloneTip };
 }
 
 function initRepoWithHistory() {
@@ -1156,27 +1207,12 @@ describe('clean-state disposable proof', () => {
     'preflight passes without drift warning on clean bootstrap descendant fixture',
     { timeout: 180000 },
     () => {
-      const fixtureParent = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-clean-proof-'));
-      const fixtureRoot = path.join(fixtureParent, 'repo');
-      const clone = spawnSync(
-        'git',
-        ['clone', '--branch', BOOTSTRAP_BRANCH, REPO_ROOT, fixtureRoot],
-        { encoding: 'utf8' },
-      );
-      assert.equal(clone.status, 0, clone.stderr || clone.stdout);
-
-      const verifierSrc = fs.readFileSync(
-        path.join(REPO_ROOT, 'scripts/verify-m55-commercial-ssot.mjs'),
-        'utf8',
-      );
-      fs.writeFileSync(path.join(fixtureRoot, 'scripts/verify-m55-commercial-ssot.mjs'), verifierSrc);
-
-      runGit(['add', 'scripts/verify-m55-commercial-ssot.mjs'], fixtureRoot);
-      runGit(['commit', '-m', 'temp: rev6 verifier clean-state proof'], fixtureRoot);
-
-      const head = runGit(['rev-parse', 'HEAD'], fixtureRoot);
-      assert.equal(isAncestorOrEqual(BASELINE_SHA, head, fixtureRoot), true);
-      assert.equal(isWorktreeClean(fixtureRoot), true);
+      const { fixtureParent, fixtureRoot, head, cloneTip } = buildCleanStateDisposableFixture();
+      assert.notEqual(head, FIXTURE_BASE_SHA, 'temporary disposable commit must advance fixture HEAD');
+      assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), FIXTURE_BASE_SHA);
+      if (cloneTip !== FIXTURE_BASE_SHA) {
+        assert.notEqual(cloneTip, head, 'fixture must not reuse current branch tip as proof HEAD');
+      }
 
       const worktreeList = spawnSync('git', ['worktree', 'list', '--porcelain'], {
         cwd: fixtureRoot,
