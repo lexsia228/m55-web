@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-22** (CATEGORY-2 bootstrap REV2 precheck)
+Last verified: **2026-07-23** (CATEGORY-2 WT-002 historical registry patch REV1)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -73,18 +73,32 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | path | `/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish` |
 | branch | `feat/m55-compatibility-purchase-delivery-v1` |
 | HEAD | `59bba368886e9593de703352b83b319956ace9e3` |
-| upstream | `origin/feat/m55-compatibility-purchase-delivery-v1` |
-| divergence from `origin/main` | 13 behind · 3 ahead |
+| upstream | `origin/feat/m55-compatibility-purchase-delivery-v1` @ `59bba368886e9593de703352b83b319956ace9e3` |
+| local branch | **KEEP** — branch preserved; worktree removed |
+| remote branch | **KEEP** @ `origin/feat/m55-compatibility-purchase-delivery-v1` @ `59bba368886e9593de703352b83b319956ace9e3` |
+| PR | **#66 MERGED** |
+| divergence from `origin/main` | 13 behind · 3 ahead (historical snapshot at removal) |
 | ancestor of `origin/main` | NO |
-| cleanliness | **dirty** — modified `.gitignore`; untracked `.qa-screenshots-*` directories |
+| cleanliness | **historical archived inventory** — pre-removal: modified `.gitignore`; untracked `.qa-screenshots-*` directories (not current dirty state) |
+| filesystem path | **absent** — authorized removal completed 2026-07-23 |
+| Git worktree metadata | **absent** |
+| stale metadata | **absent** |
 | locked / prunable | none |
-| lifecycle | **DO_NOT_USE** |
+| lifecycle | **DO_NOT_USE** — historical preserved record; not a live worktree |
 | purpose | Historical compatibility commerce / cross-page card polish lane |
-| related lane / PR | compatibility commerce core **merged to main**; branch stale |
-| allowed operations | read-only inspection if explicitly authorized |
-| prohibited operations | **edit** · **reset** · **clean** · **stash** · **delete worktree** · new implementation |
-| removal eligibility | NO — human decision required; do not auto-clean QA artifacts or `.gitignore` |
-| notes | Main より古い。QA generated artifacts あり。uncommitted `.gitignore` 変更あり。Decision log REJECTED: 古い compatibility worktree で実装継続。 |
+| related lane / PR | PR **#66 MERGED** · compatibility commerce core **merged to main** |
+| allowed operations | read-only registry / historical inspection only |
+| prohibited operations | **worktree recreation** · reuse · **reset** · **stash** · **clean** · local branch deletion · remote branch deletion · archive deletion · new implementation |
+| removal | **GREEN** — Human authorized force removal completed 2026-07-23 |
+| removal eligibility | worktree removal **GREEN**; local branch / remote branch / archive deletion **NOT AUTHORIZED** |
+| nonsecret archive | `/Users/lexsia/Documents/M55_ARCHIVE/WT-002_compatibility-purchase-delivery_59bba368_2026-07-23` |
+| archive verification | **GREEN** — exact 8 files · checksum 7/7 PASS · bundle verification PASS · tracked patch preserved · QA evidence 102 files · QA bytes 26,084,746 |
+| secure backup | `/Users/lexsia/Documents/M55_SECURE_ARCHIVE/WT-002_local-config_59bba368_2026-07-23.sparsebundle` |
+| external manifest | `/Users/lexsia/Documents/M55_SECURE_ARCHIVE/WT-002_local-config_59bba368_2026-07-23.manifest.json` |
+| secure backup verification | **GREEN** — AES-256 · APFS · SPARSEBUNDLE · payloadLayout VOLUME_ROOT · 5 regular files · 3 directories · 2,432 bytes · source comparison 5/5 PASS twice · independent verification GREEN · manifest review GREEN · currently unmounted · historical manifest `removalAuthorized` remains false |
+| reuse | **PROHIBITED** — do not recreate or reuse this worktree |
+| deletion authority | local branch · remote branch · archive deletion **NOT AUTHORIZED** |
+| notes | Former live worktree **removed** 2026-07-23 (Human authorized). Former path absent from filesystem and Git worktree inventory. Historical archived inventory (pre-removal): uncommitted `.gitignore` change; QA generated artifacts. compatibility commerce core merged to main. Decision log REJECTED: 古い compatibility worktree で実装継続. Do not treat as live worktree or live dirty state. |
 
 ### WT-003 — Compatibility quality matrix
 
