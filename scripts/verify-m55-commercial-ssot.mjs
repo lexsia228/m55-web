@@ -29,6 +29,7 @@ const REQUIRED_SSOT_FILES = [
   'AGENTS.md',
   'docs/ssot/README.md',
   'docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md',
+  'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md',
   'docs/ssot/M55_SELF_FUNNEL_CONTRACT.md',
   'docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md',
   'docs/ssot/M55_PRODUCT_TRUTH.md',
@@ -71,9 +72,11 @@ function loadContractFacts() {
   }
 
   const targetSlice = src.slice(src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'));
-  const preResultCurrent = /preResultThemeSelection:\s*true/.test(
-    src.slice(src.indexOf('M55_CURRENT_RUNTIME_STATE'), src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT')),
+  const currentSlice = src.slice(
+    src.indexOf('M55_CURRENT_RUNTIME_STATE'),
+    src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'),
   );
+  const preResultCurrent = /preResultThemeSelection:\s*false/.test(currentSlice);
   const preResultTarget = /preResultThemeSelection:\s*false/.test(targetSlice);
 
   return {
@@ -124,7 +127,7 @@ function checkMachineContract(data) {
     fail('enforcementStatus must be PENDING_SELF_FUNNEL_IMPLEMENTATION');
   }
   if (c.selfFree.preResultThemeSelection !== true) {
-    fail('current runtime must record preResultThemeSelection=true (legacy debt)');
+    fail('current runtime must record preResultThemeSelection=false (Self funnel aligned)');
   }
   if (t.selfFree.preResultThemeSelection !== true) {
     fail('target contract must record preResultThemeSelection=false');
@@ -157,12 +160,15 @@ function checkDocsParity(data) {
   }
   if (!currentState.includes('NOT_YET')) fail('M55_CURRENT_STATE.md must record HOME final SSOT NOT_YET');
   if (!agents.includes('M55_COMMERCIAL_FUNNEL_SSOT.md')) fail('AGENTS.md read order incomplete');
+  if (!agents.includes('M55_COMMERCIAL_QUALITY_CONTRACT.md')) {
+    fail('AGENTS.md must list M55_COMMERCIAL_QUALITY_CONTRACT.md');
+  }
   if (!agents.includes('M55_CURRENT_STATE.md')) fail('AGENTS.md must list M55_CURRENT_STATE.md');
   if (!read('docs/ssot/M55_COPY_AND_CLAIMS.md').includes('保存版')) {
     fail('M55_COPY_AND_CLAIMS.md must record legacy 保存版 debt');
   }
   if (!read('docs/ssot/M55_SELF_FUNNEL_CONTRACT.md').includes('今の関心')) {
-    fail('M55_SELF_FUNNEL_CONTRACT.md must record current 今の関心 runtime');
+    fail('M55_SELF_FUNNEL_CONTRACT.md must document 今の関心 (removed / historical)');
   }
   if (!read('docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md').includes('NOT_LIVE')) {
     fail('M55_PAIR_FUNNEL_CONTRACT.md must record pairPremium NOT_LIVE');
@@ -184,6 +190,7 @@ function checkAgentsReadOrder() {
     'M55_CURRENT_STATE.md',
     'M55_WORKTREE_REGISTRY.md',
     'M55_COMMERCIAL_FUNNEL_SSOT.md',
+    'M55_COMMERCIAL_QUALITY_CONTRACT.md',
     'M55_DECISION_LOG.md',
     'M55_ROADMAP.md',
   ];
@@ -1236,6 +1243,129 @@ function checkPostMergeHandoff() {
   }
 }
 
+const COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES = [
+  'raw date of birth',
+  'birth year / month / day',
+  'answer text',
+  'answer IDs / facet IDs / internal answer selectors',
+  'result text',
+  'report text',
+  'consultation text',
+  'nickname',
+  'email address',
+  'user ID',
+  'Clerk ID',
+  'checkout / session identifiers',
+  'arbitrary personal payloads',
+  'arbitrary unreviewed properties',
+  'Only explicitly allowlisted, non-sensitive funnel metadata may be sent',
+];
+
+const COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES = [
+  'automated tests',
+  'build / typecheck success',
+  'generated screenshots without Human review',
+  'screenshot capture completion',
+  'visual-regression automation',
+  'AI / model evaluation',
+  'automated scoring',
+  'automated tests prove implementation properties only',
+  'screenshots are evidence only after a Human reviews them',
+  '`USER_VISIBLE_CLOSED_GREEN` remains **impossible** until explicit Human commercial-quality approval is recorded',
+  'automated_tests_replace_human_approval = false',
+  'generated_screenshots_replace_human_approval = false',
+  'human_visual_review_required_for_screenshot_evidence = true',
+];
+
+const COMMERCIAL_QUALITY_CONTRACT_MACHINE_FLAG_PHRASES = [
+  'analytics_forbidden_payloads_include_answer_ids = true',
+  'analytics_forbidden_payloads_include_nickname = true',
+  'analytics_forbidden_payloads_include_email = true',
+  'analytics_forbidden_payloads_include_user_id = true',
+  'analytics_forbidden_payloads_include_arbitrary_personal_payload = true',
+];
+
+const COMMERCIAL_QUALITY_CONTRACT_BASE_PHRASES = [
+  'Commercialization and sustainable revenue',
+  'USER_VISIBLE_CLOSED_GREEN',
+  'Human visual lock is mandatory',
+  '320 / 390 / desktop',
+  'Technical GREEN alone is **insufficient**',
+  'Cursor or Codex self-report alone',
+  'no hidden or dead commercial path',
+  'no unsupported precision claim',
+  'Commercial success **cannot** be claimed before observed market data',
+  'Do **not** freeze invented conversion thresholds',
+  'entry started',
+  'input completed',
+  'free result viewed',
+  'Premium bridge viewed',
+  'plan selected',
+  'checkout started',
+  'Premium Report opened',
+  'P0 / P1 material',
+  'P2',
+];
+
+function collectCommercialQualityContractPhraseFailures(contract) {
+  const failures = [];
+  const allPhrases = [
+    ...COMMERCIAL_QUALITY_CONTRACT_BASE_PHRASES,
+    ...COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES,
+    ...COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES,
+    ...COMMERCIAL_QUALITY_CONTRACT_MACHINE_FLAG_PHRASES,
+  ];
+
+  for (const phrase of allPhrases) {
+    if (!contract.includes(phrase)) {
+      failures.push(`M55_COMMERCIAL_QUALITY_CONTRACT.md missing required phrase: ${phrase}`);
+    }
+  }
+
+  return failures;
+}
+
+function validateCommercialQualityContractText(contract) {
+  return {
+    ok: collectCommercialQualityContractPhraseFailures(contract).length === 0,
+    failures: collectCommercialQualityContractPhraseFailures(contract),
+  };
+}
+
+function checkCommercialQualityContract() {
+  const contract = read('docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md');
+  const agents = read('AGENTS.md');
+  const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
+  const roadmap = read('docs/ssot/M55_ROADMAP.md');
+  const selfFunnel = read('docs/ssot/M55_SELF_FUNNEL_CONTRACT.md');
+
+  for (const message of collectCommercialQualityContractPhraseFailures(contract)) {
+    fail(message);
+  }
+
+  if (!agents.includes('M55_COMMERCIAL_QUALITY_CONTRACT.md')) {
+    fail('AGENTS.md must reference M55_COMMERCIAL_QUALITY_CONTRACT.md in read order');
+  }
+  if (!agents.includes('USER_VISIBLE_CLOSED_GREEN')) {
+    fail('AGENTS.md must reference USER_VISIBLE_CLOSED_GREEN closure standard');
+  }
+  if (!currentState.includes('M55_COMMERCIAL_QUALITY_CONTRACT.md')) {
+    fail('M55_CURRENT_STATE.md must record global commercial quality contract');
+  }
+  if (!currentState.includes('INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK')) {
+    fail('M55_CURRENT_STATE.md must record Self input experience status');
+  }
+  if (!currentState.includes('GLOBAL_COMMERCIAL_QUALITY_CONTRACT_GREEN_READY_FOR_ACTUAL_DIFF_REVIEW')) {
+    fail('M55_CURRENT_STATE.md must record global contract gate status');
+  }
+  if (!roadmap.includes('M55_COMMERCIAL_QUALITY_CONTRACT.md')) {
+    fail('M55_ROADMAP.md must reference global commercial quality contract');
+  }
+  if (!selfFunnel.includes('USER_VISIBLE_CLOSED_GREEN')) {
+    fail('M55_SELF_FUNNEL_CONTRACT.md must reference USER_VISIBLE_CLOSED_GREEN');
+  }
+}
+
 function checkDeferredNotEnforcedAsPass() {
   const src = read('scripts/verify-m55-commercial-ssot.mjs');
   if (!src.includes('PENDING_SELF_FUNNEL_IMPLEMENTATION')) {
@@ -1254,6 +1384,7 @@ function main() {
   checkAgentsReadOrder();
   checkWorktreeRegistry();
   checkPostMergeHandoff();
+  checkCommercialQualityContract();
   checkDeferredNotEnforcedAsPass();
 
   if (FAILURES.length > 0) {
@@ -1316,6 +1447,11 @@ export {
   isLegacyWt001State,
   evaluateWt001SnapshotPreflight,
   evaluateWorktreePreflightWarnings,
+  COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES,
+  COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES,
+  COMMERCIAL_QUALITY_CONTRACT_MACHINE_FLAG_PHRASES,
+  collectCommercialQualityContractPhraseFailures,
+  validateCommercialQualityContractText,
 };
 
 const invokedDirectly =

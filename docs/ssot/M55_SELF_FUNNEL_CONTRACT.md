@@ -1,7 +1,21 @@
 # M55 Self Funnel Contract
 
-Status: **Target contract (Tier C)**  
+Status: **Target contract (Tier C)**
 Machine truth: `lib/m55/contracts/m55CommercialFunnelContract.ts`
+Global closure standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (Tier B+ — mandatory before user-visible review)
+
+## User-visible closure (global)
+
+Self funnel user-visible surfaces must satisfy `USER_VISIBLE_CLOSED_GREEN` in `M55_COMMERCIAL_QUALITY_CONTRACT.md`:
+
+- implementation validation GREEN
+- Product Truth and safety GREEN
+- actual diff review GREEN
+- local or Preview actual-screen evidence (320 / 390 / desktop where applicable)
+- Human commercial-quality approval
+- no unresolved material comprehension or conversion defect
+
+Agent self-report alone does not satisfy Human visual approval.
 
 ## Target flow
 
@@ -17,16 +31,16 @@ HOME
   → 追加 theme
 ```
 
-## Current runtime (NOT target)
+## Current runtime (Self funnel implementation lane)
 
 Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree`:
 
-- 「今の関心」step が **存在する** (`lib/m55/freeResult/questionnaireCopyV1.ts`)
-- 結果前 theme selection が **ある**
-- public copy に「見取り図」「保存版」legacy 語が残る
-- 無料結果内に行動提案が含まれる経路がある
+- 結果前「今の関心」step は **廃止**（DOB + 中核5問で無料結果へ）
+- engine 互換のため内部 default theme を付与（UI では選択しない）
+- public copy の「見取り図」「保存版」legacy 語は **一部残存**（HOME / legal 等）
+- 無料結果から「今日の一歩」等の行動提案は **除去**
 
-**Enforcement:** `PENDING_SELF_FUNNEL_IMPLEMENTATION` — do not assert these are fixed until the Self funnel implementation lane merges.
+**Enforcement:** `PENDING_SELF_FUNNEL_IMPLEMENTATION` — residual legacy public terms remain deferred until full public-surface cleanup.
 
 ## Free result center (target)
 

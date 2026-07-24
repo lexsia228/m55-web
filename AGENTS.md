@@ -9,9 +9,10 @@ All AI agents, Cursor sessions, and developers working on M55 commercial funnel 
 3. `docs/ssot/M55_CURRENT_STATE.md`
 4. `docs/ssot/M55_WORKTREE_REGISTRY.md`
 5. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-6. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-7. `docs/ssot/M55_DECISION_LOG.md`
-8. `docs/ssot/M55_ROADMAP.md`
+6. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
+7. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+8. `docs/ssot/M55_DECISION_LOG.md`
+9. `docs/ssot/M55_ROADMAP.md`
 
 Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts`
 
@@ -31,6 +32,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Update `M55_CURRENT_STATE.md`** after completing a lane milestone.
 - **Stop and report** if SSOT and code contradict each other without a documented resolution.
+- **Commercial quality closure** — user-visible surfaces require `USER_VISIBLE_CLOSED_GREEN` per `M55_COMMERCIAL_QUALITY_CONTRACT.md`; technical GREEN alone is insufficient; Human visual approval is mandatory.
 
 ## Authority hierarchy (summary)
 
@@ -38,6 +40,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 |---|---|
 | A — Machine product truth | `lib/m55/contracts/m55CommercialFunnelContract.ts` |
 | B — Commercial principles | `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` |
+| B+ — Global commercial quality | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` |
 | C — Funnel contracts | `M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md` |
 | D — Language / visual | `M55_COPY_AND_CLAIMS.md`, `M55_VISUAL_SYSTEM.md` |
 | E — State / roadmap / decisions | `M55_CURRENT_STATE.md`, `M55_WORKTREE_REGISTRY.md`, `M55_ROADMAP.md`, `M55_DECISION_LOG.md` |

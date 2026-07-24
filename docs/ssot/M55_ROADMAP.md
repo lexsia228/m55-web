@@ -5,24 +5,40 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 
 **Fixed order — agents must not reorder arbitrarily.**
 
-1. Commercial Funnel SSOT ← **current**
-2. 個人無料→個人Premium
+1. Commercial Funnel SSOT ← **complete**
+2. 個人無料→個人Premium ← **current active lane**
 3. 二人向け無料→有料
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
 7. 全ページvisual統一
 
+## Active commercial priority
+
+第一目標は **商用化・収益化・ユーザー訴求**。内部整理を目的化しない。
+
+Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1 frozen).
+User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
+Human commercial-quality approval and actual-screen evidence are mandatory before closure.
+
 ## Repository authority closure (operational — does not reorder the sequence above)
 
 | Item | Status |
 |---|---|
-| Bootstrap / worktree registry authority | **complete** — PR #76 merged @ `38447ab1b39562606938936ce0da3d5a76d82c1b` |
-| Current next sub-gate | documented post-merge transition → Control Plane post-merge verification/audit |
-| Product implementation readiness | separate Human gate **after** Control Plane closure |
-| Self funnel runtime implementation | **not started / not authorized** |
+| Bootstrap / worktree registry authority | **complete** — PR #76 merged @ `38447ab1b39562606938936ce0da3d5a76d82c1b` (historical) |
+| Post-merge authority transition docs | **complete** — PR #77 squash @ `d4e7b7c3426d901d1ba8460e136040bf209a64de` |
+| Authority closure / readiness | **GREEN_IMPLEMENTATION_AUTHORIZED** — additional docs-only gate **not required** |
+| Current Production / origin/main | `d4e7b7c3426d901d1ba8460e136040bf209a64de` |
+| Active lane | 個人無料→個人Premiumファネル一括実装 |
+| Active worktree / branch | WT-001 · `feat/m55-self-free-to-premium-funnel-v1` @ `d4e7b7c…` |
+| Self funnel runtime implementation | **source implemented (uncommitted / expected dirty)** · awaiting actual diff review |
+| Current next gate | `CATEGORY-2-M55-SELF-FREE-TO-PREMIUM-FUNNEL-ACTUAL-DIFF-REVIEW-REV1` |
+| After actual diff review | local profile visual QA → commit review → commit / push / PR / Production QA |
+| Pair | **out of current lane** — roadmap step 3 later |
+| Build Week / WT-009 | **freeze maintained** (PAUSED + FROZEN_BY_HUMAN_DECISION) |
+| Stripe / DB / Clerk / env | **not authorized** in this lane |
 
-PR #76 merge alone does **not** authorize product source implementation. Fixed 7-step sequence above remains unchanged; Self funnel (step 2) is not active implementation.
+Fixed 7-step sequence above remains unchanged. Step 2 is the active implementation lane.
 
 ## P0 commercial defect override
 
