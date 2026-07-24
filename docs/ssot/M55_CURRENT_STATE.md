@@ -10,10 +10,11 @@ Last updated: 2026-07-23 (CATEGORY-2 WT-002 historical registry patch REV1)
 
 | Field | Value |
 |---|---|
-| Remote | `origin/main` |
-| Live main baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` |
-| Production observed baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| Remote tracking ref | `origin/main` |
+| Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main |
 | Pre-merge SHA (historical) | `37163a0d473c25365f3bddad579d4844fd8300df` |
+| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e694…`; incorporated into feature-branch history; current live remote-main status requires fresh read-only network check |
+| Current live remote main | **Undetermined in this gate** — not asserted without read-only network verification |
 | PR #74 — Commercial Funnel SSOT | **merged / completed** |
 
 ## Temporary operational interrupt (current gate)
@@ -58,12 +59,15 @@ Roadmap order is **unchanged**. Product source implementation remains **UNAUTHOR
 | Active worktree | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` (WT-001 PRIMARY_MAIN_HOME) |
 | Active branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` |
 | Historical pre-merge branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged) |
-| HEAD | `2591e69454d2d082e31e59a8cb0591bda11c3362` |
-| Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` (`origin/main` — not authority drift) |
-| HEAD semantics | `575791f…` = historical verified baseline · `2591e694…` = current feature-branch HEAD · exact equality not required |
-| Post-bootstrap transition | Human-approved checkout `main` on WT-001 + registry snapshot update |
-| Working tree (before WT-002 docs patch) | clean |
-| Working tree (current) | exact-two authorized WT-002 docs modifications pending independent review |
+| HEAD | `33effeb1997f5683c6c29ead352ed1ca7c1ce343` |
+| Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` — historical transition/descendant anchor; not current live remote main |
+| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362` |
+| Bootstrap merge commit | `2591e69454d2d082e31e59a8cb0591bda11c3362` — `merge(main): refresh repo audit index before bootstrap push` |
+| HEAD semantics | `575791f…` = historical verified baseline · `33effeb…` = current feature-branch HEAD · exact equality not required |
+| Pushed | **no** — local feature-branch HEAD only |
+| Post-bootstrap transition | Human-approved checkout `main` on WT-001 + registry snapshot update after fresh read-only remote check |
+| Working tree (before baseline-semantics patch) | clean |
+| Working tree (current) | exact-two authorized baseline-semantics docs modifications pending independent review |
 
 ### WT-002 post-removal transition
 

@@ -9,16 +9,18 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Live main baseline (verified 2026-07-22):** `575791f2ab80d57c89317e07da4b8020cfba3485`
+- **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
 - **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
-- This is the production code authority. It is **not** the same as any local checkout state below.
+- **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; not independently asserted as current live remote main
+- **Current live remote main:** undetermined in this gate — requires fresh read-only network check before push execution
+- Production code authority follows freshly verified `origin/main` — not conflated with historical baseline or locally recorded remote-tracking ref above.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
 
 ### PRIMARY_MAIN_HOME vs ACTIVE_BRANCH (do not conflate)
 
 | Concept | Meaning |
 |---|---|
-| **Production main authority** | `origin/main` at the SHA above |
+| **Production main authority** | `origin/main` — freshly verified live SHA only; see historical baseline and locally recorded ref above |
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
@@ -37,11 +39,12 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
 | Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
-| Post-merge baseline | `main` | `575791f2…` | Verified on `origin/main` after PR #74 squash merge |
-| Current (bootstrap REV2) | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `575791f2…` | Registry/current-state bootstrap only — **no product source** |
-| Expected post-bootstrap | `main` | `575791f2…` | Human-approved checkout `main`, pull, verify SHA, update registry snapshot |
+| Post-merge historical baseline | `main` | `575791f2…` | Historical verified baseline after PR #74 squash merge — not current live remote main |
+| Bootstrap merge | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `2591e694…` | `merge(main): refresh repo audit index before bootstrap push`; locally recorded `origin/main` @ `04c90ac…` as second parent |
+| Current (bootstrap REV2) | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `33effeb…` | Registry/current-state bootstrap only — **no product source** |
+| Expected post-bootstrap | `main` | *fresh read-only network verification required* | Human-approved checkout `main`, read-only remote check, verify SHA, update registry snapshot |
 
-**Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + verified merge SHA on `origin/main` → update snapshot and continue (see `AGENTS.md`).
+**Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
 ---
 
@@ -53,10 +56,11 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
 | branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` (bootstrap snapshot) |
-| HEAD | `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| HEAD | `33effeb1997f5683c6c29ead352ed1ca7c1ce343` |
 | baseline | `main` @ `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362` |
 | upstream | bootstrap branch (registry patch gate) |
-| cleanliness | baseline/pre-edit verification: clean · current bootstrap branch: exact-two authorized docs modifications pending review |
+| cleanliness | baseline/pre-edit verification: clean · current bootstrap branch: exact-two authorized baseline-semantics docs modifications pending review |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
 | purpose | **PRIMARY_MAIN_HOME** — post–PR #74 commercial funnel baseline worktree |
