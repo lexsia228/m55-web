@@ -37,7 +37,7 @@ Last updated: 2026-07-24 (CATEGORY-2 documented post-merge transition REV1 — P
 | Field | Value |
 |---|---|
 | Gate | `CATEGORY-2-M55-WORKTREE-REGISTRY-BOOTSTRAP-DOCUMENTED-POST-MERGE-TRANSITION-IMPLEMENTATION-REV1` |
-| Purpose | documented post-merge transition · post-merge Control Plane read-only verification/audit · separate implementation-readiness judgment — **no product source implementation** |
+| Purpose | documented post-merge transition · WT-009 frozen worktree registration · post-merge Control Plane read-only verification/audit · separate implementation-readiness judgment — **no product source implementation** |
 | Scope | CURRENT_STATE + WORKTREE_REGISTRY + ROADMAP docs only — **no product source implementation** |
 | Prior gate | bootstrap patch / PR #76 repository authority closure — **complete** |
 
@@ -118,7 +118,7 @@ Machine-readable row above is authoritative and appears exactly once. Operationa
 | Historical evidence | Pre-removal dirty inventory (`.gitignore` change · QA artifacts) preserved as archived inventory — not current dirty state |
 | Prior removal eligibility | Historical: worktree removal was **NOT AUTHORIZED** before Human force-removal gate — preserved as evidence |
 | Product implementation | **NO** — unchanged |
-| **NEXT GATE** | `CATEGORY-2-M55-WORKTREE-REGISTRY-BOOTSTRAP-DOCUMENTED-POST-MERGE-TRANSITION-ACTUAL-DIFF-REVIEW-REV1` |
+| **NEXT GATE** | `CATEGORY-2-M55-WT002-HISTORICAL-REGISTRY-STATE-PATCH-ACTUAL-DIFF-REVIEW-REV1` |
 
 ## Roles (documented post-merge transition gate)
 
