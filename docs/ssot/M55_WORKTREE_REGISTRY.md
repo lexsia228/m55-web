@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-20**  
+Last verified: **2026-07-23** (CATEGORY-2 WT-002 historical registry patch REV1)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,19 +9,22 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **SHA:** `37163a0d473c25365f3bddad579d4844fd8300df`
-- This is the production code authority. It is **not** the same as any local checkout state below.
+- **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
+- **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
+- **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; not independently asserted as current live remote main
+- **Current live remote main:** undetermined in this gate — requires fresh read-only network check before push execution
+- Production code authority follows freshly verified `origin/main` — not conflated with historical baseline or locally recorded remote-tracking ref above.
+- **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
 
 ### PRIMARY_MAIN_HOME vs ACTIVE_BRANCH (do not conflate)
 
 | Concept | Meaning |
 |---|---|
-| **Production main authority** | `origin/main` at the SHA above |
-| **PRIMARY_MAIN_HOME** | Designated **post-merge baseline worktree** — the path where `main` should be checked out **after** PR #74 merges. Not “currently on `main`”. |
-| **ACTIVE_BRANCH** | The branch actively being edited in the current lane (`docs/m55-commercial-funnel-ssot-v1`) |
+| **Production main authority** | `origin/main` — freshly verified live SHA only; see historical baseline and locally recorded ref above |
+| **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
+| **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**Current fact:** No registered worktree is checked out on local `main`.  
-`/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` holds **ACTIVE_BRANCH** today and is designated **PRIMARY_MAIN_HOME** after merge.
+**Current fact (2026-07-22):** WT-001 holds **PRIMARY_MAIN_HOME** on branch `chore/m55-worktree-registry-current-state-bootstrap-rev1` during registry/current-state bootstrap. Local `main` checkout is a **documented post-bootstrap transition** — not current state.
 
 ### Lifecycle status values
 
@@ -35,34 +38,37 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
-| Pre-merge (PR #74 review) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | Normal SSOT PR work |
-| Post-merge (expected) | `main` | `origin/main` squash merge SHA | checkout `main`, pull, verify merge SHA, **update this registry** + `M55_CURRENT_STATE.md`, re-run live preflight |
+| Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
+| Post-merge historical baseline | `main` | `575791f2…` | Historical verified baseline after PR #74 squash merge — not current live remote main |
+| Bootstrap merge | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `2591e694…` | `merge(main): refresh repo audit index before bootstrap push`; locally recorded `origin/main` @ `04c90ac…` as second parent |
+| Current (bootstrap REV2) | `chore/m55-worktree-registry-current-state-bootstrap-rev1` | `33effeb…` | Registry/current-state bootstrap only — **no product source** |
+| Expected post-bootstrap | `main` | *fresh read-only network verification required* | Human-approved checkout `main`, read-only remote check, verify SHA, update registry snapshot |
 
-**Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + verified merge SHA on `origin/main` → update snapshot and continue (see `AGENTS.md`).
+**Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
 ---
 
 ## Registered worktrees
 
-### WT-001 — Commercial Funnel SSOT (current session)
+### WT-001 — PRIMARY_MAIN_HOME
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
-| branch | `docs/m55-commercial-funnel-ssot-v1` (pre-merge snapshot) |
-| HEAD | `86260d50fa132dfd083a0f092f0cfa0c3eaa2adb` |
-| upstream | `origin/docs/m55-commercial-funnel-ssot-v1` |
-| divergence from `origin/main` | 0 behind · 2 ahead |
-| ancestor of `origin/main` | NO (feature commit on top of main) |
-| cleanliness | clean |
+| branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` (bootstrap snapshot) |
+| HEAD | `33effeb1997f5683c6c29ead352ed1ca7c1ce343` |
+| baseline | `main` @ `575791f2ab80d57c89317e07da4b8020cfba3485` |
+| locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362` |
+| upstream | bootstrap branch (registry patch gate) |
+| cleanliness | baseline/pre-edit verification: clean · current bootstrap branch: exact-two authorized baseline-semantics docs modifications pending review |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** (post-merge designation) |
-| purpose | M55 Commercial Funnel SSOT構築 — PR #74 |
-| related lane / PR | ACTIVE LANE: Commercial Funnel SSOT · PR #74 |
-| allowed operations | docs/contract/verifier edits on active branch; read authority first |
-| prohibited operations | runtime/UI/route/API/DB/Stripe/Clerk/env changes in this lane |
-| removal eligibility | NO — retain as PRIMARY_MAIN_HOME after merge |
-| notes | **ACTIVE_BRANCH** holder (pre-merge). **Post-merge:** checkout `main`, pull `origin/main`, verify merge SHA, update registry snapshot, live preflight. See **Documented post-merge transition** above. |
+| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
+| purpose | **PRIMARY_MAIN_HOME** — post–PR #74 commercial funnel baseline worktree |
+| related lane / PR | PR #74 merged · bootstrap gate CATEGORY-2-REV2 |
+| allowed operations | registry/current-state docs edits during authorized bootstrap gate only |
+| prohibited operations | product source/runtime/UI/route/API/DB/Stripe/Clerk/env changes without explicit lane activation |
+| removal eligibility | NO — retain as PRIMARY_MAIN_HOME |
+| notes | PR #74 commercial funnel SSOT merge completed. Currently on bootstrap branch for registry/current-state patch. **Product source implementation is unauthorized.** After bootstrap completes, documented transition back to `main` checkout required (Human gate). See **Documented post-merge transition** above. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -71,18 +77,32 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | path | `/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish` |
 | branch | `feat/m55-compatibility-purchase-delivery-v1` |
 | HEAD | `59bba368886e9593de703352b83b319956ace9e3` |
-| upstream | `origin/feat/m55-compatibility-purchase-delivery-v1` |
-| divergence from `origin/main` | 13 behind · 3 ahead |
+| upstream | `origin/feat/m55-compatibility-purchase-delivery-v1` @ `59bba368886e9593de703352b83b319956ace9e3` |
+| local branch | **KEEP** — branch preserved; worktree removed |
+| remote branch | **KEEP** @ `origin/feat/m55-compatibility-purchase-delivery-v1` @ `59bba368886e9593de703352b83b319956ace9e3` |
+| PR | **#66 MERGED** |
+| divergence from `origin/main` | 13 behind · 3 ahead (historical snapshot at removal) |
 | ancestor of `origin/main` | NO |
-| cleanliness | **dirty** — modified `.gitignore`; untracked `.qa-screenshots-*` directories |
+| cleanliness | **historical archived inventory** — pre-removal: modified `.gitignore`; untracked `.qa-screenshots-*` directories (not current dirty state) |
+| filesystem path | **absent** — authorized removal completed 2026-07-23 |
+| Git worktree metadata | **absent** |
+| stale metadata | **absent** |
 | locked / prunable | none |
-| lifecycle | **DO_NOT_USE** |
+| lifecycle | **DO_NOT_USE** — historical preserved record; not a live worktree |
 | purpose | Historical compatibility commerce / cross-page card polish lane |
-| related lane / PR | compatibility commerce core **merged to main**; branch stale |
-| allowed operations | read-only inspection if explicitly authorized |
-| prohibited operations | **edit** · **reset** · **clean** · **stash** · **delete worktree** · new implementation |
-| removal eligibility | NO — human decision required; do not auto-clean QA artifacts or `.gitignore` |
-| notes | Main より古い。QA generated artifacts あり。uncommitted `.gitignore` 変更あり。Decision log REJECTED: 古い compatibility worktree で実装継続。 |
+| related lane / PR | PR **#66 MERGED** · compatibility commerce core **merged to main** |
+| allowed operations | read-only registry / historical inspection only |
+| prohibited operations | **worktree recreation** · reuse · **reset** · **stash** · **clean** · local branch deletion · remote branch deletion · archive deletion · new implementation |
+| removal | **GREEN** — Human authorized force removal completed 2026-07-23 |
+| removal eligibility | worktree removal **GREEN**; local branch / remote branch / archive deletion **NOT AUTHORIZED** |
+| nonsecret archive | `/Users/lexsia/Documents/M55_ARCHIVE/WT-002_compatibility-purchase-delivery_59bba368_2026-07-23` |
+| archive verification | **GREEN** — exact 8 files · checksum 7/7 PASS · bundle verification PASS · tracked patch preserved · QA evidence 102 files · QA bytes 26,084,746 |
+| secure backup | `/Users/lexsia/Documents/M55_SECURE_ARCHIVE/WT-002_local-config_59bba368_2026-07-23.sparsebundle` |
+| external manifest | `/Users/lexsia/Documents/M55_SECURE_ARCHIVE/WT-002_local-config_59bba368_2026-07-23.manifest.json` |
+| secure backup verification | **GREEN** — AES-256 · APFS · SPARSEBUNDLE · payloadLayout VOLUME_ROOT · 5 regular files · 3 directories · 2,432 bytes · source comparison 5/5 PASS twice · independent verification GREEN · manifest review GREEN · currently unmounted · historical manifest `removalAuthorized` remains false |
+| reuse | **PROHIBITED** — do not recreate or reuse this worktree |
+| deletion authority | local branch · remote branch · archive deletion **NOT AUTHORIZED** |
+| notes | Former live worktree **removed** 2026-07-23 (Human authorized). Former path absent from filesystem and Git worktree inventory. Historical archived inventory (pre-removal): uncommitted `.gitignore` change; QA generated artifacts. compatibility commerce core merged to main. Decision log REJECTED: 古い compatibility worktree で実装継続. Do not treat as live worktree or live dirty state. |
 
 ### WT-003 — Compatibility quality matrix
 
@@ -204,6 +224,26 @@ WT-001 branch/HEAD below are a **lastVerifiedAt snapshot**, not live Git state f
 | removal eligibility | deferred — human review |
 | notes | Upstream tracks `origin/main` but checked-out branch is feature. Not PRIMARY_MAIN_HOME. |
 
+### WT-009 — Build Week Control Plane (operational freeze)
+
+| Field | Value |
+|---|---|
+| id | WT-009 |
+| path | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` |
+| branch | `feat/m55-build-week-control-plane-v1` |
+| HEAD | `0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75` |
+| upstream | `origin/feat/m55-build-week-control-plane-v1` |
+| cleanliness | clean (verification-time snapshot) |
+| locked / prunable | none |
+| lifecycle | **PAUSED** |
+| operational state | **FROZEN_BY_HUMAN_DECISION** |
+| purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |
+| related lane / PR | PR #75 — **OPEN** (operational freeze by Human decision) |
+| allowed operations | read-only inspection · Control Plane canonical external audit · PR/check status read-only observation |
+| prohibited operations | source/docs/test/config edit · commit · push · rebase · force-push · merge to `main` · product runtime change · Production change · worktree removal |
+| removal eligibility | NO — requires PR #75 final disposition + explicit Human approval in separate gate |
+| notes | Build Week submission evidence preserved under Human decision. Stronger than typical PAUSED: read-only inspection only; no edit/commit/push/rebase/merge without explicit Human gate; no merge to `main`; no product/runtime/Production changes; auto-cleanup/remove prohibited. Removal only after PR #75 final disposition + separate Human gate. |
+
 ---
 
 ## Non-worktree directories explicitly excluded
@@ -223,7 +263,7 @@ Do not infer branch, HEAD, or lane from folder names alone.
 See `AGENTS.md` for full rules. Key points:
 
 - Confirm `pwd` / `branch` / `HEAD` / `status` / `git worktree list` before work
-- Never edit **DO_NOT_USE** worktrees
+- Never edit **DO_NOT_USE** worktrees; never edit WT-009 (operational freeze under PAUSED) without explicit Human gate
 - Never reset / clean / stash dirty worktrees without explicit human instruction
 - Never create new worktrees without plan
 - If registry ≠ live `git worktree list`, **stop and report**

@@ -276,30 +276,912 @@ function checkWorktreeRegistry() {
   }
 }
 
+const WT001_ID = 'WT-001';
+const WT009_ID = 'WT-009';
+const PRE_MERGE_SNAPSHOT_BRANCH = 'docs/m55-commercial-funnel-ssot-v1';
+const POST_MERGE_EXPECTED_BRANCH = 'main';
+const EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION =
+  'Cursor docs patch complete → Cursor STOP → Codex independent diff review → Control Plane re-execution';
+const WT009_EXPECTED_PATH = '/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1';
+const WT009_EXPECTED_BRANCH = 'feat/m55-build-week-control-plane-v1';
+const WT009_EXPECTED_HEAD = '0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75';
+const WT009_EXPECTED_LIFECYCLE = 'PAUSED';
+const WT009_EXPECTED_PURPOSE = 'FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE';
+const WT009_EXPECTED_OPERATIONAL_STATE = 'FROZEN_BY_HUMAN_DECISION';
+const WT_HEADING_SEPARATOR = ' — ';
+const CANONICAL_WT_HEADING_LABELS = Object.freeze({
+  'WT-001': 'PRIMARY_MAIN_HOME',
+  'WT-002': 'Compatibility purchase delivery (DO NOT USE)',
+  'WT-003': 'Compatibility quality matrix',
+  'WT-004': 'Ops control plane bootstrap',
+  'WT-005': 'Ops current-state semantics',
+  'WT-006': 'Paid LP / home microcopy',
+  'WT-007': 'Analysis hub',
+  'WT-008': 'HOME poster clean main',
+  'WT-009': 'Build Week Control Plane (operational freeze)',
+});
+const BASELINE_AUTHORITY_GRAMMAR = /^`main`\s*@\s*`([0-9a-f]{40})`$/;
+const REQUIRED_REGISTRY_HEADINGS = [WT001_ID, WT009_ID];
+const GIT_OPERATION_PATHS = ['MERGE_HEAD', 'CHERRY_PICK_HEAD', 'REVERT_HEAD', 'rebase-merge', 'rebase-apply'];
+
+function normalizeRegistryFieldText(raw) {
+  return raw.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function collectSectionFieldRows(section) {
+  const rows = new Map();
+  for (const line of section.split('\n')) {
+    const match = line.match(/^\|\s*([^|]+?)\s*\|\s*(.+?)\s*\|\s*$/);
+    if (!match) continue;
+    const label = match[1].trim().toLowerCase();
+    if (label === 'field' || label.startsWith('---')) continue;
+    if (!rows.has(label)) rows.set(label, []);
+    rows.get(label).push(match[2].trim());
+  }
+  return rows;
+}
+
+function validateExactlyOnce(rows, fieldLabel, { required = true, id = 'WT-???' } = {}) {
+  const key = fieldLabel.toLowerCase();
+  const values = rows.get(key) ?? [];
+  const errors = [];
+  if (values.length === 0) {
+    if (required) {
+      errors.push({ id, field: fieldLabel, kind: 'missing', message: `${id} ${fieldLabel} missing` });
+    }
+    return { ok: errors.length === 0, value: null, errors };
+  }
+  if (values.length > 1) {
+    errors.push({ id, field: fieldLabel, kind: 'duplicate', message: `${id} ${fieldLabel} duplicate` });
+    return { ok: false, value: null, errors };
+  }
+  const raw = values[0];
+  if (!normalizeRegistryFieldText(raw)) {
+    errors.push({ id, field: fieldLabel, kind: 'empty', message: `${id} ${fieldLabel} empty` });
+    return { ok: false, value: null, errors };
+  }
+  return { ok: true, value: raw, errors: [] };
+}
+
+function extractPathValue(raw) {
+  const backtick = raw.match(/`([^`]+)`/);
+  return backtick ? backtick[1].trim() : null;
+}
+
+function extractBranchValue(raw) {
+  const backtick = raw.match(/`([^`]+)`/);
+  return backtick ? backtick[1].trim() : normalizeRegistryFieldText(raw);
+}
+
+function parseShaFromHeadField(raw) {
+  const match = raw.match(/`([0-9a-f]{40})`/i);
+  if (!match) return { ok: false, kind: 'invalid' };
+  return { ok: true, sha: match[1].toLowerCase() };
+}
+
+function parseShaFromBaselineField(raw) {
+  const normalized = normalizeRegistryFieldText(raw);
+  if (!normalized) return { ok: false, kind: 'empty' };
+  const match = normalized.match(BASELINE_AUTHORITY_GRAMMAR);
+  if (!match) return { ok: false, kind: 'invalid' };
+  return { ok: true, sha: match[1], raw: normalized };
+}
+
+function parseSectionIdentityField(section) {
+  const rows = collectSectionFieldRows(section);
+  const values = rows.get('id') ?? [];
+  if (values.length !== 1) return null;
+  const raw = normalizeRegistryFieldText(values[0]);
+  const backtick = raw.match(/`(WT-\d{3})`/i);
+  if (backtick) return backtick[1];
+  const plain = raw.match(/^(WT-\d{3})$/i);
+  return plain ? plain[1] : raw;
+}
+
+function splitRegistryLines(textOrLines) {
+  const lines = Array.isArray(textOrLines) ? textOrLines : textOrLines.split(/\r?\n/);
+  return lines.map((line) => line.replace(/\r$/, ''));
+}
+
+const MAX_FENCE_INDENT_SPACES = 3;
+
+function splitFenceIndent(line) {
+  const match = line.match(/^( *)(.*)$/);
+  if (!match) return null;
+  if (match[1].length > MAX_FENCE_INDENT_SPACES) return null;
+  return { indentSpaces: match[1].length, content: match[2] };
+}
+
+function parseFenceMarker(content) {
+  const match = content.match(/^(`{3,}|~{3,})([\s\S]*)$/);
+  if (!match) return null;
+  return {
+    char: match[1][0],
+    length: match[1].length,
+    remainder: match[2],
+  };
+}
+
+function parseFenceOpeningLine(line) {
+  const indent = splitFenceIndent(line);
+  if (!indent) return null;
+  const marker = parseFenceMarker(indent.content);
+  if (!marker) return null;
+  if (marker.char === '`' && marker.remainder.includes('`')) return null;
+  return {
+    char: marker.char,
+    length: marker.length,
+    info: marker.remainder,
+    indentSpaces: indent.indentSpaces,
+  };
+}
+
+function parseFenceClosingLine(line, openFence) {
+  const indent = splitFenceIndent(line);
+  if (!indent) return false;
+  const marker = parseFenceMarker(indent.content);
+  if (!marker) return false;
+  if (marker.char !== openFence.char) return false;
+  if (marker.length < openFence.length) return false;
+  if (marker.remainder.length > 0 && !/^[\t ]*$/.test(marker.remainder)) return false;
+  return true;
+}
+
+function buildMarkdownFenceMask(linesInput) {
+  const lines = splitRegistryLines(linesInput);
+  const inFenceByLine = new Array(lines.length).fill(false);
+  const unclosedFenceErrors = [];
+  let openFence = null;
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const line = lines[lineIndex];
+    if (!openFence) {
+      const opening = parseFenceOpeningLine(line);
+      if (opening) {
+        openFence = {
+          char: opening.char,
+          length: opening.length,
+          line: lineIndex + 1,
+        };
+      }
+      continue;
+    }
+
+    if (parseFenceClosingLine(line, openFence)) {
+      openFence = null;
+      continue;
+    }
+
+    inFenceByLine[lineIndex] = true;
+  }
+
+  if (openFence) {
+    unclosedFenceErrors.push({
+      id: 'registry',
+      field: 'fence',
+      kind: 'unclosed',
+      line: openFence.line,
+      heading: `${openFence.char.repeat(openFence.length)}`,
+      message: `unclosed fenced code block starting at line ${openFence.line}`,
+    });
+  }
+
+  return { inFenceByLine, unclosedFenceErrors };
+}
+
+function expectedRegistryHeadingLine(id) {
+  const label = CANONICAL_WT_HEADING_LABELS[id];
+  return label ? `### ${id}${WT_HEADING_SEPARATOR}${label}` : null;
+}
+
+function classifyRegistryHeadingLine(line) {
+  if (!line.startsWith('### ')) return null;
+  if (!/^###\s+WT-/i.test(line)) return null;
+
+  const idMatch = line.match(/^### (WT-\d{3})(?: — (.+))?$/);
+  if (!idMatch) {
+    return {
+      kind: 'malformed',
+      id: line.match(/^### (WT-\S+)/i)?.[1] ?? 'WT-???',
+    };
+  }
+
+  const id = idMatch[1];
+  const label = idMatch[2] ?? null;
+  const canonicalLabel = CANONICAL_WT_HEADING_LABELS[id];
+
+  if (!canonicalLabel) {
+    return { kind: 'malformed', id };
+  }
+
+  if (line !== expectedRegistryHeadingLine(id)) {
+    if (!label) {
+      return { kind: 'invalid-label', id, label: null };
+    }
+    return { kind: 'invalid-label', id, label };
+  }
+
+  return { kind: 'valid', id, label: canonicalLabel };
+}
+
+function parseRegistryHeadings(registryText) {
+  const lines = splitRegistryLines(registryText);
+  const { inFenceByLine, unclosedFenceErrors } = buildMarkdownFenceMask(lines);
+  const duplicateHeadingErrors = [];
+  const malformedHeadingErrors = [];
+  const invalidHeadingLabelErrors = [];
+  const missingRequiredEntryErrors = [];
+  const canonicalSections = [];
+  const idOccurrences = new Map();
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    if (inFenceByLine[lineIndex]) continue;
+
+    const line = lines[lineIndex];
+    const classification = classifyRegistryHeadingLine(line);
+    if (!classification) continue;
+
+    if (classification.kind === 'malformed') {
+      malformedHeadingErrors.push({
+        id: classification.id,
+        field: 'heading',
+        kind: 'malformed',
+        line: lineIndex + 1,
+        heading: line.trim(),
+        message: `malformed WT heading at line ${lineIndex + 1}: ${line.trim()}`,
+      });
+      continue;
+    }
+
+    if (classification.kind === 'invalid-label') {
+      invalidHeadingLabelErrors.push({
+        id: classification.id,
+        field: 'heading',
+        kind: 'invalid-label',
+        line: lineIndex + 1,
+        heading: line.trim(),
+        message: `${classification.id} heading invalid label at line ${lineIndex + 1}: ${line.trim()}`,
+      });
+      continue;
+    }
+
+    const { id } = classification;
+    const seen = idOccurrences.get(id) ?? 0;
+    if (seen >= 1) {
+      duplicateHeadingErrors.push({
+        id,
+        field: 'heading',
+        kind: 'duplicate',
+        line: lineIndex + 1,
+        heading: line.trim(),
+        message: `${id} heading duplicate at line ${lineIndex + 1}`,
+      });
+    }
+    idOccurrences.set(id, seen + 1);
+    canonicalSections.push({
+      id,
+      index: lines.slice(0, lineIndex).join('\n').length,
+      line: lineIndex + 1,
+      heading: line.trim(),
+    });
+  }
+
+  for (const requiredId of REQUIRED_REGISTRY_HEADINGS) {
+    if (!idOccurrences.has(requiredId)) {
+      missingRequiredEntryErrors.push({
+        id: requiredId,
+        field: 'heading',
+        kind: 'missing',
+        line: null,
+        message: `${requiredId} heading missing`,
+      });
+    }
+  }
+
+  return {
+    duplicateHeadingErrors,
+    malformedHeadingErrors,
+    invalidHeadingLabelErrors,
+    unclosedFenceErrors,
+    missingRequiredEntryErrors,
+    canonicalSections,
+    headingBlockedForRequired: (id) =>
+      unclosedFenceErrors.length > 0 ||
+      duplicateHeadingErrors.some((error) => error.id === id) ||
+      malformedHeadingErrors.some((error) => error.heading.includes(id)) ||
+      invalidHeadingLabelErrors.some((error) => error.id === id) ||
+      missingRequiredEntryErrors.some((error) => error.id === id),
+  };
+}
+
+function parseRegistryDocument(registryText) {
+  const headings = parseRegistryHeadings(registryText);
+  const entries = [];
+
+  for (let index = 0; index < headings.canonicalSections.length; index += 1) {
+    const marker = headings.canonicalSections[index];
+    if (headings.headingBlockedForRequired(marker.id)) {
+      continue;
+    }
+    const end =
+      index + 1 < headings.canonicalSections.length
+        ? headings.canonicalSections[index + 1].index
+        : registryText.length;
+    const section = registryText.slice(marker.index, end);
+    const entry = parseRegistryWorktreeSection(section, marker.id);
+    const sectionIdentity = parseSectionIdentityField(section);
+    if (sectionIdentity && sectionIdentity !== entry.id) {
+      entry.valid = false;
+      entry.errors.push({
+        id: entry.id,
+        field: 'id',
+        kind: 'invalid',
+        message: `${entry.id} heading identity conflict with section id ${sectionIdentity}`,
+      });
+    }
+    entries.push(entry);
+  }
+
+  const allErrors = [
+    ...headings.duplicateHeadingErrors,
+    ...headings.malformedHeadingErrors,
+    ...headings.invalidHeadingLabelErrors,
+    ...headings.unclosedFenceErrors,
+    ...headings.missingRequiredEntryErrors,
+    ...entries.flatMap((entry) => entry.errors),
+  ];
+
+  return {
+    valid:
+      headings.duplicateHeadingErrors.length === 0 &&
+      headings.malformedHeadingErrors.length === 0 &&
+      headings.invalidHeadingLabelErrors.length === 0 &&
+      headings.unclosedFenceErrors.length === 0 &&
+      headings.missingRequiredEntryErrors.length === 0 &&
+      entries.length > 0 &&
+      entries.every((entry) => entry.valid),
+    entries,
+    duplicateHeadingErrors: headings.duplicateHeadingErrors,
+    malformedHeadingErrors: headings.malformedHeadingErrors,
+    invalidHeadingLabelErrors: headings.invalidHeadingLabelErrors,
+    unclosedFenceErrors: headings.unclosedFenceErrors,
+    missingRequiredEntryErrors: headings.missingRequiredEntryErrors,
+    allErrors,
+    headingBlockedForRequired: headings.headingBlockedForRequired,
+  };
+}
+function getSectionFieldRules(id) {
+  const required = ['path', 'branch', 'HEAD', 'lifecycle', 'purpose'];
+  const optional = ['baseline', 'operational state'];
+  if (id === WT001_ID) {
+    required.push('baseline');
+    return { required, optional: optional.filter((field) => field !== 'baseline') };
+  }
+  if (id === WT009_ID) {
+    required.push('operational state');
+    return { required, optional: optional.filter((field) => field !== 'operational state') };
+  }
+  return { required, optional };
+}
+
+function parseRegistryWorktreeSection(section, id) {
+  const rows = collectSectionFieldRows(section);
+  const { required, optional } = getSectionFieldRules(id);
+  const errors = [];
+  const rawFields = {};
+
+  for (const fieldLabel of required) {
+    const result = validateExactlyOnce(rows, fieldLabel, { required: true, id });
+    errors.push(...result.errors);
+    if (result.ok) rawFields[fieldLabel.toLowerCase()] = result.value;
+  }
+  for (const fieldLabel of optional) {
+    const result = validateExactlyOnce(rows, fieldLabel, { required: false, id });
+    errors.push(...result.errors);
+    if (result.ok && result.value) rawFields[fieldLabel.toLowerCase()] = result.value;
+  }
+
+  let path = null;
+  let branch = null;
+  let headSha = null;
+  let baselineSha = null;
+  let baselineRaw = null;
+
+  if (rawFields.path) {
+    path = extractPathValue(rawFields.path);
+    if (!path) errors.push({ id, field: 'path', kind: 'invalid', message: `${id} path invalid` });
+  }
+  if (rawFields.branch) branch = extractBranchValue(rawFields.branch);
+  if (rawFields.head) {
+    const headParsed = parseShaFromHeadField(rawFields.head);
+    if (!headParsed.ok) {
+      errors.push({ id, field: 'HEAD', kind: headParsed.kind, message: `${id} HEAD ${headParsed.kind}` });
+    } else {
+      headSha = headParsed.sha;
+    }
+  }
+  if (rawFields.baseline) {
+    const baselineParsed = parseShaFromBaselineField(rawFields.baseline);
+    if (!baselineParsed.ok) {
+      errors.push({
+        id,
+        field: 'baseline',
+        kind: baselineParsed.kind,
+        message: `${id} baseline ${baselineParsed.kind}`,
+      });
+    } else {
+      baselineSha = baselineParsed.sha;
+      baselineRaw = baselineParsed.raw;
+    }
+  }
+
+  const lifecycle = rawFields.lifecycle ? normalizeRegistryFieldText(rawFields.lifecycle) : null;
+  const purpose = rawFields.purpose ? normalizeRegistryFieldText(rawFields.purpose) : null;
+  const operationalState = rawFields['operational state']
+    ? normalizeRegistryFieldText(rawFields['operational state'])
+    : null;
+
+  return {
+    id,
+    valid: errors.length === 0,
+    errors,
+    path,
+    branch,
+    headSha,
+    baselineRaw,
+    baselineSha,
+    lifecycle,
+    purpose,
+    operationalState,
+    section,
+  };
+}
+
+function validateWt001Metadata(entry) {
+  const errors = [];
+  if (!entry.lifecycle?.includes('ACTIVE') || !entry.lifecycle?.includes('PRIMARY_MAIN_HOME')) {
+    errors.push({
+      id: WT001_ID,
+      field: 'lifecycle',
+      kind: 'invalid',
+      message: `${WT001_ID} lifecycle unsupported`,
+    });
+  }
+  if (!entry.purpose?.includes('PRIMARY_MAIN_HOME')) {
+    errors.push({
+      id: WT001_ID,
+      field: 'purpose',
+      kind: 'invalid',
+      message: `${WT001_ID} purpose unsupported`,
+    });
+  }
+  return errors;
+}
+
+function validateWt009Metadata(entry) {
+  const errors = [];
+  if (!entry) {
+    errors.push({ id: WT009_ID, field: 'id', kind: 'missing', message: `${WT009_ID} section missing` });
+    return errors;
+  }
+  if (entry.path !== WT009_EXPECTED_PATH) {
+    errors.push({ id: WT009_ID, field: 'path', kind: 'invalid', message: `${WT009_ID} path invalid` });
+  }
+  if (entry.branch !== WT009_EXPECTED_BRANCH) {
+    errors.push({ id: WT009_ID, field: 'branch', kind: 'invalid', message: `${WT009_ID} branch invalid` });
+  }
+  if (entry.headSha !== WT009_EXPECTED_HEAD) {
+    errors.push({ id: WT009_ID, field: 'HEAD', kind: 'invalid', message: `${WT009_ID} HEAD invalid` });
+  }
+  if (entry.lifecycle !== WT009_EXPECTED_LIFECYCLE) {
+    errors.push({ id: WT009_ID, field: 'lifecycle', kind: 'invalid', message: `${WT009_ID} lifecycle invalid` });
+  }
+  if (entry.purpose !== WT009_EXPECTED_PURPOSE) {
+    errors.push({ id: WT009_ID, field: 'purpose', kind: 'invalid', message: `${WT009_ID} purpose invalid` });
+  }
+  if (entry.operationalState !== WT009_EXPECTED_OPERATIONAL_STATE) {
+    errors.push({
+      id: WT009_ID,
+      field: 'operational state',
+      kind: 'invalid',
+      message: `${WT009_ID} operational state invalid`,
+    });
+  }
+  return errors;
+}
+
+function evaluateWt009RegistryPreflight(registryDocument) {
+  if (registryDocument.headingBlockedForRequired(WT009_ID)) {
+    const headingErrors = [
+      ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT009_ID),
+      ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT009_ID)),
+      ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT009_ID),
+    ];
+    return { valid: false, errors: headingErrors };
+  }
+
+  const entry = registryDocument.entries.find((item) => item.id === WT009_ID);
+  if (!entry) {
+    return {
+      valid: false,
+      errors: [{ id: WT009_ID, field: 'id', kind: 'missing', message: `${WT009_ID} section missing` }],
+    };
+  }
+  if (!entry.valid) {
+    return { valid: false, errors: entry.errors };
+  }
+  const metadataErrors = validateWt009Metadata(entry);
+  return { valid: metadataErrors.length === 0, errors: metadataErrors, entry };
+}
+
+function formatRegistryParserErrors(errors) {
+  return errors.map((error) => `${error.id} ${error.field} ${error.kind}`).join('; ');
+}
+
+function formatRegistryHeadingErrors(errors) {
+  return errors
+    .map((error) => `${error.id ?? error.heading} heading ${error.kind} at line ${error.line ?? 'n/a'}`)
+    .join('; ');
+}
+
 function parseWorktreeListPorcelain(text) {
   const entries = [];
   let current = null;
   for (const line of text.split('\n')) {
     if (line.startsWith('worktree ')) {
-      if (current) entries.push(current);
-      current = { path: line.slice('worktree '.length), branch: null, head: null };
+      if (current) {
+        current.detached = current.branch === null;
+        entries.push(current);
+      }
+      current = { path: line.slice('worktree '.length), branch: null, head: null, detached: false };
     } else if (current && line.startsWith('HEAD ')) {
       current.head = line.slice('HEAD '.length);
     } else if (current && line.startsWith('branch ')) {
       current.branch = line.slice('branch refs/heads/'.length);
     }
   }
-  if (current) entries.push(current);
+  if (current) {
+    current.detached = current.branch === null;
+    entries.push(current);
+  }
   return entries;
+}
+
+function parseRegistryWorktreeEntries(registryText) {
+  return parseRegistryDocument(registryText).entries;
+}
+
+function buildWt001SnapshotFromDocument(registryDocument) {
+  if (registryDocument.headingBlockedForRequired(WT001_ID)) {
+    const headingErrors = [
+      ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT001_ID),
+      ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT001_ID)),
+      ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT001_ID),
+    ];
+    return { valid: false, errors: headingErrors, snapshot: null };
+  }
+
+  const entry = registryDocument.entries.find((item) => item.id === WT001_ID);
+  if (!entry) {
+    return {
+      valid: false,
+      errors: [{ id: WT001_ID, field: 'id', kind: 'missing', message: `${WT001_ID} section missing` }],
+      snapshot: null,
+    };
+  }
+  if (!entry.valid) {
+    return { valid: false, errors: entry.errors, snapshot: null };
+  }
+  const metadataErrors = validateWt001Metadata(entry);
+  if (metadataErrors.length > 0) {
+    return { valid: false, errors: metadataErrors, snapshot: null };
+  }
+  return {
+    valid: true,
+    errors: [],
+    snapshot: {
+      id: entry.id,
+      path: entry.path,
+      branch: entry.branch,
+      headSha: entry.headSha,
+      baselineRaw: entry.baselineRaw,
+      baselineSha: entry.baselineSha,
+      lifecycle: entry.lifecycle,
+      purpose: entry.purpose,
+      operationalState: entry.operationalState,
+    },
+  };
+}
+
+function parseWt001RegistrySnapshot(registryText) {
+  const registryDocument = parseRegistryDocument(registryText);
+  return buildWt001SnapshotFromDocument(registryDocument);
+}
+
+function getRegistryEntryByPath(registryEntries, livePath) {
+  return registryEntries.find((entry) => entry.path === livePath) ?? null;
+}
+
+function normalizeTransitionValue(value) {
+  return value.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+function parsePostMergeNextSingleAction(currentStateText) {
+  const rows = [];
+  for (const line of currentStateText.split('\n')) {
+    const match = line.match(/^\|\s*\*{0,2}postMergeNextSingleAction\*{0,2}\s*\|\s*(.+?)\s*\|\s*$/i);
+    if (match) rows.push(match[1]);
+  }
+  if (rows.length === 0) return { valid: false, reason: 'postMergeNextSingleAction row missing' };
+  if (rows.length > 1) return { valid: false, reason: 'duplicate postMergeNextSingleAction row' };
+  const normalized = normalizeTransitionValue(rows[0]);
+  const expected = normalizeTransitionValue(EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION);
+  if (normalized !== expected) {
+    return { valid: false, reason: 'postMergeNextSingleAction value mismatch' };
+  }
+  return { valid: true, value: rows[0] };
+}
+
+function gitRun(args, cwd) {
+  return spawnSync('git', args, { cwd, encoding: 'utf8' });
+}
+
+function gitObjectExists(sha, cwd) {
+  if (!/^[0-9a-f]{40}$/i.test(sha)) return false;
+  return gitRun(['cat-file', '-e', `${sha}^{commit}`], cwd).status === 0;
+}
+
+function isAncestorOrEqual(ancestor, descendant, cwd) {
+  const a = ancestor.toLowerCase();
+  const d = descendant.toLowerCase();
+  if (a === d) return true;
+  const result = gitRun(['merge-base', '--is-ancestor', a, d], cwd);
+  return result.status === 0;
+}
+
+function isWorktreeClean(worktreePath) {
+  const result = gitRun(['status', '--porcelain'], worktreePath);
+  return result.status === 0 && result.stdout.trim() === '';
+}
+
+function gitPathExists(worktreePath, gitPathName) {
+  const result = gitRun(['rev-parse', '--git-path', gitPathName], worktreePath);
+  if (result.status !== 0) return { exists: null, path: null, error: true };
+  const resolved = result.stdout.trim();
+  const absolute = path.isAbsolute(resolved) ? resolved : path.join(worktreePath, resolved);
+  return { exists: fs.existsSync(absolute), path: absolute, error: false };
+}
+
+function hasGitOperationInProgress(worktreePath) {
+  for (const gitPathName of GIT_OPERATION_PATHS) {
+    const check = gitPathExists(worktreePath, gitPathName);
+    if (check.error) return true;
+    if (check.exists) return true;
+  }
+  return false;
+}
+
+function isSnapshotModeCandidate(entry, registryEntry, registryText, transitionParse) {
+  if (registryEntry?.id !== WT001_ID) return false;
+  if (entry.path !== registryEntry.path) return false;
+  if (!registryText.includes('Documented post-merge transition')) return false;
+  if (!transitionParse.valid) return false;
+  if (entry.branch === PRE_MERGE_SNAPSHOT_BRANCH || entry.branch === POST_MERGE_EXPECTED_BRANCH) {
+    return false;
+  }
+  return Boolean(entry.branch && entry.branch === registryEntry.branch);
+}
+
+function isLegacyWt001State(entry, registryEntry, registryText) {
+  if (registryEntry?.id !== WT001_ID) return false;
+  if (entry.path !== registryEntry.path) return false;
+  if (!registryText.includes('Documented post-merge transition')) return false;
+  if (entry.branch === PRE_MERGE_SNAPSHOT_BRANCH && entry.branch === registryEntry.branch) {
+    return true;
+  }
+  return (
+    entry.branch === POST_MERGE_EXPECTED_BRANCH &&
+    registryEntry.branch === PRE_MERGE_SNAPSHOT_BRANCH
+  );
+}
+
+function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, transitionParse, gitCwd }) {
+  if (!wt001Parse?.valid || !wt001Parse.snapshot) {
+    return {
+      pass: false,
+      reason: wt001Parse?.errors?.length
+        ? `registry parser failure: ${formatRegistryParserErrors(wt001Parse.errors)}`
+        : 'WT-001 snapshot not parsed',
+    };
+  }
+  const snapshot = wt001Parse.snapshot;
+  if (snapshot.id !== WT001_ID) return { pass: false, reason: 'WT-001 snapshot not parsed' };
+  if (entry.path !== snapshot.path) return { pass: false, reason: 'WT-001 path mismatch' };
+  if (entry.detached || !entry.branch) return { pass: false, reason: 'WT-001 detached HEAD' };
+  if (entry.branch !== snapshot.branch) return { pass: false, reason: 'WT-001 branch mismatch' };
+  if (!registryText.includes('Documented post-merge transition')) {
+    return { pass: false, reason: 'documented post-merge transition missing' };
+  }
+  if (!transitionParse.valid) return { pass: false, reason: transitionParse.reason };
+  if (!snapshot.baselineSha) {
+    return { pass: false, reason: 'baseline SHA missing from registry parser' };
+  }
+  if (!gitObjectExists(snapshot.baselineSha, gitCwd)) {
+    return { pass: false, reason: 'baseline SHA object missing' };
+  }
+  if (!entry.head) return { pass: false, reason: 'live HEAD missing' };
+  if (!isAncestorOrEqual(snapshot.baselineSha, entry.head, gitCwd)) {
+    return { pass: false, reason: 'live HEAD is not baseline or descendant' };
+  }
+  if (!isWorktreeClean(entry.path)) return { pass: false, reason: 'worktree dirty' };
+  if (hasGitOperationInProgress(entry.path)) {
+    return { pass: false, reason: 'git operation in progress' };
+  }
+  return { pass: true, snapshot };
+}
+
+function evaluateLegacyWt001Preflight(entry, registryEntry, warnings, logs) {
+  const section = registryEntry.section;
+  if (
+    entry.branch === POST_MERGE_EXPECTED_BRANCH &&
+    registryEntry.branch === PRE_MERGE_SNAPSHOT_BRANCH
+  ) {
+    logs.push(
+      '[preflight] WT-001 on main — matches documented post-merge transition (update registry snapshot if not yet done)',
+    );
+  } else if (entry.branch === PRE_MERGE_SNAPSHOT_BRANCH && entry.branch === registryEntry.branch) {
+    // pre-merge snapshot still valid
+  } else if (entry.branch && registryEntry.branch && entry.branch !== registryEntry.branch) {
+    warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
+  }
+
+  if (entry.head && registryEntry.headSha && !section.includes(entry.head.slice(0, 12))) {
+    if (entry.branch === POST_MERGE_EXPECTED_BRANCH) {
+      logs.push(
+        '[preflight] WT-001 HEAD differs from pre-merge snapshot — expected after merge; update registry',
+      );
+    } else if (entry.branch !== PRE_MERGE_SNAPSHOT_BRANCH) {
+      warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+    }
+  }
+}
+
+function evaluateGenericRegistryPreflight(entry, registryEntry, warnings) {
+  if (!registryEntry.valid) {
+    warnings.push(`registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`);
+    return;
+  }
+  if (entry.branch && registryEntry.branch && entry.branch !== registryEntry.branch) {
+    warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
+  }
+  if (entry.head && registryEntry.headSha) {
+    const liveHead = entry.head.toLowerCase();
+    const recorded = registryEntry.headSha.toLowerCase();
+    if (liveHead !== recorded && !liveHead.startsWith(recorded.slice(0, 12))) {
+      warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+    }
+  }
+}
+
+function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentStateText, gitCwd) {
+  const warnings = [];
+  const logs = [];
+  const registryDocument = parseRegistryDocument(registryText);
+
+  for (const error of registryDocument.duplicateHeadingErrors) {
+    warnings.push(
+      `registry heading duplicate for ${error.id} at line ${error.line}: ${error.heading}`,
+    );
+  }
+  for (const error of registryDocument.malformedHeadingErrors) {
+    warnings.push(
+      `registry heading malformed at line ${error.line}: ${error.heading}`,
+    );
+  }
+  for (const error of registryDocument.missingRequiredEntryErrors) {
+    warnings.push(`registry heading missing for ${error.id}`);
+  }
+  for (const error of registryDocument.invalidHeadingLabelErrors) {
+    warnings.push(
+      `registry heading invalid label for ${error.id} at line ${error.line}: ${error.heading}`,
+    );
+  }
+  for (const error of registryDocument.unclosedFenceErrors) {
+    warnings.push(
+      `registry fenced code block unclosed at line ${error.line}: ${error.message}`,
+    );
+  }
+
+  const wt001Parse = buildWt001SnapshotFromDocument(registryDocument);
+  const wt009Preflight = evaluateWt009RegistryPreflight(registryDocument);
+  if (!wt009Preflight.valid) {
+    for (const error of wt009Preflight.errors) {
+      warnings.push(`WT-009 registry metadata validation failed: ${error.id} ${error.field} ${error.kind}`);
+    }
+  }
+
+  const transitionParse = parsePostMergeNextSingleAction(currentStateText);
+  const registryEntries = registryDocument.entries;
+
+  for (const entry of liveEntries) {
+    const registryEntry = getRegistryEntryByPath(registryEntries, entry.path);
+    if (!registryEntry) {
+      warnings.push(`live worktree missing from registry: ${entry.path}`);
+      continue;
+    }
+
+    if (entry.path === WT009_EXPECTED_PATH) {
+      if (!wt009Preflight.valid) {
+        continue;
+      }
+      if (entry.branch && entry.branch !== WT009_EXPECTED_BRANCH) {
+        warnings.push(`WT-009 branch mismatch for ${entry.path}: live=${entry.branch}`);
+      }
+      if (entry.head && entry.head.toLowerCase() !== WT009_EXPECTED_HEAD) {
+        warnings.push(`WT-009 HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
+      }
+      continue;
+    }
+
+    if (registryDocument.headingBlockedForRequired(WT001_ID)) {
+      warnings.push(
+        `WT-001 snapshot preflight blocked by registry heading validation: ${formatRegistryHeadingErrors([
+          ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT001_ID),
+          ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT001_ID)),
+          ...registryDocument.invalidHeadingLabelErrors.filter((error) => error.id === WT001_ID),
+          ...registryDocument.unclosedFenceErrors,
+          ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT001_ID),
+        ])}`,
+      );
+      continue;
+    }
+
+    if (isSnapshotModeCandidate(entry, registryEntry, registryText, transitionParse)) {
+      const snapshotResult = evaluateWt001SnapshotPreflight({
+        entry,
+        wt001Parse,
+        registryText,
+        transitionParse,
+        gitCwd,
+      });
+      if (snapshotResult.pass) {
+        logs.push(
+          `[preflight] WT-001 HEAD ${entry.head.slice(0, 12)} is at or after registry baseline snapshot ${snapshotResult.snapshot.baselineSha.slice(0, 12)}`,
+        );
+      } else {
+        warnings.push(`WT-001 snapshot preflight failed for ${entry.path}: ${snapshotResult.reason}`);
+      }
+      continue;
+    }
+
+    if (isLegacyWt001State(entry, registryEntry, registryText)) {
+      if (!registryEntry.valid) {
+        warnings.push(
+          `WT-001 registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`,
+        );
+        continue;
+      }
+      evaluateLegacyWt001Preflight(entry, registryEntry, warnings, logs);
+      continue;
+    }
+
+    if (registryEntry.id === WT001_ID && entry.path === registryEntry.path) {
+      warnings.push(
+        `WT-001 state not authorized for ${entry.path}: branch=${entry.branch ?? 'detached'}`,
+      );
+      continue;
+    }
+
+    evaluateGenericRegistryPreflight(entry, registryEntry, warnings);
+  }
+
+  return { warnings, logs };
 }
 
 function checkLocalWorktreePreflight() {
   if (process.env.CI) return;
 
-  const result = spawnSync('git', ['worktree', 'list', '--porcelain'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  });
+  const result = gitRun(['worktree', 'list', '--porcelain'], ROOT);
   if (result.status !== 0) {
     console.warn('[preflight] git worktree list unavailable — skipping live comparison');
     return;
@@ -307,55 +1189,16 @@ function checkLocalWorktreePreflight() {
 
   const live = parseWorktreeListPorcelain(result.stdout);
   const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
-  const warnings = [];
-  const hasDocumentedTransition = registry.includes('Documented post-merge transition');
+  const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
+  const { warnings, logs } = evaluateWorktreePreflightWarnings(live, registry, currentState, ROOT);
 
-  for (const entry of live) {
-    if (!registry.includes(entry.path)) {
-      warnings.push(`live worktree missing from registry: ${entry.path}`);
-      continue;
-    }
-    const pathBlock = registry.slice(registry.indexOf(entry.path));
-    const isWt001 = entry.path.endsWith('M55_WORKTREE-home-final-ia-v1');
-    const preMergeSnapshotBranch = 'docs/m55-commercial-funnel-ssot-v1';
-    const postMergeExpectedBranch = 'main';
-
-    if (entry.branch && !pathBlock.includes(entry.branch)) {
-      if (
-        isWt001 &&
-        hasDocumentedTransition &&
-        entry.branch === postMergeExpectedBranch &&
-        pathBlock.includes(preMergeSnapshotBranch)
-      ) {
-        console.log(
-          '[preflight] WT-001 on main — matches documented post-merge transition (update registry snapshot if not yet done)',
-        );
-      } else if (
-        isWt001 &&
-        hasDocumentedTransition &&
-        entry.branch === preMergeSnapshotBranch
-      ) {
-        // pre-merge snapshot still valid
-      } else {
-        warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
-      }
-    }
-    if (entry.head && !pathBlock.includes(entry.head.slice(0, 12))) {
-      if (isWt001 && hasDocumentedTransition && entry.branch === postMergeExpectedBranch) {
-        console.log(
-          '[preflight] WT-001 HEAD differs from pre-merge snapshot — expected after merge; update registry',
-        );
-      } else if (!(isWt001 && hasDocumentedTransition && entry.branch === preMergeSnapshotBranch)) {
-        warnings.push(`HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
-      }
-    }
-  }
+  for (const line of logs) console.log(line);
 
   if (warnings.length > 0) {
     console.warn('[preflight] worktree registry drift detected:');
     for (const w of warnings) console.warn(`- ${w}`);
   } else {
-    console.log('[preflight] live git worktree list matches registry paths/branches/HEAD prefixes');
+    console.log('[preflight] live git worktree list matches registry preflight rules');
   }
 }
 
@@ -427,4 +1270,57 @@ function main() {
   process.exit(0);
 }
 
-main();
+export {
+  WT001_ID,
+  WT009_ID,
+  WT009_EXPECTED_PATH,
+  WT009_EXPECTED_BRANCH,
+  WT009_EXPECTED_HEAD,
+  WT009_EXPECTED_LIFECYCLE,
+  WT009_EXPECTED_PURPOSE,
+  WT009_EXPECTED_OPERATIONAL_STATE,
+  PRE_MERGE_SNAPSHOT_BRANCH,
+  POST_MERGE_EXPECTED_BRANCH,
+  EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION,
+  CANONICAL_WT_HEADING_LABELS,
+  WT_HEADING_SEPARATOR,
+  BASELINE_AUTHORITY_GRAMMAR,
+  parseWorktreeListPorcelain,
+  collectSectionFieldRows,
+  buildMarkdownFenceMask,
+  splitRegistryLines,
+  parseFenceOpeningLine,
+  parseFenceClosingLine,
+  expectedRegistryHeadingLine,
+  classifyRegistryHeadingLine,
+  parseRegistryHeadings,
+  parseRegistryDocument,
+  parseRegistryWorktreeEntries,
+  parseRegistryWorktreeSection,
+  parseWt001RegistrySnapshot,
+  parsePostMergeNextSingleAction,
+  getRegistryEntryByPath,
+  formatRegistryParserErrors,
+  formatRegistryHeadingErrors,
+  parseShaFromBaselineField,
+  parseShaFromHeadField,
+  validateWt001Metadata,
+  validateWt009Metadata,
+  evaluateWt009RegistryPreflight,
+  gitObjectExists,
+  isAncestorOrEqual,
+  isWorktreeClean,
+  hasGitOperationInProgress,
+  gitPathExists,
+  isSnapshotModeCandidate,
+  isLegacyWt001State,
+  evaluateWt001SnapshotPreflight,
+  evaluateWorktreePreflightWarnings,
+};
+
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (invokedDirectly) {
+  main();
+}
