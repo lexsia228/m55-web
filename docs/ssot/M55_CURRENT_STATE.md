@@ -4,7 +4,7 @@ Status: **State registry (Tier E)**
 Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55CommercialFunnelContract.ts`
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 
-Last updated: 2026-07-23 (CATEGORY-2 WT-002 historical registry patch REV1)
+Last updated: 2026-07-24 (CATEGORY-2 documented post-merge transition REV1 — PR #76)
 
 ## Production main authority
 
@@ -13,28 +13,45 @@ Last updated: 2026-07-23 (CATEGORY-2 WT-002 historical registry patch REV1)
 | Remote tracking ref | `origin/main` |
 | Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main |
 | Pre-merge SHA (historical) | `37163a0d473c25365f3bddad579d4844fd8300df` |
-| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e694…`; incorporated into feature-branch history; current live remote-main status requires fresh read-only network check |
-| Current live remote main | **Undetermined in this gate** — not asserted without read-only network verification |
+| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e694…`; historical bootstrap-era recorded remote; **not** current live remote main |
+| Pre-PR #76 remote main | `75c43f08976e3c7dbcf374d7cb06f520f6b76b93` — first parent of PR #76 merge commit; **not** current live remote main |
+| PR #76 bootstrap feature HEAD | `bf1ab0ffac7b34081cecc864c496abed6a196513` — second parent of PR #76 merge; preserved old bootstrap branch HEAD; **not** current live remote main |
+| Current live remote main | `38447ab1b39562606938936ce0da3d5a76d82c1b` — PR #76 merge commit |
 | PR #74 — Commercial Funnel SSOT | **merged / completed** |
+| PR #76 — Worktree registry / current-state bootstrap | **MERGED** |
+
+## PR #76 merge record
+
+| Field | Value |
+|---|---|
+| Status | **MERGED** |
+| Merge commit | `38447ab1b39562606938936ce0da3d5a76d82c1b` |
+| Merge method | merge commit |
+| Parent 1 | `75c43f08976e3c7dbcf374d7cb06f520f6b76b93` |
+| Parent 2 | `bf1ab0ffac7b34081cecc864c496abed6a196513` |
+| Merged file scope | exact 4 files (`docs/ssot/M55_CURRENT_STATE.md`, `docs/ssot/M55_WORKTREE_REGISTRY.md`, `scripts/verify-m55-commercial-ssot.mjs`, `scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs`) |
+| Old bootstrap branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` @ `bf1ab0ffac7b34081cecc864c496abed6a196513` — **preserved** |
 
 ## Temporary operational interrupt (current gate)
 
 | Field | Value |
 |---|---|
-| Gate | `CATEGORY-2-M55-WORKTREE-REGISTRY-AND-CURRENT-STATE-BOOTSTRAP-PATCH-REV2` |
-| Purpose | worktree registry drift resolution · WT-001 post-merge transition record · WT-009 frozen worktree registration · Control Plane re-audit preparation before product source work |
-| Scope | registry + current-state docs only — **no product source implementation** |
+| Gate | `CATEGORY-2-M55-WORKTREE-REGISTRY-BOOTSTRAP-DOCUMENTED-POST-MERGE-TRANSITION-IMPLEMENTATION-REV1` |
+| Purpose | documented post-merge transition · post-merge Control Plane read-only verification/audit · separate implementation-readiness judgment — **no product source implementation** |
+| Scope | CURRENT_STATE + WORKTREE_REGISTRY + ROADMAP docs only — **no product source implementation** |
+| Prior gate | bootstrap patch / PR #76 repository authority closure — **complete** |
 
 ## Completed GREEN
 
 | Item | Status |
 |---|---|
 | M55 Commercial Funnel SSOT | **GREEN** — PR #74 merged @ `575791f2…` |
+| Worktree registry / current-state bootstrap | **GREEN** — PR #76 merged @ `38447ab1…` |
 | HOME_COMMERCIAL_FOUNDATION | CLOSED_GREEN |
 
 ## Post-merge authoritative state
 
-Roadmap order is **unchanged**. Product source implementation remains **UNAUTHORIZED** until Control Plane re-audit after bootstrap.
+Roadmap order is **unchanged**. Product source implementation remains **UNAUTHORIZED**. Active operational work is documented post-merge transition and post-merge Control Plane read-only verification/audit — not Self funnel runtime implementation.
 
 | Field | Value |
 |---|---|
@@ -44,6 +61,15 @@ Roadmap order is **unchanged**. Product source implementation remains **UNAUTHOR
 | **Pair implementation** | Later lane — roadmap step 3（二人向け無料→有料） |
 | **pairPremium** | NOT_LIVE — Stripe / Pair runtime へ先行しない |
 
+### postMergeNextSingleAction meaning (this gate)
+
+Machine-readable row above is authoritative and appears exactly once. Operational meaning after PR #76:
+
+1. Documented post-merge transition docs patch (this gate)
+2. Independent diff review
+3. Post-merge Control Plane verification/audit — repository / SSOT / worktree authority closure confirmation
+4. **Not** product source implementation
+
 ### Prohibited ahead of Self funnel
 
 - Stripe / webhook / checkout 変更
@@ -52,22 +78,24 @@ Roadmap order is **unchanged**. Product source implementation remains **UNAUTHOR
 - WT-002 worktree recreation / reuse（former path `/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish` absent — historical record only）
 - WT-009 Build Week worktree（operational freeze — PAUSED + FROZEN_BY_HUMAN_DECISION）への編集
 
-## Active session (bootstrap snapshot)
+## Active session (post-merge transition snapshot)
 
 | Field | Value |
 |---|---|
 | Active worktree | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` (WT-001 PRIMARY_MAIN_HOME) |
-| Active branch | `chore/m55-worktree-registry-current-state-bootstrap-rev1` |
+| Active branch | `chore/m55-worktree-registry-post-merge-transition-rev1` |
 | Historical pre-merge branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged) |
-| HEAD | `33effeb1997f5683c6c29ead352ed1ca7c1ce343` |
+| HEAD | `38447ab1b39562606938936ce0da3d5a76d82c1b` |
+| origin/main | `38447ab1b39562606938936ce0da3d5a76d82c1b` |
+| upstream | **none** |
 | Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` — historical transition/descendant anchor; not current live remote main |
-| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362` |
-| Bootstrap merge commit | `2591e69454d2d082e31e59a8cb0591bda11c3362` — `merge(main): refresh repo audit index before bootstrap push` |
-| HEAD semantics | `575791f…` = historical verified baseline · `33effeb…` = current feature-branch HEAD · exact equality not required |
-| Pushed | **no** — local feature-branch HEAD only |
-| Post-bootstrap transition | Human-approved checkout `main` on WT-001 + registry snapshot update after fresh read-only remote check |
-| Working tree (before baseline-semantics patch) | clean |
-| Working tree (current) | exact-two authorized baseline-semantics docs modifications pending independent review |
+| Locally recorded origin/main (bootstrap merge) | `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — historical bootstrap-era recorded remote; not current live remote main |
+| Old bootstrap branch (preserved) | `chore/m55-worktree-registry-current-state-bootstrap-rev1` @ `bf1ab0ffac7b34081cecc864c496abed6a196513` |
+| PR #76 merge commit | `38447ab1b39562606938936ce0da3d5a76d82c1b` |
+| HEAD semantics | `575791f…` = historical verified baseline · `38447ab…` = current origin/main and transition-branch HEAD · do not conflate with old bootstrap branch |
+| Pushed | **no** — local transition branch; this docs gate remains uncommitted / unpushed |
+| Working tree (pre-edit snapshot authority) | clean |
+| Working tree (current) | exact-three authorized documented post-merge transition docs modifications pending independent review |
 
 ### WT-002 post-removal transition
 
@@ -90,16 +118,16 @@ Roadmap order is **unchanged**. Product source implementation remains **UNAUTHOR
 | Historical evidence | Pre-removal dirty inventory (`.gitignore` change · QA artifacts) preserved as archived inventory — not current dirty state |
 | Prior removal eligibility | Historical: worktree removal was **NOT AUTHORIZED** before Human force-removal gate — preserved as evidence |
 | Product implementation | **NO** — unchanged |
-| **NEXT GATE** | `CATEGORY-2-M55-WT002-HISTORICAL-REGISTRY-STATE-PATCH-ACTUAL-DIFF-REVIEW-REV1` |
+| **NEXT GATE** | `CATEGORY-2-M55-WORKTREE-REGISTRY-BOOTSTRAP-DOCUMENTED-POST-MERGE-TRANSITION-ACTUAL-DIFF-REVIEW-REV1` |
 
-## Roles (bootstrap gate only)
+## Roles (documented post-merge transition gate)
 
 | Actor | Role |
 |---|---|
 | Human | branch, write, commit, push, merge final approval |
-| Cursor | edit `M55_WORKTREE_REGISTRY.md` + `M55_CURRENT_STATE.md` in this gate only |
+| Cursor | edit `M55_CURRENT_STATE.md` + `M55_WORKTREE_REGISTRY.md` + `M55_ROADMAP.md` in this gate only |
 | Codex | read-only independent review after Cursor stops |
-| Control Plane | guardrail re-audit after bootstrap |
+| Control Plane | post-merge read-only verification/audit after transition patch closure |
 | GPT-5.6 | gate design and Human judgment synthesis |
 
 Full AI coordination SSOT restructure is **out of scope** for this patch.
@@ -108,7 +136,7 @@ Full AI coordination SSOT restructure is **out of scope** for this patch.
 
 | Path | Lifecycle | Notes |
 |---|---|---|
-| `M55_WORKTREE-home-final-ia-v1` | ACTIVE / PRIMARY_MAIN_HOME | WT-001 — bootstrap branch |
+| `M55_WORKTREE-home-final-ia-v1` | ACTIVE / PRIMARY_MAIN_HOME | WT-001 — documented post-merge transition branch |
 | `M55_WORKTREE-build-week-control-plane-v1` | PAUSED (operational freeze) | WT-009 — PR #75 evidence · FROZEN_BY_HUMAN_DECISION |
 | `M55_CANONICAL-cross-page-card-polish` (former path — **absent**) | DO_NOT_USE — historical preserved record | WT-002 — removed 2026-07-23 · do not recreate · PR #66 MERGED |
 
@@ -123,19 +151,20 @@ Full inventory: `M55_WORKTREE_REGISTRY.md`
 | Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） |
 | Enforcement | PENDING_SELF_FUNNEL_IMPLEMENTATION | Self funnel implementation lane |
 
-Bootstrap review sequence is authoritative in **postMergeNextSingleAction** above. Do not proceed to product source implementation until Control Plane re-audit passes.
+`postMergeNextSingleAction` above is authoritative. Do not proceed to product source implementation until Control Plane post-merge audit passes and separate Human implementation-readiness authorization is granted. PR #76 merge alone does **not** authorize product implementation.
 
 ## Product implementation permission
 
 **Product source implementation remains UNAUTHORIZED.**
+`productImplementationAuthorized = false`
 
 Pending gates (all required before any product implementation authorization):
 
-1. WT-002 docs patch implementation (this gate)
-2. WT-002 actual diff independent review (`CATEGORY-2-M55-WT002-HISTORICAL-REGISTRY-STATE-PATCH-ACTUAL-DIFF-REVIEW-REV1`)
-3. Commit gate (Human)
-4. Push / PR / merge authority closure (Human)
-5. Control Plane read-only re-audit
-6. Separate product implementation readiness authorization (Human)
+1. Documented post-merge transition docs patch (this gate)
+2. Actual diff independent review (`CATEGORY-2-M55-WORKTREE-REGISTRY-BOOTSTRAP-DOCUMENTED-POST-MERGE-TRANSITION-ACTUAL-DIFF-REVIEW-REV1`)
+3. Commit / push / PR / merge of this transition patch (Human)
+4. Control Plane read-only post-merge audit
+5. Separate product implementation readiness authorization (Human)
 
+Self funnel runtime implementation is **not active** and **not authorized**.
 `PENDING_SELF_FUNNEL_IMPLEMENTATION` records deferred runtime enforcement — **not** product implementation permission.
