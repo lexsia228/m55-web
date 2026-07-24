@@ -4,7 +4,7 @@ Status: **State registry (Tier E)**
 Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55CommercialFunnelContract.ts`
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 
-Last updated: 2026-07-25 (CATEGORY-2 Global Commercial Quality Contract SSOT freeze REV1)
+Last updated: 2026-07-25 (CATEGORY-2 Global Commercial Quality Contract lifecycle-independent state patch REV1)
 
 ## Global commercial quality contract (permanent)
 
@@ -15,7 +15,26 @@ Last updated: 2026-07-25 (CATEGORY-2 Global Commercial Quality Contract SSOT fre
 | Governance role | Internal SSOT / registry / technical GREEN are means, not the final product |
 | User-visible closure | `USER_VISIBLE_CLOSED_GREEN` requires implementation GREEN + Product Truth GREEN + actual diff review GREEN + actual-screen evidence + Human commercial-quality approval |
 | Human restatement | **Not required per gate** — this contract is permanent global authority |
-| Gate status | **GLOBAL_COMMERCIAL_QUALITY_CONTRACT_GREEN_READY_FOR_ACTUAL_DIFF_REVIEW** |
+| Merge status | **Not merged into `origin/main` yet** — docs artifact may land before Self funnel runtime merge |
+| Gate status | **Lifecycle-independent** — global contract self-contained; runtime decoupled from unmerged Self funnel source |
+
+## State separation (lifecycle-independent)
+
+Merged runtime authority is the **committed `origin/main` / Production runtime state**.
+Branch-local uncommitted source is **not** merged runtime truth.
+Normative target behavior may precede merged runtime.
+Runtime-specific Self funnel validation belongs to the Self funnel lane.
+Global commercial-quality verification must **not** depend on unmerged product implementation.
+When merged authority or runtime state changes, `M55_CURRENT_STATE.md` requires a **documented post-merge transition** update.
+
+```
+merged_runtime_is_committed_authority = true
+branch_local_state_is_not_merged_runtime = true
+normative_target_may_precede_runtime = true
+global_verifier_requires_unmerged_runtime = false
+runtime_specific_validation_owned_by_lane = true
+post_merge_state_transition_required = true
+```
 
 ## Production main authority
 
@@ -81,9 +100,10 @@ Roadmap order is **unchanged**. Repository authority closure is **complete**. Pr
 | **productImplementationAuthorized** | **true** |
 | **authorityVerdict** | **GREEN_IMPLEMENTATION_AUTHORIZED** |
 | **currentNextGate** | `CATEGORY-2-M55-SELF-FREE-TO-PREMIUM-FUNNEL-ACTUAL-DIFF-REVIEW-REV1` |
-| **globalCommercialQualityContract** | **GREEN** — REV1 frozen @ `M55_COMMERCIAL_QUALITY_CONTRACT.md` |
-| **selfInputExperienceStatus** | `INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK` |
-| **selfResultAnalysisStatus** | **frozen** — pending input Human lock |
+| **globalCommercialQualityContract** | **Pending main merge** — introduces `M55_COMMERCIAL_QUALITY_CONTRACT.md`; independent of Self funnel runtime |
+| **selfInputExperienceStatus** | `INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK` — branch-local; pending Human lock; not merged runtime |
+| **selfResultAnalysisStatus** | **frozen** — pending input Human lock; not merged runtime |
+| **selfFunnelImplementationScope** | **branch-local / uncommitted** — not merged main runtime truth |
 | **actualDiffReviewStatus** | **NOT_GREEN_YET** — awaiting independent actual diff review |
 | **priorCodexResultNote** | Previous Codex result was **NOT_VERIFIED** due to authority drift (docs still pointed at post-merge transition / unauthorized product implementation). Re-run after this alignment. |
 
@@ -115,18 +135,18 @@ Operational meaning for the authorized Self funnel lane (`currentNextGate`):
 |---|---|
 | Active worktree | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` (WT-001 PRIMARY_MAIN_HOME) |
 | Active branch | `feat/m55-self-free-to-premium-funnel-v1` |
-| Implementation base / local HEAD | `d4e7b7c3426d901d1ba8460e136040bf209a64de` |
-| origin/main / Production | `d4e7b7c3426d901d1ba8460e136040bf209a64de` |
-| upstream | **none** |
+| Branch HEAD (feature branch) | `6f66c72e0217e394852c0a808d4e3407e21df1f9` — global contract docs commit |
+| origin/main / Production runtime | `d4e7b7c3426d901d1ba8460e136040bf209a64de` — **merged runtime authority; unchanged by branch-local Self funnel source** |
+| upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` @ `6f66c72…` |
 | Historical pre-merge branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged; **not** current active branch) |
 | Historical post-merge transition branch (preserved) | `chore/m55-worktree-registry-post-merge-transition-rev1` @ `6ad4e14ba7bbce65a3bac04a38bcdcbdbf461d7e` |
 | Historical PR #76 merge | `38447ab1b39562606938936ce0da3d5a76d82c1b` — not current main |
 | Historical verified baseline | `575791f2ab80d57c89317e07da4b8020cfba3485` — not current main |
 | Pre-merge SHA (historical) | `37163a0d473c25365f3bddad579d4844fd8300df` — retained for verifier/history |
-| Implementation state | **uncommitted / expected dirty** — source implementation present; not committed |
-| Pushed | **no** |
-| Commit / push / PR / deploy | **not performed** |
-| Working tree (current) | expected dirty — Self funnel implementation + global commercial quality contract docs patch |
+| Implementation state | **Self funnel source uncommitted / expected dirty** — branch-local only; not merged runtime |
+| Pushed | **Global contract docs commit on remote feature branch** — Self funnel source **not pushed** |
+| Commit / push / PR / deploy | Global contract pending main merge; Self funnel merge **not performed** |
+| Working tree (current) | expected dirty — Self funnel implementation + lifecycle-independent state patch |
 | **NEXT GATE** | `CATEGORY-2-M55-SELF-FREE-TO-PREMIUM-FUNNEL-ACTUAL-DIFF-REVIEW-REV1` |
 | Commit / push / deploy count | **0** — unchanged |
 
@@ -173,14 +193,17 @@ Operational meaning for the authorized Self funnel lane (`currentNextGate`):
 
 Full inventory: `M55_WORKTREE_REGISTRY.md`
 
-## Runtime vs target (Self funnel implementation in progress)
+## Runtime vs target (scope separation)
 
-| Area | Current runtime (implementation branch, uncommitted) | Target contract |
-|---|---|---|
-| Self free pre-result theme | 結果前「今の関心」step **removed** on implementation branch | なし |
-| Public legacy terms | funnel 経路は整理進行中；HOME / legal / frozen hero に残存あり | Self funnel lane で解消 |
-| Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） |
-| Enforcement | PENDING_SELF_FUNNEL_IMPLEMENTATION（residual public legacy terms） | Self funnel lane merge 後に再評価 |
+The global commercial-quality contract is a **docs-only artifact** that may merge before Self funnel runtime implementation.
+It does **not** merge Self funnel runtime implementation by itself.
+
+| Area | Merged runtime (`origin/main` @ `d4e7b7c…`) | Target contract | Branch-local Self funnel (uncommitted; not merged main runtime) |
+|---|---|---|---|
+| Self free pre-result theme | `preResultThemeSelection: true` — legacy debt（結果前「今の関心」step 仍 recorded as current runtime） | `preResultThemeSelection: false` — 結果前 theme selection なし | implementation targets false; verification deferred to later Self funnel commit/review |
+| Public legacy terms | HOME / legal / frozen hero に残存あり | Self funnel lane で解消 | funnel 経路整理は local dirty source に存在；main 未反映 |
+| Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） | unchanged |
+| Enforcement | `PENDING_SELF_FUNNEL_IMPLEMENTATION` | Self funnel lane merge 後に再評価 | unchanged |
 
 ## Product implementation permission
 

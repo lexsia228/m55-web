@@ -72,11 +72,6 @@ function loadContractFacts() {
   }
 
   const targetSlice = src.slice(src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'));
-  const currentSlice = src.slice(
-    src.indexOf('M55_CURRENT_RUNTIME_STATE'),
-    src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'),
-  );
-  const preResultCurrent = /preResultThemeSelection:\s*false/.test(currentSlice);
   const preResultTarget = /preResultThemeSelection:\s*false/.test(targetSlice);
 
   return {
@@ -92,7 +87,7 @@ function loadContractFacts() {
       STALE_DO_NOT_USE_WORKTREE:
         src.match(/STALE_DO_NOT_USE_WORKTREE:\s*'([^']+)'/)?.[1] ?? '',
     },
-    current: { selfFree: { preResultThemeSelection: preResultCurrent } },
+    current: { selfFree: {} },
     target: { selfFree: { preResultThemeSelection: preResultTarget } },
     enforcement:
       src.match(/M55_ENFORCEMENT_STATUS = '([^']+)'/)?.[1] ?? '',
@@ -125,9 +120,6 @@ function checkMachineContract(data) {
   }
   if (enforcement !== 'PENDING_SELF_FUNNEL_IMPLEMENTATION') {
     fail('enforcementStatus must be PENDING_SELF_FUNNEL_IMPLEMENTATION');
-  }
-  if (c.selfFree.preResultThemeSelection !== true) {
-    fail('current runtime must record preResultThemeSelection=false (Self funnel aligned)');
   }
   if (t.selfFree.preResultThemeSelection !== true) {
     fail('target contract must record preResultThemeSelection=false');
@@ -1307,6 +1299,39 @@ const COMMERCIAL_QUALITY_CONTRACT_BASE_PHRASES = [
   'P2',
 ];
 
+const COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES = [
+  'merged_runtime_is_committed_authority = true',
+  'branch_local_state_is_not_merged_runtime = true',
+  'normative_target_may_precede_runtime = true',
+  'global_verifier_requires_unmerged_runtime = false',
+  'runtime_specific_validation_owned_by_lane = true',
+  'post_merge_state_transition_required = true',
+  'Merged runtime (`origin/main`',
+  'Target contract',
+  'Branch-local Self funnel',
+  'not merged main runtime',
+  'documented post-merge transition',
+  'Not merged into `origin/main` yet',
+];
+
+function collectCurrentStateLifecycleFailures(currentState) {
+  const failures = [];
+  for (const phrase of COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES) {
+    if (!currentState.includes(phrase)) {
+      failures.push(`M55_CURRENT_STATE.md missing lifecycle-independent state phrase: ${phrase}`);
+    }
+  }
+  if (/PR\s*#\s*\d+\s+OPEN/i.test(currentState)) {
+    failures.push('M55_CURRENT_STATE.md must not encode PR-number OPEN lifecycle as machine authority');
+  }
+  return failures;
+}
+
+function validateCurrentStateLifecycleText(currentState) {
+  const failures = collectCurrentStateLifecycleFailures(currentState);
+  return { ok: failures.length === 0, failures };
+}
+
 function collectCommercialQualityContractPhraseFailures(contract) {
   const failures = [];
   const allPhrases = [
@@ -1355,8 +1380,8 @@ function checkCommercialQualityContract() {
   if (!currentState.includes('INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK')) {
     fail('M55_CURRENT_STATE.md must record Self input experience status');
   }
-  if (!currentState.includes('GLOBAL_COMMERCIAL_QUALITY_CONTRACT_GREEN_READY_FOR_ACTUAL_DIFF_REVIEW')) {
-    fail('M55_CURRENT_STATE.md must record global contract gate status');
+  for (const message of collectCurrentStateLifecycleFailures(currentState)) {
+    fail(message);
   }
   if (!roadmap.includes('M55_COMMERCIAL_QUALITY_CONTRACT.md')) {
     fail('M55_ROADMAP.md must reference global commercial quality contract');
@@ -1450,8 +1475,11 @@ export {
   COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES,
   COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES,
   COMMERCIAL_QUALITY_CONTRACT_MACHINE_FLAG_PHRASES,
+  COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES,
   collectCommercialQualityContractPhraseFailures,
+  collectCurrentStateLifecycleFailures,
   validateCommercialQualityContractText,
+  validateCurrentStateLifecycleText,
 };
 
 const invokedDirectly =

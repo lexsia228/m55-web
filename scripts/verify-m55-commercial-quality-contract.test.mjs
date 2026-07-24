@@ -6,11 +6,15 @@ import { describe, it } from 'node:test';
 import {
   COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES,
   COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES,
+  COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES,
   validateCommercialQualityContractText,
+  validateCurrentStateLifecycleText,
 } from './verify-m55-commercial-ssot.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTRACT_REL = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
+const CURRENT_STATE_REL = 'docs/ssot/M55_CURRENT_STATE.md';
+const VERIFIER_REL = 'scripts/verify-m55-commercial-ssot.mjs';
 
 function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -55,6 +59,33 @@ const HUMAN_LOCK_NEGATIVE_CASES = [
   },
 ];
 
+const STATE_SEPARATION_NEGATIVE_CASES = [
+  {
+    label: 'merged runtime is committed authority',
+    phrase: 'merged_runtime_is_committed_authority = true',
+  },
+  {
+    label: 'branch-local state is not merged runtime',
+    phrase: 'branch_local_state_is_not_merged_runtime = true',
+  },
+  {
+    label: 'normative target may precede runtime',
+    phrase: 'normative_target_may_precede_runtime = true',
+  },
+  {
+    label: 'global verifier must not require unmerged runtime',
+    phrase: 'global_verifier_requires_unmerged_runtime = false',
+  },
+  {
+    label: 'runtime-specific validation belongs to its lane',
+    phrase: 'runtime_specific_validation_owned_by_lane = true',
+  },
+  {
+    label: 'post-merge state transition is required',
+    phrase: 'post_merge_state_transition_required = true',
+  },
+];
+
 describe('M55 commercial quality contract SSOT references', () => {
   it('passes complete contract text validation', () => {
     const contract = read(CONTRACT_REL);
@@ -93,17 +124,33 @@ describe('M55 commercial quality contract SSOT references', () => {
     assert.ok(qualityIdx < selfIdx, 'commercial quality contract must precede lane contract');
   });
 
-  it('records current Self input status and global gate in current state', () => {
-    const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
+  it('records lifecycle-independent merged/target/branch-local separation', () => {
+    const currentState = read(CURRENT_STATE_REL);
+    const result = validateCurrentStateLifecycleText(currentState);
+    assert.equal(result.ok, true, result.failures.join('\n'));
     assert.match(
       currentState,
       /INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK/,
     );
-    assert.match(
-      currentState,
-      /GLOBAL_COMMERCIAL_QUALITY_CONTRACT_GREEN_READY_FOR_ACTUAL_DIFF_REVIEW/,
-    );
     assert.match(currentState, /selfResultAnalysisStatus.*frozen/i);
+    assert.doesNotMatch(currentState, /PR\s*#\s*\d+\s+OPEN/i);
+  });
+
+  it('does not require PR-number or OPEN lifecycle in verifier acceptance', () => {
+    const verifier = read(VERIFIER_REL);
+    assert.doesNotMatch(verifier, /PR\s*#\s*78/);
+    assert.doesNotMatch(verifier, /PR\s*#\s*\d+\s+OPEN/i);
+    assert.match(verifier, /collectCurrentStateLifecycleFailures/);
+    assert.match(verifier, /COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES/);
+  });
+
+  it('global verifier defers preResultThemeSelection runtime enforcement to Self funnel lane', () => {
+    const verifier = read(VERIFIER_REL);
+    assert.doesNotMatch(
+      verifier,
+      /current runtime must record preResultThemeSelection=/,
+    );
+    assert.match(verifier, /target contract must record preResultThemeSelection=false/);
   });
 });
 
@@ -126,6 +173,19 @@ describe('M55 commercial quality contract negative validation (in-memory only)',
     for (const { label, phrase } of HUMAN_LOCK_NEGATIVE_CASES) {
       const variant = contract.replaceAll(phrase, '');
       const result = validateCommercialQualityContractText(variant);
+      assert.equal(result.ok, false, `expected failure when removing ${label}`);
+      assert.ok(
+        result.failures.some((failure) => failure.includes(phrase)),
+        `expected missing-phrase failure for ${label}`,
+      );
+    }
+  });
+
+  it('fails when each lifecycle state-separation requirement is removed independently', () => {
+    const currentState = read(CURRENT_STATE_REL);
+    for (const { label, phrase } of STATE_SEPARATION_NEGATIVE_CASES) {
+      const variant = currentState.replaceAll(phrase, '');
+      const result = validateCurrentStateLifecycleText(variant);
       assert.equal(result.ok, false, `expected failure when removing ${label}`);
       assert.ok(
         result.failures.some((failure) => failure.includes(phrase)),

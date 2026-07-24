@@ -31,16 +31,29 @@ HOME
   → 追加 theme
 ```
 
-## Current runtime (Self funnel implementation lane)
+## Merged runtime (origin/main)
 
-Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree`:
+Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/main`**:
 
-- 結果前「今の関心」step は **廃止**（DOB + 中核5問で無料結果へ）
-- engine 互換のため内部 default theme を付与（UI では選択しない）
+- `preResultThemeSelection: true` — legacy debt（結果前「今の関心」step still recorded as current merged runtime）
 - public copy の「見取り図」「保存版」legacy 語は **一部残存**（HOME / legal 等）
-- 無料結果から「今日の一歩」等の行動提案は **除去**
+- 無料結果から「今日の一歩」等の行動提案は target では除去；merged runtime debt は machine contract / deferred assertions を参照
 
 **Enforcement:** `PENDING_SELF_FUNNEL_IMPLEMENTATION` — residual legacy public terms remain deferred until full public-surface cleanup.
+
+## Target contract (normative)
+
+- 結果前「今の関心」step は **廃止**（DOB + 中核5問で無料結果へ）
+- `preResultThemeSelection: false`
+- engine 互換のため内部 default theme を付与（UI では選択しない）
+
+## Branch-local implementation (outside PR #78)
+
+Self funnel runtime source on WT-001 remains **uncommitted** and is **not** part of PR #78.
+
+- owns `preResultThemeSelection=false` implementation and verification
+- inherits `USER_VISIBLE_CLOSED_GREEN` from `M55_COMMERCIAL_QUALITY_CONTRACT.md`
+- runtime enforcement deferred to a later Self funnel implementation commit / review
 
 ## Free result center (target)
 
