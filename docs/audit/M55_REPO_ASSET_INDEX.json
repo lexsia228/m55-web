@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-07-24T22:16:42.459257+00:00",
-  "count": 684,
+  "generated_at_utc": "2026-07-25T22:09:08.952440+00:00",
+  "count": 685,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -68,6 +68,11 @@
       "bytes": 1831
     },
     {
+      "path": "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
+      "category": "ssot",
+      "bytes": 7426
+    },
+    {
       "path": "docs/ssot/M55_COPY_AND_CLAIMS.md",
       "category": "ssot",
       "bytes": 1527
@@ -75,7 +80,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 10468
+      "bytes": 14577
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -3005,12 +3010,12 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 1491
+      "bytes": 2619
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
       "category": "ssot",
-      "bytes": 2118
+      "bytes": 3491
     },
     {
       "path": "docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md",
@@ -3280,12 +3285,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 108686
+      "bytes": 108688
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 73111
+      "bytes": 73113
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
