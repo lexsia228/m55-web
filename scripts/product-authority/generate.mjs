@@ -116,9 +116,8 @@ generatedAt: ${generatedAt}
 - Production SHA on ${canonicalHost}
 - provider Production/Preview identities (Supabase, Clerk, Stripe)
 
-## Next exact gate
-
-CATEGORY-2-M55-SHARED-CRITICAL-AUTHORITY-PACK-BOOTSTRAP-DIFF-REVIEW-REV1
+Human-approved durable authority and verified observations supersede generated artifacts.
+Generated outputs must not synthesize operational workflow gates.
 `;
 }
 
@@ -140,6 +139,8 @@ Pack anchors:
 - generatedAt: ${generatedAt}
 
 Memory and conversation history are not authority.
+Human-approved durable authority supersedes generated adapter guidance.
+Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
 `;
 }
 
@@ -187,7 +188,6 @@ function renderHandoffJsonBody(authority, observations, hashes, generatedAt) {
       selfFunnel: /** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value,
       buildWeek: /** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value,
     },
-    nextGate: 'CATEGORY-2-M55-SHARED-CRITICAL-AUTHORITY-PACK-BOOTSTRAP-DIFF-REVIEW-REV1',
   };
   return `${canonicalStringify(handoff)}\n`;
 }

@@ -15,7 +15,8 @@ import {
 } from '../validate.mjs';
 import { readObservations } from '../observations.mjs';
 import { bootstrapFixture } from '../generate.mjs';
-import { cleanupTempRoot, makeTempRoot } from '../history.mjs';
+import { cleanupTempRoot, copyAuthorityPackSources, makeTempRoot } from '../history.mjs';
+import { collectAuthorityPackTransitionFailures } from '../../verify-m55-commercial-ssot.mjs';
 
 /**
  * @param {string} tempRoot
@@ -406,7 +407,11 @@ test('mutation: non-deterministic generatedAt', () => {
   try {
     bootstrapFixture(tempRoot);
     const lock = JSON.parse(fs.readFileSync(path.join(tempRoot, LOCK_PATH), 'utf8'));
-    assert.equal(lock.generatedAt, '2026-07-25T07:00:00+00:00');
+    const observations = readObservations(tempRoot);
+    assert.equal(
+      lock.generatedAt,
+      /** @type {{ value: string }} */ (observations.observationMeta.lastObservedAt).value,
+    );
   } finally {
     cleanupTempRoot(tempRoot);
   }
@@ -664,4 +669,93 @@ test('mutation: invalid eventHash exclusion behavior', () => {
   } finally {
     cleanupTempRoot(tempRoot);
   }
+});
+
+const STALE_BOOTSTRAP_ORIGIN_MAIN = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
+const CURRENT_OBSERVED_ORIGIN_MAIN = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
+
+test('mutation: stale origin/main observation fails SSOT transition check', () => {
+  const currentStateText = fs.readFileSync(
+    path.join(process.cwd(), 'docs/ssot/M55_CURRENT_STATE.md'),
+    'utf8',
+  );
+  const failures = collectAuthorityPackTransitionFailures({
+    currentStateText: currentStateText.replaceAll(
+      CURRENT_OBSERVED_ORIGIN_MAIN,
+      STALE_BOOTSTRAP_ORIGIN_MAIN,
+    ),
+    observedOriginMainSha: CURRENT_OBSERVED_ORIGIN_MAIN,
+    observationTimestamp: '2026-07-26T13:23:20+00:00',
+  });
+  assert.ok(
+    failures.some(
+      (message) =>
+        /latest observed origin\/main SHA/.test(message) ||
+        /bootstrapStartHead as the last observed origin\/main/.test(message),
+    ),
+  );
+});
+
+test('mutation: malformed observation envelope fails validation', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    copyAuthorityPackSources(tempRoot);
+    const observations = readObservations(tempRoot);
+    observations.repository.lastObservedOriginMainSha = CURRENT_OBSERVED_ORIGIN_MAIN;
+    assert.throws(() => validateObservationsStructure(observations));
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('mutation: Production SHA populated from origin/main fails validation intent', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    copyAuthorityPackSources(tempRoot);
+    const observations = readObservations(tempRoot);
+    /** @type {{ value: string, classification: string }} */ (observations.production.lastObservedSha).value =
+      CURRENT_OBSERVED_ORIGIN_MAIN;
+    /** @type {{ value: string, classification: string }} */ (observations.production.lastObservedSha).classification =
+      'OBSERVED_CURRENT';
+    assert.notEqual(
+      /** @type {{ value: unknown }} */ (readObservations(process.cwd()).production.lastObservedSha).value,
+      CURRENT_OBSERVED_ORIGIN_MAIN,
+    );
+    validateObservationsStructure(readObservations(process.cwd()));
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('mutation: bootstrapStartHead overwritten with current origin/main is rejected by lane semantics', () => {
+  const observations = readObservations(process.cwd());
+  assert.notEqual(
+    /** @type {{ value: string }} */ (observations.lanes.authorityPack.bootstrapStartHead).value,
+    /** @type {{ value: string }} */ (observations.repository.lastObservedOriginMainSha).value,
+  );
+});
+
+test('mutation: observation classification promoted to HUMAN_FROZEN is rejected', () => {
+  const observations = readObservations(process.cwd());
+  const clone = structuredClone(observations);
+  /** @type {{ classification: string }} */ (clone.repository.lastObservedOriginMainSha).classification =
+    'HUMAN_FROZEN';
+  assert.throws(() => validateObservationsStructure(clone));
+});
+
+test('mutation: generated current/live claim conflicting with observations source fails integrity', () => {
+  const header = fs.readFileSync(
+    path.join(process.cwd(), '.product-authority/generated/authority-header.md'),
+    'utf8',
+  );
+  const failures = collectAuthorityPackTransitionFailures({
+    authorityHeaderText: header.replace(CURRENT_OBSERVED_ORIGIN_MAIN, STALE_BOOTSTRAP_ORIGIN_MAIN),
+    observedOriginMainSha: CURRENT_OBSERVED_ORIGIN_MAIN,
+    observationTimestamp: '2026-07-26T13:23:20+00:00',
+  });
+  assert.ok(
+    failures.some((message) =>
+      /stale bootstrapStartHead as last observed origin\/main/.test(message),
+    ),
+  );
 });

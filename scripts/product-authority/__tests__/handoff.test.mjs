@@ -38,12 +38,53 @@ test('authority header includes PRODUCT_ID', () => {
   }
 });
 
-test('handoff json includes next gate', () => {
+test('handoff json excludes unsourced nextGate', () => {
   const tempRoot = makeTempRoot();
   try {
     bootstrapFixture(tempRoot);
     const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
-    assert.match(handoff.nextGate, /BOOTSTRAP-DIFF-REVIEW/);
+    assert.equal('nextGate' in handoff, false);
+    assert.equal(JSON.stringify(handoff).includes('BOOTSTRAP-DIFF-REVIEW'), false);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('generated outputs exclude stale Bootstrap Diff Review gate text', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const paths = [
+      '.product-authority/generated/handoff.json',
+      '.product-authority/generated/handoff.md',
+      '.product-authority/generated/authority-header.md',
+      '.product-authority/generated/adapters/codex.md',
+      '.product-authority/generated/adapters/cursor.md',
+      '.product-authority/generated/adapters/generic-agent.md',
+    ];
+    for (const rel of paths) {
+      const text = fs.readFileSync(path.join(tempRoot, rel), 'utf8');
+      assert.equal(/BOOTSTRAP-DIFF-REVIEW/.test(text), false, rel);
+      assert.equal(/Next exact gate/i.test(text), false, rel);
+    }
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('adapters preserve Human precedence without operational gate synthesis', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    for (const adapter of ['codex.md', 'cursor.md', 'generic-agent.md']) {
+      const text = fs.readFileSync(
+        path.join(tempRoot, '.product-authority/generated/adapters', adapter),
+        'utf8',
+      );
+      assert.match(text, /Human-approved durable authority supersedes generated adapter guidance/);
+      assert.match(text, /must not prescribe push, commit, merge, or deploy sequencing/);
+      assert.doesNotMatch(text, /nextGate|BOOTSTRAP-DIFF-REVIEW/);
+    }
   } finally {
     cleanupTempRoot(tempRoot);
   }

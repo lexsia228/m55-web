@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
 import { readObservations } from '../observations.mjs';
 import { validateObservationsStructure } from '../validate.mjs';
 import { cleanupTempRoot, copyAuthorityPackSources, makeTempRoot } from '../history.mjs';
+import { generateProductAuthority } from '../generate.mjs';
+import { LOCK_PATH } from '../validate.mjs';
+
+const OBSERVED_ORIGIN_MAIN_SHA = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
+const OBSERVATION_TIMESTAMP = '2026-07-26T13:23:20+00:00';
+const BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
 
 test('production lastObservedSha is null', () => {
   const observations = readObservations(process.cwd());
@@ -17,11 +25,43 @@ test('production status is pending reobservation', () => {
   );
 });
 
-test('origin main sha matches bootstrap preflight', () => {
+test('origin main sha matches latest read-only observation', () => {
   const observations = readObservations(process.cwd());
   assert.equal(
     /** @type {{ value: string }} */ (observations.repository.lastObservedOriginMainSha).value,
-    'e6afe67262ebcee3353a3a43713f7ecf8369f26f',
+    OBSERVED_ORIGIN_MAIN_SHA,
+  );
+});
+
+test('lastObservedAt matches recorded UTC observation timestamp', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(
+    /** @type {{ value: string }} */ (observations.observationMeta.lastObservedAt).value,
+    OBSERVATION_TIMESTAMP,
+  );
+});
+
+test('origin main observation classification remains OBSERVED_CURRENT', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(
+    /** @type {{ classification: string }} */ (observations.repository.lastObservedOriginMainSha)
+      .classification,
+    'OBSERVED_CURRENT',
+  );
+});
+
+test('origin main observation source remains read-only Git observation', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(
+    /** @type {{ source: { kind: string, reference: string } }} */ (
+      observations.repository.lastObservedOriginMainSha
+    ).source.kind,
+    'GIT_OBSERVATION',
+  );
+  assert.match(
+    /** @type {{ source: { reference: string } }} */ (observations.repository.lastObservedOriginMainSha)
+      .source.reference,
+    /git fetch origin/i,
   );
 });
 
@@ -40,11 +80,27 @@ test('build week lane is FROZEN', () => {
   assert.equal(/** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value, 'FROZEN');
 });
 
-test('bootstrapStartHead equals origin main at creation', () => {
+test('bootstrapStartHead remains historical lane creation anchor', () => {
   const observations = readObservations(process.cwd());
   assert.equal(
     /** @type {{ value: string }} */ (observations.lanes.authorityPack.bootstrapStartHead).value,
+    BOOTSTRAP_START_HEAD,
+  );
+});
+
+test('bootstrapStartHead is not replaced by current origin main observation', () => {
+  const observations = readObservations(process.cwd());
+  assert.notEqual(
+    /** @type {{ value: string }} */ (observations.lanes.authorityPack.bootstrapStartHead).value,
     /** @type {{ value: string }} */ (observations.repository.lastObservedOriginMainSha).value,
+  );
+});
+
+test('bootstrapStartHead equals baseLastObservedOriginMainSha at lane creation', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(
+    /** @type {{ value: string }} */ (observations.lanes.authorityPack.bootstrapStartHead).value,
+    /** @type {{ value: string }} */ (observations.lanes.authorityPack.baseLastObservedOriginMainSha).value,
   );
 });
 
@@ -62,6 +118,7 @@ test('provider identities remain pending evidence', () => {
       )[env];
       const field = Object.values(envObj)[0];
       assert.equal(field.classification, 'PENDING_EVIDENCE');
+      assert.equal(/** @type {{ value: unknown }} */ (field).value, null);
     }
   }
 });
@@ -70,6 +127,35 @@ test('observationMeta lastObservedAt is RFC3339', () => {
   const observations = readObservations(process.cwd());
   const value = /** @type {{ value: string }} */ (observations.observationMeta.lastObservedAt).value;
   assert.match(value, /^\d{4}-\d{2}-\d{2}T/);
+});
+
+test('generated lock generatedAt follows refreshed observation timestamp', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    copyAuthorityPackSources(tempRoot);
+    generateProductAuthority(tempRoot);
+    const lock = JSON.parse(fs.readFileSync(path.join(tempRoot, LOCK_PATH), 'utf8'));
+    const observations = readObservations(tempRoot);
+    assert.equal(
+      lock.generatedAt,
+      /** @type {{ value: string }} */ (observations.observationMeta.lastObservedAt).value,
+    );
+    assert.equal(lock.generatedAt, OBSERVATION_TIMESTAMP);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('generated authority header displays refreshed origin main as mutable observation', () => {
+  const header = fs.readFileSync(
+    path.join(process.cwd(), '.product-authority/generated/authority-header.md'),
+    'utf8',
+  );
+  assert.match(header, new RegExp(OBSERVED_ORIGIN_MAIN_SHA));
+  assert.doesNotMatch(
+    header,
+    new RegExp(`last observed origin/main SHA:\\s*${BOOTSTRAP_START_HEAD}`, 'i'),
+  );
 });
 
 test('self funnel mutation policy blocks authority pack lane edits', () => {

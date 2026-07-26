@@ -2,25 +2,25 @@
   "schemaVersion": "1.0.0",
   "observationMeta": {
     "lastObservedAt": {
-      "value": "2026-07-25T07:00:00+00:00",
-      "classification": "OBSERVED_CURRENT",
-      "source": {
-        "kind": "GIT_OBSERVATION",
-        "reference": "bootstrap gate preflight"
-      },
-      "updatedAt": "2026-07-25T07:00:00+00:00",
-      "evidenceRefs": []
-    }
-  },
-  "repository": {
-    "lastObservedOriginMainSha": {
-      "value": "e6afe67262ebcee3353a3a43713f7ecf8369f26f",
+      "value": "2026-07-26T13:23:20+00:00",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "GIT_OBSERVATION",
         "reference": "git fetch origin --prune"
       },
-      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "updatedAt": "2026-07-26T13:23:20+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "repository": {
+    "lastObservedOriginMainSha": {
+      "value": "b13fcd540e210c3ffb41fa2f56889df74b1b3915",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "GIT_OBSERVATION",
+        "reference": "git fetch origin --prune"
+      },
+      "updatedAt": "2026-07-26T13:23:20+00:00",
       "evidenceRefs": []
     }
   },

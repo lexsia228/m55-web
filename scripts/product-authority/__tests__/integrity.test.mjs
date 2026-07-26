@@ -233,6 +233,24 @@ test('rendered bundle hash mismatch fails verification', () => {
   }
 });
 
+test('generated handoff json fields trace to authority or observations sources', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const authority = readAuthority(tempRoot);
+    const observations = readObservations(tempRoot);
+    const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
+    assert.equal(handoff.productId, /** @type {{ value: string }} */ (authority.product.id).value);
+    assert.equal(
+      handoff.lanes.authorityPack,
+      /** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value,
+    );
+    assert.equal('nextGate' in handoff, false);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
 test('rendered artifact hash mismatch fails verification', () => {
   const tempRoot = makeTempRoot();
   try {

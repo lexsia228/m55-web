@@ -53,13 +53,23 @@ import {
   evaluateWt010RegistryPreflight,
   evaluateWorktreePreflightWarnings,
   createDefaultGitInspector,
+  collectAuthorityPackTransitionFailures,
+  parseAuthorityHistoryTransitionJsonl,
+  AUTHORITY_PACK_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_COMMIT_THREE_SHA,
+  AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_SAFETY_REF_SHA,
+  AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
+  AUTHORITY_HISTORY_KIND_BY_SEQUENCE,
 } from './verify-m55-commercial-ssot.mjs';
 import { verifyProductAuthority } from './product-authority/validate.mjs';
 import { bootstrapFixture } from './product-authority/generate.mjs';
 import { withComputedEventHashes, writeHistory } from './product-authority/history.mjs';
 
+const OBSERVED_ORIGIN_MAIN_SHA = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
+const OBSERVATION_TIMESTAMP = '2026-07-26T13:23:20+00:00';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const WT010_LIVE_HEAD = '2761706505576a2baeacbdd40acd130a1f70e81b';
+const WT010_LIVE_HEAD = 'fae04444618e2ae36e6fd813ddfddeee975b66c4';
 const WT010_COMMIT_ONE_HEAD = 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704';
 const WORKFLOW_PATH = path.join(REPO_ROOT, '.github/workflows/verify-product-authority-pack.yml');
 const BOOTSTRAP_BRANCH = 'chore/m55-worktree-registry-current-state-bootstrap-rev1';
@@ -2187,5 +2197,398 @@ describe('Product Authority Pack workflow verification mode', () => {
     const workflow = fs.readFileSync(WORKFLOW_PATH, 'utf8');
     assert.match(workflow, /npm run verify:product-authority/);
     assert.doesNotMatch(workflow, /verify:product-authority:bootstrap/);
+  });
+});
+
+describe('Authority Pack SSOT transition consistency', () => {
+  it('PASSes on repository transition snapshot at PR tip', () => {
+    const failures = collectAuthorityPackTransitionFailures();
+    assert.deepEqual(failures, []);
+  });
+
+  it('FAILs when CURRENT_STATE still says sequence 0 only after reconciliation', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: currentStateText.replace(/sequences \*\*0–2\*\*/g, 'sequence 0 only'),
+    });
+    assert.ok(failures.some((message) => /sequence 0 only/.test(message)));
+  });
+
+  it('FAILs when registry still says reconciliation Commit 2 is pending', () => {
+    const registryText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: `${registryText}\nreconciliation candidate pending Commit 2`,
+    });
+    assert.ok(failures.some((message) => /Commit 2 is pending/.test(message)));
+  });
+
+  it('FAILs when generated handoff.json contains unsourced nextGate', () => {
+    const handoffJsonText = fs.readFileSync(
+      path.join(REPO_ROOT, '.product-authority/generated/handoff.json'),
+      'utf8',
+    );
+    const failures = collectAuthorityPackTransitionFailures({
+      handoffJsonText: handoffJsonText.replace('{', '{\n  "nextGate": "BOOTSTRAP-DIFF-REVIEW",'),
+    });
+    assert.ok(failures.some((message) => /unsourced nextGate/.test(message)));
+  });
+
+  it('FAILs when WT-010 registry presents superseded Commit 1 as active provenance', () => {
+    const historyText = fs.readFileSync(
+      path.join(REPO_ROOT, '.product-authority/authority-history.jsonl'),
+      'utf8',
+    );
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: [
+        '### WT-010 — Product Authority Pack',
+        '| notes | Commit 1 active head: 178dadab4697f4797b8f00fd473d08a135b3ec4e |',
+      ].join('\n'),
+      historyText,
+    });
+    assert.ok(failures.some((message) => /178dadab/.test(message)));
+  });
+
+  it('records expected commit provenance constants', () => {
+    assert.equal(AUTHORITY_PACK_COMMIT_ONE_SHA, 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704');
+    assert.equal(AUTHORITY_PACK_COMMIT_THREE_SHA, WT010_LIVE_HEAD);
+    assert.equal(AUTHORITY_PACK_SAFETY_REF_SHA, '844c5bbb73795b2f162e29516be79fb401c3b55e');
+  });
+});
+
+function buildValidTransitionHistoryLines({ reorderProperties = false } = {}) {
+  const records = [
+    {
+      sequence: 0,
+      kind: 'INITIALIZATION',
+      sourceCommit: 'UNCOMMITTED_BOOTSTRAP',
+      previousEventHash: null,
+      bootstrap: true,
+      approvalReference: 'ref',
+      changedPaths: ['a'],
+      updatedAt: '2026-07-25T07:00:00+00:00',
+      eventHash: 'a'.repeat(64),
+    },
+    {
+      sequence: 1,
+      kind: 'AUTHORITY_PROCESS_INCIDENT',
+      sourceCommit: AUTHORITY_PACK_COMMIT_ONE_SHA,
+      previousEventHash: 'a'.repeat(64),
+      approvalReference: 'ref',
+      changedPaths: ['b'],
+      updatedAt: '2026-07-26T05:48:00+00:00',
+      eventHash: 'b'.repeat(64),
+    },
+    {
+      sequence: 2,
+      kind: 'BOOTSTRAP_RECONCILIATION',
+      sourceCommit: AUTHORITY_PACK_COMMIT_ONE_SHA,
+      previousEventHash: 'b'.repeat(64),
+      approvalReference: 'ref',
+      changedPaths: ['c'],
+      updatedAt: '2026-07-26T05:48:00+00:00',
+      eventHash: 'c'.repeat(64),
+    },
+  ];
+
+  return records.map((record) => {
+    if (!reorderProperties) return JSON.stringify(record);
+    const reordered = {
+      kind: record.kind,
+      sequence: record.sequence,
+      sourceCommit: record.sourceCommit,
+      previousEventHash: record.previousEventHash,
+      approvalReference: record.approvalReference,
+      changedPaths: record.changedPaths,
+      updatedAt: record.updatedAt,
+      eventHash: record.eventHash,
+      ...(record.bootstrap ? { bootstrap: record.bootstrap } : {}),
+    };
+    return JSON.stringify(reordered);
+  });
+}
+
+describe('Authority Pack structural JSONL transition parsing', () => {
+  it('PASSes valid exact sequences 0-2', () => {
+    const historyText = buildValidTransitionHistoryLines().join('\n');
+    const parsed = parseAuthorityHistoryTransitionJsonl(historyText);
+    assert.equal(parsed.reconciled, true);
+    assert.equal(parsed.bySequence.get(2).kind, 'BOOTSTRAP_RECONCILIATION');
+  });
+
+  it('PASSes when JSON object properties are reordered', () => {
+    const historyText = buildValidTransitionHistoryLines({ reorderProperties: true }).join('\n');
+    const parsed = parseAuthorityHistoryTransitionJsonl(historyText);
+    assert.equal(parsed.reconciled, true);
+  });
+
+  it('tolerates whitespace-only lines', () => {
+    const historyText = `\n${buildValidTransitionHistoryLines().join('\n')}\n\n`;
+    assert.equal(parseAuthorityHistoryTransitionJsonl(historyText).reconciled, true);
+  });
+
+  it('FAILs on malformed JSONL', () => {
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl('{not-json'),
+      /malformed JSON/,
+    );
+  });
+
+  it('FAILs when sequence 0 is missing', () => {
+    const lines = buildValidTransitionHistoryLines().slice(1);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /missing sequence 0/,
+    );
+  });
+
+  it('FAILs when sequence 1 is missing', () => {
+    const lines = [buildValidTransitionHistoryLines()[0], buildValidTransitionHistoryLines()[2]];
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /missing sequence 1/,
+    );
+  });
+
+  it('FAILs when sequence 2 is missing', () => {
+    const lines = buildValidTransitionHistoryLines().slice(0, 2);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /missing sequence 2/,
+    );
+  });
+
+  it('FAILs on duplicate sequence', () => {
+    const lines = buildValidTransitionHistoryLines();
+    lines.push(lines[2]);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /duplicate sequence 2/,
+    );
+  });
+
+  it('FAILs when extra sequence 3 is present', () => {
+    const lines = buildValidTransitionHistoryLines();
+    lines.push(
+      JSON.stringify({
+        sequence: 3,
+        kind: 'BOOTSTRAP_RECONCILIATION',
+        sourceCommit: AUTHORITY_PACK_COMMIT_ONE_SHA,
+        previousEventHash: 'd'.repeat(64),
+        approvalReference: 'ref',
+        changedPaths: ['d'],
+        updatedAt: '2026-07-26T05:48:00+00:00',
+        eventHash: 'd'.repeat(64),
+      }),
+    );
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /Unexpected authority-history sequence: 3/,
+    );
+  });
+
+  it('FAILs when sequence 0 has wrong kind', () => {
+    const lines = buildValidTransitionHistoryLines();
+    const record = JSON.parse(lines[0]);
+    record.kind = 'BOOTSTRAP_RECONCILIATION';
+    lines[0] = JSON.stringify(record);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /sequence 0 kind must be INITIALIZATION/,
+    );
+  });
+
+  it('FAILs when sequence 1 has wrong kind', () => {
+    const lines = buildValidTransitionHistoryLines();
+    const record = JSON.parse(lines[1]);
+    record.kind = 'INITIALIZATION';
+    lines[1] = JSON.stringify(record);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /sequence 1 kind must be AUTHORITY_PROCESS_INCIDENT/,
+    );
+  });
+
+  it('FAILs when sequence 2 has wrong kind', () => {
+    const lines = buildValidTransitionHistoryLines();
+    const record = JSON.parse(lines[2]);
+    record.kind = 'AUTHORITY_PROCESS_INCIDENT';
+    lines[2] = JSON.stringify(record);
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(lines.join('\n')),
+      /sequence 2 kind must be BOOTSTRAP_RECONCILIATION/,
+    );
+  });
+
+  it('FAILs when sequence and kind are split across records without per-record match', () => {
+    const historyText = [
+      JSON.stringify({ sequence: 2, kind: 'INITIALIZATION', sourceCommit: 'x' }),
+      JSON.stringify({ sequence: 0, kind: 'BOOTSTRAP_RECONCILIATION', sourceCommit: 'y' }),
+      JSON.stringify({ sequence: 1, kind: 'AUTHORITY_PROCESS_INCIDENT', sourceCommit: 'z' }),
+    ].join('\n');
+    assert.throws(
+      () => parseAuthorityHistoryTransitionJsonl(historyText),
+      /sequence 0 kind must be INITIALIZATION/,
+    );
+  });
+
+  it('exports exact kind mapping constants', () => {
+    assert.deepEqual(AUTHORITY_HISTORY_KIND_BY_SEQUENCE, {
+      0: 'INITIALIZATION',
+      1: 'AUTHORITY_PROCESS_INCIDENT',
+      2: 'BOOTSTRAP_RECONCILIATION',
+    });
+  });
+});
+
+describe('Authority Pack CURRENT_STATE transition invariants', () => {
+  it('FAILs when sequence 2 history rejects sequence 0 only wording', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: currentStateText.replace(/sequences \*\*0–2\*\*/g, 'sequence 0 only'),
+    });
+    assert.ok(failures.some((message) => /sequence 0 only/.test(message)));
+  });
+
+  it('FAILs when completed reconciliation still says reconciliation pending', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: `${currentStateText}\nreconciliation pending`,
+    });
+    assert.ok(failures.some((message) => /reconciliation is pending/.test(message)));
+  });
+
+  it('FAILs when steady-state active still says Not active yet', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: `${currentStateText}\nNot active yet`,
+    });
+    assert.ok(failures.some((message) => /steady-state enforcement is not active/.test(message)));
+  });
+
+  it('FAILs when PR feature tip is described as merged runtime', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: `${currentStateText}\nmerged runtime at fae04444618e2ae36e6fd813ddfddeee975b66c4`,
+    });
+    assert.ok(failures.some((message) => /merged runtime/.test(message)));
+  });
+
+  it('FAILs when stale bootstrapStartHead is labeled as last observed origin/main', () => {
+    const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      currentStateText: currentStateText.replace(
+        OBSERVED_ORIGIN_MAIN_SHA,
+        AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
+      ),
+      observedOriginMainSha: AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
+      observationTimestamp: OBSERVATION_TIMESTAMP,
+    });
+    assert.ok(failures.some((message) => /bootstrapStartHead as the last observed origin\/main/.test(message)));
+  });
+
+  it('PASSes when latest timestamped origin/main observation is recorded', () => {
+    const failures = collectAuthorityPackTransitionFailures({
+      observedOriginMainSha: OBSERVED_ORIGIN_MAIN_SHA,
+      observationTimestamp: OBSERVATION_TIMESTAMP,
+    });
+    assert.equal(
+      failures.some((message) => /latest observed origin\/main SHA/.test(message)),
+      false,
+    );
+    assert.equal(
+      failures.some((message) => /latest origin\/main observation timestamp/.test(message)),
+      false,
+    );
+  });
+});
+
+describe('Authority Pack registry transition invariants', () => {
+  it('FAILs when PR-present snapshot says remote branch absent', () => {
+    const registryText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: `${registryText}\nremote branch absent`,
+    });
+    assert.ok(failures.some((message) => /absent or unpublished/.test(message)));
+  });
+
+  it('FAILs when PR-present snapshot says unpublished', () => {
+    const registryText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: `${registryText}\nbranch unpublished`,
+    });
+    assert.ok(failures.some((message) => /absent or unpublished/.test(message)));
+  });
+
+  it('FAILs when rewritten-away Commit 1 is active provenance', () => {
+    const historyText = fs.readFileSync(
+      path.join(REPO_ROOT, '.product-authority/authority-history.jsonl'),
+      'utf8',
+    );
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: [
+        '### WT-010 — Product Authority Pack',
+        '| notes | Commit 1 active head: 178dadab4697f4797b8f00fd473d08a135b3ec4e |',
+      ].join('\n'),
+      historyText,
+    });
+    assert.ok(failures.some((message) => /178dadab/.test(message)));
+  });
+
+  it('PASSes when safety-ref SHA is retained as historical evidence only', () => {
+    const registryText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const failures = collectAuthorityPackTransitionFailures({ registryText });
+    assert.equal(
+      failures.some((message) => /safety-ref SHA as active branch tip/.test(message)),
+      false,
+    );
+  });
+
+  it('FAILs when safety-ref SHA is interpreted as active branch tip', () => {
+    const failures = collectAuthorityPackTransitionFailures({
+      registryText: [
+        '### WT-010 — Product Authority Pack',
+        `| notes | active branch tip ${AUTHORITY_PACK_SAFETY_REF_SHA} |`,
+      ].join('\n'),
+    });
+    assert.ok(failures.some((message) => /active branch tip/.test(message)));
+  });
+
+  it('PASSes when bootstrapStartHead remains historical lane anchor', () => {
+    const failures = collectAuthorityPackTransitionFailures();
+    assert.equal(
+      failures.some((message) => /historical lane anchor/.test(message)),
+      false,
+    );
+    assert.match(
+      fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8'),
+      new RegExp(AUTHORITY_PACK_BOOTSTRAP_START_HEAD),
+    );
+  });
+});
+
+describe('Authority Pack roadmap authority selection', () => {
+  it('FAILs when superseded Self-funnel block is selected as current lane', () => {
+    const roadmapText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_ROADMAP.md'), 'utf8');
+    const tampered = roadmapText.replace('SUPERSEDED (2026-07-26):', 'Historical note:');
+    const failures = collectAuthorityPackTransitionFailures({ roadmapText: tampered });
+    assert.ok(failures.some((message) => /superseded Self-funnel authority block/.test(message)));
+  });
+
+  it('PASSes when Authority Pack transition remains current authoritative block', () => {
+    const failures = collectAuthorityPackTransitionFailures();
+    assert.equal(
+      failures.some((message) => /Authority Pack authority-data correction/.test(message)),
+      false,
+    );
+  });
+
+  it('PASSes when unrelated historical roadmap prose remains explicitly superseded', () => {
+    const roadmapText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_ROADMAP.md'), 'utf8');
+    assert.match(roadmapText, /SUPERSEDED \(2026-07-26\)/);
+    const failures = collectAuthorityPackTransitionFailures({ roadmapText });
+    assert.equal(
+      failures.some((message) => /superseded Self-funnel authority block/.test(message)),
+      false,
+    );
   });
 });

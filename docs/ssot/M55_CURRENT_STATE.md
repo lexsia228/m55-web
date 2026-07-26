@@ -5,23 +5,33 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-25 (CATEGORY-2 Authority Pack registry capacity patch REV1)
+Last updated: 2026-07-26 (Authority Pack observation refresh patch REV1)
 
 ## Product Authority Pack lane (ACTIVE — WT-010)
 
 | Field | Value |
 |---|---|
-| Lane | **Product Authority Pack bootstrap implementation** |
+| Lane | **Product Authority Pack authority-data correction / final Human review** |
 | Status | **ACTIVE** |
 | Worktree ID | **WT-010** |
 | Worktree | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` |
 | Branch | `feat/m55-product-authority-pack-v1` |
-| bootstrapStartHead | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` |
-| History | sequence 0 only (`UNCOMMITTED_BOOTSTRAP`) — **not yet reconciled** |
-| CI steady-state enforcement | **Not active yet** — workflow exists; requires sequences 0–2 after merge reconciliation |
-| Current next gate | `CATEGORY-2-M55-SHARED-CRITICAL-AUTHORITY-PACK-BOOTSTRAP-DIFF-REVIEW-REV2` |
+| bootstrapStartHead | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — historical lane creation anchor; **not** current origin/main |
+| History (2026-07-26) | sequences **0–2** present — `INITIALIZATION` · `AUTHORITY_PROCESS_INCIDENT` · `BOOTSTRAP_RECONCILIATION` |
+| Bootstrap reconciliation | **Complete** — steady-state verifier active |
+| CI steady-state enforcement | **Active and PASS** at reviewed PR tip |
+| PR #79 (2026-07-26 snapshot) | **OPEN** — base `main` · head `feat/m55-product-authority-pack-v1` |
+| PR tip SHA (2026-07-26 CI snapshot) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` |
+| Commit 1 (Push Protection rewrite) | `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704` |
+| Commit 2 (bootstrap reconciliation) | `2761706505576a2baeacbdd40acd130a1f70e81b` |
+| Commit 3 (registry fixture CI portability) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` |
+| Required CI at reviewed tip | **GREEN** — including `verify-product-authority-pack` |
+| Current lane action | authority-data transition correction — **merge prohibited** pending final Human authority approval |
+| GitHub ruleset / CODEOWNERS enforcement | **Not claimed active** in this gate |
+| Production deployment | **None** — no Production re-observation performed |
 
 Authority Pack merge **does not** complete Self funnel Human lock or resume Self funnel implementation.
+PR-tip branch-local code is **not** merged runtime.
 
 ## Canonical Production authority
 
@@ -32,7 +42,7 @@ Authority Pack merge **does not** complete Self funnel Human lock or resume Self
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| last observed origin/main | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` |
+| last observed origin/main (2026-07-26T13:23:20+00:00) | `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA |
 | Production observed SHA | **null** — `PENDING_REOBSERVATION_ON_M-55.JP` |
 | Production confirmation | **Do not claim** post-merge Production SHA confirmation in this gate |
 
@@ -67,10 +77,12 @@ When merged authority or runtime state changes, update observations via Product 
 Roadmap order preserved. Authority Pack P0 override precedes Self funnel Human lock resumption.
 
 1. Commercial Funnel SSOT — complete
-2. 個人無料→個人Premium — **PARKED** (implementation preserved; awaiting Authority Pack + diff review sequence)
+2. 個人無料→個人Premium — **PARKED** (implementation preserved; awaiting Authority Pack final Human review)
 3. 二人向け無料→有料 — later
 4. HOME最終統合 — later
 5. HOME正式SSOT — later
+
+Current operational lane (2026-07-26): **Authority Pack authority-data correction** on PR #79 — not Self funnel implementation.
 
 ## Prohibited during Authority Pack lane
 
@@ -108,7 +120,7 @@ runtime_specific_validation_owned_by_lane = true
 post_merge_state_transition_required = true
 ```
 
-Merged runtime (`origin/main` @ `e6afe67262ebcee3353a3a43713f7ecf8369f26f`) is committed authority.
+Merged runtime (`origin/main` @ `b13fcd540e210c3ffb41fa2f56889df74b1b3915` as of 2026-07-26T13:23:20+00:00) is committed authority.
 Target contract may precede runtime.
 Branch-local Self funnel source is **not merged main runtime**.
 Historical pre-merge SHA: `37163a0d473c25365f3bddad579d4844fd8300df` — retained for verifier/history.

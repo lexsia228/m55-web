@@ -14,7 +14,8 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; historical bootstrap-era recorded remote; **not** current live remote main
 - **Pre-PR #76 remote main:** `75c43f08976e3c7dbcf374d7cb06f520f6b76b93` — first parent of PR #76 merge commit; **not** current live remote main
 - **PR #76 bootstrap feature HEAD:** `bf1ab0ffac7b34081cecc864c496abed6a196513` — second parent of PR #76 merge; preserved old bootstrap branch HEAD; **not** current live remote main
-- **Current live remote main:** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — Authority Pack bootstrap gate anchor
+- **Current live remote main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — freshly verified mutable Git observation
+- **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
 
@@ -43,7 +44,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
 | Post-merge historical baseline | `main` | `575791f2…` | Historical verified baseline after PR #74 squash merge — not current live remote main |
 | PR #76 merge / prior origin/main | `main` (remote) | `38447ab1…` | Merge commit; parents `75c43f0…` + `bf1ab0ff…` |
-| Authority Pack bootstrap gate | `feat/m55-product-authority-pack-v1` | bootstrapStartHead `e6afe672…` · Commit 1 `178dadab…` | **ACTIVE in WT-010** — reconciliation candidate |
+| Authority Pack PR tip (2026-07-26) | `feat/m55-product-authority-pack-v1` | PR #79 OPEN · tip `fae0444…` · Commits 1–3 pushed | **ACTIVE in WT-010** — reconciliation complete; authority-data correction |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -252,17 +253,17 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | path | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` |
 | branch | `feat/m55-product-authority-pack-v1` |
 | bootstrapStartHead | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` |
-| upstream | **none** (Authority Pack lane — no push during bootstrap/reconciliation gates) |
-| cleanliness | dirty — allowlist-only candidate under review |
+| upstream | `origin/feat/m55-product-authority-pack-v1` @ `fae04444618e2ae36e6fd813ddfddeee975b66c4` (2026-07-26) |
+| cleanliness | worktree may be clean between allowlisted commits — `ALLOWLIST_ONLY_DURING_IMPLEMENTATION` remains lane policy |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
 | operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
-| purpose | **Product Authority Pack** — Bootstrap Commit 1 landed; reconciliation candidate pending Commit 2 |
-| related lane / PR | CATEGORY-2 Authority Pack bootstrap reconciliation |
-| allowed operations | exact allowlist Product Authority Pack reconciliation and semantics patch only |
-| prohibited operations | stage · commit · push · PR · deploy · protected worktree mutation · runtime product source outside allowlist |
+| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 authority-data correction |
+| related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) OPEN · base `main` |
+| allowed operations | exact allowlist Product Authority Pack authority-data / SSOT transition patch only |
+| prohibited operations | merge · deploy · protected worktree mutation · runtime product source outside allowlist without Human gate |
 | removal eligibility | NO — active lane |
-| notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** a claim that live HEAD must remain there. Live HEAD may advance on-branch after Commit 1 (`178dadab…`). Preflight validates ancestry from `bootstrapStartHead`, not equality. Steady-state CI applies at reconciled PR tip. |
+| notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** current HEAD. Rewritten Commit 1: `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704`. Reconciliation Commit 2: `2761706505576a2baeacbdd40acd130a1f70e81b`. CI-portability Commit 3 / PR tip (2026-07-26): `fae04444618e2ae36e6fd813ddfddeee975b66c4`. Preflight validates ancestry from `bootstrapStartHead`, not equality. Superseded pre-rewrite Commit 1 `178dadab4697f4797b8f00fd473d08a135b3ec4e` and safety-ref tip `844c5bbb73795b2f162e29516be79fb401c3b55e` are retained local history only — not active branch provenance. Steady-state CI PASS at reviewed PR tip. |
 
 ---
 

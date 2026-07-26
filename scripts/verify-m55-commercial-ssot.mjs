@@ -1735,6 +1735,305 @@ function checkCommercialQualityContract() {
   }
 }
 
+const AUTHORITY_PACK_COMMIT_ONE_SHA = 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704';
+const AUTHORITY_PACK_COMMIT_TWO_SHA = '2761706505576a2baeacbdd40acd130a1f70e81b';
+const AUTHORITY_PACK_COMMIT_THREE_SHA = 'fae04444618e2ae36e6fd813ddfddeee975b66c4';
+const AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA = '178dadab4697f4797b8f00fd473d08a135b3ec4e';
+const AUTHORITY_PACK_SAFETY_REF_SHA = '844c5bbb73795b2f162e29516be79fb401c3b55e';
+
+const AUTHORITY_PACK_BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
+
+const AUTHORITY_HISTORY_KIND_BY_SEQUENCE = Object.freeze({
+  0: 'INITIALIZATION',
+  1: 'AUTHORITY_PROCESS_INCIDENT',
+  2: 'BOOTSTRAP_RECONCILIATION',
+});
+
+/**
+ * Structurally parse authority-history JSONL for transition invariants.
+ * @param {string} historyText
+ * @returns {{ records: object[], bySequence: Map<number, object>, reconciled: boolean }}
+ */
+function parseAuthorityHistoryTransitionJsonl(historyText) {
+  const lines = historyText.split('\n');
+  /** @type {object[]} */
+  const records = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.trim() === '') continue;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(line);
+    } catch {
+      throw new Error(`authority-history JSONL line ${index + 1}: malformed JSON`);
+    }
+
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error(`authority-history JSONL line ${index + 1}: record must be an object`);
+    }
+    if (!Number.isInteger(parsed.sequence)) {
+      throw new Error(`authority-history JSONL line ${index + 1}: sequence must be integer`);
+    }
+    if (!Object.hasOwn(AUTHORITY_HISTORY_KIND_BY_SEQUENCE, parsed.sequence)) {
+      throw new Error(`Unexpected authority-history sequence: ${parsed.sequence}`);
+    }
+
+    records.push(parsed);
+  }
+
+  const bySequence = new Map();
+  for (const record of records) {
+    if (bySequence.has(record.sequence)) {
+      throw new Error(`authority-history JSONL duplicate sequence ${record.sequence}`);
+    }
+    bySequence.set(record.sequence, record);
+  }
+
+  for (const sequence of [0, 1, 2]) {
+    if (!bySequence.has(sequence)) {
+      throw new Error(`authority-history JSONL missing sequence ${sequence}`);
+    }
+    const expectedKind = AUTHORITY_HISTORY_KIND_BY_SEQUENCE[sequence];
+    if (bySequence.get(sequence).kind !== expectedKind) {
+      throw new Error(
+        `authority-history JSONL sequence ${sequence} kind must be ${expectedKind}`,
+      );
+    }
+  }
+
+  if (records.length !== 3 || bySequence.size !== 3) {
+    throw new Error('authority-history JSONL must contain exactly sequences 0, 1, and 2');
+  }
+
+  return {
+    records,
+    bySequence,
+    reconciled: bySequence.get(2).kind === 'BOOTSTRAP_RECONCILIATION',
+  };
+}
+
+function historyHasBootstrapReconciliation(historyText) {
+  return parseAuthorityHistoryTransitionJsonl(historyText).reconciled;
+}
+
+function readObservedOriginMainSha() {
+  if (!exists('.product-authority/observations.json')) return null;
+  try {
+    const observations = JSON.parse(read('.product-authority/observations.json'));
+    return observations?.repository?.lastObservedOriginMainSha?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function readObservationTimestamp() {
+  if (!exists('.product-authority/observations.json')) return null;
+  try {
+    const observations = JSON.parse(read('.product-authority/observations.json'));
+    return observations?.observationMeta?.lastObservedAt?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function collectAuthorityPackTransitionFailures({
+  currentStateText = read('docs/ssot/M55_CURRENT_STATE.md'),
+  registryText = read('docs/ssot/M55_WORKTREE_REGISTRY.md'),
+  roadmapText = read('docs/ssot/M55_ROADMAP.md'),
+  historyText = exists('.product-authority/authority-history.jsonl')
+    ? read('.product-authority/authority-history.jsonl')
+    : '',
+  handoffJsonText = exists('.product-authority/generated/handoff.json')
+    ? read('.product-authority/generated/handoff.json')
+    : '',
+  authorityHeaderText = exists('.product-authority/generated/authority-header.md')
+    ? read('.product-authority/generated/authority-header.md')
+    : '',
+  observedOriginMainSha = readObservedOriginMainSha(),
+  observationTimestamp = readObservationTimestamp(),
+} = {}) {
+  const failures = [];
+  let reconciled = false;
+  if (historyText.trim() !== '') {
+    try {
+      reconciled = parseAuthorityHistoryTransitionJsonl(historyText).reconciled;
+    } catch (error) {
+      failures.push(`authority-history JSONL transition parse failed: ${error.message}`);
+    }
+  }
+
+  if (reconciled) {
+    if (/sequence 0 only/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not describe sequence 0 only when history has sequences 0–2');
+    }
+    if (/not yet reconciled/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say bootstrap reconciliation is pending when sequence 2 exists');
+    }
+    if (/reconciliation pending/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say reconciliation is pending when sequence 2 exists');
+    }
+    if (/Not active yet/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say steady-state enforcement is not active when reconciled');
+    }
+    if (/reconciliation candidate pending Commit 2/i.test(registryText)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not say reconciliation Commit 2 is pending when sequence 2 exists');
+    }
+    if (/no push during bootstrap\/reconciliation gates/i.test(registryText)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not describe remote branch as absent after PR #79 push');
+    }
+    if (/remote branch absent|unpublished/i.test(registryText) && registryText.includes('PR #79')) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not describe PR #79 branch as absent or unpublished');
+    }
+  }
+
+  if (!currentStateText.includes('sequences **0–2**') && !currentStateText.includes('sequences 0–2')) {
+    failures.push('M55_CURRENT_STATE.md must document Product Authority history sequences 0–2');
+  }
+  if (!currentStateText.includes('PR #79')) {
+    failures.push('M55_CURRENT_STATE.md must record PR #79 transition snapshot');
+  }
+  if (!currentStateText.includes(AUTHORITY_PACK_COMMIT_THREE_SHA)) {
+    failures.push('M55_CURRENT_STATE.md must record CI-portability Commit 3 SHA');
+  }
+  if (/merged runtime.*fae0444/i.test(currentStateText)) {
+    failures.push('M55_CURRENT_STATE.md must not describe PR feature tip fae0444 as merged runtime');
+  }
+  if (/PR tip.*merged runtime|merged runtime.*PR tip/i.test(currentStateText)) {
+    failures.push('M55_CURRENT_STATE.md must not conflate PR feature tip with merged runtime');
+  }
+
+  if (observedOriginMainSha) {
+    if (!currentStateText.includes(observedOriginMainSha)) {
+      failures.push('M55_CURRENT_STATE.md must record the latest observed origin/main SHA');
+    }
+    if (
+      new RegExp(`last observed origin/main.*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`, 'i').test(
+        currentStateText,
+      )
+    ) {
+      failures.push(
+        'M55_CURRENT_STATE.md must not label bootstrapStartHead as the last observed origin/main',
+      );
+    }
+    if (
+      new RegExp(`Current live remote main.*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`, 'i').test(
+        registryText,
+      )
+    ) {
+      failures.push(
+        'M55_WORKTREE_REGISTRY.md must not label bootstrapStartHead as current live remote main',
+      );
+    }
+    if (
+      new RegExp(
+        `Merged runtime \\(\`origin/main\` @ \`${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}\`\\)`,
+        'i',
+      ).test(currentStateText)
+    ) {
+      failures.push(
+        'M55_CURRENT_STATE.md must not present bootstrapStartHead as merged runtime origin/main',
+      );
+    }
+    if (observationTimestamp && !currentStateText.includes(observationTimestamp)) {
+      failures.push('M55_CURRENT_STATE.md must record the latest origin/main observation timestamp');
+    }
+    if (!registryText.includes(observedOriginMainSha)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must record the latest observed origin/main SHA');
+    }
+  }
+
+  if (!registryText.includes(AUTHORITY_PACK_COMMIT_ONE_SHA)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record rewritten Commit 1 f9daeb1');
+  }
+  if (!registryText.includes(AUTHORITY_PACK_COMMIT_THREE_SHA)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record Commit 3 / PR tip fae0444');
+  }
+  if (!registryText.includes('PR #79')) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record PR #79');
+  }
+  if (!registryText.includes(AUTHORITY_PACK_BOOTSTRAP_START_HEAD)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must retain bootstrapStartHead as historical lane anchor');
+  }
+
+  const wt010Section = registryText.split('### WT-010')[1]?.split('### ')[0] ?? '';
+  if (new RegExp(AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA).test(wt010Section)) {
+    if (!/superseded|safety-ref|Push Protection rewrite|retained local history/i.test(wt010Section)) {
+      failures.push('WT-010 registry must not present superseded Commit 1 178dadab as active provenance');
+    }
+  }
+  if (new RegExp(AUTHORITY_PACK_SAFETY_REF_SHA).test(wt010Section)) {
+    if (!/safety-ref|retained local history|not active branch provenance/i.test(wt010Section)) {
+      failures.push('WT-010 registry must not treat safety-ref SHA as active branch provenance');
+    }
+  }
+  if (
+    new RegExp(
+      `${AUTHORITY_PACK_SAFETY_REF_SHA}.*active branch tip|active branch tip.*${AUTHORITY_PACK_SAFETY_REF_SHA}`,
+      'i',
+    ).test(wt010Section)
+  ) {
+    failures.push('WT-010 registry must not interpret safety-ref SHA as active branch tip');
+  }
+
+  if (
+    /Active lane.*個人無料→個人Premium/.test(roadmapText) &&
+    !roadmapText.includes('SUPERSEDED (2026-07-26)')
+  ) {
+    failures.push('M55_ROADMAP.md must mark superseded Self-funnel authority block explicitly');
+  }
+  if (!roadmapText.includes('authority-data correction')) {
+    failures.push('M55_ROADMAP.md must identify Authority Pack authority-data correction as current lane');
+  }
+
+  if (handoffJsonText) {
+    if (/\"nextGate\"/.test(handoffJsonText)) {
+      failures.push('generated handoff.json must not contain unsourced nextGate');
+    }
+    if (/BOOTSTRAP-DIFF-REVIEW/.test(handoffJsonText)) {
+      failures.push('generated handoff.json must not retain stale Bootstrap Diff Review gate text');
+    }
+  }
+  if (authorityHeaderText) {
+    if (/Next exact gate/i.test(authorityHeaderText)) {
+      failures.push('generated authority-header.md must not synthesize operational next gate copy');
+    }
+    if (/BOOTSTRAP-DIFF-REVIEW/.test(authorityHeaderText)) {
+      failures.push('generated authority-header.md must not retain stale Bootstrap Diff Review gate text');
+    }
+    if (observedOriginMainSha && authorityHeaderText.includes(AUTHORITY_PACK_BOOTSTRAP_START_HEAD)) {
+      if (
+        new RegExp(
+          `last observed origin/main SHA:\\s*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`,
+          'i',
+        ).test(authorityHeaderText)
+      ) {
+        failures.push(
+          'generated authority-header.md must not present stale bootstrapStartHead as last observed origin/main',
+        );
+      }
+    }
+  }
+
+  for (const adapter of ['codex.md', 'cursor.md', 'generic-agent.md']) {
+    const rel = `.product-authority/generated/adapters/${adapter}`;
+    if (!exists(rel)) continue;
+    const text = read(rel);
+    if (/nextGate|Next exact gate|BOOTSTRAP-DIFF-REVIEW/i.test(text)) {
+      failures.push(`generated adapter ${adapter} must not synthesize operational gate text`);
+    }
+  }
+
+  return failures;
+}
+
+function checkAuthorityPackTransitionConsistency() {
+  for (const message of collectAuthorityPackTransitionFailures()) {
+    fail(message);
+  }
+}
+
 function checkDeferredNotEnforcedAsPass() {
   const src = read('scripts/verify-m55-commercial-ssot.mjs');
   if (!src.includes('PENDING_SELF_FUNNEL_IMPLEMENTATION')) {
@@ -1754,6 +2053,7 @@ function main() {
   checkWorktreeRegistry();
   checkPostMergeHandoff();
   checkCommercialQualityContract();
+  checkAuthorityPackTransitionConsistency();
   checkDeferredNotEnforcedAsPass();
 
   if (FAILURES.length > 0) {
@@ -1840,6 +2140,19 @@ export {
   COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES,
   collectCommercialQualityContractPhraseFailures,
   collectCurrentStateLifecycleFailures,
+  collectAuthorityPackTransitionFailures,
+  checkAuthorityPackTransitionConsistency,
+  parseAuthorityHistoryTransitionJsonl,
+  historyHasBootstrapReconciliation,
+  readObservedOriginMainSha,
+  readObservationTimestamp,
+  AUTHORITY_PACK_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_COMMIT_TWO_SHA,
+  AUTHORITY_PACK_COMMIT_THREE_SHA,
+  AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_SAFETY_REF_SHA,
+  AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
+  AUTHORITY_HISTORY_KIND_BY_SEQUENCE,
   validateCommercialQualityContractText,
   validateCurrentStateLifecycleText,
 };
