@@ -52,23 +52,87 @@ import {
   evaluateWt010ActiveLanePreflight,
   evaluateWt010RegistryPreflight,
   evaluateWorktreePreflightWarnings,
+  createDefaultGitInspector,
 } from './verify-m55-commercial-ssot.mjs';
 import { verifyProductAuthority } from './product-authority/validate.mjs';
 import { bootstrapFixture } from './product-authority/generate.mjs';
 import { withComputedEventHashes, writeHistory } from './product-authority/history.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const WT010_COMMIT_ONE_HEAD = '178dadab4697f4797b8f00fd473d08a135b3ec4e';
+const WT010_LIVE_HEAD = '2761706505576a2baeacbdd40acd130a1f70e81b';
+const WT010_COMMIT_ONE_HEAD = 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704';
 const WORKFLOW_PATH = path.join(REPO_ROOT, '.github/workflows/verify-product-authority-pack.yml');
-const BASELINE_SHA = '575791f2ab80d57c89317e07da4b8020cfba3485';
 const BOOTSTRAP_BRANCH = 'chore/m55-worktree-registry-current-state-bootstrap-rev1';
-const FIXTURE_BASE_SHA = '3ea803eaffd83a67434ffa032319cb915fd163f9';
 const VERIFIER_REL_PATH = 'scripts/verify-m55-commercial-ssot.mjs';
+const DISPOSABLE_ESSENTIAL_PATHS = [
+  'docs/ssot/M55_WORKTREE_REGISTRY.md',
+  'docs/ssot/M55_CURRENT_STATE.md',
+];
+
+function createControlledGitInspector(repositoryFacts = {}, { registeredPaths = null } = {}) {
+  const registeredPathSet = registeredPaths ? new Set(registeredPaths) : null;
+  return {
+    objectExists(repositoryRoot, sha) {
+      const facts = repositoryFacts[repositoryRoot];
+      if (!facts?.objects) return false;
+      return facts.objects.has(String(sha).toLowerCase());
+    },
+    isAncestorOrEqual(repositoryRoot, ancestorSha, descendantSha) {
+      const facts = repositoryFacts[repositoryRoot];
+      if (!facts) return false;
+      const ancestor = String(ancestorSha).toLowerCase();
+      const descendant = String(descendantSha).toLowerCase();
+      if (ancestor === descendant) return true;
+      return (facts.ancestry ?? []).some(
+        ([anc, desc]) => anc.toLowerCase() === ancestor && desc.toLowerCase() === descendant,
+      );
+    },
+    isWorktreeClean(repositoryRoot) {
+      const facts = repositoryFacts[repositoryRoot];
+      return facts?.clean ?? true;
+    },
+    hasGitOperationInProgress(repositoryRoot) {
+      const facts = repositoryFacts[repositoryRoot];
+      return facts?.gitOperationInProgress ?? false;
+    },
+    registryPathExists(registryPath) {
+      if (!registeredPathSet) return false;
+      return registeredPathSet.has(registryPath);
+    },
+  };
+}
+
+function buildStaticWt010GitFacts(wt010Path, liveHead = WT010_LIVE_HEAD) {
+  return {
+    [wt010Path]: {
+      objects: new Set([
+        WT010_EXPECTED_BOOTSTRAP_START_HEAD.toLowerCase(),
+        liveHead.toLowerCase(),
+      ]),
+      ancestry: [[WT010_EXPECTED_BOOTSTRAP_START_HEAD, liveHead]],
+      clean: true,
+      gitOperationInProgress: false,
+    },
+  };
+}
+
+function buildStaticNineEntryGitInspector(liveEntries, { registeredPaths = null } = {}) {
+  const wt010Entry =
+    liveEntries.find((entry) => entry.branch === WT010_EXPECTED_BRANCH) ??
+    LIVE_TOPOLOGY_ENTRIES.find((entry) => entry.branch === WT010_EXPECTED_BRANCH);
+  const effectiveRegisteredPaths = registeredPaths ?? liveEntries.map((entry) => entry.path);
+  return createControlledGitInspector(
+    buildStaticWt010GitFacts(WT010_EXPECTED_PATH, wt010Entry?.head ?? WT010_LIVE_HEAD),
+    { registeredPaths: effectiveRegisteredPaths },
+  );
+}
 
 function runGit(args, cwd) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
   if (result.status !== 0) {
-    throw new Error(`git ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
+    throw new Error(
+      `git ${args.join(' ')} failed in ${cwd}: ${result.stderr || result.stdout || result.error?.message || 'unknown error'}`,
+    );
   }
   return result.stdout.trim();
 }
@@ -84,42 +148,46 @@ function buildCleanStateDisposableFixture() {
   const verifierSourcePath = path.join(REPO_ROOT, VERIFIER_REL_PATH);
 
   assert.ok(fs.existsSync(verifierSourcePath), 'verifier source file must exist');
-  assertGitObjectExists(FIXTURE_BASE_SHA, REPO_ROOT);
+  fs.mkdirSync(fixtureRoot, { recursive: true });
 
-  const clone = spawnSync('git', ['clone', REPO_ROOT, fixtureRoot], { encoding: 'utf8' });
-  assert.equal(clone.status, 0, clone.stderr || clone.stdout);
+  runGit(['init'], fixtureRoot);
+  runGit(['config', 'user.email', 'test@example.com'], fixtureRoot);
+  runGit(['config', 'user.name', 'M55 Test'], fixtureRoot);
 
-  const cloneTip = runGit(['rev-parse', 'HEAD'], fixtureRoot);
-  runGit(['checkout', FIXTURE_BASE_SHA], fixtureRoot);
+  for (const relPath of DISPOSABLE_ESSENTIAL_PATHS) {
+    const sourcePath = path.join(REPO_ROOT, relPath);
+    const destinationPath = path.join(fixtureRoot, relPath);
+    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+    fs.copyFileSync(sourcePath, destinationPath);
+  }
+
+  runGit(['add', '.'], fixtureRoot);
+  runGit(['commit', '-m', 'temp: disposable fixture base commit'], fixtureRoot);
+  const baseSha = runGit(['rev-parse', 'HEAD'], fixtureRoot);
+
+  const registryText = buildRegistryText({
+    wt001Path: fixtureRoot,
+    branch: BOOTSTRAP_BRANCH,
+    baselineSha: baseSha,
+    headSha: baseSha,
+  });
+  fs.writeFileSync(path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), registryText);
+  const verifierDestinationPath = path.join(fixtureRoot, VERIFIER_REL_PATH);
+  fs.mkdirSync(path.dirname(verifierDestinationPath), { recursive: true });
+  fs.writeFileSync(verifierDestinationPath, fs.readFileSync(verifierSourcePath, 'utf8'));
+
+  runGit(['add', '.'], fixtureRoot);
+  runGit(['commit', '-m', 'temp: disposable clean-state verifier proof'], fixtureRoot);
   runGit(['checkout', '-B', BOOTSTRAP_BRANCH], fixtureRoot);
 
-  assert.equal(runGit(['rev-parse', 'HEAD'], fixtureRoot), FIXTURE_BASE_SHA);
-  assert.equal(runGit(['branch', '--show-current'], fixtureRoot), BOOTSTRAP_BRANCH);
-
-  const fixtureVerifierPath = path.join(fixtureRoot, VERIFIER_REL_PATH);
-  fs.writeFileSync(fixtureVerifierPath, fs.readFileSync(verifierSourcePath, 'utf8'));
-
-  const diffNames = runGit(['diff', '--name-only'], fixtureRoot);
-  assert.notEqual(diffNames.trim(), '', 'expected verifier copy to produce a non-empty diff');
-  assert.match(diffNames, /scripts\/verify-m55-commercial-ssot\.mjs/);
-
-  assert.equal(runGit(['diff', '--cached', '--name-only'], fixtureRoot).trim(), '');
-
-  runGit(['add', VERIFIER_REL_PATH], fixtureRoot);
-
-  const stagedPaths = runGit(['diff', '--cached', '--name-only'], fixtureRoot);
-  assert.deepEqual(stagedPaths.split('\n').filter(Boolean), [VERIFIER_REL_PATH]);
-
-  runGit(['commit', '-m', 'temp: disposable clean-state verifier proof'], fixtureRoot);
-
   const head = runGit(['rev-parse', 'HEAD'], fixtureRoot);
-  assert.notEqual(head, FIXTURE_BASE_SHA, 'temporary commit must be non-empty');
-  assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), FIXTURE_BASE_SHA);
-  assert.equal(runGit(['rev-list', '--count', `${FIXTURE_BASE_SHA}..HEAD`], fixtureRoot), '1');
+  assert.notEqual(head, baseSha, 'temporary commit must be non-empty');
+  assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
+  assert.equal(runGit(['rev-list', '--count', `${baseSha}..HEAD`], fixtureRoot), '1');
   assert.equal(isWorktreeClean(fixtureRoot), true);
-  assert.equal(isAncestorOrEqual(BASELINE_SHA, head, fixtureRoot), true);
+  assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
 
-  return { fixtureParent, fixtureRoot, head, cloneTip };
+  return { fixtureParent, fixtureRoot, head, baseSha };
 }
 
 function initRepoWithHistory() {
@@ -168,18 +236,19 @@ function buildRegistryText({
 }
 
 function snapshotArgs(repo, registry, currentState, entryOverrides = {}) {
+  const entry = {
+    path: repo.dir,
+    branch: 'bootstrap-branch',
+    head: repo.childSha,
+    detached: false,
+    ...entryOverrides,
+  };
   return {
-    entry: {
-      path: repo.dir,
-      branch: 'bootstrap-branch',
-      head: repo.childSha,
-      detached: false,
-      ...entryOverrides,
-    },
+    entry,
     wt001Parse: parseWt001RegistrySnapshot(registry),
     registryText: registry,
     transitionParse: parsePostMergeNextSingleAction(currentState),
-    gitCwd: repo.dir,
+    gitInspector: createDefaultGitInspector(),
   };
 }
 
@@ -896,7 +965,7 @@ const LIVE_TOPOLOGY_ENTRIES = Object.freeze([
   {
     path: WT010_EXPECTED_PATH,
     branch: WT010_EXPECTED_BRANCH,
-    head: WT010_COMMIT_ONE_HEAD,
+    head: WT010_LIVE_HEAD,
   },
 ]);
 
@@ -1055,15 +1124,16 @@ describe('canonical registry heading grammar', () => {
   });
 
   it('passes controlled nine-entry fixture topology with zero drift warning', () => {
+    const liveEntries = liveEntriesFromTopology();
     const registryText = buildFullNineEntryRegistryText();
     const currentStateText = buildCurrentState();
-    const liveEntries = liveEntriesFromTopology();
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries);
     const { warnings } = evaluateWorktreePreflightWarnings(
       liveEntries,
       registryText,
       currentStateText,
-      REPO_ROOT,
-      { requireFullTopology: true },
+      '/fixture/nonexistent-git-root',
+      { requireFullTopology: true, gitInspector },
     );
     assert.equal(warnings.length, 0, warnings.join('; '));
   });
@@ -1072,25 +1142,42 @@ describe('canonical registry heading grammar', () => {
     const liveEntries = liveEntriesFromTopology();
     assert.equal(liveEntries.length, 9);
     const registryText = buildFullNineEntryRegistryText();
-    const { warnings } = evaluateWorktreePreflightWarnings(
-      liveEntries,
-      registryText,
-      buildCurrentState(),
-      '/fixture/nonexistent-git-root',
-      { requireFullTopology: true },
-    );
-    assert.equal(warnings.length, 0, warnings.join('; '));
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries);
+    const originalExistsSync = fs.existsSync;
+    let hostPathAccessCount = 0;
+    fs.existsSync = (targetPath) => {
+      if (String(targetPath).includes('/Users/lexsia/Documents/')) {
+        hostPathAccessCount += 1;
+      }
+      return originalExistsSync(targetPath);
+    };
+    try {
+      const { warnings } = evaluateWorktreePreflightWarnings(
+        liveEntries,
+        registryText,
+        buildCurrentState(),
+        '/fixture/nonexistent-git-root',
+        { requireFullTopology: true, gitInspector },
+      );
+      assert.equal(warnings.length, 0, warnings.join('; '));
+      assert.equal(hostPathAccessCount, 0);
+    } finally {
+      fs.existsSync = originalExistsSync;
+    }
   });
 
   it('fails strict local topology validation when registered live path is missing from live list', () => {
     const registryText = buildFullNineEntryRegistryText();
     const liveEntries = liveEntriesFromTopology(LIVE_TOPOLOGY_ENTRIES.slice(0, 8));
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries, {
+      registeredPaths: liveEntriesFromTopology().map((entry) => entry.path),
+    });
     const { warnings } = evaluateWorktreePreflightWarnings(
       liveEntries,
       registryText,
       buildCurrentState(),
-      REPO_ROOT,
-      { requireFullTopology: true },
+      '/fixture/nonexistent-git-root',
+      { requireFullTopology: true, gitInspector },
     );
     assert.ok(warnings.length > 0);
     assert.match(warnings.join('; '), /registered live worktree missing|missing from registry/i);
@@ -1107,12 +1194,13 @@ describe('canonical registry heading grammar', () => {
         detached: false,
       },
     ];
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries);
     const { warnings } = evaluateWorktreePreflightWarnings(
       liveEntries,
       registryText,
       buildCurrentState(),
-      REPO_ROOT,
-      { requireFullTopology: true },
+      '/fixture/nonexistent-git-root',
+      { requireFullTopology: true, gitInspector },
     );
     assert.ok(warnings.length > 0);
     assert.match(warnings.join('; '), /missing from registry/i);
@@ -1477,17 +1565,217 @@ describe('WT-009 metadata preflight integration', () => {
   });
 });
 
+describe('repository-static WT-010 git-state fixture', () => {
+  function runStaticNineEntryPreflight({ liveTopology, registryOptions, registryTextMutator, gitInspector } = {}) {
+    const liveEntries = liveEntriesFromTopology(liveTopology ?? LIVE_TOPOLOGY_ENTRIES);
+    let registryText = buildFullNineEntryRegistryText(registryOptions ?? {});
+    if (registryTextMutator) {
+      registryText = registryTextMutator(registryText);
+    }
+    return evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      buildCurrentState(),
+      '/fixture/nonexistent-git-root',
+      {
+        requireFullTopology: true,
+        gitInspector: gitInspector ?? buildStaticNineEntryGitInspector(liveEntries),
+      },
+    );
+  }
+
+  it('uses injected git-state facts rather than host WT-010 repository', () => {
+    const liveEntries = liveEntriesFromTopology();
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries);
+    const { warnings } = runStaticNineEntryPreflight({ gitInspector });
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.equal(gitInspector.objectExists(WT010_EXPECTED_PATH, WT010_LIVE_HEAD), true);
+    assert.equal(
+      gitInspector.isAncestorOrEqual(
+        WT010_EXPECTED_PATH,
+        WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+        WT010_LIVE_HEAD,
+      ),
+      true,
+    );
+  });
+
+  it('rejects missing bootstrapStartHead through registry parser', () => {
+    const { warnings } = runStaticNineEntryPreflight({
+      registryTextMutator: (registryText) =>
+        registryText.replace(
+          `| bootstrapStartHead | \`${WT010_EXPECTED_BOOTSTRAP_START_HEAD}\` |`,
+          '',
+        ),
+    });
+    assert.match(warnings.join('; '), /bootstrapStartHead missing/i);
+  });
+
+  it('rejects nonexistent bootstrapStartHead object according to controlled inspector', () => {
+    const liveEntries = liveEntriesFromTopology();
+    const gitInspector = createControlledGitInspector(
+      {
+        [WT010_EXPECTED_PATH]: {
+          objects: new Set([WT010_LIVE_HEAD.toLowerCase()]),
+          ancestry: [],
+          clean: true,
+        },
+      },
+      { registeredPaths: liveEntries.map((entry) => entry.path) },
+    );
+    const { warnings } = runStaticNineEntryPreflight({ gitInspector });
+    assert.match(warnings.join('; '), /bootstrapStartHead object missing/i);
+  });
+
+  it('rejects unrelated live HEAD according to controlled inspector', () => {
+    const unrelatedHead = 'a'.repeat(40);
+    const liveTopology = LIVE_TOPOLOGY_ENTRIES.map((entry) =>
+      entry.path === WT010_EXPECTED_PATH ? { ...entry, head: unrelatedHead } : entry,
+    );
+    const liveEntries = liveEntriesFromTopology(liveTopology);
+    const gitInspector = createControlledGitInspector(
+      {
+        [WT010_EXPECTED_PATH]: {
+          objects: new Set([
+            WT010_EXPECTED_BOOTSTRAP_START_HEAD.toLowerCase(),
+            unrelatedHead.toLowerCase(),
+          ]),
+          ancestry: [],
+          clean: true,
+        },
+      },
+      { registeredPaths: liveEntries.map((entry) => entry.path) },
+    );
+    const { warnings } = runStaticNineEntryPreflight({ liveTopology, gitInspector });
+    assert.match(warnings.join('; '), /not a descendant of bootstrapStartHead/i);
+  });
+
+  it('rejects wrong WT-010 branch', () => {
+    const liveTopology = LIVE_TOPOLOGY_ENTRIES.map((entry) =>
+      entry.path === WT010_EXPECTED_PATH ? { ...entry, branch: 'wrong-branch' } : entry,
+    );
+    const { warnings } = runStaticNineEntryPreflight({ liveTopology });
+    assert.match(warnings.join('; '), /branch mismatch/i);
+  });
+
+  it('rejects wrong WT-010 path', () => {
+    const liveTopology = LIVE_TOPOLOGY_ENTRIES.map((entry) =>
+      entry.path === WT010_EXPECTED_PATH
+        ? { ...entry, path: '/fixture/static-m55-registry/wt-010-wrong' }
+        : entry,
+    );
+    const { warnings } = runStaticNineEntryPreflight({ liveTopology });
+    assert.match(warnings.join('; '), /path mismatch|missing from registry/i);
+  });
+
+  it('rejects invalid WT-010 ACTIVE-lane lifecycle state', () => {
+    const { warnings } = runStaticNineEntryPreflight({
+      registryTextMutator: (registryText) =>
+        registryText.replace('| lifecycle | **ACTIVE** |', '| lifecycle | **PAUSED** |'),
+    });
+    assert.match(warnings.join('; '), /lifecycle must be ACTIVE|lifecycle invalid/i);
+  });
+});
+
+describe('local strict real Git topology validation', () => {
+  it('accepts current real WT-010 bootstrapStartHead ancestry against live HEAD', () => {
+    if (!fs.existsSync(WT010_EXPECTED_PATH)) {
+      return;
+    }
+    if (!gitObjectExists(WT010_EXPECTED_BOOTSTRAP_START_HEAD, WT010_EXPECTED_PATH)) {
+      return;
+    }
+    const liveHead = runGit(['rev-parse', 'HEAD'], WT010_EXPECTED_PATH);
+    assert.equal(
+      isAncestorOrEqual(WT010_EXPECTED_BOOTSTRAP_START_HEAD, liveHead, WT010_EXPECTED_PATH),
+      true,
+    );
+    const registry = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const currentState = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const liveEntry = {
+      path: WT010_EXPECTED_PATH,
+      branch: runGit(['branch', '--show-current'], WT010_EXPECTED_PATH),
+      head: liveHead,
+      detached: false,
+    };
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      liveEntry,
+      makeWt010RegistryEntry(),
+      warnings,
+      logs,
+      createDefaultGitInspector(),
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.match(logs.join('\n'), /at or after bootstrapStartHead/);
+  });
+
+  it('rejects missing real WT-010 path with default git inspector', () => {
+    const missingPath = '/tmp/m55-missing-wt-010-path-for-strict-test';
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      {
+        path: missingPath,
+        branch: WT010_EXPECTED_BRANCH,
+        head: WT010_LIVE_HEAD,
+        detached: false,
+      },
+      makeWt010RegistryEntry({ path: missingPath }),
+      warnings,
+      logs,
+      createDefaultGitInspector(),
+    );
+    assert.match(warnings.join('; '), /path mismatch|object missing/i);
+  });
+
+  it('rejects unrelated ancestry with default git inspector on real temp repository', () => {
+    const repo = initRepoWithHistory();
+    try {
+      const warnings = [];
+      const logs = [];
+      evaluateWt010ActiveLanePreflight(
+        { path: repo.dir, branch: WT010_EXPECTED_BRANCH, head: repo.baselineSha, detached: false },
+        makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.childSha }),
+        warnings,
+        logs,
+        createDefaultGitInspector(),
+      );
+      assert.match(warnings.join('; '), /not a descendant of bootstrapStartHead/i);
+    } finally {
+      fs.rmSync(repo.parent, { recursive: true, force: true });
+    }
+  });
+
+  it('does not introduce process.env.CI behavior fork in verifier source', () => {
+    const verifierSource = fs.readFileSync(path.join(REPO_ROOT, VERIFIER_REL_PATH), 'utf8');
+    assert.doesNotMatch(verifierSource, /process\.env\.CI/);
+  });
+});
+
 describe('clean-state disposable proof', () => {
+  it('creates its own base and descendant Git objects without repository history dependency', () => {
+    const { fixtureParent, fixtureRoot, head, baseSha } = buildCleanStateDisposableFixture();
+    try {
+      assert.equal(gitObjectExists(baseSha, fixtureRoot), true);
+      assert.equal(gitObjectExists(head, fixtureRoot), true);
+      assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
+      assert.notEqual(baseSha, WT010_EXPECTED_BOOTSTRAP_START_HEAD);
+      assert.notEqual(head, WT010_EXPECTED_BOOTSTRAP_START_HEAD);
+    } finally {
+      fs.rmSync(fixtureParent, { recursive: true, force: true });
+    }
+  });
+
   it(
     'preflight passes without drift warning on clean bootstrap descendant fixture',
     { timeout: 180000 },
     () => {
-      const { fixtureParent, fixtureRoot, head, cloneTip } = buildCleanStateDisposableFixture();
-      assert.notEqual(head, FIXTURE_BASE_SHA, 'temporary disposable commit must advance fixture HEAD');
-      assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), FIXTURE_BASE_SHA);
-      if (cloneTip !== FIXTURE_BASE_SHA) {
-        assert.notEqual(cloneTip, head, 'fixture must not reuse current branch tip as proof HEAD');
-      }
+      const { fixtureParent, fixtureRoot, head, baseSha } = buildCleanStateDisposableFixture();
+      assert.notEqual(head, baseSha, 'temporary disposable commit must advance fixture HEAD');
+      assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
+      assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
 
       const worktreeList = spawnSync('git', ['worktree', 'list', '--porcelain'], {
         cwd: fixtureRoot,
@@ -1497,18 +1785,15 @@ describe('clean-state disposable proof', () => {
       const liveEntries = parseWorktreeListPorcelain(worktreeList.stdout);
       assert.ok(liveEntries.length >= 1);
       const entry = {
-        ...liveEntries[0],
         path: path.resolve(fixtureRoot),
         branch: BOOTSTRAP_BRANCH,
         head,
         detached: false,
       };
-      const registryText = fs
-        .readFileSync(path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8')
-        .replace(
-          /(\| path \| `)[^`]+(` \|)/,
-          `$1${entry.path}$2`,
-        );
+      const registryText = fs.readFileSync(
+        path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'),
+        'utf8',
+      );
       const currentStateText = fs.readFileSync(
         path.join(fixtureRoot, 'docs/ssot/M55_CURRENT_STATE.md'),
         'utf8',
@@ -1526,7 +1811,7 @@ describe('clean-state disposable proof', () => {
       assert.match(logs.join('\n'), /registry baseline snapshot/);
 
       const negativeMissingBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${BASELINE_SHA}\` |`,
+        `| baseline | \`main\` @ \`${baseSha}\` |`,
         '',
       );
       const missingResult = evaluateWorktreePreflightWarnings(
@@ -1538,8 +1823,8 @@ describe('clean-state disposable proof', () => {
       assert.match(missingResult.warnings.join('\n'), /baseline missing|registry parser failure|snapshot preflight failed/i);
 
       const negativeDuplicateBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${BASELINE_SHA}\` |`,
-        `| baseline | \`main\` @ \`${BASELINE_SHA}\` |\n| baseline | \`main\` @ \`${BASELINE_SHA}\` |`,
+        `| baseline | \`main\` @ \`${baseSha}\` |`,
+        `| baseline | \`main\` @ \`${baseSha}\` |\n| baseline | \`main\` @ \`${baseSha}\` |`,
       );
       const duplicateResult = evaluateWorktreePreflightWarnings(
         [entry],
@@ -1550,7 +1835,7 @@ describe('clean-state disposable proof', () => {
       assert.match(duplicateResult.warnings.join('\n'), /baseline duplicate|registry parser failure|snapshot preflight failed/i);
 
       const negativeInvalidBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${BASELINE_SHA}\` |`,
+        `| baseline | \`main\` @ \`${baseSha}\` |`,
         '| baseline | broken |',
       );
       const invalidResult = evaluateWorktreePreflightWarnings(
@@ -1586,8 +1871,8 @@ describe('clean-state disposable proof', () => {
       assert.match(malformedHeadingResult.warnings.join('\n'), /heading malformed/i);
 
       const arbitraryBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${BASELINE_SHA}\` |`,
-        `| baseline | note \`main\` @ \`${BASELINE_SHA}\` |`,
+        `| baseline | \`main\` @ \`${baseSha}\` |`,
+        `| baseline | note \`main\` @ \`${baseSha}\` |`,
       );
       const arbitraryBaselineResult = evaluateWorktreePreflightWarnings(
         [entry],
@@ -1716,7 +2001,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.equal(warnings.length, 0, warnings.join('; '));
     assert.match(logs.join('\n'), /at or after bootstrapStartHead/);
@@ -1730,7 +2015,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.equal(warnings.length, 0, warnings.join('; '));
     assert.match(logs.join('\n'), /at or after bootstrapStartHead/);
@@ -1744,7 +2029,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.childSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.match(warnings.join('; '), /not a descendant of bootstrapStartHead/i);
   });
@@ -1757,7 +2042,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.match(warnings.join('; '), /branch mismatch/i);
   });
@@ -1770,7 +2055,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ bootstrapStartHeadSha: repo.baselineSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.match(warnings.join('; '), /path mismatch/i);
   });
@@ -1784,7 +2069,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
       makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
       warnings,
       logs,
-      repo.dir,
+      createDefaultGitInspector(),
     );
     assert.equal(warnings.length, 0, warnings.join('; '));
     assert.match(logs.join('\n'), /dirty under ALLOWLIST_ONLY_DURING_IMPLEMENTATION/i);
@@ -1815,11 +2100,11 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
     if (!gitObjectExists(WT010_EXPECTED_BOOTSTRAP_START_HEAD, REPO_ROOT)) {
       return;
     }
-    if (!gitObjectExists(WT010_COMMIT_ONE_HEAD, REPO_ROOT)) {
+    if (!gitObjectExists(WT010_LIVE_HEAD, REPO_ROOT)) {
       return;
     }
     assert.equal(
-      isAncestorOrEqual(WT010_EXPECTED_BOOTSTRAP_START_HEAD, WT010_COMMIT_ONE_HEAD, REPO_ROOT),
+      isAncestorOrEqual(WT010_EXPECTED_BOOTSTRAP_START_HEAD, WT010_LIVE_HEAD, REPO_ROOT),
       true,
     );
     const registry = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
@@ -1827,6 +2112,7 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
     const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
     const { warnings } = evaluateWorktreePreflightWarnings(live, registry, currentState, REPO_ROOT, {
       requireFullTopology: true,
+      gitInspector: createDefaultGitInspector(),
     });
     assert.equal(warnings.length, 0, warnings.join('; '));
   });

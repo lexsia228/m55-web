@@ -879,7 +879,7 @@ function evaluateWt010RegistryPreflight(registryDocument) {
   return { valid: metadataErrors.length === 0, errors: metadataErrors, entry };
 }
 
-function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitCwd) {
+function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector) {
   if (!registryEntry.valid) {
     warnings.push(
       `WT-010 registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`,
@@ -907,15 +907,15 @@ function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, 
     warnings.push(`WT-010 live HEAD missing for ${entry.path}`);
     return;
   }
-  if (!gitObjectExists(bootstrapStartHead, entry.path)) {
+  if (!gitInspector.objectExists(entry.path, bootstrapStartHead)) {
     warnings.push(`WT-010 bootstrapStartHead object missing for ${entry.path}: ${bootstrapStartHead.slice(0, 12)}`);
     return;
   }
-  if (!gitObjectExists(entry.head, entry.path)) {
+  if (!gitInspector.objectExists(entry.path, entry.head)) {
     warnings.push(`WT-010 live HEAD object missing for ${entry.path}: ${entry.head.slice(0, 12)}`);
     return;
   }
-  if (!isAncestorOrEqual(bootstrapStartHead, entry.head, entry.path)) {
+  if (!gitInspector.isAncestorOrEqual(entry.path, bootstrapStartHead, entry.head)) {
     warnings.push(
       `WT-010 live HEAD is not a descendant of bootstrapStartHead for ${entry.path}: live=${entry.head.slice(0, 12)} bootstrapStartHead=${bootstrapStartHead.slice(0, 12)}`,
     );
@@ -924,10 +924,10 @@ function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, 
   logs.push(
     `[preflight] WT-010 live HEAD ${entry.head.slice(0, 12)} is at or after bootstrapStartHead ${bootstrapStartHead.slice(0, 12)}`,
   );
-  if (hasGitOperationInProgress(entry.path)) {
+  if (gitInspector.hasGitOperationInProgress(entry.path)) {
     warnings.push(`WT-010 git operation in progress for ${entry.path}`);
   }
-  if (!isWorktreeClean(entry.path)) {
+  if (!gitInspector.isWorktreeClean(entry.path)) {
     logs.push(
       `[preflight] WT-010 ACTIVE implementation lane dirty under ALLOWLIST_ONLY_DURING_IMPLEMENTATION: ${entry.path}`,
     );
@@ -1083,6 +1083,26 @@ function isAncestorOrEqual(ancestor, descendant, cwd) {
   return result.status === 0;
 }
 
+function createDefaultGitInspector() {
+  return {
+    objectExists(repositoryRoot, sha) {
+      return gitObjectExists(sha, repositoryRoot);
+    },
+    isAncestorOrEqual(repositoryRoot, ancestorSha, descendantSha) {
+      return isAncestorOrEqual(ancestorSha, descendantSha, repositoryRoot);
+    },
+    isWorktreeClean(repositoryRoot) {
+      return isWorktreeClean(repositoryRoot);
+    },
+    hasGitOperationInProgress(repositoryRoot) {
+      return hasGitOperationInProgress(repositoryRoot);
+    },
+    registryPathExists(registryPath) {
+      return fs.existsSync(registryPath);
+    },
+  };
+}
+
 function isWorktreeClean(worktreePath) {
   const result = gitRun(['status', '--porcelain'], worktreePath);
   return result.status === 0 && result.stdout.trim() === '';
@@ -1109,9 +1129,12 @@ function isRegistryEntryDoNotUse(entry) {
   return Boolean(entry.lifecycle?.includes('DO_NOT_USE'));
 }
 
-function isRegistryEntryLiveRequired(entry) {
+function isRegistryEntryLiveRequired(entry, gitInspector = null) {
   if (!entry?.path) return false;
   if (isRegistryEntryDoNotUse(entry)) return false;
+  if (gitInspector?.registryPathExists) {
+    return gitInspector.registryPathExists(entry.path);
+  }
   return fs.existsSync(entry.path);
 }
 
@@ -1201,7 +1224,7 @@ function shouldRunFullTopologyPreflight(registryDocument, liveEntries) {
   return hasWt010Heading && liveEntries.length >= 9;
 }
 
-function collectSymmetricLiveRegistryErrors(liveEntries, registryEntries) {
+function collectSymmetricLiveRegistryErrors(liveEntries, registryEntries, gitInspector = null) {
   const errors = [];
   const livePaths = new Set(liveEntries.map((entry) => entry.path));
   const registryByPath = new Map(
@@ -1230,7 +1253,7 @@ function collectSymmetricLiveRegistryErrors(liveEntries, registryEntries) {
   }
 
   for (const registryEntry of registryEntries) {
-    if (!isRegistryEntryLiveRequired(registryEntry)) continue;
+    if (!isRegistryEntryLiveRequired(registryEntry, gitInspector)) continue;
     if (!livePaths.has(registryEntry.path)) {
       errors.push({
         id: registryEntry.id,
@@ -1269,7 +1292,7 @@ function isLegacyWt001State(entry, registryEntry, registryText) {
   );
 }
 
-function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, transitionParse, gitCwd }) {
+function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, transitionParse, gitInspector }) {
   if (!wt001Parse?.valid || !wt001Parse.snapshot) {
     return {
       pass: false,
@@ -1290,15 +1313,15 @@ function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, trans
   if (!snapshot.baselineSha) {
     return { pass: false, reason: 'baseline SHA missing from registry parser' };
   }
-  if (!gitObjectExists(snapshot.baselineSha, gitCwd)) {
+  if (!gitInspector.objectExists(entry.path, snapshot.baselineSha)) {
     return { pass: false, reason: 'baseline SHA object missing' };
   }
   if (!entry.head) return { pass: false, reason: 'live HEAD missing' };
-  if (!isAncestorOrEqual(snapshot.baselineSha, entry.head, gitCwd)) {
+  if (!gitInspector.isAncestorOrEqual(entry.path, snapshot.baselineSha, entry.head)) {
     return { pass: false, reason: 'live HEAD is not baseline or descendant' };
   }
-  if (!isWorktreeClean(entry.path)) return { pass: false, reason: 'worktree dirty' };
-  if (hasGitOperationInProgress(entry.path)) {
+  if (!gitInspector.isWorktreeClean(entry.path)) return { pass: false, reason: 'worktree dirty' };
+  if (gitInspector.hasGitOperationInProgress(entry.path)) {
     return { pass: false, reason: 'git operation in progress' };
   }
   return { pass: true, snapshot };
@@ -1350,6 +1373,7 @@ function evaluateGenericRegistryPreflight(entry, registryEntry, warnings) {
 function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentStateText, gitCwd, options = {}) {
   const warnings = [];
   const logs = [];
+  const gitInspector = options.gitInspector ?? createDefaultGitInspector();
   const registryDocument = parseRegistryDocument(registryText);
 
   for (const error of registryDocument.duplicateHeadingErrors) {
@@ -1401,7 +1425,7 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
   const registryEntries = registryDocument.entries;
 
   if (options.requireFullTopology || shouldRunFullTopologyPreflight(registryDocument, liveEntries)) {
-    for (const error of collectSymmetricLiveRegistryErrors(liveEntries, registryEntries)) {
+    for (const error of collectSymmetricLiveRegistryErrors(liveEntries, registryEntries, gitInspector)) {
       warnings.push(error.message);
     }
   }
@@ -1427,7 +1451,7 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
     }
 
     if (registryEntry.id === WT010_ID) {
-      evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitCwd);
+      evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector);
       continue;
     }
 
@@ -1450,7 +1474,7 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
         wt001Parse,
         registryText,
         transitionParse,
-        gitCwd,
+        gitInspector,
       });
       if (snapshotResult.pass) {
         logs.push(
@@ -1793,6 +1817,7 @@ export {
   evaluateWt009RegistryPreflight,
   evaluateWt010RegistryPreflight,
   evaluateWt010ActiveLanePreflight,
+  createDefaultGitInspector,
   gitObjectExists,
   isAncestorOrEqual,
   isWorktreeClean,
