@@ -14,6 +14,8 @@ import {
   WT006_EXPECTED_BRANCH,
   WT010_EXPECTED_PATH,
   WT010_EXPECTED_BRANCH,
+  WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+  WT010_EXPECTED_OPERATIONAL_STATE,
   WT009_EXPECTED_PATH,
   WT009_EXPECTED_HEAD,
   PRE_MERGE_SNAPSHOT_BRANCH,
@@ -47,10 +49,17 @@ import {
   hasGitOperationInProgress,
   gitPathExists,
   evaluateWt001SnapshotPreflight,
+  evaluateWt010ActiveLanePreflight,
+  evaluateWt010RegistryPreflight,
   evaluateWorktreePreflightWarnings,
 } from './verify-m55-commercial-ssot.mjs';
+import { verifyProductAuthority } from './product-authority/validate.mjs';
+import { bootstrapFixture } from './product-authority/generate.mjs';
+import { withComputedEventHashes, writeHistory } from './product-authority/history.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const WT010_COMMIT_ONE_HEAD = '178dadab4697f4797b8f00fd473d08a135b3ec4e';
+const WORKFLOW_PATH = path.join(REPO_ROOT, '.github/workflows/verify-product-authority-pack.yml');
 const BASELINE_SHA = '575791f2ab80d57c89317e07da4b8020cfba3485';
 const BOOTSTRAP_BRANCH = 'chore/m55-worktree-registry-current-state-bootstrap-rev1';
 const FIXTURE_BASE_SHA = '3ea803eaffd83a67434ffa032319cb915fd163f9';
@@ -887,7 +896,7 @@ const LIVE_TOPOLOGY_ENTRIES = Object.freeze([
   {
     path: WT010_EXPECTED_PATH,
     branch: WT010_EXPECTED_BRANCH,
-    head: 'e6afe67262ebcee3353a3a43713f7ecf8369f26f',
+    head: WT010_COMMIT_ONE_HEAD,
   },
 ]);
 
@@ -901,7 +910,7 @@ function buildCapacityRegistryText({
   duplicateWt010Heading = false,
 } = {}) {
   const wt010Block = includeWt010
-    ? `\n### WT-010 — Product Authority Pack\n\n| Field | Value |\n|---|---|\n| path | \`${wt010Path}\` |\n| branch | \`${wt010Branch}\` |\n| HEAD | \`e6afe67262ebcee3353a3a43713f7ecf8369f26f\` |\n| lifecycle | **ACTIVE** |\n| purpose | **Product Authority Pack bootstrap implementation** |\n${duplicateWt010Heading ? '\n### WT-010 — Product Authority Pack\n' : ''}`
+    ? `\n### WT-010 — Product Authority Pack\n\n| Field | Value |\n|---|---|\n| path | \`${wt010Path}\` |\n| branch | \`${wt010Branch}\` |\n| bootstrapStartHead | \`${WT010_EXPECTED_BOOTSTRAP_START_HEAD}\` |\n| lifecycle | **ACTIVE** |\n| operational state | **${WT010_EXPECTED_OPERATIONAL_STATE}** |\n| purpose | **Product Authority Pack bootstrap implementation** |\n${duplicateWt010Heading ? '\n### WT-010 — Product Authority Pack\n' : ''}`
     : '';
   const wt006Block = includeWt006
     ? `\n### WT-006 — Paid LP / home microcopy\n\n| Field | Value |\n|---|---|\n| path | \`${wt006Path}\` |\n| branch | \`${wt006Branch}\` |\n| HEAD | \`8391d02ea18db8e026de3370caa9199a3b273b67\` |\n| lifecycle | **PAUSED** |\n| purpose | HOME full upgrade reassurance / paid LP copy lane |\n`
@@ -1651,4 +1660,246 @@ describe('clean-state disposable proof', () => {
       fs.rmSync(fixtureParent, { recursive: true, force: true });
     },
   );
+});
+
+function buildWt010RegistrySection({
+  wt010Path = WT010_EXPECTED_PATH,
+  wt010Branch = WT010_EXPECTED_BRANCH,
+  bootstrapStartHead = WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+  operationalState = WT010_EXPECTED_OPERATIONAL_STATE,
+} = {}) {
+  return `### WT-010 — Product Authority Pack
+
+| Field | Value |
+|---|---|
+| path | \`${wt010Path}\` |
+| branch | \`${wt010Branch}\` |
+| bootstrapStartHead | \`${bootstrapStartHead}\` |
+| lifecycle | **ACTIVE** |
+| operational state | **${operationalState}** |
+| purpose | **Product Authority Pack** |
+`;
+}
+
+function makeWt010RegistryEntry(overrides = {}) {
+  return {
+    id: WT010_ID,
+    valid: true,
+    errors: [],
+    path: WT010_EXPECTED_PATH,
+    branch: WT010_EXPECTED_BRANCH,
+    bootstrapStartHeadSha: WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+    lifecycle: 'ACTIVE',
+    operationalState: WT010_EXPECTED_OPERATIONAL_STATE,
+    section: '',
+    ...overrides,
+  };
+}
+
+describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
+  let repo;
+
+  before(() => {
+    repo = initRepoWithHistory();
+    runGit(['checkout', '-b', WT010_EXPECTED_BRANCH], repo.dir);
+  });
+
+  after(() => {
+    fs.rmSync(repo.parent, { recursive: true, force: true });
+  });
+
+  it('PASSes when live HEAD equals bootstrapStartHead', () => {
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: repo.dir, branch: WT010_EXPECTED_BRANCH, head: repo.baselineSha, detached: false },
+      makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.match(logs.join('\n'), /at or after bootstrapStartHead/);
+  });
+
+  it('PASSes when live HEAD descends from bootstrapStartHead', () => {
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: repo.dir, branch: WT010_EXPECTED_BRANCH, head: repo.childSha, detached: false },
+      makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.match(logs.join('\n'), /at or after bootstrapStartHead/);
+  });
+
+  it('FAILs when live HEAD is unrelated to bootstrapStartHead', () => {
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: repo.dir, branch: WT010_EXPECTED_BRANCH, head: repo.baselineSha, detached: false },
+      makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.childSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.match(warnings.join('; '), /not a descendant of bootstrapStartHead/i);
+  });
+
+  it('FAILs on wrong branch', () => {
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: repo.dir, branch: 'wrong-branch', head: repo.childSha, detached: false },
+      makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.match(warnings.join('; '), /branch mismatch/i);
+  });
+
+  it('FAILs on wrong path', () => {
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: '/tmp/wrong-path', branch: WT010_EXPECTED_BRANCH, head: repo.childSha, detached: false },
+      makeWt010RegistryEntry({ bootstrapStartHeadSha: repo.baselineSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.match(warnings.join('; '), /path mismatch/i);
+  });
+
+  it('logs dirty status without failing topology for ALLOWLIST_ONLY_DURING_IMPLEMENTATION', () => {
+    fs.writeFileSync(path.join(repo.dir, 'dirty-proof.txt'), 'dirty\n');
+    const warnings = [];
+    const logs = [];
+    evaluateWt010ActiveLanePreflight(
+      { path: repo.dir, branch: WT010_EXPECTED_BRANCH, head: repo.childSha, detached: false },
+      makeWt010RegistryEntry({ path: repo.dir, bootstrapStartHeadSha: repo.baselineSha }),
+      warnings,
+      logs,
+      repo.dir,
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.match(logs.join('\n'), /dirty under ALLOWLIST_ONLY_DURING_IMPLEMENTATION/i);
+    fs.rmSync(path.join(repo.dir, 'dirty-proof.txt'));
+  });
+
+  it('requires bootstrapStartHead in WT-010 registry parser', () => {
+    const section = buildWt010RegistrySection().replace(
+      `| bootstrapStartHead | \`${WT010_EXPECTED_BOOTSTRAP_START_HEAD}\` |\n`,
+      '',
+    );
+    const entry = parseRegistryWorktreeSection(section, WT010_ID);
+    assert.equal(entry.valid, false);
+    assert.match(entry.errors.map((error) => error.message).join('; '), /bootstrapStartHead missing/i);
+  });
+
+  it('PASSes production WT-010 registry parser with bootstrapStartHead and without HEAD', () => {
+    const doc = parseRegistryDocument(buildCapacityRegistryText());
+    const wt010 = doc.entries.find((entry) => entry.id === WT010_ID);
+    assert.equal(wt010.valid, true);
+    assert.equal(wt010.bootstrapStartHeadSha, WT010_EXPECTED_BOOTSTRAP_START_HEAD);
+    assert.equal(wt010.headSha, null);
+    const preflight = evaluateWt010RegistryPreflight(doc);
+    assert.equal(preflight.valid, true);
+  });
+
+  it('PASSes full topology when live HEAD descends from bootstrapStartHead', () => {
+    if (!gitObjectExists(WT010_EXPECTED_BOOTSTRAP_START_HEAD, REPO_ROOT)) {
+      return;
+    }
+    if (!gitObjectExists(WT010_COMMIT_ONE_HEAD, REPO_ROOT)) {
+      return;
+    }
+    assert.equal(
+      isAncestorOrEqual(WT010_EXPECTED_BOOTSTRAP_START_HEAD, WT010_COMMIT_ONE_HEAD, REPO_ROOT),
+      true,
+    );
+    const registry = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
+    const currentState = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
+    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
+    const { warnings } = evaluateWorktreePreflightWarnings(live, registry, currentState, REPO_ROOT, {
+      requireFullTopology: true,
+    });
+    assert.equal(warnings.length, 0, warnings.join('; '));
+  });
+});
+
+describe('Product Authority verifier mode semantics', () => {
+  it('bootstrap verifier PASSes sequence 0 only', () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-pa-bootstrap-'));
+    try {
+      bootstrapFixture(tempRoot);
+      const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+      assert.equal(result.ok, true);
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('bootstrap verifier FAILs reconciled sequences 0-2', () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-pa-reconciled-'));
+    try {
+      bootstrapFixture(tempRoot);
+      const historyPath = path.join(tempRoot, '.product-authority/authority-history.jsonl');
+      const sequence0 = JSON.parse(fs.readFileSync(historyPath, 'utf8').trim().split('\n')[0]);
+      const events = withComputedEventHashes([
+        sequence0,
+        {
+          sequence: 1,
+          kind: 'AUTHORITY_PROCESS_INCIDENT',
+          sourceCommit: WT010_COMMIT_ONE_HEAD,
+          approvalReference: 'test-ref',
+          changedPaths: ['a'],
+          updatedAt: '2026-07-26T05:48:00+00:00',
+        },
+        {
+          sequence: 2,
+          kind: 'BOOTSTRAP_RECONCILIATION',
+          sourceCommit: WT010_COMMIT_ONE_HEAD,
+          bootstrapHistorySha256: 'c'.repeat(64),
+          changedPaths: ['b'],
+          updatedAt: '2026-07-26T05:48:00+00:00',
+        },
+      ]);
+      writeHistory(tempRoot, events);
+      const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+      assert.equal(result.ok, false);
+      assert.match(result.errors.join('; '), /bootstrap history must contain only sequence 0; found 3/);
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('steady-state verifier FAILs sequence 0 only', () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-pa-bootstrap-only-'));
+    try {
+      bootstrapFixture(tempRoot);
+      const result = verifyProductAuthority(tempRoot, { mode: 'steady-state' });
+      assert.equal(result.ok, false);
+      assert.match(result.errors.join('; '), /steady-state history requires sequences 0-2; found 1/);
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('steady-state verifier PASSes valid sequences 0-2 from production reconciliation candidate', () => {
+    const result = verifyProductAuthority(REPO_ROOT, { mode: 'steady-state' });
+    assert.equal(result.ok, true, result.errors.join('; '));
+  });
+});
+
+describe('Product Authority Pack workflow verification mode', () => {
+  it('invokes steady-state verification and not bootstrap mode at PR tip', () => {
+    const workflow = fs.readFileSync(WORKFLOW_PATH, 'utf8');
+    assert.match(workflow, /npm run verify:product-authority/);
+    assert.doesNotMatch(workflow, /verify:product-authority:bootstrap/);
+  });
 });

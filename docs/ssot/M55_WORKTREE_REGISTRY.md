@@ -43,7 +43,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
 | Post-merge historical baseline | `main` | `575791f2…` | Historical verified baseline after PR #74 squash merge — not current live remote main |
 | PR #76 merge / prior origin/main | `main` (remote) | `38447ab1…` | Merge commit; parents `75c43f0…` + `bf1ab0ff…` |
-| Authority Pack bootstrap gate | `feat/m55-product-authority-pack-v1` | `e6afe672…` | **ACTIVE in WT-010** — uncommitted candidate |
+| Authority Pack bootstrap gate | `feat/m55-product-authority-pack-v1` | bootstrapStartHead `e6afe672…` · Commit 1 `178dadab…` | **ACTIVE in WT-010** — reconciliation candidate |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -251,19 +251,18 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` |
 | branch | `feat/m55-product-authority-pack-v1` |
-| HEAD | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` |
 | bootstrapStartHead | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` |
-| upstream | **none** (bootstrap gate — uncommitted candidate) |
-| cleanliness | dirty — allowlist-only implementation policy during bootstrap gate |
+| upstream | **none** (Authority Pack lane — no push during bootstrap/reconciliation gates) |
+| cleanliness | dirty — allowlist-only candidate under review |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
 | operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
-| purpose | **Product Authority Pack bootstrap implementation** — Commit 1 candidate (not committed) |
-| related lane / PR | CATEGORY-2 Authority Pack bootstrap · diff review pending |
-| allowed operations | exact 38-path allowlist Product Authority Pack implementation only |
+| purpose | **Product Authority Pack** — Bootstrap Commit 1 landed; reconciliation candidate pending Commit 2 |
+| related lane / PR | CATEGORY-2 Authority Pack bootstrap reconciliation |
+| allowed operations | exact allowlist Product Authority Pack reconciliation and semantics patch only |
 | prohibited operations | stage · commit · push · PR · deploy · protected worktree mutation · runtime product source outside allowlist |
 | removal eligibility | NO — active lane |
-| notes | bootstrapStartHead equals origin/main @ `e6afe672…`. History sequence 0 only. Steady-state CI requires sequences 0–2 after reconciliation. Not merged · not committed. |
+| notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** a claim that live HEAD must remain there. Live HEAD may advance on-branch after Commit 1 (`178dadab…`). Preflight validates ancestry from `bootstrapStartHead`, not equality. Steady-state CI applies at reconciled PR tip. |
 
 ---
 

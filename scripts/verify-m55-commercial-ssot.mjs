@@ -283,6 +283,8 @@ const WT006_EXPECTED_PATH = '/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1
 const WT006_EXPECTED_BRANCH = 'pre-note/home-fullka-microcopy';
 const WT010_EXPECTED_PATH = '/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1';
 const WT010_EXPECTED_BRANCH = 'feat/m55-product-authority-pack-v1';
+const WT010_EXPECTED_BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
+const WT010_EXPECTED_OPERATIONAL_STATE = 'ALLOWLIST_ONLY_DURING_IMPLEMENTATION';
 const PRE_MERGE_SNAPSHOT_BRANCH = 'docs/m55-commercial-funnel-ssot-v1';
 const POST_MERGE_EXPECTED_BRANCH = 'main';
 const EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION =
@@ -668,6 +670,12 @@ function getSectionFieldRules(id, lifecycleRaw = '') {
     required.push('operational state');
     return { required, optional: optional.filter((field) => field !== 'operational state') };
   }
+  if (id === WT010_ID) {
+    return {
+      required: ['path', 'branch', 'bootstrapStartHead', 'lifecycle', 'purpose', 'operational state'],
+      optional: ['baseline', 'HEAD', 'cleanliness', 'upstream'],
+    };
+  }
   return { required, optional };
 }
 
@@ -692,6 +700,7 @@ function parseRegistryWorktreeSection(section, id) {
   let path = null;
   let branch = null;
   let headSha = null;
+  let bootstrapStartHeadSha = null;
   let baselineSha = null;
   let baselineRaw = null;
 
@@ -706,6 +715,19 @@ function parseRegistryWorktreeSection(section, id) {
       errors.push({ id, field: 'HEAD', kind: headParsed.kind, message: `${id} HEAD ${headParsed.kind}` });
     } else {
       headSha = headParsed.sha;
+    }
+  }
+  if (rawFields.bootstrapstarthead) {
+    const bootstrapParsed = parseShaFromHeadField(rawFields.bootstrapstarthead);
+    if (!bootstrapParsed.ok) {
+      errors.push({
+        id,
+        field: 'bootstrapStartHead',
+        kind: bootstrapParsed.kind,
+        message: `${id} bootstrapStartHead ${bootstrapParsed.kind}`,
+      });
+    } else {
+      bootstrapStartHeadSha = bootstrapParsed.sha;
     }
   }
   if (rawFields.baseline) {
@@ -736,6 +758,7 @@ function parseRegistryWorktreeSection(section, id) {
     path,
     branch,
     headSha,
+    bootstrapStartHeadSha,
     baselineRaw,
     baselineSha,
     lifecycle,
@@ -796,6 +819,119 @@ function validateWt009Metadata(entry) {
     });
   }
   return errors;
+}
+
+function validateWt010Metadata(entry) {
+  const errors = [];
+  if (!entry) {
+    errors.push({ id: WT010_ID, field: 'id', kind: 'missing', message: `${WT010_ID} section missing` });
+    return errors;
+  }
+  if (entry.path !== WT010_EXPECTED_PATH) {
+    errors.push({ id: WT010_ID, field: 'path', kind: 'invalid', message: `${WT010_ID} path invalid` });
+  }
+  if (entry.branch !== WT010_EXPECTED_BRANCH) {
+    errors.push({ id: WT010_ID, field: 'branch', kind: 'invalid', message: `${WT010_ID} branch invalid` });
+  }
+  if (!entry.lifecycle?.includes('ACTIVE')) {
+    errors.push({ id: WT010_ID, field: 'lifecycle', kind: 'invalid', message: `${WT010_ID} lifecycle invalid` });
+  }
+  if (entry.operationalState !== WT010_EXPECTED_OPERATIONAL_STATE) {
+    errors.push({
+      id: WT010_ID,
+      field: 'operational state',
+      kind: 'invalid',
+      message: `${WT010_ID} operational state invalid`,
+    });
+  }
+  if (!entry.bootstrapStartHeadSha) {
+    errors.push({
+      id: WT010_ID,
+      field: 'bootstrapStartHead',
+      kind: 'missing',
+      message: `${WT010_ID} bootstrapStartHead missing`,
+    });
+  }
+  return errors;
+}
+
+function evaluateWt010RegistryPreflight(registryDocument) {
+  if (registryDocument.headingBlockedForRequired(WT010_ID)) {
+    const headingErrors = [
+      ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT010_ID),
+      ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT010_ID)),
+      ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT010_ID),
+    ];
+    return { valid: false, errors: headingErrors };
+  }
+
+  const entry = registryDocument.entries.find((item) => item.id === WT010_ID);
+  if (!entry) {
+    return {
+      valid: false,
+      errors: [{ id: WT010_ID, field: 'id', kind: 'missing', message: `${WT010_ID} section missing` }],
+    };
+  }
+  if (!entry.valid) {
+    return { valid: false, errors: entry.errors };
+  }
+  const metadataErrors = validateWt010Metadata(entry);
+  return { valid: metadataErrors.length === 0, errors: metadataErrors, entry };
+}
+
+function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitCwd) {
+  if (!registryEntry.valid) {
+    warnings.push(
+      `WT-010 registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`,
+    );
+    return;
+  }
+  if (entry.path !== registryEntry.path) {
+    warnings.push(`WT-010 path mismatch for ${entry.path}: expected ${registryEntry.path}`);
+  }
+  if (entry.branch !== WT010_EXPECTED_BRANCH) {
+    warnings.push(`WT-010 branch mismatch for ${entry.path}: live=${entry.branch ?? 'detached'}`);
+  }
+  if (!registryEntry.lifecycle?.includes('ACTIVE')) {
+    warnings.push(`WT-010 lifecycle must be ACTIVE for ${entry.path}`);
+  }
+  if (registryEntry.operationalState !== WT010_EXPECTED_OPERATIONAL_STATE) {
+    warnings.push(`WT-010 operational state must be ${WT010_EXPECTED_OPERATIONAL_STATE} for ${entry.path}`);
+  }
+  const bootstrapStartHead = registryEntry.bootstrapStartHeadSha;
+  if (!bootstrapStartHead) {
+    warnings.push(`WT-010 bootstrapStartHead missing for ${entry.path}`);
+    return;
+  }
+  if (!entry.head) {
+    warnings.push(`WT-010 live HEAD missing for ${entry.path}`);
+    return;
+  }
+  if (!gitObjectExists(bootstrapStartHead, entry.path)) {
+    warnings.push(`WT-010 bootstrapStartHead object missing for ${entry.path}: ${bootstrapStartHead.slice(0, 12)}`);
+    return;
+  }
+  if (!gitObjectExists(entry.head, entry.path)) {
+    warnings.push(`WT-010 live HEAD object missing for ${entry.path}: ${entry.head.slice(0, 12)}`);
+    return;
+  }
+  if (!isAncestorOrEqual(bootstrapStartHead, entry.head, entry.path)) {
+    warnings.push(
+      `WT-010 live HEAD is not a descendant of bootstrapStartHead for ${entry.path}: live=${entry.head.slice(0, 12)} bootstrapStartHead=${bootstrapStartHead.slice(0, 12)}`,
+    );
+    return;
+  }
+  logs.push(
+    `[preflight] WT-010 live HEAD ${entry.head.slice(0, 12)} is at or after bootstrapStartHead ${bootstrapStartHead.slice(0, 12)}`,
+  );
+  if (hasGitOperationInProgress(entry.path)) {
+    warnings.push(`WT-010 git operation in progress for ${entry.path}`);
+  }
+  if (!isWorktreeClean(entry.path)) {
+    logs.push(
+      `[preflight] WT-010 ACTIVE implementation lane dirty under ALLOWLIST_ONLY_DURING_IMPLEMENTATION: ${entry.path}`,
+    );
+  }
 }
 
 function evaluateWt009RegistryPreflight(registryDocument) {
@@ -1248,6 +1384,15 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
     }
   }
 
+  const wt010Preflight = registryDocument.entries.some((entry) => entry.id === WT010_ID)
+    ? evaluateWt010RegistryPreflight(registryDocument)
+    : { valid: true, errors: [] };
+  if (!wt010Preflight.valid) {
+    for (const error of wt010Preflight.errors) {
+      warnings.push(`WT-010 registry metadata validation failed: ${error.id} ${error.field} ${error.kind}`);
+    }
+  }
+
   for (const error of collectRegistryUniquenessErrors(registryDocument.entries)) {
     warnings.push(`registry uniqueness validation failed: ${error.message}`);
   }
@@ -1278,6 +1423,11 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
       if (entry.head && entry.head.toLowerCase() !== WT009_EXPECTED_HEAD) {
         warnings.push(`WT-009 HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
       }
+      continue;
+    }
+
+    if (registryEntry.id === WT010_ID) {
+      evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitCwd);
       continue;
     }
 
@@ -1604,6 +1754,8 @@ export {
   WT006_EXPECTED_BRANCH,
   WT010_EXPECTED_PATH,
   WT010_EXPECTED_BRANCH,
+  WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+  WT010_EXPECTED_OPERATIONAL_STATE,
   WT009_EXPECTED_PATH,
   WT009_EXPECTED_BRANCH,
   WT009_EXPECTED_HEAD,
@@ -1637,7 +1789,10 @@ export {
   parseShaFromHeadField,
   validateWt001Metadata,
   validateWt009Metadata,
+  validateWt010Metadata,
   evaluateWt009RegistryPreflight,
+  evaluateWt010RegistryPreflight,
+  evaluateWt010ActiveLanePreflight,
   gitObjectExists,
   isAncestorOrEqual,
   isWorktreeClean,

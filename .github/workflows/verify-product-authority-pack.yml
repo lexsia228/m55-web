@@ -34,8 +34,6 @@ jobs:
         run: npm run verify:m55-ssot
       - name: Registry fixture tests
         run: node --test scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs
-      - name: Product Authority bootstrap verification
-        run: npm run verify:product-authority:bootstrap
       - name: Steady-state Product Authority verification
         run: npm run verify:product-authority
       - name: Product Authority tests
