@@ -1,0 +1,307 @@
+{
+  "schemaVersion": "1.0.0",
+  "observationMeta": {
+    "lastObservedAt": {
+      "value": "2026-07-25T07:00:00+00:00",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "GIT_OBSERVATION",
+        "reference": "bootstrap gate preflight"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "repository": {
+    "lastObservedOriginMainSha": {
+      "value": "e6afe67262ebcee3353a3a43713f7ecf8369f26f",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "GIT_OBSERVATION",
+        "reference": "git fetch origin --prune"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "production": {
+    "lastObservedSha": {
+      "value": null,
+      "classification": "PENDING_EVIDENCE",
+      "source": {
+        "kind": "PENDING_EVIDENCE",
+        "reference": "PENDING_REOBSERVATION_ON_M-55.JP"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "status": {
+      "value": "PENDING_REOBSERVATION_ON_M-55.JP",
+      "classification": "PENDING_EVIDENCE",
+      "source": {
+        "kind": "PENDING_EVIDENCE",
+        "reference": "Production diagnostics not independently verified in bootstrap gate"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "lanes": {
+    "authorityPack": {
+      "status": {
+        "value": "ACTIVE",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "Authority Pack bootstrap gate"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "worktree": {
+        "value": "/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "git worktree add"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "branch": {
+        "value": "feat/m55-product-authority-pack-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "git worktree add -b"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "baseLastObservedOriginMainSha": {
+        "value": "e6afe67262ebcee3353a3a43713f7ecf8369f26f",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "origin/main at worktree creation"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "bootstrapStartHead": {
+        "value": "e6afe67262ebcee3353a3a43713f7ecf8369f26f",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "bootstrapStartHead at worktree creation"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "expectedDirtyPolicy": {
+        "value": "ALLOWLIST_ONLY_DURING_IMPLEMENTATION",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "bootstrap implementation gate"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      }
+    },
+    "selfFunnel": {
+      "status": {
+        "value": "PARKED",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "worktree": {
+        "value": "/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "branch": {
+        "value": "feat/m55-self-free-to-premium-funnel-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "head": {
+        "value": "76cb15577dd46ce99980aed6a4df474960fd51d9",
+        "classification": "BRANCH_LOCAL",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "dirty": {
+        "value": true,
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "mutationPolicy": {
+        "value": "NO_MUTATION_DURING_AUTHORITY_PACK_LANE",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      }
+    },
+    "buildWeek": {
+      "status": {
+        "value": "FROZEN",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "worktree": {
+        "value": "/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "branch": {
+        "value": "feat/m55-build-week-control-plane-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "head": {
+        "value": "0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75",
+        "classification": "BRANCH_LOCAL",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "protected worktree preflight"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      },
+      "mutationPolicy": {
+        "value": "DO_NOT_MODIFY",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+        },
+        "updatedAt": "2026-07-25T07:00:00+00:00",
+        "evidenceRefs": []
+      }
+    }
+  },
+  "providers": {
+    "supabase": {
+      "production": {
+        "projectRef": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "projectRef": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    },
+    "clerk": {
+      "production": {
+        "instanceId": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "instanceId": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    },
+    "stripe": {
+      "production": {
+        "accountId": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "accountId": {
+          "value": null,
+          "classification": "PENDING_EVIDENCE",
+          "source": {
+            "kind": "PENDING_EVIDENCE",
+            "reference": "provider identity not independently verified"
+          },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    }
+  }
+}

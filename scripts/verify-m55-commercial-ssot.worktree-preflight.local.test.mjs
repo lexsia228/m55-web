@@ -7,7 +7,13 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   WT001_ID,
+  WT006_ID,
   WT009_ID,
+  WT010_ID,
+  WT006_EXPECTED_PATH,
+  WT006_EXPECTED_BRANCH,
+  WT010_EXPECTED_PATH,
+  WT010_EXPECTED_BRANCH,
   WT009_EXPECTED_PATH,
   WT009_EXPECTED_HEAD,
   PRE_MERGE_SNAPSHOT_BRANCH,
@@ -33,6 +39,8 @@ import {
   parseShaFromHeadField,
   formatRegistryParserErrors,
   evaluateWt009RegistryPreflight,
+  collectRegistryUniquenessErrors,
+  collectSymmetricLiveRegistryErrors,
   gitObjectExists,
   isAncestorOrEqual,
   isWorktreeClean,
@@ -835,6 +843,80 @@ describe('WT section heading validation', () => {
   });
 });
 
+const LIVE_TOPOLOGY_ENTRIES = Object.freeze([
+  {
+    path: '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1',
+    branch: 'feat/m55-self-free-to-premium-funnel-v1',
+    head: '76cb15577dd46ce99980aed6a4df474960fd51d9',
+  },
+  {
+    path: '/Users/lexsia/Documents/M55_CANONICAL',
+    branch: 'feat/m55-compatibility-quality-matrix',
+    head: '3928cb9bcec67e290437cd03164341a1c6acfac9',
+  },
+  {
+    path: '/Users/lexsia/Documents/M55_CANONICAL-ops-control-plane-wave1',
+    branch: 'chore/ops-control-plane-bootstrap',
+    head: 'dde083b3cf85b7580728935be9079bfab3291e4c',
+  },
+  {
+    path: '/Users/lexsia/Documents/M55_CANONICAL-ops-current-state-semantics-wave1',
+    branch: 'chore/ops-current-state-semantics-wave1',
+    head: '403d4235cdb2d1b73adbfa9dc60d76c7360c65d0',
+  },
+  {
+    path: WT006_EXPECTED_PATH,
+    branch: WT006_EXPECTED_BRANCH,
+    head: '8391d02ea18db8e026de3370caa9199a3b273b67',
+  },
+  {
+    path: '/Users/lexsia/Documents/M55_WORKTREE-analysis-hub-v1',
+    branch: 'feat/m55-analysis-hub-account-center-v1',
+    head: '468f89550e765f762c5084d7ebe135bf22dc5526',
+  },
+  {
+    path: '/Users/lexsia/Documents/M55_WORKTREE-home-poster-clean-main-v1',
+    branch: 'feat/m55-home-poster-clean-main',
+    head: '2a88ddddcc58fc45823d9c966c2a6d4ba99cd40a',
+  },
+  {
+    path: WT009_EXPECTED_PATH,
+    branch: 'feat/m55-build-week-control-plane-v1',
+    head: WT009_EXPECTED_HEAD,
+  },
+  {
+    path: WT010_EXPECTED_PATH,
+    branch: WT010_EXPECTED_BRANCH,
+    head: 'e6afe67262ebcee3353a3a43713f7ecf8369f26f',
+  },
+]);
+
+function buildCapacityRegistryText({
+  wt006Path = WT006_EXPECTED_PATH,
+  wt010Path = WT010_EXPECTED_PATH,
+  includeWt010 = true,
+  includeWt006 = true,
+  wt006Branch = WT006_EXPECTED_BRANCH,
+  wt010Branch = WT010_EXPECTED_BRANCH,
+  duplicateWt010Heading = false,
+} = {}) {
+  const wt010Block = includeWt010
+    ? `\n### WT-010 — Product Authority Pack\n\n| Field | Value |\n|---|---|\n| path | \`${wt010Path}\` |\n| branch | \`${wt010Branch}\` |\n| HEAD | \`e6afe67262ebcee3353a3a43713f7ecf8369f26f\` |\n| lifecycle | **ACTIVE** |\n| purpose | **Product Authority Pack bootstrap implementation** |\n${duplicateWt010Heading ? '\n### WT-010 — Product Authority Pack\n' : ''}`
+    : '';
+  const wt006Block = includeWt006
+    ? `\n### WT-006 — Paid LP / home microcopy\n\n| Field | Value |\n|---|---|\n| path | \`${wt006Path}\` |\n| branch | \`${wt006Branch}\` |\n| HEAD | \`8391d02ea18db8e026de3370caa9199a3b273b67\` |\n| lifecycle | **PAUSED** |\n| purpose | HOME full upgrade reassurance / paid LP copy lane |\n`
+    : '';
+  return `# Registry\n\nDocumented post-merge transition\n\n### WT-001 — PRIMARY_MAIN_HOME\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1\` |\n| branch | \`feat/m55-self-free-to-premium-funnel-v1\` |\n| HEAD | \`76cb15577dd46ce99980aed6a4df474960fd51d9\` |\n| lifecycle | **PAUSED** |\n| operational state | **PARKED** |\n| purpose | **Self free→Premium funnel** |\n\n### WT-002 — Compatibility purchase delivery (DO NOT USE)\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_CANONICAL-cross-page-card-polish\` |\n| branch | \`feat/m55-compatibility-purchase-delivery-v1\` |\n| HEAD | \`${'a'.repeat(40)}\` |\n| lifecycle | **DO_NOT_USE** |\n| purpose | Historical compatibility commerce lane |\n${wt006Block}### WT-003 — Compatibility quality matrix\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_CANONICAL\` |\n| branch | \`feat/m55-compatibility-quality-matrix\` |\n| HEAD | \`3928cb9bcec67e290437cd03164341a1c6acfac9\` |\n| lifecycle | **PAUSED** |\n| purpose | Compatibility quality matrix lane |\n\n### WT-004 — Ops control plane bootstrap\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_CANONICAL-ops-control-plane-wave1\` |\n| branch | \`chore/ops-control-plane-bootstrap\` |\n| HEAD | \`dde083b3cf85b7580728935be9079bfab3291e4c\` |\n| lifecycle | **PAUSED** |\n| purpose | Ops control plane bootstrap |\n\n### WT-005 — Ops current-state semantics\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_CANONICAL-ops-current-state-semantics-wave1\` |\n| branch | \`chore/ops-current-state-semantics-wave1\` |\n| HEAD | \`403d4235cdb2d1b73adbfa9dc60d76c7360c65d0\` |\n| lifecycle | **PAUSED** |\n| purpose | Ops current-state semantics |\n\n### WT-007 — Analysis hub\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_WORKTREE-analysis-hub-v1\` |\n| branch | \`feat/m55-analysis-hub-account-center-v1\` |\n| HEAD | \`468f89550e765f762c5084d7ebe135bf22dc5526\` |\n| lifecycle | **PAUSED** |\n| purpose | Analysis hub lane |\n\n### WT-008 — HOME poster clean main\n\n| Field | Value |\n|---|---|\n| path | \`/Users/lexsia/Documents/M55_WORKTREE-home-poster-clean-main-v1\` |\n| branch | \`feat/m55-home-poster-clean-main\` |\n| HEAD | \`2a88ddddcc58fc45823d9c966c2a6d4ba99cd40a\` |\n| lifecycle | **PAUSED** |\n| purpose | HOME poster hero clean-main lane |\n\n### WT-009 — Build Week Control Plane (operational freeze)\n\n| Field | Value |\n|---|---|\n| id | WT-009 |\n| path | \`${WT009_EXPECTED_PATH}\` |\n| branch | \`feat/m55-build-week-control-plane-v1\` |\n| HEAD | \`${WT009_EXPECTED_HEAD}\` |\n| lifecycle | **PAUSED** |\n| operational state | **FROZEN_BY_HUMAN_DECISION** |\n| purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |\n${wt010Block}`;
+}
+
+function buildFullNineEntryRegistryText(options = {}) {
+  return buildCapacityRegistryText(options);
+}
+
+function liveEntriesFromTopology(topology = LIVE_TOPOLOGY_ENTRIES) {
+  return topology.map((entry) => ({ ...entry, detached: false }));
+}
+
 describe('canonical registry heading grammar', () => {
   let repo;
 
@@ -846,7 +928,7 @@ describe('canonical registry heading grammar', () => {
     fs.rmSync(repo.parent, { recursive: true, force: true });
   });
 
-  it('PASSes production authority headings for WT-001 through WT-009', () => {
+  it('PASSes production authority headings for WT-001 through WT-010', () => {
     for (const [id, label] of Object.entries(CANONICAL_WT_HEADING_LABELS)) {
       const heading = expectedRegistryHeadingLine(id);
       assert.equal(classifyRegistryHeadingLine(heading).kind, 'valid');
@@ -867,6 +949,190 @@ describe('canonical registry heading grammar', () => {
     );
     const doc = parseRegistryDocument(registry);
     assert.ok(doc.invalidHeadingLabelErrors.some((error) => error.id === WT001_ID));
+  });
+
+  it('accepts canonical WT-010 heading grammar', () => {
+    const heading = expectedRegistryHeadingLine(WT010_ID);
+    assert.equal(classifyRegistryHeadingLine(heading).kind, 'valid');
+    assert.equal(heading, '### WT-010 — Product Authority Pack');
+  });
+
+  it('preserves WT-006 paid-lp identity in registry parser', () => {
+    const doc = parseRegistryDocument(buildCapacityRegistryText());
+    const wt006 = doc.entries.find((entry) => entry.id === WT006_ID);
+    assert.equal(wt006.path, WT006_EXPECTED_PATH);
+    assert.equal(wt006.branch, WT006_EXPECTED_BRANCH);
+  });
+
+  it('rejects WT-006 reuse for Authority Pack path assignment', () => {
+    const doc = parseRegistryDocument(
+      buildCapacityRegistryText({ wt006Path: WT010_EXPECTED_PATH, includeWt010: false }),
+    );
+    const errors = collectRegistryUniquenessErrors(doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /WT-006 must remain paid-lp|Authority Pack must not reuse WT-006/i);
+  });
+
+  it('rejects duplicate WT ID headings', () => {
+    const doc = parseRegistryDocument(buildCapacityRegistryText({ duplicateWt010Heading: true }));
+    assert.ok(doc.duplicateHeadingErrors.some((error) => error.id === WT010_ID));
+  });
+
+  it('rejects duplicate registry path assignments', () => {
+    const doc = parseRegistryDocument(
+      buildCapacityRegistryText({ wt010Path: WT006_EXPECTED_PATH }),
+    );
+    const errors = collectRegistryUniquenessErrors(doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /duplicate registry path/i);
+  });
+
+  it('rejects duplicate active branch assignments', () => {
+    const doc = parseRegistryDocument(
+      buildCapacityRegistryText({ wt010Branch: WT006_EXPECTED_BRANCH }),
+    );
+    const errors = collectRegistryUniquenessErrors(doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /duplicate active branch/i);
+  });
+
+  it('rejects missing live paid-lp worktree from symmetric validation', () => {
+    const registry = buildCapacityRegistryText({ includeWt006: false });
+    const doc = parseRegistryDocument(registry);
+    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
+    const errors = collectSymmetricLiveRegistryErrors(live, doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /live worktree missing from registry.*paid-lp|registered live worktree missing/i);
+  });
+
+  it('rejects missing live Authority Pack worktree from symmetric validation', () => {
+    const registry = buildCapacityRegistryText({ includeWt010: false });
+    const doc = parseRegistryDocument(registry);
+    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
+    const errors = collectSymmetricLiveRegistryErrors(live, doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /registered live worktree missing.*product-authority|WT-010|missing from registry/i);
+  });
+
+  it('rejects extra unregistered live worktree from symmetric validation', () => {
+    const registry = buildCapacityRegistryText();
+    const doc = parseRegistryDocument(registry);
+    const live = [
+      ...LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false })),
+      {
+        path: '/Users/lexsia/Documents/M55_WORKTREE-unregistered-extra-v1',
+        branch: 'feat/unregistered',
+        head: 'b'.repeat(40),
+        detached: false,
+      },
+    ];
+    const errors = collectSymmetricLiveRegistryErrors(live, doc.entries);
+    assert.match(errors.map((error) => error.message).join('; '), /missing from registry.*unregistered-extra/i);
+  });
+
+  it('rejects malformed WT-10 heading', () => {
+    const doc = parseRegistryDocument(
+      buildCapacityRegistryText().replace(
+        '### WT-010 — Product Authority Pack',
+        '### WT-10 — Product Authority Pack',
+      ),
+    );
+    assert.ok(doc.malformedHeadingErrors.some((error) => error.id === 'WT-10'));
+  });
+
+  it('rejects malformed WT-0010 heading', () => {
+    const doc = parseRegistryDocument(
+      buildCapacityRegistryText().replace(
+        '### WT-010 — Product Authority Pack',
+        '### WT-0010 — Product Authority Pack',
+      ),
+    );
+    assert.ok(doc.malformedHeadingErrors.some((error) => error.id === 'WT-0010'));
+  });
+
+  it('passes controlled nine-entry fixture topology with zero drift warning', () => {
+    const registryText = buildFullNineEntryRegistryText();
+    const currentStateText = buildCurrentState();
+    const liveEntries = liveEntriesFromTopology();
+    const { warnings } = evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      currentStateText,
+      REPO_ROOT,
+      { requireFullTopology: true },
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+  });
+
+  it('does not read host git worktree list for controlled fixture topology PASS', () => {
+    const liveEntries = liveEntriesFromTopology();
+    assert.equal(liveEntries.length, 9);
+    const registryText = buildFullNineEntryRegistryText();
+    const { warnings } = evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      buildCurrentState(),
+      '/fixture/nonexistent-git-root',
+      { requireFullTopology: true },
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+  });
+
+  it('fails strict local topology validation when registered live path is missing from live list', () => {
+    const registryText = buildFullNineEntryRegistryText();
+    const liveEntries = liveEntriesFromTopology(LIVE_TOPOLOGY_ENTRIES.slice(0, 8));
+    const { warnings } = evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      buildCurrentState(),
+      REPO_ROOT,
+      { requireFullTopology: true },
+    );
+    assert.ok(warnings.length > 0);
+    assert.match(warnings.join('; '), /registered live worktree missing|missing from registry/i);
+  });
+
+  it('fails strict local topology validation when extra unregistered live worktree is present', () => {
+    const registryText = buildFullNineEntryRegistryText();
+    const liveEntries = [
+      ...liveEntriesFromTopology(),
+      {
+        path: '/fixture/static-m55-registry/wt-extra-unregistered',
+        branch: 'feat/extra-unregistered',
+        head: 'c'.repeat(40),
+        detached: false,
+      },
+    ];
+    const { warnings } = evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      buildCurrentState(),
+      REPO_ROOT,
+      { requireFullTopology: true },
+    );
+    assert.ok(warnings.length > 0);
+    assert.match(warnings.join('; '), /missing from registry/i);
+  });
+
+  it('preserves WT-002 DO_NOT_USE exemption from live requirement', () => {
+    const registry = buildCapacityRegistryText();
+    const doc = parseRegistryDocument(registry);
+    const wt002 = doc.entries.find((entry) => entry.id === 'WT-002');
+    assert.equal(wt002.lifecycle.includes('DO_NOT_USE'), true);
+    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
+    const errors = collectSymmetricLiveRegistryErrors(live, doc.entries);
+    assert.equal(errors.some((error) => error.message.includes('cross-page-card-polish')), false);
+  });
+
+  it('keeps WT-002 DO_NOT_USE parser identity intact', () => {
+    const doc = parseRegistryDocument(buildCapacityRegistryText());
+    const wt002 = doc.entries.find((entry) => entry.id === 'WT-002');
+    assert.equal(wt002.valid, true);
+    assert.match(wt002.lifecycle, /DO_NOT_USE/);
+  });
+
+  it('validates WT-010 path and branch uniqueness against WT-006', () => {
+    const doc = parseRegistryDocument(buildCapacityRegistryText());
+    const wt006 = doc.entries.find((entry) => entry.id === WT006_ID);
+    const wt010 = doc.entries.find((entry) => entry.id === WT010_ID);
+    assert.notEqual(wt006.path, wt010.path);
+    assert.notEqual(wt006.branch, wt010.branch);
+    assert.equal(collectRegistryUniquenessErrors(doc.entries).length, 0);
   });
 });
 

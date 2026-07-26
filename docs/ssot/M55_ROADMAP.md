@@ -42,6 +42,16 @@ Fixed 7-step sequence above remains unchanged. Step 2 is the active implementati
 
 ## P0 commercial defect override
 
+Human-approved **P0 override (2026-07-25):** Product Authority Pack bootstrap precedes Self funnel Human lock resumption.
+
+| Item | Status |
+|---|---|
+| Product Authority Pack | **ACTIVE** — bootstrap implementation on `feat/m55-product-authority-pack-v1` |
+| Self funnel lane | **PARKED** — dirty implementation preserved; no mutation during Authority Pack lane |
+| Build Week lane | **FROZEN** — do not modify |
+| Authority Pack next gate | `CATEGORY-2-M55-SHARED-CRITICAL-AUTHORITY-PACK-BOOTSTRAP-DIFF-REVIEW-REV1` |
+| Self funnel resume | After Authority Pack reconciliation merge — **not** during bootstrap gate |
+
 If a new P0 commercial defect is discovered:
 
 1. Add reason to `M55_DECISION_LOG.md`

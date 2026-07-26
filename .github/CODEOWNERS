@@ -1,0 +1,6 @@
+# Product Authority Pack ownership
+/.product-authority/ @lexsia228
+/scripts/product-authority/ @lexsia228
+/.github/workflows/verify-product-authority-pack.yml @lexsia228
+/.github/CODEOWNERS @lexsia228
+/AGENTS.md @lexsia228

@@ -1,0 +1,53 @@
+name: Verify Product Authority Pack
+
+on:
+  pull_request:
+    paths:
+      - '.product-authority/**'
+      - 'scripts/product-authority/**'
+      - 'scripts/verify-m55-commercial-ssot.mjs'
+      - 'scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs'
+      - '.github/workflows/verify-product-authority-pack.yml'
+      - '.github/CODEOWNERS'
+      - 'AGENTS.md'
+      - 'docs/ssot/M55_CURRENT_STATE.md'
+      - 'docs/ssot/M55_WORKTREE_REGISTRY.md'
+      - 'docs/ssot/M55_ROADMAP.md'
+      - 'docs/ssot/M55_DECISION_LOG.md'
+      - 'package.json'
+  push:
+    branches:
+      - main
+    paths:
+      - '.product-authority/**'
+      - 'scripts/product-authority/**'
+
+jobs:
+  verify-product-authority-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Repository-static M55 SSOT verification
+        run: npm run verify:m55-ssot
+      - name: Registry fixture tests
+        run: node --test scripts/verify-m55-commercial-ssot.worktree-preflight.local.test.mjs
+      - name: Product Authority bootstrap verification
+        run: npm run verify:product-authority:bootstrap
+      - name: Steady-state Product Authority verification
+        run: npm run verify:product-authority
+      - name: Product Authority tests
+        run: npm run test:product-authority
+      - name: Deterministic generation verification
+        run: |
+          npm run generate:product-authority
+          FIRST_HASH=$(sha256sum .product-authority/authority.lock.json | awk '{print $1}')
+          npm run generate:product-authority
+          SECOND_HASH=$(sha256sum .product-authority/authority.lock.json | awk '{print $1}')
+          test "$FIRST_HASH" = "$SECOND_HASH"
+      - name: Secret scan
+        run: node scripts/product-authority/secret-scan.mjs
+      - name: Diff integrity check
+        run: git diff --check

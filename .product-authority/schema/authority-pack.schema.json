@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://m-55.jp/.product-authority/schema/authority-pack.schema.json",
+  "title": "M55 Product Authority Pack",
+  "type": "object",
+  "required": ["schemaVersion", "product", "repository", "production", "deployment", "runtimeAuthority", "lanes", "providers", "policies"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "product": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/authorityLeafFactString" },
+        "name": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "required": ["github", "defaultBranch"],
+      "properties": {
+        "github": { "$ref": "#/$defs/authorityLeafFactString" },
+        "defaultBranch": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "production": {
+      "type": "object",
+      "required": ["canonicalOrigin", "canonicalHost", "nonAuthoritativeHost", "nonAuthoritativeReason", "diagnosticsUrl"],
+      "properties": {
+        "canonicalOrigin": { "$ref": "#/$defs/authorityLeafFactString" },
+        "canonicalHost": { "$ref": "#/$defs/authorityLeafFactString" },
+        "nonAuthoritativeHost": { "$ref": "#/$defs/authorityLeafFactString" },
+        "nonAuthoritativeReason": { "$ref": "#/$defs/authorityLeafFactString" },
+        "diagnosticsUrl": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "required": ["vercelTeam", "vercelProject", "vercelProductionBranch"],
+      "properties": {
+        "vercelTeam": { "$ref": "#/$defs/authorityLeafFactString" },
+        "vercelProject": { "$ref": "#/$defs/authorityLeafFactString" },
+        "vercelProductionBranch": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "runtimeAuthority": {
+      "type": "object",
+      "required": ["mergedRuntimePolicy", "branchLocalNotMergedRuntime"],
+      "properties": {
+        "mergedRuntimePolicy": { "$ref": "#/$defs/authorityLeafFactString" },
+        "branchLocalNotMergedRuntime": { "$ref": "#/$defs/authorityLeafFactBoolean" }
+      }
+    },
+    "lanes": {
+      "type": "object",
+      "required": ["primaryActiveLanePolicy", "protectedWorktreePolicy"],
+      "properties": {
+        "primaryActiveLanePolicy": { "$ref": "#/$defs/authorityLeafFactString" },
+        "protectedWorktreePolicy": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "required": ["supabase", "clerk", "stripe"],
+      "properties": {
+        "supabase": { "$ref": "#/$defs/providerEnvironments" },
+        "clerk": { "$ref": "#/$defs/providerEnvironments" },
+        "stripe": { "$ref": "#/$defs/providerEnvironments" }
+      }
+    },
+    "policies": {
+      "type": "object",
+      "required": ["freshnessPolicy", "secretValuesProhibited"],
+      "properties": {
+        "freshnessPolicy": { "$ref": "#/$defs/authorityLeafFactString" },
+        "secretValuesProhibited": { "$ref": "#/$defs/authorityLeafFactBoolean" }
+      }
+    }
+  },
+  "$defs": {
+    "sourceRef": {
+      "type": "object",
+      "required": ["kind", "reference"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["HUMAN_DECISION", "REPOSITORY_CONTRACT"]
+        },
+        "reference": { "type": "string" }
+      }
+    },
+    "authorityLeafFactString": {
+      "type": "object",
+      "required": ["value", "classification", "source", "updatedAt", "evidenceRefs"],
+      "properties": {
+        "value": { "type": ["string", "null"] },
+        "classification": {
+          "type": "string",
+          "enum": ["HUMAN_FROZEN", "NON_AUTHORITATIVE", "NORMATIVE_TARGET", "PROHIBITED"]
+        },
+        "source": { "$ref": "#/$defs/sourceRef" },
+        "updatedAt": { "type": "string" },
+        "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "authorityLeafFactBoolean": {
+      "type": "object",
+      "required": ["value", "classification", "source", "updatedAt", "evidenceRefs"],
+      "properties": {
+        "value": { "type": "boolean" },
+        "classification": {
+          "type": "string",
+          "enum": ["HUMAN_FROZEN", "NON_AUTHORITATIVE", "NORMATIVE_TARGET", "PROHIBITED"]
+        },
+        "source": { "$ref": "#/$defs/sourceRef" },
+        "updatedAt": { "type": "string" },
+        "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "providerEnvironment": {
+      "type": "object",
+      "required": ["environment", "identityFields", "observedIdentityPolicy"],
+      "properties": {
+        "environment": { "$ref": "#/$defs/authorityLeafFactString" },
+        "identityFields": { "$ref": "#/$defs/authorityLeafFactString" },
+        "observedIdentityPolicy": { "$ref": "#/$defs/authorityLeafFactString" }
+      }
+    },
+    "providerEnvironments": {
+      "type": "object",
+      "required": ["production", "preview"],
+      "properties": {
+        "production": { "$ref": "#/$defs/providerEnvironment" },
+        "preview": { "$ref": "#/$defs/providerEnvironment" }
+      }
+    }
+  }
+}
