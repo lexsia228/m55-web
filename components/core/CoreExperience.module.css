@@ -4618,3 +4618,196 @@
     transform: none;
   }
 }
+
+/* ── Growth share card + sticky Premium ───────────────────────────────────── */
+
+.freeRevealTraitMark {
+  margin: 0.85rem 0 0;
+  font-size: clamp(1.45rem, 5vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.freeShareSection {
+  scroll-margin-top: 5rem;
+}
+
+.sharePreviewLabel {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.shareCard {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(107, 95, 168, 0.18), transparent 50%),
+    linear-gradient(160deg, rgba(255, 250, 241, 0.96), rgba(238, 232, 246, 0.92));
+  box-shadow: 0 10px 28px rgba(40, 32, 70, 0.08);
+}
+
+.shareCardBrand {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: rgba(78, 68, 128, 0.9);
+}
+
+.shareCardBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+}
+
+.shareCardText {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.shareCardTrait {
+  margin: 0;
+  font-size: clamp(1.35rem, 4.8vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgba(28, 24, 48, 0.95);
+}
+
+.shareCardPhrase {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(45, 40, 70, 0.84);
+}
+
+.shareCardStatement {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(45, 40, 70, 0.78);
+}
+
+.shareCardInvite {
+  margin: 0.25rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(78, 68, 128, 0.95);
+}
+
+.shareCardMark {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
+}
+
+.shareCardMark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sharePreviewText {
+  margin: 0.75rem 0 0.25rem;
+  white-space: pre-line;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(45, 40, 70, 0.82);
+}
+
+.sharePreviewUrl {
+  margin: 0 0 0.85rem;
+  font-size: 0.84rem;
+  color: rgba(78, 68, 128, 0.88);
+  word-break: break-all;
+}
+
+.shareActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.premiumStickyBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  margin: 1.25rem -0.25rem 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem 1rem 0 0;
+  border: 1px solid rgba(107, 95, 168, 0.22);
+  background: rgba(28, 24, 48, 0.94);
+  color: #fffaf1;
+  box-shadow: 0 -8px 24px rgba(20, 16, 40, 0.18);
+}
+
+.premiumStickyLead {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 250, 241, 0.86);
+}
+
+.premiumStickyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: rgba(28, 24, 48, 0.94);
+  background: #fffaf1;
+  border: 1px solid rgba(255, 250, 241, 0.3);
+}
+
+.premiumStickyBtn:focus-visible {
+  outline: 2px solid rgba(255, 250, 241, 0.7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 390px) {
+  .shareCardBody {
+    grid-template-columns: 1fr;
+  }
+
+  .shareCardMark {
+    width: 4.75rem;
+    height: 4.75rem;
+  }
+
+  .premiumStickyBar {
+    grid-template-columns: 1fr;
+  }
+
+  .premiumStickyBtn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shareCard,
+  .premiumStickyBar,
+  .premiumStickyBtn {
+    transition: none !important;
+  }
+}

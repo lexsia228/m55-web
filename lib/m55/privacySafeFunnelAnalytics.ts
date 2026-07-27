@@ -14,6 +14,14 @@ export const M55_FUNNEL_EVENTS = {
   dobCompleted: 'dob_completed',
   coreQuestionsCompleted: 'core_questions_completed',
   freeResultViewed: 'free_result_viewed',
+  resultRevealCompleted: 'result_reveal_completed',
+  sharePreviewOpened: 'share_preview_opened',
+  nativeShareInvoked: 'native_share_invoked',
+  shareLinkCopied: 'share_link_copied',
+  sharedEntryOpened: 'shared_entry_opened',
+  sharedEntryCtaClicked: 'shared_entry_cta_clicked',
+  premiumCtaViewed: 'premium_cta_viewed',
+  premiumCtaClicked: 'premium_cta_clicked',
   premiumBridgeViewed: 'premium_bridge_viewed',
   premiumPlanSelected: 'premium_plan_selected',
   authRequiredShown: 'auth_required_shown',
@@ -30,6 +38,9 @@ export const M55_FUNNEL_EVENTS = {
   paidQuestionnaireStart: 'm55_paid_questionnaire_start',
   paidQuestionnaireComplete: 'm55_paid_questionnaire_complete',
   paidPlanView: 'm55_paid_plan_view',
+  paidPlanSelected: 'plan_selected',
+  paidQuestionsStarted: 'paid_questions_started',
+  paidQuestionsCompleted: 'paid_questions_completed',
   mySavedReportView: 'm55_my_saved_report_view',
   savedReportOpen: 'm55_saved_report_open',
   additionalReadingEntryView: 'm55_additional_reading_entry_view',
@@ -68,6 +79,8 @@ export type M55FunnelSurface =
   | 'core_free_entry'
   | 'core_free_result'
   | 'core_paid_bridge'
+  | 'core_share'
+  | 'shared_entry'
   | 'dtr_paid_questionnaire'
   | 'dtr_paid_plan'
   | 'my_saved_report'
@@ -91,6 +104,7 @@ const FORBIDDEN_KEY_PATTERN =
   /dob|birth|hash|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question|axis|topic|status|temperature|action|mapping|resultText/i;
 
 const firedImpressions = new Set<string>();
+const firedActions = new Set<string>();
 
 export function buildPrivacySafeFunnelPayload(
   surface: M55FunnelSurface,
@@ -150,7 +164,19 @@ export function trackFunnelAction(event: M55FunnelEventName, surface: M55FunnelS
   emit(event, surface);
 }
 
-/** Test-only reset for impression dedupe. */
+/** One action per logical key — prevents rapid-click / remount duplicates. */
+export function trackFunnelActionOnce(
+  event: M55FunnelEventName,
+  surface: M55FunnelSurface,
+  actionKey: string,
+): void {
+  if (firedActions.has(actionKey)) return;
+  firedActions.add(actionKey);
+  emit(event, surface);
+}
+
+/** Test-only reset for impression/action dedupe. */
 export function resetFunnelImpressionDedupeForTests(): void {
   firedImpressions.clear();
+  firedActions.clear();
 }

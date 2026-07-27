@@ -20,13 +20,16 @@ export const GUEST_SAVE_RESULT_COPY_V1 = {
   actionJa: '結果を保存する',
 } as const;
 
-/** Privacy-safe share — fixed marketing text + public entry URL only. */
+/**
+ * Legacy share copy constants — Growth share UI uses privacySafeShareCardV1.
+ * Kept for source-guard tests; do not include DOB/answers.
+ */
 export const FREE_RESULT_SHARE_COPY_V1 = {
-  titleJa: '入口を共有する',
-  bodyJa: '生年月日や回答は含めず、M55の無料結果の入口だけを共有できます。',
-  actionJa: '入口を共有',
-  shareTextJa: 'M55で、自分に表れやすい輪郭を無料で確認できます。',
-  shareUrlPath: '/core',
+  titleJa: 'この結果を共有する',
+  bodyJa: '生年月日や回答は含まれません。資質名と短い一文だけを共有できます。',
+  actionJa: '共有する',
+  shareTextJa: 'M55で、いつもの動き方を無料で見てみた。',
+  shareUrlPath: '/r',
   copiedJa: 'リンクをコピーしました',
   unavailableJa: '共有できませんでした。もう一度お試しください。',
 } as const;

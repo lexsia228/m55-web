@@ -63,6 +63,7 @@ export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
 
   function handlePrimaryClick() {
     trackFunnelAction(M55_FUNNEL_EVENTS.paidBridgePrimaryClick, 'core_paid_bridge');
+    trackFunnelAction(M55_FUNNEL_EVENTS.premiumCtaClicked, 'core_paid_bridge');
   }
 
   function handleSecondaryClick() {

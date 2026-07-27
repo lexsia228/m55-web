@@ -69,6 +69,11 @@ export default function DtrPaidQuestionnaireLayer({
       'dtr_paid_questionnaire',
       'dtr-paid-questionnaire-complete',
     );
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.paidQuestionsCompleted,
+      'dtr_paid_questionnaire',
+      'dtr-paid-questions-completed',
+    );
     setPhase('complete');
   }
 
@@ -76,6 +81,7 @@ export default function DtrPaidQuestionnaireLayer({
     if (!startFiredRef.current) {
       startFiredRef.current = true;
       trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionnaireStart, 'dtr_paid_questionnaire');
+      trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionsStarted, 'dtr_paid_questionnaire');
     }
     setPhase('question');
   }

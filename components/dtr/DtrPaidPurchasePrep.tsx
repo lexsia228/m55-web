@@ -166,6 +166,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             onClick={() => {
               setSelectedPlan('light');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >
@@ -196,6 +197,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             onClick={() => {
               setSelectedPlan('full');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >

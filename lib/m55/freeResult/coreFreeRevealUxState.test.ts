@@ -124,7 +124,7 @@ describe('guest free journey presentation copy', () => {
 
   it('share copy stays privacy-safe', () => {
     assert.doesNotMatch(FREE_RESULT_SHARE_COPY_V1.shareTextJa, /生年月日|回答|ニックネーム/);
-    assert.equal(FREE_RESULT_SHARE_COPY_V1.shareUrlPath, '/core');
+    assert.equal(FREE_RESULT_SHARE_COPY_V1.shareUrlPath, '/r');
   });
 });
 

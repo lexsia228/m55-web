@@ -58,10 +58,13 @@ import CoreFreeResultScenesSection from './CoreFreeResultScenesSection';
 import CoreFreeResultShareCTA from './CoreFreeResultShareCTA';
 import CoreFreeResultSummaryHub from './CoreFreeResultSummaryHub';
 import CoreFreeRevealTransition from './CoreFreeRevealTransition';
+import CoreFreeShareableResultCard from './CoreFreeShareableResultCard';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
+import CorePremiumStickyCta from './CorePremiumStickyCta';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreLockedState from './CoreLockedState';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
+import { buildPrivacySafeShareCardV1 } from '../../lib/m55/freeResult/privacySafeShareCardV1';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -328,6 +331,7 @@ export default function CoreEssencePanel() {
   const hideResult = shouldHideResultDuringQuestionnaire(uxPhase);
   const heroLanguage = coreHeroSelfLanguageForResult(result);
   const stemDisplay = resolveCorePublicStemDisplay(result);
+  const shareCard = buildPrivacySafeShareCardV1({ stemLaneIndex: stemDisplay.stemLaneIndex });
   const dobSummaryJa = formatActiveDobSummaryJa(profile.birthDate);
 
   function handleAnswerChange(questionId: FreeQuestionId, answerId: string) {
@@ -416,6 +420,11 @@ export default function CoreEssencePanel() {
     setCompleting(false);
     generationFlightRef.current = false;
     setUxPhase(transitionOnRevealComplete());
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.resultRevealCompleted,
+      'core_free_result',
+      'core-result-reveal-completed',
+    );
   }
 
   function handleRequestReanswer() {
@@ -550,7 +559,10 @@ export default function CoreEssencePanel() {
       ) : null}
 
       {shouldShowRevealing(uxPhase) ? (
-        <CoreFreeRevealTransition onComplete={handleRevealComplete} />
+        <CoreFreeRevealTransition
+          onComplete={handleRevealComplete}
+          traitNameJa={stemDisplay.publicTitle}
+        />
       ) : null}
 
       {showReanswerConfirm ? (
@@ -601,11 +613,18 @@ export default function CoreEssencePanel() {
 
           {shouldShowResultSections(uxPhase) && composition ? (
             <>
+              {shareCard ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CoreFreeShareableResultCard card={shareCard} />
+                </div>
+              ) : null}
+
               <nav className={CoreExperienceStyles.freeResultSectionNav} aria-label="無料結果のセクション">
                 <a href="#core-lead">結果</a>
                 <a href="#core-summary">背景</a>
                 <a href="#core-scenes">場面</a>
                 <a href="#core-paid">プレミアム</a>
+                <a href="#core-share">共有</a>
               </nav>
 
               {depthAnalysis ? (
@@ -631,9 +650,13 @@ export default function CoreEssencePanel() {
                 </div>
               ) : null}
 
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreFreeResultShareCTA />
-              </div>
+              {shareCard ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
+                  <CoreFreeResultShareCTA card={shareCard} />
+                </div>
+              ) : null}
+
+              <CorePremiumStickyCta visible />
             </>
           ) : null}
         </>
