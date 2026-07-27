@@ -8,7 +8,6 @@ import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
 import {
   buildIncludedProductSummaryJa,
-  formatAdditionalReadingsJa,
   PLAN_COMPARISON,
 } from '../../lib/m55/commercialUx/planComparison';
 import {
@@ -23,10 +22,6 @@ import {
 import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import styles from './DtrPaidDecisionUx.module.css';
 
-type Props = {
-  children: React.ReactNode;
-};
-
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
 
@@ -38,7 +33,7 @@ function resolveInitialGate(): GatePhase {
   return 'questionnaire';
 }
 
-export default function DtrPaidPurchasePrep({ children: _children }: Props) {
+export default function DtrPaidPurchasePrep() {
   const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -73,7 +68,6 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   if (gate === 'questionnaire') {
     return (
       <DtrPaidQuestionnaireLayer
-        freeResultReady
         onComplete={() => {
           setSelectedPlan(null);
           setGate('plans');
@@ -109,11 +103,10 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             <strong>{plan.oneTimeLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>含まれる内容</span>
+            <span>{plan.includedHeadingJa}</span>
             <strong>{buildIncludedProductSummaryJa(tier)}</strong>
           </div>
         </div>
-        <p className={styles.confirmNote}>{plan.oneTimeNoteJa}</p>
         <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
         <div className={styles.actions}>
           <button
@@ -124,7 +117,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             プラン選択に戻る
           </button>
           <PurchaseButton productId={productId} className="m55-lp-cta-btn">
-            <span>支払い画面へ進む</span>
+            <span>{plan.checkoutProceedCtaJa}</span>
           </PurchaseButton>
         </div>
         <div className={styles.planNote}>
@@ -144,7 +137,6 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
       <p className={styles.overline}>プレミアムレポート</p>
       <h3 className={styles.title}>プランを選ぶ</h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
-      <p className={styles.planLead}>{plan.oneTimeNoteJa}</p>
       <div className={styles.planStack}>
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}
@@ -154,21 +146,17 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             <span className={styles.planName}>{plan.light.publicName}</span>
             <span className={styles.planPrice}>{plan.light.priceLabelJa}</span>
           </div>
-          <div className={styles.planMeta}>
-            <div>{plan.oneTimeLabelJa}</div>
-            <div>
-              {plan.savedReportLabelJa} {plan.savedReportValueJa}
-            </div>
-            <div>
-              {plan.consultReplyLabelJa} {formatAdditionalReadingsJa(plan.light.additionalReadings)}
-            </div>
-          </div>
+          <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+          <ul className={styles.planIncludedList}>
+            {plan.light.includedItemsJa.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
           <p className={styles.planAudience}>{plan.light.audienceJa}</p>
-          <p className={styles.planNote}>{plan.light.bodyJa}</p>
-          <p className={styles.planNote}>{plan.upgradeNoteJa}</p>
           <button
             type="button"
-            className={styles.primaryBtn}
+            className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('light');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
@@ -184,27 +172,23 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
           className={`${styles.planCard}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
           data-testid="m55-dtr-plan-full"
         >
+          <span className={styles.planRecommendBadge}>{plan.fullRecommendBadgeJa}</span>
           <div className={styles.planHeader}>
             <span className={styles.planName}>{plan.full.publicName}</span>
             <span className={styles.planPrice}>{plan.full.priceLabelJa}</span>
           </div>
-          <p className={styles.planAudience}>{plan.fullRecommendReasonJa}</p>
-          <div className={styles.planMeta}>
-            <div>{plan.oneTimeLabelJa}</div>
-            <div>
-              {plan.savedReportLabelJa} {plan.savedReportValueJa}
-            </div>
-            <div>
-              {plan.consultReplyLabelJa}{' '}
-              {formatAdditionalReadingsJa(plan.full.additionalReadings)}
-            </div>
-            <div>{plan.fullDeltaNoteJa}</div>
-          </div>
+          <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+          <ul className={styles.planIncludedList}>
+            {plan.full.includedItemsJa.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className={styles.planNote}>{plan.fullDeltaNoteJa}</p>
           <p className={styles.planAudience}>{plan.full.audienceJa}</p>
-          <p className={styles.planNote}>{plan.full.bodyJa}</p>
           <button
             type="button"
-            className={styles.primaryBtn}
+            className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('full');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
@@ -216,6 +200,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
           </button>
         </article>
       </div>
+      <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
     </section>
   );
 }

@@ -13,6 +13,8 @@ export const M55_COMMERCIAL_TERMINOLOGY = {
   recipientAction: '自分も無料で見る',
   returnToFreeResult: '無料結果に戻る',
   viewPremiumReport: 'プレミアムレポートを見る',
+  premiumBridgeCta: '6問に答えて4章を作る',
+  premiumQuestionHelper: '正解はありません。あとで回答を確認できます。',
   aboutM55: 'M55について',
   tenQualities: '10の資質',
   home: 'Home',

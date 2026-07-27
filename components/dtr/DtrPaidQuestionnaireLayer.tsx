@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import {
   PAID_QUESTIONNAIRE_COPY_V1,
   type PaidQuestionId,
@@ -9,6 +9,8 @@ import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { useAuth } from '@clerk/nextjs';
+import { PAID_ANSWERS_SESSION_KEY } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+import { STATIC_FREE_TO_PAID_BRIDGE } from '../core/corePublicCopy';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -18,14 +20,32 @@ import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
   onComplete?: () => void;
-  /** When false, entry must not claim free result completion. */
-  freeResultReady?: boolean;
 };
 
-type Phase = 'entry' | 'question' | 'complete';
+type Phase = 'question' | 'complete';
 
 function isCompletePaidAnswerSet(answers: Record<string, string>): boolean {
   return PAID_QUESTION_IDS.every((id) => Boolean(answers[id]));
+}
+
+function readStoredPaidAnswers(): Record<string, string> {
+  try {
+    const raw = sessionStorage.getItem(PAID_ANSWERS_SESSION_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return {};
+    return parsed as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+function resolveResumeIndex(answers: Record<string, string>): number {
+  for (let i = 0; i < PAID_QUESTIONNAIRE_COPY_V1.length; i++) {
+    const q = PAID_QUESTIONNAIRE_COPY_V1[i]!;
+    if (!answers[q.questionId]) return i;
+  }
+  return Math.max(PAID_QUESTIONNAIRE_COPY_V1.length - 1, 0);
 }
 
 function labelForAnswer(questionId: PaidQuestionId, answerId: string): string {
@@ -33,21 +53,37 @@ function labelForAnswer(questionId: PaidQuestionId, answerId: string): string {
   return q?.choices.find((c) => c.answerId === answerId)?.labelJa ?? '';
 }
 
-export default function DtrPaidQuestionnaireLayer({
-  onComplete,
-  freeResultReady = false,
-}: Props) {
+export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
   const { userId } = useAuth();
-  const [phase, setPhase] = useState<Phase>('entry');
+  const [phase, setPhase] = useState<Phase>('question');
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openReviewId, setOpenReviewId] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const startFiredRef = useRef(false);
   const headingId = useId();
   const total = PAID_QUESTIONNAIRE_COPY_V1.length;
   const current = PAID_QUESTIONNAIRE_COPY_V1[index]!;
   const selected = answers[current.questionId] ?? '';
   const progressLabel = `${index + 1} / ${total}`;
+  const helperJa = STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa;
+
+  useEffect(() => {
+    const stored = readStoredPaidAnswers();
+    if (isCompletePaidAnswerSet(stored)) {
+      setAnswers(stored);
+      setPhase('complete');
+    } else if (Object.keys(stored).length > 0) {
+      setAnswers(stored);
+      setIndex(resolveResumeIndex(stored));
+    }
+    if (!startFiredRef.current) {
+      startFiredRef.current = true;
+      trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionnaireStart, 'dtr_paid_questionnaire');
+      trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionsStarted, 'dtr_paid_questionnaire');
+    }
+    setHydrated(true);
+  }, []);
 
   function persistAndComplete(merged: Record<string, string>) {
     if (!isCompletePaidAnswerSet(merged)) return;
@@ -60,7 +96,7 @@ export default function DtrPaidQuestionnaireLayer({
       });
     }
     try {
-      sessionStorage.setItem('m55_paid_answers_v1', JSON.stringify(merged));
+      sessionStorage.setItem(PAID_ANSWERS_SESSION_KEY, JSON.stringify(merged));
     } catch {
       /* no-op */
     }
@@ -75,15 +111,6 @@ export default function DtrPaidQuestionnaireLayer({
       'dtr-paid-questions-completed',
     );
     setPhase('complete');
-  }
-
-  function startQuestionnaire() {
-    if (!startFiredRef.current) {
-      startFiredRef.current = true;
-      trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionnaireStart, 'dtr_paid_questionnaire');
-      trackFunnelAction(M55_FUNNEL_EVENTS.paidQuestionsStarted, 'dtr_paid_questionnaire');
-    }
-    setPhase('question');
   }
 
   function goNext() {
@@ -104,44 +131,10 @@ export default function DtrPaidQuestionnaireLayer({
     onComplete?.();
   }
 
-  if (phase === 'entry') {
+  if (!hydrated) {
     return (
-      <section
-        className={styles.shell}
-        data-m55-paid-phase="entry"
-        aria-labelledby={headingId}
-      >
-        <p className={styles.overline}>プレミアムレポートの質問</p>
-        <h2 id={headingId} className={styles.title}>
-          あなた向けの4章レポートに仕上げます
-        </h2>
-        <p className={styles.lead}>
-          {freeResultReady
-            ? '無料結果を土台に、ここからの6つの回答で次の内容をあなた向けに重ねます。'
-            : 'ここからの6つの回答で、次の内容をあなた向けに重ねます。'}
-        </p>
-        <ul className={styles.metaList}>
-          <li>力が出やすい条件</li>
-          <li>負担が重なる順番</li>
-          <li>人との距離の取り方</li>
-          <li>戻しやすい整え方</li>
-        </ul>
-        <p className={styles.lead}>あと6問・約1〜2分。質問のあと、プランを選んで決済へ進みます。</p>
-        <ol className={styles.progressSequence} aria-label="これからの流れ">
-          {freeResultReady ? <li>無料結果 完了</li> : <li>無料結果を確認</li>}
-          <li>追加6問</li>
-          <li>プラン選択・決済</li>
-          <li>プレミアムレポート</li>
-        </ol>
-        <ul className={styles.metaList}>
-          <li>正解はありません</li>
-          <li>あとで回答を確認できます</li>
-        </ul>
-        <div className={styles.actions}>
-          <button type="button" className={styles.primaryBtn} onClick={startQuestionnaire}>
-            プレミアムレポートの6問を始める
-          </button>
-        </div>
+      <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
+        <p className={styles.lead}>読み込み中…</p>
       </section>
     );
   }
@@ -193,7 +186,7 @@ export default function DtrPaidQuestionnaireLayer({
           >
             回答を見直す
           </button>
-          <button type="button" className={styles.primaryBtn} onClick={goToPlans}>
+          <button type="button" className={styles.commercialPrimaryBtn} onClick={goToPlans}>
             プラン選択へ進む
           </button>
         </div>
@@ -205,6 +198,7 @@ export default function DtrPaidQuestionnaireLayer({
     <section
       className={styles.shell}
       data-m55-paid-phase="question"
+      data-testid="m55-paid-questionnaire-active"
       aria-labelledby={headingId}
     >
       <div className={styles.progressRow}>
@@ -227,13 +221,11 @@ export default function DtrPaidQuestionnaireLayer({
         />
       </div>
 
+      <p className={styles.hint}>{helperJa}</p>
       <p className={styles.questionLabel}>{current.shortLabelJa}</p>
       <h2 id={headingId} className={styles.questionTitle}>
         {current.questionJa}
       </h2>
-      <p className={styles.hint}>
-        この答えは、プレミアムレポートで場面ごとの出方を整理するために使います。
-      </p>
 
       <div className={styles.choices} role="radiogroup" aria-label={current.questionJa}>
         {current.choices.map((choice) => {

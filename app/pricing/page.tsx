@@ -26,18 +26,28 @@ export default function PricingPage() {
           <article className={styles.planCard} data-testid="m55-pricing-plan-light">
             <h2 className={styles.planName}>{plan.light.publicName}</h2>
             <p className={styles.planPrice}>{plan.light.priceLabelJa}</p>
+            <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+            <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+            <ul className={styles.planIncludedList}>
+              {plan.light.includedItemsJa.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
             <p className={styles.planAudience}>{plan.light.audienceJa}</p>
-            <p className={styles.planBody}>{plan.light.bodyJa}</p>
           </article>
           <article className={`${styles.planCard} ${styles.planCardFeatured}`} data-testid="m55-pricing-plan-full">
-            <span className={styles.planBadge}>{plan.fullRecommendReasonJa}</span>
+            <span className={styles.planBadge}>{plan.fullRecommendBadgeJa}</span>
             <h2 className={styles.planName}>{plan.full.publicName}</h2>
             <p className={styles.planPrice}>{plan.full.priceLabelJa}</p>
+            <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+            <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+            <ul className={styles.planIncludedList}>
+              {plan.full.includedItemsJa.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className={styles.planUpgrade}>{plan.fullDeltaNoteJa}</p>
             <p className={styles.planAudience}>{plan.full.audienceJa}</p>
-            <p className={styles.planUpgrade}>
-              +¥{plan.priceDeltaJpy.toLocaleString('ja-JP')}で{T.additionalValue}が{plan.additionalReadingsDelta}件増える
-            </p>
-            <p className={styles.planBody}>{plan.full.bodyJa}</p>
           </article>
         </section>
 

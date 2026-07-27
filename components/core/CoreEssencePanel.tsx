@@ -648,7 +648,10 @@ export default function CoreEssencePanel() {
 
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreEntryReportCTASection depth={depthAnalysis} />
+                  <CoreEntryReportCTASection
+                    depth={depthAnalysis}
+                    traitName={shareCard?.traitNameJa ?? 'あなた'}
+                  />
                 </div>
               ) : null}
 

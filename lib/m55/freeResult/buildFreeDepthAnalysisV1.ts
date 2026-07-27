@@ -59,13 +59,13 @@ const AXIS_TITLE_JA: Readonly<Record<ExpressionAxisId, string>> = {
 };
 
 const START_PATTERN: Readonly<Record<StartTendency, string>> = {
-  map: '先に全体を見渡してから動く',
+  map: '全体を見渡してから動く',
   try: '小さく触って輪郭を掴む',
   ask: '情報や他者の視点を足してから動く',
 };
 
 const DECISION_PATTERN: Readonly<Record<DecisionTendency, string>> = {
-  sort: '候補を並べて見比べてから決める',
+  sort: '候補を比べてから決める',
   deadline: '期限や基準を置いて決める',
   wait: '少し間を置いてから決める',
 };
@@ -257,7 +257,7 @@ function sortByPriority(items: readonly AlignDivergeItem[]): AlignDivergeItem[] 
 }
 
 function buildHeadline(axes: ExpressionAxes): string {
-  return `${START_PATTERN[axes.start]}動きと、${DECISION_PATTERN[axes.decision]}判断が、いまの主パターンとして重なっています。`;
+  return `${START_PATTERN[axes.start]}傾向と、${DECISION_PATTERN[axes.decision]}傾向が、いまは重なって表れています。`;
 }
 
 function buildConclusion(
@@ -364,8 +364,8 @@ function pickPrimaryScene(axes: ExpressionAxes): { labelJa: string; bodyJa: stri
   return { labelJa: candidates[0]!.labelJa, bodyJa: candidates[0]!.bodyJa };
 }
 
-function buildPremiumOpenLoop(axes: ExpressionAxes): string {
-  return `いま見えているのは、${START_PATTERN[axes.start]}動きと${DECISION_PATTERN[axes.decision]}判断の表れ方までです。背景の構造、力が出る条件、負担が重なる順番、戻しやすい整え方は、プレミアムレポートで整理できます。`;
+function buildPremiumOpenLoop(_axes: ExpressionAxes): string {
+  return '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。';
 }
 
 function buildPremiumLockedHeadings(
@@ -377,10 +377,10 @@ function buildPremiumLockedHeadings(
     ? `${AXIS_TITLE_JA[topDiverge.axisId]}がずれるときに重なりやすいもの`
     : `${RECOVERY_PATTERN[axes.recovery]}回復が後回しになるときの重なり`;
   return [
-    `${START_PATTERN[axes.start]}動きが続きやすい背景`,
+    `${START_PATTERN[axes.start]}傾向が続く背景`,
     `${DECISION_PATTERN[axes.decision]}判断が長引くときに重なるもの`,
     tensionLine,
-    `戻るために最初に小さくする範囲`,
+    '整え直しやすい順番',
   ];
 }
 

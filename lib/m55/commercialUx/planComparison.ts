@@ -11,7 +11,7 @@ export type PlanComparisonTier = {
   priceJpy: number;
   priceLabelJa: string;
   audienceJa: string;
-  bodyJa: string;
+  includedItemsJa: readonly string[];
   additionalReadings: number;
   isOneTime: true;
 };
@@ -27,17 +27,18 @@ export type PlanComparisonModel = {
   fullInitialAdvantageJpy: number;
   oneTimeNoteJa: string;
   sameFourChaptersNoteJa: string;
+  fullRecommendBadgeJa: string;
   fullRecommendReasonJa: string;
   upgradeNoteJa: string;
+  fullDeltaNoteJa: string;
   chapterTitlesJa: readonly string[];
   /** Shared labels for plan selection / payment confirmation surfaces */
   oneTimeLabelJa: string;
-  savedReportLabelJa: string;
-  savedReportValueJa: string;
+  includedHeadingJa: string;
   consultReplyLabelJa: string;
-  fullDeltaNoteJa: string;
   selectLightCtaJa: string;
   selectFullCtaJa: string;
+  checkoutProceedCtaJa: string;
 };
 
 function formatYenLabelJa(priceJpy: number): string {
@@ -60,8 +61,8 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
       publicName: lightProduct.publicName,
       priceJpy: lightPriceJpy,
       priceLabelJa: formatYenLabelJa(lightPriceJpy),
-      audienceJa: 'いちばん気になる1テーマを深めたい方へ',
-      bodyJa: '4章のプレミアムレポート＋追加読み解き1件。ひとつの関心を丁寧に読み返せます。',
+      audienceJa: '一番気になるテーマを、まず1つ深めたい方へ',
+      includedItemsJa: ['4章の個人レポート', '追加読み解き 1件'],
       additionalReadings: 1,
       isOneTime: true,
     },
@@ -70,8 +71,8 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
       publicName: fullProduct.publicName,
       priceJpy: fullPriceJpy,
       priceLabelJa: formatYenLabelJa(fullPriceJpy),
-      audienceJa: '仕事・関係・日常をまとめて整理したい方へ',
-      bodyJa: '4章のプレミアムレポート＋追加読み解き合計5件。複数の関心をまとめて読み返せます。',
+      audienceJa: '仕事・関係・日常など、複数のテーマを見たい方へ',
+      includedItemsJa: ['4章の個人レポート', '追加読み解き 合計5件'],
       additionalReadings: 5,
       isOneTime: true,
     },
@@ -81,18 +82,20 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
     additionalReadingsDelta: 4,
     lightThenUpgradeTotalJpy,
     fullInitialAdvantageJpy,
-    oneTimeNoteJa: '買い切り・自動更新なし。同じ4章レポートが両プランに含まれます。',
-    sameFourChaptersNoteJa: 'どちらも同じ4章のプレミアムレポートが含まれます。',
-    fullRecommendReasonJa: '複数の関心をまとめて整理したい方へ',
-    upgradeNoteJa: `ライト購入後も、${formatYenLabelJa(upgradePriceJpy)}でFULL化できます。後からアップグレードすると合計${formatYenLabelJa(lightThenUpgradeTotalJpy)}、最初からFULLなら${formatYenLabelJa(fullPriceJpy)}（${formatYenLabelJa(fullInitialAdvantageJpy)}お得）。`,
+    oneTimeNoteJa: '買い切り・自動更新なし',
+    sameFourChaptersNoteJa: 'どちらも同じ4章の個人レポートが含まれます。',
+    fullRecommendBadgeJa: 'おすすめ',
+    fullRecommendReasonJa: '複数のテーマを見たい方へ',
+    fullDeltaNoteJa: 'ライトとの差は+480円。追加読み解きが4件増えます。',
+    upgradeNoteJa:
+      'ライト購入後のフル化は600円です。ライト＋後日フル化は合計1,600円、最初からフルなら1,480円です。',
     chapterTitlesJa: M55_REPORT_CHAPTERS.map((c) => c.titleJa),
-    oneTimeLabelJa: '一回払い',
-    savedReportLabelJa: 'プレミアムレポート',
-    savedReportValueJa: '4章のプレミアムレポート',
+    oneTimeLabelJa: '買い切り・自動更新なし',
+    includedHeadingJa: '含まれる内容',
     consultReplyLabelJa: '追加読み解き',
-    fullDeltaNoteJa: `+¥${priceDeltaJpy.toLocaleString('ja-JP')}で追加読み解きが${4}件増える`,
     selectLightCtaJa: 'ライトを選ぶ',
-    selectFullCtaJa: 'FULLを選ぶ',
+    selectFullCtaJa: 'フルを選ぶ',
+    checkoutProceedCtaJa: '支払い画面へ進む',
   };
 }
 
@@ -101,7 +104,7 @@ export function formatAdditionalReadingsJa(count: number): string {
 }
 
 export function buildIncludedProductSummaryJa(tier: PlanComparisonTier): string {
-  return `4章のプレミアムレポート + 追加読み解き${formatAdditionalReadingsJa(tier.additionalReadings)}`;
+  return tier.includedItemsJa.join(' / ');
 }
 
 /** Singleton for stable reference in UI layers. */

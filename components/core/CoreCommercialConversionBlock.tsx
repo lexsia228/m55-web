@@ -3,11 +3,12 @@ import CoreFreeToPaidConversionBridge from './CoreFreeToPaidConversionBridge';
 
 type Props = {
   depth: FreeDepthAnalysisV1;
+  traitName?: string;
 };
 
 /**
  * Legacy export name — delegates to the unified conversion bridge.
  */
-export default function CoreCommercialConversionBlock({ depth }: Props) {
-  return <CoreFreeToPaidConversionBridge depth={depth} />;
+export default function CoreCommercialConversionBlock({ depth, traitName = 'あなた' }: Props) {
+  return <CoreFreeToPaidConversionBridge depth={depth} traitName={traitName} />;
 }

@@ -61,14 +61,15 @@ describe('planComparison', () => {
     assert.match(plan.fullRecommendReasonJa, /複数/);
   });
 
-  it('bridge and pricing consume shared model', () => {
-    const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
+  it('bridge, pricing, prep, and /dtr/lp consume shared model', () => {
     const pricing = read('app/pricing/page.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    assert.match(bridge, /PLAN_COMPARISON/);
+    const lp = read('app/dtr/lp/page.tsx');
     assert.match(pricing, /PLAN_COMPARISON/);
     assert.match(prep, /PLAN_COMPARISON/);
+    assert.match(lp, /PLAN_COMPARISON/);
     assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);
+    assert.equal(PLAN_COMPARISON.selectFullCtaJa, 'フルを選ぶ');
   });
 });
 
@@ -163,5 +164,7 @@ describe('print contract', () => {
     assert.match(css, /data-m55-public-shell/);
     assert.match(css, /m55-premium-sticky-cta/);
     assert.match(css, /menuTrigger/);
+    assert.match(css, /premiumStickyBar/);
+    assert.match(css, /min-height: auto/);
   });
 });

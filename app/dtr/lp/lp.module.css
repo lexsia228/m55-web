@@ -203,6 +203,17 @@
   box-shadow: 0 10px 32px rgba(61, 50, 98, 0.08), 0 0 0 1px rgba(124, 111, 214, 0.12);
 }
 
+.lpTierRecommendBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  background: rgba(52, 44, 78, 0.1);
+  color: rgba(52, 44, 78, 0.88);
+}
+
 .lpTierCardLight {
   composes: lpTierCard;
 }

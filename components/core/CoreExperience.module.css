@@ -4555,6 +4555,14 @@
   color: rgba(62, 52, 88, 0.78);
 }
 
+.conversionBridgeEffort {
+  margin: 0 0 0.85rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: rgba(55, 48, 82, 0.72);
+}
+
 .bridgeLockedHeadingsList {
   margin: 0 0 0.85rem;
   padding: 0;

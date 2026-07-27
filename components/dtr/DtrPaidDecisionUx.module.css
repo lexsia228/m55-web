@@ -203,6 +203,34 @@
   color: #fff;
 }
 
+.commercialPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 7.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  border: 1px solid rgba(52, 44, 78, 0.2);
+  background: rgba(52, 44, 78, 0.92);
+  color: #faf8f5;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.commercialPrimaryBtn:hover:not(:disabled) {
+  background: rgba(42, 35, 66, 0.96);
+}
+
+.commercialPrimaryBtn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 .primaryBtn:hover:not(:disabled) {
   background: rgba(91, 79, 150, 0.96);
 }
@@ -347,6 +375,48 @@
   color: rgba(55, 48, 82, 0.68);
 }
 
+.planOneTime {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(45, 40, 70, 0.78);
+}
+
+.planIncludedHeading {
+  margin: 0;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.planIncludedList {
+  margin: 0;
+  padding: 0 0 0 1rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(45, 40, 70, 0.82);
+}
+
+.planRecommendBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  background: rgba(52, 44, 78, 0.1);
+  color: rgba(52, 44, 78, 0.88);
+}
+
+.planUpgradeNote {
+  margin: 0.85rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: rgba(55, 48, 82, 0.68);
+}
+
 .confirmCard {
   display: grid;
   gap: 0.65rem;
@@ -393,7 +463,8 @@
   .progressFill,
   .choice,
   .primaryBtn,
-  .secondaryBtn {
+  .secondaryBtn,
+  .commercialPrimaryBtn {
     transition: none;
   }
 }

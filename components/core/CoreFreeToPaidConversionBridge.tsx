@@ -2,9 +2,6 @@
 
 import Link from 'next/link';
 import { useEffect, useId } from 'react';
-import {
-  M55_REPORT_CHAPTERS,
-} from '../../lib/m55/contracts/m55CommercialFunnelContract';
 import type { FreeDepthAnalysisV1 } from '../../lib/m55/freeResult/buildFreeDepthAnalysisV1';
 import {
   M55_FUNNEL_EVENTS,
@@ -12,33 +9,22 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
-import { PLAN_COMPARISON } from '../../lib/m55/commercialUx/planComparison';
-import { STATIC_FREE_TO_PAID_BRIDGE } from './corePublicCopy';
-import CorePremiumReportPreviewSlice from './CorePremiumReportPreviewSlice';
+import { buildPremiumBridgeTitle, STATIC_FREE_TO_PAID_BRIDGE } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
 type Props = {
   depth: FreeDepthAnalysisV1;
+  traitName: string;
 };
 
 /**
- * Free→Premium bridge — open loop, personalized preview, early CTA, then plans.
+ * Free→Premium bridge — one personalized intro, primary CTA, then /dtr/lp questions.
  */
-export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
+export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Props) {
   const titleId = useId();
   const copy = STATIC_FREE_TO_PAID_BRIDGE;
-  const plan = PLAN_COMPARISON;
-  const light = plan.light;
-  const full = plan.full;
-  const href = TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref;
-
-  const chapterRows = M55_REPORT_CHAPTERS.map((chapter, index) => {
-    const fallback = copy.chapters[index];
-    const titleJa =
-      chapter.titleJa.replace(/^[ⅠⅡⅢⅣ]\s*/, '') || fallback?.titleJa || chapter.titleJa;
-    const roman = fallback?.roman ?? ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ'][index]!;
-    return { roman, titleJa };
-  });
+  const href = `${TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref}#m55-paid-questionnaire`;
+  const lockedHeadings = depth.premiumLockedHeadingsJa.slice(0, 2);
 
   useEffect(() => {
     trackFunnelImpressionOnce(
@@ -75,16 +61,23 @@ export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
     >
       <span className={styles.conversionBridgeOverline}>{copy.overline}</span>
       <h2 id={titleId} className={styles.conversionBridgeTitle}>
-        {copy.title}
+        {buildPremiumBridgeTitle(traitName)}
       </h2>
       <p className={styles.conversionBridgeSupporting}>{copy.supportingJa}</p>
 
-      <CorePremiumReportPreviewSlice
-        headingJa={copy.previewHeadingJa}
-        bodyJa={copy.previewBodyJa}
-        lockedHeadingsJa={depth.premiumLockedHeadingsJa}
-        openLoopJa={depth.premiumOpenLoopJa}
-      />
+      <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
+      <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">
+        {lockedHeadings.map((heading) => (
+          <li key={heading} className={styles.bridgeLockedHeadingItem}>
+            <span className={styles.bridgeLockedHeadingIcon} aria-hidden>
+              ◆
+            </span>
+            <span>{heading}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className={styles.conversionBridgeEffort}>{copy.effortJa}</p>
 
       <div className={styles.conversionBridgeActions}>
         <div className={styles.conversionBridgeCtaBlock}>
@@ -107,49 +100,6 @@ export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
           {copy.secondaryCtaJa}
         </button>
       </div>
-
-      <h3 className={styles.conversionBridgeChaptersHeading}>{copy.outcomeHeadingJa}</h3>
-      <ul className={styles.conversionBridgeChapters}>
-        {copy.outcomesJa.map((line) => (
-          <li key={line} className={styles.conversionBridgeChapterItem}>
-            <span className={styles.conversionBridgeChapterTitle}>{line}</span>
-          </li>
-        ))}
-      </ul>
-
-      <h3 className={styles.conversionBridgeChaptersHeading}>{copy.planDiffHeadingJa}</h3>
-      <p className={styles.conversionBridgeOneTimeNote}>{plan.oneTimeNoteJa}</p>
-      <div className={styles.conversionBridgePlanGrid}>
-        <article className={styles.conversionBridgePlanCard} data-testid="m55-plan-card-light">
-          <h3 className={styles.conversionBridgePlanName}>{light.publicName}</h3>
-          <p className={styles.conversionBridgePlanAudience}>{light.audienceJa}</p>
-          <p className={styles.conversionBridgePlanPrice}>{light.priceLabelJa}</p>
-          <p className={styles.conversionBridgeLayerBody}>{light.bodyJa}</p>
-        </article>
-        <article
-          className={`${styles.conversionBridgePlanCard} ${styles.conversionBridgePlanCardFeatured}`}
-          data-testid="m55-plan-card-full"
-        >
-          <span className={styles.conversionBridgePlanBadge}>{plan.fullRecommendReasonJa}</span>
-          <h3 className={styles.conversionBridgePlanName}>{full.publicName}</h3>
-          <p className={styles.conversionBridgePlanAudience}>{full.audienceJa}</p>
-          <p className={styles.conversionBridgePlanPrice}>{full.priceLabelJa}</p>
-          <p className={styles.conversionBridgePlanUpgrade}>
-            +¥{plan.priceDeltaJpy.toLocaleString('ja-JP')}で追加読み解きが{plan.additionalReadingsDelta}件増える
-          </p>
-          <p className={styles.conversionBridgeLayerBody}>{full.bodyJa}</p>
-        </article>
-      </div>
-
-      <h3 className={styles.conversionBridgeChaptersHeading}>{copy.chaptersHeadingJa}</h3>
-      <ol className={styles.conversionBridgeChapters}>
-        {chapterRows.map((chapter) => (
-          <li key={chapter.roman} className={styles.conversionBridgeChapterItem}>
-            <span className={styles.conversionBridgeChapterRoman}>{chapter.roman}</span>
-            <span className={styles.conversionBridgeChapterTitle}>{chapter.titleJa}</span>
-          </li>
-        ))}
-      </ol>
 
       <p className={styles.conversionBridgeSafety}>{copy.safetyNote}</p>
     </section>

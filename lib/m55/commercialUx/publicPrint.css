@@ -18,7 +18,13 @@
   .mobileFreeLink,
   .checkout-trust-row,
   .m55-lp-cta-btn,
-  [data-m55-paid-checkout] {
+  [data-m55-paid-checkout],
+  .premiumStickyBar,
+  .lpBreadcrumb a,
+  [class*='sticky'],
+  [class*='Sticky'],
+  [data-m55-paid-phase='checkout'] button,
+  [data-m55-paid-phase='checkout'] .checkout-trust-row {
     display: none !important;
   }
 
@@ -27,8 +33,25 @@
     background: #fff !important;
   }
 
+  [data-m55-public-shell] > header,
+  [data-m55-public-shell] > footer nav,
+  .lpFinalCtaWrap,
+  .lpTrustWrap {
+    display: none !important;
+  }
+
   [data-m55-public-shell] > header {
     position: static !important;
+  }
+
+  [data-m55-public-shell] main,
+  [data-m55-public-shell] .lpRoot,
+  .coreSectionSurface,
+  .conversionBridge {
+    max-width: 180mm !important;
+    width: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   .coreSectionSurface,
@@ -36,9 +59,34 @@
   .freeShareSection,
   [data-testid='m55-shareable-result-card'],
   .lpHeroSection,
-  .lpSection {
+  .lpSection,
+  .planCard,
+  .confirmCard,
+  .answerItem {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    page-break-after: avoid;
+  }
+
+  section,
+  article,
+  .lpHeroSection,
+  .lpSection {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  * {
+    position: static !important;
+    float: none !important;
   }
 
   body {

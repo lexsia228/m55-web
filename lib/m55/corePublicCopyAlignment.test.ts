@@ -120,14 +120,12 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.match(STATIC_CTA.bundleNote, /会話を続ける形式ではありません/);
   });
 
-  it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /なぜ続きやすいのか/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
+  it('Phase1 commercial conversion copy stays product-safe', () => {
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '6問に答えて4章を作る');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{lightPriceLabel\}/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{fullPriceLabel\}/);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, 1480);
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.lightToFullUpgrade.priceYen, 600);
@@ -136,10 +134,9 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.equal(STATIC_COMMERCIAL_CONVERSION.previewRows.length, 4);
 
     const conversionSrc = readRepoFile('components/core/CoreFreeToPaidConversionBridge.tsx');
-    assert.match(conversionSrc, /getCommercialProduct/);
-    assert.match(conversionSrc, /PAID_DTR_SAVED_REPORT_PRICING/);
-    assert.match(conversionSrc, /viewSavedPlansHref/);
-    assert.match(conversionSrc, /CorePremiumReportPreviewSlice/);
+    assert.match(conversionSrc, /buildPremiumBridgeTitle/);
+    assert.match(conversionSrc, /m55-paid-questionnaire/);
+    assert.match(conversionSrc, /premiumLockedHeadingsJa/);
     assert.equal(conversionSrc.includes('PurchaseButton'), false);
     assert.equal(conversionSrc.includes('/api/purchase'), false);
   });
