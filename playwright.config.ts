@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = 'http://127.0.0.1:3000';
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
 const healthURL = `${baseURL}/api/diagnostics/env`;
 
 /**
@@ -25,9 +25,10 @@ export default defineConfig({
     locale: 'ja-JP',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-    ? undefined
-    : {
+  webServer:
+    process.env.PLAYWRIGHT_SKIP_WEBSERVER || process.env.PLAYWRIGHT_BASE_URL
+      ? undefined
+      : {
         command: 'npx next dev -p 3000 -H 0.0.0.0',
         url: healthURL,
         reuseExistingServer: !process.env.CI,

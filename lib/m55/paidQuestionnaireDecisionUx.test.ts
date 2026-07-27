@@ -83,7 +83,8 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 
   it('plan choice and checkout boundary stay factual', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    assert.match(prep, /DtrNeedFreeResultGate|sectionLeadJa/);
+    assert.match(prep, /DtrNeedFreeResultGate/);
+    assert.match(prep, /PLAN_COMPARISON/);
     assert.match(prep, /一回払い|oneTimeLabelJa/);
     assert.match(prep, /支払い画面へ進む/);
     assert.match(prep, /次の画面で支払い内容を確認できます。/);

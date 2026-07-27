@@ -30,6 +30,14 @@ export type PlanComparisonModel = {
   fullRecommendReasonJa: string;
   upgradeNoteJa: string;
   chapterTitlesJa: readonly string[];
+  /** Shared labels for plan selection / payment confirmation surfaces */
+  oneTimeLabelJa: string;
+  savedReportLabelJa: string;
+  savedReportValueJa: string;
+  consultReplyLabelJa: string;
+  fullDeltaNoteJa: string;
+  selectLightCtaJa: string;
+  selectFullCtaJa: string;
 };
 
 function formatYenLabelJa(priceJpy: number): string {
@@ -78,7 +86,22 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
     fullRecommendReasonJa: '複数の関心をまとめて整理したい方へ',
     upgradeNoteJa: `ライト購入後も、${formatYenLabelJa(upgradePriceJpy)}でFULL化できます。後からアップグレードすると合計${formatYenLabelJa(lightThenUpgradeTotalJpy)}、最初からFULLなら${formatYenLabelJa(fullPriceJpy)}（${formatYenLabelJa(fullInitialAdvantageJpy)}お得）。`,
     chapterTitlesJa: M55_REPORT_CHAPTERS.map((c) => c.titleJa),
+    oneTimeLabelJa: '一回払い',
+    savedReportLabelJa: 'プレミアムレポート',
+    savedReportValueJa: '4章のプレミアムレポート',
+    consultReplyLabelJa: '追加読み解き',
+    fullDeltaNoteJa: `+¥${priceDeltaJpy.toLocaleString('ja-JP')}で追加読み解きが${4}件増える`,
+    selectLightCtaJa: 'ライトを選ぶ',
+    selectFullCtaJa: 'FULLを選ぶ',
   };
+}
+
+export function formatAdditionalReadingsJa(count: number): string {
+  return count === 1 ? '1件' : `合計${count}件`;
+}
+
+export function buildIncludedProductSummaryJa(tier: PlanComparisonTier): string {
+  return `4章のプレミアムレポート + 追加読み解き${formatAdditionalReadingsJa(tier.additionalReadings)}`;
 }
 
 /** Singleton for stable reference in UI layers. */

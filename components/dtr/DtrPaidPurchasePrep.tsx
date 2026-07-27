@@ -5,8 +5,12 @@ import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
-import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
+import {
+  buildIncludedProductSummaryJa,
+  formatAdditionalReadingsJa,
+  PLAN_COMPARISON,
+} from '../../lib/m55/commercialUx/planComparison';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -38,6 +42,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const plan = PLAN_COMPARISON;
 
   useEffect(() => {
     setGate(resolveInitialGate());
@@ -77,29 +82,27 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
     );
   }
 
-  const light = PAID_DTR_LP.tiers.light;
-  const full = PAID_DTR_LP.tiers.full;
-
   if (gate === 'checkout' && selectedPlan) {
-    const plan = selectedPlan === 'light' ? light : full;
+    const tier = selectedPlan === 'light' ? plan.light : plan.full;
     const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
-    const included =
-      selectedPlan === 'light'
-        ? `${light.savedReportValueJa} + 追加読み解き${light.consultReplyValueJa}`
-        : `${full.savedReportValueJa} + 追加読み解き ${full.consultReplyValueJa}`;
 
     return (
-      <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">
+      <section
+        className={styles.shell}
+        data-m55-paid-phase="checkout"
+        data-m55-paid-checkout
+        aria-label="支払い前の確認"
+      >
         <p className={styles.overline}>プレミアムレポート</p>
         <h3 className={styles.title}>支払い画面へ進む前に</h3>
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
             <span>選択したプラン</span>
-            <strong>{plan.planNameJa}</strong>
+            <strong>{tier.publicName}</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>価格</span>
-            <strong>{plan.priceLabelJa}</strong>
+            <strong>{tier.priceLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
             <span>お支払い</span>
@@ -107,9 +110,10 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
           </div>
           <div className={styles.confirmRow}>
             <span>含まれる内容</span>
-            <strong>{included}</strong>
+            <strong>{buildIncludedProductSummaryJa(tier)}</strong>
           </div>
         </div>
+        <p className={styles.confirmNote}>{plan.oneTimeNoteJa}</p>
         <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
         <div className={styles.actions}>
           <button
@@ -138,28 +142,30 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
       aria-label="プレミアムレポートのプラン選択"
     >
       <p className={styles.overline}>プレミアムレポート</p>
-      <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
-      <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
+      <h3 className={styles.title}>プランを選ぶ</h3>
+      <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
+      <p className={styles.planLead}>{plan.oneTimeNoteJa}</p>
       <div className={styles.planStack}>
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}
+          data-testid="m55-dtr-plan-light"
         >
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{light.planNameJa}</span>
-            <span className={styles.planPrice}>{light.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.light.publicName}</span>
+            <span className={styles.planPrice}>{plan.light.priceLabelJa}</span>
           </div>
           <div className={styles.planMeta}>
-            <div>{light.oneTimeLabelJa}</div>
+            <div>{plan.oneTimeLabelJa}</div>
             <div>
-              {light.savedReportLabelJa} {light.savedReportValueJa}
+              {plan.savedReportLabelJa} {plan.savedReportValueJa}
             </div>
             <div>
-              {light.consultReplyLabelJa} {light.consultReplyValueJa}
+              {plan.consultReplyLabelJa} {formatAdditionalReadingsJa(plan.light.additionalReadings)}
             </div>
-            <div>あとからFULL化可能</div>
           </div>
-          <p className={styles.planAudience}>{light.bodyJa}</p>
-          <p className={styles.planNote}>{light.upgradeNoteJa}</p>
+          <p className={styles.planAudience}>{plan.light.audienceJa}</p>
+          <p className={styles.planNote}>{plan.light.bodyJa}</p>
+          <p className={styles.planNote}>{plan.upgradeNoteJa}</p>
           <button
             type="button"
             className={styles.primaryBtn}
@@ -170,27 +176,32 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
               setGate('checkout');
             }}
           >
-            {light.ctaLabelJa}
+            {plan.selectLightCtaJa}
           </button>
         </article>
 
         <article
           className={`${styles.planCard}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
+          data-testid="m55-dtr-plan-full"
         >
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{full.planNameJa}</span>
-            <span className={styles.planPrice}>{full.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.full.publicName}</span>
+            <span className={styles.planPrice}>{plan.full.priceLabelJa}</span>
           </div>
+          <p className={styles.planAudience}>{plan.fullRecommendReasonJa}</p>
           <div className={styles.planMeta}>
-            <div>{full.oneTimeLabelJa}</div>
+            <div>{plan.oneTimeLabelJa}</div>
             <div>
-              {full.savedReportLabelJa} {full.savedReportValueJa}
+              {plan.savedReportLabelJa} {plan.savedReportValueJa}
             </div>
             <div>
-              {full.consultReplyLabelJa} {full.consultReplyValueJa}
+              {plan.consultReplyLabelJa}{' '}
+              {formatAdditionalReadingsJa(plan.full.additionalReadings)}
             </div>
+            <div>{plan.fullDeltaNoteJa}</div>
           </div>
-          <p className={styles.planAudience}>{full.bodyJa}</p>
+          <p className={styles.planAudience}>{plan.full.audienceJa}</p>
+          <p className={styles.planNote}>{plan.full.bodyJa}</p>
           <button
             type="button"
             className={styles.primaryBtn}
@@ -201,7 +212,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
               setGate('checkout');
             }}
           >
-            {full.ctaLabelJa}
+            {plan.selectFullCtaJa}
           </button>
         </article>
       </div>

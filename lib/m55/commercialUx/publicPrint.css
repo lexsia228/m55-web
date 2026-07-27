@@ -1,0 +1,47 @@
+/**
+ * Shared public print contract — hide chrome, preserve content.
+ * Global CSS (not a CSS module) — imported as a side effect.
+ */
+@media print {
+  [data-m55-public-shell] > header,
+  [data-m55-print-hide],
+  .m55-print-hide,
+  [data-testid='m55-premium-sticky-cta'],
+  [data-testid='m55-free-result-share'] button,
+  [data-testid='m55-share-native'],
+  [data-testid='m55-share-copy'],
+  .menuTrigger,
+  .mobileMenuPanel,
+  .navDropdownPanel,
+  .desktopAuth,
+  .mobilePremiumLink,
+  .mobileFreeLink,
+  .checkout-trust-row,
+  .m55-lp-cta-btn,
+  [data-m55-paid-checkout] {
+    display: none !important;
+  }
+
+  [data-m55-public-shell] {
+    padding-top: 0 !important;
+    background: #fff !important;
+  }
+
+  [data-m55-public-shell] > header {
+    position: static !important;
+  }
+
+  .coreSectionSurface,
+  .conversionBridgePlanCard,
+  .freeShareSection,
+  [data-testid='m55-shareable-result-card'],
+  .lpHeroSection,
+  .lpSection {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}

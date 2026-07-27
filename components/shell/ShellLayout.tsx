@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { PublicHeaderContainer } from './PublicHeaderContainer';
-import '../../lib/m55/commercialUx/publicPrint.module.css';
+import '../../lib/m55/commercialUx/publicPrint.css';
 import LegacyFrame from '../../src/components/legacy/LegacyFrame';
 import styles from './ShellLayout.module.css';
 import { useSoulBridge } from '../../hooks/useSoulBridge';

@@ -64,8 +64,10 @@ describe('planComparison', () => {
   it('bridge and pricing consume shared model', () => {
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const pricing = read('app/pricing/page.tsx');
+    const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(bridge, /PLAN_COMPARISON/);
     assert.match(pricing, /PLAN_COMPARISON/);
+    assert.match(prep, /PLAN_COMPARISON/);
     assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);
   });
 });
@@ -156,7 +158,7 @@ describe('OG wiring', () => {
 
 describe('print contract', () => {
   it('shared print utilities hide chrome controls', () => {
-    const css = read('lib/m55/commercialUx/publicPrint.module.css');
+    const css = read('lib/m55/commercialUx/publicPrint.css');
     assert.match(css, /@media print/);
     assert.match(css, /data-m55-public-shell/);
     assert.match(css, /m55-premium-sticky-cta/);

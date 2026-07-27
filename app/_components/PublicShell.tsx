@@ -5,7 +5,7 @@ import { PublicHeaderContainer } from '../../components/shell/PublicHeaderContai
 import { PublicFooter } from './PublicFooter';
 import styles from './PublicShell.module.css';
 import typography from './PublicTypography.module.css';
-import '../../lib/m55/commercialUx/publicPrint.module.css';
+import '../../lib/m55/commercialUx/publicPrint.css';
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
   return (
