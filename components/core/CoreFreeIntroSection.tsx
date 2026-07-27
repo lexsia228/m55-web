@@ -1,43 +1,52 @@
 'use client';
 
-import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
+import CoreFreeContinuousFlowProgress from './CoreFreeContinuousFlowProgress';
+import CoreFreeSegmentedDobFields from './CoreFreeSegmentedDobFields';
 import styles from './CoreExperience.module.css';
 
 type Props = {
-  birthDateLabelJa: string;
-  onStart: () => void;
+  initialBirthDateIso: string;
+  onDobConfirmed: (birthDateIso: string) => void;
 };
 
-export default function CoreFreeIntroSection({ birthDateLabelJa, onStart }: Props) {
+/**
+ * Guided-discovery step 1/6 — segmented DOB (same-card → question 1).
+ */
+export default function CoreFreeIntroSection({
+  initialBirthDateIso,
+  onDobConfirmed,
+}: Props) {
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeIntroSection}`}
-      aria-labelledby="core-free-intro-title"
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeGuidedShell}`}
+      aria-labelledby="core-free-dob-title"
+      data-testid="m55-free-dob-step"
     >
-      <CoreFreeJourneyStepper currentStep="questions" />
-      <span className={styles.tierAOverline}>5つの問い</span>
-      <h2 id="core-free-intro-title" className={styles.sectionTitle}>
-        生年月日の土台に、今の感じ方を重ねます
-      </h2>
-      <p className={styles.sectionLead}>
-        5つの短い問いと、今の関心を1つ選びます。
-        <br />
-        約1分で、自分の輪郭を確認できます。
-      </p>
-
-      <div className={styles.freeIntroDobCard}>
-        <p className={styles.freeIntroDobLabel}>登録中の生年月日</p>
-        <p className={styles.freeIntroDobValue}>{birthDateLabelJa}</p>
+      <div className={styles.freeGuidedVisualCol}>
+        <CoreFreeContinuousFlowProgress stepNumber={1} completedCount={0} />
       </div>
-
-      <ul className={styles.freeIntroMetaList}>
-        <li>5問＋関心・約1分</li>
-        <li>正解はありません</li>
-      </ul>
-
-      <button type="button" className={styles.freeIntroPrimaryBtn} onClick={onStart}>
-        5つの問いを始める
-      </button>
+      <div className={styles.freeGuidedFormCol}>
+        <p className={styles.freeGuidedSupportLabel}>最初の手がかり</p>
+        <h1 id="core-free-dob-title" className={styles.freeContinuousQuestionTitle}>
+          生年月日を入力してください
+        </h1>
+        <p className={styles.sectionLead}>
+          生年月日と5つの短い質問から、
+          <br />
+          動き出し方・決め方・人との距離に、
+          <br />
+          今どんな傾向が出ているかを整理します。
+        </p>
+        <CoreFreeSegmentedDobFields
+          initialIsoDate={initialBirthDateIso}
+          onValidSubmit={onDobConfirmed}
+          submitLabelJa="無料結果づくりを始める"
+        />
+        <p className={styles.freeGuidedTrustRow}>約1分・正解なし</p>
+        <p className={styles.freeGuidedPrivacy}>
+          正確な日付は結果画面に表示しません。
+        </p>
+      </div>
     </section>
   );
 }

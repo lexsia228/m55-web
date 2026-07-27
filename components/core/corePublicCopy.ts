@@ -110,8 +110,8 @@ export const STATIC_M55_READ_STEPS: readonly {
     body: '同じ資質でも、うまくいきやすい条件と、無理がたまりやすい条件があります。ここでは、その差を短く整理します。',
   },
   {
-    title: '保存版・追加読み解きへ続く入口をつかむ',
-    body: 'ここまでの輪郭は、4章の保存版で深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
+    title: 'プレミアムレポート・追加読み解きへ続く入口をつかむ',
+    body: 'ここまでの輪郭は、4章のプレミアムレポートで深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
   },
 ];
 
@@ -119,12 +119,12 @@ export const STATIC_AI_EXPLAINER = {
   title: '追加読み解きについて',
   lead: [
     'M55の追加読み解きは、なんでも答えるAIではありません。',
-    '保存版に入力した一つの読み解きテーマを重ね、いま気になっている論点を読み直します。',
+    '購入済みレポートに入力した一つの読み解きテーマを重ね、いま気になっている論点を読み直します。',
     '同じ引っかかりでも、見えている輪郭が違えば、返ってくる整理も変わります。',
   ] as const,
   items: [
     {
-      title: '保存版の傾向を土台にする',
+      title: '購入済みレポートの傾向を土台にする',
       body: 'その場の言葉だけでなく、すでに読み出されている輪郭を前提に整理します。',
     },
     {
@@ -139,10 +139,10 @@ export const STATIC_AI_EXPLAINER = {
 };
 
 export const STATIC_CTA = {
-  title: '4章の保存版',
+  title: '4章のプレミアムレポート',
   intro:
-    '無料では、輪郭まで確認できました。\n保存版では、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
-  benefitsHeading: '保存版で深まること',
+    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
+  benefitsHeading: 'プレミアムレポートで深まること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
     '人間関係で、どこで無理がたまりやすいか',
@@ -150,35 +150,53 @@ export const STATIC_CTA = {
     '自分をどこから整えると戻りやすいか',
   ] as const,
   bundleNote:
-    'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
+    'その先で必要になったら、追加読み解きで購入済みレポートに沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
 } as const;
 
 /**
- * Free→paid conversion bridge on /core (after summary / 今日の一歩).
- * One quiet block; Product Truth 4 chapters; no fake urgency.
+ * Free→paid conversion bridge on /core (after free result outcome).
+ * Order: value lead → free/Premium → outcomes → report preview → plans+price → CTA → chapters.
+ * Public names/prices: machine commercial contract (not hardcoded duplicates).
  */
 export const STATIC_FREE_TO_PAID_BRIDGE = {
-  overline: '保存版への続き',
-  title: '無料で分かったことと、保存版で深まること',
-  contextTemplateJa: '今回選んだ「{focusTheme}」を、保存版では4つの場面に分けて整理します。',
-  freeLayerLabelJa: '無料の見取り図',
-  freeLayerBodyJa: '土台と、いま表れやすい5つの視点を確認',
-  savedLayerLabelJa: '保存版',
-  savedLayerBodyJa: '仕事・近い関係・生活と疲れまで、4章で読み返せる形に整理',
-  chaptersHeadingJa: '保存版の4章',
-  chapters: [
-    { roman: 'Ⅰ', titleJa: '自分の形を知る' },
-    { roman: 'Ⅱ', titleJa: '仕事・これからの進め方' },
-    { roman: 'Ⅲ', titleJa: '恋人・近い人との向き合い方' },
-    { roman: 'Ⅳ', titleJa: 'お金・生活・疲れの整え方' },
+  overline: 'プレミアムレポートへ',
+  title: '今の傾向だけでなく、なぜそうなるかまで整理する',
+  freeVsPremiumHeadingJa: '無料結果とプレミアムの違い',
+  outcomeHeadingJa: 'プレミアムで得られること',
+  outcomesJa: [
+    'なぜその表れ方になりやすいか（背景）',
+    'どんな条件で力が出やすいか／無理がたまりやすいか',
+    '自分の構造としてどうつながっているか',
+    '日常でどう扱い、戻しやすくするか',
   ] as const,
-  /** Soft price note only — plan comparison stays on /dtr/lp. */
-  priceNoteTemplate:
-    '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}。詳細な比較は次のプラン画面で確認できます。',
-  primaryCtaJa: '保存版の質問へ進む',
+  freeLayerLabelJa: '無料結果',
+  freeLayerBodyJa: '今の状態や傾向への認識。何が起きやすいかをつかむ',
+  savedLayerLabelJa: 'プレミアムレポート',
+  savedLayerBodyJa: '背景・条件・構造・扱い方まで、読み返せる形に整理',
+  planDiffHeadingJa: 'あなたに合うプランを選ぶ',
+  lightAudienceJa: 'まず一つの関心を深めたい方へ',
+  lightPlanBodyJa:
+    '4章のプレミアムレポートに、追加読み解き1件。いちばん気になるテーマを深め、あとから読み返せます。',
+  fullAudienceJa: '複数の関心をまとめて整理したい方へ',
+  fullPlanBodyJa:
+    '4章のプレミアムレポートに、追加読み解き合計5件。仕事・関係・生活など複数の関心をまとめて整理できます。',
+  previewHeadingJa: '購入後に開くレポートのイメージ',
+  previewBodyJa:
+    '正式4章を土台に、保存して後から開き、必要なら関心を追加して読めます。表示はイメージです。',
+  chaptersHeadingJa: 'プレミアムレポートの4章',
+  chapters: [
+    { roman: 'Ⅰ', titleJa: '輪郭を見る' },
+    { roman: 'Ⅱ', titleJa: '構造を読む' },
+    { roman: 'Ⅲ', titleJa: '無理を知る' },
+    { roman: 'Ⅳ', titleJa: '楽に扱う' },
+  ] as const,
+  /** Plan-card price labels — amounts filled from machine contract at render time. */
+  priceNoteTemplate: '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}',
+  primaryCtaJa: 'あと6問でプレミアムレポートを作る',
+  ctaSupportJa: '約1〜2分。回答後にプランを選び、決済へ進みます。',
   secondaryCtaJa: '無料の詳細をこのまま読む',
   safetyNote:
-    '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは保存版をもとにした1テーマ整理です。',
+    '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
 } as const;
 
 /** @deprecated Prefer STATIC_FREE_TO_PAID_BRIDGE — alias for gradual test migration. */

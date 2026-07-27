@@ -35,7 +35,7 @@ describe('pricingPublicCopy — analysis authority lightweight note', () => {
     const page = readRepoFile(PRICING_PAGE_PATH);
     assert.match(page, /PAID_DTR_PRICING_AUTHORITY_NOTE_JA/);
     assert.match(page, /href="\/dtr\/lp"/);
-    assert.match(page, /保存版のプランを見る/);
+    assert.match(page, /プレミアムレポートのプランを見る/);
   });
 
   it('pricing page does not add checkout or productKey wiring', () => {

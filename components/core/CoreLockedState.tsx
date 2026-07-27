@@ -9,13 +9,13 @@ export default function CoreLockedState() {
       <div className={styles.coreProfileGateShell}>
         <div className={styles.coreProfileGate} data-testid="m55-core-locked">
           <h1 className={styles.coreProfileGateTitle}>
-            まずは、無料の見取り図から始められます。
+            まずは、無料結果から始められます。
           </h1>
           <p className={styles.coreProfileGateSupport}>
-            基本情報のあと、5つの問いと今の関心を選ぶと、無料の見取り図を開けます。
+            基本情報のあと、5つの問いを選ぶと、無料結果を開けます。
           </p>
           <p className={styles.coreProfileGateSupport}>
-            ログインは、あとから結果を保存するときに使えます。
+            ログインは、あとから結果を開くときに使えます。
           </p>
           <div className={styles.coreProfileGateActions}>
             <Link

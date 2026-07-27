@@ -457,6 +457,10 @@ export default function ConsultRoom({
       M55_FUNNEL_EVENTS.additionalReadingThemeSelected,
       'dtr_additional_reading',
     );
+    trackFunnelAction(
+      M55_FUNNEL_EVENTS.additionalThemeStarted,
+      'dtr_additional_reading',
+    );
   };
 
   const buildSnapshotHash = (themeId: ReplyThemeId | null, context: string): string =>
@@ -466,6 +470,10 @@ export default function ConsultRoom({
     if (sendLock.current) return;
     trackFunnelAction(
       M55_FUNNEL_EVENTS.additionalReadingSendIntent,
+      'dtr_additional_reading',
+    );
+    trackFunnelAction(
+      M55_FUNNEL_EVENTS.consultReplyStarted,
       'dtr_additional_reading',
     );
     if (isDevPreview) {

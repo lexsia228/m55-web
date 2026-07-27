@@ -9,6 +9,7 @@ import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
 import {
   M55_FUNNEL_EVENTS,
+  trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import styles from './DtrPaidDecisionUx.module.css';
@@ -75,7 +76,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
 
     return (
       <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">
-        <p className={styles.overline}>保存版プラン</p>
+        <p className={styles.overline}>プレミアムレポート</p>
         <h3 className={styles.title}>支払い画面へ進む前に</h3>
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
@@ -116,8 +117,8 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   }
 
   return (
-    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="保存版プラン選択">
-      <p className={styles.overline}>保存版プラン</p>
+    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="プレミアムレポートのプラン選択">
+      <p className={styles.overline}>プレミアムレポート</p>
       <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
       <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
       <div className={styles.planStack}>
@@ -145,6 +146,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             className={styles.primaryBtn}
             onClick={() => {
               setSelectedPlan('light');
+              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >
@@ -174,6 +176,7 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
             className={styles.primaryBtn}
             onClick={() => {
               setSelectedPlan('full');
+              trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >

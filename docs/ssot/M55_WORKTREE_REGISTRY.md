@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-25** (CATEGORY-2 Authority Pack registry capacity patch REV1)
+Last verified: **2026-07-27** (CATEGORY-2 Self funnel implementation closeout REV1)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -14,7 +14,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; historical bootstrap-era recorded remote; **not** current live remote main
 - **Pre-PR #76 remote main:** `75c43f08976e3c7dbcf374d7cb06f520f6b76b93` — first parent of PR #76 merge commit; **not** current live remote main
 - **PR #76 bootstrap feature HEAD:** `bf1ab0ffac7b34081cecc864c496abed6a196513` — second parent of PR #76 merge; preserved old bootstrap branch HEAD; **not** current live remote main
-- **Current live remote main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — freshly verified mutable Git observation
+- **PR #76 merge commit (historical):** `38447ab1b39562606938936ce0da3d5a76d82c1b` — **not** current live remote main
+- **PR #77 post-merge transition feature HEAD:** `6ad4e14ba7bbce65a3bac04a38bcdcbdbf461d7e` — squash source for PR #77; **not** current live remote main
+- **Current live remote main (2026-07-27):** `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — PR #79 Authority Pack merge
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -27,7 +29,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**Current fact (2026-07-25):** WT-010 holds **ACTIVE** Product Authority Pack implementation on branch `feat/m55-product-authority-pack-v1`. WT-001 Self funnel is **PARKED**. WT-006 paid-lp remains live as **PAUSED** reference-only. WT-009 Build Week remains **FROZEN**.
+**Current fact (2026-07-27):** WT-001 holds **ACTIVE** Self free→Premium implementation on branch `feat/m55-self-free-to-premium-funnel-v1`. WT-010 Authority Pack is **COMPLETED** (PR #79 merged). WT-006 paid-lp remains **PAUSED** reference-only. WT-009 Build Week remains **FROZEN**.
 
 ### Lifecycle status values
 
@@ -37,14 +39,16 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 
 ### Documented post-merge transition (historical)
 
-Historical post-merge transition snapshots remain recorded for audit. WT-001 is now the **PARKED Self funnel** worktree — not an active transition gate.
+Historical post-merge transition snapshots remain recorded for audit. WT-001 is the **ACTIVE Self funnel** worktree after Authority Pack merge.
 
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
 | Historical (pre-merge PR #74) | `docs/m55-commercial-funnel-ssot-v1` | `86260d5…` | **Historical** — PR #74 merged |
 | Post-merge historical baseline | `main` | `575791f2…` | Historical verified baseline after PR #74 squash merge — not current live remote main |
 | PR #76 merge / prior origin/main | `main` (remote) | `38447ab1…` | Merge commit; parents `75c43f0…` + `bf1ab0ff…` |
-| Authority Pack PR tip (2026-07-26) | `feat/m55-product-authority-pack-v1` | PR #79 OPEN · tip `fae0444…` · Commits 1–3 pushed | **ACTIVE in WT-010** — reconciliation complete; authority-data correction |
+| Documented post-merge transition branch (preserved) | `chore/m55-worktree-registry-post-merge-transition-rev1` | `6ad4e14…` | PR #77 feature HEAD; docs-only transition — **preserved historical** |
+| Authority Pack PR #79 merge | `main` (remote) | `355462b…` | **MERGED** — Product Authority Pack complete |
+| Current (Self funnel implementation) | `feat/m55-self-free-to-premium-funnel-v1` | rebased tip | Self free→Premium implementation committed; PR pending Human visual review |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -58,18 +62,22 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
 | branch | `feat/m55-self-free-to-premium-funnel-v1` |
-| HEAD | `76cb15577dd46ce99980aed6a4df474960fd51d9` |
-| upstream | **none** |
-| cleanliness | **dirty** — 56 paths (verification-time snapshot) |
+| HEAD | rebased implementation tip — see `git rev-parse HEAD` at verification time |
+| baseline | `main` @ `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — PR #79 Authority Pack merge |
+| current origin/main | `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` |
+| upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` (pending push after rebase) |
+| cleanliness | **clean** — implementation committed |
 | locked / prunable | none |
-| lifecycle | **PAUSED** |
-| operational state | **PARKED** |
-| purpose | **Self free→Premium funnel** — branch-local implementation preserved |
-| related lane / PR | Self funnel Human lock pending · Authority Pack gate first |
-| allowed operations | none during Authority Pack lane |
-| prohibited operations | **NO_MUTATION_DURING_AUTHORITY_PACK_LANE** · commit · push without Human lock |
-| removal eligibility | NO — preserved implementation |
-| notes | Self funnel (WT-001) is **PARKED**. Dirty branch-local source is **not merged runtime**. mutationPolicy: `NO_MUTATION_DURING_AUTHORITY_PACK_LANE`. Awaiting Authority Pack diff review + reconciliation before Human lock resumption. |
+| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
+| operational state | **IMPLEMENTATION_COMPLETE_PR_PENDING** |
+| purpose | **PRIMARY_MAIN_HOME** — 個人無料→個人Premiumファネル一括実装 |
+| related lane / PR | PR #74 · PR #76 · PR #77 · PR #79 merged · Self funnel PR pending |
+| product implementation authorized | **true** (`GREEN_IMPLEMENTATION_AUTHORIZED`) |
+| allowed operations | PR review · Human visual QA · CI observation |
+| prohibited operations | Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits · merge without Human visual approval |
+| removal eligibility | NO — retain as PRIMARY_MAIN_HOME |
+| next gate | Human visual review (320px / 390px / desktop) before merge |
+| notes | Self funnel implementation committed and rebased onto `origin/main` @ `355462b…`. Branch-local source is **not merged runtime** until PR merge. Authority Pack lane complete. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -256,14 +264,14 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | upstream | `origin/feat/m55-product-authority-pack-v1` @ `fae04444618e2ae36e6fd813ddfddeee975b66c4` (2026-07-26) |
 | cleanliness | worktree may be clean between allowlisted commits — `ALLOWLIST_ONLY_DURING_IMPLEMENTATION` remains lane policy |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** |
-| operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
-| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 authority-data correction |
-| related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) OPEN · base `main` |
-| allowed operations | exact allowlist Product Authority Pack authority-data / SSOT transition patch only |
-| prohibited operations | merge · deploy · protected worktree mutation · runtime product source outside allowlist without Human gate |
-| removal eligibility | NO — active lane |
-| notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** current HEAD. Rewritten Commit 1: `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704`. Reconciliation Commit 2: `2761706505576a2baeacbdd40acd130a1f70e81b`. CI-portability Commit 3 / PR tip (2026-07-26): `fae04444618e2ae36e6fd813ddfddeee975b66c4`. Preflight validates ancestry from `bootstrapStartHead`, not equality. Superseded pre-rewrite Commit 1 `178dadab4697f4797b8f00fd473d08a135b3ec4e` and safety-ref tip `844c5bbb73795b2f162e29516be79fb401c3b55e` are retained local history only — not active branch provenance. Steady-state CI PASS at reviewed PR tip. |
+| lifecycle | **COMPLETED** |
+| operational state | **MERGED** |
+| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged |
+| related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) **MERGED** @ `355462b…` |
+| allowed operations | read-only inspection · observation refresh via steady-state verifier |
+| prohibited operations | new Authority Pack mutation without explicit lane reopen |
+| removal eligibility | deferred — retain worktree for reference |
+| notes | Authority Pack lane complete. Merge SHA `355462b84d4a1a28ba6d8a37a3e6a40346a572d2`. Safety ref `844c5bbb73795b2f162e29516be79fb401c3b55e` retained. Steady-state verifier active on `main`. |
 
 ---
 

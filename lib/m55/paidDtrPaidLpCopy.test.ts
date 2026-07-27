@@ -149,7 +149,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   });
 
   it('orders tiers FULL before light in copy structure', () => {
-    assert.match(PAID_DTR_LP.tiers.full.planNameJa, /FULL/);
+    assert.match(PAID_DTR_LP.tiers.full.planNameJa, /フル/);
     assert.match(PAID_DTR_LP.tiers.light.planNameJa, /ライト/);
     assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5件');
     assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
@@ -165,14 +165,14 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
     assert.match(lpPageSource, /本質を見つめ直す \| M55/);
     assert.equal(lpPageSource.includes('本質の読み解き | M55'), false);
-    assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, '保存版FULLを選ぶ');
-    assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, '保存版ライトを選ぶ');
+    assert.equal(PAID_DTR_LP.tiers.full.ctaLabelJa, 'フルを選ぶ');
+    assert.equal(PAID_DTR_LP.tiers.light.ctaLabelJa, 'ライトを選ぶ');
     assert.equal(PAID_DTR_LP.tiers.sectionTitleJa, '読み返し方に合わせて選べます');
-    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じ4章の保存版/);
+    assert.match(PAID_DTR_LP.tiers.sectionLeadJa, /どちらも同じ4章のプレミアムレポート/);
     assert.equal(PAID_DTR_LP.tiers.full.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '4章の保存版');
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '4章の保存版');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '4章のプレミアムレポート');
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '4章のプレミアムレポート');
     assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でFULL化/);
     assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');
   });

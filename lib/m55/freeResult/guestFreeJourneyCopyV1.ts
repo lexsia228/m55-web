@@ -3,21 +3,32 @@
  */
 
 export const GUEST_PROFILE_INTAKE_COPY_V1 = {
-  titleJa: '無料の見取り図を開く',
+  titleJa: '無料結果を開く',
   leadJa: 'この入力は、無料結果を表示するために使います。',
-  loginHintJa: 'ログインは結果を保存するときに使えます。',
-  primaryActionJa: '見取り図を始める',
+  loginHintJa: 'ログインは結果をあとから開くときに使えます。',
+  primaryActionJa: '無料結果を始める',
 } as const;
 
 export const GUEST_PROFILE_HANDOFF_COPY_V1 = {
   leadJa: '入力を受け取りました',
-  subJa: '続いて、5つの問いと今の関心を確認します',
+  subJa: '続いて、5つの問いを確認します',
 } as const;
 
 export const GUEST_SAVE_RESULT_COPY_V1 = {
-  titleJa: 'この見取り図をあとで読む',
-  bodyJa: '無料でログインすると、この結果をマイページから開けます。',
+  titleJa: 'この結果をあとから開く',
+  bodyJa: '無料でログインすると、同じ結果をマイページから開けます。保存しても内容は変わりません。',
   actionJa: '結果を保存する',
+} as const;
+
+/** Privacy-safe share — fixed marketing text + public entry URL only. */
+export const FREE_RESULT_SHARE_COPY_V1 = {
+  titleJa: '入口を共有する',
+  bodyJa: '生年月日や回答は含めず、M55の無料結果の入口だけを共有できます。',
+  actionJa: '入口を共有',
+  shareTextJa: 'M55で、自分に表れやすい輪郭を無料で確認できます。',
+  shareUrlPath: '/core',
+  copiedJa: 'リンクをコピーしました',
+  unavailableJa: '共有できませんでした。もう一度お試しください。',
 } as const;
 
 export const REANSWER_CONFIRM_COPY_V1 = {

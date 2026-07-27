@@ -3230,6 +3230,302 @@
 
 .freeIntroSection {
   margin-top: 0.5rem;
+  max-width: 36rem;
+}
+
+.freeGuidedShell {
+  margin-top: 0.35rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem 1.5rem;
+  align-items: start;
+  max-width: 44rem;
+}
+
+.freeGuidedVisualCol {
+  min-width: 0;
+}
+
+.freeGuidedFormCol {
+  min-width: 0;
+}
+
+.freeGuidedSupportLabel {
+  margin: 0 0 0.4rem;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  color: rgba(78, 68, 128, 0.88);
+}
+
+.freeGuidedTrustRow {
+  margin: 0.85rem 0 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.freeGuidedPrivacy {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(55, 48, 82, 0.68);
+}
+
+.freeContinuousProgress {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.freeContinuousProgressTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+}
+
+.freeContinuousProgressCount {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.78);
+}
+
+.freeContinuousProgressRemaining {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.freeClueVisual {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0;
+}
+
+.freeClueVisualSvg {
+  width: min(7.5rem, 42vw);
+  height: auto;
+  display: block;
+}
+
+.freeClueVisualOrbit {
+  fill: none;
+  stroke: rgba(107, 95, 168, 0.16);
+  stroke-width: 1.5;
+}
+
+.freeClueVisualCore {
+  fill: rgba(107, 95, 168, 0.12);
+  stroke: rgba(107, 95, 168, 0.28);
+  stroke-width: 1.2;
+}
+
+.freeClueVisualPoint {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(107, 95, 168, 0.28);
+  stroke-width: 1.4;
+  transition: fill 0.28s ease, stroke 0.28s ease, r 0.28s ease;
+}
+
+.freeClueVisualPointFilled {
+  fill: rgba(78, 68, 128, 0.92);
+  stroke: rgba(78, 68, 128, 0.95);
+}
+
+.freeClueVisualPointCurrent {
+  fill: rgba(107, 95, 168, 0.18);
+  stroke: rgba(107, 95, 168, 0.72);
+}
+
+.freeClueVisualCaption {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(55, 48, 82, 0.55);
+}
+
+.freeContinuousEyebrow {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.freeContinuousEyebrowAxis {
+  margin-left: 0.55rem;
+}
+
+.freeContinuousQuestionTitle {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.12rem, 4.2vw, 1.35rem);
+  line-height: 1.5;
+  font-weight: 600;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.freeContinuousHelper {
+  margin: 0 0 1.05rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: rgba(45, 40, 70, 0.76);
+}
+
+.freeContinuousHelperCompact {
+  margin: 0 0 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(55, 48, 82, 0.58);
+}
+
+.freeClueAck,
+.freeClueAckPlaceholder {
+  margin: 0.75rem 0 0;
+  min-height: 2.4rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: rgba(78, 68, 128, 0.88);
+}
+
+.freeClueAck {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.freeClueAckPrimary {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.freeClueAckSecondary {
+  font-weight: 400;
+  color: rgba(55, 48, 82, 0.68);
+}
+
+.freeDobCompactBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 0 0 0.55rem;
+  padding: 0.15rem 0;
+}
+
+.freeDobCompactLabel {
+  font-size: 0.82rem;
+  color: rgba(55, 48, 82, 0.68);
+}
+
+.freeDobCompactChange {
+  border: none;
+  background: transparent;
+  padding: 0.25rem 0.15rem;
+  font-size: 0.82rem;
+  color: rgba(78, 68, 128, 0.92);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.freeDobCompactChange:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.72);
+  outline-offset: 2px;
+}
+
+.freeSegmentedDobForm {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.freeSegmentedDobRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.freeSegmentedDobField {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.freeSegmentedDobInputYear,
+.freeSegmentedDobInputMonth,
+.freeSegmentedDobInputDay {
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.4rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  background: rgba(255, 255, 255, 0.86);
+  color: rgba(28, 24, 48, 0.94);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.freeSegmentedDobInputYear:focus,
+.freeSegmentedDobInputMonth:focus,
+.freeSegmentedDobInputDay:focus,
+.freeSegmentedDobInputYear:focus-visible,
+.freeSegmentedDobInputMonth:focus-visible,
+.freeSegmentedDobInputDay:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.72);
+  outline-offset: 2px;
+  border-color: rgba(107, 95, 168, 0.62);
+  box-shadow: none;
+}
+
+.freeSegmentedDobInputYear {
+  width: 4.6rem;
+  flex: 0 0 auto;
+}
+
+.freeSegmentedDobInputMonth,
+.freeSegmentedDobInputDay {
+  width: 3.1rem;
+  flex: 0 0 auto;
+}
+
+.freeSegmentedDobUnit {
+  flex: 0 0 auto;
+  font-size: 0.88rem;
+  color: rgba(55, 48, 82, 0.72);
+}
+
+.freeSegmentedDobError {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgba(140, 48, 64, 0.92);
+}
+
+.freeQuestionnaireChoiceCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(107, 95, 168, 0.28);
+  background: rgba(255, 255, 255, 0.7);
+  color: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.freeQuestionnaireChoiceCheckOn {
+  border-color: rgba(78, 68, 128, 0.72);
+  background: rgba(78, 68, 128, 0.92);
+  color: #fff;
 }
 
 .freeIntroDobCard {
@@ -3284,22 +3580,28 @@
 
 .freeRevealTransition {
   margin-top: 1rem;
+  min-height: min(42vh, 16rem);
+  display: grid;
+  align-content: center;
+  justify-items: center;
   text-align: center;
-  animation: freeRevealFadeIn 0.45s ease-out both;
+  animation: freeRevealFadeIn 0.35s ease-out both;
 }
 
 .freeRevealTransitionLead {
   margin: 0;
-  font-size: 1.08rem;
-  font-weight: 600;
-  color: rgba(28, 24, 48, 0.92);
+  font-size: clamp(1.1rem, 3.8vw, 1.28rem);
+  font-weight: 650;
+  line-height: 1.55;
+  color: rgba(28, 24, 48, 0.94);
 }
 
 .freeRevealTransitionSub {
-  margin: 0.55rem 0 0;
+  margin: 0.7rem 0 0;
+  max-width: 22rem;
   font-size: 0.94rem;
   line-height: 1.65;
-  color: rgba(45, 40, 70, 0.78);
+  color: rgba(45, 40, 70, 0.82);
 }
 
 .freeStableBaselineLead {
@@ -3325,8 +3627,8 @@
 
 @keyframes freeRevealFadeIn {
   from {
-    opacity: 0;
-    transform: translateY(6px);
+    opacity: 0.55;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -3350,6 +3652,28 @@
 .freeQuestionnaireSection,
 .freeFiveViewSection {
   margin-top: 1.25rem;
+}
+
+.freeQuestionnaireSection {
+  max-width: 36rem;
+}
+
+@media (min-width: 900px) {
+  .freeGuidedShell {
+    grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+    gap: 1.4rem 2rem;
+    max-width: 52rem;
+    min-height: min(68vh, 34rem);
+    align-items: center;
+  }
+
+  .freeClueVisualSvg {
+    width: 10.5rem;
+  }
+
+  .freeGuidedFormCol {
+    max-width: 34rem;
+  }
 }
 
 .freeQuestionnaireProgress {
@@ -3432,7 +3756,7 @@
 .freeQuestionnaireChoice {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.75rem;
   min-height: 3rem;
   padding: 0.85rem 1rem;
@@ -3573,15 +3897,40 @@
   .freeRevealTransition,
   .freeResultRevealItem,
   .freeQuestionnaireChoice,
-  .freeQuestionnaireProgressNode {
+  .freeQuestionnaireProgressNode,
+  .freeContinuousProgressFill,
+  .freeClueVisualPoint {
     animation: none !important;
     transition: none !important;
     transform: none !important;
   }
 }
 
+@media (max-width: 390px) {
+  .freeSegmentedDobRow {
+    gap: 0.3rem;
+  }
+
+  .freeSegmentedDobInputYear {
+    width: 4.2rem;
+  }
+
+  .freeSegmentedDobInputMonth,
+  .freeSegmentedDobInputDay {
+    width: 2.85rem;
+  }
+
+  .freeSegmentedDobUnit {
+    font-size: 0.82rem;
+  }
+}
+
 @media (max-width: 639px) {
   .freeIntroPrimaryBtn {
+    width: 100%;
+  }
+
+  .freeSegmentedDobForm .freeIntroPrimaryBtn {
     width: 100%;
   }
 
@@ -3815,4 +4164,346 @@
   font-size: 0.78rem;
   font-weight: 600;
   color: rgba(78, 68, 128, 0.92);
+}
+
+/* ── Free result commercial lead (RESULT first viewport; not poster hero) ── */
+.freeResultLead {
+  margin-top: 0.35rem;
+}
+
+.freeResultLeadGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.freeResultLeadCopy {
+  min-width: 0;
+}
+
+.freeResultLeadTitle {
+  margin: 0 0 0.7rem;
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(1.2rem, 5.2vw, 1.55rem);
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.freeResultLeadIdentity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.65rem;
+  margin: 0 0 0.35rem;
+}
+
+.freeResultLeadIdentityKind {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: rgba(62, 52, 88, 0.55);
+}
+
+.freeResultLeadIdentityName {
+  font-size: clamp(1.05rem, 3.6vw, 1.2rem);
+  font-weight: 650;
+  color: rgba(28, 24, 48, 0.92);
+}
+
+.freeResultLeadSupport {
+  margin: 0 0 0.65rem;
+  font-size: clamp(0.92rem, 2.8vw, 1rem);
+  line-height: 1.55;
+  color: rgba(50, 46, 58, 0.78);
+}
+
+.freeResultLeadPrivacy {
+  margin: 0;
+  font-size: clamp(0.86rem, 2.5vw, 0.94rem);
+  line-height: 1.65;
+  color: rgba(62, 52, 88, 0.68);
+}
+
+.freeResultLeadVisual {
+  width: 100%;
+  max-height: 148px;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(90, 78, 120, 0.1);
+  background: rgba(240, 236, 248, 0.55);
+}
+
+.freeResultLeadImage {
+  display: block;
+  width: 100%;
+  height: 148px;
+  object-fit: cover;
+  object-position: center 28%;
+}
+
+.freeDepthBlock {
+  margin: 0.95rem 0 0;
+  padding: 0.95rem 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.freeDepthBlockTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.98rem;
+  font-weight: 650;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.freeDepthBlockBody {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: rgba(40, 36, 58, 0.88);
+}
+
+.freeDepthReasonList {
+  margin: 0;
+  padding: 0 0 0 1.15rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.freeDepthReasonItem {
+  font-size: 0.94rem;
+  line-height: 1.7;
+  color: rgba(40, 36, 58, 0.88);
+}
+
+.freeDepthConditionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 0.95rem;
+}
+
+.freeDepthConditionList {
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(40, 36, 58, 0.88);
+}
+
+.freeDepthSceneStack {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .freeDepthConditionGrid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.freeResultInsightTop {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0.85rem 0 1.1rem;
+}
+
+.freeResultInsightPrimary {
+  border-color: rgba(107, 95, 168, 0.2);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.freeResultDetailHeading {
+  margin: 0 0 0.55rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(40, 38, 44, 0.88);
+}
+
+.conversionBridgePlanGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.conversionBridgePlanCard {
+  padding: 1rem 1.05rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(90, 78, 120, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.conversionBridgePlanName {
+  margin: 0 0 0.35rem;
+  font-size: clamp(0.95rem, 2.8vw, 1.05rem);
+  font-weight: 650;
+  line-height: 1.4;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.conversionBridgePlanAudience {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(62, 52, 88, 0.78);
+}
+
+.conversionBridgePlanPrice {
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.15rem, 3.4vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: rgba(28, 24, 48, 0.94);
+  font-variant-numeric: tabular-nums;
+}
+
+.conversionBridgeCtaBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.conversionBridgeCtaSupport {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(62, 52, 88, 0.68);
+  text-align: center;
+}
+
+.bridgePremiumPreview {
+  margin: 0 0 1.15rem;
+}
+
+.bridgePremiumPreviewSheet {
+  margin-top: 0.65rem;
+  padding: 0.95rem 1rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(90, 78, 120, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 245, 252, 0.92));
+}
+
+.bridgePremiumPreviewProduct {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: rgba(62, 52, 88, 0.62);
+}
+
+.bridgePremiumPreviewTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.65rem;
+}
+
+.bridgePremiumPreviewTab {
+  font-size: 0.72rem;
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(90, 78, 120, 0.12);
+  color: rgba(62, 52, 88, 0.62);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.bridgePremiumPreviewTabActive {
+  border-color: rgba(90, 78, 120, 0.28);
+  color: rgba(40, 34, 68, 0.92);
+  background: rgba(107, 95, 168, 0.1);
+}
+
+.bridgePremiumPreviewChapter {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.bridgePremiumPreviewBody {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: rgba(50, 46, 58, 0.86);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .freeResultInsightTop {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .conversionBridgePlanGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .freeResultLeadGrid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
+    gap: 1.35rem;
+    align-items: center;
+  }
+
+  .freeResultLeadVisual {
+    max-height: 220px;
+  }
+
+  .freeResultLeadImage {
+    height: 220px;
+  }
+
+  .conversionBridge {
+    max-width: 56rem;
+    width: 100%;
+  }
+
+  .freeResultLead,
+  .freeResultSummaryHub {
+    max-width: 56rem;
+  }
+
+  .conversionBridgeCtaSupport {
+    text-align: left;
+  }
+}
+
+@media (max-width: 359px) {
+  .freeResultLeadTitle {
+    font-size: 1.12rem;
+  }
+
+  .conversionBridgePrimary {
+    font-size: 14px;
+    padding: 12px 14px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .freeResultLeadVisual,
+  .freeResultLeadImage {
+    max-height: 120px;
+    height: 120px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .freeResultLeadImage {
+    transform: none;
+  }
 }
