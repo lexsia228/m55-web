@@ -6,6 +6,7 @@
  * Downstream surfaces (LP, Core, My, shelf, reader, ConsultRoom) wire in later gates.
  */
 
+import { getCommercialProduct } from './contracts/m55CommercialFunnelContract';
 import {
   LABEL_FORMAT_SAVED,
   LABEL_PRODUCT_EN,
@@ -22,6 +23,13 @@ import {
   REPLY_TICKET_INCLUDED_COUNT,
   REPLY_TICKET_TOTAL_CAP_PER_REPORT,
 } from './reply/replyTicketCheckoutConstants';
+
+const SELF_PREMIUM_LIGHT = getCommercialProduct('selfPremiumLight');
+const SELF_PREMIUM_FULL = getCommercialProduct('selfPremiumFull');
+
+function formatYenLabelJa(priceJpy: number): string {
+  return `¥${priceJpy.toLocaleString('ja-JP')}（税込）`;
+}
 
 export const PAID_DTR_PRODUCT_COPY_VERSION = 'm55-paid-dtr-product-copy-v1' as const;
 
@@ -845,25 +853,25 @@ export const PAID_DTR_PUBLIC_SCOPE_CLARITY = {
     '時期や状況の深掘りは、保存版に紐づく追加読み解きの範囲で、件数内・一テーマごとに扱います。',
 } as const;
 
-/** Saved-report pricing tiers — Product Truth SSOT (2026-06). Checkout/UI wiring is later gates. */
+/** Saved-report pricing tiers — amounts/names from machine commercial contract. */
 export const PAID_DTR_SAVED_REPORT_PRICING = {
   light: {
     productKey: DTR_CORE_LIGHT_V1_PRODUCT_KEY,
-    priceYen: 1000,
-    priceLabelJa: '¥1,000（税込）',
-    planNameJa: '保存版ライト',
-    headlineJa: '保存版レポート + 追加読み解き1件つき',
-    audienceJa: 'まず保存版を読んで、自分の輪郭を整理したい人向け',
+    priceYen: SELF_PREMIUM_LIGHT.priceJpy as number,
+    priceLabelJa: formatYenLabelJa(SELF_PREMIUM_LIGHT.priceJpy as number),
+    planNameJa: SELF_PREMIUM_LIGHT.publicName,
+    headlineJa: 'プレミアムレポート + 追加読み解き1件つき',
+    audienceJa: 'まずプレミアムレポートを読んで、自分の輪郭を整理したい人向け',
     includedReplyCount: REPLY_TICKET_INCLUDED_COUNT,
   },
   full: {
     productKey: DTR_CORE_FULL_V1_PRODUCT_KEY,
-    priceYen: 1480,
-    priceLabelJa: '¥1,480（税込）',
-    planNameJa: '保存版FULL',
+    priceYen: SELF_PREMIUM_FULL.priceJpy as number,
+    priceLabelJa: formatYenLabelJa(SELF_PREMIUM_FULL.priceJpy as number),
+    planNameJa: SELF_PREMIUM_FULL.publicName,
     recommended: true,
-    headlineJa: '保存版レポート + 追加読み解き 合計5件まで',
-    audienceJa: '保存版を読んだ後、追加読み解きで複数回深めたい人向け',
+    headlineJa: 'プレミアムレポート + 追加読み解き 合計5件まで',
+    audienceJa: 'プレミアムレポートを読んだ後、追加読み解きで複数回深めたい人向け',
     totalReplyCap: REPLY_TICKET_TOTAL_CAP_PER_REPORT,
     /** FULL初回: initial_included=1 + purchased_count=4（合計5枠） */
     initialIncludedCount: REPLY_TICKET_INCLUDED_COUNT,
@@ -1275,30 +1283,30 @@ export const PAID_DTR_LP = {
   tiers: {
     sectionTitleJa: '読み返し方に合わせて選べます',
     sectionLeadJa:
-      'どちらも同じ4章の保存版です。違いは、追加読み解きとして使える回数です。',
+      'どちらも同じ4章のプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
     full: {
       planNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '保存版:',
-      savedReportValueJa: '4章の保存版',
+      savedReportLabelJa: 'プレミアムレポート:',
+      savedReportValueJa: '4章のプレミアムレポート',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '合計5件',
-      bodyJa: '保存版を読みながら、複数のテーマを続けて整理したい方',
-      ctaLabelJa: '保存版FULLを選ぶ',
+      bodyJa: 'プレミアムレポートを読みながら、複数のテーマを続けて整理したい方',
+      ctaLabelJa: 'フルを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.full.productKey,
     },
     light: {
       planNameJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
       oneTimeLabelJa: '一回払い',
-      savedReportLabelJa: '保存版:',
-      savedReportValueJa: '4章の保存版',
+      savedReportLabelJa: 'プレミアムレポート:',
+      savedReportValueJa: '4章のプレミアムレポート',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '1件',
-      bodyJa: 'まず保存版を読み、必要なときに1テーマだけ深めたい方',
+      bodyJa: 'まずプレミアムレポートを読み、必要なときに1テーマだけ深めたい方',
       upgradeNoteJa: 'ライト購入後も、¥600（税込）でFULL化できます。',
-      ctaLabelJa: '保存版ライトを選ぶ',
+      ctaLabelJa: 'ライトを選ぶ',
       productKey: PAID_DTR_SAVED_REPORT_PRICING.light.productKey,
     },
   },

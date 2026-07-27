@@ -11,6 +11,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { isHomePairReadingLivePublic } from '../../lib/m55/homePairReadingPublicContract';
+import { readSelfFunnelStage } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import {
+  isValidBasicInfo,
+  resolveFreeCtaLabel,
+  type SelfFunnelStage,
+} from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import { ProfileRepository } from '../../lib/soul/profile';
 import CoreAnalysisLoading from '../core/CoreAnalysisLoading';
 import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
@@ -27,7 +33,7 @@ const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
 function FreeCtaButton({
-  hasProfile,
+  stage,
   isLoaded,
   className,
   testIdLoading,
@@ -36,7 +42,7 @@ function FreeCtaButton({
   label,
   onOpenIntake,
 }: {
-  hasProfile: boolean;
+  stage: SelfFunnelStage;
   isLoaded: boolean;
   className: string;
   testIdLoading: string;
@@ -58,7 +64,7 @@ function FreeCtaButton({
       </button>
     );
   }
-  if (!hasProfile) {
+  if (stage === 'EMPTY') {
     return (
       <button type="button" className={className} data-testid={testIdIntake} onClick={onOpenIntake}>
         {label}
@@ -84,17 +90,28 @@ export default function HomePanel() {
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
     window.addEventListener('m55:profile_updated', bump);
-    return () => window.removeEventListener('m55:profile_updated', bump);
+    window.addEventListener('pageshow', bump);
+    window.addEventListener('focus', bump);
+    return () => {
+      window.removeEventListener('m55:profile_updated', bump);
+      window.removeEventListener('pageshow', bump);
+      window.removeEventListener('focus', bump);
+    };
   }, []);
 
   const view = useMemo(() => {
-    if (!isLoaded) return { kind: 'loading' as const };
+    if (!isLoaded) return { kind: 'loading' as const, stage: 'EMPTY' as SelfFunnelStage };
     const profile = ProfileRepository.get(ownerId);
-    if (!profile?.birthDate || !profile.nickname?.trim()) return { kind: 'no_profile' as const };
-    return { kind: 'has_profile' as const };
+    if (!isValidBasicInfo(profile)) {
+      return { kind: 'no_profile' as const, stage: 'EMPTY' as SelfFunnelStage };
+    }
+    const stage = readSelfFunnelStage(ownerId);
+    return { kind: 'has_profile' as const, stage };
   }, [isLoaded, ownerId, profileEpoch]);
 
   const hasProfile = view.kind === 'has_profile';
+  const funnelStage = view.stage;
+  const freeCtaLabel = resolveFreeCtaLabel(funnelStage);
   const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
@@ -149,7 +166,7 @@ export default function HomePanel() {
                         data-testid="m55-home-open-birth-intake"
                         onClick={openIntake}
                       >
-                        {homeCopy.heroPosterCtaJa}
+                        {freeCtaLabel}
                       </button>
                     )}
                     {isLoaded && hasProfile && (
@@ -159,7 +176,7 @@ export default function HomePanel() {
                         data-testid="m55-home-has-profile-hero"
                         onClick={() => router.push('/core')}
                       >
-                        {homeCopy.heroPosterCtaJa}
+                        {freeCtaLabel}
                       </button>
                     )}
                     <p className={styles.posterHeroSupport}>{homeCopy.heroPosterSupportJa}</p>
@@ -200,7 +217,7 @@ export default function HomePanel() {
             freeCta={{
               hasProfile,
               isLoaded,
-              label: homeCopy.productMapSelfCtaJa,
+              label: freeCtaLabel,
               onOpenIntake: openIntake,
             }}
           />
@@ -231,13 +248,13 @@ export default function HomePanel() {
           </div>
           <div className={styles.integratedActions}>
             <FreeCtaButton
-              hasProfile={hasProfile}
+              stage={funnelStage}
               isLoaded={isLoaded}
               className={styles.ctaFree}
               testIdLoading="m55-home-free-preview-cta-loading"
               testIdIntake="m55-home-free-preview-intake"
               testIdCore="m55-home-free-preview-core"
-              label={homeCopy.freeResultCtaJa}
+              label={freeCtaLabel}
               onOpenIntake={openIntake}
             />
             <p className={styles.ctaSupport}>{homeCopy.freeResultSupportJa}</p>
@@ -364,13 +381,13 @@ export default function HomePanel() {
           <p className={styles.sectionLead}>{homeCopy.finalCtaBodyJa}</p>
           <div className={styles.finalCtaGroup}>
             <FreeCtaButton
-              hasProfile={hasProfile}
+              stage={funnelStage}
               isLoaded={isLoaded}
               className={styles.ctaFree}
               testIdLoading="m55-home-final-cta-loading"
               testIdIntake="m55-home-final-cta-intake"
               testIdCore="m55-home-final-cta-core"
-              label={homeCopy.finalCtaPrimaryJa}
+              label={freeCtaLabel}
               onOpenIntake={openIntake}
             />
             <Link

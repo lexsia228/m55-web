@@ -10,7 +10,7 @@ export type FreeRevealUxPhase =
   | 'REVEALING'
   | 'RESULT';
 
-export type FreeJourneyStep = 'profile' | 'questions' | 'interest' | 'result';
+export type FreeJourneyStep = 'profile' | 'questions' | 'result';
 
 export const FREE_REVEAL_TRANSITION_MS = 750 as const;
 
@@ -46,22 +46,25 @@ export function resolveJourneyStep(
   phase: FreeRevealUxPhase,
   questionIndex?: number,
   questionTotal?: number,
-  isInterestStep?: boolean,
-): { step: FreeJourneyStep; questionLabel?: string } {
-  if (phase === 'RESULT') return { step: 'result' };
-  if (isInterestStep) return { step: 'interest' };
-  if (phase === 'INTRO' || phase === 'QUESTIONNAIRE' || phase === 'REANSWER_FINAL' || phase === 'REVEALING') {
+  profileComplete = false,
+): { step: FreeJourneyStep; questionLabel?: string; profileComplete?: boolean } {
+  if (phase === 'RESULT') return { step: 'result', profileComplete: true };
+  if (phase === 'QUESTIONNAIRE' || phase === 'REANSWER_FINAL' || phase === 'REVEALING') {
     const label =
       typeof questionIndex === 'number' && typeof questionTotal === 'number'
         ? `${questionIndex + 1}/${questionTotal}`
         : undefined;
-    return { step: 'questions', questionLabel: label };
+    return { step: 'questions', questionLabel: label, profileComplete: true };
   }
-  return { step: 'profile' };
+  if (phase === 'INTRO') {
+    return { step: profileComplete ? 'questions' : 'profile', profileComplete };
+  }
+  return { step: 'profile', profileComplete: false };
 }
 
-export function resolveInitialUxPhase(): FreeRevealUxPhase {
-  return 'INTRO';
+/** Profile from Home modal skips INTRO — questionnaire begins immediately. */
+export function resolveInitialUxPhase(hasCompleteProfile = false): FreeRevealUxPhase {
+  return hasCompleteProfile ? 'QUESTIONNAIRE' : 'INTRO';
 }
 
 export function transitionOnIntroStart(): FreeRevealUxPhase {

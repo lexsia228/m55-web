@@ -72,11 +72,12 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await expect(page.getByTestId('m55-home-birth-intake-layer')).toBeVisible();
     await page.getByPlaceholder('表示名').fill('試験');
     await page.locator('input[type="date"]').fill('1990-05-15');
-    await page.getByRole('button', { name: '保存して開く' }).click();
+    await page.getByRole('button', { name: '無料結果を始める' }).click();
     await expect(page.getByTestId('m55-core-analysis-loading')).toBeVisible({ timeout: 5000 });
     await page.screenshot({ path: path.join(OUT, '04-analyzing-overlay.png'), fullPage: true });
     await page.waitForURL('**/core', { timeout: 12_000 });
-    await expect(page.locator('h1').first()).toContainText('さん', { timeout: 15_000 });
+    await expect(page.getByTestId('m55-free-questionnaire')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('m55-free-continuous-progress')).toContainText('1 / 5');
     await page.screenshot({ path: path.join(OUT, '05-core-after-save.png'), fullPage: true });
   });
 });

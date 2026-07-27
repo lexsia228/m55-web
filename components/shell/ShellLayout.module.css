@@ -272,6 +272,7 @@
   }
 
   .mobileFreeLink,
+  .mobilePremiumLink,
   .menuTrigger {
     display: none !important;
   }
@@ -333,7 +334,8 @@
 
 /* ── Compact header (≤959px): 無料で見る shortcut + メニュー trigger ─────────── */
 
-.mobileFreeLink {
+.mobileFreeLink,
+.mobilePremiumLink {
   display: none;
 }
 
@@ -348,7 +350,8 @@
 }
 
 @media (max-width: 959px) {
-  .mobileFreeLink {
+  .mobileFreeLink,
+  .mobilePremiumLink {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -362,8 +365,19 @@
     transition: color 0.15s ease, background 0.15s ease;
   }
 
-  .mobileFreeLink:hover {
+  .mobilePremiumLink {
+    color: rgba(255, 250, 241, 0.94);
+    background: rgba(107, 95, 168, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .mobileFreeLink:hover,
+  .mobilePremiumLink:hover {
     background: rgba(255, 255, 255, 0.07);
+  }
+
+  .mobilePremiumLink:hover {
+    background: rgba(107, 95, 168, 0.55);
   }
 
   .menuTrigger {
@@ -393,7 +407,8 @@
 }
 
 .menuTrigger:focus-visible,
-.mobileFreeLink:focus-visible {
+.mobileFreeLink:focus-visible,
+.mobilePremiumLink:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.50);
   outline-offset: 2px;
 }
@@ -531,6 +546,7 @@
   .topNavItem,
   .authButton,
   .mobileFreeLink,
+  .mobilePremiumLink,
   .menuTrigger,
   .mobileMenuPanel,
   .mobileMenuLink,

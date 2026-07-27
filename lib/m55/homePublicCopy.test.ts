@@ -62,13 +62,13 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
     assert.match(noProfileBranch!, /data-testid="m55-home-open-birth-intake"/);
     assert.match(noProfileBranch!, /className=\{styles\.posterHeroCta\}/);
     assert.match(noProfileBranch!, /onClick=\{openIntake\}/);
-    assert.match(noProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+    assert.match(noProfileBranch!, /\{freeCtaLabel\}/);
 
     assert.match(hasProfileBranch!, /type="button"/);
     assert.match(hasProfileBranch!, /data-testid="m55-home-has-profile-hero"/);
     assert.match(hasProfileBranch!, /className=\{styles\.posterHeroCta\}/);
     assert.match(hasProfileBranch!, /onClick=\{\(\) => router\.push\('\/core'\)\}/);
-    assert.match(hasProfileBranch!, /\{homeCopy\.heroPosterCtaJa\}/);
+    assert.match(hasProfileBranch!, /\{freeCtaLabel\}/);
 
     assert.equal((heroSource.match(/<a[\s/>]/g) ?? []).length, 0);
     assert.equal((heroSource.match(/<Link[\s/>]/g) ?? []).length, 0);

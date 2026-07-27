@@ -12,8 +12,7 @@ type Props = {
 const STEPS: readonly { id: FreeJourneyStep; labelJa: string }[] = [
   { id: 'profile', labelJa: '基本情報' },
   { id: 'questions', labelJa: '5つの問い' },
-  { id: 'interest', labelJa: '今の関心' },
-  { id: 'result', labelJa: '見取り図' },
+  { id: 'result', labelJa: '無料結果' },
 ];
 
 function useStepperColumns(): number {
@@ -22,7 +21,7 @@ function useStepperColumns(): number {
   useEffect(() => {
     const sync = () => {
       const w = window.innerWidth;
-      setColumns(w >= 900 ? 4 : 2);
+      setColumns(w >= 900 ? 3 : 2);
     };
     sync();
     window.addEventListener('resize', sync);
@@ -37,7 +36,7 @@ export default function CoreFreeJourneyStepper({ currentStep, questionLabel }: P
   const columns = useStepperColumns();
 
   return (
-    <nav className={styles.freeJourneyStepper} aria-label="無料見取り図の進行">
+    <nav className={styles.freeJourneyStepper} aria-label="無料結果までの進行">
       <ol
         className={styles.freeJourneyStepperList}
         style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}

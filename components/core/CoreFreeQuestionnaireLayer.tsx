@@ -1,14 +1,16 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import {
-  FREE_CURRENT_INTEREST_COPY_V1,
   FREE_FIVE_QUESTION_COUNT,
+  FREE_AXIS_EYEBROW_SUFFIX_JA,
   FREE_FIVE_QUESTIONS_COPY_V1,
+  FREE_QUESTION_HELPER_COMPACT_JA,
+  FREE_QUESTION_HELPER_JA,
   type FreeQuestionId,
 } from '../../lib/m55/freeResult/questionnaireCopyV1';
 import { REANSWER_CONFIRM_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
-import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
+import CoreFreeContinuousFlowProgress from './CoreFreeContinuousFlowProgress';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -17,7 +19,14 @@ type Props = {
   onComplete: () => void;
   isReanswerFlow?: boolean;
   onIndexChange?: (index: number) => void;
-  onInterestStepChange?: (active: boolean) => void;
+  /** Opens the shared profile intake modal — not a duplicate DOB step. */
+  onRequestProfileEdit?: () => void;
+  /** 1-based resume index into the five questions. */
+  initialIndex?: number;
+  /** Disable generate / next while a result flight is pending. */
+  completing?: boolean;
+  /** Visible DOB summary, e.g. 1983年2月28日を使用中 */
+  dobSummaryJa?: string;
 };
 
 export default function CoreFreeQuestionnaireLayer({
@@ -26,167 +35,206 @@ export default function CoreFreeQuestionnaireLayer({
   onComplete,
   isReanswerFlow = false,
   onIndexChange,
-  onInterestStepChange,
+  onRequestProfileEdit,
+  initialIndex = 0,
+  completing = false,
+  dobSummaryJa,
 }: Props) {
-  const [index, setIndex] = useState(0);
-  const [interestStep, setInterestStep] = useState(false);
+  const [index, setIndex] = useState(() =>
+    Math.min(Math.max(initialIndex, 0), FREE_FIVE_QUESTION_COUNT - 1),
+  );
   const headingId = useId();
-  const interest = FREE_CURRENT_INTEREST_COPY_V1;
-  const current = interestStep ? interest : FREE_FIVE_QUESTIONS_COPY_V1[index]!;
+  const current = FREE_FIVE_QUESTIONS_COPY_V1[index]!;
   const selected = answers[current.questionId] ?? '';
-  const progressLabel = interestStep ? undefined : `${index + 1}/${FREE_FIVE_QUESTION_COUNT}`;
+  const isLast = index >= FREE_FIVE_QUESTION_COUNT - 1;
+  /** Clue visual: basic info = clue 1 done; questions = clues 2–6. */
+  const clueStep = index + 2;
+  const completedClues = selected ? index + 2 : index + 1;
 
-  function setIndexAndNotify(next: number, nextInterest = false) {
+  function setIndexAndNotify(next: number) {
     setIndex(next);
-    setInterestStep(nextInterest);
-    onIndexChange?.(nextInterest ? FREE_FIVE_QUESTION_COUNT : next);
-    onInterestStepChange?.(nextInterest);
+    onIndexChange?.(next);
   }
 
   function goNext() {
-    if (!selected) return;
-    if (interestStep) {
+    if (!selected || completing) return;
+    if (isLast) {
       onComplete();
-      return;
-    }
-    if (index >= FREE_FIVE_QUESTION_COUNT - 1) {
-      setIndexAndNotify(index, true);
       return;
     }
     setIndexAndNotify(Math.min(index + 1, FREE_FIVE_QUESTION_COUNT - 1));
   }
 
+  useEffect(() => {
+    onIndexChange?.(index);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- notify resume index once on mount
+  }, []);
+
   function goBack() {
-    if (interestStep) {
-      setIndexAndNotify(FREE_FIVE_QUESTION_COUNT - 1, false);
-      return;
-    }
     setIndexAndNotify(Math.max(index - 1, 0));
   }
 
+  function selectByOrdinal(ordinal: number) {
+    const choice = current.choices[ordinal];
+    if (!choice) return;
+    onChange(current.questionId, choice.answerId);
+  }
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return;
+
+      if (event.key === '1' || event.key === '2' || event.key === '3') {
+        event.preventDefault();
+        selectByOrdinal(Number(event.key) - 1);
+        return;
+      }
+      if (event.key === 'Enter') {
+        if (!selected) return;
+        event.preventDefault();
+        goNext();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bind to current question/selection
+  }, [current.questionId, selected, index, isLast]);
+
   const completeLabel = isReanswerFlow
     ? REANSWER_CONFIRM_COPY_V1.finalizeJa
-    : '見取り図を開く';
-
-  const stepperStep = interestStep ? 'interest' : 'questions';
-  const overline = interestStep ? '今の関心' : '5つの問い';
-  const sectionTitle = interestStep
-    ? interest.questionJa
-    : 'いまの感じ方を、1問ずつ選びます';
-  const sectionLead = interestStep
-    ? interest.sceneContextJa
-    : '正解はありません。いちばん近い感じを選んでください。';
+    : '無料結果を見る';
 
   return (
     <section
-      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeQuestionnaireSection}`}
+      className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeGuidedShell}`}
       aria-labelledby={headingId}
+      data-testid="m55-free-questionnaire"
     >
-      <CoreFreeJourneyStepper currentStep={stepperStep} questionLabel={progressLabel} />
-      <span className={styles.tierAOverline}>{overline}</span>
-      <h2 id={headingId} className={styles.sectionTitle}>
-        {sectionTitle}
-      </h2>
-      {!interestStep ? <p className={styles.sectionLead}>{sectionLead}</p> : null}
-      {interestStep ? <p className={styles.sectionLead}>{sectionLead}</p> : null}
-
-      {!interestStep ? (
-        <div className={styles.freeQuestionnaireProgress} aria-live="polite">
-          <span className={styles.freeQuestionnaireProgressLabel}>{progressLabel}</span>
-          <div
-            className={styles.freeQuestionnaireProgressNodes}
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={FREE_FIVE_QUESTION_COUNT}
-            aria-valuenow={index + 1}
-            aria-label={`質問 ${progressLabel}`}
-          >
-            {FREE_FIVE_QUESTIONS_COPY_V1.map((item, nodeIndex) => {
-              const answered = Boolean(answers[item.questionId]);
-              const isCurrent = nodeIndex === index;
-              const nodeClass = [
-                styles.freeQuestionnaireProgressNode,
-                answered ? styles.freeQuestionnaireProgressNodeAnswered : '',
-                isCurrent ? styles.freeQuestionnaireProgressNodeCurrent : '',
-              ]
-                .filter(Boolean)
-                .join(' ');
-              return <span key={item.questionId} className={nodeClass} aria-hidden={!isCurrent} />;
-            })}
-          </div>
-          <div className={styles.freeQuestionnaireProgressTrack} aria-hidden>
-            <span
-              className={styles.freeQuestionnaireProgressFill}
-              style={{ width: `${((index + 1) / FREE_FIVE_QUESTION_COUNT) * 100}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {!interestStep ? (
-        <p className={styles.freeQuestionnaireShortLabel}>{current.shortLabelJa}</p>
-      ) : (
-        <p className={styles.freeQuestionnaireShortLabel}>{interest.shortLabelJa}</p>
-      )}
-      {!interestStep ? (
-        <p className={styles.freeQuestionnaireScene}>{current.sceneContextJa}</p>
-      ) : null}
-      {!interestStep ? (
-        <h3 className={styles.freeQuestionnaireQuestion}>{current.questionJa}</h3>
-      ) : null}
-
-      <div
-        className={styles.freeQuestionnaireChoices}
-        role="radiogroup"
-        aria-label={current.questionJa}
-      >
-        {current.choices.map((choice) => {
-          const isSelected = selected === choice.answerId;
-          return (
-            <button
-              key={choice.answerId}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              className={`${styles.freeQuestionnaireChoice}${
-                isSelected ? ` ${styles.freeQuestionnaireChoiceSelected}` : ''
-              }`}
-              onClick={() => onChange(current.questionId, choice.answerId)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  onChange(current.questionId, choice.answerId);
-                }
-              }}
-            >
-              <span className={styles.freeQuestionnaireChoiceLabel}>{choice.labelJa}</span>
-              {isSelected ? (
-                <span className={styles.freeQuestionnaireChoiceMark} aria-hidden>
-                  選択中
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
+      <div className={styles.freeGuidedVisualCol}>
+        <CoreFreeContinuousFlowProgress
+          stepNumber={clueStep}
+          completedCount={completedClues}
+          questionIndex={index}
+        />
       </div>
 
-      <div className={styles.freeQuestionnaireActions}>
-        <button
-          type="button"
-          className={styles.freeQuestionnaireSecondaryBtn}
-          onClick={goBack}
-          disabled={!interestStep && index === 0}
+      <div className={styles.freeGuidedFormCol}>
+        {!isReanswerFlow && (dobSummaryJa || onRequestProfileEdit) ? (
+          <div className={styles.freeDobCompactBar}>
+            {dobSummaryJa ? (
+              <p className={styles.freeDobSummary} data-testid="m55-free-dob-summary">
+                {dobSummaryJa}
+              </p>
+            ) : null}
+            {onRequestProfileEdit ? (
+              <button
+                type="button"
+                className={styles.freeDobCompactChange}
+                onClick={onRequestProfileEdit}
+                data-testid="m55-free-profile-edit"
+              >
+                基本情報を変更
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        <p className={styles.freeContinuousEyebrow}>
+          {current.shortLabelJa}
+          {FREE_AXIS_EYEBROW_SUFFIX_JA}
+        </p>
+        <h1 id={headingId} className={styles.freeContinuousQuestionTitle}>
+          {current.questionJa}
+        </h1>
+        {index === 0 ? (
+          <p className={styles.freeContinuousHelper}>{FREE_QUESTION_HELPER_JA}</p>
+        ) : (
+          <p className={styles.freeContinuousHelperCompact}>{FREE_QUESTION_HELPER_COMPACT_JA}</p>
+        )}
+
+        <div
+          className={styles.freeQuestionnaireChoices}
+          role="radiogroup"
+          aria-labelledby={headingId}
         >
-          戻る
-        </button>
-        <button
-          type="button"
-          className={styles.freeQuestionnairePrimaryBtn}
-          onClick={goNext}
-          disabled={!selected}
-        >
-          {interestStep ? completeLabel : '次へ'}
-        </button>
+          {current.choices.map((choice, choiceIndex) => {
+            const isSelected = selected === choice.answerId;
+            return (
+              <button
+                key={choice.answerId}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                aria-label={`${choiceIndex + 1}. ${choice.labelJa}`}
+                className={`${styles.freeQuestionnaireChoice}${
+                  isSelected ? ` ${styles.freeQuestionnaireChoiceSelected}` : ''
+                }`}
+                onClick={() => onChange(current.questionId, choice.answerId)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onChange(current.questionId, choice.answerId);
+                  }
+                }}
+              >
+                <span
+                  className={`${styles.freeQuestionnaireChoiceCheck}${
+                    isSelected ? ` ${styles.freeQuestionnaireChoiceCheckOn}` : ''
+                  }`}
+                  aria-hidden
+                >
+                  {isSelected ? '✓' : ''}
+                </span>
+                <span className={styles.freeQuestionnaireChoiceLabel}>{choice.labelJa}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selected ? (
+          <p
+            className={styles.freeClueAck}
+            role="status"
+            aria-live="polite"
+            data-testid="m55-free-clue-ack"
+          >
+            <span className={styles.freeClueAckPrimary}>
+              {index + 1} / {FREE_FIVE_QUESTION_COUNT} 完了
+            </span>
+            {!isLast ? (
+              <span className={styles.freeClueAckSecondary}>
+                あと{FREE_FIVE_QUESTION_COUNT - index - 1}問
+              </span>
+            ) : null}
+          </p>
+        ) : (
+          <p className={styles.freeClueAckPlaceholder} aria-hidden>
+            {'\u00a0'}
+          </p>
+        )}
+
+        <div className={styles.freeQuestionnaireActions}>
+          <button
+            type="button"
+            className={styles.freeQuestionnaireSecondaryBtn}
+            onClick={goBack}
+            disabled={index === 0}
+          >
+            戻る
+          </button>
+          <button
+            type="button"
+            className={styles.freeQuestionnairePrimaryBtn}
+            onClick={goNext}
+            disabled={!selected || completing}
+            aria-busy={completing || undefined}
+            data-testid={isLast ? 'm55-free-generate-result' : 'm55-free-next-question'}
+          >
+            {isLast ? completeLabel : '次の質問へ'}
+          </button>
+        </div>
       </div>
     </section>
   );

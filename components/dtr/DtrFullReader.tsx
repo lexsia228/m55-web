@@ -3097,6 +3097,11 @@ export default function DtrFullReader({
       'dtr_saved_report',
       'dtr-saved-report-open',
     );
+    trackFunnelImpressionOnce(
+      M55_FUNNEL_EVENTS.premiumReportOpened,
+      'dtr_saved_report',
+      'dtr-premium-report-opened',
+    );
   }, [view.kind]);
 
   useEffect(() => {

@@ -72,20 +72,20 @@ export const M55_LEGACY_RUNTIME_DEBT = {
 } as const;
 
 export const M55_CURRENT_RUNTIME_STATE = {
-  productionMainSha: '37163a0d473c25365f3bddad579d4844fd8300df',
+  productionMainSha: 'd4e7b7c3426d901d1ba8460e136040bf209a64de',
   selfFree: {
-    preResultThemeSelection: true,
-    themeSelectionStepLabelJa: '今の関心',
-    questionnaireIncludesCurrentInterest: true,
+    preResultThemeSelection: false,
+    themeSelectionStepLabelJa: null,
+    questionnaireIncludesCurrentInterest: false,
     legacyTermsInPublicCopy: true,
-    freeResultIncludesActionSuggestions: true,
-    canonicalFreeResultCount: 'multiple paths via theme selection',
+    freeResultIncludesActionSuggestions: false,
+    canonicalFreeResultCount: 'single canonical via DOB + five core answers',
   },
   selfPremium: {
     publicNameDrift: {
       ssotPublicNameLight: 'M55 プレミアムレポート ライト',
       ssotPublicNameFull: 'M55 プレミアムレポート フル',
-      runtimeLegacyNames: ['保存版ライト', '保存版FULL'],
+      runtimeLegacyNames: [] as const,
     },
   },
   pairPremium: {
@@ -137,7 +137,7 @@ export const M55_COMMERCIAL_PRODUCTS = {
     availability: 'PUBLIC_NO_LOGIN',
     publicName: '個人無料読み解き',
     purpose: 'RECOGNITION_AND_TRUST',
-    inputRequirements: ['生年月日', '中核質問（現行 runtime には結果前「今の関心」step あり — legacy debt）'],
+    inputRequirements: ['生年月日', '中核質問'],
     loginRequirement: 'none',
     purchaseType: 'none',
     currency: 'JPY',

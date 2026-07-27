@@ -107,13 +107,13 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
 
   it('keeps read steps as free-entry bridge without paid deep-read leakage', () => {
     const stepsBlob = STATIC_M55_READ_STEPS.map((step) => `${step.title}\n${step.body}`).join('\n');
-    assert.match(stepsBlob, /4章の保存版/);
+    assert.match(stepsBlob, /4章のプレミアムレポート/);
     assert.match(stepsBlob, /読み直せます/);
     assert.equal(stepsBlob.includes('本質の読み解き'), false);
     assert.equal(stepsBlob.match(/出方/g)?.length ?? 0, 0);
   });
 
-  it('CTA copy clarifies saved-report depth and consult one-theme boundary', () => {
+  it('CTA copy clarifies premium-report depth and consult one-theme boundary', () => {
     assert.match(STATIC_CTA.intro, /輪郭まで確認できました/);
     assert.match(STATIC_CTA.intro, /4章で読み返せる形に残します/);
     assert.match(STATIC_CTA.bundleNote, /いまの1テーマ/);
@@ -121,8 +121,8 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /無料で分かったことと、保存版で深まること/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '保存版の質問へ進む');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /なぜ続きやすいのか/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
@@ -136,8 +136,10 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.equal(STATIC_COMMERCIAL_CONVERSION.previewRows.length, 4);
 
     const conversionSrc = readRepoFile('components/core/CoreFreeToPaidConversionBridge.tsx');
+    assert.match(conversionSrc, /getCommercialProduct/);
     assert.match(conversionSrc, /PAID_DTR_SAVED_REPORT_PRICING/);
     assert.match(conversionSrc, /viewSavedPlansHref/);
+    assert.match(conversionSrc, /CorePremiumReportPreviewSlice/);
     assert.equal(conversionSrc.includes('PurchaseButton'), false);
     assert.equal(conversionSrc.includes('/api/purchase'), false);
   });

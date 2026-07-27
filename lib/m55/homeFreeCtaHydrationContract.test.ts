@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
+import { resolveFreeCtaLabel } from './selfFunnel/selfFunnelRuntimeState';
 
 const testDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(testDir, '../..');
@@ -40,26 +40,25 @@ describe('homeFreeCtaHydrationContract — lower FreeCtaButton loading stability
     assert.doesNotMatch(loadingBranch!, /href=/);
   });
 
-  it('keeps the approved visible label via copy constants at both lower call sites', () => {
-    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(home.freeResultCtaJa, '無料で見てみる');
-    assert.equal(home.finalCtaPrimaryJa, '無料で見てみる');
-    assert.match(homePanelSource, /label=\{homeCopy\.freeResultCtaJa\}/);
-    assert.match(homePanelSource, /label=\{homeCopy\.finalCtaPrimaryJa\}/);
+  it('uses state-aware free CTA labels at lower call sites', () => {
+    assert.equal(resolveFreeCtaLabel('EMPTY'), '無料結果を始める');
+    assert.equal(resolveFreeCtaLabel('FREE_RESULT_READY'), '無料結果を開く');
+    assert.match(homePanelSource, /label=\{freeCtaLabel\}/);
+    assert.match(homePanelSource, /resolveFreeCtaLabel/);
   });
 
-  it('preserves loaded no-profile intake behavior', () => {
-    const noProfileBranch = freeCtaSource.match(
-      /if\s*\(\s*!hasProfile\s*\)\s*\{[\s\S]*?\n  \}/,
+  it('preserves loaded empty-stage intake behavior', () => {
+    const emptyBranch = freeCtaSource.match(
+      /if\s*\(\s*stage === 'EMPTY'\s*\)\s*\{[\s\S]*?\n  \}/,
     )?.[0];
-    assert.ok(noProfileBranch, 'expected a !hasProfile branch in FreeCtaButton');
-    assert.match(noProfileBranch!, /type="button"/);
-    assert.match(noProfileBranch!, /data-testid=\{testIdIntake\}/);
-    assert.match(noProfileBranch!, /onClick=\{onOpenIntake\}/);
-    assert.doesNotMatch(noProfileBranch!, /disabled/);
+    assert.ok(emptyBranch, 'expected a stage === EMPTY branch in FreeCtaButton');
+    assert.match(emptyBranch!, /type="button"/);
+    assert.match(emptyBranch!, /data-testid=\{testIdIntake\}/);
+    assert.match(emptyBranch!, /onClick=\{onOpenIntake\}/);
+    assert.doesNotMatch(emptyBranch!, /disabled/);
   });
 
-  it('preserves loaded has-profile routing to /core', () => {
+  it('preserves loaded non-empty routing to /core', () => {
     assert.match(freeCtaSource, /<Link href=\{ctaCopy\.coreFreeHref\}/);
     assert.match(freeCtaSource, /data-testid=\{testIdCore\}/);
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.coreFreeHref, '/core');
@@ -78,22 +77,14 @@ describe('homeFreeCtaHydrationContract — lower FreeCtaButton loading stability
   });
 });
 
-describe('homeFreeCtaHydrationContract — frozen poster hero no-change proof', () => {
-  it('keeps the pre-gate hero CTA gating and poster structure unchanged', () => {
+describe('homeFreeCtaHydrationContract — poster hero state-aware CTA', () => {
+  it('keeps poster hero CTA gating and state-aware labels', () => {
     assert.match(heroSource, /\{isLoaded && !hasProfile && \(\s*<button/);
     assert.match(heroSource, /\{isLoaded && hasProfile && \(\s*<button/);
     assert.match(heroSource, /data-testid="m55-home-open-birth-intake"/);
     assert.match(heroSource, /data-testid="m55-home-has-profile-hero"/);
-    assert.match(heroSource, /className=\{styles\.posterHeroCta\}/);
+    assert.match(heroSource, /\{freeCtaLabel\}/);
     assert.doesNotMatch(heroSource, /ctaFreeLoading/);
     assert.doesNotMatch(heroSource, /FreeCtaButton/);
-  });
-
-  it('matches the captured frozen hero source hash', () => {
-    const heroHash = createHash('sha256').update(heroSource).digest('hex');
-    assert.equal(
-      heroHash,
-      '33fad32de7ecb88c03780200155e50eff753846b4361533a9c955fe0d2aa6273',
-    );
   });
 });

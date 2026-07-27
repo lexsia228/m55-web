@@ -9,6 +9,20 @@ import { track } from '@vercel/analytics';
 export const M55_FUNNEL_EVENT_VERSION = 'v1' as const;
 
 export const M55_FUNNEL_EVENTS = {
+  /** Self free→premium funnel (privacy-safe names). */
+  selfEntryStarted: 'self_entry_started',
+  dobCompleted: 'dob_completed',
+  coreQuestionsCompleted: 'core_questions_completed',
+  freeResultViewed: 'free_result_viewed',
+  premiumBridgeViewed: 'premium_bridge_viewed',
+  premiumPlanSelected: 'premium_plan_selected',
+  authRequiredShown: 'auth_required_shown',
+  checkoutStarted: 'checkout_started',
+  premiumReportOpened: 'premium_report_opened',
+  resultRerunStarted: 'result_rerun_started',
+  additionalThemeStarted: 'additional_theme_started',
+  consultReplyStarted: 'consult_reply_started',
+  /** Existing surfaces (kept for continuity). */
   freeResultView: 'm55_free_result_view',
   paidBridgeView: 'm55_paid_bridge_view',
   paidBridgePrimaryClick: 'm55_paid_bridge_primary_click',
@@ -51,6 +65,7 @@ export const M55_FUNNEL_EVENTS = {
 export type M55FunnelEventName = (typeof M55_FUNNEL_EVENTS)[keyof typeof M55_FUNNEL_EVENTS];
 
 export type M55FunnelSurface =
+  | 'core_free_entry'
   | 'core_free_result'
   | 'core_paid_bridge'
   | 'dtr_paid_questionnaire'

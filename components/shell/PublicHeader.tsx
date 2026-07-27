@@ -5,6 +5,11 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { PUBLIC_NAV_TEN_VIEWS_LABEL_JA } from '../../lib/m55/topFreeEntryPublicCopy';
+import { readSelfFunnelStage } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import {
+  resolveCoreRouteView,
+  type SelfFunnelStage,
+} from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import styles from './ShellLayout.module.css';
 
 type NavItem = { href: string; label: string };
@@ -25,9 +30,11 @@ const ACCOUNT_DROPDOWN_NAV: NavItem[] = [
 ];
 
 const MOBILE_MENU_PUBLIC: NavItem[] = [
-  { href: '/dtr/lp', label: 'プレミアムレポート' },
+  { href: '/core', label: '無料で見る' },
+  { href: '/dtr/lp', label: 'プレミアム' },
   { href: '/how-m55-works', label: 'M55の仕組み' },
   { href: '/ten-views', label: PUBLIC_NAV_TEN_VIEWS_LABEL_JA },
+  { href: '/home', label: 'ホーム' },
 ];
 
 const MOBILE_MENU_SIGNED_IN: NavItem[] = [
@@ -143,6 +150,7 @@ function HeaderDropdown({ triggerLabel, items, pathname, menuId, aboutDropdown }
 export function PublicHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [funnelStage, setFunnelStage] = useState<SelfFunnelStage>('EMPTY');
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null);
@@ -150,6 +158,20 @@ export function PublicHeader() {
   const aboutMenuId = useId();
   const accountMenuId = useId();
 
+  useEffect(() => {
+    const sync = () => setFunnelStage(readSelfFunnelStage(null));
+    sync();
+    window.addEventListener('m55:profile_updated', sync);
+    window.addEventListener('pageshow', sync);
+    window.addEventListener('focus', sync);
+    return () => {
+      window.removeEventListener('m55:profile_updated', sync);
+      window.removeEventListener('pageshow', sync);
+      window.removeEventListener('focus', sync);
+    };
+  }, [pathname]);
+
+  const showMobilePremiumCta = resolveCoreRouteView(funnelStage) === 'result';
   const closeMenu = () => setMenuOpen(false);
 
   const closeMenuAndReturnFocus = () => {
@@ -248,18 +270,33 @@ export function PublicHeader() {
           />
         </nav>
 
-        <Link
-          href="/core"
-          className={`${styles.mobileFreeLink}${
-            isActiveRoute(pathname, '/core') ? ` ${styles.topNavItemActive}` : ''
-          }`}
-          aria-current={isActiveRoute(pathname, '/core') ? 'page' : undefined}
-        >
-          無料で見る
-        </Link>
+        {!showMobilePremiumCta ? (
+          <Link
+            href="/core"
+            className={`${styles.mobileFreeLink}${
+              isActiveRoute(pathname, '/core') ? ` ${styles.topNavItemActive}` : ''
+            }`}
+            aria-current={isActiveRoute(pathname, '/core') ? 'page' : undefined}
+            data-testid="m55-mobile-nav-free"
+          >
+            無料で見る
+          </Link>
+        ) : null}
       </div>
 
       <div className={styles.authArea}>
+        {showMobilePremiumCta ? (
+          <Link
+            href="/dtr/lp"
+            className={`${styles.mobilePremiumLink}${
+              isActiveRoute(pathname, '/dtr/lp') ? ` ${styles.topNavItemActive}` : ''
+            }`}
+            aria-current={isActiveRoute(pathname, '/dtr/lp') ? 'page' : undefined}
+            data-testid="m55-mobile-nav-premium"
+          >
+            プレミアム
+          </Link>
+        ) : null}
         <div className={styles.desktopAuth}>
           <SignedOut>
             <SignInButton mode="redirect">

@@ -25,7 +25,8 @@
         "mobile:open:android": "npx cap open android",
         "lint:ssot": "eslint \"app/home\" \"app/how-m55-works\" \"app/ten-views\" \"app/support\" \"app/legal\" \"app/purchase\" \"app/dtr/page.tsx\" \"app/dtr/lp/page.tsx\" \"app/pricing/page.tsx\" \"components/home\" \"components/pages\" \"components/shell\" --max-warnings 0",
         "test:e2e:install": "playwright install chromium",
-        "test:e2e:visual": "playwright test e2e/home-core-visual.spec.ts"
+        "test:e2e:visual": "playwright test e2e/home-core-visual.spec.ts",
+        "test:e2e:self-funnel": "playwright test e2e/self-funnel-runtime-state.spec.ts"
     },
     "dependencies": {
         "@capacitor/filesystem": "^6.0.0",

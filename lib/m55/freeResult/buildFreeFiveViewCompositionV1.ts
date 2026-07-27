@@ -257,7 +257,8 @@ function dayBandIndex(dayBand: DayBand): 0 | 1 | 2 {
   return 2;
 }
 
-function resolveDobAxes(input: {
+/** Exported for free-depth composition (same DOB axis resolution; no algorithm change). */
+export function resolveDobAxes(input: {
   birthDate: string;
   stemLaneIndex: number;
 }): Result<ExpressionAxes> {
@@ -304,7 +305,8 @@ function resolveDobAxes(input: {
   };
 }
 
-function resolveFreeAxes(
+/** Exported for free-depth composition (same free-axis resolution; IDs unchanged). */
+export function resolveFreeAxes(
   freeAnswerSet: Record<string, string>,
 ): Result<{
   axes: ExpressionAxes;

@@ -153,10 +153,10 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     const copy = readPage(COPY_FILE);
     const home = readPage(ROUTE_FILES['/home']);
     const { storefront: sf, home: homeCopy, learnMore, cta } = TOP_FREE_ENTRY_PUBLIC_COPY;
-    assert.equal(sf.fullPlanNameJa, '保存版FULL');
+    assert.equal(sf.fullPlanNameJa, 'M55 プレミアムレポート フル');
     assert.equal(sf.fullPriceLabelJa, '¥1,480（税込）');
     assert.equal(sf.fullConsultReplyJa, '追加読み解き合計5件');
-    assert.equal(sf.lightPlanNameJa, '保存版ライト');
+    assert.equal(sf.lightPlanNameJa, 'M55 プレミアムレポート ライト');
     assert.equal(sf.lightPriceLabelJa, '¥1,000（税込）');
     assert.equal(sf.lightConsultReplyJa, '追加読み解き1件');
     assert.equal(homeCopy.planLightNameJa, 'ライト');
@@ -178,7 +178,8 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(homeCopy.heroPosterCtaJa, '無料で見てみる');
     assert.equal(cta.openFreeMapJa, '無料で見てみる');
     assert.equal(cta.viewSavedPlansHref, '/dtr/lp');
-    assert.match(home, /\{homeCopy\.heroPosterCtaJa\}/);
+    assert.match(home, /\{freeCtaLabel\}/);
+    assert.match(home, /resolveFreeCtaLabel/);
     assert.match(home, /\{homeCopy\.planComparisonCtaJa\}/);
     assert.match(home, /data-testid="m55-home-open-birth-intake"/);
     assert.match(home, /data-testid="m55-home-has-profile-hero"/);
@@ -231,9 +232,9 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(copy, /追加読み解き合計5件/);
   });
 
-  it('uses saved-report formal language in corePublicCopy read steps', () => {
+  it('uses premium-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
-    assert.match(activeCopy, /4章の保存版/);
+    assert.match(activeCopy, /4章のプレミアムレポート/);
     assert.match(activeCopy, /追加読み解きで/);
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);

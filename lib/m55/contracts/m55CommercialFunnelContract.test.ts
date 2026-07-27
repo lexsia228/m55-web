@@ -53,18 +53,21 @@ describe('m55CommercialFunnelContract — machine product truth', () => {
     assert.equal(pair.productKey, 'compatibility_report_full_v1');
   });
 
-  it('records current runtime gap for pre-result theme selection', () => {
-    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection, true);
+  it('records Self funnel alignment for pre-result theme removal', () => {
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection, false);
     assert.equal(M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection, false);
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.freeResultIncludesActionSuggestions, false);
     assert.equal(M55_LEGACY_RUNTIME_DEBT.preResultThemeSelectionStepJa, '今の関心');
   });
 
-  it('does not claim target contract as implemented', () => {
-    assert.notEqual(
+  it('keeps residual legacy-term assertions deferred', () => {
+    assert.equal(
       M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection,
       M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection,
     );
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.legacyTermsInPublicCopy, true);
     assert.ok(M55_DEFERRED_RUNTIME_ASSERTIONS.length >= 3);
+    assert.equal(M55_ENFORCEMENT_STATUS, 'PENDING_SELF_FUNNEL_IMPLEMENTATION');
   });
 
   it('registers post-merge active lane and HOME final SSOT status', () => {
