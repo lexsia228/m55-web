@@ -80,6 +80,19 @@ test('build week lane is FROZEN', () => {
   assert.equal(/** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value, 'FROZEN');
 });
 
+test('growth share lane is ACTIVE', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(/** @type {{ value: string }} */ (observations.lanes.growthShare.status).value, 'ACTIVE');
+});
+
+test('growth share merge status is open unmerged branch local', () => {
+  const observations = readObservations(process.cwd());
+  assert.equal(
+    /** @type {{ value: string }} */ (observations.lanes.growthShare.mergeStatus).value,
+    'OPEN_UNMERGED_BRANCH_LOCAL',
+  );
+});
+
 test('bootstrapStartHead remains historical lane creation anchor', () => {
   const observations = readObservations(process.cwd());
   assert.equal(

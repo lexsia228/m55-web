@@ -222,6 +222,58 @@
         "updatedAt": "2026-07-25T07:00:00+00:00",
         "evidenceRefs": []
       }
+    },
+    "growthShare": {
+      "status": {
+        "value": "ACTIVE",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "WT-011 Growth Share active lane"
+        },
+        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "evidenceRefs": []
+      },
+      "worktree": {
+        "value": "/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "WT-011 registry"
+        },
+        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "evidenceRefs": []
+      },
+      "branch": {
+        "value": "feat/m55-self-funnel-growth-share-v1",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "WT-011 registry"
+        },
+        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "evidenceRefs": []
+      },
+      "implementationReviewedTip": {
+        "value": "d7af28a59755076b6269e93edfba03297eb98084",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "GIT_OBSERVATION",
+          "reference": "reviewed Growth Share implementation baseline"
+        },
+        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "evidenceRefs": []
+      },
+      "mergeStatus": {
+        "value": "OPEN_UNMERGED_BRANCH_LOCAL",
+        "classification": "OBSERVED_CURRENT",
+        "source": {
+          "kind": "WORKTREE_OBSERVATION",
+          "reference": "PR #81 open unmerged branch-local Growth Share"
+        },
+        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "evidenceRefs": []
+      }
     }
   },
   "providers": {

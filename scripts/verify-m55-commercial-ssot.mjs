@@ -279,12 +279,18 @@ const WT001_ID = 'WT-001';
 const WT006_ID = 'WT-006';
 const WT009_ID = 'WT-009';
 const WT010_ID = 'WT-010';
+const WT011_ID = 'WT-011';
 const WT006_EXPECTED_PATH = '/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1';
 const WT006_EXPECTED_BRANCH = 'pre-note/home-fullka-microcopy';
 const WT010_EXPECTED_PATH = '/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1';
 const WT010_EXPECTED_BRANCH = 'feat/m55-product-authority-pack-v1';
 const WT010_EXPECTED_BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
 const WT010_EXPECTED_OPERATIONAL_STATE = 'ALLOWLIST_ONLY_DURING_IMPLEMENTATION';
+const WT011_EXPECTED_PATH = '/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1';
+const WT011_EXPECTED_BRANCH = 'feat/m55-self-funnel-growth-share-v1';
+const WT011_IMPLEMENTATION_REVIEWED_TIP = 'd7af28a59755076b6269e93edfba03297eb98084';
+const WT011_EXPECTED_LIVE_HEAD_SOURCE = 'Git';
+const WT011_HEAD_VALIDATION_DESCENDANT = 'DESCENDANT_OF_REVIEWED_IMPLEMENTATION_TIP';
 const PRE_MERGE_SNAPSHOT_BRANCH = 'docs/m55-commercial-funnel-ssot-v1';
 const POST_MERGE_EXPECTED_BRANCH = 'main';
 const EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION =
@@ -677,6 +683,20 @@ function getSectionFieldRules(id, lifecycleRaw = '') {
       optional: ['baseline', 'HEAD', 'cleanliness', 'upstream'],
     };
   }
+  if (id === WT011_ID) {
+    return {
+      required: [
+        'path',
+        'branch',
+        'implementationReviewedTip',
+        'liveHeadSource',
+        'headValidation',
+        'lifecycle',
+        'purpose',
+      ],
+      optional: ['baseline', 'cleanliness', 'upstream', 'operational state', 'current origin/main'],
+    };
+  }
   return { required, optional };
 }
 
@@ -702,6 +722,9 @@ function parseRegistryWorktreeSection(section, id) {
   let branch = null;
   let headSha = null;
   let bootstrapStartHeadSha = null;
+  let implementationReviewedTipSha = null;
+  let liveHeadSource = null;
+  let headValidationPolicy = null;
   let baselineSha = null;
   let baselineRaw = null;
 
@@ -730,6 +753,33 @@ function parseRegistryWorktreeSection(section, id) {
     } else {
       bootstrapStartHeadSha = bootstrapParsed.sha;
     }
+  }
+  if (rawFields.implementationreviewedtip) {
+    const tipParsed = parseShaFromHeadField(rawFields.implementationreviewedtip);
+    if (!tipParsed.ok) {
+      errors.push({
+        id,
+        field: 'implementationReviewedTip',
+        kind: tipParsed.kind,
+        message: `${id} implementationReviewedTip ${tipParsed.kind}`,
+      });
+    } else {
+      implementationReviewedTipSha = tipParsed.sha;
+    }
+  }
+  if (rawFields.liveheadsource) {
+    liveHeadSource = normalizeRegistryFieldText(rawFields.liveheadsource);
+  }
+  if (rawFields.headvalidation) {
+    headValidationPolicy = normalizeRegistryFieldText(rawFields.headvalidation);
+  }
+  if (id === WT011_ID && (rows.get('head')?.length ?? 0) > 0) {
+    errors.push({
+      id,
+      field: 'HEAD',
+      kind: 'invalid',
+      message: `${id} must not use stale exact HEAD; use implementationReviewedTip with headValidation`,
+    });
   }
   if (rawFields.baseline) {
     const baselineParsed = parseShaFromBaselineField(rawFields.baseline);
@@ -760,6 +810,9 @@ function parseRegistryWorktreeSection(section, id) {
     branch,
     headSha,
     bootstrapStartHeadSha,
+    implementationReviewedTipSha,
+    liveHeadSource,
+    headValidationPolicy,
     baselineRaw,
     baselineSha,
     lifecycle,
@@ -767,6 +820,15 @@ function parseRegistryWorktreeSection(section, id) {
     operationalState,
     section,
   };
+}
+
+function isPrimaryActiveLifecycle(lifecycle) {
+  if (!lifecycle) return false;
+  return normalizeRegistryFieldText(lifecycle).startsWith('ACTIVE');
+}
+
+function countPrimaryActiveLanes(entries) {
+  return entries.filter((entry) => entry.valid && isPrimaryActiveLifecycle(entry.lifecycle)).length;
 }
 
 function validateWt001Metadata(entry) {
@@ -854,6 +916,151 @@ function validateWt010Metadata(entry) {
     });
   }
   return errors;
+}
+
+function validateWt011Metadata(entry) {
+  const errors = [];
+  if (!entry) {
+    errors.push({ id: WT011_ID, field: 'id', kind: 'missing', message: `${WT011_ID} section missing` });
+    return errors;
+  }
+  if (entry.path !== WT011_EXPECTED_PATH) {
+    errors.push({ id: WT011_ID, field: 'path', kind: 'invalid', message: `${WT011_ID} path invalid` });
+  }
+  if (entry.branch !== WT011_EXPECTED_BRANCH) {
+    errors.push({ id: WT011_ID, field: 'branch', kind: 'invalid', message: `${WT011_ID} branch invalid` });
+  }
+  if (!isPrimaryActiveLifecycle(entry.lifecycle)) {
+    errors.push({ id: WT011_ID, field: 'lifecycle', kind: 'invalid', message: `${WT011_ID} lifecycle invalid` });
+  }
+  if (entry.headValidationPolicy !== WT011_HEAD_VALIDATION_DESCENDANT) {
+    errors.push({
+      id: WT011_ID,
+      field: 'headValidation',
+      kind: 'invalid',
+      message: `${WT011_ID} headValidation invalid`,
+    });
+  }
+  if (entry.liveHeadSource !== WT011_EXPECTED_LIVE_HEAD_SOURCE) {
+    errors.push({
+      id: WT011_ID,
+      field: 'liveHeadSource',
+      kind: 'invalid',
+      message: `${WT011_ID} liveHeadSource invalid`,
+    });
+  }
+  if (!entry.implementationReviewedTipSha) {
+    errors.push({
+      id: WT011_ID,
+      field: 'implementationReviewedTip',
+      kind: 'missing',
+      message: `${WT011_ID} implementationReviewedTip missing`,
+    });
+  }
+  if (entry.headSha) {
+    errors.push({
+      id: WT011_ID,
+      field: 'HEAD',
+      kind: 'invalid',
+      message: `${WT011_ID} stale exact HEAD is not allowed without descendant policy marker`,
+    });
+  }
+  return errors;
+}
+
+function evaluateWt011RegistryPreflight(registryDocument) {
+  if (registryDocument.headingBlockedForRequired(WT011_ID)) {
+    const headingErrors = [
+      ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT011_ID),
+      ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT011_ID)),
+      ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT011_ID),
+    ];
+    return { valid: false, errors: headingErrors };
+  }
+
+  const entry = registryDocument.entries.find((item) => item.id === WT011_ID);
+  if (!entry) {
+    return {
+      valid: false,
+      errors: [{ id: WT011_ID, field: 'id', kind: 'missing', message: `${WT011_ID} section missing` }],
+    };
+  }
+  if (!entry.valid) {
+    return { valid: false, errors: entry.errors };
+  }
+  const metadataErrors = validateWt011Metadata(entry);
+  return { valid: metadataErrors.length === 0, errors: metadataErrors, entry };
+}
+
+function evaluateWt011ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector) {
+  if (!registryEntry.valid) {
+    warnings.push(
+      `WT-011 registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`,
+    );
+    return;
+  }
+  if (entry.path !== registryEntry.path) {
+    warnings.push(`WT-011 path mismatch for ${entry.path}: expected ${registryEntry.path}`);
+  }
+  if (entry.branch !== registryEntry.branch) {
+    warnings.push(`WT-011 branch mismatch for ${entry.path}: live=${entry.branch ?? 'detached'}`);
+  }
+  if (!isPrimaryActiveLifecycle(registryEntry.lifecycle)) {
+    warnings.push(`WT-011 lifecycle must be ACTIVE for ${entry.path}`);
+  }
+  if (registryEntry.headValidationPolicy !== WT011_HEAD_VALIDATION_DESCENDANT) {
+    warnings.push(
+      `WT-011 headValidation must be ${WT011_HEAD_VALIDATION_DESCENDANT} for ${entry.path}`,
+    );
+  }
+  if (registryEntry.liveHeadSource !== WT011_EXPECTED_LIVE_HEAD_SOURCE) {
+    warnings.push(`WT-011 liveHeadSource must be ${WT011_EXPECTED_LIVE_HEAD_SOURCE} for ${entry.path}`);
+  }
+  if (registryEntry.headSha) {
+    warnings.push(`WT-011 must not use stale exact HEAD for ${entry.path}`);
+  }
+  const reviewedTip = registryEntry.implementationReviewedTipSha;
+  if (!reviewedTip) {
+    warnings.push(`WT-011 implementationReviewedTip missing for ${entry.path}`);
+    return;
+  }
+  if (!entry.head) {
+    warnings.push(`WT-011 live HEAD missing for ${entry.path}`);
+    return;
+  }
+  if (!gitInspector.objectExists(entry.path, reviewedTip)) {
+    warnings.push(
+      `WT-011 implementationReviewedTip object missing for ${entry.path}: ${reviewedTip.slice(0, 12)}`,
+    );
+    return;
+  }
+  if (!gitInspector.objectExists(entry.path, entry.head)) {
+    warnings.push(`WT-011 live HEAD object missing for ${entry.path}: ${entry.head.slice(0, 12)}`);
+    return;
+  }
+  if (!gitInspector.isAncestorOrEqual(entry.path, reviewedTip, entry.head)) {
+    warnings.push(
+      `WT-011 live HEAD is not a descendant of implementationReviewedTip for ${entry.path}: live=${entry.head.slice(0, 12)} tip=${reviewedTip.slice(0, 12)}`,
+    );
+    return;
+  }
+  const remoteHead = gitInspector.getRemoteFeatureHead?.(entry.path, registryEntry.branch);
+  if (!remoteHead) {
+    warnings.push(`WT-011 remote feature ref unavailable for ${registryEntry.branch} at ${entry.path}`);
+    return;
+  }
+  if (remoteHead.toLowerCase() !== entry.head.toLowerCase()) {
+    warnings.push(
+      `WT-011 remote feature ref mismatch for ${entry.path}: live=${entry.head.slice(0, 12)} remote=${remoteHead.slice(0, 12)}`,
+    );
+    return;
+  }
+  logs.push(
+    `[preflight] WT-011 live HEAD ${entry.head.slice(0, 12)} descends from implementationReviewedTip ${reviewedTip.slice(0, 12)}`,
+  );
+  if (gitInspector.hasGitOperationInProgress(entry.path)) {
+    warnings.push(`WT-011 git operation in progress for ${entry.path}`);
+  }
 }
 
 function evaluateWt010RegistryPreflight(registryDocument) {
@@ -1100,6 +1307,16 @@ function createDefaultGitInspector() {
     },
     registryPathExists(registryPath) {
       return fs.existsSync(registryPath);
+    },
+    getRemoteFeatureHead(repositoryRoot, branch) {
+      const result = gitRun(['ls-remote', 'origin', `refs/heads/${branch}`], repositoryRoot);
+      if (result.status !== 0 || !result.stdout.trim()) return null;
+      const line = result.stdout
+        .trim()
+        .split('\n')
+        .find((candidate) => candidate.endsWith(`refs/heads/${branch}`));
+      if (!line) return null;
+      return line.split('\t')[0]?.trim().toLowerCase() ?? null;
     },
   };
 }
@@ -1359,6 +1576,9 @@ function evaluateGenericRegistryPreflight(entry, registryEntry, warnings) {
     warnings.push(`registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`);
     return;
   }
+  if (registryEntry.headValidationPolicy === WT011_HEAD_VALIDATION_DESCENDANT) {
+    return;
+  }
   if (entry.branch && registryEntry.branch && entry.branch !== registryEntry.branch) {
     warnings.push(`branch mismatch for ${entry.path}: live=${entry.branch}`);
   }
@@ -1418,6 +1638,20 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
     }
   }
 
+  const wt011Preflight = registryDocument.entries.some((entry) => entry.id === WT011_ID)
+    ? evaluateWt011RegistryPreflight(registryDocument)
+    : { valid: true, errors: [] };
+  if (!wt011Preflight.valid) {
+    for (const error of wt011Preflight.errors) {
+      warnings.push(`WT-011 registry metadata validation failed: ${error.id} ${error.field} ${error.kind}`);
+    }
+  }
+
+  const activeLaneCount = countPrimaryActiveLanes(registryDocument.entries);
+  if (activeLaneCount !== 1) {
+    warnings.push(`registry must contain exactly one primary ACTIVE lane; found ${activeLaneCount}`);
+  }
+
   for (const error of collectRegistryUniquenessErrors(registryDocument.entries)) {
     warnings.push(`registry uniqueness validation failed: ${error.message}`);
   }
@@ -1453,6 +1687,11 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
 
     if (registryEntry.id === WT010_ID) {
       evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector);
+      continue;
+    }
+
+    if (registryEntry.id === WT011_ID) {
+      evaluateWt011ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector);
       continue;
     }
 
@@ -2075,12 +2314,18 @@ export {
   WT006_ID,
   WT009_ID,
   WT010_ID,
+  WT011_ID,
   WT006_EXPECTED_PATH,
   WT006_EXPECTED_BRANCH,
   WT010_EXPECTED_PATH,
   WT010_EXPECTED_BRANCH,
   WT010_EXPECTED_BOOTSTRAP_START_HEAD,
   WT010_EXPECTED_OPERATIONAL_STATE,
+  WT011_EXPECTED_PATH,
+  WT011_EXPECTED_BRANCH,
+  WT011_IMPLEMENTATION_REVIEWED_TIP,
+  WT011_EXPECTED_LIVE_HEAD_SOURCE,
+  WT011_HEAD_VALIDATION_DESCENDANT,
   WT009_EXPECTED_PATH,
   WT009_EXPECTED_BRANCH,
   WT009_EXPECTED_HEAD,
@@ -2115,9 +2360,14 @@ export {
   validateWt001Metadata,
   validateWt009Metadata,
   validateWt010Metadata,
+  validateWt011Metadata,
   evaluateWt009RegistryPreflight,
   evaluateWt010RegistryPreflight,
+  evaluateWt011RegistryPreflight,
   evaluateWt010ActiveLanePreflight,
+  evaluateWt011ActiveLanePreflight,
+  isPrimaryActiveLifecycle,
+  countPrimaryActiveLanes,
   createDefaultGitInspector,
   gitObjectExists,
   isAncestorOrEqual,

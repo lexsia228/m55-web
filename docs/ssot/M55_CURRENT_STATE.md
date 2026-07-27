@@ -16,7 +16,8 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Worktree ID | **WT-011** |
 | Worktree | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | Branch | `feat/m55-self-funnel-growth-share-v1` |
-| Current tip (2026-07-27) | `d7af28a59755076b6269e93edfba03297eb98084` |
+| implementationReviewedTip | `d7af28a59755076b6269e93edfba03297eb98084` — reviewed Growth Share implementation baseline; not permanently current branch HEAD |
+| liveHeadSource | Git — live local HEAD must descend from implementationReviewedTip; origin feature ref must equal live HEAD |
 | Base SHA | `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge = current `origin/main` |
 | PR | **#81 unmerged** — branch-local Growth Share implementation |
 | Purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation |
@@ -24,7 +25,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 
 Growth is the sole **ACTIVE** implementation lane after Self funnel operational baseline merge. Do **not** append Growth commits to the merged PR #80 feature branch (WT-001).
 
-**Authority drift block (2026-07-27):** Codex sitewide commercial audit was blocked at Authority Entry by lane-state drift between SSOT, registry, and Product Authority observations. This reconciliation patch removes that block; audit resumes once after reconciliation GREEN.
+**Authority drift block (2026-07-27):** Resolved by Growth Share authority state reconciliation. Sitewide commercial UX audit may resume once after snapshot-contract fix GREEN.
 
 ## Completed Self funnel operational baseline (PR #80)
 
@@ -153,7 +154,8 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | **postMergeActiveLane** | 個人無料→個人Premiumファネルの一括実装 |
 | **postMergeNextSingleAction** | Cursor docs patch complete → Cursor STOP → Codex independent diff review → Control Plane re-execution |
 | **currentImplementationLane** | Self funnel Growth / share (WT-011) |
-| **currentImplementationTip** | `d7af28a59755076b6269e93edfba03297eb98084` |
+| **implementationReviewedTip** | `d7af28a59755076b6269e93edfba03297eb98084` |
+| **liveHeadValidation** | DESCENDANT_OF_REVIEWED_IMPLEMENTATION_TIP |
 | **pairPremium** | NOT_LIVE |
 | **Pair implementation** | Later lane — roadmap step（二人向け無料→有料） |
 | Historical branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged; **not** current active branch) |

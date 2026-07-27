@@ -50,8 +50,16 @@ import {
   gitPathExists,
   evaluateWt001SnapshotPreflight,
   evaluateWt010ActiveLanePreflight,
+  evaluateWt011ActiveLanePreflight,
+  evaluateWt011RegistryPreflight,
   evaluateWt010RegistryPreflight,
   evaluateWorktreePreflightWarnings,
+  WT011_ID,
+  WT011_EXPECTED_PATH,
+  WT011_EXPECTED_BRANCH,
+  WT011_IMPLEMENTATION_REVIEWED_TIP,
+  WT011_EXPECTED_LIVE_HEAD_SOURCE,
+  WT011_HEAD_VALIDATION_DESCENDANT,
   createDefaultGitInspector,
   collectAuthorityPackTransitionFailures,
   parseAuthorityHistoryTransitionJsonl,
@@ -66,8 +74,8 @@ import { verifyProductAuthority } from './product-authority/validate.mjs';
 import { bootstrapFixture } from './product-authority/generate.mjs';
 import { withComputedEventHashes, writeHistory } from './product-authority/history.mjs';
 
-const OBSERVED_ORIGIN_MAIN_SHA = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
-const OBSERVATION_TIMESTAMP = '2026-07-26T13:23:20+00:00';
+const OBSERVED_ORIGIN_MAIN_SHA = '696559009367a6ac445dc7a07876590b16cd8488';
+const OBSERVATION_TIMESTAMP = '2026-07-27T09:56:00+00:00';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const WT010_LIVE_HEAD = 'fae04444618e2ae36e6fd813ddfddeee975b66c4';
 const WT010_COMMIT_ONE_HEAD = 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704';
@@ -2498,7 +2506,7 @@ describe('Authority Pack CURRENT_STATE transition invariants', () => {
   it('FAILs when stale bootstrapStartHead is labeled as last observed origin/main', () => {
     const currentStateText = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
     const failures = collectAuthorityPackTransitionFailures({
-      currentStateText: currentStateText.replace(
+      currentStateText: currentStateText.replaceAll(
         OBSERVED_ORIGIN_MAIN_SHA,
         AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
       ),
@@ -2612,5 +2620,153 @@ describe('Authority Pack roadmap authority selection', () => {
       failures.some((message) => /superseded Self-funnel authority block/.test(message)),
       false,
     );
+  });
+});
+
+describe('WT-011 descendant implementation tip preflight', () => {
+  const AUTHORITY_DESCENDANT_HEAD = 'fde505b6506ac4458061df1878b76fe1183221fb';
+  const NON_DESCENDANT_HEAD = 'b710dc543c02572a038170feb562a0a6514a313f';
+
+  function buildWt011RegistrySection({ includeStaleHead = false } = {}) {
+    const lines = [
+      '### WT-011 — Self funnel Growth / share lane',
+      '',
+      '| Field | Value |',
+      '|---|---|',
+      `| path | \`${WT011_EXPECTED_PATH}\` |`,
+      `| branch | \`${WT011_EXPECTED_BRANCH}\` |`,
+    ];
+    if (includeStaleHead) {
+      lines.push(`| HEAD | \`${WT011_IMPLEMENTATION_REVIEWED_TIP}\` |`);
+    }
+    lines.push(
+      `| implementationReviewedTip | \`${WT011_IMPLEMENTATION_REVIEWED_TIP}\` |`,
+      `| liveHeadSource | ${WT011_EXPECTED_LIVE_HEAD_SOURCE} |`,
+      `| headValidation | ${WT011_HEAD_VALIDATION_DESCENDANT} |`,
+      '| lifecycle | **ACTIVE** |',
+      '| purpose | Growth Share active lane test fixture |',
+      '',
+    );
+    return lines.join('\n');
+  }
+
+  function buildWt011GitInspector(liveHead, remoteHead = liveHead) {
+    return {
+      objectExists(_repositoryRoot, sha) {
+        const normalized = String(sha).toLowerCase();
+        return [
+          WT011_IMPLEMENTATION_REVIEWED_TIP,
+          AUTHORITY_DESCENDANT_HEAD,
+          NON_DESCENDANT_HEAD,
+        ].includes(normalized);
+      },
+      isAncestorOrEqual(_repositoryRoot, ancestorSha, descendantSha) {
+        const ancestor = String(ancestorSha).toLowerCase();
+        const descendant = String(descendantSha).toLowerCase();
+        if (ancestor === descendant) return true;
+        return (
+          ancestor === WT011_IMPLEMENTATION_REVIEWED_TIP &&
+          descendant === AUTHORITY_DESCENDANT_HEAD
+        );
+      },
+      isWorktreeClean: () => true,
+      hasGitOperationInProgress: () => false,
+      registryPathExists: (candidatePath) => candidatePath === WT011_EXPECTED_PATH,
+      getRemoteFeatureHead: () => remoteHead.toLowerCase(),
+    };
+  }
+
+  it('PASSes when authority-only descendant commit is live HEAD and remote matches', () => {
+    const registryText = buildWt011RegistrySection();
+    const doc = parseRegistryDocument(registryText);
+    const entry = doc.entries.find((item) => item.id === WT011_ID);
+    assert.equal(entry.valid, true);
+    const preflight = evaluateWt011RegistryPreflight(doc);
+    assert.equal(preflight.valid, true);
+
+    const warnings = [];
+    const logs = [];
+    evaluateWt011ActiveLanePreflight(
+      {
+        path: WT011_EXPECTED_PATH,
+        branch: WT011_EXPECTED_BRANCH,
+        head: AUTHORITY_DESCENDANT_HEAD,
+        detached: false,
+      },
+      entry,
+      warnings,
+      logs,
+      buildWt011GitInspector(AUTHORITY_DESCENDANT_HEAD),
+    );
+    assert.equal(warnings.length, 0, warnings.join('; '));
+    assert.match(logs.join('\n'), /descends from implementationReviewedTip/);
+  });
+
+  it('FAILs when live HEAD is not a descendant of implementationReviewedTip', () => {
+    const registryText = buildWt011RegistrySection();
+    const entry = parseRegistryDocument(registryText).entries.find((item) => item.id === WT011_ID);
+    const warnings = [];
+    evaluateWt011ActiveLanePreflight(
+      {
+        path: WT011_EXPECTED_PATH,
+        branch: WT011_EXPECTED_BRANCH,
+        head: NON_DESCENDANT_HEAD,
+        detached: false,
+      },
+      entry,
+      warnings,
+      [],
+      buildWt011GitInspector(NON_DESCENDANT_HEAD),
+    );
+    assert.match(warnings.join('\n'), /not a descendant of implementationReviewedTip/i);
+  });
+
+  it('FAILs when remote feature ref does not equal live HEAD', () => {
+    const registryText = buildWt011RegistrySection();
+    const entry = parseRegistryDocument(registryText).entries.find((item) => item.id === WT011_ID);
+    const warnings = [];
+    evaluateWt011ActiveLanePreflight(
+      {
+        path: WT011_EXPECTED_PATH,
+        branch: WT011_EXPECTED_BRANCH,
+        head: AUTHORITY_DESCENDANT_HEAD,
+        detached: false,
+      },
+      entry,
+      warnings,
+      [],
+      buildWt011GitInspector(AUTHORITY_DESCENDANT_HEAD, WT011_IMPLEMENTATION_REVIEWED_TIP),
+    );
+    assert.match(warnings.join('\n'), /remote feature ref mismatch/i);
+  });
+
+  it('FAILs when stale exact HEAD row is present without descendant marker semantics', () => {
+    const registryText = buildWt011RegistrySection({ includeStaleHead: true });
+    const doc = parseRegistryDocument(registryText);
+    const entry = doc.entries.find((item) => item.id === WT011_ID);
+    assert.equal(entry.valid, false);
+    assert.match(
+      entry.errors.map((error) => error.message).join('\n'),
+      /stale exact HEAD/i,
+    );
+  });
+
+  it('FAILs when branch does not match registry', () => {
+    const registryText = buildWt011RegistrySection();
+    const entry = parseRegistryDocument(registryText).entries.find((item) => item.id === WT011_ID);
+    const warnings = [];
+    evaluateWt011ActiveLanePreflight(
+      {
+        path: WT011_EXPECTED_PATH,
+        branch: 'wrong-branch',
+        head: AUTHORITY_DESCENDANT_HEAD,
+        detached: false,
+      },
+      entry,
+      warnings,
+      [],
+      buildWt011GitInspector(AUTHORITY_DESCENDANT_HEAD),
+    );
+    assert.match(warnings.join('\n'), /branch mismatch/i);
   });
 });

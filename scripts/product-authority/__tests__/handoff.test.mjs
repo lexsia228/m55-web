@@ -177,6 +177,7 @@ test('handoff json includes lane statuses', () => {
     const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
     assert.equal(handoff.lanes.authorityPack, 'COMPLETED');
     assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
+    assert.equal(handoff.lanes.growthShare, 'ACTIVE');
     assert.equal(handoff.lanes.buildWeek, 'FROZEN');
   } finally {
     cleanupTempRoot(tempRoot);
@@ -189,6 +190,26 @@ test('authority header includes STOP conditions', () => {
     bootstrapFixture(tempRoot);
     const header = fs.readFileSync(path.join(tempRoot, '.product-authority/generated/authority-header.md'), 'utf8');
     assert.match(header, /STOP conditions/);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff markdown and json lifecycle meanings match', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const handoffMd = fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.md'), 'utf8');
+    const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
+    assert.match(handoffMd, new RegExp(`Authority Pack lane: ${handoff.lanes.authorityPack}`));
+    assert.match(handoffMd, new RegExp(`Self funnel lane: ${handoff.lanes.selfFunnel}`));
+    assert.match(handoffMd, new RegExp(`Growth Share lane: ${handoff.lanes.growthShare}`));
+    assert.match(handoffMd, new RegExp(`Build Week lane: ${handoff.lanes.buildWeek}`));
+    assert.equal(handoff.lanes.authorityPack, 'COMPLETED');
+    assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
+    assert.equal(handoff.lanes.growthShare, 'ACTIVE');
+    assert.equal(handoff.lanes.buildWeek, 'FROZEN');
+    assert.equal(handoff.growthShareDelivery.productionDeployed, false);
   } finally {
     cleanupTempRoot(tempRoot);
   }
