@@ -8,8 +8,8 @@ import { cleanupTempRoot, copyAuthorityPackSources, makeTempRoot } from '../hist
 import { generateProductAuthority } from '../generate.mjs';
 import { LOCK_PATH } from '../validate.mjs';
 
-const OBSERVED_ORIGIN_MAIN_SHA = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
-const OBSERVATION_TIMESTAMP = '2026-07-26T13:23:20+00:00';
+const OBSERVED_ORIGIN_MAIN_SHA = '696559009367a6ac445dc7a07876590b16cd8488';
+const OBSERVATION_TIMESTAMP = '2026-07-27T09:56:00+00:00';
 const BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
 
 test('production lastObservedSha is null', () => {
@@ -65,14 +65,14 @@ test('origin main observation source remains read-only Git observation', () => {
   );
 });
 
-test('authority pack lane is ACTIVE', () => {
+test('authority pack lane is COMPLETED', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value, 'ACTIVE');
+  assert.equal(/** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value, 'COMPLETED');
 });
 
-test('self funnel lane is PARKED', () => {
+test('self funnel lane is COMPLETED', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value, 'PARKED');
+  assert.equal(/** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value, 'COMPLETED');
 });
 
 test('build week lane is FROZEN', () => {
@@ -104,9 +104,9 @@ test('bootstrapStartHead equals baseLastObservedOriginMainSha at lane creation',
   );
 });
 
-test('self funnel dirty is true', () => {
+test('self funnel dirty is false', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: boolean }} */ (observations.lanes.selfFunnel.dirty).value, true);
+  assert.equal(/** @type {{ value: boolean }} */ (observations.lanes.selfFunnel.dirty).value, false);
 });
 
 test('provider identities remain pending evidence', () => {
@@ -158,11 +158,11 @@ test('generated authority header displays refreshed origin main as mutable obser
   );
 });
 
-test('self funnel mutation policy blocks authority pack lane edits', () => {
+test('self funnel mutation policy blocks growth append on merged branch', () => {
   const observations = readObservations(process.cwd());
   assert.equal(
     /** @type {{ value: string }} */ (observations.lanes.selfFunnel.mutationPolicy).value,
-    'NO_MUTATION_DURING_AUTHORITY_PACK_LANE',
+    'NO_GROWTH_APPEND_ON_MERGED_BRANCH',
   );
 });
 

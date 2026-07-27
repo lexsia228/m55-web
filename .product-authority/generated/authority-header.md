@@ -2,12 +2,12 @@
 
 schemaVersion: 1.0.0
 generatorVersion: 1.0.0
-generatedAt: 2026-07-26T13:23:20+00:00
+generatedAt: 2026-07-27T09:56:00+00:00
 
 ## Pack hashes
 
 - authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
-- observationsSha256: 57a1dd0250852e243f08c4852c71f88db9e317ee2eacf3577ad8e302123030b5
+- observationsSha256: d2d7c235c307de8b9e2454a2cca1ef26c5bdaeae472aed1a6889f1a3edde4029
 - historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
 
 ## Product identity
@@ -22,8 +22,8 @@ generatedAt: 2026-07-26T13:23:20+00:00
 
 - repository: lexsia228/m55-web
 - default branch: main
-- last observed origin/main SHA: b13fcd540e210c3ffb41fa2f56889df74b1b3915
-- last observed at: 2026-07-26T13:23:20+00:00
+- last observed origin/main SHA: 696559009367a6ac445dc7a07876590b16cd8488
+- last observed at: 2026-07-27T09:56:00+00:00
 
 ## Production observed state
 
@@ -32,8 +32,8 @@ generatedAt: 2026-07-26T13:23:20+00:00
 
 ## Lanes
 
-- ACTIVE: Authority Pack (ACTIVE)
-- PARKED: Self funnel (PARKED)
+- ACTIVE: Authority Pack (COMPLETED)
+- PARKED: Self funnel (COMPLETED)
 - FROZEN: Build Week (FROZEN)
 
 ## STOP conditions
@@ -55,10 +55,10 @@ Generated outputs must not synthesize operational workflow gates.
 
 <!-- PRODUCT_AUTHORITY_METADATA_START -->
 authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
-observationsSha256: 57a1dd0250852e243f08c4852c71f88db9e317ee2eacf3577ad8e302123030b5
+observationsSha256: d2d7c235c307de8b9e2454a2cca1ef26c5bdaeae472aed1a6889f1a3edde4029
 historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
-generatedBundleSha256: 683f7f7fb1c6ef1444de44b8d518a72031224ada3a6814e4c6f42e3005a48f61
-artifactSha256: 99c7a9ba970d46830f6b22be50b51377e388e68e83f25781141ba07b0d185932
+generatedBundleSha256: d6ca60d37b6a6dd81fa6e22f83b5dd71bd518b9ec245a048ec84bd77a5f775e2
+artifactSha256: f4358998525af14b17e2ca94c0e1a075b79277ef78f573c018d6ef0d200748e2
 generatorVersion: 1.0.0
-generatedAt: 2026-07-26T13:23:20+00:00
+generatedAt: 2026-07-27T09:56:00+00:00
 <!-- PRODUCT_AUTHORITY_METADATA_END -->

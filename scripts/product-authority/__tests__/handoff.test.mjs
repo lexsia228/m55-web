@@ -175,8 +175,8 @@ test('handoff json includes lane statuses', () => {
   try {
     bootstrapFixture(tempRoot);
     const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
-    assert.equal(handoff.lanes.authorityPack, 'ACTIVE');
-    assert.equal(handoff.lanes.selfFunnel, 'PARKED');
+    assert.equal(handoff.lanes.authorityPack, 'COMPLETED');
+    assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
     assert.equal(handoff.lanes.buildWeek, 'FROZEN');
   } finally {
     cleanupTempRoot(tempRoot);

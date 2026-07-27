@@ -672,7 +672,7 @@ test('mutation: invalid eventHash exclusion behavior', () => {
 });
 
 const STALE_BOOTSTRAP_ORIGIN_MAIN = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
-const CURRENT_OBSERVED_ORIGIN_MAIN = 'b13fcd540e210c3ffb41fa2f56889df74b1b3915';
+const CURRENT_OBSERVED_ORIGIN_MAIN = '696559009367a6ac445dc7a07876590b16cd8488';
 
 test('mutation: stale origin/main observation fails SSOT transition check', () => {
   const currentStateText = fs.readFileSync(
@@ -685,7 +685,7 @@ test('mutation: stale origin/main observation fails SSOT transition check', () =
       STALE_BOOTSTRAP_ORIGIN_MAIN,
     ),
     observedOriginMainSha: CURRENT_OBSERVED_ORIGIN_MAIN,
-    observationTimestamp: '2026-07-26T13:23:20+00:00',
+    observationTimestamp: '2026-07-27T09:56:00+00:00',
   });
   assert.ok(
     failures.some(
@@ -751,7 +751,7 @@ test('mutation: generated current/live claim conflicting with observations sourc
   const failures = collectAuthorityPackTransitionFailures({
     authorityHeaderText: header.replace(CURRENT_OBSERVED_ORIGIN_MAIN, STALE_BOOTSTRAP_ORIGIN_MAIN),
     observedOriginMainSha: CURRENT_OBSERVED_ORIGIN_MAIN,
-    observationTimestamp: '2026-07-26T13:23:20+00:00',
+    observationTimestamp: '2026-07-27T09:56:00+00:00',
   });
   assert.ok(
     failures.some((message) =>

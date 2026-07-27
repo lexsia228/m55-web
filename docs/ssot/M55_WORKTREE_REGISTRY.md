@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-27** (CATEGORY-2 Self funnel Production baseline merge + Growth lane start REV1)
+Last verified: **2026-07-27** (CATEGORY-2 Growth Share authority state reconciliation REV1 — verification-time snapshot)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -31,7 +31,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**Current fact (2026-07-27):** WT-011 holds **ACTIVE** Self funnel Growth/share lane on `feat/m55-self-funnel-growth-share-v1`. WT-001 Self funnel operational baseline is **COMPLETED** (PR #80 merged; Production classified `OPERATIONAL_BASELINE`). WT-010 Authority Pack remains **COMPLETED** (PR #79). WT-006 paid-lp remains **PAUSED**. WT-009 Build Week remains **FROZEN**.
+**Current fact (2026-07-27):** WT-011 is the sole **ACTIVE** implementation lane (Self funnel Growth / share on `feat/m55-self-funnel-growth-share-v1` @ `d7af28a…`; PR #81 unmerged). WT-001 Self funnel operational baseline is **COMPLETED** (PR #80 merged; Production classified `OPERATIONAL_BASELINE`). WT-010 Product Authority Pack is **COMPLETED** (PR #79 merged; retained infrastructure). WT-006 paid-lp remains **PAUSED**. WT-009 Build Week remains **FROZEN**.
 
 ### Lifecycle status values
 
@@ -41,7 +41,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 
 ### Documented post-merge transition (historical)
 
-Historical post-merge transition snapshots remain recorded for audit. WT-001 is the **ACTIVE Self funnel** worktree after Authority Pack merge.
+Historical post-merge transition snapshots remain recorded for audit. WT-011 is the **ACTIVE Growth Share** implementation lane after Self funnel operational baseline merge.
 
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
@@ -51,7 +51,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | Documented post-merge transition branch (preserved) | `chore/m55-worktree-registry-post-merge-transition-rev1` | `6ad4e14…` | PR #77 feature HEAD; docs-only transition — **preserved historical** |
 | Authority Pack PR #79 merge | `main` (remote) | `355462b…` | **MERGED** — Product Authority Pack complete |
 | Self funnel PR #80 merge | `main` (remote) | `6965590…` | **MERGED** — Self free→Premium **OPERATIONAL_BASELINE** |
-| Current (Self funnel Growth lane) | `feat/m55-self-funnel-growth-share-v1` | `6965590…` base | Share / OG / viral return / Premium conversion growth — **not yet implemented** |
+| Current (Self funnel Growth lane) | `feat/m55-self-funnel-growth-share-v1` | `d7af28a…` | Share / OG / viral return / Premium conversion growth — PR #81 unmerged |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -71,9 +71,9 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` @ `fda934d…` |
 | cleanliness | **clean** |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
+| lifecycle | **COMPLETED** · **PRIMARY_MAIN_HOME** (superseded **ACTIVE** baseline) |
 | operational state | **OPERATIONAL_BASELINE_MERGED** |
-| purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged) |
+| purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged; reference only) |
 | related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · backup `refs/backup/m55-self-funnel-pre-main-sync-rev1` retained |
 | product implementation authorized | **false** for new growth work — use WT-011 |
 | allowed operations | read-only inspection · historical baseline reference |
@@ -267,9 +267,9 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | upstream | `origin/feat/m55-product-authority-pack-v1` @ `fae04444618e2ae36e6fd813ddfddeee975b66c4` (2026-07-26) |
 | cleanliness | worktree may be clean between allowlisted commits — `ALLOWLIST_ONLY_DURING_IMPLEMENTATION` remains lane policy |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** |
+| lifecycle | **COMPLETED** (superseded **ACTIVE** lane — PR #79 merged) |
 | operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
-| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged to main |
+| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged; completed infrastructure retained |
 | related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) **MERGED** @ `355462b…` · merge commit on `main` |
 | allowed operations | read-only inspection · observation refresh via steady-state verifier |
 | prohibited operations | new Authority Pack mutation without explicit lane reopen |
@@ -282,22 +282,22 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | branch | `feat/m55-self-funnel-growth-share-v1` |
-| HEAD | `b710dc543c02572a038170feb562a0a6514a313f` |
+| HEAD | `d7af28a59755076b6269e93edfba03297eb98084` |
 | baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` |
 | current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
-| upstream | `origin/feat/m55-self-funnel-growth-share-v1` @ `4584237…` |
-| cleanliness | **clean** after implementation commit |
+| upstream | `origin/feat/m55-self-funnel-growth-share-v1` @ `d7af28a…` |
+| cleanliness | **clean** (2026-07-27 snapshot) |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
-| operational state | **GROWTH_IMPLEMENTATION_PR_REVIEW** |
-| purpose | Share card · OG preview · viral return loop · reveal polish · Premium conversion · privacy-safe analytics |
-| related lane / PR | Base: PR #80 **MERGED** · Growth PR #81 awaiting Human review |
+| operational state | **GROWTH_AUTHORITY_RECONCILIATION_THEN_SITEWIDE_AUDIT** |
+| purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation |
+| related lane / PR | Base: PR #80 **MERGED** · [PR #81](https://github.com/lexsia228/m55-web/pull/81) **unmerged** @ `d7af28a…` |
 | product implementation authorized | **true** for Growth scope only |
 | allowed operations | CI fix · Human visual review · Preview verification |
 | prohibited operations | Stripe / webhook / DB / Clerk / env / Pair runtime · live purchase · append to merged PR #80 branch |
 | removal eligibility | NO while ACTIVE |
 | next gate | Human visual + real-platform share review → merge only after approval |
-| notes | Created from exact merged main after Production baseline GREEN. Not final commercial launch. |
+| notes | Created from exact merged main after Production baseline GREEN. Historical Commit 2 provenance `b710dc543c02572a038170feb562a0a6514a313f` — not current HEAD. Not final commercial launch. Growth code is not Production. |
 
 ---
 
