@@ -1,55 +1,62 @@
-import Link from "next/link";
-import { getCommercialProduct } from "../../lib/m55/contracts/m55CommercialFunnelContract";
-import { PAID_DTR_PRICING_AUTHORITY_NOTE_JA } from "../../lib/m55/paidDtrProductCopy";
+import { PublicShell } from '../_components/PublicShell';
+import { PLAN_COMPARISON } from '../../lib/m55/commercialUx/planComparison';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import Link from 'next/link';
+import styles from './pricing.module.css';
 
-export const metadata = { title: "料金とプラン | M55" };
+export const metadata = { title: '料金とプラン | M55' };
 
 export default function PricingPage() {
-  const light = getCommercialProduct("selfPremiumLight");
-  const full = getCommercialProduct("selfPremiumFull");
+  const plan = PLAN_COMPARISON;
 
   return (
-    <main style={{ maxWidth: "min(56rem, calc(100vw - 32px))", margin: "0 auto", padding: "24px 16px 56px" }}>
-      <p style={{ margin: "0 0 10px" }}>
-        <Link href="/home">ホームへ戻る</Link>
-      </p>
+    <PublicShell>
+      <main className={styles.root}>
+        <h1 className={styles.title}>料金とプラン</h1>
 
-      <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 12px" }}>料金とプラン</h1>
-
-      <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
-        M55のプレミアムレポートは、現在「{light.publicName}」と「{full.publicName}」から選べます。
-        詳しい違いと購入前の確認は、プレミアムレポートの案内ページで確認できます。
-      </p>
-
-      <p style={{ margin: "0 0 16px", lineHeight: 1.7 }}>
-        {PAID_DTR_PRICING_AUTHORITY_NOTE_JA}
-      </p>
-
-      <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px" }}>プランの選び方</h2>
-        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
-          <li>
-            <strong>{light.publicName}</strong>：まずレポートを読み、1テーマだけ整理したい方向け（追加読み解き1件）
-          </li>
-          <li>
-            <strong>{full.publicName}</strong>：追加読み解きで何度か、深く整理したい方向け（追加読み解き合計5件）
-          </li>
-        </ul>
-        <p style={{ margin: "12px 0 0", lineHeight: 1.7 }}>
-          ライト購入後でも、必要になったらFULL化できます。
+        <p className={styles.lead}>
+          M55の{T.premiumProduct}は、{plan.light.publicName}と{plan.full.publicName}から選べます。
+          詳しい違いと購入前の確認は、プレミアムレポートの案内ページで確認できます。
         </p>
-      </section>
 
-      <p style={{ margin: "0 0 12px", lineHeight: 1.7 }}>
-        <Link href="/dtr/lp">プレミアムレポートのプランを見る</Link>
-      </p>
-      <p style={{ margin: "0 0 12px", lineHeight: 1.7 }}>
-        <Link href="/support">サポートを確認する</Link>
-      </p>
+        <p className={styles.note}>{plan.oneTimeNoteJa}</p>
+        <p className={styles.note}>{plan.sameFourChaptersNoteJa}</p>
 
-      <p style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 1.7, opacity: 0.9 }}>
-        本ページは料金とサポート導線の案内です。医療・法律・投資等の助言ではありません。
-      </p>
-    </main>
+        <section className={styles.planGrid} aria-label="プラン比較">
+          <article className={styles.planCard} data-testid="m55-pricing-plan-light">
+            <h2 className={styles.planName}>{plan.light.publicName}</h2>
+            <p className={styles.planPrice}>{plan.light.priceLabelJa}</p>
+            <p className={styles.planAudience}>{plan.light.audienceJa}</p>
+            <p className={styles.planBody}>{plan.light.bodyJa}</p>
+          </article>
+          <article className={`${styles.planCard} ${styles.planCardFeatured}`} data-testid="m55-pricing-plan-full">
+            <span className={styles.planBadge}>{plan.fullRecommendReasonJa}</span>
+            <h2 className={styles.planName}>{plan.full.publicName}</h2>
+            <p className={styles.planPrice}>{plan.full.priceLabelJa}</p>
+            <p className={styles.planAudience}>{plan.full.audienceJa}</p>
+            <p className={styles.planUpgrade}>
+              +¥{plan.priceDeltaJpy.toLocaleString('ja-JP')}で{T.additionalValue}が{plan.additionalReadingsDelta}件増える
+            </p>
+            <p className={styles.planBody}>{plan.full.bodyJa}</p>
+          </article>
+        </section>
+
+        <section className={styles.upgradeSection}>
+          <h2 className={styles.sectionTitle}>アップグレード</h2>
+          <p className={styles.lead}>{plan.upgradeNoteJa}</p>
+        </section>
+
+        <p className={styles.linkRow}>
+          <Link href="/dtr/lp">{T.premiumProduct}のプランを見る</Link>
+        </p>
+        <p className={styles.linkRow}>
+          <Link href="/support">サポートを確認する</Link>
+        </p>
+
+        <p className={styles.disclaimer}>
+          本ページは料金とサポート導線の案内です。医療・法律・投資等の助言ではありません。
+        </p>
+      </main>
+    </PublicShell>
   );
 }

@@ -30,6 +30,7 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
   const titleId = useId();
   const [status, setStatus] = useState<Status>('idle');
   const [nativeAvailable, setNativeAvailable] = useState(false);
+  const [fallbackText, setFallbackText] = useState<string | null>(null);
   const busyRef = useRef(false);
 
   useEffect(() => {
@@ -54,17 +55,19 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
   async function handleNativeShare() {
     if (busyRef.current) return;
     busyRef.current = true;
+    setStatus('idle');
     try {
       const payload = buildPayload();
+      if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
+        setStatus('error');
+        setFallbackText(`${payload.text}\n${payload.url}`);
+        return;
+      }
       trackFunnelActionOnce(
         M55_FUNNEL_EVENTS.nativeShareInvoked,
         'core_share',
         `core-native-share-${card.token}`,
       );
-      if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
-        setStatus('error');
-        return;
-      }
       await navigator.share(payload);
       setStatus('idle');
     } catch (err) {
@@ -73,6 +76,8 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
         setStatus('cancelled');
       } else {
         setStatus('error');
+        const payload = buildPayload();
+        setFallbackText(`${payload.text}\n${payload.url}`);
       }
     } finally {
       busyRef.current = false;
@@ -82,22 +87,27 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
   async function handleCopyLink() {
     if (busyRef.current) return;
     busyRef.current = true;
+    setStatus('idle');
+    setFallbackText(null);
     try {
       const payload = buildPayload();
-      trackFunnelActionOnce(
-        M55_FUNNEL_EVENTS.shareLinkCopied,
-        'core_share',
-        `core-copy-link-${card.token}`,
-      );
       const line = `${payload.text}\n${payload.url}`;
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(line);
+        trackFunnelActionOnce(
+          M55_FUNNEL_EVENTS.shareLinkCopied,
+          'core_share',
+          `core-copy-link-${card.token}`,
+        );
         setStatus('copied');
         return;
       }
       setStatus('error');
+      setFallbackText(line);
     } catch {
       setStatus('error');
+      const payload = buildPayload();
+      setFallbackText(`${payload.text}\n${payload.url}`);
     } finally {
       busyRef.current = false;
     }
@@ -155,9 +165,22 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
         </p>
       ) : null}
       {status === 'error' ? (
-        <p className={styles.sectionLead} role="status" data-testid="m55-share-status">
-          {copy.unavailableJa}
-        </p>
+        <>
+          <p className={styles.sectionLead} role="status" data-testid="m55-share-status">
+            {copy.unavailableJa}
+          </p>
+          <p className={styles.sectionLead}>{copy.fallbackHintJa}</p>
+        </>
+      ) : null}
+      {fallbackText ? (
+        <textarea
+          className={styles.shareFallbackText}
+          readOnly
+          value={fallbackText}
+          aria-label="共有用テキスト"
+          data-testid="m55-share-fallback-text"
+          onFocus={(event) => event.currentTarget.select()}
+        />
       ) : null}
     </section>
   );

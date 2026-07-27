@@ -58,7 +58,6 @@ import CoreFreeResultScenesSection from './CoreFreeResultScenesSection';
 import CoreFreeResultShareCTA from './CoreFreeResultShareCTA';
 import CoreFreeResultSummaryHub from './CoreFreeResultSummaryHub';
 import CoreFreeRevealTransition from './CoreFreeRevealTransition';
-import CoreFreeShareableResultCard from './CoreFreeShareableResultCard';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CorePremiumStickyCta from './CorePremiumStickyCta';
 import CoreExperienceStyles from './CoreExperience.module.css';
@@ -613,12 +612,6 @@ export default function CoreEssencePanel() {
 
           {shouldShowResultSections(uxPhase) && composition ? (
             <>
-              {shareCard ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreFreeShareableResultCard card={shareCard} />
-                </div>
-              ) : null}
-
               <nav className={CoreExperienceStyles.freeResultSectionNav} aria-label="無料結果のセクション">
                 <a href="#core-lead">結果</a>
                 <a href="#core-summary">背景</a>
@@ -638,9 +631,6 @@ export default function CoreEssencePanel() {
                       onRequestReanswer={handleRequestReanswer}
                     />
                   </div>
-                  <div className={CoreExperienceStyles.freeResultRevealItem}>
-                    <CoreEntryReportCTASection depth={depthAnalysis} />
-                  </div>
                 </>
               ) : null}
 
@@ -653,6 +643,12 @@ export default function CoreEssencePanel() {
               {shareCard ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
                   <CoreFreeResultShareCTA card={shareCard} />
+                </div>
+              ) : null}
+
+              {depthAnalysis ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CoreEntryReportCTASection depth={depthAnalysis} />
                 </div>
               ) : null}
 

@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { PublicHeader } from './PublicHeader';
+import { PublicHeaderContainer } from './PublicHeaderContainer';
+import '../../lib/m55/commercialUx/publicPrint.module.css';
 import LegacyFrame from '../../src/components/legacy/LegacyFrame';
 import styles from './ShellLayout.module.css';
 import { useSoulBridge } from '../../hooks/useSoulBridge';
@@ -55,7 +56,7 @@ export default function ShellLayout({
 
   return (
     <div className={styles.wrapper}>
-      <PublicHeader />
+      <PublicHeaderContainer />
 
       <main className={styles.main}>
         {useDataBridge ? (

@@ -3,17 +3,16 @@
 import Link from 'next/link';
 import { useEffect, useId } from 'react';
 import {
-  getCommercialProduct,
   M55_REPORT_CHAPTERS,
 } from '../../lib/m55/contracts/m55CommercialFunnelContract';
 import type { FreeDepthAnalysisV1 } from '../../lib/m55/freeResult/buildFreeDepthAnalysisV1';
-import { PAID_DTR_SAVED_REPORT_PRICING } from '../../lib/m55/paidDtrProductCopy';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
+import { PLAN_COMPARISON } from '../../lib/m55/commercialUx/planComparison';
 import { STATIC_FREE_TO_PAID_BRIDGE } from './corePublicCopy';
 import CorePremiumReportPreviewSlice from './CorePremiumReportPreviewSlice';
 import styles from './CoreExperience.module.css';
@@ -22,23 +21,16 @@ type Props = {
   depth: FreeDepthAnalysisV1;
 };
 
-function formatPriceLabelJa(priceJpy: number): string {
-  return `¥${priceJpy.toLocaleString('ja-JP')}（税込）`;
-}
-
 /**
  * Free→Premium bridge — open loop, personalized preview, early CTA, then plans.
  */
 export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
   const titleId = useId();
   const copy = STATIC_FREE_TO_PAID_BRIDGE;
-  const light = getCommercialProduct('selfPremiumLight');
-  const full = getCommercialProduct('selfPremiumFull');
+  const plan = PLAN_COMPARISON;
+  const light = plan.light;
+  const full = plan.full;
   const href = TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref;
-
-  const lightPriceJpy = light.priceJpy ?? PAID_DTR_SAVED_REPORT_PRICING.light.priceYen;
-  const fullPriceJpy = full.priceJpy ?? PAID_DTR_SAVED_REPORT_PRICING.full.priceYen;
-  const upgradeDelta = fullPriceJpy - lightPriceJpy;
 
   const chapterRows = M55_REPORT_CHAPTERS.map((chapter, index) => {
     const fallback = copy.chapters[index];
@@ -126,26 +118,26 @@ export default function CoreFreeToPaidConversionBridge({ depth }: Props) {
       </ul>
 
       <h3 className={styles.conversionBridgeChaptersHeading}>{copy.planDiffHeadingJa}</h3>
-      <p className={styles.conversionBridgeOneTimeNote}>{copy.oneTimePurchaseNoteJa}</p>
+      <p className={styles.conversionBridgeOneTimeNote}>{plan.oneTimeNoteJa}</p>
       <div className={styles.conversionBridgePlanGrid}>
         <article className={styles.conversionBridgePlanCard} data-testid="m55-plan-card-light">
           <h3 className={styles.conversionBridgePlanName}>{light.publicName}</h3>
-          <p className={styles.conversionBridgePlanAudience}>{copy.lightAudienceJa}</p>
-          <p className={styles.conversionBridgePlanPrice}>{formatPriceLabelJa(lightPriceJpy)}</p>
-          <p className={styles.conversionBridgeLayerBody}>{copy.lightPlanBodyJa}</p>
+          <p className={styles.conversionBridgePlanAudience}>{light.audienceJa}</p>
+          <p className={styles.conversionBridgePlanPrice}>{light.priceLabelJa}</p>
+          <p className={styles.conversionBridgeLayerBody}>{light.bodyJa}</p>
         </article>
         <article
           className={`${styles.conversionBridgePlanCard} ${styles.conversionBridgePlanCardFeatured}`}
           data-testid="m55-plan-card-full"
         >
-          <span className={styles.conversionBridgePlanBadge}>{copy.fullRecommendBadgeJa}</span>
+          <span className={styles.conversionBridgePlanBadge}>{plan.fullRecommendReasonJa}</span>
           <h3 className={styles.conversionBridgePlanName}>{full.publicName}</h3>
-          <p className={styles.conversionBridgePlanAudience}>{copy.fullAudienceJa}</p>
-          <p className={styles.conversionBridgePlanPrice}>{formatPriceLabelJa(fullPriceJpy)}</p>
+          <p className={styles.conversionBridgePlanAudience}>{full.audienceJa}</p>
+          <p className={styles.conversionBridgePlanPrice}>{full.priceLabelJa}</p>
           <p className={styles.conversionBridgePlanUpgrade}>
-            +¥{upgradeDelta.toLocaleString('ja-JP')}で追加読み解きが4件増える
+            +¥{plan.priceDeltaJpy.toLocaleString('ja-JP')}で追加読み解きが{plan.additionalReadingsDelta}件増える
           </p>
-          <p className={styles.conversionBridgeLayerBody}>{copy.fullPlanBodyJa}</p>
+          <p className={styles.conversionBridgeLayerBody}>{full.bodyJa}</p>
         </article>
       </div>
 

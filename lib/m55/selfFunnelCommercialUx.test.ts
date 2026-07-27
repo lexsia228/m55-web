@@ -35,17 +35,25 @@ describe('Self funnel commercial UX redesign', () => {
     assert.doesNotMatch(lead, /\d{4}年\d{1,2}月\d{1,2}日/);
   });
 
-  it('outcome, scene, then Premium bridge; preview precedes plan grid', () => {
+  it('outcome, scene, share, then Premium bridge; preview precedes plan grid', () => {
     const essence = read('components/core/CoreEssencePanel.tsx');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const slice = essence.slice(essence.indexOf('shouldShowResultSections(uxPhase) && composition'));
     const leadIdx = essence.indexOf('<CoreFreeResultLeadSection');
     const summaryIdx = slice.indexOf('<CoreFreeResultSummaryHub');
     const sceneIdx = slice.indexOf('<CoreFreeResultScenesSection');
+    const shareIdx = slice.indexOf('<CoreFreeResultShareCTA');
     const bridgeIdx = slice.indexOf('<CoreEntryReportCTASection');
-    assert.ok(leadIdx >= 0 && summaryIdx >= 0 && sceneIdx > summaryIdx && bridgeIdx > sceneIdx);
+    assert.ok(
+      leadIdx >= 0 &&
+        summaryIdx >= 0 &&
+        sceneIdx > summaryIdx &&
+        shareIdx > sceneIdx &&
+        bridgeIdx > shareIdx,
+    );
     assert.match(bridge, /CorePremiumReportPreviewSlice/);
     assert.match(bridge, /premiumLockedHeadingsJa/);
+    assert.match(bridge, /PLAN_COMPARISON/);
     const previewIdx = bridge.indexOf('<CorePremiumReportPreviewSlice');
     const ctaIdx = bridge.indexOf('m55-paid-bridge-primary');
     const planIdx = bridge.indexOf('conversionBridgePlanGrid');
@@ -63,10 +71,10 @@ describe('Self funnel commercial UX redesign', () => {
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /複数/);
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
-    assert.match(bridge, /getCommercialProduct/);
+    assert.match(bridge, /PLAN_COMPARISON/);
     assert.match(bridge, /conversionBridgePlanPrice/);
-    assert.match(bridge, /formatPriceLabelJa\(lightPriceJpy\)/);
-    assert.match(bridge, /formatPriceLabelJa\(fullPriceJpy\)/);
+    assert.match(bridge, /light\.priceLabelJa/);
+    assert.match(bridge, /full\.priceLabelJa/);
     assert.doesNotMatch(bridge, /1000|1480/);
   });
 

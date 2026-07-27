@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { resolveSharedEntryFromToken } from '../../../lib/m55/freeResult/privacySafeShareCardV1';
+import { resolveTraitIdentity } from '../../../lib/m55/commercialUx/traitIdentityCatalog';
 
 export const runtime = 'edge';
 export const size = { width: 1200, height: 630 };
@@ -12,8 +13,9 @@ type Props = {
 export default async function Image({ params }: Props) {
   const { token } = await params;
   const card = resolveSharedEntryFromToken(token);
-  const trait = card?.traitNameJa ?? 'M55';
-  const phrase = card?.traitPhraseJa ?? '自分の動き方を、無料で見てみる';
+  const identity = card ? resolveTraitIdentity(card.stemLaneIndex) : null;
+  const trait = identity?.traitName ?? card?.traitNameJa ?? 'M55';
+  const phrase = identity?.canonicalTagline ?? card?.traitPhraseJa ?? '自分の動き方を、無料で見てみる';
   const invite = card?.inviteJa ?? 'M55で無料結果を見る';
 
   return new ImageResponse(

@@ -79,7 +79,7 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await openResult(page);
 
-    await expect(page.getByTestId('m55-shareable-result-card').first()).toBeVisible();
+    await expect(page.getByTestId('m55-shareable-result-card')).toHaveCount(1);
     await expect(page.getByTestId('m55-free-result-share')).toBeVisible();
     await expect(page.getByTestId('m55-share-preview-text')).toContainText('私の今の資質は');
     await expect(page.getByTestId('m55-share-preview-url')).toHaveText(/\/r\/s1-\d/);

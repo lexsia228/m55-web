@@ -4734,6 +4734,22 @@
   word-break: break-all;
 }
 
+.shareFallbackText {
+  display: block;
+  width: 100%;
+  min-height: 4.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(107, 95, 168, 0.25);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(45, 40, 70, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  resize: vertical;
+}
+
 .shareActions {
   display: flex;
   flex-wrap: wrap;

@@ -1,0 +1,90 @@
+.root {
+  max-width: min(56rem, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 24px 16px 56px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.lead,
+.note {
+  margin: 0 0 16px;
+  line-height: 1.7;
+}
+
+.planGrid {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+@media (min-width: 640px) {
+  .planGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.planCard {
+  border: 1px solid rgba(60, 60, 60, 0.12);
+  border-radius: 12px;
+  padding: 20px;
+  background: #fff;
+  break-inside: avoid;
+}
+
+.planCardFeatured {
+  border-color: rgba(107, 95, 168, 0.35);
+}
+
+.planBadge {
+  display: inline-block;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #6b5fa8;
+}
+
+.planName {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.planPrice {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.planAudience,
+.planBody,
+.planUpgrade {
+  margin: 0 0 8px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.upgradeSection {
+  margin: 0 0 20px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.linkRow {
+  margin: 0 0 12px;
+  line-height: 1.7;
+}
+
+.disclaimer {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.9;
+}

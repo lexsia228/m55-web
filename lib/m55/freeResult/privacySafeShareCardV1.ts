@@ -8,6 +8,8 @@ import {
   resolvePublicStemDisplay,
   type PublicStemDisplay,
 } from '../publicStemDisplay';
+import { resolveTraitIdentity } from '../commercialUx/traitIdentityCatalog';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../commercialUx/terminology';
 
 export const SHARE_TOKEN_VERSION = 's1' as const;
 export const SHARE_ENTRY_PATH_PREFIX = '/r' as const;
@@ -38,15 +40,19 @@ const SAFE_STATEMENT_BY_LANE: readonly string[] = [
   '小さな変化に気づき、深く読み解く傾向があります。',
 ];
 
+/** @deprecated Use resolveTraitIdentity — kept for test migration guard only. */
+export const _LEGACY_SAFE_STATEMENT_BY_LANE = SAFE_STATEMENT_BY_LANE;
+
 export const SHARE_UI_COPY_V1 = {
-  titleJa: 'この結果を共有する',
+  titleJa: T.shareAction,
   bodyJa: '生年月日や回答は含まれません。資質名と短い一文だけを共有できます。',
   previewLabelJa: '共有される内容',
   nativeShareJa: '共有する',
   copyLinkJa: 'リンクをコピー',
   copiedJa: 'リンクをコピーしました',
   cancelledJa: '共有をキャンセルしました',
-  unavailableJa: '共有できませんでした。リンクをコピーしてお試しください。',
+  unavailableJa: '共有できませんでした。下のテキストを選択してコピーしてください。',
+  fallbackHintJa: 'リンクをコピーできない場合は、下のテキストを選択して共有してください。',
   inviteJa: 'M55で無料結果を見る',
 } as const;
 
@@ -93,18 +99,19 @@ export function buildPrivacySafeShareCardV1(input: {
 }
 
 function buildShareCardFromDisplay(display: PublicStemDisplay): PrivacySafeShareCardV1 {
+  const identity = resolveTraitIdentity(display.stemLaneIndex);
   const token = encodeShareToken(display.stemLaneIndex);
   const safeStatementJa =
-    SAFE_STATEMENT_BY_LANE[display.stemLaneIndex] ?? `${display.displayOneLine}。`;
+    identity?.shareStatement ?? `${display.displayOneLine}。`;
   return {
     stemLaneIndex: display.stemLaneIndex,
-    traitNameJa: display.publicTitle,
-    traitPhraseJa: display.displayOneLine,
+    traitNameJa: identity?.traitName ?? display.publicTitle,
+    traitPhraseJa: identity?.canonicalTagline ?? display.displayOneLine,
     safeStatementJa,
     inviteJa: SHARE_UI_COPY_V1.inviteJa,
-    imagePath: display.imagePath,
+    imagePath: identity?.imagePath ?? display.imagePath,
     sharePath: buildSharePath(display.stemLaneIndex),
-    shareTextJa: buildShareTextJa(display.publicTitle),
+    shareTextJa: buildShareTextJa(identity?.traitName ?? display.publicTitle),
     token,
   };
 }

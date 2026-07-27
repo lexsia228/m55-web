@@ -12,6 +12,7 @@ function readSource(relativePath: string): string {
 }
 
 const headerSource = readSource('components/shell/PublicHeader.tsx');
+const headerStateSource = readSource('lib/m55/commercialUx/publicHeaderState.ts');
 const shellCss = readSource('components/shell/ShellLayout.module.css');
 
 describe('publicHeaderContract — legacy compact-label removal', () => {
@@ -35,37 +36,40 @@ describe('publicHeaderContract — legacy compact-label removal', () => {
 });
 
 describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
-  it('exposes exact desktop labels and destinations', () => {
-    const navBlockStart = headerSource.indexOf('const DESKTOP_PRIMARY_NAV');
-    const navBlockEnd = headerSource.indexOf('];', navBlockStart);
-    const navBlock = headerSource.slice(navBlockStart, navBlockEnd);
-    assert.match(navBlock, /href:\s*'\/core',\s*label:\s*'無料で見る'/);
-    assert.match(navBlock, /href:\s*'\/dtr\/lp',\s*label:\s*'プレミアム'/);
+  it('exposes exact desktop labels and destinations from shared state', () => {
+    const navBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export const DESKTOP_PRIMARY_NAV'),
+      headerStateSource.indexOf('export const ABOUT_DROPDOWN_NAV'),
+    );
+    assert.match(navBlock, /href:\s*'\/core',\s*label:\s*T\.freeEntry/);
+    assert.match(navBlock, /href:\s*'\/dtr\/lp',\s*label:\s*T\.premiumProduct/);
 
-    const aboutBlockStart = headerSource.indexOf('const ABOUT_DROPDOWN_NAV');
-    const aboutBlockEnd = headerSource.indexOf('];', aboutBlockStart);
-    const aboutBlock = headerSource.slice(aboutBlockStart, aboutBlockEnd);
+    const aboutBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export const ABOUT_DROPDOWN_NAV'),
+      headerStateSource.indexOf('export const MOBILE_MENU_PUBLIC'),
+    );
     assert.match(aboutBlock, /href:\s*'\/how-m55-works',\s*label:\s*'M55の仕組み'/);
-    assert.match(aboutBlock, /href:\s*'\/ten-views',\s*label:\s*PUBLIC_NAV_TEN_VIEWS_LABEL_JA/);
+    assert.match(aboutBlock, /href:\s*'\/ten-views',\s*label:\s*T\.tenQualities/);
     assert.doesNotMatch(aboutBlock, /href:\s*'\/support'/);
   });
 
   it('includes M55について and アカウント dropdown triggers', () => {
-    assert.match(headerSource, /triggerLabel="M55について"/);
+    assert.match(headerSource, /triggerLabel=\{T\.aboutM55\}/);
     assert.match(headerSource, /triggerLabel="アカウント"/);
     assert.match(headerSource, /aria-haspopup="menu"/);
     assert.match(headerSource, /aria-expanded=\{open\}/);
   });
 
   it('account dropdown links to マイレポート and マイページ', () => {
-    const accountBlockStart = headerSource.indexOf('const ACCOUNT_DROPDOWN_NAV');
-    const accountBlockEnd = headerSource.indexOf('];', accountBlockStart);
-    const accountBlock = headerSource.slice(accountBlockStart, accountBlockEnd);
+    const accountBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export const ACCOUNT_DROPDOWN_NAV'),
+      headerStateSource.indexOf('export function resolvePublicHeaderSurface'),
+    );
     assert.match(accountBlock, /href:\s*'\/dtr',\s*label:\s*'マイレポート'/);
     assert.match(accountBlock, /href:\s*'\/my',\s*label:\s*'マイページ'/);
   });
 
-  it('marks aria-current only on the active destination via isActiveRoute', () => {
+  it('marks aria-current only on the active destination via isHeaderNavActive', () => {
     assert.match(headerSource, /aria-current=\{active \? 'page' : undefined\}/);
     assert.match(headerSource, /aria-current=\{pathname === '\/home' \? 'page' : undefined\}/);
   });
@@ -90,7 +94,7 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
 
   it('scopes About parent active styling to the dedicated About dropdown marker', () => {
     const aboutDropdownBlock = headerSource.slice(
-      headerSource.indexOf('triggerLabel="M55について"'),
+      headerSource.indexOf('triggerLabel={T.aboutM55}'),
       headerSource.indexOf('triggerLabel="アカウント"'),
     );
     assert.match(aboutDropdownBlock, /aboutDropdown/);
@@ -116,7 +120,7 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
   });
 
   it('marks active child routes inside about dropdown without changing trigger logic', () => {
-    assert.match(headerSource, /isActiveRoute\(pathname, item\.href\)/);
+    assert.match(headerSource, /isHeaderNavActive\(pathname, item\.href\)/);
     assert.match(headerSource, /navDropdownLinkActive/);
     assert.doesNotMatch(headerSource, /isAboutActive/);
     assert.match(headerSource, /onClick=\{\(\) => setOpen\(\(value\) => !value\)\}/);
@@ -124,34 +128,39 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
 });
 
 describe('publicHeaderContract — compact (≤959px) structure', () => {
-  it('keeps only M55, 無料で見る, and メニュー directly visible below 960px', () => {
-    assert.match(headerSource, /無料で見る/);
-    assert.match(headerSource, />\s*メニュー\s*</);
-    assert.match(shellCss, /@media \(max-width: 959px\)[\s\S]*?\.mobileFreeLink\s*\{[\s\S]*?display:\s*inline-flex/);
+  it('keeps M55, one contextual primary CTA, and メニュー below 960px', () => {
+    assert.match(headerSource, /m55-mobile-nav-contextual/);
+    assert.match(headerSource, /\{T\.menu\}/);
+    assert.match(
+      shellCss,
+      /@media \(max-width: 959px\)[\s\S]*?\.mobileFreeLink,\s*\n\s*\.mobilePremiumLink\s*\{[\s\S]*?display:\s*inline-flex/,
+    );
   });
 
   it('mobile menu contains the exact required public items in order', () => {
-    const navBlockStart = headerSource.indexOf('const MOBILE_MENU_PUBLIC');
-    const navBlockEnd = headerSource.indexOf('];', navBlockStart);
-    const navBlock = headerSource.slice(navBlockStart, navBlockEnd);
-    const order = ['/dtr/lp', '/how-m55-works', '/ten-views'];
+    const navBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export const MOBILE_MENU_PUBLIC'),
+      headerStateSource.indexOf('export const ACCOUNT_DROPDOWN_NAV'),
+    );
+    const order = ['/home', '/core', '/dtr/lp', '/how-m55-works', '/ten-views'];
     const indices = order.map((href) => navBlock.indexOf(`href: '${href}'`));
     for (const [i, href] of order.entries()) {
       assert.notEqual(indices[i], -1, `mobile menu missing item: ${href}`);
     }
     for (let i = 1; i < indices.length; i += 1) {
-      assert.ok(indices[i] > indices[i - 1], `mobile menu order broken at ${order[i]}`);
+      assert.ok(indices[i]! > indices[i - 1]!, `mobile menu order broken at ${order[i]}`);
     }
-    assert.match(navBlock, /label:\s*'プレミアムレポート'/);
+    assert.match(navBlock, /label:\s*T\.premiumProduct/);
     assert.match(navBlock, /label:\s*'M55の仕組み'/);
-    assert.match(navBlock, /label:\s*PUBLIC_NAV_TEN_VIEWS_LABEL_JA/);
+    assert.match(navBlock, /label:\s*T\.tenQualities/);
     assert.doesNotMatch(navBlock, /href:\s*'\/support'/);
   });
 
   it('includes signed-in マイレポート and マイページ in the mobile menu', () => {
-    const navBlockStart = headerSource.indexOf('const MOBILE_MENU_SIGNED_IN');
-    const navBlockEnd = headerSource.indexOf('];', navBlockStart);
-    const navBlock = headerSource.slice(navBlockStart, navBlockEnd);
+    const navBlock = headerStateSource.slice(
+      headerStateSource.indexOf('export const ACCOUNT_DROPDOWN_NAV'),
+      headerStateSource.indexOf('export function resolvePublicHeaderSurface'),
+    );
     assert.match(navBlock, /href:\s*'\/dtr',\s*label:\s*'マイレポート'/);
     assert.match(navBlock, /href:\s*'\/my',\s*label:\s*'マイページ'/);
   });
@@ -167,7 +176,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
 
 describe('publicHeaderContract — menu accessibility contract', () => {
   it('mobile trigger has exact visible text and toggling aria-label', () => {
-    assert.match(headerSource, />\s*メニュー\s*<\/button>/);
+    assert.match(headerSource, /\{T\.menu\}/);
     assert.match(headerSource, /aria-label=\{menuOpen \? 'メニューを閉じる' : 'メニューを開く'\}/);
   });
 
@@ -197,7 +206,7 @@ describe('publicHeaderContract — menu accessibility contract', () => {
 describe('publicHeaderContract — layout, sizing, and reduced motion', () => {
   it('gives interactive header controls a minimum 44px hit target', () => {
     assert.match(shellCss, /\.menuTrigger\s*\{[\s\S]*?min-(width|height):\s*44px/);
-    assert.match(shellCss, /\.mobileFreeLink\s*\{[\s\S]*?min-height:\s*44px/);
+    assert.match(shellCss, /\.mobileFreeLink,\s*\n\s*\.mobilePremiumLink\s*\{[\s\S]*?min-height:\s*44px/);
     assert.match(shellCss, /\.mobileMenuLink\s*\{[\s\S]*?min-height:\s*44px/);
     assert.match(shellCss, /\.navDropdownLink\s*\{[\s\S]*?min-height:\s*44px/);
   });

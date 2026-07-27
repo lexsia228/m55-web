@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { resolveDtrShelfAccess } from '../../lib/m55/dtrShelfAccess';
 import { resolveSavedReportTierSummary } from '../../lib/m55/dtrSavedReportTier';
-import { PublicHeader } from '../../components/shell/PublicHeader';
+import { PublicHeaderContainer } from '../../components/shell/PublicHeaderContainer';
 import { PublicFooter } from '../_components/PublicFooter';
 import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
 import styles from './dtr.module.css';
@@ -32,7 +32,7 @@ export default async function DtrPage() {
 
   return (
     <>
-      <PublicHeader />
+      <PublicHeaderContainer />
       <main className={styles.main}>
         <DtrShelfPanel
           ownershipState={ownershipState}

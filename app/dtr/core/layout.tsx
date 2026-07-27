@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PublicHeader } from '../../../components/shell/PublicHeader';
+import { PublicHeaderContainer } from '../../../components/shell/PublicHeaderContainer';
 import { PublicFooter } from '../../_components/PublicFooter';
 import styles from './layout.module.css';
 
@@ -12,7 +12,7 @@ export default function DtrCoreLayout({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell} data-m55-dtr-reader-shell="true">
       <div className={styles.printHiddenHeader} data-m55-dtr-reader-public-header="true">
-        <PublicHeader />
+        <PublicHeaderContainer />
       </div>
       {children}
       <PublicFooter />

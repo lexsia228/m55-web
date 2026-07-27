@@ -94,7 +94,7 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.match(src, /data-testid="m55-paid-bridge-primary"/);
     assert.match(src, /data-testid="m55-paid-bridge-secondary"/);
     assert.match(src, /viewSavedPlansHref/);
-    assert.match(src, /getCommercialProduct/);
+    assert.match(src, /PLAN_COMPARISON/);
     assert.match(src, /core-scenes/);
     assert.doesNotMatch(src, /PurchaseButton/);
     assert.doesNotMatch(src, /\/api\/purchase/);

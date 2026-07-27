@@ -112,16 +112,18 @@ describe('growth share source guards', () => {
     assert.doesNotMatch(panel, /nickname|birthDate|fingerprint|clerkClient/i);
   });
 
-  it('share CTA never auto-posts and supports cancel/copy', () => {
+  it('share CTA never auto-posts and supports cancel/copy with post-success analytics', () => {
     const src = read('components/core/CoreFreeResultShareCTA.tsx');
     assert.match(src, /navigator\.share/);
     assert.match(src, /AbortError/);
     assert.match(src, /clipboard\.writeText/);
     assert.match(src, /nativeShareInvoked/);
     assert.match(src, /shareLinkCopied/);
-    assert.match(src, /Never auto-posts/);
+    assert.match(src, /shareFallbackText/);
     assert.match(src, /onClick=\{handleNativeShare\}/);
     assert.match(src, /onClick=\{handleCopyLink\}/);
+    const copyBlock = src.slice(src.indexOf('async function handleCopyLink'));
+    assert.ok(copyBlock.indexOf('shareLinkCopied') > copyBlock.indexOf('clipboard.writeText'));
   });
 
   it('sticky Premium CTA routes to paid questions, not checkout', () => {
@@ -131,11 +133,12 @@ describe('growth share source guards', () => {
     assert.doesNotMatch(sticky, /\/api\/purchase\/checkout|checkoutStarted/);
   });
 
-  it('OG page uses privacy-safe trait metadata and generic fallback', () => {
+  it('OG page uses privacy-safe trait metadata and generated OG route', () => {
     const page = read('app/r/[token]/page.tsx');
     assert.match(page, /generateMetadata/);
+    assert.match(page, /opengraph-image/);
     assert.match(page, /CANONICAL_PRODUCTION_ORIGIN/);
-    assert.match(page, /無料結果を見る/);
+    assert.match(page, /PublicShell/);
     assert.doesNotMatch(page, /searchParams|nickname|birthDate|answers/);
     const og = read('app/r/[token]/opengraph-image.tsx');
     assert.match(og, /ImageResponse/);

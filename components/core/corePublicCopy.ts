@@ -182,7 +182,7 @@ export const STATIC_FREE_TO_PAID_BRIDGE = {
   fullAudienceJa: '仕事・関係・日常をまとめて整理したい方へ',
   fullPlanBodyJa:
     '4章のプレミアムレポート＋追加読み解き合計5件。複数の関心をまとめて読み返せます。',
-  fullRecommendBadgeJa: 'おすすめ',
+  fullRecommendBadgeJa: '複数の関心向け',
   fullUpgradeNoteJa: '+¥480で追加読み解きが4件増える',
   oneTimePurchaseNoteJa: '買い切り・自動更新なし。同じ4章レポートが両プランに含まれます。',
   previewHeadingJa: 'あなたのPremiumで開く項目',

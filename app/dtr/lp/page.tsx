@@ -14,6 +14,7 @@ import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from "../../../lib/oneTimeCheckou
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
+import DtrLpPremiumContinuityIntro from "../../../components/dtr/DtrLpPremiumContinuityIntro";
 import styles from "./lp.module.css";
 
 export const metadata = { title: "本質を見つめ直す | M55" };
@@ -211,6 +212,8 @@ export default async function DtrLpPage({
         </p>
 
         {showExpiredBanner && <ExpiredNotice />}
+
+        <DtrLpPremiumContinuityIntro />
 
         {showLightUpgradeCta && tier?.reportInstanceId && (
           <section aria-labelledby="dtr-lp-owned-upgrade" className={styles.lpSection} style={{ marginTop: 0 }}>
