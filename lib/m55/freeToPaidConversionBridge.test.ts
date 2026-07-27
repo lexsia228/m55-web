@@ -50,14 +50,14 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
 
   it('uses outcome-first order and clear free / Light / Full distinction', () => {
     assert.ok(STATIC_FREE_TO_PAID_BRIDGE.outcomesJa.length >= 3);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa, /認識/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa, /表れ方|場面/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.savedLayerBodyJa, /背景|構造|扱い/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightPlanBodyJa, /1件/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, /一つの関心/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, /複数の関心/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'あと6問でプレミアムレポートを作る');
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料の詳細をこのまま読む');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, /一つの関心|1テーマ/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, /仕事|複数/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料の詳細をもう少し読む');
   });
 
   it('avoids fake urgency language in marketing surfaces', () => {
@@ -75,18 +75,17 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断、未来や結果の保証ではありません/);
   });
 
-  it('CoreEssencePanel mounts a single bridge after summary and before free detail', () => {
+  it('CoreEssencePanel mounts bridge after summary and scene', () => {
     const src = read('components/core/CoreEssencePanel.tsx');
     const renderSlice = src.slice(src.indexOf('shouldShowResultSections(uxPhase) && composition'));
     assert.match(renderSlice, /CoreFreeResultSummaryHub/);
     assert.match(renderSlice, /CoreEntryReportCTASection/);
     assert.match(renderSlice, /CoreFreeResultScenesSection/);
-    assert.doesNotMatch(renderSlice, /CoreFreeSavedBoundarySection/);
-    assert.doesNotMatch(renderSlice, /focusThemeLabelJa/);
+    assert.match(renderSlice, /depth=\{depthAnalysis\}/);
     const summaryIdx = renderSlice.indexOf('<CoreFreeResultSummaryHub');
+    const sceneIdx = renderSlice.indexOf('<CoreFreeResultScenesSection');
     const bridgeIdx = renderSlice.indexOf('<CoreEntryReportCTASection');
-    const detailIdx = renderSlice.indexOf('<CoreFreeResultScenesSection');
-    assert.ok(summaryIdx >= 0 && bridgeIdx > summaryIdx && detailIdx > bridgeIdx);
+    assert.ok(summaryIdx >= 0 && sceneIdx > summaryIdx && bridgeIdx > sceneIdx);
   });
 
   it('bridge component exposes primary and secondary actions without checkout POST', () => {

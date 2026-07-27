@@ -121,8 +121,8 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('Phase1 commercial conversion copy stays product-safe and Light-priced', () => {
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /なぜそうなるか/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'あと6問でプレミアムレポートを作る');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.title, /なぜ続きやすいのか/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);

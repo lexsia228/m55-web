@@ -35,19 +35,21 @@ describe('Self funnel commercial UX redesign', () => {
     assert.doesNotMatch(lead, /\d{4}年\d{1,2}月\d{1,2}日/);
   });
 
-  it('outcome and summary precede Premium CTA; preview precedes plan CTA', () => {
+  it('outcome, scene, then Premium bridge; preview precedes plan grid', () => {
     const essence = read('components/core/CoreEssencePanel.tsx');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const slice = essence.slice(essence.indexOf('shouldShowResultSections(uxPhase) && composition'));
     const leadIdx = essence.indexOf('<CoreFreeResultLeadSection');
     const summaryIdx = slice.indexOf('<CoreFreeResultSummaryHub');
+    const sceneIdx = slice.indexOf('<CoreFreeResultScenesSection');
     const bridgeIdx = slice.indexOf('<CoreEntryReportCTASection');
-    assert.ok(leadIdx >= 0 && summaryIdx >= 0 && bridgeIdx > summaryIdx);
+    assert.ok(leadIdx >= 0 && summaryIdx >= 0 && sceneIdx > summaryIdx && bridgeIdx > sceneIdx);
     assert.match(bridge, /CorePremiumReportPreviewSlice/);
+    assert.match(bridge, /premiumLockedHeadingsJa/);
     const previewIdx = bridge.indexOf('<CorePremiumReportPreviewSlice');
     const ctaIdx = bridge.indexOf('m55-paid-bridge-primary');
     const planIdx = bridge.indexOf('conversionBridgePlanGrid');
-    assert.ok(previewIdx >= 0 && planIdx > previewIdx && ctaIdx > planIdx);
+    assert.ok(previewIdx >= 0 && ctaIdx > previewIdx && planIdx > ctaIdx);
   });
 
   it('Light/Full audience + in-card prices from machine authority', () => {
@@ -55,8 +57,8 @@ describe('Self funnel commercial UX redesign', () => {
     const full = getCommercialProduct('selfPremiumFull');
     assert.equal(light.priceJpy, 1000);
     assert.equal(full.priceJpy, 1480);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, 'まず一つの関心を深めたい方へ');
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, '複数の関心をまとめて整理したい方へ');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, 'いちばん気になる1テーマを深めたい方へ');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, '仕事・関係・日常をまとめて整理したい方へ');
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightPlanBodyJa, /1件/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /複数/);
@@ -69,8 +71,8 @@ describe('Self funnel commercial UX redesign', () => {
   });
 
   it('CTA copy, /dtr/lp destination, no checkout request', () => {
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'あと6問でプレミアムレポートを作る');
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa, /約1〜2分/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa, /あと6問/);
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref, '/dtr/lp');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     assert.match(bridge, /viewSavedPlansHref/);
@@ -78,19 +80,15 @@ describe('Self funnel commercial UX redesign', () => {
     assert.doesNotMatch(bridge, /checkoutStarted|checkout_started/);
   });
 
-  it('six-question handoff explains free complete → 6 answers → plan → report', () => {
+  it('six-question handoff explains benefits before effort', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /あと6問で、あなた向けのレポートに仕上げます/);
+    assert.match(q, /力が出やすい条件/);
+    assert.match(q, /負担が重なる順番/);
+    assert.match(q, /人との距離の取り方/);
+    assert.match(q, /戻しやすい整え方/);
+    assert.match(q, /あと6問・約1〜2分/);
     assert.match(q, /無料結果はすでに完了/);
-    assert.match(q, /背景・条件・構造・扱い方/);
-    assert.match(q, /プランを選んで決済/);
-    assert.match(q, /無料結果 完了/);
-    assert.match(q, /追加6問/);
     assert.match(q, /プラン選択・決済/);
-    assert.match(q, /プレミアムレポート/);
-    assert.match(q, /質問は6問です（約1〜2分）/);
-    assert.match(q, /正解はありません/);
-    assert.match(q, /あとで回答を確認できます/);
     assert.doesNotMatch(q, /PurchaseButton|\/api\/purchase/);
   });
 
@@ -118,7 +116,7 @@ describe('Self funnel commercial UX redesign', () => {
   it('value hierarchy lead is concrete premium reason', () => {
     assert.equal(
       STATIC_FREE_TO_PAID_BRIDGE.title,
-      '今の傾向だけでなく、なぜそうなるかまで整理する',
+      'この動きが、なぜ続きやすいのかを見る',
     );
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.outcomesJa.length, 4);
   });

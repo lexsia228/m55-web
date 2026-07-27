@@ -138,3 +138,6 @@ export const FREE_CONTINUOUS_FLOW_STEPS_JA = [
 ] as const;
 
 export const FREE_CONTINUOUS_FLOW_TOTAL = 6 as const;
+
+/** Interactive questionnaire count after basic information (profile) is complete. */
+export const FREE_QUESTION_FLOW_TOTAL = 5 as const;

@@ -26,27 +26,21 @@ describe('guided discovery input experience', () => {
     const progress = read('components/core/CoreFreeContinuousFlowProgress.tsx');
     const visual = read('components/core/CoreFreeClueProgressVisual.tsx');
     assert.match(progress, /CoreFreeClueProgressVisual/);
-    assert.match(progress, /あと\{remaining\}つ/);
+    assert.match(progress, /FREE_QUESTION_FLOW_TOTAL/);
+    assert.match(progress, /5つの問い/);
+    assert.match(progress, /あと\$\{questionRemaining\}問/);
     assert.match(visual, /FREE_CONTINUOUS_FLOW_TOTAL/);
     assert.match(visual, /data-testid="m55-free-clue-visual"/);
     assert.match(visual, /data-completed=\{filled\}/);
     assert.doesNotMatch(visual, /answerId|map_first|try_first|radar|zodiac|パーセント/);
   });
 
-  it('DOB screen uses guided-discovery copy and CTA', () => {
-    const intro = read('components/core/CoreFreeIntroSection.tsx');
-    assert.match(intro, /最初の手がかり/);
-    assert.match(intro, /生年月日を入力してください/);
-    assert.match(intro, /生年月日と5つの短い質問から/);
-    assert.match(intro, /動き出し方・決め方・人との距離に/);
-    assert.match(intro, /無料結果づくりを始める/);
-    assert.match(intro, /約1分・正解なし/);
-    assert.match(intro, /正確な日付は結果画面に表示しません/);
-    assert.match(intro, /freeGuidedShell/);
-    assert.doesNotMatch(intro, /5つの問いを始める/);
-    assert.doesNotMatch(intro, /この生年月日で続ける/);
-    // textual N/6 lives only in progress component, not duplicated in form column
-    assert.doesNotMatch(intro, /freeContinuousEyebrow/);
+  it('profile intake uses shared modal copy (single DOB entry)', () => {
+    const intake = read('components/profile/BirthProfileIntakeLayer.tsx');
+    assert.match(intake, /GUEST_PROFILE_INTAKE_COPY_V1/);
+    assert.match(intake, /type="date"/);
+    assert.match(intake, /ニックネーム/);
+    assert.doesNotMatch(intake, /5つの問いを始める/);
   });
 
   it('question layout: axisについて, helper weight, DOB edit, CTAs', () => {
@@ -55,14 +49,15 @@ describe('guided discovery input experience', () => {
     assert.match(q, /FREE_QUESTION_HELPER_JA/);
     assert.match(q, /FREE_QUESTION_HELPER_COMPACT_JA/);
     assert.match(q, /index === 0/);
-    assert.match(q, /入力内容を変更/);
+    assert.match(q, /基本情報を変更/);
+    assert.match(q, /onRequestProfileEdit/);
     assert.match(q, /次の質問へ/);
     assert.match(q, /無料結果を見る/);
     assert.match(q, /disabled=\{!selected\}/);
     assert.match(q, /event\.key === '1'/);
     assert.match(q, /m55-free-clue-ack/);
     assert.match(q, /完了/);
-    assert.match(q, /あと\{remainingAfterComplete\}つです/);
+    assert.match(q, /あと\{FREE_FIVE_QUESTION_COUNT - index - 1\}問/);
     assert.doesNotMatch(q, /手がかりを受け取りました/);
     assert.doesNotMatch(q, /質問 \{questionOrdinal\}/);
     assert.doesNotMatch(q, /質問 N \/ 5|質問 \$\{/);
@@ -141,9 +136,12 @@ describe('guided discovery input experience', () => {
     assert.doesNotMatch(src, /%|パーセント|解析中|診断/);
   });
 
-  it('does not alter free-result depth analysis in this gate', () => {
+  it('free-result depth analysis exposes concise commercial fields', () => {
     const depth = read('lib/m55/freeResult/buildFreeDepthAnalysisV1.ts');
     assert.match(depth, /FREE_DEPTH_ANALYSIS_VERSION/);
+    assert.match(depth, /conciseWhyJa/);
+    assert.match(depth, /primarySceneJa/);
+    assert.match(depth, /premiumLockedHeadingsJa/);
     const panel = read('components/core/CoreEssencePanel.tsx');
     assert.match(panel, /buildFreeDepthAnalysisV1/);
     assert.match(panel, /CoreFreeResultSummaryHub/);

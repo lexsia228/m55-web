@@ -102,11 +102,18 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       >
         <p className={styles.overline}>プレミアムレポートの質問</p>
         <h2 id={headingId} className={styles.title}>
-          あと6問で、あなた向けのレポートに仕上げます
+          あなた向けの4章レポートに仕上げます
         </h2>
         <p className={styles.lead}>
-          無料結果はすでに完了しています。ここからの6つの回答で、背景・条件・構造・扱い方をあなた向けに重ねます。質問のあと、プランを選んで決済へ進みます。
+          無料結果はすでに完了しています。ここからの6つの回答で、次の内容をあなた向けに重ねます。
         </p>
+        <ul className={styles.metaList}>
+          <li>力が出やすい条件</li>
+          <li>負担が重なる順番</li>
+          <li>人との距離の取り方</li>
+          <li>戻しやすい整え方</li>
+        </ul>
+        <p className={styles.lead}>あと6問・約1〜2分。質問のあと、プランを選んで決済へ進みます。</p>
         <ol className={styles.progressSequence} aria-label="これからの流れ">
           <li>無料結果 完了</li>
           <li>追加6問</li>
@@ -114,7 +121,6 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
           <li>プレミアムレポート</li>
         </ol>
         <ul className={styles.metaList}>
-          <li>質問は6問です（約1〜2分）</li>
           <li>正解はありません</li>
           <li>あとで回答を確認できます</li>
         </ul>

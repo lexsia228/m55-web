@@ -64,7 +64,9 @@ describe('paid questionnaire decision UX — ids and count', () => {
 describe('paid questionnaire decision UX — flow wiring', () => {
   it('entry / progress / back / next / completion / review are present', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /あと6問で、あなた向けのレポートに仕上げます/);
+    assert.match(q, /あなた向けの4章レポートに仕上げます/);
+    assert.match(q, /力が出やすい条件/);
+    assert.match(q, /あと6問・約1〜2分/);
     assert.match(q, /無料結果はすでに完了/);
     assert.match(q, /プレミアムレポートの6問を始める/);
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);

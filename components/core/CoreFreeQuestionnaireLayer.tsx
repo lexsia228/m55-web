@@ -2,14 +2,13 @@
 
 import { useEffect, useId, useState } from 'react';
 import {
-  FREE_AXIS_EYEBROW_SUFFIX_JA,
   FREE_FIVE_QUESTION_COUNT,
+  FREE_AXIS_EYEBROW_SUFFIX_JA,
   FREE_FIVE_QUESTIONS_COPY_V1,
   FREE_QUESTION_HELPER_COMPACT_JA,
   FREE_QUESTION_HELPER_JA,
   type FreeQuestionId,
 } from '../../lib/m55/freeResult/questionnaireCopyV1';
-import { FREE_CONTINUOUS_FLOW_TOTAL } from '../../lib/m55/freeResult/segmentedDobInputV1';
 import { REANSWER_CONFIRM_COPY_V1 } from '../../lib/m55/freeResult/guestFreeJourneyCopyV1';
 import CoreFreeContinuousFlowProgress from './CoreFreeContinuousFlowProgress';
 import styles from './CoreExperience.module.css';
@@ -20,7 +19,8 @@ type Props = {
   onComplete: () => void;
   isReanswerFlow?: boolean;
   onIndexChange?: (index: number) => void;
-  onRequestDobChange?: () => void;
+  /** Opens the shared profile intake modal — not a duplicate DOB step. */
+  onRequestProfileEdit?: () => void;
 };
 
 export default function CoreFreeQuestionnaireLayer({
@@ -29,17 +29,16 @@ export default function CoreFreeQuestionnaireLayer({
   onComplete,
   isReanswerFlow = false,
   onIndexChange,
-  onRequestDobChange,
+  onRequestProfileEdit,
 }: Props) {
   const [index, setIndex] = useState(0);
   const headingId = useId();
   const current = FREE_FIVE_QUESTIONS_COPY_V1[index]!;
   const selected = answers[current.questionId] ?? '';
   const isLast = index >= FREE_FIVE_QUESTION_COUNT - 1;
-  /** Continuous flow: DOB is 1/6, questions are 2/6–6/6. */
-  const continuousStep = index + 2;
-  const completedCount = selected ? continuousStep : continuousStep - 1;
-  const remainingAfterComplete = Math.max(FREE_CONTINUOUS_FLOW_TOTAL - continuousStep, 0);
+  /** Clue visual: basic info = clue 1 done; questions = clues 2–6. */
+  const clueStep = index + 2;
+  const completedClues = selected ? index + 2 : index + 1;
 
   function setIndexAndNotify(next: number) {
     setIndex(next);
@@ -56,10 +55,6 @@ export default function CoreFreeQuestionnaireLayer({
   }
 
   function goBack() {
-    if (index === 0 && onRequestDobChange) {
-      onRequestDobChange();
-      return;
-    }
     setIndexAndNotify(Math.max(index - 1, 0));
   }
 
@@ -103,20 +98,22 @@ export default function CoreFreeQuestionnaireLayer({
     >
       <div className={styles.freeGuidedVisualCol}>
         <CoreFreeContinuousFlowProgress
-          stepNumber={continuousStep}
-          completedCount={completedCount}
+          stepNumber={clueStep}
+          completedCount={completedClues}
+          questionIndex={index}
         />
       </div>
 
       <div className={styles.freeGuidedFormCol}>
-        {!isReanswerFlow && onRequestDobChange ? (
+        {!isReanswerFlow && onRequestProfileEdit ? (
           <div className={styles.freeDobCompactBar}>
             <button
               type="button"
               className={styles.freeDobCompactChange}
-              onClick={onRequestDobChange}
+              onClick={onRequestProfileEdit}
+              data-testid="m55-free-profile-edit"
             >
-              入力内容を変更
+              基本情報を変更
             </button>
           </div>
         ) : null}
@@ -181,11 +178,11 @@ export default function CoreFreeQuestionnaireLayer({
             data-testid="m55-free-clue-ack"
           >
             <span className={styles.freeClueAckPrimary}>
-              {continuousStep} / {FREE_CONTINUOUS_FLOW_TOTAL} 完了
+              {index + 1} / {FREE_FIVE_QUESTION_COUNT} 完了
             </span>
-            {remainingAfterComplete > 0 ? (
+            {!isLast ? (
               <span className={styles.freeClueAckSecondary}>
-                あと{remainingAfterComplete}つです
+                あと{FREE_FIVE_QUESTION_COUNT - index - 1}問
               </span>
             ) : null}
           </p>
@@ -200,6 +197,7 @@ export default function CoreFreeQuestionnaireLayer({
             type="button"
             className={styles.freeQuestionnaireSecondaryBtn}
             onClick={goBack}
+            disabled={index === 0}
           >
             戻る
           </button>

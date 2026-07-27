@@ -20,12 +20,10 @@ import {
   resolveInitialUxPhase,
   shouldHideResultDuringQuestionnaire,
   shouldShowHero,
-  shouldShowIntro,
   shouldShowQuestionnaire,
   shouldShowReanswerFinalize,
   shouldShowRevealing,
   shouldShowResultSections,
-  transitionOnIntroStart,
   transitionOnQuestionnaireComplete,
   transitionOnReanswerEditStart,
   transitionOnRevealComplete,
@@ -36,9 +34,8 @@ import {
   ensureCompleteFreeAnswerSet,
   isCompleteFreeAnswerSet,
 } from '../../lib/m55/freeResult/ensureFreeAnswerSetCompleteV1';
-import type { FreeQuestionId } from '../../lib/m55/freeResult/questionnaireCopyV1';
+import { FREE_FIVE_QUESTION_COUNT, type FreeQuestionId } from '../../lib/m55/freeResult/questionnaireCopyV1';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
-import CoreFreeIntroSection from './CoreFreeIntroSection';
 import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
 import CoreFreeResultLeadSection from './CoreFreeResultLeadSection';
@@ -49,6 +46,7 @@ import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
 import CoreExperienceStyles from './CoreExperience.module.css';
 import CoreLockedState from './CoreLockedState';
+import BirthProfileIntakeLayer from '../profile/BirthProfileIntakeLayer';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -67,7 +65,9 @@ export default function CoreEssencePanel() {
   const { user, isLoaded, isSignedIn } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
-  const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>(resolveInitialUxPhase);
+  const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>(() => resolveInitialUxPhase(true));
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [draftAnswers, setDraftAnswers] = useState<Record<string, string>>({});
@@ -130,17 +130,13 @@ export default function CoreEssencePanel() {
   }, [committedAnswers, questionnaireDone, sealed]);
 
   useEffect(() => {
-    if (!shouldShowIntro(uxPhase)) return;
-    trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.selfEntryStarted,
-      'core_free_entry',
-      'core-self-entry-started',
-    );
-    trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.dobCompleted,
-      'core_free_entry',
-      'core-dob-completed',
-    );
+    if (shouldShowQuestionnaire(uxPhase)) {
+      trackFunnelImpressionOnce(
+        M55_FUNNEL_EVENTS.selfEntryStarted,
+        'core_free_entry',
+        'core-self-entry-started',
+      );
+    }
   }, [uxPhase]);
 
   useEffect(() => {
@@ -199,7 +195,22 @@ export default function CoreEssencePanel() {
   }
 
   if (sealed.kind === 'locked') {
-    return <CoreLockedState />;
+    return (
+      <>
+        <CoreLockedState onStartIntake={() => setIntakeOpen(true)} />
+        <BirthProfileIntakeLayer
+          open={intakeOpen}
+          ownerId={ownerId}
+          onClose={() => setIntakeOpen(false)}
+          onSaved={() => {
+            setProfileEpoch((n) => n + 1);
+            setUxPhase('QUESTIONNAIRE');
+            setQuestionIndex(0);
+          }}
+          dataTestId="m55-core-birth-intake-layer"
+        />
+      </>
+    );
   }
 
   if (sealed.kind === 'error') {
@@ -221,23 +232,15 @@ export default function CoreEssencePanel() {
     setDraftAnswers((prev) => ({ ...prev, [questionId]: answerId }));
   }
 
-  function handleDobConfirmed(birthDateIso: string) {
-    const existing = ProfileRepository.get(ownerId);
-    if (!existing?.nickname?.trim()) return;
-    ProfileRepository.save(ownerId, {
-      ...existing,
-      birthDate: birthDateIso,
-    });
+  function handleRequestProfileEdit() {
+    setProfileEditOpen(true);
+  }
+
+  function handleProfileSaved() {
     setProfileEpoch((n) => n + 1);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('m55:profile_updated'));
     }
-    setUxPhase(transitionOnIntroStart());
-  }
-
-  function handleRequestDobChange() {
-    setUxPhase(resolveInitialUxPhase());
-    setQuestionIndex(0);
   }
 
   function handleQuestionnaireComplete() {
@@ -294,14 +297,21 @@ export default function CoreEssencePanel() {
     <div className={CoreExperienceStyles.page}>
       <CoreScrollReveal />
 
+      <BirthProfileIntakeLayer
+        open={profileEditOpen}
+        ownerId={ownerId}
+        nicknameHint={profile.nickname}
+        onClose={() => setProfileEditOpen(false)}
+        onSaved={handleProfileSaved}
+        dataTestId="m55-core-profile-edit-layer"
+      />
+
       {uxPhase === 'RESULT' ? (
         <CoreFreeJourneyStepper currentStep="result" />
-      ) : null}
-
-      {shouldShowIntro(uxPhase) ? (
-        <CoreFreeIntroSection
-          initialBirthDateIso={profile.birthDate}
-          onDobConfirmed={handleDobConfirmed}
+      ) : shouldShowQuestionnaire(uxPhase) ? (
+        <CoreFreeJourneyStepper
+          currentStep="questions"
+          questionLabel={`${questionIndex + 1}/${FREE_FIVE_QUESTION_COUNT}`}
         />
       ) : null}
 
@@ -314,7 +324,7 @@ export default function CoreEssencePanel() {
             onComplete={handleQuestionnaireComplete}
             isReanswerFlow={isReanswerFlow}
             onIndexChange={setQuestionIndex}
-            onRequestDobChange={isReanswerFlow ? undefined : handleRequestDobChange}
+            onRequestProfileEdit={isReanswerFlow ? undefined : handleRequestProfileEdit}
           />
           {compositionError ? (
             <div className={CoreExperienceStyles.errorBox} role="alert">
@@ -405,28 +415,26 @@ export default function CoreEssencePanel() {
             <>
               <nav className={CoreExperienceStyles.freeResultSectionNav} aria-label="無料結果のセクション">
                 <a href="#core-lead">結果</a>
-                <a href="#core-summary">読み解き</a>
+                <a href="#core-summary">背景</a>
                 <a href="#core-scenes">場面</a>
                 <a href="#core-paid">プレミアム</a>
               </nav>
 
               {depthAnalysis ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreFreeResultSummaryHub depth={depthAnalysis} />
-                </div>
-              ) : null}
-
-              <div className={CoreExperienceStyles.freeResultRevealItem}>
-                <CoreEntryReportCTASection />
-              </div>
-
-              {depthAnalysis ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreFreeResultScenesSection
-                    depth={depthAnalysis}
-                    onRequestReanswer={handleRequestReanswer}
-                  />
-                </div>
+                <>
+                  <div className={CoreExperienceStyles.freeResultRevealItem}>
+                    <CoreFreeResultSummaryHub depth={depthAnalysis} />
+                  </div>
+                  <div className={CoreExperienceStyles.freeResultRevealItem}>
+                    <CoreFreeResultScenesSection
+                      depth={depthAnalysis}
+                      onRequestReanswer={handleRequestReanswer}
+                    />
+                  </div>
+                  <div className={CoreExperienceStyles.freeResultRevealItem}>
+                    <CoreEntryReportCTASection depth={depthAnalysis} />
+                  </div>
+                </>
               ) : null}
 
               {!isSignedIn ? (

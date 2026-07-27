@@ -400,6 +400,28 @@
   outline-offset: 2px;
 }
 
+.coreProfileGateSecondaryLink {
+  margin-top: 0.85rem;
+  font-size: 0.88rem;
+  color: rgba(62, 52, 88, 0.72);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.coreProfileGateSecondaryLink:hover {
+  color: rgba(40, 38, 44, 0.88);
+}
+
+.coreProfileGateSecondaryLink:focus-visible {
+  outline: 2px solid rgba(107, 95, 168, 0.45);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Hero */
 .hero {
   padding-bottom: 20px;
@@ -3285,6 +3307,14 @@
   gap: 0.35rem 0.75rem;
 }
 
+.freeContinuousProgressStage {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: rgba(90, 78, 120, 0.72);
+  flex: 1 1 100%;
+}
+
 .freeContinuousProgressCount {
   font-size: 0.82rem;
   font-weight: 600;
@@ -4500,6 +4530,78 @@
     max-height: 120px;
     height: 120px;
   }
+}
+
+.conversionBridgeSupporting {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(62, 52, 88, 0.82);
+}
+
+.conversionBridgeOpenLoop {
+  margin: 0 0 0.75rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(62, 52, 88, 0.78);
+}
+
+.bridgeLockedHeadingsList {
+  margin: 0 0 0.85rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bridgeLockedHeadingItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
+  border: 1px dashed rgba(90, 78, 120, 0.18);
+  background: rgba(248, 245, 252, 0.65);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(40, 38, 44, 0.88);
+}
+
+.bridgeLockedHeadingIcon {
+  flex-shrink: 0;
+  opacity: 0.55;
+  font-size: 0.82rem;
+}
+
+.conversionBridgePlanCardFeatured {
+  border-color: rgba(107, 95, 168, 0.28);
+  box-shadow: 0 4px 18px rgba(107, 95, 168, 0.08);
+}
+
+.conversionBridgePlanBadge {
+  display: inline-block;
+  margin: 0 0 0.45rem;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  background: rgba(107, 95, 168, 0.12);
+  color: rgba(62, 52, 88, 0.88);
+}
+
+.conversionBridgePlanUpgrade {
+  margin: 0 0 0.45rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: rgba(90, 78, 120, 0.88);
+}
+
+.conversionBridgeOneTimeNote {
+  margin: 0 0 0.75rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: rgba(62, 52, 88, 0.68);
 }
 
 @media (prefers-reduced-motion: reduce) {

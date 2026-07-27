@@ -36,6 +36,12 @@ export type FreeDepthAnalysisV1 = {
     relationJa: string;
     changeJa: string;
   };
+  /** Concise free-result surface (≈35–45% shorter than full blocks). */
+  conciseWhyJa: readonly [string, string];
+  primarySceneJa: string;
+  primarySceneLabelJa: string;
+  premiumOpenLoopJa: string;
+  premiumLockedHeadingsJa: readonly string[];
   primaryAxes: readonly ExpressionAxisId[];
   secondaryAxes: readonly ExpressionAxisId[];
   contrastAxes: readonly ExpressionAxisId[];
@@ -338,6 +344,46 @@ function buildScenes(axes: ExpressionAxes): FreeDepthAnalysisV1['scenesJa'] {
   };
 }
 
+function trimReason(text: string, maxLen = 96): string {
+  const t = text.trim();
+  if (t.length <= maxLen) return t;
+  const cut = t.slice(0, maxLen);
+  const lastPeriod = cut.lastIndexOf('。');
+  if (lastPeriod > maxLen * 0.5) return cut.slice(0, lastPeriod + 1);
+  return `${cut}…`;
+}
+
+function pickPrimaryScene(axes: ExpressionAxes): { labelJa: string; bodyJa: string } {
+  const scenes = buildScenes(axes);
+  const candidates: { weight: number; labelJa: string; bodyJa: string }[] = [
+    { weight: axes.start === 'map' || axes.decision === 'sort' ? 2 : 1, labelJa: '仕事や判断', bodyJa: scenes.workJa },
+    { weight: axes.distance === 'close' || axes.distance === 'solo' ? 2 : 1, labelJa: '人との距離', bodyJa: scenes.relationJa },
+    { weight: axes.change === 'observe' || axes.change === 'rebuild' ? 2 : 1, labelJa: '予定や環境の変化', bodyJa: scenes.changeJa },
+  ];
+  candidates.sort((a, b) => b.weight - a.weight);
+  return { labelJa: candidates[0]!.labelJa, bodyJa: candidates[0]!.bodyJa };
+}
+
+function buildPremiumOpenLoop(axes: ExpressionAxes): string {
+  return `いま見えているのは、${START_PATTERN[axes.start]}動きと${DECISION_PATTERN[axes.decision]}判断の表れ方までです。背景の構造、力が出る条件、負担が重なる順番、戻しやすい整え方は、プレミアムレポートで整理できます。`;
+}
+
+function buildPremiumLockedHeadings(
+  axes: ExpressionAxes,
+  diverge: readonly AlignDivergeItem[],
+): string[] {
+  const topDiverge = sortByPriority(diverge)[0];
+  const tensionLine = topDiverge
+    ? `${AXIS_TITLE_JA[topDiverge.axisId]}がずれるときに重なりやすいもの`
+    : `${RECOVERY_PATTERN[axes.recovery]}回復が後回しになるときの重なり`;
+  return [
+    `${START_PATTERN[axes.start]}動きが続きやすい背景`,
+    `${DECISION_PATTERN[axes.decision]}判断が長引くときに重なるもの`,
+    tensionLine,
+    `戻るために最初に小さくする範囲`,
+  ];
+}
+
 /**
  * Build multi-axis free-depth analysis from DOB + five free answers (+ default theme).
  */
@@ -360,15 +406,23 @@ export function buildFreeDepthAnalysisV1(
   const axes = free.value.axes;
   const diverge = alignDiv.value.divergeItems;
   const align = alignDiv.value.alignItems;
+  const reasons = buildReasons(axes, diverge, align);
+  const scenesJa = buildScenes(axes);
+  const primaryScene = pickPrimaryScene(axes);
 
   const analysis: FreeDepthAnalysisV1 = {
     headlineJa: buildHeadline(axes),
     conclusionJa: buildConclusion(axes, diverge, align),
-    reasonsJa: buildReasons(axes, diverge, align),
+    reasonsJa: reasons,
     hiddenSideJa: buildHiddenSide(axes, diverge),
     strengthConditionsJa: buildStrengthConditions(axes),
     loadConditionsJa: buildLoadConditions(axes),
-    scenesJa: buildScenes(axes),
+    scenesJa,
+    conciseWhyJa: [trimReason(reasons[0]), trimReason(reasons[1])],
+    primarySceneJa: primaryScene.bodyJa,
+    primarySceneLabelJa: primaryScene.labelJa,
+    premiumOpenLoopJa: buildPremiumOpenLoop(axes),
+    premiumLockedHeadingsJa: buildPremiumLockedHeadings(axes, diverge),
     primaryAxes: ['start', 'decision'],
     secondaryAxes: ['distance', 'change'],
     contrastAxes: sortByPriority(diverge).slice(0, 2).map((d) => d.axisId),
@@ -378,13 +432,12 @@ export function buildFreeDepthAnalysisV1(
   const publicText = [
     analysis.headlineJa,
     analysis.conclusionJa,
-    ...analysis.reasonsJa,
-    analysis.hiddenSideJa,
+    ...analysis.conciseWhyJa,
+    analysis.primarySceneJa,
+    analysis.premiumOpenLoopJa,
+    ...analysis.premiumLockedHeadingsJa,
     ...analysis.strengthConditionsJa,
     ...analysis.loadConditionsJa,
-    analysis.scenesJa.workJa,
-    analysis.scenesJa.relationJa,
-    analysis.scenesJa.changeJa,
   ].join('\n');
 
   try {

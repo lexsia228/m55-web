@@ -17,6 +17,7 @@ import {
   FREE_QUESTION_HELPER_JA,
   FREE_QUESTIONNAIRE_COPY_V1,
 } from './questionnaireCopyV1';
+import { FREE_QUESTION_FLOW_TOTAL } from './segmentedDobInputV1';
 
 const FACET_MAPS = {
   ...FREE_START_ANSWER_TO_TENDENCY,
@@ -51,45 +52,33 @@ const FROZEN_ANSWER_ORDER = [
 ] as const;
 
 describe('continuous DOB + questionnaire UX contract', () => {
-  it('uses segmented DOB step without intermediate start screen', () => {
-    const intro = read('components/core/CoreFreeIntroSection.tsx');
-    assert.match(intro, /生年月日を入力してください/);
-    assert.match(intro, /正確な日付は結果画面に表示しません/);
-    assert.match(intro, /無料結果づくりを始める/);
-    assert.match(intro, /CoreFreeSegmentedDobFields/);
-    assert.match(intro, /CoreFreeContinuousFlowProgress/);
-    assert.doesNotMatch(intro, /5つの問いを始める/);
-    assert.doesNotMatch(intro, /5つの短い問いだけで進みます/);
-    assert.doesNotMatch(intro, /type=["']date["']/);
+  it('DOB is collected once via BirthProfileIntakeLayer — not repeated in /core questionnaire', () => {
+    const intake = read('components/profile/BirthProfileIntakeLayer.tsx');
+    assert.match(intake, /type="date"/);
+    assert.match(intake, /GUEST_PROFILE_INTAKE_COPY_V1\.primaryActionJa/);
+    const panel = read('components/core/CoreEssencePanel.tsx');
+    assert.doesNotMatch(panel, /CoreFreeIntroSection/);
+    assert.match(panel, /BirthProfileIntakeLayer/);
+    assert.equal(FREE_QUESTION_FLOW_TOTAL, 5);
   });
 
-  it('questionnaire uses one continuous progress system and question-as-H1', () => {
+  it('questionnaire uses five-question progress and profile edit path', () => {
     const q = read('components/core/CoreFreeQuestionnaireLayer.tsx');
     assert.match(q, /CoreFreeContinuousFlowProgress/);
-    assert.match(q, /\{current\.shortLabelJa\}/);
-    assert.match(q, /freeContinuousQuestionTitle/);
-    assert.match(q, /\{current\.questionJa\}/);
-    assert.match(q, /無料結果を見る/);
-    assert.match(q, /次の質問へ/);
-    assert.match(q, /入力内容を変更/);
-    assert.match(q, /disabled=\{!selected\}/);
-    assert.match(q, /freeQuestionnaireChoiceCheck/);
-    assert.doesNotMatch(q, /質問 \{questionOrdinal\}/);
-    assert.doesNotMatch(q, /いまの感じ方を、1問ずつ選びます/);
-    assert.doesNotMatch(q, /CoreFreeJourneyStepper/);
-    assert.doesNotMatch(q, /選択中/);
-    assert.doesNotMatch(q, /primary_theme|今の関心|FREE_CURRENT_INTEREST/);
+    assert.match(q, /questionIndex=\{index\}/);
+    assert.match(q, /基本情報を変更/);
+    assert.match(q, /onRequestProfileEdit/);
+    assert.match(q, /\{index \+ 1\} \/ \{FREE_FIVE_QUESTION_COUNT\} 完了/);
+    assert.doesNotMatch(q, /入力内容を変更/);
+    assert.doesNotMatch(q, /onRequestDobChange/);
   });
 
-  it('EssencePanel wires DOB confirm into questionnaire without big stepper in intake', () => {
+  it('EssencePanel starts questionnaire when profile exists', () => {
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.match(panel, /onDobConfirmed=\{handleDobConfirmed\}/);
-    assert.match(panel, /ProfileRepository\.save/);
-    assert.match(panel, /onRequestDobChange/);
-    assert.match(panel, /handleRequestDobChange/);
-    assert.match(panel, /uxPhase === 'RESULT'[\s\S]*CoreFreeJourneyStepper/);
-    assert.doesNotMatch(panel, /birthDateLabelJa=\{birthDateLabelJa\}/);
-    assert.doesNotMatch(panel, /onStart=\{handleIntroStart\}/);
+    assert.match(panel, /resolveInitialUxPhase\(true\)/);
+    assert.match(panel, /CoreFreeJourneyStepper/);
+    assert.match(panel, /onRequestProfileEdit/);
+    assert.doesNotMatch(panel, /onDobConfirmed/);
   });
 
   it('preserves frozen answer IDs and facet mapping for display options', () => {

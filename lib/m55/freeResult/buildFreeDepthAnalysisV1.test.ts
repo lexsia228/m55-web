@@ -164,16 +164,18 @@ describe('buildFreeDepthAnalysisV1', () => {
 });
 
 describe('free result depth UI / questionnaire polish guards', () => {
-  it('question progress is single N/6 system without 質問N/5 duplication', () => {
+  it('question progress shows 1/5 during questionnaire with six-clue visual', () => {
     const q = read('components/core/CoreFreeQuestionnaireLayer.tsx');
     const progress = read('components/core/CoreFreeContinuousFlowProgress.tsx');
     assert.match(q, /CoreFreeContinuousFlowProgress/);
+    assert.match(q, /questionIndex=\{index\}/);
     assert.match(q, /次の質問へ/);
     assert.match(q, /\{current\.shortLabelJa\}/);
     assert.doesNotMatch(q, /質問 \{questionOrdinal\}/);
     assert.doesNotMatch(q, /質問 \$\{/);
     assert.match(progress, /CoreFreeClueProgressVisual/);
-    assert.match(progress, /\{clamped\} \/ \{FREE_CONTINUOUS_FLOW_TOTAL\}/);
+    assert.match(progress, /FREE_QUESTION_FLOW_TOTAL/);
+    assert.match(progress, /\$\{questionNumber\} \/ \$\{FREE_QUESTION_FLOW_TOTAL\}/);
   });
 
   it('question 4 wording is neutral engagement framing', () => {
@@ -184,23 +186,18 @@ describe('free result depth UI / questionnaire polish guards', () => {
     );
   });
 
-  it('summary hub renders four depth blocks and scenes section exists', () => {
+  it('summary hub is concise; scenes show one primary scene', () => {
     const hub = read('components/core/CoreFreeResultSummaryHub.tsx');
     const scenes = read('components/core/CoreFreeResultScenesSection.tsx');
     const panel = read('components/core/CoreEssencePanel.tsx');
-    assert.match(hub, /今回の結論/);
-    assert.match(hub, /そう読める3つの理由/);
-    assert.match(hub, /自分では気づきにくい一面/);
-    assert.match(hub, /力が出やすい条件/);
-    assert.match(hub, /負荷が上がりやすい条件/);
-    assert.match(scenes, /仕事や判断/);
-    assert.match(scenes, /人との距離/);
-    assert.match(scenes, /予定や環境の変化/);
-    assert.match(scenes, /無料で読める範囲/);
+    assert.match(hub, /conciseWhyJa/);
+    assert.match(hub, /なぜそう見えるか/);
+    assert.doesNotMatch(hub, /今回の結論/);
+    assert.doesNotMatch(hub, /力が出やすい条件/);
+    assert.match(scenes, /primarySceneJa/);
+    assert.doesNotMatch(scenes, /無料で読める範囲/);
     assert.match(panel, /CoreFreeResultScenesSection/);
-    assert.doesNotMatch(panel, /詳しく読む/);
     assert.doesNotMatch(panel, /CoreFiveViewResultSection/);
-    assert.doesNotMatch(panel, /CoreTendencyLoadSection/);
     assert.doesNotMatch(hub, /保存版/);
   });
 });

@@ -35,7 +35,7 @@ export default function CoreFreeResultLeadSection({
     >
       <div className={styles.freeResultLeadGrid}>
         <div className={styles.freeResultLeadCopy}>
-          <span className={styles.tierAOverline}>今回わかったこと</span>
+          <span className={styles.tierAOverline}>無料結果</span>
           <h1 id="core-free-result-lead-title" className={styles.freeResultLeadTitle}>
             {outcome}
           </h1>

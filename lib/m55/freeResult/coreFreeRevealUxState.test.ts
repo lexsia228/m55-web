@@ -39,11 +39,12 @@ function read(rel: string): string {
 }
 
 describe('core free reveal UX state', () => {
-  it('starts at INTRO with DOB-ready flow', () => {
-    assert.equal(resolveInitialUxPhase(), 'INTRO');
+  it('starts at QUESTIONNAIRE when profile is complete (DOB entered once in modal)', () => {
+    assert.equal(resolveInitialUxPhase(true), 'QUESTIONNAIRE');
+    assert.equal(resolveInitialUxPhase(false), 'INTRO');
     assert.equal(shouldShowIntro('INTRO'), true);
-    assert.equal(shouldShowHero('INTRO'), false);
-    assert.equal(shouldHideResultDuringQuestionnaire('INTRO'), true);
+    assert.equal(shouldShowHero('QUESTIONNAIRE'), false);
+    assert.equal(shouldHideResultDuringQuestionnaire('QUESTIONNAIRE'), true);
   });
 
   it('intro start shows questionnaire and hides hero', () => {
@@ -89,8 +90,8 @@ describe('core free reveal UX state', () => {
   });
 
   it('journey stepper maps phases without pre-result interest', () => {
-    assert.equal(resolveJourneyStep('INTRO').step, 'questions');
-    assert.equal(resolveJourneyStep('QUESTIONNAIRE', 1, FREE_FIVE_QUESTION_COUNT).questionLabel, '2/5');
+    assert.equal(resolveJourneyStep('INTRO').step, 'profile');
+    assert.equal(resolveJourneyStep('QUESTIONNAIRE', 0, FREE_FIVE_QUESTION_COUNT).questionLabel, '1/5');
     assert.equal(resolveJourneyStep('RESULT').step, 'result');
   });
 
@@ -147,12 +148,12 @@ describe('guest free journey source guards', () => {
     assert.doesNotMatch(src, /もう一度答える/);
   });
 
-  it('CoreLockedState uses five questions without current interest', () => {
+  it('CoreLockedState opens shared intake and keeps home link', () => {
     const src = read('components/core/CoreLockedState.tsx');
     assert.match(src, /5つの問い/);
+    assert.match(src, /無料結果を始める/);
+    assert.match(src, /onStartIntake/);
     assert.doesNotMatch(src, /今の関心/);
-    assert.doesNotMatch(src, /6問/);
-    assert.doesNotMatch(src, /6つの問い/);
   });
 
   it('CoreEssencePanel keeps committed vs draft answer separation', () => {
@@ -177,9 +178,8 @@ describe('free self-understanding semantics copy', () => {
     );
   });
 
-  it('free flow copy removes pre-result theme step', () => {
+  it('free flow copy removes pre-result theme step and duplicate DOB in /core', () => {
     const flowSources = [
-      read('components/core/CoreFreeIntroSection.tsx'),
       read('components/core/CoreFreeJourneyStepper.tsx'),
       read('components/core/CoreFreeQuestionnaireLayer.tsx'),
       read('components/core/CoreFiveViewResultSection.tsx'),
@@ -188,29 +188,14 @@ describe('free self-understanding semantics copy', () => {
     ].join('\n');
     assert.match(flowSources, /5つの問い/);
     assert.doesNotMatch(flowSources, /今の関心/);
-    assert.doesNotMatch(flowSources, /6問/);
-    assert.doesNotMatch(flowSources, /6つの問い/);
-    assert.doesNotMatch(flowSources, /6つの短い問い/);
     assert.equal(FREE_QUESTIONNAIRE_COPY_V1.length, FREE_FIVE_QUESTION_COUNT);
   });
 
-  it('intro section is continuous DOB step 1/6', () => {
-    const src = read('components/core/CoreFreeIntroSection.tsx');
-    assert.match(src, /生年月日を入力してください/);
-    assert.match(src, /無料結果づくりを始める/);
-    assert.match(src, /CoreFreeSegmentedDobFields/);
-    assert.doesNotMatch(src, /今の関心/);
-    assert.doesNotMatch(src, /5つの問いを始める/);
-  });
-
-  it('result summary hub leads with depth blocks and omits action prescription', () => {
+  it('result summary hub is concise — two reasons only', () => {
     const src = read('components/core/CoreFreeResultSummaryHub.tsx');
-    assert.match(src, /今回の結論/);
-    assert.match(src, /そう読める3つの理由/);
-    assert.match(src, /自分では気づきにくい一面/);
+    assert.match(src, /conciseWhyJa/);
+    assert.doesNotMatch(src, /今回の結論/);
     assert.doesNotMatch(src, /今日の一歩/);
-    assert.doesNotMatch(src, /今回、先に見るテーマ/);
-    assert.doesNotMatch(src, /smallActionJa/);
   });
 });
 
