@@ -282,7 +282,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | branch | `feat/m55-self-funnel-growth-share-v1` |
-| HEAD | `45842373a59044b0f11f562a08bbbe4271fef701` |
+| HEAD | `b710dc543c02572a038170feb562a0a6514a313f` |
 | baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` |
 | current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
 | upstream | `origin/feat/m55-self-funnel-growth-share-v1` @ `4584237…` |
