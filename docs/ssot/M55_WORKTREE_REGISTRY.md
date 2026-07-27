@@ -59,19 +59,19 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 
 ## Registered worktrees
 
-### WT-001 — PRIMARY_MAIN_HOME (Self funnel baseline — COMPLETED)
+### WT-001 — PRIMARY_MAIN_HOME
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
 | branch | `feat/m55-self-free-to-premium-funnel-v1` |
 | HEAD | `fda934d8f31da715d3a4fb35681c7b3dff3dd41d` |
-| baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge |
+| baseline | `main` @ `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` |
 | current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
 | upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` @ `fda934d…` |
 | cleanliness | **clean** |
 | locked / prunable | none |
-| lifecycle | **COMPLETED** + **PRIMARY_MAIN_HOME** |
+| lifecycle | **ACTIVE** + **PRIMARY_MAIN_HOME** |
 | operational state | **OPERATIONAL_BASELINE_MERGED** |
 | purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged) |
 | related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · backup `refs/backup/m55-self-funnel-pre-main-sync-rev1` retained |
@@ -267,8 +267,8 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | upstream | `origin/feat/m55-product-authority-pack-v1` @ `fae04444618e2ae36e6fd813ddfddeee975b66c4` (2026-07-26) |
 | cleanliness | worktree may be clean between allowlisted commits — `ALLOWLIST_ONLY_DURING_IMPLEMENTATION` remains lane policy |
 | locked / prunable | none |
-| lifecycle | **COMPLETED** |
-| operational state | **MERGED_REFERENCE** |
+| lifecycle | **ACTIVE** |
+| operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
 | purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged to main |
 | related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) **MERGED** @ `355462b…` · merge commit on `main` |
 | allowed operations | read-only inspection · observation refresh via steady-state verifier |
@@ -276,27 +276,27 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | removal eligibility | deferred — retain worktree for reference |
 | notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** current HEAD. Rewritten Commit 1: `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704`. Reconciliation Commit 2: `2761706505576a2baeacbdd40acd130a1f70e81b`. CI-portability Commit 3 / PR tip (2026-07-26): `fae04444618e2ae36e6fd813ddfddeee975b66c4`. Preflight validates ancestry from `bootstrapStartHead`, not equality. Superseded pre-rewrite Commit 1 `178dadab4697f4797b8f00fd473d08a135b3ec4e` and safety-ref tip `844c5bbb73795b2f162e29516be79fb401c3b55e` are retained local history only — **not active branch provenance**. PR #79 merge SHA `355462b84d4a1a28ba6d8a37a3e6a40346a572d2`. Steady-state verifier active on `main`. |
 
-### WT-011 — Self funnel Growth / share lane (ACTIVE)
+### WT-011 — Self funnel Growth / share lane
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | branch | `feat/m55-self-funnel-growth-share-v1` |
-| HEAD | `696559009367a6ac445dc7a07876590b16cd8488` (lane base = merged main) |
-| baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge |
+| HEAD | `45842373a59044b0f11f562a08bbbe4271fef701` |
+| baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` |
 | current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
-| upstream | pending first push of feature branch |
-| cleanliness | **clean** at lane open (registry transition only) |
+| upstream | `origin/feat/m55-self-funnel-growth-share-v1` @ `4584237…` |
+| cleanliness | **clean** after implementation commit |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
-| operational state | **GROWTH_LANE_READY_IMPLEMENTATION_PENDING** |
+| operational state | **GROWTH_IMPLEMENTATION_PR_REVIEW** |
 | purpose | Share card · OG preview · viral return loop · reveal polish · Premium conversion · privacy-safe analytics |
-| related lane / PR | Base: PR #80 **MERGED** · Growth PR **not opened yet** |
-| product implementation authorized | **true** for Growth scope only (separate PR) |
-| allowed operations | Growth scope implementation · tests · PR open |
+| related lane / PR | Base: PR #80 **MERGED** · Growth PR #81 awaiting Human review |
+| product implementation authorized | **true** for Growth scope only |
+| allowed operations | CI fix · Human visual review · Preview verification |
 | prohibited operations | Stripe / webhook / DB / Clerk / env / Pair runtime · live purchase · append to merged PR #80 branch |
 | removal eligibility | NO while ACTIVE |
-| next gate | Implement Growth scope as one cohesive commercial-growth PR |
+| next gate | Human visual + real-platform share review → merge only after approval |
 | notes | Created from exact merged main after Production baseline GREEN. Not final commercial launch. |
 
 ---

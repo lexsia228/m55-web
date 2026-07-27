@@ -307,6 +307,7 @@ const CANONICAL_WT_HEADING_LABELS = Object.freeze({
   'WT-008': 'HOME poster clean main',
   'WT-009': 'Build Week Control Plane (operational freeze)',
   'WT-010': 'Product Authority Pack',
+  'WT-011': 'Self funnel Growth / share lane',
 });
 const BASELINE_AUTHORITY_GRAMMAR = /^`main`\s*@\s*`([0-9a-f]{40})`$/;
 const REQUIRED_REGISTRY_HEADINGS = [WT001_ID, WT009_ID];

@@ -2119,10 +2119,32 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
     );
     const registry = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
     const currentState = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
-    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => ({ ...entry, detached: false }));
+    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => {
+      if (entry.path === '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1') {
+        return {
+          ...entry,
+          head: 'fda934d8f31da715d3a4fb35681c7b3dff3dd41d',
+          detached: false,
+        };
+      }
+      return { ...entry, detached: false };
+    });
+    const baseInspector = createDefaultGitInspector();
+    // Growth WT-011 may exist on the host machine while the static nine-entry LIVE
+    // topology fixture does not include it. Exclude it from live-required symmetry.
+    const growthPath = '/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1';
+    const gitInspector = {
+      ...baseInspector,
+      registryPathExists: (candidatePath) => {
+        if (candidatePath === growthPath) return false;
+        return typeof baseInspector.registryPathExists === 'function'
+          ? baseInspector.registryPathExists(candidatePath)
+          : fs.existsSync(candidatePath);
+      },
+    };
     const { warnings } = evaluateWorktreePreflightWarnings(live, registry, currentState, REPO_ROOT, {
       requireFullTopology: true,
-      gitInspector: createDefaultGitInspector(),
+      gitInspector,
     });
     assert.equal(warnings.length, 0, warnings.join('; '));
   });

@@ -145,7 +145,7 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | Field | Value |
 |---|---|
 | **postMergeActiveLane** | 個人無料→個人Premiumファネルの一括実装 |
-| **postMergeNextSingleAction** | Growth share / OG / viral return / Premium conversion on WT-011 → Human visual + real-platform share review → merge only after approval |
+| **postMergeNextSingleAction** | Cursor docs patch complete → Cursor STOP → Codex independent diff review → Control Plane re-execution |
 | **pairPremium** | NOT_LIVE |
 | **Pair implementation** | Later lane — roadmap step（二人向け無料→有料） |
 | Historical branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged; **not** current active branch) |
