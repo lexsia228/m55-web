@@ -61,7 +61,7 @@ const AXIS_TITLE_JA: Readonly<Record<ExpressionAxisId, string>> = {
 const START_PATTERN: Readonly<Record<StartTendency, string>> = {
   map: '全体を見渡してから動く',
   try: '小さく触って輪郭を掴む',
-  ask: '情報や他者の視点を足してから動く',
+  ask: '情報や周囲の視点を集めてから動く',
 };
 
 const DECISION_PATTERN: Readonly<Record<DecisionTendency, string>> = {

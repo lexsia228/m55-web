@@ -20,8 +20,8 @@ type Props = {
 };
 
 /**
- * Progress for basic info (clue 1) + five questions (clues 2–6).
- * Questionnaire UI labels 1/5–5/5; clue visual keeps six-node motif.
+ * Card-level progress: `1 / 5` + remaining + six-clue visual.
+ * Stage label ("5つの問い") lives only in the top stepper — not repeated here.
  */
 export default function CoreFreeContinuousFlowProgress({
   stepNumber,
@@ -64,15 +64,12 @@ export default function CoreFreeContinuousFlowProgress({
       aria-valuenow={inQuestionnaire ? questionNumber! : clamped}
       aria-label={
         inQuestionnaire
-          ? `5つの問い ${countLabel}${questionRemaining ? ` ${remainingLabel}` : ''}`
+          ? `質問 ${countLabel}${questionRemaining ? ` ${remainingLabel}` : ''}`
           : `進行 ${countLabel} ${axis} ${remainingLabel}`
       }
       data-testid="m55-free-continuous-progress"
     >
       <div className={styles.freeContinuousProgressTop}>
-        <span className={styles.freeContinuousProgressStage}>
-          {inQuestionnaire ? '5つの問い' : '基本情報'}
-        </span>
         <span className={styles.freeContinuousProgressCount}>{countLabel}</span>
         <span className={styles.freeContinuousProgressRemaining}>{remainingLabel}</span>
       </div>

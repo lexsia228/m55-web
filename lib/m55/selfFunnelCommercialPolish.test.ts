@@ -53,7 +53,7 @@ describe('Self funnel commercial polish REV1', () => {
     assert.equal(FREE_QUESTION_FLOW_TOTAL, 5);
     const q = read('components/core/CoreFreeQuestionnaireLayer.tsx');
     assert.match(q, /questionIndex=\{index\}/);
-    assert.match(q, /FREE_FIVE_QUESTION_COUNT} 完了/);
+    assert.doesNotMatch(q, /FREE_FIVE_QUESTION_COUNT} 完了/);
     assert.match(q, /基本情報を変更/);
     assert.match(q, /onRequestProfileEdit/);
     assert.doesNotMatch(q, /onRequestDobChange/);

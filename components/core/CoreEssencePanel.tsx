@@ -6,7 +6,6 @@ import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/sou
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ensureSealedCoreResult, promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
-import { coreHeroSelfLanguageForResult } from '../../lib/m55/coreHeroSelfLanguage';
 import {
   buildFreeDepthAnalysisV1,
   type FreeDepthAnalysisV1,
@@ -328,9 +327,10 @@ export default function CoreEssencePanel() {
 
   const { result, profile } = sealed;
   const hideResult = shouldHideResultDuringQuestionnaire(uxPhase);
-  const heroLanguage = coreHeroSelfLanguageForResult(result);
   const stemDisplay = resolveCorePublicStemDisplay(result);
   const shareCard = buildPrivacySafeShareCardV1({ stemLaneIndex: stemDisplay.stemLaneIndex });
+  const traitIdentityLine =
+    shareCard?.traitPhraseJa ?? stemDisplay.displayOneLine;
   const dobSummaryJa = formatActiveDobSummaryJa(profile.birthDate);
 
   function handleAnswerChange(questionId: FreeQuestionId, answerId: string) {
@@ -486,10 +486,7 @@ export default function CoreEssencePanel() {
       {uxPhase === 'RESULT' ? (
         <CoreFreeJourneyStepper currentStep="result" />
       ) : shouldShowQuestionnaire(uxPhase) ? (
-        <CoreFreeJourneyStepper
-          currentStep="questions"
-          questionLabel={`${questionIndex + 1}/${FREE_FIVE_QUESTION_COUNT}`}
-        />
+        <CoreFreeJourneyStepper currentStep="questions" />
       ) : null}
 
       {shouldShowQuestionnaire(uxPhase) ? (
@@ -604,7 +601,7 @@ export default function CoreEssencePanel() {
               <CoreFreeResultLeadSection
                 outcomeJa={currentExpressionSummary}
                 typeLabelJa={stemDisplay.publicTitle}
-                supportingTraitJa={heroLanguage.displayTrait}
+                supportingTraitJa={traitIdentityLine}
                 imagePath={stemDisplay.imagePath}
               />
             </div>

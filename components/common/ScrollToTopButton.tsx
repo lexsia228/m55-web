@@ -64,6 +64,8 @@ export function ScrollToTopButton() {
       type="button"
       onClick={handleClick}
       className={`${styles.btn}${visible ? ` ${styles.btnVisible}` : ''}`}
+      data-m55-print-hide
+      data-testid="m55-scroll-to-top"
       aria-label="ページ上部へ戻る"
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}

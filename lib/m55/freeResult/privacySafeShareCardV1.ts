@@ -27,22 +27,6 @@ export type PrivacySafeShareCardV1 = {
   token: string;
 };
 
-const SAFE_STATEMENT_BY_LANE: readonly string[] = [
-  '進め方が見えたときに、力が出やすい傾向があります。',
-  '人との距離や流れを読み、受け渡しを整えやすい傾向があります。',
-  '場の空気を読み、動き出しやすくする傾向があります。',
-  '少しずつ良くしていく中で、自分らしさがはっきりしやすい傾向があります。',
-  '日々のリズムを整え、崩れにくい土台を守りやすい傾向があります。',
-  'まだ形になる前のものを見つけ、育てて形にしやすい傾向があります。',
-  '判断が固まったときに、迷いなく動き出しやすい傾向があります。',
-  '細かな違和感に気づき、納得できる形まで整えやすい傾向があります。',
-  'いつもの枠を越え、新しいつながりをひらきやすい傾向があります。',
-  '小さな変化に気づき、深く読み解く傾向があります。',
-];
-
-/** @deprecated Use resolveTraitIdentity — kept for test migration guard only. */
-export const _LEGACY_SAFE_STATEMENT_BY_LANE = SAFE_STATEMENT_BY_LANE;
-
 export const SHARE_UI_COPY_V1 = {
   titleJa: T.shareAction,
   bodyJa: '生年月日や回答は含まれません。資質名と短い一文だけを共有できます。',
@@ -101,12 +85,12 @@ export function buildPrivacySafeShareCardV1(input: {
 function buildShareCardFromDisplay(display: PublicStemDisplay): PrivacySafeShareCardV1 {
   const identity = resolveTraitIdentity(display.stemLaneIndex);
   const token = encodeShareToken(display.stemLaneIndex);
-  const safeStatementJa =
-    identity?.shareStatement ?? `${display.displayOneLine}。`;
+  const traitPhraseJa = identity?.canonicalTagline ?? display.displayOneLine;
+  const safeStatementJa = identity?.shareStatement ?? `${display.displayOneLine}。`;
   return {
     stemLaneIndex: display.stemLaneIndex,
     traitNameJa: identity?.traitName ?? display.publicTitle,
-    traitPhraseJa: identity?.canonicalTagline ?? display.displayOneLine,
+    traitPhraseJa,
     safeStatementJa,
     inviteJa: SHARE_UI_COPY_V1.inviteJa,
     imagePath: identity?.imagePath ?? display.imagePath,

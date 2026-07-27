@@ -151,7 +151,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
       assert.ok(indices[i]! > indices[i - 1]!, `mobile menu order broken at ${order[i]}`);
     }
     assert.match(navBlock, /label:\s*T\.premiumProduct/);
-    assert.match(navBlock, /label:\s*'M55の仕組み'/);
+    assert.match(navBlock, /label:\s*T\.aboutM55/);
     assert.match(navBlock, /label:\s*T\.tenQualities/);
     assert.doesNotMatch(navBlock, /href:\s*'\/support'/);
   });

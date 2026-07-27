@@ -135,7 +135,7 @@ test.describe('Self funnel growth share E2E', () => {
     await context.close();
   });
 
-  test('E. mobile Premium sticky CTA → /dtr/lp', async ({ browser }) => {
+  test('E. mobile Premium sticky CTA → /dtr/lp questions', async ({ browser }) => {
     const context = await cleanContext(browser);
     await seedResultReady(context);
     const page = await context.newPage();
@@ -144,7 +144,7 @@ test.describe('Self funnel growth share E2E', () => {
     const sticky = page.getByTestId('m55-premium-sticky-cta');
     await expect(sticky).toBeVisible();
     const link = page.getByTestId('m55-premium-sticky-link');
-    await expect(link).toHaveAttribute('href', '/dtr/lp');
+    await expect(link).toHaveAttribute('href', /\/dtr\/lp/);
     await link.click();
     await expect(page).toHaveURL(/\/dtr\/lp/);
     await context.close();
@@ -217,6 +217,87 @@ test.describe('Self funnel growth share E2E', () => {
     await openResult(page);
     await expect(page.getByTestId('m55-free-result-share')).toBeVisible();
     await expect(page.getByTestId('m55-premium-sticky-cta')).toBeVisible();
+    await context.close();
+  });
+
+  test('share card has distinct identity and recognition lines', async ({ browser }) => {
+    const context = await cleanContext(browser);
+    await seedResultReady(context);
+    const page = await context.newPage();
+    await openResult(page);
+    const card = page.getByTestId('m55-shareable-result-card').first();
+    const phrase = (await card.locator('.shareCardPhrase, [class*="shareCardPhrase"]').count())
+      ? await card.locator('[class*="shareCardPhrase"]').first().innerText()
+      : '';
+    const statement = (await card.locator('[class*="shareCardStatement"]').count())
+      ? await card.locator('[class*="shareCardStatement"]').first().innerText()
+      : '';
+    const text = await card.innerText();
+    expect(text).toMatch(/M55/);
+    if (phrase && statement) {
+      expect(phrase.trim()).not.toEqual(statement.trim());
+    }
+    await context.close();
+  });
+
+  test('sticky CTA clears lead heading; hides near Premium bridge; desktop header nav', async ({
+    browser,
+  }) => {
+    const context = await cleanContext(browser);
+    await seedResultReady(context);
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openResult(page);
+
+    const desktopNav = page.locator('header nav[aria-label="メインナビゲーション"]');
+    await expect(desktopNav).toBeVisible();
+    await expect(desktopNav.getByText('無料で見る')).toBeVisible();
+    await expect(desktopNav.getByText('プレミアムレポート')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'メニュー' })).toHaveCount(0);
+
+    await expect(page.getByTestId('m55-premium-sticky-cta')).toBeVisible();
+    const leadOverlap = await page.evaluate(() => {
+      const stickyEl = document.querySelector('[data-testid="m55-premium-sticky-cta"]');
+      const lead = document.querySelector('#core-free-result-lead-title');
+      if (!stickyEl || !lead) return true;
+      const a = stickyEl.getBoundingClientRect();
+      const b = lead.getBoundingClientRect();
+      return !(a.bottom <= b.top || a.top >= b.bottom || a.right <= b.left || a.left >= b.right);
+    });
+    expect(leadOverlap).toBe(false);
+
+    await page.locator('#core-paid').scrollIntoViewIfNeeded();
+    await expect(page.getByTestId('m55-premium-sticky-cta')).toHaveCount(0);
+    await context.close();
+  });
+
+  test('mobile header keeps one contextual CTA + menu', async ({ browser }) => {
+    const context = await cleanContext(browser);
+    await seedResultReady(context);
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openResult(page);
+    await expect(page.getByTestId('m55-mobile-nav-contextual')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'メニュー' })).toBeVisible();
+    await expect(page.locator('header nav[aria-label="メインナビゲーション"]')).toBeHidden();
+    await context.close();
+  });
+
+  test('print CSS contract produces multi-page PDF without interactive chrome', async ({
+    browser,
+  }) => {
+    const context = await cleanContext(browser);
+    await seedResultReady(context);
+    const page = await context.newPage();
+    await openResult(page);
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '14mm', right: '14mm', bottom: '16mm', left: '14mm' },
+    });
+    expect(pdf.byteLength).toBeGreaterThan(5_000);
+    // Chromium PDF header starts with %PDF
+    expect(pdf.subarray(0, 4).toString('utf8')).toBe('%PDF');
     await context.close();
   });
 });

@@ -1,6 +1,9 @@
 /**
  * Canonical trait identity — single source for free result, share, OG, Premium intro.
  * No DOB, nickname, answers, or private result content.
+ *
+ * Each trait is one semantic chain: name → tagline → recognition → premium continuity.
+ * Sentence forms may differ across surfaces; person/behavior meaning must not.
  */
 import { TEN_STEM_DISPLAY } from '../tenStemCatalog';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../publicStemDisplay';
@@ -8,12 +11,16 @@ import { STEM_LANE_TEN_VIEWS_IMAGE } from '../publicStemDisplay';
 export type TraitIdentity = {
   stemLaneIndex: number;
   traitName: string;
+  /** Short memorable identity — result/share hero line. */
   canonicalTagline: string;
+  /** Alias kept for callers; equals canonicalTagline. */
   shortStatement: string;
+  /** Alias kept for callers; equals canonicalTagline. */
   longDescription: string;
+  /** Distinct concrete recognition — must not paraphrase the tagline. */
+  shareStatement: string;
   imagePath: string;
   accent: string;
-  shareStatement: string;
   premiumContinuityTemplate: string;
 };
 
@@ -30,31 +37,37 @@ const TRAIT_ACCENTS: readonly string[] = [
   '#5a5a72',
 ];
 
-/** Conversation-ready trait taglines — aligned to stem catalog, not generic motivation. */
+/**
+ * Conversation-ready identity lines — one credible person per trait.
+ * Index aligns with TEN_STEM_DISPLAY / stem lane 0–9.
+ */
 const CANONICAL_TAGLINES: readonly string[] = [
   '自分の進め方が見えたときに、力が出やすい人',
   '人との距離や流れを読み、受け渡しを整えやすい人',
   '近い人との場の空気を読み、動き出しやすくする人',
-  '少しずつ良くしていく中で、自分らしさがはっきりしていく人',
+  '材料を集め、比べながら形を整えていく人',
   '日々のリズムを整え、崩れにくい土台を守りやすい人',
-  '人や、まだ形の前のものを見つけ、育てて形にする人',
+  'まだ形になる前のものを見つけ、育てて形にする人',
   '判断が固まったときに、迷いなく動き出しやすい人',
   '細かな違和感に気づき、納得できる形まで整えやすい人',
   'いつもの枠を越え、新しいつながりをひらきやすい人',
   '全体を見渡し、つながりを整えてから動く人',
 ];
 
-/** Privacy-safe share statements — grammatically distinct from canonicalTagline but semantically aligned. */
+/**
+ * Distinct recognition statements — same person as tagline, different grammar.
+ * Must not be a near-copy of CANONICAL_TAGLINES.
+ */
 const SHARE_STATEMENTS: readonly string[] = [
-  '進め方が見えたときに、力が出やすい傾向があります。',
-  '人との距離や流れを読み、受け渡しを整えやすい傾向があります。',
-  '場の空気を読み、動き出しやすくする傾向があります。',
-  '少しずつ良くしていく中で、自分らしさがはっきりしやすい傾向があります。',
-  '日々のリズムを整え、崩れにくい土台を守りやすい傾向があります。',
-  'まだ形になる前のものを見つけ、育てて形にしやすい傾向があります。',
-  '判断が固まったときに、迷いなく動き出しやすい傾向があります。',
-  '細かな違和感に気づき、納得できる形まで整えやすい傾向があります。',
-  'いつもの枠を越え、新しいつながりをひらきやすい傾向があります。',
+  '進め方の輪郭が見えた場面で、静かに前へ出やすくなります。',
+  '人との間のタイミングを見ながら、受け渡しを整えやすくなります。',
+  '近い人の空気が読めると、場の一歩目を出しやすくなります。',
+  '答えを急ぐより、材料と候補がそろったときに形が見えやすくなります。',
+  '日々の区切りを保つほど、崩れにくい土台を守りやすくなります。',
+  'まだはっきりしないものを拾い、育てて形にしやすくなります。',
+  '判断が固まったあとは、迷いを残さず動き出しやすくなります。',
+  '小さな違和感を見逃さず、納得できる形まで整えやすくなります。',
+  'いつもの枠の外に目を向けると、新しいつながりをひらきやすくなります。',
   '急いで動くより、全体と選択肢が見えたときに判断しやすくなります。',
 ];
 
@@ -63,17 +76,21 @@ function buildPremiumContinuityTemplate(traitName: string): string {
 }
 
 export const TRAIT_IDENTITY_CATALOG: readonly TraitIdentity[] = TEN_STEM_DISPLAY.map(
-  (stem, stemLaneIndex) => ({
-    stemLaneIndex,
-    traitName: stem.publicTitle,
-    canonicalTagline: CANONICAL_TAGLINES[stemLaneIndex] ?? stem.displayOneLine,
-    shortStatement: SHARE_STATEMENTS[stemLaneIndex] ?? stem.displayOneLine,
-    longDescription: CANONICAL_TAGLINES[stemLaneIndex] ?? stem.displayOneLine,
-    imagePath: STEM_LANE_TEN_VIEWS_IMAGE[stemLaneIndex] ?? '/ten-views/analyst.webp',
-    accent: TRAIT_ACCENTS[stemLaneIndex] ?? '#5a5a72',
-    shareStatement: SHARE_STATEMENTS[stemLaneIndex] ?? stem.displayOneLine,
-    premiumContinuityTemplate: buildPremiumContinuityTemplate(stem.publicTitle),
-  }),
+  (stem, stemLaneIndex) => {
+    const tagline = CANONICAL_TAGLINES[stemLaneIndex] ?? stem.displayOneLine;
+    const recognition = SHARE_STATEMENTS[stemLaneIndex] ?? `${tagline}。`;
+    return {
+      stemLaneIndex,
+      traitName: stem.publicTitle,
+      canonicalTagline: tagline,
+      shortStatement: tagline,
+      longDescription: tagline,
+      shareStatement: recognition,
+      imagePath: STEM_LANE_TEN_VIEWS_IMAGE[stemLaneIndex] ?? '/ten-views/analyst.webp',
+      accent: TRAIT_ACCENTS[stemLaneIndex] ?? '#5a5a72',
+      premiumContinuityTemplate: buildPremiumContinuityTemplate(stem.publicTitle),
+    };
+  },
 );
 
 export function resolveTraitIdentity(stemLaneIndex: number): TraitIdentity | null {
@@ -100,6 +117,14 @@ export function assertTraitIdentityCatalogComplete(): void {
       if (typeof value !== 'string' || value.trim().length === 0) {
         throw new Error(`trait ${trait.stemLaneIndex} missing ${key}`);
       }
+    }
+    // Tagline and recognition must not be the same sentence form.
+    const normalize = (s: string) =>
+      s.replace(/[。、\s]|人$|傾向があります|やすくなります/g, '');
+    if (normalize(trait.canonicalTagline) === normalize(trait.shareStatement)) {
+      throw new Error(
+        `trait ${trait.stemLaneIndex} (${trait.traitName}) tagline/shareStatement identical`,
+      );
     }
   }
 }

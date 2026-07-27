@@ -143,8 +143,9 @@ describe('commercial presentation polish — print contract', () => {
   it('hides interactive chrome and avoids viewport min-height blank pages', () => {
     const css = read('lib/m55/commercialUx/publicPrint.css');
     assert.match(css, /premiumStickyBar/);
-    assert.match(css, /min-height: auto/);
-    assert.match(css, /max-width: 180mm/);
+    assert.match(css, /min-height:\s*0/);
+    assert.match(css, /max-width:\s*none/);
+    assert.match(css, /@page/);
     assert.match(css, /position: static/);
   });
 });

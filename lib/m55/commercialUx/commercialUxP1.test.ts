@@ -82,6 +82,7 @@ describe('publicHeaderState contract', () => {
   it('mobile menu contains required destinations', () => {
     const hrefs = MOBILE_MENU_PUBLIC.map((item) => item.href);
     assert.deepEqual(hrefs, ['/home', '/core', '/dtr/lp', '/how-m55-works', '/ten-views']);
+    assert.equal(MOBILE_MENU_PUBLIC[3]!.label, T.aboutM55);
   });
 
   it('shared entry contextual CTA is recipient action', () => {
@@ -161,10 +162,11 @@ describe('print contract', () => {
   it('shared print utilities hide chrome controls', () => {
     const css = read('lib/m55/commercialUx/publicPrint.css');
     assert.match(css, /@media print/);
+    assert.match(css, /@page/);
     assert.match(css, /data-m55-public-shell/);
     assert.match(css, /m55-premium-sticky-cta/);
     assert.match(css, /menuTrigger/);
     assert.match(css, /premiumStickyBar/);
-    assert.match(css, /min-height: auto/);
+    assert.match(css, /min-height:\s*0/);
   });
 });

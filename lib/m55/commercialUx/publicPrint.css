@@ -1,12 +1,33 @@
 /**
- * Shared public print contract — hide chrome, preserve content.
+ * Shared public print contract — route-aware A4 output.
+ * Hide interactive chrome; preserve brand, identity, and readable content.
  * Global CSS (not a CSS module) — imported as a side effect.
  */
+
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+}
+
 @media print {
+  html,
+  body {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+
+  /* Interactive chrome — never print */
   [data-m55-public-shell] > header,
   [data-m55-print-hide],
   .m55-print-hide,
   [data-testid='m55-premium-sticky-cta'],
+  [data-testid='m55-scroll-to-top'],
   [data-testid='m55-free-result-share'] button,
   [data-testid='m55-share-native'],
   [data-testid='m55-share-copy'],
@@ -20,24 +41,27 @@
   .m55-lp-cta-btn,
   [data-m55-paid-checkout],
   .premiumStickyBar,
-  .lpBreadcrumb a,
-  [class*='sticky'],
-  [class*='Sticky'],
-  [data-m55-paid-phase='checkout'] button,
-  [data-m55-paid-phase='checkout'] .checkout-trust-row {
+  .lpBreadcrumb,
+  .lpFinalCtaWrap,
+  .lpTrustWrap,
+  .freeQuestionnaireActions,
+  .freeQuestionnaireSecondaryBtn,
+  .freeQuestionnairePrimaryBtn,
+  .freeDobCompactChange,
+  .conversionBridgeActions,
+  .conversionBridgeSecondary,
+  .freeResultSectionNav,
+  .freeJourneyStepper,
+  [data-testid='m55-premium-sticky-link'],
+  button[aria-label='ページ上部へ戻る'] {
     display: none !important;
   }
 
   [data-m55-public-shell] {
     padding-top: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
     background: #fff !important;
-  }
-
-  [data-m55-public-shell] > header,
-  [data-m55-public-shell] > footer nav,
-  .lpFinalCtaWrap,
-  .lpTrustWrap {
-    display: none !important;
   }
 
   [data-m55-public-shell] > header {
@@ -45,24 +69,62 @@
   }
 
   [data-m55-public-shell] main,
+  [data-m55-public-shell] .main,
+  [data-m55-public-shell] .inner,
   [data-m55-public-shell] .lpRoot,
-  .coreSectionSurface,
-  .conversionBridge {
-    max-width: 180mm !important;
+  [data-testid='m55-core-essence'],
+  .page {
+    max-width: none !important;
     width: auto !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
   }
 
+  /* Kill viewport-fill / footer-push patterns that create blank trailing pages */
+  [data-m55-public-shell] footer,
+  footer {
+    position: static !important;
+    margin-top: 1.25rem !important;
+    min-height: 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  footer nav,
+  footer .linkRow a {
+    display: none !important;
+  }
+
+  footer .copy {
+    display: block !important;
+  }
+
+  /* Fixed/sticky → out of print flow */
+  .premiumStickyBar,
+  [data-testid='m55-premium-sticky-cta'],
+  [data-testid='m55-scroll-to-top'],
+  header {
+    position: static !important;
+  }
+
+  /* Full printable width — no mobile-column centering on A4 */
   .coreSectionSurface,
-  .conversionBridgePlanCard,
-  .freeShareSection,
-  [data-testid='m55-shareable-result-card'],
+  .conversionBridge,
+  .freeResultLead,
+  .freeGuidedShell,
   .lpHeroSection,
   .lpSection,
   .planCard,
   .confirmCard,
-  .answerItem {
+  [data-testid='m55-shareable-result-card'],
+  [data-testid='m55-free-to-paid-bridge'] {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-shadow: none !important;
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -70,26 +132,63 @@
   h1,
   h2,
   h3,
-  h4 {
+  h4,
+  .freeResultLeadTitle,
+  .conversionBridgeTitle,
+  .shareCardPhrase {
     overflow-wrap: anywhere;
-    word-break: break-word;
+    word-break: normal;
+    line-break: strict;
+    orphans: 2;
+    widows: 2;
     page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p,
+  li {
+    orphans: 2;
+    widows: 2;
+    line-break: strict;
   }
 
   section,
   article,
   .lpHeroSection,
-  .lpSection {
-    min-height: auto !important;
+  .lpSection,
+  .freeResultRevealItem,
+  .freeGuidedShell,
+  .page {
+    min-height: 0 !important;
     height: auto !important;
   }
 
-  * {
-    position: static !important;
-    float: none !important;
+  /* Questionnaire: one compact page */
+  [data-testid='m55-free-questionnaire'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
-  body {
+  [data-testid='m55-free-questionnaire'] .freeQuestionnaireChoices button {
+    border: 1px solid rgba(60, 60, 60, 0.25) !important;
+    box-shadow: none !important;
     background: #fff !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Avoid printing decorative pseudo text layers twice */
+  .bridgeLockedHeadingIcon,
+  .freeJourneyStepperMarker,
+  .freeQuestionnaireChoiceCheck {
+    display: none !important;
+  }
+
+  /* Soft printable surfaces */
+  .coreSectionSurface,
+  .conversionBridge,
+  .lpHeroDark,
+  .shareCard {
+    background: #fff !important;
+    color: #1a1a1a !important;
   }
 }

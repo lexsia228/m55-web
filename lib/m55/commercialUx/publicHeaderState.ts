@@ -46,7 +46,7 @@ export const MOBILE_MENU_PUBLIC: PublicHeaderNavItem[] = [
   { href: '/home', label: T.home },
   { href: '/core', label: T.freeEntry },
   { href: '/dtr/lp', label: T.premiumProduct },
-  { href: '/how-m55-works', label: 'M55の仕組み' },
+  { href: '/how-m55-works', label: T.aboutM55 },
   { href: '/ten-views', label: T.tenQualities },
 ];
 

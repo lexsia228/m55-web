@@ -5,13 +5,25 @@
 .page {
   /* /core 全体のコンテンツ基準線（ヒーロー〜各セクションで共通） */
   --core-page-pad-x: 12px;
+  --m55-sticky-cta-height: 0px;
   color: #3d3d3d;
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   line-height: 1.75;
   max-width: min(56rem, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
-  padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x) 56px;
+  padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x)
+    calc(56px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
   background: #f9f7f5;
+}
+
+.page[data-m55-sticky-cta='1'] {
+  --m55-sticky-cta-height: 5.25rem;
+}
+
+@media (max-width: 390px) {
+  .page[data-m55-sticky-cta='1'] {
+    --m55-sticky-cta-height: 6.75rem;
+  }
 }
 
 .pageFreshReveal {
@@ -4229,6 +4241,10 @@
   letter-spacing: 0.01em;
   color: #1a1a1a;
   font-weight: 600;
+  text-wrap: balance;
+  line-break: strict;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .freeResultLeadIdentity {
@@ -4256,6 +4272,9 @@
   font-size: clamp(0.92rem, 2.8vw, 1rem);
   line-height: 1.55;
   color: rgba(50, 46, 58, 0.78);
+  text-wrap: pretty;
+  line-break: strict;
+  overflow-wrap: anywhere;
 }
 
 .freeResultLeadPrivacy {
@@ -4694,6 +4713,8 @@
   font-size: 0.95rem;
   line-height: 1.55;
   color: rgba(45, 40, 70, 0.84);
+  text-wrap: balance;
+  line-break: strict;
 }
 
 .shareCardStatement {
@@ -4701,6 +4722,7 @@
   font-size: 0.9rem;
   line-height: 1.6;
   color: rgba(45, 40, 70, 0.78);
+  line-break: strict;
 }
 
 .shareCardInvite {
@@ -4765,20 +4787,25 @@
 }
 
 .premiumStickyBar {
-  position: sticky;
+  position: fixed;
+  left: 50%;
   bottom: 0;
-  z-index: 20;
+  z-index: 40;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.65rem;
   align-items: center;
-  margin: 1.25rem -0.25rem 0;
-  padding: 0.75rem 0.9rem;
+  width: min(56rem, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  margin: 0;
+  padding: 0.75rem 0.9rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
   border-radius: 1rem 1rem 0 0;
   border: 1px solid rgba(107, 95, 168, 0.22);
-  background: rgba(28, 24, 48, 0.94);
+  background: rgba(28, 24, 48, 0.96);
   color: #fffaf1;
   box-shadow: 0 -8px 24px rgba(20, 16, 40, 0.18);
+  box-sizing: border-box;
 }
 
 .premiumStickyLead {

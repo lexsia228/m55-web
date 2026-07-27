@@ -1,18 +1,21 @@
 /* ── Scroll-to-top floating button ─────────────────────────────────────────
    Mounted globally in app/layout.tsx.
-   Position: bottom-right — clears centered footer © and avoids footer padding reserve.
+   Position: bottom-right — clears sticky Premium CTA via --m55-float-rail-offset.
    ─────────────────────────────────────────────────────────────────────────── */
 
 .btn {
   position: fixed;
-  bottom: calc(clamp(20px, 4vw, 28px) + env(safe-area-inset-bottom, 0px));
+  bottom: calc(
+    clamp(20px, 4vw, 28px) + env(safe-area-inset-bottom, 0px) +
+      var(--m55-float-rail-offset, 0px)
+  );
   right: max(16px, env(safe-area-inset-right, 0px));
   left: auto;
   transform: translateY(8px);
   z-index: 1500;
 
   /* size */
-  width:  40px;
+  width: 40px;
   height: 40px;
   border-radius: 50%;
   padding: 0;
@@ -32,13 +35,23 @@
   /* hidden by default — fade + float up */
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);
   transition:
     opacity 0.22s ease,
     transform 0.22s ease,
     background 0.15s ease,
     box-shadow 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    bottom 0.2s ease;
+}
+
+:global(html[data-m55-sticky-cta='1']) .btn {
+  --m55-float-rail-offset: 5.75rem;
+}
+
+@media (max-width: 390px) {
+  :global(html[data-m55-sticky-cta='1']) .btn {
+    --m55-float-rail-offset: 7.25rem;
+  }
 }
 
 /* visible state */
@@ -91,10 +104,18 @@
     width: 44px;
     height: 44px;
     right: max(14px, env(safe-area-inset-right, 0px));
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(
+      20px + env(safe-area-inset-bottom, 0px) + var(--m55-float-rail-offset, 0px)
+    );
   }
   .icon {
     width: 20px;
     height: 20px;
+  }
+}
+
+@media print {
+  .btn {
+    display: none !important;
   }
 }
