@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
+import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
-import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
 import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
 import {
@@ -12,35 +12,36 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import {
+  paidAnswersAreComplete,
+  readSelfFunnelStage,
+} from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
   children: React.ReactNode;
 };
 
-type GatePhase = 'questionnaire' | 'plans' | 'checkout';
+type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
 
-function readPaidComplete(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const raw = sessionStorage.getItem('m55_paid_answers_v1');
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    return PAID_QUESTION_IDS.every((id) => Boolean(parsed[id]));
-  } catch {
-    return false;
-  }
+function resolveInitialGate(): GatePhase {
+  const stage = readSelfFunnelStage(null);
+  const gate = resolveDtrLpGate(stage);
+  if (gate === 'need_free') return 'need_free';
+  if (gate === 'plan_selection' || paidAnswersAreComplete()) return 'plans';
+  return 'questionnaire';
 }
 
 export default function DtrPaidPurchasePrep({ children: _children }: Props) {
-  const [gate, setGate] = useState<GatePhase>('questionnaire');
+  const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (readPaidComplete()) {
-      setGate('plans');
-    }
+    setGate(resolveInitialGate());
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -52,9 +53,22 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
     );
   }, [gate]);
 
+  if (!hydrated) {
+    return (
+      <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
+        <p className={styles.lead}>読み込み中…</p>
+      </section>
+    );
+  }
+
+  if (gate === 'need_free') {
+    return <DtrNeedFreeResultGate />;
+  }
+
   if (gate === 'questionnaire') {
     return (
       <DtrPaidQuestionnaireLayer
+        freeResultReady
         onComplete={() => {
           setSelectedPlan(null);
           setGate('plans');
@@ -117,7 +131,12 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
   }
 
   return (
-    <section className={styles.shell} data-m55-paid-phase="plans" aria-label="プレミアムレポートのプラン選択">
+    <section
+      className={styles.shell}
+      data-m55-paid-phase="plans"
+      data-testid="m55-dtr-plan-selection"
+      aria-label="プレミアムレポートのプラン選択"
+    >
       <p className={styles.overline}>プレミアムレポート</p>
       <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
       <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>

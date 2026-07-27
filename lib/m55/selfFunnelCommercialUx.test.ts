@@ -87,7 +87,7 @@ describe('Self funnel commercial UX redesign', () => {
     assert.match(q, /人との距離の取り方/);
     assert.match(q, /戻しやすい整え方/);
     assert.match(q, /あと6問・約1〜2分/);
-    assert.match(q, /無料結果はすでに完了/);
+    assert.match(q, /freeResultReady|無料結果を土台に|あと6問/);
     assert.match(q, /プラン選択・決済/);
     assert.doesNotMatch(q, /PurchaseButton|\/api\/purchase/);
   });

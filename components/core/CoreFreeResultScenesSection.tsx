@@ -32,7 +32,7 @@ export default function CoreFreeResultScenesSection({ depth, onRequestReanswer }
           className={styles.freeQuestionnaireSecondaryBtn}
           onClick={onRequestReanswer}
         >
-          回答を見直す
+          回答を変えて、もう一度見る
         </button>
       </div>
     </section>

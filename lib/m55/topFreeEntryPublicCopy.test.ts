@@ -178,7 +178,8 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.equal(homeCopy.heroPosterCtaJa, '無料で見てみる');
     assert.equal(cta.openFreeMapJa, '無料で見てみる');
     assert.equal(cta.viewSavedPlansHref, '/dtr/lp');
-    assert.match(home, /\{homeCopy\.heroPosterCtaJa\}/);
+    assert.match(home, /\{freeCtaLabel\}/);
+    assert.match(home, /resolveFreeCtaLabel/);
     assert.match(home, /\{homeCopy\.planComparisonCtaJa\}/);
     assert.match(home, /data-testid="m55-home-open-birth-intake"/);
     assert.match(home, /data-testid="m55-home-has-profile-hero"/);

@@ -72,11 +72,15 @@ export default function BirthProfileIntakeLayer({
       setNickname('');
       return;
     }
-    const hint = nicknameHint.trim();
+    const existing = ProfileRepository.get(ownerId);
+    const hint = nicknameHint.trim() || existing?.nickname?.trim() || '';
     if (hint) setNickname(hint);
+    if (existing?.birthDate?.trim()) {
+      setBirthDate(existing.birthDate.trim().slice(0, 10));
+    }
     const t = window.setTimeout(() => nickRef.current?.focus(), 50);
     return () => window.clearTimeout(t);
-  }, [open, nicknameHint]);
+  }, [open, nicknameHint, ownerId]);
 
   const handleSave = () => {
     const nick = nickname.trim();

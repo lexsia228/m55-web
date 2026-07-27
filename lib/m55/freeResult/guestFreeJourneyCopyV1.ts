@@ -32,11 +32,11 @@ export const FREE_RESULT_SHARE_COPY_V1 = {
 } as const;
 
 export const REANSWER_CONFIRM_COPY_V1 = {
-  titleJa: '回答を見直しますか？',
+  titleJa: '回答を変えて、もう一度見ますか？',
   bodyJa:
     '生年月日はそのまま残ります。現在の結果は、新しい回答を確定するまで変わりません。',
   cancelJa: 'キャンセル',
-  confirmJa: '回答を見直す',
+  confirmJa: '回答を変えて、もう一度見る',
   finalizeJa: 'この回答で結果を更新',
   finalizeTitleJa: 'この回答で結果を更新しますか？',
 } as const;

@@ -22,9 +22,15 @@ export default function CoreFreeRevealTransition({ onComplete }: Props) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      onComplete();
+    };
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
-      const timer = window.setTimeout(onComplete, revealTransitionDurationMs(true));
+      const timer = window.setTimeout(finish, revealTransitionDurationMs(true));
       return () => window.clearTimeout(timer);
     }
 
@@ -33,12 +39,14 @@ export default function CoreFreeRevealTransition({ onComplete }: Props) {
     timers.push(
       window.setTimeout(() => setPhase(1), stepMs),
       window.setTimeout(() => setPhase(2), stepMs * 2),
-      window.setTimeout(onComplete, stepMs * 3),
+      window.setTimeout(finish, stepMs * 3),
     );
     return () => {
       for (const id of timers) window.clearTimeout(id);
     };
-  }, [onComplete]);
+    // Intentionally once on mount — parent handlers are flight-guarded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const lead = PHASES_JA[Math.min(phase, PHASES_JA.length - 1)]!;
   const sub =

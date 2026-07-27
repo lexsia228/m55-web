@@ -21,6 +21,12 @@ type Props = {
   onIndexChange?: (index: number) => void;
   /** Opens the shared profile intake modal — not a duplicate DOB step. */
   onRequestProfileEdit?: () => void;
+  /** 1-based resume index into the five questions. */
+  initialIndex?: number;
+  /** Disable generate / next while a result flight is pending. */
+  completing?: boolean;
+  /** Visible DOB summary, e.g. 1983年2月28日を使用中 */
+  dobSummaryJa?: string;
 };
 
 export default function CoreFreeQuestionnaireLayer({
@@ -30,8 +36,13 @@ export default function CoreFreeQuestionnaireLayer({
   isReanswerFlow = false,
   onIndexChange,
   onRequestProfileEdit,
+  initialIndex = 0,
+  completing = false,
+  dobSummaryJa,
 }: Props) {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() =>
+    Math.min(Math.max(initialIndex, 0), FREE_FIVE_QUESTION_COUNT - 1),
+  );
   const headingId = useId();
   const current = FREE_FIVE_QUESTIONS_COPY_V1[index]!;
   const selected = answers[current.questionId] ?? '';
@@ -46,13 +57,18 @@ export default function CoreFreeQuestionnaireLayer({
   }
 
   function goNext() {
-    if (!selected) return;
+    if (!selected || completing) return;
     if (isLast) {
       onComplete();
       return;
     }
     setIndexAndNotify(Math.min(index + 1, FREE_FIVE_QUESTION_COUNT - 1));
   }
+
+  useEffect(() => {
+    onIndexChange?.(index);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- notify resume index once on mount
+  }, []);
 
   function goBack() {
     setIndexAndNotify(Math.max(index - 1, 0));
@@ -105,16 +121,23 @@ export default function CoreFreeQuestionnaireLayer({
       </div>
 
       <div className={styles.freeGuidedFormCol}>
-        {!isReanswerFlow && onRequestProfileEdit ? (
+        {!isReanswerFlow && (dobSummaryJa || onRequestProfileEdit) ? (
           <div className={styles.freeDobCompactBar}>
-            <button
-              type="button"
-              className={styles.freeDobCompactChange}
-              onClick={onRequestProfileEdit}
-              data-testid="m55-free-profile-edit"
-            >
-              基本情報を変更
-            </button>
+            {dobSummaryJa ? (
+              <p className={styles.freeDobSummary} data-testid="m55-free-dob-summary">
+                {dobSummaryJa}
+              </p>
+            ) : null}
+            {onRequestProfileEdit ? (
+              <button
+                type="button"
+                className={styles.freeDobCompactChange}
+                onClick={onRequestProfileEdit}
+                data-testid="m55-free-profile-edit"
+              >
+                基本情報を変更
+              </button>
+            ) : null}
           </div>
         ) : null}
 
@@ -205,7 +228,9 @@ export default function CoreFreeQuestionnaireLayer({
             type="button"
             className={styles.freeQuestionnairePrimaryBtn}
             onClick={goNext}
-            disabled={!selected}
+            disabled={!selected || completing}
+            aria-busy={completing || undefined}
+            data-testid={isLast ? 'm55-free-generate-result' : 'm55-free-next-question'}
           >
             {isLast ? completeLabel : '次の質問へ'}
           </button>

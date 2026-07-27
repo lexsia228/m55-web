@@ -117,7 +117,8 @@ describe('guest free journey presentation copy', () => {
   });
 
   it('re-answer confirmation copy present', () => {
-    assert.match(REANSWER_CONFIRM_COPY_V1.titleJa, /見直しますか/);
+    assert.match(REANSWER_CONFIRM_COPY_V1.titleJa, /もう一度見ますか/);
+    assert.equal(REANSWER_CONFIRM_COPY_V1.confirmJa, '回答を変えて、もう一度見る');
     assert.equal(REANSWER_CONFIRM_COPY_V1.finalizeJa, 'この回答で結果を更新');
   });
 

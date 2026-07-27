@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ensureSealedCoreResult, promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
@@ -35,6 +35,21 @@ import {
   isCompleteFreeAnswerSet,
 } from '../../lib/m55/freeResult/ensureFreeAnswerSetCompleteV1';
 import { FREE_FIVE_QUESTION_COUNT, type FreeQuestionId } from '../../lib/m55/freeResult/questionnaireCopyV1';
+import {
+  exposeFunnelDebug,
+  onBasicInfoIdentityChanged,
+  readPersistedFunnel,
+  syncDraftAnswers,
+  writePersistedFunnel,
+} from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import {
+  commitFreeResult,
+  formatActiveDobSummaryJa,
+  isValidBasicInfo,
+  resolveCoreRouteView,
+  resolveResumeQuestionIndex,
+  resolveSelfFunnelStage,
+} from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
 import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
@@ -61,11 +76,61 @@ type SealedState =
   | { kind: 'ready'; result: CoreResult; profile: NonNullable<ReturnType<typeof ProfileRepository.get>> }
   | { kind: 'error'; message: string };
 
+function hydrateFromStore(): {
+  uxPhase: FreeRevealUxPhase;
+  draftAnswers: Record<string, string>;
+  committedAnswers: Record<string, string>;
+  questionIndex: number;
+  generationCount: number;
+} {
+  const profile = ProfileRepository.get(null);
+  const persisted = readPersistedFunnel();
+  if (!isValidBasicInfo(profile)) {
+    return {
+      uxPhase: 'INTRO',
+      draftAnswers: {},
+      committedAnswers: {},
+      questionIndex: 0,
+      generationCount: 0,
+    };
+  }
+  const basic = {
+    nickname: profile.nickname.trim(),
+    birthDate: profile.birthDate.trim().slice(0, 10),
+  };
+  const stage = resolveSelfFunnelStage({
+    basicInfo: basic,
+    draftFreeAnswers: persisted.draftFreeAnswers,
+    committedFreeAnswers: persisted.committedFreeAnswers,
+    freeResultFingerprint: persisted.freeResultFingerprint,
+    paidAnswers: {},
+  });
+  const view = resolveCoreRouteView(stage);
+  if (view === 'result' && persisted.committedFreeAnswers) {
+    return {
+      uxPhase: 'RESULT',
+      draftAnswers: persisted.committedFreeAnswers,
+      committedAnswers: persisted.committedFreeAnswers,
+      questionIndex: resolveResumeQuestionIndex(persisted.committedFreeAnswers),
+      generationCount: persisted.generationCount,
+    };
+  }
+  const draft = persisted.draftFreeAnswers;
+  return {
+    uxPhase: resolveInitialUxPhase(true),
+    draftAnswers: draft,
+    committedAnswers: {},
+    questionIndex: resolveResumeQuestionIndex(draft),
+    generationCount: persisted.generationCount,
+  };
+}
+
 export default function CoreEssencePanel() {
   const { user, isLoaded, isSignedIn } = useUser();
   const ownerId = user?.id ?? null;
   const [profileEpoch, setProfileEpoch] = useState(0);
-  const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>(() => resolveInitialUxPhase(true));
+  const [hydrated, setHydrated] = useState(false);
+  const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>('QUESTIONNAIRE');
   const [intakeOpen, setIntakeOpen] = useState(false);
   const [profileEditOpen, setProfileEditOpen] = useState(false);
   const [questionnaireFlowKey, setQuestionnaireFlowKey] = useState(0);
@@ -75,6 +140,11 @@ export default function CoreEssencePanel() {
   const [isReanswerFlow, setIsReanswerFlow] = useState(false);
   const [showReanswerConfirm, setShowReanswerConfirm] = useState(false);
   const [compositionError, setCompositionError] = useState<string | null>(null);
+  const [completing, setCompleting] = useState(false);
+  const [generationCount, setGenerationCount] = useState(0);
+  const generationFlightRef = useRef(false);
+  const analyticsCompletionRef = useRef(0);
+  const previousProfileRef = useRef<ReturnType<typeof ProfileRepository.get>>(null);
 
   useEffect(() => {
     const bump = () => setProfileEpoch((n) => n + 1);
@@ -89,10 +159,23 @@ export default function CoreEssencePanel() {
     setProfileEpoch((n) => n + 1);
   }, [isLoaded, user?.id]);
 
+  useEffect(() => {
+    if (!isLoaded) return;
+    const snap = hydrateFromStore();
+    setUxPhase(snap.uxPhase);
+    setDraftAnswers(snap.draftAnswers);
+    setCommittedAnswers(snap.committedAnswers);
+    setQuestionIndex(snap.questionIndex);
+    setGenerationCount(snap.generationCount);
+    setQuestionnaireFlowKey((n) => n + 1);
+    setHydrated(true);
+    previousProfileRef.current = ProfileRepository.get(ownerId);
+  }, [isLoaded, ownerId, profileEpoch]);
+
   const sealed: SealedState = useMemo(() => {
-    if (!isLoaded) return { kind: 'loading' };
+    if (!isLoaded || !hydrated) return { kind: 'loading' };
     const profile = ProfileRepository.get(ownerId);
-    if (!profile?.birthDate || !profile.nickname?.trim()) {
+    if (!isValidBasicInfo(profile)) {
       return { kind: 'locked' };
     }
     try {
@@ -102,7 +185,7 @@ export default function CoreEssencePanel() {
       const message = e instanceof Error ? e.message : '読み取りに失敗しました。';
       return { kind: 'error', message };
     }
-  }, [isLoaded, ownerId, profileEpoch]);
+  }, [hydrated, isLoaded, ownerId, profileEpoch]);
 
   const committedComplete = isCompleteFreeAnswerSet(committedAnswers);
   const questionnaireDone = isQuestionnaireCompleteForComposition(uxPhase, committedComplete);
@@ -164,24 +247,40 @@ export default function CoreEssencePanel() {
     }
     if (committedComplete) {
       setCompositionError('無料結果を組み立てられませんでした。もう一度答え直してください。');
+      generationFlightRef.current = false;
+      setCompleting(false);
     }
   }, [committedAnswers, committedComplete, composition, questionnaireDone]);
+
+  useEffect(() => {
+    if (sealed.kind !== 'ready') return;
+    const stage = resolveSelfFunnelStage({
+      basicInfo: {
+        nickname: sealed.profile.nickname.trim(),
+        birthDate: sealed.profile.birthDate.trim().slice(0, 10),
+      },
+      draftFreeAnswers: draftAnswers,
+      committedFreeAnswers: committedComplete ? committedAnswers : null,
+      freeResultFingerprint: readPersistedFunnel().freeResultFingerprint,
+      paidAnswers: {},
+    });
+    exposeFunnelDebug({
+      generationCount,
+      stage,
+      analyticsCompletionCount: analyticsCompletionRef.current,
+    });
+  }, [committedAnswers, committedComplete, draftAnswers, generationCount, sealed, uxPhase]);
 
   const persistAnswersForCheckout = useCallback(
     (answerSet: Record<string, string>) => {
       if (sealed.kind !== 'ready') return;
       const { profile } = sealed;
-      if (!profile.birthDate || !profile.nickname?.trim()) return;
+      if (!isValidBasicInfo(profile)) return;
       queueDtrDraftSync(ownerId, {
         nickname: profile.nickname.trim(),
         birthDate: profile.birthDate,
         extraJson: { freeAnswerSet: answerSet },
       });
-      try {
-        sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(answerSet));
-      } catch {
-        /* no-op */
-      }
     },
     [ownerId, sealed],
   );
@@ -206,6 +305,8 @@ export default function CoreEssencePanel() {
             setProfileEpoch((n) => n + 1);
             setUxPhase('QUESTIONNAIRE');
             setQuestionIndex(0);
+            setDraftAnswers({});
+            setCommittedAnswers({});
           }}
           dataTestId="m55-core-birth-intake-layer"
         />
@@ -227,16 +328,30 @@ export default function CoreEssencePanel() {
   const hideResult = shouldHideResultDuringQuestionnaire(uxPhase);
   const heroLanguage = coreHeroSelfLanguageForResult(result);
   const stemDisplay = resolveCorePublicStemDisplay(result);
+  const dobSummaryJa = formatActiveDobSummaryJa(profile.birthDate);
 
   function handleAnswerChange(questionId: FreeQuestionId, answerId: string) {
-    setDraftAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+    setDraftAnswers((prev) => {
+      const next = { ...prev, [questionId]: answerId };
+      syncDraftAnswers(next, questionIndex);
+      return next;
+    });
   }
 
   function handleRequestProfileEdit() {
+    previousProfileRef.current = ProfileRepository.get(ownerId);
     setProfileEditOpen(true);
   }
 
   function handleProfileSaved() {
+    const next = ProfileRepository.get(ownerId);
+    onBasicInfoIdentityChanged(previousProfileRef.current, next ?? { nickname: '', birthDate: '' });
+    previousProfileRef.current = next;
+    setCommittedAnswers({});
+    setDraftAnswers({});
+    setUxPhase('QUESTIONNAIRE');
+    setQuestionIndex(0);
+    setQuestionnaireFlowKey((k) => k + 1);
     setProfileEpoch((n) => n + 1);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('m55:profile_updated'));
@@ -244,18 +359,62 @@ export default function CoreEssencePanel() {
   }
 
   function handleQuestionnaireComplete() {
+    if (generationFlightRef.current || completing) return;
     const complete = ensureCompleteFreeAnswerSet(draftAnswers);
     if (!complete) return;
+
+    // Idempotent: same answers + existing result → reopen without new generation
+    if (!isReanswerFlow && committedComplete) {
+      const current = readPersistedFunnel();
+      const basic = {
+        nickname: profile.nickname.trim(),
+        birthDate: profile.birthDate.trim().slice(0, 10),
+      };
+      const next = commitFreeResult(current, basic, complete);
+      if (
+        next &&
+        current.freeResultFingerprint &&
+        next.freeResultFingerprint === current.freeResultFingerprint
+      ) {
+        setCommittedAnswers({ ...complete });
+        setUxPhase('RESULT');
+        return;
+      }
+    }
+
     setDraftAnswers(complete);
+    syncDraftAnswers(complete, FREE_FIVE_QUESTION_COUNT - 1);
     trackFunnelAction(M55_FUNNEL_EVENTS.coreQuestionsCompleted, 'core_free_entry');
-    setUxPhase(transitionOnQuestionnaireComplete(isReanswerFlow));
+    analyticsCompletionRef.current += 1;
+
+    // Reanswer confirms before generation — do not lock the generate button yet.
+    if (isReanswerFlow) {
+      setUxPhase('REANSWER_FINAL');
+      return;
+    }
+
+    generationFlightRef.current = true;
+    setCompleting(true);
+    setUxPhase(transitionOnQuestionnaireComplete(false));
   }
 
   function handleRevealComplete() {
     const complete = ensureCompleteFreeAnswerSet(draftAnswers) ?? draftAnswers;
+    const basic = {
+      nickname: profile.nickname.trim(),
+      birthDate: profile.birthDate.trim().slice(0, 10),
+    };
+    const current = readPersistedFunnel();
+    const next = commitFreeResult(current, basic, complete);
+    if (next) {
+      writePersistedFunnel(next);
+      setGenerationCount(next.generationCount);
+    }
     setCommittedAnswers({ ...complete });
     persistAnswersForCheckout(complete);
     setIsReanswerFlow(false);
+    setCompleting(false);
+    generationFlightRef.current = false;
     setUxPhase(transitionOnRevealComplete());
   }
 
@@ -275,11 +434,16 @@ export default function CoreEssencePanel() {
     setUxPhase(transitionOnReanswerEditStart());
     setQuestionnaireFlowKey((n) => n + 1);
     setQuestionIndex(0);
+    setCompleting(false);
+    generationFlightRef.current = false;
   }
 
   function handleReanswerFinalizeConfirm() {
+    if (generationFlightRef.current || completing) return;
     const complete = ensureCompleteFreeAnswerSet(draftAnswers);
     if (!complete) return;
+    generationFlightRef.current = true;
+    setCompleting(true);
     setDraftAnswers(complete);
     setUxPhase('REVEALING');
   }
@@ -294,7 +458,12 @@ export default function CoreEssencePanel() {
     '生年月日の土台と、いまの五つの答えの関係が見えています。';
 
   return (
-    <div className={CoreExperienceStyles.page}>
+    <div
+      className={CoreExperienceStyles.page}
+      data-testid="m55-core-essence"
+      data-m55-generation-count={generationCount}
+      data-m55-ux-phase={uxPhase}
+    >
       <CoreScrollReveal />
 
       <BirthProfileIntakeLayer
@@ -325,10 +494,25 @@ export default function CoreEssencePanel() {
             isReanswerFlow={isReanswerFlow}
             onIndexChange={setQuestionIndex}
             onRequestProfileEdit={isReanswerFlow ? undefined : handleRequestProfileEdit}
+            initialIndex={questionIndex}
+            completing={completing}
+            dobSummaryJa={dobSummaryJa}
           />
           {compositionError ? (
             <div className={CoreExperienceStyles.errorBox} role="alert">
               {compositionError}
+              <button
+                type="button"
+                className={CoreExperienceStyles.freeQuestionnairePrimaryBtn}
+                onClick={() => {
+                  setCompositionError(null);
+                  generationFlightRef.current = false;
+                  setCompleting(false);
+                  setUxPhase('QUESTIONNAIRE');
+                }}
+              >
+                もう一度試す
+              </button>
             </div>
           ) : null}
         </>
@@ -348,6 +532,7 @@ export default function CoreEssencePanel() {
               type="button"
               className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}
               onClick={handleReanswerFinalizeCancel}
+              disabled={completing}
             >
               {REANSWER_CONFIRM_COPY_V1.cancelJa}
             </button>
@@ -355,6 +540,8 @@ export default function CoreEssencePanel() {
               type="button"
               className={CoreExperienceStyles.freeQuestionnairePrimaryBtn}
               onClick={handleReanswerFinalizeConfirm}
+              disabled={completing}
+              data-testid="m55-free-rerun-finalize"
             >
               {REANSWER_CONFIRM_COPY_V1.finalizeJa}
             </button>
@@ -390,6 +577,7 @@ export default function CoreEssencePanel() {
                 type="button"
                 className={CoreExperienceStyles.freeQuestionnairePrimaryBtn}
                 onClick={handleReanswerConfirm}
+                data-testid="m55-free-rerun-confirm"
               >
                 {REANSWER_CONFIRM_COPY_V1.confirmJa}
               </button>

@@ -53,7 +53,7 @@ describe('guided discovery input experience', () => {
     assert.match(q, /onRequestProfileEdit/);
     assert.match(q, /次の質問へ/);
     assert.match(q, /無料結果を見る/);
-    assert.match(q, /disabled=\{!selected\}/);
+    assert.match(q, /disabled=\{!selected \|\| completing\}/);
     assert.match(q, /event\.key === '1'/);
     assert.match(q, /m55-free-clue-ack/);
     assert.match(q, /完了/);

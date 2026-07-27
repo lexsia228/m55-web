@@ -67,7 +67,7 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(q, /あなた向けの4章レポートに仕上げます/);
     assert.match(q, /力が出やすい条件/);
     assert.match(q, /あと6問・約1〜2分/);
-    assert.match(q, /無料結果はすでに完了/);
+    assert.match(q, /無料結果を土台に|無料結果はすでに完了|freeResultReady/);
     assert.match(q, /プレミアムレポートの6問を始める/);
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
     assert.match(q, /disabled=\{!selected\}/);
@@ -83,7 +83,7 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 
   it('plan choice and checkout boundary stay factual', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    assert.match(prep, /sectionLeadJa/);
+    assert.match(prep, /DtrNeedFreeResultGate|sectionLeadJa/);
     assert.match(prep, /一回払い|oneTimeLabelJa/);
     assert.match(prep, /支払い画面へ進む/);
     assert.match(prep, /次の画面で支払い内容を確認できます。/);

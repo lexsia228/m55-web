@@ -18,6 +18,8 @@ import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
   onComplete?: () => void;
+  /** When false, entry must not claim free result completion. */
+  freeResultReady?: boolean;
 };
 
 type Phase = 'entry' | 'question' | 'complete';
@@ -31,7 +33,10 @@ function labelForAnswer(questionId: PaidQuestionId, answerId: string): string {
   return q?.choices.find((c) => c.answerId === answerId)?.labelJa ?? '';
 }
 
-export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
+export default function DtrPaidQuestionnaireLayer({
+  onComplete,
+  freeResultReady = false,
+}: Props) {
   const { userId } = useAuth();
   const [phase, setPhase] = useState<Phase>('entry');
   const [index, setIndex] = useState(0);
@@ -105,7 +110,9 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
           あなた向けの4章レポートに仕上げます
         </h2>
         <p className={styles.lead}>
-          無料結果はすでに完了しています。ここからの6つの回答で、次の内容をあなた向けに重ねます。
+          {freeResultReady
+            ? '無料結果を土台に、ここからの6つの回答で次の内容をあなた向けに重ねます。'
+            : 'ここからの6つの回答で、次の内容をあなた向けに重ねます。'}
         </p>
         <ul className={styles.metaList}>
           <li>力が出やすい条件</li>
@@ -115,7 +122,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
         </ul>
         <p className={styles.lead}>あと6問・約1〜2分。質問のあと、プランを選んで決済へ進みます。</p>
         <ol className={styles.progressSequence} aria-label="これからの流れ">
-          <li>無料結果 完了</li>
+          {freeResultReady ? <li>無料結果 完了</li> : <li>無料結果を確認</li>}
           <li>追加6問</li>
           <li>プラン選択・決済</li>
           <li>プレミアムレポート</li>
