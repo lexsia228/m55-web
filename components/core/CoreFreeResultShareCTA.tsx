@@ -133,7 +133,7 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
         {card.sharePath}
       </p>
 
-      <div className={styles.shareActions}>
+      <div className={styles.shareActions} data-m55-print-hide>
         {nativeAvailable ? (
           <button
             type="button"

@@ -14,11 +14,13 @@ export default function CoreGuestSaveResultCTA() {
         {GUEST_SAVE_RESULT_COPY_V1.titleJa}
       </h2>
       <p className={styles.freeGuestSaveBody}>{GUEST_SAVE_RESULT_COPY_V1.bodyJa}</p>
-      <SignInButton mode="modal" forceRedirectUrl="/core" fallbackRedirectUrl="/core">
-        <button type="button" className={styles.freeGuestSaveBtn}>
-          {GUEST_SAVE_RESULT_COPY_V1.actionJa}
-        </button>
-      </SignInButton>
+      <div data-m55-print-hide>
+        <SignInButton mode="modal" forceRedirectUrl="/core" fallbackRedirectUrl="/core">
+          <button type="button" className={styles.freeGuestSaveBtn} data-testid="m55-guest-save-signin">
+            {GUEST_SAVE_RESULT_COPY_V1.actionJa}
+          </button>
+        </SignInButton>
+      </div>
     </section>
   );
 }
