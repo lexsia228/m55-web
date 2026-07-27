@@ -36,7 +36,12 @@ export default function CoreFreeJourneyStepper({ currentStep, questionLabel }: P
   const columns = useStepperColumns();
 
   return (
-    <nav className={styles.freeJourneyStepper} aria-label="無料結果までの進行">
+    <nav
+      className={styles.freeJourneyStepper}
+      aria-label="無料結果までの進行"
+      data-testid="m55-free-journey-stepper"
+      data-m55-print-hide
+    >
       <ol
         className={styles.freeJourneyStepperList}
         style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}

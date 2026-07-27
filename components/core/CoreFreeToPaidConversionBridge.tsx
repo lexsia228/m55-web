@@ -79,7 +79,7 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
 
       <p className={styles.conversionBridgeEffort}>{copy.effortJa}</p>
 
-      <div className={styles.conversionBridgeActions}>
+      <div className={styles.conversionBridgeActions} data-m55-print-hide>
         <div className={styles.conversionBridgeCtaBlock}>
           <Link
             href={href}

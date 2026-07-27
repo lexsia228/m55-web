@@ -110,9 +110,14 @@ describe('commercial UX closeout — print A4 contract', () => {
     assert.match(css, /size:\s*A4/);
     assert.match(css, /min-height:\s*0/);
     assert.match(css, /m55-scroll-to-top/);
-    assert.match(css, /freeQuestionnaireActions/);
-    assert.match(css, /premiumStickyBar/);
+    assert.match(css, /m55-premium-sticky-cta/);
+    assert.match(css, /m55-free-journey-stepper/);
+    assert.match(css, /data-m55-print-hide/);
     assert.match(css, /max-width:\s*none/);
+    assert.match(css, /data-m55-pathname='\/home'/);
+    assert.match(css, /m55-home-mechanism/);
+    assert.match(read('app/_components/PublicShell.tsx'), /data-m55-pathname/);
+    assert.match(read('components/core/CoreFreeJourneyStepper.tsx'), /data-m55-print-hide/);
   });
 });
 

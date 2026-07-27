@@ -202,7 +202,7 @@ export function CheckoutTrustRow() {
   const showWalletHint = trustRowShowsWalletBadges(ids);
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.wrap} data-m55-print-hide data-testid="m55-checkout-trust-row">
       <p className={styles.srOnly}>
         Stripe Checkout で利用できる主な決済手段の表示です。実際に選べる手段は環境により異なります。
       </p>

@@ -609,7 +609,12 @@ export default function CoreEssencePanel() {
 
           {shouldShowResultSections(uxPhase) && composition ? (
             <>
-              <nav className={CoreExperienceStyles.freeResultSectionNav} aria-label="無料結果のセクション">
+              <nav
+                className={CoreExperienceStyles.freeResultSectionNav}
+                aria-label="無料結果のセクション"
+                data-testid="m55-free-result-section-nav"
+                data-m55-print-hide
+              >
                 <a href="#core-lead">結果</a>
                 <a href="#core-summary">背景</a>
                 <a href="#core-scenes">場面</a>

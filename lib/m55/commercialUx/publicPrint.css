@@ -28,9 +28,19 @@
   .m55-print-hide,
   [data-testid='m55-premium-sticky-cta'],
   [data-testid='m55-scroll-to-top'],
+  [data-testid='m55-free-journey-stepper'],
+  [data-testid='m55-free-result-section-nav'],
   [data-testid='m55-free-result-share'] button,
   [data-testid='m55-share-native'],
   [data-testid='m55-share-copy'],
+  [data-testid='m55-free-rerun-request'],
+  [data-testid='m55-free-profile-edit'],
+  [data-testid='m55-paid-bridge-primary'],
+  [data-testid='m55-paid-bridge-secondary'],
+  [data-testid='m55-premium-sticky-link'],
+  [data-testid='m55-paid-questionnaire-active'] [class*='actions'],
+  [data-m55-paid-checkout] [class*='actions'],
+  [data-testid='m55-dtr-plan-selection'] button,
   .menuTrigger,
   .mobileMenuPanel,
   .navDropdownPanel,
@@ -39,20 +49,9 @@
   .mobileFreeLink,
   .checkout-trust-row,
   .m55-lp-cta-btn,
-  [data-m55-paid-checkout],
-  .premiumStickyBar,
   .lpBreadcrumb,
   .lpFinalCtaWrap,
   .lpTrustWrap,
-  .freeQuestionnaireActions,
-  .freeQuestionnaireSecondaryBtn,
-  .freeQuestionnairePrimaryBtn,
-  .freeDobCompactChange,
-  .conversionBridgeActions,
-  .conversionBridgeSecondary,
-  .freeResultSectionNav,
-  .freeJourneyStepper,
-  [data-testid='m55-premium-sticky-link'],
   button[aria-label='ページ上部へ戻る'] {
     display: none !important;
   }
@@ -176,10 +175,10 @@
     color: #1a1a1a !important;
   }
 
-  /* Avoid printing decorative pseudo text layers twice */
-  .bridgeLockedHeadingIcon,
-  .freeJourneyStepperMarker,
-  .freeQuestionnaireChoiceCheck {
+  /* Avoid printing decorative pseudo / duplicate text layers */
+  [data-testid='m55-premium-locked-headings'] [aria-hidden],
+  [data-testid='m55-free-journey-stepper'] [aria-hidden],
+  [data-testid='m55-free-questionnaire'] [aria-hidden='true'] {
     display: none !important;
   }
 
@@ -190,5 +189,81 @@
   .shareCard {
     background: #fff !important;
     color: #1a1a1a !important;
+  }
+
+  /*
+   * HOME print-summary (3–4 page brochure target):
+   * keep hero + free preview + plan comparison + final CTA;
+   * drop long marketing / mechanism / heavy visuals.
+   */
+  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] picture,
+  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] img,
+  [data-m55-pathname='/home'] [data-testid='m55-home-mechanism'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-pair-free'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-ten-asset-teaser'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-slice'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview-slice'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-premium-value-bridge'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-open-birth-intake'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-has-profile-hero'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-cta-loading'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-intake'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-core'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview-cta'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'] a,
+  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'] button,
+  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta-plans'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-mechanism-link'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'] a,
+  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'] button,
+  [data-m55-pathname='/home'] .integratedActions,
+  .cl-internal-b3fm6y,
+  #clerk-components,
+  [class*='cl-modal'],
+  [data-clerk-component] {
+    display: none !important;
+  }
+
+  [data-m55-pathname='/home'] [data-testid='m55-home-hero'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-hero'] *,
+  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-plan-comparison'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-lower'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 0 0.55rem !important;
+    padding: 0.25rem 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+  }
+
+  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] > div {
+    position: static !important;
+    display: block !important;
+    inset: auto !important;
+    background: none !important;
+  }
+
+  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] [aria-hidden='true'] {
+    display: none !important;
+  }
+
+  [data-m55-pathname='/home'] h1,
+  [data-m55-pathname='/home'] h2 {
+    font-size: 16pt !important;
+    line-height: 1.35 !important;
+    text-wrap: balance;
+  }
+
+  [data-m55-pathname='/home'] p,
+  [data-m55-pathname='/home'] li {
+    font-size: 10.5pt !important;
+    line-height: 1.45 !important;
   }
 }
