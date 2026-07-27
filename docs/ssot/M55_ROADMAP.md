@@ -27,7 +27,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 |---|---|
 | **ACTIVE lane** | Self funnel Growth / share (WT-011) |
 | Worktree / branch | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` · `feat/m55-self-funnel-growth-share-v1` |
-| Current tip | `d7af28a59755076b6269e93edfba03297eb98084` |
+| Current tip | `17ef267722e8b7336f4fbe3e71b7fe1bc5f428bc` (growth implementation tip `d7af28a…` retained in history) |
 | PR | **#81 unmerged** |
 | Production baseline | PR #80 merged @ `696559009367a6ac445dc7a07876590b16cd8488` — OPERATIONAL_BASELINE |
 | **Current next phase** | sitewide commercial UX audit → unified Growth Share commercial UX implementation → Human review |

@@ -16,7 +16,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Worktree ID | **WT-011** |
 | Worktree | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | Branch | `feat/m55-self-funnel-growth-share-v1` |
-| Current tip (2026-07-27) | `d7af28a59755076b6269e93edfba03297eb98084` |
+| Current tip (2026-07-27) | `17ef267722e8b7336f4fbe3e71b7fe1bc5f428bc` — authority reconciliation commit atop growth tip `d7af28a…` |
 | Base SHA | `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge = current `origin/main` |
 | PR | **#81 unmerged** — branch-local Growth Share implementation |
 | Purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation |
@@ -153,7 +153,7 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | **postMergeActiveLane** | 個人無料→個人Premiumファネルの一括実装 |
 | **postMergeNextSingleAction** | Cursor docs patch complete → Cursor STOP → Codex independent diff review → Control Plane re-execution |
 | **currentImplementationLane** | Self funnel Growth / share (WT-011) |
-| **currentImplementationTip** | `d7af28a59755076b6269e93edfba03297eb98084` |
+| **currentImplementationTip** | `17ef267722e8b7336f4fbe3e71b7fe1bc5f428bc` (prior growth tip `d7af28a59755076b6269e93edfba03297eb98084`) |
 | **pairPremium** | NOT_LIVE |
 | **Pair implementation** | Later lane — roadmap step（二人向け無料→有料） |
 | Historical branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged; **not** current active branch) |
