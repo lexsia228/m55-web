@@ -276,7 +276,15 @@ function checkWorktreeRegistry() {
 }
 
 const WT001_ID = 'WT-001';
+const WT006_ID = 'WT-006';
 const WT009_ID = 'WT-009';
+const WT010_ID = 'WT-010';
+const WT006_EXPECTED_PATH = '/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1';
+const WT006_EXPECTED_BRANCH = 'pre-note/home-fullka-microcopy';
+const WT010_EXPECTED_PATH = '/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1';
+const WT010_EXPECTED_BRANCH = 'feat/m55-product-authority-pack-v1';
+const WT010_EXPECTED_BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
+const WT010_EXPECTED_OPERATIONAL_STATE = 'ALLOWLIST_ONLY_DURING_IMPLEMENTATION';
 const PRE_MERGE_SNAPSHOT_BRANCH = 'docs/m55-commercial-funnel-ssot-v1';
 const POST_MERGE_EXPECTED_BRANCH = 'main';
 const EXPECTED_POST_MERGE_NEXT_SINGLE_ACTION =
@@ -298,6 +306,7 @@ const CANONICAL_WT_HEADING_LABELS = Object.freeze({
   'WT-007': 'Analysis hub',
   'WT-008': 'HOME poster clean main',
   'WT-009': 'Build Week Control Plane (operational freeze)',
+  'WT-010': 'Product Authority Pack',
 });
 const BASELINE_AUTHORITY_GRAMMAR = /^`main`\s*@\s*`([0-9a-f]{40})`$/;
 const REQUIRED_REGISTRY_HEADINGS = [WT001_ID, WT009_ID];
@@ -649,10 +658,11 @@ function parseRegistryDocument(registryText) {
     headingBlockedForRequired: headings.headingBlockedForRequired,
   };
 }
-function getSectionFieldRules(id) {
+function getSectionFieldRules(id, lifecycleRaw = '') {
   const required = ['path', 'branch', 'HEAD', 'lifecycle', 'purpose'];
   const optional = ['baseline', 'operational state'];
-  if (id === WT001_ID) {
+  const lifecycle = lifecycleRaw ? normalizeRegistryFieldText(lifecycleRaw) : '';
+  if (id === WT001_ID && lifecycle.includes('PRIMARY_MAIN_HOME')) {
     required.push('baseline');
     return { required, optional: optional.filter((field) => field !== 'baseline') };
   }
@@ -660,12 +670,19 @@ function getSectionFieldRules(id) {
     required.push('operational state');
     return { required, optional: optional.filter((field) => field !== 'operational state') };
   }
+  if (id === WT010_ID) {
+    return {
+      required: ['path', 'branch', 'bootstrapStartHead', 'lifecycle', 'purpose', 'operational state'],
+      optional: ['baseline', 'HEAD', 'cleanliness', 'upstream'],
+    };
+  }
   return { required, optional };
 }
 
 function parseRegistryWorktreeSection(section, id) {
   const rows = collectSectionFieldRows(section);
-  const { required, optional } = getSectionFieldRules(id);
+  const lifecycleRaw = rows.get('lifecycle')?.[0] ?? '';
+  const { required, optional } = getSectionFieldRules(id, lifecycleRaw);
   const errors = [];
   const rawFields = {};
 
@@ -683,6 +700,7 @@ function parseRegistryWorktreeSection(section, id) {
   let path = null;
   let branch = null;
   let headSha = null;
+  let bootstrapStartHeadSha = null;
   let baselineSha = null;
   let baselineRaw = null;
 
@@ -697,6 +715,19 @@ function parseRegistryWorktreeSection(section, id) {
       errors.push({ id, field: 'HEAD', kind: headParsed.kind, message: `${id} HEAD ${headParsed.kind}` });
     } else {
       headSha = headParsed.sha;
+    }
+  }
+  if (rawFields.bootstrapstarthead) {
+    const bootstrapParsed = parseShaFromHeadField(rawFields.bootstrapstarthead);
+    if (!bootstrapParsed.ok) {
+      errors.push({
+        id,
+        field: 'bootstrapStartHead',
+        kind: bootstrapParsed.kind,
+        message: `${id} bootstrapStartHead ${bootstrapParsed.kind}`,
+      });
+    } else {
+      bootstrapStartHeadSha = bootstrapParsed.sha;
     }
   }
   if (rawFields.baseline) {
@@ -727,6 +758,7 @@ function parseRegistryWorktreeSection(section, id) {
     path,
     branch,
     headSha,
+    bootstrapStartHeadSha,
     baselineRaw,
     baselineSha,
     lifecycle,
@@ -787,6 +819,119 @@ function validateWt009Metadata(entry) {
     });
   }
   return errors;
+}
+
+function validateWt010Metadata(entry) {
+  const errors = [];
+  if (!entry) {
+    errors.push({ id: WT010_ID, field: 'id', kind: 'missing', message: `${WT010_ID} section missing` });
+    return errors;
+  }
+  if (entry.path !== WT010_EXPECTED_PATH) {
+    errors.push({ id: WT010_ID, field: 'path', kind: 'invalid', message: `${WT010_ID} path invalid` });
+  }
+  if (entry.branch !== WT010_EXPECTED_BRANCH) {
+    errors.push({ id: WT010_ID, field: 'branch', kind: 'invalid', message: `${WT010_ID} branch invalid` });
+  }
+  if (!entry.lifecycle?.includes('ACTIVE')) {
+    errors.push({ id: WT010_ID, field: 'lifecycle', kind: 'invalid', message: `${WT010_ID} lifecycle invalid` });
+  }
+  if (entry.operationalState !== WT010_EXPECTED_OPERATIONAL_STATE) {
+    errors.push({
+      id: WT010_ID,
+      field: 'operational state',
+      kind: 'invalid',
+      message: `${WT010_ID} operational state invalid`,
+    });
+  }
+  if (!entry.bootstrapStartHeadSha) {
+    errors.push({
+      id: WT010_ID,
+      field: 'bootstrapStartHead',
+      kind: 'missing',
+      message: `${WT010_ID} bootstrapStartHead missing`,
+    });
+  }
+  return errors;
+}
+
+function evaluateWt010RegistryPreflight(registryDocument) {
+  if (registryDocument.headingBlockedForRequired(WT010_ID)) {
+    const headingErrors = [
+      ...registryDocument.duplicateHeadingErrors.filter((error) => error.id === WT010_ID),
+      ...registryDocument.malformedHeadingErrors.filter((error) => error.heading.includes(WT010_ID)),
+      ...registryDocument.missingRequiredEntryErrors.filter((error) => error.id === WT010_ID),
+    ];
+    return { valid: false, errors: headingErrors };
+  }
+
+  const entry = registryDocument.entries.find((item) => item.id === WT010_ID);
+  if (!entry) {
+    return {
+      valid: false,
+      errors: [{ id: WT010_ID, field: 'id', kind: 'missing', message: `${WT010_ID} section missing` }],
+    };
+  }
+  if (!entry.valid) {
+    return { valid: false, errors: entry.errors };
+  }
+  const metadataErrors = validateWt010Metadata(entry);
+  return { valid: metadataErrors.length === 0, errors: metadataErrors, entry };
+}
+
+function evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector) {
+  if (!registryEntry.valid) {
+    warnings.push(
+      `WT-010 registry parser failure for ${entry.path}: ${formatRegistryParserErrors(registryEntry.errors)}`,
+    );
+    return;
+  }
+  if (entry.path !== registryEntry.path) {
+    warnings.push(`WT-010 path mismatch for ${entry.path}: expected ${registryEntry.path}`);
+  }
+  if (entry.branch !== WT010_EXPECTED_BRANCH) {
+    warnings.push(`WT-010 branch mismatch for ${entry.path}: live=${entry.branch ?? 'detached'}`);
+  }
+  if (!registryEntry.lifecycle?.includes('ACTIVE')) {
+    warnings.push(`WT-010 lifecycle must be ACTIVE for ${entry.path}`);
+  }
+  if (registryEntry.operationalState !== WT010_EXPECTED_OPERATIONAL_STATE) {
+    warnings.push(`WT-010 operational state must be ${WT010_EXPECTED_OPERATIONAL_STATE} for ${entry.path}`);
+  }
+  const bootstrapStartHead = registryEntry.bootstrapStartHeadSha;
+  if (!bootstrapStartHead) {
+    warnings.push(`WT-010 bootstrapStartHead missing for ${entry.path}`);
+    return;
+  }
+  if (!entry.head) {
+    warnings.push(`WT-010 live HEAD missing for ${entry.path}`);
+    return;
+  }
+  if (!gitInspector.objectExists(entry.path, bootstrapStartHead)) {
+    warnings.push(`WT-010 bootstrapStartHead object missing for ${entry.path}: ${bootstrapStartHead.slice(0, 12)}`);
+    return;
+  }
+  if (!gitInspector.objectExists(entry.path, entry.head)) {
+    warnings.push(`WT-010 live HEAD object missing for ${entry.path}: ${entry.head.slice(0, 12)}`);
+    return;
+  }
+  if (!gitInspector.isAncestorOrEqual(entry.path, bootstrapStartHead, entry.head)) {
+    warnings.push(
+      `WT-010 live HEAD is not a descendant of bootstrapStartHead for ${entry.path}: live=${entry.head.slice(0, 12)} bootstrapStartHead=${bootstrapStartHead.slice(0, 12)}`,
+    );
+    return;
+  }
+  logs.push(
+    `[preflight] WT-010 live HEAD ${entry.head.slice(0, 12)} is at or after bootstrapStartHead ${bootstrapStartHead.slice(0, 12)}`,
+  );
+  if (gitInspector.hasGitOperationInProgress(entry.path)) {
+    warnings.push(`WT-010 git operation in progress for ${entry.path}`);
+  }
+  if (!gitInspector.isWorktreeClean(entry.path)) {
+    logs.push(
+      `[preflight] WT-010 ACTIVE implementation lane dirty under ALLOWLIST_ONLY_DURING_IMPLEMENTATION: ${entry.path}`,
+    );
+  }
 }
 
 function evaluateWt009RegistryPreflight(registryDocument) {
@@ -938,6 +1083,26 @@ function isAncestorOrEqual(ancestor, descendant, cwd) {
   return result.status === 0;
 }
 
+function createDefaultGitInspector() {
+  return {
+    objectExists(repositoryRoot, sha) {
+      return gitObjectExists(sha, repositoryRoot);
+    },
+    isAncestorOrEqual(repositoryRoot, ancestorSha, descendantSha) {
+      return isAncestorOrEqual(ancestorSha, descendantSha, repositoryRoot);
+    },
+    isWorktreeClean(repositoryRoot) {
+      return isWorktreeClean(repositoryRoot);
+    },
+    hasGitOperationInProgress(repositoryRoot) {
+      return hasGitOperationInProgress(repositoryRoot);
+    },
+    registryPathExists(registryPath) {
+      return fs.existsSync(registryPath);
+    },
+  };
+}
+
 function isWorktreeClean(worktreePath) {
   const result = gitRun(['status', '--porcelain'], worktreePath);
   return result.status === 0 && result.stdout.trim() === '';
@@ -960,9 +1125,152 @@ function hasGitOperationInProgress(worktreePath) {
   return false;
 }
 
+function isRegistryEntryDoNotUse(entry) {
+  return Boolean(entry.lifecycle?.includes('DO_NOT_USE'));
+}
+
+function isRegistryEntryLiveRequired(entry, gitInspector = null) {
+  if (!entry?.path) return false;
+  if (isRegistryEntryDoNotUse(entry)) return false;
+  if (gitInspector?.registryPathExists) {
+    return gitInspector.registryPathExists(entry.path);
+  }
+  return fs.existsSync(entry.path);
+}
+
+function isParkedSelfFunnelWt001(entry, registryEntry) {
+  if (registryEntry?.id !== WT001_ID) return false;
+  if (entry.path !== registryEntry.path) return false;
+  if (registryEntry.operationalState?.includes('PARKED')) return true;
+  return (
+    registryEntry.lifecycle?.includes('PAUSED') &&
+    !registryEntry.lifecycle?.includes('PRIMARY_MAIN_HOME')
+  );
+}
+
+function collectRegistryUniquenessErrors(entries) {
+  const errors = [];
+  const pathOwners = new Map();
+  const branchOwners = new Map();
+
+  for (const entry of entries) {
+    if (!entry.valid) continue;
+    if (entry.path) {
+      const owners = pathOwners.get(entry.path) ?? [];
+      owners.push(entry.id);
+      pathOwners.set(entry.path, owners);
+    }
+    if (entry.branch && !isRegistryEntryDoNotUse(entry)) {
+      const owners = branchOwners.get(entry.branch) ?? [];
+      owners.push(entry.id);
+      branchOwners.set(entry.branch, owners);
+    }
+  }
+
+  for (const [wtPath, owners] of pathOwners.entries()) {
+    if (owners.length > 1) {
+      errors.push({
+        id: owners.join(','),
+        field: 'path',
+        kind: 'duplicate',
+        message: `duplicate registry path ${wtPath}: ${owners.join(', ')}`,
+      });
+    }
+  }
+
+  for (const [branch, owners] of branchOwners.entries()) {
+    if (owners.length > 1) {
+      errors.push({
+        id: owners.join(','),
+        field: 'branch',
+        kind: 'duplicate',
+        message: `duplicate active branch ${branch}: ${owners.join(', ')}`,
+      });
+    }
+  }
+
+  const wt006 = entries.find((entry) => entry.id === WT006_ID);
+  const wt010 = entries.find((entry) => entry.id === WT010_ID);
+  if (wt006?.path && wt006.path !== WT006_EXPECTED_PATH) {
+    errors.push({
+      id: WT006_ID,
+      field: 'path',
+      kind: 'invalid',
+      message: `${WT006_ID} must remain paid-lp worktree path`,
+    });
+  }
+  if (wt010?.path && wt010.path !== WT010_EXPECTED_PATH) {
+    errors.push({
+      id: WT010_ID,
+      field: 'path',
+      kind: 'invalid',
+      message: `${WT010_ID} must remain Product Authority Pack worktree path`,
+    });
+  }
+  if (wt006?.path === WT010_EXPECTED_PATH || wt010?.path === WT006_EXPECTED_PATH) {
+    errors.push({
+      id: `${WT006_ID},${WT010_ID}`,
+      field: 'path',
+      kind: 'invalid',
+      message: 'Authority Pack must not reuse WT-006 paid-lp registry path',
+    });
+  }
+
+  return errors;
+}
+
+function shouldRunFullTopologyPreflight(registryDocument, liveEntries) {
+  const hasWt010Heading = registryDocument.entries.some((entry) => entry.id === WT010_ID);
+  return hasWt010Heading && liveEntries.length >= 9;
+}
+
+function collectSymmetricLiveRegistryErrors(liveEntries, registryEntries, gitInspector = null) {
+  const errors = [];
+  const livePaths = new Set(liveEntries.map((entry) => entry.path));
+  const registryByPath = new Map(
+    registryEntries.filter((entry) => entry.path).map((entry) => [entry.path, entry]),
+  );
+
+  for (const liveEntry of liveEntries) {
+    const registryEntry = registryByPath.get(liveEntry.path);
+    if (!registryEntry) {
+      errors.push({
+        id: 'registry',
+        field: 'path',
+        kind: 'missing',
+        message: `live worktree missing from registry: ${liveEntry.path}`,
+      });
+      continue;
+    }
+    if (isRegistryEntryDoNotUse(registryEntry)) {
+      errors.push({
+        id: registryEntry.id,
+        field: 'lifecycle',
+        kind: 'invalid',
+        message: `live worktree registered as DO_NOT_USE: ${liveEntry.path}`,
+      });
+    }
+  }
+
+  for (const registryEntry of registryEntries) {
+    if (!isRegistryEntryLiveRequired(registryEntry, gitInspector)) continue;
+    if (!livePaths.has(registryEntry.path)) {
+      errors.push({
+        id: registryEntry.id,
+        field: 'path',
+        kind: 'missing',
+        message: `registered live worktree missing from git worktree list: ${registryEntry.path}`,
+      });
+    }
+  }
+
+  return errors;
+}
+
 function isSnapshotModeCandidate(entry, registryEntry, registryText, transitionParse) {
   if (registryEntry?.id !== WT001_ID) return false;
   if (entry.path !== registryEntry.path) return false;
+  if (!registryEntry.lifecycle?.includes('PRIMARY_MAIN_HOME')) return false;
   if (!registryText.includes('Documented post-merge transition')) return false;
   if (!transitionParse.valid) return false;
   if (entry.branch === PRE_MERGE_SNAPSHOT_BRANCH || entry.branch === POST_MERGE_EXPECTED_BRANCH) {
@@ -984,7 +1292,7 @@ function isLegacyWt001State(entry, registryEntry, registryText) {
   );
 }
 
-function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, transitionParse, gitCwd }) {
+function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, transitionParse, gitInspector }) {
   if (!wt001Parse?.valid || !wt001Parse.snapshot) {
     return {
       pass: false,
@@ -1005,15 +1313,15 @@ function evaluateWt001SnapshotPreflight({ entry, wt001Parse, registryText, trans
   if (!snapshot.baselineSha) {
     return { pass: false, reason: 'baseline SHA missing from registry parser' };
   }
-  if (!gitObjectExists(snapshot.baselineSha, gitCwd)) {
+  if (!gitInspector.objectExists(entry.path, snapshot.baselineSha)) {
     return { pass: false, reason: 'baseline SHA object missing' };
   }
   if (!entry.head) return { pass: false, reason: 'live HEAD missing' };
-  if (!isAncestorOrEqual(snapshot.baselineSha, entry.head, gitCwd)) {
+  if (!gitInspector.isAncestorOrEqual(entry.path, snapshot.baselineSha, entry.head)) {
     return { pass: false, reason: 'live HEAD is not baseline or descendant' };
   }
-  if (!isWorktreeClean(entry.path)) return { pass: false, reason: 'worktree dirty' };
-  if (hasGitOperationInProgress(entry.path)) {
+  if (!gitInspector.isWorktreeClean(entry.path)) return { pass: false, reason: 'worktree dirty' };
+  if (gitInspector.hasGitOperationInProgress(entry.path)) {
     return { pass: false, reason: 'git operation in progress' };
   }
   return { pass: true, snapshot };
@@ -1062,9 +1370,10 @@ function evaluateGenericRegistryPreflight(entry, registryEntry, warnings) {
   }
 }
 
-function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentStateText, gitCwd) {
+function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentStateText, gitCwd, options = {}) {
   const warnings = [];
   const logs = [];
+  const gitInspector = options.gitInspector ?? createDefaultGitInspector();
   const registryDocument = parseRegistryDocument(registryText);
 
   for (const error of registryDocument.duplicateHeadingErrors) {
@@ -1099,8 +1408,27 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
     }
   }
 
+  const wt010Preflight = registryDocument.entries.some((entry) => entry.id === WT010_ID)
+    ? evaluateWt010RegistryPreflight(registryDocument)
+    : { valid: true, errors: [] };
+  if (!wt010Preflight.valid) {
+    for (const error of wt010Preflight.errors) {
+      warnings.push(`WT-010 registry metadata validation failed: ${error.id} ${error.field} ${error.kind}`);
+    }
+  }
+
+  for (const error of collectRegistryUniquenessErrors(registryDocument.entries)) {
+    warnings.push(`registry uniqueness validation failed: ${error.message}`);
+  }
+
   const transitionParse = parsePostMergeNextSingleAction(currentStateText);
   const registryEntries = registryDocument.entries;
+
+  if (options.requireFullTopology || shouldRunFullTopologyPreflight(registryDocument, liveEntries)) {
+    for (const error of collectSymmetricLiveRegistryErrors(liveEntries, registryEntries, gitInspector)) {
+      warnings.push(error.message);
+    }
+  }
 
   for (const entry of liveEntries) {
     const registryEntry = getRegistryEntryByPath(registryEntries, entry.path);
@@ -1119,6 +1447,11 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
       if (entry.head && entry.head.toLowerCase() !== WT009_EXPECTED_HEAD) {
         warnings.push(`WT-009 HEAD mismatch for ${entry.path}: live=${entry.head.slice(0, 12)}`);
       }
+      continue;
+    }
+
+    if (registryEntry.id === WT010_ID) {
+      evaluateWt010ActiveLanePreflight(entry, registryEntry, warnings, logs, gitInspector);
       continue;
     }
 
@@ -1141,7 +1474,7 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
         wt001Parse,
         registryText,
         transitionParse,
-        gitCwd,
+        gitInspector,
       });
       if (snapshotResult.pass) {
         logs.push(
@@ -1164,6 +1497,11 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
       continue;
     }
 
+    if (isParkedSelfFunnelWt001(entry, registryEntry)) {
+      evaluateGenericRegistryPreflight(entry, registryEntry, warnings);
+      continue;
+    }
+
     if (registryEntry.id === WT001_ID && entry.path === registryEntry.path) {
       warnings.push(
         `WT-001 state not authorized for ${entry.path}: branch=${entry.branch ?? 'detached'}`,
@@ -1177,28 +1515,34 @@ function evaluateWorktreePreflightWarnings(liveEntries, registryText, currentSta
   return { warnings, logs };
 }
 
-function checkLocalWorktreePreflight() {
-  if (process.env.CI) return;
-
+function runStrictLocalWorktreePreflight() {
   const result = gitRun(['worktree', 'list', '--porcelain'], ROOT);
   if (result.status !== 0) {
-    console.warn('[preflight] git worktree list unavailable — skipping live comparison');
-    return;
+    console.error('[preflight] git worktree list unavailable — cannot verify local topology');
+    process.exit(1);
   }
 
   const live = parseWorktreeListPorcelain(result.stdout);
   const registry = read('docs/ssot/M55_WORKTREE_REGISTRY.md');
   const currentState = read('docs/ssot/M55_CURRENT_STATE.md');
-  const { warnings, logs } = evaluateWorktreePreflightWarnings(live, registry, currentState, ROOT);
+  const { warnings, logs } = evaluateWorktreePreflightWarnings(live, registry, currentState, ROOT, {
+    requireFullTopology: true,
+  });
 
   for (const line of logs) console.log(line);
 
   if (warnings.length > 0) {
-    console.warn('[preflight] worktree registry drift detected:');
-    for (const w of warnings) console.warn(`- ${w}`);
-  } else {
-    console.log('[preflight] live git worktree list matches registry preflight rules');
+    console.error('PASS/FAIL: FAIL');
+    console.error('[preflight] local worktree registry strict validation failed:');
+    for (const w of warnings) console.error(`- ${w}`);
+    process.exit(1);
   }
+
+  console.log('PASS/FAIL: PASS');
+  console.log(
+    `[preflight] local live worktree topology matches registry (${live.length} live / strict symmetric validation)`,
+  );
+  process.exit(0);
 }
 
 function checkPostMergeHandoff() {
@@ -1391,6 +1735,305 @@ function checkCommercialQualityContract() {
   }
 }
 
+const AUTHORITY_PACK_COMMIT_ONE_SHA = 'f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704';
+const AUTHORITY_PACK_COMMIT_TWO_SHA = '2761706505576a2baeacbdd40acd130a1f70e81b';
+const AUTHORITY_PACK_COMMIT_THREE_SHA = 'fae04444618e2ae36e6fd813ddfddeee975b66c4';
+const AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA = '178dadab4697f4797b8f00fd473d08a135b3ec4e';
+const AUTHORITY_PACK_SAFETY_REF_SHA = '844c5bbb73795b2f162e29516be79fb401c3b55e';
+
+const AUTHORITY_PACK_BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
+
+const AUTHORITY_HISTORY_KIND_BY_SEQUENCE = Object.freeze({
+  0: 'INITIALIZATION',
+  1: 'AUTHORITY_PROCESS_INCIDENT',
+  2: 'BOOTSTRAP_RECONCILIATION',
+});
+
+/**
+ * Structurally parse authority-history JSONL for transition invariants.
+ * @param {string} historyText
+ * @returns {{ records: object[], bySequence: Map<number, object>, reconciled: boolean }}
+ */
+function parseAuthorityHistoryTransitionJsonl(historyText) {
+  const lines = historyText.split('\n');
+  /** @type {object[]} */
+  const records = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.trim() === '') continue;
+
+    let parsed;
+    try {
+      parsed = JSON.parse(line);
+    } catch {
+      throw new Error(`authority-history JSONL line ${index + 1}: malformed JSON`);
+    }
+
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error(`authority-history JSONL line ${index + 1}: record must be an object`);
+    }
+    if (!Number.isInteger(parsed.sequence)) {
+      throw new Error(`authority-history JSONL line ${index + 1}: sequence must be integer`);
+    }
+    if (!Object.hasOwn(AUTHORITY_HISTORY_KIND_BY_SEQUENCE, parsed.sequence)) {
+      throw new Error(`Unexpected authority-history sequence: ${parsed.sequence}`);
+    }
+
+    records.push(parsed);
+  }
+
+  const bySequence = new Map();
+  for (const record of records) {
+    if (bySequence.has(record.sequence)) {
+      throw new Error(`authority-history JSONL duplicate sequence ${record.sequence}`);
+    }
+    bySequence.set(record.sequence, record);
+  }
+
+  for (const sequence of [0, 1, 2]) {
+    if (!bySequence.has(sequence)) {
+      throw new Error(`authority-history JSONL missing sequence ${sequence}`);
+    }
+    const expectedKind = AUTHORITY_HISTORY_KIND_BY_SEQUENCE[sequence];
+    if (bySequence.get(sequence).kind !== expectedKind) {
+      throw new Error(
+        `authority-history JSONL sequence ${sequence} kind must be ${expectedKind}`,
+      );
+    }
+  }
+
+  if (records.length !== 3 || bySequence.size !== 3) {
+    throw new Error('authority-history JSONL must contain exactly sequences 0, 1, and 2');
+  }
+
+  return {
+    records,
+    bySequence,
+    reconciled: bySequence.get(2).kind === 'BOOTSTRAP_RECONCILIATION',
+  };
+}
+
+function historyHasBootstrapReconciliation(historyText) {
+  return parseAuthorityHistoryTransitionJsonl(historyText).reconciled;
+}
+
+function readObservedOriginMainSha() {
+  if (!exists('.product-authority/observations.json')) return null;
+  try {
+    const observations = JSON.parse(read('.product-authority/observations.json'));
+    return observations?.repository?.lastObservedOriginMainSha?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function readObservationTimestamp() {
+  if (!exists('.product-authority/observations.json')) return null;
+  try {
+    const observations = JSON.parse(read('.product-authority/observations.json'));
+    return observations?.observationMeta?.lastObservedAt?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function collectAuthorityPackTransitionFailures({
+  currentStateText = read('docs/ssot/M55_CURRENT_STATE.md'),
+  registryText = read('docs/ssot/M55_WORKTREE_REGISTRY.md'),
+  roadmapText = read('docs/ssot/M55_ROADMAP.md'),
+  historyText = exists('.product-authority/authority-history.jsonl')
+    ? read('.product-authority/authority-history.jsonl')
+    : '',
+  handoffJsonText = exists('.product-authority/generated/handoff.json')
+    ? read('.product-authority/generated/handoff.json')
+    : '',
+  authorityHeaderText = exists('.product-authority/generated/authority-header.md')
+    ? read('.product-authority/generated/authority-header.md')
+    : '',
+  observedOriginMainSha = readObservedOriginMainSha(),
+  observationTimestamp = readObservationTimestamp(),
+} = {}) {
+  const failures = [];
+  let reconciled = false;
+  if (historyText.trim() !== '') {
+    try {
+      reconciled = parseAuthorityHistoryTransitionJsonl(historyText).reconciled;
+    } catch (error) {
+      failures.push(`authority-history JSONL transition parse failed: ${error.message}`);
+    }
+  }
+
+  if (reconciled) {
+    if (/sequence 0 only/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not describe sequence 0 only when history has sequences 0–2');
+    }
+    if (/not yet reconciled/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say bootstrap reconciliation is pending when sequence 2 exists');
+    }
+    if (/reconciliation pending/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say reconciliation is pending when sequence 2 exists');
+    }
+    if (/Not active yet/i.test(currentStateText)) {
+      failures.push('M55_CURRENT_STATE.md must not say steady-state enforcement is not active when reconciled');
+    }
+    if (/reconciliation candidate pending Commit 2/i.test(registryText)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not say reconciliation Commit 2 is pending when sequence 2 exists');
+    }
+    if (/no push during bootstrap\/reconciliation gates/i.test(registryText)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not describe remote branch as absent after PR #79 push');
+    }
+    if (/remote branch absent|unpublished/i.test(registryText) && registryText.includes('PR #79')) {
+      failures.push('M55_WORKTREE_REGISTRY.md must not describe PR #79 branch as absent or unpublished');
+    }
+  }
+
+  if (!currentStateText.includes('sequences **0–2**') && !currentStateText.includes('sequences 0–2')) {
+    failures.push('M55_CURRENT_STATE.md must document Product Authority history sequences 0–2');
+  }
+  if (!currentStateText.includes('PR #79')) {
+    failures.push('M55_CURRENT_STATE.md must record PR #79 transition snapshot');
+  }
+  if (!currentStateText.includes(AUTHORITY_PACK_COMMIT_THREE_SHA)) {
+    failures.push('M55_CURRENT_STATE.md must record CI-portability Commit 3 SHA');
+  }
+  if (/merged runtime.*fae0444/i.test(currentStateText)) {
+    failures.push('M55_CURRENT_STATE.md must not describe PR feature tip fae0444 as merged runtime');
+  }
+  if (/PR tip.*merged runtime|merged runtime.*PR tip/i.test(currentStateText)) {
+    failures.push('M55_CURRENT_STATE.md must not conflate PR feature tip with merged runtime');
+  }
+
+  if (observedOriginMainSha) {
+    if (!currentStateText.includes(observedOriginMainSha)) {
+      failures.push('M55_CURRENT_STATE.md must record the latest observed origin/main SHA');
+    }
+    if (
+      new RegExp(`last observed origin/main.*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`, 'i').test(
+        currentStateText,
+      )
+    ) {
+      failures.push(
+        'M55_CURRENT_STATE.md must not label bootstrapStartHead as the last observed origin/main',
+      );
+    }
+    if (
+      new RegExp(`Current live remote main.*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`, 'i').test(
+        registryText,
+      )
+    ) {
+      failures.push(
+        'M55_WORKTREE_REGISTRY.md must not label bootstrapStartHead as current live remote main',
+      );
+    }
+    if (
+      new RegExp(
+        `Merged runtime \\(\`origin/main\` @ \`${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}\`\\)`,
+        'i',
+      ).test(currentStateText)
+    ) {
+      failures.push(
+        'M55_CURRENT_STATE.md must not present bootstrapStartHead as merged runtime origin/main',
+      );
+    }
+    if (observationTimestamp && !currentStateText.includes(observationTimestamp)) {
+      failures.push('M55_CURRENT_STATE.md must record the latest origin/main observation timestamp');
+    }
+    if (!registryText.includes(observedOriginMainSha)) {
+      failures.push('M55_WORKTREE_REGISTRY.md must record the latest observed origin/main SHA');
+    }
+  }
+
+  if (!registryText.includes(AUTHORITY_PACK_COMMIT_ONE_SHA)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record rewritten Commit 1 f9daeb1');
+  }
+  if (!registryText.includes(AUTHORITY_PACK_COMMIT_THREE_SHA)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record Commit 3 / PR tip fae0444');
+  }
+  if (!registryText.includes('PR #79')) {
+    failures.push('M55_WORKTREE_REGISTRY.md must record PR #79');
+  }
+  if (!registryText.includes(AUTHORITY_PACK_BOOTSTRAP_START_HEAD)) {
+    failures.push('M55_WORKTREE_REGISTRY.md must retain bootstrapStartHead as historical lane anchor');
+  }
+
+  const wt010Section = registryText.split('### WT-010')[1]?.split('### ')[0] ?? '';
+  if (new RegExp(AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA).test(wt010Section)) {
+    if (!/superseded|safety-ref|Push Protection rewrite|retained local history/i.test(wt010Section)) {
+      failures.push('WT-010 registry must not present superseded Commit 1 178dadab as active provenance');
+    }
+  }
+  if (new RegExp(AUTHORITY_PACK_SAFETY_REF_SHA).test(wt010Section)) {
+    if (!/safety-ref|retained local history|not active branch provenance/i.test(wt010Section)) {
+      failures.push('WT-010 registry must not treat safety-ref SHA as active branch provenance');
+    }
+  }
+  if (
+    new RegExp(
+      `${AUTHORITY_PACK_SAFETY_REF_SHA}.*active branch tip|active branch tip.*${AUTHORITY_PACK_SAFETY_REF_SHA}`,
+      'i',
+    ).test(wt010Section)
+  ) {
+    failures.push('WT-010 registry must not interpret safety-ref SHA as active branch tip');
+  }
+
+  if (
+    /Active lane.*個人無料→個人Premium/.test(roadmapText) &&
+    !roadmapText.includes('SUPERSEDED (2026-07-26)')
+  ) {
+    failures.push('M55_ROADMAP.md must mark superseded Self-funnel authority block explicitly');
+  }
+  if (!roadmapText.includes('authority-data correction')) {
+    failures.push('M55_ROADMAP.md must identify Authority Pack authority-data correction as current lane');
+  }
+
+  if (handoffJsonText) {
+    if (/\"nextGate\"/.test(handoffJsonText)) {
+      failures.push('generated handoff.json must not contain unsourced nextGate');
+    }
+    if (/BOOTSTRAP-DIFF-REVIEW/.test(handoffJsonText)) {
+      failures.push('generated handoff.json must not retain stale Bootstrap Diff Review gate text');
+    }
+  }
+  if (authorityHeaderText) {
+    if (/Next exact gate/i.test(authorityHeaderText)) {
+      failures.push('generated authority-header.md must not synthesize operational next gate copy');
+    }
+    if (/BOOTSTRAP-DIFF-REVIEW/.test(authorityHeaderText)) {
+      failures.push('generated authority-header.md must not retain stale Bootstrap Diff Review gate text');
+    }
+    if (observedOriginMainSha && authorityHeaderText.includes(AUTHORITY_PACK_BOOTSTRAP_START_HEAD)) {
+      if (
+        new RegExp(
+          `last observed origin/main SHA:\\s*${AUTHORITY_PACK_BOOTSTRAP_START_HEAD}`,
+          'i',
+        ).test(authorityHeaderText)
+      ) {
+        failures.push(
+          'generated authority-header.md must not present stale bootstrapStartHead as last observed origin/main',
+        );
+      }
+    }
+  }
+
+  for (const adapter of ['codex.md', 'cursor.md', 'generic-agent.md']) {
+    const rel = `.product-authority/generated/adapters/${adapter}`;
+    if (!exists(rel)) continue;
+    const text = read(rel);
+    if (/nextGate|Next exact gate|BOOTSTRAP-DIFF-REVIEW/i.test(text)) {
+      failures.push(`generated adapter ${adapter} must not synthesize operational gate text`);
+    }
+  }
+
+  return failures;
+}
+
+function checkAuthorityPackTransitionConsistency() {
+  for (const message of collectAuthorityPackTransitionFailures()) {
+    fail(message);
+  }
+}
+
 function checkDeferredNotEnforcedAsPass() {
   const src = read('scripts/verify-m55-commercial-ssot.mjs');
   if (!src.includes('PENDING_SELF_FUNNEL_IMPLEMENTATION')) {
@@ -1410,6 +2053,7 @@ function main() {
   checkWorktreeRegistry();
   checkPostMergeHandoff();
   checkCommercialQualityContract();
+  checkAuthorityPackTransitionConsistency();
   checkDeferredNotEnforcedAsPass();
 
   if (FAILURES.length > 0) {
@@ -1422,13 +2066,20 @@ function main() {
   console.log('PASS/FAIL: PASS');
   console.log('M55 Commercial Funnel SSOT verifier: all checks passed');
   console.log(`deferred enforcement: PENDING_SELF_FUNNEL_IMPLEMENTATION`);
-  checkLocalWorktreePreflight();
   process.exit(0);
 }
 
 export {
   WT001_ID,
+  WT006_ID,
   WT009_ID,
+  WT010_ID,
+  WT006_EXPECTED_PATH,
+  WT006_EXPECTED_BRANCH,
+  WT010_EXPECTED_PATH,
+  WT010_EXPECTED_BRANCH,
+  WT010_EXPECTED_BOOTSTRAP_START_HEAD,
+  WT010_EXPECTED_OPERATIONAL_STATE,
   WT009_EXPECTED_PATH,
   WT009_EXPECTED_BRANCH,
   WT009_EXPECTED_HEAD,
@@ -1462,7 +2113,11 @@ export {
   parseShaFromHeadField,
   validateWt001Metadata,
   validateWt009Metadata,
+  validateWt010Metadata,
   evaluateWt009RegistryPreflight,
+  evaluateWt010RegistryPreflight,
+  evaluateWt010ActiveLanePreflight,
+  createDefaultGitInspector,
   gitObjectExists,
   isAncestorOrEqual,
   isWorktreeClean,
@@ -1470,14 +2125,34 @@ export {
   gitPathExists,
   isSnapshotModeCandidate,
   isLegacyWt001State,
+  isParkedSelfFunnelWt001,
+  isRegistryEntryDoNotUse,
+  isRegistryEntryLiveRequired,
+  shouldRunFullTopologyPreflight,
+  collectRegistryUniquenessErrors,
+  collectSymmetricLiveRegistryErrors,
   evaluateWt001SnapshotPreflight,
   evaluateWorktreePreflightWarnings,
+  runStrictLocalWorktreePreflight,
   COMMERCIAL_QUALITY_CONTRACT_PRIVACY_PHRASES,
   COMMERCIAL_QUALITY_CONTRACT_HUMAN_LOCK_PHRASES,
   COMMERCIAL_QUALITY_CONTRACT_MACHINE_FLAG_PHRASES,
   COMMERCIAL_QUALITY_STATE_SEPARATION_PHRASES,
   collectCommercialQualityContractPhraseFailures,
   collectCurrentStateLifecycleFailures,
+  collectAuthorityPackTransitionFailures,
+  checkAuthorityPackTransitionConsistency,
+  parseAuthorityHistoryTransitionJsonl,
+  historyHasBootstrapReconciliation,
+  readObservedOriginMainSha,
+  readObservationTimestamp,
+  AUTHORITY_PACK_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_COMMIT_TWO_SHA,
+  AUTHORITY_PACK_COMMIT_THREE_SHA,
+  AUTHORITY_PACK_SUPERSEDED_COMMIT_ONE_SHA,
+  AUTHORITY_PACK_SAFETY_REF_SHA,
+  AUTHORITY_PACK_BOOTSTRAP_START_HEAD,
+  AUTHORITY_HISTORY_KIND_BY_SEQUENCE,
   validateCommercialQualityContractText,
   validateCurrentStateLifecycleText,
 };
@@ -1486,5 +2161,9 @@ const invokedDirectly =
   process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (invokedDirectly) {
-  main();
+  if (process.argv.includes('--local-worktree-preflight')) {
+    runStrictLocalWorktreePreflight();
+  } else {
+    main();
+  }
 }

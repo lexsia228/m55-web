@@ -1,0 +1,343 @@
+{
+  "schemaVersion": "1.0.0",
+  "product": {
+    "id": {
+      "value": "m55",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "name": {
+      "value": "M55",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "repository": {
+    "github": {
+      "value": "lexsia228/m55-web",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "defaultBranch": {
+      "value": "main",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "production": {
+    "canonicalOrigin": {
+      "value": "https://m-55.jp",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "canonicalHost": {
+      "value": "m-55.jp",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "nonAuthoritativeHost": {
+      "value": "m55.jp",
+      "classification": "NON_AUTHORITATIVE",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "nonAuthoritativeReason": {
+      "value": "Not current M55 Production authority",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "diagnosticsUrl": {
+      "value": "https://m-55.jp/api/diagnostics/build",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "deployment": {
+    "vercelTeam": {
+      "value": "M55-Official",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "vercelProject": {
+      "value": "m55-webv2",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "vercelProductionBranch": {
+      "value": "main",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "runtimeAuthority": {
+    "mergedRuntimePolicy": {
+      "value": "origin/main",
+      "classification": "NORMATIVE_TARGET",
+      "source": {
+        "kind": "REPOSITORY_CONTRACT",
+        "reference": "docs/ssot/M55_CURRENT_STATE.md"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "branchLocalNotMergedRuntime": {
+      "value": true,
+      "classification": "NORMATIVE_TARGET",
+      "source": {
+        "kind": "REPOSITORY_CONTRACT",
+        "reference": "docs/ssot/M55_CURRENT_STATE.md"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "lanes": {
+    "primaryActiveLanePolicy": {
+      "value": "Exactly one primary ACTIVE implementation lane at a time",
+      "classification": "NORMATIVE_TARGET",
+      "source": {
+        "kind": "REPOSITORY_CONTRACT",
+        "reference": "AGENTS.md"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "protectedWorktreePolicy": {
+      "value": "Parked Self funnel and frozen Build Week worktrees must not be mutated during Authority Pack lane",
+      "classification": "HUMAN_FROZEN",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  },
+  "providers": {
+    "supabase": {
+      "production": {
+        "environment": {
+          "value": "production",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "projectRef",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "environment": {
+          "value": "preview",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "projectRef",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    },
+    "clerk": {
+      "production": {
+        "environment": {
+          "value": "production",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "instanceId",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "environment": {
+          "value": "preview",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "instanceId",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    },
+    "stripe": {
+      "production": {
+        "environment": {
+          "value": "production",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "accountId",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      },
+      "preview": {
+        "environment": {
+          "value": "preview",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "identityFields": {
+          "value": "accountId",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        },
+        "observedIdentityPolicy": {
+          "value": "PENDING_EVIDENCE",
+          "classification": "NORMATIVE_TARGET",
+          "source": { "kind": "REPOSITORY_CONTRACT", "reference": "authority-pack-v1" },
+          "updatedAt": "2026-07-25T07:00:00+00:00",
+          "evidenceRefs": []
+        }
+      }
+    }
+  },
+  "policies": {
+    "freshnessPolicy": {
+      "value": "Observations must be refreshed independently; durable authority does not store mutable current SHA or dirty state",
+      "classification": "NORMATIVE_TARGET",
+      "source": {
+        "kind": "REPOSITORY_CONTRACT",
+        "reference": "authority-pack-v1"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    },
+    "secretValuesProhibited": {
+      "value": true,
+      "classification": "PROHIBITED",
+      "source": {
+        "kind": "HUMAN_DECISION",
+        "reference": "M55_SHARED_CRITICAL_AUTHORITY_PACK_IMPLEMENTATION_CONTRACT_FINAL_GREEN"
+      },
+      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "evidenceRefs": []
+    }
+  }
+}

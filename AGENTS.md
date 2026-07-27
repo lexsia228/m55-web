@@ -2,19 +2,33 @@
 
 All AI agents, Cursor sessions, and developers working on M55 commercial funnel work **must read this file first**.
 
+## Product Authority Pack (mandatory before analysis or mutation)
+
+Before any M55 analysis or source mutation:
+
+1. Run `npm run verify:product-authority:bootstrap` when on the Authority Pack bootstrap branch (`feat/m55-product-authority-pack-v1`) with provisional sequence-0 history only.
+2. Run `npm run verify:product-authority` for steady-state reconciliation (requires history sequences 0–2 after bootstrap reconciliation).
+3. Read `.product-authority/generated/authority-header.md`.
+4. **STOP** on hash drift, authority conflict, protected-worktree violation, or pending Production evidence promoted without verification.
+
+Memory and conversation history are **not** authority. The Product Authority Pack durable sources and generated header supersede recalled facts.
+
+Bootstrap mode applies **only** on the Authority Pack implementation branch during provisional sequence-0 initialization. Steady-state verification must fail on unreconciled bootstrap tips.
+
 ## Read order
 
 1. `AGENTS.md` (this file)
-2. `docs/ssot/README.md`
-3. `docs/ssot/M55_CURRENT_STATE.md`
-4. `docs/ssot/M55_WORKTREE_REGISTRY.md`
-5. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
-6. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
-7. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
-8. `docs/ssot/M55_DECISION_LOG.md`
-9. `docs/ssot/M55_ROADMAP.md`
+2. `.product-authority/generated/authority-header.md`
+3. `docs/ssot/README.md`
+4. `docs/ssot/M55_CURRENT_STATE.md`
+5. `docs/ssot/M55_WORKTREE_REGISTRY.md`
+6. `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md`
+7. `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **mandatory before any user-visible implementation or review**
+8. Active lane contract (`M55_SELF_FUNNEL_CONTRACT.md` or `M55_PAIR_FUNNEL_CONTRACT.md`)
+9. `docs/ssot/M55_DECISION_LOG.md`
+10. `docs/ssot/M55_ROADMAP.md`
 
-Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts`
+Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract.ts` — subordinate to Product Authority Pack for host/origin/worktree/production observation facts.
 
 ## Mandatory rules
 
@@ -28,7 +42,7 @@ Machine-verifiable product facts: `lib/m55/contracts/m55CommercialFunnelContract
 - **DO_NOT_USE worktrees** — never edit; never reset / clean / stash dirty trees without explicit human instruction.
 - **Registry drift** — unexplained drift between live `git worktree list` and `M55_WORKTREE_REGISTRY.md` → **STOP and report**. **Documented post-merge transition** in registry + verified merge SHA on `origin/main` → update registry snapshot (`lastVerifiedAt`, branch, HEAD) and continue.
 - **End-of-task registry check** — after lane work, decide whether to update `M55_WORKTREE_REGISTRY.md` and `M55_CURRENT_STATE.md`.
-- **Branch vs folder mismatch** — when branch name and folder name disagree, trust Git state + registry over folder naming.
+- **Branch vs folder mismatch** — when branch name and folder name disagree, trust Git state + registry over folder naming. **Documented post-merge transition** + verified merge SHA → update snapshot and continue.
 - **Read authority before source changes** — especially price, copy, and funnel flow.
 - **Update `M55_CURRENT_STATE.md`** after completing a lane milestone.
 - **Stop and report** if SSOT and code contradict each other without a documented resolution.
@@ -50,6 +64,9 @@ Subordinate copies must reference primary authority and must not silently overri
 ## Verification
 
 ```bash
+npm run verify:product-authority:bootstrap
+npm run verify:product-authority
+npm run test:product-authority
 npm run verify:m55-ssot
 ```
 

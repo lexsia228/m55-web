@@ -6,6 +6,9 @@ Status: **Decisions authority (Tier E)**
 
 | Decision | Reason |
 |---|---|
+| Product Authority Pack as M55 pilot | Human-approved P0 override; durable authority separated from conversation memory |
+| Canonical Production host is m-55.jp | Human-frozen Production authority |
+| m55.jp is non-authoritative | Not current M55 Production authority — process incident, not Production code defect |
 | 個人無料は認識・信頼を作る | 解決策先行は M55 の理解精度を証明できない |
 | 結果前 theme selection を廃止する（target） | ユーザーが結果を誘導したと感じる禁止ファネル |
 | 無料は「何が起きやすいか」 | 有料との境界を明確化 |
@@ -26,11 +29,15 @@ Status: **Decisions authority (Tier E)**
 | 古い compatibility worktree で実装継続 | main より古く stale |
 | 架空口コミ・利用数・精度 | 禁止 claim |
 | 会話ログをそのまま authority にする | 再現性・検証不能 |
+| m55.jp を canonical Production として扱う | Human-frozen authority は m-55.jp |
+| 記憶・会話履歴を Production/worktree 真実として採用 | Product Authority Pack で機械検証可能な durable authority を導入 |
 
 ## Authority collisions noted
 
 | Collision | Resolution |
 |---|---|
+| m55.jp vs m-55.jp host confusion (2026-07) | **Process incident** — not a Production code defect; canonical = m-55.jp; m55.jp = NON_AUTHORITATIVE |
+| Conversation memory vs repository/worktree facts | Product Authority Pack observations supersede recalled facts |
 | `WEB_MASTER_SSOT__PRICING_AND_PRODUCTS_v1.md` vs Self Premium HOME prices | Machine contract wins for Light ¥1,000 / Full ¥1,480 |
 | `M55_2027_PRODUCT_TRUTH_REV1.md` vs this SSOT series | This series wins for commercial funnel handoff |
 | Runtime「保存版」vs SSOT「プレミアムレポート」 | Target public names in SSOT; runtime rename in Self funnel lane |
