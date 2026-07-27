@@ -17,6 +17,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **PR #76 merge commit (historical):** `38447ab1b39562606938936ce0da3d5a76d82c1b` — **not** current live remote main
 - **PR #77 post-merge transition feature HEAD:** `6ad4e14ba7bbce65a3bac04a38bcdcbdbf461d7e` — squash source for PR #77; **not** current live remote main
 - **Current live remote main (2026-07-27):** `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — PR #79 Authority Pack merge
+- **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -62,7 +63,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` |
 | branch | `feat/m55-self-free-to-premium-funnel-v1` |
-| HEAD | rebased implementation tip — see `git rev-parse HEAD` at verification time |
+| HEAD | `05afc40ef6eda1d414a030a8acb929ea39127860` |
 | baseline | `main` @ `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — PR #79 Authority Pack merge |
 | current origin/main | `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` |
 | upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` (pending push after rebase) |
@@ -264,14 +265,14 @@ Historical post-merge transition snapshots remain recorded for audit. WT-001 is 
 | upstream | `origin/feat/m55-product-authority-pack-v1` @ `fae04444618e2ae36e6fd813ddfddeee975b66c4` (2026-07-26) |
 | cleanliness | worktree may be clean between allowlisted commits — `ALLOWLIST_ONLY_DURING_IMPLEMENTATION` remains lane policy |
 | locked / prunable | none |
-| lifecycle | **COMPLETED** |
-| operational state | **MERGED** |
-| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged |
-| related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) **MERGED** @ `355462b…` |
+| lifecycle | **ACTIVE** |
+| operational state | **ALLOWLIST_ONLY_DURING_IMPLEMENTATION** |
+| purpose | **Product Authority Pack** — sequences 0–2 reconciled; PR #79 merged to main |
+| related lane / PR | [PR #79](https://github.com/lexsia228/m55-web/pull/79) **MERGED** @ `355462b…` · merge commit on `main` |
 | allowed operations | read-only inspection · observation refresh via steady-state verifier |
 | prohibited operations | new Authority Pack mutation without explicit lane reopen |
 | removal eligibility | deferred — retain worktree for reference |
-| notes | Authority Pack lane complete. Merge SHA `355462b84d4a1a28ba6d8a37a3e6a40346a572d2`. Safety ref `844c5bbb73795b2f162e29516be79fb401c3b55e` retained. Steady-state verifier active on `main`. |
+| notes | `bootstrapStartHead` records lane origin @ origin/main (`e6afe672…`) — **not** current HEAD. Rewritten Commit 1: `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704`. Reconciliation Commit 2: `2761706505576a2baeacbdd40acd130a1f70e81b`. CI-portability Commit 3 / PR tip (2026-07-26): `fae04444618e2ae36e6fd813ddfddeee975b66c4`. Preflight validates ancestry from `bootstrapStartHead`, not equality. Superseded pre-rewrite Commit 1 `178dadab4697f4797b8f00fd473d08a135b3ec4e` and safety-ref tip `844c5bbb73795b2f162e29516be79fb401c3b55e` are retained local history only — **not active branch provenance**. PR #79 merge SHA `355462b84d4a1a28ba6d8a37a3e6a40346a572d2`. Steady-state verifier active on `main`. |
 
 ---
 
