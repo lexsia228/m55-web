@@ -8,6 +8,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
 import { STATIC_FREE_TO_PAID_BRIDGE } from './corePublicCopy';
 import styles from './CoreExperience.module.css';
 
@@ -122,7 +123,7 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       data-testid="m55-premium-sticky-cta"
       data-m55-print-hide
       role="region"
-      aria-label="プレミアムレポート"
+      aria-label={T.premiumProduct}
     >
       <p className={styles.premiumStickyLead}>{STATIC_FREE_TO_PAID_BRIDGE.overline}</p>
       <Link

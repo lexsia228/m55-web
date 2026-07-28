@@ -1,6 +1,7 @@
 import { PublicShell } from '../_components/PublicShell';
 import { PLAN_COMPARISON } from '../../lib/m55/commercialUx/planComparison';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import { PRODUCT_PRICING_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/productPricingCopy';
 import Link from 'next/link';
 import styles from './pricing.module.css';
 
@@ -12,17 +13,22 @@ export default function PricingPage() {
   return (
     <PublicShell>
       <main className={`${styles.root} m55-exp-reading`} data-m55-experience-surface="PRODUCT_DECISION">
-        <h1 className={styles.title}>料金とプラン</h1>
+        <h1 className={styles.title}>{C.titleJa}</h1>
 
         <p className={styles.lead}>
-          M55の{T.premiumProduct}は、{plan.light.publicName}と{plan.full.publicName}から選べます。
-          詳しい違いと購入前の確認は、プレミアムレポートの案内ページで確認できます。
+          {C.leadPrefixJa}
+          {T.premiumProduct}
+          {C.leadMidJa}
+          {plan.light.publicName}
+          {C.leadJoinJa}
+          {plan.full.publicName}
+          {C.leadSuffixJa}
         </p>
 
         <p className={styles.note}>{plan.oneTimeNoteJa}</p>
         <p className={styles.note}>{plan.sameFourChaptersNoteJa}</p>
 
-        <section className={styles.planGrid} aria-label="プラン比較">
+        <section className={styles.planGrid} aria-label={C.planCompareAriaJa}>
           <article className={styles.planCard} data-testid="m55-pricing-plan-light">
             <h2 className={styles.planName}>{plan.light.publicName}</h2>
             <p className={styles.planPrice}>{plan.light.priceLabelJa}</p>
@@ -52,20 +58,21 @@ export default function PricingPage() {
         </section>
 
         <section className={styles.upgradeSection}>
-          <h2 className={styles.sectionTitle}>アップグレード</h2>
+          <h2 className={styles.sectionTitle}>{C.upgradeHeadingJa}</h2>
           <p className={styles.lead}>{plan.upgradeNoteJa}</p>
         </section>
 
         <p className={styles.linkRow}>
-          <Link href="/dtr/lp">{T.premiumProduct}のプランを見る</Link>
+          <Link href="/dtr/lp">
+            {T.premiumProduct}
+            {C.viewPlansSuffixJa}
+          </Link>
         </p>
         <p className={styles.linkRow}>
-          <Link href="/support">サポートを確認する</Link>
+          <Link href="/support">{C.supportLinkJa}</Link>
         </p>
 
-        <p className={styles.disclaimer}>
-          本ページは料金とサポート導線の案内です。医療・法律・投資等の助言ではありません。
-        </p>
+        <p className={styles.disclaimer}>{C.disclaimerJa}</p>
       </main>
     </PublicShell>
   );

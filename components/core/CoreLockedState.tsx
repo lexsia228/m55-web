@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import { FREE_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/freeFunnelCopy';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -13,15 +14,9 @@ export default function CoreLockedState({ onStartIntake }: Props) {
     <div className={styles.coreLockedRoot}>
       <div className={styles.coreProfileGateShell}>
         <div className={styles.coreProfileGate} data-testid="m55-core-locked">
-          <h1 className={styles.coreProfileGateTitle}>
-            まずは、無料結果から始められます。
-          </h1>
-          <p className={styles.coreProfileGateSupport}>
-            ニックネームと生年月日のあと、5つの問いを選ぶと、無料結果を開けます。
-          </p>
-          <p className={styles.coreProfileGateSupport}>
-            ログインは、あとから結果を開くときに使えます。
-          </p>
+          <h1 className={styles.coreProfileGateTitle}>{C.lockedTitleJa}</h1>
+          <p className={styles.coreProfileGateSupport}>{C.lockedSupport1Ja}</p>
+          <p className={styles.coreProfileGateSupport}>{C.lockedSupport2Ja}</p>
           <div className={styles.coreProfileGateActions}>
             <button
               type="button"
@@ -36,7 +31,7 @@ export default function CoreLockedState({ onStartIntake }: Props) {
               className={styles.coreProfileGateSecondaryLink}
               data-testid="m55-core-locked-home-link"
             >
-              ホームへ戻る
+              {C.homeLinkJa}
             </Link>
           </div>
         </div>

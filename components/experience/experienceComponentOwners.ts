@@ -16,4 +16,8 @@ export const EXPERIENCE_COMPONENT_OWNERS = {
   TrustSummary: 'components/experience/ExperiencePrimitives + CheckoutTrustRow',
   StickyAction: 'components/core/CorePremiumStickyCta',
   PrintFrame: 'components/experience/ExperiencePrimitives + publicPrint.css',
+  RouteRegistry: 'lib/m55/commercialUx/experience/experienceRouteRegistry.ts',
+  Constitution: 'lib/m55/commercialUx/experience/experienceConstitution.ts',
+  CopyDomains: 'lib/m55/commercialUx/experience/copyAuthorityDomains.ts',
+  Verifier: 'scripts/verify-m55-experience-control-plane.mjs',
 } as const;

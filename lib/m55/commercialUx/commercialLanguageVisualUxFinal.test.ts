@@ -114,7 +114,8 @@ describe('commercial language visual UX final — mobile header', () => {
     assert.ok(MOBILE_MENU_PUBLIC.some((i) => i.label === T.premiumProduct));
     assert.ok(MOBILE_MENU_PUBLIC.some((i) => i.label === T.aboutM55));
     assert.ok(MOBILE_MENU_PUBLIC.some((i) => i.label === T.tenQualities));
-    assert.match(header, /モバイルナビゲーション[\s\S]*ログイン/);
+    assert.match(header, /mobileNavAriaJa|モバイルナビゲーション/);
+    assert.match(header, /Nav\.loginJa|ログイン/);
   });
 });
 
@@ -148,7 +149,11 @@ describe('commercial language visual UX final — plan decision surface', () => 
     assert.match(PLAN_COMPARISON.upgradeNoteJa, /1,600円/);
     assert.match(PLAN_COMPARISON.upgradeNoteJa, /1,480円/);
     assert.equal(PLAN_COMPARISON.light.audienceJa, 'まず一つのテーマを深く見たい方へ');
-    assert.match(read('components/dtr/DtrPaidPurchasePrep.tsx'), /自分に合うプランを選ぶ/);
+    assert.match(read('components/dtr/DtrPaidPurchasePrep.tsx'), /PREMIUM_FUNNEL_PAGE_CONTENT|planTitleJa/);
+    assert.match(
+      read('lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy.ts'),
+      /自分に合うプランを選ぶ/,
+    );
   });
 });
 

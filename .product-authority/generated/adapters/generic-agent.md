@@ -25,12 +25,26 @@ Memory and conversation history are not authority.
 Human-approved durable authority supersedes generated adapter guidance.
 Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
 
+## M55 Experience Control Plane v2 (enforcement)
+
+- Active Growth lane work must obey ECP v2 (`m55-ecp-v2`).
+- Constitution: `lib/m55/commercialUx/experience/experienceConstitution.ts`
+- Route registry: `lib/m55/commercialUx/experience/experienceRouteRegistry.ts`
+- Copy domains: `lib/m55/commercialUx/experience/copyAuthorityDomains.ts`
+- Do not create a second shell/header/CTA/trait/plan/print authority.
+- Required local verification:
+  - `npm run verify:m55-experience-control-plane`
+  - `npm run verify:m55-ssot`
+  - `npm run verify:product-authority`
+- Product Truth prices/plans remain machine-contract owned; UI must use `PLAN_COMPARISON`.
+- No LLM-as-a-Judge is a required merge gate. Human commercial/visual approval remains mandatory.
+
 <!-- PRODUCT_AUTHORITY_METADATA_START -->
 authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
 observationsSha256: 8b37ff59842b8675e466683edf37a376109b26abfd945b3a7934b487e59152c5
 historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
-generatedBundleSha256: 6ddce4c470c398e9d6e98178d8eea8add10bac95c2ae97ed0774e68dc3d57034
-artifactSha256: 7352a23d088a63cded2f9e70ea1d0d0308b803a428298a8f4f7bfd77ae3d6810
+generatedBundleSha256: d3c8b9c1f809913af96c6c2d21e01916ae36335ce3a2f480363630464c60adb9
+artifactSha256: 916c065795df4fe1319b15c6021671213b5807f3f5d34ea738875012c1b1e276
 generatorVersion: 1.0.0
 generatedAt: 2026-07-27T09:56:00+00:00
 <!-- PRODUCT_AUTHORITY_METADATA_END -->

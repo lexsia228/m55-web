@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import { FREE_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/freeFunnelCopy';
 import styles from './DtrPaidDecisionUx.module.css';
 
 /**
@@ -18,22 +19,20 @@ export default function DtrNeedFreeResultGate() {
     >
       <p className={styles.overline}>{T.premiumProduct}</p>
       <h2 id="m55-dtr-need-free-title" className={styles.title}>
-        先に無料結果を開いてください
+        {C.needFreeTitleJa}
       </h2>
-      <p className={styles.lead}>
-        プレミアムレポートは、無料結果のあとで追加の6問へ進みます。まだ無料結果がない場合は、こちらから始めてください。
-      </p>
+      <p className={styles.lead}>{C.needFreeLeadJa}</p>
       <ul className={styles.metaList}>
-        <li>ニックネームと生年月日を1回だけ入力</li>
-        <li>いまの状態についての5つの問い</li>
-        <li>無料結果のあと、プレミアムへ進めます</li>
+        <li>{C.needFreeMeta1Ja}</li>
+        <li>{C.needFreeMeta2Ja}</li>
+        <li>{C.needFreeMeta3Ja}</li>
       </ul>
       <div className={styles.actions}>
         <Link href="/core" className={styles.primaryBtn} data-testid="m55-dtr-need-free-start">
           {T.freeStart}
         </Link>
         <Link href="/home" className={styles.secondaryBtn}>
-          ホームへ戻る
+          {C.homeLinkJa}
         </Link>
       </div>
     </section>

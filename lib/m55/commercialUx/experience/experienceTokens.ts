@@ -91,3 +91,42 @@ export const EXPERIENCE_IMAGE_ASPECT = {
   shareMark: '1 / 1',
   poster: 'auto',
 } as const;
+
+export const EXPERIENCE_Z_INDEX = {
+  header: 40,
+  sticky: 30,
+  floatControl: 25,
+  modal: 50,
+} as const;
+
+export const EXPERIENCE_TRANSITION = {
+  none: '0ms',
+  quick: '120ms',
+  standard: '200ms',
+} as const;
+
+/** CSS custom properties that count as approved token references. */
+export const EXPERIENCE_CSS_VAR_ALLOWLIST = [
+  '--m55-navy',
+  '--m55-navy-soft',
+  '--m55-purple',
+  '--m55-purple-soft',
+  '--m55-ivory',
+  '--m55-white',
+  '--m55-text',
+  '--m55-text-strong',
+  '--m55-text-meta',
+  '--m55-border',
+  '--m55-border-strong',
+  '--m55-font-serif',
+  '--m55-font-sans',
+  '--m55-radius-card',
+  '--m55-radius-control',
+  '--m55-radius-pill',
+  '--m55-space-sm',
+  '--m55-space-md',
+  '--m55-space-lg',
+  '--m55-read-width',
+  '--m55-card-shadow',
+  '--m55-sticky-height',
+] as const;

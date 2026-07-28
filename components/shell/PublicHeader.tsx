@@ -9,6 +9,7 @@ import {
   type PublicHeaderState,
 } from '../../lib/m55/commercialUx/publicHeaderState';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import { PUBLIC_NAV_COPY as Nav } from '../../lib/m55/commercialUx/experience/pageContent/publicNavCopy';
 import styles from './ShellLayout.module.css';
 
 type NavItem = { href: string; label: string };
@@ -178,12 +179,12 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
   }, [menuOpen]);
 
   return (
-    <header className={styles.header} aria-label="ナビゲーション" data-m55-print-hide>
+    <header className={styles.header} aria-label={Nav.navAriaJa} data-m55-print-hide>
       <div className={styles.headerStart}>
         <Link
           href="/home"
           className={styles.brandLockup}
-          aria-label="ホーム"
+          aria-label={Nav.homeAriaJa}
           aria-current={pathname === '/home' ? 'page' : undefined}
         >
           <img
@@ -203,7 +204,7 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
           </span>
         </Link>
 
-        <nav className={styles.topNav} aria-label="メインナビゲーション">
+        <nav className={styles.topNav} aria-label={Nav.mainNavAriaJa}>
           {desktopPrimaryNav.map((item) => {
             const active = isHeaderNavActive(pathname, item.href);
             return (
@@ -264,14 +265,14 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
         >
           <SignedOut>
             <SignInButton mode="redirect">
-              <button type="button" className={styles.authButton} aria-label="ログイン">
-                ログイン
+              <button type="button" className={styles.authButton} aria-label={Nav.loginJa}>
+                {Nav.loginJa}
               </button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <HeaderDropdown
-              triggerLabel="アカウント"
+              triggerLabel={Nav.accountJa}
               items={ACCOUNT_DROPDOWN_NAV}
               pathname={pathname}
               menuId={accountMenuId}
@@ -286,7 +287,7 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
           type="button"
           ref={triggerRef}
           className={styles.menuTrigger}
-          aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+          aria-label={menuOpen ? Nav.menuCloseJa : Nav.menuOpenJa}
           aria-expanded={menuOpen}
           aria-controls="m55-public-mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}
@@ -300,7 +301,7 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
         id="m55-public-mobile-menu"
         className={`${styles.mobileMenuPanel}${menuOpen ? ` ${styles.mobileMenuPanelOpen}` : ''}`}
       >
-        <nav aria-label="モバイルナビゲーション" className={styles.mobileMenuNav}>
+        <nav aria-label={Nav.mobileNavAriaJa} className={styles.mobileMenuNav}>
           {mobileMenuPublic.map((item, index) => {
             const active = isHeaderNavActive(pathname, item.href);
             return (
@@ -336,13 +337,13 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
             <SignedOut>
               <SignInButton mode="redirect">
                 <button type="button" className={styles.mobileMenuAuthButton} onClick={closeMenu}>
-                  ログイン
+                  {Nav.loginJa}
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
               <div className={styles.mobileMenuAccountRow}>
-                <span className={styles.mobileMenuAccountLabel}>アカウント</span>
+                <span className={styles.mobileMenuAccountLabel}>{Nav.accountJa}</span>
                 <span className={styles.userButtonWrap}>
                   <UserButton afterSignOutUrl="/" />
                 </span>

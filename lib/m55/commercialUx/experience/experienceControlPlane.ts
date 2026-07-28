@@ -31,7 +31,13 @@ import {
   EXPERIENCE_READING_WIDTH,
   EXPERIENCE_SPACE,
   EXPERIENCE_TYPE,
+  EXPERIENCE_Z_INDEX,
+  EXPERIENCE_TRANSITION,
 } from './experienceTokens';
+import { M55_ECP_CONSTITUTION } from './experienceConstitution';
+import { M55_EXPERIENCE_ROUTE_REGISTRY } from './experienceRouteRegistry';
+import { M55_COPY_AUTHORITY_DOMAINS } from './copyAuthorityDomains';
+import { M55_ECP_OWNERSHIP } from './ownershipBoundaries';
 
 export const M55_EXPERIENCE_CONTROL_PLANE_VERSION = 'm55-ecp-v2' as const;
 
@@ -43,6 +49,7 @@ export function resolveExperience(input: ExperienceResolveInput) {
     archetype,
     contract,
     readingWidth: EXPERIENCE_READING_WIDTH[contract.readingWidth],
+    stickyPolicy: M55_ECP_CONSTITUTION.stickyPolicyFor(archetype),
   };
 }
 
@@ -56,8 +63,14 @@ export const M55_EXPERIENCE_CONTROL_PLANE = {
   radius: EXPERIENCE_RADIUS,
   cardProminence: EXPERIENCE_CARD_PROMINENCE,
   buttons: EXPERIENCE_BUTTON,
+  zIndex: EXPERIENCE_Z_INDEX,
+  transition: EXPERIENCE_TRANSITION,
   ctaLabels: M55_CTA_LABELS,
   ctaForbidden: M55_CTA_FORBIDDEN_PHRASES,
+  constitution: M55_ECP_CONSTITUTION,
+  routeRegistry: M55_EXPERIENCE_ROUTE_REGISTRY,
+  copyDomains: M55_COPY_AUTHORITY_DOMAINS,
+  ownership: M55_ECP_OWNERSHIP,
   editorial: {
     pageBeats: EXPERIENCE_PAGE_BEATS,
     resultBeats: EXPERIENCE_RESULT_BEATS,

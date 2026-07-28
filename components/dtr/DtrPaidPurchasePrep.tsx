@@ -21,6 +21,7 @@ import {
 } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
 import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
+import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -69,7 +70,7 @@ export default function DtrPaidPurchasePrep() {
     return (
       <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
         <ExperienceArchetypeSync paidPhase="other" />
-        <p className={styles.lead}>読み込み中…</p>
+        <p className={styles.lead}>{C.loadingJa}</p>
       </section>
     );
   }
@@ -107,22 +108,22 @@ export default function DtrPaidPurchasePrep() {
         data-m55-paid-phase="checkout"
         data-m55-paid-checkout
         data-m55-experience-surface="PURCHASE_CONFIRMATION"
-        aria-label="支払い前の確認"
+        aria-label={C.checkoutAriaJa}
       >
         <ExperienceArchetypeSync paidPhase="checkout" />
-        <p className={styles.overline}>プレミアムレポート</p>
-        <h3 className={styles.title}>支払い画面へ進む前に</h3>
+        <p className={styles.overline}>{C.planOverlineJa}</p>
+        <h3 className={styles.title}>{C.checkoutTitleJa}</h3>
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
-            <span>選択したプラン</span>
+            <span>{C.selectedPlanLabelJa}</span>
             <strong>{tier.publicName}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>価格</span>
+            <span>{C.priceLabelJa}</span>
             <strong>{tier.priceLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>お支払い</span>
+            <span>{C.paymentLabelJa}</span>
             <strong>{plan.oneTimeLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
@@ -130,14 +131,14 @@ export default function DtrPaidPurchasePrep() {
             <strong>{buildIncludedProductSummaryJa(tier)}</strong>
           </div>
         </div>
-        <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
+        <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
         <div className={styles.actions}>
           <button
             type="button"
             className={styles.secondaryBtn}
             onClick={() => setGate('plans')}
           >
-            プラン選択に戻る
+            {C.backToPlansJa}
           </button>
           <PurchaseButton productId={productId} className="m55-lp-cta-btn">
             <span>{plan.checkoutProceedCtaJa}</span>
@@ -156,11 +157,11 @@ export default function DtrPaidPurchasePrep() {
       data-m55-paid-phase="plans"
       data-testid="m55-dtr-plan-selection"
       data-m55-experience-surface="PRODUCT_DECISION"
-      aria-label="プレミアムレポートのプラン選択"
+      aria-label={C.planSelectAriaJa}
     >
       <ExperienceArchetypeSync paidPhase="plans" />
-      <p className={styles.overline}>プレミアムレポート</p>
-      <h3 className={styles.title}>自分に合うプランを選ぶ</h3>
+      <p className={styles.overline}>{C.planOverlineJa}</p>
+      <h3 className={styles.title}>{C.planTitleJa}</h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
       <div className={styles.planStack}>
         <article

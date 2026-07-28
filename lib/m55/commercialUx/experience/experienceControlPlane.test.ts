@@ -14,6 +14,7 @@ import {
   resolveExperienceCtaLabel,
   resolveExperienceCtaState,
 } from './index';
+// route registry is exposed via control plane facade
 import {
   TRAIT_IDENTITY_CATALOG,
   assertTraitIdentityCatalogComplete,
@@ -33,6 +34,21 @@ describe('M55 Experience Control Plane v2', () => {
       assert.ok(contract.header);
       assert.ok(contract.sectionRhythm);
       assert.ok(['commercial', 'workflow', 'recipient'].includes(contract.primaryCtaTone));
+      M55_EXPERIENCE_CONTROL_PLANE.constitution.assertArchetypeContractComplete(id);
+    }
+  });
+
+  it('registers complete user-visible route coverage', () => {
+    assert.ok(M55_EXPERIENCE_CONTROL_PLANE.routeRegistry.length >= 40);
+    const ids = new Set(M55_EXPERIENCE_CONTROL_PLANE.routeRegistry.map((e) => e.id));
+    for (const id of [
+      'public.home',
+      'free.core.result',
+      'shared.entry',
+      'premium.lp.checkout',
+      'purchased.reader',
+    ]) {
+      assert.ok(ids.has(id), id);
     }
   });
 

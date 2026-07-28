@@ -174,6 +174,20 @@ Pack anchors:
 Memory and conversation history are not authority.
 Human-approved durable authority supersedes generated adapter guidance.
 Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
+
+## M55 Experience Control Plane v2 (enforcement)
+
+- Active Growth lane work must obey ECP v2 (\`m55-ecp-v2\`).
+- Constitution: \`lib/m55/commercialUx/experience/experienceConstitution.ts\`
+- Route registry: \`lib/m55/commercialUx/experience/experienceRouteRegistry.ts\`
+- Copy domains: \`lib/m55/commercialUx/experience/copyAuthorityDomains.ts\`
+- Do not create a second shell/header/CTA/trait/plan/print authority.
+- Required local verification:
+  - \`npm run verify:m55-experience-control-plane\`
+  - \`npm run verify:m55-ssot\`
+  - \`npm run verify:product-authority\`
+- Product Truth prices/plans remain machine-contract owned; UI must use \`PLAN_COMPARISON\`.
+- No LLM-as-a-Judge is a required merge gate. Human commercial/visual approval remains mandatory.
 `;
 }
 

@@ -32,3 +32,6 @@ jobs:
 
       - name: M55 commercial SSOT verifier
         run: npm run verify:m55-ssot
+
+      - name: M55 Experience Control Plane v2 enforcement
+        run: npm run verify:m55-experience-control-plane

@@ -118,6 +118,8 @@ test.describe('Experience Control Plane visual matrix', () => {
       { path: '/pricing', name: 'pricing', archetype: 'PRODUCT_DECISION' },
       { path: '/how-m55-works', name: 'how-m55-works', archetype: 'PUBLIC_EDITORIAL' },
       { path: '/r/invalid-token-for-ecp', name: 'shared-entry', archetype: 'SHARED_SOCIAL_ENTRY' },
+      { path: '/ten-views', name: 'ten-views', archetype: 'PUBLIC_EDITORIAL' },
+      { path: '/core', name: 'core-empty', archetype: 'GUIDED_FREE_FLOW' },
     ];
     for (const route of routes) {
       await page.goto(route.path);
@@ -132,5 +134,63 @@ test.describe('Experience Control Plane visual matrix', () => {
       fs.mkdirSync(pdfDir, { recursive: true });
       fs.writeFileSync(path.join(pdfDir, `${route.name}.pdf`), pdf);
     }
+  });
+
+  test('responsive structural matrix — no overflow / header mode', async ({ page }) => {
+    const widths = [320, 390, 768, 959, 960, 1024, 1280, 1440];
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/pricing');
+      await assertEcpShell(page, 'PRODUCT_DECISION');
+      await assertNoHorizontalOverflow(page);
+      if (width < 960) {
+        await expect(page.locator('[data-testid="m55-desktop-auth"]')).toBeHidden();
+        await expect(page.getByRole('button', { name: /メニュー/ })).toBeVisible();
+      } else {
+        await expect(page.locator('[data-testid="m55-desktop-auth"]')).toBeVisible();
+      }
+      await expect(page.getByRole('heading', { name: '料金とプラン' })).toBeVisible();
+    }
+  });
+
+  test('editorial free result archetype after seed', async ({ page, context }) => {
+    await context.addInitScript(() => {
+      const id = 'playwright-ecp-result';
+      localStorage.setItem('m55_device_id_v1', id);
+      localStorage.setItem(
+        `m55_profile_v1_${id}`,
+        JSON.stringify({ nickname: '試験', birthDate: '1990-05-15' }),
+      );
+      const answers = {
+        'free.start_style': 'A',
+        'free.decision_tempo': 'A',
+        'free.relation_distance': 'A',
+        'free.recovery_mode': 'A',
+        'free.expression_mode': 'A',
+      };
+      sessionStorage.setItem(
+        'm55_self_funnel_v1',
+        JSON.stringify({
+          schemaVersion: 1,
+          basicInfo: { nickname: '試験', birthDate: '1990-05-15' },
+          freeAnswers: answers,
+          paidAnswers: null,
+          freeResultFingerprint: 'ecp-seed',
+          generationCount: 1,
+        }),
+      );
+      sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(answers));
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/core');
+    // Result or questionnaire both under ECP; prefer result when seed admits it.
+    const shell = page.locator('[data-m55-public-shell][data-m55-ecp="v2"]');
+    await expect(shell).toBeVisible({ timeout: 20_000 });
+    const archetype = await shell.getAttribute('data-m55-archetype');
+    expect(['EDITORIAL_FREE_RESULT', 'GUIDED_FREE_FLOW']).toContain(archetype);
+    await assertNoHorizontalOverflow(page);
+    await page.locator('[data-testid="m55-core-essence"], [data-testid="m55-free-questionnaire"]').first().screenshot({
+      path: path.join(OUT, 'core-result-or-guided-390.png'),
+    });
   });
 });

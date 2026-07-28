@@ -42,7 +42,7 @@ describe('Self funnel commercial polish REV1', () => {
     const locked = read('components/core/CoreLockedState.tsx');
     assert.match(locked, /T\.freeStart|無料で見てみる/);
     assert.match(locked, /m55-core-start-intake/);
-    assert.match(locked, /ホームへ戻る/);
+    assert.match(locked, /homeLinkJa|ホームへ戻る/);
     assert.match(locked, /onStartIntake/);
     const panel = read('components/core/CoreEssencePanel.tsx');
     assert.match(panel, /onStartIntake=\{\(\) => setIntakeOpen\(true\)\}/);

@@ -79,4 +79,12 @@ export const M55_CTA_FORBIDDEN_PHRASES = [
   '4章を作る',
   '4章で深く読む',
   'プラン選択へ進む',
+  'レポートを生成する',
+  'result ID',
+  'fulfillment',
+  'snapshot',
+  '無料結果を始める',
 ] as const;
+
+/** Allowed in factual product-detail contexts only (not CTA labels). */
+export const M55_CTA_PRODUCT_SPEC_ALLOWED = ['4章構成'] as const;
