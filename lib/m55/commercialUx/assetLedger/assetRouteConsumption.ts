@@ -23,7 +23,7 @@ export const M55_ASSET_ROUTE_CONSUMPTION: Readonly<Record<string, readonly strin
   'free.core.result': ['free.result', 'trait.identity', 'fence.free', 'fence.premium', 'bridge.locked_preview', 'premium.experience.home_editorial_sample_v1'],
   'free.core.save': ['free.save', 'terminology.core'],
   'free.core.rerun': ['free.funnel', 'terminology.core'],
-  'free.core.share': ['share.card', 'trait.identity'],
+  'free.core.share': ['share.card', 'trait.identity', 'premium.experience.home_editorial_sample_v1'],
   'shared.entry': ['share.card', 'trait.identity', 'fence.free'],
   'shared.entry.invalid': ['share.card', 'terminology.core'],
   'shared.og': ['share.card', 'trait.identity'],

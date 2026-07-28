@@ -23,7 +23,7 @@ import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeStat
 import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import PremiumExperienceSync from '../shell/PremiumExperienceSync';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
-import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
+import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -112,7 +112,7 @@ export default function DtrPaidPurchasePrep() {
     return (
       <>
         <PremiumExperienceSync shellPremium />
-        <PremiumExperienceSurface stateId="premium.lp.checkout" testId="m55-premium-experience-checkout">
+        <PremiumDecisionSurface stateId="premium.lp.checkout" testId="m55-premium-experience-checkout">
         <section
           className={`${styles.shell} m55-exp-reading`}
           data-m55-paid-phase="checkout"
@@ -158,7 +158,7 @@ export default function DtrPaidPurchasePrep() {
           <CheckoutTrustRow />
         </div>
         </section>
-        </PremiumExperienceSurface>
+        </PremiumDecisionSurface>
       </>
     );
   }
@@ -166,7 +166,7 @@ export default function DtrPaidPurchasePrep() {
   return (
     <>
       <PremiumExperienceSync shellPremium />
-      <PremiumExperienceSurface stateId="premium.lp.plans" testId="m55-premium-experience-plans">
+      <PremiumDecisionSurface stateId="premium.lp.plans" testId="m55-premium-experience-plans">
       <section
         className={`${styles.shell} m55-exp-reading`}
         data-m55-paid-phase="plans"
@@ -243,7 +243,7 @@ export default function DtrPaidPurchasePrep() {
       </div>
       <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
       </section>
-      </PremiumExperienceSurface>
+      </PremiumDecisionSurface>
     </>
   );
 }

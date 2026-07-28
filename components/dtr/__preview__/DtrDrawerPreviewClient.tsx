@@ -12,7 +12,7 @@ export default function DtrDrawerPreviewClient({
 }: DtrFullReaderProps & { showLightUpgrade?: boolean }) {
   return (
     <>
-      <DtrFullReader {...props} />
+      <DtrFullReader {...props} devPreviewFixtureReady />
       {showLightUpgrade ? (
         <div className={upgradeStyles.subtle} data-testid="m55-light-upgrade-preview">
           <button type="button" className={upgradeStyles.subtleBtn} disabled>

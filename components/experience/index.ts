@@ -16,3 +16,4 @@ export {
 
 export { EXPERIENCE_COMPONENT_OWNERS } from './experienceComponentOwners';
 export { default as PremiumExperienceSurface } from './PremiumExperienceSurface';
+export { default as PremiumDecisionSurface } from './PremiumDecisionSurface';

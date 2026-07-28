@@ -68,7 +68,9 @@ import {
   type PaidDtrReportPartId,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
+import SavedSnapshotNotice from './SavedSnapshotNotice';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
+import { PREMIUM_DEV_FIXTURE_READY_PROP } from '../../lib/m55/commercialUx/premiumExperience/premiumExperienceMountContract';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import {
   hasValidConsultWalletDenominator,
@@ -83,7 +85,6 @@ import type { DisplayedEnvelopeReadMode } from '../../lib/m55/compositeStem/reso
 import { hybridAiChapter3PrimaryEligible } from '../../lib/m55/dtrHybridAiChapterSemanticGuard';
 import {
   SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
-  SAVED_SNAPSHOT_NOTICE_PRIMARY,
   shouldShowLegacySnapshotNotice,
 } from '../../lib/m55/dtrSavedReportCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
@@ -409,6 +410,8 @@ type Props = {
   consultDevPreviewRoomData?: ConsultRoomPreviewRoomData;
   /** Server read-only wallet snapshot for saved-report info (display only). */
   consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
+  /** Dev-only: skip Clerk isLoaded gate for fixture rendering (/dev/dtr-drawer-preview). */
+  [PREMIUM_DEV_FIXTURE_READY_PROP]?: boolean;
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -844,7 +847,6 @@ function ReportFooterMetaCard({
           <span className={styles.reportMetaItemValue}>{stemTitle}</span>
         </p>
       </div>
-      <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_PRIMARY}</p>
       {shouldShowLegacySnapshotNotice(displayedEnvelopeReadMode) ? (
         <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_LEGACY_MODE}</p>
       ) : null}
@@ -3028,6 +3030,7 @@ export default function DtrFullReader({
   purchasedSnapshot,
   consultDevPreviewRoomData,
   consultWalletSnapshot = null,
+  devPreviewFixtureReady = false,
 }: Props) {
   const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
   // Footer snapshot starts from SSR prop; updated after successful send via callback.
@@ -3074,7 +3077,8 @@ export default function DtrFullReader({
   }, [isLoaded, ownerId]);
 
   const view = useMemo(() => {
-    if (!isLoaded) return { kind: 'loading' as const };
+    const readerReady = isLoaded || devPreviewFixtureReady === true;
+    if (!readerReady) return { kind: 'loading' as const };
 
     const env = purchasedSnapshot.envelope;
     const idx = env.auditMeta.stemLaneIndex;
@@ -3088,7 +3092,7 @@ export default function DtrFullReader({
       birthDate: purchasedSnapshot.profile.birthDate,
       nickname: purchasedSnapshot.profile.nickname,
     };
-  }, [isLoaded, purchasedSnapshot]);
+  }, [devPreviewFixtureReady, isLoaded, purchasedSnapshot]);
 
   useEffect(() => {
     if (view.kind !== 'ready') return;
@@ -3506,6 +3510,7 @@ export default function DtrFullReader({
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}
         />
+        <SavedSnapshotNotice />
         <ReportFooterMetaCard
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}

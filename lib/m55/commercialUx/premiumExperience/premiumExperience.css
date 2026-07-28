@@ -40,6 +40,49 @@
   box-sizing: border-box;
 }
 
+/* Shared Premium decision field — navy stage with ivory reading sheet */
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-field {
+  margin: -18px -16px;
+  padding: clamp(1.35rem, 3.5vw, 2.25rem) clamp(1rem, 3vw, 1.35rem);
+  background: var(--m55-premium-ink);
+  box-sizing: border-box;
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet {
+  max-width: min(100%, var(--m55-premium-read-width));
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--m55-premium-ivory);
+  color: var(--m55-premium-ink);
+  border: 1px solid rgba(241, 232, 214, 0.28);
+  border-top: 3px solid var(--m55-premium-copper-rule);
+  box-shadow: 0 18px 48px rgba(11, 26, 43, 0.22);
+  box-sizing: border-box;
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .overline,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .questionLabel {
+  color: var(--m55-premium-accent-teal);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .title,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .questionTitle {
+  color: var(--m55-premium-ink);
+  font-family: var(--m55-premium-serif);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .lead,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .hint {
+  color: var(--m55-premium-ink-soft);
+}
+
+@media (min-width: 768px) {
+  [data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-field {
+    margin: -18px -16px;
+    padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3.5vw, 2rem);
+  }
+}
+
 [data-m55-experience-tier='PREMIUM'] .m55-premium-editorial-sheet {
   background: var(--m55-premium-ink-soft);
   border: 1px solid var(--m55-premium-sheet-border);

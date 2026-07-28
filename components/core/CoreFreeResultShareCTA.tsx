@@ -13,6 +13,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import CoreFreeShareableResultCard from './CoreFreeShareableResultCard';
+import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -114,6 +115,7 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
   }
 
   return (
+    <PremiumDecisionSurface stateId="premium.share.card" testId="m55-premium-experience-share">
     <section
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeShareSection}`}
       aria-labelledby={titleId}
@@ -183,5 +185,6 @@ export default function CoreFreeResultShareCTA({ card }: Props) {
         />
       ) : null}
     </section>
+    </PremiumDecisionSurface>
   );
 }

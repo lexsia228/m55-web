@@ -1,5 +1,5 @@
 /**
- * Premium Experience SSOT — visual evidence (fixture/dev paths only).
+ * Premium Experience SSOT — visual + print evidence (fixture/dev paths only).
  */
 import { test, expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
 import fs from 'node:fs';
@@ -21,6 +21,15 @@ const COMPLETE_FREE = {
   'free.distance_style': 'free.distance_style.close_careful',
   'free.change_style': 'free.change_style.observe_first',
   'free.primary_theme': 'free.primary_theme.report_preview',
+};
+
+const COMPLETE_PAID = {
+  'paid.work_focus': 'paid.work_focus.priority',
+  'paid.decision_friction': 'paid.decision_friction.too_many',
+  'paid.relation_focus': 'paid.relation_focus.words',
+  'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
+  'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
+  'paid.restart_condition': 'paid.restart_condition.overview_first',
 };
 
 async function cleanContext(browser: Browser): Promise<BrowserContext> {
@@ -64,7 +73,7 @@ async function seedResult(context: BrowserContext) {
   );
 }
 
-async function assertPremiumTier(page: Page) {
+async function assertPremiumAuthority(page: Page) {
   const tier = page.locator('[data-m55-experience-tier="PREMIUM"]');
   await expect(tier.first()).toBeVisible();
   await expect(tier.first()).toHaveAttribute(
@@ -73,15 +82,40 @@ async function assertPremiumTier(page: Page) {
   );
 }
 
+async function assertDecisionSheet(page: Page) {
+  await expect(page.locator('[data-m55-premium-decision-sheet="true"]').first()).toBeVisible();
+}
+
 async function shot(page: Page, name: string, vp: string) {
   fs.mkdirSync(OUT, { recursive: true });
   await page.screenshot({ path: path.join(OUT, `${name}-${vp}.png`), fullPage: true });
 }
 
-test.describe.configure({ mode: 'serial', timeout: 180_000 });
+async function openDrawerPanel(page: Page, panel: 'chapter-1' | 'consult') {
+  await expect(page).toHaveURL(/dtr-drawer-preview/);
+  const trigger = page.locator(`[aria-controls="drawer-hub-body-${panel}"]`);
+  await trigger.scrollIntoViewIfNeeded();
+  await trigger.click({ timeout: 20_000 });
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 20_000 });
+  await expect(page.locator(`#drawer-hub-body-${panel}`)).toBeVisible({ timeout: 20_000 });
+}
+
+async function completeQuestionnaire(page: Page) {
+  for (let i = 0; i < 6; i += 1) {
+    await page.locator('[role="radio"]').first().click();
+    const btn =
+      i === 5
+        ? page.getByRole('button', { name: '回答を確認する' })
+        : page.getByRole('button', { name: '次へ' });
+    await btn.click();
+  }
+  await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 20_000 });
+}
+
+test.describe.configure({ mode: 'serial', timeout: 120_000 });
 
 for (const vp of VIEWPORTS) {
-  test(`premium funnel visual authority @${vp.name}`, async ({ browser }) => {
+  test(`premium funnel states @${vp.name}`, async ({ browser }) => {
     const context = await cleanContext(browser);
     await seedResult(context);
     const page = await context.newPage();
@@ -89,16 +123,17 @@ for (const vp of VIEWPORTS) {
 
     await page.goto('/core');
     await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
-      timeout: 20_000,
+      timeout: 30_000,
     });
     await page.locator('#core-paid').scrollIntoViewIfNeeded();
-    await assertPremiumTier(page);
+    await assertPremiumAuthority(page);
     await shot(page, 'premium-bridge', vp.name);
 
     await page.getByTestId('m55-paid-bridge-primary').click();
     await page.waitForURL('**/dtr/lp**');
-    await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 20_000 });
-    await assertPremiumTier(page);
+    await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 30_000 });
+    await assertPremiumAuthority(page);
+    await assertDecisionSheet(page);
     await shot(page, 'premium-q1', vp.name);
 
     for (let i = 0; i < 4; i += 1) {
@@ -114,84 +149,171 @@ for (const vp of VIEWPORTS) {
     await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible();
     await shot(page, 'answer-review', vp.name);
 
+    await page.getByRole('button', { name: '回答を見直す' }).click();
+    await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible();
+    await expect(page.locator('[data-m55-paid-answer-edit="true"]')).toBeVisible();
+    await assertDecisionSheet(page);
+    await shot(page, 'answer-edit', vp.name);
+
+    for (let i = 0; i < 6; i += 1) {
+      await page.locator('[role="radio"]').first().click();
+      const btn =
+        i === 5
+          ? page.getByRole('button', { name: '回答を確認する' })
+          : page.getByRole('button', { name: '次へ' });
+      await btn.click();
+    }
     await page.getByRole('button', { name: 'プランを選ぶ' }).click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible();
+    await assertDecisionSheet(page);
     await shot(page, 'plan-selection', vp.name);
 
     await page.getByTestId('m55-dtr-plan-light').getByRole('button').click();
     await expect(page.locator('[data-m55-paid-phase="checkout"]')).toBeVisible();
+    await assertDecisionSheet(page);
     await shot(page, 'payment-prep', vp.name);
 
     await context.close();
   });
 }
 
-test('purchased fixture surfaces @1280', async ({ page }) => {
-  test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto('/dev/dtr-drawer-preview?withConsult=1');
-  await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 30_000 });
-  await assertPremiumTier(page);
-  await shot(page, 'purchased-report', '1280');
-});
+for (const vp of VIEWPORTS) {
+  test(`premium share card @${vp.name}`, async ({ browser }) => {
+    const context = await cleanContext(browser);
+    await seedResult(context);
+    const page = await context.newPage();
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.goto('/core');
+    await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
+      timeout: 30_000,
+    });
+    await page.getByTestId('m55-free-result-share').scrollIntoViewIfNeeded();
+    await expect(page.getByTestId('m55-premium-experience-share')).toBeVisible({ timeout: 20_000 });
+    await assertPremiumAuthority(page);
+    await assertDecisionSheet(page);
+    await shot(page, 'premium-share-card', vp.name);
+    await context.close();
+  });
+}
+
+for (const vp of VIEWPORTS) {
+  test(`purchased report fixture @${vp.name}`, async ({ page }) => {
+    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible();
+    await assertPremiumAuthority(page);
+    await shot(page, 'purchased-report-landing', vp.name);
+    await openDrawerPanel(page, 'chapter-1');
+    await expect(page.locator('#dtr-core-analysis')).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(800);
+    await shot(page, 'purchased-report-body', vp.name);
+  });
+}
+
+for (const vp of VIEWPORTS) {
+  test(`additional reading input @${vp.name}`, async ({ page }) => {
+    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=available#consultation-room', {
+      waitUntil: 'domcontentloaded',
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('#consult-step-1')).toBeVisible({ timeout: 30_000 });
+    await assertPremiumAuthority(page);
+    await shot(page, 'additional-reading-input', vp.name);
+  });
+}
+
+for (const vp of VIEWPORTS) {
+  test(`additional reading result @${vp.name}`, async ({ page }) => {
+    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
+      waitUntil: 'domcontentloaded',
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[class*="replyCard"]').first()).toBeVisible({ timeout: 30_000 });
+    await assertPremiumAuthority(page);
+    await shot(page, 'additional-reading-result', vp.name);
+  });
+}
+
+for (const vp of VIEWPORTS) {
+  test(`saved premium reopen @${vp.name}`, async ({ page }) => {
+    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible({ timeout: 60_000 });
+    await assertPremiumAuthority(page);
+    await shot(page, 'saved-premium-reopen', vp.name);
+  });
+}
 
 test('print PDF premium states @1280', async ({ browser }) => {
   const context = await cleanContext(browser);
-  await context.addInitScript(
-    ({ free, paid }) => {
-      const id = 'playwright-premium-pdf';
-      localStorage.setItem('m55_device_id_v1', id);
-      localStorage.setItem(
-        `m55_profile_v1_${id}`,
-        JSON.stringify({ nickname: '試験', birthDate: '1983-02-28' }),
-      );
-      const keys = Object.keys(free).sort();
-      const payload = keys.map((k) => `${k}=${(free as Record<string, string>)[k]}`).join('&');
-      sessionStorage.setItem(
-        'm55_self_funnel_v1',
-        JSON.stringify({
-          schemaVersion: 1,
-          committedFreeAnswers: free,
-          freeResultFingerprint: `ffp1|試験|1983-02-28|${payload}`,
-          generationCount: 1,
-        }),
-      );
-      sessionStorage.setItem('m55_paid_answers_v1', JSON.stringify(paid));
-    },
-    {
-      free: COMPLETE_FREE,
-      paid: {
-        'paid.work_focus': 'paid.work_focus.priority',
-        'paid.decision_friction': 'paid.decision_friction.too_many',
-        'paid.relation_focus': 'paid.relation_focus.words',
-        'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
-        'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
-        'paid.restart_condition': 'paid.restart_condition.overview_first',
-      },
-    },
-  );
+  await seedResult(context);
   const page = await context.newPage();
   await page.setViewportSize({ width: 1280, height: 900 });
   const pdfDir = path.join(OUT, 'pdf');
   fs.mkdirSync(pdfDir, { recursive: true });
 
-  await page.goto('/dtr/lp');
-  await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 20_000 });
-  const planPdf = await page.pdf({ format: 'A4', printBackground: true });
-  fs.writeFileSync(path.join(pdfDir, 'plan-selection.pdf'), planPdf);
+  await page.goto('/core');
+  await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
+    timeout: 30_000,
+  });
+  await page.getByTestId('m55-paid-bridge-primary').click();
+  await page.waitForURL('**/dtr/lp**');
+  await completeQuestionnaire(page);
+  fs.writeFileSync(
+    path.join(pdfDir, 'answer-review.pdf'),
+    await page.pdf({ format: 'A4', printBackground: true }),
+  );
+
+  await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+  await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible();
+  fs.writeFileSync(
+    path.join(pdfDir, 'plan-selection.pdf'),
+    await page.pdf({ format: 'A4', printBackground: true }),
+  );
 
   await page.getByTestId('m55-dtr-plan-light').getByRole('button').click();
   await expect(page.locator('[data-m55-paid-phase="checkout"]')).toBeVisible();
-  const checkoutPdf = await page.pdf({ format: 'A4', printBackground: true });
-  fs.writeFileSync(path.join(pdfDir, 'payment-prep.pdf'), checkoutPdf);
+  fs.writeFileSync(
+    path.join(pdfDir, 'payment-prep.pdf'),
+    await page.pdf({ format: 'A4', printBackground: true }),
+  );
 
   if (process.env.VERCEL_ENV !== 'production') {
     const devContext = await browser.newContext();
     const devPage = await devContext.newPage();
+    await devPage.route(/accounts\.dev/, (route) => route.abort());
     await devPage.goto('/dev/dtr-drawer-preview', { timeout: 60_000, waitUntil: 'domcontentloaded' });
-    await expect(devPage.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
-    const reportPdf = await devPage.pdf({ format: 'A4', printBackground: true });
-    fs.writeFileSync(path.join(pdfDir, 'purchased-report.pdf'), reportPdf);
+    await expect(devPage.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
+    fs.writeFileSync(
+      path.join(pdfDir, 'purchased-report.pdf'),
+      await devPage.pdf({ format: 'A4', printBackground: true }),
+    );
+
+    await devPage.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
+      timeout: 60_000,
+      waitUntil: 'domcontentloaded',
+    });
+    await expect(devPage.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
+    await devPage.waitForTimeout(1000);
+    fs.writeFileSync(
+      path.join(pdfDir, 'additional-reading-result.pdf'),
+      await devPage.pdf({ format: 'A4', printBackground: true }),
+    );
     await devContext.close();
   }
 

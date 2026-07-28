@@ -18,7 +18,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
-import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
+import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
@@ -152,7 +152,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
 
   if (phase === 'complete') {
     return (
-      <PremiumExperienceSurface stateId="premium.lp.answer_review" testId="m55-premium-experience-review">
+      <PremiumDecisionSurface stateId="premium.lp.answer_review" testId="m55-premium-experience-review">
       <section
         className={styles.shell}
         data-m55-paid-phase="complete"
@@ -205,16 +205,20 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
           </button>
         </div>
       </section>
-      </PremiumExperienceSurface>
+      </PremiumDecisionSurface>
     );
   }
 
+  const isAnswerEdit = isCompletePaidAnswerSet(answers);
+  const questionStateId = isAnswerEdit ? 'premium.lp.answer_edit' : 'premium.lp.questions';
+
   return (
-    <PremiumExperienceSurface stateId="premium.lp.questions" testId="m55-premium-experience-questions">
+    <PremiumDecisionSurface stateId={questionStateId} testId="m55-premium-experience-questions">
     <section
       className={styles.shell}
       data-m55-paid-phase="question"
       data-testid="m55-paid-questionnaire-active"
+      data-m55-paid-answer-edit={isAnswerEdit ? 'true' : undefined}
       aria-labelledby={headingId}
     >
       {index === 0 ? <DtrPaidResultContextStrip /> : null}
@@ -286,6 +290,6 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
         </button>
       </div>
     </section>
-    </PremiumExperienceSurface>
+    </PremiumDecisionSurface>
   );
 }

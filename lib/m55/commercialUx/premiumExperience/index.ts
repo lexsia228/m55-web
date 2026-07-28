@@ -14,3 +14,10 @@ export {
   premiumStateById,
 } from './premiumExperienceStateRegistry';
 export type { PremiumExperienceStateDeclaration } from './premiumExperienceStateRegistry';
+export {
+  PREMIUM_EXPERIENCE_MOUNT_CONTRACT,
+  PREMIUM_DEV_FIXTURE_READY_PROP,
+  PREMIUM_DEV_FIXTURE_OWNER_FILES,
+  PREMIUM_DEV_FIXTURE_FORBIDDEN_OWNER_FILES,
+} from './premiumExperienceMountContract';
+export type { PremiumExperienceMountExpectation } from './premiumExperienceMountContract';
