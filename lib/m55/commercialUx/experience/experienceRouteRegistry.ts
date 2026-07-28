@@ -5,6 +5,7 @@
 
 import type { M55ExperienceArchetype, ExperiencePrintMode } from './experienceArchetypes';
 import type { M55CtaState } from './experienceCtaState';
+import { assetKeysForRoute } from '../assetLedger/assetRouteConsumption';
 
 export type ExperienceShellId = 'public' | 'core' | 'reader' | 'clerk';
 export type ExperienceHeaderMode = 'full_public' | 'contextual_public' | 'clerk' | 'none';
@@ -787,4 +788,18 @@ export function listRegistryPatterns(): string[] {
 
 export function registryEntryById(id: string): ExperienceRouteEntry | undefined {
   return M55_EXPERIENCE_ROUTE_REGISTRY.find((e) => e.id === id);
+}
+
+/** Asset keys consumed by a governed route — from asset-first SSOT consumption map. */
+export function resolveRouteAssetKeys(routeId: string): readonly string[] {
+  return assetKeysForRoute(routeId);
+}
+
+export function assertRouteAssetConsumptionComplete(): void {
+  for (const entry of M55_EXPERIENCE_ROUTE_REGISTRY) {
+    const keys = assetKeysForRoute(entry.id);
+    if (keys.length === 0) {
+      throw new Error(`route missing asset consumption: ${entry.id}`);
+    }
+  }
 }
