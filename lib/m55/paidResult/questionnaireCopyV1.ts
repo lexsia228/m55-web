@@ -1,5 +1,6 @@
 /**
  * paid-v1 questionnaire display copy (answer IDs frozen in answerIdMapsV1).
+ * Display labels may be refined; scoring semantics and IDs must not change.
  */
 
 import { PAID_QUESTION_IDS } from '../individualization/answerIdMapsV1';
@@ -25,18 +26,18 @@ export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.work_focus',
     shortLabelJa: '仕事の焦点',
-    questionJa: '仕事や進め方で、いまいちばん意識したいのはどれに近いですか。',
-    sceneContextJa: '日々の仕事や学びの場面を思い浮かべてください。',
+    questionJa: '今の仕事で、最初に整えたいのはどれですか？',
+    sceneContextJa: 'いまの仕事や学びの場面を思い浮かべてください。',
     choices: [
-      { answerId: 'paid.work_focus.priority', labelJa: '優先順位を先に決める' },
-      { answerId: 'paid.work_focus.pace', labelJa: 'ペースを整えてから進める' },
-      { answerId: 'paid.work_focus.boundary', labelJa: '引き受ける範囲を先に決める' },
+      { answerId: 'paid.work_focus.priority', labelJa: '優先順位を決める' },
+      { answerId: 'paid.work_focus.pace', labelJa: '無理のないペースをつくる' },
+      { answerId: 'paid.work_focus.boundary', labelJa: '引き受ける範囲を決める' },
     ],
   },
   {
     questionId: 'paid.decision_friction',
     shortLabelJa: '決めにくさ',
-    questionJa: '決めにくさが出やすいのは、どれに近いですか。',
+    questionJa: '決めにくさが出やすいのは、どれに近いですか？',
     sceneContextJa: '選択に時間がかかる場面を思い浮かべてください。',
     choices: [
       { answerId: 'paid.decision_friction.too_many', labelJa: '選択肢が多すぎる' },
@@ -47,7 +48,7 @@ export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.relation_focus',
     shortLabelJa: '関係の焦点',
-    questionJa: '人との関係で、いまいちばん意識したいのはどれに近いですか。',
+    questionJa: '人との関係で、いまいちばん整えたいのはどれですか？',
     sceneContextJa: '近い人や仕事の相手とのやりとりを思い浮かべてください。',
     choices: [
       { answerId: 'paid.relation_focus.words', labelJa: '言葉の選び方' },
@@ -58,7 +59,7 @@ export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.fatigue_signal',
     shortLabelJa: '疲れのサイン',
-    questionJa: '疲れが出やすいのは、どの場面に近いですか。',
+    questionJa: '疲れが出やすいのは、どの場面に近いですか？',
     sceneContextJa: '負荷がたまりやすい場面を思い浮かべてください。',
     choices: [
       { answerId: 'paid.fatigue_signal.after_push', labelJa: '押し切ったあと' },
@@ -69,7 +70,7 @@ export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.report_usage',
     shortLabelJa: '読み返し方',
-    questionJa: '保存版を読み返すとき、どの使い方に近いですか。',
+    questionJa: 'レポートを読み返すとき、どの使い方に近いですか？',
     sceneContextJa: 'あとから見返す場面を思い浮かべてください。',
     choices: [
       { answerId: 'paid.report_usage.reread_scene', labelJa: '場面ごとに読み返す' },
@@ -80,7 +81,7 @@ export const PAID_QUESTIONNAIRE_COPY_V1: readonly PaidQuestionCopy[] = [
   {
     questionId: 'paid.reading_style',
     shortLabelJa: '読み方の好み',
-    questionJa: '内容の入り方として、どれに近いですか。',
+    questionJa: '内容の入り方として、どれに近いですか？',
     sceneContextJa: '文章を読むときの好みを思い浮かべてください。',
     choices: [
       { answerId: 'paid.reading_style.headline', labelJa: '要点から入る' },

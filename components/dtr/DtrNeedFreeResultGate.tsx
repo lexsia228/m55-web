@@ -20,7 +20,7 @@ export default function DtrNeedFreeResultGate() {
         先に無料結果を開いてください
       </h2>
       <p className={styles.lead}>
-        プレミアムレポートは、無料結果のあとで追加の6問に答えてから作れます。まだ無料結果がない場合は、こちらから始めてください。
+        プレミアムレポートは、無料結果のあとで追加の6問へ進みます。まだ無料結果がない場合は、こちらから始めてください。
       </p>
       <ul className={styles.metaList}>
         <li>ニックネームと生年月日を1回だけ入力</li>

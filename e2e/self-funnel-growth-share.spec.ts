@@ -280,6 +280,23 @@ test.describe('Self funnel growth share E2E', () => {
     await expect(page.getByTestId('m55-mobile-nav-contextual')).toBeVisible();
     await expect(page.getByRole('button', { name: 'メニュー' })).toBeVisible();
     await expect(page.locator('header nav[aria-label="メインナビゲーション"]')).toBeHidden();
+    await expect(page.getByTestId('m55-desktop-auth')).toBeHidden();
+    await page.getByRole('button', { name: 'メニュー' }).click();
+    await expect(page.locator('#m55-public-mobile-menu').getByRole('button', { name: 'ログイン' })).toBeVisible();
+    await context.close();
+  });
+
+  test('sticky CTA uses immediate-action label and result reasons are natural', async ({
+    browser,
+  }) => {
+    const context = await cleanContext(browser);
+    await seedResultReady(context);
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openResult(page);
+    await expect(page.getByTestId('m55-premium-sticky-link')).toHaveText('プレミアムの6問へ進む');
+    await expect(page.getByText('回答から見えた理由')).toBeVisible();
+    await expect(page.getByText('6問に答えて4章を作る')).toHaveCount(0);
     await context.close();
   });
 

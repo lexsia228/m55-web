@@ -258,7 +258,10 @@ export function PublicHeader({ state, pathname }: PublicHeaderProps) {
             {contextualPrimaryAction.label}
           </Link>
         ) : null}
-        <div className={`${styles.desktopAuth} m55-print-hide`}>
+        <div
+          className={`${styles.desktopAuth} m55-print-hide`}
+          data-testid="m55-desktop-auth"
+        >
           <SignedOut>
             <SignInButton mode="redirect">
               <button type="button" className={styles.authButton} aria-label="ログイン">

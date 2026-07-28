@@ -27,6 +27,7 @@ import HomePremiumValueBridge from './HomePremiumValueBridge';
 import HomeEditorialHeadline from './HomeEditorialHeadline';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
+import HomePrintSummary from './HomePrintSummary';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
@@ -435,6 +436,7 @@ export default function HomePanel() {
         }}
       />
 
+      <HomePrintSummary />
     </div>
   );
 }

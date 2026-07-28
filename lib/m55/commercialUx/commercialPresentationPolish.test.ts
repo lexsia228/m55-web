@@ -47,7 +47,7 @@ describe('commercial presentation polish — Premium intro single', () => {
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.overline, 'プレミアムレポート');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
-    assert.match(buildPremiumBridgeTitle('アナリスト'), /4章で深く読む/);
+    assert.match(buildPremiumBridgeTitle('アナリスト'), /さらに深く読み解く/);
 
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const lp = read('app/dtr/lp/page.tsx');
@@ -80,7 +80,7 @@ describe('commercial presentation polish — Japanese copy', () => {
     if (!built.ok) return;
     assert.match(
       built.value.headlineJa,
-      /全体を見渡してから動く傾向と、候補を比べてから決める傾向が、いまは重なって表れています。/,
+      /全体を見渡し、候補を比べてから動く傾向が、いま強く表れています/,
     );
     assert.match(built.value.premiumOpenLoopJa, /整え直しやすい順番/);
   });
@@ -124,7 +124,7 @@ describe('commercial presentation polish — plan cards', () => {
     assert.match(plan.upgradeNoteJa, /1,600円/);
     assert.match(plan.upgradeNoteJa, /1,480円/);
     assert.equal(plan.fullRecommendBadgeJa, 'おすすめ');
-    assert.deepEqual(plan.light.includedItemsJa, ['4章の個人レポート', '追加読み解き 1件']);
+    assert.deepEqual(plan.light.includedItemsJa, ['4章構成の個人レポート', '追加読み解き 1件']);
   });
 
   it('all commercial surfaces consume PLAN_COMPARISON', () => {
@@ -152,7 +152,7 @@ describe('commercial presentation polish — print contract', () => {
 
 describe('commercial presentation polish — CTA terminology', () => {
   it('uses state-specific premium bridge CTA label', () => {
-    assert.equal(T.premiumBridgeCta, '6問に答えて4章を作る');
+    assert.equal(T.premiumBridgeCta, 'プレミアムの6問へ進む');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
   });
 });

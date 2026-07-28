@@ -39,8 +39,8 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.overline, 'プレミアムレポート');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
-    assert.match(buildPremiumBridgeTitle('アナリスト'), /4章で深く読む/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料の詳細をもう少し読む');
+    assert.match(buildPremiumBridgeTitle('アナリスト'), /さらに深く読み解く/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料結果を続けて読む');
   });
 
   it('avoids fake urgency language in marketing surfaces', () => {

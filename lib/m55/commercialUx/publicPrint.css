@@ -191,32 +191,13 @@
     color: #1a1a1a !important;
   }
 
-  /*
-   * HOME print-summary (3–4 page brochure target):
-   * keep hero + free preview + plan comparison + final CTA;
-   * drop long marketing / mechanism / heavy visuals.
-   */
-  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] picture,
-  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] img,
-  [data-m55-pathname='/home'] [data-testid='m55-home-mechanism'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-pair-free'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-ten-asset-teaser'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-slice'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview-slice'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-premium-value-bridge'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-open-birth-intake'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-has-profile-hero'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-cta-loading'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-intake'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview-core'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview-cta'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'] a,
-  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'] button,
-  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta-plans'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-mechanism-link'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'] a,
-  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'] button,
-  [data-m55-pathname='/home'] .integratedActions,
+  /* Floating accessibility control — never print */
+  [data-testid='m55-scroll-to-top'],
+  button[aria-label='ページ上部へ戻る'] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
   .cl-internal-b3fm6y,
   #clerk-components,
   [class*='cl-modal'],
@@ -224,46 +205,41 @@
     display: none !important;
   }
 
+  /*
+   * HOME: dedicated two-page print summary.
+   * Hide the responsive screen tree; reveal HomePrintSummary only.
+   */
   [data-m55-pathname='/home'] [data-testid='m55-home-hero'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-hero'] *,
-  [data-m55-pathname='/home'] [data-testid='m55-home-product-map'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-free-preview'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-premium-preview'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-plan-comparison'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-final-cta'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-lower'] {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin: 0 0 0.55rem !important;
-    padding: 0.25rem 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    aspect-ratio: auto !important;
-  }
-
-  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'],
-  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] > div {
-    position: static !important;
-    display: block !important;
-    inset: auto !important;
-    background: none !important;
-  }
-
-  [data-m55-pathname='/home'] [data-testid='m55-home-poster-main-visual'] [aria-hidden='true'] {
+  [data-m55-pathname='/home'] [data-testid='m55-home-lower'],
+  [data-m55-pathname='/home'] footer,
+  [data-m55-pathname='/home'] [data-testid='m55-home-birth-intake-layer'],
+  [data-m55-pathname='/home'] [data-testid='m55-scroll-to-top'] {
     display: none !important;
   }
 
-  [data-m55-pathname='/home'] h1,
-  [data-m55-pathname='/home'] h2 {
-    font-size: 16pt !important;
-    line-height: 1.35 !important;
-    text-wrap: balance;
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    color: #1a1a1a !important;
   }
 
-  [data-m55-pathname='/home'] p,
-  [data-m55-pathname='/home'] li {
-    font-size: 10.5pt !important;
-    line-height: 1.45 !important;
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page='1'] {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page='2'] {
+    page-break-after: auto;
+    break-after: auto;
   }
 }

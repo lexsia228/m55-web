@@ -287,8 +287,9 @@
     display: none;
   }
 
+  /* Compact contract: brand + one contextual CTA + menu — login lives in menu only */
   .desktopAuth {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -354,14 +355,17 @@
   .mobilePremiumLink {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding: 6px 11px;
-    font-size: 13.5px;
+    max-width: min(42vw, 11.5rem);
+    min-height: 40px;
+    padding: 5px 10px;
+    font-size: 12.5px;
     color: rgba(255, 255, 255, 0.82);
     text-decoration: none;
     border-radius: 8px;
     box-sizing: border-box;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     transition: color 0.15s ease, background 0.15s ease;
   }
 

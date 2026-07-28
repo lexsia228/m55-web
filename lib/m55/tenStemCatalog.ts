@@ -66,7 +66,7 @@ export const TEN_STEM_DISPLAY: readonly TenStemDisplay[] = [
     stemChar: '庚',
     publicTitle: 'エグゼキューター',
     symbol: '鋼',
-    displayOneLine: '判断が固まったときに、迷いなく動き出しやすい人',
+    displayOneLine: '方針が固まったときに、迷いなく動き出しやすい人',
     keywordPool: ['実行', '明確さ', '線引き'],
     focusPool: ['規律', '優先', '完了'],
   },

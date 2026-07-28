@@ -71,7 +71,7 @@ describe('commercial UX closeout — all-ten trait semantic parity', () => {
       assert.equal(card.traitPhraseJa, trait.canonicalTagline);
       assert.equal(card.safeStatementJa, trait.shareStatement);
       assert.notEqual(card.traitPhraseJa, card.safeStatementJa);
-      assert.match(trait.premiumContinuityTemplate, /4章で深く読む/);
+      assert.match(trait.premiumContinuityTemplate, /さらに深く読み解く/);
     }
   });
 
@@ -115,7 +115,7 @@ describe('commercial UX closeout — print A4 contract', () => {
     assert.match(css, /data-m55-print-hide/);
     assert.match(css, /max-width:\s*none/);
     assert.match(css, /data-m55-pathname='\/home'/);
-    assert.match(css, /m55-home-mechanism/);
+    assert.match(css, /data-m55-home-print-summary/);
     assert.match(read('app/_components/PublicShell.tsx'), /data-m55-pathname/);
     assert.match(read('components/core/CoreFreeJourneyStepper.tsx'), /data-m55-print-hide/);
   });

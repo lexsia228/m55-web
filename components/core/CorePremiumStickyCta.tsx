@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelActionOnce,
@@ -15,9 +15,33 @@ type Props = {
   visible: boolean;
 };
 
+function setStickyHeightCss(px: number) {
+  const page = document.querySelector('[data-testid="m55-core-essence"]');
+  const value = `${Math.ceil(px)}px`;
+  if (page instanceof HTMLElement) {
+    page.style.setProperty('--m55-sticky-cta-height', value);
+  }
+  document.documentElement.style.setProperty('--m55-sticky-cta-height', value);
+  document.documentElement.style.setProperty(
+    '--m55-float-rail-offset',
+    `calc(${value} + 0.75rem + env(safe-area-inset-bottom, 0px))`,
+  );
+}
+
+function clearStickyHeightCss() {
+  const page = document.querySelector('[data-testid="m55-core-essence"]');
+  if (page instanceof HTMLElement) {
+    page.style.removeProperty('--m55-sticky-cta-height');
+    page.removeAttribute('data-m55-sticky-cta');
+  }
+  document.documentElement.style.removeProperty('--m55-sticky-cta-height');
+  document.documentElement.style.removeProperty('--m55-float-rail-offset');
+  document.documentElement.removeAttribute('data-m55-sticky-cta');
+}
+
 /**
  * Persistent Premium CTA after free result — hides when in-page bridge or footer is in view.
- * Routes to paid-question flow, not checkout.
+ * Height is measured (ResizeObserver); no single magic pixel reserve.
  */
 export default function CorePremiumStickyCta({ visible }: Props) {
   const href = `${TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref}#m55-paid-questionnaire`;
@@ -56,26 +80,36 @@ export default function CorePremiumStickyCta({ visible }: Props) {
         }
         setDocked(visibleSet.size === 0);
       },
-      { root: null, threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      { root: null, threshold: 0.08, rootMargin: '0px 0px -6% 0px' },
     );
 
     for (const el of targets) observer.observe(el);
     return () => observer.disconnect();
   }, [visible]);
 
-  useEffect(() => {
-    const page = document.querySelector('[data-testid="m55-core-essence"]');
-    if (!(page instanceof HTMLElement)) return;
-    if (visible && docked) {
-      page.setAttribute('data-m55-sticky-cta', '1');
-      document.documentElement.setAttribute('data-m55-sticky-cta', '1');
-    } else {
-      page.removeAttribute('data-m55-sticky-cta');
-      document.documentElement.removeAttribute('data-m55-sticky-cta');
+  useLayoutEffect(() => {
+    if (!visible || !docked) {
+      clearStickyHeightCss();
+      return;
     }
+    const page = document.querySelector('[data-testid="m55-core-essence"]');
+    if (page instanceof HTMLElement) {
+      page.setAttribute('data-m55-sticky-cta', '1');
+    }
+    document.documentElement.setAttribute('data-m55-sticky-cta', '1');
+
+    const bar = barRef.current;
+    if (!bar) return;
+
+    const measure = () => setStickyHeightCss(bar.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(bar);
+    window.addEventListener('resize', measure);
     return () => {
-      page.removeAttribute('data-m55-sticky-cta');
-      document.documentElement.removeAttribute('data-m55-sticky-cta');
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+      clearStickyHeightCss();
     };
   }, [visible, docked]);
 
@@ -88,7 +122,7 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       data-testid="m55-premium-sticky-cta"
       data-m55-print-hide
       role="region"
-      aria-label="プレミアム"
+      aria-label="プレミアムレポート"
     >
       <p className={styles.premiumStickyLead}>{STATIC_FREE_TO_PAID_BRIDGE.overline}</p>
       <Link

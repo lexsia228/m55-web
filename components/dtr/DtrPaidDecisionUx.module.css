@@ -96,6 +96,44 @@
   color: rgba(55, 48, 82, 0.68);
 }
 
+.contextStrip {
+  display: grid;
+  gap: 0.28rem;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(26, 42, 74, 0.14);
+  background: rgba(249, 247, 245, 0.96);
+}
+
+.contextTrait {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.68);
+}
+
+.contextTrait strong {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: rgba(26, 42, 74, 0.94);
+  letter-spacing: 0;
+}
+
+.contextSentence {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(28, 24, 48, 0.9);
+}
+
+.contextEffort {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: rgba(78, 68, 128, 0.88);
+}
+
 .progressRow {
   display: flex;
   align-items: baseline;

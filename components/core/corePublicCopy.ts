@@ -158,7 +158,7 @@ export const STATIC_CTA = {
  * Single personalized Premium bridge — CTA routes to paid questions on /dtr/lp.
  */
 export function buildPremiumBridgeTitle(traitName: string): string {
-  return `「${traitName}」の結果を、4章で深く読む`;
+  return `「${traitName}」の結果を、さらに深く読み解く`;
 }
 
 export const STATIC_FREE_TO_PAID_BRIDGE = {
@@ -166,10 +166,10 @@ export const STATIC_FREE_TO_PAID_BRIDGE = {
   supportingJa:
     '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。',
   effortJa: 'あと6問・約1〜2分',
-  lockedHeadingsHeadingJa: 'あなたの回答を4章の内容に反映します',
-  primaryCtaJa: '6問に答えて4章を作る',
+  lockedHeadingsHeadingJa: '6つの回答をもとに、結果の背景と整え方を詳しく読み解きます',
+  primaryCtaJa: 'プレミアムの6問へ進む',
   ctaSupportJa: '正解はありません。あとで回答を確認できます。',
-  secondaryCtaJa: '無料の詳細をもう少し読む',
+  secondaryCtaJa: '無料結果を続けて読む',
   safetyNote:
     '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
   /** @deprecated Plan cards live on plan selection only — kept for legacy test aliases. */

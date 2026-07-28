@@ -169,13 +169,13 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     premiumEyebrowJa: 'M55 プレミアムレポート',
     premiumHeadlineJa: '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
     premiumBodyJa:
-      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4章構成の個人レポートとして整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
     premiumCtaJa: 'プレミアムレポートを見る',
 
     /* §5 continued — LIGHT / FULL (nested in premium section) */
     planComparisonIntroJa:
-      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
+      'どちらも、同じ4章構成の個人レポートを読めます。\n違いは、購入後に追加で読み解けるテーマ数です。',
     planLightNameJa: 'ライト',
     planLightFitJa: 'まず全体像を知り、\nいちばん気になることを1つ深く見たい人へ。',
     planLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,

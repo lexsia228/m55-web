@@ -16,6 +16,7 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
@@ -148,9 +149,11 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       >
         <p className={styles.overline}>プレミアムレポートの質問</p>
         <h2 id={headingId} className={styles.title}>
-          6つの回答がそろいました
+          回答内容を確認しました
         </h2>
-        <p className={styles.lead}>回答済み 6件。内容を確認してから、プレミアムレポートのプランへ進めます。</p>
+        <p className={styles.lead}>
+          6つの回答をもとに、プレミアムレポートの内容をあなた向けに整えます。
+        </p>
         <ul className={styles.answerList}>
           {PAID_QUESTIONNAIRE_COPY_V1.map((q) => {
             const answerId = answers[q.questionId] ?? '';
@@ -187,7 +190,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
             回答を見直す
           </button>
           <button type="button" className={styles.commercialPrimaryBtn} onClick={goToPlans}>
-            プラン選択へ進む
+            プランを選ぶ
           </button>
         </div>
       </section>
@@ -201,6 +204,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       data-testid="m55-paid-questionnaire-active"
       aria-labelledby={headingId}
     >
+      {index === 0 ? <DtrPaidResultContextStrip /> : null}
       <div className={styles.progressRow}>
         <p className={styles.overline}>プレミアムレポートの質問</p>
         <span className={styles.progressLabel} aria-live="polite">

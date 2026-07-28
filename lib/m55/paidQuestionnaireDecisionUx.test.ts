@@ -71,9 +71,9 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
     assert.match(q, /disabled=\{!selected\}/);
     assert.match(q, /disabled=\{index === 0\}/);
-    assert.match(q, /6つの回答がそろいました/);
+    assert.match(q, /回答内容を確認しました/);
     assert.match(q, /回答を見直す/);
-    assert.match(q, /プラン選択へ進む/);
+    assert.match(q, /プランを選ぶ/);
     assert.match(q, /ctaSupportJa|正解はありません/);
     assert.doesNotMatch(q, /無料の6問/);
     assert.doesNotMatch(q, /paid-v1/);

@@ -135,7 +135,7 @@ export default function DtrPaidPurchasePrep() {
       aria-label="プレミアムレポートのプラン選択"
     >
       <p className={styles.overline}>プレミアムレポート</p>
-      <h3 className={styles.title}>プランを選ぶ</h3>
+      <h3 className={styles.title}>自分に合うプランを選ぶ</h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
       <div className={styles.planStack}>
         <article

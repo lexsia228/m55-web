@@ -122,7 +122,7 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
 
   it('Phase1 commercial conversion copy stays product-safe', () => {
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, '6問に答えて4章を作る');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムの6問へ進む');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
