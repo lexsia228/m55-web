@@ -10,7 +10,9 @@ export const metadata = {
 export default function TenViewsPage() {
   return (
     <PublicShell>
-      <M55TenViews />
+      <div data-m55-experience-surface="PUBLIC_EDITORIAL">
+        <M55TenViews />
+      </div>
     </PublicShell>
   );
 }

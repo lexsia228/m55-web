@@ -1,17 +1,26 @@
 import type { ReactNode } from 'react';
 import { PublicHeaderContainer } from '../../../components/shell/PublicHeaderContainer';
 import { PublicFooter } from '../../_components/PublicFooter';
+import '../../../lib/m55/commercialUx/experience/experienceControlPlane.css';
+import '../../../lib/m55/commercialUx/publicPrint.css';
 import styles from './layout.module.css';
 
 /**
- * Entry Report 閲覧 — ShellLayout 外でドキュメントスクロール。
- * PublicHeader（本質/レポート/マイページタブ）を追加し /core ファミリーの
- * シェルを維持。レポート → アクティブタブとして自動強調される。
+ * Purchased report reader — DIGITAL_PUBLICATION archetype (Experience Control Plane v2).
+ * Does not alter report generation; only shell/print chrome roles.
  */
 export default function DtrCoreLayout({ children }: { children: ReactNode }) {
   return (
-    <div className={styles.shell} data-m55-dtr-reader-shell="true">
-      <div className={styles.printHiddenHeader} data-m55-dtr-reader-public-header="true">
+    <div
+      className={styles.shell}
+      data-m55-dtr-reader-shell="true"
+      data-m55-public-shell
+      data-m55-pathname="/dtr/core"
+      data-m55-archetype="DIGITAL_PUBLICATION"
+      data-m55-print-mode="editorial_result"
+      data-m55-ecp="v2"
+    >
+      <div className={styles.printHiddenHeader} data-m55-dtr-reader-public-header="true" data-m55-print-hide>
         <PublicHeaderContainer />
       </div>
       {children}

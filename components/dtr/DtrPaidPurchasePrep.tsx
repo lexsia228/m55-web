@@ -20,6 +20,7 @@ import {
   readSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
 import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -53,26 +54,46 @@ export default function DtrPaidPurchasePrep() {
     );
   }, [gate]);
 
+  const paidPhase =
+    gate === 'need_free'
+      ? 'need_free'
+      : gate === 'questionnaire'
+        ? 'questionnaire'
+        : gate === 'plans'
+          ? 'plans'
+          : gate === 'checkout'
+            ? 'checkout'
+            : 'other';
+
   if (!hydrated) {
     return (
       <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
+        <ExperienceArchetypeSync paidPhase="other" />
         <p className={styles.lead}>読み込み中…</p>
       </section>
     );
   }
 
   if (gate === 'need_free') {
-    return <DtrNeedFreeResultGate />;
+    return (
+      <>
+        <ExperienceArchetypeSync paidPhase="need_free" />
+        <DtrNeedFreeResultGate />
+      </>
+    );
   }
 
   if (gate === 'questionnaire') {
     return (
-      <DtrPaidQuestionnaireLayer
-        onComplete={() => {
-          setSelectedPlan(null);
-          setGate('plans');
-        }}
-      />
+      <>
+        <ExperienceArchetypeSync paidPhase={paidPhase} />
+        <DtrPaidQuestionnaireLayer
+          onComplete={() => {
+            setSelectedPlan(null);
+            setGate('plans');
+          }}
+        />
+      </>
     );
   }
 
@@ -82,11 +103,13 @@ export default function DtrPaidPurchasePrep() {
 
     return (
       <section
-        className={styles.shell}
+        className={`${styles.shell} m55-exp-reading`}
         data-m55-paid-phase="checkout"
         data-m55-paid-checkout
+        data-m55-experience-surface="PURCHASE_CONFIRMATION"
         aria-label="支払い前の確認"
       >
+        <ExperienceArchetypeSync paidPhase="checkout" />
         <p className={styles.overline}>プレミアムレポート</p>
         <h3 className={styles.title}>支払い画面へ進む前に</h3>
         <div className={styles.confirmCard}>
@@ -129,11 +152,13 @@ export default function DtrPaidPurchasePrep() {
 
   return (
     <section
-      className={styles.shell}
+      className={`${styles.shell} m55-exp-reading`}
       data-m55-paid-phase="plans"
       data-testid="m55-dtr-plan-selection"
+      data-m55-experience-surface="PRODUCT_DECISION"
       aria-label="プレミアムレポートのプラン選択"
     >
+      <ExperienceArchetypeSync paidPhase="plans" />
       <p className={styles.overline}>プレミアムレポート</p>
       <h3 className={styles.title}>自分に合うプランを選ぶ</h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>

@@ -242,4 +242,19 @@
     page-break-after: auto;
     break-after: auto;
   }
+
+  /* Archetype print modes (Experience Control Plane v2) */
+  [data-m55-print-mode='single_summary'] [data-testid='m55-free-questionnaire'],
+  [data-m55-print-mode='single_summary'] [data-testid='m55-paid-questionnaire-active'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-m55-print-mode='privacy_safe'] [data-testid='m55-shareable-result-card'],
+  [data-m55-print-mode='editorial_result'] [data-testid='m55-free-result-lead'],
+  [data-m55-print-mode='product_fact'] [data-testid='m55-dtr-plan-selection'],
+  [data-m55-print-mode='product_fact'] [data-m55-paid-checkout] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

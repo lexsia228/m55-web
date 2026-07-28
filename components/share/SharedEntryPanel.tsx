@@ -55,7 +55,7 @@ export default function SharedEntryPanel({ card }: Props) {
 
   if (!card) {
     return (
-      <div className={styles.shell} data-testid="m55-shared-entry-fallback">
+      <div className={`${styles.shell} m55-exp-reading`} data-testid="m55-shared-entry-fallback" data-m55-experience-surface="SHARED_SOCIAL_ENTRY">
         <h1 className={styles.title}>{copy.fallbackTitleJa}</h1>
         <p className={styles.body}>{copy.fallbackBodyJa}</p>
         <SharedEntryCta copyLabel={copy.ctaJa} actionKey="shared-entry-cta-fallback" />
@@ -64,7 +64,7 @@ export default function SharedEntryPanel({ card }: Props) {
   }
 
   return (
-    <div className={styles.shell} data-testid="m55-shared-entry">
+    <div className={`${styles.shell} m55-exp-reading`} data-testid="m55-shared-entry" data-m55-experience-surface="SHARED_SOCIAL_ENTRY">
       <p className={styles.overline}>{copy.overlineJa}</p>
       <h1 className={styles.title} data-testid="m55-shared-entry-trait">
         {card.traitNameJa}

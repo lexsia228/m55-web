@@ -1,0 +1,189 @@
+/**
+ * M55 Experience Control Plane v2 — shared visual roles applied via data-m55-archetype.
+ * Global CSS (side-effect import from PublicShell).
+ */
+
+[data-m55-public-shell] {
+  --m55-navy: #1a2a4a;
+  --m55-navy-soft: rgba(26, 42, 74, 0.06);
+  --m55-purple: #6b5fa8;
+  --m55-purple-soft: rgba(107, 95, 168, 0.12);
+  --m55-ivory: #f9f7f4;
+  --m55-white: #ffffff;
+  --m55-text: #3d3d3d;
+  --m55-text-strong: #1a1a1a;
+  --m55-text-meta: rgba(60, 60, 60, 0.7);
+  --m55-border: rgba(40, 40, 40, 0.12);
+  --m55-border-strong: rgba(26, 42, 74, 0.22);
+  --m55-font-serif: 'Hiragino Mincho ProN', 'Noto Serif JP', 'Iowan Old Style', Palatino, serif;
+  --m55-font-sans: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+  --m55-radius-card: 0.85rem;
+  --m55-radius-control: 0.7rem;
+  --m55-radius-pill: 999px;
+  --m55-space-sm: 0.65rem;
+  --m55-space-md: 1rem;
+  --m55-space-lg: 1.5rem;
+  --m55-read-width: 48rem;
+  --m55-card-shadow: 0 1px 0 rgba(20, 16, 40, 0.04);
+  background: var(--m55-ivory);
+  color: var(--m55-text);
+  font-family: var(--m55-font-sans);
+}
+
+[data-m55-archetype='PUBLIC_POSTER'] {
+  --m55-read-width: 100%;
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='PUBLIC_EDITORIAL'] {
+  --m55-read-width: 48rem;
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='GUIDED_FREE_FLOW'],
+[data-m55-archetype='PREMIUM_GUIDED_FLOW'] {
+  --m55-read-width: 36rem;
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='PREMIUM_GUIDED_FLOW'] {
+  background: #fbfaf8;
+}
+
+[data-m55-archetype='EDITORIAL_FREE_RESULT'] {
+  --m55-read-width: 48rem;
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='SHARED_SOCIAL_ENTRY'] {
+  --m55-read-width: 36rem;
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='PRODUCT_DECISION'] {
+  --m55-read-width: 48rem;
+  --m55-card-shadow: 0 8px 24px rgba(20, 16, 40, 0.08);
+  background: var(--m55-ivory);
+}
+
+[data-m55-archetype='PURCHASE_CONFIRMATION'] {
+  --m55-read-width: 36rem;
+  background: var(--m55-white);
+}
+
+[data-m55-archetype='DIGITAL_PUBLICATION'] {
+  --m55-read-width: 56rem;
+  background: var(--m55-ivory);
+}
+
+/* Reading width is available as --m55-read-width; route layouts opt in. */
+.m55-exp-reading {
+  width: 100%;
+  max-width: min(100%, var(--m55-read-width));
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* Shared role utilities — pages may opt in without inventing local tokens */
+.m55-exp-display {
+  font-family: var(--m55-font-serif);
+  font-size: clamp(1.55rem, 3.6vw, 2.05rem);
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--m55-text-strong);
+  text-wrap: balance;
+}
+
+.m55-exp-title {
+  font-family: var(--m55-font-serif);
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--m55-text-strong);
+  text-wrap: balance;
+}
+
+.m55-exp-body {
+  font-family: var(--m55-font-sans);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--m55-text);
+}
+
+.m55-exp-meta {
+  font-family: var(--m55-font-sans);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--m55-text-meta);
+}
+
+.m55-exp-card {
+  border: 1px solid var(--m55-border);
+  border-radius: var(--m55-radius-card);
+  background: var(--m55-white);
+  box-shadow: var(--m55-card-shadow);
+}
+
+.m55-exp-btn-commercial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--m55-radius-pill);
+  border: 1px solid transparent;
+  background: var(--m55-navy);
+  color: #fffaf1;
+  font-family: var(--m55-font-sans);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.m55-exp-btn-workflow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--m55-radius-control);
+  border: 1px solid transparent;
+  background: var(--m55-purple);
+  color: #fffaf1;
+  font-family: var(--m55-font-sans);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.m55-exp-section {
+  margin: var(--m55-space-lg) 0;
+}
+
+.m55-exp-result-identity {
+  margin: 0 0 var(--m55-space-lg);
+}
+
+.m55-exp-print-frame {
+  display: contents;
+}
+
+/* Guided flows: keep first question + option efficient on small screens */
+[data-m55-archetype='GUIDED_FREE_FLOW'] [data-testid='m55-free-questionnaire'],
+[data-m55-archetype='PREMIUM_GUIDED_FLOW'] [data-testid='m55-paid-questionnaire-active'] {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Decision surfaces: plan cards use prominence-2 shadow token */
+[data-m55-archetype='PRODUCT_DECISION'] [data-testid='m55-dtr-plan-selection'] article,
+[data-m55-archetype='PRODUCT_DECISION'] [data-testid='m55-pricing-plan'] {
+  box-shadow: var(--m55-card-shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-m55-public-shell] *,
+  [data-m55-public-shell] *::before,
+  [data-m55-public-shell] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

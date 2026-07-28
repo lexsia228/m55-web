@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
 import styles from './DtrPaidDecisionUx.module.css';
 
 /**
@@ -10,12 +11,12 @@ import styles from './DtrPaidDecisionUx.module.css';
 export default function DtrNeedFreeResultGate() {
   return (
     <section
-      className={styles.shell}
+      className={`${styles.shell} m55-exp-reading`}
       data-m55-paid-phase="need-free"
       data-testid="m55-dtr-need-free"
       aria-labelledby="m55-dtr-need-free-title"
     >
-      <p className={styles.overline}>プレミアムレポート</p>
+      <p className={styles.overline}>{T.premiumProduct}</p>
       <h2 id="m55-dtr-need-free-title" className={styles.title}>
         先に無料結果を開いてください
       </h2>
@@ -29,7 +30,7 @@ export default function DtrNeedFreeResultGate() {
       </ul>
       <div className={styles.actions}>
         <Link href="/core" className={styles.primaryBtn} data-testid="m55-dtr-need-free-start">
-          無料結果を始める
+          {T.freeStart}
         </Link>
         <Link href="/home" className={styles.secondaryBtn}>
           ホームへ戻る

@@ -11,6 +11,7 @@ import {
   ensureCompleteFreeAnswerSet,
   isCoreFiveAnswersComplete,
 } from '../freeResult/ensureFreeAnswerSetCompleteV1';
+import { resolveExperienceCtaLabel } from '../commercialUx/experience/experienceCtaState';
 
 export const SELF_FUNNEL_SCHEMA_VERSION = 1 as const;
 export const SELF_FUNNEL_SESSION_KEY = 'm55_self_funnel_v1' as const;
@@ -171,21 +172,8 @@ export function stageForPlanSelection(stage: SelfFunnelStage): SelfFunnelStage {
 }
 
 export function resolveFreeCtaLabel(stage: SelfFunnelStage): string {
-  switch (stage) {
-    case 'EMPTY':
-      return '無料結果を始める';
-    case 'BASIC_INFO_COMPLETE':
-    case 'FREE_QUESTIONS_IN_PROGRESS':
-      return '無料結果の続きを見る';
-    case 'FREE_RESULT_READY':
-    case 'PAID_QUESTIONS_IN_PROGRESS':
-    case 'PAID_QUESTIONS_COMPLETE':
-    case 'PLAN_SELECTION':
-    case 'PURCHASED':
-      return '無料結果を開く';
-    default:
-      return '無料結果を始める';
-  }
+  // Experience Control Plane — home/header free CTA only (not Premium bridge).
+  return resolveExperienceCtaLabel({ stage, surface: 'home' });
 }
 
 export const EXPLICIT_RERUN_CTA_JA = '回答を変えて、もう一度見る' as const;

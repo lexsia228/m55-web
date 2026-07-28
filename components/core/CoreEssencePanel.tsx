@@ -50,6 +50,7 @@ import {
   resolveSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
+import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
 import CoreFreeResultLeadSection from './CoreFreeResultLeadSection';
@@ -465,6 +466,13 @@ export default function CoreEssencePanel() {
     composition?.synthesis.currentExpressionSummaryJa ??
     '生年月日の土台と、いまの五つの答えの関係が見えています。';
 
+  const archetypePhase =
+    uxPhase === 'RESULT'
+      ? 'RESULT'
+      : shouldShowQuestionnaire(uxPhase)
+        ? 'QUESTIONNAIRE'
+        : 'INTAKE';
+
   return (
     <div
       className={CoreExperienceStyles.page}
@@ -472,6 +480,7 @@ export default function CoreEssencePanel() {
       data-m55-generation-count={generationCount}
       data-m55-ux-phase={uxPhase}
     >
+      <ExperienceArchetypeSync coreUxPhase={archetypePhase} />
       <CoreScrollReveal />
 
       <BirthProfileIntakeLayer

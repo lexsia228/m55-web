@@ -41,7 +41,7 @@ describe('homeFreeCtaHydrationContract — lower FreeCtaButton loading stability
   });
 
   it('uses state-aware free CTA labels at lower call sites', () => {
-    assert.equal(resolveFreeCtaLabel('EMPTY'), '無料結果を始める');
+    assert.equal(resolveFreeCtaLabel('EMPTY'), '無料で見てみる');
     assert.equal(resolveFreeCtaLabel('FREE_RESULT_READY'), '無料結果を開く');
     assert.match(homePanelSource, /label=\{freeCtaLabel\}/);
     assert.match(homePanelSource, /resolveFreeCtaLabel/);

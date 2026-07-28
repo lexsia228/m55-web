@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -28,7 +29,7 @@ export default function CoreLockedState({ onStartIntake }: Props) {
               data-testid="m55-core-start-intake"
               onClick={onStartIntake}
             >
-              無料結果を始める
+              {T.freeStart}
             </button>
             <Link
               href="/home"

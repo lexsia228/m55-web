@@ -18,7 +18,7 @@ export const metadata = {
 export default function HowM55WorksPage() {
   return (
     <PublicShell>
-      <div className={styles.page}>
+      <div className={`${styles.page} m55-exp-reading`} data-m55-experience-surface="PUBLIC_EDITORIAL">
         <IntroSection />
         <WhatIsSection />
         <CalendarLayersSection />

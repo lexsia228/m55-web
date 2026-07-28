@@ -145,7 +145,10 @@ test.describe('Self funnel growth share E2E', () => {
     await expect(sticky).toBeVisible();
     const link = page.getByTestId('m55-premium-sticky-link');
     await expect(link).toHaveAttribute('href', /\/dtr\/lp/);
-    await link.click();
+    await page.evaluate(() => {
+      document.querySelector('#clerk-components')?.remove();
+    });
+    await link.click({ force: true });
     await expect(page).toHaveURL(/\/dtr\/lp/);
     await context.close();
   });

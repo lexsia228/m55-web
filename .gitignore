@@ -104,6 +104,8 @@ docs/archive/zips/**/*.zip
 playwright-report/
 test-results/
 e2e/screenshots/required/*.png
+e2e/screenshots/experience-control-plane/**/*.png
+e2e/screenshots/experience-control-plane/**/*.pdf
 
 # M55 Ops Control Plane — local draft runs only (ops/releases/ remains tracked)
 ops/runs/local/

@@ -11,7 +11,7 @@ export default function PricingPage() {
 
   return (
     <PublicShell>
-      <main className={styles.root}>
+      <main className={`${styles.root} m55-exp-reading`} data-m55-experience-surface="PRODUCT_DECISION">
         <h1 className={styles.title}>料金とプラン</h1>
 
         <p className={styles.lead}>

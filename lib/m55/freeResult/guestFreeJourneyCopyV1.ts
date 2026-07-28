@@ -2,11 +2,13 @@
  * Guest-first free journey presentation copy (UI only).
  */
 
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../commercialUx/terminology';
+
 export const GUEST_PROFILE_INTAKE_COPY_V1 = {
   titleJa: '無料結果を開く',
   leadJa: 'この入力は、無料結果を表示するために使います。',
   loginHintJa: 'ログインは結果をあとから開くときに使えます。',
-  primaryActionJa: '無料結果を始める',
+  primaryActionJa: T.freeStart,
 } as const;
 
 export const GUEST_PROFILE_HANDOFF_COPY_V1 = {

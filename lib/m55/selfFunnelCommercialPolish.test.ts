@@ -40,7 +40,7 @@ describe('Self funnel commercial polish REV1', () => {
 
   it('direct /core offers intake without dead-end', () => {
     const locked = read('components/core/CoreLockedState.tsx');
-    assert.match(locked, /無料結果を始める/);
+    assert.match(locked, /T\.freeStart|無料で見てみる/);
     assert.match(locked, /m55-core-start-intake/);
     assert.match(locked, /ホームへ戻る/);
     assert.match(locked, /onStartIntake/);
