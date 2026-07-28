@@ -6,13 +6,23 @@
   max-width: 36rem;
   margin: 0 auto;
   width: 100%;
+  --m55-paid-ink: rgba(28, 24, 48, 0.94);
+  --m55-paid-meta: rgba(55, 48, 82, 0.62);
+  --m55-paid-accent: rgba(196, 110, 90, 0.88);
+  --m55-paid-progress-track: rgba(107, 95, 168, 0.14);
+  --m55-paid-progress-fill: rgba(107, 95, 168, 0.72);
+  --m55-paid-card-bg: rgba(255, 255, 255, 0.72);
+  --m55-paid-card-border: rgba(107, 95, 168, 0.22);
+  --m55-paid-card-selected: rgba(107, 95, 168, 0.1);
+  --m55-paid-primary-bg: rgba(28, 24, 48, 0.94);
+  --m55-paid-primary-fg: #fffaf1;
 }
 
 .overline {
   margin: 0;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
-  color: rgba(55, 48, 82, 0.62);
+  color: var(--m55-paid-meta);
 }
 
 .title {
@@ -152,7 +162,7 @@
   flex: 1;
   height: 0.28rem;
   border-radius: 999px;
-  background: rgba(107, 95, 168, 0.14);
+  background: var(--m55-paid-progress-track);
   overflow: hidden;
 }
 
@@ -160,7 +170,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: rgba(107, 95, 168, 0.72);
+  background: var(--m55-paid-progress-fill);
   transition: width 0.2s ease;
 }
 
@@ -191,9 +201,9 @@
   padding: 0.85rem 1rem;
   text-align: left;
   border-radius: 0.85rem;
-  border: 1px solid rgba(107, 95, 168, 0.22);
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(28, 24, 48, 0.92);
+  border: 1px solid var(--m55-paid-card-border);
+  background: var(--m55-paid-card-bg);
+  color: var(--m55-paid-ink);
   font-size: 0.98rem;
   line-height: 1.45;
   cursor: pointer;

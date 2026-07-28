@@ -1,4 +1,5 @@
 import { HOME_PREMIUM_PREVIEW_FIXTURE } from '../../lib/m55/homePreviewFixtures';
+import { PREMIUM_VISUAL_AUTHORITY_KEY } from '../../lib/m55/commercialUx/premiumExperience';
 import styles from './HomePanel.module.css';
 
 type Props = {
@@ -9,7 +10,13 @@ export default function HomePremiumPreviewSlice({ previewLabelJa }: Props) {
   const fixture = HOME_PREMIUM_PREVIEW_FIXTURE;
 
   return (
-    <div className={styles.premiumPreviewStage} data-testid="m55-home-premium-preview-slice">
+    <div
+      className={styles.premiumPreviewStage}
+      data-testid="m55-home-premium-preview-slice"
+      data-m55-experience-tier="PREMIUM"
+      data-m55-visual-authority={PREMIUM_VISUAL_AUTHORITY_KEY}
+      data-m55-premium-state="premium.home.editorial_sample"
+    >
       <p className={styles.premiumPreviewAnnotation}>{previewLabelJa}</p>
       <article className={styles.premiumPreviewProductSheet}>
         <p className={styles.premiumPreviewProduct}>{fixture.productTitleJa}</p>

@@ -11,6 +11,7 @@
         "verify:m55-worktree-preflight:local": "node scripts/verify-m55-commercial-ssot.mjs --local-worktree-preflight",
         "verify:m55-experience-control-plane": "node scripts/verify-m55-experience-control-plane.mjs",
         "verify:m55-asset-ledger": "node scripts/verify-m55-asset-ledger.mjs",
+        "verify:m55-premium-experience": "node scripts/verify-m55-premium-experience.mjs",
         "verify:product-authority:bootstrap": "node scripts/product-authority/cli.mjs verify",
         "verify:product-authority": "node scripts/product-authority/validate.mjs --steady-state",
         "test:product-authority": "node --test scripts/product-authority/__tests__/*.test.mjs",

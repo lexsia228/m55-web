@@ -36,5 +36,8 @@ jobs:
       - name: M55 Asset-First Commercial SSOT
         run: npm run verify:m55-asset-ledger
 
+      - name: M55 Premium Experience SSOT
+        run: npm run verify:m55-premium-experience
+
       - name: M55 Experience Control Plane v2 enforcement
         run: npm run verify:m55-experience-control-plane

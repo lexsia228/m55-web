@@ -32,7 +32,13 @@ export default async function DtrDrawerPreviewPage({
   const readerProps = getDtrDrawerPreviewReaderProps(withConsult, sp.consultWallet);
 
   return (
-    <main className={styles.page} data-m55-dev-preview="dtr-drawer">
+    <main
+      className={styles.page}
+      data-m55-dev-preview="dtr-drawer"
+      data-m55-experience-tier="PREMIUM"
+      data-m55-visual-authority="premium.experience.home_editorial_sample_v1"
+      data-m55-premium-state="purchased.report.body"
+    >
       <DtrDrawerPreviewClient
         {...readerProps}
         showLightUpgrade={sp.lightUpgrade === '1'}

@@ -15,3 +15,4 @@ export {
 } from './ExperiencePrimitives';
 
 export { EXPERIENCE_COMPONENT_OWNERS } from './experienceComponentOwners';
+export { default as PremiumExperienceSurface } from './PremiumExperienceSurface';

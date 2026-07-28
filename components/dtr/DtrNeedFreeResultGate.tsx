@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
 import { FREE_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/freeFunnelCopy';
+import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
 import styles from './DtrPaidDecisionUx.module.css';
 
 /**
@@ -11,7 +12,8 @@ import styles from './DtrPaidDecisionUx.module.css';
  */
 export default function DtrNeedFreeResultGate() {
   return (
-    <section
+    <PremiumExperienceSurface stateId="premium.lp.prerequisite" testId="m55-premium-experience-need-free">
+      <section
       className={`${styles.shell} m55-exp-reading`}
       data-m55-paid-phase="need-free"
       data-testid="m55-dtr-need-free"
@@ -35,6 +37,7 @@ export default function DtrNeedFreeResultGate() {
           {C.homeLinkJa}
         </Link>
       </div>
-    </section>
+      </section>
+    </PremiumExperienceSurface>
   );
 }

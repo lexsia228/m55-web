@@ -10,6 +10,7 @@ import {
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import { buildPremiumBridgeTitle, STATIC_FREE_TO_PAID_BRIDGE } from './corePublicCopy';
+import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -53,17 +54,23 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
   }
 
   return (
-    <section
-      id="core-paid"
-      className={`${styles.conversionBridge} ${styles.coreSectionSurface}`}
-      aria-labelledby={titleId}
-      data-testid="m55-free-to-paid-bridge"
+    <PremiumExperienceSurface
+      stateId="premium.core.bridge"
+      variant="editorial_stage"
+      surface="bridge"
+      testId="m55-premium-experience-bridge"
     >
-      <span className={styles.conversionBridgeOverline}>{copy.overline}</span>
-      <h2 id={titleId} className={styles.conversionBridgeTitle}>
-        {buildPremiumBridgeTitle(traitName)}
-      </h2>
-      <p className={styles.conversionBridgeSupporting}>{copy.supportingJa}</p>
+      <section
+        id="core-paid"
+        className={`${styles.conversionBridge} ${styles.coreSectionSurface} m55-premium-editorial-sheet`}
+        aria-labelledby={titleId}
+        data-testid="m55-free-to-paid-bridge"
+      >
+        <span className={`${styles.conversionBridgeOverline} m55-premium-overline`}>{copy.overline}</span>
+        <h2 id={titleId} className={`${styles.conversionBridgeTitle} m55-premium-display`}>
+          {buildPremiumBridgeTitle(traitName)}
+        </h2>
+        <p className={`${styles.conversionBridgeSupporting} m55-premium-body`}>{copy.supportingJa}</p>
 
       <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
       <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">
@@ -102,6 +109,7 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
       </div>
 
       <p className={styles.conversionBridgeSafety}>{copy.safetyNote}</p>
-    </section>
+      </section>
+    </PremiumExperienceSurface>
   );
 }

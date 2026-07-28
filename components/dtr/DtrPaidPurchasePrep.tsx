@@ -21,7 +21,9 @@ import {
 } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
 import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
+import PremiumExperienceSync from '../shell/PremiumExperienceSync';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
+import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -68,16 +70,20 @@ export default function DtrPaidPurchasePrep() {
 
   if (!hydrated) {
     return (
-      <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
-        <ExperienceArchetypeSync paidPhase="other" />
-        <p className={styles.lead}>{C.loadingJa}</p>
-      </section>
+      <>
+        <PremiumExperienceSync shellPremium />
+        <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
+          <ExperienceArchetypeSync paidPhase="other" />
+          <p className={styles.lead}>{C.loadingJa}</p>
+        </section>
+      </>
     );
   }
 
   if (gate === 'need_free') {
     return (
       <>
+        <PremiumExperienceSync shellPremium />
         <ExperienceArchetypeSync paidPhase="need_free" />
         <DtrNeedFreeResultGate />
       </>
@@ -87,6 +93,7 @@ export default function DtrPaidPurchasePrep() {
   if (gate === 'questionnaire') {
     return (
       <>
+        <PremiumExperienceSync shellPremium />
         <ExperienceArchetypeSync paidPhase={paidPhase} />
         <DtrPaidQuestionnaireLayer
           onComplete={() => {
@@ -103,14 +110,17 @@ export default function DtrPaidPurchasePrep() {
     const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
 
     return (
-      <section
-        className={`${styles.shell} m55-exp-reading`}
-        data-m55-paid-phase="checkout"
-        data-m55-paid-checkout
-        data-m55-experience-surface="PURCHASE_CONFIRMATION"
-        aria-label={C.checkoutAriaJa}
-      >
-        <ExperienceArchetypeSync paidPhase="checkout" />
+      <>
+        <PremiumExperienceSync shellPremium />
+        <PremiumExperienceSurface stateId="premium.lp.checkout" testId="m55-premium-experience-checkout">
+        <section
+          className={`${styles.shell} m55-exp-reading`}
+          data-m55-paid-phase="checkout"
+          data-m55-paid-checkout
+          data-m55-experience-surface="PURCHASE_CONFIRMATION"
+          aria-label={C.checkoutAriaJa}
+        >
+          <ExperienceArchetypeSync paidPhase="checkout" />
         <p className={styles.overline}>{C.planOverlineJa}</p>
         <h3 className={styles.title}>{C.checkoutTitleJa}</h3>
         <div className={styles.confirmCard}>
@@ -147,19 +157,24 @@ export default function DtrPaidPurchasePrep() {
         <div className={styles.planNote}>
           <CheckoutTrustRow />
         </div>
-      </section>
+        </section>
+        </PremiumExperienceSurface>
+      </>
     );
   }
 
   return (
-    <section
-      className={`${styles.shell} m55-exp-reading`}
-      data-m55-paid-phase="plans"
-      data-testid="m55-dtr-plan-selection"
-      data-m55-experience-surface="PRODUCT_DECISION"
-      aria-label={C.planSelectAriaJa}
-    >
-      <ExperienceArchetypeSync paidPhase="plans" />
+    <>
+      <PremiumExperienceSync shellPremium />
+      <PremiumExperienceSurface stateId="premium.lp.plans" testId="m55-premium-experience-plans">
+      <section
+        className={`${styles.shell} m55-exp-reading`}
+        data-m55-paid-phase="plans"
+        data-testid="m55-dtr-plan-selection"
+        data-m55-experience-surface="PRODUCT_DECISION"
+        aria-label={C.planSelectAriaJa}
+      >
+        <ExperienceArchetypeSync paidPhase="plans" />
       <p className={styles.overline}>{C.planOverlineJa}</p>
       <h3 className={styles.title}>{C.planTitleJa}</h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
@@ -227,6 +242,8 @@ export default function DtrPaidPurchasePrep() {
         </article>
       </div>
       <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
-    </section>
+      </section>
+      </PremiumExperienceSurface>
+    </>
   );
 }

@@ -332,6 +332,14 @@ export const M55_ASSET_LEDGER: readonly AssetLedgerEntry[] = [
     'Premium funnel chrome copy',
     ['dtr/lp', 'checkout'],
   ),
+  canonical(
+    'premium.experience.home_editorial_sample_v1',
+    'premium_funnel',
+    'lib/m55/commercialUx/premiumExperience/premiumVisualAuthority.ts',
+    'PREMIUM_VISUAL_AUTHORITY_KEY',
+    'Canonical Premium editorial visual language (Home sample promoted)',
+    ['home', 'core', 'dtr/lp', 'dtr/core'],
+  ),
   derived(
     'bridge.locked_preview',
     'premium_funnel',

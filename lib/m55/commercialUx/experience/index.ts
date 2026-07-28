@@ -7,3 +7,4 @@ export * from './experienceRouteRegistry';
 export * from './copyAuthorityDomains';
 export * from './ownershipBoundaries';
 export * from './experienceControlPlane';
+export * from '../premiumExperience';

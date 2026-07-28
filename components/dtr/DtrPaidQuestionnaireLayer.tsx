@@ -18,6 +18,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import DtrPaidResultContextStrip from './DtrPaidResultContextStrip';
+import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type Props = {
@@ -151,6 +152,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
 
   if (phase === 'complete') {
     return (
+      <PremiumExperienceSurface stateId="premium.lp.answer_review" testId="m55-premium-experience-review">
       <section
         className={styles.shell}
         data-m55-paid-phase="complete"
@@ -203,10 +205,12 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
           </button>
         </div>
       </section>
+      </PremiumExperienceSurface>
     );
   }
 
   return (
+    <PremiumExperienceSurface stateId="premium.lp.questions" testId="m55-premium-experience-questions">
     <section
       className={styles.shell}
       data-m55-paid-phase="question"
@@ -282,5 +286,6 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
         </button>
       </div>
     </section>
+    </PremiumExperienceSurface>
   );
 }

@@ -13,6 +13,7 @@ import {
   resolveSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import { readPersistedFunnel } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import PremiumExperienceSurface from '../experience/PremiumExperienceSurface';
 import styles from './DtrLpPremiumContinuity.module.css';
 
 type ContinuityView = {
@@ -76,6 +77,7 @@ export default function DtrLpPremiumContinuityIntro() {
   const copy = STATIC_FREE_TO_PAID_BRIDGE;
 
   return (
+    <PremiumExperienceSurface stateId="premium.lp.prerequisite" testId="m55-premium-experience-continuity">
     <section
       className={styles.root}
       aria-labelledby="dtr-lp-continuity-heading"
@@ -100,5 +102,6 @@ export default function DtrLpPremiumContinuityIntro() {
         {copy.primaryCtaJa}
       </Link>
     </section>
+    </PremiumExperienceSurface>
   );
 }

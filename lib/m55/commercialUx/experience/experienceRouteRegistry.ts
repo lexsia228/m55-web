@@ -6,6 +6,10 @@
 import type { M55ExperienceArchetype, ExperiencePrintMode } from './experienceArchetypes';
 import type { M55CtaState } from './experienceCtaState';
 import { assetKeysForRoute } from '../assetLedger/assetRouteConsumption';
+import { PREMIUM_VISUAL_AUTHORITY_KEY } from '../premiumExperience/premiumVisualAuthority';
+
+const PREMIUM_VISUAL = PREMIUM_VISUAL_AUTHORITY_KEY;
+const PREMIUM_EDITORIAL = 'premium.funnel';
 
 export type ExperienceShellId = 'public' | 'core' | 'reader' | 'clerk';
 export type ExperienceHeaderMode = 'full_public' | 'contextual_public' | 'clerk' | 'none';
@@ -31,6 +35,8 @@ export type ExperienceProductTruthDeps =
   | 'trait_identity'
   | 'legal_copy';
 
+export type ExperienceTier = 'FREE' | 'PREMIUM';
+
 export type ExperienceRouteEntry = {
   id: string;
   /** Explicit path or typed pattern (e.g. /r/:token). */
@@ -46,6 +52,10 @@ export type ExperienceRouteEntry = {
   productTruth: ExperienceProductTruthDeps;
   migration: ExperienceMigrationClass;
   ownerFiles: readonly string[];
+  /** Premium Experience SSOT — omitted means FREE tier. */
+  experienceTier?: ExperienceTier;
+  visualAuthorityKey?: string | null;
+  editorialAuthorityKey?: string | null;
 };
 
 export const M55_EXPERIENCE_ROUTE_REGISTRY: readonly ExperienceRouteEntry[] = [
