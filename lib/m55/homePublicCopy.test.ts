@@ -192,7 +192,7 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     assert.equal(home.premiumHeadlineJa, '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。');
     assert.equal(
       home.premiumBodyJa,
-      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4章構成の個人レポートとして整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\nプレミアムレポートとして整理します。',
     );
     assert.equal(home.finalCtaHeadlineJa, 'まずは、今の自分を知るところから。');
     assert.equal(home.pairFreeCtaJa, '二人の関係を無料で見てみる');

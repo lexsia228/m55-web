@@ -96,8 +96,8 @@ function paidSet(overrides: Partial<Record<string, string>> = {}): Record<string
     'paid.decision_friction': 'paid.decision_friction.too_many',
     'paid.relation_focus': 'paid.relation_focus.words',
     'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
-    'paid.report_usage': 'paid.report_usage.reread_scene',
-    'paid.reading_style': 'paid.reading_style.headline',
+    'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
+    'paid.restart_condition': 'paid.restart_condition.overview_first',
     ...overrides,
   };
 }
@@ -386,8 +386,8 @@ describe('fp-v1 variance QA — paid-v1 answer variance', () => {
     {
       id: 'P4',
       paid: paidSet({
-        'paid.report_usage': 'paid.report_usage.note_take',
-        'paid.reading_style': 'paid.reading_style.compare',
+        'paid.recovery_sequence': 'paid.recovery_sequence.sort_materials',
+        'paid.restart_condition': 'paid.restart_condition.trusted_support',
       }),
     },
     { id: 'P5', paid: null },
@@ -428,18 +428,18 @@ describe('fp-v1 variance QA — paid-v1 answer variance', () => {
       const hesitationChanged: boolean =
         JSON.stringify(base.value.fingerprint.hesitation) !==
         JSON.stringify(d.value.fingerprint.hesitation);
-      const readingOrUsageChanged: boolean =
-        (base.value.fingerprint.paidDepth?.readingStyle ?? null) !==
-          (d.value.fingerprint.paidDepth?.readingStyle ?? null) ||
-        (base.value.fingerprint.paidDepth?.reportUsage ?? null) !==
-          (d.value.fingerprint.paidDepth?.reportUsage ?? null);
+      const recoveryOrRestartChanged: boolean =
+        (base.value.fingerprint.paidDepth?.recoverySequence ?? null) !==
+          (d.value.fingerprint.paidDepth?.recoverySequence ?? null) ||
+        (base.value.fingerprint.paidDepth?.restartCondition ?? null) !==
+          (d.value.fingerprint.paidDepth?.restartCondition ?? null);
       const affinityChanged: boolean =
         JSON.stringify(base.value.fingerprint.replyAffinity.ranked) !==
         JSON.stringify(d.value.fingerprint.replyAffinity.ranked);
 
       // Chapter-driving variants move bias/intensity/hesitation; P4 may move reading/report only.
       assert.ok(
-        biasChanged || intensityChanged || hesitationChanged || readingOrUsageChanged,
+        biasChanged || intensityChanged || hesitationChanged || recoveryOrRestartChanged,
         `${variant.id}: paidDepth signals unchanged`,
       );
       assert.equal(affinityChanged, true, `${variant.id}: replyAffinity`);

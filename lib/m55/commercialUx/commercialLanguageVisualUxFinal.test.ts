@@ -143,7 +143,7 @@ describe('commercial language visual UX final — plan decision surface', () => 
     assert.equal(PLAN_COMPARISON.priceDeltaJpy, 480);
     assert.equal(PLAN_COMPARISON.upgradePriceJpy, 600);
     assert.equal(PLAN_COMPARISON.lightThenUpgradeTotalJpy, 1600);
-    assert.match(PLAN_COMPARISON.sameFourChaptersNoteJa, /4章構成の個人レポート/);
+    assert.match(PLAN_COMPARISON.sameFourChaptersNoteJa, /プレミアムレポート/);
     assert.match(PLAN_COMPARISON.fullDeltaNoteJa, /480円/);
     assert.doesNotMatch(PLAN_COMPARISON.fullDeltaNoteJa, /\+480/);
     assert.match(PLAN_COMPARISON.upgradeNoteJa, /1,600円/);

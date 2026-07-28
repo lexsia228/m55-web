@@ -124,7 +124,7 @@ describe('commercial presentation polish — plan cards', () => {
     assert.match(plan.upgradeNoteJa, /1,600円/);
     assert.match(plan.upgradeNoteJa, /1,480円/);
     assert.equal(plan.fullRecommendBadgeJa, 'おすすめ');
-    assert.deepEqual(plan.light.includedItemsJa, ['4章構成の個人レポート', '追加読み解き 1件']);
+    assert.deepEqual(plan.light.includedItemsJa, ['プレミアムレポート', '追加読み解き 1件']);
   });
 
   it('all commercial surfaces consume PLAN_COMPARISON', () => {

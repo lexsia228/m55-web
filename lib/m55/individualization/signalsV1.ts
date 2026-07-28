@@ -82,6 +82,9 @@ const SCENE_BY_ANSWER: Readonly<Record<string, string>> = {
   'paid.fatigue_signal.after_push': 'after_push',
   'paid.fatigue_signal.before_start': 'before_start',
   'paid.fatigue_signal.long_stretch': 'long_stretch',
+  'paid.recovery_sequence.pause_first': 'pause_first',
+  'paid.recovery_sequence.small_start': 'small_start',
+  'paid.recovery_sequence.sort_materials': 'sort_materials',
 };
 
 export function buildReactiveContextV1(input: {
@@ -104,6 +107,7 @@ export function buildReactiveContextV1(input: {
   consider(input.freeAnswerSet['free.change_style']);
   if (input.paidAnswerSet) {
     consider(input.paidAnswerSet['paid.fatigue_signal']);
+    consider(input.paidAnswerSet['paid.recovery_sequence']);
   }
 
   return { scenes, drivers };

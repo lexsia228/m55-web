@@ -84,14 +84,14 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.doesNotMatch(hero, /First Record/);
   });
 
-  it('aligns free vs saved boundary with 4-chapter saved-report value', () => {
+  it('aligns free vs saved boundary with premium-report value', () => {
     const { coreBoundary } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.match(coreBoundary.freeLeadJa, /輪郭/);
     assert.match(coreBoundary.freeLeadJa, /10資質レーン/);
-    assert.match(coreBoundary.savedLeadJa, /4章/);
+    assert.match(coreBoundary.savedLeadJa, /プレミアムレポート/);
     assert.match(coreBoundary.savedLeadJa, /動き方・疲れ方・戻し方/);
     assert.match(coreBoundary.savedLeadJa, /追加読み解き/);
-    assert.doesNotMatch(coreBoundary.savedLeadJa, /正式4章で整理します。$/);
+    assert.doesNotMatch(coreBoundary.savedLeadJa, /4章/);
   });
 
   it('fixes consult explainer grammar and reduces 出方 density in static explainer', () => {
@@ -107,7 +107,7 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
 
   it('keeps read steps as free-entry bridge without paid deep-read leakage', () => {
     const stepsBlob = STATIC_M55_READ_STEPS.map((step) => `${step.title}\n${step.body}`).join('\n');
-    assert.match(stepsBlob, /4章のプレミアムレポート/);
+    assert.match(stepsBlob, /プレミアムレポート/);
     assert.match(stepsBlob, /読み直せます/);
     assert.equal(stepsBlob.includes('本質の読み解き'), false);
     assert.equal(stepsBlob.match(/出方/g)?.length ?? 0, 0);
@@ -115,7 +115,7 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
 
   it('CTA copy clarifies premium-report depth and consult one-theme boundary', () => {
     assert.match(STATIC_CTA.intro, /輪郭まで確認できました/);
-    assert.match(STATIC_CTA.intro, /4章で読み返せる形に残します/);
+    assert.match(STATIC_CTA.intro, /読み返せる形に残します/);
     assert.match(STATIC_CTA.bundleNote, /いまの1テーマ/);
     assert.match(STATIC_CTA.bundleNote, /会話を続ける形式ではありません/);
   });

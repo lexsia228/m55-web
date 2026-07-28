@@ -78,16 +78,28 @@ export function buildReplyAffinityV1(input: {
       acc.reasonCodes.add('paid_fatigue');
       acc.evidenceAnswerIds.add(paid['paid.fatigue_signal']!);
     }
+    if (paid['paid.recovery_sequence']) {
+      const acc = ensure(map, 'fatigue');
+      acc.score += 2;
+      acc.reasonCodes.add('paid_recovery_sequence');
+      acc.evidenceAnswerIds.add(paid['paid.recovery_sequence']!);
+    }
+    if (paid['paid.restart_condition']) {
+      const acc = ensure(map, 'work');
+      acc.score += 2;
+      acc.reasonCodes.add('paid_restart_condition');
+      acc.evidenceAnswerIds.add(paid['paid.restart_condition']!);
+    }
     if (paid['paid.report_usage']) {
       const acc = ensure(map, 'report');
       acc.score += 2;
-      acc.reasonCodes.add('paid_report');
+      acc.reasonCodes.add('paid_report_legacy');
       acc.evidenceAnswerIds.add(paid['paid.report_usage']!);
     }
     if (paid['paid.reading_style']) {
       const acc = ensure(map, 'tendency');
       acc.score += 2;
-      acc.reasonCodes.add('paid_reading');
+      acc.reasonCodes.add('paid_reading_legacy');
       acc.evidenceAnswerIds.add(paid['paid.reading_style']!);
     }
   }

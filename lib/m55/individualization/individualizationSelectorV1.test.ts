@@ -118,8 +118,8 @@ function baseInput(
     },
     paidDepth: {
       chapterBias: { I: 0, II: 2, III: 0, IV: 0 },
-      readingStyle: 'paid.reading_style.headline',
-      reportUsage: 'paid.report_usage.reread_scene',
+      recoverySequence: 'paid.recovery_sequence.pause_first',
+      restartCondition: 'paid.restart_condition.overview_first',
       paidDepthHash: 'paid-hash-test',
     },
     freePick: divergeItem('decision'),
@@ -582,8 +582,8 @@ describe('E. free roles', () => {
         hesitation: { present: false, drivers: [], chapterHint: null },
         paidDepth: {
           chapterBias: { I: 0, II: 0, III: 0, IV: 3 },
-          readingStyle: null,
-          reportUsage: null,
+          recoverySequence: null,
+          restartCondition: null,
           paidDepthHash: 'paid',
         },
       }),

@@ -1283,13 +1283,13 @@ export const PAID_DTR_LP = {
   tiers: {
     sectionTitleJa: '読み返し方に合わせて選べます',
     sectionLeadJa:
-      'どちらも同じ4章のプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
+      'どちらも同じプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
     full: {
       planNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
       oneTimeLabelJa: '一回払い',
       savedReportLabelJa: 'プレミアムレポート:',
-      savedReportValueJa: '4章のプレミアムレポート',
+      savedReportValueJa: 'プレミアムレポート',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '合計5件',
       bodyJa: 'プレミアムレポートを読みながら、複数のテーマを続けて整理したい方',
@@ -1301,7 +1301,7 @@ export const PAID_DTR_LP = {
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
       oneTimeLabelJa: '一回払い',
       savedReportLabelJa: 'プレミアムレポート:',
-      savedReportValueJa: '4章のプレミアムレポート',
+      savedReportValueJa: 'プレミアムレポート',
       consultReplyLabelJa: '追加読み解き:',
       consultReplyValueJa: '1件',
       bodyJa: 'まずプレミアムレポートを読み、必要なときに1テーマだけ深めたい方',
@@ -1325,7 +1325,7 @@ export const PAID_DTR_LP = {
       '同じ入力内容なら、同じ保存版に戻れます。',
       '追加読み解きのみ、保存版の内容を土台に1テーマを読み直す生成レイヤーです。会話を続ける形式ではありません。',
       '価格はすべて税込です。',
-      'ライトとFULLの保存版は、同じ正式4章です。',
+      'ライトとFULLの保存版は、同じプレミアムレポートです。',
       '違いは、追加読み解きの件数です。',
       'ライトは1件、FULLは合計5件です。',
       '購入前に、いま必要な追加読み解きの件数をご確認ください。',
@@ -1344,7 +1344,7 @@ export const PAID_DTR_LP = {
       {
         questionJa: 'ライトとFULLで、保存版の内容は違いますか？',
         answerJa:
-          '保存版の4章は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは追加読み解きで複数回深めたい方向けです。',
+          'プレミアムレポートの内容は共通です。\n違いは、利用できる追加読み解きの件数です。\nライト（¥1,000）は1件、FULL（¥1,480）は合計5件です。\nライトはまず読み返したい方向け、FULLは追加読み解きで複数回深めたい方向けです。',
       },
       {
         questionJa: '追加読み解きとは何ですか？',

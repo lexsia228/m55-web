@@ -86,5 +86,5 @@ export const M55_CTA_FORBIDDEN_PHRASES = [
   '無料結果を始める',
 ] as const;
 
-/** Allowed in factual product-detail contexts only (not CTA labels). */
-export const M55_CTA_PRODUCT_SPEC_ALLOWED = ['4章構成'] as const;
+/** Allowed in factual internal contexts only (not user-facing commercial copy). */
+export const M55_CTA_PRODUCT_SPEC_ALLOWED = [] as const;

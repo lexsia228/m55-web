@@ -312,7 +312,7 @@ export default async function DtrLpPage({
           <p className={styles.lpBody}>{PAID_DTR_LP.freeComparison.bodyJa}</p>
         </section>
 
-        {/* 7. 正式4章 */}
+        {/* 7. プレミアムレポート */}
         <section aria-labelledby="dtr-lp-chapters" className={styles.lpSectionPreTier}>
           <h2 id="dtr-lp-chapters" className={styles.lpH2}>
             {PAID_DTR_LP.chapters.sectionTitleJa}

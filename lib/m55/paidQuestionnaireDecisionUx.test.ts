@@ -12,8 +12,8 @@ import {
   PAID_DECISION_FRICTION_IDS,
   PAID_RELATION_FOCUS_IDS,
   PAID_FATIGUE_SIGNAL_IDS,
-  PAID_REPORT_USAGE_IDS,
-  PAID_READING_STYLE_IDS,
+  PAID_RECOVERY_SEQUENCE_IDS,
+  PAID_RESTART_CONDITION_IDS,
 } from './individualization/answerIdMapsV1';
 import { PAID_QUESTIONNAIRE_COPY_V1 } from './paidResult/questionnaireCopyV1';
 import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
@@ -54,8 +54,8 @@ describe('paid questionnaire decision UX — ids and count', () => {
         ...PAID_DECISION_FRICTION_IDS,
         ...PAID_RELATION_FOCUS_IDS,
         ...PAID_FATIGUE_SIGNAL_IDS,
-        ...PAID_REPORT_USAGE_IDS,
-        ...PAID_READING_STYLE_IDS,
+        ...PAID_RECOVERY_SEQUENCE_IDS,
+        ...PAID_RESTART_CONDITION_IDS,
       ],
     );
   });
@@ -85,8 +85,8 @@ describe('paid questionnaire decision UX — flow wiring', () => {
     assert.match(prep, /DtrNeedFreeResultGate/);
     assert.match(prep, /PLAN_COMPARISON/);
     assert.match(prep, /買い切り・自動更新なし|oneTimeLabelJa/);
-    assert.match(prep, /支払い画面へ進む/);
-    assert.match(prep, /次の画面で支払い内容を確認できます。/);
+    assert.match(prep, /checkoutProceedCtaJa/);
+    assert.match(prep, /checkoutNoteJa/);
     assert.match(prep, /DTR_CORE_LIGHT_V1/);
     assert.match(prep, /DTR_CORE_FULL_V1/);
     assert.match(prep, /PurchaseButton/);
@@ -99,8 +99,8 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 
 describe('paid questionnaire decision UX — Product Truth plans', () => {
   it('plans differ only by entitlement count; chapters and prices unchanged', () => {
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '4章のプレミアムレポート');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '4章のプレミアムレポート');
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, 'プレミアムレポート');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, 'プレミアムレポート');
     assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
     assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5件');
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);

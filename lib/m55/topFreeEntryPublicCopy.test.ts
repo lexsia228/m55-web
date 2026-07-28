@@ -144,7 +144,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /10資質レーン/);
     assert.match(blob, /動き方・疲れ方・戻し方|動き方/);
     assert.match(blob, /無料の見取り図/);
-    assert.match(blob, /4章の保存版/);
+    assert.match(blob, /プレミアムレポート/);
     assert.match(blob, /追加読み解き/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
@@ -234,7 +234,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('uses premium-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
-    assert.match(activeCopy, /4章のプレミアムレポート/);
+    assert.match(activeCopy, /プレミアムレポート/);
     assert.match(activeCopy, /追加読み解きで/);
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);

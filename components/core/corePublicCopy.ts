@@ -1,4 +1,5 @@
 import type { CoreResult } from '../../lib/m55/coreResult/types';
+import { M55_COMMERCIAL_FENCE } from '../../lib/m55/commercialUx/assetLedger/commercialFence';
 import {
   freeCoreAlignSteps,
   freeCoreAxisRowsForResult,
@@ -111,7 +112,7 @@ export const STATIC_M55_READ_STEPS: readonly {
   },
   {
     title: 'プレミアムレポート・追加読み解きへ続く入口をつかむ',
-    body: 'ここまでの輪郭は、4章のプレミアムレポートで深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
+    body: 'ここまでの輪郭は、プレミアムレポートで深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
   },
 ];
 
@@ -139,9 +140,9 @@ export const STATIC_AI_EXPLAINER = {
 };
 
 export const STATIC_CTA = {
-  title: '4章のプレミアムレポート',
+  title: 'プレミアムレポート',
   intro:
-    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
+    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、整え直し方まで含めて、読み返せる形に残します。',
   benefitsHeading: 'プレミアムレポートで深まること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
@@ -162,11 +163,10 @@ export function buildPremiumBridgeTitle(traitName: string): string {
 }
 
 export const STATIC_FREE_TO_PAID_BRIDGE = {
-  overline: 'プレミアムレポート',
-  supportingJa:
-    '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。',
+  overline: M55_COMMERCIAL_FENCE.productNameJa,
+  supportingJa: M55_COMMERCIAL_FENCE.bridgeSupportingJa,
   effortJa: 'あと6問・約1〜2分',
-  lockedHeadingsHeadingJa: '6つの回答をもとに、結果の背景と整え方を詳しく読み解きます',
+  lockedHeadingsHeadingJa: M55_COMMERCIAL_FENCE.lockedPreviewHeadingJa,
   primaryCtaJa: 'プレミアムの6問へ進む',
   ctaSupportJa: '正解はありません。あとで回答を確認できます。',
   secondaryCtaJa: '無料結果を続けて読む',

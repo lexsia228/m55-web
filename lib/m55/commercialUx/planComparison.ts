@@ -62,7 +62,7 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
       priceJpy: lightPriceJpy,
       priceLabelJa: formatYenLabelJa(lightPriceJpy),
       audienceJa: 'まず一つのテーマを深く見たい方へ',
-      includedItemsJa: ['4章構成の個人レポート', '追加読み解き 1件'],
+      includedItemsJa: ['プレミアムレポート', '追加読み解き 1件'],
       additionalReadings: 1,
       isOneTime: true,
     },
@@ -72,7 +72,7 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
       priceJpy: fullPriceJpy,
       priceLabelJa: formatYenLabelJa(fullPriceJpy),
       audienceJa: '仕事・関係・日常など、複数のテーマを見たい方へ',
-      includedItemsJa: ['4章構成の個人レポート', '追加読み解き 合計5件'],
+      includedItemsJa: ['プレミアムレポート', '追加読み解き 合計5件'],
       additionalReadings: 5,
       isOneTime: true,
     },
@@ -84,8 +84,8 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
     fullInitialAdvantageJpy,
     oneTimeNoteJa: '買い切り・自動更新なし',
     sameFourChaptersNoteJa:
-      'どちらも、同じ4章構成の個人レポートを読めます。違いは、購入後に追加で読み解けるテーマ数です。',
-    fullRecommendBadgeJa: 'おすすめ',
+      'どちらも、同じプレミアムレポートを読めます。違いは、購入後に追加で読み解けるテーマ数です。',
+    fullRecommendBadgeJa: '複数テーマ向け',
     fullRecommendReasonJa: '複数のテーマを見たい方へ',
     fullDeltaNoteJa: 'ライトとの差は480円。追加読み解きが4件増えます。',
     upgradeNoteJa:

@@ -10,6 +10,7 @@ import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { useAuth } from '@clerk/nextjs';
 import { PAID_ANSWERS_SESSION_KEY } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+import { sanitizeInProgressPaidAnswers } from '../../lib/m55/commercialUx/assetLedger/legacyPaidQuestionAdapter';
 import { STATIC_FREE_TO_PAID_BRIDGE } from '../core/corePublicCopy';
 import {
   M55_FUNNEL_EVENTS,
@@ -70,7 +71,15 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
   const helperJa = STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa;
 
   useEffect(() => {
-    const stored = readStoredPaidAnswers();
+    const raw = readStoredPaidAnswers();
+    const { answers: stored, clearedLegacy } = sanitizeInProgressPaidAnswers(raw);
+    if (clearedLegacy && Object.keys(stored).length > 0) {
+      try {
+        sessionStorage.setItem(PAID_ANSWERS_SESSION_KEY, JSON.stringify(stored));
+      } catch {
+        /* ignore */
+      }
+    }
     if (isCompletePaidAnswerSet(stored)) {
       setAnswers(stored);
       setPhase('complete');

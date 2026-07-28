@@ -320,8 +320,8 @@ test.describe('Self funnel runtime E2E matrix', () => {
         'paid.decision_friction': 'paid.decision_friction.too_many',
         'paid.relation_focus': 'paid.relation_focus.words',
         'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
-        'paid.report_usage': 'paid.report_usage.reread_scene',
-        'paid.reading_style': 'paid.reading_style.headline',
+        'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
+        'paid.restart_condition': 'paid.restart_condition.overview_first',
       };
       // Use real paid IDs from the app if different — seed via session after discovering
       await seedFunnelSnapshot(context, {
