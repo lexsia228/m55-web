@@ -4,10 +4,18 @@
 import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  createPremiumCompilerHost,
+  jsxUsesResolvedSymbol,
+  parseImportBindings,
+  parseJsxUsages,
+  type OwnerModuleProof,
+} from './premiumExperienceModuleResolution';
 
 export type PremiumSurfaceMountHit = {
   component: string;
   stateId: string;
+  boundToCanonicalModule: boolean;
 };
 
 export type PremiumDataStateHit = {
@@ -21,12 +29,10 @@ export type PremiumAstInspection = {
   dataPremiumStates: PremiumDataStateHit[];
 };
 
-function jsxTagName(node: ts.JsxOpeningLikeElement): string | null {
-  const n = node.tagName;
-  if (ts.isIdentifier(n)) return n.text;
-  if (ts.isPropertyAccessExpression(n) && ts.isIdentifier(n.name)) return n.name.text;
-  return null;
-}
+const CANONICAL_SURFACE_MODULES: Record<string, string> = {
+  PremiumExperienceSurface: 'components/experience/PremiumExperienceSurface.tsx',
+  PremiumDecisionSurface: 'components/experience/PremiumDecisionSurface.tsx',
+};
 
 function readJsxStringAttr(
   attrs: ts.JsxAttributes,
@@ -48,37 +54,79 @@ function readJsxStringAttr(
   return null;
 }
 
-export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumAstInspection {
-  const abs = join(root, relPath);
-  const src = readFileSync(abs, 'utf8');
-  const sourceFile = ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  const importedSymbols = new Set<string>();
-  const premiumSurfaceMounts: PremiumSurfaceMountHit[] = [];
-  const dataPremiumStates: PremiumDataStateHit[] = [];
-
+function collectConditionalConstStrings(sourceFile: ts.SourceFile): Map<string, string[]> {
+  const map = new Map<string, string[]>();
   function visit(node: ts.Node) {
-    if (ts.isImportDeclaration(node) && node.importClause?.namedBindings && ts.isNamedImports(node.importClause.namedBindings)) {
-      for (const el of node.importClause.namedBindings.elements) {
-        const local = el.name.text;
-        importedSymbols.add(local);
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.initializer &&
+      ts.isConditionalExpression(node.initializer)
+    ) {
+      const whenTrue = node.initializer.whenTrue;
+      const whenFalse = node.initializer.whenFalse;
+      if (ts.isStringLiteral(whenTrue) && ts.isStringLiteral(whenFalse)) {
+        map.set(node.name.text, [whenTrue.text, whenFalse.text]);
       }
-    }
-    if (ts.isImportDeclaration(node) && node.importClause?.name) {
-      importedSymbols.add(node.importClause.name.text);
-    }
-    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
-      const tag = jsxTagName(node);
-      if (tag === 'PremiumExperienceSurface' || tag === 'PremiumDecisionSurface') {
-        const stateId = readJsxStringAttr(node.attributes, 'stateId', sourceFile);
-        if (stateId) premiumSurfaceMounts.push({ component: tag, stateId });
-      }
-      const dataState = readJsxStringAttr(node.attributes, 'data-m55-premium-state', sourceFile);
-      if (dataState) dataPremiumStates.push({ value: dataState });
     }
     ts.forEachChild(node, visit);
   }
-
   visit(sourceFile);
+  return map;
+}
+
+export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumAstInspection {
+  const host = createPremiumCompilerHost(root);
+  const imports = parseImportBindings(root, relPath, host.options);
+  const jsxUsages = parseJsxUsages(root, relPath, imports);
+  const importedSymbols = new Set(imports.map((i) => i.localName));
+
+  const premiumSurfaceMounts: PremiumSurfaceMountHit[] = jsxUsages
+    .filter((u) => u.tagName === 'PremiumExperienceSurface' || u.tagName === 'PremiumDecisionSurface')
+    .flatMap((u) => {
+      if (!u.stateId) return [];
+      const canonical = CANONICAL_SURFACE_MODULES[u.tagName];
+      const bound = canonical
+        ? jsxUsesResolvedSymbol(
+            { ownerFile: relPath, expectedModule: canonical, symbol: u.tagName, jsxUsages, imports },
+            u.tagName,
+            canonical,
+          )
+        : false;
+      return [{ component: u.tagName, stateId: u.stateId, boundToCanonicalModule: bound }];
+    });
+
+  // conditional stateId variants (e.g. questionStateId ternary)
+  const abs = join(root, relPath);
+  const src = readFileSync(abs, 'utf8');
+  const sf = ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const conditional = collectConditionalConstStrings(sf);
+  for (const [varName, variants] of conditional) {
+    void varName;
+    for (const variant of variants) {
+      const tag = 'PremiumDecisionSurface';
+      const canonical = CANONICAL_SURFACE_MODULES[tag];
+      if (
+        !premiumSurfaceMounts.some((m) => m.component === tag && m.stateId === variant) &&
+        jsxUsages.some((u) => u.tagName === tag)
+      ) {
+        premiumSurfaceMounts.push({
+          component: tag,
+          stateId: variant,
+          boundToCanonicalModule: jsxUsesResolvedSymbol(
+            { ownerFile: relPath, expectedModule: canonical, symbol: tag, jsxUsages, imports },
+            tag,
+            canonical,
+          ),
+        });
+      }
+    }
+  }
+
+  const dataPremiumStates: PremiumDataStateHit[] = jsxUsages
+    .filter((u) => u.dataPremiumState)
+    .map((u) => ({ value: u.dataPremiumState! }));
+
   return { relPath, importedSymbols, premiumSurfaceMounts, dataPremiumStates };
 }
 
@@ -87,8 +135,9 @@ export function hasPremiumSurfaceMount(
   component: 'PremiumExperienceSurface' | 'PremiumDecisionSurface',
   stateId: string,
 ): boolean {
-  if (!inspection.importedSymbols.has(component)) return false;
-  return inspection.premiumSurfaceMounts.some((m) => m.component === component && m.stateId === stateId);
+  return inspection.premiumSurfaceMounts.some(
+    (m) => m.component === component && m.stateId === stateId && m.boundToCanonicalModule,
+  );
 }
 
 export function hasDataPremiumState(inspection: PremiumAstInspection, value: string): boolean {
@@ -97,8 +146,22 @@ export function hasDataPremiumState(inspection: PremiumAstInspection, value: str
 
 export function freeShareAccidentallyPremiumWrapped(root: string, relPath: string): boolean {
   const inspection = inspectPremiumOwnerFile(root, relPath);
-  return (
-    inspection.importedSymbols.has('PremiumDecisionSurface') ||
-    inspection.premiumSurfaceMounts.some((m) => m.component === 'PremiumDecisionSurface')
-  );
+  return inspection.premiumSurfaceMounts.some((m) => m.component === 'PremiumDecisionSurface');
+}
+
+export function proofForSymbol(
+  root: string,
+  relPath: string,
+  symbol: keyof typeof CANONICAL_SURFACE_MODULES,
+): OwnerModuleProof {
+  const host = createPremiumCompilerHost(root);
+  const imports = parseImportBindings(root, relPath, host.options);
+  const jsxUsages = parseJsxUsages(root, relPath, imports);
+  return {
+    ownerFile: relPath,
+    expectedModule: CANONICAL_SURFACE_MODULES[symbol],
+    symbol,
+    jsxUsages,
+    imports,
+  };
 }

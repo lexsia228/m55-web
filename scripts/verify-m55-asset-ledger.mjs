@@ -77,6 +77,10 @@ const INTERNAL_FOUR_CHAPTER_ALLOWED = [
   'components/dtr/PremiumDrawerHub.tsx',
   'app/legal',
   'docs/',
+  'lib/m55/commercialUx/premiumExperience/premiumExperienceVerifier.ts',
+  'lib/m55/commercialUx/premiumExperience/premiumExperienceEvidenceManifest.ts',
+  'lib/m55/commercialUx/premiumExperience/premiumExperienceRouteReachability.ts',
+  'lib/m55/commercialUx/premiumExperience/__fixtures__',
 ];
 
 function isInternalAllowed(rel) {

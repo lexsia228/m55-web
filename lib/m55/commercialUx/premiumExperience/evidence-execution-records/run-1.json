@@ -1,0 +1,38 @@
+{
+  "suite": "premium-experience-evidence",
+  "runId": "run-1",
+  "sourceTreeDiffId": "03a490cf60745cc6",
+  "gitHead": "4a9f63d2d9904eef0af527229fefebb050afa576",
+  "command": "npx playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
+  "expectedTestCount": 19,
+  "passed": 19,
+  "failed": 0,
+  "skipped": 0,
+  "interrupted": 0,
+  "startedAt": "2026-07-28T14:57:56.704Z",
+  "endedAt": "2026-07-28T14:59:09.041Z",
+  "expectedOrigin": "http://localhost:3000|http://127.0.0.1:3000",
+  "actualOrigin": "localhost|127.0.0.1",
+  "pngCount": 42,
+  "pdfCount": 5,
+  "evidenceManifestDigest": "4a7b4b78562678381d1bbd0ca329a056fc89dda3c1d59b0db7db158abc124d8d",
+  "purchasedBodyDigests": [
+    {
+      "fileName": "purchased-report-body-390.png",
+      "sha256": "b5a660fa8294d200aceff9d29dd72cded3d8a895c1c7f6eb87cd1a86e4dcc5bd",
+      "byteLength": 456678
+    },
+    {
+      "fileName": "purchased-report-body-768.png",
+      "sha256": "3f49c3426232c4d11d9e80c64f759837e5f52c6a3c707ed544fb684e8758c404",
+      "byteLength": 486858
+    },
+    {
+      "fileName": "purchased-report-body-1280.png",
+      "sha256": "7644aa5390c261027a8b51925f5b2c209371c0f905a136aa699e1adcc1fba0f4",
+      "byteLength": 489674
+    }
+  ],
+  "evidenceFailures": [],
+  "finalVerdict": "PASS"
+}

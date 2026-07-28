@@ -179,7 +179,7 @@ for (const vp of VIEWPORTS) {
 
 for (const vp of VIEWPORTS) {
   test(`premium share card @${vp.name}`, async ({ page }) => {
-    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    requireLocalDevFixture(`premium share card @${vp.name}`);
     await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/premium-share-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -190,6 +190,14 @@ for (const vp of VIEWPORTS) {
     await assertDecisionSheet(page);
     await shot(page, 'premium-share-card', vp.name);
   });
+}
+
+function requireLocalDevFixture(testName: string) {
+  if (process.env.VERCEL_ENV === 'production') {
+    throw new Error(
+      `PREMIUM_EVIDENCE_REQUIRES_LOCAL_DEV: ${testName} requires local dev fixtures; VERCEL_ENV=production blocks /dev routes.`,
+    );
+  }
 }
 
 async function blockClerkTakeover(page: Page) {
@@ -223,7 +231,7 @@ async function captureElementEvidence(page: Page, locatorSelector: string, name:
 
 for (const vp of VIEWPORTS) {
   test(`purchased report fixture @${vp.name}`, async ({ page }) => {
-    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    requireLocalDevFixture(`purchased report fixture @${vp.name}`);
     await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -238,14 +246,16 @@ for (const vp of VIEWPORTS) {
     const bodyLocator = page.getByTestId('m55-purchased-report-body');
     await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
     await expect(bodyLocator.getByRole('heading', { level: 2 })).toContainText('の自分の形');
-    await expect(page.locator('.reportRoot, [data-m55-dtr-scroll-root="true"]')).toBeVisible();
+    await expect(page.getByText('読み込み中…')).toHaveCount(0);
+    await expect(page.locator('[data-m55-premium-decision-field="true"]')).toHaveCount(0);
+    await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
     await captureElementEvidence(page, '[data-testid="m55-purchased-report-body"]', 'purchased-report-body', vp.name);
   });
 }
 
 for (const vp of VIEWPORTS) {
   test(`additional reading input @${vp.name}`, async ({ page }) => {
-    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    requireLocalDevFixture(`additional reading input @${vp.name}`);
     await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=available#consultation-room', {
@@ -262,7 +272,7 @@ for (const vp of VIEWPORTS) {
 
 for (const vp of VIEWPORTS) {
   test(`additional reading result @${vp.name}`, async ({ page }) => {
-    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    requireLocalDevFixture(`additional reading result @${vp.name}`);
     await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
@@ -279,7 +289,7 @@ for (const vp of VIEWPORTS) {
 
 for (const vp of VIEWPORTS) {
   test(`saved premium reopen @${vp.name}`, async ({ page }) => {
-    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    requireLocalDevFixture(`saved premium reopen @${vp.name}`);
     await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -323,29 +333,28 @@ test('print PDF premium states @1280', async ({ browser }) => {
     await page.pdf({ format: 'A4', printBackground: true }),
   );
 
-  if (process.env.VERCEL_ENV !== 'production') {
-    const devContext = await browser.newContext();
-    const devPage = await devContext.newPage();
-    await blockClerkTakeover(devPage);
-    await devPage.goto('/dev/dtr-drawer-preview', { timeout: 60_000, waitUntil: 'domcontentloaded' });
-    await expect(devPage.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
-    fs.writeFileSync(
-      path.join(pdfDir, 'purchased-report.pdf'),
-      await devPage.pdf({ format: 'A4', printBackground: true }),
-    );
+  requireLocalDevFixture('print PDF premium states @1280');
+  const devContext = await browser.newContext();
+  const devPage = await devContext.newPage();
+  await blockClerkTakeover(devPage);
+  await devPage.goto('/dev/dtr-drawer-preview', { timeout: 60_000, waitUntil: 'domcontentloaded' });
+  await expect(devPage.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
+  fs.writeFileSync(
+    path.join(pdfDir, 'purchased-report.pdf'),
+    await devPage.pdf({ format: 'A4', printBackground: true }),
+  );
 
-    await devPage.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
-      timeout: 60_000,
-      waitUntil: 'domcontentloaded',
-    });
-    await expect(devPage.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
-    await devPage.waitForTimeout(1000);
-    fs.writeFileSync(
-      path.join(pdfDir, 'additional-reading-result.pdf'),
-      await devPage.pdf({ format: 'A4', printBackground: true }),
-    );
-    await devContext.close();
-  }
+  await devPage.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
+    timeout: 60_000,
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(devPage.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
+  await expect(devPage.locator('[class*="replyCard"]').first()).toBeVisible({ timeout: 30_000 });
+  fs.writeFileSync(
+    path.join(pdfDir, 'additional-reading-result.pdf'),
+    await devPage.pdf({ format: 'A4', printBackground: true }),
+  );
+  await devContext.close();
 
   await context.close();
 });

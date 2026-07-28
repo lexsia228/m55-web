@@ -31,7 +31,9 @@
         "test:e2e:visual": "playwright test e2e/home-core-visual.spec.ts",
         "test:e2e:experience-control-plane": "playwright test e2e/experience-control-plane-visual.spec.ts",
         "test:e2e:self-funnel": "playwright test e2e/self-funnel-runtime-state.spec.ts",
-        "test:e2e:self-funnel-growth": "playwright test e2e/self-funnel-growth-share.spec.ts"
+        "test:e2e:self-funnel-growth": "playwright test e2e/self-funnel-growth-share.spec.ts",
+        "test:e2e:premium-experience-evidence": "node scripts/run-premium-experience-evidence.mjs",
+        "test:premium-experience-verifier": "npx tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },
     "dependencies": {
         "@capacitor/filesystem": "^6.0.0",
