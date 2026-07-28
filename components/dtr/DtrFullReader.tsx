@@ -3022,7 +3022,13 @@ function GroundingPanel({
    Main component
    ───────────────────────────────────────────────────────────────────────────── */
 
-export default function DtrFullReader({
+type ReaderAuthContext = {
+  authLoaded: boolean;
+  ownerId: string | null;
+  fixtureMode: boolean;
+};
+
+function DtrFullReaderCore({
   ownershipType,
   aiConsultIncluded,
   expiresAt,
@@ -3031,12 +3037,12 @@ export default function DtrFullReader({
   consultDevPreviewRoomData,
   consultWalletSnapshot = null,
   devPreviewFixtureReady = false,
-}: Props) {
+  authLoaded,
+  ownerId,
+  fixtureMode,
+}: Props & ReaderAuthContext) {
   const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
-  // Footer snapshot starts from SSR prop; updated after successful send via callback.
   const [footerWalletSnapshot, setFooterWalletSnapshot] = useState(consultWalletSnapshot);
-  const { user, isLoaded } = useUser();
-  const ownerId = user?.id ?? null;
 
   const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
     if (panel === 'consult') {
@@ -3064,7 +3070,8 @@ export default function DtrFullReader({
 
   /** Checkout / processing 経由後も、device-local → Clerk へ寄せる。 */
   useEffect(() => {
-    if (!isLoaded || !ownerId) return;
+    if (fixtureMode) return;
+    if (!authLoaded || !ownerId) return;
     try {
       const sp = new URLSearchParams(window.location.search);
       if (sp.get('post_purchase') !== '1') return;
@@ -3074,10 +3081,10 @@ export default function DtrFullReader({
     } catch {
       /* no-op */
     }
-  }, [isLoaded, ownerId]);
+  }, [authLoaded, fixtureMode, ownerId]);
 
   const view = useMemo(() => {
-    const readerReady = isLoaded || devPreviewFixtureReady === true;
+    const readerReady = authLoaded || devPreviewFixtureReady === true;
     if (!readerReady) return { kind: 'loading' as const };
 
     const env = purchasedSnapshot.envelope;
@@ -3092,7 +3099,7 @@ export default function DtrFullReader({
       birthDate: purchasedSnapshot.profile.birthDate,
       nickname: purchasedSnapshot.profile.nickname,
     };
-  }, [devPreviewFixtureReady, isLoaded, purchasedSnapshot]);
+  }, [authLoaded, devPreviewFixtureReady, purchasedSnapshot]);
 
   useEffect(() => {
     if (view.kind !== 'ready') return;
@@ -3154,6 +3161,8 @@ export default function DtrFullReader({
               id="dtr-core-analysis"
               className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer} ${styles.coreAnalysisScrollAnchor}`}
               aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['1'].hubLabelJa}
+              data-m55-premium-state="purchased.report.body"
+              data-testid="m55-purchased-report-body"
             >
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="1" />
@@ -3521,4 +3530,30 @@ export default function DtrFullReader({
       </div>
     </div>
   );
+}
+
+function DtrFullReaderAuthenticated(props: Props) {
+  const { user, isLoaded } = useUser();
+  return (
+    <DtrFullReaderCore
+      {...props}
+      authLoaded={isLoaded}
+      ownerId={user?.id ?? null}
+      fixtureMode={false}
+    />
+  );
+}
+
+export default function DtrFullReader(props: Props) {
+  if (props.devPreviewFixtureReady === true) {
+    return (
+      <DtrFullReaderCore
+        {...props}
+        authLoaded
+        ownerId={null}
+        fixtureMode
+      />
+    );
+  }
+  return <DtrFullReaderAuthenticated {...props} />;
 }

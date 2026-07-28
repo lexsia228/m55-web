@@ -764,6 +764,7 @@ export default function ConsultRoom({
     <div
       id={CONSULT_COMPOSE_PANEL_ID}
       className={`${styles.composePanel} ${styles.composePanelScrollAnchor} ${styles.replyWizard}`}
+      data-m55-premium-state="purchased.consult.input"
     >
       <h3 className={`${styles.composePanelTitle} ${styles.wizTypoPanelTitle}`}>
         {ROOM_UI_COPY.composePanelTitle}

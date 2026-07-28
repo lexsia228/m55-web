@@ -195,8 +195,8 @@ export const PREMIUM_EXPERIENCE_STATE_REGISTRY: readonly PremiumExperienceStateD
   },
   {
     id: 'premium.share.card',
-    routePattern: '/core',
-    state: 'premium_share_teaser',
+    routePattern: '/dev/premium-share-preview',
+    state: 'premium_share_card',
     experienceTier: 'PREMIUM',
     visualAuthorityKey: PREMIUM_VISUAL_AUTHORITY_KEY,
     editorialAuthorityKey: 'share.card',
@@ -205,8 +205,11 @@ export const PREMIUM_EXPERIENCE_STATE_REGISTRY: readonly PremiumExperienceStateD
     printMode: 'privacy_safe',
     shareAuthority: 'privacy_safe_share',
     printAuthority: 'privacy_safe',
-    ownerFiles: ['lib/m55/freeResult/privacySafeShareCardV1.ts'],
-    ecpRouteId: 'free.core.share',
+    ownerFiles: [
+      'lib/m55/freeResult/privacySafeShareCardV1.ts',
+      'components/core/CorePremiumResultShareCTA.tsx',
+    ],
+    ecpRouteId: 'dev.premium_share_preview',
   },
 ] as const;
 

@@ -10,10 +10,29 @@ import {
   PREMIUM_EXPERIENCE_MOUNT_CONTRACT,
   PREMIUM_DEV_FIXTURE_FORBIDDEN_OWNER_FILES,
   PREMIUM_DEV_FIXTURE_OWNER_FILES,
+  PREMIUM_SHARE_FREE_OWNER_FILE,
+  PREMIUM_SHARE_PREMIUM_OWNER_FILE,
 } from './premiumExperienceMountContract';
 import { PREMIUM_VISUAL_AUTHORITY_KEY, PREMIUM_VISUAL_SOURCE, PREMIUM_VISUAL_TOKENS } from './premiumVisualAuthority';
 import { M55_EXPERIENCE_ROUTE_REGISTRY } from '../experience/experienceRouteRegistry';
 import { M55_ASSET_ROUTE_CONSUMPTION } from '../assetLedger/assetRouteConsumption';
+import {
+  PREMIUM_EXPERIENCE_REQUIRED_PDF_COUNT,
+  PREMIUM_EXPERIENCE_REQUIRED_PNG_COUNT,
+  PREMIUM_PURCHASED_BODY_MIN_BYTES,
+  listExpectedPremiumEvidencePngFileNames,
+} from './premiumExperienceEvidenceManifest';
+import {
+  freeShareAccidentallyPremiumWrapped,
+  hasDataPremiumState,
+  hasPremiumSurfaceMount,
+  inspectPremiumOwnerFile,
+} from './premiumExperienceAstInspection';
+import {
+  buildPrivacySafeShareCardV1,
+  resolveShareAbsoluteUrl,
+  SHARE_UI_COPY_V1,
+} from '../../freeResult/privacySafeShareCardV1';
 
 const ROOT = join(import.meta.dirname, '../../../..');
 
@@ -94,17 +113,83 @@ describe('premium experience SSOT', () => {
     }
     for (const rel of PREMIUM_DEV_FIXTURE_OWNER_FILES) {
       const src = readFileSync(join(ROOT, rel), 'utf8');
+      if (rel.includes('premium-share-preview')) {
+        assert.match(src, /premium-share-preview|CorePremiumResultShareCTA/);
+        continue;
+      }
       assert.match(src, /devPreviewFixtureReady|DtrDrawerPreviewClient/);
     }
     assert.doesNotMatch(prod, /devPreviewFixtureReady/);
   });
 
-  it('premium share applies visual authority wrapper', () => {
-    const src = readFileSync(join(ROOT, 'components/core/CoreFreeResultShareCTA.tsx'), 'utf8');
-    assert.match(src, /PremiumDecisionSurface/);
-    assert.match(src, /premium\.share\.card/);
+  it('free share owner is not premium-wrapped; premium share owner is explicit', () => {
+    assert.equal(freeShareAccidentallyPremiumWrapped(ROOT, PREMIUM_SHARE_FREE_OWNER_FILE), false);
+    const freeSrc = readFileSync(join(ROOT, PREMIUM_SHARE_FREE_OWNER_FILE), 'utf8');
+    assert.doesNotMatch(freeSrc, /PremiumDecisionSurface/);
+    assert.match(freeSrc, /data-m55-share-presentation="free"/);
+
+    const premiumInspection = inspectPremiumOwnerFile(ROOT, PREMIUM_SHARE_PREMIUM_OWNER_FILE);
+    assert.ok(
+      hasPremiumSurfaceMount(premiumInspection, 'PremiumDecisionSurface', 'premium.share.card'),
+    );
+    assert.match(
+      readFileSync(join(ROOT, PREMIUM_SHARE_PREMIUM_OWNER_FILE), 'utf8'),
+      /data-m55-share-presentation="premium"/,
+    );
+  });
+
+  it('free and premium share use the same canonical privacy-safe card authority', () => {
+    const card = buildPrivacySafeShareCardV1({ stemLaneIndex: 1 });
+    assert.ok(card);
+    const freeSrc = readFileSync(join(ROOT, PREMIUM_SHARE_FREE_OWNER_FILE), 'utf8');
+    const premiumSrc = readFileSync(join(ROOT, PREMIUM_SHARE_PREMIUM_OWNER_FILE), 'utf8');
+    assert.match(freeSrc, /CoreShareResultBody/);
+    assert.match(premiumSrc, /CoreShareResultBody/);
+    assert.match(freeSrc, /privacySafeShareCardV1/);
+    assert.match(premiumSrc, /privacySafeShareCardV1/);
+    assert.equal(card.traitNameJa, 'プランナー');
+  });
+
+  it('visible share copy hides token while action URL stays privacy-safe', () => {
+    const card = buildPrivacySafeShareCardV1({ stemLaneIndex: 1 })!;
+    const bodySrc = readFileSync(join(ROOT, 'components/core/CoreShareResultBody.tsx'), 'utf8');
+    assert.match(bodySrc, /destinationLabelJa/);
+    assert.doesNotMatch(bodySrc, /card\.sharePath/);
+    const url = resolveShareAbsoluteUrl(card.sharePath);
+    assert.match(url, /\/r\/s1-1$/);
+    assert.equal(SHARE_UI_COPY_V1.destinationLabelJa, 'M55の共有ページ');
+  });
+
+  it('free.core.share does not consume premium visual authority', () => {
     const keys = M55_ASSET_ROUTE_CONSUMPTION['free.core.share'] ?? [];
-    assert.ok(keys.includes(PREMIUM_VISUAL_AUTHORITY_KEY));
+    assert.ok(!keys.includes(PREMIUM_VISUAL_AUTHORITY_KEY));
+    const devKeys = M55_ASSET_ROUTE_CONSUMPTION['dev.premium_share_preview'] ?? [];
+    assert.ok(devKeys.includes(PREMIUM_VISUAL_AUTHORITY_KEY));
+  });
+
+  it('AST mount inspection covers purchased states', () => {
+    const reader = inspectPremiumOwnerFile(ROOT, 'components/dtr/DtrFullReader.tsx');
+    assert.ok(hasDataPremiumState(reader, 'purchased.report.body'));
+    const consult = inspectPremiumOwnerFile(ROOT, 'components/dtr/ConsultRoom.tsx');
+    assert.ok(hasDataPremiumState(consult, 'purchased.consult.input'));
+    const reply = inspectPremiumOwnerFile(ROOT, 'components/dtr/ConsultReplyCard.tsx');
+    assert.ok(hasDataPremiumState(reply, 'purchased.consult.result'));
+    const notice = inspectPremiumOwnerFile(ROOT, 'components/dtr/SavedSnapshotNotice.tsx');
+    assert.ok(hasDataPremiumState(notice, 'purchased.saved_reopen'));
+  });
+
+  it('DtrFullReader fixture path bypasses Clerk hook mount', () => {
+    const src = readFileSync(join(ROOT, 'components/dtr/DtrFullReader.tsx'), 'utf8');
+    assert.match(src, /function DtrFullReaderAuthenticated/);
+    assert.match(src, /fixtureMode/);
+    assert.match(src, /if \(props\.devPreviewFixtureReady === true\)/);
+  });
+
+  it('evidence manifest declares exact 42 PNG + 5 PDF requirements', () => {
+    assert.equal(PREMIUM_EXPERIENCE_REQUIRED_PNG_COUNT, 42);
+    assert.equal(PREMIUM_EXPERIENCE_REQUIRED_PDF_COUNT, 5);
+    assert.equal(listExpectedPremiumEvidencePngFileNames().length, 42);
+    assert.ok(PREMIUM_PURCHASED_BODY_MIN_BYTES >= 8000);
   });
 
   it('saved reopen notice is mounted in purchased reader', () => {

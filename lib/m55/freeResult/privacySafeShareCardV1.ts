@@ -31,6 +31,7 @@ export const SHARE_UI_COPY_V1 = {
   titleJa: T.shareAction,
   bodyJa: '生年月日や回答は含まれません。資質名と短い一文だけを共有できます。',
   previewLabelJa: '共有される内容',
+  destinationLabelJa: 'M55の共有ページ',
   nativeShareJa: '共有する',
   copyLinkJa: 'リンクをコピー',
   copiedJa: 'リンクをコピーしました',

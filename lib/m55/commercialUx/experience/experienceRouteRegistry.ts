@@ -777,6 +777,23 @@ export const M55_EXPERIENCE_ROUTE_REGISTRY: readonly ExperienceRouteEntry[] = [
     ownerFiles: ['app/prototype/page.tsx'],
   },
   {
+    id: 'dev.premium_share_preview',
+    pattern: '/dev/premium-share-preview',
+    archetype: 'PUBLIC_EDITORIAL',
+    shell: 'public',
+    primaryCtaState: 'NONE',
+    headerMode: 'none',
+    footerMode: 'none',
+    printMode: 'privacy_safe',
+    privacy: 'privacy_safe_share',
+    productTruth: 'trait_identity',
+    migration: 'dev_only',
+    ownerFiles: [
+      'app/dev/premium-share-preview/page.tsx',
+      'components/core/CorePremiumResultShareCTA.tsx',
+    ],
+  },
+  {
     id: 'dev.previews',
     pattern: '/dev/:slug',
     archetype: 'PUBLIC_EDITORIAL',

@@ -130,7 +130,7 @@ for (const vp of VIEWPORTS) {
     await shot(page, 'premium-bridge', vp.name);
 
     await page.getByTestId('m55-paid-bridge-primary').click();
-    await page.waitForURL('**/dtr/lp**');
+    await expect(page).toHaveURL(/\/dtr\/lp/, { timeout: 60_000 });
     await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 30_000 });
     await assertPremiumAuthority(page);
     await assertDecisionSheet(page);
@@ -178,46 +178,75 @@ for (const vp of VIEWPORTS) {
 }
 
 for (const vp of VIEWPORTS) {
-  test(`premium share card @${vp.name}`, async ({ browser }) => {
-    const context = await cleanContext(browser);
-    await seedResult(context);
-    const page = await context.newPage();
+  test(`premium share card @${vp.name}`, async ({ page }) => {
+    test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto('/core');
-    await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
-      timeout: 30_000,
-    });
-    await page.getByTestId('m55-free-result-share').scrollIntoViewIfNeeded();
+    await page.goto('/dev/premium-share-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page.locator('[data-m55-dev-preview="premium-share"]')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('m55-premium-experience-share')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('m55-premium-result-share')).toBeVisible();
     await assertPremiumAuthority(page);
     await assertDecisionSheet(page);
     await shot(page, 'premium-share-card', vp.name);
-    await context.close();
   });
+}
+
+async function blockClerkTakeover(page: Page) {
+  await page.route(/clerk\.accounts\.dev|accounts\.dev|clerk-sync-keyless/, (route) =>
+    route.fulfill({ status: 204, body: '' }),
+  );
+}
+
+async function assertFixtureOrigin(page: Page, fixturePath: string) {
+  await expect(page).toHaveURL(new RegExp(fixturePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  const origin = new URL(page.url()).origin;
+  expect(origin).toMatch(/localhost|127\.0\.0\.1/);
+}
+
+async function captureElementEvidence(page: Page, locatorSelector: string, name: string, vp: string) {
+  const locator = page.locator(locatorSelector);
+  await expect(locator).toBeVisible({ timeout: 30_000 });
+  await expect
+    .poll(async () => {
+      const box = await locator.boundingBox();
+      return box ? box.width * box.height : 0;
+    })
+    .toBeGreaterThan(5_000);
+  fs.mkdirSync(OUT, { recursive: true });
+  const filePath = path.join(OUT, `${name}-${vp}.png`);
+  await locator.screenshot({ path: filePath });
+  const size = fs.statSync(filePath).size;
+  expect(size).toBeGreaterThan(8_000);
+  return filePath;
 }
 
 for (const vp of VIEWPORTS) {
   test(`purchased report fixture @${vp.name}`, async ({ page }) => {
     test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
-    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await assertFixtureOrigin(page, '/dev/dtr-drawer-preview');
     await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
     await expect(page.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible();
     await assertPremiumAuthority(page);
     await shot(page, 'purchased-report-landing', vp.name);
     await openDrawerPanel(page, 'chapter-1');
-    await expect(page.locator('#dtr-core-analysis')).toBeVisible({ timeout: 30_000 });
-    await page.waitForTimeout(800);
-    await shot(page, 'purchased-report-body', vp.name);
+    await assertFixtureOrigin(page, '/dev/dtr-drawer-preview');
+    const bodyLocator = page.getByTestId('m55-purchased-report-body');
+    await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
+    await expect(bodyLocator.getByRole('heading', { level: 2 })).toContainText('の自分の形');
+    await expect(page.locator('.reportRoot, [data-m55-dtr-scroll-root="true"]')).toBeVisible();
+    await captureElementEvidence(page, '[data-testid="m55-purchased-report-body"]', 'purchased-report-body', vp.name);
   });
 }
 
 for (const vp of VIEWPORTS) {
   test(`additional reading input @${vp.name}`, async ({ page }) => {
     test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
-    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=available#consultation-room', {
       waitUntil: 'domcontentloaded',
@@ -234,7 +263,7 @@ for (const vp of VIEWPORTS) {
 for (const vp of VIEWPORTS) {
   test(`additional reading result @${vp.name}`, async ({ page }) => {
     test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
-    await page.route(/clerk\.accounts\.dev|accounts\.dev/, (route) => route.abort());
+    await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
       waitUntil: 'domcontentloaded',
@@ -251,6 +280,7 @@ for (const vp of VIEWPORTS) {
 for (const vp of VIEWPORTS) {
   test(`saved premium reopen @${vp.name}`, async ({ page }) => {
     test.skip(process.env.VERCEL_ENV === 'production', 'dev fixtures blocked on production');
+    await blockClerkTakeover(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible({ timeout: 60_000 });
@@ -296,7 +326,7 @@ test('print PDF premium states @1280', async ({ browser }) => {
   if (process.env.VERCEL_ENV !== 'production') {
     const devContext = await browser.newContext();
     const devPage = await devContext.newPage();
-    await devPage.route(/accounts\.dev/, (route) => route.abort());
+    await blockClerkTakeover(devPage);
     await devPage.goto('/dev/dtr-drawer-preview', { timeout: 60_000, waitUntil: 'domcontentloaded' });
     await expect(devPage.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
     fs.writeFileSync(

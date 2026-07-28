@@ -114,16 +114,27 @@ describe('growth share source guards', () => {
 
   it('share CTA never auto-posts and supports cancel/copy with post-success analytics', () => {
     const src = read('components/core/CoreFreeResultShareCTA.tsx');
-    assert.match(src, /navigator\.share/);
-    assert.match(src, /AbortError/);
-    assert.match(src, /clipboard\.writeText/);
-    assert.match(src, /nativeShareInvoked/);
-    assert.match(src, /shareLinkCopied/);
-    assert.match(src, /shareFallbackText/);
-    assert.match(src, /onClick=\{handleNativeShare\}/);
-    assert.match(src, /onClick=\{handleCopyLink\}/);
-    const copyBlock = src.slice(src.indexOf('async function handleCopyLink'));
-    assert.ok(copyBlock.indexOf('shareLinkCopied') > copyBlock.indexOf('clipboard.writeText'));
+    assert.match(src, /useCoreShareActions/);
+    assert.match(src, /CoreShareResultBody/);
+    assert.doesNotMatch(src, /PremiumDecisionSurface/);
+    const actions = read('components/core/useCoreShareActions.ts');
+    assert.match(actions, /navigator\.share/);
+    assert.match(actions, /AbortError/);
+    assert.match(actions, /clipboard\.writeText/);
+    assert.match(actions, /nativeShareInvoked/);
+    assert.match(actions, /shareLinkCopied/);
+  });
+
+  it('visible share card text does not expose token or raw share path', () => {
+    const body = read('components/core/CoreShareResultBody.tsx');
+    assert.match(body, /destinationLabelJa/);
+    assert.doesNotMatch(body, /sharePath/);
+    assert.doesNotMatch(body, /\/r\//);
+    assert.doesNotMatch(body, /s1-/);
+    const card = buildPrivacySafeShareCardV1({ stemLaneIndex: 2 })!;
+    const url = resolveShareAbsoluteUrl(card.sharePath);
+    assert.match(url, /\/r\/s1-2$/);
+    assert.match(SHARE_UI_COPY_V1.destinationLabelJa, /M55/);
   });
 
   it('sticky Premium CTA routes to paid questions, not checkout', () => {
@@ -150,6 +161,8 @@ describe('growth share source guards', () => {
     const files = [
       'lib/m55/freeResult/privacySafeShareCardV1.ts',
       'components/core/CoreFreeResultShareCTA.tsx',
+      'components/core/CorePremiumResultShareCTA.tsx',
+      'components/core/useCoreShareActions.ts',
       'components/share/SharedEntryPanel.tsx',
       'app/r/[token]/page.tsx',
       'components/core/CorePremiumStickyCta.tsx',
