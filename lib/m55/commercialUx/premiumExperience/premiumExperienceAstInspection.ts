@@ -1,21 +1,30 @@
 /**
  * TypeScript AST inspection for Premium Experience mount verification.
+ *
+ * Mounts are only recognised when the JSX tag's import binding resolves to the
+ * canonical owner module, so markers inside comments or string literals never
+ * satisfy a contract.
  */
 import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  collectConditionalConstStrings,
   createPremiumCompilerHost,
   jsxUsesResolvedSymbol,
   parseImportBindings,
   parseJsxUsages,
+  sameModule,
   type OwnerModuleProof,
+  type ResolvedImportBinding,
 } from './premiumExperienceModuleResolution';
 
 export type PremiumSurfaceMountHit = {
   component: string;
   stateId: string;
   boundToCanonicalModule: boolean;
+  /** Module the JSX binding actually resolves to. */
+  resolvedModule: string | null;
 };
 
 export type PremiumDataStateHit = {
@@ -25,54 +34,19 @@ export type PremiumDataStateHit = {
 export type PremiumAstInspection = {
   relPath: string;
   importedSymbols: Set<string>;
+  imports: ResolvedImportBinding[];
   premiumSurfaceMounts: PremiumSurfaceMountHit[];
   dataPremiumStates: PremiumDataStateHit[];
 };
 
-const CANONICAL_SURFACE_MODULES: Record<string, string> = {
+export const CANONICAL_SURFACE_MODULES: Record<string, string> = {
   PremiumExperienceSurface: 'components/experience/PremiumExperienceSurface.tsx',
   PremiumDecisionSurface: 'components/experience/PremiumDecisionSurface.tsx',
 };
 
-function readJsxStringAttr(
-  attrs: ts.JsxAttributes,
-  name: string,
-  sourceFile: ts.SourceFile,
-): string | null {
-  for (const prop of attrs.properties) {
-    if (!ts.isJsxAttribute(prop)) continue;
-    if (prop.name.getText(sourceFile) !== name || !prop.initializer) continue;
-    if (ts.isStringLiteral(prop.initializer)) return prop.initializer.text;
-    if (
-      ts.isJsxExpression(prop.initializer) &&
-      prop.initializer.expression &&
-      ts.isStringLiteral(prop.initializer.expression)
-    ) {
-      return prop.initializer.expression.text;
-    }
-  }
-  return null;
-}
-
-function collectConditionalConstStrings(sourceFile: ts.SourceFile): Map<string, string[]> {
-  const map = new Map<string, string[]>();
-  function visit(node: ts.Node) {
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.initializer &&
-      ts.isConditionalExpression(node.initializer)
-    ) {
-      const whenTrue = node.initializer.whenTrue;
-      const whenFalse = node.initializer.whenFalse;
-      if (ts.isStringLiteral(whenTrue) && ts.isStringLiteral(whenFalse)) {
-        map.set(node.name.text, [whenTrue.text, whenFalse.text]);
-      }
-    }
-    ts.forEachChild(node, visit);
-  }
-  visit(sourceFile);
-  return map;
+function parseSourceFile(root: string, relPath: string): ts.SourceFile {
+  const src = readFileSync(join(root, relPath), 'utf8');
+  return ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 }
 
 export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumAstInspection {
@@ -81,45 +55,49 @@ export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumA
   const jsxUsages = parseJsxUsages(root, relPath, imports);
   const importedSymbols = new Set(imports.map((i) => i.localName));
 
+  const proofFor = (tag: string): OwnerModuleProof => ({
+    ownerFile: relPath,
+    expectedModule: CANONICAL_SURFACE_MODULES[tag] ?? '',
+    symbol: tag,
+    jsxUsages,
+    imports,
+  });
+
   const premiumSurfaceMounts: PremiumSurfaceMountHit[] = jsxUsages
     .filter((u) => u.tagName === 'PremiumExperienceSurface' || u.tagName === 'PremiumDecisionSurface')
     .flatMap((u) => {
       if (!u.stateId) return [];
       const canonical = CANONICAL_SURFACE_MODULES[u.tagName];
-      const bound = canonical
-        ? jsxUsesResolvedSymbol(
-            { ownerFile: relPath, expectedModule: canonical, symbol: u.tagName, jsxUsages, imports },
-            u.tagName,
-            canonical,
-          )
-        : false;
-      return [{ component: u.tagName, stateId: u.stateId, boundToCanonicalModule: bound }];
+      return [
+        {
+          component: u.tagName,
+          stateId: u.stateId,
+          boundToCanonicalModule: canonical
+            ? jsxUsesResolvedSymbol(proofFor(u.tagName), u.tagName, canonical)
+            : false,
+          resolvedModule: u.binding?.effectiveModule ?? null,
+        },
+      ];
     });
 
-  // conditional stateId variants (e.g. questionStateId ternary)
-  const abs = join(root, relPath);
-  const src = readFileSync(abs, 'utf8');
-  const sf = ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  const conditional = collectConditionalConstStrings(sf);
-  for (const [varName, variants] of conditional) {
-    void varName;
+  // Conditional stateId variants (e.g. `const questionStateId = edit ? A : B`).
+  const sf = parseSourceFile(root, relPath);
+  for (const [, variants] of collectConditionalConstStrings(sf)) {
     for (const variant of variants) {
       const tag = 'PremiumDecisionSurface';
       const canonical = CANONICAL_SURFACE_MODULES[tag];
-      if (
-        !premiumSurfaceMounts.some((m) => m.component === tag && m.stateId === variant) &&
-        jsxUsages.some((u) => u.tagName === tag)
-      ) {
-        premiumSurfaceMounts.push({
-          component: tag,
-          stateId: variant,
-          boundToCanonicalModule: jsxUsesResolvedSymbol(
-            { ownerFile: relPath, expectedModule: canonical, symbol: tag, jsxUsages, imports },
-            tag,
-            canonical,
-          ),
-        });
-      }
+      const alreadyKnown = premiumSurfaceMounts.some(
+        (m) => m.component === tag && m.stateId === variant,
+      );
+      const usesTag = jsxUsages.some((u) => u.tagName === tag);
+      if (alreadyKnown || !usesTag) continue;
+      const binding = imports.find((i) => i.localName === tag) ?? null;
+      premiumSurfaceMounts.push({
+        component: tag,
+        stateId: variant,
+        boundToCanonicalModule: jsxUsesResolvedSymbol(proofFor(tag), tag, canonical),
+        resolvedModule: binding?.effectiveModule ?? null,
+      });
     }
   }
 
@@ -127,7 +105,7 @@ export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumA
     .filter((u) => u.dataPremiumState)
     .map((u) => ({ value: u.dataPremiumState! }));
 
-  return { relPath, importedSymbols, premiumSurfaceMounts, dataPremiumStates };
+  return { relPath, importedSymbols, imports, premiumSurfaceMounts, dataPremiumStates };
 }
 
 export function hasPremiumSurfaceMount(
@@ -142,6 +120,45 @@ export function hasPremiumSurfaceMount(
 
 export function hasDataPremiumState(inspection: PremiumAstInspection, value: string): boolean {
   return inspection.dataPremiumStates.some((m) => m.value === value);
+}
+
+/**
+ * AST proof that a module passes a named prop to a resolved component tag —
+ * replaces raw source `includes()` as state-selection evidence.
+ */
+export function jsxPassesPropToComponent(
+  root: string,
+  relPath: string,
+  tagName: string,
+  propName: string,
+  expectedTagModule?: string,
+): boolean {
+  const host = createPremiumCompilerHost(root);
+  const imports = parseImportBindings(root, relPath, host.options);
+  const binding = imports.find((i) => i.localName === tagName);
+  if (!binding) return false;
+  if (expectedTagModule && !sameModule(binding.effectiveModule, expectedTagModule)) return false;
+
+  const sf = parseSourceFile(root, relPath);
+  let found = false;
+
+  function visit(node: ts.Node) {
+    if (found) return;
+    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+      const tag = ts.isIdentifier(node.tagName) ? node.tagName.text : null;
+      if (tag === tagName) {
+        for (const prop of node.attributes.properties) {
+          if (ts.isJsxAttribute(prop) && prop.name.getText(sf) === propName) {
+            found = true;
+            return;
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sf);
+  return found;
 }
 
 export function freeShareAccidentallyPremiumWrapped(root: string, relPath: string): boolean {

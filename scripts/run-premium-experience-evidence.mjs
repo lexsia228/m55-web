@@ -1,46 +1,91 @@
 #!/usr/bin/env node
 /**
  * Deterministic two-run Premium Experience evidence runner.
- * npm run test:e2e:premium-experience-evidence
+ *
+ *   npm run test:e2e:premium-experience-evidence
+ *
+ * Each run cleans only the governed evidence output, executes the complete
+ * required suite, parses the real Playwright JSON reporter (exit code, stats,
+ * test titles, capture events, observed origins), validates the evidence on disk
+ * and writes a small normalized execution record bound to a digest of the
+ * proof-relevant source tree.
+ *
+ * Raster SHA differences between the two runs are expected and are not a
+ * failure; only semantic evidence identity must match.
  */
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { REPO_ROOT, assertLockedProofToolchain, runProofTs } from './premium-proof-toolchain.mjs';
 
-const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const ROOT = REPO_ROOT;
 const SUITE = 'e2e/premium-experience-evidence.spec.ts';
 const REQUIRED_TESTS = 19;
+const REQUIRED_PNG = 42;
+const REQUIRED_PDF = 5;
+const REQUIRED_CAPTURE_RECORDS = 47;
 const EVIDENCE_DIR = join(ROOT, 'e2e/screenshots/premium-experience-ssot');
-const RECORDS_DIR = join(
-  ROOT,
-  'lib/m55/commercialUx/premiumExperience/evidence-execution-records',
-);
+const RECORDS_DIR = join(ROOT, 'lib/m55/commercialUx/premiumExperience/evidence-execution-records');
 const LOCAL_RUNS = join(ROOT, 'ops/runs/local');
+const CAPTURE_EVENT_PREFIX = 'M55_CAPTURE_EVENT ';
+const EXPECTED_ORIGIN_PATTERN = '^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$';
+const PLAYWRIGHT_BIN = join(ROOT, 'node_modules', '.bin', process.platform === 'win32' ? 'playwright.cmd' : 'playwright');
 
-function gitHead() {
-  const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' });
-  if (r.status !== 0) throw new Error('git rev-parse HEAD failed');
-  return r.stdout.trim();
+function sha256(text) {
+  return createHash('sha256').update(text).digest('hex');
 }
 
-function gitTreeDiffId() {
-  const r = spawnSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' });
-  return createHash('sha256').update(r.stdout.trim() || 'clean').digest('hex').slice(0, 16);
-}
-
-function loadManifestViaTsx() {
+/** Load the typed proof authority through the locked offline toolchain. */
+function loadProofPayload() {
   const script = `
     import { validatePremiumEvidenceOnDisk } from './lib/m55/commercialUx/premiumExperience/premiumExperienceEvidenceValidation.ts';
+    import { computePremiumProofSourceSnapshot } from './lib/m55/commercialUx/premiumExperience/premiumExperienceProofSourceSnapshot.ts';
     const root = ${JSON.stringify(ROOT)};
-    const evidence = validatePremiumEvidenceOnDisk(root);
-    console.log(JSON.stringify({ evidence }));
+    console.log('M55_PROOF_PAYLOAD ' + JSON.stringify({
+      evidence: validatePremiumEvidenceOnDisk(root),
+      snapshot: computePremiumProofSourceSnapshot(root),
+    }));
   `;
-  const r = spawnSync('npx', ['tsx', '-e', script], { cwd: ROOT, encoding: 'utf8' });
-  if (r.status !== 0) throw new Error(`manifest load failed: ${r.stderr || r.stdout}`);
-  const line = r.stdout.trim().split('\n').pop();
-  return JSON.parse(line);
+  const result = runProofTs(['-e', script]);
+  const line = (result.stdout ?? '')
+    .split('\n')
+    .reverse()
+    .find((l) => l.startsWith('M55_PROOF_PAYLOAD '));
+  if (result.status !== 0 || !line) {
+    throw new Error(`proof authority load failed:\n${result.stderr ?? ''}\n${result.stdout ?? ''}`);
+  }
+  return JSON.parse(line.slice('M55_PROOF_PAYLOAD '.length));
+}
+
+/** Validate the written records through the typed pure validators. */
+function validateWrittenRecords() {
+  const script = `
+    import { readFileSync } from 'node:fs';
+    import { join } from 'node:path';
+    import { validatePremiumRunRecordPair } from './lib/m55/commercialUx/premiumExperience/premiumExperienceRunRecordValidation.ts';
+    import { computeManifestDigest } from './lib/m55/commercialUx/premiumExperience/premiumExperienceEvidenceValidation.ts';
+    import { computePremiumProofSourceSnapshot } from './lib/m55/commercialUx/premiumExperience/premiumExperienceProofSourceSnapshot.ts';
+    const root = ${JSON.stringify(ROOT)};
+    const dir = ${JSON.stringify(RECORDS_DIR)};
+    const records = ['run-1', 'run-2'].map((id) =>
+      JSON.parse(readFileSync(join(dir, id + '.json'), 'utf8')),
+    );
+    const failures = validatePremiumRunRecordPair(records, {
+      expectedSourceSnapshotDigest: computePremiumProofSourceSnapshot(root).digest,
+      expectedManifestDigest: computeManifestDigest(),
+    });
+    console.log('M55_RECORD_VALIDATION ' + JSON.stringify({ failures }));
+  `;
+  const result = runProofTs(['-e', script]);
+  const line = (result.stdout ?? '')
+    .split('\n')
+    .reverse()
+    .find((l) => l.startsWith('M55_RECORD_VALIDATION '));
+  if (result.status !== 0 || !line) {
+    throw new Error(`record validation failed to run:\n${result.stderr ?? ''}\n${result.stdout ?? ''}`);
+  }
+  return JSON.parse(line.slice('M55_RECORD_VALIDATION '.length)).failures;
 }
 
 function cleanGovernedEvidence() {
@@ -54,130 +99,202 @@ function cleanGovernedEvidence() {
   mkdirSync(pdfDir, { recursive: true });
 }
 
-function countPassed(suite) {
-  let n = 0;
-  for (const spec of suite.specs ?? []) {
-    for (const test of spec.tests ?? []) {
-      for (const result of test.results ?? []) {
-        if (result.status === 'passed') n += 1;
-      }
-    }
-  }
-  for (const child of suite.suites ?? []) n += countPassed(child);
-  return n;
+function cleanPriorRecords() {
+  if (existsSync(RECORDS_DIR)) rmSync(RECORDS_DIR, { recursive: true, force: true });
+  mkdirSync(RECORDS_DIR, { recursive: true });
 }
 
+function walkSpecs(suite, visit) {
+  for (const spec of suite.specs ?? []) visit(spec);
+  for (const child of suite.suites ?? []) walkSpecs(child, visit);
+}
+
+/** Parse the real reporter output: statuses, titles, stdout capture events. */
 function parsePlaywrightJsonReport(raw) {
   const data = JSON.parse(raw);
   const stats = data.stats ?? {};
-  const passed = stats.expected ?? countPassed(data);
+  const testTitles = [];
+  const captureEvents = [];
+  let passedResults = 0;
+
+  for (const suite of data.suites ?? []) {
+    walkSpecs(suite, (spec) => {
+      for (const testCase of spec.tests ?? []) {
+        testTitles.push(`${testCase.projectName ?? 'default'}|${spec.title}`);
+        for (const result of testCase.results ?? []) {
+          if (result.status === 'passed') passedResults += 1;
+          for (const chunk of result.stdout ?? []) {
+            const text = typeof chunk === 'string' ? chunk : (chunk.text ?? '');
+            for (const line of text.split('\n')) {
+              if (!line.startsWith(CAPTURE_EVENT_PREFIX)) continue;
+              captureEvents.push(JSON.parse(line.slice(CAPTURE_EVENT_PREFIX.length)));
+            }
+          }
+        }
+      }
+    });
+  }
+
+  const rawReporterDigest = sha256(
+    JSON.stringify({
+      stats: {
+        expected: stats.expected ?? null,
+        unexpected: stats.unexpected ?? null,
+        flaky: stats.flaky ?? null,
+        skipped: stats.skipped ?? null,
+        interrupted: stats.interrupted ?? null,
+      },
+      titles: testTitles.slice().sort(),
+      captures: captureEvents
+        .map((e) => `${e.kind}|${e.fileName}|${e.captureId}|${e.stateId}|${e.viewport}|${e.actualOrigin}`)
+        .sort(),
+    }),
+  );
+
   return {
-    passed,
+    passed: stats.expected ?? passedResults,
     failed: (stats.unexpected ?? 0) + (stats.flaky ?? 0),
     skipped: stats.skipped ?? 0,
     interrupted: stats.interrupted ?? 0,
+    testTitles,
+    captureEvents,
+    rawReporterDigest,
   };
 }
 
-function runPlaywrightOnce(runLabel) {
+function runPlaywrightOnce(runId) {
   mkdirSync(LOCAL_RUNS, { recursive: true });
-  const jsonOut = join(LOCAL_RUNS, `premium-evidence-${runLabel}.json`);
+  const jsonOut = join(LOCAL_RUNS, `premium-evidence-${runId}.json`);
+  if (existsSync(jsonOut)) unlinkSync(jsonOut);
+
+  const args = ['test', SUITE, '--reporter=json'];
+  const command = `playwright ${args.join(' ')}`;
   const startedAt = new Date().toISOString();
-  const r = spawnSync(
-    'npx',
-    ['playwright', 'test', SUITE, '--reporter=json'],
-    {
-      cwd: ROOT,
-      encoding: 'utf8',
-      env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut },
-      maxBuffer: 64 * 1024 * 1024,
-    },
-  );
+  const result = spawnSync(PLAYWRIGHT_BIN, args, {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut },
+    maxBuffer: 256 * 1024 * 1024,
+  });
   const endedAt = new Date().toISOString();
+
   if (!existsSync(jsonOut)) {
-    throw new Error(`Playwright JSON report missing for ${runLabel}:\n${r.stderr}\n${r.stdout}`);
+    throw new Error(
+      `Playwright JSON report missing for ${runId}:\n${result.stderr ?? ''}\n${result.stdout ?? ''}`,
+    );
   }
-  return { ...parsePlaywrightJsonReport(readFileSync(jsonOut, 'utf8')), startedAt, endedAt, exitCode: r.status ?? 1, jsonOut };
+  const parsed = parsePlaywrightJsonReport(readFileSync(jsonOut, 'utf8'));
+  return { ...parsed, command, exitCode: result.status ?? 1, startedAt, endedAt };
 }
 
-function buildRecord(runId, head, treeId, pw, manifestPayload) {
-  const { evidence } = manifestPayload;
-  const purchasedBodyDigests = evidence.purchasedBodyDigests.map((d) => ({
-    fileName: d.fileName,
-    sha256: d.sha256,
-    byteLength: d.byteLength,
-  }));
+function buildRecord(runId, pw, payload) {
+  const { evidence, snapshot } = payload;
+  const actualOrigins = Array.from(new Set(pw.captureEvents.map((e) => e.actualOrigin))).sort();
+
   const verdict =
+    pw.exitCode === 0 &&
     pw.passed === REQUIRED_TESTS &&
     pw.failed === 0 &&
     pw.skipped === 0 &&
     pw.interrupted === 0 &&
-    evidence.pngCount === 42 &&
-    evidence.pdfCount === 5 &&
-    evidence.failures.length === 0
+    pw.testTitles.length === REQUIRED_TESTS &&
+    evidence.pngCount === REQUIRED_PNG &&
+    evidence.pdfCount === REQUIRED_PDF &&
+    pw.captureEvents.length === REQUIRED_CAPTURE_RECORDS &&
+    evidence.failures.length === 0 &&
+    snapshot.missing.length === 0
       ? 'PASS'
       : 'FAIL';
+
   return {
     suite: 'premium-experience-evidence',
     runId,
-    sourceTreeDiffId: treeId,
-    gitHead: head,
-    command: `npx playwright test ${SUITE} --reporter=json`,
+    sourceSnapshotDigest: snapshot.digest,
+    sourceSnapshotFileCount: snapshot.fileCount,
+    evidenceManifestDigest: evidence.manifestDigest,
+    evidenceIdentityDigest: evidence.evidenceIdentityDigest,
+    rawReporterDigest: pw.rawReporterDigest,
+    command: pw.command,
+    exitCode: pw.exitCode,
+    startedAt: pw.startedAt,
+    endedAt: pw.endedAt,
+    expectedOriginPattern: EXPECTED_ORIGIN_PATTERN,
+    actualOrigins,
     expectedTestCount: REQUIRED_TESTS,
     passed: pw.passed,
     failed: pw.failed,
     skipped: pw.skipped,
     interrupted: pw.interrupted,
-    startedAt: pw.startedAt,
-    endedAt: pw.endedAt,
-    expectedOrigin: 'http://localhost:3000|http://127.0.0.1:3000',
-    actualOrigin: 'localhost|127.0.0.1',
+    testTitles: pw.testTitles,
+    registeredStateCount: evidence.registeredStateCount,
+    visualCaptureCount: evidence.visualCaptureCount,
     pngCount: evidence.pngCount,
     pdfCount: evidence.pdfCount,
-    evidenceManifestDigest: evidence.manifestDigest,
-    purchasedBodyDigests,
+    captureRecordCount: pw.captureEvents.length,
+    captureEvents: pw.captureEvents.map((e) => ({
+      captureId: e.captureId,
+      stateId: e.stateId,
+      viewport: e.viewport,
+      expectedRoute: e.expectedRoute,
+      actualUrl: e.actualUrl,
+      actualOrigin: e.actualOrigin,
+      ownerModule: e.ownerModule,
+      visibleContractDigest: e.visibleContractDigest,
+      fileName: e.fileName,
+      kind: e.kind,
+    })),
+    evidenceFileIdentities: evidence.fileIdentities,
+    purchasedBodyDigests: evidence.purchasedBodyDigests,
     evidenceFailures: evidence.failures,
     finalVerdict: verdict,
   };
 }
 
 function main() {
-  const head = gitHead();
-  const treeId = gitTreeDiffId();
+  const toolchain = assertLockedProofToolchain();
+  console.log(`proof toolchain: tsx@${toolchain.version} (locked, offline)`);
+  if (!existsSync(PLAYWRIGHT_BIN)) {
+    console.error(`PROOF_TOOLCHAIN_NOT_INSTALLED: ${PLAYWRIGHT_BIN} missing — run "npm ci"`);
+    process.exit(1);
+  }
+
+  cleanPriorRecords();
   const records = [];
 
   for (const runId of ['run-1', 'run-2']) {
     cleanGovernedEvidence();
     const pw = runPlaywrightOnce(runId);
-    const manifestPayload = loadManifestViaTsx();
-    const record = buildRecord(runId, head, treeId, pw, manifestPayload);
-    mkdirSync(RECORDS_DIR, { recursive: true });
+    const payload = loadProofPayload();
+    const record = buildRecord(runId, pw, payload);
     writeFileSync(join(RECORDS_DIR, `${runId}.json`), `${JSON.stringify(record, null, 2)}\n`);
     records.push(record);
     if (record.finalVerdict !== 'PASS') {
-      console.error(JSON.stringify(record, null, 2));
+      console.error(
+        JSON.stringify(
+          {
+            runId,
+            exitCode: record.exitCode,
+            passed: record.passed,
+            failed: record.failed,
+            skipped: record.skipped,
+            interrupted: record.interrupted,
+            pngCount: record.pngCount,
+            pdfCount: record.pdfCount,
+            captureRecordCount: record.captureRecordCount,
+            evidenceFailures: record.evidenceFailures.slice(0, 20),
+          },
+          null,
+          2,
+        ),
+      );
       process.exit(1);
     }
   }
 
-  const digestsMatch = records[0].purchasedBodyDigests.every((d, i) => {
-    const b = records[1].purchasedBodyDigests[i];
-    return b && d.sha256 === b.sha256;
-  });
-  const structuralMatch =
-    records[0].pngCount === records[1].pngCount &&
-    records[0].pdfCount === records[1].pdfCount &&
-    records[0].evidenceManifestDigest === records[1].evidenceManifestDigest &&
-    records.every((r) => r.purchasedBodyDigests.every((d) => d.byteLength >= 8_000));
-  const purchasedBodySizeStable = records[0].purchasedBodyDigests.every((d, i) => {
-    const b = records[1].purchasedBodyDigests[i];
-    if (!b) return false;
-    const ratio = Math.min(d.byteLength, b.byteLength) / Math.max(d.byteLength, b.byteLength);
-    return ratio >= 0.9;
-  });
-
-  if (!structuralMatch || !purchasedBodySizeStable) {
-    console.error('EVIDENCE_COMPLETENESS_FAILED: run-1 and run-2 structural evidence mismatch');
+  const failures = validateWrittenRecords();
+  if (failures.length > 0) {
+    console.error('EVIDENCE_RECORD_VALIDATION_FAILED');
+    for (const failure of failures) console.error(`  - ${failure}`);
     process.exit(1);
   }
 
@@ -185,9 +302,23 @@ function main() {
     JSON.stringify(
       {
         verdict: 'PASS',
-        records: records.map((r) => r.runId),
-        pngBinaryDigestStable: digestsMatch,
-        evidenceManifestDigest: records[0].evidenceManifestDigest,
+        sourceSnapshotDigest: records[0].sourceSnapshotDigest,
+        evidenceIdentityDigest: records[0].evidenceIdentityDigest,
+        runs: records.map((r) => ({
+          runId: r.runId,
+          exitCode: r.exitCode,
+          passed: r.passed,
+          failed: r.failed,
+          skipped: r.skipped,
+          interrupted: r.interrupted,
+          pngCount: r.pngCount,
+          pdfCount: r.pdfCount,
+          captureRecordCount: r.captureRecordCount,
+          actualOrigins: r.actualOrigins,
+        })),
+        rasterDigestsIdentical:
+          records[0].purchasedBodyDigests.map((d) => d.sha256).join(',') ===
+          records[1].purchasedBodyDigests.map((d) => d.sha256).join(','),
       },
       null,
       2,

@@ -1,8 +1,13 @@
 /**
- * Evidence manifest validation — typed authority import, no regex parsing.
+ * Evidence validation — typed authority import, real per-file decode, no regex
+ * parsing of the manifest.
+ *
+ * Every PNG is decoded (dimensions + luminance content) and every PDF is
+ * inspected (page count + inflated content + text operators), so identical file
+ * counts or byte sizes cannot substitute for the required capture.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, sep } from 'node:path';
 import {
   PREMIUM_EXPERIENCE_EVIDENCE_DIR,
@@ -10,56 +15,63 @@ import {
   PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST,
   PREMIUM_EXPERIENCE_REQUIRED_PDF_COUNT,
   PREMIUM_EXPERIENCE_REQUIRED_PNG_COUNT,
+  PREMIUM_PRINT_MIN_BYTES,
   PREMIUM_PURCHASED_BODY_MIN_BYTES,
 } from './premiumExperienceEvidenceManifest';
+import {
+  PREMIUM_EXPERIENCE_CAPTURE_CASES,
+  PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT,
+  PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
+  PREMIUM_STATES_WITHOUT_CAPTURE,
+  assertPremiumCaptureModelShape,
+  captureCaseById,
+} from './premiumExperienceCaptureModel';
+import { PREMIUM_EXPERIENCE_STATE_REGISTRY } from './premiumExperienceStateRegistry';
+import {
+  pdfIsNotLoadingOnly,
+  pngIsNonBlank,
+  readPdfIdentity,
+  readPngIdentity,
+} from './premiumEvidenceFileIdentity';
 
-export type EvidenceFileDigest = {
+export type EvidenceFileIdentityRecord = {
   fileName: string;
+  captureId: string;
+  stateId: string;
+  viewport: string | null;
+  expectedRoute: string;
+  ownerModule: string;
+  ownerSymbol: string;
+  visibleContractDigest: string;
   sha256: string;
   byteLength: number;
+  width: number | null;
+  height: number | null;
+  decoded: boolean;
+  contentOk: boolean;
+  /** PNG luminance spread / PDF text-operator count, for auditability. */
+  contentMetric: number;
 };
 
 export type EvidenceValidationResult = {
+  registeredStateCount: number;
+  visualCaptureCount: number;
   pngCount: number;
   pdfCount: number;
-  visualStateCount: number;
   viewportCount: 3;
-  fileDigests: EvidenceFileDigest[];
+  captureIds: string[];
+  fileIdentities: EvidenceFileIdentityRecord[];
   manifestDigest: string;
-  purchasedBodyDigests: EvidenceFileDigest[];
+  evidenceIdentityDigest: string;
+  purchasedBodyDigests: { fileName: string; sha256: string; byteLength: number }[];
   failures: string[];
 };
-
-const REQUIRED_VISUAL_STATE_IDS = [
-  'premium.core.bridge',
-  'premium.lp.questions',
-  'premium.lp.answer_review',
-  'premium.lp.answer_edit',
-  'premium.lp.plans',
-  'premium.lp.checkout',
-  'purchased.report.landing',
-  'purchased.report.body',
-  'purchased.consult.input',
-  'purchased.consult.result',
-  'purchased.saved_reopen',
-  'premium.share.card',
-] as const;
-
-function sha256File(absPath: string): EvidenceFileDigest {
-  const buf = readFileSync(absPath);
-  return {
-    fileName: absPath.split(sep).pop() ?? absPath,
-    sha256: createHash('sha256').update(buf).digest('hex'),
-    byteLength: buf.byteLength,
-  };
-}
 
 function walkPngFiles(dirAbs: string, out: string[] = []): string[] {
   if (!existsSync(dirAbs)) return out;
   for (const name of readdirSync(dirAbs)) {
     const abs = join(dirAbs, name);
-    const st = statSync(abs);
-    if (st.isDirectory()) {
+    if (statSync(abs).isDirectory()) {
       if (name === 'pdf') continue;
       walkPngFiles(abs, out);
     } else if (name.endsWith('.png')) {
@@ -71,10 +83,81 @@ function walkPngFiles(dirAbs: string, out: string[] = []): string[] {
 
 export function computeManifestDigest(): string {
   const canonical = JSON.stringify({
+    registeredStates: PREMIUM_EXPERIENCE_STATE_REGISTRY.map((s) => s.id),
+    captures: PREMIUM_EXPERIENCE_CAPTURE_CASES,
     png: PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST,
     pdf: PREMIUM_EXPERIENCE_EVIDENCE_PDF_MANIFEST,
   });
   return createHash('sha256').update(canonical).digest('hex');
+}
+
+/**
+ * Semantic identity digest — captureId/stateId/route/owner/viewport/contract/
+ * dimensions/content status per file, deliberately excluding the raster SHA so
+ * two runs of the same source can be compared without requiring pixel equality.
+ */
+export function computeEvidenceIdentityDigest(records: EvidenceFileIdentityRecord[]): string {
+  const canonical = records
+    .slice()
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+    .map((r) =>
+      JSON.stringify({
+        fileName: r.fileName,
+        captureId: r.captureId,
+        stateId: r.stateId,
+        viewport: r.viewport,
+        expectedRoute: r.expectedRoute,
+        ownerModule: r.ownerModule,
+        ownerSymbol: r.ownerSymbol,
+        visibleContractDigest: r.visibleContractDigest,
+        width: r.width,
+        height: r.height,
+        decoded: r.decoded,
+        contentOk: r.contentOk,
+      }),
+    )
+    .join('\n');
+  return createHash('sha256').update(canonical).digest('hex');
+}
+
+function validateStateCaptureReconciliation(failures: string[]) {
+  try {
+    assertPremiumCaptureModelShape();
+  } catch (err) {
+    failures.push(`capture model shape: ${(err as Error).message}`);
+  }
+
+  const registeredIds = new Set(PREMIUM_EXPERIENCE_STATE_REGISTRY.map((s) => s.id));
+  if (registeredIds.size !== PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT) {
+    failures.push(
+      `registered state count ${registeredIds.size}, expected ${PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT}`,
+    );
+  }
+  if (PREMIUM_EXPERIENCE_CAPTURE_CASES.length !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT) {
+    failures.push(
+      `capture count ${PREMIUM_EXPERIENCE_CAPTURE_CASES.length}, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`,
+    );
+  }
+
+  for (const capture of PREMIUM_EXPERIENCE_CAPTURE_CASES) {
+    if (!registeredIds.has(capture.stateId)) {
+      failures.push(`capture ${capture.captureId} maps to unregistered state ${capture.stateId}`);
+    }
+    if (registeredIds.has(capture.captureId)) {
+      failures.push(`captureId ${capture.captureId} masquerades as a registry state`);
+    }
+  }
+
+  const covered = new Set(PREMIUM_EXPERIENCE_CAPTURE_CASES.map((c) => c.stateId));
+  for (const stateId of registeredIds) {
+    const expectedUncovered = (PREMIUM_STATES_WITHOUT_CAPTURE as readonly string[]).includes(stateId);
+    if (!covered.has(stateId) && !expectedUncovered) {
+      failures.push(`registered state ${stateId} has no capture case and is not classified`);
+    }
+    if (covered.has(stateId) && expectedUncovered) {
+      failures.push(`state ${stateId} is classified as capture-free but owns a capture case`);
+    }
+  }
 }
 
 export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationResult {
@@ -82,7 +165,9 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
   const evidenceDir = join(root, PREMIUM_EXPERIENCE_EVIDENCE_DIR);
   const expectedPng = PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST.map((e) => e.fileName);
   const expectedPdf = PREMIUM_EXPERIENCE_EVIDENCE_PDF_MANIFEST.map((e) => e.fileName);
-  const fileDigests: EvidenceFileDigest[] = [];
+  const fileIdentities: EvidenceFileIdentityRecord[] = [];
+
+  validateStateCaptureReconciliation(failures);
 
   if (PREMIUM_EXPERIENCE_REQUIRED_PNG_COUNT !== 42) {
     failures.push(`manifest png count ${PREMIUM_EXPERIENCE_REQUIRED_PNG_COUNT}, expected 42`);
@@ -91,21 +176,72 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
     failures.push(`manifest pdf count ${PREMIUM_EXPERIENCE_REQUIRED_PDF_COUNT}, expected 5`);
   }
 
-  const manifestStates = new Set<string>();
   for (const entry of PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST) {
-    manifestStates.add(entry.stateId);
     const abs = join(evidenceDir, entry.fileName);
     if (!existsSync(abs)) {
       failures.push(`missing PNG ${entry.fileName}`);
       continue;
     }
-    const digest = sha256File(abs);
-    digest.fileName = entry.fileName;
-    fileDigests.push(digest);
-    if (digest.byteLength === 0) failures.push(`zero-byte PNG ${entry.fileName}`);
-    if (entry.fileName.startsWith('purchased-report-body-') && digest.byteLength < PREMIUM_PURCHASED_BODY_MIN_BYTES) {
-      failures.push(`blank purchased-body PNG ${entry.fileName} (${digest.byteLength}b)`);
+    const identity = readPngIdentity(abs);
+    if (!identity.decoded) {
+      failures.push(`undecodable PNG ${entry.fileName}: ${identity.reason}`);
+      fileIdentities.push({
+        fileName: entry.fileName,
+        captureId: entry.captureId,
+        stateId: entry.stateId,
+        viewport: entry.viewport,
+        expectedRoute: entry.fixtureRoute,
+        ownerModule: entry.ownerFile,
+        ownerSymbol: entry.ownerSymbol,
+        visibleContractDigest: entry.visibleContractDigest,
+        sha256: identity.sha256,
+        byteLength: identity.byteLength,
+        width: null,
+        height: null,
+        decoded: false,
+        contentOk: false,
+        contentMetric: 0,
+      });
+      continue;
     }
+
+    const nonBlank = pngIsNonBlank(identity);
+    if (identity.byteLength === 0) failures.push(`zero-byte PNG ${entry.fileName}`);
+    if (identity.width < entry.minWidth) {
+      failures.push(`PNG ${entry.fileName} width ${identity.width} < ${entry.minWidth}`);
+    }
+    if (identity.height < entry.minHeight) {
+      failures.push(`PNG ${entry.fileName} height ${identity.height} < ${entry.minHeight}`);
+    }
+    if (!nonBlank) {
+      failures.push(
+        `blank PNG ${entry.fileName} (buckets=${identity.distinctLuminanceBuckets}, stdDev=${identity.luminanceStdDev})`,
+      );
+    }
+    if (
+      entry.captureId === 'purchased-report-body' &&
+      identity.byteLength < PREMIUM_PURCHASED_BODY_MIN_BYTES
+    ) {
+      failures.push(`blank purchased-body PNG ${entry.fileName} (${identity.byteLength}b)`);
+    }
+
+    fileIdentities.push({
+      fileName: entry.fileName,
+      captureId: entry.captureId,
+      stateId: entry.stateId,
+      viewport: entry.viewport,
+      expectedRoute: entry.fixtureRoute,
+      ownerModule: entry.ownerFile,
+      ownerSymbol: entry.ownerSymbol,
+      visibleContractDigest: entry.visibleContractDigest,
+      sha256: identity.sha256,
+      byteLength: identity.byteLength,
+      width: identity.width,
+      height: identity.height,
+      decoded: true,
+      contentOk: nonBlank,
+      contentMetric: identity.luminanceStdDev,
+    });
   }
 
   for (const entry of PREMIUM_EXPERIENCE_EVIDENCE_PDF_MANIFEST) {
@@ -114,13 +250,41 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
       failures.push(`missing PDF ${entry.fileName}`);
       continue;
     }
-    const digest = sha256File(abs);
-    digest.fileName = entry.fileName;
-    fileDigests.push(digest);
-    if (digest.byteLength < 3000) failures.push(`loading-only PDF ${entry.fileName} (${digest.byteLength}b)`);
-    if (entry.fileName === 'pdf/purchased-report.pdf' && digest.byteLength < 5000) {
-      failures.push(`purchased-report PDF too small (${digest.byteLength}b)`);
+    const identity = readPdfIdentity(abs);
+    if (!identity.decoded) {
+      failures.push(`undecodable PDF ${entry.fileName}: ${identity.reason}`);
+      continue;
     }
+    const notLoadingOnly = pdfIsNotLoadingOnly(identity);
+    if (identity.byteLength < PREMIUM_PRINT_MIN_BYTES) {
+      failures.push(`loading-only PDF ${entry.fileName} (${identity.byteLength}b)`);
+    }
+    if (!notLoadingOnly) {
+      failures.push(
+        `loading-only PDF ${entry.fileName} (pages=${identity.pageCount}, content=${identity.inflatedContentBytes}b, text=${identity.textShowingOperators})`,
+      );
+    }
+    if (!identity.hasFontResource) {
+      failures.push(`PDF ${entry.fileName} has no font resource`);
+    }
+
+    fileIdentities.push({
+      fileName: entry.fileName,
+      captureId: entry.captureId,
+      stateId: entry.stateId,
+      viewport: null,
+      expectedRoute: entry.fixtureRoute,
+      ownerModule: entry.ownerFile,
+      ownerSymbol: entry.ownerSymbol,
+      visibleContractDigest: entry.visibleContractDigest,
+      sha256: identity.sha256,
+      byteLength: identity.byteLength,
+      width: null,
+      height: null,
+      decoded: true,
+      contentOk: notLoadingOnly,
+      contentMetric: identity.textShowingOperators,
+    });
   }
 
   const onDiskPngRel = walkPngFiles(evidenceDir).map((abs) =>
@@ -142,19 +306,30 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
     if (!expectedPdf.includes(file)) failures.push(`unexpected PDF ${file}`);
   }
 
-  for (const stateId of REQUIRED_VISUAL_STATE_IDS) {
-    if (!manifestStates.has(stateId)) failures.push(`manifest missing visual state ${stateId}`);
+  const manifestCaptureIds = new Set(PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST.map((e) => e.captureId));
+  for (const capture of PREMIUM_EXPERIENCE_CAPTURE_CASES) {
+    if (!manifestCaptureIds.has(capture.captureId)) {
+      failures.push(`manifest missing capture ${capture.captureId}`);
+    }
+  }
+  for (const captureId of manifestCaptureIds) {
+    if (!captureCaseById(captureId)) failures.push(`manifest capture ${captureId} has no capture case`);
   }
 
-  const purchasedBodyDigests = fileDigests.filter((d) => d.fileName.startsWith('purchased-report-body-'));
+  const purchasedBodyDigests = fileIdentities
+    .filter((d) => d.captureId === 'purchased-report-body')
+    .map((d) => ({ fileName: d.fileName, sha256: d.sha256, byteLength: d.byteLength }));
 
   return {
+    registeredStateCount: PREMIUM_EXPERIENCE_STATE_REGISTRY.length,
+    visualCaptureCount: PREMIUM_EXPERIENCE_CAPTURE_CASES.length,
     pngCount: onDiskPngRel.length,
     pdfCount: onDiskPdfRel.length,
-    visualStateCount: REQUIRED_VISUAL_STATE_IDS.length,
     viewportCount: 3,
-    fileDigests,
+    captureIds: PREMIUM_EXPERIENCE_CAPTURE_CASES.map((c) => c.captureId),
+    fileIdentities,
     manifestDigest: computeManifestDigest(),
+    evidenceIdentityDigest: computeEvidenceIdentityDigest(fileIdentities),
     purchasedBodyDigests,
     failures,
   };

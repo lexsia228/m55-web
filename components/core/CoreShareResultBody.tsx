@@ -6,7 +6,7 @@ import {
   type PrivacySafeShareCardV1,
 } from '../../lib/m55/freeResult/privacySafeShareCardV1';
 import CoreFreeShareableResultCard from './CoreFreeShareableResultCard';
-import type { CoreShareStatus } from './useCoreShareActions';
+import { sanitizeVisibleShareFallbackText, type CoreShareStatus } from './useCoreShareActions';
 import styles from './CoreExperience.module.css';
 
 type Props = {
@@ -35,6 +35,9 @@ export default function CoreShareResultBody({
   testId,
 }: Props) {
   const copy = SHARE_UI_COPY_V1;
+  // Second barrier at the render boundary: the visible fallback can never carry
+  // the action URL or the share token even if a caller passes raw text.
+  const visibleFallbackText = fallbackText ? sanitizeVisibleShareFallbackText(fallbackText) : '';
 
   return (
     <>
@@ -91,11 +94,11 @@ export default function CoreShareResultBody({
           <p className={styles.sectionLead}>{copy.fallbackHintJa}</p>
         </>
       ) : null}
-      {fallbackText ? (
+      {visibleFallbackText ? (
         <textarea
           className={styles.shareFallbackText}
           readOnly
-          value={fallbackText}
+          value={visibleFallbackText}
           aria-label="共有用テキスト"
           data-testid="m55-share-fallback-text"
           onFocus={(event) => event.currentTarget.select()}

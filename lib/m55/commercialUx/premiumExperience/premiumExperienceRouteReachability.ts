@@ -1,7 +1,23 @@
 /**
  * Deterministic route → owner reachability contract for fixture-required Premium states.
+ *
+ * Reachability is proven by resolving the module graph (route module → fixture
+ * client → owner module) plus an AST state-selection proof in the owner. The
+ * successful E2E capture event for the same state completes the proof.
  */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { PREMIUM_VISUAL_AUTHORITY_KEY } from './premiumVisualAuthority';
+import {
+  PREMIUM_EXPERIENCE_CAPTURE_CASES,
+  type PremiumCaptureCase,
+} from './premiumExperienceCaptureModel';
+import { importsResolveTo } from './premiumExperienceModuleResolution';
+import {
+  hasPremiumSurfaceMount,
+  inspectPremiumOwnerFile,
+  jsxPassesPropToComponent,
+} from './premiumExperienceAstInspection';
 
 export type RouteReachabilityLink = {
   fromModule: string;
@@ -26,6 +42,19 @@ export const PREMIUM_NON_FIXTURE_STATE_IDS = [
   'premium.core.bridge',
   'premium.lp.prerequisite',
 ] as const;
+
+/** Where a fixture prop is injected, keyed by the prop name in the contract. */
+const FIXTURE_PROP_INJECTORS: Record<string, { module: string; tag: string; tagModule: string }> = {
+  devPreviewFixtureReady: {
+    module: 'components/dtr/__preview__/DtrDrawerPreviewClient.tsx',
+    tag: 'DtrFullReader',
+    tagModule: 'components/dtr/DtrFullReader.tsx',
+  },
+};
+
+export function captureCasesForState(stateId: string): PremiumCaptureCase[] {
+  return PREMIUM_EXPERIENCE_CAPTURE_CASES.filter((c) => c.stateId === stateId);
+}
 
 export const PREMIUM_FIXTURE_ROUTE_REACHABILITY: readonly PremiumRouteReachabilityExpectation[] = [
   {
@@ -255,3 +284,82 @@ export const PREMIUM_FIXTURE_ROUTE_REACHABILITY: readonly PremiumRouteReachabili
     fixtureRequired: true,
   },
 ] as const;
+
+/**
+ * Pure reachability check for one contract entry. Injectable so negative
+ * fixtures can exercise dead imports, missing route modules and wrong-state
+ * contracts directly.
+ */
+export function checkRouteReachability(
+  root: string,
+  entry: PremiumRouteReachabilityExpectation,
+): string[] {
+  const failures: string[] = [];
+
+  if (!existsSync(join(root, entry.routeModule))) {
+    failures.push(`${entry.stateId}: route module missing ${entry.routeModule}`);
+    return failures;
+  }
+
+  if (entry.importChain.length === 0) {
+    failures.push(`${entry.stateId}: fixture route ${entry.expectedRoute} declares no owner path`);
+    return failures;
+  }
+  if (entry.importChain[0].fromModule !== entry.routeModule) {
+    failures.push(
+      `${entry.stateId}: import chain does not start at route module ${entry.routeModule}`,
+    );
+  }
+  const lastLink = entry.importChain[entry.importChain.length - 1];
+  if (lastLink.toModule !== entry.ownerModule) {
+    failures.push(
+      `${entry.stateId}: import chain ends at ${lastLink.toModule}, expected owner ${entry.ownerModule}`,
+    );
+  }
+
+  for (const link of entry.importChain) {
+    if (!existsSync(join(root, link.fromModule))) {
+      failures.push(`${entry.stateId}: chain module missing ${link.fromModule}`);
+      continue;
+    }
+    if (!importsResolveTo(root, link.fromModule, link.importName, link.toModule)) {
+      failures.push(
+        `${entry.stateId}: ${link.fromModule} → ${link.importName} must resolve to ${link.toModule}`,
+      );
+    }
+  }
+  if (failures.length > 0) return failures;
+
+  const inspection = inspectPremiumOwnerFile(root, entry.ownerModule);
+  if (entry.selectionState?.startsWith('premium.')) {
+    const mounted =
+      hasPremiumSurfaceMount(inspection, 'PremiumDecisionSurface', entry.selectionState) ||
+      hasPremiumSurfaceMount(inspection, 'PremiumExperienceSurface', entry.selectionState);
+    if (!mounted) {
+      failures.push(`${entry.stateId}: state ${entry.selectionState} not mounted in ${entry.ownerModule}`);
+    }
+  } else if (entry.selectionState) {
+    if (!inspection.dataPremiumStates.some((s) => s.value === entry.selectionState)) {
+      failures.push(`${entry.stateId}: data state ${entry.selectionState} missing in ${entry.ownerModule}`);
+    }
+  }
+
+  if (entry.selectionProp) {
+    const injector = FIXTURE_PROP_INJECTORS[entry.selectionProp];
+    if (!injector) {
+      failures.push(`${entry.stateId}: no declared injector for selection prop ${entry.selectionProp}`);
+    } else if (
+      !jsxPassesPropToComponent(root, injector.module, injector.tag, entry.selectionProp, injector.tagModule)
+    ) {
+      failures.push(
+        `${entry.stateId}: ${injector.module} does not pass ${entry.selectionProp} to ${injector.tag}`,
+      );
+    }
+  }
+
+  if (captureCasesForState(entry.stateId).length === 0) {
+    failures.push(`${entry.stateId}: fixture-required state has no evidence manifest capture case`);
+  }
+
+  return failures;
+}

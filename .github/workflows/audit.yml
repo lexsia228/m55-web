@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r scripts/ci/guard/requirements.txt
 
-      - name: Install deps
+      - name: Install deps (locked proof toolchain)
         run: npm ci
 
       - name: Audit gate
@@ -38,6 +38,16 @@ jobs:
 
       - name: M55 Premium Experience SSOT
         run: npm run verify:m55-premium-experience
+
+      # Validates the committed execution records against the current source tree:
+      # recomputes sourceSnapshotDigest, enforces the 12-state / 14-capture model
+      # and the exact 42 PNG / 5 PDF evidence set, and rejects stale, handwritten
+      # or source-mismatched records. Browser evidence is not regenerated here.
+      - name: M55 Premium proof record authenticity
+        run: npm run verify:m55-premium-proof-records
+
+      - name: M55 Premium proof negative fixtures
+        run: npm run test:premium-experience-verifier
 
       - name: M55 Experience Control Plane v2 enforcement
         run: npm run verify:m55-experience-control-plane

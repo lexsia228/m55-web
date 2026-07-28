@@ -12,15 +12,20 @@ import { PREMIUM_EXPERIENCE_STATE_REGISTRY } from './premiumExperienceStateRegis
 import {
   PREMIUM_FIXTURE_ROUTE_REACHABILITY,
   PREMIUM_NON_FIXTURE_STATE_IDS,
+  checkRouteReachability,
 } from './premiumExperienceRouteReachability';
 import { validatePremiumEvidenceOnDisk } from './premiumExperienceEvidenceValidation';
 import {
+  PREMIUM_EXPERIENCE_CAPTURE_CASES,
+  PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT,
+  PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
+} from './premiumExperienceCaptureModel';
+import {
   createPremiumCompilerHost,
-  importsResolveTo,
   jsxUsesResolvedSymbol,
   parseImportBindings,
-  parseJsxUsages,
   proveOwnerModuleResolution,
+  sameModule,
 } from './premiumExperienceModuleResolution';
 import { inspectPremiumOwnerFile, freeShareAccidentallyPremiumWrapped, hasPremiumSurfaceMount } from './premiumExperienceAstInspection';
 
@@ -31,11 +36,13 @@ export type PremiumVerifierReport = {
   imported: number;
   mounted: number;
   conditionallySelected: number;
+  visualCaptureCount: number;
   fixtureRequiredStateCount: number;
   fixtureReachableStateCount: number;
   nonFixtureStateCount: number;
   moduleResolutionResult: 'PASS' | 'FAIL';
   routeToOwnerReachability: 'PASS' | 'FAIL';
+  perFileEvidenceIdentity: 'PASS' | 'FAIL';
   pngCount: number;
   pdfCount: number;
   userFacingFourChapterCount: number;
@@ -184,8 +191,12 @@ function verifyCanonicalModuleOwnership(root: string, failures: VerifierFailure[
 
   const readerImports = parseImportBindings(root, 'components/dtr/DtrFullReader.tsx', createPremiumCompilerHost(root).options);
   const savedImport = readerImports.find((i) => i.localName === 'SavedSnapshotNotice');
-  if (!savedImport || !savedImport.resolvedPath.endsWith('SavedSnapshotNotice.tsx')) {
-    fail(failures, 'module.resolution', 'DtrFullReader SavedSnapshotNotice import not resolved');
+  if (!savedImport || !sameModule(savedImport.effectiveModule, CANONICAL_MODULES.SavedSnapshotNotice)) {
+    fail(
+      failures,
+      'module.resolution',
+      `DtrFullReader SavedSnapshotNotice must resolve to ${CANONICAL_MODULES.SavedSnapshotNotice}`,
+    );
   }
 
   const notice = inspectPremiumOwnerFile(root, CANONICAL_MODULES.SavedSnapshotNotice);
@@ -212,48 +223,55 @@ function verifyCanonicalModuleOwnership(root: string, failures: VerifierFailure[
 function verifyRouteReachability(root: string, failures: VerifierFailure[]): number {
   let reachable = 0;
   for (const entry of PREMIUM_FIXTURE_ROUTE_REACHABILITY) {
-    if (!existsSync(join(root, entry.routeModule))) {
-      fail(failures, 'route.reachability', `${entry.stateId} route module missing ${entry.routeModule}`);
-      continue;
+    const entryFailures = checkRouteReachability(root, entry);
+    for (const message of entryFailures) {
+      fail(failures, 'route.reachability', message);
     }
-    let chainOk = true;
-    for (const link of entry.importChain) {
-      if (!importsResolveTo(root, link.fromModule, link.importName, link.toModule)) {
-        fail(
-          failures,
-          'route.reachability',
-          `${entry.stateId}: ${link.fromModule} → ${link.importName} must resolve to ${link.toModule}`,
-        );
-        chainOk = false;
-      }
-    }
-    if (!chainOk) continue;
-
-    const inspection = inspectPremiumOwnerFile(root, entry.ownerModule);
-    if (entry.selectionState?.startsWith('premium.')) {
-      if (!hasPremiumSurfaceMount(inspection, 'PremiumDecisionSurface', entry.selectionState) &&
-          !hasPremiumSurfaceMount(inspection, 'PremiumExperienceSurface', entry.selectionState)) {
-        fail(failures, 'route.reachability', `${entry.stateId} not mounted in ${entry.ownerModule}`);
-        continue;
-      }
-    } else if (entry.selectionState) {
-      if (!inspection.dataPremiumStates.some((s) => s.value === entry.selectionState)) {
-        fail(failures, 'route.reachability', `${entry.stateId} data state missing in ${entry.ownerModule}`);
-        continue;
-      }
-    }
-
-    if (entry.selectionProp === 'devPreviewFixtureReady') {
-      const previewClient = readFileSync(join(root, 'components/dtr/__preview__/DtrDrawerPreviewClient.tsx'), 'utf8');
-      if (!previewClient.includes('devPreviewFixtureReady')) {
-        fail(failures, 'route.reachability', `${entry.stateId} missing devPreviewFixtureReady injection`);
-        continue;
-      }
-    }
-
-    reachable += 1;
+    if (entryFailures.length === 0) reachable += 1;
   }
   return reachable;
+}
+
+function verifyStateCaptureReconciliation(failures: VerifierFailure[]) {
+  const registeredIds = PREMIUM_EXPERIENCE_STATE_REGISTRY.map((s) => s.id);
+  if (registeredIds.length !== PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT) {
+    fail(
+      failures,
+      'state.capture_model',
+      `registered states ${registeredIds.length}, expected ${PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT}`,
+    );
+  }
+  if (PREMIUM_EXPERIENCE_CAPTURE_CASES.length !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT) {
+    fail(
+      failures,
+      'state.capture_model',
+      `capture cases ${PREMIUM_EXPERIENCE_CAPTURE_CASES.length}, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`,
+    );
+  }
+  const fixtureStateIds = new Set(PREMIUM_FIXTURE_ROUTE_REACHABILITY.map((e) => e.stateId));
+  const nonFixtureStateIds = new Set<string>(PREMIUM_NON_FIXTURE_STATE_IDS);
+  for (const id of registeredIds) {
+    const classified = fixtureStateIds.has(id) || nonFixtureStateIds.has(id);
+    if (!classified) {
+      fail(failures, 'state.capture_model', `registered state ${id} is neither fixture-required nor classified`);
+    }
+    if (fixtureStateIds.has(id) && nonFixtureStateIds.has(id)) {
+      fail(failures, 'state.capture_model', `state ${id} is both fixture-required and non-fixture`);
+    }
+  }
+  for (const capture of PREMIUM_EXPERIENCE_CAPTURE_CASES) {
+    if (!registeredIds.includes(capture.stateId)) {
+      fail(failures, 'state.capture_model', `capture ${capture.captureId} maps to unregistered state ${capture.stateId}`);
+    }
+    const owner = PREMIUM_EXPERIENCE_MOUNT_CONTRACT.find((c) => c.id === capture.stateId);
+    if (owner && owner.ownerFile !== capture.ownerModule) {
+      fail(
+        failures,
+        'state.capture_model',
+        `capture ${capture.captureId} owner ${capture.ownerModule} does not match mount contract owner ${owner.ownerFile}`,
+      );
+    }
+  }
 }
 
 function verifyMountContract(root: string, failures: VerifierFailure[], report: PremiumVerifierReport) {
@@ -295,11 +313,13 @@ export function runPremiumExperienceVerifier(root: string): PremiumVerifierRepor
     imported: 0,
     mounted: 0,
     conditionallySelected: 0,
+    visualCaptureCount: PREMIUM_EXPERIENCE_CAPTURE_CASES.length,
     fixtureRequiredStateCount: PREMIUM_FIXTURE_ROUTE_REACHABILITY.length,
     fixtureReachableStateCount: 0,
     nonFixtureStateCount: PREMIUM_NON_FIXTURE_STATE_IDS.length,
     moduleResolutionResult: 'PASS',
     routeToOwnerReachability: 'PASS',
+    perFileEvidenceIdentity: 'PASS',
     pngCount: 0,
     pdfCount: 0,
     userFacingFourChapterCount: 0,
@@ -312,6 +332,7 @@ export function runPremiumExperienceVerifier(root: string): PremiumVerifierRepor
     }
   }
 
+  verifyStateCaptureReconciliation(failures);
   verifyMountContract(root, failures, report);
   verifyCanonicalModuleOwnership(root, failures);
   report.fixtureReachableStateCount = verifyRouteReachability(root, failures);
@@ -343,6 +364,7 @@ export function runPremiumExperienceVerifier(root: string): PremiumVerifierRepor
 
   report.moduleResolutionResult = failures.some((f) => f.rule.startsWith('module.')) ? 'FAIL' : 'PASS';
   report.routeToOwnerReachability = failures.some((f) => f.rule.startsWith('route.')) ? 'FAIL' : 'PASS';
+  report.perFileEvidenceIdentity = failures.some((f) => f.rule === 'evidence') ? 'FAIL' : 'PASS';
 
   return report;
 }

@@ -14,6 +14,29 @@ import {
 
 export type CoreShareStatus = 'idle' | 'copied' | 'cancelled' | 'error';
 
+/**
+ * The real action URL stays inside href/copy/share payloads. Visible fallback UI
+ * must never render it, so the share token, the `/r/` entry path and any absolute
+ * URL are stripped before the text reaches the DOM.
+ */
+export function sanitizeVisibleShareFallbackText(raw: string): string {
+  return raw
+    .split(/\r?\n/)
+    .map((line) =>
+      line
+        .replace(/https?:\/\/\S+/g, '')
+        .replace(/\/r\/\S*/g, '')
+        .replace(/\bs1-\d\b/g, '')
+        .trimEnd(),
+    )
+    .filter((line) => line.trim().length > 0)
+    .join('\n');
+}
+
+function buildVisibleFallbackText(card: PrivacySafeShareCardV1): string {
+  return sanitizeVisibleShareFallbackText(card.shareTextJa);
+}
+
 export function useCoreShareActions(card: PrivacySafeShareCardV1) {
   const [status, setStatus] = useState<CoreShareStatus>('idle');
   const [nativeAvailable, setNativeAvailable] = useState(false);
@@ -47,7 +70,7 @@ export function useCoreShareActions(card: PrivacySafeShareCardV1) {
       const payload = buildPayload();
       if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') {
         setStatus('error');
-        setFallbackText(`${payload.text}\n${payload.url}`);
+        setFallbackText(buildVisibleFallbackText(card));
         return;
       }
       trackFunnelActionOnce(
@@ -63,8 +86,7 @@ export function useCoreShareActions(card: PrivacySafeShareCardV1) {
         setStatus('cancelled');
       } else {
         setStatus('error');
-        const payload = buildPayload();
-        setFallbackText(`${payload.text}\n${payload.url}`);
+        setFallbackText(buildVisibleFallbackText(card));
       }
     } finally {
       busyRef.current = false;
@@ -90,11 +112,10 @@ export function useCoreShareActions(card: PrivacySafeShareCardV1) {
         return;
       }
       setStatus('error');
-      setFallbackText(line);
+      setFallbackText(buildVisibleFallbackText(card));
     } catch {
       setStatus('error');
-      const payload = buildPayload();
-      setFallbackText(`${payload.text}\n${payload.url}`);
+      setFallbackText(buildVisibleFallbackText(card));
     } finally {
       busyRef.current = false;
     }

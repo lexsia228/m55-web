@@ -1,14 +1,27 @@
 /**
  * TypeScript compiler module resolution for Premium Experience proof.
+ *
+ * Resolves the full chain — import declaration specifier → resolved source file
+ * → exported symbol → re-export origin → local alias → JSX binding — so a
+ * same-named import from a different module cannot satisfy an ownership
+ * contract, and neither can a comment or string literal.
  */
 import ts from 'typescript';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative, normalize } from 'node:path';
 
 export type ResolvedImportBinding = {
+  /** Identifier as used in this file. */
   localName: string;
+  /** Name as exported by the target module ('default' for default imports). */
+  importedName: string;
   moduleSpecifier: string;
+  /** Module the specifier resolves to (may be a barrel). */
   resolvedPath: string;
+  /** Module that actually declares the symbol, after following re-exports. */
+  effectiveModule: string;
+  /** Re-export hops walked to reach effectiveModule. */
+  reExportChain: string[];
   isDefault: boolean;
   isNamespace: boolean;
 };
@@ -28,13 +41,23 @@ export type OwnerModuleProof = {
   imports: ResolvedImportBinding[];
 };
 
+export type ExportOrigin = {
+  module: string;
+  exportedName: string;
+  chain: string[];
+};
+
 function normalizeRel(root: string, absPath: string): string {
   const rel = normalize(relative(root, absPath)).split('\\').join('/');
-  return rel.startsWith('.') ? rel.slice(2) : rel;
+  return rel.startsWith('./') ? rel.slice(2) : rel;
 }
 
-function stripExtension(rel: string): string {
-  return rel.replace(/\.(tsx|ts|jsx|js)$/, '');
+export function stripExtension(rel: string): string {
+  return rel.replace(/\.(tsx|ts|jsx|js|mjs)$/, '');
+}
+
+export function sameModule(a: string, b: string): boolean {
+  return stripExtension(a) === stripExtension(b);
 }
 
 export function createPremiumCompilerHost(root: string) {
@@ -58,15 +81,131 @@ export function resolveModuleSpecifier(
   return normalizeRel(root, resolved);
 }
 
+function parseSourceFile(root: string, relPath: string): ts.SourceFile {
+  const src = readFileSync(join(root, relPath), 'utf8');
+  return ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+}
+
+function declaresLocally(sf: ts.SourceFile, name: string): boolean {
+  if (name === 'default') {
+    return sf.statements.some(
+      (s) =>
+        (ts.isFunctionDeclaration(s) || ts.isClassDeclaration(s)) &&
+        s.modifiers?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword),
+    ) || sf.statements.some((s) => ts.isExportAssignment(s) && !s.isExportEquals);
+  }
+  for (const stmt of sf.statements) {
+    if (ts.isFunctionDeclaration(stmt) || ts.isClassDeclaration(stmt)) {
+      if (stmt.name?.text === name) return true;
+    }
+    if (ts.isVariableStatement(stmt)) {
+      for (const decl of stmt.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name) && decl.name.text === name) return true;
+      }
+    }
+    if (ts.isTypeAliasDeclaration(stmt) || ts.isInterfaceDeclaration(stmt) || ts.isEnumDeclaration(stmt)) {
+      if (stmt.name.text === name) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Walk `export { X } from './Y'`, `export * from './Y'` and local re-exports of
+ * imported bindings until the module that actually declares the symbol is found.
+ */
+export function resolveExportOrigin(
+  root: string,
+  moduleRel: string,
+  exportedName: string,
+  options: ts.CompilerOptions,
+  seen: Set<string> = new Set(),
+): ExportOrigin | null {
+  const key = `${moduleRel}#${exportedName}`;
+  if (seen.has(key)) return null;
+  seen.add(key);
+  if (!existsSync(join(root, moduleRel))) return null;
+
+  const sf = parseSourceFile(root, moduleRel);
+
+  for (const stmt of sf.statements) {
+    if (!ts.isExportDeclaration(stmt)) continue;
+
+    const specifierText =
+      stmt.moduleSpecifier && ts.isStringLiteral(stmt.moduleSpecifier) ? stmt.moduleSpecifier.text : null;
+
+    if (stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
+      for (const el of stmt.exportClause.elements) {
+        if (el.name.text !== exportedName) continue;
+        const upstreamName = el.propertyName?.text ?? el.name.text;
+        if (specifierText) {
+          const target = resolveModuleSpecifier(root, moduleRel, specifierText, options);
+          if (!target) continue;
+          const deeper = resolveExportOrigin(root, target, upstreamName, options, seen);
+          return deeper
+            ? { ...deeper, chain: [moduleRel, ...deeper.chain] }
+            : { module: target, exportedName: upstreamName, chain: [moduleRel] };
+        }
+        // Local `export { imported }` — follow the import binding.
+        const local = parseImportBindings(root, moduleRel, options).find(
+          (b) => b.localName === upstreamName,
+        );
+        if (local) {
+          return {
+            module: local.effectiveModule,
+            exportedName: local.importedName,
+            chain: [moduleRel, ...local.reExportChain],
+          };
+        }
+        return { module: moduleRel, exportedName, chain: [] };
+      }
+    }
+
+    if (!stmt.exportClause && specifierText) {
+      const target = resolveModuleSpecifier(root, moduleRel, specifierText, options);
+      if (!target) continue;
+      const deeper = resolveExportOrigin(root, target, exportedName, options, seen);
+      if (deeper) return { ...deeper, chain: [moduleRel, ...deeper.chain] };
+    }
+  }
+
+  if (declaresLocally(sf, exportedName)) {
+    return { module: moduleRel, exportedName, chain: [] };
+  }
+  // Symbol is exported inline (e.g. `export const X`) or unresolvable further.
+  return { module: moduleRel, exportedName, chain: [] };
+}
+
 export function parseImportBindings(
   root: string,
   relPath: string,
   options: ts.CompilerOptions,
 ): ResolvedImportBinding[] {
-  const abs = join(root, relPath);
-  const src = readFileSync(abs, 'utf8');
-  const sf = ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const sf = parseSourceFile(root, relPath);
   const out: ResolvedImportBinding[] = [];
+
+  const push = (
+    localName: string,
+    importedName: string,
+    specifier: string,
+    resolvedPath: string,
+    isDefault: boolean,
+    isNamespace: boolean,
+  ) => {
+    const origin = isNamespace
+      ? null
+      : resolveExportOrigin(root, resolvedPath, importedName, options, new Set());
+    out.push({
+      localName,
+      importedName,
+      moduleSpecifier: specifier,
+      resolvedPath,
+      effectiveModule: origin?.module ?? resolvedPath,
+      reExportChain: origin?.chain ?? [],
+      isDefault,
+      isNamespace,
+    });
+  };
 
   for (const stmt of sf.statements) {
     if (!ts.isImportDeclaration(stmt) || !stmt.moduleSpecifier || !ts.isStringLiteral(stmt.moduleSpecifier)) {
@@ -77,40 +216,30 @@ export function parseImportBindings(
     if (!resolvedPath) continue;
     const clause = stmt.importClause;
     if (!clause) continue;
+
     if (clause.name) {
-      out.push({
-        localName: clause.name.text,
-        moduleSpecifier: specifier,
-        resolvedPath,
-        isDefault: true,
-        isNamespace: false,
-      });
+      push(clause.name.text, 'default', specifier, resolvedPath, true, false);
     }
     if (clause.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
-      out.push({
-        localName: clause.namedBindings.name.text,
-        moduleSpecifier: specifier,
-        resolvedPath,
-        isDefault: false,
-        isNamespace: true,
-      });
+      push(clause.namedBindings.name.text, '*', specifier, resolvedPath, false, true);
     }
     if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
       for (const el of clause.namedBindings.elements) {
-        out.push({
-          localName: el.name.text,
-          moduleSpecifier: specifier,
+        push(
+          el.name.text,
+          el.propertyName?.text ?? el.name.text,
+          specifier,
           resolvedPath,
-          isDefault: false,
-          isNamespace: false,
-        });
+          false,
+          false,
+        );
       }
     }
   }
   return out;
 }
 
-function jsxTagName(node: ts.JsxOpeningLikeElement, sf: ts.SourceFile): string | null {
+function jsxTagName(node: ts.JsxOpeningLikeElement): string | null {
   const n = node.tagName;
   if (ts.isIdentifier(n)) return n.text;
   if (ts.isPropertyAccessExpression(n) && ts.isIdentifier(n.name)) return n.name.text;
@@ -133,7 +262,7 @@ function readJsxStringAttr(attrs: ts.JsxAttributes, name: string, sf: ts.SourceF
   return null;
 }
 
-function collectConditionalConstStrings(sf: ts.SourceFile): Map<string, string[]> {
+export function collectConditionalConstStrings(sf: ts.SourceFile): Map<string, string[]> {
   const map = new Map<string, string[]>();
   function visit(node: ts.Node) {
     if (
@@ -159,9 +288,7 @@ export function parseJsxUsages(
   relPath: string,
   imports: ResolvedImportBinding[],
 ): ResolvedJsxUsage[] {
-  const abs = join(root, relPath);
-  const src = readFileSync(abs, 'utf8');
-  const sf = ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const sf = parseSourceFile(root, relPath);
   const importByLocal = new Map(imports.map((i) => [i.localName, i]));
   const conditional = collectConditionalConstStrings(sf);
   const out: ResolvedJsxUsage[] = [];
@@ -185,17 +312,15 @@ export function parseJsxUsages(
 
   function visit(node: ts.Node) {
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
-      const tag = jsxTagName(node, sf);
-      if (!tag) {
-        ts.forEachChild(node, visit);
-        return;
+      const tag = jsxTagName(node);
+      if (tag) {
+        out.push({
+          tagName: tag,
+          binding: importByLocal.get(tag) ?? null,
+          stateId: resolveStateId(node.attributes),
+          dataPremiumState: readJsxStringAttr(node.attributes, 'data-m55-premium-state', sf),
+        });
       }
-      out.push({
-        tagName: tag,
-        binding: importByLocal.get(tag) ?? null,
-        stateId: resolveStateId(node.attributes),
-        dataPremiumState: readJsxStringAttr(node.attributes, 'data-m55-premium-state', sf),
-      });
     }
     ts.forEachChild(node, visit);
   }
@@ -212,26 +337,19 @@ export function proveOwnerModuleResolution(
   const host = createPremiumCompilerHost(root);
   const imports = parseImportBindings(root, ownerFile, host.options);
   const jsxUsages = parseJsxUsages(root, ownerFile, imports);
-  const expectedNorm = stripExtension(expectedResolvedModule);
-  const binding = imports.find((i) => i.localName === expectedSymbol);
-  if (binding && stripExtension(binding.resolvedPath) !== expectedNorm) {
-    throw new Error(
-      `${ownerFile}: ${expectedSymbol} resolves to ${binding.resolvedPath}, expected ${expectedResolvedModule}`,
-    );
-  }
   return { ownerFile, expectedModule: expectedResolvedModule, symbol: expectedSymbol, jsxUsages, imports };
 }
 
+/** A JSX tag counts as a mount only when its binding resolves to the canonical module. */
 export function jsxUsesResolvedSymbol(
   proof: OwnerModuleProof,
   jsxTag: string,
   expectedResolvedModule: string,
 ): boolean {
-  const expectedNorm = stripExtension(expectedResolvedModule);
   return proof.jsxUsages.some((usage) => {
     if (usage.tagName !== jsxTag) return false;
     if (!usage.binding) return false;
-    return stripExtension(usage.binding.resolvedPath) === expectedNorm;
+    return sameModule(usage.binding.effectiveModule, expectedResolvedModule);
   });
 }
 
@@ -243,9 +361,8 @@ export function importsResolveTo(
 ): ResolvedImportBinding | null {
   const host = createPremiumCompilerHost(root);
   const imports = parseImportBindings(root, fromRel, host.options);
-  const expectedNorm = stripExtension(expectedModule);
   const hit = imports.find((i) => i.localName === importName);
   if (!hit) return null;
-  if (stripExtension(hit.resolvedPath) !== expectedNorm) return null;
+  if (!sameModule(hit.effectiveModule, expectedModule)) return null;
   return hit;
 }
