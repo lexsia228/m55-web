@@ -259,6 +259,18 @@ function checkCiWiring() {
   if (!src.includes('test:m55-commercial-visual-quality')) {
     fail('ci.wiring', 'audit workflow must run the broken-fixture unit tests');
   }
+  const e2eWired =
+    src.includes('commercial-visual-quality.spec.ts') ||
+    src.includes('test:e2e:commercial-visual-quality');
+  if (!e2eWired) {
+    fail(
+      'ci.e2e',
+      'audit workflow must run the real browser gate e2e/commercial-visual-quality.spec.ts',
+    );
+  }
+  if (!src.includes('playwright install')) {
+    fail('ci.e2e', 'audit workflow must install repository-locked Playwright browsers');
+  }
 }
 
 function main() {

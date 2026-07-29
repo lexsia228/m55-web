@@ -22,6 +22,10 @@ import {
   type MeasuredPage,
   type MeasuredScrollState,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
+import {
+  assertOverlayAbsence,
+  prepareCleanCapturePage,
+} from './helpers/cleanCaptureEnvironment';
 
 /** Real free answer identifiers, so /core reaches the RESULT phase. */
 const COMPLETE_FREE = {
@@ -503,6 +507,7 @@ for (const governedCase of COMMERCIAL_VISUAL_CASES) {
       const context = await browser.newContext({ viewport: { width, height } });
       if (governedCase.setup !== 'none') await seedFreeResult(context);
       const page = await context.newPage();
+      await prepareCleanCapturePage(page);
       await applySetup(page, governedCase);
 
       /*
@@ -512,6 +517,7 @@ for (const governedCase of COMMERCIAL_VISUAL_CASES) {
        */
       for (const scrollState of ['top', 'engaged'] as const) {
         if (scrollState === 'engaged') await engageFloatingRail(page);
+        await assertOverlayAbsence(page, `${governedCase.caseId}@${width}/${scrollState}`);
         const measured = await measurePage(page, governedCase, width, height, scrollState);
         for (const failure of checkMeasuredPage(measured, governedCase)) {
           failures.push(

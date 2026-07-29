@@ -66,8 +66,13 @@ const REQUIRED_PLACEMENTS = [
     ownerFile: 'components/dtr/DtrMethodReportNote.tsx',
   },
   {
-    id: 'pricing_checkout_prep',
+    id: 'pricing',
     testId: 'm55-method-trust-link',
+    ownerFile: 'components/pages/M55MethodTrustLink.tsx',
+  },
+  {
+    id: 'checkout_prep',
+    testId: 'm55-method-checkout-trust-link',
     ownerFile: 'components/pages/M55MethodTrustLink.tsx',
   },
   {
@@ -76,6 +81,11 @@ const REQUIRED_PLACEMENTS = [
     ownerFile: 'app/_components/PublicFooter.tsx',
   },
 ];
+
+const LEGACY_PUBLIC_METHOD_TERMS = ['M55複合暦解析', 'M55 複合暦解析', '複合暦解析'];
+const ROUTE_CONSUMPTION = 'lib/m55/method/m55MethodRouteConsumption.ts';
+const ROUTE_CONSUMPTION_TEST = 'lib/m55/method/m55MethodRouteConsumption.test.ts';
+const METHOD_E2E = 'e2e/method-authority-placement.spec.ts';
 
 /**
  * Phrases asserting authority M55 does not hold. Mirrors
@@ -159,10 +169,14 @@ const REPORT = {
   methodInputs: 0,
   requiredSections: 0,
   placements: 0,
+  routeConsumptionPlacements: 0,
+  routeConsumptionNegativeFixtures: 0,
   unsupportedClaimCount: 0,
   internalVocabularyLeaks: 0,
   competingMethodRoutes: 0,
+  legacyPublicMethodTermsOnCanonicalRoute: 0,
   ciWired: false,
+  methodE2eWired: false,
 };
 
 function fail(rule, message) {
@@ -273,6 +287,24 @@ function checkCompetitorDoc() {
   if (!doc.includes('RESEARCH EVIDENCE ONLY')) {
     fail('competitor.status', 'competitor document must be marked research evidence only');
   }
+  if (!doc.includes('OBSERVED FACT') || !doc.includes('M55 INFERENCE')) {
+    fail('competitor.schema', 'competitor entries must separate OBSERVED FACT and M55 INFERENCE');
+  }
+  if (!doc.includes('Official source URL') || !doc.includes('Observation date')) {
+    fail('competitor.schema', 'competitor entries must include official URL and observation date');
+  }
+  const entryBlocks = doc.split(/### E\d+/).slice(1);
+  if (entryBlocks.length < 3) {
+    fail('competitor.entries', 'competitor document must include multiple dated official-source entries');
+  }
+  for (const block of entryBlocks) {
+    if (!/https?:\/\//.test(block)) {
+      fail('competitor.entries', 'each competitor entry must include an official source URL');
+    }
+    if (!/20\d{2}-\d{2}-\d{2}/.test(block)) {
+      fail('competitor.entries', 'each competitor entry must include an observation date');
+    }
+  }
   const claims = unsupportedClaims(doc);
   // The document names non-adoptions, so English level-3 terms may appear in the
   // non-adoption list. Japanese marketing forms may not.
@@ -332,6 +364,7 @@ function checkPlacements() {
     ['components/home/HomePanel.tsx', 'HomeMethodModel'],
     ['components/core/CoreEssencePanel.tsx', 'CoreMethodCompact'],
     ['components/dtr/DtrPaidPurchasePrep.tsx', 'DtrMethodDifference'],
+    ['components/dtr/DtrPaidPurchasePrep.tsx', 'M55MethodTrustLink'],
     ['components/dtr/DtrFullReader.tsx', 'DtrMethodReportNote'],
     ['app/pricing/page.tsx', 'M55MethodTrustLink'],
     ['app/how-m55-works/page.tsx', 'M55MethodSections'],
@@ -341,10 +374,134 @@ function checkPlacements() {
       fail('placement.mount', `${file} not found`);
       continue;
     }
-    if (!new RegExp(`<${component}\\s*/?>`).test(read(file))) {
+    if (!new RegExp(`<${component}\\b`).test(read(file))) {
       fail('placement.mount', `${file} does not mount ${component}`);
     }
   }
+
+  const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
+  if (!prep.includes('surface="checkout"')) {
+    fail('placement.checkout', 'checkout preparation must mount M55MethodTrustLink surface=checkout');
+  }
+  const footer = read('app/_components/PublicFooter.tsx');
+  if (!footer.includes('M55_METHOD_ROUTE_LINK_LABEL_JA')) {
+    fail('placement.footer', 'footer label must consume M55_METHOD_ROUTE_LINK_LABEL_JA');
+  }
+}
+
+function checkRouteConsumption() {
+  for (const rel of [ROUTE_CONSUMPTION, ROUTE_CONSUMPTION_TEST]) {
+    if (!existsSync(join(ROOT, rel))) {
+      fail('route_consumption.missing', `required artifact absent: ${rel}`);
+      return;
+    }
+  }
+  const src = read(ROUTE_CONSUMPTION);
+  const testSrc = read(ROUTE_CONSUMPTION_TEST);
+  const placementMatches = src.match(/id:\s*'(home|core_free_result|dtr_lp|purchased_report|pricing|checkout_prep|footer_nav)'/g) || [];
+  REPORT.routeConsumptionPlacements = placementMatches.length;
+  if (REPORT.routeConsumptionPlacements < 7) {
+    fail('route_consumption.count', 'route-consumption authority must declare 7 placements');
+  }
+  if (!src.includes("id: 'pricing'") || !src.includes("id: 'checkout_prep'")) {
+    fail('route_consumption.split', 'pricing and checkout_prep must be separate registry entries');
+  }
+  const fixtureIds = [
+    'duplicate_placement',
+    'unregistered_placement',
+    'wrong_route',
+    'wrong_runtime_state',
+    'wrong_dom_order',
+    'noncanonical_copy_owner',
+    'missing_checkout_placement',
+    'missing_purchased_report_placement',
+    'wrong_link_target',
+    'competing_canonical_method_name',
+  ];
+  let fixtures = 0;
+  for (const id of fixtureIds) {
+    if (src.includes(`'${id}'`) || src.includes(`"${id}"`)) fixtures += 1;
+    else fail('route_consumption.fixture', `negative fixture missing: ${id}`);
+  }
+  REPORT.routeConsumptionNegativeFixtures = fixtures;
+  if (!testSrc.includes('rejects') || !testSrc.includes('routeConsumptionNegativeFixtures')) {
+    fail('route_consumption.test', 'route-consumption negative fixtures must be unit-tested');
+  }
+}
+
+/**
+ * Follow imported copy owners so a legacy term cannot hide behind
+ * TOP_FREE_ENTRY_PUBLIC_COPY on the canonical method route.
+ */
+function checkCanonicalRouteSingleAuthority() {
+  const pageRel = 'app/how-m55-works/page.tsx';
+  if (!existsSync(join(ROOT, pageRel))) {
+    fail('route.canonical', 'canonical method route page is missing');
+    return;
+  }
+  const page = read(pageRel);
+  if (!page.includes('M55MethodSections')) {
+    fail('route.canonical', 'canonical route must mount M55MethodSections');
+  }
+  for (const term of [
+    'CalendarLayersSection',
+    'WhatYouCanDoSection',
+    'IntroSection',
+    'FrameworkSection',
+    'TOP_FREE_ENTRY_PUBLIC_COPY',
+  ]) {
+    if (page.includes(term)) {
+      fail('route.legacy', `canonical method route still mounts competing content via ${term}`);
+    }
+  }
+
+  let legacyHits = 0;
+  for (const term of LEGACY_PUBLIC_METHOD_TERMS) {
+    if (page.includes(term)) {
+      legacyHits += 1;
+      fail('route.legacy_name', `canonical method route renders competing name: ${term}`);
+    }
+  }
+
+  // Follow local imports from the page into rendered owners and reject legacy terms.
+  const importRe = /from\s+['"](\.[^'"]+)['"]/g;
+  let m;
+  const visited = new Set([pageRel]);
+  const queue = [];
+  while ((m = importRe.exec(page))) queue.push(m[1]);
+  while (queue.length) {
+    const spec = queue.shift();
+    const resolved = resolveRelative(pageRel, spec);
+    if (!resolved || visited.has(resolved) || !existsSync(join(ROOT, resolved))) continue;
+    visited.add(resolved);
+    const src = read(resolved);
+    for (const term of LEGACY_PUBLIC_METHOD_TERMS) {
+      if (src.includes(term)) {
+        legacyHits += 1;
+        fail(
+          'route.imported_legacy',
+          `${resolved} (imported by canonical route) still contains ${term}`,
+        );
+      }
+    }
+  }
+  REPORT.legacyPublicMethodTermsOnCanonicalRoute = legacyHits;
+}
+
+function resolveRelative(fromRel, spec) {
+  const fromDir = fromRel.split('/').slice(0, -1).join('/');
+  const parts = `${fromDir}/${spec}`.split('/');
+  const out = [];
+  for (const part of parts) {
+    if (!part || part === '.') continue;
+    if (part === '..') out.pop();
+    else out.push(part);
+  }
+  let candidate = out.join('/');
+  if (existsSync(join(ROOT, `${candidate}.tsx`))) return `${candidate}.tsx`;
+  if (existsSync(join(ROOT, `${candidate}.ts`))) return `${candidate}.ts`;
+  if (existsSync(join(ROOT, candidate, 'index.tsx'))) return `${candidate}/index.tsx`;
+  return candidate;
 }
 
 /** A second detailed method page produces contradictory statements over time. */
@@ -378,6 +535,26 @@ function checkCiWiring() {
   if (!src.includes('test:m55-method-authority')) {
     fail('ci.wiring', 'audit workflow must run the method authority negative fixtures');
   }
+  REPORT.methodE2eWired =
+    src.includes('method-authority-placement.spec.ts') ||
+    src.includes('test:e2e:method-authority-placement');
+  if (!REPORT.methodE2eWired) {
+    fail('ci.e2e', 'audit workflow must run e2e/method-authority-placement.spec.ts');
+  }
+  if (!existsSync(join(ROOT, METHOD_E2E))) {
+    fail('ci.e2e', `${METHOD_E2E} is missing`);
+  } else {
+    const e2e = read(METHOD_E2E);
+    for (const needle of [
+      'm55-method-checkout-trust-link',
+      'm55-method-purchased-report',
+      'M55複合暦解析',
+    ]) {
+      if (!e2e.includes(needle)) {
+        fail('ci.e2e', `${METHOD_E2E} must cover runtime assertion for ${needle}`);
+      }
+    }
+  }
 }
 
 function main() {
@@ -389,6 +566,8 @@ function main() {
   checkCompetitorDoc();
   checkGovernedPublicCopy();
   checkPlacements();
+  checkRouteConsumption();
+  checkCanonicalRouteSingleAuthority();
   checkSingleCanonicalRoute();
   checkCiWiring();
 

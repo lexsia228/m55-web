@@ -16,6 +16,14 @@ import {
   type PremiumCaptureCase,
   type PremiumEvidenceViewport,
 } from '../lib/m55/commercialUx/premiumExperience/premiumExperienceCaptureModel';
+import {
+  assertOverlayAbsence,
+  prepareCleanCapturePage,
+  removeDevelopmentOverlays,
+  restoreDevelopmentOverlays,
+  safeGotoLocal,
+  softDisableDevelopmentOverlays,
+} from './helpers/cleanCaptureEnvironment';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, 'screenshots', 'premium-experience-ssot');
@@ -100,12 +108,6 @@ function requireLocalDevFixture(testName: string) {
   }
 }
 
-async function blockClerkTakeover(page: Page) {
-  await page.route(/clerk\.accounts\.dev|accounts\.dev|clerk-sync-keyless/, (route) =>
-    route.fulfill({ status: 204, body: '' }),
-  );
-}
-
 async function assertPremiumAuthority(page: Page) {
   const tier = page.locator('[data-m55-experience-tier="PREMIUM"]');
   await expect(tier.first()).toBeVisible();
@@ -136,10 +138,35 @@ async function assertCaptureContract(page: Page, capture: PremiumCaptureCase) {
     await expect(target.getByText(text, { exact: false }).first()).toBeVisible({ timeout: 20_000 });
   }
   for (const text of capture.visibleContract.forbiddenTexts) {
-    await expect(page.getByText(text, { exact: true })).toHaveCount(0);
+    const effectivelyVisible = await page.evaluate((marker) => {
+      return Array.from(document.querySelectorAll('body *')).some((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        if (Number.parseFloat(style.opacity || '1') < 0.05) return false;
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 8 || rect.height < 8) return false;
+        const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+        return text.includes(marker);
+      });
+    }, text);
+    expect(effectivelyVisible, `${capture.captureId}: forbidden text still effective: ${text}`).toBe(
+      false,
+    );
   }
   for (const locator of capture.visibleContract.forbiddenLocators) {
-    await expect(page.locator(locator)).toHaveCount(0);
+    const effectivelyVisible = await page.evaluate((selector) => {
+      return Array.from(document.querySelectorAll(selector)).some((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        if (Number.parseFloat(style.opacity || '1') < 0.05) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width >= 8 && rect.height >= 8;
+      });
+    }, locator);
+    expect(
+      effectivelyVisible,
+      `${capture.captureId}: forbidden locator still effective: ${locator}`,
+    ).toBe(false);
   }
 
   const actualUrl = page.url();
@@ -153,26 +180,68 @@ async function assertCaptureContract(page: Page, capture: PremiumCaptureCase) {
 
 async function capturePng(page: Page, captureId: string, viewport: PremiumEvidenceViewport) {
   const capture = requireCapture(captureId);
-  const { actualUrl, actualOrigin, target } = await assertCaptureContract(page, capture);
+  // If Clerk keyless UI navigated away, return to the expected local fixture.
+  if (!LOCAL_ORIGIN_PATTERN.test(new URL(page.url()).origin)) {
+    await safeGotoLocal(page, capture.expectedRoute);
+  }
+  // Remove ungoverned Clerk/Next development chrome before the visible-contract
+  // check so forbiddenTexts/locators judge the commercial surface, not SDK tooling.
+  await removeDevelopmentOverlays(page);
+  if (!LOCAL_ORIGIN_PATTERN.test(new URL(page.url()).origin)) {
+    await safeGotoLocal(page, capture.expectedRoute);
+    await removeDevelopmentOverlays(page);
+  }
+  await assertOverlayAbsence(page, `${captureId}@${viewport}`);
+  const { actualUrl, actualOrigin } = await assertCaptureContract(page, capture);
+  // Re-query after overlay removal so element screenshots never target a detached node.
+  const target = page.locator(capture.visibleContract.locator).first();
 
   fs.mkdirSync(OUT, { recursive: true });
   const fileName = `${captureId}-${viewport}.png`;
   const filePath = path.join(OUT, fileName);
 
+  // Stay on the local commercial origin — a slipped navigation must never produce capture bytes.
+  expect(new URL(page.url()).origin, `${captureId}: left local origin`).toMatch(LOCAL_ORIGIN_PATTERN);
+
   if (capture.captureScope === 'element') {
+    await expect(target).toBeVisible({ timeout: 30_000 });
+    await target.scrollIntoViewIfNeeded().catch(() => undefined);
+    await page.waitForTimeout(100);
     await expect
-      .poll(async () => {
-        const box = await target.boundingBox();
-        return box ? box.width * box.height : 0;
-      })
+      .poll(
+        async () => {
+          const box = await target.boundingBox();
+          return box ? box.width * box.height : 0;
+        },
+        { timeout: 30_000 },
+      )
       .toBeGreaterThan(5_000);
-    await target.screenshot({ path: filePath });
+    // Prefer element screenshot after scroll — nested /core scrollports make
+    // full_page miss the bridge sheet. Fall back to a viewport clip.
+    try {
+      await target.screenshot({ path: filePath, animations: 'disabled' });
+    } catch {
+      const box = await target.boundingBox();
+      expect(box, `${captureId}: missing box before clip screenshot`).not.toBeNull();
+      await page.screenshot({
+        path: filePath,
+        animations: 'disabled',
+        clip: {
+          x: Math.max(0, box!.x),
+          y: Math.max(0, box!.y),
+          width: Math.max(1, Math.min(box!.width, page.viewportSize()?.width ?? box!.width)),
+          height: Math.max(1, Math.min(box!.height, page.viewportSize()?.height ?? box!.height)),
+        },
+      });
+    }
   } else {
-    await page.screenshot({ path: filePath, fullPage: true });
+    await page.screenshot({ path: filePath, fullPage: true, animations: 'disabled' });
   }
 
   const byteLength = fs.statSync(filePath).size;
-  expect(byteLength, `${captureId}: implausibly small capture`).toBeGreaterThan(4_000);
+  // Light editorial sheets still compress well; a shell-only shot is ~12KB.
+  const minBytes = captureId.startsWith('premium-bridge') ? 20_000 : 4_000;
+  expect(byteLength, `${captureId}: implausibly small capture`).toBeGreaterThan(minBytes);
 
   emitCaptureEvent({
     kind: 'png',
@@ -187,6 +256,8 @@ async function capturePng(page: Page, captureId: string, viewport: PremiumEviden
     fileName,
     byteLength,
   });
+  // Capture-time hides must not poison subsequent funnel clicks.
+  await restoreDevelopmentOverlays(page);
 }
 
 async function capturePdf(page: Page, captureId: string) {
@@ -194,6 +265,8 @@ async function capturePdf(page: Page, captureId: string) {
   if (!capture.printFileName) {
     throw new Error(`PREMIUM_CAPTURE_NOT_PRINTABLE: ${captureId}`);
   }
+  await removeDevelopmentOverlays(page);
+  await assertOverlayAbsence(page, `${captureId}@pdf`);
   const { actualUrl, actualOrigin } = await assertCaptureContract(page, capture);
 
   const filePath = path.join(OUT, capture.printFileName);
@@ -215,15 +288,43 @@ async function capturePdf(page: Page, captureId: string) {
     fileName: capture.printFileName,
     byteLength,
   });
+  await restoreDevelopmentOverlays(page);
+}
+
+async function ensureLocalDrawerPreview(page: Page, fallbackUrl = '/dev/dtr-drawer-preview') {
+  if (!/dtr-drawer-preview/.test(page.url()) || /accounts\.dev/i.test(page.url())) {
+    await safeGotoLocal(page, fallbackUrl);
+  }
+  await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
 }
 
 async function openDrawerPanel(page: Page, panel: 'chapter-1' | 'consult') {
-  await expect(page).toHaveURL(/dtr-drawer-preview/);
-  const trigger = page.locator(`[aria-controls="drawer-hub-body-${panel}"]`);
-  await trigger.scrollIntoViewIfNeeded();
-  await trigger.click({ timeout: 20_000 });
-  await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 20_000 });
-  await expect(page.locator(`#drawer-hub-body-${panel}`)).toBeVisible({ timeout: 20_000 });
+  const localUrl = /dtr-drawer-preview/.test(page.url()) && !/accounts\.dev/i.test(page.url())
+    ? page.url()
+    : '/dev/dtr-drawer-preview';
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await ensureLocalDrawerPreview(page, localUrl);
+    // Soft-disable only: hard-hiding Clerk keyless UI can trigger accounts.dev redirects.
+    await softDisableDevelopmentOverlays(page);
+    const trigger = page.locator(`[aria-controls="drawer-hub-body-${panel}"]`);
+    await expect(trigger).toBeVisible({ timeout: 30_000 });
+    await trigger.scrollIntoViewIfNeeded();
+    // DOM click avoids Playwright hit-testing through the Clerk keyless layer.
+    await trigger.evaluate((el) => (el as HTMLButtonElement).click());
+    if (/accounts\.dev/i.test(page.url())) {
+      await safeGotoLocal(page, localUrl);
+      continue;
+    }
+    try {
+      await expect(page).toHaveURL(/dtr-drawer-preview/);
+      await expect(trigger).toHaveAttribute('aria-expanded', 'true', { timeout: 6_000 });
+      await expect(page.locator(`#drawer-hub-body-${panel}`)).toBeVisible({ timeout: 6_000 });
+      return;
+    } catch {
+      await safeGotoLocal(page, localUrl);
+    }
+  }
+  throw new Error(`openDrawerPanel(${panel}): could not open without leaving the local origin`);
 }
 
 async function completeQuestionnaire(page: Page) {
@@ -238,13 +339,15 @@ async function completeQuestionnaire(page: Page) {
   await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 20_000 });
 }
 
-test.describe.configure({ mode: 'serial', timeout: 180_000 });
+// Default (not serial): a flaky /dev fixture must not skip the remaining matrix.
+test.describe.configure({ mode: 'default', timeout: 180_000 });
 
 for (const vp of VIEWPORTS) {
   test(`premium funnel states @${vp.name}`, async ({ browser }) => {
     const context = await cleanContext(browser);
     await seedResult(context);
     const page = await context.newPage();
+    await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
 
     await page.goto('/core');
@@ -252,10 +355,17 @@ for (const vp of VIEWPORTS) {
       timeout: 30_000,
     });
     await page.locator('#core-paid').scrollIntoViewIfNeeded();
+    await expect(page.getByTestId('m55-free-to-paid-bridge')).toContainText('プレミアムレポート', {
+      timeout: 20_000,
+    });
     await assertPremiumAuthority(page);
     await capturePng(page, 'premium-bridge', vp.name);
 
-    await page.getByTestId('m55-paid-bridge-primary').click();
+    // Prefer navigation via href — host flips between 127.0.0.1 and localhost
+    // can swallow a plain click without changing the path.
+    const bridgeHref = await page.getByTestId('m55-paid-bridge-primary').getAttribute('href');
+    expect(bridgeHref, 'premium bridge href').toMatch(/\/dtr\/lp/);
+    await page.goto(bridgeHref!, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page).toHaveURL(/\/dtr\/lp/, { timeout: 60_000 });
     await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 30_000 });
     await assertPremiumAuthority(page);
@@ -305,7 +415,7 @@ for (const vp of VIEWPORTS) {
 for (const vp of VIEWPORTS) {
   test(`premium share card @${vp.name}`, async ({ page }) => {
     requireLocalDevFixture(`premium share card @${vp.name}`);
-    await blockClerkTakeover(page);
+    await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/premium-share-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.locator('[data-m55-dev-preview="premium-share"]')).toBeVisible({ timeout: 30_000 });
@@ -317,62 +427,89 @@ for (const vp of VIEWPORTS) {
 }
 
 for (const vp of VIEWPORTS) {
-  test(`purchased report fixture @${vp.name}`, async ({ page }) => {
+  test(`purchased report fixture @${vp.name}`, async ({ browser }) => {
     requireLocalDevFixture(`purchased report fixture @${vp.name}`);
-    await blockClerkTakeover(page);
-    await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
-    await expect(page.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible();
-    await assertPremiumAuthority(page);
-    await capturePng(page, 'purchased-report-landing', vp.name);
 
-    await openDrawerPanel(page, 'chapter-1');
-    const bodyLocator = page.getByTestId('m55-purchased-report-body');
-    await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
-    await expect(bodyLocator.getByTestId('m55-report-chapter-heading')).toContainText('の自分の形');
-    await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
-    await capturePng(page, 'purchased-report-body', vp.name);
+    // Landing and body use separate browser contexts. Hard-hiding the Clerk
+    // keyless panel during the landing capture can poison the same context into
+    // an accounts.dev bounce on the next navigation.
+    {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      await prepareCleanCapturePage(page);
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await safeGotoLocal(page, '/dev/dtr-drawer-preview');
+      await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+      await expect(page.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible({ timeout: 60_000 });
+      await assertPremiumAuthority(page);
+      await expect(page.locator(`[aria-controls="drawer-hub-body-chapter-1"]`)).toBeVisible({
+        timeout: 60_000,
+      });
+      await capturePng(page, 'purchased-report-landing', vp.name);
+      await context.close();
+    }
+
+    {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      await prepareCleanCapturePage(page);
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      // Fixture query opens the chapter without clicking the hub trigger — Clerk
+      // keyless UI intercepts that click and navigates to accounts.dev.
+      await safeGotoLocal(page, '/dev/dtr-drawer-preview?openPanel=chapter-1');
+      await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+      const bodyLocator = page.getByTestId('m55-purchased-report-body');
+      await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
+      await expect(bodyLocator.getByTestId('m55-report-chapter-heading')).toContainText('の自分の形');
+      await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
+      await expect(bodyLocator.getByTestId('m55-method-purchased-report')).toBeVisible();
+      await capturePng(page, 'purchased-report-body', vp.name);
+      await context.close();
+    }
   });
 }
 
 for (const vp of VIEWPORTS) {
-  test(`additional reading input @${vp.name}`, async ({ page }) => {
+  test(`additional reading input @${vp.name}`, async ({ browser }) => {
     requireLocalDevFixture(`additional reading input @${vp.name}`);
-    await blockClerkTakeover(page);
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=available#consultation-room', {
-      waitUntil: 'domcontentloaded',
-      timeout: 60_000,
-    });
-    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+    const url =
+      '/dev/dtr-drawer-preview?withConsult=1&consultWallet=available&openPanel=consult';
+    await safeGotoLocal(page, url);
+    await ensureLocalDrawerPreview(page, url);
     await expect(page.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
     await assertPremiumAuthority(page);
     await capturePng(page, 'additional-reading-input', vp.name);
+    await context.close();
   });
 }
 
 for (const vp of VIEWPORTS) {
-  test(`additional reading result @${vp.name}`, async ({ page }) => {
+  test(`additional reading result @${vp.name}`, async ({ browser }) => {
     requireLocalDevFixture(`additional reading result @${vp.name}`);
-    await blockClerkTakeover(page);
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
-      waitUntil: 'domcontentloaded',
-      timeout: 60_000,
-    });
-    await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
+    const url = '/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult';
+    await safeGotoLocal(page, url);
+    await ensureLocalDrawerPreview(page, url);
+    await expect(page.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('[class*="replyCard"]').first()).toBeVisible({ timeout: 30_000 });
     await assertPremiumAuthority(page);
     await capturePng(page, 'additional-reading-result', vp.name);
+    await context.close();
   });
 }
 
 for (const vp of VIEWPORTS) {
   test(`saved premium reopen @${vp.name}`, async ({ page }) => {
     requireLocalDevFixture(`saved premium reopen @${vp.name}`);
-    await blockClerkTakeover(page);
+    await prepareCleanCapturePage(page);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto('/dev/dtr-drawer-preview', { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.getByTestId('m55-saved-snapshot-notice')).toBeVisible({ timeout: 60_000 });
@@ -383,39 +520,45 @@ for (const vp of VIEWPORTS) {
 
 test('print PDF premium states @1280', async ({ browser }) => {
   requireLocalDevFixture('print PDF premium states @1280');
+  test.setTimeout(300_000);
   const context = await cleanContext(browser);
   await seedResult(context);
   const page = await context.newPage();
+  await prepareCleanCapturePage(page);
   await page.setViewportSize({ width: 1280, height: 900 });
 
   await page.goto('/core');
   await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
     timeout: 30_000,
   });
-  await page.getByTestId('m55-paid-bridge-primary').click();
-  await page.waitForURL('**/dtr/lp**');
+  await page.locator('#core-paid').scrollIntoViewIfNeeded();
+  const bridgeHref = await page.getByTestId('m55-paid-bridge-primary').getAttribute('href');
+  expect(bridgeHref, 'premium bridge href').toMatch(/\/dtr\/lp/);
+  await page.goto(bridgeHref!, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await expect(page).toHaveURL(/\/dtr\/lp/, { timeout: 60_000 });
   await completeQuestionnaire(page);
   await capturePdf(page, 'answer-review');
 
   await page.getByRole('button', { name: 'プランを選ぶ' }).click();
-  await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible();
+  await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
   await capturePdf(page, 'plan-selection');
 
   await page.getByTestId('m55-dtr-plan-light').getByRole('button').click();
-  await expect(page.locator('[data-m55-paid-phase="checkout"]')).toBeVisible();
+  await expect(page.locator('[data-m55-paid-phase="checkout"]')).toBeVisible({ timeout: 30_000 });
   await capturePdf(page, 'payment-prep');
 
   const devContext = await browser.newContext();
   const devPage = await devContext.newPage();
-  await blockClerkTakeover(devPage);
-  await devPage.goto('/dev/dtr-drawer-preview', { timeout: 60_000, waitUntil: 'domcontentloaded' });
+  await prepareCleanCapturePage(devPage);
+  await safeGotoLocal(devPage, '/dev/dtr-drawer-preview');
   await expect(devPage.locator('[class*="premiumHero"]').first()).toBeVisible({ timeout: 60_000 });
   await capturePdf(devPage, 'purchased-report-landing');
 
-  await devPage.goto('/dev/dtr-drawer-preview?withConsult=1&consultWallet=history#consultation-room', {
-    timeout: 60_000,
-    waitUntil: 'domcontentloaded',
-  });
+  const consultUrl =
+    '/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult';
+  await safeGotoLocal(devPage, consultUrl);
+  await ensureLocalDrawerPreview(devPage, consultUrl);
+  await expect(devPage.locator('#drawer-hub-body-consult')).toBeVisible({ timeout: 30_000 });
   await expect(devPage.locator('[class*="replyCard"]').first()).toBeVisible({ timeout: 30_000 });
   await capturePdf(devPage, 'additional-reading-result');
   await devContext.close();

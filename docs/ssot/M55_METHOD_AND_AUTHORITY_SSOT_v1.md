@@ -120,7 +120,8 @@ of another person's feelings. `M55_UNSUPPORTED_AUTHORITY_PHRASES` and
 | Free result composition | `/core` | after the result explanation, before the Premium bridge | compact |
 | Free vs Premium difference | `/dtr/lp` | before plan selection | difference |
 | Purchased report composition | purchased report | at the start of the report body | compact |
-| Pricing / checkout prep | `/pricing` | near the price table | link only |
+| Pricing | `/pricing` | near the price table | link only |
+| Checkout preparation | `/dtr/lp` (checkout state) | before the purchase CTA | link only |
 | Footer / nav | all public routes | one canonical link | link only |
 
 `/how-m55-works` is the only detailed method page. Creating a second method route

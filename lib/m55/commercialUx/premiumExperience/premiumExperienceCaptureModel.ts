@@ -45,7 +45,18 @@ export type PremiumCaptureCase = {
 };
 
 const LOADING_TEXT = '読み込み中…';
-const AUTH_OVERLAY_LOCATORS = ['[data-clerk-modal]', '.cl-modalBackdrop'] as const;
+/** Auth modal + development overlays that must never appear in governed captures. */
+const AUTH_OVERLAY_LOCATORS = [
+  '[data-clerk-modal]',
+  '.cl-modalBackdrop',
+  'nextjs-portal',
+  '[data-nextjs-toast]',
+  '[data-next-badge-root]',
+] as const;
+const DEV_OVERLAY_TEXTS = [
+  'Configure your application',
+  'Temporary API keys are enabled',
+] as const;
 
 function contract(
   locator: string,
@@ -55,7 +66,7 @@ function contract(
   return {
     locator,
     requiredTexts,
-    forbiddenTexts: [LOADING_TEXT],
+    forbiddenTexts: [LOADING_TEXT, ...DEV_OVERLAY_TEXTS],
     forbiddenLocators: [...AUTH_OVERLAY_LOCATORS, ...extraForbiddenLocators],
   };
 }
@@ -71,10 +82,15 @@ export const PREMIUM_EXPERIENCE_CAPTURE_CASES: readonly PremiumCaptureCase[] = [
     ownerModule: 'components/core/CoreFreeToPaidConversionBridge.tsx',
     ownerSymbol: 'CoreFreeToPaidConversionBridge',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
-    visibleContract: contract(PREMIUM_TIER_LOCATOR, []),
-    captureScope: 'full_page',
-    minWidth: 380,
-    minHeight: 400,
+    visibleContract: contract('[data-testid="m55-free-to-paid-bridge"]', [
+      'プレミアムレポート',
+      'プレミアムの読み解きへ進む',
+    ]),
+    // Element scope — /core nests the result in a scrollport so full_page can
+    // photograph only the shell header + empty viewport.
+    captureScope: 'element',
+    minWidth: 280,
+    minHeight: 280,
     printRequired: false,
   },
   {
@@ -178,17 +194,21 @@ export const PREMIUM_EXPERIENCE_CAPTURE_CASES: readonly PremiumCaptureCase[] = [
     ownerModule: 'components/dtr/DtrFullReader.tsx',
     ownerSymbol: 'DtrFullReader',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
-    visibleContract: contract('[data-m55-dev-preview="dtr-drawer"]', []),
-    captureScope: 'full_page',
-    minWidth: 380,
-    minHeight: 400,
+    // Element scope keeps this capture distinct from saved-premium-reopen
+    // (same route) so evidence-substitution checks remain meaningful.
+    visibleContract: contract('[class*="premiumHero"]', []),
+    captureScope: 'element',
+    // Mobile hero is inset inside the reader column (~366 CSS px at 390).
+    minWidth: 340,
+    minHeight: 200,
     printRequired: true,
     printFileName: 'pdf/purchased-report.pdf',
   },
   {
     captureId: 'purchased-report-body',
     stateId: 'purchased.report.body',
-    expectedRoute: '/dev/dtr-drawer-preview',
+    // openPanel avoids Clerk keyless click-interception on the hub trigger.
+    expectedRoute: '/dev/dtr-drawer-preview?openPanel=chapter-1',
     ownerModule: 'components/dtr/DtrFullReader.tsx',
     ownerSymbol: 'DtrFullReader',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
@@ -197,15 +217,18 @@ export const PREMIUM_EXPERIENCE_CAPTURE_CASES: readonly PremiumCaptureCase[] = [
       ['の自分の形'],
       ['[data-m55-premium-decision-field="true"]'],
     ),
-    captureScope: 'element',
-    minWidth: 200,
-    minHeight: 200,
+    // Full page with chapter open — element clips were zero-box when Clerk
+    // bounced the body capture context onto accounts.dev mid-poll.
+    captureScope: 'full_page',
+    minWidth: 340,
+    minHeight: 400,
     printRequired: false,
   },
   {
     captureId: 'additional-reading-input',
     stateId: 'purchased.consult.input',
-    expectedRoute: '/dev/dtr-drawer-preview?withConsult=1&consultWallet=available',
+    expectedRoute:
+      '/dev/dtr-drawer-preview?withConsult=1&consultWallet=available&openPanel=consult',
     ownerModule: 'components/dtr/ConsultRoom.tsx',
     ownerSymbol: 'ConsultRoom',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
@@ -218,7 +241,8 @@ export const PREMIUM_EXPERIENCE_CAPTURE_CASES: readonly PremiumCaptureCase[] = [
   {
     captureId: 'additional-reading-result',
     stateId: 'purchased.consult.result',
-    expectedRoute: '/dev/dtr-drawer-preview?withConsult=1&consultWallet=history',
+    expectedRoute:
+      '/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult',
     ownerModule: 'components/dtr/ConsultReplyCard.tsx',
     ownerSymbol: 'ConsultReplyCard',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
@@ -237,9 +261,10 @@ export const PREMIUM_EXPERIENCE_CAPTURE_CASES: readonly PremiumCaptureCase[] = [
     ownerSymbol: 'SavedSnapshotNotice',
     visualAuthority: PREMIUM_VISUAL_AUTHORITY_KEY,
     visibleContract: contract('[data-testid="m55-saved-snapshot-notice"]', []),
-    captureScope: 'full_page',
-    minWidth: 380,
-    minHeight: 400,
+    captureScope: 'element',
+    // Compact notice chip — intentionally short; distinct from landing hero.
+    minWidth: 280,
+    minHeight: 40,
     printRequired: false,
   },
   {

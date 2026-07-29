@@ -68,3 +68,22 @@ jobs:
 
       - name: M55 method and authority negative fixtures
         run: npm run test:m55-method-authority
+
+      # Real browser gates. Static contracts and unit fixtures are not a
+      # substitute: these specs measure the eight required viewports for
+      # overflow, clipping, fixed overlap, contrast, focus, desktop width,
+      # plan co-visibility, and method placement order.
+      - name: Install Playwright Chromium (locked)
+        run: npx playwright install --with-deps chromium
+
+      - name: M55 commercial visual quality browser gate
+        run: npm run test:e2e:commercial-visual-quality
+        env:
+          CI: true
+          NEXT_DISABLE_DEV_INDICATOR: '1'
+
+      - name: M55 method authority placement browser gate
+        run: npm run test:e2e:method-authority-placement
+        env:
+          CI: true
+          NEXT_DISABLE_DEV_INDICATOR: '1'

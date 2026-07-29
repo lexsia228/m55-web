@@ -25,6 +25,7 @@ import PremiumExperienceSync from '../shell/PremiumExperienceSync';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
 import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
 import DtrMethodDifference from './DtrMethodDifference';
+import M55MethodTrustLink from '../pages/M55MethodTrustLink';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -143,6 +144,9 @@ export default function DtrPaidPurchasePrep() {
           </div>
         </div>
         <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
+        <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
+          <M55MethodTrustLink surface="checkout" />
+        </div>
         <div className={styles.actions}>
           <button
             type="button"

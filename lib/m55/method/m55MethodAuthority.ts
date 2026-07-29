@@ -407,7 +407,8 @@ export type MethodPlacementId =
   | 'core_free_result'
   | 'dtr_lp'
   | 'purchased_report'
-  | 'pricing_checkout_prep'
+  | 'pricing'
+  | 'checkout_prep'
   | 'footer_nav';
 
 export type MethodPlacement = {
@@ -425,6 +426,11 @@ export type MethodPlacement = {
   density: 'four_step' | 'compact' | 'difference' | 'link_only';
 };
 
+/**
+ * Declared placements. Prefer `M55_METHOD_ROUTE_CONSUMPTION` for route/state,
+ * DOM order and runtime evidence requirements — this list remains the compact
+ * public placement inventory consumed by the method SSOT.
+ */
 export const M55_METHOD_PLACEMENTS: readonly MethodPlacement[] = [
   {
     id: 'home',
@@ -455,7 +461,7 @@ export const M55_METHOD_PLACEMENTS: readonly MethodPlacement[] = [
   },
   {
     id: 'purchased_report',
-    route: '/dtr/lp',
+    route: '/dtr/core',
     ownerFile: 'components/dtr/DtrMethodReportNote.tsx',
     testId: 'm55-method-purchased-report',
     positionJa: '購入済みレポート本文の冒頭',
@@ -463,11 +469,20 @@ export const M55_METHOD_PLACEMENTS: readonly MethodPlacement[] = [
     density: 'compact',
   },
   {
-    id: 'pricing_checkout_prep',
+    id: 'pricing',
     route: '/pricing',
     ownerFile: 'components/pages/M55MethodTrustLink.tsx',
     testId: 'm55-method-trust-link',
     positionJa: '価格表の近く',
+    linksToCanonicalRoute: true,
+    density: 'link_only',
+  },
+  {
+    id: 'checkout_prep',
+    route: '/dtr/lp',
+    ownerFile: 'components/pages/M55MethodTrustLink.tsx',
+    testId: 'm55-method-checkout-trust-link',
+    positionJa: 'チェックアウト準備の確認カード付近（購入CTAの前）',
     linksToCanonicalRoute: true,
     density: 'link_only',
   },

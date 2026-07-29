@@ -35,5 +35,10 @@ export default defineConfig({
         timeout: 120_000,
         stdout: 'pipe',
         stderr: 'pipe',
+        env: {
+          ...process.env,
+          // Capture / CI profiles must not photograph the Next.js "N" indicator.
+          NEXT_DISABLE_DEV_INDICATOR: '1',
+        },
       },
 });

@@ -218,7 +218,7 @@ describe('M55 method authority — claim detector', () => {
 });
 
 describe('M55 method authority — route consumption contract', () => {
-  it('declares the six required placements', () => {
+  it('declares the seven required placements with pricing and checkout separated', () => {
     assert.deepEqual(
       M55_METHOD_PLACEMENTS.map((p) => p.id),
       [
@@ -226,7 +226,8 @@ describe('M55 method authority — route consumption contract', () => {
         'core_free_result',
         'dtr_lp',
         'purchased_report',
-        'pricing_checkout_prep',
+        'pricing',
+        'checkout_prep',
         'footer_nav',
       ],
     );
@@ -247,13 +248,14 @@ describe('M55 method authority — route consumption contract', () => {
       ['components/home/HomePanel.tsx', 'HomeMethodModel'],
       ['components/core/CoreEssencePanel.tsx', 'CoreMethodCompact'],
       ['components/dtr/DtrPaidPurchasePrep.tsx', 'DtrMethodDifference'],
+      ['components/dtr/DtrPaidPurchasePrep.tsx', 'M55MethodTrustLink'],
       ['components/dtr/DtrFullReader.tsx', 'DtrMethodReportNote'],
       ['app/pricing/page.tsx', 'M55MethodTrustLink'],
       ['app/how-m55-works/page.tsx', 'M55MethodSections'],
     ];
     for (const [file, component] of mounts) {
       const source = read(file);
-      assert.match(source, new RegExp(`<${component}\\s*/?>`), `${file} does not mount ${component}`);
+      assert.match(source, new RegExp(`<${component}\\b`), `${file} does not mount ${component}`);
     }
   });
 
@@ -279,6 +281,13 @@ describe('M55 method authority — route consumption contract', () => {
     assert.ok(method >= 0 && cards > method);
   });
 
+  it('mounts the checkout trust link on the checkout preparation branch', () => {
+    const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
+    const checkoutPhase = prep.indexOf('data-m55-paid-phase="checkout"');
+    const trust = prep.indexOf('surface="checkout"');
+    assert.ok(checkoutPhase >= 0 && trust > checkoutPhase);
+  });
+
   it('keeps the purchased-report note free of identifiers and raw inputs', () => {
     const note = read('components/dtr/DtrMethodReportNote.tsx');
     for (const word of M55_INTERNAL_VOCABULARY_NOT_FOR_DISPLAY) {
@@ -287,10 +296,20 @@ describe('M55 method authority — route consumption contract', () => {
     assert.doesNotMatch(note, /birthDate|dob|answerSet|nickname/);
   });
 
-  it('keeps the pricing placement to a link only', () => {
-    const pricing = methodPlacementById('pricing_checkout_prep');
+  it('keeps the pricing and checkout placements to a link only', () => {
+    const pricing = methodPlacementById('pricing');
+    const checkout = methodPlacementById('checkout_prep');
     assert.equal(pricing?.density, 'link_only');
+    assert.equal(checkout?.density, 'link_only');
     const source = read('components/pages/M55MethodTrustLink.tsx');
-    assert.ok(!source.includes('MethodStepList'), 'pricing must not carry dense method copy');
+    assert.ok(!source.includes('MethodStepList'), 'trust link must not carry dense method copy');
+  });
+
+  it('keeps /how-m55-works free of competing public method names', () => {
+    const page = read('app/how-m55-works/page.tsx');
+    assert.match(page, /M55MethodSections/);
+    assert.doesNotMatch(page, /CalendarLayersSection|WhatYouCanDoSection|IntroSection/);
+    assert.doesNotMatch(page, /複合暦解析/);
+    assert.doesNotMatch(page, /TOP_FREE_ENTRY_PUBLIC_COPY/);
   });
 });

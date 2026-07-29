@@ -21,6 +21,8 @@ export default async function DtrDrawerPreviewPage({
     withConsult?: string;
     consultWallet?: string;
     lightUpgrade?: string;
+    /** Dev fixture only: open a drawer panel without clicking (avoids Clerk keyless interception). */
+    openPanel?: string;
   }>;
 }) {
   if (isPreviewBlockedInProduction()) {
@@ -30,6 +32,8 @@ export default async function DtrDrawerPreviewPage({
   const sp = await searchParams;
   const withConsult = sp.withConsult === '1';
   const readerProps = getDtrDrawerPreviewReaderProps(withConsult, sp.consultWallet);
+  const openPanel =
+    sp.openPanel === 'chapter-1' || sp.openPanel === 'consult' ? sp.openPanel : undefined;
 
   return (
     <main
@@ -42,6 +46,7 @@ export default async function DtrDrawerPreviewPage({
       <DtrDrawerPreviewClient
         {...readerProps}
         showLightUpgrade={sp.lightUpgrade === '1'}
+        initialOpenPanel={openPanel}
       />
     </main>
   );

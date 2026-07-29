@@ -413,6 +413,8 @@ type Props = {
   consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
   /** Dev-only: skip Clerk isLoaded gate for fixture rendering (/dev/dtr-drawer-preview). */
   [PREMIUM_DEV_FIXTURE_READY_PROP]?: boolean;
+  /** Dev-only: open a hub panel on mount without a click (Clerk keyless-safe). */
+  initialOpenPanel?: 'chapter-1' | 'consult';
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -3040,11 +3042,14 @@ function DtrFullReaderCore({
   consultDevPreviewRoomData,
   consultWalletSnapshot = null,
   devPreviewFixtureReady = false,
+  initialOpenPanel,
   authLoaded,
   ownerId,
   fixtureMode,
 }: Props & ReaderAuthContext) {
-  const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
+  const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(
+    fixtureMode && initialOpenPanel ? initialOpenPanel : null,
+  );
   const [footerWalletSnapshot, setFooterWalletSnapshot] = useState(consultWalletSnapshot);
 
   const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
@@ -3119,9 +3124,14 @@ function DtrFullReaderCore({
   }, [view.kind]);
 
   useEffect(() => {
-    if (view.kind !== 'ready' || window.location.hash !== '#consultation-room') return;
+    if (view.kind !== 'ready') return;
+    if (fixtureMode && initialOpenPanel) {
+      selectPanel(initialOpenPanel);
+      return;
+    }
+    if (window.location.hash !== '#consultation-room') return;
     selectPanel('consult');
-  }, [selectPanel, view.kind]);
+  }, [fixtureMode, initialOpenPanel, selectPanel, view.kind]);
 
   if (view.kind === 'loading') {
     return (

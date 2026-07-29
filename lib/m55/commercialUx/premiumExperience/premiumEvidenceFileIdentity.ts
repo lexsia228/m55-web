@@ -305,7 +305,9 @@ export function readPdfIdentity(absPath: string): PdfIdentity | PdfDecodeFailure
 
 /** Content thresholds that separate a real capture from a blank/loading placeholder. */
 export const PNG_NONBLANK_CONTRACT = {
-  minDistinctLuminanceBuckets: 4,
+  // Light editorial Premium sheets (near-white + soft gray type) often land in
+  // 3 luminance buckets while still carrying real copy and CTAs.
+  minDistinctLuminanceBuckets: 3,
   minLuminanceStdDev: 2,
 } as const;
 

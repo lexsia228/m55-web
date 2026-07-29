@@ -1,9 +1,16 @@
 import Link from 'next/link';
-import { M55_METHOD_CANONICAL_ROUTE } from '../../lib/m55/method/m55MethodAuthority';
+import {
+  M55_METHOD_CANONICAL_ROUTE,
+  M55_METHOD_ROUTE_LINK_LABEL_JA,
+} from '../../lib/m55/method/m55MethodAuthority';
 import styles from './PublicFooter.module.css';
 
 const PRODUCT_GROUP = [
-  { label: 'M55の仕組み', href: M55_METHOD_CANONICAL_ROUTE, testId: 'm55-method-footer-link' },
+  {
+    label: M55_METHOD_ROUTE_LINK_LABEL_JA,
+    href: M55_METHOD_CANONICAL_ROUTE,
+    testId: 'm55-method-footer-link',
+  },
   { label: '10の資質', href: '/ten-views', testId: undefined },
   { label: 'プレミアムレポート', href: '/dtr/lp', testId: undefined },
 ] as const;
