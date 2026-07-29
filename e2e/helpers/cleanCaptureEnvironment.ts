@@ -6,20 +6,20 @@
  *   auth SDK UI, not an M55 application component.
  * - Next.js development indicator ("N") — next-dev tooling, not product UI.
  *
- * Capture profile:
- * 1. Suppress the Next.js indicator via capture-only CSS (init script)
- * 2. Soft-disable pointer-events on the Clerk keyless panel during interaction
- * 3. One-shot hide of the smallest matching keyless panel before governed capture
- * 4. Restore hidden nodes after capture so funnel navigation keeps working
- * 5. Assert overlay absence before every governed capture
+ * Capture contract (fail-before-mutation):
+ * 1. Prevent overlays at process/environment level (`M55_E2E_CLEAN_CAPTURE=1`
+ *    → `NEXT_PUBLIC_CLERK_KEYLESS_DISABLED=1` + `NEXT_DISABLE_DEV_INDICATOR=1`)
+ * 2. `detectUnexpectedOverlay` observes only — never mutates the DOM
+ * 3. `assertOverlayAbsence` fails immediately when any governed overlay exists
+ * 4. Screenshots run only after absence is proven without sanitization
  *
- * A continuous MutationObserver is intentionally NOT used — mutating Clerk's
- * React tree while it mounts can navigate the page to accounts.dev and destroy
- * the Playwright execution context.
- *
+ * No broad CSS hide, no DOM detach, no opacity/scale sanitize before capture.
  * Browser helpers passed to page.evaluate must be self-contained (no outer refs).
  */
 import { expect, type Page } from '@playwright/test';
+
+/** Explicit local E2E process flag. Absent → fail-closed for governed suites. */
+export const M55_E2E_CLEAN_CAPTURE_ENV = 'M55_E2E_CLEAN_CAPTURE' as const;
 
 /** Text that must never appear in a governed commercial capture. */
 export const FORBIDDEN_DEV_OVERLAY_TEXTS = [
@@ -39,172 +39,48 @@ export const FORBIDDEN_DEV_OVERLAY_LOCATORS = [
   '.cl-modalBackdrop',
 ] as const;
 
-function softDisableDevelopmentOverlaysBrowser(): number {
-  const markers = ['Configure your application', 'Temporary API keys are enabled'] as const;
-  const isKeyless = (el: Element) => {
-    const style = window.getComputedStyle(el);
-    const className = typeof el.className === 'string' ? el.className : '';
-    const isFloating =
-      style.position === 'fixed' ||
-      style.position === 'sticky' ||
-      className.includes('cl-internal') ||
-      className.includes('cl-');
-    if (!isFloating) return false;
-    const rect = el.getBoundingClientRect();
-    if (rect.width < 40 || rect.height < 40) return false;
-    // Reject near-viewport shells; allow tall keyless cards (often >360px).
-    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
-    if (rect.height > window.innerHeight * 0.92) return false;
-    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    if (text.length < 20 || text.length > 2_400) return false;
-    return markers.every((m) => text.includes(m));
-  };
-
-  let touched = 0;
-  for (const el of Array.from(document.querySelectorAll('body *'))) {
-    if (!isKeyless(el)) continue;
-    el.setAttribute('data-m55-clean-capture-soft', 'clerk-keyless');
-    (el as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
-    touched += 1;
-  }
-  for (const selector of [
-    'nextjs-portal',
-    '[data-nextjs-toast]',
-    '[data-next-badge-root]',
-    '[data-next-mark]',
-    '#__next-build-watcher',
-    '[data-clerk-modal]',
-    '.cl-modalBackdrop',
-  ]) {
-    for (const node of Array.from(document.querySelectorAll(selector))) {
-      const html = node as HTMLElement;
-      html.setAttribute('data-m55-clean-capture-soft', 'dev-chrome');
-      html.style.setProperty('pointer-events', 'none', 'important');
-      touched += 1;
-    }
-  }
-  return touched;
-}
-
-/**
- * Hide only the smallest floating Clerk keyless card(s). Broad ancestor matches
- * previously blanked commercial surfaces and broke post-capture navigation.
- */
-function stripDevelopmentOverlaysBrowser(): number {
-  const markers = ['Configure your application', 'Temporary API keys are enabled'] as const;
-  let hidden = 0;
-  const hide = (el: Element, reason: string) => {
-    const html = el as HTMLElement;
-    if (html.getAttribute('data-m55-clean-capture-hidden')) return;
-    html.setAttribute('data-m55-clean-capture-hidden', reason);
-    // Prefer opacity/visibility over display:none — display:none on Clerk's
-    // keyless card can navigate the tab to accounts.dev during /dev captures.
-    html.style.setProperty('visibility', 'hidden', 'important');
-    html.style.setProperty('pointer-events', 'none', 'important');
-    html.style.setProperty('opacity', '0', 'important');
-    html.style.setProperty('transform', 'scale(0)', 'important');
-    hidden += 1;
-  };
-
-  const isKeyless = (el: Element) => {
-    const style = window.getComputedStyle(el);
-    const className = typeof el.className === 'string' ? el.className : '';
-    const isFloating =
-      style.position === 'fixed' ||
-      style.position === 'sticky' ||
-      className.includes('cl-internal') ||
-      className.includes('cl-');
-    if (!isFloating) return false;
-    const rect = el.getBoundingClientRect();
-    if (rect.width < 40 || rect.height < 40) return false;
-    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
-    if (rect.height > window.innerHeight * 0.92) return false;
-    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    if (text.length < 20 || text.length > 2_400) return false;
-    return markers.every((m) => text.includes(m));
-  };
-
-  const candidates: { el: Element; area: number }[] = [];
-  for (const el of Array.from(document.querySelectorAll('body *'))) {
-    if (!isKeyless(el)) continue;
-    const rect = el.getBoundingClientRect();
-    candidates.push({ el, area: rect.width * rect.height });
-  }
-  // Hide every matching floating keyless card. Previously only the smallest
-  // cluster was hidden, which left taller invite remounts in screenshots.
-  for (const candidate of candidates) {
-    hide(candidate.el, 'clerk-keyless');
-  }
-
-  for (const selector of [
-    'nextjs-portal',
-    '[data-nextjs-toast]',
-    '[data-next-badge-root]',
-    '[data-next-mark]',
-    '#__next-build-watcher',
-    '[data-clerk-modal]',
-    '.cl-modalBackdrop',
-  ]) {
-    for (const node of Array.from(document.querySelectorAll(selector))) {
-      hide(node, 'dev-chrome');
-    }
-  }
-  return hidden;
-}
-
-function restoreDevelopmentOverlaysBrowser(): number {
-  let restored = 0;
-  for (const el of Array.from(document.querySelectorAll('[data-m55-clean-capture-hidden]'))) {
-    const html = el as HTMLElement;
-    html.style.removeProperty('visibility');
-    html.style.removeProperty('pointer-events');
-    html.style.removeProperty('opacity');
-    html.style.removeProperty('transform');
-    html.removeAttribute('data-m55-clean-capture-hidden');
-    restored += 1;
-  }
-  for (const el of Array.from(document.querySelectorAll('[data-m55-clean-capture-soft]'))) {
-    const html = el as HTMLElement;
-    html.style.removeProperty('pointer-events');
-    html.removeAttribute('data-m55-clean-capture-soft');
-    restored += 1;
-  }
-  return restored;
-}
-
-/**
- * Suppress Next.js indicator for the evidence profile. Call before navigation.
- */
-export async function prepareCleanCapturePage(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    const style = document.createElement('style');
-    style.setAttribute('data-m55-clean-capture', 'next-dev-indicator');
-    style.textContent = `
-      nextjs-portal,
-      [data-nextjs-toast],
-      [data-next-badge-root],
-      [data-next-mark],
-      #__next-build-watcher {
-        display: none !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
-      }
-    `;
-    const mount = () => {
-      if (
-        document.documentElement &&
-        !document.querySelector('[data-m55-clean-capture="next-dev-indicator"]')
-      ) {
-        document.documentElement.appendChild(style);
-      }
-    };
-    if (document.documentElement) mount();
-    else document.addEventListener('DOMContentLoaded', mount, { once: true });
-  });
-}
-
 const LOCAL_ORIGIN = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i;
+
+export type OverlayFinding = {
+  kind: 'locator' | 'text' | 'fixed_dialog';
+  selector: string;
+  textFingerprint: string;
+  boundingRectangle: { top: number; left: number; width: number; height: number };
+  zIndex: string;
+  position: string;
+  url: string;
+};
+
+export type OverlayDetectionResult = {
+  url: string;
+  findings: OverlayFinding[];
+};
+
+/**
+ * Fail-closed gate for governed capture suites. Preview/Production never set
+ * this process flag; local E2E must opt in explicitly.
+ */
+export function requireCleanCaptureEnvironment(label: string): void {
+  if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
+    throw new Error(
+      `${label}: M55 clean capture must not run under Vercel Preview/Production (STOP_AUTH_SCOPE)`,
+    );
+  }
+  if (process.env[M55_E2E_CLEAN_CAPTURE_ENV] !== '1') {
+    throw new Error(
+      `${label}: ${M55_E2E_CLEAN_CAPTURE_ENV}=1 is required for governed commercial capture (fail-closed)`,
+    );
+  }
+}
+
+/**
+ * Legacy no-op retained for call-site stability. Concealment CSS is prohibited;
+ * the server env must prevent Next/Clerk development chrome from mounting
+ * (`scripts/m55-e2e-clean-capture-env.mjs` + `M55_E2E_CLEAN_CAPTURE=1`).
+ */
+export async function prepareCleanCapturePage(_page: Page): Promise<void> {
+  // Intentionally empty — fail-before-mutation capture forbids addStyleTag hides.
+}
 
 /**
  * Navigate to a local commercial URL, retrying when Clerk keyless UI interrupts
@@ -214,6 +90,9 @@ export async function safeGotoLocal(page: Page, url: string, attempts = 6): Prom
   let lastError: unknown;
   for (let i = 0; i < attempts; i += 1) {
     try {
+      if (page.isClosed()) {
+        throw new Error(`safeGotoLocal(${url}): page is closed`);
+      }
       if (/accounts\.dev/i.test(page.url())) {
         await page.goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => undefined);
         await page.context().clearCookies().catch(() => undefined);
@@ -230,12 +109,15 @@ export async function safeGotoLocal(page: Page, url: string, attempts = 6): Prom
     } catch (error) {
       lastError = error;
       const message = error instanceof Error ? error.message : String(error);
-      if (/ERR_ABORTED|interrupted|Execution context was destroyed|navigation/i.test(message)) {
+      if (/ERR_ABORTED|interrupted|Execution context was destroyed|navigation|Target closed/i.test(message)) {
         await page.waitForTimeout(250);
         continue;
       }
       throw error;
     }
+  }
+  if (page.isClosed()) {
+    throw new Error(`safeGotoLocal(${url}): page closed after retries`);
   }
   if (/accounts\.dev/i.test(page.url()) || !LOCAL_ORIGIN.test(new URL(page.url()).origin)) {
     throw new Error(`safeGotoLocal(${url}): still off local origin at ${page.url()}`);
@@ -243,91 +125,50 @@ export async function safeGotoLocal(page: Page, url: string, attempts = 6): Prom
   if (lastError) throw lastError;
 }
 
-/** Soft-disable overlays so product controls remain clickable. */
-export async function softDisableDevelopmentOverlays(page: Page): Promise<void> {
-  try {
-    await page.evaluate(softDisableDevelopmentOverlaysBrowser);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (/Execution context was destroyed|navigation|Target closed/i.test(message)) {
-      return;
-    }
-    throw error;
-  }
-}
-
-/** One-shot hide used immediately before assertions / screenshots. */
-export async function removeDevelopmentOverlays(page: Page): Promise<void> {
-  try {
-    await page.evaluate(stripDevelopmentOverlaysBrowser);
-    await page.waitForTimeout(30);
-    await page.evaluate(stripDevelopmentOverlaysBrowser);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (/Execution context was destroyed|navigation|Target closed/i.test(message)) {
-      return;
-    }
-    throw error;
-  }
-}
-
-/** Undo capture-time hides so the live funnel can continue after a screenshot. */
-export async function restoreDevelopmentOverlays(page: Page): Promise<void> {
-  try {
-    await page.evaluate(restoreDevelopmentOverlaysBrowser);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (/Execution context was destroyed|navigation|Target closed/i.test(message)) {
-      return;
-    }
-    throw error;
-  }
-}
-
 /**
- * Explicit overlay-absence assertion. Must run before every governed screenshot
- * or PDF capture.
+ * Read-only overlay detection. Never hides, removes, styles, or detaches nodes.
  */
-function countEffectivelyVisibleDevOverlaysBrowser(): {
-  locators: string[];
-  texts: string[];
-  fixed: { tag: string; className: string; text: string }[];
-} {
+function detectUnexpectedOverlayBrowser(): OverlayDetectionResult {
+  const url = location.href;
+  const findings: OverlayFinding[] = [];
   const markers = [
     'Configure your application',
     'Temporary API keys are enabled',
     'Access the dashboard to customize auth settings',
   ] as const;
-  const keylessMarkers = markers.slice(0, 2);
 
   const isEffectivelyVisible = (el: Element) => {
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || style.visibility === 'hidden') return false;
     if (Number.parseFloat(style.opacity || '1') < 0.05) return false;
-    if (style.transform.includes('matrix(0') || style.transform === 'scale(0)') return false;
     const rect = el.getBoundingClientRect();
     return rect.width >= 8 && rect.height >= 8;
   };
 
-  const isKeyless = (el: Element) => {
+  const describe = (
+    kind: OverlayFinding['kind'],
+    selector: string,
+    el: Element,
+  ): OverlayFinding => {
     const style = window.getComputedStyle(el);
-    const className = typeof el.className === 'string' ? el.className : '';
-    const isFloating =
-      style.position === 'fixed' ||
-      style.position === 'sticky' ||
-      className.includes('cl-internal') ||
-      className.includes('cl-');
-    if (!isFloating) return false;
     const rect = el.getBoundingClientRect();
-    if (rect.width < 40 || rect.height < 40) return false;
-    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
-    if (rect.height > window.innerHeight * 0.92) return false;
-    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    if (text.length < 20 || text.length > 2_400) return false;
-    return keylessMarkers.every((m) => text.includes(m));
+    return {
+      kind,
+      selector,
+      textFingerprint: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 160),
+      boundingRectangle: {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      },
+      zIndex: style.zIndex,
+      position: style.position,
+      url,
+    };
   };
 
-  const locators = [
+  for (const selector of [
     'nextjs-portal',
     '[data-nextjs-toast]',
     '[data-next-badge-root]',
@@ -335,44 +176,235 @@ function countEffectivelyVisibleDevOverlaysBrowser(): {
     '#__next-build-watcher',
     '[data-clerk-modal]',
     '.cl-modalBackdrop',
-  ].filter((selector) =>
-    Array.from(document.querySelectorAll(selector)).some((el) => isEffectivelyVisible(el)),
-  );
+  ]) {
+    for (const el of Array.from(document.querySelectorAll(selector))) {
+      if (!isEffectivelyVisible(el)) continue;
+      findings.push(describe('locator', selector, el));
+    }
+  }
 
-  const texts = markers.filter((marker) =>
-    Array.from(document.querySelectorAll('body *')).some((el) => {
-      if (!isEffectivelyVisible(el)) return false;
+  for (const el of Array.from(document.querySelectorAll('body *'))) {
+    if (!isEffectivelyVisible(el)) continue;
+    const style = window.getComputedStyle(el);
+    const className = typeof el.className === 'string' ? el.className : '';
+    const isFloating =
+      style.position === 'fixed' ||
+      style.position === 'sticky' ||
+      className.includes('cl-internal') ||
+      className.includes('cl-');
+    if (!isFloating) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 40 || rect.height < 40) continue;
+    if (rect.width > Math.min(520, window.innerWidth * 0.95)) continue;
+    if (rect.height > window.innerHeight * 0.92) continue;
+    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text.length < 20 || text.length > 2_400) continue;
+    if (!markers.slice(0, 2).every((m) => text.includes(m))) continue;
+    findings.push(describe('fixed_dialog', 'clerk-keyless-fixed', el));
+  }
+
+  for (const marker of markers) {
+    for (const el of Array.from(document.querySelectorAll('body *'))) {
+      if (!isEffectivelyVisible(el)) continue;
       const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-      if (!text.includes(marker)) return false;
-      if (text.length > 2_400) return false;
+      if (!text.includes(marker)) continue;
+      if (text.length > 2_400) continue;
       const rect = el.getBoundingClientRect();
-      if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
-      if (rect.height > window.innerHeight * 0.92) return false;
-      return true;
-    }),
-  );
+      if (rect.width > Math.min(520, window.innerWidth * 0.95)) continue;
+      if (rect.height > window.innerHeight * 0.92) continue;
+      const style = window.getComputedStyle(el);
+      if (style.position !== 'fixed' && style.position !== 'sticky') continue;
+      findings.push(describe('text', `text:${marker}`, el));
+    }
+  }
 
-  const fixed = Array.from(document.querySelectorAll('body *'))
-    .filter((el) => isKeyless(el) && isEffectivelyVisible(el))
-    .map((el) => ({
-      tag: el.tagName,
-      className: typeof el.className === 'string' ? el.className.slice(0, 80) : '',
-      text: (el.textContent || '').replace(/\s+/g, ' ').slice(0, 120),
-    }));
-
-  return { locators, texts, fixed };
+  return { url, findings };
 }
 
+export async function detectUnexpectedOverlay(page: Page): Promise<OverlayDetectionResult> {
+  if (page.isClosed()) {
+    throw new Error('detectUnexpectedOverlay: page is closed');
+  }
+  return page.evaluate(detectUnexpectedOverlayBrowser);
+}
+
+/**
+ * Explicit overlay-absence assertion. Must never mutate the DOM.
+ * Fails immediately with selector / text / geometry / URL diagnostics.
+ */
 export async function assertOverlayAbsence(page: Page, label: string): Promise<void> {
-  // Playwright's visible filter treats opacity:0 nodes as visible — use computed
-  // effective visibility after the capture-profile hide instead.
-  await expect
-    .poll(
-      async () => {
-        await removeDevelopmentOverlays(page);
-        return page.evaluate(countEffectivelyVisibleDevOverlaysBrowser);
-      },
-      { timeout: 8_000, message: `${label}: development overlay still effectively visible` },
-    )
-    .toEqual({ locators: [], texts: [], fixed: [] });
+  if (page.isClosed()) {
+    throw new Error(`${label}: page is closed before overlay assertion`);
+  }
+  const detected = await detectUnexpectedOverlay(page);
+  if (detected.findings.length === 0) return;
+
+  const detail = detected.findings
+    .map((f) => {
+      const box = f.boundingRectangle;
+      return [
+        `kind=${f.kind}`,
+        `selector=${f.selector}`,
+        `position=${f.position}`,
+        `z-index=${f.zIndex}`,
+        `rect=${box.width.toFixed(1)}x${box.height.toFixed(1)}@(${box.left.toFixed(1)},${box.top.toFixed(1)})`,
+        `text=${JSON.stringify(f.textFingerprint)}`,
+        `url=${f.url}`,
+      ].join(' ');
+    })
+    .join('\n');
+  throw new Error(`${label}: unexpected development overlay present (fail-before-mutation)\n${detail}`);
+}
+
+export type NavigationStabilityOptions = {
+  expectedPathname?: string | RegExp;
+  label: string;
+  previousUrl?: string;
+};
+
+/**
+ * Prove the page is still on an authorized localhost origin with a live context.
+ * Context destruction / accounts.dev redirects are hard failures, not flakes.
+ */
+export async function assertLocalNavigationStable(
+  page: Page,
+  options: NavigationStabilityOptions,
+): Promise<void> {
+  const { label, expectedPathname, previousUrl } = options;
+  if (page.isClosed()) {
+    throw new Error(
+      `${label}: page closed` +
+        (previousUrl ? ` (previousUrl=${previousUrl})` : ''),
+    );
+  }
+
+  let currentUrl: string;
+  try {
+    currentUrl = page.url();
+    // Touch the execution context — throws if destroyed.
+    await page.evaluate(() => document.readyState);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `${label}: execution context destroyed` +
+        (previousUrl ? ` previousUrl=${previousUrl}` : '') +
+        ` detail=${message}`,
+    );
+  }
+
+  if (/accounts\.dev/i.test(currentUrl)) {
+    throw new Error(
+      `${label}: unexpected external navigation to accounts.dev` +
+        (previousUrl ? ` previousUrl=${previousUrl}` : '') +
+        ` nextUrl=${currentUrl}`,
+    );
+  }
+
+  let origin: string;
+  let pathname: string;
+  try {
+    const parsed = new URL(currentUrl);
+    origin = parsed.origin;
+    pathname = parsed.pathname;
+  } catch {
+    throw new Error(`${label}: unparseable URL ${currentUrl}`);
+  }
+
+  if (!LOCAL_ORIGIN.test(origin)) {
+    throw new Error(
+      `${label}: unexpected external origin` +
+        (previousUrl ? ` previousUrl=${previousUrl}` : '') +
+        ` nextUrl=${currentUrl}`,
+    );
+  }
+
+  if (expectedPathname) {
+    const ok =
+      typeof expectedPathname === 'string'
+        ? pathname === expectedPathname || pathname.startsWith(`${expectedPathname}/`)
+        : expectedPathname.test(pathname);
+    if (!ok) {
+      throw new Error(
+        `${label}: unexpected pathname` +
+          (previousUrl ? ` previousUrl=${previousUrl}` : '') +
+          ` nextUrl=${currentUrl} expected=${expectedPathname}`,
+      );
+    }
+  }
+}
+
+/**
+ * Fixed public header must not cover a protected selector (intersection area = 0).
+ */
+export async function assertClearOfFixedNavigation(page: Page, selector: string): Promise<void> {
+  await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!(el instanceof Element)) return;
+    const header =
+      document.querySelector('[data-m55-public-shell] > header') ||
+      document.querySelector('header');
+    const main = document.querySelector('main');
+    const headerBottom =
+      header instanceof Element ? header.getBoundingClientRect().bottom : 64;
+    el.scrollIntoView({ block: 'start' });
+    const delta = el.getBoundingClientRect().top - (headerBottom + 8);
+    if (!delta) return;
+    if (main instanceof HTMLElement && main.scrollHeight > main.clientHeight + 8) {
+      main.scrollTop += delta;
+    } else {
+      window.scrollBy(0, delta);
+    }
+  }, selector);
+  await page.waitForTimeout(80);
+
+  const geometry = await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    const header =
+      document.querySelector('[data-m55-public-shell] > header') ||
+      document.querySelector('header');
+    if (!(el instanceof Element)) {
+      return { ok: false as const, reason: `selector unresolved: ${sel}`, area: -1 };
+    }
+    if (!(header instanceof Element)) {
+      return { ok: false as const, reason: 'fixed public header not found', area: -1 };
+    }
+    const a = el.getBoundingClientRect();
+    const b = header.getBoundingClientRect();
+    const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+    const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    return {
+      ok: true as const,
+      area: overlapX * overlapY,
+      targetTop: a.top,
+      headerBottom: b.bottom,
+    };
+  }, selector);
+
+  expect(geometry.ok, `${selector}: ${geometry.ok ? '' : geometry.reason}`).toBe(true);
+  expect(
+    geometry.area,
+    `${selector}: fixed navigation intersection area must be 0`,
+  ).toBe(0);
+}
+
+/**
+ * @deprecated Capture sanitization is prohibited. Retained as a no-op so older
+ * call sites compile while governed suites migrate to fail-before-mutation.
+ */
+export async function softDisableDevelopmentOverlays(_page: Page): Promise<void> {
+  // no-op
+}
+
+/**
+ * @deprecated Capture sanitization is prohibited. Retained as a no-op.
+ */
+export async function removeDevelopmentOverlays(_page: Page): Promise<void> {
+  // no-op
+}
+
+/**
+ * @deprecated Capture sanitization is prohibited. Retained as a no-op.
+ */
+export async function restoreDevelopmentOverlays(_page: Page): Promise<void> {
+  // no-op
 }

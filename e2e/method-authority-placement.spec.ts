@@ -6,7 +6,10 @@ import {
   M55_METHOD_ROUTE_LINK_LABEL_JA,
   M55_METHOD_SECTIONS,
 } from '../lib/m55/method/m55MethodAuthority';
-import { prepareCleanCapturePage } from './helpers/cleanCaptureEnvironment';
+import {
+  prepareCleanCapturePage,
+  requireCleanCaptureEnvironment,
+} from './helpers/cleanCaptureEnvironment';
 
 /**
  * Route-consumption evidence for the method placements: each required surface
@@ -82,6 +85,10 @@ async function reachPlanSelection(page: Page) {
 }
 
 test.describe('M55 method placements', () => {
+  test.beforeAll(() => {
+    requireCleanCaptureEnvironment('method-authority-placement');
+  });
+
   test('canonical method route renders all ten sections under one public name', async ({ page }) => {
     await prepareCleanCapturePage(page);
     await page.goto(M55_METHOD_CANONICAL_ROUTE, { waitUntil: 'domcontentloaded', timeout: 60_000 });

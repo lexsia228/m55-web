@@ -23,8 +23,10 @@ import {
   type MeasuredScrollState,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
 import {
+  assertLocalNavigationStable,
   assertOverlayAbsence,
   prepareCleanCapturePage,
+  requireCleanCaptureEnvironment,
 } from './helpers/cleanCaptureEnvironment';
 
 /** Real free answer identifiers, so /core reaches the RESULT phase. */
@@ -598,6 +600,10 @@ async function applySetup(page: Page, governedCase: CommercialVisualCase) {
 // Default mode: each governed case must be measured even when another fails.
 test.describe.configure({ mode: 'default', timeout: 240_000 });
 
+test.beforeAll(() => {
+  requireCleanCaptureEnvironment('commercial-visual-quality');
+});
+
 test('every reviewed commercial finding is owned by a governed case', () => {
   expect(findingCoverageGaps(), 'reviewed findings without a governed case').toEqual([]);
 });
@@ -611,13 +617,18 @@ for (const governedCase of COMMERCIAL_VISUAL_CASES) {
       /*
        * A fresh context per viewport: the Premium funnel advances client state as
        * it is driven, so a reused session would land a later viewport in a
-       * different phase than the one under measurement.
+       * different phase than the one under measurement. HOME / Pricing also use
+       * isolated contexts so one Clerk/navigation event cannot poison later cases.
        */
       const context = await browser.newContext({ viewport: { width, height } });
       if (governedCase.setup !== 'none') await seedFreeResult(context);
       const page = await context.newPage();
       await prepareCleanCapturePage(page);
       await applySetup(page, governedCase);
+      await assertLocalNavigationStable(page, {
+        label: `${governedCase.caseId}@${width}:setup`,
+        expectedPathname: governedCase.route,
+      });
 
       /*
        * Measure at rest and again mid-scroll. The floating rail (sticky Premium

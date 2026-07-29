@@ -33,6 +33,11 @@ const isPublicRoute = createRouteMatcher([
   '/api/dtr/report-snapshot/hide',
 ]);
 
+const isE2ECleanCaptureDevFixture = createRouteMatcher([
+  '/dev/dtr-drawer-preview',
+  '/dev/premium-share-preview',
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   // non-prod runtime verification only:
   // allow reply runtime verification routes with test user header,
@@ -48,7 +53,17 @@ export default clerkMiddleware(async (auth, req) => {
     isReplyRuntimeVerificationPath &&
     !!req.headers.get('x-m55-test-user-id')?.trim();
 
-  if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass) {
+  // Local E2E clean-capture only: allow the two governed /dev fixture routes when
+  // M55_E2E_CLEAN_CAPTURE=1. Unavailable under Vercel Preview/Production and when
+  // the flag is absent (fail-closed). Does not fabricate entitlements.
+  const isLocalE2ECleanCaptureFixture =
+    process.env.M55_E2E_CLEAN_CAPTURE === '1' &&
+    process.env.NODE_ENV !== 'production' &&
+    process.env.VERCEL !== '1' &&
+    !process.env.VERCEL_ENV &&
+    isE2ECleanCaptureDevFixture(req);
+
+  if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass && !isLocalE2ECleanCaptureFixture) {
     await auth.protect();
   }
 });

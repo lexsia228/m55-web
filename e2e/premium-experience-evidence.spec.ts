@@ -17,12 +17,12 @@ import {
   type PremiumEvidenceViewport,
 } from '../lib/m55/commercialUx/premiumExperience/premiumExperienceCaptureModel';
 import {
+  assertClearOfFixedNavigation,
+  assertLocalNavigationStable,
   assertOverlayAbsence,
   prepareCleanCapturePage,
-  removeDevelopmentOverlays,
-  restoreDevelopmentOverlays,
+  requireCleanCaptureEnvironment,
   safeGotoLocal,
-  softDisableDevelopmentOverlays,
 } from './helpers/cleanCaptureEnvironment';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -178,29 +178,58 @@ async function assertCaptureContract(page: Page, capture: PremiumCaptureCase) {
   return { actualUrl, actualOrigin, target };
 }
 
+async function prepareGovernedPremiumCapture(
+  page: Page,
+  captureId: string,
+  viewport: PremiumEvidenceViewport,
+) {
+  const capture = requireCapture(captureId);
+  const previousUrl = page.url();
+  const routePath = capture.expectedRoute.split('?')[0];
+
+  if (!LOCAL_ORIGIN_PATTERN.test(new URL(page.url()).origin)) {
+    throw new Error(
+      `${captureId}@${viewport}: unexpected external origin before capture previousUrl=${previousUrl} nextUrl=${page.url()}`,
+    );
+  }
+
+  await page.evaluate(() => document.fonts?.ready);
+  await page.waitForTimeout(150);
+
+  await assertLocalNavigationStable(page, {
+    label: `${captureId}@${viewport}:pre`,
+    expectedPathname: routePath,
+    previousUrl,
+  });
+
+  // Plan selection / payment prep must independently prove fixed-nav clearance.
+  if (captureId === 'plan-selection' || captureId === 'payment-prep') {
+    await assertClearOfFixedNavigation(page, capture.visibleContract.locator);
+  }
+
+  // Fail-before-mutation: never sanitize overlays before proving absence.
+  await assertOverlayAbsence(page, `${captureId}@${viewport}`);
+  const contract = await assertCaptureContract(page, capture);
+
+  await assertLocalNavigationStable(page, {
+    label: `${captureId}@${viewport}:post`,
+    expectedPathname: routePath,
+    previousUrl,
+  });
+
+  return contract;
+}
+
 async function capturePng(page: Page, captureId: string, viewport: PremiumEvidenceViewport) {
   const capture = requireCapture(captureId);
-  // If Clerk keyless UI navigated away, return to the expected local fixture.
-  if (!LOCAL_ORIGIN_PATTERN.test(new URL(page.url()).origin)) {
-    await safeGotoLocal(page, capture.expectedRoute);
-  }
-  // Remove ungoverned Clerk/Next development chrome before the visible-contract
-  // check so forbiddenTexts/locators judge the commercial surface, not SDK tooling.
-  await removeDevelopmentOverlays(page);
-  if (!LOCAL_ORIGIN_PATTERN.test(new URL(page.url()).origin)) {
-    await safeGotoLocal(page, capture.expectedRoute);
-    await removeDevelopmentOverlays(page);
-  }
-  await assertOverlayAbsence(page, `${captureId}@${viewport}`);
-  const { actualUrl, actualOrigin } = await assertCaptureContract(page, capture);
-  // Re-query after overlay removal so element screenshots never target a detached node.
+  const { actualUrl, actualOrigin } = await prepareGovernedPremiumCapture(page, captureId, viewport);
   const target = page.locator(capture.visibleContract.locator).first();
+  await expect(target).toBeAttached();
 
   fs.mkdirSync(OUT, { recursive: true });
   const fileName = `${captureId}-${viewport}.png`;
   const filePath = path.join(OUT, fileName);
 
-  // Stay on the local commercial origin — a slipped navigation must never produce capture bytes.
   expect(new URL(page.url()).origin, `${captureId}: left local origin`).toMatch(LOCAL_ORIGIN_PATTERN);
 
   if (capture.captureScope === 'element') {
@@ -216,11 +245,13 @@ async function capturePng(page: Page, captureId: string, viewport: PremiumEviden
         { timeout: 30_000 },
       )
       .toBeGreaterThan(5_000);
-    // Prefer element screenshot after scroll — nested /core scrollports make
-    // full_page miss the bridge sheet. Fall back to a viewport clip.
     try {
       await target.screenshot({ path: filePath, animations: 'disabled' });
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/Target closed|Execution context was destroyed|page closed/i.test(message)) {
+        throw new Error(`${captureId}: context destroyed during screenshot — not a flaky pass (${message})`);
+      }
       const box = await target.boundingBox();
       expect(box, `${captureId}: missing box before clip screenshot`).not.toBeNull();
       await page.screenshot({
@@ -239,7 +270,6 @@ async function capturePng(page: Page, captureId: string, viewport: PremiumEviden
   }
 
   const byteLength = fs.statSync(filePath).size;
-  // Light editorial sheets still compress well; a shell-only shot is ~12KB.
   const minBytes = captureId.startsWith('premium-bridge') ? 20_000 : 4_000;
   expect(byteLength, `${captureId}: implausibly small capture`).toBeGreaterThan(minBytes);
 
@@ -256,8 +286,6 @@ async function capturePng(page: Page, captureId: string, viewport: PremiumEviden
     fileName,
     byteLength,
   });
-  // Capture-time hides must not poison subsequent funnel clicks.
-  await restoreDevelopmentOverlays(page);
 }
 
 async function capturePdf(page: Page, captureId: string) {
@@ -265,9 +293,7 @@ async function capturePdf(page: Page, captureId: string) {
   if (!capture.printFileName) {
     throw new Error(`PREMIUM_CAPTURE_NOT_PRINTABLE: ${captureId}`);
   }
-  await removeDevelopmentOverlays(page);
-  await assertOverlayAbsence(page, `${captureId}@pdf`);
-  const { actualUrl, actualOrigin } = await assertCaptureContract(page, capture);
+  const { actualUrl, actualOrigin } = await prepareGovernedPremiumCapture(page, captureId, '1280');
 
   const filePath = path.join(OUT, capture.printFileName);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -288,7 +314,6 @@ async function capturePdf(page: Page, captureId: string) {
     fileName: capture.printFileName,
     byteLength,
   });
-  await restoreDevelopmentOverlays(page);
 }
 
 async function ensureLocalDrawerPreview(page: Page, fallbackUrl = '/dev/dtr-drawer-preview') {
@@ -304,16 +329,18 @@ async function openDrawerPanel(page: Page, panel: 'chapter-1' | 'consult') {
     : '/dev/dtr-drawer-preview';
   for (let attempt = 0; attempt < 4; attempt += 1) {
     await ensureLocalDrawerPreview(page, localUrl);
-    // Soft-disable only: hard-hiding Clerk keyless UI can trigger accounts.dev redirects.
-    await softDisableDevelopmentOverlays(page);
+    await assertLocalNavigationStable(page, {
+      label: `openDrawerPanel(${panel})`,
+      expectedPathname: /\/dev\/dtr-drawer-preview/,
+    });
     const trigger = page.locator(`[aria-controls="drawer-hub-body-${panel}"]`);
     await expect(trigger).toBeVisible({ timeout: 30_000 });
     await trigger.scrollIntoViewIfNeeded();
-    // DOM click avoids Playwright hit-testing through the Clerk keyless layer.
     await trigger.evaluate((el) => (el as HTMLButtonElement).click());
     if (/accounts\.dev/i.test(page.url())) {
-      await safeGotoLocal(page, localUrl);
-      continue;
+      throw new Error(
+        `openDrawerPanel(${panel}): unexpected external navigation to accounts.dev from ${localUrl}`,
+      );
     }
     try {
       await expect(page).toHaveURL(/dtr-drawer-preview/);
@@ -341,6 +368,10 @@ async function completeQuestionnaire(page: Page) {
 
 // Default (not serial): a flaky /dev fixture must not skip the remaining matrix.
 test.describe.configure({ mode: 'default', timeout: 180_000 });
+
+test.beforeAll(() => {
+  requireCleanCaptureEnvironment('premium-experience-evidence');
+});
 
 for (const vp of VIEWPORTS) {
   test(`premium funnel states @${vp.name}`, async ({ browser }) => {

@@ -18,6 +18,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPO_ROOT, assertLockedProofToolchain, runProofTs } from './premium-proof-toolchain.mjs';
+import { buildCleanCaptureServerEnv } from './m55-e2e-clean-capture-env.mjs';
 
 const ROOT = REPO_ROOT;
 const SUITE = 'e2e/premium-experience-evidence.spec.ts';
@@ -187,10 +188,20 @@ function runPlaywrightOnce(runId) {
     throw new Error(`COMMAND_CONTRACT_DRIFT: "${command}" is not the governed command`);
   }
   const startedAt = new Date().toISOString();
+  // Fail-closed clean capture: explicit E2E flag + gitignored local Clerk test
+  // keys + keyless/Next-dev chrome disabled at process level.
+  const cleanEnv = buildCleanCaptureServerEnv({
+    ...process.env,
+    M55_E2E_CLEAN_CAPTURE: '1',
+  });
   const result = spawnSync(PLAYWRIGHT_BIN, args, {
     cwd: ROOT,
     encoding: 'utf8',
-    env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut },
+    env: {
+      ...cleanEnv,
+      PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut,
+      M55_E2E_CLEAN_CAPTURE: '1',
+    },
     maxBuffer: 256 * 1024 * 1024,
   });
   const endedAt = new Date().toISOString();

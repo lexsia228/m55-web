@@ -3,27 +3,23 @@
  *
  * Execution order (required on every path, including retries):
  * 1. route/state setup
- * 2. wait for readiness
+ * 2. wait for readiness + navigation stability
  * 3. geometry / DOM assertions (incl. fixed-nav intersection = 0)
- * 4. overlay-absence assertion
+ * 4. overlay-absence assertion (fail-before-mutation — never sanitizes)
  * 5. visual snapshot comparison
  *
- * A screenshot is never taken when geometry or overlay checks fail. Baselines
- * under e2e/commercial-visual-regression.spec.ts-snapshots/ are candidate
- * baselines; Human Preview approval remains required before they become
- * commercially authoritative.
- *
- * Tolerances stay tight enough to reject missing text, another state, blank
- * content, fixed overlays, clipped headings and a hidden Full plan.
+ * Requires M55_E2E_CLEAN_CAPTURE=1 so Clerk keyless / Next-dev chrome are never
+ * created at process level.
  */
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { COMMERCIAL_VIEWPORT_HEIGHTS, type CommercialViewport } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityContract';
 import {
+  assertClearOfFixedNavigation,
+  assertLocalNavigationStable,
   assertOverlayAbsence,
   prepareCleanCapturePage,
-  removeDevelopmentOverlays,
+  requireCleanCaptureEnvironment,
   safeGotoLocal,
-  softDisableDevelopmentOverlays,
 } from './helpers/cleanCaptureEnvironment';
 
 const COMPLETE_FREE = {
@@ -40,9 +36,8 @@ type SnapshotCase = {
   viewport: CommercialViewport;
   elementSelector: string;
   setup: 'home' | 'core_prerequisite' | 'core_free_result' | 'premium_questionnaire' | 'premium_plans' | 'checkout' | 'purchased_report';
-  /** Extra text that must be present before the snapshot. */
+  expectedPathname: string | RegExp;
   requiredText?: string;
-  /** When true, assert fixed public header does not cover the protected target. */
   assertBelowFixedHeader?: boolean;
 };
 
@@ -52,36 +47,42 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
     viewport: 390,
     elementSelector: '[data-testid="m55-home-hero"]',
     setup: 'home',
+    expectedPathname: '/home',
   },
   {
     id: 'home-premium-headline',
     viewport: 390,
     elementSelector: '[data-testid="m55-home-premium-headline"]',
     setup: 'home',
+    expectedPathname: '/home',
   },
   {
     id: 'core-prerequisite',
     viewport: 390,
     elementSelector: '[data-testid="m55-core-start-intake"]',
     setup: 'core_prerequisite',
+    expectedPathname: '/core',
   },
   {
     id: 'premium-bridge',
     viewport: 390,
     elementSelector: '#core-paid',
     setup: 'core_free_result',
+    expectedPathname: '/core',
   },
   {
     id: 'premium-q1',
     viewport: 1280,
     elementSelector: '[data-m55-premium-decision-sheet="true"]',
     setup: 'premium_questionnaire',
+    expectedPathname: '/dtr/lp',
   },
   {
     id: 'plan-comparison',
     viewport: 390,
     elementSelector: '[data-testid="m55-plan-compare"]',
     setup: 'premium_plans',
+    expectedPathname: '/dtr/lp',
     requiredText: 'フル',
     assertBelowFixedHeader: true,
   },
@@ -90,20 +91,19 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
     viewport: 390,
     elementSelector: '[data-m55-paid-phase="checkout"]',
     setup: 'checkout',
+    expectedPathname: '/dtr/lp',
     assertBelowFixedHeader: true,
   },
   {
     id: 'purchased-report-method-note',
     viewport: 390,
-    // Capture the purchased chapter body (method note is the leading block).
-    // The note alone was position-unstable under nested drawer scrollports.
     elementSelector: '[data-testid="m55-purchased-report-body"]',
     setup: 'purchased_report',
+    expectedPathname: /\/dev\/dtr-drawer-preview/,
     requiredText: 'M55 複合読み解きモデル',
   },
 ];
 
-/** Documented tolerance: small antialiasing only. */
 const SNAPSHOT_OPTIONS = {
   maxDiffPixelRatio: 0.012,
   animations: 'disabled' as const,
@@ -138,6 +138,7 @@ async function seedFreeResult(context: BrowserContext) {
 }
 
 async function enterPremiumFromCore(page: Page) {
+  const previousUrl = page.url();
   await page.goto('/core', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
     timeout: 30_000,
@@ -152,6 +153,11 @@ async function enterPremiumFromCore(page: Page) {
     if (!href) throw new Error('premium bridge CTA has no href');
     await page.goto(href, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   }
+  await assertLocalNavigationStable(page, {
+    label: 'enterPremiumFromCore',
+    expectedPathname: '/dtr/lp',
+    previousUrl,
+  });
   await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 30_000 });
 }
 
@@ -193,19 +199,14 @@ async function setupSnapshot(page: Page, setup: SnapshotCase['setup']) {
   if (setup === 'purchased_report') {
     await safeGotoLocal(page, '/dev/dtr-drawer-preview?openPanel=chapter-1');
     await expect(page.locator('[data-m55-dev-preview="dtr-drawer"]')).toBeVisible({ timeout: 60_000 });
-    await softDisableDevelopmentOverlays(page);
     await expect(page.getByTestId('m55-method-purchased-report')).toBeVisible({ timeout: 30_000 });
   }
 }
 
-/**
- * Lightweight geometry gate used before snapshots. The full commercial visual
- * quality suite remains the authoritative 8-viewport matrix; this gate only
- * refuses to photograph an already-broken layout.
- */
 async function assertGeometryReady(page: Page, selector: string, viewportWidth: number) {
   const target = page.locator(selector).first();
   await expect(target).toBeVisible({ timeout: 30_000 });
+  await expect(target).toBeAttached();
 
   const metrics = await page.evaluate((sel) => {
     const el = document.querySelector(sel);
@@ -238,97 +239,51 @@ async function assertGeometryReady(page: Page, selector: string, viewportWidth: 
 }
 
 /**
- * Position the protected target below the fixed public header, then assert the
- * intersection area between navigation and the target is exactly 0.
- */
-async function assertClearOfFixedNavigation(page: Page, selector: string) {
-  await page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    if (!(el instanceof Element)) return;
-    const header =
-      document.querySelector('[data-m55-public-shell] > header') ||
-      document.querySelector('header');
-    const main = document.querySelector('main');
-    const headerBottom =
-      header instanceof Element ? header.getBoundingClientRect().bottom : 64;
-    const gap = 8;
-    el.scrollIntoView({ block: 'start' });
-    const rect = el.getBoundingClientRect();
-    const delta = rect.top - (headerBottom + gap);
-    if (!delta) return;
-    if (main instanceof HTMLElement && main.scrollHeight > main.clientHeight + 8) {
-      main.scrollTop += delta;
-    } else {
-      window.scrollBy(0, delta);
-    }
-  }, selector);
-  await page.waitForTimeout(80);
-
-  const geometry = await page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    const header =
-      document.querySelector('[data-m55-public-shell] > header') ||
-      document.querySelector('header');
-    if (!(el instanceof Element)) {
-      return { ok: false as const, reason: `selector unresolved: ${sel}` };
-    }
-    if (!(header instanceof Element)) {
-      return { ok: false as const, reason: 'fixed public header not found' };
-    }
-    const a = el.getBoundingClientRect();
-    const b = header.getBoundingClientRect();
-    const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
-    const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-    const area = overlapX * overlapY;
-    return {
-      ok: true as const,
-      area,
-      targetTop: a.top,
-      headerBottom: b.bottom,
-    };
-  }, selector);
-
-  expect(geometry.ok, `${selector}: ${'reason' in geometry ? geometry.reason : 'nav geometry failed'}`).toBe(
-    true,
-  );
-  if (geometry.ok) {
-    expect(
-      geometry.area,
-      `${selector}: fixed navigation intersection area must be 0 (targetTop=${geometry.targetTop.toFixed(1)}, headerBottom=${geometry.headerBottom.toFixed(1)})`,
-    ).toBe(0);
-  }
-}
-
-/**
  * Shared pre-snapshot gate. Every retry path must call this so readiness →
  * geometry → overlay absence cannot diverge from the happy path.
+ * Overlay assertion never mutates the DOM.
  */
 async function prepareGovernedSnapshot(page: Page, snap: SnapshotCase, label: string) {
-  // 2. readiness
+  const previousUrl = page.url();
   await page.evaluate(() => document.fonts?.ready);
   await page.waitForTimeout(200);
+
+  await assertLocalNavigationStable(page, {
+    label: `${label}:pre`,
+    expectedPathname: snap.expectedPathname,
+    previousUrl,
+  });
+
   await expect(page.locator(snap.elementSelector).first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator(snap.elementSelector).first()).toBeAttached();
   if (snap.requiredText) {
     await expect(page.locator(snap.elementSelector).first()).toContainText(snap.requiredText);
   }
 
-  // 3. geometry (+ fixed-nav clearance when required)
   if (snap.assertBelowFixedHeader) {
     await assertClearOfFixedNavigation(page, snap.elementSelector);
   }
   await assertGeometryReady(page, snap.elementSelector, snap.viewport);
 
-  // 4. overlay absence — must pass before any screenshot comparison
   await assertOverlayAbsence(page, label);
-  // Re-apply hide immediately before the caller screenshots (Clerk can remount).
-  await removeDevelopmentOverlays(page);
+
+  await assertLocalNavigationStable(page, {
+    label: `${label}:post`,
+    expectedPathname: snap.expectedPathname,
+    previousUrl,
+  });
 }
 
 test.describe.configure({ mode: 'serial', timeout: 240_000 });
 
+test.beforeAll(() => {
+  requireCleanCaptureEnvironment('commercial-visual-regression');
+});
+
 for (const snap of SNAPSHOT_CASES) {
   test(`visual regression after geometry — ${snap.id}@${snap.viewport}`, async ({ browser }) => {
     const height = COMMERCIAL_VIEWPORT_HEIGHTS[snap.viewport];
+    // Isolated context per case so one Clerk/navigation event cannot poison later cases.
     const context = await browser.newContext({ viewport: { width: snap.viewport, height } });
     if (snap.setup !== 'home' && snap.setup !== 'core_prerequisite' && snap.setup !== 'purchased_report') {
       await seedFreeResult(context);
@@ -336,28 +291,25 @@ for (const snap of SNAPSHOT_CASES) {
     const page = await context.newPage();
     await prepareCleanCapturePage(page);
 
-    // 1. setup
     await setupSnapshot(page, snap.setup);
-
     await prepareGovernedSnapshot(page, snap, snap.id);
-    if (/accounts\.dev/i.test(page.url())) {
-      await setupSnapshot(page, snap.setup);
-      await prepareGovernedSnapshot(page, snap, `${snap.id}:recovered`);
-    }
 
-    // 5. visual snapshot — never without steps 2–4 above
     const target = page.locator(snap.elementSelector).first();
     if (snap.setup === 'purchased_report') {
       let png: Buffer | null = null;
       for (let attempt = 0; attempt < 2; attempt += 1) {
-        if (/accounts\.dev/i.test(page.url()) || attempt > 0) {
+        if (attempt > 0) {
           await setupSnapshot(page, snap.setup);
-          await prepareGovernedSnapshot(page, snap, `${snap.id}:retry-${attempt}`);
         }
+        await prepareGovernedSnapshot(page, snap, `${snap.id}:retry-${attempt}`);
         try {
           png = await page.locator(snap.elementSelector).first().screenshot({ animations: 'disabled' });
           break;
-        } catch {
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (/Target closed|Execution context was destroyed|page closed/i.test(message)) {
+            throw new Error(`${snap.id}: context destroyed during screenshot — not a flaky pass (${message})`);
+          }
           png = null;
         }
       }
