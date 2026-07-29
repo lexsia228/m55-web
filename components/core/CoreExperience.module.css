@@ -2894,6 +2894,8 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  /* Keep in-page #core-paid jumps below the sticky shell header. */
+  scroll-margin-top: calc(12px + env(safe-area-inset-top, 0px));
 }
 
 .conversionBridgeOverline {
@@ -3016,6 +3018,17 @@
   flex-direction: column;
   gap: 10px;
   margin: 0 0 14px;
+}
+
+/*
+ * Narrow viewports: keep the primary bridge CTA clear of the fixed
+ * scroll-to-top control (bottom-right, ~40px + 16px inset).
+ */
+@media (max-width: 430px) {
+  .conversionBridgeActions {
+    padding-right: calc(52px + env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
 }
 
 .conversionBridgePrimary {

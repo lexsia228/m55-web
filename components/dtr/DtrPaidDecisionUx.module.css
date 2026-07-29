@@ -6,6 +6,8 @@
   max-width: 36rem;
   margin: 0 auto;
   width: 100%;
+  /* Keep plan/checkout first content below the fixed public header on scroll. */
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
   --m55-paid-ink: rgba(28, 24, 48, 0.94);
   --m55-paid-meta: rgba(55, 48, 82, 0.62);
   --m55-paid-accent: rgba(196, 110, 90, 0.88);
@@ -374,6 +376,7 @@
   border-radius: 0.9rem;
   border: 1px solid rgba(107, 95, 168, 0.2);
   background: rgba(255, 255, 255, 0.6);
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 .planCompareHeading {

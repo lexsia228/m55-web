@@ -87,6 +87,26 @@ async function measurePage(
       viewportWidth: vw,
       viewportHeight: vh,
     }) => {
+      if (!(document.documentElement instanceof Element)) {
+        throw new Error(
+          `measurePage(${caseId}@${route}/${scrollState}): documentElement is not an Element at ${location.href}`,
+        );
+      }
+      if (!(document.body instanceof Element)) {
+        throw new Error(
+          `measurePage(${caseId}@${route}/${scrollState}): document.body is not an Element at ${location.href}`,
+        );
+      }
+
+      const styleOf = (node: Element): CSSStyleDeclaration => {
+        if (!(node instanceof Element)) {
+          throw new Error(
+            `measurePage(${caseId}@${route}/${scrollState}): getComputedStyle called with non-Element`,
+          );
+        }
+        return getComputedStyle(node);
+      };
+
       const parseColor = (value: string): [number, number, number] | null => {
         const match = /rgba?\(([^)]+)\)/.exec(value);
         if (!match) return null;
@@ -111,8 +131,8 @@ async function measurePage(
       const effectiveBackground = (el: Element): [number, number, number] | null => {
         let node: Element | null = el;
         const stack: { color: [number, number, number]; alpha: number }[] = [];
-        while (node) {
-          const style = getComputedStyle(node);
+        while (node instanceof Element) {
+          const style = styleOf(node);
           const match = /rgba?\(([^)]+)\)/.exec(style.backgroundColor);
           if (match) {
             const parts = match[1].split(',').map((p) => Number.parseFloat(p.trim()));
@@ -154,7 +174,7 @@ async function measurePage(
         const own = el.getBoundingClientRect();
         let node = el.parentElement;
         while (node && node !== document.body && node !== document.documentElement) {
-          const style = getComputedStyle(node);
+          const style = styleOf(node);
           const clipsX = style.overflowX === 'hidden' || style.overflowX === 'clip';
           const clipsY = style.overflowY === 'hidden' || style.overflowY === 'clip';
           if (clipsX || clipsY) {
@@ -175,10 +195,10 @@ async function measurePage(
         if (!(el instanceof HTMLElement)) return null;
         // A disabled placeholder is not a focus target, so it has nothing to prove.
         if (el.matches(':disabled') || el.getAttribute('aria-disabled') === 'true') return null;
-        const before = getComputedStyle(el);
+        const before = styleOf(el);
         const beforeSignature = `${before.outlineStyle}|${before.outlineWidth}|${before.boxShadow}`;
         el.focus();
-        const after = getComputedStyle(el);
+        const after = styleOf(el);
         const afterSignature = `${after.outlineStyle}|${after.outlineWidth}|${after.boxShadow}`;
         el.blur();
         if (afterSignature !== beforeSignature) return true;
@@ -199,7 +219,7 @@ async function measurePage(
 
       const elements = targets.map((target) => {
         const el = document.querySelector(target.selector);
-        if (!el) {
+        if (!(el instanceof Element)) {
           return {
             selector: target.selector,
             role: target.role,
@@ -218,7 +238,7 @@ async function measurePage(
             stageWidth: null,
           };
         }
-        const style = getComputedStyle(el);
+        const style = styleOf(el);
         return {
           selector: target.selector,
           role: target.role,
@@ -285,7 +305,7 @@ async function measurePage(
 
       const overlays = overlaySelectors.map((selector) => {
         const el = document.querySelector(selector);
-        if (!el) {
+        if (!(el instanceof Element)) {
           return {
             selector,
             present: false,
@@ -296,7 +316,7 @@ async function measurePage(
             safeAreaCompensated: false,
           };
         }
-        const style = getComputedStyle(el);
+        const style = styleOf(el);
         const rect = rectOf(el);
         const visible =
           style.visibility !== 'hidden' &&
@@ -328,7 +348,7 @@ async function measurePage(
         selectors: group.selectors,
         rects: group.selectors.map((selector) => {
           const el = document.querySelector(selector);
-          return el ? rectOf(el) : null;
+          return el instanceof Element ? rectOf(el) : null;
         }),
       }));
 
@@ -337,7 +357,7 @@ async function measurePage(
         { label: 'body', node: document.body, isPageLevel: true },
       ].map(({ label, node, isPageLevel }) => ({
         label,
-        overflowX: getComputedStyle(node).overflowX,
+        overflowX: styleOf(node).overflowX,
         scrollWidth: node.scrollWidth,
         clientWidth: node.clientWidth,
         isPageLevel,
@@ -345,7 +365,8 @@ async function measurePage(
 
       // Any element that establishes its own horizontal scrollport counts too.
       for (const node of Array.from(document.querySelectorAll('*'))) {
-        const style = getComputedStyle(node);
+        if (!(node instanceof Element)) continue;
+        const style = styleOf(node);
         if (style.overflowX !== 'auto' && style.overflowX !== 'scroll') continue;
         if (node.scrollWidth <= node.clientWidth + 1) continue;
         scrollContainers.push({
@@ -361,20 +382,39 @@ async function measurePage(
        * Collect elements outside the viewport. Zero-size, hidden and decorative
        * `aria-hidden` layers are skipped: only content boxes matter, and a
        * deliberately over-scaled background image is not a commercial defect.
+       * Prefer the widest offender first so document-overflow failures name the
+       * actual root cause (e.g. an unconstrained hero image).
        */
-      const overflowingElements: { description: string; left: number; right: number }[] = [];
+      const overflowingCandidates: { description: string; left: number; right: number; span: number }[] =
+        [];
       for (const node of Array.from(document.querySelectorAll('*'))) {
-        const style = getComputedStyle(node);
+        if (!(node instanceof Element)) continue;
+        const style = styleOf(node);
         if (style.visibility === 'hidden' || style.display === 'none') continue;
         if (node.closest('[aria-hidden="true"]')) continue;
         if (node.closest('[data-nextjs-dev-tools-button], nextjs-portal')) continue;
+        if (node.closest('[data-m55-clean-capture-hidden]')) continue;
         const rect = node.getBoundingClientRect();
         if (rect.width <= 0 || rect.height <= 0) continue;
         if (rect.right <= vw + 1 && rect.left >= -1) continue;
-        // Report only the outermost offender in each subtree.
-        const description = `${node.tagName.toLowerCase()}.${String(node.className).slice(0, 60) || '(no class)'}`;
-        if (overflowingElements.some((e) => description.startsWith(e.description))) continue;
-        overflowingElements.push({ description, left: rect.left, right: rect.right });
+        const id = node.getAttribute('data-testid') || node.id || '';
+        const description = `${node.tagName.toLowerCase()}${id ? `#${id}` : ''}.${String(node.className).slice(0, 60) || '(no class)'}`;
+        overflowingCandidates.push({
+          description,
+          left: rect.left,
+          right: rect.right,
+          span: rect.right - rect.left,
+        });
+      }
+      overflowingCandidates.sort((a, b) => b.span - a.span);
+      const overflowingElements: { description: string; left: number; right: number }[] = [];
+      for (const candidate of overflowingCandidates) {
+        if (overflowingElements.some((e) => candidate.description.startsWith(e.description))) continue;
+        overflowingElements.push({
+          description: candidate.description,
+          left: candidate.left,
+          right: candidate.right,
+        });
         if (overflowingElements.length >= 10) break;
       }
 
@@ -436,8 +476,10 @@ async function enterPremiumFromCore(page: Page) {
  */
 async function engageFloatingRail(page: Page) {
   await page.evaluate(() => {
+    if (!(document.documentElement instanceof Element)) return;
     const scrollers: Element[] = [document.documentElement];
     for (const node of Array.from(document.querySelectorAll('*'))) {
+      if (!(node instanceof Element)) continue;
       const style = getComputedStyle(node);
       const scrolls = style.overflowY === 'auto' || style.overflowY === 'scroll';
       if (scrolls && node.scrollHeight > node.clientHeight + 8) scrollers.push(node);
@@ -461,7 +503,55 @@ async function applySetup(page: Page, governedCase: CommercialVisualCase) {
     await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
       timeout: 30_000,
     });
-    await page.locator('#core-paid').scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      const headline = document.querySelector('[data-testid="m55-premium-bridge-headline"]');
+      const cta = document.querySelector('[data-testid="m55-paid-bridge-primary"]');
+      const header =
+        document.querySelector('[data-m55-public-shell] > header') ||
+        document.querySelector('header');
+      const rail = document.querySelector('[data-testid="m55-scroll-to-top"]');
+      const main = document.querySelector('main');
+      const target = headline instanceof Element ? headline : document.querySelector('#core-paid');
+      if (!(target instanceof Element)) return;
+
+      const scrollByDelta = (delta: number) => {
+        if (!delta) return;
+        // ShellLayout scrolls inside <main>; PublicShell uses the document.
+        if (
+          main instanceof HTMLElement &&
+          main.scrollHeight > main.clientHeight + 8
+        ) {
+          main.scrollTop += delta;
+        } else {
+          window.scrollBy(0, delta);
+        }
+      };
+
+      target.scrollIntoView({ block: 'start' });
+      const headerBottom =
+        header instanceof Element ? header.getBoundingClientRect().bottom : 64;
+      let rect = target.getBoundingClientRect();
+      scrollByDelta(rect.top - (headerBottom + 12));
+
+      if (cta instanceof Element && rail instanceof Element) {
+        const ctaRect = cta.getBoundingClientRect();
+        const railRect = rail.getBoundingClientRect();
+        const railVisible =
+          railRect.width > 0 &&
+          railRect.height > 0 &&
+          getComputedStyle(rail).visibility !== 'hidden' &&
+          Number.parseFloat(getComputedStyle(rail).opacity || '1') > 0.05;
+        if (railVisible) {
+          const overlapY =
+            Math.min(ctaRect.bottom, railRect.bottom) - Math.max(ctaRect.top, railRect.top);
+          const overlapX =
+            Math.min(ctaRect.right, railRect.right) - Math.max(ctaRect.left, railRect.left);
+          if (overlapY > 0 && overlapX > 0) {
+            scrollByDelta(overlapY + 12);
+          }
+        }
+      }
+    });
   }
 
   if (governedCase.setup === 'premium_questionnaire') {
@@ -478,6 +568,25 @@ async function applySetup(page: Page, governedCase: CommercialVisualCase) {
     await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 30_000 });
     await page.getByRole('button', { name: 'プランを選ぶ' }).click();
     await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
+    // Keep the plan headline below the fixed public header before geometry.
+    await page.evaluate(() => {
+      const el = document.querySelector('[data-testid="m55-dtr-plan-selection"]');
+      const header =
+        document.querySelector('[data-m55-public-shell] > header') ||
+        document.querySelector('header');
+      const main = document.querySelector('main');
+      if (!(el instanceof Element)) return;
+      el.scrollIntoView({ block: 'start' });
+      const headerBottom =
+        header instanceof Element ? header.getBoundingClientRect().bottom : 64;
+      const delta = el.getBoundingClientRect().top - (headerBottom + 8);
+      if (!delta) return;
+      if (main instanceof HTMLElement && main.scrollHeight > main.clientHeight + 8) {
+        main.scrollTop += delta;
+      } else {
+        window.scrollBy(0, delta);
+      }
+    });
   }
 
   await expect(page.locator(governedCase.readySelector).first()).toBeVisible({ timeout: 30_000 });
@@ -517,13 +626,14 @@ for (const governedCase of COMMERCIAL_VISUAL_CASES) {
        */
       for (const scrollState of ['top', 'engaged'] as const) {
         if (scrollState === 'engaged') await engageFloatingRail(page);
-        await assertOverlayAbsence(page, `${governedCase.caseId}@${width}/${scrollState}`);
+        // Order: readiness settled → geometry measure/check → overlay absence.
         const measured = await measurePage(page, governedCase, width, height, scrollState);
         for (const failure of checkMeasuredPage(measured, governedCase)) {
           failures.push(
             `${failure.caseId}@${failure.viewportWidth}/${failure.scrollState} ${failure.rule} ${failure.selector}: ${failure.detail}`,
           );
         }
+        await assertOverlayAbsence(page, `${governedCase.caseId}@${width}/${scrollState}`);
       }
 
       await context.close();

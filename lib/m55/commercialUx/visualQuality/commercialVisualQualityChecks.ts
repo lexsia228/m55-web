@@ -16,6 +16,7 @@ import {
   LARGE_TEXT_BOLD_MIN_PX,
   LARGE_TEXT_BOLD_MIN_WEIGHT,
   LARGE_TEXT_MIN_PX,
+  HOME_HERO_CTA_MIN_HEIGHT_PX,
   MIN_INTERACTIVE_TARGET_PX,
   type CommercialVisualCase,
   type ProtectedRole,
@@ -217,10 +218,13 @@ export function checkMeasuredPage(
     });
 
   if (page.documentScrollWidth > vw + GEOMETRY_TOLERANCE_PX) {
+    const overflowOwner =
+      page.overflowingElements[0]?.description ??
+      'unknown (no overflowing content box reported)';
     push(
       'horizontal_overflow',
       ':root',
-      `document scrollWidth ${page.documentScrollWidth} exceeds viewport ${vw}`,
+      `document scrollWidth ${page.documentScrollWidth} exceeds viewport ${vw}; widest overflowing owner: ${overflowOwner}`,
     );
   }
 
@@ -335,14 +339,17 @@ export function checkMeasuredPage(
       if (element.hasVisibleFocusIndicator === false) {
         push('focus_indicator_missing', element.selector, 'keyboard focus produces no visible indicator');
       }
+      const minHeight =
+        page.caseId === 'home' ? HOME_HERO_CTA_MIN_HEIGHT_PX : MIN_INTERACTIVE_TARGET_PX;
+      const minWidth = MIN_INTERACTIVE_TARGET_PX;
       if (
-        rect.height < MIN_INTERACTIVE_TARGET_PX - GEOMETRY_TOLERANCE_PX ||
-        rect.width < MIN_INTERACTIVE_TARGET_PX - GEOMETRY_TOLERANCE_PX
+        rect.height < minHeight - GEOMETRY_TOLERANCE_PX ||
+        rect.width < minWidth - GEOMETRY_TOLERANCE_PX
       ) {
         push(
           'interactive_target_too_small',
           element.selector,
-          `target ${rect.width.toFixed(1)}×${rect.height.toFixed(1)} is below ${MIN_INTERACTIVE_TARGET_PX}px`,
+          `target ${rect.width.toFixed(1)}×${rect.height.toFixed(1)} is below ${minWidth}×${minHeight}px`,
         );
       }
     }

@@ -65,6 +65,12 @@ export const DESKTOP_MIN_STAGE_WIDTH_RATIO = 0.96 as const;
 
 /** Interactive targets must stay reachable with one thumb on small phones. */
 export const MIN_INTERACTIVE_TARGET_PX = 40 as const;
+/** HOME hero CTA floor (commercial visual closure — thumb target). */
+export const HOME_HERO_CTA_MIN_HEIGHT_PX = 44 as const;
+
+/** Fixed public navigation — checked for protected-target intersection. */
+export const PUBLIC_FIXED_HEADER_SELECTOR =
+  '[data-m55-public-shell] > header, [data-m55-public-shell] header' as const;
 
 export type ProtectedRole =
   /** Headline that must be fully visible and unclipped. */
@@ -123,7 +129,7 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
     setup: 'none',
     readySelector: '[data-testid="m55-home-hero"]',
     protectedTargets: HOME_TARGETS,
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]'],
+    overlaySelectors: [PUBLIC_FIXED_HEADER_SELECTOR, '[data-testid="m55-scroll-to-top"]'],
     mobileCoVisibleGroups: [],
     findingIds: ['P0-1', 'P0-2', 'P0-3', 'P0-4', 'P1-10'],
   },
@@ -136,7 +142,7 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       { selector: '[data-testid="m55-core-prerequisite-headline"]', role: 'heading', findingIds: ['P1-9'] },
       { selector: '[data-testid="m55-core-start-intake"]', role: 'cta', findingIds: ['P1-9', 'P1-10'] },
     ],
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]'],
+    overlaySelectors: [PUBLIC_FIXED_HEADER_SELECTOR, '[data-testid="m55-scroll-to-top"]'],
     mobileCoVisibleGroups: [],
     findingIds: ['P1-9', 'P1-10'],
   },
@@ -150,7 +156,11 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       { selector: '[data-testid="m55-premium-bridge-copy"]', role: 'copy', findingIds: ['P0-5'] },
       { selector: '[data-testid="m55-paid-bridge-primary"]', role: 'cta', findingIds: ['P0-4', 'P0-5', 'P1-8'] },
     ],
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]', '[data-testid="m55-premium-sticky-cta"]'],
+    overlaySelectors: [
+      PUBLIC_FIXED_HEADER_SELECTOR,
+      '[data-testid="m55-scroll-to-top"]',
+      '[data-testid="m55-premium-sticky-cta"]',
+    ],
     mobileCoVisibleGroups: [],
     findingIds: ['P0-3', 'P0-4', 'P0-5', 'P1-8'],
   },
@@ -168,7 +178,11 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
         contrastExempt: true,
       },
     ],
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]', '[data-testid="m55-premium-sticky-cta"]'],
+    overlaySelectors: [
+      PUBLIC_FIXED_HEADER_SELECTOR,
+      '[data-testid="m55-scroll-to-top"]',
+      '[data-testid="m55-premium-sticky-cta"]',
+    ],
     mobileCoVisibleGroups: [],
     findingIds: ['P1-6', 'P0-4'],
   },
@@ -182,7 +196,11 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       { selector: '[data-testid="m55-plan-compare-light"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
       { selector: '[data-testid="m55-plan-compare-full"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
     ],
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]', '[data-testid="m55-premium-sticky-cta"]'],
+    overlaySelectors: [
+      PUBLIC_FIXED_HEADER_SELECTOR,
+      '[data-testid="m55-scroll-to-top"]',
+      '[data-testid="m55-premium-sticky-cta"]',
+    ],
     mobileCoVisibleGroups: [
       {
         groupId: 'plan-comparison',
@@ -202,7 +220,7 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       { selector: '[data-testid="m55-pricing-plan-light"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
       { selector: '[data-testid="m55-pricing-plan-full"]', role: 'copy', findingIds: ['P1-7'], contrastExempt: true },
     ],
-    overlaySelectors: ['[data-testid="m55-scroll-to-top"]'],
+    overlaySelectors: [PUBLIC_FIXED_HEADER_SELECTOR, '[data-testid="m55-scroll-to-top"]'],
     mobileCoVisibleGroups: [],
     findingIds: ['P0-3'],
   },

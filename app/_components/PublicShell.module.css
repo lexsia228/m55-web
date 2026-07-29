@@ -9,8 +9,10 @@
   width: 100%;
   max-width: 100%;
   min-height: 100dvh;
-  /* Reserve enough space for the fixed public header across breakpoints. */
-  padding-top: 64px;
+  /* Reserve enough space for the fixed public header + notch safe-area. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  /* Anchor in-page scroll targets below the fixed header. */
+  scroll-padding-top: calc(64px + env(safe-area-inset-top, 0px));
   background: #f9f7f4;
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #3d3d3d;

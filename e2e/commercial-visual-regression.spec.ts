@@ -1,16 +1,17 @@
 /**
  * Visual regression after geometry.
  *
- * Execution order (required):
+ * Execution order (required on every path, including retries):
  * 1. route/state setup
- * 2. geometry / DOM assertions
- * 3. overlay-absence assertion
- * 4. visual snapshot comparison
+ * 2. wait for readiness
+ * 3. geometry / DOM assertions (incl. fixed-nav intersection = 0)
+ * 4. overlay-absence assertion
+ * 5. visual snapshot comparison
  *
- * A screenshot is never taken when geometry fails. Baselines under
- * e2e/commercial-visual-regression.spec.ts-snapshots/ are candidate baselines;
- * Human Preview approval remains required before they become commercially
- * authoritative.
+ * A screenshot is never taken when geometry or overlay checks fail. Baselines
+ * under e2e/commercial-visual-regression.spec.ts-snapshots/ are candidate
+ * baselines; Human Preview approval remains required before they become
+ * commercially authoritative.
  *
  * Tolerances stay tight enough to reject missing text, another state, blank
  * content, fixed overlays, clipped headings and a hidden Full plan.
@@ -20,6 +21,7 @@ import { COMMERCIAL_VIEWPORT_HEIGHTS, type CommercialViewport } from '../lib/m55
 import {
   assertOverlayAbsence,
   prepareCleanCapturePage,
+  removeDevelopmentOverlays,
   safeGotoLocal,
   softDisableDevelopmentOverlays,
 } from './helpers/cleanCaptureEnvironment';
@@ -40,6 +42,8 @@ type SnapshotCase = {
   setup: 'home' | 'core_prerequisite' | 'core_free_result' | 'premium_questionnaire' | 'premium_plans' | 'checkout' | 'purchased_report';
   /** Extra text that must be present before the snapshot. */
   requiredText?: string;
+  /** When true, assert fixed public header does not cover the protected target. */
+  assertBelowFixedHeader?: boolean;
 };
 
 const SNAPSHOT_CASES: readonly SnapshotCase[] = [
@@ -79,12 +83,14 @@ const SNAPSHOT_CASES: readonly SnapshotCase[] = [
     elementSelector: '[data-testid="m55-plan-compare"]',
     setup: 'premium_plans',
     requiredText: 'フル',
+    assertBelowFixedHeader: true,
   },
   {
     id: 'checkout-prep',
     viewport: 390,
     elementSelector: '[data-m55-paid-phase="checkout"]',
     setup: 'checkout',
+    assertBelowFixedHeader: true,
   },
   {
     id: 'purchased-report-method-note',
@@ -231,6 +237,93 @@ async function assertGeometryReady(page: Page, selector: string, viewportWidth: 
   expect(metrics!.text.length, `${selector}: blank content before snapshot`).toBeGreaterThan(0);
 }
 
+/**
+ * Position the protected target below the fixed public header, then assert the
+ * intersection area between navigation and the target is exactly 0.
+ */
+async function assertClearOfFixedNavigation(page: Page, selector: string) {
+  await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!(el instanceof Element)) return;
+    const header =
+      document.querySelector('[data-m55-public-shell] > header') ||
+      document.querySelector('header');
+    const main = document.querySelector('main');
+    const headerBottom =
+      header instanceof Element ? header.getBoundingClientRect().bottom : 64;
+    const gap = 8;
+    el.scrollIntoView({ block: 'start' });
+    const rect = el.getBoundingClientRect();
+    const delta = rect.top - (headerBottom + gap);
+    if (!delta) return;
+    if (main instanceof HTMLElement && main.scrollHeight > main.clientHeight + 8) {
+      main.scrollTop += delta;
+    } else {
+      window.scrollBy(0, delta);
+    }
+  }, selector);
+  await page.waitForTimeout(80);
+
+  const geometry = await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    const header =
+      document.querySelector('[data-m55-public-shell] > header') ||
+      document.querySelector('header');
+    if (!(el instanceof Element)) {
+      return { ok: false as const, reason: `selector unresolved: ${sel}` };
+    }
+    if (!(header instanceof Element)) {
+      return { ok: false as const, reason: 'fixed public header not found' };
+    }
+    const a = el.getBoundingClientRect();
+    const b = header.getBoundingClientRect();
+    const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+    const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    const area = overlapX * overlapY;
+    return {
+      ok: true as const,
+      area,
+      targetTop: a.top,
+      headerBottom: b.bottom,
+    };
+  }, selector);
+
+  expect(geometry.ok, `${selector}: ${'reason' in geometry ? geometry.reason : 'nav geometry failed'}`).toBe(
+    true,
+  );
+  if (geometry.ok) {
+    expect(
+      geometry.area,
+      `${selector}: fixed navigation intersection area must be 0 (targetTop=${geometry.targetTop.toFixed(1)}, headerBottom=${geometry.headerBottom.toFixed(1)})`,
+    ).toBe(0);
+  }
+}
+
+/**
+ * Shared pre-snapshot gate. Every retry path must call this so readiness →
+ * geometry → overlay absence cannot diverge from the happy path.
+ */
+async function prepareGovernedSnapshot(page: Page, snap: SnapshotCase, label: string) {
+  // 2. readiness
+  await page.evaluate(() => document.fonts?.ready);
+  await page.waitForTimeout(200);
+  await expect(page.locator(snap.elementSelector).first()).toBeVisible({ timeout: 30_000 });
+  if (snap.requiredText) {
+    await expect(page.locator(snap.elementSelector).first()).toContainText(snap.requiredText);
+  }
+
+  // 3. geometry (+ fixed-nav clearance when required)
+  if (snap.assertBelowFixedHeader) {
+    await assertClearOfFixedNavigation(page, snap.elementSelector);
+  }
+  await assertGeometryReady(page, snap.elementSelector, snap.viewport);
+
+  // 4. overlay absence — must pass before any screenshot comparison
+  await assertOverlayAbsence(page, label);
+  // Re-apply hide immediately before the caller screenshots (Clerk can remount).
+  await removeDevelopmentOverlays(page);
+}
+
 test.describe.configure({ mode: 'serial', timeout: 240_000 });
 
 for (const snap of SNAPSHOT_CASES) {
@@ -245,39 +338,22 @@ for (const snap of SNAPSHOT_CASES) {
 
     // 1. setup
     await setupSnapshot(page, snap.setup);
-    await page.evaluate(() => document.fonts?.ready);
-    await page.waitForTimeout(200);
 
-    if (snap.requiredText) {
-      await expect(page.locator(snap.elementSelector).first()).toContainText(snap.requiredText);
-    }
-
-    // 2. geometry
-    await assertGeometryReady(page, snap.elementSelector, snap.viewport);
-
-    // 3. overlay absence — must pass before any screenshot comparison
-    await assertOverlayAbsence(page, snap.id);
+    await prepareGovernedSnapshot(page, snap, snap.id);
     if (/accounts\.dev/i.test(page.url())) {
       await setupSnapshot(page, snap.setup);
-      await assertGeometryReady(page, snap.elementSelector, snap.viewport);
-      await assertOverlayAbsence(page, `${snap.id}:recovered`);
+      await prepareGovernedSnapshot(page, snap, `${snap.id}:recovered`);
     }
 
-    // 4. visual snapshot
+    // 5. visual snapshot — never without steps 2–4 above
     const target = page.locator(snap.elementSelector).first();
     if (snap.setup === 'purchased_report') {
-      // Soft-disable only, then screenshot the body element. Retry once if Clerk
-      // keyless navigates the tab away mid-capture.
       let png: Buffer | null = null;
       for (let attempt = 0; attempt < 2; attempt += 1) {
         if (/accounts\.dev/i.test(page.url()) || attempt > 0) {
           await setupSnapshot(page, snap.setup);
-          await assertGeometryReady(page, snap.elementSelector, snap.viewport);
+          await prepareGovernedSnapshot(page, snap, `${snap.id}:retry-${attempt}`);
         }
-        await softDisableDevelopmentOverlays(page);
-        await expect(page.locator(snap.elementSelector).first()).toContainText(
-          'M55 複合読み解きモデル',
-        );
         try {
           png = await page.locator(snap.elementSelector).first().screenshot({ animations: 'disabled' });
           break;

@@ -136,8 +136,9 @@ export default function HomePanel() {
                   <img
                     src="/home/m55-b2c-r3-hero-desktop.jpg"
                     alt=""
-                    width="4320"
-                    height="3000"
+                    width="1440"
+                    height="1000"
+                    sizes="100vw"
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"

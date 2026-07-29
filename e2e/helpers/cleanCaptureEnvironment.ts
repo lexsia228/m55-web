@@ -16,6 +16,8 @@
  * A continuous MutationObserver is intentionally NOT used — mutating Clerk's
  * React tree while it mounts can navigate the page to accounts.dev and destroy
  * the Playwright execution context.
+ *
+ * Browser helpers passed to page.evaluate must be self-contained (no outer refs).
  */
 import { expect, type Page } from '@playwright/test';
 
@@ -39,20 +41,28 @@ export const FORBIDDEN_DEV_OVERLAY_LOCATORS = [
 
 function softDisableDevelopmentOverlaysBrowser(): number {
   const markers = ['Configure your application', 'Temporary API keys are enabled'] as const;
-  let touched = 0;
-  for (const el of Array.from(document.querySelectorAll('body *'))) {
+  const isKeyless = (el: Element) => {
     const style = window.getComputedStyle(el);
     const className = typeof el.className === 'string' ? el.className : '';
     const isFloating =
       style.position === 'fixed' ||
       style.position === 'sticky' ||
-      className.includes('cl-internal');
-    if (!isFloating) continue;
+      className.includes('cl-internal') ||
+      className.includes('cl-');
+    if (!isFloating) return false;
     const rect = el.getBoundingClientRect();
-    if (rect.width > 420 || rect.height > 360) continue;
+    if (rect.width < 40 || rect.height < 40) return false;
+    // Reject near-viewport shells; allow tall keyless cards (often >360px).
+    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
+    if (rect.height > window.innerHeight * 0.92) return false;
     const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    if (text.length < 20 || text.length > 1_200) continue;
-    if (!markers.every((m) => text.includes(m))) continue;
+    if (text.length < 20 || text.length > 2_400) return false;
+    return markers.every((m) => text.includes(m));
+  };
+
+  let touched = 0;
+  for (const el of Array.from(document.querySelectorAll('body *'))) {
+    if (!isKeyless(el)) continue;
     el.setAttribute('data-m55-clean-capture-soft', 'clerk-keyless');
     (el as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
     touched += 1;
@@ -96,29 +106,33 @@ function stripDevelopmentOverlaysBrowser(): number {
     hidden += 1;
   };
 
-  const candidates: { el: Element; area: number }[] = [];
-  for (const el of Array.from(document.querySelectorAll('body *'))) {
+  const isKeyless = (el: Element) => {
     const style = window.getComputedStyle(el);
     const className = typeof el.className === 'string' ? el.className : '';
     const isFloating =
       style.position === 'fixed' ||
       style.position === 'sticky' ||
-      className.includes('cl-internal');
-    if (!isFloating) continue;
+      className.includes('cl-internal') ||
+      className.includes('cl-');
+    if (!isFloating) return false;
     const rect = el.getBoundingClientRect();
-    if (rect.width < 40 || rect.height < 40) continue;
-    // Keyless invite is a compact card — never treat a near-viewport shell as the invite.
-    if (rect.width > 420 || rect.height > 360) continue;
+    if (rect.width < 40 || rect.height < 40) return false;
+    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
+    if (rect.height > window.innerHeight * 0.92) return false;
     const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    if (text.length < 20 || text.length > 1_200) continue;
-    if (!markers.every((m) => text.includes(m))) continue;
+    if (text.length < 20 || text.length > 2_400) return false;
+    return markers.every((m) => text.includes(m));
+  };
+
+  const candidates: { el: Element; area: number }[] = [];
+  for (const el of Array.from(document.querySelectorAll('body *'))) {
+    if (!isKeyless(el)) continue;
+    const rect = el.getBoundingClientRect();
     candidates.push({ el, area: rect.width * rect.height });
   }
-  candidates.sort((a, b) => a.area - b.area);
-  // Hide the smallest match and any equally small siblings — not large ancestors.
-  const minArea = candidates[0]?.area ?? 0;
+  // Hide every matching floating keyless card. Previously only the smallest
+  // cluster was hidden, which left taller invite remounts in screenshots.
   for (const candidate of candidates) {
-    if (candidate.area > minArea * 1.35) break;
     hide(candidate.el, 'clerk-keyless');
   }
 
@@ -279,6 +293,13 @@ function countEffectivelyVisibleDevOverlaysBrowser(): {
   texts: string[];
   fixed: { tag: string; className: string; text: string }[];
 } {
+  const markers = [
+    'Configure your application',
+    'Temporary API keys are enabled',
+    'Access the dashboard to customize auth settings',
+  ] as const;
+  const keylessMarkers = markers.slice(0, 2);
+
   const isEffectivelyVisible = (el: Element) => {
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || style.visibility === 'hidden') return false;
@@ -286,6 +307,24 @@ function countEffectivelyVisibleDevOverlaysBrowser(): {
     if (style.transform.includes('matrix(0') || style.transform === 'scale(0)') return false;
     const rect = el.getBoundingClientRect();
     return rect.width >= 8 && rect.height >= 8;
+  };
+
+  const isKeyless = (el: Element) => {
+    const style = window.getComputedStyle(el);
+    const className = typeof el.className === 'string' ? el.className : '';
+    const isFloating =
+      style.position === 'fixed' ||
+      style.position === 'sticky' ||
+      className.includes('cl-internal') ||
+      className.includes('cl-');
+    if (!isFloating) return false;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 40 || rect.height < 40) return false;
+    if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
+    if (rect.height > window.innerHeight * 0.92) return false;
+    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text.length < 20 || text.length > 2_400) return false;
+    return keylessMarkers.every((m) => text.includes(m));
   };
 
   const locators = [
@@ -300,33 +339,21 @@ function countEffectivelyVisibleDevOverlaysBrowser(): {
     Array.from(document.querySelectorAll(selector)).some((el) => isEffectivelyVisible(el)),
   );
 
-  const markers = [
-    'Configure your application',
-    'Temporary API keys are enabled',
-    'Access the dashboard to customize auth settings',
-  ];
   const texts = markers.filter((marker) =>
     Array.from(document.querySelectorAll('body *')).some((el) => {
       if (!isEffectivelyVisible(el)) return false;
       const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-      // Prefer leaf-ish nodes so a hidden ancestor does not keep matching.
-      if (text !== marker && !text.startsWith(marker)) return false;
-      return text.includes(marker);
+      if (!text.includes(marker)) return false;
+      if (text.length > 2_400) return false;
+      const rect = el.getBoundingClientRect();
+      if (rect.width > Math.min(520, window.innerWidth * 0.95)) return false;
+      if (rect.height > window.innerHeight * 0.92) return false;
+      return true;
     }),
   );
 
   const fixed = Array.from(document.querySelectorAll('body *'))
-    .filter((el) => {
-      const style = window.getComputedStyle(el);
-      if (style.position !== 'fixed' && style.position !== 'sticky') return false;
-      if (!isEffectivelyVisible(el)) return false;
-      const rect = el.getBoundingClientRect();
-      if (rect.width < 40 || rect.height < 40) return false;
-      if (rect.width > 420 || rect.height > 360) return false;
-      const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-      if (text.length > 1_200) return false;
-      return markers.slice(0, 2).every((m) => text.includes(m));
-    })
+    .filter((el) => isKeyless(el) && isEffectivelyVisible(el))
     .map((el) => ({
       tag: el.tagName,
       className: typeof el.className === 'string' ? el.className.slice(0, 80) : '',

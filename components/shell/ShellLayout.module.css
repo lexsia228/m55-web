@@ -533,6 +533,8 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background: #f9f7f4;
+  /* Anchor hash / scrollIntoView targets below any sticky chrome inside main. */
+  scroll-padding-top: 12px;
 }
 
 .iframe {
