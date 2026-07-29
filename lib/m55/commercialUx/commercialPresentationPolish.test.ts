@@ -123,7 +123,8 @@ describe('commercial presentation polish — plan cards', () => {
     assert.equal(plan.oneTimeLabelJa, '買い切り・自動更新なし');
     assert.match(plan.upgradeNoteJa, /1,600円/);
     assert.match(plan.upgradeNoteJa, /1,480円/);
-    assert.equal(plan.fullRecommendBadgeJa, 'おすすめ');
+    // Ranking / optimisation language is prohibited, so the badge names the audience.
+    assert.equal(plan.fullRecommendBadgeJa, '複数テーマ向け');
     assert.deepEqual(plan.light.includedItemsJa, ['プレミアムレポート', '追加読み解き 1件']);
   });
 
@@ -152,7 +153,7 @@ describe('commercial presentation polish — print contract', () => {
 
 describe('commercial presentation polish — CTA terminology', () => {
   it('uses state-specific premium bridge CTA label', () => {
-    assert.equal(T.premiumBridgeCta, 'プレミアムの6問へ進む');
+    assert.equal(T.premiumBridgeCta, 'プレミアムの読み解きへ進む');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
   });
 });

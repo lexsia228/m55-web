@@ -13,6 +13,7 @@
         "verify:m55-asset-ledger": "node scripts/verify-m55-asset-ledger.mjs",
         "verify:m55-premium-experience": "node scripts/verify-m55-premium-experience.mjs",
         "verify:m55-premium-proof-records": "node scripts/verify-m55-premium-proof-records.mjs",
+        "verify:m55-commercial-visual-quality": "node scripts/verify-m55-commercial-visual-quality.mjs",
         "verify:product-authority:bootstrap": "node scripts/product-authority/cli.mjs verify",
         "verify:product-authority": "node scripts/product-authority/validate.mjs --steady-state",
         "test:product-authority": "node --test scripts/product-authority/__tests__/*.test.mjs",
@@ -34,6 +35,8 @@
         "test:e2e:self-funnel": "playwright test e2e/self-funnel-runtime-state.spec.ts",
         "test:e2e:self-funnel-growth": "playwright test e2e/self-funnel-growth-share.spec.ts",
         "test:e2e:premium-experience-evidence": "node scripts/run-premium-experience-evidence.mjs",
+        "test:m55-commercial-visual-quality": "tsx --test lib/m55/commercialUx/visualQuality/commercialVisualQuality.test.ts",
+        "test:e2e:commercial-visual-quality": "playwright test e2e/commercial-visual-quality.spec.ts",
         "test:premium-experience-verifier": "tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperienceProofNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumShareFallbackVisibility.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },
     "dependencies": {

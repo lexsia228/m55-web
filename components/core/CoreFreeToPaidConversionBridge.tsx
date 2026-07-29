@@ -67,10 +67,19 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
         data-testid="m55-free-to-paid-bridge"
       >
         <span className={`${styles.conversionBridgeOverline} m55-premium-overline`}>{copy.overline}</span>
-        <h2 id={titleId} className={`${styles.conversionBridgeTitle} m55-premium-display`}>
+        <h2
+          id={titleId}
+          className={`${styles.conversionBridgeTitle} m55-premium-display`}
+          data-testid="m55-premium-bridge-headline"
+        >
           {buildPremiumBridgeTitle(traitName)}
         </h2>
-        <p className={`${styles.conversionBridgeSupporting} m55-premium-body`}>{copy.supportingJa}</p>
+        <p
+          className={`${styles.conversionBridgeSupporting} m55-premium-body`}
+          data-testid="m55-premium-bridge-copy"
+        >
+          {copy.supportingJa}
+        </p>
 
       <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
       <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">

@@ -527,10 +527,19 @@
   word-break: keep-all;
   line-break: strict;
   text-wrap: balance;
+  /* Last-resort break so a semantic unit can never push past the column. */
+  overflow-wrap: anywhere;
 }
 
+/*
+ * Semantic units stay on one line while they fit. `nowrap` made them absolute,
+ * so the Premium headline overflowed the viewport at 320–430. `keep-all` keeps
+ * the unit together by preference while the parent's `overflow-wrap` still
+ * allows a break when the column is genuinely too narrow.
+ */
 .headlineSemanticUnit {
-  white-space: nowrap;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .sectionSubheading {
@@ -2585,6 +2594,33 @@
   padding: clamp(42px, 5vw, 72px);
 }
 
+/*
+ * Narrow phones: the absolutely positioned overlay could not grow the poster, so
+ * `overflow: hidden` on the visual cut the supporting copy and the CTA area off
+ * the bottom. Putting the overlay in normal flow lets the poster take its real
+ * content height while the background layer stays absolute behind it.
+ */
+@media (max-width: 639px) {
+  .posterHeroApprovedRoot .posterMainVisual {
+    min-height: 0;
+  }
+
+  .posterHeroApprovedRoot .posterHeroOverlay {
+    position: relative;
+    min-height: clamp(520px, calc(100svh - 108px), 800px);
+    padding: 34px 22px 40px;
+  }
+
+  .posterHeroApprovedRoot .posterHeroLabelGroup {
+    margin-bottom: clamp(20px, 4vw, 34px);
+  }
+
+  .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: clamp(25px, 7.4vw, 31px);
+    line-height: 1.46;
+  }
+}
+
 .posterHeroApprovedRoot .posterHeroFoot {
   display: block;
 }
@@ -2656,10 +2692,18 @@
   text-wrap: initial;
 }
 
+/*
+ * The headline lines must wrap. `nowrap` made each line overflow its own box at
+ * every measured width (320/1024/1280/1440), which clipped the hero headline.
+ * Japanese line-breaking quality is preserved with strict kinsoku, and
+ * `overflow-wrap: anywhere` guarantees no run can overflow the column.
+ */
 .posterHeroApprovedRoot .posterHeroTitleLine {
   display: block;
-  white-space: nowrap;
-  word-break: keep-all;
+  white-space: normal;
+  word-break: normal;
+  line-break: strict;
+  overflow-wrap: anywhere;
 }
 
 .posterHeroApprovedRoot .posterHeroTitleLine:first-child {

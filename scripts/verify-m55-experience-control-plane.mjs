@@ -129,11 +129,10 @@ function harvestAuthorityStrings() {
   // Always allow canonical CTA / terminology exact values
   for (const lit of [
     '無料で見てみる',
-    '無料で見る',
     '無料結果',
     '無料結果の続きを見る',
     '無料結果を開く',
-    'プレミアムの6問へ進む',
+    'プレミアムの読み解きへ進む',
     'プレミアムの続きを見る',
     'プランを選ぶ',
     '支払い内容を確認する',

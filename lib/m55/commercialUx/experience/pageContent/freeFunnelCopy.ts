@@ -3,6 +3,11 @@
  */
 
 export const FREE_FUNNEL_PAGE_CONTENT = {
+  /**
+   * Identity marker on the prerequisite surface. Without it the gate reads as an
+   * unrelated interstitial rather than a continuation of HOME.
+   */
+  lockedOverlineJa: 'M55 個人無料読み解き',
   lockedTitleJa: 'まずは、無料結果から始められます。',
   lockedSupport1Ja: 'ニックネームと生年月日のあと、5つの問いを選ぶと、無料結果を開けます。',
   lockedSupport2Ja: 'ログインは、あとから結果を開くときに使えます。',

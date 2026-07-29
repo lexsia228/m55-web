@@ -14,7 +14,18 @@ export default function CoreLockedState({ onStartIntake }: Props) {
     <div className={styles.coreLockedRoot}>
       <div className={styles.coreProfileGateShell}>
         <div className={styles.coreProfileGate} data-testid="m55-core-locked">
-          <h1 className={styles.coreProfileGateTitle}>{C.lockedTitleJa}</h1>
+          <p
+            className={styles.coreProfileGateOverline}
+            data-testid="m55-core-prerequisite-overline"
+          >
+            {C.lockedOverlineJa}
+          </p>
+          <h1
+            className={styles.coreProfileGateTitle}
+            data-testid="m55-core-prerequisite-headline"
+          >
+            {C.lockedTitleJa}
+          </h1>
           <p className={styles.coreProfileGateSupport}>{C.lockedSupport1Ja}</p>
           <p className={styles.coreProfileGateSupport}>{C.lockedSupport2Ja}</p>
           <div className={styles.coreProfileGateActions}>

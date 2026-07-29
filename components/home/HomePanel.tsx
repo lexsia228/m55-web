@@ -154,17 +154,36 @@ export default function HomePanel() {
                       <p className={styles.posterHeroBrandM55}>M55</p>
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
-                    <h1 className={styles.posterHeroTitleBlite}>
+                    <h1 className={styles.posterHeroTitleBlite} data-testid="m55-home-hero-title">
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
                       <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
                     </h1>
                   </div>
                   <div className={styles.posterHeroBottomStack}>
+                    {/*
+                      The hero CTA is the primary commercial action, so it must
+                      occupy its slot from first paint. Before the auth state
+                      settles it renders as a disabled placeholder, matching the
+                      loading behaviour of the lower free CTAs.
+                    */}
+                    {!isLoaded && (
+                      <button
+                        type="button"
+                        className={`${styles.posterHeroCta} ${styles.ctaFreeLoading}`}
+                        disabled
+                        aria-busy="true"
+                        data-testid="m55-home-hero-cta-loading"
+                        data-m55-hero-cta="true"
+                      >
+                        {freeCtaLabel}
+                      </button>
+                    )}
                     {isLoaded && !hasProfile && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-open-birth-intake"
+                        data-m55-hero-cta="true"
                         onClick={openIntake}
                       >
                         {freeCtaLabel}
@@ -175,12 +194,15 @@ export default function HomePanel() {
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-has-profile-hero"
+                        data-m55-hero-cta="true"
                         onClick={() => router.push('/core')}
                       >
                         {freeCtaLabel}
                       </button>
                     )}
-                    <p className={styles.posterHeroSupport}>{homeCopy.heroPosterSupportJa}</p>
+                    <p className={styles.posterHeroSupport} data-testid="m55-home-hero-support">
+                      {homeCopy.heroPosterSupportJa}
+                    </p>
                     <p className={styles.posterHeroTrust}>{homeCopy.heroTrustJa}</p>
                   </div>
                 </div>

@@ -176,8 +176,26 @@ export default function DtrPaidPurchasePrep() {
       >
         <ExperienceArchetypeSync paidPhase="plans" />
       <p className={styles.overline}>{C.planOverlineJa}</p>
-      <h3 className={styles.title}>{C.planTitleJa}</h3>
+      <h3 className={styles.title} data-testid="m55-premium-plans-headline">
+        {C.planTitleJa}
+      </h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
+      <div className={styles.planCompare} data-testid="m55-plan-compare">
+        <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
+        <div className={styles.planCompareGrid}>
+          <div className={styles.planCompareCell} data-testid="m55-plan-compare-light">
+            <span className={styles.planCompareName}>{plan.compactDifference.light.nameJa}</span>
+            <span className={styles.planComparePrice}>{plan.compactDifference.light.priceLabelJa}</span>
+            <span className={styles.planCompareDelta}>{plan.compactDifference.light.differenceJa}</span>
+          </div>
+          <div className={styles.planCompareCell} data-testid="m55-plan-compare-full">
+            <span className={styles.planCompareName}>{plan.compactDifference.full.nameJa}</span>
+            <span className={styles.planComparePrice}>{plan.compactDifference.full.priceLabelJa}</span>
+            <span className={styles.planCompareDelta}>{plan.compactDifference.full.differenceJa}</span>
+          </div>
+        </div>
+        <p className={styles.planCompareShared}>{plan.compactDifference.sharedJa}</p>
+      </div>
       <div className={styles.planStack}>
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}

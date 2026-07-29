@@ -32,6 +32,17 @@ export type PlanComparisonModel = {
   upgradeNoteJa: string;
   fullDeltaNoteJa: string;
   chapterTitlesJa: readonly string[];
+  /**
+   * Compact difference shown before the full plan cards so both tiers can be
+   * compared inside one mobile screen. Derived from the tiers above; it states no
+   * product fact of its own.
+   */
+  compactDifference: {
+    headingJa: string;
+    light: { nameJa: string; priceLabelJa: string; differenceJa: string };
+    full: { nameJa: string; priceLabelJa: string; differenceJa: string };
+    sharedJa: string;
+  };
   /** Shared labels for plan selection / payment confirmation surfaces */
   oneTimeLabelJa: string;
   includedHeadingJa: string;
@@ -91,6 +102,20 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
     upgradeNoteJa:
       'ライト購入後のフル化は600円です。ライトと後日フル化の合計は1,600円。最初からフルを選ぶ場合は1,480円です。',
     chapterTitlesJa: M55_REPORT_CHAPTERS.map((c) => c.titleJa),
+    compactDifference: {
+      headingJa: '2つの違いは、追加で読み解けるテーマ数だけ',
+      light: {
+        nameJa: lightProduct.publicName,
+        priceLabelJa: formatYenLabelJa(lightPriceJpy),
+        differenceJa: '追加で読み解けるテーマ 1件',
+      },
+      full: {
+        nameJa: fullProduct.publicName,
+        priceLabelJa: formatYenLabelJa(fullPriceJpy),
+        differenceJa: '追加で読み解けるテーマ 合計5件',
+      },
+      sharedJa: 'プレミアムレポートの内容は共通です。どちらも買い切りで、自動更新はありません。',
+    },
     oneTimeLabelJa: '買い切り・自動更新なし',
     includedHeadingJa: '含まれる内容',
     consultReplyLabelJa: '追加読み解き',

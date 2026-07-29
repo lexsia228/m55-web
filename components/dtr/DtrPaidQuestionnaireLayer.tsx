@@ -219,6 +219,7 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
       data-m55-paid-phase="question"
       data-testid="m55-paid-questionnaire-active"
       data-m55-paid-answer-edit={isAnswerEdit ? 'true' : undefined}
+      data-m55-questionnaire-column="true"
       aria-labelledby={headingId}
     >
       {index === 0 ? <DtrPaidResultContextStrip /> : null}
@@ -244,7 +245,11 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
 
       <p className={styles.hint}>{helperJa}</p>
       <p className={styles.questionLabel}>{current.shortLabelJa}</p>
-      <h2 id={headingId} className={styles.questionTitle}>
+      <h2
+        id={headingId}
+        className={styles.questionTitle}
+        data-testid="m55-premium-question-headline"
+      >
         {current.questionJa}
       </h2>
 

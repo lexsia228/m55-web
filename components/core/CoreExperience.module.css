@@ -341,6 +341,19 @@
   box-shadow: 0 14px 44px rgba(29, 24, 61, 0.07);
 }
 
+/* Identity marker tying the prerequisite gate back to HOME. */
+.coreProfileGateOverline {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  color: rgba(74, 62, 112, 0.86);
+  margin: 0 auto clamp(8px, 1.8vw, 12px);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
 .coreProfileGateTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
   font-size: clamp(17px, 4.2vw, 20px);
@@ -379,22 +392,25 @@
   align-items: center;
   justify-content: center;
   padding: 12px 28px;
+  min-height: 44px;
   font-size: 14px;
   font-weight: 600;
   color: #fff;
-  background: #8b7aa8;
+  /* Darkened from #8b7aa8: 14px white text needs at least 4.5:1, which that
+     lilac only reached at 3.86:1. This tone keeps the M55 violet family. */
+  background: #5f5080;
   border: none;
   border-radius: 9999px;
   cursor: pointer;
   font-family: inherit;
   text-decoration: none;
   box-sizing: border-box;
-  box-shadow: 0 2px 12px rgba(139, 122, 168, 0.2);
+  box-shadow: 0 2px 12px rgba(95, 80, 128, 0.22);
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .coreProfileGatePrimary:hover {
-  background: #7a6a97;
+  background: #4e4169;
   transform: translateY(-1px);
 }
 

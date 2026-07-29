@@ -1,5 +1,6 @@
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import { M55_COMMERCIAL_FENCE } from '../../lib/m55/commercialUx/assetLedger/commercialFence';
+import { M55_COMMERCIAL_TERMINOLOGY } from '../../lib/m55/commercialUx/terminology';
 import {
   freeCoreAlignSteps,
   freeCoreAxisRowsForResult,
@@ -167,7 +168,7 @@ export const STATIC_FREE_TO_PAID_BRIDGE = {
   supportingJa: M55_COMMERCIAL_FENCE.bridgeSupportingJa,
   effortJa: 'あと6問・約1〜2分',
   lockedHeadingsHeadingJa: M55_COMMERCIAL_FENCE.lockedPreviewHeadingJa,
-  primaryCtaJa: 'プレミアムの6問へ進む',
+  primaryCtaJa: M55_COMMERCIAL_TERMINOLOGY.premiumBridgeCta,
   ctaSupportJa: '正解はありません。あとで回答を確認できます。',
   secondaryCtaJa: '無料結果を続けて読む',
   safetyNote:

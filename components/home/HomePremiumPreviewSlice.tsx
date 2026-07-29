@@ -32,7 +32,7 @@ export default function HomePremiumPreviewSlice({ previewLabelJa }: Props) {
             </span>
           ))}
         </div>
-        <h3 className={styles.premiumChapterHeading}>
+        <h3 className={styles.premiumChapterHeading} data-testid="m55-home-premium-headline">
           {fixture.activeChapterRoman} {fixture.activeChapterTitleJa}
         </h3>
         <div className={styles.premiumChapterBodyClip}>

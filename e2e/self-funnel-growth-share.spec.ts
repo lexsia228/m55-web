@@ -254,7 +254,7 @@ test.describe('Self funnel growth share E2E', () => {
 
     const desktopNav = page.locator('header nav[aria-label="メインナビゲーション"]');
     await expect(desktopNav).toBeVisible();
-    await expect(desktopNav.getByText('無料で見る')).toBeVisible();
+    await expect(desktopNav.getByText('無料で見てみる')).toBeVisible();
     await expect(desktopNav.getByText('プレミアムレポート')).toBeVisible();
     await expect(page.getByRole('button', { name: 'メニュー' })).toHaveCount(0);
 
@@ -297,7 +297,7 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await openResult(page);
-    await expect(page.getByTestId('m55-premium-sticky-link')).toHaveText('プレミアムの6問へ進む');
+    await expect(page.getByTestId('m55-premium-sticky-link')).toHaveText('プレミアムの読み解きへ進む');
     await expect(page.getByText('回答から見えた理由')).toBeVisible();
     await expect(page.getByText('6問に答えて4章を作る')).toHaveCount(0);
     await context.close();

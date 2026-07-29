@@ -51,3 +51,12 @@ jobs:
 
       - name: M55 Experience Control Plane v2 enforcement
         run: npm run verify:m55-experience-control-plane
+
+      # Static half of the responsive quality gate: governed viewports, protected
+      # targets, CTA singularity and CI wiring. The measuring half runs in
+      # e2e/commercial-visual-quality.spec.ts against a served build.
+      - name: M55 commercial responsive quality gate
+        run: npm run verify:m55-commercial-visual-quality
+
+      - name: M55 commercial responsive quality broken fixtures
+        run: npm run test:m55-commercial-visual-quality

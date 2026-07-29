@@ -83,6 +83,19 @@
   }
 }
 
+/*
+ * Desktop adaptation. The decision column stayed at roughly 420px from 1024 to
+ * 1440, which read as a phone card centred in an empty navy field. The reading
+ * width now opens up on real desktop widths while the navy stage keeps spanning
+ * the viewport.
+ */
+@media (min-width: 1024px) {
+  [data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'],
+  [data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] {
+    --m55-premium-read-width: 46rem;
+  }
+}
+
 [data-m55-experience-tier='PREMIUM'] .m55-premium-editorial-sheet {
   background: var(--m55-premium-ink-soft);
   border: 1px solid var(--m55-premium-sheet-border);

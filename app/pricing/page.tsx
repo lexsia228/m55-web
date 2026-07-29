@@ -13,7 +13,9 @@ export default function PricingPage() {
   return (
     <PublicShell>
       <main className={`${styles.root} m55-exp-reading`} data-m55-experience-surface="PRODUCT_DECISION">
-        <h1 className={styles.title}>{C.titleJa}</h1>
+        <h1 className={styles.title} data-testid="m55-pricing-headline">
+          {C.titleJa}
+        </h1>
 
         <p className={styles.lead}>
           {C.leadPrefixJa}

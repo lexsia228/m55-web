@@ -34,8 +34,8 @@ const PATTERN_ANALYST = {
 
 describe('commercial language visual UX final — CTA contract', () => {
   it('prohibits construction CTA and requires immediate-action CTA', () => {
-    assert.equal(T.premiumBridgeCta, 'プレミアムの6問へ進む');
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムの6問へ進む');
+    assert.equal(T.premiumBridgeCta, 'プレミアムの読み解きへ進む');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料結果を続けて読む');
     assert.equal(
       STATIC_FREE_TO_PAID_BRIDGE.lockedHeadingsHeadingJa,
