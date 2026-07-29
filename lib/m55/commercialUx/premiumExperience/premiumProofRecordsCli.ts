@@ -47,30 +47,32 @@ for (const missing of snapshot.missing) {
   failures.push(`proof source file missing: ${missing}`);
 }
 
+// The committed run's per-file identities are bound to the evidence on disk, so
+// a same-dimension file from another capture is rejected by name.
+const committedRecord = records.find((r) => r.representsCommittedEvidence);
+const evidence = validatePremiumEvidenceOnDisk(ROOT, {
+  expectedFileIdentities: committedRecord?.evidenceFileIdentities,
+});
+failures.push(...evidence.failures);
+
 if (records.length === RUN_IDS.length) {
   failures.push(
     ...validatePremiumRunRecordPair(records, {
+      root: ROOT,
       expectedSourceSnapshotDigest: snapshot.digest,
+      expectedSourceSnapshotFileCount: snapshot.fileCount,
       expectedManifestDigest: computeManifestDigest(),
+      diskFileIdentities: evidence.fileIdentities,
+      expectedEvidenceIdentityDigest: evidence.evidenceIdentityDigest,
     }),
   );
 }
-
-const evidence = validatePremiumEvidenceOnDisk(ROOT);
-failures.push(...evidence.failures);
 
 if (evidence.registeredStateCount !== PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT) {
   failures.push(`registered states ${evidence.registeredStateCount}, expected ${PREMIUM_EXPERIENCE_REGISTERED_STATE_COUNT}`);
 }
 if (evidence.visualCaptureCount !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT) {
   failures.push(`visual captures ${evidence.visualCaptureCount}, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`);
-}
-for (const record of records) {
-  if (record.evidenceIdentityDigest !== evidence.evidenceIdentityDigest) {
-    failures.push(
-      `${record.runId}: evidenceIdentityDigest does not match the committed evidence on disk`,
-    );
-  }
 }
 
 console.log('M55 Premium proof record validator');
@@ -80,6 +82,8 @@ console.log(
   JSON.stringify(
     {
       records: records.map((r) => r.runId),
+      normalizedReporters: records.map((r) => r.normalizedReporterFile),
+      committedEvidenceRun: committedRecord?.runId ?? null,
       sourceSnapshotDigest: snapshot.digest,
       sourceSnapshotFileCount: snapshot.fileCount,
       registeredStateCount: evidence.registeredStateCount,

@@ -9,7 +9,6 @@ import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  collectConditionalConstStrings,
   createPremiumCompilerHost,
   jsxUsesResolvedSymbol,
   parseImportBindings,
@@ -25,6 +24,16 @@ export type PremiumSurfaceMountHit = {
   boundToCanonicalModule: boolean;
   /** Module the JSX binding actually resolves to. */
   resolvedModule: string | null;
+  /** Source text of the `stateId={…}` expression this mount was resolved from. */
+  stateIdExpression: string;
+  /** False when the expression is open-ended (prop, call, computed access). */
+  stateIdResolved: boolean;
+};
+
+export type StateIdExpressionResolution = {
+  expressionText: string;
+  variants: string[];
+  resolved: boolean;
 };
 
 export type PremiumDataStateHit = {
@@ -49,6 +58,95 @@ function parseSourceFile(root: string, relPath: string): ts.SourceFile {
   return ts.createSourceFile(relPath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 }
 
+const MAX_EXPRESSION_DEPTH = 8;
+
+function collectVariableInitializers(sf: ts.SourceFile): Map<string, ts.Expression[]> {
+  const map = new Map<string, ts.Expression[]>();
+  function visit(node: ts.Node) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      const existing = map.get(node.name.text) ?? [];
+      // A declaration without an initializer is deliberately recorded as a
+      // sentinel so an assigned-later binding resolves as open-ended.
+      existing.push(node.initializer ?? (node.name as unknown as ts.Expression));
+      map.set(node.name.text, existing);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sf);
+  return map;
+}
+
+/**
+ * Resolve the finite set of state ids reachable from one specific JSX
+ * `stateId={…}` expression.
+ *
+ * Only bindings reachable from that exact expression are followed, so an
+ * unrelated variable elsewhere in the same file that happens to contain the
+ * expected state string never satisfies a mount contract.
+ */
+export function resolveStateIdExpression(
+  sf: ts.SourceFile,
+  expression: ts.Expression,
+  initializers: Map<string, ts.Expression[]>,
+  depth = 0,
+  seen: Set<string> = new Set(),
+): StateIdExpressionResolution {
+  const expressionText = expression.getText(sf);
+  const unresolved: StateIdExpressionResolution = { expressionText, variants: [], resolved: false };
+  if (depth > MAX_EXPRESSION_DEPTH) return unresolved;
+
+  if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
+    return { expressionText, variants: [expression.text], resolved: true };
+  }
+  if (
+    ts.isParenthesizedExpression(expression) ||
+    ts.isAsExpression(expression) ||
+    ts.isSatisfiesExpression(expression) ||
+    ts.isNonNullExpression(expression) ||
+    ts.isTypeAssertionExpression(expression)
+  ) {
+    const inner = resolveStateIdExpression(sf, expression.expression, initializers, depth + 1, seen);
+    return { ...inner, expressionText };
+  }
+  if (ts.isConditionalExpression(expression)) {
+    const whenTrue = resolveStateIdExpression(sf, expression.whenTrue, initializers, depth + 1, seen);
+    const whenFalse = resolveStateIdExpression(sf, expression.whenFalse, initializers, depth + 1, seen);
+    return {
+      expressionText,
+      variants: Array.from(new Set([...whenTrue.variants, ...whenFalse.variants])),
+      resolved: whenTrue.resolved && whenFalse.resolved,
+    };
+  }
+  if (
+    ts.isBinaryExpression(expression) &&
+    (expression.operatorToken.kind === ts.SyntaxKind.BarBarToken ||
+      expression.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken)
+  ) {
+    const left = resolveStateIdExpression(sf, expression.left, initializers, depth + 1, seen);
+    const right = resolveStateIdExpression(sf, expression.right, initializers, depth + 1, seen);
+    return {
+      expressionText,
+      variants: Array.from(new Set([...left.variants, ...right.variants])),
+      resolved: left.resolved && right.resolved,
+    };
+  }
+  if (ts.isIdentifier(expression)) {
+    const name = expression.text;
+    if (seen.has(name)) return unresolved;
+    const declarations = initializers.get(name);
+    // Ambiguous or absent declarations (props, params, reassignment) stay open-ended.
+    if (!declarations || declarations.length !== 1) return unresolved;
+    const initializer = declarations[0];
+    if (ts.isIdentifier(initializer) && initializer.text === name) return unresolved;
+    const nextSeen = new Set(seen);
+    nextSeen.add(name);
+    const inner = resolveStateIdExpression(sf, initializer, initializers, depth + 1, nextSeen);
+    return { ...inner, expressionText };
+  }
+
+  return unresolved;
+}
+
 export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumAstInspection {
   const host = createPremiumCompilerHost(root);
   const imports = parseImportBindings(root, relPath, host.options);
@@ -63,43 +161,65 @@ export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumA
     imports,
   });
 
-  const premiumSurfaceMounts: PremiumSurfaceMountHit[] = jsxUsages
-    .filter((u) => u.tagName === 'PremiumExperienceSurface' || u.tagName === 'PremiumDecisionSurface')
-    .flatMap((u) => {
-      if (!u.stateId) return [];
-      const canonical = CANONICAL_SURFACE_MODULES[u.tagName];
-      return [
-        {
-          component: u.tagName,
-          stateId: u.stateId,
-          boundToCanonicalModule: canonical
-            ? jsxUsesResolvedSymbol(proofFor(u.tagName), u.tagName, canonical)
-            : false,
-          resolvedModule: u.binding?.effectiveModule ?? null,
-        },
-      ];
-    });
-
-  // Conditional stateId variants (e.g. `const questionStateId = edit ? A : B`).
+  // Each mount is derived from one concrete JSX element and the state ids
+  // reachable from that element's own `stateId` expression.
   const sf = parseSourceFile(root, relPath);
-  for (const [, variants] of collectConditionalConstStrings(sf)) {
-    for (const variant of variants) {
-      const tag = 'PremiumDecisionSurface';
-      const canonical = CANONICAL_SURFACE_MODULES[tag];
-      const alreadyKnown = premiumSurfaceMounts.some(
-        (m) => m.component === tag && m.stateId === variant,
-      );
-      const usesTag = jsxUsages.some((u) => u.tagName === tag);
-      if (alreadyKnown || !usesTag) continue;
-      const binding = imports.find((i) => i.localName === tag) ?? null;
-      premiumSurfaceMounts.push({
-        component: tag,
-        stateId: variant,
-        boundToCanonicalModule: jsxUsesResolvedSymbol(proofFor(tag), tag, canonical),
-        resolvedModule: binding?.effectiveModule ?? null,
-      });
+  const initializers = collectVariableInitializers(sf);
+  const premiumSurfaceMounts: PremiumSurfaceMountHit[] = [];
+
+  function visitSurfaces(node: ts.Node) {
+    if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+      const tag = ts.isIdentifier(node.tagName) ? node.tagName.text : null;
+      if (tag === 'PremiumExperienceSurface' || tag === 'PremiumDecisionSurface') {
+        const canonical = CANONICAL_SURFACE_MODULES[tag];
+        const bound = canonical ? jsxUsesResolvedSymbol(proofFor(tag), tag, canonical) : false;
+        const resolvedModule = imports.find((i) => i.localName === tag)?.effectiveModule ?? null;
+        const attr = node.attributes.properties.find(
+          (p): p is ts.JsxAttribute => ts.isJsxAttribute(p) && p.name.getText(sf) === 'stateId',
+        );
+
+        let resolution: StateIdExpressionResolution = {
+          expressionText: '(missing)',
+          variants: [],
+          resolved: false,
+        };
+        if (attr?.initializer) {
+          if (ts.isStringLiteral(attr.initializer)) {
+            resolution = {
+              expressionText: attr.initializer.getText(sf),
+              variants: [attr.initializer.text],
+              resolved: true,
+            };
+          } else if (ts.isJsxExpression(attr.initializer) && attr.initializer.expression) {
+            resolution = resolveStateIdExpression(sf, attr.initializer.expression, initializers);
+          }
+        }
+
+        for (const variant of resolution.variants) {
+          premiumSurfaceMounts.push({
+            component: tag,
+            stateId: variant,
+            boundToCanonicalModule: bound,
+            resolvedModule,
+            stateIdExpression: resolution.expressionText,
+            stateIdResolved: resolution.resolved,
+          });
+        }
+        if (resolution.variants.length === 0) {
+          premiumSurfaceMounts.push({
+            component: tag,
+            stateId: '',
+            boundToCanonicalModule: bound,
+            resolvedModule,
+            stateIdExpression: resolution.expressionText,
+            stateIdResolved: false,
+          });
+        }
+      }
     }
+    ts.forEachChild(node, visitSurfaces);
   }
+  visitSurfaces(sf);
 
   const dataPremiumStates: PremiumDataStateHit[] = jsxUsages
     .filter((u) => u.dataPremiumState)
@@ -108,14 +228,27 @@ export function inspectPremiumOwnerFile(root: string, relPath: string): PremiumA
   return { relPath, importedSymbols, imports, premiumSurfaceMounts, dataPremiumStates };
 }
 
+/**
+ * A mount counts only when the canonical module binding holds AND the state id
+ * is reachable from that JSX element's own fully resolved `stateId` expression.
+ */
 export function hasPremiumSurfaceMount(
   inspection: PremiumAstInspection,
   component: 'PremiumExperienceSurface' | 'PremiumDecisionSurface',
   stateId: string,
 ): boolean {
   return inspection.premiumSurfaceMounts.some(
-    (m) => m.component === component && m.stateId === stateId && m.boundToCanonicalModule,
+    (m) =>
+      m.component === component &&
+      m.stateId === stateId &&
+      m.boundToCanonicalModule &&
+      m.stateIdResolved,
   );
+}
+
+/** Surfaces mounted with an open-ended or missing state id expression. */
+export function unresolvedStateIdMounts(inspection: PremiumAstInspection): PremiumSurfaceMountHit[] {
+  return inspection.premiumSurfaceMounts.filter((m) => !m.stateIdResolved);
 }
 
 export function hasDataPremiumState(inspection: PremiumAstInspection, value: string): boolean {

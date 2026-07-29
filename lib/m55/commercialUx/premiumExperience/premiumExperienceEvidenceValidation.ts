@@ -51,7 +51,52 @@ export type EvidenceFileIdentityRecord = {
   contentOk: boolean;
   /** PNG luminance spread / PDF text-operator count, for auditability. */
   contentMetric: number;
+  /** PNG-only content statistics; null for print captures. */
+  meanLuminance: number | null;
+  distinctLuminanceBuckets: number | null;
+  /** PDF-only structure statistics; null for PNG captures. */
+  pdfPageCount: number | null;
+  pdfInflatedContentBytes: number | null;
+  pdfTextShowingOperators: number | null;
 };
+
+/** Fields that must agree byte-for-byte between a run record and the disk. */
+export const EVIDENCE_IDENTITY_BOUND_FIELDS = [
+  'fileName',
+  'captureId',
+  'stateId',
+  'viewport',
+  'expectedRoute',
+  'ownerModule',
+  'ownerSymbol',
+  'visibleContractDigest',
+  'sha256',
+  'byteLength',
+  'width',
+  'height',
+  'decoded',
+  'contentOk',
+  'contentMetric',
+  'meanLuminance',
+  'distinctLuminanceBuckets',
+  'pdfPageCount',
+  'pdfInflatedContentBytes',
+  'pdfTextShowingOperators',
+] as const satisfies readonly (keyof EvidenceFileIdentityRecord)[];
+
+/** Fields that must agree between two runs of the same source (raster excluded). */
+export const EVIDENCE_SEMANTIC_IDENTITY_FIELDS = [
+  'fileName',
+  'captureId',
+  'stateId',
+  'viewport',
+  'expectedRoute',
+  'ownerModule',
+  'ownerSymbol',
+  'visibleContractDigest',
+  'decoded',
+  'contentOk',
+] as const satisfies readonly (keyof EvidenceFileIdentityRecord)[];
 
 export type EvidenceValidationResult = {
   registeredStateCount: number;
@@ -65,6 +110,15 @@ export type EvidenceValidationResult = {
   evidenceIdentityDigest: string;
   purchasedBodyDigests: { fileName: string; sha256: string; byteLength: number }[];
   failures: string[];
+};
+
+export type EvidenceValidationOptions = {
+  /**
+   * Per-file identities recorded by the run that produced the evidence on disk.
+   * When supplied, every bound field must agree exactly, so a same-dimension
+   * file from a different capture is rejected by name.
+   */
+  expectedFileIdentities?: readonly EvidenceFileIdentityRecord[];
 };
 
 function walkPngFiles(dirAbs: string, out: string[] = []): string[] {
@@ -160,7 +214,81 @@ function validateStateCaptureReconciliation(failures: string[]) {
   }
 }
 
-export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationResult {
+/**
+ * Bind a run record's per-file identities to what is actually on disk. Every
+ * bound field must agree, so replacing a required PNG with a same-dimension PNG
+ * from another capture is reported against the exact substituted file.
+ */
+export function bindRecordedIdentitiesToDisk(
+  expected: readonly EvidenceFileIdentityRecord[] | undefined,
+  actual: readonly EvidenceFileIdentityRecord[],
+): string[] {
+  if (!expected) return [];
+  const failures: string[] = [];
+  const actualByName = new Map(actual.map((a) => [a.fileName, a]));
+  const expectedByName = new Map(expected.map((e) => [e.fileName, e]));
+
+  if (expected.length !== actual.length) {
+    failures.push(
+      `recorded evidence identity count ${expected.length} does not match on-disk ${actual.length}`,
+    );
+  }
+
+  for (const record of expected) {
+    const disk = actualByName.get(record.fileName);
+    if (!disk) {
+      failures.push(`recorded evidence file ${record.fileName} is not present on disk`);
+      continue;
+    }
+    for (const field of EVIDENCE_IDENTITY_BOUND_FIELDS) {
+      if (record[field] !== disk[field]) {
+        failures.push(
+          `evidence identity mismatch for ${record.fileName}: ${field} recorded ${JSON.stringify(record[field])}, on disk ${JSON.stringify(disk[field])}`,
+        );
+      }
+    }
+  }
+  for (const disk of actual) {
+    if (!expectedByName.has(disk.fileName)) {
+      failures.push(`on-disk evidence file ${disk.fileName} has no recorded identity`);
+    }
+  }
+
+  return failures;
+}
+
+/** Semantic (raster-independent) identity agreement between two runs. */
+export function compareSemanticEvidenceIdentities(
+  first: readonly EvidenceFileIdentityRecord[],
+  second: readonly EvidenceFileIdentityRecord[],
+): string[] {
+  const failures: string[] = [];
+  const secondByName = new Map(second.map((s) => [s.fileName, s]));
+
+  if (first.length !== second.length) {
+    failures.push(`evidence identity counts differ: ${first.length} vs ${second.length}`);
+  }
+  for (const a of first) {
+    const b = secondByName.get(a.fileName);
+    if (!b) {
+      failures.push(`evidence file ${a.fileName} is absent from the other run`);
+      continue;
+    }
+    for (const field of EVIDENCE_SEMANTIC_IDENTITY_FIELDS) {
+      if (a[field] !== b[field]) {
+        failures.push(
+          `semantic identity mismatch for ${a.fileName}: ${field} ${JSON.stringify(a[field])} vs ${JSON.stringify(b[field])}`,
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+export function validatePremiumEvidenceOnDisk(
+  root: string,
+  options: EvidenceValidationOptions = {},
+): EvidenceValidationResult {
   const failures: string[] = [];
   const evidenceDir = join(root, PREMIUM_EXPERIENCE_EVIDENCE_DIR);
   const expectedPng = PREMIUM_EXPERIENCE_EVIDENCE_PNG_MANIFEST.map((e) => e.fileName);
@@ -201,6 +329,11 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
         decoded: false,
         contentOk: false,
         contentMetric: 0,
+        meanLuminance: null,
+        distinctLuminanceBuckets: null,
+        pdfPageCount: null,
+        pdfInflatedContentBytes: null,
+        pdfTextShowingOperators: null,
       });
       continue;
     }
@@ -241,6 +374,11 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
       decoded: true,
       contentOk: nonBlank,
       contentMetric: identity.luminanceStdDev,
+      meanLuminance: identity.meanLuminance,
+      distinctLuminanceBuckets: identity.distinctLuminanceBuckets,
+      pdfPageCount: null,
+      pdfInflatedContentBytes: null,
+      pdfTextShowingOperators: null,
     });
   }
 
@@ -284,6 +422,11 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
       decoded: true,
       contentOk: notLoadingOnly,
       contentMetric: identity.textShowingOperators,
+      meanLuminance: null,
+      distinctLuminanceBuckets: null,
+      pdfPageCount: identity.pageCount,
+      pdfInflatedContentBytes: identity.inflatedContentBytes,
+      pdfTextShowingOperators: identity.textShowingOperators,
     });
   }
 
@@ -315,6 +458,30 @@ export function validatePremiumEvidenceOnDisk(root: string): EvidenceValidationR
   for (const captureId of manifestCaptureIds) {
     if (!captureCaseById(captureId)) failures.push(`manifest capture ${captureId} has no capture case`);
   }
+
+  // Distinct capture cases represent distinct visual states, so byte-identical
+  // evidence across two capture ids means one file was substituted for another —
+  // this holds even when the recorded SHA was updated to match the wrong file.
+  const byDigest = new Map<string, EvidenceFileIdentityRecord[]>();
+  for (const identity of fileIdentities) {
+    const bucket = byDigest.get(identity.sha256) ?? [];
+    bucket.push(identity);
+    byDigest.set(identity.sha256, bucket);
+  }
+  for (const [digest, bucket] of byDigest) {
+    const captureIds = Array.from(new Set(bucket.map((b) => b.captureId)));
+    if (captureIds.length > 1) {
+      failures.push(
+        `evidence substitution: ${bucket.map((b) => b.fileName).sort().join(' == ')} share sha256 ${digest.slice(0, 12)} across captures ${captureIds.sort().join('/')}`,
+      );
+    } else if (bucket.length > 1) {
+      failures.push(
+        `duplicate evidence raster: ${bucket.map((b) => b.fileName).sort().join(' == ')} for capture ${captureIds[0]}`,
+      );
+    }
+  }
+
+  failures.push(...bindRecordedIdentitiesToDisk(options.expectedFileIdentities, fileIdentities));
 
   const purchasedBodyDigests = fileIdentities
     .filter((d) => d.captureId === 'purchased-report-body')

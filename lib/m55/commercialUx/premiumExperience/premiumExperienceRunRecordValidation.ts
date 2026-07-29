@@ -1,15 +1,30 @@
 /**
  * Pure validation of the durable Premium evidence execution records.
  *
- * Every rule here is a total function over a record object so each failure mode
- * can be exercised directly by a negative fixture instead of being assumed to be
- * covered by the runner.
+ * A record is only accepted when it is corroborated by artifacts that cannot be
+ * hand-written: the committed normalized Playwright reporter (opened, re-digested
+ * and re-derived), the complete proof source snapshot, and — for the run whose
+ * artifacts are committed — the actual evidence files on disk.
+ *
+ * Every rule is a total function over its inputs so each failure mode can be
+ * exercised directly by a negative fixture.
  */
 import {
   PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
   PREMIUM_EXPERIENCE_VIEWPORTS,
   captureCaseById,
 } from './premiumExperienceCaptureModel';
+import {
+  bindRecordedIdentitiesToDisk,
+  compareSemanticEvidenceIdentities,
+  type EvidenceFileIdentityRecord,
+} from './premiumExperienceEvidenceValidation';
+import {
+  deriveReporterFacts,
+  loadNormalizedReporter,
+  PREMIUM_COMMAND_CONTRACT,
+  type NormalizedReporterCaptureEvent,
+} from './premiumExperienceReporterAuthority';
 
 export const PREMIUM_REQUIRED_E2E_TEST_COUNT = 19 as const;
 export const PREMIUM_REQUIRED_PNG_COUNT = 42 as const;
@@ -35,9 +50,13 @@ export type PremiumRunRecord = {
   suite: string;
   runId: string;
   sourceSnapshotDigest: string;
+  sourceSnapshotFileCount: number;
   evidenceManifestDigest: string;
   evidenceIdentityDigest: string;
-  rawReporterDigest: string;
+  /** Path to the committed normalized reporter artifact for this run. */
+  normalizedReporterFile: string;
+  normalizedReporterSha256: string;
+  commandContractKey: string;
   command: string;
   exitCode: number;
   expectedOriginPattern: string;
@@ -48,24 +67,38 @@ export type PremiumRunRecord = {
   skipped: number;
   interrupted: number;
   testTitles: string[];
+  registeredStateCount: number;
+  visualCaptureCount: number;
   pngCount: number;
   pdfCount: number;
   captureRecordCount: number;
   captureEvents: PremiumCaptureEvent[];
+  evidenceFileIdentities: EvidenceFileIdentityRecord[];
+  purchasedBodyDigests: { fileName: string; sha256: string; byteLength: number }[];
   evidenceFailures: string[];
+  /** True for the run whose evidence files are the committed set. */
+  representsCommittedEvidence: boolean;
   finalVerdict: 'PASS' | 'FAIL';
 };
 
 export type RecordValidationOptions = {
+  /** Repository root, used to open the normalized reporter artifacts. */
+  root: string;
   expectedSourceSnapshotDigest: string;
+  expectedSourceSnapshotFileCount: number;
   expectedManifestDigest: string;
+  /** Per-file identities read from the evidence currently on disk. */
+  diskFileIdentities: readonly EvidenceFileIdentityRecord[];
+  expectedEvidenceIdentityDigest: string;
 };
 
 function pushIf(failures: string[], condition: boolean, message: string) {
   if (condition) failures.push(message);
 }
 
-export function validateCaptureEvents(events: readonly PremiumCaptureEvent[]): string[] {
+export function validateCaptureEvents(
+  events: readonly (PremiumCaptureEvent | NormalizedReporterCaptureEvent)[],
+): string[] {
   const failures: string[] = [];
   const originRe = new RegExp(PREMIUM_EXPECTED_ORIGIN_PATTERN);
 
@@ -121,12 +154,167 @@ export function validateCaptureEvents(events: readonly PremiumCaptureEvent[]): s
     }
   }
 
-  const pngCaptureIds = new Set(events.filter((e) => e.kind === 'png').map((e) => e.captureId));
+  const pngCaptureIds = new Set(
+    events.filter((e) => e.kind === 'png').map((e) => e.captureId),
+  );
   pushIf(
     failures,
     pngCaptureIds.size !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
     `capture events cover ${pngCaptureIds.size} capture ids, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`,
   );
+
+  return failures;
+}
+
+/** Every capture event must correspond to a recorded evidence file identity. */
+function validateCaptureToEvidenceBinding(record: PremiumRunRecord): string[] {
+  const failures: string[] = [];
+  const identityByName = new Map(record.evidenceFileIdentities.map((i) => [i.fileName, i]));
+
+  for (const event of record.captureEvents) {
+    const identity = identityByName.get(event.fileName);
+    if (!identity) {
+      failures.push(`capture ${event.captureId} has no evidence identity for ${event.fileName}`);
+      continue;
+    }
+    pushIf(
+      failures,
+      identity.captureId !== event.captureId,
+      `${event.fileName}: capture event says ${event.captureId}, evidence identity says ${identity.captureId}`,
+    );
+    pushIf(
+      failures,
+      identity.stateId !== event.stateId,
+      `${event.fileName}: capture event state ${event.stateId}, evidence identity ${identity.stateId}`,
+    );
+    pushIf(
+      failures,
+      identity.viewport !== event.viewport,
+      `${event.fileName}: capture event viewport ${event.viewport}, evidence identity ${identity.viewport}`,
+    );
+    pushIf(
+      failures,
+      identity.expectedRoute !== event.expectedRoute,
+      `${event.fileName}: capture event route ${event.expectedRoute}, evidence identity ${identity.expectedRoute}`,
+    );
+    pushIf(
+      failures,
+      identity.ownerModule !== event.ownerModule,
+      `${event.fileName}: capture event owner ${event.ownerModule}, evidence identity ${identity.ownerModule}`,
+    );
+    pushIf(
+      failures,
+      identity.visibleContractDigest !== event.visibleContractDigest,
+      `${event.fileName}: capture event contract digest does not match evidence identity`,
+    );
+  }
+
+  for (const identity of record.evidenceFileIdentities) {
+    if (!record.captureEvents.some((e) => e.fileName === identity.fileName)) {
+      failures.push(`evidence file ${identity.fileName} has no emitted capture event`);
+    }
+    if (!identity.decoded || !identity.contentOk) {
+      failures.push(`evidence file ${identity.fileName} recorded as undecoded or blank`);
+    }
+  }
+
+  return failures;
+}
+
+/** Open, re-digest, re-parse and re-derive the committed reporter artifact. */
+function authenticateReporter(record: PremiumRunRecord, root: string): string[] {
+  const failures: string[] = [];
+  const label = record.runId || '(unnamed run)';
+
+  pushIf(
+    failures,
+    !record.normalizedReporterFile ||
+      !record.normalizedReporterFile.endsWith(`reporter-${record.runId}.json`),
+    `${label}: normalizedReporterFile "${record.normalizedReporterFile}" is not the expected artifact path`,
+  );
+  pushIf(
+    failures,
+    !/^[0-9a-f]{64}$/.test(record.normalizedReporterSha256),
+    `${label}: normalizedReporterSha256 is not a sha-256 digest`,
+  );
+  pushIf(
+    failures,
+    !(record.commandContractKey in PREMIUM_COMMAND_CONTRACT),
+    `${label}: commandContractKey ${record.commandContractKey} is not in the frozen command contract`,
+  );
+  if (failures.length > 0) return failures;
+
+  const loaded = loadNormalizedReporter(
+    root,
+    record.normalizedReporterFile,
+    record.normalizedReporterSha256,
+    record.runId,
+    record.commandContractKey,
+    record.command,
+  );
+  if (!loaded.ok) {
+    return loaded.failures.map((f) => `${label}: ${f}`);
+  }
+
+  const derived = deriveReporterFacts(loaded.reporter);
+
+  pushIf(
+    failures,
+    loaded.reporter.exitCode !== record.exitCode,
+    `${label}: reporter exit code ${loaded.reporter.exitCode} does not match record ${record.exitCode}`,
+  );
+  pushIf(
+    failures,
+    derived.passed !== record.passed,
+    `${label}: reporter derives passed ${derived.passed}, record claims ${record.passed}`,
+  );
+  pushIf(
+    failures,
+    derived.failed !== record.failed,
+    `${label}: reporter derives failed ${derived.failed}, record claims ${record.failed}`,
+  );
+  pushIf(
+    failures,
+    derived.skipped !== record.skipped,
+    `${label}: reporter derives skipped ${derived.skipped}, record claims ${record.skipped}`,
+  );
+  pushIf(
+    failures,
+    derived.interrupted !== record.interrupted,
+    `${label}: reporter derives interrupted ${derived.interrupted}, record claims ${record.interrupted}`,
+  );
+  pushIf(
+    failures,
+    derived.testTitles.slice().sort().join('\n') !== record.testTitles.slice().sort().join('\n'),
+    `${label}: reporter test titles do not match the record`,
+  );
+  pushIf(
+    failures,
+    derived.actualOrigins.join(',') !== record.actualOrigins.slice().sort().join(','),
+    `${label}: reporter derives origins ${derived.actualOrigins.join(',')}, record claims ${record.actualOrigins.join(',')}`,
+  );
+  pushIf(
+    failures,
+    derived.captureRecordCount !== record.captureRecordCount,
+    `${label}: reporter derives ${derived.captureRecordCount} capture events, record claims ${record.captureRecordCount}`,
+  );
+  pushIf(
+    failures,
+    derived.captureIds.length !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
+    `${label}: reporter emits ${derived.captureIds.length} capture ids, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`,
+  );
+
+  const reporterKey = (e: NormalizedReporterCaptureEvent | PremiumCaptureEvent) =>
+    `${e.kind}|${e.fileName}|${e.captureId}|${e.stateId}|${e.viewport}|${e.expectedRoute}|${e.ownerModule}|${e.actualOrigin}|${e.actualUrl}|${e.visibleContractDigest}`;
+  const fromReporter = derived.captureEvents.map(reporterKey).sort().join('\n');
+  const fromRecord = record.captureEvents.map(reporterKey).sort().join('\n');
+  pushIf(
+    failures,
+    fromReporter !== fromRecord,
+    `${label}: capture events in the record are not the capture events emitted by the tests`,
+  );
+
+  failures.push(...validateCaptureEvents(derived.captureEvents).map((f) => `${label}: reporter ${f}`));
 
   return failures;
 }
@@ -166,6 +354,16 @@ export function validatePremiumRunRecord(
 
   pushIf(
     failures,
+    record.registeredStateCount !== 12,
+    `${label}: registeredStateCount ${record.registeredStateCount}, expected 12`,
+  );
+  pushIf(
+    failures,
+    record.visualCaptureCount !== PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT,
+    `${label}: visualCaptureCount ${record.visualCaptureCount}, expected ${PREMIUM_EXPERIENCE_VISUAL_CAPTURE_COUNT}`,
+  );
+  pushIf(
+    failures,
     record.pngCount !== PREMIUM_REQUIRED_PNG_COUNT,
     `${label}: pngCount ${record.pngCount}, expected ${PREMIUM_REQUIRED_PNG_COUNT}`,
   );
@@ -184,6 +382,11 @@ export function validatePremiumRunRecord(
     record.captureEvents.length !== record.captureRecordCount,
     `${label}: captureEvents ${record.captureEvents.length} does not match captureRecordCount ${record.captureRecordCount}`,
   );
+  pushIf(
+    failures,
+    record.evidenceFileIdentities.length !== PREMIUM_REQUIRED_CAPTURE_RECORD_COUNT,
+    `${label}: ${record.evidenceFileIdentities.length} evidence identities, expected ${PREMIUM_REQUIRED_CAPTURE_RECORD_COUNT}`,
+  );
 
   pushIf(
     failures,
@@ -192,20 +395,19 @@ export function validatePremiumRunRecord(
   );
   pushIf(
     failures,
-    record.evidenceManifestDigest !== options.expectedManifestDigest,
-    `${label}: evidenceManifestDigest ${record.evidenceManifestDigest} does not match current manifest`,
+    record.sourceSnapshotFileCount !== options.expectedSourceSnapshotFileCount,
+    `${label}: sourceSnapshotFileCount ${record.sourceSnapshotFileCount}, current source set has ${options.expectedSourceSnapshotFileCount}`,
   );
   pushIf(
     failures,
-    !/^[0-9a-f]{64}$/.test(record.rawReporterDigest),
-    `${label}: rawReporterDigest is not a sha-256 digest`,
+    record.evidenceManifestDigest !== options.expectedManifestDigest,
+    `${label}: evidenceManifestDigest ${record.evidenceManifestDigest} does not match current manifest`,
   );
   pushIf(
     failures,
     !/^[0-9a-f]{64}$/.test(record.evidenceIdentityDigest),
     `${label}: evidenceIdentityDigest is not a sha-256 digest`,
   );
-
   pushIf(
     failures,
     record.expectedOriginPattern !== PREMIUM_EXPECTED_ORIGIN_PATTERN,
@@ -227,6 +429,31 @@ export function validatePremiumRunRecord(
 
   pushIf(failures, record.evidenceFailures.length > 0, `${label}: evidence failures ${record.evidenceFailures.join('; ')}`);
   failures.push(...validateCaptureEvents(record.captureEvents).map((f) => `${label}: ${f}`));
+  failures.push(...validateCaptureToEvidenceBinding(record).map((f) => `${label}: ${f}`));
+  failures.push(...authenticateReporter(record, options.root));
+
+  if (record.representsCommittedEvidence) {
+    pushIf(
+      failures,
+      record.evidenceIdentityDigest !== options.expectedEvidenceIdentityDigest,
+      `${label}: evidenceIdentityDigest does not match the evidence currently on disk`,
+    );
+    failures.push(
+      ...bindRecordedIdentitiesToDisk(record.evidenceFileIdentities, options.diskFileIdentities).map(
+        (f) => `${label}: ${f}`,
+      ),
+    );
+  } else {
+    // The earlier run's binaries are not required to remain on disk; its
+    // normalized identity must still agree semantically with what is committed.
+    // Raster equality is neither required nor forbidden — the captures are
+    // deterministic in practice.
+    failures.push(
+      ...compareSemanticEvidenceIdentities(record.evidenceFileIdentities, options.diskFileIdentities).map(
+        (f) => `${label}: ${f}`,
+      ),
+    );
+  }
 
   const expectedVerdict = failures.length === 0 ? 'PASS' : 'FAIL';
   pushIf(
@@ -262,6 +489,18 @@ export function validatePremiumRunRecordPair(
   if (first.runId === second.runId) {
     failures.push(`both execution records share runId ${first.runId}`);
   }
+  if (first.normalizedReporterFile === second.normalizedReporterFile) {
+    failures.push('both execution records reference the same normalized reporter artifact');
+  }
+  if (first.normalizedReporterSha256 === second.normalizedReporterSha256) {
+    failures.push('both execution records reference an identical reporter digest');
+  }
+  const committed = records.filter((r) => r.representsCommittedEvidence);
+  if (committed.length !== 1) {
+    failures.push(
+      `exactly one record must represent the committed evidence, found ${committed.length}`,
+    );
+  }
 
   for (const record of records) {
     failures.push(...validatePremiumRunRecord(record, options));
@@ -272,10 +511,11 @@ export function validatePremiumRunRecordPair(
     first.sourceSnapshotDigest !== second.sourceSnapshotDigest,
     'run-1 and run-2 were produced from different source trees',
   );
-  pushIf(
-    failures,
-    first.evidenceIdentityDigest !== second.evidenceIdentityDigest,
-    'run-1 and run-2 semantic evidence identity differs (captureId/state/route/owner/viewport/contract/dimensions)',
+  failures.push(
+    ...compareSemanticEvidenceIdentities(
+      first.evidenceFileIdentities,
+      second.evidenceFileIdentities,
+    ).map((f) => `run pair: ${f}`),
   );
 
   const identityOf = (record: PremiumRunRecord) =>

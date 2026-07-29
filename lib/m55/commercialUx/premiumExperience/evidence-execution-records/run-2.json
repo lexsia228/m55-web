@@ -1,15 +1,17 @@
 {
   "suite": "premium-experience-evidence",
   "runId": "run-2",
-  "sourceSnapshotDigest": "d2d644f9fd3110fe1ab53bb96d21a3530ff0f6ea93f06e60bf48b82c8ead44d0",
-  "sourceSnapshotFileCount": 34,
+  "sourceSnapshotDigest": "95debd298ec5021b8f7102685e992af4360b426671edeb1d6b75057fe2f9580a",
+  "sourceSnapshotFileCount": 64,
   "evidenceManifestDigest": "59aa0e18d60101ee44ff0185def7e992a35d4e15379036091db8d508997d2e6a",
   "evidenceIdentityDigest": "4f63e8cfbd8c1db430bed7da90e554f605b0cc6b5f3fa542c0053d175447366b",
-  "rawReporterDigest": "74c8b2a793db4a70ee142d5e68b40d3f79e0fed91cb3371ba515987894265e59",
+  "normalizedReporterFile": "lib/m55/commercialUx/premiumExperience/evidence-execution-records/reporter-run-2.json",
+  "normalizedReporterSha256": "f958823a088aa3ff22b4a1ad8e4535a6ed400424b1f9dc5bac60594bccd4139f",
+  "commandContractKey": "premium-experience-evidence.playwright.json",
   "command": "playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
   "exitCode": 0,
-  "startedAt": "2026-07-28T18:20:01.811Z",
-  "endedAt": "2026-07-28T18:21:36.125Z",
+  "startedAt": "2026-07-29T03:47:23.375Z",
+  "endedAt": "2026-07-29T03:48:37.162Z",
   "expectedOriginPattern": "^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$",
   "actualOrigins": [
     "http://127.0.0.1:3000",
@@ -622,13 +624,18 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "ownerSymbol": "CoreFreeToPaidConversionBridge",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
-      "sha256": "8f1ff324ff7f9830c20a13aff5512e6a920fd12c80912febc2b8312c7f03b974",
-      "byteLength": 44733,
+      "sha256": "68da898772092cb3544c6819422566f1aa0639adc254bfcfb07289b5811cf1bb",
+      "byteLength": 44058,
       "width": 390,
       "height": 844,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 80.674
+      "contentMetric": 80.635,
+      "meanLuminance": 198.979,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-bridge-768.png",
@@ -639,13 +646,18 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "ownerSymbol": "CoreFreeToPaidConversionBridge",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
-      "sha256": "dead5ab82db060fe357b80547ad80868302fea683369e2510c7d4f73e373e0f9",
-      "byteLength": 140752,
+      "sha256": "1da5ae669b48b96851035033c2fb9178d7a228ca882c28df9f01974de4818699",
+      "byteLength": 175252,
       "width": 768,
       "height": 1024,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 64.412
+      "contentMetric": 73.274,
+      "meanLuminance": 210.074,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-bridge-1280.png",
@@ -656,13 +668,18 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "ownerSymbol": "CoreFreeToPaidConversionBridge",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
-      "sha256": "f5e1c8abfa3e7c73657cfcbb7ca69297a20fe6c772ee715f78b33c0e7e50184c",
-      "byteLength": 68430,
+      "sha256": "05315e3ae8cf26f6d81e9882d9d64cfea2fadc0c1d1f779263f000cb9aece3b1",
+      "byteLength": 170168,
       "width": 1280,
       "height": 900,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 61.822
+      "contentMetric": 68.223,
+      "meanLuminance": 217.048,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q1-390.png",
@@ -673,13 +690,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
-      "sha256": "0f3d1e68ab3c6f33a6695c60bf72541332c7846860f02f784657df46d4c56229",
-      "byteLength": 101831,
+      "sha256": "d439f104e8d01dccfad61c29fc4a98c5d08c48575be609ade7619aa6984b3e5b",
+      "byteLength": 101820,
       "width": 390,
       "height": 1111,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 85.321
+      "contentMetric": 85.321,
+      "meanLuminance": 183.59,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q1-768.png",
@@ -690,13 +712,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
-      "sha256": "c36a21febd992f20037600c255ad4e2a3e843080f31976451bc8a931efcbfac6",
-      "byteLength": 118099,
+      "sha256": "125a1901c6c976f0d34c8647539a8999097756a6d549b0f9ebd7ddfb69ec73f9",
+      "byteLength": 117856,
       "width": 768,
       "height": 1040,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 89.677
+      "contentMetric": 89.694,
+      "meanLuminance": 187.461,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q1-1280.png",
@@ -707,13 +734,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
-      "sha256": "c931d04ca0e3cdc244440eef3b9eb4de580dcd393bb1122a94d0c431de0740fa",
-      "byteLength": 127470,
+      "sha256": "7b5fb4d021d02cbb2390f4787ac8abb7b61144c2336e4898d61c5fed8c990fc6",
+      "byteLength": 127406,
       "width": 1280,
       "height": 1133,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 83.745
+      "contentMetric": 83.746,
+      "meanLuminance": 202.927,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q5-390.png",
@@ -724,13 +756,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "8d23efbe5489d35ff96e92d64fcda6bac4d2706d5366bd63086bcc898d2a4c47",
-      "sha256": "307388589f17865e22fb114cb66eb51ab3f50ff6789554fb17cc01ad079d94a3",
-      "byteLength": 96415,
+      "sha256": "6957dd76616e8119e6cda02911e9d43288424c8acf4f294021142d4769e63608",
+      "byteLength": 96373,
       "width": 390,
       "height": 964,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 87.313
+      "contentMetric": 87.313,
+      "meanLuminance": 177.222,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q5-768.png",
@@ -741,13 +778,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "8d23efbe5489d35ff96e92d64fcda6bac4d2706d5366bd63086bcc898d2a4c47",
-      "sha256": "671ae5b82a47b1d072c261ba596512f52d1c343d6771b4ba7c91bc92cb6c5351",
-      "byteLength": 103636,
+      "sha256": "baf4066289b8739cb73c2205442c5861fd8653a17524b779677208757af2a027",
+      "byteLength": 103634,
       "width": 768,
       "height": 1024,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 90.199
+      "contentMetric": 90.199,
+      "meanLuminance": 187.293,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q5-1280.png",
@@ -758,13 +800,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "8d23efbe5489d35ff96e92d64fcda6bac4d2706d5366bd63086bcc898d2a4c47",
-      "sha256": "0a3757ea9735917d3e4c7e980b23a512f88154dbd501b352e6420f218aa7421f",
-      "byteLength": 113096,
+      "sha256": "ef45d56a11eeec867ebc8397b4612065b2ed146a4f6a0a64b9f70f937923f822",
+      "byteLength": 113124,
       "width": 1280,
       "height": 1036,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 85.185
+      "contentMetric": 85.173,
+      "meanLuminance": 200.472,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q6-390.png",
@@ -775,13 +822,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "dc46324d5b8727d3d0cef2f729ef7a8eb9c1ba305ab6a0c49ef89ff40d46b566",
-      "sha256": "91443f9f899d3d1485893e7275d5747f2e1c7efc35fb24bedd7e64010edc800a",
-      "byteLength": 100365,
+      "sha256": "c4d011c25d648c8244b6b0d9c13c81551f900993311ceaccdd119940bb96ef0a",
+      "byteLength": 100366,
       "width": 390,
       "height": 1020,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 86.448
+      "contentMetric": 86.448,
+      "meanLuminance": 179.222,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q6-768.png",
@@ -792,13 +844,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "dc46324d5b8727d3d0cef2f729ef7a8eb9c1ba305ab6a0c49ef89ff40d46b566",
-      "sha256": "bde34ff9a8e6ea71d5d22b1ceda5379c47535962c78072a695404b55e60de39c",
-      "byteLength": 105859,
+      "sha256": "98ac839d3af4a27ee1596ca2a8cc56fb9fee9cfdc3cf52a30182e75a0e487775",
+      "byteLength": 105856,
       "width": 768,
       "height": 1024,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 89.869
+      "contentMetric": 89.87,
+      "meanLuminance": 188.322,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-q6-1280.png",
@@ -809,13 +866,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "dc46324d5b8727d3d0cef2f729ef7a8eb9c1ba305ab6a0c49ef89ff40d46b566",
-      "sha256": "d54f493e4c371eecc00a93db5f3fe7514c7c8379b1cf8abc33fb9a7d372592a4",
-      "byteLength": 114769,
+      "sha256": "70fd6b8496e058ac494d1b4b437a5abe294c88dd725b281c2ea94aeeb2691d9d",
+      "byteLength": 114765,
       "width": 1280,
       "height": 1008,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 85.701
+      "contentMetric": 85.696,
+      "meanLuminance": 199.681,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-review-390.png",
@@ -826,13 +888,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "ed1d9d8c6d3c6ff813669ecf0be2b8e0d5761cccb62017e9f23240bd87c22fae",
-      "sha256": "df26262a8aefd43b2879d3a5f5004c764dbbabb68b171d409cbdf9cbbf5e27e4",
-      "byteLength": 108925,
+      "sha256": "17d6af3164894c235c71207e59fa2cc01d66aa74624bf13051959a0b853d87a4",
+      "byteLength": 108921,
       "width": 390,
       "height": 1249,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 87.383
+      "contentMetric": 87.383,
+      "meanLuminance": 181.85,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-review-768.png",
@@ -849,7 +916,12 @@
       "height": 1167,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 87.638
+      "contentMetric": 87.638,
+      "meanLuminance": 192.566,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-review-1280.png",
@@ -866,7 +938,12 @@
       "height": 1260,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 82.422
+      "contentMetric": 82.422,
+      "meanLuminance": 205.492,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-edit-390.png",
@@ -877,13 +954,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "e07d0d56852103e4c07f7d06ab487ced5dc3cbb7f7a1788b121d16f603050556",
-      "sha256": "3fc7bde6700d8db42467ccc25bb6c30c0f21545a1abd6fbcbe1ce2835622a102",
-      "byteLength": 99291,
+      "sha256": "5ba09c0d40f85dee58d319723114061a54b24b8c47d7bb4c533e62b3e0a0ee5f",
+      "byteLength": 99693,
       "width": 390,
       "height": 1111,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 88.984
+      "contentMetric": 88.977,
+      "meanLuminance": 176.872,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-edit-768.png",
@@ -900,7 +982,12 @@
       "height": 1040,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 89.446
+      "contentMetric": 89.446,
+      "meanLuminance": 186.19,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "answer-edit-1280.png",
@@ -911,13 +998,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "e07d0d56852103e4c07f7d06ab487ced5dc3cbb7f7a1788b121d16f603050556",
-      "sha256": "d130060a0dba9c7371c5bcdfc59c5234896bfd1baa49cfe07018a4edcdf4a4bb",
-      "byteLength": 127499,
+      "sha256": "b4acc94d325123b1c3aaf6402a0f1683f1ee3b6e323c27615c67dbdde90cd2c8",
+      "byteLength": 127575,
       "width": 1280,
       "height": 1133,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 83.748
+      "contentMetric": 83.751,
+      "meanLuminance": 202.239,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "plan-selection-390.png",
@@ -928,13 +1020,18 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "ownerSymbol": "DtrPaidPurchasePrep",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
-      "sha256": "5f07708b74fa2ce06190319c7cf9cf7945e4a56109371373165fca80a0537a0d",
-      "byteLength": 138104,
+      "sha256": "08d2355ef0b1671f1bc7d076e6e2fa89daa2d68b87b59873329caea259c80afc",
+      "byteLength": 138114,
       "width": 390,
       "height": 1570,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 85.159
+      "contentMetric": 85.158,
+      "meanLuminance": 188.828,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "plan-selection-768.png",
@@ -951,7 +1048,12 @@
       "height": 1334,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 88.678
+      "contentMetric": 88.678,
+      "meanLuminance": 189.015,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "plan-selection-1280.png",
@@ -968,7 +1070,12 @@
       "height": 1295,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 82.298
+      "contentMetric": 82.298,
+      "meanLuminance": 203.065,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "payment-prep-390.png",
@@ -985,7 +1092,12 @@
       "height": 1176,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 90.347
+      "contentMetric": 90.347,
+      "meanLuminance": 178.505,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "payment-prep-768.png",
@@ -1002,7 +1114,12 @@
       "height": 1024,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 92.084
+      "contentMetric": 92.084,
+      "meanLuminance": 186.728,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "payment-prep-1280.png",
@@ -1019,7 +1136,12 @@
       "height": 1026,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 87.324
+      "contentMetric": 87.324,
+      "meanLuminance": 200.791,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-landing-390.png",
@@ -1030,13 +1152,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
-      "sha256": "cd3c460d569467d19547b4b6050bc78871e2f12f8b0f15971aac0db0d2657ffe",
-      "byteLength": 380590,
+      "sha256": "13fb1e755c030ca89ed49eefb399ef5cc7d0965d945f3379ea27fb25cfb7401e",
+      "byteLength": 388683,
       "width": 390,
       "height": 1605,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 37.021
+      "contentMetric": 37.066,
+      "meanLuminance": 36.094,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-landing-768.png",
@@ -1047,13 +1174,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
-      "sha256": "1e4b97e5d56f28d43ebf69f5747f62d752710d0a539d277ed57cc24f6b7717f3",
-      "byteLength": 623056,
+      "sha256": "be73f27a0923861d6aee43b7a8d054b7e816de19f32718c9c5d399e7fb833870",
+      "byteLength": 610115,
       "width": 768,
       "height": 1546,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 30.724
+      "contentMetric": 30.73,
+      "meanLuminance": 32.503,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-landing-1280.png",
@@ -1064,13 +1196,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
-      "sha256": "25de4f5631a073654fb59d591b39297db397377c3244a4dbbe801e412d8cf186",
-      "byteLength": 703894,
+      "sha256": "0422dc0ccfc161fb87d6d7aac2d4c66f31d2a352d86baa2f77fb7790a402c2ef",
+      "byteLength": 688814,
       "width": 1280,
       "height": 1539,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 25.545
+      "contentMetric": 25.478,
+      "meanLuminance": 26.263,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-body-390.png",
@@ -1081,13 +1218,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
-      "sha256": "1f5cba5dce4acae51dca9cb6e60f4117344afaea48549be3b37c286e86ad38e8",
-      "byteLength": 458606,
+      "sha256": "88fc8060fcb8acce18ec02890049626789238ce92ded16ad74f932990d46c484",
+      "byteLength": 456080,
       "width": 340,
       "height": 3974,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 37.726
+      "contentMetric": 36.416,
+      "meanLuminance": 32.751,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-body-768.png",
@@ -1098,13 +1240,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
-      "sha256": "cea23ff1a2e47ac5cdd56c32f188957fe645402742173e537ab9162c97903e8f",
-      "byteLength": 486842,
+      "sha256": "47d2f68e897c99468f1a47918929e769035f5d9db09632b75b35af0a20c2374a",
+      "byteLength": 486852,
       "width": 710,
       "height": 3120,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 32.476
+      "contentMetric": 32.477,
+      "meanLuminance": 29.823,
+      "distinctLuminanceBuckets": 15,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "purchased-report-body-1280.png",
@@ -1115,13 +1262,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
-      "sha256": "df6404a2cad4d3fa7959c4789b18419459a94c159fab368c53fab07304eb4aae",
-      "byteLength": 501013,
+      "sha256": "7df84666694aaffd19897debc1ffc4b2439bca4c5fcbcfcf9c63af39e77695fa",
+      "byteLength": 489656,
       "width": 862,
       "height": 3054,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 29.67
+      "contentMetric": 30.174,
+      "meanLuminance": 28.846,
+      "distinctLuminanceBuckets": 15,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-input-390.png",
@@ -1132,13 +1284,18 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "ownerSymbol": "ConsultRoom",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
-      "sha256": "52794e63968424ea2009f5b44fc8860d311be8419eaf165018826058c7053bf5",
-      "byteLength": 666395,
+      "sha256": "35af3d4178eb2ba0367f9cd0357730c06356accf0a0ad0fe62382836e041705c",
+      "byteLength": 686299,
       "width": 390,
       "height": 3663,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 33.549
+      "contentMetric": 33.564,
+      "meanLuminance": 34.652,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-input-768.png",
@@ -1149,13 +1306,18 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "ownerSymbol": "ConsultRoom",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
-      "sha256": "4f1fe34d539f4325bf4990ae7c2012cfd7632280ef988498f64f06ab0fa912ea",
-      "byteLength": 965389,
+      "sha256": "5cce1fb0b96da4d1a7a0c96db4f6f49808d7111bd7c3e6400a0afdb28a1a7fef",
+      "byteLength": 965283,
       "width": 768,
       "height": 3295,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 28.269
+      "contentMetric": 28.26,
+      "meanLuminance": 31.789,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-input-1280.png",
@@ -1166,13 +1328,18 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "ownerSymbol": "ConsultRoom",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
-      "sha256": "f2e83fc2d44141d21e9d6113aaa7e9d1eae225d92b68949888b6182b9da2e754",
-      "byteLength": 1065976,
+      "sha256": "54949579966f66f331617c6e41bbb903acee0153275e4726273982ce035d7cea",
+      "byteLength": 1065971,
       "width": 1280,
       "height": 3278,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 23.746
+      "contentMetric": 23.746,
+      "meanLuminance": 25.69,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-result-390.png",
@@ -1183,13 +1350,18 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "ownerSymbol": "ConsultReplyCard",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
-      "sha256": "e2ed6e8ba2077c17feba9965251e9b9cade13dc25bf5e1dec0fa7db897a59d87",
-      "byteLength": 720149,
+      "sha256": "8d191ae5a7283c43b887b57f0a4c89b6f180ae6ff40f4017750bb53e87924f95",
+      "byteLength": 721182,
       "width": 390,
       "height": 4012,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 33.157
+      "contentMetric": 33.167,
+      "meanLuminance": 33.916,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-result-768.png",
@@ -1200,13 +1372,18 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "ownerSymbol": "ConsultReplyCard",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
-      "sha256": "7757da012a2b05d68834adea041f983c7dfc3908e00245c096f1e27eb86a4ad5",
-      "byteLength": 1048950,
+      "sha256": "0d280f9f2b99c28ddb6f5226f31eeb63d1d062c36334b166a6c331d680f34851",
+      "byteLength": 1047562,
       "width": 768,
       "height": 3634,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 27.825
+      "contentMetric": 27.829,
+      "meanLuminance": 31.154,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "additional-reading-result-1280.png",
@@ -1217,13 +1394,18 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "ownerSymbol": "ConsultReplyCard",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
-      "sha256": "f1cc5ad74ecb022b7ecf824080c5b649705248d873f6ffe41c986abec3c5ae1c",
-      "byteLength": 1104259,
+      "sha256": "40a29d30d6a738fe4ef2f09a49badb0e17e542de50f4a0451bb12736b4d874f9",
+      "byteLength": 1160685,
       "width": 1280,
       "height": 3617,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 23.159
+      "contentMetric": 23.249,
+      "meanLuminance": 25.349,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "saved-premium-reopen-390.png",
@@ -1234,13 +1416,18 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "ownerSymbol": "SavedSnapshotNotice",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
-      "sha256": "4aee2d186d46933af58eb4127131791eb490df574ff959e83b61ec98e2d85012",
-      "byteLength": 392101,
+      "sha256": "3bb07ab322a5457b472dce1911b3af2bd05de129da6e74a198ff1cd2c6ff9331",
+      "byteLength": 387363,
       "width": 390,
       "height": 1605,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 37.007
+      "contentMetric": 37.072,
+      "meanLuminance": 36.062,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "saved-premium-reopen-768.png",
@@ -1251,13 +1438,18 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "ownerSymbol": "SavedSnapshotNotice",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
-      "sha256": "51d0cb1493233e659d060a545b2bb3cb0bf8271dd9490be9ab53db5a5c0e2aed",
-      "byteLength": 616820,
+      "sha256": "e4abbe110d58735b831c86698db3cb5df99bb829eebdfc8e9ee395e2388b1550",
+      "byteLength": 621455,
       "width": 768,
       "height": 1546,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 30.83
+      "contentMetric": 30.877,
+      "meanLuminance": 32.789,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "saved-premium-reopen-1280.png",
@@ -1268,13 +1460,18 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "ownerSymbol": "SavedSnapshotNotice",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
-      "sha256": "0664f90b9e867551cefea01d51195f6a71959b73624d4da555899df4259fdf04",
-      "byteLength": 712000,
+      "sha256": "ad4b49514dbc8372ad860e9958e9ef6f83dc1c420a65ea7481e7ab23e8027b08",
+      "byteLength": 709385,
       "width": 1280,
       "height": 1539,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 25.409
+      "contentMetric": 25.517,
+      "meanLuminance": 26.449,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-share-card-390.png",
@@ -1291,7 +1488,12 @@
       "height": 844,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 31.255
+      "contentMetric": 31.255,
+      "meanLuminance": 242.871,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-share-card-768.png",
@@ -1302,13 +1504,18 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "ownerSymbol": "CorePremiumResultShareCTA",
       "visibleContractDigest": "9ee47ffd69a4138772652961f36724f624b87a749349eb50df1a7be3dabc8403",
-      "sha256": "a07b46991abb026b32f9ef31d9941e745b6f5aa44c4b23305c9d33081587dbe2",
-      "byteLength": 147546,
+      "sha256": "7a23b291a1f21a265a8901a04e33a20cbdc6186c9bebc7d18a6d84be2f4acf7a",
+      "byteLength": 147221,
       "width": 768,
       "height": 1024,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 22.323
+      "contentMetric": 22.409,
+      "meanLuminance": 249.022,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "premium-share-card-1280.png",
@@ -1319,13 +1526,18 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "ownerSymbol": "CorePremiumResultShareCTA",
       "visibleContractDigest": "9ee47ffd69a4138772652961f36724f624b87a749349eb50df1a7be3dabc8403",
-      "sha256": "c3de050fa1a15307f411e6b7393ef300c2e205836465406564c3bb75d1fec02a",
-      "byteLength": 186671,
+      "sha256": "f70d73a6f5f28dba0ad7fc673b74552ecdc59ddffa3865ad82f66c1c5114e10e",
+      "byteLength": 186326,
       "width": 1280,
       "height": 900,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 18.882
+      "contentMetric": 18.913,
+      "meanLuminance": 249.624,
+      "distinctLuminanceBuckets": 16,
+      "pdfPageCount": null,
+      "pdfInflatedContentBytes": null,
+      "pdfTextShowingOperators": null
     },
     {
       "fileName": "pdf/answer-review.pdf",
@@ -1336,13 +1548,18 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "ownerSymbol": "DtrPaidQuestionnaireLayer",
       "visibleContractDigest": "ed1d9d8c6d3c6ff813669ecf0be2b8e0d5761cccb62017e9f23240bd87c22fae",
-      "sha256": "a73a6f0a67becc62028050b99976c9296f955d5d15d9d81a07e2ee1b6f848a2e",
+      "sha256": "5be53414add18d1b5f1a8fffd1831f04157e088d60347f8d6c842a2ed2b77883",
       "byteLength": 279119,
       "width": null,
       "height": null,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 156
+      "contentMetric": 156,
+      "meanLuminance": null,
+      "distinctLuminanceBuckets": null,
+      "pdfPageCount": 2,
+      "pdfInflatedContentBytes": 192462,
+      "pdfTextShowingOperators": 156
     },
     {
       "fileName": "pdf/plan-selection.pdf",
@@ -1353,13 +1570,18 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "ownerSymbol": "DtrPaidPurchasePrep",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
-      "sha256": "dc84ab21cb32fdc38d73d9d1a1089f9aa5b96d5b30283ce84f54800c2268fb48",
+      "sha256": "409b153d5589bba0dd2c957608c68bf4a4cdb8e0f24c0bcaca021c4672fe0380",
       "byteLength": 406409,
       "width": null,
       "height": null,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 329
+      "contentMetric": 329,
+      "meanLuminance": null,
+      "distinctLuminanceBuckets": null,
+      "pdfPageCount": 2,
+      "pdfInflatedContentBytes": 256294,
+      "pdfTextShowingOperators": 329
     },
     {
       "fileName": "pdf/payment-prep.pdf",
@@ -1370,13 +1592,18 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "ownerSymbol": "DtrPaidPurchasePrep",
       "visibleContractDigest": "7adea16816948fec85948b7d1dd324c7dbd20d02137b4f0302262f9bff937af4",
-      "sha256": "8bf23c1b49c907a3105d691ae455af15ad3c257c1577f998ce6093beb76942ef",
+      "sha256": "99cedd294cca0e6173966fee2ac22ec2d6b9e738bfc2d7d133771139635bb9a4",
       "byteLength": 200166,
       "width": null,
       "height": null,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 125
+      "contentMetric": 125,
+      "meanLuminance": null,
+      "distinctLuminanceBuckets": null,
+      "pdfPageCount": 1,
+      "pdfInflatedContentBytes": 119468,
+      "pdfTextShowingOperators": 125
     },
     {
       "fileName": "pdf/purchased-report.pdf",
@@ -1387,13 +1614,18 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "ownerSymbol": "DtrFullReader",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
-      "sha256": "37287b3a756f83b9ea7cfe9c8ec0b01cb215e30a21b0d7edbd67ae9f77f5d70f",
+      "sha256": "26b5beebdc7ee8c377187779fa284bc558527a14ba4111fff8576fd82c01e1dc",
       "byteLength": 2064885,
       "width": null,
       "height": null,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 523
+      "contentMetric": 523,
+      "meanLuminance": null,
+      "distinctLuminanceBuckets": null,
+      "pdfPageCount": 2,
+      "pdfInflatedContentBytes": 38031422,
+      "pdfTextShowingOperators": 523
     },
     {
       "fileName": "pdf/additional-reading-result.pdf",
@@ -1404,32 +1636,38 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "ownerSymbol": "ConsultReplyCard",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
-      "sha256": "f7ade6e3becd4c14c412f8aa9eb6b822b0ea44a735206839846d2ab68c260027",
-      "byteLength": 3454657,
+      "sha256": "ba505e681c4ff66ed14a2a2f6c013f6f2e344eb07de29c8bdb16fc388f65b62f",
+      "byteLength": 3056217,
       "width": null,
       "height": null,
       "decoded": true,
       "contentOk": true,
-      "contentMetric": 1210
+      "contentMetric": 1210,
+      "meanLuminance": null,
+      "distinctLuminanceBuckets": null,
+      "pdfPageCount": 3,
+      "pdfInflatedContentBytes": 47968743,
+      "pdfTextShowingOperators": 1210
     }
   ],
   "purchasedBodyDigests": [
     {
       "fileName": "purchased-report-body-390.png",
-      "sha256": "1f5cba5dce4acae51dca9cb6e60f4117344afaea48549be3b37c286e86ad38e8",
-      "byteLength": 458606
+      "sha256": "88fc8060fcb8acce18ec02890049626789238ce92ded16ad74f932990d46c484",
+      "byteLength": 456080
     },
     {
       "fileName": "purchased-report-body-768.png",
-      "sha256": "cea23ff1a2e47ac5cdd56c32f188957fe645402742173e537ab9162c97903e8f",
-      "byteLength": 486842
+      "sha256": "47d2f68e897c99468f1a47918929e769035f5d9db09632b75b35af0a20c2374a",
+      "byteLength": 486852
     },
     {
       "fileName": "purchased-report-body-1280.png",
-      "sha256": "df6404a2cad4d3fa7959c4789b18419459a94c159fab368c53fab07304eb4aae",
-      "byteLength": 501013
+      "sha256": "7df84666694aaffd19897debc1ffc4b2439bca4c5fcbcfcf9c63af39e77695fa",
+      "byteLength": 489656
     }
   ],
   "evidenceFailures": [],
+  "representsCommittedEvidence": true,
   "finalVerdict": "PASS"
 }
