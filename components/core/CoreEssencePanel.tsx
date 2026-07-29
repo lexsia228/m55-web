@@ -50,6 +50,7 @@ import {
   resolveSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
+import CoreMethodCompact from './CoreMethodCompact';
 import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
 import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
@@ -654,6 +655,12 @@ export default function CoreEssencePanel() {
               {shareCard ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
                   <CoreFreeResultShareCTA card={shareCard} />
+                </div>
+              ) : null}
+
+              {depthAnalysis ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CoreMethodCompact />
                 </div>
               ) : null}
 

@@ -92,6 +92,7 @@ import {
   M55_FUNNEL_EVENTS,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import DtrMethodReportNote from './DtrMethodReportNote';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -622,7 +623,9 @@ function DrawerChapterPersonalLead({
   const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   return (
     <div className={styles.drawerChapterPersonalLead}>
-      <h2 className={styles.chapterPersonalHeading}>{heading}</h2>
+      <h2 className={styles.chapterPersonalHeading} data-testid="m55-report-chapter-heading">
+        {heading}
+      </h2>
       <ChapterOpeningLede text={tendencyLine} />
       {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
       <ChapterOpeningLede text={copy.lifeJa} />
@@ -3165,6 +3168,7 @@ function DtrFullReaderCore({
               data-testid="m55-purchased-report-body"
             >
               <div className={styles.savedWideStack}>
+                <DtrMethodReportNote />
                 <ReportPartBand partId="1" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
                   <DrawerChapterPersonalLead

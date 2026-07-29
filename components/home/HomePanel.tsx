@@ -25,6 +25,7 @@ import HomePairFreeSection from './HomePairFreeSection';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
 import HomePremiumValueBridge from './HomePremiumValueBridge';
 import HomeEditorialHeadline from './HomeEditorialHeadline';
+import HomeMethodModel from './HomeMethodModel';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
 import HomePrintSummary from './HomePrintSummary';
@@ -328,6 +329,11 @@ export default function HomePanel() {
             </Link>
           </nav>
         </section>
+
+        {/* §4b — Method model: composition frame before the Premium comparison */}
+        <div className={styles.methodModelStage}>
+          <HomeMethodModel />
+        </div>
 
         {/* §5 — Premium (preview + plan merged) */}
         <section

@@ -1,0 +1,209 @@
+/*
+ * Shared presentation for every M55 method placement. One owner keeps the four
+ * placements visually consistent and keeps method styling out of page-wide
+ * backgrounds. Card-level only.
+ */
+
+.methodBlock {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: clamp(16px, 3.4vw, 26px) clamp(14px, 3vw, 24px);
+  border-radius: 16px;
+  border: 1px solid rgba(107, 95, 168, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.methodBlockQuiet {
+  border-color: rgba(107, 95, 168, 0.14);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.methodEyebrow {
+  margin: 0 0 6px;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  color: rgba(74, 62, 112, 0.86);
+  overflow-wrap: anywhere;
+}
+
+.methodHeading {
+  margin: 0 0 clamp(8px, 1.6vw, 12px);
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(16px, 3.6vw, 20px);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: #1f1b33;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.methodLead {
+  margin: 0 0 clamp(10px, 2vw, 14px);
+  font-size: clamp(13px, 2.8vw, 15px);
+  line-height: 1.8;
+  color: rgba(45, 40, 70, 0.84);
+  overflow-wrap: anywhere;
+}
+
+.methodSteps {
+  display: grid;
+  gap: clamp(8px, 1.8vw, 12px);
+  margin: 0 0 clamp(10px, 2vw, 14px);
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.methodStep {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 0.6rem;
+  align-items: start;
+  min-width: 0;
+}
+
+.methodStepOrder {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.7;
+  color: rgba(107, 95, 168, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.methodStepBody {
+  min-width: 0;
+}
+
+.methodStepTitle {
+  margin: 0 0 2px;
+  font-size: clamp(13px, 2.8vw, 15px);
+  font-weight: 600;
+  line-height: 1.65;
+  color: #201c34;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.methodStepText {
+  margin: 0;
+  font-size: clamp(12px, 2.6vw, 14px);
+  line-height: 1.75;
+  color: rgba(45, 40, 70, 0.78);
+  overflow-wrap: anywhere;
+}
+
+.methodDifference {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(8px, 1.8vw, 12px);
+  margin: 0 0 clamp(10px, 2vw, 14px);
+}
+
+@media (min-width: 768px) {
+  .methodDifference {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.methodDifferenceCell {
+  padding: clamp(10px, 2vw, 14px) clamp(10px, 2vw, 14px);
+  border-radius: 12px;
+  background: rgba(107, 95, 168, 0.07);
+  min-width: 0;
+}
+
+.methodDifferenceLabel {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: rgba(74, 62, 112, 0.9);
+}
+
+.methodDifferenceText {
+  margin: 0;
+  font-size: clamp(12px, 2.6vw, 14px);
+  line-height: 1.75;
+  color: rgba(45, 40, 70, 0.8);
+  overflow-wrap: anywhere;
+}
+
+.methodBoundary {
+  margin: 0 0 clamp(8px, 1.6vw, 12px);
+  font-size: clamp(11px, 2.4vw, 13px);
+  line-height: 1.7;
+  color: rgba(45, 40, 70, 0.7);
+  overflow-wrap: anywhere;
+}
+
+.methodLink {
+  display: inline-block;
+  font-size: clamp(12px, 2.6vw, 14px);
+  line-height: 1.7;
+  color: #5f5080;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  border-radius: 4px;
+}
+
+.methodLink:focus-visible {
+  outline: 2px solid #5f5080;
+  outline-offset: 3px;
+}
+
+/* Dark surfaces (Premium bands) invert the card treatment only. */
+.methodBlockOnDark {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.methodBlockOnDark .methodEyebrow {
+  color: rgba(232, 226, 248, 0.9);
+}
+
+.methodBlockOnDark .methodHeading,
+.methodBlockOnDark .methodStepTitle {
+  color: #f6f4fb;
+}
+
+.methodBlockOnDark .methodLead,
+.methodBlockOnDark .methodStepText,
+.methodBlockOnDark .methodDifferenceText {
+  color: rgba(240, 237, 249, 0.86);
+}
+
+.methodBlockOnDark .methodStepOrder,
+.methodBlockOnDark .methodDifferenceLabel {
+  color: rgba(214, 205, 245, 0.95);
+}
+
+.methodBlockOnDark .methodDifferenceCell {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.methodBlockOnDark .methodBoundary {
+  color: rgba(232, 228, 245, 0.74);
+}
+
+.methodBlockOnDark .methodLink {
+  color: #d9d0ff;
+}
+
+.methodBlockOnDark .methodLink:focus-visible {
+  outline-color: #d9d0ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .methodBlock,
+  .methodLink {
+    transition: none;
+  }
+}

@@ -24,6 +24,7 @@ import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import PremiumExperienceSync from '../shell/PremiumExperienceSync';
 import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
 import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
+import DtrMethodDifference from './DtrMethodDifference';
 import styles from './DtrPaidDecisionUx.module.css';
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
@@ -180,6 +181,9 @@ export default function DtrPaidPurchasePrep() {
         {C.planTitleJa}
       </h3>
       <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
+      <div className={styles.planMethodSlot}>
+        <DtrMethodDifference />
+      </div>
       <div className={styles.planCompare} data-testid="m55-plan-compare">
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>

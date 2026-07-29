@@ -1,29 +1,30 @@
 import Link from 'next/link';
+import { M55_METHOD_CANONICAL_ROUTE } from '../../lib/m55/method/m55MethodAuthority';
 import styles from './PublicFooter.module.css';
 
 const PRODUCT_GROUP = [
-  { label: 'M55の仕組み', href: '/how-m55-works' },
-  { label: '10の資質', href: '/ten-views' },
-  { label: 'プレミアムレポート', href: '/dtr/lp' },
+  { label: 'M55の仕組み', href: M55_METHOD_CANONICAL_ROUTE, testId: 'm55-method-footer-link' },
+  { label: '10の資質', href: '/ten-views', testId: undefined },
+  { label: 'プレミアムレポート', href: '/dtr/lp', testId: undefined },
 ] as const;
 
 const SUPPORT_LEGAL_GROUP = [
-  { label: 'サポート', href: '/support' },
-  { label: '返金', href: '/legal/refund' },
-  { label: '利用規約', href: '/legal/terms' },
-  { label: 'プライバシーポリシー', href: '/legal/privacy' },
-  { label: '特定商取引法に基づく表記', href: '/legal/tokushoho' },
+  { label: 'サポート', href: '/support', testId: undefined },
+  { label: '返金', href: '/legal/refund', testId: undefined },
+  { label: '利用規約', href: '/legal/terms', testId: undefined },
+  { label: 'プライバシーポリシー', href: '/legal/privacy', testId: undefined },
+  { label: '特定商取引法に基づく表記', href: '/legal/tokushoho', testId: undefined },
 ] as const;
 
 function FooterLinkRow({
   items,
 }: {
-  items: readonly { label: string; href: string }[];
+  items: readonly { label: string; href: string; testId?: string }[];
 }) {
   return (
     <div className={styles.linkRow}>
       {items.map((item) => (
-        <Link key={item.href} href={item.href} className={styles.link}>
+        <Link key={item.href} href={item.href} className={styles.link} data-testid={item.testId}>
           {item.label}
         </Link>
       ))}

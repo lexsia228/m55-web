@@ -8,6 +8,7 @@ import { SuitableForSection } from './components/suitable-for-section';
 import { WhatYouCanDoSection } from './components/what-you-can-do-section';
 import { ValuesBoundarySection } from './components/values-boundary-section';
 import { NextStepSection } from './components/next-step-section';
+import M55MethodSections from '../../components/pages/M55MethodSections';
 import styles from './how-it-works.module.css';
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function HowM55WorksPage() {
       <div className={`${styles.page} m55-exp-reading`} data-m55-experience-surface="PUBLIC_EDITORIAL">
         <IntroSection />
         <WhatIsSection />
+        <M55MethodSections />
         <CalendarLayersSection />
         <FrameworkSection />
         <WhatYouCanDoSection />

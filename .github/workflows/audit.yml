@@ -60,3 +60,11 @@ jobs:
 
       - name: M55 commercial responsive quality broken fixtures
         run: npm run test:m55-commercial-visual-quality
+
+      # Rejects authority M55 does not hold, internal vocabulary reaching a
+      # reader, a competing method route, and missing method placements.
+      - name: M55 method and authority gate
+        run: npm run verify:m55-method-authority
+
+      - name: M55 method and authority negative fixtures
+        run: npm run test:m55-method-authority

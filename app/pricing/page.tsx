@@ -3,6 +3,7 @@ import { PLAN_COMPARISON } from '../../lib/m55/commercialUx/planComparison';
 import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
 import { PRODUCT_PRICING_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/productPricingCopy';
 import Link from 'next/link';
+import M55MethodTrustLink from '../../components/pages/M55MethodTrustLink';
 import styles from './pricing.module.css';
 
 export const metadata = { title: '料金とプラン | M55' };
@@ -58,6 +59,8 @@ export default function PricingPage() {
             <p className={styles.planAudience}>{plan.full.audienceJa}</p>
           </article>
         </section>
+
+        <M55MethodTrustLink />
 
         <section className={styles.upgradeSection}>
           <h2 className={styles.sectionTitle}>{C.upgradeHeadingJa}</h2>

@@ -4,8 +4,8 @@
   "commandContractKey": "premium-experience-evidence.playwright.json",
   "command": "playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
   "exitCode": 0,
-  "startedAt": "2026-07-29T06:37:38.828Z",
-  "endedAt": "2026-07-29T06:38:35.127Z",
+  "startedAt": "2026-07-29T07:15:39.127Z",
+  "endedAt": "2026-07-29T07:16:21.191Z",
   "stats": {
     "expected": 19,
     "unexpected": 0,
@@ -20,7 +20,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5925,
+      "durationMs": 4711,
       "viewport": "390"
     },
     {
@@ -29,7 +29,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5350,
+      "durationMs": 3909,
       "viewport": "768"
     },
     {
@@ -38,7 +38,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5002,
+      "durationMs": 4831,
       "viewport": "1280"
     },
     {
@@ -47,7 +47,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1011,
+      "durationMs": 655,
       "viewport": "390"
     },
     {
@@ -56,7 +56,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 655,
+      "durationMs": 654,
       "viewport": "768"
     },
     {
@@ -65,7 +65,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1981,
+      "durationMs": 966,
       "viewport": "1280"
     },
     {
@@ -74,7 +74,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3563,
+      "durationMs": 1837,
       "viewport": "390"
     },
     {
@@ -83,7 +83,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3674,
+      "durationMs": 2087,
       "viewport": "768"
     },
     {
@@ -92,7 +92,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2123,
+      "durationMs": 2129,
       "viewport": "1280"
     },
     {
@@ -101,7 +101,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1315,
+      "durationMs": 1376,
       "viewport": "390"
     },
     {
@@ -110,7 +110,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1385,
+      "durationMs": 1402,
       "viewport": "768"
     },
     {
@@ -119,7 +119,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1484,
+      "durationMs": 1528,
       "viewport": "1280"
     },
     {
@@ -128,7 +128,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3351,
+      "durationMs": 1368,
       "viewport": "390"
     },
     {
@@ -137,7 +137,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1537,
+      "durationMs": 1406,
       "viewport": "768"
     },
     {
@@ -146,7 +146,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1539,
+      "durationMs": 1521,
       "viewport": "1280"
     },
     {
@@ -155,7 +155,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 737,
+      "durationMs": 754,
       "viewport": "390"
     },
     {
@@ -164,7 +164,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1839,
+      "durationMs": 961,
       "viewport": "768"
     },
     {
@@ -173,7 +173,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1928,
+      "durationMs": 853,
       "viewport": "1280"
     },
     {
@@ -182,7 +182,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 10299,
+      "durationMs": 7717,
       "viewport": "1280"
     }
   ],
@@ -198,7 +198,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
       "fileName": "premium-bridge-390.png",
-      "byteLength": 43986,
+      "byteLength": 43500,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -212,7 +212,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
       "fileName": "premium-q1-390.png",
-      "byteLength": 101769,
+      "byteLength": 101831,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -226,7 +226,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "8d23efbe5489d35ff96e92d64fcda6bac4d2706d5366bd63086bcc898d2a4c47",
       "fileName": "premium-q5-390.png",
-      "byteLength": 96390,
+      "byteLength": 96392,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -240,7 +240,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "dc46324d5b8727d3d0cef2f729ef7a8eb9c1ba305ab6a0c49ef89ff40d46b566",
       "fileName": "premium-q6-390.png",
-      "byteLength": 100358,
+      "byteLength": 100360,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -254,7 +254,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ed1d9d8c6d3c6ff813669ecf0be2b8e0d5761cccb62017e9f23240bd87c22fae",
       "fileName": "answer-review-390.png",
-      "byteLength": 108919,
+      "byteLength": 108923,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -268,7 +268,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "e07d0d56852103e4c07f7d06ab487ced5dc3cbb7f7a1788b121d16f603050556",
       "fileName": "answer-edit-390.png",
-      "byteLength": 99823,
+      "byteLength": 99822,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -282,7 +282,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
       "fileName": "plan-selection-390.png",
-      "byteLength": 178528,
+      "byteLength": 225232,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -310,7 +310,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
       "fileName": "premium-bridge-768.png",
-      "byteLength": 59607,
+      "byteLength": 59364,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -324,7 +324,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
       "fileName": "premium-q1-768.png",
-      "byteLength": 117856,
+      "byteLength": 117832,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -394,7 +394,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
       "fileName": "plan-selection-768.png",
-      "byteLength": 202909,
+      "byteLength": 260721,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -408,7 +408,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "7adea16816948fec85948b7d1dd324c7dbd20d02137b4f0302262f9bff937af4",
       "fileName": "payment-prep-768.png",
-      "byteLength": 135091,
+      "byteLength": 135469,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -422,7 +422,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "57e4ee85d985961549e6c94b6b24e59bbedf20612c8c0ed0861fc2c449b7f807",
       "fileName": "premium-bridge-1280.png",
-      "byteLength": 64096,
+      "byteLength": 64090,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -436,7 +436,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "e926342ce354a6b7835bce590fd37d76180f08e6ede9e9c31b2df7e7b757517b",
       "fileName": "premium-q1-1280.png",
-      "byteLength": 127136,
+      "byteLength": 127182,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -450,7 +450,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "8d23efbe5489d35ff96e92d64fcda6bac4d2706d5366bd63086bcc898d2a4c47",
       "fileName": "premium-q5-1280.png",
-      "byteLength": 113037,
+      "byteLength": 113096,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -464,7 +464,7 @@
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "dc46324d5b8727d3d0cef2f729ef7a8eb9c1ba305ab6a0c49ef89ff40d46b566",
       "fileName": "premium-q6-1280.png",
-      "byteLength": 114772,
+      "byteLength": 114778,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -506,7 +506,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
       "fileName": "plan-selection-1280.png",
-      "byteLength": 210047,
+      "byteLength": 270209,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -520,7 +520,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "7adea16816948fec85948b7d1dd324c7dbd20d02137b4f0302262f9bff937af4",
       "fileName": "payment-prep-1280.png",
-      "byteLength": 144596,
+      "byteLength": 144598,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -534,7 +534,7 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "9ee47ffd69a4138772652961f36724f624b87a749349eb50df1a7be3dabc8403",
       "fileName": "premium-share-card-390.png",
-      "byteLength": 130772,
+      "byteLength": 131073,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-4015b087ac1bc8a28953"
     },
     {
@@ -562,7 +562,7 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "9ee47ffd69a4138772652961f36724f624b87a749349eb50df1a7be3dabc8403",
       "fileName": "premium-share-card-1280.png",
-      "byteLength": 184343,
+      "byteLength": 186326,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-59d974b4bfdf34730e29"
     },
     {
@@ -576,7 +576,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
       "fileName": "purchased-report-landing-390.png",
-      "byteLength": 380645,
+      "byteLength": 381138,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -590,7 +590,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
       "fileName": "purchased-report-body-390.png",
-      "byteLength": 457860,
+      "byteLength": 506179,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -604,7 +604,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "eb78df300cb7b72745a1fc3a12bbce21ef06d467dcee9cd3c0d9200a02f153f7",
       "fileName": "purchased-report-landing-768.png",
-      "byteLength": 607523,
+      "byteLength": 616643,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -618,7 +618,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
       "fileName": "purchased-report-body-768.png",
-      "byteLength": 486839,
+      "byteLength": 559725,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -646,7 +646,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "9db8bc5b7a36a2b9c9e436d196d4ded784565f159353b900a991a5b1911f7c59",
       "fileName": "purchased-report-body-1280.png",
-      "byteLength": 489671,
+      "byteLength": 560552,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-66588cdef7a8b28eaba1"
     },
     {
@@ -660,7 +660,7 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
       "fileName": "additional-reading-input-390.png",
-      "byteLength": 686615,
+      "byteLength": 687194,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ed89bfe1f0baf82f8348"
     },
     {
@@ -674,7 +674,7 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
       "fileName": "additional-reading-input-768.png",
-      "byteLength": 1012942,
+      "byteLength": 1010755,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f63f26dd1976d47b11bb"
     },
     {
@@ -688,7 +688,7 @@
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "2e9608e7c82b47591872710ccfaa01026b0f053ecd330eae99f11d71431e9d6d",
       "fileName": "additional-reading-input-1280.png",
-      "byteLength": 1122790,
+      "byteLength": 1122205,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-6716c6fa906de2769332"
     },
     {
@@ -702,7 +702,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
       "fileName": "additional-reading-result-390.png",
-      "byteLength": 701753,
+      "byteLength": 722447,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-26aba879f56c751049dd"
     },
     {
@@ -716,7 +716,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
       "fileName": "additional-reading-result-768.png",
-      "byteLength": 1049245,
+      "byteLength": 1047821,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-5196479a3899a5eeb263"
     },
     {
@@ -730,7 +730,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
       "fileName": "additional-reading-result-1280.png",
-      "byteLength": 1161768,
+      "byteLength": 1161752,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-c430c3ef871a99726307"
     },
     {
@@ -744,7 +744,7 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
       "fileName": "saved-premium-reopen-390.png",
-      "byteLength": 380528,
+      "byteLength": 380702,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-b570c7d019c344444bf7"
     },
     {
@@ -758,7 +758,7 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
       "fileName": "saved-premium-reopen-768.png",
-      "byteLength": 614980,
+      "byteLength": 621054,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-30410b1005c35b6c5a92"
     },
     {
@@ -772,7 +772,7 @@
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "8ad89f39fbc75d60aa916a168854fd4f32b3034b0d3556cf59c42b2802772366",
       "fileName": "saved-premium-reopen-1280.png",
-      "byteLength": 676792,
+      "byteLength": 675800,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ec4533b38ea7a8ff9266"
     },
     {
@@ -800,7 +800,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "45d1568e4751adbe8e04dc6764ca45bd24362ce22ffc7de1383f6d964fd331c2",
       "fileName": "pdf/plan-selection.pdf",
-      "byteLength": 573746,
+      "byteLength": 772559,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     },
     {
@@ -842,7 +842,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "38ac4cff4e1e10b6203627a1fd7bb04dd8334c309a2ed4d3f09be0b68e9b808a",
       "fileName": "pdf/additional-reading-result.pdf",
-      "byteLength": 3121508,
+      "byteLength": 3064861,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     }
   ]

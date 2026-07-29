@@ -477,6 +477,15 @@
   box-sizing: border-box;
 }
 
+/* Method model band: same reading column as the surrounding lower sections. */
+.methodModelStage {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(18px, 3.4vw, 30px) 20px;
+  box-sizing: border-box;
+}
+
 .lowerWrap > .lowerSection + .lowerSection,
 .lowerWrap > .lowerSection + details,
 .lowerWrap > details + .lowerSection {

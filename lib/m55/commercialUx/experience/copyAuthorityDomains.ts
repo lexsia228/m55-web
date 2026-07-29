@@ -16,6 +16,7 @@ export type CopyAuthorityDomainId =
   | 'transactional_trust'
   | 'home_public'
   | 'core_public'
+  | 'method_authority'
   | 'page_content_registered';
 
 export type CopyAuthorityDomain = {
@@ -91,6 +92,11 @@ export const M55_COPY_AUTHORITY_DOMAINS: readonly CopyAuthorityDomain[] = [
     id: 'core_public',
     use: 'Free result bridge and result section titles',
     ownerFiles: ['components/core/corePublicCopy.ts'],
+  },
+  {
+    id: 'method_authority',
+    use: 'M55 複合読み解きモデル public explanation, authority levels and placements',
+    ownerFiles: ['lib/m55/method/m55MethodAuthority.ts'],
   },
   {
     id: 'page_content_registered',

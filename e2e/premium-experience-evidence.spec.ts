@@ -331,7 +331,7 @@ for (const vp of VIEWPORTS) {
     await openDrawerPanel(page, 'chapter-1');
     const bodyLocator = page.getByTestId('m55-purchased-report-body');
     await expect(bodyLocator).toBeVisible({ timeout: 30_000 });
-    await expect(bodyLocator.getByRole('heading', { level: 2 })).toContainText('の自分の形');
+    await expect(bodyLocator.getByTestId('m55-report-chapter-heading')).toContainText('の自分の形');
     await expect(page.locator('#drawer-hub-body-chapter-1')).toBeVisible();
     await capturePng(page, 'purchased-report-body', vp.name);
   });
