@@ -103,6 +103,7 @@ docs/archive/zips/**/*.zip
 # Playwright
 playwright-report/
 test-results/
+e2e/screenshots/_tmp-home-continuous-responsive/
 e2e/screenshots/required/*.png
 e2e/screenshots/experience-control-plane/**/*.png
 e2e/screenshots/experience-control-plane/**/*.pdf

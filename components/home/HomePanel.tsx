@@ -205,7 +205,9 @@ export default function HomePanel() {
                     <p className={styles.posterHeroSupport} data-testid="m55-home-hero-support">
                       {homeCopy.heroPosterSupportJa}
                     </p>
-                    <p className={styles.posterHeroTrust}>{homeCopy.heroTrustJa}</p>
+                    <p className={styles.posterHeroTrust} data-testid="m55-home-hero-trust">
+                      {homeCopy.heroTrustJa}
+                    </p>
                   </div>
                 </div>
               </div>
