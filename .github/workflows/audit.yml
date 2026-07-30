@@ -83,6 +83,8 @@ jobs:
           M55_E2E_CLEAN_CAPTURE: '1'
           NEXT_DISABLE_DEV_INDICATOR: '1'
           NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
 
       - name: M55 method authority placement browser gate
         run: npm run test:e2e:method-authority-placement
@@ -91,3 +93,5 @@ jobs:
           M55_E2E_CLEAN_CAPTURE: '1'
           NEXT_DISABLE_DEV_INDICATOR: '1'
           NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}

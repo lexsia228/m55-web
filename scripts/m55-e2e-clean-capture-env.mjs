@@ -4,20 +4,14 @@
  * Enabled only when process.env.M55_E2E_CLEAN_CAPTURE === '1'.
  * Fail-closed otherwise. Never applies under Vercel Preview/Production.
  *
- * Strategy:
- * - Reuse the gitignored local Clerk keyless instance keys in `.clerk/.tmp/keyless.json`
- *   (already created by `@clerk/nextjs` keyless mode on this machine).
- * - Export them as explicit NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY / CLERK_SECRET_KEY so
- *   middleware can boot.
- * - Set NEXT_PUBLIC_CLERK_KEYLESS_DISABLED=1 so the "Configure your application"
- *   panel is never created.
- * - Set NEXT_DISABLE_DEV_INDICATOR=1 (compat) and rely on next.config.mjs
- *   `devIndicators: false` when M55_E2E_CLEAN_CAPTURE=1 so the Next.js
- *   `[data-nextjs-dev-tools-button]` control is never generated (Next 15.5).
+ * Key resolution order:
+ * 1. Process env NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY + CLERK_SECRET_KEY
+ *    (CI maps dedicated GitHub secrets here at step scope)
+ * 2. Gitignored local `.clerk/.tmp/keyless.json` fallback (local dev only)
  *
- * This does not fabricate Production accounts or entitlements and does not weaken
- * Preview/Production auth. Secrets stay in gitignored `.clerk/` and are never written
- * back into the repo.
+ * Dedicated CI secret names (GitHub Actions only, never logged):
+ *   M55_E2E_CLERK_PUBLISHABLE_KEY → NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ *   M55_E2E_CLERK_SECRET_KEY → CLERK_SECRET_KEY
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +21,75 @@ const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const KEYLESS_PATH = join(ROOT, '.clerk', '.tmp', 'keyless.json');
 
 export const M55_E2E_CLEAN_CAPTURE_ENV = 'M55_E2E_CLEAN_CAPTURE';
+
+const UNRESOLVED_EXPRESSION = /\$\{\{/;
+
+/**
+ * Fail-closed Clerk test-key classification. Never logs key material.
+ *
+ * @param {string} publishableKey
+ * @param {string} secretKey
+ */
+export function validateClerkTestKeyMaterial(publishableKey, secretKey) {
+  const pk = String(publishableKey || '').trim();
+  const sk = String(secretKey || '').trim();
+
+  if (!pk || !sk) {
+    throw new Error('m55-e2e-clean-capture-env: Clerk test keys missing');
+  }
+  if (UNRESOLVED_EXPRESSION.test(pk) || UNRESOLVED_EXPRESSION.test(sk)) {
+    throw new Error('m55-e2e-clean-capture-env: unresolved Clerk secret expression');
+  }
+  if (pk.startsWith('pk_live_')) {
+    throw new Error('m55-e2e-clean-capture-env: publishableKey must not be pk_live_');
+  }
+  if (sk.startsWith('sk_live_')) {
+    throw new Error('m55-e2e-clean-capture-env: secretKey must not be sk_live_');
+  }
+  if (!pk.startsWith('pk_test_') || pk.length < 20) {
+    throw new Error('m55-e2e-clean-capture-env: publishableKey missing or not pk_test_');
+  }
+  if (!sk.startsWith('sk_test_') || sk.length < 20) {
+    throw new Error('m55-e2e-clean-capture-env: secretKey missing or not sk_test_');
+  }
+}
+
+/**
+ * Resolve Clerk test keys from process env (CI) or gitignored keyless file (local).
+ *
+ * @param {NodeJS.ProcessEnv} baseEnv
+ * @returns {{ publishableKey: string, secretKey: string, source: 'env' | 'keyless-file' }}
+ */
+export function resolveClerkTestKeys(baseEnv) {
+  let publishableKey = String(
+    baseEnv.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || baseEnv.M55_E2E_CLERK_PUBLISHABLE_KEY || '',
+  ).trim();
+  let secretKey = String(baseEnv.CLERK_SECRET_KEY || baseEnv.M55_E2E_CLERK_SECRET_KEY || '').trim();
+
+  if (publishableKey && secretKey) {
+    validateClerkTestKeyMaterial(publishableKey, secretKey);
+    return { publishableKey, secretKey, source: 'env' };
+  }
+
+  if (!existsSync(KEYLESS_PATH)) {
+    throw new Error(
+      `m55-e2e-clean-capture-env: missing Clerk test keys. Provide pk_test_/sk_test_ via env, ` +
+        `or start the app once in ordinary local keyless mode so ${KEYLESS_PATH} is created.`,
+    );
+  }
+
+  /** @type {{ publishableKey?: string, secretKey?: string }} */
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(KEYLESS_PATH, 'utf8'));
+  } catch (error) {
+    throw new Error(`m55-e2e-clean-capture-env: unreadable keyless.json (${error})`);
+  }
+  publishableKey = String(parsed.publishableKey || '').trim();
+  secretKey = String(parsed.secretKey || '').trim();
+  validateClerkTestKeyMaterial(publishableKey, secretKey);
+  return { publishableKey, secretKey, source: 'keyless-file' };
+}
 
 /**
  * @param {NodeJS.ProcessEnv} [baseEnv]
@@ -43,35 +106,8 @@ export function buildCleanCaptureServerEnv(baseEnv = process.env) {
       `m55-e2e-clean-capture-env: ${M55_E2E_CLEAN_CAPTURE_ENV}=1 is required (fail-closed)`,
     );
   }
-  // Prefer already-provided local test keys (CI secrets / shell). Otherwise load
-  // the gitignored keyless instance file created by ordinary local `next dev`.
-  let publishableKey = String(baseEnv.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').trim();
-  let secretKey = String(baseEnv.CLERK_SECRET_KEY || '').trim();
 
-  if (!publishableKey || !secretKey) {
-    if (!existsSync(KEYLESS_PATH)) {
-      throw new Error(
-        `m55-e2e-clean-capture-env: missing Clerk test keys. Provide pk_test_/sk_test_ via env, ` +
-          `or start the app once in ordinary local keyless mode so ${KEYLESS_PATH} is created.`,
-      );
-    }
-    /** @type {{ publishableKey?: string, secretKey?: string }} */
-    let parsed;
-    try {
-      parsed = JSON.parse(readFileSync(KEYLESS_PATH, 'utf8'));
-    } catch (error) {
-      throw new Error(`m55-e2e-clean-capture-env: unreadable keyless.json (${error})`);
-    }
-    publishableKey = String(parsed.publishableKey || '').trim();
-    secretKey = String(parsed.secretKey || '').trim();
-  }
-
-  if (!publishableKey.startsWith('pk_test_') || publishableKey.length < 20) {
-    throw new Error('m55-e2e-clean-capture-env: publishableKey missing or not pk_test_');
-  }
-  if (!secretKey.startsWith('sk_test_') || secretKey.length < 20) {
-    throw new Error('m55-e2e-clean-capture-env: secretKey missing or not sk_test_');
-  }
+  const { publishableKey, secretKey } = resolveClerkTestKeys(baseEnv);
 
   return {
     ...baseEnv,
@@ -88,13 +124,14 @@ const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === proces
 if (isDirectRun) {
   try {
     const env = buildCleanCaptureServerEnv(process.env);
+    const source =
+      resolveClerkTestKeys(process.env).source === 'env' ? 'process-env' : 'keyless-file';
     const report = {
       ok: true,
       cleanCapture: env[M55_E2E_CLEAN_CAPTURE_ENV] === '1',
       keylessDisabled: env.NEXT_PUBLIC_CLERK_KEYLESS_DISABLED === '1',
       nextDevIndicatorDisabled: env.NEXT_DISABLE_DEV_INDICATOR === '1',
-      publishableKeyLen: String(env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').length,
-      secretKeyLen: String(env.CLERK_SECRET_KEY || '').length,
+      keySource: source,
       keylessPath: KEYLESS_PATH,
     };
     console.log(JSON.stringify(report, null, 2));

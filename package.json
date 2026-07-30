@@ -40,6 +40,7 @@
         "test:m55-method-authority": "tsx --test lib/m55/method/m55MethodAuthority.test.ts lib/m55/method/m55MethodRouteConsumption.test.ts",
         "test:e2e:commercial-visual-quality": "playwright test e2e/commercial-visual-quality.spec.ts",
         "test:e2e:method-authority-placement": "playwright test e2e/method-authority-placement.spec.ts",
+        "test:m55-e2e-clean-capture-env": "node --test scripts/m55-e2e-clean-capture-env.test.mjs",
         "test:e2e:commercial-visual-regression": "playwright test e2e/commercial-visual-regression.spec.ts",
         "test:premium-experience-verifier": "tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperienceProofNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumShareFallbackVisibility.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },
