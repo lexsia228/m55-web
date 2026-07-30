@@ -34,9 +34,11 @@ import {
 } from './continuousResponsiveEngine';
 import {
   COMMERCIAL_QUALITY_NEGATIVE_FIXTURES,
+  durablePromotionApprovalRecords,
   evaluateFixture,
+  FIXTURE_DURABLE_APPROVAL_STORE,
+  fixtureApprovalStoreOf,
   rect,
-  reconcileImportedIdentities,
   validEntry,
   validManifest,
   validSurface,
@@ -399,9 +401,72 @@ test('rendered-line geometry is required for orphan-line detection', () => {
   assert.equal(twoLines.filter((f) => f.code === 'LAYOUT_JAPANESE_ORPHAN_LINE').length, 1);
 });
 
-test('a partially visible CTA is a semantic failure', () => {
+test('a fully visible CTA does not emit SEMANTIC_CTA_PARTIALLY_VISIBLE', () => {
+  const viewportHeight = 812;
   const failures = checkSemanticInvariants(
-    validSurface({ criticalCta: { ...validSurface().criticalCta!, rect: rect(680, 20, 320, 56) } }),
+    validSurface({
+      viewport: { width: 390, height: viewportHeight },
+      criticalCta: {
+        ...validSurface().criticalCta!,
+        rect: rect(200, 20, 320, 56),
+      },
+    }),
+    validEntry(),
+    'short_text',
+  );
+  assert.equal(
+    failures.filter((f) => f.code === 'SEMANTIC_CTA_PARTIALLY_VISIBLE').length,
+    0,
+  );
+  assert.ok(validSurface().criticalCta!.rect.bottom < viewportHeight);
+});
+
+test('a CTA partially below the viewport is rejected', () => {
+  const viewportHeight = 812;
+  const ctaTop = 780;
+  const ctaHeight = 56;
+  assert.ok(ctaTop + ctaHeight > viewportHeight);
+  const failures = checkSemanticInvariants(
+    validSurface({
+      viewport: { width: 390, height: viewportHeight },
+      criticalCta: {
+        ...validSurface().criticalCta!,
+        rect: rect(ctaTop, 20, 320, ctaHeight),
+      },
+    }),
+    validEntry(),
+    'short_text',
+  );
+  assert.ok(failures.some((f) => f.code === 'SEMANTIC_CTA_PARTIALLY_VISIBLE'));
+});
+
+test('a CTA fully below the viewport is rejected', () => {
+  const viewportHeight = 812;
+  const failures = checkSemanticInvariants(
+    validSurface({
+      viewport: { width: 390, height: viewportHeight },
+      criticalCta: {
+        ...validSurface().criticalCta!,
+        rect: rect(900, 20, 320, 56),
+      },
+    }),
+    validEntry(),
+    'short_text',
+  );
+  assert.ok(failures.some((f) => f.code === 'SEMANTIC_CTA_PARTIALLY_VISIBLE'));
+});
+
+test('an oversized container with CTA below the viewport is still rejected', () => {
+  const viewportHeight = 812;
+  const failures = checkSemanticInvariants(
+    validSurface({
+      viewport: { width: 390, height: viewportHeight },
+      containerRect: rect(0, 0, 390, 2400),
+      criticalCta: {
+        ...validSurface().criticalCta!,
+        rect: rect(1800, 20, 320, 56),
+      },
+    }),
     validEntry(),
     'short_text',
   );
@@ -509,16 +574,20 @@ test('resolved stress profiles merge declared profiles and registered variants',
 
 /* ── Adapter reconciliation ────────────────────────────────────────── */
 
-test('adapter reconciliation rejects unregistered and duplicate identities', () => {
-  assert.deepEqual(
-    reconcileImportedIdentities({
-      registeredSurfaceIds: ['p:a'],
-      importedRouteIds: ['a', 'a'],
-      importedStateIds: [],
-      authorityKeys: ['k'],
-      knownAuthorityKeys: [],
-    }).slice().sort(),
-    ['ADAPTER_DUPLICATE_IMPORTED_AUTHORITY', 'ADAPTER_UNKNOWN_AUTHORITY_REFERENCE'].sort(),
+test('probeAdapterNegative rejects unregistered route and state identities', async () => {
+  const { probeAdapterNegative } = await import(
+    '../m55/commercialUx/qualityControl/m55ManifestAdapter'
+  );
+
+  assert.ok(
+    probeAdapterNegative('unregistered_route').some((f) => f.code === 'ADAPTER_UNREGISTERED_ROUTE'),
+  );
+  assert.ok(
+    probeAdapterNegative('unregistered_state').some((f) => f.code === 'ADAPTER_UNREGISTERED_STATE'),
+  );
+  assert.ok(probeAdapterNegative('unknown_setup').some((f) => f.code.startsWith('SETUP_')));
+  assert.ok(
+    probeAdapterNegative('duplicate_ecp').some((f) => f.code === 'MANIFEST_DUPLICATE_SURFACE_ID'),
   );
 });
 
@@ -600,29 +669,69 @@ test('the approval pack throws when a gate is not GREEN', () => {
 /* ── Baseline promotion state machine ──────────────────────────────── */
 
 function promotion(overrides: Record<string, unknown> = {}) {
+  const baseApproval = {
+    approvalAuthority: 'durable:approval-record-store' as const,
+    independentReviewRef: 'codex-1',
+    humanApprovalRef: 'human-1',
+    approvedAt: '2026-07-30T00:00:00.000Z',
+    sourceCommit: 'commit-a',
+    manifestDigest: 'digest-a',
+    candidateHashes: { 'a.png': 'hash-a' },
+  };
   return {
     surfaceId: 'fixture:surface.alpha',
     fromState: 'candidate' as const,
     toState: 'human-approved' as const,
     gates: GREEN_GATES,
-    approval: {
-      approvalAuthority: 'human:commercial-review',
-      independentReviewRef: 'codex-1',
-      humanApprovalRef: 'human-1',
-      approvedAt: '2026-07-30T00:00:00.000Z',
-      sourceCommit: 'commit-a',
-      manifestDigest: 'digest-a',
-      candidateHashes: { 'a.png': 'hash-a' },
-    },
+    approval: baseApproval,
     currentSourceCommit: 'commit-a',
     currentManifestDigest: 'digest-a',
     currentCandidateHashes: { 'a.png': 'hash-a' },
+    approvalStore: fixtureApprovalStoreOf(
+      durablePromotionApprovalRecords({
+        independentReviewRef: 'codex-1',
+        humanApprovalRef: 'human-1',
+        candidateHashes: { 'a.png': 'hash-a' },
+      }),
+    ),
     ...overrides,
   };
 }
 
-test('a complete promotion request is allowed', () => {
+test('a complete promotion request is allowed only with resolvable durable records', () => {
   assert.equal(evaluatePromotion(promotion()).allowed, true);
+  const { approvalStore: _store, ...withoutStore } = promotion();
+  assert.equal(evaluatePromotion(withoutStore).allowed, false);
+});
+
+test('machine:self promotion is rejected with PROMOTION_SELF_APPROVAL', () => {
+  const decision = evaluatePromotion(
+    promotion({
+      approval: {
+        ...promotion().approval,
+        approvalAuthority: GENERATOR_AUTHORITY,
+        independentReviewRef: 'machine-self',
+        humanApprovalRef: 'machine-self-approved',
+      },
+    }),
+  );
+  assert.equal(decision.allowed, false);
+  assert.ok(decision.failures.some((f) => f.code === 'PROMOTION_SELF_APPROVAL'));
+});
+
+test('fabricated human:commercial-review authority is rejected', () => {
+  const decision = evaluatePromotion(
+    promotion({
+      approval: {
+        ...promotion().approval,
+        approvalAuthority: 'human:commercial-review',
+      },
+    }),
+  );
+  assert.equal(decision.allowed, false);
+  assert.ok(
+    decision.failures.some((f) => f.code === 'PROMOTION_UNKNOWN_APPROVAL_AUTHORITY'),
+  );
 });
 
 test('promotion requires geometry, semantic and accessibility GREEN', () => {
@@ -665,6 +774,25 @@ test('promotion rejects an unknown approval authority and a missing record', () 
   );
 });
 
+test('promotion with durable store resolves independent codex and human records', () => {
+  const decision = evaluatePromotion(
+    promotion({
+      approvalStore: FIXTURE_DURABLE_APPROVAL_STORE,
+      approval: {
+        approvalAuthority: 'durable:approval-record-store',
+        independentReviewRef: 'codex-review-1',
+        humanApprovalRef: 'human-approval-1',
+        approvedAt: '2026-07-30T00:00:00.000Z',
+        sourceCommit: 'commit-a',
+        manifestDigest: 'digest-a',
+        candidateHashes: { 'home-390.png': 'hash-a' },
+      },
+      currentCandidateHashes: { 'home-390.png': 'hash-a' },
+    }),
+  );
+  assert.equal(decision.allowed, true);
+});
+
 test('candidate-to-canonical direct assignment is rejected', () => {
   const decision = evaluatePromotion(promotion({ fromState: 'none' }));
   assert.equal(decision.allowed, false);
@@ -680,10 +808,34 @@ test('promotion rejects a changed candidate artifact set', () => {
 
 /* ── Negative fixtures ─────────────────────────────────────────────── */
 
-test('the negative fixture set covers all 18 governed rejections', () => {
-  assert.equal(COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.length, 18);
-  assert.equal(new Set(COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => f.id)).size, 18);
-  assert.equal(new Set(COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => f.expectedCode)).size, 18);
+const ORIGINAL_NEGATIVE_FIXTURE_IDS = [
+  'duplicate_surface',
+  'unregistered_route',
+  'unregistered_runtime_state',
+  'missing_protected_element',
+  'clipped_protected_content',
+  'horizontal_overflow',
+  'fixed_element_obstruction',
+  'undersized_cta',
+  'route_drift',
+  'state_drift',
+  'shell_only_page',
+  'loading_state_accepted',
+  'japanese_punctuation_only_line',
+  'neighbor_geometry_discontinuity',
+  'automatic_canonical_promotion',
+  'stale_source_commit',
+  'stale_manifest_digest',
+  'altered_candidate_hash',
+] as const;
+
+test('the negative fixture set covers all 18 original governed rejections', () => {
+  const ids = COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => f.id);
+  for (const id of ORIGINAL_NEGATIVE_FIXTURE_IDS) {
+    assert.ok(ids.includes(id), `missing original negative fixture: ${id}`);
+  }
+  assert.ok(COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.length >= ORIGINAL_NEGATIVE_FIXTURE_IDS.length);
+  assert.equal(new Set(ids).size, ids.length);
 });
 
 for (const fixture of COMMERCIAL_QUALITY_NEGATIVE_FIXTURES) {

@@ -38,10 +38,10 @@ Status: **Decisions authority (Tier E)**
 
 Recorded under `M55_COMMERCIAL_QUALITY_CONTRACT.md`「P2 は明示的な Human 受容または本ログへの記録がある場合のみ close 可」.
 
-| Finding | Owner | Deferral reason |
-|---|---|---|
-| axe `color-contrast` — `M55MethodSections` の装飾セクション番号（`aria-hidden`、4.36:1） | `components/pages/M55MethodSections.module.css` | commercial quality control plane 導入時に共有 gate が初検出。コントラスト修正は user-visible 変更であり Human visual approval を要する別レーン |
-| axe `color-contrast` — `PublicFooter` の著作権行（2.69:1） | `app/_components/PublicFooter.module.css` | 同上。共有 gate は本2件のみを rule id + owner selector で pin 留めし、新規 serious/critical は引き続き FAIL |
+| decisionRecordId | Route | Selector | measuredRatio | Classification | Owner | Deferral reason |
+|---|---|---|---:|---|---|---|
+| `CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30` | `/how-m55-works` | `li:nth-child(10) > h3 > .M55MethodSections_sectionOrder__RdBoA` | 4.36 | `CLOSE_IN_COMMIT_B` | `components/pages/M55MethodSections.module.css` | axe `color-contrast` — decorative aria-hidden section number; contrast correction requires Human visual approval in Commit B |
+| `CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30` | `/how-m55-works` | `.PublicFooter_copy__03HUr` | 2.69 | `CLOSE_IN_COMMIT_B` | `app/_components/PublicFooter.module.css` | axe `color-contrast` — quiet footer copyright line; contrast correction requires Human visual approval in Commit B |
 
 Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts`.
 

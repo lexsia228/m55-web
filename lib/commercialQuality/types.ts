@@ -236,13 +236,25 @@ export const ADAPTER_FAILURE_CODES = [
 ] as const;
 export type AdapterFailureCode = (typeof ADAPTER_FAILURE_CODES)[number];
 
+export const SETUP_FAILURE_CODES = [
+  'SETUP_UNKNOWN_ID',
+  'SETUP_NO_EXECUTABLE_FUNCTION',
+  'SETUP_ROUTE_MISMATCH',
+  'SETUP_STATE_MISMATCH',
+  'SETUP_STRESS_UNSUPPORTED',
+  'SETUP_AUTH_WITHOUT_FIXTURE',
+  'SETUP_MISSING_FOR_SURFACE',
+] as const;
+export type SetupFailureCode = (typeof SETUP_FAILURE_CODES)[number];
+
 export type CommercialQualityFailureCode =
   | ManifestFailureCode
   | LayoutFailureCode
   | SemanticFailureCode
   | AccessibilityFailureCode
   | PromotionFailureCode
-  | AdapterFailureCode;
+  | AdapterFailureCode
+  | SetupFailureCode;
 
 /* ── Measurement input (produced by a browser helper) ──────────────── */
 

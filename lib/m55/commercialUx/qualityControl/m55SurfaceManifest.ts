@@ -143,51 +143,72 @@ const DEFAULT_STRESS: readonly ContentStressProfile[] = ['short_text', 'long_jap
 /* ── Recorded accessibility deferrals ──────────────────────────────── */
 
 /**
- * Pre-existing WCAG AA contrast findings observed by the shared gate when it
- * was introduced. Each is a P2 recorded deferral under
- * `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` and is logged in
- * `docs/ssot/M55_DECISION_LOG.md`. A deferral is pinned to a rule id and an
- * owning selector fragment, so any *new* serious/critical violation still fails
- * the gate. Removing a deferral requires fixing the owning surface.
+ * Exact accessibility deferrals. Each is bound to a stable decision-record ID,
+ * exact route, exact selector, owner file, axe rule, typed measured ratio, and
+ * CLOSE_IN_COMMIT_B classification. Substring / wildcard suppression is
+ * prohibited — unmatched contrast violations still fail.
  */
 export type AccessibilityDeferral = {
-  axeRuleId: string;
-  /** Substring that must appear in every failing node selector. */
-  selectorFragment: string;
+  decisionRecordId: string;
+  route: string;
+  /** Exact CSS selector that must match the failing node target string. */
+  selector: string;
   ownerFile: string;
+  axeRuleId: 'color-contrast';
+  /** Measured contrast ratio at deferral time. */
+  measuredRatio: number;
+  classification: 'CLOSE_IN_COMMIT_B';
   reason: string;
 };
 
 export const M55_ACCESSIBILITY_DEFERRALS: readonly AccessibilityDeferral[] = [
   {
-    axeRuleId: 'color-contrast',
-    selectorFragment: 'sectionOrder',
+    decisionRecordId: 'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
+    route: '/how-m55-works',
+    selector: 'li:nth-child(10) > h3 > .M55MethodSections_sectionOrder__RdBoA',
     ownerFile: 'components/pages/M55MethodSections.module.css',
+    axeRuleId: 'color-contrast',
+    measuredRatio: 4.36,
+    classification: 'CLOSE_IN_COMMIT_B',
     reason:
-      'decorative aria-hidden section number at 4.36:1; contrast correction is a separate user-visible lane requiring Human visual approval',
+      'decorative aria-hidden section number; contrast correction requires Human visual approval in Commit B',
   },
   {
-    axeRuleId: 'color-contrast',
-    selectorFragment: 'PublicFooter_copy',
+    decisionRecordId: 'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
+    route: '/how-m55-works',
+    selector: '.PublicFooter_copy__03HUr',
     ownerFile: 'app/_components/PublicFooter.module.css',
+    axeRuleId: 'color-contrast',
+    measuredRatio: 2.69,
+    classification: 'CLOSE_IN_COMMIT_B',
     reason:
-      'quiet footer copyright line at 2.69:1; contrast correction is a separate user-visible lane requiring Human visual approval',
+      'quiet footer copyright line; contrast correction requires Human visual approval in Commit B',
   },
 ];
 
+/**
+ * A finding is deferred only when the axe rule, the exact route (when known),
+ * and every failing target equal a deferred selector. Partial / substring
+ * matches and route-null wildcards are rejected.
+ */
 export function isDeferredAccessibilityFinding(
   axeRuleId: unknown,
   targets: unknown,
+  route?: string | null,
 ): boolean {
-  if (typeof axeRuleId !== 'string' || !Array.isArray(targets) || targets.length === 0) return false;
-  return targets.every((target) =>
-    M55_ACCESSIBILITY_DEFERRALS.some(
-      (deferral) =>
-        deferral.axeRuleId === axeRuleId &&
-        typeof target === 'string' &&
-        target.includes(deferral.selectorFragment),
-    ),
-  );
+  if (typeof axeRuleId !== 'string' || !Array.isArray(targets) || targets.length === 0) {
+    return false;
+  }
+  if (targets.length === 0) return false;
+  return targets.every((target) => {
+    if (typeof target !== 'string') return false;
+    return M55_ACCESSIBILITY_DEFERRALS.some((deferral) => {
+      if (deferral.axeRuleId !== axeRuleId) return false;
+      if (route != null && route !== deferral.route) return false;
+      // Exact selector match only — no substring / wildcard suppression.
+      return target === deferral.selector;
+    });
+  });
 }
 
 /* ── ECP page surfaces (51) ────────────────────────────────────────── */
@@ -370,7 +391,9 @@ function visualCaseToSurface(visualCase: CommercialVisualCase): SurfaceManifestE
     runtimeStateId: `visual:${visualCase.caseId}`,
     route: visualCase.route,
     routeIsPattern: /[:*]/.test(visualCase.route),
-    setupId: `m55.setup.visual.${visualCase.setup}`,
+    // One executable setup per visual case — shared setup names (e.g. "none")
+    // must not collapse distinct route/state identities.
+    setupId: `m55.setup.visual.${visualCase.caseId}`,
     requiresAuthentication: false,
     preconditions: [`ready_selector:${visualCase.readySelector}`, `setup:${visualCase.setup}`],
     authorityReferences: [

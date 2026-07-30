@@ -8,6 +8,7 @@
  * - expose the consolidation interface for existing systems (Commit B migrates
  *   HOME as the first consumer; nothing is deleted or migrated here)
  */
+import { validateManifestSetups } from '../../../commercialQuality/setupRegistry';
 import {
   manifestDigest,
   validateSurfaceManifest,
@@ -18,6 +19,7 @@ import { PREMIUM_EXPERIENCE_CAPTURE_CASES } from '../premiumExperience/premiumEx
 import { PREMIUM_EXPERIENCE_STATE_REGISTRY } from '../premiumExperience/premiumExperienceStateRegistry';
 import { COMMERCIAL_VISUAL_CASES } from '../visualQuality/commercialVisualQualityContract';
 import { M55_METHOD_ROUTE_CONSUMPTION } from '../../method/m55MethodRouteConsumption';
+import { M55_SETUP_REGISTRY, m55SetupById } from './m55SetupRegistry';
 import {
   M55_COMMERCIAL_QUALITY_MANIFEST,
   M55_QUALITY_PROJECT_ID,
@@ -240,6 +242,86 @@ export type AdapterCoverageReport = {
   failures: readonly InvariantFailure[];
 };
 
+export function checkSetupRegistry(): readonly InvariantFailure[] {
+  const failures = [...validateManifestSetups(M55_COMMERCIAL_QUALITY_MANIFEST, M55_SETUP_REGISTRY)];
+  for (const entry of M55_COMMERCIAL_QUALITY_MANIFEST.entries) {
+    const setup = m55SetupById(entry.setupId);
+    if (!setup || typeof setup.execute !== 'function') {
+      failures.push(
+        failure('SETUP_NO_EXECUTABLE_FUNCTION', `setup not executable: ${entry.setupId}`, {
+          surfaceId: entry.surfaceId,
+        }),
+      );
+    }
+  }
+  return failures;
+}
+
+/**
+ * Production adapter negative probes — mutate a *copy* of authorities and run
+ * the real coverage checkers. Never mocks PASS.
+ */
+export function probeAdapterNegative(
+  kind: 'unregistered_route' | 'unregistered_state' | 'unknown_setup' | 'duplicate_ecp',
+): readonly InvariantFailure[] {
+  if (kind === 'unregistered_route') {
+    // Drop one ECP surface from the registered map and re-check coverage.
+    const dropped = M55_EXPERIENCE_ROUTE_REGISTRY[0];
+    const remaining = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
+      (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:ecp.${dropped.id}`,
+    );
+    const failures: InvariantFailure[] = [];
+    for (const entry of M55_EXPERIENCE_ROUTE_REGISTRY) {
+      const surfaceId = `${M55_QUALITY_PROJECT_ID}:ecp.${entry.id}`;
+      if (!remaining.some((e) => e.surfaceId === surfaceId)) {
+        failures.push(
+          failure('ADAPTER_UNREGISTERED_ROUTE', `ECP route without surface registration: ${entry.id}`, {
+            routeId: entry.id,
+          }),
+        );
+      }
+    }
+    return failures;
+  }
+  if (kind === 'unregistered_state') {
+    const dropped = PREMIUM_EXPERIENCE_STATE_REGISTRY[0];
+    const remaining = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
+      (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:premium.${dropped.id}`,
+    );
+    const failures: InvariantFailure[] = [];
+    for (const state of PREMIUM_EXPERIENCE_STATE_REGISTRY) {
+      if (!remaining.some((e) => e.surfaceId === `${M55_QUALITY_PROJECT_ID}:premium.${state.id}`)) {
+        failures.push(
+          failure('ADAPTER_UNREGISTERED_STATE', `Premium state not registered: ${state.id}`, {
+            stateId: state.id,
+          }),
+        );
+      }
+    }
+    return failures;
+  }
+  if (kind === 'unknown_setup') {
+    const entry = {
+      ...M55_COMMERCIAL_QUALITY_MANIFEST.entries[0],
+      setupId: 'm55.setup.DOES_NOT_EXIST',
+    };
+    return validateManifestSetups(
+      { ...M55_COMMERCIAL_QUALITY_MANIFEST, entries: [entry] },
+      M55_SETUP_REGISTRY,
+    );
+  }
+  // duplicate_ecp — two surfaces claiming the same ECP route identity
+  const base = M55_COMMERCIAL_QUALITY_MANIFEST.entries.find((e) =>
+    e.surfaceId.startsWith(`${M55_QUALITY_PROJECT_ID}:ecp.`),
+  );
+  if (!base) return [failure('ADAPTER_UNREGISTERED_ROUTE', 'no ECP surface to duplicate', {})];
+  const dup = { ...base, runtimeStateId: `${base.runtimeStateId}__dup` };
+  return validateSurfaceManifest({
+    ...M55_COMMERCIAL_QUALITY_MANIFEST,
+    entries: [base, dup],
+  });
+}
+
 /** Full reconciliation: manifest validity plus imported-identity coverage. */
 export function verifyM55CommercialQualityRegistration(): AdapterCoverageReport {
   const failures: InvariantFailure[] = [
@@ -251,6 +333,7 @@ export function verifyM55CommercialQualityRegistration(): AdapterCoverageReport 
     ...checkMethodAuthorityReferences(),
     ...checkAuthorityReferences(),
     ...checkUnregisteredUserVisibleStates(),
+    ...checkSetupRegistry(),
   ];
 
   return {

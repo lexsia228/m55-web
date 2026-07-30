@@ -11,6 +11,8 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 
 import type { CommercialQualityAdapter } from '../../lib/commercialQuality/continuousResponsiveEngine';
+import { stressProfileSpec } from '../../lib/commercialQuality/contentStateStress';
+import { assertProfileSupported } from '../../lib/commercialQuality/setupRegistry';
 import type {
   CasePlan,
   MeasuredAxeViolation,
@@ -18,7 +20,7 @@ import type {
   MeasuredSurface,
   SurfaceManifestEntry,
 } from '../../lib/commercialQuality/types';
-import { stressProfileSpec } from '../../lib/commercialQuality/contentStateStress';
+import { m55SetupById } from '../../lib/m55/commercialUx/qualityControl/m55SetupRegistry';
 import {
   assertLocalNavigationStable,
   assertOverlayAbsence,
@@ -415,66 +417,134 @@ export type M55AdapterOptions = {
   baseURL: string;
   label: string;
   includeAccessibility?: boolean;
-  /**
-   * Deterministic project setup for a registered setupId. Commit A ships the
-   * seam; per-surface fixtures land with their consuming surface.
-   */
-  setup?: (page: Page, entry: SurfaceManifestEntry, plan: CasePlan) => Promise<void>;
+};
+
+export type AppliedProfileEvidence = {
+  content?: Readonly<Record<string, unknown>>;
+  execution?: Readonly<Record<string, unknown>>;
+  fontGeometryBefore?: number;
+  fontGeometryAfter?: number;
 };
 
 /**
- * M55 project adapter. Navigation obeys the clean-capture contract, and every
- * case proves overlay absence and local navigation stability before measuring.
+ * M55 project adapter. Every case resolves an executable setup from the
+ * registry; unsupported stress profiles throw instead of becoming no-ops.
  */
 export function createM55CommercialQualityAdapter(
   options: M55AdapterOptions,
-): CommercialQualityAdapter<Page> {
+): CommercialQualityAdapter<Page> & {
+  lastProfileEvidence: () => AppliedProfileEvidence | null;
+} {
   const expectedOrigin = new URL(options.baseURL).origin;
   let currentRoute: string | null = null;
+  let lastEvidence: AppliedProfileEvidence | null = null;
 
   return {
     projectId: 'm55',
     sourceCommit: resolveSourceCommit,
+    lastProfileEvidence: () => lastEvidence,
 
-    // Content stress is realised by registered project setup, never by copy
-    // injected from the engine. Fail closed when a profile has no setup owner.
-    applyStressProfile: async (_page, entry, spec) => {
-      if (spec.requiresAuthentication && !options.setup) {
+    applyStressProfile: async (page, entry, spec) => {
+      const setup = m55SetupById(entry.setupId);
+      if (!setup || typeof setup.execute !== 'function') {
+        throw new Error(`SETUP_UNKNOWN_ID: ${entry.setupId}`);
+      }
+      // Content stress is applied after navigation in prepareCase; here we only
+      // fail closed when the profile is unsupported by the setup.
+      if (!setup.supportedContentStressProfiles.includes(spec.profile)) {
+        throw new Error(`SETUP_STRESS_UNSUPPORTED: ${spec.profile} on ${setup.setupId}`);
+      }
+      if (spec.requiresAuthentication && !setup.hasDeterministicAuthFixture) {
         throw new Error(
-          `${options.label}: ${entry.surfaceId} requests the ${spec.profile} profile without a registered setup`,
+          `SETUP_AUTH_WITHOUT_FIXTURE: ${entry.surfaceId} / ${spec.profile}`,
         );
       }
-      if (spec.requiresStateTransition && !options.setup) {
-        throw new Error(
-          `${options.label}: ${entry.surfaceId} requests a state transition without a registered setup`,
-        );
+      if (spec.requiresStateTransition && setup.smokeKind === 'registration_only') {
+        throw new Error(`SETUP_STRESS_UNSUPPORTED: state_transition on ${setup.setupId}`);
       }
+      void page;
     },
 
     prepareCase: async (page, entry, plan) => {
       requireCleanCaptureEnvironment(options.label);
+      const setup = m55SetupById(entry.setupId);
+      if (!setup || typeof setup.execute !== 'function') {
+        throw new Error(`SETUP_UNKNOWN_ID: ${entry.setupId}`);
+      }
+      assertProfileSupported(setup, plan.contentStressProfile, plan.profile);
+
       await page.setViewportSize(plan.viewport);
-      if (plan.profile === 'reduced_motion') {
-        await page.emulateMedia({ reducedMotion: 'reduce' });
-      } else {
-        await page.emulateMedia({ reducedMotion: null });
+      const context = { page, baseURL: options.baseURL, label: options.label };
+      lastEvidence = {};
+
+      if (setup.applyExecutionProfile) {
+        const applied = await setup.applyExecutionProfile(context, entry, plan.profile);
+        lastEvidence.execution = applied.evidence;
       }
 
-      const url = new URL(entry.route, options.baseURL).toString();
-      if (plan.mode === 'fresh_load' || currentRoute !== entry.route) {
-        await safeGotoLocal(page, url);
-        currentRoute = entry.route;
+      const path =
+        setup.smokeKind === 'navigate_fixture' && setup.fixturePath
+          ? setup.fixturePath
+          : entry.route;
+      if (setup.smokeKind === 'registration_only') {
+        throw new Error(
+          `${options.label}: refuse to navigate registration_only setup ${setup.setupId}`,
+        );
       }
-      if (options.setup) await options.setup(page, entry, plan);
+      const url = new URL(path, options.baseURL).toString();
+      if (plan.mode === 'fresh_load' || currentRoute !== path) {
+        await safeGotoLocal(page, url);
+        currentRoute = path;
+      }
+
+      await setup.execute(context, entry);
+
+      if (setup.applyContentStress) {
+        const applied = await setup.applyContentStress(
+          context,
+          entry,
+          plan.contentStressProfile,
+        );
+        lastEvidence.content = applied.evidence;
+      }
 
       await page.waitForLoadState('domcontentloaded');
-      await page.evaluate(() => document.fonts?.ready ?? Promise.resolve());
-      await page.waitForTimeout(plan.profile === 'font_load_transition' ? 250 : 90);
+
+      if (plan.profile === 'font_load_transition') {
+        // Geometry before fonts settle, then after — not only a post-ready wait.
+        const before = await page.evaluate(() => {
+          const main = document.querySelector('main');
+          return main ? main.getBoundingClientRect().height : 0;
+        });
+        lastEvidence.fontGeometryBefore = before;
+        await page.evaluate(() => document.fonts?.ready ?? Promise.resolve());
+        await page.waitForTimeout(50);
+        const after = await page.evaluate(() => {
+          const main = document.querySelector('main');
+          document.documentElement.setAttribute('data-m55-cq-font-transition', 'ready');
+          return main ? main.getBoundingClientRect().height : 0;
+        });
+        lastEvidence.fontGeometryAfter = after;
+        if (before <= 0 || after <= 0) {
+          throw new Error('font_load_transition: governed geometry missing before/after fonts.ready');
+        }
+      } else {
+        await page.evaluate(() => document.fonts?.ready ?? Promise.resolve());
+        await page.waitForTimeout(90);
+      }
+
       await assertLocalNavigationStable(page, {
         label: `${options.label}:${entry.surfaceId}`,
         previousUrl: url,
       });
       await assertOverlayAbsence(page, `${options.label}:${entry.surfaceId}`);
+    },
+
+    teardownCase: async (page, entry) => {
+      const setup = m55SetupById(entry.setupId);
+      if (setup?.teardown) {
+        await setup.teardown({ page, baseURL: options.baseURL, label: options.label }, entry);
+      }
     },
 
     measure: async (page, entry, plan) =>

@@ -327,17 +327,27 @@ export function checkSemanticInvariants(
 
   const cta = surface.criticalCta;
   if (entry.criticalCta && cta?.found) {
-    const partiallyVisible =
+    // Visual viewport bottom is viewport.height — never inflate with innerWidth.
+    const viewportBottom = surface.viewport.height;
+    const outsideViewport =
       cta.rect.top < -GEOMETRY_TOLERANCE_PX ||
-      cta.rect.bottom > surface.viewport.height + surface.innerWidth ||
-      (surface.containerRect !== null &&
-        cta.rect.bottom > surface.containerRect.bottom + GEOMETRY_TOLERANCE_PX);
-    if (partiallyVisible) {
+      cta.rect.bottom > viewportBottom + GEOMETRY_TOLERANCE_PX;
+    const clippedByContainer =
+      surface.containerRect !== null &&
+      cta.rect.bottom > surface.containerRect.bottom + GEOMETRY_TOLERANCE_PX;
+    if (outsideViewport || clippedByContainer) {
       failures.push(
         fail(
           'SEMANTIC_CTA_PARTIALLY_VISIBLE',
-          'critical CTA is only partially visible',
-          { ...diag, ctaRect: cta.rect, containerRect: surface.containerRect },
+          'critical CTA is only partially visible within the visual viewport',
+          {
+            ...diag,
+            ctaRect: cta.rect,
+            viewportBottom,
+            containerRect: surface.containerRect,
+            outsideViewport,
+            clippedByContainer,
+          },
           cta.selector,
         ),
       );

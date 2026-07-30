@@ -10,6 +10,11 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import {
+  EMPTY_APPROVAL_RECORD_STORE,
+  promotionApprovalFromBaseline,
+  type ApprovalRecordStore,
+} from './approvalRecords';
 import type {
   BaselineApprovalRecord,
   CanonicalBaselineState,
@@ -25,8 +30,11 @@ export const APPROVAL_PACK_DIR = join('test-results', 'commercial-quality-approv
 /** Machine identity of this generator. Never a legal approval authority. */
 export const GENERATOR_AUTHORITY = 'machine:commercial-quality-approval-pack';
 
-/** Approval authorities that may sign a promotion. */
-export const ALLOWED_APPROVAL_AUTHORITIES = ['human:commercial-review'] as const;
+/**
+ * The only legal approvalAuthority string on a BaselineApprovalRecord.
+ * Individual Codex / Human records must resolve from the durable store by ID.
+ */
+export const ALLOWED_APPROVAL_AUTHORITIES = ['durable:approval-record-store'] as const;
 export type AllowedApprovalAuthority = (typeof ALLOWED_APPROVAL_AUTHORITIES)[number];
 
 export type CandidateArtifact = {
@@ -239,6 +247,11 @@ export type PromotionRequest = {
   currentSourceCommit: string;
   currentManifestDigest: string;
   currentCandidateHashes: Readonly<Record<string, string>>;
+  /**
+   * Durable store used to resolve independent Codex + Human approval IDs.
+   * Defaults to an empty store — fabricated string refs fail closed.
+   */
+  approvalStore?: ApprovalRecordStore;
 };
 
 export type PromotionDecision = {
@@ -297,80 +310,26 @@ export function evaluatePromotion(request: PromotionRequest): PromotionDecision 
     return { allowed: false, failures };
   }
 
-  if (!ALLOWED_APPROVAL_AUTHORITIES.includes(approval.approvalAuthority as AllowedApprovalAuthority)) {
+  if (approval.approvalAuthority === GENERATOR_AUTHORITY || approval.approvalAuthority === 'machine:self') {
     failures.push(
-      promotionFailure('PROMOTION_UNKNOWN_APPROVAL_AUTHORITY', 'unknown approval authority', {
+      promotionFailure('PROMOTION_SELF_APPROVAL', 'implementation cannot approve itself', {
         ...at,
         approvalAuthority: approval.approvalAuthority,
-        allowed: ALLOWED_APPROVAL_AUTHORITIES,
       }),
     );
-  }
-  if (approval.approvalAuthority === GENERATOR_AUTHORITY) {
-    failures.push(
-      promotionFailure('PROMOTION_SELF_APPROVAL', 'implementation cannot approve itself', at),
-    );
-  }
-  if (approval.independentReviewRef.trim().length === 0) {
-    failures.push(
-      promotionFailure('PROMOTION_MISSING_INDEPENDENT_REVIEW', 'independent review ref absent', at),
-    );
-  }
-  if (approval.humanApprovalRef.trim().length === 0) {
-    failures.push(
-      promotionFailure('PROMOTION_MISSING_HUMAN_APPROVAL', 'Human approval ref absent', at),
-    );
-  }
-  if (approval.humanApprovalRef.trim() === approval.independentReviewRef.trim()) {
-    failures.push(
-      promotionFailure(
-        'PROMOTION_MISSING_HUMAN_APPROVAL',
-        'Human approval must be distinct from independent review',
-        at,
-      ),
-    );
-  }
-  if (approval.sourceCommit !== request.currentSourceCommit) {
-    failures.push(
-      promotionFailure('PROMOTION_STALE_SOURCE_COMMIT', 'approval bound to a different commit', {
-        ...at,
-        approved: approval.sourceCommit,
-        current: request.currentSourceCommit,
-      }),
-    );
-  }
-  if (approval.manifestDigest !== request.currentManifestDigest) {
-    failures.push(
-      promotionFailure('PROMOTION_STALE_MANIFEST_DIGEST', 'manifest digest changed since approval', {
-        ...at,
-        approved: approval.manifestDigest,
-        current: request.currentManifestDigest,
-      }),
-    );
+    return { allowed: false, failures };
   }
 
-  const approvedKeys = Object.keys(approval.candidateHashes).sort();
-  const currentKeys = Object.keys(request.currentCandidateHashes).sort();
-  if (approvedKeys.join('|') !== currentKeys.join('|')) {
-    failures.push(
-      promotionFailure('PROMOTION_ALTERED_CANDIDATE_HASH', 'candidate artifact set changed', {
-        ...at,
-        approved: approvedKeys,
-        current: currentKeys,
-      }),
-    );
-  } else {
-    for (const key of approvedKeys) {
-      if (approval.candidateHashes[key] !== request.currentCandidateHashes[key]) {
-        failures.push(
-          promotionFailure('PROMOTION_ALTERED_CANDIDATE_HASH', `candidate hash changed: ${key}`, {
-            ...at,
-            artifact: key,
-          }),
-        );
-      }
-    }
-  }
+  const resolved = promotionApprovalFromBaseline(
+    approval,
+    request.approvalStore ?? EMPTY_APPROVAL_RECORD_STORE,
+    {
+      sourceCommit: request.currentSourceCommit,
+      manifestDigest: request.currentManifestDigest,
+      candidateHashes: request.currentCandidateHashes,
+    },
+  );
+  failures.push(...resolved.failures);
 
   return { allowed: failures.length === 0, failures };
 }

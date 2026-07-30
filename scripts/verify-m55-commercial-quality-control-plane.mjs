@@ -32,6 +32,7 @@ const ENGINE_FILES = [
 const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts',
   'lib/m55/commercialUx/qualityControl/m55ManifestAdapter.ts',
+  'lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts',
 ];
 const BROWSER_FILES = [
   'e2e/helpers/commercialQualityRunner.ts',
@@ -61,6 +62,8 @@ const REQUIRED_NEGATIVE_FIXTURE_IDS = [
   'duplicate_surface',
   'unregistered_route',
   'unregistered_runtime_state',
+  'unknown_setup',
+  'duplicate_ecp',
   'missing_protected_element',
   'clipped_protected_content',
   'horizontal_overflow',
@@ -76,6 +79,11 @@ const REQUIRED_NEGATIVE_FIXTURE_IDS = [
   'stale_source_commit',
   'stale_manifest_digest',
   'altered_candidate_hash',
+];
+
+const REQUIRED_DEFERRAL_RECORD_IDS = [
+  'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
+  'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
 ];
 
 const REQUIRED_CI_STEPS = [
@@ -177,10 +185,13 @@ function checkRegistration() {
         '-e',
         [
           "import { verifyM55CommercialQualityRegistration, M55_CONSOLIDATION_POINTS } from './lib/m55/commercialUx/qualityControl/m55ManifestAdapter';",
+          "import { M55_COMMERCIAL_QUALITY_MANIFEST } from './lib/m55/commercialUx/qualityControl/m55SurfaceManifest';",
+          "import { M55_SETUP_REGISTRY } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry';",
           "import { COMMERCIAL_QUALITY_NEGATIVE_FIXTURES, evaluateFixture } from './lib/commercialQuality/fixtures';",
           'const report = verifyM55CommercialQualityRegistration();',
+          'const setupUnresolved = report.failures.filter((f) => f.code.startsWith("SETUP_")).length;',
           'const fixtures = COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => ({ id: f.id, expectedCode: f.expectedCode, rejected: evaluateFixture(f).includes(f.expectedCode) }));',
-          'process.stdout.write(JSON.stringify({ report, fixtures, consolidationPoints: M55_CONSOLIDATION_POINTS.length }));',
+          'process.stdout.write(JSON.stringify({ report, fixtures, consolidationPoints: M55_CONSOLIDATION_POINTS.length, setupCount: M55_SETUP_REGISTRY.setups.length, manifestEntryCount: M55_COMMERCIAL_QUALITY_MANIFEST.entries.length, setupUnresolved }));',
         ].join('\n'),
       ],
       { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
@@ -199,7 +210,8 @@ function checkRegistration() {
     return;
   }
 
-  const { report, fixtures, consolidationPoints } = parsed;
+  const { report, fixtures, consolidationPoints, setupCount, manifestEntryCount, setupUnresolved } =
+    parsed;
   REPORT.schemaVersion = report.schemaVersion;
   REPORT.manifestDigest = report.manifestDigest;
   REPORT.ecpEntriesRegistered = report.counts.ecpEntries;
@@ -209,6 +221,22 @@ function checkRegistration() {
   REPORT.totalSurfaces = report.counts.total;
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
+
+  if (setupCount !== manifestEntryCount) {
+    fail(
+      'registration.setup',
+      `setup registry count ${setupCount} must equal manifest entries ${manifestEntryCount}`,
+    );
+  }
+  if (setupCount !== report.counts.total) {
+    fail(
+      'registration.setup',
+      `setup registry count ${setupCount} must equal registered surfaces ${report.counts.total}`,
+    );
+  }
+  if (setupUnresolved !== 0) {
+    fail('registration.setup', `setup registry has ${setupUnresolved} unresolved SETUP_ failures`);
+  }
 
   if (report.schemaVersion !== 1) {
     fail('registration.schema', `surface manifest schema version must be 1 (received ${report.schemaVersion})`);
@@ -389,19 +417,56 @@ function checkDurablePolicy() {
     fail('policy.decision_log', `${DECISION_LOG} must record the control-plane decision`);
   }
 
-  // Every accessibility deferral must be recorded, owner-attributed and pinned.
-  const adapter = read('lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts');
-  const deferralOwners = [...adapter.matchAll(/ownerFile:\s*'([^']+)'/g)].map((m) => m[1]);
-  REPORT.accessibilityDeferrals = deferralOwners.length;
+  // Every accessibility deferral must be recorded with exact IDs, ratios, and owners.
+  const adapterManifest = read('lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts');
+  const deferralBlocks = [
+    ...adapterManifest.matchAll(
+      /decisionRecordId:\s*'([^']+)'[\s\S]*?route:\s*'([^']+)'[\s\S]*?selector:\s*'([^']+)'[\s\S]*?ownerFile:\s*'([^']+)'[\s\S]*?measuredRatio:\s*([\d.]+)[\s\S]*?classification:\s*'([^']+)'/g,
+    ),
+  ];
+  REPORT.accessibilityDeferrals = deferralBlocks.length;
   if (!log.includes('M55_ACCESSIBILITY_DEFERRALS')) {
     fail('policy.deferral', `${DECISION_LOG} must name the machine deferral authority`);
   }
-  for (const owner of deferralOwners) {
-    if (!log.includes(owner)) {
-      fail('policy.deferral', `accessibility deferral owner not recorded in the decision log: ${owner}`);
+  for (const recordId of REQUIRED_DEFERRAL_RECORD_IDS) {
+    if (!adapterManifest.includes(recordId)) {
+      fail('policy.deferral', `adapter deferral missing decisionRecordId: ${recordId}`);
+    }
+    if (!log.includes(recordId)) {
+      fail('policy.deferral', `decision log missing deferral record id: ${recordId}`);
     }
   }
-  for (const deferral of [...adapter.matchAll(/axeRuleId:\s*'([^']+)'/g)].map((m) => m[1])) {
+  for (const match of deferralBlocks) {
+    const [, decisionRecordId, route, selector, ownerFile, measuredRatio, classification] = match;
+    if (classification !== 'CLOSE_IN_COMMIT_B') {
+      fail(
+        'policy.deferral',
+        `deferral ${decisionRecordId} classification must be CLOSE_IN_COMMIT_B (received ${classification})`,
+      );
+    }
+    if (!log.includes(decisionRecordId)) {
+      fail('policy.deferral', `decision log missing deferral record id: ${decisionRecordId}`);
+    }
+    if (!log.includes(route)) {
+      fail('policy.deferral', `decision log missing deferral route: ${route}`);
+    }
+    if (!log.includes(selector)) {
+      fail('policy.deferral', `decision log missing deferral selector: ${selector}`);
+    }
+    if (!log.includes(ownerFile)) {
+      fail('policy.deferral', `decision log missing deferral owner file: ${ownerFile}`);
+    }
+    if (!log.includes(String(measuredRatio))) {
+      fail(
+        'policy.deferral',
+        `decision log missing measuredRatio ${measuredRatio} for ${decisionRecordId}`,
+      );
+    }
+    if (!log.includes('CLOSE_IN_COMMIT_B')) {
+      fail('policy.deferral', `${DECISION_LOG} must record CLOSE_IN_COMMIT_B classification`);
+    }
+  }
+  for (const deferral of [...adapterManifest.matchAll(/axeRuleId:\s*'([^']+)'/g)].map((m) => m[1])) {
     if (!log.includes(`axe \`${deferral}\``)) {
       fail('policy.deferral', `axe rule deferral not recorded in the decision log: ${deferral}`);
     }
@@ -410,7 +475,7 @@ function checkDurablePolicy() {
 
 /**
  * Candidate-only pack generation. Fails closed unless the browser gate wrote
- * GREEN gate evidence for the current source commit and manifest digest.
+ * GREEN gate evidence whose pre-recorded hashes match current HEAD / digest.
  */
 function emitCandidatePack() {
   const evidencePath = join(ROOT, GATE_EVIDENCE_FILE);
@@ -421,17 +486,20 @@ function emitCandidatePack() {
     );
     return;
   }
-  const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
-  const gates = evidence.gates ?? {};
-  if (!gates.geometryGreen || !gates.semanticGreen || !gates.accessibilityGreen) {
-    fail('approval_pack.evidence', 'candidate pack requires geometry, semantic and accessibility GREEN');
+
+  let currentSourceCommit;
+  try {
+    currentSourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+  } catch (error) {
+    fail('approval_pack.evidence', `unable to resolve current HEAD: ${error.message}`);
     return;
   }
-  if (evidence.manifestDigest !== REPORT.manifestDigest) {
-    fail(
-      'approval_pack.evidence',
-      `gate evidence manifest digest ${evidence.manifestDigest} does not match current ${REPORT.manifestDigest}`,
-    );
+
+  if (!REPORT.manifestDigest) {
+    fail('approval_pack.evidence', 'manifest digest unavailable from registration report');
     return;
   }
 
@@ -445,20 +513,32 @@ function emitCandidatePack() {
           "import { readFileSync } from 'node:fs';",
           "import { join, dirname } from 'node:path';",
           "import { generateApprovalPack } from './lib/commercialQuality/approvalPack';",
+          "import { loadProvenancedCaptures, validateCandidateProvenance } from './lib/commercialQuality/candidateProvenance';",
           "import { M55_COMMERCIAL_QUALITY_MANIFEST } from './lib/m55/commercialUx/qualityControl/m55SurfaceManifest';",
           `const evidence = JSON.parse(readFileSync(${JSON.stringify(GATE_EVIDENCE_FILE)}, 'utf8'));`,
           `const captureDir = dirname(${JSON.stringify(GATE_EVIDENCE_FILE)});`,
+          `const currentSourceCommit = ${JSON.stringify(currentSourceCommit)};`,
+          `const currentManifestDigest = ${JSON.stringify(REPORT.manifestDigest)};`,
+          'const manifestSurfaceIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.surfaceId));',
+          'const manifestSetupIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.setupId));',
+          'const manifestRuntimeStateIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.runtimeStateId));',
+          'const provenanceFailures = validateCandidateProvenance({ evidence, currentSourceCommit, currentManifestDigest, captureDirectory: captureDir, manifestSurfaceIds, manifestSetupIds, manifestRuntimeStateIds });',
+          'if (provenanceFailures.length > 0) {',
+          '  process.stderr.write(JSON.stringify({ provenanceFailures }));',
+          '  process.exit(2);',
+          '}',
           'const entries = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter((e) => evidence.changedSurfaces.includes(e.surfaceId));',
+          'const captures = loadProvenancedCaptures(evidence, captureDir);',
           'const pack = generateApprovalPack(process.cwd(), {',
-          '  sourceCommit: evidence.sourceCommit,',
-          '  manifestDigest: evidence.manifestDigest,',
+          '  sourceCommit: currentSourceCommit,',
+          '  manifestDigest: currentManifestDigest,',
           '  entries,',
           '  results: [],',
           '  gates: evidence.gates,',
           '  changedSurfaces: evidence.changedSurfaces,',
-          '  captures: evidence.captures.map((c) => ({ relativePath: c.relativePath, kind: c.kind, data: readFileSync(join(captureDir, c.relativePath)) })),',
+          '  captures,',
           '});',
-          'process.stdout.write(JSON.stringify({ directory: pack.directory, status: pack.provenance.status, artifacts: pack.provenance.artifacts.length, humanApprovalRecorded: pack.provenance.humanApprovalRecorded }));',
+          'process.stdout.write(JSON.stringify({ directory: pack.directory, status: pack.provenance.status, artifacts: pack.provenance.artifacts.length, humanApprovalRecorded: pack.provenance.humanApprovalRecorded, sourceCommit: pack.provenance.sourceCommit, manifestDigest: pack.provenance.manifestDigest }));',
         ].join('\n'),
       ],
       { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
@@ -467,9 +547,19 @@ function emitCandidatePack() {
     if (parsed.status !== 'candidate' || parsed.humanApprovalRecorded !== false) {
       fail('approval_pack.candidate', 'generated pack must be candidate-only');
     }
+    if (parsed.sourceCommit !== currentSourceCommit) {
+      fail('approval_pack.evidence', 'generated pack must bind to current HEAD');
+    }
+    if (parsed.manifestDigest !== REPORT.manifestDigest) {
+      fail('approval_pack.evidence', 'generated pack must bind to current manifest digest');
+    }
     REPORT.candidatePack = parsed;
   } catch (error) {
-    fail('approval_pack.generation', `candidate pack generation failed: ${error.message}`);
+    if (error.status === 2 && error.stderr) {
+      fail('approval_pack.provenance', `candidate provenance validation failed: ${error.stderr}`);
+    } else {
+      fail('approval_pack.generation', `candidate pack generation failed: ${error.message}`);
+    }
   }
 }
 

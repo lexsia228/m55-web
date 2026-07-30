@@ -5,8 +5,14 @@
  * the production validators evaluate. Nothing here passes by matching a string
  * marker: a fixture is accepted only when the real checker emits the declared
  * failure code.
+ *
+ * Adapter negatives are evaluated via `probeAdapterNegative` from the M55
+ * manifest adapter (dynamic require — engine must not statically import M55).
  */
+import { createRequire } from 'node:module';
+
 import { evaluatePromotion, GENERATOR_AUTHORITY, type PromotionRequest } from './approvalPack';
+import type { ApprovalRecordStore, ResolvedApprovalRecord } from './approvalRecords';
 import {
   checkAccessibilityInvariants,
   checkLayoutInvariants,
@@ -168,19 +174,98 @@ export type PromotionFixture = {
   kind: 'promotion';
   expectedCode: CommercialQualityFailureCode;
   request: PromotionRequest;
+  /** Injected store so stale-commit/digest/hash negatives fail for the right reason. */
+  approvalStore?: ApprovalRecordStore;
 };
 
+/** Adapter negatives map to `probeAdapterNegative` kinds in the M55 adapter. */
 export type AdapterFixture = {
   id: string;
   kind: 'adapter';
   expectedCode: CommercialQualityFailureCode;
-  /** Governed identities the adapter must reconcile. */
-  registeredSurfaceIds: readonly string[];
-  importedRouteIds: readonly string[];
-  importedStateIds: readonly string[];
-  authorityKeys: readonly string[];
-  knownAuthorityKeys: readonly string[];
 };
+
+const ADAPTER_PROBE_KIND_BY_FIXTURE_ID = {
+  unregistered_route: 'unregistered_route',
+  unregistered_runtime_state: 'unregistered_state',
+  unknown_setup: 'unknown_setup',
+  duplicate_ecp: 'duplicate_ecp',
+} as const;
+
+type AdapterProbeKind = (typeof ADAPTER_PROBE_KIND_BY_FIXTURE_ID)[keyof typeof ADAPTER_PROBE_KIND_BY_FIXTURE_ID];
+
+const require = createRequire(import.meta.url);
+
+function probeAdapterNegativeForFixture(
+  fixtureId: string,
+): readonly CommercialQualityFailureCode[] {
+  const kind = ADAPTER_PROBE_KIND_BY_FIXTURE_ID[
+    fixtureId as keyof typeof ADAPTER_PROBE_KIND_BY_FIXTURE_ID
+  ] as AdapterProbeKind | undefined;
+  if (!kind) {
+    throw new Error(`adapter fixture ${fixtureId} has no probeAdapterNegative mapping`);
+  }
+  const { probeAdapterNegative } = require('../m55/commercialUx/qualityControl/m55ManifestAdapter') as {
+    probeAdapterNegative: (probeKind: AdapterProbeKind) => readonly { code: CommercialQualityFailureCode }[];
+  };
+  return probeAdapterNegative(kind).map((failure) => failure.code);
+}
+
+export function durablePromotionApprovalRecords(
+  overrides: Partial<{
+    sourceCommit: string;
+    manifestDigest: string;
+    candidateHashes: Readonly<Record<string, string>>;
+    independentReviewRef: string;
+    humanApprovalRef: string;
+  }> = {},
+): readonly ResolvedApprovalRecord[] {
+  const sourceCommit = overrides.sourceCommit ?? 'commit-a';
+  const manifestDigestValue = overrides.manifestDigest ?? 'digest-a';
+  const candidateHashes = overrides.candidateHashes ?? { 'home-390.png': 'hash-a' };
+  const independentReviewRef = overrides.independentReviewRef ?? 'codex-review-1';
+  const humanApprovalRef = overrides.humanApprovalRef ?? 'human-approval-1';
+  return [
+    {
+      approvalId: independentReviewRef,
+      authorityType: 'independent_codex_review',
+      sourceCommit,
+      manifestDigest: manifestDigestValue,
+      candidateHashes,
+      decision: 'approve',
+      recordedAt: '2026-07-30T00:00:00.000Z',
+      recordProvenance: 'fixtures/codex-review.json',
+    },
+    {
+      approvalId: humanApprovalRef,
+      authorityType: 'human_commercial_approval',
+      sourceCommit,
+      manifestDigest: manifestDigestValue,
+      candidateHashes,
+      decision: 'approve',
+      recordedAt: '2026-07-30T00:00:00.000Z',
+      recordProvenance: 'fixtures/human-approval.json',
+    },
+  ];
+}
+
+function inMemoryApprovalStore(records: readonly ResolvedApprovalRecord[]): ApprovalRecordStore {
+  const map = new Map(records.map((record) => [record.approvalId, record]));
+  return {
+    resolve: (approvalId) => map.get(approvalId) ?? null,
+  };
+}
+
+/** Test helper mirroring approvalRecordStoreOf without importing approvalRecords. */
+export function fixtureApprovalStoreOf(
+  records: readonly ResolvedApprovalRecord[],
+): ApprovalRecordStore {
+  return inMemoryApprovalStore(records);
+}
+
+export const FIXTURE_DURABLE_APPROVAL_STORE = inMemoryApprovalStore(
+  durablePromotionApprovalRecords(),
+);
 
 export type CommercialQualityFixture =
   | ManifestFixture
@@ -197,7 +282,7 @@ function promotionRequest(overrides: Partial<PromotionRequest> = {}): PromotionR
     toState: 'human-approved',
     gates: GREEN_GATES,
     approval: {
-      approvalAuthority: 'human:commercial-review',
+      approvalAuthority: 'durable:approval-record-store',
       independentReviewRef: 'codex-review-1',
       humanApprovalRef: 'human-approval-1',
       approvedAt: '2026-07-30T00:00:00.000Z',
@@ -227,21 +312,21 @@ export const COMMERCIAL_QUALITY_NEGATIVE_FIXTURES: readonly CommercialQualityFix
     id: 'unregistered_route',
     kind: 'adapter',
     expectedCode: 'ADAPTER_UNREGISTERED_ROUTE',
-    registeredSurfaceIds: ['fixture:route.a'],
-    importedRouteIds: ['route.a', 'route.b'],
-    importedStateIds: [],
-    authorityKeys: [],
-    knownAuthorityKeys: [],
   },
   {
     id: 'unregistered_runtime_state',
     kind: 'adapter',
     expectedCode: 'ADAPTER_UNREGISTERED_STATE',
-    registeredSurfaceIds: ['fixture:state.a'],
-    importedRouteIds: [],
-    importedStateIds: ['state.a', 'state.b'],
-    authorityKeys: [],
-    knownAuthorityKeys: [],
+  },
+  {
+    id: 'unknown_setup',
+    kind: 'adapter',
+    expectedCode: 'SETUP_MISSING_FOR_SURFACE',
+  },
+  {
+    id: 'duplicate_ecp',
+    kind: 'adapter',
+    expectedCode: 'MANIFEST_DUPLICATE_SURFACE_ID',
   },
   {
     id: 'missing_protected_element',
@@ -403,51 +488,23 @@ export const COMMERCIAL_QUALITY_NEGATIVE_FIXTURES: readonly CommercialQualityFix
     kind: 'promotion',
     expectedCode: 'PROMOTION_STALE_SOURCE_COMMIT',
     request: promotionRequest({ currentSourceCommit: 'commit-b' }),
+    approvalStore: FIXTURE_DURABLE_APPROVAL_STORE,
   },
   {
     id: 'stale_manifest_digest',
     kind: 'promotion',
     expectedCode: 'PROMOTION_STALE_MANIFEST_DIGEST',
     request: promotionRequest({ currentManifestDigest: 'digest-b' }),
+    approvalStore: FIXTURE_DURABLE_APPROVAL_STORE,
   },
   {
     id: 'altered_candidate_hash',
     kind: 'promotion',
     expectedCode: 'PROMOTION_ALTERED_CANDIDATE_HASH',
     request: promotionRequest({ currentCandidateHashes: { 'home-390.png': 'hash-b' } }),
+    approvalStore: FIXTURE_DURABLE_APPROVAL_STORE,
   },
 ];
-
-/** Adapter-side reconciliation used by both fixtures and the real adapter. */
-export function reconcileImportedIdentities(input: {
-  registeredSurfaceIds: readonly string[];
-  importedRouteIds: readonly string[];
-  importedStateIds: readonly string[];
-  authorityKeys: readonly string[];
-  knownAuthorityKeys: readonly string[];
-}): readonly CommercialQualityFailureCode[] {
-  const codes: CommercialQualityFailureCode[] = [];
-  const registeredSuffixes = new Set(
-    input.registeredSurfaceIds.map((id) => id.slice(id.indexOf(':') + 1)),
-  );
-
-  const seen = new Set<string>();
-  for (const id of [...input.importedRouteIds, ...input.importedStateIds]) {
-    if (seen.has(id)) codes.push('ADAPTER_DUPLICATE_IMPORTED_AUTHORITY');
-    seen.add(id);
-  }
-  for (const routeId of input.importedRouteIds) {
-    if (!registeredSuffixes.has(routeId)) codes.push('ADAPTER_UNREGISTERED_ROUTE');
-  }
-  for (const stateId of input.importedStateIds) {
-    if (!registeredSuffixes.has(stateId)) codes.push('ADAPTER_UNREGISTERED_STATE');
-  }
-  const known = new Set(input.knownAuthorityKeys);
-  for (const key of input.authorityKeys) {
-    if (!known.has(key)) codes.push('ADAPTER_UNKNOWN_AUTHORITY_REFERENCE');
-  }
-  return codes;
-}
 
 /** Run a fixture through the real validators and return emitted codes. */
 export function evaluateFixture(
@@ -457,10 +514,13 @@ export function evaluateFixture(
     return validateSurfaceManifest(fixture.manifest).map((f) => f.code);
   }
   if (fixture.kind === 'promotion') {
-    return evaluatePromotion(fixture.request).failures.map((f) => f.code);
+    return evaluatePromotion({
+      ...fixture.request,
+      approvalStore: fixture.approvalStore ?? fixture.request.approvalStore,
+    }).failures.map((f) => f.code);
   }
   if (fixture.kind === 'adapter') {
-    return reconcileImportedIdentities(fixture);
+    return probeAdapterNegativeForFixture(fixture.id);
   }
   const neighbor: NeighborContext =
     fixture.neighbor ?? {
