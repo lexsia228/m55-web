@@ -30,6 +30,7 @@ export const FORBIDDEN_DEV_OVERLAY_TEXTS = [
 
 /** Locators for Next.js / Clerk development chrome. */
 export const FORBIDDEN_DEV_OVERLAY_LOCATORS = [
+  '[data-nextjs-dev-tools-button]',
   'nextjs-portal',
   '[data-nextjs-toast]',
   '[data-next-badge-root]',
@@ -137,12 +138,12 @@ function detectUnexpectedOverlayBrowser(): OverlayDetectionResult {
     'Access the dashboard to customize auth settings',
   ] as const;
 
-  const isEffectivelyVisible = (el: Element) => {
+  const isEffectivelyVisible = (el: Element, minSize = 8) => {
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || style.visibility === 'hidden') return false;
     if (Number.parseFloat(style.opacity || '1') < 0.05) return false;
     const rect = el.getBoundingClientRect();
-    return rect.width >= 8 && rect.height >= 8;
+    return rect.width >= minSize && rect.height >= minSize;
   };
 
   const describe = (
@@ -152,10 +153,17 @@ function detectUnexpectedOverlayBrowser(): OverlayDetectionResult {
   ): OverlayFinding => {
     const style = window.getComputedStyle(el);
     const rect = el.getBoundingClientRect();
+    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    const aria =
+      el.getAttribute('aria-label') ||
+      el.getAttribute('aria-labelledby') ||
+      (el instanceof HTMLElement ? el.title : '') ||
+      '';
+    const fingerprint = [text, aria ? `aria:${aria}` : ''].filter(Boolean).join(' ').slice(0, 200);
     return {
       kind,
       selector,
-      textFingerprint: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 160),
+      textFingerprint: fingerprint,
       boundingRectangle: {
         top: rect.top,
         left: rect.left,
@@ -169,6 +177,7 @@ function detectUnexpectedOverlayBrowser(): OverlayDetectionResult {
   };
 
   for (const selector of [
+    '[data-nextjs-dev-tools-button]',
     'nextjs-portal',
     '[data-nextjs-toast]',
     '[data-next-badge-root]',
@@ -177,8 +186,9 @@ function detectUnexpectedOverlayBrowser(): OverlayDetectionResult {
     '[data-clerk-modal]',
     '.cl-modalBackdrop',
   ]) {
+    const minSize = selector === '[data-nextjs-dev-tools-button]' ? 4 : 8;
     for (const el of Array.from(document.querySelectorAll(selector))) {
-      if (!isEffectivelyVisible(el)) continue;
+      if (!isEffectivelyVisible(el, minSize)) continue;
       findings.push(describe('locator', selector, el));
     }
   }

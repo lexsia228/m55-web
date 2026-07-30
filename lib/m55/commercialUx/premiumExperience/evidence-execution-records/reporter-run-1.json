@@ -3,9 +3,10 @@
   "runId": "run-1",
   "commandContractKey": "premium-experience-evidence.playwright.json",
   "command": "playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
+  "cleanServerCommand": "M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -p 3000",
   "exitCode": 0,
-  "startedAt": "2026-07-29T18:56:51.078Z",
-  "endedAt": "2026-07-29T18:58:48.998Z",
+  "startedAt": "2026-07-30T03:51:55.100Z",
+  "endedAt": "2026-07-30T03:53:30.141Z",
   "stats": {
     "expected": 19,
     "unexpected": 0,
@@ -20,7 +21,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 15384,
+      "durationMs": 18406,
       "viewport": "390"
     },
     {
@@ -29,7 +30,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 10066,
+      "durationMs": 12833,
       "viewport": "768"
     },
     {
@@ -38,7 +39,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 8039,
+      "durationMs": 6806,
       "viewport": "1280"
     },
     {
@@ -47,7 +48,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2673,
+      "durationMs": 2815,
       "viewport": "390"
     },
     {
@@ -56,7 +57,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1290,
+      "durationMs": 1411,
       "viewport": "768"
     },
     {
@@ -65,7 +66,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1450,
+      "durationMs": 1363,
       "viewport": "1280"
     },
     {
@@ -74,7 +75,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 16362,
+      "durationMs": 7928,
       "viewport": "390"
     },
     {
@@ -83,7 +84,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 10025,
+      "durationMs": 4493,
       "viewport": "768"
     },
     {
@@ -92,7 +93,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5138,
+      "durationMs": 3921,
       "viewport": "1280"
     },
     {
@@ -101,7 +102,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2537,
+      "durationMs": 1915,
       "viewport": "390"
     },
     {
@@ -110,7 +111,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2888,
+      "durationMs": 2160,
       "viewport": "768"
     },
     {
@@ -119,7 +120,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2336,
+      "durationMs": 1720,
       "viewport": "1280"
     },
     {
@@ -128,7 +129,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2410,
+      "durationMs": 1884,
       "viewport": "390"
     },
     {
@@ -137,7 +138,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3327,
+      "durationMs": 2276,
       "viewport": "768"
     },
     {
@@ -146,7 +147,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2169,
+      "durationMs": 1770,
       "viewport": "1280"
     },
     {
@@ -155,7 +156,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1771,
+      "durationMs": 1800,
       "viewport": "390"
     },
     {
@@ -164,7 +165,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 3501,
+      "durationMs": 2033,
       "viewport": "768"
     },
     {
@@ -173,7 +174,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1959,
+      "durationMs": 1477,
       "viewport": "1280"
     },
     {
@@ -182,7 +183,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 22729,
+      "durationMs": 12598,
       "viewport": "1280"
     }
   ],
@@ -193,12 +194,12 @@
       "stateId": "premium.core.bridge",
       "viewport": "390",
       "expectedRoute": "/core",
-      "actualUrl": "http://localhost:3023/core",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/core",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-390.png",
-      "byteLength": 93581,
+      "byteLength": 93063,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -207,12 +208,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "9a822678e6cf6c8450c98fddaac4629254797437e48f8c8c46dccc2e109a96c5",
       "fileName": "premium-q1-390.png",
-      "byteLength": 82608,
+      "byteLength": 80958,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -221,12 +222,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "42e05a93f4a8a415d5d12bc1a9ebfa78da11f6630851f671a473cfcf6240b8b3",
       "fileName": "premium-q5-390.png",
-      "byteLength": 69950,
+      "byteLength": 67515,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -235,12 +236,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "cb073ae30a30be6216bb318ab5b4bcab1279e3f79d1e6c867b6a66ae7c95b900",
       "fileName": "premium-q6-390.png",
-      "byteLength": 71643,
+      "byteLength": 69349,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -249,12 +250,12 @@
       "stateId": "premium.lp.answer_review",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ab92b54a3b8f9ae1d2cf39cc1a6189d57f848f411edfdd503a9ba50f43c728fc",
       "fileName": "answer-review-390.png",
-      "byteLength": 89912,
+      "byteLength": 87690,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -263,12 +264,12 @@
       "stateId": "premium.lp.answer_edit",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ec1187be3a08330828ec61b6d810decc77404e26c8c0e4b8764394a0ee123016",
       "fileName": "answer-edit-390.png",
-      "byteLength": 83116,
+      "byteLength": 81448,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -277,12 +278,12 @@
       "stateId": "premium.lp.plans",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "3c35b70fe140255588573bad492fa3745c6c15ca1292a50059f1d4b36cc3e452",
       "fileName": "plan-selection-390.png",
-      "byteLength": 211564,
+      "byteLength": 209045,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -291,12 +292,12 @@
       "stateId": "premium.lp.checkout",
       "viewport": "390",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-390.png",
-      "byteLength": 116009,
+      "byteLength": 113907,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -305,8 +306,8 @@
       "stateId": "premium.core.bridge",
       "viewport": "768",
       "expectedRoute": "/core",
-      "actualUrl": "http://localhost:3023/core",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/core",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-768.png",
@@ -319,12 +320,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "9a822678e6cf6c8450c98fddaac4629254797437e48f8c8c46dccc2e109a96c5",
       "fileName": "premium-q1-768.png",
-      "byteLength": 85789,
+      "byteLength": 83328,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -333,12 +334,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "42e05a93f4a8a415d5d12bc1a9ebfa78da11f6630851f671a473cfcf6240b8b3",
       "fileName": "premium-q5-768.png",
-      "byteLength": 72896,
+      "byteLength": 70759,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -347,12 +348,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "cb073ae30a30be6216bb318ab5b4bcab1279e3f79d1e6c867b6a66ae7c95b900",
       "fileName": "premium-q6-768.png",
-      "byteLength": 74683,
+      "byteLength": 72540,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -361,12 +362,12 @@
       "stateId": "premium.lp.answer_review",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ab92b54a3b8f9ae1d2cf39cc1a6189d57f848f411edfdd503a9ba50f43c728fc",
       "fileName": "answer-review-768.png",
-      "byteLength": 93379,
+      "byteLength": 91420,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -375,12 +376,12 @@
       "stateId": "premium.lp.answer_edit",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ec1187be3a08330828ec61b6d810decc77404e26c8c0e4b8764394a0ee123016",
       "fileName": "answer-edit-768.png",
-      "byteLength": 86274,
+      "byteLength": 83814,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -389,12 +390,12 @@
       "stateId": "premium.lp.plans",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "3c35b70fe140255588573bad492fa3745c6c15ca1292a50059f1d4b36cc3e452",
       "fileName": "plan-selection-768.png",
-      "byteLength": 233699,
+      "byteLength": 231420,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -403,12 +404,12 @@
       "stateId": "premium.lp.checkout",
       "viewport": "768",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-768.png",
-      "byteLength": 120789,
+      "byteLength": 118656,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -417,8 +418,8 @@
       "stateId": "premium.core.bridge",
       "viewport": "1280",
       "expectedRoute": "/core",
-      "actualUrl": "http://localhost:3023/core",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/core",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-1280.png",
@@ -431,12 +432,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "9a822678e6cf6c8450c98fddaac4629254797437e48f8c8c46dccc2e109a96c5",
       "fileName": "premium-q1-1280.png",
-      "byteLength": 92801,
+      "byteLength": 90188,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -445,12 +446,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "42e05a93f4a8a415d5d12bc1a9ebfa78da11f6630851f671a473cfcf6240b8b3",
       "fileName": "premium-q5-1280.png",
-      "byteLength": 79107,
+      "byteLength": 76680,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -459,12 +460,12 @@
       "stateId": "premium.lp.questions",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "cb073ae30a30be6216bb318ab5b4bcab1279e3f79d1e6c867b6a66ae7c95b900",
       "fileName": "premium-q6-1280.png",
-      "byteLength": 80906,
+      "byteLength": 78493,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -473,12 +474,12 @@
       "stateId": "premium.lp.answer_review",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ab92b54a3b8f9ae1d2cf39cc1a6189d57f848f411edfdd503a9ba50f43c728fc",
       "fileName": "answer-review-1280.png",
-      "byteLength": 101916,
+      "byteLength": 99185,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -487,12 +488,12 @@
       "stateId": "premium.lp.answer_edit",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ec1187be3a08330828ec61b6d810decc77404e26c8c0e4b8764394a0ee123016",
       "fileName": "answer-edit-1280.png",
-      "byteLength": 93328,
+      "byteLength": 90738,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -501,12 +502,12 @@
       "stateId": "premium.lp.plans",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "3c35b70fe140255588573bad492fa3745c6c15ca1292a50059f1d4b36cc3e452",
       "fileName": "plan-selection-1280.png",
-      "byteLength": 238674,
+      "byteLength": 236178,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -515,12 +516,12 @@
       "stateId": "premium.lp.checkout",
       "viewport": "1280",
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-1280.png",
-      "byteLength": 131372,
+      "byteLength": 129053,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -529,12 +530,12 @@
       "stateId": "premium.share.card",
       "viewport": "390",
       "expectedRoute": "/dev/premium-share-preview",
-      "actualUrl": "http://localhost:3023/dev/premium-share-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/premium-share-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-390.png",
-      "byteLength": 131073,
+      "byteLength": 129100,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-4015b087ac1bc8a28953"
     },
     {
@@ -543,12 +544,12 @@
       "stateId": "premium.share.card",
       "viewport": "768",
       "expectedRoute": "/dev/premium-share-preview",
-      "actualUrl": "http://localhost:3023/dev/premium-share-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/premium-share-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-768.png",
-      "byteLength": 147546,
+      "byteLength": 145280,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-a5aee58254b02d29e07c"
     },
     {
@@ -557,12 +558,12 @@
       "stateId": "premium.share.card",
       "viewport": "1280",
       "expectedRoute": "/dev/premium-share-preview",
-      "actualUrl": "http://localhost:3023/dev/premium-share-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/premium-share-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-1280.png",
-      "byteLength": 186671,
+      "byteLength": 184343,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-59d974b4bfdf34730e29"
     },
     {
@@ -571,12 +572,12 @@
       "stateId": "purchased.report.body",
       "viewport": "390",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "d6a3e23d98b007abbef3e8dba1f7088b2495926e4be3a808105287bf8cc73056",
       "fileName": "purchased-report-landing-390.png",
-      "byteLength": 350302,
+      "byteLength": 349122,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -585,12 +586,12 @@
       "stateId": "purchased.report.body",
       "viewport": "390",
       "expectedRoute": "/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?openPanel=chapter-1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-390.png",
-      "byteLength": 1103969,
+      "byteLength": 1103252,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -599,12 +600,12 @@
       "stateId": "purchased.report.body",
       "viewport": "768",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "d6a3e23d98b007abbef3e8dba1f7088b2495926e4be3a808105287bf8cc73056",
       "fileName": "purchased-report-landing-768.png",
-      "byteLength": 570908,
+      "byteLength": 570138,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -613,12 +614,12 @@
       "stateId": "purchased.report.body",
       "viewport": "768",
       "expectedRoute": "/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?openPanel=chapter-1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-768.png",
-      "byteLength": 1418825,
+      "byteLength": 1416713,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -627,8 +628,8 @@
       "stateId": "purchased.report.body",
       "viewport": "1280",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "d6a3e23d98b007abbef3e8dba1f7088b2495926e4be3a808105287bf8cc73056",
       "fileName": "purchased-report-landing-1280.png",
@@ -641,12 +642,12 @@
       "stateId": "purchased.report.body",
       "viewport": "1280",
       "expectedRoute": "/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?openPanel=chapter-1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?openPanel=chapter-1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-1280.png",
-      "byteLength": 1527160,
+      "byteLength": 1526317,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-66588cdef7a8b28eaba1"
     },
     {
@@ -655,12 +656,12 @@
       "stateId": "purchased.consult.input",
       "viewport": "390",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=available&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "277bd86299a8a30ea3e667b4a9819ca8023ce9c044a082e1a99a81b306df4f44",
       "fileName": "additional-reading-input-390.png",
-      "byteLength": 666386,
+      "byteLength": 664714,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ed89bfe1f0baf82f8348"
     },
     {
@@ -669,12 +670,12 @@
       "stateId": "purchased.consult.input",
       "viewport": "768",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=available&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "277bd86299a8a30ea3e667b4a9819ca8023ce9c044a082e1a99a81b306df4f44",
       "fileName": "additional-reading-input-768.png",
-      "byteLength": 965461,
+      "byteLength": 963795,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f63f26dd1976d47b11bb"
     },
     {
@@ -683,12 +684,12 @@
       "stateId": "purchased.consult.input",
       "viewport": "1280",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=available&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=available&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultRoom.tsx",
       "visibleContractDigest": "277bd86299a8a30ea3e667b4a9819ca8023ce9c044a082e1a99a81b306df4f44",
       "fileName": "additional-reading-input-1280.png",
-      "byteLength": 1065986,
+      "byteLength": 1064476,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-6716c6fa906de2769332"
     },
     {
@@ -697,12 +698,12 @@
       "stateId": "purchased.consult.result",
       "viewport": "390",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "additional-reading-result-390.png",
-      "byteLength": 702026,
+      "byteLength": 700278,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-26aba879f56c751049dd"
     },
     {
@@ -711,12 +712,12 @@
       "stateId": "purchased.consult.result",
       "viewport": "768",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "additional-reading-result-768.png",
-      "byteLength": 1001239,
+      "byteLength": 999894,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-5196479a3899a5eeb263"
     },
     {
@@ -725,12 +726,12 @@
       "stateId": "purchased.consult.result",
       "viewport": "1280",
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?consultWallet=history&openPanel=consult&withConsult=1",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "additional-reading-result-1280.png",
-      "byteLength": 1104069,
+      "byteLength": 1102706,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-c430c3ef871a99726307"
     },
     {
@@ -739,8 +740,8 @@
       "stateId": "purchased.saved_reopen",
       "viewport": "390",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "1940085713c0577d46878165fa7753e3ddef77037f81148224728b838b87ec05",
       "fileName": "saved-premium-reopen-390.png",
@@ -753,8 +754,8 @@
       "stateId": "purchased.saved_reopen",
       "viewport": "768",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "1940085713c0577d46878165fa7753e3ddef77037f81148224728b838b87ec05",
       "fileName": "saved-premium-reopen-768.png",
@@ -767,8 +768,8 @@
       "stateId": "purchased.saved_reopen",
       "viewport": "1280",
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/SavedSnapshotNotice.tsx",
       "visibleContractDigest": "1940085713c0577d46878165fa7753e3ddef77037f81148224728b838b87ec05",
       "fileName": "saved-premium-reopen-1280.png",
@@ -781,8 +782,8 @@
       "stateId": "premium.lp.answer_review",
       "viewport": null,
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidQuestionnaireLayer.tsx",
       "visibleContractDigest": "ab92b54a3b8f9ae1d2cf39cc1a6189d57f848f411edfdd503a9ba50f43c728fc",
       "fileName": "pdf/answer-review.pdf",
@@ -795,8 +796,8 @@
       "stateId": "premium.lp.plans",
       "viewport": null,
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "3c35b70fe140255588573bad492fa3745c6c15ca1292a50059f1d4b36cc3e452",
       "fileName": "pdf/plan-selection.pdf",
@@ -809,8 +810,8 @@
       "stateId": "premium.lp.checkout",
       "viewport": null,
       "expectedRoute": "/dtr/lp",
-      "actualUrl": "http://localhost:3023/dtr/lp#m55-paid-questionnaire",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dtr/lp#m55-paid-questionnaire",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "pdf/payment-prep.pdf",
@@ -823,12 +824,12 @@
       "stateId": "purchased.report.body",
       "viewport": null,
       "expectedRoute": "/dev/dtr-drawer-preview",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "d6a3e23d98b007abbef3e8dba1f7088b2495926e4be3a808105287bf8cc73056",
       "fileName": "pdf/purchased-report.pdf",
-      "byteLength": 2070954,
+      "byteLength": 2070962,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     },
     {
@@ -837,12 +838,12 @@
       "stateId": "purchased.consult.result",
       "viewport": null,
       "expectedRoute": "/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
-      "actualUrl": "http://localhost:3023/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
-      "actualOrigin": "http://localhost:3023",
+      "actualUrl": "http://127.0.0.1:3000/dev/dtr-drawer-preview?withConsult=1&consultWallet=history&openPanel=consult",
+      "actualOrigin": "http://127.0.0.1:3000",
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "pdf/additional-reading-result.pdf",
-      "byteLength": 3574517,
+      "byteLength": 3546917,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     }
   ]

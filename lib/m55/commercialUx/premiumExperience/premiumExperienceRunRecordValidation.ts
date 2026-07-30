@@ -58,6 +58,8 @@ export type PremiumRunRecord = {
   normalizedReporterSha256: string;
   commandContractKey: string;
   command: string;
+  /** Exact clean next-dev command used for governed capture (runner metadata). */
+  cleanServerCommand?: string;
   exitCode: number;
   expectedOriginPattern: string;
   actualOrigins: string[];

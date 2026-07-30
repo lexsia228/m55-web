@@ -11,7 +11,9 @@
  *   middleware can boot.
  * - Set NEXT_PUBLIC_CLERK_KEYLESS_DISABLED=1 so the "Configure your application"
  *   panel is never created.
- * - Set NEXT_DISABLE_DEV_INDICATOR=1 so the Next.js "N" indicator is not created.
+ * - Set NEXT_DISABLE_DEV_INDICATOR=1 (compat) and rely on next.config.mjs
+ *   `devIndicators: false` when M55_E2E_CLEAN_CAPTURE=1 so the Next.js
+ *   `[data-nextjs-dev-tools-button]` control is never generated (Next 15.5).
  *
  * This does not fabricate Production accounts or entitlements and does not weaken
  * Preview/Production auth. Secrets stay in gitignored `.clerk/` and are never written

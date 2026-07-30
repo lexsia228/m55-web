@@ -37,11 +37,17 @@ export const PREMIUM_PROOF_SOURCE_FILES = [
   // Proof toolchain, runner and launchers
   'scripts/premium-proof-toolchain.mjs',
   'scripts/run-premium-experience-evidence.mjs',
+  'scripts/m55-e2e-clean-capture-env.mjs',
+  'scripts/run-m55-e2e-clean-dev.mjs',
   'scripts/verify-m55-premium-experience.mjs',
   'scripts/verify-m55-premium-proof-records.mjs',
   // Premium E2E specification and Playwright configuration
   'e2e/premium-experience-evidence.spec.ts',
+  'e2e/helpers/cleanCaptureEnvironment.ts',
   'playwright.config.ts',
+  'next.config.mjs',
+  'middleware.ts',
+  'lib/m55/e2e/isAuthorizedCleanCaptureLoopbackHost.ts',
   // Shared owner files whose markup the capture contracts depend on
   'components/core/CoreFreeToPaidConversionBridge.tsx',
   'components/core/CoreFreeResultShareCTA.tsx',

@@ -2,8 +2,10 @@
  * Start local `next dev` under the fail-closed clean-capture environment.
  *
  * Usage:
- *   M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -- -p 3023
+ *   M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -p 3000
  *
+ * Starts `next dev` under the clean-capture env so next.config.mjs applies
+ * `devIndicators: false` and Clerk keyless UI is never created.
  * Never prints secret values.
  */
 import { spawn } from 'node:child_process';

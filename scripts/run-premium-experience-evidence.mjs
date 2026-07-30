@@ -38,6 +38,9 @@ const COMMAND_CONTRACT = {
   [COMMAND_CONTRACT_KEY]: 'playwright test e2e/premium-experience-evidence.spec.ts --reporter=json',
 };
 const PLAYWRIGHT_BIN = join(ROOT, 'node_modules', '.bin', process.platform === 'win32' ? 'playwright.cmd' : 'playwright');
+/** Exact clean server command started by Playwright webServer under this runner. */
+const CLEAN_SERVER_COMMAND =
+  'M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -p 3000';
 
 function sha256(text) {
   return createHash('sha256').update(text).digest('hex');
@@ -190,18 +193,25 @@ function runPlaywrightOnce(runId) {
   const startedAt = new Date().toISOString();
   // Fail-closed clean capture: explicit E2E flag + gitignored local Clerk test
   // keys + keyless/Next-dev chrome disabled at process level.
+  // Force Playwright to start the governed clean webServer (do not reuse an
+  // externally started unclean next-dev process via PLAYWRIGHT_BASE_URL).
   const cleanEnv = buildCleanCaptureServerEnv({
     ...process.env,
     M55_E2E_CLEAN_CAPTURE: '1',
   });
+  const childEnv = {
+    ...cleanEnv,
+    PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut,
+    M55_E2E_CLEAN_CAPTURE: '1',
+    PLAYWRIGHT_BASE_URL: '',
+    PLAYWRIGHT_SKIP_WEBSERVER: '',
+  };
+  delete childEnv.PLAYWRIGHT_BASE_URL;
+  delete childEnv.PLAYWRIGHT_SKIP_WEBSERVER;
   const result = spawnSync(PLAYWRIGHT_BIN, args, {
     cwd: ROOT,
     encoding: 'utf8',
-    env: {
-      ...cleanEnv,
-      PLAYWRIGHT_JSON_OUTPUT_NAME: jsonOut,
-      M55_E2E_CLEAN_CAPTURE: '1',
-    },
+    env: childEnv,
     maxBuffer: 256 * 1024 * 1024,
   });
   const endedAt = new Date().toISOString();
@@ -218,6 +228,7 @@ function runPlaywrightOnce(runId) {
     runId,
     commandContractKey: COMMAND_CONTRACT_KEY,
     command,
+    cleanServerCommand: CLEAN_SERVER_COMMAND,
     exitCode: result.status ?? 1,
     startedAt,
     endedAt,
@@ -276,6 +287,7 @@ function buildRecord(runId, pw, payload, representsCommittedEvidence) {
     normalizedReporterSha256: pw.normalizedReporterSha256,
     commandContractKey: pw.commandContractKey,
     command: pw.command,
+    cleanServerCommand: CLEAN_SERVER_COMMAND,
     exitCode: pw.exitCode,
     startedAt: pw.startedAt,
     endedAt: pw.endedAt,
@@ -367,6 +379,7 @@ function main() {
         verdict: 'PASS',
         sourceSnapshotDigest: records[0].sourceSnapshotDigest,
         evidenceIdentityDigest: records[0].evidenceIdentityDigest,
+        cleanServerCommand: CLEAN_SERVER_COMMAND,
         runs: records.map((r) => ({
           runId: r.runId,
           exitCode: r.exitCode,
@@ -378,6 +391,7 @@ function main() {
           pdfCount: r.pdfCount,
           captureRecordCount: r.captureRecordCount,
           actualOrigins: r.actualOrigins,
+          cleanServerCommand: r.cleanServerCommand,
         })),
         rasterDigestsIdentical:
           records[0].purchasedBodyDigests.map((d) => d.sha256).join(',') ===
