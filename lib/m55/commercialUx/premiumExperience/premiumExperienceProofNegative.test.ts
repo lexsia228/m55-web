@@ -368,8 +368,12 @@ describe('premium proof — evidence file failure modes', () => {
 });
 
 describe('premium proof — real same-dimension file substitution', () => {
-  const VICTIM = 'premium-bridge-390.png';
-  const DONOR = 'premium-share-card-390.png';
+  // Must be an existing committed pair with identical pixel dimensions and
+  // distinct capture/state identities. After clean-capture regeneration,
+  // premium-bridge-390.png (342x703) no longer matches any other capture;
+  // answer-edit-390 / premium-q1-390 remain a true same-dimension pair.
+  const VICTIM = 'answer-edit-390.png';
+  const DONOR = 'premium-q1-390.png';
 
   function recordedIdentity(fileName: string): EvidenceFileIdentityRecord {
     const identity = COMMITTED_RECORD.evidenceFileIdentities.find((i) => i.fileName === fileName);
@@ -380,8 +384,12 @@ describe('premium proof — real same-dimension file substitution', () => {
   it('the donor and victim captures really do share dimensions', () => {
     const victim = recordedIdentity(VICTIM);
     const donor = recordedIdentity(DONOR);
+    const victimBytes = readFileSync(join(ROOT, EVIDENCE_DIR_REL, VICTIM));
+    const donorBytes = readFileSync(join(ROOT, EVIDENCE_DIR_REL, DONOR));
     assert.equal(victim.width, donor.width);
     assert.equal(victim.height, donor.height);
+    assert.notEqual(victim.sha256, donor.sha256);
+    assert.equal(victimBytes.equals(donorBytes), false);
     assert.notEqual(victim.captureId, donor.captureId);
     assert.notEqual(victim.stateId, donor.stateId);
   });
