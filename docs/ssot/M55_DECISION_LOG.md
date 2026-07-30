@@ -16,6 +16,8 @@ Status: **Decisions authority (Tier E)**
 | 個人無料は Pair を含む M55 全体の信用証明 | Self free が Pair 信頼にも接続 |
 | HOME と下流ページを同等品質へ | HOME だけ高品質は不十分 |
 | SSOT merge 後に新 GPT スレッドへ移行 | 会話ログを authority にしない |
+| 共有 commercial quality control plane を導入する | 固定ビューポート単発 gate では responsive 欠陥を再現できない。`lib/commercialQuality/**` を repository-independent engine、`lib/m55/commercialUx/qualityControl/**` を M55 adapter として分離し、既存 authority は参照のみ |
+| canonical baseline は candidate → human-approved の二段のみ | 機械生成物が自己承認で canonical に昇格する経路を構造的に閉じる |
 
 ## REJECTED
 
@@ -31,6 +33,17 @@ Status: **Decisions authority (Tier E)**
 | 会話ログをそのまま authority にする | 再現性・検証不能 |
 | m55.jp を canonical Production として扱う | Human-frozen authority は m-55.jp |
 | 記憶・会話履歴を Production/worktree 真実として採用 | Product Authority Pack で機械検証可能な durable authority を導入 |
+
+## Recorded deferrals (P2)
+
+Recorded under `M55_COMMERCIAL_QUALITY_CONTRACT.md`「P2 は明示的な Human 受容または本ログへの記録がある場合のみ close 可」.
+
+| Finding | Owner | Deferral reason |
+|---|---|---|
+| axe `color-contrast` — `M55MethodSections` の装飾セクション番号（`aria-hidden`、4.36:1） | `components/pages/M55MethodSections.module.css` | commercial quality control plane 導入時に共有 gate が初検出。コントラスト修正は user-visible 変更であり Human visual approval を要する別レーン |
+| axe `color-contrast` — `PublicFooter` の著作権行（2.69:1） | `app/_components/PublicFooter.module.css` | 同上。共有 gate は本2件のみを rule id + owner selector で pin 留めし、新規 serious/critical は引き続き FAIL |
+
+Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts`.
 
 ## Authority collisions noted
 

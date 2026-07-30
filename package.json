@@ -15,6 +15,8 @@
         "verify:m55-premium-proof-records": "node scripts/verify-m55-premium-proof-records.mjs",
         "verify:m55-commercial-visual-quality": "node scripts/verify-m55-commercial-visual-quality.mjs",
         "verify:m55-method-authority": "node scripts/verify-m55-method-authority.mjs",
+        "verify:m55-commercial-quality-control-plane": "node scripts/verify-m55-commercial-quality-control-plane.mjs",
+        "generate:m55-commercial-quality-approval-pack": "node scripts/verify-m55-commercial-quality-control-plane.mjs --emit-candidate-pack",
         "verify:product-authority:bootstrap": "node scripts/product-authority/cli.mjs verify",
         "verify:product-authority": "node scripts/product-authority/validate.mjs --steady-state",
         "test:product-authority": "node --test scripts/product-authority/__tests__/*.test.mjs",
@@ -42,6 +44,8 @@
         "test:e2e:method-authority-placement": "playwright test e2e/method-authority-placement.spec.ts",
         "test:e2e:home-continuous-responsive": "playwright test e2e/home-continuous-responsive.spec.ts",
         "test:m55-e2e-clean-capture-env": "node --test scripts/m55-e2e-clean-capture-env.test.mjs",
+        "test:m55-commercial-quality-control-plane": "tsx --test lib/commercialQuality/commercialQuality.test.ts",
+        "test:e2e:commercial-quality-control-plane": "playwright test e2e/commercial-quality-control-plane.spec.ts",
         "test:e2e:commercial-visual-regression": "playwright test e2e/commercial-visual-regression.spec.ts",
         "test:premium-experience-verifier": "tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperienceProofNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumShareFallbackVisibility.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },
@@ -63,6 +67,7 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@axe-core/playwright": "4.12.1",
         "@capacitor/android": "^6.0.0",
         "@capacitor/cli": "^6.0.0",
         "@capacitor/core": "^6.0.0",

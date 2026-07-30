@@ -69,6 +69,14 @@ jobs:
       - name: M55 method and authority negative fixtures
         run: npm run test:m55-method-authority
 
+      # Registration is mandatory: every ECP route, Premium state, Premium
+      # capture and commercial visual case must own a schema-v1 surface entry.
+      - name: M55 commercial quality manifest registration
+        run: npm run verify:m55-commercial-quality-control-plane
+
+      - name: M55 commercial quality negative fixtures
+        run: npm run test:m55-commercial-quality-control-plane
+
       # Real browser gates. Static contracts and unit fixtures are not a
       # substitute: these specs measure the eight required viewports for
       # overflow, clipping, fixed overlap, contrast, focus, desktop width,
@@ -95,3 +103,29 @@ jobs:
           NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
+
+      # Mandatory: proves the shared engine measures a real registered surface.
+      # Missing Clerk test-key secrets fail closed via the clean-capture env.
+      - name: M55 commercial quality registered-surface browser gate
+        run: npm run test:e2e:commercial-quality-control-plane
+        env:
+          CI: true
+          M55_E2E_CLEAN_CAPTURE: '1'
+          NEXT_DISABLE_DEV_INDICATOR: '1'
+          NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
+
+      # Runs only after the browser gate is GREEN. Candidate review material
+      # only: it never updates a canonical snapshot and never self-approves.
+      - name: M55 commercial quality candidate approval pack
+        run: npm run generate:m55-commercial-quality-approval-pack
+
+      - name: Upload commercial quality candidate approval pack
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commercial-quality-approval-pack-candidate
+          path: test-results/commercial-quality-approval-pack
+          if-no-files-found: warn
+          retention-days: 14
