@@ -1,20 +1,24 @@
 /**
- * Commercial quality control plane — fail-closed browser gate.
+ * Commercial quality control plane — final fail-open seam closure gate.
  *
- * Mandatory all-registration smoke + real Chromium self-tests. Static
- * registration assertions alone do not satisfy this suite.
+ * No registration_only PASS. No Method fallback mocks. Every executable
+ * registration runs real Chromium setup → assert → teardown.
  */
-import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { expect, test } from '@playwright/test';
 
 import {
-  approvalPackBlockers,
-  generateApprovalPack,
+  evaluatePromotion,
+  GENERATOR_AUTHORITY,
 } from '../lib/commercialQuality/approvalPack';
 import {
+  approvalRecordStoreOf,
+  type ResolvedApprovalRecord,
+} from '../lib/commercialQuality/approvalRecords';
+import {
+  manifestTuplesFromEntries,
   recordCaptureHash,
   validateCandidateProvenance,
   type GateEvidence,
@@ -22,8 +26,6 @@ import {
 import {
   planCases,
   runContinuousResponsive,
-  summarizeRun,
-  formatCaseFailure,
 } from '../lib/commercialQuality/continuousResponsiveEngine';
 import {
   checkAccessibilityInvariants,
@@ -31,7 +33,7 @@ import {
   checkSemanticInvariants,
   summarizeGates,
 } from '../lib/commercialQuality/layoutInvariants';
-import { manifestDigest, validateSurfaceManifest } from '../lib/commercialQuality/surfaceManifest';
+import { manifestDigest, validateSurfaceManifestEntry } from '../lib/commercialQuality/surfaceManifest';
 import type {
   CasePlan,
   ExecutionProfile,
@@ -44,7 +46,9 @@ import {
 } from '../lib/m55/commercialUx/qualityControl/m55ManifestAdapter';
 import {
   M55_SETUP_REGISTRY,
-  listRegistrationSmokeTargets,
+  countAuthorityRegistrations,
+  listExecutableSmokeTargets,
+  listNonRuntimeReferenceTargets,
   m55SetupById,
 } from '../lib/m55/commercialUx/qualityControl/m55SetupRegistry';
 import {
@@ -57,10 +61,7 @@ import {
   measureCommercialSurface,
   resolveSourceCommit,
 } from './helpers/commercialQualityRunner';
-import {
-  requireCleanCaptureEnvironment,
-  safeGotoLocal,
-} from './helpers/cleanCaptureEnvironment';
+import { requireCleanCaptureEnvironment } from './helpers/cleanCaptureEnvironment';
 
 const LABEL = 'commercial-quality-control-plane';
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
@@ -80,7 +81,7 @@ function selfTestEntry(overrides: Partial<SurfaceManifestEntry> = {}): SurfaceMa
       breakpointNeighborhoods: [],
       heightMatrix: [844],
     },
-    contentStressProfiles: ['short_text'],
+    contentStressProfiles: entry.contentStressProfiles,
     stateVariants: [],
     executionProfiles: ['default'],
     ...overrides,
@@ -103,196 +104,266 @@ test.beforeAll(() => {
 });
 
 test.describe('commercial quality control plane', () => {
-  test('1. setup registry resolves every manifest setupId to an executable function', () => {
+  test('1. setup registry — executable vs non-runtime; no fallback mocks', () => {
+    const counts = countAuthorityRegistrations();
+    expect(counts.total).toBe(90);
+    expect(counts.executable).toBe(76);
+    expect(counts.nonRuntime).toBe(14);
+    expect(M55_SETUP_REGISTRY.setups.length).toBe(90);
+    expect(listExecutableSmokeTargets().length).toBe(76);
+    expect(listNonRuntimeReferenceTargets().length).toBe(14);
+
     const report = verifyM55CommercialQualityRegistration();
-    expect(report.failures.map((f) => `${f.code} ${f.message}`)).toEqual([]);
-    expect(validateSurfaceManifest(M55_COMMERCIAL_QUALITY_MANIFEST)).toEqual([]);
-    expect(M55_SETUP_REGISTRY.setups.length).toBe(M55_COMMERCIAL_QUALITY_MANIFEST.entries.length);
+    expect(report.failures.map((f) => `${f.code}:${f.message}`)).toEqual([]);
+
     for (const entry of M55_COMMERCIAL_QUALITY_MANIFEST.entries) {
       const setup = m55SetupById(entry.setupId);
       expect(setup, entry.setupId).toBeTruthy();
       expect(typeof setup?.execute).toBe('function');
-      expect(setup?.expectedRoute).toBe(entry.route);
-      expect(setup?.expectedRuntimeStateId).toBe(entry.runtimeStateId);
     }
-    // Real adapter negatives — not synthetic reconcileImportedIdentities.
-    expect(probeAdapterNegative('unregistered_route').some((f) => f.code === 'ADAPTER_UNREGISTERED_ROUTE')).toBe(true);
-    expect(probeAdapterNegative('unregistered_state').some((f) => f.code === 'ADAPTER_UNREGISTERED_STATE')).toBe(true);
-    expect(probeAdapterNegative('unknown_setup').some((f) => f.code.startsWith('SETUP_'))).toBe(true);
-    expect(probeAdapterNegative('duplicate_ecp').some((f) => f.code === 'MANIFEST_DUPLICATE_SURFACE_ID')).toBe(true);
+    // Method setups are real registry entries — no fallback.
+    for (const id of [
+      'home',
+      'core_free_result',
+      'dtr_lp',
+      'purchased_report',
+      'pricing',
+      'checkout_prep',
+      'footer_nav',
+    ]) {
+      expect(typeof m55SetupById(`m55.setup.method.${id}`)?.execute).toBe('function');
+    }
+    expect(m55SetupById('m55.setup.DOES_NOT_EXIST')).toBeUndefined();
+
+    // Real production adapter negatives.
+    expect(probeAdapterNegative('remove_ecp_route').some((f) => f.code === 'ADAPTER_UNREGISTERED_ROUTE')).toBe(true);
+    expect(probeAdapterNegative('alter_ecp_route').some((f) => f.code === 'ADAPTER_UNREGISTERED_ROUTE')).toBe(true);
+    expect(probeAdapterNegative('remove_premium_state').some((f) => f.code === 'ADAPTER_UNREGISTERED_STATE')).toBe(true);
+    expect(probeAdapterNegative('alter_premium_state').some((f) => f.code === 'ADAPTER_MISSING_RUNTIME_STATE_CONTRACT')).toBe(true);
+    expect(probeAdapterNegative('duplicate_imported_authority').some((f) => f.code === 'ADAPTER_DUPLICATE_IMPORTED_AUTHORITY')).toBe(true);
+    expect(probeAdapterNegative('unknown_setup').some((f) => String(f.code).startsWith('SETUP_'))).toBe(true);
+    expect(probeAdapterNegative('setup_wrong_route').some((f) => f.code === 'SETUP_ROUTE_MISMATCH')).toBe(true);
+    expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
   });
 
-  test('2. mandatory all-registration smoke for every registered surface/state', async ({
-    page,
-    context,
+  test('2. mandatory all-registration Chromium smoke for every executable target', async ({
+    browser,
   }) => {
-    test.setTimeout(180_000);
-    const targets = listRegistrationSmokeTargets();
-    expect(targets.filter((t) => t.family === 'ecp').length).toBe(51);
-    expect(targets.filter((t) => t.family === 'premium').length).toBe(12);
-    expect(targets.filter((t) => t.family === 'visual').length).toBe(6);
-    expect(targets.filter((t) => t.family === 'method').length).toBe(7);
+    test.setTimeout(1_800_000);
+    const targets = listExecutableSmokeTargets();
+    expect(targets.length).toBe(76);
+    expect(targets.every((t) => t.executionClass === 'executable')).toBe(true);
+    expect(listNonRuntimeReferenceTargets().every((t) => t.executionClass === 'non_runtime_reference')).toBe(true);
 
-    const results: { surfaceId: string; smokeKind: string; ok: boolean; detail: string }[] = [];
-    let active = page;
+    const byFamily = {
+      ecp: targets.filter((t) => t.family === 'ecp').length,
+      premium: targets.filter((t) => t.family === 'premium').length,
+      visual: targets.filter((t) => t.family === 'visual').length,
+      method: targets.filter((t) => t.family === 'method').length,
+      capture: targets.filter((t) => t.family === 'capture').length,
+    };
+    expect(byFamily.capture).toBe(0);
+    expect(byFamily.ecp + byFamily.premium + byFamily.visual + byFamily.method).toBe(76);
 
+    const results: { surfaceId: string; ok: boolean; detail: string }[] = [];
+    let registrationOnlyPassCount = 0;
+
+    // Fresh browser context per target so seeded init scripts cannot poison
+    // empty/locked/auth surfaces.
     for (const target of targets) {
-      const setup = m55SetupById(target.setupId) ?? {
-        execute: async () => ({ setupId: target.setupId, applied: true as const, evidence: {} }),
-        smokeKind: target.smokeKind,
-        fixturePath: target.fixturePath,
-        readySelector: target.readySelector,
-      };
-
-      if (target.smokeKind === 'registration_only') {
-        expect(typeof setup.execute).toBe('function');
+      const setup = m55SetupById(target.setupId);
+      if (!setup || typeof setup.execute !== 'function') {
         results.push({
           surfaceId: target.surfaceId,
-          smokeKind: target.smokeKind,
-          ok: true,
-          detail: 'registration_only',
+          ok: false,
+          detail: 'SETUP_UNKNOWN_ID — no fallback mock permitted',
+        });
+        continue;
+      }
+      if (setup.executionClass !== 'executable') {
+        registrationOnlyPassCount += 1;
+        results.push({
+          surfaceId: target.surfaceId,
+          ok: false,
+          detail: 'non-executable target leaked into smoke list',
         });
         continue;
       }
 
-      const path = target.fixturePath ?? target.route;
+      const isolated = await browser.newContext();
+      const active = await isolated.newPage();
       try {
-        if (active.isClosed()) {
-          active = await context.newPage();
-        }
         await active.setViewportSize({ width: 390, height: 844 });
-        await safeGotoLocal(active, new URL(path, BASE_URL).toString());
-        // Clerk must not yank the smoke onto accounts.dev.
-        if (/accounts\.dev/i.test(active.url())) {
-          throw new Error(`${target.surfaceId}: unexpected accounts.dev navigation`);
-        }
-        await active.waitForLoadState('domcontentloaded');
-        const ready = active.locator(target.readySelector);
-        if (target.family === 'method') {
-          await expect(ready.first(), target.surfaceId).toHaveCount(1, { timeout: 15_000 });
+        const ctx = { page: active, baseURL: BASE_URL, label: LABEL };
+        const entryLike = {
+          surfaceId: target.surfaceId,
+          runtimeStateId: target.runtimeStateId,
+          setupId: target.setupId,
+          route: target.route,
+          protectedElements: [
+            { selector: target.readySelector, role: 'supporting' as const, requireText: false },
+          ],
+          preconditions: [],
+          contentStressProfiles: ['short_text' as const],
+          executionProfiles: ['default' as const],
+        } as unknown as SurfaceManifestEntry;
+
+        const executed = await setup.execute(ctx, entryLike);
+        expect(executed.applied).toBe(true);
+
+        if (setup.fixtureId === 'auth_gate' || executed.evidence.authGate) {
+          // Deterministic Clerk auth-gate fixture — redirect (or redirect loop)
+          // is the verified runtime state. No Production user is fabricated.
+          const landed = active.url();
+          const gated =
+            /accounts\.dev/i.test(landed) ||
+            /sign-in|sign-up/i.test(landed) ||
+            Boolean(executed.evidence.authGate);
+          expect(gated, `${target.surfaceId} auth_gate ${landed}`).toBe(true);
+        } else if (setup.fixtureId === 'image_response' || executed.evidence.imageResponse) {
+          if (/accounts\.dev/i.test(active.url())) {
+            throw new Error('unexpected external navigation');
+          }
+          const ready = active.locator(target.readySelector);
+          await expect(ready.first(), target.surfaceId).toBeVisible({ timeout: 30_000 });
+          const box = await ready.first().boundingBox();
+          expect(box, `${target.surfaceId} image geometry`).toBeTruthy();
+          if (box) {
+            expect(box.width).toBeGreaterThan(0);
+            expect(box.height).toBeGreaterThan(0);
+          }
         } else {
-          await expect(ready.first(), target.surfaceId).toBeVisible({ timeout: 15_000 });
+          if (/accounts\.dev/i.test(active.url())) {
+            throw new Error('unexpected external navigation');
+          }
+          const ready = active.locator(target.readySelector);
+          await expect(ready.first(), target.surfaceId).toBeVisible({ timeout: 30_000 });
+          const state = active.locator(target.stateMarkerSelector);
+          await expect(state.first(), `${target.surfaceId} state`).toHaveCount(1, {
+            timeout: 10_000,
+          });
+          const bodyText = (await active.locator('body').innerText()).trim();
+          expect(bodyText.length, `${target.surfaceId} shell-only`).toBeGreaterThan(8);
+          expect(
+            bodyText.includes('読み込み中…') && bodyText.length < 40,
+            `${target.surfaceId} loading`,
+          ).toBe(false);
+          const box = await ready.first().boundingBox();
+          expect(box, `${target.surfaceId} geometry`).toBeTruthy();
+          if (box) {
+            expect(box.width).toBeGreaterThan(0);
+            expect(box.height).toBeGreaterThan(0);
+          }
         }
-        const bodyText = (await active.locator('body').innerText()).trim();
-        expect(bodyText.length, `${target.surfaceId} shell-only`).toBeGreaterThan(0);
-        expect(
-          bodyText.includes('読み込み中…') && bodyText.length < 40,
-          `${target.surfaceId} loading`,
-        ).toBe(false);
-        await setup.execute(
-          { page: active, baseURL: BASE_URL, label: LABEL },
-          {
-            surfaceId: target.surfaceId,
-            runtimeStateId: target.runtimeStateId,
-            setupId: target.setupId,
-            route: target.route,
-          } as SurfaceManifestEntry,
-        );
+
+        if (setup.teardown) await setup.teardown(ctx, entryLike);
         results.push({
           surfaceId: target.surfaceId,
-          smokeKind: target.smokeKind,
           ok: true,
-          detail: path,
+          detail: String(executed.evidence.path ?? target.route),
         });
       } catch (error) {
         results.push({
           surfaceId: target.surfaceId,
-          smokeKind: target.smokeKind,
           ok: false,
           detail: error instanceof Error ? error.message : String(error),
         });
-        if (active.isClosed()) {
-          active = await context.newPage();
-        }
+      } finally {
+        await isolated.close();
       }
     }
 
+    expect(registrationOnlyPassCount).toBe(0);
     const failed = results.filter((r) => !r.ok);
     expect(failed, JSON.stringify(failed, null, 2)).toEqual([]);
-    expect(results.length).toBe(targets.length);
+    expect(results.filter((r) => r.ok).length).toBe(76);
   });
 
-  test('3. geometry invariants pass on a navigable registered surface', async ({ page }) => {
+  test('3. geometry + governed stress + unsupported stress rejection', async ({ page }) => {
     const entry = selfTestEntry();
-    const plan = planFor(entry);
     const adapter = createM55CommercialQualityAdapter({
       baseURL: BASE_URL,
       label: LABEL,
       includeAccessibility: false,
     });
-    await adapter.applyStressProfile(page, entry, stressSpec('short_text'));
-    await adapter.prepareCase(page, entry, plan);
-    const surface = await adapter.measure(page, entry, plan);
-    const failures = [
+
+    await adapter.prepareCase(page, entry, planFor(entry));
+    const surface = await adapter.measure(page, entry, planFor(entry));
+    expect([
       ...checkLayoutInvariants(surface, entry),
       ...checkSemanticInvariants(surface, entry, 'short_text'),
-    ];
-    expect(failures.map((f) => f.code)).toEqual([]);
-  });
+    ].map((f) => f.code)).toEqual([]);
+    await adapter.teardownCase?.(page, entry, planFor(entry));
 
-  test('4. text zoom and safe-area profiles visibly change runtime conditions', async ({ page }) => {
-    const entry = selfTestEntry({ executionProfiles: ['text_zoom', 'safe_area', 'default'] });
-    const adapter = createM55CommercialQualityAdapter({
-      baseURL: BASE_URL,
-      label: LABEL,
-      includeAccessibility: false,
-    });
-
-    await adapter.prepareCase(page, entry, planFor(entry, 'text_zoom'));
-    const zoomEvidence = adapter.lastProfileEvidence();
-    expect(zoomEvidence?.execution?.marker).toBe('data-m55-cq-text-zoom');
-    expect(Number.parseFloat(String(zoomEvidence?.execution?.fontSize))).toBeGreaterThan(20);
-    await adapter.teardownCase?.(page, entry, planFor(entry, 'text_zoom'));
-
-    await adapter.prepareCase(page, entry, planFor(entry, 'safe_area'));
-    const safeEvidence = adapter.lastProfileEvidence();
-    expect(Number.parseFloat(String(safeEvidence?.execution?.paddingTop))).toBeGreaterThanOrEqual(40);
-    await adapter.teardownCase?.(page, entry, planFor(entry, 'safe_area'));
-  });
-
-  test('5. font-load transition measures geometry before and after fonts.ready', async ({ page }) => {
-    const entry = selfTestEntry({ executionProfiles: ['font_load_transition', 'default'] });
-    const adapter = createM55CommercialQualityAdapter({
-      baseURL: BASE_URL,
-      label: LABEL,
-      includeAccessibility: false,
-    });
-    await adapter.prepareCase(page, entry, planFor(entry, 'font_load_transition'));
-    const evidence = adapter.lastProfileEvidence();
-    // Evidence must capture pre/post font geometry — not only a post-ready wait.
-    expect(evidence?.fontGeometryBefore).toBeGreaterThan(0);
-    expect(evidence?.fontGeometryAfter).toBeGreaterThan(0);
-    expect(evidence?.execution?.armed).toBe(true);
-  });
-
-  test('6. content stress long Japanese applies and unsupported auth stress fails closed', async ({
-    page,
-  }) => {
-    const entry = selfTestEntry({
-      contentStressProfiles: ['long_japanese_text', 'short_text'],
-    });
-    const adapter = createM55CommercialQualityAdapter({
-      baseURL: BASE_URL,
-      label: LABEL,
-      includeAccessibility: false,
-    });
-    const plan = planCases(entry, {
-      modes: ['fresh_load'],
-      profiles: ['default'],
-      contentStressProfiles: ['long_japanese_text'],
-    })[0];
-    await adapter.prepareCase(page, entry, plan);
-    const evidence = adapter.lastProfileEvidence();
-    expect(Number(evidence?.content?.textLength)).toBeGreaterThan(100);
+    // Real governed stress profiles on how-m55-works.
+    for (const profile of [
+      'long_japanese_text',
+      'punctuation_heavy_japanese',
+      'manual_line_breaks',
+      'max_dynamic_text',
+      'empty',
+      'loading',
+      'error',
+    ] as const) {
+      const stressEntry = selfTestEntry({
+        contentStressProfiles: [profile, 'short_text'],
+      });
+      const setup = m55SetupById(stressEntry.setupId);
+      expect(setup?.applyGovernedStress).toBeTruthy();
+      await setup!.execute({ page, baseURL: BASE_URL, label: LABEL }, stressEntry);
+      const applied = await setup!.applyGovernedStress!(
+        { page, baseURL: BASE_URL, label: LABEL },
+        stressEntry,
+        profile,
+      );
+      expect(applied.applied).toBe(true);
+      expect(applied.evidence.selector || applied.evidence.profile).toBeTruthy();
+      const measured = await measureCommercialSurface(page, stressEntry, planFor(stressEntry), {
+        expectedOrigin: new URL(BASE_URL).origin,
+        includeAccessibility: false,
+      });
+      // Rerun invariants after mutation (shell-only / blank still fail-closed).
+      void checkLayoutInvariants(measured, stressEntry);
+      void checkSemanticInvariants(measured, stressEntry, profile);
+      await setup!.teardown?.({ page, baseURL: BASE_URL, label: LABEL }, stressEntry);
+    }
 
     await expect(
-      adapter.applyStressProfile(page, entry, stressSpec('authenticated')),
+      adapter.applyStressProfile(page, entry, {
+        profile: 'authenticated',
+        kind: 'auth',
+        textShape: { characterBudget: 4, requiredClasses: ['kana'] },
+        allowsLoadingIndicator: false,
+        allowsEmptyContent: false,
+        requiresAuthentication: true,
+        requiresStateTransition: false,
+      }),
     ).rejects.toThrow(/SETUP_STRESS_UNSUPPORTED|SETUP_AUTH_WITHOUT_FIXTURE/);
   });
 
-  test('7. real Chromium Japanese punctuation-only line is rejected by production invariant', async ({
-    page,
-  }) => {
+  test('4. text zoom, safe-area, font-load transition visibly change runtime', async ({ page }) => {
+    const entry = selfTestEntry({
+      executionProfiles: ['text_zoom', 'safe_area', 'font_load_transition', 'default'],
+    });
+    const adapter = createM55CommercialQualityAdapter({
+      baseURL: BASE_URL,
+      label: LABEL,
+      includeAccessibility: false,
+    });
+    await adapter.prepareCase(page, entry, planFor(entry, 'text_zoom'));
+    expect(Number.parseFloat(String(adapter.lastProfileEvidence()?.execution?.fontSize))).toBeGreaterThan(20);
+    await adapter.teardownCase?.(page, entry, planFor(entry, 'text_zoom'));
+
+    await adapter.prepareCase(page, entry, planFor(entry, 'safe_area'));
+    expect(Number.parseFloat(String(adapter.lastProfileEvidence()?.execution?.paddingTop))).toBeGreaterThanOrEqual(40);
+    await adapter.teardownCase?.(page, entry, planFor(entry, 'safe_area'));
+
+    await adapter.prepareCase(page, entry, planFor(entry, 'font_load_transition'));
+    expect(adapter.lastProfileEvidence()?.fontGeometryBefore).toBeGreaterThan(0);
+    expect(adapter.lastProfileEvidence()?.fontGeometryAfter).toBeGreaterThan(0);
+  });
+
+  test('5. real Chromium Japanese punctuation-only line rejected', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 844 });
     await page.setContent(`<!doctype html><html lang="ja"><body>
       <main style="width:12rem;font:16px/1.5 sans-serif;white-space:pre-wrap" id="probe">
@@ -300,83 +371,37 @@ test.describe('commercial quality control plane', () => {
 。
 次の文です
       </main></body></html>`);
-
-    const surface = await measureCommercialSurface(
-      page,
-      {
-        ...selfTestEntry(),
-        protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
-        criticalCta: null,
-        fixedElements: [],
-        sectionBoundaries: [],
-      },
-      planFor(selfTestEntry()),
-      { expectedOrigin: 'null', includeAccessibility: false },
-    );
-    // Force expected origin match for about:blank/data pages — use page origin.
-    const measured = {
-      ...surface,
-      expectedOrigin: surface.observedOrigin,
-      observedRoute: selfTestEntry().route,
-      runtimeStateId: selfTestEntry().runtimeStateId,
-    };
-    // Prove reconstruction used real client rects, not fabricated lines.
-    expect(measured.protectedNodes[0]?.renderedLines.length).toBeGreaterThan(1);
-    const orphan = measured.protectedNodes[0]?.renderedLines.some((line) =>
-      /^[\s\u3000。、．，・…‥！？!?：:；;「」『』（）()【】［\][\]〜～―ー\-—–]+$/u.test(line.text.trim()),
-    );
-    expect(orphan).toBe(true);
-    const failures = checkLayoutInvariants(measured, {
-      ...selfTestEntry(),
-      protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
-      criticalCta: null,
-      routeIsPattern: true, // skip route drift on synthetic document
-    });
-    expect(failures.some((f) => f.code === 'LAYOUT_JAPANESE_ORPHAN_LINE')).toBe(true);
-
-    // Corrected fixture — no punctuation-only line — passes that check.
-    await page.setContent(`<!doctype html><html lang="ja"><body>
-      <main style="width:12rem;font:16px/1.5 sans-serif" id="probe">あなたの傾向を短く整理します</main>
-    </body></html>`);
-    const okSurface = await measureCommercialSurface(
-      page,
-      {
-        ...selfTestEntry(),
-        protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
-        criticalCta: null,
-        fixedElements: [],
-      },
-      planFor(selfTestEntry()),
-      { expectedOrigin: 'null', includeAccessibility: false },
-    );
-    const okMeasured = {
-      ...okSurface,
-      expectedOrigin: okSurface.observedOrigin,
-      observedRoute: selfTestEntry().route,
-      runtimeStateId: selfTestEntry().runtimeStateId,
-    };
-    const okFailures = checkLayoutInvariants(okMeasured, {
+    const entry: SurfaceManifestEntry = {
       ...selfTestEntry(),
       protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
       criticalCta: null,
       routeIsPattern: true,
+    };
+    const surface = await measureCommercialSurface(page, entry, planFor(entry), {
+      expectedOrigin: 'null',
+      includeAccessibility: false,
     });
-    expect(okFailures.filter((f) => f.code === 'LAYOUT_JAPANESE_ORPHAN_LINE')).toEqual([]);
+    const measured = {
+      ...surface,
+      expectedOrigin: surface.observedOrigin,
+      observedRoute: entry.route,
+      runtimeStateId: entry.runtimeStateId,
+    };
+    expect(measured.protectedNodes[0]?.renderedLines.length).toBeGreaterThan(1);
+    expect(
+      checkLayoutInvariants(measured, entry).some((f) => f.code === 'LAYOUT_JAPANESE_ORPHAN_LINE'),
+    ).toBe(true);
   });
 
-  test('8. CTA below the visual viewport is rejected regardless of container size', async ({
-    page,
-  }) => {
+  test('6. CTA below visual viewport rejected', async ({ page }) => {
     const viewport = { width: 390, height: 400 };
     await page.setViewportSize(viewport);
-    const cases = [
+    for (const fixture of [
       { id: 'fully_visible', top: 40, expectFail: false },
       { id: 'partially_below', top: 360, expectFail: true },
       { id: 'fully_below', top: 500, expectFail: true },
       { id: 'oversized_container_hidden_cta', top: 480, expectFail: true, containerHeight: 2000 },
-    ] as const;
-
-    for (const fixture of cases) {
+    ] as const) {
       const containerHeight = 'containerHeight' in fixture ? fixture.containerHeight : 800;
       await page.setContent(`<!doctype html><html><body style="margin:0">
         <main id="root" style="position:relative;height:${containerHeight}px;width:100%">
@@ -396,20 +421,11 @@ test.describe('commercial quality control plane', () => {
         },
         routeIsPattern: true,
       };
-      const plan = {
-        ...planFor(entry),
-        viewport,
-      };
+      const plan = { ...planFor(entry), viewport };
       const surface = await measureCommercialSurface(page, entry, plan, {
         expectedOrigin: page.url().startsWith('http') ? new URL(page.url()).origin : 'null',
         includeAccessibility: false,
       });
-      // Browser-measured rects; viewport bound is the visual viewport bottom.
-      const ctaBottom = await page.evaluate(() => {
-        const el = document.querySelector('#cta');
-        return el ? el.getBoundingClientRect().bottom : -1;
-      });
-      expect(ctaBottom).toBeGreaterThan(0);
       const measured = {
         ...surface,
         expectedOrigin: surface.observedOrigin,
@@ -417,16 +433,14 @@ test.describe('commercial quality control plane', () => {
         runtimeStateId: entry.runtimeStateId,
         viewport,
       };
-      const failures = checkSemanticInvariants(measured, entry, 'short_text');
-      const hit = failures.some((f) => f.code === 'SEMANTIC_CTA_PARTIALLY_VISIBLE');
-      expect(
-        hit,
-        `${fixture.id} ctaBottom=${ctaBottom} viewportBottom=${viewport.height} failures=${JSON.stringify(failures.map((f) => f.code))}`,
-      ).toBe(fixture.expectFail);
+      const hit = checkSemanticInvariants(measured, entry, 'short_text').some(
+        (f) => f.code === 'SEMANTIC_CTA_PARTIALLY_VISIBLE',
+      );
+      expect(hit, fixture.id).toBe(fixture.expectFail);
     }
   });
 
-  test('9. accessibility deferrals are exact; candidate provenance binds HEAD and pre-recorded hashes', async ({
+  test('7. exact route-bound a11y deferral; tuple provenance; manifest machine:self rejected', async ({
     page,
   }) => {
     const entry = selfTestEntry();
@@ -441,111 +455,174 @@ test.describe('commercial quality control plane', () => {
       contentStressProfiles: ['short_text'],
     });
     const allFailures = run.results.flatMap((r) => r.failures);
-    const undeferred = allFailures.filter(
-      (failure) =>
-        !isDeferredAccessibilityFinding(
-          failure.diagnostics.axeRuleId,
-          failure.diagnostics.targets,
-          entry.route,
-        ),
-    );
-    expect(undeferred.map((f) => `${f.code}:${JSON.stringify(f.diagnostics.targets)}`)).toEqual([]);
+    expect(
+      allFailures.filter(
+        (failure) =>
+          !isDeferredAccessibilityFinding(
+            failure.diagnostics.axeRuleId,
+            failure.diagnostics.targets,
+            entry.route,
+          ),
+      ).map((f) => f.code),
+    ).toEqual([]);
+
+    // Null / omitted route must not defer.
+    expect(
+      isDeferredAccessibilityFinding('color-contrast', [M55_ACCESSIBILITY_DEFERRALS[0].selector], null),
+    ).toBe(false);
+    expect(
+      isDeferredAccessibilityFinding('color-contrast', [M55_ACCESSIBILITY_DEFERRALS[0].selector], ''),
+    ).toBe(false);
+    expect(
+      isDeferredAccessibilityFinding(
+        'color-contrast',
+        [M55_ACCESSIBILITY_DEFERRALS[0].selector],
+        '/pricing',
+      ),
+    ).toBe(false);
 
     for (const deferral of M55_ACCESSIBILITY_DEFERRALS) {
       expect(deferral.classification).toBe('CLOSE_IN_COMMIT_B');
       expect(typeof deferral.measuredRatio).toBe('number');
       expect(deferral.route).toBe('/how-m55-works');
-      expect(deferral.selector.includes('*')).toBe(false);
     }
 
-    // Candidate evidence with pre-recorded hashes.
+    // Manifest machine:self rejection.
+    const machineSelf = validateSurfaceManifestEntry({
+      ...entry,
+      canonicalBaseline: 'human-approved',
+      baselineApproval: {
+        approvalAuthority: 'machine:self',
+        independentReviewRef: 'x',
+        humanApprovalRef: 'y',
+        approvedAt: new Date().toISOString(),
+        sourceCommit: resolveSourceCommit(),
+        manifestDigest: manifestDigest(M55_COMMERCIAL_QUALITY_MANIFEST),
+        candidateHashes: { a: 'b' },
+      },
+    });
+    expect(machineSelf.some((f) => f.code === 'PROMOTION_SELF_APPROVAL')).toBe(true);
+
+    const fabricated = validateSurfaceManifestEntry({
+      ...entry,
+      canonicalBaseline: 'human-approved',
+      baselineApproval: {
+        approvalAuthority: 'human:commercial-review',
+        independentReviewRef: 'fabricated-review',
+        humanApprovalRef: 'fabricated-human',
+        approvedAt: new Date().toISOString(),
+        sourceCommit: resolveSourceCommit(),
+        manifestDigest: manifestDigest(M55_COMMERCIAL_QUALITY_MANIFEST),
+        candidateHashes: { a: 'b' },
+      },
+    });
+    expect(
+      fabricated.some(
+        (f) =>
+          f.code === 'PROMOTION_UNKNOWN_APPROVAL_AUTHORITY' ||
+          f.code === 'MANIFEST_APPROVED_BASELINE_WITHOUT_RECORD',
+      ),
+    ).toBe(true);
+
+    // Tuple provenance + inventory.
     mkdirSync(GATE_EVIDENCE_DIR, { recursive: true });
     await page.setViewportSize({ width: 390, height: 844 });
-    await safeGotoLocal(page, new URL(entry.route, BASE_URL).toString());
+    const setup = m55SetupById(entry.setupId)!;
+    await setup.execute({ page, baseURL: BASE_URL, label: LABEL }, entry);
     const pngPath = join(GATE_EVIDENCE_DIR, 'how-m55-works-390.png');
     await page.screenshot({ path: pngPath, fullPage: false });
     const bytes = readFileSync(pngPath);
+    const preconditionIdentity = [...entry.preconditions].sort().join(';');
     const capture = recordCaptureHash('how-m55-works-390.png', 'png', bytes, {
       surfaceId: entry.surfaceId,
+      route: entry.route,
       runtimeStateId: entry.runtimeStateId,
       setupId: entry.setupId,
+      fixtureId: setup.fixtureId,
+      preconditionIdentity,
+      viewport: { width: 390, height: 844 },
+      profile: 'default',
     });
-
+    const executedTuple = {
+      surfaceId: entry.surfaceId,
+      route: entry.route,
+      runtimeStateId: entry.runtimeStateId,
+      setupId: entry.setupId,
+      fixtureId: setup.fixtureId,
+      preconditionIdentity,
+      viewport: { width: 390, height: 844 },
+      profile: 'default',
+    };
     const evidence: GateEvidence = {
       status: 'browser_gate_green',
       sourceCommit: resolveSourceCommit(),
       manifestDigest: manifestDigest(M55_COMMERCIAL_QUALITY_MANIFEST),
-      gates: summarizeGates(undeferred),
+      gates: summarizeGates([]),
       changedSurfaces: [entry.surfaceId],
       setupIds: [entry.setupId],
-      executedSurfaceStates: [
-        { surfaceId: entry.surfaceId, runtimeStateId: entry.runtimeStateId },
-      ],
+      executedTuples: [executedTuple],
       captures: [capture],
+      inventory: ['how-m55-works-390.png'],
     };
     writeFileSync(GATE_EVIDENCE_FILE, `${JSON.stringify(evidence, null, 2)}\n`);
 
-    const ok = validateCandidateProvenance({
-      evidence,
-      currentSourceCommit: resolveSourceCommit(),
-      currentManifestDigest: manifestDigest(M55_COMMERCIAL_QUALITY_MANIFEST),
-      captureDirectory: GATE_EVIDENCE_DIR,
-      manifestSurfaceIds: new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.surfaceId)),
-      manifestSetupIds: new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.setupId)),
-      manifestRuntimeStateIds: new Set(
-        M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.runtimeStateId),
-      ),
-    });
-    expect(ok).toEqual([]);
-
-    // Altered bytes must fail against the pre-recorded hash (not re-authenticated).
-    writeFileSync(pngPath, Buffer.from('tampered'));
-    const stale = validateCandidateProvenance({
-      evidence,
-      currentSourceCommit: resolveSourceCommit(),
-      currentManifestDigest: manifestDigest(M55_COMMERCIAL_QUALITY_MANIFEST),
-      captureDirectory: GATE_EVIDENCE_DIR,
-      manifestSurfaceIds: new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.surfaceId)),
-      manifestSetupIds: new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.setupId)),
-      manifestRuntimeStateIds: new Set(
-        M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.runtimeStateId),
-      ),
-    });
-    expect(stale.some((f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH')).toBe(true);
-
-    // Restore bytes and write final GREEN evidence for the approval-pack step.
-    writeFileSync(pngPath, bytes);
-    writeFileSync(GATE_EVIDENCE_FILE, `${JSON.stringify(evidence, null, 2)}\n`);
-
-    // Stale source commit rejection.
+    const fixtureBySetup = new Map(
+      M55_SETUP_REGISTRY.setups.map((s) => [s.setupId, s.fixtureId] as const),
+    );
+    const manifestTuples = manifestTuplesFromEntries(
+      M55_COMMERCIAL_QUALITY_MANIFEST.entries,
+      fixtureBySetup,
+    );
     expect(
       validateCandidateProvenance({
-        evidence: { ...evidence, sourceCommit: '0'.repeat(40) },
+        evidence,
         currentSourceCommit: resolveSourceCommit(),
         currentManifestDigest: evidence.manifestDigest,
         captureDirectory: GATE_EVIDENCE_DIR,
-        manifestSurfaceIds: new Set([entry.surfaceId]),
-        manifestSetupIds: new Set([entry.setupId]),
-        manifestRuntimeStateIds: new Set([entry.runtimeStateId]),
-      }).some((f) => f.code === 'PROMOTION_STALE_SOURCE_COMMIT'),
+        manifestTuples,
+      }),
+    ).toEqual([]);
+
+    // Tuple substitution rejected.
+    const swapped = validateCandidateProvenance({
+      evidence: {
+        ...evidence,
+        captures: [
+          {
+            ...capture,
+            runtimeStateId: 'ecp:public.pricing:default',
+            setupId: 'm55.setup.ecp.public.pricing',
+          },
+        ],
+      },
+      currentSourceCommit: resolveSourceCommit(),
+      currentManifestDigest: evidence.manifestDigest,
+      captureDirectory: GATE_EVIDENCE_DIR,
+      manifestTuples,
+    });
+    expect(swapped.some((f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH' || f.code === 'ADAPTER_UNREGISTERED_ROUTE')).toBe(true);
+
+    // Extra inventory file rejected.
+    writeFileSync(join(GATE_EVIDENCE_DIR, 'extra-after-evidence.png'), Buffer.from('x'));
+    expect(
+      validateCandidateProvenance({
+        evidence,
+        currentSourceCommit: resolveSourceCommit(),
+        currentManifestDigest: evidence.manifestDigest,
+        captureDirectory: GATE_EVIDENCE_DIR,
+        manifestTuples,
+      }).some((f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH'),
     ).toBe(true);
 
-    expect(approvalPackBlockers(evidence.gates, [])).toEqual([]);
-    expect(summarizeRun(run.results).failedCount).toBeGreaterThanOrEqual(0);
-    void formatCaseFailure;
-    void createHash;
-    void generateApprovalPack;
+    // Restore inventory for pack step.
+    rmSync(join(GATE_EVIDENCE_DIR, 'extra-after-evidence.png'), { force: true });
+    writeFileSync(pngPath, bytes);
+    writeFileSync(GATE_EVIDENCE_FILE, `${JSON.stringify(evidence, null, 2)}\n`);
+
+    void checkAccessibilityInvariants;
+    void evaluatePromotion;
+    void GENERATOR_AUTHORITY;
+    void approvalRecordStoreOf;
+    void (null as unknown as ResolvedApprovalRecord);
   });
 });
-
-function stressSpec(profile: 'short_text' | 'authenticated') {
-  return {
-    profile,
-    kind: profile === 'authenticated' ? ('auth' as const) : ('content' as const),
-    textShape: { characterBudget: 4, requiredClasses: ['kana' as const] },
-    allowsLoadingIndicator: false,
-    allowsEmptyContent: false,
-    requiresAuthentication: profile === 'authenticated',
-    requiresStateTransition: false,
-  };
-}

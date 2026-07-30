@@ -60,9 +60,16 @@ const FORBIDDEN_ENGINE_IMPORT_PATTERNS = [
 
 const REQUIRED_NEGATIVE_FIXTURE_IDS = [
   'duplicate_surface',
+  'remove_ecp_route',
+  'alter_ecp_route',
+  'remove_premium_state',
+  'alter_premium_state',
+  'duplicate_imported_authority',
+  'unknown_setup',
+  'setup_wrong_route',
+  'setup_wrong_runtime_state',
   'unregistered_route',
   'unregistered_runtime_state',
-  'unknown_setup',
   'duplicate_ecp',
   'missing_protected_element',
   'clipped_protected_content',
@@ -101,6 +108,9 @@ const REPORT = {
   premiumCapturesRegistered: 0,
   commercialVisualCasesRegistered: 0,
   totalSurfaces: 0,
+  setupRegistryTotal: 0,
+  setupRegistryExecutable: 0,
+  setupRegistryNonRuntime: 0,
   registrationFailures: 0,
   negativeFixtures: 0,
   negativeFixtureRejections: 0,
@@ -186,12 +196,13 @@ function checkRegistration() {
         [
           "import { verifyM55CommercialQualityRegistration, M55_CONSOLIDATION_POINTS } from './lib/m55/commercialUx/qualityControl/m55ManifestAdapter';",
           "import { M55_COMMERCIAL_QUALITY_MANIFEST } from './lib/m55/commercialUx/qualityControl/m55SurfaceManifest';",
-          "import { M55_SETUP_REGISTRY } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry';",
+          "import { M55_SETUP_REGISTRY, countAuthorityRegistrations } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry';",
           "import { COMMERCIAL_QUALITY_NEGATIVE_FIXTURES, evaluateFixture } from './lib/commercialQuality/fixtures';",
           'const report = verifyM55CommercialQualityRegistration();',
+          'const setupCounts = countAuthorityRegistrations();',
           'const setupUnresolved = report.failures.filter((f) => f.code.startsWith("SETUP_")).length;',
           'const fixtures = COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => ({ id: f.id, expectedCode: f.expectedCode, rejected: evaluateFixture(f).includes(f.expectedCode) }));',
-          'process.stdout.write(JSON.stringify({ report, fixtures, consolidationPoints: M55_CONSOLIDATION_POINTS.length, setupCount: M55_SETUP_REGISTRY.setups.length, manifestEntryCount: M55_COMMERCIAL_QUALITY_MANIFEST.entries.length, setupUnresolved }));',
+          'process.stdout.write(JSON.stringify({ report, fixtures, consolidationPoints: M55_CONSOLIDATION_POINTS.length, setupCounts, manifestEntryCount: M55_COMMERCIAL_QUALITY_MANIFEST.entries.length, setupUnresolved }));',
         ].join('\n'),
       ],
       { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
@@ -210,7 +221,7 @@ function checkRegistration() {
     return;
   }
 
-  const { report, fixtures, consolidationPoints, setupCount, manifestEntryCount, setupUnresolved } =
+  const { report, fixtures, consolidationPoints, setupCounts, manifestEntryCount, setupUnresolved } =
     parsed;
   REPORT.schemaVersion = report.schemaVersion;
   REPORT.manifestDigest = report.manifestDigest;
@@ -219,19 +230,37 @@ function checkRegistration() {
   REPORT.premiumCapturesRegistered = report.counts.premiumCaptures;
   REPORT.commercialVisualCasesRegistered = report.counts.commercialVisualCases;
   REPORT.totalSurfaces = report.counts.total;
+  REPORT.setupRegistryTotal = setupCounts.total;
+  REPORT.setupRegistryExecutable = setupCounts.executable;
+  REPORT.setupRegistryNonRuntime = setupCounts.nonRuntime;
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
 
-  if (setupCount !== manifestEntryCount) {
+  if (setupCounts.total !== 90) {
+    fail('registration.setup', `setup registry total must be 90 (received ${setupCounts.total})`);
+  }
+  if (setupCounts.executable !== 76) {
     fail(
       'registration.setup',
-      `setup registry count ${setupCount} must equal manifest entries ${manifestEntryCount}`,
+      `setup registry executable count must be 76 (received ${setupCounts.executable})`,
     );
   }
-  if (setupCount !== report.counts.total) {
+  if (setupCounts.nonRuntime !== 14) {
     fail(
       'registration.setup',
-      `setup registry count ${setupCount} must equal registered surfaces ${report.counts.total}`,
+      `setup registry non_runtime_reference count must be 14 (received ${setupCounts.nonRuntime})`,
+    );
+  }
+  if (setupCounts.executable + setupCounts.nonRuntime !== setupCounts.total) {
+    fail(
+      'registration.setup',
+      `setup registry executable + non_runtime must equal total (${setupCounts.executable} + ${setupCounts.nonRuntime} ≠ ${setupCounts.total})`,
+    );
+  }
+  if (manifestEntryCount !== report.counts.total) {
+    fail(
+      'registration.setup',
+      `manifest entry count ${manifestEntryCount} must equal registered surfaces ${report.counts.total}`,
     );
   }
   if (setupUnresolved !== 0) {
@@ -513,16 +542,16 @@ function emitCandidatePack() {
           "import { readFileSync } from 'node:fs';",
           "import { join, dirname } from 'node:path';",
           "import { generateApprovalPack } from './lib/commercialQuality/approvalPack';",
-          "import { loadProvenancedCaptures, validateCandidateProvenance } from './lib/commercialQuality/candidateProvenance';",
+          "import { loadProvenancedCaptures, validateCandidateProvenance, manifestTuplesFromEntries } from './lib/commercialQuality/candidateProvenance';",
           "import { M55_COMMERCIAL_QUALITY_MANIFEST } from './lib/m55/commercialUx/qualityControl/m55SurfaceManifest';",
+          "import { M55_SETUP_REGISTRY } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry';",
           `const evidence = JSON.parse(readFileSync(${JSON.stringify(GATE_EVIDENCE_FILE)}, 'utf8'));`,
           `const captureDir = dirname(${JSON.stringify(GATE_EVIDENCE_FILE)});`,
           `const currentSourceCommit = ${JSON.stringify(currentSourceCommit)};`,
           `const currentManifestDigest = ${JSON.stringify(REPORT.manifestDigest)};`,
-          'const manifestSurfaceIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.surfaceId));',
-          'const manifestSetupIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.setupId));',
-          'const manifestRuntimeStateIds = new Set(M55_COMMERCIAL_QUALITY_MANIFEST.entries.map((e) => e.runtimeStateId));',
-          'const provenanceFailures = validateCandidateProvenance({ evidence, currentSourceCommit, currentManifestDigest, captureDirectory: captureDir, manifestSurfaceIds, manifestSetupIds, manifestRuntimeStateIds });',
+          'const fixtureBySetupId = new Map(M55_SETUP_REGISTRY.setups.map((s) => [s.setupId, s.fixtureId]));',
+          'const manifestTuples = manifestTuplesFromEntries(M55_COMMERCIAL_QUALITY_MANIFEST.entries, fixtureBySetupId);',
+          'const provenanceFailures = validateCandidateProvenance({ evidence, currentSourceCommit, currentManifestDigest, captureDirectory: captureDir, manifestTuples });',
           'if (provenanceFailures.length > 0) {',
           '  process.stderr.write(JSON.stringify({ provenanceFailures }));',
           '  process.exit(2);',

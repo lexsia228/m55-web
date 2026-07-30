@@ -186,9 +186,17 @@ export type AdapterFixture = {
 };
 
 const ADAPTER_PROBE_KIND_BY_FIXTURE_ID = {
+  remove_ecp_route: 'remove_ecp_route',
+  alter_ecp_route: 'alter_ecp_route',
+  remove_premium_state: 'remove_premium_state',
+  alter_premium_state: 'alter_premium_state',
+  duplicate_imported_authority: 'duplicate_imported_authority',
+  unknown_setup: 'unknown_setup',
+  setup_wrong_route: 'setup_wrong_route',
+  setup_wrong_runtime_state: 'setup_wrong_runtime_state',
+  // Legacy aliases — still exercised by existing negative fixtures
   unregistered_route: 'unregistered_route',
   unregistered_runtime_state: 'unregistered_state',
-  unknown_setup: 'unknown_setup',
   duplicate_ecp: 'duplicate_ecp',
 } as const;
 
@@ -309,6 +317,46 @@ export const COMMERCIAL_QUALITY_NEGATIVE_FIXTURES: readonly CommercialQualityFix
     ]),
   },
   {
+    id: 'remove_ecp_route',
+    kind: 'adapter',
+    expectedCode: 'ADAPTER_UNREGISTERED_ROUTE',
+  },
+  {
+    id: 'alter_ecp_route',
+    kind: 'adapter',
+    expectedCode: 'ADAPTER_UNREGISTERED_ROUTE',
+  },
+  {
+    id: 'remove_premium_state',
+    kind: 'adapter',
+    expectedCode: 'ADAPTER_UNREGISTERED_STATE',
+  },
+  {
+    id: 'alter_premium_state',
+    kind: 'adapter',
+    expectedCode: 'ADAPTER_MISSING_RUNTIME_STATE_CONTRACT',
+  },
+  {
+    id: 'duplicate_imported_authority',
+    kind: 'adapter',
+    expectedCode: 'ADAPTER_DUPLICATE_IMPORTED_AUTHORITY',
+  },
+  {
+    id: 'unknown_setup',
+    kind: 'adapter',
+    expectedCode: 'SETUP_MISSING_FOR_SURFACE',
+  },
+  {
+    id: 'setup_wrong_route',
+    kind: 'adapter',
+    expectedCode: 'SETUP_ROUTE_MISMATCH',
+  },
+  {
+    id: 'setup_wrong_runtime_state',
+    kind: 'adapter',
+    expectedCode: 'SETUP_STATE_MISMATCH',
+  },
+  {
     id: 'unregistered_route',
     kind: 'adapter',
     expectedCode: 'ADAPTER_UNREGISTERED_ROUTE',
@@ -317,11 +365,6 @@ export const COMMERCIAL_QUALITY_NEGATIVE_FIXTURES: readonly CommercialQualityFix
     id: 'unregistered_runtime_state',
     kind: 'adapter',
     expectedCode: 'ADAPTER_UNREGISTERED_STATE',
-  },
-  {
-    id: 'unknown_setup',
-    kind: 'adapter',
-    expectedCode: 'SETUP_MISSING_FOR_SURFACE',
   },
   {
     id: 'duplicate_ecp',

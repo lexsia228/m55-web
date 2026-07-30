@@ -43,12 +43,20 @@ export function m55SurfaceById(surfaceId: string): SurfaceManifestEntry | undefi
   return entriesBySurfaceId.get(surfaceId);
 }
 
+function surfaceMapFrom(
+  entries: readonly SurfaceManifestEntry[] = M55_COMMERCIAL_QUALITY_MANIFEST.entries,
+): Map<string, SurfaceManifestEntry> {
+  return new Map(entries.map((entry) => [entry.surfaceId, entry]));
+}
+
 /** Every ECP route must have a registered surface with a runtime-state contract. */
-export function checkEcpCoverage(): readonly InvariantFailure[] {
+export function checkEcpCoverage(
+  surfaces: ReadonlyMap<string, SurfaceManifestEntry> = entriesBySurfaceId,
+): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
   for (const entry of M55_EXPERIENCE_ROUTE_REGISTRY) {
     const surfaceId = `${M55_QUALITY_PROJECT_ID}:ecp.${entry.id}`;
-    const surface = entriesBySurfaceId.get(surfaceId);
+    const surface = surfaces.get(surfaceId);
     if (!surface) {
       failures.push(
         failure('ADAPTER_UNREGISTERED_ROUTE', `ECP route without surface registration: ${entry.id}`, {
@@ -79,10 +87,12 @@ export function checkEcpCoverage(): readonly InvariantFailure[] {
   return failures;
 }
 
-export function checkPremiumStateCoverage(): readonly InvariantFailure[] {
+export function checkPremiumStateCoverage(
+  surfaces: ReadonlyMap<string, SurfaceManifestEntry> = entriesBySurfaceId,
+): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
   for (const state of PREMIUM_EXPERIENCE_STATE_REGISTRY) {
-    const surface = entriesBySurfaceId.get(`${M55_QUALITY_PROJECT_ID}:premium.${state.id}`);
+    const surface = surfaces.get(`${M55_QUALITY_PROJECT_ID}:premium.${state.id}`);
     if (!surface) {
       failures.push(
         failure('ADAPTER_UNREGISTERED_STATE', `Premium state not registered: ${state.id}`, {
@@ -257,46 +267,84 @@ export function checkSetupRegistry(): readonly InvariantFailure[] {
   return failures;
 }
 
+export type AdapterNegativeKind =
+  | 'remove_ecp_route'
+  | 'alter_ecp_route'
+  | 'remove_premium_state'
+  | 'alter_premium_state'
+  | 'duplicate_imported_authority'
+  | 'unknown_setup'
+  | 'setup_wrong_route'
+  | 'setup_wrong_runtime_state'
+  // Legacy aliases used by existing fixtures
+  | 'unregistered_route'
+  | 'unregistered_state'
+  | 'duplicate_ecp';
+
 /**
- * Production adapter negative probes — mutate a *copy* of authorities and run
- * the real coverage checkers. Never mocks PASS.
+ * Production adapter negative probes — mutate a copy and invoke the real
+ * exported enforcement functions. Never mocks PASS.
  */
-export function probeAdapterNegative(
-  kind: 'unregistered_route' | 'unregistered_state' | 'unknown_setup' | 'duplicate_ecp',
-): readonly InvariantFailure[] {
-  if (kind === 'unregistered_route') {
-    // Drop one ECP surface from the registered map and re-check coverage.
+export function probeAdapterNegative(kind: AdapterNegativeKind): readonly InvariantFailure[] {
+  if (kind === 'remove_ecp_route' || kind === 'unregistered_route') {
     const dropped = M55_EXPERIENCE_ROUTE_REGISTRY[0];
-    const remaining = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
-      (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:ecp.${dropped.id}`,
+    const map = surfaceMapFrom(
+      M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
+        (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:ecp.${dropped.id}`,
+      ),
     );
-    const failures: InvariantFailure[] = [];
-    for (const entry of M55_EXPERIENCE_ROUTE_REGISTRY) {
-      const surfaceId = `${M55_QUALITY_PROJECT_ID}:ecp.${entry.id}`;
-      if (!remaining.some((e) => e.surfaceId === surfaceId)) {
-        failures.push(
-          failure('ADAPTER_UNREGISTERED_ROUTE', `ECP route without surface registration: ${entry.id}`, {
-            routeId: entry.id,
-          }),
-        );
-      }
-    }
-    return failures;
+    return checkEcpCoverage(map);
   }
-  if (kind === 'unregistered_state') {
+  if (kind === 'alter_ecp_route') {
+    const target = M55_EXPERIENCE_ROUTE_REGISTRY[0];
+    const surfaceId = `${M55_QUALITY_PROJECT_ID}:ecp.${target.id}`;
+    const map = surfaceMapFrom();
+    const current = map.get(surfaceId);
+    if (!current) return [failure('ADAPTER_UNREGISTERED_ROUTE', 'alter target missing', { surfaceId })];
+    map.set(surfaceId, { ...current, route: '/cq-altered-route' });
+    return checkEcpCoverage(map);
+  }
+  if (kind === 'remove_premium_state' || kind === 'unregistered_state') {
     const dropped = PREMIUM_EXPERIENCE_STATE_REGISTRY[0];
-    const remaining = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
-      (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:premium.${dropped.id}`,
+    const map = surfaceMapFrom(
+      M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter(
+        (entry) => entry.surfaceId !== `${M55_QUALITY_PROJECT_ID}:premium.${dropped.id}`,
+      ),
     );
+    return checkPremiumStateCoverage(map);
+  }
+  if (kind === 'alter_premium_state') {
+    const target = PREMIUM_EXPERIENCE_STATE_REGISTRY[0];
+    const surfaceId = `${M55_QUALITY_PROJECT_ID}:premium.${target.id}`;
+    const map = surfaceMapFrom();
+    const current = map.get(surfaceId);
+    if (!current) return [failure('ADAPTER_UNREGISTERED_STATE', 'alter target missing', { surfaceId })];
+    map.set(surfaceId, {
+      ...current,
+      preconditions: current.preconditions.filter((p) => !p.startsWith('ecp_route:')),
+    });
+    return checkPremiumStateCoverage(map);
+  }
+  if (kind === 'duplicate_imported_authority') {
+    const base = M55_COMMERCIAL_QUALITY_MANIFEST.entries[0];
+    const dupRef = base.authorityReferences[0];
+    const mutated = {
+      ...base,
+      authorityReferences: [...base.authorityReferences, dupRef],
+    };
+    const seen = new Set<string>();
     const failures: InvariantFailure[] = [];
-    for (const state of PREMIUM_EXPERIENCE_STATE_REGISTRY) {
-      if (!remaining.some((e) => e.surfaceId === `${M55_QUALITY_PROJECT_ID}:premium.${state.id}`)) {
+    for (const reference of mutated.authorityReferences) {
+      const identity = `${reference.kind}:${reference.key}`;
+      if (seen.has(identity)) {
         failures.push(
-          failure('ADAPTER_UNREGISTERED_STATE', `Premium state not registered: ${state.id}`, {
-            stateId: state.id,
+          failure('ADAPTER_DUPLICATE_IMPORTED_AUTHORITY', 'duplicate authority reference', {
+            surfaceId: mutated.surfaceId,
+            reference: identity,
           }),
         );
       }
+      seen.add(identity);
     }
     return failures;
   }
@@ -310,7 +358,29 @@ export function probeAdapterNegative(
       M55_SETUP_REGISTRY,
     );
   }
-  // duplicate_ecp — two surfaces claiming the same ECP route identity
+  if (kind === 'setup_wrong_route') {
+    const entry = M55_COMMERCIAL_QUALITY_MANIFEST.entries[0];
+    const setup = m55SetupById(entry.setupId);
+    if (!setup) return [failure('SETUP_UNKNOWN_ID', 'setup missing', { setupId: entry.setupId })];
+    return validateManifestSetups(
+      {
+        ...M55_COMMERCIAL_QUALITY_MANIFEST,
+        entries: [{ ...entry, route: '/cq-wrong-route', routeIsPattern: false }],
+      },
+      M55_SETUP_REGISTRY,
+    );
+  }
+  if (kind === 'setup_wrong_runtime_state') {
+    const entry = M55_COMMERCIAL_QUALITY_MANIFEST.entries[0];
+    return validateManifestSetups(
+      {
+        ...M55_COMMERCIAL_QUALITY_MANIFEST,
+        entries: [{ ...entry, runtimeStateId: 'cq:wrong-runtime-state' }],
+      },
+      M55_SETUP_REGISTRY,
+    );
+  }
+  // duplicate_ecp — two surfaces claiming the same ECP surface id
   const base = M55_COMMERCIAL_QUALITY_MANIFEST.entries.find((e) =>
     e.surfaceId.startsWith(`${M55_QUALITY_PROJECT_ID}:ecp.`),
   );

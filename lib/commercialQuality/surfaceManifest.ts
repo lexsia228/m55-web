@@ -6,6 +6,12 @@
 import { createHash } from 'node:crypto';
 
 import {
+  EMPTY_APPROVAL_RECORD_STORE,
+  isForbiddenApprovalAuthority,
+  promotionApprovalFromBaseline,
+  type ApprovalRecordStore,
+} from './approvalRecords';
+import {
   CANONICAL_BASELINE_STATES,
   COMMERCIAL_QUALITY_SCHEMA_VERSION,
   CONTENT_STRESS_PROFILES,
@@ -28,9 +34,18 @@ function isPositiveInt(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
 }
 
+export type ManifestValidationOptions = {
+  /** Durable approval store for human-approved baseline resolution. */
+  approvalStore?: ApprovalRecordStore;
+  /** Truth bindings when validating human-approved entries. */
+  currentSourceCommit?: string;
+  currentManifestDigest?: string;
+};
+
 /** Validate a single entry. Returns every violated rule, not just the first. */
 export function validateSurfaceManifestEntry(
   entry: SurfaceManifestEntry,
+  options: ManifestValidationOptions = {},
 ): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
   const at = { surfaceId: entry.surfaceId, runtimeStateId: entry.runtimeStateId };
@@ -145,13 +160,7 @@ export function validateSurfaceManifestEntry(
   }
   if (entry.canonicalBaseline === 'human-approved') {
     const rec = entry.baselineApproval;
-    const complete =
-      rec !== null &&
-      rec.humanApprovalRef.trim().length > 0 &&
-      rec.independentReviewRef.trim().length > 0 &&
-      rec.sourceCommit.trim().length > 0 &&
-      rec.manifestDigest.trim().length > 0;
-    if (!complete) {
+    if (!rec) {
       failures.push(
         failure(
           'MANIFEST_APPROVED_BASELINE_WITHOUT_RECORD',
@@ -159,7 +168,47 @@ export function validateSurfaceManifestEntry(
           at,
         ),
       );
+    } else {
+      if (isForbiddenApprovalAuthority(rec.approvalAuthority) || rec.approvalAuthority === 'machine:self') {
+        failures.push(
+          failure('PROMOTION_SELF_APPROVAL', 'manifest baseline approvalAuthority is forbidden', {
+            ...at,
+            approvalAuthority: rec.approvalAuthority,
+          }),
+        );
+      }
+      const resolved = promotionApprovalFromBaseline(
+        rec,
+        options.approvalStore ?? EMPTY_APPROVAL_RECORD_STORE,
+        {
+          sourceCommit: options.currentSourceCommit ?? rec.sourceCommit,
+          manifestDigest: options.currentManifestDigest ?? rec.manifestDigest,
+          candidateHashes: rec.candidateHashes,
+        },
+      );
+      if (!resolved.ok) {
+        failures.push(
+          failure(
+            'MANIFEST_APPROVED_BASELINE_WITHOUT_RECORD',
+            'human-approved baseline failed durable approval resolution',
+            { ...at, nested: resolved.failures.map((f) => f.code) },
+          ),
+          ...resolved.failures,
+        );
+      }
     }
+  }
+  if (entry.canonicalBaseline === 'human-approved' && entry.baselineApproval === null) {
+    // already handled
+  } else if (
+    entry.canonicalBaseline === 'none' &&
+    entry.baselineApproval !== null &&
+    (entry.baselineApproval.approvalAuthority === 'machine:self' ||
+      isForbiddenApprovalAuthority(entry.baselineApproval.approvalAuthority))
+  ) {
+    failures.push(
+      failure('PROMOTION_SELF_APPROVAL', 'machine:self approval cannot bind any baseline', at),
+    );
   }
 
   for (const profile of entry.contentStressProfiles) {
@@ -181,7 +230,10 @@ export function validateSurfaceManifestEntry(
   return failures;
 }
 
-export function validateSurfaceManifest(manifest: SurfaceManifest): readonly InvariantFailure[] {
+export function validateSurfaceManifest(
+  manifest: SurfaceManifest,
+  options: ManifestValidationOptions = {},
+): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
 
   if (manifest.schemaVersion !== COMMERCIAL_QUALITY_SCHEMA_VERSION) {
@@ -195,6 +247,7 @@ export function validateSurfaceManifest(manifest: SurfaceManifest): readonly Inv
   const seenSurfaces = new Set<string>();
   const seenIdentities = new Set<string>();
   for (const entry of manifest.entries) {
+    failures.push(...validateSurfaceManifestEntry(entry, options));
     if (seenSurfaces.has(entry.surfaceId)) {
       failures.push(
         failure('MANIFEST_DUPLICATE_SURFACE_ID', `duplicate surfaceId: ${entry.surfaceId}`, {
@@ -215,8 +268,6 @@ export function validateSurfaceManifest(manifest: SurfaceManifest): readonly Inv
       );
     }
     seenIdentities.add(identity);
-
-    failures.push(...validateSurfaceManifestEntry(entry));
   }
 
   return failures;

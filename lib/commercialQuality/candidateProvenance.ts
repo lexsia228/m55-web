@@ -1,25 +1,50 @@
 /**
- * Candidate pack provenance binding.
+ * Candidate pack provenance binding — exact manifest tuple + inventory.
  *
- * Capture bytes are hashed *before* pack assembly and must match exactly when
- * the pack is generated. Re-hashing after reading never "authenticates" a
- * mutated file — the pre-recorded hash is the authority.
+ * Independent ID membership is never enough. Each capture must bind the exact
+ * (surfaceId, route, runtimeStateId, setupId, fixture, viewport/profile)
+ * tuple present in the current manifest, with pre-recorded hashes and a
+ * complete directory inventory.
  */
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { GateSummary, InvariantFailure } from './types';
 
+export type ManifestTuple = {
+  surfaceId: string;
+  route: string;
+  runtimeStateId: string;
+  setupId: string;
+  fixtureId: string | null;
+  preconditionIdentity: string;
+};
+
 export type PreRecordedCapture = {
   relativePath: string;
   kind: 'png' | 'pdf';
-  /** SHA-256 of the capture bytes at evidence-recording time. */
   sha256: string;
   byteLength: number;
   surfaceId: string;
+  route: string;
   runtimeStateId: string;
   setupId: string;
+  fixtureId: string | null;
+  preconditionIdentity: string;
+  viewport: { width: number; height: number };
+  profile: string;
+};
+
+export type ExecutedTuple = {
+  surfaceId: string;
+  route: string;
+  runtimeStateId: string;
+  setupId: string;
+  fixtureId: string | null;
+  preconditionIdentity: string;
+  viewport: { width: number; height: number };
+  profile: string;
 };
 
 export type GateEvidence = {
@@ -28,24 +53,20 @@ export type GateEvidence = {
   manifestDigest: string;
   gates: GateSummary;
   changedSurfaces: readonly string[];
-  /** Setup IDs exercised by the gate. */
   setupIds: readonly string[];
-  /** Surface / runtime-state identities exercised by the gate. */
-  executedSurfaceStates: readonly { surfaceId: string; runtimeStateId: string }[];
+  executedTuples: readonly ExecutedTuple[];
   /** Captures with hashes recorded *before* pack assembly. */
   captures: readonly PreRecordedCapture[];
+  /** Exact relative paths present at evidence-recording time. */
+  inventory: readonly string[];
 };
 
 export type ProvenanceValidationInput = {
   evidence: GateEvidence;
   currentSourceCommit: string;
   currentManifestDigest: string;
-  /** Absolute directory containing the capture files named in evidence. */
   captureDirectory: string;
-  /** Manifest surface IDs that are legal for this pack. */
-  manifestSurfaceIds: ReadonlySet<string>;
-  manifestSetupIds: ReadonlySet<string>;
-  manifestRuntimeStateIds: ReadonlySet<string>;
+  manifestTuples: readonly ManifestTuple[];
 };
 
 function failure(
@@ -60,15 +81,46 @@ export function sha256OfBytes(data: Uint8Array | Buffer | string): string {
   return createHash('sha256').update(data).digest('hex');
 }
 
-/**
- * Validate gate evidence against current HEAD / digest and pre-recorded hashes.
- * Does not write a pack; callers generate only after this returns zero failures.
- */
+function tupleKey(t: {
+  surfaceId: string;
+  route: string;
+  runtimeStateId: string;
+  setupId: string;
+  fixtureId: string | null;
+  preconditionIdentity: string;
+}): string {
+  return [
+    t.surfaceId,
+    t.route,
+    t.runtimeStateId,
+    t.setupId,
+    t.fixtureId ?? '',
+    t.preconditionIdentity,
+  ].join('|');
+}
+
+function listInventory(directory: string): string[] {
+  try {
+    return readdirSync(directory)
+      .filter((name) => {
+        try {
+          return statSync(join(directory, name)).isFile();
+        } catch {
+          return false;
+        }
+      })
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
 export function validateCandidateProvenance(
   input: ProvenanceValidationInput,
 ): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
   const { evidence } = input;
+  const manifestKeys = new Set(input.manifestTuples.map(tupleKey));
 
   if (evidence.status !== 'browser_gate_green') {
     failures.push(
@@ -105,42 +157,59 @@ export function validateCandidateProvenance(
       failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'gate evidence has no pre-recorded captures', {}),
     );
   }
+  if (!Array.isArray(evidence.inventory)) {
+    failures.push(
+      failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'gate evidence missing inventory', {}),
+    );
+  }
 
-  for (const setupId of evidence.setupIds ?? []) {
-    if (!input.manifestSetupIds.has(setupId)) {
+  const executedKeys = new Set<string>();
+  for (const executed of evidence.executedTuples ?? []) {
+    const key = tupleKey(executed);
+    if (executedKeys.has(key)) {
       failures.push(
-        failure('SETUP_UNKNOWN_ID', `gate evidence setupId not in manifest: ${setupId}`, { setupId }),
+        failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'duplicate executed tuple', { key }),
       );
     }
-  }
-  for (const executed of evidence.executedSurfaceStates ?? []) {
-    if (!input.manifestSurfaceIds.has(executed.surfaceId)) {
+    executedKeys.add(key);
+    if (!manifestKeys.has(key)) {
       failures.push(
-        failure('ADAPTER_UNREGISTERED_ROUTE', `gate evidence surface not in manifest: ${executed.surfaceId}`, {
-          surfaceId: executed.surfaceId,
+        failure('ADAPTER_UNREGISTERED_STATE', 'executed tuple not in current manifest', {
+          key,
         }),
       );
     }
-    if (!input.manifestRuntimeStateIds.has(executed.runtimeStateId)) {
-      failures.push(
-        failure('ADAPTER_UNREGISTERED_STATE', `gate evidence state not in manifest: ${executed.runtimeStateId}`, {
-          runtimeStateId: executed.runtimeStateId,
-        }),
-      );
-    }
   }
 
-  const seenPaths = new Set<string>();
+  const captureKeys = new Set<string>();
+  const capturePaths = new Set<string>();
   for (const capture of evidence.captures ?? []) {
-    if (seenPaths.has(capture.relativePath)) {
+    const key = tupleKey(capture);
+    if (captureKeys.has(key)) {
+      failures.push(
+        failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'duplicate capture tuple', { key }),
+      );
+    }
+    captureKeys.add(key);
+    if (capturePaths.has(capture.relativePath)) {
       failures.push(
         failure('PROMOTION_ALTERED_CANDIDATE_HASH', `duplicate capture path: ${capture.relativePath}`, {
           relativePath: capture.relativePath,
         }),
       );
     }
-    seenPaths.add(capture.relativePath);
+    capturePaths.add(capture.relativePath);
 
+    if (!manifestKeys.has(key)) {
+      failures.push(
+        failure('ADAPTER_UNREGISTERED_ROUTE', 'capture tuple not in current manifest', { key }),
+      );
+    }
+    if (!executedKeys.has(key)) {
+      failures.push(
+        failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'capture tuple was not executed', { key }),
+      );
+    }
     if (!capture.sha256 || capture.sha256.length !== 64) {
       failures.push(
         failure('PROMOTION_ALTERED_CANDIDATE_HASH', `capture missing pre-recorded hash: ${capture.relativePath}`, {
@@ -148,13 +217,6 @@ export function validateCandidateProvenance(
         }),
       );
       continue;
-    }
-    if (!input.manifestSurfaceIds.has(capture.surfaceId)) {
-      failures.push(
-        failure('ADAPTER_UNREGISTERED_ROUTE', `capture surface not in manifest: ${capture.surfaceId}`, {
-          relativePath: capture.relativePath,
-        }),
-      );
     }
 
     let bytes: Buffer;
@@ -169,12 +231,10 @@ export function validateCandidateProvenance(
       continue;
     }
 
-    // Compare against the *pre-recorded* hash — never treat a fresh hash of
-    // mutated bytes as authentication.
     const actual = sha256OfBytes(bytes);
     if (actual !== capture.sha256) {
       failures.push(
-        failure('PROMOTION_ALTERED_CANDIDATE_HASH', `capture bytes altered since evidence recording`, {
+        failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'capture bytes altered since evidence recording', {
           relativePath: capture.relativePath,
           preRecorded: capture.sha256,
           actual,
@@ -183,7 +243,7 @@ export function validateCandidateProvenance(
     }
     if (bytes.byteLength !== capture.byteLength) {
       failures.push(
-        failure('PROMOTION_ALTERED_CANDIDATE_HASH', `capture byteLength altered`, {
+        failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'capture byteLength altered', {
           relativePath: capture.relativePath,
           preRecorded: capture.byteLength,
           actual: bytes.byteLength,
@@ -192,10 +252,35 @@ export function validateCandidateProvenance(
     }
   }
 
+  // Complete inventory: current directory must equal pre-recorded inventory exactly.
+  const recordedInventory = [...(evidence.inventory ?? [])].sort();
+  const currentInventory = listInventory(input.captureDirectory).filter(
+    (name) => name !== 'gate-summary.json' && name !== 'provenance.json',
+  );
+  if (recordedInventory.join('|') !== currentInventory.join('|')) {
+    failures.push(
+      failure('PROMOTION_ALTERED_CANDIDATE_HASH', 'capture inventory differs from evidence recording', {
+        recorded: recordedInventory,
+        current: currentInventory,
+      }),
+    );
+  }
+  for (const path of recordedInventory) {
+    if (!capturePaths.has(path) && !path.endsWith('.json')) {
+      // inventory may include only capture files — every inventory file must be a known capture
+      if (!capturePaths.has(path)) {
+        failures.push(
+          failure('PROMOTION_ALTERED_CANDIDATE_HASH', `inventory file not bound to a capture: ${path}`, {
+            path,
+          }),
+        );
+      }
+    }
+  }
+
   return failures;
 }
 
-/** Build pack capture payloads only after provenance validation has passed. */
 export function loadProvenancedCaptures(
   evidence: GateEvidence,
   captureDirectory: string,
@@ -211,15 +296,33 @@ export function recordCaptureHash(
   relativePath: string,
   kind: 'png' | 'pdf',
   data: Uint8Array,
-  identity: { surfaceId: string; runtimeStateId: string; setupId: string },
+  identity: Omit<PreRecordedCapture, 'relativePath' | 'kind' | 'sha256' | 'byteLength'>,
 ): PreRecordedCapture {
   return {
     relativePath,
     kind,
     sha256: sha256OfBytes(data),
     byteLength: data.byteLength,
-    surfaceId: identity.surfaceId,
-    runtimeStateId: identity.runtimeStateId,
-    setupId: identity.setupId,
+    ...identity,
   };
+}
+
+export function manifestTuplesFromEntries(
+  entries: readonly {
+    surfaceId: string;
+    route: string;
+    runtimeStateId: string;
+    setupId: string;
+    preconditions: readonly string[];
+  }[],
+  fixtureBySetupId: ReadonlyMap<string, string | null>,
+): ManifestTuple[] {
+  return entries.map((entry) => ({
+    surfaceId: entry.surfaceId,
+    route: entry.route,
+    runtimeStateId: entry.runtimeStateId,
+    setupId: entry.setupId,
+    fixtureId: fixtureBySetupId.get(entry.setupId) ?? null,
+    preconditionIdentity: [...entry.preconditions].sort().join(';'),
+  }));
 }

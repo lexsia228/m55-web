@@ -4,6 +4,11 @@
  * A manifest setupId is only valid when this registry resolves it to an
  * executable function with matching route/state/stress contracts. String
  * markers alone never satisfy registration.
+ *
+ * User-visible surfaces are either:
+ * - executable — must pass Chromium smoke
+ * - non_runtime_reference — evidence identity consumed elsewhere; never a
+ *   browser-smoke PASS
  */
 import {
   SETUP_FAILURE_CODES,
@@ -23,17 +28,9 @@ export type SetupAuthenticationMode =
   | 'authenticated'
   | 'purchased_private';
 
-/**
- * How the all-registration smoke exercises this setup.
- * - navigate: goto expectedRoute and assert protected selectors
- * - navigate_fixture: deterministic fixture path (token / seeded state)
- * - registration_only: auth/purchase/pattern without a deterministic browser
- *   fixture yet — smoke proves resolution + metadata, never claims GREEN load
- */
-export type SetupSmokeKind = 'navigate' | 'navigate_fixture' | 'registration_only';
+export type SetupExecutionClass = 'executable' | 'non_runtime_reference';
 
 export type SetupContext = {
-  /** Opaque browser/page handle owned by the project adapter. */
   page: unknown;
   baseURL: string;
   label: string;
@@ -49,33 +46,26 @@ export type StressApplicationResult = {
   profile: ContentStressProfile | ExecutionProfile;
   applied: true;
   evidence: Readonly<Record<string, unknown>>;
-  /** Cleanup token returned to clearStress. */
   cleanupToken?: string;
 };
 
-/**
- * Project-agnostic setup contract. The generic engine never constructs product
- * fixtures; it only invokes these hooks through the project adapter.
- */
 export type ExecutableSetup = {
   setupId: string;
+  executionClass: SetupExecutionClass;
+  /** When non_runtime_reference: which executable surface consumes this identity. */
+  consumedBySurfaceId: string | null;
   expectedRoute: string;
   expectedRuntimeStateId: string;
   authenticationMode: SetupAuthenticationMode;
   preconditions: readonly string[];
   supportedContentStressProfiles: readonly ContentStressProfile[];
   supportedExecutionProfiles: readonly ExecutionProfile[];
-  smokeKind: SetupSmokeKind;
-  /** Fixture path when smokeKind is navigate_fixture; otherwise null. */
-  fixturePath: string | null;
-  /** Selector that must resolve after a successful navigable smoke. */
+  /** Localhost fixture identity; null for plain navigate. */
+  fixtureId: string | null;
   readySelector: string;
-  /** True when an authenticated/purchased setup has a deterministic fixture. */
+  /** Selector that proves the expected runtime state after setup. */
+  stateMarkerSelector: string;
   hasDeterministicAuthFixture: boolean;
-  /**
-   * Bound at registration time. Must be a real function — never a string
-   * marker. The project adapter invokes it with a typed page handle.
-   */
   execute: (context: SetupContext, entry: SurfaceManifestEntry) => Promise<SetupExecutionResult>;
   teardown?: (context: SetupContext, entry: SurfaceManifestEntry) => Promise<void>;
   applyContentStress?: (
@@ -100,6 +90,15 @@ export type ExecutableSetup = {
     profile: ExecutionProfile,
     token?: string,
   ) => Promise<void>;
+  /**
+   * Mutates a real protected/governed element for the profile. Synthetic probes
+   * alone are forbidden for PASS evidence.
+   */
+  applyGovernedStress?: (
+    context: SetupContext,
+    entry: SurfaceManifestEntry,
+    profile: ContentStressProfile,
+  ) => Promise<StressApplicationResult>;
 };
 
 export type SetupRegistry = {
@@ -122,7 +121,6 @@ export function setupById(
   return registry.setups.find((setup) => setup.setupId === setupId);
 }
 
-/** Validate a single setup against its owning manifest entry. */
 export function validateSetupAgainstEntry(
   setup: ExecutableSetup | undefined,
   entry: SurfaceManifestEntry,
@@ -187,26 +185,29 @@ export function validateSetupAgainstEntry(
     setup.authenticationMode === 'authenticated' ||
     setup.authenticationMode === 'purchased_private' ||
     entry.requiresAuthentication;
-  if (needsAuth && !setup.hasDeterministicAuthFixture && setup.smokeKind !== 'registration_only') {
+  if (setup.executionClass === 'executable' && needsAuth && !setup.hasDeterministicAuthFixture) {
     failures.push(
       failure(
         'SETUP_AUTH_WITHOUT_FIXTURE',
-        'authenticated setup lacks deterministic fixture support',
-        { ...at, authenticationMode: setup.authenticationMode, smokeKind: setup.smokeKind },
+        'authenticated executable setup lacks deterministic fixture support',
+        { ...at, authenticationMode: setup.authenticationMode },
       ),
+    );
+  }
+  if (setup.executionClass === 'non_runtime_reference' && !setup.consumedBySurfaceId) {
+    failures.push(
+      failure('SETUP_MISSING_FOR_SURFACE', 'non_runtime reference missing consumedBySurfaceId', at),
     );
   }
 
   return failures;
 }
 
-/** Every manifest entry must resolve to a valid executable setup. */
 export function validateManifestSetups(
   manifest: SurfaceManifest,
   registry: SetupRegistry,
 ): readonly InvariantFailure[] {
   const failures: InvariantFailure[] = [];
-  const seenSetupIds = new Set<string>();
 
   for (const entry of manifest.entries) {
     const setup = setupById(registry, entry.setupId);
@@ -219,7 +220,6 @@ export function validateManifestSetups(
       );
       continue;
     }
-    seenSetupIds.add(setup.setupId);
     failures.push(...validateSetupAgainstEntry(setup, entry));
   }
 
@@ -236,7 +236,6 @@ export function validateManifestSetups(
   return failures;
 }
 
-/** Profiles a plan may apply: intersection of entry declaration and setup support. */
 export function assertProfileSupported(
   setup: ExecutableSetup,
   content: ContentStressProfile,

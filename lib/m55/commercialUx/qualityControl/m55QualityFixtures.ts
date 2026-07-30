@@ -1,0 +1,155 @@
+/**
+ * Deterministic localhost fixtures for commercial-quality setups.
+ * Invoked only from executable setups under clean-capture E2E.
+ */
+import type { Page } from '@playwright/test';
+
+const COMPLETE_FREE = {
+  'free.start_style': 'free.start_style.map_first',
+  'free.decision_style': 'free.decision_style.sort_first',
+  'free.recovery_style': 'free.recovery_style.pause_short',
+  'free.distance_style': 'free.distance_style.close_careful',
+  'free.change_style': 'free.change_style.observe_first',
+  'free.primary_theme': 'free.primary_theme.report_preview',
+} as const;
+
+export async function seedBasicInfoOnly(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {
+  await page.context().addInitScript(
+    ({ id }) => {
+      localStorage.setItem('m55_device_id_v1', id);
+      localStorage.setItem(
+        `m55_profile_v1_${id}`,
+        JSON.stringify({ nickname: '試験', birthDate: '1983-02-28' }),
+      );
+      sessionStorage.removeItem('m55_self_funnel_v1');
+      sessionStorage.removeItem('m55_free_answers_v1');
+    },
+    { id: deviceId },
+  );
+}
+
+export async function seedCompleteFreeAnswers(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {
+  await page.context().addInitScript(
+    ({ free, id }) => {
+      localStorage.setItem('m55_device_id_v1', id);
+      localStorage.setItem(
+        `m55_profile_v1_${id}`,
+        JSON.stringify({ nickname: '試験', birthDate: '1983-02-28' }),
+      );
+      const keys = Object.keys(free).sort();
+      const payload = keys.map((k) => `${k}=${(free as Record<string, string>)[k]}`).join('&');
+      sessionStorage.setItem(
+        'm55_self_funnel_v1',
+        JSON.stringify({
+          schemaVersion: 1,
+          draftFreeAnswers: free,
+          committedFreeAnswers: free,
+          freeResultFingerprint: `ffp1|試験|1983-02-28|${payload}`,
+          questionIndex: 5,
+          generationCount: 1,
+        }),
+      );
+      sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(free));
+    },
+    { free: COMPLETE_FREE, id: deviceId },
+  );
+}
+
+export async function gotoLocal(page: Page, baseURL: string, path: string): Promise<void> {
+  const url = new URL(path, baseURL).toString();
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+      lastError = undefined;
+      break;
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
+      const transient =
+        /Timeout \d+ms exceeded/i.test(message) ||
+        /ERR_CONNECTION_REFUSED/i.test(message) ||
+        /ERR_CONNECTION_RESET/i.test(message) ||
+        /Navigation .* interrupted/i.test(message);
+      if (!transient || attempt === 2) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+  }
+  if (lastError) throw lastError;
+  if (/accounts\.dev/i.test(page.url())) {
+    throw new Error(`STOP_FIXTURE_SCOPE: external navigation to ${page.url()}`);
+  }
+}
+
+export async function establishCoreResult(page: Page, baseURL: string): Promise<void> {
+  const existing = page.locator('[data-testid="m55-core-essence"][data-m55-ux-phase="RESULT"]');
+  if ((await existing.count()) > 0 && /\/core/.test(page.url())) {
+    return;
+  }
+  await seedCompleteFreeAnswers(page);
+  await gotoLocal(page, baseURL, '/core');
+  const phase = page.locator('[data-testid="m55-core-essence"]');
+  await phase.waitFor({ state: 'visible', timeout: 30_000 });
+  const attr = await phase.getAttribute('data-m55-ux-phase');
+  if (attr !== 'RESULT') {
+    throw new Error(`STOP_FIXTURE_SCOPE: expected RESULT phase, got ${attr}`);
+  }
+}
+
+export async function establishPremiumPlans(page: Page, baseURL: string): Promise<void> {
+  if ((await page.getByTestId('m55-dtr-plan-selection').count()) > 0 && /\/dtr\/lp/.test(page.url())) {
+    return;
+  }
+  if ((await page.getByTestId('m55-paid-questionnaire-active').count()) > 0) {
+    for (let i = 0; i < 6; i += 1) {
+      await page.locator('[role="radio"]').first().click();
+      await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
+    }
+    await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+    await page.getByTestId('m55-dtr-plan-selection').waitFor({ state: 'visible', timeout: 30_000 });
+    return;
+  }
+  await establishCoreResult(page, baseURL);
+  const bridge = page.getByTestId('m55-paid-bridge-primary');
+  await bridge.scrollIntoViewIfNeeded();
+  const href = await bridge.getAttribute('href');
+  await bridge.click();
+  try {
+    await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+  } catch {
+    if (!href) throw new Error('STOP_FIXTURE_SCOPE: bridge has no href');
+    await gotoLocal(page, baseURL, href);
+  }
+  await page.getByTestId('m55-paid-questionnaire-active').waitFor({ state: 'visible', timeout: 30_000 });
+  for (let i = 0; i < 6; i += 1) {
+    await page.locator('[role="radio"]').first().click();
+    await page.getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' }).click();
+  }
+  await page.getByRole('button', { name: 'プランを選ぶ' }).click();
+  await page.getByTestId('m55-dtr-plan-selection').waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishCheckoutPrep(page: Page, baseURL: string): Promise<void> {
+  if ((await page.locator('[data-m55-paid-phase="checkout"]').count()) > 0) {
+    return;
+  }
+  await establishPremiumPlans(page, baseURL);
+  const planLightCta = page.getByTestId('m55-dtr-plan-light').getByRole('button');
+  await planLightCta.waitFor({ state: 'visible', timeout: 20_000 });
+  await planLightCta.scrollIntoViewIfNeeded();
+  await planLightCta.click();
+  await page.locator('[data-m55-paid-phase="checkout"]').waitFor({ state: 'visible', timeout: 30_000 });
+}
+
+export async function establishPurchasedReport(page: Page, baseURL: string): Promise<void> {
+  if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+    throw new Error('STOP_FIXTURE_SCOPE: purchased drawer fixture is localhost-only');
+  }
+  await gotoLocal(page, baseURL, '/dev/dtr-drawer-preview?openPanel=chapter-1');
+}
+
+export async function markRuntimeState(page: Page, stateId: string): Promise<void> {
+  await page.evaluate((id) => {
+    document.documentElement.setAttribute('data-m55-cq-runtime-state', id);
+  }, stateId);
+}

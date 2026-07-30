@@ -138,7 +138,21 @@ export function isBrowserExecutableEcpEntry(entry: ExperienceRouteEntry): boolea
   );
 }
 
-const DEFAULT_STRESS: readonly ContentStressProfile[] = ['short_text', 'long_japanese_text'];
+const DEFAULT_STRESS: readonly ContentStressProfile[] = ['short_text'];
+
+/** Rich governed-content stress — only surfaces with real protected copy mutation. */
+const RICH_CONTENT_STRESS: readonly ContentStressProfile[] = [
+  'short_text',
+  'long_japanese_text',
+  'punctuation_heavy_japanese',
+  'manual_line_breaks',
+  'max_dynamic_text',
+  'empty',
+  'loading',
+  'error',
+  // Auth/saved/plan/state_transition profiles are unsupported without a real
+  // governed state adapter (SETUP_STRESS_UNSUPPORTED) — do not list them here.
+];
 
 /* ── Recorded accessibility deferrals ──────────────────────────────── */
 
@@ -199,12 +213,14 @@ export function isDeferredAccessibilityFinding(
   if (typeof axeRuleId !== 'string' || !Array.isArray(targets) || targets.length === 0) {
     return false;
   }
-  if (targets.length === 0) return false;
+  if (route == null || route === '') {
+    return false;
+  }
   return targets.every((target) => {
     if (typeof target !== 'string') return false;
     return M55_ACCESSIBILITY_DEFERRALS.some((deferral) => {
       if (deferral.axeRuleId !== axeRuleId) return false;
-      if (route != null && route !== deferral.route) return false;
+      if (route !== deferral.route) return false;
       // Exact selector match only — no substring / wildcard suppression.
       return target === deferral.selector;
     });
@@ -221,7 +237,8 @@ function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
     ...productTruthReferences(entry.productTruth),
     ...assetReferences(entry.id),
   ];
-  const stress: ContentStressProfile[] = [...DEFAULT_STRESS];
+  const stress: ContentStressProfile[] =
+    entry.id === 'public.how_m55_works' ? [...RICH_CONTENT_STRESS] : [...DEFAULT_STRESS];
   const variants: ContentStressProfile[] = [
     entry.privacy === 'authenticated' || entry.privacy === 'purchased_private'
       ? 'authenticated'
@@ -253,7 +270,10 @@ function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
     sectionBoundaries: [],
     stateVariants: variants,
     contentStressProfiles: stress,
-    executionProfiles: ['default', 'reduced_motion'],
+    executionProfiles:
+      entry.id === 'public.how_m55_works'
+        ? ['default', 'text_zoom', 'font_load_transition', 'reduced_motion', 'safe_area']
+        : ['default', 'reduced_motion'],
     // Every ECP archetype declares a paged print mode, so screen + paged output
     // are both governed; a privacy-safe route additionally emits a shared image.
     outputBehaviour: {
@@ -297,7 +317,7 @@ function premiumStateToSurface(state: PremiumExperienceStateDeclaration): Surfac
     fixedElements: [],
     sectionBoundaries: [],
     stateVariants: [state.shareAuthority === 'purchased_private' ? 'saved' : 'unsaved'],
-    contentStressProfiles: [...DEFAULT_STRESS, 'max_dynamic_text'],
+    contentStressProfiles: [...DEFAULT_STRESS],
     executionProfiles: ['default'],
     outputBehaviour: {
       screen: true,
@@ -417,8 +437,14 @@ function visualCaseToSurface(visualCase: CommercialVisualCase): SurfaceManifestE
     fixedElements: visualCase.overlaySelectors,
     sectionBoundaries: [],
     stateVariants: ['unauthenticated'],
-    contentStressProfiles: [...DEFAULT_STRESS, 'punctuation_heavy_japanese', 'manual_line_breaks'],
-    executionProfiles: ['default', 'text_zoom', 'font_load_transition', 'reduced_motion', 'safe_area'],
+    contentStressProfiles:
+      visualCase.caseId === 'home'
+        ? [...RICH_CONTENT_STRESS]
+        : [...DEFAULT_STRESS],
+    executionProfiles:
+      visualCase.caseId === 'home'
+        ? ['default', 'text_zoom', 'font_load_transition', 'reduced_motion', 'safe_area']
+        : ['default', 'reduced_motion'],
     outputBehaviour: { screen: true, print: false, pdf: false, sharedImage: false },
     canonicalBaseline: 'none',
     baselineApproval: null,

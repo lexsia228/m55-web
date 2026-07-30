@@ -413,6 +413,7 @@ export function resolveSourceCommit(): string {
   }
 }
 
+
 export type M55AdapterOptions = {
   baseURL: string;
   label: string;
@@ -427,8 +428,8 @@ export type AppliedProfileEvidence = {
 };
 
 /**
- * M55 project adapter. Every case resolves an executable setup from the
- * registry; unsupported stress profiles throw instead of becoming no-ops.
+ * M55 project adapter. Executable setups own navigation and state.
+ * non_runtime_reference setups are refused. Unsupported stress fails closed.
  */
 export function createM55CommercialQualityAdapter(
   options: M55AdapterOptions,
@@ -436,7 +437,6 @@ export function createM55CommercialQualityAdapter(
   lastProfileEvidence: () => AppliedProfileEvidence | null;
 } {
   const expectedOrigin = new URL(options.baseURL).origin;
-  let currentRoute: string | null = null;
   let lastEvidence: AppliedProfileEvidence | null = null;
 
   return {
@@ -444,25 +444,20 @@ export function createM55CommercialQualityAdapter(
     sourceCommit: resolveSourceCommit,
     lastProfileEvidence: () => lastEvidence,
 
-    applyStressProfile: async (page, entry, spec) => {
+    applyStressProfile: async (_page, entry, spec) => {
       const setup = m55SetupById(entry.setupId);
       if (!setup || typeof setup.execute !== 'function') {
         throw new Error(`SETUP_UNKNOWN_ID: ${entry.setupId}`);
       }
-      // Content stress is applied after navigation in prepareCase; here we only
-      // fail closed when the profile is unsupported by the setup.
+      if (setup.executionClass !== 'executable') {
+        throw new Error(`SETUP_NON_RUNTIME: ${entry.setupId}`);
+      }
       if (!setup.supportedContentStressProfiles.includes(spec.profile)) {
         throw new Error(`SETUP_STRESS_UNSUPPORTED: ${spec.profile} on ${setup.setupId}`);
       }
       if (spec.requiresAuthentication && !setup.hasDeterministicAuthFixture) {
-        throw new Error(
-          `SETUP_AUTH_WITHOUT_FIXTURE: ${entry.surfaceId} / ${spec.profile}`,
-        );
+        throw new Error(`SETUP_AUTH_WITHOUT_FIXTURE: ${entry.surfaceId} / ${spec.profile}`);
       }
-      if (spec.requiresStateTransition && setup.smokeKind === 'registration_only') {
-        throw new Error(`SETUP_STRESS_UNSUPPORTED: state_transition on ${setup.setupId}`);
-      }
-      void page;
     },
 
     prepareCase: async (page, entry, plan) => {
@@ -470,6 +465,9 @@ export function createM55CommercialQualityAdapter(
       const setup = m55SetupById(entry.setupId);
       if (!setup || typeof setup.execute !== 'function') {
         throw new Error(`SETUP_UNKNOWN_ID: ${entry.setupId}`);
+      }
+      if (setup.executionClass !== 'executable') {
+        throw new Error(`SETUP_NON_RUNTIME: refuse to prepare ${setup.setupId}`);
       }
       assertProfileSupported(setup, plan.contentStressProfile, plan.profile);
 
@@ -482,36 +480,21 @@ export function createM55CommercialQualityAdapter(
         lastEvidence.execution = applied.evidence;
       }
 
-      const path =
-        setup.smokeKind === 'navigate_fixture' && setup.fixturePath
-          ? setup.fixturePath
-          : entry.route;
-      if (setup.smokeKind === 'registration_only') {
-        throw new Error(
-          `${options.label}: refuse to navigate registration_only setup ${setup.setupId}`,
-        );
-      }
-      const url = new URL(path, options.baseURL).toString();
-      if (plan.mode === 'fresh_load' || currentRoute !== path) {
-        await safeGotoLocal(page, url);
-        currentRoute = path;
-      }
+      const executed = await setup.execute(context, entry);
+      lastEvidence.content = { setup: executed.evidence };
 
-      await setup.execute(context, entry);
-
-      if (setup.applyContentStress) {
-        const applied = await setup.applyContentStress(
+      if (setup.applyGovernedStress) {
+        const applied = await setup.applyGovernedStress(
           context,
           entry,
           plan.contentStressProfile,
         );
-        lastEvidence.content = applied.evidence;
+        lastEvidence.content = { ...lastEvidence.content, stress: applied.evidence };
       }
 
       await page.waitForLoadState('domcontentloaded');
 
       if (plan.profile === 'font_load_transition') {
-        // Geometry before fonts settle, then after — not only a post-ready wait.
         const before = await page.evaluate(() => {
           const main = document.querySelector('main');
           return main ? main.getBoundingClientRect().height : 0;
@@ -521,7 +504,6 @@ export function createM55CommercialQualityAdapter(
         await page.waitForTimeout(50);
         const after = await page.evaluate(() => {
           const main = document.querySelector('main');
-          document.documentElement.setAttribute('data-m55-cq-font-transition', 'ready');
           return main ? main.getBoundingClientRect().height : 0;
         });
         lastEvidence.fontGeometryAfter = after;
@@ -535,7 +517,7 @@ export function createM55CommercialQualityAdapter(
 
       await assertLocalNavigationStable(page, {
         label: `${options.label}:${entry.surfaceId}`,
-        previousUrl: url,
+        previousUrl: page.url(),
       });
       await assertOverlayAbsence(page, `${options.label}:${entry.surfaceId}`);
     },

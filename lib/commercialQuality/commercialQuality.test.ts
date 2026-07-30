@@ -5,7 +5,7 @@
  * pass when the real checker emits the declared failure code.
  */
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -18,6 +18,12 @@ import {
   evaluatePromotion,
   generateApprovalPack,
 } from './approvalPack';
+import {
+  manifestTuplesFromEntries,
+  recordCaptureHash,
+  validateCandidateProvenance,
+  type GateEvidence,
+} from './candidateProvenance';
 import {
   STRESS_PROFILE_SPECS,
   resolveStressProfiles,
@@ -182,6 +188,48 @@ test('human-approved baseline without an approval record is rejected', () => {
 test('missing source owner files is rejected', () => {
   const failures = validateSurfaceManifestEntry(validEntry({ sourceOwnerFiles: [] }));
   assert.ok(failures.some((f) => f.code === 'MANIFEST_MISSING_SOURCE_OWNER'));
+});
+
+test('machine:self baseline approval is rejected at manifest validation', () => {
+  const failures = validateSurfaceManifestEntry(
+    validEntry({
+      canonicalBaseline: 'human-approved',
+      baselineApproval: {
+        approvalAuthority: 'machine:self',
+        independentReviewRef: 'machine-self',
+        humanApprovalRef: 'machine-self-approved',
+        approvedAt: '2026-07-30T00:00:00.000Z',
+        sourceCommit: 'commit-a',
+        manifestDigest: 'digest-a',
+        candidateHashes: {},
+      },
+    }),
+  );
+  assert.ok(failures.some((f) => f.code === 'PROMOTION_SELF_APPROVAL'));
+});
+
+test('fabricated human:commercial-review baseline is rejected at manifest validation', () => {
+  const failures = validateSurfaceManifestEntry(
+    validEntry({
+      canonicalBaseline: 'human-approved',
+      baselineApproval: {
+        approvalAuthority: 'human:commercial-review',
+        independentReviewRef: 'codex-review-1',
+        humanApprovalRef: 'human-approval-1',
+        approvedAt: '2026-07-30T00:00:00.000Z',
+        sourceCommit: 'commit-a',
+        manifestDigest: 'digest-a',
+        candidateHashes: { 'home-390.png': 'hash-a' },
+      },
+    }),
+  );
+  assert.ok(
+    failures.some(
+      (f) =>
+        f.code === 'PROMOTION_UNKNOWN_APPROVAL_AUTHORITY' ||
+        f.code === 'MANIFEST_APPROVED_BASELINE_WITHOUT_RECORD',
+    ),
+  );
 });
 
 test('manifest digest is stable under key order and changes with content', () => {
@@ -572,23 +620,128 @@ test('resolved stress profiles merge declared profiles and registered variants',
   assert.deepEqual([...profiles], ['short_text', 'saved']);
 });
 
+/* ── Candidate provenance ──────────────────────────────────────────── */
+
+function fixtureGateEvidence(root: string): GateEvidence {
+  const entry = validEntry();
+  const pngPath = 'alpha-390.png';
+  const bytes = new Uint8Array([1, 2, 3, 4]);
+  writeFileSync(join(root, pngPath), bytes);
+  const preconditionIdentity = [...entry.preconditions].sort().join(';');
+  const capture = recordCaptureHash(pngPath, 'png', bytes, {
+    surfaceId: entry.surfaceId,
+    route: entry.route,
+    runtimeStateId: entry.runtimeStateId,
+    setupId: entry.setupId,
+    fixtureId: 'fixture.alpha',
+    preconditionIdentity,
+    viewport: { width: 390, height: 812 },
+    profile: 'default',
+  });
+  const executedTuple = {
+    surfaceId: entry.surfaceId,
+    route: entry.route,
+    runtimeStateId: entry.runtimeStateId,
+    setupId: entry.setupId,
+    fixtureId: 'fixture.alpha',
+    preconditionIdentity,
+    viewport: { width: 390, height: 812 },
+    profile: 'default',
+  };
+  return {
+    status: 'browser_gate_green',
+    sourceCommit: 'commit-a',
+    manifestDigest: 'digest-a',
+    gates: GREEN_GATES,
+    changedSurfaces: [entry.surfaceId],
+    setupIds: [entry.setupId],
+    executedTuples: [executedTuple],
+    captures: [capture],
+    inventory: [pngPath],
+  };
+}
+
+test('candidate provenance accepts matching tuples and inventory', () => {
+  const root = mkdtempSync(join(tmpdir(), 'm55-cq-prov-'));
+  try {
+    const evidence = fixtureGateEvidence(root);
+    const manifestTuples = manifestTuplesFromEntries([validEntry()], new Map([[validEntry().setupId, 'fixture.alpha']]));
+    assert.deepEqual(
+      validateCandidateProvenance({
+        evidence,
+        currentSourceCommit: 'commit-a',
+        currentManifestDigest: 'digest-a',
+        captureDirectory: root,
+        manifestTuples,
+      }),
+      [],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('candidate provenance rejects tuple substitution and inventory extras', () => {
+  const root = mkdtempSync(join(tmpdir(), 'm55-cq-prov-'));
+  try {
+    const evidence = fixtureGateEvidence(root);
+    const manifestTuples = manifestTuplesFromEntries([validEntry()], new Map([[validEntry().setupId, 'fixture.alpha']]));
+    const capture = evidence.captures[0]!;
+    const swapped = validateCandidateProvenance({
+      evidence: {
+        ...evidence,
+        captures: [{ ...capture, runtimeStateId: 'alpha.other' }],
+      },
+      currentSourceCommit: 'commit-a',
+      currentManifestDigest: 'digest-a',
+      captureDirectory: root,
+      manifestTuples,
+    });
+    assert.ok(
+      swapped.some(
+        (f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH' || f.code === 'ADAPTER_UNREGISTERED_ROUTE',
+      ),
+    );
+
+    writeFileSync(join(root, 'extra-after-evidence.png'), Buffer.from('x'));
+    const extraInventory = validateCandidateProvenance({
+      evidence,
+      currentSourceCommit: 'commit-a',
+      currentManifestDigest: 'digest-a',
+      captureDirectory: root,
+      manifestTuples,
+    });
+    assert.ok(extraInventory.some((f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH'));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 /* ── Adapter reconciliation ────────────────────────────────────────── */
 
-test('probeAdapterNegative rejects unregistered route and state identities', async () => {
+const ADAPTER_PROBE_EXPECTATIONS = [
+  ['remove_ecp_route', 'ADAPTER_UNREGISTERED_ROUTE'],
+  ['alter_ecp_route', 'ADAPTER_UNREGISTERED_ROUTE'],
+  ['remove_premium_state', 'ADAPTER_UNREGISTERED_STATE'],
+  ['alter_premium_state', 'ADAPTER_MISSING_RUNTIME_STATE_CONTRACT'],
+  ['duplicate_imported_authority', 'ADAPTER_DUPLICATE_IMPORTED_AUTHORITY'],
+  ['unknown_setup', 'SETUP_MISSING_FOR_SURFACE'],
+  ['setup_wrong_route', 'SETUP_ROUTE_MISMATCH'],
+  ['setup_wrong_runtime_state', 'SETUP_STATE_MISMATCH'],
+] as const;
+
+test('probeAdapterNegative rejects all eight adapter seam kinds', async () => {
   const { probeAdapterNegative } = await import(
     '../m55/commercialUx/qualityControl/m55ManifestAdapter'
   );
 
-  assert.ok(
-    probeAdapterNegative('unregistered_route').some((f) => f.code === 'ADAPTER_UNREGISTERED_ROUTE'),
-  );
-  assert.ok(
-    probeAdapterNegative('unregistered_state').some((f) => f.code === 'ADAPTER_UNREGISTERED_STATE'),
-  );
-  assert.ok(probeAdapterNegative('unknown_setup').some((f) => f.code.startsWith('SETUP_')));
-  assert.ok(
-    probeAdapterNegative('duplicate_ecp').some((f) => f.code === 'MANIFEST_DUPLICATE_SURFACE_ID'),
-  );
+  for (const [kind, expectedCode] of ADAPTER_PROBE_EXPECTATIONS) {
+    const codes = probeAdapterNegative(kind).map((f) => f.code);
+    assert.ok(
+      codes.includes(expectedCode),
+      `${kind}: expected ${expectedCode}, received ${JSON.stringify(codes)}`,
+    );
+  }
 });
 
 /* ── Approval pack ─────────────────────────────────────────────────── */
@@ -808,6 +961,20 @@ test('promotion rejects a changed candidate artifact set', () => {
 
 /* ── Negative fixtures ─────────────────────────────────────────────── */
 
+const REQUIRED_ADAPTER_FIXTURE_IDS = [
+  'remove_ecp_route',
+  'alter_ecp_route',
+  'remove_premium_state',
+  'alter_premium_state',
+  'duplicate_imported_authority',
+  'unknown_setup',
+  'setup_wrong_route',
+  'setup_wrong_runtime_state',
+  'unregistered_route',
+  'unregistered_runtime_state',
+  'duplicate_ecp',
+] as const;
+
 const ORIGINAL_NEGATIVE_FIXTURE_IDS = [
   'duplicate_surface',
   'unregistered_route',
@@ -829,10 +996,13 @@ const ORIGINAL_NEGATIVE_FIXTURE_IDS = [
   'altered_candidate_hash',
 ] as const;
 
-test('the negative fixture set covers all 18 original governed rejections', () => {
+test('the negative fixture set covers original governed rejections and adapter probes', () => {
   const ids = COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.map((f) => f.id);
   for (const id of ORIGINAL_NEGATIVE_FIXTURE_IDS) {
     assert.ok(ids.includes(id), `missing original negative fixture: ${id}`);
+  }
+  for (const id of REQUIRED_ADAPTER_FIXTURE_IDS) {
+    assert.ok(ids.includes(id), `missing adapter negative fixture: ${id}`);
   }
   assert.ok(COMMERCIAL_QUALITY_NEGATIVE_FIXTURES.length >= ORIGINAL_NEGATIVE_FIXTURE_IDS.length);
   assert.equal(new Set(ids).size, ids.length);
