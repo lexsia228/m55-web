@@ -106,13 +106,3 @@ export async function openPurchasedDevDrawer(
   const path = `/dev/dtr-drawer-preview${query ? `?${query}` : ''}`;
   await safeGotoLocal(page, new URL(path, baseURL).toString());
 }
-
-export async function markRuntimeState(page: Page, stateId: string): Promise<void> {
-  await page.evaluate((id) => {
-    document.documentElement.setAttribute('data-m55-cq-runtime-state', id);
-  }, stateId);
-}
-
-export async function assertRuntimeState(page: Page, stateId: string): Promise<void> {
-  await expect(page.locator(`html[data-m55-cq-runtime-state="${stateId}"]`)).toHaveCount(1);
-}

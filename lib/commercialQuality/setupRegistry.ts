@@ -194,6 +194,19 @@ export function validateSetupAgainstEntry(
       ),
     );
   }
+  if (
+    setup.executionClass === 'executable' &&
+    setup.hasDeterministicAuthFixture &&
+    (setup.fixtureId === null || setup.fixtureId.length === 0)
+  ) {
+    failures.push(
+      failure(
+        'SETUP_AUTH_WITHOUT_FIXTURE',
+        'hasDeterministicAuthFixture requires an exact fixture identity',
+        { ...at, authenticationMode: setup.authenticationMode },
+      ),
+    );
+  }
   if (setup.executionClass === 'non_runtime_reference' && !setup.consumedBySurfaceId) {
     failures.push(
       failure('SETUP_MISSING_FOR_SURFACE', 'non_runtime reference missing consumedBySurfaceId', at),

@@ -628,26 +628,19 @@ function fixtureGateEvidence(root: string): GateEvidence {
   const bytes = new Uint8Array([1, 2, 3, 4]);
   writeFileSync(join(root, pngPath), bytes);
   const preconditionIdentity = [...entry.preconditions].sort().join(';');
-  const capture = recordCaptureHash(pngPath, 'png', bytes, {
+  const identity = {
     surfaceId: entry.surfaceId,
     route: entry.route,
     runtimeStateId: entry.runtimeStateId,
     setupId: entry.setupId,
     fixtureId: 'fixture.alpha',
     preconditionIdentity,
-    viewport: { width: 390, height: 812 },
+    viewport: { width: 390, height: 844 },
     profile: 'default',
-  });
-  const executedTuple = {
-    surfaceId: entry.surfaceId,
-    route: entry.route,
-    runtimeStateId: entry.runtimeStateId,
-    setupId: entry.setupId,
-    fixtureId: 'fixture.alpha',
-    preconditionIdentity,
-    viewport: { width: 390, height: 812 },
-    profile: 'default',
-  };
+    executionMode: 'fresh_load',
+    outputMode: 'screen',
+  } as const;
+  const capture = recordCaptureHash(pngPath, 'png', bytes, identity);
   return {
     status: 'browser_gate_green',
     sourceCommit: 'commit-a',
@@ -655,7 +648,7 @@ function fixtureGateEvidence(root: string): GateEvidence {
     gates: GREEN_GATES,
     changedSurfaces: [entry.surfaceId],
     setupIds: [entry.setupId],
-    executedTuples: [executedTuple],
+    executedTuples: [identity],
     captures: [capture],
     inventory: [pngPath],
   };
@@ -712,6 +705,42 @@ test('candidate provenance rejects tuple substitution and inventory extras', () 
       manifestTuples,
     });
     assert.ok(extraInventory.some((f) => f.code === 'PROMOTION_ALTERED_CANDIDATE_HASH'));
+
+    const widthSwap = validateCandidateProvenance({
+      evidence: {
+        ...evidence,
+        captures: [{ ...capture, viewport: { width: 1, height: 844 } }],
+        executedTuples: [{ ...evidence.executedTuples[0]!, viewport: { width: 1, height: 844 } }],
+      },
+      currentSourceCommit: 'commit-a',
+      currentManifestDigest: 'digest-a',
+      captureDirectory: root,
+      manifestTuples,
+    });
+    assert.ok(
+      widthSwap.some(
+        (f) => f.code === 'ADAPTER_UNREGISTERED_STATE' || f.code === 'ADAPTER_UNREGISTERED_ROUTE',
+      ),
+      '1x1 / altered width must fail tuple binding',
+    );
+
+    const profileSwap = validateCandidateProvenance({
+      evidence: {
+        ...evidence,
+        captures: [{ ...capture, profile: 'invented_profile' }],
+        executedTuples: [{ ...evidence.executedTuples[0]!, profile: 'invented_profile' }],
+      },
+      currentSourceCommit: 'commit-a',
+      currentManifestDigest: 'digest-a',
+      captureDirectory: root,
+      manifestTuples,
+    });
+    assert.ok(
+      profileSwap.some(
+        (f) => f.code === 'ADAPTER_UNREGISTERED_STATE' || f.code === 'ADAPTER_UNREGISTERED_ROUTE',
+      ),
+      'invented profile must fail tuple binding',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

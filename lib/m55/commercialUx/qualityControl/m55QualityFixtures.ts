@@ -1,6 +1,7 @@
 /**
  * Deterministic localhost fixtures for commercial-quality setups.
  * Invoked only from executable setups under clean-capture E2E.
+ * Never available on Preview/Production. Never fabricates Prod users.
  */
 import type { Page } from '@playwright/test';
 
@@ -12,6 +13,81 @@ const COMPLETE_FREE = {
   'free.change_style': 'free.change_style.observe_first',
   'free.primary_theme': 'free.primary_theme.report_preview',
 } as const;
+
+/** Fixture-owned auth-gate marker — never written by the generic runner. */
+export const AUTH_GATE_FIXTURE_SELECTOR = '[data-testid="m55-cq-auth-gate-fixture"]' as const;
+export const AUTH_GATE_FIXTURE_ATTR = '[data-m55-cq-fixture="auth_gate"]' as const;
+
+export function requireLocalhostQualityFixture(label: string): void {
+  if (process.env.M55_E2E_CLEAN_CAPTURE !== '1') {
+    throw new Error(`STOP_FIXTURE_SCOPE: ${label} requires M55_E2E_CLEAN_CAPTURE=1`);
+  }
+  if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+    throw new Error(`STOP_FIXTURE_SCOPE: ${label} is unavailable on Preview/Production`);
+  }
+}
+
+function authGateFixtureHtml(path: string): string {
+  return `<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><title>M55 localhost auth-gate fixture</title></head>
+<body data-m55-cq-fixture="auth_gate" data-m55-cq-auth-gate="1" data-m55-cq-fixture-path="${path}">
+<main data-testid="m55-cq-auth-gate-fixture">localhost auth-gate fixture for ${path}</main>
+</body>
+</html>`;
+}
+
+/**
+ * Production-blocked localhost auth-gate fixture.
+ * External accounts.dev / Clerk navigation is intercepted and never accepted
+ * as the registered runtime state proof.
+ */
+export async function establishLocalAuthGateFixture(
+  page: Page,
+  baseURL: string,
+  path: string,
+): Promise<void> {
+  requireLocalhostQualityFixture('auth_gate');
+  const origin = new URL(baseURL).origin;
+  const targetPathname = new URL(path, baseURL).pathname;
+  const targetUrl = new URL(path, baseURL).toString();
+
+  await page.route('**/*', async (route) => {
+    const reqUrl = route.request().url();
+    let pathname = '';
+    try {
+      pathname = new URL(reqUrl).pathname;
+    } catch {
+      await route.abort();
+      return;
+    }
+    const isExternalIdp = /accounts\.dev|clerk\./i.test(reqUrl);
+    const isLocalProtected =
+      reqUrl.startsWith(origin) &&
+      (pathname === targetPathname || /\/sign-in|\/sign-up/i.test(pathname));
+    if (isExternalIdp || isLocalProtected) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: authGateFixtureHtml(path),
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  if (/accounts\.dev/i.test(page.url())) {
+    throw new Error(
+      `STOP_FIXTURE_SCOPE: external auth navigation is not accepted as state proof (${page.url()})`,
+    );
+  }
+  if (!page.url().startsWith(origin)) {
+    throw new Error(`STOP_FIXTURE_SCOPE: auth-gate fixture left localhost (${page.url()})`);
+  }
+  await page.locator(AUTH_GATE_FIXTURE_SELECTOR).waitFor({ state: 'visible', timeout: 10_000 });
+  await page.locator(AUTH_GATE_FIXTURE_ATTR).waitFor({ state: 'attached', timeout: 5_000 });
+}
 
 export async function seedBasicInfoOnly(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {
   await page.context().addInitScript(
@@ -142,14 +218,12 @@ export async function establishCheckoutPrep(page: Page, baseURL: string): Promis
 }
 
 export async function establishPurchasedReport(page: Page, baseURL: string): Promise<void> {
-  if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
-    throw new Error('STOP_FIXTURE_SCOPE: purchased drawer fixture is localhost-only');
-  }
+  requireLocalhostQualityFixture('purchased_report');
   await gotoLocal(page, baseURL, '/dev/dtr-drawer-preview?openPanel=chapter-1');
 }
 
-export async function markRuntimeState(page: Page, stateId: string): Promise<void> {
-  await page.evaluate((id) => {
-    document.documentElement.setAttribute('data-m55-cq-runtime-state', id);
-  }, stateId);
+export async function establishSignedOutAccountMenu(page: Page, baseURL: string): Promise<void> {
+  requireLocalhostQualityFixture('signed_out_account_menu');
+  await gotoLocal(page, baseURL, '/my');
+  await page.locator('main').waitFor({ state: 'visible', timeout: 30_000 });
 }

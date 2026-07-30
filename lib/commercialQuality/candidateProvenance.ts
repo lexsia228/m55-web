@@ -2,9 +2,9 @@
  * Candidate pack provenance binding — exact manifest tuple + inventory.
  *
  * Independent ID membership is never enough. Each capture must bind the exact
- * (surfaceId, route, runtimeStateId, setupId, fixture, viewport/profile)
- * tuple present in the current manifest, with pre-recorded hashes and a
- * complete directory inventory.
+ * (surfaceId, route, runtimeStateId, setupId, fixture, viewport, profile,
+ * executionMode, outputMode) tuple present in the current manifest, with
+ * pre-recorded hashes and a complete directory inventory.
  */
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -19,6 +19,10 @@ export type ManifestTuple = {
   setupId: string;
   fixtureId: string | null;
   preconditionIdentity: string;
+  viewport: { width: number; height: number };
+  profile: string;
+  executionMode: string;
+  outputMode: string;
 };
 
 export type PreRecordedCapture = {
@@ -34,6 +38,8 @@ export type PreRecordedCapture = {
   preconditionIdentity: string;
   viewport: { width: number; height: number };
   profile: string;
+  executionMode: string;
+  outputMode: string;
 };
 
 export type ExecutedTuple = {
@@ -45,6 +51,8 @@ export type ExecutedTuple = {
   preconditionIdentity: string;
   viewport: { width: number; height: number };
   profile: string;
+  executionMode: string;
+  outputMode: string;
 };
 
 export type GateEvidence = {
@@ -69,6 +77,11 @@ export type ProvenanceValidationInput = {
   manifestTuples: readonly ManifestTuple[];
 };
 
+export const DEFAULT_PROVENANCE_VIEWPORT = { width: 390, height: 844 } as const;
+export const DEFAULT_PROVENANCE_PROFILE = 'default' as const;
+export const DEFAULT_PROVENANCE_EXECUTION_MODE = 'fresh_load' as const;
+export const DEFAULT_PROVENANCE_OUTPUT_MODE = 'screen' as const;
+
 function failure(
   code: InvariantFailure['code'],
   message: string,
@@ -88,6 +101,10 @@ function tupleKey(t: {
   setupId: string;
   fixtureId: string | null;
   preconditionIdentity: string;
+  viewport: { width: number; height: number };
+  profile: string;
+  executionMode: string;
+  outputMode: string;
 }): string {
   return [
     t.surfaceId,
@@ -96,6 +113,11 @@ function tupleKey(t: {
     t.setupId,
     t.fixtureId ?? '',
     t.preconditionIdentity,
+    String(t.viewport.width),
+    String(t.viewport.height),
+    t.profile,
+    t.executionMode,
+    t.outputMode,
   ].join('|');
 }
 
@@ -267,7 +289,6 @@ export function validateCandidateProvenance(
   }
   for (const path of recordedInventory) {
     if (!capturePaths.has(path) && !path.endsWith('.json')) {
-      // inventory may include only capture files — every inventory file must be a known capture
       if (!capturePaths.has(path)) {
         failures.push(
           failure('PROMOTION_ALTERED_CANDIDATE_HASH', `inventory file not bound to a capture: ${path}`, {
@@ -316,7 +337,17 @@ export function manifestTuplesFromEntries(
     preconditions: readonly string[];
   }[],
   fixtureBySetupId: ReadonlyMap<string, string | null>,
+  options?: {
+    viewport?: { width: number; height: number };
+    profile?: string;
+    executionMode?: string;
+    outputMode?: string;
+  },
 ): ManifestTuple[] {
+  const viewport = options?.viewport ?? { ...DEFAULT_PROVENANCE_VIEWPORT };
+  const profile = options?.profile ?? DEFAULT_PROVENANCE_PROFILE;
+  const executionMode = options?.executionMode ?? DEFAULT_PROVENANCE_EXECUTION_MODE;
+  const outputMode = options?.outputMode ?? DEFAULT_PROVENANCE_OUTPUT_MODE;
   return entries.map((entry) => ({
     surfaceId: entry.surfaceId,
     route: entry.route,
@@ -324,5 +355,9 @@ export function manifestTuplesFromEntries(
     setupId: entry.setupId,
     fixtureId: fixtureBySetupId.get(entry.setupId) ?? null,
     preconditionIdentity: [...entry.preconditions].sort().join(';'),
+    viewport: { ...viewport },
+    profile,
+    executionMode,
+    outputMode,
   }));
 }

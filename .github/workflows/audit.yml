@@ -116,6 +116,12 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
 
+      - name: Clean commercial quality browser residue
+        if: always()
+        run: |
+          rm -rf test-results/commercial-quality-gate test-results/.last-run.json playwright-report
+          find test-results -mindepth 1 -maxdepth 1 ! -name 'commercial-quality-approval-pack' -exec rm -rf {} + 2>/dev/null || true
+
       # Runs only after the browser gate is GREEN. Candidate review material
       # only: it never updates a canonical snapshot and never self-approves.
       - name: M55 commercial quality candidate approval pack

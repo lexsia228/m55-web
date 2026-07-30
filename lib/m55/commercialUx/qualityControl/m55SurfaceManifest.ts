@@ -262,11 +262,17 @@ function ecpEntryToSurface(entry: ExperienceRouteEntry): SurfaceManifestEntry {
     ],
     authorityReferences: references,
     viewport: VIEWPORT_RANGE,
-    protectedElements: [
-      { selector: M55_GOVERNED_ROOT_SELECTOR, role: 'container', requireText: true },
-    ],
+    protectedElements:
+      entry.id === 'shared.og'
+        ? [{ selector: 'img', role: 'media', requireText: false }]
+        : [{ selector: M55_GOVERNED_ROOT_SELECTOR, role: 'container', requireText: true }],
     criticalCta: null,
-    fixedElements: entry.shell === 'public' ? [PUBLIC_FIXED_HEADER_SELECTOR] : [],
+    fixedElements:
+      entry.id === 'shared.og'
+        ? []
+        : entry.shell === 'public'
+          ? [PUBLIC_FIXED_HEADER_SELECTOR]
+          : [],
     sectionBoundaries: [],
     stateVariants: variants,
     contentStressProfiles: stress,

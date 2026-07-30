@@ -31,12 +31,14 @@ import {
   M55_QUALITY_PROJECT_ID,
 } from './m55SurfaceManifest';
 import {
+  AUTH_GATE_FIXTURE_SELECTOR,
   establishCheckoutPrep,
   establishCoreResult,
+  establishLocalAuthGateFixture,
   establishPremiumPlans,
   establishPurchasedReport,
+  establishSignedOutAccountMenu,
   gotoLocal,
-  markRuntimeState,
   seedBasicInfoOnly,
   seedCompleteFreeAnswers,
 } from './m55QualityFixtures';
@@ -132,29 +134,6 @@ async function verifyStateMarker(page: Page, selector: string): Promise<number> 
   return count;
 }
 
-/**
- * Deterministic auth-gate fixture: navigate to a protected route and prove the
- * Clerk redirect (or redirect loop) without fabricating a Production session.
- */
-async function establishAuthGate(page: Page, baseURL: string, path: string): Promise<void> {
-  const url = new URL(path, baseURL).toString();
-  try {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (/ERR_TOO_MANY_REDIRECTS/i.test(message)) {
-      // Redirect loop is itself the gated runtime evidence for some legacy routes.
-      return;
-    }
-    throw error;
-  }
-  if (!/accounts\.dev/i.test(page.url()) && !/sign-in|sign-up/i.test(page.url())) {
-    throw new Error(
-      `STOP_FIXTURE_SCOPE: expected auth gate redirect for ${path}, landed on ${page.url()}`,
-    );
-  }
-}
-
 async function runNavigateSetup(
   context: SetupContext,
   entry: SurfaceManifestEntry,
@@ -169,40 +148,41 @@ async function runNavigateSetup(
     // destroy questionnaire / checkout / RESULT state.
     await plan.setupFn(page, baseURL);
   } else if (plan.authGate) {
-    await establishAuthGate(page, baseURL, path);
+    await establishLocalAuthGateFixture(page, baseURL, path);
   } else {
     await gotoLocal(page, baseURL, path);
   }
 
-  if (!plan.authGate) {
-    const ready = page.locator(plan.readySelector);
-    try {
-      await ready.first().waitFor({ state: 'visible', timeout: 30_000 });
-    } catch {
-      await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
-    }
-    if (!plan.imageResponse) {
-      await markRuntimeState(page, entry.runtimeStateId);
-    }
+  // Runtime state markers must be owned by the app or fixture — the runner
+  // never manufactures data-m55-cq-runtime-state for later self-validation.
+  const ready = page.locator(plan.readySelector);
+  try {
+    await ready.first().waitFor({ state: 'visible', timeout: 30_000 });
+  } catch {
+    await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
   }
+  const markerCount = await verifyStateMarker(page, plan.stateMarkerSelector);
 
-  const markerCount = plan.authGate
-    ? 1
-    : await verifyStateMarker(page, plan.stateMarkerSelector);
+  if (/accounts\.dev/i.test(page.url())) {
+    throw new Error(
+      `STOP_FIXTURE_SCOPE: external auth navigation is not accepted as state proof (${page.url()})`,
+    );
+  }
 
   return {
     setupId: entry.setupId,
     applied: true,
     evidence: {
-      path: plan.authGate ? page.url() : path,
+      path,
       fixtureId: plan.fixtureId,
       fixturePath: path !== entry.route ? path : undefined,
       authGate: Boolean(plan.authGate),
       imageResponse: Boolean(plan.imageResponse),
       readySelector: plan.readySelector,
-      readyCount: plan.authGate ? 1 : await page.locator(plan.readySelector).count(),
+      readyCount: await page.locator(plan.readySelector).count(),
       stateMarkerSelector: plan.stateMarkerSelector,
       stateMarkerCount: markerCount,
+      runtimeStateId: entry.runtimeStateId,
     },
   };
 }
@@ -354,9 +334,6 @@ async function clearGovernedStressOnPage(page: Page): Promise<void> {
 async function teardownSetup(context: SetupContext, entry: SurfaceManifestEntry): Promise<void> {
   const page = asPage(context);
   await clearGovernedStressOnPage(page);
-  await page.evaluate(() => {
-    document.documentElement.removeAttribute('data-m55-cq-runtime-state');
-  });
   for (const profile of entry.executionProfiles) {
     await clearExecutionProfileOnPage(page, profile);
   }
@@ -606,8 +583,8 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         fixtureId: 'auth_gate',
         navigatePath: pattern,
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
+        readySelector: AUTH_GATE_FIXTURE_SELECTOR,
+        stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
         authenticationMode: 'purchased_private',
         hasDeterministicAuthFixture: true,
         authGate: true,
@@ -616,8 +593,8 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         fixtureId: 'establishPurchasedReport',
         navigatePath: '/dev/dtr-drawer-preview?openPanel=chapter-1',
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
+        readySelector: 'main',
+        stateMarkerSelector: 'main',
         authenticationMode: 'purchased_private',
         hasDeterministicAuthFixture: true,
         setupFn: establishPurchasedReport,
@@ -646,11 +623,13 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
     case 'legacy.ai_calendar':
     case 'legacy.meter':
     case 'prototype.hub':
+    case 'public.sign_in':
+    case 'public.sign_up':
       return {
         fixtureId: 'auth_gate',
         navigatePath: resolveNavigatePath(pattern),
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
+        readySelector: AUTH_GATE_FIXTURE_SELECTOR,
+        stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
         authenticationMode:
           privacy === 'authenticated'
             ? 'authenticated'
@@ -673,37 +652,38 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         hasDeterministicAuthFixture: false,
       };
     case 'public.my':
-      // /my mounts client-only; body can report height 0 while main is visible.
-      // Signed-out account menu is the deterministic localhost fixture (no Prod user).
       return {
-        ...plain,
+        fixtureId: 'signed_out_account_menu',
         navigatePath: '/my',
         readySelector: 'main',
         stateMarkerSelector: 'main',
         authenticationMode: 'authenticated',
         hasDeterministicAuthFixture: true,
+        setupFn: establishSignedOutAccountMenu,
       };
     case 'legacy.synastry.confirm':
-    case 'public.sign_in':
-    case 'public.sign_up':
+      // Local route is not a stable purchased confirm page (404 without session).
+      // Use the production-blocked localhost auth-gate fixture instead.
       return {
-        ...plain,
-        navigatePath: pattern,
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
-        authenticationMode: privacy === 'authenticated' ? 'authenticated' : authMode,
+        fixtureId: 'auth_gate',
+        navigatePath: resolveNavigatePath(pattern),
+        readySelector: AUTH_GATE_FIXTURE_SELECTOR,
+        stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
+        authenticationMode: 'authenticated',
         hasDeterministicAuthFixture: true,
+        authGate: true,
       };
     default:
       if (pattern.includes(':') || pattern.includes('*')) {
         return {
-          fixtureId: navigatePath,
+          fixtureId: 'auth_gate',
           navigatePath,
-          readySelector: 'body',
-          stateMarkerSelector: 'body',
+          readySelector: AUTH_GATE_FIXTURE_SELECTOR,
+          stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
           authenticationMode: authMode,
           hasDeterministicAuthFixture:
             authMode === 'authenticated' || authMode === 'purchased_private',
+          authGate: authMode === 'authenticated' || authMode === 'purchased_private',
         };
       }
       return {
