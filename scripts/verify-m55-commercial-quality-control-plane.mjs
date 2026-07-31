@@ -33,6 +33,9 @@ const ADAPTER_FILES = [
   'lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts',
   'lib/m55/commercialUx/qualityControl/m55ManifestAdapter.ts',
   'lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts',
+  'lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts',
+  'lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts',
+  'lib/m55/commercialUx/qualityControl/m55StateIdentityReconciliation.ts',
 ];
 const BROWSER_FILES = [
   'e2e/helpers/commercialQualityRunner.ts',
@@ -123,6 +126,9 @@ const REPORT = {
   approvalPackPresentInWorktree: false,
   consolidationPoints: 0,
   accessibilityDeferrals: 0,
+  observableSignatureCount: 0,
+  observableSignatureCollisions: 0,
+  fixedAuthGateFixtureCount: 0,
   candidatePack: null,
 };
 
@@ -606,6 +612,88 @@ function emitCandidatePack() {
   }
 }
 
+function checkStateIdentityUniqueness() {
+  try {
+    const output = execFileSync(
+      'npx',
+      [
+        'tsx',
+        '-e',
+        [
+          "import { listExecutableSmokeTargets } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts';",
+          "import { resolveSmokeManifestEntry } from './e2e/helpers/commercialQualitySmokeEvidence.ts';",
+          "import { stateDomContractForEntry, reconcileExecutableStateContracts, countUniqueObservableSignatures, countObservableSignatureCollisions, countGenericStateMarkers } from './lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts';",
+          "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
+          "const contracts = listExecutableSmokeTargets().map((t) => stateDomContractForEntry(resolveSmokeManifestEntry(t)));",
+          "const failures = reconcileExecutableStateContracts(contracts);",
+          "let unknownOk = false; try { authGateFixtureById('auth_gate.DOES_NOT_EXIST'); } catch { unknownOk = true; }",
+          "console.log(JSON.stringify({",
+          "  executable: contracts.length,",
+          "  uniqueSignatures: countUniqueObservableSignatures(contracts),",
+          "  collisions: countObservableSignatureCollisions(contracts),",
+          "  generic: countGenericStateMarkers(),",
+          "  authFixtures: M55_AUTH_GATE_FIXTURE_REGISTRY.length,",
+          "  unknownFixtureRejected: unknownOk,",
+          "  failures,",
+          "}));",
+        ].join(''),
+      ],
+      { cwd: ROOT, encoding: 'utf8' },
+    );
+    const report = JSON.parse(output.trim().split('\n').filter(Boolean).at(-1));
+    REPORT.observableSignatureCount = report.uniqueSignatures;
+    REPORT.observableSignatureCollisions = report.collisions;
+    REPORT.fixedAuthGateFixtureCount = report.authFixtures;
+    if (report.executable !== 76) {
+      fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
+    }
+    if (report.uniqueSignatures !== 76) {
+      fail(
+        'state_identity.unique',
+        `expected 76 unique observable signatures, got ${report.uniqueSignatures}`,
+      );
+    }
+    if (report.collisions !== 0) {
+      fail('state_identity.collision', `observable signature collisions: ${report.collisions}`);
+    }
+    if (report.generic !== 0) {
+      fail('state_identity.generic', `generic selector-only contracts: ${report.generic}`);
+    }
+    if (report.authFixtures !== 13) {
+      fail('state_identity.auth_fixtures', `expected 13 fixed auth-gate fixtures, got ${report.authFixtures}`);
+    }
+    if (!report.unknownFixtureRejected) {
+      fail('state_identity.unknown_fixture', 'unknown auth-gate fixture ID must reject');
+    }
+    for (const f of report.failures ?? []) {
+      fail('state_identity.reconcile', `${f.code}: ${f.detail}`);
+    }
+  } catch (error) {
+    fail('state_identity.execution', `state identity reconciliation failed: ${error.message}`);
+  }
+
+  const setupSrc = read('lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts');
+  if (/establishLocalAuthGateFixture\(\s*page,\s*baseURL,\s*path,\s*entry\.runtimeStateId/.test(setupSrc)) {
+    fail(
+      'state_identity.manifest_copy',
+      'setup must not pass entry.runtimeStateId into establishLocalAuthGateFixture',
+    );
+  }
+  const fixturesSrc = read('lib/m55/commercialUx/qualityControl/m55QualityFixtures.ts');
+  if (/runtimeStateId:\s*string/.test(fixturesSrc) && /establishLocalAuthGateFixture/.test(fixturesSrc)) {
+    // Parameter list must take fixtureId, not runtimeStateId.
+    const match = fixturesSrc.match(
+      /export async function establishLocalAuthGateFixture\(([^)]*)\)/,
+    );
+    if (match && /runtimeStateId/.test(match[1])) {
+      fail(
+        'state_identity.manifest_copy',
+        'establishLocalAuthGateFixture must accept fixtureId, not runtimeStateId',
+      );
+    }
+  }
+}
+
 function main() {
   console.log('M55 commercial quality control plane verifier');
   console.log(`root: ${ROOT}`);
@@ -613,6 +701,7 @@ function main() {
   requireArtifacts();
   checkOwnershipBoundary();
   checkRegistration();
+  checkStateIdentityUniqueness();
   checkApprovalPackDiscipline();
   checkDependencies();
   checkCiWiring();

@@ -34,6 +34,7 @@ import {
   AUTH_GATE_FIXTURE_SELECTOR,
   establishCheckoutPrep,
   establishCoreResult,
+  establishImageResponseFixture,
   establishLocalAuthGateFixture,
   establishPremiumPlans,
   establishPurchasedReport,
@@ -43,6 +44,7 @@ import {
   seedBasicInfoOnly,
   seedCompleteFreeAnswers,
 } from './m55QualityFixtures';
+import { authGateFixtureByRuntimeStateId } from './m55AuthGateFixtureRegistry';
 import {
   observeAndAssertStateContract,
   stateDomContractForEntry,
@@ -154,18 +156,54 @@ async function runNavigateSetup(
     // destroy questionnaire / checkout / RESULT state.
     await plan.setupFn(page, baseURL);
   } else if (plan.authGate) {
-    await establishLocalAuthGateFixture(page, baseURL, path, entry.runtimeStateId);
+    const authDef = authGateFixtureByRuntimeStateId(entry.runtimeStateId);
+    if (!authDef) {
+      throw new Error(
+        `STOP_FIXTURE_SCOPE: no fixed auth-gate fixture for ${entry.runtimeStateId}`,
+      );
+    }
+    if (plan.fixtureId && plan.fixtureId !== authDef.fixtureId) {
+      throw new Error(
+        `SETUP_STATE_MISMATCH: setup fixture ${plan.fixtureId} != registry ${authDef.fixtureId}`,
+      );
+    }
+    await establishLocalAuthGateFixture(page, baseURL, authDef.fixtureId);
+  } else if (plan.imageResponse) {
+    await establishImageResponseFixture(page, baseURL);
   } else {
     await gotoLocal(page, baseURL, path);
   }
 
   // Runtime state markers must be owned by the app or fixture — the runner
   // never manufactures data-m55-cq-runtime-state for later self-validation.
-  const ready = page.locator(plan.readySelector);
   try {
-    await ready.first().waitFor({ state: 'visible', timeout: 30_000 });
+    await page.waitForFunction(
+      ({ attr, expected }) =>
+        Boolean(document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`)),
+      {
+        attr: 'data-m55-cq-state-id',
+        expected: entry.runtimeStateId,
+      },
+      { timeout: 30_000 },
+    );
   } catch {
-    await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
+    const ready = page.locator(plan.readySelector);
+    try {
+      await ready.first().waitFor({ state: 'visible', timeout: 15_000 });
+    } catch {
+      await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
+    }
+    // Allow the application identity bridge one tick after content paint.
+    await page.waitForTimeout(100);
+    await page.waitForFunction(
+      ({ attr, expected }) =>
+        Boolean(document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`)),
+      {
+        attr: 'data-m55-cq-state-id',
+        expected: entry.runtimeStateId,
+      },
+      { timeout: 15_000 },
+    );
   }
 
   // Observe only — never stamp/write state markers after navigation.
@@ -313,6 +351,11 @@ async function applyGovernedStressOnPage(
       } else if (profileName === 'empty') {
         node.removeAttribute('aria-busy');
         node.textContent = '';
+      } else if (profileName === 'short_text' && node.childElementCount > 0) {
+        // Natural rendered copy is the short_text baseline. Assigning
+        // textContent on a container with element children would destroy the
+        // governed document tree (and application-owned state signals).
+        node.removeAttribute('aria-busy');
       } else if (text !== null) {
         node.removeAttribute('aria-busy');
         node.textContent = text;
@@ -483,21 +526,29 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         setupFn: establishCoreResult,
       };
     case 'shared.entry':
+      return {
+        fixtureId: '/r/s1-0',
+        navigatePath: '/r/s1-0',
+        readySelector: '[data-testid="m55-shared-entry"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="ecp:shared.entry:default"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+      };
     case 'shared.entry.invalid':
       return {
         fixtureId: '/r/cq-smoke-invalid',
         navigatePath: '/r/cq-smoke-invalid',
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
+        readySelector: '[data-testid="m55-shared-entry-fallback"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="ecp:shared.entry.invalid:invalid"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
       };
     case 'shared.og':
       return {
-        fixtureId: 'image_response',
+        fixtureId: 'image_response.shared.og',
         navigatePath: '/r/cq-smoke-invalid/opengraph-image',
-        readySelector: 'img',
-        stateMarkerSelector: 'img',
+        readySelector: '[data-m55-cq-state-id="ecp:shared.og:og"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="ecp:shared.og:og"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         imageResponse: true,
@@ -596,9 +647,18 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         stateMarkerSelector: '#dtr-main-shelf-label',
       };
     case 'premium.processing':
+      return {
+        fixtureId: 'auth_gate.premium.processing',
+        navigatePath: pattern,
+        readySelector: AUTH_GATE_FIXTURE_SELECTOR,
+        stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
+        authenticationMode: 'purchased_private',
+        hasDeterministicAuthFixture: true,
+        authGate: true,
+      };
     case 'premium.purchase_success':
       return {
-        fixtureId: 'auth_gate',
+        fixtureId: 'auth_gate.premium.purchase_success',
         navigatePath: pattern,
         readySelector: AUTH_GATE_FIXTURE_SELECTOR,
         stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
@@ -641,9 +701,10 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
     case 'legacy.meter':
     case 'prototype.hub':
     case 'public.sign_in':
-    case 'public.sign_up':
+    case 'public.sign_up': {
+      const authFixtureId = `auth_gate.${routeId}`;
       return {
-        fixtureId: 'auth_gate',
+        fixtureId: authFixtureId,
         navigatePath: resolveNavigatePath(pattern),
         readySelector: AUTH_GATE_FIXTURE_SELECTOR,
         stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
@@ -656,6 +717,7 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         hasDeterministicAuthFixture: true,
         authGate: true,
       };
+    }
     case 'legacy.reply':
       // Public legacy /reply permanently redirects into DTR LP (need_free gate).
       return {
@@ -704,7 +766,7 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       // Local route is not a stable purchased confirm page (404 without session).
       // Use the production-blocked localhost auth-gate fixture instead.
       return {
-        fixtureId: 'auth_gate',
+        fixtureId: 'auth_gate.legacy.synastry.confirm',
         navigatePath: resolveNavigatePath(pattern),
         readySelector: AUTH_GATE_FIXTURE_SELECTOR,
         stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
@@ -714,8 +776,9 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       };
     default:
       if (pattern.includes(':') || pattern.includes('*')) {
+        const authDef = authGateFixtureByRuntimeStateId(`ecp:${routeId}:default`);
         return {
-          fixtureId: 'auth_gate',
+          fixtureId: authDef?.fixtureId ?? `auth_gate.${routeId}`,
           navigatePath,
           readySelector: AUTH_GATE_FIXTURE_SELECTOR,
           stateMarkerSelector: AUTH_GATE_FIXTURE_SELECTOR,
@@ -769,18 +832,53 @@ function premiumStatePlan(stateId: string): NavigatePlan {
         },
       };
     case 'premium.lp.questions':
-    case 'premium.lp.answer_edit':
       return {
         fixtureId: 'establishCoreResult',
         navigatePath: '/dtr/lp',
         readySelector: '[data-testid="m55-paid-questionnaire-active"]',
-        stateMarkerSelector: '[data-testid="m55-paid-questionnaire-active"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="premium:premium.lp.questions"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
         setupFn: async (page, baseURL) => {
           await establishCoreResult(page, baseURL);
           await page.getByTestId('m55-paid-bridge-primary').click();
           await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+          await page
+            .locator('[data-testid="m55-paid-questionnaire-active"]')
+            .waitFor({ state: 'visible', timeout: 20_000 });
+        },
+      };
+    case 'premium.lp.answer_edit':
+      return {
+        fixtureId: 'establishCoreResult',
+        navigatePath: '/dtr/lp',
+        readySelector: '[data-m55-paid-answer-edit="true"]',
+        stateMarkerSelector: '[data-m55-cq-state-id="premium:premium.lp.answer_edit"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        setupFn: async (page, baseURL) => {
+          // Answer all six → complete → 「回答を見直す」 → answer_edit.
+          await establishCoreResult(page, baseURL);
+          await page.getByTestId('m55-paid-bridge-primary').click();
+          await page.waitForURL(/\/dtr\/lp/, { timeout: 20_000 });
+          await page
+            .locator('[data-testid="m55-paid-questionnaire-active"]')
+            .waitFor({ state: 'visible', timeout: 30_000 });
+          for (let i = 0; i < 6; i += 1) {
+            await page.locator('[role="radio"]').first().click();
+            await page
+              .getByRole('button', { name: i === 5 ? '回答を確認する' : '次へ' })
+              .click();
+          }
+          await page.locator('[data-m55-paid-phase="complete"]').waitFor({
+            state: 'visible',
+            timeout: 20_000,
+          });
+          await page.getByRole('button', { name: '回答を見直す' }).click();
+          await page
+            .locator('[data-m55-paid-answer-edit="true"]')
+            .first()
+            .waitFor({ state: 'attached', timeout: 20_000 });
         },
       };
     case 'premium.lp.answer_review':

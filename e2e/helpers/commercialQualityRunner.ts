@@ -410,7 +410,7 @@ export async function measureCommercialSurface(
   const observedRuntimeStateId = await observeRuntimeStateId(page, contract);
   if (!observedRuntimeStateId) {
     throw new Error(
-      `LAYOUT_STATE_DRIFT: missing observed state marker ${contract.selector} for ${entry.surfaceId}`,
+      `STATE_CONTRACT_MISSING: missing observed state marker ${contract.selector} for ${entry.surfaceId}`,
     );
   }
   if (observedRuntimeStateId !== entry.runtimeStateId) {

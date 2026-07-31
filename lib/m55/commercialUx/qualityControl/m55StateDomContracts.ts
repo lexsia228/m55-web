@@ -1,16 +1,27 @@
 /**
  * State-specific DOM contracts for commercial-quality executable registrations.
  *
- * Runtime state evidence is derived from independently rendered application or
- * fixture DOM — never written by the runner/setup after navigation.
+ * Every runtimeStateId has a unique observable signature. Evidence is derived
+ * by reading independently rendered application or fixed-fixture DOM — never
+ * by returning a manifest value merely because a selector is visible.
  */
 import type { Page } from '@playwright/test';
 
 import type { SurfaceManifestEntry } from '../../../commercialQuality/types';
 import { M55_METHOD_ROUTE_CONSUMPTION } from '../../method/m55MethodRouteConsumption';
+import {
+  IMAGE_RESPONSE_FIXTURE,
+  authGateFixtureByRuntimeStateId,
+  AUTH_GATE_STATE_ATTR,
+} from './m55AuthGateFixtureRegistry';
 import { M55_COMMERCIAL_QUALITY_MANIFEST, M55_QUALITY_PROJECT_ID } from './m55SurfaceManifest';
+import {
+  countObservableSignatureCollisions,
+  countUniqueObservableSignatures,
+  reconcileExecutableStateContracts,
+} from './m55StateIdentityReconciliation';
 
-export const STATE_CONTRACT_ATTR = 'data-m55-cq-state-id' as const;
+export const STATE_CONTRACT_ATTR = AUTH_GATE_STATE_ATTR;
 
 export type StateMarkerOwnership = 'application' | 'fixture';
 
@@ -19,307 +30,17 @@ export type StateDomContract = {
   runtimeStateId: string;
   setupId: string;
   route: string;
-  /** Unique selector proving this exact runtime state. */
   selector: string;
   ownership: StateMarkerOwnership;
-  /**
-   * When set, the attribute value on the matched element must equal
-   * expectedAttributeValue (fixture-rendered identity).
-   */
   stateAttribute: string | null;
   expectedAttributeValue: string | null;
-  /** When set, element text must include this exact phrase. */
   expectedText: string | null;
   fixtureId: string | null;
   teardown: 'none';
 };
 
-type ContractSeed = {
-  selector: string;
-  ownership: StateMarkerOwnership;
-  stateAttribute?: string | null;
-  expectedAttributeValue?: string | null;
-  expectedText?: string | null;
-  fixtureId?: string | null;
-};
-
-/**
- * Application-owned unique selectors / text, plus fixture-rendered auth-gate
- * and image-response identities. No post-navigation stamp paths.
- */
-const CONTRACT_SEED_BY_SURFACE: Readonly<Record<string, ContractSeed>> = {
-  // Public
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.home`]: {
-    selector: '[data-testid="m55-home-hero"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.root_redirect`]: {
-    selector: '[data-testid="m55-home-hero"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.how_m55_works`]: {
-    selector: '[data-testid="m55-method-canonical"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.ten_views`]: {
-    selector: '[data-m55-experience-surface="PUBLIC_EDITORIAL"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.pricing`]: {
-    selector: '[data-testid="m55-pricing-headline"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.support`]: {
-    selector: 'main h1',
-    ownership: 'application',
-    expectedText: 'サポート',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.legal.terms`]: {
-    selector: 'main h1',
-    ownership: 'application',
-    expectedText: '利用規約',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.legal.privacy`]: {
-    selector: 'main h1',
-    ownership: 'application',
-    expectedText: 'プライバシーポリシー',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.legal.tokushoho`]: {
-    selector: 'main h1',
-    ownership: 'application',
-    expectedText: '特定商取引法に基づく表記',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.legal.refund`]: {
-    selector: 'main h1',
-    ownership: 'application',
-    expectedText: '返金・キャンセル',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.public.my`]: {
-    selector: '[data-m55-pathname="/my"] main h1',
-    ownership: 'application',
-    expectedText: 'マイページ',
-  },
-
-  // Free core
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.empty`]: {
-    selector: '[data-testid="m55-core-locked"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.intake`]: {
-    selector: '[data-testid="m55-core-start-intake"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.questions`]: {
-    selector: '[data-testid="m55-free-questionnaire"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.answer_review`]: {
-    selector: '[data-testid="m55-core-essence"][data-m55-ux-phase="RESULT"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.result`]: {
-    selector: '[data-testid="m55-free-result-summary"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.save`]: {
-    selector: '[data-testid="m55-guest-save-signin"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.rerun`]: {
-    selector: '[data-testid="m55-free-rerun-request"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.free.core.share`]: {
-    selector: '[data-testid="m55-free-result-share"]',
-    ownership: 'application',
-  },
-
-  // Shared / premium LP
-  [`${M55_QUALITY_PROJECT_ID}:ecp.shared.entry`]: {
-    selector: '[data-testid="m55-shared-entry"], [data-testid="m55-shared-entry-fallback"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.shared.entry.invalid`]: {
-    selector: '[data-testid="m55-shared-entry"], [data-testid="m55-shared-entry-fallback"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.shared.og`]: {
-    selector: 'img',
-    ownership: 'fixture',
-    fixtureId: 'image_response',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.dtr_index`]: {
-    selector: '#dtr-main-shelf-label',
-    ownership: 'application',
-    expectedText: 'メインの保存版',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.intro`]: {
-    selector:
-      '[data-testid="m55-dtr-lp-continuity"], [data-testid="m55-paid-questionnaire-active"], [data-testid="m55-dtr-need-free"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.need_free`]: {
-    selector: '[data-testid="m55-dtr-need-free"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.questions`]: {
-    selector: '[data-testid="m55-paid-questionnaire-active"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.answer_review`]: {
-    selector: '[data-m55-paid-phase="complete"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.plans`]: {
-    selector: '[data-testid="m55-dtr-plan-selection"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.upgrade`]: {
-    selector: '[data-testid="m55-dtr-plan-selection"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.premium.lp.checkout`]: {
-    selector: '[data-m55-paid-phase="checkout"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.purchased.reader`]: {
-    selector: '[data-testid="m55-purchased-report-body"], [data-m55-premium-state="purchased.report.body"]',
-    ownership: 'application',
-  },
-
-  // Legacy / public adjacent
-  [`${M55_QUALITY_PROJECT_ID}:ecp.legacy.today`]: {
-    // Shell pathname is application-rendered; panel text varies by profile readiness.
-    selector: '[data-m55-pathname="/today"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.legacy.weekly`]: {
-    selector: '[data-m55-pathname="/weekly"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.legacy.reply`]: {
-    // Legacy /reply permanently lands on DTR LP; anonymous default is need_free.
-    selector: '[data-testid="m55-dtr-need-free"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.legacy.reply_result`]: {
-    // Distinct LP landing via expired-state query (still localhost public HTML).
-    selector: 'p',
-    ownership: 'application',
-    expectedText: 'このレポートへのアクセス有効期限が切れています。',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.legacy.synastry`]: {
-    selector: '[data-testid="compatibility-dob-step"], [data-testid="compatibility-personalized-result"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.dev.premium_share_preview`]: {
-    selector: '[data-m55-dev-preview="premium-share"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:ecp.dev.previews`]: {
-    selector: '[data-m55-dev-preview="dtr-drawer"]',
-    ownership: 'application',
-  },
-
-  // Premium states
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.core.bridge`]: {
-    selector: '[data-testid="m55-free-to-paid-bridge"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.prerequisite`]: {
-    selector:
-      '[data-testid="m55-dtr-lp-continuity"], [data-testid="m55-paid-questionnaire-active"], [data-testid="m55-dtr-need-free"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.questions`]: {
-    selector: '[data-testid="m55-paid-questionnaire-active"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.answer_edit`]: {
-    selector: '[data-testid="m55-paid-questionnaire-active"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.answer_review`]: {
-    selector: '[data-m55-paid-phase="complete"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.plans`]: {
-    selector: '[data-testid="m55-dtr-plan-selection"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.lp.checkout`]: {
-    selector: '[data-m55-paid-phase="checkout"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.purchased.report.body`]: {
-    selector: '[data-m55-premium-state="purchased.report.body"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.purchased.consult.input`]: {
-    selector: '[data-m55-premium-state="purchased.consult.input"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.purchased.consult.result`]: {
-    selector: '[data-m55-premium-state="purchased.consult.result"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.purchased.saved_reopen`]: {
-    selector: '[data-m55-premium-state="purchased.saved_reopen"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:premium.premium.share.card`]: {
-    selector: '[data-m55-premium-state="premium.share.card"]',
-    ownership: 'application',
-  },
-
-  // Visual
-  [`${M55_QUALITY_PROJECT_ID}:visual.home`]: {
-    selector: '[data-testid="m55-home-hero"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:visual.core-prerequisite`]: {
-    selector: '[data-testid="m55-core-locked"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:visual.core-free-result`]: {
-    selector: '[data-testid="m55-core-essence"][data-m55-ux-phase="RESULT"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:visual.premium-questionnaire`]: {
-    selector: '[data-testid="m55-paid-questionnaire-active"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:visual.premium-plans`]: {
-    selector: '[data-testid="m55-dtr-plan-selection"]',
-    ownership: 'application',
-  },
-  [`${M55_QUALITY_PROJECT_ID}:visual.pricing`]: {
-    selector: '[data-testid="m55-pricing-plan-light"]',
-    ownership: 'application',
-  },
-};
-
-function authGateSeed(runtimeStateId: string): ContractSeed {
-  // Fixture HTML renders state id onto the auth-gate main. Observation reads
-  // that attribute — the runner never injects it after navigation.
-  return {
-    selector: '[data-testid="m55-cq-auth-gate-fixture"]',
-    ownership: 'fixture',
-    stateAttribute: STATE_CONTRACT_ATTR,
-    expectedAttributeValue: runtimeStateId,
-    fixtureId: 'auth_gate',
-  };
-}
-
-function isGenericMarker(selector: string): boolean {
-  const trimmed = selector.trim();
-  return (
-    trimmed === 'main' ||
-    trimmed === 'body' ||
-    trimmed === 'html' ||
-    trimmed === '[data-testid="m55-cq-auth-gate-fixture"]' ||
-    trimmed === '[data-m55-cq-fixture="auth_gate"]'
-  );
+function stateIdSelector(runtimeStateId: string): string {
+  return `[${STATE_CONTRACT_ATTR}="${runtimeStateId.replace(/"/g, '')}"]`;
 }
 
 function buildContract(
@@ -328,58 +49,50 @@ function buildContract(
   setupId: string,
   route: string,
 ): StateDomContract {
-  const seed = CONTRACT_SEED_BY_SURFACE[surfaceId];
-  if (seed) {
-    // main+expectedText is state-specific via text, not a bare main marker.
-    if (isGenericMarker(seed.selector) && !seed.expectedText && seed.ownership === 'application') {
-      throw new Error(`STOP_FIXTURE_SCOPE: generic application marker for ${surfaceId}`);
-    }
+  const auth = authGateFixtureByRuntimeStateId(runtimeStateId);
+  if (auth) {
     return {
       surfaceId,
       runtimeStateId,
       setupId,
       route,
-      selector: seed.selector,
-      ownership: seed.ownership,
-      stateAttribute: seed.stateAttribute ?? null,
-      expectedAttributeValue: seed.expectedAttributeValue ?? null,
-      expectedText: seed.expectedText ?? null,
-      fixtureId: seed.fixtureId ?? null,
+      selector: stateIdSelector(runtimeStateId),
+      ownership: 'fixture',
+      stateAttribute: STATE_CONTRACT_ATTR,
+      expectedAttributeValue: auth.expectedAttributeValue,
+      expectedText: null,
+      fixtureId: auth.fixtureId,
       teardown: 'none',
     };
   }
 
-  for (const placement of M55_METHOD_ROUTE_CONSUMPTION) {
-    if (surfaceId === `${M55_QUALITY_PROJECT_ID}:method.${placement.id}`) {
-      return {
-        surfaceId,
-        runtimeStateId,
-        setupId,
-        route,
-        selector: `[data-testid="${placement.testId}"]`,
-        ownership: 'application',
-        stateAttribute: null,
-        expectedAttributeValue: null,
-        expectedText: null,
-        fixtureId: null,
-        teardown: 'none',
-      };
-    }
+  if (runtimeStateId === IMAGE_RESPONSE_FIXTURE.runtimeStateId) {
+    return {
+      surfaceId,
+      runtimeStateId,
+      setupId,
+      route,
+      selector: stateIdSelector(runtimeStateId),
+      ownership: 'fixture',
+      stateAttribute: STATE_CONTRACT_ATTR,
+      expectedAttributeValue: IMAGE_RESPONSE_FIXTURE.expectedAttributeValue,
+      expectedText: null,
+      fixtureId: IMAGE_RESPONSE_FIXTURE.fixtureId,
+      teardown: 'none',
+    };
   }
 
-  // Auth-gated / pattern routes: fixture HTML embeds state id at fulfill time.
-  const authSeed = authGateSeed(runtimeStateId);
   return {
     surfaceId,
     runtimeStateId,
     setupId,
     route,
-    selector: authSeed.selector,
-    ownership: 'fixture',
-    stateAttribute: authSeed.stateAttribute ?? STATE_CONTRACT_ATTR,
+    selector: stateIdSelector(runtimeStateId),
+    ownership: 'application',
+    stateAttribute: STATE_CONTRACT_ATTR,
     expectedAttributeValue: runtimeStateId,
     expectedText: null,
-    fixtureId: 'auth_gate',
+    fixtureId: null,
     teardown: 'none',
   };
 }
@@ -431,16 +144,16 @@ export function stateDomContractForEntry(entry: SurfaceManifestEntry): StateDomC
 }
 
 export function assertContractNotGeneric(contract: StateDomContract): void {
-  if (isGenericMarker(contract.selector) && !contract.expectedText && !contract.stateAttribute) {
+  if (!contract.stateAttribute || !contract.expectedAttributeValue) {
     throw new Error(
-      `STOP_FIXTURE_SCOPE: generic state marker forbidden for ${contract.surfaceId}: ${contract.selector}`,
+      `STOP_FIXTURE_SCOPE: non-unique/generic state contract for ${contract.surfaceId}`,
     );
   }
 }
 
 export function countGenericStateMarkers(): number {
   return M55_STATE_DOM_CONTRACTS.filter(
-    (c) => isGenericMarker(c.selector) && !c.expectedText && !c.stateAttribute,
+    (c) => !c.stateAttribute || !c.expectedAttributeValue,
   ).length;
 }
 
@@ -457,9 +170,17 @@ export function countContractsByOwnership(): {
   return { application, fixture };
 }
 
+export function executableStateContracts(
+  surfaceIds: readonly string[],
+): StateDomContract[] {
+  return surfaceIds
+    .map((id) => CONTRACT_BY_SURFACE.get(id))
+    .filter((c): c is StateDomContract => Boolean(c));
+}
+
 /**
- * Derive runtimeStateId from independently rendered DOM (never from a
- * runner-written marker or a caller-supplied certified value).
+ * Derive runtimeStateId by reading the rendered state attribute.
+ * Never returns a manifest value merely because a selector is visible.
  */
 export async function observeRuntimeStateId(
   page: Page,
@@ -467,43 +188,20 @@ export async function observeRuntimeStateId(
 ): Promise<string | null> {
   assertContractNotGeneric(contract);
 
-  // Image fixture: URL + img presence (fixture response, not a post-nav stamp).
-  if (contract.fixtureId === 'image_response') {
-    const url = page.url();
-    if (!/opengraph-image/i.test(url)) return null;
-    const imgCount = await page.locator('img').count();
-    return imgCount > 0 ? contract.runtimeStateId : null;
+  if (!contract.stateAttribute || !contract.expectedAttributeValue) {
+    return null;
   }
 
-  if (contract.expectedText) {
-    // Match the selector node that actually carries the expected text
-    // (not merely the first DOM match of a broad selector).
-    const match = page
-      .locator(contract.selector)
-      .filter({ hasText: contract.expectedText })
-      .first();
-    const visible = await match.isVisible().catch(() => false);
-    return visible ? contract.runtimeStateId : null;
-  }
-
-  const loc = page.locator(contract.selector).first();
-  const count = await loc.count();
-  if (count < 1) return null;
-
-  if (contract.stateAttribute) {
-    const value = await loc.getAttribute(contract.stateAttribute);
-    if (!value) return null;
-    if (
-      contract.expectedAttributeValue &&
-      value !== contract.expectedAttributeValue
-    ) {
-      return value;
-    }
-    return value;
-  }
-
-  const visible = await loc.isVisible().catch(() => false);
-  return visible ? contract.runtimeStateId : null;
+  // Read from the live DOM (including nonvisual application markers). Do not
+  // rely on Playwright visibility filtering for hidden identity nodes.
+  const value = await page.evaluate(
+    ({ attr, expected }) => {
+      const node = document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`);
+      return node?.getAttribute(attr) ?? null;
+    },
+    { attr: contract.stateAttribute, expected: contract.expectedAttributeValue },
+  );
+  return value;
 }
 
 /**
@@ -515,7 +213,9 @@ export async function observeAndAssertStateContract(
 ): Promise<string> {
   assertContractNotGeneric(contract);
 
-  // Ambiguous: two distinct fixture state-id markers on one page.
+  // Ambiguous: two distinct state-id values on one page for fixture auth-gates,
+  // or any page rendering incompatible duplicate primary markers when the
+  // contract expects a single fixture identity.
   if (contract.ownership === 'fixture' && contract.stateAttribute === STATE_CONTRACT_ATTR) {
     const markers = page.locator(`[${STATE_CONTRACT_ATTR}]`);
     const markerCount = await markers.count();
@@ -527,7 +227,7 @@ export async function observeAndAssertStateContract(
       }
       if (values.size > 1) {
         throw new Error(
-          `LAYOUT_STATE_DRIFT: ambiguous state contracts rendered (${[...values].join(',')})`,
+          `STATE_CONTRACT_AMBIGUOUS: ambiguous state contracts rendered (${[...values].join(',')})`,
         );
       }
     }
@@ -536,7 +236,7 @@ export async function observeAndAssertStateContract(
   const observed = await observeRuntimeStateId(page, contract);
   if (!observed) {
     throw new Error(
-      `LAYOUT_STATE_DRIFT: missing state-specific marker ${contract.selector} for ${contract.surfaceId}`,
+      `STATE_CONTRACT_MISSING: missing state-specific marker ${contract.selector} for ${contract.surfaceId}`,
     );
   }
   if (observed !== contract.runtimeStateId) {
@@ -553,9 +253,19 @@ export async function stampFixtureStateContract(): Promise<never> {
 }
 
 export async function clearFixtureStateContract(page: Page): Promise<void> {
-  // No runner-owned markers remain; keep as a no-op cleanup hook for tests.
-  await page.evaluate((attr) => {
-    document.querySelectorAll(`[data-m55-cq-state-contract]`).forEach((node) => node.remove());
-    void attr;
-  }, STATE_CONTRACT_ATTR);
+  await page.evaluate(() => {
+    document.querySelectorAll('[data-m55-cq-state-contract]').forEach((node) => node.remove());
+  });
 }
+
+export function reconcileAllStateContracts(): ReturnType<
+  typeof reconcileExecutableStateContracts
+> {
+  return reconcileExecutableStateContracts(M55_STATE_DOM_CONTRACTS);
+}
+
+export {
+  countObservableSignatureCollisions,
+  countUniqueObservableSignatures,
+  reconcileExecutableStateContracts,
+};

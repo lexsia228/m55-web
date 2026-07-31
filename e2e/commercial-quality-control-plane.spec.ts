@@ -60,12 +60,19 @@ import {
   M55_COMMERCIAL_QUALITY_MANIFEST,
   isDeferredAccessibilityFinding,
 } from '../lib/m55/commercialUx/qualityControl/m55SurfaceManifest';
+import {
+  authGateFixtureById,
+  M55_AUTH_GATE_FIXTURE_REGISTRY,
+} from '../lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry';
 import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
 import {
   M55_STATE_DOM_CONTRACTS,
   countContractsByOwnership,
   countGenericStateMarkers,
+  countObservableSignatureCollisions,
+  countUniqueObservableSignatures,
   observeAndAssertStateContract,
+  reconcileAllStateContracts,
   stateDomContractForEntry,
 } from '../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
 import { M55_METHOD_CANONICAL_ROUTE } from '../lib/m55/method/m55MethodAuthority';
@@ -185,6 +192,16 @@ test.describe('commercial quality control plane', () => {
     expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
     const ownership = countContractsByOwnership();
     expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(76);
+    const executableContracts = listExecutableSmokeTargets().map((t) =>
+      stateDomContractForEntry(resolveSmokeManifestEntry(t)),
+    );
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(76);
+    expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
+    expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
+      [],
+    );
+    expect(M55_AUTH_GATE_FIXTURE_REGISTRY.length).toBe(13);
+    expect(() => authGateFixtureById('auth_gate.DOES_NOT_EXIST')).toThrow(/unknown auth-gate fixture/);
   });
 
   test('2. mandatory all-registration Chromium smoke for every executable target', async ({
@@ -474,77 +491,74 @@ test.describe('commercial quality control plane', () => {
     }
   });
 
-  test('3b. wrong/missing/alternate/ambiguous state Chromium negatives', async ({ browser }) => {
+  test('3b. unique-identity / wrong/missing/alternate/ambiguous state Chromium negatives', async ({
+    browser,
+  }) => {
     const signIn = m55SurfaceById('m55:ecp.public.sign_in');
     if (!signIn) throw new Error('sign_in surface missing');
     const contract = stateDomContractForEntry(signIn);
     expect(contract.ownership).toBe('fixture');
+    expect(contract.fixtureId).toBe('auth_gate.public.sign_in');
     const expectedOrigin = new URL(BASE_URL).origin;
+    const signInFixtureId = 'auth_gate.public.sign_in';
 
-    // 1. expected route with fixture rendering wrong state
+    // 1. former colliding application states resolve differently
+    {
+      const home = m55SurfaceById('m55:ecp.public.home');
+      const visualHome = m55SurfaceById('m55:visual.home');
+      if (!home || !visualHome) throw new Error('home surfaces missing');
+      const homeContract = stateDomContractForEntry(home);
+      const visualContract = stateDomContractForEntry(visualHome);
+      expect(homeContract.expectedAttributeValue).not.toBe(visualContract.expectedAttributeValue);
+      expect(homeContract.selector).not.toBe(visualContract.selector);
+    }
+
+    // 2. wrong state on the same route rejects
     {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await establishLocalAuthGateFixture(
-        page,
-        BASE_URL,
-        '/sign-in',
-        signIn.runtimeStateId,
-        'wrong_state',
-      );
+      await establishLocalAuthGateFixture(page, BASE_URL, signInFixtureId, 'wrong_state');
       await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
-        /LAYOUT_STATE_DRIFT/,
+        /LAYOUT_STATE_DRIFT|STATE_CONTRACT_MISSING/,
       );
       await expect(
         measureCommercialSurface(page, signIn, planFor(signIn), {
           expectedOrigin,
           includeAccessibility: false,
         }),
-      ).rejects.toThrow(/LAYOUT_STATE_DRIFT/);
+      ).rejects.toThrow(/LAYOUT_STATE_DRIFT|STATE_CONTRACT_MISSING/);
       await ctx.close();
     }
 
-    // 2. expected route with no state contract rendered
+    // 3. missing state rejects
     {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await establishLocalAuthGateFixture(
-        page,
-        BASE_URL,
-        '/sign-in',
-        signIn.runtimeStateId,
-        'missing_state',
-      );
+      await establishLocalAuthGateFixture(page, BASE_URL, signInFixtureId, 'missing_state');
       await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
-        /LAYOUT_STATE_DRIFT|missing state/,
+        /STATE_CONTRACT_MISSING/,
       );
       await expect(
         measureCommercialSurface(page, signIn, planFor(signIn), {
           expectedOrigin,
           includeAccessibility: false,
         }),
-      ).rejects.toThrow(/LAYOUT_STATE_DRIFT|missing observed state/);
+      ).rejects.toThrow(/STATE_CONTRACT_MISSING/);
       await ctx.close();
     }
 
-    // 3. expected route with another state rendered (alternate)
+    // 4. alternate fixed fixture (sign_up) while expecting sign_in rejects
     {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await establishLocalAuthGateFixture(
-        page,
-        BASE_URL,
-        '/sign-in',
-        'ecp:public.support:default',
-        'exact',
-      );
+      await establishLocalAuthGateFixture(page, BASE_URL, 'auth_gate.public.sign_up', 'exact');
       await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
-        /LAYOUT_STATE_DRIFT/,
+        /STATE_CONTRACT_MISSING|LAYOUT_STATE_DRIFT/,
       );
       await ctx.close();
     }
 
-    // 4. expected setup ID paired with another fixture state
+    // 5. fixture for one state paired with another setup/manifest state rejects
     {
       const pricing = m55SurfaceById('m55:ecp.public.pricing');
       if (!pricing) throw new Error('pricing surface missing');
@@ -555,38 +569,32 @@ test.describe('commercial quality control plane', () => {
       };
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await establishLocalAuthGateFixture(
-        page,
-        BASE_URL,
-        '/sign-in',
-        signIn.runtimeStateId,
-        'exact',
-      );
+      await establishLocalAuthGateFixture(page, BASE_URL, signInFixtureId, 'exact');
       await expect(
         measureCommercialSurface(page, mismatched, planFor(mismatched), {
           expectedOrigin,
           includeAccessibility: false,
         }),
-      ).rejects.toThrow(/LAYOUT_STATE_DRIFT/);
+      ).rejects.toThrow(/LAYOUT_STATE_DRIFT|STATE_CONTRACT_MISSING/);
       await ctx.close();
     }
 
-    // 5. ambiguous page rendering two incompatible state contracts
+    // 6. ambiguous simultaneous state rejects
     {
       const ctx = await browser.newContext();
       const page = await ctx.newPage();
-      await establishLocalAuthGateFixture(
-        page,
-        BASE_URL,
-        '/sign-in',
-        signIn.runtimeStateId,
-        'ambiguous',
-      );
+      await establishLocalAuthGateFixture(page, BASE_URL, signInFixtureId, 'ambiguous');
       await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
-        /LAYOUT_STATE_DRIFT: ambiguous/,
+        /STATE_CONTRACT_AMBIGUOUS/,
       );
       await ctx.close();
     }
+
+    // 7. unknown fixed fixture ID rejects
+    expect(() => authGateFixtureById('auth_gate.unknown')).toThrow(/unknown auth-gate fixture/);
+
+    // 8. generic selector-only fallback impossible
+    expect(countGenericStateMarkers()).toBe(0);
   });
 
   test('4. text zoom, safe-area, font-load transition visibly change runtime', async ({ page }) => {
@@ -621,9 +629,9 @@ test.describe('commercial quality control plane', () => {
       sectionBoundaries: [],
       criticalCta: null,
     });
-    // Initial HTML includes the application-owned state selector (no post-nav stamp).
+    // Initial HTML includes the application-owned state identity (no post-nav stamp).
     await page.setContent(
-      `<!doctype html><main id="probe" data-testid="m55-method-canonical">。</main>`,
+      `<!doctype html><main id="probe" data-testid="m55-method-canonical" data-m55-cq-state-id="${entry.runtimeStateId}">。</main>`,
     );
     const measured = await measureCommercialSurface(
       page,
@@ -650,7 +658,7 @@ test.describe('commercial quality control plane', () => {
   test('6. CTA below visual viewport rejected', async ({ page }) => {
     await page.setContent(`<!doctype html>
       <html><body style="margin:0">
-        <main id="root" data-testid="m55-method-canonical" style="height:2000px">
+        <main id="root" data-testid="m55-method-canonical" data-m55-cq-state-id="${selfTestEntry().runtimeStateId}" style="height:2000px">
           <button id="cta" style="position:absolute;top:1600px;left:8px;width:120px;height:44px">Go</button>
         </main>
       </body></html>`);

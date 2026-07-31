@@ -5,6 +5,22 @@
  */
 import type { Page } from '@playwright/test';
 
+import {
+  AUTH_GATE_FIXTURE_ATTR,
+  AUTH_GATE_FIXTURE_SELECTOR,
+  IMAGE_RESPONSE_FIXTURE,
+  authGateFixtureById,
+  renderAuthGateFixtureHtml,
+  renderImageResponseFixtureHtml,
+  type AuthGateFixtureMode,
+} from './m55AuthGateFixtureRegistry';
+
+export {
+  AUTH_GATE_FIXTURE_ATTR,
+  AUTH_GATE_FIXTURE_SELECTOR,
+  type AuthGateFixtureMode,
+};
+
 const COMPLETE_FREE = {
   'free.start_style': 'free.start_style.map_first',
   'free.decision_style': 'free.decision_style.sort_first',
@@ -13,10 +29,6 @@ const COMPLETE_FREE = {
   'free.change_style': 'free.change_style.observe_first',
   'free.primary_theme': 'free.primary_theme.report_preview',
 } as const;
-
-/** Fixture-owned auth-gate marker — never written by the generic runner. */
-export const AUTH_GATE_FIXTURE_SELECTOR = '[data-testid="m55-cq-auth-gate-fixture"]' as const;
-export const AUTH_GATE_FIXTURE_ATTR = '[data-m55-cq-fixture="auth_gate"]' as const;
 
 export function requireLocalhostQualityFixture(label: string): void {
   if (process.env.M55_E2E_CLEAN_CAPTURE !== '1') {
@@ -27,55 +39,28 @@ export function requireLocalhostQualityFixture(label: string): void {
   }
 }
 
-export type AuthGateFixtureMode = 'exact' | 'missing_state' | 'wrong_state' | 'ambiguous';
-
-function authGateFixtureHtml(
-  path: string,
-  runtimeStateId: string,
-  mode: AuthGateFixtureMode = 'exact',
-): string {
-  const safeState = runtimeStateId.replace(/"/g, '');
-  const wrongState = 'ecp:public.pricing:default';
-  let mainInner = '';
-  if (mode === 'missing_state') {
-    mainInner = `<main data-testid="m55-cq-auth-gate-fixture">localhost auth-gate fixture missing state for ${path}</main>`;
-  } else if (mode === 'wrong_state') {
-    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${wrongState}">localhost auth-gate fixture wrong state for ${path}</main>`;
-  } else if (mode === 'ambiguous') {
-    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">primary</main><aside data-m55-cq-state-id="${wrongState}">secondary</aside>`;
-  } else {
-    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">localhost auth-gate fixture for ${path} (${safeState})</main>`;
-  }
-  return `<!doctype html>
-<html lang="ja">
-<head><meta charset="utf-8"><title>M55 localhost auth-gate fixture</title></head>
-<body data-m55-cq-fixture="auth_gate" data-m55-cq-auth-gate="1" data-m55-cq-fixture-path="${path}">
-${mainInner}
-</body>
-</html>`;
-}
-
 /**
  * Production-blocked localhost auth-gate fixture.
- * External accounts.dev / Clerk navigation is intercepted and never accepted
- * as the registered runtime state proof. Each registration embeds a unique
- * state-specific marker (data-m55-cq-state-id).
+ * Setup selects only a fixed fixture ID from the closed registry.
+ * Fixture HTML renders its own fixed runtimeStateId — never from the manifest entry.
  */
 export async function establishLocalAuthGateFixture(
   page: Page,
   baseURL: string,
-  path: string,
-  runtimeStateId: string,
+  fixtureId: string,
   mode: AuthGateFixtureMode = 'exact',
 ): Promise<void> {
   requireLocalhostQualityFixture('auth_gate');
-  if (!runtimeStateId.trim()) {
-    throw new Error('STOP_FIXTURE_SCOPE: auth_gate requires a state-specific runtimeStateId');
-  }
+  const definition = authGateFixtureById(fixtureId);
   const origin = new URL(baseURL).origin;
-  const targetPathname = new URL(path, baseURL).pathname;
-  const targetUrl = new URL(path, baseURL).toString();
-  const stateSelector = `[data-m55-cq-state-id="${runtimeStateId.replace(/"/g, '')}"]`;
+  const targetPathname = new URL(definition.route.replace(':reportId', 'cq-smoke'), baseURL)
+    .pathname;
+  const navigatePath = definition.route.includes(':reportId')
+    ? definition.route.replace(':reportId', 'cq-smoke')
+    : definition.route;
+  const targetUrl = new URL(navigatePath, baseURL).toString();
+  const stateSelector = `[data-m55-cq-state-id="${definition.runtimeStateId.replace(/"/g, '')}"]`;
+  const body = renderAuthGateFixtureHtml(definition, mode);
 
   await page.route('**/*', async (route) => {
     const reqUrl = route.request().url();
@@ -94,7 +79,7 @@ export async function establishLocalAuthGateFixture(
       await route.fulfill({
         status: 200,
         contentType: 'text/html; charset=utf-8',
-        body: authGateFixtureHtml(path, runtimeStateId, mode),
+        body,
       });
       return;
     }
@@ -113,8 +98,37 @@ export async function establishLocalAuthGateFixture(
   await page.locator(AUTH_GATE_FIXTURE_SELECTOR).waitFor({ state: 'visible', timeout: 10_000 });
   await page.locator(AUTH_GATE_FIXTURE_ATTR).waitFor({ state: 'attached', timeout: 5_000 });
   if (mode === 'exact') {
-    await page.locator(stateSelector).waitFor({ state: 'visible', timeout: 5_000 });
+    await page.locator(stateSelector).waitFor({ state: 'attached', timeout: 5_000 });
   }
+}
+
+/** Fixed image-response fixture — identity owned by IMAGE_RESPONSE_FIXTURE. */
+export async function establishImageResponseFixture(
+  page: Page,
+  baseURL: string,
+): Promise<void> {
+  requireLocalhostQualityFixture('image_response');
+  const origin = new URL(baseURL).origin;
+  const targetUrl = new URL('/r/cq-smoke-invalid/opengraph-image', baseURL).toString();
+  const body = renderImageResponseFixtureHtml();
+
+  await page.route('**/*', async (route) => {
+    const reqUrl = route.request().url();
+    if (reqUrl.startsWith(origin) && /opengraph-image/i.test(reqUrl)) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body,
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  await page
+    .locator(`[data-m55-cq-state-id="${IMAGE_RESPONSE_FIXTURE.runtimeStateId}"]`)
+    .waitFor({ state: 'attached', timeout: 10_000 });
 }
 
 export async function seedBasicInfoOnly(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {
