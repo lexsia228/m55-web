@@ -70,6 +70,7 @@ import {
   canonicalObservableStateIdFor,
   countProjectionAliases,
   probeExcludedProjectionResolverNegative,
+  probeRenamedDivergentResolverNegative,
   reconcileResolverParity,
   M55_OBSERVABLE_STATE_ALIASES,
   M55_OBSERVABLE_STATE_PROJECTIONS,
@@ -222,6 +223,10 @@ test.describe('commercial quality control plane', () => {
     expect(projections.projectionAliases).toBe(17);
     expect(reconcileResolverParity(registrationIds, canonicalObservableStateIdFor)).toEqual([]);
     expect(probeExcludedProjectionResolverNegative(registrationIds).length).toBeGreaterThan(0);
+    const renamed = probeRenamedDivergentResolverNegative(registrationIds);
+    expect(renamed.parityFailures.length).toBeGreaterThan(0);
+    expect(renamed.disallowedExports).toContain('sneakyAlternateCanonicalResolver');
+    expect(renamed.divergentExports).toContain('sneakyAlternateCanonicalResolver');
     expect(countUniqueObservableSignatures(executableContracts)).toBe(46);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(

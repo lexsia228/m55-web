@@ -1065,13 +1065,18 @@ test('excluding projection aliases from the canonical resolver fails parity', as
   const {
     listExecutableSmokeTargets,
   } = await import('../m55/commercialUx/qualityControl/m55SetupRegistry');
+  const aliasMap = await import('../m55/commercialUx/qualityControl/m55ObservableStateAliasMap');
   const {
     canonicalObservableStateIdFor,
     probeExcludedProjectionResolverNegative,
+    probeRenamedDivergentResolverNegative,
     reconcileResolverParity,
     recomputeCanonicalAliasCounts,
     countProjectionAliases,
-  } = await import('../m55/commercialUx/qualityControl/m55ObservableStateAliasMap');
+    findDisallowedAliasMapFunctionExports,
+    findDivergentExportedStringResolvers,
+  } = aliasMap;
+  const { readFileSync } = await import('node:fs');
 
   const ids = listExecutableSmokeTargets().map((t) => t.runtimeStateId);
   const counts = recomputeCanonicalAliasCounts(ids);
@@ -1083,6 +1088,18 @@ test('excluding projection aliases from the canonical resolver fails parity', as
   assert.equal(countProjectionAliases(ids).projectionAliases, 17);
   assert.ok(
     probeExcludedProjectionResolverNegative(ids).length > 0,
-    'dual-only / excluded-projection resolver must fail authoritative parity',
+    'excluded-projection candidate must fail authoritative parity',
   );
+  const renamed = probeRenamedDivergentResolverNegative(ids);
+  assert.ok(renamed.parityFailures.length > 0);
+  assert.ok(renamed.disallowedExports.includes('sneakyAlternateCanonicalResolver'));
+  assert.ok(renamed.divergentExports.includes('sneakyAlternateCanonicalResolver'));
+  const source = readFileSync(
+    'lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts',
+    'utf8',
+  );
+  assert.deepEqual(findDisallowedAliasMapFunctionExports(source), []);
+  assert.deepEqual(findDivergentExportedStringResolvers(ids, aliasMap), []);
+  assert.equal(source.includes('dualOnlyCanonicalObservableStateIdFor'), false);
+  assert.equal(source.includes('export function dualCanonicalObservableStateIdFor'), false);
 });

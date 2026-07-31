@@ -189,23 +189,24 @@ export function countProjectionAliases(
   return { projectionRegistrations, projectionAliases };
 }
 
-/**
- * Deliberately incomplete resolver that ignores projections.
- * Used only by the negative probe proving excluded-projection arithmetic fails.
- */
-export function dualOnlyCanonicalObservableStateIdFor(
-  registrationRuntimeStateId: string,
-): string {
-  return (
-    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]
-      ?.canonicalObservableStateId ?? registrationRuntimeStateId
-  );
-}
-
 export type ResolverParityFailure = {
   code: 'STATE_CONTRACT_AMBIGUOUS' | 'STATE_CONTRACT_MISSING';
   detail: string;
 };
+
+/** Allowed function exports from this module (non-resolver helpers + authority). */
+export const ALLOWED_ALIAS_MAP_FUNCTION_EXPORTS = [
+  'canonicalObservableStateIdFor',
+  'buildRegistrationCanonicalMappings',
+  'recomputeCanonicalAliasCounts',
+  'countProjectionAliases',
+  'reconcileResolverParity',
+  'probeExcludedProjectionResolverNegative',
+  'probeRenamedDivergentResolverNegative',
+  'findDisallowedAliasMapFunctionExports',
+  'findDivergentExportedStringResolvers',
+  'assertAliasMapClosed',
+] as const;
 
 /**
  * Fail-closed: candidate resolver must deeply equal the authoritative resolver
@@ -258,15 +259,113 @@ export function reconcileResolverParity(
 }
 
 /**
- * Negative probe: excluding projections (dual-only resolver) must fail parity.
+ * Source-level detection: any exported function outside the allowlist is rejected.
+ * Does not rely on a single prohibited symbol name. String/template literals are
+ * stripped so embedded negative-fixture source text cannot false-positive.
+ */
+export function findDisallowedAliasMapFunctionExports(source: string): string[] {
+  const withoutLiterals = source
+    .replace(/`(?:\\.|[^`\\])*`/g, '""')
+    .replace(/'(?:\\.|[^'\\])*'/g, '""')
+    .replace(/"(?:\\.|[^"\\])*"/g, '""')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\/.*$/gm, '');
+  const found = [...withoutLiterals.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)].map(
+    (match) => match[1]!,
+  );
+  const allowed = new Set<string>(ALLOWED_ALIAS_MAP_FUNCTION_EXPORTS);
+  return [...new Set(found.filter((name) => !allowed.has(name)))];
+}
+
+/**
+ * Runtime detection: exported arity-1 string→string functions must match the
+ * authoritative resolver for every executable registration (or not be resolvers).
+ */
+export function findDivergentExportedStringResolvers(
+  registrationRuntimeStateIds: readonly string[],
+  moduleExports: Record<string, unknown>,
+): string[] {
+  const divergent: string[] = [];
+  for (const [name, value] of Object.entries(moduleExports)) {
+    if (typeof value !== 'function') continue;
+    if (name === 'canonicalObservableStateIdFor') continue;
+    if (value.length !== 1) continue;
+    let behavesAsStringResolver = true;
+    for (const id of registrationRuntimeStateIds) {
+      try {
+        const out = (value as (input: string) => unknown)(id);
+        if (typeof out !== 'string') {
+          behavesAsStringResolver = false;
+          break;
+        }
+      } catch {
+        behavesAsStringResolver = false;
+        break;
+      }
+    }
+    if (!behavesAsStringResolver) continue;
+    const failures = reconcileResolverParity(
+      registrationRuntimeStateIds,
+      value as (registrationRuntimeStateId: string) => string,
+    );
+    if (failures.length > 0) divergent.push(name);
+  }
+  return divergent;
+}
+
+/**
+ * Negative probe: excluding projections must fail parity.
+ * Candidate exists only inside this probe and is not exported.
  */
 export function probeExcludedProjectionResolverNegative(
   registrationRuntimeStateIds: readonly string[],
 ): ResolverParityFailure[] {
-  return reconcileResolverParity(
+  const excludeProjectionsCandidate = (registrationRuntimeStateId: string): string =>
+    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]?.canonicalObservableStateId ??
+    registrationRuntimeStateId;
+  return reconcileResolverParity(registrationRuntimeStateIds, excludeProjectionsCandidate);
+}
+
+/**
+ * Negative probe: a differently named divergent resolver must be detected by
+ * parity and by source/export scanning (not by one hard-coded symbol name).
+ */
+export function probeRenamedDivergentResolverNegative(
+  registrationRuntimeStateIds: readonly string[],
+): {
+  parityFailures: ResolverParityFailure[];
+  disallowedExports: string[];
+  divergentExports: string[];
+} {
+  const sneakyAlternateCanonicalResolver = (
+    registrationRuntimeStateId: string,
+  ): string =>
+    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]?.canonicalObservableStateId ??
+    registrationRuntimeStateId;
+
+  const parityFailures = reconcileResolverParity(
     registrationRuntimeStateIds,
-    dualOnlyCanonicalObservableStateIdFor,
+    sneakyAlternateCanonicalResolver,
   );
+
+  // Constructed at runtime so this module's source does not embed a second
+  // live export; the scanner still sees a real export when fed this fixture.
+  const exportKeyword = 'export';
+  const fixtureSource = [
+    `${exportKeyword} function canonicalObservableStateIdFor(id) { return id; }`,
+    `${exportKeyword} function sneakyAlternateCanonicalResolver(id) {`,
+    '  return id;',
+    '}',
+    `${exportKeyword} function buildRegistrationCanonicalMappings(ids) { return ids; }`,
+  ].join('\n');
+
+  const disallowedExports = findDisallowedAliasMapFunctionExports(fixtureSource);
+  const divergentExports = findDivergentExportedStringResolvers(registrationRuntimeStateIds, {
+    sneakyAlternateCanonicalResolver,
+    canonicalObservableStateIdFor,
+  });
+
+  return { parityFailures, disallowedExports, divergentExports };
 }
 
 export function assertAliasMapClosed(registrationRuntimeStateIds: readonly string[]): void {

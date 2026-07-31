@@ -627,7 +627,8 @@ function checkStateIdentityUniqueness() {
           "import { stateDomContractForEntry, reconcileExecutableStateContracts, countUniqueObservableSignatures, countObservableSignatureCollisions, countGenericStateMarkers } from './lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts';",
           "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById, IMAGE_RESPONSE_FIXTURE } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
           "import { readFileSync } from 'node:fs';",
-          "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed, canonicalObservableStateIdFor, countProjectionAliases, reconcileResolverParity, probeExcludedProjectionResolverNegative } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
+          "import * as aliasMap from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
+          "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed, canonicalObservableStateIdFor, countProjectionAliases, reconcileResolverParity, probeExcludedProjectionResolverNegative, probeRenamedDivergentResolverNegative, findDisallowedAliasMapFunctionExports, findDivergentExportedStringResolvers } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
           "const targets = listExecutableSmokeTargets();",
           "const ids = targets.map((t) => t.runtimeStateId);",
           "assertAliasMapClosed(ids);",
@@ -635,6 +636,10 @@ function checkStateIdentityUniqueness() {
           "const projections = countProjectionAliases(ids);",
           "const parity = reconcileResolverParity(ids, canonicalObservableStateIdFor);",
           "const excludedProjectionFailures = probeExcludedProjectionResolverNegative(ids);",
+          "const renamedDivergent = probeRenamedDivergentResolverNegative(ids);",
+          "const aliasMapSource = readFileSync('lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts','utf8');",
+          "const disallowedExports = findDisallowedAliasMapFunctionExports(aliasMapSource);",
+          "const divergentExports = findDivergentExportedStringResolvers(ids, aliasMap);",
           "const contracts = targets.map((t) => stateDomContractForEntry(resolveSmokeManifestEntry(t)));",
           "const failures = reconcileExecutableStateContracts(contracts);",
           // Cross-owner collision: identical route/selector/value, different canonicals.
@@ -644,7 +649,6 @@ function checkStateIdentityUniqueness() {
           "], { skipAliasMapClosed: true });",
           "const crossOwnerRejected = crossOwner.some((f) => f.code === 'STATE_CONTRACT_COLLISION');",
           "let unknownOk = false; try { authGateFixtureById('auth_gate.DOES_NOT_EXIST'); } catch { unknownOk = true; }",
-          "const dualResolverRefs = /export function dualCanonicalObservableStateIdFor/.test(readFileSync('lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts','utf8'));",
           "console.log(JSON.stringify({",
           "  executable: contracts.length,",
           "  canonical: counts.canonical,",
@@ -654,7 +658,12 @@ function checkStateIdentityUniqueness() {
           "  projectionRegistrations: projections.projectionRegistrations,",
           "  projectionAliases: projections.projectionAliases,",
           "  excludedProjectionAliasFailures: excludedProjectionFailures.length,",
+          "  renamedParityFailures: renamedDivergent.parityFailures.length,",
+          "  renamedDisallowedDetected: renamedDivergent.disallowedExports.includes('sneakyAlternateCanonicalResolver'),",
+          "  renamedDivergentDetected: renamedDivergent.divergentExports.includes('sneakyAlternateCanonicalResolver'),",
           "  resolverParityFailures: parity.length,",
+          "  disallowedExports,",
+          "  divergentExports,",
           "  uniqueSignatures: countUniqueObservableSignatures(contracts),",
           "  collisions: countObservableSignatureCollisions(contracts),",
           "  generic: countGenericStateMarkers(),",
@@ -662,7 +671,6 @@ function checkStateIdentityUniqueness() {
           "  imageFixture: IMAGE_RESPONSE_FIXTURE.fixtureId,",
           "  unknownFixtureRejected: unknownOk,",
           "  crossOwnerRejected,",
-          "  dualResolverRemaining: dualResolverRefs,",
           "  failures,",
           "}));",
         ].join(''),
@@ -717,16 +725,32 @@ function checkStateIdentityUniqueness() {
         'excluding projections from the resolver must fail reconciliation parity',
       );
     }
+    if (
+      report.renamedParityFailures < 1 ||
+      !report.renamedDisallowedDetected ||
+      !report.renamedDivergentDetected
+    ) {
+      fail(
+        'state_identity.renamed_divergent_negative',
+        'differently named divergent resolver must be detected without relying on one symbol name',
+      );
+    }
     if (report.resolverParityFailures !== 0) {
       fail(
         'state_identity.resolver_parity',
         `verifier/production resolver parity failures: ${report.resolverParityFailures}`,
       );
     }
-    if (report.dualResolverRemaining) {
+    if ((report.disallowedExports ?? []).length !== 0) {
       fail(
-        'state_identity.dual_resolver',
-        'dualCanonicalObservableStateIdFor must not remain as a divergent export',
+        'state_identity.disallowed_exports',
+        `disallowed alias-map function exports: ${(report.disallowedExports ?? []).join(',')}`,
+      );
+    }
+    if ((report.divergentExports ?? []).length !== 0) {
+      fail(
+        'state_identity.divergent_exports',
+        `divergent exported string resolvers: ${(report.divergentExports ?? []).join(',')}`,
       );
     }
     if (report.dualAliasTable !== 13) {
