@@ -37,6 +37,7 @@ const ADAPTER_FILES = [
 const BROWSER_FILES = [
   'e2e/helpers/commercialQualityRunner.ts',
   'e2e/commercial-quality-control-plane.spec.ts',
+  'scripts/run-m55-commercial-quality-control-plane-e2e.mjs',
 ];
 const CONTRACT_DOC = 'docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md';
 const DECISION_LOG = 'docs/ssot/M55_DECISION_LOG.md';
@@ -376,6 +377,19 @@ function checkDependencies() {
     'test:e2e:commercial-quality-control-plane',
   ]) {
     if (!pkg.scripts?.[script]) fail('dependency.script', `package.json must define ${script}`);
+  }
+  const e2eScript = pkg.scripts?.['test:e2e:commercial-quality-control-plane'] ?? '';
+  if (!e2eScript.includes('run-m55-commercial-quality-control-plane-e2e.mjs')) {
+    fail(
+      'dependency.e2e_wrapper',
+      'test:e2e:commercial-quality-control-plane must use the post-Playwright cleanup wrapper',
+    );
+  }
+  const wrapper = existsSync(join(ROOT, 'scripts/run-m55-commercial-quality-control-plane-e2e.mjs'))
+    ? read('scripts/run-m55-commercial-quality-control-plane-e2e.mjs')
+    : '';
+  if (!wrapper.includes('cleanOwnedResidue') || !wrapper.includes('process.exit(status')) {
+    fail('dependency.e2e_wrapper', 'e2e wrapper must clean residue after Playwright and preserve exit status');
   }
   const runner = existsSync(join(ROOT, 'e2e/helpers/commercialQualityRunner.ts'))
     ? read('e2e/helpers/commercialQualityRunner.ts')

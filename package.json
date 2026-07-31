@@ -45,7 +45,7 @@
         "test:e2e:home-continuous-responsive": "playwright test e2e/home-continuous-responsive.spec.ts",
         "test:m55-e2e-clean-capture-env": "node --test scripts/m55-e2e-clean-capture-env.test.mjs",
         "test:m55-commercial-quality-control-plane": "tsx --test lib/commercialQuality/commercialQuality.test.ts",
-        "test:e2e:commercial-quality-control-plane": "playwright test e2e/commercial-quality-control-plane.spec.ts",
+        "test:e2e:commercial-quality-control-plane": "node scripts/run-m55-commercial-quality-control-plane-e2e.mjs",
         "test:e2e:commercial-visual-regression": "playwright test e2e/commercial-visual-regression.spec.ts",
         "test:premium-experience-verifier": "tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperienceProofNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumShareFallbackVisibility.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },

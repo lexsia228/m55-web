@@ -27,12 +27,13 @@ export function requireLocalhostQualityFixture(label: string): void {
   }
 }
 
-function authGateFixtureHtml(path: string): string {
+function authGateFixtureHtml(path: string, runtimeStateId: string): string {
+  const safeState = runtimeStateId.replace(/"/g, '');
   return `<!doctype html>
 <html lang="ja">
 <head><meta charset="utf-8"><title>M55 localhost auth-gate fixture</title></head>
 <body data-m55-cq-fixture="auth_gate" data-m55-cq-auth-gate="1" data-m55-cq-fixture-path="${path}">
-<main data-testid="m55-cq-auth-gate-fixture">localhost auth-gate fixture for ${path}</main>
+<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">localhost auth-gate fixture for ${path} (${safeState})</main>
 </body>
 </html>`;
 }
@@ -40,17 +41,23 @@ function authGateFixtureHtml(path: string): string {
 /**
  * Production-blocked localhost auth-gate fixture.
  * External accounts.dev / Clerk navigation is intercepted and never accepted
- * as the registered runtime state proof.
+ * as the registered runtime state proof. Each registration embeds a unique
+ * state-specific marker (data-m55-cq-state-id).
  */
 export async function establishLocalAuthGateFixture(
   page: Page,
   baseURL: string,
   path: string,
+  runtimeStateId: string,
 ): Promise<void> {
   requireLocalhostQualityFixture('auth_gate');
+  if (!runtimeStateId.trim()) {
+    throw new Error('STOP_FIXTURE_SCOPE: auth_gate requires a state-specific runtimeStateId');
+  }
   const origin = new URL(baseURL).origin;
   const targetPathname = new URL(path, baseURL).pathname;
   const targetUrl = new URL(path, baseURL).toString();
+  const stateSelector = `[data-m55-cq-state-id="${runtimeStateId.replace(/"/g, '')}"]`;
 
   await page.route('**/*', async (route) => {
     const reqUrl = route.request().url();
@@ -69,7 +76,7 @@ export async function establishLocalAuthGateFixture(
       await route.fulfill({
         status: 200,
         contentType: 'text/html; charset=utf-8',
-        body: authGateFixtureHtml(path),
+        body: authGateFixtureHtml(path, runtimeStateId),
       });
       return;
     }
@@ -87,6 +94,7 @@ export async function establishLocalAuthGateFixture(
   }
   await page.locator(AUTH_GATE_FIXTURE_SELECTOR).waitFor({ state: 'visible', timeout: 10_000 });
   await page.locator(AUTH_GATE_FIXTURE_ATTR).waitFor({ state: 'attached', timeout: 5_000 });
+  await page.locator(stateSelector).waitFor({ state: 'visible', timeout: 5_000 });
 }
 
 export async function seedBasicInfoOnly(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {
@@ -209,12 +217,26 @@ export async function establishCheckoutPrep(page: Page, baseURL: string): Promis
   if ((await page.locator('[data-m55-paid-phase="checkout"]').count()) > 0) {
     return;
   }
-  await establishPremiumPlans(page, baseURL);
-  const planLightCta = page.getByTestId('m55-dtr-plan-light').getByRole('button');
-  await planLightCta.waitFor({ state: 'visible', timeout: 20_000 });
-  await planLightCta.scrollIntoViewIfNeeded();
-  await planLightCta.click();
-  await page.locator('[data-m55-paid-phase="checkout"]').waitFor({ state: 'visible', timeout: 30_000 });
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await establishPremiumPlans(page, baseURL);
+      const planLightCta = page.getByTestId('m55-dtr-plan-light').getByRole('button');
+      await planLightCta.waitFor({ state: 'visible', timeout: 30_000 });
+      await planLightCta.scrollIntoViewIfNeeded();
+      await planLightCta.click();
+      await page
+        .locator('[data-m55-paid-phase="checkout"]')
+        .waitFor({ state: 'visible', timeout: 30_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await gotoLocal(page, baseURL, '/core').catch(() => undefined);
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`STOP_FIXTURE_SCOPE: checkout prep failed (${String(lastError)})`);
 }
 
 export async function establishPurchasedReport(page: Page, baseURL: string): Promise<void> {

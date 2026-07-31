@@ -42,6 +42,11 @@ import {
   seedBasicInfoOnly,
   seedCompleteFreeAnswers,
 } from './m55QualityFixtures';
+import {
+  bindAndObserveStateContract,
+  clearFixtureStateContract,
+  stateDomContractForEntry,
+} from './m55StateDomContracts';
 
 const DEFAULT_EXECUTION: readonly ExecutionProfile[] = ['default', 'reduced_motion'];
 const FULL_EXECUTION: readonly ExecutionProfile[] = [
@@ -142,13 +147,14 @@ async function runNavigateSetup(
   const page = asPage(context);
   const { baseURL } = context;
   const path = plan.navigatePath;
+  const contract = stateDomContractForEntry(entry);
 
   if (plan.setupFn) {
     // Fixture owns navigation + state. Do not re-goto afterward — that would
     // destroy questionnaire / checkout / RESULT state.
     await plan.setupFn(page, baseURL);
   } else if (plan.authGate) {
-    await establishLocalAuthGateFixture(page, baseURL, path);
+    await establishLocalAuthGateFixture(page, baseURL, path, entry.runtimeStateId);
   } else {
     await gotoLocal(page, baseURL, path);
   }
@@ -161,7 +167,12 @@ async function runNavigateSetup(
   } catch {
     await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
   }
-  const markerCount = await verifyStateMarker(page, plan.stateMarkerSelector);
+
+  const observedRuntimeStateId = await bindAndObserveStateContract(page, contract, {
+    authGateAlreadyBound: Boolean(plan.authGate),
+    imageResponse: Boolean(plan.imageResponse),
+  });
+  const markerCount = await verifyStateMarker(page, contract.selector);
 
   if (/accounts\.dev/i.test(page.url())) {
     throw new Error(
@@ -180,9 +191,11 @@ async function runNavigateSetup(
       imageResponse: Boolean(plan.imageResponse),
       readySelector: plan.readySelector,
       readyCount: await page.locator(plan.readySelector).count(),
-      stateMarkerSelector: plan.stateMarkerSelector,
+      stateMarkerSelector: contract.selector,
       stateMarkerCount: markerCount,
-      runtimeStateId: entry.runtimeStateId,
+      stateOwnership: contract.ownership,
+      // Observed from the state-specific DOM contract — not copied from manifest.
+      runtimeStateId: observedRuntimeStateId,
     },
   };
 }
@@ -337,6 +350,10 @@ async function teardownSetup(context: SetupContext, entry: SurfaceManifestEntry)
   for (const profile of entry.executionProfiles) {
     await clearExecutionProfileOnPage(page, profile);
   }
+  const contract = stateDomContractForEntry(entry);
+  if (contract.teardown === 'remove_fixture_marker') {
+    await clearFixtureStateContract(page);
+  }
 }
 
 function supportsRichStress(entry: SurfaceManifestEntry): boolean {
@@ -351,6 +368,11 @@ function buildExecutableFromEntry(
   execution: readonly ExecutionProfile[] = DEFAULT_EXECUTION,
 ): ExecutableSetup {
   const richStress = supportsRichStress(entry);
+  const contract = stateDomContractForEntry(entry);
+  const boundPlan: NavigatePlan = {
+    ...plan,
+    stateMarkerSelector: contract.selector,
+  };
 
   return {
     setupId: entry.setupId,
@@ -364,9 +386,9 @@ function buildExecutableFromEntry(
     supportedExecutionProfiles: execution,
     fixtureId: plan.fixtureId,
     readySelector: plan.readySelector,
-    stateMarkerSelector: plan.stateMarkerSelector,
+    stateMarkerSelector: contract.selector,
     hasDeterministicAuthFixture: plan.hasDeterministicAuthFixture,
-    execute: async (context, surface) => runNavigateSetup(context, surface, plan),
+    execute: async (context, surface) => runNavigateSetup(context, surface, boundPlan),
     teardown: async (context, surface) => teardownSetup(context, surface),
     applyExecutionProfile: async (context, surface, profile) => {
       if (!execution.includes(profile)) {

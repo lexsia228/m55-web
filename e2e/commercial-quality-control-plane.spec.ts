@@ -60,6 +60,13 @@ import {
   M55_COMMERCIAL_QUALITY_MANIFEST,
   isDeferredAccessibilityFinding,
 } from '../lib/m55/commercialUx/qualityControl/m55SurfaceManifest';
+import {
+  M55_STATE_DOM_CONTRACTS,
+  clearFixtureStateContract,
+  countGenericStateMarkers,
+  stampFixtureStateContract,
+  stateDomContractForEntry,
+} from '../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
 import { M55_METHOD_CANONICAL_ROUTE } from '../lib/m55/method/m55MethodAuthority';
 import {
   createM55CommercialQualityAdapter,
@@ -126,8 +133,9 @@ test.beforeAll(() => {
 });
 
 test.afterAll(() => {
+  // Best-effort in-process cleanup. Final residue=0 is enforced by the
+  // post-Playwright wrapper after reporters finish writing.
   cleanGeneratedResidue();
-  expect(countResidue(), 'generated residue must be 0 after suite').toBe(0);
 });
 
 test.describe('commercial quality control plane', () => {
@@ -172,6 +180,8 @@ test.describe('commercial quality control plane', () => {
     expect(probeAdapterNegative('unknown_setup').some((f) => String(f.code).startsWith('SETUP_'))).toBe(true);
     expect(probeAdapterNegative('setup_wrong_route').some((f) => f.code === 'SETUP_ROUTE_MISMATCH')).toBe(true);
     expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
+    expect(countGenericStateMarkers()).toBe(0);
+    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
   });
 
   test('2. mandatory all-registration Chromium smoke for every executable target', async ({
@@ -187,8 +197,12 @@ test.describe('commercial quality control plane', () => {
     let emptyProtectedSelectorFailures = 0;
     let runnerWrittenStateMarkerCount = 0;
     let externalRedirectStateAcceptanceCount = 0;
+    let productionMeasurementCount = 0;
+    let fullInvariantAssertionCount = 0;
+    const fullInvariantFailures: string[] = [];
     const methodResolvedHrefs: string[] = [];
     const perSurfaceProtected: Record<string, number> = {};
+    const expectedOrigin = new URL(BASE_URL).origin;
 
     for (const target of targets) {
       const setup = m55SetupById(target.setupId);
@@ -207,10 +221,15 @@ test.describe('commercial quality control plane', () => {
         await active.setViewportSize({ width: 390, height: 844 });
         const ctx = { page: active, baseURL: BASE_URL, label: LABEL };
         const entry = resolveSmokeManifestEntry(target);
+        const contract = stateDomContractForEntry(entry);
         expect(entry.protectedElements.length).toBeGreaterThan(0);
+        expect(contract.selector).not.toBe('main');
+        expect(contract.selector).not.toBe('body');
 
         const executed = await setup.execute(ctx, entry);
         expect(executed.applied).toBe(true);
+        expect(String(executed.evidence.runtimeStateId)).toBe(entry.runtimeStateId);
+        expect(String(executed.evidence.runtimeStateId)).not.toBe('');
 
         await assertNoRunnerWrittenStateMarker(active);
         const markerCount = await active.locator('html[data-m55-cq-runtime-state]').count();
@@ -229,13 +248,10 @@ test.describe('commercial quality control plane', () => {
           setup.fixtureId === 'establishPurchasedReport' ||
           Boolean(executed.evidence.fixturePath);
 
-        // State marker owned by app/fixture (setup ready/state selectors).
-        if (!imageResponse) {
-          await expect(
-            active.locator(target.stateMarkerSelector).first(),
-            `${target.surfaceId} fixture/app state marker`,
-          ).toBeVisible({ timeout: 30_000 });
-        }
+        await expect(
+          active.locator(contract.selector).first(),
+          `${target.surfaceId} state-specific contract`,
+        ).toBeAttached({ timeout: 30_000 });
 
         const evidence = await assertProtectedManifestEvidence(
           active,
@@ -248,6 +264,36 @@ test.describe('commercial quality control plane', () => {
         missingProtectedSelectorFailures += evidence.missing;
         emptyProtectedSelectorFailures += evidence.empty;
         perSurfaceProtected[target.surfaceId] = evidence.protectedAssertionCount;
+
+        const observedPath = new URL(active.url()).pathname;
+        // Intentional fixture/redirect landings (root→/home, legacy reply→LP,
+        // purchased preview path) are measured at the observed executable path.
+        const measureEntry: SurfaceManifestEntry =
+          executed.evidence.fixturePath ||
+          entry.routeIsPattern ||
+          (observedPath !== entry.route &&
+            (target.surfaceId.endsWith('.root_redirect') ||
+              Boolean(setup.fixtureId) ||
+              entry.route === '/'))
+            ? {
+                ...entry,
+                route: observedPath,
+                routeIsPattern: false,
+              }
+            : entry;
+
+        const measured = await measureCommercialSurface(active, measureEntry, planFor(measureEntry), {
+          expectedOrigin,
+          includeAccessibility: false,
+          observedRuntimeStateId: String(executed.evidence.runtimeStateId),
+        });
+        productionMeasurementCount += 1;
+        const layoutFails = checkLayoutInvariants(measured, measureEntry);
+        fullInvariantAssertionCount += 1;
+        for (const failure of layoutFails) {
+          fullInvariantFailures.push(`${target.surfaceId}:${failure.code}`);
+        }
+        expect(layoutFails.map((f) => f.code), `${target.surfaceId} layout`).toEqual([]);
 
         if (target.family === 'method') {
           const href = await assertMethodLinkAndOrder(active, target.surfaceId);
@@ -277,6 +323,9 @@ test.describe('commercial quality control plane', () => {
     const failed = results.filter((r) => !r.ok);
     expect(failed, JSON.stringify(failed, null, 2)).toEqual([]);
     expect(results.filter((r) => r.ok).length).toBe(76);
+    expect(productionMeasurementCount).toBe(76);
+    expect(fullInvariantAssertionCount).toBe(76);
+    expect(fullInvariantFailures).toEqual([]);
     expect(protectedSelectorAssertionCount).toBeGreaterThan(76);
     expect(missingProtectedSelectorFailures).toBe(0);
     expect(emptyProtectedSelectorFailures).toBe(0);
@@ -302,20 +351,25 @@ test.describe('commercial quality control plane', () => {
     ].map((f) => f.code)).toEqual([]);
     await adapter.teardownCase?.(page, entry, planFor(entry));
 
-    let teardownRestorationFailures = 0;
-    for (const profile of [
+    const TEXT_PROFILES = [
+      'short_text',
       'long_japanese_text',
       'punctuation_heavy_japanese',
       'manual_line_breaks',
       'max_dynamic_text',
-      'empty',
-      'loading',
-      'error',
-    ] as const) {
+    ] as const;
+    const STATE_PROFILES = ['empty', 'loading', 'error'] as const;
+    const ALL_PROFILES = [...TEXT_PROFILES, ...STATE_PROFILES] as const;
+
+    let teardownRestorationFailures = 0;
+    for (const profile of ALL_PROFILES) {
       const targetSelector = 'main h2';
       const stressEntry = selfTestEntry({
         contentStressProfiles: [profile, 'short_text'],
-        protectedElements: [{ selector: targetSelector, role: 'heading', requireText: true }],
+        protectedElements: [
+          { selector: 'main', role: 'container', requireText: true },
+          { selector: targetSelector, role: 'heading', requireText: true },
+        ],
         fixedElements: [],
         sectionBoundaries: [],
         criticalCta: null,
@@ -339,7 +393,7 @@ test.describe('commercial quality control plane', () => {
       const afterIdentity = (await target.evaluate((el) => el.textContent ?? '')).trim();
       if (profile === 'empty') {
         expect(afterIdentity.length).toBe(0);
-      } else {
+      } else if (profile !== 'short_text') {
         expect(afterIdentity).not.toEqual(beforeIdentity);
       }
 
@@ -350,9 +404,26 @@ test.describe('commercial quality control plane', () => {
       const layoutFails = checkLayoutInvariants(measured, stressEntry);
       const semanticFails = checkSemanticInvariants(measured, stressEntry, profile);
 
+      const unexpectedLayout = layoutFails.filter((f) => {
+        if (
+          profile === 'empty' &&
+          (f.code === 'LAYOUT_PROTECTED_ELEMENT_EMPTY' ||
+            f.code === 'LAYOUT_PROTECTED_ELEMENT_HIDDEN')
+        ) {
+          return false;
+        }
+        return true;
+      });
+
       if (profile === 'empty') {
-        // Emptying the governed heading is the registered empty-state contract.
-        expect(layoutFails.some((f) => f.code === 'LAYOUT_PROTECTED_ELEMENT_EMPTY')).toBe(true);
+        expect(
+          layoutFails.some(
+            (f) =>
+              f.code === 'LAYOUT_PROTECTED_ELEMENT_EMPTY' ||
+              f.code === 'LAYOUT_PROTECTED_ELEMENT_HIDDEN',
+          ),
+        ).toBe(true);
+        expect(unexpectedLayout.map((f) => f.code)).toEqual([]);
         expect(
           semanticFails.every(
             (f) =>
@@ -362,23 +433,13 @@ test.describe('commercial quality control plane', () => {
           ),
         ).toBe(true);
       } else if (profile === 'loading' || profile === 'error') {
-        // Heading-scoped stress replaces a short node; shell-only is the
-        // registered short-state contract for these profiles on this selector.
-        expect(
-          semanticFails.every((f) => f.code === 'SEMANTIC_SHELL_ONLY_PAGE'),
-        ).toBe(true);
+        expect(unexpectedLayout.map((f) => f.code)).toEqual([]);
+        expect(semanticFails.every((f) => f.code === 'SEMANTIC_SHELL_ONLY_PAGE')).toBe(true);
         if (profile === 'loading') {
           expect(afterIdentity.includes('読み込み中')).toBe(true);
         }
       } else {
-        expect(
-          layoutFails.filter(
-            (f) =>
-              f.code === 'LAYOUT_PROTECTED_ELEMENT_MISSING' ||
-              f.code === 'LAYOUT_PROTECTED_ELEMENT_HIDDEN' ||
-              f.code === 'LAYOUT_PROTECTED_ELEMENT_EMPTY',
-          ).map((f) => f.code),
-        ).toEqual([]);
+        expect(layoutFails.map((f) => f.code)).toEqual([]);
         expect(semanticFails.map((f) => f.code)).toEqual([]);
       }
 
@@ -406,6 +467,76 @@ test.describe('commercial quality control plane', () => {
         }),
       ).rejects.toThrow(/SETUP_STRESS_UNSUPPORTED|SETUP_AUTH_WITHOUT_FIXTURE/);
     }
+  });
+
+  test('3b. wrong-state and missing-state Chromium negatives', async ({ page }) => {
+    const entry = selfTestEntry();
+    const setup = m55SetupById(entry.setupId)!;
+    const contract = stateDomContractForEntry(entry);
+    const ctx = { page, baseURL: BASE_URL, label: LABEL };
+    const expectedOrigin = new URL(BASE_URL).origin;
+
+    await setup.execute(ctx, entry);
+    await expect(page.locator(contract.selector).first()).toBeVisible({ timeout: 15_000 });
+
+    // A. expected route but wrong runtime-state marker
+    await stampFixtureStateContract(page, 'ecp:public.pricing:default');
+    const wrongMeasured = await measureCommercialSurface(page, entry, planFor(entry), {
+      expectedOrigin,
+      includeAccessibility: false,
+      observedRuntimeStateId: 'ecp:public.pricing:default',
+    });
+    const wrongFails = checkLayoutInvariants(wrongMeasured, entry);
+    expect(wrongFails.some((f) => f.code === 'LAYOUT_STATE_DRIFT')).toBe(true);
+
+    // B. expected route but missing runtime-state marker
+    await clearFixtureStateContract(page);
+    if (contract.ownership === 'application') {
+      await page.evaluate((sel) => {
+        document.querySelectorAll(sel).forEach((node) => {
+          (node as HTMLElement).style.display = 'none';
+          node.setAttribute('data-m55-cq-state-hidden', '1');
+        });
+      }, contract.selector);
+    }
+    await expect(measureCommercialSurface(page, entry, planFor(entry), {
+      expectedOrigin,
+      includeAccessibility: false,
+    })).rejects.toThrow(/LAYOUT_STATE_DRIFT|missing observed state/);
+
+    // Restore page for C/D
+    await setup.execute(ctx, entry);
+
+    // C. marker for another state on the same route
+    await stampFixtureStateContract(page, 'ecp:public.support:default');
+    const crossMeasured = await measureCommercialSurface(page, entry, planFor(entry), {
+      expectedOrigin,
+      includeAccessibility: false,
+      observedRuntimeStateId: 'ecp:public.support:default',
+    });
+    expect(
+      checkLayoutInvariants(crossMeasured, entry).some((f) => f.code === 'LAYOUT_STATE_DRIFT'),
+    ).toBe(true);
+
+    // D. setup ID for one state paired with another state marker
+    const pricing = m55SurfaceById('m55:ecp.public.pricing');
+    if (!pricing) throw new Error('pricing surface missing');
+    const mismatched: SurfaceManifestEntry = {
+      ...entry,
+      setupId: pricing.setupId,
+      runtimeStateId: pricing.runtimeStateId,
+    };
+    await stampFixtureStateContract(page, entry.runtimeStateId);
+    const mismatchMeasured = await measureCommercialSurface(page, mismatched, planFor(mismatched), {
+      expectedOrigin,
+      includeAccessibility: false,
+      observedRuntimeStateId: entry.runtimeStateId,
+    });
+    expect(
+      checkLayoutInvariants(mismatchMeasured, mismatched).some((f) => f.code === 'LAYOUT_STATE_DRIFT'),
+    ).toBe(true);
+
+    await setup.teardown?.(ctx, entry);
   });
 
   test('4. text zoom, safe-area, font-load transition visibly change runtime', async ({ page }) => {
@@ -441,9 +572,11 @@ test.describe('commercial quality control plane', () => {
       sectionBoundaries: [],
       criticalCta: null,
     });
+    await stampFixtureStateContract(page, entry.runtimeStateId);
     const measured = await measureCommercialSurface(page, entry, planFor(entry), {
       expectedOrigin: new URL(page.url()).origin,
       includeAccessibility: false,
+      observedRuntimeStateId: entry.runtimeStateId,
     });
     // Force Japanese orphan path via evaluate geometry when available.
     expect(
@@ -476,9 +609,11 @@ test.describe('commercial quality control plane', () => {
       route: '/',
       routeIsPattern: true,
     });
+    await stampFixtureStateContract(page, entry.runtimeStateId);
     const measured = await measureCommercialSurface(page, entry, planFor(entry), {
       expectedOrigin: new URL(page.url()).origin,
       includeAccessibility: false,
+      observedRuntimeStateId: entry.runtimeStateId,
     });
     expect(
       checkLayoutInvariants(measured, entry).some(

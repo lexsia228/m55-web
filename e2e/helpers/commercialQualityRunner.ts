@@ -22,6 +22,10 @@ import type {
 } from '../../lib/commercialQuality/types';
 import { m55SetupById } from '../../lib/m55/commercialUx/qualityControl/m55SetupRegistry';
 import {
+  observeRuntimeStateId,
+  stateDomContractForEntry,
+} from '../../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
+import {
   assertLocalNavigationStable,
   assertOverlayAbsence,
   requireCleanCaptureEnvironment,
@@ -104,9 +108,24 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
     return cls ? `${el.tagName.toLowerCase()}.${cls}` : el.tagName.toLowerCase();
   };
 
-  /** Nearest ancestor whose clipped box actually cuts the element. */
+  /**
+   * Nearest ancestor whose clipped box cuts the element's *currently painted*
+   * viewport band. Tall scroll containers that merely extend past a viewport
+   * shell are not treated as clipped content.
+   */
   const findClippingAncestor = (el: Element) => {
     const target = el.getBoundingClientRect();
+    const viewTop = 0;
+    const viewBottom = window.innerHeight;
+    const viewLeft = 0;
+    const viewRight = window.innerWidth;
+    const visibleTop = Math.max(target.top, viewTop);
+    const visibleBottom = Math.min(target.bottom, viewBottom);
+    const visibleLeft = Math.max(target.left, viewLeft);
+    const visibleRight = Math.min(target.right, viewRight);
+    if (visibleBottom - visibleTop <= 1.5 || visibleRight - visibleLeft <= 1.5) {
+      return null;
+    }
     let parent = el.parentElement;
     while (parent && parent !== document.documentElement) {
       const style = window.getComputedStyle(parent);
@@ -114,10 +133,12 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
       const clipsX = style.overflowX === 'hidden' || style.overflowX === 'clip';
       if (clipsY || clipsX) {
         const box = parent.getBoundingClientRect();
-        const cutBottom = clipsY && target.bottom > box.bottom + 1.5;
-        const cutTop = clipsY && target.top < box.top - 1.5;
-        const cutRight = clipsX && target.right > box.right + 1.5;
-        const cutLeft = clipsX && target.left < box.left - 1.5;
+        const cutBottom =
+          clipsY && visibleBottom > box.bottom + 1.5 && visibleTop < box.bottom - 1.5;
+        const cutTop = clipsY && visibleTop < box.top - 1.5 && visibleBottom > box.top + 1.5;
+        const cutRight =
+          clipsX && visibleRight > box.right + 1.5 && visibleLeft < box.right - 1.5;
+        const cutLeft = clipsX && visibleLeft < box.left - 1.5 && visibleRight > box.left + 1.5;
         if (cutBottom || cutTop || cutRight || cutLeft) {
           return {
             selector: describeSelector(parent),
@@ -311,6 +332,9 @@ function collectGeometry(input: MeasureInput): BrowserGeometry {
 }
 
 function measureInputFor(entry: SurfaceManifestEntry): MeasureInput {
+  const container =
+    entry.protectedElements.find((element) => element.role === 'container') ??
+    entry.protectedElements[0];
   return {
     protectedElements: entry.protectedElements.map((element) => ({
       selector: element.selector,
@@ -323,7 +347,7 @@ function measureInputFor(entry: SurfaceManifestEntry): MeasureInput {
       selector: boundary.selector,
       position: boundary.position,
     })),
-    containerSelector: entry.protectedElements[0]?.selector ?? 'main',
+    containerSelector: container?.selector ?? 'main',
   };
 }
 
@@ -358,6 +382,8 @@ export async function collectAxeViolations(page: Page): Promise<readonly Measure
 export type MeasureOptions = {
   includeAccessibility?: boolean;
   expectedOrigin: string;
+  /** When provided, must be the observed state-contract value (not a manifest echo). */
+  observedRuntimeStateId?: string;
 };
 
 export async function measureCommercialSurface(
@@ -380,9 +406,18 @@ export async function measureCommercialSurface(
     ? await collectAxeViolations(page)
     : [];
 
+  const contract = stateDomContractForEntry(entry);
+  const observedRuntimeStateId =
+    options.observedRuntimeStateId ?? (await observeRuntimeStateId(page, contract));
+  if (!observedRuntimeStateId) {
+    throw new Error(
+      `LAYOUT_STATE_DRIFT: missing observed state marker ${contract.selector} for ${entry.surfaceId}`,
+    );
+  }
+
   return {
     surfaceId: entry.surfaceId,
-    runtimeStateId: entry.runtimeStateId,
+    runtimeStateId: observedRuntimeStateId,
     observedRoute: geometry.observedRoute,
     observedOrigin: geometry.observedOrigin,
     expectedOrigin: options.expectedOrigin,

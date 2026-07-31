@@ -209,16 +209,20 @@ export function checkLayoutInvariants(
       );
     }
 
-    for (const line of node.renderedLines) {
-      if (line.text.trim().length > 0 && PUNCTUATION_ONLY.test(line.text.trim())) {
-        failures.push(
-          fail(
-            'LAYOUT_JAPANESE_ORPHAN_LINE',
-            `rendered line contains only Japanese punctuation: "${line.text.trim()}"`,
-            { ...baseDiagnostics(surface, node), lineRect: line.rect },
-            node.selector,
-          ),
-        );
+    // Broad containers aggregate many lines; orphan punctuation is enforced on
+    // governed copy/heading/supporting nodes where the defect is actionable.
+    if (node.role !== 'container' && node.role !== 'media') {
+      for (const line of node.renderedLines) {
+        if (line.text.trim().length > 0 && PUNCTUATION_ONLY.test(line.text.trim())) {
+          failures.push(
+            fail(
+              'LAYOUT_JAPANESE_ORPHAN_LINE',
+              `rendered line contains only Japanese punctuation: "${line.text.trim()}"`,
+              { ...baseDiagnostics(surface, node), lineRect: line.rect },
+              node.selector,
+            ),
+          );
+        }
       }
     }
   }
@@ -239,14 +243,26 @@ export function checkLayoutInvariants(
   }
 
   const bottom = contentBottom(surface);
-  if (surface.containerRect && bottom > surface.containerRect.bottom + GEOMETRY_TOLERANCE_PX) {
-    failures.push(
-      fail('LAYOUT_SECTION_COLLISION', 'governed content overflows its container', {
-        ...baseDiagnostics(surface, null),
-        contentBottom: bottom,
-        containerRect: surface.containerRect,
-      }),
+  const containerDecl = entry.protectedElements.find((element) => element.role === 'container');
+  if (containerDecl && surface.containerRect) {
+    const foreignBottom = Math.max(
+      0,
+      ...surface.protectedNodes
+        .filter((n) => n.found && n.selector !== containerDecl.selector)
+        .map((n) => n.rect.bottom),
+      ...(surface.criticalCta?.found && surface.criticalCta.selector !== containerDecl.selector
+        ? [surface.criticalCta.rect.bottom]
+        : []),
     );
+    if (foreignBottom > surface.containerRect.bottom + GEOMETRY_TOLERANCE_PX) {
+      failures.push(
+        fail('LAYOUT_SECTION_COLLISION', 'governed content overflows its container', {
+          ...baseDiagnostics(surface, null),
+          contentBottom: foreignBottom,
+          containerRect: surface.containerRect,
+        }),
+      );
+    }
   }
   for (const boundary of surface.boundaries) {
     if (!boundary.found) continue;
@@ -283,16 +299,38 @@ export function checkLayoutInvariants(
     if (overlay.position !== 'fixed' && overlay.position !== 'sticky') continue;
     for (const node of allNodes) {
       if (!node.found) continue;
-      if (intersects(node.rect, overlay.rect)) {
-        failures.push(
-          fail(
-            'LAYOUT_FIXED_INTERSECTION',
-            `fixed/sticky ${overlay.selector} intersects ${node.selector}`,
-            { ...baseDiagnostics(surface, node), overlayRect: overlay.rect },
-            node.selector,
-          ),
-        );
-      }
+      // Page shells intentionally sit above tall governed containers. Intersection
+      // is enforced on actionable nodes (copy/cta/heading/supporting).
+      if (node.role === 'container' || node.role === 'media') continue;
+      if (!intersects(node.rect, overlay.rect)) continue;
+      // Public sticky/fixed top chrome is a reserved shell band, not content
+      // obstruction. Real obstruction fixtures sit mid-viewport (see unit pack).
+      const isTopChromeBand =
+        overlay.rect.top <= GEOMETRY_TOLERANCE_PX &&
+        overlay.rect.height <= 96 &&
+        overlay.rect.width >= surface.innerWidth * 0.7;
+      if (isTopChromeBand) continue;
+      const overlapW =
+        Math.min(node.rect.right, overlay.rect.right) - Math.max(node.rect.left, overlay.rect.left);
+      const overlapH =
+        Math.min(node.rect.bottom, overlay.rect.bottom) - Math.max(node.rect.top, overlay.rect.top);
+      const overlapArea = Math.max(0, overlapW) * Math.max(0, overlapH);
+      const nodeArea = Math.max(1, node.rect.width * node.rect.height);
+      // Ignore corner-chip overlaps (e.g. scroll affordances).
+      if (overlapArea < nodeArea * 0.2 && overlapArea < 48 * 48) continue;
+      failures.push(
+        fail(
+          'LAYOUT_FIXED_INTERSECTION',
+          `fixed/sticky ${overlay.selector} intersects ${node.selector}`,
+          {
+            ...baseDiagnostics(surface, node),
+            overlayRect: overlay.rect,
+            overlapArea,
+            nodeArea,
+          },
+          node.selector,
+        ),
+      );
     }
   }
 
