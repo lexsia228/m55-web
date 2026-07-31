@@ -2738,10 +2738,10 @@
 }
 
 /*
- * The headline lines must wrap. `nowrap` made each line overflow its own box at
- * every measured width (320/1024/1280/1440), which clipped the hero headline.
- * Japanese line-breaking quality is preserved with strict kinsoku, and
- * `overflow-wrap: anywhere` guarantees no run can overflow the column.
+ * Mobile keeps natural wrapping on the existing two copy lines.
+ * From tablet/desktop, Human-approved ownership moves the break to after 「…」
+ * via .posterHeroTitleMobileTail / .posterHeroTitleDesktopPrefix, and the
+ * quoted phrase is nowrap so 「いつもこうなる」 never splits.
  */
 .posterHeroApprovedRoot .posterHeroTitleLine {
   display: block;
@@ -2749,6 +2749,29 @@
   word-break: normal;
   line-break: strict;
   overflow-wrap: anywhere;
+}
+
+.posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .posterHeroApprovedRoot .posterHeroTitleMobileTail {
+    display: none;
+  }
+
+  .posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
+    display: inline;
+  }
+
+  .posterHeroApprovedRoot .posterHeroTitlePhrase {
+    white-space: nowrap;
+  }
+
+  .posterHeroApprovedRoot .posterHeroTitleLine {
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
 }
 
 .posterHeroApprovedRoot .posterHeroTitleLine:first-child {

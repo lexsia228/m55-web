@@ -34,6 +34,16 @@ import styles from './HomePanel.module.css';
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
 
+/** Desktop Human-approved break: after 「…」 — never mid-phrase, never bare 「には、」. */
+function heroDesktopTitleLines(line1: string, line2: string): { line1: string; line2: string } {
+  const quoteClose = line1.indexOf('」');
+  if (quoteClose < 0) return { line1, line2 };
+  return {
+    line1: line1.slice(0, quoteClose + 1),
+    line2: `${line1.slice(quoteClose + 1)}${line2}`,
+  };
+}
+
 function FreeCtaButton({
   stage,
   isLoaded,
@@ -117,6 +127,15 @@ export default function HomePanel() {
   const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
+  const heroDesktopTitle = heroDesktopTitleLines(
+    homeCopy.heroTitleLine1Ja,
+    homeCopy.heroTitleLine2Ja,
+  );
+  const heroTitlePhrase = heroDesktopTitle.line1;
+  const heroTitleDesktopPrefix = heroDesktopTitle.line2.slice(
+    0,
+    Math.max(0, heroDesktopTitle.line2.length - homeCopy.heroTitleLine2Ja.length),
+  );
 
   return (
     <div className={styles.wrap}>
@@ -157,8 +176,18 @@ export default function HomePanel() {
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
                     <h1 className={styles.posterHeroTitleBlite} data-testid="m55-home-hero-title">
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
+                      <span className={styles.posterHeroTitleLine}>
+                        <span className={styles.posterHeroTitlePhrase}>{heroTitlePhrase}</span>
+                        <span className={styles.posterHeroTitleMobileTail}>
+                          {heroTitleDesktopPrefix}
+                        </span>
+                      </span>
+                      <span className={styles.posterHeroTitleLine}>
+                        <span className={styles.posterHeroTitleDesktopPrefix}>
+                          {heroTitleDesktopPrefix}
+                        </span>
+                        {homeCopy.heroTitleLine2Ja}
+                      </span>
                     </h1>
                   </div>
                   <div className={styles.posterHeroBottomStack}>

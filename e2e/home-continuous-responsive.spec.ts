@@ -105,6 +105,38 @@ function planFor(entry: SurfaceManifestEntry, width: number, height: number): Ca
   };
 }
 
+/** Chromium visual line reconstruction from character client rects (not fabricated). */
+async function readHeroHeadlineRenderedLines(page: Page): Promise<string[]> {
+  return page.getByTestId('m55-home-hero-title').evaluate((el) => {
+    type Line = { top: number; text: string };
+    const lines: Line[] = [];
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node: Node | null = walker.nextNode();
+    while (node) {
+      const text = node.textContent ?? '';
+      for (let i = 0; i < text.length; i += 1) {
+        const range = document.createRange();
+        range.setStart(node, i);
+        range.setEnd(node, i + 1);
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) continue;
+        const top = Math.round(rect.top);
+        let line = lines.find((entry) => Math.abs(entry.top - top) <= 2);
+        if (!line) {
+          line = { top, text: '' };
+          lines.push(line);
+        }
+        line.text += text[i]!;
+      }
+      node = walker.nextNode();
+    }
+    return lines
+      .sort((a, b) => a.top - b.top)
+      .map((entry) => entry.text.replace(/\s+/g, ''))
+      .filter((entry) => entry.length > 0);
+  });
+}
+
 /**
  * Reproduce the former absolute-overlay defect without mutating production
  * HOME source: inject temporary styles that pull the overlay out of flow and
@@ -223,6 +255,90 @@ async function runHomeModeLayout(
 test.describe('HOME continuous responsive — shared commercial quality runner', () => {
   test.beforeAll(() => {
     requireCleanCaptureEnvironment(LABEL);
+  });
+
+  test('Human-approved Hero headline line break at desktop; mobile unchanged', async ({ page }) => {
+    test.setTimeout(180_000);
+    const entry = homeVisualEntry();
+    const adapter = createM55CommercialQualityAdapter({
+      baseURL: BASE_URL,
+      label: LABEL,
+      includeAccessibility: false,
+    });
+    const expectedOrigin = new URL(BASE_URL).origin;
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+
+    const desktopExact = {
+      line1: 'あなたの「いつもこうなる」',
+      line2: 'には、順番がある。',
+    } as const;
+
+    for (const width of [1280, 1440] as const) {
+      const plan = planFor(entry, width, 800);
+      await adapter.prepareCase(page, entry, plan);
+      const measured = await measureCommercialSurface(page, entry, plan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      expect(checkLayoutInvariants(measured, entry).map((f) => f.code)).toEqual([]);
+      const lines = await readHeroHeadlineRenderedLines(page);
+      expect(lines, `${width}px lines`).toEqual([desktopExact.line1, desktopExact.line2]);
+      expect(lines.some((line) => line === 'には、')).toBe(false);
+      for (let i = 0; i < lines.length - 1; i += 1) {
+        expect(
+          lines[i]!.endsWith('こうな') && lines[i + 1]!.startsWith('る'),
+          `${width} split こうな/る`,
+        ).toBe(false);
+      }
+      await expect(page.getByTestId('m55-home-hero-title')).toBeVisible();
+      await page.getByTestId('m55-home-hero').screenshot({
+        path: join(CONTACT_SHEET_DIR, `hero-linebreak-${width}.png`),
+      });
+    }
+
+    // Intermediate widths: no mid-phrase split, no bare 「には、」.
+    for (const width of [768, 1024] as const) {
+      const plan = planFor(entry, width, 800);
+      await adapter.prepareCase(page, entry, plan);
+      expect(
+        checkLayoutInvariants(
+          await measureCommercialSurface(page, entry, plan, {
+            expectedOrigin,
+            includeAccessibility: false,
+          }),
+          entry,
+        ).map((f) => f.code),
+      ).toEqual([]);
+      const lines = await readHeroHeadlineRenderedLines(page);
+      expect(lines.some((line) => line === 'には、'), `${width} bare には、`).toBe(false);
+      for (let i = 0; i < lines.length - 1; i += 1) {
+        expect(
+          lines[i]!.endsWith('こうな') && lines[i + 1]!.startsWith('る'),
+          `${width} split こうな/る`,
+        ).toBe(false);
+      }
+      expect(lines.join('')).toContain('いつもこうなる');
+    }
+
+    // Mobile: approved composition remains visible; do not require desktop line count.
+    {
+      const plan = planFor(entry, 390, 844);
+      await adapter.prepareCase(page, entry, plan);
+      const measured = await measureCommercialSurface(page, entry, plan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      expect(checkLayoutInvariants(measured, entry).map((f) => f.code)).toEqual([]);
+      await expect(page.getByTestId('m55-home-hero-title')).toBeVisible();
+      await expect(page.locator('[data-m55-hero-cta="true"]')).toBeVisible();
+      const lines = await readHeroHeadlineRenderedLines(page);
+      expect(lines.join('')).toContain('あなたの「いつもこうなる」');
+      expect(lines.join('')).toContain('順番がある。');
+      expect(lines.some((line) => line === 'には、')).toBe(false);
+      await page.getByTestId('m55-home-hero').screenshot({
+        path: join(CONTACT_SHEET_DIR, 'hero-linebreak-390.png'),
+      });
+    }
   });
 
   test('shared-runner case arithmetic matches frozen HOME continuum', () => {
