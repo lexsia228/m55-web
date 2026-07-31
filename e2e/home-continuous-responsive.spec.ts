@@ -254,28 +254,88 @@ test.describe('HOME continuous responsive — shared commercial quality runner',
     const expectedOrigin = new URL(BASE_URL).origin;
     const height = 667;
     const widths = governedWidths(entry);
-    const modes = ['fresh_load', 'resize_down', 'resize_up'] as const;
-    const directional: Record<
-      (typeof modes)[number],
-      { rejected: boolean; failureCodes: string[]; correctedPass: boolean }
-    > = {
-      fresh_load: { rejected: false, failureCodes: [], correctedPass: false },
-      resize_down: { rejected: false, failureCodes: [], correctedPass: false },
-      resize_up: { rejected: false, failureCodes: [], correctedPass: false },
+    const probeWidth = 390;
+    // 390 is the defect probe, not a step-16 governed width. Insert it into the
+    // real sweep at the first directional crossing (no reverse back to 390).
+    const nearestAboveProbe = widths.find((w) => w > probeWidth);
+    const nearestBelowProbe = [...widths].reverse().find((w) => w < probeWidth);
+    expect(nearestAboveProbe).toBe(400);
+    expect(nearestBelowProbe).toBe(384);
+
+    type DirectionalEvidence = {
+      mode: 'fresh_load' | 'resize_down' | 'resize_up';
+      startingWidth: number;
+      previousWidth: number | null;
+      probeWidth: number;
+      transitionDirection: 'none' | 'down' | 'up';
+      measurementSequenceIndex: number;
+      reversalBeforeMeasurement: boolean;
+      defectFailureCode: string | null;
+      correctedHomeResult: 'PASS' | 'FAIL';
+      rejected: boolean;
+      failureCodes: string[];
+      correctedPass: boolean;
     };
 
-    for (const mode of modes) {
-      const sequence =
-        mode === 'fresh_load' ? [390] : mode === 'resize_down' ? [...widths].reverse() : [...widths];
-      const probeWidth = 390;
-
-      // Establish valid starting viewport/state on the shared runner.
-      const startPlan: CasePlan = {
-        ...planFor(entry, sequence[0]!, height),
+    const directional: Record<'fresh_load' | 'resize_down' | 'resize_up', DirectionalEvidence> = {
+      fresh_load: {
         mode: 'fresh_load',
-      };
-      await adapter.prepareCase(page, entry, startPlan);
-      const healthy = await measureCommercialSurface(page, entry, startPlan, {
+        startingWidth: probeWidth,
+        previousWidth: null,
+        probeWidth,
+        transitionDirection: 'none',
+        measurementSequenceIndex: 0,
+        reversalBeforeMeasurement: false,
+        defectFailureCode: null,
+        correctedHomeResult: 'FAIL',
+        rejected: false,
+        failureCodes: [],
+        correctedPass: false,
+      },
+      resize_down: {
+        mode: 'resize_down',
+        startingWidth: 0,
+        previousWidth: null,
+        probeWidth,
+        transitionDirection: 'down',
+        measurementSequenceIndex: -1,
+        reversalBeforeMeasurement: false,
+        defectFailureCode: null,
+        correctedHomeResult: 'FAIL',
+        rejected: false,
+        failureCodes: [],
+        correctedPass: false,
+      },
+      resize_up: {
+        mode: 'resize_up',
+        startingWidth: 0,
+        previousWidth: null,
+        probeWidth,
+        transitionDirection: 'up',
+        measurementSequenceIndex: -1,
+        reversalBeforeMeasurement: false,
+        defectFailureCode: null,
+        correctedHomeResult: 'FAIL',
+        rejected: false,
+        failureCodes: [],
+        correctedPass: false,
+      },
+    };
+
+    async function measureAt(plan: CasePlan): Promise<string[]> {
+      const measured = await measureCommercialSurface(page, entry, plan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      return checkLayoutInvariants(measured, entry).map((f) => f.code);
+    }
+
+    // ── fresh_load: direct probe at 390 ───────────────────────────────
+    {
+      const mode = 'fresh_load' as const;
+      const plan: CasePlan = { ...planFor(entry, probeWidth, height), mode: 'fresh_load' };
+      await adapter.prepareCase(page, entry, plan);
+      const healthy = await measureCommercialSurface(page, entry, plan, {
         expectedOrigin,
         includeAccessibility: false,
       });
@@ -284,67 +344,112 @@ test.describe('HOME continuous responsive — shared commercial quality runner',
 
       const clear = await applyAbsoluteOverlayDefect(page);
       await page.waitForTimeout(80);
-
-      // Resize modes: walk the governed width sequence, then probe the known
-      // defect-exposing width. Wide desktop can look superficially healthy.
-      if (mode !== 'fresh_load') {
-        for (let i = 1; i < sequence.length; i += 1) {
-          const plan: CasePlan = { ...planFor(entry, sequence[i]!, height), mode };
-          await adapter.prepareCase(page, entry, plan);
-        }
-      }
-      const probePlan: CasePlan = {
-        ...planFor(entry, probeWidth, height),
-        mode: mode === 'fresh_load' ? 'fresh_load' : mode,
-      };
-      if (mode !== 'fresh_load') {
-        await adapter.prepareCase(page, entry, probePlan);
-      }
-      const defective = await measureCommercialSurface(page, entry, probePlan, {
-        expectedOrigin,
-        includeAccessibility: false,
-      });
-      const codes = checkLayoutInvariants(defective, entry).map((f) => f.code);
+      const codes = await measureAt(plan);
       expect(codes, `${mode}@${probeWidth}x${height}`).toContain('LAYOUT_ANCESTOR_CLIPPING');
       directional[mode].rejected = true;
       directional[mode].failureCodes = [...new Set(codes)].sort();
+      directional[mode].defectFailureCode = 'LAYOUT_ANCESTOR_CLIPPING';
       await clear();
 
-      // Corrected HOME must pass after the mode's transition settles.
-      const restoreStart: CasePlan = {
-        ...planFor(entry, sequence[0]!, height),
+      await adapter.prepareCase(page, entry, plan);
+      expect(await measureAt(plan)).toEqual([]);
+      directional[mode].correctedPass = true;
+      directional[mode].correctedHomeResult = 'PASS';
+    }
+
+    // ── resize_down / resize_up: measure at first directional arrival at 390
+    for (const mode of ['resize_down', 'resize_up'] as const) {
+      const sequence = mode === 'resize_down' ? [...widths].reverse() : [...widths];
+      const startingWidth = sequence[0]!;
+      const previousWidth = mode === 'resize_down' ? nearestAboveProbe! : nearestBelowProbe!;
+      const previousIndex = sequence.indexOf(previousWidth);
+      expect(previousIndex).toBeGreaterThanOrEqual(0);
+      if (mode === 'resize_down') {
+        expect(startingWidth).toBeGreaterThan(probeWidth);
+        expect(previousWidth).toBeGreaterThan(probeWidth);
+      } else {
+        expect(startingWidth).toBeLessThan(probeWidth);
+        expect(previousWidth).toBeLessThan(probeWidth);
+      }
+
+      const startPlan: CasePlan = {
+        ...planFor(entry, startingWidth, height),
         mode: 'fresh_load',
       };
-      await adapter.prepareCase(page, entry, restoreStart);
-      expect(
-        checkLayoutInvariants(
-          await measureCommercialSurface(page, entry, restoreStart, {
-            expectedOrigin,
-            includeAccessibility: false,
-          }),
-          entry,
-        ).map((f) => f.code),
-      ).toEqual([]);
-      if (mode !== 'fresh_load') {
-        for (let i = 1; i < sequence.length; i += 1) {
-          await adapter.prepareCase(page, entry, {
-            ...planFor(entry, sequence[i]!, height),
-            mode,
-          });
-        }
-        const restoreProbe: CasePlan = { ...planFor(entry, probeWidth, height), mode };
-        await adapter.prepareCase(page, entry, restoreProbe);
-        expect(
-          checkLayoutInvariants(
-            await measureCommercialSurface(page, entry, restoreProbe, {
-              expectedOrigin,
-              includeAccessibility: false,
-            }),
-            entry,
-          ).map((f) => f.code),
-        ).toEqual([]);
+      await adapter.prepareCase(page, entry, startPlan);
+      expect(await measureAt(startPlan)).toEqual([]);
+
+      const clear = await applyAbsoluteOverlayDefect(page);
+      await page.waitForTimeout(80);
+
+      const pathToProbe: number[] = [startingWidth];
+      for (let i = 1; i <= previousIndex; i += 1) {
+        const width = sequence[i]!;
+        await adapter.prepareCase(page, entry, { ...planFor(entry, width, height), mode });
+        pathToProbe.push(width);
       }
+      // Insert the 390 probe as the next step in the real direction — never after
+      // sweeping past 390 and reversing back.
+      const probePlan: CasePlan = { ...planFor(entry, probeWidth, height), mode };
+      await adapter.prepareCase(page, entry, probePlan);
+      pathToProbe.push(probeWidth);
+
+      expect(pathToProbe[pathToProbe.length - 2]).toBe(previousWidth);
+      expect(pathToProbe[pathToProbe.length - 1]).toBe(probeWidth);
+      expect(pathToProbe.filter((w) => w === probeWidth)).toHaveLength(1);
+      if (mode === 'resize_down') {
+        expect(pathToProbe.every((w) => w >= probeWidth)).toBe(true);
+        for (let i = 1; i < pathToProbe.length; i += 1) {
+          expect(pathToProbe[i]!).toBeLessThan(pathToProbe[i - 1]!);
+        }
+      } else {
+        expect(pathToProbe.every((w) => w <= probeWidth)).toBe(true);
+        for (let i = 1; i < pathToProbe.length; i += 1) {
+          expect(pathToProbe[i]!).toBeGreaterThan(pathToProbe[i - 1]!);
+        }
+      }
+
+      const codes = await measureAt(probePlan);
+      expect(codes, `${mode}@${probeWidth}x${height}`).toContain('LAYOUT_ANCESTOR_CLIPPING');
+
+      // Only after measurement may the sequence continue past 390.
+      for (let i = previousIndex + 1; i < sequence.length; i += 1) {
+        await adapter.prepareCase(page, entry, {
+          ...planFor(entry, sequence[i]!, height),
+          mode,
+        });
+      }
+
+      directional[mode] = {
+        mode,
+        startingWidth,
+        previousWidth,
+        probeWidth,
+        transitionDirection: mode === 'resize_down' ? 'down' : 'up',
+        measurementSequenceIndex: previousIndex + 1,
+        reversalBeforeMeasurement: false,
+        defectFailureCode: 'LAYOUT_ANCESTOR_CLIPPING',
+        correctedHomeResult: 'FAIL',
+        rejected: true,
+        failureCodes: [...new Set(codes)].sort(),
+        correctedPass: false,
+      };
+      expect(directional[mode].reversalBeforeMeasurement).toBe(false);
+      await clear();
+
+      // Corrected HOME at the same directional probe (first arrival at 390).
+      await adapter.prepareCase(page, entry, startPlan);
+      expect(await measureAt(startPlan)).toEqual([]);
+      for (let i = 1; i <= previousIndex; i += 1) {
+        await adapter.prepareCase(page, entry, {
+          ...planFor(entry, sequence[i]!, height),
+          mode,
+        });
+      }
+      await adapter.prepareCase(page, entry, probePlan);
+      expect(await measureAt(probePlan)).toEqual([]);
       directional[mode].correctedPass = true;
+      directional[mode].correctedHomeResult = 'PASS';
     }
 
     mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
@@ -366,6 +471,10 @@ test.describe('HOME continuous responsive — shared commercial quality runner',
     expect(directional.fresh_load.correctedPass).toBe(true);
     expect(directional.resize_down.correctedPass).toBe(true);
     expect(directional.resize_up.correctedPass).toBe(true);
+    expect(directional.resize_down.previousWidth!).toBeGreaterThan(390);
+    expect(directional.resize_up.previousWidth!).toBeLessThan(390);
+    expect(directional.resize_down.reversalBeforeMeasurement).toBe(false);
+    expect(directional.resize_up.reversalBeforeMeasurement).toBe(false);
   });
 
   test('shared continuous engine: fresh-load (474)', async ({ page }) => {
