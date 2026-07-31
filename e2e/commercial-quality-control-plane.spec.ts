@@ -66,12 +66,18 @@ import {
 } from '../lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry';
 import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
 import {
+  recomputeCanonicalAliasCounts,
+  canonicalObservableStateIdFor,
+  M55_OBSERVABLE_STATE_ALIASES,
+} from '../lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap';
+import {
   M55_STATE_DOM_CONTRACTS,
   countContractsByOwnership,
   countGenericStateMarkers,
   countObservableSignatureCollisions,
   countUniqueObservableSignatures,
   observeAndAssertStateContract,
+  observeCanonicalObservableStateId,
   reconcileAllStateContracts,
   stateDomContractForEntry,
 } from '../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
@@ -192,10 +198,19 @@ test.describe('commercial quality control plane', () => {
     expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
     const ownership = countContractsByOwnership();
     expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(76);
-    const executableContracts = listExecutableSmokeTargets().map((t) =>
+    const executableTargets = listExecutableSmokeTargets();
+    const executableContracts = executableTargets.map((t) =>
       stateDomContractForEntry(resolveSmokeManifestEntry(t)),
     );
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(76);
+    const aliasCounts = recomputeCanonicalAliasCounts(
+      executableTargets.map((t) => t.runtimeStateId),
+    );
+    expect(aliasCounts.executable).toBe(76);
+    expect(aliasCounts.canonical).toBe(63);
+    expect(aliasCounts.alias).toBe(13);
+    expect(aliasCounts.mapping).toBe(76);
+    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(13);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(63);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],
@@ -249,11 +264,20 @@ test.describe('commercial quality control plane', () => {
         const executed = await setup.execute(ctx, entry);
         expect(executed.applied).toBe(true);
         expect(String(executed.evidence.runtimeStateId)).toBe(entry.runtimeStateId);
-        expect(String(executed.evidence.runtimeStateId)).not.toBe('');
+        expect(String(executed.evidence.observedCanonicalStateId)).toBe(
+          canonicalObservableStateIdFor(entry.runtimeStateId),
+        );
 
         await assertNoRunnerWrittenStateMarker(active);
         const markerCount = await active.locator('html[data-m55-cq-runtime-state]').count();
         runnerWrittenStateMarkerCount += markerCount;
+        const stateMarkers = active.locator('[data-m55-cq-state-id]');
+        expect(await stateMarkers.count(), `${target.surfaceId} simultaneous canonical identities`).toBe(
+          1,
+        );
+        expect(await stateMarkers.first().getAttribute('data-m55-cq-state-id')).toBe(
+          canonicalObservableStateIdFor(entry.runtimeStateId),
+        );
 
         if (/accounts\.dev/i.test(active.url())) {
           externalRedirectStateAcceptanceCount += 1;
@@ -308,7 +332,12 @@ test.describe('commercial quality control plane', () => {
           includeAccessibility: false,
         });
         expect(measured.runtimeStateId).toBe(entry.runtimeStateId);
-        expect(measured.runtimeStateId).toBe(String(executed.evidence.runtimeStateId));
+        expect(measured.observedCanonicalStateId).toBe(
+          canonicalObservableStateIdFor(entry.runtimeStateId),
+        );
+        expect(measured.observedCanonicalStateId).toBe(
+          String(executed.evidence.observedCanonicalStateId),
+        );
         productionMeasurementCount += 1;
         const layoutFails = checkLayoutInvariants(measured, measureEntry);
         fullInvariantAssertionCount += 1;
@@ -491,8 +520,9 @@ test.describe('commercial quality control plane', () => {
     }
   });
 
-  test('3b. unique-identity / wrong/missing/alternate/ambiguous state Chromium negatives', async ({
+  test('3b. canonical-alias / wrong/missing/alternate/ambiguous/stale-nav Chromium negatives', async ({
     browser,
+    page,
   }) => {
     const signIn = m55SurfaceById('m55:ecp.public.sign_in');
     if (!signIn) throw new Error('sign_in surface missing');
@@ -502,15 +532,17 @@ test.describe('commercial quality control plane', () => {
     const expectedOrigin = new URL(BASE_URL).origin;
     const signInFixtureId = 'auth_gate.public.sign_in';
 
-    // 1. former colliding application states resolve differently
+    // 1. former colliding registrations share one canonical identity
     {
       const home = m55SurfaceById('m55:ecp.public.home');
       const visualHome = m55SurfaceById('m55:visual.home');
       if (!home || !visualHome) throw new Error('home surfaces missing');
       const homeContract = stateDomContractForEntry(home);
       const visualContract = stateDomContractForEntry(visualHome);
-      expect(homeContract.expectedAttributeValue).not.toBe(visualContract.expectedAttributeValue);
-      expect(homeContract.selector).not.toBe(visualContract.selector);
+      expect(homeContract.canonicalObservableStateId).toBe('ecp:public.home:default');
+      expect(visualContract.canonicalObservableStateId).toBe('ecp:public.home:default');
+      expect(homeContract.runtimeStateId).not.toBe(visualContract.runtimeStateId);
+      expect(homeContract.expectedAttributeValue).toBe(visualContract.expectedAttributeValue);
     }
 
     // 2. wrong state on the same route rejects
@@ -595,6 +627,68 @@ test.describe('commercial quality control plane', () => {
 
     // 8. generic selector-only fallback impossible
     expect(countGenericStateMarkers()).toBe(0);
+
+    // 9. measurement must not treat registration alias id as DOM proof
+    {
+      const visualHome = m55SurfaceById('m55:visual.home');
+      if (!visualHome) throw new Error('visual.home missing');
+      expect(canonicalObservableStateIdFor(visualHome.runtimeStateId)).toBe('ecp:public.home:default');
+      expect(visualHome.runtimeStateId).toBe('visual:home');
+    }
+
+    // 10. client navigation replaces canonical identity; back drops the later id
+    {
+      await page.setViewportSize({ width: 390, height: 844 });
+      const homeSetup = m55SetupById('m55.setup.ecp.public.home');
+      const howSetup = m55SetupById('m55.setup.ecp.public.how_m55_works');
+      const homeEntry = m55SurfaceById('m55:ecp.public.home');
+      const howEntry = m55SurfaceById('m55:ecp.public.how_m55_works');
+      if (!homeSetup || !howSetup || !homeEntry || !howEntry) {
+        throw new Error('home/how-m55-works setups missing');
+      }
+      await homeSetup.execute({ page, baseURL: BASE_URL, label: LABEL }, homeEntry);
+      const homeCanonical = await observeCanonicalObservableStateId(page);
+      expect(homeCanonical).toBe('ecp:public.home:default');
+      expect(await page.locator('[data-m55-cq-state-id]').count()).toBe(1);
+
+      // Real client-side navigation via the HOME mechanism link.
+      const methodLink = page.getByTestId('m55-home-mechanism-link');
+      await expect(methodLink).toBeVisible({ timeout: 15_000 });
+      await methodLink.click();
+      await page.waitForURL(/\/how-m55-works/, { timeout: 30_000 });
+      await page.waitForFunction(
+        () =>
+          document.querySelector('[data-m55-cq-state-id="ecp:public.how_m55_works:default"]') !==
+          null,
+        { timeout: 30_000 },
+      );
+      const howCanonical = await observeCanonicalObservableStateId(page);
+      expect(howCanonical).toBe('ecp:public.how_m55_works:default');
+      expect(await page.locator('[data-m55-cq-state-id]').count()).toBe(1);
+      expect(
+        await page.locator('[data-m55-cq-state-id="ecp:public.home:default"]').count(),
+      ).toBe(0);
+
+      const measuredHow = await measureCommercialSurface(page, howEntry, planFor(howEntry), {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      expect(measuredHow.observedCanonicalStateId).toBe('ecp:public.how_m55_works:default');
+
+      await page.goBack();
+      await page.waitForURL(/\/home|\/$/, { timeout: 30_000 });
+      await page.waitForFunction(
+        () =>
+          document.querySelector('[data-m55-cq-state-id="ecp:public.home:default"]') !== null,
+        { timeout: 30_000 },
+      );
+      const backCanonical = await observeCanonicalObservableStateId(page);
+      expect(backCanonical).toBe('ecp:public.home:default');
+      expect(
+        await page.locator('[data-m55-cq-state-id="ecp:public.how_m55_works:default"]').count(),
+      ).toBe(0);
+      expect(await page.locator('[data-m55-cq-state-id]').count()).toBe(1);
+    }
   });
 
   test('4. text zoom, safe-area, font-load transition visibly change runtime', async ({ page }) => {

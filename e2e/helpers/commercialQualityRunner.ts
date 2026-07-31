@@ -21,8 +21,9 @@ import type {
   SurfaceManifestEntry,
 } from '../../lib/commercialQuality/types';
 import { m55SetupById } from '../../lib/m55/commercialUx/qualityControl/m55SetupRegistry';
+import { canonicalObservableStateIdFor } from '../../lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap';
 import {
-  observeRuntimeStateId,
+  observeCanonicalObservableStateId,
   stateDomContractForEntry,
 } from '../../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
 import {
@@ -404,24 +405,21 @@ export async function measureCommercialSurface(
     ? await collectAxeViolations(page)
     : [];
 
-  // Re-observe independently from the rendered DOM — never accept a
-  // caller-certified runtimeStateId bypass.
-  const contract = stateDomContractForEntry(entry);
-  const observedRuntimeStateId = await observeRuntimeStateId(page, contract);
-  if (!observedRuntimeStateId) {
+  // Observe the single canonical identity from DOM — never query the
+  // registration runtimeStateId, and never accept a caller-certified bypass.
+  stateDomContractForEntry(entry); // fail-closed: registration must have a contract
+  const observedCanonicalStateId = await observeCanonicalObservableStateId(page);
+  const expectedCanonical = canonicalObservableStateIdFor(entry.runtimeStateId);
+  if (observedCanonicalStateId !== expectedCanonical) {
     throw new Error(
-      `STATE_CONTRACT_MISSING: missing observed state marker ${contract.selector} for ${entry.surfaceId}`,
-    );
-  }
-  if (observedRuntimeStateId !== entry.runtimeStateId) {
-    throw new Error(
-      `LAYOUT_STATE_DRIFT: observed ${observedRuntimeStateId} expected ${entry.runtimeStateId}`,
+      `LAYOUT_STATE_DRIFT: observed canonical ${observedCanonicalStateId} expected ${expectedCanonical} (registration ${entry.runtimeStateId})`,
     );
   }
 
   return {
     surfaceId: entry.surfaceId,
-    runtimeStateId: observedRuntimeStateId,
+    runtimeStateId: entry.runtimeStateId,
+    observedCanonicalStateId,
     observedRoute: geometry.observedRoute,
     observedOrigin: geometry.observedOrigin,
     expectedOrigin: options.expectedOrigin,

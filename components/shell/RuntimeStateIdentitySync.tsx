@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * Application-owned nonvisual runtime-state identity bridge.
- * Derives commercial-quality state identity markers from the rendered page
- * (pathname + authoritative DOM signals). No visible copy/CSS/layout change.
+ * Application-owned nonvisual canonical presentation-state identity bridge.
+ * Emits exactly one canonical observable state identity derived from the
+ * rendered page (pathname + authoritative DOM). No visible copy/CSS/layout.
  */
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -15,132 +15,75 @@ function has(sel: string): boolean {
   return Boolean(document.querySelector(sel));
 }
 
-function collectRuntimeStateIds(pathname: string): string[] {
-  const ids = new Set<string>();
-
-  // Gate path markers on authoritative content so observation cannot race an empty shell.
-  if ((pathname === '/home' || pathname === '/') && has('[data-testid="m55-home-hero"]')) {
-    ids.add('ecp:public.home:default');
-    ids.add('ecp:public.root_redirect:default');
-    ids.add('visual:home');
-    if (has('[data-testid="m55-method-home"]')) ids.add('method:home:default');
-  }
-  if (pathname === '/how-m55-works' && has('[data-testid="m55-method-canonical"]')) {
-    ids.add('ecp:public.how_m55_works:default');
-  }
-  if (pathname === '/ten-views' && has('[data-m55-experience-surface="PUBLIC_EDITORIAL"]')) {
-    ids.add('ecp:public.ten_views:default');
-  }
-  if (pathname === '/pricing' && has('[data-testid="m55-pricing-headline"], [data-testid="m55-pricing-plan-light"]')) {
-    ids.add('ecp:public.pricing:default');
-    ids.add('visual:pricing');
-    if (has('[data-testid="m55-method-trust-link"]')) ids.add('method:pricing:default');
-  }
-  if (pathname === '/support' && has('main h1')) ids.add('ecp:public.support:default');
-  if (pathname === '/legal/terms' && has('main h1')) ids.add('ecp:public.legal.terms:default');
-  if (pathname === '/legal/privacy' && has('main h1')) ids.add('ecp:public.legal.privacy:default');
-  if (pathname === '/legal/tokushoho' && has('main h1')) ids.add('ecp:public.legal.tokushoho:default');
-  if (pathname === '/legal/refund' && has('main h1')) ids.add('ecp:public.legal.refund:default');
-  if (pathname === '/my' && has('[data-m55-pathname="/my"] main h1, main h1')) {
-    ids.add('ecp:public.my:account_menu');
-  }
-  if (pathname === '/today' && has('[data-m55-pathname="/today"]')) ids.add('ecp:legacy.today:default');
-  if (pathname === '/weekly' && has('[data-m55-pathname="/weekly"]')) ids.add('ecp:legacy.weekly:default');
-  if (pathname === '/synastry' && has('[data-testid="compatibility-dob-step"], [data-testid="compatibility-personalized-result"]')) {
-    ids.add('ecp:legacy.synastry:default');
-  }
-  if (pathname === '/dtr' && has('#dtr-main-shelf-label')) ids.add('ecp:premium.dtr_index:default');
-  if (pathname.startsWith('/dev/premium-share-preview')) {
-    ids.add('ecp:dev.premium_share_preview:default');
-    ids.add('premium:premium.share.card');
-  }
-  if (pathname.startsWith('/dev/')) ids.add('ecp:dev.previews:default');
-
-  if (has('[data-testid="m55-shared-entry"]')) ids.add('ecp:shared.entry:default');
+/**
+ * Derive the single canonical presentation state for the current render.
+ * Most-specific product state wins; aliases are never emitted.
+ */
+function deriveCanonicalObservableStateId(pathname: string): string | null {
   if (has('[data-testid="m55-shared-entry-fallback"]')) {
-    ids.add('ecp:shared.entry.invalid:invalid');
+    return 'ecp:shared.entry.invalid:invalid';
+  }
+  if (has('[data-testid="m55-shared-entry"]')) {
+    return 'ecp:shared.entry:default';
   }
 
   if (pathname === '/core' || pathname.startsWith('/core/')) {
-    if (has('[data-testid="m55-core-locked"]')) {
-      ids.add('ecp:free.core.empty:empty');
-      ids.add('visual:core-prerequisite');
-    }
+    // RESULT presentation (answer_review + summary/share/save/bridge sections).
     if (
-      has('[data-testid="m55-core-start-intake"]') ||
-      has('[data-testid="m55-free-dob-step"]') ||
-      has('[data-testid="m55-free-segmented-dob"]')
+      has('[data-testid="m55-core-essence"][data-m55-ux-phase="RESULT"]') ||
+      has('[data-testid="m55-free-result-summary"]') ||
+      has('[data-testid="m55-free-result-share"]') ||
+      has('[data-testid="m55-guest-save-signin"]') ||
+      has('[data-testid="m55-free-rerun-request"]') ||
+      has('[data-testid="m55-free-to-paid-bridge"]')
     ) {
-      ids.add('ecp:free.core.intake:intake');
+      return 'ecp:free.core.answer_review:answer_review';
     }
     if (has('[data-testid="m55-free-questionnaire"]')) {
-      ids.add('ecp:free.core.questions:free_questions');
+      return 'ecp:free.core.questions:free_questions';
     }
-    if (has('[data-testid="m55-core-essence"][data-m55-ux-phase="RESULT"]')) {
-      ids.add('ecp:free.core.answer_review:answer_review');
-      ids.add('visual:core-free-result');
-      if (has('[data-testid="m55-method-core-free-result"]')) {
-        ids.add('method:core_free_result:RESULT');
-      }
+    // Intake is the birth/DOB layer — not the locked-card start CTA alone.
+    if (
+      has('[data-testid="m55-free-dob-step"]') ||
+      has('[data-testid="m55-free-segmented-dob"]') ||
+      has('[data-testid="m55-core-birth-intake-layer"]') ||
+      has('[data-testid="m55-birth-intake-start"]')
+    ) {
+      return 'ecp:free.core.intake:intake';
     }
-    if (has('[data-testid="m55-free-result-summary"]')) {
-      ids.add('ecp:free.core.result:result');
-    }
-    if (has('[data-testid="m55-guest-save-signin"]')) ids.add('ecp:free.core.save:save');
-    if (has('[data-testid="m55-free-rerun-request"]')) ids.add('ecp:free.core.rerun:rerun');
-    if (has('[data-testid="m55-free-result-share"]')) ids.add('ecp:free.core.share:share');
-    if (has('[data-testid="m55-free-to-paid-bridge"]')) {
-      ids.add('premium:premium.core.bridge');
+    if (has('[data-testid="m55-core-locked"]')) {
+      return 'ecp:free.core.empty:empty';
     }
   }
 
   if (pathname.startsWith('/dtr/lp')) {
-    // Continuity intro was removed from the public LP composition; the
-    // post-free LP entry (questionnaire / continuity / need_free) still
-    // represents the introduction + prerequisite registrations.
-    if (
-      has('[data-testid="m55-dtr-lp-continuity"]') ||
-      has('[data-m55-premium-state="premium.lp.prerequisite"]') ||
-      has('[data-testid="m55-paid-questionnaire-active"]') ||
-      has('[data-testid="m55-dtr-need-free"]')
-    ) {
-      ids.add('ecp:premium.lp.intro:introduction');
-      ids.add('premium:premium.lp.prerequisite');
-    }
-    if (has('[data-testid="m55-dtr-need-free"]')) {
-      ids.add('ecp:premium.lp.need_free:need_free');
-      ids.add('ecp:legacy.reply:default');
-    }
-    if (has('[data-m55-paid-answer-edit="true"]')) {
-      ids.add('premium:premium.lp.answer_edit');
-    } else if (has('[data-testid="m55-paid-questionnaire-active"]')) {
-      ids.add('ecp:premium.lp.questions:six_questions');
-      ids.add('premium:premium.lp.questions');
-      ids.add('visual:premium-questionnaire');
-    }
-    if (has('[data-m55-paid-phase="complete"]')) {
-      ids.add('ecp:premium.lp.answer_review:answer_review');
-      ids.add('premium:premium.lp.answer_review');
-    }
-    if (has('[data-testid="m55-dtr-plan-selection"]')) {
-      ids.add('ecp:premium.lp.plans:plan_selection');
-      ids.add('ecp:premium.lp.upgrade:upgrade_explanation');
-      ids.add('premium:premium.lp.plans');
-      ids.add('visual:premium-plans');
-      if (has('[data-testid="m55-method-dtr-difference"]')) {
-        ids.add('method:dtr_lp:plans');
-      }
-    }
-    if (has('[data-m55-paid-phase="checkout"]')) {
-      ids.add('ecp:premium.lp.checkout:payment_preparation');
-      ids.add('premium:premium.lp.checkout');
-      if (has('[data-testid="m55-method-checkout-trust-link"]')) {
-        ids.add('method:checkout_prep:checkout');
-      }
-    }
     const bodyText = document.body?.innerText ?? '';
     if (bodyText.includes('このレポートへのアクセス有効期限が切れています。')) {
-      ids.add('ecp:legacy.reply_result:default');
+      return 'ecp:legacy.reply_result:default';
+    }
+    if (has('[data-m55-paid-phase="checkout"]')) {
+      return 'ecp:premium.lp.checkout:payment_preparation';
+    }
+    if (has('[data-testid="m55-dtr-plan-selection"]')) {
+      return 'ecp:premium.lp.plans:plan_selection';
+    }
+    if (has('[data-m55-paid-phase="complete"]')) {
+      return 'ecp:premium.lp.answer_review:answer_review';
+    }
+    if (has('[data-m55-paid-answer-edit="true"]')) {
+      return 'premium:premium.lp.answer_edit';
+    }
+    if (has('[data-testid="m55-paid-questionnaire-active"]')) {
+      return 'ecp:premium.lp.questions:six_questions';
+    }
+    if (has('[data-testid="m55-dtr-need-free"]')) {
+      return 'ecp:premium.lp.need_free:need_free';
+    }
+    if (
+      has('[data-testid="m55-dtr-lp-continuity"]') ||
+      has('[data-m55-premium-state="premium.lp.prerequisite"]')
+    ) {
+      return 'ecp:premium.lp.intro:introduction';
     }
   }
 
@@ -148,100 +91,161 @@ function collectRuntimeStateIds(pathname: string): string[] {
     pathname.startsWith('/dtr/core') ||
     pathname.startsWith('/dev/dtr-drawer-preview')
   ) {
-    if (
-      has('[data-m55-premium-state="purchased.report.body"]') ||
-      has('[data-testid="m55-purchased-report-body"]')
-    ) {
-      ids.add('ecp:purchased.reader:default');
-      ids.add('premium:purchased.report.body');
-      ids.add('premium:purchased.saved_reopen');
-      if (has('[data-testid="m55-method-purchased-report"]')) {
-        ids.add('method:purchased_report:purchased_report_body');
-      }
+    if (has('[data-m55-premium-state="purchased.consult.result"]')) {
+      return 'premium:purchased.consult.result';
     }
     if (has('[data-m55-premium-state="purchased.consult.input"]')) {
-      ids.add('premium:purchased.consult.input');
+      return 'premium:purchased.consult.input';
     }
-    if (has('[data-m55-premium-state="purchased.consult.result"]')) {
-      ids.add('premium:purchased.consult.result');
+    // Purchased report body presentation (reader / report.body / saved_reopen share it).
+    if (has('[data-testid="m55-purchased-report-body"]')) {
+      return 'ecp:purchased.reader:default';
+    }
+    if (pathname.startsWith('/dev/dtr-drawer-preview')) {
+      return 'ecp:dev.previews:default';
     }
     if (has('[data-m55-premium-state="purchased.saved_reopen"]')) {
-      ids.add('premium:purchased.saved_reopen');
+      return 'premium:purchased.saved_reopen';
     }
   }
 
-  if (has('[data-testid="m55-method-footer-link"]')) {
-    ids.add('method:footer_nav:default');
+  if (pathname.startsWith('/dev/premium-share-preview')) {
+    return 'ecp:dev.premium_share_preview:default';
+  }
+  if (pathname.startsWith('/dev/')) {
+    return 'ecp:dev.previews:default';
   }
 
-  return [...ids].sort();
+  if ((pathname === '/home' || pathname === '/') && has('[data-testid="m55-home-hero"]')) {
+    return 'ecp:public.home:default';
+  }
+  if (pathname === '/how-m55-works' && has('[data-testid="m55-method-canonical"]')) {
+    return 'ecp:public.how_m55_works:default';
+  }
+  if (pathname === '/ten-views' && has('[data-m55-experience-surface="PUBLIC_EDITORIAL"]')) {
+    return 'ecp:public.ten_views:default';
+  }
+  if (
+    pathname === '/pricing' &&
+    has('[data-testid="m55-pricing-headline"], [data-testid="m55-pricing-plan-light"]')
+  ) {
+    return 'ecp:public.pricing:default';
+  }
+  if (pathname === '/support' && has('main h1')) return 'ecp:public.support:default';
+  if (pathname === '/legal/terms' && has('main h1')) return 'ecp:public.legal.terms:default';
+  if (pathname === '/legal/privacy' && has('main h1')) {
+    return 'ecp:public.legal.privacy:default';
+  }
+  if (pathname === '/legal/tokushoho' && has('main h1')) {
+    return 'ecp:public.legal.tokushoho:default';
+  }
+  if (pathname === '/legal/refund' && has('main h1')) return 'ecp:public.legal.refund:default';
+  if (pathname === '/my' && has('[data-m55-pathname="/my"] main h1, main h1')) {
+    return 'ecp:public.my:account_menu';
+  }
+  if (pathname === '/today' && has('[data-m55-pathname="/today"]')) {
+    return 'ecp:legacy.today:default';
+  }
+  if (pathname === '/weekly' && has('[data-m55-pathname="/weekly"]')) {
+    return 'ecp:legacy.weekly:default';
+  }
+  if (
+    pathname === '/synastry' &&
+    has(
+      '[data-testid="compatibility-dob-step"], [data-testid="compatibility-personalized-result"]',
+    )
+  ) {
+    return 'ecp:legacy.synastry:default';
+  }
+  if (pathname === '/dtr' && has('#dtr-main-shelf-label')) {
+    return 'ecp:premium.dtr_index:default';
+  }
+
+  return null;
 }
 
 let syncing = false;
-let lastSerialized = '';
+let lastCanonical: string | null = null;
 let frozenPathname = '';
-let frozenIds: string[] = [];
+let frozenCanonical: string | null = null;
+
+function ensureHost(): Element {
+  let host = document.querySelector(`[${HOST_ATTR}="1"]`);
+  if (!host) {
+    host = document.createElement('div');
+    host.setAttribute(HOST_ATTR, '1');
+    host.setAttribute('hidden', '');
+    host.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(host);
+  }
+  return host;
+}
 
 function syncMarkers(pathname: string): void {
   if (syncing) return;
 
   if (pathname !== frozenPathname) {
     frozenPathname = pathname;
-    frozenIds = [];
-    lastSerialized = '';
+    frozenCanonical = null;
+    lastCanonical = null;
   }
 
-  // Governed stress rewrites container textContent (often `main`), which can
-  // temporarily destroy authoritative children. Freeze the last confirmed
-  // application-owned identities for this pathname while stress is active so
-  // observation still reads the real pre-stress state — not a blank shell.
   const stressActive = has('[data-m55-cq-stress-profile]');
-  let ids: string[];
-  if (stressActive && frozenIds.length > 0) {
-    ids = frozenIds;
+  let canonical: string | null;
+  if (stressActive && frozenCanonical) {
+    canonical = frozenCanonical;
   } else {
-    ids = collectRuntimeStateIds(pathname);
-    if (ids.length > 0) frozenIds = ids;
+    canonical = deriveCanonicalObservableStateId(pathname);
+    if (canonical) frozenCanonical = canonical;
   }
 
-  const serialized = ids.join('\0');
-  if (serialized === lastSerialized) return;
+  if (!canonical) {
+    // Content not ready — leave any prior host for this pathname unset.
+    if (lastCanonical !== null) {
+      document.querySelector(`[${HOST_ATTR}="1"]`)?.remove();
+      lastCanonical = null;
+    }
+    return;
+  }
+
+  const host = ensureHost();
+  const current = host.querySelector(`[${STATE_ATTR}]`)?.getAttribute(STATE_ATTR) ?? null;
+  if (current === canonical && lastCanonical === canonical) {
+    // Enforce single identity: remove any stray application markers outside host.
+    document.querySelectorAll(`[${STATE_ATTR}][data-m55-cq-state-owner="application"]`).forEach((node) => {
+      if (!host.contains(node)) node.remove();
+    });
+    return;
+  }
 
   syncing = true;
   try {
-    let host = document.querySelector(`[${HOST_ATTR}="1"]`);
-    if (!host) {
-      host = document.createElement('div');
-      host.setAttribute(HOST_ATTR, '1');
-      host.setAttribute('hidden', '');
-      host.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(host);
-    }
-    host.replaceChildren(
-      ...ids.map((id) => {
-        const el = document.createElement('span');
-        el.setAttribute(STATE_ATTR, id);
-        el.setAttribute('data-m55-cq-state-owner', 'application');
-        el.setAttribute('hidden', '');
-        return el;
-      }),
-    );
-    lastSerialized = serialized;
+    host.replaceChildren();
+    const el = document.createElement('span');
+    el.setAttribute(STATE_ATTR, canonical);
+    el.setAttribute('data-m55-cq-state-owner', 'application');
+    el.setAttribute('hidden', '');
+    host.appendChild(el);
+    // Remove stray application identities outside the host (stale route leftovers).
+    document.querySelectorAll(`[${STATE_ATTR}][data-m55-cq-state-owner="application"]`).forEach((node) => {
+      if (!host.contains(node)) node.remove();
+    });
+    lastCanonical = canonical;
   } finally {
     syncing = false;
   }
 }
 
 /**
- * Keeps application-owned state identity markers aligned with rendered DOM.
+ * Keeps exactly one application-owned canonical state identity aligned with DOM.
  */
 export default function RuntimeStateIdentitySync() {
   const pathname = usePathname() ?? '/';
 
   useEffect(() => {
-    lastSerialized = '';
+    lastCanonical = null;
     frozenPathname = pathname;
-    frozenIds = [];
+    frozenCanonical = null;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const schedule = () => {
       if (timer) clearTimeout(timer);
@@ -253,7 +257,6 @@ export default function RuntimeStateIdentitySync() {
 
     schedule();
     const observer = new MutationObserver((mutations) => {
-      // Ignore mutations we ourselves write into the host.
       if (
         mutations.every(
           (m) =>
@@ -282,8 +285,8 @@ export default function RuntimeStateIdentitySync() {
       if (timer) clearTimeout(timer);
       observer.disconnect();
       document.querySelector(`[${HOST_ATTR}="1"]`)?.remove();
-      lastSerialized = '';
-      frozenIds = [];
+      lastCanonical = null;
+      frozenCanonical = null;
       frozenPathname = '';
     };
   }, [pathname]);

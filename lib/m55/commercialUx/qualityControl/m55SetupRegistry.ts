@@ -174,15 +174,15 @@ async function runNavigateSetup(
     await gotoLocal(page, baseURL, path);
   }
 
-  // Runtime state markers must be owned by the app or fixture — the runner
-  // never manufactures data-m55-cq-runtime-state for later self-validation.
+  // Wait for the canonical presentation identity (never the alias registration id).
+  const expectedCanonical = contract.canonicalObservableStateId;
   try {
     await page.waitForFunction(
       ({ attr, expected }) =>
         Boolean(document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`)),
       {
         attr: 'data-m55-cq-state-id',
-        expected: entry.runtimeStateId,
+        expected: expectedCanonical,
       },
       { timeout: 30_000 },
     );
@@ -200,14 +200,14 @@ async function runNavigateSetup(
         Boolean(document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`)),
       {
         attr: 'data-m55-cq-state-id',
-        expected: entry.runtimeStateId,
+        expected: expectedCanonical,
       },
       { timeout: 15_000 },
     );
   }
 
   // Observe only — never stamp/write state markers after navigation.
-  const observedRuntimeStateId = await observeAndAssertStateContract(page, contract);
+  const observedCanonicalStateId = await observeAndAssertStateContract(page, contract);
   const markerCount = await verifyStateMarker(page, contract.selector);
 
   if (/accounts\.dev/i.test(page.url())) {
@@ -230,8 +230,9 @@ async function runNavigateSetup(
       stateMarkerSelector: contract.selector,
       stateMarkerCount: markerCount,
       stateOwnership: contract.ownership,
-      // Observed from the state-specific DOM contract — not copied from manifest.
-      runtimeStateId: observedRuntimeStateId,
+      // Registration id preserved; canonical identity observed independently from DOM.
+      runtimeStateId: entry.runtimeStateId,
+      observedCanonicalStateId,
     },
   };
 }
@@ -487,12 +488,21 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         ...plain,
         navigatePath: '/core',
-        readySelector: '[data-testid="m55-core-locked"], [data-testid="m55-free-questionnaire"]',
-        stateMarkerSelector: '[data-testid="m55-core-start-intake"], [data-testid="m55-free-questionnaire"]',
+        readySelector:
+          '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
+        stateMarkerSelector:
+          '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
         setupFn: async (page, baseURL) => {
           await gotoLocal(page, baseURL, '/core');
           const start = page.locator('[data-testid="m55-core-start-intake"]');
-          if (await start.count()) await start.click();
+          await start.first().waitFor({ state: 'visible', timeout: 20_000 });
+          await start.first().click();
+          await page
+            .locator(
+              '[data-testid="m55-core-birth-intake-layer"], [data-testid="m55-free-dob-step"], [data-testid="m55-free-segmented-dob"]',
+            )
+            .first()
+            .waitFor({ state: 'attached', timeout: 20_000 });
         },
       };
     case 'free.core.questions':

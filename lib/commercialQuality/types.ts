@@ -339,7 +339,10 @@ export type MeasuredAxeViolation = {
 
 export type MeasuredSurface = {
   surfaceId: string;
+  /** Registration runtime state id (may be an alias). */
   runtimeStateId: string;
+  /** Independently observed canonical presentation identity from DOM. */
+  observedCanonicalStateId?: string;
   /** Route actually observed in the browser. */
   observedRoute: string;
   observedOrigin: string;

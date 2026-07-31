@@ -128,6 +128,8 @@ const REPORT = {
   accessibilityDeferrals: 0,
   observableSignatureCount: 0,
   observableSignatureCollisions: 0,
+  canonicalObservableStateCount: 0,
+  registrationAliasCount: 0,
   fixedAuthGateFixtureCount: 0,
   candidatePack: null,
 };
@@ -623,17 +625,34 @@ function checkStateIdentityUniqueness() {
           "import { listExecutableSmokeTargets } from './lib/m55/commercialUx/qualityControl/m55SetupRegistry.ts';",
           "import { resolveSmokeManifestEntry } from './e2e/helpers/commercialQualitySmokeEvidence.ts';",
           "import { stateDomContractForEntry, reconcileExecutableStateContracts, countUniqueObservableSignatures, countObservableSignatureCollisions, countGenericStateMarkers } from './lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts';",
-          "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
-          "const contracts = listExecutableSmokeTargets().map((t) => stateDomContractForEntry(resolveSmokeManifestEntry(t)));",
+          "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById, IMAGE_RESPONSE_FIXTURE } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
+          "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
+          "const targets = listExecutableSmokeTargets();",
+          "const ids = targets.map((t) => t.runtimeStateId);",
+          "assertAliasMapClosed(ids);",
+          "const counts = recomputeCanonicalAliasCounts(ids);",
+          "const contracts = targets.map((t) => stateDomContractForEntry(resolveSmokeManifestEntry(t)));",
           "const failures = reconcileExecutableStateContracts(contracts);",
+          // Cross-owner collision: identical route/selector/value, different canonicals.
+          "const crossOwner = reconcileExecutableStateContracts([",
+          "  { surfaceId: 't-app', runtimeStateId: 'ecp:public.home:default', canonicalObservableStateId: 'ecp:public.home:default', ownership: 'application', selector: '[data-x=shared]', stateAttribute: 'data-m55-cq-state-id', expectedAttributeValue: 'shared-value', fixtureId: null, setupId: 's', route: '/home', expectedText: null, teardown: 'none' },",
+          "  { surfaceId: 't-fix', runtimeStateId: 'ecp:public.pricing:default', canonicalObservableStateId: 'ecp:public.pricing:default', ownership: 'fixture', selector: '[data-x=shared]', stateAttribute: 'data-m55-cq-state-id', expectedAttributeValue: 'shared-value', fixtureId: 'auth_gate.public.sign_in', setupId: 's2', route: '/home', expectedText: null, teardown: 'none' },",
+          "], { skipAliasMapClosed: true });",
+          "const crossOwnerRejected = crossOwner.some((f) => f.code === 'STATE_CONTRACT_COLLISION');",
           "let unknownOk = false; try { authGateFixtureById('auth_gate.DOES_NOT_EXIST'); } catch { unknownOk = true; }",
           "console.log(JSON.stringify({",
           "  executable: contracts.length,",
+          "  canonical: counts.canonical,",
+          "  alias: counts.alias,",
+          "  mapping: counts.mapping,",
+          "  dualAliases: Object.keys(M55_OBSERVABLE_STATE_ALIASES).length,",
           "  uniqueSignatures: countUniqueObservableSignatures(contracts),",
           "  collisions: countObservableSignatureCollisions(contracts),",
           "  generic: countGenericStateMarkers(),",
           "  authFixtures: M55_AUTH_GATE_FIXTURE_REGISTRY.length,",
+          "  imageFixture: IMAGE_RESPONSE_FIXTURE.fixtureId,",
           "  unknownFixtureRejected: unknownOk,",
+          "  crossOwnerRejected,",
           "  failures,",
           "}));",
         ].join(''),
@@ -643,14 +662,31 @@ function checkStateIdentityUniqueness() {
     const report = JSON.parse(output.trim().split('\n').filter(Boolean).at(-1));
     REPORT.observableSignatureCount = report.uniqueSignatures;
     REPORT.observableSignatureCollisions = report.collisions;
+    REPORT.canonicalObservableStateCount = report.canonical;
+    REPORT.registrationAliasCount = report.alias;
     REPORT.fixedAuthGateFixtureCount = report.authFixtures;
     if (report.executable !== 76) {
       fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
     }
-    if (report.uniqueSignatures !== 76) {
+    if (report.canonical !== 63) {
+      fail(
+        'state_identity.canonical',
+        `expected 63 canonical observable states (recomputed), got ${report.canonical}`,
+      );
+    }
+    if (report.alias !== 13 || report.dualAliases !== 13) {
+      fail(
+        'state_identity.alias',
+        `expected 13 registration aliases (recomputed), got alias=${report.alias} dual=${report.dualAliases}`,
+      );
+    }
+    if (report.mapping !== 76) {
+      fail('state_identity.mapping', `expected 76 registration mappings, got ${report.mapping}`);
+    }
+    if (report.uniqueSignatures !== 63) {
       fail(
         'state_identity.unique',
-        `expected 76 unique observable signatures, got ${report.uniqueSignatures}`,
+        `expected 63 unique canonical observable signatures, got ${report.uniqueSignatures}`,
       );
     }
     if (report.collisions !== 0) {
@@ -662,8 +698,14 @@ function checkStateIdentityUniqueness() {
     if (report.authFixtures !== 13) {
       fail('state_identity.auth_fixtures', `expected 13 fixed auth-gate fixtures, got ${report.authFixtures}`);
     }
+    if (report.imageFixture !== 'image_response.shared.og') {
+      fail('state_identity.image_fixture', 'image_response.shared.og fixture contract missing');
+    }
     if (!report.unknownFixtureRejected) {
       fail('state_identity.unknown_fixture', 'unknown auth-gate fixture ID must reject');
+    }
+    if (!report.crossOwnerRejected) {
+      fail('state_identity.cross_owner', 'cross-owner same-signature different-canonical must reject');
     }
     for (const f of report.failures ?? []) {
       fail('state_identity.reconcile', `${f.code}: ${f.detail}`);

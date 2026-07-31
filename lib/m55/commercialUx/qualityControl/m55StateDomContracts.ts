@@ -1,9 +1,9 @@
 /**
- * State-specific DOM contracts for commercial-quality executable registrations.
+ * State DOM contracts for commercial-quality executable registrations.
  *
- * Every runtimeStateId has a unique observable signature. Evidence is derived
- * by reading independently rendered application or fixed-fixture DOM — never
- * by returning a manifest value merely because a selector is visible.
+ * Observation reads the single rendered canonical presentation identity.
+ * Registration aliases resolve through m55ObservableStateAliasMap — the
+ * runner never queries the DOM for the registration runtimeStateId.
  */
 import type { Page } from '@playwright/test';
 
@@ -14,6 +14,10 @@ import {
   authGateFixtureByRuntimeStateId,
   AUTH_GATE_STATE_ATTR,
 } from './m55AuthGateFixtureRegistry';
+import {
+  canonicalObservableStateIdFor,
+  dualCanonicalObservableStateIdFor,
+} from './m55ObservableStateAliasMap';
 import { M55_COMMERCIAL_QUALITY_MANIFEST, M55_QUALITY_PROJECT_ID } from './m55SurfaceManifest';
 import {
   countObservableSignatureCollisions,
@@ -28,6 +32,7 @@ export type StateMarkerOwnership = 'application' | 'fixture';
 export type StateDomContract = {
   surfaceId: string;
   runtimeStateId: string;
+  canonicalObservableStateId: string;
   setupId: string;
   route: string;
   selector: string;
@@ -39,8 +44,8 @@ export type StateDomContract = {
   teardown: 'none';
 };
 
-function stateIdSelector(runtimeStateId: string): string {
-  return `[${STATE_CONTRACT_ATTR}="${runtimeStateId.replace(/"/g, '')}"]`;
+function stateIdSelector(canonicalObservableStateId: string): string {
+  return `[${STATE_CONTRACT_ATTR}="${canonicalObservableStateId.replace(/"/g, '')}"]`;
 }
 
 function buildContract(
@@ -49,14 +54,16 @@ function buildContract(
   setupId: string,
   route: string,
 ): StateDomContract {
+  const canonicalObservableStateId = canonicalObservableStateIdFor(runtimeStateId);
   const auth = authGateFixtureByRuntimeStateId(runtimeStateId);
   if (auth) {
     return {
       surfaceId,
       runtimeStateId,
+      canonicalObservableStateId: auth.expectedAttributeValue,
       setupId,
       route,
-      selector: stateIdSelector(runtimeStateId),
+      selector: stateIdSelector(auth.expectedAttributeValue),
       ownership: 'fixture',
       stateAttribute: STATE_CONTRACT_ATTR,
       expectedAttributeValue: auth.expectedAttributeValue,
@@ -70,9 +77,10 @@ function buildContract(
     return {
       surfaceId,
       runtimeStateId,
+      canonicalObservableStateId: IMAGE_RESPONSE_FIXTURE.expectedAttributeValue,
       setupId,
       route,
-      selector: stateIdSelector(runtimeStateId),
+      selector: stateIdSelector(IMAGE_RESPONSE_FIXTURE.expectedAttributeValue),
       ownership: 'fixture',
       stateAttribute: STATE_CONTRACT_ATTR,
       expectedAttributeValue: IMAGE_RESPONSE_FIXTURE.expectedAttributeValue,
@@ -85,12 +93,13 @@ function buildContract(
   return {
     surfaceId,
     runtimeStateId,
+    canonicalObservableStateId,
     setupId,
     route,
-    selector: stateIdSelector(runtimeStateId),
+    selector: stateIdSelector(canonicalObservableStateId),
     ownership: 'application',
     stateAttribute: STATE_CONTRACT_ATTR,
-    expectedAttributeValue: runtimeStateId,
+    expectedAttributeValue: canonicalObservableStateId,
     expectedText: null,
     fixtureId: null,
     teardown: 'none',
@@ -179,69 +188,64 @@ export function executableStateContracts(
 }
 
 /**
- * Derive runtimeStateId by reading the rendered state attribute.
- * Never returns a manifest value merely because a selector is visible.
+ * Observe the single rendered canonical identity without using the registration
+ * runtimeStateId as a DOM query. Rejects zero or multiple distinct identities.
+ */
+export async function observeCanonicalObservableStateId(page: Page): Promise<string> {
+  const result = await page.evaluate((attr) => {
+    const nodes = Array.from(document.querySelectorAll(`[${attr}]`));
+    const values = nodes
+      .map((node) => node.getAttribute(attr))
+      .filter((value): value is string => Boolean(value && value.trim()));
+    const unique = [...new Set(values)];
+    return { count: unique.length, values: unique };
+  }, STATE_CONTRACT_ATTR);
+
+  if (result.count === 0) {
+    throw new Error('STATE_CONTRACT_MISSING: no canonical observable state identity in DOM');
+  }
+  if (result.count > 1) {
+    throw new Error(
+      `STATE_CONTRACT_AMBIGUOUS: multiple canonical identities rendered (${result.values.join(',')})`,
+    );
+  }
+  return result.values[0]!;
+}
+
+/**
+ * @deprecated Prefer observeCanonicalObservableStateId — kept for call sites
+ * that still pass a contract; does not query the registration id.
  */
 export async function observeRuntimeStateId(
   page: Page,
   contract: StateDomContract,
 ): Promise<string | null> {
   assertContractNotGeneric(contract);
-
-  if (!contract.stateAttribute || !contract.expectedAttributeValue) {
-    return null;
+  try {
+    const observed = await observeCanonicalObservableStateId(page);
+    return observed;
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('STATE_CONTRACT_MISSING')) {
+      return null;
+    }
+    throw error;
   }
-
-  // Read from the live DOM (including nonvisual application markers). Do not
-  // rely on Playwright visibility filtering for hidden identity nodes.
-  const value = await page.evaluate(
-    ({ attr, expected }) => {
-      const node = document.querySelector(`[${attr}="${expected.replace(/"/g, '\\"')}"]`);
-      return node?.getAttribute(attr) ?? null;
-    },
-    { attr: contract.stateAttribute, expected: contract.expectedAttributeValue },
-  );
-  return value;
 }
 
 /**
- * Observe only. Never writes markers. Rejects missing/wrong/ambiguous state.
+ * Observe the canonical identity and compare to the registration's expected
+ * canonical mapping. Never treats registration id visibility as proof.
  */
 export async function observeAndAssertStateContract(
   page: Page,
   contract: StateDomContract,
 ): Promise<string> {
   assertContractNotGeneric(contract);
-
-  // Ambiguous: two distinct state-id values on one page for fixture auth-gates,
-  // or any page rendering incompatible duplicate primary markers when the
-  // contract expects a single fixture identity.
-  if (contract.ownership === 'fixture' && contract.stateAttribute === STATE_CONTRACT_ATTR) {
-    const markers = page.locator(`[${STATE_CONTRACT_ATTR}]`);
-    const markerCount = await markers.count();
-    if (markerCount > 1) {
-      const values = new Set<string>();
-      for (let i = 0; i < markerCount; i += 1) {
-        const value = await markers.nth(i).getAttribute(STATE_CONTRACT_ATTR);
-        if (value) values.add(value);
-      }
-      if (values.size > 1) {
-        throw new Error(
-          `STATE_CONTRACT_AMBIGUOUS: ambiguous state contracts rendered (${[...values].join(',')})`,
-        );
-      }
-    }
-  }
-
-  const observed = await observeRuntimeStateId(page, contract);
-  if (!observed) {
+  const expectedCanonical = canonicalObservableStateIdFor(contract.runtimeStateId);
+  const observed = await observeCanonicalObservableStateId(page);
+  if (observed !== expectedCanonical) {
     throw new Error(
-      `STATE_CONTRACT_MISSING: missing state-specific marker ${contract.selector} for ${contract.surfaceId}`,
-    );
-  }
-  if (observed !== contract.runtimeStateId) {
-    throw new Error(
-      `LAYOUT_STATE_DRIFT: observed ${observed} expected ${contract.runtimeStateId}`,
+      `LAYOUT_STATE_DRIFT: observed canonical ${observed} expected ${expectedCanonical} (registration ${contract.runtimeStateId})`,
     );
   }
   return observed;
@@ -262,6 +266,23 @@ export function reconcileAllStateContracts(): ReturnType<
   typeof reconcileExecutableStateContracts
 > {
   return reconcileExecutableStateContracts(M55_STATE_DOM_CONTRACTS);
+}
+
+export function countCanonicalContractsByOwnership(
+  contracts: readonly StateDomContract[],
+): { application: number; fixture: number } {
+  const byCanonical = new Map<string, StateDomContract>();
+  for (const contract of contracts) {
+    const canonical = dualCanonicalObservableStateIdFor(contract.runtimeStateId);
+    if (!byCanonical.has(canonical)) byCanonical.set(canonical, contract);
+  }
+  let application = 0;
+  let fixture = 0;
+  for (const contract of byCanonical.values()) {
+    if (contract.ownership === 'application') application += 1;
+    else fixture += 1;
+  }
+  return { application, fixture };
 }
 
 export {
