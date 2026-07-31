@@ -84,8 +84,10 @@ export function resolveSmokeManifestEntry(target: RegistrationSmokeTarget): Surf
 }
 
 export async function assertNoRunnerWrittenStateMarker(page: Page): Promise<void> {
-  const count = await page.locator('html[data-m55-cq-runtime-state]').count();
-  expect(count, 'runner-written data-m55-cq-runtime-state must be 0').toBe(0);
+  const runtimeStamp = await page.locator('html[data-m55-cq-runtime-state]').count();
+  expect(runtimeStamp, 'runner-written data-m55-cq-runtime-state must be 0').toBe(0);
+  const contractStamp = await page.locator('[data-m55-cq-state-contract]').count();
+  expect(contractStamp, 'runner-written data-m55-cq-state-contract must be 0').toBe(0);
 }
 
 export async function assertProtectedManifestEvidence(

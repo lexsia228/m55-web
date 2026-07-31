@@ -27,13 +27,30 @@ export function requireLocalhostQualityFixture(label: string): void {
   }
 }
 
-function authGateFixtureHtml(path: string, runtimeStateId: string): string {
+export type AuthGateFixtureMode = 'exact' | 'missing_state' | 'wrong_state' | 'ambiguous';
+
+function authGateFixtureHtml(
+  path: string,
+  runtimeStateId: string,
+  mode: AuthGateFixtureMode = 'exact',
+): string {
   const safeState = runtimeStateId.replace(/"/g, '');
+  const wrongState = 'ecp:public.pricing:default';
+  let mainInner = '';
+  if (mode === 'missing_state') {
+    mainInner = `<main data-testid="m55-cq-auth-gate-fixture">localhost auth-gate fixture missing state for ${path}</main>`;
+  } else if (mode === 'wrong_state') {
+    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${wrongState}">localhost auth-gate fixture wrong state for ${path}</main>`;
+  } else if (mode === 'ambiguous') {
+    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">primary</main><aside data-m55-cq-state-id="${wrongState}">secondary</aside>`;
+  } else {
+    mainInner = `<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">localhost auth-gate fixture for ${path} (${safeState})</main>`;
+  }
   return `<!doctype html>
 <html lang="ja">
 <head><meta charset="utf-8"><title>M55 localhost auth-gate fixture</title></head>
 <body data-m55-cq-fixture="auth_gate" data-m55-cq-auth-gate="1" data-m55-cq-fixture-path="${path}">
-<main data-testid="m55-cq-auth-gate-fixture" data-m55-cq-state-id="${safeState}">localhost auth-gate fixture for ${path} (${safeState})</main>
+${mainInner}
 </body>
 </html>`;
 }
@@ -49,6 +66,7 @@ export async function establishLocalAuthGateFixture(
   baseURL: string,
   path: string,
   runtimeStateId: string,
+  mode: AuthGateFixtureMode = 'exact',
 ): Promise<void> {
   requireLocalhostQualityFixture('auth_gate');
   if (!runtimeStateId.trim()) {
@@ -76,7 +94,7 @@ export async function establishLocalAuthGateFixture(
       await route.fulfill({
         status: 200,
         contentType: 'text/html; charset=utf-8',
-        body: authGateFixtureHtml(path, runtimeStateId),
+        body: authGateFixtureHtml(path, runtimeStateId, mode),
       });
       return;
     }
@@ -94,7 +112,9 @@ export async function establishLocalAuthGateFixture(
   }
   await page.locator(AUTH_GATE_FIXTURE_SELECTOR).waitFor({ state: 'visible', timeout: 10_000 });
   await page.locator(AUTH_GATE_FIXTURE_ATTR).waitFor({ state: 'attached', timeout: 5_000 });
-  await page.locator(stateSelector).waitFor({ state: 'visible', timeout: 5_000 });
+  if (mode === 'exact') {
+    await page.locator(stateSelector).waitFor({ state: 'visible', timeout: 5_000 });
+  }
 }
 
 export async function seedBasicInfoOnly(page: Page, deviceId = 'playwright-cq-setup'): Promise<void> {

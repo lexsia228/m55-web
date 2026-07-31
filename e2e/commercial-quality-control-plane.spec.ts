@@ -60,11 +60,12 @@ import {
   M55_COMMERCIAL_QUALITY_MANIFEST,
   isDeferredAccessibilityFinding,
 } from '../lib/m55/commercialUx/qualityControl/m55SurfaceManifest';
+import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
 import {
   M55_STATE_DOM_CONTRACTS,
-  clearFixtureStateContract,
+  countContractsByOwnership,
   countGenericStateMarkers,
-  stampFixtureStateContract,
+  observeAndAssertStateContract,
   stateDomContractForEntry,
 } from '../lib/m55/commercialUx/qualityControl/m55StateDomContracts';
 import { M55_METHOD_CANONICAL_ROUTE } from '../lib/m55/method/m55MethodAuthority';
@@ -182,6 +183,8 @@ test.describe('commercial quality control plane', () => {
     expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
     expect(countGenericStateMarkers()).toBe(0);
     expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
+    const ownership = countContractsByOwnership();
+    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(76);
   });
 
   test('2. mandatory all-registration Chromium smoke for every executable target', async ({
@@ -282,11 +285,13 @@ test.describe('commercial quality control plane', () => {
               }
             : entry;
 
+        // Measurement must re-observe state from DOM (no caller-certified bypass).
         const measured = await measureCommercialSurface(active, measureEntry, planFor(measureEntry), {
           expectedOrigin,
           includeAccessibility: false,
-          observedRuntimeStateId: String(executed.evidence.runtimeStateId),
         });
+        expect(measured.runtimeStateId).toBe(entry.runtimeStateId);
+        expect(measured.runtimeStateId).toBe(String(executed.evidence.runtimeStateId));
         productionMeasurementCount += 1;
         const layoutFails = checkLayoutInvariants(measured, measureEntry);
         fullInvariantAssertionCount += 1;
@@ -469,74 +474,119 @@ test.describe('commercial quality control plane', () => {
     }
   });
 
-  test('3b. wrong-state and missing-state Chromium negatives', async ({ page }) => {
-    const entry = selfTestEntry();
-    const setup = m55SetupById(entry.setupId)!;
-    const contract = stateDomContractForEntry(entry);
-    const ctx = { page, baseURL: BASE_URL, label: LABEL };
+  test('3b. wrong/missing/alternate/ambiguous state Chromium negatives', async ({ browser }) => {
+    const signIn = m55SurfaceById('m55:ecp.public.sign_in');
+    if (!signIn) throw new Error('sign_in surface missing');
+    const contract = stateDomContractForEntry(signIn);
+    expect(contract.ownership).toBe('fixture');
     const expectedOrigin = new URL(BASE_URL).origin;
 
-    await setup.execute(ctx, entry);
-    await expect(page.locator(contract.selector).first()).toBeVisible({ timeout: 15_000 });
-
-    // A. expected route but wrong runtime-state marker
-    await stampFixtureStateContract(page, 'ecp:public.pricing:default');
-    const wrongMeasured = await measureCommercialSurface(page, entry, planFor(entry), {
-      expectedOrigin,
-      includeAccessibility: false,
-      observedRuntimeStateId: 'ecp:public.pricing:default',
-    });
-    const wrongFails = checkLayoutInvariants(wrongMeasured, entry);
-    expect(wrongFails.some((f) => f.code === 'LAYOUT_STATE_DRIFT')).toBe(true);
-
-    // B. expected route but missing runtime-state marker
-    await clearFixtureStateContract(page);
-    if (contract.ownership === 'application') {
-      await page.evaluate((sel) => {
-        document.querySelectorAll(sel).forEach((node) => {
-          (node as HTMLElement).style.display = 'none';
-          node.setAttribute('data-m55-cq-state-hidden', '1');
-        });
-      }, contract.selector);
+    // 1. expected route with fixture rendering wrong state
+    {
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await establishLocalAuthGateFixture(
+        page,
+        BASE_URL,
+        '/sign-in',
+        signIn.runtimeStateId,
+        'wrong_state',
+      );
+      await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
+        /LAYOUT_STATE_DRIFT/,
+      );
+      await expect(
+        measureCommercialSurface(page, signIn, planFor(signIn), {
+          expectedOrigin,
+          includeAccessibility: false,
+        }),
+      ).rejects.toThrow(/LAYOUT_STATE_DRIFT/);
+      await ctx.close();
     }
-    await expect(measureCommercialSurface(page, entry, planFor(entry), {
-      expectedOrigin,
-      includeAccessibility: false,
-    })).rejects.toThrow(/LAYOUT_STATE_DRIFT|missing observed state/);
 
-    // Restore page for C/D
-    await setup.execute(ctx, entry);
+    // 2. expected route with no state contract rendered
+    {
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await establishLocalAuthGateFixture(
+        page,
+        BASE_URL,
+        '/sign-in',
+        signIn.runtimeStateId,
+        'missing_state',
+      );
+      await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
+        /LAYOUT_STATE_DRIFT|missing state/,
+      );
+      await expect(
+        measureCommercialSurface(page, signIn, planFor(signIn), {
+          expectedOrigin,
+          includeAccessibility: false,
+        }),
+      ).rejects.toThrow(/LAYOUT_STATE_DRIFT|missing observed state/);
+      await ctx.close();
+    }
 
-    // C. marker for another state on the same route
-    await stampFixtureStateContract(page, 'ecp:public.support:default');
-    const crossMeasured = await measureCommercialSurface(page, entry, planFor(entry), {
-      expectedOrigin,
-      includeAccessibility: false,
-      observedRuntimeStateId: 'ecp:public.support:default',
-    });
-    expect(
-      checkLayoutInvariants(crossMeasured, entry).some((f) => f.code === 'LAYOUT_STATE_DRIFT'),
-    ).toBe(true);
+    // 3. expected route with another state rendered (alternate)
+    {
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await establishLocalAuthGateFixture(
+        page,
+        BASE_URL,
+        '/sign-in',
+        'ecp:public.support:default',
+        'exact',
+      );
+      await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
+        /LAYOUT_STATE_DRIFT/,
+      );
+      await ctx.close();
+    }
 
-    // D. setup ID for one state paired with another state marker
-    const pricing = m55SurfaceById('m55:ecp.public.pricing');
-    if (!pricing) throw new Error('pricing surface missing');
-    const mismatched: SurfaceManifestEntry = {
-      ...entry,
-      setupId: pricing.setupId,
-      runtimeStateId: pricing.runtimeStateId,
-    };
-    await stampFixtureStateContract(page, entry.runtimeStateId);
-    const mismatchMeasured = await measureCommercialSurface(page, mismatched, planFor(mismatched), {
-      expectedOrigin,
-      includeAccessibility: false,
-      observedRuntimeStateId: entry.runtimeStateId,
-    });
-    expect(
-      checkLayoutInvariants(mismatchMeasured, mismatched).some((f) => f.code === 'LAYOUT_STATE_DRIFT'),
-    ).toBe(true);
+    // 4. expected setup ID paired with another fixture state
+    {
+      const pricing = m55SurfaceById('m55:ecp.public.pricing');
+      if (!pricing) throw new Error('pricing surface missing');
+      const mismatched: SurfaceManifestEntry = {
+        ...signIn,
+        setupId: pricing.setupId,
+        runtimeStateId: pricing.runtimeStateId,
+      };
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await establishLocalAuthGateFixture(
+        page,
+        BASE_URL,
+        '/sign-in',
+        signIn.runtimeStateId,
+        'exact',
+      );
+      await expect(
+        measureCommercialSurface(page, mismatched, planFor(mismatched), {
+          expectedOrigin,
+          includeAccessibility: false,
+        }),
+      ).rejects.toThrow(/LAYOUT_STATE_DRIFT/);
+      await ctx.close();
+    }
 
-    await setup.teardown?.(ctx, entry);
+    // 5. ambiguous page rendering two incompatible state contracts
+    {
+      const ctx = await browser.newContext();
+      const page = await ctx.newPage();
+      await establishLocalAuthGateFixture(
+        page,
+        BASE_URL,
+        '/sign-in',
+        signIn.runtimeStateId,
+        'ambiguous',
+      );
+      await expect(observeAndAssertStateContract(page, contract)).rejects.toThrow(
+        /LAYOUT_STATE_DRIFT: ambiguous/,
+      );
+      await ctx.close();
+    }
   });
 
   test('4. text zoom, safe-area, font-load transition visibly change runtime', async ({ page }) => {
@@ -565,20 +615,28 @@ test.describe('commercial quality control plane', () => {
   });
 
   test('5. real Chromium Japanese punctuation-only line rejected', async ({ page }) => {
-    await page.setContent(`<!doctype html><main id="probe">。</main>`);
     const entry = selfTestEntry({
       protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
       fixedElements: [],
       sectionBoundaries: [],
       criticalCta: null,
     });
-    await stampFixtureStateContract(page, entry.runtimeStateId);
-    const measured = await measureCommercialSurface(page, entry, planFor(entry), {
-      expectedOrigin: new URL(page.url()).origin,
-      includeAccessibility: false,
-      observedRuntimeStateId: entry.runtimeStateId,
-    });
-    // Force Japanese orphan path via evaluate geometry when available.
+    // Initial HTML includes the application-owned state selector (no post-nav stamp).
+    await page.setContent(
+      `<!doctype html><main id="probe" data-testid="m55-method-canonical">。</main>`,
+    );
+    const measured = await measureCommercialSurface(
+      page,
+      {
+        ...entry,
+        protectedElements: [{ selector: '#probe', role: 'copy', requireText: true }],
+      },
+      planFor(entry),
+      {
+        expectedOrigin: new URL(page.url()).origin,
+        includeAccessibility: false,
+      },
+    );
     expect(
       checkLayoutInvariants(measured, entry).some(
         (f) =>
@@ -592,7 +650,7 @@ test.describe('commercial quality control plane', () => {
   test('6. CTA below visual viewport rejected', async ({ page }) => {
     await page.setContent(`<!doctype html>
       <html><body style="margin:0">
-        <main id="root" style="height:2000px">
+        <main id="root" data-testid="m55-method-canonical" style="height:2000px">
           <button id="cta" style="position:absolute;top:1600px;left:8px;width:120px;height:44px">Go</button>
         </main>
       </body></html>`);
@@ -609,11 +667,9 @@ test.describe('commercial quality control plane', () => {
       route: '/',
       routeIsPattern: true,
     });
-    await stampFixtureStateContract(page, entry.runtimeStateId);
     const measured = await measureCommercialSurface(page, entry, planFor(entry), {
       expectedOrigin: new URL(page.url()).origin,
       includeAccessibility: false,
-      observedRuntimeStateId: entry.runtimeStateId,
     });
     expect(
       checkLayoutInvariants(measured, entry).some(

@@ -39,12 +39,12 @@ import {
   establishPurchasedReport,
   establishSignedOutAccountMenu,
   gotoLocal,
+  requireLocalhostQualityFixture,
   seedBasicInfoOnly,
   seedCompleteFreeAnswers,
 } from './m55QualityFixtures';
 import {
-  bindAndObserveStateContract,
-  clearFixtureStateContract,
+  observeAndAssertStateContract,
   stateDomContractForEntry,
 } from './m55StateDomContracts';
 
@@ -168,10 +168,8 @@ async function runNavigateSetup(
     await page.locator('body').waitFor({ state: 'attached', timeout: 10_000 });
   }
 
-  const observedRuntimeStateId = await bindAndObserveStateContract(page, contract, {
-    authGateAlreadyBound: Boolean(plan.authGate),
-    imageResponse: Boolean(plan.imageResponse),
-  });
+  // Observe only — never stamp/write state markers after navigation.
+  const observedRuntimeStateId = await observeAndAssertStateContract(page, contract);
   const markerCount = await verifyStateMarker(page, contract.selector);
 
   if (/accounts\.dev/i.test(page.url())) {
@@ -350,10 +348,7 @@ async function teardownSetup(context: SetupContext, entry: SurfaceManifestEntry)
   for (const profile of entry.executionProfiles) {
     await clearExecutionProfileOnPage(page, profile);
   }
-  const contract = stateDomContractForEntry(entry);
-  if (contract.teardown === 'remove_fixture_marker') {
-    await clearFixtureStateContract(page);
-  }
+  void entry;
 }
 
 function supportsRichStress(entry: SurfaceManifestEntry): boolean {
@@ -597,8 +592,8 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         ...plain,
         navigatePath: '/dtr',
-        readySelector: M55_GOVERNED_ROOT_SELECTOR,
-        stateMarkerSelector: M55_GOVERNED_ROOT_SELECTOR,
+        readySelector: '#dtr-main-shelf-label',
+        stateMarkerSelector: '#dtr-main-shelf-label',
       };
     case 'premium.processing':
     case 'premium.purchase_success':
@@ -615,8 +610,8 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         fixtureId: 'establishPurchasedReport',
         navigatePath: '/dev/dtr-drawer-preview?openPanel=chapter-1',
-        readySelector: 'main',
-        stateMarkerSelector: 'main',
+        readySelector: '[data-m55-premium-state="purchased.report.body"]',
+        stateMarkerSelector: '[data-m55-premium-state="purchased.report.body"]',
         authenticationMode: 'purchased_private',
         hasDeterministicAuthFixture: true,
         setupFn: establishPurchasedReport,
@@ -662,14 +657,22 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
         authGate: true,
       };
     case 'legacy.reply':
-    case 'legacy.reply_result':
-      // Public legacy routes permanently redirect into DTR LP. Use the stable
-      // public landing as the deterministic fixture (avoids /dtr/core loops).
+      // Public legacy /reply permanently redirects into DTR LP (need_free gate).
       return {
         fixtureId: 'legacy_reply_redirect_target',
         navigatePath: '/dtr/lp',
-        readySelector: M55_GOVERNED_ROOT_SELECTOR,
-        stateMarkerSelector: M55_GOVERNED_ROOT_SELECTOR,
+        readySelector: '[data-testid="m55-dtr-need-free"]',
+        stateMarkerSelector: '[data-testid="m55-dtr-need-free"]',
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+      };
+    case 'legacy.reply_result':
+      // Distinct expired-state LP landing so reply vs reply_result are independently observable.
+      return {
+        fixtureId: 'legacy_reply_redirect_target',
+        navigatePath: '/dtr/lp?state=expired',
+        readySelector: 'p',
+        stateMarkerSelector: 'p',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
       };
@@ -677,11 +680,25 @@ function ecpNavigatePlan(routeId: string, pattern: string, privacy: string): Nav
       return {
         fixtureId: 'signed_out_account_menu',
         navigatePath: '/my',
-        readySelector: 'main',
-        stateMarkerSelector: 'main',
+        readySelector: '[data-m55-pathname="/my"] main h1',
+        stateMarkerSelector: '[data-m55-pathname="/my"] main h1',
         authenticationMode: 'authenticated',
         hasDeterministicAuthFixture: true,
         setupFn: establishSignedOutAccountMenu,
+      };
+    case 'legacy.today':
+      return {
+        ...plain,
+        navigatePath: '/today',
+        readySelector: '[data-m55-pathname="/today"]',
+        stateMarkerSelector: '[data-m55-pathname="/today"]',
+      };
+    case 'legacy.weekly':
+      return {
+        ...plain,
+        navigatePath: '/weekly',
+        readySelector: '[data-m55-pathname="/weekly"]',
+        stateMarkerSelector: '[data-m55-pathname="/weekly"]',
       };
     case 'legacy.synastry.confirm':
       // Local route is not a stable purchased confirm page (404 without session).
@@ -812,17 +829,64 @@ function premiumStatePlan(stateId: string): NavigatePlan {
       return {
         fixtureId: null,
         navigatePath: '/dev/premium-share-preview',
-        readySelector: M55_GOVERNED_ROOT_SELECTOR,
-        stateMarkerSelector: M55_GOVERNED_ROOT_SELECTOR,
+        readySelector: '[data-m55-premium-state="premium.share.card"]',
+        stateMarkerSelector: '[data-m55-premium-state="premium.share.card"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
       };
+    case 'purchased.consult.input':
+      return {
+        fixtureId: 'establishPurchasedReport',
+        navigatePath:
+          '/dev/dtr-drawer-preview?openPanel=consult&withConsult=1&consultWallet=available',
+        readySelector: '[data-m55-premium-state="purchased.consult.input"]',
+        stateMarkerSelector: '[data-m55-premium-state="purchased.consult.input"]',
+        authenticationMode: 'purchased_private',
+        hasDeterministicAuthFixture: true,
+        setupFn: async (page, baseURL) => {
+          requireLocalhostQualityFixture('purchased_report');
+          await gotoLocal(
+            page,
+            baseURL,
+            '/dev/dtr-drawer-preview?openPanel=consult&withConsult=1&consultWallet=available',
+          );
+        },
+      };
+    case 'purchased.consult.result':
+      return {
+        fixtureId: 'establishPurchasedReport',
+        navigatePath:
+          '/dev/dtr-drawer-preview?openPanel=consult&withConsult=1&consultWallet=history',
+        readySelector: '[data-m55-premium-state="purchased.consult.result"]',
+        stateMarkerSelector: '[data-m55-premium-state="purchased.consult.result"]',
+        authenticationMode: 'purchased_private',
+        hasDeterministicAuthFixture: true,
+        setupFn: async (page, baseURL) => {
+          requireLocalhostQualityFixture('purchased_report');
+          await gotoLocal(
+            page,
+            baseURL,
+            '/dev/dtr-drawer-preview?openPanel=consult&withConsult=1&consultWallet=history',
+          );
+        },
+      };
+    case 'purchased.saved_reopen':
+      return {
+        fixtureId: 'establishPurchasedReport',
+        navigatePath: '/dev/dtr-drawer-preview?openPanel=chapter-1',
+        readySelector: '[data-m55-premium-state="purchased.saved_reopen"]',
+        stateMarkerSelector: '[data-m55-premium-state="purchased.saved_reopen"]',
+        authenticationMode: 'purchased_private',
+        hasDeterministicAuthFixture: true,
+        setupFn: establishPurchasedReport,
+      };
+    case 'purchased.report.body':
     default:
       return {
         fixtureId: 'establishPurchasedReport',
         navigatePath: '/dev/dtr-drawer-preview?openPanel=chapter-1',
-        readySelector: 'body',
-        stateMarkerSelector: 'body',
+        readySelector: '[data-m55-premium-state="purchased.report.body"]',
+        stateMarkerSelector: '[data-m55-premium-state="purchased.report.body"]',
         authenticationMode: 'purchased_private',
         hasDeterministicAuthFixture: true,
         setupFn: establishPurchasedReport,

@@ -382,8 +382,6 @@ export async function collectAxeViolations(page: Page): Promise<readonly Measure
 export type MeasureOptions = {
   includeAccessibility?: boolean;
   expectedOrigin: string;
-  /** When provided, must be the observed state-contract value (not a manifest echo). */
-  observedRuntimeStateId?: string;
 };
 
 export async function measureCommercialSurface(
@@ -406,12 +404,18 @@ export async function measureCommercialSurface(
     ? await collectAxeViolations(page)
     : [];
 
+  // Re-observe independently from the rendered DOM — never accept a
+  // caller-certified runtimeStateId bypass.
   const contract = stateDomContractForEntry(entry);
-  const observedRuntimeStateId =
-    options.observedRuntimeStateId ?? (await observeRuntimeStateId(page, contract));
+  const observedRuntimeStateId = await observeRuntimeStateId(page, contract);
   if (!observedRuntimeStateId) {
     throw new Error(
       `LAYOUT_STATE_DRIFT: missing observed state marker ${contract.selector} for ${entry.surfaceId}`,
+    );
+  }
+  if (observedRuntimeStateId !== entry.runtimeStateId) {
+    throw new Error(
+      `LAYOUT_STATE_DRIFT: observed ${observedRuntimeStateId} expected ${entry.runtimeStateId}`,
     );
   }
 
