@@ -77,6 +77,7 @@ const REQUIRED_NEGATIVE_FIXTURE_IDS = [
   'duplicate_ecp',
   'missing_protected_element',
   'clipped_protected_content',
+  'home_absolute_overlay_clipping',
   'horizontal_overflow',
   'fixed_element_obstruction',
   'undersized_cta',
@@ -92,7 +93,9 @@ const REQUIRED_NEGATIVE_FIXTURE_IDS = [
   'altered_candidate_hash',
 ];
 
-const REQUIRED_DEFERRAL_RECORD_IDS = [
+/** Active temporary deferrals must be empty after Commit B contrast closure. */
+const REQUIRED_DEFERRAL_RECORD_IDS = [];
+const CLOSED_COMMIT_B_DEFERRAL_RECORD_IDS = [
   'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
   'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
 ];
@@ -468,59 +471,36 @@ function checkDurablePolicy() {
     fail('policy.decision_log', `${DECISION_LOG} must record the control-plane decision`);
   }
 
-  // Every accessibility deferral must be recorded with exact IDs, ratios, and owners.
+  // Active accessibility deferrals must be empty after Commit B; closed IDs stay in the log.
   const adapterManifest = read('lib/m55/commercialUx/qualityControl/m55SurfaceManifest.ts');
-  const deferralBlocks = [
-    ...adapterManifest.matchAll(
-      /decisionRecordId:\s*'([^']+)'[\s\S]*?route:\s*'([^']+)'[\s\S]*?selector:\s*'([^']+)'[\s\S]*?ownerFile:\s*'([^']+)'[\s\S]*?measuredRatio:\s*([\d.]+)[\s\S]*?classification:\s*'([^']+)'/g,
-    ),
-  ];
-  REPORT.accessibilityDeferrals = deferralBlocks.length;
+  const activeDeferralArray = adapterManifest.match(
+    /export const M55_ACCESSIBILITY_DEFERRALS: readonly AccessibilityDeferral\[\] = (\[[\s\S]*?\]);/,
+  );
+  const activeDeferralBody = activeDeferralArray?.[1] ?? '';
+  const activeDeferralCount = [...activeDeferralBody.matchAll(/decisionRecordId:/g)].length;
+  REPORT.accessibilityDeferrals = activeDeferralCount;
   if (!log.includes('M55_ACCESSIBILITY_DEFERRALS')) {
     fail('policy.deferral', `${DECISION_LOG} must name the machine deferral authority`);
   }
-  for (const recordId of REQUIRED_DEFERRAL_RECORD_IDS) {
-    if (!adapterManifest.includes(recordId)) {
-      fail('policy.deferral', `adapter deferral missing decisionRecordId: ${recordId}`);
+  if (activeDeferralCount !== REQUIRED_DEFERRAL_RECORD_IDS.length) {
+    fail(
+      'policy.deferral',
+      `expected ${REQUIRED_DEFERRAL_RECORD_IDS.length} active deferrals, got ${activeDeferralCount}`,
+    );
+  }
+  for (const recordId of CLOSED_COMMIT_B_DEFERRAL_RECORD_IDS) {
+    if (activeDeferralBody.includes(recordId)) {
+      fail('policy.deferral', `closed Commit B deferral still active: ${recordId}`);
     }
     if (!log.includes(recordId)) {
-      fail('policy.deferral', `decision log missing deferral record id: ${recordId}`);
+      fail('policy.deferral', `decision log missing closed deferral record id: ${recordId}`);
     }
   }
-  for (const match of deferralBlocks) {
-    const [, decisionRecordId, route, selector, ownerFile, measuredRatio, classification] = match;
-    if (classification !== 'CLOSE_IN_COMMIT_B') {
-      fail(
-        'policy.deferral',
-        `deferral ${decisionRecordId} classification must be CLOSE_IN_COMMIT_B (received ${classification})`,
-      );
-    }
-    if (!log.includes(decisionRecordId)) {
-      fail('policy.deferral', `decision log missing deferral record id: ${decisionRecordId}`);
-    }
-    if (!log.includes(route)) {
-      fail('policy.deferral', `decision log missing deferral route: ${route}`);
-    }
-    if (!log.includes(selector)) {
-      fail('policy.deferral', `decision log missing deferral selector: ${selector}`);
-    }
-    if (!log.includes(ownerFile)) {
-      fail('policy.deferral', `decision log missing deferral owner file: ${ownerFile}`);
-    }
-    if (!log.includes(String(measuredRatio))) {
-      fail(
-        'policy.deferral',
-        `decision log missing measuredRatio ${measuredRatio} for ${decisionRecordId}`,
-      );
-    }
-    if (!log.includes('CLOSE_IN_COMMIT_B')) {
-      fail('policy.deferral', `${DECISION_LOG} must record CLOSE_IN_COMMIT_B classification`);
-    }
+  if (!log.includes('CLOSED_IN_COMMIT_B')) {
+    fail('policy.deferral', `${DECISION_LOG} must record CLOSED_IN_COMMIT_B for contrast closure`);
   }
-  for (const deferral of [...adapterManifest.matchAll(/axeRuleId:\s*'([^']+)'/g)].map((m) => m[1])) {
-    if (!log.includes(`axe \`${deferral}\``)) {
-      fail('policy.deferral', `axe rule deferral not recorded in the decision log: ${deferral}`);
-    }
+  if (!log.includes('4.36') || !log.includes('2.69')) {
+    fail('policy.deferral', `${DECISION_LOG} must retain pre-closure measuredRatio evidence`);
   }
 }
 

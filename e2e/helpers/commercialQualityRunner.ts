@@ -517,8 +517,28 @@ export function createM55CommercialQualityAdapter(
         lastEvidence.execution = applied.evidence;
       }
 
-      const executed = await setup.execute(context, entry);
-      lastEvidence.content = { setup: executed.evidence };
+      // fresh_load always navigates. resize_* keeps the surface and only changes
+      // viewport when the page is already on the governed route (continuous engine).
+      const routePath = entry.route.split('?')[0] || entry.route;
+      let onGovernedRoute = false;
+      try {
+        const current = new URL(page.url());
+        onGovernedRoute =
+          current.origin === expectedOrigin &&
+          (current.pathname === routePath ||
+            (routePath !== '/' && current.pathname.startsWith(`${routePath}/`)));
+      } catch {
+        onGovernedRoute = false;
+      }
+      const mustNavigate = plan.mode === 'fresh_load' || !onGovernedRoute;
+
+      if (mustNavigate) {
+        const executed = await setup.execute(context, entry);
+        lastEvidence.content = { setup: executed.evidence };
+      } else {
+        lastEvidence.content = { setup: { resizeInPlace: true, mode: plan.mode } };
+        await page.waitForTimeout(50);
+      }
 
       if (setup.applyGovernedStress) {
         const applied = await setup.applyGovernedStress(

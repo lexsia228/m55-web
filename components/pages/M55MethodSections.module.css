@@ -75,7 +75,8 @@
   font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   font-size: 12px;
   font-weight: 700;
-  color: rgba(107, 95, 168, 0.9);
+  /* Commit B: AA contrast on warm ivory/white card (was rgba(107,95,168,0.9) ≈ 4.36). */
+  color: #201c34;
   font-variant-numeric: tabular-nums;
 }
 

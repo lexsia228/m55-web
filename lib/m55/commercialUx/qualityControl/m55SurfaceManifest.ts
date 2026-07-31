@@ -168,37 +168,24 @@ export type AccessibilityDeferral = {
   /** Exact CSS selector that must match the failing node target string. */
   selector: string;
   ownerFile: string;
-  axeRuleId: 'color-contrast';
+  axeRuleId: string;
   /** Measured contrast ratio at deferral time. */
   measuredRatio: number;
   classification: 'CLOSE_IN_COMMIT_B';
   reason: string;
 };
 
-export const M55_ACCESSIBILITY_DEFERRALS: readonly AccessibilityDeferral[] = [
-  {
-    decisionRecordId: 'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
-    route: '/how-m55-works',
-    selector: 'li:nth-child(10) > h3 > .M55MethodSections_sectionOrder__RdBoA',
-    ownerFile: 'components/pages/M55MethodSections.module.css',
-    axeRuleId: 'color-contrast',
-    measuredRatio: 4.36,
-    classification: 'CLOSE_IN_COMMIT_B',
-    reason:
-      'decorative aria-hidden section number; contrast correction requires Human visual approval in Commit B',
-  },
-  {
-    decisionRecordId: 'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
-    route: '/how-m55-works',
-    selector: '.PublicFooter_copy__03HUr',
-    ownerFile: 'app/_components/PublicFooter.module.css',
-    axeRuleId: 'color-contrast',
-    measuredRatio: 2.69,
-    classification: 'CLOSE_IN_COMMIT_B',
-    reason:
-      'quiet footer copyright line; contrast correction requires Human visual approval in Commit B',
-  },
-];
+/**
+ * Temporary accessibility deferrals.
+ * Commit B closed both prior CLOSE_IN_COMMIT_B contrast deferrals — keep empty.
+ */
+export const M55_ACCESSIBILITY_DEFERRALS: readonly AccessibilityDeferral[] = [];
+
+/** Closed Commit B contrast deferral IDs (historical; must not remain active). */
+export const M55_CLOSED_COMMIT_B_DEFERRAL_RECORD_IDS = [
+  'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
+  'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
+] as const;
 
 /**
  * A finding is deferred only when the axe rule, the exact route (when known),
@@ -492,9 +479,10 @@ export const M55_REGISTRATION_COUNTS = {
 } as const;
 
 /**
- * Deterministic browser-gate subset for Commit A: public, unauthenticated,
- * concrete ECP routes plus the registered commercial visual cases that need no
- * seeded funnel state. HOME continuous execution stays in its own suite.
+ * Deterministic browser-gate subset: public, unauthenticated, concrete ECP
+ * routes plus registered commercial visual cases that need no seeded funnel
+ * state. HOME continuous responsive execution uses the shared runner via
+ * e2e/home-continuous-responsive.spec.ts (planCases + measureCommercialSurface).
  */
 export const M55_BROWSER_SMOKE_SURFACE_IDS: readonly string[] = [
   ...M55_EXPERIENCE_ROUTE_REGISTRY.filter(

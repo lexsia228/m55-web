@@ -1010,6 +1010,7 @@ const ORIGINAL_NEGATIVE_FIXTURE_IDS = [
   'unregistered_runtime_state',
   'missing_protected_element',
   'clipped_protected_content',
+  'home_absolute_overlay_clipping',
   'horizontal_overflow',
   'fixed_element_obstruction',
   'undersized_cta',

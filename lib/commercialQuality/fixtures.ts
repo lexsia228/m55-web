@@ -411,6 +411,74 @@ export const COMMERCIAL_QUALITY_NEGATIVE_FIXTURES: readonly CommercialQualityFix
     }),
   },
   {
+    /**
+     * Former HOME absolute-overlay defect: overlay out of normal flow so the
+     * poster height ignores CTA/support/login-free content; overflow:hidden on
+     * the poster clips the lower content at intermediate widths/heights.
+     * Evaluated by production checkLayoutInvariants (not a string marker).
+     */
+    id: 'home_absolute_overlay_clipping',
+    kind: 'layout',
+    expectedCode: 'LAYOUT_ANCESTOR_CLIPPING',
+    entry: validEntry({
+      surfaceId: 'fixture:home.absolute_overlay',
+      runtimeStateId: 'home.absolute_overlay',
+      route: '/home',
+      protectedElements: [
+        { selector: '[data-q="headline"]', role: 'heading', requireText: true },
+        { selector: '[data-q="support"]', role: 'supporting', requireText: true },
+        { selector: '[data-q="trust"]', role: 'supporting', requireText: true },
+      ],
+      criticalCta: {
+        selector: '[data-q="cta"]',
+        minTargetPx: 44,
+        ctaAuthority: { kind: 'cta_state', key: 'fixture.cta.primary' },
+      },
+    }),
+    contentStressProfile: 'short_text',
+    surface: validSurface({
+      viewport: { width: 390, height: 667 },
+      protectedNodes: [
+        node('[data-q="headline"]', 'heading', rect(40, 24, 342, 72)),
+        node('[data-q="support"]', 'supporting', rect(620, 24, 342, 48)),
+        node('[data-q="trust"]', 'supporting', rect(700, 24, 342, 28)),
+      ],
+      criticalCta: node('[data-q="cta"]', 'cta', rect(740, 24, 320, 48), {
+        clippingAncestor: {
+          selector: '[data-q="poster"]',
+          rect: rect(0, 0, 390, 620),
+          computed: {
+            overflow: 'hidden',
+            overflowX: 'hidden',
+            overflowY: 'hidden',
+            height: '620px',
+            minHeight: '620px',
+            maxHeight: '620px',
+            position: 'relative',
+            zIndex: 'auto',
+            transform: 'none',
+            display: 'block',
+            alignItems: 'normal',
+            justifyContent: 'normal',
+            flex: '0 1 auto',
+            gridTemplateRows: 'none',
+            inset: 'auto',
+            width: '390px',
+          },
+        },
+      }),
+      containerRect: rect(0, 0, 390, 620),
+      boundaries: [
+        {
+          selector: '[data-q="next"]',
+          position: 'following',
+          found: true,
+          rect: rect(640, 0, 390, 200),
+        },
+      ],
+    }),
+  },
+  {
     id: 'horizontal_overflow',
     kind: 'layout',
     expectedCode: 'LAYOUT_HORIZONTAL_OVERFLOW',

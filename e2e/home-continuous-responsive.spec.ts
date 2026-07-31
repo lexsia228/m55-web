@@ -1,476 +1,404 @@
 /**
- * HOME Hero continuous responsive closure gate.
+ * HOME continuous responsive closure — shared commercial-quality runner.
  *
- * Fresh-load and resize sweeps across 320–1440 (step 16) plus breakpoint
- * neighborhoods, at multiple heights. Geometry only — no baseline updates.
+ * Migrated from the prior HOME-only geometry evaluate path onto:
+ * - planCases / governedWidths (shared continuous engine planning)
+ * - createM55CommercialQualityAdapter / measureCommercialSurface
+ * - checkLayoutInvariants (production layout path)
+ * - authoritative canonical-state resolver
+ *
+ * Semantic stress mutations are not applied for the continuum (matches the
+ * prior HOME suite, which measured natural settled copy only). Layout
+ * invariants + CTA target size + canonical identity cover the frozen defect.
+ *
+ * Coverage preserved: 320–1440 step 16 + breakpoint neighborhoods × HOME
+ * height matrix × fresh_load / resize_down / resize_up = 474 × 3.
  *
  * Run:
  *   M55_E2E_CLEAN_CAPTURE=1 npm run test:e2e:home-continuous-responsive
  */
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
-  assertOverlayAbsence,
-  prepareCleanCapturePage,
-  requireCleanCaptureEnvironment,
-} from './helpers/cleanCaptureEnvironment';
+  formatCaseFailure,
+  governedWidths,
+  planCases,
+} from '../lib/commercialQuality/continuousResponsiveEngine';
+import { checkLayoutInvariants } from '../lib/commercialQuality/layoutInvariants';
+import type {
+  CasePlan,
+  NormalizedCaseResult,
+  SurfaceManifestEntry,
+} from '../lib/commercialQuality/types';
+import {
+  M55_BREAKPOINT_NEIGHBORHOODS,
+  M55_COMMERCIAL_QUALITY_MANIFEST,
+  M55_WIDTH_MAX,
+  M55_WIDTH_MIN,
+  M55_WIDTH_STEP,
+} from '../lib/m55/commercialUx/qualityControl/m55SurfaceManifest';
+import { canonicalObservableStateIdFor } from '../lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap';
+import { PUBLIC_FIXED_HEADER_SELECTOR } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityContract';
+import { requireCleanCaptureEnvironment } from './helpers/cleanCaptureEnvironment';
+import {
+  createM55CommercialQualityAdapter,
+  measureCommercialSurface,
+  resolveSourceCommit,
+} from './helpers/commercialQualityRunner';
 
-const WIDTH_STEP = 16;
-const WIDTH_MIN = 320;
-const WIDTH_MAX = 1440;
-const BREAKPOINT_NEIGHBORHOODS = [
-  767, 768, 769, 895, 896, 897, 1023, 1024, 1025, 1279, 1280, 1281,
-] as const;
-const HEIGHTS = [568, 667, 736, 812, 844, 900] as const;
+/** Retained HOME height matrix (short heights expose CTA clipping). */
+const HOME_CONTINUOUS_HEIGHTS = [568, 667, 736, 812, 844, 900] as const;
 const CONTACT_SHEET_HEIGHT = 812;
 const CONTACT_SHEET_DIR = join('e2e', 'screenshots', '_tmp-home-continuous-responsive');
-
 const REPRESENTATIVE_WIDTHS = [320, 360, 390, 430, 768, 1024, 1280, 1440] as const;
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
+const LABEL = 'home-continuous-responsive';
 
-function buildGovernedWidths(): number[] {
-  const set = new Set<number>();
-  for (let w = WIDTH_MIN; w <= WIDTH_MAX; w += WIDTH_STEP) set.add(w);
-  for (const w of BREAKPOINT_NEIGHBORHOODS) set.add(w);
-  return [...set].sort((a, b) => a - b);
+function homeVisualEntry(): SurfaceManifestEntry {
+  const entry = M55_COMMERCIAL_QUALITY_MANIFEST.entries.find(
+    (item) => item.surfaceId === 'm55:visual.home',
+  );
+  if (!entry) throw new Error('m55:visual.home missing from commercial quality manifest');
+  return {
+    ...entry,
+    viewport: {
+      ...entry.viewport,
+      minWidth: M55_WIDTH_MIN,
+      maxWidth: M55_WIDTH_MAX,
+      widthStep: M55_WIDTH_STEP,
+      breakpointNeighborhoods: [...M55_BREAKPOINT_NEIGHBORHOODS],
+      heightMatrix: [...HOME_CONTINUOUS_HEIGHTS],
+    },
+    // Natural settled copy only — continuum geometry (prior HOME suite scope).
+    contentStressProfiles: ['short_text'],
+    executionProfiles: ['default'],
+    // Governed container is main so protected nodes below the hero (premium
+    // headline) are not reported as overflowing the hero box.
+    protectedElements: [
+      { selector: 'main', role: 'container', requireText: true },
+      ...entry.protectedElements,
+    ],
+    // Continuum checks header chrome; scroll-to-top is covered by browser smoke.
+    fixedElements: [PUBLIC_FIXED_HEADER_SELECTOR],
+  };
 }
 
-const GOVERNED_WIDTHS = buildGovernedWidths();
-
-type Rect = { top: number; left: number; right: number; bottom: number; width: number; height: number };
-
-type ClipDiag = {
-  ok: boolean;
-  failures: string[];
-  viewport: { width: number; height: number };
-  failingSelector?: string;
-  elementRect?: Rect;
-  clippingAncestor?: string;
-  ancestorRect?: Rect;
-  ancestorComputed?: Record<string, string>;
+const HOME_PLAN_OPTIONS = {
+  modes: ['fresh_load', 'resize_down', 'resize_up'] as const,
+  profiles: ['default'] as const,
+  contentStressProfiles: ['short_text'] as const,
+  heights: HOME_CONTINUOUS_HEIGHTS,
 };
 
-async function assertHomeHeroContract(page: Page, width: number, height: number): Promise<ClipDiag> {
-  return page.evaluate(
-    ({ width: vw, height: vh }) => {
-      const failures: string[] = [];
-      const rectOf = (el: Element): Rect => {
-        const r = el.getBoundingClientRect();
-        return {
-          top: r.top,
-          left: r.left,
-          right: r.right,
-          bottom: r.bottom,
-          width: r.width,
-          height: r.height,
-        };
-      };
+function planFor(entry: SurfaceManifestEntry, width: number, height: number): CasePlan {
+  return {
+    surfaceId: entry.surfaceId,
+    runtimeStateId: entry.runtimeStateId,
+    route: entry.route,
+    setupId: entry.setupId,
+    viewport: { width, height },
+    mode: 'fresh_load',
+    profile: 'default',
+    contentStressProfile: 'short_text',
+  };
+}
 
-      const hero = document.querySelector('[data-testid="m55-home-hero"]');
-      const title = document.querySelector('[data-testid="m55-home-hero-title"]');
-      const support = document.querySelector('[data-testid="m55-home-hero-support"]');
-      const trust = document.querySelector('[data-testid="m55-home-hero-trust"]');
-      const cta = document.querySelector('[data-m55-hero-cta="true"]');
-      const next = document.querySelector('[data-testid="m55-home-lower"]');
-
-      if (!hero || !title || !support || !trust || !cta || !next) {
-        return {
-          ok: false,
-          failures: ['missing required HOME Hero selectors'],
-          viewport: { width: vw, height: vh },
-        };
+/**
+ * Reproduce the former absolute-overlay defect without mutating production
+ * HOME source: inject temporary styles that pull the overlay out of flow and
+ * constrain the poster so CTA/support/trust clip.
+ */
+async function applyAbsoluteOverlayDefect(page: Page): Promise<() => Promise<void>> {
+  await page.addStyleTag({
+    content: `
+      [data-testid="m55-home-hero"] [class*="posterMainVisual"] {
+        display: block !important;
+        height: 520px !important;
+        max-height: 520px !important;
+        min-height: 520px !important;
+        overflow: hidden !important;
       }
-
-      const scrollWidth = document.documentElement.scrollWidth;
-      if (scrollWidth > window.innerWidth + 1) {
-        failures.push(`horizontal overflow: scrollWidth=${scrollWidth} innerWidth=${window.innerWidth}`);
+      [data-testid="m55-home-hero"] [class*="posterHeroOverlay"] {
+        position: absolute !important;
+        inset: 0 !important;
+        min-height: 0 !important;
+        flex: none !important;
       }
+    `,
+  });
+  return async () => {
+    await page.evaluate(() => {
+      document.querySelectorAll('style').forEach((node) => {
+        if ((node.textContent || '').includes('posterHeroOverlay')) node.remove();
+      });
+    });
+  };
+}
 
-      const heroRect = rectOf(hero);
-      const titleRect = rectOf(title);
-      const supportRect = rectOf(support);
-      const trustRect = rectOf(trust);
-      const ctaRect = rectOf(cta);
-      const nextRect = rectOf(next);
+async function runHomeModeLayout(
+  page: Page,
+  mode: 'fresh_load' | 'resize_down' | 'resize_up',
+): Promise<{
+  plannedCaseCount: number;
+  caseCount: number;
+  failedCount: number;
+  results: NormalizedCaseResult[];
+  minimumCtaTargetSize: number;
+}> {
+  const entry = homeVisualEntry();
+  const adapter = createM55CommercialQualityAdapter({
+    baseURL: BASE_URL,
+    label: LABEL,
+    includeAccessibility: false,
+  });
+  // Continuum uses short_text only — setup treats that as natural settled copy.
 
-      const eps = 1.5;
-      const fullyInside = (inner: Rect, outer: Rect, label: string) => {
-        if (
-          inner.top < outer.top - eps ||
-          inner.left < outer.left - eps ||
-          inner.right > outer.right + eps ||
-          inner.bottom > outer.bottom + eps
-        ) {
-          failures.push(
-            `${label} not fully inside Hero (inner=${JSON.stringify(inner)} hero=${JSON.stringify(outer)})`,
-          );
-        }
-      };
+  const plans = planCases(entry, {
+    modes: [mode],
+    profiles: ['default'],
+    contentStressProfiles: ['short_text'],
+    heights: HOME_CONTINUOUS_HEIGHTS,
+  });
+  const expectedOrigin = new URL(BASE_URL).origin;
+  const sourceCommit = resolveSourceCommit();
+  const results: NormalizedCaseResult[] = [];
+  let minimumCtaTargetSize = Number.POSITIVE_INFINITY;
 
-      fullyInside(titleRect, heroRect, 'headline');
-      fullyInside(ctaRect, heroRect, 'CTA');
-      fullyInside(supportRect, heroRect, 'support-copy');
-      fullyInside(trustRect, heroRect, 'login-free label');
+  for (const plan of plans) {
+    await adapter.prepareCase(page, entry, plan);
+    const measured = await measureCommercialSurface(page, entry, plan, {
+      expectedOrigin,
+      includeAccessibility: false,
+    });
+    const failures = [...checkLayoutInvariants(measured, entry)];
+    if (measured.criticalCta?.found) {
+      minimumCtaTargetSize = Math.min(
+        minimumCtaTargetSize,
+        measured.criticalCta.rect.height,
+        measured.criticalCta.rect.width,
+      );
+    }
+    if (measured.observedCanonicalStateId !== 'ecp:public.home:default') {
+      failures.push({
+        code: 'LAYOUT_STATE_DRIFT',
+        message: `canonical ${measured.observedCanonicalStateId}`,
+        diagnostics: {},
+        selector: null,
+      });
+    }
+    results.push({
+      surfaceId: plan.surfaceId,
+      runtimeStateId: plan.runtimeStateId,
+      route: measured.observedRoute,
+      viewport: plan.viewport,
+      mode: plan.mode,
+      profile: plan.profile,
+      contentStressProfile: plan.contentStressProfile,
+      passed: failures.length === 0,
+      failures,
+      durationMs: 0,
+      setupId: plan.setupId,
+      sourceCommit,
+    });
+  }
 
-      if (ctaRect.height < 44 - eps) {
-        failures.push(`CTA height ${ctaRect.height} < 44`);
-      }
-
-      const contentBottom = Math.max(titleRect.bottom, ctaRect.bottom, supportRect.bottom, trustRect.bottom);
-      if (contentBottom > heroRect.bottom + eps) {
-        failures.push(`Hero content bottom ${contentBottom} > Hero bottom ${heroRect.bottom}`);
-      }
-      if (nextRect.top + eps < contentBottom) {
-        failures.push(`following section top ${nextRect.top} < Hero content bottom ${contentBottom}`);
-      }
-      if (nextRect.top + eps < heroRect.bottom && heroRect.bottom - nextRect.top > 2) {
-        /* allow shared border; reject true negative overlap of content */
-      }
-      if (nextRect.top < contentBottom - eps) {
-        failures.push(`negative overlap: next.top=${nextRect.top} contentBottom=${contentBottom}`);
-      }
-
-      const opacityOf = (el: Element) => Number.parseFloat(getComputedStyle(el).opacity || '1');
-      for (const [label, el] of [
-        ['headline', title],
-        ['support', support],
-        ['trust', trust],
-        ['cta', cta],
-      ] as const) {
-        if (opacityOf(el) <= 0.01 || (el as HTMLElement).offsetParent === null && getComputedStyle(el).position !== 'fixed') {
-          const vis = getComputedStyle(el).visibility;
-          if (vis === 'hidden' || opacityOf(el) <= 0.01) {
-            failures.push(`${label} not visible (opacity/visibility)`);
-          }
-        }
-        if ((el.textContent || '').trim().length === 0) {
-          failures.push(`${label} empty text`);
-        }
-      }
-
-      const findClippingAncestor = (el: Element): { selector: string; rect: Rect; computed: Record<string, string> } | null => {
-        const target = rectOf(el);
-        let node: Element | null = el.parentElement;
-        while (node && node !== document.documentElement) {
-          const style = getComputedStyle(node);
-          const overflowY = style.overflowY;
-          const overflow = style.overflow;
-          const clips =
-            overflowY === 'hidden' ||
-            overflowY === 'clip' ||
-            overflow === 'hidden' ||
-            overflow === 'clip';
-          if (clips) {
-            const box = rectOf(node);
-            if (target.bottom > box.bottom + eps || target.top < box.top - eps) {
-              const tag = node.tagName.toLowerCase();
-              const testid = node.getAttribute('data-testid');
-              const cls = typeof node.className === 'string' ? node.className.split(/\s+/).slice(0, 2).join('.') : '';
-              return {
-                selector: testid ? `[data-testid="${testid}"]` : `${tag}${cls ? '.' + cls : ''}`,
-                rect: box,
-                computed: {
-                  width: style.width,
-                  height: style.height,
-                  minHeight: style.minHeight,
-                  maxHeight: style.maxHeight,
-                  overflow: style.overflow,
-                  overflowY: style.overflowY,
-                  position: style.position,
-                  display: style.display,
-                  alignItems: style.alignItems,
-                  justifyContent: style.justifyContent,
-                  transform: style.transform,
-                },
-              };
-            }
-          }
-          node = node.parentElement;
-        }
-        return null;
-      };
-
-      let clippingAncestor: ClipDiag['clippingAncestor'];
-      let ancestorRect: Rect | undefined;
-      let ancestorComputed: Record<string, string> | undefined;
-      let failingSelector: string | undefined;
-      let elementRect: Rect | undefined;
-
-      for (const [sel, el] of [
-        ['[data-testid="m55-home-hero-title"]', title],
-        ['[data-m55-hero-cta="true"]', cta],
-        ['[data-testid="m55-home-hero-support"]', support],
-        ['[data-testid="m55-home-hero-trust"]', trust],
-      ] as const) {
-        const clip = findClippingAncestor(el);
-        if (clip) {
-          failures.push(`${sel} clipped by ${clip.selector}`);
-          failingSelector = sel;
-          elementRect = rectOf(el);
-          clippingAncestor = clip.selector;
-          ancestorRect = clip.rect;
-          ancestorComputed = clip.computed;
-          break;
-        }
-      }
-
-      /* Fixed/sticky controls must not cover protected hero content. */
-      const protectedEls = [title, cta, support, trust];
-      const overlays = [
-        ...document.querySelectorAll(
-          '[data-m55-public-shell] > header, [data-m55-public-shell] header, [data-testid="m55-scroll-to-top"]',
-        ),
-      ];
-      for (const overlay of overlays) {
-        const style = getComputedStyle(overlay);
-        if (style.position !== 'fixed' && style.position !== 'sticky') continue;
-        const o = rectOf(overlay);
-        if (o.width < 1 || o.height < 1 || style.visibility === 'hidden' || Number.parseFloat(style.opacity || '1') < 0.05) {
-          continue;
-        }
-        for (const el of protectedEls) {
-          const r = rectOf(el);
-          const overlap =
-            r.left < o.right - 2 &&
-            r.right > o.left + 2 &&
-            r.top < o.bottom - 2 &&
-            r.bottom > o.top + 2;
-          if (overlap) {
-            const id = overlay.getAttribute('data-testid') || overlay.tagName.toLowerCase();
-            failures.push(`fixed/sticky control overlaps protected content (${id})`);
-          }
-        }
-      }
-
-      /* Protected Hero text must not extend past the visual viewport. */
-      for (const [label, el] of [
-        ['headline', title],
-        ['cta', cta],
-        ['support', support],
-        ['trust', trust],
-      ] as const) {
-        const r = rectOf(el);
-        if (r.right > window.innerWidth + 2 || r.left < -2) {
-          failures.push(`${label} extends beyond visual viewport`);
-        }
-      }
-
-      /* Japanese punctuation-only lines inside Hero. */
-      const punctOnly = /^[\s。、．，・…‥！？!?：:；;「」『』（）()【】［］\[\]―ー\-]+$/u;
-      for (const el of hero.querySelectorAll('h1, p, span, button')) {
-        const text = (el.textContent || '').trim();
-        if (text.length > 0 && punctOnly.test(text)) {
-          failures.push(`Japanese punctuation-only line: "${text}"`);
-        }
-      }
-
-      return {
-        ok: failures.length === 0,
-        failures,
-        viewport: { width: vw, height: vh },
-        failingSelector,
-        elementRect,
-        clippingAncestor,
-        ancestorRect,
-        ancestorComputed,
-      };
-    },
-    { width, height },
+  const failed = results.filter((r) => !r.passed);
+  expect(plans.length).toBe(474);
+  expect(failed.map(formatCaseFailure).join('\n\n'), failed.map(formatCaseFailure).join('\n\n')).toBe(
+    '',
   );
+  expect(failed.length).toBe(0);
+
+  return {
+    plannedCaseCount: plans.length,
+    caseCount: results.length,
+    failedCount: failed.length,
+    results,
+    minimumCtaTargetSize: Number.isFinite(minimumCtaTargetSize) ? minimumCtaTargetSize : 0,
+  };
 }
 
-function formatFailure(
-  mode: string,
-  width: number,
-  height: number,
-  diag: ClipDiag,
-  neighbor?: { prev?: string; next?: string },
-): string {
-  return [
-    `[${mode}] ${width}x${height}`,
-    ...diag.failures.map((f) => `  - ${f}`),
-    diag.failingSelector ? `  selector: ${diag.failingSelector}` : '',
-    diag.elementRect ? `  elementRect: ${JSON.stringify(diag.elementRect)}` : '',
-    diag.clippingAncestor ? `  clippingAncestor: ${diag.clippingAncestor}` : '',
-    diag.ancestorRect ? `  ancestorRect: ${JSON.stringify(diag.ancestorRect)}` : '',
-    diag.ancestorComputed ? `  ancestorComputed: ${JSON.stringify(diag.ancestorComputed)}` : '',
-    neighbor?.prev ? `  previous breakpoint: ${neighbor.prev}` : '',
-    neighbor?.next ? `  following breakpoint: ${neighbor.next}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n');
-}
-
-async function gotoHomeReady(page: Page) {
-  await prepareCleanCapturePage(page);
-  await page.goto('/home', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByTestId('m55-home-hero')).toBeVisible({ timeout: 60_000 });
-  await expect(page.locator('[data-m55-hero-cta="true"]')).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId('m55-home-hero-trust')).toBeVisible();
-  await assertOverlayAbsence(page, 'home-continuous-responsive');
-}
-
-test.describe('HOME continuous responsive Hero contract', () => {
+test.describe('HOME continuous responsive — shared commercial quality runner', () => {
   test.beforeAll(() => {
-    requireCleanCaptureEnvironment('home-continuous-responsive');
+    requireCleanCaptureEnvironment(LABEL);
   });
 
-  test('fresh-load sweep across governed widths × heights', async ({ page }) => {
+  test('shared-runner case arithmetic matches frozen HOME continuum', () => {
+    const entry = homeVisualEntry();
+    const widths = governedWidths(entry);
+    const plans = planCases(entry, HOME_PLAN_OPTIONS);
+    const fresh = plans.filter((p) => p.mode === 'fresh_load').length;
+    const down = plans.filter((p) => p.mode === 'resize_down').length;
+    const up = plans.filter((p) => p.mode === 'resize_up').length;
+    expect(widths.length).toBe(79);
+    expect(HOME_CONTINUOUS_HEIGHTS.length).toBe(6);
+    expect(fresh).toBe(474);
+    expect(down).toBe(474);
+    expect(up).toBe(474);
+    expect(plans.length).toBe(1422);
+    expect(canonicalObservableStateIdFor(entry.runtimeStateId)).toBe('ecp:public.home:default');
+  });
+
+  test('old absolute-overlay defect fails shared layout invariants; corrected HOME passes', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const entry = homeVisualEntry();
+    const adapter = createM55CommercialQualityAdapter({
+      baseURL: BASE_URL,
+      label: LABEL,
+      includeAccessibility: false,
+    });
+    const expectedOrigin = new URL(BASE_URL).origin;
+    const plan = planFor(entry, 390, 667);
+
+    await adapter.prepareCase(page, entry, plan);
+    const healthy = await measureCommercialSurface(page, entry, plan, {
+      expectedOrigin,
+      includeAccessibility: false,
+    });
+    expect(checkLayoutInvariants(healthy, entry).map((f) => f.code)).toEqual([]);
+    expect(healthy.observedCanonicalStateId).toBe('ecp:public.home:default');
+
+    const clear = await applyAbsoluteOverlayDefect(page);
+    await page.waitForTimeout(80);
+    const defective = await measureCommercialSurface(page, entry, plan, {
+      expectedOrigin,
+      includeAccessibility: false,
+    });
+    const defectCodes = checkLayoutInvariants(defective, entry).map((f) => f.code);
+    expect(defectCodes).toContain('LAYOUT_ANCESTOR_CLIPPING');
+    await clear();
+
+    await adapter.prepareCase(page, entry, plan);
+    const restored = await measureCommercialSurface(page, entry, plan, {
+      expectedOrigin,
+      includeAccessibility: false,
+    });
+    expect(checkLayoutInvariants(restored, entry).map((f) => f.code)).toEqual([]);
+  });
+
+  test('shared continuous engine: fresh-load (474)', async ({ page }) => {
     test.setTimeout(45 * 60 * 1000);
-    const failures: string[] = [];
-    const results = new Map<string, string>();
-
-    for (const height of HEIGHTS) {
-      for (let i = 0; i < GOVERNED_WIDTHS.length; i++) {
-        const width = GOVERNED_WIDTHS[i];
-        await page.setViewportSize({ width, height });
-        await gotoHomeReady(page);
-        const diag = await assertHomeHeroContract(page, width, height);
-        const key = `${width}x${height}`;
-        results.set(key, diag.ok ? 'PASS' : 'FAIL');
-        if (!diag.ok) {
-          failures.push(
-            formatFailure('fresh-load', width, height, diag, {
-              prev: i > 0 ? `${GOVERNED_WIDTHS[i - 1]}x${height}=${results.get(`${GOVERNED_WIDTHS[i - 1]}x${height}`)}` : undefined,
-              next:
-                i < GOVERNED_WIDTHS.length - 1
-                  ? `${GOVERNED_WIDTHS[i + 1]}x${height}=(pending)`
-                  : undefined,
-            }),
-          );
-        }
-      }
-    }
-
-    expect(failures, failures.join('\n\n')).toEqual([]);
+    const summary = await runHomeModeLayout(page, 'fresh_load');
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+    writeFileSync(
+      join(CONTACT_SHEET_DIR, 'summary-fresh_load.json'),
+      JSON.stringify({ mode: 'fresh_load', ...summary }, null, 2),
+    );
+    expect(summary.minimumCtaTargetSize).toBeGreaterThanOrEqual(44);
   });
 
-  test('continuous resize-down 1440→320 at each height', async ({ page }) => {
-    test.setTimeout(30 * 60 * 1000);
-    const failures: string[] = [];
-    const widthsDown = [...GOVERNED_WIDTHS].sort((a, b) => b - a);
-
-    for (const height of HEIGHTS) {
-      await page.setViewportSize({ width: WIDTH_MAX, height });
-      await gotoHomeReady(page);
-      let prevKey = '';
-      let prevResult = '';
-      for (const width of widthsDown) {
-        await page.setViewportSize({ width, height });
-        await page.waitForTimeout(50);
-        const diag = await assertHomeHeroContract(page, width, height);
-        const key = `${width}x${height}`;
-        if (!diag.ok) {
-          failures.push(
-            formatFailure('resize-down', width, height, diag, {
-              prev: prevKey ? `${prevKey}=${prevResult}` : undefined,
-            }),
-          );
-        }
-        prevKey = key;
-        prevResult = diag.ok ? 'PASS' : 'FAIL';
-      }
-    }
-
-    expect(failures, failures.join('\n\n')).toEqual([]);
+  test('shared continuous engine: resize-down (474)', async ({ page }) => {
+    test.setTimeout(45 * 60 * 1000);
+    const summary = await runHomeModeLayout(page, 'resize_down');
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+    writeFileSync(
+      join(CONTACT_SHEET_DIR, 'summary-resize_down.json'),
+      JSON.stringify({ mode: 'resize_down', ...summary }, null, 2),
+    );
+    expect(summary.minimumCtaTargetSize).toBeGreaterThanOrEqual(44);
   });
 
-  test('continuous resize-up 320→1440 at each height', async ({ page }) => {
-    test.setTimeout(30 * 60 * 1000);
-    const failures: string[] = [];
-    const widthsUp = [...GOVERNED_WIDTHS].sort((a, b) => a - b);
-
-    for (const height of HEIGHTS) {
-      await page.setViewportSize({ width: WIDTH_MIN, height });
-      await gotoHomeReady(page);
-      let prevKey = '';
-      let prevResult = '';
-      for (const width of widthsUp) {
-        await page.setViewportSize({ width, height });
-        await page.waitForTimeout(50);
-        const diag = await assertHomeHeroContract(page, width, height);
-        const key = `${width}x${height}`;
-        if (!diag.ok) {
-          failures.push(
-            formatFailure('resize-up', width, height, diag, {
-              prev: prevKey ? `${prevKey}=${prevResult}` : undefined,
-            }),
-          );
-        }
-        prevKey = key;
-        prevResult = diag.ok ? 'PASS' : 'FAIL';
-      }
-    }
-
-    expect(failures, failures.join('\n\n')).toEqual([]);
+  test('shared continuous engine: resize-up (474)', async ({ page }) => {
+    test.setTimeout(45 * 60 * 1000);
+    const summary = await runHomeModeLayout(page, 'resize_up');
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+    writeFileSync(
+      join(CONTACT_SHEET_DIR, 'summary-resize_up.json'),
+      JSON.stringify({ mode: 'resize_up', ...summary }, null, 2),
+    );
+    expect(summary.minimumCtaTargetSize).toBeGreaterThanOrEqual(44);
   });
 
-  test('representative widths still pass', async ({ page }) => {
+  test('shared continuous engine: aggregate continuum summary', async () => {
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+    const parts = ['fresh_load', 'resize_down', 'resize_up'].map((mode) =>
+      JSON.parse(readFileSync(join(CONTACT_SHEET_DIR, `summary-${mode}.json`), 'utf8')),
+    );
+    const aggregate = {
+      plannedCaseCount: parts.reduce((n: number, p) => n + p.plannedCaseCount, 0),
+      caseCount: parts.reduce((n: number, p) => n + p.caseCount, 0),
+      failedCount: parts.reduce((n: number, p) => n + p.failedCount, 0),
+      widthCount: 79,
+      heightCount: HOME_CONTINUOUS_HEIGHTS.length,
+      freshLoadCount: parts[0].caseCount,
+      resizeDownCount: parts[1].caseCount,
+      resizeUpCount: parts[2].caseCount,
+      canonicalState: 'ecp:public.home:default',
+      registrationRuntimeStateId: 'visual:home',
+      minimumCtaTargetSize: Math.min(...parts.map((p) => p.minimumCtaTargetSize)),
+    };
+    writeFileSync(join(CONTACT_SHEET_DIR, 'summary.json'), JSON.stringify(aggregate, null, 2));
+    expect(aggregate.plannedCaseCount).toBe(1422);
+    expect(aggregate.failedCount).toBe(0);
+    expect(aggregate.minimumCtaTargetSize).toBeGreaterThanOrEqual(44);
+  });
+
+  test('representative widths still pass via shared measurement', async ({ page }) => {
     test.setTimeout(10 * 60 * 1000);
+    const entry = homeVisualEntry();
+    const adapter = createM55CommercialQualityAdapter({
+      baseURL: BASE_URL,
+      label: LABEL,
+      includeAccessibility: false,
+    });
+    const expectedOrigin = new URL(BASE_URL).origin;
     const failures: string[] = [];
     for (const height of [812, 900] as const) {
       for (const width of REPRESENTATIVE_WIDTHS) {
-        await page.setViewportSize({ width, height });
-        await gotoHomeReady(page);
-        const diag = await assertHomeHeroContract(page, width, height);
-        if (!diag.ok) failures.push(formatFailure('representative', width, height, diag));
+        const plan = planFor(entry, width, height);
+        await adapter.prepareCase(page, entry, plan);
+        const measured = await measureCommercialSurface(page, entry, plan, {
+          expectedOrigin,
+          includeAccessibility: false,
+        });
+        const layoutFails = checkLayoutInvariants(measured, entry);
+        if (layoutFails.length) {
+          failures.push(`${width}x${height}: ${layoutFails.map((f) => f.code).join(',')}`);
+        }
       }
     }
-    expect(failures, failures.join('\n\n')).toEqual([]);
+    expect(failures, failures.join('\n')).toEqual([]);
   });
 
   test('contact sheet at height 812 (temporary review output)', async ({ page }) => {
     test.setTimeout(20 * 60 * 1000);
-    rmSync(CONTACT_SHEET_DIR, { recursive: true, force: true });
     mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
-
+    // Preserve continuum summary JSON written by earlier tests; only replace PNGs/flags.
+    for (const name of readdirSync(CONTACT_SHEET_DIR)) {
+      if (name.startsWith('home-hero-') || name === 'flags.json') {
+        rmSync(join(CONTACT_SHEET_DIR, name), { force: true });
+      }
+    }
+    const entry = homeVisualEntry();
+    const adapter = createM55CommercialQualityAdapter({
+      baseURL: BASE_URL,
+      label: LABEL,
+      includeAccessibility: false,
+    });
+    const expectedOrigin = new URL(BASE_URL).origin;
+    const widths = governedWidths(entry);
     const flags: string[] = [];
-    let prevHeroBottom = 0;
-    let prevCopyLeft = 0;
 
-    for (const width of GOVERNED_WIDTHS) {
-      await page.setViewportSize({ width, height: CONTACT_SHEET_HEIGHT });
-      await gotoHomeReady(page);
-      const diag = await assertHomeHeroContract(page, width, CONTACT_SHEET_HEIGHT);
+    for (const width of widths) {
+      const plan = planFor(entry, width, CONTACT_SHEET_HEIGHT);
+      await adapter.prepareCase(page, entry, plan);
+      const measured = await measureCommercialSurface(page, entry, plan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      const layoutFails = checkLayoutInvariants(measured, entry);
       const shot = join(CONTACT_SHEET_DIR, `home-hero-${width}.png`);
       await page.getByTestId('m55-home-hero').screenshot({ path: shot });
-
-      const metrics = await page.evaluate(() => {
-        const hero = document.querySelector('[data-testid="m55-home-hero"]')!;
-        const cta = document.querySelector('[data-m55-hero-cta="true"]')!;
-        const support = document.querySelector('[data-testid="m55-home-hero-support"]')!;
-        const trust = document.querySelector('[data-testid="m55-home-hero-trust"]')!;
-        const copy = document.querySelector('[data-testid="m55-home-hero-title"]')!;
-        const next = document.querySelector('[data-testid="m55-home-lower"]')!;
-        const hr = hero.getBoundingClientRect();
-        const cr = cta.getBoundingClientRect();
-        const sr = support.getBoundingClientRect();
-        const tr = trust.getBoundingClientRect();
-        const titleR = copy.getBoundingClientRect();
-        const nr = next.getBoundingClientRect();
-        return {
-          heroBottom: hr.bottom,
-          copyLeft: titleR.left,
-          ctaPartial: cr.bottom > hr.bottom - 1 || cr.top < hr.top + 1,
-          missingSupport: sr.height < 1 || getComputedStyle(support).opacity === '0',
-          missingTrust: tr.height < 1 || getComputedStyle(trust).opacity === '0',
-          sectionCollision: nr.top < Math.max(cr.bottom, sr.bottom, tr.bottom) - 1,
-        };
-      });
-
-      if (!diag.ok || metrics.ctaPartial) flags.push(`${width}: partially visible CTA / contract fail`);
-      if (metrics.missingSupport) flags.push(`${width}: missing support copy`);
-      if (metrics.missingTrust) flags.push(`${width}: missing login-free label`);
-      if (metrics.sectionCollision) flags.push(`${width}: section-boundary collision`);
-      if (prevHeroBottom > 0 && Math.abs(metrics.heroBottom - prevHeroBottom) > 220) {
-        flags.push(`${width}: sudden layout discontinuity vs previous width`);
+      if (layoutFails.length) {
+        flags.push(`${width}: ${layoutFails.map((f) => f.code).join(',')}`);
       }
-      if (prevCopyLeft > 0 && Math.abs(metrics.copyLeft - prevCopyLeft) > 180 && width > 640) {
-        flags.push(`${width}: abrupt copy displacement`);
+      if (measured.criticalCta && measured.criticalCta.rect.height < 44) {
+        flags.push(`${width}: CTA target height ${measured.criticalCta.rect.height}`);
       }
-      prevHeroBottom = metrics.heroBottom;
-      prevCopyLeft = metrics.copyLeft;
     }
 
     writeFileSync(join(CONTACT_SHEET_DIR, 'flags.json'), JSON.stringify({ flags }, null, 2));
