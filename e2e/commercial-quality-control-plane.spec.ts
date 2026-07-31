@@ -68,7 +68,11 @@ import { establishLocalAuthGateFixture } from '../lib/m55/commercialUx/qualityCo
 import {
   recomputeCanonicalAliasCounts,
   canonicalObservableStateIdFor,
+  countProjectionAliases,
+  probeExcludedProjectionResolverNegative,
+  reconcileResolverParity,
   M55_OBSERVABLE_STATE_ALIASES,
+  M55_OBSERVABLE_STATE_PROJECTIONS,
 } from '../lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap';
 import {
   M55_STATE_DOM_CONTRACTS,
@@ -205,12 +209,20 @@ test.describe('commercial quality control plane', () => {
     const aliasCounts = recomputeCanonicalAliasCounts(
       executableTargets.map((t) => t.runtimeStateId),
     );
+    const registrationIds = executableTargets.map((t) => t.runtimeStateId);
     expect(aliasCounts.executable).toBe(76);
-    expect(aliasCounts.canonical).toBe(63);
-    expect(aliasCounts.alias).toBe(13);
+    expect(aliasCounts.canonical).toBe(46);
+    expect(aliasCounts.alias).toBe(30);
     expect(aliasCounts.mapping).toBe(76);
+    expect(aliasCounts.canonical + aliasCounts.alias).toBe(76);
     expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(13);
-    expect(countUniqueObservableSignatures(executableContracts)).toBe(63);
+    expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(17);
+    const projections = countProjectionAliases(registrationIds);
+    expect(projections.projectionRegistrations).toBe(17);
+    expect(projections.projectionAliases).toBe(17);
+    expect(reconcileResolverParity(registrationIds, canonicalObservableStateIdFor)).toEqual([]);
+    expect(probeExcludedProjectionResolverNegative(registrationIds).length).toBeGreaterThan(0);
+    expect(countUniqueObservableSignatures(executableContracts)).toBe(46);
     expect(countObservableSignatureCollisions(executableContracts)).toBe(0);
     expect(reconcileAllStateContracts().filter((f) => f.code === 'STATE_CONTRACT_COLLISION')).toEqual(
       [],

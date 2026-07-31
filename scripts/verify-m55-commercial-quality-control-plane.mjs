@@ -626,11 +626,15 @@ function checkStateIdentityUniqueness() {
           "import { resolveSmokeManifestEntry } from './e2e/helpers/commercialQualitySmokeEvidence.ts';",
           "import { stateDomContractForEntry, reconcileExecutableStateContracts, countUniqueObservableSignatures, countObservableSignatureCollisions, countGenericStateMarkers } from './lib/m55/commercialUx/qualityControl/m55StateDomContracts.ts';",
           "import { M55_AUTH_GATE_FIXTURE_REGISTRY, authGateFixtureById, IMAGE_RESPONSE_FIXTURE } from './lib/m55/commercialUx/qualityControl/m55AuthGateFixtureRegistry.ts';",
-          "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
+          "import { readFileSync } from 'node:fs';",
+          "import { recomputeCanonicalAliasCounts, M55_OBSERVABLE_STATE_ALIASES, assertAliasMapClosed, canonicalObservableStateIdFor, countProjectionAliases, reconcileResolverParity, probeExcludedProjectionResolverNegative } from './lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts';",
           "const targets = listExecutableSmokeTargets();",
           "const ids = targets.map((t) => t.runtimeStateId);",
           "assertAliasMapClosed(ids);",
           "const counts = recomputeCanonicalAliasCounts(ids);",
+          "const projections = countProjectionAliases(ids);",
+          "const parity = reconcileResolverParity(ids, canonicalObservableStateIdFor);",
+          "const excludedProjectionFailures = probeExcludedProjectionResolverNegative(ids);",
           "const contracts = targets.map((t) => stateDomContractForEntry(resolveSmokeManifestEntry(t)));",
           "const failures = reconcileExecutableStateContracts(contracts);",
           // Cross-owner collision: identical route/selector/value, different canonicals.
@@ -640,12 +644,17 @@ function checkStateIdentityUniqueness() {
           "], { skipAliasMapClosed: true });",
           "const crossOwnerRejected = crossOwner.some((f) => f.code === 'STATE_CONTRACT_COLLISION');",
           "let unknownOk = false; try { authGateFixtureById('auth_gate.DOES_NOT_EXIST'); } catch { unknownOk = true; }",
+          "const dualResolverRefs = /export function dualCanonicalObservableStateIdFor/.test(readFileSync('lib/m55/commercialUx/qualityControl/m55ObservableStateAliasMap.ts','utf8'));",
           "console.log(JSON.stringify({",
           "  executable: contracts.length,",
           "  canonical: counts.canonical,",
           "  alias: counts.alias,",
           "  mapping: counts.mapping,",
-          "  dualAliases: Object.keys(M55_OBSERVABLE_STATE_ALIASES).length,",
+          "  dualAliasTable: Object.keys(M55_OBSERVABLE_STATE_ALIASES).length,",
+          "  projectionRegistrations: projections.projectionRegistrations,",
+          "  projectionAliases: projections.projectionAliases,",
+          "  excludedProjectionAliasFailures: excludedProjectionFailures.length,",
+          "  resolverParityFailures: parity.length,",
           "  uniqueSignatures: countUniqueObservableSignatures(contracts),",
           "  collisions: countObservableSignatureCollisions(contracts),",
           "  generic: countGenericStateMarkers(),",
@@ -653,6 +662,7 @@ function checkStateIdentityUniqueness() {
           "  imageFixture: IMAGE_RESPONSE_FIXTURE.fixtureId,",
           "  unknownFixtureRejected: unknownOk,",
           "  crossOwnerRejected,",
+          "  dualResolverRemaining: dualResolverRefs,",
           "  failures,",
           "}));",
         ].join(''),
@@ -668,25 +678,61 @@ function checkStateIdentityUniqueness() {
     if (report.executable !== 76) {
       fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
     }
-    if (report.canonical !== 63) {
+    if (report.canonical !== 46) {
       fail(
         'state_identity.canonical',
-        `expected 63 canonical observable states (recomputed), got ${report.canonical}`,
+        `expected 46 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
-    if (report.alias !== 13 || report.dualAliases !== 13) {
+    if (report.alias !== 30) {
       fail(
         'state_identity.alias',
-        `expected 13 registration aliases (recomputed), got alias=${report.alias} dual=${report.dualAliases}`,
+        `expected 30 registration aliases (recomputed), got alias=${report.alias}`,
+      );
+    }
+    if (report.canonical + report.alias !== 76) {
+      fail(
+        'state_identity.arithmetic',
+        `canonical+alias must equal 76, got ${report.canonical}+${report.alias}`,
       );
     }
     if (report.mapping !== 76) {
       fail('state_identity.mapping', `expected 76 registration mappings, got ${report.mapping}`);
     }
-    if (report.uniqueSignatures !== 63) {
+    if (report.uniqueSignatures !== 46) {
       fail(
         'state_identity.unique',
-        `expected 63 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+        `expected 46 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+      );
+    }
+    if (report.projectionAliases !== 17 || report.projectionRegistrations !== 17) {
+      fail(
+        'state_identity.projections',
+        `expected 17 projection aliases counted in arithmetic, got registrations=${report.projectionRegistrations} aliases=${report.projectionAliases}`,
+      );
+    }
+    if (report.excludedProjectionAliasFailures < 1) {
+      fail(
+        'state_identity.excluded_projection_negative',
+        'excluding projections from the resolver must fail reconciliation parity',
+      );
+    }
+    if (report.resolverParityFailures !== 0) {
+      fail(
+        'state_identity.resolver_parity',
+        `verifier/production resolver parity failures: ${report.resolverParityFailures}`,
+      );
+    }
+    if (report.dualResolverRemaining) {
+      fail(
+        'state_identity.dual_resolver',
+        'dualCanonicalObservableStateIdFor must not remain as a divergent export',
+      );
+    }
+    if (report.dualAliasTable !== 13) {
+      fail(
+        'state_identity.dual_table',
+        `expected dual-alias metadata table size 13, got ${report.dualAliasTable}`,
       );
     }
     if (report.collisions !== 0) {

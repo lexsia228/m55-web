@@ -1060,3 +1060,29 @@ test('the engine declares no project-specific surface knowledge', () => {
   assert.equal(planCases(entry, { contentStressProfiles: ['short_text'] })[0].route, entry.route);
   assert.equal(governedWidths(entry).length, new Set(governedWidths(entry)).size);
 });
+
+test('excluding projection aliases from the canonical resolver fails parity', async () => {
+  const {
+    listExecutableSmokeTargets,
+  } = await import('../m55/commercialUx/qualityControl/m55SetupRegistry');
+  const {
+    canonicalObservableStateIdFor,
+    probeExcludedProjectionResolverNegative,
+    reconcileResolverParity,
+    recomputeCanonicalAliasCounts,
+    countProjectionAliases,
+  } = await import('../m55/commercialUx/qualityControl/m55ObservableStateAliasMap');
+
+  const ids = listExecutableSmokeTargets().map((t) => t.runtimeStateId);
+  const counts = recomputeCanonicalAliasCounts(ids);
+  assert.equal(counts.executable, 76);
+  assert.equal(counts.canonical, 46);
+  assert.equal(counts.alias, 30);
+  assert.equal(counts.canonical + counts.alias, 76);
+  assert.deepEqual(reconcileResolverParity(ids, canonicalObservableStateIdFor), []);
+  assert.equal(countProjectionAliases(ids).projectionAliases, 17);
+  assert.ok(
+    probeExcludedProjectionResolverNegative(ids).length > 0,
+    'dual-only / excluded-projection resolver must fail authoritative parity',
+  );
+});

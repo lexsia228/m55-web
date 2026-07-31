@@ -1,9 +1,10 @@
 /**
  * Closed registration → canonical observable presentation-state mapping.
  *
- * Dual registrations that share one rendered presentation are aliases of one
- * canonicalObservableStateId. Method / legacy projections observe the page
- * presentation without expanding the dual-alias table.
+ * One authoritative resolver classifies every executable registration as
+ * either the canonical owner of a presentation state, or an alias of one.
+ * Dual-registration aliases and observation projections are both aliases
+ * when their resolved canonical ID differs from the registration ID.
  *
  * Recomputed from shared presentation selectors, excluding genuinely different
  * states (shared-entry valid vs invalid; questionnaire vs answer_edit).
@@ -17,8 +18,15 @@ export type RegistrationCanonicalMapping = {
   justification: string;
 };
 
+export type CanonicalAliasCounts = {
+  executable: number;
+  canonical: number;
+  alias: number;
+  mapping: number;
+};
+
 /**
- * Closed dual-registration aliases.
+ * Dual-registration aliases (same rendered presentation, distinct registration IDs).
  * Intro/prerequisite setups land on the paid questionnaire presentation after
  * establishCoreResult, so they alias six_questions (not a separate intro DOM).
  */
@@ -82,8 +90,8 @@ export const M55_OBSERVABLE_STATE_ALIASES: Readonly<
 };
 
 /**
- * Observation projections (method placements + legacy reply landing).
- * Not counted in the dual-alias table (keeps dual recomputation at 13/63).
+ * Optional projection metadata (method placements, legacy reply, RESULT sections).
+ * Does not alter resolver arithmetic — counted as aliases when IDs differ.
  */
 export const M55_OBSERVABLE_STATE_PROJECTIONS: Readonly<Record<string, string>> = {
   'method:home:default': 'ecp:public.home:default',
@@ -106,17 +114,10 @@ export const M55_OBSERVABLE_STATE_PROJECTIONS: Readonly<Record<string, string>> 
   'premium:premium.core.bridge': 'ecp:free.core.answer_review:answer_review',
 };
 
-/** Dual-alias resolution only (for 63/13 recomputation). */
-export function dualCanonicalObservableStateIdFor(
-  registrationRuntimeStateId: string,
-): string {
-  return (
-    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]
-      ?.canonicalObservableStateId ?? registrationRuntimeStateId
-  );
-}
-
-/** Observation resolution: dual aliases + page projections. */
+/**
+ * Authoritative registration → canonical observable state resolver.
+ * Used by runtime measurement, DOM contracts, reconciliation, verifier, and counts.
+ */
 export function canonicalObservableStateIdFor(
   registrationRuntimeStateId: string,
 ): string {
@@ -127,62 +128,203 @@ export function canonicalObservableStateIdFor(
   return registrationRuntimeStateId;
 }
 
+function justificationFor(registrationRuntimeStateId: string, role: ObservableStateRole): string {
+  const alias = M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId];
+  if (alias) return alias.justification;
+  if (role === 'alias' && registrationRuntimeStateId in M55_OBSERVABLE_STATE_PROJECTIONS) {
+    return 'projects to the same rendered page presentation as its canonical state';
+  }
+  return 'registration is the canonical owner of its presentation state';
+}
+
 export function buildRegistrationCanonicalMappings(
   registrationRuntimeStateIds: readonly string[],
 ): RegistrationCanonicalMapping[] {
   return registrationRuntimeStateIds.map((registrationRuntimeStateId) => {
-    const canonicalObservableStateId = dualCanonicalObservableStateIdFor(
+    const canonicalObservableStateId = canonicalObservableStateIdFor(
       registrationRuntimeStateId,
     );
     const role: ObservableStateRole =
       canonicalObservableStateId === registrationRuntimeStateId ? 'canonical' : 'alias';
-    const alias = M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId];
     return {
       registrationRuntimeStateId,
       canonicalObservableStateId,
       role,
-      justification:
-        alias?.justification ??
-        'registration is the canonical owner of its presentation state',
+      justification: justificationFor(registrationRuntimeStateId, role),
     };
   });
 }
 
 export function recomputeCanonicalAliasCounts(
   registrationRuntimeStateIds: readonly string[],
-): {
-  executable: number;
-  canonical: number;
-  alias: number;
-  mapping: number;
-} {
+): CanonicalAliasCounts {
   const mappings = buildRegistrationCanonicalMappings(registrationRuntimeStateIds);
   const canonicalIds = new Set(mappings.map((m) => m.canonicalObservableStateId));
+  const alias = mappings.filter((m) => m.role === 'alias').length;
+  const executable = registrationRuntimeStateIds.length;
+  if (canonicalIds.size + alias !== executable) {
+    throw new Error(
+      `STATE_CONTRACT_AMBIGUOUS: canonical(${canonicalIds.size})+alias(${alias})!=executable(${executable})`,
+    );
+  }
   return {
-    executable: registrationRuntimeStateIds.length,
+    executable,
     canonical: canonicalIds.size,
-    alias: mappings.filter((m) => m.role === 'alias').length,
+    alias,
     mapping: mappings.length,
   };
 }
 
-export function assertAliasMapClosed(registrationRuntimeStateIds: readonly string[]): void {
-  for (const aliasId of Object.keys(M55_OBSERVABLE_STATE_ALIASES)) {
-    if (!registrationRuntimeStateIds.includes(aliasId)) {
-      throw new Error(`STOP_FIXTURE_SCOPE: unknown alias registration ${aliasId}`);
+/** Counts projection registrations that resolve to a different canonical ID. */
+export function countProjectionAliases(
+  registrationRuntimeStateIds: readonly string[],
+): { projectionRegistrations: number; projectionAliases: number } {
+  let projectionRegistrations = 0;
+  let projectionAliases = 0;
+  for (const id of registrationRuntimeStateIds) {
+    if (!(id in M55_OBSERVABLE_STATE_PROJECTIONS)) continue;
+    projectionRegistrations += 1;
+    if (canonicalObservableStateIdFor(id) !== id) projectionAliases += 1;
+  }
+  return { projectionRegistrations, projectionAliases };
+}
+
+/**
+ * Deliberately incomplete resolver that ignores projections.
+ * Used only by the negative probe proving excluded-projection arithmetic fails.
+ */
+export function dualOnlyCanonicalObservableStateIdFor(
+  registrationRuntimeStateId: string,
+): string {
+  return (
+    M55_OBSERVABLE_STATE_ALIASES[registrationRuntimeStateId]
+      ?.canonicalObservableStateId ?? registrationRuntimeStateId
+  );
+}
+
+export type ResolverParityFailure = {
+  code: 'STATE_CONTRACT_AMBIGUOUS' | 'STATE_CONTRACT_MISSING';
+  detail: string;
+};
+
+/**
+ * Fail-closed: candidate resolver must deeply equal the authoritative resolver
+ * for every executable registration.
+ */
+export function reconcileResolverParity(
+  registrationRuntimeStateIds: readonly string[],
+  candidateResolver: (registrationRuntimeStateId: string) => string,
+): ResolverParityFailure[] {
+  const failures: ResolverParityFailure[] = [];
+  const seen = new Set<string>();
+  for (const id of registrationRuntimeStateIds) {
+    if (seen.has(id)) {
+      failures.push({
+        code: 'STATE_CONTRACT_AMBIGUOUS',
+        detail: `registration ${id} mapped more than once`,
+      });
+      continue;
     }
-    const canonical = M55_OBSERVABLE_STATE_ALIASES[aliasId]!.canonicalObservableStateId;
-    if (!registrationRuntimeStateIds.includes(canonical)) {
-      throw new Error(
-        `STOP_FIXTURE_SCOPE: alias ${aliasId} points at unknown canonical ${canonical}`,
-      );
+    seen.add(id);
+    const authoritative = canonicalObservableStateIdFor(id);
+    const candidate = candidateResolver(id);
+    if (!authoritative.trim()) {
+      failures.push({
+        code: 'STATE_CONTRACT_MISSING',
+        detail: `missing canonical mapping for ${id}`,
+      });
     }
-    if (canonical === aliasId) {
-      throw new Error(`STOP_FIXTURE_SCOPE: alias ${aliasId} maps to itself`);
+    if (authoritative !== candidate) {
+      failures.push({
+        code: 'STATE_CONTRACT_AMBIGUOUS',
+        detail: `resolver mismatch for ${id}: authoritative=${authoritative} candidate=${candidate}`,
+      });
     }
   }
-  const keys = Object.keys(M55_OBSERVABLE_STATE_ALIASES);
-  if (new Set(keys).size !== keys.length) {
+  for (const canonical of new Set(
+    registrationRuntimeStateIds.map((id) => canonicalObservableStateIdFor(id)),
+  )) {
+    const owners = registrationRuntimeStateIds.filter(
+      (id) => canonicalObservableStateIdFor(id) === canonical,
+    );
+    if (owners.length === 0) {
+      failures.push({
+        code: 'STATE_CONTRACT_MISSING',
+        detail: `canonical ${canonical} has no registrations`,
+      });
+    }
+  }
+  return failures;
+}
+
+/**
+ * Negative probe: excluding projections (dual-only resolver) must fail parity.
+ */
+export function probeExcludedProjectionResolverNegative(
+  registrationRuntimeStateIds: readonly string[],
+): ResolverParityFailure[] {
+  return reconcileResolverParity(
+    registrationRuntimeStateIds,
+    dualOnlyCanonicalObservableStateIdFor,
+  );
+}
+
+export function assertAliasMapClosed(registrationRuntimeStateIds: readonly string[]): void {
+  const aliasTables: Array<{
+    label: string;
+    entries: Readonly<Record<string, { canonicalObservableStateId: string } | string>>;
+  }> = [
+    { label: 'alias', entries: M55_OBSERVABLE_STATE_ALIASES },
+    {
+      label: 'projection',
+      entries: Object.fromEntries(
+        Object.entries(M55_OBSERVABLE_STATE_PROJECTIONS).map(([k, v]) => [
+          k,
+          { canonicalObservableStateId: v },
+        ]),
+      ),
+    },
+  ];
+
+  for (const table of aliasTables) {
+    for (const aliasId of Object.keys(table.entries)) {
+      if (!registrationRuntimeStateIds.includes(aliasId)) {
+        throw new Error(`STOP_FIXTURE_SCOPE: unknown ${table.label} registration ${aliasId}`);
+      }
+      const entry = table.entries[aliasId]!;
+      const canonical =
+        typeof entry === 'string' ? entry : entry.canonicalObservableStateId;
+      if (!registrationRuntimeStateIds.includes(canonical)) {
+        throw new Error(
+          `STOP_FIXTURE_SCOPE: ${table.label} ${aliasId} points at unknown canonical ${canonical}`,
+        );
+      }
+      if (canonical === aliasId) {
+        throw new Error(`STOP_FIXTURE_SCOPE: ${table.label} ${aliasId} maps to itself`);
+      }
+      // Conflicting tables must not disagree for the same registration.
+      const resolved = canonicalObservableStateIdFor(aliasId);
+      if (resolved !== canonical) {
+        throw new Error(
+          `STATE_CONTRACT_AMBIGUOUS: ${table.label} ${aliasId} maps to multiple canonical states`,
+        );
+      }
+    }
+  }
+
+  const dualKeys = Object.keys(M55_OBSERVABLE_STATE_ALIASES);
+  if (new Set(dualKeys).size !== dualKeys.length) {
     throw new Error('STATE_CONTRACT_AMBIGUOUS: duplicate alias keys');
+  }
+  const projectionKeys = Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS);
+  if (new Set(projectionKeys).size !== projectionKeys.length) {
+    throw new Error('STATE_CONTRACT_AMBIGUOUS: duplicate projection keys');
+  }
+  for (const id of dualKeys) {
+    if (id in M55_OBSERVABLE_STATE_PROJECTIONS) {
+      throw new Error(
+        `STATE_CONTRACT_AMBIGUOUS: registration ${id} listed as both alias and projection`,
+      );
+    }
   }
 }

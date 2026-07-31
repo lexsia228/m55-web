@@ -11,8 +11,9 @@ import {
 import {
   assertAliasMapClosed,
   canonicalObservableStateIdFor,
-  dualCanonicalObservableStateIdFor,
   M55_OBSERVABLE_STATE_ALIASES,
+  M55_OBSERVABLE_STATE_PROJECTIONS,
+  reconcileResolverParity,
 } from './m55ObservableStateAliasMap';
 
 export type ObservableStateSignature = {
@@ -78,16 +79,35 @@ export function reconcileExecutableStateContracts(
     }
   }
 
-  // Detect an alias mapped to two canonicals (duplicate key overwrite can't;
-  // detect conflicting justifications via canonical mismatch on same alias).
+  // Detect an alias/projection mapped to two canonicals.
   for (const [aliasId, def] of Object.entries(M55_OBSERVABLE_STATE_ALIASES)) {
-    const resolved = dualCanonicalObservableStateIdFor(aliasId);
+    const resolved = canonicalObservableStateIdFor(aliasId);
     if (resolved !== def.canonicalObservableStateId) {
       failures.push({
         code: 'STATE_CONTRACT_AMBIGUOUS',
         detail: `alias ${aliasId} maps to multiple canonical states`,
       });
     }
+  }
+  for (const [projectionId, canonical] of Object.entries(M55_OBSERVABLE_STATE_PROJECTIONS)) {
+    const resolved = canonicalObservableStateIdFor(projectionId);
+    if (resolved !== canonical) {
+      failures.push({
+        code: 'STATE_CONTRACT_AMBIGUOUS',
+        detail: `projection ${projectionId} maps to multiple canonical states`,
+      });
+    }
+  }
+
+  // Verifier/reporting and production must share one authoritative resolver.
+  for (const failure of reconcileResolverParity(
+    registrationIds,
+    canonicalObservableStateIdFor,
+  )) {
+    failures.push({
+      code: failure.code,
+      detail: failure.detail,
+    });
   }
 
   for (const contract of contracts) {
@@ -212,7 +232,6 @@ export function reconcileExecutableStateContracts(
   }
 
   void M55_AUTH_GATE_FIXTURE_REGISTRY;
-  void canonicalObservableStateIdFor;
 
   return failures;
 }
@@ -225,14 +244,11 @@ export function countObservableSignatureCollisions(
   ).length;
 }
 
-/**
- * Count of dual-canonical presentation states (aliases collapse; projections
- * remain dual-identity registrations but observe a page canonical at runtime).
- */
+/** Unique canonical observable states after authoritative alias collapse. */
 export function countUniqueObservableSignatures(
   contracts: readonly StateDomContract[],
 ): number {
   return new Set(
-    contracts.map((contract) => dualCanonicalObservableStateIdFor(contract.runtimeStateId)),
+    contracts.map((contract) => canonicalObservableStateIdFor(contract.runtimeStateId)),
   ).size;
 }

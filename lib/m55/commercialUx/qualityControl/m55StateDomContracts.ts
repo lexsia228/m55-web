@@ -14,10 +14,7 @@ import {
   authGateFixtureByRuntimeStateId,
   AUTH_GATE_STATE_ATTR,
 } from './m55AuthGateFixtureRegistry';
-import {
-  canonicalObservableStateIdFor,
-  dualCanonicalObservableStateIdFor,
-} from './m55ObservableStateAliasMap';
+import { canonicalObservableStateIdFor } from './m55ObservableStateAliasMap';
 import { M55_COMMERCIAL_QUALITY_MANIFEST, M55_QUALITY_PROJECT_ID } from './m55SurfaceManifest';
 import {
   countObservableSignatureCollisions,
@@ -273,7 +270,7 @@ export function countCanonicalContractsByOwnership(
 ): { application: number; fixture: number } {
   const byCanonical = new Map<string, StateDomContract>();
   for (const contract of contracts) {
-    const canonical = dualCanonicalObservableStateIdFor(contract.runtimeStateId);
+    const canonical = canonicalObservableStateIdFor(contract.runtimeStateId);
     if (!byCanonical.has(canonical)) byCanonical.set(canonical, contract);
   }
   let application = 0;
