@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Official browser-gate launcher for the commercial quality control plane.
+ * Official HOME continuous-responsive launcher.
  *
- * Runs Playwright, preserves its exit status, then removes repository-owned
- * generated residue that Playwright reporters write after the suite process
- * (playwright-report/, test-results/.last-run.json, etc.).
+ * Runs Playwright, preserves its exit status, then removes test-owned residue
+ * written after the suite process. The governed candidate approval pack is
+ * never deleted.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, rmSync, statSync } from 'node:fs';
@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const APPROVAL_PACK = 'commercial-quality-approval-pack';
 
 const RESIDUE_ROOTS = [
   join(ROOT, 'playwright-report'),
@@ -40,7 +41,7 @@ function cleanOwnedResidue() {
   const testResults = join(ROOT, 'test-results');
   if (existsSync(testResults)) {
     for (const name of readdirSync(testResults)) {
-      if (name === 'commercial-quality-approval-pack') continue;
+      if (name === APPROVAL_PACK) continue;
       rmSync(join(testResults, name), { recursive: true, force: true });
     }
   }
@@ -54,7 +55,7 @@ function countOwnedResidue() {
   const testResults = join(ROOT, 'test-results');
   if (existsSync(testResults)) {
     for (const name of readdirSync(testResults)) {
-      if (name === 'commercial-quality-approval-pack') continue;
+      if (name === APPROVAL_PACK) continue;
       count += walkFiles(join(testResults, name)).length;
     }
   }
@@ -64,7 +65,7 @@ function countOwnedResidue() {
 const playwrightArgs = [
   'playwright',
   'test',
-  'e2e/commercial-quality-control-plane.spec.ts',
+  'e2e/home-continuous-responsive.spec.ts',
   ...process.argv.slice(2),
 ];
 
@@ -81,7 +82,7 @@ const status = typeof result.status === 'number' ? result.status : 1;
 cleanOwnedResidue();
 const residue = countOwnedResidue();
 if (residue !== 0) {
-  console.error(`commercial-quality e2e: generated residue count ${residue} after cleanup`);
+  console.error(`home-continuous e2e: generated residue count ${residue} after cleanup`);
   process.exit(status === 0 ? 1 : status);
 }
 

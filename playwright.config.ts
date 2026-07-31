@@ -35,6 +35,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
+  // Keep Playwright's auto-cleared artifact root off the governed candidate pack.
+  outputDir: 'test-results/playwright-run',
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
     baseURL,

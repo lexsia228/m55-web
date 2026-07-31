@@ -22,6 +22,7 @@ import type { CasePlan } from '../../lib/commercialQuality/types';
 
 export const RESIDUE_PATHS = [
   'test-results/.last-run.json',
+  'test-results/playwright-run',
   'test-results/commercial-quality-gate',
   'playwright-report',
 ] as const;
@@ -266,6 +267,7 @@ export function countResidue(): number {
 export function cleanGeneratedResidue(): void {
   for (const path of [
     'test-results/.last-run.json',
+    'test-results/playwright-run',
     'test-results/commercial-quality-gate',
     'playwright-report',
   ]) {

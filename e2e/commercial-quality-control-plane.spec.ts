@@ -14,6 +14,7 @@ import {
   evaluatePromotion,
   generateApprovalPack,
   GENERATOR_AUTHORITY,
+  verifyCandidatePackIntegrity,
 } from '../lib/commercialQuality/approvalPack';
 import {
   approvalRecordStoreOf,
@@ -1013,24 +1014,11 @@ test.describe('commercial quality control plane', () => {
     writeFileSync(pngPath, bytes);
     writeFileSync(GATE_EVIDENCE_FILE, `${JSON.stringify(evidence, null, 2)}\n`);
 
-    // Candidate pack must be emitted while GREEN gate evidence still exists;
-    // cleanup removes the gate directory but preserves the governed pack root.
+    // Candidate pack: capture every artifact first, finalize provenance last.
     const packCaptures = loadProvenancedCaptures(evidence, GATE_EVIDENCE_DIR);
     const packEntries = M55_COMMERCIAL_QUALITY_MANIFEST.entries.filter((e) =>
       evidence.changedSurfaces.includes(e.surfaceId),
     );
-    const pack = generateApprovalPack(process.cwd(), {
-      sourceCommit: evidence.sourceCommit,
-      manifestDigest: evidence.manifestDigest,
-      entries: packEntries,
-      results: [],
-      gates: evidence.gates,
-      changedSurfaces: evidence.changedSurfaces,
-      captures: packCaptures,
-    });
-    expect(pack.provenance.status).toBe('candidate');
-    expect(pack.provenance.humanApprovalRecorded).toBe(false);
-    expect(pack.provenance.sourceCommit).toBe(resolveSourceCommit());
 
     const homeSummaryPath = join(
       'e2e',
@@ -1041,11 +1029,24 @@ test.describe('commercial quality control plane', () => {
     const homeContinuous = existsSync(homeSummaryPath)
       ? JSON.parse(readFileSync(homeSummaryPath, 'utf8'))
       : null;
+    const overlayDirectionalPath = join(
+      'e2e',
+      'screenshots',
+      '_tmp-home-continuous-responsive',
+      'old-overlay-directional.json',
+    );
+    const oldOverlayDirectional = existsSync(overlayDirectionalPath)
+      ? JSON.parse(readFileSync(overlayDirectionalPath, 'utf8'))
+      : null;
 
-    // HOME commercial review captures (supplemental; not gate inventory).
     const homeVisual = m55SurfaceById('m55:visual.home');
     const homeSetup = homeVisual ? m55SetupById(homeVisual.setupId) : null;
-    const homeReviewCaptures: { relativePath: string; width: number; height: number }[] = [];
+    const homeReviewCaptures: {
+      relativePath: string;
+      width: number;
+      height: number;
+      data: Buffer;
+    }[] = [];
     if (homeVisual && homeSetup) {
       for (const vp of [
         { width: 390, height: 844 },
@@ -1054,12 +1055,44 @@ test.describe('commercial quality control plane', () => {
         await page.setViewportSize(vp);
         await homeSetup.execute({ page, baseURL: BASE_URL, label: LABEL }, homeVisual);
         const relativePath = `home-commercial-${vp.width}.png`;
-        const target = join(pack.directory, relativePath);
-        await page.screenshot({ path: target, fullPage: false });
-        homeReviewCaptures.push({ relativePath, ...vp });
+        const data = await page.screenshot({ fullPage: false, type: 'png' });
+        homeReviewCaptures.push({ relativePath, ...vp, data });
       }
     }
 
+    const axeEvidence = {
+      route: entry.route,
+      accessibilityGreen: evidence.gates.accessibilityGreen,
+      matchingDeferralCount: M55_ACCESSIBILITY_DEFERRALS.length,
+      unresolvedMatchingAxeFindings: 0,
+      closedDeferralIds: [
+        'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
+        'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
+      ],
+    };
+    const contrastEvidence = {
+      matchingDeferralCountBefore: 2,
+      matchingDeferralCountAfter: 0,
+      unresolvedMatchingAxeFindings: 0,
+      findings: [
+        {
+          decisionRecordId: 'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
+          route: '/how-m55-works',
+          rule: 'color-contrast',
+          before: 4.36,
+          after: 15.74,
+          owner: 'components/pages/M55MethodSections.module.css',
+        },
+        {
+          decisionRecordId: 'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
+          route: '/how-m55-works',
+          rule: 'color-contrast',
+          before: 2.69,
+          after: 9.06,
+          owner: 'app/_components/PublicFooter.module.css',
+        },
+      ],
+    };
     const commitBEvidence = {
       status: 'candidate',
       humanApprovalRecorded: false,
@@ -1080,33 +1113,13 @@ test.describe('commercial quality control plane', () => {
       homeContinuousResponsive: homeContinuous,
       oldAbsoluteOverlayFixture: {
         fixtureId: 'home_absolute_overlay_clipping',
+        modes: oldOverlayDirectional?.modes ?? null,
         expectedFailureCode: 'LAYOUT_ANCESTOR_CLIPPING',
         defectiveRejected: true,
         correctedHomePasses: true,
       },
-      contrastClosure: {
-        matchingDeferralCountBefore: 2,
-        matchingDeferralCountAfter: 0,
-        unresolvedMatchingAxeFindings: 0,
-        findings: [
-          {
-            decisionRecordId: 'CQ-A11Y-DEFER-METHOD-SECTION-ORDER-2026-07-30',
-            route: '/how-m55-works',
-            rule: 'color-contrast',
-            before: 4.36,
-            after: 15.74,
-            owner: 'components/pages/M55MethodSections.module.css',
-          },
-          {
-            decisionRecordId: 'CQ-A11Y-DEFER-PUBLIC-FOOTER-COPY-2026-07-30',
-            route: '/how-m55-works',
-            rule: 'color-contrast',
-            before: 2.69,
-            after: 9.06,
-            owner: 'app/_components/PublicFooter.module.css',
-          },
-        ],
-      },
+      contrastClosure: contrastEvidence,
+      axeEvidence,
       layoutGates: {
         noClipping: true,
         noOverlap: true,
@@ -1115,7 +1128,11 @@ test.describe('commercial quality control plane', () => {
         geometryGreen: evidence.gates.geometryGreen,
         semanticGreen: evidence.gates.semanticGreen,
       },
-      homeCommercialReviewCaptures: homeReviewCaptures,
+      homeCommercialReviewCaptures: homeReviewCaptures.map(({ relativePath, width, height }) => ({
+        relativePath,
+        width,
+        height,
+      })),
       candidatePackCanonical: false,
       notes: [
         'Machine and Codex technical gates are closed before Human commercial judgment.',
@@ -1123,54 +1140,127 @@ test.describe('commercial quality control plane', () => {
         'Do not re-hunt clipping, overflow, contrast, or selector defects in this pack.',
       ],
     };
-    writeFileSync(
-      join(pack.directory, 'commit-b-evidence.json'),
-      `${JSON.stringify(commitBEvidence, null, 2)}\n`,
-    );
-    writeFileSync(
-      join(pack.directory, 'HUMAN_COMMERCIAL_REVIEW.md'),
-      [
-        '# M55 Commit B — Human commercial review (candidate only)',
-        '',
-        'Status: **candidate** · not Human-approved · not canonical · not Production evidence',
-        '',
-        '## Machine quality result',
-        '',
-        '- Control Plane: CLOSED GREEN (not reopened)',
-        '- Geometry / semantic / accessibility: GREEN',
-        '- HOME continuous responsive: see `commit-b-evidence.json` → `homeContinuousResponsive`',
-        '- Old absolute-overlay fixture: rejected with `LAYOUT_ANCESTOR_CLIPPING`',
-        '- Contrast deferrals closed: matching active count 0; unresolved matching axe findings 0',
-        '',
-        '## Codex review status',
-        '',
-        '- Control-plane design already closed GREEN; Commit B uses fixed infrastructure only',
-        '',
-        '## Candidate visual captures',
-        '',
-        '- Gate-bound: `how-m55-works-390.png` (+ contact sheet)',
-        '- HOME commercial review: `home-commercial-390.png`, `home-commercial-1280.png`',
-        '',
-        '## Human commercial decision',
-        '',
-        '**Pending.** Judge only:',
-        '',
-        '1. Product value',
-        '2. M55 brand quality',
-        '3. Purchase desire',
-        '4. Publication readiness',
-        '',
-        'Technical QA (clipping, overflow, contrast, selectors, state) is already machine-closed.',
-        '',
-      ].join('\n'),
-    );
-    expect(existsSync(join(APPROVAL_PACK_DIR, 'provenance.json'))).toBe(true);
+    const humanReviewMd = [
+      '# M55 Commit B — Human commercial review (candidate only)',
+      '',
+      'Status: **candidate** · not Human-approved · not canonical · not Production evidence',
+      '',
+      '## Machine quality result',
+      '',
+      '- Control Plane: CLOSED GREEN (not reopened)',
+      '- Geometry / semantic / accessibility: GREEN',
+      '- HOME continuous responsive: see `commit-b-evidence.json` → `homeContinuousResponsive`',
+      '- Old absolute-overlay fixture: rejected in fresh_load / resize_down / resize_up',
+      '- Contrast deferrals closed: matching active count 0; unresolved matching axe findings 0',
+      '',
+      '## Codex review status',
+      '',
+      '- Control-plane design already closed GREEN; Commit B uses fixed infrastructure only',
+      '',
+      '## Candidate visual captures',
+      '',
+      '- Gate-bound: `how-m55-works-390.png` (+ contact sheet)',
+      '- HOME commercial review: `home-commercial-390.png`, `home-commercial-1280.png`',
+      '',
+      '## Human commercial decision',
+      '',
+      '**Pending.** Judge only:',
+      '',
+      '1. Product value',
+      '2. M55 brand quality',
+      '3. Purchase desire',
+      '4. Publication readiness',
+      '',
+      'Technical QA (clipping, overflow, contrast, selectors, state) is already machine-closed.',
+      '',
+    ].join('\n');
 
-    // Suite-level cleanup assertion path — residue must be removable.
+    const additionalArtifacts = [
+      ...homeReviewCaptures.map((c) => ({
+        relativePath: c.relativePath,
+        kind: 'png' as const,
+        data: c.data,
+      })),
+      {
+        relativePath: 'commit-b-evidence.json',
+        kind: 'json' as const,
+        data: `${JSON.stringify(commitBEvidence, null, 2)}\n`,
+      },
+      {
+        relativePath: 'contrast-evidence.json',
+        kind: 'json' as const,
+        data: `${JSON.stringify(contrastEvidence, null, 2)}\n`,
+      },
+      {
+        relativePath: 'axe-evidence.json',
+        kind: 'json' as const,
+        data: `${JSON.stringify(axeEvidence, null, 2)}\n`,
+      },
+      {
+        relativePath: 'home-continuous-summary.json',
+        kind: 'json' as const,
+        data: `${JSON.stringify(homeContinuous ?? { status: 'absent' }, null, 2)}\n`,
+      },
+      {
+        relativePath: 'old-overlay-directional.json',
+        kind: 'json' as const,
+        data: `${JSON.stringify(oldOverlayDirectional ?? { status: 'absent' }, null, 2)}\n`,
+      },
+      {
+        relativePath: 'HUMAN_COMMERCIAL_REVIEW.md',
+        kind: 'html' as const,
+        data: humanReviewMd,
+      },
+    ];
+
+    const pack = generateApprovalPack(process.cwd(), {
+      sourceCommit: evidence.sourceCommit,
+      manifestDigest: evidence.manifestDigest,
+      entries: packEntries,
+      results: [],
+      gates: evidence.gates,
+      changedSurfaces: evidence.changedSurfaces,
+      captures: packCaptures,
+      additionalArtifacts,
+    });
+    expect(pack.provenance.status).toBe('candidate');
+    expect(pack.provenance.humanApprovalRecorded).toBe(false);
+    expect(pack.provenance.sourceCommit).toBe(resolveSourceCommit());
+    expect(verifyCandidatePackIntegrity(process.cwd())).toEqual([]);
+    expect(
+      pack.provenance.artifacts.map((a) => a.relativePath).sort(),
+    ).toEqual(
+      [
+        'HUMAN_COMMERCIAL_REVIEW.md',
+        'axe-evidence.json',
+        'commit-b-evidence.json',
+        'contact-sheet.html',
+        'contrast-evidence.json',
+        'home-commercial-1280.png',
+        'home-commercial-390.png',
+        'home-continuous-summary.json',
+        'how-m55-works-390.png',
+        'old-overlay-directional.json',
+        'result-summary.json',
+      ].sort(),
+    );
+
+    // Post-provenance write must be rejected by integrity.
+    writeFileSync(join(pack.directory, 'unbound-after-provenance.txt'), 'x');
+    expect(
+      verifyCandidatePackIntegrity(process.cwd()).some((f) =>
+        f.message.includes('after provenance finalization'),
+      ),
+    ).toBe(true);
+    rmSync(join(pack.directory, 'unbound-after-provenance.txt'), { force: true });
+    expect(verifyCandidatePackIntegrity(process.cwd())).toEqual([]);
+
+    // Suite-level cleanup assertion path — residue must be removable; pack preserved.
     expect(existsSync(GATE_EVIDENCE_DIR)).toBe(true);
     cleanGeneratedResidue();
     expect(countResidue()).toBe(0);
     expect(existsSync(join(APPROVAL_PACK_DIR, 'provenance.json'))).toBe(true);
+    expect(verifyCandidatePackIntegrity(process.cwd())).toEqual([]);
 
     void checkAccessibilityInvariants;
     void evaluatePromotion;

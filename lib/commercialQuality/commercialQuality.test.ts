@@ -17,6 +17,7 @@ import {
   approvalPackBlockers,
   evaluatePromotion,
   generateApprovalPack,
+  verifyCandidatePackIntegrity,
 } from './approvalPack';
 import {
   manifestTuplesFromEntries,
@@ -842,6 +843,57 @@ test('the approval pack throws when a gate is not GREEN', () => {
         changedSurfaces: [],
         captures: [],
       }),
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('candidate pack binds supplemental artifacts and rejects post-provenance writes', () => {
+  const root = mkdtempSync(join(tmpdir(), 'm55-cq-'));
+  try {
+    const entry = validEntry();
+    const pack = generateApprovalPack(root, {
+      sourceCommit: 'commit-b',
+      manifestDigest: 'digest-b',
+      entries: [entry],
+      results: [],
+      gates: GREEN_GATES,
+      changedSurfaces: [entry.surfaceId],
+      captures: [{ relativePath: 'primary-390.png', kind: 'png', data: new Uint8Array([9, 8, 7]) }],
+      additionalArtifacts: [
+        {
+          relativePath: 'home-commercial-390.png',
+          kind: 'png',
+          data: new Uint8Array([4, 5, 6]),
+        },
+        {
+          relativePath: 'commit-b-evidence.json',
+          kind: 'json',
+          data: '{"status":"candidate"}\n',
+        },
+      ],
+      now: () => new Date('2026-07-31T00:00:00.000Z'),
+    });
+    assert.equal(verifyCandidatePackIntegrity(root).length, 0);
+    const paths = pack.provenance.artifacts.map((a) => a.relativePath).sort();
+    assert.ok(paths.includes('home-commercial-390.png'));
+    assert.ok(paths.includes('commit-b-evidence.json'));
+    assert.ok(paths.includes('primary-390.png'));
+
+    writeFileSync(join(pack.directory, 'late.txt'), 'after');
+    assert.ok(
+      verifyCandidatePackIntegrity(root).some((f) =>
+        f.message.includes('after provenance finalization'),
+      ),
+    );
+    rmSync(join(pack.directory, 'late.txt'), { force: true });
+
+    const bound = pack.provenance.artifacts.find((a) => a.relativePath === 'commit-b-evidence.json');
+    assert.ok(bound);
+    writeFileSync(join(pack.directory, 'commit-b-evidence.json'), '{"tampered":true}\n');
+    assert.ok(
+      verifyCandidatePackIntegrity(root).some((f) => f.message.includes('stale or altered hash')),
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

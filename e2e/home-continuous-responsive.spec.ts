@@ -241,10 +241,10 @@ test.describe('HOME continuous responsive — shared commercial quality runner',
     expect(canonicalObservableStateIdFor(entry.runtimeStateId)).toBe('ecp:public.home:default');
   });
 
-  test('old absolute-overlay defect fails shared layout invariants; corrected HOME passes', async ({
+  test('old absolute-overlay defect rejected in fresh_load, resize_down, resize_up', async ({
     page,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(20 * 60 * 1000);
     const entry = homeVisualEntry();
     const adapter = createM55CommercialQualityAdapter({
       baseURL: BASE_URL,
@@ -252,32 +252,120 @@ test.describe('HOME continuous responsive — shared commercial quality runner',
       includeAccessibility: false,
     });
     const expectedOrigin = new URL(BASE_URL).origin;
-    const plan = planFor(entry, 390, 667);
+    const height = 667;
+    const widths = governedWidths(entry);
+    const modes = ['fresh_load', 'resize_down', 'resize_up'] as const;
+    const directional: Record<
+      (typeof modes)[number],
+      { rejected: boolean; failureCodes: string[]; correctedPass: boolean }
+    > = {
+      fresh_load: { rejected: false, failureCodes: [], correctedPass: false },
+      resize_down: { rejected: false, failureCodes: [], correctedPass: false },
+      resize_up: { rejected: false, failureCodes: [], correctedPass: false },
+    };
 
-    await adapter.prepareCase(page, entry, plan);
-    const healthy = await measureCommercialSurface(page, entry, plan, {
-      expectedOrigin,
-      includeAccessibility: false,
-    });
-    expect(checkLayoutInvariants(healthy, entry).map((f) => f.code)).toEqual([]);
-    expect(healthy.observedCanonicalStateId).toBe('ecp:public.home:default');
+    for (const mode of modes) {
+      const sequence =
+        mode === 'fresh_load' ? [390] : mode === 'resize_down' ? [...widths].reverse() : [...widths];
+      const probeWidth = 390;
 
-    const clear = await applyAbsoluteOverlayDefect(page);
-    await page.waitForTimeout(80);
-    const defective = await measureCommercialSurface(page, entry, plan, {
-      expectedOrigin,
-      includeAccessibility: false,
-    });
-    const defectCodes = checkLayoutInvariants(defective, entry).map((f) => f.code);
-    expect(defectCodes).toContain('LAYOUT_ANCESTOR_CLIPPING');
-    await clear();
+      // Establish valid starting viewport/state on the shared runner.
+      const startPlan: CasePlan = {
+        ...planFor(entry, sequence[0]!, height),
+        mode: 'fresh_load',
+      };
+      await adapter.prepareCase(page, entry, startPlan);
+      const healthy = await measureCommercialSurface(page, entry, startPlan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      expect(checkLayoutInvariants(healthy, entry).map((f) => f.code)).toEqual([]);
+      expect(healthy.observedCanonicalStateId).toBe('ecp:public.home:default');
 
-    await adapter.prepareCase(page, entry, plan);
-    const restored = await measureCommercialSurface(page, entry, plan, {
-      expectedOrigin,
-      includeAccessibility: false,
-    });
-    expect(checkLayoutInvariants(restored, entry).map((f) => f.code)).toEqual([]);
+      const clear = await applyAbsoluteOverlayDefect(page);
+      await page.waitForTimeout(80);
+
+      // Resize modes: walk the governed width sequence, then probe the known
+      // defect-exposing width. Wide desktop can look superficially healthy.
+      if (mode !== 'fresh_load') {
+        for (let i = 1; i < sequence.length; i += 1) {
+          const plan: CasePlan = { ...planFor(entry, sequence[i]!, height), mode };
+          await adapter.prepareCase(page, entry, plan);
+        }
+      }
+      const probePlan: CasePlan = {
+        ...planFor(entry, probeWidth, height),
+        mode: mode === 'fresh_load' ? 'fresh_load' : mode,
+      };
+      if (mode !== 'fresh_load') {
+        await adapter.prepareCase(page, entry, probePlan);
+      }
+      const defective = await measureCommercialSurface(page, entry, probePlan, {
+        expectedOrigin,
+        includeAccessibility: false,
+      });
+      const codes = checkLayoutInvariants(defective, entry).map((f) => f.code);
+      expect(codes, `${mode}@${probeWidth}x${height}`).toContain('LAYOUT_ANCESTOR_CLIPPING');
+      directional[mode].rejected = true;
+      directional[mode].failureCodes = [...new Set(codes)].sort();
+      await clear();
+
+      // Corrected HOME must pass after the mode's transition settles.
+      const restoreStart: CasePlan = {
+        ...planFor(entry, sequence[0]!, height),
+        mode: 'fresh_load',
+      };
+      await adapter.prepareCase(page, entry, restoreStart);
+      expect(
+        checkLayoutInvariants(
+          await measureCommercialSurface(page, entry, restoreStart, {
+            expectedOrigin,
+            includeAccessibility: false,
+          }),
+          entry,
+        ).map((f) => f.code),
+      ).toEqual([]);
+      if (mode !== 'fresh_load') {
+        for (let i = 1; i < sequence.length; i += 1) {
+          await adapter.prepareCase(page, entry, {
+            ...planFor(entry, sequence[i]!, height),
+            mode,
+          });
+        }
+        const restoreProbe: CasePlan = { ...planFor(entry, probeWidth, height), mode };
+        await adapter.prepareCase(page, entry, restoreProbe);
+        expect(
+          checkLayoutInvariants(
+            await measureCommercialSurface(page, entry, restoreProbe, {
+              expectedOrigin,
+              includeAccessibility: false,
+            }),
+            entry,
+          ).map((f) => f.code),
+        ).toEqual([]);
+      }
+      directional[mode].correctedPass = true;
+    }
+
+    mkdirSync(CONTACT_SHEET_DIR, { recursive: true });
+    writeFileSync(
+      join(CONTACT_SHEET_DIR, 'old-overlay-directional.json'),
+      JSON.stringify(
+        {
+          fixtureId: 'home_absolute_overlay_clipping',
+          modes: directional,
+          correctedHomeDirectionalFailures: 0,
+        },
+        null,
+        2,
+      ),
+    );
+    expect(directional.fresh_load.rejected).toBe(true);
+    expect(directional.resize_down.rejected).toBe(true);
+    expect(directional.resize_up.rejected).toBe(true);
+    expect(directional.fresh_load.correctedPass).toBe(true);
+    expect(directional.resize_down.correctedPass).toBe(true);
+    expect(directional.resize_up.correctedPass).toBe(true);
   });
 
   test('shared continuous engine: fresh-load (474)', async ({ page }) => {

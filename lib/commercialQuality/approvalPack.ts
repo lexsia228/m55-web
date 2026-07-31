@@ -7,7 +7,7 @@
  * that this code does not create.
  */
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import {
@@ -62,6 +62,12 @@ export type CandidateProvenance = {
   humanApprovalRecorded: false;
 };
 
+export type ApprovalPackArtifactInput = {
+  relativePath: string;
+  kind: 'png' | 'pdf' | 'html' | 'json';
+  data: Uint8Array | string;
+};
+
 export type ApprovalPackInput = {
   sourceCommit: string;
   manifestDigest: string;
@@ -71,6 +77,12 @@ export type ApprovalPackInput = {
   changedSurfaces: readonly string[];
   /** Pre-rendered candidate binaries: PNG / PDF / shared image buffers. */
   captures: readonly { relativePath: string; kind: 'png' | 'pdf'; data: Uint8Array }[];
+  /**
+   * Supplemental governed artifacts (HOME commercial captures, Commit B
+   * evidence, human review brief, continuum / overlay summaries, etc.).
+   * Written before provenance finalization and included in the inventory.
+   */
+  additionalArtifacts?: readonly ApprovalPackArtifactInput[];
   now?: () => Date;
 };
 
@@ -133,9 +145,113 @@ export type GeneratedApprovalPack = {
   provenance: CandidateProvenance;
 };
 
+function writeArtifactFile(
+  directory: string,
+  artifact: ApprovalPackArtifactInput,
+): CandidateArtifact {
+  const target = join(directory, artifact.relativePath);
+  mkdirSync(dirname(target), { recursive: true });
+  const bytes =
+    typeof artifact.data === 'string' ? Buffer.from(artifact.data, 'utf8') : Buffer.from(artifact.data);
+  writeFileSync(target, bytes);
+  return {
+    relativePath: artifact.relativePath,
+    kind: artifact.kind,
+    sha256: sha256(bytes),
+    byteLength: bytes.byteLength,
+  };
+}
+
+function listPackInventory(directory: string): string[] {
+  const out: string[] = [];
+  const walk = (rel: string): void => {
+    const abs = rel ? join(directory, rel) : directory;
+    for (const name of readdirSync(abs)) {
+      const childRel = rel ? `${rel}/${name}` : name;
+      const st = statSync(join(directory, childRel));
+      if (st.isDirectory()) walk(childRel);
+      else if (childRel !== 'provenance.json') out.push(childRel);
+    }
+  };
+  walk('');
+  return out.sort();
+}
+
+/**
+ * Fail-closed inventory / hash / length check for a finalized candidate pack.
+ * Rejects missing, extra, renamed, altered, or post-provenance artifacts.
+ */
+export function verifyCandidatePackIntegrity(repositoryRoot: string): readonly InvariantFailure[] {
+  const directory = join(repositoryRoot, APPROVAL_PACK_DIR);
+  const provenancePath = join(directory, 'provenance.json');
+  const failures: InvariantFailure[] = [];
+  const fail = (message: string, diagnostics: Record<string, unknown> = {}): void => {
+    failures.push({
+      code: 'PROMOTION_ALTERED_CANDIDATE_HASH',
+      message,
+      diagnostics,
+      selector: null,
+    });
+  };
+
+  let provenance: CandidateProvenance;
+  try {
+    provenance = JSON.parse(readFileSync(provenancePath, 'utf8')) as CandidateProvenance;
+  } catch {
+    fail('candidate provenance.json missing or unreadable');
+    return failures;
+  }
+  if (provenance.status !== 'candidate' || provenance.humanApprovalRecorded !== false) {
+    fail('candidate pack must remain noncanonical and unapproved', {
+      status: provenance.status,
+      humanApprovalRecorded: provenance.humanApprovalRecorded,
+    });
+  }
+
+  const recorded = [...provenance.artifacts].map((a) => a.relativePath).sort();
+  const current = listPackInventory(directory);
+  if (recorded.join('|') !== current.join('|')) {
+    fail('capture inventory differs from provenance recording', { recorded, current });
+  }
+
+  const byPath = new Map(provenance.artifacts.map((a) => [a.relativePath, a]));
+  for (const relativePath of current) {
+    const expected = byPath.get(relativePath);
+    if (!expected) {
+      fail(`artifact created after provenance finalization or unbound: ${relativePath}`, {
+        relativePath,
+      });
+      continue;
+    }
+    const bytes = readFileSync(join(directory, relativePath));
+    const actualHash = sha256(bytes);
+    if (actualHash !== expected.sha256) {
+      fail(`stale or altered hash for ${relativePath}`, {
+        relativePath,
+        expected: expected.sha256,
+        actual: actualHash,
+      });
+    }
+    if (bytes.byteLength !== expected.byteLength) {
+      fail(`stale or altered byteLength for ${relativePath}`, {
+        relativePath,
+        expected: expected.byteLength,
+        actual: bytes.byteLength,
+      });
+    }
+  }
+  for (const relativePath of recorded) {
+    if (!current.includes(relativePath)) {
+      fail(`missing governed artifact: ${relativePath}`, { relativePath });
+    }
+  }
+  return failures;
+}
+
 /**
  * Write the candidate pack. Cleans the directory first so a stale artifact can
- * never be presented as current evidence.
+ * never be presented as current evidence. Provenance is finalized last, after
+ * every governed artifact (including supplementals) has been written and hashed.
  */
 export function generateApprovalPack(
   repositoryRoot: string,
@@ -155,25 +271,23 @@ export function generateApprovalPack(
 
   const artifacts: CandidateArtifact[] = [];
   for (const capture of input.captures) {
-    const target = join(directory, capture.relativePath);
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, capture.data);
-    artifacts.push({
-      relativePath: capture.relativePath,
-      kind: capture.kind,
-      sha256: sha256(capture.data),
-      byteLength: capture.data.byteLength,
-    });
+    artifacts.push(
+      writeArtifactFile(directory, {
+        relativePath: capture.relativePath,
+        kind: capture.kind,
+        data: capture.data,
+      }),
+    );
   }
 
   const contactSheet = contactSheetHtml(input);
-  writeFileSync(join(directory, 'contact-sheet.html'), contactSheet, 'utf8');
-  artifacts.push({
-    relativePath: 'contact-sheet.html',
-    kind: 'html',
-    sha256: sha256(contactSheet),
-    byteLength: Buffer.byteLength(contactSheet),
-  });
+  artifacts.push(
+    writeArtifactFile(directory, {
+      relativePath: 'contact-sheet.html',
+      kind: 'html',
+      data: contactSheet,
+    }),
+  );
 
   const summary = {
     status: 'candidate' as const,
@@ -182,13 +296,26 @@ export function generateApprovalPack(
     surfaces: [...new Set(input.results.map((r) => r.surfaceId))].sort(),
   };
   const summaryJson = `${JSON.stringify(summary, null, 2)}\n`;
-  writeFileSync(join(directory, 'result-summary.json'), summaryJson, 'utf8');
-  artifacts.push({
-    relativePath: 'result-summary.json',
-    kind: 'json',
-    sha256: sha256(summaryJson),
-    byteLength: Buffer.byteLength(summaryJson),
-  });
+  artifacts.push(
+    writeArtifactFile(directory, {
+      relativePath: 'result-summary.json',
+      kind: 'json',
+      data: summaryJson,
+    }),
+  );
+
+  for (const extra of input.additionalArtifacts ?? []) {
+    artifacts.push(writeArtifactFile(directory, extra));
+  }
+
+  // Freeze inventory only after every candidate file exists on disk.
+  const frozenInventory = listPackInventory(directory);
+  const artifactPaths = artifacts.map((a) => a.relativePath).sort();
+  if (frozenInventory.join('|') !== artifactPaths.join('|')) {
+    throw new Error(
+      `approval pack inventory drift before provenance: recorded=${artifactPaths.join(',')} disk=${frozenInventory.join(',')}`,
+    );
+  }
 
   const ctaRouteMap: Record<string, { route: string; ctaSelector: string | null }> = {};
   const productTruthReferenceMap: Record<string, readonly string[]> = {};
@@ -211,7 +338,7 @@ export function generateApprovalPack(
     surfaceIds: [...new Set(input.entries.map((e) => e.surfaceId))].sort(),
     changedSurfaces: [...input.changedSurfaces].sort(),
     gates: input.gates,
-    artifacts,
+    artifacts: [...artifacts].sort((a, b) => a.relativePath.localeCompare(b.relativePath)),
     ctaRouteMap,
     productTruthReferenceMap,
     humanDecisions: [
@@ -221,11 +348,19 @@ export function generateApprovalPack(
     ],
     humanApprovalRecorded: false,
   };
+  // Provenance is last — any file written after this is unbound by design.
   writeFileSync(
     join(directory, 'provenance.json'),
     `${JSON.stringify(provenance, null, 2)}\n`,
     'utf8',
   );
+
+  const integrity = verifyCandidatePackIntegrity(repositoryRoot);
+  if (integrity.length > 0) {
+    throw new Error(
+      `approval pack integrity failed: ${integrity.map((f) => f.message).join('; ')}`,
+    );
+  }
 
   return { directory, provenance };
 }
