@@ -196,3 +196,33 @@ This is a real contradiction between generated Product Authority output and the 
 - **This five-file docs patch remains a precursor**, not the final new-thread migration checkpoint. It records ground-truth Git/CI/Production facts accurately, but does not by itself authorize a new thread to treat the Product Authority Pack as reconciled.
 
 Do not classify this lag as non-blocking. Do not proceed to new-thread cutover until a separately authorized Product Authority Pack reconciliation run has closed this gap and the generated authority output agrees with this document.
+
+### M.1 Lock and history integrity boundary (for the later separate reconciliation)
+
+The separately authorized Product Authority Pack reconciliation must preserve and validate repository convention for both of the following files. Exact mutation mechanics (whether a given file is regenerated, appended, left unchanged, or otherwise updated) must be determined from the repository’s established Product Authority process during that later **read-only planning** gate — this handoff does **not** invent lock-hash format, history-record schema, append command, timestamp behavior, or generator side effects beyond what repository evidence already establishes.
+
+**A. `.product-authority/authority.lock.json`**
+
+- is part of the reconciliation **integrity** boundary
+- must be updated, regenerated, or validated **only** through the repository-established Product Authority process (`generate:product-authority` / `verify:product-authority` and related scripts) — not by ad-hoc editing
+- must remain consistent with the authoritative inputs and the generated bundle
+- must **not** be manually fabricated
+- exact mutation semantics for the next reconciliation remain deferred to the separate planning gate
+
+**B. `.product-authority/authority-history.jsonl`**
+
+- is part of the reconciliation **audit/history** boundary
+- must preserve the repository’s established append / history semantics (existing sequence / event-hash chain; currently sequences 0–2)
+- must **not** be truncated, rewritten, fabricated, or manually normalized without explicit repository authority
+- whether the later reconciliation appends a record, preserves the file unchanged, or performs another established action must be determined from actual repository convention during planning — do not guess here
+
+**C. Separation from this docs gate**
+
+- no Product Authority file is modified in this gate (inputs, lock, history, or generated outputs)
+- no Product Authority generator is executed in this gate
+- this docs clarification does **not** authorize reconciliation
+- the later reconciliation must remain **one** separately authorized bounded gate and commit
+- generated outputs must **not** be manually edited
+- new-thread cutover remains **prohibited** until Product Authority reconciliation, validation, docs-only transition merge, and final context-import prerequisites are complete
+
+**Generated-schema note (do not redesign here):** `.product-authority/generated/handoff.json` currently has no `production` object and therefore no `production.status` field. That omission was classified `PRODUCT_AUTHORITY_SCHEMA_OMISSION_UNDETERMINED` by independent review. Schema completeness must be examined only in the separate planning gate; absence of a field must **not** be represented as an empty literal value.
