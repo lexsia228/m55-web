@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-07-31T22:15:08.969374+00:00",
-  "count": 685,
+  "generated_at_utc": "2026-08-01T22:09:51.100119+00:00",
+  "count": 687,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -21,6 +21,11 @@
       "path": "docs/ssot/M55_AI_TEAM_STATUS_BOARD.md",
       "category": "ssot",
       "bytes": 1632
+    },
+    {
+      "path": "docs/ssot/M55_ASSET_FIRST_COMMERCIAL_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 2203
     },
     {
       "path": "docs/ssot/M55_AUTH_NAMESPACE_FRESH_CHECKOUT_CANARY_FREEZE_R_2026-05-23.md",
@@ -70,7 +75,7 @@
     {
       "path": "docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md",
       "category": "ssot",
-      "bytes": 7426
+      "bytes": 10481
     },
     {
       "path": "docs/ssot/M55_COPY_AND_CLAIMS.md",
@@ -80,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 8080
+      "bytes": 10618
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -90,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 2728
+      "bytes": 4407
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -231,6 +236,11 @@
       "path": "docs/ssot/M55_INCIDENT_2026-05-08_WEBHOOK_ENV_MIXUP.md",
       "category": "ssot",
       "bytes": 2934
+    },
+    {
+      "path": "docs/ssot/M55_METHOD_AND_AUTHORITY_SSOT_v1.md",
+      "category": "ssot",
+      "bytes": 6630
     },
     {
       "path": "docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md",
@@ -3010,7 +3020,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 3830
+      "bytes": 4804
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3090,7 +3100,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 18553
+      "bytes": 21073
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
