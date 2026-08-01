@@ -54,14 +54,16 @@ This section is the current authority for lane status. Sections below dated 2026
 
 ## Completed Self funnel operational baseline (PR #80)
 
+This section is the **immutable historical record of PR #80 only**. It is **not** current Production / `origin/main` authority. Current product-implementation baseline and live `origin/main` (as of 2026-08-01) are PR #81 merge `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — see "PR #81 POST-MERGE CLOSURE" and "Canonical Production authority" above.
+
 | Field | Value |
 |---|---|
 | PR | **#80 MERGED** |
 | Merge method | GitHub merge commit |
-| Merge SHA / origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
+| Merge SHA / former `origin/main` at PR #80 merge only (pre-PR #81; **not** current `origin/main`) | `696559009367a6ac445dc7a07876590b16cd8488` |
 | Feature tip | `fda934d8f31da715d3a4fb35681c7b3dff3dd41d` |
 | Production host | `https://m-55.jp` |
-| Production diagnostics | `vercel_env=production` · `vercel_branch=main` · `vercel_git_sha=6965590…` |
+| Production diagnostics (at PR #80 merge time only; superseded 2026-08-01 by PR #81 @ `bf5ef09f…`) | `vercel_env=production` · `vercel_branch=main` · `vercel_git_sha=6965590…` |
 | Production classification | **OPERATIONAL_BASELINE** |
 | Prior worktree | WT-001 `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` — **COMPLETED** reference |
 | Backup ref retained | `refs/backup/m55-self-funnel-pre-main-sync-rev1` |
@@ -84,7 +86,11 @@ This section is the current authority for lane status. Sections below dated 2026
 | Commit 2 (bootstrap reconciliation) | `2761706505576a2baeacbdd40acd130a1f70e81b` |
 | Commit 3 (registry fixture CI portability) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` |
 
-Authority Pack merge **does not** replace Growth Human visual lock. Branch-local Growth code is **not** merged runtime until merged to `origin/main`. No Growth Share merge or Production deployment has occurred.
+> **HISTORICAL SNAPSHOT — valid only through 2026-07-31 / pre-PR #81 merge; superseded 2026-08-01 by PR #81 merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. Do not treat as current.**
+>
+> Authority Pack merge **does not** replace Growth Human visual lock. Branch-local Growth code is **not** merged runtime until merged to `origin/main`. No Growth Share merge or Production deployment has occurred.
+
+**CURRENT (2026-08-01):** Growth Share **has** merged via PR #81; Growth code **is** Production runtime authority @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level / build-identity GREEN only — does not itself prove checkout/webhook/payment/DB correctness).
 
 ## Canonical Production authority
 
@@ -245,10 +251,12 @@ documented post-merge transition remains recorded for WT-001 historical context.
 
 ## Runtime vs target (scope separation — verifier preserved)
 
-**CURRENT (2026-08-01):** Share / OG / viral return is **merged to Production** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level GREEN only; does not itself prove payment/webhook/DB correctness). Pair premium remains `NOT_LIVE`; 二人向け無料→有料 is the next planned lane and is **not yet authorized**.
+**CURRENT (2026-08-01):** Share / OG / viral return is **merged to Production** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level GREEN only; does not itself prove payment/webhook/DB correctness). Pair premium remains `NOT_LIVE`; 二人向け無料→有料 is the next planned lane and is **not yet authorized**. There is **no** present branch-local Growth implementation lane; WT-011 is COMPLETED and retained temporarily only.
 
-| Area | Merged runtime (`origin/main`) | Target contract | Branch-local Self funnel Growth (not merged main runtime) |
-|---|---|---|---|
-| Self free pre-result theme | `preResultThemeSelection: false` | `preResultThemeSelection: false` | unchanged |
-| Share / OG / viral return (as of 2026-07-27 only) | not yet on Production | privacy-safe share loop | implementation on WT-011 · PR #81 unmerged |
-| Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） | unchanged |
+> **HISTORICAL SNAPSHOT — table below is pre-PR #81 state only; valid through 2026-07-31; superseded by PR #81 merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. Column label "Branch-local Self funnel Growth (not merged main runtime)" describes former state before that merge — not current authority.**
+>
+> | Area | Merged runtime (`origin/main`) | Target contract | Branch-local Self funnel Growth (not merged main runtime) |
+> |---|---|---|---|
+> | Self free pre-result theme | `preResultThemeSelection: false` | `preResultThemeSelection: false` | unchanged |
+> | Share / OG / viral return (as of 2026-07-27 only; pre-PR #81) | not yet on Production | privacy-safe share loop | implementation on WT-011 · PR #81 unmerged |
+> | Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） | unchanged |

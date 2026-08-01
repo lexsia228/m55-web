@@ -85,12 +85,12 @@ Historical post-merge transition snapshots remain recorded for audit.
 | operational state | **OPERATIONAL_BASELINE_MERGED** |
 | purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged; reference only) |
 | related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · backup `refs/backup/m55-self-funnel-pre-main-sync-rev1` retained |
-| product implementation authorized | **false** for new growth work — use WT-011 |
+| product implementation authorized | **false** — no new Growth work and no further Self Funnel implementation authorized from this worktree; WT-011 Growth/share is **COMPLETED** (PR #81 MERGED) and must **not** receive new implementation |
 | allowed operations | read-only inspection · historical baseline reference |
-| prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits |
+| prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits · routing new product work to WT-011 |
 | removal eligibility | NO — retain as PRIMARY_MAIN_HOME / merged baseline reference |
-| next gate | Growth work on WT-011 only |
-| notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. |
+| next gate | none for product implementation — current ACTIVE worktree is **WT-012** (docs-only residual SSOT correction / independent review only); Product Authority reconciliation is later and separate; Pair (二人向け無料→有料) remains planned only / not authorized / not started |
+| notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. Do **not** restart Growth or Self Funnel implementation on WT-011. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -309,7 +309,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | allowed operations | read-only inspection · new-thread handoff verification |
 | prohibited operations | further implementation · Stripe / webhook / DB / Clerk / env / Pair runtime · live purchase · append to merged PR #80 or PR #81 branches |
 | removal eligibility | **NO** — retained temporarily pending new-thread handoff verification and a separately authorized closeout; not yet eligible for worktree/branch deletion |
-| next gate | new-thread context-import verification (see `M55_PR81_NEW_THREAD_BOOTSTRAP_2026-08-01.md`), then separately authorized WT-011 closeout |
+| next gate | **no product implementation** — retained temporarily for verified context-import closeout only; new-thread cutover remains prohibited until Product Authority reconciliation; do **not** route new Growth / Self Funnel / active development here |
 | Production status | Growth code **is now Production** (merged via PR #81) |
 | notes | `implementationReviewedTip` (historical field, see snapshot below) records the reviewed Growth Share implementation baseline (`d7af28a…`) — **not** a permanently current branch HEAD. Authority-only descendant commits passed preflight without registry SHA self-invalidation. Historical Commit 2 provenance `b710dc543c02572a038170feb562a0a6514a313f`. |
 
@@ -334,23 +334,26 @@ Historical post-merge transition snapshots remain recorded for audit.
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` |
 | branch | `chore/m55-pr81-post-merge-transition-v1` |
-| branch creation base (`origin/main` at worktree creation) | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — **immutable**; this is the PR #81 product-implementation merge commit, not this branch's current HEAD |
-| upstream / reference base | `origin/main` — local-only branch; no remote tracking ref created; no push authorized in this gate |
-| HEAD prior to this corrective commit | `4552cb23cc01b1f27b0e1d360d8dc6594aa9a3fb` (first docs-only commit on this branch, one commit ahead of the branch creation base above) |
-| HEAD after this corrective commit | **live HEAD (Git)** — advances by exactly one commit from `4552cb23…`; this branch is **not** still at its creation base `bf5ef09f…`. Verify via `git rev-parse HEAD`; do not fabricate the literal SHA of this commit inside this file (a commit's SHA cannot be known before it is created, since it is a hash of the committed content including this file) |
-| divergence from `origin/main` (before this corrective commit) | 0 behind / 1 ahead; after this corrective commit: 0 behind / 2 ahead |
+| branch creation base (`origin/main` at worktree creation) | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — **immutable**; PR #81 product-implementation merge commit; **not** this branch's current HEAD; later docs-only commits do not redefine the product implementation baseline |
+| configured upstream (`@{upstream}`) | `origin/main` — verified via `git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'` |
+| same-name remote branch (`origin/chore/m55-pr81-post-merge-transition-v1`) | **absent** — `git ls-remote --heads origin chore/m55-pr81-post-merge-transition-v1` returned empty; do **not** conflate configured upstream=`origin/main` with existence of a same-name remote feature branch |
+| push authorization | **none** in this gate — no push / PR / merge |
+| Pre-corrective reviewed HEAD (first docs-only commit) | `4552cb23cc01b1f27b0e1d360d8dc6594aa9a3fb` |
+| Current starting HEAD for residual-ambiguity corrective gate | `86d6f8fdfa6c92586eefe7756e68aa8084b01667` (second docs-only commit; boundary correction) |
+| Final live HEAD after this residual corrective commit | **live HEAD (Git)** — advances by exactly one commit from `86d6f8fd…`; verify via `git rev-parse HEAD`; do not fabricate this commit's SHA inside this file |
+| divergence from `origin/main` (at start of this residual corrective gate) | 0 behind / 2 ahead; after this residual corrective commit: 0 behind / 3 ahead |
 | cleanliness | **clean** (verification-time snapshot, 2026-08-01) |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
-| operational state | **ACTIVE DOCS-ONLY TRANSITION** |
-| purpose | SSOT reconciliation · post-merge record · complete ChatGPT thread handoff · new-thread bootstrap prompt · corrective boundary patch (this record) |
+| operational state | **ACTIVE DOCS-ONLY TRANSITION** — only current ACTIVE worktree; docs-only; no source implementation |
+| purpose | SSOT reconciliation · post-merge record · ChatGPT thread handoff · residual ambiguity correction (this record) · independent review |
 | related lane / PR | Follows merged [PR #81](https://github.com/lexsia228/m55-web/pull/81) @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; not itself a PR at creation of this record |
-| product implementation authorized | **false** — docs-only; no source/test/workflow change authorized |
-| allowed operations | `docs/ssot/**` reconciliation (allowlisted files only) · creation of dated handoff/bootstrap documents |
-| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/generated/**` edits · edits to WT-009 or WT-011 worktrees · push / PR / merge / rebase / amend · Production mutation |
+| product implementation authorized | **false** — docs-only; no source/test/workflow change authorized; Product Authority reconciliation is later and separate; new-thread cutover remains prohibited |
+| allowed operations | `docs/ssot/**` residual correction (allowlisted files only) |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 or WT-011 worktrees · push / PR / merge / rebase / amend / reset · Production mutation · Pair implementation |
 | removal eligibility | deferred — retain until new-thread context-import verification passes and WT-011 closeout is separately authorized |
-| next gate | this corrective commit (`docs(m55): correct PR81 handoff state boundaries`); no push |
-| notes | Created to execute `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-AND-THREAD-HANDOFF-IMPLEMENTATION-REV1`; corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-CORRECTIVE-PATCH-REV1`. Branch creation base verified as `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`, equal to `origin/main` at creation, 0/0 divergence, clean worktree. |
+| next gate | this residual corrective commit (`docs(m55): remove residual PR81 handoff ambiguity`); no push; then independent diff-only review |
+| notes | Created to execute `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-AND-THREAD-HANDOFF-IMPLEMENTATION-REV1`; boundary-corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-CORRECTIVE-PATCH-REV1`; residual ambiguity corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-RESIDUAL-AMBIGUITY-CORRECTIVE-PATCH-REV2`. Branch creation base verified as `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. |
 
 ---
 
