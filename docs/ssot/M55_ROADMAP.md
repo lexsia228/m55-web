@@ -6,8 +6,8 @@ Machine order: `M55_ROADMAP_ORDER` in `lib/m55/contracts/m55CommercialFunnelCont
 **Fixed order — agents must not reorder arbitrarily.**
 
 1. Commercial Funnel SSOT ← **complete**
-2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share continues on WT-011)
-3. 二人向け無料→有料
+2. 個人無料→個人Premium ← **complete** (PR #80 operational baseline merged; Growth Share **PR #81 MERGED** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` 2026-08-01 — commercial + technical closure complete)
+3. 二人向け無料→有料 — **next planned lane; implementation not yet authorized; no work started**
 4. HOME最終統合
 5. HOME正式SSOT
 6. ファネル計測
@@ -23,6 +23,8 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Current implementation lane (2026-07-27)
 
+**Superseded 2026-08-01** — PR #81 has since merged; see "Current transition (2026-08-01)" section below for authoritative state. Table retained as historical record of the lane while PR #81 was open.
+
 | Item | Status |
 |---|---|
 | **ACTIVE lane** | Self funnel Growth / share (WT-011) |
@@ -35,6 +37,20 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 | Pair | **out of current lane** — roadmap step 3 later |
 | Build Week / WT-009 | **freeze maintained** (PAUSED + FROZEN_BY_HUMAN_DECISION) |
 | Stripe / DB / Clerk / env | **not authorized** in this lane |
+
+## Current transition (2026-08-01) — PR #81 post-merge SSOT and thread handoff — AUTHORITATIVE
+
+| Item | Status |
+|---|---|
+| **Completed product lane** | Self funnel Growth / share (WT-011) — PR #81 **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (`2026-08-01T08:38:25Z`); feature head `6770c40ac52ce5e222e4f485b8c9c83aa3814d48`; pre-merge main `110fa79fe45ef24481a7fd1fd8e19cebbcb98d39`; Production observed GREEN |
+| **Current activity** | docs-only post-merge SSOT reconciliation and ChatGPT thread handoff (WT-012 · `chore/m55-pr81-post-merge-transition-v1`) — **not** a new implementation lane |
+| **Next planned product lane** | 二人向け無料→有料 — **implementation not yet authorized; no work started in this gate** |
+| Merge / deploy | none performed in this gate — docs-only |
+| Pair | out of current lane — roadmap step 3, next planned |
+| Build Week / WT-009 | **freeze maintained**, unchanged |
+| Stripe / DB / Clerk / env | **not authorized** in this or the next lane's start |
+| Handoff document | `docs/ssot/M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
+| New-thread bootstrap | `docs/ssot/M55_PR81_NEW_THREAD_BOOTSTRAP_2026-08-01.md` |
 
 ## Repository authority closure (operational — does not reorder the sequence above)
 
