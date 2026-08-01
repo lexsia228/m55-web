@@ -2674,8 +2674,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: min(46%, 36rem);
-  max-width: 36rem;
+  /*
+   * Desktop line 1 is an unbreakable phrase (nowrap). 46%/35rem left the
+   * title clientWidth below that intrinsic width at 1024/1280/1440, so
+   * scrollWidth exceeded the governed visible box. Keep the approved two
+   * lines; widen only this reading column enough for the phrase to fit.
+   */
+  width: min(52%, 38rem);
+  max-width: 38rem;
   margin: 0;
   color: #f1e8d6;
   text-align: left;
@@ -2725,7 +2731,7 @@
 
 .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
   width: 100%;
-  max-width: 35rem;
+  max-width: 38rem;
   margin: 0;
   padding: 0;
   color: #f1e8d6;
@@ -2764,7 +2770,14 @@
     display: inline;
   }
 
+  /*
+   * Phrase stays unbreakable for the approved desktop break. Own the line as
+   * a block so intrinsic max-content does not hang off an undersized inline
+   * box inside a percentage-width heading; the copy/title max-inline-size
+   * above is what keeps scrollWidth within clientWidth.
+   */
   .posterHeroApprovedRoot .posterHeroTitlePhrase {
+    display: block;
     white-space: nowrap;
   }
 
