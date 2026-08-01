@@ -20,12 +20,21 @@ import { M55_COMMERCIAL_QUALITY_MANIFEST } from '../../lib/m55/commercialUx/qual
 import type { RegistrationSmokeTarget } from '../../lib/m55/commercialUx/qualityControl/m55SetupRegistry';
 import type { CasePlan } from '../../lib/commercialQuality/types';
 
+/**
+ * Playwright / reporter residue only. `commercial-quality-gate/` is the
+ * registered-surface handoff to the candidate approval-pack consumer and must
+ * survive suite cleanup until that consumer (or a later CI cleanup step) runs.
+ */
 export const RESIDUE_PATHS = [
   'test-results/.last-run.json',
   'test-results/playwright-run',
-  'test-results/commercial-quality-gate',
   'playwright-report',
 ] as const;
+
+const PRESERVED_TEST_RESULT_DIRS = new Set([
+  'commercial-quality-approval-pack',
+  'commercial-quality-gate',
+]);
 
 export function resolveSmokeManifestEntry(target: RegistrationSmokeTarget): SurfaceManifestEntry {
   const fromManifest = M55_COMMERCIAL_QUALITY_MANIFEST.entries.find(
@@ -252,7 +261,7 @@ export function countResidue(): number {
     if (!existsSync(path)) continue;
     const walk = (dir: string): void => {
       for (const name of readdirSync(dir)) {
-        if (name === 'commercial-quality-approval-pack') continue;
+        if (PRESERVED_TEST_RESULT_DIRS.has(name)) continue;
         const child = join(dir, name);
         const cst = statSync(child);
         if (cst.isDirectory()) walk(child);
@@ -268,14 +277,13 @@ export function cleanGeneratedResidue(): void {
   for (const path of [
     'test-results/.last-run.json',
     'test-results/playwright-run',
-    'test-results/commercial-quality-gate',
     'playwright-report',
   ]) {
     rmSync(path, { recursive: true, force: true });
   }
   if (existsSync('test-results')) {
     for (const name of readdirSync('test-results')) {
-      if (name === 'commercial-quality-approval-pack') continue;
+      if (PRESERVED_TEST_RESULT_DIRS.has(name)) continue;
       rmSync(join('test-results', name), { recursive: true, force: true });
     }
   }

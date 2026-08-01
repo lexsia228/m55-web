@@ -5,6 +5,11 @@
  * Runs Playwright, preserves its exit status, then removes repository-owned
  * generated residue that Playwright reporters write after the suite process
  * (playwright-report/, test-results/.last-run.json, etc.).
+ *
+ * Preserves:
+ * - test-results/commercial-quality-approval-pack (candidate review material)
+ * - test-results/commercial-quality-gate (gate-summary handoff for the CI
+ *   candidate approval-pack consumer; cleaned only after that step)
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, rmSync, statSync } from 'node:fs';
@@ -13,11 +18,15 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
+const PRESERVED_TEST_RESULT_DIRS = new Set([
+  'commercial-quality-approval-pack',
+  'commercial-quality-gate',
+]);
+
 const RESIDUE_ROOTS = [
   join(ROOT, 'playwright-report'),
   join(ROOT, 'test-results', '.last-run.json'),
   join(ROOT, 'test-results', 'playwright-run'),
-  join(ROOT, 'test-results', 'commercial-quality-gate'),
 ];
 
 function walkFiles(dir, out = []) {
@@ -40,7 +49,7 @@ function cleanOwnedResidue() {
   const testResults = join(ROOT, 'test-results');
   if (existsSync(testResults)) {
     for (const name of readdirSync(testResults)) {
-      if (name === 'commercial-quality-approval-pack') continue;
+      if (PRESERVED_TEST_RESULT_DIRS.has(name)) continue;
       rmSync(join(testResults, name), { recursive: true, force: true });
     }
   }
@@ -54,7 +63,7 @@ function countOwnedResidue() {
   const testResults = join(ROOT, 'test-results');
   if (existsSync(testResults)) {
     for (const name of readdirSync(testResults)) {
-      if (name === 'commercial-quality-approval-pack') continue;
+      if (PRESERVED_TEST_RESULT_DIRS.has(name)) continue;
       count += walkFiles(join(testResults, name)).length;
     }
   }
@@ -77,7 +86,8 @@ const result = spawnSync('npx', playwrightArgs, {
 
 const status = typeof result.status === 'number' ? result.status : 1;
 
-// Always clean after Playwright fully exits (PASS or FAIL).
+// Always clean reporter residue after Playwright fully exits (PASS or FAIL).
+// Keep commercial-quality-gate for the approval-pack consumer handoff.
 cleanOwnedResidue();
 const residue = countOwnedResidue();
 if (residue !== 0) {
