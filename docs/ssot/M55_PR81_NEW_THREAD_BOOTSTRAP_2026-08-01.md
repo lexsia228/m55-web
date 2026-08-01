@@ -8,7 +8,7 @@ Purpose: a single, self-contained, copy-paste prompt for the **first message** o
 **This prompt is NOT authorized for use until all of the following are true:**
 
 1. Product Authority Pack reconciliation has been completed in a **separately authorized** run (not this docs-only patch).
-2. Generated authority output (`.product-authority/generated/authority-header.md`, `.product-authority/observations.json`) agrees with committed SSOT — in particular `growthShare.status`, `growthShare.mergeStatus`, `repository.lastObservedOriginMainSha`, and `production.lastObservedSha` must reflect the PR #81 merge and current Production, and WT-012 must be present in generated output.
+2. Generated authority output (`.product-authority/generated/authority-header.md`, `.product-authority/observations.json`) agrees with committed SSOT — in particular `growthShare.status`, `growthShare.mergeStatus`, `repository.lastObservedOriginMainSha`, and the five persisted Production observation leaves only: `production.status`, `production.lastObservedSha`, `production.environment`, `production.branch`, `production.observedAt` (`production.nodeEnvironment` and `production.node_env` are not persisted leaves; diagnostics response `node_env` is used only for endpoint validation and must equal `production`; no sixth Production leaf is permitted). Pending migration target (not yet implemented): `status = PENDING_REOBSERVATION_ON_M-55.JP`, `lastObservedSha = null`, `environment = null`, `branch = null`, `observedAt = null`. Also pending: `handoff.json` `schemaVersion` `2.0.0` migration, `generatorVersion` `1.1.0` application, and regenerated generated bundle integrity. **Do not** require `WT-012` presence in generated Product Authority.
 3. The docs-only transition (WT-012, this branch) has been **merged to `origin/main`**.
 4. The actual current docs-transition merge SHA has been inserted into this document (or the operator has deterministically verified it via `git log`/`gh pr view` immediately before copying this prompt) — this document must not be handed to a new thread while it still only describes a **pending local commit**.
 
@@ -40,7 +40,26 @@ conversation memory.
 
 REPO / WORKTREE PATHS (exact identities):
 
-- Docs transition worktree (where this handoff/bootstrap was written):
+ACTIVE WORKTREE RESOLUTION (required before any work):
+
+1. Read `docs/ssot/M55_CURRENT_STATE.md`.
+2. Read `docs/ssot/M55_WORKTREE_REGISTRY.md`.
+3. Resolve `WT-012` identity from the Registry entry (symbolic ID, path, branch, upstream, lifecycle).
+4. Treat any copied absolute path or branch below as a **convenience snapshot subordinate to the Registry** — non-portable across machines.
+5. Verify live Git before any work:
+   - `git worktree list --porcelain`
+   - `pwd`
+   - `git branch --show-current`
+   - `git rev-parse HEAD`
+   - `git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'`
+   - `git status --short -uall`
+6. **STOP** if Registry, CURRENT_STATE, and live Git disagree.
+7. **Never** use generated Product Authority to select or identify `WT-012`.
+8. Do **not** require `WT-012` presence in generated output.
+
+After `WT-012` retirement: do **not** select the retired path as active; resolve current operational context from Registry and CURRENT_STATE; historical mentions may remain only as dated evidence.
+
+- Docs transition worktree (convenience copy — verify against Registry `WT-012`):
   path: /Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1
   branch: chore/m55-pr81-post-merge-transition-v1
   branch creation base (origin/main at branch creation): bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149
@@ -87,7 +106,25 @@ GENERATED PRODUCT AUTHORITY STATUS: BLOCKING BEFORE FINAL NEW-THREAD MIGRATION
   repository.lastObservedOriginMainSha (696559009367a6ac445dc7a07876590b16cd8488),
   production.lastObservedSha = null,
   growthShare.status = ACTIVE (stale), growthShare.mergeStatus =
-  OPEN_UNMERGED_BRANCH_LOCAL (stale), and WT-012 absent from generated output.
+  OPEN_UNMERGED_BRANCH_LOCAL (stale).
+- Pending five-leaf Production representation (not yet implemented):
+  production.status, production.lastObservedSha, production.environment,
+  production.branch, production.observedAt — pending target:
+  status = PENDING_REOBSERVATION_ON_M-55.JP, lastObservedSha = null,
+  environment = null, branch = null, observedAt = null.
+  production.nodeEnvironment and production.node_env are NOT persisted
+  leaves; diagnostics response node_env is used only for endpoint
+  validation and must equal production; no sixth Production leaf permitted.
+- Pending rolling Production diagnostics observation (later factual HTTP
+  observation in PA-3 only — not current state).
+- Pending handoff.json schemaVersion 2.0.0 migration, generatorVersion
+  1.1.0 application, authority.lock.json schemaVersion remains 1.0.0 while
+  generated hashes and generatorVersion must be regenerated, and pending
+  generated Markdown/handoff/adapters/lock regeneration and verifier/test
+  consistency after implementation.
+- WT-012 absence from generated Product Authority is intentional and is NOT a
+  reconciliation blocker (WT-012 is Registry-owned; see ACTIVE WORKTREE
+  RESOLUTION above).
 - Generator execution alone is NOT sufficient to close this gap. It requires a
   separately authorized Product Authority Pack reconciliation run.
 - Do NOT manually edit .product-authority/generated/** or
@@ -127,9 +164,10 @@ Human commercial-quality approval for PR #81 was FINAL prior to merge
 approved). This is not agent self-report — it is recorded fact.
 
 CURRENT TRANSITION LANE:
-Docs-only post-merge SSOT reconciliation and ChatGPT thread handoff
-(worktree above, "chore/m55-pr81-post-merge-transition-v1"). This is not a
-product implementation lane.
+Docs-only post-merge SSOT reconciliation and ChatGPT thread handoff (`WT-012`,
+symbolic Registry ID — resolve path and branch from
+`M55_WORKTREE_REGISTRY.md` and verify live Git; do not use generated Product
+Authority). This is not a product implementation lane.
 
 NEXT PLANNED LANE:
 二人向け無料→有料 (Pair free-to-paid funnel). Implementation is NOT YET
@@ -155,10 +193,16 @@ verify (read-only):
 - whether .product-authority/generated/authority-header.md and
   .product-authority/observations.json now agree with committed SSOT
   (growthShare.status, growthShare.mergeStatus, lastObservedOriginMainSha,
-  production.lastObservedSha, and WT-012 presence) — if they still show the
-  stale values listed above, Product Authority is NOT reconciled and you must
-  report this as a blocking_context_gap, not proceed as if it were resolved,
-  and NOT manually edit those generated files yourself.
+  and the five persisted Production observation leaves only:
+  production.status, production.lastObservedSha, production.environment,
+  production.branch, production.observedAt — production.nodeEnvironment and
+  production.node_env are NOT persisted leaves; diagnostics response node_env
+  is used only for endpoint validation and must equal production; no sixth
+  Production leaf permitted) — if they still show the stale values listed
+  above, Product Authority is NOT reconciled and you must report this as a
+  blocking_context_gap, not proceed as if it were resolved, and NOT manually
+  edit those generated files yourself. Do NOT treat WT-012 absence from
+  generated Product Authority as a blocking gap.
 
 Then return EXACTLY one structured JSON report in this shape (fill every
 field; use null/false/[] where genuinely unknown or not yet done — do not

@@ -186,14 +186,37 @@ Before any further action, a new thread reading this handoff must first:
 - `growthShare.status = ACTIVE` (stale — actually `COMPLETED`)
 - `growthShare.mergeStatus = OPEN_UNMERGED_BRANCH_LOCAL` (stale — actually `MERGED`)
 - generated header states Growth code is not Production (stale — Growth code is now Production)
-- WT-012 is **absent** from generated authority output entirely
 
-This is a real contradiction between generated Product Authority output and the Git/CI/Production facts recorded in this document, not a cosmetic issue. Consequences:
+**Unresolved reconciliation inventory (current stale state — not yet resolved):**
+
+- stale `growthShare.status` (currently `ACTIVE`; target `COMPLETED`)
+- stale `growthShare.mergeStatus` (currently `OPEN_UNMERGED_BRANCH_LOCAL`; target `MERGED`)
+- stale `repository.lastObservedOriginMainSha` (currently pre-merge; target includes PR #81 @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`)
+- pending five-leaf Production representation migration in `.product-authority/observations.json`: `production.status`, `production.lastObservedSha`, `production.environment`, `production.branch`, `production.observedAt` (pending target — not yet implemented: `status = PENDING_REOBSERVATION_ON_M-55.JP`, `lastObservedSha = null`, `environment = null`, `branch = null`, `observedAt = null`; `production.nodeEnvironment` and `production.node_env` are **not** persisted leaves; diagnostics response `node_env` is used only for endpoint validation and must equal `production`; no sixth Production leaf is permitted)
+- pending rolling Production diagnostics observation (later factual HTTP observation — not current state)
+- pending `handoff.json` `schemaVersion` `2.0.0` migration (approved future target; current baseline `1.0.0`)
+- pending `generatorVersion` `1.1.0` application (approved future target; current baseline `1.0.0`)
+- `authority.lock.json` `schemaVersion` remains `1.0.0` while generated hashes and `generatorVersion` must be regenerated after implementation
+- pending generated Markdown, handoff, adapters, and lock regeneration as applicable
+- pending Product Authority verifier and test consistency after implementation
+
+Distinguish: **approved policy** (Decision Log 2026-08-02) ≠ **current stale state** (above) ≠ **future implementation** (PA-1/PA-2/PA-3) ≠ **later factual HTTP observation** (PA-3 only). None of the above blockers are resolved in the current repository baseline.
+
+**WT-012 Product Authority boundary (intentional — not a blocker):**
+
+- `WT-012` identity and lifecycle are owned by `M55_WORKTREE_REGISTRY.md`.
+- `M55_CURRENT_STATE.md` summarizes its current operational role.
+- Live Git verifies its concrete local state (worktree existence, branch, HEAD, upstream, cleanliness).
+- Product Authority observations and generated artifacts **intentionally do not** represent `WT-012`.
+- Absence of `WT-012` from generated Product Authority is **not** a blocker and does **not** require a Product Authority field, schema change, or generated worktree object.
+- Active worktree resolution must **not** depend on a generated Product Authority field.
+
+This is a real contradiction between generated Product Authority output and the Git/CI/Production **product-lane and rolling-observation** facts recorded in this document, not a cosmetic issue. It does **not** include `WT-012` representation, which remains SSOT-owned by design. Consequences:
 
 - **A fresh thread must not be launched yet** against this handoff as a final cutover checkpoint.
 - **Generator execution alone is insufficient** to close this gap safely — the generator's source observations (`.product-authority/observations.json`), its generation logic, and its generated outputs require a **separately authorized Product Authority Pack reconciliation** run, reviewed on its own merits.
 - **Generated files must not be manually edited** to close this lag (`.product-authority/generated/**` and `.product-authority/observations.json` are out of scope for this docs-only patch and were not touched by it).
-- **This five-file docs patch remains a precursor**, not the final new-thread migration checkpoint. It records ground-truth Git/CI/Production facts accurately, but does not by itself authorize a new thread to treat the Product Authority Pack as reconciled.
+- **The earlier post-merge transition documentation series updated five SSOT documents.** This DOCS-6 correction is limited to the dated handoff and bootstrap documents. Neither the earlier series nor this correction is the final new-thread migration checkpoint; they record ground-truth Git/CI/Production facts accurately but do not by themselves authorize a new thread to treat the Product Authority Pack as reconciled.
 
 Do not classify this lag as non-blocking. Do not proceed to new-thread cutover until a separately authorized Product Authority Pack reconciliation run has closed this gap and the generated authority output agrees with this document.
 
@@ -221,8 +244,8 @@ The separately authorized Product Authority Pack reconciliation must preserve an
 - no Product Authority file is modified in this gate (inputs, lock, history, or generated outputs)
 - no Product Authority generator is executed in this gate
 - this docs clarification does **not** authorize reconciliation
-- the later reconciliation must remain **one** separately authorized bounded gate and commit
+- the later reconciliation is **three separately authorized commits** (PA-1/PA-2/PA-3 — not yet implemented): **PA-1** side-effect-safe observation tooling and coordinator; **PA-2** post-docs Git/worktree reconciliation, five-leaf pending Production representation, versions, validator/generator migration, and regenerated integrity bundle; **PA-3** separately Human-authorized rolling Production diagnostics observation and subsequent regenerated bundle — each commit separately implemented, independently diff-reviewed, and separately committed and commit-evidence reviewed; Production GET occurs only in PA-3 after PA-1 and PA-2 are committed and reviewed
 - generated outputs must **not** be manually edited
 - new-thread cutover remains **prohibited** until Product Authority reconciliation, validation, docs-only transition merge, and final context-import prerequisites are complete
 
-**Generated-schema note (do not redesign here):** `.product-authority/generated/handoff.json` currently has no `production` object and therefore no `production.status` field. That omission was classified `PRODUCT_AUTHORITY_SCHEMA_OMISSION_UNDETERMINED` by independent review. Schema completeness must be examined only in the separate planning gate; absence of a field must **not** be represented as an empty literal value.
+**Generated handoff boundary (approved future targets — not yet implemented):** Per Human-approved policy in `M55_DECISION_LOG.md` (2026-08-02), the separately authorized reconciliation target is: `handoff.json` `schemaVersion` `2.0.0`; `generatorVersion` `1.1.0`; `authority.lock.json` `schemaVersion` remains `1.0.0`; `authority.json` input `schemaVersion` remains `1.0.0`; `observations.json` input `schemaVersion` remains `1.0.0`; package application version unchanged; `growthShareDelivery` retains `pr81` only; `productionDeployed` is removed; no generated `production` object replaces it; current rolling Production observations belong only in approved generated Markdown outputs; historical Growth Share delivery evidence remains governed by dated SSOT. These targets are **not** implemented in the current repository baseline. Absence of a `production` object in current generated output must **not** be represented as an empty literal value.
