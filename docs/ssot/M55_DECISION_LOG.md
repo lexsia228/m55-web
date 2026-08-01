@@ -58,3 +58,99 @@ Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualit
 | `WEB_MASTER_SSOT__PRICING_AND_PRODUCTS_v1.md` vs Self Premium HOME prices | Machine contract wins for Light ¥1,000 / Full ¥1,480 |
 | `M55_2027_PRODUCT_TRUTH_REV1.md` vs this SSOT series | This series wins for commercial funnel handoff |
 | Runtime「保存版」vs SSOT「プレミアムレポート」 | Target public names in SSOT; runtime rename in Self funnel lane |
+
+## Human-approved policy decisions (dated)
+
+### 2026-08-02 — Product Authority version policy and Production observation coordinator policy
+
+**Status:** Human-approved **policy recording only**. Gate 1 is **not** closed by this entry. Independent review of this one-file patch remains required before any implementation.
+
+#### Product Authority version policy (approved target values)
+
+| Constant | Approved value | Semantic owner |
+|---|---|---|
+| `HANDOFF_SCHEMA_VERSION` | `2.0.0` | generated `handoff.json` shape and field semantics |
+| `LOCK_SCHEMA_VERSION` | `1.0.0` | `authority.lock.json` shape and interpretation |
+| `GENERATOR_VERSION` | `1.1.0` | generator implementation behavior, derivation, and human-readable rendering |
+
+`HANDOFF_SCHEMA_VERSION` exclusively owns compatibility of the machine-readable generated `handoff.json` shape and field semantics. Removal of `growthShareDelivery.productionDeployed` is an incompatible handoff shape/meaning change represented by `HANDOFF_SCHEMA_VERSION = 2.0.0`; no generated Production object replaces the removed field.
+
+**New Human-authorized semantic versioning policy:**
+
+| Constant | Major | Minor | Patch |
+|---|---|---|---|
+| `HANDOFF_SCHEMA_VERSION` | incompatible generated `handoff.json` shape or field-meaning removal | backward-compatible handoff field addition | compatible metadata or clarification change |
+| `LOCK_SCHEMA_VERSION` | `authority.lock.json` shape or field-meaning change | backward-compatible lock field addition | non-shape clarification |
+| `GENERATOR_VERSION` | incompatible change to the generator invocation contract, interpretation of Product Authority inputs, or generator processing contract not already governed by a separately versioned generated artifact schema | backward-compatible generator behavior, derivation, or rendering change, including behavior accompanying a separately versioned handoff schema change | non-semantic generator correction that does not change generated meaning or compatibility |
+
+**Reason for `HANDOFF_SCHEMA_VERSION = 2.0.0`:** `growthShareDelivery.productionDeployed` will be removed; removal is incompatible for any consumer expecting the field; no generated Production object will replace it.
+
+**Reason for `LOCK_SCHEMA_VERSION = 1.0.0`:** lock JSON shape, source-path model, and lock-field meanings remain unchanged.
+
+**Reason for `GENERATOR_VERSION = 1.1.0`:** generator behavior changes to render current rolling Production observation; generated authority-boundary prose changes; removal of the old hardcoded `productionDeployed` derivation. The incompatible handoff JSON field removal is owned by `HANDOFF_SCHEMA_VERSION = 2.0.0`, not by a generator major bump. This is a generator behavior/rendering revision, not a lock-format change.
+
+**Unchanged input and package versions (remain at repository baseline until separately authorized implementation):**
+
+| Field | Current repository value | Change authorized by this entry |
+|---|---|---|
+| `authority.json` `schemaVersion` | `1.0.0` | none — remains `1.0.0` |
+| `observations.json` `schemaVersion` | `1.0.0` | none — remains `1.0.0` |
+| `package.json` application `version` | `1.0.0` | none — remains unchanged |
+
+Repository baseline at decision time (read-only inspection): generated `handoff.json` / lock `schemaVersion` = `1.0.0`; `generatorVersion` = `1.0.0`.
+
+#### Production observation coordinator policy
+
+**Prohibited topology:** direct observer-to-application shell pipelines, including:
+
+```text
+observe-production-diagnostics | apply-production-observation
+```
+
+**Reason:** shell `pipefail` reports final pipeline status but does not guarantee that the downstream mutating process waits for observer exit `0`; observer failure must never be followed by a Product Authority write.
+
+**Authorized future command topology:**
+
+```text
+node scripts/product-authority/run-production-observation.mjs
+```
+
+**Coordinator requirements (policy only — not yet implemented):**
+
+1. spawn the read-only observer subprocess
+2. reject observer spawn errors before any application logic is invoked
+3. capture bounded stdout in memory
+4. wait for observer exit code `0`
+5. validate the complete canonical observer result
+6. only after all checks pass, invoke non-network application logic
+
+The coordinator must **not** invoke the non-network application logic when any of the following occurs:
+
+- observer spawn error
+- signal termination
+- nonzero observer exit
+- truncated stdout
+- stdout limit violation
+- malformed output
+- non-canonical output
+- observer-result schema mismatch
+- any complete-result validation failure
+
+A failed observer, including failure to spawn, must never result in a Product Authority write.
+
+#### Scope boundary — not authorized by this entry
+
+This decision authorizes **only** durable policy recording in this file. It does **not** authorize:
+
+- creating the coordinator, observer, application, or helper modules
+- Product Authority mutation
+- `observations.json` changes
+- generated output changes
+- version constant application in source
+- generator execution
+- Production GET or any network access
+- `package.json` edit
+- commit / push / PR / merge
+- Pair work
+- commercial feature implementation
+- new-thread cutover
