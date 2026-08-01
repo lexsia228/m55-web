@@ -9,6 +9,14 @@
         "audit": "node scripts/audit_gate.mjs",
         "verify:m55-ssot": "node scripts/verify-m55-commercial-ssot.mjs",
         "verify:m55-worktree-preflight:local": "node scripts/verify-m55-commercial-ssot.mjs --local-worktree-preflight",
+        "verify:m55-experience-control-plane": "node scripts/verify-m55-experience-control-plane.mjs",
+        "verify:m55-asset-ledger": "node scripts/verify-m55-asset-ledger.mjs",
+        "verify:m55-premium-experience": "node scripts/verify-m55-premium-experience.mjs",
+        "verify:m55-premium-proof-records": "node scripts/verify-m55-premium-proof-records.mjs",
+        "verify:m55-commercial-visual-quality": "node scripts/verify-m55-commercial-visual-quality.mjs",
+        "verify:m55-method-authority": "node scripts/verify-m55-method-authority.mjs",
+        "verify:m55-commercial-quality-control-plane": "node scripts/verify-m55-commercial-quality-control-plane.mjs",
+        "generate:m55-commercial-quality-approval-pack": "node scripts/verify-m55-commercial-quality-control-plane.mjs --emit-candidate-pack",
         "verify:product-authority:bootstrap": "node scripts/product-authority/cli.mjs verify",
         "verify:product-authority": "node scripts/product-authority/validate.mjs --steady-state",
         "test:product-authority": "node --test scripts/product-authority/__tests__/*.test.mjs",
@@ -26,7 +34,20 @@
         "lint:ssot": "eslint \"app/home\" \"app/how-m55-works\" \"app/ten-views\" \"app/support\" \"app/legal\" \"app/purchase\" \"app/dtr/page.tsx\" \"app/dtr/lp/page.tsx\" \"app/pricing/page.tsx\" \"components/home\" \"components/pages\" \"components/shell\" --max-warnings 0",
         "test:e2e:install": "playwright install chromium",
         "test:e2e:visual": "playwright test e2e/home-core-visual.spec.ts",
-        "test:e2e:self-funnel": "playwright test e2e/self-funnel-runtime-state.spec.ts"
+        "test:e2e:experience-control-plane": "playwright test e2e/experience-control-plane-visual.spec.ts",
+        "test:e2e:self-funnel": "playwright test e2e/self-funnel-runtime-state.spec.ts",
+        "test:e2e:self-funnel-growth": "playwright test e2e/self-funnel-growth-share.spec.ts",
+        "test:e2e:premium-experience-evidence": "node scripts/run-premium-experience-evidence.mjs",
+        "test:m55-commercial-visual-quality": "tsx --test lib/m55/commercialUx/visualQuality/commercialVisualQuality.test.ts",
+        "test:m55-method-authority": "tsx --test lib/m55/method/m55MethodAuthority.test.ts lib/m55/method/m55MethodRouteConsumption.test.ts",
+        "test:e2e:commercial-visual-quality": "playwright test e2e/commercial-visual-quality.spec.ts",
+        "test:e2e:method-authority-placement": "playwright test e2e/method-authority-placement.spec.ts",
+        "test:e2e:home-continuous-responsive": "node scripts/run-m55-home-continuous-responsive-e2e.mjs",
+        "test:m55-e2e-clean-capture-env": "node --test scripts/m55-e2e-clean-capture-env.test.mjs",
+        "test:m55-commercial-quality-control-plane": "tsx --test lib/commercialQuality/commercialQuality.test.ts",
+        "test:e2e:commercial-quality-control-plane": "node scripts/run-m55-commercial-quality-control-plane-e2e.mjs",
+        "test:e2e:commercial-visual-regression": "playwright test e2e/commercial-visual-regression.spec.ts",
+        "test:premium-experience-verifier": "tsx --test lib/m55/commercialUx/premiumExperience/premiumExperienceVerifierNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumExperienceProofNegative.test.ts lib/m55/commercialUx/premiumExperience/premiumShareFallbackVisibility.test.ts lib/m55/commercialUx/premiumExperience/premiumExperience.test.ts"
     },
     "dependencies": {
         "@capacitor/filesystem": "^6.0.0",
@@ -46,6 +67,7 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@axe-core/playwright": "4.12.1",
         "@capacitor/android": "^6.0.0",
         "@capacitor/cli": "^6.0.0",
         "@capacitor/core": "^6.0.0",
@@ -57,6 +79,7 @@
         "@types/react-dom": "^19.2.3",
         "eslint": "^9.16.0",
         "eslint-plugin-react-hooks": "^5.1.0",
+        "tsx": "4.23.1",
         "typescript": "^5.6.3",
         "typescript-eslint": "^8.18.2"
     }

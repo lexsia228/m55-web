@@ -509,6 +509,16 @@ function applyRecoveryContradictions(
 function resolveRecoverySelectors(
   input: ResolveIndividualizationSelectorsInputV1,
 ): RecoverySelectorIdV1[] {
+  const paidRecovery = input.paidDepth?.recoverySequence;
+  const RECOVERY_SEQUENCE_MAP: Readonly<Record<string, RecoverySelectorIdV1>> = {
+    'paid.recovery_sequence.pause_first': 'recovery__pause_first',
+    'paid.recovery_sequence.small_start': 'recovery__small_start',
+    'paid.recovery_sequence.sort_materials': 'recovery__sort_materials',
+  };
+  if (paidRecovery && RECOVERY_SEQUENCE_MAP[paidRecovery]) {
+    return [RECOVERY_SEQUENCE_MAP[paidRecovery]!];
+  }
+
   let candidates = RECOVERY_SELECTOR_CATALOG_V1.filter((entry) =>
     evaluateRecoveryCandidate(entry, input),
   );
@@ -709,6 +719,18 @@ function resolvePaidChapterEmphasis(
       if (score > 0) scores.set(entry.id, score);
     }
     applyChapterBiasBoost(scores, chapter, input.paidDepth?.chapterBias);
+
+    if (chapter === 'IV' && input.paidDepth?.restartCondition) {
+      const restartBoost: Readonly<Record<string, PaidChapterEmphasisIdV1>> = {
+        'paid.restart_condition.overview_first': 'paid_ch4__change_life_load',
+        'paid.restart_condition.shrink_scope': 'paid_ch4__recovery_pace',
+        'paid.restart_condition.trusted_support': 'paid_ch4__distance_boundary',
+      };
+      const target = restartBoost[input.paidDepth.restartCondition];
+      if (target) {
+        scores.set(target, (scores.get(target) ?? 0) + 6);
+      }
+    }
 
     if (freeExpressionWorkBoost(input, chapter)) {
       for (const [id, score] of scores) {

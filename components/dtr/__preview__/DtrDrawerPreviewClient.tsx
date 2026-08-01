@@ -8,11 +8,19 @@ type DtrFullReaderProps = ComponentProps<typeof DtrFullReader>;
 
 export default function DtrDrawerPreviewClient({
   showLightUpgrade = false,
+  initialOpenPanel,
   ...props
-}: DtrFullReaderProps & { showLightUpgrade?: boolean }) {
+}: DtrFullReaderProps & {
+  showLightUpgrade?: boolean;
+  initialOpenPanel?: 'chapter-1' | 'consult';
+}) {
   return (
     <>
-      <DtrFullReader {...props} />
+      <DtrFullReader
+        {...props}
+        devPreviewFixtureReady
+        initialOpenPanel={initialOpenPanel}
+      />
       {showLightUpgrade ? (
         <div className={upgradeStyles.subtle} data-testid="m55-light-upgrade-preview">
           <button type="button" className={upgradeStyles.subtleBtn} disabled>

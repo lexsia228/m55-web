@@ -1,0 +1,237 @@
+/**
+ * M55 Premium Experience — canonical visual language from Home editorial sample.
+ * Applied via data-m55-experience-tier="PREMIUM" (not page-local patches).
+ */
+
+[data-m55-experience-tier='PREMIUM'] {
+  --m55-premium-ink: #0b1a2b;
+  --m55-premium-ink-soft: rgba(13, 11, 21, 0.72);
+  --m55-premium-ivory: #f1e8d6;
+  --m55-premium-ivory-muted: rgba(241, 232, 214, 0.88);
+  --m55-premium-warm: #f3ede2;
+  --m55-premium-copper: #c46e5a;
+  --m55-premium-copper-rule: rgba(196, 110, 90, 0.72);
+  --m55-premium-copper-soft: rgba(196, 110, 90, 0.14);
+  --m55-premium-accent-teal: #7da8a4;
+  --m55-premium-serif: 'Shippori Mincho', 'Noto Serif JP', serif;
+  --m55-premium-sans: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  --m55-premium-sheet-border: rgba(241, 232, 214, 0.16);
+  --m55-premium-read-width: 36rem;
+  --m55-paid-ink: rgba(26, 42, 74, 0.94);
+  --m55-paid-meta: rgba(55, 48, 82, 0.68);
+  --m55-paid-accent: rgba(196, 110, 90, 0.88);
+  --m55-paid-accent-soft: rgba(196, 110, 90, 0.14);
+  --m55-paid-progress-track: rgba(196, 110, 90, 0.18);
+  --m55-paid-progress-fill: rgba(196, 110, 90, 0.82);
+  --m55-paid-card-bg: rgba(255, 252, 247, 0.96);
+  --m55-paid-card-border: rgba(26, 42, 74, 0.16);
+  --m55-paid-card-selected: rgba(196, 110, 90, 0.1);
+  --m55-paid-primary-bg: #0b1a2b;
+  --m55-paid-primary-fg: #f1e8d6;
+  color: var(--m55-paid-ink);
+  font-family: var(--m55-premium-sans);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-variant='editorial_stage'] {
+  background: var(--m55-premium-ink);
+  color: var(--m55-premium-ivory);
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.1rem, 4vw, 2rem);
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+/* Shared Premium decision field — navy stage with ivory reading sheet */
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-field {
+  margin: -18px -16px;
+  padding: clamp(1.35rem, 3.5vw, 2.25rem) clamp(1rem, 3vw, 1.35rem);
+  background: var(--m55-premium-ink);
+  box-sizing: border-box;
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet {
+  max-width: min(100%, var(--m55-premium-read-width));
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--m55-premium-ivory);
+  color: var(--m55-premium-ink);
+  border: 1px solid rgba(241, 232, 214, 0.28);
+  border-top: 3px solid var(--m55-premium-copper-rule);
+  box-shadow: 0 18px 48px rgba(11, 26, 43, 0.22);
+  box-sizing: border-box;
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .overline,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .questionLabel {
+  color: var(--m55-premium-accent-teal);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .title,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .questionTitle {
+  color: var(--m55-premium-ink);
+  font-family: var(--m55-premium-serif);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .lead,
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-sheet .hint {
+  color: var(--m55-premium-ink-soft);
+}
+
+@media (min-width: 768px) {
+  [data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] .m55-premium-decision-field {
+    margin: -18px -16px;
+    padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3.5vw, 2rem);
+  }
+}
+
+/*
+ * Desktop adaptation. The decision column stayed at roughly 420px from 1024 to
+ * 1440, which read as a phone card centred in an empty navy field. The reading
+ * width now opens up on real desktop widths while the navy stage keeps spanning
+ * the viewport.
+ */
+@media (min-width: 1024px) {
+  [data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'],
+  [data-m55-experience-tier='PREMIUM'][data-m55-premium-surface='decision'] {
+    --m55-premium-read-width: 46rem;
+  }
+}
+
+[data-m55-experience-tier='PREMIUM'] .m55-premium-editorial-sheet {
+  background: var(--m55-premium-ink-soft);
+  border: 1px solid var(--m55-premium-sheet-border);
+  border-top: 2px solid var(--m55-premium-copper-rule);
+  padding: 1.35rem 1.25rem 1.15rem;
+  box-sizing: border-box;
+}
+
+[data-m55-experience-tier='PREMIUM'] .m55-premium-overline {
+  margin: 0 0 0.65rem;
+  font-family: var(--m55-premium-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--m55-premium-accent-teal);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-variant='editorial_stage'] .m55-premium-overline {
+  color: rgba(125, 168, 164, 0.92);
+}
+
+[data-m55-experience-tier='PREMIUM'] .m55-premium-display {
+  margin: 0 0 0.75rem;
+  font-family: var(--m55-premium-serif);
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--m55-paid-ink);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-variant='editorial_stage'] .m55-premium-display {
+  color: var(--m55-premium-ivory);
+}
+
+[data-m55-experience-tier='PREMIUM'] .m55-premium-body {
+  margin: 0;
+  font-family: var(--m55-premium-sans);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--m55-premium-ivory-muted);
+}
+
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-variant='editorial_stage'] .m55-premium-body {
+  color: rgba(241, 232, 214, 0.9);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] {
+  max-width: min(100%, var(--m55-premium-read-width));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] [role='radio'],
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .choice {
+  border-color: var(--m55-paid-card-border);
+  background: var(--m55-paid-card-bg);
+  font-family: var(--m55-premium-sans);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] [role='radio'][aria-checked='true'],
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .choiceSelected {
+  border-color: var(--m55-premium-copper-rule);
+  background: var(--m55-paid-card-selected);
+  box-shadow: inset 0 0 0 1px rgba(196, 110, 90, 0.12);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .questionTitle,
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] h2 {
+  font-family: var(--m55-premium-serif);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .overline,
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .questionLabel {
+  color: var(--m55-premium-accent-teal);
+  letter-spacing: 0.06em;
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .progressTrack {
+  background: var(--m55-paid-progress-track);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .progressFill {
+  background: var(--m55-paid-progress-fill);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .commercialPrimaryBtn,
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .primaryBtn {
+  background: var(--m55-paid-primary-bg);
+  color: var(--m55-paid-primary-fg);
+  border-color: transparent;
+  font-family: var(--m55-premium-sans);
+  border-radius: 999px;
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .planCard {
+  border-top: 2px solid var(--m55-premium-copper-rule);
+  background: var(--m55-paid-card-bg);
+  box-shadow: 0 10px 28px rgba(11, 26, 43, 0.08);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .planName,
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .title {
+  font-family: var(--m55-premium-serif);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .answerSummary {
+  border-left: 3px solid var(--m55-premium-copper-rule);
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .answerQ {
+  font-family: var(--m55-premium-sans);
+  color: var(--m55-premium-accent-teal);
+  letter-spacing: 0.04em;
+}
+
+[data-m55-experience-tier='PREMIUM'] [data-m55-premium-surface='decision'] .answerA {
+  font-family: var(--m55-premium-serif);
+}
+
+/* Purchased reader inherits publication typography */
+[data-m55-experience-tier='PREMIUM'][data-m55-premium-state*='purchased'] {
+  --m55-read-width: 56rem;
+}
+
+@media print {
+  [data-m55-experience-tier='PREMIUM'] [data-m55-print-hide],
+  [data-m55-experience-tier='PREMIUM'] [data-testid='m55-premium-sticky-cta'] {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-m55-experience-tier='PREMIUM'] *,
+  [data-m55-experience-tier='PREMIUM'] *::before,
+  [data-m55-experience-tier='PREMIUM'] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

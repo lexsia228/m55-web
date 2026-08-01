@@ -103,7 +103,11 @@ export default function ConsultReplyCard({
     .join(' ');
 
   return (
-    <article className={cardClassName} aria-label={PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}>
+    <article
+      className={cardClassName}
+      aria-label={PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}
+      data-m55-premium-state="purchased.consult.result"
+    >
       <header className={collapsed ? `${styles.replyCardHeader} ${styles.replyCardHeaderCompact}` : styles.replyCardHeader}>
         {isLatest ? (
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>

@@ -90,8 +90,12 @@ export type ChapterBias = Record<ChapterHintId, number>;
 
 export type PaidDepth = {
   chapterBias: ChapterBias;
-  readingStyle: string | null;
-  reportUsage: string | null;
+  recoverySequence: string | null;
+  restartCondition: string | null;
+  /** @deprecated legacy snapshot field — preserved for immutable purchased output */
+  readingStyle?: string | null;
+  /** @deprecated legacy snapshot field — preserved for immutable purchased output */
+  reportUsage?: string | null;
   paidDepthHash: string;
 };
 

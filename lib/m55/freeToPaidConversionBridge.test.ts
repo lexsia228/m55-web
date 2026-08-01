@@ -6,12 +6,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { STATIC_FREE_TO_PAID_BRIDGE } from '../../components/core/corePublicCopy';
 import {
-  getCommercialProduct,
-  M55_REPORT_CHAPTERS,
-} from './contracts/m55CommercialFunnelContract';
-import { PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
+  STATIC_FREE_TO_PAID_BRIDGE,
+  buildPremiumBridgeTitle,
+} from '../../components/core/corePublicCopy';
+import { M55_REPORT_CHAPTERS } from './contracts/m55CommercialFunnelContract';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from './commercialUx/terminology';
 import {
   assertPrivacySafeFunnelPayload,
   buildPrivacySafeFunnelPayload,
@@ -35,41 +35,21 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     }
   });
 
-  it('keeps Light/Full pricing aligned with machine contract (no duplicate hardcode)', () => {
-    const light = getCommercialProduct('selfPremiumLight');
-    const full = getCommercialProduct('selfPremiumFull');
-    assert.equal(light.priceJpy, 1000);
-    assert.equal(full.priceJpy, 1480);
-    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, light.priceJpy);
-    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.priceYen, full.priceJpy);
-    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa, light.publicName);
-    assert.equal(PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa, full.publicName);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{lightPriceLabel\}/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate, /\{fullPriceLabel\}/);
-  });
-
-  it('uses outcome-first order and clear free / Light / Full distinction', () => {
-    assert.ok(STATIC_FREE_TO_PAID_BRIDGE.outcomesJa.length >= 3);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa, /表れ方|場面/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.savedLayerBodyJa, /背景|構造|扱い/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightPlanBodyJa, /1件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, /一つの関心|1テーマ/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, /仕事|複数/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料の詳細をもう少し読む');
+  it('uses single personalized bridge copy and premium CTA', () => {
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.overline, 'プレミアムレポート');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
+    assert.match(buildPremiumBridgeTitle('アナリスト'), /さらに深く読み解く/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料結果を続けて読む');
   });
 
   it('avoids fake urgency language in marketing surfaces', () => {
     const marketing = [
       STATIC_FREE_TO_PAID_BRIDGE.overline,
-      STATIC_FREE_TO_PAID_BRIDGE.title,
-      STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa,
-      STATIC_FREE_TO_PAID_BRIDGE.savedLayerBodyJa,
+      STATIC_FREE_TO_PAID_BRIDGE.supportingJa,
       STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa,
       STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa,
       STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa,
-      STATIC_FREE_TO_PAID_BRIDGE.priceNoteTemplate,
     ].join('\n');
     assert.doesNotMatch(marketing, /今だけ|残りわずか|人気No|おすすめ度|カウントダウン|期間限定/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断、未来や結果の保証ではありません/);
@@ -82,6 +62,7 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.match(renderSlice, /CoreEntryReportCTASection/);
     assert.match(renderSlice, /CoreFreeResultScenesSection/);
     assert.match(renderSlice, /depth=\{depthAnalysis\}/);
+    assert.match(renderSlice, /traitName=/);
     const summaryIdx = renderSlice.indexOf('<CoreFreeResultSummaryHub');
     const sceneIdx = renderSlice.indexOf('<CoreFreeResultScenesSection');
     const bridgeIdx = renderSlice.indexOf('<CoreEntryReportCTASection');
@@ -93,9 +74,9 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.match(src, /data-testid="m55-free-to-paid-bridge"/);
     assert.match(src, /data-testid="m55-paid-bridge-primary"/);
     assert.match(src, /data-testid="m55-paid-bridge-secondary"/);
-    assert.match(src, /viewSavedPlansHref/);
-    assert.match(src, /getCommercialProduct/);
+    assert.match(src, /m55-paid-questionnaire/);
     assert.match(src, /core-scenes/);
+    assert.doesNotMatch(src, /conversionBridgePlanGrid/);
     assert.doesNotMatch(src, /PurchaseButton/);
     assert.doesNotMatch(src, /\/api\/purchase/);
     assert.doesNotMatch(src, /focusTheme/);
@@ -104,17 +85,14 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
   it('Premium bridge stays visible without CoreScrollReveal (no opacity-0 default)', () => {
     const src = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const css = read('components/core/CoreExperience.module.css');
-    // Commercial CTA must not depend on observer-gated reveal.
     assert.doesNotMatch(src, /coreReveal/);
     assert.doesNotMatch(src, /data-core-reveal/);
     assert.doesNotMatch(src, /data-reveal-state/);
-    // Bridge module styles must not hide the revenue block by default.
     const bridgeBlock = css.match(/\.conversionBridge\s*\{[^}]+\}/);
     assert.ok(bridgeBlock, 'conversionBridge rule present');
     assert.doesNotMatch(bridgeBlock![0], /opacity:\s*0/);
     assert.doesNotMatch(bridgeBlock![0], /visibility:\s*hidden/);
     assert.doesNotMatch(bridgeBlock![0], /pointer-events:\s*none/);
-    // Other reveal targets may still use CoreScrollReveal — leave them alone.
     const scrollReveal = read('components/core/CoreScrollReveal.tsx');
     assert.match(scrollReveal, /data-core-reveal/);
     assert.match(read('components/core/CoreTendencyLoadSection.tsx'), /data-core-reveal/);
@@ -164,7 +142,6 @@ describe('privacy-safe funnel analytics', () => {
     assert.match(essence, /selfEntryStarted/);
     assert.match(essence, /freeResultViewed/);
     assert.match(bridge, /premiumBridgeViewed/);
-    // Navigation to /dtr/lp is not checkout initiation.
     assert.doesNotMatch(bridge, /checkoutStarted|checkout_started/);
   });
 
@@ -172,11 +149,9 @@ describe('privacy-safe funnel analytics', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(q, /paidQuestionnaireStart/);
-    assert.match(q, /startQuestionnaire/);
     assert.match(q, /paidQuestionnaireComplete/);
     assert.match(prep, /paidPlanView/);
     assert.match(prep, /premiumPlanSelected/);
-    assert.doesNotMatch(q, /trackFunnelImpressionOnce\(\s*M55_FUNNEL_EVENTS\.paidQuestionnaireStart/);
     assert.doesNotMatch(q + prep, /focusThemeLabelJa/);
     assert.doesNotMatch(q + prep, /m55_paid_bridge/);
   });

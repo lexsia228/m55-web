@@ -36,6 +36,7 @@
   "exclude": [
     "node_modules",
     "components/home/home",
-    "components/home/home_tmp"
+    "components/home/home_tmp",
+    "playwright.config.ts"
   ]
 }

@@ -1,51 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
-import { PUBLIC_NAV_TEN_VIEWS_LABEL_JA } from '../../lib/m55/topFreeEntryPublicCopy';
-import { readSelfFunnelStage } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
 import {
-  resolveCoreRouteView,
-  type SelfFunnelStage,
-} from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+  ACCOUNT_DROPDOWN_NAV,
+  isHeaderNavActive,
+  type PublicHeaderState,
+} from '../../lib/m55/commercialUx/publicHeaderState';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../../lib/m55/commercialUx/terminology';
+import { PUBLIC_NAV_COPY as Nav } from '../../lib/m55/commercialUx/experience/pageContent/publicNavCopy';
 import styles from './ShellLayout.module.css';
 
 type NavItem = { href: string; label: string };
-
-const DESKTOP_PRIMARY_NAV: NavItem[] = [
-  { href: '/core', label: '無料で見る' },
-  { href: '/dtr/lp', label: 'プレミアム' },
-];
-
-const ABOUT_DROPDOWN_NAV: NavItem[] = [
-  { href: '/how-m55-works', label: 'M55の仕組み' },
-  { href: '/ten-views', label: PUBLIC_NAV_TEN_VIEWS_LABEL_JA },
-];
-
-const ACCOUNT_DROPDOWN_NAV: NavItem[] = [
-  { href: '/dtr', label: 'マイレポート' },
-  { href: '/my', label: 'マイページ' },
-];
-
-const MOBILE_MENU_PUBLIC: NavItem[] = [
-  { href: '/core', label: '無料で見る' },
-  { href: '/dtr/lp', label: 'プレミアム' },
-  { href: '/how-m55-works', label: 'M55の仕組み' },
-  { href: '/ten-views', label: PUBLIC_NAV_TEN_VIEWS_LABEL_JA },
-  { href: '/home', label: 'ホーム' },
-];
-
-const MOBILE_MENU_SIGNED_IN: NavItem[] = [
-  { href: '/dtr', label: 'マイレポート' },
-  { href: '/my', label: 'マイページ' },
-];
-
-function isActiveRoute(pathname: string, href: string): boolean {
-  if (href === '/home') return pathname === '/home';
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 type DropdownProps = {
   triggerLabel: string;
@@ -127,7 +94,7 @@ function HeaderDropdown({ triggerLabel, items, pathname, menuId, aboutDropdown }
         className={`${styles.navDropdownPanel}${open ? ` ${styles.navDropdownPanelOpen}` : ''}`}
       >
         {items.map((item, index) => {
-          const active = isActiveRoute(pathname, item.href);
+          const active = isHeaderNavActive(pathname, item.href);
           return (
             <Link
               key={item.href}
@@ -147,10 +114,13 @@ function HeaderDropdown({ triggerLabel, items, pathname, menuId, aboutDropdown }
   );
 }
 
-export function PublicHeader() {
-  const pathname = usePathname();
+export type PublicHeaderProps = {
+  state: PublicHeaderState;
+  pathname: string;
+};
+
+export function PublicHeader({ state, pathname }: PublicHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [funnelStage, setFunnelStage] = useState<SelfFunnelStage>('EMPTY');
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null);
@@ -158,20 +128,9 @@ export function PublicHeader() {
   const aboutMenuId = useId();
   const accountMenuId = useId();
 
-  useEffect(() => {
-    const sync = () => setFunnelStage(readSelfFunnelStage(null));
-    sync();
-    window.addEventListener('m55:profile_updated', sync);
-    window.addEventListener('pageshow', sync);
-    window.addEventListener('focus', sync);
-    return () => {
-      window.removeEventListener('m55:profile_updated', sync);
-      window.removeEventListener('pageshow', sync);
-      window.removeEventListener('focus', sync);
-    };
-  }, [pathname]);
+  const { contextualPrimaryAction, desktopPrimaryNav, aboutDropdownNav, mobileMenuPublic } = state;
+  const showDesktopContextualCta = false;
 
-  const showMobilePremiumCta = resolveCoreRouteView(funnelStage) === 'result';
   const closeMenu = () => setMenuOpen(false);
 
   const closeMenuAndReturnFocus = () => {
@@ -219,15 +178,13 @@ export function PublicHeader() {
     if (menuOpen) firstMenuLinkRef.current?.focus();
   }, [menuOpen]);
 
-  const mobileMenuItems = [...MOBILE_MENU_PUBLIC];
-
   return (
-    <header className={styles.header} aria-label="ナビゲーション">
+    <header className={styles.header} aria-label={Nav.navAriaJa} data-m55-print-hide>
       <div className={styles.headerStart}>
         <Link
           href="/home"
           className={styles.brandLockup}
-          aria-label="ホーム"
+          aria-label={Nav.homeAriaJa}
           aria-current={pathname === '/home' ? 'page' : undefined}
         >
           <img
@@ -247,9 +204,9 @@ export function PublicHeader() {
           </span>
         </Link>
 
-        <nav className={styles.topNav} aria-label="メインナビゲーション">
-          {DESKTOP_PRIMARY_NAV.map((item) => {
-            const active = isActiveRoute(pathname, item.href);
+        <nav className={styles.topNav} aria-label={Nav.mainNavAriaJa}>
+          {desktopPrimaryNav.map((item) => {
+            const active = isHeaderNavActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
@@ -262,52 +219,60 @@ export function PublicHeader() {
             );
           })}
           <HeaderDropdown
-            triggerLabel="M55について"
-            items={ABOUT_DROPDOWN_NAV}
+            triggerLabel={T.aboutM55}
+            items={aboutDropdownNav}
             pathname={pathname}
             menuId={aboutMenuId}
             aboutDropdown
           />
         </nav>
-
-        {!showMobilePremiumCta ? (
-          <Link
-            href="/core"
-            className={`${styles.mobileFreeLink}${
-              isActiveRoute(pathname, '/core') ? ` ${styles.topNavItemActive}` : ''
-            }`}
-            aria-current={isActiveRoute(pathname, '/core') ? 'page' : undefined}
-            data-testid="m55-mobile-nav-free"
-          >
-            無料で見る
-          </Link>
-        ) : null}
       </div>
 
       <div className={styles.authArea}>
-        {showMobilePremiumCta ? (
+        {!showDesktopContextualCta ? (
           <Link
-            href="/dtr/lp"
-            className={`${styles.mobilePremiumLink}${
-              isActiveRoute(pathname, '/dtr/lp') ? ` ${styles.topNavItemActive}` : ''
+            href={contextualPrimaryAction.href}
+            className={`${
+              contextualPrimaryAction.kind === 'free_entry'
+                ? styles.mobileFreeLink
+                : styles.mobilePremiumLink
+            }${
+              contextualPrimaryAction.kind === 'view_premium' &&
+              isHeaderNavActive(pathname, '/dtr/lp')
+                ? ` ${styles.topNavItemActive}`
+                : contextualPrimaryAction.kind === 'free_entry' &&
+                    isHeaderNavActive(pathname, '/core')
+                  ? ` ${styles.topNavItemActive}`
+                  : ''
             }`}
-            aria-current={isActiveRoute(pathname, '/dtr/lp') ? 'page' : undefined}
-            data-testid="m55-mobile-nav-premium"
+            aria-current={
+              contextualPrimaryAction.kind === 'view_premium' &&
+              isHeaderNavActive(pathname, '/dtr/lp')
+                ? 'page'
+                : contextualPrimaryAction.kind === 'free_entry' &&
+                    isHeaderNavActive(pathname, '/core')
+                  ? 'page'
+                  : undefined
+            }
+            data-testid="m55-mobile-nav-contextual"
           >
-            プレミアム
+            {contextualPrimaryAction.label}
           </Link>
         ) : null}
-        <div className={styles.desktopAuth}>
+        <div
+          className={`${styles.desktopAuth} m55-print-hide`}
+          data-testid="m55-desktop-auth"
+        >
           <SignedOut>
             <SignInButton mode="redirect">
-              <button type="button" className={styles.authButton} aria-label="ログイン">
-                ログイン
+              <button type="button" className={styles.authButton} aria-label={Nav.loginJa}>
+                {Nav.loginJa}
               </button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <HeaderDropdown
-              triggerLabel="アカウント"
+              triggerLabel={Nav.accountJa}
               items={ACCOUNT_DROPDOWN_NAV}
               pathname={pathname}
               menuId={accountMenuId}
@@ -322,12 +287,12 @@ export function PublicHeader() {
           type="button"
           ref={triggerRef}
           className={styles.menuTrigger}
-          aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+          aria-label={menuOpen ? Nav.menuCloseJa : Nav.menuOpenJa}
           aria-expanded={menuOpen}
           aria-controls="m55-public-mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          メニュー
+          {T.menu}
         </button>
       </div>
 
@@ -336,9 +301,9 @@ export function PublicHeader() {
         id="m55-public-mobile-menu"
         className={`${styles.mobileMenuPanel}${menuOpen ? ` ${styles.mobileMenuPanelOpen}` : ''}`}
       >
-        <nav aria-label="モバイルナビゲーション" className={styles.mobileMenuNav}>
-          {mobileMenuItems.map((item, index) => {
-            const active = isActiveRoute(pathname, item.href);
+        <nav aria-label={Nav.mobileNavAriaJa} className={styles.mobileMenuNav}>
+          {mobileMenuPublic.map((item, index) => {
+            const active = isHeaderNavActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
@@ -353,8 +318,8 @@ export function PublicHeader() {
             );
           })}
           <SignedIn>
-            {MOBILE_MENU_SIGNED_IN.map((item) => {
-              const active = isActiveRoute(pathname, item.href);
+            {ACCOUNT_DROPDOWN_NAV.map((item) => {
+              const active = isHeaderNavActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
@@ -372,13 +337,13 @@ export function PublicHeader() {
             <SignedOut>
               <SignInButton mode="redirect">
                 <button type="button" className={styles.mobileMenuAuthButton} onClick={closeMenu}>
-                  ログイン
+                  {Nav.loginJa}
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
               <div className={styles.mobileMenuAccountRow}>
-                <span className={styles.mobileMenuAccountLabel}>アカウント</span>
+                <span className={styles.mobileMenuAccountLabel}>{Nav.accountJa}</span>
                 <span className={styles.userButtonWrap}>
                   <UserButton afterSignOutUrl="/" />
                 </span>

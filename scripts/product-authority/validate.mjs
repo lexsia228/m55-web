@@ -320,6 +320,11 @@ export function validateObservationsStructure(observations) {
     ['lanes', 'buildWeek', 'branch'],
     ['lanes', 'buildWeek', 'head'],
     ['lanes', 'buildWeek', 'mutationPolicy'],
+    ['lanes', 'growthShare', 'status'],
+    ['lanes', 'growthShare', 'worktree'],
+    ['lanes', 'growthShare', 'branch'],
+    ['lanes', 'growthShare', 'implementationReviewedTip'],
+    ['lanes', 'growthShare', 'mergeStatus'],
   ];
 
   for (const pathParts of requiredPaths) {

@@ -103,7 +103,13 @@ docs/archive/zips/**/*.zip
 # Playwright
 playwright-report/
 test-results/
+# Commercial quality control plane — candidate review output only, never canonical
+test-results/commercial-quality-approval-pack/
+test-results/commercial-quality-gate/
+e2e/screenshots/_tmp-home-continuous-responsive/
 e2e/screenshots/required/*.png
+e2e/screenshots/experience-control-plane/**/*.png
+e2e/screenshots/experience-control-plane/**/*.pdf
 
 # M55 Ops Control Plane — local draft runs only (ops/releases/ remains tracked)
 ops/runs/local/

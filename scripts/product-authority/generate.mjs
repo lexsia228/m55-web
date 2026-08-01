@@ -48,6 +48,32 @@ function buildHashes(root, authority, observations) {
   };
 }
 
+function readLaneStatuses(observations) {
+  return {
+    authorityPack: /** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value,
+    selfFunnel: /** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value,
+    buildWeek: /** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value,
+    growthShare: /** @type {{ value: string }} */ (observations.lanes.growthShare.status).value,
+  };
+}
+
+function readGrowthShareMergeStatus(observations) {
+  return /** @type {{ value: string }} */ (observations.lanes.growthShare.mergeStatus).value;
+}
+
+function mergeStatusFromObservations(observations) {
+  return readGrowthShareMergeStatus(observations);
+}
+
+function renderLaneStatusLines(lanes) {
+  return [
+    `- Product Authority Pack: ${lanes.authorityPack}`,
+    `- Self funnel operational baseline: ${lanes.selfFunnel}`,
+    `- Growth Share (WT-011): ${lanes.growthShare}`,
+    `- Build Week: ${lanes.buildWeek}`,
+  ].join('\n');
+}
+
 function renderAuthorityHeaderBody(authority, observations, hashes, generatedAt) {
   const productId = /** @type {{ value: string }} */ (authority.product.id).value;
   const productName = /** @type {{ value: string }} */ (authority.product.name).value;
@@ -60,9 +86,8 @@ function renderAuthorityHeaderBody(authority, observations, hashes, generatedAt)
     observations.repository.lastObservedOriginMainSha
   ).value;
   const prodStatus = /** @type {{ value: string }} */ (observations.production.status).value;
-  const activeLane = /** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value;
-  const selfLane = /** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value;
-  const buildWeekLane = /** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value;
+  const lanes = readLaneStatuses(observations);
+  const mergeStatus = readGrowthShareMergeStatus(observations);
 
   return `# M55 Product Authority Header
 
@@ -98,9 +123,12 @@ generatedAt: ${generatedAt}
 
 ## Lanes
 
-- ACTIVE: Authority Pack (${activeLane})
-- PARKED: Self funnel (${selfLane})
-- FROZEN: Build Week (${buildWeekLane})
+${renderLaneStatusLines(lanes)}
+
+## Growth Share delivery state
+
+- PR #81: ${mergeStatus}
+- Growth code is not Production
 
 ## STOP conditions
 
@@ -108,7 +136,7 @@ generatedAt: ${generatedAt}
 - authority conflict with generated header
 - branch-local treated as merged runtime
 - pending Production evidence promoted without verification
-- protected worktree mutation during Authority Pack lane
+- protected worktree mutation during completed lanes
 - secret-like values in authority or observations
 
 ## Unresolved evidence
@@ -121,15 +149,20 @@ Generated outputs must not synthesize operational workflow gates.
 `;
 }
 
-function renderAdapterBody(adapterName, hashes, generatedAt) {
+function renderAdapterBody(adapterName, hashes, generatedAt, observations) {
+  const lanes = readLaneStatuses(observations);
   return `# ${adapterName} Product Authority Adapter
 
 Before analysis or mutation:
 
 1. Read \`.product-authority/generated/authority-header.md\`
 2. Run \`npm run verify:product-authority\` (steady-state) or bootstrap verifier on Authority Pack branch
-3. Confirm ACTIVE lane, protected worktrees, and Production observed state
+3. Confirm lane statuses, protected worktrees, and Production observed state
 4. STOP on hash drift, authority conflict, or pending evidence promoted without verification
+
+Current lane statuses (from observations):
+
+${renderLaneStatusLines(lanes)}
 
 Pack anchors:
 
@@ -141,19 +174,38 @@ Pack anchors:
 Memory and conversation history are not authority.
 Human-approved durable authority supersedes generated adapter guidance.
 Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
+
+## M55 Experience Control Plane v2 (enforcement)
+
+- Active Growth lane work must obey ECP v2 (\`m55-ecp-v2\`).
+- Constitution: \`lib/m55/commercialUx/experience/experienceConstitution.ts\`
+- Route registry: \`lib/m55/commercialUx/experience/experienceRouteRegistry.ts\`
+- Copy domains: \`lib/m55/commercialUx/experience/copyAuthorityDomains.ts\`
+- Do not create a second shell/header/CTA/trait/plan/print authority.
+- Required local verification:
+  - \`npm run verify:m55-experience-control-plane\`
+  - \`npm run verify:m55-ssot\`
+  - \`npm run verify:product-authority\`
+- Product Truth prices/plans remain machine-contract owned; UI must use \`PLAN_COMPARISON\`.
+- No LLM-as-a-Judge is a required merge gate. Human commercial/visual approval remains mandatory.
 `;
 }
 
 function renderHandoffMdBody(authority, observations, hashes, generatedAt) {
   const productId = /** @type {{ value: string }} */ (authority.product.id).value;
+  const lanes = readLaneStatuses(observations);
+  const mergeStatus = readGrowthShareMergeStatus(observations);
   return `# M55 Product Authority Handoff
 
 generatedAt: ${generatedAt}
 
 Product: ${productId}
-Authority Pack lane: ACTIVE
-Self funnel lane: PARKED
-Build Week lane: FROZEN
+Authority Pack lane: ${lanes.authorityPack}
+Self funnel lane: ${lanes.selfFunnel}
+Growth Share lane: ${lanes.growthShare}
+Build Week lane: ${lanes.buildWeek}
+PR #81: ${mergeStatus}
+Growth code is not Production
 
 Documentation note: generatedBundleSha256 appears only in the generator-owned metadata block below.
 
@@ -174,6 +226,7 @@ Hashes:
 }
 
 function renderHandoffJsonBody(authority, observations, hashes, generatedAt) {
+  const lanes = readLaneStatuses(observations);
   const handoff = {
     schemaVersion: '1.0.0',
     generatorVersion: GENERATOR_VERSION,
@@ -184,9 +237,14 @@ function renderHandoffJsonBody(authority, observations, hashes, generatedAt) {
     sourcePaths: [...SOURCE_PATHS],
     productId: /** @type {{ value: string }} */ (authority.product.id).value,
     lanes: {
-      authorityPack: /** @type {{ value: string }} */ (observations.lanes.authorityPack.status).value,
-      selfFunnel: /** @type {{ value: string }} */ (observations.lanes.selfFunnel.status).value,
-      buildWeek: /** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value,
+      authorityPack: lanes.authorityPack,
+      selfFunnel: lanes.selfFunnel,
+      growthShare: lanes.growthShare,
+      buildWeek: lanes.buildWeek,
+    },
+    growthShareDelivery: {
+      pr81: mergeStatusFromObservations(observations),
+      productionDeployed: false,
     },
   };
   return `${canonicalStringify(handoff)}\n`;
@@ -210,11 +268,11 @@ export function generateProductAuthority(root) {
     '.product-authority/generated/handoff.json': () =>
       renderHandoffJsonBody(authority, observations, hashes, generatedAt),
     '.product-authority/generated/adapters/codex.md': () =>
-      renderAdapterBody('Codex', hashes, generatedAt),
+      renderAdapterBody('Codex', hashes, generatedAt, observations),
     '.product-authority/generated/adapters/cursor.md': () =>
-      renderAdapterBody('Cursor', hashes, generatedAt),
+      renderAdapterBody('Cursor', hashes, generatedAt, observations),
     '.product-authority/generated/adapters/generic-agent.md': () =>
-      renderAdapterBody('Generic Agent', hashes, generatedAt),
+      renderAdapterBody('Generic Agent', hashes, generatedAt, observations),
   };
 
   const provisionalRecords = GENERATED_ARTIFACT_PATHS.map((relPath) => {

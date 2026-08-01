@@ -193,29 +193,7 @@ export default function CoreFreeQuestionnaireLayer({
           })}
         </div>
 
-        {selected ? (
-          <p
-            className={styles.freeClueAck}
-            role="status"
-            aria-live="polite"
-            data-testid="m55-free-clue-ack"
-          >
-            <span className={styles.freeClueAckPrimary}>
-              {index + 1} / {FREE_FIVE_QUESTION_COUNT} 完了
-            </span>
-            {!isLast ? (
-              <span className={styles.freeClueAckSecondary}>
-                あと{FREE_FIVE_QUESTION_COUNT - index - 1}問
-              </span>
-            ) : null}
-          </p>
-        ) : (
-          <p className={styles.freeClueAckPlaceholder} aria-hidden>
-            {'\u00a0'}
-          </p>
-        )}
-
-        <div className={styles.freeQuestionnaireActions}>
+        <div className={styles.freeQuestionnaireActions} data-m55-print-hide>
           <button
             type="button"
             className={styles.freeQuestionnaireSecondaryBtn}

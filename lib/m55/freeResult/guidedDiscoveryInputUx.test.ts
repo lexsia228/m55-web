@@ -27,7 +27,7 @@ describe('guided discovery input experience', () => {
     const visual = read('components/core/CoreFreeClueProgressVisual.tsx');
     assert.match(progress, /CoreFreeClueProgressVisual/);
     assert.match(progress, /FREE_QUESTION_FLOW_TOTAL/);
-    assert.match(progress, /5つの問い/);
+    assert.doesNotMatch(progress, /inQuestionnaire \? '5つの問い'/);
     assert.match(progress, /あと\$\{questionRemaining\}問/);
     assert.match(visual, /FREE_CONTINUOUS_FLOW_TOTAL/);
     assert.match(visual, /data-testid="m55-free-clue-visual"/);
@@ -55,9 +55,9 @@ describe('guided discovery input experience', () => {
     assert.match(q, /無料結果を見る/);
     assert.match(q, /disabled=\{!selected \|\| completing\}/);
     assert.match(q, /event\.key === '1'/);
-    assert.match(q, /m55-free-clue-ack/);
-    assert.match(q, /完了/);
-    assert.match(q, /あと\{FREE_FIVE_QUESTION_COUNT - index - 1\}問/);
+    assert.match(q, /CoreFreeContinuousFlowProgress/);
+    assert.doesNotMatch(q, /m55-free-clue-ack/);
+    assert.doesNotMatch(q, /FREE_FIVE_QUESTION_COUNT} 完了/);
     assert.doesNotMatch(q, /手がかりを受け取りました/);
     assert.doesNotMatch(q, /質問 \{questionOrdinal\}/);
     assert.doesNotMatch(q, /質問 N \/ 5|質問 \$\{/);

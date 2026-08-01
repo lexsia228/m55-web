@@ -5,33 +5,61 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-26 (Authority Pack observation refresh patch REV1)
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011)
 
-## Product Authority Pack lane (ACTIVE — WT-010)
+## ACTIVE LANE — Self funnel Growth / share (WT-011)
 
 | Field | Value |
 |---|---|
-| Lane | **Product Authority Pack authority-data correction / final Human review** |
+| Lane | **Self funnel Growth — share / OG / viral return / Premium conversion** |
 | Status | **ACTIVE** |
+| Worktree ID | **WT-011** |
+| Worktree | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
+| Branch | `feat/m55-self-funnel-growth-share-v1` |
+| implementationReviewedTip | `d7af28a59755076b6269e93edfba03297eb98084` — reviewed Growth Share implementation baseline; not permanently current branch HEAD |
+| liveHeadSource | Git — live local HEAD must descend from implementationReviewedTip; origin feature ref must equal live HEAD |
+| Base SHA | `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge = current `origin/main` |
+| PR | **#81 unmerged** — branch-local Growth Share implementation |
+| Purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation |
+| Classification of Production | **OPERATIONAL_BASELINE** — not final commercial launch |
+
+Growth is the sole **ACTIVE** implementation lane after Self funnel operational baseline merge. Do **not** append Growth commits to the merged PR #80 feature branch (WT-001).
+
+**Authority drift block (2026-07-27):** Resolved by Growth Share authority state reconciliation. Sitewide commercial UX audit may resume once after snapshot-contract fix GREEN.
+
+## Completed Self funnel operational baseline (PR #80)
+
+| Field | Value |
+|---|---|
+| PR | **#80 MERGED** |
+| Merge method | GitHub merge commit |
+| Merge SHA / origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
+| Feature tip | `fda934d8f31da715d3a4fb35681c7b3dff3dd41d` |
+| Production host | `https://m-55.jp` |
+| Production diagnostics | `vercel_env=production` · `vercel_branch=main` · `vercel_git_sha=6965590…` |
+| Production classification | **OPERATIONAL_BASELINE** |
+| Prior worktree | WT-001 `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` — **COMPLETED** reference |
+| Backup ref retained | `refs/backup/m55-self-funnel-pre-main-sync-rev1` |
+
+## Product Authority Pack (completed — historical snapshot)
+
+| Field | Value |
+|---|---|
 | Worktree ID | **WT-010** |
 | Worktree | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` |
 | Branch | `feat/m55-product-authority-pack-v1` |
+| Status | **COMPLETED** — retained infrastructure; not current implementation lane |
 | bootstrapStartHead | `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — historical lane creation anchor; **not** current origin/main |
 | History (2026-07-26) | sequences **0–2** present — `INITIALIZATION` · `AUTHORITY_PROCESS_INCIDENT` · `BOOTSTRAP_RECONCILIATION` |
 | Bootstrap reconciliation | **Complete** — steady-state verifier active |
 | CI steady-state enforcement | **Active and PASS** at reviewed PR tip |
-| PR #79 (2026-07-26 snapshot) | **OPEN** — base `main` · head `feat/m55-product-authority-pack-v1` |
-| PR tip SHA (2026-07-26 CI snapshot) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` |
+| PR #79 (2026-07-26 snapshot) | transition recorded — tip later merged; snapshot is not machine authority |
+| Reviewed tip SHA (2026-07-26 CI snapshot) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` — feature tip only; not Production authority |
 | Commit 1 (Push Protection rewrite) | `f9daeb1f38205ca6d6eebb8e90c0a19f4ad58704` |
 | Commit 2 (bootstrap reconciliation) | `2761706505576a2baeacbdd40acd130a1f70e81b` |
 | Commit 3 (registry fixture CI portability) | `fae04444618e2ae36e6fd813ddfddeee975b66c4` |
-| Required CI at reviewed tip | **GREEN** — including `verify-product-authority-pack` |
-| Current lane action | authority-data transition correction — **merge prohibited** pending final Human authority approval |
-| GitHub ruleset / CODEOWNERS enforcement | **Not claimed active** in this gate |
-| Production deployment | **None** — no Production re-observation performed |
 
-Authority Pack merge **does not** complete Self funnel Human lock or resume Self funnel implementation.
-PR-tip branch-local code is **not** merged runtime.
+Authority Pack merge **does not** replace Growth Human visual lock. Branch-local Growth code is **not** merged runtime until merged to `origin/main`. No Growth Share merge or Production deployment has occurred.
 
 ## Canonical Production authority
 
@@ -42,21 +70,20 @@ PR-tip branch-local code is **not** merged runtime.
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| last observed origin/main (2026-07-26T13:23:20+00:00) | `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA |
-| Production observed SHA | **null** — `PENDING_REOBSERVATION_ON_M-55.JP` |
-| Production confirmation | **Do not claim** post-merge Production SHA confirmation in this gate |
+| last observed origin/main (2026-07-27T09:56:00+00:00) | `696559009367a6ac445dc7a07876590b16cd8488` — Product Authority observation snapshot; mutable Git observation |
+| Prior observation (2026-07-26T13:23:20+00:00) | `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — superseded snapshot |
+| Current live remote main (2026-07-27) | `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 merge |
+| Production observed SHA | `696559009367a6ac445dc7a07876590b16cd8488` |
+| Production confirmation | **GREEN** — OPERATIONAL_BASELINE smoke (no live purchase) |
 
-## Parked / frozen lanes
+## Parked / frozen / completed lanes
 
 | Lane | Status | Worktree ID | Worktree | Notes |
 |---|---|---|---|---|
-| Self free→Premium funnel | **PARKED** | **WT-001** | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` | dirty · preserved · `NO_MUTATION_DURING_AUTHORITY_PACK_LANE` |
-| Paid LP / HOME microcopy | **PAUSED** | **WT-006** | `/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1` | reference-only · not Authority Pack |
+| Self free→Premium baseline | **COMPLETED** | **WT-001** | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` | PR #80 merged · OPERATIONAL_BASELINE · do not append Growth |
+| Product Authority Pack | **COMPLETED** | **WT-010** | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` | PR #79 merged |
+| Paid LP / HOME microcopy | **PAUSED** | **WT-006** | `/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1` | reference-only |
 | Build Week control plane | **FROZEN** | **WT-009** | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | `DO_NOT_MODIFY` |
-
-Self funnel branch: `feat/m55-self-free-to-premium-funnel-v1` @ `76cb15577dd46ce99980aed6a4df474960fd51d9` (branch-local · dirty · not merged runtime)
-
-Build Week branch: `feat/m55-build-week-control-plane-v1` @ `0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75` (frozen)
 
 ## State separation
 
@@ -72,24 +99,18 @@ When merged authority or runtime state changes, update observations via Product 
 | Contract | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **REV1 frozen** |
 | User-visible closure | `USER_VISIBLE_CLOSED_GREEN` requires implementation GREEN + Product Truth GREEN + actual diff review GREEN + actual-screen evidence + Human commercial-quality approval |
 
-## Active commercial sequence (unchanged)
-
-Roadmap order preserved. Authority Pack P0 override precedes Self funnel Human lock resumption.
+## Active commercial sequence
 
 1. Commercial Funnel SSOT — complete
-2. 個人無料→個人Premium — **PARKED** (implementation preserved; awaiting Authority Pack final Human review)
-3. 二人向け無料→有料 — later
-4. HOME最終統合 — later
-5. HOME正式SSOT — later
+2. 個人無料→個人Premium operational baseline — **MERGED** (PR #80 · OPERATIONAL_BASELINE)
+3. Self funnel Growth / share — **ACTIVE** (WT-011 · PR #81 unmerged)
+4. 二人向け無料→有料 — later
+5. HOME最終統合 — later
+6. HOME正式SSOT — later
 
-Current operational lane (2026-07-26): **Authority Pack authority-data correction** on PR #79 — not Self funnel implementation.
+## NEXT SINGLE ACTION
 
-## Prohibited during Authority Pack lane
-
-- Mutating parked Self funnel or frozen Build Week worktrees
-- Claiming Production SHA confirmed without independent observation on `m-55.jp`
-- Treating `m55.jp` as canonical Production authority
-- Treating branch-local dirty Self funnel source as merged runtime
+Reconcile Growth Share lane authority state (this patch), then run Codex sitewide commercial UX audit once → unified Growth Share commercial UX implementation → Human visual + real-platform share verification. Human commercial approval remains required before merge. No Production merge until approved. No live purchase. No DB / Auth / Provider / env mutation.
 
 ## Verification
 
@@ -105,8 +126,8 @@ npm run verify:m55-ssot
 | Field | Value |
 |---|---|
 | Contract | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **REV1 frozen** |
-| Merge status | **Not merged into `origin/main` yet** — Authority Pack bootstrap is independent |
-| **selfInputExperienceStatus** | `INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK` — branch-local; pending Human lock; not merged runtime |
+| Merge status | **Not merged into `origin/main` yet** — Growth branch-local implementation |
+| **selfInputExperienceStatus** | `INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK` — baseline on Production; Growth share loop pending Human review |
 | **HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT** | NOT_YET |
 
 ## State separation (lifecycle-independent — verifier preserved)
@@ -120,27 +141,33 @@ runtime_specific_validation_owned_by_lane = true
 post_merge_state_transition_required = true
 ```
 
-Merged runtime (`origin/main` @ `b13fcd540e210c3ffb41fa2f56889df74b1b3915` as of 2026-07-26T13:23:20+00:00) is committed authority.
+Merged runtime (`origin/main` @ `696559009367a6ac445dc7a07876590b16cd8488` as of 2026-07-27; prior observation `b13fcd540e210c3ffb41fa2f56889df74b1b3915` as of 2026-07-26T13:23:20+00:00) is committed authority.
 Target contract may precede runtime.
-Branch-local Self funnel source is **not merged main runtime**.
+Branch-local Self funnel Growth source is **not merged main runtime**.
 Historical pre-merge SHA: `37163a0d473c25365f3bddad579d4844fd8300df` — retained for verifier/history.
 documented post-merge transition remains recorded for WT-001 historical context.
 
-## Active authoritative state (Self funnel — PARKED)
+## Active authoritative state (Self funnel commercial sequence)
 
 | Field | Value |
 |---|---|
 | **postMergeActiveLane** | 個人無料→個人Premiumファネルの一括実装 |
 | **postMergeNextSingleAction** | Cursor docs patch complete → Cursor STOP → Codex independent diff review → Control Plane re-execution |
+| **currentImplementationLane** | Self funnel Growth / share (WT-011) |
+| **implementationReviewedTip** | `d7af28a59755076b6269e93edfba03297eb98084` |
+| **liveHeadValidation** | DESCENDANT_OF_REVIEWED_IMPLEMENTATION_TIP |
 | **pairPremium** | NOT_LIVE |
-| **Pair implementation** | Later lane — roadmap step 3（二人向け無料→有料） |
+| **Pair implementation** | Later lane — roadmap step（二人向け無料→有料） |
 | Historical branch | `docs/m55-commercial-funnel-ssot-v1` (PR #74 — merged; **not** current active branch) |
+| Current Growth branch | `feat/m55-self-funnel-growth-share-v1` |
 
-### Prohibited while Self funnel lane is PARKED
+### Prohibited ahead of / during Growth lane
 
 - Stripe / webhook / checkout backend 変更
 - Pair runtime 変更
 - WT-009 Build Week worktree edits
+- Live purchase / Production mutation
+- Appending to WT-001 merged PR #80 feature branch
 
 ## Completed GREEN (preserved)
 
@@ -150,10 +177,13 @@ documented post-merge transition remains recorded for WT-001 historical context.
 | Worktree registry / current-state bootstrap | **GREEN** |
 | Post-merge authority transition docs | **GREEN** |
 | Authority closure / implementation readiness | **GREEN_IMPLEMENTATION_AUTHORIZED** |
+| Self funnel operational baseline (PR #80) | **GREEN** — OPERATIONAL_BASELINE on Production |
+| Product Authority Pack (PR #79) | **GREEN** — completed infrastructure |
 
 ## Runtime vs target (scope separation — verifier preserved)
 
-| Area | Merged runtime (`origin/main`) | Target contract | Branch-local Self funnel (uncommitted; not merged main runtime) |
+| Area | Merged runtime (`origin/main`) | Target contract | Branch-local Self funnel Growth (not merged main runtime) |
 |---|---|---|---|
-| Self free pre-result theme | legacy debt | `preResultThemeSelection: false` | implementation targets false |
+| Self free pre-result theme | `preResultThemeSelection: false` | `preResultThemeSelection: false` | unchanged |
+| Share / OG / viral return | not yet on Production | privacy-safe share loop | implementation on WT-011 · PR #81 unmerged |
 | Pair premium | NOT_LIVE | 二人向け無料→有料 lane（later） | unchanged |

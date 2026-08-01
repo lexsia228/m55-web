@@ -25,12 +25,24 @@ import HomePairFreeSection from './HomePairFreeSection';
 import HomePremiumPreviewSlice from './HomePremiumPreviewSlice';
 import HomePremiumValueBridge from './HomePremiumValueBridge';
 import HomeEditorialHeadline from './HomeEditorialHeadline';
+import HomeMethodModel from './HomeMethodModel';
 import HomeProductMap from './HomeProductMap';
 import HomeTenAssetTeaser from './HomeTenAssetTeaser';
+import HomePrintSummary from './HomePrintSummary';
 import styles from './HomePanel.module.css';
 
 const homeCopy = TOP_FREE_ENTRY_PUBLIC_COPY.home;
 const ctaCopy = TOP_FREE_ENTRY_PUBLIC_COPY.cta;
+
+/** Desktop Human-approved break: after 「…」 — never mid-phrase, never bare 「には、」. */
+function heroDesktopTitleLines(line1: string, line2: string): { line1: string; line2: string } {
+  const quoteClose = line1.indexOf('」');
+  if (quoteClose < 0) return { line1, line2 };
+  return {
+    line1: line1.slice(0, quoteClose + 1),
+    line2: `${line1.slice(quoteClose + 1)}${line2}`,
+  };
+}
 
 function FreeCtaButton({
   stage,
@@ -115,6 +127,15 @@ export default function HomePanel() {
   const pairLive = isHomePairReadingLivePublic();
   const openIntake = () => setBirthIntakeOpen(true);
   const nicknameHint = (user?.firstName || user?.username || '').trim();
+  const heroDesktopTitle = heroDesktopTitleLines(
+    homeCopy.heroTitleLine1Ja,
+    homeCopy.heroTitleLine2Ja,
+  );
+  const heroTitlePhrase = heroDesktopTitle.line1;
+  const heroTitleDesktopPrefix = heroDesktopTitle.line2.slice(
+    0,
+    Math.max(0, heroDesktopTitle.line2.length - homeCopy.heroTitleLine2Ja.length),
+  );
 
   return (
     <div className={styles.wrap}>
@@ -134,8 +155,9 @@ export default function HomePanel() {
                   <img
                     src="/home/m55-b2c-r3-hero-desktop.jpg"
                     alt=""
-                    width="4320"
-                    height="3000"
+                    width="1440"
+                    height="1000"
+                    sizes="100vw"
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"
@@ -153,17 +175,46 @@ export default function HomePanel() {
                       <p className={styles.posterHeroBrandM55}>M55</p>
                       <p className={styles.posterHeroProductTitle}>{homeCopy.heroEyebrowJa}</p>
                     </div>
-                    <h1 className={styles.posterHeroTitleBlite}>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine1Ja}</span>
-                      <span className={styles.posterHeroTitleLine}>{homeCopy.heroTitleLine2Ja}</span>
+                    <h1 className={styles.posterHeroTitleBlite} data-testid="m55-home-hero-title">
+                      <span className={styles.posterHeroTitleLine}>
+                        <span className={styles.posterHeroTitlePhrase}>{heroTitlePhrase}</span>
+                        <span className={styles.posterHeroTitleMobileTail}>
+                          {heroTitleDesktopPrefix}
+                        </span>
+                      </span>
+                      <span className={styles.posterHeroTitleLine}>
+                        <span className={styles.posterHeroTitleDesktopPrefix}>
+                          {heroTitleDesktopPrefix}
+                        </span>
+                        {homeCopy.heroTitleLine2Ja}
+                      </span>
                     </h1>
                   </div>
                   <div className={styles.posterHeroBottomStack}>
+                    {/*
+                      The hero CTA is the primary commercial action, so it must
+                      occupy its slot from first paint. Before the auth state
+                      settles it renders as a disabled placeholder, matching the
+                      loading behaviour of the lower free CTAs.
+                    */}
+                    {!isLoaded && (
+                      <button
+                        type="button"
+                        className={`${styles.posterHeroCta} ${styles.ctaFreeLoading}`}
+                        disabled
+                        aria-busy="true"
+                        data-testid="m55-home-hero-cta-loading"
+                        data-m55-hero-cta="true"
+                      >
+                        {freeCtaLabel}
+                      </button>
+                    )}
                     {isLoaded && !hasProfile && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-open-birth-intake"
+                        data-m55-hero-cta="true"
                         onClick={openIntake}
                       >
                         {freeCtaLabel}
@@ -174,13 +225,18 @@ export default function HomePanel() {
                         type="button"
                         className={styles.posterHeroCta}
                         data-testid="m55-home-has-profile-hero"
+                        data-m55-hero-cta="true"
                         onClick={() => router.push('/core')}
                       >
                         {freeCtaLabel}
                       </button>
                     )}
-                    <p className={styles.posterHeroSupport}>{homeCopy.heroPosterSupportJa}</p>
-                    <p className={styles.posterHeroTrust}>{homeCopy.heroTrustJa}</p>
+                    <p className={styles.posterHeroSupport} data-testid="m55-home-hero-support">
+                      {homeCopy.heroPosterSupportJa}
+                    </p>
+                    <p className={styles.posterHeroTrust} data-testid="m55-home-hero-trust">
+                      {homeCopy.heroTrustJa}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -305,6 +361,11 @@ export default function HomePanel() {
             </Link>
           </nav>
         </section>
+
+        {/* §4b — Method model: composition frame before the Premium comparison */}
+        <div className={styles.methodModelStage}>
+          <HomeMethodModel />
+        </div>
 
         {/* §5 — Premium (preview + plan merged) */}
         <section
@@ -435,6 +496,7 @@ export default function HomePanel() {
         }}
       />
 
+      <HomePrintSummary />
     </div>
   );
 }

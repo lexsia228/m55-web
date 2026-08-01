@@ -26,10 +26,10 @@ const FREE_ITEMS = [
 ] as const;
 
 const CHAPTER_PREVIEWS = [
-  '第1章　構造と傾向の概要',
-  '第2章　ロジックの重なりと深度',
-  '第3章　変動サイクルの読み取り',
-  '第4章　実践的な整理の指針',
+  '輪郭を見る',
+  '構造を読む',
+  '無理を知る',
+  '楽に扱う',
 ] as const;
 
 export default function M55HowItWorks() {
@@ -81,10 +81,10 @@ export default function M55HowItWorks() {
         </div>
       </section>
 
-      {/* ── Fold 3: 4章の保存版（C） ── */}
+      {/* ── Fold 3: プレミアムレポート（C） ── */}
       <section className={styles.fold3}>
         <div className={styles.reportCard}>
-          <div className={styles.reportEyebrow}>4章の保存版</div>
+          <div className={styles.reportEyebrow}>プレミアムレポート</div>
           <h2 className={styles.reportTitle}>同じ輪郭を、章立てで深く整理する</h2>
           <p className={styles.reportDesc}>
             無料の見取り図と同じ土台のまま、10通りの資質の重なりと読み取りを文章として読み返せる形に整理します。

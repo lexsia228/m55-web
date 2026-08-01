@@ -140,7 +140,7 @@ describe('selfFunnelRuntimeState — route decision table', () => {
 
 describe('selfFunnelRuntimeState — CTA labels and idempotency', () => {
   it('uses state-aware free CTA labels', () => {
-    assert.equal(resolveFreeCtaLabel('EMPTY'), '無料結果を始める');
+    assert.equal(resolveFreeCtaLabel('EMPTY'), '無料で見てみる');
     assert.equal(resolveFreeCtaLabel('BASIC_INFO_COMPLETE'), '無料結果の続きを見る');
     assert.equal(resolveFreeCtaLabel('FREE_QUESTIONS_IN_PROGRESS'), '無料結果の続きを見る');
     assert.equal(resolveFreeCtaLabel('FREE_RESULT_READY'), '無料結果を開く');
@@ -175,9 +175,11 @@ describe('selfFunnelRuntimeState — wiring guards', () => {
     assert.match(gate, /m55-dtr-need-free/);
   });
 
-  it('mobile premium is one-tap after free result', () => {
+  it('mobile contextual CTA is one-tap (free or premium by state)', () => {
     const header = readFileSync(join(ROOT, 'components/shell/PublicHeader.tsx'), 'utf8');
-    assert.match(header, /m55-mobile-nav-premium/);
-    assert.match(header, /showMobilePremiumCta/);
+    assert.match(header, /m55-mobile-nav-contextual/);
+    assert.match(header, /contextualPrimaryAction/);
+    const state = readFileSync(join(ROOT, 'lib/m55/commercialUx/publicHeaderState.ts'), 'utf8');
+    assert.match(state, /resolveContextualPrimaryAction/);
   });
 });

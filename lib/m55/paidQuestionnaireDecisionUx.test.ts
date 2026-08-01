@@ -12,8 +12,8 @@ import {
   PAID_DECISION_FRICTION_IDS,
   PAID_RELATION_FOCUS_IDS,
   PAID_FATIGUE_SIGNAL_IDS,
-  PAID_REPORT_USAGE_IDS,
-  PAID_READING_STYLE_IDS,
+  PAID_RECOVERY_SEQUENCE_IDS,
+  PAID_RESTART_CONDITION_IDS,
 } from './individualization/answerIdMapsV1';
 import { PAID_QUESTIONNAIRE_COPY_V1 } from './paidResult/questionnaireCopyV1';
 import { PAID_DTR_LP, PAID_DTR_SAVED_REPORT_PRICING } from './paidDtrProductCopy';
@@ -54,28 +54,27 @@ describe('paid questionnaire decision UX — ids and count', () => {
         ...PAID_DECISION_FRICTION_IDS,
         ...PAID_RELATION_FOCUS_IDS,
         ...PAID_FATIGUE_SIGNAL_IDS,
-        ...PAID_REPORT_USAGE_IDS,
-        ...PAID_READING_STYLE_IDS,
+        ...PAID_RECOVERY_SEQUENCE_IDS,
+        ...PAID_RESTART_CONDITION_IDS,
       ],
     );
   });
 });
 
 describe('paid questionnaire decision UX — flow wiring', () => {
-  it('entry / progress / back / next / completion / review are present', () => {
+  it('question progress / back / next / completion / review are present without entry intro', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /あなた向けの4章レポートに仕上げます/);
-    assert.match(q, /力が出やすい条件/);
-    assert.match(q, /あと6問・約1〜2分/);
-    assert.match(q, /無料結果を土台に|無料結果はすでに完了|freeResultReady/);
-    assert.match(q, /プレミアムレポートの6問を始める/);
+    assert.doesNotMatch(q, /phase === 'entry'/);
+    assert.doesNotMatch(q, /あなた向けの4章レポートに仕上げます/);
+    assert.doesNotMatch(q, /力が出やすい条件/);
+    assert.doesNotMatch(q, /プレミアムレポートの6問を始める/);
     assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
     assert.match(q, /disabled=\{!selected\}/);
     assert.match(q, /disabled=\{index === 0\}/);
-    assert.match(q, /6つの回答がそろいました/);
+    assert.match(q, /回答内容を確認しました/);
     assert.match(q, /回答を見直す/);
-    assert.match(q, /プラン選択へ進む/);
-    assert.match(q, /この答えは、プレミアムレポートで場面ごとの出方を整理するために使います。/);
+    assert.match(q, /プランを選ぶ/);
+    assert.match(q, /ctaSupportJa|正解はありません/);
     assert.doesNotMatch(q, /無料の6問/);
     assert.doesNotMatch(q, /paid-v1/);
     assert.doesNotMatch(q, FORBIDDEN_CLAIM);
@@ -83,13 +82,16 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 
   it('plan choice and checkout boundary stay factual', () => {
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
-    assert.match(prep, /DtrNeedFreeResultGate|sectionLeadJa/);
-    assert.match(prep, /一回払い|oneTimeLabelJa/);
-    assert.match(prep, /支払い画面へ進む/);
-    assert.match(prep, /次の画面で支払い内容を確認できます。/);
+    assert.match(prep, /DtrNeedFreeResultGate/);
+    assert.match(prep, /PLAN_COMPARISON/);
+    assert.match(prep, /買い切り・自動更新なし|oneTimeLabelJa/);
+    assert.match(prep, /checkoutProceedCtaJa/);
+    assert.match(prep, /checkoutNoteJa/);
     assert.match(prep, /DTR_CORE_LIGHT_V1/);
     assert.match(prep, /DTR_CORE_FULL_V1/);
     assert.match(prep, /PurchaseButton/);
+    assert.match(prep, /selectFullCtaJa/);
+    assert.doesNotMatch(prep, /FULLを選ぶ/);
     assert.doesNotMatch(prep, FORBIDDEN_CLAIM);
     assert.doesNotMatch(prep, /m55_paid_plan_select|m55_paid_checkout/);
   });
@@ -97,8 +99,8 @@ describe('paid questionnaire decision UX — flow wiring', () => {
 
 describe('paid questionnaire decision UX — Product Truth plans', () => {
   it('plans differ only by entitlement count; chapters and prices unchanged', () => {
-    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, '4章のプレミアムレポート');
-    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, '4章のプレミアムレポート');
+    assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, 'プレミアムレポート');
+    assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, 'プレミアムレポート');
     assert.equal(PAID_DTR_LP.tiers.light.consultReplyValueJa, '1件');
     assert.equal(PAID_DTR_LP.tiers.full.consultReplyValueJa, '合計5件');
     assert.equal(PAID_DTR_SAVED_REPORT_PRICING.light.priceYen, 1000);
@@ -134,7 +136,7 @@ describe('paid questionnaire decision UX — analytics', () => {
     assert.ok(true);
   });
 
-  it('start fires on human CTA; complete and plan view use once helpers', () => {
+  it('start fires on mount; complete and plan view use once helpers', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
     const prep = read('components/dtr/DtrPaidPurchasePrep.tsx');
     assert.match(q, /trackFunnelAction\(\s*M55_FUNNEL_EVENTS\.paidQuestionnaireStart/);

@@ -6,13 +6,25 @@
   max-width: 36rem;
   margin: 0 auto;
   width: 100%;
+  /* Keep plan/checkout first content below the fixed public header on scroll. */
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
+  --m55-paid-ink: rgba(28, 24, 48, 0.94);
+  --m55-paid-meta: rgba(55, 48, 82, 0.62);
+  --m55-paid-accent: rgba(196, 110, 90, 0.88);
+  --m55-paid-progress-track: rgba(107, 95, 168, 0.14);
+  --m55-paid-progress-fill: rgba(107, 95, 168, 0.72);
+  --m55-paid-card-bg: rgba(255, 255, 255, 0.72);
+  --m55-paid-card-border: rgba(107, 95, 168, 0.22);
+  --m55-paid-card-selected: rgba(107, 95, 168, 0.1);
+  --m55-paid-primary-bg: rgba(28, 24, 48, 0.94);
+  --m55-paid-primary-fg: #fffaf1;
 }
 
 .overline {
   margin: 0;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
-  color: rgba(55, 48, 82, 0.62);
+  color: var(--m55-paid-meta);
 }
 
 .title {
@@ -96,6 +108,44 @@
   color: rgba(55, 48, 82, 0.68);
 }
 
+.contextStrip {
+  display: grid;
+  gap: 0.28rem;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(26, 42, 74, 0.14);
+  background: rgba(249, 247, 245, 0.96);
+}
+
+.contextTrait {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.68);
+}
+
+.contextTrait strong {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: rgba(26, 42, 74, 0.94);
+  letter-spacing: 0;
+}
+
+.contextSentence {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(28, 24, 48, 0.9);
+}
+
+.contextEffort {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: rgba(78, 68, 128, 0.88);
+}
+
 .progressRow {
   display: flex;
   align-items: baseline;
@@ -114,7 +164,7 @@
   flex: 1;
   height: 0.28rem;
   border-radius: 999px;
-  background: rgba(107, 95, 168, 0.14);
+  background: var(--m55-paid-progress-track);
   overflow: hidden;
 }
 
@@ -122,7 +172,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: rgba(107, 95, 168, 0.72);
+  background: var(--m55-paid-progress-fill);
   transition: width 0.2s ease;
 }
 
@@ -153,9 +203,9 @@
   padding: 0.85rem 1rem;
   text-align: left;
   border-radius: 0.85rem;
-  border: 1px solid rgba(107, 95, 168, 0.22);
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(28, 24, 48, 0.92);
+  border: 1px solid var(--m55-paid-card-border);
+  background: var(--m55-paid-card-bg);
+  color: var(--m55-paid-ink);
   font-size: 0.98rem;
   line-height: 1.45;
   cursor: pointer;
@@ -201,6 +251,34 @@
   border: 1px solid rgba(107, 95, 168, 0.45);
   background: rgba(107, 95, 168, 0.92);
   color: #fff;
+}
+
+.commercialPrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 7.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  border: 1px solid rgba(52, 44, 78, 0.2);
+  background: rgba(52, 44, 78, 0.92);
+  color: #faf8f5;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.commercialPrimaryBtn:hover:not(:disabled) {
+  background: rgba(42, 35, 66, 0.96);
+}
+
+.commercialPrimaryBtn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
 }
 
 .primaryBtn:hover:not(:disabled) {
@@ -286,6 +364,76 @@
   color: rgba(45, 40, 70, 0.8);
 }
 
+.planMethodSlot {
+  margin: 0 0 1rem;
+}
+
+/* Compact Light/Full difference. Kept above the plan cards and side by side at
+   every width so both tiers are comparable without scrolling past a card. */
+.planCompare {
+  margin: 0 0 1rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(107, 95, 168, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
+}
+
+.planCompareHeading {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: rgba(45, 40, 70, 0.9);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.planCompareGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.planCompareCell {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.6rem 0.55rem;
+  border-radius: 0.7rem;
+  background: rgba(107, 95, 168, 0.07);
+  min-width: 0;
+}
+
+.planCompareName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: rgba(45, 40, 70, 0.92);
+  overflow-wrap: anywhere;
+}
+
+.planComparePrice {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: rgba(45, 40, 70, 0.88);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.planCompareDelta {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(45, 40, 70, 0.75);
+  overflow-wrap: anywhere;
+}
+
+.planCompareShared {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: rgba(45, 40, 70, 0.72);
+}
+
 .planStack {
   display: grid;
   gap: 0.85rem;
@@ -347,6 +495,48 @@
   color: rgba(55, 48, 82, 0.68);
 }
 
+.planOneTime {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(45, 40, 70, 0.78);
+}
+
+.planIncludedHeading {
+  margin: 0;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.planIncludedList {
+  margin: 0;
+  padding: 0 0 0 1rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(45, 40, 70, 0.82);
+}
+
+.planRecommendBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  background: rgba(52, 44, 78, 0.1);
+  color: rgba(52, 44, 78, 0.88);
+}
+
+.planUpgradeNote {
+  margin: 0.85rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: rgba(55, 48, 82, 0.68);
+}
+
 .confirmCard {
   display: grid;
   gap: 0.65rem;
@@ -393,7 +583,8 @@
   .progressFill,
   .choice,
   .primaryBtn,
-  .secondaryBtn {
+  .secondaryBtn,
+  .commercialPrimaryBtn {
     transition: none;
   }
 }

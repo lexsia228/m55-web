@@ -104,7 +104,7 @@ describe('core free reveal UX state', () => {
 describe('guest free journey presentation copy', () => {
   it('profile intake does not lead with account save wording', () => {
     assert.equal(GUEST_PROFILE_INTAKE_COPY_V1.titleJa, '無料結果を開く');
-    assert.equal(GUEST_PROFILE_INTAKE_COPY_V1.primaryActionJa, '無料結果を始める');
+    assert.equal(GUEST_PROFILE_INTAKE_COPY_V1.primaryActionJa, '無料で見てみる');
     assert.doesNotMatch(GUEST_PROFILE_INTAKE_COPY_V1.titleJa, /プロフィールを保存/);
     assert.doesNotMatch(GUEST_PROFILE_INTAKE_COPY_V1.primaryActionJa, /保存して開く/);
   });
@@ -124,7 +124,7 @@ describe('guest free journey presentation copy', () => {
 
   it('share copy stays privacy-safe', () => {
     assert.doesNotMatch(FREE_RESULT_SHARE_COPY_V1.shareTextJa, /生年月日|回答|ニックネーム/);
-    assert.equal(FREE_RESULT_SHARE_COPY_V1.shareUrlPath, '/core');
+    assert.equal(FREE_RESULT_SHARE_COPY_V1.shareUrlPath, '/r');
   });
 });
 
@@ -152,7 +152,7 @@ describe('guest free journey source guards', () => {
   it('CoreLockedState opens shared intake and keeps home link', () => {
     const src = read('components/core/CoreLockedState.tsx');
     assert.match(src, /5つの問い/);
-    assert.match(src, /無料結果を始める/);
+    assert.match(src, /無料で見てみる|T\.freeStart/);
     assert.match(src, /onStartIntake/);
     assert.doesNotMatch(src, /今の関心/);
   });

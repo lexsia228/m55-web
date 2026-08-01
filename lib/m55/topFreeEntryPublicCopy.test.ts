@@ -144,7 +144,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     assert.match(blob, /10資質レーン/);
     assert.match(blob, /動き方・疲れ方・戻し方|動き方/);
     assert.match(blob, /無料の見取り図/);
-    assert.match(blob, /4章の保存版/);
+    assert.match(blob, /プレミアムレポート/);
     assert.match(blob, /追加読み解き/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
@@ -234,7 +234,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
 
   it('uses premium-report formal language in corePublicCopy read steps', () => {
     const activeCopy = STATIC_M55_READ_STEPS.map((step) => step.body).join('\n');
-    assert.match(activeCopy, /4章のプレミアムレポート/);
+    assert.match(activeCopy, /プレミアムレポート/);
     assert.match(activeCopy, /追加読み解きで/);
     assert.match(activeCopy, /読み直せます/);
     assert.equal(activeCopy.includes('本質の読み解き'), false);
@@ -262,7 +262,10 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     for (const term of ['10資質レーン', '5つの視点', '固定観測軸'] as const) {
       assert.equal(hwJson.includes(term), false, `how-m55-works must not expose internal term: ${term}`);
     }
-    assert.match(p1Blob, /M55複合暦解析/);
+    // Legacy product name may remain in the historical copy object, but the
+    // canonical method route must not mount it (method authority owns that page).
+    assert.match(JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.howM55Works), /M55複合暦解析/);
+    assert.doesNotMatch(readPage(ROUTE_FILES['/how-m55-works']), /複合暦解析/);
     assert.match(readPage(ROUTE_FILES['/support']), /TOP_FREE_ENTRY_PUBLIC_COPY/);
     assert.match(readPage(ROUTE_FILES['/how-m55-works/what-is']), /section01ParagraphsJa/);
   });
@@ -352,7 +355,10 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     );
     assert.equal(hw.section03FiveViewsLeadJa.includes('5つの視点'), false);
     assert.match(frameworkPage, /section03FiveViewLabelsJa/);
-    assert.match(pageSource, /WhatYouCanDoSection[\s\S]*SuitableForSection/);
+    // Canonical method route is owned by M55MethodSections; legacy section
+    // mounts are retained as unused components for history, not as the page.
+    assert.match(pageSource, /M55MethodSections/);
+    assert.doesNotMatch(pageSource, /WhatYouCanDoSection|CalendarLayersSection|IntroSection/);
     assert.match(receivePage, /section04KickerJa/);
     assert.match(receivePage, /section04ValueCardsJa/);
     assert.match(receivePage, /midFlowLink/);

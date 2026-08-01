@@ -21,6 +21,8 @@ export default async function DtrDrawerPreviewPage({
     withConsult?: string;
     consultWallet?: string;
     lightUpgrade?: string;
+    /** Dev fixture only: open a drawer panel without clicking (avoids Clerk keyless interception). */
+    openPanel?: string;
   }>;
 }) {
   if (isPreviewBlockedInProduction()) {
@@ -30,12 +32,21 @@ export default async function DtrDrawerPreviewPage({
   const sp = await searchParams;
   const withConsult = sp.withConsult === '1';
   const readerProps = getDtrDrawerPreviewReaderProps(withConsult, sp.consultWallet);
+  const openPanel =
+    sp.openPanel === 'chapter-1' || sp.openPanel === 'consult' ? sp.openPanel : undefined;
 
   return (
-    <main className={styles.page} data-m55-dev-preview="dtr-drawer">
+    <main
+      className={styles.page}
+      data-m55-dev-preview="dtr-drawer"
+      data-m55-experience-tier="PREMIUM"
+      data-m55-visual-authority="premium.experience.home_editorial_sample_v1"
+      data-m55-premium-state="purchased.report.body"
+    >
       <DtrDrawerPreviewClient
         {...readerProps}
         showLightUpgrade={sp.lightUpgrade === '1'}
+        initialOpenPanel={openPanel}
       />
     </main>
   );

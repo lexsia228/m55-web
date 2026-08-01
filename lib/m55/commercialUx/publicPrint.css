@@ -1,0 +1,260 @@
+/**
+ * Shared public print contract — route-aware A4 output.
+ * Hide interactive chrome; preserve brand, identity, and readable content.
+ * Global CSS (not a CSS module) — imported as a side effect.
+ */
+
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+}
+
+@media print {
+  html,
+  body {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+
+  /* Interactive chrome — never print */
+  [data-m55-public-shell] > header,
+  [data-m55-print-hide],
+  .m55-print-hide,
+  [data-testid='m55-premium-sticky-cta'],
+  [data-testid='m55-scroll-to-top'],
+  [data-testid='m55-free-journey-stepper'],
+  [data-testid='m55-free-result-section-nav'],
+  [data-testid='m55-free-result-share'] button,
+  [data-testid='m55-share-native'],
+  [data-testid='m55-share-copy'],
+  [data-testid='m55-free-rerun-request'],
+  [data-testid='m55-free-profile-edit'],
+  [data-testid='m55-paid-bridge-primary'],
+  [data-testid='m55-paid-bridge-secondary'],
+  [data-testid='m55-premium-sticky-link'],
+  [data-testid='m55-paid-questionnaire-active'] [class*='actions'],
+  [data-m55-paid-checkout] [class*='actions'],
+  [data-testid='m55-dtr-plan-selection'] button,
+  .menuTrigger,
+  .mobileMenuPanel,
+  .navDropdownPanel,
+  .desktopAuth,
+  .mobilePremiumLink,
+  .mobileFreeLink,
+  .checkout-trust-row,
+  .m55-lp-cta-btn,
+  .lpBreadcrumb,
+  .lpFinalCtaWrap,
+  .lpTrustWrap,
+  button[aria-label='ページ上部へ戻る'] {
+    display: none !important;
+  }
+
+  [data-m55-public-shell] {
+    padding-top: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+
+  [data-m55-public-shell] > header {
+    position: static !important;
+  }
+
+  [data-m55-public-shell] main,
+  [data-m55-public-shell] .main,
+  [data-m55-public-shell] .inner,
+  [data-m55-public-shell] .lpRoot,
+  [data-testid='m55-core-essence'],
+  .page {
+    max-width: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  /* Kill viewport-fill / footer-push patterns that create blank trailing pages */
+  [data-m55-public-shell] footer,
+  footer {
+    position: static !important;
+    margin-top: 1.25rem !important;
+    min-height: 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  footer nav,
+  footer .linkRow a {
+    display: none !important;
+  }
+
+  footer .copy {
+    display: block !important;
+  }
+
+  /* Fixed/sticky → out of print flow */
+  .premiumStickyBar,
+  [data-testid='m55-premium-sticky-cta'],
+  [data-testid='m55-scroll-to-top'],
+  header {
+    position: static !important;
+  }
+
+  /* Full printable width — no mobile-column centering on A4 */
+  .coreSectionSurface,
+  .conversionBridge,
+  .freeResultLead,
+  .freeGuidedShell,
+  .lpHeroSection,
+  .lpSection,
+  .planCard,
+  .confirmCard,
+  [data-testid='m55-shareable-result-card'],
+  [data-testid='m55-free-to-paid-bridge'] {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .freeResultLeadTitle,
+  .conversionBridgeTitle,
+  .shareCardPhrase {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-break: strict;
+    orphans: 2;
+    widows: 2;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p,
+  li {
+    orphans: 2;
+    widows: 2;
+    line-break: strict;
+  }
+
+  section,
+  article,
+  .lpHeroSection,
+  .lpSection,
+  .freeResultRevealItem,
+  .freeGuidedShell,
+  .page {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  /* Questionnaire: one compact page */
+  [data-testid='m55-free-questionnaire'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-testid='m55-free-questionnaire'] .freeQuestionnaireChoices button {
+    border: 1px solid rgba(60, 60, 60, 0.25) !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Avoid printing decorative pseudo / duplicate text layers */
+  [data-testid='m55-premium-locked-headings'] [aria-hidden],
+  [data-testid='m55-free-journey-stepper'] [aria-hidden],
+  [data-testid='m55-free-questionnaire'] [aria-hidden='true'] {
+    display: none !important;
+  }
+
+  /* Soft printable surfaces */
+  .coreSectionSurface,
+  .conversionBridge,
+  .lpHeroDark,
+  .shareCard {
+    background: #fff !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Floating accessibility control — never print */
+  [data-testid='m55-scroll-to-top'],
+  button[aria-label='ページ上部へ戻る'] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .cl-internal-b3fm6y,
+  #clerk-components,
+  [class*='cl-modal'],
+  [data-clerk-component] {
+    display: none !important;
+  }
+
+  /*
+   * HOME: dedicated two-page print summary.
+   * Hide the responsive screen tree; reveal HomePrintSummary only.
+   */
+  [data-m55-pathname='/home'] [data-testid='m55-home-hero'],
+  [data-m55-pathname='/home'] [data-testid='m55-home-lower'],
+  [data-m55-pathname='/home'] footer,
+  [data-m55-pathname='/home'] [data-testid='m55-home-birth-intake-layer'],
+  [data-m55-pathname='/home'] [data-testid='m55-scroll-to-top'] {
+    display: none !important;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    color: #1a1a1a !important;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page='1'] {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  [data-m55-pathname='/home'] [data-m55-home-print-summary] [data-m55-print-page='2'] {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Archetype print modes (Experience Control Plane v2) */
+  [data-m55-print-mode='single_summary'] [data-testid='m55-free-questionnaire'],
+  [data-m55-print-mode='single_summary'] [data-testid='m55-paid-questionnaire-active'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  [data-m55-print-mode='privacy_safe'] [data-testid='m55-shareable-result-card'],
+  [data-m55-print-mode='editorial_result'] [data-testid='m55-free-result-lead'],
+  [data-m55-print-mode='product_fact'] [data-testid='m55-dtr-plan-selection'],
+  [data-m55-print-mode='product_fact'] [data-m55-paid-checkout] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

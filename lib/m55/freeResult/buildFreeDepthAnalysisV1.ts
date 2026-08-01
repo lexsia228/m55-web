@@ -59,15 +59,60 @@ const AXIS_TITLE_JA: Readonly<Record<ExpressionAxisId, string>> = {
 };
 
 const START_PATTERN: Readonly<Record<StartTendency, string>> = {
-  map: '先に全体を見渡してから動く',
-  try: '小さく触って輪郭を掴む',
-  ask: '情報や他者の視点を足してから動く',
+  map: '全体を見渡してから動く',
+  try: '小さく試してから進む',
+  ask: '情報や周囲の視点を集めてから動く',
 };
 
 const DECISION_PATTERN: Readonly<Record<DecisionTendency, string>> = {
-  sort: '候補を並べて見比べてから決める',
+  sort: '候補を比べてから決める',
   deadline: '期限や基準を置いて決める',
   wait: '少し間を置いてから決める',
+};
+
+/** Single headline clause — start + decision without repeating 傾向. */
+const HEADLINE_COMBINED: Readonly<
+  Record<StartTendency, Readonly<Record<DecisionTendency, string>>>
+> = {
+  map: {
+    sort: '全体を見渡し、候補を比べてから動く',
+    deadline: '全体を見渡し、期限を置いてから決める',
+    wait: '全体を見渡し、少し間を置いてから決める',
+  },
+  try: {
+    sort: '小さく試し、候補を比べてから決める',
+    deadline: '小さく試し、期限を置いてから決める',
+    wait: '小さく試し、少し間を置いてから決める',
+  },
+  ask: {
+    sort: '周囲の視点を集め、候補を比べてから決める',
+    deadline: '周囲の視点を集め、期限を置いてから決める',
+    wait: '周囲の視点を集め、少し間を置いてから決める',
+  },
+};
+
+const START_REASON: Readonly<Record<StartTendency, string>> = {
+  map: 'まず全体を確認してから選ぶ',
+  try: 'まず小さく試してから進む',
+  ask: 'まず周囲の視点を集めてから選ぶ',
+};
+
+const DECISION_REASON: Readonly<Record<DecisionTendency, string>> = {
+  sort: '候補を比べてから選ぶ',
+  deadline: '期限や基準を置いてから選ぶ',
+  wait: '少し間を置いてから選ぶ',
+};
+
+const DISTANCE_REASON: Readonly<Record<DistanceTendency, string>> = {
+  close: '関わりの中で間合いを見直してから整える',
+  middle: '一定の距離を保ちながら続ける',
+  solo: '一人の時間で整えてから戻る',
+};
+
+const CHANGE_REASON: Readonly<Record<ChangeTendency, string>> = {
+  observe: 'いったん状況を見直してから整える',
+  adjust: '変わった点だけを合わせて進める',
+  rebuild: '前提から組み直して整える',
 };
 
 const RECOVERY_PATTERN: Readonly<Record<RecoveryTendency, string>> = {
@@ -257,7 +302,10 @@ function sortByPriority(items: readonly AlignDivergeItem[]): AlignDivergeItem[] 
 }
 
 function buildHeadline(axes: ExpressionAxes): string {
-  return `${START_PATTERN[axes.start]}動きと、${DECISION_PATTERN[axes.decision]}判断が、いまの主パターンとして重なっています。`;
+  const combined =
+    HEADLINE_COMBINED[axes.start][axes.decision] ??
+    `${START_PATTERN[axes.start]}、${DECISION_PATTERN[axes.decision]}`;
+  return `${combined}傾向が、いま強く表れています。`;
 }
 
 function buildConclusion(
@@ -285,8 +333,8 @@ function buildReasons(
   diverge: readonly AlignDivergeItem[],
   align: readonly AlignDivergeItem[],
 ): [string, string, string] {
-  const r1 = `始め方と決め方が、${START_PATTERN[axes.start]}／${DECISION_PATTERN[axes.decision]}という同じ「順序の好み」でつながっています。どちらか一方だけではこの輪郭は出ません。`;
-  const r2 = `人との距離（${DISTANCE_PATTERN[axes.distance]}）と変化への反応（${CHANGE_PATTERN[axes.change]}）が、外の刺激を受けたあとの整え方として連動しています。`;
+  const r1 = `新しいことを始めるときも、何かを決めるときも、${START_REASON[axes.start]}／${DECISION_REASON[axes.decision]}回答が重なっていました。`;
+  const r2 = `人との距離や予定の変化に対しても、すぐに反応するより、${DISTANCE_REASON[axes.distance]}／${CHANGE_REASON[axes.change]}回答が選ばれています。`;
   const topDiverge = sortByPriority(diverge)[0];
   const topAlign = sortByPriority(align)[0];
   let r3: string;
@@ -294,9 +342,9 @@ function buildReasons(
     const dobLine =
       DOB_VS_FREE[topDiverge.axisId][String(topDiverge.dobTendency)] ??
       '生まれ持った土台には、別の寄り方があります。';
-    r3 = `${AXIS_TITLE_JA[topDiverge.axisId]}では、いまの表れ方と土台側の寄り方が一致していません。${dobLine}今の回答はその差の上に乗っています。`;
+    r3 = `${AXIS_TITLE_JA[topDiverge.axisId]}では、いまの答えと土台側の寄り方がずれています。${dobLine}`;
   } else if (topAlign) {
-    r3 = `${AXIS_TITLE_JA[topAlign.axisId]}では、いまの答えと土台側の寄り方が重なっており、回復の取り方（${RECOVERY_PATTERN[axes.recovery]}）とも矛盾しにくい読みです。`;
+    r3 = `${AXIS_TITLE_JA[topAlign.axisId]}では、いまの答えと土台側の寄り方が近く、${RECOVERY_PATTERN[axes.recovery]}回復の取り方とも食い違いにくい読みです。`;
   } else {
     r3 = `回復の取り方（${RECOVERY_PATTERN[axes.recovery]}）が、始め方や距離の取り方と食い違いにくく、負荷のあとも同じリズムへ戻りやすい読みです。`;
   }
@@ -364,8 +412,8 @@ function pickPrimaryScene(axes: ExpressionAxes): { labelJa: string; bodyJa: stri
   return { labelJa: candidates[0]!.labelJa, bodyJa: candidates[0]!.bodyJa };
 }
 
-function buildPremiumOpenLoop(axes: ExpressionAxes): string {
-  return `いま見えているのは、${START_PATTERN[axes.start]}動きと${DECISION_PATTERN[axes.decision]}判断の表れ方までです。背景の構造、力が出る条件、負担が重なる順番、戻しやすい整え方は、プレミアムレポートで整理できます。`;
+function buildPremiumOpenLoop(_axes: ExpressionAxes): string {
+  return '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。';
 }
 
 function buildPremiumLockedHeadings(
@@ -377,10 +425,10 @@ function buildPremiumLockedHeadings(
     ? `${AXIS_TITLE_JA[topDiverge.axisId]}がずれるときに重なりやすいもの`
     : `${RECOVERY_PATTERN[axes.recovery]}回復が後回しになるときの重なり`;
   return [
-    `${START_PATTERN[axes.start]}動きが続きやすい背景`,
+    `${START_PATTERN[axes.start]}傾向が続く背景`,
     `${DECISION_PATTERN[axes.decision]}判断が長引くときに重なるもの`,
     tensionLine,
-    `戻るために最初に小さくする範囲`,
+    '整え直しやすい順番',
   ];
 }
 

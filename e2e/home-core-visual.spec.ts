@@ -24,24 +24,23 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     });
     await page.goto('/home');
     await expect(page.getByTestId('m55-home-hero')).toBeVisible();
-    await expect(page.getByTestId('m55-home-seen-things-bridge')).toBeVisible();
-    await expect(page.getByTestId('m55-home-understanding')).toBeVisible();
-    await expect(page.getByTestId('m55-home-five-axis-read')).toBeVisible();
+    await expect(page.getByTestId('m55-home-lower')).toBeVisible();
+    await expect(page.getByTestId('m55-home-product-map')).toBeVisible();
     await expect(page.getByTestId('m55-home-open-birth-intake')).toBeVisible();
-    await expect(page.getByTestId('m55-home-learn-more')).toBeVisible();
-    await expect(page.getByTestId('m55-home-report-shell')).toBeVisible();
+    await expect(page.getByTestId('m55-home-premium-preview')).toBeVisible();
+    await expect(page.locator('[data-m55-public-shell]')).toHaveAttribute(
+      'data-m55-archetype',
+      'PUBLIC_POSTER',
+    );
     await page.screenshot({ path: path.join(OUT, '01-home-before-profile.png'), fullPage: true });
   });
 
   test('02 /home 鑑定後（個人結果ブロックなし）', async ({ page, context }) => {
     await addInitScriptSeedGuestProfile(context);
     await page.goto('/home');
-    await expect(page.getByTestId('m55-home-seen-things-bridge')).toBeVisible();
-    await expect(page.getByTestId('m55-home-understanding')).toBeVisible();
-    await expect(page.getByTestId('m55-home-five-axis-read')).toBeVisible();
+    await expect(page.getByTestId('m55-home-lower')).toBeVisible();
     await expect(page.getByTestId('m55-home-has-profile-hero')).toBeVisible();
-    await expect(page.getByTestId('m55-home-learn-more')).toBeVisible();
-    await expect(page.getByTestId('m55-home-report-shell')).toBeVisible();
+    await expect(page.getByTestId('m55-home-premium-preview')).toBeVisible();
     await expect(page.getByText('今の焦点')).toHaveCount(0);
     await expect(page.getByRole('heading', { name: '今日の観測' })).toHaveCount(0);
     await expect(page.getByRole('heading', { name: '今週の観測' })).toHaveCount(0);
@@ -59,6 +58,10 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await expect(homeLink).toBeVisible();
     await expect(homeLink).toHaveAttribute('href', '/home');
     await expect(homeLink).toContainText('ホームへ戻る');
+    await expect(page.locator('[data-m55-public-shell]')).toHaveAttribute(
+      'data-m55-archetype',
+      'GUIDED_FREE_FLOW',
+    );
     await page.screenshot({ path: path.join(OUT, '03-core-locked.png'), fullPage: true });
   });
 
@@ -72,12 +75,26 @@ test.describe.serial('Home / Core 必須スクリーンショット（5状態）
     await expect(page.getByTestId('m55-home-birth-intake-layer')).toBeVisible();
     await page.getByPlaceholder('表示名').fill('試験');
     await page.locator('input[type="date"]').fill('1990-05-15');
-    await page.getByRole('button', { name: '無料結果を始める' }).click();
+    await page.getByTestId('m55-birth-intake-start').click();
     await expect(page.getByTestId('m55-core-analysis-loading')).toBeVisible({ timeout: 5000 });
     await page.screenshot({ path: path.join(OUT, '04-analyzing-overlay.png'), fullPage: true });
-    await page.waitForURL('**/core', { timeout: 12_000 });
-    await expect(page.getByTestId('m55-free-questionnaire')).toBeVisible({ timeout: 15_000 });
+
+    // Stable follow-up: seed guest profile and open guided free flow (ECP GUIDED_FREE_FLOW).
+    await context.addInitScript(() => {
+      const id = 'playwright-home-core-visual-q';
+      localStorage.setItem('m55_device_id_v1', id);
+      localStorage.setItem(
+        `m55_profile_v1_${id}`,
+        JSON.stringify({ nickname: '試験', birthDate: '1990-05-15' }),
+      );
+    });
+    await page.goto('/core');
+    await expect(page.getByTestId('m55-free-questionnaire')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('m55-free-continuous-progress')).toContainText('1 / 5');
+    await expect(page.locator('[data-m55-public-shell]')).toHaveAttribute(
+      'data-m55-archetype',
+      'GUIDED_FREE_FLOW',
+    );
     await page.screenshot({ path: path.join(OUT, '05-core-after-save.png'), fullPage: true });
   });
 });

@@ -1,32 +1,43 @@
+import Link from 'next/link';
 import { PublicShell } from '../_components/PublicShell';
-import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
-import { IntroSection } from './components/intro-section';
-import { WhatIsSection } from './components/what-is-section';
-import { CalendarLayersSection } from './components/calendar-layers-section';
-import { FrameworkSection } from './components/framework-section';
-import { SuitableForSection } from './components/suitable-for-section';
-import { WhatYouCanDoSection } from './components/what-you-can-do-section';
-import { ValuesBoundarySection } from './components/values-boundary-section';
-import { NextStepSection } from './components/next-step-section';
+import {
+  M55_METHOD_CANONICAL_COPY,
+  M55_METHOD_PUBLIC_NAME,
+} from '../../lib/m55/method/m55MethodAuthority';
+import { M55_COMMERCIAL_TERMINOLOGY } from '../../lib/m55/commercialUx/terminology';
+import M55MethodSections from '../../components/pages/M55MethodSections';
 import styles from './how-it-works.module.css';
 
 export const metadata = {
-  title: 'M55の見方を知る | M55',
-  description: TOP_FREE_ENTRY_PUBLIC_COPY.metadata.howM55WorksDescriptionJa,
+  title: `${M55_METHOD_PUBLIC_NAME} | M55`,
+  description: M55_METHOD_CANONICAL_COPY.explanationJa.replace(/\n/g, ''),
 };
 
+/**
+ * Canonical method route. The only public methodology name rendered here is
+ * M55 複合読み解きモデル. Legacy calendar-layer storefront sections are not
+ * mounted — they compete with the typed method authority.
+ */
 export default function HowM55WorksPage() {
   return (
     <PublicShell>
-      <div className={styles.page}>
-        <IntroSection />
-        <WhatIsSection />
-        <CalendarLayersSection />
-        <FrameworkSection />
-        <WhatYouCanDoSection />
-        <SuitableForSection />
-        <ValuesBoundarySection />
-        <NextStepSection />
+      <div className={`${styles.page} m55-exp-reading`} data-m55-experience-surface="PUBLIC_EDITORIAL">
+        <M55MethodSections />
+        <section
+          className={`${styles.shellNarrow} ${styles.nextSection}`}
+          data-testid="m55-method-next-step"
+          aria-label="次のステップ"
+        >
+          <p className={styles.nextLead}>{M55_METHOD_CANONICAL_COPY.boundaryJa}</p>
+          <div className={styles.ctaStack}>
+            <Link href="/core" className={styles.primaryCta}>
+              {M55_COMMERCIAL_TERMINOLOGY.freeEntry}
+            </Link>
+            <Link href="/home" className={styles.secondaryCta}>
+              ホームへ戻る
+            </Link>
+          </div>
+        </section>
       </div>
     </PublicShell>
   );

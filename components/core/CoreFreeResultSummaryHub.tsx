@@ -20,7 +20,7 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
     >
       <span className={styles.tierAOverline}>なぜそう見えるか</span>
       <h2 id="core-free-result-summary" className={styles.sectionTitle}>
-        背景の読み方
+        回答から見えた理由
       </h2>
 
       <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">

@@ -188,11 +188,11 @@ describe('homeProductStory — premium copy and value bridge', () => {
     );
     assert.equal(
       home.premiumBodyJa,
-      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\nプレミアムレポートとして整理します。',
     );
     assert.equal(
       home.planComparisonIntroJa,
-      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
+      'どちらも、同じプレミアムレポートを読めます。\n違いは、購入後に追加で読み解けるテーマ数です。',
     );
     assert.equal(
       home.planLightFitJa,

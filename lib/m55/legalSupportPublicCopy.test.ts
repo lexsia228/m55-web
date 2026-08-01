@@ -75,7 +75,7 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
 
   it('includes support plan difference and full upgrade guidance', () => {
     const support = readPage(ROUTE_FILES['/support']);
-    assert.match(support, /保存版ライトと保存版FULLでは、4章の保存版の内容は共通/);
+    assert.match(support, /保存版ライトと保存版FULLでは、プレミアムレポートの内容は共通/);
     assert.match(support, /保存版ライト.*追加読み解き1件/s);
     assert.match(support, /保存版FULL.*追加読み解き合計5件/s);
     assert.match(support, /¥600でFULL化/);

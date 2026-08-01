@@ -5,8 +5,11 @@ import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
-import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
+import {
+  buildIncludedProductSummaryJa,
+  PLAN_COMPARISON,
+} from '../../lib/m55/commercialUx/planComparison';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelAction,
@@ -17,11 +20,13 @@ import {
   readSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
 import { resolveDtrLpGate } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
+import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
+import PremiumExperienceSync from '../shell/PremiumExperienceSync';
+import { PREMIUM_FUNNEL_PAGE_CONTENT as C } from '../../lib/m55/commercialUx/experience/pageContent/premiumFunnelCopy';
+import PremiumDecisionSurface from '../experience/PremiumDecisionSurface';
+import DtrMethodDifference from './DtrMethodDifference';
+import M55MethodTrustLink from '../pages/M55MethodTrustLink';
 import styles from './DtrPaidDecisionUx.module.css';
-
-type Props = {
-  children: React.ReactNode;
-};
 
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
@@ -34,10 +39,11 @@ function resolveInitialGate(): GatePhase {
   return 'questionnaire';
 }
 
-export default function DtrPaidPurchasePrep({ children: _children }: Props) {
+export default function DtrPaidPurchasePrep() {
   const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const plan = PLAN_COMPARISON;
 
   useEffect(() => {
     setGate(resolveInitialGate());
@@ -53,156 +59,217 @@ export default function DtrPaidPurchasePrep({ children: _children }: Props) {
     );
   }, [gate]);
 
+  const paidPhase =
+    gate === 'need_free'
+      ? 'need_free'
+      : gate === 'questionnaire'
+        ? 'questionnaire'
+        : gate === 'plans'
+          ? 'plans'
+          : gate === 'checkout'
+            ? 'checkout'
+            : 'other';
+
   if (!hydrated) {
     return (
-      <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
-        <p className={styles.lead}>読み込み中…</p>
-      </section>
+      <>
+        <PremiumExperienceSync shellPremium />
+        <section className={styles.shell} data-m55-paid-phase="loading" aria-busy="true">
+          <ExperienceArchetypeSync paidPhase="other" />
+          <p className={styles.lead}>{C.loadingJa}</p>
+        </section>
+      </>
     );
   }
 
   if (gate === 'need_free') {
-    return <DtrNeedFreeResultGate />;
+    return (
+      <>
+        <PremiumExperienceSync shellPremium />
+        <ExperienceArchetypeSync paidPhase="need_free" />
+        <DtrNeedFreeResultGate />
+      </>
+    );
   }
 
   if (gate === 'questionnaire') {
     return (
-      <DtrPaidQuestionnaireLayer
-        freeResultReady
-        onComplete={() => {
-          setSelectedPlan(null);
-          setGate('plans');
-        }}
-      />
+      <>
+        <PremiumExperienceSync shellPremium />
+        <ExperienceArchetypeSync paidPhase={paidPhase} />
+        <DtrPaidQuestionnaireLayer
+          onComplete={() => {
+            setSelectedPlan(null);
+            setGate('plans');
+          }}
+        />
+      </>
     );
   }
 
-  const light = PAID_DTR_LP.tiers.light;
-  const full = PAID_DTR_LP.tiers.full;
-
   if (gate === 'checkout' && selectedPlan) {
-    const plan = selectedPlan === 'light' ? light : full;
+    const tier = selectedPlan === 'light' ? plan.light : plan.full;
     const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
-    const included =
-      selectedPlan === 'light'
-        ? `${light.savedReportValueJa} + 追加読み解き${light.consultReplyValueJa}`
-        : `${full.savedReportValueJa} + 追加読み解き ${full.consultReplyValueJa}`;
 
     return (
-      <section className={styles.shell} data-m55-paid-phase="checkout" aria-label="支払い前の確認">
-        <p className={styles.overline}>プレミアムレポート</p>
-        <h3 className={styles.title}>支払い画面へ進む前に</h3>
+      <>
+        <PremiumExperienceSync shellPremium />
+        <PremiumDecisionSurface stateId="premium.lp.checkout" testId="m55-premium-experience-checkout">
+        <section
+          className={`${styles.shell} m55-exp-reading`}
+          data-m55-paid-phase="checkout"
+          data-m55-paid-checkout
+          data-m55-experience-surface="PURCHASE_CONFIRMATION"
+          aria-label={C.checkoutAriaJa}
+        >
+          <ExperienceArchetypeSync paidPhase="checkout" />
+        <p className={styles.overline}>{C.planOverlineJa}</p>
+        <h3 className={styles.title}>{C.checkoutTitleJa}</h3>
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
-            <span>選択したプラン</span>
-            <strong>{plan.planNameJa}</strong>
+            <span>{C.selectedPlanLabelJa}</span>
+            <strong>{tier.publicName}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>価格</span>
-            <strong>{plan.priceLabelJa}</strong>
+            <span>{C.priceLabelJa}</span>
+            <strong>{tier.priceLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>お支払い</span>
+            <span>{C.paymentLabelJa}</span>
             <strong>{plan.oneTimeLabelJa}</strong>
           </div>
           <div className={styles.confirmRow}>
-            <span>含まれる内容</span>
-            <strong>{included}</strong>
+            <span>{plan.includedHeadingJa}</span>
+            <strong>{buildIncludedProductSummaryJa(tier)}</strong>
           </div>
         </div>
-        <p className={styles.confirmNote}>次の画面で支払い内容を確認できます。</p>
+        <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
+        <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
+          <M55MethodTrustLink surface="checkout" />
+        </div>
         <div className={styles.actions}>
           <button
             type="button"
             className={styles.secondaryBtn}
             onClick={() => setGate('plans')}
           >
-            プラン選択に戻る
+            {C.backToPlansJa}
           </button>
           <PurchaseButton productId={productId} className="m55-lp-cta-btn">
-            <span>支払い画面へ進む</span>
+            <span>{plan.checkoutProceedCtaJa}</span>
           </PurchaseButton>
         </div>
         <div className={styles.planNote}>
           <CheckoutTrustRow />
         </div>
-      </section>
+        </section>
+        </PremiumDecisionSurface>
+      </>
     );
   }
 
   return (
-    <section
-      className={styles.shell}
-      data-m55-paid-phase="plans"
-      data-testid="m55-dtr-plan-selection"
-      aria-label="プレミアムレポートのプラン選択"
-    >
-      <p className={styles.overline}>プレミアムレポート</p>
-      <h3 className={styles.title}>{PAID_DTR_LP.tiers.sectionTitleJa}</h3>
-      <p className={styles.planLead}>{PAID_DTR_LP.tiers.sectionLeadJa}</p>
+    <>
+      <PremiumExperienceSync shellPremium />
+      <PremiumDecisionSurface stateId="premium.lp.plans" testId="m55-premium-experience-plans">
+      <section
+        className={`${styles.shell} m55-exp-reading`}
+        data-m55-paid-phase="plans"
+        data-testid="m55-dtr-plan-selection"
+        data-m55-experience-surface="PRODUCT_DECISION"
+        aria-label={C.planSelectAriaJa}
+      >
+        <ExperienceArchetypeSync paidPhase="plans" />
+      <p className={styles.overline}>{C.planOverlineJa}</p>
+      <h3 className={styles.title} data-testid="m55-premium-plans-headline">
+        {C.planTitleJa}
+      </h3>
+      <p className={styles.planLead}>{plan.sameFourChaptersNoteJa}</p>
+      <div className={styles.planMethodSlot}>
+        <DtrMethodDifference />
+      </div>
+      <div className={styles.planCompare} data-testid="m55-plan-compare">
+        <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
+        <div className={styles.planCompareGrid}>
+          <div className={styles.planCompareCell} data-testid="m55-plan-compare-light">
+            <span className={styles.planCompareName}>{plan.compactDifference.light.nameJa}</span>
+            <span className={styles.planComparePrice}>{plan.compactDifference.light.priceLabelJa}</span>
+            <span className={styles.planCompareDelta}>{plan.compactDifference.light.differenceJa}</span>
+          </div>
+          <div className={styles.planCompareCell} data-testid="m55-plan-compare-full">
+            <span className={styles.planCompareName}>{plan.compactDifference.full.nameJa}</span>
+            <span className={styles.planComparePrice}>{plan.compactDifference.full.priceLabelJa}</span>
+            <span className={styles.planCompareDelta}>{plan.compactDifference.full.differenceJa}</span>
+          </div>
+        </div>
+        <p className={styles.planCompareShared}>{plan.compactDifference.sharedJa}</p>
+      </div>
       <div className={styles.planStack}>
         <article
           className={`${styles.planCard}${selectedPlan === 'light' ? ` ${styles.planCardSelected}` : ''}`}
+          data-testid="m55-dtr-plan-light"
         >
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{light.planNameJa}</span>
-            <span className={styles.planPrice}>{light.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.light.publicName}</span>
+            <span className={styles.planPrice}>{plan.light.priceLabelJa}</span>
           </div>
-          <div className={styles.planMeta}>
-            <div>{light.oneTimeLabelJa}</div>
-            <div>
-              {light.savedReportLabelJa} {light.savedReportValueJa}
-            </div>
-            <div>
-              {light.consultReplyLabelJa} {light.consultReplyValueJa}
-            </div>
-            <div>あとからFULL化可能</div>
-          </div>
-          <p className={styles.planAudience}>{light.bodyJa}</p>
-          <p className={styles.planNote}>{light.upgradeNoteJa}</p>
+          <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+          <ul className={styles.planIncludedList}>
+            {plan.light.includedItemsJa.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className={styles.planAudience}>{plan.light.audienceJa}</p>
           <button
             type="button"
-            className={styles.primaryBtn}
+            className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('light');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >
-            {light.ctaLabelJa}
+            {plan.selectLightCtaJa}
           </button>
         </article>
 
         <article
           className={`${styles.planCard}${selectedPlan === 'full' ? ` ${styles.planCardSelected}` : ''}`}
+          data-testid="m55-dtr-plan-full"
         >
+          <span className={styles.planRecommendBadge}>{plan.fullRecommendBadgeJa}</span>
           <div className={styles.planHeader}>
-            <span className={styles.planName}>{full.planNameJa}</span>
-            <span className={styles.planPrice}>{full.priceLabelJa}</span>
+            <span className={styles.planName}>{plan.full.publicName}</span>
+            <span className={styles.planPrice}>{plan.full.priceLabelJa}</span>
           </div>
-          <div className={styles.planMeta}>
-            <div>{full.oneTimeLabelJa}</div>
-            <div>
-              {full.savedReportLabelJa} {full.savedReportValueJa}
-            </div>
-            <div>
-              {full.consultReplyLabelJa} {full.consultReplyValueJa}
-            </div>
-          </div>
-          <p className={styles.planAudience}>{full.bodyJa}</p>
+          <p className={styles.planOneTime}>{plan.oneTimeLabelJa}</p>
+          <p className={styles.planIncludedHeading}>{plan.includedHeadingJa}</p>
+          <ul className={styles.planIncludedList}>
+            {plan.full.includedItemsJa.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className={styles.planNote}>{plan.fullDeltaNoteJa}</p>
+          <p className={styles.planAudience}>{plan.full.audienceJa}</p>
           <button
             type="button"
-            className={styles.primaryBtn}
+            className={styles.commercialPrimaryBtn}
             onClick={() => {
               setSelectedPlan('full');
               trackFunnelAction(M55_FUNNEL_EVENTS.premiumPlanSelected, 'dtr_paid_plan');
+              trackFunnelAction(M55_FUNNEL_EVENTS.paidPlanSelected, 'dtr_paid_plan');
               setGate('checkout');
             }}
           >
-            {full.ctaLabelJa}
+            {plan.selectFullCtaJa}
           </button>
         </article>
       </div>
-    </section>
+      <p className={styles.planUpgradeNote}>{plan.upgradeNoteJa}</p>
+      </section>
+      </PremiumDecisionSurface>
+    </>
   );
 }

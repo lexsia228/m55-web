@@ -1,4 +1,6 @@
 import type { CoreResult } from '../../lib/m55/coreResult/types';
+import { M55_COMMERCIAL_FENCE } from '../../lib/m55/commercialUx/assetLedger/commercialFence';
+import { M55_COMMERCIAL_TERMINOLOGY } from '../../lib/m55/commercialUx/terminology';
 import {
   freeCoreAlignSteps,
   freeCoreAxisRowsForResult,
@@ -111,7 +113,7 @@ export const STATIC_M55_READ_STEPS: readonly {
   },
   {
     title: 'プレミアムレポート・追加読み解きへ続く入口をつかむ',
-    body: 'ここまでの輪郭は、4章のプレミアムレポートで深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
+    body: 'ここまでの輪郭は、プレミアムレポートで深まります。必要になったら、追加読み解きでいまの1テーマを重ねて読み直せます。',
   },
 ];
 
@@ -139,9 +141,9 @@ export const STATIC_AI_EXPLAINER = {
 };
 
 export const STATIC_CTA = {
-  title: '4章のプレミアムレポート',
+  title: 'プレミアムレポート',
   intro:
-    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、戻し方まで含めて、\n4章で読み返せる形に残します。',
+    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、整え直し方まで含めて、読み返せる形に残します。',
   benefitsHeading: 'プレミアムレポートで深まること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
@@ -155,59 +157,43 @@ export const STATIC_CTA = {
 
 /**
  * Free→paid conversion bridge on /core (after free result outcome).
- * Order: value lead → free/Premium → outcomes → report preview → plans+price → CTA → chapters.
- * Public names/prices: machine commercial contract (not hardcoded duplicates).
+ * Single personalized Premium bridge — CTA routes to paid questions on /dtr/lp.
  */
+export function buildPremiumBridgeTitle(traitName: string): string {
+  return `「${traitName}」の結果を、さらに深く読み解く`;
+}
+
 export const STATIC_FREE_TO_PAID_BRIDGE = {
-  overline: 'この結果を、あなたの構造として読む',
-  title: 'この動きが、なぜ続きやすいのかを見る',
-  supportingJa:
-    'あと6問・約1〜2分で、背景、力が出る条件、負担が重なる順番、戻しやすい整え方を4章にします。',
-  freeVsPremiumHeadingJa: '無料結果とプレミアムの違い',
-  outcomeHeadingJa: '追加6問で整理できること',
-  outcomesJa: [
-    '力が出やすい条件',
-    '負担が重なる順番',
-    '人との距離の取り方',
-    '戻しやすい整え方',
-  ] as const,
-  freeLayerLabelJa: '無料結果',
-  freeLayerBodyJa: 'いまの表れ方と、最も近い場面まで',
-  savedLayerLabelJa: 'プレミアムレポート',
-  savedLayerBodyJa: '背景・条件・構造・扱い方を4章に整理して読み返せる',
-  planDiffHeadingJa: 'プランを選ぶ',
-  lightAudienceJa: 'いちばん気になる1テーマを深めたい方へ',
-  lightPlanBodyJa:
-    '4章のプレミアムレポート＋追加読み解き1件。ひとつの関心を丁寧に読み返せます。',
-  fullAudienceJa: '仕事・関係・日常をまとめて整理したい方へ',
-  fullPlanBodyJa:
-    '4章のプレミアムレポート＋追加読み解き合計5件。複数の関心をまとめて読み返せます。',
-  fullRecommendBadgeJa: 'おすすめ',
-  fullUpgradeNoteJa: '+¥480で追加読み解きが4件増える',
-  oneTimePurchaseNoteJa: '買い切り・自動更新なし。同じ4章レポートが両プランに含まれます。',
-  previewHeadingJa: 'あなたのPremiumで開く項目',
-  previewBodyJa: '見出しのみ表示。詳しい読み解きはプレミアムレポート内です。',
-  chaptersHeadingJa: 'プレミアムレポートの4章',
+  overline: M55_COMMERCIAL_FENCE.productNameJa,
+  supportingJa: M55_COMMERCIAL_FENCE.bridgeSupportingJa,
+  effortJa: 'あと6問・約1〜2分',
+  lockedHeadingsHeadingJa: M55_COMMERCIAL_FENCE.lockedPreviewHeadingJa,
+  primaryCtaJa: M55_COMMERCIAL_TERMINOLOGY.premiumBridgeCta,
+  ctaSupportJa: '正解はありません。あとで回答を確認できます。',
+  secondaryCtaJa: '無料結果を続けて読む',
+  safetyNote:
+    '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
+  /** @deprecated Plan cards live on plan selection only — kept for legacy test aliases. */
   chapters: [
     { roman: 'Ⅰ', titleJa: '輪郭を見る' },
     { roman: 'Ⅱ', titleJa: '構造を読む' },
     { roman: 'Ⅲ', titleJa: '無理を知る' },
     { roman: 'Ⅳ', titleJa: '楽に扱う' },
   ] as const,
+  /** @deprecated */
   priceNoteTemplate: '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}',
-  primaryCtaJa: 'プレミアムレポートを作る',
-  ctaSupportJa: 'あと6問・約1〜2分。回答後にプランを選び、決済へ進みます。',
-  secondaryCtaJa: '無料の詳細をもう少し読む',
-  safetyNote:
-    '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
+  /** @deprecated */
+  title: 'プレミアムレポート',
+  /** @deprecated */
+  outcomesJa: [] as const,
 } as const;
 
 /** @deprecated Prefer STATIC_FREE_TO_PAID_BRIDGE — alias for gradual test migration. */
 export const STATIC_COMMERCIAL_CONVERSION = {
   overline: STATIC_FREE_TO_PAID_BRIDGE.overline,
-  title: STATIC_FREE_TO_PAID_BRIDGE.title,
-  intro: STATIC_FREE_TO_PAID_BRIDGE.freeLayerBodyJa,
-  previewHeading: STATIC_FREE_TO_PAID_BRIDGE.chaptersHeadingJa,
+  title: STATIC_FREE_TO_PAID_BRIDGE.overline,
+  intro: STATIC_FREE_TO_PAID_BRIDGE.supportingJa,
+  previewHeading: STATIC_FREE_TO_PAID_BRIDGE.lockedHeadingsHeadingJa,
   previewRows: STATIC_FREE_TO_PAID_BRIDGE.chapters.map((c) => ({
     label: `${c.roman} ${c.titleJa}`,
     teaser: '',

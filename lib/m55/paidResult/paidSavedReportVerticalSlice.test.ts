@@ -31,8 +31,8 @@ function paidSet(overrides: Partial<Record<string, string>> = {}): Record<string
     'paid.decision_friction': 'paid.decision_friction.too_many',
     'paid.relation_focus': 'paid.relation_focus.words',
     'paid.fatigue_signal': 'paid.fatigue_signal.after_push',
-    'paid.report_usage': 'paid.report_usage.reread_scene',
-    'paid.reading_style': 'paid.reading_style.headline',
+    'paid.recovery_sequence': 'paid.recovery_sequence.pause_first',
+    'paid.restart_condition': 'paid.restart_condition.overview_first',
     ...overrides,
   };
 }
@@ -217,7 +217,7 @@ describe('paid saved report vertical slice', () => {
       paidSet({
         'paid.relation_focus': 'paid.relation_focus.timing',
         'paid.fatigue_signal': 'paid.fatigue_signal.before_start',
-        'paid.reading_style': 'paid.reading_style.story',
+        'paid.restart_condition': 'paid.restart_condition.shrink_scope',
       }),
     ];
 

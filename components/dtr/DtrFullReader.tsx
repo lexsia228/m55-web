@@ -68,7 +68,9 @@ import {
   type PaidDtrReportPartId,
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
+import SavedSnapshotNotice from './SavedSnapshotNotice';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
+import { PREMIUM_DEV_FIXTURE_READY_PROP } from '../../lib/m55/commercialUx/premiumExperience/premiumExperienceMountContract';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
 import {
   hasValidConsultWalletDenominator,
@@ -83,7 +85,6 @@ import type { DisplayedEnvelopeReadMode } from '../../lib/m55/compositeStem/reso
 import { hybridAiChapter3PrimaryEligible } from '../../lib/m55/dtrHybridAiChapterSemanticGuard';
 import {
   SAVED_SNAPSHOT_NOTICE_LEGACY_MODE,
-  SAVED_SNAPSHOT_NOTICE_PRIMARY,
   shouldShowLegacySnapshotNotice,
 } from '../../lib/m55/dtrSavedReportCopy';
 import { CONSULT_COMPOSE_PANEL_ID } from '../../lib/m55/consult/consultRoomScrollAnchors';
@@ -91,6 +92,7 @@ import {
   M55_FUNNEL_EVENTS,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import DtrMethodReportNote from './DtrMethodReportNote';
 import styles from './DtrFullReader.module.css';
 
 const M55_DTR_DRAWER_HUB_SELECTOR = '[data-m55-dtr-drawer-hub="true"]';
@@ -409,6 +411,10 @@ type Props = {
   consultDevPreviewRoomData?: ConsultRoomPreviewRoomData;
   /** Server read-only wallet snapshot for saved-report info (display only). */
   consultWalletSnapshot?: ConsultWalletDisplaySnapshot | null;
+  /** Dev-only: skip Clerk isLoaded gate for fixture rendering (/dev/dtr-drawer-preview). */
+  [PREMIUM_DEV_FIXTURE_READY_PROP]?: boolean;
+  /** Dev-only: open a hub panel on mount without a click (Clerk keyless-safe). */
+  initialOpenPanel?: 'chapter-1' | 'consult';
 };
 
 function HeroIconCheck({ className }: { className?: string }) {
@@ -619,7 +625,9 @@ function DrawerChapterPersonalLead({
   const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   return (
     <div className={styles.drawerChapterPersonalLead}>
-      <h2 className={styles.chapterPersonalHeading}>{heading}</h2>
+      <h2 className={styles.chapterPersonalHeading} data-testid="m55-report-chapter-heading">
+        {heading}
+      </h2>
       <ChapterOpeningLede text={tendencyLine} />
       {copy.reasonJa ? <ChapterOpeningLede text={copy.reasonJa} /> : null}
       <ChapterOpeningLede text={copy.lifeJa} />
@@ -844,7 +852,6 @@ function ReportFooterMetaCard({
           <span className={styles.reportMetaItemValue}>{stemTitle}</span>
         </p>
       </div>
-      <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_PRIMARY}</p>
       {shouldShowLegacySnapshotNotice(displayedEnvelopeReadMode) ? (
         <p className={styles.reportMetaNote}>{SAVED_SNAPSHOT_NOTICE_LEGACY_MODE}</p>
       ) : null}
@@ -3020,7 +3027,13 @@ function GroundingPanel({
    Main component
    ───────────────────────────────────────────────────────────────────────────── */
 
-export default function DtrFullReader({
+type ReaderAuthContext = {
+  authLoaded: boolean;
+  ownerId: string | null;
+  fixtureMode: boolean;
+};
+
+function DtrFullReaderCore({
   ownershipType,
   aiConsultIncluded,
   expiresAt,
@@ -3028,12 +3041,16 @@ export default function DtrFullReader({
   purchasedSnapshot,
   consultDevPreviewRoomData,
   consultWalletSnapshot = null,
-}: Props) {
-  const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(null);
-  // Footer snapshot starts from SSR prop; updated after successful send via callback.
+  devPreviewFixtureReady = false,
+  initialOpenPanel,
+  authLoaded,
+  ownerId,
+  fixtureMode,
+}: Props & ReaderAuthContext) {
+  const [openPanel, setOpenPanel] = useState<DrawerHubOpenPanel>(
+    fixtureMode && initialOpenPanel ? initialOpenPanel : null,
+  );
   const [footerWalletSnapshot, setFooterWalletSnapshot] = useState(consultWalletSnapshot);
-  const { user, isLoaded } = useUser();
-  const ownerId = user?.id ?? null;
 
   const selectPanel = useCallback((panel: DrawerHubOpenPanel) => {
     if (panel === 'consult') {
@@ -3061,7 +3078,8 @@ export default function DtrFullReader({
 
   /** Checkout / processing 経由後も、device-local → Clerk へ寄せる。 */
   useEffect(() => {
-    if (!isLoaded || !ownerId) return;
+    if (fixtureMode) return;
+    if (!authLoaded || !ownerId) return;
     try {
       const sp = new URLSearchParams(window.location.search);
       if (sp.get('post_purchase') !== '1') return;
@@ -3071,10 +3089,11 @@ export default function DtrFullReader({
     } catch {
       /* no-op */
     }
-  }, [isLoaded, ownerId]);
+  }, [authLoaded, fixtureMode, ownerId]);
 
   const view = useMemo(() => {
-    if (!isLoaded) return { kind: 'loading' as const };
+    const readerReady = authLoaded || devPreviewFixtureReady === true;
+    if (!readerReady) return { kind: 'loading' as const };
 
     const env = purchasedSnapshot.envelope;
     const idx = env.auditMeta.stemLaneIndex;
@@ -3088,7 +3107,7 @@ export default function DtrFullReader({
       birthDate: purchasedSnapshot.profile.birthDate,
       nickname: purchasedSnapshot.profile.nickname,
     };
-  }, [isLoaded, purchasedSnapshot]);
+  }, [authLoaded, devPreviewFixtureReady, purchasedSnapshot]);
 
   useEffect(() => {
     if (view.kind !== 'ready') return;
@@ -3105,9 +3124,14 @@ export default function DtrFullReader({
   }, [view.kind]);
 
   useEffect(() => {
-    if (view.kind !== 'ready' || window.location.hash !== '#consultation-room') return;
+    if (view.kind !== 'ready') return;
+    if (fixtureMode && initialOpenPanel) {
+      selectPanel(initialOpenPanel);
+      return;
+    }
+    if (window.location.hash !== '#consultation-room') return;
     selectPanel('consult');
-  }, [selectPanel, view.kind]);
+  }, [fixtureMode, initialOpenPanel, selectPanel, view.kind]);
 
   if (view.kind === 'loading') {
     return (
@@ -3150,8 +3174,11 @@ export default function DtrFullReader({
               id="dtr-core-analysis"
               className={`${styles.savedReportShell} ${styles.savedReportShellInDrawer} ${styles.coreAnalysisScrollAnchor}`}
               aria-label={PAID_DTR_CHAPTER_DRAWER_INTRO['1'].hubLabelJa}
+              data-m55-premium-state="purchased.report.body"
+              data-testid="m55-purchased-report-body"
             >
               <div className={styles.savedWideStack}>
+                <DtrMethodReportNote />
                 <ReportPartBand partId="1" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
                   <DrawerChapterPersonalLead
@@ -3506,6 +3533,7 @@ export default function DtrFullReader({
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}
         />
+        <SavedSnapshotNotice />
         <ReportFooterMetaCard
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}
@@ -3516,4 +3544,30 @@ export default function DtrFullReader({
       </div>
     </div>
   );
+}
+
+function DtrFullReaderAuthenticated(props: Props) {
+  const { user, isLoaded } = useUser();
+  return (
+    <DtrFullReaderCore
+      {...props}
+      authLoaded={isLoaded}
+      ownerId={user?.id ?? null}
+      fixtureMode={false}
+    />
+  );
+}
+
+export default function DtrFullReader(props: Props) {
+  if (props.devPreviewFixtureReady === true) {
+    return (
+      <DtrFullReaderCore
+        {...props}
+        authLoaded
+        ownerId={null}
+        fixtureMode
+      />
+    );
+  }
+  return <DtrFullReaderAuthenticated {...props} />;
 }

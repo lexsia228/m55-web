@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r scripts/ci/guard/requirements.txt
 
-      - name: Install deps
+      - name: Install deps (locked proof toolchain)
         run: npm ci
 
       - name: Audit gate
@@ -32,3 +32,110 @@ jobs:
 
       - name: M55 commercial SSOT verifier
         run: npm run verify:m55-ssot
+
+      - name: M55 Asset-First Commercial SSOT
+        run: npm run verify:m55-asset-ledger
+
+      - name: M55 Premium Experience SSOT
+        run: npm run verify:m55-premium-experience
+
+      # Validates the committed execution records against the current source tree:
+      # recomputes sourceSnapshotDigest, enforces the 12-state / 14-capture model
+      # and the exact 42 PNG / 5 PDF evidence set, and rejects stale, handwritten
+      # or source-mismatched records. Browser evidence is not regenerated here.
+      - name: M55 Premium proof record authenticity
+        run: npm run verify:m55-premium-proof-records
+
+      - name: M55 Premium proof negative fixtures
+        run: npm run test:premium-experience-verifier
+
+      - name: M55 Experience Control Plane v2 enforcement
+        run: npm run verify:m55-experience-control-plane
+
+      # Static half of the responsive quality gate: governed viewports, protected
+      # targets, CTA singularity and CI wiring. The measuring half runs in
+      # e2e/commercial-visual-quality.spec.ts against a served build.
+      - name: M55 commercial responsive quality gate
+        run: npm run verify:m55-commercial-visual-quality
+
+      - name: M55 commercial responsive quality broken fixtures
+        run: npm run test:m55-commercial-visual-quality
+
+      # Rejects authority M55 does not hold, internal vocabulary reaching a
+      # reader, a competing method route, and missing method placements.
+      - name: M55 method and authority gate
+        run: npm run verify:m55-method-authority
+
+      - name: M55 method and authority negative fixtures
+        run: npm run test:m55-method-authority
+
+      # Registration is mandatory: every ECP route, Premium state, Premium
+      # capture and commercial visual case must own a schema-v1 surface entry.
+      - name: M55 commercial quality manifest registration
+        run: npm run verify:m55-commercial-quality-control-plane
+
+      - name: M55 commercial quality negative fixtures
+        run: npm run test:m55-commercial-quality-control-plane
+
+      # Real browser gates. Static contracts and unit fixtures are not a
+      # substitute: these specs measure the eight required viewports for
+      # overflow, clipping, fixed overlap, contrast, focus, desktop width,
+      # plan co-visibility, and method placement order.
+      - name: Install Playwright Chromium (locked)
+        run: npx playwright install --with-deps chromium
+
+      - name: M55 commercial visual quality browser gate
+        run: npm run test:e2e:commercial-visual-quality
+        env:
+          CI: true
+          M55_E2E_CLEAN_CAPTURE: '1'
+          NEXT_DISABLE_DEV_INDICATOR: '1'
+          NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
+
+      - name: M55 method authority placement browser gate
+        run: npm run test:e2e:method-authority-placement
+        env:
+          CI: true
+          M55_E2E_CLEAN_CAPTURE: '1'
+          NEXT_DISABLE_DEV_INDICATOR: '1'
+          NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
+
+      # Mandatory: proves the shared engine measures a real registered surface.
+      # Missing Clerk test-key secrets fail closed via the clean-capture env.
+      # Leaves test-results/commercial-quality-gate/gate-summary.json for the
+      # candidate approval-pack consumer in the next step.
+      - name: M55 commercial quality registered-surface browser gate
+        run: npm run test:e2e:commercial-quality-control-plane
+        env:
+          CI: true
+          M55_E2E_CLEAN_CAPTURE: '1'
+          NEXT_DISABLE_DEV_INDICATOR: '1'
+          NEXT_PUBLIC_CLERK_KEYLESS_DISABLED: '1'
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.M55_E2E_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.M55_E2E_CLERK_SECRET_KEY }}
+
+      # Runs only after the browser gate is GREEN. Consumes the current-run
+      # gate-summary.json produced above. Candidate review material only: it
+      # never updates a canonical snapshot and never self-approves.
+      - name: M55 commercial quality candidate approval pack
+        run: npm run generate:m55-commercial-quality-approval-pack
+
+      - name: Upload commercial quality candidate approval pack
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commercial-quality-approval-pack-candidate
+          path: test-results/commercial-quality-approval-pack
+          if-no-files-found: warn
+          retention-days: 14
+
+      # After every consumer of the gate summary / approval pack has finished.
+      - name: Clean commercial quality browser residue
+        if: always()
+        run: |
+          rm -rf test-results/commercial-quality-gate test-results/.last-run.json playwright-report
+          find test-results -mindepth 1 -maxdepth 1 ! -name 'commercial-quality-approval-pack' -exec rm -rf {} + 2>/dev/null || true

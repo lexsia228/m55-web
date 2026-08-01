@@ -7,8 +7,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { STATIC_FREE_TO_PAID_BRIDGE } from '../../components/core/corePublicCopy';
-import { getCommercialProduct } from './contracts/m55CommercialFunnelContract';
+import { PLAN_COMPARISON } from './commercialUx/planComparison';
 import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from './commercialUx/terminology';
 
 const ROOT = join(import.meta.dirname, '../..');
 
@@ -35,71 +36,62 @@ describe('Self funnel commercial UX redesign', () => {
     assert.doesNotMatch(lead, /\d{4}年\d{1,2}月\d{1,2}日/);
   });
 
-  it('outcome, scene, then Premium bridge; preview precedes plan grid', () => {
+  it('outcome, scene, share, then single Premium bridge with locked headings', () => {
     const essence = read('components/core/CoreEssencePanel.tsx');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const slice = essence.slice(essence.indexOf('shouldShowResultSections(uxPhase) && composition'));
     const leadIdx = essence.indexOf('<CoreFreeResultLeadSection');
     const summaryIdx = slice.indexOf('<CoreFreeResultSummaryHub');
     const sceneIdx = slice.indexOf('<CoreFreeResultScenesSection');
+    const shareIdx = slice.indexOf('<CoreFreeResultShareCTA');
     const bridgeIdx = slice.indexOf('<CoreEntryReportCTASection');
-    assert.ok(leadIdx >= 0 && summaryIdx >= 0 && sceneIdx > summaryIdx && bridgeIdx > sceneIdx);
-    assert.match(bridge, /CorePremiumReportPreviewSlice/);
+    assert.ok(
+      leadIdx >= 0 &&
+        summaryIdx >= 0 &&
+        sceneIdx > summaryIdx &&
+        shareIdx > sceneIdx &&
+        bridgeIdx > shareIdx,
+    );
     assert.match(bridge, /premiumLockedHeadingsJa/);
-    const previewIdx = bridge.indexOf('<CorePremiumReportPreviewSlice');
+    assert.doesNotMatch(bridge, /conversionBridgePlanGrid/);
     const ctaIdx = bridge.indexOf('m55-paid-bridge-primary');
-    const planIdx = bridge.indexOf('conversionBridgePlanGrid');
-    assert.ok(previewIdx >= 0 && ctaIdx > previewIdx && planIdx > ctaIdx);
+    const lockedIdx = bridge.indexOf('m55-premium-locked-headings');
+    assert.ok(lockedIdx >= 0 && ctaIdx > lockedIdx);
   });
 
-  it('Light/Full audience + in-card prices from machine authority', () => {
-    const light = getCommercialProduct('selfPremiumLight');
-    const full = getCommercialProduct('selfPremiumFull');
-    assert.equal(light.priceJpy, 1000);
-    assert.equal(full.priceJpy, 1480);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa, 'いちばん気になる1テーマを深めたい方へ');
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa, '仕事・関係・日常をまとめて整理したい方へ');
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightPlanBodyJa, /1件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /複数/);
-    const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
-    assert.match(bridge, /getCommercialProduct/);
-    assert.match(bridge, /conversionBridgePlanPrice/);
-    assert.match(bridge, /formatPriceLabelJa\(lightPriceJpy\)/);
-    assert.match(bridge, /formatPriceLabelJa\(fullPriceJpy\)/);
-    assert.doesNotMatch(bridge, /1000|1480/);
+  it('Light/Full plan facts live in shared PLAN_COMPARISON model', () => {
+    assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);
+    assert.equal(PLAN_COMPARISON.full.priceJpy, 1480);
+    assert.equal(PLAN_COMPARISON.light.audienceJa, '一番気になるテーマを、まず1つ深めたい方へ');
+    assert.match(PLAN_COMPARISON.full.audienceJa, /複数/);
+    assert.match(PLAN_COMPARISON.light.includedItemsJa[1]!, /1件/);
+    assert.match(PLAN_COMPARISON.full.includedItemsJa[1]!, /5件/);
   });
 
   it('CTA copy, /dtr/lp destination, no checkout request', () => {
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa, /あと6問/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa, /正解はありません/);
     assert.equal(TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref, '/dtr/lp');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
-    assert.match(bridge, /viewSavedPlansHref/);
+    assert.match(bridge, /m55-paid-questionnaire/);
     assert.doesNotMatch(bridge, /PurchaseButton|\/api\/purchase/);
     assert.doesNotMatch(bridge, /checkoutStarted|checkout_started/);
   });
 
-  it('six-question handoff explains benefits before effort', () => {
+  it('six-question layer starts directly without duplicate sales intro', () => {
     const q = read('components/dtr/DtrPaidQuestionnaireLayer.tsx');
-    assert.match(q, /力が出やすい条件/);
-    assert.match(q, /負担が重なる順番/);
-    assert.match(q, /人との距離の取り方/);
-    assert.match(q, /戻しやすい整え方/);
-    assert.match(q, /あと6問・約1〜2分/);
-    assert.match(q, /freeResultReady|無料結果を土台に|あと6問/);
-    assert.match(q, /プラン選択・決済/);
+    assert.doesNotMatch(q, /phase === 'entry'/);
+    assert.doesNotMatch(q, /力が出やすい条件/);
+    assert.match(q, /\$\{index \+ 1\} \/ \$\{total\}/);
+    assert.match(q, /ctaSupportJa|正解はありません/);
     assert.doesNotMatch(q, /PurchaseButton|\/api\/purchase/);
   });
 
   it('privacy-safe commercial copy without unsupported claims', () => {
     const marketing = [
-      STATIC_FREE_TO_PAID_BRIDGE.title,
+      STATIC_FREE_TO_PAID_BRIDGE.supportingJa,
       STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa,
       STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa,
-      STATIC_FREE_TO_PAID_BRIDGE.lightAudienceJa,
-      STATIC_FREE_TO_PAID_BRIDGE.fullAudienceJa,
-      STATIC_FREE_TO_PAID_BRIDGE.previewBodyJa,
       STATIC_FREE_TO_PAID_BRIDGE.safetyNote,
     ].join('\n');
     assert.doesNotMatch(
@@ -114,10 +106,7 @@ describe('Self funnel commercial UX redesign', () => {
   });
 
   it('value hierarchy lead is concrete premium reason', () => {
-    assert.equal(
-      STATIC_FREE_TO_PAID_BRIDGE.title,
-      'この動きが、なぜ続きやすいのかを見る',
-    );
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.outcomesJa.length, 4);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /その動きが続く背景/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.effortJa, 'あと6問・約1〜2分');
   });
 });

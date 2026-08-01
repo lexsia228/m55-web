@@ -27,7 +27,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   savedReport: {
     definitionJa:
-      '保存版では、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を\n正式4章で整理します。',
+      '保存版では、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を\nプレミアムレポートとして整理します。',
   },
   consultReply: {
     definitionJa:
@@ -37,7 +37,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '追加読み解きは、\n保存版に今回入力した一つの読み解きテーマを重ねて\n読み直す追加読み解きです。',
   },
   threeLayerOrderJa:
-    '無料の見取り図 → 4章の保存版 → 保存版に紐づく追加読み解き',
+    '無料の見取り図 → プレミアムレポート → 保存版に紐づく追加読み解き',
   formalChapters: PAID_DTR_LP.chapters.items.map((ch) => ({
     roman: ch.roman,
     titleJa: ch.titleJa,
@@ -48,11 +48,11 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       'M55は、生年月日から、自分の動き方・疲れ方・戻し方を見える形にする保存版の見取り図です。',
     fullPlanNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     fullPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
-    fullSavedReportJa: '正式4章',
+    fullSavedReportJa: 'プレミアムレポート',
     fullConsultReplyJa: '追加読み解き合計5件',
     lightPlanNameJa: PAID_DTR_SAVED_REPORT_PRICING.light.planNameJa,
     lightPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
-    lightSavedReportJa: '正式4章',
+    lightSavedReportJa: 'プレミアムレポート',
     lightConsultReplyJa: '追加読み解き1件',
     upgradeNoteJa:
       'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
@@ -169,13 +169,13 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     premiumEyebrowJa: 'M55 プレミアムレポート',
     premiumHeadlineJa: '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
     premiumBodyJa:
-      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\n4つの章で整理します。',
+      '生年月日から見える基礎傾向と、いまの回答をもとに、\n自分の動き方、人との距離感、\n負担が重なり始める流れ、整え方を\nプレミアムレポートとして整理します。',
     premiumPreviewLabelJa: 'M55 プレミアムレポートの表示例',
     premiumCtaJa: 'プレミアムレポートを見る',
 
     /* §5 continued — LIGHT / FULL (nested in premium section) */
     planComparisonIntroJa:
-      'どちらにも、同じ4章の個人レポートが含まれます。\n違いは、レポートを読んだ後に\n追加で詳しく読み解けるテーマ数です。',
+      'どちらも、同じプレミアムレポートを読めます。\n違いは、購入後に追加で読み解けるテーマ数です。',
     planLightNameJa: 'ライト',
     planLightFitJa: 'まず全体像を知り、\nいちばん気になることを1つ深く見たい人へ。',
     planLightPriceJa: PAID_DTR_SAVED_REPORT_PRICING.light.priceLabelJa,
@@ -215,7 +215,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     freeLeadJa:
       '無料の見取り図では、\n10資質レーンと5つの視点で、\n自分に出やすい輪郭を短く確認できます。',
     savedLeadJa:
-      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\n4章で読み返せる形に残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
+      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\nプレミアムレポートとして残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
   },
   coreCta: {
     overlineJa: '保存版',

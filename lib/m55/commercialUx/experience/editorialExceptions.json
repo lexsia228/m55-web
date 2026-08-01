@@ -1,0 +1,66 @@
+[
+  {
+    "rule": "copy.jsx_literal",
+    "path": "components/home/HomePanel.tsx",
+    "authorityKey": "home_public.inline_composition",
+    "reason": "HOME poster composition still binds copy via topFreeEntryPublicCopy getters; residual JSX punctuation/aria labels pending page-content object extraction without visual reopen.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-11"
+  },
+  {
+    "rule": "copy.jsx_literal",
+    "path": "app/how-m55-works",
+    "authorityKey": "public_editorial.how_m55_works_sections",
+    "reason": "Section components hold long-form editorial body; registered under PUBLIC_EDITORIAL with harvest from section files during next copy domain split.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-11"
+  },
+  {
+    "rule": "token.css_literal",
+    "path": "components/home/HomePanel.module.css",
+    "authorityKey": "poster.frozen_visual",
+    "reason": "HOME poster visual is quality anchor and frozen; token migration deferred to avoid poster reopen.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-25"
+  },
+  {
+    "rule": "token.css_literal",
+    "path": "components/core/CoreExperience.module.css",
+    "authorityKey": "core.module_css_legacy",
+    "reason": "Core CSS predates ECP token vars; gradual migration via CSS variables without layout shift.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-25"
+  },
+  {
+    "rule": "ownership.print_css",
+    "path": "components/dtr/DtrPaidDecisionUx.module.css",
+    "authorityKey": "print.local_hide_helpers",
+    "reason": "Contains print-hide helpers complementary to publicPrint.css; no independent print framework.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-11"
+  },
+  {
+    "rule": "token.css_literal",
+    "path": "components/shell/ShellLayout.module.css",
+    "authorityKey": "shell.header_legacy_tint",
+    "reason": "Shared shell header tint predates ECP CSS vars; migrate with header chrome pass.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-25"
+  },
+  {
+    "rule": "token.css_literal",
+    "path": "components/dtr/DtrLpPremiumContinuity.module.css",
+    "authorityKey": "premium.continuity_accent",
+    "reason": "Premium continuity accent pending --m55-purple token swap without layout shift.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-25"
+  },
+  {
+    "rule": "token.css_literal",
+    "path": "components/dtr/DtrPaidDecisionUx.module.css",
+    "authorityKey": "plan.surface_ivory_variant",
+    "reason": "Near-ivory plan surface; align to --m55-ivory in follow-up token migration.",
+    "owner": "WT-011 Growth Share",
+    "reviewDate": "2026-08-25"
+  }
+]

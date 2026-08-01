@@ -1,9 +1,11 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { isAuthorizedCleanCaptureLoopbackHost } from './lib/m55/e2e/isAuthorizedCleanCaptureLoopbackHost';
 
 const isPublicRoute = createRouteMatcher([
   '/',
   '/home',
   '/core',
+  '/r(.*)',
   '/today',
   '/weekly',
   '/dtr(.*)',
@@ -32,6 +34,11 @@ const isPublicRoute = createRouteMatcher([
   '/api/dtr/report-snapshot/hide',
 ]);
 
+const isE2ECleanCaptureDevFixture = createRouteMatcher([
+  '/dev/dtr-drawer-preview',
+  '/dev/premium-share-preview',
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   // non-prod runtime verification only:
   // allow reply runtime verification routes with test user header,
@@ -47,7 +54,19 @@ export default clerkMiddleware(async (auth, req) => {
     isReplyRuntimeVerificationPath &&
     !!req.headers.get('x-m55-test-user-id')?.trim();
 
-  if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass) {
+  // Local E2E clean-capture only: allow the two governed /dev fixture routes when
+  // M55_E2E_CLEAN_CAPTURE=1 AND the request Host is an exact loopback hostname.
+  // Unavailable under Vercel Preview/Production, non-loopback Host headers, or when
+  // the flag is absent (fail-closed). Does not fabricate entitlements.
+  const isLocalE2ECleanCaptureFixture =
+    process.env.M55_E2E_CLEAN_CAPTURE === '1' &&
+    process.env.NODE_ENV !== 'production' &&
+    process.env.VERCEL !== '1' &&
+    !process.env.VERCEL_ENV &&
+    isE2ECleanCaptureDevFixture(req) &&
+    isAuthorizedCleanCaptureLoopbackHost(req.headers.get('host'));
+
+  if (!isPublicRoute(req) && !isNonProdReplyVerificationBypass && !isLocalE2ECleanCaptureFixture) {
     await auth.protect();
   }
 });

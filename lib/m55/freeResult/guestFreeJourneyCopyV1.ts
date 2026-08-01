@@ -2,11 +2,13 @@
  * Guest-first free journey presentation copy (UI only).
  */
 
+import { M55_COMMERCIAL_TERMINOLOGY as T } from '../commercialUx/terminology';
+
 export const GUEST_PROFILE_INTAKE_COPY_V1 = {
   titleJa: '無料結果を開く',
   leadJa: 'この入力は、無料結果を表示するために使います。',
   loginHintJa: 'ログインは結果をあとから開くときに使えます。',
-  primaryActionJa: '無料結果を始める',
+  primaryActionJa: T.freeStart,
 } as const;
 
 export const GUEST_PROFILE_HANDOFF_COPY_V1 = {
@@ -20,13 +22,16 @@ export const GUEST_SAVE_RESULT_COPY_V1 = {
   actionJa: '結果を保存する',
 } as const;
 
-/** Privacy-safe share — fixed marketing text + public entry URL only. */
+/**
+ * Legacy share copy constants — Growth share UI uses privacySafeShareCardV1.
+ * Kept for source-guard tests; do not include DOB/answers.
+ */
 export const FREE_RESULT_SHARE_COPY_V1 = {
-  titleJa: '入口を共有する',
-  bodyJa: '生年月日や回答は含めず、M55の無料結果の入口だけを共有できます。',
-  actionJa: '入口を共有',
-  shareTextJa: 'M55で、自分に表れやすい輪郭を無料で確認できます。',
-  shareUrlPath: '/core',
+  titleJa: 'この結果を共有する',
+  bodyJa: '生年月日や回答は含まれません。資質名と短い一文だけを共有できます。',
+  actionJa: '共有する',
+  shareTextJa: 'M55で、いつもの動き方を無料で見てみた。',
+  shareUrlPath: '/r',
   copiedJa: 'リンクをコピーしました',
   unavailableJa: '共有できませんでした。もう一度お試しください。',
 } as const;

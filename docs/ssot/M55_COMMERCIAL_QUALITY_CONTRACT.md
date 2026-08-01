@@ -186,6 +186,56 @@ Agents must not:
 - claim commercial success before observed market data
 - invent or freeze conversion thresholds without Human approval
 
+## Commercial quality control plane (machine enforcement)
+
+Machine enforcement of this contract runs through a shared control plane. It **prepares** evidence; it never grants closure.
+
+| Layer | Owner | Rule |
+|---|---|---|
+| Repository-independent engine | `lib/commercialQuality/**` | Must not import Product Truth, copy modules, route registries, selectors or Premium authorities |
+| M55 adapter and registrations | `lib/m55/commercialUx/qualityControl/**` | Imports existing governed identities by stable reference; never restates their authority |
+| Browser execution | `e2e/helpers/commercialQualityRunner.ts`, `e2e/commercial-quality-control-plane.spec.ts` | Reuses the clean-capture environment; read-only measurement, no sanitization before capture |
+| Verification and CI | `scripts/verify-m55-commercial-quality-control-plane.mjs`, `.github/workflows/audit.yml` | Registration and negative fixtures are mandatory; browser gate is mandatory |
+
+### Surface / state manifest
+
+Schema version **1**. Every governed user-visible surface registers a project-qualified surface ID, a stable runtime-state ID, authority references, a deterministic setup identity, a viewport range with width step and breakpoint neighbourhoods, protected elements, critical CTA authority, fixed/sticky elements, section boundaries, state variants, content stress profiles, output behaviour, and source owner files.
+
+Registration coverage is enforced for **51/51** ECP page entries, **12/12** Premium runtime states, **14/14** Premium capture cases and **6/6** commercial visual cases.
+
+### Canonical baseline status
+
+Exactly three values are legal:
+
+| Status | Meaning |
+|---|---|
+| `none` | No canonical baseline exists |
+| `candidate` | Machine-generated review material awaiting Human decision |
+| `human-approved` | Promoted after independent review **and** Human commercial approval |
+
+### Candidate approval pack
+
+Generated output lives in `test-results/commercial-quality-approval-pack/`, is **untracked**, and is generated only after manifest, geometry, semantic and accessibility gates all PASS. It records the source commit, manifest digest and candidate file hashes, is explicitly labelled `candidate`, and is cleaned before each generation.
+
+Generated packs **never** update canonical screenshots and **never** promote themselves. Consistent with the Human approval non-substitution rules above, no Human approval record is ever generated automatically.
+
+### Baseline promotion requirements
+
+Canonical promotion requires **all** of:
+
+1. geometry GREEN
+2. semantic machine review GREEN
+3. accessibility GREEN
+4. independent-review approval record
+5. Human commercial approval record
+6. exact source commit
+7. exact manifest digest
+8. exact candidate file hashes
+
+Promotion is rejected on missing Human approval, stale source commit, changed manifest digest, altered candidate hash, implementation-generated self-approval, direct candidate-to-canonical assignment, or an unknown approval authority.
+
+Geometry remains authoritative **before** pixel comparison.
+
 ## Relationship to lane contracts
 
 Lane contracts (`M55_SELF_FUNNEL_CONTRACT.md`, `M55_PAIR_FUNNEL_CONTRACT.md`) define **target flow and product boundaries**.

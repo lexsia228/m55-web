@@ -15,7 +15,7 @@ describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
     assert.match(blob, /旧暦月・季節位置・日帯/);
     assert.match(blob, /動き方・疲れ方・戻し方/);
     assert.match(blob, /固定ルール/);
-    assert.match(blob, /4章で深く読み返せます/);
+    assert.match(blob, /プレミアムレポートで深く読み返せます/);
     assert.match(blob, /追加読み解きは別のレイヤー/);
     assert.match(blob, /会話を続ける形式ではありません/);
   });
@@ -25,7 +25,7 @@ describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
     assert.ok(blob.length < M55_LOGIC_HOME_COPY.bodyParagraphsJa.join('\n').length);
     assert.match(blob, /10資質レーン/);
     assert.match(blob, /5つの視点/);
-    assert.match(blob, /4章で深く読み返せます/);
+    assert.match(blob, /プレミアムレポートで深く読み返せます/);
     assert.match(blob, /1テーマ/);
   });
 

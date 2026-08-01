@@ -26,10 +26,11 @@ export default function CoreFreeResultScenesSection({ depth, onRequestReanswer }
         <p className={styles.freeDepthBlockBody}>{depth.primarySceneJa}</p>
       </article>
 
-      <div className={styles.freeReanswerWrap}>
+      <div className={styles.freeReanswerWrap} data-m55-print-hide>
         <button
           type="button"
           className={styles.freeQuestionnaireSecondaryBtn}
+          data-testid="m55-free-rerun-request"
           onClick={onRequestReanswer}
         >
           回答を変えて、もう一度見る

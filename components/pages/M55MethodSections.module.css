@@ -1,0 +1,136 @@
+/* Canonical method explanation on /how-m55-works. Card-level styling only. */
+
+.methodRoot {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 36px) clamp(14px, 3.4vw, 28px);
+}
+
+.rootEyebrow {
+  margin: 0 0 8px;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  color: rgba(74, 62, 112, 0.86);
+  overflow-wrap: anywhere;
+}
+
+.rootTitle {
+  margin: 0 0 clamp(10px, 2vw, 16px);
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(19px, 4.4vw, 26px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: #1a1730;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.rootLead {
+  margin: 0 0 clamp(18px, 3.4vw, 28px);
+  font-size: clamp(13px, 2.9vw, 16px);
+  line-height: 1.9;
+  color: rgba(45, 40, 70, 0.86);
+  max-width: 42em;
+  overflow-wrap: anywhere;
+}
+
+.sectionList {
+  display: grid;
+  gap: clamp(16px, 3vw, 26px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.section {
+  padding: clamp(14px, 2.8vw, 22px) clamp(12px, 2.6vw, 20px);
+  border-radius: 14px;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: rgba(255, 255, 255, 0.7);
+  min-width: 0;
+}
+
+.sectionTitle {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin: 0 0 clamp(6px, 1.4vw, 10px);
+  font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  font-size: clamp(15px, 3.4vw, 18px);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #201c34;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.sectionOrder {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  /* Commit B: AA contrast on warm ivory/white card (was rgba(107,95,168,0.9) ≈ 4.36). */
+  color: #201c34;
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionBody {
+  margin: 0 0 0.6em;
+  font-size: clamp(12px, 2.7vw, 14px);
+  line-height: 1.85;
+  color: rgba(45, 40, 70, 0.82);
+  max-width: 44em;
+  overflow-wrap: anywhere;
+}
+
+.sectionBody:last-of-type {
+  margin-bottom: 0;
+}
+
+.inputList {
+  display: grid;
+  gap: 0.55rem;
+  margin: clamp(10px, 2vw, 14px) 0 0;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.15rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(107, 95, 168, 0.07);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .inputRow {
+    grid-template-columns: 11rem 1fr;
+    gap: 0.75rem;
+    align-items: start;
+  }
+}
+
+.inputLabel {
+  margin: 0;
+  font-size: clamp(12px, 2.6vw, 14px);
+  font-weight: 600;
+  line-height: 1.7;
+  color: #201c34;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.inputDesc {
+  margin: 0;
+  font-size: clamp(11.5px, 2.5vw, 13px);
+  line-height: 1.8;
+  color: rgba(45, 40, 70, 0.78);
+  overflow-wrap: anywhere;
+}

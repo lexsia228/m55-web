@@ -10,7 +10,8 @@ import { buildFreeDepthAnalysisV1 } from './freeResult/buildFreeDepthAnalysisV1'
 import { resolveInitialUxPhase } from './freeResult/coreFreeRevealUxState';
 import { FREE_QUESTION_FLOW_TOTAL } from './freeResult/segmentedDobInputV1';
 import { STATIC_FREE_TO_PAID_BRIDGE } from '../../components/core/corePublicCopy';
-import { getCommercialProduct } from './contracts/m55CommercialFunnelContract';
+import { PLAN_COMPARISON } from './commercialUx/planComparison';
+import { M55_COMMERCIAL_TERMINOLOGY as T } from './commercialUx/terminology';
 
 const ROOT = join(import.meta.dirname, '../..');
 
@@ -39,9 +40,9 @@ describe('Self funnel commercial polish REV1', () => {
 
   it('direct /core offers intake without dead-end', () => {
     const locked = read('components/core/CoreLockedState.tsx');
-    assert.match(locked, /無料結果を始める/);
+    assert.match(locked, /T\.freeStart|無料で見てみる/);
     assert.match(locked, /m55-core-start-intake/);
-    assert.match(locked, /ホームへ戻る/);
+    assert.match(locked, /homeLinkJa|ホームへ戻る/);
     assert.match(locked, /onStartIntake/);
     const panel = read('components/core/CoreEssencePanel.tsx');
     assert.match(panel, /onStartIntake=\{\(\) => setIntakeOpen\(true\)\}/);
@@ -52,7 +53,7 @@ describe('Self funnel commercial polish REV1', () => {
     assert.equal(FREE_QUESTION_FLOW_TOTAL, 5);
     const q = read('components/core/CoreFreeQuestionnaireLayer.tsx');
     assert.match(q, /questionIndex=\{index\}/);
-    assert.match(q, /FREE_FIVE_QUESTION_COUNT} 完了/);
+    assert.doesNotMatch(q, /FREE_FIVE_QUESTION_COUNT} 完了/);
     assert.match(q, /基本情報を変更/);
     assert.match(q, /onRequestProfileEdit/);
     assert.doesNotMatch(q, /onRequestDobChange/);
@@ -70,16 +71,15 @@ describe('Self funnel commercial polish REV1', () => {
     assert.doesNotMatch(scenes, /無料で読める範囲/);
   });
 
-  it('Premium bridge CTA is early with personalized locked headings', () => {
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムレポートを作る');
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /あと6問/);
+  it('Premium bridge CTA is early with personalized locked headings only', () => {
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /あと6問|整え直し/);
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const primaryIdx = bridge.indexOf('m55-paid-bridge-primary');
     const planIdx = bridge.indexOf('conversionBridgePlanGrid');
-    assert.ok(primaryIdx >= 0 && planIdx > primaryIdx);
+    assert.ok(primaryIdx >= 0);
+    assert.equal(planIdx, -1);
     assert.match(bridge, /premiumLockedHeadingsJa/);
-    assert.match(bridge, /fullRecommendBadgeJa/);
-    assert.match(bridge, /\+¥\{upgradeDelta/);
   });
 
   it('depth builder produces concise fields and locked headings deterministically', () => {
@@ -106,14 +106,12 @@ describe('Self funnel commercial polish REV1', () => {
     );
   });
 
-  it('Light/Full product truth unchanged', () => {
-    const light = getCommercialProduct('selfPremiumLight');
-    const full = getCommercialProduct('selfPremiumFull');
-    assert.equal(light.priceJpy, 1000);
-    assert.equal(full.priceJpy, 1480);
-    assert.equal(full.priceJpy! - light.priceJpy!, 480);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.lightPlanBodyJa, /1件/);
-    assert.match(STATIC_FREE_TO_PAID_BRIDGE.fullPlanBodyJa, /5件/);
+  it('Light/Full product truth unchanged in PLAN_COMPARISON', () => {
+    assert.equal(PLAN_COMPARISON.light.priceJpy, 1000);
+    assert.equal(PLAN_COMPARISON.full.priceJpy, 1480);
+    assert.equal(PLAN_COMPARISON.full.priceJpy - PLAN_COMPARISON.light.priceJpy, 480);
+    assert.match(PLAN_COMPARISON.light.includedItemsJa[1]!, /1件/);
+    assert.match(PLAN_COMPARISON.full.includedItemsJa[1]!, /5件/);
   });
 
   it('no payment/DB/auth/provider mutations in polish scope', () => {

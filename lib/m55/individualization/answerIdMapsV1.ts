@@ -99,8 +99,8 @@ export const PAID_QUESTION_IDS = [
   'paid.decision_friction',
   'paid.relation_focus',
   'paid.fatigue_signal',
-  'paid.report_usage',
-  'paid.reading_style',
+  'paid.recovery_sequence',
+  'paid.restart_condition',
 ] as const;
 
 export const PAID_WORK_FOCUS_IDS = [
@@ -127,16 +127,30 @@ export const PAID_FATIGUE_SIGNAL_IDS = [
   'paid.fatigue_signal.long_stretch',
 ] as const;
 
+/** @deprecated Legacy snapshot/read-only — not valid for new questionnaires. */
 export const PAID_REPORT_USAGE_IDS = [
   'paid.report_usage.reread_scene',
   'paid.report_usage.chapter_pick',
   'paid.report_usage.note_take',
 ] as const;
 
+/** @deprecated Legacy snapshot/read-only — not valid for new questionnaires. */
 export const PAID_READING_STYLE_IDS = [
   'paid.reading_style.headline',
   'paid.reading_style.story',
   'paid.reading_style.compare',
+] as const;
+
+export const PAID_RECOVERY_SEQUENCE_IDS = [
+  'paid.recovery_sequence.pause_first',
+  'paid.recovery_sequence.small_start',
+  'paid.recovery_sequence.sort_materials',
+] as const;
+
+export const PAID_RESTART_CONDITION_IDS = [
+  'paid.restart_condition.overview_first',
+  'paid.restart_condition.shrink_scope',
+  'paid.restart_condition.trusted_support',
 ] as const;
 
 export const AXIS_PRIORITY: readonly ExpressionAxisId[] = [

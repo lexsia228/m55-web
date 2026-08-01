@@ -6,12 +6,15 @@
 
 .wrap {
   max-width: 420px;
+  min-width: 0;
+  width: 100%;
   margin: 0 auto;
   /* 下：Entry Report 折り〜PublicFooter まで（さらに詰め。上左右は据え置き） */
   padding: 6px 18px 20px;
   background: transparent;
   font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1a1a1a;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -477,6 +480,15 @@
   box-sizing: border-box;
 }
 
+/* Method model band: same reading column as the surrounding lower sections. */
+.methodModelStage {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(18px, 3.4vw, 30px) 20px;
+  box-sizing: border-box;
+}
+
 .lowerWrap > .lowerSection + .lowerSection,
 .lowerWrap > .lowerSection + details,
 .lowerWrap > details + .lowerSection {
@@ -527,10 +539,19 @@
   word-break: keep-all;
   line-break: strict;
   text-wrap: balance;
+  /* Last-resort break so a semantic unit can never push past the column. */
+  overflow-wrap: anywhere;
 }
 
+/*
+ * Semantic units stay on one line while they fit. `nowrap` made them absolute,
+ * so the Premium headline overflowed the viewport at 320–430. `keep-all` keeps
+ * the unit together by preference while the parent's `overflow-wrap` still
+ * allows a break when the column is genuinely too narrow.
+ */
 .headlineSemanticUnit {
-  white-space: nowrap;
+  word-break: keep-all;
+  line-break: strict;
 }
 
 .sectionSubheading {
@@ -2544,14 +2565,37 @@
   margin: -6px -18px 0;
   padding: 0;
   border-bottom: 0;
+  max-width: calc(100% + 36px);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .posterHeroApprovedRoot .posterMainVisual {
+  /*
+   * Content-driven height: the copy/CTA stack participates in normal flow so
+   * intermediate widths/heights cannot clip below the absolute overlay box.
+   * Image crop stays on the absolute background stack (safe overflow).
+   */
+  display: flex;
+  flex-direction: column;
   min-height: clamp(620px, calc(100svh - 108px), 800px);
   border: 0;
   border-radius: 0 0 18px 18px;
   background: #0b1a2b;
   box-shadow: none;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.posterHeroApprovedRoot .posterMainVisualStack,
+.posterHeroApprovedRoot .posterHeroBaseLayer {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.posterHeroApprovedRoot .posterMainVisualStack {
+  z-index: 0;
 }
 
 .posterHeroApprovedRoot .posterHeroPicture {
@@ -2559,17 +2603,22 @@
   inset: 0;
   display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
 }
 
 .posterHeroApprovedRoot .posterHeroBaseImage {
   display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   object-fit: cover;
   object-position: 52% 38%;
   filter: none;
   transform: none;
+  box-sizing: border-box;
 }
 
 .posterHeroApprovedRoot .posterHeroReadabilityVeil {
@@ -2578,11 +2627,43 @@
     linear-gradient(180deg, rgba(11, 26, 43, 0.05) 58%, rgba(11, 26, 43, 0.18) 82%, rgba(241, 232, 214, 0.22) 100%);
 }
 
+/*
+ * Continuum fix: base `.posterHeroOverlay` is absolute inset:0. That made the
+ * poster height ignore CTA/support/trust, so intermediate widths (and short
+ * heights) clipped them via `.posterMainVisual { overflow: hidden }`.
+ * Keep the image stack absolute; size the poster from in-flow overlay content.
+ */
 .posterHeroApprovedRoot .posterHeroOverlay {
-  min-height: inherit;
+  position: relative;
+  inset: auto;
+  z-index: 3;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: clamp(620px, calc(100svh - 108px), 800px);
   display: flex;
   align-items: center;
   padding: clamp(42px, 5vw, 72px);
+  box-sizing: border-box;
+}
+
+@media (max-width: 639px) {
+  .posterHeroApprovedRoot .posterMainVisual {
+    min-height: 0;
+  }
+
+  .posterHeroApprovedRoot .posterHeroOverlay {
+    min-height: clamp(520px, calc(100svh - 108px), 800px);
+    padding: 34px 22px 40px;
+  }
+
+  .posterHeroApprovedRoot .posterHeroLabelGroup {
+    margin-bottom: clamp(20px, 4vw, 34px);
+  }
+
+  .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: clamp(25px, 7.4vw, 31px);
+    line-height: 1.46;
+  }
 }
 
 .posterHeroApprovedRoot .posterHeroFoot {
@@ -2593,8 +2674,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: min(46%, 36rem);
-  max-width: 36rem;
+  /*
+   * Desktop line 1 is an unbreakable phrase (nowrap). 46%/35rem left the
+   * title clientWidth below that intrinsic width at 1024/1280/1440, so
+   * scrollWidth exceeded the governed visible box. Keep the approved two
+   * lines; widen only this reading column enough for the phrase to fit.
+   */
+  width: min(52%, 38rem);
+  max-width: 38rem;
   margin: 0;
   color: #f1e8d6;
   text-align: left;
@@ -2644,7 +2731,7 @@
 
 .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
   width: 100%;
-  max-width: 35rem;
+  max-width: 38rem;
   margin: 0;
   padding: 0;
   color: #f1e8d6;
@@ -2656,10 +2743,48 @@
   text-wrap: initial;
 }
 
+/*
+ * Mobile keeps natural wrapping on the existing two copy lines.
+ * From tablet/desktop, Human-approved ownership moves the break to after 「…」
+ * via .posterHeroTitleMobileTail / .posterHeroTitleDesktopPrefix, and the
+ * quoted phrase is nowrap so 「いつもこうなる」 never splits.
+ */
 .posterHeroApprovedRoot .posterHeroTitleLine {
   display: block;
-  white-space: nowrap;
-  word-break: keep-all;
+  white-space: normal;
+  word-break: normal;
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+
+.posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .posterHeroApprovedRoot .posterHeroTitleMobileTail {
+    display: none;
+  }
+
+  .posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
+    display: inline;
+  }
+
+  /*
+   * Phrase stays unbreakable for the approved desktop break. Own the line as
+   * a block so intrinsic max-content does not hang off an undersized inline
+   * box inside a percentage-width heading; the copy/title max-inline-size
+   * above is what keeps scrollWidth within clientWidth.
+   */
+  .posterHeroApprovedRoot .posterHeroTitlePhrase {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .posterHeroApprovedRoot .posterHeroTitleLine {
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
 }
 
 .posterHeroApprovedRoot .posterHeroTitleLine:first-child {
@@ -2673,7 +2798,10 @@
 }
 
 .posterHeroApprovedRoot .posterHeroCta {
+  flex-shrink: 0;
+  box-sizing: border-box;
   width: min(100%, 20rem);
+  min-width: 44px;
   min-height: 56px;
   padding: 14px 24px;
   border: 1px solid rgba(11, 26, 43, 0.16);
@@ -2681,6 +2809,7 @@
   background: #f1e8d6;
   color: #0b1a2b;
   font-size: 15px;
+  line-height: 1.35;
   box-shadow: none;
 }
 
@@ -2739,7 +2868,7 @@
 
 @media (max-width: 820px) {
   .posterHeroApprovedRoot .posterMainVisual {
-    min-height: min(720px, calc(100svh - 55px));
+    min-height: 0;
     border-radius: 0;
   }
 
@@ -2755,6 +2884,8 @@
 
   .posterHeroApprovedRoot .posterHeroOverlay {
     align-items: flex-start;
+    /* Aesthetic floor only — content may grow past this without clipping. */
+    min-height: min(720px, calc(100svh - 55px));
     padding: clamp(252px, 34svh, 300px) 20px 34px;
   }
 
@@ -2792,7 +2923,10 @@
 
   .posterHeroApprovedRoot .posterHeroCta {
     width: 100%;
-    min-height: 54px;
+    min-width: 44px;
+    min-height: 48px;
+    flex-shrink: 0;
+    box-sizing: border-box;
   }
 
   .posterHeroApprovedRoot .posterHeroSupport {
