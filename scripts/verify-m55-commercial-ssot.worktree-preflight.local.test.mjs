@@ -160,52 +160,71 @@ function assertGitObjectExists(objectish, cwd) {
   assert.equal(result.status, 0, `expected git object ${objectish} in ${cwd}`);
 }
 
-function buildCleanStateDisposableFixture() {
+function buildCleanStateDisposableFixture({ injectFailureAfterMkdtemp = null } = {}) {
   const fixtureParent = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-clean-proof-'));
-  const fixtureRoot = path.join(fixtureParent, 'repo');
-  const verifierSourcePath = path.join(REPO_ROOT, VERIFIER_REL_PATH);
+  try {
+    if (typeof injectFailureAfterMkdtemp === 'function') {
+      injectFailureAfterMkdtemp(fixtureParent);
+    }
 
-  assert.ok(fs.existsSync(verifierSourcePath), 'verifier source file must exist');
-  fs.mkdirSync(fixtureRoot, { recursive: true });
+    const fixtureRoot = path.join(fixtureParent, 'repo');
+    const verifierSourcePath = path.join(REPO_ROOT, VERIFIER_REL_PATH);
 
-  runGit(['init'], fixtureRoot);
-  runGit(['config', 'user.email', 'test@example.com'], fixtureRoot);
-  runGit(['config', 'user.name', 'M55 Test'], fixtureRoot);
+    assert.ok(fs.existsSync(verifierSourcePath), 'verifier source file must exist');
+    fs.mkdirSync(fixtureRoot, { recursive: true });
 
-  for (const relPath of DISPOSABLE_ESSENTIAL_PATHS) {
-    const sourcePath = path.join(REPO_ROOT, relPath);
-    const destinationPath = path.join(fixtureRoot, relPath);
-    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
-    fs.copyFileSync(sourcePath, destinationPath);
+    runGit(['init'], fixtureRoot);
+    runGit(['config', 'user.email', 'test@example.com'], fixtureRoot);
+    runGit(['config', 'user.name', 'M55 Test'], fixtureRoot);
+
+    for (const relPath of DISPOSABLE_ESSENTIAL_PATHS) {
+      const destinationPath = path.join(fixtureRoot, relPath);
+      fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+      if (relPath === 'docs/ssot/M55_CURRENT_STATE.md') {
+        fs.writeFileSync(destinationPath, buildCurrentState());
+      } else {
+        const sourcePath = path.join(REPO_ROOT, relPath);
+        fs.copyFileSync(sourcePath, destinationPath);
+      }
+    }
+
+    runGit(['add', '.'], fixtureRoot);
+    runGit(['commit', '-m', 'temp: disposable fixture base commit'], fixtureRoot);
+    const baseSha = runGit(['rev-parse', 'HEAD'], fixtureRoot);
+
+    const registryText = buildRegistryText({
+      wt001Path: fixtureRoot,
+      branch: BOOTSTRAP_BRANCH,
+      baselineSha: baseSha,
+      headSha: baseSha,
+    });
+    fs.writeFileSync(path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), registryText);
+    const verifierDestinationPath = path.join(fixtureRoot, VERIFIER_REL_PATH);
+    fs.mkdirSync(path.dirname(verifierDestinationPath), { recursive: true });
+    fs.writeFileSync(verifierDestinationPath, fs.readFileSync(verifierSourcePath, 'utf8'));
+
+    runGit(['add', '.'], fixtureRoot);
+    runGit(['commit', '-m', 'temp: disposable clean-state verifier proof'], fixtureRoot);
+    runGit(['checkout', '-B', BOOTSTRAP_BRANCH], fixtureRoot);
+
+    const head = runGit(['rev-parse', 'HEAD'], fixtureRoot);
+    assert.notEqual(head, baseSha, 'temporary commit must be non-empty');
+    assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
+    assert.equal(runGit(['rev-list', '--count', `${baseSha}..HEAD`], fixtureRoot), '1');
+    assert.equal(isWorktreeClean(fixtureRoot), true);
+    assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
+
+    return { fixtureParent, fixtureRoot, head, baseSha };
+  } catch (error) {
+    try {
+      if (fs.existsSync(fixtureParent)) {
+        fs.rmSync(fixtureParent, { recursive: true, force: true });
+      }
+    } catch {
+      // preserve the original construction failure as primary
+    }
+    throw error;
   }
-
-  runGit(['add', '.'], fixtureRoot);
-  runGit(['commit', '-m', 'temp: disposable fixture base commit'], fixtureRoot);
-  const baseSha = runGit(['rev-parse', 'HEAD'], fixtureRoot);
-
-  const registryText = buildRegistryText({
-    wt001Path: fixtureRoot,
-    branch: BOOTSTRAP_BRANCH,
-    baselineSha: baseSha,
-    headSha: baseSha,
-  });
-  fs.writeFileSync(path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), registryText);
-  const verifierDestinationPath = path.join(fixtureRoot, VERIFIER_REL_PATH);
-  fs.mkdirSync(path.dirname(verifierDestinationPath), { recursive: true });
-  fs.writeFileSync(verifierDestinationPath, fs.readFileSync(verifierSourcePath, 'utf8'));
-
-  runGit(['add', '.'], fixtureRoot);
-  runGit(['commit', '-m', 'temp: disposable clean-state verifier proof'], fixtureRoot);
-  runGit(['checkout', '-B', BOOTSTRAP_BRANCH], fixtureRoot);
-
-  const head = runGit(['rev-parse', 'HEAD'], fixtureRoot);
-  assert.notEqual(head, baseSha, 'temporary commit must be non-empty');
-  assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
-  assert.equal(runGit(['rev-list', '--count', `${baseSha}..HEAD`], fixtureRoot), '1');
-  assert.equal(isWorktreeClean(fixtureRoot), true);
-  assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
-
-  return { fixtureParent, fixtureRoot, head, baseSha };
 }
 
 function initRepoWithHistory() {
@@ -1786,181 +1805,211 @@ describe('clean-state disposable proof', () => {
     }
   });
 
+  it('removes owned fixtureParent when helper construction fails before return', () => {
+    const unrelatedSibling = fs.mkdtempSync(path.join(os.tmpdir(), 'm55-clean-proof-sibling-'));
+    const sentinelPath = path.join(unrelatedSibling, 'sentinel.txt');
+    const sentinelBytes = 'm55-unrelated-sibling-preservation-proof';
+    fs.writeFileSync(sentinelPath, sentinelBytes);
+    let capturedParent = null;
+    try {
+      assert.throws(
+        () =>
+          buildCleanStateDisposableFixture({
+            injectFailureAfterMkdtemp: (fixtureParent) => {
+              capturedParent = fixtureParent;
+              assert.notEqual(fixtureParent, unrelatedSibling);
+              assert.equal(path.dirname(fixtureParent), path.dirname(unrelatedSibling));
+              throw new Error('injected fixture construction failure');
+            },
+          }),
+        /injected fixture construction failure/,
+      );
+      assert.ok(capturedParent);
+      assert.equal(fs.existsSync(capturedParent), false);
+      assert.equal(fs.existsSync(unrelatedSibling), true);
+      assert.equal(fs.readFileSync(sentinelPath, 'utf8'), sentinelBytes);
+    } finally {
+      fs.rmSync(unrelatedSibling, { recursive: true, force: true });
+    }
+  });
+
   it(
     'preflight passes without drift warning on clean bootstrap descendant fixture',
     { timeout: 180000 },
     () => {
       const { fixtureParent, fixtureRoot, head, baseSha } = buildCleanStateDisposableFixture();
-      assert.notEqual(head, baseSha, 'temporary disposable commit must advance fixture HEAD');
-      assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
-      assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
+      try {
+        assert.notEqual(head, baseSha, 'temporary disposable commit must advance fixture HEAD');
+        assert.equal(runGit(['rev-parse', 'HEAD^'], fixtureRoot), baseSha);
+        assert.equal(isAncestorOrEqual(baseSha, head, fixtureRoot), true);
 
-      const worktreeList = spawnSync('git', ['worktree', 'list', '--porcelain'], {
-        cwd: fixtureRoot,
-        encoding: 'utf8',
-      });
-      assert.equal(worktreeList.status, 0);
-      const liveEntries = parseWorktreeListPorcelain(worktreeList.stdout);
-      assert.ok(liveEntries.length >= 1);
-      const entry = {
-        path: path.resolve(fixtureRoot),
-        branch: BOOTSTRAP_BRANCH,
-        head,
-        detached: false,
-      };
-      const registryText = fs.readFileSync(
-        path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'),
-        'utf8',
-      );
-      const currentStateText = fs.readFileSync(
-        path.join(fixtureRoot, 'docs/ssot/M55_CURRENT_STATE.md'),
-        'utf8',
-      );
+        const worktreeList = spawnSync('git', ['worktree', 'list', '--porcelain'], {
+          cwd: fixtureRoot,
+          encoding: 'utf8',
+        });
+        assert.equal(worktreeList.status, 0);
+        const liveEntries = parseWorktreeListPorcelain(worktreeList.stdout);
+        assert.ok(liveEntries.length >= 1);
+        const entry = {
+          path: path.resolve(fixtureRoot),
+          branch: BOOTSTRAP_BRANCH,
+          head,
+          detached: false,
+        };
+        const registryText = fs.readFileSync(
+          path.join(fixtureRoot, 'docs/ssot/M55_WORKTREE_REGISTRY.md'),
+          'utf8',
+        );
+        const currentStateText = fs.readFileSync(
+          path.join(fixtureRoot, 'docs/ssot/M55_CURRENT_STATE.md'),
+          'utf8',
+        );
 
-      const registryWithFence = `${registryText}\n \`\`\`md\n${expectedRegistryHeadingLine('WT-001')}\n \`\`\`\n`;
+        const registryWithFence = `${registryText}\n \`\`\`md\n${expectedRegistryHeadingLine('WT-001')}\n \`\`\`\n`;
 
-      const { warnings, logs } = evaluateWorktreePreflightWarnings(
-        [entry],
-        registryWithFence,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.equal(warnings.length, 0, warnings.join('; '));
-      assert.match(logs.join('\n'), /registry baseline snapshot/);
+        const { warnings, logs } = evaluateWorktreePreflightWarnings(
+          [entry],
+          registryWithFence,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.equal(warnings.length, 0, warnings.join('; '));
+        assert.match(logs.join('\n'), /registry baseline snapshot/);
 
-      const negativeMissingBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${baseSha}\` |`,
-        '',
-      );
-      const missingResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        negativeMissingBaseline,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(missingResult.warnings.join('\n'), /baseline missing|registry parser failure|snapshot preflight failed/i);
+        const negativeMissingBaseline = registryText.replace(
+          `| baseline | \`main\` @ \`${baseSha}\` |`,
+          '',
+        );
+        const missingResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          negativeMissingBaseline,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(missingResult.warnings.join('\n'), /baseline missing|registry parser failure|snapshot preflight failed/i);
 
-      const negativeDuplicateBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${baseSha}\` |`,
-        `| baseline | \`main\` @ \`${baseSha}\` |\n| baseline | \`main\` @ \`${baseSha}\` |`,
-      );
-      const duplicateResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        negativeDuplicateBaseline,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(duplicateResult.warnings.join('\n'), /baseline duplicate|registry parser failure|snapshot preflight failed/i);
+        const negativeDuplicateBaseline = registryText.replace(
+          `| baseline | \`main\` @ \`${baseSha}\` |`,
+          `| baseline | \`main\` @ \`${baseSha}\` |\n| baseline | \`main\` @ \`${baseSha}\` |`,
+        );
+        const duplicateResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          negativeDuplicateBaseline,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(duplicateResult.warnings.join('\n'), /baseline duplicate|registry parser failure|snapshot preflight failed/i);
 
-      const negativeInvalidBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${baseSha}\` |`,
-        '| baseline | broken |',
-      );
-      const invalidResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        negativeInvalidBaseline,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(invalidResult.warnings.join('\n'), /baseline invalid|registry parser failure|snapshot preflight failed/i);
+        const negativeInvalidBaseline = registryText.replace(
+          `| baseline | \`main\` @ \`${baseSha}\` |`,
+          '| baseline | broken |',
+        );
+        const invalidResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          negativeInvalidBaseline,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(invalidResult.warnings.join('\n'), /baseline invalid|registry parser failure|snapshot preflight failed/i);
 
-      const duplicateHeading = registryText.replace(
-        '### WT-001 — PRIMARY_MAIN_HOME',
-        '### WT-001 — PRIMARY_MAIN_HOME\n### WT-001 — PRIMARY_MAIN_HOME',
-      );
-      const duplicateHeadingResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        duplicateHeading,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(duplicateHeadingResult.warnings.join('\n'), /heading duplicate/i);
+        const duplicateHeading = registryText.replace(
+          '### WT-001 — PRIMARY_MAIN_HOME',
+          '### WT-001 — PRIMARY_MAIN_HOME\n### WT-001 — PRIMARY_MAIN_HOME',
+        );
+        const duplicateHeadingResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          duplicateHeading,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(duplicateHeadingResult.warnings.join('\n'), /heading duplicate/i);
 
-      const malformedHeading = registryText.replace(
-        '### WT-009 — Build Week Control Plane (operational freeze)',
-        '### WT-009 extra',
-      );
-      const malformedHeadingResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        malformedHeading,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(malformedHeadingResult.warnings.join('\n'), /heading malformed/i);
+        const malformedHeading = registryText.replace(
+          '### WT-009 — Build Week Control Plane (operational freeze)',
+          '### WT-009 extra',
+        );
+        const malformedHeadingResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          malformedHeading,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(malformedHeadingResult.warnings.join('\n'), /heading malformed/i);
 
-      const arbitraryBaseline = registryText.replace(
-        `| baseline | \`main\` @ \`${baseSha}\` |`,
-        `| baseline | note \`main\` @ \`${baseSha}\` |`,
-      );
-      const arbitraryBaselineResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        arbitraryBaseline,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(arbitraryBaselineResult.warnings.join('\n'), /baseline invalid|registry parser failure|snapshot preflight failed/i);
+        const arbitraryBaseline = registryText.replace(
+          `| baseline | \`main\` @ \`${baseSha}\` |`,
+          `| baseline | note \`main\` @ \`${baseSha}\` |`,
+        );
+        const arbitraryBaselineResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          arbitraryBaseline,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(arbitraryBaselineResult.warnings.join('\n'), /baseline invalid|registry parser failure|snapshot preflight failed/i);
 
-      const wrongPurpose = registryText.replace(
-        '| purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |',
-        '| purpose | **WRONG** |',
-      );
-      const wrongPurposeResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        wrongPurpose,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(wrongPurposeResult.warnings.join('\n'), /WT-009 registry metadata validation failed/i);
+        const wrongPurpose = registryText.replace(
+          '| purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |',
+          '| purpose | **WRONG** |',
+        );
+        const wrongPurposeResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          wrongPurpose,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(wrongPurposeResult.warnings.join('\n'), /WT-009 registry metadata validation failed/i);
 
-      const invalidLabel = registryText.replace(
-        expectedRegistryHeadingLine('WT-001'),
-        '### WT-001 — arbitrary text',
-      );
-      const invalidLabelResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        invalidLabel,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(invalidLabelResult.warnings.join('\n'), /invalid label/i);
+        const invalidLabel = registryText.replace(
+          expectedRegistryHeadingLine('WT-001'),
+          '### WT-001 — arbitrary text',
+        );
+        const invalidLabelResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          invalidLabel,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(invalidLabelResult.warnings.join('\n'), /invalid label/i);
 
-      const unclosedFence = `${registryText}\n\`\`\`md\nexample\n`;
-      const unclosedFenceResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        unclosedFence,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(unclosedFenceResult.warnings.join('\n'), /unclosed/i);
+        const unclosedFence = `${registryText}\n\`\`\`md\nexample\n`;
+        const unclosedFenceResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          unclosedFence,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(unclosedFenceResult.warnings.join('\n'), /unclosed/i);
 
-      const falseCloseOnly = `${registryText}\n\`\`\`\n${expectedRegistryHeadingLine('WT-001')}\n\`\`\` trailing\n`;
-      const falseCloseResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        falseCloseOnly,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.match(falseCloseResult.warnings.join('\n'), /unclosed/i);
+        const falseCloseOnly = `${registryText}\n\`\`\`\n${expectedRegistryHeadingLine('WT-001')}\n\`\`\` trailing\n`;
+        const falseCloseResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          falseCloseOnly,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.match(falseCloseResult.warnings.join('\n'), /unclosed/i);
 
-      const fourSpaceOpener = `${registryText}\n    \`\`\`\n    ${expectedRegistryHeadingLine('WT-001')}\n`;
-      const fourSpaceResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        fourSpaceOpener,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.equal(fourSpaceResult.warnings.length, 0, fourSpaceResult.warnings.join('; '));
+        const fourSpaceOpener = `${registryText}\n    \`\`\`\n    ${expectedRegistryHeadingLine('WT-001')}\n`;
+        const fourSpaceResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          fourSpaceOpener,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.equal(fourSpaceResult.warnings.length, 0, fourSpaceResult.warnings.join('; '));
 
-      const invalidOpener = `${registryText}\n\`\`\`not\`valid\n    ${expectedRegistryHeadingLine('WT-001')}\n`;
-      const invalidOpenerResult = evaluateWorktreePreflightWarnings(
-        [entry],
-        invalidOpener,
-        currentStateText,
-        fixtureRoot,
-      );
-      assert.equal(invalidOpenerResult.warnings.length, 0, invalidOpenerResult.warnings.join('; '));
-
-      fs.rmSync(fixtureParent, { recursive: true, force: true });
+        const invalidOpener = `${registryText}\n\`\`\`not\`valid\n    ${expectedRegistryHeadingLine('WT-001')}\n`;
+        const invalidOpenerResult = evaluateWorktreePreflightWarnings(
+          [entry],
+          invalidOpener,
+          currentStateText,
+          fixtureRoot,
+        );
+        assert.equal(invalidOpenerResult.warnings.length, 0, invalidOpenerResult.warnings.join('; '));
+      } finally {
+        fs.rmSync(fixtureParent, { recursive: true, force: true });
+      }
     },
   );
 });
@@ -2115,45 +2164,17 @@ describe('WT-010 ACTIVE lane bootstrapStartHead preflight', () => {
   });
 
   it('PASSes full topology when live HEAD descends from bootstrapStartHead', () => {
-    if (!gitObjectExists(WT010_EXPECTED_BOOTSTRAP_START_HEAD, REPO_ROOT)) {
-      return;
-    }
-    if (!gitObjectExists(WT010_LIVE_HEAD, REPO_ROOT)) {
-      return;
-    }
-    assert.equal(
-      isAncestorOrEqual(WT010_EXPECTED_BOOTSTRAP_START_HEAD, WT010_LIVE_HEAD, REPO_ROOT),
-      true,
+    const liveEntries = liveEntriesFromTopology();
+    const registryText = buildFullNineEntryRegistryText();
+    const currentStateText = buildCurrentState();
+    const gitInspector = buildStaticNineEntryGitInspector(liveEntries);
+    const { warnings } = evaluateWorktreePreflightWarnings(
+      liveEntries,
+      registryText,
+      currentStateText,
+      '/fixture/nonexistent-git-root',
+      { requireFullTopology: true, gitInspector },
     );
-    const registry = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_WORKTREE_REGISTRY.md'), 'utf8');
-    const currentState = fs.readFileSync(path.join(REPO_ROOT, 'docs/ssot/M55_CURRENT_STATE.md'), 'utf8');
-    const live = LIVE_TOPOLOGY_ENTRIES.map((entry) => {
-      if (entry.path === '/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1') {
-        return {
-          ...entry,
-          head: 'fda934d8f31da715d3a4fb35681c7b3dff3dd41d',
-          detached: false,
-        };
-      }
-      return { ...entry, detached: false };
-    });
-    const baseInspector = createDefaultGitInspector();
-    // Growth WT-011 may exist on the host machine while the static nine-entry LIVE
-    // topology fixture does not include it. Exclude it from live-required symmetry.
-    const growthPath = '/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1';
-    const gitInspector = {
-      ...baseInspector,
-      registryPathExists: (candidatePath) => {
-        if (candidatePath === growthPath) return false;
-        return typeof baseInspector.registryPathExists === 'function'
-          ? baseInspector.registryPathExists(candidatePath)
-          : fs.existsSync(candidatePath);
-      },
-    };
-    const { warnings } = evaluateWorktreePreflightWarnings(live, registry, currentState, REPO_ROOT, {
-      requireFullTopology: true,
-      gitInspector,
-    });
     assert.equal(warnings.length, 0, warnings.join('; '));
   });
 });
