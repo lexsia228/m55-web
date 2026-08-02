@@ -26,6 +26,40 @@ const CLI_MODULES = [
   'run-production-observation.mjs',
 ];
 
+const PA_SOURCE_DIR = path.join(repoRoot, 'scripts/product-authority');
+
+const AUTHORIZED_VERSION_MODULE_CONSUMERS = [
+  'scripts/product-authority/validate.mjs',
+  'scripts/product-authority/generate.mjs',
+];
+
+const PA1_PRODUCTION_MODULES = [
+  'production-observation-contract.mjs',
+  'production-observation.mjs',
+  'observe-production-diagnostics.mjs',
+  'apply-production-observation.mjs',
+  'run-production-observation.mjs',
+];
+
+/** @param {string} source */
+function importSpecifiers(source) {
+  const specs = [];
+  for (const match of source.matchAll(/^\s*import\s+[\s\S]*?\sfrom\s+['"]([^'"]+)['"]/gm)) {
+    specs.push(match[1]);
+  }
+  return specs;
+}
+
+/** @param {string} fileName */
+function readPaSource(fileName) {
+  return readFileSync(path.join(PA_SOURCE_DIR, fileName), 'utf8');
+}
+
+/** @param {string} source */
+function importsVersionModule(source) {
+  return importSpecifiers(source).some((spec) => spec.endsWith('product-authority-versions.mjs'));
+}
+
 const HTTPS_SENTINEL = new Error('HTTPS_STUB');
 const FS_WRITE_SENTINEL = new Error('FS_WRITE_STUB');
 const PA1_RUNTIME = /product-authority\/(observe-production-diagnostics|apply-production-observation|run-production-observation|production-observation)\.mjs/;
@@ -166,18 +200,51 @@ test('PA-1 imports are fail-closed with zero network writes output or exit mutat
   }
 });
 
-test('dependency graph is acyclic and apply does not import validate.mjs', async () => {
-  const applySource = readFileSync(
-    path.join(repoRoot, 'scripts/product-authority/apply-production-observation.mjs'),
-    'utf8',
-  );
+test('dependency graph preserves PA-1 isolation and authorizes PA-2A version consumers', async () => {
+  const applySource = readPaSource('apply-production-observation.mjs');
   assert.equal(applySource.includes('validate.mjs'), false);
-  const versionsSource = readFileSync(
-    path.join(repoRoot, 'scripts/product-authority/validate.mjs'),
-    'utf8',
+  assert.equal(applySource.includes('generate.mjs'), false);
+
+  const validateSource = readPaSource('validate.mjs');
+  assert.match(validateSource, /from '\.\/product-authority-versions\.mjs'/);
+  assert.match(validateSource, /GENERATOR_VERSION/);
+  assert.match(validateSource, /HANDOFF_SCHEMA_VERSION/);
+  assert.match(validateSource, /LOCK_SCHEMA_VERSION/);
+  assert.equal(validateSource.includes("GENERATOR_VERSION = '"), false);
+  assert.equal(validateSource.includes('production-observation.mjs'), false);
+
+  const generateSource = readPaSource('generate.mjs');
+  assert.match(generateSource, /from '\.\/product-authority-versions\.mjs'/);
+  assert.match(
+    generateSource,
+    /import\s*\{[^}]+\}\s*from\s*['"]\.\/product-authority-versions\.mjs['"]/,
   );
-  assert.equal(versionsSource.includes('product-authority-versions.mjs'), false);
-  assert.equal(versionsSource.includes('production-observation.mjs'), false);
+  assert.equal(generateSource.includes("GENERATOR_VERSION = '"), false);
+
+  const productionSources = fs
+    .readdirSync(PA_SOURCE_DIR)
+    .filter((name) => name.endsWith('.mjs'))
+    .map((name) => `scripts/product-authority/${name}`);
+
+  const actualVersionConsumers = productionSources.filter((relPath) =>
+    importsVersionModule(readFileSync(path.join(repoRoot, relPath), 'utf8')),
+  );
+  assert.deepEqual(actualVersionConsumers.sort(), [...AUTHORIZED_VERSION_MODULE_CONSUMERS].sort());
+
+  for (const fileName of PA1_PRODUCTION_MODULES) {
+    const source = readPaSource(fileName);
+    assert.equal(source.includes('validate.mjs'), false, `${fileName} must not import validate.mjs`);
+    assert.equal(source.includes('generate.mjs'), false, `${fileName} must not import generate.mjs`);
+  }
+
+  const observerSource = readPaSource('observe-production-diagnostics.mjs');
+  assert.equal(observerSource.includes('apply-production-observation.mjs'), false);
+  assert.equal(importSpecifiers(observerSource).includes('./apply-production-observation.mjs'), false);
+
+  const coordinatorSource = readPaSource('run-production-observation.mjs');
+  assert.match(coordinatorSource, /from '\.\/apply-production-observation\.mjs'/);
+  assert.equal(coordinatorSource.includes('validate.mjs'), false);
+  assert.equal(coordinatorSource.includes('generate.mjs'), false);
 });
 
 test('package scripts include observer and coordinator only', () => {

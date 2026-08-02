@@ -43,8 +43,8 @@ Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
 authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
 observationsSha256: 8b37ff59842b8675e466683edf37a376109b26abfd945b3a7934b487e59152c5
 historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
-generatedBundleSha256: d3c8b9c1f809913af96c6c2d21e01916ae36335ce3a2f480363630464c60adb9
-artifactSha256: 916c065795df4fe1319b15c6021671213b5807f3f5d34ea738875012c1b1e276
-generatorVersion: 1.0.0
+generatedBundleSha256: 3e95cd02bb338504a4330dd0b37e3fd60d5d8d0b9539f2fc1d67f638cd856ee8
+artifactSha256: 73eb50e38e85109238e7b3928e5c87962216da841bad0537c01e6d052413461c
+generatorVersion: 1.1.0
 generatedAt: 2026-07-27T09:56:00+00:00
 <!-- PRODUCT_AUTHORITY_METADATA_END -->

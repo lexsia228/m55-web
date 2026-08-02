@@ -8,11 +8,15 @@ import {
   readAuthority,
   buildArtifactRecord,
   appendMetadataBlock,
-  GENERATOR_VERSION,
   SOURCE_PATHS,
   GENERATED_ARTIFACT_PATHS,
   LOCK_PATH,
 } from './validate.mjs';
+import {
+  GENERATOR_VERSION,
+  HANDOFF_SCHEMA_VERSION,
+  LOCK_SCHEMA_VERSION,
+} from './product-authority-versions.mjs';
 
 /**
  * @param {Record<string, string>} hashes
@@ -228,24 +232,23 @@ Hashes:
 function renderHandoffJsonBody(authority, observations, hashes, generatedAt) {
   const lanes = readLaneStatuses(observations);
   const handoff = {
-    schemaVersion: '1.0.0',
-    generatorVersion: GENERATOR_VERSION,
-    generatedAt,
     authoritySha256: hashes.authoritySha256,
-    observationsSha256: hashes.observationsSha256,
+    generatedAt,
+    generatorVersion: GENERATOR_VERSION,
+    growthShareDelivery: {
+      pr81: mergeStatusFromObservations(observations),
+    },
     historySha256: hashes.historySha256,
-    sourcePaths: [...SOURCE_PATHS],
-    productId: /** @type {{ value: string }} */ (authority.product.id).value,
     lanes: {
       authorityPack: lanes.authorityPack,
       selfFunnel: lanes.selfFunnel,
       growthShare: lanes.growthShare,
       buildWeek: lanes.buildWeek,
     },
-    growthShareDelivery: {
-      pr81: mergeStatusFromObservations(observations),
-      productionDeployed: false,
-    },
+    observationsSha256: hashes.observationsSha256,
+    productId: /** @type {{ value: string }} */ (authority.product.id).value,
+    schemaVersion: HANDOFF_SCHEMA_VERSION,
+    sourcePaths: [...SOURCE_PATHS],
   };
   return `${canonicalStringify(handoff)}\n`;
 }
@@ -317,7 +320,7 @@ export function generateProductAuthority(root) {
   }
 
   const lock = {
-    schemaVersion: '1.0.0',
+    schemaVersion: LOCK_SCHEMA_VERSION,
     generatorVersion: GENERATOR_VERSION,
     generatedAt,
     authoritySha256: hashes.authoritySha256,
