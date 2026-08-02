@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-27** (CATEGORY-2 Growth Share authority state reconciliation REV1 — verification-time snapshot)
+Last verified: **2026-07-27** (CATEGORY-2 Growth Share authority state reconciliation REV1 — verification-time snapshot); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff — WT-011 closure + WT-012 registration; see notes below)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -17,8 +17,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **PR #76 merge commit (historical):** `38447ab1b39562606938936ce0da3d5a76d82c1b` — **not** current live remote main
 - **PR #77 post-merge transition feature HEAD:** `6ad4e14ba7bbce65a3bac04a38bcdcbdbf461d7e` — squash source for PR #77; **not** current live remote main
 - **PR #79 Authority Pack merge (historical):** `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — **not** current live remote main
-- **Current live remote main (2026-07-27):** `696559009367a6ac445dc7a07876590b16cd8488` — PR #80 Self funnel operational baseline merge
+- **Historical snapshot label (valid through 2026-07-31 only) — `696559009367a6ac445dc7a07876590b16cd8488`:** PR #80 Self funnel operational baseline merge; **not** current live remote main as of 2026-08-01 — see the current bullet immediately below
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
+- **Current live remote main (2026-08-01, present authority):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — PR #81 Self funnel Growth / share merge; Production diagnostics confirms `vercel_git_sha=bf5ef09…`, `vercel_env=production`, `vercel_branch=main`
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -31,7 +32,11 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**Current fact (2026-07-27):** WT-011 is the sole **ACTIVE** implementation lane (Self funnel Growth / share on `feat/m55-self-funnel-growth-share-v1`; live HEAD validated as descendant of reviewed implementation tip `d7af28a…`; PR #81 unmerged). WT-001 Self funnel operational baseline is **COMPLETED** (PR #80 merged; Production classified `OPERATIONAL_BASELINE`). WT-010 Product Authority Pack is **COMPLETED** (PR #79 merged; retained infrastructure). WT-006 paid-lp remains **PAUSED**. WT-009 Build Week remains **FROZEN**.
+**CURRENT (2026-08-01) — authoritative, read this first:** PR #81 is **MERGED** (`bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`, merged at `2026-08-01T08:38:25Z`). **No worktree currently holds an ACTIVE product-implementation lane.** WT-011 Self funnel Growth / share implementation is **COMPLETED**; it is **no longer** the ACTIVE implementation lane, and PR #81 is **no longer unmerged**. Worktree and branch are **retained temporarily** for new-thread handoff verification and a separately authorized closeout — no further implementation is permitted there. WT-012 (`/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1`, `chore/m55-pr81-post-merge-transition-v1`) is registered as **ACTIVE DOCS-ONLY TRANSITION** (not a product implementation lane). WT-001, WT-006, WT-009, WT-010 statuses are unchanged from the historical snapshot below.
+
+> **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
+>
+> WT-011 was, at that time, the sole ACTIVE implementation lane (Self funnel Growth / share on `feat/m55-self-funnel-growth-share-v1`; live HEAD validated as descendant of reviewed implementation tip `d7af28a…`; PR #81 was unmerged at that time). WT-001 Self funnel operational baseline was **COMPLETED** (PR #80 merged; Production classified `OPERATIONAL_BASELINE`). WT-010 Product Authority Pack was **COMPLETED** (PR #79 merged; retained infrastructure). WT-006 paid-lp remained **PAUSED**. WT-009 Build Week remained **FROZEN**.
 
 ### Lifecycle status values
 
@@ -41,7 +46,11 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 
 ### Documented post-merge transition (historical)
 
-Historical post-merge transition snapshots remain recorded for audit. WT-011 is the **ACTIVE Growth Share** implementation lane after Self funnel operational baseline merge.
+Historical post-merge transition snapshots remain recorded for audit.
+
+> **HISTORICAL, valid through 2026-07-31:** at that time, WT-011 was the ACTIVE Growth Share implementation lane after the Self funnel operational baseline merge.
+
+**CURRENT (2026-08-01):** WT-011 Growth Share implementation is **COMPLETED** — PR #81 **MERGED**. It is **not** an ACTIVE implementation lane. See the table below for the full merge sequence including this transition.
 
 | Phase | branch | HEAD | Agent action |
 |---|---|---|---|
@@ -51,7 +60,8 @@ Historical post-merge transition snapshots remain recorded for audit. WT-011 is 
 | Documented post-merge transition branch (preserved) | `chore/m55-worktree-registry-post-merge-transition-rev1` | `6ad4e14…` | PR #77 feature HEAD; docs-only transition — **preserved historical** |
 | Authority Pack PR #79 merge | `main` (remote) | `355462b…` | **MERGED** — Product Authority Pack complete |
 | Self funnel PR #80 merge | `main` (remote) | `6965590…` | **MERGED** — Self free→Premium **OPERATIONAL_BASELINE** |
-| Current (Self funnel Growth lane) | `feat/m55-self-funnel-growth-share-v1` | live HEAD (Git) | Descendant of reviewed tip `d7af28a…` · PR #81 unmerged |
+| Self funnel Growth PR #81 merge | `main` (remote) | `bf5ef09…` | **MERGED** (2026-08-01T08:38:25Z) — Self funnel Growth / share (WT-011) commercial + technical closure complete; feature head `6770c40…`; pre-merge main `110fa79…` |
+| Current (PR #81 post-merge docs-only transition) | `chore/m55-pr81-post-merge-transition-v1` | live HEAD (Git) | WT-012 — SSOT reconciliation + ChatGPT thread handoff; **not** a new implementation lane |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -67,7 +77,7 @@ Historical post-merge transition snapshots remain recorded for audit. WT-011 is 
 | branch | `feat/m55-self-free-to-premium-funnel-v1` |
 | HEAD | `fda934d8f31da715d3a4fb35681c7b3dff3dd41d` |
 | baseline | `main` @ `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` |
-| current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
+| current origin/main (2026-07-27 verification-time snapshot; not current as of 2026-08-01 — see `bf5ef09f…` in "Production main authority" above) | `696559009367a6ac445dc7a07876590b16cd8488` |
 | upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` @ `fda934d…` |
 | cleanliness | **clean** |
 | locked / prunable | none |
@@ -75,12 +85,12 @@ Historical post-merge transition snapshots remain recorded for audit. WT-011 is 
 | operational state | **OPERATIONAL_BASELINE_MERGED** |
 | purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged; reference only) |
 | related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · backup `refs/backup/m55-self-funnel-pre-main-sync-rev1` retained |
-| product implementation authorized | **false** for new growth work — use WT-011 |
+| product implementation authorized | **false** — no new Growth work and no further Self Funnel implementation authorized from this worktree; WT-011 Growth/share is **COMPLETED** (PR #81 MERGED) and must **not** receive new implementation |
 | allowed operations | read-only inspection · historical baseline reference |
-| prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits |
+| prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits · routing new product work to WT-011 |
 | removal eligibility | NO — retain as PRIMARY_MAIN_HOME / merged baseline reference |
-| next gate | Growth work on WT-011 only |
-| notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. |
+| next gate | none for product implementation — current ACTIVE worktree is **WT-012** (docs-only residual SSOT correction / independent review only); Product Authority reconciliation is later and separate; Pair (二人向け無料→有料) remains planned only / not authorized / not started |
+| notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. Do **not** restart Growth or Self Funnel implementation on WT-011. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -278,28 +288,72 @@ Historical post-merge transition snapshots remain recorded for audit. WT-011 is 
 
 ### WT-011 — Self funnel Growth / share lane
 
+**CURRENT (2026-08-01) — PR #81 MERGED; this lane is COMPLETED, not ACTIVE.**
+
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` |
 | branch | `feat/m55-self-funnel-growth-share-v1` |
-| implementationReviewedTip | `d7af28a59755076b6269e93edfba03297eb98084` |
-| liveHeadSource | Git |
-| headValidation | DESCENDANT_OF_REVIEWED_IMPLEMENTATION_TIP |
-| baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` |
-| current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
-| upstream | `origin/feat/m55-self-funnel-growth-share-v1` — remote feature ref must equal live local HEAD |
-| cleanliness | **clean** (verification-time snapshot) |
+| feature head | `6770c40ac52ce5e222e4f485b8c9c83aa3814d48` |
+| merge commit | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — **MERGED** at `2026-08-01T08:38:25Z` |
+| pre-merge main | `110fa79fe45ef24481a7fd1fd8e19cebbcb98d39` |
+| upstream | `origin/feat/m55-self-funnel-growth-share-v1` — remote feature ref equals live local HEAD `6770c40…` (unchanged post-merge; retained temporarily) |
+| cleanliness | **clean** (verification-time snapshot, 2026-08-01) |
+| locked / prunable | none |
+| lifecycle | **COMPLETED** — PR #81 MERGED; **not** ACTIVE; **not** the current implementation lane |
+| operational state | **RETAINED_FOR_HANDOFF_VERIFICATION** |
+| purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation — **completed** |
+| related lane / PR | Base: PR #80 **MERGED** · [PR #81](https://github.com/lexsia228/m55-web/pull/81) **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (2026-08-01T08:38:25Z) — **not** unmerged |
+| product implementation authorized | **false** — implementation complete; retained for handoff verification only |
+| retention reason | new-thread handoff verification and separately authorized closeout |
+| allowed operations | read-only inspection · new-thread handoff verification |
+| prohibited operations | further implementation · Stripe / webhook / DB / Clerk / env / Pair runtime · live purchase · append to merged PR #80 or PR #81 branches |
+| removal eligibility | **NO** — retained temporarily pending new-thread handoff verification and a separately authorized closeout; not yet eligible for worktree/branch deletion |
+| next gate | **no product implementation** — retained temporarily for verified context-import closeout only; new-thread cutover remains prohibited until Product Authority reconciliation; do **not** route new Growth / Self Funnel / active development here |
+| Production status | Growth code **is now Production** (merged via PR #81) |
+| notes | `implementationReviewedTip` (historical field, see snapshot below) records the reviewed Growth Share implementation baseline (`d7af28a…`) — **not** a permanently current branch HEAD. Authority-only descendant commits passed preflight without registry SHA self-invalidation. Historical Commit 2 provenance `b710dc543c02572a038170feb562a0a6514a313f`. |
+
+> **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT table above. Do not treat any field below as current.**
+>
+> | Field (as of 2026-07-27) | Value (as of 2026-07-27) |
+> |---|---|
+> | implementationReviewedTip | `d7af28a59755076b6269e93edfba03297eb98084` |
+> | liveHeadSource | Git |
+> | headValidation | DESCENDANT_OF_REVIEWED_IMPLEMENTATION_TIP |
+> | baseline | `main` @ `696559009367a6ac445dc7a07876590b16cd8488` |
+> | current origin/main | `696559009367a6ac445dc7a07876590b16cd8488` |
+> | lifecycle | `ACTIVE` — superseded 2026-08-01, now `COMPLETED` |
+> | operational state | `GROWTH_SITEWIDE_COMMERCIAL_AUDIT_THEN_UNIFIED_UX` — superseded 2026-08-01, now `RETAINED_FOR_HANDOFF_VERIFICATION` |
+> | related lane / PR | PR #81 **unmerged** / branch-local — superseded 2026-08-01, now **MERGED** |
+> | product implementation authorized | `true` for Growth scope only — superseded 2026-08-01, now `false` |
+> | Production status (as of 2026-07-27) | "Growth code is not Production" — superseded 2026-08-01, Growth code is now Production |
+
+### WT-012 — PR #81 post-merge SSOT and thread handoff
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` |
+| branch | `chore/m55-pr81-post-merge-transition-v1` |
+| branch creation base (`origin/main` at worktree creation) | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — **immutable**; PR #81 product-implementation merge commit; **not** this branch's current HEAD; later docs-only commits do not redefine the product implementation baseline |
+| configured upstream (`@{upstream}`) | `origin/main` — verified via `git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'` |
+| same-name remote branch (`origin/chore/m55-pr81-post-merge-transition-v1`) | **absent** — `git ls-remote --heads origin chore/m55-pr81-post-merge-transition-v1` returned empty; do **not** conflate configured upstream=`origin/main` with existence of a same-name remote feature branch |
+| push authorization | **none** in this gate — no push / PR / merge |
+| Pre-corrective reviewed HEAD (first docs-only commit) | `4552cb23cc01b1f27b0e1d360d8dc6594aa9a3fb` |
+| Current starting HEAD for residual-ambiguity corrective gate | `86d6f8fdfa6c92586eefe7756e68aa8084b01667` (second docs-only commit; boundary correction) |
+| Final live HEAD after this residual corrective commit | **live HEAD (Git)** — advances by exactly one commit from `86d6f8fd…`; verify via `git rev-parse HEAD`; do not fabricate this commit's SHA inside this file |
+| divergence from `origin/main` (at start of this residual corrective gate) | 0 behind / 2 ahead; after this residual corrective commit: 0 behind / 3 ahead |
+| cleanliness | **clean** (verification-time snapshot, 2026-08-01) |
 | locked / prunable | none |
 | lifecycle | **ACTIVE** |
-| operational state | **GROWTH_SITEWIDE_COMMERCIAL_AUDIT_THEN_UNIFIED_UX** |
-| purpose | Sitewide commercial consistency audit → unified Growth Share commercial UX implementation |
-| related lane / PR | Base: PR #80 **MERGED** · [PR #81](https://github.com/lexsia228/m55-web/pull/81) **unmerged** / branch-local |
-| product implementation authorized | **true** for Growth scope only |
-| allowed operations | authority/docs reconciliation · sitewide commercial audit · Growth UX implementation · Human visual review |
-| prohibited operations | Stripe / webhook / DB / Clerk / env / Pair runtime · live purchase · append to merged PR #80 branch |
-| removal eligibility | NO while ACTIVE |
-| next gate | sitewide commercial UX audit → unified implementation → Human review |
-| notes | `implementationReviewedTip` records the reviewed Growth Share implementation baseline (`d7af28a…`) — **not** a permanently current branch HEAD. Authority-only descendant commits pass preflight without registry SHA self-invalidation. Historical Commit 2 provenance `b710dc543c02572a038170feb562a0a6514a313f`. Growth code is not Production. |
+| operational state | **ACTIVE DOCS-ONLY TRANSITION** — only current ACTIVE worktree; docs-only; no source implementation |
+| purpose | SSOT reconciliation · post-merge record · ChatGPT thread handoff · residual ambiguity correction (this record) · independent review |
+| related lane / PR | Follows merged [PR #81](https://github.com/lexsia228/m55-web/pull/81) @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; not itself a PR at creation of this record |
+| product implementation authorized | **false** — docs-only; no source/test/workflow change authorized; Product Authority reconciliation is later and separate; new-thread cutover remains prohibited |
+| allowed operations | `docs/ssot/**` residual correction (allowlisted files only) |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 or WT-011 worktrees · push / PR / merge / rebase / amend / reset · Production mutation · Pair implementation |
+| removal eligibility | deferred — retain until new-thread context-import verification passes and WT-011 closeout is separately authorized |
+| next gate | this residual corrective commit (`docs(m55): remove residual PR81 handoff ambiguity`); no push; then independent diff-only review |
+| notes | Created to execute `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-AND-THREAD-HANDOFF-IMPLEMENTATION-REV1`; boundary-corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-CORRECTIVE-PATCH-REV1`; residual ambiguity corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-RESIDUAL-AMBIGUITY-CORRECTIVE-PATCH-REV2`. Branch creation base verified as `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. |
 
 ---
 
