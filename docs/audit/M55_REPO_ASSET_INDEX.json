@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-01T22:09:51.100119+00:00",
-  "count": 687,
+  "generated_at_utc": "2026-08-02T22:09:02.018634+00:00",
+  "count": 689,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -85,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 10618
+      "bytes": 20991
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -95,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 4407
+      "bytes": 9649
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -2178,6 +2178,16 @@
       "bytes": 6724
     },
     {
+      "path": "docs/ssot/M55_PR81_NEW_THREAD_BOOTSTRAP_2026-08-01.md",
+      "category": "ssot",
+      "bytes": 13897
+    },
+    {
+      "path": "docs/ssot/M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md",
+      "category": "ssot",
+      "bytes": 22181
+    },
+    {
       "path": "docs/ssot/M55_PRODUCT_TRUTH.md",
       "category": "ssot",
       "bytes": 2055
@@ -3020,7 +3030,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 4804
+      "bytes": 7417
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3100,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 21073
+      "bytes": 29168
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3295,12 +3305,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 108808
+      "bytes": 109056
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 73181
+      "bytes": 73325
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
