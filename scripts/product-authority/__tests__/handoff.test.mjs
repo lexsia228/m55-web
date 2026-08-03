@@ -6,6 +6,148 @@ import { generateProductAuthority } from '../generate.mjs';
 import { verifyProductAuthority, LOCK_PATH } from '../validate.mjs';
 import { bootstrapFixture } from '../generate.mjs';
 import { cleanupTempRoot, makeTempRoot } from '../history.mjs';
+import {
+  GENERATOR_VERSION,
+  HANDOFF_SCHEMA_VERSION,
+} from '../product-authority-versions.mjs';
+import { readAuthority } from '../validate.mjs';
+import { readObservations } from '../observations.mjs';
+import { canonicalStringify } from '../canonical-json.mjs';
+
+const HANDOFF_TOP_LEVEL_KEYS = [
+  'artifactSha256',
+  'authoritySha256',
+  'generatedAt',
+  'generatedBundleSha256',
+  'generatorVersion',
+  'growthShareDelivery',
+  'historySha256',
+  'lanes',
+  'observationsSha256',
+  'productId',
+  'schemaVersion',
+  'sourcePaths',
+];
+
+const ARTIFACT_HASH_MISMATCH_PREFIX = 'artifact hash mismatch: ';
+const HANDOFF_JSON_ARTIFACT_PATH = '.product-authority/generated/handoff.json';
+const HANDOFF_JSON_ARTIFACT_HASH_ERROR = `${ARTIFACT_HASH_MISMATCH_PREFIX}${HANDOFF_JSON_ARTIFACT_PATH}`;
+
+/** @param {string[]} errors */
+function firstArtifactHashMismatchIndex(errors) {
+  return errors.findIndex((error) => error.startsWith(ARTIFACT_HASH_MISMATCH_PREFIX));
+}
+
+test('handoff json schemaVersion and generatorVersion use centralized constants', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
+    assert.equal(handoff.schemaVersion, HANDOFF_SCHEMA_VERSION);
+    assert.equal(handoff.schemaVersion, '2.0.0');
+    assert.equal(handoff.generatorVersion, GENERATOR_VERSION);
+    assert.equal(handoff.generatorVersion, '1.1.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff json canonical top-level key order is exact', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const raw = fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8').trim();
+    const handoff = JSON.parse(raw);
+    assert.deepEqual(Object.keys(handoff), HANDOFF_TOP_LEVEL_KEYS);
+    assert.equal(raw, canonicalStringify(handoff));
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff growthShareDelivery contains only pr81 and excludes productionDeployed', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
+    assert.deepEqual(Object.keys(handoff.growthShareDelivery), ['pr81']);
+    assert.equal('productionDeployed' in handoff.growthShareDelivery, false);
+    assert.equal('production' in handoff, false);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff source inputs remain schemaVersion 1.0.0', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    assert.equal(readAuthority(tempRoot).schemaVersion, '1.0.0');
+    assert.equal(readObservations(tempRoot).schemaVersion, '1.0.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff schemaVersion mismatch fails before artifact hash mismatch', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const handoffPath = path.join(tempRoot, '.product-authority/generated/handoff.json');
+    const originalHandoff = JSON.parse(fs.readFileSync(handoffPath, 'utf8'));
+    const handoff = structuredClone(originalHandoff);
+    handoff.schemaVersion = '9.9.9';
+    assert.deepEqual(
+      { ...handoff, schemaVersion: originalHandoff.schemaVersion },
+      originalHandoff,
+    );
+    assert.equal(handoff.artifactSha256, originalHandoff.artifactSha256);
+    assert.equal(handoff.generatorVersion, originalHandoff.generatorVersion);
+    assert.deepEqual(handoff.growthShareDelivery, originalHandoff.growthShareDelivery);
+    fs.writeFileSync(handoffPath, `${JSON.stringify(handoff, null, 2)}\n`, 'utf8');
+    const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+    assert.equal(result.ok, false);
+    const versionError = 'handoff schemaVersion mismatch';
+    const versionIndex = result.errors.indexOf(versionError);
+    const firstArtifactHashIndex = firstArtifactHashMismatchIndex(result.errors);
+    assert.ok(versionIndex >= 0, result.errors.join('; '));
+    assert.ok(firstArtifactHashIndex >= 0, result.errors.join('; '));
+    assert.equal(result.errors[firstArtifactHashIndex], HANDOFF_JSON_ARTIFACT_HASH_ERROR);
+    assert.ok(versionIndex < firstArtifactHashIndex, result.errors.join('; '));
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('handoff generatorVersion mismatch fails before artifact hash mismatch', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const handoffPath = path.join(tempRoot, '.product-authority/generated/handoff.json');
+    const originalHandoff = JSON.parse(fs.readFileSync(handoffPath, 'utf8'));
+    const handoff = structuredClone(originalHandoff);
+    handoff.generatorVersion = '9.9.9';
+    assert.deepEqual(
+      { ...handoff, generatorVersion: originalHandoff.generatorVersion },
+      originalHandoff,
+    );
+    assert.equal(handoff.artifactSha256, originalHandoff.artifactSha256);
+    assert.equal(handoff.schemaVersion, originalHandoff.schemaVersion);
+    assert.deepEqual(handoff.growthShareDelivery, originalHandoff.growthShareDelivery);
+    fs.writeFileSync(handoffPath, `${JSON.stringify(handoff, null, 2)}\n`, 'utf8');
+    const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+    assert.equal(result.ok, false);
+    const versionError = 'handoff generatorVersion mismatch';
+    const versionIndex = result.errors.indexOf(versionError);
+    const firstArtifactHashIndex = firstArtifactHashMismatchIndex(result.errors);
+    assert.ok(versionIndex >= 0, result.errors.join('; '));
+    assert.ok(firstArtifactHashIndex >= 0, result.errors.join('; '));
+    assert.equal(result.errors[firstArtifactHashIndex], HANDOFF_JSON_ARTIFACT_HASH_ERROR);
+    assert.ok(versionIndex < firstArtifactHashIndex, result.errors.join('; '));
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
 
 test('handoff md exists after generation', () => {
   const tempRoot = makeTempRoot();
@@ -209,7 +351,7 @@ test('handoff markdown and json lifecycle meanings match', () => {
     assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
     assert.equal(handoff.lanes.growthShare, 'ACTIVE');
     assert.equal(handoff.lanes.buildWeek, 'FROZEN');
-    assert.equal(handoff.growthShareDelivery.productionDeployed, false);
+    assert.equal('productionDeployed' in handoff.growthShareDelivery, false);
   } finally {
     cleanupTempRoot(tempRoot);
   }

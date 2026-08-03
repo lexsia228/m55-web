@@ -6,10 +6,16 @@ import { sha256Canonical, sha256RecordExcluding } from './hash.mjs';
 import { readHistory, computeEventHash, historySha256FromEvents } from './history.mjs';
 import { readObservations, getGeneratedAt, observationsSha256FromObject } from './observations.mjs';
 import { scanObjectForSecrets } from './secret-scan.mjs';
+import {
+  GENERATOR_VERSION,
+  HANDOFF_SCHEMA_VERSION,
+  LOCK_SCHEMA_VERSION,
+} from './product-authority-versions.mjs';
+
+export { GENERATOR_VERSION };
 
 export const AUTHORITY_PATH = '.product-authority/authority.json';
 export const LOCK_PATH = '.product-authority/authority.lock.json';
-export const GENERATOR_VERSION = '1.0.0';
 
 export const SOURCE_PATHS = [
   '.product-authority/authority.json',
@@ -470,7 +476,19 @@ export function verifyProductAuthority(root, options) {
       if (lock.authoritySha256 !== authorityHash) errors.push('lock authoritySha256 mismatch');
       if (lock.observationsSha256 !== observationsHash) errors.push('lock observationsSha256 mismatch');
       if (lock.historySha256 !== historyHash) errors.push('lock historySha256 mismatch');
+      if (lock.schemaVersion !== LOCK_SCHEMA_VERSION) errors.push('lock schemaVersion mismatch');
       if (lock.generatorVersion !== GENERATOR_VERSION) errors.push('lock generatorVersion mismatch');
+
+      const handoffJsonPath = path.join(root, '.product-authority/generated/handoff.json');
+      if (fs.existsSync(handoffJsonPath)) {
+        const handoff = JSON.parse(fs.readFileSync(handoffJsonPath, 'utf8'));
+        if (handoff.schemaVersion !== HANDOFF_SCHEMA_VERSION) {
+          errors.push('handoff schemaVersion mismatch');
+        }
+        if (handoff.generatorVersion !== GENERATOR_VERSION) {
+          errors.push('handoff generatorVersion mismatch');
+        }
+      }
 
       const generatedAt = getGeneratedAt(observations);
       const verifiedArtifacts = [];

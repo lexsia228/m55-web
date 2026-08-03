@@ -20,6 +20,10 @@ import {
 import { readObservations } from '../observations.mjs';
 import { bootstrapFixture } from '../generate.mjs';
 import { cleanupTempRoot, makeTempRoot } from '../history.mjs';
+import {
+  GENERATOR_VERSION,
+  LOCK_SCHEMA_VERSION,
+} from '../product-authority-versions.mjs';
 
 test('bootstrap fixture generates lockfile', () => {
   const tempRoot = makeTempRoot();
@@ -155,12 +159,91 @@ test('artifact files exist after generation', () => {
   }
 });
 
-test('lock generatorVersion is 1.0.0', () => {
+test('lock generatorVersion is 1.1.0', () => {
   const tempRoot = makeTempRoot();
   try {
     bootstrapFixture(tempRoot);
     const lock = JSON.parse(fs.readFileSync(path.join(tempRoot, LOCK_PATH), 'utf8'));
-    assert.equal(lock.generatorVersion, '1.0.0');
+    assert.equal(lock.generatorVersion, GENERATOR_VERSION);
+    assert.equal(lock.generatorVersion, '1.1.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('lock schemaVersion uses centralized LOCK_SCHEMA_VERSION', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const lock = JSON.parse(fs.readFileSync(path.join(tempRoot, LOCK_PATH), 'utf8'));
+    assert.equal(lock.schemaVersion, LOCK_SCHEMA_VERSION);
+    assert.equal(lock.schemaVersion, '1.0.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('artifact metadata and bundle manifest use centralized generator version', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const lock = JSON.parse(fs.readFileSync(path.join(tempRoot, LOCK_PATH), 'utf8'));
+    assert.equal(lock.generatorVersion, '1.1.0');
+    const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
+    assert.equal(handoff.generatorVersion, '1.1.0');
+    const header = fs.readFileSync(path.join(tempRoot, '.product-authority/generated/authority-header.md'), 'utf8');
+    assert.match(header, /generatorVersion: 1\.1\.0/);
+    const metadata = parseMetadataBlock(
+      fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.md'), 'utf8'),
+    );
+    assert.equal(metadata.generatorVersion, '1.1.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('disposable authority and observations inputs remain schemaVersion 1.0.0', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const authority = readAuthority(tempRoot);
+    const observations = readObservations(tempRoot);
+    assert.equal(authority.schemaVersion, '1.0.0');
+    assert.equal(observations.schemaVersion, '1.0.0');
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('lock schemaVersion mismatch fails before generator mismatch', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const lockPath = path.join(tempRoot, LOCK_PATH);
+    const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    lock.schemaVersion = '9.9.9';
+    fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+    const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.includes('lock schemaVersion mismatch'));
+    assert.equal(result.errors.includes('lock generatorVersion mismatch'), false);
+  } finally {
+    cleanupTempRoot(tempRoot);
+  }
+});
+
+test('lock generatorVersion mismatch fails after schemaVersion passes', () => {
+  const tempRoot = makeTempRoot();
+  try {
+    bootstrapFixture(tempRoot);
+    const lockPath = path.join(tempRoot, LOCK_PATH);
+    const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    lock.generatorVersion = '9.9.9';
+    fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+    const result = verifyProductAuthority(tempRoot, { mode: 'bootstrap' });
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.includes('lock generatorVersion mismatch'));
+    assert.equal(result.errors.includes('lock schemaVersion mismatch'), false);
   } finally {
     cleanupTempRoot(tempRoot);
   }
