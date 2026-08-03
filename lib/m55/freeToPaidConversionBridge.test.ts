@@ -38,7 +38,11 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
   it('uses single personalized bridge copy and premium CTA', () => {
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.overline, 'プレミアムレポート');
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, T.premiumBridgeCta);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /個人無料読み解き/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.freeLayerLabelJa, '個人無料読み解き');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート ライト/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート フル/);
     assert.match(buildPremiumBridgeTitle('アナリスト'), /さらに深く読み解く/);
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料結果を続けて読む');
   });
@@ -47,11 +51,13 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     const marketing = [
       STATIC_FREE_TO_PAID_BRIDGE.overline,
       STATIC_FREE_TO_PAID_BRIDGE.supportingJa,
+      STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa,
       STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa,
       STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa,
       STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa,
     ].join('\n');
     assert.doesNotMatch(marketing, /今だけ|残りわずか|人気No|おすすめ度|カウントダウン|期間限定/);
+    assert.doesNotMatch(marketing, /IND-FREE|COMMERCE|RETENTION/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断、未来や結果の保証ではありません/);
   });
 
@@ -74,6 +80,8 @@ describe('free-to-paid conversion bridge — Product Truth', () => {
     assert.match(src, /data-testid="m55-free-to-paid-bridge"/);
     assert.match(src, /data-testid="m55-paid-bridge-primary"/);
     assert.match(src, /data-testid="m55-paid-bridge-secondary"/);
+    assert.match(src, /data-testid="m55-premium-bridge-layers"/);
+    assert.match(src, /data-testid="m55-premium-bridge-price"/);
     assert.match(src, /m55-paid-questionnaire/);
     assert.match(src, /core-scenes/);
     assert.doesNotMatch(src, /conversionBridgePlanGrid/);
@@ -136,12 +144,17 @@ describe('privacy-safe funnel analytics', () => {
     assert.equal(M55_FUNNEL_EVENTS.selfEntryStarted, 'self_entry_started');
     assert.equal(M55_FUNNEL_EVENTS.freeResultViewed, 'free_result_viewed');
     assert.equal(M55_FUNNEL_EVENTS.premiumBridgeViewed, 'premium_bridge_viewed');
+    assert.equal(M55_FUNNEL_EVENTS.premiumPlanSelected, 'premium_plan_selected');
     assert.equal(M55_FUNNEL_EVENTS.checkoutStarted, 'checkout_started');
     const essence = read('components/core/CoreEssencePanel.tsx');
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     assert.match(essence, /selfEntryStarted/);
     assert.match(essence, /freeResultViewed/);
+    assert.doesNotMatch(essence, /M55_FUNNEL_EVENTS\.freeResultView\b/);
     assert.match(bridge, /premiumBridgeViewed/);
+    assert.doesNotMatch(bridge, /M55_FUNNEL_EVENTS\.paidBridgeView\b/);
+    assert.match(bridge, /premiumCtaClicked/);
+    assert.doesNotMatch(bridge, /M55_FUNNEL_EVENTS\.paidBridgePrimaryClick\b/);
     assert.doesNotMatch(bridge, /checkoutStarted|checkout_started/);
   });
 

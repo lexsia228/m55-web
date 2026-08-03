@@ -29,11 +29,6 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
 
   useEffect(() => {
     trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.paidBridgeView,
-      'core_paid_bridge',
-      'core-paid-bridge-view',
-    );
-    trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.premiumBridgeViewed,
       'core_paid_bridge',
       'core-premium-bridge-viewed',
@@ -41,7 +36,8 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
   }, []);
 
   function handlePrimaryClick() {
-    trackFunnelAction(M55_FUNNEL_EVENTS.paidBridgePrimaryClick, 'core_paid_bridge');
+    // Canonical CTA click. Legacy paidBridgePrimaryClick remains defined for
+    // external consumers; do not dual-emit the alias on this same action.
     trackFunnelAction(M55_FUNNEL_EVENTS.premiumCtaClicked, 'core_paid_bridge');
   }
 
@@ -81,43 +77,58 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
           {copy.supportingJa}
         </p>
 
-      <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
-      <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">
-        {lockedHeadings.map((heading) => (
-          <li key={heading} className={styles.bridgeLockedHeadingItem}>
-            <span className={styles.bridgeLockedHeadingIcon} aria-hidden>
-              ◆
-            </span>
-            <span>{heading}</span>
-          </li>
-        ))}
-      </ul>
-
-      <p className={styles.conversionBridgeEffort}>{copy.effortJa}</p>
-
-      <div className={styles.conversionBridgeActions} data-m55-print-hide>
-        <div className={styles.conversionBridgeCtaBlock}>
-          <Link
-            href={href}
-            className={styles.conversionBridgePrimary}
-            data-testid="m55-paid-bridge-primary"
-            onClick={handlePrimaryClick}
-          >
-            {copy.primaryCtaJa}
-          </Link>
-          <p className={styles.conversionBridgeCtaSupport}>{copy.ctaSupportJa}</p>
+        <div className={styles.conversionBridgeLayers} data-testid="m55-premium-bridge-layers">
+          <div className={styles.conversionBridgeLayer}>
+            <p className={styles.conversionBridgeLayerLabel}>{copy.freeLayerLabelJa}</p>
+            <p className={styles.conversionBridgeLayerBody}>{copy.freeLayerBodyJa}</p>
+          </div>
+          <div className={styles.conversionBridgeLayer}>
+            <p className={styles.conversionBridgeLayerLabel}>{copy.premiumLayerLabelJa}</p>
+            <p className={styles.conversionBridgeLayerBody}>{copy.premiumLayerBodyJa}</p>
+          </div>
         </div>
-        <button
-          type="button"
-          className={styles.conversionBridgeSecondary}
-          data-testid="m55-paid-bridge-secondary"
-          onClick={handleSecondaryClick}
-        >
-          {copy.secondaryCtaJa}
-        </button>
-      </div>
 
-      <p className={styles.conversionBridgeSafety}>{copy.safetyNote}</p>
+        <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
+        <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">
+          {lockedHeadings.map((heading) => (
+            <li key={heading} className={styles.bridgeLockedHeadingItem}>
+              <span className={styles.bridgeLockedHeadingIcon} aria-hidden>
+                ◆
+              </span>
+              <span>{heading}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className={styles.conversionBridgePriceNote} data-testid="m55-premium-bridge-price">
+          {copy.priceNoteJa}
+        </p>
+
+        <p className={styles.conversionBridgeEffort}>{copy.effortJa}</p>
+
+        <div className={styles.conversionBridgeActions} data-m55-print-hide>
+          <div className={styles.conversionBridgeCtaBlock}>
+            <Link
+              href={href}
+              className={styles.conversionBridgePrimary}
+              data-testid="m55-paid-bridge-primary"
+              onClick={handlePrimaryClick}
+            >
+              {copy.primaryCtaJa}
+            </Link>
+            <p className={styles.conversionBridgeCtaSupport}>{copy.ctaSupportJa}</p>
+          </div>
+          <button
+            type="button"
+            className={styles.conversionBridgeSecondary}
+            data-testid="m55-paid-bridge-secondary"
+            onClick={handleSecondaryClick}
+          >
+            {copy.secondaryCtaJa}
+          </button>
+        </div>
+
+        <p className={styles.conversionBridgeSafety}>{copy.safetyNote}</p>
       </section>
     </PremiumExperienceSurface>
   );

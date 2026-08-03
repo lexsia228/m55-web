@@ -2885,7 +2885,7 @@
 
 /* Free→paid conversion bridge — quiet premium, single primary CTA */
 .conversionBridge {
-  margin-top: clamp(28px, 6vw, 40px);
+  margin-top: clamp(36px, 7vw, 52px);
   padding: clamp(22px, 4vw, 32px) clamp(18px, 3.5vw, 28px) clamp(24px, 4.5vw, 34px);
   border-radius: 20px;
   background: rgba(252, 249, 245, 0.96);
@@ -2896,6 +2896,8 @@
   gap: 0;
   /* Keep in-page #core-paid jumps below the sticky shell header. */
   scroll-margin-top: calc(12px + env(safe-area-inset-top, 0px));
+  /* Clear measured sticky Premium bar when present. */
+  scroll-margin-bottom: calc(12px + var(--m55-sticky-cta-height, 0px));
 }
 
 .conversionBridgeOverline {
@@ -2912,6 +2914,8 @@
   letter-spacing: 0.02em;
   color: #1a1a1a;
   line-height: 1.45;
+  text-wrap: balance;
+  max-width: 22em;
 }
 
 .conversionBridgeContext {
@@ -3006,11 +3010,16 @@
 }
 
 .conversionBridgePriceNote {
-  margin: 0 0 16px;
+  margin: 0 0 14px;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(90, 78, 120, 0.08);
   font-size: clamp(12px, 2.3vw, 13px);
   line-height: 1.65;
-  color: rgba(62, 52, 88, 0.72);
+  color: rgba(50, 44, 68, 0.84);
   max-width: 40em;
+  text-wrap: pretty;
 }
 
 .conversionBridgeActions {
@@ -4245,6 +4254,7 @@
 /* ── Free result commercial lead (RESULT first viewport; not poster hero) ── */
 .freeResultLead {
   margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
 .freeResultLeadGrid {
@@ -4256,13 +4266,14 @@
 
 .freeResultLeadCopy {
   min-width: 0;
+  max-width: 36em;
 }
 
 .freeResultLeadTitle {
-  margin: 0 0 0.7rem;
+  margin: 0.15rem 0 0.75rem;
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
   font-size: clamp(1.2rem, 5.2vw, 1.55rem);
-  line-height: 1.45;
+  line-height: 1.48;
   letter-spacing: 0.01em;
   color: #1a1a1a;
   font-weight: 600;
@@ -4270,6 +4281,7 @@
   line-break: strict;
   overflow-wrap: anywhere;
   word-break: normal;
+  max-width: 18em;
 }
 
 .freeResultLeadIdentity {
@@ -4305,8 +4317,10 @@
 .freeResultLeadPrivacy {
   margin: 0;
   font-size: clamp(0.86rem, 2.5vw, 0.94rem);
-  line-height: 1.65;
+  line-height: 1.7;
   color: rgba(62, 52, 88, 0.68);
+  max-width: 34em;
+  text-wrap: pretty;
 }
 
 .freeResultLeadVisual {
@@ -4565,6 +4579,39 @@
   }
 }
 
+@media (max-width: 390px) {
+  .freeResultLeadCopy {
+    max-width: none;
+  }
+
+  .freeResultLeadTitle {
+    max-width: none;
+    font-size: clamp(1.14rem, 5.6vw, 1.35rem);
+  }
+
+  .conversionBridge {
+    margin-top: clamp(28px, 8vw, 40px);
+    padding-left: clamp(14px, 4vw, 20px);
+    padding-right: clamp(14px, 4vw, 20px);
+  }
+
+  .conversionBridgeTitle {
+    max-width: none;
+  }
+
+  .conversionBridgeLayers {
+    gap: 8px;
+  }
+
+  .conversionBridgePrimary {
+    font-size: 14px;
+    padding: 12px 14px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+  }
+}
+
 @media (max-width: 359px) {
   .freeResultLeadTitle {
     font-size: 1.12rem;
@@ -4583,13 +4630,19 @@
     max-height: 120px;
     height: 120px;
   }
+
+  .premiumStickyLeadHint {
+    display: none;
+  }
 }
 
 .conversionBridgeSupporting {
   margin: 0 0 1rem;
   font-size: 0.95rem;
-  line-height: 1.65;
+  line-height: 1.7;
   color: rgba(62, 52, 88, 0.82);
+  max-width: 38em;
+  text-wrap: pretty;
 }
 
 .conversionBridgeOpenLoop {
@@ -4835,9 +4888,20 @@
 
 .premiumStickyLead {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
   font-size: 0.82rem;
   line-height: 1.45;
   color: rgba(255, 250, 241, 0.86);
+}
+
+.premiumStickyLeadHint {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: rgba(255, 250, 241, 0.62);
 }
 
 .premiumStickyBtn {

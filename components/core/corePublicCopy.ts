@@ -7,6 +7,7 @@ import {
   freeCoreLifestyleTriptych,
   freeCoreObservationBullets,
 } from '../../lib/m55/coreFreePublicDisplay';
+import { PAID_DTR_SAVED_REPORT_PRICING } from '../../lib/m55/paidDtrProductCopy';
 
 /** ニックネームを差し込み（主語「あなた」は使わない） */
 export function withNickname(text: string, nickname: string): string {
@@ -143,7 +144,7 @@ export const STATIC_AI_EXPLAINER = {
 export const STATIC_CTA = {
   title: 'プレミアムレポート',
   intro:
-    '無料では、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、整え直し方まで含めて、読み返せる形に残します。',
+    '個人無料読み解きでは、輪郭まで確認できました。\nプレミアムレポートでは、力が出やすい場面、無理がたまりやすい条件、整え直し方まで含めて、読み返せる形に残します。',
   benefitsHeading: 'プレミアムレポートで深まること',
   benefits: [
     '仕事や学びで、どこに力が出やすいか',
@@ -163,14 +164,24 @@ export function buildPremiumBridgeTitle(traitName: string): string {
   return `「${traitName}」の結果を、さらに深く読み解く`;
 }
 
+const LIGHT_PLAN = PAID_DTR_SAVED_REPORT_PRICING.light;
+const FULL_PLAN = PAID_DTR_SAVED_REPORT_PRICING.full;
+
 export const STATIC_FREE_TO_PAID_BRIDGE = {
   overline: M55_COMMERCIAL_FENCE.productNameJa,
-  supportingJa: M55_COMMERCIAL_FENCE.bridgeSupportingJa,
-  effortJa: 'あと6問・約1〜2分',
+  supportingJa:
+    '個人無料読み解きでは、いま表れやすい動きまで確認できます。プレミアムレポートでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。',
+  freeLayerLabelJa: '個人無料読み解き',
+  freeLayerBodyJa: M55_COMMERCIAL_FENCE.free.summaryJa,
+  premiumLayerLabelJa: 'プレミアムレポート',
+  premiumLayerBodyJa: M55_COMMERCIAL_FENCE.premium.summaryJa,
+  effortJa: 'あと6問・約1〜2分。プラン選択とお支払いは次の画面です。',
   lockedHeadingsHeadingJa: M55_COMMERCIAL_FENCE.lockedPreviewHeadingJa,
   primaryCtaJa: M55_COMMERCIAL_TERMINOLOGY.premiumBridgeCta,
   ctaSupportJa: '正解はありません。あとで回答を確認できます。',
   secondaryCtaJa: '無料結果を続けて読む',
+  stickyLeadHintJa: 'プラン選択は次の画面',
+  priceNoteJa: `${LIGHT_PLAN.planNameJa} ${LIGHT_PLAN.priceLabelJa} ／ ${FULL_PLAN.planNameJa} ${FULL_PLAN.priceLabelJa}。どちらも買い切りです。違いは、購入後に追加で読み解けるテーマ数です。`,
   safetyNote:
     '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
   /** @deprecated Plan cards live on plan selection only — kept for legacy test aliases. */
@@ -180,7 +191,7 @@ export const STATIC_FREE_TO_PAID_BRIDGE = {
     { roman: 'Ⅲ', titleJa: '無理を知る' },
     { roman: 'Ⅳ', titleJa: '楽に扱う' },
   ] as const,
-  /** @deprecated */
+  /** @deprecated Prefer priceNoteJa — kept for legacy template consumers. */
   priceNoteTemplate: '{lightPlanName} {lightPriceLabel} ／ {fullPlanName} {fullPriceLabel}',
   /** @deprecated */
   title: 'プレミアムレポート',

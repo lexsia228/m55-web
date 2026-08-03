@@ -114,15 +114,24 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
   });
 
   it('CTA copy clarifies premium-report depth and consult one-theme boundary', () => {
-    assert.match(STATIC_CTA.intro, /輪郭まで確認できました/);
+    assert.match(STATIC_CTA.intro, /個人無料読み解きでは、輪郭まで確認できました/);
     assert.match(STATIC_CTA.intro, /読み返せる形に残します/);
     assert.match(STATIC_CTA.bundleNote, /いまの1テーマ/);
     assert.match(STATIC_CTA.bundleNote, /会話を続ける形式ではありません/);
   });
 
   it('Phase1 commercial conversion copy stays product-safe', () => {
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /個人無料読み解き/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.supportingJa, /整え直しやすい順番/);
-    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムの6問へ進む');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.primaryCtaJa, 'プレミアムの読み解きへ進む');
+    assert.equal(STATIC_FREE_TO_PAID_BRIDGE.freeLayerLabelJa, '個人無料読み解き');
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート ライト/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート フル/);
+    assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /買い切り/);
+    assert.equal(
+      STATIC_FREE_TO_PAID_BRIDGE.stickyLeadHintJa,
+      'プラン選択は次の画面',
+    );
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);
@@ -137,7 +146,11 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.match(conversionSrc, /buildPremiumBridgeTitle/);
     assert.match(conversionSrc, /m55-paid-questionnaire/);
     assert.match(conversionSrc, /premiumLockedHeadingsJa/);
+    assert.match(conversionSrc, /m55-premium-bridge-price/);
     assert.equal(conversionSrc.includes('PurchaseButton'), false);
     assert.equal(conversionSrc.includes('/api/purchase'), false);
+
+    const leadSrc = readRepoFile('components/core/CoreFreeResultLeadSection.tsx');
+    assert.match(leadSrc, /個人無料読み解き/);
   });
 });
