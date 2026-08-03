@@ -33,7 +33,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-04) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN** after PR #86 merge. WT-014 (`/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1`, `feat/m55-ind-free-commercial-convergence-v1` @ `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`) is **retained read-only** with feature branch preserved; no source-write authority. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `85210e7a45472a9cf6fab16e51c9a397c3f97025`) is **retained read-only** for audit and review only; no source-write authority. WT-015 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v1`, `docs/m55-pr86-post-merge-transition-v1` @ `f1c24449185a59c79e42d7a420a41809799da615`) is a **superseded** PR #87 transition attempt — OPEN and unmerged; read-only. WT-016 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2`, `docs/m55-pr86-post-merge-transition-v2`) holds the **replacement transition delta** pending Codex review — uncommitted. ACTIVE lane is **IND-PAID — result/save/revisit/add-on loop**; implementation is not yet authorized.
+**CURRENT (2026-08-04) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN** after PR #86 merge. WT-014 (`/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1`, `feat/m55-ind-free-commercial-convergence-v1` @ `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`) is **retained read-only** with feature branch preserved; no source-write authority. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `85210e7a45472a9cf6fab16e51c9a397c3f97025`) is **retained read-only** for audit and review only; no source-write authority. WT-015 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v1`, `docs/m55-pr86-post-merge-transition-v1` @ `f1c24449185a59c79e42d7a420a41809799da615`) is a **superseded** PR #87 transition attempt — OPEN and unmerged; read-only. WT-016 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2`, `docs/m55-pr86-post-merge-transition-v2`) — committed and pushed; initial transition commit `c6db50a359709e722ae70aedfb610c2c61532b1c`; replacement PR #88 **OPEN**; current exact head is gate-time remote/PR authority only. ACTIVE lane is **IND-PAID — result/save/revisit/add-on loop**; implementation is not yet authorized.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -68,7 +68,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | IND-FREE implementation base | `feat/m55-ind-free-commercial-convergence-v1` | `326ccd6f1c97911ba82281dbc0a9d4dd835ed782` | WT-014 — PR #86 **MERGED**; retained read-only; feature branch preserved |
 | PR #86 merge | `main` (remote) | `10e601465b66b8132a7ceb845300af1924ba468b` | **MERGED** — IND-FREE commercial convergence CLOSED GREEN; feature head `326ccd6…`; pre-merge main `d8985a9…` |
 | PR #86 post-merge docs-only transition (v1 superseded) | `docs/m55-pr86-post-merge-transition-v1` | `f1c24449185a59c79e42d7a420a41809799da615` | WT-015 — PR #87 OPEN unmerged; superseded pending replacement |
-| PR #86 post-merge replacement transition delta | `docs/m55-pr86-post-merge-transition-v2` | **live HEAD (Git)** — verify via `git rev-parse HEAD`; uncommitted delta only | WT-016 — replacement transition delta pending Codex review |
+| PR #86 post-merge replacement transition (v2) | `docs/m55-pr86-post-merge-transition-v2` | gate-time remote/PR head authority | WT-016 — PR #88 **OPEN**; initial transition commit `c6db50a…` |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -431,17 +431,19 @@ Historical post-merge transition snapshots remain recorded for audit.
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2` |
 | branch | `docs/m55-pr86-post-merge-transition-v2` |
-| branch creation base (`origin/main` at worktree creation) | `10e601465b66b8132a7ceb845300af1924ba468b` — **immutable**; PR #86 product-implementation merge commit; **not** this branch's current HEAD after uncommitted delta |
-| cleanliness | uncommitted allowlisted delta only at activation |
-| lifecycle | **ACTIVE (docs-only replacement delta)** |
-| operational state | **REPLACEMENT_TRANSITION_DELTA_PENDING_CODEX_REVIEW** |
-| purpose | Corrected replacement transition delta for PR #87 registry reconciliation |
-| related lane / PR | Corrects WT-015 / PR #87 v1 registry semantics; no new product implementation; commit/push/PR update not performed in this gate |
-| product implementation authorized | **false** — docs-only uncommitted delta |
-| allowed operations | this exact allowlisted three-document replacement delta only |
-| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-013 · WT-014 or WT-015 worktrees · Production mutation · commit · push · PR create/close/edit · merge |
-| removal eligibility | deferred — retain until replacement delta is reviewed and durably merged via separate gate |
-| next gate | (1) Codex uncommitted-delta review GREEN → (2) one exact subject-only commit via `git commit-tree` → (3) update local v2 branch by CAS → (4) push v2 branch non-force → (5) create a new replacement PR against `main` → (6) verify that PR’s exact content and commit metadata → (7) only afterward close PR #87 unmerged in a separate authorized gate. Do **not** update PR #87 branch/head, force-push PR #87, merge PR #87, or delete either branch. |
+| branch creation base (`origin/main` at worktree creation) | `10e601465b66b8132a7ceb845300af1924ba468b` — **immutable**; PR #86 product-implementation merge commit |
+| initial transition commit | `c6db50a359709e722ae70aedfb610c2c61532b1c` — **immutable** creation fact; initial tree `2057c01e55540ef6da1780f4590a535a80c2e598` |
+| current head authority | Current exact WT-016/PR #88 head is authoritative from the remote v2 branch and PR head at gate time; intentionally not duplicated inside the commit carrying this registry snapshot. |
+| cleanliness | **clean** — committed and pushed |
+| lifecycle | **ACTIVE (docs-only replacement PR open)** |
+| operational state | **REPLACEMENT_PR_OPEN_AWAITING_EXACT_AUDIT_AND_CHECK_SETTLEMENT** |
+| purpose | Replacement transition for PR #87 registry reconciliation; replacement PR #88 **OPEN** |
+| related lane / PR | Corrects WT-015 / PR #87 v1 registry semantics; replacement PR #88 **OPEN**; PR #87 remains **OPEN** and **unmerged**; no product implementation |
+| product implementation authorized | **false** — docs-only; no source-write authority |
+| allowed operations | read-only inspection of this transition branch except authorized docs-only SSOT maintenance on PR #88 |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-013 · WT-014 or WT-015 worktrees · Production mutation · PR #87 branch/head update · force-push · merge without separate gate |
+| removal eligibility | deferred — retain until PR #88 is durably merged and closeout is separately authorized |
+| next gate | (1) exact PR #88 audit and check settlement → (2) after GREEN, separately authorized PR #87 closure unmerged → (3) final live-ref guard → (4) exact MERGE COMMIT of PR #88 → (5) no branch deletion → (6) later read-only post-merge observation. Do **not** update PR #87 branch/head, force-push PR #87, or merge PR #87 before replacement verification. |
 | notes | Replacement transition worktree per WT-012/WT-015 precedent. Do not route product implementation here. |
 
 ---

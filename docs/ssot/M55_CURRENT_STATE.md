@@ -33,7 +33,7 @@ This section is the current authority for lane status and the next single action
 | Read-only review worktree | WT-013 · `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` · `chore/m55-pa-reconciliation-pr81-v1` — **retained read-only** audit and review only; no source-write authority |
 | Retained implementation worktree | WT-014 · `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` · `feat/m55-ind-free-commercial-convergence-v1` @ `326ccd6f1c97911ba82281dbc0a9d4dd835ed782` — **retained read-only**; feature branch preserved |
 | Docs-only transition worktree (v1 superseded) | WT-015 · `/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v1` · `docs/m55-pr86-post-merge-transition-v1` @ `f1c24449185a59c79e42d7a420a41809799da615` — PR #87 **OPEN** and **unmerged**; superseded pending replacement |
-| Replacement transition delta (v2 pending review) | WT-016 · `/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2` · `docs/m55-pr86-post-merge-transition-v2` — uncommitted replacement delta pending Codex review |
+| Replacement transition worktree (v2) | WT-016 · `/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2` · `docs/m55-pr86-post-merge-transition-v2` — committed and pushed; initial transition commit `c6db50a359709e722ae70aedfb610c2c61532b1c`; replacement PR #88 **OPEN**; exact current PR head is gate-time GitHub authority and is not recursively embedded in this snapshot; PR #88 merge is not authorized |
 | NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
 | Authorization boundary | IND-PAID implementation is **not yet authorized**. No Cursor write work, commit, push, PR, merge, DB, Stripe, Clerk, env, Production or deployment authority is granted by this transition. WT-013 and WT-014 remain read-only. Completed IND-FREE proof, UI and visual review must not be reopened absent a new relevant delta. |
 
@@ -220,11 +220,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-04):** IND-FREE is **CLOSED GREEN** after PR #86 merge and Production GREEN. WT-014 is retained read-only with feature branch preserved. WT-013 is retained read-only audit and review only. WT-015 is a superseded PR #87 transition attempt (OPEN and unmerged). WT-016 holds the uncommitted replacement transition delta pending Codex review. IND-PAID is the sole ACTIVE lane; implementation is not yet authorized.
+**Current transition (2026-08-04):** IND-FREE is **CLOSED GREEN** after PR #86 merge and Production GREEN. WT-014 is retained read-only with feature branch preserved. WT-013 is retained read-only audit and review only. WT-015 is a superseded PR #87 transition attempt (OPEN and unmerged). WT-016 replacement branch is committed and pushed; initial transition commit `c6db50a359709e722ae70aedfb610c2c61532b1c`; replacement PR #88 is **OPEN**; exact current PR head is gate-time GitHub authority. IND-PAID is the sole ACTIVE lane; implementation is not yet authorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-04):** Await explicit IND-PAID lane authorization gate. Do not start IND-PAID implementation, Cursor write work, commerce activation or Production operations until a later explicit lane-change gate is recorded. Completed IND-FREE proof, UI and visual review must not be reopened absent a new relevant delta.
+**CURRENT (2026-08-04):** Exact PR #88 content, check and merge-readiness settlement. PR #88 merge is not authorized until independently verified GREEN. PR #87 remains OPEN and unmerged until separately authorized closure; do not delete either branch. IND-PAID implementation remains unauthorized.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01. This described the pre-merge Growth Share gate and is retained as historical record; PR #81 has since merged.**
 >
