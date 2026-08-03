@@ -5,7 +5,7 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition — current authority immediately below; earlier lane-active claims are historical).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration — current authority immediately below; earlier lane-active claims are historical).
 
 ## PR #83 POST-MERGE GOVERNANCE TRANSITION (2026-08-03) — AUTHORITATIVE
 
@@ -18,10 +18,13 @@ This section is the current authority for lane status and the next single action
 | Checks | **12/12 SUCCESS** |
 | PA-2A control-plane lane | **CLOSED GREEN** — do not reopen without an actual blocking delta |
 | Previous docs-only transition | **CLOSED** — WT-012 is no longer ACTIVE |
-| ACTIVE LANE | **M55全域の商用surface統治** |
-| Active worktree | WT-013 · `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` · `chore/m55-pa-reconciliation-pr81-v1` @ `2acc9dd1795c5ffe1709bb399e640891903422a3` |
+| Commercial-surface alias/reuse freeze | **CLOSED GREEN** — existing assets are sufficient; no new system, registry, wrapper, renderer, component or SSOT is required |
+| Parent program | M55全域の商用surface統治 |
+| ACTIVE LANE | **IND-FREE — 個人無料結果のcanonical naming・conversion copy・measurement convergence** |
+| Active implementation worktree | WT-014 · `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` · `feat/m55-ind-free-commercial-convergence-v1` @ `74ff7799bf02b5d6fbcb72599b1d0a38998665e1` |
+| Read-only review worktree | WT-013 · `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` · `chore/m55-pa-reconciliation-pr81-v1` @ `af20a4efebcf9cf338929cae6bef499ae8171c91` |
 | NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
-| Authorization boundary | Read-only governance freeze only. Implementation, Cursor write work, Production operations and commerce activation remain unauthorized until the freeze is GREEN. |
+| Authorization boundary | One future new Cursor thread in WT-014 is the sole application-source write authority, but source edit remains unauthorized until its implementation preflight is GREEN. Cursor has no commit, push, PR, merge, DB, Stripe, Clerk, env, Production or deployment authority. The current Codex thread and WT-013 remain read-only orchestration, contract-review and actual-diff-review authority; concurrent writes to WT-014 are prohibited. |
 
 ### PR #83 path-count semantics
 
@@ -30,12 +33,12 @@ This section is the current authority for lane status and the next single action
 - Direct endpoint tree comparison `f15b6660d072135eece14f815d4c6962f283703c..2acc9dd1795c5ffe1709bb399e640891903422a3` = **27 paths** because it also includes the two main-only files `docs/audit/M55_REPO_ASSET_INDEX.json` and `docs/audit/M55_REPO_ASSET_INDEX.md`; those files are not part of PR #83.
 - Future PR-scope audits must use GitHub PR files or merge-base/three-dot semantics, not direct endpoint comparison.
 
-### Internal alias policy for the next read-only gate
+### Internal alias policy frozen by the CLOSED GREEN reuse gate
 
 - `PA`, `SSOT`, `AUDIT`, `OBSERVE`, `PROOF`, `IND-FREE`, `IND-PAID`, `COMP-FREE`, `COMP-PAID`, `COMMERCE`, `RETENTION`, and `MEASURE` are candidate internal AI navigation references only.
 - Aliases must point to existing canonical assets and must never appear in public UI copy.
 - Aliases do not authorize runtime modules, wrappers, registries, duplicate SSOT, or any other new architecture.
-- Final meanings and exactly one storage location will be frozen by the NEXT SINGLE ACTION; no alias system is created by this transition.
+- Alias meanings remain the frozen internal navigation references from the completed commercial-surface gate; no alias system is created by this transition.
 
 ## PR #81 POST-MERGE CLOSURE (2026-08-01) — HISTORICAL, SUPERSEDED 2026-08-03
 
@@ -133,7 +136,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge (Git identity; freshly synchronized 2026-08-03) |
+| Current live remote main | `74ff7799bf02b5d6fbcb72599b1d0a38998665e1` — Git identity freshly verified 2026-08-03; no Production deployment claim |
 | Last recorded Production observed SHA | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — 2026-08-01 record via `https://m-55.jp/api/diagnostics/build`; no Production GET was performed in the 2026-08-03 docs transition |
 | Production confirmation boundary | The prior route-level diagnostics observation does not establish that PR #83 is deployed and does not itself prove checkout/webhook/payment/DB correctness |
 
@@ -157,7 +160,8 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Build Week control plane | **FROZEN** | **WT-009** | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | `DO_NOT_MODIFY` |
 | Self funnel Growth / share | **COMPLETED — PR #81 MERGED** | **WT-011** | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` | merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (2026-08-01) · Production GREEN · worktree/branch retained temporarily for new-thread handoff verification · no further implementation permitted there |
 | PR #81 post-merge SSOT and thread handoff | **COMPLETED — retained read-only** | **WT-012** | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` | superseded by WT-013 governance freeze; see `M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
-| M55-wide commercial-surface governance | **ACTIVE — read-only freeze** | **WT-013** | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` | existing-asset reuse, internal alias, four-surface matrix, contradiction and first implementation-lane freeze |
+| M55-wide commercial-surface governance freeze | **CLOSED GREEN — WT-013 retained read-only** | **WT-013** | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` | Codex orchestration, contract review and actual-diff review only; no application-source write authority |
+| IND-FREE commercial convergence | **ACTIVE — source edit gated by Cursor implementation preflight** | **WT-014** | `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` | Reuse existing result engine, renderer/Core components, save/share/revisit paths, Premium bridge and privacy-safe analytics |
 
 ## State separation
 
@@ -184,11 +188,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-03):** WT-012 docs-only transition is complete. WT-013 holds the read-only M55-wide commercial-surface governance freeze. No implementation lane is authorized by this transition.
+**Current transition (2026-08-03):** The commercial-surface alias/reuse freeze is CLOSED GREEN. WT-013 is retained for Codex read-only orchestration and actual-diff review. WT-014 is the sole ACTIVE execution worktree for IND-FREE convergence; source edit remains gated by the future Cursor implementation preflight.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-03):** Read-only existing-asset reuse, internal alias, four-surface commercial matrix, contradiction and first implementation-lane freeze. Do not implement the frozen lane, start Cursor write work, activate commerce, or perform Production operations until this freeze is GREEN and a later explicit lane-change gate is recorded.
+**CURRENT (2026-08-03):** Open one new Cursor thread in WT-014 and run the exact IND-FREE implementation preflight. Source edits may begin only after that preflight confirms the exact worktree, branch, HEAD, clean state, authority read order and exact file allowlist. The implementation must reuse the existing IND-FREE result engine, renderer and Core components, save/share/revisit paths, Premium bridge and privacy-safe analytics; it must not create a new result engine, renderer, CTA wrapper, copy registry, analytics system, save/revisit store or SSOT.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01. This described the pre-merge Growth Share gate and is retained as historical record; PR #81 has since merged.**
 >

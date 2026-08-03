@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-03** (`git worktree list --porcelain`; PR #83 post-merge governance transition — WT-012 closure + WT-013 registration)
+Last verified: **2026-08-03** (`git worktree list --porcelain`; WT-013 read-only transition + WT-014 registration)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -20,7 +20,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **Historical snapshot label (valid through 2026-07-31 only) — `696559009367a6ac445dc7a07876590b16cd8488`:** PR #80 Self funnel operational baseline merge; **not** current live remote main as of 2026-08-01 — see the current bullet immediately below
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
-- **Current live remote main (2026-08-03, present Git authority):** `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge; no Production observation claim is made by this registry update
+- **Current live remote main (2026-08-03, present Git authority):** `74ff7799bf02b5d6fbcb72599b1d0a38998665e1`; no Production observation claim is made by this registry update
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -33,7 +33,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-03) — authoritative, read this first:** PR #83 is **MERGED** @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; PA-2A is CLOSED GREEN. WT-012 is **COMPLETED** and retained read-only. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `2acc9dd1795c5ffe1709bb399e640891903422a3`) is the sole **ACTIVE — read-only commercial-surface governance freeze** worktree. There is no current Cursor write lane and no product implementation, commerce activation, or Production operation is authorized.
+**CURRENT (2026-08-03) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `af20a4efebcf9cf338929cae6bef499ae8171c91`) is retained for Codex read-only orchestration and actual-diff review. WT-014 (`/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1`, `feat/m55-ind-free-commercial-convergence-v1` @ `74ff7799bf02b5d6fbcb72599b1d0a38998665e1`) is the sole ACTIVE execution worktree for IND-FREE convergence. One future new Cursor thread is the sole application-source write authority, still gated by implementation preflight; no commit, push, PR, merge, DB/Stripe/Clerk/env change, Production access or deployment is authorized.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -64,7 +64,8 @@ Historical post-merge transition snapshots remain recorded for audit.
 | Self funnel Growth PR #81 merge | `main` (remote) | `bf5ef09…` | **MERGED** (2026-08-01T08:38:25Z) — Self funnel Growth / share (WT-011) commercial + technical closure complete; feature head `6770c40…`; pre-merge main `110fa79…` |
 | PR #81 post-merge docs-only transition | `chore/m55-pr81-post-merge-transition-v1` | `234f01cfc40b35c94dff871d3c18eee4afb73dd8` | WT-012 — **COMPLETED**, retained read-only |
 | PR #83 merge | `main` (remote) | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` | **MERGED** — PA-2A control-plane lane CLOSED GREEN; feature branch retained |
-| Current commercial-surface governance freeze | `chore/m55-pa-reconciliation-pr81-v1` | `2acc9dd1795c5ffe1709bb399e640891903422a3` | WT-013 — read-only existing-asset reuse, alias, four-surface and first-lane freeze |
+| Commercial-surface governance freeze completion | `chore/m55-pa-reconciliation-pr81-v1` | `af20a4efebcf9cf338929cae6bef499ae8171c91` | WT-013 — freeze CLOSED GREEN; retained Codex read-only |
+| IND-FREE implementation base | `feat/m55-ind-free-commercial-convergence-v1` | `74ff7799bf02b5d6fbcb72599b1d0a38998665e1` | WT-014 — source edit gated by Cursor implementation preflight |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -358,26 +359,46 @@ Historical post-merge transition snapshots remain recorded for audit.
 | next gate | none — transition complete; do not route active work here |
 | notes | Created to execute `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-AND-THREAD-HANDOFF-IMPLEMENTATION-REV1`; boundary-corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-CORRECTIVE-PATCH-REV1`; residual ambiguity corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-RESIDUAL-AMBIGUITY-CORRECTIVE-PATCH-REV2`. Branch creation base verified as `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. |
 
-### WT-013 — M55-wide commercial-surface governance freeze
+### WT-013 — Retained Codex read-only orchestration and actual-diff review
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` |
 | branch | `chore/m55-pa-reconciliation-pr81-v1` |
-| HEAD | `2acc9dd1795c5ffe1709bb399e640891903422a3` |
-| origin/main | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge |
-| cleanliness | **clean** at activation preflight; this docs-only transition patch becomes the exact allowlisted working-tree diff |
-| lifecycle | **ACTIVE** |
-| operational state | **READ_ONLY_COMMERCIAL_SURFACE_GOVERNANCE_FREEZE** |
-| purpose | M55全域の商用surface統治 — existing-asset reuse, internal alias, four-surface commercial matrix, contradiction and first implementation-lane freeze |
+| HEAD | `af20a4efebcf9cf338929cae6bef499ae8171c91` |
+| origin/main | `74ff7799bf02b5d6fbcb72599b1d0a38998665e1` |
+| cleanliness | **clean** before this exact two-file docs-only transition patch |
+| lifecycle | **PAUSED** |
+| operational state | **RETAINED_CODEX_READ_ONLY_ORCHESTRATION_AND_ACTUAL_DIFF_REVIEW** |
+| purpose | Retained Codex orchestration, contract review and actual-diff review for the IND-FREE handoff cycle |
 | related lane / PR | PR #83 **MERGED**; PA-2A control-plane lane **CLOSED GREEN**; feature branch retained after merge |
-| product implementation authorized | **false** — read-only governance freeze only |
-| Cursor write lane | **none** |
-| allowed operations | read-only repository and document review for the governance freeze; this exact allowlisted durable-transition docs patch |
-| prohibited operations | UI/source implementation · Cursor write work · Product Authority input/generated edit · Production operation · commerce activation · commit/push/PR/merge without a later explicit gate |
-| removal eligibility | **NO** — retain until this transition and reuse/alias/four-surface freeze is complete and closeout is separately authorized |
+| product implementation authorized | **false** — no application-source write authority |
+| Cursor write lane | WT-014 only; no concurrent write from this worktree or Codex thread |
+| allowed operations | Codex read-only orchestration · contract review · actual-diff review · this exact allowlisted durable-transition docs patch |
+| prohibited operations | application-source write · concurrent write to WT-014 · Product Authority input/generated edit · Production operation · commerce activation · commit/push/PR/merge without a later explicit gate |
+| removal eligibility | **NO** — retain until the IND-FREE handoff and review cycle is durably complete and closeout is separately authorized |
 | next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION`. |
-| notes | Internal aliases are navigation references only and must not create runtime modules, wrappers, registries, duplicate SSOT, or public UI copy. |
+| notes | The commercial-surface alias/reuse freeze is CLOSED GREEN. WT-013 is not the implementation worktree. |
+
+### WT-014 — IND-FREE commercial convergence implementation
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` |
+| branch | `feat/m55-ind-free-commercial-convergence-v1` |
+| HEAD / base | `74ff7799bf02b5d6fbcb72599b1d0a38998665e1` — exact `origin/main` at creation |
+| cleanliness | **clean** at registration preflight |
+| lifecycle | **ACTIVE** — dedicated implementation worktree; source edit remains gated by Cursor implementation preflight |
+| operational state | **IND_FREE_COMMERCIAL_CONVERGENCE_PREFLIGHT_GATED** |
+| lane | IND-FREE — 個人無料結果のcanonical naming・conversion copy・measurement convergence |
+| write authority | one future new Cursor thread only; not yet activated in practice |
+| review authority | current Codex thread and WT-013, read-only |
+| reuse boundary | Existing IND-FREE result engine, renderer/Core components, save/share/revisit paths, Premium bridge and privacy-safe analytics |
+| allowed operations | after the exact Cursor implementation preflight is GREEN, edits within that prompt's exact file allowlist only |
+| prohibited operations | concurrent Codex source writes · second Cursor write thread · allowlist外編集 · commit · push · PR creation/update · merge · DB/Stripe/Clerk/env change · Production GET/POST · deployment · COMP-FREE/COMP-PAID edits · new system/registry/wrapper/renderer/component/SSOT |
+| removal eligibility | **NO** — active dedicated implementation worktree |
+| next action | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION`. |
+| notes | Source edits remain unauthorized until the future Cursor preflight confirms exact identity, clean state, authority order and exact allowlist. |
 
 ---
 
