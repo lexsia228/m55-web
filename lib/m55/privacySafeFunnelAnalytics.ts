@@ -30,7 +30,12 @@ export const M55_FUNNEL_EVENTS = {
   resultRerunStarted: 'result_rerun_started',
   additionalThemeStarted: 'additional_theme_started',
   consultReplyStarted: 'consult_reply_started',
-  /** Existing surfaces (kept for continuity). */
+  /**
+   * Legacy wire names retained for external consumer compatibility.
+   * Canonical Self-funnel semantics (prefer these at new emit sites):
+   * freeResultViewed / premiumBridgeViewed / premiumPlanSelected.
+   * Do not dual-emit a legacy alias alongside its canonical twin for one action.
+   */
   freeResultView: 'm55_free_result_view',
   paidBridgeView: 'm55_paid_bridge_view',
   paidBridgePrimaryClick: 'm55_paid_bridge_primary_click',

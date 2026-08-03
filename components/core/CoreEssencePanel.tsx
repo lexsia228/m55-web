@@ -228,11 +228,6 @@ export default function CoreEssencePanel() {
   useEffect(() => {
     if (!shouldShowResultSections(uxPhase) || !composition) return;
     trackFunnelImpressionOnce(
-      M55_FUNNEL_EVENTS.freeResultView,
-      'core_free_result',
-      'core-free-result-view',
-    );
-    trackFunnelImpressionOnce(
       M55_FUNNEL_EVENTS.freeResultViewed,
       'core_free_result',
       'core-free-result-viewed',
@@ -621,7 +616,7 @@ export default function CoreEssencePanel() {
             <>
               <nav
                 className={CoreExperienceStyles.freeResultSectionNav}
-                aria-label="無料結果のセクション"
+                aria-label="個人無料読み解きのセクション"
                 data-testid="m55-free-result-section-nav"
                 data-m55-print-hide
               >

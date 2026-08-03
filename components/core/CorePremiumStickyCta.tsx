@@ -125,7 +125,10 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       role="region"
       aria-label={T.premiumProduct}
     >
-      <p className={styles.premiumStickyLead}>{STATIC_FREE_TO_PAID_BRIDGE.overline}</p>
+      <p className={styles.premiumStickyLead}>
+        {STATIC_FREE_TO_PAID_BRIDGE.overline}
+        <span className={styles.premiumStickyLeadHint}>プラン選択は次の画面</span>
+      </p>
       <Link
         href={href}
         className={styles.premiumStickyBtn}
