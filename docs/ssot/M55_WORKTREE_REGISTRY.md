@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-07-27** (CATEGORY-2 Growth Share authority state reconciliation REV1 — verification-time snapshot); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff — WT-011 closure + WT-012 registration; see notes below)
+Last verified: **2026-08-03** (`git worktree list --porcelain`; PR #83 post-merge governance transition — WT-012 closure + WT-013 registration)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -19,7 +19,8 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **PR #79 Authority Pack merge (historical):** `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` — **not** current live remote main
 - **Historical snapshot label (valid through 2026-07-31 only) — `696559009367a6ac445dc7a07876590b16cd8488`:** PR #80 Self funnel operational baseline merge; **not** current live remote main as of 2026-08-01 — see the current bullet immediately below
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
-- **Current live remote main (2026-08-01, present authority):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — PR #81 Self funnel Growth / share merge; Production diagnostics confirms `vercel_git_sha=bf5ef09…`, `vercel_env=production`, `vercel_branch=main`
+- **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
+- **Current live remote main (2026-08-03, present Git authority):** `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge; no Production observation claim is made by this registry update
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -32,7 +33,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-01) — authoritative, read this first:** PR #81 is **MERGED** (`bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`, merged at `2026-08-01T08:38:25Z`). **No worktree currently holds an ACTIVE product-implementation lane.** WT-011 Self funnel Growth / share implementation is **COMPLETED**; it is **no longer** the ACTIVE implementation lane, and PR #81 is **no longer unmerged**. Worktree and branch are **retained temporarily** for new-thread handoff verification and a separately authorized closeout — no further implementation is permitted there. WT-012 (`/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1`, `chore/m55-pr81-post-merge-transition-v1`) is registered as **ACTIVE DOCS-ONLY TRANSITION** (not a product implementation lane). WT-001, WT-006, WT-009, WT-010 statuses are unchanged from the historical snapshot below.
+**CURRENT (2026-08-03) — authoritative, read this first:** PR #83 is **MERGED** @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; PA-2A is CLOSED GREEN. WT-012 is **COMPLETED** and retained read-only. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `2acc9dd1795c5ffe1709bb399e640891903422a3`) is the sole **ACTIVE — read-only commercial-surface governance freeze** worktree. There is no current Cursor write lane and no product implementation, commerce activation, or Production operation is authorized.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -61,7 +62,9 @@ Historical post-merge transition snapshots remain recorded for audit.
 | Authority Pack PR #79 merge | `main` (remote) | `355462b…` | **MERGED** — Product Authority Pack complete |
 | Self funnel PR #80 merge | `main` (remote) | `6965590…` | **MERGED** — Self free→Premium **OPERATIONAL_BASELINE** |
 | Self funnel Growth PR #81 merge | `main` (remote) | `bf5ef09…` | **MERGED** (2026-08-01T08:38:25Z) — Self funnel Growth / share (WT-011) commercial + technical closure complete; feature head `6770c40…`; pre-merge main `110fa79…` |
-| Current (PR #81 post-merge docs-only transition) | `chore/m55-pr81-post-merge-transition-v1` | live HEAD (Git) | WT-012 — SSOT reconciliation + ChatGPT thread handoff; **not** a new implementation lane |
+| PR #81 post-merge docs-only transition | `chore/m55-pr81-post-merge-transition-v1` | `234f01cfc40b35c94dff871d3c18eee4afb73dd8` | WT-012 — **COMPLETED**, retained read-only |
+| PR #83 merge | `main` (remote) | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` | **MERGED** — PA-2A control-plane lane CLOSED GREEN; feature branch retained |
+| Current commercial-surface governance freeze | `chore/m55-pa-reconciliation-pr81-v1` | `2acc9dd1795c5ffe1709bb399e640891903422a3` | WT-013 — read-only existing-asset reuse, alias, four-surface and first-lane freeze |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -89,7 +92,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | allowed operations | read-only inspection · historical baseline reference |
 | prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits · routing new product work to WT-011 |
 | removal eligibility | NO — retain as PRIMARY_MAIN_HOME / merged baseline reference |
-| next gate | none for product implementation — current ACTIVE worktree is **WT-012** (docs-only residual SSOT correction / independent review only); Product Authority reconciliation is later and separate; Pair (二人向け無料→有料) remains planned only / not authorized / not started |
+| next gate | none for product implementation — current ACTIVE worktree is **WT-013** for the read-only commercial-surface governance freeze; Pair and commerce remain not authorized |
 | notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. Do **not** restart Growth or Self Funnel implementation on WT-011. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
@@ -344,16 +347,37 @@ Historical post-merge transition snapshots remain recorded for audit.
 | divergence from `origin/main` (at start of this residual corrective gate) | 0 behind / 2 ahead; after this residual corrective commit: 0 behind / 3 ahead |
 | cleanliness | **clean** (verification-time snapshot, 2026-08-01) |
 | locked / prunable | none |
-| lifecycle | **ACTIVE** |
-| operational state | **ACTIVE DOCS-ONLY TRANSITION** — only current ACTIVE worktree; docs-only; no source implementation |
+| lifecycle | **COMPLETED** — retained read-only |
+| operational state | **POST_MERGE_TRANSITION_COMPLETE** — no longer ACTIVE; no source implementation |
 | purpose | SSOT reconciliation · post-merge record · ChatGPT thread handoff · residual ambiguity correction (this record) · independent review |
 | related lane / PR | Follows merged [PR #81](https://github.com/lexsia228/m55-web/pull/81) @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; not itself a PR at creation of this record |
 | product implementation authorized | **false** — docs-only; no source/test/workflow change authorized; Product Authority reconciliation is later and separate; new-thread cutover remains prohibited |
-| allowed operations | `docs/ssot/**` residual correction (allowlisted files only) |
+| allowed operations | read-only historical inspection only |
 | prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 or WT-011 worktrees · push / PR / merge / rebase / amend / reset · Production mutation · Pair implementation |
-| removal eligibility | deferred — retain until new-thread context-import verification passes and WT-011 closeout is separately authorized |
-| next gate | this residual corrective commit (`docs(m55): remove residual PR81 handoff ambiguity`); no push; then independent diff-only review |
+| removal eligibility | deferred — retain until the WT-013 governance transition/reuse freeze is complete and removal is separately authorized |
+| next gate | none — transition complete; do not route active work here |
 | notes | Created to execute `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-AND-THREAD-HANDOFF-IMPLEMENTATION-REV1`; boundary-corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-CORRECTIVE-PATCH-REV1`; residual ambiguity corrected by `CATEGORY-1-M55-PR81-POST-MERGE-SSOT-HANDOFF-RESIDUAL-AMBIGUITY-CORRECTIVE-PATCH-REV2`. Branch creation base verified as `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. |
+
+### WT-013 — M55-wide commercial-surface governance freeze
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` |
+| branch | `chore/m55-pa-reconciliation-pr81-v1` |
+| HEAD | `2acc9dd1795c5ffe1709bb399e640891903422a3` |
+| origin/main | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge |
+| cleanliness | **clean** at activation preflight; this docs-only transition patch becomes the exact allowlisted working-tree diff |
+| lifecycle | **ACTIVE** |
+| operational state | **READ_ONLY_COMMERCIAL_SURFACE_GOVERNANCE_FREEZE** |
+| purpose | M55全域の商用surface統治 — existing-asset reuse, internal alias, four-surface commercial matrix, contradiction and first implementation-lane freeze |
+| related lane / PR | PR #83 **MERGED**; PA-2A control-plane lane **CLOSED GREEN**; feature branch retained after merge |
+| product implementation authorized | **false** — read-only governance freeze only |
+| Cursor write lane | **none** |
+| allowed operations | read-only repository and document review for the governance freeze; this exact allowlisted durable-transition docs patch |
+| prohibited operations | UI/source implementation · Cursor write work · Product Authority input/generated edit · Production operation · commerce activation · commit/push/PR/merge without a later explicit gate |
+| removal eligibility | **NO** — retain until this transition and reuse/alias/four-surface freeze is complete and closeout is separately authorized |
+| next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION`. |
+| notes | Internal aliases are navigation references only and must not create runtime modules, wrappers, registries, duplicate SSOT, or public UI copy. |
 
 ---
 

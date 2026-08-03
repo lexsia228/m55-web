@@ -21,9 +21,24 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
+## Current commercial-surface governance transition (2026-08-03) — AUTHORITATIVE
+
+PR #83 is **MERGED** @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; PA-2A and the prior docs-only transition are closed. The ACTIVE lane is **M55全域の商用surface統治**, and its current action is read-only governance freeze only.
+
+Ordered commercial execution sequence:
+
+1. existing-asset reuse and internal alias freeze
+2. IND-FREE commercial surface
+3. IND-PAID result/save/revisit/add-on loop
+4. COMP-FREE runtime and UI
+5. COMP-PAID product/result/checkout activation
+6. cross-product measurement and retention
+
+Already-GREEN control-plane work must not be reopened except for an actual blocking delta. This transition does not authorize implementation, Cursor write work, commerce activation, or Production operations; those require the read-only freeze to become GREEN and a later explicit lane-change gate.
+
 ## Historical: implementation lane while PR #81 was open (dated 2026-07-27; superseded 2026-08-01)
 
-**Do not treat any field in this section as current.** PR #81 has since merged; see "Current transition (2026-08-01)" section below for the authoritative current state. The blockquoted table below is retained only as a historical record of the lane while PR #81 was open (valid only through 2026-07-31).
+**Do not treat any field in this section as current.** PR #81 has since merged; see "Current commercial-surface governance transition (2026-08-03)" above for the authoritative current state. The blockquoted table below is retained only as a historical record of the lane while PR #81 was open (valid only through 2026-07-31).
 
 > | Item (as of 2026-07-27 only) | Value (as of 2026-07-27 only) |
 > |---|---|
@@ -38,12 +53,12 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 > | Build Week / WT-009 | freeze maintained (PAUSED + FROZEN_BY_HUMAN_DECISION) |
 > | Stripe / DB / Clerk / env | not authorized in this lane |
 
-## Current transition (2026-08-01) — PR #81 post-merge SSOT and thread handoff — AUTHORITATIVE
+## Historical transition (2026-08-01) — PR #81 post-merge SSOT and thread handoff — SUPERSEDED 2026-08-03
 
 | Item | Status |
 |---|---|
 | **Completed product lane** | Self funnel Growth / share (WT-011) — PR #81 **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (`2026-08-01T08:38:25Z`); feature head `6770c40ac52ce5e222e4f485b8c9c83aa3814d48`; pre-merge main `110fa79fe45ef24481a7fd1fd8e19cebbcb98d39`; Production observed GREEN |
-| **Current activity** | docs-only post-merge SSOT reconciliation and ChatGPT thread handoff (WT-012 · `chore/m55-pr81-post-merge-transition-v1`) — **not** a new implementation lane |
+| **Activity at that time** | docs-only post-merge SSOT reconciliation and ChatGPT thread handoff (WT-012 · `chore/m55-pr81-post-merge-transition-v1`) — completed and superseded by WT-013 |
 | **Next planned product lane** | 二人向け無料→有料 — **implementation not yet authorized; no work started in this gate** |
 | Merge / deploy | none performed in this gate — docs-only |
 | Pair | out of current lane — roadmap step 3, next planned |

@@ -5,11 +5,41 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff — see authoritative closure section immediately below; superseded 2026-07-27 lane-active claims are retained as historical record with explicit supersession notes).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition — current authority immediately below; earlier lane-active claims are historical).
 
-## PR #81 POST-MERGE CLOSURE (2026-08-01) — AUTHORITATIVE
+## PR #83 POST-MERGE GOVERNANCE TRANSITION (2026-08-03) — AUTHORITATIVE
 
-This section is the current authority for lane status. Sections below dated 2026-07-27 or earlier describe the state **while PR #81 was open** and are retained as historical record; where they conflict with this section, this section governs.
+This section is the current authority for lane status and the next single action. Earlier `CURRENT` or `ACTIVE` labels in dated sections are retained only as historical records and are superseded by this section.
+
+| Field | Value |
+|---|---|
+| PR #83 | **MERGED** |
+| Merge commit | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` |
+| Checks | **12/12 SUCCESS** |
+| PA-2A control-plane lane | **CLOSED GREEN** — do not reopen without an actual blocking delta |
+| Previous docs-only transition | **CLOSED** — WT-012 is no longer ACTIVE |
+| ACTIVE LANE | **M55全域の商用surface統治** |
+| Active worktree | WT-013 · `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` · `chore/m55-pa-reconciliation-pr81-v1` @ `2acc9dd1795c5ffe1709bb399e640891903422a3` |
+| NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
+| Authorization boundary | Read-only governance freeze only. Implementation, Cursor write work, Production operations and commerce activation remain unauthorized until the freeze is GREEN. |
+
+### PR #83 path-count semantics
+
+- GitHub PR changed-file set: **25 paths**.
+- Canonical PR scope: merge-base/three-dot `e094467e02bb9f5b95e57c1b0851e71051f1c7ab...2acc9dd1795c5ffe1709bb399e640891903422a3` = **25 paths**.
+- Direct endpoint tree comparison `f15b6660d072135eece14f815d4c6962f283703c..2acc9dd1795c5ffe1709bb399e640891903422a3` = **27 paths** because it also includes the two main-only files `docs/audit/M55_REPO_ASSET_INDEX.json` and `docs/audit/M55_REPO_ASSET_INDEX.md`; those files are not part of PR #83.
+- Future PR-scope audits must use GitHub PR files or merge-base/three-dot semantics, not direct endpoint comparison.
+
+### Internal alias policy for the next read-only gate
+
+- `PA`, `SSOT`, `AUDIT`, `OBSERVE`, `PROOF`, `IND-FREE`, `IND-PAID`, `COMP-FREE`, `COMP-PAID`, `COMMERCE`, `RETENTION`, and `MEASURE` are candidate internal AI navigation references only.
+- Aliases must point to existing canonical assets and must never appear in public UI copy.
+- Aliases do not authorize runtime modules, wrappers, registries, duplicate SSOT, or any other new architecture.
+- Final meanings and exactly one storage location will be frozen by the NEXT SINGLE ACTION; no alias system is created by this transition.
+
+## PR #81 POST-MERGE CLOSURE (2026-08-01) — HISTORICAL, SUPERSEDED 2026-08-03
+
+This section records the PR #81 closure. It is superseded for current lane status by the PR #83 governance transition above.
 
 | Field | Value |
 |---|---|
@@ -25,14 +55,14 @@ This section is the current authority for lane status. Sections below dated 2026
 | Canonical domain | `https://m-55.jp` |
 | Deployment method | **automatic** Vercel Production deployment on merge — no manual deploy, no manual Production `POST`, no DB/Stripe/Clerk/ticket mutation performed |
 | Self funnel Growth / share (WT-011) | **implementation completed** · PR #81 merged · Production observed GREEN · **no longer the ACTIVE implementation lane** |
-| Current activity | **docs-only post-merge transition and thread handoff** (WT-012, `chore/m55-pr81-post-merge-transition-v1`) |
+| Current activity at that time | **docs-only post-merge transition and thread handoff** (WT-012, `chore/m55-pr81-post-merge-transition-v1`) — completed and superseded 2026-08-03 |
 | Next product lane | **二人向け無料→有料** — planned next lane; **implementation not yet authorized**; no work started in this gate |
 
 **Claim boundary:** Production diagnostics SHA match and PR checks GREEN are route-level / build-identity observations only. They do **not** by themselves prove checkout, webhook, payment, or authenticated Premium runtime correctness. See `docs/ssot/M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` section K for rejected overclaims.
 
 ## Self funnel Growth / share (WT-011) — lane status
 
-**CURRENT (2026-08-01):** WT-011 is **COMPLETED** — PR #81 is **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. It is **not** ACTIVE and is **not** the current implementation lane; it is retained temporarily for new-thread handoff verification only (see `M55_WORKTREE_REGISTRY.md`). No worktree currently holds an ACTIVE product-implementation lane — the current activity is the docs-only transition on WT-012.
+**HISTORICAL CURRENT (2026-08-01; superseded 2026-08-03):** WT-011 is **COMPLETED** — PR #81 is **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. WT-012 was the docs-only transition at that time and is now completed.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01. Every field in this quoted table describes the lane while it was open; none of it is current.**
 >
@@ -90,11 +120,11 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 >
 > Authority Pack merge **does not** replace Growth Human visual lock. Branch-local Growth code is **not** merged runtime until merged to `origin/main`. No Growth Share merge or Production deployment has occurred.
 
-**CURRENT (2026-08-01):** Growth Share **has** merged via PR #81; Growth code **is** Production runtime authority @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level / build-identity GREEN only — does not itself prove checkout/webhook/payment/DB correctness).
+**HISTORICAL CURRENT (2026-08-01; superseded for Git-main identity 2026-08-03):** Growth Share merged via PR #81 and was the recorded Production runtime authority @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level / build-identity GREEN only — does not itself prove checkout/webhook/payment/DB correctness).
 
 ## Canonical Production authority
 
-**CURRENT (2026-08-01):**
+**CURRENT (2026-08-03):**
 
 | Field | Value |
 |---|---|
@@ -103,9 +133,9 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — PR #81 merge (Self funnel Growth / share) |
-| Production observed SHA | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — via `https://m-55.jp/api/diagnostics/build` (`vercel_env=production`, `vercel_branch=main`) |
-| Production confirmation | **GREEN** — route-level diagnostics + PR checks; does not itself prove checkout/webhook/payment/DB correctness |
+| Current live remote main | `dd08f5dfde1e3a9425db6baa9d4310d074376c03` — PR #83 merge (Git identity; freshly synchronized 2026-08-03) |
+| Last recorded Production observed SHA | `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — 2026-08-01 record via `https://m-55.jp/api/diagnostics/build`; no Production GET was performed in the 2026-08-03 docs transition |
+| Production confirmation boundary | The prior route-level diagnostics observation does not establish that PR #83 is deployed and does not itself prove checkout/webhook/payment/DB correctness |
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT table above. None of the values below are current.**
 >
@@ -126,7 +156,8 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Paid LP / HOME microcopy | **PAUSED** | **WT-006** | `/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1` | reference-only |
 | Build Week control plane | **FROZEN** | **WT-009** | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | `DO_NOT_MODIFY` |
 | Self funnel Growth / share | **COMPLETED — PR #81 MERGED** | **WT-011** | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` | merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (2026-08-01) · Production GREEN · worktree/branch retained temporarily for new-thread handoff verification · no further implementation permitted there |
-| PR #81 post-merge SSOT and thread handoff | **ACTIVE (docs-only)** | **WT-012** | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` | current transition activity; see `M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
+| PR #81 post-merge SSOT and thread handoff | **COMPLETED — retained read-only** | **WT-012** | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` | superseded by WT-013 governance freeze; see `M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
+| M55-wide commercial-surface governance | **ACTIVE — read-only freeze** | **WT-013** | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` | existing-asset reuse, internal alias, four-surface matrix, contradiction and first implementation-lane freeze |
 
 ## State separation
 
@@ -153,11 +184,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition activity (2026-08-01):** docs-only post-merge SSOT reconciliation and ChatGPT thread handoff (WT-012). This is not a new implementation lane and does not advance step 4 above.
+**Current transition (2026-08-03):** WT-012 docs-only transition is complete. WT-013 holds the read-only M55-wide commercial-surface governance freeze. No implementation lane is authorized by this transition.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-01):** Complete this docs-only PR #81 post-merge SSOT reconciliation and ChatGPT thread handoff (WT-012). Do not start 二人向け無料→有料 implementation without an explicit lane-change gate recorded in this file. No Production merge, no live purchase, no DB / Auth / Provider / env mutation in this gate.
+**CURRENT (2026-08-03):** Read-only existing-asset reuse, internal alias, four-surface commercial matrix, contradiction and first implementation-lane freeze. Do not implement the frozen lane, start Cursor write work, activate commerce, or perform Production operations until this freeze is GREEN and a later explicit lane-change gate is recorded.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01. This described the pre-merge Growth Share gate and is retained as historical record; PR #81 has since merged.**
 >
@@ -177,7 +208,7 @@ npm run verify:m55-ssot
 | Field | Value |
 |---|---|
 | Contract | `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` — **REV1 frozen** |
-| **Merge status — CURRENT (2026-08-01)** | **MERGED** — PR #81 merged to `origin/main` @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; Growth is no longer branch-local |
+| **Merge status — HISTORICAL CURRENT (2026-08-01; superseded for Git-main identity 2026-08-03)** | **MERGED** — PR #81 merged to `origin/main` @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`; Growth is no longer branch-local |
 | **selfInputExperienceStatus — CURRENT (2026-08-01)** | `INPUT_EXPERIENCE_COMMERCIAL_FINALIZATION_GREEN_READY_FOR_HUMAN_LOCK`; Growth share loop **merged, Human-approved, Production GREEN** |
 | **HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT** | NOT_YET |
 
@@ -199,7 +230,7 @@ runtime_specific_validation_owned_by_lane = true
 post_merge_state_transition_required = true
 ```
 
-**CURRENT (2026-08-01):** Merged runtime is `origin/main` @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (PR #81 merged). Self funnel Growth source is **no longer branch-local** — it is now committed `origin/main` / Production runtime authority.
+**HISTORICAL CURRENT (2026-08-01; superseded for Git-main identity 2026-08-03):** Merged runtime was `origin/main` @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` after PR #81. Self funnel Growth source is no longer branch-local. Current Git main is PR #83 @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; this docs transition makes no new Production deployment claim.
 Target contract may precede runtime.
 Historical pre-merge SHA: `37163a0d473c25365f3bddad579d4844fd8300df` — retained for verifier/history.
 documented post-merge transition remains recorded for WT-001 historical context.
@@ -209,9 +240,9 @@ documented post-merge transition remains recorded for WT-001 historical context.
 > Merged runtime (`origin/main` @ `696559009367a6ac445dc7a07876590b16cd8488` as of 2026-07-27; prior observation `b13fcd540e210c3ffb41fa2f56889df74b1b3915` as of 2026-07-26T13:23:20+00:00) was, at that time, committed authority.
 > Branch-local Self funnel Growth source was, at that time, **not merged main runtime**.
 
-## Active authoritative state (Self funnel commercial sequence)
+## Active authoritative state (historical Self funnel commercial sequence)
 
-**CURRENT (2026-08-01):** There is **no ACTIVE product-implementation lane**. Self funnel Growth / share (WT-011) is **COMPLETED** — PR #81 **MERGED** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. The current activity is the docs-only transition on WT-012. `feat/m55-self-funnel-growth-share-v1` is the **merged** feature branch, retained temporarily; it is **not for further implementation**. `pairPremium` remains `NOT_LIVE`; Pair implementation (二人向け無料→有料) is the next planned lane and is **not yet authorized**. See "PR #81 POST-MERGE CLOSURE (2026-08-01)" near the top of this file for the full current authority record.
+**HISTORICAL CURRENT (2026-08-01; superseded 2026-08-03):** There was no ACTIVE product-implementation lane. Self funnel Growth / share (WT-011) was **COMPLETED**, and WT-012 held the docs-only transition. Current authority is the PR #83 governance transition at the top of this file. `pairPremium` remains `NOT_LIVE`; no Pair implementation or commerce activation is authorized.
 
 `postMergeActiveLane` / `postMergeNextSingleAction` in the historical table below are labels from an earlier (PR #77/#78-era) post-merge transition, unrelated to WT-011/PR #81; they are retained verbatim only for verifier continuity and are not a claim about today's state.
 
@@ -251,7 +282,7 @@ documented post-merge transition remains recorded for WT-001 historical context.
 
 ## Runtime vs target (scope separation — verifier preserved)
 
-**CURRENT (2026-08-01):** Share / OG / viral return is **merged to Production** @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level GREEN only; does not itself prove payment/webhook/DB correctness). Pair premium remains `NOT_LIVE`; 二人向け無料→有料 is the next planned lane and is **not yet authorized**. There is **no** present branch-local Growth implementation lane; WT-011 is COMPLETED and retained temporarily only.
+**HISTORICAL CURRENT (2026-08-01; superseded for lane and Git-main identity 2026-08-03):** Share / OG / viral return was recorded as merged to Production @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (route-level GREEN only; does not itself prove payment/webhook/DB correctness). Pair premium remains `NOT_LIVE`; no Pair implementation is authorized. WT-011 remains COMPLETED and retained temporarily only.
 
 > **HISTORICAL SNAPSHOT — table below is pre-PR #81 state only; valid through 2026-07-31; superseded by PR #81 merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. Column label "Branch-local Self funnel Growth (not merged main runtime)" describes former state before that merge — not current authority.**
 >
