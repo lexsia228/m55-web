@@ -128,6 +128,10 @@ describe('/core public copy alignment — CATEGORY-2-M55-CORE-PAGE-PAID-COPY-ALI
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート ライト/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /M55 プレミアムレポート フル/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.priceNoteJa, /買い切り/);
+    assert.equal(
+      STATIC_FREE_TO_PAID_BRIDGE.stickyLeadHintJa,
+      'プラン選択は次の画面',
+    );
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.chapters.length, 4);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /診断/);
     assert.match(STATIC_FREE_TO_PAID_BRIDGE.safetyNote, /ではありません/);

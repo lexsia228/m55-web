@@ -127,7 +127,7 @@ export default function CorePremiumStickyCta({ visible }: Props) {
     >
       <p className={styles.premiumStickyLead}>
         {STATIC_FREE_TO_PAID_BRIDGE.overline}
-        <span className={styles.premiumStickyLeadHint}>プラン選択は次の画面</span>
+        <span className={styles.premiumStickyLeadHint}>{STATIC_FREE_TO_PAID_BRIDGE.stickyLeadHintJa}</span>
       </p>
       <Link
         href={href}

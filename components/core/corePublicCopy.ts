@@ -180,6 +180,7 @@ export const STATIC_FREE_TO_PAID_BRIDGE = {
   primaryCtaJa: M55_COMMERCIAL_TERMINOLOGY.premiumBridgeCta,
   ctaSupportJa: '正解はありません。あとで回答を確認できます。',
   secondaryCtaJa: '無料結果を続けて読む',
+  stickyLeadHintJa: 'プラン選択は次の画面',
   priceNoteJa: `${LIGHT_PLAN.planNameJa} ${LIGHT_PLAN.priceLabelJa} ／ ${FULL_PLAN.planNameJa} ${FULL_PLAN.priceLabelJa}。どちらも買い切りです。違いは、購入後に追加で読み解けるテーマ数です。`,
   safetyNote:
     '医療・法律・投資等の助言、診断、未来や結果の保証ではありません。追加読み解きは購入済みレポートをもとにした1テーマ整理です。',
