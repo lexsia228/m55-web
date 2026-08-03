@@ -21,20 +21,24 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
-## Current commercial-surface governance transition (2026-08-03) — AUTHORITATIVE
+## Current commercial-surface governance transition (2026-08-04) — AUTHORITATIVE
 
-PR #83 is **MERGED** @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; PA-2A and the prior docs-only transition are closed. The ACTIVE lane is **M55全域の商用surface統治**, and its current action is read-only governance freeze only.
+PR #86 is **MERGED** @ `10e601465b66b8132a7ceb845300af1924ba468b` (feature head `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`; merge method **MERGE COMMIT**); IND-FREE is **CLOSED GREEN**; Production deployment id **5729622031** · Production SHA `10e601465b66b8132a7ceb845300af1924ba468b` · state **READY** · canonical `/core` GET **HTTP 200**. The ACTIVE lane is **IND-PAID — result/save/revisit/add-on loop**; implementation is not yet authorized. PR #87 v1 transition attempt (WT-015) remains **OPEN** and **unmerged**; corrected replacement delta (WT-016) is pending Codex review — uncommitted.
 
 Ordered commercial execution sequence:
 
-1. existing-asset reuse and internal alias freeze
-2. IND-FREE commercial surface
-3. IND-PAID result/save/revisit/add-on loop
+1. existing-asset reuse and internal alias freeze ← **CLOSED GREEN**
+2. IND-FREE commercial surface ← **CLOSED GREEN** (PR #86 **MERGED** @ `10e601465b66b8132a7ceb845300af1924ba468b`)
+3. IND-PAID result/save/revisit/add-on loop ← **ACTIVE — implementation not yet authorized**
 4. COMP-FREE runtime and UI
 5. COMP-PAID product/result/checkout activation
 6. cross-product measurement and retention
 
-Already-GREEN control-plane work must not be reopened except for an actual blocking delta. This transition does not authorize implementation, Cursor write work, commerce activation, or Production operations; those require the read-only freeze to become GREEN and a later explicit lane-change gate.
+Already-GREEN control-plane work and completed IND-FREE proof/UI/visual review must not be reopened except for an actual blocking delta. This transition does not authorize IND-PAID implementation, Cursor write work, commerce activation, or Production operations; those require a later explicit lane-change gate.
+
+## Historical: commercial-surface governance transition (2026-08-03) — SUPERSEDED 2026-08-04
+
+PR #83 is **MERGED** @ `dd08f5dfde1e3a9425db6baa9d4310d074376c03`; PA-2A and the prior docs-only transition are closed. At that time the ACTIVE lane was **M55全域の商用surface統治** with IND-FREE implementation in WT-014.
 
 ## Historical: implementation lane while PR #81 was open (dated 2026-07-27; superseded 2026-08-01)
 
