@@ -131,7 +131,7 @@ const SECTION_SPECS: readonly SectionPromptSpec[] = [
     roleDescription: '「本質と安定の条件」— 安定条件・本質のリズムを伝える章。生年月日の細かなリズムを根拠に。',
     forbiddenTopics: ['断定的な運命言及', '他者との比較評価'],
     requiredThemes: ['安定の核心', '本質のリズム', '生年月日の細かなリズムから見ると'],
-    lengthGuidance: '300〜500字程度。保存版として読み返せる深さ。',
+    lengthGuidance: '300〜500字程度。プレミアムレポートとして読み返せる深さ。',
   },
   {
     sectionId: 's4_strengths',
@@ -172,11 +172,11 @@ export function buildHybridAiPromptPayload(
       forbiddenPhrases: SYSTEM_FORBIDDEN_PHRASES,
       hardClaims: HARD_CLAIM_PATTERNS,
       styleGuidance: [
-        '保存版として読み返せる丁寧な日本語で書くこと。',
+        'プレミアムレポートとして読み返せる丁寧な日本語で書くこと。',
         'ユーザーを決めつけず、「〜しやすくなります」「〜が合いやすくなります」の形を基本にすること。',
         '「あなたは必ず〜」「絶対に〜」は使わないこと。',
         '占い断定・医療断定・金銭断定・恋愛断定は一切しないこと。',
-        '保存版だけで完結しすぎず、返書購入につながる余白を残すこと。',
+        'プレミアムレポートだけで完結しすぎず、返書購入につながる余白を残すこと。',
         '見出し・markdown記法は使わないこと。',
         '章の役割を必ず守ること。',
         '天干・地支・五行・節気などの中国思想専門語や、甲木・乙木・丙火などの干支コードは出力に使わないこと。辛い・辛さ・丁寧・甲斐・乙女などの一般的な日本語は問題なく使ってよい。',

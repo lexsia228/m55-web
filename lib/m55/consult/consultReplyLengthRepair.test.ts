@@ -18,12 +18,12 @@ const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 function makeNonThemeShortReply(lengthTarget = 931): string {
   const pad = (base: string, n: number) => {
     let s = base;
-    while (s.length < n) s += '相談文の具体語を戻しながら保存版の傾向に沿って整理します。';
+    while (s.length < n) s += '相談文の具体語を戻しながらプレミアムレポートの傾向に沿って整理します。';
     return `${s.slice(0, n - 1)}。`;
   };
   const blocks = [
     pad('相手の返事を待つあいだ次の作業に進みにくくなる場面が出やすいです', 180),
-    pad('保存版のⅡ章では先を確かめてから動く傾向が返事待ちの不安を長引かせやすいと書かれています', 190),
+    pad('プレミアムレポートのⅡ章では先を確かめてから動く傾向が返事待ちの不安を長引かせやすいと書かれています', 190),
     pad('少しほどくと返事がない時間を自分への否定として扱わなくてよい場面もあります', 185),
     pad('見直すときの目印として返事がない時間が続くほど自分を責めやすくなるサインが出やすいです', 185),
     pad('今日やることは1つだけです。今進めている仕事について相手が10秒で返せる確認を1つ送ってください', 191),
@@ -78,7 +78,7 @@ describe('consultReplyLengthRepair', () => {
     if (!shortResult.ok) assert.equal(shortResult.reason, 'below_minimum_length');
 
     const expandBlock = (block: string) =>
-      `${block} 相談文の具体語を各段落に戻し、保存版の傾向語をそのまま使って場面を深めます。`;
+      `${block} 相談文の具体語を各段落に戻し、プレミアムレポートの傾向語をそのまま使って場面を深めます。`;
     const expanded = short
       .split('\n\n')
       .map(expandBlock)

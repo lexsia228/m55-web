@@ -40,10 +40,10 @@ export type ComposedReplyValidationResult =
 /** Body-present generation instruction — legacy history only; not reachable from new API. */
 export const CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA = `【相談返書 — 自由記述あり（必須の長さ・構成）】
 - ユーザーはテーマに加えて具体の相談文を書いています。この具体語を各段落に必ず戻してください。
-- 抽象的な短文や汎用アドバイスで終わらせないこと。相談テーマと保存版の傾向から場面を具体化し、5段落すべて書き切ってください。
+- 抽象的な短文や汎用アドバイスで終わらせないこと。相談テーマとプレミアムレポートの傾向から場面を具体化し、5段落すべて書き切ってください。
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
-- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。相談の論点・保存版の傾向・別の見方・見直す目印・今日の一手まで各段落に役割を持たせて書くこと。
-- 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
+- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。相談の論点・プレミアムレポートの傾向・別の見方・見直す目印・今日の一手まで各段落に役割を持たせて書くこと。
+- 2段落目は「プレミアムレポートから見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
 - 相談文から拾った論点（3〜5個）を1段落目に反映し、今日の一手まで必ず書き切ること。
 
 ${CONSULT_REPLY_QUALITY_VOICE_JA}`;
@@ -51,24 +51,24 @@ ${CONSULT_REPLY_QUALITY_VOICE_JA}`;
 /** Theme-only generation instruction — legacy history only. */
 export const CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA = `【テーマのみ相談 — 有効な相談として扱う】
 - ユーザーは自由記述を空欄にしています。これは不備ではありません。
-- 選択されたテーマと保存版の内容だけをもとに、今の相談として成立する返書を作成してください。
+- 選択されたテーマとプレミアムレポートの内容だけをもとに、今の相談として成立する返書を作成してください。
 - ユーザーに「詳しく書いてください」「相談内容がありません」と返さず、このテーマで今できる整理と今日の一手まで書いてください。
-- 自由記述が空欄でも、短く済ませず、選択テーマを今の相談の枠として扱ってください。テーマの見方から場面を一つ具体化し、保存版の傾向とつなげ、無理が出やすいところ、少しほどく見方、見直す目印、今日の一手まで書き切ってください。
+- 自由記述が空欄でも、短く済ませず、選択テーマを今の相談の枠として扱ってください。テーマの見方から場面を一つ具体化し、プレミアムレポートの傾向とつなげ、無理が出やすいところ、少しほどく見方、見直す目印、今日の一手まで書き切ってください。
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。途中で終えないこと。
-- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。テーマ・テーマの見方・保存版の傾向から場面を深め、各段落に役割を持たせて書くこと。
-- 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
+- 水増しや同じ言い回しの繰り返しで長さを稼がないこと。テーマ・テーマの見方・プレミアムレポートの傾向から場面を深め、各段落に役割を持たせて書くこと。
+- 2段落目は「プレミアムレポートから見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること（見出し・番号は付けない）。上記の返書出力形式・完了条件と同じ契約です。
 - テーマラベルとテーマの見方をもとに、今の場面を具体化して書いてください。一般論や汎用コーチングで埋めないでください。
 
 ${CONSULT_REPLY_QUALITY_VOICE_JA}`;
 
 /** Question-select generation instruction — appended when user selected theme + question. */
 export const CONSULT_QUESTION_SELECT_GENERATION_INSTRUCTION_JA = `【追加読み解き — 選択式（自由記述なし）】
-- ユーザーはテーマと質問を選択しました。自由記述はありません。選択された質問は保存版を読み返す焦点です。
-- これは新しい鑑定ではなく、購入時点の保存版の続きとして書いてください。
-- 保存版抜粋の傾向語を2〜4個、そのまま本文に戻すこと。一般論・汎用コーチングで埋めない。snapshot内の語彙を使う。
+- ユーザーはテーマと質問を選択しました。自由記述はありません。選択された質問はプレミアムレポートを読み返す焦点です。
+- これは新しい鑑定ではなく、購入時点のプレミアムレポートの続きとして書いてください。
+- プレミアムレポート抜粋の傾向語を2〜4個、そのまま本文に戻すこと。一般論・汎用コーチングで埋めない。snapshot内の語彙を使う。
 - 主章は1つ名指し、補助章は最大1つまで。
 - ${CONSULT_REPLY_GENERATION.minimumAcceptableJa}文字未満は保存されません。目安は${CONSULT_REPLY_GENERATION.targetMinJa}〜${CONSULT_REPLY_GENERATION.targetMaxJa}日本語文字で、${CONSULT_REPLY_GENERATION.minBlockCount}〜${CONSULT_REPLY_GENERATION.maxBlockCount}つのまとまった段落として完結させてください。
-- 2段落目は「保存版から見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること。
+- 2段落目は「プレミアムレポートから見ると」、3段落目は「少しほどく」、4段落目は「見直すときの目印」、5段落目は「今日やることは1つだけです。」で自然に始めること。
 - 生年月日・snapshot ID などの個人情報や内部識別子を本文に出さないこと。
 
 ${CONSULT_REPLY_QUALITY_VOICE_JA}`;
@@ -220,19 +220,19 @@ export function buildConsultUserAnchors(
 - grounding: ${catalogEntry.grounding_target}
 - 主章候補: ${formatChapterAnchor(catalogEntry)} / 参照章: ${part.roman}「${part.name}」
 ${CONSULT_QUESTION_SELECT_GENERATION_INSTRUCTION_JA}
-- 1段落目は、選択された質問焦点を保存版の傾向語と接続して具体化すること
-- 2〜4段落目は保存版の傾向・別の見方・見直す目印を、この焦点に沿って深めること
+- 1段落目は、選択された質問焦点をプレミアムレポートの傾向語と接続して具体化すること
+- 2〜4段落目はプレミアムレポートの傾向・別の見方・見直す目印を、この焦点に沿って深めること
 - 5段落目は必ず「今日やることは1つだけです。」で始め、この焦点に紐づく行動を1つだけ書くこと`;
   }
 
   if (parsed.isThemeOnlyLegacy) {
     return `【今回の相談アンカー（テーマのみ — 有効）】
 - テーマ: ${theme}
-- テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
+- テーマの見方: ${themeDescription || '（プレミアムレポートの章に沿う）'}
 - 主章候補: ${part.roman}「${part.name}」
 ${CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA}
-- 1段落目は、このテーマで今しんどくなりやすい場面を保存版の傾向語と接続して具体化すること（テーマの見方から場面を一つ選ぶ）
-- 2〜4段落目は保存版の傾向・別の見方・見直す目印を、このテーマの場面に沿って深めること
+- 1段落目は、このテーマで今しんどくなりやすい場面をプレミアムレポートの傾向語と接続して具体化すること（テーマの見方から場面を一つ選ぶ）
+- 2〜4段落目はプレミアムレポートの傾向・別の見方・見直す目印を、このテーマの場面に沿って深めること
 - 5段落目は必ず「今日やることは1つだけです。」で始め、このテーマに紐づく行動を1つだけ書くこと`;
   }
 
@@ -241,12 +241,12 @@ ${CONSULT_THEME_ONLY_GENERATION_INSTRUCTION_JA}
 
   return `【今回の相談アンカー（ユーザー原文）】
 - テーマ: ${theme}
-- テーマの見方: ${themeDescription || '（保存版の章に沿う）'}
+- テーマの見方: ${themeDescription || '（プレミアムレポートの章に沿う）'}
 - 主章候補: ${part.roman}「${part.name}」
 - 具体語は本文に必ず戻す: ${quote || '（短文）'}
 ${CONSULT_BODY_PRESENT_GENERATION_INSTRUCTION_JA}
 - 相談文から拾った論点（3〜5個）を1段落目に反映すること
-- 自由記述は補助情報として使い、テーマと保存版の接地を優先すること`;
+- 自由記述は補助情報として使い、テーマとプレミアムレポートの接地を優先すること`;
 }
 
 /** Composed message for theme-only send (legacy client/server contract). */

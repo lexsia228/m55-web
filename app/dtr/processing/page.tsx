@@ -120,7 +120,7 @@ export default async function DtrProcessingPage(props: {
             {LABEL_FORMAT_SAVED}を確認しています
           </h1>
           <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-            購入済みです。保存版の読み込み経路を再確認しています（再購入は不要です）。
+            購入済みです。プレミアムレポートの読み込み経路を再確認しています（再購入は不要です）。
           </p>
           <DtrProcessingClient supportUrl={supportUrl} recoveryMode="owned" />
         </div>

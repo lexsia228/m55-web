@@ -71,11 +71,11 @@ function birthDateParts(iso: string): [string, string, string] {
 function stepCopy(sceneIndex: number, nickname: string): string {
   const nick = nickname.trim() || 'あなた';
   const lines = [
-    `${nick}さんの保存版を準備しています`,
+    `${nick}さんのプレミアムレポートを準備しています`,
     '生年月日から輪郭を呼び出しています',
     '4つの章に構成しています',
-    '日常の傾向を保存版にまとめています',
-    `${nick}さんの保存版が整いました`,
+    '日常の傾向をプレミアムレポートにまとめています',
+    `${nick}さんのプレミアムレポートが整いました`,
   ] as const;
   return lines[sceneIndex] ?? lines[0];
 }
@@ -334,7 +334,7 @@ export default function PaidDtrAnalysisLoading({
                   <span className={styles.nickValue}>{nickname.trim() || '—'}</span>
                   <span className={styles.nickSuffix}>さん</span>
                 </p>
-                <p className={styles.reportKind}>保存版レポート</p>
+                <p className={styles.reportKind}>プレミアムレポート</p>
 
                 <div className={styles.dateBlock}>
                   <div className={styles.dateLabelRow}>
@@ -406,7 +406,7 @@ export default function PaidDtrAnalysisLoading({
 
               <div className={styles.cardFooter} data-visible={visiblePreviewLines >= 1 ? '1' : '0'}>
                 <span className={styles.cardFooterMark} />
-                <span className={styles.cardFooterText}>保存版</span>
+                <span className={styles.cardFooterText}>プレミアムレポート</span>
                 <span className={styles.cardFooterStatus} aria-hidden />
               </div>
             </div>

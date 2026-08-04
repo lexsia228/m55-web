@@ -142,7 +142,7 @@ export function buildFinancialRefusalMessage(): string {
 }
 
 export function buildSelfHarmCrisisEscalationMessage(): string {
-  return 'この内容は、この保存版をもとにした読み解きでは扱えません。つらい状況にある場合は、専門の相談窓口をご利用ください（例：いのちの電話 0120-783-556）。緊急の危険がある場合は、最寄りの緊急サービスに連絡してください。';
+  return 'この内容は、このプレミアムレポートをもとにした読み解きでは扱えません。つらい状況にある場合は、専門の相談窓口をご利用ください（例：いのちの電話 0120-783-556）。緊急の危険がある場合は、最寄りの緊急サービスに連絡してください。';
 }
 
 export function buildDeterministicPredictionRefusalMessage(): string {
@@ -154,7 +154,7 @@ export function buildReplyOffScopeRedirectMessage(): string {
 }
 
 export function buildJailbreakBlockMessage(): string {
-  return 'この内容は、この保存版をもとにした読み解きでは扱えません。レポートに沿った質問を、生活の言葉でお送りください。';
+  return 'この内容は、このプレミアムレポートをもとにした読み解きでは扱えません。レポートに沿った質問を、生活の言葉でお送りください。';
 }
 
 export function buildViolenceIllegalRefusalMessage(): string {

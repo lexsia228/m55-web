@@ -75,7 +75,7 @@ export default function ConsultReplyCard({
   const bodies = mapConsultReplyBodyForDisplay(paragraphs);
   const sections = [
     { label: '今の場面をいったん言葉にする', body: bodies.scene },
-    { label: '保存版から見ると', body: bodies.report },
+    { label: 'プレミアムレポートから見ると', body: bodies.report },
     { label: '少しほどく見方', body: bodies.alt },
   ].filter((s) => s.body);
 
@@ -113,7 +113,7 @@ export default function ConsultReplyCard({
           <p className={styles.replyLatestBadge}>{PAID_DTR_CONSULT_ROOM_UI.latestReplyBadgeJa}</p>
         ) : null}
         <div className={styles.replyTagRow}>
-          <span className={styles.replyTag}>保存版をもとにした追加読み解き</span>
+          <span className={styles.replyTag}>プレミアムレポートをもとにした追加読み解き</span>
         </div>
         {!collapsed ? (
           <h3 className={styles.replyCardTitle}>{theme ?? PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa}</h3>
@@ -215,7 +215,7 @@ export default function ConsultReplyCard({
 
           <footer className={styles.replyFooter}>
             <Link href={`#${lens.anchor}`} className={styles.replyPrimaryLink}>
-              保存版を読み返す
+              プレミアムレポートを読み返す
             </Link>
             <p className={styles.replyFooterMeta}>
               {PAID_DTR_CONSULT_ENTRY_NEUTRAL.walletRemainingTemplateJa.replace(

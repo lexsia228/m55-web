@@ -91,7 +91,7 @@ export function PurchaseSuccessBridge({
       >
         権限の反映に時間がかかっています。マイページで状態を確認するか、しばらくしてから
         <a href={DTR_CORE_DEST} style={{ color: '#6b5fa8', marginLeft: 4 }}>
-          保存版を開く
+          プレミアムレポートを開く
         </a>
         を再度お試しください。
       </p>

@@ -6,6 +6,7 @@ import {
   M55_COMMERCIAL_STATE_REGISTRY,
   M55_CURRENT_RUNTIME_STATE,
   M55_DEFERRED_RUNTIME_ASSERTIONS,
+  M55_ENFORCED_RUNTIME_ASSERTIONS,
   M55_ENFORCEMENT_STATUS,
   M55_LEGACY_RUNTIME_DEBT,
   M55_REPORT_CHAPTERS,
@@ -65,9 +66,34 @@ describe('m55CommercialFunnelContract — machine product truth', () => {
       M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection,
       M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection,
     );
-    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.legacyTermsInPublicCopy, true);
-    assert.ok(M55_DEFERRED_RUNTIME_ASSERTIONS.length >= 3);
+    assert.equal(M55_CURRENT_RUNTIME_STATE.selfFree.legacyTermsInPublicCopy, false);
     assert.equal(M55_ENFORCEMENT_STATUS, 'PENDING_SELF_FUNNEL_IMPLEMENTATION');
+
+    const enforcedIds = M55_ENFORCED_RUNTIME_ASSERTIONS.map((a) => a.id);
+    assert.deepEqual(enforcedIds, ['no_public_hozonban_copy']);
+    assert.equal(
+      M55_ENFORCED_RUNTIME_ASSERTIONS.filter((a) => a.id === 'no_public_hozonban_copy').length,
+      1,
+    );
+    assert.equal(
+      M55_ENFORCED_RUNTIME_ASSERTIONS.find((a) => a.id === 'no_public_hozonban_copy')?.enforcement,
+      'CLOSED_GREEN',
+    );
+
+    const deferredIds = M55_DEFERRED_RUNTIME_ASSERTIONS.map((a) => a.id);
+    assert.equal(
+      (M55_DEFERRED_RUNTIME_ASSERTIONS as readonly { id: string }[]).some(
+        (a) => a.id === 'no_public_hozonban_copy',
+      ),
+      false,
+    );
+    assert.deepEqual(deferredIds, [
+      'no_pre_result_theme_selection_step',
+      'no_public_mitorizu_copy',
+    ]);
+
+    const allAssertionIds = [...enforcedIds, ...deferredIds];
+    assert.equal(allAssertionIds.length, new Set(allAssertionIds).size);
   });
 
   it('registers post-merge active lane and HOME final SSOT status', () => {

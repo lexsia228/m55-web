@@ -4,7 +4,7 @@ import styles from './CoreExperience.module.css';
 const copy = TOP_FREE_ENTRY_PUBLIC_COPY.coreBoundary;
 
 /**
- * Free preview vs paid 保存版 boundary — placed after hero, not inside hero block.
+ * Free preview vs paid プレミアムレポート boundary — placed after hero, not inside hero block.
  */
 export default function CoreFreeSavedBoundarySection() {
   return (

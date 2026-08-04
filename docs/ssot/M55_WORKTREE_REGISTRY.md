@@ -71,6 +71,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | PR #86 post-merge replacement transition (v2 completed) | `docs/m55-pr86-post-merge-transition-v2` | `aa80853962b5d2df8fcb40fb482e807af4f6f788` | WT-016 — PR #88 **MERGED**; retained read-only |
 | PR #88 merge | `main` (remote) | `060fee287355eb00573d968445fcc374510d185d` | **MERGED** — MERGE COMMIT; parents `e26f17b…` · `aa80853…`; Production deployment id **5738008464** READY |
 | PR #88 post-merge lifecycle reconciliation | `docs/m55-pr88-post-merge-lifecycle-v1` | gate-time operational authority | WT-017 — docs-only; no product/source write authority |
+| Premium public terminology | `fix/m55-premium-public-terminology-v1` | `ada0510c77f73dd992dc6901d1a04389a2cf7e74` | WT-018 — **ACTIVE** local terminology implementation |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -466,6 +467,25 @@ Historical post-merge transition snapshots remain recorded for audit.
 | removal eligibility | deferred — retirement requires separate authorization |
 | next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION` |
 | notes | Exact branch/head/PR phase is gate-time operational authority and is not recursively embedded as durable current-tip claim inside this registry snapshot. Do not route product implementation here. |
+
+### WT-018 — Premium public terminology (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` |
+| branch | `fix/m55-premium-public-terminology-v1` |
+| branch creation base (`origin/main` at worktree creation) | `ada0510c77f73dd992dc6901d1a04389a2cf7e74` — **immutable** |
+| cleanliness | verification-time snapshot only |
+| lifecycle | **ACTIVE** |
+| operational state | **PREMIUM_PUBLIC_TERMINOLOGY_LOCAL_IMPLEMENTATION** |
+| purpose | Remove `保存版` from public surfaces; canonical Premium terminology; stored-snapshot display normalization |
+| related lane | IND-PAID terminology prerequisite — does not authorize functional IND-PAID implementation |
+| product implementation authorized | **true** — terminology-only on WT-018; commit/push/PR/merge/deploy **not authorized** |
+| allowed operations | edits within frozen terminology allowlist · focused tests · local validation |
+| prohibited operations | commit · push · PR · merge · deploy · DB/Stripe/Clerk/env · Pair commerce · IND-FREE functional reopen · edits outside allowlist · WT-016 reuse |
+| removal eligibility | deferred |
+| next gate | Human actual-diff review → commit/PR authorization |
+| notes | Free/Pair `見取り図` unchanged. Historical docs/evidence out of scope. |
 
 ---
 

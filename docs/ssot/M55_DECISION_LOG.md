@@ -57,9 +57,27 @@ Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualit
 | Conversation memory vs repository/worktree facts | Product Authority Pack observations supersede recalled facts |
 | `WEB_MASTER_SSOT__PRICING_AND_PRODUCTS_v1.md` vs Self Premium HOME prices | Machine contract wins for Light ¥1,000 / Full ¥1,480 |
 | `M55_2027_PRODUCT_TRUTH_REV1.md` vs this SSOT series | This series wins for commercial funnel handoff |
-| Runtime「保存版」vs SSOT「プレミアムレポート」 | Target public names in SSOT; runtime rename in Self funnel lane |
+| Runtime「保存版」vs SSOT「プレミアムレポート」 | **RESOLVED 2026-08-04** — Human: `保存版` = INTERNAL_ONLY; public Premium terminology canonical; WT-018 local implementation authorized |
 
 ## Human-approved policy decisions (dated)
+
+### 2026-08-04 — Premium public terminology (WT-018)
+
+**Status:** Human-approved **local implementation** on WT-018 from `ada0510c77f73dd992dc6901d1a04389a2cf7e74`.
+
+| Rule | Value |
+|---|---|
+| `保存版` | **INTERNAL_ONLY / PUBLIC_PROHIBITED** |
+| Generic paid public term | **プレミアムレポート** |
+| Light variant | **M55 プレミアムレポート ライト** |
+| Full variant | **M55 プレミアムレポート フル** |
+| Additional reading | **追加読み解き** |
+| Free/Pair `見取り図` | **unchanged in this wave** |
+| Stored snapshots | **display-time normalization only** — no DB migration |
+| Commit/push/PR/merge/deploy | **not authorized** by this decision |
+
+Terminology-only remediation does not reopen IND-FREE functional lane or completed GREEN control-plane gates.
+
 
 ### 2026-08-02 — Product Authority version policy and Production observation coordinator policy
 

@@ -12,7 +12,7 @@ export default function SavedSnapshotNotice() {
     <div
       className={styles.savedSnapshotNotice}
       role="note"
-      aria-label="保存版について"
+      aria-label="プレミアムレポートについて"
       data-m55-premium-state="purchased.saved_reopen"
       data-testid="m55-saved-snapshot-notice"
     >

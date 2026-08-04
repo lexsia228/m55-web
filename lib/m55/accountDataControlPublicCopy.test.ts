@@ -86,13 +86,13 @@ describe('accountDataControlPublicCopy — Support', () => {
     assert.deepEqual([...ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES], [
       'アカウント',
       'プロフィール',
-      '保存版',
+      'プレミアムレポート',
       '追加読み解き',
       'この端末に保存された情報',
     ]);
     assert.match(ACCOUNT_DATA_SUPPORT_AFTER_VERIFY, /本人確認後/);
     assert.match(ACCOUNT_DATA_SUPPORT_SECURITY_NOTE, /パスワードや決済カード情報/);
-    assert.match(ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY, /保存版削除/);
+    assert.match(ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY, /プレミアムレポート削除/);
     assert.match(ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY, /監査/);
   });
 

@@ -38,7 +38,7 @@ describe('post-purchase retention hub model', () => {
       tier: { hasLight: true, hasFull: false },
       wallet: wallet(1, 1),
     });
-    assert.equal(model.planLabel, '保存版ライト');
+    assert.equal(model.planLabel, 'M55 プレミアムレポート ライト');
     assert.deepEqual(model.usage, { total: 1, remaining: 1, used: 0 });
     assert.equal(model.primaryAction, 'additional_reading');
     assert.equal(model.secondaryAction, 'saved_report');
@@ -59,7 +59,7 @@ describe('post-purchase retention hub model', () => {
       tier: { hasLight: false, hasFull: true },
       wallet: wallet(5, 3),
     });
-    assert.equal(model.planLabel, '保存版FULL');
+    assert.equal(model.planLabel, 'M55 プレミアムレポート フル');
     assert.deepEqual(model.usage, { total: 5, remaining: 3, used: 2 });
     assert.equal(model.primaryAction, 'additional_reading');
   });

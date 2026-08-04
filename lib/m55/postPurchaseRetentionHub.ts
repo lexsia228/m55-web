@@ -8,7 +8,7 @@ export type SavedReportPlan = 'light' | 'full' | 'unknown';
 
 export type PostPurchaseRetentionHubModel = {
   plan: SavedReportPlan;
-  planLabel: '保存版ライト' | '保存版FULL' | '保存版';
+  planLabel: 'M55 プレミアムレポート ライト' | 'M55 プレミアムレポート フル' | 'プレミアムレポート';
   usage: {
     total: number;
     remaining: number;
@@ -36,7 +36,7 @@ export function buildPostPurchaseRetentionHubModel(input: {
 }): PostPurchaseRetentionHubModel {
   const plan = resolveSavedReportPlan(input.tier);
   const planLabel =
-    plan === 'full' ? '保存版FULL' : plan === 'light' ? '保存版ライト' : '保存版';
+    plan === 'full' ? 'M55 プレミアムレポート フル' : plan === 'light' ? 'M55 プレミアムレポート ライト' : 'プレミアムレポート';
   const wallet =
     isConsultWalletDisplaySnapshotUsable(input.wallet) &&
     hasValidConsultWalletDenominator(input.wallet)

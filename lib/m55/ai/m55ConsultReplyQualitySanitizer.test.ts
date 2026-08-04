@@ -83,7 +83,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     const r = applyM55ConsultReplyQualityPasses(
       '誰にでも起こりうるので、一般的には焦らず自分のペースで自分らしく進みましょう。'
     );
-    assert.ok(r.text.includes('この保存版の傾向として見える範囲では'));
+    assert.ok(r.text.includes('このプレミアムレポートの傾向として見える範囲では'));
     assert.ok(r.text.includes('この抜粋では'));
     assert.ok(r.categoriesTriggered.includes('generic_advice'));
   });
@@ -113,9 +113,9 @@ describe('applyM55ConsultReplyQualityPasses', () => {
 
   it('rewrites forbidden cold and self-help phrasing in paid reply output', () => {
     const r = applyM55ConsultReplyQualityPasses(
-      '保存版の章を読み返すと、いまの場面が少し見えやすくなります。' +
+      'プレミアムレポートの章を読み返すと、いまの場面が少し見えやすくなります。' +
         '周囲とのコミュニケーションを増やす。リフレッシュの時間を設定する。自分自身を労わる。フィードバックループ。' +
-        '今日はここまでに留め、保存版の観点だけを手がかりにします。'
+        '今日はここまでに留め、プレミアムレポートの観点だけを手がかりにします。'
     );
     assert.equal(r.text.includes('コミュニケーションを増やす'), false);
     assert.equal(r.text.includes('リフレッシュ'), false);
@@ -185,7 +185,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
   it('repairs 再構築する and 軽減する without duplicate verbs', () => {
     const r = applyM55ConsultReplyQualityPasses(
       '関係性を再構築することが、張りつめを軽減する手助けになるでしょう。相手との短いフィードバックループがある。' +
-        '保存版の章を読み返すと、いまの場面が少し見えやすくなります。'
+        'プレミアムレポートの章を読み返すと、いまの場面が少し見えやすくなります。'
     );
     assert.equal(r.text.includes('組み直しする'), false);
     assert.equal(r.text.includes('和らげるする'), false);
@@ -202,7 +202,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
       '少し視点を変えて少し視点を変えてみるだけでも、高いエネルギーと疲労感が出やすいです。' +
         '言葉や行動で伝えることに得意なあなたは、効果的に届く距離を保てます。' +
         'コミュニケーションを意識的に増やし、休息の時間を設定して試みてください。' +
-        '保存版の章を読み返すと、いまの場面が少し見えやすくなります。'
+        'プレミアムレポートの章を読み返すと、いまの場面が少し見えやすくなります。'
     );
     assert.equal(r.text.includes('少し視点を変えて少し視点を変えて'), false);
     assert.equal(r.text.includes('高いエネルギー'), false);
@@ -220,7 +220,7 @@ describe('applyM55ConsultReplyQualityPasses', () => {
     const r = applyM55ConsultReplyQualityPasses(
       '作業をやめたいのに止められない場面では、影響するかもしれません。' +
         '進められる可能性があります。良いことが多いです。手助けになることが多いです。' +
-        '保存版の傾向に沿って、区切りを置きにくい流れとして見えます。'
+        'プレミアムレポートの傾向に沿って、区切りを置きにくい流れとして見えます。'
     );
     assert.ok((r.text.match(/かもしれません/g) ?? []).length <= 1);
     assert.ok((r.text.match(/可能性があります/g) ?? []).length <= 1);

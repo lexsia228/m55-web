@@ -577,9 +577,9 @@ const CLOSING_RECOVERY_BY_AXIS: Readonly<Record<AxisKey, readonly string[]>> = {
 };
 
 const SUMMARY_LEAD: readonly string[] = [
-  'ふだんの輪郭は、保存版で読み返す土台になります。',
+  'ふだんの輪郭は、プレミアムレポートで読み返す土台になります。',
   'いま見えている傾向は、今の悩みを読み直す手がかりになります。',
-  'ここまでの整理は、保存版へつながる土台になります。',
+  'ここまでの整理は、プレミアムレポートへつながる土台になります。',
 ];
 
 export function isHighBand(band: AxisBand): boolean {

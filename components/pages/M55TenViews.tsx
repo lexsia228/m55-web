@@ -155,7 +155,7 @@ export default function M55TenViews() {
         <div className={styles.depthProductBlock}>
           <p className={styles.depthProductEyebrow}>{storefrontCopy.lightPlanNameJa}</p>
           <p className={styles.depthBody}>
-            保存版では、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
+            プレミアムレポートでは、10通りの資質の重なりと相互作用を、より詳しく読み解けます。
           </p>
           <p className={styles.depthPriceLine}>
             {storefrontCopy.lightPriceLabelJa}｜ウェブで閲覧するデジタルレポート

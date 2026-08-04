@@ -36,10 +36,11 @@ HOME
 Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/main`**:
 
 - `preResultThemeSelection: true` — legacy debt（結果前「今の関心」step still recorded as current merged runtime）
-- public copy の「見取り図」「保存版」legacy 語は **一部残存**（HOME / legal 等）
+- public copy の「見取り図」は free-tier / Pair standalone 比喩として **現行許容**（全面置換は別 wave）
+- 「保存版」は **INTERNAL_ONLY** — 公開 UI・metadata・aria・Legal・Support・購入後表示は Premium 系正式表記のみ；`premiumPublicTerminologyGuard` + stored snapshot display normalizer が境界を強制
 - 無料結果から「今日の一歩」等の行動提案は target では除去；merged runtime debt は machine contract / deferred assertions を参照
 
-**Enforcement:** `PENDING_SELF_FUNNEL_IMPLEMENTATION` — residual legacy public terms remain deferred until full public-surface cleanup.
+**Terminology enforcement:** `no_public_hozonban_copy` は **CLOSED_GREEN**（machine contract `M55_ENFORCED_RUNTIME_ASSERTIONS`）。本変更は完了済み functional lane を再開しない。
 
 ## Target contract (normative)
 

@@ -214,9 +214,9 @@ describe('B–G. CI matrix 300 — routing / DOB / grounding / ticket / forbidde
 
       // C. DOB / snapshot variance + PII
       assert.ok(
-        c.reportContext.includes('【保存版の本質リズム（購入時固定）】') ||
-          c.reportContext.includes('【保存版の補助整理（購入時固定）】') ||
-          c.reportContext.includes('【保存版の扱い方ヒント（購入時固定）】'),
+        c.reportContext.includes('【プレミアムレポートの本質リズム（購入時固定）】') ||
+          c.reportContext.includes('【プレミアムレポートの補助整理（購入時固定）】') ||
+          c.reportContext.includes('【プレミアムレポートの扱い方ヒント（購入時固定）】'),
         `${c.caseId} missing v2 individualization meta`,
       );
       assertNoPii(c.reportContext, c.birthDate, `${c.caseId} context`);

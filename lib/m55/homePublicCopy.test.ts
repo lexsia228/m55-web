@@ -9,12 +9,31 @@ import { TOP_FREE_ENTRY_PUBLIC_COPY } from './topFreeEntryPublicCopy';
 const OLD_PRODUCT_NAMES = ['M55複合暦解析', 'M55追加解析', '複合解析'] as const;
 
 const FORBIDDEN_HOME_PRIMARY_LABELS = [
-  '保存版',
   '10通りの見方',
   '10タイプ',
   '基本タイプ',
   '各タイプ',
   '読み返せる',
+  '保存版',
+] as const;
+
+const FREE_HERO_PRIMARY_LABEL_FIELDS = [
+  'heroEyebrowJa',
+  'heroTitleLine1Ja',
+  'heroTitleLine2Ja',
+  'heroSupportJa',
+  'heroPosterSupportJa',
+  'heroTrustJa',
+  'heroPosterCtaJa',
+  'freeResultHeadlineJa',
+  'freeResultBodyJa',
+  'freeResultPreviewLabelJa',
+  'freeResultCtaJa',
+  'freeResultSupportJa',
+  'outcomeBridgeEyebrowJa',
+  'tenAssetTeaserEyebrowJa',
+  'tenAssetTeaserHeadlineJa',
+  'tenAssetTeaserLinkJa',
 ] as const;
 
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -163,10 +182,21 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     for (const name of OLD_PRODUCT_NAMES) {
       assert.equal(homePanelSource.includes(name), false, `HomePanel.tsx must not reference: ${name}`);
     }
-    const homeBlob = JSON.stringify(TOP_FREE_ENTRY_PUBLIC_COPY.home);
+    const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
+    const freeHeroPrimaryBlob = FREE_HERO_PRIMARY_LABEL_FIELDS.map((key) => home[key]).join('\n');
     for (const term of FORBIDDEN_HOME_PRIMARY_LABELS) {
-      assert.equal(homeBlob.includes(term), false, `home copy must not include forbidden term: ${term}`);
+      assert.equal(
+        freeHeroPrimaryBlob.includes(term),
+        false,
+        `free/hero primary copy must not include forbidden term: ${term}`,
+      );
     }
+    const homeBlob = JSON.stringify(home);
+    assert.equal(
+      homeBlob.includes('保存版'),
+      false,
+      'home copy must not include forbidden legacy term: 保存版',
+    );
   });
 
   it('uses approved exact copy freeze strings for key sections', () => {

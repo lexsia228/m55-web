@@ -194,7 +194,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '誰にでも起こりうる',
-    to: 'この保存版の傾向として見える範囲では',
+    to: 'このプレミアムレポートの傾向として見える範囲では',
   },
   {
     category: 'over_empathy_counseling',
@@ -224,7 +224,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '他者と比較せず',
-    to: '保存版の章の観点だけに留める',
+    to: 'プレミアムレポートの章の観点だけに留める',
   },
   {
     category: 'generic_advice',
@@ -234,7 +234,7 @@ const PHRASE_RULES_UNSORTED: PhraseRule[] = [
   {
     category: 'generic_advice',
     from: '自分らしく進みましょう',
-    to: '保存版の章を読み直して選び直す',
+    to: 'プレミアムレポートの章を読み直して選び直す',
   },
   {
     category: 'over_empathy_counseling',

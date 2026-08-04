@@ -2,7 +2,7 @@
  * Layer1 ownership gate for DTR reader (M55_ENTITLEMENT_KEY_NORMALIZATION + BINDING_ROLLOUT Step 5).
  * Server-side only. Never call from client.
  *
- * SSOT: `dtr_report_snapshots`（保存版）または Stripe 決済完了に裏打ちされた entitlements / one_time_fulfillments。
+ * SSOT: `dtr_report_snapshots`（プレミアムレポート）または Stripe 決済完了に裏打ちされた entitlements / one_time_fulfillments。
  * entitlement_rights 単独（手動・残骸・不整合）は owned にしない。
  * If Stripe wrote `entitlements` but `entitlement_rights` was missing (partial failure), we repair the right row on read.
  *
@@ -48,7 +48,7 @@ export async function resolveEntryReportOwnership(userId: string): Promise<DtrOw
           userId,
           unlockState: 'owned',
           grantSource: 'dtr_report_snapshots',
-          grantDetail: '保存版レポート行あり（購入フロー完了）',
+          grantDetail: 'プレミアムレポート行あり（購入フロー完了）',
           productId: snapRow.product_id,
         })
       );

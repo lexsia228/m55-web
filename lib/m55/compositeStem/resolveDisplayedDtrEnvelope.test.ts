@@ -289,7 +289,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
     // P0: stem1 s2 no longer hardcodes nickname; display uses catalog lifestyle phrasing.
     assert.ok(
       displayedS2!.body.includes(
-        'この保存版で見えている形では、その場の空気を素早く読みながら、人との関係の土台も同時に確かめながら動きます。',
+        'このプレミアムレポートで見えている形では、その場の空気を素早く読みながら、人との関係の土台も同時に確かめながら動きます。',
       ),
     );
     assert.doesNotMatch(displayedS2!.body, /miさん/);

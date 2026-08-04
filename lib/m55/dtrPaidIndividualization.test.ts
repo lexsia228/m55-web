@@ -173,7 +173,7 @@ describe('paid DTR individualization — deterministic DOB layer', () => {
     const s3Actual = built.envelope_json.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
     const s3Catalog = ref.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
     assert.ok(s3Actual.endsWith(s3Catalog));
-    assert.match(s3Actual, /【この保存版だけの本質リズム】/);
+    assert.match(s3Actual, /【このプレミアムレポートだけの本質リズム】/);
   });
 
   it('free/paid main trait parity remains on frozen anchor DOBs', () => {
@@ -232,25 +232,25 @@ describe('paid DTR individualization — deterministic DOB layer', () => {
     assert.deepEqual(legacy, v1);
     assert.equal(v1.version, undefined);
     assert.equal(v1.fingerprint, built.engine_context_json.displayFingerprint);
-    assert.match(buildPaidDtrS3IndividualizationPrefix(v1), /^【この保存版だけの本質リズム】\n/);
-    assert.match(buildPaidDtrS7IndividualizationPrefix(v1), /^【この保存版だけの補助整理】\n/);
+    assert.match(buildPaidDtrS3IndividualizationPrefix(v1), /^【このプレミアムレポートだけの本質リズム】\n/);
+    assert.match(buildPaidDtrS7IndividualizationPrefix(v1), /^【このプレミアムレポートだけの補助整理】\n/);
     assert.equal(
       buildPaidDtrS3IndividualizationPrefix(v1),
-      ['【この保存版だけの本質リズム】', v1.essenceRhythmNote, ''].join('\n'),
+      ['【このプレミアムレポートだけの本質リズム】', v1.essenceRhythmNote, ''].join('\n'),
     );
     assert.equal(
       buildPaidDtrS7IndividualizationPrefix(v1),
-      ['【この保存版だけの補助整理】', v1.auxiliaryReading, v1.handlingHint, ''].join('\n'),
+      ['【このプレミアムレポートだけの補助整理】', v1.auxiliaryReading, v1.handlingHint, ''].join('\n'),
     );
   });
 
   it('s3 body includes individualized prefix marker', () => {
     const body = s3BodyFromFields('1980-01-07');
-    assert.match(body, /【この保存版だけの本質リズム】/);
+    assert.match(body, /【このプレミアムレポートだけの本質リズム】/);
   });
 
   it('s7 body includes individualized prefix marker', () => {
     const body = s7BodyFromFields('1980-01-07');
-    assert.match(body, /【この保存版だけの補助整理】/);
+    assert.match(body, /【このプレミアムレポートだけの補助整理】/);
   });
 });

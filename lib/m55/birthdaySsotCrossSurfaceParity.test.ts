@@ -114,7 +114,7 @@ function assertPaidContentMapping(
   const s3Actual = paidSectionBody(snap, PAID_INDIVIDUALIZED_SECTION_ID);
   const s3Catalog = refEnvelope.payload.fullSections.find((s) => s.id === PAID_INDIVIDUALIZED_SECTION_ID)!.body;
   assert.ok(s3Actual.endsWith(s3Catalog), `${frozen.case_id}: paid s3 catalog suffix preserved`);
-  assert.match(s3Actual, /【この保存版だけの本質リズム】/, `${frozen.case_id}: paid s3 individualization prefix`);
+  assert.match(s3Actual, /【このプレミアムレポートだけの本質リズム】/, `${frozen.case_id}: paid s3 individualization prefix`);
   assert.equal(
     djb2Fingerprint(s3Actual),
     frozen.expectedPaidEssenceFingerprint,

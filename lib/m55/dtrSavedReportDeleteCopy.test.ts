@@ -42,11 +42,11 @@ describe('dtrSavedReportDeleteCopy SSOT', () => {
   });
 
   it('dialog title matches spec', () => {
-    assert.equal(DTR_SAVED_REPORT_DELETE_CONFIRM_TITLE, 'この保存版を削除しますか？');
+    assert.equal(DTR_SAVED_REPORT_DELETE_CONFIRM_TITLE, 'このプレミアムレポートを削除しますか？');
   });
 
   it('toast primary matches spec', () => {
-    assert.equal(DTR_SAVED_REPORT_DELETE_TOAST_PRIMARY, '保存版を削除しました。');
+    assert.equal(DTR_SAVED_REPORT_DELETE_TOAST_PRIMARY, 'プレミアムレポートを削除しました。');
   });
 });
 

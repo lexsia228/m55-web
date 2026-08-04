@@ -28,7 +28,7 @@ function pickTendencyToken(reportContext: string): string {
   }
   if (reportContext.includes('本質リズム')) return 'リズムの出方';
   if (reportContext.includes('補助整理')) return '補助の見方';
-  return '保存版の傾向';
+  return 'プレミアムレポートの傾向';
 }
 
 function pickChapterHint(entry: ConsultQuestionCatalogEntry): string {
@@ -57,7 +57,7 @@ export function renderDeterministicConsultReply(
     `質問焦点は、${catalogEntry.promptFocusAnchor}。`;
 
   const p2 =
-    `保存版の${chapterHint}を読み返すと、` +
+    `プレミアムレポートの${chapterHint}を読み返すと、` +
     `いまの焦点「${catalogEntry.labelJa}」に近い手がかりが残っています。` +
     `抽象だけで進めず、出やすい場面に落とします。`;
 

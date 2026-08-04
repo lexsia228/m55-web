@@ -84,7 +84,7 @@ describe('judgePaidDtrChapterBodies', () => {
   it('fails dob_material_unreflected when body has no season or phase keywords', () => {
     const pack = makeMaterialPack('1992-12-19');
     const noDoBody = [
-      'この保存版レポートでは、あなたの動き方を詳しくお伝えします。',
+      'このプレミアムレポートでは、あなたの動き方を詳しくお伝えします。',
       'プランナーとしての本質的な動き方を理解することが大切です。',
       '日々の積み重ねを意識することで、安定が生まれてきます。',
     ].join('\n');

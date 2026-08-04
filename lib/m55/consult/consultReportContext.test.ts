@@ -27,7 +27,7 @@ describe('buildConsultReportContextFromEnvelope', () => {
     });
     const context = buildConsultReportContextFromEnvelope(envelope);
     assert.ok(context.length > 0);
-    assert.ok(context.includes('【保存版抜粋の使い方】'));
+    assert.ok(context.includes('【プレミアムレポート抜粋の使い方】'));
     assert.ok(context.includes('主章候補'));
     assert.ok(context.includes('【本質と安定の条件】'));
     assert.ok(context.includes('【力が出やすい場面】'));
@@ -68,8 +68,8 @@ describe('buildConsultReportContextFromEnvelope', () => {
     assert.equal(built.engine_version, ENGINE_VERSION_V2);
     const context = buildConsultReportContextFromEnvelope(built.envelope_json);
     assert.ok(context.length > 0);
-    assert.ok(context.includes('【保存版の本質リズム（購入時固定）】'));
-    assert.ok(context.includes('【保存版の補助整理（購入時固定）】'));
+    assert.ok(context.includes('【プレミアムレポートの本質リズム（購入時固定）】'));
+    assert.ok(context.includes('【プレミアムレポートの補助整理（購入時固定）】'));
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
   });
 
@@ -85,9 +85,9 @@ describe('buildConsultReportContextFromEnvelope', () => {
     }, { dobPersonalizationV2Enabled: true });
     const context = buildConsultReportContextFromEnvelope(built.envelope_json);
     assert.ok(context.length <= CONSULT_REPORT_CONTEXT_TOTAL_CAP);
-    assert.ok(context.startsWith('【保存版の本質リズム（購入時固定）】'));
+    assert.ok(context.startsWith('【プレミアムレポートの本質リズム（購入時固定）】'));
     assert.ok(context.includes('生年月日の細かなリズムから見ると'));
-    assert.ok(context.includes('【保存版の扱い方ヒント（購入時固定）】'));
+    assert.ok(context.includes('【プレミアムレポートの扱い方ヒント（購入時固定）】'));
     assert.equal(built.envelope_json.auditMeta.paidIndividualization?.version, 'v2');
   });
 
@@ -102,8 +102,8 @@ describe('buildConsultReportContextFromEnvelope', () => {
       timezone: 'Asia/Tokyo',
     }, { dobPersonalizationV2Enabled: false });
     const context = buildConsultReportContextFromEnvelope(built.envelope_json);
-    assert.ok(context.includes('【保存版の本質リズム（購入時固定）】'));
-    assert.ok(context.includes('【保存版の補助整理（購入時固定）】'));
+    assert.ok(context.includes('【プレミアムレポートの本質リズム（購入時固定）】'));
+    assert.ok(context.includes('【プレミアムレポートの補助整理（購入時固定）】'));
     assert.doesNotMatch(context, /生年月日の細かなリズム/);
     assert.equal(built.envelope_json.auditMeta.paidIndividualization?.version, undefined);
   });
@@ -136,19 +136,19 @@ describe('buildConsultReportContextFromEnvelope', () => {
 
 describe('consult reply display paragraph contract', () => {
   it('maps five blank-line paragraphs to renderer slots', () => {
-    const raw = ['場面A', '保存版B', 'ほどくC', '補助D', '一手E'].join('\n\n');
+    const raw = ['場面A', 'プレミアムレポートB', 'ほどくC', '補助D', '一手E'].join('\n\n');
     const paragraphs = normalizeConsultReplyParagraphs(raw);
     assert.equal(paragraphs.length, 5);
     const mapped = mapConsultReplyBodyForDisplay(paragraphs);
     assert.equal(mapped.scene, '場面A');
-    assert.equal(mapped.report, '保存版B');
+    assert.equal(mapped.report, 'プレミアムレポートB');
     assert.equal(mapped.alt, 'ほどくC');
     assert.equal(mapped.aux, '補助D');
     assert.equal(mapped.today, '一手E');
   });
 
   it('legacy three paragraphs use empty today when heuristic returns null', () => {
-    const raw = ['場面のみ', '保存版のみ', 'まとめだけ'].join('\n\n');
+    const raw = ['場面のみ', 'プレミアムレポートのみ', 'まとめだけ'].join('\n\n');
     const mapped = mapConsultReplyBodyForDisplay(normalizeConsultReplyParagraphs(raw));
     assert.equal(mapped.today, '');
     assert.equal(typeof mapped.today, 'string');
