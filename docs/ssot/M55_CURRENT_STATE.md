@@ -164,7 +164,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `10e601465b66b8132a7ceb845300af1924ba468b` — PR #86 merge |
+| Current live remote main | **dynamic Git authority** — re-observe `origin/main` at execution-gate time; transition-patch observation `e26f17b9001166a54171e36ce0d8fd3481315dfa`; immutable PR #86 Production-transition snapshot `10e601465b66b8132a7ceb845300af1924ba468b` (Production evidence tied here; no deployment claim transferred to later audit-index commits) |
 | Production deployment id | **5729622031** |
 | Production SHA | `10e601465b66b8132a7ceb845300af1924ba468b` |
 | Production state | **READY** |

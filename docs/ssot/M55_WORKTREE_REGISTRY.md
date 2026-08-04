@@ -20,7 +20,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **Historical snapshot label (valid through 2026-07-31 only) — `696559009367a6ac445dc7a07876590b16cd8488`:** PR #80 Self funnel operational baseline merge; **not** current live remote main as of 2026-08-01 — see the current bullet immediately below
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
-- **Current live remote main (2026-08-04, present Git authority):** `10e601465b66b8132a7ceb845300af1924ba468b` — PR #86 merge; Production deployment id **5729622031** · state **READY** · canonical `/core` GET **HTTP 200**
+- **Remote main observed (transition-patch gate, 2026-08-04):** `e26f17b9001166a54171e36ce0d8fd3481315dfa` — transition snapshot only; current exact remote-main authority must be re-observed at the next execution gate; immutable PR #86/Production snapshot `10e601465b66b8132a7ceb845300af1924ba468b` — PR #86 merge; Production deployment id **5729622031** · state **READY** · canonical `/core` GET **HTTP 200**
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
