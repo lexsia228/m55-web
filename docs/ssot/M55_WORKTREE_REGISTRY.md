@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-04** (`git worktree list --porcelain`; PR #86 post-merge IND-FREE closure + WT-014 read-only retention + WT-015/WT-016 replacement transition delta)
+Last verified: **2026-08-04** (`git worktree list --porcelain`; PR #88 MERGED lifecycle close · WT-015/WT-016 retained read-only · WT-017 docs-only lifecycle reconciliation registered)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -20,7 +20,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **Historical snapshot label (valid through 2026-07-31 only) — `696559009367a6ac445dc7a07876590b16cd8488`:** PR #80 Self funnel operational baseline merge; **not** current live remote main as of 2026-08-01 — see the current bullet immediately below
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
-- **Remote main observed (transition-patch gate, 2026-08-04):** `e26f17b9001166a54171e36ce0d8fd3481315dfa` — transition snapshot only; current exact remote-main authority must be re-observed at the next execution gate; immutable PR #86/Production snapshot `10e601465b66b8132a7ceb845300af1924ba468b` — PR #86 merge; Production deployment id **5729622031** · state **READY** · canonical `/core` GET **HTTP 200**
+- **Remote main observed (PR #88 merge lifecycle gate, 2026-08-04):** `060fee287355eb00573d968445fcc374510d185d` — transition snapshot only; current exact remote-main authority must be re-observed at the next execution gate; immutable PR #88 merge commit `060fee287355eb00573d968445fcc374510d185d` (parents `e26f17b9001166a54171e36ce0d8fd3481315dfa` · `aa80853962b5d2df8fcb40fb482e807af4f6f788`); immutable PR #86/Production product-implementation snapshot `10e601465b66b8132a7ceb845300af1924ba468b`; Production deployment id **5738008464** · state **READY** · canonical `/core` GET **HTTP 200** · public GET health **GREEN**
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
 - **Operational SHA note:** SHA values in this registry are **verification-time snapshots**. They are not immutable product contracts.
@@ -33,7 +33,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-04) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN** after PR #86 merge. WT-014 (`/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1`, `feat/m55-ind-free-commercial-convergence-v1` @ `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`) is **retained read-only** with feature branch preserved; no source-write authority. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `85210e7a45472a9cf6fab16e51c9a397c3f97025`) is **retained read-only** for audit and review only; no source-write authority. WT-015 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v1`, `docs/m55-pr86-post-merge-transition-v1` @ `f1c24449185a59c79e42d7a420a41809799da615`) is a **superseded** PR #87 transition attempt — OPEN and unmerged; read-only. WT-016 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2`, `docs/m55-pr86-post-merge-transition-v2`) — committed and pushed; initial transition commit `c6db50a359709e722ae70aedfb610c2c61532b1c`; replacement PR #88 **OPEN**; current exact head is gate-time remote/PR authority only. ACTIVE lane is **IND-PAID — result/save/revisit/add-on loop**; implementation is not yet authorized.
+**CURRENT (2026-08-04) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN**. PR #87 is **CLOSED** and **unmerged** (superseded by PR #88; branch retained). PR #88 is **MERGED** @ `060fee287355eb00573d968445fcc374510d185d` (MERGE COMMIT; head `aa80853962b5d2df8fcb40fb482e807af4f6f788`); Production deployment id **5738008464** · exact merge SHA READY · public GET health **GREEN**. WT-014 (`/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1`, `feat/m55-ind-free-commercial-convergence-v1` @ `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`) is **retained read-only** with feature branch preserved; no source-write authority. WT-013 (`/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1`, `chore/m55-pa-reconciliation-pr81-v1` @ `85210e7a45472a9cf6fab16e51c9a397c3f97025`) is **retained read-only** for audit and review only; no source-write authority. WT-015 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v1`, `docs/m55-pr86-post-merge-transition-v1` @ `f1c24449185a59c79e42d7a420a41809799da615`) is a **superseded** PR #87 transition attempt — **CLOSED**/unmerged; retained read-only; write authority none. WT-016 (`/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2`, `docs/m55-pr86-post-merge-transition-v2` @ `aa80853962b5d2df8fcb40fb482e807af4f6f788`) is the **completed** PR #88 transition worktree — **MERGED** @ `060fee287355eb00573d968445fcc374510d185d`; retained read-only; write authority none. WT-017 (`/Users/lexsia/Documents/M55_WORKTREE-pr88-post-merge-lifecycle-v1`, `docs/m55-pr88-post-merge-lifecycle-v1`) is a docs-only post-merge lifecycle reconciliation worktree; no product/source write authority; exact branch/head/PR phase is gate-time operational authority. ACTIVE lane is **IND-PAID — result/save/revisit/add-on loop**; implementation is not yet authorized.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -67,8 +67,10 @@ Historical post-merge transition snapshots remain recorded for audit.
 | Commercial-surface governance freeze completion | `chore/m55-pa-reconciliation-pr81-v1` | `85210e7a45472a9cf6fab16e51c9a397c3f97025` | WT-013 — freeze CLOSED GREEN; retained read-only audit/review |
 | IND-FREE implementation base | `feat/m55-ind-free-commercial-convergence-v1` | `326ccd6f1c97911ba82281dbc0a9d4dd835ed782` | WT-014 — PR #86 **MERGED**; retained read-only; feature branch preserved |
 | PR #86 merge | `main` (remote) | `10e601465b66b8132a7ceb845300af1924ba468b` | **MERGED** — IND-FREE commercial convergence CLOSED GREEN; feature head `326ccd6…`; pre-merge main `d8985a9…` |
-| PR #86 post-merge docs-only transition (v1 superseded) | `docs/m55-pr86-post-merge-transition-v1` | `f1c24449185a59c79e42d7a420a41809799da615` | WT-015 — PR #87 OPEN unmerged; superseded pending replacement |
-| PR #86 post-merge replacement transition (v2) | `docs/m55-pr86-post-merge-transition-v2` | gate-time remote/PR head authority | WT-016 — PR #88 **OPEN**; initial transition commit `c6db50a…` |
+| PR #86 post-merge docs-only transition (v1 superseded) | `docs/m55-pr86-post-merge-transition-v1` | `f1c24449185a59c79e42d7a420a41809799da615` | WT-015 — PR #87 **CLOSED**/unmerged; superseded by PR #88; retained read-only |
+| PR #86 post-merge replacement transition (v2 completed) | `docs/m55-pr86-post-merge-transition-v2` | `aa80853962b5d2df8fcb40fb482e807af4f6f788` | WT-016 — PR #88 **MERGED**; retained read-only |
+| PR #88 merge | `main` (remote) | `060fee287355eb00573d968445fcc374510d185d` | **MERGED** — MERGE COMMIT; parents `e26f17b…` · `aa80853…`; Production deployment id **5738008464** READY |
+| PR #88 post-merge lifecycle reconciliation | `docs/m55-pr88-post-merge-lifecycle-v1` | gate-time operational authority | WT-017 — docs-only; no product/source write authority |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -415,36 +417,55 @@ Historical post-merge transition snapshots remain recorded for audit.
 | branch creation base (`origin/main` at worktree creation) | `10e601465b66b8132a7ceb845300af1924ba468b` — **immutable**; PR #86 product-implementation merge commit |
 | cleanliness | **clean** — retained read-only |
 | lifecycle | **PAUSED** — superseded transition attempt |
-| operational state | **POST_MERGE_TRANSITION_SUPERSEDED_PENDING_REPLACEMENT** |
-| purpose | PR #86 post-merge SSOT transition attempt (v1); superseded pending corrected replacement |
-| related lane / PR | PR #87 **OPEN** and **unmerged** @ `f1c24449185a59c79e42d7a420a41809799da615`; follows merged PR #86 @ `10e601465b66b8132a7ceb845300af1924ba468b`; not product implementation |
-| product implementation authorized | **false** — docs-only; no source-write authority |
+| operational state | **POST_MERGE_TRANSITION_SUPERSEDED_CLOSED_UNMERGED** |
+| purpose | PR #86 post-merge SSOT transition attempt (v1); superseded by PR #88 |
+| related lane / PR | PR #87 **CLOSED** and **unmerged** @ `f1c24449185a59c79e42d7a420a41809799da615`; superseded by PR #88; not product implementation |
+| product implementation authorized | **false** — docs-only; write authority **none** |
 | allowed operations | read-only historical inspection only |
-| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-014 or WT-016 worktrees · Production mutation · Pair implementation · commit/push/PR merge without a later explicit gate |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-014 · WT-016 or WT-017 worktrees · Production mutation · Pair implementation · commit/push/PR merge/branch update without a later explicit gate |
 | removal eligibility | **NO** — branch and worktree retained; retirement/deletion prohibited without separate authorization |
-| next gate | PR #87 remains OPEN and unmerged; do **not** update PR #87 branch/head or replace its content. After WT-016 creates an exact replacement commit, pushes the v2 branch non-force, and a new replacement PR is created and verified, close PR #87 unmerged only via a separate authorized gate. Do **not** delete either branch without separate authorization. |
-| notes | Transition-only worktree per WT-012 precedent. Do not route implementation work here. Registry semantic defects identified; do not treat as durable completion. |
+| next gate | none involving PR #87 merge or branch update; retirement only by separate authorization |
+| notes | Transition-only worktree per WT-012 precedent. Do not route implementation work here. |
 
-### WT-016 — PR #86 post-merge replacement transition delta (v2)
+### WT-016 — PR #86 post-merge replacement transition delta (v2 completed)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-pr86-post-merge-transition-v2` |
 | branch | `docs/m55-pr86-post-merge-transition-v2` |
 | branch creation base (`origin/main` at worktree creation) | `10e601465b66b8132a7ceb845300af1924ba468b` — **immutable**; PR #86 product-implementation merge commit |
+| immutable completed PR #88 head | `aa80853962b5d2df8fcb40fb482e807af4f6f788` |
 | initial transition commit | `c6db50a359709e722ae70aedfb610c2c61532b1c` — **immutable** creation fact; initial tree `2057c01e55540ef6da1780f4590a535a80c2e598` |
-| current head authority | Current exact WT-016/PR #88 head is authoritative from the remote v2 branch and PR head at gate time; intentionally not duplicated inside the commit carrying this registry snapshot. |
-| cleanliness | **clean** — committed and pushed |
-| lifecycle | **ACTIVE (docs-only replacement PR open)** |
-| operational state | **REPLACEMENT_PR_OPEN_AWAITING_EXACT_AUDIT_AND_CHECK_SETTLEMENT** |
-| purpose | Replacement transition for PR #87 registry reconciliation; replacement PR #88 **OPEN** |
-| related lane / PR | Corrects WT-015 / PR #87 v1 registry semantics; replacement PR #88 **OPEN**; PR #87 remains **OPEN** and **unmerged**; no product implementation |
-| product implementation authorized | **false** — docs-only; no source-write authority |
-| allowed operations | read-only inspection of this transition branch except authorized docs-only SSOT maintenance on PR #88 |
-| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-013 · WT-014 or WT-015 worktrees · Production mutation · PR #87 branch/head update · force-push · merge without separate gate |
-| removal eligibility | deferred — retain until PR #88 is durably merged and closeout is separately authorized |
-| next gate | (1) exact PR #88 audit and check settlement → (2) after GREEN, separately authorized PR #87 closure unmerged → (3) final live-ref guard → (4) exact MERGE COMMIT of PR #88 → (5) no branch deletion → (6) later read-only post-merge observation. Do **not** update PR #87 branch/head, force-push PR #87, or merge PR #87 before replacement verification. |
+| cleanliness | **clean** — retained read-only |
+| lifecycle | **COMPLETED** — retained read-only |
+| operational state | **PR88_MERGED_TRANSITION_COMPLETE_RETAINED_READ_ONLY** |
+| purpose | Completed PR #88 replacement transition for PR #87 registry reconciliation |
+| related lane / PR | PR #88 **MERGED** @ `060fee287355eb00573d968445fcc374510d185d` (MERGE COMMIT; parents `e26f17b9001166a54171e36ce0d8fd3481315dfa` · `aa80853962b5d2df8fcb40fb482e807af4f6f788`); PR #87 **CLOSED**/unmerged; no product implementation |
+| product implementation authorized | **false** — docs-only; write authority **none** |
+| allowed operations | read-only historical inspection only |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-013 · WT-014 · WT-015 or WT-017 worktrees · Production mutation · force-push · merge without separate gate |
+| removal eligibility | **NO** — branch and worktree retained; retirement/deletion prohibited without separate authorization |
+| next gate | none for product implementation — current ACTIVE lane is **IND-PAID** per `M55_ROADMAP.md`; retirement only by separate authorization |
 | notes | Replacement transition worktree per WT-012/WT-015 precedent. Do not route product implementation here. |
+
+### WT-017 — PR #88 post-merge lifecycle reconciliation
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-pr88-post-merge-lifecycle-v1` |
+| branch | `docs/m55-pr88-post-merge-lifecycle-v1` |
+| branch creation base (`origin/main` at worktree creation) | `060fee287355eb00573d968445fcc374510d185d` — **immutable**; PR #88 merge commit |
+| cleanliness | verification-time snapshot only |
+| lifecycle | **DOCS_ONLY** — exact phase is gate-time operational authority |
+| operational state | **DOCS_ONLY_POST_MERGE_LIFECYCLE_RECONCILIATION** |
+| purpose | Docs-only post-merge lifecycle reconciliation worktree |
+| related lane / PR | Follows merged PR #88 @ `060fee287355eb00573d968445fcc374510d185d`; not product implementation |
+| product implementation authorized | **false** — docs-only; no product/source write authority |
+| allowed operations | authorized docs-only SSOT lifecycle maintenance on the three allowlisted SSOT paths |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · edits to WT-009 · WT-013 · WT-014 · WT-015 or WT-016 worktrees · Production mutation · Pair implementation |
+| removal eligibility | deferred — retirement requires separate authorization |
+| next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION` |
+| notes | Exact branch/head/PR phase is gate-time operational authority and is not recursively embedded as durable current-tip claim inside this registry snapshot. Do not route product implementation here. |
 
 ---
 
