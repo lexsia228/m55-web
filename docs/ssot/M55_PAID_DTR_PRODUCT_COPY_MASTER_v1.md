@@ -1,6 +1,6 @@
 # M55 Paid DTR Product Copy Master v1
 
-**Status:** ACTIVE — Category 1 product-copy SSOT (paid DTR / 保存版)
+**Status:** ACTIVE — Category 1 product-copy SSOT (paid DTR / **プレミアムレポート**)
 **Version:** `m55-paid-dtr-product-copy-v1`
 **Runtime module:** `lib/m55/paidDtrProductCopy.ts`
 **Date:** 2026-05-27
@@ -12,7 +12,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Authority** | This document is the **current active product-copy SSOT** for paid DTR (本質の読み解き / 保存版) and consultation reply (相談返書). |
+| **Authority** | This document is the **current active product-copy SSOT** for paid DTR (**プレミアムレポート**) and consultation reply (相談返書). |
 | **Supersedes (for implementation)** | Conflicting copy/product references in older rules that state **8 chapters**, **max 3 replies**, **¥700 add-on**, or **Entry Report as primary Japanese name**. |
 | **Does not supersede** | Engine/divination authority, Golden Matrix, payment/webhook contracts, entitlements DB schema — those remain in their own gates. |
 | **Historical records** | Old PRIMARY LAW / cursor rules / concierge SSOT files **remain on disk** as audit history. They are **obsolete for new implementation** until updated by a separate law/archive gate. **This gate does not delete or edit old files.** |
@@ -22,7 +22,7 @@
 
 **Product truth boundary (copy layer only — values unchanged):**
 
-- **保存版に紐づく相談**（相談返書）。**汎用チャットではない**。**無制限相談ではない**。
+- **プレミアムレポートに紐づく相談**（相談返書）。**汎用チャットではない**。**無制限相談ではない**。
 - **なんでも答える約束をしない**。**通知・メール送付を約束しない**（M55 起因の準備完了／返書完了／更新メールは未実装）。
 - **医療・治療・法律・投資・転職・退職判断の代替にしない**。**辞めろ・別れろ等の絶対助言にしない**。
 - **engine / snapshot / result-label** は本マスターで変更しない（表示コピーのみ）。
@@ -36,7 +36,7 @@
 | **Chapter count: 4 vs 8** | `.cursor/rules/m55-entry-report-product.mdc` §2 (8-chapter list) | **4 chapters** (Ⅰ–Ⅳ) | `components/dtr/DtrFullReader.tsx` `REPORT_PARTS`; `lib/m55/paidDtrProductCopy.ts` `PAID_DTR_CHAPTERS` | **4 chapters are product truth** | Obsolete for copy. Archive/update via separate cleanup gate. |
 | **Reply cap: 5 vs 3** | `00_PRIMARY_ACTIVE_LAW/M55_REPORT_PRODUCT_STRUCTURE_SSOT_v1.md` §1.3 `max 3 / 3`; `M55_REPORT_CONCIERGE_ROOM_SSOT_v1.md` §2.3 | **Included 1 + additional max 4 = total 5** | `lib/m55/reply/replyTicketCheckoutConstants.ts`; `components/dtr/ConsultRoom.tsx` | **5-cap is product truth** | Obsolete for copy. Law append-only update in separate gate. |
 | **Add-on price: ¥500 vs ¥700** | `m55-entry-report-product.mdc` §4 ¥700; CONCIERGE SSOT §3.4 ¥700 candidate | **¥500 per additional 相談返書** | `ConsultRoom.tsx` UI; `docs/ssot/M55_PHASE5_BACKEND_COMMERCE_CONTRACT_A_1000_DTR_500_REPLY_PLANNING_2026-05-23.md` | **¥500 is product truth** | Obsolete for copy. |
-| **Product name: JP vs Entry Report primary** | `M55_REPORT_PRODUCT_STRUCTURE_SSOT_v1.md` §1.2 `public label: Entry Report` | **本質の読み解き** (primary), **保存版** (format), **Entry Report** (auxiliary EN) | `lib/m55/dtrProductLabels.ts`; Wave1 alignment | **JP primary** | PUBLIC_CLAIMS may still say Entry Report — align in language wave; not primary UI. |
+| **Product name: JP vs Entry Report primary** | `M55_REPORT_PRODUCT_STRUCTURE_SSOT_v1.md` §1.2 `public label: Entry Report` | **プレミアムレポート** (primary), **M55 プレミアムレポート ライト/フル** (variants), **Entry Report** (auxiliary EN) | `lib/m55/dtrProductLabels.ts`; machine contract | **JP primary** | PUBLIC_CLAIMS may still say Entry Report — align in language wave; not primary UI. |
 | **Email / notification promises** | `M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1` (future habit loop) | **No M55-owned report-ready / reply-ready / update email in product copy** | No user-facing email system; My mentions Stripe payment email only | **Deferred** | Future `CATEGORY-1-NOTIFICATION-EMAIL-SYSTEM-ARCHITECTURE-PLANNING`. |
 
 ---

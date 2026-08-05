@@ -65,10 +65,10 @@ const HOW_M55_WORKS_PAGE_PATHS = [
 ] as const;
 
 const HOW_M55_FORBIDDEN_DISPLAY_TERMS = [
-  '保存版',
-  '保存版では',
-  '保存版のプランを見る',
-  'あなた専用の保存版',
+  'プレミアムレポート',
+  'プレミアムレポートでは',
+  'プレミアムレポートのプランを見る',
+  'あなた専用のプレミアムレポート',
   'ただの読み物ではありません',
   '読み物',
   '読み返せる',
@@ -188,7 +188,7 @@ describe('topFreeEntryPublicCopy — Product Truth alignment', () => {
     for (const removed of [
       'まずは無料結果を見る',
       '無料結果ページで、あなたの輪郭を確認できます。',
-      '保存版へ進む前に、まずは無料でM55を試せます。',
+      'プレミアムレポートへ進む前に、まずは無料でM55を試せます。',
       'M55複合暦解析',
       'M55追加解析',
     ] as const) {

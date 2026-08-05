@@ -29,7 +29,7 @@ Primary authority for verifiable facts: `lib/m55/contracts/m55CommercialFunnelCo
 4. Ⅳ 楽に扱う
 
 Runtime product keys: `dtr_core_light_v1`, `dtr_core_full_v1`  
-Runtime legacy names still present: 保存版ライト, 保存版FULL (`paidDtrProductCopy.ts`) — **legacy debt**, target public names above.
+Public names: **M55 プレミアムレポート ライト** / **M55 プレミアムレポート フル**（machine contract SSOT）。`保存版` 系表記は INTERNAL_ONLY（stored snapshot は表示時 normalizer のみ）。
 
 ## Self free
 

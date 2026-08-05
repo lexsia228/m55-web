@@ -228,12 +228,12 @@ export function toPaidDtrIndividualizationAuditMeta(
 
 /** Prefix inserted into paid s7 before catalog body. */
 export function buildPaidDtrS7IndividualizationPrefix(ind: PaidDtrIndividualization): string {
-  return ['【この保存版だけの補助整理】', ind.auxiliaryReading, ind.handlingHint, ''].join('\n');
+  return ['【このプレミアムレポートだけの補助整理】', ind.auxiliaryReading, ind.handlingHint, ''].join('\n');
 }
 
 /** Prefix inserted into paid s3 before catalog body (consult excerpt captures from start). */
 export function buildPaidDtrS3IndividualizationPrefix(ind: PaidDtrIndividualization): string {
-  return ['【この保存版だけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
+  return ['【このプレミアムレポートだけの本質リズム】', ind.essenceRhythmNote, ''].join('\n');
 }
 
 /** Guard for tests — user-facing fragments must not leak internal keys. */

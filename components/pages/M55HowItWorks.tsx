@@ -112,8 +112,8 @@ export default function M55HowItWorks() {
           <div className={styles.roomEyebrow}>追加読み解き</div>
           <h2 className={styles.roomTitle}>追加読み解きとは</h2>
           <p className={styles.roomDesc}>
-            保存版を購入した方だけが使える、保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。
-            公開チャットではなく、購入した保存版の章に沿って、いまの1テーマを整理するためのものです。
+            プレミアムレポートを購入した方だけが使える、プレミアムレポートに紐づく一つの読み解きテーマを整理する追加読み解きです。
+            公開チャットではなく、購入したプレミアムレポートの章に沿って、いまの1テーマを整理するためのものです。
           </p>
         </div>
       </section>

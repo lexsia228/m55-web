@@ -6,7 +6,7 @@ import { PublicFooter } from '../_components/PublicFooter';
 import DtrShelfPanel from '../../components/dtr/DtrShelfPanel';
 import styles from './dtr.module.css';
 
-export const metadata = { title: '保存版 | M55' };
+export const metadata = { title: 'プレミアムレポート | M55' };
 
 /**
  * /dtr — product shelf.

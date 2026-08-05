@@ -24,8 +24,8 @@ describe('consultRoomUserFacingErrors', () => {
 
   it('prefers safeMessage when present', () => {
     assert.equal(
-      mapConsultRoomSendErrorToUserMessage('この内容は、この保存版をもとにした読み解きでは扱えません。', 'blocked'),
-      'この内容は、この保存版をもとにした読み解きでは扱えません。',
+      mapConsultRoomSendErrorToUserMessage('この内容は、このプレミアムレポートをもとにした読み解きでは扱えません。', 'blocked'),
+      'この内容は、このプレミアムレポートをもとにした読み解きでは扱えません。',
     );
   });
 

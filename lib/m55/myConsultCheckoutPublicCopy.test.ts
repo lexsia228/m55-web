@@ -93,15 +93,15 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
   });
 
   it('shows Light or FULL only through the actual purchased tier model', () => {
-    assert.match(POST_PURCHASE_SOURCE, /plan === 'full' \? '保存版FULL'/);
-    assert.match(POST_PURCHASE_SOURCE, /plan === 'light' \? '保存版ライト'/);
+    assert.match(POST_PURCHASE_SOURCE, /plan === 'full' \? 'M55 プレミアムレポート フル'/);
+    assert.match(POST_PURCHASE_SOURCE, /plan === 'light' \? 'M55 プレミアムレポート ライト'/);
     assert.match(MY_PANEL_SOURCE, /purchasedHub\.planLabel/);
-    assert.equal(CONSULT_ENTRY_SURFACES.includes('保存版ライト'), false);
-    assert.equal(CONSULT_ENTRY_SURFACES.includes('保存版FULL'), false);
+    assert.equal(CONSULT_ENTRY_SURFACES.includes('M55 プレミアムレポート ライト'), false);
+    assert.equal(CONSULT_ENTRY_SURFACES.includes('M55 プレミアムレポート フル'), false);
   });
 
-  it('processing eyebrow and core metadata use 4章の保存版', () => {
-    assert.equal(LABEL_SAVED_REPORT_METADATA_JP, '4章の保存版');
+  it('processing eyebrow and core metadata use 4章のプレミアムレポート', () => {
+    assert.equal(LABEL_SAVED_REPORT_METADATA_JP, '4章のプレミアムレポート');
     const processing = readRepo('app/dtr/processing/page.tsx');
     const corePage = readRepo('app/dtr/core/page.tsx');
     assert.match(processing, /LABEL_SAVED_REPORT_METADATA_JP/);
@@ -139,9 +139,9 @@ describe('myConsultCheckoutPublicCopy — LOCAL wave regression', () => {
 });
 
 describe('myConsultCheckoutPublicCopy — My public catalog (PATCH-1)', () => {
-  it('includes 保存版 and keeps 相性レポート without add-on consult slot', () => {
+  it('includes プレミアムレポート and keeps 相性レポート without add-on consult slot', () => {
     const catalog = publicCatalogCopyBlob();
-    assert.match(catalog, /保存版/);
+    assert.match(catalog, /プレミアムレポート/);
     assert.equal(DTR_PRODUCT_CATALOG.some((slot) => slot.id === 'entry_report'), true);
     assert.equal(DTR_PRODUCT_CATALOG.some((slot) => slot.id === 'compatibility_report'), true);
     assert.equal(DTR_PRODUCT_CATALOG.length, 2);
@@ -248,7 +248,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
   });
 
   it('uses SignedOut body and shared help section', () => {
-    assert.equal(MY_SIGNED_OUT_HUB_BODY.includes('保存版や利用状況'), true);
+    assert.equal(MY_SIGNED_OUT_HUB_BODY.includes('プレミアムレポートや利用状況'), true);
     assert.match(MY_PANEL_SOURCE, /MY_SIGNED_OUT_HUB_BODY/);
     assert.match(MY_PANEL_SOURCE, /MY_HELP_SECTION_TITLE/);
     assert.equal(MY_PANEL_SOURCE.includes('購入の明細・領収'), false);
@@ -257,7 +257,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
   });
 
   it('uses formal section titles and saved-report copy constants', () => {
-    assert.equal(MY_SAVED_REPORT_SECTION_TITLE, 'あなたの保存版');
+    assert.equal(MY_SAVED_REPORT_SECTION_TITLE, 'あなたのプレミアムレポート');
     assert.equal(MY_SERVICES_SECTION_TITLE, 'サービス一覧');
     assert.equal(MY_CONSULT_SECTION_TITLE, '追加読み解き');
     assert.match(MY_PANEL_SOURCE, /MY_SAVED_REPORT_SECTION_TITLE/);
@@ -284,8 +284,8 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.match(consultBlock, /MY_CONSULT_CTA_HREF/);
     assert.equal(MY_SAVED_REPORT_CTA_PLAN_HREF, '/dtr/lp');
     assert.equal(MY_SAVED_REPORT_CTA_OPEN_HREF, '/dtr/core');
-    assert.equal(MY_SAVED_REPORT_CTA_PLAN_LABEL, '保存版のプランを見る');
-    assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, '保存版を読み返す');
+    assert.equal(MY_SAVED_REPORT_CTA_PLAN_LABEL, 'プレミアムレポートのプランを見る');
+    assert.equal(MY_SAVED_REPORT_CTA_OPEN_LABEL, 'プレミアムレポートを読み返す');
     assert.equal(MY_CONSULT_CTA_LABEL, '追加読み解きを始める');
     assert.equal(MY_CONSULT_CTA_HREF, '/dtr/core#consultation-room');
   });
@@ -296,7 +296,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.match(savedBlock, /MY_SAVED_REPORT_INTRO_OWNED/);
     assert.match(savedBlock, /MY_SAVED_REPORT_OWNED_NOTE_P1/);
     assert.equal(MY_SAVED_REPORT_INTRO_OWNED.includes('ここから開けます'), true);
-    assert.equal(MY_SAVED_REPORT_INTRO_COMMON, '保存版の状態をここで確認できます。');
+    assert.equal(MY_SAVED_REPORT_INTRO_COMMON, 'プレミアムレポートの状態をここで確認できます。');
   });
 
   it('uses 2-state consult copy without legacy paragraphs', () => {
@@ -307,7 +307,7 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.equal(MY_PANEL_SOURCE.includes('walletFactNoteJa'), false);
     assert.equal(MY_PANEL_SOURCE.includes('remainingNoteJa'), false);
     assert.equal(MY_PANEL_SOURCE.includes('reopenNoteJa'), false);
-    assert.equal(MY_CONSULT_BODY_PRE_OWNED.includes('保存版に紐づく'), true);
+    assert.equal(MY_CONSULT_BODY_PRE_OWNED.includes('プレミアムレポートに紐づく'), true);
   });
 
   it('removes P0 forbidden UI from SignedIn block', () => {
@@ -317,8 +317,8 @@ describe('myConsultCheckoutPublicCopy — My IA SSOT (Revision-4)', () => {
     assert.equal(SIGNED_IN_BLOCK.includes('商品の説明'), false);
     assert.equal(SIGNED_IN_BLOCK.includes('保存の目安'), false);
     assert.equal(SIGNED_IN_BLOCK.includes('追加相談返書'), false);
-    assert.equal(SIGNED_IN_BLOCK.includes('保存版を開いて、続きから確認する'), false);
-    assert.equal(SIGNED_IN_BLOCK.includes('保存版の説明を確認'), false);
+    assert.equal(SIGNED_IN_BLOCK.includes('プレミアムレポートを開いて、続きから確認する'), false);
+    assert.equal(SIGNED_IN_BLOCK.includes('プレミアムレポートの説明を確認'), false);
   });
 
   it('My catalog variant removes active CTAs', () => {

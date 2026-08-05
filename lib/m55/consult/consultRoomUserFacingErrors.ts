@@ -41,7 +41,7 @@ export function mapConsultRoomLoadErrorToUserMessage(
 
   const raw = apiError?.trim() ?? '';
   if (raw === 'Not owned') {
-    return 'この保存版を開く権限を確認できませんでした。マイページから保存版をご確認ください。';
+    return 'このプレミアムレポートを開く権限を確認できませんでした。マイページからプレミアムレポートをご確認ください。';
   }
   if (raw === 'Unauthorized') return 'サインインの状態を確認してください。';
   if (raw && /[\u3040-\u30ff\u4e00-\u9fff]/.test(raw)) return raw;

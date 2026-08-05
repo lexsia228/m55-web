@@ -34,7 +34,7 @@ const FORBIDDEN_TERMS = [
 ] as const;
 
 const ASSISTANT_TEMPLATE_MARKERS = [
-  '保存版から見ると',
+  'プレミアムレポートから見ると',
   '今日やることは1つだけです。',
   '5段落目',
   '段落目は',

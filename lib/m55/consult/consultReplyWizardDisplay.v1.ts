@@ -28,7 +28,7 @@ export const WIZARD_ENTRY_CARD_DISPLAY: Record<ReplyThemeId, WizardEntryCardDisp
     description: '今出ている癖や、見直すポイントを見る',
   },
   report: {
-    label: '保存版を使いこなしたい',
+    label: 'プレミアムレポートを使いこなしたい',
     description: 'どこを読み返すとよいか整理する',
   },
 };
@@ -54,7 +54,7 @@ export const WIZARD_QUESTION_LABEL_DISPLAY: Partial<Record<string, string>> = {
   'tendency.focus': 'いま注目したい傾向に絞りたい',
   'tendency.reread': 'どこを読み返すか見たい',
   'tendency.lens': '別の見方で、少しほどいて読みたい',
-  'report.how_to_use': '保存版の使い方を整理したい',
+  'report.how_to_use': 'プレミアムレポートの使い方を整理したい',
   'report.chapter_pick': 'いま開きやすい章を選びたい',
   'report.review_timing': '読み返すタイミングを見直したい',
   'report.next_step': '読んだあとの次の一手を一つ置きたい',

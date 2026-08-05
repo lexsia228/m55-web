@@ -130,19 +130,19 @@ export function DtrProcessingClient({
       {!showAnimation && (
         <>
           <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
-            {isOwnedRecovery ? '保存版を確認中です' : '保存版を準備しています'}
+            {isOwnedRecovery ? 'プレミアムレポートを確認中です' : 'プレミアムレポートを準備しています'}
           </p>
           <p className={styles.desc} style={{ margin: 0 }}>
             {isOwnedRecovery
-              ? '購入済みの保存版を読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
-              : '購入済みレポートの保存版を準備しています。完了すると自動で開きます。'}
+              ? '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
+              : '購入済みレポートのプレミアムレポートを準備しています。完了すると自動で開きます。'}
           </p>
         </>
       )}
 
       {stuck && (
         <p role="alert" className={styles.desc} style={{ marginTop: 16, color: '#5a4ea0' }}>
-          準備に時間がかかっています。保存版が未生成の間は /dtr/core へ直接進みません。
+          準備に時間がかかっています。プレミアムレポートが未生成の間は /dtr/core へ直接進みません。
           <button
             type="button"
             onClick={() => window.location.reload()}

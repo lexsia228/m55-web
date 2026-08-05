@@ -62,13 +62,14 @@ export const M55_PROHIBITED_CLAIMS = [
 
 export const M55_LEGACY_RUNTIME_DEBT = {
   preResultThemeSelectionStepJa: '今の関心',
-  legacyPublicTerms: ['保存版', '見取り図'] as const,
+  internalOnlyTerms: ['保存版'] as const,
+  legacyPublicTerms: ['見取り図'] as const,
   runtimeCopyAuthorities: [
     'lib/m55/topFreeEntryPublicCopy.ts',
     'lib/m55/paidDtrProductCopy.ts',
     'lib/m55/freeResult/questionnaireCopyV1.ts',
   ] as const,
-  resolutionLane: '個人無料→個人Premiumファネル一括実装',
+  resolutionLane: 'Premium public terminology remediation (WT-018)',
 } as const;
 
 export const M55_CURRENT_RUNTIME_STATE = {
@@ -77,7 +78,7 @@ export const M55_CURRENT_RUNTIME_STATE = {
     preResultThemeSelection: false,
     themeSelectionStepLabelJa: null,
     questionnaireIncludesCurrentInterest: false,
-    legacyTermsInPublicCopy: true,
+    legacyTermsInPublicCopy: false,
     freeResultIncludesActionSuggestions: false,
     canonicalFreeResultCount: 'single canonical via DOB + five core answers',
   },
@@ -112,6 +113,14 @@ export const M55_TARGET_COMMERCIAL_CONTRACT = {
   },
 } as const;
 
+export const M55_ENFORCED_RUNTIME_ASSERTIONS = [
+  {
+    id: 'no_public_hozonban_copy',
+    description: '「保存版」public copy が 0 — terminology guard + stored snapshot display normalizer',
+    enforcement: 'CLOSED_GREEN',
+  },
+] as const;
+
 export const M55_DEFERRED_RUNTIME_ASSERTIONS = [
   {
     id: 'no_pre_result_theme_selection_step',
@@ -121,11 +130,6 @@ export const M55_DEFERRED_RUNTIME_ASSERTIONS = [
   {
     id: 'no_public_mitorizu_copy',
     description: '「見取り図」public copy が 0',
-    enforcement: 'PENDING_SELF_FUNNEL_IMPLEMENTATION',
-  },
-  {
-    id: 'no_public_hozonban_copy',
-    description: '「保存版」public copy が 0',
     enforcement: 'PENDING_SELF_FUNNEL_IMPLEMENTATION',
   },
 ] as const;

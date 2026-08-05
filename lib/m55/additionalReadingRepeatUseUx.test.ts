@@ -76,8 +76,8 @@ describe('additional reading repeat-use UX', () => {
     const previewPage = readRepo('app/dev/dtr-drawer-preview/page.tsx');
     const previewClient = readRepo('components/dtr/__preview__/DtrDrawerPreviewClient.tsx');
     assert.match(source, /追加読み解きはすべて利用済みです。/);
-    assert.match(source, /保存版はいつでも読み返せます。/);
-    assert.match(source, /保存版を読み返す/);
+    assert.match(source, /プレミアムレポートはいつでも読み返せます。/);
+    assert.match(source, /プレミアムレポートを読み返す/);
     assert.match(previewPage, /showLightUpgrade=\{sp\.lightUpgrade === '1'\}/);
     assert.match(previewClient, /FULL化を確認する/);
     assert.match(previewClient, /disabled/);

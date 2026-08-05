@@ -5,9 +5,26 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close — current authority immediately below; earlier lane-active claims are historical).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation — current authority immediately below).
 
-## PR #86 POST-MERGE GOVERNANCE TRANSITION (2026-08-04) — AUTHORITATIVE
+## PREMIUM PUBLIC TERMINOLOGY WAVE (WT-018) — AUTHORITATIVE (2026-08-04)
+
+This section is the current authority for WT-018 implementation authorization. Earlier transition sections remain historical for lane closure facts only.
+
+| Field | Value |
+|---|---|
+| Base commit | `ada0510c77f73dd992dc6901d1a04389a2cf7e74` |
+| Worktree | WT-018 · `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` · `fix/m55-premium-public-terminology-v1` |
+| Scope | Premium public terminology remediation only — `保存版` → INTERNAL_ONLY; public surfaces use Premium canonical terms |
+| IND-FREE | **CLOSED GREEN** — functional lane not reopened; terminology cross-cut only |
+| IND-PAID functional implementation | **not authorized** — terminology wave is prerequisite hygiene only |
+| Local source implementation | **AUTHORIZED** on WT-018 only |
+| Commit / push / PR / merge / deploy | **NOT AUTHORIZED** |
+| Stored snapshots | Display-time normalization only — no DB/schema migration |
+| Free/Pair `見取り図` | **unchanged** in this wave |
+| NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below |
+
+## PR #86 POST-MERGE GOVERNANCE TRANSITION (2026-08-04) — HISTORICAL, SUPERSEDED FOR IMPLEMENTATION AUTH BY WT-018
 
 This section is the current authority for lane status and the next single action. Earlier `CURRENT` or `ACTIVE` labels in dated sections are retained only as historical records and are superseded by this section. Exact remote main and any transition-branch head are re-observed at execution-gate time; transient PR/check state is operational evidence, not durable product authority.
 
@@ -229,7 +246,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-04):** Obtain explicit authorization for the IND-PAID implementation/planning gate derived from the existing roadmap. IND-PAID implementation remains unauthorized until that explicit gate.
+**CURRENT (2026-08-04):** Human actual-diff review of WT-018 Premium public terminology remediation on `fix/m55-premium-public-terminology-v1` (base `ada0510c`). After visual approval, authorize commit/PR gate separately. IND-PAID functional implementation remains unauthorized until explicit lane gate after terminology merge.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01. This described the pre-merge Growth Share gate and is retained as historical record; PR #81 has since merged.**
 >

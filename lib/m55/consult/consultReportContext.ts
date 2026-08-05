@@ -101,21 +101,21 @@ export function buildConsultReportContextFromEnvelope(
       excerptBody(paidIndividualization.essenceRhythmNote.trim(), 200),
       nickname,
     );
-    metaParts.push(`【保存版の本質リズム（購入時固定）】\n${essence}`);
+    metaParts.push(`【プレミアムレポートの本質リズム（購入時固定）】\n${essence}`);
   }
   if (paidIndividualization?.auxiliaryReading?.trim()) {
     const auxiliary = redactNicknameInExcerpt(
       excerptBody(paidIndividualization.auxiliaryReading.trim(), 240),
       nickname,
     );
-    metaParts.push(`【保存版の補助整理（購入時固定）】\n${auxiliary}`);
+    metaParts.push(`【プレミアムレポートの補助整理（購入時固定）】\n${auxiliary}`);
   }
   if (isDobV2 && paidIndividualization?.handlingHint?.trim()) {
     const handling = redactNicknameInExcerpt(
       excerptBody(paidIndividualization.handlingHint.trim(), 180),
       nickname,
     );
-    metaParts.push(`【保存版の扱い方ヒント（購入時固定）】\n${handling}`);
+    metaParts.push(`【プレミアムレポートの扱い方ヒント（購入時固定）】\n${handling}`);
   }
 
   const tendencyTerms = extractTendencyTerms(primaryBodies, nickname);
@@ -124,9 +124,9 @@ export function buildConsultReportContextFromEnvelope(
   }
 
   metaParts.push(
-    '【保存版抜粋の使い方】\n' +
+    '【プレミアムレポート抜粋の使い方】\n' +
       '- 主章1つ・補助章最大1つ。傾向語2〜4個を抜粋からそのまま使う。\n' +
-      '- 購入時点の保存版の読み直し（新しい鑑定ではない）。'
+      '- 購入時点のプレミアムレポートの読み直し（新しい鑑定ではない）。'
   );
 
   let context = [

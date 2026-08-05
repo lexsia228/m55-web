@@ -61,7 +61,7 @@ const SECTION_RESPONSE_FORMAT: {
   type: 'json_schema',
   json_schema: {
     name: 'hybrid_dtr_sections',
-    description: '4章構成の保存版本文。各章の本文のみを出力する。',
+    description: '4章構成のプレミアムレポート本文。各章の本文のみを出力する。',
     strict: true,
     schema: {
       type: 'object',
@@ -122,7 +122,7 @@ export function serializeHybridPayloadToMessages(payload: HybridAiPromptPayload)
     .join('\n\n');
 
   const systemMessage = [
-    'あなたはM55保存版DTR章生成AIです。以下の制約をすべて厳守すること。',
+    'あなたはM55プレミアムレポートDTR章生成AIです。以下の制約をすべて厳守すること。',
     '',
     `【トーン】\n${systemConstraints.toneName}`,
     '',
@@ -164,7 +164,7 @@ export function serializeHybridPayloadToMessages(payload: HybridAiPromptPayload)
     `s3参考: ${fallbackMaterial.s3Note}`,
     `s4参考: ${fallbackMaterial.s4Note}`,
     '',
-    '上記を踏まえ、4章構成の保存版本文をJSON形式で生成すること。',
+    '上記を踏まえ、4章構成のプレミアムレポート本文をJSON形式で生成すること。',
   ].join('\n');
 
   return { systemMessage, userMessage };

@@ -48,7 +48,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:b3ad5e19",
     "expectedPaidCompositionFingerprint": "djb2:10640ee8",
-    "expectedPaidEssenceFingerprint": "djb2:a77cac25",
+    "expectedPaidEssenceFingerprint": "djb2:8b56da59",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -71,7 +71,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
     "expectedPaidIdentityFingerprint": "djb2:76b981e0",
     "expectedPaidCompositionFingerprint": "djb2:88a1863b",
-    "expectedPaidEssenceFingerprint": "djb2:ea7d48b8",
+    "expectedPaidEssenceFingerprint": "djb2:533e366c",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -93,8 +93,8 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
     "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:d08e20ea",
-    "expectedPaidEssenceFingerprint": "djb2:230db72d",
+    "expectedPaidCompositionFingerprint": "djb2:32ae429e",
+    "expectedPaidEssenceFingerprint": "djb2:bca2b061",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -117,7 +117,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "散らかったことを順番に整え、自分が納得できる形に近づけられるときに伸びやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:dde14f2b",
     "expectedPaidCompositionFingerprint": "djb2:52a04920",
-    "expectedPaidEssenceFingerprint": "djb2:3c0cbad4",
+    "expectedPaidEssenceFingerprint": "djb2:997d6a08",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -140,7 +140,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人との距離や、日々の流れを整えながら進めるときに伸びやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:4cc440b1",
     "expectedPaidCompositionFingerprint": "djb2:f563682d",
-    "expectedPaidEssenceFingerprint": "djb2:100b2596",
+    "expectedPaidEssenceFingerprint": "djb2:457e5d4a",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -163,7 +163,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:d803f226",
     "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
-    "expectedPaidEssenceFingerprint": "djb2:93c45ba5",
+    "expectedPaidEssenceFingerprint": "djb2:d6e2e6d9",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -186,7 +186,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人との距離や、日々の流れを整えながら進めるときに伸びやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:4cc440b1",
     "expectedPaidCompositionFingerprint": "djb2:f563682d",
-    "expectedPaidEssenceFingerprint": "djb2:d92d29ea",
+    "expectedPaidEssenceFingerprint": "djb2:801d1b9e",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -209,7 +209,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:d803f226",
     "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
-    "expectedPaidEssenceFingerprint": "djb2:57c27396",
+    "expectedPaidEssenceFingerprint": "djb2:e975a7ca",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -232,7 +232,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人との場に熱量があり、反応が返ってくるときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:d803f226",
     "expectedPaidCompositionFingerprint": "djb2:d5370ee6",
-    "expectedPaidEssenceFingerprint": "djb2:f60c65f9",
+    "expectedPaidEssenceFingerprint": "djb2:5638a62d",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -255,7 +255,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "深く考えて整えられる時間と、自分の範囲が分かるときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:61f81f88",
     "expectedPaidCompositionFingerprint": "djb2:7fe09bf1",
-    "expectedPaidEssenceFingerprint": "djb2:04fd5120",
+    "expectedPaidEssenceFingerprint": "djb2:aabae9d4",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -278,7 +278,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "深く考えて整えられる時間と、自分の範囲が分かるときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:61f81f88",
     "expectedPaidCompositionFingerprint": "djb2:7fe09bf1",
-    "expectedPaidEssenceFingerprint": "djb2:6bfbc2d7",
+    "expectedPaidEssenceFingerprint": "djb2:d25d2a8b",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -301,7 +301,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "優先順位が見え、完了まで自分のペースで進められるときに力を出しやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:e2e494d4",
     "expectedPaidCompositionFingerprint": "djb2:f648793e",
-    "expectedPaidEssenceFingerprint": "djb2:3845f252",
+    "expectedPaidEssenceFingerprint": "djb2:b66c6906",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -324,7 +324,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人の言葉や距離に関わる場面で、力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:5ad4ecc0",
     "expectedPaidCompositionFingerprint": "djb2:5e8dedc6",
-    "expectedPaidEssenceFingerprint": "djb2:5c24e0f7",
+    "expectedPaidEssenceFingerprint": "djb2:e07f05ab",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -347,7 +347,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "近い人の言葉や距離に関わる場面で、力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:5ad4ecc0",
     "expectedPaidCompositionFingerprint": "djb2:5e8dedc6",
-    "expectedPaidEssenceFingerprint": "djb2:00c63008",
+    "expectedPaidEssenceFingerprint": "djb2:33548e3c",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -370,7 +370,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:b3ad5e19",
     "expectedPaidCompositionFingerprint": "djb2:10640ee8",
-    "expectedPaidEssenceFingerprint": "djb2:ff5aa343",
+    "expectedPaidEssenceFingerprint": "djb2:5f86e377",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -393,7 +393,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:b3ad5e19",
     "expectedPaidCompositionFingerprint": "djb2:10640ee8",
-    "expectedPaidEssenceFingerprint": "djb2:3cf2ee4f",
+    "expectedPaidEssenceFingerprint": "djb2:59300b83",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -416,7 +416,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:b3ad5e19",
     "expectedPaidCompositionFingerprint": "djb2:10640ee8",
-    "expectedPaidEssenceFingerprint": "djb2:5a93d00c",
+    "expectedPaidEssenceFingerprint": "djb2:79b450c0",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -439,7 +439,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
     "expectedPaidIdentityFingerprint": "djb2:76b981e0",
     "expectedPaidCompositionFingerprint": "djb2:88a1863b",
-    "expectedPaidEssenceFingerprint": "djb2:df426495",
+    "expectedPaidEssenceFingerprint": "djb2:125ae5c9",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -461,8 +461,8 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedCoreSummary": "相手の温度や空気を受け取り、関係の中でバランスを保とうとする本質です。調整と受容の観測が強いタイプです。",
     "expectedWorkStyleSummary": "近い人との距離を整えながら、少しずつ前に進めるときに力が出しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:0d095bac",
-    "expectedPaidCompositionFingerprint": "djb2:d08e20ea",
-    "expectedPaidEssenceFingerprint": "djb2:8f96dfea",
+    "expectedPaidCompositionFingerprint": "djb2:32ae429e",
+    "expectedPaidEssenceFingerprint": "djb2:3951bc9e",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -485,7 +485,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "バラバラの要素をひとつの流れにまとめ、全体の見通しが立つときに力を発揮しやすい観測です。",
     "expectedPaidIdentityFingerprint": "djb2:b3ad5e19",
     "expectedPaidCompositionFingerprint": "djb2:10640ee8",
-    "expectedPaidEssenceFingerprint": "djb2:3cf2ee4f",
+    "expectedPaidEssenceFingerprint": "djb2:59300b83",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -508,7 +508,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "ひとりで深く向き合える時間と、静かな余白があるときに力が出やすい観測です。割り込みが少ないほど輪郭がはっきりします。",
     "expectedPaidIdentityFingerprint": "djb2:76b981e0",
     "expectedPaidCompositionFingerprint": "djb2:88a1863b",
-    "expectedPaidEssenceFingerprint": "djb2:ea7d48b8",
+    "expectedPaidEssenceFingerprint": "djb2:533e366c",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
   {
@@ -531,7 +531,7 @@ export const BIRTHDAY_SSOT_CROSS_SURFACE_AUDIT_FREEZE: readonly BirthdaySsotFroz
     "expectedWorkStyleSummary": "静かに観察し、小さな変化から読み直せる時間があるときに力を発揮しやすいです。",
     "expectedPaidIdentityFingerprint": "djb2:d33fc8f2",
     "expectedPaidCompositionFingerprint": "djb2:c35207e7",
-    "expectedPaidEssenceFingerprint": "djb2:bf093d19",
+    "expectedPaidEssenceFingerprint": "djb2:e449ee4d",
     "contentSource": "TYPE_CATALOG+STEM_BODIES"
   },
 ];

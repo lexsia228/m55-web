@@ -38,7 +38,7 @@ export async function isDtrOwnedHiddenOnlyState(userId: string): Promise<boolean
 function shelfCtaForHiddenOnlyRepurchase(): DtrShelfCta {
   return {
     href: DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH,
-    label: '新しい保存版を作成する',
+    label: '新しいプレミアムレポートを作成する',
     ariaLabel: ariaLabelForDtrShelf('purchase', true),
   };
 }

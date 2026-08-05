@@ -52,7 +52,7 @@ function CompareAnchorLink({ label }: { label: string }) {
 
 function HeroPriceChips() {
   return (
-    <div className={styles.lpPriceChips} aria-label="保存版プランの価格">
+    <div className={styles.lpPriceChips} aria-label="プレミアムレポートプランの価格">
       <div className={styles.lpPriceChip}>
         <span className={styles.lpPriceChipLabel}>{PLAN.light.publicName}</span>
         <span className={styles.lpPriceChipValue}>{PLAN.light.priceLabelJa}</span>
@@ -295,7 +295,7 @@ export default async function DtrLpPage({
           <p className={styles.lpBodyTight}>{PAID_DTR_LP.informationLayers.consultReplyJa}</p>
         </section>
 
-        {/* 5. 保存版とは */}
+        {/* 5. プレミアムレポートとは */}
         <section aria-labelledby="dtr-lp-saved" className={styles.lpSectionPreTier}>
           <h2 id="dtr-lp-saved" className={styles.lpH2}>
             {PAID_DTR_LP.savedReport.sectionTitleJa}

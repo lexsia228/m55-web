@@ -37,7 +37,7 @@ export const ACCOUNT_DATA_SUPPORT_REQUEST_INFO =
 export const ACCOUNT_DATA_SUPPORT_TARGET_EXAMPLES = [
   'アカウント',
   'プロフィール',
-  '保存版',
+  'プレミアムレポート',
   '追加読み解き',
   'この端末に保存された情報',
 ] as const;
@@ -49,7 +49,7 @@ export const ACCOUNT_DATA_SUPPORT_SECURITY_NOTE =
   'パスワードや決済カード情報は送らないでください。';
 
 export const ACCOUNT_DATA_SUPPORT_SAVED_REPORT_BOUNDARY =
-  'マイページの保存版削除と、アカウント削除・データ消去の申請は別の手続きです。';
+  'マイページのプレミアムレポート削除と、アカウント削除・データ消去の申請は別の手続きです。';
 
 export const ACCOUNT_DATA_SUPPORT_RETENTION_BOUNDARY =
   '法令・決済・不正防止・監査等により保持が必要な記録は、削除対象外となる場合があります。';
@@ -76,6 +76,6 @@ export const ACCOUNT_DATA_PRIVACY_DEVICE_P3 =
   '削除申請時に、端末内データの消去についても案内します。';
 
 export const ACCOUNT_DATA_PRIVACY_SAVED_REPORT_BOUNDARY =
-  '保存版をマイページから削除する操作と、アカウント削除・登録データ消去の申請は別の手続きです。';
+  'プレミアムレポートをマイページから削除する操作と、アカウント削除・登録データ消去の申請は別の手続きです。';
 
 export const ACCOUNT_DATA_PRIVACY_REQUEST_LINK_LABEL = 'アカウント削除・データ消去の申請';

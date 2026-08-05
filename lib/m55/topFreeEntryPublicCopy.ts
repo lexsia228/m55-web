@@ -14,10 +14,8 @@ function formatHomePlanFullSpecJa(totalReplyCap: number): string {
 /** Top / free-entry public copy — references PAID_DTR_LP SSOT; no long LP duplication. */
 export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   m55Definition: {
-    centerJa:
-      'M55は、生年月日を10資質レーンへ分けるだけではありません。\n旧暦月・季節位置・日帯などの暦信号を重ねて、\n自分の動き方・疲れ方・戻し方まで見える保存版に整えます。',
     shortJa:
-      'M55は、生年月日から、自分の動き方・疲れ方・戻し方を見える形にする保存版の見取り図です。',
+      'M55は、生年月日から、自分の動き方・疲れ方・戻し方を見える形にする無料の見取り図です。',
     principleJa:
       '本人に代わって答えを決めるのではなく、\n現実的な見方と、次に確かめることを示します。',
   },
@@ -27,17 +25,17 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   },
   savedReport: {
     definitionJa:
-      '保存版では、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を\nプレミアムレポートとして整理します。',
+      'プレミアムレポートでは、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方をプレミアムレポートとして整理します。',
   },
   consultReply: {
     definitionJa:
-      '追加読み解きでは、保存版に今回入力した\n一つの読み解きテーマを重ねて読み直します。',
+      '追加読み解きでは、プレミアムレポートに今回入力した\n一つの読み解きテーマを重ねて読み直します。',
     notConversationJa: '会話を続ける形式ではありません。',
     coreStaticJa:
-      '追加読み解きは、\n保存版に今回入力した一つの読み解きテーマを重ねて\n読み直す追加読み解きです。',
+      '追加読み解きは、\nプレミアムレポートに今回入力した一つの読み解きテーマを重ねて\n読み直す追加読み解きです。',
   },
   threeLayerOrderJa:
-    '無料の見取り図 → プレミアムレポート → 保存版に紐づく追加読み解き',
+    '無料の見取り図 → プレミアムレポート → プレミアムレポートに紐づく追加読み解き',
   formalChapters: PAID_DTR_LP.chapters.items.map((ch) => ({
     roman: ch.roman,
     titleJa: ch.titleJa,
@@ -45,7 +43,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
   })),
   storefront: {
     introJa:
-      'M55は、生年月日から、自分の動き方・疲れ方・戻し方を見える形にする保存版の見取り図です。',
+      'M55は、生年月日から、自分の動き方・疲れ方・戻し方を見える形にする無料の見取り図です。',
     fullPlanNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
     fullPriceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     fullSavedReportJa: 'プレミアムレポート',
@@ -55,7 +53,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     lightSavedReportJa: 'プレミアムレポート',
     lightConsultReplyJa: '追加読み解き1件',
     upgradeNoteJa:
-      'ライト購入後でも、必要になったらFULL化できます。\n保存版を読んだあと、もう少し深く整理したくなった場合に選べます。',
+      'ライト購入後でも、必要になったらFULL化できます。\nプレミアムレポートを読んだあと、もう少し深く整理したくなった場合に選べます。',
   },
   /**
    * Home (lower, below the frozen poster hero) — SSOT for eleven always-rendered
@@ -211,18 +209,18 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '未来や相手の気持ちを断定しません。診断、鑑定、治療、カウンセリングではありません。医療、法律、投資に関する専門的な判断の代わりにはなりません。',
   },
   coreBoundary: {
-    titleJa: 'このページと保存版の違い',
+    titleJa: 'このページとプレミアムレポートの違い',
     freeLeadJa:
       '無料の見取り図では、\n10資質レーンと5つの視点で、\n自分に出やすい輪郭を短く確認できます。',
     savedLeadJa:
-      '保存版では、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\nプレミアムレポートとして残します。\n追加読み解きでは、保存版に沿って、いまの1テーマだけ整理します。',
+      'プレミアムレポートでは、\n生年月日の暦リズムまで重ねて、\n動き方・疲れ方・戻し方を\nプレミアムレポートとして残します。\n追加読み解きでは、プレミアムレポートに沿って、いまの1テーマだけ整理します。',
   },
   coreCta: {
-    overlineJa: '保存版',
-    titleJa: '保存版で読めること',
+    overlineJa: 'プレミアムレポート',
+    titleJa: 'プレミアムレポートで読めること',
     introJa:
       '無料の見取り図では、いま強く出ている一部だけを表示しています。\nこのページは、生年月日から見える出方の輪郭です。',
-    benefitsHeadingJa: '保存版で深められる視点',
+    benefitsHeadingJa: 'プレミアムレポートで深められる視点',
     benefitsJa: [
       '内側の動き',
       '人との距離感',
@@ -231,8 +229,8 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '追加で深めやすい視点',
     ] as const,
     bundleNoteJa:
-      'その先で必要になったら、追加読み解きで保存版に沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
-    linkLabelJa: '保存版で続きを読む',
+      'その先で必要になったら、追加読み解きでプレミアムレポートに沿って、いまの1テーマだけ整理できます。会話を続ける形式ではありません。',
+    linkLabelJa: 'プレミアムレポートで続きを読む',
   },
   howM55Works: {
     heroTitleJa: 'M55の見方を知る',
@@ -386,7 +384,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     viewFreeMapJa: '無料で見てみる',
     viewSavedPlansJa: 'プレミアムレポートを見る',
     /** Primary /core conversion CTA (Phase1). Same href as viewSavedPlans. */
-    continueSavedReportJa: '保存版で続きを読む',
+    continueSavedReportJa: 'プレミアムレポートで続きを読む',
     viewSavedPlansHref: '/dtr/lp',
     homeHref: '/home',
     coreFreeHref: '/core',

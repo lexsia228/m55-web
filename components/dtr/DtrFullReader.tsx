@@ -18,6 +18,7 @@ import {
   LABEL_PRODUCT_JP,
   LABEL_STATE_OWNED,
 } from '../../lib/m55/dtrProductLabels';
+import { normalizePaidReportPublicDisplayText } from '../../lib/m55/paidReportPublicDisplayTerminology';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import {
@@ -171,7 +172,7 @@ function DrawerHubScrollFab({ hidden = false }: { hidden?: boolean }) {
       type="button"
       className={`${styles.readingGuideFab}${visible && !hidden ? ` ${styles.readingGuideFabVisible}` : ''}`}
       onClick={() => m55DtrScrollToDrawerHub()}
-      aria-label="保存版の入口へ戻る"
+      aria-label="プレミアムレポートの入口へ戻る"
       aria-hidden={!visible || hidden}
       tabIndex={visible && !hidden ? 0 : -1}
     >
@@ -749,7 +750,7 @@ function PremiumHero({
               </span>
               <span className={`${styles.heroBadgeChip} ${styles.heroBadgeChipPremium}`}>
                 <HeroIconShield className={styles.heroBadgeIcon} />
-                保存版
+                プレミアムレポート
               </span>
             </div>
 
@@ -812,10 +813,10 @@ function ReportFooterMetaCard({
   const wallet = walletUsable ? consultWalletSnapshot : null;
 
   return (
-    <section className={styles.reportMetaCard} aria-label="保存版の情報">
-      <p className={styles.reportMetaHeading}>保存版の情報</p>
+    <section className={styles.reportMetaCard} aria-label="プレミアムレポートの情報">
+      <p className={styles.reportMetaHeading}>プレミアムレポートの情報</p>
       <p className={styles.reportMetaLead}>
-        {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'この保存版には、追加読み解きは付いていません。'}
+        {aiConsultIncluded ? PAID_DTR_INTRO_CONSULT_NOTE.lineJa : 'このプレミアムレポートには、追加読み解きは付いていません。'}
       </p>
       {aiConsultIncluded && wallet ? (
         <>
@@ -969,7 +970,10 @@ const SNAPSHOT_BODY_MIN_CHARS = 120;
 
 /** Parse snapshot section body into display paragraphs, preserving 【〜】 block format for BodyPara. */
 function snapshotBodyParas(body: string): string[] {
-  return body.split('\n\n').map((p) => p.trim()).filter(Boolean);
+  return normalizePaidReportPublicDisplayText(body)
+    .split('\n\n')
+    .map((p) => p.trim())
+    .filter(Boolean);
 }
 
 /** True when snapshot body has enough content to display preferentially over hardcoded fallback. */
@@ -1030,9 +1034,9 @@ function hybridAiPrimarySectionBody(
   return isHybridAiDisplayedSnapshot(mode) && hasSnapshotBody(body);
 }
 
-/** Extract individualization prefix blocks (【この保存版だけ〜】) from a section body for separate display. */
+/** Extract individualization prefix blocks (【このプレミアムレポートだけ〜】) from a section body for separate display. */
 function extractDobV2IndividualizationBlocks(body: string): string[] {
-  return snapshotBodyParas(body).filter((p) => /^【この保存版だけ/.test(p));
+  return snapshotBodyParas(body).filter((p) => /^【このプレミアムレポートだけ/.test(p));
 }
 
 function clampTensionBias(n: number): number {

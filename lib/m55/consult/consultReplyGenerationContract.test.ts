@@ -15,9 +15,17 @@ const SEND_ROUTE = join(process.cwd(), 'app/api/room/core/send/route.ts');
 const SSOT = join(process.cwd(), 'docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md');
 
 function makeValidReply(charCount = 1300): string {
+  const unit = 'プレミアムレポートの傾向に沿って場面を整理する。';
   const perBlock = Math.ceil(charCount / 4) + 50;
-  const sentence = `${'保存版の傾向に沿って場面を整理する。'.repeat(Math.ceil(perBlock / 20))}。`;
-  const block = sentence.slice(0, perBlock);
+  const buildCompleteBlock = (targetLen: number): string => {
+    let block = '';
+    while (block.length < targetLen) {
+      block += unit;
+    }
+    const lastSentenceEnd = block.lastIndexOf('。', targetLen);
+    return lastSentenceEnd >= 0 ? block.slice(0, lastSentenceEnd + 1) : block;
+  };
+  const block = buildCompleteBlock(perBlock);
   return [block, block, block, block].join('\n\n');
 }
 
@@ -27,7 +35,7 @@ function makeValidReply(charCount = 1300): string {
  * Mirrors the gpt-4o-mini output shape that caused the second live-send failure.
  */
 function makeProductionLikeSingleNlReply(): string {
-  const filler = '今の場面と保存版の傾向を照らし合わせながら整理します。相談文の具体語を各段落に戻します。';
+  const filler = '今の場面とプレミアムレポートの傾向を照らし合わせながら整理します。相談文の具体語を各段落に戻します。';
   function padTo(base: string, n: number): string {
     let s = base;
     while (s.length < n) s += filler;
@@ -39,7 +47,7 @@ function makeProductionLikeSingleNlReply(): string {
     padTo('今回は待ち時間の扱い方と今日確認できる一つの行動だけを見ていきます', 80),
   ];
   const sec2Lines = [
-    padTo('保存版のⅡ章「構造を読む」では物事を順序立てて進めたい傾向と全体を確認してから動きたい傾向が出やすいと書かれています', 130),
+    padTo('プレミアムレポートのⅡ章「構造を読む」では物事を順序立てて進めたい傾向と全体を確認してから動きたい傾向が出やすいと書かれています', 130),
     padTo('傾向語として先を確かめてから動くという動きが返事待ちの不安を長引かせやすくしています', 100),
   ];
   const sec3Lines = [
@@ -67,14 +75,14 @@ function makeFiveBlockWorkReply(): string {
   const scene =
     '相手の返事を待つあいだ、次の作業に進みにくくなる場面が出やすいです。急いで全部を仕上げようとして、疲れがたまりやすい流れも見えます。今回は待ち時間の扱い方と、今日確認できる一歩だけを見ます。';
   const report =
-    '保存版のⅡ章「構造を読む」では、勢いよく進めたあとに一段落ち着く流れが出やすいと書かれています。今の不安は、その流れの中で返事待ちが重なったときに出やすい反応として読めます。';
+    'プレミアムレポートのⅡ章「構造を読む」では、勢いよく進めたあとに一段落ち着く流れが出やすいと書かれています。今の不安は、その流れの中で返事待ちが重なったときに出やすい反応として読めます。';
   const alt =
     '返事がない時間を、自分への否定として扱わなくてよい場面もあります。相手の都合や確認のタイミングがずれることも、必ずしもあなたの進め方だけの問題ではありません。';
   const aux =
     '返事がない時間が続くほど、自分を責めやすくなるサインが出やすいです。そこで一度手を止めて、今日は確認だけに絞ると負担が小さくなります。';
   const today =
     '今日やることは1つだけです。今進めている仕事について、相手が10秒で返せる確認を1つ送ってください。たとえば「ここまで進めています。方向だけ、OKか修正ありで教えてください」と聞いてみてください。';
-  const pad = '相談文の具体語を戻しながら、保存版の傾向に沿って場面を整理します。';
+  const pad = '相談文の具体語を戻しながら、プレミアムレポートの傾向に沿って場面を整理します。';
   return [scene, report, alt, aux, today]
     .map((p) => `${p}${pad.repeat(8)}`)
     .join('\n\n');
@@ -139,13 +147,13 @@ describe('consultReplyGenerationContract', () => {
     assert.ok(src.includes('今日やることは1つだけです'), 'prompt must include single-action opener');
     assert.ok(src.includes('行動を1つだけ書く') || src.includes('区切り動作を1つだけ書く'), 'prompt must say 1 action only');
     assert.equal(src.includes('行動を1〜3個'), false, 'old multi-action rule must not be present');
-    assert.equal(src.includes('末尾に保存版の章を読み返す問いを1文入れる'), false, 'saved-report CTA must not be inside today block');
+    assert.equal(src.includes('末尾にプレミアムレポートの章を読み返す問いを1文入れる'), false, 'saved-report CTA must not be inside today block');
   });
 
   it('send route prompt defines distinct section roles to prevent repetition', () => {
     const src = readFileSync(SEND_ROUTE, 'utf8');
     assert.ok(src.includes('今どこがしんどいか'), 'section 1 role defined');
-    assert.ok(src.includes('保存版のどことつながるか'), 'section 2 role defined');
+    assert.ok(src.includes('プレミアムレポートのどことつながるか'), 'section 2 role defined');
     assert.ok(src.includes('別の見方はないか'), 'section 3 role defined');
     assert.ok(src.includes('どのサインが出たら小さく区切るか'), 'section 4 role defined');
     assert.ok(src.includes('今日の1つの行動'), 'section 5 role defined');
@@ -163,7 +171,7 @@ describe('consultReplyGenerationContract', () => {
     assert.match(CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA, /段落内では改行しない/);
     assert.match(CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA, /最終文は必ず「。」で終える/);
     assert.equal(
-      CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA.includes('保存版の内容を再度読み返し'),
+      CONSULT_REPLY_PROMPT_COMPLETION_REQUIREMENTS_JA.includes('プレミアムレポートの内容を再度読み返し'),
       true,
     );
   });
@@ -187,9 +195,9 @@ describe('consultReplyGenerationContract', () => {
   });
 
   it('normalizeConsultReplyParagraphBreaks inserts blank lines before known section starters', () => {
-    const filler = '今の場面と保存版の傾向を照らし合わせながら整理します。';
+    const filler = '今の場面とプレミアムレポートの傾向を照らし合わせながら整理します。';
     const sec1 = `返事を待つ場面が出やすいです。${filler.repeat(4)}`;
-    const sec2 = `保存版のⅡ章では傾向が出やすいと書かれています。${filler.repeat(4)}`;
+    const sec2 = `プレミアムレポートのⅡ章では傾向が出やすいと書かれています。${filler.repeat(4)}`;
     const sec3 = `少しほどくと別の見方も出てきます。${filler.repeat(4)}`;
     const sec4 = `見直すときの目印として確認できます。${filler.repeat(4)}`;
     const sec5 = `今日やることは1つだけです。確認を1つ送ってください。${filler.repeat(4)}`;
@@ -209,7 +217,7 @@ describe('consultReplyGenerationContract', () => {
   });
 
   it('normalizeConsultReplyParagraphBreaks does not explode generic content into too_many_blocks', () => {
-    const noMarkers = '汎用テキストです。保存版を読み返す。相談文の整理をします。'.repeat(50);
+    const noMarkers = '汎用テキストです。プレミアムレポートを読み返す。相談文の整理をします。'.repeat(50);
     const normalized = normalizeConsultReplyParagraphBreaks(noMarkers);
     assert.ok(
       countConsultReplyBlocks(normalized) <= CONSULT_REPLY_GENERATION.maxBlockCount + 1,
@@ -222,7 +230,7 @@ describe('consultReplyGenerationContract', () => {
   it('normalizeConsultReplyParagraphBreaks hard guard reverts when repeated starters would exceed max', () => {
     // 7 occurrences of the required section-5 starter — more than maxBlockCount + 1
     const manyStarters = Array.from({ length: 7 }, (_, i) =>
-      `今日やることは1つだけです。テスト${i}の行です。保存版に沿って整理します。`,
+      `今日やることは1つだけです。テスト${i}の行です。プレミアムレポートに沿って整理します。`,
     ).join('\n');
     const normalized = normalizeConsultReplyParagraphBreaks(manyStarters);
     assert.ok(
@@ -254,7 +262,7 @@ describe('consultReplyGenerationContract', () => {
       'must include block-4 marker',
     );
     assert.ok(
-      (['保存版のⅠ', '保存版のⅡ', '保存版のⅢ', '保存版のⅣ'] as const).every((s) =>
+      (['プレミアムレポートのⅠ', 'プレミアムレポートのⅡ', 'プレミアムレポートのⅢ', 'プレミアムレポートのⅣ'] as const).every((s) =>
         CONSULT_REPLY_SECTION_BOUNDARY_STARTERS.includes(s),
       ),
       'must include chapter markers for block-2',
@@ -262,7 +270,10 @@ describe('consultReplyGenerationContract', () => {
   });
 
   it('rejects insufficient blocks and incomplete sentence end', () => {
-    const oneBlock = `${'保存版の傾向に沿って場面を整理する。'.repeat(120)}`;
+    const oneBlockUnit = 'プレミアムレポートの傾向に沿って場面を整理する。';
+    const oneBlock = oneBlockUnit.repeat(
+      Math.floor(CONSULT_REPLY_GENERATION.outputHardCapJa / oneBlockUnit.length),
+    );
     const blockResult = validateConsultReplyCompleteness(oneBlock);
     assert.equal(blockResult.ok, false);
     if (!blockResult.ok) assert.equal(blockResult.reason, 'insufficient_blocks');

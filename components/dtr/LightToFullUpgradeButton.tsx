@@ -9,7 +9,7 @@ function messageForUpgradeCheckoutError(code: string | undefined): string {
     case 'unauthenticated':
       return 'ログインが必要です。';
     case 'forbidden_not_owner':
-      return '保存版の確認ができませんでした。';
+      return 'プレミアムレポートの確認ができませんでした。';
     case 'wallet_not_found':
     case 'wallet_not_active':
       return '追加読み解きの準備が完了していません。しばらくしてからお試しください。';

@@ -103,12 +103,12 @@ function EntryReportCard({
     (isOwned && snapshotReady
       ? MY_SAVED_REPORT_CTA_OPEN_LABEL
       : isOwned
-      ? '保存版の準備中'
+      ? 'プレミアムレポートの準備中'
       : isExpired
       ? PAID_DTR_LP.operational.ownedState.supportCtaJa
       : MY_SAVED_REPORT_CTA_PLAN_LABEL);
 
-  const ariaLabel = shelfCta?.ariaLabel ?? `${LABEL_PRODUCT_JP} — 保存版`;
+  const ariaLabel = shelfCta?.ariaLabel ?? `${LABEL_PRODUCT_JP} — プレミアムレポート`;
 
   return (
     <Link href={ctaHref} className={styles.reportCard} aria-label={ariaLabel}>
@@ -290,7 +290,7 @@ export default function DtrShelfPanel({
       <ShelfContextHint ownershipState={ownershipState} snapshotReady={snapshotReady} />
 
       <p className={styles.shelfHeroLabel} id="dtr-main-shelf-label">
-        メインの保存版
+        メインのプレミアムレポート
       </p>
 
       <div className={styles.productShelf} role="list" aria-labelledby="dtr-main-shelf-label">

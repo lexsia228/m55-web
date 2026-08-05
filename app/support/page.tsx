@@ -68,13 +68,13 @@ export default function SupportPage() {
       </section>
 
       <section style={{ margin: "0 0 18px" }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>保存版のプランの違い</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>プレミアムレポートのプランの違い</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトと保存版FULLでは、プレミアムレポートの内容は共通です。違いは追加読み解きの件数と、選び方です。
+          M55 プレミアムレポート ライトとM55 プレミアムレポート フルでは、プレミアムレポートの内容は共通です。違いは追加読み解きの件数と、選び方です。
         </p>
         <ul style={{ margin: "0 0 10px", paddingLeft: 18, lineHeight: 1.8 }}>
-          <li><strong>保存版ライト（¥1,000）</strong>：まず保存版を読み、輪郭を整理したい方向け。追加読み解き1件。</li>
-          <li><strong>保存版FULL（¥1,480）</strong>：保存版を読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。</li>
+          <li><strong>M55 プレミアムレポート ライト（¥1,000）</strong>：まずプレミアムレポートを読み、輪郭を整理したい方向け。追加読み解き1件。</li>
+          <li><strong>M55 プレミアムレポート フル（¥1,480）</strong>：プレミアムレポートを読んだあと、追加読み解きで複数回深めたい方向け。追加読み解き合計5件。</li>
         </ul>
         <p style={{ margin: 0, opacity: 0.9 }}>
           ライトは追加読み解き1件、FULLは合計5件です。プレミアムレポートは共通です。ライト購入後でも、必要になったらFULL化できます。
@@ -84,7 +84,7 @@ export default function SupportPage() {
       <section style={{ margin: "0 0 18px" }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>ライトからFULL化</h2>
         <p style={{ margin: "0 0 8px", opacity: 0.9 }}>
-          保存版ライトを購入済みの方は、¥600でFULL化できます。
+          M55 プレミアムレポート ライトを購入済みの方は、¥600でFULL化できます。
         </p>
         <p style={{ margin: 0, opacity: 0.9 }}>
           FULL化後は、追加読み解きを合計5件利用できます。
@@ -121,11 +121,11 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>無料でどこまで見られますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用の保存版と追加読み解きは、有料の保存版の対象です。
+              プロフィール保存後、無料の見取り図を読めます。より詳しい読み返し用のプレミアムレポートと追加読み解きは、有料のプレミアムレポートの対象です。
             </p>
           </article>
           <article>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料の保存版で見られる内容は？</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>有料のプレミアムレポートで見られる内容は？</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
               無料面と同じ土台の本質を、購入時点の入力内容をもとにプレミアムレポートとしてウェブ上で読み返せる形に整理したものです。物理の発送はありません。追加読み解きはプランにより1件または合計5件です。
             </p>
@@ -133,7 +133,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>追加読み解きでは何ができますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              保存版を購入した方だけが利用できる、保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内で一テーマずつ整理できます。会話を継続する形式ではありません。
+              プレミアムレポートを購入した方だけが利用できる、プレミアムレポートに紐づく一つの読み解きテーマを整理する追加読み解きです。件数内で一テーマずつ整理できます。会話を継続する形式ではありません。
             </p>
           </article>
           <article>
@@ -153,7 +153,7 @@ export default function SupportPage() {
           <article>
             <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px" }}>同じ入力で結果は変わりますか</h3>
             <p style={{ margin: 0, opacity: 0.9 }}>
-              同じ入力を同じルールで読む限り、骨組みはぶれにくい設計です。無料の見取り図のうち、日付に応じて更新される部分は自然に変わります。保存版は購入時点の内容をもとにした読み返し用レポートです。
+              同じ入力を同じルールで読む限り、骨組みはぶれにくい設計です。無料の見取り図のうち、日付に応じて更新される部分は自然に変わります。プレミアムレポートは購入時点の内容をもとにした読み返し用レポートです。
             </p>
           </article>
         </div>
@@ -174,15 +174,15 @@ export default function SupportPage() {
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
           <li>
             <strong>追加読み解きとは何ですか？</strong>
-            ：保存版に紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。
+            ：プレミアムレポートに紐づく一つの読み解きテーマを整理する追加読み解きです。件数内での利用であり、会話を継続する形式ではありません。
           </li>
           <li>
             <strong>何件まで利用できますか？</strong>
-            ：保存版ライトは追加読み解き1件、保存版FULLは追加読み解き合計5件です。ライト購入後にFULL化した場合も、合計5件です。
+            ：M55 プレミアムレポート ライトは追加読み解き1件、M55 プレミアムレポート フルは追加読み解き合計5件です。ライト購入後にFULL化した場合も、合計5件です。
           </li>
           <li>
             <strong>どこで利用できますか？</strong>
-            ：保存版を購入した方は、保存版の閲覧ページ内から利用できます。
+            ：プレミアムレポートを購入した方は、プレミアムレポートの閲覧ページ内から利用できます。
           </li>
           <li>
             <strong>送信がブロックされた場合、件数は消費されますか？</strong>

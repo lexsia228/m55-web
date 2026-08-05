@@ -10,7 +10,7 @@ const LEGACY_DEFECT_FIXTURE =
   '回復させることができるでしょう。' +
   'フィードバックループが続き、ストレスと不安、自己否定も出やすいです。' +
   '周囲とのコミュニケーションを増やす。リフレッシュの時間を設定する。自分自身を労わる。' +
-  '保存版の章を読み返すと、いまの場面が少し見えやすくなります。';
+  'プレミアムレポートの章を読み返すと、いまの場面が少し見えやすくなります。';
 
 const GRAMMAR_ARTIFACT_FIXTURE =
   '相手との関係性を組み直しすることが、張りつめを和らげるする手助けになるでしょう。' +
@@ -35,22 +35,22 @@ const NATURALNESS_FIXTURE =
   '言葉や行動で伝えることに得意なあなたは、高いエネルギーを使い、疲労感がたまりやすいです。' +
   '自分を責めやすい状態の感情も出やすい。無理となっているようです。' +
   '効果的に届く距離を保ち、コミュニケーションを意識的に増やし、休息の時間を設定して試みてください。' +
-  '保存版の章を読み返すと、いまの場面が少し見えやすくなります。';
+  'プレミアムレポートの章を読み返すと、いまの場面が少し見えやすくなります。';
 
 const RESIDUAL_DEFECT_FIXTURE =
   '周囲の反応を意識し、意識して、短くやりとりする機会を作ると、整理しやすくなります。' +
   'まずまずは、自分の気持ちに目を向けてみてください。' +
   'あなたの発信がより届きやすくなるようになります。' +
   '少し休む時間を作るし、今日は一段小さく休むことも試してみてください。' +
-  '視点の補助線として、保存版の章を読み返すと見えやすくなります。' +
+  '視点の補助線として、プレミアムレポートの章を読み返すと見えやすくなります。' +
   '無理が出やすい場面を考えると、これらの背景が影響していることが多いです。';
 
 const MICRO_PATCH_FIXTURE =
   'いましんどさが出やすいのは、たとえばこんな場面です、特に「燃焼後の急な落差」や「受け取ってもらえないときの疲れがたまる」が重なる場面です。' +
-  'これらの背景が影響していることが多いです。見方の補助線として、保存版の章を読み返すと見えやすくなります。';
+  'これらの背景が影響していることが多いです。見方の補助線として、プレミアムレポートの章を読み返すと見えやすくなります。';
 
 const OLD_TODAY_STEP_FIXTURE =
-  '今日の一手としては、まず周囲との短いやりとりを少し増やすことを試してみてください。具体的には、短いフィードバックを求める形で話し合いを持ち、自分の発信がどのように受け取られているかを確認してみると、今の進め方を整えやすくなります。また、疲れを感じた際には、少し休む時間を作り、今日は一段小さく休むことも試してみてください。最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
+  '今日の一手としては、まず周囲との短いやりとりを少し増やすことを試してみてください。具体的には、短いフィードバックを求める形で話し合いを持ち、自分の発信がどのように受け取られているかを確認してみると、今の進め方を整えやすくなります。また、疲れを感じた際には、少し休む時間を作り、今日は一段小さく休むことも試してみてください。最後に、プレミアムレポートの内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
 
 describe('normalizeConsultReplyDisplayText', () => {
   it('removes legacy template leakage and broken particles from display text', () => {
@@ -272,8 +272,8 @@ describe('normalizeConsultReplyDisplayText', () => {
 describe('normalizeConsultReplyTodayStepDisplayText', () => {
   it('removes saved-report reread instruction from old stored 今日の一手 body', () => {
     const out = normalizeConsultReplyTodayStepDisplayText(OLD_TODAY_STEP_FIXTURE);
-    assert.equal(out.includes('保存版の内容を再度読み返し'), false);
-    assert.equal(out.includes('最後に、保存版'), false);
+    assert.equal(out.includes('プレミアムレポートの内容を再度読み返し'), false);
+    assert.equal(out.includes('最後に、プレミアムレポート'), false);
     assert.equal(out.includes('どのように自分の進め方を整えるかを考えてみてください'), false);
     assert.ok(out.includes('相手が短く返せる確認を1つ送ってみることです'));
     assert.ok(out.includes('方向だけ、OKか修正ありで教えてください'));
@@ -282,9 +282,9 @@ describe('normalizeConsultReplyTodayStepDisplayText', () => {
 
   it('strips saved-report reread variants from partial today-step text', () => {
     const partial =
-      '今日は短い確認を1つ送ってみてください。最後に、保存版の内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
+      '今日は短い確認を1つ送ってみてください。最後に、プレミアムレポートの内容を再度読み返し、どのように自分の進め方を整えるかを考えてみてください。';
     const out = normalizeConsultReplyTodayStepDisplayText(partial);
-    assert.equal(out.includes('保存版の内容を再度読み返し'), false);
+    assert.equal(out.includes('プレミアムレポートの内容を再度読み返し'), false);
     assert.ok(out.includes('短い確認を1つ送ってみてください'));
   });
 

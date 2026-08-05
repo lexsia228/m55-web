@@ -147,7 +147,7 @@ describe('Hybrid AI snapshot generation — orchestration', () => {
 
 describe('Hybrid AI quality validator', () => {
   const goodBody = (role: string) =>
-    `この保存版では、${role}として、生年月日のリズムが自然に反映されています。`
+    `このプレミアムレポートでは、${role}として、生年月日のリズムが自然に反映されています。`
     + `生まれのリズムから見ると、始める場面で力が出やすい形があります。`
     + `土台を先に整えるほど、動き出しが安定しやすくなります。`
     + `日々の節目を意識することが、長く続けるための助けになります。`;

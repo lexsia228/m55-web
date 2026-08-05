@@ -117,7 +117,7 @@ export default function CompatibilityCommercePreviewClient() {
       ? '購入CTAは表示されず、無料結果だけを利用できます。'
       : state === 'unauthorized'
         ? '所有者が一致しないレポートは404として扱います。'
-        : '同じCheckout Sessionを再処理しても、保存版は1件のままです。';
+        : '同じCheckout Sessionを再処理しても、プレミアムレポートは1件のままです。';
     content = (
       <main style={{ width: 'min(calc(100% - 24px), 720px)', margin: '40px auto' }}>
         <section style={{

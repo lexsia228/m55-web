@@ -185,21 +185,21 @@ const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
 const BALANCE_LENS: ConsultReplyLensInfo = {
   ...DEFAULT_PART,
   visualKind: 'balance',
-  lensTitle: '保存版のベース傾向',
-  lensCaption: 'この相談の主役ではなく、保存版全体の傾向の補助です。',
+  lensTitle: 'プレミアムレポートのベース傾向',
+  lensCaption: 'この相談の主役ではなく、プレミアムレポート全体の傾向の補助です。',
   lensRows: [],
   showBaseRadar: true,
-  baseRadarTitle: '保存版のベース傾向',
-  baseRadarCaption: 'この相談の主役ではなく、保存版全体の傾向の補助です。',
+  baseRadarTitle: 'プレミアムレポートのベース傾向',
+  baseRadarCaption: 'この相談の主役ではなく、プレミアムレポート全体の傾向の補助です。',
 };
 
 const LENS_CAPTION_BY_KIND: Record<Exclude<ConsultReplyVisualKind, 'balance'>, string> = {
   communication:
-    '保存版の対話の章に沿って、この相談で読む流れです。新しい診断ではなく、読み返す目安です。',
+    'プレミアムレポートの対話の章に沿って、この相談で読む流れです。新しい診断ではなく、読み返す目安です。',
   strain:
-    '保存版の無理の出方に沿って、この相談で読む条件です。新しい診断ではなく、読み返す目安です。',
+    'プレミアムレポートの無理の出方に沿って、この相談で読む条件です。新しい診断ではなく、読み返す目安です。',
   stability:
-    '保存版の戻し方に沿って、この相談で整えやすい余白です。新しい診断ではなく、読み返す目安です。',
+    'プレミアムレポートの戻し方に沿って、この相談で整えやすい余白です。新しい診断ではなく、読み返す目安です。',
 };
 
 export function resolveConsultReplyPartByTheme(theme: string | null): ConsultReplyPartInfo {
@@ -252,7 +252,7 @@ export const CONSULT_REPLY_NEXT_USE_SUGGESTIONS: Record<string, readonly string[
     '次の一手を1つに絞る方法',
     '迷いが続くときの小さな整え方',
     '判断を急がないための目安',
-    '保存版の傾向を今の状況に当てる',
+    'プレミアムレポートの傾向を今の状況に当てる',
   ],
   '恋人・近い人との向き合い方': [
     '反応がない相手との距離の取り方',
@@ -270,7 +270,7 @@ export const CONSULT_REPLY_NEXT_USE_SUGGESTIONS: Record<string, readonly string[
     '疲れが出やすい場面と戻り方',
     '休んでも戻れないときの整え方',
     'ひとりで戻る時間の作り方',
-    '保存版の傾向から疲れの出方を読む',
+    'プレミアムレポートの傾向から疲れの出方を読む',
   ],
 };
 

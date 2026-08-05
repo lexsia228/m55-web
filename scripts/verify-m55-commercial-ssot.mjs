@@ -73,6 +73,15 @@ function loadContractFacts() {
 
   const targetSlice = src.slice(src.indexOf('M55_TARGET_COMMERCIAL_CONTRACT'));
   const preResultTarget = /preResultThemeSelection:\s*false/.test(targetSlice);
+  const runtimeSlice = src.slice(src.indexOf('M55_CURRENT_RUNTIME_STATE'));
+  const legacyTermsInPublicCopy =
+    /legacyTermsInPublicCopy:\s*false/.test(runtimeSlice)
+      ? false
+      : /legacyTermsInPublicCopy:\s*true/.test(runtimeSlice)
+        ? true
+        : undefined;
+  const enforcedCount = (src.match(/M55_ENFORCED_RUNTIME_ASSERTIONS/g) ?? []).length;
+  const deferredCount = (src.match(/id:\s*'no_/g) ?? []).length;
 
   return {
     products: {
@@ -87,21 +96,23 @@ function loadContractFacts() {
       STALE_DO_NOT_USE_WORKTREE:
         src.match(/STALE_DO_NOT_USE_WORKTREE:\s*'([^']+)'/)?.[1] ?? '',
     },
-    current: { selfFree: {} },
+    current: { selfFree: { legacyTermsInPublicCopy } },
     target: { selfFree: { preResultThemeSelection: preResultTarget } },
     enforcement:
       src.match(/M55_ENFORCEMENT_STATUS = '([^']+)'/)?.[1] ?? '',
     legacy: {
-      legacyPublicTerms: ['保存版', '見取り図'].filter((term) => src.includes(`'${term}'`)),
+      internalOnlyTerms: ['保存版'].filter((term) => src.includes(`'${term}'`)),
+      legacyPublicTerms: ['見取り図'].filter((term) => src.includes(`'${term}'`)),
     },
-    deferred: (src.match(/M55_DEFERRED_RUNTIME_ASSERTIONS/g) ?? []).length >= 1 ? [1, 2, 3] : [],
+    enforced: enforcedCount >= 1 ? [1] : [],
+    deferred: deferredCount >= 2 ? [1, 2] : [],
     prohibited: src.match(/M55_PROHIBITED_CLAIMS = \[([\s\S]*?)\] as const/)?.[1] ?? '',
   };
 }
 
 function checkMachineContract(data) {
   if (!data) return;
-  const { products: p, registry: r, current: c, target: t, deferred, enforcement, legacy, prohibited } =
+  const { products: p, registry: r, current: c, target: t, deferred, enforced, enforcement, legacy, prohibited } =
     data;
 
   if (p.selfPremiumLight.priceJpy !== 1000) fail('Light price must be 1000');
@@ -124,11 +135,20 @@ function checkMachineContract(data) {
   if (t.selfFree.preResultThemeSelection !== true) {
     fail('target contract must record preResultThemeSelection=false');
   }
-  if (!legacy.legacyPublicTerms?.includes('保存版') || !legacy.legacyPublicTerms?.includes('見取り図')) {
-    fail('legacy runtime debt must record 保存版 and 見取り図');
+  if (!legacy.internalOnlyTerms?.includes('保存版')) {
+    fail('internal-only registry must record 保存版 as INTERNAL_ONLY');
   }
-  if (!Array.isArray(deferred) || deferred.length < 3) {
+  if (!legacy.legacyPublicTerms?.includes('見取り図')) {
+    fail('legacy runtime debt must record free-tier 見取り図 deferral');
+  }
+  if (!Array.isArray(enforced) || enforced.length < 1) {
+    fail('enforced runtime assertions must be recorded');
+  }
+  if (!Array.isArray(deferred) || deferred.length < 2) {
     fail('deferred runtime assertions must be recorded');
+  }
+  if (c.selfFree.legacyTermsInPublicCopy !== false) {
+    fail('M55_CURRENT_RUNTIME_STATE.selfFree.legacyTermsInPublicCopy must be false');
   }
   if (!prohibited?.length) fail('prohibited claims list must exist');
   if (!r.STALE_DO_NOT_USE_WORKTREE?.includes('M55_CANONICAL-cross-page-card-polish')) {
@@ -156,8 +176,11 @@ function checkDocsParity(data) {
     fail('AGENTS.md must list M55_COMMERCIAL_QUALITY_CONTRACT.md');
   }
   if (!agents.includes('M55_CURRENT_STATE.md')) fail('AGENTS.md must list M55_CURRENT_STATE.md');
-  if (!read('docs/ssot/M55_COPY_AND_CLAIMS.md').includes('保存版')) {
-    fail('M55_COPY_AND_CLAIMS.md must record legacy 保存版 debt');
+  if (!read('docs/ssot/M55_COPY_AND_CLAIMS.md').includes('INTERNAL_ONLY')) {
+    fail('M55_COPY_AND_CLAIMS.md must record 保存版 INTERNAL_ONLY boundary');
+  }
+  if (!read('docs/ssot/M55_COPY_AND_CLAIMS.md').includes('プレミアムレポート')) {
+    fail('M55_COPY_AND_CLAIMS.md must record canonical Premium public terminology');
   }
   if (!read('docs/ssot/M55_SELF_FUNNEL_CONTRACT.md').includes('今の関心')) {
     fail('M55_SELF_FUNNEL_CONTRACT.md must document 今の関心 (removed / historical)');
@@ -2282,6 +2305,208 @@ function checkDeferredNotEnforcedAsPass() {
   if (/public copy.*見取り図.*===\s*0/.test(src)) {
     fail('verifier must not enforce zero 見取り図 public copy yet');
   }
+  if (!src.includes('collectPremiumPublicTerminologyViolations')) {
+    fail('verifier must scan public source boundaries for 保存版 terminology');
+  }
+}
+
+const PREMIUM_PUBLIC_TERMINOLOGY_SCAN_ROOTS = ['app', 'components', 'lib/m55'];
+
+/** Exact-file skips for legacy-stripping / replacement catalogs (not directory-wide). */
+const PREMIUM_PUBLIC_TERMINOLOGY_SKIP_PATH_PARTS = [
+  'lib/m55/paidReportPublicDisplayTerminology.ts',
+  'lib/m55/consult/normalizeConsultReplyDisplayText.ts',
+  'lib/m55/freeResult/buildFreeDepthAnalysisV1.ts',
+  'docs/',
+  'migrations/',
+  'node_modules/',
+];
+
+/**
+ * Exact known-match allowlist for authoritative internal registry occurrences.
+ * Directory-wide exemptions are prohibited; each entry must pin file + line signature.
+ */
+const PREMIUM_PUBLIC_TERMINOLOGY_ALLOWED_OCCURRENCES = [
+  {
+    file: 'lib/m55/contracts/m55CommercialFunnelContract.ts',
+    match: '保存版',
+    lineMustMatch: /internalOnlyTerms:\s*\[\s*'保存版'\s*\]/,
+  },
+  {
+    file: 'lib/m55/contracts/m55CommercialFunnelContract.ts',
+    match: '保存版',
+    lineMustMatch:
+      /description:\s*'「保存版」public copy が 0 — terminology guard \+ stored snapshot display normalizer'/,
+  },
+];
+
+const PREMIUM_PUBLIC_TERMINOLOGY_SKIP_PATH_SUFFIXES = [
+  '.test.ts',
+  '.local.test.ts',
+  '.selfcheck.mjs',
+];
+
+const PREMIUM_PUBLIC_TERMINOLOGY_PROHIBITED = [
+  { pattern: /保存版ライト/, label: '保存版ライト' },
+  { pattern: /保存版FULL/, label: '保存版FULL' },
+  { pattern: /保存版フル/, label: '保存版フル' },
+  { pattern: /保存版レポート/, label: '保存版レポート' },
+  { pattern: /保存版/, label: '保存版' },
+];
+
+function shouldScanPremiumPublicTerminologyFile(relPath) {
+  if (!/\.(tsx?|jsx?)$/.test(relPath)) return false;
+  const normalized = relPath.replace(/\\/g, '/');
+  if (PREMIUM_PUBLIC_TERMINOLOGY_SKIP_PATH_SUFFIXES.some((suffix) => normalized.endsWith(suffix))) {
+    return false;
+  }
+  if (PREMIUM_PUBLIC_TERMINOLOGY_SKIP_PATH_PARTS.some((part) => normalized.includes(part))) {
+    return false;
+  }
+  return PREMIUM_PUBLIC_TERMINOLOGY_SCAN_ROOTS.some(
+    (root) => normalized === root || normalized.startsWith(`${root}/`),
+  );
+}
+
+function isAllowedPremiumPublicTerminologyOccurrence(relPath, matchLabel, rawLine) {
+  const normalized = relPath.replace(/\\/g, '/');
+  return PREMIUM_PUBLIC_TERMINOLOGY_ALLOWED_OCCURRENCES.some(
+    (entry) =>
+      entry.file === normalized &&
+      entry.match === matchLabel &&
+      entry.lineMustMatch.test(rawLine),
+  );
+}
+
+function stripLineComments(line) {
+  let inSingle = false;
+  let inDouble = false;
+  let inBack = false;
+  let escaped = false;
+  for (let i = 0; i < line.length - 1; i += 1) {
+    const ch = line[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (ch === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (!inDouble && !inBack && ch === "'") {
+      inSingle = !inSingle;
+      continue;
+    }
+    if (!inSingle && !inBack && ch === '"') {
+      inDouble = !inDouble;
+      continue;
+    }
+    if (!inSingle && !inDouble && ch === '`') {
+      inBack = !inBack;
+      continue;
+    }
+    if (!inSingle && !inDouble && !inBack && ch === '/' && line[i + 1] === '/') {
+      return line.slice(0, i);
+    }
+  }
+  return line;
+}
+
+function extractQuotedSegments(line) {
+  const segments = [];
+  const re = /'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|`(?:\\.|[^`\\])*`/g;
+  let match = re.exec(line);
+  while (match) {
+    segments.push(match[0]);
+    match = re.exec(line);
+  }
+  return segments;
+}
+
+function isCommentOnlyLine(rawLine) {
+  const trimmed = rawLine.trim();
+  return (
+    trimmed.startsWith('//') ||
+    trimmed.startsWith('/*') ||
+    trimmed.startsWith('*') ||
+    trimmed.endsWith('*/')
+  );
+}
+
+function walkPremiumTerminologyFiles(dir, rootDir, out) {
+  for (const name of fs.readdirSync(dir)) {
+    const abs = path.join(dir, name);
+    const st = fs.statSync(abs);
+    if (st.isDirectory()) {
+      if (name === 'node_modules' || name === '.git') continue;
+      walkPremiumTerminologyFiles(abs, rootDir, out);
+      continue;
+    }
+    const rel = path.relative(rootDir, abs).replace(/\\/g, '/');
+    if (shouldScanPremiumPublicTerminologyFile(rel)) out.push({ abs, rel });
+  }
+}
+
+function collectPremiumPublicTerminologyViolations(rootDir = ROOT) {
+  const violations = [];
+  const files = [];
+  for (const root of PREMIUM_PUBLIC_TERMINOLOGY_SCAN_ROOTS) {
+    const absRoot = path.join(rootDir, root);
+    if (fs.existsSync(absRoot)) walkPremiumTerminologyFiles(absRoot, rootDir, files);
+  }
+
+  for (const { abs, rel } of files) {
+    const lines = fs.readFileSync(abs, 'utf8').split('\n');
+    lines.forEach((rawLine, index) => {
+      if (isCommentOnlyLine(rawLine)) return;
+      const line = stripLineComments(rawLine);
+      const segments = extractQuotedSegments(line);
+      const scanTargets = segments.length > 0 ? segments.map((s) => s.slice(1, -1)) : [line];
+
+      for (const target of scanTargets) {
+        for (const { pattern, label } of PREMIUM_PUBLIC_TERMINOLOGY_PROHIBITED) {
+          if (pattern.test(target)) {
+            if (isAllowedPremiumPublicTerminologyOccurrence(rel, label, rawLine)) {
+              return;
+            }
+            violations.push({
+              file: rel,
+              line: index + 1,
+              match: label,
+              text: rawLine.trim(),
+            });
+            return;
+          }
+        }
+      }
+    });
+  }
+  return violations;
+}
+
+function checkPremiumPublicTerminologyBoundary() {
+  const violations = collectPremiumPublicTerminologyViolations();
+  if (violations.length > 0) {
+    for (const v of violations) {
+      fail(`public 保存版 terminology: ${v.file}:${v.line} match=${v.match} ${v.text}`);
+    }
+  }
+}
+
+function checkEnforcedHozonbanAssertion(data) {
+  const contract = read('lib/m55/contracts/m55CommercialFunnelContract.ts');
+  if (!contract.includes('M55_ENFORCED_RUNTIME_ASSERTIONS')) {
+    fail('machine contract must define M55_ENFORCED_RUNTIME_ASSERTIONS');
+  }
+  if (!/no_public_hozonban_copy[\s\S]*enforcement:\s*'CLOSED_GREEN'/.test(contract)) {
+    fail('no_public_hozonban_copy must be CLOSED_GREEN in M55_ENFORCED_RUNTIME_ASSERTIONS');
+  }
+  if (/no_public_hozonban_copy/.test(contract.split('M55_DEFERRED_RUNTIME_ASSERTIONS')[1] ?? '')) {
+    fail('no_public_hozonban_copy must not remain in M55_DEFERRED_RUNTIME_ASSERTIONS');
+  }
+  if (data?.current?.selfFree?.legacyTermsInPublicCopy === true) {
+    fail('M55_CURRENT_RUNTIME_STATE must record legacyTermsInPublicCopy=false after terminology enforcement');
+  }
 }
 
 function main() {
@@ -2295,6 +2520,8 @@ function main() {
   checkCommercialQualityContract();
   checkAuthorityPackTransitionConsistency();
   checkDeferredNotEnforcedAsPass();
+  checkEnforcedHozonbanAssertion(data);
+  checkPremiumPublicTerminologyBoundary();
 
   if (FAILURES.length > 0) {
     console.log('PASS/FAIL: FAIL');
@@ -2406,6 +2633,13 @@ export {
   AUTHORITY_HISTORY_KIND_BY_SEQUENCE,
   validateCommercialQualityContractText,
   validateCurrentStateLifecycleText,
+  collectPremiumPublicTerminologyViolations,
+  shouldScanPremiumPublicTerminologyFile,
+  isAllowedPremiumPublicTerminologyOccurrence,
+  PREMIUM_PUBLIC_TERMINOLOGY_SCAN_ROOTS,
+  PREMIUM_PUBLIC_TERMINOLOGY_SKIP_PATH_PARTS,
+  PREMIUM_PUBLIC_TERMINOLOGY_ALLOWED_OCCURRENCES,
+  PREMIUM_PUBLIC_TERMINOLOGY_PROHIBITED,
 };
 
 const invokedDirectly =

@@ -42,7 +42,7 @@ describe('M55 logic public copy SSOT — calendar rhythm alignment', () => {
   it('does not frame saved report as mood-based or full AI generation', () => {
     const blob = m55LogicCopyBlob();
     assert.match(blob, /固定ルールで組み立てられ/);
-    assert.doesNotMatch(blob, /保存版全文.*生成AI/);
+    assert.doesNotMatch(blob, /プレミアムレポート全文.*生成AI/);
     assert.doesNotMatch(blob, /10通りの説明書/);
   });
 });

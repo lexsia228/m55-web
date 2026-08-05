@@ -55,7 +55,7 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
 
   it('includes M55について and アカウント dropdown triggers', () => {
     assert.match(headerSource, /triggerLabel=\{T\.aboutM55\}/);
-    assert.match(headerSource, /triggerLabel="アカウント"/);
+    assert.match(headerSource, /triggerLabel=\{Nav\.accountJa\}/);
     assert.match(headerSource, /aria-haspopup="menu"/);
     assert.match(headerSource, /aria-expanded=\{open\}/);
   });
@@ -75,7 +75,10 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
   });
 
   it('signed-out shows ログイン and signed-in reuses the existing Clerk UserButton', () => {
-    assert.match(headerSource, /<SignedOut>[\s\S]*?ログイン[\s\S]*?<\/SignedOut>/);
+    assert.match(
+      headerSource,
+      /<SignedOut>[\s\S]*?aria-label=\{Nav\.loginJa\}[\s\S]*?\{Nav\.loginJa\}[\s\S]*?<\/SignedOut>/,
+    );
     assert.match(headerSource, /<SignedIn>[\s\S]*?<UserButton afterSignOutUrl="\/" \/>[\s\S]*?<\/SignedIn>/);
   });
 
@@ -95,12 +98,12 @@ describe('publicHeaderContract — desktop (≥960px) primary nav', () => {
   it('scopes About parent active styling to the dedicated About dropdown marker', () => {
     const aboutDropdownBlock = headerSource.slice(
       headerSource.indexOf('triggerLabel={T.aboutM55}'),
-      headerSource.indexOf('triggerLabel="アカウント"'),
+      headerSource.indexOf('triggerLabel={Nav.accountJa}'),
     );
     assert.match(aboutDropdownBlock, /aboutDropdown/);
     assert.match(headerSource, /navDropdownAbout/);
 
-    const accountDropdownBlock = headerSource.slice(headerSource.indexOf('triggerLabel="アカウント"'));
+    const accountDropdownBlock = headerSource.slice(headerSource.indexOf('triggerLabel={Nav.accountJa}'));
     assert.doesNotMatch(accountDropdownBlock, /aboutDropdown/);
 
     assert.match(
@@ -168,8 +171,8 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
   it('includes signed-out ログイン and signed-in アカウント + UserButton inside the mobile menu', () => {
     const menuPanelStart = headerSource.indexOf('id="m55-public-mobile-menu"');
     const menuPanelSource = headerSource.slice(menuPanelStart);
-    assert.match(menuPanelSource, /<SignedOut>[\s\S]*?ログイン[\s\S]*?<\/SignedOut>/);
-    assert.match(menuPanelSource, /アカウント/);
+    assert.match(menuPanelSource, /<SignedOut>[\s\S]*?\{Nav\.loginJa\}[\s\S]*?<\/SignedOut>/);
+    assert.match(menuPanelSource, /\{Nav\.accountJa\}/);
     assert.match(menuPanelSource, /<UserButton afterSignOutUrl="\/" \/>/);
   });
 });
@@ -177,7 +180,7 @@ describe('publicHeaderContract — compact (≤959px) structure', () => {
 describe('publicHeaderContract — menu accessibility contract', () => {
   it('mobile trigger has exact visible text and toggling aria-label', () => {
     assert.match(headerSource, /\{T\.menu\}/);
-    assert.match(headerSource, /aria-label=\{menuOpen \? 'メニューを閉じる' : 'メニューを開く'\}/);
+    assert.match(headerSource, /aria-label=\{menuOpen \? Nav\.menuCloseJa : Nav\.menuOpenJa\}/);
   });
 
   it('mobile trigger wires aria-expanded and aria-controls to the menu id', () => {

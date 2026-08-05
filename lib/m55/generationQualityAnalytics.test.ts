@@ -429,7 +429,7 @@ describe('buildPaidDtrChapterBodyEvent: no raw text', () => {
 // ── 7. dob_v2_visible_copy event: no raw text ────────────────────────────
 
 describe('buildDobV2VisibleCopyEvent: no raw text', () => {
-  const DOB_BODY = '【この保存版だけの本質リズム】\n向きが決まるほど力を出しやすくなります。\n';
+  const DOB_BODY = '【このプレミアムレポートだけの本質リズム】\n向きが決まるほど力を出しやすくなります。\n';
 
   it('event does not contain body text', () => {
     const event = buildDobV2VisibleCopyEvent(

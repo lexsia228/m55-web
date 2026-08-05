@@ -77,8 +77,8 @@ describe('paidDtrProductCopy SSOT', () => {
   });
 
   it('uses Japanese primary product identity', () => {
-    assert.equal(PAID_DTR_PRODUCT_IDENTITY.primaryNameJa, '保存版');
-    assert.equal(PAID_DTR_PRODUCT_IDENTITY.formatLabel, '保存版');
+    assert.equal(PAID_DTR_PRODUCT_IDENTITY.primaryNameJa, 'プレミアムレポート');
+    assert.equal(PAID_DTR_PRODUCT_IDENTITY.formatLabel, 'プレミアムレポート');
     assert.equal(PAID_DTR_PRODUCT_IDENTITY.consultPrimaryTermJa, '追加読み解き');
   });
 
@@ -127,7 +127,7 @@ describe('paidDtrProductCopy SSOT', () => {
       PAID_DTR_CONSULT_ROOM_UI.roomLeadJa,
       PAID_DTR_MY_PAGE_CONSULT.linkedScopeJa,
     ].join('\n');
-    assert.match(boundary, /保存版に紐づく読み解き/);
+    assert.match(boundary, /プレミアムレポートに紐づく読み解き/);
     assert.match(boundary, /無制限/);
   });
 
@@ -145,9 +145,9 @@ describe('paidDtrProductCopy SSOT', () => {
   it('drawer consult CTA uses bridge sublabel not legacy bound phrase', () => {
     assert.equal(
       PAID_DTR_DRAWER_HUB.consultSublabelJa,
-      '保存版をもとに、いま気になっていることを1テーマだけ整理する',
+      'プレミアムレポートをもとに、いま気になっていることを1テーマだけ整理する',
     );
-    assert.equal(PAID_DTR_DRAWER_HUB.consultSublabelJa.includes('保存版に紐づく'), false);
+    assert.equal(PAID_DTR_DRAWER_HUB.consultSublabelJa.includes('プレミアムレポートに紐づく'), false);
   });
 
   it('consult theme chips align with drawer chapter labels', () => {
@@ -200,11 +200,11 @@ describe('paidDtrProductCopy SSOT', () => {
   it('consult usage display copy prioritizes add-on over giant remaining-zero hero', () => {
     assert.equal(
       formatConsultPurchaseAddOnLine(4),
-      '保存版に紐づく追加読み解きを、あと4件まで追加できます。'
+      'プレミアムレポートに紐づく追加読み解きを、あと4件まで追加できます。'
     );
     assert.equal(formatConsultUsedCountLine(1, 5), '使用済み：1 / 5件');
     const usage = Object.values(PAID_DTR_CONSULT_USAGE_DISPLAY).join('\n');
-    assert.match(usage, /この保存版で追加読み解きを使えます/);
+    assert.match(usage, /このプレミアムレポートで追加読み解きを使えます/);
     assert.equal(usage.includes('追加読み解きを1件使えます'), false);
     assert.match(usage, /今は残り0件です/);
     assert.equal(usage.includes('追加読み解きルーム'), false);

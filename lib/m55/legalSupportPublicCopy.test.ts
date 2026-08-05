@@ -54,10 +54,10 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
 
   it('includes tokushoho product truth for all three offerings', () => {
     const tokushoho = readPage(ROUTE_FILES['/legal/tokushoho']);
-    assert.match(tokushoho, /保存版ライト/);
+    assert.match(tokushoho, /M55 プレミアムレポート ライト/);
     assert.match(tokushoho, /¥1,000（税込）/);
     assert.match(tokushoho, /追加読み解き：1件/);
-    assert.match(tokushoho, /保存版FULL/);
+    assert.match(tokushoho, /M55 プレミアムレポート フル/);
     assert.match(tokushoho, /¥1,480（税込）/);
     assert.match(tokushoho, /追加読み解き：合計5件/);
     assert.match(tokushoho, /ライトからFULL化/);
@@ -68,16 +68,16 @@ describe('legalSupportPublicCopy — Product Truth alignment', () => {
 
   it('includes terms additional reading counts for light, full, and upgrade', () => {
     const terms = readPage(ROUTE_FILES['/legal/terms']);
-    assert.match(terms, /保存版ライト（¥1,000）には追加読み解き1件/);
-    assert.match(terms, /保存版FULL（¥1,480）には追加読み解きが合計5件/);
+    assert.match(terms, /M55 プレミアムレポート ライト（¥1,000）には追加読み解き1件/);
+    assert.match(terms, /M55 プレミアムレポート フル（¥1,480）には追加読み解きが合計5件/);
     assert.match(terms, /ライト購入後にFULL化/);
   });
 
   it('includes support plan difference and full upgrade guidance', () => {
     const support = readPage(ROUTE_FILES['/support']);
-    assert.match(support, /保存版ライトと保存版FULLでは、プレミアムレポートの内容は共通/);
-    assert.match(support, /保存版ライト.*追加読み解き1件/s);
-    assert.match(support, /保存版FULL.*追加読み解き合計5件/s);
+    assert.match(support, /M55 プレミアムレポート ライトとM55 プレミアムレポート フルでは、プレミアムレポートの内容は共通/);
+    assert.match(support, /M55 プレミアムレポート ライト.*追加読み解き1件/s);
+    assert.match(support, /M55 プレミアムレポート フル.*追加読み解き合計5件/s);
     assert.match(support, /¥600でFULL化/);
     assert.match(support, /必要になったらFULL化/);
     assert.equal(support.includes('合計¥1,600'), false);

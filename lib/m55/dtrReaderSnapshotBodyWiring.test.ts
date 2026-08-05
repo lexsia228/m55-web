@@ -37,6 +37,21 @@ function extractFunctionBlock(source: string, name: string): string {
 }
 
 describe('dtrReader snapshot body wiring', () => {
+  it('snapshotBodyParas applies display normalization at generated body boundary', () => {
+    assert.ok(
+      readerSource.includes('normalizePaidReportPublicDisplayText(body)'),
+      'snapshotBodyParas must normalize generated snapshot bodies for display',
+    );
+    const block = extractFunctionBlock(readerSource, 'snapshotBodyParas');
+    assert.ok(block.includes('normalizePaidReportPublicDisplayText'), 'normalizer wired in snapshotBodyParas');
+    assert.ok(block.includes("split('\\n\\n')"), 'snapshotBodyParas still splits paragraphs after normalization');
+  });
+
+  it('extractDobV2IndividualizationBlocks matches post-normalization Premium headings', () => {
+    const block = extractFunctionBlock(readerSource, 'extractDobV2IndividualizationBlocks');
+    assert.match(block, /\/\^【このプレミアムレポートだけ\//);
+  });
+
   // ── Helper presence ──────────────────────────────────────────────────────────
 
   it('snapshotBodyParas helper is defined in reader source', () => {
@@ -162,10 +177,10 @@ describe('dtrReader snapshot body wiring', () => {
 
   it('snapshotBodyParas splits on double newline and trims', () => {
     // Inline simulation of snapshotBodyParas logic for deterministic check
-    const body = '【この保存版だけの本質リズム】\nABC\n\nDEF段落\n\nGHI段落';
+    const body = '【このプレミアムレポートだけの本質リズム】\nABC\n\nDEF段落\n\nGHI段落';
     const paras = body.split('\n\n').map((p) => p.trim()).filter(Boolean);
     assert.equal(paras.length, 3, 'expected 3 paragraphs');
-    assert.ok(paras[0]!.startsWith('【この保存版だけの本質リズム】'), 'first para must be DOB-v2 block');
+    assert.ok(paras[0]!.startsWith('【このプレミアムレポートだけの本質リズム】'), 'first para must be DOB-v2 block');
   });
 
   it('hasSnapshotBody returns false for empty body', () => {
@@ -191,14 +206,14 @@ describe('dtrReader snapshot body wiring', () => {
     assert.equal(paras.length >= 2, true, '2-para body should qualify');
   });
 
-  it('extractDobV2IndividualizationBlocks extracts 【この保存版だけ】 blocks only', () => {
+  it('extractDobV2IndividualizationBlocks extracts 【このプレミアムレポートだけ】 blocks only', () => {
     const body = [
       '【力が出る条件】\n内容A',
-      '【この保存版だけの補助整理】\n生年月日の細かなリズム...補助内容',
+      '【このプレミアムレポートだけの補助整理】\n生年月日の細かなリズム...補助内容',
       '【詰まりやすい条件】\n内容B',
     ].join('\n\n');
     const paras = body.split('\n\n').map((p) => p.trim()).filter(Boolean);
-    const indBlocks = paras.filter((p) => /^【この保存版だけ/.test(p));
+    const indBlocks = paras.filter((p) => /^【このプレミアムレポートだけ/.test(p));
     assert.equal(indBlocks.length, 1, 'should extract exactly 1 individualization block');
     assert.ok(indBlocks[0]!.includes('補助整理'), 'block should be the individualization one');
   });
@@ -206,7 +221,7 @@ describe('dtrReader snapshot body wiring', () => {
   it('extractDobV2IndividualizationBlocks returns empty for no matching blocks', () => {
     const body = '【力が出る条件】\n内容A\n\n【詰まりやすい条件】\n内容B';
     const paras = body.split('\n\n').map((p) => p.trim()).filter(Boolean);
-    const indBlocks = paras.filter((p) => /^【この保存版だけ/.test(p));
+    const indBlocks = paras.filter((p) => /^【このプレミアムレポートだけ/.test(p));
     assert.equal(indBlocks.length, 0, 'no matching blocks');
   });
 

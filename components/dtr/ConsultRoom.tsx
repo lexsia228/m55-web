@@ -69,7 +69,7 @@ const ROOM_UI_COPY = {
   composePanelTitle: '追加読み解きを作る',
   historyTitle: '最近の追加読み解き',
   step1Title: '今、どこから整理しますか？',
-  step1Hint: '保存版をもとに、今気になっていることを一つのテーマで整理します。',
+  step1Hint: 'プレミアムレポートをもとに、今気になっていることを一つのテーマで整理します。',
   step2Title: '必要なら補足する',
   step2Hint: 'テーマだけでも作れます。',
   step2HintSub:
@@ -77,7 +77,7 @@ const ROOM_UI_COPY = {
   selectionMemoryEyebrow: '選んだテーマ',
   selectionMemoryPrompt: 'このテーマをもとに整理します。',
   step3Title: '内容を確認する',
-  step3Lead: '保存版に沿って、この内容で追加読み解きを作成します。',
+  step3Lead: 'プレミアムレポートに沿って、この内容で追加読み解きを作成します。',
   confirmEntryLabel: '選んだテーマ',
   confirmContextLabel: '補足内容',
   reviewCurrentLabel: '現在',
@@ -686,7 +686,7 @@ export default function ConsultRoom({
       ) : showExhausted || showCapReached ? (
         <>
           <p className={styles.usagePrimaryLead}>追加読み解きはすべて利用済みです。</p>
-          <p className={styles.usageSecondaryLead}>保存版はいつでも読み返せます。</p>
+          <p className={styles.usageSecondaryLead}>プレミアムレポートはいつでも読み返せます。</p>
           <WalletBalanceStats
             availableCount={wallet.available_count}
             usedCount={usedCount}
@@ -747,7 +747,7 @@ export default function ConsultRoom({
     ) : showExhausted || (showCapReached && isReadOnly) ? (
       <div className={styles.readOnlyNotice} role="status" aria-live="polite">
         <Link href="/dtr/core" className={styles.zeroStatePrimaryLink}>
-          保存版を読み返す
+          プレミアムレポートを読み返す
         </Link>
       </div>
     ) : isReadOnly ? (

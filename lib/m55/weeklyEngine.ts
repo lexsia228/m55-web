@@ -91,9 +91,9 @@ const KEY_POOL = [
 ];
 
 const BRIDGE_POOL = [
-  '長い流れは保存版で静かに整理できます。',
-  '続きの見取りは4章の保存版で補えます。',
-  '週の外の流れは保存版に任せて、今週は手元だけ整えます。',
+  '長い流れはプレミアムレポートで静かに整理できます。',
+  '続きの見取りは4章のプレミアムレポートで補えます。',
+  '週の外の流れはプレミアムレポートに任せて、今週は手元だけ整えます。',
 ];
 
 export function runWeeklyEngine(input: WeeklyCanonicalInput): WeeklyEnvelope {

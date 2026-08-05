@@ -4,19 +4,19 @@
  */
 
 /** JP tier-neutral saved-report label (shelf / owned surfaces). LP chrome uses PAID_DTR_LP. */
-export const LABEL_PRODUCT_JP = '保存版';
+export const LABEL_PRODUCT_JP = 'プレミアムレポート';
 
 /** @deprecated Internal legacy EN key only — do not render as primary public UI copy. */
 export const LABEL_PRODUCT_EN = 'Entry Report';
 
 /** Processing eyebrow + /dtr/core document title (tier-neutral). */
-export const LABEL_SAVED_REPORT_METADATA_JP = '4章の保存版';
+export const LABEL_SAVED_REPORT_METADATA_JP = '4章のプレミアムレポート';
 
 /** My owned surfaces — tier-neutral saved report name. */
-export const LABEL_SAVED_REPORT_MY_JP = '保存版';
+export const LABEL_SAVED_REPORT_MY_JP = 'プレミアムレポート';
 
 /** Saved artifact format (not ownership state). */
-export const LABEL_FORMAT_SAVED = '保存版';
+export const LABEL_FORMAT_SAVED = 'プレミアムレポート';
 
 /** Owned state pill / badge. */
 export const LABEL_STATE_OWNED = '保存済み';
@@ -29,11 +29,11 @@ export const MY_PAGE_TITLE = 'マイページ';
 
 /** Hero body (My). */
 export const MY_PAGE_HERO_BODY =
-  '保存版の状態や利用できるサービス、登録済みのプロフィールをここで確認できます。';
+  'プレミアムレポートの状態や利用できるサービス、登録済みのプロフィールをここで確認できます。';
 
 /** Signed-out My hub body. */
 export const MY_SIGNED_OUT_HUB_BODY =
-  '保存版や利用状況を確認するには、サインインが必要です。';
+  'プレミアムレポートや利用状況を確認するには、サインインが必要です。';
 
 /** §2 はじめて使う方へ */
 export const MY_FIRST_TIME_GUIDE_TITLE = 'はじめて使う方へ';
@@ -42,26 +42,26 @@ export const MY_FIRST_TIME_GUIDE_BODY =
 export const MY_FIRST_TIME_CTA_LABEL = '無料の見取り図を開く';
 export const MY_FIRST_TIME_CTA_HREF = '/home';
 
-/** §3 あなたの保存版 */
-export const MY_SAVED_REPORT_SECTION_TITLE = 'あなたの保存版';
-export const MY_SAVED_REPORT_INTRO_COMMON = '保存版の状態をここで確認できます。';
-export const MY_SAVED_REPORT_INTRO_OWNED = '購入済みの保存版は、ここから開けます。';
+/** §3 あなたのプレミアムレポート */
+export const MY_SAVED_REPORT_SECTION_TITLE = 'あなたのプレミアムレポート';
+export const MY_SAVED_REPORT_INTRO_COMMON = 'プレミアムレポートの状態をここで確認できます。';
+export const MY_SAVED_REPORT_INTRO_OWNED = '購入済みのプレミアムレポートは、ここから開けます。';
 export const MY_SAVED_REPORT_LOADING = '利用状況を確認しています。';
 export const MY_SAVED_REPORT_EMPTY_NO_PROFILE =
-  'まだ保存版はありません。まずは無料の見取り図から始めてください。';
+  'まだプレミアムレポートはありません。まずは無料の見取り図から始めてください。';
 export const MY_SAVED_REPORT_EMPTY_READY =
-  'まだ保存版はありません。内容と料金は商品ページで確認できます。';
+  'まだプレミアムレポートはありません。内容と料金は商品ページで確認できます。';
 export const MY_SAVED_REPORT_PROCESSING =
-  '保存版を準備しています。完了すると開けるようになります。';
+  'プレミアムレポートを準備しています。完了すると開けるようになります。';
 export const MY_SAVED_REPORT_OWNED_NOTE_P1 =
-  '保存版は、購入時までに入力された情報をもとに作成・保存されています。';
+  'プレミアムレポートは、購入時までに入力された情報をもとに作成・保存されています。';
 export const MY_SAVED_REPORT_OWNED_NOTE_P2 =
-  'ここでプロフィールを更新しても、購入済みの保存版の内容は自動では変わりません。';
-export const MY_SAVED_REPORT_VALUE_TITLE = '4章の保存版';
+  'ここでプロフィールを更新しても、購入済みのプレミアムレポートの内容は自動では変わりません。';
+export const MY_SAVED_REPORT_VALUE_TITLE = '4章のプレミアムレポート';
 export const MY_SAVED_REPORT_VALUE_BODY = '購入時の内容をそのまま読み返せます。';
-export const MY_SAVED_REPORT_CTA_PLAN_LABEL = '保存版のプランを見る';
+export const MY_SAVED_REPORT_CTA_PLAN_LABEL = 'プレミアムレポートのプランを見る';
 export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
-export const MY_SAVED_REPORT_CTA_OPEN_LABEL = '保存版を読み返す';
+export const MY_SAVED_REPORT_CTA_OPEN_LABEL = 'プレミアムレポートを読み返す';
 export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
 /** Light owner → FULL upgrade (reply-tickets checkout lane). */
 export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'FULL化する（¥600）';
@@ -70,7 +70,7 @@ export const DTR_LIGHT_TO_FULL_UPGRADE_NOTE =
 export const MY_SAVED_REPORT_ENT_ERROR =
   '利用状況を確認できませんでした。時間をおいて再度お試しください。';
 export const MY_SAVED_REPORT_SNAP_ERROR =
-  '保存版の状態を確認できませんでした。時間をおいて再度お試しください。';
+  'プレミアムレポートの状態を確認できませんでした。時間をおいて再度お試しください。';
 
 /** §3 / §4 state badges */
 export const MY_BADGE_NOT_PURCHASED = '未購入';
@@ -84,15 +84,15 @@ export const MY_SERVICES_INTRO =
 /** §5 追加読み解き */
 export const MY_CONSULT_SECTION_TITLE = '追加読み解き';
 export const MY_CONSULT_BODY_PRE_OWNED =
-  '追加読み解きは、保存版に紐づく機能です。保存版を利用できる状態になると、保存版内から確認できます。';
+  '追加読み解きは、プレミアムレポートに紐づく機能です。プレミアムレポートを利用できる状態になると、プレミアムレポート内から確認できます。';
 export const MY_CONSULT_BODY_OWNED_P1 =
-  '追加読み解きは、保存版に紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて追加読み解きを確認します。';
+  '追加読み解きは、プレミアムレポートに紐づく機能です。1回の追加読み解きにつき、一つのテーマを書いて追加読み解きを確認します。';
 export const MY_CONSULT_BODY_OWNED_P2 =
-  '利用状況の確認と送信は、保存版を開いたあとの追加読み解き画面で行えます。';
+  '利用状況の確認と送信は、プレミアムレポートを開いたあとの追加読み解き画面で行えます。';
 export const MY_CONSULT_CONTEXT_BODY =
-  '保存版をもとに、今気になっている一つのテーマを整理します。';
+  'プレミアムレポートをもとに、今気になっている一つのテーマを整理します。';
 export const MY_CONSULT_USAGE_UNAVAILABLE =
-  '追加読み解きの利用状況は、保存版を開いて確認できます。';
+  '追加読み解きの利用状況は、プレミアムレポートを開いて確認できます。';
 export const MY_CONSULT_CTA_LABEL = '追加読み解きを始める';
 export const MY_CONSULT_CTA_HREF = '/dtr/core#consultation-room';
 
@@ -104,7 +104,7 @@ export const MY_PROFILE_EDIT_CTA_LABEL = 'プロフィールを編集する';
 export const MY_HELP_SECTION_TITLE = 'ヘルプ・お問い合わせ';
 
 /** Owned report list aria-label (My). */
-export const MY_REPORT_LIST_ARIA_LABEL = '保存版レポート一覧';
+export const MY_REPORT_LIST_ARIA_LABEL = 'プレミアムレポート一覧';
 
 /** @deprecated Use MY_CONSULT_SECTION_TITLE */
 export const MY_CONSULT_BLOCK_TITLE = MY_CONSULT_SECTION_TITLE;
@@ -113,14 +113,14 @@ export const MY_CONSULT_BLOCK_TITLE = MY_CONSULT_SECTION_TITLE;
 export const MY_CONSULT_BLOCK_BODY = MY_CONSULT_BODY_PRE_OWNED;
 
 /** DTR shelf overline. */
-export const SHELF_OVERLINE = 'M55 保存版';
+export const SHELF_OVERLINE = 'M55 プレミアムレポート';
 
 /** Shelf hint when owned and snapshot ready. */
-export const SHELF_HINT_OWNED_READY = '保存版をお持ちです。下のカードから開けます。';
+export const SHELF_HINT_OWNED_READY = 'プレミアムレポートをお持ちです。下のカードから開けます。';
 
 /** Shelf hint when owned and snapshot pending. */
 export const SHELF_HINT_OWNED_PENDING =
-  '保存版をお持ちです。本文の準備が完了すると開けます。';
+  'プレミアムレポートをお持ちです。本文の準備が完了すると開けます。';
 
 export type DtrShelfAriaAction =
   | 'purchase'
