@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-04T22:21:00.824615+00:00",
+  "generated_at_utc": "2026-08-05T22:19:16.974531+00:00",
   "count": 689,
   "records": [
     {
@@ -80,12 +80,12 @@
     {
       "path": "docs/ssot/M55_COPY_AND_CLAIMS.md",
       "category": "ssot",
-      "bytes": 1527
+      "bytes": 2471
     },
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 28785
+      "bytes": 30125
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -95,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 9649
+      "bytes": 10536
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -255,7 +255,7 @@
     {
       "path": "docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md",
       "category": "ssot",
-      "bytes": 25965
+      "bytes": 26051
     },
     {
       "path": "docs/ssot/M55_PAIR_FUNNEL_CONTRACT.md",
@@ -2190,7 +2190,7 @@
     {
       "path": "docs/ssot/M55_PRODUCT_TRUTH.md",
       "category": "ssot",
-      "bytes": 2055
+      "bytes": 2139
     },
     {
       "path": "docs/ssot/M55_PUBLIC_CLAIMS_ALLOWLIST_v1.md",
@@ -3030,12 +3030,12 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 9521
+      "bytes": 9359
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
       "category": "ssot",
-      "bytes": 3491
+      "bytes": 3806
     },
     {
       "path": "docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md",
@@ -3110,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 41087
+      "bytes": 42593
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
