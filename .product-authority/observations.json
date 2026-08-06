@@ -2,25 +2,25 @@
   "schemaVersion": "1.0.0",
   "observationMeta": {
     "lastObservedAt": {
-      "value": "2026-08-06T06:42:52.660Z",
+      "value": "2026-08-06T10:02:33.727Z",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     }
   },
   "repository": {
     "lastObservedOriginMainSha": {
-      "value": "7e30b6456c6b2c45383ea8fb042efb9d17229893",
+      "value": "f3ab98a08e06cef7b16405d1adced387c23a29d2",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "GIT_OBSERVATION",
         "reference": "git fetch origin --prune"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     }
   },
@@ -32,17 +32,17 @@
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     },
     "lastObservedSha": {
-      "value": "7e30b6456c6b2c45383ea8fb042efb9d17229893",
+      "value": "f3ab98a08e06cef7b16405d1adced387c23a29d2",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     },
     "environment": {
@@ -52,7 +52,7 @@
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     },
     "branch": {
@@ -62,17 +62,17 @@
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     },
     "observedAt": {
-      "value": "2026-08-06T06:42:52.660Z",
+      "value": "2026-08-06T10:02:33.727Z",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
         "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "updatedAt": "2026-08-06T10:02:33.727Z",
       "evidenceRefs": []
     }
   },
