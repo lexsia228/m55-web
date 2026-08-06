@@ -21,9 +21,26 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
-## Current commercial-surface governance transition (2026-08-04) — AUTHORITATIVE
+## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE
 
-PR #86 is **MERGED** @ `10e601465b66b8132a7ceb845300af1924ba468b` (feature head `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`; merge method **MERGE COMMIT**); IND-FREE is **CLOSED GREEN**. PR #88 is **MERGED** @ `060fee287355eb00573d968445fcc374510d185d`. **WT-018** Premium public terminology local implementation is **AUTHORIZED** on `fix/m55-premium-public-terminology-v1` from `ada0510c` (terminology-only; commit/PR not authorized). The ACTIVE lane remains **IND-PAID — result/save/revisit/add-on loop**; functional IND-PAID implementation is not yet authorized beyond terminology hygiene. Next action after WT-018 review: Human actual-diff approval, then separate commit/PR gate; then explicit IND-PAID functional authorization.
+PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**. PR #68 is **CLOSED** as **superseded** — **unmerged**; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ.
+
+**Fixed MRQ execution order — agents must not reorder arbitrarily:**
+
+1. P0 Premium public terminology ← **CLOSED GREEN** (PR #90 **MERGED**)
+2. P1 personal free output quality — **not yet authorized**
+3. P2 Premium bridge and paid output value — **not yet authorized**
+4. P3 checkout/refund/support/recovery safety — **not yet authorized**; P3 environment proof uses **Preview-only first** strategy
+5. P4 free compatibility
+6. P5 paid compatibility
+7. P6 analytics
+8. P7 polish/performance/animation
+
+No P1/P2/P3 implementation wave is authorized yet. **Product Authority reconciliation** and **P3 environment proof** precede any implementation-scope freeze. MRQ implementation worktree is **not created** and **not authorized**. Patch scope is **not frozen**. Sales launch is **not authorized**.
+
+## Current commercial-surface governance transition (2026-08-04) — HISTORICAL, SUPERSEDED 2026-08-06
+
+PR #86 is **MERGED** @ `10e601465b66b8132a7ceb845300af1924ba468b` (feature head `326ccd6f1c97911ba82281dbc0a9d4dd835ed782`; merge method **MERGE COMMIT**); IND-FREE is **CLOSED GREEN**. PR #88 is **MERGED** @ `060fee287355eb00573d968445fcc374510d185d`. **WT-018** Premium public terminology was locally implemented and later merged via PR #90 — see MRQ governance transition above for current authority. This section is historical for IND-FREE/IND-PAID transition facts only.
 
 Ordered commercial execution sequence:
 

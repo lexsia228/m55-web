@@ -33,12 +33,14 @@ HOME
 
 ## Merged runtime (origin/main)
 
-Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/main`**:
+Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/main`** @ PR #90 merge `ac71d054556ebec06d6fa107fbe359a88052aca6`:
 
-- `preResultThemeSelection: true` — legacy debt（結果前「今の関心」step still recorded as current merged runtime）
+- `preResultThemeSelection: false` — current machine contract, current target contract, and current tests all record **false**; UI has no pre-result theme-selection step
 - public copy の「見取り図」は free-tier / Pair standalone 比喩として **現行許容**（全面置換は別 wave）
 - 「保存版」は **INTERNAL_ONLY** — 公開 UI・metadata・aria・Legal・Support・購入後表示は Premium 系正式表記のみ；`premiumPublicTerminologyGuard` + stored snapshot display normalizer が境界を強制
 - 無料結果から「今日の一歩」等の行動提案は target では除去；merged runtime debt は machine contract / deferred assertions を参照
+
+**Documentation correction (2026-08-06):** prior text in this file incorrectly stated `preResultThemeSelection: true` for merged runtime. That was stale documentation only — **not** a runtime change request. Evidence: `lib/m55/contracts/m55CommercialFunnelContract.ts` (`M55_CURRENT_RUNTIME_STATE.selfFree.preResultThemeSelection: false`, `M55_TARGET_COMMERCIAL_CONTRACT.selfFree.preResultThemeSelection: false`), `lib/m55/contracts/m55CommercialFunnelContract.test.ts`, and absence of a pre-result theme-selection UI step.
 
 **Terminology enforcement:** `no_public_hozonban_copy` は **CLOSED_GREEN**（machine contract `M55_ENFORCED_RUNTIME_ASSERTIONS`）。本変更は完了済み functional lane を再開しない。
 
@@ -52,9 +54,9 @@ Recorded in machine contract `M55_CURRENT_RUNTIME_STATE.selfFree` on **`origin/m
 
 Self funnel runtime source on WT-001 remains **uncommitted** and is **not** part of PR #78.
 
-- owns `preResultThemeSelection=false` implementation and verification
+- `preResultThemeSelection=false` is already merged runtime on `origin/main` — not a pending branch-local delta for this field
 - inherits `USER_VISIBLE_CLOSED_GREEN` from `M55_COMMERCIAL_QUALITY_CONTRACT.md`
-- runtime enforcement deferred to a later Self funnel implementation commit / review
+- other runtime enforcement deferred to later Self funnel implementation commits / reviews where applicable
 
 ## Free result center (target)
 

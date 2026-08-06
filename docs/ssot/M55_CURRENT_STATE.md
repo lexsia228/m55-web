@@ -5,11 +5,44 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation — current authority immediately below).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment — current authority immediately below).
 
-## PREMIUM PUBLIC TERMINOLOGY WAVE (WT-018) — AUTHORITATIVE (2026-08-04)
+## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — AUTHORITATIVE
 
-This section is the current authority for WT-018 implementation authorization. Earlier transition sections remain historical for lane closure facts only.
+This section is the current authority for lane status, PR dispositions, and the next single action. Earlier transition sections remain historical for closure facts only.
+
+| Field | Value |
+|---|---|
+| PR #90 | **MERGED** — https://github.com/lexsia228/m55-web/pull/90 |
+| Feature head | `af33c722e6e585f51f8e51297055d090606fd32e` |
+| Merge commit | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
+| Merged at | `2026-08-05T13:13:10Z` |
+| Merge parents | `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e` |
+| Production deployment id | **5762301638** |
+| Production SHA | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
+| Production state | **READY** |
+| Canonical `/core` GET | **HTTP 200** |
+| Public GET health | **GREEN** |
+| P0 Premium terminology | **CLOSED GREEN** — public Premium terminology release only; does **not** authorize sales launch |
+| PR #68 | **CLOSED** as **superseded** — **unmerged**; branch retained; **not** an implementation source |
+| PR #30 | **OPEN** — independent; **not blocking MRQ**; HOME reopen **not authorized** |
+| PR #75 | **OPEN** — **frozen reference-only**; **not blocking MRQ** |
+| MRQ mapping Revision 1 | **CLOSED GREEN** — read-only mapping accepted on WT-019 |
+| WT-018 | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` · `fix/m55-premium-public-terminology-v1` @ `af33c722e6e585f51f8e51297055d090606fd32e` — **COMPLETED** · retained read-only · write authority **none** |
+| WT-019 | `/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1` · `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6` — mapping-only · retained reference/read-only · MRQ implementation authority **false** · no remote branch |
+| WT-020 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-governance-alignment-v1` · `docs/m55-mrq-governance-alignment-v1` — docs-only governance alignment; no product/source write authority |
+| ACTIVE LANE | **M55 MINIMUM-REVENUE-QUALITY** |
+| P3 smoke strategy | **Preview-only first** — 4242 execution remains **unauthorized** |
+| Product Authority | **PRODUCT_AUTHORITY_RECONCILIATION_PENDING** — separate future gate; not reconciled in this docs patch |
+| MRQ implementation worktree | **not created** · **not authorized** |
+| MRQ patch scope | **not frozen** |
+| Sales launch | **not authorized** |
+| NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
+| Authorization boundary | MRQ implementation, checkout, 4242, commit, push, PR, merge, deploy, DB, Stripe, Clerk, env, and sales launch remain **not authorized** by this governance alignment. WT-019 must **not** receive implementation authority. |
+
+## PREMIUM PUBLIC TERMINOLOGY WAVE (WT-018) — HISTORICAL, SUPERSEDED 2026-08-06 BY PR #90 CLOSURE
+
+This section records WT-018 local implementation authorization prior to PR #90 merge. It is superseded for current lane status by the MRQ governance section above.
 
 | Field | Value |
 |---|---|
@@ -24,9 +57,9 @@ This section is the current authority for WT-018 implementation authorization. E
 | Free/Pair `見取り図` | **unchanged** in this wave |
 | NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below |
 
-## PR #86 POST-MERGE GOVERNANCE TRANSITION (2026-08-04) — HISTORICAL, SUPERSEDED FOR IMPLEMENTATION AUTH BY WT-018
+## PR #86 POST-MERGE GOVERNANCE TRANSITION (2026-08-04) — HISTORICAL, SUPERSEDED 2026-08-06 BY MRQ GOVERNANCE
 
-This section is the current authority for lane status and the next single action. Earlier `CURRENT` or `ACTIVE` labels in dated sections are retained only as historical records and are superseded by this section. Exact remote main and any transition-branch head are re-observed at execution-gate time; transient PR/check state is operational evidence, not durable product authority.
+This section records the PR #86 closure and IND-PAID lane activation. It is superseded for current lane status by the MRQ governance section at the top of this file.
 
 | Field | Value |
 |---|---|
@@ -176,7 +209,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 
 ## Canonical Production authority
 
-**CURRENT (2026-08-04):**
+**CURRENT (2026-08-06):**
 
 | Field | Value |
 |---|---|
@@ -185,13 +218,14 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | **dynamic Git authority** — re-observe `origin/main` at execution-gate time; immutable PR #88 merge commit `060fee287355eb00573d968445fcc374510d185d` (parents `e26f17b9001166a54171e36ce0d8fd3481315dfa` · `aa80853962b5d2df8fcb40fb482e807af4f6f788`); immutable PR #86 product-implementation merge `10e601465b66b8132a7ceb845300af1924ba468b` retained as historical product snapshot |
-| Production deployment id | **5738008464** |
-| Production SHA | `060fee287355eb00573d968445fcc374510d185d` |
+| Current live remote main | `ac71d054556ebec06d6fa107fbe359a88052aca6` — PR #90 merge commit (parents `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e`); immutable PR #88 merge `060fee287355eb00573d968445fcc374510d185d` retained as historical lifecycle snapshot; immutable PR #86 product-implementation merge `10e601465b66b8132a7ceb845300af1924ba468b` retained as historical product snapshot |
+| Production deployment id | **5762301638** |
+| Production SHA | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
 | Production state | **READY** |
 | Canonical `/core` GET | **HTTP 200** |
 | Public GET health | **GREEN** |
-| Production confirmation boundary | Production READY and `/core` HTTP 200 are route-level observations only; they do not themselves prove checkout/webhook/payment/DB correctness |
+| P0 Premium terminology | **CLOSED GREEN** (PR #90 Production settlement) |
+| Production confirmation boundary | Production READY, `/core` HTTP 200, and public Premium terminology GREEN are route-level / terminology observations only; they do **not** themselves prove checkout/webhook/payment/DB correctness, sales launch readiness, or MRQ implementation authorization |
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT table above. None of the values below are current.**
 >
@@ -215,7 +249,9 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | PR #81 post-merge SSOT and thread handoff | **COMPLETED — retained read-only** | **WT-012** | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` | superseded by WT-013 governance freeze; see `M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
 | M55-wide commercial-surface governance freeze | **CLOSED GREEN — WT-013 retained read-only** | **WT-013** | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` | Codex orchestration, contract review and actual-diff review only; no application-source write authority |
 | IND-FREE commercial convergence | **COMPLETED — PR #86 MERGED — retained read-only** | **WT-014** | `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` | PR #86 merge `10e601465b66b8132a7ceb845300af1924ba468b` · feature head `326ccd6f1c97911ba82281dbc0a9d4dd835ed782` · feature branch preserved · no additional source-write authority |
-| IND-PAID result/save/revisit/add-on loop | **ACTIVE — implementation not yet authorized** | — | — | Next lane per `M55_ROADMAP.md` ordered commercial execution sequence |
+| Premium public terminology (P0) | **COMPLETED — PR #90 MERGED — retained read-only** | **WT-018** | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` | PR #90 merge `ac71d054556ebec06d6fa107fbe359a88052aca6` · feature head `af33c722e6e585f51f8e51297055d090606fd32e` · P0 terminology **CLOSED GREEN** · no additional source-write authority |
+| MRQ read-only mapping | **COMPLETED — mapping Revision 1 CLOSED GREEN — retained reference/read-only** | **WT-019** | `/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1` | `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6` · MRQ implementation authority **false** · no remote branch |
+| M55 MINIMUM-REVENUE-QUALITY | **ACTIVE — MRQ implementation not yet authorized** | — | — | Next lane per `M55_ROADMAP.md` MRQ ordered execution sequence |
 
 ## State separation
 
@@ -242,11 +278,15 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-04):** IND-FREE is **CLOSED GREEN**. PR #87 is **CLOSED** and **unmerged** (superseded by PR #88; branch retained). PR #88 is **MERGED** @ `060fee287355eb00573d968445fcc374510d185d` (MERGE COMMIT; head `aa80853962b5d2df8fcb40fb482e807af4f6f788`); Production deployment id **5738008464** · exact merge SHA READY · public GET health **GREEN**. WT-013/WT-014/WT-015/WT-016 remain retained read-only. IND-PAID is the sole ACTIVE governance lane; implementation is not yet authorized. Completed IND-FREE proof, UI and visual review remain closed.
+**Current transition (2026-08-06):** P0 Premium terminology is **CLOSED GREEN** (PR #90 **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6`). MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). PR #68 is **CLOSED**/superseded/unmerged. PR #30 and PR #75 are nonblocking per Human disposition. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**; MRQ implementation is **not yet authorized**. Product Authority reconciliation remains a separate future gate. P3 strategy is **Preview-only first**; 4242 remains unauthorized. Sales launch remains unauthorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-04):** Human actual-diff review of WT-018 Premium public terminology remediation on `fix/m55-premium-public-terminology-v1` (base `ada0510c`). After visual approval, authorize commit/PR gate separately. IND-PAID functional implementation remains unauthorized until explicit lane gate after terminology merge.
+**CURRENT (2026-08-06):** `PRODUCT_AUTHORITY_REOBSERVATION_AND_RECONCILIATION` — re-observe Production and worktree facts via the separately authorized Product Authority gate. This docs alignment does **not** claim Product Authority has already been reconciled. MRQ implementation worktree creation, P1/P2/P3 implementation waves, patch-scope freeze, checkout, 4242, and sales launch remain **not authorized**.
+
+> **HISTORICAL SNAPSHOT — valid only through 2026-08-05; superseded 2026-08-06.**
+>
+> Human actual-diff review of WT-018 Premium public terminology remediation on `fix/m55-premium-public-terminology-v1` (base `ada0510c`). After visual approval, authorize commit/PR gate separately. IND-PAID functional implementation remains unauthorized until explicit lane gate after terminology merge.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-07-31; superseded 2026-08-01. This described the pre-merge Growth Share gate and is retained as historical record; PR #81 has since merged.**
 >

@@ -78,6 +78,64 @@ Machine authority: `M55_ACCESSIBILITY_DEFERRALS` in `lib/m55/commercialUx/qualit
 
 Terminology-only remediation does not reopen IND-FREE functional lane or completed GREEN control-plane gates.
 
+### 2026-08-06 — MRQ governance alignment (docs-only)
+
+**Status:** Human-approved **docs-only governance alignment** on WT-020 from `ac71d054556ebec06d6fa107fbe359a88052aca6`. Does **not** authorize commit, push, MRQ implementation, checkout, 4242, or sales launch.
+
+#### PR #90 merge and P0 Premium terminology closure
+
+| Rule | Value |
+|---|---|
+| PR #90 | **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (`2026-08-05T13:13:10Z`) |
+| Feature head | `af33c722e6e585f51f8e51297055d090606fd32e` |
+| Production deployment id | **5762301638** |
+| Production SHA | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
+| P0 Premium terminology | **CLOSED GREEN** |
+| Sales launch | **not authorized** by PR #90 merge |
+
+#### MRQ read-only mapping final acceptance
+
+| Rule | Value |
+|---|---|
+| WT-019 mapping Revision 1 | **CLOSED GREEN** — read-only mapping accepted |
+| MRQ implementation authority on WT-019 | **false** |
+| Future MRQ implementation worktree | **not created** · **not authorized** |
+
+#### Normalized false-green corrections (recorded; not closed by this docs patch)
+
+| Area | Corrected classification |
+|---|---|
+| Contrast / accessibility | Human visual review **open** — not CLOSED GREEN by docs alignment alone |
+| Checkout code wired vs operational readiness | **open** — code presence ≠ operational checkout readiness |
+| Safe public error mapping | **not wired** — remains open |
+| Stripe / 4242 proof | **missing** — remains open |
+
+#### Human governance decisions
+
+| Decision | Value |
+|---|---|
+| PR #68 | **CLOSED_AS_SUPERSEDED** — unmerged; branch retained; not an implementation source |
+| P3 smoke strategy | **PREVIEW_ONLY_FIRST** |
+| PR #30 | **INDEPENDENT_NOT_BLOCKING_MRQ** — HOME reopen not authorized |
+| PR #75 | **FROZEN_REFERENCE_ONLY** — not blocking MRQ |
+| WT-019 implementation authority | **false** |
+| Test checkout 4242 | **not authorized** |
+| MRQ implementation | **not authorized** |
+| MRQ patch scope freeze | **not frozen** |
+| Sales launch | **not authorized** |
+| Product Authority reconciliation | **separate future gate** — `PRODUCT_AUTHORITY_RECONCILIATION_PENDING` |
+
+#### Scope boundary — not authorized by this entry
+
+This decision authorizes **only** durable governance recording in the five-file docs allowlist. It does **not** authorize:
+
+- Product Authority regeneration or reconciliation completion claims
+- MRQ implementation worktree creation
+- patch-scope freeze
+- checkout / 4242 execution
+- sales launch
+- commit / push / PR / merge / deploy
+
 
 ### 2026-08-02 — Product Authority version policy and Production observation coordinator policy
 
