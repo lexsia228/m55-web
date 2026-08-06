@@ -33,7 +33,7 @@ This section is the current authority for lane status, PR dispositions, and the 
 | WT-020 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-governance-alignment-v1` · `docs/m55-mrq-governance-alignment-v1` — docs-only governance alignment; no product/source write authority |
 | ACTIVE LANE | **M55 MINIMUM-REVENUE-QUALITY** |
 | P3 smoke strategy | **Preview-only first** — 4242 execution remains **unauthorized** |
-| Product Authority | **PRODUCT_AUTHORITY_RECONCILIATION_PENDING** — separate future gate; not reconciled in this docs patch |
+| Product Authority observation | last observed origin/main `7e30b6456c6b2c45383ea8fb042efb9d17229893` @ `2026-08-06T06:42:52.660Z` (governed reconciliation gate; local worktree only; not committed) |
 | MRQ implementation worktree | **not created** · **not authorized** |
 | MRQ patch scope | **not frozen** |
 | Sales launch | **not authorized** |

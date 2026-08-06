@@ -3,25 +3,34 @@ import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { readObservations } from '../observations.mjs';
-import { validateObservationsStructure } from '../validate.mjs';
+import { validateGovernedProductionObservedSha, validateObservationsStructure } from '../validate.mjs';
 import { cleanupTempRoot, copyAuthorityPackSources, makeTempRoot } from '../history.mjs';
 import { generateProductAuthority } from '../generate.mjs';
 import { LOCK_PATH } from '../validate.mjs';
+import { DIAGNOSTICS_SOURCE_KIND } from '../production-observation-contract.mjs';
 
-const OBSERVED_ORIGIN_MAIN_SHA = '696559009367a6ac445dc7a07876590b16cd8488';
-const OBSERVATION_TIMESTAMP = '2026-07-27T09:56:00+00:00';
+const OBSERVED_ORIGIN_MAIN_SHA = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
+const OBSERVED_PRODUCTION_SHA = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
+const OBSERVATION_TIMESTAMP = '2026-08-06T06:42:52.660Z';
 const BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
 
-test('production lastObservedSha is null', () => {
+test('production lastObservedSha reflects governed diagnostics observation', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: unknown }} */ (observations.production.lastObservedSha).value, null);
+  assert.equal(
+    /** @type {{ value: unknown }} */ (observations.production.lastObservedSha).value,
+    OBSERVED_PRODUCTION_SHA,
+  );
+  assert.equal(
+    /** @type {{ source: { kind: string } }} */ (observations.production.lastObservedSha).source.kind,
+    DIAGNOSTICS_SOURCE_KIND,
+  );
 });
 
-test('production status is pending reobservation', () => {
+test('production status is observed route build identity', () => {
   const observations = readObservations(process.cwd());
   assert.equal(
     /** @type {{ value: string }} */ (observations.production.status).value,
-    'PENDING_REOBSERVATION_ON_M-55.JP',
+    'ROUTE_BUILD_IDENTITY_OBSERVED',
   );
 });
 
@@ -80,16 +89,16 @@ test('build week lane is FROZEN', () => {
   assert.equal(/** @type {{ value: string }} */ (observations.lanes.buildWeek.status).value, 'FROZEN');
 });
 
-test('growth share lane is ACTIVE', () => {
+test('growth share lane is COMPLETED', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: string }} */ (observations.lanes.growthShare.status).value, 'ACTIVE');
+  assert.equal(/** @type {{ value: string }} */ (observations.lanes.growthShare.status).value, 'COMPLETED');
 });
 
-test('growth share merge status is open unmerged branch local', () => {
+test('growth share merge status is MERGED', () => {
   const observations = readObservations(process.cwd());
   assert.equal(
     /** @type {{ value: string }} */ (observations.lanes.growthShare.mergeStatus).value,
-    'OPEN_UNMERGED_BRANCH_LOCAL',
+    'MERGED',
   );
 });
 
@@ -206,4 +215,26 @@ test('WORKTREE_OBSERVATION source kind is accepted for mutation policy', () => {
     'WORKTREE_OBSERVATION',
   );
   validateObservationsStructure(observations);
+});
+
+test('governed diagnostics observation with non-null production SHA passes validation', () => {
+  const observations = readObservations(process.cwd());
+  validateGovernedProductionObservedSha(observations);
+  validateObservationsStructure(observations);
+});
+
+test('unsupported GIT_OBSERVATION production SHA is rejected fail-closed', () => {
+  const observations = readObservations(process.cwd());
+  const clone = structuredClone(observations);
+  /** @type {{ value: string, source: { kind: string, reference: string } }} */ (
+    clone.production.lastObservedSha
+  ).value = OBSERVED_PRODUCTION_SHA;
+  clone.production.lastObservedSha.source = {
+    kind: 'GIT_OBSERVATION',
+    reference: 'git fetch origin --prune',
+  };
+  assert.throws(
+    () => validateGovernedProductionObservedSha(clone),
+    /governed diagnostics observation source/,
+  );
 });

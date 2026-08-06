@@ -2,47 +2,77 @@
   "schemaVersion": "1.0.0",
   "observationMeta": {
     "lastObservedAt": {
-      "value": "2026-07-27T09:56:00+00:00",
+      "value": "2026-08-06T06:42:52.660Z",
       "classification": "OBSERVED_CURRENT",
       "source": {
-        "kind": "GIT_OBSERVATION",
-        "reference": "git fetch origin --prune"
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-07-27T09:56:00+00:00",
+      "updatedAt": "2026-08-06T06:42:52.660Z",
       "evidenceRefs": []
     }
   },
   "repository": {
     "lastObservedOriginMainSha": {
-      "value": "696559009367a6ac445dc7a07876590b16cd8488",
+      "value": "7e30b6456c6b2c45383ea8fb042efb9d17229893",
       "classification": "OBSERVED_CURRENT",
       "source": {
         "kind": "GIT_OBSERVATION",
         "reference": "git fetch origin --prune"
       },
-      "updatedAt": "2026-07-27T09:56:00+00:00",
+      "updatedAt": "2026-08-06T06:42:52.660Z",
       "evidenceRefs": []
     }
   },
   "production": {
-    "lastObservedSha": {
-      "value": null,
-      "classification": "PENDING_EVIDENCE",
+    "status": {
+      "value": "ROUTE_BUILD_IDENTITY_OBSERVED",
+      "classification": "OBSERVED_CURRENT",
       "source": {
-        "kind": "PENDING_EVIDENCE",
-        "reference": "PENDING_REOBSERVATION_ON_M-55.JP"
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "updatedAt": "2026-08-06T06:42:52.660Z",
       "evidenceRefs": []
     },
-    "status": {
-      "value": "PENDING_REOBSERVATION_ON_M-55.JP",
-      "classification": "PENDING_EVIDENCE",
+    "lastObservedSha": {
+      "value": "7e30b6456c6b2c45383ea8fb042efb9d17229893",
+      "classification": "OBSERVED_CURRENT",
       "source": {
-        "kind": "PENDING_EVIDENCE",
-        "reference": "Production diagnostics not independently verified in bootstrap gate"
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
       },
-      "updatedAt": "2026-07-25T07:00:00+00:00",
+      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "evidenceRefs": []
+    },
+    "environment": {
+      "value": "production",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
+      },
+      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "evidenceRefs": []
+    },
+    "branch": {
+      "value": "main",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
+      },
+      "updatedAt": "2026-08-06T06:42:52.660Z",
+      "evidenceRefs": []
+    },
+    "observedAt": {
+      "value": "2026-08-06T06:42:52.660Z",
+      "classification": "OBSERVED_CURRENT",
+      "source": {
+        "kind": "DIAGNOSTICS_HTTP_OBSERVATION",
+        "reference": "GET https://m-55.jp/api/diagnostics/build"
+      },
+      "updatedAt": "2026-08-06T06:42:52.660Z",
       "evidenceRefs": []
     }
   },
@@ -225,13 +255,13 @@
     },
     "growthShare": {
       "status": {
-        "value": "ACTIVE",
+        "value": "COMPLETED",
         "classification": "OBSERVED_CURRENT",
         "source": {
           "kind": "WORKTREE_OBSERVATION",
-          "reference": "WT-011 Growth Share active lane"
+          "reference": "PR #81 MERGED; WT-011 Growth Share lane completed"
         },
-        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "updatedAt": "2026-08-06T06:42:52.660Z",
         "evidenceRefs": []
       },
       "worktree": {
@@ -265,13 +295,13 @@
         "evidenceRefs": []
       },
       "mergeStatus": {
-        "value": "OPEN_UNMERGED_BRANCH_LOCAL",
+        "value": "MERGED",
         "classification": "OBSERVED_CURRENT",
         "source": {
           "kind": "WORKTREE_OBSERVATION",
-          "reference": "PR #81 open unmerged branch-local Growth Share"
+          "reference": "PR #81 MERGED to origin/main"
         },
-        "updatedAt": "2026-07-27T10:17:00+00:00",
+        "updatedAt": "2026-08-06T06:42:52.660Z",
         "evidenceRefs": []
       }
     }

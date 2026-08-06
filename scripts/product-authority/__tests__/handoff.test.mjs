@@ -319,7 +319,7 @@ test('handoff json includes lane statuses', () => {
     const handoff = JSON.parse(fs.readFileSync(path.join(tempRoot, '.product-authority/generated/handoff.json'), 'utf8'));
     assert.equal(handoff.lanes.authorityPack, 'COMPLETED');
     assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
-    assert.equal(handoff.lanes.growthShare, 'ACTIVE');
+    assert.equal(handoff.lanes.growthShare, 'COMPLETED');
     assert.equal(handoff.lanes.buildWeek, 'FROZEN');
   } finally {
     cleanupTempRoot(tempRoot);
@@ -349,7 +349,7 @@ test('handoff markdown and json lifecycle meanings match', () => {
     assert.match(handoffMd, new RegExp(`Build Week lane: ${handoff.lanes.buildWeek}`));
     assert.equal(handoff.lanes.authorityPack, 'COMPLETED');
     assert.equal(handoff.lanes.selfFunnel, 'COMPLETED');
-    assert.equal(handoff.lanes.growthShare, 'ACTIVE');
+    assert.equal(handoff.lanes.growthShare, 'COMPLETED');
     assert.equal(handoff.lanes.buildWeek, 'FROZEN');
     assert.equal('productionDeployed' in handoff.growthShareDelivery, false);
   } finally {

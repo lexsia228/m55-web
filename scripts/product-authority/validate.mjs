@@ -7,6 +7,14 @@ import { readHistory, computeEventHash, historySha256FromEvents } from './histor
 import { readObservations, getGeneratedAt, observationsSha256FromObject } from './observations.mjs';
 import { scanObjectForSecrets } from './secret-scan.mjs';
 import {
+  DIAGNOSTICS_SOURCE_KIND,
+  DIAGNOSTICS_SOURCE_REFERENCE,
+  PRODUCTION_BRANCH_LITERAL,
+  PRODUCTION_ENVIRONMENT_LITERAL,
+  PRODUCTION_STATUS_OBSERVED,
+  isLowercaseSha256Hex,
+} from './production-observation-contract.mjs';
+import {
   GENERATOR_VERSION,
   HANDOFF_SCHEMA_VERSION,
   LOCK_SCHEMA_VERSION,
@@ -145,6 +153,7 @@ const ALLOWED_OBSERVATION_SOURCE_KINDS = new Set([
   'PROVIDER_OBSERVATION',
   'WORKTREE_OBSERVATION',
   'PENDING_EVIDENCE',
+  DIAGNOSTICS_SOURCE_KIND,
 ]);
 
 const SEQUENCE2_FORBIDDEN_FIELDS = new Set([
@@ -303,6 +312,60 @@ export function validateAuthorityStructure(authority) {
 /**
  * @param {Record<string, unknown>} observations
  */
+export function validateGovernedProductionObservedSha(observations) {
+  const prodShaLeaf = /** @type {{ value: unknown, source: { kind: string, reference: string } }} */ (
+    observations.production.lastObservedSha
+  );
+  const prodSha = prodShaLeaf.value;
+
+  if (prodSha === null) {
+    return;
+  }
+
+  if (!isLowercaseSha256Hex(prodSha)) {
+    throw new Error('production.lastObservedSha must be null or lowercase git SHA hex');
+  }
+
+  if (prodShaLeaf.source.kind !== DIAGNOSTICS_SOURCE_KIND) {
+    throw new Error('production.lastObservedSha requires governed diagnostics observation source');
+  }
+
+  if (prodShaLeaf.source.reference !== DIAGNOSTICS_SOURCE_REFERENCE) {
+    throw new Error('production.lastObservedSha diagnostics source reference mismatch');
+  }
+
+  const status = /** @type {{ value: string }} */ (observations.production.status).value;
+  if (status !== PRODUCTION_STATUS_OBSERVED) {
+    throw new Error('production.lastObservedSha requires ROUTE_BUILD_IDENTITY_OBSERVED status');
+  }
+
+  const environment = /** @type {{ value: string }} */ (observations.production.environment).value;
+  const branch = /** @type {{ value: string }} */ (observations.production.branch).value;
+  if (environment !== PRODUCTION_ENVIRONMENT_LITERAL) {
+    throw new Error('production.environment must be production when lastObservedSha is set');
+  }
+  if (branch !== PRODUCTION_BRANCH_LITERAL) {
+    throw new Error('production.branch must be main when lastObservedSha is set');
+  }
+
+  for (const key of ['status', 'environment', 'branch', 'observedAt']) {
+    const leaf = /** @type {{ source: { kind: string, reference: string } }} */ (
+      observations.production[key]
+    );
+    if (leaf.source.kind !== DIAGNOSTICS_SOURCE_KIND) {
+      throw new Error(
+        `production.${key} must use governed diagnostics observation when lastObservedSha is set`,
+      );
+    }
+    if (leaf.source.reference !== DIAGNOSTICS_SOURCE_REFERENCE) {
+      throw new Error(`production.${key} diagnostics source reference mismatch`);
+    }
+  }
+}
+
+/**
+ * @param {Record<string, unknown>} observations
+ */
 export function validateObservationsStructure(observations) {
   const requiredPaths = [
     ['observationMeta', 'lastObservedAt'],
@@ -347,10 +410,7 @@ export function validateObservationsStructure(observations) {
     }
   }
 
-  const prodSha = /** @type {{ value: unknown }} */ (observations.production.lastObservedSha).value;
-  if (prodSha !== null) {
-    throw new Error('production.lastObservedSha must remain null until independently verified');
-  }
+  validateGovernedProductionObservedSha(observations);
 
   const secretFindings = scanObjectForSecrets(observations, 'observations');
   if (secretFindings.length > 0) {

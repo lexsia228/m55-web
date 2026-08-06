@@ -90,6 +90,7 @@ function renderAuthorityHeaderBody(authority, observations, hashes, generatedAt)
     observations.repository.lastObservedOriginMainSha
   ).value;
   const prodStatus = /** @type {{ value: string }} */ (observations.production.status).value;
+  const prodSha = /** @type {{ value: string | null }} */ (observations.production.lastObservedSha).value;
   const lanes = readLaneStatuses(observations);
   const mergeStatus = readGrowthShareMergeStatus(observations);
 
@@ -122,7 +123,7 @@ generatedAt: ${generatedAt}
 
 ## Production observed state
 
-- production.lastObservedSha: null
+- production.lastObservedSha: ${prodSha ?? 'null'}
 - production.status: ${prodStatus}
 
 ## Lanes
@@ -145,8 +146,7 @@ ${renderLaneStatusLines(lanes)}
 
 ## Unresolved evidence
 
-- Production SHA on ${canonicalHost}
-- provider Production/Preview identities (Supabase, Clerk, Stripe)
+${prodSha ? '' : `- Production SHA on ${canonicalHost}\n`}- provider Production/Preview identities (Supabase, Clerk, Stripe)
 
 Human-approved durable authority and verified observations supersede generated artifacts.
 Generated outputs must not synthesize operational workflow gates.

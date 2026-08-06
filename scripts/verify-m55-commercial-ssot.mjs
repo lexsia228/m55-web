@@ -126,8 +126,8 @@ function checkMachineContract(data) {
   if (r.HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT !== 'NOT_YET') {
     fail('HOME final SSOT must be NOT_YET');
   }
-  if (r.ACTIVE_LANE !== '個人無料→個人Premiumファネルの一括実装') {
-    fail('ACTIVE_LANE must be post-merge Self funnel lane');
+  if (r.ACTIVE_LANE !== 'M55 MINIMUM-REVENUE-QUALITY') {
+    fail('ACTIVE_LANE must be M55 MINIMUM-REVENUE-QUALITY');
   }
   if (enforcement !== 'PENDING_SELF_FUNNEL_IMPLEMENTATION') {
     fail('enforcementStatus must be PENDING_SELF_FUNNEL_IMPLEMENTATION');
