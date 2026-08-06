@@ -113,8 +113,13 @@ test('mutation: git main treated as observed Production SHA', () => {
   try {
     expectBootstrapFailure(tempRoot, () => {
       const observations = readObservations(tempRoot);
-      /** @type {{ value: string }} */ (observations.production.lastObservedSha).value =
-        /** @type {{ value: string }} */ (observations.repository.lastObservedOriginMainSha).value;
+      /** @type {{ value: string, source: { kind: string, reference: string } }} */ (
+        observations.production.lastObservedSha
+      ).value = /** @type {{ value: string }} */ (observations.repository.lastObservedOriginMainSha).value;
+      observations.production.lastObservedSha.source = {
+        kind: 'GIT_OBSERVATION',
+        reference: 'git fetch origin --prune',
+      };
       fs.writeFileSync(path.join(tempRoot, '.product-authority/observations.json'), `${JSON.stringify(observations, null, 2)}\n`, 'utf8');
     });
   } finally {
@@ -672,7 +677,7 @@ test('mutation: invalid eventHash exclusion behavior', () => {
 });
 
 const STALE_BOOTSTRAP_ORIGIN_MAIN = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
-const CURRENT_OBSERVED_ORIGIN_MAIN = '696559009367a6ac445dc7a07876590b16cd8488';
+const CURRENT_OBSERVED_ORIGIN_MAIN = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
 
 test('mutation: stale origin/main observation fails SSOT transition check', () => {
   const currentStateText = fs.readFileSync(
@@ -708,20 +713,23 @@ test('mutation: malformed observation envelope fails validation', () => {
   }
 });
 
-test('mutation: Production SHA populated from origin/main fails validation intent', () => {
+test('mutation: Production SHA populated from origin/main without diagnostics source fails validation', () => {
   const tempRoot = makeTempRoot();
   try {
     copyAuthorityPackSources(tempRoot);
     const observations = readObservations(tempRoot);
-    /** @type {{ value: string, classification: string }} */ (observations.production.lastObservedSha).value =
-      CURRENT_OBSERVED_ORIGIN_MAIN;
-    /** @type {{ value: string, classification: string }} */ (observations.production.lastObservedSha).classification =
-      'OBSERVED_CURRENT';
-    assert.notEqual(
-      /** @type {{ value: unknown }} */ (readObservations(process.cwd()).production.lastObservedSha).value,
-      CURRENT_OBSERVED_ORIGIN_MAIN,
+    /** @type {{ value: string, classification: string, source: { kind: string, reference: string } }} */ (
+      observations.production.lastObservedSha
+    ).value = CURRENT_OBSERVED_ORIGIN_MAIN;
+    observations.production.lastObservedSha.classification = 'OBSERVED_CURRENT';
+    observations.production.lastObservedSha.source = {
+      kind: 'GIT_OBSERVATION',
+      reference: 'git fetch origin --prune',
+    };
+    assert.throws(
+      () => validateObservationsStructure(observations),
+      /governed diagnostics observation source/,
     );
-    validateObservationsStructure(readObservations(process.cwd()));
   } finally {
     cleanupTempRoot(tempRoot);
   }

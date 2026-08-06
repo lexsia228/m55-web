@@ -36,9 +36,14 @@ test('branch-local self funnel head is not treated as merged runtime authority',
   );
 });
 
-test('origin main is not stored as production observed sha', () => {
+test('production observed sha uses diagnostics source not git observation conflation', () => {
   const observations = readObservations(process.cwd());
-  assert.equal(/** @type {{ value: unknown }} */ (observations.production.lastObservedSha).value, null);
+  const prodSha = /** @type {{ value: unknown, source: { kind: string } }} */ (
+    observations.production.lastObservedSha
+  );
+  if (prodSha.value !== null) {
+    assert.equal(prodSha.source.kind, 'DIAGNOSTICS_HTTP_OBSERVATION');
+  }
 });
 
 test('provider production and preview environments are separate objects', () => {

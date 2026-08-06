@@ -98,10 +98,7 @@ describe('m55CommercialFunnelContract — machine product truth', () => {
 
   it('registers post-merge active lane and HOME final SSOT status', () => {
     assert.equal(M55_COMMERCIAL_STATE_REGISTRY.HOME_FINAL_DESIGN_COPY_PRODUCT_SSOT, 'NOT_YET');
-    assert.equal(
-      M55_COMMERCIAL_STATE_REGISTRY.ACTIVE_LANE,
-      '個人無料→個人Premiumファネルの一括実装',
-    );
+    assert.equal(M55_COMMERCIAL_STATE_REGISTRY.ACTIVE_LANE, 'M55 MINIMUM-REVENUE-QUALITY');
     assert.match(M55_COMMERCIAL_STATE_REGISTRY.COMPLETED_GREEN, /Commercial Funnel SSOT/);
   });
 
