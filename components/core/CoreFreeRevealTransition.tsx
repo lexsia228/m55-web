@@ -17,7 +17,7 @@ type Props = {
 export default function CoreFreeRevealTransition({ onComplete, traitNameJa }: Props) {
   const [phase, setPhase] = useState(0);
   const phases = [
-    '6つの手がかりが揃いました',
+    '5つの回答が揃いました',
     '生年月日の土台と、いまの5つの回答を重ねています。',
     traitNameJa ? `あなたの資質は『${traitNameJa}』` : '無料結果ができました',
   ] as const;
