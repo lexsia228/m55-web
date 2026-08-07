@@ -1038,6 +1038,16 @@ function visualCasePlan(caseId: string, setup: string, readySelector: string): N
         hasDeterministicAuthFixture: false,
         setupFn: establishPremiumPlans,
       };
+    case 'premium_checkout':
+      return {
+        fixtureId: 'establishCheckoutPrep',
+        navigatePath: '/dtr/lp',
+        readySelector,
+        stateMarkerSelector: readySelector,
+        authenticationMode: 'unauthenticated',
+        hasDeterministicAuthFixture: false,
+        setupFn: establishCheckoutPrep,
+      };
     default:
       return {
         fixtureId: null,

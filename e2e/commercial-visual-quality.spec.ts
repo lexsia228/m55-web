@@ -22,12 +22,15 @@ import {
   type MeasuredPage,
   type MeasuredScrollState,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
+import { establishCheckoutPrep } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
 import {
   assertLocalNavigationStable,
   assertOverlayAbsence,
   prepareCleanCapturePage,
   requireCleanCaptureEnvironment,
 } from './helpers/cleanCaptureEnvironment';
+
+const VISUAL_QUALITY_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
 
 /** Real free answer identifiers, so /core reaches the RESULT phase. */
 const COMPLETE_FREE = {
@@ -589,6 +592,10 @@ async function applySetup(page: Page, governedCase: CommercialVisualCase) {
         window.scrollBy(0, delta);
       }
     });
+  }
+
+  if (governedCase.setup === 'premium_checkout') {
+    await establishCheckoutPrep(page, VISUAL_QUALITY_BASE_URL);
   }
 
   await expect(page.locator(governedCase.readySelector).first()).toBeVisible({ timeout: 30_000 });

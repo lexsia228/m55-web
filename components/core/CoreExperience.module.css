@@ -2967,7 +2967,7 @@
   font-size: clamp(13px, 2.5vw, 14px);
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: rgba(40, 38, 44, 0.9);
+  color: var(--m55-premium-ivory);
 }
 
 .conversionBridgeChapters {
@@ -3073,11 +3073,11 @@
   padding: 10px 16px;
   border-radius: 999px;
   background: transparent;
-  color: rgba(50, 44, 68, 0.82);
+  color: var(--m55-premium-ivory);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  border: 1px solid rgba(90, 78, 120, 0.18);
+  border: 1px solid var(--m55-premium-sheet-border);
   cursor: pointer;
   transition: background 180ms ease, border-color 180ms ease;
 }
@@ -3091,7 +3091,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.65;
-  color: rgba(62, 52, 88, 0.58);
+  color: rgba(241, 232, 214, 0.72);
   max-width: 42em;
 }
 
@@ -4474,7 +4474,7 @@
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.55;
-  color: rgba(62, 52, 88, 0.68);
+  color: var(--m55-premium-ivory-muted);
   text-align: center;
 }
 
@@ -4657,7 +4657,7 @@
   font-size: 0.92rem;
   line-height: 1.55;
   letter-spacing: 0.02em;
-  color: rgba(55, 48, 82, 0.72);
+  color: var(--m55-premium-ivory-muted);
 }
 
 .bridgeLockedHeadingsList {
