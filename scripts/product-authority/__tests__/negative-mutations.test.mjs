@@ -677,7 +677,7 @@ test('mutation: invalid eventHash exclusion behavior', () => {
 });
 
 const STALE_BOOTSTRAP_ORIGIN_MAIN = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
-const CURRENT_OBSERVED_ORIGIN_MAIN = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
+const CURRENT_OBSERVED_ORIGIN_MAIN = 'f3ab98a08e06cef7b16405d1adced387c23a29d2';
 
 test('mutation: stale origin/main observation fails SSOT transition check', () => {
   const currentStateText = fs.readFileSync(

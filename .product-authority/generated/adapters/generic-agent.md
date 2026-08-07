@@ -17,9 +17,9 @@ Current lane statuses (from observations):
 Pack anchors:
 
 - authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
-- observationsSha256: b0dabbaf2472059b83f7a7ddafc64a29c1e18090a278f055a9e1c732958d1bc1
+- observationsSha256: 1ac34630e24ab0196f7e5c7f9cc2754cfafd425b1be6e25d28bbf2789da81df2
 - historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
-- generatedAt: 2026-08-06T06:42:52.660Z
+- generatedAt: 2026-08-06T10:02:33.727Z
 
 Memory and conversation history are not authority.
 Human-approved durable authority supersedes generated adapter guidance.
@@ -41,10 +41,10 @@ Generated adapters must not prescribe push, commit, merge, or deploy sequencing.
 
 <!-- PRODUCT_AUTHORITY_METADATA_START -->
 authoritySha256: d08aa1fc1a57224681f516c38ee3581b8635f95b779cb8b0ab5809849917a0f3
-observationsSha256: b0dabbaf2472059b83f7a7ddafc64a29c1e18090a278f055a9e1c732958d1bc1
+observationsSha256: 1ac34630e24ab0196f7e5c7f9cc2754cfafd425b1be6e25d28bbf2789da81df2
 historySha256: 020f5f103a3028935c6ccc7e105b781ada73b06666cc4b0dedb666f06b7e1658
-generatedBundleSha256: f6aaae41a3c2fd556d251a12f83464a0ea17b4c813c5211a1c70f48f325c8786
-artifactSha256: c92f95d35b57da42dcb5d79d9f2678770a68045506ae1696bf28b42018b19b61
+generatedBundleSha256: 20c70ebf3a25f073a18b209ce406212bc104ee87e528d7c093d76e1533c9344b
+artifactSha256: 2bfb02bce2d18f8ddc1740be6e90ac4e7bbc78174ef9e6460cd4247e5dc377b8
 generatorVersion: 1.1.0
-generatedAt: 2026-08-06T06:42:52.660Z
+generatedAt: 2026-08-06T10:02:33.727Z
 <!-- PRODUCT_AUTHORITY_METADATA_END -->

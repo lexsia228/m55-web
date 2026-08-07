@@ -5,7 +5,7 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment — current authority immediately below).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition — current authority immediately below).
 
 ## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — AUTHORITATIVE
 
@@ -18,12 +18,16 @@ This section is the current authority for lane status, PR dispositions, and the 
 | Merge commit | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
 | Merged at | `2026-08-05T13:13:10Z` |
 | Merge parents | `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e` |
-| Production deployment id | **5762301638** |
-| Production SHA | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
+| PR #92 | **MERGED** — https://github.com/lexsia228/m55-web/pull/92 |
+| PR #92 merge commit | `f3ab98a08e06cef7b16405d1adced387c23a29d2` |
+| PR #92 merge tree | `e492be90919d51214071950b6eef6f3a29e8c020` |
+| Production deployment id | **5777052896** |
+| Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` |
 | Production state | **READY** |
 | Canonical `/core` GET | **HTTP 200** |
 | Public GET health | **GREEN** |
 | P0 Premium terminology | **CLOSED GREEN** — public Premium terminology release only; does **not** authorize sales launch |
+| Product Authority reconciliation | **MERGED to main** — PR #92 @ `f3ab98a08e06cef7b16405d1adced387c23a29d2` |
 | PR #68 | **CLOSED** as **superseded** — **unmerged**; branch retained; **not** an implementation source |
 | PR #30 | **OPEN** — independent; **not blocking MRQ**; HOME reopen **not authorized** |
 | PR #75 | **OPEN** — **frozen reference-only**; **not blocking MRQ** |
@@ -31,14 +35,17 @@ This section is the current authority for lane status, PR dispositions, and the 
 | WT-018 | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` · `fix/m55-premium-public-terminology-v1` @ `af33c722e6e585f51f8e51297055d090606fd32e` — **COMPLETED** · retained read-only · write authority **none** |
 | WT-019 | `/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1` · `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6` — mapping-only · retained reference/read-only · MRQ implementation authority **false** · no remote branch |
 | WT-020 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-governance-alignment-v1` · `docs/m55-mrq-governance-alignment-v1` — docs-only governance alignment; no product/source write authority |
+| WT-021 | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-reconciliation-v1` · `pa/m55-product-authority-reconciliation-v1` @ `1574c13d493ed04f3823448cccaa887d232d4753` — PR #92 source lane **COMPLETED** · retained read-only reference · write authority **none** |
+| WT-022 | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1` · `pa/m55-product-authority-post-merge-transition-v1` — post-merge/post-push transition gate · worktree HEAD is gate-time operational authority · transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` committed · pushed · docs/observations/generated only · MRQ implementation authority **false** |
 | ACTIVE LANE | **M55 MINIMUM-REVENUE-QUALITY** |
 | P3 smoke strategy | **Preview-only first** — 4242 execution remains **unauthorized** |
-| Product Authority observation | last observed origin/main `7e30b6456c6b2c45383ea8fb042efb9d17229893` @ `2026-08-06T06:42:52.660Z` (governed reconciliation gate; committed and pushed to pa/m55-product-authority-reconciliation-v1 as 7dc7713cb7fed9c54e352821429e5dc1a76e06e5; not merged to main) |
+| Product Authority observation | official Production reobservation SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` @ `2026-08-06T10:02:33.727Z` · repository origin/main `f3ab98a08e06cef7b16405d1adced387c23a29d2` · transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` committed · pushed to remote feature branch · not integrated to main · Product Authority main settled **false** · Product Authority post-push SSOT correction subject to separately authorized commit, push, PR creation, and merge gates |
+| Product Authority post-merge transition | transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` committed · pushed to remote (non-force) · not integrated to main · Product Authority main settled **false** · post-push SSOT correction subject to separately authorized commit, push, PR creation, and merge gates |
 | MRQ implementation worktree | **not created** · **not authorized** |
 | MRQ patch scope | **not frozen** |
 | Sales launch | **not authorized** |
 | NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
-| Authorization boundary | MRQ implementation, checkout, 4242, commit, push, PR, merge, deploy, DB, Stripe, Clerk, env, and sales launch remain **not authorized** by this governance alignment. WT-019 must **not** receive implementation authority. |
+| Authorization boundary | transition commit `b1e67e3bf0f739618723cd63574f0d0882517d00` and its initial non-force push were completed under separate Human-authorized gates. Any additional commit, push, PR creation, merge, MRQ worktree, MRQ implementation, checkout, 4242, deployment action, and sales launch remain separately unauthorized. MRQ implementation, DB, Stripe, Clerk, and env remain **not authorized**. WT-019 must **not** receive implementation authority. |
 
 ## PREMIUM PUBLIC TERMINOLOGY WAVE (WT-018) — HISTORICAL, SUPERSEDED 2026-08-06 BY PR #90 CLOSURE
 
@@ -218,9 +225,9 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `ac71d054556ebec06d6fa107fbe359a88052aca6` — PR #90 merge commit (parents `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e`); immutable PR #88 merge `060fee287355eb00573d968445fcc374510d185d` retained as historical lifecycle snapshot; immutable PR #86 product-implementation merge `10e601465b66b8132a7ceb845300af1924ba468b` retained as historical product snapshot |
-| Production deployment id | **5762301638** |
-| Production SHA | `ac71d054556ebec06d6fa107fbe359a88052aca6` |
+| Current live remote main | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — PR #92 merge commit (Product Authority reconciliation; merge tree `e492be90919d51214071950b6eef6f3a29e8c020`); immutable PR #90 merge `ac71d054556ebec06d6fa107fbe359a88052aca6` retained as historical P0 terminology snapshot; immutable PR #88 merge `060fee287355eb00573d968445fcc374510d185d` retained as historical lifecycle snapshot; immutable PR #86 product-implementation merge `10e601465b66b8132a7ceb845300af1924ba468b` retained as historical product snapshot |
+| Production deployment id | **5777052896** |
+| Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` |
 | Production state | **READY** |
 | Canonical `/core` GET | **HTTP 200** |
 | Public GET health | **GREEN** |
@@ -260,7 +267,7 @@ Branch-local uncommitted source is **not** merged runtime truth.
 Normative target behavior may precede merged runtime.
 When merged authority or runtime state changes, update observations via Product Authority Pack reconciliation — not conversation memory.
 
-**Note (2026-08-01):** PR #81 has merged. Growth Share (WT-011) source that was previously "branch-local uncommitted source" is now part of committed `origin/main` / Production runtime authority @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. The Product Authority Pack observations file (`.product-authority/observations.json`) and generated header still show pre-merge values (`growthShare.mergeStatus = OPEN_UNMERGED_BRANCH_LOCAL`, last observed origin/main `696559009367a6ac445dc7a07876590b16cd8488`) as of `2026-07-27T09:56:00+00:00`. This is generator-owned output lag versus the Git/CI/Production truth recorded above, and it is classified **BLOCKING BEFORE FINAL NEW-THREAD MIGRATION** — see `docs/ssot/M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` section M for the full blocking rationale. Do not manually edit `.product-authority/generated/**` to close this lag; it requires a separately authorized Product Authority Pack reconciliation run.
+**Historical note (2026-08-01; superseded by PR #92 and the 2026-08-06 official Product Authority reobservation):** As observed on 2026-08-01, PR #81 had merged. Growth Share (WT-011) source that had previously been "branch-local uncommitted source" was then part of committed `origin/main` / Production runtime authority @ `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149`. At that time, the Product Authority Pack observations file (`.product-authority/observations.json`) and generated header still showed pre-merge values (`growthShare.mergeStatus = OPEN_UNMERGED_BRANCH_LOCAL`, last observed origin/main `696559009367a6ac445dc7a07876590b16cd8488`) as of `2026-07-27T09:56:00+00:00`. That generator-owned output lag versus the Git/CI/Production truth recorded above was classified **BLOCKING BEFORE FINAL NEW-THREAD MIGRATION** — see `docs/ssot/M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` section M for the full blocking rationale at that time. Manual edits to `.product-authority/generated/**` were not authorized to close that lag; a separately authorized Product Authority Pack reconciliation run was required. That blocking state was subsequently resolved by PR #92 and the 2026-08-06 official Production reobservation. This block records the 2026-08-01 repository observation only; its Growth Share/open-branch and origin/main values are historical; it is not current execution or authorization authority.
 
 ## Global commercial quality contract (permanent)
 
@@ -278,11 +285,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-06):** P0 Premium terminology is **CLOSED GREEN** (PR #90 **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6`). MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). PR #68 is **CLOSED**/superseded/unmerged. PR #30 and PR #75 are nonblocking per Human disposition. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**; MRQ implementation is **not yet authorized**. Product Authority reconciliation remains a separate future gate. P3 strategy is **Preview-only first**; 4242 remains unauthorized. Sales launch remains unauthorized.
+**Current transition (2026-08-06):** P0 Premium terminology is **CLOSED GREEN** (PR #90 **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6`). Product Authority reconciliation is **MERGED to main** (PR #92 @ `f3ab98a08e06cef7b16405d1adced387c23a29d2`; Production deployment id **5777052896** · Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2`). Official Production reobservation completed @ `2026-08-06T10:02:33.727Z`. Transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` was committed and pushed to the remote feature branch; Product Authority post-push SSOT correction is **not integrated to main**; Product Authority main settled **false**; correction remains subject to separately authorized commit, push, PR creation, and merge gates on WT-022. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). PR #68 is **CLOSED**/superseded/unmerged. PR #30 and PR #75 are nonblocking per Human disposition. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**; MRQ implementation is **not yet authorized**. P3 strategy is **Preview-only first**; 4242 remains unauthorized. Sales launch remains unauthorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-06):** `PRODUCT_AUTHORITY_REOBSERVATION_AND_RECONCILIATION` — re-observe Production and worktree facts via the separately authorized Product Authority gate. This docs alignment does **not** claim Product Authority has already been reconciled. MRQ implementation worktree creation, P1/P2/P3 implementation waves, patch-scope freeze, checkout, 4242, and sales launch remain **not authorized**.
+**CURRENT (2026-08-06):** Product Authority post-push SSOT correction is **not integrated to main**. Transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` was committed and pushed to `origin/pa/m55-product-authority-post-merge-transition-v1` under separately authorized gates. PR #92 merged to main @ `f3ab98a08e06cef7b16405d1adced387c23a29d2`. Product Authority main settled is **false**. The correction remains subject to separately authorized commit, push, PR creation, and merge gates. The earliest durable milestone after this transition lane is main settlement of the post-push correction; mandatory SSOT settlement occurs only after main integration. PR creation, PR review, and merge remain separately gated and are not authorized by this document. MRQ implementation worktree creation, P1/P2/P3 implementation waves, patch-scope freeze, checkout, 4242, and sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-08-05; superseded 2026-08-06.**
 >
