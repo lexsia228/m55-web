@@ -9,9 +9,9 @@ import { generateProductAuthority } from '../generate.mjs';
 import { LOCK_PATH } from '../validate.mjs';
 import { DIAGNOSTICS_SOURCE_KIND } from '../production-observation-contract.mjs';
 
-const OBSERVED_ORIGIN_MAIN_SHA = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
-const OBSERVED_PRODUCTION_SHA = '7e30b6456c6b2c45383ea8fb042efb9d17229893';
-const OBSERVATION_TIMESTAMP = '2026-08-06T06:42:52.660Z';
+const OBSERVED_ORIGIN_MAIN_SHA = 'f3ab98a08e06cef7b16405d1adced387c23a29d2';
+const OBSERVED_PRODUCTION_SHA = 'f3ab98a08e06cef7b16405d1adced387c23a29d2';
+const OBSERVATION_TIMESTAMP = '2026-08-06T10:02:33.727Z';
 const BOOTSTRAP_START_HEAD = 'e6afe67262ebcee3353a3a43713f7ecf8369f26f';
 
 test('production lastObservedSha reflects governed diagnostics observation', () => {
