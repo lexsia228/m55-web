@@ -129,8 +129,9 @@ describe('guided discovery input experience', () => {
 
   it('completion transition is short clue narrative without fake percent', () => {
     const src = read('components/core/CoreFreeRevealTransition.tsx');
-    assert.match(src, /6つの手がかりが揃いました/);
+    assert.match(src, /5つの回答が揃いました/);
     assert.match(src, /生年月日の土台と、いまの5つの回答を重ねています/);
+    assert.doesNotMatch(src, /6つの手がかりが揃いました/);
     assert.match(src, /無料結果ができました/);
     assert.match(src, /prefers-reduced-motion|prefersReducedMotion|reduced/);
     assert.doesNotMatch(src, /%|パーセント|解析中|診断/);

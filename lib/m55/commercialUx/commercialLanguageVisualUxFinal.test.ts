@@ -39,7 +39,11 @@ describe('commercial language visual UX final — CTA contract', () => {
     assert.equal(STATIC_FREE_TO_PAID_BRIDGE.secondaryCtaJa, '無料結果を続けて読む');
     assert.equal(
       STATIC_FREE_TO_PAID_BRIDGE.lockedHeadingsHeadingJa,
-      '6つの回答をもとに、結果の背景と整え方を詳しく読み解きます',
+      '追加の6問をもとに、結果の背景と整え方を詳しく読み解きます',
+    );
+    assert.doesNotMatch(
+      STATIC_FREE_TO_PAID_BRIDGE.lockedHeadingsHeadingJa,
+      /^6つの回答をもとに/,
     );
     assert.match(buildPremiumBridgeTitle('アナリスト'), /さらに深く読み解く/);
     assert.doesNotMatch(buildPremiumBridgeTitle('アナリスト'), /4章/);

@@ -36,6 +36,6 @@ export const M55_COMMERCIAL_FENCE = {
   },
   bridgeSupportingJa:
     '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。',
-  lockedPreviewHeadingJa: '6つの回答をもとに、結果の背景と整え方を詳しく読み解きます',
+  lockedPreviewHeadingJa: '追加の6問をもとに、結果の背景と整え方を詳しく読み解きます',
   productNameJa: T.premiumProduct,
 } as const;
