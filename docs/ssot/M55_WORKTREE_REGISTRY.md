@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-06** (`git worktree list --porcelain`; PR #92 MERGED Product Authority reconciliation · WT-021/WT-022 post-merge transition registered · official Production reobservation @ `2026-08-06T10:02:33.727Z`)
+Last verified: **2026-08-07** (`git worktree list --porcelain`; PR #93 MERGED Product Authority post-merge transition · WT-022 **COMPLETED** · Product Authority main settlement local implementation · governed Product Authority observation preserved @ `2026-08-06T10:02:33.727Z` · current live Production deployment **5790526469** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a`)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -21,7 +21,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
 - **Remote main observed (PR #88 merge lifecycle gate, 2026-08-04):** `060fee287355eb00573d968445fcc374510d185d` — transition snapshot only; superseded as current live remote main by PR #90; immutable PR #88 merge commit `060fee287355eb00573d968445fcc374510d185d` (parents `e26f17b9001166a54171e36ce0d8fd3481315dfa` · `aa80853962b5d2df8fcb40fb482e807af4f6f788`); immutable PR #86/Production product-implementation snapshot `10e601465b66b8132a7ceb845300af1924ba468b`; historical Production deployment id **5738008464** · **not** current Production SHA
-- **Current live remote main (PR #92 merge gate, 2026-08-06):** `f3ab98a08e06cef7b16405d1adced387c23a29d2` — immutable PR #92 merge commit (Product Authority reconciliation); Production deployment id **5777052896** · Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · state **READY** · canonical `/core` GET **HTTP 200** · public GET health **GREEN**
+- **Current live remote main (PR #93 merge gate, 2026-08-07):** `cb3cb45f17a0d5b5805b98af339517d43924df4a` — immutable PR #93 merge commit (Product Authority post-merge transition; merge tree `494066180e79d9468b81706c4bde02b8a274523a`); current live Production deployment id **5790526469** · Production SHA `cb3cb45f17a0d5b5805b98af339517d43924df4a` · state **success**
+- **Previous live remote main (PR #92 merge gate, 2026-08-06; historical):** `f3ab98a08e06cef7b16405d1adced387c23a29d2` — immutable PR #92 merge commit (Product Authority reconciliation); Production deployment id **5777052896** · Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · state **READY** — **not** current Production SHA
+- **Governed Product Authority last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement**; distinct from current live Production evidence above
 - **Previous live remote main (PR #90 merge gate, 2026-08-06; historical):** `ac71d054556ebec06d6fa107fbe359a88052aca6` — immutable PR #90 merge commit (parents `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e`); Production deployment id **5762301638** · Production SHA `ac71d054556ebec06d6fa107fbe359a88052aca6` · state **READY** · public Premium terminology **CLOSED GREEN** — **not** current Production SHA
 - **Authority Pack bootstrapStartHead (historical lane anchor):** `e6afe67262ebcee3353a3a43713f7ecf8369f26f` — lane creation anchor; **not** current live remote main
 - Production code authority follows freshly verified `origin/main` — not conflated with historical baseline, bootstrap-era recorded remote, or local transition-branch identity.
@@ -35,7 +37,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-06) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN**. P0 Premium public terminology is **CLOSED GREEN** — PR #90 **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6`. Product Authority reconciliation is **MERGED to main** — PR #92 @ `f3ab98a08e06cef7b16405d1adced387c23a29d2`; Production deployment id **5777052896** · Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · READY. **last observed Production SHA (Product Authority governed):** `f3ab98a08e06cef7b16405d1adced387c23a29d2` @ `2026-08-06T10:02:33.727Z`. **last observed origin/main:** `f3ab98a08e06cef7b16405d1adced387c23a29d2`. Transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` was committed and pushed (non-force); Product Authority post-push SSOT correction is **not integrated to main**; Product Authority main settled **false**; correction subject to separately authorized commit, push, PR creation, and merge gates on WT-022. PR #68 is **CLOSED** as **superseded** — **unmerged**; branch retained; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ; HOME reopen not authorized. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ. WT-018 (`/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1`, `fix/m55-premium-public-terminology-v1` @ `af33c722e6e585f51f8e51297055d090606fd32e`) is **COMPLETED** — retained read-only; write/product implementation authority **false**. WT-019 (`/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1`, `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6`) is **COMPLETED** — MRQ mapping Revision 1 accepted **CLOSED GREEN**; retained reference/read-only; write authority **false**; MRQ implementation authority **false**; no remote branch. WT-020 (`/Users/lexsia/Documents/M55_WORKTREE-mrq-governance-alignment-v1`, `docs/m55-mrq-governance-alignment-v1`) is docs-only MRQ governance alignment; no product/source write authority. WT-021 (`/Users/lexsia/Documents/M55_WORKTREE-product-authority-reconciliation-v1`, `pa/m55-product-authority-reconciliation-v1` @ `1574c13d493ed04f3823448cccaa887d232d4753`) is PR #92 source lane **COMPLETED** — retained read-only reference; write authority **false**. WT-022 (`/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1`, `pa/m55-product-authority-post-merge-transition-v1`) is post-merge/post-push transition gate — DOCS_ONLY · worktree HEAD and remote feature branch tip are gate-time operational authority · transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` committed · pushed · remote feature branch `origin/pa/m55-product-authority-post-merge-transition-v1` exists independently; MRQ implementation authority **false**. WT-013/WT-014/WT-015/WT-016/WT-017 remain retained read-only per prior gates. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**; MRQ implementation worktree is **not created** and **not authorized**; patch scope is **not frozen**; sales launch is **not authorized**.
+**CURRENT (2026-08-07) — authoritative, read this first:** PA-2A remains CLOSED GREEN and the commercial-surface alias/reuse freeze is CLOSED GREEN. IND-FREE is **CLOSED GREEN**. P0 Premium public terminology is **CLOSED GREEN** — PR #90 **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6`. Product Authority reconciliation is **MERGED to main** — PR #92 @ `f3ab98a08e06cef7b16405d1adced387c23a29d2`. Product Authority post-merge transition is **MERGED to main** — PR #93 @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` · merge tree `494066180e79d9468b81706c4bde02b8a274523a`. Product Authority main settled **true**. **Current live Production:** deployment **5790526469** · SHA `cb3cb45f17a0d5b5805b98af339517d43924df4a` · state **success** — current-live deployment evidence. **Governed Product Authority last observation:** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — observation-time snapshot; **not reobserved in this settlement**. PR #68 is **CLOSED** as **superseded** — **unmerged**; branch retained; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ; HOME reopen not authorized. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ. WT-018 is **COMPLETED** — retained read-only. WT-019 is **COMPLETED** — MRQ mapping Revision 1 **CLOSED GREEN**; retained reference/read-only; MRQ implementation authority **false**. WT-020 is docs-only MRQ governance alignment. WT-021 is PR #92 source lane **COMPLETED** — retained read-only. WT-022 is **COMPLETED** — PR #93 **MERGED**; retained read-only historical reference. WT-023 (`/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1`, `docs/m55-product-authority-post-merge-main-settlement-v1` @ `cb3cb45f17a0d5b5805b98af339517d43924df4a`) is active Product Authority main settlement — local docs-only · not committed · not pushed · MRQ implementation authority **false**. WT-013/WT-014/WT-015/WT-016/WT-017 remain retained read-only per prior gates. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**; MRQ implementation worktree is **not created** and **not authorized**; patch scope is **not frozen**; sales launch is **not authorized**. MRQ_IMPLEMENTATION_WORKTREE_AUTHORIZED **false** · MRQ_IMPLEMENTATION_AUTHORIZED **false** · TEST_CHECKOUT_4242_AUTHORIZED **false** · REAL_CHECKOUT_AUTHORIZED **false** · PAIR_PREMIUM_LIVE **false** · COMPATIBILITY_COMMERCE_LIVE **false** · SALES_LAUNCH_AUTHORIZED **false**.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -79,7 +81,9 @@ Historical post-merge transition snapshots remain recorded for audit.
 | MRQ governance docs alignment | `docs/m55-mrq-governance-alignment-v1` | gate-time operational authority | WT-020 — docs-only; no product/source write authority |
 | Product Authority reconciliation | `pa/m55-product-authority-reconciliation-v1` | `1574c13d493ed04f3823448cccaa887d232d4753` | WT-021 — PR #92 **MERGED**; retained read-only reference |
 | PR #92 merge | `main` (remote) | `f3ab98a08e06cef7b16405d1adced387c23a29d2` | **MERGED** — Product Authority reconciliation; Production deployment id **5777052896** READY |
-| Product Authority post-merge transition | `pa/m55-product-authority-post-merge-transition-v1` | gate-time operational authority | WT-022 — post-merge/post-push transition gate; DOCS_ONLY; transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` committed · pushed (non-force) · not integrated to main |
+| Product Authority post-merge transition | `pa/m55-product-authority-post-merge-transition-v1` | `6625ce01f83890d12d2d3b3e0c31fe8e3f36a460` | WT-022 — **COMPLETED**; PR #93 **MERGED** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a`; retained read-only |
+| PR #93 merge | `main` (remote) | `cb3cb45f17a0d5b5805b98af339517d43924df4a` | **MERGED** — Product Authority post-merge transition; merge tree `494066180e79d9468b81706c4bde02b8a274523a`; current live Production deployment id **5790526469** · state **success** |
+| Product Authority main settlement | `docs/m55-product-authority-post-merge-main-settlement-v1` | `cb3cb45f17a0d5b5805b98af339517d43924df4a` | WT-023 — local settlement implementation · not committed · not pushed |
 
 **Drift rule:** unexplained branch/HEAD mismatch → STOP. Documented post-merge transition + freshly verified live remote main → update snapshot and continue (see `AGENTS.md`).
 
@@ -570,32 +574,56 @@ Historical post-merge transition snapshots remain recorded for audit.
 | next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION` |
 | notes | PR #92 source worktree. Retained read-only per post-merge transition governance. WT-022 holds active transition gate. |
 
-### WT-022 — Product Authority post-merge transition (DOCS_ONLY)
+### WT-022 — Product Authority post-merge transition (COMPLETED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1` |
 | branch | `pa/m55-product-authority-post-merge-transition-v1` |
-| HEAD | gate-time operational authority — executing gate must re-observe current worktree HEAD · transition checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` — committed · pushed (non-force) |
+| HEAD | `6625ce01f83890d12d2d3b3e0c31fe8e3f36a460` — PR #93 feature head |
 | branch creation base (`origin/main` at worktree creation) | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — **immutable**; PR #92 merge commit |
-| remote branch | `origin/pa/m55-product-authority-post-merge-transition-v1` — exists independently; tip identity is gate-time operational authority · transition push checkpoint `b1e67e3bf0f739618723cd63574f0d0882517d00` |
-| upstream | tracking upstream (`@{upstream}`): `origin/main` |
-| PR | PR creation, PR review, and merge phase are gate-time operational authority; all remain separately gated |
-| main merge | not integrated to main |
-| Product Authority main settled | **false** |
+| PR #93 merge commit | `cb3cb45f17a0d5b5805b98af339517d43924df4a` — **MERGED** |
+| PR #93 merge tree | `494066180e79d9468b81706c4bde02b8a274523a` |
+| remote branch | `origin/pa/m55-product-authority-post-merge-transition-v1` — retained |
+| main merge | **integrated to main** via PR #93 |
+| Product Authority main settled | **true** — post-settlement current governance truth |
 | cleanliness | verification-time snapshot only |
-| lifecycle | **DOCS_ONLY** |
-| operational state | transition checkpoint committed · pushed (non-force) · not integrated to main · post-push SSOT correction subject to separately authorized commit, push, PR creation, and merge gates · Product Authority main settled **false** |
-| purpose | DOCS_ONLY Product Authority post-merge/post-push SSOT transition |
-| related lane / PR | Follows PR #92 @ `f3ab98a08e06cef7b16405d1adced387c23a29d2`; transition commit `b1e67e3bf0f739618723cd63574f0d0882517d00`; official Production reobservation @ `2026-08-06T10:02:33.727Z` |
-| product implementation authorized | **false** — docs/observations/generated only |
+| lifecycle | **COMPLETED** |
+| operational state | **PRODUCT_AUTHORITY_POST_MERGE_TRANSITION_MERGED** |
+| purpose | DOCS_ONLY Product Authority post-merge/post-push SSOT transition — **completed** |
+| related lane / PR | PR #93 **MERGED** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a`; governed Product Authority last observation @ `2026-08-06T10:02:33.727Z` (Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2`; deployment **5777052896**) — not reobserved in this settlement |
+| product implementation authorized | **false** — retained read-only historical reference |
 | MRQ implementation authority | **false** |
-| write authority | none for product/source — authorized governed transition edits on allowlisted paths only during active gate |
-| allowed operations | official Production reobservation · governed SSOT/registry updates · official Product Authority generation · targeted validation |
-| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits beyond governed manifest · MRQ implementation · additional commit/push/PR/merge without separate gate · checkout/4242 · sales launch · Product Authority toolchain repair |
+| write authority | **none** — reference-only |
+| allowed operations | read-only historical inspection |
+| prohibited operations | further edits · commit · push · MRQ implementation · checkout/4242 · sales launch |
+| removal eligibility | deferred — retain until separately authorized retirement gate |
+| next gate | none — transition complete; WT-023 holds active main settlement |
+| notes | Post-merge transition worktree. PR #93 merged transition to main. Retained read-only per post-merge governance. WT-023 holds active Product Authority main settlement gate. |
+
+### WT-023 — Product Authority main settlement (DOCS_ONLY)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1` |
+| branch | `docs/m55-product-authority-post-merge-main-settlement-v1` |
+| HEAD | `cb3cb45f17a0d5b5805b98af339517d43924df4a` — base = PR #93 merge commit |
+| branch creation base | `cb3cb45f17a0d5b5805b98af339517d43924df4a` — **immutable**; PR #93 merge commit |
+| upstream | **none** |
+| PR | **none** — not pushed; no PR created |
+| cleanliness | local settlement implementation — 2 modified SSOT files; not committed |
+| lifecycle | **DOCS_ONLY** |
+| operational state | **PRODUCT_AUTHORITY_MAIN_SETTLEMENT_LOCAL** |
+| purpose | DOCS_ONLY Product Authority post-PR93 main settlement — truth delta for `M55_CURRENT_STATE.md` and `M55_WORKTREE_REGISTRY.md` only |
+| related lane / PR | Follows PR #93 @ `cb3cb45f17a0d5b5805b98af339517d43924df4a`; current live Production deployment **5790526469** · SHA `cb3cb45f17a0d5b5805b98af339517d43924df4a` · state **success**; governed Product Authority last observation preserved @ `2026-08-06T10:02:33.727Z` |
+| product implementation authorized | **false** — docs-only; two-file allowlist only |
+| MRQ implementation authority | **false** |
+| write authority | none for product/source — authorized governed settlement edits on two allowlisted SSOT paths only during active gate |
+| allowed operations | local SSOT truth settlement · focused validation |
+| prohibited operations | application source / tests / workflows / package.json / lockfiles / evidence edits · `.product-authority/**` edits or regeneration · MRQ implementation · commit/push/PR/merge without separate gate · checkout/4242 · sales launch · observer/generator run |
 | removal eligibility | deferred — retirement requires separate authorization |
-| next gate | See `M55_CURRENT_STATE.md` → `NEXT SINGLE ACTION` |
-| notes | Post-merge/post-push transition worktree only. Transition checkpoint and initial non-force push completed under separate Human-authorized gates. Post-push SSOT correction is not integrated to main and remains subject to separately authorized commit, push, PR creation, and merge gates. Does not receive MRQ implementation authority. WT-021 remains reference-only. |
+| next gate | actual diff review for this exact 2-file local settlement |
+| notes | Main settlement worktree only. Local implementation; not committed; not pushed. Does not receive MRQ implementation authority. WT-022 remains completed read-only reference. |
 
 ---
 
