@@ -666,16 +666,16 @@ function checkStateIdentityUniqueness() {
     if (report.executable !== 77) {
       fail('state_identity.executable', `expected 77 executable contracts, got ${report.executable}`);
     }
-    if (report.canonical !== 47) {
+    if (report.canonical !== 46) {
       fail(
         'state_identity.canonical',
-        `expected 47 canonical observable states (recomputed), got ${report.canonical}`,
+        `expected 46 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
-    if (report.alias !== 30) {
+    if (report.alias !== 31) {
       fail(
         'state_identity.alias',
-        `expected 30 registration aliases (recomputed), got alias=${report.alias}`,
+        `expected 31 registration aliases (recomputed), got alias=${report.alias}`,
       );
     }
     if (report.canonical + report.alias !== 77) {
@@ -687,10 +687,10 @@ function checkStateIdentityUniqueness() {
     if (report.mapping !== 77) {
       fail('state_identity.mapping', `expected 77 registration mappings, got ${report.mapping}`);
     }
-    if (report.uniqueSignatures !== 47) {
+    if (report.uniqueSignatures !== 46) {
       fail(
         'state_identity.unique',
-        `expected 47 unique canonical observable signatures, got ${report.uniqueSignatures}`,
+        `expected 46 unique canonical observable signatures, got ${report.uniqueSignatures}`,
       );
     }
     if (report.projectionAliases !== 17 || report.projectionRegistrations !== 17) {
@@ -733,10 +733,10 @@ function checkStateIdentityUniqueness() {
         `divergent exported string resolvers: ${(report.divergentExports ?? []).join(',')}`,
       );
     }
-    if (report.dualAliasTable !== 13) {
+    if (report.dualAliasTable !== 14) {
       fail(
         'state_identity.dual_table',
-        `expected dual-alias metadata table size 13, got ${report.dualAliasTable}`,
+        `expected dual-alias metadata table size 14, got ${report.dualAliasTable}`,
       );
     }
     if (report.collisions !== 0) {

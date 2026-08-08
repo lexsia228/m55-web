@@ -164,11 +164,11 @@ test.afterAll(() => {
 test.describe('commercial quality control plane', () => {
   test('1. setup registry — executable vs non-runtime; no fallback mocks', () => {
     const counts = countAuthorityRegistrations();
-    expect(counts.total).toBe(90);
-    expect(counts.executable).toBe(76);
+    expect(counts.total).toBe(91);
+    expect(counts.executable).toBe(77);
     expect(counts.nonRuntime).toBe(14);
-    expect(M55_SETUP_REGISTRY.setups.length).toBe(90);
-    expect(listExecutableSmokeTargets().length).toBe(76);
+    expect(M55_SETUP_REGISTRY.setups.length).toBe(91);
+    expect(listExecutableSmokeTargets().length).toBe(77);
     expect(listNonRuntimeReferenceTargets().length).toBe(14);
 
     const report = verifyM55CommercialQualityRegistration();
@@ -204,9 +204,9 @@ test.describe('commercial quality control plane', () => {
     expect(probeAdapterNegative('setup_wrong_route').some((f) => f.code === 'SETUP_ROUTE_MISMATCH')).toBe(true);
     expect(probeAdapterNegative('setup_wrong_runtime_state').some((f) => f.code === 'SETUP_STATE_MISMATCH')).toBe(true);
     expect(countGenericStateMarkers()).toBe(0);
-    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(76);
+    expect(M55_STATE_DOM_CONTRACTS.length).toBeGreaterThanOrEqual(77);
     const ownership = countContractsByOwnership();
-    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(76);
+    expect(ownership.application + ownership.fixture).toBeGreaterThanOrEqual(77);
     const executableTargets = listExecutableSmokeTargets();
     const executableContracts = executableTargets.map((t) =>
       stateDomContractForEntry(resolveSmokeManifestEntry(t)),
@@ -215,12 +215,12 @@ test.describe('commercial quality control plane', () => {
       executableTargets.map((t) => t.runtimeStateId),
     );
     const registrationIds = executableTargets.map((t) => t.runtimeStateId);
-    expect(aliasCounts.executable).toBe(76);
+    expect(aliasCounts.executable).toBe(77);
     expect(aliasCounts.canonical).toBe(46);
-    expect(aliasCounts.alias).toBe(30);
-    expect(aliasCounts.mapping).toBe(76);
-    expect(aliasCounts.canonical + aliasCounts.alias).toBe(76);
-    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(13);
+    expect(aliasCounts.alias).toBe(31);
+    expect(aliasCounts.mapping).toBe(77);
+    expect(aliasCounts.canonical + aliasCounts.alias).toBe(77);
+    expect(Object.keys(M55_OBSERVABLE_STATE_ALIASES).length).toBe(14);
     expect(Object.keys(M55_OBSERVABLE_STATE_PROJECTIONS).length).toBe(17);
     const projections = countProjectionAliases(registrationIds);
     expect(projections.projectionRegistrations).toBe(17);
@@ -245,7 +245,7 @@ test.describe('commercial quality control plane', () => {
   }) => {
     test.setTimeout(1_800_000);
     const targets = listExecutableSmokeTargets();
-    expect(targets.length).toBe(76);
+    expect(targets.length).toBe(77);
 
     const results: { surfaceId: string; ok: boolean; detail: string }[] = [];
     let protectedSelectorAssertionCount = 0;
@@ -394,17 +394,17 @@ test.describe('commercial quality control plane', () => {
 
     const failed = results.filter((r) => !r.ok);
     expect(failed, JSON.stringify(failed, null, 2)).toEqual([]);
-    expect(results.filter((r) => r.ok).length).toBe(76);
-    expect(productionMeasurementCount).toBe(76);
-    expect(fullInvariantAssertionCount).toBe(76);
+    expect(results.filter((r) => r.ok).length).toBe(77);
+    expect(productionMeasurementCount).toBe(77);
+    expect(fullInvariantAssertionCount).toBe(77);
     expect(fullInvariantFailures).toEqual([]);
-    expect(protectedSelectorAssertionCount).toBeGreaterThan(76);
+    expect(protectedSelectorAssertionCount).toBeGreaterThan(77);
     expect(missingProtectedSelectorFailures).toBe(0);
     expect(emptyProtectedSelectorFailures).toBe(0);
     expect(runnerWrittenStateMarkerCount).toBe(0);
     expect(externalRedirectStateAcceptanceCount).toBe(0);
     expect(methodResolvedHrefs.length).toBe(7);
-    expect(Object.keys(perSurfaceProtected).length).toBe(76);
+    expect(Object.keys(perSurfaceProtected).length).toBe(77);
   });
 
   test('3. geometry + governed stress + unsupported stress rejection', async ({ page }) => {
