@@ -333,7 +333,8 @@
   width: 100% !important;
   gap: 12px !important;
   border-radius: 14px !important;
-  background: linear-gradient(135deg, #3d3262 0%, #534a72 100%) !important;
+  background-color: #3d3262 !important;
+  background-image: linear-gradient(135deg, #3d3262 0%, #534a72 100%) !important;
   padding: 16px 22px !important;
   color: #fff !important;
   font-weight: 700 !important;
@@ -366,6 +367,7 @@
   opacity: 0.9 !important;
 }
 
+.lpRoot :global(.m55-lp-cta-btn:focus),
 .lpRoot :global(.m55-lp-cta-btn:focus-visible) {
   outline: 2px solid rgba(104, 84, 182, 0.9) !important;
   outline-offset: 2px !important;

@@ -7,6 +7,7 @@ import {
   premiumStateById,
   type PremiumExperienceVariant,
 } from '../../lib/m55/commercialUx/premiumExperience';
+import '../../lib/m55/commercialUx/premiumExperience/premiumExperience.css';
 
 type Props = {
   stateId: string;
