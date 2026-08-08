@@ -39,6 +39,17 @@ describe('commercial UX closeout — sticky CTA overlap contract', () => {
     assert.match(css, /--m55-float-rail-offset/);
     assert.match(css, /@media print/);
   });
+
+  it('scroll rail hides while premium bridge primary CTA intersects viewport', () => {
+    const scroll = read('components/common/ScrollToTopButton.tsx');
+    assert.match(scroll, /m55-paid-bridge-primary/);
+    assert.match(scroll, /childList:\s*true/);
+    assert.match(scroll, /subtree:\s*true/);
+    assert.match(scroll, /IntersectionObserver/);
+    assert.match(scroll, /scrollVisible && !ctaIntersecting/);
+    assert.match(scroll, /mutationObserver\.disconnect\(\)/);
+    assert.match(scroll, /disconnectObserver\(\)/);
+  });
 });
 
 describe('commercial UX closeout — header contract', () => {
