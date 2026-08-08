@@ -169,6 +169,56 @@ async function measurePage(
         };
       };
 
+      const CLIPPING_OVERFLOWS = new Set(['auto', 'scroll', 'hidden', 'clip']);
+
+      /**
+       * Effective paint box: raw layout rect intersected with the viewport and every
+       * ancestor whose overflow establishes a clip (auto / scroll / hidden / clip).
+       */
+      const visibleRectOf = (el: Element): {
+        top: number;
+        left: number;
+        right: number;
+        bottom: number;
+        width: number;
+        height: number;
+      } | null => {
+        const raw = rectOf(el);
+        let left = raw.left;
+        let top = raw.top;
+        let right = raw.right;
+        let bottom = raw.bottom;
+
+        left = Math.max(left, 0);
+        top = Math.max(top, 0);
+        right = Math.min(right, vw);
+        bottom = Math.min(bottom, vh);
+
+        let node = el.parentElement;
+        while (node instanceof Element) {
+          const style = styleOf(node);
+          const clipsX = CLIPPING_OVERFLOWS.has(style.overflowX);
+          const clipsY = CLIPPING_OVERFLOWS.has(style.overflowY);
+          if (clipsX || clipsY) {
+            const box = node.getBoundingClientRect();
+            if (clipsX) {
+              left = Math.max(left, box.left);
+              right = Math.min(right, box.right);
+            }
+            if (clipsY) {
+              top = Math.max(top, box.top);
+              bottom = Math.min(bottom, box.bottom);
+            }
+          }
+          node = node.parentElement;
+        }
+
+        const width = right - left;
+        const height = bottom - top;
+        if (width <= 0 || height <= 0) return null;
+        return { left, top, right, bottom, width, height };
+      };
+
       /**
        * Identify the nearest ancestor whose hidden overflow actually cuts the
        * element's box, and report it so a failure names the responsible owner.
@@ -241,6 +291,7 @@ async function measurePage(
             fontWeight: null,
             hasVisibleFocusIndicator: null,
             stageWidth: null,
+            visibleRect: null,
           };
         }
         const style = styleOf(el);
@@ -249,6 +300,7 @@ async function measurePage(
           role: target.role,
           present: true,
           rect: rectOf(el),
+          visibleRect: visibleRectOf(el),
           scrollWidth: el.scrollWidth,
           scrollHeight: el.scrollHeight,
           clientWidth: el.clientWidth,
@@ -319,6 +371,7 @@ async function measurePage(
             rect: null,
             anchoredToBottom: false,
             safeAreaCompensated: false,
+            visibleRect: null,
           };
         }
         const style = styleOf(el);
@@ -343,6 +396,7 @@ async function measurePage(
           visible,
           position,
           rect,
+          visibleRect: visibleRectOf(el),
           anchoredToBottom,
           safeAreaCompensated: declaresBottomSafeArea(el),
         };

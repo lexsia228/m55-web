@@ -39,6 +39,13 @@ export type MeasuredElement = {
   role: ProtectedRole;
   present: boolean;
   rect: MeasuredRect | null;
+  /**
+   * Effective paint geometry after viewport and overflow-ancestor clipping.
+   * `undefined` — legacy fixture, fall back to `rect`.
+   * `null` — measured and fully clipped, no visible box.
+   * `MeasuredRect` — measured visible geometry.
+   */
+  visibleRect?: MeasuredRect | null;
   /** Layout box vs content box, used to detect clipped text. */
   scrollWidth: number | null;
   scrollHeight: number | null;
@@ -70,6 +77,13 @@ export type MeasuredOverlay = {
   visible: boolean;
   position: 'fixed' | 'sticky' | 'static' | 'absolute' | 'relative' | null;
   rect: MeasuredRect | null;
+  /**
+   * Effective paint geometry after viewport and overflow-ancestor clipping.
+   * `undefined` — legacy fixture, fall back to `rect`.
+   * `null` — measured and fully clipped, no visible box.
+   * `MeasuredRect` — measured visible geometry.
+   */
+  visibleRect?: MeasuredRect | null;
   /** True when the overlay is pinned to the bottom band of the viewport. */
   anchoredToBottom: boolean;
   /**
@@ -195,6 +209,31 @@ function rectsOverlap(a: MeasuredRect, b: MeasuredRect): boolean {
     a.top < b.bottom - GEOMETRY_TOLERANCE_PX &&
     a.bottom > b.top + GEOMETRY_TOLERANCE_PX
   );
+}
+
+/** Intersect two rects; absent when the overlap has no positive area. */
+export function intersectRects(a: MeasuredRect, b: MeasuredRect): MeasuredRect | null {
+  const left = Math.max(a.left, b.left);
+  const top = Math.max(a.top, b.top);
+  const right = Math.min(a.right, b.right);
+  const bottom = Math.min(a.bottom, b.bottom);
+  const width = right - left;
+  const height = bottom - top;
+  if (width <= 0 || height <= 0) return null;
+  return { left, top, right, bottom, width, height };
+}
+
+/**
+ * Resolve effective geometry for overlay judgement.
+ * `undefined` visibleRect preserves legacy fixtures that only supply raw rects.
+ */
+export function effectiveMeasuredRect(
+  raw: MeasuredRect | null,
+  visibleRect: MeasuredRect | null | undefined,
+): MeasuredRect | null {
+  if (visibleRect === null) return null;
+  if (visibleRect !== undefined) return visibleRect;
+  return raw;
 }
 
 /**
@@ -385,10 +424,14 @@ export function checkMeasuredPage(
      * body copy is excluded because a floating control is meant to sit above it.
      */
     if (page.scrollState === 'top') {
+      const overlayEffective = effectiveMeasuredRect(overlay.rect, overlay.visibleRect);
+      if (!overlayEffective) continue;
       for (const element of presentProtected) {
         if (!element.rect) continue;
         if (element.role !== 'heading' && element.role !== 'cta') continue;
-        if (rectsOverlap(overlay.rect!, element.rect)) {
+        const protectedEffective = effectiveMeasuredRect(element.rect, element.visibleRect);
+        if (!protectedEffective) continue;
+        if (rectsOverlap(overlayEffective, protectedEffective)) {
           push(
             'overlay_covers_protected',
             overlay.selector,
