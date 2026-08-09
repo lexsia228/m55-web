@@ -3,7 +3,13 @@
 import { useUser } from '@clerk/nextjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
-import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
+import {
+  DTR_DRAFT_SYNC_USER_COPY,
+  getDtrDraftSyncState,
+  queueDtrDraftSync,
+  retryDtrDraftSync,
+  subscribeDtrDraftSync,
+} from '../../lib/m55/dtrDraftClientSync';
 import { ensureSealedCoreResult, promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
 import type { CoreResult } from '../../lib/m55/coreResult/types';
 import {
@@ -131,6 +137,7 @@ function hydrateFromStore(): {
 export default function CoreEssencePanel() {
   const { user, isLoaded, isSignedIn } = useUser();
   const ownerId = user?.id ?? null;
+  const [draftSyncState, setDraftSyncState] = useState(getDtrDraftSyncState);
   const [profileEpoch, setProfileEpoch] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [uxPhase, setUxPhase] = useState<FreeRevealUxPhase>('QUESTIONNAIRE');
@@ -249,6 +256,8 @@ export default function CoreEssencePanel() {
       setCompleting(false);
     }
   }, [committedAnswers, committedComplete, composition, questionnaireDone]);
+
+  useEffect(() => subscribeDtrDraftSync(setDraftSyncState), []);
 
   useEffect(() => {
     if (sealed.kind !== 'ready') return;
@@ -656,6 +665,35 @@ export default function CoreEssencePanel() {
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
                   <CoreMethodCompact />
+                </div>
+              ) : null}
+
+              {isSignedIn && draftSyncState.status !== 'idle' ? (
+                <div
+                  className={CoreExperienceStyles.freeResultRevealItem}
+                  role="status"
+                  aria-live="polite"
+                  data-testid="m55-draft-sync-status"
+                >
+                  {draftSyncState.status === 'saving' ? (
+                    <p className={CoreExperienceStyles.muted}>{DTR_DRAFT_SYNC_USER_COPY.savingJa}</p>
+                  ) : null}
+                  {draftSyncState.status === 'saved' ? (
+                    <p className={CoreExperienceStyles.muted}>{DTR_DRAFT_SYNC_USER_COPY.savedJa}</p>
+                  ) : null}
+                  {draftSyncState.status === 'error' ? (
+                    <div className={CoreExperienceStyles.errorBox}>
+                      <p>{DTR_DRAFT_SYNC_USER_COPY.failedJa}</p>
+                      <button
+                        type="button"
+                        className={CoreExperienceStyles.freeQuestionnaireSecondaryBtn}
+                        onClick={() => retryDtrDraftSync()}
+                        data-testid="m55-draft-sync-retry"
+                      >
+                        {DTR_DRAFT_SYNC_USER_COPY.retryJa}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
