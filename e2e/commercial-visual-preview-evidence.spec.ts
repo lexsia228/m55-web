@@ -53,6 +53,20 @@ const PREVIEW_EVIDENCE_VIEWS = [
   { viewId: 'premium-checkout-1280x900', caseId: 'premium-checkout', width: 1280, height: 900 },
 ] as const;
 
+/** Human evidence framing — mirrors e2e/commercial-visual-regression.spec.ts canonical targets. */
+const PREVIEW_EVIDENCE_LOCATOR_BY_CASE = {
+  'core-free-result': '#core-paid',
+  'premium-checkout': '[data-m55-paid-phase="checkout"]',
+} as const;
+
+function previewEvidenceLocatorSelector(caseId: string): string {
+  const selector = PREVIEW_EVIDENCE_LOCATOR_BY_CASE[caseId as keyof typeof PREVIEW_EVIDENCE_LOCATOR_BY_CASE];
+  if (!selector) {
+    throw new Error(`PREVIEW_EVIDENCE_LOCATOR_UNDECLARED: ${caseId}`);
+  }
+  return selector;
+}
+
 type ContrastSummaryRow = {
   caseId: string;
   route: string;
@@ -648,7 +662,11 @@ async function runPreviewEvidenceView(input: {
       authorizedOrigin: input.authority.authorizedOrigin,
     });
 
-    const screenshotBuffer = await page.screenshot({ fullPage: false });
+    const evidenceSelector = previewEvidenceLocatorSelector(governedCase.caseId);
+    const evidenceLocator = page.locator(evidenceSelector);
+    await expect(evidenceLocator).toHaveCount(1);
+    await expect(evidenceLocator).toBeVisible();
+    const screenshotBuffer = await evidenceLocator.screenshot({ animations: 'disabled' });
 
     await assertPreviewNavigationStable(page, {
       label: `preview evidence — ${input.view.viewId}:pre-final-evidence`,
