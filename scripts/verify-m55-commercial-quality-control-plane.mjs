@@ -6,7 +6,7 @@
  * Enforces:
  * - ownership boundary (repository-independent engine imports no M55 authority)
  * - manifest schema v1 registration for every imported governed identity
- * - 51 ECP entries / 12 Premium states / 14 Premium captures / 6 visual cases
+ * - 51 ECP entries / 12 Premium states / 14 Premium captures / 7 visual cases
  * - candidate-only approval pack (never a canonical promotion)
  * - locked @axe-core/playwright dependency and CI wiring
  */
@@ -248,13 +248,13 @@ function checkRegistration() {
   REPORT.registrationFailures = report.failures.length;
   REPORT.consolidationPoints = consolidationPoints;
 
-  if (setupCounts.total !== 90) {
-    fail('registration.setup', `setup registry total must be 90 (received ${setupCounts.total})`);
+  if (setupCounts.total !== 91) {
+    fail('registration.setup', `setup registry total must be 91 (received ${setupCounts.total})`);
   }
-  if (setupCounts.executable !== 76) {
+  if (setupCounts.executable !== 77) {
     fail(
       'registration.setup',
-      `setup registry executable count must be 76 (received ${setupCounts.executable})`,
+      `setup registry executable count must be 77 (received ${setupCounts.executable})`,
     );
   }
   if (setupCounts.nonRuntime !== 14) {
@@ -304,8 +304,8 @@ function checkRegistration() {
   if (report.expectedCounts.premiumCaptures !== 14) {
     fail('registration.coverage', `expected 14 Premium captures, authority reports ${report.expectedCounts.premiumCaptures}`);
   }
-  if (report.expectedCounts.commercialVisualCases !== 6) {
-    fail('registration.coverage', `expected 6 commercial visual cases, authority reports ${report.expectedCounts.commercialVisualCases}`);
+  if (report.expectedCounts.commercialVisualCases !== 7) {
+    fail('registration.coverage', `expected 7 commercial visual cases, authority reports ${report.expectedCounts.commercialVisualCases}`);
   }
   for (const failure of report.failures) {
     fail('registration.failure', `${failure.code}: ${failure.message}`);
@@ -663,8 +663,8 @@ function checkStateIdentityUniqueness() {
     REPORT.canonicalObservableStateCount = report.canonical;
     REPORT.registrationAliasCount = report.alias;
     REPORT.fixedAuthGateFixtureCount = report.authFixtures;
-    if (report.executable !== 76) {
-      fail('state_identity.executable', `expected 76 executable contracts, got ${report.executable}`);
+    if (report.executable !== 77) {
+      fail('state_identity.executable', `expected 77 executable contracts, got ${report.executable}`);
     }
     if (report.canonical !== 46) {
       fail(
@@ -672,20 +672,20 @@ function checkStateIdentityUniqueness() {
         `expected 46 canonical observable states (recomputed), got ${report.canonical}`,
       );
     }
-    if (report.alias !== 30) {
+    if (report.alias !== 31) {
       fail(
         'state_identity.alias',
-        `expected 30 registration aliases (recomputed), got alias=${report.alias}`,
+        `expected 31 registration aliases (recomputed), got alias=${report.alias}`,
       );
     }
-    if (report.canonical + report.alias !== 76) {
+    if (report.canonical + report.alias !== 77) {
       fail(
         'state_identity.arithmetic',
-        `canonical+alias must equal 76, got ${report.canonical}+${report.alias}`,
+        `canonical+alias must equal 77, got ${report.canonical}+${report.alias}`,
       );
     }
-    if (report.mapping !== 76) {
-      fail('state_identity.mapping', `expected 76 registration mappings, got ${report.mapping}`);
+    if (report.mapping !== 77) {
+      fail('state_identity.mapping', `expected 77 registration mappings, got ${report.mapping}`);
     }
     if (report.uniqueSignatures !== 46) {
       fail(
@@ -733,10 +733,10 @@ function checkStateIdentityUniqueness() {
         `divergent exported string resolvers: ${(report.divergentExports ?? []).join(',')}`,
       );
     }
-    if (report.dualAliasTable !== 13) {
+    if (report.dualAliasTable !== 14) {
       fail(
         'state_identity.dual_table',
-        `expected dual-alias metadata table size 13, got ${report.dualAliasTable}`,
+        `expected dual-alias metadata table size 14, got ${report.dualAliasTable}`,
       );
     }
     if (report.collisions !== 0) {

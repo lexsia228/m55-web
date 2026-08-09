@@ -4,9 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './ScrollToTopButton.module.css';
 
 const SHOW_THRESHOLD = 600; // px from top
+const PAID_BRIDGE_PRIMARY_SELECTOR = '[data-testid="m55-paid-bridge-primary"]';
+/** Match CorePremiumStickyCta — suppress rail before CTA enters reading area. */
+const PAID_BRIDGE_PRIMARY_IO: IntersectionObserverInit = {
+  root: null,
+  threshold: 0.08,
+  rootMargin: '0px 0px -6% 0px',
+};
 
 export function ScrollToTopButton() {
-  const [visible, setVisible] = useState(false);
+  const [scrollVisible, setScrollVisible] = useState(false);
+  const [ctaIntersecting, setCtaIntersecting] = useState(false);
   /**
    * Track the element that last fired a scroll so we can scroll it back to 0.
    * null  → use window (document-level scroll)
@@ -38,7 +46,7 @@ export function ScrollToTopButton() {
         scrollTargetRef.current = target as Element;
       }
 
-      setVisible(scrollTop > SHOW_THRESHOLD);
+      setScrollVisible(scrollTop > SHOW_THRESHOLD);
     };
 
     /**
@@ -49,6 +57,64 @@ export function ScrollToTopButton() {
     document.addEventListener('scroll', onScroll, { passive: true, capture: true });
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    let observer: IntersectionObserver | null = null;
+    let observedTarget: Element | null = null;
+
+    const disconnectObserver = () => {
+      observer?.disconnect();
+      observer = null;
+      observedTarget = null;
+    };
+
+    const attachObserver = (target: Element) => {
+      if (observedTarget === target) return;
+      disconnectObserver();
+      observedTarget = target;
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (!mounted) return;
+          for (const entry of entries) {
+            if (entry.target === target) {
+              setCtaIntersecting(entry.isIntersecting);
+              return;
+            }
+          }
+        },
+        PAID_BRIDGE_PRIMARY_IO,
+      );
+      observer.observe(target);
+    };
+
+    const syncTarget = () => {
+      const target = document.querySelector(PAID_BRIDGE_PRIMARY_SELECTOR);
+      if (target instanceof Element) {
+        attachObserver(target);
+        return;
+      }
+      disconnectObserver();
+      if (mounted) setCtaIntersecting(false);
+    };
+
+    syncTarget();
+    const mutationObserver = new MutationObserver(syncTarget);
+    mutationObserver.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['data-testid'],
+    });
+
+    return () => {
+      mounted = false;
+      mutationObserver.disconnect();
+      disconnectObserver();
+    };
+  }, []);
+
+  const visible = scrollVisible && !ctaIntersecting;
 
   const handleClick = () => {
     const target = scrollTargetRef.current;

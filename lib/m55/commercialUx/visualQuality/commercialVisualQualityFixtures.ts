@@ -30,6 +30,7 @@ function element(
     role,
     present: true,
     rect: box,
+    // Legacy fixtures omit visibleRect; checker falls back to raw rect.
     scrollWidth: Math.round(box.width),
     scrollHeight: Math.round(box.height),
     clientWidth: Math.round(box.width),
@@ -146,6 +147,7 @@ function bottomOverlay(overrides: Partial<MeasuredOverlay> = {}): MeasuredOverla
     visible: true,
     position: 'fixed',
     rect: rect(16, 350, 358, 64),
+    // Legacy overlay fixtures omit visibleRect; checker falls back to raw rect.
     anchoredToBottom: true,
     safeAreaCompensated: true,
     ...overrides,

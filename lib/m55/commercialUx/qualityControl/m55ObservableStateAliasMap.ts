@@ -83,6 +83,10 @@ export const M55_OBSERVABLE_STATE_ALIASES: Readonly<
     canonicalObservableStateId: 'ecp:premium.lp.plans:plan_selection',
     justification: 'visual premium-plans captures the plan-selection presentation',
   },
+  'visual:premium-checkout': {
+    canonicalObservableStateId: 'ecp:premium.lp.checkout:payment_preparation',
+    justification: 'visual premium-checkout captures the payment-preparation presentation',
+  },
   'premium:premium.lp.checkout': {
     canonicalObservableStateId: 'ecp:premium.lp.checkout:payment_preparation',
     justification: 'premium checkout is the payment-preparation presentation',

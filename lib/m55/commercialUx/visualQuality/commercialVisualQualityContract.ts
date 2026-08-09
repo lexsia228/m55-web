@@ -37,6 +37,7 @@ export const COMMERCIAL_VISUAL_FINDINGS = {
   'P0-3': '/home Premium headline horizontal overflow',
   'P0-4': 'fixed/sticky Premium CTA, accessibility control and back-to-top overlap',
   'P0-5': 'dark Premium bridge text and control contrast',
+  'P1-3': '/dtr/lp payment-prep checkout text contrast',
   'P1-6': 'desktop questionnaire excessively narrow mobile-column presentation',
   'P1-7': 'Light and Full comparison not visible together on mobile',
   'P1-8': 'Premium CTA hierarchy emphasizes answering work instead of outcome',
@@ -97,7 +98,7 @@ export type CommercialVisualCase = {
   caseId: string;
   route: string;
   /** Named setup executed by the collector before measuring. */
-  setup: 'none' | 'core_free_result' | 'premium_questionnaire' | 'premium_plans';
+  setup: 'none' | 'core_free_result' | 'premium_questionnaire' | 'premium_plans' | 'premium_checkout';
   /** Element that must exist before the page counts as ready. */
   readySelector: string;
   protectedTargets: readonly ProtectedTarget[];
@@ -155,6 +156,31 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       { selector: '[data-testid="m55-premium-bridge-headline"]', role: 'heading', findingIds: ['P0-3', 'P0-5'] },
       { selector: '[data-testid="m55-premium-bridge-copy"]', role: 'copy', findingIds: ['P0-5'] },
       { selector: '[data-testid="m55-paid-bridge-primary"]', role: 'cta', findingIds: ['P0-4', 'P0-5', 'P1-8'] },
+      {
+        selector: '[data-testid="m55-free-to-paid-bridge"] h3',
+        role: 'heading',
+        findingIds: ['P0-5'],
+      },
+      {
+        selector: '[data-testid="m55-premium-bridge-price"] + p',
+        role: 'copy',
+        findingIds: ['P0-5'],
+      },
+      {
+        selector: '[data-testid="m55-paid-bridge-secondary"]',
+        role: 'cta',
+        findingIds: ['P0-5'],
+      },
+      {
+        selector: '[data-testid="m55-paid-bridge-primary"] + p',
+        role: 'copy',
+        findingIds: ['P0-5'],
+      },
+      {
+        selector: '[data-testid="m55-free-to-paid-bridge"] > p:last-child',
+        role: 'copy',
+        findingIds: ['P0-5'],
+      },
     ],
     overlaySelectors: [
       PUBLIC_FIXED_HEADER_SELECTOR,
@@ -209,6 +235,36 @@ export const COMMERCIAL_VISUAL_CASES: readonly CommercialVisualCase[] = [
       },
     ],
     findingIds: ['P0-3', 'P0-4', 'P1-7'],
+  },
+  {
+    caseId: 'premium-checkout',
+    route: '/dtr/lp',
+    setup: 'premium_checkout',
+    readySelector: '[data-m55-paid-phase="checkout"]',
+    protectedTargets: [
+      {
+        selector: '[data-m55-paid-phase="checkout"] > p:first-of-type',
+        role: 'copy',
+        findingIds: ['P1-3'],
+      },
+      {
+        selector: '[data-m55-paid-phase="checkout"] > h3',
+        role: 'heading',
+        findingIds: ['P1-3'],
+      },
+      {
+        selector: '[data-m55-paid-phase="checkout"] .m55-lp-cta-btn',
+        role: 'cta',
+        findingIds: ['P1-3'],
+      },
+    ],
+    overlaySelectors: [
+      PUBLIC_FIXED_HEADER_SELECTOR,
+      '[data-testid="m55-scroll-to-top"]',
+      '[data-testid="m55-premium-sticky-cta"]',
+    ],
+    mobileCoVisibleGroups: [],
+    findingIds: ['P1-3'],
   },
   {
     caseId: 'pricing',

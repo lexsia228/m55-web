@@ -1,86 +1,242 @@
 /**
- * Commercial responsive quality gate.
+ * P1B Preview visual evidence harness — Human-evidence infrastructure only.
  *
- * The browser only measures geometry, computed colour and clipping; every
- * judgement is delegated to the pure checker so the same rules that reject the
- * intentionally broken fixtures also guard the real routes.
+ * Active only when M55_PREVIEW_EVIDENCE=1 with explicit origin/SHA/branch env.
+ * Default CI does not invoke this spec; inactive mode is a no-op contract test.
  *
- * Run: npx playwright test e2e/commercial-visual-quality.spec.ts
+ * Future command (do not run in implementation gate):
+ *   M55_PREVIEW_EVIDENCE=1 M55_PREVIEW_ORIGIN=... M55_PREVIEW_EXPECTED_SHA=...
+ *   M55_PREVIEW_EXPECTED_BRANCH=... PLAYWRIGHT_BASE_URL=... \
+ *   npx playwright test e2e/commercial-visual-preview-evidence.spec.ts --project=chromium
  */
-import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+
+import { expect, test, type Browser, type Page } from '@playwright/test';
 
 import {
-  COMMERCIAL_VIEWPORTS,
-  COMMERCIAL_VIEWPORT_HEIGHTS,
-  COMMERCIAL_VISUAL_CASES,
-  findingCoverageGaps,
+  establishCheckoutPrep,
+  establishCoreResult,
+} from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
+import {
+  commercialVisualCaseById,
   type CommercialVisualCase,
-  type CommercialViewport,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityContract';
 import {
   checkMeasuredPage,
+  contrastRatio,
+  requiredContrastFor,
   type MeasuredPage,
-  type MeasuredScrollState,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
-import { establishCheckoutPrep } from '../lib/m55/commercialUx/qualityControl/m55QualityFixtures';
+import { assertClearOfFixedNavigation } from './helpers/cleanCaptureEnvironment';
 import {
-  assertLocalNavigationStable,
-  assertOverlayAbsence,
-  prepareCleanCapturePage,
-  requireCleanCaptureEnvironment,
-} from './helpers/cleanCaptureEnvironment';
+  PREVIEW_EVIDENCE_OUTPUT_ROOT,
+  assertPreviewNavigationStable,
+  buildPreviewEvidenceRecordMetadata,
+  computeViewportBoundedClip,
+  installPreviewMainFrameNavigationGuard,
+  isPreviewEvidenceActive,
+  loadPreviewEvidenceAuthority,
+  preflightPreviewBuildIdentity,
+  shouldUseViewportBoundedHumanCapture,
+  type PreviewBuildDiagnostics,
+  type PreviewEvidenceAuthority,
+  type PreviewMainFrameNavigationGuard,
+  type PreviewLayoutRect,
+  type PreviewScreenshotClip,
+} from './helpers/previewEvidenceAuthority';
 
-const VISUAL_QUALITY_BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
+const PREVIEW_EVIDENCE_ACTIVE = isPreviewEvidenceActive();
+const PREVIEW_EVIDENCE_EVENT_PREFIX = 'M55_PREVIEW_EVIDENCE_EVENT ';
 
-/** Real free answer identifiers, so /core reaches the RESULT phase. */
-const COMPLETE_FREE = {
-  'free.start_style': 'free.start_style.map_first',
-  'free.decision_style': 'free.decision_style.sort_first',
-  'free.recovery_style': 'free.recovery_style.pause_short',
-  'free.distance_style': 'free.distance_style.close_careful',
-  'free.change_style': 'free.change_style.observe_first',
-  'free.primary_theme': 'free.primary_theme.report_preview',
+const PREVIEW_EVIDENCE_VIEWS = [
+  { viewId: 'core-free-result-320x568', caseId: 'core-free-result', width: 320, height: 568 },
+  { viewId: 'core-free-result-390x844', caseId: 'core-free-result', width: 390, height: 844 },
+  { viewId: 'core-free-result-1280x900', caseId: 'core-free-result', width: 1280, height: 900 },
+  { viewId: 'premium-checkout-320x568', caseId: 'premium-checkout', width: 320, height: 568 },
+  { viewId: 'premium-checkout-390x844', caseId: 'premium-checkout', width: 390, height: 844 },
+  { viewId: 'premium-checkout-1280x900', caseId: 'premium-checkout', width: 1280, height: 900 },
+] as const;
+
+/** Human evidence framing — mirrors e2e/commercial-visual-regression.spec.ts canonical targets. */
+const PREVIEW_EVIDENCE_LOCATOR_BY_CASE = {
+  'core-free-result': '#core-paid',
+  'premium-checkout': '[data-m55-paid-phase="checkout"]',
 } as const;
 
-async function seedFreeResult(context: BrowserContext) {
-  await context.addInitScript(
-    ({ free }) => {
-      const id = 'playwright-visual-quality';
-      localStorage.setItem('m55_device_id_v1', id);
-      localStorage.setItem(
-        `m55_profile_v1_${id}`,
-        JSON.stringify({ nickname: '試験', birthDate: '1983-02-28' }),
-      );
-      const keys = Object.keys(free).sort();
-      const payload = keys.map((k) => `${k}=${(free as Record<string, string>)[k]}`).join('&');
-      sessionStorage.setItem(
-        'm55_self_funnel_v1',
-        JSON.stringify({
-          schemaVersion: 1,
-          draftFreeAnswers: free,
-          committedFreeAnswers: free,
-          freeResultFingerprint: `ffp1|試験|1983-02-28|${payload}`,
-          questionIndex: 5,
-          generationCount: 1,
-        }),
-      );
-      sessionStorage.setItem('m55_free_answers_v1', JSON.stringify(free));
-    },
-    { free: COMPLETE_FREE },
-  );
+function previewEvidenceLocatorSelector(caseId: string): string {
+  const selector = PREVIEW_EVIDENCE_LOCATOR_BY_CASE[caseId as keyof typeof PREVIEW_EVIDENCE_LOCATOR_BY_CASE];
+  if (!selector) {
+    throw new Error(`PREVIEW_EVIDENCE_LOCATOR_UNDECLARED: ${caseId}`);
+  }
+  return selector;
 }
 
 /**
- * Collect one measurement snapshot. Everything returned is plain JSON so the
- * pure checker can be replayed outside a browser.
+ * Human evidence capture — mobile uses viewport-bounded page clip (no tall-locator
+ * stitch); desktop keeps element screenshot when already visually acceptable.
+ * Fixed-nav clearance reuses cleanCaptureEnvironment semantics read-only.
+ * Machine overlap measurement remains separate (measurePreviewEvidencePage).
  */
-async function measurePage(
+async function captureHumanPreviewEvidenceScreenshot(
+  page: Page,
+  evidenceSelector: string,
+  viewport: { width: number; height: number },
+): Promise<Buffer> {
+  const evidenceLocator = page.locator(evidenceSelector);
+  await expect(evidenceLocator).toHaveCount(1);
+  await expect(evidenceLocator).toBeVisible();
+
+  if (!shouldUseViewportBoundedHumanCapture(viewport.width)) {
+    return evidenceLocator.screenshot({ animations: 'disabled' });
+  }
+
+  await assertClearOfFixedNavigation(page, evidenceSelector);
+
+  const layoutRect = await page.evaluate((sel): PreviewLayoutRect | null => {
+    const el = document.querySelector(sel);
+    if (!(el instanceof Element)) return null;
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top,
+      left: r.left,
+      right: r.right,
+      bottom: r.bottom,
+      width: r.width,
+      height: r.height,
+    };
+  }, evidenceSelector);
+
+  expect(
+    layoutRect,
+    `preview human evidence layout rect — ${evidenceSelector}@${viewport.width}x${viewport.height}`,
+  ).not.toBeNull();
+
+  const clip: PreviewScreenshotClip | null = computeViewportBoundedClip(layoutRect!, viewport);
+  expect(
+    clip,
+    `preview human evidence viewport clip — ${evidenceSelector}@${viewport.width}x${viewport.height}`,
+  ).not.toBeNull();
+
+  return page.screenshot({ animations: 'disabled', clip: clip! });
+}
+
+type ContrastSummaryRow = {
+  caseId: string;
+  route: string;
+  viewport: { width: number; height: number };
+  selector: string;
+  role: string;
+  ratio: number | null;
+  threshold: number | null;
+  pass: boolean;
+  failureCodes: string[];
+};
+
+function emitPreviewEvidenceEvent(event: Record<string, unknown>): void {
+  console.log(`${PREVIEW_EVIDENCE_EVENT_PREFIX}${JSON.stringify(event)}`);
+}
+
+function requireGovernedCase(caseId: string): CommercialVisualCase {
+  const governedCase = commercialVisualCaseById(caseId);
+  if (!governedCase) {
+    throw new Error(`PREVIEW_EVIDENCE_CASE_UNDECLARED: ${caseId}`);
+  }
+  return governedCase;
+}
+
+function buildContrastSummary(
+  governedCase: CommercialVisualCase,
+  measured: MeasuredPage,
+  viewport: { width: number; height: number },
+  checkerFailures: ReturnType<typeof checkMeasuredPage>,
+): ContrastSummaryRow[] {
+  const contrastFailures = checkerFailures.filter((f) => f.rule === 'contrast_below_minimum');
+  return governedCase.protectedTargets.map((target) => {
+    const element = measured.elements.find((el) => el.selector === target.selector);
+    const failures = contrastFailures.filter((f) => f.selector === target.selector);
+    if (target.contrastExempt) {
+      return {
+        caseId: governedCase.caseId,
+        route: governedCase.route,
+        viewport,
+        selector: target.selector,
+        role: target.role,
+        ratio: null,
+        threshold: null,
+        pass: true,
+        failureCodes: [],
+      };
+    }
+    if (!element?.foreground || !element.background) {
+      return {
+        caseId: governedCase.caseId,
+        route: governedCase.route,
+        viewport,
+        selector: target.selector,
+        role: target.role,
+        ratio: null,
+        threshold: requiredContrastFor(element?.fontSizePx ?? null, element?.fontWeight ?? null),
+        pass: failures.length === 0 && Boolean(element?.present),
+        failureCodes: failures.map((f) => f.rule),
+      };
+    }
+    const ratio = contrastRatio(element.foreground, element.background);
+    const threshold = requiredContrastFor(element.fontSizePx, element.fontWeight);
+    return {
+      caseId: governedCase.caseId,
+      route: governedCase.route,
+      viewport,
+      selector: target.selector,
+      role: target.role,
+      ratio: Number(ratio.toFixed(2)),
+      threshold,
+      pass: failures.length === 0 && ratio + 0.05 >= threshold,
+      failureCodes: failures.map((f) => f.rule),
+    };
+  });
+}
+
+async function setupCoreFreeResultPreview(
+  page: Page,
+  baseURL: string,
+  authorizedOrigin: string,
+): Promise<void> {
+  await establishCoreResult(page, baseURL);
+  await expect(page.getByTestId('m55-free-to-paid-bridge')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('m55-paid-bridge-primary')).toBeVisible({ timeout: 30_000 });
+  await assertPreviewNavigationStable(page, {
+    label: 'core-free-result:setup',
+    authorizedOrigin,
+    expectedPathname: '/core',
+  });
+}
+
+async function setupPremiumCheckoutPreview(
+  page: Page,
+  baseURL: string,
+  authorizedOrigin: string,
+): Promise<void> {
+  await establishCheckoutPrep(page, baseURL);
+  await expect(page.locator('[data-m55-paid-phase="checkout"]')).toBeVisible({ timeout: 30_000 });
+  await assertPreviewNavigationStable(page, {
+    label: 'premium-checkout:setup',
+    authorizedOrigin,
+    expectedPathname: '/dtr/lp',
+  });
+}
+
+/**
+ * THIN_ADAPTER_ONLY — browser extraction mirrors e2e/commercial-visual-quality.spec.ts
+ * measurePage so checkMeasuredPage receives identical MeasuredPage snapshots.
+ */
+async function measurePreviewEvidencePage(
   page: Page,
   governedCase: CommercialVisualCase,
   viewportWidth: number,
   viewportHeight: number,
-  scrollState: MeasuredScrollState,
 ): Promise<MeasuredPage> {
+  const scrollState = 'top' as const;
   return page.evaluate(
     ({
       caseId,
@@ -94,19 +250,19 @@ async function measurePage(
     }) => {
       if (!(document.documentElement instanceof Element)) {
         throw new Error(
-          `measurePage(${caseId}@${route}/${scrollState}): documentElement is not an Element at ${location.href}`,
+          `measurePreviewEvidencePage(${caseId}@${route}/${scrollState}): documentElement is not an Element at ${location.href}`,
         );
       }
       if (!(document.body instanceof Element)) {
         throw new Error(
-          `measurePage(${caseId}@${route}/${scrollState}): document.body is not an Element at ${location.href}`,
+          `measurePreviewEvidencePage(${caseId}@${route}/${scrollState}): document.body is not an Element at ${location.href}`,
         );
       }
 
       const styleOf = (node: Element): CSSStyleDeclaration => {
         if (!(node instanceof Element)) {
           throw new Error(
-            `measurePage(${caseId}@${route}/${scrollState}): getComputedStyle called with non-Element`,
+            `measurePreviewEvidencePage(${caseId}@${route}/${scrollState}): getComputedStyle called with non-Element`,
           );
         }
         return getComputedStyle(node);
@@ -508,209 +664,121 @@ async function measurePage(
   );
 }
 
-/** Premium states are only reachable through the real /core bridge hand-off. */
-async function enterPremiumFromCore(page: Page) {
-  await page.goto('/core', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
-    timeout: 30_000,
+async function runPreviewEvidenceView(input: {
+  browser: Browser;
+  view: (typeof PREVIEW_EVIDENCE_VIEWS)[number];
+  authority: PreviewEvidenceAuthority;
+  diagnostics: PreviewBuildDiagnostics;
+}): Promise<void> {
+  const governedCase = requireGovernedCase(input.view.caseId);
+  const baseURL = input.authority.authorizedOrigin;
+  const context = await input.browser.newContext({
+    viewport: { width: input.view.width, height: input.view.height },
   });
-  const bridgeCta = page.getByTestId('m55-paid-bridge-primary');
-  await bridgeCta.scrollIntoViewIfNeeded();
-  const bridgeHref = await bridgeCta.getAttribute('href');
-  await bridgeCta.click();
+  const page = await context.newPage();
+  let navigationGuard: PreviewMainFrameNavigationGuard | null = null;
+
   try {
-    await expect(page).toHaveURL(/\/dtr\/lp/, { timeout: 20_000 });
-  } catch {
-    // Client-side navigation can be dropped while the dev server recompiles.
-    // Follow the bridge's own href instead of inventing a destination.
-    if (!bridgeHref) throw new Error('premium bridge CTA has no href');
-    await page.goto(bridgeHref, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    navigationGuard = await installPreviewMainFrameNavigationGuard(page, input.authority);
+
+    if (input.view.caseId === 'core-free-result') {
+      await setupCoreFreeResultPreview(page, baseURL, input.authority.authorizedOrigin);
+    } else {
+      await setupPremiumCheckoutPreview(page, baseURL, input.authority.authorizedOrigin);
+    }
+    navigationGuard.assertNoBlockedNavigation(`preview evidence — ${input.view.viewId}:post-fixture`);
+
+    await page.evaluate(() => document.fonts?.ready);
+    await page.waitForTimeout(250);
+
+    const measured = await measurePreviewEvidencePage(
+      page,
+      governedCase,
+      input.view.width,
+      input.view.height,
+    );
+    const checkerFailures = checkMeasuredPage(measured, governedCase);
+    const contrastSummary = buildContrastSummary(
+      governedCase,
+      measured,
+      { width: input.view.width, height: input.view.height },
+      checkerFailures,
+    );
+
+    const contrastFailures = checkerFailures.filter((f) => f.rule === 'contrast_below_minimum');
+    expect(
+      contrastFailures,
+      `preview contrast failures\n${contrastFailures.map((f) => `${f.selector}: ${f.detail}`).join('\n')}`,
+    ).toEqual([]);
+
+    await assertPreviewNavigationStable(page, {
+      label: `preview evidence — ${input.view.viewId}:pre-screenshot`,
+      authorizedOrigin: input.authority.authorizedOrigin,
+    });
+
+    const evidenceSelector = previewEvidenceLocatorSelector(governedCase.caseId);
+    const screenshotBuffer = await captureHumanPreviewEvidenceScreenshot(page, evidenceSelector, {
+      width: input.view.width,
+      height: input.view.height,
+    });
+
+    await assertPreviewNavigationStable(page, {
+      label: `preview evidence — ${input.view.viewId}:pre-final-evidence`,
+      authorizedOrigin: input.authority.authorizedOrigin,
+    });
+    navigationGuard.assertNoBlockedNavigation(`preview evidence — ${input.view.viewId}:pre-final-evidence`);
+
+    fs.mkdirSync(PREVIEW_EVIDENCE_OUTPUT_ROOT, { recursive: true });
+    const screenshotPath = path.join(PREVIEW_EVIDENCE_OUTPUT_ROOT, `${input.view.viewId}.png`);
+    fs.writeFileSync(screenshotPath, screenshotBuffer);
+
+    const metadata = buildPreviewEvidenceRecordMetadata({
+      authority: input.authority,
+      diagnostics: input.diagnostics,
+      governedCaseId: governedCase.caseId,
+      route: governedCase.route,
+      viewId: input.view.viewId,
+      viewport: { width: input.view.width, height: input.view.height },
+      screenshotPath,
+    });
+
+    emitPreviewEvidenceEvent({
+      ...metadata,
+      machineContrastSummary: contrastSummary,
+      humanVisualApproved: false,
+    });
+  } finally {
+    if (navigationGuard) {
+      await navigationGuard.uninstall();
+    }
+    await context.close();
   }
-  await expect(page.getByTestId('m55-paid-questionnaire-active')).toBeVisible({ timeout: 30_000 });
 }
 
-/**
- * Scroll far enough for the floating rail to reveal itself. The shell may host
- * its own scrollport, so the deepest scrollable container is scrolled too.
- */
-async function engageFloatingRail(page: Page) {
-  await page.evaluate(() => {
-    if (!(document.documentElement instanceof Element)) return;
-    const scrollers: Element[] = [document.documentElement];
-    for (const node of Array.from(document.querySelectorAll('*'))) {
-      if (!(node instanceof Element)) continue;
-      const style = getComputedStyle(node);
-      const scrolls = style.overflowY === 'auto' || style.overflowY === 'scroll';
-      if (scrolls && node.scrollHeight > node.clientHeight + 8) scrollers.push(node);
+test.describe.configure({ mode: 'serial', timeout: 300_000 });
+
+test.describe('P1B Preview visual evidence harness', () => {
+  test('default-inactive contract — dormant unless M55_PREVIEW_EVIDENCE=1', () => {
+    if (PREVIEW_EVIDENCE_ACTIVE) {
+      test.skip(true, 'active mode uses preview evidence view tests below');
     }
-    for (const node of scrollers) {
-      node.scrollTop = Math.min(node.scrollHeight - node.clientHeight, node.clientHeight * 2);
-    }
-    window.scrollTo({ top: Math.min(document.documentElement.scrollHeight, window.innerHeight * 2) });
   });
-  await page.waitForTimeout(600);
-}
 
-/** Drive the page into the governed state before measuring. */
-async function applySetup(page: Page, governedCase: CommercialVisualCase) {
-  if (governedCase.setup === 'none') {
-    await page.goto(governedCase.route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  }
+  test.describe('active preview evidence views', () => {
+    test.skip(!PREVIEW_EVIDENCE_ACTIVE, 'requires M55_PREVIEW_EVIDENCE=1');
 
-  if (governedCase.setup === 'core_free_result') {
-    await page.goto('/core', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
-      timeout: 30_000,
+    let authority: PreviewEvidenceAuthority;
+    let diagnostics: PreviewBuildDiagnostics;
+
+    test.beforeAll(async () => {
+      authority = loadPreviewEvidenceAuthority();
+      diagnostics = await preflightPreviewBuildIdentity(authority);
     });
-    await page.evaluate(() => {
-      const headline = document.querySelector('[data-testid="m55-premium-bridge-headline"]');
-      const cta = document.querySelector('[data-testid="m55-paid-bridge-primary"]');
-      const header =
-        document.querySelector('[data-m55-public-shell] > header') ||
-        document.querySelector('header');
-      const rail = document.querySelector('[data-testid="m55-scroll-to-top"]');
-      const main = document.querySelector('main');
-      const target = headline instanceof Element ? headline : document.querySelector('#core-paid');
-      if (!(target instanceof Element)) return;
 
-      const scrollByDelta = (delta: number) => {
-        if (!delta) return;
-        // ShellLayout scrolls inside <main>; PublicShell uses the document.
-        if (
-          main instanceof HTMLElement &&
-          main.scrollHeight > main.clientHeight + 8
-        ) {
-          main.scrollTop += delta;
-        } else {
-          window.scrollBy(0, delta);
-        }
-      };
-
-      target.scrollIntoView({ block: 'start' });
-      const headerBottom =
-        header instanceof Element ? header.getBoundingClientRect().bottom : 64;
-      let rect = target.getBoundingClientRect();
-      scrollByDelta(rect.top - (headerBottom + 12));
-
-      if (cta instanceof Element && rail instanceof Element) {
-        const ctaRect = cta.getBoundingClientRect();
-        const railRect = rail.getBoundingClientRect();
-        const railVisible =
-          railRect.width > 0 &&
-          railRect.height > 0 &&
-          getComputedStyle(rail).visibility !== 'hidden' &&
-          Number.parseFloat(getComputedStyle(rail).opacity || '1') > 0.05;
-        if (railVisible) {
-          const overlapY =
-            Math.min(ctaRect.bottom, railRect.bottom) - Math.max(ctaRect.top, railRect.top);
-          const overlapX =
-            Math.min(ctaRect.right, railRect.right) - Math.max(ctaRect.left, railRect.left);
-          if (overlapY > 0 && overlapX > 0) {
-            scrollByDelta(overlapY + 12);
-          }
-        }
-      }
-    });
-  }
-
-  if (governedCase.setup === 'premium_questionnaire') {
-    await enterPremiumFromCore(page);
-  }
-
-  if (governedCase.setup === 'premium_plans') {
-    await enterPremiumFromCore(page);
-    for (let i = 0; i < 6; i += 1) {
-      await page.locator('[role="radio"]').first().click();
-      const label = i === 5 ? '回答を確認する' : '次へ';
-      await page.getByRole('button', { name: label }).click();
-    }
-    await expect(page.locator('[data-m55-paid-phase="complete"]')).toBeVisible({ timeout: 30_000 });
-    await page.getByRole('button', { name: 'プランを選ぶ' }).click();
-    await expect(page.getByTestId('m55-dtr-plan-selection')).toBeVisible({ timeout: 30_000 });
-    // Keep the plan headline below the fixed public header before geometry.
-    await page.evaluate(() => {
-      const el = document.querySelector('[data-testid="m55-dtr-plan-selection"]');
-      const header =
-        document.querySelector('[data-m55-public-shell] > header') ||
-        document.querySelector('header');
-      const main = document.querySelector('main');
-      if (!(el instanceof Element)) return;
-      el.scrollIntoView({ block: 'start' });
-      const headerBottom =
-        header instanceof Element ? header.getBoundingClientRect().bottom : 64;
-      const delta = el.getBoundingClientRect().top - (headerBottom + 8);
-      if (!delta) return;
-      if (main instanceof HTMLElement && main.scrollHeight > main.clientHeight + 8) {
-        main.scrollTop += delta;
-      } else {
-        window.scrollBy(0, delta);
-      }
-    });
-  }
-
-  if (governedCase.setup === 'premium_checkout') {
-    await establishCheckoutPrep(page, VISUAL_QUALITY_BASE_URL);
-  }
-
-  await expect(page.locator(governedCase.readySelector).first()).toBeVisible({ timeout: 30_000 });
-  // Settle webfont metrics and lazy layout before measuring geometry.
-  await page.evaluate(() => document.fonts?.ready);
-  await page.waitForTimeout(250);
-}
-
-// Default mode: each governed case must be measured even when another fails.
-test.describe.configure({ mode: 'default', timeout: 240_000 });
-
-test.beforeAll(() => {
-  requireCleanCaptureEnvironment('commercial-visual-quality');
-});
-
-test('every reviewed commercial finding is owned by a governed case', () => {
-  expect(findingCoverageGaps(), 'reviewed findings without a governed case').toEqual([]);
-});
-
-for (const governedCase of COMMERCIAL_VISUAL_CASES) {
-  test(`commercial visual quality — ${governedCase.caseId}`, async ({ browser }) => {
-    const failures: string[] = [];
-
-    for (const width of COMMERCIAL_VIEWPORTS) {
-      const height = COMMERCIAL_VIEWPORT_HEIGHTS[width as CommercialViewport];
-      /*
-       * A fresh context per viewport: the Premium funnel advances client state as
-       * it is driven, so a reused session would land a later viewport in a
-       * different phase than the one under measurement. HOME / Pricing also use
-       * isolated contexts so one Clerk/navigation event cannot poison later cases.
-       */
-      const context = await browser.newContext({ viewport: { width, height } });
-      if (governedCase.setup !== 'none') await seedFreeResult(context);
-      const page = await context.newPage();
-      await prepareCleanCapturePage(page);
-      await applySetup(page, governedCase);
-      await assertLocalNavigationStable(page, {
-        label: `${governedCase.caseId}@${width}:setup`,
-        expectedPathname: governedCase.route,
+    for (const view of PREVIEW_EVIDENCE_VIEWS) {
+      test(`preview evidence — ${view.viewId}`, async ({ browser }) => {
+        await runPreviewEvidenceView({ browser, view, authority, diagnostics });
       });
-
-      /*
-       * Measure at rest and again mid-scroll. The floating rail (sticky Premium
-       * CTA, back-to-top control) only materialises once the reader scrolls, so
-       * the rail collision rules are meaningless without the engaged state.
-       */
-      for (const scrollState of ['top', 'engaged'] as const) {
-        if (scrollState === 'engaged') await engageFloatingRail(page);
-        // Order: readiness settled → geometry measure/check → overlay absence.
-        const measured = await measurePage(page, governedCase, width, height, scrollState);
-        for (const failure of checkMeasuredPage(measured, governedCase)) {
-          failures.push(
-            `${failure.caseId}@${failure.viewportWidth}/${failure.scrollState} ${failure.rule} ${failure.selector}: ${failure.detail}`,
-          );
-        }
-        await assertOverlayAbsence(page, `${governedCase.caseId}@${width}/${scrollState}`);
-      }
-
-      await context.close();
     }
-
-    expect(failures, `commercial visual quality failures\n${failures.join('\n')}`).toEqual([]);
   });
-}
+});
