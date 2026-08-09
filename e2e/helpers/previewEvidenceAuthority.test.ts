@@ -12,11 +12,13 @@ import {
   buildPreviewEvidenceRecordMetadata,
   classifyMainFrameNavigationRequest,
   classifyObservedPageOrigin,
+  computeViewportBoundedClip,
   isPreviewEvidenceActive,
   loadPreviewEvidenceAuthority,
   normalizePreviewOriginInput,
   parsePreviewOriginEnv,
   requirePreviewEvidenceMode,
+  shouldUseViewportBoundedHumanCapture,
   validatePreviewBuildDiagnostics,
   validatePreviewNavigationTarget,
 } from './previewEvidenceAuthority';
@@ -45,6 +47,30 @@ function withEnv(
     }
   }
 }
+
+describe('human preview evidence capture framing', () => {
+  it('requires viewport-bounded capture for mobile widths only', () => {
+    assert.equal(shouldUseViewportBoundedHumanCapture(320), true);
+    assert.equal(shouldUseViewportBoundedHumanCapture(390), true);
+    assert.equal(shouldUseViewportBoundedHumanCapture(1280), false);
+  });
+
+  it('computes viewport intersection clip without stitching', () => {
+    const clip = computeViewportBoundedClip(
+      { left: 0, top: 64, right: 320, bottom: 2000, width: 320, height: 1936 },
+      { width: 320, height: 568 },
+    );
+    assert.deepEqual(clip, { x: 0, y: 64, width: 320, height: 504 });
+  });
+
+  it('returns null when rect is entirely outside viewport', () => {
+    const clip = computeViewportBoundedClip(
+      { left: 0, top: 600, right: 320, bottom: 800, width: 320, height: 200 },
+      { width: 320, height: 568 },
+    );
+    assert.equal(clip, null);
+  });
+});
 
 describe('previewEvidenceAuthority', () => {
   it('accepts authorized exact Preview origin', () => {

@@ -28,17 +28,22 @@ import {
   requiredContrastFor,
   type MeasuredPage,
 } from '../lib/m55/commercialUx/visualQuality/commercialVisualQualityChecks';
+import { assertClearOfFixedNavigation } from './helpers/cleanCaptureEnvironment';
 import {
   PREVIEW_EVIDENCE_OUTPUT_ROOT,
   assertPreviewNavigationStable,
   buildPreviewEvidenceRecordMetadata,
+  computeViewportBoundedClip,
   installPreviewMainFrameNavigationGuard,
   isPreviewEvidenceActive,
   loadPreviewEvidenceAuthority,
   preflightPreviewBuildIdentity,
+  shouldUseViewportBoundedHumanCapture,
   type PreviewBuildDiagnostics,
   type PreviewEvidenceAuthority,
   type PreviewMainFrameNavigationGuard,
+  type PreviewLayoutRect,
+  type PreviewScreenshotClip,
 } from './helpers/previewEvidenceAuthority';
 
 const PREVIEW_EVIDENCE_ACTIVE = isPreviewEvidenceActive();
@@ -65,6 +70,55 @@ function previewEvidenceLocatorSelector(caseId: string): string {
     throw new Error(`PREVIEW_EVIDENCE_LOCATOR_UNDECLARED: ${caseId}`);
   }
   return selector;
+}
+
+/**
+ * Human evidence capture — mobile uses viewport-bounded page clip (no tall-locator
+ * stitch); desktop keeps element screenshot when already visually acceptable.
+ * Fixed-nav clearance reuses cleanCaptureEnvironment semantics read-only.
+ * Machine overlap measurement remains separate (measurePreviewEvidencePage).
+ */
+async function captureHumanPreviewEvidenceScreenshot(
+  page: Page,
+  evidenceSelector: string,
+  viewport: { width: number; height: number },
+): Promise<Buffer> {
+  const evidenceLocator = page.locator(evidenceSelector);
+  await expect(evidenceLocator).toHaveCount(1);
+  await expect(evidenceLocator).toBeVisible();
+
+  if (!shouldUseViewportBoundedHumanCapture(viewport.width)) {
+    return evidenceLocator.screenshot({ animations: 'disabled' });
+  }
+
+  await assertClearOfFixedNavigation(page, evidenceSelector);
+
+  const layoutRect = await page.evaluate((sel): PreviewLayoutRect | null => {
+    const el = document.querySelector(sel);
+    if (!(el instanceof Element)) return null;
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top,
+      left: r.left,
+      right: r.right,
+      bottom: r.bottom,
+      width: r.width,
+      height: r.height,
+    };
+  }, evidenceSelector);
+
+  expect(
+    layoutRect,
+    `preview human evidence layout rect — ${evidenceSelector}@${viewport.width}x${viewport.height}`,
+  ).not.toBeNull();
+
+  const clip: PreviewScreenshotClip | null = computeViewportBoundedClip(layoutRect!, viewport);
+  expect(
+    clip,
+    `preview human evidence viewport clip — ${evidenceSelector}@${viewport.width}x${viewport.height}`,
+  ).not.toBeNull();
+
+  return page.screenshot({ animations: 'disabled', clip: clip! });
 }
 
 type ContrastSummaryRow = {
@@ -663,10 +717,10 @@ async function runPreviewEvidenceView(input: {
     });
 
     const evidenceSelector = previewEvidenceLocatorSelector(governedCase.caseId);
-    const evidenceLocator = page.locator(evidenceSelector);
-    await expect(evidenceLocator).toHaveCount(1);
-    await expect(evidenceLocator).toBeVisible();
-    const screenshotBuffer = await evidenceLocator.screenshot({ animations: 'disabled' });
+    const screenshotBuffer = await captureHumanPreviewEvidenceScreenshot(page, evidenceSelector, {
+      width: input.view.width,
+      height: input.view.height,
+    });
 
     await assertPreviewNavigationStable(page, {
       label: `preview evidence — ${input.view.viewId}:pre-final-evidence`,

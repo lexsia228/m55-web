@@ -18,6 +18,51 @@ export const DEPLOYMENT_ID_AUTHORITY_CLASS = 'OPERATOR_SUPPLIED_METADATA' as con
 
 export const PREVIEW_EVIDENCE_OUTPUT_ROOT = 'test-results/p1b-preview-evidence' as const;
 
+/** Viewport widths that must not use tall-locator element screenshots (tile stitch artifacts). */
+export const PREVIEW_HUMAN_VIEWPORT_BOUNDED_WIDTHS = [320, 390] as const;
+
+export type PreviewScreenshotClip = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type PreviewLayoutRect = {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
+};
+
+/**
+ * Mobile Human evidence must capture the viewport-bounded visible intersection,
+ * not a tall locator screenshot that Playwright tiles and stitches.
+ */
+export function shouldUseViewportBoundedHumanCapture(viewportWidth: number): boolean {
+  return (PREVIEW_HUMAN_VIEWPORT_BOUNDED_WIDTHS as readonly number[]).includes(viewportWidth);
+}
+
+/**
+ * Intersect a layout rect with the viewport — truthful visible region without
+ * fabricating a full-component stitched image.
+ */
+export function computeViewportBoundedClip(
+  rect: PreviewLayoutRect,
+  viewport: { width: number; height: number },
+): PreviewScreenshotClip | null {
+  const left = Math.max(0, rect.left);
+  const top = Math.max(0, rect.top);
+  const right = Math.min(viewport.width, rect.right);
+  const bottom = Math.min(viewport.height, rect.bottom);
+  const width = right - left;
+  const height = bottom - top;
+  if (width <= 0 || height <= 0) return null;
+  return { x: left, y: top, width, height };
+}
+
 /** Frozen Human visual questions — machine PASS must never set Human approval. */
 export const PREVIEW_HUMAN_VISUAL_CHECKLIST = [
   'Premiumは無料結果より明確に格上に見えるか',
