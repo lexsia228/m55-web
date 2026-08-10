@@ -28,7 +28,7 @@ PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head 
 **Fixed MRQ execution order — agents must not reorder arbitrarily:**
 
 1. P0 Premium public terminology ← **CLOSED GREEN** (PR #90 **MERGED**)
-2. P1 personal free output quality — **not yet authorized**
+2. P1 personal free output quality ← **P1A CLOSED GREEN** (PR #95) · **P1B CLOSED GREEN** (PR #96) · **P1C draft persistence ACTIVE** (WT-024)
 3. P2 Premium bridge and paid output value — **not yet authorized**
 4. P3 checkout/refund/support/recovery safety — **not yet authorized**; P3 environment proof uses **Preview-only first** strategy
 5. P4 free compatibility
@@ -36,7 +36,7 @@ PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head 
 7. P6 analytics
 8. P7 polish/performance/animation
 
-No P1/P2/P3 implementation wave is authorized yet. **Product Authority reconciliation** and **P3 environment proof** precede any implementation-scope freeze. MRQ implementation worktree is **not created** and **not authorized**. Patch scope is **not frozen**. Sales launch is **not authorized**.
+No P2/P3 implementation wave is authorized yet. **P1C draft persistence** is the sole authorized MRQ implementation scope on WT-024. P3 environment proof uses **Preview-only first** strategy. Sales launch is **not authorized**.
 
 ## Current commercial-surface governance transition (2026-08-04) — HISTORICAL, SUPERSEDED 2026-08-06
 

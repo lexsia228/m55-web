@@ -5,8 +5,8 @@
   "command": "playwright test e2e/premium-experience-evidence.spec.ts --reporter=json",
   "cleanServerCommand": "M55_E2E_CLEAN_CAPTURE=1 node scripts/run-m55-e2e-clean-dev.mjs -p 3000",
   "exitCode": 0,
-  "startedAt": "2026-08-05T09:22:59.334Z",
-  "endedAt": "2026-08-05T09:24:05.135Z",
+  "startedAt": "2026-08-10T04:12:48.945Z",
+  "endedAt": "2026-08-10T04:14:01.300Z",
   "stats": {
     "expected": 19,
     "unexpected": 0,
@@ -21,7 +21,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 13927,
+      "durationMs": 14445,
       "viewport": "390"
     },
     {
@@ -30,7 +30,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 6817,
+      "durationMs": 7614,
       "viewport": "768"
     },
     {
@@ -39,7 +39,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 6136,
+      "durationMs": 6634,
       "viewport": "1280"
     },
     {
@@ -48,7 +48,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1756,
+      "durationMs": 2043,
       "viewport": "390"
     },
     {
@@ -57,7 +57,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 981,
+      "durationMs": 1120,
       "viewport": "768"
     },
     {
@@ -66,7 +66,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1042,
+      "durationMs": 1204,
       "viewport": "1280"
     },
     {
@@ -75,7 +75,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 5118,
+      "durationMs": 5315,
       "viewport": "390"
     },
     {
@@ -84,7 +84,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2912,
+      "durationMs": 3132,
       "viewport": "768"
     },
     {
@@ -93,7 +93,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 2944,
+      "durationMs": 3173,
       "viewport": "1280"
     },
     {
@@ -102,7 +102,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1300,
+      "durationMs": 1489,
       "viewport": "390"
     },
     {
@@ -111,7 +111,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1295,
+      "durationMs": 1483,
       "viewport": "768"
     },
     {
@@ -120,7 +120,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1349,
+      "durationMs": 1592,
       "viewport": "1280"
     },
     {
@@ -129,7 +129,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1387,
+      "durationMs": 1463,
       "viewport": "390"
     },
     {
@@ -138,7 +138,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1308,
+      "durationMs": 1517,
       "viewport": "768"
     },
     {
@@ -147,7 +147,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1424,
+      "durationMs": 1542,
       "viewport": "1280"
     },
     {
@@ -156,7 +156,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1218,
+      "durationMs": 1458,
       "viewport": "390"
     },
     {
@@ -165,7 +165,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1147,
+      "durationMs": 1368,
       "viewport": "768"
     },
     {
@@ -174,7 +174,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 1299,
+      "durationMs": 1330,
       "viewport": "1280"
     },
     {
@@ -183,7 +183,7 @@
       "projectName": "chromium",
       "status": "expected",
       "expectedStatus": "passed",
-      "durationMs": 8779,
+      "durationMs": 9653,
       "viewport": "1280"
     }
   ],
@@ -199,7 +199,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-390.png",
-      "byteLength": 103763,
+      "byteLength": 94398,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -297,7 +297,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-390.png",
-      "byteLength": 114030,
+      "byteLength": 114024,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-50231a2233b110c9775e"
     },
     {
@@ -311,7 +311,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-768.png",
-      "byteLength": 155429,
+      "byteLength": 152553,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -409,7 +409,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-768.png",
-      "byteLength": 118603,
+      "byteLength": 118665,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-ddfba9526f43558b7767"
     },
     {
@@ -423,7 +423,7 @@
       "ownerModule": "components/core/CoreFreeToPaidConversionBridge.tsx",
       "visibleContractDigest": "16e732690041ce4c1711fdb02e0aab4655ba012d3309873f30334122439b9de9",
       "fileName": "premium-bridge-1280.png",
-      "byteLength": 157084,
+      "byteLength": 158195,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -521,7 +521,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "payment-prep-1280.png",
-      "byteLength": 129049,
+      "byteLength": 129057,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-282615e571bc14286d2d"
     },
     {
@@ -535,7 +535,7 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-390.png",
-      "byteLength": 129100,
+      "byteLength": 125462,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-4015b087ac1bc8a28953"
     },
     {
@@ -549,7 +549,7 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-768.png",
-      "byteLength": 145280,
+      "byteLength": 140380,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-a5aee58254b02d29e07c"
     },
     {
@@ -563,7 +563,7 @@
       "ownerModule": "components/core/CorePremiumResultShareCTA.tsx",
       "visibleContractDigest": "daff042391d0d2df017dd20c7bcb48710e0868ee8512176d68cfd9eb6019984c",
       "fileName": "premium-share-card-1280.png",
-      "byteLength": 184343,
+      "byteLength": 153683,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-59d974b4bfdf34730e29"
     },
     {
@@ -591,7 +591,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-390.png",
-      "byteLength": 1127598,
+      "byteLength": 1124595,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-f74a3c3f180b1e59987c"
     },
     {
@@ -619,7 +619,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-768.png",
-      "byteLength": 1423956,
+      "byteLength": 1424176,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-551bbcfd3f56fc0d5489"
     },
     {
@@ -647,7 +647,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "f68117715d4f613a03b125e551563544366c64f1b9ba94c2f49ef1b2f911378a",
       "fileName": "purchased-report-body-1280.png",
-      "byteLength": 1530501,
+      "byteLength": 1530576,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-66588cdef7a8b28eaba1"
     },
     {
@@ -815,7 +815,7 @@
       "ownerModule": "components/dtr/DtrPaidPurchasePrep.tsx",
       "visibleContractDigest": "22f4b9fb8152893f092217197f7ac7cb19e8647f930ae510588934f6b5a258eb",
       "fileName": "pdf/payment-prep.pdf",
-      "byteLength": 284369,
+      "byteLength": 284288,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     },
     {
@@ -829,7 +829,7 @@
       "ownerModule": "components/dtr/DtrFullReader.tsx",
       "visibleContractDigest": "d6a3e23d98b007abbef3e8dba1f7088b2495926e4be3a808105287bf8cc73056",
       "fileName": "pdf/purchased-report.pdf",
-      "byteLength": 2075316,
+      "byteLength": 2075335,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     },
     {
@@ -843,7 +843,7 @@
       "ownerModule": "components/dtr/ConsultReplyCard.tsx",
       "visibleContractDigest": "39182c0c60930fd80c42b3dc0727a2aceaf20c314fc8108afd39e1066d6291e6",
       "fileName": "pdf/additional-reading-result.pdf",
-      "byteLength": 3589494,
+      "byteLength": 3541634,
       "emittedByTestId": "chromium|b886f28feb3bc370d1a4-3109ed3cf65a0fcfb595"
     }
   ]

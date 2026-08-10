@@ -6,7 +6,13 @@ import {
   type PaidQuestionId,
 } from '../../lib/m55/paidResult/questionnaireCopyV1';
 import { PAID_QUESTION_IDS } from '../../lib/m55/individualization/answerIdMapsV1';
-import { queueDtrDraftSync } from '../../lib/m55/dtrDraftClientSync';
+import {
+  DTR_DRAFT_SYNC_USER_COPY,
+  getDtrDraftSyncState,
+  queueDtrDraftSync,
+  retryDtrDraftSync,
+  subscribeDtrDraftSync,
+} from '../../lib/m55/dtrDraftClientSync';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { useAuth } from '@clerk/nextjs';
 import { PAID_ANSWERS_SESSION_KEY } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
@@ -58,6 +64,7 @@ function labelForAnswer(questionId: PaidQuestionId, answerId: string): string {
 
 export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
   const { userId } = useAuth();
+  const [draftSyncState, setDraftSyncState] = useState(getDtrDraftSyncState);
   const [phase, setPhase] = useState<Phase>('question');
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -70,6 +77,8 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
   const selected = answers[current.questionId] ?? '';
   const progressLabel = `${index + 1} / ${total}`;
   const helperJa = STATIC_FREE_TO_PAID_BRIDGE.ctaSupportJa;
+
+  useEffect(() => subscribeDtrDraftSync(setDraftSyncState), []);
 
   useEffect(() => {
     const raw = readStoredPaidAnswers();
@@ -189,6 +198,29 @@ export default function DtrPaidQuestionnaireLayer({ onComplete }: Props) {
             );
           })}
         </ul>
+        {userId && draftSyncState.status !== 'idle' ? (
+          <div role="status" aria-live="polite" data-testid="m55-draft-sync-status">
+            {draftSyncState.status === 'saving' ? (
+              <p className={styles.hint}>{DTR_DRAFT_SYNC_USER_COPY.savingJa}</p>
+            ) : null}
+            {draftSyncState.status === 'saved' ? (
+              <p className={styles.hint}>{DTR_DRAFT_SYNC_USER_COPY.savedJa}</p>
+            ) : null}
+            {draftSyncState.status === 'error' ? (
+              <div>
+                <p className={styles.hint}>{DTR_DRAFT_SYNC_USER_COPY.failedJa}</p>
+                <button
+                  type="button"
+                  className={styles.secondaryBtn}
+                  onClick={() => retryDtrDraftSync()}
+                  data-testid="m55-draft-sync-retry"
+                >
+                  {DTR_DRAFT_SYNC_USER_COPY.retryJa}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div className={styles.actions}>
           <button
             type="button"
