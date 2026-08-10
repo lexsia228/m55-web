@@ -32,7 +32,7 @@ This section is the current authority for lane status, PR dispositions, and the 
 | PR #94 settlement branch | `docs/m55-product-authority-post-merge-main-settlement-v1` |
 | PR #94 first settlement commit | `e57e2c7cabb06286f4b99884a7bf3f0ee829a3ba` — committed · pushed |
 | Settlement completion condition | PR #94 **MERGED** into `main` **and** final main identity / SSOT verification complete — **met** |
-| Current live remote main | `e1fd76b540f5290c065c1695e59f86394f20b3ba` — PR #96 merge commit |
+| Current live remote main | `4967d963fef3ae832b420e8ff9d71cd732bf66db` — audit-index refresh on `origin/main` (parent `e1fd76b540f5290c065c1695e59f86394f20b3ba`) |
 | Current live Production deployment id | **5820641847** |
 | Current live Production SHA | `e1fd76b540f5290c065c1695e59f86394f20b3ba` |
 | Current live Production state | **success** |
@@ -254,7 +254,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `e1fd76b540f5290c065c1695e59f86394f20b3ba` — PR #96 merge commit (P1B visual contrast); immutable PR #95 merge `81692dab641aeddf4df625683a97761e8c97cc33` retained as historical P1A snapshot; immutable PR #94 merge `93579b86a4a69ebf555bd089869d541f0c56f4a5` retained as historical Product Authority settlement snapshot |
+| Current live remote main | `4967d963fef3ae832b420e8ff9d71cd732bf66db` — audit-index refresh on `origin/main`; immutable PR #96 merge `e1fd76b540f5290c065c1695e59f86394f20b3ba` retained as historical P1B snapshot; immutable PR #95 merge `81692dab641aeddf4df625683a97761e8c97cc33` retained as historical P1A snapshot; immutable PR #94 merge `93579b86a4a69ebf555bd089869d541f0c56f4a5` retained as historical Product Authority settlement snapshot |
 | Current live Production deployment id | **5820641847** |
 | Current live Production SHA | `e1fd76b540f5290c065c1695e59f86394f20b3ba` |
 | Current live Production state | **success** |
@@ -318,7 +318,7 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-10):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). ACTIVE sublane is **P1C_DRAFT_PERSISTENCE** on WT-024. Current live remote main is `e1fd76b540f5290c065c1695e59f86394f20b3ba`. Current live Production deployment **5820641847** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba` · state **success**. P2/P3/4242/sales launch remain unauthorized.
+**Current transition (2026-08-10):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). ACTIVE sublane is **P1C_DRAFT_PERSISTENCE** on WT-024. Current live remote main is `4967d963fef3ae832b420e8ff9d71cd732bf66db`. Current live Production deployment **5820641847** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba` · state **success**. P2/P3/4242/sales launch remain unauthorized.
 
 ## NEXT SINGLE ACTION
 

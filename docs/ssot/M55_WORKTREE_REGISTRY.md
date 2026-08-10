@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-10** (`git worktree list --porcelain`; PR #94–#96 merged · current live remote main `e1fd76b540f5290c065c1695e59f86394f20b3ba` · WT-024 **ACTIVE** P1C draft persistence · WT-023 **COMPLETED**)
+Last verified: **2026-08-10** (`git worktree list --porcelain`; PR #94–#96 merged · current live remote main `4967d963fef3ae832b420e8ff9d71cd732bf66db` · WT-024 **ACTIVE** P1C draft persistence · WT-023 **COMPLETED**)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -21,7 +21,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 - **last observed origin/main (2026-07-26T13:23:20+00:00):** `b13fcd540e210c3ffb41fa2f56889df74b1b3915` — mutable Git observation; **not** Production SHA
 - **PR #81 live remote main (2026-08-01; historical):** `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` — superseded as Git main identity by PR #83
 - **Remote main observed (PR #88 merge lifecycle gate, 2026-08-04):** `060fee287355eb00573d968445fcc374510d185d` — transition snapshot only; superseded as current live remote main by PR #90; immutable PR #88 merge commit `060fee287355eb00573d968445fcc374510d185d` (parents `e26f17b9001166a54171e36ce0d8fd3481315dfa` · `aa80853962b5d2df8fcb40fb482e807af4f6f788`); immutable PR #86/Production product-implementation snapshot `10e601465b66b8132a7ceb845300af1924ba468b`; historical Production deployment id **5738008464** · **not** current Production SHA
-- **Current live remote main (PR #96 merge gate, 2026-08-10):** `e1fd76b540f5290c065c1695e59f86394f20b3ba` — immutable PR #96 merge commit (P1B visual contrast)
+- **Current live remote main (2026-08-10):** `4967d963fef3ae832b420e8ff9d71cd732bf66db` — audit-index refresh on `origin/main` (parent `e1fd76b540f5290c065c1695e59f86394f20b3ba`; immutable PR #96 merge commit)
 - **Previous live remote main (PR #93 merge gate, 2026-08-07; historical):** `cb3cb45f17a0d5b5805b98af339517d43924df4a` — immutable PR #93 merge commit (Product Authority post-merge transition; merge tree `494066180e79d9468b81706c4bde02b8a274523a`); historical Production deployment id **5790526469** · Production SHA `cb3cb45f17a0d5b5805b98af339517d43924df4a` · state **success** — **not** current Production SHA
 - **Governed Product Authority last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement**; distinct from current live Production evidence above
 - **Previous live remote main (PR #90 merge gate, 2026-08-06; historical):** `ac71d054556ebec06d6fa107fbe359a88052aca6` — immutable PR #90 merge commit (parents `6286a745bbcf4ab15c006cc54946a05c4a4dc195` · `af33c722e6e585f51f8e51297055d090606fd32e`); Production deployment id **5762301638** · Production SHA `ac71d054556ebec06d6fa107fbe359a88052aca6` · state **READY** · public Premium terminology **CLOSED GREEN** — **not** current Production SHA
@@ -37,7 +37,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-10) — authoritative, read this first:** PA-2A and commercial-surface alias/reuse freeze remain **CLOSED GREEN**. IND-FREE and P0 Premium terminology remain **CLOSED GREEN**. Product Authority main settlement is **COMPLETED** — PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5`. P1A copy/framing is **CLOSED GREEN** — PR #95 **MERGED** @ `81692dab641aeddf4df625683a97761e8c97cc33`. P1B visual contrast is **CLOSED GREEN** — PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`. **Current live remote main:** `e1fd76b540f5290c065c1695e59f86394f20b3ba`. WT-024 (`/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1`, `feat/m55-mrq-p1c-draft-persistence-v1`) is **ACTIVE** — P1C draft persistence implementation only. WT-023 is **COMPLETED** read-only. WT-019 remains mapping reference/read-only. P1B source worktree (`feat/m55-mrq-p1b-visual-contrast-v1`) is merged and retained read-only — not an implementation base. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P1C_DRAFT_PERSISTENCE**. MRQ implementation is authorized on WT-024 for P1C scope only. P2/P3/4242/sales launch remain **not authorized**.
+**CURRENT (2026-08-10) — authoritative, read this first:** PA-2A and commercial-surface alias/reuse freeze remain **CLOSED GREEN**. IND-FREE and P0 Premium terminology remain **CLOSED GREEN**. Product Authority main settlement is **COMPLETED** — PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5`. P1A copy/framing is **CLOSED GREEN** — PR #95 **MERGED** @ `81692dab641aeddf4df625683a97761e8c97cc33`. P1B visual contrast is **CLOSED GREEN** — PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`. **Current live remote main:** `4967d963fef3ae832b420e8ff9d71cd732bf66db`. WT-024 (`/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1`, `feat/m55-mrq-p1c-draft-persistence-v1`) is **ACTIVE** — P1C draft persistence implementation only. WT-023 is **COMPLETED** read-only. WT-019 remains mapping reference/read-only. P1B source worktree (`feat/m55-mrq-p1b-visual-contrast-v1`) is merged and retained read-only — not an implementation base. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P1C_DRAFT_PERSISTENCE**. MRQ implementation is authorized on WT-024 for P1C scope only. P2/P3/4242/sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — dated 2026-07-27; valid only through 2026-07-31; superseded 2026-08-01 by the CURRENT paragraph above. Do not treat as current.**
 >
@@ -638,7 +638,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | path | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` |
 | branch | `feat/m55-mrq-p1c-draft-persistence-v1` |
 | HEAD (entry base) | `e1fd76b540f5290c065c1695e59f86394f20b3ba` — PR #96 merge commit on `origin/main` |
-| upstream | `origin/main` @ `e1fd76b540f5290c065c1695e59f86394f20b3ba` |
+| upstream | `origin/main` @ `4967d963fef3ae832b420e8ff9d71cd732bf66db` |
 | lifecycle | **ACTIVE** |
 | operational state | **MRQ_P1C_DRAFT_PERSISTENCE_IMPLEMENTATION** |
 | lane | M55 MINIMUM-REVENUE-QUALITY — P1C draft persistence |
