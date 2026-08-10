@@ -23,20 +23,20 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE
 
-PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY**. PR #68 is **CLOSED** as **superseded** — **unmerged**; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ.
+PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P2 Revenue-Ready entry/planning**. PR #68 is **CLOSED** as **superseded** — **unmerged**; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ.
 
 **Fixed MRQ execution order — agents must not reorder arbitrarily:**
 
 1. P0 Premium public terminology ← **CLOSED GREEN** (PR #90 **MERGED**)
-2. P1 personal free output quality ← **P1A CLOSED GREEN** (PR #95) · **P1B CLOSED GREEN** (PR #96) · **P1C draft persistence ACTIVE** (WT-024)
-3. P2 Premium bridge and paid output value — **not yet authorized**
+2. P1 personal free output quality ← **P1A CLOSED GREEN** (PR #95) · **P1B CLOSED GREEN** (PR #96) · **P1C CLOSED GREEN** (PR #97 @ `faef130a335ce6e33cfd784d5318f874beeb70ad`)
+3. P2 Premium bridge and paid output value — **next authorized commercial implementation phase; not yet authorized; implementation worktree not created**
 4. P3 checkout/refund/support/recovery safety — **not yet authorized**; P3 environment proof uses **Preview-only first** strategy
 5. P4 free compatibility
 6. P5 paid compatibility
 7. P6 analytics
 8. P7 polish/performance/animation
 
-No P2/P3 implementation wave is authorized yet. **P1C draft persistence** is the sole authorized MRQ implementation scope on WT-024. P3 environment proof uses **Preview-only first** strategy. Sales launch is **not authorized**.
+No P2/P3 implementation wave is authorized yet. **P2 Revenue-Ready entry/planning** is the sole authorized MRQ planning scope — transparency · personalization · one-time-purchase trust; preserve current Premium public terminology (プレミアムレポート / M55 プレミアムレポート ライト / M55 プレミアムレポート フル / 追加読み解き). P2 implementation worktree **not created**. P3 environment proof uses **Preview-only first** strategy. Sales launch is **not authorized**.
 
 ## Current commercial-surface governance transition (2026-08-04) — HISTORICAL, SUPERSEDED 2026-08-06
 

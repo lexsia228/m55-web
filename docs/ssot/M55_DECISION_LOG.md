@@ -230,3 +230,46 @@ This decision authorizes **only** durable policy recording in this file. It does
 - Pair work
 - commercial feature implementation
 - new-thread cutover
+
+### 2026-08-10 — P1C CLOSED GREEN and post-merge SSOT transition (docs-only)
+
+**Status:** Human-authorized **docs-only post-merge SSOT transition** on WT-025 from `faef130a335ce6e33cfd784d5318f874beeb70ad`. Does **not** authorize P2 implementation, P2 worktree creation, checkout, 4242, or sales launch.
+
+#### PR #97 merge and P1C closure
+
+| Rule | Value |
+|---|---|
+| PR #97 | **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad` |
+| Merge parents | `4967d963fef3ae832b420e8ff9d71cd732bf66db` · `5f0454ee32159873f58d08624ca49ae858ab714f` |
+| Feature head | `5f0454ee32159873f58d08624ca49ae858ab714f` |
+| main CI | **GREEN** — 8/8 terminal GREEN |
+| Production deployment id | **5826935452** |
+| Production SHA | `faef130a335ce6e33cfd784d5318f874beeb70ad` |
+| Production state | **SETTLED GREEN** |
+| Canonical Production host | `m-55.jp` |
+| Safe public reachability | **GREEN** |
+| P1C draft persistence | **CLOSED GREEN** |
+| Sales launch | **not authorized** by PR #97 merge |
+
+#### Transition to P2 Revenue-Ready entry/planning
+
+| Rule | Value |
+|---|---|
+| Next product phase | **P2** — personal Premium / Revenue-Ready |
+| Commercial direction | transparency · personalization · one-time-purchase trust — M55 is not to become a copy of an astrology/fortune site |
+| Public Premium terminology | preserve current SSOT — プレミアムレポート · M55 プレミアムレポート ライト · M55 プレミアムレポート フル · 追加読み解き |
+| P2 implementation | **not started** · worktree **not created** |
+| MRQ implementation authority | **false** until explicit P2 gate |
+| Revenue-Ready achieved | **false** |
+| SELL authorized | **false** unless current SSOT already explicitly says so |
+
+#### Scope boundary — not authorized by this entry
+
+This decision authorizes **only** durable transition recording in the four-file SSOT allowlist. It does **not** authorize:
+
+- P2 implementation or P2 worktree creation
+- commit / push / PR / merge / deploy (separate gate required)
+- checkout / 4242 execution
+- sales launch
+- Product Authority regeneration or reconciliation completion claims
+- P1A/P1B/P1C re-audit or source reopening
