@@ -26,6 +26,11 @@
   padding: 18px 16px;
 }
 
+/* Anchor #m55-paid-questionnaire below the fixed public header. */
+.lpQuestionnaireAnchor {
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
+}
+
 .lpSectionPreTier {
   composes: lpSection;
 }

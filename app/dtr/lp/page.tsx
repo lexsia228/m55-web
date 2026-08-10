@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import PurchaseButton from "../../../components/PurchaseButton";
-import { CheckoutTrustRow } from "../../../components/checkout/CheckoutTrustRow";
 import { PublicShell } from "../../_components/PublicShell";
 import {
   DTR_OWNED_RECOVERY_PROCESSING_PATH,
@@ -11,10 +9,10 @@ import {
 } from "../../../lib/m55/dtrShelfAccess";
 import { PAID_DTR_LP } from "../../../lib/m55/paidDtrProductCopy";
 import { PLAN_COMPARISON } from "../../../lib/m55/commercialUx/planComparison";
-import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from "../../../lib/oneTimeCheckout";
 import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTier";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
 import DtrPaidPurchasePrep from "../../../components/dtr/DtrPaidPurchasePrep";
+import DtrLpPremiumContinuityIntro from "../../../components/dtr/DtrLpPremiumContinuityIntro";
 import styles from "./lp.module.css";
 
 export const metadata = { title: "本質を見つめ直す | M55" };
@@ -117,20 +115,15 @@ function FinalCtaBlock({ lpCtaMode }: { lpCtaMode: DtrLpCtaMode }) {
 
 function TierCard({
   tierKey,
-  productId,
-  showPurchase,
   variant,
 }: {
   tierKey: "full" | "light";
-  productId: string;
-  showPurchase: boolean;
   variant: "full" | "light";
 }) {
   const tier = tierKey === "full" ? PLAN.full : PLAN.light;
   const cardClass = variant === "full" ? styles.lpTierCardFull : styles.lpTierCardLight;
   const ctaClass =
     variant === "full" ? "m55-lp-cta-btn" : "m55-lp-cta-btn m55-lp-cta-btn--muted-primary";
-  const ctaLabel = tierKey === "full" ? PLAN.selectFullCtaJa : PLAN.selectLightCtaJa;
 
   return (
     <div className={cardClass}>
@@ -149,14 +142,16 @@ function TierCard({
         ))}
       </div>
       <p className={styles.lpTierBody}>{tier.audienceJa}</p>
-      {showPurchase && (
-        <PurchaseButton productId={productId} className={ctaClass}>
-          <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
-            <span>{ctaLabel}</span>
-            <ArrowRightIcon />
-          </span>
-        </PurchaseButton>
-      )}
+      <a
+        href="#m55-paid-questionnaire"
+        className={ctaClass}
+        data-testid={`m55-lp-tier-${tierKey}-navigate-prep`}
+      >
+        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
+          <span>{PAID_DTR_LP.tiers.navigateToPrepCtaJa}</span>
+          <ArrowRightIcon />
+        </span>
+      </a>
     </div>
   );
 }
@@ -196,7 +191,6 @@ export default async function DtrLpPage({
       lpCtaMode === "recovery" ||
       lpCtaMode === "expired");
 
-  const showTierPurchase = !hidePriceAndTrust && lpCtaMode !== "expired";
   const showLightUpgradeCta =
     Boolean(tier?.canUpgradeFromLight && tier.reportInstanceId);
 
@@ -221,12 +215,13 @@ export default async function DtrLpPage({
           <section
             id="m55-paid-questionnaire"
             aria-labelledby="dtr-lp-funnel-heading"
-            className={styles.lpSection}
+            className={`${styles.lpSection} ${styles.lpQuestionnaireAnchor}`}
             style={{ marginTop: 0 }}
           >
             <h2 id="dtr-lp-funnel-heading" className={styles.lpH2}>
               {PAID_DTR_LP.tiers.sectionTitleJa}
             </h2>
+            <DtrLpPremiumContinuityIntro />
             <DtrPaidPurchasePrep />
           </section>
         )}
@@ -349,24 +344,9 @@ export default async function DtrLpPage({
             </h2>
             <p className={styles.lpBody}>{PLAN.upgradeNoteJa}</p>
             <div className={styles.lpTierStack}>
-              <TierCard
-                tierKey="light"
-                productId={DTR_CORE_LIGHT_V1}
-                showPurchase={showTierPurchase}
-                variant="light"
-              />
-              <TierCard
-                tierKey="full"
-                productId={DTR_CORE_FULL_V1}
-                showPurchase={showTierPurchase && !showLightUpgradeCta}
-                variant="full"
-              />
+              <TierCard tierKey="light" variant="light" />
+              <TierCard tierKey="full" variant="full" />
             </div>
-            {showTierPurchase && (
-              <div className={styles.lpTrustWrap}>
-                <CheckoutTrustRow />
-              </div>
-            )}
           </section>
         )}
 

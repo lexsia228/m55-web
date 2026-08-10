@@ -1284,6 +1284,7 @@ export const PAID_DTR_LP = {
     sectionTitleJa: '読み返し方に合わせて選べます',
     sectionLeadJa:
       'どちらも同じプレミアムレポートです。違いは、追加読み解きとして使える回数です。',
+    navigateToPrepCtaJa: 'プラン選択へ進む',
     full: {
       planNameJa: PAID_DTR_SAVED_REPORT_PRICING.full.planNameJa,
       priceLabelJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
@@ -1320,6 +1321,8 @@ export const PAID_DTR_LP = {
   },
   purchaseNotes: {
     sectionTitleJa: '購入前の確認',
+    checkoutFutureJa:
+      'お支払い完了後は生成画面を経てプレミアムレポートを開けます。プランに応じて追加読み解きが利用できます。',
     paragraphsJa: [
       'プレミアムレポートは、購入時点の生年月日・プロフィールにもとづく固定ルールの読み物です。未来予測や吉凶の断定ではありません。',
       '同じ入力内容なら、同じプレミアムレポートに戻れます。',
@@ -1417,6 +1420,7 @@ export function collectPaidDtrLpCopyStrings(): string[] {
     lp.consultReply.bodyJa,
     lp.tiers.sectionTitleJa,
     lp.tiers.sectionLeadJa,
+    lp.tiers.navigateToPrepCtaJa,
     full.planNameJa,
     full.priceLabelJa,
     full.oneTimeLabelJa,
@@ -1439,6 +1443,7 @@ export function collectPaidDtrLpCopyStrings(): string[] {
     lp.upgrade.sectionTitleJa,
     ...lp.upgrade.paragraphsJa,
     lp.purchaseNotes.sectionTitleJa,
+    lp.purchaseNotes.checkoutFutureJa,
     ...lp.purchaseNotes.paragraphsJa,
     ...lp.purchaseNotes.legalLinks.map((l) => l.labelJa),
     lp.faq.sectionTitleJa,
