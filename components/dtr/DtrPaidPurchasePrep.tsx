@@ -170,7 +170,7 @@ export default function DtrPaidPurchasePrep() {
         <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
           <M55MethodTrustLink surface="checkout" />
         </div>
-        <nav className={styles.legalLinks} aria-label="購入に関する案内" data-testid="m55-checkout-legal-links">
+        <nav className={styles.legalLinks} aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa} data-testid="m55-checkout-legal-links">
           {PAID_DTR_LP.purchaseNotes.legalLinks.map((link) => (
             <Link key={link.href} href={link.href} className={styles.legalLink}>
               {link.labelJa}

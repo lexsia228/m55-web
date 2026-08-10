@@ -1323,6 +1323,7 @@ export const PAID_DTR_LP = {
     sectionTitleJa: '購入前の確認',
     checkoutFutureJa:
       'お支払い完了後は生成画面を経てプレミアムレポートを開けます。プランに応じて追加読み解きが利用できます。',
+    legalLinksNavAriaLabelJa: '購入に関する案内',
     paragraphsJa: [
       'プレミアムレポートは、購入時点の生年月日・プロフィールにもとづく固定ルールの読み物です。未来予測や吉凶の断定ではありません。',
       '同じ入力内容なら、同じプレミアムレポートに戻れます。',
@@ -1444,6 +1445,7 @@ export function collectPaidDtrLpCopyStrings(): string[] {
     ...lp.upgrade.paragraphsJa,
     lp.purchaseNotes.sectionTitleJa,
     lp.purchaseNotes.checkoutFutureJa,
+    lp.purchaseNotes.legalLinksNavAriaLabelJa,
     ...lp.purchaseNotes.paragraphsJa,
     ...lp.purchaseNotes.legalLinks.map((l) => l.labelJa),
     lp.faq.sectionTitleJa,
