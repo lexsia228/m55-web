@@ -273,3 +273,50 @@ This decision authorizes **only** durable transition recording in the four-file 
 - sales launch
 - Product Authority regeneration or reconciliation completion claims
 - P1A/P1B/P1C re-audit or source reopening
+
+### 2026-08-10 — P2 CLOSED GREEN and post-merge SSOT transition (docs-only)
+
+**Status:** Human-authorized **docs-only post-merge SSOT transition** on `feat/m55-mrq-p2-postmerge-ssot-v1` from `2d14404d62ab7b265e07729448d6db602a055cce`. Does **not** authorize P3 implementation, P3 worktree creation, checkout, 4242, or sales launch.
+
+#### PR #99 merge and P2 closure
+
+| Rule | Value |
+|---|---|
+| PR #99 | **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce` |
+| Merge parents | `3cf560691dd11d35b26077ec6c5e4686a571dae5` · `21744e195f08aeda03f23b7972bedcbf227aaaaa` |
+| Feature head | `21744e195f08aeda03f23b7972bedcbf227aaaaa` |
+| Merge method | **MERGE COMMIT** |
+| main CI | **GREEN** — 8/8 terminal GREEN |
+| Production project | `m55-official/m55-webv2` |
+| Production environment | **production** |
+| Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
+| Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
+| Production state | **SETTLED GREEN** |
+| Canonical Production host | `m-55.jp` |
+| Safe public reachability | **GREEN** |
+| ECP | **GREEN** |
+| Premium proof | **GREEN** |
+| P2 Revenue-Ready | **CLOSED GREEN** |
+| Sales launch | **not authorized** by PR #99 merge |
+| Revenue-Ready final commercial closure | **not claimed complete** |
+
+#### Transition to P3 entry/planning
+
+| Rule | Value |
+|---|---|
+| Next product phase | **P3** — checkout/refund/support/recovery safety |
+| P3 implementation | **not started** · worktree **not created** |
+| MRQ implementation authority | **false** until explicit P3 gate |
+| Preview strategy | **Preview-only first** |
+| REAL_CHECKOUT_AUTHORIZED | **false** |
+| TEST_CHECKOUT_4242_AUTHORIZED | **false** |
+
+#### Scope boundary — not authorized by this entry
+
+This decision authorizes **only** durable transition recording in the four-file SSOT allowlist. It does **not** authorize:
+
+- P3 implementation or P3 worktree creation
+- commit / push / PR / merge / deploy (separate gate required)
+- checkout / 4242 execution / real purchase
+- sales launch
+- P1A/P1B/P1C/P2 re-audit or source reopening

@@ -5,7 +5,7 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning).
 
 ## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — AUTHORITATIVE
 
@@ -29,13 +29,15 @@ This section is the current authority for lane status, PR dispositions, and the 
 | PR #95 | **MERGED** — https://github.com/lexsia228/m55-web/pull/95 · P1A copy/framing · merge commit `81692dab641aeddf4df625683a97761e8c97cc33` · **CLOSED GREEN** |
 | PR #96 | **MERGED** — https://github.com/lexsia228/m55-web/pull/96 · P1B visual contrast · merge commit `e1fd76b540f5290c065c1695e59f86394f20b3ba` · **CLOSED GREEN** |
 | PR #97 | **MERGED** — https://github.com/lexsia228/m55-web/pull/97 · P1C draft persistence · merge commit `faef130a335ce6e33cfd784d5318f874beeb70ad` · merge parents `4967d963fef3ae832b420e8ff9d71cd732bf66db` · `5f0454ee32159873f58d08624ca49ae858ab714f` · **CLOSED GREEN** |
+| PR #99 | **MERGED** — https://github.com/lexsia228/m55-web/pull/99 · P2 Revenue-Ready premium funnel · merge commit `2d14404d62ab7b265e07729448d6db602a055cce` · merge parents `3cf560691dd11d35b26077ec6c5e4686a571dae5` · `21744e195f08aeda03f23b7972bedcbf227aaaaa` · merge method **MERGE COMMIT** · mergedAt `2026-08-10T16:02:42Z` · **CLOSED GREEN** |
+| PR #99 feature head | `21744e195f08aeda03f23b7972bedcbf227aaaaa` |
 | PR #94 base | `main` @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` |
 | PR #94 settlement branch | `docs/m55-product-authority-post-merge-main-settlement-v1` |
 | PR #94 first settlement commit | `e57e2c7cabb06286f4b99884a7bf3f0ee829a3ba` — committed · pushed |
 | Settlement completion condition | PR #94 **MERGED** into `main` **and** final main identity / SSOT verification complete — **met** |
-| Current live remote main | `faef130a335ce6e33cfd784d5318f874beeb70ad` — PR #97 merge commit on `origin/main` (parents `4967d963fef3ae832b420e8ff9d71cd732bf66db` · `5f0454ee32159873f58d08624ca49ae858ab714f`) |
-| Current live Production deployment id | **5826935452** |
-| Current live Production SHA | `faef130a335ce6e33cfd784d5318f874beeb70ad` |
+| Current live remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit on `origin/main` (parents `3cf560691dd11d35b26077ec6c5e4686a571dae5` · `21744e195f08aeda03f23b7972bedcbf227aaaaa`) |
+| Current live Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
+| Current live Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
 | Current live Production state | **SETTLED GREEN** |
 | main CI | **GREEN** — 8/8 terminal GREEN |
 | Governed Product Authority last observation — Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — observation-time snapshot @ `2026-08-06T10:02:33.727Z`; **not reobserved in this settlement** |
@@ -49,6 +51,7 @@ This section is the current authority for lane status, PR dispositions, and the 
 | P1A copy/framing | **CLOSED GREEN** — PR #95 **MERGED** @ `81692dab641aeddf4df625683a97761e8c97cc33` |
 | P1B visual contrast | **CLOSED GREEN** — PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba` |
 | P1C draft persistence | **CLOSED GREEN** — PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad` |
+| P2 Revenue-Ready | **CLOSED GREEN** — PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce` · feature head `21744e195f08aeda03f23b7972bedcbf227aaaaa` · ECP **GREEN** · Premium proof **GREEN** · P2 UIUX freeze preserved |
 | PR #68 | **CLOSED** as **superseded** — **unmerged**; branch retained; **not** an implementation source |
 | PR #30 | **OPEN** — independent; **not blocking MRQ**; HOME reopen **not authorized** |
 | PR #75 | **OPEN** — **frozen reference-only**; **not blocking MRQ** |
@@ -60,22 +63,25 @@ This section is the current authority for lane status, PR dispositions, and the 
 | WT-022 | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1` · `pa/m55-product-authority-post-merge-transition-v1` @ `6625ce01f83890d12d2d3b3e0c31fe8e3f36a460` — **COMPLETED** · PR #93 **MERGED** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` · retained read-only historical reference · write authority **none** · MRQ implementation authority **false** |
 | WT-023 | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-post-merge-transition-v1` · `docs/m55-product-authority-post-merge-main-settlement-v1` — **COMPLETED** · PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5` · retained read-only · write authority **none** |
 | WT-024 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` · `feat/m55-mrq-p1c-draft-persistence-v1` @ `5f0454ee32159873f58d08624ca49ae858ab714f` — **COMPLETED** · PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad` · retained read-only · write authority **none** |
-| WT-025 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-postmerge-ssot-v1` · `feat/m55-mrq-p1c-postmerge-ssot-v1` @ `faef130a335ce6e33cfd784d5318f874beeb70ad` — **ACTIVE** · docs-only P1C post-merge SSOT transition |
-| ACTIVE LANE | **M55 MINIMUM-REVENUE-QUALITY — P2 Revenue-Ready entry/planning** |
+| WT-025 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-postmerge-ssot-v1` · `feat/m55-mrq-p1c-postmerge-ssot-v1` @ `1f391371c9d04146878df40dc8a2499ccce5a76d` — **COMPLETED** · PR #98 **MERGED** · retained read-only · write authority **none** |
+| WT-026 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p2-revenue-ready-v1` · `feat/m55-mrq-p2-revenue-ready-v1` @ `21744e195f08aeda03f23b7972bedcbf227aaaaa` — **COMPLETED** · PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce` · retained read-only · write authority **none** |
+| ACTIVE LANE | **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning** |
+| NEXT GATE | **M55_MRQ_P3_ENTRY_PLANNING** |
 | P3 smoke strategy | **Preview-only first** — 4242 execution remains **unauthorized** |
-| Product Authority observation | **governed last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement** · **current live Production:** deployment **5826935452** · SHA `faef130a335ce6e33cfd784d5318f874beeb70ad` · state **SETTLED GREEN** — P1C post-merge Production settlement |
+| P3 started | **false** |
+| Product Authority observation | **governed last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement** · **current live Production:** deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** · SHA `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN** — P2 post-merge Production settlement |
 | Product Authority post-merge transition | **COMPLETED** — PR #93 **MERGED** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` · PR #94 main settlement **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5` · Product Authority main settled **true** |
-| MRQ_IMPLEMENTATION_WORKTREE_AUTHORIZED | **false** — P2 worktree **not created** |
-| MRQ_IMPLEMENTATION_AUTHORIZED | **false** — P2 Revenue-Ready implementation **not yet authorized** |
+| MRQ_IMPLEMENTATION_WORKTREE_AUTHORIZED | **false** — P3 worktree **not created** |
+| MRQ_IMPLEMENTATION_AUTHORIZED | **false** — P3 implementation **not yet authorized** |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
 | PAIR_PREMIUM_LIVE | **false** |
 | COMPATIBILITY_COMMERCE_LIVE | **false** |
 | SALES_LAUNCH_AUTHORIZED | **false** |
 | Public product terminology | current Premium SSOT terminology only — internal structural terminology must not be promoted into public/commercial product naming |
-| MRQ implementation worktree | **none** — P2 worktree **not created** |
-| MRQ patch scope | **closed** — P1C draft persistence allowlist complete |
-| Authorization boundary | PR #94–#97 merged to main. P1A/P1B/P1C **CLOSED GREEN**. ACTIVE sublane is **P2 Revenue-Ready entry/planning** only — no P2 implementation worktree yet. P2 implementation/P3/checkout/4242/deployment/sales launch remain **not authorized**. DB/Stripe/Clerk/env remain **not authorized**. WT-019 must **not** receive implementation authority. WT-025 holds docs-only post-merge transition only. |
+| MRQ implementation worktree | **none** — P3 worktree **not created** |
+| MRQ patch scope | **closed** — P2 Revenue-Ready allowlist complete |
+| Authorization boundary | PR #94–#99 merged to main. P1A/P1B/P1C/P2 **CLOSED GREEN**. ACTIVE sublane is **P3 entry/planning** only — no P3 implementation worktree yet. P3 implementation/checkout/4242/real purchase/sales launch remain **not authorized**. DB/Stripe/Clerk/env remain **not authorized**. WT-019 must **not** receive implementation authority. Revenue-Ready final commercial closure is **not** claimed complete by P2 merge alone. |
 | Sales launch | **not authorized** |
 | NEXT SINGLE ACTION | See the canonical `NEXT SINGLE ACTION` section below. |
 
@@ -248,7 +254,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 
 ## Canonical Production authority
 
-**CURRENT (2026-08-10 — P1C post-merge settlement):**
+**CURRENT (2026-08-10 — P2 post-merge settlement):**
 
 | Field | Value |
 |---|---|
@@ -257,9 +263,9 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `faef130a335ce6e33cfd784d5318f874beeb70ad` — PR #97 merge commit on `origin/main`; immutable PR #96 merge `e1fd76b540f5290c065c1695e59f86394f20b3ba` retained as historical P1B snapshot; immutable PR #95 merge `81692dab641aeddf4df625683a97761e8c97cc33` retained as historical P1A snapshot; immutable PR #94 merge `93579b86a4a69ebf555bd089869d541f0c56f4a5` retained as historical Product Authority settlement snapshot |
-| Current live Production deployment id | **5826935452** |
-| Current live Production SHA | `faef130a335ce6e33cfd784d5318f874beeb70ad` |
+| Current live remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit on `origin/main`; immutable PR #97 merge `faef130a335ce6e33cfd784d5318f874beeb70ad` retained as historical P1C snapshot |
+| Current live Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
+| Current live Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
 | Current live Production state | **SETTLED GREEN** |
 | Safe public reachability | **GREEN** |
 | Governed Product Authority last observation — Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — observation-time snapshot @ `2026-08-06T10:02:33.727Z`; deployment **5777052896**; **not reobserved in this settlement** |
@@ -295,7 +301,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | IND-FREE commercial convergence | **COMPLETED — PR #86 MERGED — retained read-only** | **WT-014** | `/Users/lexsia/Documents/M55_WORKTREE-ind-free-commercial-convergence-v1` | PR #86 merge `10e601465b66b8132a7ceb845300af1924ba468b` · feature head `326ccd6f1c97911ba82281dbc0a9d4dd835ed782` · feature branch preserved · no additional source-write authority |
 | Premium public terminology (P0) | **COMPLETED — PR #90 MERGED — retained read-only** | **WT-018** | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` | PR #90 merge `ac71d054556ebec06d6fa107fbe359a88052aca6` · feature head `af33c722e6e585f51f8e51297055d090606fd32e` · P0 terminology **CLOSED GREEN** · no additional source-write authority |
 | MRQ read-only mapping | **COMPLETED — mapping Revision 1 CLOSED GREEN — retained reference/read-only** | **WT-019** | `/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1` | `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6` · MRQ implementation authority **false** · no remote branch |
-| M55 MINIMUM-REVENUE-QUALITY | **ACTIVE — P2 Revenue-Ready entry/planning; P2 implementation worktree not created** | — | — | P1C **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`); next authorized commercial implementation phase is P2 per `M55_ROADMAP.md` |
+| M55 MINIMUM-REVENUE-QUALITY | **ACTIVE — P3 entry/planning; P3 implementation worktree not created** | — | — | P2 **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`); next authorized planning scope is P3 per `M55_ROADMAP.md` |
 
 ## State separation
 
@@ -322,11 +328,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-10):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). Current live remote main is `faef130a335ce6e33cfd784d5318f874beeb70ad`. Current live Production deployment **5826935452** @ `faef130a335ce6e33cfd784d5318f874beeb70ad` · state **SETTLED GREEN**. ACTIVE sublane is **P2 Revenue-Ready entry/planning** — P2 implementation **not started**. P2/P3/4242/sales launch remain unauthorized.
+**Current transition (2026-08-10):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). P2 Revenue-Ready is **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`). Current live remote main is `2d14404d62ab7b265e07729448d6db602a055cce`. Current live Production deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** @ `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN**. ACTIVE sublane is **P3 entry/planning** — P3 implementation **not started**. P3/checkout/4242/real purchase/sales launch remain unauthorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-10):** Complete docs-only P1C post-merge SSOT transition on WT-025 (`feat/m55-mrq-p1c-postmerge-ssot-v1` from `faef130a335ce6e33cfd784d5318f874beeb70ad`). Gate: `M55_MRQ_P1C_POST_MERGE_SSOT_TRANSITION_EXACT_LOCAL_COMMIT_HUMAN_AUTHORIZATION`. After SSOT transition commit/merge, route to **P2 Revenue-Ready entry/planning** — transparency · personalization · one-time-purchase trust; preserve current Premium public terminology (プレミアムレポート / M55 プレミアムレポート ライト / M55 プレミアムレポート フル / 追加読み解き). P1A/P1B/P1C must not be re-audited. P2 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P2/P3/checkout/4242/deployment/sales launch remain **not authorized**.
+**CURRENT (2026-08-10):** Complete docs-only P2 post-merge SSOT transition on `feat/m55-mrq-p2-postmerge-ssot-v1` from `2d14404d62ab7b265e07729448d6db602a055cce`. Gate: `M55_MRQ_P2_REVENUE_READY_POST_MERGE_SSOT_TRANSITION_EXECUTION`. After SSOT transition commit/merge, route to **P3 entry/planning** — checkout/refund/support/recovery safety per `M55_ROADMAP.md`; preserve Preview-only-first strategy. P1A/P1B/P1C/P2 must not be re-audited. P3 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-08-05; superseded 2026-08-06.**
 >
