@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { ProfileRepository } from '../../lib/soul/profile';
 import { ensureSealedCoreResult } from '../../lib/m55/coreResult/store';
 import { buildFreeDepthAnalysisV1 } from '../../lib/m55/freeResult/buildFreeDepthAnalysisV1';
@@ -98,9 +97,6 @@ export default function DtrLpPremiumContinuityIntro() {
         ))}
       </ul>
       <p className={styles.support}>{copy.ctaSupportJa}</p>
-      <Link href="#dtr-lp-tiers-heading" className={styles.cta} data-testid="m55-dtr-lp-continuity-cta">
-        {copy.primaryCtaJa}
-      </Link>
     </section>
     </PremiumExperienceSurface>
   );

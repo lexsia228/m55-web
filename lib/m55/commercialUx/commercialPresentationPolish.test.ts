@@ -39,7 +39,6 @@ const PROHIBITED_PHRASES = [
   'プレミアムレポートの6問を始める',
   'FULLを選ぶ',
   '一回払い',
-  'm55-dtr-lp-continuity',
 ] as const;
 
 describe('commercial presentation polish — Premium intro single', () => {
@@ -51,9 +50,13 @@ describe('commercial presentation polish — Premium intro single', () => {
 
     const bridge = read('components/core/CoreFreeToPaidConversionBridge.tsx');
     const lp = read('app/dtr/lp/page.tsx');
+    const continuity = read('components/dtr/DtrLpPremiumContinuityIntro.tsx');
     assert.doesNotMatch(bridge, /conversionBridgePlanGrid/);
     assert.doesNotMatch(bridge, /outcomesJa/);
-    assert.doesNotMatch(lp, /DtrLpPremiumContinuityIntro/);
+    assert.match(lp, /DtrLpPremiumContinuityIntro/);
+    assert.match(continuity, /premiumOpenLoopJa/);
+    assert.match(continuity, /premiumLockedHeadingsJa/);
+    assert.doesNotMatch(continuity, /fallback|dummy|mock/i);
     assert.match(bridge, /m55-paid-questionnaire/);
   });
 

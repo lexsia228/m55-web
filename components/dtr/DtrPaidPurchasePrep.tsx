@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
 import PurchaseButton from '../PurchaseButton';
 import { CheckoutTrustRow } from '../checkout/CheckoutTrustRow';
 import { DTR_CORE_FULL_V1, DTR_CORE_LIGHT_V1 } from '../../lib/oneTimeCheckout';
+import { PAID_DTR_LP } from '../../lib/m55/paidDtrProductCopy';
 import {
   buildIncludedProductSummaryJa,
   PLAN_COMPARISON,
@@ -43,12 +45,29 @@ export default function DtrPaidPurchasePrep() {
   const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const checkoutShellRef = useRef<HTMLElement | null>(null);
+  const prevGateRef = useRef<GatePhase | null>(null);
   const plan = PLAN_COMPARISON;
 
   useEffect(() => {
     setGate(resolveInitialGate());
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    const enteredCheckoutFromPlans =
+      gate === 'checkout' && selectedPlan && prevGateRef.current === 'plans';
+    prevGateRef.current = gate;
+
+    if (!enteredCheckoutFromPlans) return;
+
+    const shell = checkoutShellRef.current;
+    if (!shell) return;
+
+    requestAnimationFrame(() => {
+      shell.scrollIntoView({ block: 'start' });
+    });
+  }, [gate, selectedPlan]);
 
   useEffect(() => {
     if (gate !== 'plans') return;
@@ -116,6 +135,7 @@ export default function DtrPaidPurchasePrep() {
         <PremiumExperienceSync shellPremium />
         <PremiumDecisionSurface stateId="premium.lp.checkout" testId="m55-premium-experience-checkout">
         <section
+          ref={checkoutShellRef}
           className={`${styles.shell} m55-exp-reading`}
           data-m55-paid-phase="checkout"
           data-m55-paid-checkout
@@ -144,9 +164,19 @@ export default function DtrPaidPurchasePrep() {
           </div>
         </div>
         <p className={styles.confirmNote}>{C.checkoutNoteJa}</p>
+        <p className={styles.confirmFuture} data-testid="m55-checkout-future-note">
+          {PAID_DTR_LP.purchaseNotes.checkoutFutureJa}
+        </p>
         <div className={styles.planMethodSlot} data-testid="m55-checkout-method-slot">
           <M55MethodTrustLink surface="checkout" />
         </div>
+        <nav className={styles.legalLinks} aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa} data-testid="m55-checkout-legal-links">
+          {PAID_DTR_LP.purchaseNotes.legalLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={styles.legalLink}>
+              {link.labelJa}
+            </Link>
+          ))}
+        </nav>
         <div className={styles.actions}>
           <button
             type="button"
