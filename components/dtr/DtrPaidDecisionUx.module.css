@@ -283,14 +283,14 @@
   flex-shrink: 0;
 }
 
-:global(.m55-purchase-button-stack) {
+.primaryCtaWrap :global(.m55-purchase-button-stack) {
   display: flex;
   flex-direction: column;
   width: 100%;
   gap: 0.5rem;
 }
 
-:global(.m55-purchase-button-alert) {
+.primaryCtaWrap :global(.m55-purchase-button-alert) {
   margin: 0;
   width: 100%;
   font-size: 0.9rem;
@@ -298,7 +298,7 @@
   color: #5a4ea0;
 }
 
-:global(.m55-purchase-button-alert--error) {
+.primaryCtaWrap :global(.m55-purchase-button-alert--error) {
   color: #8b3040;
 }
 

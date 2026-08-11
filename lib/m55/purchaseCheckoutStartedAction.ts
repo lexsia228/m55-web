@@ -7,7 +7,6 @@
  * context + Stripe idempotency key) used by /api/purchase/checkout.
  */
 
-import { createHash } from 'node:crypto';
 import type { BirthProfile } from '../soul/profile';
 import {
   M55_FUNNEL_EVENTS,
@@ -89,6 +88,22 @@ export function readPendingCheckoutExtra(extra: Record<string, unknown> | null |
   };
 }
 
+/** Synchronous FNV-1a 64-bit — safe in client and server bundles (no node:crypto). */
+function fnv1a64Utf8(input: string): bigint {
+  let hash = 0xcbf29ce484222325n;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= BigInt(input.charCodeAt(i));
+    hash = (hash * 0x100000001b3n) & 0xffffffffffffffffn;
+  }
+  return hash;
+}
+
+function deterministicSeedHex(seed: string): string {
+  const a = fnv1a64Utf8(seed);
+  const b = fnv1a64Utf8(`${seed}\x1e`);
+  return a.toString(16).padStart(16, '0') + b.toString(16).padStart(16, '0');
+}
+
 /**
  * Server-authoritative purchase context when no draft row exists yet.
  * Same user + product + intent lane → same UUID before Stripe (closes first-intent concurrency race).
@@ -99,7 +114,7 @@ export function buildDeterministicCheckoutPurchaseContextId(
   repurchaseLane: boolean,
 ): string {
   const seed = `m55_dtr_checkout_ctx_v1:${userId}:${productId}:${repurchaseLane ? 'repurchase' : 'fresh'}`;
-  const hex = createHash('sha256').update(seed, 'utf8').digest('hex');
+  const hex = deterministicSeedHex(seed);
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
 

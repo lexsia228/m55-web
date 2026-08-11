@@ -7,7 +7,6 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { promoteGuestCoreSnapshotToClerkUser } from '../../lib/m55/coreResult/store';
-import { DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH } from '../../lib/m55/dtrShelfAccess';
 import { ProfileRepository, promoteGuestProfileToClerkUser } from '../../lib/soul/profile';
 import styles from '../../app/dtr/processing/processing.module.css';
 import PaidDtrAnalysisLoading from './PaidDtrAnalysisLoading';
@@ -17,6 +16,8 @@ const MAX_POLLS = 120;
 const EARLY_REVEAL_MS = 8000;
 
 const CORE_READY = '/dtr/core?post_purchase=1';
+/** Client-safe mirror of lib/m55/dtrShelfAccess DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH (no server barrel import). */
+const HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp?repurchase=1';
 
 export function DtrProcessingClient({
   supportUrl,
@@ -61,7 +62,7 @@ export function DtrProcessingClient({
   useEffect(() => {
     if (hiddenOnlyRepurchase) {
       setProcessingComplete(true);
-      setPendingNav(DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH);
+      setPendingNav(HIDDEN_ONLY_REPURCHASE_LP_PATH);
       return;
     }
 
@@ -94,7 +95,7 @@ export function DtrProcessingClient({
             d.showPurchaseCta === true
           ) {
             setProcessingComplete(true);
-            setPendingNav(DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH);
+            setPendingNav(HIDDEN_ONLY_REPURCHASE_LP_PATH);
             return;
           }
         }
