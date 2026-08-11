@@ -11,7 +11,10 @@ import {
   isDtrCoreSavedReportOneTimeProduct,
 } from '../lib/oneTimeCheckout';
 import { trackFunnelAction } from '../lib/m55/privacySafeFunnelAnalytics';
-import { runPurchaseCheckoutAttempt } from '../lib/m55/purchaseCheckoutStartedAction';
+import {
+  PURCHASE_CHECKOUT_PUBLIC_ERRORS,
+  runPurchaseCheckoutAttempt,
+} from '../lib/m55/purchaseCheckoutStartedAction';
 
 /** Saved-report checkout SKUs that require birth profile before Stripe session. */
 const DTR_SAVED_REPORT_PROFILE_GATED = new Set<string>([
@@ -19,6 +22,9 @@ const DTR_SAVED_REPORT_PROFILE_GATED = new Set<string>([
   DTR_CORE_LIGHT_V1,
   DTR_CORE_FULL_V1,
 ]);
+
+const PURCHASE_RESTORE_KEY = 'm55_dtr_purchase_restore_v1';
+const CHECKOUT_FETCH_TIMEOUT_MS = 30000;
 
 /**
  * productId → 環境変数マッピング (display / diagnostics only; checkout route resolves env).
@@ -34,6 +40,10 @@ export type PurchaseButtonProps = {
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  disabled?: boolean;
+  repurchaseAcknowledged?: boolean;
+  purchaseRestoreContext?: { gate: 'checkout'; selectedPlan: 'light' | 'full' };
+  onRepurchaseAckRequired?: () => void;
 };
 
 /**
@@ -45,21 +55,29 @@ export default function PurchaseButton({
   children = '購入する',
   className,
   style,
+  disabled = false,
+  repurchaseAcknowledged,
+  purchaseRestoreContext,
+  onRepurchaseAckRequired,
 }: PurchaseButtonProps) {
   const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const [needsProfile, setNeedsProfile] = useState(false);
+  const [fulfillmentPending, setFulfillmentPending] = useState<{ message: string; recoveryPath: string } | null>(
+    null,
+  );
   /** Sync pending boundary — blocks double-activation before React re-render disables the button. */
   const submitLockRef = useRef(false);
 
   const handleClick = async () => {
-    if (submitLockRef.current || loading) return;
+    if (disabled || submitLockRef.current || loading) return;
 
     setError(null);
     setNeedsSignIn(false);
     setNeedsProfile(false);
+    setFulfillmentPending(null);
     setLoading(true);
 
     let freeAnswerSet: Record<string, string> | undefined;
@@ -79,27 +97,34 @@ export default function PurchaseButton({
       profile,
       freeAnswerSet,
       paidAnswerSet,
+      repurchaseAcknowledged,
       submitLock: submitLockRef,
-      // React `loading` already gated above; helper uses submitLock for sync re-entry.
       loading: false,
       deps: {
         fetchCheckout: async (payload) => {
-          const res = await fetch('/api/purchase/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          return {
-            status: res.status,
-            ok: res.ok,
-            json: () =>
-              res.json() as Promise<{
-                code?: string;
-                error?: string;
-                url?: string;
-                resumeCheckoutSessionId?: string;
-              }>,
-          };
+          const controller = new AbortController();
+          const timeoutId = window.setTimeout(() => controller.abort(), CHECKOUT_FETCH_TIMEOUT_MS);
+          try {
+            const res = await fetch('/api/purchase/checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              signal: controller.signal,
+            });
+            return {
+              status: res.status,
+              ok: res.ok,
+              json: () =>
+                res.json() as Promise<{
+                  code?: string;
+                  error?: string;
+                  url?: string;
+                  resumeCheckoutSessionId?: string;
+                }>,
+            };
+          } finally {
+            window.clearTimeout(timeoutId);
+          }
         },
         trackFunnelAction,
         navigateHref: (url) => {
@@ -117,9 +142,15 @@ export default function PurchaseButton({
       },
     });
 
-    // In-flight owner keeps loading; do not clear on skipped concurrent activation.
     if (outcome.kind === 'skipped_locked') return;
     if (outcome.kind === 'needs_profile') {
+      if (purchaseRestoreContext) {
+        try {
+          sessionStorage.setItem(PURCHASE_RESTORE_KEY, JSON.stringify(purchaseRestoreContext));
+        } catch {
+          /* no-op */
+        }
+      }
       setNeedsProfile(true);
       setLoading(false);
       return;
@@ -130,7 +161,25 @@ export default function PurchaseButton({
       return;
     }
     if (outcome.kind === 'needs_sign_in') {
+      if (purchaseRestoreContext) {
+        try {
+          sessionStorage.setItem(PURCHASE_RESTORE_KEY, JSON.stringify(purchaseRestoreContext));
+        } catch {
+          /* no-op */
+        }
+      }
       setNeedsSignIn(true);
+      setLoading(false);
+      return;
+    }
+    if (outcome.kind === 'repurchase_ack_required') {
+      onRepurchaseAckRequired?.();
+      setError(outcome.message);
+      setLoading(false);
+      return;
+    }
+    if (outcome.kind === 'fulfillment_pending') {
+      setFulfillmentPending({ message: outcome.message, recoveryPath: outcome.recoveryPath });
       setLoading(false);
       return;
     }
@@ -139,17 +188,17 @@ export default function PurchaseButton({
       setLoading(false);
       return;
     }
-    // navigated — leave loading/lock engaged until page unloads
   };
 
   const signInHref = `/sign-in?redirect_url=${encodeURIComponent('/dtr/lp')}`;
+  const myHref = '/my';
 
   return (
-    <div>
+    <div className="m55-purchase-button-stack">
       <button
         type="button"
         onClick={handleClick}
-        disabled={loading}
+        disabled={disabled || loading}
         className={className}
         style={style}
         aria-busy={loading}
@@ -158,7 +207,7 @@ export default function PurchaseButton({
         {loading ? '購入状況を確認しています…' : children}
       </button>
       {needsSignIn && (
-        <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#5a4ea0' }}>
+        <p role="alert" className="m55-purchase-button-alert">
           購入にはログインが必要です。{' '}
           <a href={signInHref} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             ログインして購入を続ける
@@ -166,15 +215,23 @@ export default function PurchaseButton({
         </p>
       )}
       {needsProfile && (
-        <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#5a4ea0' }}>
+        <p role="alert" className="m55-purchase-button-alert">
           購入前にマイページでニックネームと生年月日を入力してください。{' '}
-          <a href="/my" style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
+          <a href={myHref} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
             マイページでプロフィールを入力
           </a>
         </p>
       )}
+      {fulfillmentPending && (
+        <p role="alert" className="m55-purchase-button-alert">
+          {fulfillmentPending.message}{' '}
+          <a href={fulfillmentPending.recoveryPath} style={{ color: '#7c6fd6', textDecoration: 'underline' }}>
+            準備状況を確認する
+          </a>
+        </p>
+      )}
       {error && (
-        <p role="alert" style={{ marginTop: 8, fontSize: 14, color: '#c00' }}>
+        <p role="alert" className="m55-purchase-button-alert m55-purchase-button-alert--error">
           {error}
         </p>
       )}
@@ -182,4 +239,4 @@ export default function PurchaseButton({
   );
 }
 
-export { PRODUCT_ID_TO_ENV };
+export { PRODUCT_ID_TO_ENV, PURCHASE_CHECKOUT_PUBLIC_ERRORS };

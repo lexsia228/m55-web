@@ -2,10 +2,12 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseAdmin } from '../../../lib/supabaseAdmin';
-import { verifyStripeCheckoutSessionForDtrUser } from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
+import {
+  verifyStripeCheckoutSessionForDtrUser,
+  type DtrCheckoutVerificationFailureReason,
+} from '../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import { fulfillDtrCoreFromCheckoutSessionId } from '../../../lib/m55/dtrCoreCheckoutFulfillment';
 import {
-  DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH,
   DTR_OWNED_RECOVERY_PROCESSING_PATH,
   isDtrOwnedHiddenOnlyState,
 } from '../../../lib/m55/dtrShelfAccess';
@@ -34,6 +36,17 @@ async function getSupportUrl(): Promise<string> {
     /* ignore */
   }
   return '/support';
+}
+
+function isSafeUnpaidVerificationFailure(reason: DtrCheckoutVerificationFailureReason): boolean {
+  return (
+    reason === 'session_status_not_complete' ||
+    reason === 'purchase_context_owner_mismatch'
+  );
+}
+
+function paidProcessingRecoveryMessage(): string {
+  return 'お支払いを確認しました。プレミアムレポートの反映に時間がかかっています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。';
 }
 
 function ProcessingFallback({
@@ -92,8 +105,9 @@ export default async function DtrProcessingPage(props: {
     redirect(`/sign-in?redirect_url=${encodeURIComponent(back)}`);
   }
 
+  const supportUrl = await getSupportUrl();
+
   if (isOwnedRecovery && !sessionIdFromUrl) {
-    const supportUrl = await getSupportUrl();
     const ownership = await resolveEntryReportOwnership(userId);
 
     if (ownership.unlockState === 'expired') {
@@ -108,21 +122,25 @@ export default async function DtrProcessingPage(props: {
       redirect('/dtr/core');
     }
 
-    if (await isDtrOwnedHiddenOnlyState(userId)) {
-      redirect(DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH);
-    }
+    const hiddenOnlyRepurchase = await isDtrOwnedHiddenOnlyState(userId);
 
     return (
       <main className={styles.page} data-testid="m55-dtr-processing-main">
         <div className={styles.inner}>
           <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
           <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-            {LABEL_FORMAT_SAVED}を確認しています
+            {hiddenOnlyRepurchase ? '新しいプレミアムレポートの購入' : `${LABEL_FORMAT_SAVED}を確認しています`}
           </h1>
           <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-            購入済みです。プレミアムレポートの読み込み経路を再確認しています（再購入は不要です）。
+            {hiddenOnlyRepurchase
+              ? '以前のプレミアムレポートは非表示の状態です。新しいレポートを購入する場合は、追加のお支払いが発生します。'
+              : '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます。'}
           </p>
-          <DtrProcessingClient supportUrl={supportUrl} recoveryMode="owned" />
+          <DtrProcessingClient
+            supportUrl={supportUrl}
+            recoveryMode="owned"
+            hiddenOnlyRepurchase={hiddenOnlyRepurchase}
+          />
         </div>
       </main>
     );
@@ -134,10 +152,22 @@ export default async function DtrProcessingPage(props: {
 
   const sessionVerified = await verifyStripeCheckoutSessionForDtrUser(sessionIdFromUrl, userId);
   if (!sessionVerified.valid) {
-    redirect('/dtr/lp');
+    if (isSafeUnpaidVerificationFailure(sessionVerified.reason)) {
+      redirect('/dtr/lp?checkout=cancelled');
+    }
+    const unpaidPendingMessage =
+      sessionVerified.reason === 'payment_status_not_paid'
+        ? 'お支払いの確認を待っています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。'
+        : 'お支払いの確認に時間がかかっています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。';
+    return (
+      <ProcessingFallback
+        message={unpaidPendingMessage}
+        supportUrl={supportUrl}
+        recoveryRef={sessionIdFromUrl.startsWith('cs_') ? sessionIdFromUrl : undefined}
+      />
+    );
   }
 
-  const supportUrl = await getSupportUrl();
   const recoveryRef = sessionVerified.sessionId;
 
   try {
@@ -147,6 +177,7 @@ export default async function DtrProcessingPage(props: {
       <ProcessingFallback
         message="現在、接続設定を確認できません。しばらく時間をおいてから、マイページまたはサポートへお問い合わせください。"
         supportUrl={supportUrl}
+        recoveryRef={recoveryRef}
       />
     );
   }
@@ -156,29 +187,49 @@ export default async function DtrProcessingPage(props: {
     expectedUserId: userId,
     eventIdForFulfillmentRow: `processing_page:${sessionVerified.sessionId}`,
   });
-  if (!fr.ok && fr.reason === 'db_error') {
+  if (!fr.ok) {
+    const message =
+      fr.reason === 'db_error'
+        ? '購入の反映を一時的に完了できませんでした。しばらくしてからこのページを再読み込みするか、サポートへお問い合わせください。'
+        : paidProcessingRecoveryMessage();
     return (
-      <ProcessingFallback
-        message="購入の反映を一時的に完了できませんでした。しばらくしてからこのページを再読み込みするか、サポートへお問い合わせください。"
-        supportUrl={supportUrl}
-        recoveryRef={recoveryRef}
-      />
+      <main className={styles.page} data-testid="m55-dtr-processing-main">
+        <div className={styles.inner}>
+          <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
+          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
+            レポートを準備しています
+          </h1>
+          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
+            {message}
+          </p>
+          <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
+        </div>
+      </main>
     );
   }
 
   const ownership = await resolveEntryReportOwnership(userId);
 
-  if (ownership.unlockState === 'expired') {
-    redirect('/dtr/lp?state=expired');
-  }
-
-  if (ownership.unlockState === 'locked') {
-    redirect('/dtr/lp');
-  }
-
   const snap = await getVisibleSavedReportSnapshot(userId);
   if (snap) {
     redirect('/dtr/core');
+  }
+
+  if (ownership.unlockState === 'expired' || ownership.unlockState === 'locked') {
+    return (
+      <main className={styles.page} data-testid="m55-dtr-processing-main">
+        <div className={styles.inner}>
+          <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
+          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
+            レポートを準備しています
+          </h1>
+          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
+            {paidProcessingRecoveryMessage()}
+          </p>
+          <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -188,7 +239,10 @@ export default async function DtrProcessingPage(props: {
         <h1 className={styles.title} data-testid="m55-dtr-processing-title">
           レポートを準備しています
         </h1>
-        <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} />
+        <p className={styles.desc} style={{ margin: '0 0 16px' }}>
+          お支払いを確認しました。プレミアムレポートを準備しています（反映まで時間がかかる場合があります）。
+        </p>
+        <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
       </div>
     </main>
   );

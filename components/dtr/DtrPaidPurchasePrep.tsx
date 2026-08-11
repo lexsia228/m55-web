@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import DtrPaidQuestionnaireLayer from './DtrPaidQuestionnaireLayer';
 import DtrNeedFreeResultGate from './DtrNeedFreeResultGate';
 import PurchaseButton from '../PurchaseButton';
@@ -33,6 +34,8 @@ import styles from './DtrPaidDecisionUx.module.css';
 type GatePhase = 'need_free' | 'questionnaire' | 'plans' | 'checkout';
 type PlanKey = 'light' | 'full';
 
+const PURCHASE_RESTORE_KEY = 'm55_dtr_purchase_restore_v1';
+
 function resolveInitialGate(): GatePhase {
   const stage = readSelfFunnelStage(null);
   const gate = resolveDtrLpGate(stage);
@@ -42,15 +45,34 @@ function resolveInitialGate(): GatePhase {
 }
 
 export default function DtrPaidPurchasePrep() {
+  const searchParams = useSearchParams();
+  const checkoutCancelled = searchParams.get('checkout') === 'cancelled';
+  const repurchaseMode = searchParams.get('repurchase') === '1';
+
   const [gate, setGate] = useState<GatePhase>('need_free');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [repurchaseAcknowledged, setRepurchaseAcknowledged] = useState(false);
+  const [repurchaseAckRequired, setRepurchaseAckRequired] = useState(false);
   const checkoutShellRef = useRef<HTMLElement | null>(null);
   const prevGateRef = useRef<GatePhase | null>(null);
   const plan = PLAN_COMPARISON;
 
   useEffect(() => {
     setGate(resolveInitialGate());
+    try {
+      const raw = sessionStorage.getItem(PURCHASE_RESTORE_KEY);
+      if (raw) {
+        const ctx = JSON.parse(raw) as { gate?: GatePhase; selectedPlan?: PlanKey };
+        if (ctx.gate === 'checkout' && (ctx.selectedPlan === 'light' || ctx.selectedPlan === 'full')) {
+          setSelectedPlan(ctx.selectedPlan);
+          setGate('checkout');
+        }
+        sessionStorage.removeItem(PURCHASE_RESTORE_KEY);
+      }
+    } catch {
+      /* no-op */
+    }
     setHydrated(true);
   }, []);
 
@@ -68,6 +90,10 @@ export default function DtrPaidPurchasePrep() {
       shell.scrollIntoView({ block: 'start' });
     });
   }, [gate, selectedPlan]);
+
+  useEffect(() => {
+    if (repurchaseMode) setRepurchaseAckRequired(true);
+  }, [repurchaseMode]);
 
   useEffect(() => {
     if (gate !== 'plans') return;
@@ -88,6 +114,27 @@ export default function DtrPaidPurchasePrep() {
           : gate === 'checkout'
             ? 'checkout'
             : 'other';
+
+  const statusBanner =
+    checkoutCancelled ? (
+      <p className={styles.statusBanner} role="status" data-testid="m55-checkout-cancelled-status">
+        お支払いは完了していません。プランを確認のうえ、必要であれば再度お進みください。
+      </p>
+    ) : null;
+
+  const legalLinksNav = (
+    <nav
+      className={styles.legalLinks}
+      aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa}
+      data-testid="m55-plan-legal-links"
+    >
+      {PAID_DTR_LP.purchaseNotes.legalLinks.map((link) => (
+        <Link key={link.href} href={link.href} className={styles.legalLink}>
+          {link.labelJa}
+        </Link>
+      ))}
+    </nav>
+  );
 
   if (!hydrated) {
     return (
@@ -129,6 +176,7 @@ export default function DtrPaidPurchasePrep() {
   if (gate === 'checkout' && selectedPlan) {
     const tier = selectedPlan === 'light' ? plan.light : plan.full;
     const productId = selectedPlan === 'light' ? DTR_CORE_LIGHT_V1 : DTR_CORE_FULL_V1;
+    const requiresRepurchaseAck = repurchaseMode || repurchaseAckRequired;
 
     return (
       <>
@@ -143,8 +191,24 @@ export default function DtrPaidPurchasePrep() {
           aria-label={C.checkoutAriaJa}
         >
           <ExperienceArchetypeSync paidPhase="checkout" />
+        {statusBanner}
         <p className={styles.overline}>{C.planOverlineJa}</p>
         <h3 className={styles.title}>{C.checkoutTitleJa}</h3>
+        {requiresRepurchaseAck ? (
+          <div className={styles.repurchaseNotice} data-testid="m55-repurchase-notice">
+            <p className={styles.repurchaseLead}>
+              これは<strong>新しいプレミアムレポートの追加購入</strong>です。選択したプランの料金が再度請求されます。
+            </p>
+            <label className={styles.repurchaseAckLabel}>
+              <input
+                type="checkbox"
+                checked={repurchaseAcknowledged}
+                onChange={(e) => setRepurchaseAcknowledged(e.target.checked)}
+              />
+              <span>追加購入として再度お支払いが発生することを理解しました</span>
+            </label>
+          </div>
+        ) : null}
         <div className={styles.confirmCard}>
           <div className={styles.confirmRow}>
             <span>{C.selectedPlanLabelJa}</span>
@@ -178,6 +242,18 @@ export default function DtrPaidPurchasePrep() {
           ))}
         </nav>
         <div className={styles.actions}>
+          <div className={styles.primaryCtaWrap}>
+            <PurchaseButton
+              productId={productId}
+              className="m55-lp-cta-btn"
+              repurchaseAcknowledged={requiresRepurchaseAck ? repurchaseAcknowledged : undefined}
+              purchaseRestoreContext={{ gate: 'checkout', selectedPlan }}
+              disabled={requiresRepurchaseAck && !repurchaseAcknowledged}
+              onRepurchaseAckRequired={() => setRepurchaseAckRequired(true)}
+            >
+              <span>{plan.checkoutProceedCtaJa}</span>
+            </PurchaseButton>
+          </div>
           <button
             type="button"
             className={styles.secondaryBtn}
@@ -185,9 +261,6 @@ export default function DtrPaidPurchasePrep() {
           >
             {C.backToPlansJa}
           </button>
-          <PurchaseButton productId={productId} className="m55-lp-cta-btn">
-            <span>{plan.checkoutProceedCtaJa}</span>
-          </PurchaseButton>
         </div>
         <div className={styles.planNote}>
           <CheckoutTrustRow />
@@ -210,6 +283,12 @@ export default function DtrPaidPurchasePrep() {
         aria-label={C.planSelectAriaJa}
       >
         <ExperienceArchetypeSync paidPhase="plans" />
+      {statusBanner}
+      {repurchaseMode ? (
+        <p className={styles.repurchasePlansLead} role="status" data-testid="m55-repurchase-plans-lead">
+          新しいプレミアムレポートを購入する場合、選択したプランの料金が再度請求されます。
+        </p>
+      ) : null}
       <p className={styles.overline}>{C.planOverlineJa}</p>
       <h3 className={styles.title} data-testid="m55-premium-plans-headline">
         {C.planTitleJa}
@@ -218,6 +297,7 @@ export default function DtrPaidPurchasePrep() {
       <div className={styles.planMethodSlot}>
         <DtrMethodDifference />
       </div>
+      {legalLinksNav}
       <div className={styles.planCompare} data-testid="m55-plan-compare">
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>

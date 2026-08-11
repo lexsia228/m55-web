@@ -25,7 +25,7 @@ export type { DtrShelfStemDisplay };
 export const DTR_OWNED_RECOVERY_PROCESSING_PATH = '/dtr/processing?recovery=owned';
 
 /** Owned + hidden-only (user 削除): repurchase CTA on LP — not indefinite owned-recovery poll. */
-export const DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp';
+export const DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp?repurchase=1';
 
 /**
  * Owned entitlement with no visible snapshot but at least one hidden row (soft-hide / 削除後).
