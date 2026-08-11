@@ -118,7 +118,7 @@ export default function DtrPaidPurchasePrep() {
   const statusBanner =
     checkoutCancelled ? (
       <p className={styles.statusBanner} role="status" data-testid="m55-checkout-cancelled-status">
-        お支払いは完了していません。プランを確認のうえ、必要であれば再度お進みください。
+        {C.checkoutCancelledStatusJa}
       </p>
     ) : null;
 
@@ -197,7 +197,9 @@ export default function DtrPaidPurchasePrep() {
         {requiresRepurchaseAck ? (
           <div className={styles.repurchaseNotice} data-testid="m55-repurchase-notice">
             <p className={styles.repurchaseLead}>
-              これは<strong>新しいプレミアムレポートの追加購入</strong>です。選択したプランの料金が再度請求されます。
+              {C.repurchaseLeadPrefixJa}
+              <strong>{C.repurchaseLeadEmphasisJa}</strong>
+              {C.repurchaseLeadSuffixJa}
             </p>
             <label className={styles.repurchaseAckLabel}>
               <input
@@ -205,7 +207,7 @@ export default function DtrPaidPurchasePrep() {
                 checked={repurchaseAcknowledged}
                 onChange={(e) => setRepurchaseAcknowledged(e.target.checked)}
               />
-              <span>追加購入として再度お支払いが発生することを理解しました</span>
+              <span>{C.repurchaseAckLabelJa}</span>
             </label>
           </div>
         ) : null}
@@ -286,7 +288,7 @@ export default function DtrPaidPurchasePrep() {
       {statusBanner}
       {repurchaseMode ? (
         <p className={styles.repurchasePlansLead} role="status" data-testid="m55-repurchase-plans-lead">
-          新しいプレミアムレポートを購入する場合、選択したプランの料金が再度請求されます。
+          {C.repurchasePlansLeadJa}
         </p>
       ) : null}
       <p className={styles.overline}>{C.planOverlineJa}</p>
