@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-08-10T21:56:41.095086+00:00
+Generated: 2026-08-11T22:02:53.028730+00:00
 Total records: 689
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -19,7 +19,7 @@ Total records: 689
 - [ssot] `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` (1831 bytes)
 - [ssot] `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (10481 bytes)
 - [ssot] `docs/ssot/M55_COPY_AND_CLAIMS.md` (2471 bytes)
-- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (43236 bytes)
+- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (44511 bytes)
 - [ssot] `docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md` (4728 bytes)
 - [ssot] `docs/ssot/M55_DECISION_LOG.md` (17330 bytes)
 - [ssot] `docs/ssot/M55_DEPRECATION_MAP_20260330.md` (6382 bytes)
@@ -624,7 +624,7 @@ Total records: 689
 - [ssot] `docs/ssot/M55_WEB_PAGE_MAPPING_AND_REUSE_MATRIX_v1_2026-03-07.md` (1319 bytes)
 - [ssot] `docs/ssot/M55_WEB_UI_ARCHITECTURE_SSOT_v1_2026-03-07.md` (1134 bytes)
 - [ssot] `docs/ssot/M55_WEB_VISUAL_AND_COMPONENT_CONTRACT_SSOT_v1_2026-03-07.md` (1438 bytes)
-- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (63311 bytes)
+- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (64884 bytes)
 - [ssot] `docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md` (3159 bytes)
 - [ssot] `docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md` (3410 bytes)
 - [ssot] `docs/ssot/PRICING_WALLET_SEPARATION__EXTRACT_v1_DESKTOP_PACK_2026-02-01.md` (2813 bytes)

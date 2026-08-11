@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-10T21:56:41.093054+00:00",
+  "generated_at_utc": "2026-08-11T22:02:53.025993+00:00",
   "count": 689,
   "records": [
     {
@@ -85,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 43236
+      "bytes": 44511
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -3110,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 63311
+      "bytes": 64884
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
