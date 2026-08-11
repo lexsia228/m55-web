@@ -5,7 +5,7 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`).
 
 ## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — AUTHORITATIVE
 
@@ -35,10 +35,13 @@ This section is the current authority for lane status, PR dispositions, and the 
 | PR #94 settlement branch | `docs/m55-product-authority-post-merge-main-settlement-v1` |
 | PR #94 first settlement commit | `e57e2c7cabb06286f4b99884a7bf3f0ee829a3ba` — committed · pushed |
 | Settlement completion condition | PR #94 **MERGED** into `main` **and** final main identity / SSOT verification complete — **met** |
-| Current live remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit on `origin/main` (parents `3cf560691dd11d35b26077ec6c5e4686a571dae5` · `21744e195f08aeda03f23b7972bedcbf227aaaaa`) |
-| Current live Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
-| Current live Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
-| Current live Production state | **SETTLED GREEN** |
+| Last verified origin/main (`2026-08-11T04:45:05Z`) | `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` — verification-time snapshot on `origin/main`; **not** immutable product contract; later docs-only or audit commits may advance `origin/main` without invalidating this snapshot |
+| Last verified Production SHA (diagnostics) | `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` — `vercel_env=production` · `vercel_branch=main` · observedAt `2026-08-11T04:45:05Z` |
+| Last verified Production deployment id | **not reobserved in this gate** |
+| Last verified Production state | **SETTLED GREEN** (route-level / build-identity observation only) |
+| Last P2 settlement remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit (parents `3cf560691dd11d35b26077ec6c5e4686a571dae5` · `21744e195f08aeda03f23b7972bedcbf227aaaaa`) |
+| Last P2 settlement Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
+| Last P2 settlement Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
 | main CI | **GREEN** — 8/8 terminal GREEN |
 | Governed Product Authority last observation — Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — observation-time snapshot @ `2026-08-06T10:02:33.727Z`; **not reobserved in this settlement** |
 | Governed Product Authority last observation — deployment id | **5777052896** |
@@ -69,7 +72,7 @@ This section is the current authority for lane status, PR dispositions, and the 
 | NEXT GATE | **M55_MRQ_P3_ENTRY_PLANNING** |
 | P3 smoke strategy | **Preview-only first** — 4242 execution remains **unauthorized** |
 | P3 started | **false** |
-| Product Authority observation | **governed last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement** · **current live Production:** deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** · SHA `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN** — P2 post-merge Production settlement |
+| Product Authority observation | **governed last observation (OBSERVATION_TIME_SNAPSHOT_VALID):** Production SHA `f3ab98a08e06cef7b16405d1adced387c23a29d2` · deployment **5777052896** · observedAt `2026-08-06T10:02:33.727Z` — **not reobserved in this settlement** · distinct from last verified Production diagnostics above and from Last P2 settlement rows |
 | Product Authority post-merge transition | **COMPLETED** — PR #93 **MERGED** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` · PR #94 main settlement **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5` · Product Authority main settled **true** |
 | MRQ_IMPLEMENTATION_WORKTREE_AUTHORIZED | **false** — P3 worktree **not created** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** — P3 implementation **not yet authorized** |
@@ -254,7 +257,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 
 ## Canonical Production authority
 
-**CURRENT (2026-08-10 — P2 post-merge settlement):**
+**CURRENT (2026-08-11 — P3 entry live-binding verification-time snapshot):**
 
 | Field | Value |
 |---|---|
@@ -263,17 +266,20 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Non-authoritative host | `m55.jp` |
 | Non-authoritative reason | Not current M55 Production authority |
 | Diagnostics URL | `https://m-55.jp/api/diagnostics/build` |
-| Current live remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit on `origin/main`; immutable PR #97 merge `faef130a335ce6e33cfd784d5318f874beeb70ad` retained as historical P1C snapshot |
-| Current live Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
-| Current live Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
-| Current live Production state | **SETTLED GREEN** |
+| Last verified origin/main (`2026-08-11T04:45:05Z`) | `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` — verification-time snapshot; later docs-only or audit commits may advance `origin/main` without invalidating this snapshot |
+| Last verified Production SHA (diagnostics) | `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` — `vercel_env=production` · `vercel_branch=main` |
+| Last verified Production deployment id | **not reobserved in this gate** |
+| Last verified Production state | **SETTLED GREEN** (route-level / build-identity observation only) |
+| Last P2 settlement remote main | `2d14404d62ab7b265e07729448d6db602a055cce` — PR #99 merge commit on `origin/main`; immutable PR #97 merge `faef130a335ce6e33cfd784d5318f874beeb70ad` retained as historical P1C snapshot |
+| Last P2 settlement Production deployment id | **AA99Xfx9uL5ne2tbpQztRkia2eYx** |
+| Last P2 settlement Production SHA | `2d14404d62ab7b265e07729448d6db602a055cce` |
 | Safe public reachability | **GREEN** |
 | Governed Product Authority last observation — Production SHA | `f3ab98a08e06cef7b16405d1adced387c23a29d2` — observation-time snapshot @ `2026-08-06T10:02:33.727Z`; deployment **5777052896**; **not reobserved in this settlement** |
 | Canonical `/core` GET | **HTTP 200** |
 | Public GET health | **GREEN** |
 | P0 Premium terminology | **CLOSED GREEN** (PR #90 Production settlement) |
 | Product Authority main settled | **true** — PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5` |
-| Production confirmation boundary | Current live Production success, `/core` HTTP 200, and public Premium terminology GREEN are route-level / terminology observations only; they do **not** themselves prove checkout/webhook/payment/DB correctness, sales launch readiness, or MRQ implementation authorization |
+| Production confirmation boundary | Last verified Production success, `/core` HTTP 200, and public Premium terminology GREEN are route-level / terminology observations only; they do **not** themselves prove checkout/webhook/payment/DB correctness, sales launch readiness, or MRQ implementation authorization |
 
 > **HISTORICAL SNAPSHOT — dated 2026-08-07; superseded 2026-08-10 by the CURRENT table above. PR #93-era Production deployment **5790526469** @ `cb3cb45f17a0d5b5805b98af339517d43924df4a` remains recorded in PR #93 / WT-022 entries only — not current Canonical Production authority.**
 
@@ -328,11 +334,11 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
-**Current transition (2026-08-10):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). P2 Revenue-Ready is **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`). Current live remote main is `2d14404d62ab7b265e07729448d6db602a055cce`. Current live Production deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** @ `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN**. ACTIVE sublane is **P3 entry/planning** — P3 implementation **not started**. P3/checkout/4242/real purchase/sales launch remain unauthorized.
+**Current transition (2026-08-11):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). P2 Revenue-Ready is **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`). P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). Last verified origin/main @ `2026-08-11T04:45:05Z` is `286cb1052972e18cdbc5f8c99e6d41c78c3180d4`; Last P2 settlement remains `2d14404d62ab7b265e07729448d6db602a055cce` @ deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx**. ACTIVE sublane is **P3 entry/planning** — P3 implementation **not started**. P3/checkout/4242/real purchase/sales launch remain unauthorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-10):** Complete docs-only P2 post-merge SSOT transition on `feat/m55-mrq-p2-postmerge-ssot-v1` from `2d14404d62ab7b265e07729448d6db602a055cce`. Gate: `M55_MRQ_P2_REVENUE_READY_POST_MERGE_SSOT_TRANSITION_EXECUTION`. After SSOT transition commit/merge, route to **P3 entry/planning** — checkout/refund/support/recovery safety per `M55_ROADMAP.md`; preserve Preview-only-first strategy. P1A/P1B/P1C/P2 must not be re-audited. P3 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
+**CURRENT (2026-08-11):** P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). ACTIVE LANE is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. Complete this P3 entry live-binding reconciliation locally; after it settles via push/PR/merge, proceed to **P3 implementation authorization review** (`M55_MRQ_P3_IMPLEMENTATION_AUTHORIZATION_REVIEW`). Preserve Preview-only-first strategy. P1A/P1B/P1C/P2 must not be re-audited. P3 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-08-05; superseded 2026-08-06.**
 >
