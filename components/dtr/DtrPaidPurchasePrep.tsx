@@ -1,5 +1,6 @@
 'use client';
 
+import { useUser } from '@clerk/nextjs';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -36,8 +37,8 @@ type PlanKey = 'light' | 'full';
 
 const PURCHASE_RESTORE_KEY = 'm55_dtr_purchase_restore_v1';
 
-function resolveInitialGate(): GatePhase {
-  const stage = readSelfFunnelStage(null);
+function resolveInitialGate(ownerId?: string | null): GatePhase {
+  const stage = readSelfFunnelStage(ownerId);
   const gate = resolveDtrLpGate(stage);
   if (gate === 'need_free') return 'need_free';
   if (gate === 'plan_selection' || paidAnswersAreComplete()) return 'plans';
@@ -45,6 +46,8 @@ function resolveInitialGate(): GatePhase {
 }
 
 export default function DtrPaidPurchasePrep() {
+  const { user, isLoaded } = useUser();
+  const ownerId = user?.id ?? null;
   const searchParams = useSearchParams();
   const checkoutCancelled = searchParams.get('checkout') === 'cancelled';
   const repurchaseMode = searchParams.get('repurchase') === '1';
@@ -59,7 +62,8 @@ export default function DtrPaidPurchasePrep() {
   const plan = PLAN_COMPARISON;
 
   useEffect(() => {
-    setGate(resolveInitialGate());
+    if (!isLoaded) return;
+    setGate(resolveInitialGate(ownerId));
     try {
       const raw = sessionStorage.getItem(PURCHASE_RESTORE_KEY);
       if (raw) {
@@ -74,7 +78,7 @@ export default function DtrPaidPurchasePrep() {
       /* no-op */
     }
     setHydrated(true);
-  }, []);
+  }, [isLoaded, ownerId]);
 
   useEffect(() => {
     const enteredCheckoutFromPlans =
