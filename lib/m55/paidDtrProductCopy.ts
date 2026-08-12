@@ -365,7 +365,7 @@ export type PaidDtrChapterGraphCaptionId =
 export const PAID_DTR_CHAPTER_GRAPH_CAPTION_LEAD_JA = 'この図で見ること' as const;
 
 export const PAID_DTR_CHAPTER_GRAPH_CAPTIONS: Record<PaidDtrChapterGraphCaptionId, string> = {
-  'ch1-identity-design': '出るとき・崩れやすいとき・戻すとき',
+  'ch1-identity-design': '得意な出方・消耗しやすい状態・伸びる条件',
   'ch1-structure-radar': '出方が重なるところ',
   'ch1-five-axis': '5つの力のバランス',
   'ch2-stability-panel': '力が出やすい条件と詰まりやすい条件',
@@ -520,7 +520,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
 /** W-B3c1 pilot: chapter-1 only graph-reading and chapter-branch guidance. */
 export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
   beforeIdentityGraphJa:
-    'まずは「力が出やすいとき」と「止まりやすいとき」の2つを見ると、いま気になっていることの位置がつかみやすくなります。',
+    '冒頭の4点で形が見えたら、ここでは「得意な出方」と「消耗しやすい状態」を並べて、いま気になっていることの位置を確かめます。',
   branchLeadJa:
     '形が見えたら、次は今いちばん重い場面へ進みます。',
   branchItemsJa: [
@@ -741,6 +741,29 @@ export const PAID_DTR_BENEFIT_BULLETS = [
   '近い人との距離と言葉選びで、無理の出やすいところ',
   '疲れや生活の負担を、どこから軽くすると戻りやすいか',
 ] as const;
+
+/**
+ * /dtr/core reader intro — panel 02 opening summary.
+ * Labels only; the lines come from the reader's own engine material so the
+ * opening is personal rather than a restatement of the chapter map.
+ * Count-free heading: the distance line depends on the reader's Chapter III body.
+ */
+export const PAID_DTR_OPENING_SUMMARY_HEADING_SUFFIX_JA = 'さんのレポートで、先に押さえる要点' as const;
+
+export const PAID_DTR_OPENING_POINT_LABELS_JA = {
+  core: 'いちばん土台になる力',
+  grow: '力が出やすいとき',
+  break: '止まりやすいとき',
+  restore: '戻り方',
+  distance: '人との距離での出方',
+} as const;
+
+/** Chapter I deep panel — the same person seen one layer down (no overlap with the opening). */
+export const PAID_DTR_IDENTITY_LAYER_LABELS_JA = {
+  natural: 'もともと得意な出方',
+  fragile: '消耗しやすい状態',
+  maximize: '力が伸びる条件',
+} as const;
 
 /** /dtr/core reader intro — panel 01 (pre-W1 copy, display-only). */
 export const PAID_DTR_INTRO_PANEL_01 = {

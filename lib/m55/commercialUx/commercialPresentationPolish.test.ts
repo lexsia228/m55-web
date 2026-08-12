@@ -85,7 +85,31 @@ describe('commercial presentation polish — Japanese copy', () => {
       built.value.headlineJa,
       /全体を見渡し、候補を比べてから動く傾向が、いま強く表れています/,
     );
-    assert.match(built.value.premiumOpenLoopJa, /整え直しやすい順番/);
+  });
+
+  it('premium open loop continues this reader’s own result rather than a fixed sales line', () => {
+    const a = buildFreeDepthAnalysisV1({
+      birthDate: '1990-12-19',
+      stemLaneIndex: 9,
+      freeAnswerSet: SAMPLE_ANSWERS,
+    });
+    const b = buildFreeDepthAnalysisV1({
+      birthDate: '1990-12-19',
+      stemLaneIndex: 9,
+      freeAnswerSet: {
+        ...SAMPLE_ANSWERS,
+        'free.distance_style': 'free.distance_style.solo_reset',
+        'free.recovery_style': 'free.recovery_style.shrink_task',
+      },
+    });
+    assert.equal(a.ok, true);
+    assert.equal(b.ok, true);
+    if (!a.ok || !b.ok) return;
+
+    assert.ok(a.value.premiumOpenLoopJa.includes(a.value.primarySceneLabelJa));
+    assert.notEqual(a.value.premiumOpenLoopJa, b.value.premiumOpenLoopJa);
+    assert.notEqual(a.value.premiumOpenLoopJa, STATIC_FREE_TO_PAID_BRIDGE.supportingJa);
+    assert.notEqual(a.value.premiumOpenQuestionJa, a.value.premiumOpenLoopJa);
   });
 
   it('prohibited duplicated phrases absent from polish surfaces', () => {

@@ -16,7 +16,11 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { buildV2FulfillmentSnapshotFromFields } from './compositeStem/buildV2FulfillmentSnapshot';
+import { identityDesignVizForStem, STEM_SEED_BODIES } from './dtrEngine';
 import { parseBlockItems, firstSentence } from './dtrPaidModules';
 import { PAID_DTR_BENEFIT_BULLETS, PAID_DTR_CHAPTER_BRIDGE_COPY } from './paidDtrProductCopy';
 
@@ -195,6 +199,66 @@ describe('Generic chapter closing not repeated identically across all four chapt
     const lines = parts.map((id) => PAID_DTR_CHAPTER_BRIDGE_COPY[id].lifeJa);
     const unique = new Set(lines);
     assert.equal(unique.size, 4, `All four chapter lifeJa must be distinct; got: ${lines.join(' | ')}`);
+  });
+});
+
+describe('Paid reader opening is personal, not a constant', () => {
+  const readerSource = readFileSync(
+    join(import.meta.dirname, '../../components/dtr/DtrFullReader.tsx'),
+    'utf8',
+  );
+
+  it('the opening four points come from the reader’s own lane material', () => {
+    const band = readerSource.slice(
+      readerSource.indexOf('function PremiumIntroValueBand'),
+      readerSource.indexOf('function ReportPartMotif'),
+    );
+    for (const field of ['viz.blueprint.core', 'viz.growth.grow', 'viz.growth.break', 'viz.growth.restore']) {
+      assert.ok(band.includes(field), `opening band must render ${field}`);
+    }
+  });
+
+  it('lane material behind the opening differs across all ten lanes', () => {
+    const lines = Array.from({ length: 10 }, (_, lane) => {
+      const viz = identityDesignVizForStem(lane);
+      return [viz.blueprint.core, viz.growth.grow, viz.growth.break, viz.growth.restore].join('|');
+    });
+    assert.equal(new Set(lines).size, 10, 'opening material must not be shared across lanes');
+  });
+
+  it('the opening also answers how the tendency shows up in human distance', () => {
+    const band = readerSource.slice(
+      readerSource.indexOf('function PremiumIntroValueBand'),
+      readerSource.indexOf('function ReportPartMotif'),
+    );
+    assert.ok(band.includes('openingDistanceLine'), 'opening band must surface a distance line');
+
+    // The line must be this reader's own Chapter III material, distinct per lane.
+    const lines = STEM_SEED_BODIES.map((body) => {
+      const items = parseBlockItems(body.relation);
+      const block =
+        items.find((i) => i.header.includes('距離')) ?? items.find((i) => i.header.includes('引き方'));
+      assert.ok(block, 'every lane needs a distance/withdrawal block for the opening');
+      return firstSentence(block!.content.trim());
+    });
+    assert.equal(lines.length, 10);
+    for (const line of lines) {
+      assert.ok(line.length > 0 && line.length <= 80, `distance line must stay scannable: ${line}`);
+    }
+    assert.ok(new Set(lines).size >= 9, 'distance lines must be lane-specific, not a shared constant');
+  });
+
+  it('chapter I deep panel does not restate the opening four points', () => {
+    const panel = readerSource.slice(
+      readerSource.indexOf('function IdentityDesignFigures'),
+      readerSource.indexOf('function EssenceArticleWithViz'),
+    );
+    for (const field of ['viz.growth.grow', 'viz.growth.break', 'viz.growth.restore']) {
+      assert.ok(!panel.includes(field), `deep panel must not repeat ${field} from the opening`);
+    }
+    for (const field of ['viz.blueprint.natural', 'viz.blueprint.fragile', 'viz.blueprint.maximize']) {
+      assert.ok(panel.includes(field), `deep panel must render ${field}`);
+    }
   });
 });
 

@@ -44,7 +44,6 @@ import {
 } from '../../lib/m55/dtrPaidModules';
 import {
   PAID_DTR_BENEFITS_HEADING,
-  PAID_DTR_BENEFIT_BULLETS,
   PAID_DTR_CHAPTER1_PILOT_GUIDE,
   PAID_DTR_CHAPTER_BRIDGE_COPY,
   PAID_DTR_CHAPTER_OPENING_COPY,
@@ -63,6 +62,9 @@ import {
   formatConsultUsedCountLine,
   drawerSectionDisplayTitleJa,
   PAID_DTR_INTRO_PANEL_01,
+  PAID_DTR_IDENTITY_LAYER_LABELS_JA,
+  PAID_DTR_OPENING_POINT_LABELS_JA,
+  PAID_DTR_OPENING_SUMMARY_HEADING_SUFFIX_JA,
   PAID_DTR_READER_HERO_READ_BACK_PREFIX_JA,
   PAID_DTR_REPORT_PARTS,
   type PaidDtrChapterGraphCaptionId,
@@ -447,7 +449,40 @@ function HeroIconShield({ className }: { className?: string }) {
 const REPORT_PARTS = PAID_DTR_REPORT_PARTS;
 
 /** Intro panels 01 + 02 — between hero poster and drawer hub (no 03 TOC). */
-function PremiumIntroValueBand() {
+/**
+ * Opening value band. Panel 02 carries this reader's own four lines so the
+ * report reads as personal before any chapter is opened — the chapter map
+ * itself is already covered by the drawer rows below.
+ */
+function PremiumIntroValueBand({
+  stemIdx,
+  nickname,
+  relationBody,
+}: {
+  stemIdx: number;
+  nickname?: string;
+  relationBody?: string;
+}) {
+  const viz = identityDesignVizForStem(stemIdx);
+  const nick = nickname?.trim();
+  const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
+  const openingPoints: { key: string; label: string; text: string }[] = [
+    { key: 'core', label: PAID_DTR_OPENING_POINT_LABELS_JA.core, text: viz.blueprint.core },
+    { key: 'grow', label: PAID_DTR_OPENING_POINT_LABELS_JA.grow, text: viz.growth.grow },
+    { key: 'break', label: PAID_DTR_OPENING_POINT_LABELS_JA.break, text: viz.growth.break },
+    { key: 'restore', label: PAID_DTR_OPENING_POINT_LABELS_JA.restore, text: viz.growth.restore },
+  ];
+  // How the same tendency shows up in human distance — lifted from this reader's
+  // own Chapter III body so the opening is not identity-only.
+  const distanceLine = relationBody ? openingDistanceLine(relationBody) : '';
+  if (distanceLine) {
+    openingPoints.push({
+      key: 'distance',
+      label: PAID_DTR_OPENING_POINT_LABELS_JA.distance,
+      text: distanceLine,
+    });
+  }
+
   return (
     <div className={styles.premiumIntroValueBand} aria-label="本質を見つめ直すための説明">
       <div className={styles.premiumIntroPanelSection}>
@@ -466,20 +501,41 @@ function PremiumIntroValueBand() {
         <span className={styles.premiumIntroPanelStep} aria-hidden>
           02
         </span>
-        <p className={styles.premiumIntroSectionLabel}>{PAID_DTR_BENEFITS_HEADING}</p>
-        <ul className={styles.premiumIntroBulletList} aria-label={PAID_DTR_BENEFITS_HEADING}>
-          {PAID_DTR_BENEFIT_BULLETS.map((text) => (
-            <li key={text} className={styles.premiumIntroBulletItem}>
-              <span className={styles.premiumIntroBulletText}>
+        <p className={styles.premiumIntroSectionLabel}>
+          {displayName}
+          {PAID_DTR_OPENING_SUMMARY_HEADING_SUFFIX_JA}
+        </p>
+        <ul
+          className={styles.premiumIntroPointList}
+          aria-label={PAID_DTR_BENEFITS_HEADING}
+          data-testid="m55-premium-opening-points"
+        >
+          {openingPoints.map((point) => (
+            <li key={point.key} className={styles.premiumIntroPointItem}>
+              <span className={styles.premiumIntroPointLabel}>
                 <HeroIconCheck className={styles.benefitCheckIcon} />
-                {text}
+                {point.label}
               </span>
+              <p className={styles.premiumIntroPointText}>{point.text}</p>
             </li>
           ))}
         </ul>
       </div>
     </div>
   );
+}
+
+/**
+ * Pull the distance/withdrawal block out of the Chapter III relation body.
+ * Stems label it 【距離の取り方】 or 【引き方】; first sentence keeps the opening scannable.
+ */
+function openingDistanceLine(relationBody: string): string {
+  const items = parseBlockItems(relationBody);
+  const block =
+    items.find((i) => i.header.includes('距離')) ?? items.find((i) => i.header.includes('引き方'));
+  if (!block) return '';
+  // Trailing 。 dropped so the line matches the other opening points.
+  return firstSentence(block.content.trim()).replace(/。$/, '');
 }
 
 /** 各章の空気感を差別化する小モチーフ SVG */
@@ -713,6 +769,7 @@ function PremiumHero({
   expiresAt,
   nickname,
   birthDate,
+  relationBody,
   openPanel,
   onSelectPanel,
   renderPanelBody,
@@ -723,6 +780,7 @@ function PremiumHero({
   expiresAt: string | null;
   nickname: string;
   birthDate: string;
+  relationBody?: string;
   openPanel: DrawerHubOpenPanel;
   onSelectPanel: (panel: DrawerHubOpenPanel) => void;
   renderPanelBody: (panel: DrawerHubPanelId) => ReactNode;
@@ -783,7 +841,7 @@ function PremiumHero({
         </div>
       </div>
 
-      <PremiumIntroValueBand />
+      <PremiumIntroValueBand stemIdx={stemIdx} nickname={nickname} relationBody={relationBody} />
 
       <PremiumDrawerHub
         openPanel={openPanel}
@@ -1044,73 +1102,50 @@ function clampTensionBias(n: number): number {
   return Math.max(-1, Math.min(1, n));
 }
 
+/**
+ * Describe the two tension markers in words. Derived from the same bias values
+ * the markers use, so the prose cannot contradict the figure beside it.
+ */
+function tensionNarrativeJa(
+  deepenBroaden: number,
+  guardExpress: number,
+): { leadJa: string; guardJa: string } {
+  const leadJa =
+    deepenBroaden > 0.1
+      ? 'は、ひとつに絞り込むより、範囲を広げながら動くほど力が出やすい形です。'
+      : deepenBroaden < -0.1
+        ? 'は、急いで広げるより、ひとつのことを深めながら整えるほど力が出やすい形です。'
+        : 'は、深めることと広げることを行き来しながら進めるほど力が出やすい形です。';
+  const guardJa =
+    guardExpress > 0.1
+      ? 'そのぶん、外に出す機会が続かないと、内側に熱が溜まりやすくなります。'
+      : guardExpress < -0.1
+        ? 'そのぶん、整う前に出すことを求められると、自分のペースを失いやすくなります。'
+        : 'そのぶん、守る側と出す側のどちらかに偏りすぎると、疲れが残りやすくなります。';
+  return { leadJa, guardJa };
+}
+
 /** Paid-only: visual self-design figure for 「あなたという人物」 (body text unchanged). */
 function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nickname?: string }) {
   const viz = identityDesignVizForStem(stemIdx);
   const nick = nickname?.trim();
   const displayName = nick ? `${clampDisplayNick(stripTrailingHonorific(nick) || nick, 20)}さん` : 'あなた';
-  const bpLayers: { key: string; label: string; text: string }[] = [
-    {
-      key: 'core',
-      label: 'いちばん土台になる力',
-      text: 'ひとつのことに集中し、少しずつ良くしていく力',
-    },
-    {
-      key: 'natural',
-      label: '力が出やすいとき',
-      text: '一度で終えるより、少しずつ整えながら進められるとき',
-    },
-    {
-      key: 'fragile',
-      label: '止まりやすいとき',
-      text: '細かい割り込みが続いたり、「とりあえず早く」と急かされるとき',
-    },
-    {
-      key: 'max',
-      label: '楽に進めるための条件',
-      text: '集中できる時間があり、「今日はここまで」と自分で区切れること',
-    },
-  ];
   const db = clampTensionBias(viz.tension.deepenBroaden);
   const ge = clampTensionBias(viz.tension.guardExpress);
+  const tensionLines = tensionNarrativeJa(db, ge);
 
   return (
-    <div className={styles.idDesignShell} aria-label="力の出方をひとつずつ見る（本質を見つめ直す）">
-      <p className={styles.idDesignOverline}>深読み · 力の出方をひとつずつ見る</p>
-
-      <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>{displayName}の力が出やすい4つの手がかり</h3>
-        <p className={styles.idDesignHint}>
-          ここでは、{displayName}の「力が出やすいとき」「止まりやすいとき」「戻し方」を順に見ます。
-        </p>
-        <div className={styles.idBpStack} role="list">
-          {bpLayers.map((L, i) => (
-            <div
-              key={L.key}
-              role="listitem"
-              className={`${styles.idBpLayer} ${styles.idBpReveal}`}
-              style={{ animationDelay: `${0.04 + i * 0.07}s` }}
-            >
-              <span className={styles.idBpLabel}>{L.label}</span>
-              <p className={styles.idBpText}>{L.text}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className={styles.idDesignShell} aria-label="形をもう一段見る（本質を見つめ直す）">
+      <p className={styles.idDesignOverline}>深読み · 形をもう一段見る</p>
 
       <div className={styles.idDesignBlock}>
         <h3 className={styles.idDesignBlockTitle}>どちらに動きやすいか</h3>
         <div className={styles.idDesignHintBlock}>
           <p className={styles.idDesignHint}>
             {displayName}
-            は、急いで広げるより、ひとつのことを深めながら、自分の基準で整えるほど力が出やすい形です。
+            {tensionLines.leadJa}
           </p>
-          <p className={styles.idDesignHint}>
-            人前で大きく見せる前に、納得できるところまで整えたい気持ちが出やすくなります。
-          </p>
-          <p className={styles.idDesignHint}>
-            そのぶん、急かされたり、途中で細かく割り込まれると、自分のペースを失いやすくなります。
-          </p>
+          <p className={styles.idDesignHint}>{tensionLines.guardJa}</p>
         </div>
         <div className={styles.idTensionGrid}>
           <div className={styles.idTensionAxis}>
@@ -1151,16 +1186,16 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
       </div>
 
       <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>力が出る向きと戻し方</h3>
+        <h3 className={styles.idDesignBlockTitle}>{displayName}の形を、もう一段見る</h3>
         <div className={styles.idGrowthFlow}>
           <div
             className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
             style={{ animationDelay: '0.12s' }}
           >
-            <span className={styles.idGrowthTag}>楽になる条件</span>
-            <p className={styles.idGrowthText}>
-              深く向き合う時間があり、自分の基準で整えられるとき。
-            </p>
+            <span className={styles.idGrowthTag}>
+              {PAID_DTR_IDENTITY_LAYER_LABELS_JA.natural}
+            </span>
+            <p className={styles.idGrowthText}>{viz.blueprint.natural}</p>
           </div>
           <div className={styles.idGrowthBetween} aria-hidden>
             <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
@@ -1174,10 +1209,10 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
             className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
             style={{ animationDelay: '0.2s' }}
           >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>崩れる条件</span>
-            <p className={styles.idGrowthText}>
-              干渉や急かしが増えて、どこまでやるかを自分で決められなくなるとき。
-            </p>
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>
+              {PAID_DTR_IDENTITY_LAYER_LABELS_JA.fragile}
+            </span>
+            <p className={styles.idGrowthText}>{viz.blueprint.fragile}</p>
           </div>
           <div className={styles.idGrowthBetween} aria-hidden>
             <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
@@ -1191,10 +1226,10 @@ function IdentityDesignFigures({ stemIdx, nickname }: { stemIdx: number; nicknam
             className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
             style={{ animationDelay: '0.28s' }}
           >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻す条件</span>
-            <p className={styles.idGrowthText}>
-              始める前に「今日はここまで」と自分の言葉で決めておくこと。
-            </p>
+            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>
+              {PAID_DTR_IDENTITY_LAYER_LABELS_JA.maximize}
+            </span>
+            <p className={styles.idGrowthText}>{viz.blueprint.maximize}</p>
           </div>
         </div>
       </div>
@@ -3533,6 +3568,7 @@ function DtrFullReaderCore({
           expiresAt={expiresAt}
           nickname={view.nickname}
           birthDate={view.birthDate}
+          relationBody={sec('s6_relation')?.body}
           openPanel={openPanel}
           onSelectPanel={selectPanel}
           renderPanelBody={renderDrawerPanelBody}

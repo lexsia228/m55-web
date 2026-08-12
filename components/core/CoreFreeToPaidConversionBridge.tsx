@@ -74,7 +74,7 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
           className={`${styles.conversionBridgeSupporting} m55-premium-body`}
           data-testid="m55-premium-bridge-copy"
         >
-          {copy.supportingJa}
+          {depth.premiumOpenLoopJa}
         </p>
 
         <div className={styles.conversionBridgeLayers} data-testid="m55-premium-bridge-layers">

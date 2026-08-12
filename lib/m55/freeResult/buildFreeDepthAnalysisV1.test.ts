@@ -123,6 +123,48 @@ describe('buildFreeDepthAnalysisV1', () => {
     assert.equal(built.value.reasonsJa.length, 3);
   });
 
+  it('surfaces two distinct scenes so recognition is not single-shot', () => {
+    const built = buildFreeDepthAnalysisV1({ ...BASE, freeAnswerSet: PATTERN_A });
+    assert.equal(built.ok, true);
+    if (!built.ok) return;
+    const { primarySceneLabelJa, secondarySceneLabelJa, primarySceneJa, secondarySceneJa } = built.value;
+    assert.notEqual(primarySceneLabelJa, secondarySceneLabelJa);
+    assert.notEqual(primarySceneJa, secondarySceneJa);
+    const scenes = [built.value.scenesJa.workJa, built.value.scenesJa.relationJa, built.value.scenesJa.changeJa];
+    assert.ok(scenes.includes(primarySceneJa));
+    assert.ok(scenes.includes(secondarySceneJa));
+  });
+
+  it('open question and bridge lead do not restate each other', () => {
+    for (const answers of [PATTERN_A, PATTERN_B, PATTERN_C]) {
+      const built = buildFreeDepthAnalysisV1({ ...BASE, freeAnswerSet: answers });
+      assert.equal(built.ok, true);
+      if (!built.ok) return;
+      const { premiumOpenQuestionJa, premiumOpenLoopJa } = built.value;
+      assert.notEqual(premiumOpenQuestionJa, premiumOpenLoopJa);
+      // No shared 12-character run between the two — catches paraphrase drift.
+      const overlap = [...Array(Math.max(0, premiumOpenQuestionJa.length - 11)).keys()].some((i) =>
+        premiumOpenLoopJa.includes(premiumOpenQuestionJa.slice(i, i + 12)),
+      );
+      assert.equal(overlap, false, `open question overlaps bridge lead: ${premiumOpenQuestionJa}`);
+    }
+  });
+
+  it('open question varies in substance across materially different profiles', () => {
+    const built = [PATTERN_A, PATTERN_B, PATTERN_C].map((answers) =>
+      buildFreeDepthAnalysisV1({ ...BASE, freeAnswerSet: answers }),
+    );
+    const questions = built.map((r) => (r.ok ? r.value.premiumOpenQuestionJa : ''));
+    assert.equal(new Set(questions).size, 3, `open question repeats verbatim: ${questions.join(' | ')}`);
+    // Substance, not a single swapped noun: the observed contrast must differ too.
+    const observed = questions.map((q) => q.split('この差がどこから来る')[0]);
+    assert.equal(new Set(observed).size, 3, `open question body repeats: ${observed.join(' | ')}`);
+    // No manufactured suspense — the closing must stay a grounded statement.
+    for (const q of questions) {
+      assert.doesNotMatch(q, /まだ開いたまま|続きはこちら|今だけ|見逃/);
+    }
+  });
+
   it('scene specificity covers work, relation, and change', () => {
     const built = buildFreeDepthAnalysisV1({ ...BASE, freeAnswerSet: PATTERN_C });
     assert.equal(built.ok, true);
