@@ -106,7 +106,8 @@ type Props = {
   birthDate: string;
   processingComplete: boolean;
   supportUrl?: string;
-  recoveryRef?: string;
+  /** Masked support reference only — never a raw Checkout Session id. */
+  recoveryRef?: string | null;
   onComplete: () => void;
 };
 
@@ -460,7 +461,9 @@ export default function PaidDtrAnalysisLoading({
               </>
             ) : null}
             {recoveryRef ? (
-              <span style={{ display: 'block', marginTop: 4, fontSize: 11 }}>お控え: {recoveryRef}</span>
+              <span style={{ display: 'block', marginTop: 4, fontSize: 11, overflowWrap: 'anywhere' }}>
+                お控え: {recoveryRef}
+              </span>
             ) : null}
           </p>
         ) : null}

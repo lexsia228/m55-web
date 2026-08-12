@@ -462,7 +462,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
     reasonJa:
       'M55では、この出方を「じっくり向き合うほど、自分らしさが見えやすくなる形」と読み解きました。',
     lifeJa:
-      'そう読んだ理由は、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
+      'そう読んだのは、「少しずつ良くしていく力」と「納得できる形まで整えたい気持ち」が強く出ているためです。',
     actionJa:
       'まずは、いま気になっていることを責めずに見直し、力が戻りやすい場所から読んでいきます。',
     pointsJa: ['一つを深く見られる人', '細かく直して良くできる人', '納得できる形まで整えたい人'],
@@ -470,13 +470,13 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
   '2': {
     headingSuffixJa: 'の進め方',
     tendencyJa:
-      '{nickname}さんには、ひとつずつ整えながら前に進める力があります。一気に全部を動かすより、先に条件を整えてから進むほうが、力を出しやすくなります。',
+      '{nickname}さんは、進む順番が見えているときに力が出て、順番が崩れると手が止まりやすい出方です。動く量ではなく、順番のほうで結果が変わります。',
     reasonJa:
       'M55では、この出方を「整える場所が見えるほど、進みやすくなる形」と読み解きました。',
     lifeJa:
-      'そう読んだ理由は、力が出やすい条件と、止まりやすい条件が分かれて出ているためです。',
+      'そう読んだのは、力が出やすい条件と、止まりやすい条件が、はっきり分かれて出ているためです。',
     actionJa:
-      'まずは、今の仕事やこれからの動きの中で、先に整える場所を一つ見ていきます。',
+      'この章では、その条件が仕事とこれからの動きの中で、どこで崩れやすいかを見ていきます。',
     pointsJa: ['全体を見て順番を作れる人', '条件を整えてから動ける人', '急かされると力が散りやすい人'],
   },
   '3': {
@@ -486,7 +486,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
     reasonJa:
       'M55では、この出方を「近い人ほど、言葉と距離に力が入りやすい形」と読み解きました。',
     lifeJa:
-      'そう読んだ理由は、感じ取る力と、納得できるまで向き合いたい気持ちが重なって出ているためです。',
+      'そう読んだのは、感じ取る力と、納得できるまで向き合いたい気持ちが重なって出ているためです。',
     actionJa:
       'まずは、近い人とのやりとりで、どこに無理がたまりやすいかを見ていきます。',
     pointsJa: [
@@ -506,7 +506,7 @@ export const PAID_DTR_CHAPTER_OPENING_COPY: Record<PaidDtrReportPartId, PaidDtrC
     reasonJa:
       'M55では、この出方を「疲れや不安が重なると、判断が重くなりやすい形」と読み解きました。',
     lifeJa:
-      'そう読んだ理由は、整える力がある一方で、お金・予定・生活の負担が重なると、動き出すまでに重さが出やすいためです。',
+      'そう読んだのは、整える力がある一方で、お金・予定・生活の負担が重なると、動き出すまでに重さが出やすいためです。',
     actionJa:
       'まずは、お金・予定・生活の中で、どこから余白を戻すと楽になるかを見ていきます。',
     pointsJa: [
@@ -530,11 +530,17 @@ export const PAID_DTR_CHAPTER1_PILOT_GUIDE = {
   ] as const,
 } as const;
 
-/** Deep-reading renewal (W-B3): chapter-end takeaways copy (display-only). */
+/**
+ * Deep-reading renewal (W-B3): chapter-end takeaways copy (display-only).
+ *
+ * The consult question is deliberately absent: it is rendered once, at the chapter-end
+ * consult entry where it is actionable. Carrying it here as well printed the same line
+ * twice inside one chapter.
+ */
 export type PaidDtrDeepReadingTakeaway = {
   closedTitleJa: string;
   closedLeadJa: string;
-  itemsJa: readonly [string, string, string, string];
+  itemsJa: readonly [string, string, string];
 };
 
 export const PAID_DTR_DEEP_READING_SECTION_TITLE_JA = 'この章で持ち帰ること' as const;
@@ -547,17 +553,15 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 一つのことに深く向き合い、少しずつ良くしていけるとき。',
       '止まりやすいとき: 急かされたり、途中で細かく割り込まれて、自分のペースを失うとき。',
       'まず意識すること: 始める前に「今日はここまで」と自分の言葉で決めると、力が戻りやすくなります。',
-      '追加読み解きで深める問い: いま気になっていることは、私のどの出方が重なって起きていますか？',
     ],
   },
   '2': {
     closedTitleJa: '仕事とこれからの進め方を、短く確認する',
-    closedLeadJa: '力が出やすいとき・止まりやすいときを、先に整える順で見ます。',
+    closedLeadJa: 'ここまで見た条件を、今週の一手に落とすところまで持っていきます。',
     itemsJa: [
-      '力が出やすいとき: やることの順番が見え、先に整える場所を一つ決められるとき。',
-      '止まりやすいとき: 同時進行や急かしが重なり、どこから手をつけるか分からなくなるとき。',
-      'まず意識すること: 今日進めることを一つに絞ると、動き出す場所が見えやすくなります。',
-      '追加読み解きで深める問い: 今の仕事やこれからの動きで、先に整えると楽になる場所はどこですか？',
+      '手が止まったとき、力の問題として受け取らないこと。決まっていないのは順番のほうです。',
+      '同時に頼まれた日は、こなす量を増やさず、どれを後回しにするかを先に決めること。',
+      '一つ進めたら、その日はそこで区切ること。区切りがあるほど、次の順番が見えやすくなります。',
     ],
   },
   '3': {
@@ -567,7 +571,6 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 落ち着いて相手の言葉を聞き、自分の気持ちも少しずつ言葉にできるとき。',
       '止まりやすいとき: 分かってほしい気持ちが強くなり、言葉が強くなったり距離が近くなりすぎるとき。',
       'まず意識すること: 相手を変えようとする前に、自分の言葉と距離を少し整えると、無理が減りやすくなります。',
-      '追加読み解きで深める問い: 近い人とのやりとりで、言葉と距離をどう置くと無理が減りますか？',
     ],
   },
   '4': {
@@ -577,7 +580,6 @@ export const PAID_DTR_DEEP_READING_TAKEAWAYS: Record<PaidDtrReportPartId, PaidDt
       '力が出やすいとき: 余白があり、今やることを少なくできるとき。',
       '止まりやすいとき: 不安・予定・疲れが重なり、全部を一度に決めようとするとき。',
       'まず意識すること: 見える化・減らす・守る——続けられる習慣として、まず一つだけ見直すと、戻る場所が見えやすくなります。',
-      '追加読み解きで深める問い: 今の疲れや不安を軽くするために、まず一つ減らすなら何ですか？',
     ],
   },
 } as const;

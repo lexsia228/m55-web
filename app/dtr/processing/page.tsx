@@ -13,6 +13,12 @@ import {
 } from '../../../lib/m55/dtrShelfAccess';
 import { resolveEntryReportOwnership } from '../../../lib/m55/dtrOwnershipGate';
 import { getVisibleSavedReportSnapshot } from '../../../lib/m55/dtrSavedReportOwnership';
+import { maskCheckoutRecoveryRef } from '../../../lib/m55/paidResult/checkoutRecoveryRef';
+import {
+  decideUnverifiedCheckoutReturn,
+  type OwnedReturnEvidence,
+  type UnverifiedCheckoutReturnDecision,
+} from '../../../lib/m55/paidResult/postPaymentReturnDecision';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
 import { LABEL_FORMAT_SAVED, LABEL_SAVED_REPORT_METADATA_JP } from '../../../lib/m55/dtrProductLabels';
 import styles from './processing.module.css';
@@ -49,6 +55,31 @@ function paidProcessingRecoveryMessage(): string {
   return 'お支払いを確認しました。プレミアムレポートの反映に時間がかかっています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。';
 }
 
+/**
+ * Ownership is held in the database, not in the checkout return URL. The Stripe
+ * purchase-context transport can be unresolvable on a host that no longer reaches the
+ * Supabase project the session was created against, and a buyer whose report is already
+ * fulfilled must not be told the purchase failed because of that.
+ */
+async function resolveOwnedPostPaymentReturn(
+  userId: string,
+): Promise<UnverifiedCheckoutReturnDecision> {
+  let evidence: OwnedReturnEvidence | null = null;
+  try {
+    const ownership = await resolveEntryReportOwnership(userId);
+    evidence = {
+      unlockState: ownership.unlockState,
+      hasVisibleSnapshot:
+        ownership.unlockState === 'owned'
+          ? (await getVisibleSavedReportSnapshot(userId)) != null
+          : false,
+    };
+  } catch {
+    evidence = null;
+  }
+  return decideUnverifiedCheckoutReturn(evidence);
+}
+
 function ProcessingFallback({
   message,
   supportUrl,
@@ -56,7 +87,7 @@ function ProcessingFallback({
 }: {
   message: string;
   supportUrl: string;
-  recoveryRef?: string;
+  recoveryRef?: string | null;
 }) {
   return (
     <main className={styles.page} data-testid="m55-dtr-processing-main">
@@ -67,9 +98,7 @@ function ProcessingFallback({
         </h1>
         <p className={styles.desc}>{message}</p>
         {recoveryRef && (
-          <p className={styles.desc} style={{ marginTop: 8, fontSize: 11 }}>
-            お問い合わせ時のお控え: {recoveryRef}
-          </p>
+          <p className={`${styles.desc} ${styles.recoveryRef}`}>お問い合わせ時のお控え: {recoveryRef}</p>
         )}
         <p className={styles.secondaryRow}>
           <a href="/my" className={styles.secondaryLink}>
@@ -155,6 +184,15 @@ export default async function DtrProcessingPage(props: {
     if (isSafeUnpaidVerificationFailure(sessionVerified.reason)) {
       redirect('/dtr/lp?checkout=cancelled');
     }
+
+    const ownedReturn = await resolveOwnedPostPaymentReturn(userId);
+    if (ownedReturn === 'open_report') {
+      redirect('/dtr/core?post_purchase=1');
+    }
+    if (ownedReturn === 'owned_recovery') {
+      redirect(DTR_OWNED_RECOVERY_PROCESSING_PATH);
+    }
+
     const unpaidPendingMessage =
       sessionVerified.reason === 'payment_status_not_paid'
         ? 'お支払いの確認を待っています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。'
@@ -163,12 +201,12 @@ export default async function DtrProcessingPage(props: {
       <ProcessingFallback
         message={unpaidPendingMessage}
         supportUrl={supportUrl}
-        recoveryRef={sessionIdFromUrl.startsWith('cs_') ? sessionIdFromUrl : undefined}
+        recoveryRef={maskCheckoutRecoveryRef(sessionIdFromUrl)}
       />
     );
   }
 
-  const recoveryRef = sessionVerified.sessionId;
+  const recoveryRef = maskCheckoutRecoveryRef(sessionVerified.sessionId);
 
   try {
     getSupabaseAdmin();
@@ -212,7 +250,7 @@ export default async function DtrProcessingPage(props: {
 
   const snap = await getVisibleSavedReportSnapshot(userId);
   if (snap) {
-    redirect('/dtr/core');
+    redirect('/dtr/core?post_purchase=1');
   }
 
   if (ownership.unlockState === 'expired' || ownership.unlockState === 'locked') {

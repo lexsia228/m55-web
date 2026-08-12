@@ -27,7 +27,8 @@ export function DtrProcessingClient({
   paymentConfirmed,
 }: {
   supportUrl: string;
-  recoveryRef?: string;
+  /** Masked support reference only — never a raw Checkout Session id. */
+  recoveryRef?: string | null;
   recoveryMode?: 'checkout' | 'owned';
   hiddenOnlyRepurchase?: boolean;
   paymentConfirmed?: boolean;
@@ -197,9 +198,7 @@ export function DtrProcessingClient({
         </p>
       )}
       {recoveryRef && !showAnimation && (
-        <p className={styles.desc} style={{ marginTop: 12, fontSize: 11 }}>
-          お問い合わせ時のお控え: {recoveryRef}
-        </p>
+        <p className={`${styles.desc} ${styles.recoveryRef}`}>お問い合わせ時のお控え: {recoveryRef}</p>
       )}
       {!showAnimation && (
         <p className={styles.secondaryRow}>

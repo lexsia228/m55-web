@@ -23,12 +23,21 @@
 .title {
   font-size: 1.25rem;
   margin: 0 0 16px;
+  overflow-wrap: anywhere;
 }
 
+/* Support references and URLs are unbroken ASCII: without this they widen the page at 390px. */
 .desc {
   font-size: 0.875rem;
   color: #6b5b8a;
   line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.recoveryRef {
+  margin: 12px 0 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
 }
 
 .animWrap {
