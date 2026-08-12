@@ -22,7 +22,6 @@ import {
 } from '../../lib/m55/freeResult/buildFreeFiveViewCompositionV1';
 import {
   isQuestionnaireCompleteForComposition,
-  resolveInitialUxPhase,
   shouldHideResultDuringQuestionnaire,
   shouldShowHero,
   shouldShowQuestionnaire,
@@ -47,12 +46,11 @@ import {
   syncDraftAnswers,
   writePersistedFunnel,
 } from '../../lib/m55/selfFunnel/selfFunnelClientStore';
+import { hydrateCoreEssenceFromStore } from '../../lib/m55/selfFunnel/coreEssenceHydration';
 import {
   commitFreeResult,
   formatActiveDobSummaryJa,
   isValidBasicInfo,
-  resolveCoreRouteView,
-  resolveResumeQuestionIndex,
   resolveSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
@@ -85,55 +83,6 @@ type SealedState =
   | { kind: 'locked' }
   | { kind: 'ready'; result: CoreResult; profile: NonNullable<ReturnType<typeof ProfileRepository.get>> }
   | { kind: 'error'; message: string };
-
-function hydrateFromStore(): {
-  uxPhase: FreeRevealUxPhase;
-  draftAnswers: Record<string, string>;
-  committedAnswers: Record<string, string>;
-  questionIndex: number;
-  generationCount: number;
-} {
-  const profile = ProfileRepository.get(null);
-  const persisted = readPersistedFunnel();
-  if (!isValidBasicInfo(profile)) {
-    return {
-      uxPhase: 'INTRO',
-      draftAnswers: {},
-      committedAnswers: {},
-      questionIndex: 0,
-      generationCount: 0,
-    };
-  }
-  const basic = {
-    nickname: profile.nickname.trim(),
-    birthDate: profile.birthDate.trim().slice(0, 10),
-  };
-  const stage = resolveSelfFunnelStage({
-    basicInfo: basic,
-    draftFreeAnswers: persisted.draftFreeAnswers,
-    committedFreeAnswers: persisted.committedFreeAnswers,
-    freeResultFingerprint: persisted.freeResultFingerprint,
-    paidAnswers: {},
-  });
-  const view = resolveCoreRouteView(stage);
-  if (view === 'result' && persisted.committedFreeAnswers) {
-    return {
-      uxPhase: 'RESULT',
-      draftAnswers: persisted.committedFreeAnswers,
-      committedAnswers: persisted.committedFreeAnswers,
-      questionIndex: resolveResumeQuestionIndex(persisted.committedFreeAnswers),
-      generationCount: persisted.generationCount,
-    };
-  }
-  const draft = persisted.draftFreeAnswers;
-  return {
-    uxPhase: resolveInitialUxPhase(true),
-    draftAnswers: draft,
-    committedAnswers: {},
-    questionIndex: resolveResumeQuestionIndex(draft),
-    generationCount: persisted.generationCount,
-  };
-}
 
 export default function CoreEssencePanel() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -172,7 +121,7 @@ export default function CoreEssencePanel() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    const snap = hydrateFromStore();
+    const snap = hydrateCoreEssenceFromStore(ownerId);
     setUxPhase(snap.uxPhase);
     setDraftAnswers(snap.draftAnswers);
     setCommittedAnswers(snap.committedAnswers);
