@@ -100,7 +100,7 @@ export function buildPlanComparisonModel(): PlanComparisonModel {
     fullRecommendReasonJa: '複数のテーマを見たい方へ',
     fullDeltaNoteJa: 'ライトとの差は480円。追加読み解きが4件増えます。',
     upgradeNoteJa:
-      'ライト購入後のフル化は600円です。ライトと後日フル化の合計は1,600円。最初からフルを選ぶ場合は1,480円です。',
+      'ライトを購入したあとからフルに切り替える場合は600円です。この順で購入した合計は1,600円。最初からフルを選ぶ場合は1,480円です。',
     chapterTitlesJa: M55_REPORT_CHAPTERS.map((c) => c.titleJa),
     compactDifference: {
       headingJa: '2つの違いは、追加で読み解けるテーマ数だけ',

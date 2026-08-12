@@ -142,8 +142,8 @@ describe('upgrade CTA placement — structural', () => {
     });
   }
 
-  it('pages show FULL化する（¥600） label SSOT', () => {
-    assert.ok(read('lib/m55/dtrProductLabels.ts').includes('FULL化する（¥600）'));
+  it('pages show フルに切り替える（¥600） label SSOT', () => {
+    assert.ok(read('lib/m55/dtrProductLabels.ts').includes('フルに切り替える（¥600）'));
     assert.ok(read('components/dtr/LightToFullUpgradeButton.tsx').includes('DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL'));
   });
 
