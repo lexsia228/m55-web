@@ -263,22 +263,59 @@ function semanticRoles(
   };
 }
 
+/**
+ * Second sentence of each perspective. Splitting it by side keeps A and B from
+ * reading as the same generic statement wrapped around a different name, which
+ * is visible now that both sides render next to each other in the opening.
+ */
+const PERSPECTIVE_TAILS: readonly { readonly first: string; readonly second: string }[] = [
+  {
+    first: '自分が動ける輪郭を、先に確かめたくなります。',
+    second: '決める前に、確かめておきたいことが残りやすくなります。',
+  },
+  {
+    first: '返事が見えない時間を、そのまま置いておきにくくなります。',
+    second: '返す前に、言葉の置き方を整える時間を取ります。',
+  },
+  {
+    first: 'その場で、違いの輪郭をはっきりさせようとします。',
+    second: '話の順序が整うまで、結論を先に置かずにおきます。',
+  },
+  {
+    first: '話題に入る合図を、自分から先に出しやすくなります。',
+    second: '話題に入る前に、その場の温度を一度確かめます。',
+  },
+  {
+    first: '$statusContext$を、早めに確かめて先に置こうとします。',
+    second: '$statusContext$を、自分の中で整えてから扱おうとします。',
+  },
+  {
+    first: '短い接点を先に一つ置いて、そこから様子を見ます。',
+    second: '置かれた接点の重さを見てから、返す幅を決めます。',
+  },
+];
+
 function perspectiveText(
   chapterIndex: number,
   role: 'A' | 'B',
   perspective: string,
   topicLabel: string,
   statusContext: string,
+  side: 'first' | 'second',
 ): string {
-  const templates = [
-    `予定を決める場面では、${role}には${perspective}ことが自然に見えます。自分が動ける輪郭を先に確かめたくなります。`,
-    `反応がまだ見えない場面では、${role}から見ると${perspective}ところがあります。受け取った合図の置き方を慎重に扱います。`,
-    `意見が分かれる場面では、${role}には${perspective}進め方がなじみます。話の内容と安心できる順序のどちらを先に置くかが表れます。`,
-    `「${topicLabel}」を扱う場面では、${role}からは${perspective}流れが自然です。話題へ入る間合いを自分の順序で整えます。`,
-    `少し距離を置きたくなる場面では、${role}には${perspective}動きが見えます。${statusContext}を自分のペースで確かめようとします。`,
-    `元の距離へ戻る場面では、${role}から見ると${perspective}ことが入口になります。関係を一つの説明に固定せず、小さな接点から様子を見ます。`,
+  const leads = [
+    `予定を決める場面では、${role}には${perspective}ことが自然に見えます。`,
+    `反応がまだ見えない場面では、${role}から見ると${perspective}ところがあります。`,
+    `意見が分かれる場面では、${role}には${perspective}進め方がなじみます。`,
+    `「${topicLabel}」を扱う場面では、${role}からは${perspective}流れが自然です。`,
+    `少し距離を置きたくなる場面では、${role}には${perspective}動きが見えます。`,
+    `元の距離へ戻る場面では、${role}から見ると${perspective}ことが入口になります。`,
   ] as const;
-  return templates[chapterIndex]!;
+  const tail = PERSPECTIVE_TAILS[chapterIndex]![side].replaceAll(
+    '$statusContext$',
+    statusContext,
+  );
+  return `${leads[chapterIndex]!}${tail}`;
 }
 
 function chapterPhrase(
@@ -303,6 +340,25 @@ function chapterPhrase(
     speaker: 'either',
     text: SHARED_PHRASES[axis][sharedIndex]!,
   };
+}
+
+/**
+ * ch_about carries the "returning after distance" scene in this report, while the
+ * catalog title still names the legacy renderer's disclaimer chapter. Disclaimers
+ * live in snapshot.safetyNote, so the reader title must describe the scene it holds.
+ */
+export const PAID_COMPATIBILITY_CHAPTER_TITLE_OVERRIDES = {
+  ch_about: '戻るときの最初の接点',
+} as const satisfies Partial<Record<ChapterId, string>>;
+
+export function paidCompatibilityChapterTitle(
+  key: ChapterId,
+  topicId?: PaidTopicId,
+): string {
+  const override = (PAID_COMPATIBILITY_CHAPTER_TITLE_OVERRIDES as Partial<
+    Record<ChapterId, string>
+  >)[key];
+  return override ?? getChapterTitle(key, topicId);
 }
 
 function buildChapter(
@@ -330,6 +386,7 @@ function buildChapter(
     roles.personA,
     topicLabel,
     STATUS_CONTEXT[input.relationStatusId],
+    roles.first.role === 'A' ? 'first' : 'second',
   );
   const personB = perspectiveText(
     index,
@@ -337,20 +394,23 @@ function buildChapter(
     roles.personB,
     topicLabel,
     STATUS_CONTEXT[input.relationStatusId],
+    roles.first.role === 'B' ? 'first' : 'second',
   );
   const smallExperiment = [
     `今週、${topicAction.situation}に、${focus.experimentAction}。`,
     '一回分の場面だけを見て、次も続けるかはそのあとで選びます。',
   ].join('');
-  const contextualPhrase = contextVariation
+  const contextualPhrase = contextVariation?.usablePhrase
     ? `${phrase.text.split('、')[0]?.replace(/[？。]$/u, '') ?? phrase.text}、${contextVariation.usablePhrase}`
     : phrase.text;
 
   return Object.freeze({
     key,
     number: index + 1,
-    title: getChapterTitle(key, input.paidTopicId),
-    scene: contextVariation ? `${topicScene}。${contextVariation.sceneSuffix}` : topicScene,
+    title: paidCompatibilityChapterTitle(key, input.paidTopicId),
+    scene: contextVariation?.sceneSuffix
+      ? `${topicScene}。${contextVariation.sceneSuffix}`
+      : topicScene,
     personAPerspective: personA,
     personBPerspective: personB,
     relationshipLoop: Object.freeze([
@@ -358,23 +418,16 @@ function buildChapter(
       `${roles.second.role}が${focus.secondReception}`,
       `${roles.second.role}が${focus.secondAction}`,
       `${roles.first.role}が${focus.firstReception}`,
-      contextVariation
+      contextVariation?.relationshipLoopTail
         ? `二人の間で、${focus.continuation}。今は、${contextVariation.relationshipLoopTail}`
         : `二人の間で、${focus.continuation}`,
     ]),
-    resetSteps: contextVariation
-      ? Object.freeze([
-        focus.resetSteps[0]!,
-        contextVariation.resetStep,
-        focus.resetSteps[focus.resetSteps.length - 1]!,
-      ])
-      : Object.freeze([...focus.resetSteps]),
+    resetSteps: Object.freeze([...focus.resetSteps]),
     phraseSpeaker: phrase.speaker,
     usablePhrase: contextualPhrase,
-    smallExperiment: contextVariation ? contextVariation.smallExperiment : smallExperiment,
-    reflectionQuestion: contextVariation
-      ? contextVariation.reflectionQuestion
-      : focus.reflectionQuestion,
+    smallExperiment: contextVariation?.smallExperiment ?? smallExperiment,
+    reflectionQuestion:
+      contextVariation?.reflectionQuestion ?? focus.reflectionQuestion,
   });
 }
 

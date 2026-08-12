@@ -57,7 +57,7 @@ describe('pairReading catalog lock', () => {
     assert.equal(PRODUCT_PUBLIC_NAME, '2人の距離の読み解き');
     assert.equal(PRODUCT_INTERNAL_NAME, 'pair_reading');
     assert.equal(SAFETY_PROFILE, 'm55_pair_non_advisory_v1');
-    assert.equal(PAIR_READING_CTA, '続きは、2人の読み解きレポート');
+    assert.equal(PAIR_READING_CTA, '続きは、二人の相性レポート');
   });
 });
 

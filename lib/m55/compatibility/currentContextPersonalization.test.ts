@@ -163,17 +163,18 @@ describe('current-context questionnaire contract', () => {
     const css = read('components/compatibility/CompatibilityGuestExperience.module.css');
     assert.match(component, /回答するのはあなた一人です/);
     assert.match(component, /相手の本音や性格を当てるものではありません/);
-    assert.match(component, /このあと、無料の見取り図まで進めます/);
+    assert.match(component, /このあと、無料の読み解きまで進めます/);
     assert.match(component, /questionIndex === 0 \? styles\.questionPurpose : styles\.questionPurposeCompact/);
     assert.match(component, /同じ生年月日でも、今の距離や会話によって内容が変わります。/);
     assert.doesNotMatch(component, /質問 \{questionIndex \+ 1\}\/6/);
+    assert.match(component, /二人それぞれの動き/);
+    assert.match(component, /すれ違いが始まる場面/);
     assert.match(component, /場面から戻る手順/);
     assert.match(component, /そのまま使える一言/);
     assert.match(component, /今週一度だけ試すこと/);
-    assert.match(component, /あとで振り返る一問/);
-    assert.match(component, /今つながる2章を見る/);
-    assert.match(component, /href="#compatibility-mapped-chapters"/);
     assert.match(component, /id="compatibility-mapped-chapters"/);
+    // The bridge must not end on an anchor back to content the reader passed.
+    assert.doesNotMatch(component, /href="#compatibility-mapped-chapters"/);
     assert.match(component, /loopSteps/);
     assert.match(component, /glanceLabel/);
     assert.match(component, /土台は生年月日、表れ方と連鎖は今の回答を重ねています。/);

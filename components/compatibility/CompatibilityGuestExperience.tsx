@@ -199,8 +199,8 @@ export default function CompatibilityGuestExperience({
         aria-labelledby="compatibility-title"
         data-testid="compatibility-dob-step"
       >
-        <p className={styles.eyebrow}>二人の関係の見取り図</p>
-        <h1 id="compatibility-title">二人の関係を、重なりと違いから見ます</h1>
+        <p className={styles.eyebrow}>二人の関係を読み解く</p>
+        <h1 id="compatibility-title">二人の関係を、重なりと違いから読み解きます</h1>
         <p className={styles.lead}>
           良し悪しや点数ではなく、距離・反応・進め方の違いを確認します。
         </p>
@@ -236,11 +236,11 @@ export default function CompatibilityGuestExperience({
           <ul
             className={styles.trustStrip}
             data-testid="compatibility-trust-strip"
-            aria-label="この見取り図の進め方"
+            aria-label="この読み解きの進め方"
           >
             <li>回答するのはあなた一人です</li>
             <li>相手の本音や性格を当てるものではありません</li>
-            <li>このあと、無料の見取り図まで進めます</li>
+            <li>このあと、無料の読み解きまで進めます</li>
           </ul>
           {error ? <p className={styles.error} role="alert">{error}</p> : null}
           <button className={styles.submit} type="submit" disabled={!complete || isPending}>
@@ -328,8 +328,8 @@ export default function CompatibilityGuestExperience({
             >
               {questionIndex === 5
                 ? isPending
-                  ? '見取り図を組み立てています'
-                  : '今の二人の見取り図を見る'
+                  ? '読み解きを組み立てています'
+                  : '今の二人の読み解きを見る'
                 : '次へ'}
             </button>
           </div>
@@ -340,7 +340,7 @@ export default function CompatibilityGuestExperience({
         <div className={styles.result} data-testid="compatibility-personalized-result">
           <section className={styles.resultHeader} aria-labelledby="result-title">
             <p className={styles.eyebrow}>無料で見えること</p>
-            <h2 id="result-title">現在の二人の見取り図</h2>
+            <h2 id="result-title">今の二人の読み解き</h2>
             <p>生年月日から見る土台と、今の回答から見える表れ方を分けて整理しました。</p>
           </section>
 
@@ -356,6 +356,10 @@ export default function CompatibilityGuestExperience({
               <h3>違いが出やすいところ</h3>
               <p>{result.free.difference}</p>
             </article>
+          </div>
+          <div className={styles.dynamicBlock} data-testid="compatibility-relationship-dynamic">
+            <h4>この違いが、二人の間でどう動くか</h4>
+            <p>{result.free.relationshipDynamic}</p>
           </div>
           </section>
 
@@ -398,13 +402,32 @@ export default function CompatibilityGuestExperience({
             相手本人が回答したものではありません。
           </p>
 
+          <section
+            className={styles.freeDetail}
+            id="compatibility-free-detail"
+            aria-labelledby="free-detail-title"
+          >
+            <p className={styles.eyebrow}>ここまでのまとめ</p>
+            <h3 id="free-detail-title">無料で読めるのは、ここまでです</h3>
+            <p>{result.freeTeaser}</p>
+          </section>
+
           <section className={styles.paidBridge} aria-labelledby="paid-bridge-title">
-            <p className={styles.eyebrow}>今のfocus：{context.focusLabel}</p>
-            <h3 id="paid-bridge-title">現在の二人と直接つながる2章</h3>
+            <p className={styles.eyebrow}>今いちばん整理したいこと：{context.focusLabel}</p>
+            <h3 id="paid-bridge-title">この二人の続きとして読めること</h3>
             <p className={styles.deliverableLead}>
-              二人の生年月日だけでなく、今の距離・会話・すれ違い方を重ねて、6つの場面を整理します。
+              無料では、今の二人に何が起きやすいかまでを読みました。
+              有料のレポートでは、その場面ごとに、二人それぞれの動きと、そこから戻るところまでを扱います。
             </p>
-            <ul className={styles.toolkitTiles} aria-label="6章で受け取れる道具">
+            <ul className={styles.toolkitTiles} aria-label="レポートで受け取れるもの">
+              <li>
+                <strong>二人それぞれの動き</strong>
+                <span>同じ場面で、あなた側と相手側に何が起きているか</span>
+              </li>
+              <li>
+                <strong>すれ違いが始まる場面</strong>
+                <span>どこから連鎖に変わるのかの順番</span>
+              </li>
               <li>
                 <strong>場面から戻る手順</strong>
                 <span>すれ違いのあとに戻る、小さな順序</span>
@@ -422,6 +445,7 @@ export default function CompatibilityGuestExperience({
                 <span>何が変わったかを見直すための問い</span>
               </li>
             </ul>
+            <h4 className={styles.mappedTitle}>この二人なら、最初に読む場面</h4>
             <div
               className={styles.mappedChapters}
               id="compatibility-mapped-chapters"
@@ -431,13 +455,13 @@ export default function CompatibilityGuestExperience({
                   <h4>{chapter.chapterTitle}</h4>
                   <p className={styles.connectionLabel}>今の二人とつながる理由</p>
                   <p>{chapter.currentConnection}</p>
-                  <p className={styles.connectionLabel}>この章で得られる具体物</p>
+                  <p className={styles.connectionLabel}>ここで受け取れるもの</p>
                   <p className={styles.concreteValue}>{chapter.concreteValue}</p>
                 </article>
               ))}
             </div>
 
-            <h4 className={styles.sixTitle} id="compatibility-six-chapters">6章の使い方</h4>
+            <h4 className={styles.sixTitle} id="compatibility-six-chapters">読み返せる場面</h4>
             <div className={styles.useCases}>
               <span>会話の前に読む</span>
               <span>すれ違った時に読む</span>
@@ -448,47 +472,37 @@ export default function CompatibilityGuestExperience({
               <div className={styles.commerceOffer}>
                 <div>
                   <strong>二人の相性レポート</strong>
-                  <span>6章レポート1件・¥1,480（税込）</span>
-                  <small>買い切りで、自動更新はありません。購入後はマイページから読み返せます。</small>
+                  <span>¥1,480（税込）・買い切り</span>
+                  <small>自動更新はありません。購入後はマイページから読み返せます。</small>
                 </div>
                 <a
                   className={styles.purchaseLink}
                   href="/synastry/purchase/confirm"
-                  onClick={() => trackFunnelAction(
-                    M55_FUNNEL_EVENTS.compatibilityPaidBridgeClick,
-                    'compatibility_guest',
-                  )}
+                  onClick={() => {
+                    trackFunnelAction(
+                      M55_FUNNEL_EVENTS.compatibilityPaidBridgeClick,
+                      'compatibility_guest',
+                    );
+                    trackFunnelAction(
+                      M55_FUNNEL_EVENTS.compatibilityPersonalizedPaidBridgeClick,
+                      'compatibility_guest',
+                    );
+                  }}
                 >
                   商品内容と価格を確認する
                 </a>
               </div>
-            ) : null}
-            <div className={styles.bridgeActions}>
-              <a
-                className={styles.primaryLink}
-                href="#compatibility-mapped-chapters"
-                onClick={() => trackFunnelAction(
-                  M55_FUNNEL_EVENTS.compatibilityPersonalizedPaidBridgeClick,
-                  'compatibility_guest',
-                )}
-              >
-                今つながる2章を見る
-              </a>
-              <a className={styles.secondaryLink} href="#compatibility-free-detail">
-                無料の詳細をこのまま読む
-              </a>
-            </div>
+            ) : (
+              <p className={styles.bridgePending}>
+                このレポートは現在準備中です。無料の読み解きは、このままお使いいただけます。
+              </p>
+            )}
           </section>
 
-          <section
-            className={styles.freeDetail}
-            id="compatibility-free-detail"
-            aria-labelledby="free-detail-title"
-          >
-            <p className={styles.eyebrow}>無料の詳細</p>
-            <h3 id="free-detail-title">この見取り図の要約</h3>
-            <p>{result.freeTeaser}</p>
-          </section>
+          <p className={styles.revisitNote}>
+            この結果は、タブを開いている間は同じ内容で読み返せます。
+            別の相手との関係を見るときは、入力と回答を消してから進めてください。
+          </p>
           <button type="button" className={styles.resetJourney} onClick={resetJourney}>
             入力と回答を消して、最初から見る
           </button>
