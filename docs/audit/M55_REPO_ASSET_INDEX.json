@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-11T22:02:53.025993+00:00",
+  "generated_at_utc": "2026-08-12T22:01:13.599610+00:00",
   "count": 689,
   "records": [
     {
@@ -240,7 +240,7 @@
     {
       "path": "docs/ssot/M55_METHOD_AND_AUTHORITY_SSOT_v1.md",
       "category": "ssot",
-      "bytes": 6630
+      "bytes": 7122
     },
     {
       "path": "docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md",

@@ -1,6 +1,6 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-08-11T22:02:53.028730+00:00
+Generated: 2026-08-12T22:01:13.601907+00:00
 Total records: 689
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
@@ -50,7 +50,7 @@ Total records: 689
 - [ssot] `docs/ssot/M55_HOME_POSTER_LAYOUT_SSOT_v1.md` (5927 bytes)
 - [ssot] `docs/ssot/M55_HOME_TEXT_FIT_RULES_v1.md` (6424 bytes)
 - [ssot] `docs/ssot/M55_INCIDENT_2026-05-08_WEBHOOK_ENV_MIXUP.md` (2934 bytes)
-- [ssot] `docs/ssot/M55_METHOD_AND_AUTHORITY_SSOT_v1.md` (6630 bytes)
+- [ssot] `docs/ssot/M55_METHOD_AND_AUTHORITY_SSOT_v1.md` (7122 bytes)
 - [ssot] `docs/ssot/M55_MONETIZATION_IMPLEMENTATION_PLAN_WEB_v1.md` (7244 bytes)
 - [ssot] `docs/ssot/M55_MONETIZATION_SSOT_FULL_FREEZE_v1_0.md` (8954 bytes)
 - [ssot] `docs/ssot/M55_PAID_DTR_PRODUCT_COPY_MASTER_v1.md` (26051 bytes)
