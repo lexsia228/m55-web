@@ -4829,9 +4829,10 @@
     padding-top: clamp(10px, 2.4vw, 14px);
   }
 
+  /* Phone reading: give the 【…】 label room to read as a heading, not as a first line. */
   .sectionBlockGroup {
-    gap: clamp(8px, 2vw, 10px);
-    padding-top: clamp(6px, 1.4vw, 8px);
+    gap: clamp(10px, 2.6vw, 13px);
+    padding-top: clamp(8px, 1.8vw, 11px);
   }
 
   .sectionBlockLabel {
