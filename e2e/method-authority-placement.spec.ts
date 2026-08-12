@@ -89,7 +89,7 @@ test.describe('M55 method placements', () => {
     requireCleanCaptureEnvironment('method-authority-placement');
   });
 
-  test('canonical method route renders all ten sections under one public name', async ({ page }) => {
+  test('canonical method route renders every section under one public name', async ({ page }) => {
     await prepareCleanCapturePage(page);
     await page.goto(M55_METHOD_CANONICAL_ROUTE, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.getByTestId('m55-method-canonical')).toBeVisible({ timeout: 30_000 });

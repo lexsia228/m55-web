@@ -67,8 +67,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     heroTitleLine2Ja: '順番がある。',
     heroSubJa: '',
     heroSupportJa: 'M55は、生年月日を暦で見つめ直す自己理解の入口です。',
-    /** Hero poster–only support copy. Do not reuse for metadata/OG (heroSupportJa is the shared field). */
-    heroPosterSupportJa: '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。',
+    /**
+     * Hero poster–only support copy. Do not reuse for metadata/OG (heroSupportJa is the shared field).
+     * Leads with what the visitor gets, then how little it takes — the brand line
+     * above it is deliberately abstract, so the outcome has to land here.
+     */
+    heroPosterSupportJa: '力が出る場面と、重くなる流れが見えます。\n生年月日と、今の自分に近い答えを選ぶだけ。',
     heroTrustJa: 'ログイン不要',
     /** Hero poster–only CTA copy. Do not reuse for lower funnel (heroFunnelCtaJa is the shared field). */
     heroPosterCtaJa: '無料で見てみる',
@@ -126,8 +130,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     /* §4 — Mechanism band */
     mechanismEyebrowJa: 'M55の見方',
     mechanismHeadlineJa: '変わりにくい土台と、\nいまの答えを重ねて見る。',
+    /**
+     * The four-step model block sits directly below and explains how the reading
+     * is composed, so this band stays on what goes in and what is never used.
+     */
     mechanismBodyJa:
-      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
+      '使うのは、生年月日と、いま選んだ答えだけ。\n自分を見るときも、二人の関係を見るときも、同じ見方です。\nほかの利用者との比較や、外部から取得した情報は使いません。',
     mechanismEthicsJa: '一つの情報だけで、人を決めない。',
     mechanismHowLinkJa: 'M55の仕組みを詳しく見る',
     mechanismDiagramSource1Ja: '生年月日から見える土台',
@@ -137,7 +145,7 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     /* §3 continued — FREE result (merged with outcome bridge) */
     freeResultHeadlineJa: '無料で、今の自分に出やすい反応と、\n整え方の入口を知る。',
     freeResultBodyJa:
-      '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
+      '下の表示例のように、出やすい反応と、それが活きる場面・重くなる場面まで返ります。',
     freeResultPreviewLabelJa: '無料結果の表示例',
     freeResultCtaJa: '無料で見てみる',
     freeResultSupportJa: 'ログイン不要',
@@ -154,15 +162,20 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
       '無料は、今の自分を見る入口。\nプレミアムは、\nなぜそうなるかと、どう扱うかまで。',
     premiumValueBridgeFreeHeadingJa: '無料結果',
     premiumValueBridgeFreeItemsJa: [
-      'いまの自分に近い短い読み解き',
+      'いまの自分に出やすい反応',
+      'それが活きる場面と、重くなる場面',
       '自分に表れやすい資質',
-      '今の状態を整理するための入口',
     ] as const,
     premiumValueBridgePremiumHeadingJa: 'プレミアムレポート',
+    /**
+     * Mirrors the labels the paid opening actually renders
+     * (PAID_DTR_OPENING_POINT_LABELS_JA), so HOME cannot promise a different
+     * product from the one the reader opens after paying.
+     */
     premiumValueBridgePremiumItemsJa: [
-      '動き方と、力が出やすい条件',
-      '人との距離感と、負担が重なり始める流れ',
-      '整え直すための手がかり',
+      'その反応になる理由',
+      '力が出やすいときと、止まりやすいとき',
+      '戻り方と、人との距離での出方',
     ] as const,
     premiumEyebrowJa: 'M55 プレミアムレポート',
     premiumHeadlineJa: '自分の力が出やすい条件と、\n負担が重なり始める流れを読み解く。',
@@ -184,7 +197,12 @@ export const TOP_FREE_ENTRY_PUBLIC_COPY = {
     planFullFitJa: '複数の気になるテーマを、\nまとめて深く見たい人へ。',
     planFullPriceJa: PAID_DTR_SAVED_REPORT_PRICING.full.priceLabelJa,
     planFullSpecJa: formatHomePlanFullSpecJa(PAID_DTR_SAVED_REPORT_PRICING.full.totalReplyCap),
-    planCommonFactsJa: ['買い切り', '自動更新なし', '購入と閲覧にはログインが必要です'] as const,
+    planCommonFactsJa: [
+      '買い切り',
+      '自動更新なし',
+      '購入後は何度でも読み返せます',
+      '購入と閲覧にはログインが必要です',
+    ] as const,
     planComparisonCtaJa: 'プレミアムレポートを見る',
 
     /* §6 — Final CTA */

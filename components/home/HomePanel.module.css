@@ -552,6 +552,12 @@
 .headlineSemanticUnit {
   word-break: keep-all;
   line-break: strict;
+  /*
+   * Opt out of the headline's `overflow-wrap: anywhere`, which otherwise
+   * inherits in and lets the browser split a protected unit anyway. Units are
+   * short enough (<= 11 chars) to fit one 320px line, so this cannot overflow.
+   */
+  overflow-wrap: normal;
 }
 
 .sectionSubheading {
@@ -1667,6 +1673,76 @@
   max-width: 48ch;
 }
 
+/* Sample body — mirrors the /core conviction block so HOME shows the real shape. */
+
+.freePreviewHeadline {
+  margin: 0 0 16px;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+  font-size: clamp(0.98rem, 2.1vw, 1.1rem);
+  font-weight: 600;
+  line-height: 1.7;
+  color: #0b1a2b;
+  max-width: 40ch;
+}
+
+.freePreviewScene {
+  padding-top: 14px;
+  border-top: 1px solid rgba(11, 26, 43, 0.1);
+}
+
+.freePreviewSceneLabel {
+  margin: 0 0 6px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #496f6d;
+}
+
+.freePreviewConditionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+@media (min-width: 600px) {
+  .freePreviewConditionGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+}
+
+.freePreviewConditionTitle {
+  margin: 0 0 6px;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #496f6d;
+}
+
+.freePreviewConditionList {
+  margin: 0;
+  padding-left: 1.1em;
+  list-style: disc;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: #1b2b3a;
+}
+
+.freePreviewOpenQuestion {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(11, 26, 43, 0.1);
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.85;
+  color: #2b3b4a;
+  max-width: 48ch;
+}
+
 /* ── Mechanism editorial diagram ─────────────────────────────────────── */
 
 .mechanismStage .sectionEyebrow {
@@ -1772,6 +1848,8 @@
   font-weight: 600;
   letter-spacing: 0.03em;
   color: rgba(241, 232, 214, 0.96);
+  /* The product name must break after 「M55」, never inside 「プレミアムレポート」. */
+  word-break: keep-all;
 }
 
 .premiumChapterRow {
@@ -2060,9 +2138,18 @@
     padding-bottom: 24px;
   }
 
-  .productMapStage .sectionHeadline {
+  /*
+   * One mobile headline scale across every section. At the previous 1.65rem
+   * floor the free, mechanism and final-CTA headlines ran ~1 character past the
+   * column, so lines broke onto a stranded 「。」 or 「と、」.
+   */
+  .productMapStage .sectionHeadline,
+  .freeStage .sectionHeadline,
+  .mechanismStage .sectionHeadline,
+  .finalLightStage .sectionHeadline {
     margin-bottom: 10px;
     font-size: clamp(1.28rem, 5.4vw, 1.55rem);
+    line-height: 1.42;
   }
 
   .productMapItem {
@@ -2280,47 +2367,6 @@
   padding: 16px;
   box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(11, 26, 43, 0.06);
-}
-
-.freePreviewInner {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.freePreviewPlate {
-  background: #ffffff;
-  border: 1px solid rgba(11, 26, 43, 0.1);
-  border-radius: 8px;
-  padding: 14px 16px;
-}
-
-.freePreviewEyebrow {
-  margin: 0 0 4px;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: rgba(11, 26, 43, 0.55);
-}
-
-.freePreviewPersona {
-  margin: 0;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0b1a2b;
-}
-
-.freePreviewQuality {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: rgba(11, 26, 43, 0.68);
-}
-
-.freePreviewSummary {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.75;
-  color: #1b2b3a;
 }
 
 .premiumPreviewInset {
@@ -2757,6 +2803,14 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * The tail is a single particle unit. Without this it inherits the line's
+ * `overflow-wrap: anywhere` and 「には、」 splits into a stranded 「は、」.
+ */
+.posterHeroApprovedRoot .posterHeroTitleMobileTail {
+  overflow-wrap: normal;
+}
+
 .posterHeroApprovedRoot .posterHeroTitleDesktopPrefix {
   display: none;
 }
@@ -2955,5 +3009,24 @@
 
   .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
     font-size: 19px;
+  }
+}
+
+/*
+ * At 320 the 288px column holds ~15 characters at 19px, one short of
+ * 「あなたの「いつもこうなる」には、」, which pushed the tail onto its own line.
+ */
+@media (max-width: 340px) {
+  .posterHeroApprovedRoot .posterHeroOverlay .posterHeroTitleBlite {
+    font-size: 17.5px;
+  }
+
+  /*
+   * The 1.28rem floor fits ~11.7 characters in the 244px column, one short of
+   * the longest protected unit, which stranded 「自分の」 on its own line and
+   * pushed the premium headline 2px past its box.
+   */
+  .lowerSection .sectionHeadline {
+    font-size: 1.12rem;
   }
 }

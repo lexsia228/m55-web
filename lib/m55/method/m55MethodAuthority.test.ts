@@ -126,6 +126,17 @@ describe('M55 method authority — canonical sentences', () => {
       /当たり方が上がるという意味ではありません/,
     );
   });
+
+  it('names the paid tier in canonical Japanese, never bare English "Premium"', () => {
+    for (const [key, text] of Object.entries(M55_METHOD_CANONICAL_COPY)) {
+      assert.doesNotMatch(text, /Premium/, `${key} must use 「プレミアム」 in public copy`);
+    }
+    for (const section of M55_METHOD_SECTIONS) {
+      for (const paragraph of [section.titleJa, ...section.bodyJa]) {
+        assert.doesNotMatch(paragraph, /Premium/, `section ${section.id} leaks English "Premium"`);
+      }
+    }
+  });
 });
 
 describe('M55 method authority — four-step model', () => {
@@ -144,22 +155,55 @@ describe('M55 method authority — four-step model', () => {
 });
 
 describe('M55 method authority — required sections', () => {
-  it('covers the ten required sections in order', () => {
+  it('answers what the reader gets before how it is built', () => {
     assert.deepEqual(
       [...M55_METHOD_SECTIONS].sort((a, b) => a.order - b.order).map((s) => s.titleJa),
       [
-        '一つの情報だけで決めない',
+        'M55で見えること',
+        'なぜ生年月日と、今の回答の両方を見るのか',
+        '無料で分かること',
+        'プレミアムレポートで深くなること',
+        '二人の関係で見ること',
+        'M55が行わないこと',
+        '保存とプライバシー',
         '入力として使うもの',
         '変わりにくい土台',
-        '今の回答に表れること',
         '近い点とずれる点',
-        'Premiumで加わる深さ',
-        '生活場面への整理',
         '再現性と版管理',
-        '保存とプライバシー',
-        'M55が行わないこと',
       ],
     );
+  });
+
+  it('groups run value → trust → method, never interleaved', () => {
+    const groups = [...M55_METHOD_SECTIONS].sort((a, b) => a.order - b.order).map((s) => s.group);
+    const rank = { value: 0, trust: 1, method: 2 } as const;
+    for (let i = 1; i < groups.length; i += 1) {
+      assert.ok(
+        rank[groups[i]] >= rank[groups[i - 1]],
+        `method detail must not appear before user value: ${groups.join(' → ')}`,
+      );
+    }
+    assert.equal(groups[0], 'value', 'the page must open on what the reader gets');
+  });
+
+  it('orders are contiguous from 1 so the rendered numbering has no gaps', () => {
+    const orders = [...M55_METHOD_SECTIONS].map((s) => s.order).sort((a, b) => a - b);
+    assert.deepEqual(
+      orders,
+      orders.map((_, i) => i + 1),
+    );
+  });
+
+  it('explains the relationship reading HOME sends people to', () => {
+    const pair = M55_METHOD_SECTIONS.find((s) => s.id === 'pair_reading');
+    assert.ok(pair, 'the explanation page must cover 二人の関係');
+    assert.equal(pair.group, 'value');
+    const blob = pair.bodyJa.join('');
+    assert.ok(blob.includes('回答するのはあなた一人'), 'must repeat the single-responder fact');
+    // HOME must never be able to promise a score or mind-reading the product does not do.
+    for (const banned of ['点数をつけ', '言い当て']) {
+      assert.ok(blob.includes(banned), `expected an explicit disclaimer containing ${banned}`);
+    }
   });
 
   it('lists every input in the inputs section', () => {

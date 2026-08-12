@@ -1,10 +1,18 @@
 import type { ReactNode } from 'react';
 
-/** Meaning units that must not break across lines on narrow mobile viewports. */
+/**
+ * Meaning units that must not break across lines on narrow mobile viewports.
+ * Some entries carry a trailing particle or 。 because without it the tail
+ * lands alone on the next line as 「と、」 or 「解く。」.
+ */
 export const HOME_EDITORIAL_NOWRAP_UNITS = [
   '負担が重なり始める流れ',
+  '力が出やすい条件と、',
   '力が出やすい条件',
+  '出やすい反応と、',
   '表れやすいこと',
+  'ところから。',
+  '読み解く。',
   '二人の関係',
   '話しやすい時',
   'すれ違う時',

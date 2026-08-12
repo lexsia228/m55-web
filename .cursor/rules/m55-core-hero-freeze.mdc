@@ -11,6 +11,8 @@ alwaysApply: true
 ## Status
 `/core` 先頭の**ポスターヒーローカード**（`CoreHeroSection` および対応する `CoreExperience.module.css` 内スタイル）は、現状で **FIX（凍結基準）** とする。
 
+HOME のポスターヒーロー（`components/home/HomePanel` 承認 R3 ビジュアル）は **別表面** で、`m55-home-no-touch.mdc` が管轄する。本ルールは `/core` のみ。
+
 ## 判断のメモ（参照用）
 - 大画面・スマホともに成立している。
 - 中間小画面の余白差のみ残り、致命的な崩れではない。

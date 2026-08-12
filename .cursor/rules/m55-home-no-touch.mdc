@@ -1,33 +1,40 @@
 ---
-description: Freeze /home after current snapshot. Narrow exceptions for three explore-card images only; all else needs explicit reopen.
+description: HOME baseline protection after Commercial UX settlement. Poster hero and major composition stay protected; edits require explicit Human reopen or TRUE_DELTA evidence.
 globs:
   - "app/home/**"
   - "components/home/**"
 alwaysApply: true
 ---
 
-# M55 HOME NO-TOUCH RULE
+# M55 HOME BASELINE PROTECTION
 
 ## Status
-`/home` is frozen after the current stabilization snapshot.
+`/home` reached a **Commercial UX baseline** on branch `feat/m55-commercial-ux-home-explanation-v1` (Human GREEN, Aug 2026).
+
+Human authority **explicitly reopened** `/home` for that lane. That reopen is **closed** after settlement. Treat the resulting snapshot as the current protected baseline—not a prohibition on the lane that just shipped, and not a free-edit zone going forward.
 
 ## Absolute rule
-From this point onward, do **not** modify `/home` related files unless one of the **exceptions** below applies, or the user explicitly says that `/home` has been reopened for editing.
+Do **not** modify `/home` related files unless one of the **exceptions** below applies, or the user explicitly reopens `/home` for a named scope.
 
-## Covered scope
+## Protected scope (reuse-first)
+- **M55 poster hero** — image, major composition, and approved visual identity stay protected.
+- Do not casually redesign the hero, shell alignment, header/footer/modal, or `HomeBirthIntakeLayer`.
+- Future hero or layout work requires **TRUE_DELTA evidence** (demonstrated defect or explicit Human scope), not incidental polish.
+
+## Covered paths
 - `app/home/**`
 - `components/home/**`
 
-This includes, but is not limited to:
+Including, but not limited to:
 - `components/home/HomePanel.tsx`
 - `components/home/HomePanel.module.css`
 - `components/home/HomeBirthIntakeLayer.tsx`
 - `components/home/HomeBirthIntakeLayer.module.css`
 
 ## What to do instead
-If a request touches `/home` outside the **narrow image exceptions** or a full reopen, stop and do not edit immediately.
+If a request touches `/home` outside the **narrow image exceptions** or an explicit reopen, stop and do not edit immediately.
 First respond with:
-1. `/home` is currently frozen by rule.
+1. `/home` is currently on a protected Commercial UX baseline.
 2. Ask whether the user wants to explicitly reopen `/home` (or confirm the change fits an allowed exception).
 3. Do not make any change until that instruction is given.
 
@@ -51,8 +58,8 @@ Any other `/home` work is allowed **only** when the user explicitly states that 
 - No replacement from draft files
 - No touching related files “while here”
 
-## Current work priority after freeze
-After `/home` freeze, prioritize only the user-specified next targets outside this rule.
+## Note on `/core` poster hero
+HOME poster hero (`HomePanel` approved R3 visual) and `/core` poster hero (`CoreHeroSection`) are **separate** surfaces. `/core` hero freeze is governed by `m55-core-hero-freeze.mdc`, not this file.
 
 ## Note on `HomePanel_v0_draft.tsx`
 If `HomePanel_v0_draft.tsx` lives under `.cursor/rules/`, that is unconventional: **rule directories are for agent guidance (e.g. `.mdc`), not app components.** Prefer a draft path under `components/` or a dedicated scratch folder if the file is meant to be edited as source.

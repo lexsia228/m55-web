@@ -132,16 +132,32 @@ birth, or the reader's raw answers.
 
 ## 7. Required `/how-m55-works` sections
 
-1. 一つの情報だけで決めない
-2. 入力として使うもの
-3. 変わりにくい土台
-4. 今の回答に表れること
-5. 近い点とずれる点
-6. Premiumで加わる深さ
-7. 生活場面への整理
-8. 再現性と版管理
-9. 保存とプライバシー
-10. M55が行わないこと
+A reader arrives asking what M55 shows them, not how it is built. Sections are
+ordered user value → trust → method detail, and the groups must not interleave.
+Method detail is rendered after a 「方法の補足」 divider.
+
+**Value**
+
+1. M55で見えること
+2. なぜ生年月日と、今の回答の両方を見るのか
+3. 無料で分かること
+4. プレミアムレポートで深くなること
+5. 二人の関係で見ること
+
+**Trust**
+
+6. M55が行わないこと
+7. 保存とプライバシー
+
+**Method detail (方法の補足)**
+
+8. 入力として使うもの
+9. 変わりにくい土台
+10. 近い点とずれる点
+11. 再現性と版管理
+
+Demoting method detail must not delete it: every section above remains required,
+and the factual method account stays complete.
 
 ## 8. Enforcement
 
