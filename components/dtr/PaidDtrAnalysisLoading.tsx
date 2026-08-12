@@ -68,14 +68,18 @@ function birthDateParts(iso: string): [string, string, string] {
   return [m[1], m[2], m[3]];
 }
 
-function stepCopy(sceneIndex: number, nickname: string): string {
+function stepCopy(sceneIndex: number, nickname: string, processingComplete: boolean): string {
   const nick = nickname.trim() || 'あなた';
+  if (sceneIndex >= 4) {
+    return processingComplete
+      ? `${nick}さんのプレミアムレポートが整いました`
+      : `${nick}さんのプレミアムレポートを仕上げています`;
+  }
   const lines = [
     `${nick}さんのプレミアムレポートを準備しています`,
     '生年月日から輪郭を呼び出しています',
     '4つの章に構成しています',
     '日常の傾向をプレミアムレポートにまとめています',
-    `${nick}さんのプレミアムレポートが整いました`,
   ] as const;
   return lines[sceneIndex] ?? lines[0];
 }
@@ -101,6 +105,8 @@ type Props = {
   nickname: string;
   birthDate: string;
   processingComplete: boolean;
+  supportUrl?: string;
+  recoveryRef?: string;
   onComplete: () => void;
 };
 
@@ -109,6 +115,8 @@ export default function PaidDtrAnalysisLoading({
   nickname,
   birthDate,
   processingComplete,
+  supportUrl,
+  recoveryRef,
   onComplete,
 }: Props) {
   const id = useId();
@@ -220,7 +228,11 @@ export default function PaidDtrAnalysisLoading({
       schedule(finish, prefersReduced ? 80 : FADE_OUT_MS);
     };
 
-    sceneAt.forEach((at, i) => schedule(() => setSceneIndex(i), at));
+    sceneAt.slice(0, 4).forEach((at, i) => schedule(() => setSceneIndex(i), at));
+    if (processingCompleteRef.current) {
+      schedule(() => setSceneIndex(4), completeStateAt);
+      schedule(() => setShowComplete(true), completeStateAt);
+    }
     chapterAt.forEach((at, i) => {
       schedule(() => {
         setVisibleChapters(i + 1);
@@ -231,7 +243,6 @@ export default function PaidDtrAnalysisLoading({
     previewAt.forEach((at, i) => schedule(() => setVisiblePreviewLines(i + 1), at));
     scanAt.forEach((at, i) => schedule(() => setScanGeneration(i + 1), at));
     schedule(() => setShowSoftFinish(true), softFinishAt);
-    schedule(() => setShowComplete(true), completeStateAt);
     schedule(() => setFading(true), fadeStartMs);
     schedule(() => tryFinish(), completeMs);
     schedule(() => setShowSlowMsg(true), SLOW_MSG_MS);
@@ -242,10 +253,23 @@ export default function PaidDtrAnalysisLoading({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open || !processingComplete) return;
+    const runId = runIdRef.current;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const completeStateAt = prefersReduced ? REDUCED_COMPLETE_STATE_AT_MS : COMPLETE_STATE_AT_MS;
+    const timer = window.setTimeout(() => {
+      if (runIdRef.current !== runId) return;
+      setSceneIndex(4);
+      setShowComplete(true);
+    }, completeStateAt);
+    return () => window.clearTimeout(timer);
+  }, [open, processingComplete]);
+
   if (!portalReady || !open) return null;
 
   const [year, month, day] = birthDateParts(birthDate);
-  const statusLabel = stepCopy(sceneIndex, nickname);
+  const statusLabel = stepCopy(sceneIndex, nickname, processingComplete);
   const allChaptersLit = visibleChapters >= CHAPTERS.length;
 
   return createPortal(
@@ -426,6 +450,18 @@ export default function PaidDtrAnalysisLoading({
         {showSlowMsg && !processingComplete ? (
           <p className={styles.slowMsg} aria-live="polite">
             {SLOW_WAIT_COPY}
+            {supportUrl ? (
+              <>
+                {' '}
+                <a href={supportUrl} style={{ color: '#6b5fa8', textDecoration: 'underline' }}>
+                  サポート
+                </a>
+                からお問い合わせください。
+              </>
+            ) : null}
+            {recoveryRef ? (
+              <span style={{ display: 'block', marginTop: 4, fontSize: 11 }}>お控え: {recoveryRef}</span>
+            ) : null}
           </p>
         ) : null}
       </div>

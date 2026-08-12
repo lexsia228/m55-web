@@ -7,6 +7,14 @@ export const PREMIUM_FUNNEL_PAGE_CONTENT = {
   planTitleJa: '自分に合うプランを選ぶ',
   checkoutTitleJa: '支払い画面へ進む前に',
   checkoutNoteJa: '次の画面で支払い内容を確認できます。',
+  checkoutCancelledStatusJa:
+    'お支払いは完了していません。プランを確認のうえ、必要であれば再度お進みください。',
+  repurchaseLeadPrefixJa: 'これは',
+  repurchaseLeadEmphasisJa: '新しいプレミアムレポートの追加購入',
+  repurchaseLeadSuffixJa: 'です。選択したプランの料金が再度請求されます。',
+  repurchaseAckLabelJa: '追加購入として再度お支払いが発生することを理解しました',
+  repurchasePlansLeadJa:
+    '新しいプレミアムレポートを購入する場合、選択したプランの料金が再度請求されます。',
   backToPlansJa: 'プラン選択に戻る',
   selectedPlanLabelJa: '選択したプラン',
   priceLabelJa: '価格',

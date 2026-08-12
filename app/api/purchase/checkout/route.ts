@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
+import type Stripe from 'stripe';
 import { getStripe } from '../../../../lib/stripe';
+import {
+  isStaleSessionEscapeAllowed,
+  resolveTrustedCheckoutOrigin,
+} from '../../../../lib/m55/trustedCheckoutOrigin';
 import { getSupabaseAdmin } from '../../../../lib/supabaseAdmin';
 import { resolveEntryReportOwnership } from '../../../../lib/m55/dtrOwnershipGate';
 import {
   getLatestDraftForUser,
+  getDraftById,
   upsertGuestDraftPurchaseContext,
 } from '../../../../lib/m55/dtrDraftDb';
 import { resolveDtrCoreCheckoutSnapshotGate } from '../../../../lib/m55/dtrCheckoutRepurchaseLane';
@@ -32,7 +38,57 @@ import {
   birthProfileFromCheckoutBody,
   mergeBirthProfileWithDraftExtra,
 } from '../../../../lib/soul/birthProfileV2';
+import {
+  buildCheckoutIdempotencyKey,
+  readPendingCheckoutExtra,
+  resolveCheckoutPurchaseContextId,
+} from '../../../../lib/m55/purchaseCheckoutStartedAction';
 import type { BirthProfile } from '../../../../lib/soul/profile';
+
+const CHECKOUT_PUBLIC_CODE = 'checkout_unavailable' as const;
+
+function publicCheckoutError(status: number, code: string = CHECKOUT_PUBLIC_CODE) {
+  return NextResponse.json({ code, error: CHECKOUT_PUBLIC_CODE }, { status });
+}
+
+type CheckoutSessionReuseResult =
+  | { kind: 'open'; url: string }
+  | { kind: 'paid'; url: string }
+  | { kind: 'unusable' }
+  | { kind: 'retrieve_failed' };
+
+async function resolveCheckoutSessionReuse(
+  stripe: Stripe,
+  sessionId: string,
+  productId: string,
+  origin: string,
+): Promise<CheckoutSessionReuseResult> {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (
+      session.status === 'open' &&
+      session.metadata?.productId === productId &&
+      typeof session.url === 'string' &&
+      session.url.trim().length > 0
+    ) {
+      return { kind: 'open', url: session.url.trim() };
+    }
+    if (
+      session.status === 'complete' &&
+      session.payment_status === 'paid' &&
+      session.metadata?.productId === productId
+    ) {
+      return {
+        kind: 'paid',
+        url: `${origin}/dtr/processing?session_id=${encodeURIComponent(sessionId)}`,
+      };
+    }
+    return { kind: 'unusable' };
+  } catch (e) {
+    console.warn('[checkout] session reuse retrieve failed', e);
+    return { kind: 'retrieve_failed' };
+  }
+}
 
 /** 準備中フロー用: DB に残る Checkout Session ID（画面には出さずリダイレクトのみに使う） */
 async function getResumeCheckoutSessionIdForDtr(userId: string): Promise<string | null> {
@@ -141,14 +197,13 @@ export async function POST(req: NextRequest) {
 
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) {
-    return NextResponse.json(
-      { error: 'Stripe is not configured' },
-      { status: 503 }
-    );
+    console.error('[checkout] STRIPE_SECRET_KEY missing');
+    return publicCheckoutError(503);
   }
 
   let body: {
     productId?: string;
+    repurchaseAcknowledged?: boolean;
     profile?: {
       nickname?: string;
       birthDate?: string;
@@ -218,8 +273,7 @@ export async function POST(req: NextRequest) {
     const ownership = await resolveEntryReportOwnership(userId);
     if (ownership.unlockState === 'owned' && !dtrRepurchaseLane) {
       const resumeCheckoutSessionId = await getResumeCheckoutSessionIdForDtr(userId);
-      const allowNewCheckoutForStaleProfile =
-        process.env.DTR_ALLOW_STALE_SESSION_NEW_CHECKOUT === '1';
+      const allowNewCheckoutForStaleProfile = isStaleSessionEscapeAllowed();
 
       let skip409IssueNewCheckout = false;
       if (allowNewCheckoutForStaleProfile && resumeCheckoutSessionId) {
@@ -301,17 +355,25 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const envKey = getOneTimeStripePriceEnvName(productId);
-  const priceId = envKey ? process.env[envKey] : undefined;
-  if (!envKey || !priceId) {
+  if (dtrRepurchaseLane && body.repurchaseAcknowledged !== true) {
     return NextResponse.json(
-      { error: `Product ${productId} is not configured (missing env: ${envKey ?? 'N/A'})` },
-      { status: 503 }
+      { code: 'repurchase_ack_required', error: 'repurchase_ack_required' },
+      { status: 400 },
     );
   }
 
+  const envKey = getOneTimeStripePriceEnvName(productId);
+  const priceId = envKey ? process.env[envKey] : undefined;
+  if (!envKey || !priceId) {
+    console.error('[checkout] price env missing', { productId, envKey: envKey ?? null });
+    return publicCheckoutError(503);
+  }
+
   const stripe = getStripe();
-  const origin = req.headers.get('origin') ?? req.nextUrl.origin;
+  const origin = resolveTrustedCheckoutOrigin({
+    requestOrigin: req.headers.get('origin'),
+    fallbackOrigin: req.nextUrl.origin,
+  });
 
   // Clerk ユーザーの primary email を取得（prefill 用、失敗しても checkout は続行）
   const clerkUser = await currentUser();
@@ -370,8 +432,14 @@ export async function POST(req: NextRequest) {
     body.paidAnswerSet ??
     ((draftExtra?.paidAnswerSet as Record<string, string> | undefined) ?? {});
 
-  let purchaseContextId = draftIdForContext ?? crypto.randomUUID();
+  let purchaseContextId = resolveCheckoutPurchaseContextId({
+    userId,
+    productId,
+    repurchaseLane: dtrRepurchaseLane,
+    existingDraftId: draftIdForContext,
+  });
   let metadata: Record<string, string> = { productId };
+  let latestDraftExtra: Record<string, unknown> = draftExtra ?? {};
 
   if (isDtrCoreSavedReportOneTimeProduct(productId) && resolvedProfile) {
     const fields = toCompositeCanonicalInput({
@@ -419,9 +487,11 @@ export async function POST(req: NextRequest) {
       extraJson,
     });
     if (!upserted.ok) {
-      return NextResponse.json({ error: 'draft_save_failed' }, { status: 500 });
+      console.error('[checkout] draft_save_failed', { userId, productId });
+      return publicCheckoutError(500);
     }
     purchaseContextId = upserted.draftId;
+    latestDraftExtra = extraJson;
 
     metadata = buildOpaqueStripeCheckoutMetadata({
       productId,
@@ -448,33 +518,115 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let checkoutSessionGeneration = 0;
+  let pendingExtraSource: Record<string, unknown> = latestDraftExtra;
+  if (isDtrCoreSavedReportOneTimeProduct(productId)) {
+    try {
+      const anchoredDraft = await getDraftById(purchaseContextId);
+      if (anchoredDraft?.extra_json && typeof anchoredDraft.extra_json === 'object') {
+        pendingExtraSource = {
+          ...pendingExtraSource,
+          ...(anchoredDraft.extra_json as Record<string, unknown>),
+        };
+      }
+    } catch {
+      /* no-op */
+    }
+
+    const pendingMeta = readPendingCheckoutExtra(pendingExtraSource);
+    checkoutSessionGeneration = pendingMeta.checkoutSessionGeneration ?? 0;
+    if (
+      pendingMeta.pendingCheckoutSessionId &&
+      pendingMeta.pendingCheckoutProductId === productId
+    ) {
+      const reuse = await resolveCheckoutSessionReuse(
+        stripe,
+        pendingMeta.pendingCheckoutSessionId,
+        productId,
+        origin,
+      );
+      if (reuse.kind === 'open' || reuse.kind === 'paid') {
+        console.info(
+          '[checkout]',
+          JSON.stringify({
+            event: reuse.kind === 'open' ? 'stripe_checkout_session_reused' : 'stripe_checkout_session_paid_resume',
+            sessionId: pendingMeta.pendingCheckoutSessionId,
+            productId,
+            userId,
+          }),
+        );
+        return NextResponse.json({ url: reuse.url });
+      }
+      if (reuse.kind === 'retrieve_failed') {
+        console.warn('[checkout] pending session retrieve failed — blocking new session', {
+          userId,
+          productId,
+          sessionId: pendingMeta.pendingCheckoutSessionId,
+        });
+        return NextResponse.json({ code: 'fulfillment_pending' as const }, { status: 409 });
+      }
+      checkoutSessionGeneration += 1;
+    }
+  }
+
+  const idempotencyKey = buildCheckoutIdempotencyKey(
+    userId,
+    productId,
+    purchaseContextId,
+    checkoutSessionGeneration,
+  );
+
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: `${origin}/dtr/processing?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/dtr/lp?checkout=cancelled`,
+        client_reference_id: purchaseContextId,
+        metadata,
+        locale: 'ja',
+        payment_intent_data: {
+          description: 'Reflect Report',
         },
-      ],
-      success_url: `${origin}/dtr/processing?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/dtr/lp?checkout=cancelled`,
-      client_reference_id: purchaseContextId,
-      metadata,
-      locale: 'ja',
-      payment_intent_data: {
-        description: 'Reflect Report',
+        phone_number_collection: { enabled: false },
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
       },
-      phone_number_collection: { enabled: false },
-      ...(customerEmail ? { customer_email: customerEmail } : {}),
-    });
+      { idempotencyKey },
+    );
 
     const url = session.url;
     if (!url) {
-      return NextResponse.json(
-        { error: 'Stripe session URL not created' },
-        { status: 500 }
-      );
+      console.error('[checkout] Stripe session URL not created', { sessionId: session.id });
+      return publicCheckoutError(500);
+    }
+
+    if (isDtrCoreSavedReportOneTimeProduct(productId) && resolvedProfile) {
+      const mergedExtra = {
+        ...pendingExtraSource,
+        pendingCheckoutSessionId: session.id,
+        pendingCheckoutProductId: productId,
+        checkoutSessionGeneration,
+      };
+      const persistPending = await upsertGuestDraftPurchaseContext({
+        userId,
+        draftId: purchaseContextId,
+        nickname: resolvedProfile.nickname.trim(),
+        birthDate: resolvedProfile.birthDate,
+        extraJson: mergedExtra,
+      });
+      if (!persistPending.ok) {
+        console.warn('[checkout] pending session persist failed', {
+          userId,
+          sessionId: session.id,
+          reason: persistPending.reason,
+        });
+      }
     }
 
     console.info(
@@ -484,15 +636,13 @@ export async function POST(req: NextRequest) {
         sessionId: session.id,
         hasPurchaseContext: !!metadata.purchaseContextId,
         hasOpaqueUserRef: !!metadata.opaqueUserRef,
-      })
+        idempotencyKey,
+      }),
     );
 
     return NextResponse.json({ url });
   } catch (e) {
-    console.error('[checkout]', e);
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'Checkout failed' },
-      { status: 500 }
-    );
+    console.error('[checkout] stripe session create failed', e);
+    return publicCheckoutError(500);
   }
 }

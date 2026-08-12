@@ -13,19 +13,24 @@ import PaidDtrAnalysisLoading from './PaidDtrAnalysisLoading';
 
 const POLL_MS = 2500;
 const MAX_POLLS = 120;
+const EARLY_REVEAL_MS = 8000;
 
 const CORE_READY = '/dtr/core?post_purchase=1';
-const HIDDEN_ONLY_REPURCHASE_LP = '/dtr/lp';
+/** Client-safe mirror of lib/m55/dtrShelfAccess DTR_HIDDEN_ONLY_REPURCHASE_LP_PATH (no server barrel import). */
+const HIDDEN_ONLY_REPURCHASE_LP_PATH = '/dtr/lp?repurchase=1';
 
 export function DtrProcessingClient({
   supportUrl,
   recoveryRef,
   recoveryMode,
+  hiddenOnlyRepurchase,
+  paymentConfirmed,
 }: {
   supportUrl: string;
   recoveryRef?: string;
-  /** Owned user without checkout session: snapshot read-path recovery (no purchase retry). */
   recoveryMode?: 'checkout' | 'owned';
+  hiddenOnlyRepurchase?: boolean;
+  paymentConfirmed?: boolean;
 }) {
   const isOwnedRecovery = recoveryMode === 'owned';
   const { userId, isLoaded } = useAuth();
@@ -55,6 +60,12 @@ export function DtrProcessingClient({
   }, [isLoaded, userId]);
 
   useEffect(() => {
+    if (hiddenOnlyRepurchase) {
+      setProcessingComplete(true);
+      setPendingNav(HIDDEN_ONLY_REPURCHASE_LP_PATH);
+      return;
+    }
+
     if (!isLoaded || !userId) return;
     let cancelled = false;
     let polls = 0;
@@ -84,7 +95,7 @@ export function DtrProcessingClient({
             d.showPurchaseCta === true
           ) {
             setProcessingComplete(true);
-            setPendingNav(HIDDEN_ONLY_REPURCHASE_LP);
+            setPendingNav(HIDDEN_ONLY_REPURCHASE_LP_PATH);
             return;
           }
         }
@@ -108,13 +119,23 @@ export function DtrProcessingClient({
       cancelled = true;
       if (timeoutId !== undefined) clearTimeout(timeoutId);
     };
-  }, [isLoaded, userId, isOwnedRecovery]);
+  }, [isLoaded, userId, isOwnedRecovery, hiddenOnlyRepurchase]);
+
+  useEffect(() => {
+    if (!showAnimation || processingComplete) return;
+    const timer = window.setTimeout(() => {
+      setShowAnimation(false);
+    }, EARLY_REVEAL_MS);
+    return () => window.clearTimeout(timer);
+  }, [showAnimation, processingComplete]);
+
+  useEffect(() => {
+    if (!processingComplete || !pendingNav) return;
+    router.replace(pendingNav);
+  }, [processingComplete, pendingNav, router]);
 
   const handleAnimationComplete = () => {
     setShowAnimation(false);
-    if (pendingNav) {
-      router.replace(pendingNav);
-    }
   };
 
   return (
@@ -124,25 +145,37 @@ export function DtrProcessingClient({
         nickname={nickname}
         birthDate={birthDate}
         processingComplete={processingComplete}
+        supportUrl={supportUrl}
+        recoveryRef={recoveryRef}
         onComplete={handleAnimationComplete}
       />
 
       {!showAnimation && (
         <>
           <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
-            {isOwnedRecovery ? 'プレミアムレポートを確認中です' : 'プレミアムレポートを準備しています'}
+            {isOwnedRecovery
+              ? hiddenOnlyRepurchase
+                ? '新しいプレミアムレポートの購入手続きへ進めます'
+                : 'プレミアムレポートを確認中です'
+              : paymentConfirmed
+                ? 'お支払いを確認しました。プレミアムレポートを準備しています'
+                : 'プレミアムレポートを準備しています'}
           </p>
           <p className={styles.desc} style={{ margin: 0 }}>
             {isOwnedRecovery
-              ? '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます（再購入は不要です）。'
-              : '購入済みレポートのプレミアムレポートを準備しています。完了すると自動で開きます。'}
+              ? hiddenOnlyRepurchase
+                ? '以前のレポートは非表示です。新しいレポートを購入する場合は、追加のお支払いが必要です。'
+                : '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます。'
+              : '購入済みレポートのプレミアムレポートを準備しています。反映に時間がかかっても、再購入は不要です。'}
           </p>
         </>
       )}
 
       {stuck && (
         <p role="alert" className={styles.desc} style={{ marginTop: 16, color: '#5a4ea0' }}>
-          準備に時間がかかっています。プレミアムレポートが未生成の間は /dtr/core へ直接進みません。
+          {paymentConfirmed
+            ? 'お支払いは確認済みです。準備に時間がかかっています。再購入する前に、このページを再読み込みしてください。'
+            : '準備に時間がかかっています。再購入する前に、このページを再読み込みしてください。'}
           <button
             type="button"
             onClick={() => window.location.reload()}

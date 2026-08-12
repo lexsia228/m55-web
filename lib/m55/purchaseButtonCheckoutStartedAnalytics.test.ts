@@ -166,13 +166,16 @@ describe('checkout_started — behavioral control flow', () => {
     assert.equal(submitLock.current, false);
   });
 
-  it('3) server 4xx/5xx: no event; failure outcome preserved', async () => {
+  it('3) server 4xx/5xx: no event; safe public failure outcome preserved', async () => {
     const { tracks, navigations, posts, attempt, submitLock } = createHarness({
       response: jsonResponse(500, { error: 'server boom' }, false),
     });
     const outcome = await attempt();
     assert.equal(outcome.kind, 'error');
-    if (outcome.kind === 'error') assert.match(outcome.message, /server boom/);
+    if (outcome.kind === 'error') {
+      assert.equal(outcome.message, '支払い画面を開けませんでした。時間をおいてもう一度お試しください。改善しない場合はサポートへお問い合わせください。');
+      assert.doesNotMatch(outcome.message, /server boom/);
+    }
     assert.equal(posts.length, 1);
     assert.equal(tracks.length, 0);
     assert.equal(navigations.length, 0);
@@ -187,6 +190,9 @@ describe('checkout_started — behavioral control flow', () => {
     });
     const first = await harness.attempt();
     assert.equal(first.kind, 'error');
+    if (first.kind === 'error') {
+      assert.doesNotMatch(first.message, /network down/);
+    }
     assert.equal(harness.tracks.length, 0);
     assert.equal(harness.submitLock.current, false);
 
@@ -300,7 +306,10 @@ describe('checkout_started — behavioral control flow', () => {
     });
     const outcome = await attempt();
     assert.equal(outcome.kind, 'error');
-    if (outcome.kind === 'error') assert.match(outcome.message, /Checkout URL not returned/);
+    if (outcome.kind === 'error') {
+      assert.equal(outcome.message, '支払い画面を開けませんでした。時間をおいてもう一度お試しください。改善しない場合はサポートへお問い合わせください。');
+      assert.doesNotMatch(outcome.message, /Checkout URL not returned/);
+    }
     assert.equal(tracks.length, 0);
     assert.equal(navigations.length, 0);
     assert.equal(submitLock.current, false);
