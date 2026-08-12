@@ -2546,6 +2546,41 @@
   content: '';
 }
 
+/* 冒頭サマリー — ラベル + 本人の一行 */
+.premiumIntroPointList {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.premiumIntroPointItem {
+  margin: 0;
+  padding: 0 0 0 9px;
+  border-left: 1px solid rgba(160, 140, 220, 0.28);
+}
+
+.premiumIntroPointLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--dtr-accent);
+  opacity: 0.9;
+}
+
+.premiumIntroPointText {
+  margin: 3px 0 0;
+  color: var(--dtr-body);
+  font-size: 0.86rem;
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+}
+
 /* ベネフィットリスト用チェックアイコン */
 .benefitCheckIcon {
   width: 11px;

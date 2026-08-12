@@ -40,7 +40,12 @@ export type FreeDepthAnalysisV1 = {
   conciseWhyJa: readonly [string, string];
   primarySceneJa: string;
   primarySceneLabelJa: string;
+  /** Secondary scene — one more life area, so recognition is not single-shot. */
+  secondarySceneJa: string;
+  secondarySceneLabelJa: string;
   premiumOpenLoopJa: string;
+  /** Short unresolved question rendered at the conviction moment (before the bridge). */
+  premiumOpenQuestionJa: string;
   premiumLockedHeadingsJa: readonly string[];
   primaryAxes: readonly ExpressionAxisId[];
   secondaryAxes: readonly ExpressionAxisId[];
@@ -401,19 +406,51 @@ function trimReason(text: string, maxLen = 96): string {
   return `${cut}…`;
 }
 
-function pickPrimaryScene(axes: ExpressionAxes): { labelJa: string; bodyJa: string } {
+type SceneCandidate = { weight: number; labelJa: string; bodyJa: string };
+
+/**
+ * Rank the three generated scenes. Only the top two are surfaced on the free
+ * result — enough life areas to recognize a pattern, without a wall of text.
+ */
+function rankScenes(axes: ExpressionAxes): [SceneCandidate, SceneCandidate] {
   const scenes = buildScenes(axes);
-  const candidates: { weight: number; labelJa: string; bodyJa: string }[] = [
+  const candidates: SceneCandidate[] = [
     { weight: axes.start === 'map' || axes.decision === 'sort' ? 2 : 1, labelJa: '仕事や判断', bodyJa: scenes.workJa },
     { weight: axes.distance === 'close' || axes.distance === 'solo' ? 2 : 1, labelJa: '人との距離', bodyJa: scenes.relationJa },
     { weight: axes.change === 'observe' || axes.change === 'rebuild' ? 2 : 1, labelJa: '予定や環境の変化', bodyJa: scenes.changeJa },
   ];
   candidates.sort((a, b) => b.weight - a.weight);
-  return { labelJa: candidates[0]!.labelJa, bodyJa: candidates[0]!.bodyJa };
+  return [candidates[0]!, candidates[1]!];
 }
 
-function buildPremiumOpenLoop(_axes: ExpressionAxes): string {
-  return '無料結果では、いま表れやすい動きまで。プレミアムでは、その動きが続く背景、力が出やすい条件、負担が重なる順番、整え直しやすい順番まで整理します。';
+/** Bridge lead — names this reader's unresolved continuation, not a generic upsell line. */
+function buildPremiumOpenLoop(
+  axes: ExpressionAxes,
+  diverge: readonly AlignDivergeItem[],
+  primarySceneLabelJa: string,
+): string {
+  return [
+    `「${primarySceneLabelJa}」でこの動きが強く出る背景と、${LOAD_BY_DISTANCE[axes.distance]}に何から崩れるか。`,
+    `そこから${RECOVERY_PATTERN[axes.recovery]}までを、一つの流れとして読み返せる形にします。`,
+  ].join('');
+}
+
+/**
+ * Conviction-moment open loop. Ties the strength list and the load list the
+ * reader just read into the one question the free result cannot answer.
+ * Draws on start/decision material so it never restates the bridge lead,
+ * which is built from distance/recovery material.
+ */
+function buildPremiumOpenQuestion(
+  axes: ExpressionAxes,
+  diverge: readonly AlignDivergeItem[],
+): string {
+  const observed = `${STRENGTH_BY_DECISION[axes.decision]}は流れがつながるのに、${LOAD_BY_START[axes.start]}に同じ動きが止まります。`;
+  const contrast = sortByPriority(diverge)[0];
+  if (contrast) {
+    return `${observed}この差がどこから来るのかは、${AXIS_TITLE_JA[contrast.axisId]}まで含めて見ないと決まりません。`;
+  }
+  return `${observed}この差がどこから来るのかは、${LOAD_BY_CHANGE[axes.change]}に何が重なるかまで見ないと決まりません。`;
 }
 
 function buildPremiumLockedHeadings(
@@ -456,7 +493,7 @@ export function buildFreeDepthAnalysisV1(
   const align = alignDiv.value.alignItems;
   const reasons = buildReasons(axes, diverge, align);
   const scenesJa = buildScenes(axes);
-  const primaryScene = pickPrimaryScene(axes);
+  const [primaryScene, secondaryScene] = rankScenes(axes);
 
   const analysis: FreeDepthAnalysisV1 = {
     headlineJa: buildHeadline(axes),
@@ -469,7 +506,10 @@ export function buildFreeDepthAnalysisV1(
     conciseWhyJa: [trimReason(reasons[0]), trimReason(reasons[1])],
     primarySceneJa: primaryScene.bodyJa,
     primarySceneLabelJa: primaryScene.labelJa,
-    premiumOpenLoopJa: buildPremiumOpenLoop(axes),
+    secondarySceneJa: secondaryScene.bodyJa,
+    secondarySceneLabelJa: secondaryScene.labelJa,
+    premiumOpenLoopJa: buildPremiumOpenLoop(axes, diverge, primaryScene.labelJa),
+    premiumOpenQuestionJa: buildPremiumOpenQuestion(axes, diverge),
     premiumLockedHeadingsJa: buildPremiumLockedHeadings(axes, diverge),
     primaryAxes: ['start', 'decision'],
     secondaryAxes: ['distance', 'change'],
@@ -482,7 +522,9 @@ export function buildFreeDepthAnalysisV1(
     analysis.conclusionJa,
     ...analysis.conciseWhyJa,
     analysis.primarySceneJa,
+    analysis.secondarySceneJa,
     analysis.premiumOpenLoopJa,
+    analysis.premiumOpenQuestionJa,
     ...analysis.premiumLockedHeadingsJa,
     ...analysis.strengthConditionsJa,
     ...analysis.loadConditionsJa,
