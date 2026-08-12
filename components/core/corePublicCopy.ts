@@ -167,6 +167,19 @@ export function buildPremiumBridgeTitle(traitName: string): string {
 const LIGHT_PLAN = PAID_DTR_SAVED_REPORT_PRICING.light;
 const FULL_PLAN = PAID_DTR_SAVED_REPORT_PRICING.full;
 
+/**
+ * Quiet /core → /synastry continuation. Free pair reading only; no paid
+ * compatibility claim, no relationship outcome promise.
+ */
+export const CORE_PAIR_READING_CROSS_SELL = {
+  eyebrowJa: '同じ見方を、二人で',
+  titleJa: 'この傾向は、あの人との関係ではどう出るのか',
+  bodyJa:
+    'ここまで見てきたのは、あなた一人に出やすい動きです。同じ見方を二人分重ねると、噛み合いやすい場面と、すれ違いが続きやすい流れが分かります。',
+  ctaJa: '二人の関係を無料で見る',
+  noteJa: '無料・ログイン不要。回答するのはあなた一人で、相手の気持ちを当てるものではありません。',
+} as const;
+
 export const STATIC_FREE_TO_PAID_BRIDGE = {
   overline: M55_COMMERCIAL_FENCE.productNameJa,
   supportingJa:

@@ -1,12 +1,12 @@
 import { getSupabaseAdmin } from '../../supabaseAdmin';
 import {
   PAID_COMPATIBILITY_REPORT_VERSION,
+  paidCompatibilityChapterTitle,
   type PaidCompatibilityReportSnapshot,
 } from './buildPaidCompatibilityReportV1';
 import {
   CHAPTER_IDS,
   PAID_TOPIC_CATALOG,
-  getChapterTitle,
 } from './pairReadingCatalog.v1';
 import {
   COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS,
@@ -118,7 +118,7 @@ export function isPaidCompatibilityReportSnapshot(
     const titleIsCanonical =
       key === 'ch_topic_deep'
         ? PAID_TOPIC_CATALOG.some((topic) => topic.labelJa === chapter?.title)
-        : chapter?.title === getChapterTitle(key);
+        : chapter?.title === paidCompatibilityChapterTitle(key);
     if (
       !chapter ||
       chapter.key !== key ||

@@ -16,7 +16,8 @@ export const PAIR_READING_CATALOG_VERSION = 'pair_catalog_v1' as const;
 export const PRODUCT_PUBLIC_NAME = '2人の距離の読み解き' as const;
 export const PRODUCT_INTERNAL_NAME = 'pair_reading' as const;
 export const SAFETY_PROFILE = 'm55_pair_non_advisory_v1' as const;
-export const PAIR_READING_CTA = '続きは、2人の読み解きレポート' as const;
+/** Names the paid product exactly as the commerce authority and My Page do. */
+export const PAIR_READING_CTA = '続きは、二人の相性レポート' as const;
 export const SAFETY_SHORT_TEXT = '関係や気持ちを断定するものではありません。' as const;
 
 export const DISPLAY_NAME_A_DEFAULT = 'あなた' as const;

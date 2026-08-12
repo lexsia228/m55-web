@@ -388,33 +388,77 @@ export function buildCompatibilityCurrentContextDisplay(
 }
 
 export type CompatibilityCurrentContextChapterVariation = {
-  readonly sceneSuffix: string;
-  readonly relationshipLoopTail: string;
-  readonly resetStep: string;
-  readonly usablePhrase: string;
-  readonly smallExperiment: string;
-  readonly reflectionQuestion: string;
+  readonly sceneSuffix: string | null;
+  readonly relationshipLoopTail: string | null;
+  readonly usablePhrase: string | null;
+  readonly smallExperiment: string | null;
+  readonly reflectionQuestion: string | null;
 };
 
+const NO_CHAPTER_VARIATION: CompatibilityCurrentContextChapterVariation = Object.freeze({
+  sceneSuffix: null,
+  relationshipLoopTail: null,
+  usablePhrase: null,
+  smallExperiment: null,
+  reflectionQuestion: null,
+});
+
+const endSentence = (text: string) => `${text.replace(/。$/u, '')}。`;
+
+/**
+ * Each paid chapter is about one of the five answered body dimensions, so it
+ * carries only that dimension's lines. Applying every answer to every chapter
+ * made all six read as the same advice behind a different scene label, and it
+ * overwrote copy the chapter already had. Q6 (focus) stays out of chapter
+ * bodies; it only selects which chapters to highlight.
+ */
 export function buildCompatibilityCurrentContextChapterVariation(
   chapterKey: ChapterId,
   answers: CompatibilityCurrentContextBodyAnswers,
 ): CompatibilityCurrentContextChapterVariation {
-  const decision = DECISION_COPY[answers.decisionPace];
-  const disagreement = DISAGREEMENT_COPY[answers.disagreement];
-  const distance = DISTANCE_COPY[answers.distance];
-  const expression = EXPRESSION_COPY[answers.expressionPace];
-  const returning = RETURN_COPY[answers.returnPattern];
   const entry = CHAPTER_SCENE_ENTRY[chapterKey];
-  const reflection = chapterKey === 'ch_about'
-    ? returning.reflection
-    : expression.reflection;
-  return Object.freeze({
-    sceneSuffix: `${entry}、今は${decision.scene}一方で、${distance.scene}状態です。`,
-    relationshipLoopTail: `${disagreement.loop}。${distance.loop}。${returning.loop}`,
-    resetStep: `${decision.reset}。そのうえで、${expression.reset}。${distance.reset}。`,
-    usablePhrase: disagreement.phrase,
-    smallExperiment: `今週、${entry}に、${returning.experiment}。一回分だけを振り返ります。`,
-    reflectionQuestion: `${entry}、${reflection}`,
-  });
+  switch (chapterKey) {
+    case 'ch_you_pace': {
+      const decision = DECISION_COPY[answers.decisionPace];
+      return Object.freeze({
+        ...NO_CHAPTER_VARIATION,
+        sceneSuffix: `${entry}、今は${decision.scene}状態です。`,
+      });
+    }
+    case 'ch_other_pace': {
+      const expression = EXPRESSION_COPY[answers.expressionPace];
+      return Object.freeze({
+        ...NO_CHAPTER_VARIATION,
+        sceneSuffix: `${entry}、${endSentence(expression.expression)}`,
+        reflectionQuestion: `${entry}、${expression.reflection}`,
+      });
+    }
+    case 'ch_pair_gap': {
+      const disagreement = DISAGREEMENT_COPY[answers.disagreement];
+      return Object.freeze({
+        ...NO_CHAPTER_VARIATION,
+        relationshipLoopTail: endSentence(disagreement.loop),
+        usablePhrase: disagreement.phrase,
+      });
+    }
+    case 'ch_today_clue': {
+      const distance = DISTANCE_COPY[answers.distance];
+      return Object.freeze({
+        ...NO_CHAPTER_VARIATION,
+        sceneSuffix: `${entry}、今は${distance.scene}状態です。`,
+        relationshipLoopTail: endSentence(distance.loop),
+      });
+    }
+    case 'ch_about': {
+      const returning = RETURN_COPY[answers.returnPattern];
+      return Object.freeze({
+        ...NO_CHAPTER_VARIATION,
+        relationshipLoopTail: endSentence(returning.loop),
+        smallExperiment: `今週、${entry}に、${returning.experiment}。一回分だけを振り返ります。`,
+        reflectionQuestion: `${entry}、${returning.reflection}`,
+      });
+    }
+    default:
+      return NO_CHAPTER_VARIATION;
+  }
 }

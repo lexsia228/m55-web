@@ -113,8 +113,7 @@
 
 .inputCard input:focus-visible,
 .submit:focus-visible,
-.primaryLink:focus-visible,
-.secondaryLink:focus-visible {
+.purchaseLink:focus-visible {
   outline: 2px solid #725d89;
   outline-offset: 3px;
 }
@@ -392,6 +391,28 @@
   letter-spacing: 0.12em;
 }
 
+.dynamicBlock {
+  margin-top: 16px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(75, 59, 96, 0.22);
+  border-radius: 14px;
+  background: #f4f0f5;
+}
+
+.dynamicBlock h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.dynamicBlock p {
+  margin: 12px 0 0;
+  color: #453f4d;
+  font-size: 15px;
+  line-height: 1.95;
+}
+
 .insightCard h3,
 .dynamicCard h3,
 .expressionCard h3,
@@ -404,6 +425,8 @@
   font-size: clamp(21px, 3vw, 27px);
   font-weight: 500;
   line-height: 1.5;
+  /* Keeps Japanese headings from stranding a single trailing character. */
+  text-wrap: balance;
 }
 
 .insightCard > p:last-child,
@@ -594,9 +617,15 @@
   line-height: 1.65;
 }
 
+.mappedTitle {
+  margin: 30px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 .mappedChapters {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 26px;
+  margin-top: 14px;
 }
 
 .mappedChapters article {
@@ -712,41 +741,27 @@
   text-decoration: none;
 }
 
-.bridgeActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.primaryLink,
-.secondaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  box-sizing: border-box;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-}
-
-.primaryLink {
-  background: #352a46;
-  color: #fff;
-}
-
-.secondaryLink {
+/* Shown instead of the offer while compatibility commerce stays env-gated. */
+.bridgePending {
+  margin: 26px 0 0;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  color: var(--plum);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
 }
 
 .freeDetail {
   margin-top: 18px;
   padding: clamp(22px, 4vw, 32px);
+}
+
+.revisitNote {
+  margin: 26px 2px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
 }
 
 .resetJourney {
@@ -801,15 +816,6 @@
     width: 100%;
   }
 
-  .bridgeActions {
-    flex-direction: column;
-  }
-
-  .primaryLink,
-  .secondaryLink {
-    width: 100%;
-  }
-
   .questionnaire {
     padding: 18px;
   }
@@ -839,9 +845,7 @@
   .choice,
   .choiceSelected,
   .backButton,
-  .nextButton,
-  .primaryLink,
-  .secondaryLink {
+  .nextButton {
     transition: none !important;
   }
 }

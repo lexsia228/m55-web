@@ -32,6 +32,9 @@ export default function PaidCompatibilityReportReader({
 }) {
   const [openChapterKeys, setOpenChapterKeys] = useState<readonly string[]>([]);
   const [copyState, setCopyState] = useState<CopyState>(null);
+  const leadChapter = snapshot.chapters.find(
+    (chapter) => chapter.key === snapshot.highlightedChapterKeys[0],
+  );
 
   useEffect(() => {
     if (!analyticsEnabled) return;
@@ -104,7 +107,7 @@ export default function PaidCompatibilityReportReader({
   return (
     <article className={styles.reader} aria-labelledby="paid-report-title">
       <header className={styles.reportHeader}>
-        <p className={styles.eyebrow}>二人の関係を扱うための6章</p>
+        <p className={styles.eyebrow}>二人の関係を読み解く</p>
         <h1 id="paid-report-title">{snapshot.reportTitle}</h1>
         <p className={styles.subtitle}>6つの場面から、関係の扱い方を読みます</p>
         <p className={styles.readingGuide}>
@@ -133,6 +136,22 @@ export default function PaidCompatibilityReportReader({
             <p>{snapshot.differentFoundation}</p>
           </div>
         </div>
+        {leadChapter ? (
+          <div className={styles.openingMoves} data-testid="paid-report-opening-moves">
+            <h3>その違いが、二人それぞれにどう出ているか</h3>
+            <div className={styles.openingGrid}>
+              <div>
+                <p className={styles.blockLabel}>Aに出やすい動き</p>
+                <p>{leadChapter.personAPerspective}</p>
+              </div>
+              <div>
+                <p className={styles.blockLabel}>Bに出やすい動き</p>
+                <p>{leadChapter.personBPerspective}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div className={styles.recurringLoop}>
           <h3>
             {snapshot.currentContext
@@ -141,6 +160,19 @@ export default function PaidCompatibilityReportReader({
           </h3>
           <p>{snapshot.recurringLoop}</p>
         </div>
+
+        {leadChapter ? (
+          <div className={styles.openingHandling} data-testid="paid-report-opening-handling">
+            <div>
+              <p className={styles.blockLabel}>この連鎖を戻す入口</p>
+              <p>{leadChapter.resetSteps[0]}</p>
+            </div>
+            <div>
+              <p className={styles.blockLabel}>最初に使える一言</p>
+              <blockquote>{leadChapter.usablePhrase}</blockquote>
+            </div>
+          </div>
+        ) : null}
         {snapshot.currentContext ? (
           <div className={styles.contextProof}>
             <div>
@@ -157,7 +189,7 @@ export default function PaidCompatibilityReportReader({
           <h3>
             {snapshot.currentContext
               ? `「${snapshot.currentContext.focusLabel}」から最初に読む2章`
-              : '今の見取り図と直接つながる2章'}
+              : '今の二人と直接つながる2章'}
           </h3>
           <div>
             {snapshot.highlightedChapterKeys.map((key) => {

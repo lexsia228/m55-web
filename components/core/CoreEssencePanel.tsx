@@ -56,6 +56,7 @@ import {
   resolveSelfFunnelStage,
 } from '../../lib/m55/selfFunnel/selfFunnelRuntimeState';
 import CoreEntryReportCTASection from './CoreEntryReportCTASection';
+import CorePairReadingCrossSell from './CorePairReadingCrossSell';
 import CoreMethodCompact from './CoreMethodCompact';
 import ExperienceArchetypeSync from '../shell/ExperienceArchetypeSync';
 import CoreFreeJourneyStepper from './CoreFreeJourneyStepper';
@@ -703,6 +704,12 @@ export default function CoreEssencePanel() {
                     depth={depthAnalysis}
                     traitName={shareCard?.traitNameJa ?? 'あなた'}
                   />
+                </div>
+              ) : null}
+
+              {depthAnalysis ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <CorePairReadingCrossSell />
                 </div>
               ) : null}
 

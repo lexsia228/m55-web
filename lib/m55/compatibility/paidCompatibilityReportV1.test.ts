@@ -10,12 +10,10 @@ import {
 import {
   PAID_COMPATIBILITY_REPORT_VERSION,
   buildPaidCompatibilityReportV1,
+  paidCompatibilityChapterTitle,
   type PaidCompatibilityReportInput,
 } from './buildPaidCompatibilityReportV1';
-import {
-  CHAPTER_IDS,
-  getChapterTitle,
-} from './pairReadingCatalog.v1';
+import { CHAPTER_IDS } from './pairReadingCatalog.v1';
 import { SAMPLE_LANES } from './pairReadingQualityMatrix.fixtures';
 import { isPaidCompatibilityPreviewBlocked } from './paidCompatibilityPreviewGuard';
 
@@ -51,7 +49,7 @@ describe('paid compatibility report content', () => {
     );
     assert.deepEqual(
       snapshot.chapters.map((chapter) => chapter.title),
-      CHAPTER_IDS.map((key) => getChapterTitle(key, BASE_INPUT.paidTopicId)),
+      CHAPTER_IDS.map((key) => paidCompatibilityChapterTitle(key, BASE_INPUT.paidTopicId)),
     );
     assert.deepEqual(snapshot.highlightedChapterKeys, ['ch_pair_gap', 'ch_topic_deep']);
   });
@@ -230,13 +228,15 @@ describe('paid compatibility reader, bridge, analytics, and preview boundary', (
   it('updates the free bridge only with implemented deliverables', () => {
     const bridge = read('components/compatibility/CompatibilityGuestExperience.tsx');
     for (const copy of [
+      '二人それぞれの動き',
+      'すれ違いが始まる場面',
       '場面から戻る手順',
       'そのまま使える一言',
       '今週一度だけ試すこと',
       'あとで振り返る一問',
-      '6章の使い方',
+      '読み返せる場面',
     ]) {
-      assert.ok(bridge.includes(copy));
+      assert.ok(bridge.includes(copy), `bridge must offer ${copy}`);
     }
     assert.match(bridge, /commerceEnabled \? \(/);
     assert.match(bridge, /¥1,480（税込）/);
