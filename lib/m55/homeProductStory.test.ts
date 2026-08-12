@@ -232,14 +232,14 @@ describe('homeProductStory — premium copy and value bridge', () => {
     assert.equal(home.premiumValueBridgeFreeHeadingJa, '無料結果');
     assert.equal(home.premiumValueBridgePremiumHeadingJa, 'プレミアムレポート');
     assert.deepEqual(home.premiumValueBridgeFreeItemsJa, [
-      'いまの自分に近い短い読み解き',
+      'いまの自分に出やすい反応',
+      'それが活きる場面と、重くなる場面',
       '自分に表れやすい資質',
-      '今の状態を整理するための入口',
     ]);
     assert.deepEqual(home.premiumValueBridgePremiumItemsJa, [
-      '動き方と、力が出やすい条件',
-      '人との距離感と、負担が重なり始める流れ',
-      '整え直すための手がかり',
+      'その反応になる理由',
+      '力が出やすいときと、止まりやすいとき',
+      '戻り方と、人との距離での出方',
     ]);
     assert.match(valueBridgeSource, /premiumValueBridgeLead/);
     assert.equal(homeBlob.includes('premiumValueBridgeHeadlineJa'), false);
@@ -252,10 +252,13 @@ describe('homeProductStory — mechanism and final CTA copy', () => {
   it('explains mechanism for both self and pair without self-only diagram output', () => {
     const { home } = TOP_FREE_ENTRY_PUBLIC_COPY;
     assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
+    // Covers self and pair, and states the inputs — the four-step block below
+    // owns the "how it is composed" explanation, so this must not restate it.
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
+      '使うのは、生年月日と、いま選んだ答えだけ。\n自分を見るときも、二人の関係を見るときも、同じ見方です。\nほかの利用者との比較や、外部から取得した情報は使いません。',
     );
+    assert.ok(home.mechanismBodyJa.includes('二人の関係'), 'mechanism must cover the pair lane');
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
     assert.equal(home.mechanismDiagramSource1Ja, '生年月日から見える土台');
     assert.equal(home.mechanismDiagramSource2Ja, 'いま選んだ答え');

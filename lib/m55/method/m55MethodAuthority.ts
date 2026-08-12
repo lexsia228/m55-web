@@ -161,11 +161,13 @@ export const M55_METHOD_CANONICAL_COPY = {
   reproducibilityJa:
     '中核となる整理は、版管理された固定規則で行われます。同じ入力を同じ版で処理した場合、同じ読み解きの土台が再現されます。',
   boundaryJa: '診断、占い、未来予測、相手の気持ちの断定ではありません。',
-  premiumDifferenceHeadingJa: '無料とPremiumで重ねる情報の違い',
+  // Canonical public tier wording is Japanese; isolated English "Premium" read
+  // as a different product from 「プレミアムレポート」 in the heading above it.
+  premiumDifferenceHeadingJa: '無料とプレミアムで重ねる情報の違い',
   premiumDifferenceFreeJa:
     '無料では、土台と今の回答を重ねて、近い点とずれる点までを読み解きます。',
   premiumDifferencePremiumJa:
-    'Premiumでは、6つの回答を加えて、負担が出る場面と戻り方まで踏み込みます。読み解ける範囲が増えるという違いで、当たり方が上がるという意味ではありません。',
+    'プレミアムでは、6つの回答を加えて、負担が出る場面と戻り方まで踏み込みます。読み解ける範囲が増えるという違いで、当たり方が上がるという意味ではありません。',
   compactFreeResultHeadingJa: 'この結果の組み立て',
   compactReportHeadingJa: 'このレポートの組み立て',
   homeHeadingJa: 'M55の読み解きの組み立て',
@@ -279,16 +281,17 @@ export const M55_INTERNAL_VOCABULARY_NOT_FOR_DISPLAY = [
 ] as const;
 
 export type MethodSectionId =
+  | 'life_scenes'
   | 'single_input_is_not_enough'
+  | 'current_answers'
+  | 'premium_depth'
+  | 'pair_reading'
+  | 'what_m55_does_not_do'
+  | 'storage_and_privacy'
   | 'inputs_used'
   | 'stable_foundation'
-  | 'current_answers'
   | 'align_and_diverge'
-  | 'premium_depth'
-  | 'life_scenes'
-  | 'reproducibility_and_versioning'
-  | 'storage_and_privacy'
-  | 'what_m55_does_not_do';
+  | 'reproducibility_and_versioning';
 
 export type MethodSection = {
   id: MethodSectionId;
@@ -297,25 +300,103 @@ export type MethodSection = {
   bodyJa: readonly string[];
   /** Rendered as the section's list, when the section has one. */
   itemsJa?: readonly { labelJa: string; descriptionJa: string }[];
+  /**
+   * A reader arrives asking what M55 shows them, not how it is built.
+   * `value` and `trust` answer that; `method` is the supporting detail and is
+   * rendered after them under {@link M55_METHOD_DETAIL_GROUP_HEADING_JA}.
+   */
+  group: 'value' | 'trust' | 'method';
 };
+
+/** Separates the user-outcome sections from the method detail that supports them. */
+export const M55_METHOD_DETAIL_GROUP_HEADING_JA = '方法の補足' as const;
+export const M55_METHOD_DETAIL_GROUP_LEAD_JA =
+  'ここから先は、上の読み解きがどう組み立てられているかの説明です。読まなくても結果は使えます。' as const;
 
 const FREE_STAGE_INPUTS = M55_METHOD_INPUTS.filter((i) => i.stage === 'free');
 const PREMIUM_STAGE_INPUTS = M55_METHOD_INPUTS.filter((i) => i.stage === 'premium');
 
 export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
   {
-    id: 'single_input_is_not_enough',
+    id: 'life_scenes',
     order: 1,
-    titleJa: '一つの情報だけで決めない',
+    titleJa: 'M55で見えること',
+    group: 'value',
     bodyJa: [
-      M55_METHOD_CANONICAL_COPY.explanationJa,
+      '出やすい反応と、それが表れる生活の場面。力が出るときと、重なって止まるとき。そこから戻る手順。M55が返すのは、この並びです。',
+      '読み解きは、抽象的な性格の言葉で終わらせません。負担が表れやすい場面と、戻りやすい手順の形に置き直します。',
+      '扱いやすいテーマの順も示します。何から見ると整理しやすいかの目安です。',
+    ],
+  },
+  {
+    id: 'single_input_is_not_enough',
+    order: 2,
+    titleJa: 'なぜ生年月日と、今の回答の両方を見るのか',
+    group: 'value',
+    // explanationJa is the page lead directly above; repeating it here read as duplication.
+    bodyJa: [
       '生年月日だけを見ると、いまの状況が抜け落ちます。今の回答だけを見ると、そのときの気分に寄ります。M55はこの二つを分けて置き、重ねるところで読み解きます。',
+      '同じ生年月日でも、いまの回答が違えば読み解きは変わります。決まった型に当てはめるものではありません。',
+    ],
+  },
+  {
+    id: 'current_answers',
+    order: 3,
+    titleJa: '無料で分かること',
+    group: 'value',
+    bodyJa: [
+      `無料の回答からは、${FREE_STAGE_INPUTS.filter((i) => i.id !== 'dob_base')
+        .map((i) => i.publicLabelJa)
+        .join('、')}を読みます。`,
+      '回答に正解はありません。選び直せば、読み解きもその入力に合わせて組み立て直されます。',
+    ],
+  },
+  {
+    id: 'premium_depth',
+    order: 4,
+    titleJa: 'プレミアムレポートで深くなること',
+    group: 'value',
+    bodyJa: [
+      M55_METHOD_CANONICAL_COPY.premiumDifferencePremiumJa,
+      `加わるのは、${PREMIUM_STAGE_INPUTS.map((i) => i.publicLabelJa).join('と')}です。`,
+    ],
+  },
+  {
+    id: 'pair_reading',
+    order: 5,
+    titleJa: '二人の関係で見ること',
+    group: 'value',
+    bodyJa: [
+      '二人の生年月日に、今の二人に近い回答を重ねます。読むのは、変わりにくい土台の重なりと違い、いま二人に表れやすいこと、すれ違いが続きやすい流れ、そして次に一度だけ試すことです。',
+      '回答するのはあなた一人です。相手が回答したものではありません。相性の点数をつけたり、相手の気持ちを言い当てたりはしません。',
+    ],
+  },
+  {
+    id: 'what_m55_does_not_do',
+    order: 6,
+    titleJa: 'M55が行わないこと',
+    group: 'trust',
+    bodyJa: [
+      M55_METHOD_CANONICAL_COPY.boundaryJa,
+      '医療・法律・投資などの専門的判断の代わりにはなりません。優劣や順位もつけません。',
+      '相手の気持ちや、これから起きることを言い当てるものではありません。',
+    ],
+  },
+  {
+    id: 'storage_and_privacy',
+    order: 7,
+    titleJa: '保存とプライバシー',
+    group: 'trust',
+    bodyJa: [
+      '無料の読み解きは、ログインなしで開けます。保存すると、あとから同じ結果を開けます。',
+      '共有用のカードには、生年月日や回答そのものは載せません。読み解きの表現だけを載せます。',
     ],
   },
   {
     id: 'inputs_used',
-    order: 2,
+    order: 8,
     titleJa: '入力として使うもの',
+    group: 'method',
     bodyJa: [
       '使うのは、生年月日と、あなたが選んだ回答だけです。ほかの利用者との比較や、外部から取得した情報は使いません。',
     ],
@@ -326,78 +407,33 @@ export const M55_METHOD_SECTIONS: readonly MethodSection[] = [
   },
   {
     id: 'stable_foundation',
-    order: 3,
+    order: 9,
     titleJa: '変わりにくい土台',
+    group: 'method',
     bodyJa: [
       '生年月日から置く土台は、日や気分で入れ替わりません。読み解きの基準点として、いつも同じ場所に置かれます。',
       '土台は良い悪いを表しません。動きやすい方向と、負担がたまりやすい方向を示す手がかりです。',
     ],
   },
   {
-    id: 'current_answers',
-    order: 4,
-    titleJa: '今の回答に表れること',
-    bodyJa: [
-      `無料の回答からは、${FREE_STAGE_INPUTS.filter((i) => i.id !== 'dob_base')
-        .map((i) => i.publicLabelJa)
-        .join('、')}を読みます。`,
-      '回答に正解はありません。選び直せば、読み解きもその入力に合わせて組み立て直されます。',
-    ],
-  },
-  {
     id: 'align_and_diverge',
-    order: 5,
+    order: 10,
     titleJa: '近い点とずれる点',
+    group: 'method',
     bodyJa: [
       '土台と今の回答が同じ方向を向いていれば、その傾向は表に出やすいと読みます。違う方向を向いていれば、いま無理が寄っている場所として読みます。',
       'ずれは欠点ではありません。どこに力がかかっているかを示す情報として扱います。',
     ],
   },
   {
-    id: 'premium_depth',
-    order: 6,
-    titleJa: 'Premiumで加わる深さ',
-    bodyJa: [
-      M55_METHOD_CANONICAL_COPY.premiumDifferencePremiumJa,
-      `加わるのは、${PREMIUM_STAGE_INPUTS.map((i) => i.publicLabelJa).join('と')}です。`,
-    ],
-  },
-  {
-    id: 'life_scenes',
-    order: 7,
-    titleJa: '生活場面への整理',
-    bodyJa: [
-      '読み解きは、抽象的な性格の言葉で終わらせません。負担が表れやすい場面と、戻りやすい手順の形に置き直します。',
-      '扱いやすいテーマの順も示します。何から見ると整理しやすいかの目安です。',
-    ],
-  },
-  {
     id: 'reproducibility_and_versioning',
-    order: 8,
+    order: 11,
     titleJa: '再現性と版管理',
+    group: 'method',
     bodyJa: [
       M55_METHOD_CANONICAL_COPY.reproducibilityJa,
       '規則を更新するときは版を分けます。購入済みのレポートは、購入時の版のまま読み返せます。',
       'これは統計的な検証を経た精度の主張ではありません。同じ入力から同じ土台が出るという、処理の一貫性についての説明です。',
-    ],
-  },
-  {
-    id: 'storage_and_privacy',
-    order: 9,
-    titleJa: '保存とプライバシー',
-    bodyJa: [
-      '無料の読み解きは、ログインなしで開けます。保存すると、あとから同じ結果を開けます。',
-      '共有用のカードには、生年月日や回答そのものは載せません。読み解きの表現だけを載せます。',
-    ],
-  },
-  {
-    id: 'what_m55_does_not_do',
-    order: 10,
-    titleJa: 'M55が行わないこと',
-    bodyJa: [
-      M55_METHOD_CANONICAL_COPY.boundaryJa,
-      '医療・法律・投資などの専門的判断の代わりにはなりません。優劣や順位もつけません。',
-      '相手の気持ちや、これから起きることを言い当てるものではありません。',
     ],
   },
 ] as const;

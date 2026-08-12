@@ -55,7 +55,12 @@ describe('homePublicCopy — frozen poster hero preservation', () => {
     assert.equal(home.heroEyebrowJa, '自分のこと、人との関係を読み解く');
     assert.equal(home.heroTitleLine1Ja, 'あなたの「いつもこうなる」には、');
     assert.equal(home.heroTitleLine2Ja, '順番がある。');
-    assert.equal(home.heroPosterSupportJa, '生年月日を入れて、\n今の自分に近い答えを選ぶだけ。');
+    // Outcome first, then the low-friction input line the poster has always had.
+    // Each line stays inside one 320px row, so neither wraps mid-clause.
+    assert.equal(
+      home.heroPosterSupportJa,
+      '力が出る場面と、重くなる流れが見えます。\n生年月日と、今の自分に近い答えを選ぶだけ。',
+    );
     assert.equal(home.heroTrustJa, 'ログイン不要');
     assert.equal(home.heroPosterCtaJa, '無料で見てみる');
     assert.match(home.heroSupportJa, /自己理解の入口です/);
@@ -208,14 +213,14 @@ describe('homePublicCopy — lower HOME final IA (below the frozen poster)', () 
     );
     assert.equal(
       home.freeResultBodyJa,
-      '下の表示例のように、いまの自分に近い答えから、短い読み解きが返ります。',
+      '下の表示例のように、出やすい反応と、それが活きる場面・重くなる場面まで返ります。',
     );
     assert.equal(home.outcomeBridgeItemsJa[1].titleJa, '人と関わるときの自分の動き');
     assert.equal(home.mechanismEyebrowJa, 'M55の見方');
     assert.equal(home.mechanismHeadlineJa, '変わりにくい土台と、\nいまの答えを重ねて見る。');
     assert.equal(
       home.mechanismBodyJa,
-      '生年月日から見える変わりにくい土台と、\nいま選んだ答え。\n自分を見るときも、二人の関係を見るときも、\n重なりから今表れやすい流れを整理します。',
+      '使うのは、生年月日と、いま選んだ答えだけ。\n自分を見るときも、二人の関係を見るときも、同じ見方です。\nほかの利用者との比較や、外部から取得した情報は使いません。',
     );
     assert.equal(home.mechanismEthicsJa, '一つの情報だけで、人を決めない。');
     assert.equal(home.mechanismDiagramOutputJa, '今表れやすい流れ');

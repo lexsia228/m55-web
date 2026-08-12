@@ -286,9 +286,11 @@ export default function HomePanel() {
           aria-labelledby="m55-home-free-preview-title"
         >
           <p className={styles.sectionEyebrow}>{homeCopy.outcomeBridgeEyebrowJa}</p>
-          <h2 id="m55-home-free-preview-title" className={styles.sectionHeadline}>
-            {homeCopy.freeResultHeadlineJa}
-          </h2>
+          <HomeEditorialHeadline
+            id="m55-home-free-preview-title"
+            className={styles.sectionHeadline}
+            textJa={homeCopy.freeResultHeadlineJa}
+          />
           <ul className={styles.outcomeEditorial}>
             {homeCopy.outcomeBridgeItemsJa.map((item, index) => (
               <li key={item.titleJa} className={styles.outcomeEditorialItem}>
@@ -341,9 +343,11 @@ export default function HomePanel() {
           aria-labelledby="m55-home-mechanism-title"
         >
           <p className={styles.sectionEyebrow}>{homeCopy.mechanismEyebrowJa}</p>
-          <h2 id="m55-home-mechanism-title" className={styles.sectionHeadline}>
-            {homeCopy.mechanismHeadlineJa}
-          </h2>
+          <HomeEditorialHeadline
+            id="m55-home-mechanism-title"
+            className={styles.sectionHeadline}
+            textJa={homeCopy.mechanismHeadlineJa}
+          />
           <p className={styles.sectionBody}>{homeCopy.mechanismBodyJa}</p>
           <div className={styles.mechanismDiagram} aria-hidden="true">
             <div className={styles.mechanismDiagramSources}>
@@ -436,9 +440,11 @@ export default function HomePanel() {
           data-testid="m55-home-final-cta"
           aria-labelledby="m55-home-final-cta-title"
         >
-          <h2 id="m55-home-final-cta-title" className={styles.sectionHeadline}>
-            {homeCopy.finalCtaHeadlineJa}
-          </h2>
+          <HomeEditorialHeadline
+            id="m55-home-final-cta-title"
+            className={styles.sectionHeadline}
+            textJa={homeCopy.finalCtaHeadlineJa}
+          />
           <p className={styles.sectionLead}>{homeCopy.finalCtaBodyJa}</p>
           <div className={styles.finalCtaGroup}>
             <FreeCtaButton

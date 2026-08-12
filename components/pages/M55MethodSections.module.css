@@ -56,6 +56,37 @@
   min-width: 0;
 }
 
+/* Marks where user-outcome sections end and supporting method detail begins. */
+
+.methodDetailStart {
+  margin-top: clamp(10px, 2.4vw, 20px);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.detailGroupHeader {
+  margin: 0 0 clamp(12px, 2.4vw, 18px);
+  padding-bottom: clamp(10px, 2vw, 14px);
+  border-bottom: 1px solid rgba(107, 95, 168, 0.2);
+}
+
+.detailGroupTitle {
+  margin: 0 0 4px;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgba(74, 62, 112, 0.86);
+}
+
+.detailGroupLead {
+  margin: 0;
+  font-size: clamp(12px, 2.6vw, 13.5px);
+  line-height: 1.85;
+  color: rgba(45, 40, 70, 0.78);
+  max-width: 44em;
+  overflow-wrap: anywhere;
+}
+
 .sectionTitle {
   display: grid;
   grid-template-columns: 1.7rem 1fr;

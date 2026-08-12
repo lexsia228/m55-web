@@ -23,17 +23,19 @@ const COMPETITOR_DOC =
 const PUBLIC_NAME = 'M55 複合読み解きモデル';
 const CANONICAL_ROUTE = '/how-m55-works';
 
+// Ordered user-value first, then trust, then the supporting method detail.
 const REQUIRED_SECTION_TITLES = [
-  '一つの情報だけで決めない',
+  'M55で見えること',
+  'なぜ生年月日と、今の回答の両方を見るのか',
+  '無料で分かること',
+  'プレミアムレポートで深くなること',
+  '二人の関係で見ること',
+  'M55が行わないこと',
+  '保存とプライバシー',
   '入力として使うもの',
   '変わりにくい土台',
-  '今の回答に表れること',
   '近い点とずれる点',
-  'Premiumで加わる深さ',
-  '生活場面への整理',
   '再現性と版管理',
-  '保存とプライバシー',
-  'M55が行わないこと',
 ];
 
 const REQUIRED_INPUT_IDS = [
