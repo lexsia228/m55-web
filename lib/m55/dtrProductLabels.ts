@@ -64,7 +64,7 @@ export const MY_SAVED_REPORT_CTA_PLAN_HREF = '/dtr/lp';
 export const MY_SAVED_REPORT_CTA_OPEN_LABEL = 'プレミアムレポートを読み返す';
 export const MY_SAVED_REPORT_CTA_OPEN_HREF = '/dtr/core';
 /** Light owner → FULL upgrade (reply-tickets checkout lane). */
-export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'FULL化する（¥600）';
+export const DTR_LIGHT_TO_FULL_UPGRADE_CTA_LABEL = 'フルに切り替える（¥600）';
 export const DTR_LIGHT_TO_FULL_UPGRADE_NOTE =
   '追加読み解きを合計5件まで利用できます';
 export const MY_SAVED_REPORT_ENT_ERROR =

@@ -38,12 +38,25 @@ const FORBIDDEN_LP_TERMS = [
   'FACT CHECK REQUIRED',
 ] as const;
 
+/**
+ * Internal structural vocabulary must not reach the public LP surface.
+ * Narrows the file-level 4章 exemption that premiumExperienceVerifier grants to
+ * paidDtrProductCopy.ts, which also holds non-LP internal labels.
+ */
+const FORBIDDEN_LP_INTERNAL_STRUCTURE_TERMS = [
+  '4章',
+  '４章',
+  '正式4章',
+  '生成レイヤー',
+  '情報二層',
+] as const;
+
 const OLD_CHAPTER_TITLES = ['軸', '結節', '微差', '全体像の輪郭'];
 
-const SAVED_REPORT_HEADLINE_JA = '自分の出方を、4章の流れで読み直す。';
+const SAVED_REPORT_HEADLINE_JA = '自分の出方を、一つの流れで読み直す。';
 
 const SAVED_REPORT_BODY_JA =
-  'プレミアムレポートは、10資質レーンを土台に、生年月日の暦リズムまで重ねて、\n比較的変わりにくい自分の出方を4章で整理した\nデジタルレポートです。\n\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にします。\n\n4章本文は固定ルールで組み立てられ、\n同じ入力なら同じプレミアムレポートに戻れます。\n\nプレミアムレポートの4章は、\nライトとFULLで共通です。';
+  'プレミアムレポートは、\n自分に出やすい傾向、\n考え方や動き方のつながり、\n無理の出方、\n日常で扱いやすくする方法を、\n一つの流れで読める形にしたデジタルレポートです。\n\n購入後は、同じ内容を読み返せます。\n\nレポート本体は、\nライトとフルで共通です。';
 
 const OWNED_STATE_STRINGS = [
   'プレミアムレポートの閲覧・準備状況はこちらから進められます。',
@@ -64,7 +77,7 @@ const lpPageSource = readFileSync(join(testDir, '../../app/dtr/lp/page.tsx'), 'u
 
 describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
   it('exposes LP copy version', () => {
-    assert.equal(PAID_DTR_LP.version, 'm55-paid-lp-final-copy-v1');
+    assert.equal(PAID_DTR_LP.version, 'm55-paid-lp-final-copy-v2');
   });
 
   it('wires product keys to pricing SSOT', () => {
@@ -159,8 +172,47 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.faq.items.length, 4);
   });
 
+  it('keeps internal structural vocabulary out of public LP copy', () => {
+    const blob = collectPaidDtrLpCopyStrings().join('\n');
+    for (const term of FORBIDDEN_LP_INTERNAL_STRUCTURE_TERMS) {
+      assert.equal(blob.includes(term), false, `internal structure term in LP copy: ${term}`);
+    }
+  });
+
+  it('leads the LP hero with user outcome rather than production mechanism', () => {
+    const hero = `${PAID_DTR_LP.hero.subheadlineJa}\n${PAID_DTR_LP.hero.headlineJa}\n${PAID_DTR_LP.hero.bodyJa}`;
+    for (const term of ['10資質レーン', '暦リズム', '固定ルール', '生成AI'] as const) {
+      assert.equal(hero.includes(term), false, `hero must not lead with mechanism term: ${term}`);
+    }
+    assert.match(PAID_DTR_LP.hero.bodyJa, /力が出やすい条件/);
+    assert.match(PAID_DTR_LP.hero.bodyJa, /戻りやすい整え方/);
+  });
+
+  it('orders value sections before the purchase funnel on the LP page', () => {
+    const heroIndex = lpPageSource.indexOf('id="dtr-lp-hero"');
+    const savedIndex = lpPageSource.indexOf('id="dtr-lp-saved"');
+    const funnelIndex = lpPageSource.indexOf('id="m55-paid-questionnaire"');
+    const aboutIndex = lpPageSource.indexOf('id="dtr-lp-about"');
+    const faqIndex = lpPageSource.indexOf('id="dtr-lp-faq"');
+
+    for (const [label, index] of [
+      ['hero', heroIndex],
+      ['saved', savedIndex],
+      ['funnel', funnelIndex],
+      ['about', aboutIndex],
+      ['faq', faqIndex],
+    ] as const) {
+      assert.notEqual(index, -1, `missing LP section: ${label}`);
+    }
+
+    assert.ok(heroIndex < savedIndex, 'hero must precede プレミアムレポートとは');
+    assert.ok(savedIndex < funnelIndex, 'value sections must precede the purchase funnel');
+    assert.ok(funnelIndex < aboutIndex, 'trust/method sections must follow plan choice');
+    assert.ok(aboutIndex < faqIndex, 'FAQ must remain last before the final CTA');
+  });
+
   it('defines hero compare anchor and CTA labels', () => {
-    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'FULLとライトを比べる');
+    assert.equal(PAID_DTR_LP.hero.ctaLabelJa, 'ライトとフルを比べる');
     assert.equal(PAID_DTR_LP.hero.compareSectionId, 'dtr-lp-tiers');
     assert.match(PAID_DTR_LP.hero.subheadlineJa, /自分を少し離れて見つめ直す/);
     assert.match(lpPageSource, /本質を見つめ直す \| M55/);
@@ -173,7 +225,7 @@ describe('paidDtrPaidLpCopy — M55_PAID_LP_FINAL_COPY_SSOT_v1', () => {
     assert.equal(PAID_DTR_LP.tiers.light.oneTimeLabelJa, '一回払い');
     assert.equal(PAID_DTR_LP.tiers.full.savedReportValueJa, 'プレミアムレポート');
     assert.equal(PAID_DTR_LP.tiers.light.savedReportValueJa, 'プレミアムレポート');
-    assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でFULL化/);
+    assert.match(PAID_DTR_LP.tiers.light.upgradeNoteJa, /¥600（税込）でフルに切り替え/);
     assert.equal(PAID_DTR_LP.cta.finalCompareLabelJa, 'プランをもう一度確認する');
   });
 

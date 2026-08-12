@@ -140,6 +140,9 @@
   font-weight: 800;
   color: rgba(38, 36, 42, 0.88);
   line-height: 1.35;
+  /* Product name must wrap at the spaces, never inside 「プレミアムレポート」. */
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .lpPriceChipValue {
@@ -446,6 +449,7 @@
 
   .lpPriceChipLabel {
     font-size: 11px;
+    letter-spacing: -0.02em;
   }
 
   .lpPriceChipMeta {
@@ -499,10 +503,21 @@
   }
 }
 
-/* Focus the paid decision vertical: hide surrounding LP chrome while prep is active. */
-.lpRoot:has([data-m55-paid-phase]) > .lpBreadcrumb,
-.lpRoot:has([data-m55-paid-phase]) > .lpSectionPreTier,
-.lpRoot:has([data-m55-paid-phase]) > .lpSection:not(:has([data-m55-paid-phase])) {
+/* Two chip columns leave ~93px of text width on the narrowest phones, which forces
+   the product name and the price to wrap mid-word. One plan per row keeps both
+   on their own intentional line. */
+@media (max-width: 360px) {
+  .lpPriceChips {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Focus the paid decision vertical: hide surrounding LP chrome while prep is active.
+   "need-free" and "loading" are passive states rather than an active decision, so the
+   LP value sections stay readable for visitors who have not started the funnel yet. */
+.lpRoot:has([data-m55-paid-phase]:not([data-m55-paid-phase="need-free"]):not([data-m55-paid-phase="loading"])) > .lpBreadcrumb,
+.lpRoot:has([data-m55-paid-phase]:not([data-m55-paid-phase="need-free"]):not([data-m55-paid-phase="loading"])) > .lpSectionPreTier,
+.lpRoot:has([data-m55-paid-phase]:not([data-m55-paid-phase="need-free"]):not([data-m55-paid-phase="loading"])) > .lpSection:not(:has([data-m55-paid-phase])) {
   display: none;
 }
 

@@ -14,7 +14,7 @@ function messageForUpgradeCheckoutError(code: string | undefined): string {
     case 'wallet_not_active':
       return '追加読み解きの準備が完了していません。しばらくしてからお試しください。';
     case 'cap_reached':
-      return 'すでにFULL相当のご利用枠です。';
+      return 'すでにフル相当のご利用枠です。';
     case 'invalid_product':
     case 'invalid_request':
       return 'この購入は現在ご利用いただけません。';
