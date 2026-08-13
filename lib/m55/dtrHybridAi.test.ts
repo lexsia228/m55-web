@@ -281,6 +281,8 @@ describe('Hybrid AI prompt builder', () => {
     assert.ok(payload.dobContext.seasonDescription.length > 5);
     assert.ok(!payload.dobContext.seasonDescription.includes('summer'));
     assert.ok(!payload.dobContext.seasonDescription.includes('autumn'));
+    assert.doesNotMatch(payload.dobContext.seasonDescription, /時期の生まれ/);
+    assert.doesNotMatch(payload.dobContext.phaseDescription, /月の中頃の生まれとして/);
     // phaseDescription should be human-readable
     assert.ok(payload.dobContext.phaseDescription.length > 5);
   });

@@ -166,8 +166,10 @@ test('DOB personalization flag ON — fulfillment stores v2-consistent envelope'
     assert.equal(audit?.version, 'v2');
     assert.equal(audit?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
     assert.ok(audit?.fingerprint.startsWith('dobv21-'));
-    assert.match(s3, /生年月日の細かなリズム/);
-    assert.match(s7, /生年月日の細かなリズム/);
+    assert.doesNotMatch(s3, /生年月日の細かなリズム/);
+    assert.doesNotMatch(s7, /生年月日の細かなリズム/);
+    assert.match(s3, /判断のぶれ/);
+    assert.match(s7, /迷ったとき/);
     assert.notEqual(audit?.fingerprint, built.engine_context_json.displayFingerprint);
   });
 });
@@ -177,12 +179,12 @@ test('DOB v2.1 — same stem lane different DOB yields different s1 bodies', () 
     resetCalendarBundleCacheForTests();
     const a = buildV2FulfillmentSnapshotFromFields({
       ...FIELDS_1992_12_19,
-      birthDate: '1980-01-07',
+      birthDate: '1980-01-05',
     });
     resetCalendarBundleCacheForTests();
     const b = buildV2FulfillmentSnapshotFromFields({
       ...FIELDS_1992_12_19,
-      birthDate: '1980-03-07',
+      birthDate: '1980-01-25',
     });
     assert.equal(a.envelope_json.auditMeta.stemLaneIndex, b.envelope_json.auditMeta.stemLaneIndex);
     const s1a = a.envelope_json.payload.fullSections.find((s) => s.id === 's1_identity')!.body;
@@ -196,12 +198,12 @@ test('DOB v2.1 — same stem lane different DOB yields different s5/s6 bodies', 
     resetCalendarBundleCacheForTests();
     const a = buildV2FulfillmentSnapshotFromFields({
       ...FIELDS_1992_12_19,
-      birthDate: '1980-01-07',
+      birthDate: '1980-01-05',
     });
     resetCalendarBundleCacheForTests();
     const b = buildV2FulfillmentSnapshotFromFields({
       ...FIELDS_1992_12_19,
-      birthDate: '1980-03-07',
+      birthDate: '1980-01-25',
     });
     assert.equal(a.envelope_json.auditMeta.stemLaneIndex, b.envelope_json.auditMeta.stemLaneIndex);
     for (const id of ['s5_friction', 's6_relation'] as const) {

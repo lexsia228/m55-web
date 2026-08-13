@@ -58,17 +58,16 @@ export function createMockHybridAiProvider(
     async generate(payload): Promise<HybridAiProviderOutput> {
       const trait = payload.traitContext.publicTitle;
       const season = payload.dobContext.seasonDescription;
-      const phase = payload.dobContext.phaseDescription;
       const interNote = payload.traitContext.interactionNote;
       return {
         s1_identity: overrides?.s1_identity ??
-          `${trait}の力は、方向が決まるほど安定しやすくなります。${season}として、始めるときに向きを確かめるほど動き出しが整いやすくなります。自分の輪郭が出やすい場面を先に把握しておくことが、長く続けるための土台になります。${interNote}この形を知っておくと、力が出やすい場面を自分で作りやすくなります。`,
+          `${trait}の力は、方向が決まるほど安定しやすくなります。自分の輪郭が出やすい場面では、向きを短く確かめると動き出しが整いやすくなります。${interNote}この形を知っておくと、力が出やすい場面を自分で作りやすくなります。日常の中で小さく確かめる習慣を置くほど、自分の輪郭がはっきりしやすくなります。`,
         s2_composition: overrides?.s2_composition ??
-          `進め方を組み立てるとき、${phase}として、試す範囲を先に決めるほど扱いやすくなります。${trait}の構成として、一手ずつ確かめながら進む形が合いやすくなります。段取りの最初を小さく置くほど、後から修正しやすくなります。${season}の生まれとして、ペースを整えながら進む動き方が続きやすくなります。`,
+          `仕事の段取りでは、試す範囲を先に決めるほど扱いやすくなります。${trait}の進め方として、一手ずつ確かめながら進む形が合いやすくなります。最初の一手を小さく置くほど、後から修正しやすくなります。進め方の区切りを先に決めておくと、負荷を分散しやすくなります。`,
         s3_essence: overrides?.s3_essence ??
-          `生年月日の細かなリズムから見ると、${season}として、土台を先に整えるほど安定しやすくなります。${trait}の本質は、急がず確かめる場面で力を発揮しやすい形にあります。${phase}として、流れを一度確かめることが安定の核心になります。節目を意識することで、このリズムを長く続けるための軸が生まれます。`,
+          `安定しやすい条件から見ると、${season}。${trait}の本質は、急がず確かめる場面で力を発揮しやすい形にあります。節目を意識することで、このリズムを長く続けるための軸が生まれます。生活の節目ごとに短く立ち止まるほど、安定の感覚を保ちやすくなります。`,
         s4_strengths: overrides?.s4_strengths ??
-          `生活のリズムとして、${season}の生まれとして疲れが出やすい場面を先に把握しておくほど、戻しやすくなります。${phase}として、短く区切って休む時間を入れるほど力が持続します。切り替えのサインを自分で決めておくと、消耗を抑えやすくなります。小さな区切りを習慣にすることが、長く動き続けるための助けになります。`,
+          `生活のリズムとして、疲れが出やすい場面を先に把握しておくほど、戻しやすくなります。短く区切って休む時間を入れるほど力が持続します。切り替えのサインを自分で決めておくと、消耗を抑えやすくなります。小さな区切りを習慣にすることが、長く動き続けるための助けになります。`,
         providerMeta: { modelName: 'mock', promptVersion: payload.promptVersion },
       };
     },

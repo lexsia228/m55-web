@@ -21,26 +21,17 @@ import {
 } from './dtrEngine';
 import { AXIS_DATA, INTERACTION_NOTE, type AxisEntry } from './dtrPaidModules';
 import { TEN_STEM_DISPLAY } from './tenStemCatalog';
+import {
+  civilDayBandFromEffectiveDate,
+  seasonGroupForSolarTerm,
+  type CivilDayBand,
+} from './paidDobCivilRhythm';
 
 // ── Season / phase helpers (private; mirror of dtrDobPersonalizationV2.ts private logic) ──
 
 export type SeasonGroup = 'winter' | 'spring' | 'summer' | 'autumn';
-export type LunarPhaseBucket = 'early' | 'mid' | 'late';
-
-function seasonGroupForSolarTerm(key: string): SeasonGroup {
-  if (/^(xiaohan|dahan|lidong|xiaoxue|daxue|dongzhi)$/.test(key)) return 'winter';
-  if (/^(lichun|yushui|jingzhe|chunfen|qingming|guyu)$/.test(key)) return 'spring';
-  if (/^(lixia|xiaoman|mangzhong|xiazhi|xiaoshu|dashu)$/.test(key)) return 'summer';
-  return 'autumn';
-}
-
-function lunarPhaseBucketLocal(lunarDayKey: string): LunarPhaseBucket {
-  const dayToken = lunarDayKey.split('-').pop() ?? '1';
-  const day = Number.parseInt(dayToken, 10);
-  if (!Number.isFinite(day) || day <= 10) return 'early';
-  if (day <= 20) return 'mid';
-  return 'late';
-}
+/** Civil dayBand — field name kept for Hybrid/material compatibility. */
+export type LunarPhaseBucket = CivilDayBand;
 
 function lunarMonthIndexLocal(lunarMonthKey: string): number {
   const monthToken = lunarMonthKey.split('-').pop() ?? '1';
@@ -62,7 +53,7 @@ export const SEASON_JUDGE_KEYWORDS: Readonly<Record<SeasonGroup, readonly string
 export const PHASE_JUDGE_KEYWORDS: Readonly<Record<LunarPhaseBucket, readonly string[]>> = {
   early: ['始める', '試す', '小さく', '最初', '小さな'],
   mid: ['続ける', '確かめ', '流れ', '途中', '一度置いた'],
-  late: ['区切る', '終え', '残す', '次の一歩', '終えるもの'],
+  late: ['区切る', '論点', '残す', '次の一歩', '確かめる'],
 };
 
 // ── Types ──
@@ -131,7 +122,7 @@ export function buildPaidDtrChapterMaterialPack(
   const axis = AXIS_DATA[idx]!;
   const seedAll = STEM_SEED_BODIES[idx]!;
   const seasonGroup = seasonGroupForSolarTerm(ctx.boundaryMetadata.solarTermKey);
-  const phase = lunarPhaseBucketLocal(ctx.boundaryMetadata.lunarDayKey);
+  const phase = civilDayBandFromEffectiveDate(ctx.normalizedBirthContext.effectiveLocalDate);
   const monthIdx = lunarMonthIndexLocal(ctx.boundaryMetadata.lunarMonthKey);
 
   return {
