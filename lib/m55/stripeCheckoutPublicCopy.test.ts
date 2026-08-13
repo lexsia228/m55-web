@@ -3,10 +3,17 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
-  STRIPE_CHECKOUT_LEGACY_PUBLIC_TERMS,
   STRIPE_CHECKOUT_PUBLIC_COPY,
   STRIPE_CHECKOUT_PUBLIC_COPY_ITEMS,
 } from './stripeCheckoutPublicCopy';
+
+const STRIPE_CHECKOUT_LEGACY_PUBLIC_TERMS = [
+  '保存版',
+  '相談返書',
+  '相談',
+  'FULL化',
+  'FULL',
+] as const;
 
 const ROOT = join(import.meta.dirname, '../..');
 

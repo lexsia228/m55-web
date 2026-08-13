@@ -16,14 +16,6 @@ import {
 
 export const STRIPE_CHECKOUT_PUBLIC_COPY_VERSION = 'm55-stripe-checkout-public-copy-v1' as const;
 
-export const STRIPE_CHECKOUT_LEGACY_PUBLIC_TERMS = [
-  '保存版',
-  '相談返書',
-  '相談',
-  'FULL化',
-  'FULL',
-] as const;
-
 export const STRIPE_CHECKOUT_PUBLIC_COPY = {
   light: {
     productKey: DTR_CORE_LIGHT_V1_PRODUCT_KEY,
