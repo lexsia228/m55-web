@@ -1,18 +1,8 @@
--- ============================================================================
--- STAGING CANDIDATE v2 — pricing architecture
--- Path: scripts/sql/staging/m55_reply_ticket_fulfillment_rpc_v2_pricing_architecture_candidate.sql
---
--- Promoted to Production via:
---   supabase/migrations/20260813000000_m55_reply_ticket_fulfillment_rpc_v2_upgrade.sql
--- Human apply gate: scripts/sql/production/m55_reply_ticket_fulfillment_rpc_v2_upgrade_precheck_v1.sql
---
--- Extends m55_reply_ticket_fulfill_checkout_event:
---   • additional_reply_ticket — legacy +1 (¥500 lane, unchanged)
---   • dtr_core_light_to_full_upgrade_v1 — purchased top-up to 4 (1+4 cap 5)
---
--- SSOT: lib/m55/reply/replyWalletFulfillmentMath.ts (parity with app grants)
--- Apply gate: preflight + Human GO (separate from this LOCAL commit)
--- ============================================================================
+-- M55 — Reply-ticket fulfillment RPC v2 (Light→Full upgrade lane)
+-- Promotes: scripts/sql/staging/m55_reply_ticket_fulfillment_rpc_v2_pricing_architecture_candidate.sql
+-- Replaces Production RPC that only accepted additional_reply_ticket.
+-- Rollback: re-apply predecessor from m55_phase5_2_reply_ticket_fulfillment_production_migration_candidate_v1.sql
+--           (Human-only; not automated here).
 
 CREATE OR REPLACE FUNCTION public.m55_reply_ticket_fulfill_checkout_event (
   p_stripe_event_id text,
@@ -333,4 +323,12 @@ BEGIN
 END;
 $$;
 
--- END OF FILE
+REVOKE ALL ON FUNCTION public.m55_reply_ticket_fulfill_checkout_event(
+  text, text, text, text, uuid, text, text, integer
+) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.m55_reply_ticket_fulfill_checkout_event(
+  text, text, text, text, uuid, text, text, integer
+) TO service_role;
+
+NOTIFY pgrst, 'reload schema';

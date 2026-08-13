@@ -16,13 +16,16 @@ function deriveSavedReportTierSummary(params: {
   legacyStaticBacked: boolean;
   hasPaymentBacking: boolean;
   lightSnapshotReportInstanceId: string | null;
+  walletFullEquivalent?: boolean;
 }) {
-  const hasLight = params.lightBacked;
-  const hasFull = params.fullBacked;
+  const walletFullEquivalent = params.walletFullEquivalent ?? false;
+  const hasLight = params.lightBacked && !walletFullEquivalent;
+  const hasFull = params.fullBacked || walletFullEquivalent;
   const hasLegacyStatic = params.legacyStaticBacked && !hasLight && !hasFull;
   const canUpgradeFromLight =
-    hasLight &&
-    !hasFull &&
+    params.lightBacked &&
+    !params.fullBacked &&
+    !walletFullEquivalent &&
     params.hasPaymentBacking &&
     params.lightSnapshotReportInstanceId != null;
   return {
@@ -109,6 +112,30 @@ describe('deriveSavedReportTierSummary', () => {
     });
     assert.equal(r.canUpgradeFromLight, false);
   });
+
+  it('light upgraded via wallet FULL-equivalent → Full display, no upgrade CTA', () => {
+    const r = deriveSavedReportTierSummary({
+      ...lightOnly,
+      walletFullEquivalent: true,
+    });
+    assert.equal(r.hasLight, false);
+    assert.equal(r.hasFull, true);
+    assert.equal(r.canUpgradeFromLight, false);
+    assert.equal(r.reportInstanceId, null);
+  });
+
+  it('fresh Full entitlement unaffected by wallet flag', () => {
+    const r = deriveSavedReportTierSummary({
+      lightBacked: false,
+      fullBacked: true,
+      legacyStaticBacked: false,
+      hasPaymentBacking: true,
+      lightSnapshotReportInstanceId: null,
+      walletFullEquivalent: false,
+    });
+    assert.equal(r.hasFull, true);
+    assert.equal(r.canUpgradeFromLight, false);
+  });
 });
 
 describe('upgrade CTA placement — structural', () => {
@@ -151,6 +178,8 @@ describe('upgrade CTA placement — structural', () => {
     const src = read('lib/m55/dtrSavedReportTier.ts');
     assert.ok(src.includes('export function deriveSavedReportTierSummary'));
     assert.ok(src.includes('lightSnapshotReportInstanceId'));
+    assert.ok(src.includes('walletFullEquivalent'));
+    assert.ok(src.includes('isFullEquivalentReplyWallet'));
     assert.equal(src.includes('DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1'), false);
   });
 });

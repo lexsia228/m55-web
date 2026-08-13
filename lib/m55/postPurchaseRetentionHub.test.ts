@@ -64,6 +64,15 @@ describe('post-purchase retention hub model', () => {
     assert.equal(model.primaryAction, 'additional_reading');
   });
 
+  it('shows FULL plan label after Light→Full wallet upgrade (tier read model)', () => {
+    const model = buildPostPurchaseRetentionHubModel({
+      tier: { hasLight: false, hasFull: true },
+      wallet: wallet(5, 5),
+    });
+    assert.equal(model.planLabel, 'M55 プレミアムレポート フル');
+    assert.deepEqual(model.usage, { total: 5, remaining: 5, used: 0 });
+  });
+
   it('does not make a false remaining claim when wallet authority is unavailable', () => {
     const model = buildPostPurchaseRetentionHubModel({
       tier: { hasLight: false, hasFull: true },
@@ -121,9 +130,9 @@ describe('post-purchase retention hub wiring', () => {
     const hub = readRepo('components/dtr/PremiumDrawerHub.tsx');
     assert.ok(hub.indexOf('DRAWER_HUB_CHAPTER_ROWS') < hub.indexOf('DRAWER_HUB_CONSULT_ROW'));
     const layout = readRepo('app/dtr/core/layout.tsx');
-    const header = readRepo('components/shell/PublicHeader.tsx');
-    assert.match(layout, /<PublicHeader \/>/);
-    assert.match(header, /href:\s*['"]\/my['"]/);
+    const headerState = readRepo('lib/m55/commercialUx/publicHeaderState.ts');
+    assert.match(layout, /<PublicHeaderContainer \/>/);
+    assert.match(headerState, /['"]\/my['"]/);
   });
 });
 
