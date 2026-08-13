@@ -110,8 +110,8 @@ describe('checkoutWebhookPriceLanes — oneTimeCheckout SSOT', () => {
 });
 
 describe('checkoutWebhookPriceLanes — reply + webhook routing', () => {
-  it('reply checkout allows legacy and upgrade product keys', () => {
-    assert.equal(isAllowedReplyTicketCheckoutProductKey(ADDITIONAL_REPLY_TICKET_PRODUCT_KEY), true);
+  it('reply checkout allows upgrade only (legacy ¥500 new sales stopped)', () => {
+    assert.equal(isAllowedReplyTicketCheckoutProductKey(ADDITIONAL_REPLY_TICKET_PRODUCT_KEY), false);
     assert.equal(
       isAllowedReplyTicketCheckoutProductKey('dtr_core_light_to_full_upgrade_v1'),
       true
@@ -140,10 +140,10 @@ describe('checkoutWebhookPriceLanes — reply + webhook routing', () => {
     assert.ok(src.includes('/api/reply-tickets/checkout'));
   });
 
-  it('reply-tickets checkout wires upgrade Stripe env', () => {
+  it('reply-tickets checkout wires upgrade Stripe env only', () => {
     const src = readFileSync(REPLY_CHECKOUT, 'utf8');
     assert.ok(src.includes('STRIPE_PRICE_DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1'));
-    assert.ok(src.includes('STRIPE_PRICE_ADDITIONAL_REPLY_TICKET'));
+    assert.doesNotMatch(src, /STRIPE_PRICE_ADDITIONAL_REPLY_TICKET/);
     assert.ok(src.includes('parsed.productKey'));
   });
 });

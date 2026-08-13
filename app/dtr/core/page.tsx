@@ -11,6 +11,7 @@ import { resolveSavedReportTierSummary } from "../../../lib/m55/dtrSavedReportTi
 import { resolveDisplayedDtrEnvelope } from "../../../lib/m55/compositeStem/resolveDisplayedDtrEnvelope";
 import DtrFullReader from "../../../components/dtr/DtrFullReader";
 import LightToFullUpgradeCta from "../../../components/dtr/LightToFullUpgradeCta";
+import CorePairReadingCrossSell from "../../../components/core/CorePairReadingCrossSell";
 import { readConsultWalletDisplaySnapshot } from "../../../lib/m55/reply/consultWalletDisplaySnapshot";
 import styles from "./core.module.css";
 
@@ -66,6 +67,9 @@ export default async function DtrCorePage() {
             profile: read.profile,
           }}
         />
+        <div className={styles.upgradeAssist}>
+          <CorePairReadingCrossSell />
+        </div>
         {tier.canUpgradeFromLight && tier.reportInstanceId && (
           <div className={styles.upgradeAssist}>
             <LightToFullUpgradeCta

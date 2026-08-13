@@ -272,8 +272,6 @@ export default function MyPanel() {
             <FirstTimeGuideSection />
           )}
 
-          <CompatibilitySavedReportsLibrary />
-
           <SavedReportSection
             state={savedReportState}
             ent={ent}
@@ -281,6 +279,8 @@ export default function MyPanel() {
             onDeleteSuccess={handleDeleteSuccess}
             deleteToastVisible={deleteToastVisible}
           />
+
+          <CompatibilitySavedReportsLibrary />
 
           {entReady && !ownedReady && (
             <section className={styles.card} aria-label={MY_SERVICES_SECTION_TITLE}>

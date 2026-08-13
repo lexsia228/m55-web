@@ -53,8 +53,8 @@ describe('replyTicketCheckoutConstants — pricing architecture SSOT', () => {
     assert.equal(REPLY_TICKET_FULL_INITIAL_PURCHASED_GRANT, 4);
   });
 
-  it('reply-tickets checkout product keys include legacy + upgrade only', () => {
-    assert.equal(isAllowedReplyTicketCheckoutProductKey('additional_reply_ticket'), true);
+  it('reply-tickets checkout product keys allow upgrade only (legacy new sales stopped)', () => {
+    assert.equal(isAllowedReplyTicketCheckoutProductKey('additional_reply_ticket'), false);
     assert.equal(isAllowedReplyTicketCheckoutProductKey('dtr_core_light_to_full_upgrade_v1'), true);
     assert.equal(isAllowedReplyTicketCheckoutProductKey('dtr_core_light_v1'), false);
     assert.equal(isLightToFullUpgradeProductKey('dtr_core_light_to_full_upgrade_v1'), true);

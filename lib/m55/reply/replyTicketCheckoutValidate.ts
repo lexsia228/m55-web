@@ -10,8 +10,6 @@ import {
   isFullEquivalentReplyWallet,
   isLegacyAdditionalReplyTicketProductKey,
   isLightToFullUpgradeProductKey,
-  REPLY_TICKET_ADDITIONAL_MAX_PURCHASED,
-  REPLY_TICKET_TOTAL_CAP_PER_REPORT,
 } from './replyTicketCheckoutConstants';
 
 export type ReplyTicketWalletGateRow = {
@@ -134,14 +132,7 @@ export function evaluateReplyTicketCheckoutWalletCap(
   }
 
   if (isLegacyAdditionalReplyTicketProductKey(productKey)) {
-    const total = wallet.initial_included_count + wallet.purchased_count;
-    if (
-      total >= REPLY_TICKET_TOTAL_CAP_PER_REPORT ||
-      wallet.purchased_count >= REPLY_TICKET_ADDITIONAL_MAX_PURCHASED
-    ) {
-      return 'cap_reached';
-    }
-    return null;
+    return 'sales_stopped';
   }
 
   return 'invalid_product';
@@ -164,10 +155,14 @@ export function validateReplyTicketCheckoutBody(input: unknown): { reportInstanc
   }
 
   const productKeyRaw = o.product_key ?? o.productKey;
-  const productKey =
-    typeof productKeyRaw === 'string' && productKeyRaw.trim().length > 0
-      ? productKeyRaw.trim()
-      : 'additional_reply_ticket';
+  if (typeof productKeyRaw !== 'string' || productKeyRaw.trim().length === 0) {
+    return { error: 'invalid_request' };
+  }
+  const productKey = productKeyRaw.trim();
+
+  if (isLegacyAdditionalReplyTicketProductKey(productKey)) {
+    return { error: 'sales_stopped' };
+  }
 
   if (!isAllowedReplyTicketCheckoutProductKey(productKey)) {
     return { error: 'invalid_product' };
