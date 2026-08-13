@@ -2,6 +2,7 @@
  * Paid DOB civil rhythm — selector correctness, free/paid parity, dedupe guards.
  */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { resetCalendarBundleCacheForTests } from './calendar/loadCalendarBundle';
 import { GOLDEN_1983_02_28_V2 } from './compositeStem/pipeline.golden.test';
@@ -14,6 +15,7 @@ import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from './dtrDobPersonalization
 import { buildCoreResultClient } from './coreResult/buildCoreResult.client';
 import { freeCoreAxisRowsForResult } from './coreFreePublicDisplay';
 import {
+  civilDayBandFromDay,
   civilDayBandFromEffectiveDate,
   collectCivilDayBandCopyViolations,
   countNormalizedSentenceOccurrences,
@@ -72,6 +74,18 @@ describe('paidDobCivilRhythm — compact DOB matrix', () => {
       assert.equal(civilDayBandFromEffectiveDate(ctx.normalizedBirthContext.effectiveLocalDate), expected);
     });
   }
+
+  it('civilDayBandFromDay matches canonical dayBandFromDay for every civil day', () => {
+    for (let day = 1; day <= 31; day++) {
+      assert.equal(civilDayBandFromDay(day), dayBandFromDay(day), `day ${day}`);
+    }
+  });
+
+  it('source stays client-bundle safe (no node builtin import chain)', () => {
+    const src = readFileSync(new URL('./paidDobCivilRhythm.ts', import.meta.url), 'utf8');
+    assert.doesNotMatch(src, /from ['"]node:/);
+    assert.doesNotMatch(src, /from ['"].*dobAxisLookupV1['"]/);
+  });
 
   it('1983-02-28 — civil late, no month-position causality, no 月の中頃', () => {
     const ctx = engineContextFor('1983-02-28');

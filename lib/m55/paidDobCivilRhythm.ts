@@ -3,8 +3,6 @@
  * Civil dayBand / lunar month / solar term stay INTERNAL selectors.
  * Customer copy is tendency / condition / action — no DOB→behavior causality.
  */
-import { dayBandFromDay } from './individualization/dobAxisLookupV1';
-
 export type CivilDayBand = 'early' | 'mid' | 'late';
 export type SeasonGroup = 'winter' | 'spring' | 'summer' | 'autumn';
 
@@ -26,8 +24,19 @@ export function civilDayFromEffectiveDate(effectiveLocalDate: string): number {
   return Number.isFinite(day) ? day : 1;
 }
 
+/**
+ * Mirrors dayBandFromDay in individualization/dobAxisLookupV1, which cannot be
+ * imported here: this module reaches the client bundle and that one pulls node:crypto.
+ * Threshold parity is asserted in paidDobCivilRhythm.test.ts.
+ */
+export function civilDayBandFromDay(day: number): CivilDayBand {
+  if (day <= 10) return 'early';
+  if (day <= 20) return 'mid';
+  return 'late';
+}
+
 export function civilDayBandFromEffectiveDate(effectiveLocalDate: string): CivilDayBand {
-  return dayBandFromDay(civilDayFromEffectiveDate(effectiveLocalDate));
+  return civilDayBandFromDay(civilDayFromEffectiveDate(effectiveLocalDate));
 }
 
 export function civilDayBandPublicLabel(band: CivilDayBand): string {
