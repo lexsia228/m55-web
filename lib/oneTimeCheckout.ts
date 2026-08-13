@@ -2,7 +2,8 @@
  * One-time checkout lane constants.
  * Webhook と success page で共有。subscription lane は対象外。
  *
- * Checkout route 分岐・Stripe env 実装は別ゲート。ここは許可 SKU と env 名候補の土台のみ。
+ * Price env names stay in this module so checkout can resolve Light to the
+ * documented Production STATIC ¥1,000 price when LIGHT env is unset.
  */
 import {
   DTR_CORE_FULL_V1_PRODUCT_KEY,
@@ -17,7 +18,6 @@ export const DTR_CORE_LIGHT_V1 = DTR_CORE_LIGHT_V1_PRODUCT_KEY;
 export const DTR_CORE_FULL_V1 = DTR_CORE_FULL_V1_PRODUCT_KEY;
 export const DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1 = DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY;
 
-/** 次ゲート以降で checkout / webhook が参照する Stripe Price env 名候補（未設定・未実装） */
 export const ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES = {
   [DTR_CORE_STATIC_V1]: 'STRIPE_PRICE_DTR_CORE_STATIC_V1',
   [DTR_CORE_LIGHT_V1]: 'STRIPE_PRICE_DTR_CORE_LIGHT_V1',
@@ -66,4 +66,35 @@ export function getOneTimeStripePriceEnvName(productId: string): string | undefi
   return ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES[
     productId as keyof typeof ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES
   ];
+}
+
+export type ResolvedOneTimeStripePrice = {
+  envKey: string | undefined;
+  priceId: string | undefined;
+  fallbackEnvKey?: typeof ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES[typeof DTR_CORE_STATIC_V1];
+};
+
+function readTrimmedEnv(env: NodeJS.Dict<string>, key: string | undefined): string | undefined {
+  if (!key) return undefined;
+  const value = env[key];
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+/**
+ * Light may reuse the Production STATIC ¥1,000 price env when LIGHT is unset.
+ * Full and upgrade have no STATIC equivalent — missing env stays fail-closed.
+ */
+export function resolveOneTimeStripePriceId(
+  productId: string,
+  env: NodeJS.Dict<string> = process.env,
+): ResolvedOneTimeStripePrice {
+  const envKey = getOneTimeStripePriceEnvName(productId);
+  const primary = readTrimmedEnv(env, envKey);
+  if (primary) return { envKey, priceId: primary };
+  if (productId === DTR_CORE_LIGHT_V1) {
+    const fallbackEnvKey = ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES[DTR_CORE_STATIC_V1];
+    const fallback = readTrimmedEnv(env, fallbackEnvKey);
+    if (fallback) return { envKey, priceId: fallback, fallbackEnvKey };
+  }
+  return { envKey, priceId: undefined };
 }

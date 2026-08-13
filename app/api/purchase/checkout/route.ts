@@ -18,9 +18,9 @@ import { DTR_CORE_RIGHT_KEY } from '../../../../lib/m55/dtrCoreCheckoutFulfillme
 import { verifyStripeCheckoutSessionForDtrUser } from '../../../../lib/m55/verifyStripeCheckoutSessionForDtr';
 import {
   DTR_CORE_STATIC_V1,
-  getOneTimeStripePriceEnvName,
   isDtrCoreLightToFullUpgradeProduct,
   isDtrCoreSavedReportOneTimeProduct,
+  resolveOneTimeStripePriceId,
 } from '../../../../lib/oneTimeCheckout';
 import { validateDtrCheckoutProfile } from '../../../../lib/m55/compositeStem/checkoutProfileGate';
 import { INPUT_VERSION_V1, ENGINE_VERSION_V2 } from '../../../../lib/m55/compositeStem/constants';
@@ -362,11 +362,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const envKey = getOneTimeStripePriceEnvName(productId);
-  const priceId = envKey ? process.env[envKey] : undefined;
-  if (!envKey || !priceId) {
-    console.error('[checkout] price env missing', { productId, envKey: envKey ?? null });
+  const resolvedPrice = resolveOneTimeStripePriceId(productId);
+  const priceId = resolvedPrice.priceId;
+  if (!priceId) {
+    console.error('[checkout] price env missing', {
+      productId,
+      envKey: resolvedPrice.envKey ?? null,
+    });
     return publicCheckoutError(503);
+  }
+  if (resolvedPrice.fallbackEnvKey) {
+    console.info('[checkout] price env fallback', {
+      productId,
+      envKey: resolvedPrice.envKey ?? null,
+      fallbackEnvKey: resolvedPrice.fallbackEnvKey,
+    });
   }
 
   const stripe = getStripe();

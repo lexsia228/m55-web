@@ -55,6 +55,9 @@ describe('P2 revenue-ready — LP continuity and canonical purchase path', () =>
     assert.match(prep, /m55-checkout-future-note/);
     assert.match(prep, /oneTimeLabelJa/);
     assert.match(prep, /CheckoutTrustRow/);
+    assert.match(prep, /\/legal\/refund/);
+    assert.match(prep, /\/legal\/tokushoho/);
+    assert.match(prep, /purchaseDecisionLegalLinks/);
 
     const hrefs = PAID_DTR_LP.purchaseNotes.legalLinks.map((l) => l.href);
     assert.deepEqual(hrefs, ['/support', '/legal/refund', '/legal/tokushoho', '/legal/terms', '/legal/privacy']);
