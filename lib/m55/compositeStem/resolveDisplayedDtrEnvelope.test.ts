@@ -409,7 +409,8 @@ describe('resolveDisplayedDtrEnvelope', () => {
       assert.equal(read.ok, true);
       if (!read.ok) return;
       const s3 = read.envelope.payload.fullSections.find((s) => s.id === 's3_essence')!.body;
-      assert.match(s3, /生年月日の細かなリズム/);
+      assert.doesNotMatch(s3, /生年月日の細かなリズム/);
+      assert.doesNotMatch(s3, /生まれとして/);
       assert.equal(read.envelope.auditMeta.paidIndividualization?.version, 'v2');
       assert.equal(read.envelope.auditMeta.paidIndividualization?.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
       const s5 = read.envelope.payload.fullSections.find((s) => s.id === 's5_friction')!.body;
@@ -424,7 +425,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
       resetCalendarBundleCacheForTests();
       const builtA = buildV2FulfillmentSnapshotFromFields({
         nickname: 'mi',
-        birthDate: '1980-01-07',
+        birthDate: '1980-01-05',
         birthTime: '12:00',
         birthTimeUnknown: false,
         country: 'JP',
@@ -434,7 +435,7 @@ describe('resolveDisplayedDtrEnvelope', () => {
       resetCalendarBundleCacheForTests();
       const builtB = buildV2FulfillmentSnapshotFromFields({
         nickname: 'mi',
-        birthDate: '1980-03-07',
+        birthDate: '1980-01-25',
         birthTime: '12:00',
         birthTimeUnknown: false,
         country: 'JP',
@@ -449,13 +450,13 @@ describe('resolveDisplayedDtrEnvelope', () => {
         envelope_json: builtA.envelope_json,
         engine_version: ENGINE_VERSION_V2,
         engine_context_json: builtA.engine_context_json,
-        profile_snapshot: { nickname: 'mi', birthDate: '1980-01-07' },
+        profile_snapshot: { nickname: 'mi', birthDate: '1980-01-05' },
       }));
       const readB = resolveDisplayedDtrEnvelope(baseRow({
         envelope_json: builtB.envelope_json,
         engine_version: ENGINE_VERSION_V2,
         engine_context_json: builtB.engine_context_json,
-        profile_snapshot: { nickname: 'mi', birthDate: '1980-03-07' },
+        profile_snapshot: { nickname: 'mi', birthDate: '1980-01-25' },
       }));
       assert.equal(readA.ok, true);
       assert.equal(readB.ok, true);

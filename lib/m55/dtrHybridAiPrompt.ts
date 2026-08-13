@@ -74,16 +74,16 @@ export type HybridAiPromptPayload = {
 // ── Season / phase → human description ────────────────────────────────────────
 
 const SEASON_DESCRIPTIONS: Readonly<Record<string, string>> = {
-  winter: '冷えや静けさが深まる時期の生まれ',
-  spring: '芽吹きと立ち上がりの時期の生まれ',
-  summer: '熱量が外へ向きやすい時期の生まれ',
-  autumn: '見直しと整理に向きやすい時期の生まれ',
+  winter: '急がず土台を温めてから動くほど扱いやすい',
+  spring: '小さく始めて確かめる余白を置くと次の一手が見えやすい',
+  summer: '動く前に休息のリズムを先に確保すると続けやすい',
+  autumn: '残すものを先に決めてから集中すると無理なく進めやすい',
 };
 
 const PHASE_DESCRIPTIONS: Readonly<Record<string, string>> = {
-  early: '月の前半に近い生まれとして、始める場面が合いやすい',
-  mid:   '月の中頃の生まれとして、続ける場面で力が出やすい',
-  late:  '月の後半に近い生まれとして、整える場面が合いやすい',
+  early: '始める場面では、試す範囲を小さく切ると扱いやすい',
+  mid: '続ける場面では、途中で確かめるほど疲れが溜まりにくい',
+  late: '進めるときは、一度に抱える量を減らすと扱いやすい'
 };
 
 // ── Forbidden phrases / hard claims ───────────────────────────────────────────
@@ -116,21 +116,21 @@ const SECTION_SPECS: readonly SectionPromptSpec[] = [
     sectionId: 's1_identity',
     roleDescription: '「あなたという人物」— 自分の輪郭・力の出やすい状況を伝える章。読んだ人が「自分の形」を感じられること。',
     forbiddenTopics: ['仕事の成功/失敗の断定', '恋愛/結婚の断定', '健康の断定', '金銭的断定'],
-    requiredThemes: ['自分の形・輪郭', '力の出やすい場面', '生年月日のリズムとの関係'],
+    requiredThemes: ['自分の形・輪郭', '力の出やすい場面', '過負荷の兆し'],
     lengthGuidance: '200〜400字程度。1〜3段落。自然な読み物として。',
   },
   {
     sectionId: 's2_composition',
-    roleDescription: '「構成と傾向の全体像」— 進め方・段取り・ペースを伝える章。どう動くと整いやすいかを自然語で。',
+    roleDescription: '「構成と傾向の全体像」— 仕事での判断基準・優先順位・進め方を伝える章。疲労回復やリセット手順は書かない。',
     forbiddenTopics: ['仕事の断定', '能力の優劣評価', '達成の保証'],
-    requiredThemes: ['進め方のコツ', '段取りの考え方', '生年月日リズムとの関係'],
+    requiredThemes: ['進め方のコツ', '判断の切り方', '仕事の場面'],
     lengthGuidance: '250〜450字程度。実践的で読みやすく。',
   },
   {
     sectionId: 's3_essence',
-    roleDescription: '「本質と安定の条件」— 安定条件・本質のリズムを伝える章。生年月日の細かなリズムを根拠に。',
-    forbiddenTopics: ['断定的な運命言及', '他者との比較評価'],
-    requiredThemes: ['安定の核心', '本質のリズム', '生年月日の細かなリズムから見ると'],
+    roleDescription: '「本質と安定の条件」— 安定条件と判断のぶれを抑える置き方を伝える章。暦名や「生まれとして」で性格を説明しない。',
+    forbiddenTopics: ['断定的な運命言及', '他者との比較評価', '月の前半/中頃/後半の生まれとして'],
+    requiredThemes: ['安定の核心', '判断のぶれ', 'いまの条件'],
     lengthGuidance: '300〜500字程度。プレミアムレポートとして読み返せる深さ。',
   },
   {
@@ -159,8 +159,8 @@ export function buildHybridAiPromptPayload(
   };
 
   const dobContext: DobContext = {
-    seasonDescription: SEASON_DESCRIPTIONS[materialPack.seasonGroup] ?? '季節のリズムの生まれ',
-    phaseDescription: PHASE_DESCRIPTIONS[materialPack.lunarPhase] ?? '月のリズムの生まれ',
+    seasonDescription: SEASON_DESCRIPTIONS[materialPack.seasonGroup] ?? '季節のリズム',
+    phaseDescription: PHASE_DESCRIPTIONS[materialPack.lunarPhase] ?? '月のリズム',
     essenceNote: materialPack.essenceRhythmNote,
     auxiliaryNote: materialPack.auxiliaryReading,
   };
@@ -182,9 +182,13 @@ export function buildHybridAiPromptPayload(
         '天干・地支・五行・節気などの中国思想専門語や、甲木・乙木・丙火などの干支コードは出力に使わないこと。辛い・辛さ・丁寧・甲斐・乙女などの一般的な日本語は問題なく使ってよい。',
       ].join('\n'),
       roleGuidance: [
-        '生年月日のリズムを根拠に、その人固有の傾向を生活語で伝えること。',
+        '与えられた特性・回答の緊張・章の役割の交差で、いま使える傾向を生活語で伝えること。',
+        '生年月日の月の位置や節気を、性格や行動の原因として書かないこと。',
         '主要特性（publicTitle）と補助傾向は、与えられた情報以外に判断・再定義しないこと。',
         '各章のroleDescriptionに従い、章の役割を超えないこと。',
+        '節気名（雨水など）や旧暦・「時期の生まれとして」といった暦の因果説明は使わないこと。',
+        '「月初め／中頃／後半に近い生まれとして」と行動結論を結び付けないこと。',
+        '同じ助言を言い換えて全章に配らないこと。各章は別の判断と別の行動を書くこと。',
       ].join('\n'),
     },
     traitContext,

@@ -108,8 +108,8 @@ describe('paid DTR individualization compose', () => {
     const ind = composePaidIndividualizationFromEngineContext(ctx);
     assert.equal(ind.version, 'v2');
     assert.equal(ind.dobPersonalizationCatalogVersion, DOB_PERSONALIZATION_V21_CATALOG_VERSION);
-    // v2.1 essenceRhythmNote still contains the known opening.
-    assert.match(ind.essenceRhythmNote, /生年月日の細かなリズム/);
+    assert.doesNotMatch(ind.essenceRhythmNote, /生年月日の細かなリズム/);
+    assert.doesNotMatch(ind.essenceRhythmNote, /生まれとして/);
     // v2.1 fingerprint uses the v2.1 prefix — distinct from old v2 fingerprint.
     assert.match(ind.fingerprint, /^dobv21-/);
     // v2-only section fields must also be present.

@@ -4,6 +4,10 @@
  */
 import type { EngineContextJson } from './compositeStem/buildV2FulfillmentSnapshot';
 import type { PaidDtrIndividualization } from './dtrPaidIndividualization';
+import {
+  civilDayBandFromEffectiveDate,
+  type CivilDayBand,
+} from './paidDobCivilRhythm';
 
 export const DOB_PERSONALIZATION_V2_CATALOG_VERSION = 'dob-v2-2026-06' as const;
 
@@ -13,7 +17,7 @@ export const DOB_PERSONALIZATION_V2_CATALOG_VERSION = 'dob-v2-2026-06' as const;
  */
 export const DOB_PERSONALIZATION_V21_CATALOG_VERSION = 'dob-v2.1-2026-07' as const;
 
-type LunarPhaseBucket = 'early' | 'mid' | 'late';
+type LunarPhaseBucket = CivilDayBand;
 type SeasonGroup = 'winter' | 'spring' | 'summer' | 'autumn';
 
 const STEM_RHYTHM_LEADS: readonly string[] = [
@@ -156,12 +160,8 @@ function seasonGroupForTerm(key: string): SeasonGroup {
   return 'autumn';
 }
 
-function lunarPhaseBucket(lunarDayKey: string): LunarPhaseBucket {
-  const dayToken = lunarDayKey.split('-').pop() ?? '1';
-  const day = Number.parseInt(dayToken, 10);
-  if (!Number.isFinite(day) || day <= 10) return 'early';
-  if (day <= 20) return 'mid';
-  return 'late';
+function civilPhaseBucketFromContext(ctx: EngineContextJson): LunarPhaseBucket {
+  return civilDayBandFromEffectiveDate(ctx.normalizedBirthContext.effectiveLocalDate);
 }
 
 function lunarMonthIndex(lunarMonthKey: string): number {
@@ -176,7 +176,7 @@ export function buildPaidDtrIndividualizationV2FromEngineContext(
 ): PaidDtrIndividualization {
   const stemIdx = Math.max(0, Math.min(9, ctx.stemLaneIndex));
   const seasonKey = seasonGroupForTerm(ctx.boundaryMetadata.solarTermKey);
-  const phaseKey = lunarPhaseBucket(ctx.boundaryMetadata.lunarDayKey);
+  const phaseKey = civilPhaseBucketFromContext(ctx);
   const monthIdx = lunarMonthIndex(ctx.boundaryMetadata.lunarMonthKey);
 
   const season = SEASON_GROUPS[seasonKey];

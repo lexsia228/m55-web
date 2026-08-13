@@ -7,6 +7,11 @@
  * This module is pure-function: no AI, no network, no DB.
  */
 import type { HybridAiProviderOutput } from './dtrHybridAiProvider';
+import {
+  collectCivilDayBandCopyViolations,
+  countNormalizedSentenceOccurrences,
+  normalizeNarrativeSentence,
+} from './paidDobCivilRhythm';
 
 // ── Failure code types ────────────────────────────────────────────────────────
 
@@ -19,7 +24,10 @@ export type HybridQualityFailCode =
   | 'repeated_sentence'
   | 'generic_output'
   | 'incomplete_sentence_ending'
-  | 'malformed_output';
+  | 'malformed_output'
+  | 'date_consistency_violation'
+  | 'calendar_causality_violation'
+  | 'narrative_dedupe_violation';
 
 export type HybridQualitySectionResult = {
   sectionId: string;
@@ -98,6 +106,72 @@ const REQUIRED_SECTIONS: readonly string[] = [
   's1_identity', 's2_composition', 's3_essence', 's4_strengths',
 ];
 
+export type HybridQualityValidationContext = {
+  effectiveLocalDate: string;
+};
+
+const CROSS_SECTION_DUPLICATE_THRESHOLD = 2;
+const GROUNDING_LABEL_REPEAT_THRESHOLD = 2;
+
+const MONTH_POSITION_GROUNDING_RE = /月の(初め|中頃|後半).{0,24}生まれとして/g;
+const CALENDAR_CAUSALITY_RE = /(雨水|解けはじめる|解ける季節).{0,40}(安定|出|続)しやす/g;
+
+function validateCrossSectionDedupe(
+  bodies: Record<string, string>,
+): HybridQualityFailCode[] {
+  const sectionIds = REQUIRED_SECTIONS;
+  const allBodies = sectionIds.map((id) => bodies[id] ?? '');
+  const sentenceCounts = countNormalizedSentenceOccurrences(allBodies, 15);
+  for (const count of sentenceCounts.values()) {
+    if (count >= CROSS_SECTION_DUPLICATE_THRESHOLD) {
+      return ['narrative_dedupe_violation'];
+    }
+  }
+
+  const groundingHits = new Map<string, number>();
+  for (const body of allBodies) {
+    const seenInSection = new Set<string>();
+    for (const match of body.matchAll(MONTH_POSITION_GROUNDING_RE)) {
+      const label = normalizeNarrativeSentence(match[0] ?? '');
+      if (!label || seenInSection.has(label)) continue;
+      seenInSection.add(label);
+      groundingHits.set(label, (groundingHits.get(label) ?? 0) + 1);
+    }
+  }
+  for (const count of groundingHits.values()) {
+    if (count >= GROUNDING_LABEL_REPEAT_THRESHOLD) {
+      return ['narrative_dedupe_violation'];
+    }
+  }
+
+  const causalityHits = new Map<string, number>();
+  for (const body of allBodies) {
+    if (!CALENDAR_CAUSALITY_RE.test(body)) continue;
+    const key = body.match(CALENDAR_CAUSALITY_RE)?.[0] ?? '';
+    if (!key) continue;
+    const normalized = normalizeNarrativeSentence(key);
+    causalityHits.set(normalized, (causalityHits.get(normalized) ?? 0) + 1);
+  }
+  for (const count of causalityHits.values()) {
+    if (count >= GROUNDING_LABEL_REPEAT_THRESHOLD) {
+      return ['narrative_dedupe_violation'];
+    }
+  }
+
+  const essenceGrounding = normalizeNarrativeSentence(
+    (bodies.s3_essence ?? '').split('\n').find((line) => /月の(初め|中頃|後半)/.test(line)) ?? '',
+  );
+  if (essenceGrounding) {
+    for (const sectionId of ['s1_identity', 's2_composition', 's4_strengths'] as const) {
+      if (normalizeNarrativeSentence(bodies[sectionId] ?? '').includes(essenceGrounding)) {
+        return ['narrative_dedupe_violation'];
+      }
+    }
+  }
+
+  return [];
+}
+
 // ── Core validation helpers ───────────────────────────────────────────────────
 
 function countJapaneseChars(text: string): number {
@@ -107,6 +181,7 @@ function countJapaneseChars(text: string): number {
 function validateSection(
   sectionId: string,
   body: string,
+  context?: HybridQualityValidationContext,
 ): HybridQualitySectionResult {
   const failCodes: HybridQualityFailCode[] = [];
   let excerpt: string | undefined;
@@ -180,6 +255,17 @@ function validateSection(
     failCodes.push('incomplete_sentence_ending');
   }
 
+  if (context?.effectiveLocalDate) {
+    const civilViolations = collectCivilDayBandCopyViolations(context.effectiveLocalDate, body);
+    for (const violation of civilViolations) {
+      if (violation === 'unsupported_calendar_causality') {
+        failCodes.push('calendar_causality_violation');
+      } else {
+        failCodes.push('date_consistency_violation');
+      }
+    }
+  }
+
   return {
     sectionId,
     pass: failCodes.length === 0,
@@ -198,9 +284,12 @@ function validateSection(
  */
 export function validateHybridAiOutput(
   output: HybridAiProviderOutput,
+  context?: HybridQualityValidationContext,
 ): HybridQualityValidationResult {
   const sectionResults: HybridQualitySectionResult[] = [];
   const overallFailCodes = new Set<HybridQualityFailCode>();
+
+  const bodies: Record<string, string> = {};
 
   // Check all required sections are present and non-empty
   for (const sectionId of REQUIRED_SECTIONS) {
@@ -214,10 +303,22 @@ export function validateHybridAiOutput(
       overallFailCodes.add('malformed_output');
       continue;
     }
-    const result = validateSection(sectionId, body);
+    bodies[sectionId] = body;
+    const result = validateSection(sectionId, body, context);
     sectionResults.push(result);
     for (const code of result.failCodes) {
       overallFailCodes.add(code);
+    }
+  }
+
+  for (const code of context?.effectiveLocalDate ? validateCrossSectionDedupe(bodies) : []) {
+    overallFailCodes.add(code);
+    for (const sectionId of REQUIRED_SECTIONS) {
+      const existing = sectionResults.find((r) => r.sectionId === sectionId);
+      if (existing && !existing.failCodes.includes(code)) {
+        existing.failCodes.push(code);
+        existing.pass = false;
+      }
     }
   }
 

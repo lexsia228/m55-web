@@ -45,10 +45,12 @@ describe('DOB personalization v2.1 builder', () => {
     assert.match(ind.fingerprint, /^dobv21-/);
   });
 
-  it('essenceRhythmNote starts with known opening', () => {
+  it('essenceRhythmNote is stability copy without calendar causality chrome', () => {
     const ctx = ctx21('1985-03-07');
     const ind = buildPaidDtrIndividualizationV21FromEngineContext(ctx);
-    assert.match(ind.essenceRhythmNote, /^生年月日の細かなリズムから見ると、/);
+    assert.doesNotMatch(ind.essenceRhythmNote, /生年月日の細かなリズム/);
+    assert.doesNotMatch(ind.essenceRhythmNote, /生まれとして/);
+    assert.ok(ind.essenceRhythmNote.length >= 20);
   });
 
   it('s1/s2/s4/s5/s6 rhythm notes are non-empty', () => {
@@ -61,13 +63,18 @@ describe('DOB personalization v2.1 builder', () => {
     assert.ok(ind.s6RelationRhythmNote && ind.s6RelationRhythmNote.length >= 20);
   });
 
-  it('same stem lane different DOB yields different s5/s6 rhythm notes', () => {
+  it('different civil dayBand yields different s5 friction notes', () => {
+    const early = buildPaidDtrIndividualizationV21FromEngineContext(ctx21('1980-01-05'));
+    const late = buildPaidDtrIndividualizationV21FromEngineContext(ctx21('1980-01-25'));
+    assert.notEqual(early.s5FrictionRhythmNote, late.s5FrictionRhythmNote);
+  });
+
+  it('same stem lane different DOB yields different s6 rhythm notes', () => {
     const leftCtx = ctx21('1980-01-07');
     const rightCtx = ctx21('1980-03-07');
     assert.equal(leftCtx.stemLaneIndex, rightCtx.stemLaneIndex);
     const left = buildPaidDtrIndividualizationV21FromEngineContext(leftCtx);
     const right = buildPaidDtrIndividualizationV21FromEngineContext(rightCtx);
-    assert.notEqual(left.s5FrictionRhythmNote, right.s5FrictionRhythmNote);
     assert.notEqual(left.s6RelationRhythmNote, right.s6RelationRhythmNote);
   });
 
@@ -125,11 +132,14 @@ describe('DOB v2.1 forbidden phrase scan', () => {
     '分析結果', '判定',
   ];
 
-  it('v2.1 corpus source does not contain forbidden phrases', () => {
+  it('v2.1 corpus source does not contain forbidden phrases or raw solar-term causality', () => {
     const src = readFileSync(new URL('./dtrDobPersonalizationV21.ts', import.meta.url), 'utf8');
     for (const term of FORBIDDEN) {
       assert.ok(!src.includes(term), `Forbidden term "${term}" found in v2.1 corpus source`);
     }
+    assert.doesNotMatch(src, /雨水の頃の生まれとして/);
+    assert.doesNotMatch(src, /解けはじめる/);
+    assert.doesNotMatch(src, /旧暦/);
   });
 
   it('20 sample DOBs: section output does not contain forbidden phrases', () => {

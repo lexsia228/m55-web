@@ -134,7 +134,9 @@ export async function runHybridAiSnapshotGeneration(
   }
 
   // Step 4: Validate output
-  const qualityResult = validateHybridAiOutput(providerOutput);
+  const qualityResult = validateHybridAiOutput(providerOutput, {
+    effectiveLocalDate: ctx.normalizedBirthContext.effectiveLocalDate,
+  });
   if (!qualityResult.pass) {
     return {
       ok: false,
