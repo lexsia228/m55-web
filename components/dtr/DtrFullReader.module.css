@@ -416,6 +416,25 @@
   padding-top: clamp(4px, 1vw, 6px);
 }
 
+/* When a lede splits into units the group owns the trailing margin, not each unit. */
+.sectionLedeUnits {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(13px, 2.6vw, 16px);
+  margin: 0 0 clamp(14px, 2.8vw, 20px);
+}
+
+.sectionLedeUnits .sectionLede {
+  margin-bottom: 0;
+}
+
+/* A single newline is a pause inside a paragraph, so it sits below the paragraph gap. */
+.bodyParaUnits {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(13px, 2.6vw, 16px);
+}
+
 .sectionBlockLabel {
   font-size: 0.7rem;
   font-weight: 700;

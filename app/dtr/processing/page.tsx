@@ -20,8 +20,8 @@ import {
   type UnverifiedCheckoutReturnDecision,
 } from '../../../lib/m55/paidResult/postPaymentReturnDecision';
 import { DtrProcessingClient } from '../../../components/dtr/DtrProcessingClient';
-import { LABEL_FORMAT_SAVED, LABEL_SAVED_REPORT_METADATA_JP } from '../../../lib/m55/dtrProductLabels';
-import styles from './processing.module.css';
+import { LABEL_FORMAT_SAVED } from '../../../lib/m55/dtrProductLabels';
+import { DtrProcessingFallback, DtrProcessingShell } from './DtrProcessingShell';
 
 export const metadata = { title: 'レポート準備中 | M55' };
 
@@ -80,40 +80,6 @@ async function resolveOwnedPostPaymentReturn(
   return decideUnverifiedCheckoutReturn(evidence);
 }
 
-function ProcessingFallback({
-  message,
-  supportUrl,
-  recoveryRef,
-}: {
-  message: string;
-  supportUrl: string;
-  recoveryRef?: string | null;
-}) {
-  return (
-    <main className={styles.page} data-testid="m55-dtr-processing-main">
-      <div className={styles.inner}>
-        <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
-        <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-          接続を確認できませんでした
-        </h1>
-        <p className={styles.desc}>{message}</p>
-        {recoveryRef && (
-          <p className={`${styles.desc} ${styles.recoveryRef}`}>お問い合わせ時のお控え: {recoveryRef}</p>
-        )}
-        <p className={styles.secondaryRow}>
-          <a href="/my" className={styles.secondaryLink}>
-            マイページ
-          </a>
-          <span className={styles.linkSep}> · </span>
-          <a href={supportUrl} className={styles.supportLink}>
-            サポート
-          </a>
-        </p>
-      </div>
-    </main>
-  );
-}
-
 export default async function DtrProcessingPage(props: {
   searchParams?: Promise<{ session_id?: string; recovery?: string }>;
 }) {
@@ -154,24 +120,22 @@ export default async function DtrProcessingPage(props: {
     const hiddenOnlyRepurchase = await isDtrOwnedHiddenOnlyState(userId);
 
     return (
-      <main className={styles.page} data-testid="m55-dtr-processing-main">
-        <div className={styles.inner}>
-          <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
-          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-            {hiddenOnlyRepurchase ? '新しいプレミアムレポートの購入' : `${LABEL_FORMAT_SAVED}を確認しています`}
-          </h1>
-          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-            {hiddenOnlyRepurchase
-              ? '以前のプレミアムレポートは非表示の状態です。新しいレポートを購入する場合は、追加のお支払いが発生します。'
-              : '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます。'}
-          </p>
-          <DtrProcessingClient
-            supportUrl={supportUrl}
-            recoveryMode="owned"
-            hiddenOnlyRepurchase={hiddenOnlyRepurchase}
-          />
-        </div>
-      </main>
+      <DtrProcessingShell
+        title={
+          hiddenOnlyRepurchase ? '新しいプレミアムレポートの購入' : `${LABEL_FORMAT_SAVED}を確認しています`
+        }
+        description={
+          hiddenOnlyRepurchase
+            ? '以前のプレミアムレポートは非表示の状態です。新しいレポートを購入する場合は、追加のお支払いが発生します。'
+            : '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます。'
+        }
+      >
+        <DtrProcessingClient
+          supportUrl={supportUrl}
+          recoveryMode="owned"
+          hiddenOnlyRepurchase={hiddenOnlyRepurchase}
+        />
+      </DtrProcessingShell>
     );
   }
 
@@ -198,7 +162,7 @@ export default async function DtrProcessingPage(props: {
         ? 'お支払いの確認を待っています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。'
         : 'お支払いの確認に時間がかかっています。再購入する前に、このページを再読み込みするか、下記のお控え番号を添えてサポートへお問い合わせください。';
     return (
-      <ProcessingFallback
+      <DtrProcessingFallback
         message={unpaidPendingMessage}
         supportUrl={supportUrl}
         recoveryRef={maskCheckoutRecoveryRef(sessionIdFromUrl)}
@@ -212,7 +176,7 @@ export default async function DtrProcessingPage(props: {
     getSupabaseAdmin();
   } catch {
     return (
-      <ProcessingFallback
+      <DtrProcessingFallback
         message="現在、接続設定を確認できません。しばらく時間をおいてから、マイページまたはサポートへお問い合わせください。"
         supportUrl={supportUrl}
         recoveryRef={recoveryRef}
@@ -231,18 +195,9 @@ export default async function DtrProcessingPage(props: {
         ? '購入の反映を一時的に完了できませんでした。しばらくしてからこのページを再読み込みするか、サポートへお問い合わせください。'
         : paidProcessingRecoveryMessage();
     return (
-      <main className={styles.page} data-testid="m55-dtr-processing-main">
-        <div className={styles.inner}>
-          <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
-          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-            レポートを準備しています
-          </h1>
-          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-            {message}
-          </p>
-          <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
-        </div>
-      </main>
+      <DtrProcessingShell title="レポートを準備しています" description={message}>
+        <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
+      </DtrProcessingShell>
     );
   }
 
@@ -255,33 +210,21 @@ export default async function DtrProcessingPage(props: {
 
   if (ownership.unlockState === 'expired' || ownership.unlockState === 'locked') {
     return (
-      <main className={styles.page} data-testid="m55-dtr-processing-main">
-        <div className={styles.inner}>
-          <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
-          <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-            レポートを準備しています
-          </h1>
-          <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-            {paidProcessingRecoveryMessage()}
-          </p>
-          <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
-        </div>
-      </main>
+      <DtrProcessingShell
+        title="レポートを準備しています"
+        description={paidProcessingRecoveryMessage()}
+      >
+        <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
+      </DtrProcessingShell>
     );
   }
 
   return (
-    <main className={styles.page} data-testid="m55-dtr-processing-main">
-      <div className={styles.inner}>
-        <p className={styles.eyebrow}>{LABEL_SAVED_REPORT_METADATA_JP}</p>
-        <h1 className={styles.title} data-testid="m55-dtr-processing-title">
-          レポートを準備しています
-        </h1>
-        <p className={styles.desc} style={{ margin: '0 0 16px' }}>
-          お支払いを確認しました。プレミアムレポートを準備しています（反映まで時間がかかる場合があります）。
-        </p>
-        <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
-      </div>
-    </main>
+    <DtrProcessingShell
+      title="レポートを準備しています"
+      description="お支払いを確認しました。プレミアムレポートを準備しています（反映まで時間がかかる場合があります）。"
+    >
+      <DtrProcessingClient supportUrl={supportUrl} recoveryRef={recoveryRef} paymentConfirmed />
+    </DtrProcessingShell>
   );
 }

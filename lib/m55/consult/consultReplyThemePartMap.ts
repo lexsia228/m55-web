@@ -1,4 +1,5 @@
 import { PAID_DTR_CONSULT_REPLY } from '../paidDtrProductCopy';
+import { resolveReplyThemeIdFromLegacyLabel } from './consultQuestionCatalog.v1';
 
 export type ConsultReplyVisualKind = 'communication' | 'strain' | 'stability' | 'balance';
 
@@ -37,6 +38,16 @@ const PRIMARY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
   '疲れたときの戻り方': { roman: 'Ⅳ', name: '楽に扱う', anchor: 'section-practice' },
 };
 
+/**
+ * reply-v1 chip labels (REPLY_THEME_LABEL_JA) that have no equivalent in the older
+ * themeExamplesJa set. Without these the wizard cites the default chapter.
+ */
+const REPLY_V1_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
+  人との距離感: { roman: 'Ⅲ', name: '無理を知る', anchor: 'section-strain' },
+  自分の傾向の読み方: { roman: 'Ⅰ', name: '輪郭を見る', anchor: 'section-overview' },
+  プレミアムレポートの使い方: { roman: 'Ⅰ', name: '輪郭を見る', anchor: 'section-overview' },
+};
+
 /** Renamed theme labels — resolve legacy stored user messages. */
 const RENAMED_THEME_PART_ALIASES: Record<string, string> = {
   '仕事・スキルの伸ばし方': '仕事・これからの進め方',
@@ -54,6 +65,7 @@ const LEGACY_THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
 
 const THEME_PART_MAP: Record<string, ConsultReplyPartInfo> = {
   ...PRIMARY_THEME_PART_MAP,
+  ...REPLY_V1_THEME_PART_MAP,
   ...LEGACY_THEME_PART_MAP,
   ...Object.fromEntries(
     Object.entries(RENAMED_THEME_PART_ALIASES).map(([legacy, canonical]) => [
@@ -121,6 +133,19 @@ const PRIMARY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
   },
 };
 
+const REPLY_V1_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
+  人との距離感: {
+    part: REPLY_V1_THEME_PART_MAP['人との距離感']!,
+    visualKind: 'communication',
+    lensRows: [
+      { label: '受け取り' },
+      { label: '伝え方' },
+      { label: '距離' },
+      { label: '会話のリズム' },
+    ],
+  },
+};
+
 const LEGACY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
   近い人との距離: {
     part: LEGACY_THEME_PART_MAP['近い人との距離']!,
@@ -173,6 +198,7 @@ const LEGACY_THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
 
 const THEME_LENS_MAP: Record<string, ThemeLensConfig> = {
   ...PRIMARY_THEME_LENS_MAP,
+  ...REPLY_V1_THEME_LENS_MAP,
   ...LEGACY_THEME_LENS_MAP,
   ...Object.fromEntries(
     Object.entries(RENAMED_THEME_PART_ALIASES).map(([legacy, canonical]) => [
@@ -225,7 +251,12 @@ export function resolveConsultReplyLensByTheme(theme: string | null): ConsultRep
   };
 }
 
-export function isKnownConsultTheme(theme: string): theme is (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number] {
+/**
+ * A theme is valid when it resolves to a reply-v1 theme id. The older themeExamplesJa
+ * set stays accepted so stored messages written before reply-v1 still validate.
+ */
+export function isKnownConsultTheme(theme: string): boolean {
+  if (resolveReplyThemeIdFromLegacyLabel(theme) != null) return true;
   return PAID_DTR_CONSULT_REPLY.themeExamplesJa.includes(
     theme as (typeof PAID_DTR_CONSULT_REPLY.themeExamplesJa)[number]
   );

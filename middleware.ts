@@ -37,6 +37,7 @@ const isPublicRoute = createRouteMatcher([
 const isE2ECleanCaptureDevFixture = createRouteMatcher([
   '/dev/dtr-drawer-preview',
   '/dev/premium-share-preview',
+  '/dev/dtr-processing-preview',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -54,7 +55,7 @@ export default clerkMiddleware(async (auth, req) => {
     isReplyRuntimeVerificationPath &&
     !!req.headers.get('x-m55-test-user-id')?.trim();
 
-  // Local E2E clean-capture only: allow the two governed /dev fixture routes when
+  // Local E2E clean-capture only: allow the governed /dev fixture routes when
   // M55_E2E_CLEAN_CAPTURE=1 AND the request Host is an exact loopback hostname.
   // Unavailable under Vercel Preview/Production, non-loopback Host headers, or when
   // the flag is absent (fail-closed). Does not fabricate entitlements.

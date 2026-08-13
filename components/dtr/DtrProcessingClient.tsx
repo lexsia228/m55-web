@@ -151,25 +151,18 @@ export function DtrProcessingClient({
         onComplete={handleAnimationComplete}
       />
 
+      {/*
+        The page already states which state the buyer is in. This line only adds what the page
+        cannot: that waiting is safe. Restating the status here printed the same sentence twice.
+      */}
       {!showAnimation && (
-        <>
-          <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: '0 0 8px' }}>
-            {isOwnedRecovery
-              ? hiddenOnlyRepurchase
-                ? '新しいプレミアムレポートの購入手続きへ進めます'
-                : 'プレミアムレポートを確認中です'
-              : paymentConfirmed
-                ? 'お支払いを確認しました。プレミアムレポートを準備しています'
-                : 'プレミアムレポートを準備しています'}
-          </p>
-          <p className={styles.desc} style={{ margin: 0 }}>
-            {isOwnedRecovery
-              ? hiddenOnlyRepurchase
-                ? '以前のレポートは非表示です。新しいレポートを購入する場合は、追加のお支払いが必要です。'
-                : '購入済みのプレミアムレポートを読み込んでいます。準備が整うと自動で開きます。'
-              : '購入済みレポートのプレミアムレポートを準備しています。反映に時間がかかっても、再購入は不要です。'}
-          </p>
-        </>
+        <p className={styles.desc} data-testid="m55-dtr-processing-headline" style={{ margin: 0 }}>
+          {isOwnedRecovery
+            ? hiddenOnlyRepurchase
+              ? '購入手続きのページへ移動します。'
+              : '読み込みに時間がかかっても、再購入は不要です。'
+            : '反映に時間がかかっても、再購入は不要です。準備が整うと自動で開きます。'}
+        </p>
       )}
 
       {stuck && (
