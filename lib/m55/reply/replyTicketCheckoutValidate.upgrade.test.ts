@@ -47,20 +47,20 @@ describe('evaluateReplyTicketCheckoutWalletCap', () => {
     );
   });
 
-  it('rejects legacy additional_reply_ticket at cap', () => {
+  it('rejects legacy additional_reply_ticket with sales_stopped', () => {
     assert.equal(
       evaluateReplyTicketCheckoutWalletCap(
         wallet(1, 4),
         'additional_reply_ticket'
       ),
-      'cap_reached'
+      'sales_stopped'
     );
   });
 
-  it('allows legacy +1 when below cap', () => {
+  it('rejects legacy additional_reply_ticket below cap with sales_stopped', () => {
     assert.equal(
       evaluateReplyTicketCheckoutWalletCap(wallet(1, 2), 'additional_reply_ticket'),
-      null
+      'sales_stopped'
     );
   });
 

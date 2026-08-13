@@ -6,9 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { getStripe } from '../../../../lib/stripe';
 import {
-  ADDITIONAL_REPLY_TICKET_PRODUCT_KEY,
   DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
-  isLegacyAdditionalReplyTicketProductKey,
   REPLY_TICKET_CHECKOUT_METADATA_KEYS,
   REPLY_TICKET_PURCHASE_QUANTITY,
 } from '../../../../lib/m55/reply/replyTicketCheckoutConstants';
@@ -23,7 +21,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const STRIPE_PRICE_ENV_BY_PRODUCT_KEY: Record<string, string> = {
-  [ADDITIONAL_REPLY_TICKET_PRODUCT_KEY]: 'STRIPE_PRICE_ADDITIONAL_REPLY_TICKET',
   [DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY]:
     'STRIPE_PRICE_DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1',
 };
@@ -45,6 +42,7 @@ function statusForError(code: ReplyTicketCheckoutErrorCode): number {
     case 'invalid_product':
     case 'wallet_not_active':
     case 'cap_reached':
+    case 'sales_stopped':
       return 422;
     case 'stripe_error':
       return 502;
@@ -169,7 +167,6 @@ export async function POST(req: NextRequest) {
         session_id_present: Boolean(session_id),
         report_instance_id_present: Boolean(parsed.reportInstanceId),
         product_key: parsed.productKey,
-        legacy_lane: isLegacyAdditionalReplyTicketProductKey(parsed.productKey),
         upgrade_lane: parsed.productKey === DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1_PRODUCT_KEY,
         checkout_url_created: Boolean(checkout_url),
       })

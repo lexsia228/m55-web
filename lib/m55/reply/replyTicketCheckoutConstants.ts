@@ -67,12 +67,9 @@ export function isLightToFullUpgradeProductKey(productKey: string): boolean {
   );
 }
 
-/** POST /api/reply-tickets/checkout — legacy ¥500 lane or light→FULL upgrade. */
+/** POST /api/reply-tickets/checkout — light→FULL upgrade only (legacy ¥500 new sales stopped). */
 export function isAllowedReplyTicketCheckoutProductKey(productKey: string): boolean {
-  return (
-    isLegacyAdditionalReplyTicketProductKey(productKey) ||
-    isLightToFullUpgradeProductKey(productKey)
-  );
+  return isLightToFullUpgradeProductKey(productKey);
 }
 
 /** 1 report_instance: included 1 + purchased max 4 = 5 total capability. */
@@ -164,6 +161,7 @@ export const REPLY_TICKET_CHECKOUT_ERROR_CODES = [
   'wallet_not_active',
   'cap_reached',
   'invalid_product',
+  'sales_stopped',
   'stripe_error',
 ] as const;
 
