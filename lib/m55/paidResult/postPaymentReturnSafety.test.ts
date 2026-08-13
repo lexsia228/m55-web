@@ -88,7 +88,7 @@ describe('processing route source contract', () => {
 
   it('consults ownership before rendering any failure state', () => {
     const unverifiedBranch = src.split('if (!sessionVerified.valid) {')[1] ?? '';
-    const fallbackAt = unverifiedBranch.indexOf('<ProcessingFallback');
+    const fallbackAt = unverifiedBranch.indexOf('<DtrProcessingFallback');
     const ownershipAt = unverifiedBranch.indexOf('resolveOwnedPostPaymentReturn');
     assert.ok(ownershipAt >= 0, 'unverified branch must consult ownership');
     assert.ok(fallbackAt >= 0, 'unverified branch must still keep a fail-closed fallback');
@@ -97,7 +97,7 @@ describe('processing route source contract', () => {
 
   it('sends an owned buyer to the report or to owned recovery, never to the sales LP', () => {
     const unverifiedBranch = (src.split('if (!sessionVerified.valid) {')[1] ?? '').split(
-      '<ProcessingFallback',
+      '<DtrProcessingFallback',
     )[0]!;
     assert.match(unverifiedBranch, /'open_report'[\s\S]*redirect\('\/dtr\/core\?post_purchase=1'\)/);
     assert.match(unverifiedBranch, /'owned_recovery'[\s\S]*DTR_OWNED_RECOVERY_PROCESSING_PATH/);
@@ -124,6 +124,27 @@ describe('processing route presentation', () => {
     const css = read('app/dtr/processing/processing.module.css');
     assert.match(css, /\.desc\s*\{[^}]*overflow-wrap:\s*anywhere/);
     assert.match(css, /\.recoveryRef\s*\{/);
+  });
+
+  it('offers no purchase action from the fail-closed state', () => {
+    const shell = read('app/dtr/processing/DtrProcessingShell.tsx');
+    const markup = (shell.split('export function DtrProcessingFallback')[1] ?? '').split(
+      'return (',
+    )[1];
+    assert.ok(markup, 'fail-closed state must render something');
+    assert.doesNotMatch(markup, /購入/, 'a buyer unsure whether they paid must not see a buy action');
+    assert.doesNotMatch(markup, /\/dtr\/lp/);
+    assert.match(markup, /href="\/my"/);
+  });
+
+  it('renders every state through one shell so the dev preview matches production', () => {
+    const preview = read('app/dev/dtr-processing-preview/page.tsx');
+    for (const state of ['fail-closed', 'owned-recovery', 'paid-preparing']) {
+      assert.ok(preview.includes(state), `preview must cover ${state}`);
+    }
+    assert.match(preview, /from '\.\.\/\.\.\/dtr\/processing\/DtrProcessingShell'/);
+    assert.match(preview, /maskCheckoutRecoveryRef\(SAMPLE_SESSION_ID\)/);
+    assert.match(preview, /isPreviewBlockedInProduction/);
   });
 
   it('renders no purchase call to action while a payment is being reconciled', () => {

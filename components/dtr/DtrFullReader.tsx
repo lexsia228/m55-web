@@ -19,6 +19,7 @@ import {
   LABEL_STATE_OWNED,
 } from '../../lib/m55/dtrProductLabels';
 import { normalizePaidReportPublicDisplayText } from '../../lib/m55/paidReportPublicDisplayTerminology';
+import { parseReportBodyBlocks } from '../../lib/m55/paidResult/reportBodyBlocks';
 import { STEM_LANE_TEN_VIEWS_IMAGE } from '../../lib/m55/publicStemDisplay';
 import { TEN_STEM_DISPLAY, type TenStemDisplay } from '../../lib/m55/tenStemCatalog';
 import {
@@ -969,6 +970,34 @@ function PremiumModuleLead({
    ───────────────────────────────────────────────────────────────────────────── */
 
 /** Paragraphs that start with 【〜】 are rendered as a labelled block: heading + body. */
+/** The lede is the body's first paragraph, so it carries the same single-newline sub-units. */
+function SectionLede({ text }: { text: string }) {
+  const units = parseReportBodyBlocks(text).flatMap((block) => block.units);
+  if (units.length < 2) return <p className={styles.sectionLede}>{text}</p>;
+  return (
+    <div className={styles.sectionLedeUnits}>
+      {units.map((unit, i) => (
+        <p key={i} className={styles.sectionLede}>
+          {unit}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function BodyParaUnits({ units, paraClass }: { units: string[]; paraClass: string }) {
+  if (units.length === 1) return <p className={paraClass}>{units[0]}</p>;
+  return (
+    <div className={styles.bodyParaUnits}>
+      {units.map((unit, i) => (
+        <p key={i} className={paraClass}>
+          {unit}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function BodyPara({
   para,
   compact,
@@ -976,21 +1005,24 @@ function BodyPara({
   para: string;
   compact: boolean;
 }) {
-  const match = /^【(.+?)】\n?/.exec(para);
-  if (match) {
-    const heading = match[1]!;
-    const body = para.slice(match[0].length).trim();
-    return (
-      <div className={styles.sectionBlockGroup}>
-        <p className={styles.sectionBlockLabel}>{heading}</p>
-        {body && (
-          <p className={compact ? styles.savedGridPara : styles.savedWidePara}>{body}</p>
-        )}
-      </div>
-    );
-  }
+  const paraClass = compact ? styles.savedGridPara : styles.savedWidePara;
+  const blocks = parseReportBodyBlocks(para);
+  if (blocks.length === 0) return <p className={paraClass}>{para}</p>;
   return (
-    <p className={compact ? styles.savedGridPara : styles.savedWidePara}>{para}</p>
+    <>
+      {blocks.map((block, i) =>
+        block.label != null ? (
+          <div key={i} className={styles.sectionBlockGroup}>
+            <p className={styles.sectionBlockLabel}>{block.label}</p>
+            {block.units.length > 0 ? (
+              <BodyParaUnits units={block.units} paraClass={paraClass} />
+            ) : null}
+          </div>
+        ) : (
+          <BodyParaUnits key={i} units={block.units} paraClass={paraClass} />
+        ),
+      )}
+    </>
   );
 }
 
@@ -1267,7 +1299,7 @@ function IdentityArticleWithBlueprint({
       {showSectionTitle ? (
         <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
       ) : null}
-      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {inlineLede ? <SectionLede text={inlineLede} /> : null}
       {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
           {displayBodyParas.map((para, i) => (
@@ -1522,7 +1554,7 @@ function CompositionArticleWithViz({
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
-      {lede ? <p className={styles.sectionLede}>{lede}</p> : null}
+      {lede ? <SectionLede text={lede} /> : null}
       {rest.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
           {rest.map((para, i) => (
@@ -1650,7 +1682,7 @@ function EssenceArticleWithViz({
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
-      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {inlineLede ? <SectionLede text={inlineLede} /> : null}
       {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
           {displayBodyParas.map((para, i) => (
@@ -1981,7 +2013,7 @@ function GridArticleFrictionViz({
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
-      {inlineLede ? <p className={styles.sectionLede}>{inlineLede}</p> : null}
+      {inlineLede ? <SectionLede text={inlineLede} /> : null}
       {displayBodyParas.length > 0 ? (
         <div className={`${styles.savedGridBody} ${styles.dtrNarrativeBody}`}>
           {displayBodyParas.map((para, i) => (

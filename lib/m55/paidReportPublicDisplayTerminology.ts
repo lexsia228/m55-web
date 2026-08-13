@@ -5,11 +5,10 @@
  * Apply only at generated snapshot body boundaries (e.g. DtrFullReader.snapshotBodyParas).
  */
 
+type DisplayReplacement = { readonly from: string; readonly to: string };
+
 /** Longest-match-first replacements for known legacy generated phrases only. */
-const PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS: readonly {
-  readonly from: string;
-  readonly to: string;
-}[] = [
+const PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS: readonly DisplayReplacement[] = [
   { from: '保存版ライト', to: 'M55 プレミアムレポート ライト' },
   { from: '保存版FULL', to: 'M55 プレミアムレポート フル' },
   { from: '保存版フル', to: 'M55 プレミアムレポート フル' },
@@ -24,13 +23,36 @@ const PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS: readonly {
   { from: '保存版の入口', to: 'プレミアムレポートの入口' },
 ] as const;
 
-export function normalizePaidReportPublicDisplayText(text: string): string {
-  if (!text.includes('保存版')) return text;
+/**
+ * Catalog phrases that read as an internal analytical label rather than as Japanese a buyer
+ * would use about themselves. Fixed at display time for the same reason as the legacy terms
+ * above: the stored body and its fingerprint keep the original wording, so already-purchased
+ * reports pick the phrasing up on re-read without any snapshot rewrite.
+ *
+ * 「何の関わりとして呼ばれているか」 is not idiomatic — 関わり does not take として this way.
+ * The surrounding sentences are about 曖昧な期待 and about being asked to relate in a
+ * particular way, so the natural form of the same question is what the reader is being asked.
+ */
+const PAID_REPORT_NATURAL_PHRASING_REPLACEMENTS: readonly DisplayReplacement[] = [
+  {
+    from: '「自分は何の関わりとして呼ばれているか」',
+    to: '「自分がどんな関わり方を求められているか」',
+  },
+] as const;
+
+function applyReplacements(text: string, rules: readonly DisplayReplacement[]): string {
   let out = text;
-  for (const { from, to } of PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS) {
+  for (const { from, to } of rules) {
     if (out.includes(from)) {
       out = out.split(from).join(to);
     }
   }
   return out;
+}
+
+export function normalizePaidReportPublicDisplayText(text: string): string {
+  const legacyNormalized = text.includes('保存版')
+    ? applyReplacements(text, PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS)
+    : text;
+  return applyReplacements(legacyNormalized, PAID_REPORT_NATURAL_PHRASING_REPLACEMENTS);
 }
