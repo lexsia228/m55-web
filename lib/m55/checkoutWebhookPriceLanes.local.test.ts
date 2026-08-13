@@ -134,7 +134,7 @@ describe('checkoutWebhookPriceLanes — reply + webhook routing', () => {
 
   it('purchase checkout maps light/full/static env and rejects upgrade on this route', () => {
     const src = readFileSync(PURCHASE_CHECKOUT, 'utf8');
-    assert.ok(src.includes('getOneTimeStripePriceEnvName'));
+    assert.ok(src.includes('resolveOneTimeStripePriceId'));
     assert.ok(src.includes('isDtrCoreSavedReportOneTimeProduct'));
     assert.ok(src.includes('isDtrCoreLightToFullUpgradeProduct'));
     assert.ok(src.includes('/api/reply-tickets/checkout'));

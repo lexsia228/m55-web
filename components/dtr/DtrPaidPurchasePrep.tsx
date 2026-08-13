@@ -126,18 +126,8 @@ export default function DtrPaidPurchasePrep() {
       </p>
     ) : null;
 
-  const legalLinksNav = (
-    <nav
-      className={styles.legalLinks}
-      aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa}
-      data-testid="m55-plan-legal-links"
-    >
-      {PAID_DTR_LP.purchaseNotes.legalLinks.map((link) => (
-        <Link key={link.href} href={link.href} className={styles.legalLink}>
-          {link.labelJa}
-        </Link>
-      ))}
-    </nav>
+  const purchaseDecisionLegalLinks = PAID_DTR_LP.purchaseNotes.legalLinks.filter(
+    (link) => link.href === '/legal/refund' || link.href === '/legal/tokushoho',
   );
 
   if (!hydrated) {
@@ -241,7 +231,7 @@ export default function DtrPaidPurchasePrep() {
           <M55MethodTrustLink surface="checkout" />
         </div>
         <nav className={styles.legalLinks} aria-label={PAID_DTR_LP.purchaseNotes.legalLinksNavAriaLabelJa} data-testid="m55-checkout-legal-links">
-          {PAID_DTR_LP.purchaseNotes.legalLinks.map((link) => (
+          {purchaseDecisionLegalLinks.map((link) => (
             <Link key={link.href} href={link.href} className={styles.legalLink}>
               {link.labelJa}
             </Link>
@@ -303,7 +293,6 @@ export default function DtrPaidPurchasePrep() {
       <div className={styles.planMethodSlot}>
         <DtrMethodDifference />
       </div>
-      {legalLinksNav}
       <div className={styles.planCompare} data-testid="m55-plan-compare">
         <p className={styles.planCompareHeading}>{plan.compactDifference.headingJa}</p>
         <div className={styles.planCompareGrid}>

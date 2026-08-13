@@ -10,6 +10,7 @@ import {
   isDtrCoreLightToFullUpgradeProduct,
   isDtrCoreSavedReportOneTimeProduct,
   ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES,
+  resolveOneTimeStripePriceId,
 } from './oneTimeCheckout';
 
 describe('oneTimeCheckout — allowed SKU foundation', () => {
@@ -47,5 +48,34 @@ describe('oneTimeCheckout — allowed SKU foundation', () => {
       ONE_TIME_STRIPE_PRICE_ENV_CANDIDATES[DTR_CORE_STATIC_V1],
       'STRIPE_PRICE_DTR_CORE_STATIC_V1'
     );
+  });
+
+  it('resolves Light to STATIC price env when LIGHT env is unset', () => {
+    const resolved = resolveOneTimeStripePriceId(DTR_CORE_LIGHT_V1, {
+      STRIPE_PRICE_DTR_CORE_STATIC_V1: 'price_static_light_equivalent',
+    });
+    assert.equal(resolved.envKey, 'STRIPE_PRICE_DTR_CORE_LIGHT_V1');
+    assert.equal(resolved.priceId, 'price_static_light_equivalent');
+    assert.equal(resolved.fallbackEnvKey, 'STRIPE_PRICE_DTR_CORE_STATIC_V1');
+  });
+
+  it('prefers dedicated Light env over STATIC fallback', () => {
+    const resolved = resolveOneTimeStripePriceId(DTR_CORE_LIGHT_V1, {
+      STRIPE_PRICE_DTR_CORE_LIGHT_V1: 'price_light_primary',
+      STRIPE_PRICE_DTR_CORE_STATIC_V1: 'price_static_light_equivalent',
+    });
+    assert.equal(resolved.priceId, 'price_light_primary');
+    assert.equal(resolved.fallbackEnvKey, undefined);
+  });
+
+  it('does not fall Full or upgrade back to STATIC', () => {
+    const full = resolveOneTimeStripePriceId(DTR_CORE_FULL_V1, {
+      STRIPE_PRICE_DTR_CORE_STATIC_V1: 'price_static_light_equivalent',
+    });
+    const upgrade = resolveOneTimeStripePriceId(DTR_CORE_LIGHT_TO_FULL_UPGRADE_V1, {
+      STRIPE_PRICE_DTR_CORE_STATIC_V1: 'price_static_light_equivalent',
+    });
+    assert.equal(full.priceId, undefined);
+    assert.equal(upgrade.priceId, undefined);
   });
 });
