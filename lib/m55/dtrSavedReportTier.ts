@@ -1,6 +1,7 @@
 /**
  * Saved-report tier summary — light / FULL / legacy static (server-only).
- * Upgrade SKU is not an ownership body; used only for canUpgradeFromLight gating.
+ * Upgrade SKU is not an ownership body. Light→Full commercial completion is reflected
+ * via wallet FULL-equivalent capability (1+4 cap 5), not dtr_core_full_v1 entitlement.
  */
 import {
   DTR_CORE_FULL_V1,
@@ -10,6 +11,7 @@ import {
 import { getSupabaseAdmin } from '../supabaseAdmin';
 import { getVisibleDtrReportSnapshot } from './dtrDraftDb';
 import { hasSavedReportPaymentBacking } from './dtrSavedReportOwnership';
+import { isFullEquivalentReplyWallet } from './reply/replyTicketCheckoutConstants';
 
 export type SavedReportTierSummary = {
   hasLight: boolean;
@@ -25,14 +27,17 @@ export function deriveSavedReportTierSummary(params: {
   legacyStaticBacked: boolean;
   hasPaymentBacking: boolean;
   lightSnapshotReportInstanceId: string | null;
+  walletFullEquivalent?: boolean;
 }): SavedReportTierSummary {
-  const hasLight = params.lightBacked;
-  const hasFull = params.fullBacked;
+  const walletFullEquivalent = params.walletFullEquivalent ?? false;
+  const hasLight = params.lightBacked && !walletFullEquivalent;
+  const hasFull = params.fullBacked || walletFullEquivalent;
   const hasLegacyStatic =
     params.legacyStaticBacked && !hasLight && !hasFull;
   const canUpgradeFromLight =
-    hasLight &&
-    !hasFull &&
+    params.lightBacked &&
+    !params.fullBacked &&
+    !walletFullEquivalent &&
     params.hasPaymentBacking &&
     params.lightSnapshotReportInstanceId != null;
 
@@ -72,6 +77,25 @@ async function hasActiveProductBacking(
   return !otfErr && !!otfRow;
 }
 
+async function readWalletFullEquivalentForReport(
+  db: any,
+  userId: string,
+  reportInstanceId: string | null,
+): Promise<boolean> {
+  if (!reportInstanceId?.trim()) return false;
+  const { data, error } = await db
+    .from('reply_ticket_wallets')
+    .select('initial_included_count, purchased_count, status')
+    .eq('user_id', userId)
+    .eq('report_instance_id', reportInstanceId.trim())
+    .maybeSingle();
+  if (error || !data || data.status !== 'active') return false;
+  const initial = Number(data.initial_included_count);
+  const purchased = Number(data.purchased_count);
+  if (!Number.isFinite(initial) || !Number.isFinite(purchased)) return false;
+  return isFullEquivalentReplyWallet(initial, purchased);
+}
+
 export async function resolveSavedReportTierSummary(
   userId: string,
 ): Promise<SavedReportTierSummary> {
@@ -91,12 +115,20 @@ export async function resolveSavedReportTierSummary(
       getVisibleDtrReportSnapshot(userId, DTR_CORE_LIGHT_V1),
     ]);
 
+    const lightSnapshotReportInstanceId = lightSnap?.reportInstanceId ?? null;
+    const walletFullEquivalent = await readWalletFullEquivalentForReport(
+      db,
+      userId,
+      lightSnapshotReportInstanceId,
+    );
+
     return deriveSavedReportTierSummary({
       lightBacked,
       fullBacked,
       legacyStaticBacked,
       hasPaymentBacking,
-      lightSnapshotReportInstanceId: lightSnap?.reportInstanceId ?? null,
+      lightSnapshotReportInstanceId,
+      walletFullEquivalent,
     });
   } catch {
     return {
