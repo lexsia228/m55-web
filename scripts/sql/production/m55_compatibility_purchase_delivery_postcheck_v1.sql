@@ -117,6 +117,11 @@ SELECT
       JOIN pg_namespace AS n ON p.pronamespace = n.oid AND n.nspname = 'public'
       WHERE p.proname = 'm55_account_deletion_process_base_v1'
     ) THEN 'STOP_ACCOUNT_DELETION_BASE_MISSING'
+    WHEN NOT EXISTS (
+      SELECT 1 FROM pg_proc AS p
+      JOIN pg_namespace AS n ON p.pronamespace = n.oid AND n.nspname = 'public'
+      WHERE p.proname = 'm55_compatibility_account_delete_v1'
+    ) THEN 'STOP_COMPATIBILITY_ACCOUNT_DELETE_RPC_MISSING'
     WHEN (
       SELECT position('m55_compatibility_account_delete_v1' IN pg_get_functiondef(p.oid)) = 0
       FROM pg_proc AS p
@@ -124,6 +129,88 @@ SELECT
       WHERE p.proname = 'm55_account_deletion_process_v1'
       LIMIT 1
     ) THEN 'STOP_ACCOUNT_DELETION_WRAPPER_MISSING_COMPATIBILITY_DELETE'
+    WHEN NOT (
+      EXISTS (
+        SELECT 1
+        FROM pg_trigger AS tg
+        JOIN pg_class AS c ON c.oid = tg.tgrelid
+        JOIN pg_namespace AS n ON n.oid = c.relnamespace AND n.nspname = 'public'
+        WHERE NOT tg.tgisinternal
+          AND tg.tgname = 'compatibility_purchase_context_snapshot_immutable'
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM pg_trigger AS tg
+        JOIN pg_class AS c ON c.oid = tg.tgrelid
+        JOIN pg_namespace AS n ON n.oid = c.relnamespace AND n.nspname = 'public'
+        WHERE NOT tg.tgisinternal
+          AND tg.tgname = 'compatibility_owned_report_immutable'
+      )
+    ) THEN 'STOP_REQUIRED_TRIGGERS_MISSING'
+    WHEN EXISTS (
+      SELECT 1
+      FROM (
+        VALUES
+          ('compatibility_purchase_contexts', 'id', 'uuid', 'NO'),
+          ('compatibility_purchase_contexts', 'owner_user_id', 'text', 'NO'),
+          ('compatibility_purchase_contexts', 'product_key', 'text', 'NO'),
+          ('compatibility_purchase_contexts', 'snapshot_version', 'text', 'NO'),
+          ('compatibility_purchase_contexts', 'pending_snapshot', 'jsonb', 'NO'),
+          ('compatibility_purchase_contexts', 'status', 'text', 'NO'),
+          ('compatibility_purchase_contexts', 'stripe_checkout_session_id', 'text', 'YES'),
+          ('compatibility_purchase_contexts', 'stripe_payment_intent_id', 'text', 'YES'),
+          ('compatibility_purchase_contexts', 'stripe_session_expires_at', 'timestamp with time zone', 'YES'),
+          ('compatibility_purchase_contexts', 'created_at', 'timestamp with time zone', 'NO'),
+          ('compatibility_purchase_contexts', 'updated_at', 'timestamp with time zone', 'NO'),
+          ('compatibility_purchase_contexts', 'fulfilled_at', 'timestamp with time zone', 'YES'),
+          ('compatibility_owned_reports', 'id', 'uuid', 'NO'),
+          ('compatibility_owned_reports', 'owner_user_id', 'text', 'NO'),
+          ('compatibility_owned_reports', 'purchase_context_id', 'uuid', 'NO'),
+          ('compatibility_owned_reports', 'product_key', 'text', 'NO'),
+          ('compatibility_owned_reports', 'snapshot_version', 'text', 'NO'),
+          ('compatibility_owned_reports', 'snapshot', 'jsonb', 'NO'),
+          ('compatibility_owned_reports', 'created_at', 'timestamp with time zone', 'NO')
+      ) AS rc(table_name, column_name, expected_data_type, expected_is_nullable)
+      LEFT JOIN information_schema.columns AS c
+        ON c.table_schema = 'public'
+       AND c.table_name = rc.table_name
+       AND c.column_name = rc.column_name
+      WHERE to_regclass('public.' || rc.table_name) IS NOT NULL
+        AND (
+          c.column_name IS NULL
+          OR c.data_type <> rc.expected_data_type
+          OR c.is_nullable <> rc.expected_is_nullable
+        )
+    ) THEN 'STOP_COLUMN_CONTRACT_MISMATCH'
+    WHEN NOT (
+      EXISTS (
+        SELECT 1
+        FROM pg_constraint AS con
+        JOIN pg_class AS rel ON rel.oid = con.conrelid
+        JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+        WHERE rel.relname = 'compatibility_purchase_contexts'
+          AND con.contype = 'u'
+          AND pg_get_constraintdef(con.oid) ILIKE '%stripe_checkout_session_id%'
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM pg_constraint AS con
+        JOIN pg_class AS rel ON rel.oid = con.conrelid
+        JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+        WHERE rel.relname = 'compatibility_owned_reports'
+          AND con.contype = 'u'
+          AND pg_get_constraintdef(con.oid) ILIKE '%purchase_context_id%'
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM pg_constraint AS con
+        JOIN pg_class AS rel ON rel.oid = con.conrelid
+        JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+        WHERE rel.relname = 'compatibility_owned_reports'
+          AND con.contype = 'f'
+          AND con.conname = 'compatibility_owned_reports_context_owner_fk'
+      )
+    ) THEN 'STOP_REQUIRED_CONSTRAINTS_MISSING'
     WHEN NOT (
       to_regclass('public.compatibility_purchase_contexts_owner_created_idx') IS NOT NULL
       AND to_regclass('public.compatibility_purchase_contexts_pending_idx') IS NOT NULL

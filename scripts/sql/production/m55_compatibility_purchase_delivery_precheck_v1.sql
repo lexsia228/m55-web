@@ -340,6 +340,100 @@ WITH flags AS (
       AND to_regclass('public.compatibility_purchase_contexts_pending_idx') IS NOT NULL
       AND to_regclass('public.compatibility_owned_reports_owner_created_idx') IS NOT NULL
     ) AS required_indexes_present,
+    (
+      SELECT COUNT(*) = 2
+      FROM pg_trigger AS tg
+      JOIN pg_class AS c ON c.oid = tg.tgrelid
+      JOIN pg_namespace AS n ON n.oid = c.relnamespace AND n.nspname = 'public'
+      WHERE NOT tg.tgisinternal
+        AND tg.tgname IN (
+          'compatibility_purchase_context_snapshot_immutable',
+          'compatibility_owned_report_immutable'
+        )
+    ) AS required_triggers_present,
+    EXISTS (
+      SELECT 1 FROM pg_proc AS p
+      JOIN pg_namespace AS n ON p.pronamespace = n.oid AND n.nspname = 'public'
+      WHERE p.proname = 'm55_compatibility_account_delete_v1'
+    ) AS compatibility_account_delete_rpc_exists,
+    (
+      SELECT CASE
+        WHEN to_regclass('public.compatibility_purchase_contexts') IS NULL
+          AND to_regclass('public.compatibility_owned_reports') IS NULL
+        THEN true
+        ELSE NOT EXISTS (
+          SELECT 1
+          FROM (
+            VALUES
+              ('compatibility_purchase_contexts', 'id', 'uuid', 'NO'),
+              ('compatibility_purchase_contexts', 'owner_user_id', 'text', 'NO'),
+              ('compatibility_purchase_contexts', 'product_key', 'text', 'NO'),
+              ('compatibility_purchase_contexts', 'snapshot_version', 'text', 'NO'),
+              ('compatibility_purchase_contexts', 'pending_snapshot', 'jsonb', 'NO'),
+              ('compatibility_purchase_contexts', 'status', 'text', 'NO'),
+              ('compatibility_purchase_contexts', 'stripe_checkout_session_id', 'text', 'YES'),
+              ('compatibility_purchase_contexts', 'stripe_payment_intent_id', 'text', 'YES'),
+              ('compatibility_purchase_contexts', 'stripe_session_expires_at', 'timestamp with time zone', 'YES'),
+              ('compatibility_purchase_contexts', 'created_at', 'timestamp with time zone', 'NO'),
+              ('compatibility_purchase_contexts', 'updated_at', 'timestamp with time zone', 'NO'),
+              ('compatibility_purchase_contexts', 'fulfilled_at', 'timestamp with time zone', 'YES'),
+              ('compatibility_owned_reports', 'id', 'uuid', 'NO'),
+              ('compatibility_owned_reports', 'owner_user_id', 'text', 'NO'),
+              ('compatibility_owned_reports', 'purchase_context_id', 'uuid', 'NO'),
+              ('compatibility_owned_reports', 'product_key', 'text', 'NO'),
+              ('compatibility_owned_reports', 'snapshot_version', 'text', 'NO'),
+              ('compatibility_owned_reports', 'snapshot', 'jsonb', 'NO'),
+              ('compatibility_owned_reports', 'created_at', 'timestamp with time zone', 'NO')
+          ) AS rc(table_name, column_name, expected_data_type, expected_is_nullable)
+          LEFT JOIN information_schema.columns AS c
+            ON c.table_schema = 'public'
+           AND c.table_name = rc.table_name
+           AND c.column_name = rc.column_name
+          WHERE to_regclass('public.' || rc.table_name) IS NOT NULL
+            AND (
+              c.column_name IS NULL
+              OR c.data_type <> rc.expected_data_type
+              OR c.is_nullable <> rc.expected_is_nullable
+            )
+        )
+      END
+    ) AS column_contract_ok,
+    (
+      SELECT CASE
+        WHEN to_regclass('public.compatibility_purchase_contexts') IS NULL
+          AND to_regclass('public.compatibility_owned_reports') IS NULL
+        THEN true
+        ELSE (
+          EXISTS (
+            SELECT 1
+            FROM pg_constraint AS con
+            JOIN pg_class AS rel ON rel.oid = con.conrelid
+            JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+            WHERE rel.relname = 'compatibility_purchase_contexts'
+              AND con.contype = 'u'
+              AND pg_get_constraintdef(con.oid) ILIKE '%stripe_checkout_session_id%'
+          )
+          AND EXISTS (
+            SELECT 1
+            FROM pg_constraint AS con
+            JOIN pg_class AS rel ON rel.oid = con.conrelid
+            JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+            WHERE rel.relname = 'compatibility_owned_reports'
+              AND con.contype = 'u'
+              AND pg_get_constraintdef(con.oid) ILIKE '%purchase_context_id%'
+          )
+          AND EXISTS (
+            SELECT 1
+            FROM pg_constraint AS con
+            JOIN pg_class AS rel ON rel.oid = con.conrelid
+            JOIN pg_namespace AS n ON n.oid = rel.relnamespace AND n.nspname = 'public'
+            WHERE rel.relname = 'compatibility_owned_reports'
+              AND con.contype = 'f'
+              AND con.conname = 'compatibility_owned_reports_context_owner_fk'
+          )
+        )
+      END
+    ) AS required_constraints_present,
     EXISTS (
       SELECT 1 FROM pg_proc AS p
       JOIN pg_namespace AS n ON p.pronamespace = n.oid AND n.nspname = 'public'
@@ -380,6 +474,10 @@ SELECT
   both_tables_rls_enabled,
   both_tables_present,
   required_indexes_present,
+  required_triggers_present,
+  compatibility_account_delete_rpc_exists,
+  column_contract_ok,
+  required_constraints_present,
   pre_migration_deletion_state,
   any_compatibility_artifact_present,
   CASE
@@ -391,8 +489,12 @@ SELECT
       AND fulfill_service_role_execute
       AND deletion_base_exists
       AND deletion_wrapper_ok
+      AND compatibility_account_delete_rpc_exists
       AND both_tables_rls_enabled
       AND required_indexes_present
+      AND required_triggers_present
+      AND column_contract_ok
+      AND required_constraints_present
       THEN 'ALREADY_APPLIED'
     WHEN any_compatibility_artifact_present
       AND NOT (
@@ -403,8 +505,12 @@ SELECT
         AND fulfill_service_role_execute
         AND deletion_base_exists
         AND deletion_wrapper_ok
+        AND compatibility_account_delete_rpc_exists
         AND both_tables_rls_enabled
         AND required_indexes_present
+        AND required_triggers_present
+        AND column_contract_ok
+        AND required_constraints_present
       )
       THEN 'PARTIAL_OR_DRIFTED'
     WHEN NOT any_compatibility_artifact_present
