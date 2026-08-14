@@ -16,6 +16,7 @@ import {
   resolveCivilBirthDimensions,
   type CivilBirthDimensionsV1,
 } from '../individualization/birthSignatureV1';
+import { resolvePairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 import { derivePairDifferenceType } from './pairReadingFingerprint';
 
 export const PAIR_FREE_INSIGHT_SPEC_VERSION = 'pair_free_insight_v2' as const;
@@ -280,17 +281,24 @@ function birthLead(
   _roles: { visible: string; inward: string },
   _pairAxisId: PairAxisId,
   differenceType: PairDifferenceType,
+  stemDelta: 'same' | 'near' | 'far',
 ): string {
   const shared = visible.start === inward.start;
   const closeDates =
     differenceType === 'same_dob_pair' || differenceType === 'near_dob_shift';
+  const stemBit =
+    stemDelta === 'same'
+      ? '進み方の土台は近くても'
+      : stemDelta === 'near'
+        ? '進み方の土台は少しずれていて'
+        : '進み方の土台が離れていて';
   if (shared && closeDates) {
-    return '生まれの基調が近いぶん、いまの進め方の差が目立ちやすい';
+    return `${stemBit}、いまの進め方の差が目立ちやすい`;
   }
   if (shared) {
-    return '生まれの基調は近くても、返す速さの差が二人の間で分かれやすい';
+    return `${stemBit}、返す速さの差が二人の間で分かれやすい`;
   }
-  return '生まれの基調が違うぶん、同じ会話でも終わりの感じ方が分かれやすい';
+  return `${stemBit}、同じ会話でも終わりの感じ方が分かれやすい`;
 }
 
 function meshFromBirth(
@@ -347,6 +355,10 @@ export function buildPairFreeInsightSpecV2(args: {
   if (!aCivil.ok || !bCivil.ok) {
     throw new Error('invalid_pair_dob');
   }
+  const pairProfile = resolvePairCanonicalProfileV2({
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
+  });
   const differenceType = derivePairDifferenceType(
     args.personABirthDate,
     args.personBBirthDate,
@@ -356,6 +368,7 @@ export function buildPairFreeInsightSpecV2(args: {
   const roles = roleLabels(args.personAUsesFirstPerspective);
   const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
   const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
+  const stemDelta = pairProfile?.stemDeltaClass ?? 'near';
   const tempo = TEMPO[args.answers.decisionPace][args.answers.expressionPace];
   const conflict = loopFromConflict(
     args.answers.disagreement,
@@ -369,6 +382,7 @@ export function buildPairFreeInsightSpecV2(args: {
     roles,
     args.pairAxisId,
     differenceType,
+    stemDelta,
   );
   const hit = pairOpeningHit(
     args.answers,
@@ -378,7 +392,7 @@ export function buildPairFreeInsightSpecV2(args: {
   );
   const misreadLoop = conflict.loop.replace(/。{2,}/g, '。');
   return {
-    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'l1' : 'l0'}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
     evidenceQuestionIds: EVIDENCE,
     pairAxisId: args.pairAxisId,
@@ -402,7 +416,7 @@ export function buildPairFreeInsightSpecV2(args: {
     misreadLoop,
     reset: conflict.reset,
     premiumContinuation: premiumContinuation(args.focusLabel, selected.interactionId),
-    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}`,
+    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'lsame' : 'ldiff'}:${pairProfile?.a.stemLane ?? 'x'}x${pairProfile?.b.stemLane ?? 'x'}`,
     relationshipTriggerJa: hit,
   };
 }

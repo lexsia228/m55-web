@@ -72,6 +72,8 @@ export function buildCanonicalCompatibilityPurchaseSnapshot(
         rendered.pairFingerprint.personADobHash <=
         rendered.pairFingerprint.personBDobHash,
       currentContext,
+      personABirthDate: input.personA,
+      personBBirthDate: input.personB,
     }),
   };
 }

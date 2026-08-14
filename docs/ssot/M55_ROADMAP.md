@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Human reopened inference quality; V6 at `d7512c0` is **PAUSED** for personalization resolution (`audit/m55-personalization-resolution-v1`). **NEXT:** consume unused existing DOB signals per `docs/audit/M55_ALL_SURFACE_PERSONALIZATION_RESOLUTION_AUDIT.md` — not V6 Human lock, not commerce.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Personalization resolution v2 is **IN_PROGRESS** on `feat/m55-personalization-resolution-v2` (base audit `80f9931`). V6 copy is reused. **NEXT:** collision-threshold close + Human copy lock — not commerce.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 

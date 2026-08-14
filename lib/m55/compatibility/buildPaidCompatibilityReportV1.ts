@@ -21,6 +21,7 @@ import {
   type CompatibilityCurrentContextAnswers,
   type CompatibilityCurrentContextDisplay,
 } from './currentContextContract.v1';
+import { resolvePairCanonicalProfileV2, type PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 
 export const PAID_COMPATIBILITY_REPORT_VERSION =
   'paid_compatibility_report_v1' as const;
@@ -32,6 +33,8 @@ export type PaidCompatibilityReportInput = {
   temperatureId: TemperatureId;
   personAUsesFirstPerspective: boolean;
   currentContext?: CompatibilityCurrentContextAnswers;
+  personABirthDate?: string;
+  personBBirthDate?: string;
 };
 
 export type PaidCompatibilityChapter = {
@@ -47,6 +50,7 @@ export type PaidCompatibilityChapter = {
   readonly usablePhrase: string;
   readonly smallExperiment: string;
   readonly reflectionQuestion: string;
+  readonly sceneInteractionId: string;
 };
 
 export type PaidCompatibilityReportSnapshot = {
@@ -361,11 +365,42 @@ export function paidCompatibilityChapterTitle(
   return override ?? getChapterTitle(key, topicId);
 }
 
+function sceneInteractionIdFor(
+  key: ChapterId,
+  pair: PairCanonicalProfileV2 | null,
+  input: PaidCompatibilityReportInput,
+): string {
+  const answers = input.currentContext;
+  const answerKey = answers
+    ? `${answers.decisionPace}:${answers.disagreement}:${answers.distance}:${answers.expressionPace}:${answers.returnPattern}`
+    : 'noctx';
+  if (!pair) return `${key}:${input.pairAxisId}:${answerKey}`;
+  const a = pair.a;
+  const b = pair.b;
+  switch (key) {
+    case 'ch_you_pace':
+      return `${key}:start:${a.civil.start}x${b.civil.start}:${pair.stemDeltaClass}:${answerKey}`;
+    case 'ch_other_pace':
+      return `${key}:distance:${a.birthSignature.dimensions.distance}x${b.birthSignature.dimensions.distance}:${answerKey}`;
+    case 'ch_pair_gap':
+      return `${key}:decision:${a.civil.decision}x${b.civil.decision}:${answerKey}`;
+    case 'ch_topic_deep':
+      return `${key}:answers:${input.paidTopicId}:${answerKey}`;
+    case 'ch_today_clue':
+      return `${key}:recovery:${a.civil.recovery}x${b.civil.recovery}:${pair.lunarAligned ? 'lsame' : 'ldiff'}:${answerKey}`;
+    case 'ch_about':
+      return `${key}:change:${a.birthSignature.dimensions.change}x${b.birthSignature.dimensions.change}:${answerKey}`;
+    default:
+      return `${key}:${input.pairAxisId}:${answerKey}`;
+  }
+}
+
 function buildChapter(
   key: ChapterId,
   index: number,
   input: PaidCompatibilityReportInput,
   roles: ReturnType<typeof semanticRoles>,
+  pair: PairCanonicalProfileV2 | null,
 ): PaidCompatibilityChapter {
   const focus = CHAPTER_FOCUS[key];
   const topicLabel = getTopicLabel(input.paidTopicId);
@@ -428,16 +463,24 @@ function buildChapter(
     smallExperiment: contextVariation?.smallExperiment ?? smallExperiment,
     reflectionQuestion:
       contextVariation?.reflectionQuestion ?? focus.reflectionQuestion,
+    sceneInteractionId: sceneInteractionIdFor(key, pair, input),
   });
 }
 
 export function buildPaidCompatibilityReportV1(
   input: PaidCompatibilityReportInput,
 ): PaidCompatibilityReportSnapshot {
+  const pair =
+    input.personABirthDate && input.personBBirthDate
+      ? resolvePairCanonicalProfileV2({
+          personABirthDate: input.personABirthDate,
+          personBBirthDate: input.personBBirthDate,
+        })
+      : null;
   const roles = semanticRoles(input.pairAxisId, input.personAUsesFirstPerspective);
   const authority = PAIR_AXIS_FREE_RESULT_FRAGMENTS[input.pairAxisId];
   const chapters = CHAPTER_IDS.map((key, index) =>
-    buildChapter(key, index, input, roles),
+    buildChapter(key, index, input, roles, pair),
   );
   const currentContext = input.currentContext
     ? buildCompatibilityCurrentContextDisplay(input.currentContext)

@@ -5,7 +5,7 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS).
 
 ## FOUR-SURFACE COMMERCIAL QUALITY (2026-08-14) — AUTHORITATIVE POST-PR-#117
 
@@ -20,17 +20,22 @@ This section is the current authority after PR #117 merge. Pair display identity
 | Prior Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` @ `511b54d` — no-cache rebuild after `BUILD_OUTPUT_MISMATCH` |
 | P0 Production client integrity | **CLOSED_GREEN** |
 | PERSONAL_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual) |
-| PERSONAL_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — V6 editorial at `d7512c0` not rejected; Human lock/merge paused |
-| PERSONAL_PREMIUM_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual/product body); personalization audit: DTR catalog 1440 vs Free bridge templates |
+| PERSONAL_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — V6 editorial reused; identity source CanonicalBirthProfileV2 IN_PROGRESS |
+| PERSONAL_PREMIUM_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual/product body); DTR 1440 catalog reused on canonical stem |
 | COMPATIBILITY_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** — Pair Signature + privacy-safe entry share live on Production `/synastry` |
-| COMPATIBILITY_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — V6 pair loop not rejected; collision quantified |
+| COMPATIBILITY_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — pair canonical profile IN_PROGRESS |
 | COMPATIBILITY_PAID_PRODUCT_QUALITY | **GREEN_BUT_COMMERCE_GATED** — night ownership grammar in source/fixture |
 | FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | Personalization resolution implementation wave (consume unused dal-v1 / composite-stem signals) — **not** V6 Human lock yet — commerce activation **not authorized** |
-| PERSONALIZATION_RESOLUTION | **PATCH_REQUIRED_EFFECTIVE_DOB_RESOLUTION_27_AND_TEMPLATE_COLLISION** — WT `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v1` · `audit/m55-personalization-resolution-v1` · authority `docs/audit/M55_ALL_SURFACE_PERSONALIZATION_RESOLUTION_AUDIT.md` |
+| NEXT GATE | Human copy lock + AI benchmark **after** collision thresholds; commerce **not authorized** |
+| PERSONALIZATION_CORE | **IN_PROGRESS** |
+| PERSONAL_FREE_COPY | **V6_REUSED_PENDING_NEW_RESOLUTION** |
+| PERSONAL_PREMIUM_RESOLUTION | **IN_PROGRESS** |
+| PAIR_FREE_RESOLUTION | **IN_PROGRESS** |
+| PAIR_PAID_RESOLUTION | **IN_PROGRESS** |
+| PERSONALIZATION_RESOLUTION | **IN_PROGRESS** on WT `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · `feat/m55-personalization-resolution-v2` · base audit `80f99316b01e05d82c95e92fe4556a89483d4eba` |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |

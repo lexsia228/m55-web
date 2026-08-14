@@ -99,6 +99,8 @@ export function buildCompatibilityPublicResult(
     temperatureId: state.temperatureId,
     personAUsesFirstPerspective,
     ...(currentContext ? { currentContext } : {}),
+    personABirthDate: guestInput.personA,
+    personBBirthDate: guestInput.personB,
   });
   const allChapters = paidSnapshot.chapters.map((chapter) => ({
     chapterId: chapter.key,
