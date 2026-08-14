@@ -551,10 +551,7 @@ export function buildFreeDepthAnalysisV1(
     primarySceneLabelJa: primaryScene.labelJa,
     secondarySceneJa: secondaryScene.bodyJa,
     secondarySceneLabelJa: secondaryScene.labelJa,
-    premiumOpenLoopJa: insight.premiumContinuation.replace(
-      /「[^」]+」でこの動きが続く背景/u,
-      `「${primaryScene.labelJa}」でこの動きが続く背景`,
-    ),
+    premiumOpenLoopJa: `${insight.premiumContinuation}「${primaryScene.labelJa}」でこの動きが続く背景は、場面を分けてから見えます。`,
     premiumOpenQuestionJa: insight.premiumOpenQuestion,
     premiumLockedHeadingsJa: [
       `${primaryScene.labelJa}でこの動きが続く背景`,

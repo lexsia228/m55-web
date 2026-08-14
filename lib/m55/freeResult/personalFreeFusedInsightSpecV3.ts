@@ -23,6 +23,7 @@ import type {
 import { buildPersonalFreeInsightSpecV2 } from './personalFreeInsightSpecV2';
 import {
   buildPersonalManifestationV4,
+  premiumBridgeForManifestation,
   type PersonalManifestationV4,
 } from './personalFreeManifestationV4';
 
@@ -264,17 +265,10 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
       ...(second ? [FREE_AXIS_QUESTION_IDS[second.axisId]] : [FREE_AXIS_QUESTION_IDS.decision]),
     ]),
   ];
-  const label =
-    hinge.axisId === 'distance' || hinge.axisId === 'recovery'
-      ? '人との距離'
-      : hinge.axisId === 'change'
-        ? '予定や環境の変化'
-        : '仕事や判断';
-  const premiumContinuation = [
-    `いま見えた「${manifestation.shortJa}」が、仕事・距離・変化のどこで力になり、どこで摩擦になるかまで、プレミアムで一つの流れにします。`,
-    `同じ動きを六つの場面に渡して読み返すと、自分の使い方が決まります。`,
-    `「${label}」でこの動きが続く背景は、場面を分けてから見えます。`,
-  ].join('');
+  const premiumContinuation = premiumBridgeForManifestation(
+    manifestation.shortJa,
+    manifestation.axisId,
+  );
   return {
     id: `${PERSONAL_FREE_FUSED_INSIGHT_SPEC_VERSION}:${input.birth.birthSignatureId}:${hinge.axisId}:${hinge.relation}:${input.answers.start}-${input.answers.decision}-${input.answers.recovery}-${input.answers.distance}-${input.answers.change}`,
     kind: 'personal_free_fused_v3',

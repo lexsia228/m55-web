@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Human reopened inference quality only: **NEXT:** Human behavioral-surprise commercial lock of Free copy on `feat/m55-free-inference-quality-v1`.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Human reopened inference quality only: **NEXT:** Human final Free copy lock on `feat/m55-free-inference-quality-v1`.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
