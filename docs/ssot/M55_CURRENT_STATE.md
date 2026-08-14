@@ -19,15 +19,17 @@ This section is the current authority after PR #117 merge. Pair display identity
 | Production deployment (GitHub) | `5903998364` @ `2026-08-14T09:44:24Z` |
 | Prior Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` @ `511b54d` — no-cache rebuild after `BUILD_OUTPUT_MISMATCH` |
 | P0 Production client integrity | **CLOSED_GREEN** |
-| PERSONAL_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** |
+| PERSONAL_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual) |
+| PERSONAL_FREE_INFERENCE_QUALITY | **IMPLEMENTATION_READY_FOR_HUMAN_LOCK** — cross-answer InsightSpec v2 |
 | PERSONAL_PREMIUM_COMMERCIAL_QUALITY | **CLOSED_GREEN** |
 | COMPATIBILITY_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** — Pair Signature + privacy-safe entry share live on Production `/synastry` |
+| COMPATIBILITY_FREE_INFERENCE_QUALITY | **IMPLEMENTATION_READY_FOR_HUMAN_LOCK** — relationship-loop InsightSpec v2 |
 | COMPATIBILITY_PAID_PRODUCT_QUALITY | **GREEN_BUT_COMMERCE_GATED** — night ownership grammar in source/fixture |
 | FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| NEXT GATE | Human review of Free inference-quality copy — commerce activation **not authorized** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
@@ -376,6 +378,8 @@ When merged authority or runtime state changes, update observations via Product 
 **Current transition (2026-08-11):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). P2 Revenue-Ready is **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`). P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). Last verified origin/main @ `2026-08-11T04:45:05Z` is `286cb1052972e18cdbc5f8c99e6d41c78c3180d4`; Last P2 settlement remains `2d14404d62ab7b265e07729448d6db602a055cce` @ deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx**. ACTIVE sublane is **P3 entry/planning** — P3 implementation **not started**. P3/checkout/4242/real purchase/sales launch remain unauthorized.
 
 ## NEXT SINGLE ACTION
+
+**CURRENT (2026-08-14 free-inference-quality):** ACTIVE lane is Personal + Compatibility Free inference quality on `feat/m55-free-inference-quality-v1`. Visual four-surface identity remains **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT SINGLE ACTION:** Human review of Free inference-quality copy. P3 checkout/4242/sales launch remain **not authorized**.
 
 **CURRENT (2026-08-14 post-PR-#117):** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production diagnostics and live `/synastry` client markers confirm Pair Signature + privacy-safe entry share. Four-surface visual identity is **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT SINGLE ACTION:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. P3 checkout/4242/sales launch remain **not authorized**.
 

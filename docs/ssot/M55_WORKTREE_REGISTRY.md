@@ -40,7 +40,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-14 post-PR-#117) — authoritative, read this first:** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production SHA `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · GitHub Production deployment `5903998364`. Four-surface visual identity is **CLOSED GREEN**. Personal Free / Personal Premium remain **CLOSED GREEN**. Compatibility Free is **CLOSED GREEN** on Production. Pair Premium remains **READY_BUT_GATED**. Compatibility commerce remains **OFF**. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. Prior snapshots `511b54d` (PR #116) and `286cb105` retained as historical.
+**CURRENT (2026-08-14 free-inference-quality) — authoritative, read this first:** ACTIVE worktree `/Users/lexsia/Documents/M55_WORKTREE-free-inference-quality-v1` · branch `feat/m55-free-inference-quality-v1` · base `origin/main@0b2b2b349ccf4f0b9549d5a59be5a92be0a99578`. Human reopened **PERSONAL_FREE_INFERENCE_QUALITY** and **COMPATIBILITY_FREE_INFERENCE_QUALITY** only. Visual systems PR #116/#117 remain **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT GATE:** Human review of Free inference-quality copy (not commerce activation).
+
+**CURRENT (2026-08-14 post-PR-#117) — historical:** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production SHA `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · GitHub Production deployment `5903998364`. Four-surface visual identity is **CLOSED GREEN**. Personal Free / Personal Premium remain **CLOSED GREEN**. Compatibility Free is **CLOSED GREEN** on Production. Pair Premium remains **READY_BUT_GATED**. Compatibility commerce remains **OFF**. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. Prior snapshots `511b54d` (PR #116) and `286cb105` retained as historical.
 
 **CURRENT (2026-08-11) — historical for P3 entry snapshot:** PA-2A and commercial-surface alias/reuse freeze remain **CLOSED GREEN**. IND-FREE and P0 Premium terminology remain **CLOSED GREEN**. Product Authority main settlement is **COMPLETED** — PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5`. P1A copy/framing is **CLOSED GREEN** — PR #95 **MERGED** @ `81692dab641aeddf4df625683a97761e8c97cc33`. P1B visual contrast is **CLOSED GREEN** — PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`. P1C draft persistence is **CLOSED GREEN** — PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`. P2 Revenue-Ready is **CLOSED GREEN** — PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`. P2 post-merge SSOT transition is **COMPLETE** — PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`. **Last verified origin/main (`2026-08-11T04:45:05Z`):** `286cb1052972e18cdbc5f8c99e6d41c78c3180d4`. **Last verified Production SHA (diagnostics):** `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` · `vercel_env=production` · `vercel_branch=main` · deployment id **not reobserved**. **Last P2 settlement:** deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** @ `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN**. WT-024 is **COMPLETED** read-only. WT-025 is **COMPLETED** read-only. WT-026 (`/Users/lexsia/Documents/M55_WORKTREE-mrq-p2-revenue-ready-v1`, `feat/m55-mrq-p2-revenue-ready-v1`) is **COMPLETED** read-only. WT-023 is **COMPLETED** read-only. WT-019 remains mapping reference/read-only. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. MRQ implementation is **not authorized** — P3 worktree **not created**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
 
@@ -726,6 +728,19 @@ Historical post-merge transition snapshots remain recorded for audit.
 | product implementation authorized | **false** — lane closed GREEN |
 | next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
 | notes | PR #117 **MERGED**. Four-surface visual identity **CLOSED GREEN**. Pair Premium stays READY_BUT_GATED. Commerce remains OFF. |
+
+### WT-028 — Free inference quality v2 (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-free-inference-quality-v1` |
+| branch | `feat/m55-free-inference-quality-v1` |
+| base | `origin/main` @ `0b2b2b349ccf4f0b9549d5a59be5a92be0a99578` |
+| lifecycle | **ACTIVE** |
+| purpose | Personal Free + Compatibility Free inference quality — cross-answer synthesis, not answer paraphrase |
+| product implementation authorized | **true** — inference/result composition only |
+| prohibited operations | Stripe / DB / Compatibility commerce / Premium report generation / purchase routes / env / keys / HOME layout |
+| next gate | Human commercial review of Free inference copy |
 
 ---
 

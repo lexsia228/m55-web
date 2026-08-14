@@ -15,6 +15,7 @@ import { derivePairAxisId } from './pairReadingFingerprint';
 import { renderPairReading } from './pairReadingRenderer';
 import { buildPaidCompatibilityReportV1 } from './buildPaidCompatibilityReportV1';
 import type { CompatibilityCurrentContextAnswers } from './currentContextContract.v1';
+import { buildPairFreeInsightSpecV2 } from './pairFreeInsightSpecV2';
 import type {
   ChapterId,
   PaidTopicId,
@@ -124,16 +125,78 @@ export function buildCompatibilityPublicResult(
     };
   }) as [CompatibilityMappedChapter, CompatibilityMappedChapter];
 
+  const baseContext = paidSnapshot.currentContext;
+  const freeContext = currentContext && baseContext
+    ? overlayPairFreeInsight(baseContext, currentContext, {
+        pairAxisId: rendered.pairFingerprint.pairAxisId,
+        personAUsesFirstPerspective,
+        focusLabel: baseContext.focusLabel,
+      })
+    : baseContext;
+
   return {
     ok: true,
     value: {
-      free,
+      free: overlayPairFreeDynamic(free, currentContext, {
+        pairAxisId: rendered.pairFingerprint.pairAxisId,
+        personAUsesFirstPerspective,
+        focusLabel: baseContext?.focusLabel ?? '二人の間',
+      }),
       freeTeaser: rendered.freeTeaser.teaserText,
-      ...(paidSnapshot.currentContext
-        ? { currentContext: paidSnapshot.currentContext }
-        : {}),
+      ...(freeContext ? { currentContext: freeContext } : {}),
       mappedChapters,
       allChapters,
     },
+  };
+}
+
+function overlayPairFreeInsight(
+  base: NonNullable<ReturnType<typeof buildPaidCompatibilityReportV1>['currentContext']>,
+  answers: CompatibilityCurrentContextAnswers,
+  args: {
+    pairAxisId: PairAxisId;
+    personAUsesFirstPerspective: boolean;
+    focusLabel: string;
+  },
+) {
+  const insight = buildPairFreeInsightSpecV2({
+    answers,
+    pairAxisId: args.pairAxisId,
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    focusLabel: args.focusLabel,
+  });
+  const relationshipLoopSteps = Object.freeze([
+    insight.meshMoment,
+    insight.mismatchEntry,
+    insight.misreadLoop,
+  ] as const);
+  return Object.freeze({
+    ...base,
+    currentExpression: insight.betweenThem,
+    relationshipLoopSteps,
+    relationshipLoop: relationshipLoopSteps.map((step) => step.replace(/。$/u, '')).join('。') + '。',
+    immediateAction: insight.reset,
+  });
+}
+
+function overlayPairFreeDynamic(
+  free: ReturnType<typeof buildCompatibilityFreeResultFragments>,
+  answers: CompatibilityCurrentContextAnswers | undefined,
+  args: {
+    pairAxisId: PairAxisId;
+    personAUsesFirstPerspective: boolean;
+    focusLabel: string;
+  },
+) {
+  if (!answers) return free;
+  const insight = buildPairFreeInsightSpecV2({
+    answers,
+    pairAxisId: args.pairAxisId,
+    personAUsesFirstPerspective: args.personAUsesFirstPerspective,
+    focusLabel: args.focusLabel,
+  });
+  return {
+    ...free,
+    relationshipDynamic: insight.betweenThem,
   };
 }

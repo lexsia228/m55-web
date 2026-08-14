@@ -426,8 +426,8 @@ export default function CompatibilityGuestExperience({
             <p className={styles.eyebrow}>今いちばん整理したいこと：{context.focusLabel}</p>
             <h3 id="paid-bridge-title">この二人の続きとして読めること</h3>
             <p className={styles.deliverableLead}>
-              無料では、今の二人に何が起きやすいかまでを読みました。
-              有料のレポートでは、その場面ごとに、二人それぞれの動きと、そこから戻るところまでを扱います。
+              無料では、二人の間で回りやすい基本のループまでを読みました。
+              「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。
             </p>
             <ul className={styles.toolkitTiles} aria-label="レポートで受け取れるもの">
               <li>

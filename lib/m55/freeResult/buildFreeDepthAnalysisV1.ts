@@ -21,8 +21,9 @@ import {
   resolveFreeAxes,
   type FreeFiveViewInput,
 } from './buildFreeFiveViewCompositionV1';
+import { buildPersonalFreeInsightSpecV2 } from './personalFreeInsightSpecV2';
 
-export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v1' as const;
+export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v2' as const;
 
 export type FreeDepthAnalysisV1 = {
   headlineJa: string;
@@ -490,27 +491,53 @@ export function buildFreeDepthAnalysisV1(
 
   const axes = free.value.axes;
   const diverge = alignDiv.value.divergeItems;
-  const align = alignDiv.value.alignItems;
-  const reasons = buildReasons(axes, diverge, align);
-  const scenesJa = buildScenes(axes);
-  const [primaryScene, secondaryScene] = rankScenes(axes);
+  const insight = buildPersonalFreeInsightSpecV2(axes);
+  const scenesJa = {
+    workJa: insight.workScene,
+    relationJa: insight.relationScene,
+    changeJa: insight.changeScene,
+  };
+  const ranked: { labelJa: string; bodyJa: string }[] = [
+    { labelJa: '仕事や判断', bodyJa: insight.workScene },
+    { labelJa: '人との距離', bodyJa: insight.relationScene },
+    { labelJa: '予定や環境の変化', bodyJa: insight.changeScene },
+  ];
+  if (axes.distance === 'close' || axes.distance === 'solo') {
+    ranked.unshift(ranked.splice(1, 1)[0]!);
+  } else if (!(axes.start === 'map' || axes.decision === 'sort')) {
+    ranked.push(ranked.shift()!);
+  }
+  const primaryScene = ranked[0]!;
+  const secondaryScene = ranked[1]!;
+  const reasons: [string, string, string] = [
+    insight.internalTension,
+    insight.whySynthesis,
+    insight.behavioralPrediction,
+  ];
 
   const analysis: FreeDepthAnalysisV1 = {
-    headlineJa: buildHeadline(axes),
-    conclusionJa: buildConclusion(axes, diverge, align),
+    headlineJa: insight.headline,
+    conclusionJa: `${insight.headline}${insight.internalTension}${insight.whySynthesis}`,
     reasonsJa: reasons,
-    hiddenSideJa: buildHiddenSide(axes, diverge),
-    strengthConditionsJa: buildStrengthConditions(axes),
-    loadConditionsJa: buildLoadConditions(axes),
+    hiddenSideJa: insight.internalTension,
+    strengthConditionsJa: [...insight.strengthConditions],
+    loadConditionsJa: [...insight.loadConditions],
     scenesJa,
-    conciseWhyJa: [trimReason(reasons[0]), trimReason(reasons[1])],
+    conciseWhyJa: [insight.internalTension, insight.whySynthesis],
     primarySceneJa: primaryScene.bodyJa,
     primarySceneLabelJa: primaryScene.labelJa,
     secondarySceneJa: secondaryScene.bodyJa,
     secondarySceneLabelJa: secondaryScene.labelJa,
-    premiumOpenLoopJa: buildPremiumOpenLoop(axes, diverge, primaryScene.labelJa),
-    premiumOpenQuestionJa: buildPremiumOpenQuestion(axes, diverge),
-    premiumLockedHeadingsJa: buildPremiumLockedHeadings(axes, diverge),
+    premiumOpenLoopJa: insight.premiumContinuation.includes(primaryScene.labelJa)
+      ? insight.premiumContinuation
+      : insight.premiumContinuation.replace(/「[^」]+」/u, `「${primaryScene.labelJa}」`),
+    premiumOpenQuestionJa: insight.premiumOpenQuestion,
+    premiumLockedHeadingsJa: [
+      `${primaryScene.labelJa}でこの動きが続く背景`,
+      '同じ型が重くなる場面',
+      '距離の整え方と回復の切れ目',
+      '整え直しやすい順番',
+    ],
     primaryAxes: ['start', 'decision'],
     secondaryAxes: ['distance', 'change'],
     contrastAxes: sortByPriority(diverge).slice(0, 2).map((d) => d.axisId),

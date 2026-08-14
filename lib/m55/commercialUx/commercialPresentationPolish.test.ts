@@ -83,7 +83,7 @@ describe('commercial presentation polish — Japanese copy', () => {
     if (!built.ok) return;
     assert.match(
       built.value.headlineJa,
-      /全体を見渡し、候補を比べてから動く傾向が、いま強く表れています/,
+      /全体を揃えてから動く|比較が止まらず|準備が終わって/,
     );
   });
 
