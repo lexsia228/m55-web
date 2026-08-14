@@ -1,0 +1,207 @@
+.signature {
+  margin: 22px 0 4px;
+  padding: clamp(18px, 3.6vw, 28px);
+  border: 1px solid rgba(75, 59, 96, 0.18);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 244, 250, 0.88));
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #786a83;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.title {
+  margin: 0;
+  max-width: 28em;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(18px, 3.2vw, 24px);
+  font-weight: 500;
+  line-height: 1.45;
+  color: #292535;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(64px, 1fr) minmax(140px, 2.2fr) minmax(64px, 1fr);
+  grid-template-areas:
+    "you rails partner"
+    "between between between";
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 18px;
+}
+
+.origin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #453f4d;
+}
+
+.originYou {
+  grid-area: you;
+}
+
+.originPartner {
+  grid-area: partner;
+}
+
+.originMark {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(75, 59, 96, 0.55);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.rails {
+  grid-area: rails;
+  width: 100%;
+  height: 72px;
+  overflow: visible;
+}
+
+.railYou,
+.railPartner {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.railYou {
+  stroke: rgba(75, 59, 96, 0.55);
+}
+
+.railPartner {
+  stroke: rgba(75, 59, 96, 0.38);
+  stroke-dasharray: 4 5;
+}
+
+.sharedNode {
+  fill: #f7f3f8;
+  stroke: rgba(75, 59, 96, 0.7);
+  stroke-width: 1.6;
+}
+
+.between {
+  grid-area: between;
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #4b3b60;
+}
+
+.chips {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(75, 59, 96, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.chips span {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #6d6876;
+}
+
+.chips p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #292535;
+}
+
+@media (min-width: 720px) {
+  .chips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 719px) {
+  .field {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "you partner"
+      "rails rails"
+      "between between";
+  }
+
+  .rails {
+    height: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signature,
+  .originMark,
+  .rails {
+    transition: none !important;
+  }
+}
+
+.signatureNight {
+  background:
+    radial-gradient(ellipse 88% 68% at 8% -6%, rgba(155, 135, 225, 0.14), transparent 56%),
+    linear-gradient(168deg, rgba(34, 28, 52, 0.96), rgba(24, 20, 38, 0.92));
+  border: 1px solid rgba(185, 165, 238, 0.28);
+  color: rgba(255, 255, 255, 0.91);
+}
+
+.signatureNight .eyebrow,
+.signatureNight .chips span {
+  color: rgba(185, 165, 230, 0.78);
+}
+
+.signatureNight .title,
+.signatureNight .chips p,
+.signatureNight .origin,
+.signatureNight .between {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.signatureNight .chips li {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(185, 165, 238, 0.18);
+}
+
+.signatureNight .originMark,
+.signatureNight .sharedNode {
+  background: #1a1628;
+  border-color: rgba(210, 192, 252, 0.7);
+  fill: #1a1628;
+  stroke: rgba(210, 192, 252, 0.7);
+}
+
+.signatureNight .railYou {
+  stroke: rgba(210, 192, 252, 0.7);
+}
+
+.signatureNight .railPartner {
+  stroke: rgba(185, 165, 230, 0.45);
+}
+

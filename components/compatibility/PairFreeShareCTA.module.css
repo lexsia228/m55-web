@@ -1,0 +1,71 @@
+.share {
+  margin-top: 18px;
+  padding: clamp(18px, 3.4vw, 26px);
+  border: 1px solid rgba(75, 59, 96, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.share h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  color: #292535;
+}
+
+.share p {
+  margin: 8px 0 0;
+  color: #6d6876;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.primary,
+.secondary {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: #352a46;
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid rgba(75, 59, 96, 0.22);
+  background: transparent;
+  color: #352a46;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid #4b3b60;
+  outline-offset: 2px;
+}
+
+.status {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #453f4d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .secondary {
+    transition: none !important;
+  }
+}

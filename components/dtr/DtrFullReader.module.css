@@ -2595,7 +2595,7 @@
 /* ── 冒頭ブロック差し替え 2026-04 ── */
 
 .premiumIntroOverline {
-  font-size: 10px;
+  font-size: max(11px, var(--dtr-label-floor));
   font-weight: 700;
   letter-spacing: 0.14em;
   color: var(--dtr-accent);
@@ -2645,7 +2645,7 @@
 
 .premiumIntroPanelStep {
   display: block;
-  font-size: 0.56rem;
+  font-size: max(11px, var(--dtr-label-floor));
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--dtr-accent);
@@ -3245,7 +3245,7 @@
 
 .heroFirstRecordLabel {
   font-family: var(--dtr-sans);
-  font-size: clamp(0.58rem, 1.55vw, 0.68rem);
+  font-size: max(11px, var(--dtr-label-floor));
   font-weight: 600;
   letter-spacing: 0.12em;
   color: rgba(255, 255, 255, 0.48);
@@ -3278,7 +3278,7 @@
 .heroBlueprintPrefix {
   display: block;
   font-family: var(--dtr-sans);
-  font-size: clamp(0.58rem, 1.55vw, 0.68rem);
+  font-size: max(11px, var(--dtr-label-floor));
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
