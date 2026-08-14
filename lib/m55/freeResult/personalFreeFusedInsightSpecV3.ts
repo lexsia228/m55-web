@@ -21,6 +21,10 @@ import type {
   StartTendency,
 } from '../individualization/types';
 import { buildPersonalFreeInsightSpecV2 } from './personalFreeInsightSpecV2';
+import {
+  buildPersonalManifestationV4,
+  type PersonalManifestationV4,
+} from './personalFreeManifestationV4';
 
 export const PERSONAL_FREE_FUSED_INSIGHT_SPEC_VERSION =
   'personal_free_fused_insight_v3' as const;
@@ -45,6 +49,7 @@ export type PersonalFreeFusedInsightSpecV3 = {
   readonly fusedStackJa: string;
   readonly body: string;
   readonly behavioralPrediction: string;
+  readonly manifestation: PersonalManifestationV4;
   readonly premiumContinuation: string;
   readonly premiumOpenQuestion: string;
   readonly workScene: string;
@@ -204,15 +209,6 @@ function secondaryHinge(
   return rest[0] ?? null;
 }
 
-function sceneForHinge(
-  hinge: ExpressionAxisId,
-  answerLayer: ReturnType<typeof buildPersonalFreeInsightSpecV2>,
-): string {
-  if (hinge === 'distance' || hinge === 'recovery') return answerLayer.relationScene;
-  if (hinge === 'change') return answerLayer.changeScene;
-  return answerLayer.workScene;
-}
-
 export function buildPersonalFreeFusedInsightSpecV3(input: {
   birth: BirthSignatureV1;
   answers: ExpressionAxes;
@@ -248,10 +244,14 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
   const answerLayer = buildPersonalFreeInsightSpecV2(input.answers);
   const birthBaseJa = BIRTH_BASE[input.birth.dimensions.start][input.birth.dimensions.decision];
   const currentExpressionJa = answerLayer.headline;
-  const headline = fusedCore;
+  const manifestation = buildPersonalManifestationV4(
+    input.birth.dimensions,
+    input.answers,
+  );
+  const headline = `${manifestation.manifestationJa}${manifestation.sceneCandidateJa}`;
   const body = fusedSecond
     ? `${fusedSecond}始め方と決め方、距離の取り方が同じレイヤーでは動かない。`
-    : `${answerLayer.internalTension}`;
+    : `${answerLayer.internalTension}始め方と決め方、距離の取り方が同じレイヤーでは動かない。`;
   const birthEvidence = [
     ...new Set([
       ...evidenceIdsForAxis(hinge.axisId),
@@ -271,9 +271,8 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
         ? '予定や環境の変化'
         : '仕事や判断';
   const premiumContinuation = [
-    `ここまでで見えるのは、生年月日の土台と今回の答えが指す一つの型です。`,
-    `まだ見えていないのは、同じ型が仕事・距離・変化の場面でどこで力になり、${answerLayer.loadConditions[2]}に何から崩れるかです。`,
-    `プレミアムでは、その型を六つの場面に渡して読み返し、整え直しやすい順番まで一つの流れにします。`,
+    `いま見えた「${manifestation.shortJa}」が、仕事・距離・変化のどこで力になり、どこで摩擦になるかまで、プレミアムで一つの流れにします。`,
+    `同じ動きを六つの場面に渡して読み返すと、自分の使い方が決まります。`,
     `「${label}」でこの動きが続く背景は、場面を分けてから見えます。`,
   ].join('');
   return {
@@ -293,7 +292,8 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
     headline,
     fusedStackJa: fusedStack,
     body,
-    behavioralPrediction: sceneForHinge(hinge.axisId, answerLayer),
+    behavioralPrediction: manifestation.sceneCandidateJa,
+    manifestation,
     premiumContinuation,
     premiumOpenQuestion: answerLayer.premiumOpenQuestion,
     workScene: answerLayer.workScene,

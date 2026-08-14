@@ -9,27 +9,32 @@ type Props = {
 
 const LAYERS = [
   {
-    label: '生年月日から見える、あなたの基調',
+    label: '具体的に出やすい場面',
+    key: 'scene' as const,
+  },
+  {
+    label: 'なぜこの読みになるか',
+    key: 'why' as const,
+  },
+  {
+    label: '生年月日から見えた土台',
     key: 'birth' as const,
   },
   {
-    label: '今回の回答で見えた、今の出方',
+    label: '回答で確認できた今の出方',
     key: 'current' as const,
-  },
-  {
-    label: '二つを重ねると見えること',
-    key: 'fused' as const,
   },
 ] as const;
 
 /**
- * Concise free-result reading — DOB base, current answers, then fused inference.
+ * Concise free-result reading — fused hit first, then provenance.
  */
 export default function CoreFreeResultSummaryHub({ depth }: Props) {
   const bodies = {
+    scene: depth.primarySceneJa,
+    why: depth.conciseWhyJa[0] ?? depth.headlineJa,
     birth: depth.birthBaseJa,
     current: depth.currentExpressionJa,
-    fused: depth.conciseWhyJa[0] ?? depth.headlineJa,
   };
 
   return (
@@ -43,6 +48,7 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
       <h2 id="core-free-result-summary" className={styles.sectionTitle}>
         回答から見えた理由
       </h2>
+      <p className={styles.freeDepthBlockBody}>{depth.trustCueJa}</p>
 
       <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
         {LAYERS.map((layer) => (

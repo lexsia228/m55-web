@@ -90,7 +90,8 @@ describe('pair free insight quality v2', () => {
     );
     assert.equal(new Set(texts).size, 5);
     for (const text of texts) {
-      assert.equal((text.match(/二人の間では/g) ?? []).length, 1, text);
+      assert.equal((text.match(/二人の間では/g) ?? []).length, 2, text);
+      assert.match(text, /^二人の間では/u);
       assert.match(text, /あなた側は/);
       assert.match(text, /相手側は/);
     }
@@ -102,7 +103,8 @@ describe('pair free insight quality v2', () => {
     assert.match(spec.betweenThem, /あなた側は/);
     assert.match(spec.betweenThem, /相手側は/);
     assert.match(spec.betweenThem, /そのため二人の間では/);
-    assert.equal((spec.betweenThem.match(/二人の間では/g) ?? []).length, 1);
+    assert.equal((spec.betweenThem.match(/二人の間では/g) ?? []).length, 2);
+    assert.match(spec.betweenThem, /^二人の間では/u);
   });
 
   it('guest public result overlays synthesis onto free current context only', () => {

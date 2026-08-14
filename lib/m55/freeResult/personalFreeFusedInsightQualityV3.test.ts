@@ -33,8 +33,14 @@ const BARNUM = [
   '実は繊細',
   '周囲に気を遣う',
   '一人の時間も必要',
+  '自分の時間も必要',
   '時には迷う',
   '変化を求める一方で安定も大切',
+  '安定と変化の両方',
+  '考えすぎることがある',
+  '人との距離を大事にする',
+  '内側では複雑',
+  '本当は優しい',
 ];
 
 const DOB_X = { birthDate: '1983-02-28', stemLaneIndex: 9 };
@@ -104,7 +110,8 @@ describe('personal fused insight quality v3', () => {
     assert.notEqual(built.value.headlineJa, answerOnly.headline);
     assert.notEqual(built.value.headlineJa, built.value.birthBaseJa);
     assert.notEqual(built.value.headlineJa, built.value.currentExpressionJa);
-    assert.match(built.value.headlineJa, /土台|今回の答え/);
+    assert.match(built.value.headlineJa, /見られ|一人|あと|帰宅|相談|決めた/);
+    assert.doesNotMatch(built.value.headlineJa, /土台では|今回の答えでは|一定の間隔|接点の入口/);
     assert.match(built.value.birthBaseJa, /生年月日の土台/);
   });
 

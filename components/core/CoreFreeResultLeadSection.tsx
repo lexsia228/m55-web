@@ -3,7 +3,7 @@
 import styles from './CoreExperience.module.css';
 
 const PRIVACY_SAFE_FOUNDATION_JA =
-  '生年月日の土台と、いまの5つの回答から見える傾向です';
+  'この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。';
 
 type Props = {
   outcomeJa: string;

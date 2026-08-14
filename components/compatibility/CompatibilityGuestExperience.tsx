@@ -343,7 +343,7 @@ export default function CompatibilityGuestExperience({
           <section className={styles.resultHeader} aria-labelledby="result-title">
             <p className={styles.eyebrow}>無料で見えること</p>
             <h2 id="result-title">今の二人の読み解き</h2>
-            <p>生年月日から見る土台と、今の回答から見える表れ方を分けて整理しました。</p>
+            <p>この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。</p>
           </section>
 
           <PairResultSignature
@@ -355,6 +355,10 @@ export default function CompatibilityGuestExperience({
           <section className={styles.baselineSection} aria-labelledby="baseline-title">
             <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[0].index}</p>
             <h3 id="baseline-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[0].titleJa}</h3>
+          <div className={styles.dynamicBlock} data-testid="compatibility-relationship-dynamic">
+            <h4>この違いが、二人の間でどう動くか</h4>
+            <p>{result.free.relationshipDynamic}</p>
+          </div>
           <div className={styles.insightGrid}>
             <article className={styles.insightCard}>
               <h3>重なりやすいところ</h3>
@@ -364,10 +368,6 @@ export default function CompatibilityGuestExperience({
               <h3>違いが出やすいところ</h3>
               <p>{result.free.difference}</p>
             </article>
-          </div>
-          <div className={styles.dynamicBlock} data-testid="compatibility-relationship-dynamic">
-            <h4>この違いが、二人の間でどう動くか</h4>
-            <p>{result.free.relationshipDynamic}</p>
           </div>
           </section>
 

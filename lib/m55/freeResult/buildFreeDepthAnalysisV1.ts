@@ -24,7 +24,7 @@ import {
 import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
 import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
 
-export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v3' as const;
+export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v4' as const;
 
 export type FreeDepthAnalysisV1 = {
   headlineJa: string;
@@ -42,6 +42,8 @@ export type FreeDepthAnalysisV1 = {
   conciseWhyJa: readonly [string, string];
   birthBaseJa: string;
   currentExpressionJa: string;
+  trustCueJa: string;
+  manifestationJa: string;
   primarySceneJa: string;
   primarySceneLabelJa: string;
   /** Secondary scene — one more life area, so recognition is not single-shot. */
@@ -542,13 +544,17 @@ export function buildFreeDepthAnalysisV1(
     conciseWhyJa: [insight.fusedStackJa, insight.body],
     birthBaseJa: insight.birthBaseJa,
     currentExpressionJa: insight.currentExpressionJa,
+    trustCueJa:
+      'この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。',
+    manifestationJa: insight.manifestation.manifestationJa,
     primarySceneJa: primaryScene.bodyJa,
     primarySceneLabelJa: primaryScene.labelJa,
     secondarySceneJa: secondaryScene.bodyJa,
     secondarySceneLabelJa: secondaryScene.labelJa,
-    premiumOpenLoopJa: insight.premiumContinuation.includes(primaryScene.labelJa)
-      ? insight.premiumContinuation
-      : insight.premiumContinuation.replace(/「[^」]+」/u, `「${primaryScene.labelJa}」`),
+    premiumOpenLoopJa: insight.premiumContinuation.replace(
+      /「[^」]+」でこの動きが続く背景/u,
+      `「${primaryScene.labelJa}」でこの動きが続く背景`,
+    ),
     premiumOpenQuestionJa: insight.premiumOpenQuestion,
     premiumLockedHeadingsJa: [
       `${primaryScene.labelJa}でこの動きが続く背景`,
@@ -567,6 +573,8 @@ export function buildFreeDepthAnalysisV1(
     analysis.conclusionJa,
     analysis.birthBaseJa,
     analysis.currentExpressionJa,
+    analysis.trustCueJa,
+    analysis.manifestationJa,
     ...analysis.conciseWhyJa,
     analysis.primarySceneJa,
     analysis.secondarySceneJa,
