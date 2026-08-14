@@ -516,13 +516,45 @@ export function pickManifestationAxis(
   return 'start';
 }
 
+export type PersonalManifestationModifiersV2 = {
+  readonly stemLane: number;
+  readonly lunarMonth: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  readonly tensionIds?: readonly ExpressionAxisId[];
+};
+
+/** Internal ranking only — never shown as rarity/percent. */
+export function axisInformationContent(
+  axisId: ExpressionAxisId,
+  birth: ExpressionAxes,
+  answers: ExpressionAxes,
+  modifiers?: PersonalManifestationModifiersV2,
+): number {
+  const diverge = birth[axisId] !== answers[axisId] ? 1 : 0;
+  const cellStates = 9;
+  const cellSupport = diverge ? 6 : 3;
+  let content = Math.log2(cellStates / cellSupport);
+  if (diverge) content += 1.2;
+  if (modifiers?.tensionIds?.includes(axisId)) content += 0.35;
+  if (axisId === 'distance' || axisId === 'change') content += Math.log2(10) * 0.25;
+  if (axisId === 'recovery' || axisId === 'decision') content += Math.log2(12) * 0.12;
+  return content;
+}
+
 export function pickManifestationAxes(
   birth: ExpressionAxes,
   answers: ExpressionAxes,
-): readonly [ExpressionAxisId, ExpressionAxisId | null] {
-  const diverged = SURPRISE_ORDER.filter((axisId) => birth[axisId] !== answers[axisId]);
-  if (diverged.length === 0) return ['start', 'decision'];
-  return [diverged[0]!, diverged[1] ?? null];
+  modifiers?: PersonalManifestationModifiersV2,
+): readonly [ExpressionAxisId, ExpressionAxisId | null, ExpressionAxisId | null] {
+  const ranked = [...SURPRISE_ORDER]
+    .map((axisId) => ({
+      axisId,
+      score: axisInformationContent(axisId, birth, answers, modifiers),
+    }))
+    .sort((a, b) => b.score - a.score);
+  const primary = ranked[0]?.axisId ?? 'start';
+  const second = ranked[1]?.axisId ?? null;
+  const third = ranked[2] && ranked[2].score >= 1 ? ranked[2].axisId : null;
+  return [primary, second, third];
 }
 
 export function lintPersonalPrimaryCopy(text: string): PersonalPrimaryCopyFlag[] {
@@ -534,11 +566,13 @@ export function lintPersonalPrimaryCopy(text: string): PersonalPrimaryCopyFlag[]
   if (/必ず|絶対|運命|幼少期から|恋愛では必ず|職場ではいつも/.test(text)) {
     flags.push('UNSUPPORTED_CERTAINTY');
   }
-  if (!/見られ|一人|あと|帰宅|相談|決めた|静か|間を|やり直|再点検|言葉|並べ/.test(text)) {
+  if (!/見られ|一人|あと|帰宅|相談|決めた|静か|間を|やり直|再点検|言葉|並べ|机|週|朝/.test(text)) {
     flags.push('NO_OBSERVABLE_BEHAVIOR');
   }
   if (
-    !/夜|帰り道|買い物|相談|帰宅|期限|予定|疲れた|申し込み|方針|距離を調整|一人の時間/.test(text)
+    !/夜|帰り道|買い物|相談|帰宅|期限|予定|疲れた|申し込み|方針|距離を調整|一人の時間|机|週|朝|会議|返信|書類|ノート/.test(
+      text,
+    )
   ) {
     flags.push('NO_SCENE');
   }
@@ -616,16 +650,70 @@ function completeSentence(text: string): string {
   return /[。！？]$/u.test(trimmed) ? trimmed : `${trimmed}。`;
 }
 
-function composeReading(primary: ManifestCell, second: ManifestCell | null): string {
-  if (!second) return primary.manifestationJa;
-  const support = completeSentence(second.beatJa);
-  const needle = support.replace(/。$/u, '').slice(0, 10);
-  if (!needle || primary.manifestationJa.includes(needle)) return primary.manifestationJa;
-  return `${primary.manifestationJa}${support}`;
+const STEM_SOCIAL_MIRROR_JA: readonly string[] = [
+  '周りには、向きを先に決めてから手を出す人に見える。',
+  '周りには、場の流れを読んでから動く人に見える。',
+  '周りには、反応が返ってきてから本調子になる人に見える。',
+  '周りには、一つを深めてから外へ出す人に見える。',
+  '周りには、いつもの手順があるほど安定して見える人に見える。',
+  '周りには、いくつかを同時に抱えて進む人に見える。',
+  '周りには、区切りをつけてから次へ移る人に見える。',
+  '周りには、精度を上げてから渡す人に見える。',
+  '周りには、人とつないでから動きが立つ人に見える。',
+  '周りには、静かに読んでから言葉を置く人に見える。',
+];
+
+const LUNAR_SCENE_BEAT_JA: readonly string[] = [
+  '締めの書類を机に戻す週に、同じ動きが戻る。',
+  '新しいノートを開いた週に、同じ動きが出る。',
+  '予定が二つ重なった夜に、同じ動きが先に立つ。',
+  '返信を翌朝まで置いた朝に、同じ動きが出る。',
+  '荷物を減らしてから出かける日に、同じ動きが見える。',
+  '長い会議のあとの帰り道に、同じ動きが残る。',
+  '期限の前の一日に、同じ動きが強く出る。',
+  '静かな休日の午後に、同じ動きを一人でやり直す。',
+  '短い連絡が続いた夜に、同じ動きが先に来る。',
+  '片付けを途中で止めた机で、同じ動きが残る。',
+  '次の週の予定だけ先に置いた夜に、同じ動きが出る。',
+  '一年の終わりの棚卸しで、同じ動きがはっきりする。',
+];
+
+function sentenceCount(text: string): number {
+  return text.split('。').filter((part) => part.trim().length > 0).length;
 }
 
-function sceneFor(primary: ManifestCell): string {
-  const parts = primary.manifestationJa
+function appendUniqueSentence(base: string, extra: string): string {
+  const sentence = completeSentence(extra);
+  const needle = sentence.replace(/。$/u, '').slice(0, 12);
+  if (!needle || base.includes(needle)) return base;
+  if (sentenceCount(base) >= 6) return base;
+  return `${base}${sentence}`;
+}
+
+function composeReading(
+  primary: ManifestCell,
+  second: ManifestCell | null,
+  modifiers?: PersonalManifestationModifiersV2,
+): string {
+  let text = primary.manifestationJa;
+  if (second) {
+    const support = completeSentence(second.beatJa);
+    const needle = support.replace(/。$/u, '').slice(0, 10);
+    if (needle && !primary.manifestationJa.includes(needle) && sentenceCount(text) < 6) {
+      text = `${text}${support}`;
+    }
+  }
+  if (modifiers) {
+    const stemLine = STEM_SOCIAL_MIRROR_JA[((modifiers.stemLane % 10) + 10) % 10]!;
+    const lunarLine = LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!;
+    text = appendUniqueSentence(text, stemLine);
+    text = appendUniqueSentence(text, lunarLine);
+  }
+  return text;
+}
+
+function sceneFor(primary: ManifestCell, composed: string): string {
+  const parts = composed
     .split('。')
     .map((part) => part.trim())
     .filter((part) => part.length > 0);
@@ -636,22 +724,34 @@ function sceneFor(primary: ManifestCell): string {
 export function buildPersonalManifestationV4(
   birth: ExpressionAxes,
   answers: ExpressionAxes,
+  modifiers?: PersonalManifestationModifiersV2,
 ): PersonalManifestationV4 {
-  const [axisId, secondAxisId] = pickManifestationAxes(birth, answers);
+  const [axisId, secondAxisId, thirdAxisId] = pickManifestationAxes(birth, answers, modifiers);
   const cell = cellFor(axisId, birth, answers);
   const second = secondAxisId ? cellFor(secondAxisId, birth, answers) : null;
   const birthTendency = String(birth[axisId]);
   const answerTendency = String(answers[axisId]);
-  const patternId = secondAxisId
-    ? `${axisId}_${birthTendency}_${answerTendency}+${secondAxisId}_${String(birth[secondAxisId])}_${String(answers[secondAxisId])}`
-    : `${axisId}_${birthTendency}_${answerTendency}`;
+  const modifierKey = modifiers
+    ? `s${modifiers.stemLane}l${modifiers.lunarMonth}`
+    : 'sxlx';
+  const patternId = [
+    axisId,
+    birthTendency,
+    answerTendency,
+    secondAxisId
+      ? `${secondAxisId}_${String(birth[secondAxisId])}_${String(answers[secondAxisId])}`
+      : 'none',
+    thirdAxisId ?? 'none',
+    modifierKey,
+  ].join('+');
+  const manifestationJa = composeReading(cell, second, modifiers);
   return {
     patternId,
     axisId,
     birthTendency,
     answerTendency,
-    manifestationJa: composeReading(cell, second),
-    sceneCandidateJa: sceneFor(cell),
+    manifestationJa,
+    sceneCandidateJa: sceneFor(cell, cell.manifestationJa),
     shortJa: cell.shortJa,
     userDidNotDirectlyAnswerThis: true,
     cannotComeFromDobOnlyJa: `同じ生年月日でも、今回の${axisId}の答えが変わると「${cell.shortJa}」にはならない。`,

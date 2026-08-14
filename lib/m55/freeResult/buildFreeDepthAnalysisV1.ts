@@ -21,7 +21,7 @@ import {
   resolveFreeAxes,
   type FreeFiveViewInput,
 } from './buildFreeFiveViewCompositionV1';
-import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
+import { resolveCanonicalBirthProfileV2 } from '../individualization/canonicalBirthProfileV2';
 import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
 
 export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v4' as const;
@@ -496,16 +496,19 @@ export function buildFreeDepthAnalysisV1(
 
   const axes = free.value.axes;
   const diverge = alignDiv.value.divergeItems;
-  const birth = buildBirthSignatureV1({
-    birthDate: input.birthDate,
-    stemLaneIndex: input.stemLaneIndex,
-  });
-  if (!birth.ok) return birth;
+  const canonical = resolveCanonicalBirthProfileV2({ birthDate: input.birthDate });
+  if (!canonical.ok) return canonical;
+  const birth = canonical.value.birthSignature;
   const insight = buildPersonalFreeFusedInsightSpecV3({
-    birth: birth.value,
+    birth,
     answers: axes,
     alignItems: alignDiv.value.alignItems,
     divergeItems: diverge,
+    modifiers: {
+      stemLane: canonical.value.stemLane,
+      lunarMonth: canonical.value.lunarMonth,
+      tensionIds: canonical.value.tensionIds,
+    },
   });
   if (insight.birthEvidenceIds.length < 1 || insight.answerEvidenceQuestionIds.length < 2) {
     return { ok: false, code: 'selector_resolution_failed' };

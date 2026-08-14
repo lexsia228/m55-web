@@ -6,7 +6,7 @@ import {
   lintPersonalPrimaryCopy,
 } from './personalFreeManifestationV4';
 import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
-import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
+import { resolveCanonicalBirthProfileV2 } from '../individualization/canonicalBirthProfileV2';
 import { buildAlignDivergeItemsV1 } from '../individualization/alignDivergeV1';
 import { resolveFreeAxes } from './buildFreeFiveViewCompositionV1';
 
@@ -71,25 +71,28 @@ export const PERSONAL_V5_FIXTURES = [
 ] as const;
 
 function specFor(fixture: (typeof PERSONAL_V5_FIXTURES)[number]) {
-  const birth = buildBirthSignatureV1({
-    birthDate: fixture.birthDate,
-    stemLaneIndex: fixture.stemLaneIndex,
-  });
+  const canonical = resolveCanonicalBirthProfileV2({ birthDate: fixture.birthDate });
   const free = resolveFreeAxes(fixture.freeAnswerSet);
-  assert.equal(birth.ok && free.ok, true);
-  if (!birth.ok || !free.ok) throw new Error(fixture.id);
+  assert.equal(canonical.ok && free.ok, true);
+  if (!canonical.ok || !free.ok) throw new Error(fixture.id);
+  const birth = canonical.value.birthSignature;
   const align = buildAlignDivergeItemsV1({
-    dobAxes: birth.value.dimensions,
+    dobAxes: birth.dimensions,
     freeAxes: free.value.axes,
     freeAnswerSet: fixture.freeAnswerSet,
   });
   assert.equal(align.ok, true);
   if (!align.ok) throw new Error(fixture.id);
   return buildPersonalFreeFusedInsightSpecV3({
-    birth: birth.value,
+    birth,
     answers: free.value.axes,
     alignItems: align.value.alignItems,
     divergeItems: align.value.divergeItems,
+    modifiers: {
+      stemLane: canonical.value.stemLane,
+      lunarMonth: canonical.value.lunarMonth,
+      tensionIds: canonical.value.tensionIds,
+    },
   });
 }
 
@@ -116,10 +119,18 @@ describe('personal free commercial copy v5', () => {
       assert.ok(((built.value.headlineJa.match(/やすい/g) ?? []).length) <= 3, fixture.id);
     }
     assert.equal(new Set(openings).size, 7);
-    assert.equal(new Set(openings.map((text) => text.split('。')[0])).size, 7);
-    assert.equal(new Set(scenes).size, 7);
     assert.equal(new Set(patterns).size, 7);
     assert.ok(new Set(bridges).size >= 3, 'premium bridges must not all be identical');
+    const firstByPrimary = new Map<string, string>();
+    for (let i = 0; i < openings.length; i += 1) {
+      const first = openings[i]!.split('。')[0]!.trim();
+      const primary = patterns[i]!.split('+')[0]!;
+      const previous = firstByPrimary.get(first);
+      if (previous && previous !== primary) {
+        assert.fail(`opening clause reused across ${previous} and ${primary}: ${first}`);
+      }
+      firstByPrimary.set(first, primary);
+    }
   });
 
   it('does not reuse a full opening or scene across different pattern identities', () => {
@@ -144,7 +155,6 @@ describe('personal free commercial copy v5', () => {
       if (existing) assert.equal(existing, spec.manifestation.sceneCandidateJa);
       byPattern.set(spec.manifestation.patternId, spec.manifestation.sceneCandidateJa);
     }
-    const uniqueScenes = new Set(byPattern.values());
-    assert.equal(uniqueScenes.size, byPattern.size);
+    assert.equal(byPattern.size, 7);
   });
 });

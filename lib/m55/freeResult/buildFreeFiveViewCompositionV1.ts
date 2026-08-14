@@ -16,7 +16,7 @@ import {
   isFreePrimaryThemeAnswerId,
 } from '../individualization/answerIdMapsV1';
 import { mapPrimaryThemeToReplyThemeV1 } from '../individualization/primaryThemeReplyMapV1';
-import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
+import { resolveCanonicalBirthProfileV2 } from '../individualization/canonicalBirthProfileV2';
 import type {
   AlignDivergeItem,
   ChangeTendency,
@@ -32,7 +32,7 @@ import type {
 
 export type FreeFiveViewInput = {
   birthDate: string;
-  stemLaneIndex: number;
+  stemLaneIndex?: number;
   freeAnswerSet: Record<string, string>;
 };
 
@@ -230,11 +230,11 @@ const AXIS_COPY = {
 /** Exported for free-depth composition (same DOB axis resolution; no algorithm change). */
 export function resolveDobAxes(input: {
   birthDate: string;
-  stemLaneIndex: number;
+  stemLaneIndex?: number;
 }): Result<ExpressionAxes> {
-  const signature = buildBirthSignatureV1(input);
-  if (!signature.ok) return signature;
-  return { ok: true, value: signature.value.dimensions };
+  const canonical = resolveCanonicalBirthProfileV2({ birthDate: input.birthDate });
+  if (!canonical.ok) return canonical;
+  return { ok: true, value: canonical.value.birthSignature.dimensions };
 }
 
 /** Exported for free-depth composition (same free-axis resolution; IDs unchanged). */

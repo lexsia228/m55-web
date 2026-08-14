@@ -24,6 +24,7 @@ import { buildPersonalFreeInsightSpecV2 } from './personalFreeInsightSpecV2';
 import {
   buildPersonalManifestationV4,
   premiumBridgeForManifestation,
+  type PersonalManifestationModifiersV2,
   type PersonalManifestationV4,
 } from './personalFreeManifestationV4';
 
@@ -215,6 +216,7 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
   answers: ExpressionAxes;
   alignItems: readonly AlignDivergeItem[];
   divergeItems: readonly AlignDivergeItem[];
+  modifiers?: PersonalManifestationModifiersV2;
 }): PersonalFreeFusedInsightSpecV3 {
   const hinge =
     pickFreeAlignDivergeItemV1({
@@ -248,6 +250,7 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
   const manifestation = buildPersonalManifestationV4(
     input.birth.dimensions,
     input.answers,
+    input.modifiers,
   );
   const headline = manifestation.manifestationJa;
   const body = fusedSecond
@@ -270,7 +273,7 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
     manifestation.axisId,
   );
   return {
-    id: `${PERSONAL_FREE_FUSED_INSIGHT_SPEC_VERSION}:${input.birth.birthSignatureId}:${hinge.axisId}:${hinge.relation}:${input.answers.start}-${input.answers.decision}-${input.answers.recovery}-${input.answers.distance}-${input.answers.change}`,
+    id: `${PERSONAL_FREE_FUSED_INSIGHT_SPEC_VERSION}:${input.birth.birthSignatureId}:${input.modifiers?.stemLane ?? 'x'}:${input.modifiers?.lunarMonth ?? 'x'}:${hinge.axisId}:${hinge.relation}:${input.answers.start}-${input.answers.decision}-${input.answers.recovery}-${input.answers.distance}-${input.answers.change}`,
     kind: 'personal_free_fused_v3',
     birthEvidenceIds: birthEvidence.length > 0 ? birthEvidence : ['civil.dayBand'],
     answerEvidenceQuestionIds: answerEvidence,
