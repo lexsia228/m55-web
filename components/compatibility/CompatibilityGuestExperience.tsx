@@ -21,6 +21,8 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import PairFreeShareCTA from './PairFreeShareCTA';
+import PairResultSignature from './PairResultSignature';
 import styles from './CompatibilityGuestExperience.module.css';
 
 const EMPTY_INPUT: CompatibilityGuestInput = { personA: '', personB: '' };
@@ -344,6 +346,12 @@ export default function CompatibilityGuestExperience({
             <p>生年月日から見る土台と、今の回答から見える表れ方を分けて整理しました。</p>
           </section>
 
+          <PairResultSignature
+            overlap={result.free.overlap}
+            difference={result.free.difference}
+            immediateAction={context.immediateAction}
+          />
+
           <section className={styles.baselineSection} aria-labelledby="baseline-title">
             <p className={styles.cardNumber}>{PAIR_READING_FREE_STRUCTURE_ITEMS[0].index}</p>
             <h3 id="baseline-title">{PAIR_READING_FREE_STRUCTURE_ITEMS[0].titleJa}</h3>
@@ -396,6 +404,8 @@ export default function CompatibilityGuestExperience({
             <p className={styles.actionText}>{context.immediateAction}</p>
             <p className={styles.actionNote}>結果を決めるためではなく、二人の違いを確かめる一回分の行動です。</p>
           </section>
+
+          <PairFreeShareCTA />
 
           <p className={styles.contextNote}>
             土台は生年月日、表れ方と連鎖は今の回答を重ねています。

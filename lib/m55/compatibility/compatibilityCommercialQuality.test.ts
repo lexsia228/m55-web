@@ -83,6 +83,8 @@ describe('free pair result renders a relationship dynamic, not two profiles', ()
     assert.match(component, /result\.free\.relationshipDynamic/);
     assert.match(component, /この違いが、二人の間でどう動くか/);
     assert.match(component, /data-testid="compatibility-relationship-dynamic"/);
+    assert.match(component, /PairResultSignature/);
+    assert.match(component, /PairFreeShareCTA/);
   });
 
   it('names both sides and the consequence between them, across fixtures', () => {

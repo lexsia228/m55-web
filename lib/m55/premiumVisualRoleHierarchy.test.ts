@@ -85,3 +85,18 @@ describe('premium pair continuation is night-family on the owned report', () => 
     assert.doesNotMatch(nightBlock.slice(0, 500), /rgba\(255,\s*255,\s*255,\s*0\.6\)/);
   });
 });
+
+describe('premium chrome label floor', () => {
+  it('keeps commercial hero/drawer labels at 11px or above', () => {
+    const css = read('components/dtr/DtrFullReader.module.css');
+    const hub = read('components/dtr/PremiumDrawerHub.module.css');
+    const prefix = css.slice(css.indexOf('.heroBlueprintPrefix {'), css.indexOf('.heroBlueprintPrefix {') + 280);
+    const step = css.slice(css.indexOf('.premiumIntroPanelStep {'), css.indexOf('.premiumIntroPanelStep {') + 220);
+    const overline = hub.slice(hub.indexOf('.drawerHubOverline {'), hub.indexOf('.drawerHubOverline {') + 420);
+    assert.match(prefix, /max\(11px, var\(--dtr-label-floor\)\)/);
+    assert.match(step, /max\(11px, var\(--dtr-label-floor\)\)/);
+    assert.match(overline, /font-size: 11px/);
+    assert.doesNotMatch(overline, /font-size: 9px/);
+    assert.doesNotMatch(step, /0\.56rem/);
+  });
+});

@@ -5,9 +5,33 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #116 Production client integrity GREEN · Pair surface identity implementation lane).
 
-## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — AUTHORITATIVE
+## PAIR SURFACE IDENTITY LANE (2026-08-14) — AUTHORITATIVE FOR CURRENT IMPLEMENTATION
+
+This section is the current authority for the Pair visual-identity wave. Earlier MRQ P3 entry/planning rows remain historical for closure facts only. Compatibility commerce stays OFF.
+
+| Field | Value |
+|---|---|
+| PR #116 | **MERGED** — https://github.com/lexsia228/m55-web/pull/116 · merge SHA `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
+| Production SHA (diagnostics) | `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
+| Production deployment that resolved `BUILD_OUTPUT_MISMATCH` | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` · no-cache rebuild of the same SHA |
+| P0 Production client integrity | **CLOSED_GREEN** |
+| Personal Free | commercially **GREEN** |
+| Personal Premium | commercially **GREEN** · PR #116 visual hierarchy live |
+| ACTIVE LANE | **Pair surface identity + ownership grammar** |
+| Worktree | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` · `fix/m55-pair-surface-identity-v1` |
+| Pair Free | visual signature + privacy-safe entry share (this PR) |
+| Pair Premium | **READY_BUT_GATED** · night ownership grammar in source/fixture · **NOT_LIVE** |
+| Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
+| ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| NEXT GATE after this PR | Human commercial review of Pair surfaces, then merge; commerce activation remains unauthorized |
+| MRQ_IMPLEMENTATION_AUTHORIZED | **true** for this bounded Pair display lane only — not for P3 checkout/4242/sales launch |
+| TEST_CHECKOUT_4242_AUTHORIZED | **false** |
+| REAL_CHECKOUT_AUTHORIZED | **false** |
+| SALES_LAUNCH_AUTHORIZED | **false** |
+
+## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — HISTORICAL FOR P3 ENTRY, SUPERSEDED FOR ACTIVE LANE 2026-08-14
 
 This section is the current authority for lane status, PR dispositions, and the next single action. Earlier transition sections remain historical for closure facts only.
 
@@ -334,11 +358,17 @@ When merged authority or runtime state changes, update observations via Product 
 5. HOME最終統合 — later
 6. HOME正式SSOT — later
 
+**Current transition (2026-08-14):** PR #116 is **MERGED** @ `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420`. Production client integrity is **CLOSED_GREEN** after no-cache deployment `dpl_2SQembxqK13ghU9o52R1vfNovmwE`. Personal Free and Personal Premium remain commercially **GREEN**. ACTIVE implementation is the **Pair surface identity** lane (`fix/m55-pair-surface-identity-v1`). Pair Premium stays **READY_BUT_GATED**. Compatibility commerce remains **OFF**. ¥600 recovery remains separate. P3 checkout/4242/sales launch remain unauthorized.
+
 **Current transition (2026-08-11):** P0 Premium terminology is **CLOSED GREEN** (PR #90). Product Authority main settlement is **COMPLETED** (PR #94 **MERGED**). P1A copy/framing is **CLOSED GREEN** (PR #95 **MERGED**). P1B visual contrast is **CLOSED GREEN** (PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`). P1C draft persistence is **CLOSED GREEN** (PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`). P2 Revenue-Ready is **CLOSED GREEN** (PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`). P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). Last verified origin/main @ `2026-08-11T04:45:05Z` is `286cb1052972e18cdbc5f8c99e6d41c78c3180d4`; Last P2 settlement remains `2d14404d62ab7b265e07729448d6db602a055cce` @ deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx**. ACTIVE sublane is **P3 entry/planning** — P3 implementation **not started**. P3/checkout/4242/real purchase/sales launch remain unauthorized.
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-11):** P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). ACTIVE LANE is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. Complete this P3 entry live-binding reconciliation locally; after it settles via push/PR/merge, proceed to **P3 implementation authorization review** (`M55_MRQ_P3_IMPLEMENTATION_AUTHORIZATION_REVIEW`). Preserve Preview-only-first strategy. P1A/P1B/P1C/P2 must not be re-audited. P3 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
+**CURRENT (2026-08-14):** Complete Pair surface identity implementation on `fix/m55-pair-surface-identity-v1`, then Human commercial review. Production SHA `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` is verified. Compatibility commerce remains **OFF**. ¥600 recovery remains a separate lane. Do not reopen Personal Free/Premium GREEN work. P3 checkout/4242/sales launch remain **not authorized**.
+
+> **HISTORICAL SNAPSHOT — valid through 2026-08-11; superseded 2026-08-14.**
+>
+> P2 post-merge SSOT transition is **COMPLETE** (PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`). ACTIVE LANE is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. Complete this P3 entry live-binding reconciliation locally; after it settles via push/PR/merge, proceed to **P3 implementation authorization review** (`M55_MRQ_P3_IMPLEMENTATION_AUTHORIZATION_REVIEW`). Preserve Preview-only-first strategy. P1A/P1B/P1C/P2 must not be re-audited. P3 implementation worktree **not created**. MRQ_IMPLEMENTATION_AUTHORIZED is **false**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — valid only through 2026-08-05; superseded 2026-08-06.**
 >

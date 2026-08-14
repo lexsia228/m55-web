@@ -21,7 +21,11 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
-## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE
+## Current Pair surface identity wave (2026-08-14) — AUTHORITATIVE IMPLEMENTATION OVERLAY
+
+PR #116 is **MERGED** @ `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420`. Production client integrity is **CLOSED_GREEN**. Personal Free / Personal Premium remain GREEN. The authorized implementation is a **bounded Pair display wave** (`fix/m55-pair-surface-identity-v1`): Pair Free visual signature + privacy-safe entry share, Pair Premium night ownership grammar in source/fixture. This does **not** activate P5 paid Compatibility commerce, checkout, or Production purchase.
+
+## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE FOR MRQ SEQUENCE, SUPERSEDED FOR ACTIVE IMPLEMENTATION LANE 2026-08-14
 
 PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. PR #68 is **CLOSED** as **superseded** — **unmerged**; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ.
 

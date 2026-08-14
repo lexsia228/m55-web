@@ -10,6 +10,7 @@ import {
   trackFunnelAction,
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import PairResultSignature from './PairResultSignature';
 import styles from './PaidCompatibilityReportReader.module.css';
 
 type CopyState = {
@@ -105,11 +106,22 @@ export default function PaidCompatibilityReportReader({
   }
 
   return (
-    <article className={styles.reader} aria-labelledby="paid-report-title">
+    <article className={styles.reader} aria-labelledby="paid-report-title" data-m55-pair-premium-tone="night">
       <header className={styles.reportHeader}>
         <p className={styles.eyebrow}>二人の関係を読み解く</p>
+        {owned ? (
+          <p className={styles.ownedChip}>保存済みの二人の相性レポート</p>
+        ) : (
+          <p className={styles.ownedChip}>読み返せる二人の相性レポート</p>
+        )}
         <h1 id="paid-report-title">{snapshot.reportTitle}</h1>
         <p className={styles.subtitle}>6つの場面から、関係の扱い方を読みます</p>
+        <PairResultSignature
+          tone="night"
+          overlap={snapshot.sharedFoundation}
+          difference={snapshot.differentFoundation}
+          immediateAction={leadChapter?.resetSteps[0] ?? snapshot.recurringLoop}
+        />
         <p className={styles.readingGuide}>
           {snapshot.currentContext?.readingGuide
             ?? '最初から通して読む必要はありません。今気になる場面の章から開いてください。'}
@@ -125,8 +137,10 @@ export default function PaidCompatibilityReportReader({
       <section className={styles.overview} aria-labelledby="relationship-overview-title">
         <p className={styles.eyebrow}>はじめに</p>
         <h2 id="relationship-overview-title">二人の関係の全体像</h2>
-        <p className={styles.summary}>{snapshot.relationshipSummary}</p>
-        <div className={styles.foundationGrid}>
+        <div className={styles.roleThesis} data-visual-role="thesis">
+          <p className={styles.summary}>{snapshot.relationshipSummary}</p>
+        </div>
+        <div className={styles.foundationGrid} data-visual-role="recognition">
           <div>
             <h3>重なりやすい土台</h3>
             <p>{snapshot.sharedFoundation}</p>
@@ -137,14 +151,14 @@ export default function PaidCompatibilityReportReader({
           </div>
         </div>
         {leadChapter ? (
-          <div className={styles.openingMoves} data-testid="paid-report-opening-moves">
+          <div className={styles.openingMoves} data-testid="paid-report-opening-moves" data-visual-role="recognition">
             <h3>その違いが、二人それぞれにどう出ているか</h3>
             <div className={styles.openingGrid}>
-              <div>
+              <div data-pair-side="you" aria-label="あなた側">
                 <p className={styles.blockLabel}>Aに出やすい動き</p>
                 <p>{leadChapter.personAPerspective}</p>
               </div>
-              <div>
+              <div data-pair-side="partner" aria-label="相手側">
                 <p className={styles.blockLabel}>Bに出やすい動き</p>
                 <p>{leadChapter.personBPerspective}</p>
               </div>
@@ -152,7 +166,7 @@ export default function PaidCompatibilityReportReader({
           </div>
         ) : null}
 
-        <div className={styles.recurringLoop}>
+        <div className={`${styles.recurringLoop} ${styles.rolePrimaryRecognition}`} data-visual-role="primaryRecognition">
           <h3>
             {snapshot.currentContext
               ? '今の回答から見える、続きやすい連鎖'
@@ -162,7 +176,7 @@ export default function PaidCompatibilityReportReader({
         </div>
 
         {leadChapter ? (
-          <div className={styles.openingHandling} data-testid="paid-report-opening-handling">
+          <div className={styles.openingHandling} data-testid="paid-report-opening-handling" data-visual-role="action">
             <div>
               <p className={styles.blockLabel}>この連鎖を戻す入口</p>
               <p>{leadChapter.resetSteps[0]}</p>
@@ -262,23 +276,27 @@ export default function PaidCompatibilityReportReader({
 
               {isOpen ? (
                 <div className={styles.chapterBody} id={`${chapterAnchor(chapter)}-body`}>
-                  <section className={styles.sceneBlock}>
+                  <section className={`${styles.sceneBlock} ${styles.roleThesis}`} data-visual-role="thesis">
                     <p className={styles.blockLabel}>場面</p>
                     <p>{chapter.scene}</p>
                   </section>
 
-                  <div className={styles.perspectiveGrid} data-testid="paid-report-perspectives">
-                    <section>
+                  <div className={styles.perspectiveGrid} data-testid="paid-report-perspectives" data-visual-role="recognition">
+                    <section data-pair-side="you" aria-label="あなた側">
                       <p className={styles.blockLabel}>Aから見えること</p>
                       <p>{chapter.personAPerspective}</p>
                     </section>
-                    <section>
+                    <section data-pair-side="partner" aria-label="相手側">
                       <p className={styles.blockLabel}>Bから見えること</p>
                       <p>{chapter.personBPerspective}</p>
                     </section>
                   </div>
 
-                  <section className={styles.loopBlock} data-testid="paid-report-loop">
+                  <section
+                    className={`${styles.loopBlock} ${styles.rolePrimaryRecognition}`}
+                    data-testid="paid-report-loop"
+                    data-visual-role="primaryRecognition"
+                  >
                     <p className={styles.blockLabel}>二人の間で起きる連鎖</p>
                     <ol>
                       {chapter.relationshipLoop.map((step) => (
@@ -287,7 +305,7 @@ export default function PaidCompatibilityReportReader({
                     </ol>
                   </section>
 
-                  <section className={styles.resetBlock} data-testid="paid-report-reset">
+                  <section className={`${styles.resetBlock} ${styles.roleAction}`} data-testid="paid-report-reset" data-visual-role="action">
                     <p className={styles.blockLabel}>この場面から戻るために</p>
                     <ol>
                       {chapter.resetSteps.map((step) => (
@@ -296,7 +314,7 @@ export default function PaidCompatibilityReportReader({
                     </ol>
                   </section>
 
-                  <section className={styles.phraseBlock} data-testid="paid-report-phrase">
+                  <section className={`${styles.phraseBlock} ${styles.roleAction}`} data-testid="paid-report-phrase" data-visual-role="action">
                     <p className={styles.blockLabel}>そのまま使える一言</p>
                     <blockquote>{chapter.usablePhrase}</blockquote>
                     <button type="button" onClick={() => copyPhrase(chapter)}>
@@ -311,12 +329,12 @@ export default function PaidCompatibilityReportReader({
                     </p>
                   </section>
 
-                  <section className={styles.experimentBlock} data-testid="paid-report-experiment">
+                  <section className={`${styles.experimentBlock} ${styles.roleAction}`} data-testid="paid-report-experiment" data-visual-role="action">
                     <p className={styles.blockLabel}>今週、一度だけ試すこと</p>
                     <p>{chapter.smallExperiment}</p>
                   </section>
 
-                  <section className={styles.reflectionBlock}>
+                  <section className={`${styles.reflectionBlock} ${styles.roleTakeaway}`} data-visual-role="takeaway">
                     <p className={styles.blockLabel}>あとで振り返る一問</p>
                     <p>{chapter.reflectionQuestion}</p>
                   </section>

@@ -241,5 +241,8 @@ describe('free result depth UI / questionnaire polish guards', () => {
     assert.match(panel, /CoreFreeResultScenesSection/);
     assert.doesNotMatch(panel, /CoreFiveViewResultSection/);
     assert.doesNotMatch(hub, /保存版/);
+    assert.match(scenes, /smallActionJa/);
+    assert.match(scenes, /m55-free-once-action/);
+    assert.match(panel, /composition\.synthesis\.smallActionJa/);
   });
 });
