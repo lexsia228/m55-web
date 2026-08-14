@@ -10,6 +10,7 @@ describe('normalizePaidReportPublicDisplayText', () => {
     const twice = normalizePaidReportPublicDisplayText(once);
     assert.equal(once, twice);
     assert.doesNotMatch(once, /保存版/);
+    assert.doesNotMatch(once, /本質リズム/);
     assert.match(once, /プレミアムレポート/);
     assert.doesNotMatch(once, /プレミアムレポートレポート/);
   });
@@ -50,7 +51,8 @@ describe('normalizePaidReportPublicDisplayText', () => {
     const displayed = normalizePaidReportPublicDisplayText(stored);
     assert.notEqual(stored, displayed);
     assert.equal(stored, '【この保存版だけの本質リズム】\n向きが決まるほど力を出しやすくなります。');
-    assert.match(displayed, /【このプレミアムレポートだけの本質リズム】/);
+    assert.match(displayed, /【判断が安定しやすい条件】/);
+    assert.doesNotMatch(displayed, /本質リズム/);
   });
 
   it('does not duplicate プレミアムレポート when normalizing 保存版レポート', () => {

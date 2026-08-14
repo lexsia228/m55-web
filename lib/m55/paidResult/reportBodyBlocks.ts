@@ -11,7 +11,7 @@ export type ReportBodyBlock = { label: string | null; units: string[] };
  * exactly one unit. Anything after that is ordinary catalog prose and must not be presented
  * under a heading that promises text written only for this report.
  */
-const INDIVIDUALIZATION_BLOCK_LABEL = /^このプレミアムレポートだけ/;
+const INDIVIDUALIZATION_BLOCK_LABEL = /^(このプレミアムレポートだけ|判断が安定しやすい条件)/;
 
 /**
  * Paid chapter bodies use three levels of separation: a 【…】 line opens a sub-section, a blank

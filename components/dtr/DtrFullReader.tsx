@@ -1066,6 +1066,13 @@ function snapshotBodyParas(body: string): string[] {
     .filter(Boolean);
 }
 
+/** True when a snapshot paragraph is a catalog 【header】 block, not an individualization prefix. */
+function isCatalogBlockPara(para: string): boolean {
+  const trimmed = para.trim();
+  if (!trimmed.startsWith('【')) return false;
+  return !/^【(このプレミアムレポートだけ|判断が安定しやすい条件)/.test(trimmed);
+}
+
 /** True when snapshot body has enough content to display preferentially over hardcoded fallback. */
 function hasSnapshotBody(body: string): boolean {
   const trimmed = body.trim();
@@ -1599,58 +1606,6 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
           ))}
         </div>
       </div>
-      <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>力が出る条件と戻し方</h3>
-        <div className={styles.idGrowthFlow}>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.12s' }}
-          >
-            <span className={styles.idGrowthTag}>力が出やすいとき</span>
-            <p className={styles.idGrowthText}>
-              やることの順番が見え、先に整える場所を一つ決められるとき。
-            </p>
-          </div>
-          <div className={styles.idGrowthBetween} aria-hidden>
-            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-              <path className={styles.idGrowthPath} d="M2 6 L62 6" />
-            </svg>
-            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-              <path className={styles.idGrowthPath} d="M6 2 L6 62" />
-            </svg>
-          </div>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.2s' }}
-          >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
-            <p className={styles.idGrowthText}>
-              同時進行や急かしが重なり、どこから手をつけるか分からなくなるとき。
-            </p>
-          </div>
-          <div className={styles.idGrowthBetween} aria-hidden>
-            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M2 6 L62 6" />
-            </svg>
-            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M6 2 L6 62" />
-            </svg>
-          </div>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.28s' }}
-          >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
-            <p className={styles.idGrowthText}>
-              今日進めることを一つに絞り、「まずここから」と決めること。
-            </p>
-          </div>
-        </div>
-        <p className={styles.idDesignHint}>
-          見えた条件は、そのまま答えにするものではありません。
-          今いちばん重い作業や予定の中で、先に整える場所を一つ選ぶために使います。
-        </p>
-      </div>
     </div>
   );
 }
@@ -1673,9 +1628,9 @@ function EssenceArticleWithViz({
   const nick = nickname?.trim();
   const displayName = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const hardcodedBodyParas = [
-    `${displayName}さんは、動き始める前に「何を先に整えるか」が見えると、力を出しやすくなります。勢いだけで進めるより、順番や置き方が見えるほうが、自分の力を使いやすくなります。`,
-    '同時にいくつものことを求められたり、急かされる流れが続くと、どこから手をつけるかが見えにくくなります。その状態で無理に進めようとすると、動いているのに疲れだけが残りやすくなります。',
-    'まずは、今日やることを一つだけに絞ります。全部を整えてから進むのではなく、「ここだけ先に整える」と決めると、動き出しやすくなります。',
+    `${displayName}さんは、確認が足りないまま進むより、根拠が見えてから動くほうが力を使いやすい形です。`,
+    '急かされて同時に抱えるほど、確認が長くなり、仕事が前に進みにくくなります。',
+    'この章では、進みやすい条件と、後回しにすると楽になる作業の分かれ方を見ます。',
   ];
   const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
   const inlineLede = (hybridAiPrimaryBody || !useSnapshot || openingLedeShown) ? null : (paras[0] ?? null);
@@ -1691,7 +1646,7 @@ function EssenceArticleWithViz({
         </div>
       ) : null}
       <p className={styles.chapterPilotGuideText}>
-        この図では、{displayName}さんがどんな条件で進みやすく、どんな流れで止まりやすいかを見ます。仕事やこれからの動きは、気合いだけで進めるより、先に整える場所を見つけるほうが扱いやすくなります。
+        この図では、{displayName}さんがどんな条件で進みやすく、どんな流れで止まりやすいかを見ます。
       </p>
       <GraphCaption id="ch2-stability-panel" />
       <StabilityConditionsPanelFigures stemIdx={stemIdx} />
@@ -1798,7 +1753,7 @@ function StrengthsLiftFigures({ body, nickname }: { body: string; nickname?: str
   );
 }
 
-/** 無理が出やすいところ — warning カード列 */
+/** 無理が出やすいところ — warning カード列（認識用。本文の【】ブロックはここでは繰り返さない） */
 function FrictionWarningFigures({ body }: { body: string }) {
   const items = parseBlockItems(body);
   if (items.length === 0) return null;
@@ -1811,7 +1766,7 @@ function FrictionWarningFigures({ body }: { body: string }) {
           つまずきやすい場面
         </h3>
         <p className={styles.gridInsertHint}>
-          ここでは、どんな時に無理が出やすいかを先に見ていきます。
+          名前だけ先に見て、本文と同じ説明はここでは繰り返しません。
         </p>
         <div className={styles.warnList}>
           {items.map((it, i) => (
@@ -1823,63 +1778,10 @@ function FrictionWarningFigures({ body }: { body: string }) {
               <span className={styles.warnStripe} aria-hidden />
               <div className={styles.warnInner}>
                 <span className={styles.warnTitle}>{it.header}</span>
-                <p className={styles.warnLead}>{firstSentence(it.content)}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
-      <div className={styles.idDesignBlock}>
-        <h3 className={styles.idDesignBlockTitle}>近い人との向き合い方と戻し方</h3>
-        <div className={styles.idGrowthFlow}>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.12s' }}
-          >
-            <span className={styles.idGrowthTag}>力が出やすいとき</span>
-            <p className={styles.idGrowthText}>
-              落ち着いて相手の言葉を聞き、自分の気持ちも少しずつ言葉にできるとき。
-            </p>
-          </div>
-          <div className={styles.idGrowthBetween} aria-hidden>
-            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-              <path className={styles.idGrowthPath} d="M2 6 L62 6" />
-            </svg>
-            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-              <path className={styles.idGrowthPath} d="M6 2 L6 62" />
-            </svg>
-          </div>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.2s' }}
-          >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
-            <p className={styles.idGrowthText}>
-              分かってほしい気持ちが強くなり、言葉が強くなったり、距離が近くなりすぎるとき。
-            </p>
-          </div>
-          <div className={styles.idGrowthBetween} aria-hidden>
-            <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M2 6 L62 6" />
-            </svg>
-            <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-              <path className={`${styles.idGrowthPath} ${styles.idGrowthPath2}`} d="M6 2 L6 62" />
-            </svg>
-          </div>
-          <div
-            className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-            style={{ animationDelay: '0.28s' }}
-          >
-            <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
-            <p className={styles.idGrowthText}>
-              すぐに結論を出さず、まず一呼吸おいて、言葉を短く整えること。
-            </p>
-          </div>
-        </div>
-        <p className={styles.idDesignHint}>
-          見えた出方は、そのまま答えにするものではありません。
-          いまいちばん気になるやりとりの中で、言葉と距離を少し整えるために使います。
-        </p>
       </div>
     </div>
   );
@@ -2006,9 +1908,11 @@ function GridArticleFrictionViz({
   const hardcodedBodyParas = [
     `${displayName}さんは、大切な人との関係ほど、雑に済ませず丁寧に向き合おうとします。相手の言葉や表情、少しの変化にも気づきやすく、関係を大事にしようとする力があります。`,
     'ただし、近い人とのやりとりでは、分かってほしい気持ちが強くなるほど、言葉を選びすぎたり、逆に強く出てしまうことがあります。相手の反応を気にしすぎると、自分の中で抱え込みやすくなります。',
-    'まずは、相手を変えようとする前に、自分の言葉と距離を少し整えます。すぐに結論を出そうとせず、「今は近づきすぎていないか」「言葉が強くなっていないか」を見るだけでも、関係を扱いやすくなります。',
+    '近い人との場面では、相手を変えようとする前に、いまの距離と言葉だけを見ます。',
   ];
-  const displayBodyParas = useSnapshot ? paras : hardcodedBodyParas;
+  const displayBodyParas = (useSnapshot ? paras : hardcodedBodyParas).filter(
+    (para) => !isCatalogBlockPara(para),
+  );
   const inlineLede = (!useSnapshot && !openingLedeShown) ? (paras[0] ?? null) : null;
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
@@ -2022,7 +1926,7 @@ function GridArticleFrictionViz({
         </div>
       ) : null}
       <p className={styles.chapterPilotGuideText}>
-        この図では、{displayName}さんが近い人との関係で、どこに力が入りやすく、どこで無理が出やすいかを見ます。大切な人とのやりとりは、正解を急ぐより、言葉と距離を少し整えるほうが扱いやすくなります。
+        近い人との場面では、無理の出方を先に名前で見てから、やりとりの流れへ進みます。
       </p>
       <GraphCaption id="ch3-friction-warning" />
       <FrictionWarningFigures body={section.body} />
@@ -2526,35 +2430,13 @@ const CH4_PRACTICAL_GUIDANCE_CATEGORIES: {
   rows: { action: string; why: string; when: string }[];
 }[] = [
   {
-    title: '予定と余白',
-    icon: 'work',
-    rows: [
-      {
-        action: '今日決めなくていいことを一つ横に置き、休める時間を先に置く。',
-        why: '守る習慣として余白を先に確保すると、全部を一度に決めようとしにくくなります。',
-        when: '不安が強く、何から手をつけるか分からないとき。',
-      },
-    ],
-  },
-  {
-    title: '生活の負荷と余白',
-    icon: 'work',
-    rows: [
-      {
-        action: 'お金・予定・疲れが重なるときは、まず何を減らせるかを一つだけ見る。',
-        why: '減らす習慣として、まず一つ見える化すると、負担の置き場所が分かりやすくなります。',
-        when: 'お金や生活のことが重なり、何から手をつけるか分からないとき。',
-      },
-    ],
-  },
-  {
-    title: '疲れと戻り方',
+    title: '今日の一手',
     icon: 'recovery',
     rows: [
       {
-        action: '疲れが残っているときは、学びや作業を増やす前に、続けられる形まで小さくする。',
-        why: '疲れが残ったまま決め続けると、判断がさらに重くなりやすくなります。',
-        when: '予定が詰まり始め、休む前に片付けようとしているとき。',
+        action: '今日決めなくていいことを一つ横に置く。',
+        why: '全部を一度に決めようとすると、判断がさらに重くなります。',
+        when: '不安・予定・疲れが重なっているとき。',
       },
     ],
   },
@@ -2677,7 +2559,7 @@ function PracticalGuidanceSection({
   const ch4Intro = lifeTopicGuidance
     ? {
         title: 'この章で試すこと',
-        sub: '見える化・減らす・守る——続けられる形で、負担を一つ軽くします。',
+        sub: '理由は上で見ました。ここでやることは、一つだけです。',
       }
     : null;
 
@@ -2783,72 +2665,11 @@ const CH4_WORK_GUIDE_LABEL_JA: Record<string, string> = {
 
 /** Ⅳ章 ch4-work-guide — engine 本文は表示せず、生活・余白の読み解けだけ出す（engine 不変） */
 const CH4_WORK_GUIDE_BODY_JA: Record<string, string> = {
-  '力が出る条件':
-    '余白があり、今日やることを少なくできるとき。休める時間が少し戻ると、学びや作業も、生活の中で使える形に置きやすくなります。',
-  '詰まりやすい条件':
-    'お金の不安、予定、やることが重なり、何から手をつけるか分からなくなるとき。全部を一度に決めようとすると、さらに重くなりやすいです。',
-  '環境のヒント':
-    '決めることが少ない時間帯や、予定の前に短く整える隙間があると、負担を戻しやすくなります。',
-  '生活のヒント':
-    '休める時間を先に置き、今日の予定を一つ手放す習慣。余白が戻るほうが、動きやすくなります。',
+  '力が出る条件': '休める時間があるとき。',
+  '詰まりやすい条件': '全部を一度に決めようとするとき。',
+  '環境のヒント': '決めることが少ない隙間。',
+  '生活のヒント': '余白を先に置く。',
 };
-
-function LifeMarginRecoveryFigures() {
-  return (
-    <div className={styles.idDesignBlock}>
-      <h3 className={styles.idDesignBlockTitle}>生活の余白と戻し方</h3>
-      <div className={styles.idGrowthFlow}>
-        <div
-          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-          style={{ animationDelay: '0.12s' }}
-        >
-          <span className={styles.idGrowthTag}>力が出やすいとき</span>
-          <p className={styles.idGrowthText}>
-            休める時間や余白があり、今やることを少なくできるとき。
-          </p>
-        </div>
-        <div className={styles.idGrowthBetween} aria-hidden>
-          <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-            <path className={styles.idGrowthPath} d="M2 6 L62 6" />
-          </svg>
-          <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-            <path className={styles.idGrowthPath} d="M6 2 L6 62" />
-          </svg>
-        </div>
-        <div
-          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-          style={{ animationDelay: '0.2s' }}
-        >
-          <span className={`${styles.idGrowthTag} ${styles.idGrowthTagMid}`}>止まりやすいとき</span>
-          <p className={styles.idGrowthText}>
-            不安や予定が重なり、全部を一度に決めようとしているとき。
-          </p>
-        </div>
-        <div className={styles.idGrowthBetween} aria-hidden>
-          <svg className={styles.idGrowthConnH} viewBox="0 0 64 12" preserveAspectRatio="none">
-            <path className={styles.idGrowthPath} d="M2 6 L62 6" />
-          </svg>
-          <svg className={styles.idGrowthConnV} viewBox="0 0 12 64" preserveAspectRatio="none">
-            <path className={styles.idGrowthPath} d="M6 2 L6 62" />
-          </svg>
-        </div>
-        <div
-          className={`${styles.idGrowthCard} ${styles.idGrowthReveal}`}
-          style={{ animationDelay: '0.28s' }}
-        >
-          <span className={`${styles.idGrowthTag} ${styles.idGrowthTagEnd}`}>戻し方</span>
-            <p className={styles.idGrowthText}>
-              まず負担を一つ軽くし、休める時間を先に置くこと。
-            </p>
-        </div>
-      </div>
-      <p className={`${styles.idDesignHint} ${styles.ch4LifeMarginHint}`}>
-        見えた出方は、そのまま答えにするものではありません。
-        今いちばん重く感じている生活の中で、負担を一つ軽くするために使います。
-      </p>
-    </div>
-  );
-}
 
 function ChapterFourWorkLead({
   workSection,
@@ -2862,7 +2683,6 @@ function ChapterFourWorkLead({
   const bodyParas = [
     `${displayName}さんは、生活の小さな変化や疲れのサインに気づきやすいところがあります。乱れたまま無理に進むより、少しずつ整え直すことで、自分の動きやすさを取り戻しやすくなります。`,
     'ただし、お金の不安、予定、やること、疲れが重なると、何から手をつけるか分からなくなりやすいです。一気に決めようとすると、考えることが増え、さらに疲れが残りやすくなります。余白が戻ると、身につけてきたことも、日々の中で使いやすい形に置き直せます。',
-    'まずは、大きく変える前に、今日決めなくていいことを一つ横に置きます。全部を立て直そうとするより、休める時間、減らせる予定、後回しにできることを一つ選ぶほうが、戻る場所が見えやすくなります。',
   ];
 
   const indBlocks = extractDobV2IndividualizationBlocks(workSection.body);
@@ -2881,10 +2701,9 @@ function ChapterFourWorkLead({
         </div>
       ) : null}
       <p className={styles.chapterPilotGuideText}>
-        この図では、{displayName}さんが疲れたときに、どこから余白を戻しやすいかを見ます。
+        下の図は、疲れが出やすい条件の名前だけを見ます。試す一手は、このあとに一つ置きます。
       </p>
       <WorkGuideCards workSection={workSection} lifeTopicBodies />
-      <LifeMarginRecoveryFigures />
     </>
   );
 }

@@ -32,11 +32,24 @@ const PAID_REPORT_GENERATED_DISPLAY_REPLACEMENTS: readonly DisplayReplacement[] 
  * 「何の関わりとして呼ばれているか」 is not idiomatic — 関わり does not take として this way.
  * The surrounding sentences are about 曖昧な期待 and about being asked to relate in a
  * particular way, so the natural form of the same question is what the reader is being asked.
+ *
+ * 「本質リズム」 is leftover internal selector language. After calendar causality was
+ * removed, the block is the condition under which judgment stays stable — say that.
  */
+export const PAID_DTR_ESSENCE_RHYTHM_PUBLIC_HEADING_JA = '判断が安定しやすい条件' as const;
+
 const PAID_REPORT_NATURAL_PHRASING_REPLACEMENTS: readonly DisplayReplacement[] = [
   {
     from: '「自分は何の関わりとして呼ばれているか」',
     to: '「自分がどんな関わり方を求められているか」',
+  },
+  {
+    from: 'このプレミアムレポートだけの本質リズム',
+    to: PAID_DTR_ESSENCE_RHYTHM_PUBLIC_HEADING_JA,
+  },
+  {
+    from: 'この保存版だけの本質リズム',
+    to: PAID_DTR_ESSENCE_RHYTHM_PUBLIC_HEADING_JA,
   },
 ] as const;
 

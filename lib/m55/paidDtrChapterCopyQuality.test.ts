@@ -62,9 +62,10 @@ describe('paid chapter copy — no line is rendered twice in one chapter', () =>
 
   it('does not restate the chapter-2 stability panel verbatim', () => {
     const panelLines = [
-      'やることの順番が見え、先に整える場所を一つ決められるとき。',
-      '同時進行や急かしが重なり、どこから手をつけるか分からなくなるとき。',
-      '今日進めることを一つに絞り、「まずここから」と決めること。',
+      '安定する条件',
+      '力が出やすい条件',
+      '崩れやすい条件',
+      '守る条件',
     ];
     for (const line of panelLines) {
       assert.ok(READER_SRC.includes(line), `panel line must still be rendered: ${line}`);
@@ -128,8 +129,11 @@ describe('paid report — strong passages stay in place', () => {
     assert.equal(viz.maximize, '話がまとまる前に、次に何をするかを短く確かめられるとき');
   });
 
-  it('keeps the concrete chapter-2 recovery move', () => {
-    assert.ok(READER_SRC.includes('今日進めることを一つに絞り、「まずここから」と決めること。'));
+  it('keeps the concrete chapter-2 recovery move in the takeaway, not a second visual', () => {
+    assert.ok(
+      PAID_DTR_DEEP_READING_TAKEAWAYS['2'].itemsJa.some((item) => item.includes('後回しにする作業を先に決める')),
+    );
+    assert.equal(READER_SRC.includes('今日進めることを一つに絞り、「まずここから」と決めること。'), false);
   });
 });
 
