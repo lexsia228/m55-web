@@ -1,0 +1,845 @@
+{
+  "schema": "m55_personalization_resolution_audit_v1",
+  "generatedFrom": "d7512c0",
+  "calendarContract": {
+    "start": "1900-01-01",
+    "end": "2100-12-31"
+  },
+  "dobCardinality": {
+    "validCivilDatesInContractRange": 73414,
+    "independentStemLanes": 10,
+    "dobTimesStemInputsEvaluated": 734140,
+    "uniqueBirthSignatureIds": 27,
+    "uniqueCustomerRelevantDobVectors": 27,
+    "uniqueCivilCoresDayBandTimesSeason3": 9,
+    "dayBandCardinality": 3,
+    "season3Cardinality": 3,
+    "stemLaneRawCardinality": 10,
+    "stemLaneEffectiveForDistance": 3,
+    "signatureBucket": {
+      "min": 24120,
+      "max": 34572,
+      "median": 24267,
+      "entropyBits": 4.7403948466390045,
+      "top10": [
+        [
+          "dal-v1:ask-wait-pause-close-rebuild",
+          34572
+        ],
+        [
+          "dal-v1:ask-deadline-scene-close-rebuild",
+          33768
+        ],
+        [
+          "dal-v1:ask-sort-shrink-close-rebuild",
+          32356
+        ],
+        [
+          "dal-v1:try-sort-pause-close-observe",
+          32160
+        ],
+        [
+          "dal-v1:map-deadline-pause-close-adjust",
+          32160
+        ],
+        [
+          "dal-v1:try-deadline-shrink-close-observe",
+          32160
+        ],
+        [
+          "dal-v1:map-wait-shrink-close-adjust",
+          32160
+        ],
+        [
+          "dal-v1:try-wait-scene-close-observe",
+          32160
+        ],
+        [
+          "dal-v1:map-sort-scene-close-adjust",
+          32160
+        ],
+        [
+          "dal-v1:ask-wait-pause-middle-observe",
+          25929
+        ]
+      ]
+    },
+    "derivedEssenceStemUniqueSignatures": 27,
+    "derivedEssenceTop10": [
+      [
+        "dal-v1:ask-wait-pause-close-rebuild",
+        3458
+      ],
+      [
+        "dal-v1:ask-deadline-scene-close-rebuild",
+        3377
+      ],
+      [
+        "dal-v1:ask-sort-shrink-close-rebuild",
+        3235
+      ],
+      [
+        "dal-v1:try-sort-pause-close-observe",
+        3216
+      ],
+      [
+        "dal-v1:map-deadline-pause-close-adjust",
+        3216
+      ],
+      [
+        "dal-v1:try-deadline-shrink-close-observe",
+        3216
+      ],
+      [
+        "dal-v1:map-wait-shrink-close-adjust",
+        3216
+      ],
+      [
+        "dal-v1:try-wait-scene-close-observe",
+        3216
+      ],
+      [
+        "dal-v1:map-sort-scene-close-adjust",
+        3216
+      ],
+      [
+        "dal-v1:ask-wait-pause-solo-adjust",
+        2593
+      ]
+    ],
+    "yearSensitivitySameMonthDaySameStem": [
+      {
+        "a": "1983-02-28",
+        "b": "1993-02-28",
+        "same": true
+      },
+      {
+        "a": "1990-05-14",
+        "b": "2000-05-14",
+        "same": true
+      },
+      {
+        "a": "1975-12-31",
+        "b": "2015-12-31",
+        "same": true
+      }
+    ],
+    "yearUsedInBirthSignatureAxes": false,
+    "monthUsedAs": "season3 = (month-1)%3 only",
+    "dayUsedAs": "dayBand early<=10 mid<=20 late",
+    "informationLoss": [
+      "year validated then discarded before axes",
+      "month quantized to season3 (4 months collapse)",
+      "day quantized to 3 bands",
+      "stemLane 10 → mod3 for distance; change determined by stem+dayBandIndex",
+      "dobFp hashes full date+stem but is not used by manifestation selection",
+      "BirthSignature.tensions computed but unused by Free opening compose"
+    ],
+    "compositeStemVsEssenceSample": {
+      "n": 240,
+      "matchRate": 0
+    }
+  },
+  "fullGrid27x243": {
+    "n": 4374,
+    "uniqueOpenings": 360,
+    "uniqueOpeningCollisionMax": 81,
+    "topRepeatedOpenings": [
+      {
+        "n": 81,
+        "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい。でも、実際に答えが決まるのは会話のあとだ。相手の言葉をそのまま採用するというより、一人になっ"
+      },
+      {
+        "n": 81,
+        "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。まだ並べ"
+      },
+      {
+        "n": 81,
+        "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい。でも、実際に答えが決まるのは会話のあとだ。相手の言葉をそのまま採用するというより、一人になっ"
+      },
+      {
+        "n": 81,
+        "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。並べ終わ"
+      },
+      {
+        "n": 81,
+        "preview": "全体を揃えてから動くつもりが、先に小さく手が前に出ている。動きが早い人に見られても、本人の中ではまだ全体が見えていない。仕事の方針を変えるとき、整理し切る前に一"
+      },
+      {
+        "n": 81,
+        "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいく"
+      },
+      {
+        "n": 81,
+        "preview": "全体を揃えてから動くつもりが、先に小さく手が前に出ている。動きが早い人に見られても、本人の中ではまだ全体が見えていない。仕事の方針を変えるとき、整理し切る前に一"
+      },
+      {
+        "n": 81,
+        "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいく"
+      },
+      {
+        "n": 81,
+        "preview": "先に一つ動かしたあとに、全体の段取りを作り直している。試作している人に見られても、頭の中ではまだ全体が見えていない。大きな申し込みを決めるとき、先に手を出してか"
+      },
+      {
+        "n": 81,
+        "preview": "試し始めたあとに、人へ確認を取りに戻る。進んでいるように見られても、見立てを足してから閉じたい。途中まで進めた仕事を、誰かに見てもらいに戻るときに起きやすい。寝"
+      }
+    ]
+  },
+  "personal1000": {
+    "n": 1000,
+    "uniqueDobSignatures": 27,
+    "uniqueAnswerPatterns": 243,
+    "uniqueOpenings": 268,
+    "uniqueFirstSentences": 32,
+    "uniquePatterns": 15,
+    "uniquePremiumBridges": 49,
+    "openingCollisionDistinctInputs": {
+      "distinctOutputs": 268,
+      "distinctInputs": 938,
+      "clustersWithMultipleDistinctInputs": 156,
+      "largestClusterDistinctInputs": 21,
+      "collidingDistinctInputShare": 0.8805970149253731,
+      "worst": [
+        {
+          "distinctInputs": 21,
+          "preview": "全体を揃えてから動くつもりが、先に小さく手が前に出ている。動きが早い人に見られても、本人の中ではまだ全体が見えていない。仕事の方針を変えるとき、整理し切る前に一つ動かしてしまう。締めたあとに、置きたか"
+        },
+        {
+          "distinctInputs": 17,
+          "preview": "試し始めたあとに、人へ確認を取りに戻る。進んでいるように見られても、見立てを足してから閉じたい。途中まで進めた仕事を、誰かに見てもらいに戻るときに起きやすい。寝かせるつもりが、期限の合図で閉じてしまう"
+        },
+        {
+          "distinctInputs": 15,
+          "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい。でも、実際に答えが決まるのは会話のあとだ。相手の言葉をそのまま採用するというより、一人になってから聞いたことを自分の順番に並べ直し、"
+        },
+        {
+          "distinctInputs": 14,
+          "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。まだ並べている途中なのに、期限が来ると一気に閉じ"
+        },
+        {
+          "distinctInputs": 14,
+          "preview": "全体を揃えてから動くつもりが、先に小さく手が前に出ている。動きが早い人に見られても、本人の中ではまだ全体が見えていない。仕事の方針を変えるとき、整理し切る前に一つ動かしてしまう。寝かせるつもりが、期限"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "試し始めたあとに、人へ確認を取りに戻る。進んでいるように見られても、見立てを足してから閉じたい。途中まで進めた仕事を、誰かに見てもらいに戻るときに起きやすい。寝かせるつもりだった夜に、候補をまた開いて"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "試し始めたあとに、人へ確認を取りに戻る。進んでいるように見られても、見立てを足してから閉じたい。途中まで進めた仕事を、誰かに見てもらいに戻るときに起きやすい。まだ並べている途中なのに、期限が来ると一気"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "先に一つ動かしたあとに、全体の段取りを作り直している。試作している人に見られても、頭の中ではまだ全体が見えていない。大きな申し込みを決めるとき、先に手を出してから全体を描き直したくなる。まだ並べている"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。期限を意識しながらも、候補を並べ直している。"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。期限を意識しながらも、"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい。でも、実際に答えが決まるのは会話のあとだ。相手の言葉をそのまま採用するというより、一人になってから聞いたことを自分の順番に並べ直し、"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。締めたあとに、置きたか"
+        },
+        {
+          "distinctInputs": 12,
+          "preview": "先に一つ動かしたあとに、全体の段取りを作り直している。試作している人に見られても、頭の中ではまだ全体が見えていない。大きな申し込みを決めるとき、先に手を出してから全体を描き直したくなる。並べ終わったあ"
+        },
+        {
+          "distinctInputs": 12,
+          "preview": "先に一つ動かしたあとに、全体の段取りを作り直している。試作している人に見られても、頭の中ではまだ全体が見えていない。大きな申し込みを決めるとき、先に手を出してから全体を描き直したくなる。寝かせるつもり"
+        },
+        {
+          "distinctInputs": 12,
+          "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。寝かせるつもりが、期限"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "試し始めたあとに、人へ確認を取りに戻る。進んでいるように見られても、見立てを足してから閉じたい。途中まで進めた仕事を、誰かに見てもらいに戻るときに起きやすい。期限を意識しながらも、候補を並べ直している"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。並べ終わったあとも、返事は翌朝まで持っていく。"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい。でも、実際に答えが決まるのは会話のあとだ。相手の言葉をそのまま採用するというより、一人になってから聞いたことを自分の順番に並べ直し、"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "一人で段取りしたあとに、人の見立てを足しにいく。決まってから相談しているように見られても、足りない視点を取りに戻っている。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。寝かせるつもりだった夜"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "相談の場では合わせているように見られやすい。一人になってから候補を並べ直し、そこで初めて方針が固まる。誰かに方針を聞かれたあと、一人で書き直したくなる。寝かせるつもりが、期限の合図で閉じてしまう。"
+        }
+      ]
+    },
+    "firstSentenceCollisionDistinctInputs": {
+      "distinctOutputs": 32,
+      "distinctInputs": 938,
+      "clustersWithMultipleDistinctInputs": 27,
+      "largestClusterDistinctInputs": 113,
+      "collidingDistinctInputShare": 0.9946695095948828,
+      "worst": [
+        {
+          "distinctInputs": 113,
+          "preview": "人に相談している最中は、もう気持ちが固まっているように見られやすい"
+        },
+        {
+          "distinctInputs": 112,
+          "preview": "試し始めたあとに、人へ確認を取りに戻る"
+        },
+        {
+          "distinctInputs": 105,
+          "preview": "先に一つ動かしたあとに、全体の段取りを作り直している"
+        },
+        {
+          "distinctInputs": 104,
+          "preview": "全体を揃えてから動くつもりが、先に小さく手が前に出ている"
+        },
+        {
+          "distinctInputs": 97,
+          "preview": "相談の場では合わせているように見られやすい"
+        },
+        {
+          "distinctInputs": 95,
+          "preview": "一人で段取りしたあとに、人の見立てを足しにいく"
+        },
+        {
+          "distinctInputs": 43,
+          "preview": "期限で閉じたあとに「早かったのでは」が残る"
+        },
+        {
+          "distinctInputs": 39,
+          "preview": "「いつまでに」が先に立ちつつ、候補を並べ直している"
+        },
+        {
+          "distinctInputs": 33,
+          "preview": "寝かせるつもりだったのに、期限の合図で閉じてしまう"
+        },
+        {
+          "distinctInputs": 33,
+          "preview": "いったん寝かせるつもりだったのに、夜には候補をまた開いている"
+        },
+        {
+          "distinctInputs": 30,
+          "preview": "候補は並べ終わっているのに、返事は翌朝まで持っていく"
+        },
+        {
+          "distinctInputs": 28,
+          "preview": "まだ並べている途中なのに、期限が来ると一気に切る"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "一人で整えてから戻りたいのに、その場では距離を言葉にして合わせている"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "連絡は続いているように見られやすい"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "一人で整えたいのに、返事の速さだけ合わせている"
+        },
+        {
+          "distinctInputs": 10,
+          "preview": "その場では近い関係を保っているように見られやすい"
+        },
+        {
+          "distinctInputs": 9,
+          "preview": "会話では合わせているように見られやすい"
+        },
+        {
+          "distinctInputs": 9,
+          "preview": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう"
+        },
+        {
+          "distinctInputs": 7,
+          "preview": "小さく直している人に見られても、本人は一度やり直すつもりで手を動かしている"
+        },
+        {
+          "distinctInputs": 6,
+          "preview": "小さく直している延長で、周囲には急な方向転換に見える組み直しが入る"
+        }
+      ]
+    },
+    "patternCollision": {
+      "distinctOutputs": 15,
+      "distinctInputs": 938,
+      "clustersWithMultipleDistinctInputs": 15,
+      "largestClusterDistinctInputs": 413,
+      "collidingDistinctInputShare": 1,
+      "worst": [
+        {
+          "distinctInputs": 413,
+          "preview": "start+decision"
+        },
+        {
+          "distinctInputs": 153,
+          "preview": "start+distance"
+        },
+        {
+          "distinctInputs": 136,
+          "preview": "decision+distance"
+        },
+        {
+          "distinctInputs": 51,
+          "preview": "decision+change"
+        },
+        {
+          "distinctInputs": 46,
+          "preview": "distance+change"
+        },
+        {
+          "distinctInputs": 40,
+          "preview": "start+change"
+        },
+        {
+          "distinctInputs": 23,
+          "preview": "change+recovery"
+        },
+        {
+          "distinctInputs": 14,
+          "preview": "start+recovery"
+        },
+        {
+          "distinctInputs": 12,
+          "preview": "decision+recovery"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "distance+recovery"
+        },
+        {
+          "distinctInputs": 9,
+          "preview": "start+"
+        },
+        {
+          "distinctInputs": 9,
+          "preview": "recovery+"
+        },
+        {
+          "distinctInputs": 8,
+          "preview": "distance+"
+        },
+        {
+          "distinctInputs": 7,
+          "preview": "decision+"
+        },
+        {
+          "distinctInputs": 6,
+          "preview": "change+"
+        }
+      ]
+    },
+    "premiumCollision": {
+      "distinctOutputs": 49,
+      "distinctInputs": 938,
+      "clustersWithMultipleDistinctInputs": 42,
+      "largestClusterDistinctInputs": 99,
+      "collidingDistinctInputShare": 0.9925373134328358,
+      "worst": [
+        {
+          "distinctInputs": 99,
+          "preview": "いま見えた「動いたあとに見立てを足す」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 98,
+          "preview": "いま見えた「相談のあと一人で決める」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 96,
+          "preview": "いま見えた「揃える前に手が先に出る」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 85,
+          "preview": "いま見えた「一人で揃えたあとに見立てを足す」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 72,
+          "preview": "いま見えた「先に動かしてから段取りを描く」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 63,
+          "preview": "いま見えた「相談のあと一人で並べ直す」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 35,
+          "preview": "いま見えた「締めたあとに置く時間が来る」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 34,
+          "preview": "いま見えた「相談のあと一人で並べ直す」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 33,
+          "preview": "いま見えた「先に動かしてから段取りを描く」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 28,
+          "preview": "いま見えた「寝かせるつもりが期限で閉じてしまう」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 26,
+          "preview": "いま見えた「並べたあとも返事は翌朝」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 25,
+          "preview": "いま見えた「比べている途中で区切りに切る」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 23,
+          "preview": "いま見えた「期限が先に立ちつつ並べ直す」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 22,
+          "preview": "いま見えた「寝かせるつもりが夜には候補をまた開く」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 16,
+          "preview": "いま見えた「期限が先に立ちつつ並べ直す」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 15,
+          "preview": "いま見えた「相談のあと一人で決める」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "いま見えた「動いたあとに見立てを足す」は、仕事の始め方で武器にも摩擦にもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "いま見えた「その場では寄せ、帰宅後に一人の時間が先に立つ」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 13,
+          "preview": "いま見えた「連絡は続け、整えは一人の時間に寄る」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "いま見えた「寝かせるつもりが夜には候補をまた開く」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「仕事や判断」での出方も、そこで読めます。"
+        }
+      ]
+    },
+    "materiality": {
+      "dobTrialsWhereSignatureDiffers": 193,
+      "dobHeadlineChangeRate": 0.9637305699481865,
+      "answerTrials": 200,
+      "answerHeadlineChangeRate": 1,
+      "deterministicRate": 1
+    }
+  },
+  "pair1000": {
+    "n": 1000,
+    "uniqueRawPairInputs": 1000,
+    "uniquePaidSeenInputs": 1000,
+    "uniqueBirthPairPatterns": 223,
+    "uniqueInteractions": 6,
+    "uniqueLoops": 29,
+    "uniqueResets": 9,
+    "swapCorrectRate": 1,
+    "loopCollision": {
+      "distinctOutputs": 29,
+      "distinctInputs": 1000,
+      "clustersWithMultipleDistinctInputs": 28,
+      "largestClusterDistinctInputs": 191,
+      "collidingDistinctInputShare": 0.999,
+      "worst": [
+        {
+          "distinctInputs": 191,
+          "preview": "二人の間では、片方は今夜のうちに距離の理由を置きたくなり、もう片方は説明せず静かになりやすい。その静けさを拒否と受け取りやすいところからずれやすい。あなた側はその間を考える時間として使いやすく、相手側"
+        },
+        {
+          "distinctInputs": 122,
+          "preview": "二人の間では、片方は考える時間として間を取り、もう片方は同じ間を気持ちが離れた時間と受け取りやすい。あなた側はその間を考える時間として使いやすく、相手側は同じ間を気持ちが離れた時間と読みやすい。そのた"
+        },
+        {
+          "distinctInputs": 71,
+          "preview": "二人の間では、二人がすれ違うとしたら、意見の違いより「話し終えたと感じるタイミング」の差から始まりやすい。話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。あなた"
+        },
+        {
+          "distinctInputs": 61,
+          "preview": "二人の間では、二人がすれ違うとしたら、意見の違いより「話し終えたと感じるタイミング」の差から始まりやすい。話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。あなた"
+        },
+        {
+          "distinctInputs": 60,
+          "preview": "二人の間では、同じ話題でも、先に小さく動く側と揃えてから返したい側が同時に走りやすい。速さの差が、熱量の差として受け取りやすい。あなた側は話題を引き取って進めやすく、相手側は出なかった一点を抱えたまま"
+        },
+        {
+          "distinctInputs": 55,
+          "preview": "二人の間では、同じ話題でも、先に小さく動く側と揃えてから返したい側が同時に走りやすい。速さの差が、熱量の差として受け取りやすい。あなた側は先に安心の形を取りたくなりやすく、相手側は同じ動きを別の意味と"
+        },
+        {
+          "distinctInputs": 55,
+          "preview": "二人の間では、表では話が進んだように見え、片方はまだ言えていない一点を持ち帰っている。終わった会話と、残った一点が次の入口になりやすい。あなた側は話題を引き取って進めやすく、相手側は出なかった一点を抱"
+        },
+        {
+          "distinctInputs": 47,
+          "preview": "二人の間では、片方は今の話で揃えようとし、もう片方は先に静かになる。確かめようとするほど、静かな時間が長くなりやすい。あなた側は違いをその場の言葉で揃えようとしやすく、相手側は説明より先に静かになりや"
+        },
+        {
+          "distinctInputs": 37,
+          "preview": "二人の間では、決める速さも言葉の速さも日によって変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。あなた側は先に安心の形を取りたくなりやすく、相手側は同じ動きを別の意味として"
+        },
+        {
+          "distinctInputs": 37,
+          "preview": "二人の間では、進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。あなた側はその場で結論を置こうとしやすく、相手側はまだ言葉を整えている途中になりやすい。そのため二"
+        },
+        {
+          "distinctInputs": 36,
+          "preview": "二人の間では、結論は置いてから出したい側と、先に言葉で確かめたい側が、同じ速さに見えて同時に出やすい。あなた側は先に言葉で確かめたくなりやすく、相手側は結論だけは置いてから出したい。そのため二人の間で"
+        },
+        {
+          "distinctInputs": 32,
+          "preview": "二人の間では、片方は今の話で揃えようとし、もう片方は先に静かになる。同じ速さに見えても、確かめたい側と間を取りたい側が同時に出やすい。あなた側は違いをその場の言葉で揃えようとしやすく、相手側は説明より"
+        },
+        {
+          "distinctInputs": 31,
+          "preview": "二人の間では、片方は考える時間として間を取り、もう片方は同じ間を気持ちが離れた時間と受け取りやすい。あなた側はその間を考える時間として使いやすく、相手側は同じ間を気持ちが離れた時間と読みやすい。そのた"
+        },
+        {
+          "distinctInputs": 27,
+          "preview": "二人の間では、同じ話題でも、先に小さく動く側と揃えてから返したい側が同時に走りやすい。速さの差が、熱量の差として受け取りやすい。あなた側は短い確認で安心しやすく、相手側は同じ速さの間に止まりやすい。そ"
+        },
+        {
+          "distinctInputs": 24,
+          "preview": "二人の間では、表では話が進んだように見え、片方はまだ言えていない一点を持ち帰っている。閉じた側と残した側が、次の会話で入れ替わりやすい。あなた側は話題を引き取って進めやすく、相手側は出なかった一点を抱"
+        },
+        {
+          "distinctInputs": 17,
+          "preview": "二人の間では、決める速さも言葉の速さも日によって変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。あなた側は話題を引き取って進めやすく、相手側は出なかった一点を抱えたまま戻り"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "二人の間では、進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。あなた側はその場で結論を置こうとしやすく、相手側はまだ言葉を整えている途中になりやすい。そのため二"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "二人の間では、決める速さも言葉の速さも日によって変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。あなた側は短い確認で安心しやすく、相手側は同じ速さの間に止まりやすい。そのた"
+        },
+        {
+          "distinctInputs": 11,
+          "preview": "二人の間では、間を取ることと戻ることがどちらも重く、片方は今夜のうちに次の接点を欲しくなり、もう片方は入口自体を作りにくい。終わらない空白が、拒否にも疲れにも見えやすい。あなた側は先に安心の形を取りた"
+        },
+        {
+          "distinctInputs": 10,
+          "preview": "二人の間では、決める速さも言葉の速さも日によって変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。あなた側は先に安心の形を取りたくなりやすく、相手側は同じ動きを別の意味として"
+        }
+      ]
+    },
+    "paidFingerprintCollisionAmongRawPairInputs": {
+      "distinctOutputs": 667,
+      "distinctInputs": 1000,
+      "clustersWithMultipleDistinctInputs": 261,
+      "largestClusterDistinctInputs": 4,
+      "collidingDistinctInputShare": 0.594,
+      "worst": [
+        {
+          "distinctInputs": 4,
+          "preview": "1bc3169c2d356ab8"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "7626d005d019baeb"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "d7c34845ee0fe18f"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "65a4e9f0d8667a02"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "8e4ec46eb17e92c1"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "4b5a6cfbfe3dd4fb"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "9127bdb486bd03ca"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "d7a8d75b8c118eea"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "9cc8acf1b7579605"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "e7aebf2e3cc8f84f"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "35be0f6015c5924a"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "5a5cdd0af0f6fc13"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "60f673a1fab70994"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "a9451c8cc14319d9"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "63ba29be2f7c8fb7"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "163bfd8a925f86bc"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "dfbf31e190bad02a"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "f22f8308b6c05b6c"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "64ca7dda42c1e4c7"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "3d107fbc02bd8e3f"
+        }
+      ]
+    },
+    "paidFingerprintCollisionAmongPaidSeenInputs": {
+      "distinctOutputs": 667,
+      "distinctInputs": 1000,
+      "clustersWithMultipleDistinctInputs": 261,
+      "largestClusterDistinctInputs": 4,
+      "collidingDistinctInputShare": 0.594,
+      "worst": [
+        {
+          "distinctInputs": 4,
+          "preview": "1bc3169c2d356ab8"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "7626d005d019baeb"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "d7c34845ee0fe18f"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "65a4e9f0d8667a02"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "8e4ec46eb17e92c1"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "4b5a6cfbfe3dd4fb"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "9127bdb486bd03ca"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "d7a8d75b8c118eea"
+        },
+        {
+          "distinctInputs": 4,
+          "preview": "9cc8acf1b7579605"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "e7aebf2e3cc8f84f"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "35be0f6015c5924a"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "5a5cdd0af0f6fc13"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "60f673a1fab70994"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "a9451c8cc14319d9"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "63ba29be2f7c8fb7"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "163bfd8a925f86bc"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "dfbf31e190bad02a"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "f22f8308b6c05b6c"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "64ca7dda42c1e4c7"
+        },
+        {
+          "distinctInputs": 3,
+          "preview": "3d107fbc02bd8e3f"
+        }
+      ]
+    },
+    "paidUniqueRecurringLoops": 27,
+    "paidChapterSceneDiversityMean": 6,
+    "pairDobMaterialityWhereSignatureDiffers": {
+      "trials": 200,
+      "rate": 1
+    }
+  },
+  "personalPremiumCatalog": {
+    "theoreticalStemTimesBandTimesSeasonTimesLunarMonth": 1440,
+    "uniqueConcatenatedChapterFingerprints": 1440,
+    "note": "Paid DTR v2.1 concatenates stem/band/season/lunar catalogs. Free fusion does not use lunar/solar-term/year."
+  },
+  "compatibilityPaidArchitecture": {
+    "reportInputIncludesRawDob": false,
+    "dobCollapsedTo": "pairAxisId (4) + differenceType unused in paid builder + currentContext",
+    "chapterFocusTableStatic": true,
+    "sixScenesAreStaticFocusPlusContextSuffix": true
+  },
+  "questionnaireCardinality": {
+    "personalFreeFiveQuestions": 5,
+    "optionsPerQuestion": 3,
+    "personalAnswerVectors": 243,
+    "personalThemePostPurchase": 5,
+    "pairBodyAnswers": 243,
+    "pairFocus": 5,
+    "pairCurrentContextContractCount": 1215
+  }
+}

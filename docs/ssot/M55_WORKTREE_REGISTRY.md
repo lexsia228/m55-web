@@ -40,7 +40,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-14 free-inference-quality) — authoritative, read this first:** ACTIVE worktree `/Users/lexsia/Documents/M55_WORKTREE-free-inference-quality-v1` · branch `feat/m55-free-inference-quality-v1` · base `origin/main@0b2b2b349ccf4f0b9549d5a59be5a92be0a99578`. Human reopened **PERSONAL_FREE_INFERENCE_QUALITY** and **COMPATIBILITY_FREE_INFERENCE_QUALITY** only. Visual systems PR #116/#117 remain **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT GATE:** Human actual Free surface copy lock (V6 editorial; not commerce activation).
+**CURRENT (2026-08-15 personalization-resolution) — authoritative, read this first:** ACTIVE audit worktree `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v1` · branch `audit/m55-personalization-resolution-v1` · base `feat/m55-free-inference-quality-v1@d7512c00520b5914778ee3da0b48193f6c0aed1d`. V6 Free inference is **not technically rejected**; merge/Human lock is **PAUSED** until personalization resolution. Verdict **PATCH_REQUIRED_EFFECTIVE_DOB_RESOLUTION_27_AND_TEMPLATE_COLLISION**. Visual systems PR #116/#117 remain **CLOSED GREEN**. Compatibility commerce remains **OFF**. WT-028 remains the V6 implementation tree (do not merge). **NEXT GATE:** consume unused existing DOB signals (not a second calendar); then re-audit; then Human Free lock.
+
+**CURRENT (2026-08-14 free-inference-quality) — paused for resolution:** worktree `/Users/lexsia/Documents/M55_WORKTREE-free-inference-quality-v1` · branch `feat/m55-free-inference-quality-v1` · HEAD `d7512c0`. Human reopened **PERSONAL_FREE_INFERENCE_QUALITY** and **COMPATIBILITY_FREE_INFERENCE_QUALITY** only. Visual systems PR #116/#117 remain **CLOSED GREEN**. Compatibility commerce remains **OFF**. Human actual Free surface copy lock is **paused** pending personalization audit.
 
 **CURRENT (2026-08-14 post-PR-#117) — historical:** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production SHA `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · GitHub Production deployment `5903998364`. Four-surface visual identity is **CLOSED GREEN**. Personal Free / Personal Premium remain **CLOSED GREEN**. Compatibility Free is **CLOSED GREEN** on Production. Pair Premium remains **READY_BUT_GATED**. Compatibility commerce remains **OFF**. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. Prior snapshots `511b54d` (PR #116) and `286cb105` retained as historical.
 
@@ -729,18 +731,33 @@ Historical post-merge transition snapshots remain recorded for audit.
 | next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
 | notes | PR #117 **MERGED**. Four-surface visual identity **CLOSED GREEN**. Pair Premium stays READY_BUT_GATED. Commerce remains OFF. |
 
-### WT-028 — Free inference quality v2 (ACTIVE)
+### WT-028 — Free inference quality v2 (PAUSED merge)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-free-inference-quality-v1` |
 | branch | `feat/m55-free-inference-quality-v1` |
 | base | `origin/main` @ `0b2b2b349ccf4f0b9549d5a59be5a92be0a99578` |
-| lifecycle | **ACTIVE** |
+| HEAD | `d7512c00520b5914778ee3da0b48193f6c0aed1d` |
+| lifecycle | **PAUSED** — V6 not rejected; merge/Human lock paused for personalization resolution |
 | purpose | Personal Free + Compatibility Free inference quality — fused DOB × answers, observable behavioral surprise |
-| product implementation authorized | **true** — inference/result composition only |
+| product implementation authorized | **false** until resolution wave; no visual/payment rebuild |
 | prohibited operations | Stripe / DB / Compatibility commerce / Premium report generation / purchase routes / env / keys / HOME layout |
-| next gate | Human actual Free surface copy lock (V6 editorial) |
+| next gate | WT-029 audit authority; then consume unused dal-v1 / composite-stem signals |
+
+### WT-029 — Personalization resolution audit (ACTIVE)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v1` |
+| branch | `audit/m55-personalization-resolution-v1` |
+| base | `feat/m55-free-inference-quality-v1` @ `d7512c00520b5914778ee3da0b48193f6c0aed1d` |
+| lifecycle | **ACTIVE** — measurement / SSOT only |
+| purpose | All-surface DOB granularity, 1000-user/pair collision, Free+Paid personalization thresholds |
+| product implementation authorized | **false** — no engine rebuild in this tree unless Human names the next wave |
+| prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 / second astrology system |
+| next gate | Human accepts audit verdict; then smallest consume-existing-signals implementation wave |
+| notes | Verdict `PATCH_REQUIRED_EFFECTIVE_DOB_RESOLUTION_27_AND_TEMPLATE_COLLISION`. Authority `docs/audit/M55_ALL_SURFACE_PERSONALIZATION_RESOLUTION_AUDIT.md`. |
 
 ---
 
