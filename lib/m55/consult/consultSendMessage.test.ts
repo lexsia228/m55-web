@@ -175,7 +175,7 @@ describe('consultSendMessage', () => {
     assert.ok(src.includes('disabled={submitDisabled}'));
     assert.ok(src.includes('disabled={!selectedThemeId}'));
     assert.ok(src.includes('confirmPanel'));
-    assert.ok(src.includes('Step 1 / 3'));
+    assert.ok(src.includes("Step {step.n} / 3"));
     assert.ok(src.includes('aria-current={active ? \'step\' : undefined}'));
     assert.ok(src.includes('aria-selected={selected}'));
     assert.ok(src.includes('submitBtnPrimary'));

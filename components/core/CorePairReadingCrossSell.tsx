@@ -11,15 +11,21 @@ import styles from './CoreExperience.module.css';
  * Secondary to the Premium bridge; never routes to paid compatibility.
  * Arrival is already measured by the /synastry input-view impression.
  */
-export default function CorePairReadingCrossSell() {
+export default function CorePairReadingCrossSell({
+  tone = 'light',
+}: {
+  tone?: 'light' | 'night';
+}) {
   const titleId = useId();
   const copy = CORE_PAIR_READING_CROSS_SELL;
+  const night = tone === 'night';
 
   return (
     <section
-      className={styles.pairCrossSell}
+      className={night ? `${styles.pairCrossSell} ${styles.pairCrossSellNight}` : styles.pairCrossSell}
       aria-labelledby={titleId}
       data-testid="m55-core-pair-cross-sell"
+      data-m55-cross-sell-tone={tone}
     >
       <p className={styles.pairCrossSellEyebrow}>{copy.eyebrowJa}</p>
       <h2 id={titleId} className={styles.pairCrossSellTitle}>

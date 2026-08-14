@@ -38,6 +38,7 @@
   --dtr-body-muted:  rgba(255, 255, 255, 0.52);
   --dtr-accent:      rgba(185, 165, 230, 0.75);
   --dtr-shadow:      rgba(0, 0, 0, 0.40);
+  --dtr-label-floor: 11px;
 
   --page-pad-x: 12px;
   /* Sticky PublicHeader + breathing room for drawer hub/panel scroll targets */
@@ -161,7 +162,7 @@
 
 .chapterConsultQuestionLabel {
   margin: 0 0 6px;
-  font-size: 10px;
+  font-size: var(--dtr-label-floor);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--dtr-accent);
@@ -249,7 +250,7 @@
 .graphCaptionLabel {
   display: block;
   margin: 0 0 3px;
-  font-size: 10px;
+  font-size: var(--dtr-label-floor);
   font-weight: 600;
   letter-spacing: 0.14em;
   color: rgba(175, 162, 215, 0.72);
@@ -313,7 +314,7 @@
 }
 
 .pmInDrawer .pmExpandChip {
-  font-size: 10px;
+  font-size: var(--dtr-label-floor);
   border-color: rgba(156, 188, 220, 0.26);
   background: rgba(120, 144, 176, 0.12);
   color: rgba(202, 220, 240, 0.82);
@@ -349,6 +350,171 @@
   color: rgba(216, 225, 244, 0.88);
   font-size: clamp(12px, 2.65vw, 13px);
   line-height: 1.6;
+}
+
+/* Shared Premium visual roles — elevation/type only; no new palette. */
+.roleThesis {
+  margin: 0 0 clamp(12px, 2vw, 18px);
+}
+
+.roleThesis .chapterPersonalHeading {
+  font-size: clamp(1.16rem, 2.8vw, 1.32rem);
+  color: var(--dtr-text);
+}
+
+.roleThesis .chapterOpeningLede:first-of-type,
+.roleThesis .savedWideBody > :first-child {
+  color: var(--dtr-text);
+}
+
+.roleThesis .chapterOpeningLede + .chapterOpeningLede {
+  color: rgba(210, 204, 228, 0.78);
+}
+
+.rolePrimaryRecognition,
+.roleRecognition,
+.roleRisk,
+.roleAction,
+.roleTakeaway,
+.roleVisualSummary,
+.roleBridge {
+  min-width: 0;
+}
+
+.rolePrimaryRecognition {
+  margin: clamp(8px, 1.6vw, 12px) 0 clamp(16px, 2.8vw, 22px);
+  padding: clamp(14px, 2.6vw, 20px) clamp(12px, 2.2vw, 16px);
+  border-radius: 16px;
+  border: 1px solid rgba(185, 165, 230, 0.28);
+  background: linear-gradient(168deg, rgba(32, 28, 48, 0.72), rgba(22, 18, 34, 0.58));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.rolePrimaryRecognition .idDesignShell,
+.rolePrimaryRecognition .gridInsertShell {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.roleSecondaryRecognition {
+  margin: clamp(6px, 1.2vw, 10px) 0;
+  opacity: 0.96;
+}
+
+.roleSecondaryRecognition .idDesignShell,
+.roleSecondaryRecognition .savedGridArticle,
+.roleSecondaryRecognition .wgGrid .wgCard {
+  background: rgba(255, 255, 255, 0.018);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.roleVisualSummary .idDesignShell {
+  margin: 8px 0 0;
+  padding: clamp(10px, 2vw, 14px);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.roleVisualSummary .graphCaptionBlock {
+  margin-bottom: 8px;
+}
+
+.roleVisualSummary .graphCaption {
+  font-size: clamp(12px, 2.9vw, 13.5px);
+  line-height: 1.55;
+  color: rgba(228, 222, 242, 0.9);
+}
+
+.roleVisualSummary .strMapFig {
+  max-width: min(280px, 72%);
+  margin-inline: auto;
+}
+
+.roleRisk .idDesignShell,
+.roleRisk .gridInsertShell {
+  border-color: rgba(218, 165, 64, 0.28);
+  background: rgba(40, 32, 22, 0.28);
+  box-shadow: none;
+}
+
+.roleAction .practicalShell,
+.roleAction .practicalStack {
+  padding: clamp(12px, 2.4vw, 16px);
+  border-radius: 16px;
+  border: 1px solid rgba(185, 165, 230, 0.32);
+  background: linear-gradient(168deg, rgba(40, 34, 58, 0.78), rgba(26, 22, 40, 0.64));
+}
+
+.roleTakeaway .chapterTakeawayBlock {
+  margin-top: 0;
+  padding: clamp(10px, 2vw, 14px);
+  border-width: 1px;
+  background: rgba(28, 32, 48, 0.22);
+}
+
+.roleBridge {
+  margin-top: clamp(8px, 1.4vw, 12px);
+}
+
+.roleBridge .chapterConsultAction {
+  border-color: rgba(160, 140, 220, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: none;
+}
+
+.pmSecondary {
+  background: rgba(20, 17, 30, 0.72) !important;
+  border-color: rgba(150, 180, 216, 0.12) !important;
+  box-shadow: none !important;
+}
+
+.pmSecondary .moduleTitle {
+  font-size: clamp(0.86rem, 2.1vw, 0.94rem);
+}
+
+.chapterLeadCompressed .chapterOpeningLede:nth-of-type(n + 3),
+.chapterLeadCompressed .chapterOpeningPoints {
+  font-size: clamp(0.84rem, 2vw, 0.9rem);
+  color: rgba(200, 194, 220, 0.72);
+}
+
+.rolePrimaryRecognition .flowCard {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 10px 0 12px;
+}
+
+.rolePrimaryRecognition .flowTrackUnit:last-child .flowCard {
+  border-bottom: none;
+}
+
+.rolePrimaryRecognition .stabCell {
+  box-shadow: none;
+}
+
+.rolePrimaryRecognition .stabCell[data-visual-role='risk'] {
+  border-color: rgba(218, 165, 64, 0.34);
+}
+
+.rolePrimaryRecognition .stabCell[data-visual-role='action'] {
+  border-color: rgba(185, 165, 230, 0.42);
+  background: rgba(40, 34, 58, 0.55);
+}
+
+.roleVisualSummary .strMapReadCard {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  box-shadow: none;
 }
 
 .drawerConsultPanel {
@@ -465,7 +631,7 @@
 
 /* Section-figure overline (deep-read layer ?Enot product ?????Echips) */
 .idDesignOverline {
-  font-size: 10px;
+  font-size: var(--dtr-label-floor);
   font-weight: 700;
   letter-spacing: var(--dtr-track-overline);
   text-transform: none;
@@ -1065,7 +1231,7 @@
 
 .stabCellLabel {
   display: block;
-  font-size: 0.62rem;
+  font-size: var(--dtr-label-floor);
   font-weight: 800;
   letter-spacing: 0.08em;
   margin-bottom: 6px;
