@@ -15,7 +15,7 @@ This section is the current authority after PR #117 merge. Pair display identity
 |---|---|
 | PR #117 | **MERGED** — https://github.com/lexsia228/m55-web/pull/117 · feature head `36094743776bd0b6d641b0b1fbf5f1d5dfb8ab72` · merge commit `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
 | PR #116 | **MERGED** — https://github.com/lexsia228/m55-web/pull/116 · merge SHA `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
-| Production SHA (diagnostics) | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| Production SHA (diagnostics) | `0b2b2b349ccf4f0b9549d5a59be5a92be0a99578` |
 | Production deployment (GitHub) | `5903998364` @ `2026-08-14T09:44:24Z` |
 | Prior Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` @ `511b54d` — no-cache rebuild after `BUILD_OUTPUT_MISMATCH` |
 | P0 Production client integrity | **CLOSED_GREEN** |
@@ -25,9 +25,12 @@ This section is the current authority after PR #117 merge. Pair display identity
 | COMPATIBILITY_PAID_PRODUCT_QUALITY | **GREEN_BUT_COMMERCE_GATED** — night ownership grammar in source/fixture |
 | FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
-| Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
-| ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unset/false |
+| ¥600 Light→Full recovery | **CLOSED_GREEN** — one-shot same-transaction repair executed 2026-08-14; wallet `1+4=5` · consumed `0` · no second payment · no webhook replay · RPC v2 already applied |
+| Compatibility DB delivery migration | **awaiting Human precheck** — artifact `scripts/sql/production/m55_compatibility_purchase_delivery_precheck_v1.sql` · migration SHA `b0e51fab…5760` · direct Production DB state **not observed in-agent** |
+| Stripe LIVE compatibility binding | **NO_MATCH_CREATE_REQUIRED** — no LIVE Product/Price for `二人の相性レポート` / `compatibility_report_full_v1`; amount-only false positive is Personal Premium Full (`prod_UdxfnwY8KD0p3r` / `price_1TefkV2LIUK2DCT54IdQiLHY`) — **must not bind** |
+| Vercel Production env (compatibility) | `STRIPE_PRICE_COMPATIBILITY_REPORT_FULL_V1` **ABSENT** · `M55_COMPATIBILITY_COMMERCE_ENABLED` **ABSENT** (approved repair-scoped env + diagnostics; full Vercel inventory **UNOBSERVED**) |
+| NEXT GATE | `M55_PAID_COMPATIBILITY_PRODUCTION_DB_PRECHECK` — one Human SQL Editor run on `m55-soul-core` · commerce activation **not authorized** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
@@ -377,7 +380,9 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-14 post-PR-#117):** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production diagnostics and live `/synastry` client markers confirm Pair Signature + privacy-safe entry share. Four-surface visual identity is **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT SINGLE ACTION:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. P3 checkout/4242/sales launch remain **not authorized**.
+**CURRENT (2026-08-14 post-preflight):** Production diagnostics @ `0b2b2b349ccf4f0b9549d5a59be5a92be0a99578`. Four-surface visual identity **CLOSED GREEN**. Compatibility commerce **OFF**. Read-only preflight artifacts added: `m55_compatibility_purchase_delivery_precheck_v1.sql` + `postcheck_v1.sql`. Stripe LIVE inventory: **NO_MATCH_CREATE_REQUIRED** for compatibility (do not reuse Personal Premium Full ¥1,480). **NEXT SINGLE ACTION:** Human runs precheck SQL once in Supabase SQL Editor (`m55-soul-core` / `hsdxixvoijuujhpyxgdo`) and returns decisive `precheck_classification`. No migration apply · no Stripe create · no env flip.
+
+**CURRENT (2026-08-14 post-recovery):** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN**. Human-authorized one-shot repair fulfilled the existing LIVE ¥600 upgrade for `user_3Hqucd8…` / report `ffa97f03…` via direct RPC v2 (no webhook replay). Post-repair wallet: included `1` · purchased `4` · consumed `0` · available `5` · total `5`. Production UI `/dtr/core` and `/my` show Full-equivalent allowance and no ¥600 upgrade CTA.
 
 > **HISTORICAL SNAPSHOT — valid through 2026-08-11; superseded 2026-08-14.**
 >

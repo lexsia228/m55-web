@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free are **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. **NEXT:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free are **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN** (2026-08-14). Read-only compatibility commerce preflight artifacts landed on `fix/m55-compatibility-commerce-preflight-v1` (DB precheck/postcheck SQL; Stripe LIVE inventory **NO_MATCH_CREATE_REQUIRED**). **NEXT:** `M55_PAID_COMPATIBILITY_PRODUCTION_DB_PRECHECK` — one Human SQL Editor run; migration/Stripe/env activation each require separate explicit Human GO.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
