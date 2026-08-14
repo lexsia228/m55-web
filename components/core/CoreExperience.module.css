@@ -218,6 +218,57 @@
   line-height: 1.75;
 }
 
+/* Premium /dtr/core continuation — night family, not a light advertisement insert. */
+.pairCrossSellNight {
+  position: relative;
+  background-color: #1a1628;
+  color: rgba(255, 255, 255, 0.91);
+  background-image:
+    radial-gradient(ellipse 88% 68% at 8% -6%, rgba(155, 135, 225, 0.14), transparent 56%),
+    linear-gradient(168deg, rgba(34, 28, 52, 0.96), rgba(24, 20, 38, 0.92));
+  border: 1px solid rgba(185, 165, 238, 0.28);
+  border-left: 2px solid rgba(185, 165, 238, 0.55);
+  border-top-color: rgba(210, 192, 252, 0.38);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 12px 32px rgba(0, 0, 0, 0.32);
+}
+
+.pairCrossSellNight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(215, 198, 255, 0.42) 50%, transparent);
+  pointer-events: none;
+}
+
+.pairCrossSellNight .pairCrossSellEyebrow {
+  color: rgba(185, 165, 230, 0.78);
+  letter-spacing: 0.14em;
+}
+
+.pairCrossSellNight .pairCrossSellTitle {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.pairCrossSellNight .pairCrossSellBody {
+  color: rgba(228, 222, 242, 0.82);
+}
+
+.pairCrossSellNight .pairCrossSellLink {
+  color: rgba(230, 220, 252, 0.95);
+  border-color: rgba(185, 165, 230, 0.42);
+  background: transparent;
+  font-weight: 600;
+}
+
+.pairCrossSellNight .pairCrossSellNote {
+  color: rgba(188, 175, 220, 0.62);
+}
+
 .sectionTitle {
   font-family: 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
   font-size: clamp(22px, 4.5vw, 28px);

@@ -287,8 +287,8 @@ function EntryChoiceCard({
       type="button"
       className={
         selected
-          ? `${styles.choiceCard} ${styles.choiceCardSelected}`
-          : styles.choiceCard
+          ? `${styles.choiceCard} ${styles.choiceCardSelected}${themeId === 'report' ? ` ${styles.choiceCardMeta}` : ''}`
+          : `${styles.choiceCard}${themeId === 'report' ? ` ${styles.choiceCardMeta}` : ''}`
       }
       onClick={onSelect}
       aria-pressed={selected}
@@ -776,13 +776,12 @@ export default function ConsultRoom({
           className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive}`}
           aria-labelledby="consult-step-1"
         >
-          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 1 / 3</p>
           <h4 id="consult-step-1" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
             {ROOM_UI_COPY.step1Title}
           </h4>
           <p className={`${styles.composeHintMuted} ${styles.wizTypoBody}`}>{ROOM_UI_COPY.step1Hint}</p>
           <div className={styles.choiceGrid} role="list">
-            {REPLY_THEME_IDS.map((themeId) => (
+            {REPLY_THEME_IDS.filter((themeId) => themeId !== 'report').map((themeId) => (
               <EntryChoiceCard
                 key={themeId}
                 themeId={themeId}
@@ -790,6 +789,14 @@ export default function ConsultRoom({
                 onSelect={() => selectTheme(themeId)}
               />
             ))}
+          </div>
+          <div className={styles.choiceMetaGroup}>
+            <p className={styles.choiceMetaLabel}>読み返しの助け</p>
+            <EntryChoiceCard
+              themeId="report"
+              selected={selectedThemeId === 'report'}
+              onSelect={() => selectTheme('report')}
+            />
           </div>
           <div className={styles.wizardActions}>
             <button
@@ -809,7 +816,6 @@ export default function ConsultRoom({
           className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive}`}
           aria-labelledby="consult-step-2"
         >
-          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 2 / 3</p>
           <h4 id="consult-step-2" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
             {ROOM_UI_COPY.step2Title}
           </h4>
@@ -864,7 +870,6 @@ export default function ConsultRoom({
           className={`${styles.wizardStepPanel} ${styles.wizardStepPanelActive} ${styles.composeStepSubmit}`}
           aria-labelledby="consult-step-3"
         >
-          <p className={`${styles.stepEyebrow} ${styles.wizTypoCaption}`}>Step 3 / 3</p>
           <h4 id="consult-step-3" className={`${styles.composeStepTitle} ${styles.wizTypoStepHeading}`}>
             {ROOM_UI_COPY.step3Title}
           </h4>

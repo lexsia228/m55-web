@@ -219,7 +219,7 @@
 
 .usageStatusLabel {
   margin: 0 0 8px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1241,7 +1241,7 @@
 }
 
 .wizardStepNum {
-  font-size: 0.62rem;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: rgba(188, 175, 220, 0.72);
@@ -1416,6 +1416,34 @@
   font-size: 0.78rem;
   line-height: 1.5;
   color: rgba(188, 175, 220, 0.72);
+}
+
+.choiceMetaGroup {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(160, 140, 220, 0.18);
+}
+
+.choiceMetaLabel {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(188, 175, 220, 0.62);
+}
+
+.choiceCardMeta {
+  min-height: 44px;
+  padding: 11px 14px 11px 16px;
+  border-style: dashed;
+  border-color: rgba(140, 120, 200, 0.18);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.choiceCardMeta .choiceCardTitle {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: rgba(220, 212, 240, 0.78);
 }
 
 .choiceCardSelected .choiceCardDescription {

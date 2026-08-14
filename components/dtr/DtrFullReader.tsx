@@ -607,6 +607,49 @@ function chapter1SoftTone(text: string): string {
     .replaceAll('処理', '受け止め');
 }
 
+function VisualRole({
+  role,
+  children,
+  className,
+}: {
+  role:
+    | 'thesis'
+    | 'recognition'
+    | 'primaryRecognition'
+    | 'secondaryRecognition'
+    | 'risk'
+    | 'action'
+    | 'takeaway'
+    | 'visualSummary'
+    | 'bridge';
+  children: ReactNode;
+  className?: string;
+}) {
+  const roleClass =
+    role === 'thesis'
+      ? styles.roleThesis
+      : role === 'recognition'
+        ? styles.roleRecognition
+        : role === 'primaryRecognition'
+          ? styles.rolePrimaryRecognition
+          : role === 'secondaryRecognition'
+            ? styles.roleSecondaryRecognition
+            : role === 'risk'
+              ? styles.roleRisk
+              : role === 'action'
+                ? styles.roleAction
+                : role === 'takeaway'
+                  ? styles.roleTakeaway
+                  : role === 'visualSummary'
+                    ? styles.roleVisualSummary
+                    : styles.roleBridge;
+  return (
+    <div className={className ? `${roleClass} ${className}` : roleClass} data-visual-role={role}>
+      {children}
+    </div>
+  );
+}
+
 function GraphCaption({ id }: { id: PaidDtrChapterGraphCaptionId }) {
   return (
     <div className={styles.graphCaptionBlock} role="note">
@@ -682,7 +725,13 @@ function DrawerChapterPersonalLead({
   const heading = `${displayName}さん${copy.headingSuffixJa}`;
   const tendencyLine = copy.tendencyJa.replace('{nickname}', displayName);
   return (
-    <div className={styles.drawerChapterPersonalLead}>
+    <div
+      className={
+        partId === '4'
+          ? `${styles.drawerChapterPersonalLead} ${styles.chapterLeadCompressed}`
+          : styles.drawerChapterPersonalLead
+      }
+    >
       <h2 className={styles.chapterPersonalHeading} data-testid="m55-report-chapter-heading">
         {heading}
       </h2>
@@ -724,6 +773,7 @@ function ChapterConsultNextAction({
   const consultNick = nick ? clampDisplayNick(stripTrailingHonorific(nick) || nick, 20) : 'あなた';
   const tendencyLine = copy.tendencyJa.replace('{nickname}', consultNick);
   return (
+    <VisualRole role="bridge">
     <div className={styles.chapterConsultAction} aria-label="この章を追加読み解きで深める入口">
       <p className={styles.chapterConsultReinforcement}>{tendencyLine}</p>
       <p className={styles.chapterConsultReinforcement}>{copy.lifeJa}</p>
@@ -739,12 +789,14 @@ function ChapterConsultNextAction({
       </button>
       <p className={styles.chapterConsultTruthNote}>{PAID_DTR_CHAPTER_CONSULT_TRUTH_NOTE_JA}</p>
     </div>
+    </VisualRole>
   );
 }
 
 function ChapterDeepReadingTakeaways({ partId }: { partId: PaidDtrReportPartId }) {
   const copy = PAID_DTR_DEEP_READING_TAKEAWAYS[partId];
   return (
+    <VisualRole role="takeaway">
     <div className={styles.chapterTakeawayBlock} aria-label={`${PAID_DTR_DEEP_READING_SECTION_TITLE_JA}の要点`}>
       <p className={styles.chapterTakeawayLead}>{copy.closedLeadJa}</p>
       <ul className={styles.chapterTakeawayList}>
@@ -755,6 +807,7 @@ function ChapterDeepReadingTakeaways({ partId }: { partId: PaidDtrReportPartId }
         ))}
       </ul>
     </div>
+    </VisualRole>
   );
 }
 
@@ -1303,20 +1356,24 @@ function IdentityArticleWithBlueprint({
   const inlineLede = (hybridAiPrimaryBody || openingLedeShown) ? null : (paras[0] ?? null);
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
-      {showSectionTitle ? (
-        <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
-      ) : null}
-      {inlineLede ? <SectionLede text={inlineLede} /> : null}
-      {displayBodyParas.length > 0 ? (
-        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {displayBodyParas.map((para, i) => (
-            <BodyPara key={i} para={para} compact={false} />
-          ))}
-        </div>
-      ) : null}
+      <VisualRole role="thesis">
+        {showSectionTitle ? (
+          <h2 className={styles.savedWideTitle}>{drawerSectionTitle(section)}</h2>
+        ) : null}
+        {inlineLede ? <SectionLede text={inlineLede} /> : null}
+        {displayBodyParas.length > 0 ? (
+          <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+            {displayBodyParas.map((para, i) => (
+              <BodyPara key={i} para={para} compact={false} />
+            ))}
+          </div>
+        ) : null}
+      </VisualRole>
       <p className={styles.chapterPilotGuideText}>{PAID_DTR_CHAPTER1_PILOT_GUIDE.beforeIdentityGraphJa}</p>
-      <GraphCaption id="ch1-identity-design" />
-      <IdentityDesignFigures stemIdx={stemIdx} nickname={nickname} />
+      <VisualRole role="visualSummary">
+        <GraphCaption id="ch1-identity-design" />
+        <IdentityDesignFigures stemIdx={stemIdx} nickname={nickname} />
+      </VisualRole>
     </article>
   );
 }
@@ -1544,33 +1601,41 @@ function CompositionArticleWithViz({
   if (hybridAiPrimaryBody && hasSnapshotBody(section.body)) {
     return (
       <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
-        <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
-        {paras.length > 0 ? (
-          <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-            {paras.map((para, i) => (
-              <BodyPara key={i} para={para} compact={false} />
-            ))}
-          </div>
-        ) : null}
-        <GraphCaption id="ch1-structure-radar" />
-        <StructureInteractionMapFigures stemIdx={stemIdx} />
+        <VisualRole role="thesis">
+          <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
+          {paras.length > 0 ? (
+            <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+              {paras.map((para, i) => (
+                <BodyPara key={i} para={para} compact={false} />
+              ))}
+            </div>
+          ) : null}
+        </VisualRole>
+        <VisualRole role="visualSummary">
+          <GraphCaption id="ch1-structure-radar" />
+          <StructureInteractionMapFigures stemIdx={stemIdx} />
+        </VisualRole>
       </article>
     );
   }
   const [lede, ...rest] = paras;
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
-      <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
-      {lede ? <SectionLede text={lede} /> : null}
-      {rest.length > 0 ? (
-        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {rest.map((para, i) => (
-            <BodyPara key={i} para={para} compact={false} />
-          ))}
-        </div>
-      ) : null}
-      <GraphCaption id="ch1-structure-radar" />
-      <StructureInteractionMapFigures stemIdx={stemIdx} />
+      <VisualRole role="thesis">
+        <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
+        {lede ? <SectionLede text={lede} /> : null}
+        {rest.length > 0 ? (
+          <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+            {rest.map((para, i) => (
+              <BodyPara key={i} para={para} compact={false} />
+            ))}
+          </div>
+        ) : null}
+      </VisualRole>
+      <VisualRole role="visualSummary">
+        <GraphCaption id="ch1-structure-radar" />
+        <StructureInteractionMapFigures stemIdx={stemIdx} />
+      </VisualRole>
     </article>
   );
 }
@@ -1598,6 +1663,7 @@ function StabilityConditionsPanelFigures({ stemIdx }: { stemIdx: number }) {
             <div
               key={c.key}
               className={`${styles.stabCell} ${c.mod} ${styles.idBpReveal}`}
+              data-visual-role={c.key === 'cl' ? 'risk' : c.key === 'gd' ? 'action' : 'recognition'}
               style={{ animationDelay: `${0.04 + i * 0.06}s` }}
             >
               <span className={styles.stabCellLabel}>{c.label}</span>
@@ -1636,20 +1702,24 @@ function EssenceArticleWithViz({
   const inlineLede = (hybridAiPrimaryBody || !useSnapshot || openingLedeShown) ? null : (paras[0] ?? null);
   return (
     <article className={styles.savedWideArticle} aria-label={drawerSectionTitle(section)}>
-      <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
-      {inlineLede ? <SectionLede text={inlineLede} /> : null}
-      {displayBodyParas.length > 0 ? (
-        <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
-          {displayBodyParas.map((para, i) => (
-            <BodyPara key={i} para={para} compact={false} />
-          ))}
-        </div>
-      ) : null}
+      <VisualRole role="thesis">
+        <h3 className={styles.savedWideTitleSub}>{drawerSectionTitle(section)}</h3>
+        {inlineLede ? <SectionLede text={inlineLede} /> : null}
+        {displayBodyParas.length > 0 ? (
+          <div className={`${styles.savedWideBody} ${styles.dtrNarrativeBody}`}>
+            {displayBodyParas.map((para, i) => (
+              <BodyPara key={i} para={para} compact={false} />
+            ))}
+          </div>
+        ) : null}
+      </VisualRole>
       <p className={styles.chapterPilotGuideText}>
         この図では、{displayName}さんがどんな条件で進みやすく、どんな流れで止まりやすいかを見ます。
       </p>
-      <GraphCaption id="ch2-stability-panel" />
-      <StabilityConditionsPanelFigures stemIdx={stemIdx} />
+      <VisualRole role="primaryRecognition">
+        <GraphCaption id="ch2-stability-panel" />
+        <StabilityConditionsPanelFigures stemIdx={stemIdx} />
+      </VisualRole>
     </article>
   );
 }
@@ -1875,6 +1945,7 @@ function GridArticleStrengthsViz({
   const remainingItems = strengthItems.slice(3);
 
   return (
+    <VisualRole role="secondaryRecognition">
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
       <GraphCaption id="ch2-strengths-lift" />
@@ -1889,6 +1960,7 @@ function GridArticleStrengthsViz({
         </div>
       ) : null}
     </article>
+    </VisualRole>
   );
 }
 
@@ -1928,8 +2000,10 @@ function GridArticleFrictionViz({
       <p className={styles.chapterPilotGuideText}>
         近い人との場面では、無理の出方を先に名前で見てから、やりとりの流れへ進みます。
       </p>
-      <GraphCaption id="ch3-friction-warning" />
-      <FrictionWarningFigures body={section.body} />
+      <VisualRole role="risk">
+        <GraphCaption id="ch3-friction-warning" />
+        <FrictionWarningFigures body={section.body} />
+      </VisualRole>
     </article>
   );
 }
@@ -1938,8 +2012,10 @@ function GridArticleCommViz({ section }: { section: DtrSection }) {
   return (
     <article className={styles.savedGridArticle} aria-label={drawerSectionTitle(section)}>
       <h3 className={styles.savedGridTitle}>{drawerSectionTitle(section)}</h3>
-      <GraphCaption id="ch3-comm-flow" />
-      <CommFlowFigures body={section.body} />
+      <VisualRole role="recognition">
+        <GraphCaption id="ch3-comm-flow" />
+        <CommFlowFigures body={section.body} />
+      </VisualRole>
     </article>
   );
 }
@@ -1966,6 +2042,7 @@ function PaidModuleShell({
   summary,
   defaultOpen,
   inDrawer,
+  density,
   children,
 }: {
   n: number;
@@ -1977,6 +2054,7 @@ function PaidModuleShell({
   summary: string;
   defaultOpen: boolean;
   inDrawer?: boolean;
+  density?: 'secondary';
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -1994,7 +2072,7 @@ function PaidModuleShell({
 
   return (
     <section
-      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}${inDrawer ? ` ${styles.pmInDrawer}` : ''}`}
+      className={`${styles.module} ${styles.modulePaid} ${styles.prModuleShell}${inDrawer ? ` ${styles.pmInDrawer}` : ''}${density === 'secondary' ? ` ${styles.pmSecondary}` : ''}`}
       aria-label={ariaLabel}
     >
       {/* Accordion trigger — the whole header area is interactive */}
@@ -3071,10 +3149,12 @@ function DtrFullReaderCore({
                 <DtrMethodReportNote />
                 <ReportPartBand partId="1" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '1', hybridLeadSections) ? (
-                  <DrawerChapterPersonalLead
-                    partId="1"
-                    nickname={view.nickname}
-                  />
+                  <VisualRole role="thesis">
+                    <DrawerChapterPersonalLead
+                      partId="1"
+                      nickname={view.nickname}
+                    />
+                  </VisualRole>
                 ) : null}
                 {s1 ? (
                   <IdentityArticleWithBlueprint
@@ -3156,10 +3236,12 @@ function DtrFullReaderCore({
               <div className={styles.savedWideStack}>
                 <ReportPartBand partId="2" />
                 {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '2', hybridLeadSections) ? (
-                  <DrawerChapterPersonalLead
-                    partId="2"
-                    nickname={view.nickname}
-                  />
+                  <VisualRole role="thesis">
+                    <DrawerChapterPersonalLead
+                      partId="2"
+                      nickname={view.nickname}
+                    />
+                  </VisualRole>
                 ) : null}
                 {hybridAiVisible && s2 ? (
                   <CompositionArticleWithViz
@@ -3202,6 +3284,7 @@ function DtrFullReaderCore({
                     summary="力が出やすい場面と、無理が重なりやすい場面を並べて見ます。"
                     defaultOpen={false}
                     inDrawer
+                    density="secondary"
                   >
                     <TraitInteractionModule
                       strengthsSection={sec('s4_strengths')!}
@@ -3230,10 +3313,12 @@ function DtrFullReaderCore({
             >
               <ReportPartBand partId="3" />
               {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '3', hybridLeadSections) ? (
-                <DrawerChapterPersonalLead
-                  partId="3"
-                  nickname={view.nickname}
-                />
+                <VisualRole role="thesis">
+                  <DrawerChapterPersonalLead
+                    partId="3"
+                    nickname={view.nickname}
+                  />
+                </VisualRole>
               ) : null}
               {hybridAiVisible && s3 && hybridAiChapter3UsesPrimaryBody(s3.body) ? (
                 <HybridAiRelationshipNarrativeArticle section={s3} />
@@ -3296,10 +3381,12 @@ function DtrFullReaderCore({
             <div className={styles.drawerChapterLead}>
               <ReportPartBand partId="4" />
               {!shouldSuppressDrawerChapterOpeningLead(displayedEnvelopeReadMode, '4', hybridLeadSections) ? (
-                <DrawerChapterPersonalLead
-                  partId="4"
-                  nickname={view.nickname}
-                />
+                <VisualRole role="thesis">
+                  <DrawerChapterPersonalLead
+                    partId="4"
+                    nickname={view.nickname}
+                  />
+                </VisualRole>
               ) : null}
               {hybridCh4 && gridS4 ? (
                 <GridArticleStrengthsViz
@@ -3309,14 +3396,24 @@ function DtrFullReaderCore({
                 />
               ) : null}
               {!hybridAiVisible && sec('s7_work') ? (
-                <ChapterFourWorkLead
-                  workSection={sec('s7_work')!}
-                  nickname={view.nickname}
-                />
+                <VisualRole role="secondaryRecognition">
+                  <ChapterFourWorkLead
+                    workSection={sec('s7_work')!}
+                    nickname={view.nickname}
+                  />
+                </VisualRole>
+              ) : null}
+              {legacyCh4 && sec('s5_friction') && sec('s8_bridge') ? (
+                <VisualRole role="primaryRecognition">
+                  <FrictionRecoveryModule
+                    frictionSection={sec('s5_friction')!}
+                    bridgeSection={sec('s8_bridge')!}
+                    lifeTopicRecovery
+                  />
+                </VisualRole>
               ) : null}
               {legacyCh4 ? (
-                <>
-                  <SectionDivider label="お金・生活・疲れを軽くする一手" premium />
+                <VisualRole role="action">
                   <section
                     className={styles.practicalShell}
                     aria-label="お金・生活・疲れを軽くする一手"
@@ -3328,33 +3425,12 @@ function DtrFullReaderCore({
                       lifeTopicGuidance
                     />
                   </section>
-                </>
+                </VisualRole>
               ) : null}
             </div>
             <div className={styles.drawerDeepReadBlock}>
               <SectionDivider label={PAID_DTR_DEEP_READING_SECTION_TITLE_JA} premium />
               <ChapterDeepReadingTakeaways partId="4" />
-              <div className={`${styles.paidModules} ${styles.paidModulesInDrawer}`}>
-                {sec('s5_friction') && sec('s8_bridge') ? (
-                  <PaidModuleShell
-                    n={4}
-                    tierJa="深読み"
-                    tierClass={styles.prTierRose}
-                    overline="つまずきから戻る流れ"
-                    title={PAID_DTR_CHAPTER_GRAPH_CAPTIONS['ch4-friction-recovery']}
-                    ariaLabel="つまずきから戻る流れ"
-                    summary="疲れや不安が重なったとき、どこから戻しやすいかを流れで見ます。"
-                    defaultOpen={false}
-                    inDrawer
-                  >
-                    <FrictionRecoveryModule
-                      frictionSection={sec('s5_friction')!}
-                      bridgeSection={sec('s8_bridge')!}
-                      lifeTopicRecovery
-                    />
-                  </PaidModuleShell>
-                ) : null}
-              </div>
             </div>
             <ChapterConsultNextAction
               partId="4"

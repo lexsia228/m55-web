@@ -68,7 +68,7 @@ export default async function DtrCorePage() {
           }}
         />
         <div className={styles.upgradeAssist}>
-          <CorePairReadingCrossSell />
+          <CorePairReadingCrossSell tone="night" />
         </div>
         {tier.canUpgradeFromLight && tier.reportInstanceId && (
           <div className={styles.upgradeAssist}>
