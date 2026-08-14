@@ -67,7 +67,8 @@ export const PAIR_V5_FIXTURES = [
   { id: 'R7', personA: '1968-08-15', personB: '1997-06-15', answers: HARD_RETURN, focus: '戻る入口' },
 ] as const;
 
-const BANNED = /接点の入口|基調の寄り|輪郭を掴|tempo mismatch|pair difference|結論を出す速度/;
+const BANNED =
+  /接点の入口|基調の寄り|輪郭を掴|tempo mismatch|pair difference|結論を出す速度|今どちらの日か|見えやすい反応|土台の差が|同じ土台でも|生年月日の土台/;
 
 function insight(fixture: (typeof PAIR_V5_FIXTURES)[number]) {
   return buildPairFreeInsightSpecV2({
@@ -104,7 +105,7 @@ describe('pair free commercial copy v5', () => {
       assert.match(spec.betweenThem, /あなた側は/);
       assert.match(spec.betweenThem, /相手側は/);
       assert.match(spec.betweenThem, /そのため二人の間では/);
-      assert.match(spec.betweenThem, /土台/);
+      assert.match(spec.betweenThem, /土台|生まれの基調/);
       assert.match(spec.misreadLoop, /受け取りやすい|見えやすい/);
       assert.ok(spec.reset.length > 8);
       assert.match(spec.premiumContinuation, /六つの場面/);

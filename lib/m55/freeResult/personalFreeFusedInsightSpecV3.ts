@@ -249,7 +249,7 @@ export function buildPersonalFreeFusedInsightSpecV3(input: {
     input.birth.dimensions,
     input.answers,
   );
-  const headline = `${manifestation.manifestationJa}${manifestation.sceneCandidateJa}`;
+  const headline = manifestation.manifestationJa;
   const body = fusedSecond
     ? `${fusedSecond}始め方と決め方、距離の取り方が同じレイヤーでは動かない。`
     : `${answerLayer.internalTension}始め方と決め方、距離の取り方が同じレイヤーでは動かない。`;

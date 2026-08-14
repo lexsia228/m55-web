@@ -155,7 +155,7 @@ const TEMPO: Readonly<
       entry: '急ぐ側が先に動くと、言葉を探している側は置いていかれたように感じやすい。',
     },
     words_vary: {
-      between: '決める速さも言葉の速さも場面で変わるため、二人の間では「今どちらの日か」が見えにくい。見えなさ自体が不安になりやすい。',
+      between: '決める速さも言葉の速さも場面で変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。',
       mesh: '今日の進め方を一文でそろえられると、速さの差が人格の差に見えにくい。',
       entry: '揃えないまま中身に入ると、速さの差が熱量の差に読み替わりやすい。',
     },
@@ -171,7 +171,7 @@ function loopFromConflict(
   const { visible, inward } = roles;
   if (disagreement === 'talk_now' && distance === 'go_quiet') {
     return {
-      loop: `${visible}が違いをその場の言葉で確かめようとすると、${inward}は説明より先に静かになりやすい。${inward}の静けさを拒否と受け取りやすいと、${visible}の確認が増え、${inward}はさらに間を欲しがる。どちらも関係を切るつもりがなくても、確かめ方が逆方向になりやすい。`,
+      loop: `確認を重ねるほど、${inward}は考える余白を取りたくなり、その静けさを${visible}が距離を置かれたと受け取りやすい。どちらも関係を切るつもりがなくても、確かめ方が逆方向になりやすい。`,
       reset:
         returning === 'someone_reaches'
           ? '結論ではなく、次の短い接点だけを一文で置く。返事は急がない。'
@@ -196,7 +196,7 @@ function loopFromConflict(
     };
   }
   return {
-    loop: `違いが出たあとの距離の取り方と、戻るきっかけの作り方が噛み合わないと、同じずれが次の会話の入口になる。${visible}に見えやすい反応を、${inward}は別の意味として受け取りやすい。`,
+    loop: `違いが出たあとの距離の取り方と、戻るきっかけが噛み合わないと、同じずれが次の会話に残る。${visible}が先に取る動きを、${inward}は別の意味として受け取りやすい。`,
     reset:
       returning === 'someone_reaches'
         ? '次のすれ違いでは、結論ではなく短い声かけを一度だけ置く。'
@@ -212,7 +212,7 @@ function sideLead(
 ): string {
   const { visible, inward } = roles;
   if (answers.decisionPace === 'decide_now' && answers.expressionPace === 'words_later') {
-    return `${visible}側は結論を先に置きたくなりやすく、${inward}側は言葉になるまで間が残りやすい`;
+    return `${visible}側はその場で結論を置こうとしやすく、${inward}側はまだ言葉を整えている途中になりやすい`;
   }
   if (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_soon') {
     return `${visible}側は先に言葉で確かめたくなりやすく、${inward}側は結論だけは置いてから出したい`;
@@ -232,14 +232,8 @@ function sideLead(
   ) {
     return `${visible}側は短い確認で安心しやすく、${inward}側は同じ速さの間に止まりやすい`;
   }
-  return `${visible}側は見えやすい反応を、${inward}側は別の意味として受け取りやすい`;
+  return `${visible}側は先に安心の形を取りたくなりやすく、${inward}側は同じ動きを別の意味として受け取りやすい`;
 }
-
-const START_TEMPO_JA = {
-  try: '先に小さく動いてから様子を見る',
-  map: '揃えてから動く',
-  ask: '言葉を足してから動く',
-} as const;
 
 function pairOpeningHit(
   _answers: CompatibilityCurrentContextAnswers,
@@ -255,7 +249,7 @@ function pairOpeningHit(
   }
   if (interactionId === 'space_misread') {
     return startSplit
-      ? '片方は今夜のうちに距離の理由を置きたくなり、もう片方は説明せず静かになりやすい。静けさを拒否と受け取りやすいところからずれやすい。'
+      ? '片方は今夜のうちに距離の理由を置きたくなり、もう片方は説明せず静かになりやすい。その静けさを拒否と受け取りやすいところからずれやすい。'
       : '片方は考える時間として間を取り、もう片方は同じ間を気持ちが離れた時間と受け取りやすい。';
   }
   if (interactionId === 'one_carries_quiet') {
@@ -265,7 +259,7 @@ function pairOpeningHit(
   }
   if (interactionId === 'tempo_mismatch' || interactionId === 'later_decide_words_soon') {
     if (startSplit) {
-      return '話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。';
+      return '二人がすれ違うとしたら、意見の違いより「話し終えたと感じるタイミング」の差から始まりやすい。話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。';
     }
     if (_answers.decisionPace === 'decide_later' && _answers.expressionPace === 'words_soon') {
       return '結論は置いてから出したい側と、先に言葉で確かめたい側が、同じ速さに見えて同時に出やすい。';
@@ -273,68 +267,30 @@ function pairOpeningHit(
     return '進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。';
   }
   if (interactionId === 'hard_return_hard_space') {
-    return '間を取ることと戻ることがどちらも重く、片方は今夜のうちに接点を欲しくなり、もう片方は入口自体を作りにくい。終わらない空白が、拒否にも疲れにも見えやすい。';
+    return '間を取ることと戻ることがどちらも重く、片方は今夜のうちに次の接点を欲しくなり、もう片方は入口自体を作りにくい。終わらない空白が、拒否にも疲れにも見えやすい。';
   }
   return startSplit
     ? '同じ話題でも、先に小さく動く側と揃えてから返したい側が同時に走りやすい。速さの差が、熱量の差として受け取りやすい。'
-    : '決める速さも言葉の速さも日によって変わるため、「今どちらの日か」が見えにくい。見えなさ自体が不安になりやすい。';
-}
-
-function additiveConsequence(
-  interactionId: PairFreeInteractionId,
-  startSplit: boolean,
-  answers: CompatibilityCurrentContextAnswers,
-): string {
-  if (interactionId === 'tempo_mismatch' || interactionId === 'later_decide_words_soon') {
-    if (startSplit) {
-      return '先に動きたくなる側と、揃えてから返したくなる側が、同じ話題の中で同時に走りやすい';
-    }
-    if (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_soon') {
-      return '言葉が先に出る側と、結論だけ置いてから出たい側で、同じ速さに見えて時間の使い方が分かれやすい';
-    }
-    return '進み方は近く見えても、閉じたい側と置きたい側の時間だけが食い違いやすい';
-  }
-  if (interactionId === 'talk_now_go_quiet') {
-    return startSplit
-      ? '先に言葉を足したくなる側と、揃えてから返したくなる側が、静けさの意味を分けやすい'
-      : '確かめたい側の言葉が増えるほど、間を取りたい側はさらに静かになりやすい';
-  }
-  if (interactionId === 'space_misread') {
-    return startSplit
-      ? '先に動きたくなる側は空白を埋めにいき、揃えてから返したい側は空白を考える時間として使いやすい'
-      : '同じ間でも、考える時間と離れた時間の読みが分かれやすい';
-  }
-  if (interactionId === 'one_carries_quiet') {
-    return startSplit
-      ? '先に話を引き取りやすい側と、言葉を足してから動く側で、残った一点の扱いが分かれやすい'
-      : '進めたつもりと、まだ残っている一点が、次の話題で入れ替わりやすい';
-  }
-  if (interactionId === 'hard_return_hard_space') {
-    return '戻る入口を作れない側と、今夜のうちに接点が欲しい側が、空白の意味を分けやすい';
-  }
-  return startSplit
-    ? '先に小さく動く側と揃えてから返す側の進み方が、同じずれを長くしやすい'
-    : '今どちらの日かが見えないこと自体が、不安になりやすい';
+    : '決める速さも言葉の速さも日によって変わるため、いまの二人の進み方が見えにくい。見えなさ自体が不安になりやすい。';
 }
 
 function birthLead(
   visible: CivilBirthDimensionsV1,
   inward: CivilBirthDimensionsV1,
-  roles: { visible: string; inward: string },
+  _roles: { visible: string; inward: string },
   _pairAxisId: PairAxisId,
   differenceType: PairDifferenceType,
 ): string {
-  const { visible: v, inward: i } = roles;
   const shared = visible.start === inward.start;
   const closeDates =
     differenceType === 'same_dob_pair' || differenceType === 'near_dob_shift';
   if (shared && closeDates) {
-    return `${v}側も${i}側も、生まれの進み方は近い。生年月日の土台が近いぶん、今の答えのずれが目立ちやすい`;
+    return '生まれの基調が近いぶん、いまの進め方の差が目立ちやすい';
   }
   if (shared) {
-    return `${v}側も${i}側も、生まれの進み方は近い。同じ土台でも、返す速さの差が二人の間で分かれやすい`;
+    return '生まれの基調は近くても、返す速さの差が二人の間で分かれやすい';
   }
-  return `${v}側は「${START_TEMPO_JA[visible.start]}」側に寄りやすく、${i}側は「${START_TEMPO_JA[inward.start]}」側に寄りやすい。生年月日の土台の差が、今の答えのずれを長くしやすい`;
+  return '生まれの基調が違うぶん、同じ会話でも終わりの感じ方が分かれやすい';
 }
 
 function meshFromBirth(
@@ -348,30 +304,14 @@ function meshFromBirth(
   return `進み方が近いときは、今の二人の速さだけを先にそろえられると噛み合いやすい。${tempoMesh}`;
 }
 
-function loopFromBirth(
-  visible: CivilBirthDimensionsV1,
-  inward: CivilBirthDimensionsV1,
-  roles: { visible: string; inward: string },
-  existing: string,
-): string {
-  const { visible: v, inward: i } = roles;
-  if (visible.start === inward.start) {
-    return existing;
-  }
-  return `${v}側は自分の進み方で間を読み、${i}側の時間を拒否にも、整えている時間にも受け取りやすい。${existing}`;
-}
-
 function betweenThemLine(
   answers: CompatibilityCurrentContextAnswers,
   roles: { visible: string; inward: string },
   birth: string,
   hit: string,
-  interactionId: PairFreeInteractionId,
-  startSplit: boolean,
 ): string {
   const answer = sideLead(answers, roles);
-  const add = additiveConsequence(interactionId, startSplit, answers);
-  return `二人の間では、${hit}${answer}。そのため二人の間では、${add}。${birth}。`;
+  return `二人の間では、${hit}${answer}。そのため二人の間では、${birth}。`;
 }
 
 function premiumContinuation(focusLabel: string, interactionId: PairFreeInteractionId): string {
@@ -385,8 +325,8 @@ function premiumContinuation(focusLabel: string, interactionId: PairFreeInteract
           : interactionId === 'hard_return_hard_space'
             ? '戻る入口が重いこのループが、他の場面ではどう出るか'
             : interactionId === 'default_relationship_loop'
-              ? '今どちらの日かが見えないこのループが、他の場面ではどう出るか'
-              : '話が終わった側と残っている側が同時に立つこのループが、他の場面ではどう出るか';
+              ? 'いまの進み方が見えにくいこのループが、他の場面ではどう出るか'
+              : '話し終えたと感じるタイミングの差が、他の場面ではどう出るか';
   return [
     `無料では、二人の間で起きやすいこのループまでを読みました。${hook}。`,
     `「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。`,
@@ -436,7 +376,7 @@ export function buildPairFreeInsightSpecV2(args: {
     inwardCivil.start,
     selected.interactionId,
   );
-  const misreadLoop = `${loopFromBirth(visibleCivil, inwardCivil, roles, tempo.entry)}${conflict.loop}`.replace(/。{2,}/g, '。');
+  const misreadLoop = conflict.loop.replace(/。{2,}/g, '。');
   return {
     id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
@@ -456,8 +396,6 @@ export function buildPairFreeInsightSpecV2(args: {
       roles,
       birth,
       hit,
-      selected.interactionId,
-      visibleCivil.start !== inwardCivil.start,
     ),
     meshMoment: meshFromBirth(visibleCivil, inwardCivil, tempo.mesh),
     mismatchEntry: tempo.entry,

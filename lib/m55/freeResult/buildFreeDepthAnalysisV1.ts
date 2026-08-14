@@ -551,7 +551,7 @@ export function buildFreeDepthAnalysisV1(
     primarySceneLabelJa: primaryScene.labelJa,
     secondarySceneJa: secondaryScene.bodyJa,
     secondarySceneLabelJa: secondaryScene.labelJa,
-    premiumOpenLoopJa: `${insight.premiumContinuation}「${primaryScene.labelJa}」でこの動きが続く背景は、場面を分けてから見えます。`,
+    premiumOpenLoopJa: `${insight.premiumContinuation}「${primaryScene.labelJa}」での出方も、そこで読めます。`,
     premiumOpenQuestionJa: insight.premiumOpenQuestion,
     premiumLockedHeadingsJa: [
       `${primaryScene.labelJa}でこの動きが続く背景`,
