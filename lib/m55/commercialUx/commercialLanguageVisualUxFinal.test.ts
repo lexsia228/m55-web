@@ -79,7 +79,7 @@ describe('commercial language visual UX final — result reasons', () => {
     });
     assert.equal(built.ok, true);
     if (!built.ok) return;
-    assert.match(built.value.headlineJa, /全体を揃えてから動く|比較が止まらず|準備が終わって/);
+    assert.match(built.value.headlineJa, /土台|今回の答え|重なって/);
     assert.doesNotMatch(built.value.conciseWhyJa.join('\n'), /順序の好み|輪郭|外の刺激|整え方として連動|主パターン|背景の構造/);
     assert.match(built.value.conciseWhyJa[0]!, /見え|内側|一方|分かれ/);
   });

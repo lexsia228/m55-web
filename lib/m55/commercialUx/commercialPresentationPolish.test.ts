@@ -83,7 +83,7 @@ describe('commercial presentation polish — Japanese copy', () => {
     if (!built.ok) return;
     assert.match(
       built.value.headlineJa,
-      /全体を揃えてから動く|比較が止まらず|準備が終わって/,
+      /土台|今回の答え|重なって/,
     );
   });
 

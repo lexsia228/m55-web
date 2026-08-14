@@ -21,9 +21,10 @@ import {
   resolveFreeAxes,
   type FreeFiveViewInput,
 } from './buildFreeFiveViewCompositionV1';
-import { buildPersonalFreeInsightSpecV2 } from './personalFreeInsightSpecV2';
+import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
+import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
 
-export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v2' as const;
+export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v3' as const;
 
 export type FreeDepthAnalysisV1 = {
   headlineJa: string;
@@ -39,6 +40,8 @@ export type FreeDepthAnalysisV1 = {
   };
   /** Concise free-result surface (≈35–45% shorter than full blocks). */
   conciseWhyJa: readonly [string, string];
+  birthBaseJa: string;
+  currentExpressionJa: string;
   primarySceneJa: string;
   primarySceneLabelJa: string;
   /** Secondary scene — one more life area, so recognition is not single-shot. */
@@ -491,7 +494,20 @@ export function buildFreeDepthAnalysisV1(
 
   const axes = free.value.axes;
   const diverge = alignDiv.value.divergeItems;
-  const insight = buildPersonalFreeInsightSpecV2(axes);
+  const birth = buildBirthSignatureV1({
+    birthDate: input.birthDate,
+    stemLaneIndex: input.stemLaneIndex,
+  });
+  if (!birth.ok) return birth;
+  const insight = buildPersonalFreeFusedInsightSpecV3({
+    birth: birth.value,
+    answers: axes,
+    alignItems: alignDiv.value.alignItems,
+    divergeItems: diverge,
+  });
+  if (insight.birthEvidenceIds.length < 1 || insight.answerEvidenceQuestionIds.length < 2) {
+    return { ok: false, code: 'selector_resolution_failed' };
+  }
   const scenesJa = {
     workJa: insight.workScene,
     relationJa: insight.relationScene,
@@ -510,20 +526,22 @@ export function buildFreeDepthAnalysisV1(
   const primaryScene = ranked[0]!;
   const secondaryScene = ranked[1]!;
   const reasons: [string, string, string] = [
-    insight.internalTension,
-    insight.whySynthesis,
+    insight.body,
+    insight.headline,
     insight.behavioralPrediction,
   ];
 
   const analysis: FreeDepthAnalysisV1 = {
     headlineJa: insight.headline,
-    conclusionJa: `${insight.headline}${insight.internalTension}${insight.whySynthesis}`,
+    conclusionJa: `${insight.headline}${insight.body}${insight.birthBaseJa}`,
     reasonsJa: reasons,
-    hiddenSideJa: insight.internalTension,
+    hiddenSideJa: insight.body,
     strengthConditionsJa: [...insight.strengthConditions],
     loadConditionsJa: [...insight.loadConditions],
     scenesJa,
-    conciseWhyJa: [insight.internalTension, insight.whySynthesis],
+    conciseWhyJa: [insight.fusedStackJa, insight.body],
+    birthBaseJa: insight.birthBaseJa,
+    currentExpressionJa: insight.currentExpressionJa,
     primarySceneJa: primaryScene.bodyJa,
     primarySceneLabelJa: primaryScene.labelJa,
     secondarySceneJa: secondaryScene.bodyJa,
@@ -547,6 +565,8 @@ export function buildFreeDepthAnalysisV1(
   const publicText = [
     analysis.headlineJa,
     analysis.conclusionJa,
+    analysis.birthBaseJa,
+    analysis.currentExpressionJa,
     ...analysis.conciseWhyJa,
     analysis.primarySceneJa,
     analysis.secondarySceneJa,

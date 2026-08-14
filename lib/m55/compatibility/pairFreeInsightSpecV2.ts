@@ -11,7 +11,12 @@ import type {
   ExpressionPaceAnswer,
   ReturnPatternAnswer,
 } from './currentContextContract.v1';
-import type { PairAxisId } from './pairReadingTypes';
+import type { PairAxisId, PairDifferenceType } from './pairReadingTypes';
+import {
+  resolveCivilBirthDimensions,
+  type CivilBirthDimensionsV1,
+} from '../individualization/birthSignatureV1';
+import { derivePairDifferenceType } from './pairReadingFingerprint';
 
 export const PAIR_FREE_INSIGHT_SPEC_VERSION = 'pair_free_insight_v2' as const;
 
@@ -35,6 +40,12 @@ export type PairFreeInsightSpecV2 = {
     'returnPattern',
   ];
   readonly pairAxisId: PairAxisId;
+  readonly pairDifferenceType: PairDifferenceType;
+  readonly aBirthEvidence: true;
+  readonly bBirthEvidence: true;
+  readonly pairAnswerEvidence: true;
+  readonly independentAAnswerEvidence: false;
+  readonly independentBAnswerEvidence: false;
   readonly interactionId: PairFreeInteractionId;
   readonly confidence: 'high' | 'medium';
   readonly personAUsesFirstPerspective: boolean;
@@ -222,22 +233,81 @@ function sideLead(
   return `${visible}側に見えやすい反応と、${inward}側が内側で持っている意味が、入れ替わって読まれやすい`;
 }
 
+const START_TEMPO_JA = {
+  try: '先に小さく動いて輪郭を掴む',
+  map: '整えてから動く',
+  ask: '合図や言葉を足してから動く',
+} as const;
+
+const AXIS_BIRTH_LAYER: Readonly<Record<PairAxisId, string>> = {
+  A1: '近づくペースの差',
+  A2: '反応の出方の差',
+  A3: '安心までの時間差',
+  A4: '接点の入口の作り方の差',
+};
+
+function birthLead(
+  visible: CivilBirthDimensionsV1,
+  inward: CivilBirthDimensionsV1,
+  roles: { visible: string; inward: string },
+  pairAxisId: PairAxisId,
+  differenceType: PairDifferenceType,
+): string {
+  const { visible: v, inward: i } = roles;
+  const shared = visible.start === inward.start;
+  const closeDates =
+    differenceType === 'same_dob_pair' || differenceType === 'near_dob_shift';
+  if (shared && closeDates) {
+    return `${v}側も${i}側も、生まれの基調は「${START_TEMPO_JA[visible.start]}」側に近い。土台が近いぶん、今の答えのずれが${AXIS_BIRTH_LAYER[pairAxisId]}として目立ちやすい`;
+  }
+  if (shared) {
+    return `${v}側も${i}側も、生まれの基調は「${START_TEMPO_JA[visible.start]}」に寄る。同じ基調でも、${AXIS_BIRTH_LAYER[pairAxisId]}の出方が二人の間で分かれやすい`;
+  }
+  return `${v}側の生まれの基調は「${START_TEMPO_JA[visible.start]}」側に寄りやすく、${i}側は「${START_TEMPO_JA[inward.start]}」側に寄りやすい。土台の${AXIS_BIRTH_LAYER[pairAxisId]}が、今の答えのずれを増幅しやすい`;
+}
+
+function meshFromBirth(
+  visible: CivilBirthDimensionsV1,
+  inward: CivilBirthDimensionsV1,
+  tempoMesh: string,
+): string {
+  if (visible.start !== inward.start) {
+    return '基調の速さ差が見えているときは、先に方向だけ置いて、言葉はあとにしてよいと分かると噛み合いやすい。';
+  }
+  return `土台の始め方が近いときは、今の二人の速さだけを先にそろえられると噛み合いやすい。${tempoMesh}`;
+}
+
+function loopFromBirth(
+  visible: CivilBirthDimensionsV1,
+  inward: CivilBirthDimensionsV1,
+  roles: { visible: string; inward: string },
+  existing: string,
+): string {
+  const { visible: v, inward: i } = roles;
+  if (visible.start === inward.start) {
+    return existing;
+  }
+  return `${v}側は自分の基調（${START_TEMPO_JA[visible.start]}）で間を読み、${i}側の「${START_TEMPO_JA[inward.start]}」側の時間を拒否にも整えている時間にも見えやすい。${existing}`;
+}
+
 function betweenThemLine(
   answers: CompatibilityCurrentContextAnswers,
   roles: { visible: string; inward: string },
   tempoBetween: string,
+  birth: string,
 ): string {
   const core = tempoBetween
     .replace(/^二人がこじれるとしたら、/u, '')
     .replace(/二人の間では、?/gu, '')
     .replace(/。$/u, '')
     .replace(/^、/u, '');
-  return `${sideLead(answers, roles)}。そのため二人の間では、${core}。`;
+  const answer = sideLead(answers, roles);
+  return `${birth}。今の二人の答えでは、${answer}。そのため二人の間では、${core}。`;
 }
 
 function premiumContinuation(focusLabel: string): string {
   return [
-    `無料では、二人の間で回りやすい基本のループまでを読みました。`,
+    `無料では、二人の生年月日の土台と、今の二人の答えが指す基本のループまでを読みました。`,
     `「二人の相性レポート」では、同じループを六つの場面に分け、あなた側と相手側の視点、すれ違いの入口、戻し方、使える一言、小さな実験、振り返りまでを一つの流れとして残します。`,
     `今いちばん整理したいこと（${focusLabel}）から先に読めます。`,
   ].join('');
@@ -246,11 +316,25 @@ function premiumContinuation(focusLabel: string): string {
 export function buildPairFreeInsightSpecV2(args: {
   answers: CompatibilityCurrentContextAnswers;
   pairAxisId: PairAxisId;
+  personABirthDate: string;
+  personBBirthDate: string;
   personAUsesFirstPerspective: boolean;
   focusLabel: string;
 }): PairFreeInsightSpecV2 {
+  const aCivil = resolveCivilBirthDimensions(args.personABirthDate);
+  const bCivil = resolveCivilBirthDimensions(args.personBBirthDate);
+  if (!aCivil.ok || !bCivil.ok) {
+    throw new Error('invalid_pair_dob');
+  }
+  const differenceType = derivePairDifferenceType(
+    args.personABirthDate,
+    args.personBBirthDate,
+    args.pairAxisId,
+  );
   const selected = selectInteraction(args.answers);
   const roles = roleLabels(args.personAUsesFirstPerspective);
+  const visibleCivil = args.personAUsesFirstPerspective ? aCivil.value : bCivil.value;
+  const inwardCivil = args.personAUsesFirstPerspective ? bCivil.value : aCivil.value;
   const tempo = TEMPO[args.answers.decisionPace][args.answers.expressionPace];
   const conflict = loopFromConflict(
     args.answers.disagreement,
@@ -258,17 +342,30 @@ export function buildPairFreeInsightSpecV2(args: {
     args.answers.returnPattern,
     roles,
   );
-  const misreadLoop = `${tempo.entry}${conflict.loop}`.replace(/。{2,}/g, '。');
+  const birth = birthLead(
+    visibleCivil,
+    inwardCivil,
+    roles,
+    args.pairAxisId,
+    differenceType,
+  );
+  const misreadLoop = `${loopFromBirth(visibleCivil, inwardCivil, roles, tempo.entry)}${conflict.loop}`.replace(/。{2,}/g, '。');
   return {
-    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
+    id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
     kind: 'pair_free_v2',
     evidenceQuestionIds: EVIDENCE,
     pairAxisId: args.pairAxisId,
+    pairDifferenceType: differenceType,
+    aBirthEvidence: true,
+    bBirthEvidence: true,
+    pairAnswerEvidence: true,
+    independentAAnswerEvidence: false,
+    independentBAnswerEvidence: false,
     interactionId: selected.interactionId,
     confidence: selected.confidence,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
-    betweenThem: betweenThemLine(args.answers, roles, tempo.between),
-    meshMoment: tempo.mesh,
+    betweenThem: betweenThemLine(args.answers, roles, tempo.between, birth),
+    meshMoment: meshFromBirth(visibleCivil, inwardCivil, tempo.mesh),
     mismatchEntry: tempo.entry,
     misreadLoop,
     reset: conflict.reset,

@@ -82,7 +82,8 @@ describe('personal free insight quality v2', () => {
     });
     assert.equal(a.ok && shifted.ok, true);
     if (!a.ok || !shifted.ok) return;
-    assert.notEqual(a.value.headlineJa, shifted.value.headlineJa);
+    assert.notEqual(a.value.currentExpressionJa, shifted.value.currentExpressionJa);
+    assert.notEqual(a.value.conciseWhyJa[0], shifted.value.conciseWhyJa[0]);
     for (const text of [a.value.headlineJa, shifted.value.headlineJa]) {
       for (const marker of PARAPHRASE_MARKERS) {
         assert.equal(text.includes(marker), false, marker);

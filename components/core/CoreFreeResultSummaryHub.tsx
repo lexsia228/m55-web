@@ -7,10 +7,31 @@ type Props = {
   depth: FreeDepthAnalysisV1;
 };
 
+const LAYERS = [
+  {
+    label: '生年月日から見える、あなたの基調',
+    key: 'birth' as const,
+  },
+  {
+    label: '今回の回答で見えた、今の出方',
+    key: 'current' as const,
+  },
+  {
+    label: '二つを重ねると見えること',
+    key: 'fused' as const,
+  },
+] as const;
+
 /**
- * Concise free-result reading — why (2 reasons) only; hero and scene live elsewhere.
+ * Concise free-result reading — DOB base, current answers, then fused inference.
  */
 export default function CoreFreeResultSummaryHub({ depth }: Props) {
+  const bodies = {
+    birth: depth.birthBaseJa,
+    current: depth.currentExpressionJa,
+    fused: depth.conciseWhyJa[0] ?? depth.headlineJa,
+  };
+
   return (
     <section
       className={`${styles.section} ${styles.coreSectionSurface} ${styles.freeResultSummaryHub}`}
@@ -24,9 +45,10 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
       </h2>
 
       <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
-        {depth.conciseWhyJa.map((reason) => (
-          <li key={reason.slice(0, 24)} className={styles.freeDepthReasonItem}>
-            {reason}
+        {LAYERS.map((layer) => (
+          <li key={layer.key} className={styles.freeDepthReasonItem}>
+            <span className={styles.freeDepthBlockTitle}>{layer.label}</span>
+            <p className={styles.freeDepthBlockBody}>{bodies[layer.key]}</p>
           </li>
         ))}
       </ol>

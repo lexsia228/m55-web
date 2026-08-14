@@ -57,6 +57,8 @@ function insight(
   return buildPairFreeInsightSpecV2({
     answers,
     pairAxisId: 'A2',
+    personABirthDate: '1990-01-15',
+    personBBirthDate: '1992-08-20',
     personAUsesFirstPerspective: perspective,
     focusLabel: '会話の進め方',
   });
@@ -124,5 +126,37 @@ describe('pair free insight quality v2', () => {
       if (label.length >= 6 && context.currentExpression.includes(label)) hits += 1;
     }
     assert.equal(hits, 0);
+  });
+
+  it('same answers with different A/B birth signatures change the relationship reading', () => {
+    const left = buildCompatibilityPublicResult(
+      { personA: '1983-02-28', personB: '1997-06-15' },
+      undefined,
+      TEMPO,
+    );
+    const right = buildCompatibilityPublicResult(
+      { personA: '1990-01-05', personB: '1990-01-06' },
+      undefined,
+      TEMPO,
+    );
+    assert.equal(left.ok && right.ok, true);
+    if (!left.ok || !right.ok) return;
+    assert.notEqual(
+      left.value.free.relationshipDynamic,
+      right.value.free.relationshipDynamic,
+    );
+    assert.match(left.value.free.relationshipDynamic, /生まれの基調|土台/);
+    assert.match(right.value.free.relationshipDynamic, /生まれの基調|土台/);
+  });
+
+  it('records both birth signatures and does not fabricate independent A/B answers', () => {
+    const spec = insight(TEMPO);
+    assert.equal(spec.aBirthEvidence, true);
+    assert.equal(spec.bBirthEvidence, true);
+    assert.equal(spec.pairAnswerEvidence, true);
+    assert.equal(spec.independentAAnswerEvidence, false);
+    assert.equal(spec.independentBAnswerEvidence, false);
+    assert.doesNotMatch(spec.betweenThem, /\d{4}-\d{2}-\d{2}/);
+    assert.doesNotMatch(spec.misreadLoop, /\d{4}-\d{2}-\d{2}/);
   });
 });

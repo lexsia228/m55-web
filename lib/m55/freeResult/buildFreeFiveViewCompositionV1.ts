@@ -16,10 +16,10 @@ import {
   isFreePrimaryThemeAnswerId,
 } from '../individualization/answerIdMapsV1';
 import { mapPrimaryThemeToReplyThemeV1 } from '../individualization/primaryThemeReplyMapV1';
+import { buildBirthSignatureV1 } from '../individualization/birthSignatureV1';
 import type {
   AlignDivergeItem,
   ChangeTendency,
-  DayBand,
   DecisionTendency,
   DistanceTendency,
   ExpressionAxes,
@@ -81,24 +81,6 @@ const AXIS_TITLE_JA: Readonly<Record<ExpressionAxisId, string>> = {
   distance: '距離の取り方',
   change: '変化への向き合い方',
 };
-
-const START_BY_DAY_BAND: Readonly<Record<DayBand, StartTendency>> = {
-  early: 'try',
-  mid: 'map',
-  late: 'ask',
-};
-
-const DECISION_TABLE: Readonly<Record<DayBand, readonly DecisionTendency[]>> = {
-  early: ['sort', 'deadline', 'wait'],
-  mid: ['deadline', 'wait', 'sort'],
-  late: ['wait', 'sort', 'deadline'],
-};
-
-const RECOVERY_BY_SEASON3: readonly RecoveryTendency[] = ['pause', 'shrink', 'scene'];
-const DISTANCE_BY_MOD: readonly DistanceTendency[] = ['close', 'middle', 'solo'];
-const CHANGE_BY_KEY: readonly ChangeTendency[] = ['observe', 'adjust', 'rebuild'];
-
-const DOB_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const START_COPY: Readonly<
   Record<StartTendency, { label: string; body: string; note: string }>
@@ -245,64 +227,14 @@ const AXIS_COPY = {
   change: CHANGE_COPY,
 } as const;
 
-function dayBandFromDay(day: number): DayBand {
-  if (day <= 10) return 'early';
-  if (day <= 20) return 'mid';
-  return 'late';
-}
-
-function dayBandIndex(dayBand: DayBand): 0 | 1 | 2 {
-  if (dayBand === 'early') return 0;
-  if (dayBand === 'mid') return 1;
-  return 2;
-}
-
 /** Exported for free-depth composition (same DOB axis resolution; no algorithm change). */
 export function resolveDobAxes(input: {
   birthDate: string;
   stemLaneIndex: number;
 }): Result<ExpressionAxes> {
-  const m = input.birthDate.match(DOB_RE);
-  if (!m) return { ok: false, code: 'invalid_dob' };
-  const year = Number(m[1]);
-  const month = Number(m[2]);
-  const day = Number(m[3]);
-  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
-    return { ok: false, code: 'invalid_dob' };
-  }
-  if (month < 1 || month > 12 || day < 1 || day > 31) {
-    return { ok: false, code: 'invalid_dob' };
-  }
-  const dt = new Date(Date.UTC(year, month - 1, day));
-  if (
-    dt.getUTCFullYear() !== year ||
-    dt.getUTCMonth() !== month - 1 ||
-    dt.getUTCDate() !== day
-  ) {
-    return { ok: false, code: 'invalid_dob' };
-  }
-  if (
-    !Number.isFinite(input.stemLaneIndex) ||
-    !Number.isInteger(input.stemLaneIndex) ||
-    input.stemLaneIndex < 0 ||
-    input.stemLaneIndex > 9
-  ) {
-    return { ok: false, code: 'missing_stem' };
-  }
-
-  const dayBand = dayBandFromDay(day);
-  const season3 = (month - 1) % 3;
-  const dbi = dayBandIndex(dayBand);
-  return {
-    ok: true,
-    value: {
-      start: START_BY_DAY_BAND[dayBand],
-      decision: DECISION_TABLE[dayBand][season3]!,
-      recovery: RECOVERY_BY_SEASON3[season3]!,
-      distance: DISTANCE_BY_MOD[input.stemLaneIndex % 3]!,
-      change: CHANGE_BY_KEY[(input.stemLaneIndex + dbi) % 3]!,
-    },
-  };
+  const signature = buildBirthSignatureV1(input);
+  if (!signature.ok) return signature;
+  return { ok: true, value: signature.value.dimensions };
 }
 
 /** Exported for free-depth composition (same free-axis resolution; IDs unchanged). */

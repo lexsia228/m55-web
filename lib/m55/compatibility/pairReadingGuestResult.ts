@@ -129,6 +129,8 @@ export function buildCompatibilityPublicResult(
   const freeContext = currentContext && baseContext
     ? overlayPairFreeInsight(baseContext, currentContext, {
         pairAxisId: rendered.pairFingerprint.pairAxisId,
+        personABirthDate: guestInput.personA,
+        personBBirthDate: guestInput.personB,
         personAUsesFirstPerspective,
         focusLabel: baseContext.focusLabel,
       })
@@ -139,6 +141,8 @@ export function buildCompatibilityPublicResult(
     value: {
       free: overlayPairFreeDynamic(free, currentContext, {
         pairAxisId: rendered.pairFingerprint.pairAxisId,
+        personABirthDate: guestInput.personA,
+        personBBirthDate: guestInput.personB,
         personAUsesFirstPerspective,
         focusLabel: baseContext?.focusLabel ?? '二人の間',
       }),
@@ -155,6 +159,8 @@ function overlayPairFreeInsight(
   answers: CompatibilityCurrentContextAnswers,
   args: {
     pairAxisId: PairAxisId;
+    personABirthDate: string;
+    personBBirthDate: string;
     personAUsesFirstPerspective: boolean;
     focusLabel: string;
   },
@@ -162,6 +168,8 @@ function overlayPairFreeInsight(
   const insight = buildPairFreeInsightSpecV2({
     answers,
     pairAxisId: args.pairAxisId,
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     focusLabel: args.focusLabel,
   });
@@ -184,6 +192,8 @@ function overlayPairFreeDynamic(
   answers: CompatibilityCurrentContextAnswers | undefined,
   args: {
     pairAxisId: PairAxisId;
+    personABirthDate: string;
+    personBBirthDate: string;
     personAUsesFirstPerspective: boolean;
     focusLabel: string;
   },
@@ -192,6 +202,8 @@ function overlayPairFreeDynamic(
   const insight = buildPairFreeInsightSpecV2({
     answers,
     pairAxisId: args.pairAxisId,
+    personABirthDate: args.personABirthDate,
+    personBBirthDate: args.personBBirthDate,
     personAUsesFirstPerspective: args.personAUsesFirstPerspective,
     focusLabel: args.focusLabel,
   });
