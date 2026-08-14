@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-14T08:30:00Z** (`git worktree list --porcelain`; PR #116 **MERGED** @ `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` · Production no-cache deployment `dpl_2SQembxqK13ghU9o52R1vfNovmwE` · last verified origin/main `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` · prior live-binding snapshot `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` retained)
+Last verified: **2026-08-14T09:50:00Z** (`git worktree list --porcelain`; PR #117 **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · Production deployment GitHub `5903998364` · last verified origin/main `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · prior snapshots `511b54d` / `286cb105` retained)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -40,7 +40,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-14) — authoritative, read this first:** PR #116 is **MERGED** @ `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420`. Production client integrity is **CLOSED_GREEN** after no-cache deployment `dpl_2SQembxqK13ghU9o52R1vfNovmwE`. Personal Free and Personal Premium remain commercially **GREEN**. ACTIVE implementation worktree is **WT-027** `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` · `fix/m55-pair-surface-identity-v1`. Pair Premium remains **READY_BUT_GATED**. Compatibility commerce remains **OFF**. ¥600 recovery remains separate. P3 checkout/4242/sales launch remain **not authorized**. Prior live-binding snapshot `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` @ `2026-08-11T04:45:05Z` is retained as historical.
+**CURRENT (2026-08-14 post-PR-#117) — authoritative, read this first:** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production SHA `be6efb4fd7b2994a18fe0f175a536e773ee827ce` · GitHub Production deployment `5903998364`. Four-surface visual identity is **CLOSED GREEN**. Personal Free / Personal Premium remain **CLOSED GREEN**. Compatibility Free is **CLOSED GREEN** on Production. Pair Premium remains **READY_BUT_GATED**. Compatibility commerce remains **OFF**. **NEXT GATE:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. Prior snapshots `511b54d` (PR #116) and `286cb105` retained as historical.
 
 **CURRENT (2026-08-11) — historical for P3 entry snapshot:** PA-2A and commercial-surface alias/reuse freeze remain **CLOSED GREEN**. IND-FREE and P0 Premium terminology remain **CLOSED GREEN**. Product Authority main settlement is **COMPLETED** — PR #94 **MERGED** @ `93579b86a4a69ebf555bd089869d541f0c56f4a5`. P1A copy/framing is **CLOSED GREEN** — PR #95 **MERGED** @ `81692dab641aeddf4df625683a97761e8c97cc33`. P1B visual contrast is **CLOSED GREEN** — PR #96 **MERGED** @ `e1fd76b540f5290c065c1695e59f86394f20b3ba`. P1C draft persistence is **CLOSED GREEN** — PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad`. P2 Revenue-Ready is **CLOSED GREEN** — PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`. P2 post-merge SSOT transition is **COMPLETE** — PR #100 **MERGED** @ `5e369f3ec1ce6ef4bd8f40a85ff7353cb5a6ca11`. **Last verified origin/main (`2026-08-11T04:45:05Z`):** `286cb1052972e18cdbc5f8c99e6d41c78c3180d4`. **Last verified Production SHA (diagnostics):** `286cb1052972e18cdbc5f8c99e6d41c78c3180d4` · `vercel_env=production` · `vercel_branch=main` · deployment id **not reobserved**. **Last P2 settlement:** deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** @ `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN**. WT-024 is **COMPLETED** read-only. WT-025 is **COMPLETED** read-only. WT-026 (`/Users/lexsia/Documents/M55_WORKTREE-mrq-p2-revenue-ready-v1`, `feat/m55-mrq-p2-revenue-ready-v1`) is **COMPLETED** read-only. WT-023 is **COMPLETED** read-only. WT-019 remains mapping reference/read-only. ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. MRQ implementation is **not authorized** — P3 worktree **not created**. P3/checkout/4242/real purchase/sales launch remain **not authorized**.
 
@@ -710,22 +710,22 @@ Historical post-merge transition snapshots remain recorded for audit.
 | next gate | none — P2 **CLOSED GREEN** |
 | notes | PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce`. Production deployment **AA99Xfx9uL5ne2tbpQztRkia2eYx** @ `2d14404d62ab7b265e07729448d6db602a055cce` · state **SETTLED GREEN**. ECP **GREEN** · Premium proof **GREEN**. Retained read-only. |
 
-### WT-027 — Pair surface identity (ACTIVE)
+### WT-027 — Pair surface identity (COMPLETED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` |
-| branch | `fix/m55-pair-surface-identity-v1` |
-| branch creation base | `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` — origin/main at PR #116 merge |
-| last verified origin/main | `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
-| last verified Production SHA | `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
-| Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` |
-| lifecycle | **ACTIVE** |
-| purpose | Pair Free visual signature + privacy-safe entry share; Pair Premium night ownership grammar in gated source/fixture; Personal Premium 11px label floor |
-| product implementation authorized | **true** — bounded Pair display / ownership grammar only |
-| prohibited operations | Compatibility commerce activation · Stripe / checkout / webhook / DB / RPC · DOB/calendar/generation semantics · Personal Premium chapter rewrite · ¥600 recovery |
-| next gate | Human commercial review of Pair surfaces, then PR merge. Commerce remains OFF. |
-| notes | Same physical worktree as the prior P3 sales-safety tree; new branch from current origin/main. Pair Premium stays READY_BUT_GATED. |
+| branch | `fix/m55-pair-surface-identity-v1` (merged via PR #117) |
+| feature head | `36094743776bd0b6d641b0b1fbf5f1d5dfb8ab72` |
+| merge commit | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| last verified origin/main | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| last verified Production SHA | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| Production deployment | GitHub `5903998364` @ `2026-08-14T09:44:24Z` |
+| lifecycle | **COMPLETED** |
+| purpose | Pair Free visual signature + privacy-safe entry share; Pair Premium night ownership grammar in source/fixture; Personal Premium 11px label floor |
+| product implementation authorized | **false** — lane closed GREEN |
+| next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| notes | PR #117 **MERGED**. Four-surface visual identity **CLOSED GREEN**. Pair Premium stays READY_BUT_GATED. Commerce remains OFF. |
 
 ---
 

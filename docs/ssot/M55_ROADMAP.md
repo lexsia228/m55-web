@@ -21,9 +21,13 @@ Global acceptance standard: `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (REV1
 User-visible surfaces require `USER_VISIBLE_CLOSED_GREEN`; technical GREEN alone is insufficient.
 Human commercial-quality approval and actual-screen evidence are mandatory before closure.
 
-## Current Pair surface identity wave (2026-08-14) — AUTHORITATIVE IMPLEMENTATION OVERLAY
+## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #116 is **MERGED** @ `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420`. Production client integrity is **CLOSED_GREEN**. Personal Free / Personal Premium remain GREEN. The authorized implementation is a **bounded Pair display wave** (`fix/m55-pair-surface-identity-v1`): Pair Free visual signature + privacy-safe entry share, Pair Premium night ownership grammar in source/fixture. This does **not** activate P5 paid Compatibility commerce, checkout, or Production purchase.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free are **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. **NEXT:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
+
+## Current Pair surface identity wave (2026-08-14) — HISTORICAL
+
+PR #116 @ `511b54d` and PR #117 @ `be6efb4` closed the four-surface visual identity wave. This does **not** activate P5 paid Compatibility commerce, checkout, or Production purchase.
 
 ## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE FOR MRQ SEQUENCE, SUPERSEDED FOR ACTIVE IMPLEMENTATION LANE 2026-08-14
 

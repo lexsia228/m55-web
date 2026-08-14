@@ -5,31 +5,44 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #116 Production client integrity GREEN · Pair surface identity implementation lane).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`).
 
-## PAIR SURFACE IDENTITY LANE (2026-08-14) — AUTHORITATIVE FOR CURRENT IMPLEMENTATION
+## FOUR-SURFACE COMMERCIAL QUALITY (2026-08-14) — AUTHORITATIVE POST-PR-#117
 
-This section is the current authority for the Pair visual-identity wave. Earlier MRQ P3 entry/planning rows remain historical for closure facts only. Compatibility commerce stays OFF.
+This section is the current authority after PR #117 merge. Pair display identity is **CLOSED GREEN** on Production. Compatibility commerce stays OFF.
 
 | Field | Value |
 |---|---|
+| PR #117 | **MERGED** — https://github.com/lexsia228/m55-web/pull/117 · feature head `36094743776bd0b6d641b0b1fbf5f1d5dfb8ab72` · merge commit `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
 | PR #116 | **MERGED** — https://github.com/lexsia228/m55-web/pull/116 · merge SHA `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
-| Production SHA (diagnostics) | `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` |
-| Production deployment that resolved `BUILD_OUTPUT_MISMATCH` | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` · no-cache rebuild of the same SHA |
+| Production SHA (diagnostics) | `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| Production deployment (GitHub) | `5903998364` @ `2026-08-14T09:44:24Z` |
+| Prior Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` @ `511b54d` — no-cache rebuild after `BUILD_OUTPUT_MISMATCH` |
 | P0 Production client integrity | **CLOSED_GREEN** |
-| Personal Free | commercially **GREEN** |
-| Personal Premium | commercially **GREEN** · PR #116 visual hierarchy live |
-| ACTIVE LANE | **Pair surface identity + ownership grammar** |
-| Worktree | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` · `fix/m55-pair-surface-identity-v1` |
-| Pair Free | visual signature + privacy-safe entry share (this PR) |
-| Pair Premium | **READY_BUT_GATED** · night ownership grammar in source/fixture · **NOT_LIVE** |
+| PERSONAL_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** |
+| PERSONAL_PREMIUM_COMMERCIAL_QUALITY | **CLOSED_GREEN** |
+| COMPATIBILITY_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** — Pair Signature + privacy-safe entry share live on Production `/synastry` |
+| COMPATIBILITY_PAID_PRODUCT_QUALITY | **GREEN_BUT_COMMERCE_GATED** — night ownership grammar in source/fixture |
+| FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
+| Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE after this PR | Human commercial review of Pair surfaces, then merge; commerce activation remains unauthorized |
-| MRQ_IMPLEMENTATION_AUTHORIZED | **true** for this bounded Pair display lane only — not for P3 checkout/4242/sales launch |
+| NEXT GATE | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+| MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |
 | SALES_LAUNCH_AUTHORIZED | **false** |
+
+## PAIR SURFACE IDENTITY LANE (2026-08-14) — HISTORICAL IMPLEMENTATION RECORD
+
+This section records the Pair visual-identity implementation wave that closed in PR #117. Earlier MRQ P3 entry/planning rows remain historical for closure facts only.
+
+| Field | Value |
+|---|---|
+| PR #117 | **MERGED** — see Four-Surface section above |
+| WT-027 | **COMPLETED** — Pair surface identity lane closed GREEN |
+| Pair Free | editorial signature + privacy-safe `/synastry` entry share — **live on Production** |
+| Pair Premium | **READY_BUT_GATED** · night ownership grammar in source/fixture · **NOT_LIVE** |
 
 ## M55 MINIMUM-REVENUE-QUALITY GOVERNANCE (2026-08-06) — HISTORICAL FOR P3 ENTRY, SUPERSEDED FOR ACTIVE LANE 2026-08-14
 
@@ -364,7 +377,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-14):** Complete Pair surface identity implementation on `fix/m55-pair-surface-identity-v1`, then Human commercial review. Production SHA `511b54dd9d7ff30a5453c9c6d7d36774e0b6f420` is verified. Compatibility commerce remains **OFF**. ¥600 recovery remains a separate lane. Do not reopen Personal Free/Premium GREEN work. P3 checkout/4242/sales launch remain **not authorized**.
+**CURRENT (2026-08-14 post-PR-#117):** PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production diagnostics and live `/synastry` client markers confirm Pair Signature + privacy-safe entry share. Four-surface visual identity is **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT SINGLE ACTION:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`. P3 checkout/4242/sales launch remain **not authorized**.
 
 > **HISTORICAL SNAPSHOT — valid through 2026-08-11; superseded 2026-08-14.**
 >
