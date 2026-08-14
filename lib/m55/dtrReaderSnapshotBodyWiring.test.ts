@@ -119,7 +119,7 @@ describe('dtrReader snapshot body wiring', () => {
     const block = extractFunctionBlock(readerSource, 'EssenceArticleWithViz');
     assert.ok(block.includes('hardcodedBodyParas'), 's3: hardcodedBodyParas fallback missing');
     assert.ok(
-      block.includes('今日やることを一つだけに絞ります'),
+      block.includes('後回しにすると楽になる作業'),
       's3: pilot copy disappeared from fallback'
     );
   });

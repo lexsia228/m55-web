@@ -71,7 +71,7 @@ describe('single-newline units become separate reading units', () => {
   it('scopes the individualization label to the line it was written for', () => {
     const blocks = parseReportBodyBlocks(DELIVERED_S3_BODY);
     const labelled = blocks[0]!;
-    assert.equal(labelled.label, 'このプレミアムレポートだけの本質リズム');
+    assert.equal(labelled.label, '判断が安定しやすい条件');
     assert.deepEqual(labelled.units, [ESSENCE_RHYTHM_NOTE]);
 
     const catalogFollowOn = blocks[1]!;
