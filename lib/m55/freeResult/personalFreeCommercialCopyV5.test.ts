@@ -31,7 +31,7 @@ const B = answers({
   'free.change_style': 'free.change_style.observe_first',
 });
 const C = answers({
-  'free.start_style': 'free.start_style.ask_first',
+  'free.start_style': 'free.start_style.map_first',
   'free.decision_style': 'free.decision_style.wait_first',
   'free.recovery_style': 'free.recovery_style.change_scene',
   'free.distance_style': 'free.distance_style.solo_reset',
@@ -46,7 +46,7 @@ const D = answers({
   'free.primary_theme': 'free.primary_theme.relation',
 });
 const E = answers({
-  'free.start_style': 'free.start_style.try_first',
+  'free.start_style': 'free.start_style.ask_first',
   'free.decision_style': 'free.decision_style.wait_first',
   'free.recovery_style': 'free.recovery_style.pause_short',
   'free.distance_style': 'free.distance_style.solo_reset',
@@ -111,9 +111,10 @@ describe('personal free commercial copy v5', () => {
       assert.deepEqual(lintPersonalPrimaryCopy(built.value.headlineJa), [], fixture.id);
       assert.deepEqual(customerLanguageBanned(built.value.headlineJa), [], fixture.id);
       assert.doesNotMatch(built.value.headlineJa, /買い物や仕事の方針を、人に話した直後/);
-      assert.doesNotMatch(built.value.headlineJa, /置くつもりが比較|材料が足りなくて|あわせて、/);
+      assert.doesNotMatch(built.value.headlineJa, /置くつもりが|材料が足りなくて|あわせて、/);
     }
     assert.equal(new Set(openings).size, 7);
+    assert.equal(new Set(openings.map((text) => text.split('。')[0])).size, 7);
     assert.equal(new Set(scenes).size, 7);
     assert.equal(new Set(patterns).size, 7);
     assert.ok(new Set(bridges).size >= 3, 'premium bridges must not all be identical');

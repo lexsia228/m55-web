@@ -95,6 +95,8 @@ describe('pair free commercial copy v5', () => {
   it('covers seven complete readings without engineering jargon', () => {
     const blobs = PAIR_V5_FIXTURES.map((fixture) => completeCopy(fixture));
     assert.equal(new Set(blobs).size, 7);
+    const triggers = PAIR_V5_FIXTURES.map((fixture) => insight(fixture).relationshipTriggerJa);
+    assert.equal(new Set(triggers).size, 7, 'pair opening hits must not collapse across fixtures');
     for (const fixture of PAIR_V5_FIXTURES) {
       const spec = insight(fixture);
       const blob = completeCopy(fixture);

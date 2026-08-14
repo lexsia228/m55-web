@@ -264,9 +264,13 @@ function pairOpeningHit(
       : '表では話が進んだように見え、片方はまだ言えていない一点を持ち帰っている。閉じた側と残した側が、次の会話で入れ替わりやすい。';
   }
   if (interactionId === 'tempo_mismatch' || interactionId === 'later_decide_words_soon') {
-    return startSplit
-      ? '話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。'
-      : '進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。';
+    if (startSplit) {
+      return '話は終わったと思っている側と、まだ大事な一点が残っている側が、同じ会話の中に同時にいる。';
+    }
+    if (_answers.decisionPace === 'decide_later' && _answers.expressionPace === 'words_soon') {
+      return '結論は置いてから出したい側と、先に言葉で確かめたい側が、同じ速さに見えて同時に出やすい。';
+    }
+    return '進み方の速さは近く見えても、話を閉じたい側と、言葉が出るまで置きたい側が同時に出やすい。';
   }
   if (interactionId === 'hard_return_hard_space') {
     return '間を取ることと戻ることがどちらも重く、片方は今夜のうちに接点を欲しくなり、もう片方は入口自体を作りにくい。終わらない空白が、拒否にも疲れにも見えやすい。';
@@ -279,11 +283,16 @@ function pairOpeningHit(
 function additiveConsequence(
   interactionId: PairFreeInteractionId,
   startSplit: boolean,
+  answers: CompatibilityCurrentContextAnswers,
 ): string {
   if (interactionId === 'tempo_mismatch' || interactionId === 'later_decide_words_soon') {
-    return startSplit
-      ? '先に動きたくなる側と、揃えてから返したくなる側が、同じ話題の中で同時に走りやすい'
-      : '進み方は近く見えても、閉じたい側と置きたい側の時間だけが食い違いやすい';
+    if (startSplit) {
+      return '先に動きたくなる側と、揃えてから返したくなる側が、同じ話題の中で同時に走りやすい';
+    }
+    if (answers.decisionPace === 'decide_later' && answers.expressionPace === 'words_soon') {
+      return '言葉が先に出る側と、結論だけ置いてから出たい側で、同じ速さに見えて時間の使い方が分かれやすい';
+    }
+    return '進み方は近く見えても、閉じたい側と置きたい側の時間だけが食い違いやすい';
   }
   if (interactionId === 'talk_now_go_quiet') {
     return startSplit
@@ -361,7 +370,7 @@ function betweenThemLine(
   startSplit: boolean,
 ): string {
   const answer = sideLead(answers, roles);
-  const add = additiveConsequence(interactionId, startSplit);
+  const add = additiveConsequence(interactionId, startSplit, answers);
   return `二人の間では、${hit}${answer}。そのため二人の間では、${add}。${birth}。`;
 }
 
