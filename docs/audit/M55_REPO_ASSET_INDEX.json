@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-14T21:39:00.014490+00:00",
-  "count": 689,
+  "generated_at_utc": "2026-08-15T21:33:36.050767+00:00",
+  "count": 691,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -85,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 48251
+      "bytes": 51527
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -95,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 17330
+      "bytes": 19280
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -3030,7 +3030,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 11740
+      "bytes": 11788
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3110,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 66510
+      "bytes": 71443
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3208,6 +3208,11 @@
       "bytes": 2336
     },
     {
+      "path": "docs/audit/M55_ALL_SURFACE_PERSONALIZATION_RESOLUTION_AUDIT.md",
+      "category": "audit",
+      "bytes": 16929
+    },
+    {
       "path": "docs/audit/M55_ASSET_EXTRACTION_AND_RETENTION_POLICY_v1_2026-03-06.md",
       "category": "audit",
       "bytes": 1677
@@ -3261,6 +3266,11 @@
       "path": "docs/audit/M55_ONE_TIME_FULFILLMENT_EVIDENCE_REPORT_2026-03-08.md",
       "category": "audit",
       "bytes": 5537
+    },
+    {
+      "path": "docs/audit/M55_PERSONALIZATION_RESOLUTION_AUDIT_v1.json",
+      "category": "audit",
+      "bytes": 39699
     },
     {
       "path": "docs/audit/M55_PHASE1_MONETIZATION_IMPLEMENTATION_2026-03-06.md",
