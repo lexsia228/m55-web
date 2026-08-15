@@ -88,6 +88,14 @@ export default function CoreFreeToPaidConversionBridge({ depth, traitName }: Pro
           </div>
         </div>
 
+        <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-delta-list">
+          <li className={styles.bridgeLockedHeadingItem}>なぜこの動きになるのか</li>
+          <li className={styles.bridgeLockedHeadingItem}>場面が変わるとどう出るか</li>
+          <li className={styles.bridgeLockedHeadingItem}>強みと摩擦</li>
+          <li className={styles.bridgeLockedHeadingItem}>自分の扱い方</li>
+          <li className={styles.bridgeLockedHeadingItem}>今の自分へ残す一文</li>
+        </ul>
+
         <h3 className={styles.conversionBridgeChaptersHeading}>{copy.lockedHeadingsHeadingJa}</h3>
         <ul className={styles.bridgeLockedHeadingsList} data-testid="m55-premium-locked-headings">
           {lockedHeadings.map((heading) => (

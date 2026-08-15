@@ -27,6 +27,7 @@ export function sanitizeVisibleShareFallbackText(raw: string): string {
         .replace(/https?:\/\/\S+/g, '')
         .replace(/\/r\/\S*/g, '')
         .replace(/\bs1-\d\b/g, '')
+        .replace(/\bn1[a-z0-9]+\b/gi, '')
         .trimEnd(),
     )
     .filter((line) => line.trim().length > 0)

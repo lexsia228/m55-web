@@ -5,6 +5,7 @@ import {
   CANONICAL_PRODUCTION_ORIGIN,
   resolveSharedEntryFromToken,
 } from '../../../lib/m55/freeResult/privacySafeShareCardV1';
+import { resolvePublicShareSpecFromToken } from '../../../lib/m55/narrative/projectPublicShareV1';
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -16,6 +17,26 @@ function ogImageUrl(token: string): string {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { token } = await params;
+  const narrative = resolvePublicShareSpecFromToken(token);
+  if (narrative) {
+    return {
+      title: `M55 | ${narrative.headline}`,
+      description: narrative.cta,
+      openGraph: {
+        title: `M55 | ${narrative.headline}`,
+        description: narrative.cta,
+        url: narrative.canonicalUrl,
+        images: [{ url: ogImageUrl(narrative.token), alt: narrative.headline }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `M55 | ${narrative.headline}`,
+        description: narrative.cta,
+        images: [ogImageUrl(narrative.token)],
+      },
+    };
+  }
+
   const card = resolveSharedEntryFromToken(token);
   if (!card) {
     return {
@@ -53,10 +74,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SharedEntryPage({ params }: Props) {
   const { token } = await params;
-  const card = resolveSharedEntryFromToken(token);
+  const narrative = resolvePublicShareSpecFromToken(token);
+  const card = narrative ? null : resolveSharedEntryFromToken(token);
   return (
     <PublicShell>
-      <SharedEntryPanel card={card} />
+      <SharedEntryPanel card={card} narrative={narrative} />
     </PublicShell>
   );
 }

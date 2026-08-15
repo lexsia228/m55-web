@@ -31,11 +31,15 @@ export default function CoreFreeResultScenesSection({ depth, smallActionJa, onRe
           <h3 className={styles.freeDepthBlockTitle}>{depth.primarySceneLabelJa}</h3>
           <p className={styles.freeDepthBlockBody}>{depth.primarySceneJa}</p>
         </article>
-        <article className={styles.freeDepthBlock}>
-          <h3 className={styles.freeDepthBlockTitle}>{depth.secondarySceneLabelJa}</h3>
-          <p className={styles.freeDepthBlockBody}>{depth.secondarySceneJa}</p>
-        </article>
       </div>
+      <details className={styles.freeDepthMore}>
+        <summary>ほかの場面と条件</summary>
+        <div className={styles.freeDepthSceneStack}>
+          <article className={styles.freeDepthBlock}>
+            <h3 className={styles.freeDepthBlockTitle}>{depth.secondarySceneLabelJa}</h3>
+            <p className={styles.freeDepthBlockBody}>{depth.secondarySceneJa}</p>
+          </article>
+        </div>
 
       <div className={styles.freeDepthConditionGrid} data-testid="m55-free-depth-conditions">
         <article className={styles.freeDepthBlock}>
@@ -55,6 +59,7 @@ export default function CoreFreeResultScenesSection({ depth, smallActionJa, onRe
           </ul>
         </article>
       </div>
+      </details>
 
       {smallActionJa ? (
         <article

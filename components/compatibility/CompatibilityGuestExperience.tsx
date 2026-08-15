@@ -23,6 +23,9 @@ import {
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import PairFreeShareCTA from './PairFreeShareCTA';
 import PairResultSignature from './PairResultSignature';
+import PairManualBlock from '../narrative/PairManualBlock';
+import { buildPairFreeInsightSpecV2 } from '../../lib/m55/compatibility/pairFreeInsightSpecV2';
+import { projectCompatibilityFreeNarrativeV1 } from '../../lib/m55/narrative/projectCompatibilityFreeNarrativeV1';
 import styles from './CompatibilityGuestExperience.module.css';
 
 const EMPTY_INPUT: CompatibilityGuestInput = { personA: '', personB: '' };
@@ -192,6 +195,25 @@ export default function CompatibilityGuestExperience({
   const currentQuestion = COMPATIBILITY_CURRENT_CONTEXT_QUESTIONS[questionIndex]!;
   const selectedAnswer = answers[currentQuestion.questionId] ?? '';
   const context = result?.currentContext;
+  const pairInsight = useMemo(() => {
+    if (phase !== 'result' || !result || !context) return null;
+    if (!isCompleteCompatibilityCurrentContext(answers)) return null;
+    try {
+      return buildPairFreeInsightSpecV2({
+        answers,
+        pairAxisId: 'A2',
+        personABirthDate: input.personA,
+        personBBirthDate: input.personB,
+        personAUsesFirstPerspective: true,
+        focusLabel: context.focusLabel,
+      });
+    } catch {
+      return null;
+    }
+  }, [phase, result, context, answers, input.personA, input.personB]);
+  const pairNarrative = pairInsight
+    ? projectCompatibilityFreeNarrativeV1({ spec: pairInsight })
+    : null;
 
   return (
     <div className={styles.page}>
@@ -405,7 +427,7 @@ export default function CompatibilityGuestExperience({
             <p className={styles.actionNote}>結果を決めるためではなく、二人の違いを確かめる一回分の行動です。</p>
           </section>
 
-          <PairFreeShareCTA />
+          {pairNarrative ? <PairManualBlock manual={pairNarrative.manualSpec} /> : null}
 
           <p className={styles.contextNote}>
             土台は生年月日、表れ方と連鎖は今の回答を重ねています。
@@ -508,6 +530,8 @@ export default function CompatibilityGuestExperience({
               </p>
             )}
           </section>
+
+          <PairFreeShareCTA insight={pairInsight} />
 
           <p className={styles.revisitNote}>
             この結果は、タブを開いている間は同じ内容で読み返せます。

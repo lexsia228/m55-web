@@ -62,6 +62,9 @@ import CoreFreeQuestionnaireLayer from './CoreFreeQuestionnaireLayer';
 import CoreFreeResultLeadSection from './CoreFreeResultLeadSection';
 import CoreFreeResultScenesSection from './CoreFreeResultScenesSection';
 import CoreFreeResultShareCTA from './CoreFreeResultShareCTA';
+import ShareCardChooser from '../narrative/ShareCardChooser';
+import PersonalFreeManualBlock from '../narrative/PersonalFreeManualBlock';
+import { buildPersonalFreeNarrativeShareContextV1 } from '../../lib/m55/narrative/projectPersonalFreeNarrativeV1';
 import CoreFreeResultSummaryHub from './CoreFreeResultSummaryHub';
 import CoreFreeRevealTransition from './CoreFreeRevealTransition';
 import CoreGuestSaveResultCTA from './CoreGuestSaveResultCTA';
@@ -170,6 +173,16 @@ export default function CoreEssencePanel() {
     });
     if (!built.ok) return null;
     return built.value;
+  }, [committedAnswers, questionnaireDone, sealed]);
+
+  const freeNarrativeContext = useMemo(() => {
+    if (sealed.kind !== 'ready' || !questionnaireDone) return null;
+    const built = buildPersonalFreeNarrativeShareContextV1({
+      birthDate: sealed.profile.birthDate,
+      stemLaneIndex: sealed.result.stemLaneIndex,
+      freeAnswerSet: committedAnswers,
+    });
+    return built.ok ? built.value : null;
   }, [committedAnswers, questionnaireDone, sealed]);
 
   useEffect(() => {
@@ -607,15 +620,20 @@ export default function CoreEssencePanel() {
                 </div>
               ) : null}
 
-              {shareCard ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
-                  <CoreFreeResultShareCTA card={shareCard} />
+              {freeNarrativeContext ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
+                    <PersonalFreeManualBlock manual={freeNarrativeContext.narrative.manualSpec} />
+                  </div>
                 </div>
               ) : null}
 
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreMethodCompact />
+                  <details className={CoreExperienceStyles.freeDepthMore}>
+                    <summary>読みの組み立て</summary>
+                    <CoreMethodCompact />
+                  </details>
                 </div>
               ) : null}
 
@@ -654,6 +672,24 @@ export default function CoreEssencePanel() {
                     depth={depthAnalysis}
                     traitName={shareCard?.traitNameJa ?? 'あなた'}
                   />
+                </div>
+              ) : null}
+
+              {freeNarrativeContext && sealed.kind === 'ready' ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
+                    <ShareCardChooser
+                      input={{
+                        birthDate: sealed.profile.birthDate,
+                        stemLaneIndex: sealed.result.stemLaneIndex,
+                        freeAnswerSet: committedAnswers,
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : shareCard ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
+                  <CoreFreeResultShareCTA card={shareCard} />
                 </div>
               ) : null}
 

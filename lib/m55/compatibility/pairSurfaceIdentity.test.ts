@@ -60,13 +60,15 @@ describe('pair free surface wiring', () => {
     const guest = read('components/compatibility/CompatibilityGuestExperience.tsx');
     assert.match(guest, /PairResultSignature/);
     assert.match(guest, /PairFreeShareCTA/);
+    const insightSpec = read('lib/m55/compatibility/pairFreeInsightSpecV2.ts');
+    assert.doesNotMatch(insightSpec, /pairReadingFingerprint/);
     assert.match(guest, /result\.free\.overlap/);
     assert.match(guest, /context\.immediateAction/);
     const shareAt = guest.indexOf('<PairFreeShareCTA');
     const actionAt = guest.indexOf('styles.actionCard');
     const bridgeAt = guest.indexOf('この二人の続きとして読めること');
     assert.ok(actionAt > 0 && shareAt > actionAt, 'share must follow the action block');
-    assert.ok(shareAt < bridgeAt, 'share must precede the paid bridge');
+    assert.ok(shareAt > bridgeAt, 'narrative overlay places sanitized share after the paid teaser');
   });
 
   it('does not add scores, charts, or partner-mind claims', () => {

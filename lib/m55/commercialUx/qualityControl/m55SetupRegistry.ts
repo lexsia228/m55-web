@@ -1079,7 +1079,10 @@ function methodPlacementPlan(placementId: string): NavigatePlan {
         stateMarkerSelector: '[data-testid="m55-method-core-free-result"]',
         authenticationMode: 'unauthenticated',
         hasDeterministicAuthFixture: false,
-        setupFn: establishCoreResult,
+        setupFn: async (page, baseURL) => {
+          await establishCoreResult(page, baseURL);
+          await page.getByText('読みの組み立て').click();
+        },
       };
     case 'dtr_lp':
       return {

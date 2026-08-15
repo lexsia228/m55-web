@@ -66,7 +66,8 @@ export default function CorePremiumStickyCta({ visible }: Props) {
       document.querySelector('[data-m55-public-shell] footer') ??
       document.querySelector('footer');
 
-    const targets = [bridge, footer].filter(Boolean) as Element[];
+    const share = document.getElementById('core-share');
+    const targets = [bridge, footer, share].filter(Boolean) as Element[];
     if (targets.length === 0) {
       setDocked(true);
       return;

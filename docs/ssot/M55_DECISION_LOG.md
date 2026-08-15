@@ -320,3 +320,16 @@ This decision authorizes **only** durable transition recording in the four-file 
 - checkout / 4242 execution / real purchase
 - sales launch
 - P1A/P1B/P1C/P2 re-audit or source reopening
+
+### 2026-08-15 — Product narrative + social share v1 (stacked overlay)
+
+**Status:** Human-authorized **local stacked implementation** on WT-031 `feat/m55-product-narrative-share-v1` from personalization `6d53a71df148ed4c0a1016358bc86830086f8732`. PATCH-1 commercial copy (2026-08-15): public 4–6-slot manual, selected-card X, DOB cue, Pair copy, Premium fused takeaway. Delight v2 (2026-08-15): A/B/C visual grammar, Card C extra eligibility, OG restyle, image save fallback, private Japanese humanize, Pair 一方/もう一方 presentation, privacy-safe share enums. Does **not** rebuild inference engines. Does **not** merge personalization. Does **not** auto-merge. Production deploy is **not** authorized. USER_VISIBLE_CLOSED_GREEN requires Human stacked visual lock.
+
+| Rule | Value |
+|---|---|
+| Product move | 自分を知る → 自分を伝える |
+| Public share | Catalog-key tokens `n1*` reconstructed without DOB/answers |
+| Public copy | Customer Japanese editorial 2026-08-15 — presentation only; no identity/fingerprint change |
+| Compatibility Paid share | generic NO_OP (`二人の相性レポートを読みました`) |
+| Existing s1 tokens | remain valid |
+| Commerce / DB / Stripe | unchanged |

@@ -51,13 +51,22 @@ export default function CoreFreeResultSummaryHub({ depth }: Props) {
       <p className={styles.freeDepthBlockBody}>{depth.trustCueJa}</p>
 
       <ol className={styles.freeDepthReasonList} data-testid="m55-free-depth-reasons">
-        {LAYERS.map((layer) => (
-          <li key={layer.key} className={styles.freeDepthReasonItem}>
-            <span className={styles.freeDepthBlockTitle}>{layer.label}</span>
-            <p className={styles.freeDepthBlockBody}>{bodies[layer.key]}</p>
-          </li>
-        ))}
+        <li className={styles.freeDepthReasonItem}>
+          <span className={styles.freeDepthBlockTitle}>{LAYERS[1].label}</span>
+          <p className={styles.freeDepthBlockBody}>{bodies.why}</p>
+        </li>
       </ol>
+      <details className={styles.freeDepthMore}>
+        <summary>背景をもう少し見る</summary>
+        <ol className={styles.freeDepthReasonList}>
+          {LAYERS.filter((layer) => layer.key !== 'why').map((layer) => (
+            <li key={layer.key} className={styles.freeDepthReasonItem}>
+              <span className={styles.freeDepthBlockTitle}>{layer.label}</span>
+              <p className={styles.freeDepthBlockBody}>{bodies[layer.key]}</p>
+            </li>
+          ))}
+        </ol>
+      </details>
     </section>
   );
 }

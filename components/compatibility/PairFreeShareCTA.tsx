@@ -5,19 +5,29 @@ import {
   PAIR_SHARE_UI_COPY,
   buildPrivacySafePairSharePayload,
 } from '../../lib/m55/compatibility/privacySafePairShare';
+import type { PairFreeInsightSpecV2 } from '../../lib/m55/compatibility/pairFreeInsightSpecV2';
+import { projectPairPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
 import {
   M55_FUNNEL_EVENTS,
   trackFunnelActionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
+import PublicShareCardPreview from '../narrative/PublicShareCardPreview';
+import NarrativeShareActions from '../narrative/NarrativeShareActions';
 import styles from './PairFreeShareCTA.module.css';
 
 type ShareStatus = 'idle' | 'copied' | 'cancelled' | 'error';
 
-export default function PairFreeShareCTA() {
+export default function PairFreeShareCTA({
+  insight,
+}: {
+  insight?: PairFreeInsightSpecV2 | null;
+}) {
   const [status, setStatus] = useState<ShareStatus>('idle');
   const [nativeAvailable, setNativeAvailable] = useState(false);
   const busyRef = useRef(false);
   const copy = PAIR_SHARE_UI_COPY;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const publicSpec = insight ? projectPairPublicShareV1({ spec: insight, origin }) : null;
 
   useEffect(() => {
     setNativeAvailable(
@@ -26,7 +36,6 @@ export default function PairFreeShareCTA() {
   }, []);
 
   function payload() {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return buildPrivacySafePairSharePayload(origin);
   }
 
@@ -77,6 +86,25 @@ export default function PairFreeShareCTA() {
     } finally {
       busyRef.current = false;
     }
+  }
+
+  if (publicSpec) {
+    return (
+      <section
+        className={styles.share}
+        aria-labelledby="pair-share-title"
+        data-testid="m55-pair-share"
+      >
+        <h3 id="pair-share-title">二人の取扱説明書を共有する</h3>
+        <p>生年月日・回答・相手の身元は含まれません。公開前に内容を確認できます。</p>
+        <PublicShareCardPreview spec={publicSpec} />
+        <NarrativeShareActions
+          spec={publicSpec}
+          surface="compatibility_guest"
+          requirePreviewAck
+        />
+      </section>
+    );
   }
 
   return (

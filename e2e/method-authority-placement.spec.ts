@@ -136,6 +136,7 @@ test.describe('M55 method placements', () => {
     await prepareCleanCapturePage(page);
     await openFreeResult(page);
 
+    await page.getByText('読みの組み立て').click();
     await expect(page.getByTestId('m55-method-core-free-result')).toBeVisible({ timeout: 30_000 });
     const order = await page.evaluate(() => {
       const top = (selector: string) => {

@@ -121,12 +121,22 @@ export function resolveShareAbsoluteUrl(sharePath: string, origin?: string): str
 const SENSITIVE_SHARE_PATTERN =
   /\b\d{4}-\d{2}-\d{2}\b|生年月日|ニックネーム|free\.|paid\.|answer|clerk|user_|@|メール|email|fingerprint|m55_profile|m55_self_funnel/i;
 
+/** Public provenance cue — not a raw DOB. Allowlisted for share sanitizer. */
+export const PUBLIC_DOB_PROVENANCE_CUE_JA =
+  '生年月日から見える基調と、今回の回答の重なりから';
+
+export function withoutAllowlistedPublicProvenance(blob: string): string {
+  return blob.split(PUBLIC_DOB_PROVENANCE_CUE_JA).join('');
+}
+
 export function assertSharePayloadPrivacySafe(payload: {
   text: string;
   url: string;
   title?: string;
 }): void {
-  const blob = `${payload.title ?? ''}\n${payload.text}\n${payload.url}`;
+  const blob = withoutAllowlistedPublicProvenance(
+    `${payload.title ?? ''}\n${payload.text}\n${payload.url}`,
+  );
   if (SENSITIVE_SHARE_PATTERN.test(blob)) {
     throw new Error('share payload contains sensitive pattern');
   }
@@ -136,5 +146,5 @@ export function assertSharePayloadPrivacySafe(payload: {
 }
 
 export function sharePayloadContainsSensitive(blob: string): boolean {
-  return SENSITIVE_SHARE_PATTERN.test(blob);
+  return SENSITIVE_SHARE_PATTERN.test(withoutAllowlistedPublicProvenance(blob));
 }
