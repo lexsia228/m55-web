@@ -10,6 +10,7 @@ import { humanizePrivatePresentationJa } from './humanizePrivatePresentationV1';
 import {
   cardCSupportEligible,
   parsePublicCardDisplayV1,
+  posterHeroLinesJa,
   shareVariantEnum,
 } from './publicCardDisplayV1';
 import { PERSONAL_V5_FIXTURES } from '../freeResult/personalFreeCommercialCopyV5.test';
@@ -86,6 +87,11 @@ describe('public card display parse', () => {
     });
     assert.match(display.heroJa, /人に聞くのは、決めてもらいたいからではない/);
     assert.equal(display.supportJa, '');
+    assert.deepEqual(posterHeroLinesJa(display.heroJa), [
+      '人に聞くのは、',
+      '決めてもらいたいからではない。',
+      '最後に自分で決めるための材料を集めている。',
+    ]);
     assert.match(card!.body, /連絡の頻度を、あまり変えずに保つ/);
     assert.equal(display.cueJa, PUBLIC_DOB_PROVENANCE_CUE_JA);
   });

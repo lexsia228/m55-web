@@ -1,7 +1,7 @@
 'use client';
 
 import type { PublicShareSpecV1 } from '../../lib/m55/narrative/publicShareSpecV1';
-import { parsePublicCardDisplayV1 } from '../../lib/m55/narrative/publicCardDisplayV1';
+import { parsePublicCardDisplayV1, posterHeroLinesJa } from '../../lib/m55/narrative/publicCardDisplayV1';
 import styles from './NarrativeShare.module.css';
 
 export default function PublicShareCardPreview({
@@ -55,7 +55,11 @@ export default function PublicShareCardPreview({
 
       {(variant === 'hidden_spec' || variant === 'premium_takeaway') && display.heroJa ? (
         <div className={styles.poster}>
-          <p className={styles.posterHero}>{display.heroJa}</p>
+          {posterHeroLinesJa(display.heroJa).map((line) => (
+            <p key={line} className={styles.posterHero}>
+              {line}
+            </p>
+          ))}
           {display.supportJa ? <p className={styles.posterSupport}>{display.supportJa}</p> : null}
         </div>
       ) : null}

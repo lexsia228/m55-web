@@ -14,6 +14,26 @@ export function cardCSupportEligible(heroJa: string, extraJa: string): boolean {
   return keys.some((key) => heroJa.includes(key) && extra.includes(key));
 }
 
+/** Display-only poster breaks. Does not change token / fingerprint body. */
+export function posterHeroLinesJa(heroJa: string): readonly string[] {
+  const sentences = heroJa
+    .split('。')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  const lines: string[] = [];
+  for (const sentence of sentences) {
+    const idx = sentence.indexOf('のは、');
+    if (idx > 0) {
+      lines.push(sentence.slice(0, idx + 'のは、'.length));
+      const rest = sentence.slice(idx + 'のは、'.length).trim();
+      if (rest) lines.push(`${rest}。`);
+    } else {
+      lines.push(`${sentence}。`);
+    }
+  }
+  return lines.length > 0 ? lines : heroJa.trim() ? [heroJa.trim()] : [];
+}
+
 export type PublicCardRowV1 = {
   readonly label: string;
   readonly body: string;

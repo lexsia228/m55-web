@@ -189,6 +189,8 @@
 }
 
 .poster {
+  display: grid;
+  gap: 0.35rem;
   padding: 0.35rem 0 0.15rem;
 }
 
@@ -196,7 +198,7 @@
   margin: 0;
   font-size: clamp(1.28rem, 5.2vw, 1.72rem);
   font-weight: 750;
-  line-height: 1.42;
+  line-height: 1.35;
   letter-spacing: 0.01em;
 }
 
