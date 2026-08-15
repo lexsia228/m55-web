@@ -189,8 +189,13 @@ function collisionStats<T extends { effectiveKey: string; reading: string }>(
       const b = c.rows[1] ?? c.rows[0]!;
       return {
         clusterSize: c.size,
-        birthDiff: a.birthFp !== b.birthFp,
-        answerDiff: a.answerFp !== b.answerFp,
+        birthDiff:
+          'birthFp' in a && 'birthFp' in b
+            ? a.birthFp !== b.birthFp
+            : 'pairFp' in a && 'pairFp' in b
+              ? a.pairFp !== b.pairFp
+              : false,
+        answerDiff: 'answerFp' in a && 'answerFp' in b ? a.answerFp !== b.answerFp : false,
         semanticA: 'semantic' in a ? (a as { semantic: { stableKey: string } }).semantic.stableKey : '',
         semanticB: 'semantic' in b ? (b as { semantic: { stableKey: string } }).semantic.stableKey : '',
         classification:
