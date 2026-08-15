@@ -17,7 +17,7 @@ import PublicShareCardPreview from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
 import styles from './NarrativeShare.module.css';
 
-const VARIANTS: readonly ShareCandidateVariant[] = ['manual', 'seen_vs_actual', 'hidden_spec'];
+const VARIANTS = ['manual', 'seen_vs_actual', 'hidden_spec'] as const satisfies readonly ShareCandidateVariant[];
 
 const ROLE_HINT: Readonly<Record<(typeof VARIANTS)[number], string>> = {
   manual: '残して見せる',
@@ -26,7 +26,7 @@ const ROLE_HINT: Readonly<Record<(typeof VARIANTS)[number], string>> = {
 };
 
 export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }) {
-  const [selected, setSelected] = useState<ShareCandidateVariant | null>(null);
+  const [selected, setSelected] = useState<(typeof VARIANTS)[number] | null>(null);
   const context = useMemo(
     () => buildPersonalFreeNarrativeShareContextV1(input),
     [input.birthDate, input.stemLaneIndex, input.freeAnswerSet],
