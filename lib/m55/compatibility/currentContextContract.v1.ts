@@ -311,9 +311,9 @@ const CHAPTER_SCENE_ENTRY: Readonly<Record<ChapterId, string>> = {
 };
 
 export const RELATIONSHIP_LOOP_STEP_LABELS = Object.freeze([
-  '違いが出たとき',
-  '距離を取るとき',
-  '元の距離へ戻るとき',
+  '噛み合いやすい瞬間',
+  'すれ違いの入口',
+  '誤読のループ',
 ] as const);
 
 const DISTANCE_GLANCE: Readonly<Record<DistanceAnswer, string>> = {

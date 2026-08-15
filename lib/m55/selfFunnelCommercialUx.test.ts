@@ -30,7 +30,7 @@ describe('Self funnel commercial UX redesign', () => {
     assert.match(lead, /outcomeJa/);
     assert.match(lead, /typeLabelJa/);
     assert.match(lead, /supportingTraitJa/);
-    assert.match(lead, /生年月日の土台と、いまの5つの回答から見える傾向です/);
+    assert.match(lead, /この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています/);
     assert.doesNotMatch(lead, /生年月日 \$\{/);
     assert.doesNotMatch(lead, /formatRecordDateLabelJa|obsMeta|本質の見取り図/);
     assert.doesNotMatch(lead, /\d{4}年\d{1,2}月\d{1,2}日/);

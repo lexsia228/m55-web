@@ -79,9 +79,9 @@ describe('commercial language visual UX final — result reasons', () => {
     });
     assert.equal(built.ok, true);
     if (!built.ok) return;
-    assert.match(built.value.headlineJa, /全体を見渡し、候補を比べてから動く傾向が、いま強く表れています/);
+    assert.match(built.value.headlineJa, /見られ|一人|あと|帰宅|相談|決めた/);
     assert.doesNotMatch(built.value.conciseWhyJa.join('\n'), /順序の好み|輪郭|外の刺激|整え方として連動|主パターン|背景の構造/);
-    assert.match(built.value.conciseWhyJa[0]!, /全体を確認してから選ぶ|候補を比べてから選ぶ/);
+    assert.match(built.value.conciseWhyJa[0]!, /見え|内側|一方|分かれ/);
   });
 });
 

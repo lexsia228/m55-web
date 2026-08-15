@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free are **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. **NEXT:** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY`.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Personalization resolution v2 on `feat/m55-personalization-resolution-v2`: **Personal defective collision 0%** · **Free Human editorial polish GREEN** · **Pair structural identity retained**. Premium/Paid 1000 **reused GREEN**. **NEXT:** Free surface visual 390/430 + generic AI benchmark — not commerce.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
