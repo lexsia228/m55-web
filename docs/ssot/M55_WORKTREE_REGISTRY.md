@@ -785,8 +785,8 @@ Historical post-merge transition snapshots remain recorded for audit.
 | purpose | Narrative / ownership / share layer over existing inference (私の取扱説明書 · PublicShareSpecV1 · X/native · viewer landing) |
 | product implementation authorized | **true** — presentation/share only; no engine rebuild, no commerce |
 | prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 merge / CanonicalBirthProfileV2 rebuild / DTR body replace |
-| next gate | Human public share card lock |
-| notes | Public identity fingerprint v1. Premium revisit without local answers is DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE. Sticky /dtr/lp click is ENV_DEPENDENT_EXISTING_NAV_TEST_RESIDUAL. |
+| next gate | Human FINAL visual share lock |
+| notes | Public Japanese editorial (copy-only). Identity fingerprint v1 unchanged. Premium revisit without local answers is DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE. Sticky /dtr/lp click is ENV_DEPENDENT_EXISTING_NAV_TEST_RESIDUAL. |
 
 ---
 

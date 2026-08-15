@@ -2,6 +2,8 @@
  * Public identity fingerprint + 500-profile resolution audit.
  * Semantic identity only. No wording hashes. No DOB/answers.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { PERSONAL_V5_FIXTURES } from '../freeResult/personalFreeCommercialCopyV5.test';
@@ -208,5 +210,19 @@ describe('premium revisit limitation', () => {
     const generic = projectPremiumPublicShareV1({ stemLaneIndex: 9 });
     assert.match(generic.token, /^n1gt/);
     assert.doesNotMatch(generic.body, /\d{4}-\d{2}-\d{2}|free\./);
+  });
+});
+
+describe('public customer Japanese editorial', () => {
+  it('drops mechanical 一句置く / 候補を閉じる / 内側で閉じる from public catalog', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/m55/narrative/reconstructPublicCardV1.ts'), 'utf8');
+    assert.doesNotMatch(src, /一句置く/);
+    assert.doesNotMatch(src, /候補を閉じる/);
+    assert.doesNotMatch(src, /内側で閉じる/);
+    assert.doesNotMatch(src, /最終の返しを作る/);
+    assert.match(
+      src,
+      /人に聞くのは、決めてもらいたいからではない。最後に自分で決めるための材料を集めている。/,
+    );
   });
 });

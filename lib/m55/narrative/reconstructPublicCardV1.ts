@@ -25,33 +25,33 @@ import {
 
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
-  map: '全体の手順が見えてから動き出す。',
-  ask: '周囲の視点を足してから着手する。',
+  map: '全体の段取りが見えてから動き出す。',
+  ask: '周りの意見を聞いてから取りかかる。',
 };
 const DECISION_SLOT: Readonly<Record<DecisionTendency, string>> = {
-  sort: '候補を並べてから閉じる。',
-  deadline: '区切りが見えたところで決める。',
+  sort: '候補を並べてから、答えを一つに絞る。',
+  deadline: '「ここまで」が見えたところで決める。',
   wait: '一度置いてから返す。',
 };
 const DISTANCE_SLOT: Readonly<Record<DistanceTendency, string>> = {
-  close: '近い関係ほど、今の間合いを言葉にして整える。',
-  middle: '連絡や同席の間隔を一定に保ちながら続ける。',
+  close: '近い関係ほど、今の距離感を言葉にして整える。',
+  middle: '連絡や会う頻度を、あまり変えずに続ける。',
   solo: '人と会ったあと、一人の時間で整えてから戻る。',
 };
 const RECOVERY_SLOT: Readonly<Record<RecoveryTendency, string>> = {
-  pause: '短い区切りを入れて立て直す。',
+  pause: '短い休みを入れて立て直す。',
   shrink: 'やることの範囲を狭くして戻る。',
-  scene: '場所や刺激を変えてから戻る。',
+  scene: '場所や空気を変えてから戻る。',
 };
 const CHANGE_SLOT: Readonly<Record<ChangeTendency, string>> = {
   observe: '変化の直後は、一日様子を見てから動く。',
-  adjust: '変わった点だけ小さく合わせて進める。',
+  adjust: '変わったところだけ、少し直して進める。',
   rebuild: '前提が変わったら、一度組み直す。',
 };
 const TALK_HINT: Readonly<Record<DistanceTendency, string>> = {
-  close: '結論の前に、今の間合いを一句置く。',
+  close: '決める前に、今の距離感を一言伝える。',
   middle: '頻度は変えず、決める話と様子を見る話を分ける。',
-  solo: '返事を急がず、一人の時間のあとに続きを置く。',
+  solo: 'すぐ返さず、一人の時間のあとに続きを置く。',
 };
 
 const FUSED_MISREAD: Readonly<
@@ -59,18 +59,18 @@ const FUSED_MISREAD: Readonly<
 > = {
   try: {
     sort: 'もう動き出しているのに、その場で決めたように見られやすい。',
-    deadline: '試し始めているように見えて、期限だけ先に立っているとは読まれにくい。',
+    deadline: '試し始めているように見えて、「いつまでに決めるか」が先にあるとは気づかれにくい。',
     wait: '動いているのに、決めていない側だとは見えにくい。',
   },
   map: {
-    sort: '揃えてから動く人に見えて、その場で閉じたと読まれやすい。',
-    deadline: '準備している人に見えて、区切りが来ると一気に締めるとは読まれにくい。',
-    wait: '全体を見ている人に見えて、最後はさらに間を置くとは読まれにくい。',
+    sort: '揃えてから動く人に見えて、その場で決めたように見られやすい。',
+    deadline: '準備している人に見えて、「ここまで」が見えたところで一気に決めるとは気づかれにくい。',
+    wait: '全体を見ている人に見えて、最後はさらに間を置くとは気づかれにくい。',
   },
   ask: {
     sort: '相談している時点で、もう決めているように見られやすい。',
-    deadline: '人に聞いている人に見えて、区切りが来ると自分で閉じるとは読まれにくい。',
-    wait: '意見を集めている人に見えて、結論は置いてから出すとは読まれにくい。',
+    deadline: '人に聞いている人に見えて、「ここまで」が見えたところで自分で決めるとは気づかれにくい。',
+    wait: '意見を集めている人に見えて、結論は一度置いてから出すとは気づかれにくい。',
   },
 };
 
@@ -78,18 +78,18 @@ const FUSED_ACTUAL: Readonly<
   Record<StartTendency, Readonly<Record<DecisionTendency, string>>>
 > = {
   try: {
-    sort: '動かしたあとに、一人で候補を閉じる。',
-    deadline: '試しながらも、内側では閉じる時点が先に立つ。',
+    sort: '動かしたあとに、一人で答えを一つに絞る。',
+    deadline: '試しながらも、自分の中では「いつまでに決めるか」が先にある。',
     wait: '動いたあとも、決めたこととしてはまだ置いている。',
   },
   map: {
     sort: '揃ったあとも、比較は一人の時間に残る。',
-    deadline: '見通しが立ったあと、期限が来ると自分で締める。',
+    deadline: '見通しが立ったあと、期限が来ると自分で決める。',
     wait: '全体を見たあとも、最後の判断は一度置く。',
   },
   ask: {
     sort: '最後の判断は、会話が終わって一人になったあと。',
-    deadline: '材料を足したあと、区切りが来ると自分で閉じる。',
+    deadline: '材料を足したあと、「ここまで」が見えたところで自分で決める。',
     wait: '周囲の視点を集めたあと、結論は置いてから出す。',
   },
 };
@@ -103,13 +103,13 @@ const SOCIAL_MIRROR: Readonly<
     solo: '一人の時間の前に、まず動かしている人',
   },
   map: {
-    close: '近い関係でも、手順を揃えてから進む人',
+    close: '近い関係でも、段取りを揃えてから進む人',
     middle: '間を保ちながら、準備してから進む人',
     solo: '一人で整えてから、全体を見て進む人',
   },
   ask: {
     close: '近い人に聞きながら進めている人',
-    middle: '間隔を保ちつつ、相談してから進む人',
+    middle: '頻度は変えずに、相談してから進む人',
     solo: '人に聞いたあと、一人の時間で整える人',
   },
 };
@@ -119,18 +119,18 @@ const SOCIAL_ACTUAL: Readonly<
 > = {
   sort: {
     close: '近い会話のあと、一人で候補を並べ直している',
-    middle: '間隔を置いたあと、候補を閉じてから返す',
-    solo: '会ったあとの一人時間で、候補を閉じている',
+    middle: '間を置いたあと、答えを一つに絞ってから返す',
+    solo: '会ったあとの一人時間で、答えを一つに絞っている',
   },
   deadline: {
-    close: '近い関係の区切りで、内側で閉じている',
-    middle: '間隔の区切りが来ると、そこで決めている',
-    solo: '一人になった区切りで、内側で閉じている',
+    close: '近い関係で「ここまで」が見えたところで、自分の中で決めている',
+    middle: '「ここまで」が見えたところで、そこで決めている',
+    solo: '一人になったところで、自分の中で決めている',
   },
   wait: {
     close: '近い会話のあと、一度置いてから返している',
-    middle: '間隔を置いたまま、決めたこととしてはまだ置いている',
-    solo: '一人の時間に入ってから、最終の返しを作っている',
+    middle: '間を置いたまま、決めたこととしてはまだ置いている',
+    solo: '一人の時間に入ってから、最後の返事を決めている',
   },
 };
 
@@ -138,24 +138,24 @@ const HIDDEN: Readonly<
   Record<StartTendency, Readonly<Record<DecisionTendency, string>>>
 > = {
   try: {
-    sort: '先に手を動かしているのは、決めてもらいたいからではない。動かしたあとに、自分で候補を閉じる。',
-    deadline: '試し始めているように見えても、内側では「いつまでに閉じるか」が先に立つ。',
+    sort: '先に手を動かしているのは、決めてもらいたいからではない。動かしたあとに、自分で答えを一つに絞る。',
+    deadline: '試し始めているように見えても、自分の中では「いつまでに決めるか」が先にある。',
     wait: '動いているように見えても、決めたこととしてはまだ置いている。',
   },
   map: {
-    sort: '揃えてから動く人に見えても、揃ったあとも比較が内側で残る。',
-    deadline: '見通しを立ててから動き、期限が来ると一気に締める。',
+    sort: '揃えてから動く人に見えても、揃ったあとも比較が自分の中に残る。',
+    deadline: '見通しを立ててから動き、期限が来ると一気に決める。',
     wait: '全体を見てから動くのに、最後の決断はさらに間を置く。',
   },
   ask: {
     sort: '人に聞くのは、決めてもらいたいからではない。最後に自分で決めるための材料を集めている。',
-    deadline: '材料を増やしつつ、区切りが来ると自分で閉じる。',
+    deadline: '材料を増やしつつ、「ここまで」が見えたところで自分で決める。',
     wait: '周囲の視点を集めながらも、結論は置いてから出す。',
   },
 };
 
 const PAIR_SIDE: Readonly<Record<StartTendency, string>> = {
-  try: '先に動かして、話を閉じたくなる',
+  try: '先に動かして、話を終わらせたくなる',
   map: '見通しが立つまで、置いて考えたい',
   ask: '確認してから、次に進みたい',
 };
@@ -164,20 +164,20 @@ const PAIR_RETURN: Readonly<Record<PairFreeInteractionId, string>> = {
   tempo_mismatch: '「今は決めない。でも今の気持ちはこれ」と分ける。',
   space_misread: '次に話す一点だけ先に置く。返事は急がない。',
   one_carries_quiet: '残った一点だけを、短い一文で戻す。',
-  talk_now_go_quiet: '結論ではなく、次に話す時点だけを置く。',
-  later_decide_words_soon: '今は決めない、と今の気持ちを分けて置く。',
+  talk_now_go_quiet: '結論ではなく、次に話すときだけ先に決める。',
+  later_decide_words_soon: '決める話と、今の気持ちを分けておく。',
   hard_return_hard_space: '戻る入口を一つだけ、小さく置く。',
-  default_relationship_loop: '今日の進め方を一文でそろえてから中身に入る。',
+  default_relationship_loop: '今日の進め方を一言そろえてから、中身に入る。',
 };
 
 const PAIR_SAME_ENTRY: Readonly<Record<PairFreeInteractionId, string>> = {
-  tempo_mismatch: '速さは近く見えても、閉じたい気持ちと、置いて考えたい気持ちが同時に出やすい。',
-  space_misread: '静かな時間の意味が揃わず、距離を置かれたように読まれやすい。',
+  tempo_mismatch: '速さは近く見えても、終わらせたい気持ちと、置いて考えたい気持ちが同時に出やすい。',
+  space_misread: '静かな時間の意味が揃わず、距離を置かれたように感じられやすい。',
   one_carries_quiet: '表では話が進んでも、言えていない一点が残りやすい。',
   talk_now_go_quiet: '確かめようとするほど、静かな時間が長くなりやすい。',
   later_decide_words_soon: '先に出た言葉を結論と読むと、置いて考えたい側が急かされやすい。',
   hard_return_hard_space: '間を取ることと戻ることが、どちらも重くなりやすい。',
-  default_relationship_loop: 'いまの二人の進み方が見えにくく、速さの差が熱量の差に読まれやすい。',
+  default_relationship_loop: 'いまの二人の進み方が見えにくく、速さの差が熱量の差に見えやすい。',
 };
 
 export type ReconstructedPublicCardV1 = {
@@ -249,10 +249,10 @@ function cardCBody(birth: ExpressionAxes, answer: ExpressionAxes): { body: strin
   if (birth.distance !== answer.distance) {
     extra =
       answer.distance === 'close'
-        ? '\n近い関係ほど、今の間合いを一句置く。'
+        ? '\n近い関係ほど、今の距離感を言葉にする。'
         : answer.distance === 'solo'
           ? '\n人と会ったあと、一人の時間を置いてから戻る。'
-          : '\n連絡の間隔を一定に保つことが、先に立つ。';
+          : '\n連絡の頻度を、あまり変えずに保つ。';
   } else if (birth.change !== answer.change) {
     extra = `\n${CHANGE_SLOT[answer.change]}`;
   } else if (birth.recovery !== answer.recovery) {

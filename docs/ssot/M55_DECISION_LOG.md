@@ -329,6 +329,7 @@ This decision authorizes **only** durable transition recording in the four-file 
 |---|---|
 | Product move | 自分を知る → 自分を伝える |
 | Public share | Catalog-key tokens `n1*` reconstructed without DOB/answers |
+| Public copy | Customer Japanese editorial 2026-08-15 — presentation only; no identity/fingerprint change |
 | Compatibility Paid share | generic NO_OP (`二人の相性レポートを読みました`) |
 | Existing s1 tokens | remain valid |
 | Commerce / DB / Stripe | unchanged |
