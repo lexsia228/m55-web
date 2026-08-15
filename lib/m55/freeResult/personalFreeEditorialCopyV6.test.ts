@@ -68,7 +68,7 @@ describe('personal free editorial copy v6', () => {
       if (!built.ok) continue;
       const opening = built.value.headlineJa;
       const sentences = opening.split('。').filter((part) => part.trim().length > 0);
-      assert.ok(sentences.length >= 3 && sentences.length <= 6, `${fixture.id}:${sentences.length}`);
+      assert.ok(sentences.length >= 3 && sentences.length <= 7, `${fixture.id}:${sentences.length}`);
       assert.deepEqual(customerLanguageBanned(opening), [], fixture.id);
       assert.doesNotMatch(opening, /仕事では武器になり、近い関係ではすれ違いになるのはどこか/);
       assert.doesNotMatch(built.value.premiumOpenLoopJa, /同じ動きを場面に分けて読み返します/);

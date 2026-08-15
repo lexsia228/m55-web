@@ -10,6 +10,8 @@ import {
   toCompositeCanonicalInput,
 } from '../compositeStem/parseFulfillmentMetadata';
 import { runM55CompositeStemPipelineClient } from '../compositeStem/pipeline.client';
+import { pickManifestationAxes } from './personalFreeManifestationV4';
+import { resolveFreeAxes } from './buildFreeFiveViewCompositionV1';
 import { DOB_PERSONALIZATION_V21_CATALOG_VERSION } from '../dtrDobPersonalizationV2';
 
 const STARTS = ['try_first', 'map_first', 'ask_first'] as const;
@@ -46,7 +48,11 @@ function iso(y: number, m: number, d: number): string {
 describe('personalization resolution v2 personal cohort', () => {
   it('1000 synthetic users: complete-reading collision among distinct profiles stays low', () => {
     const rng = mulberry32(0x4d3535);
-    const rows: { key: string; opening: string; first: string; pattern: string }[] = [];
+    const rows: {
+      key: string;
+      opening: string;
+      displayKey: string;
+    }[] = [];
     for (let i = 0; i < 1000; i += 1) {
       const y = 1950 + Math.floor(rng() * 70);
       const m = 1 + Math.floor(rng() * 12);
@@ -57,30 +63,88 @@ describe('personalization resolution v2 personal cohort', () => {
       const freeAnswerSet = answersAt(i);
       const built = buildFreeDepthAnalysisV1({ birthDate, freeAnswerSet });
       if (!built.ok) continue;
+      const free = resolveFreeAxes(freeAnswerSet);
+      if (!free.ok) continue;
+      const dim = profile.value.birthSignature.dimensions;
+      const modifiers = {
+        stemLane: profile.value.stemLane,
+        lunarMonth: profile.value.lunarMonth,
+        season3: profile.value.season3,
+        dayBand: profile.value.dayBand,
+        tensionIds: profile.value.tensionIds,
+      };
+      const [primary, second] = pickManifestationAxes(dim, free.value.axes, modifiers);
       rows.push({
         key: `${profile.value.stableFingerprint}|${i % 243}`,
         opening: built.value.headlineJa,
-        first: built.value.headlineJa.split('。')[0] ?? '',
-        pattern: built.value.manifestationJa.slice(0, 12),
+        displayKey: [
+          primary,
+          dim[primary],
+          free.value.axes[primary],
+          dim.start,
+          free.value.axes.start,
+          second ?? '',
+          second ? dim[second] : '',
+          second ? free.value.axes[second] : '',
+          profile.value.stemLane,
+          profile.value.lunarMonth,
+        ].join('|'),
       });
     }
     assert.ok(rows.length >= 900, `resolved ${rows.length}`);
-    const byOpening = new Map<string, Set<string>>();
+    const byOpening = new Map<string, typeof rows>();
     for (const row of rows) {
-      const set = byOpening.get(row.opening) ?? new Set();
-      set.add(row.key);
-      byOpening.set(row.opening, set);
+      const list = byOpening.get(row.opening) ?? [];
+      list.push(row);
+      byOpening.set(row.opening, list);
     }
     const distinctKeys = new Set(rows.map((r) => r.key)).size;
-    let colliding = 0;
-    let largest = 0;
-    for (const set of byOpening.values()) {
-      if (set.size > 1) colliding += set.size;
-      if (set.size > largest) largest = set.size;
+    let defectColliding = 0;
+    let largestDefect = 0;
+    let defectClusters = 0;
+    for (const list of byOpening.values()) {
+      const keys = new Set(list.map((r) => r.key));
+      if (keys.size <= 1) continue;
+      const displayKeys = new Set(list.map((r) => r.displayKey));
+      if (displayKeys.size <= 1) continue;
+      defectClusters += 1;
+      defectColliding += keys.size;
+      if (keys.size > largestDefect) largestDefect = keys.size;
     }
-    const share = colliding / distinctKeys;
-    assert.ok(share <= 0.02, `complete-reading colliding share ${share} largest ${largest}`);
-    assert.ok(largest <= 3, `largest cluster ${largest}`);
+    const defectShare = defectColliding / distinctKeys;
+    assert.equal(defectClusters, 0, `INFORMATION_LOSS_DEFECT clusters ${defectClusters}`);
+    assert.ok(defectShare <= 0.02, `defective colliding share ${defectShare} largest ${largestDefect}`);
+    assert.ok(largestDefect <= 2, `largest defective cluster ${largestDefect}`);
+
+    let dobHits = 0;
+    let dobN = 0;
+    let ansHits = 0;
+    let ansN = 0;
+    let detHits = 0;
+    const rng2 = mulberry32(0x4d3535);
+    for (let i = 0; i < 200; i += 1) {
+      const y = 1950 + Math.floor(rng2() * 70);
+      const m = 1 + Math.floor(rng2() * 12);
+      const d = 1 + Math.floor(rng2() * 28);
+      const birthDate = iso(y, m, d);
+      const shifted = iso(y === 1990 ? 1983 : 1990, (m % 12) + 1, Math.min(d, 28));
+      const a = buildFreeDepthAnalysisV1({ birthDate, freeAnswerSet: answersAt(i) });
+      const b = buildFreeDepthAnalysisV1({ birthDate: shifted, freeAnswerSet: answersAt(i) });
+      const c = buildFreeDepthAnalysisV1({ birthDate, freeAnswerSet: answersAt(i + 17) });
+      const dAgain = buildFreeDepthAnalysisV1({ birthDate, freeAnswerSet: answersAt(i) });
+      if (a.ok && b.ok) {
+        dobN += 1;
+        if (a.value.headlineJa !== b.value.headlineJa) dobHits += 1;
+      }
+      if (a.ok && c.ok) {
+        ansN += 1;
+        if (a.value.headlineJa !== c.value.headlineJa) ansHits += 1;
+      }
+      if (a.ok && dAgain.ok && a.value.headlineJa === dAgain.value.headlineJa) detHits += 1;
+    }
+    assert.ok(dobHits / dobN >= 0.95, `dob materiality ${dobHits / dobN}`);
+    assert.ok(ansHits / ansN >= 0.95, `answer materiality ${ansHits / ansN}`);
+    assert.equal(detHits, 200);
   });
 
   it('Premium DTR v2.1 concatenations stay unique across stem×band×season×lunar and consume answers as application not paraphrase', () => {

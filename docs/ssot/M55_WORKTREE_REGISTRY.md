@@ -772,7 +772,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | purpose | CanonicalBirthProfileV2 + Personal/Pair Free/Paid resolution without a second calendar |
 | product implementation authorized | **true** — identity/resolution only; no visual/payment/AI-provider |
 | prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 / second astrology / Production hybrid AI |
-| next gate | collision thresholds + Human copy lock; generic-AI protocol not run yet |
+| next gate | Human Free copy lock (10+10); visual 390/430; generic-AI protocol not run yet |
 
 ---
 

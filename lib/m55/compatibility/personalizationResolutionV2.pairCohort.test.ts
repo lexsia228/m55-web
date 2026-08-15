@@ -94,7 +94,7 @@ describe('personalization resolution v2 pair cohort', () => {
       const pair = resolvePairCanonicalProfileV2({ personABirthDate: a, personBBirthDate: b });
       rows.push({
         key: `${pair?.stableFingerprint ?? a}|${i % 243}`,
-        loop: spec.betweenThem,
+        loop: spec.manifestationPatternId,
       });
     }
     const byLoop = new Map<string, Set<string>>();
@@ -113,5 +113,57 @@ describe('personalization resolution v2 pair cohort', () => {
     assert.ok(byLoop.size >= 200, `unique loops ${byLoop.size}`);
     assert.ok(largest <= 10, `largest cluster ${largest}`);
     assert.ok(share <= 0.05, `colliding share ${share}`);
+  });
+
+  it('R1–R10 keep one relationship mechanism without modifier dumps', () => {
+    const cases = [
+      { id: 'R1', a: '1983-02-28', b: '1990-05-14', ans: 4, swap: false },
+      { id: 'R2', a: '1990-05-14', b: '1990-05-15', ans: 10, swap: false },
+      { id: 'R3', a: '1955-01-01', b: '2000-12-28', ans: 50, swap: false },
+      { id: 'R4', a: '1983-02-28', b: '1990-05-14', ans: 4, swap: true },
+      { id: 'R5', a: '1992-08-20', b: '1992-08-21', ans: 0, swap: false },
+      { id: 'R6', a: '1977-11-22', b: '2001-09-30', ans: 200, swap: false },
+      { id: 'R7', a: '2010-01-05', b: '1948-06-18', ans: 240, swap: false },
+      { id: 'R8', a: '1990-05-14', b: '1983-02-28', ans: 4, swap: false },
+      { id: 'R9', a: '1968-08-15', b: '1968-08-15', ans: 17, swap: false },
+      { id: 'R10', a: '2001-09-30', b: '1977-11-22', ans: 88, swap: false },
+    ] as const;
+    for (const c of cases) {
+      const spec = buildPairFreeInsightSpecV2({
+        answers: answersAt(c.ans),
+        pairAxisId: 'A2',
+        personABirthDate: c.a,
+        personBBirthDate: c.b,
+        personAUsesFirstPerspective: !c.swap,
+        focusLabel: '会話の進め方',
+      });
+      const between = spec.betweenThem;
+      const sentences = between.split('。').filter((part) => part.trim().length > 0);
+      const sameMove = (between.match(/同じ動き/g) ?? []).length;
+      assert.ok(sentences.length <= 8, `${c.id} sentences ${sentences.length}`);
+      assert.ok(sameMove <= 1, `${c.id} same-move dump ${sameMove}`);
+      assert.doesNotMatch(between, /周りには、/);
+      assert.match(between, /^二人の間では/);
+      assert.ok(spec.misreadLoop.length > 8);
+      assert.ok(spec.reset.length > 8);
+    }
+    const a = buildPairFreeInsightSpecV2({
+      answers: answersAt(4),
+      pairAxisId: 'A2',
+      personABirthDate: '1983-02-28',
+      personBBirthDate: '1990-05-14',
+      personAUsesFirstPerspective: true,
+      focusLabel: '会話の進め方',
+    });
+    const b = buildPairFreeInsightSpecV2({
+      answers: answersAt(4),
+      pairAxisId: 'A2',
+      personABirthDate: '1983-02-28',
+      personBBirthDate: '1990-05-14',
+      personAUsesFirstPerspective: false,
+      focusLabel: '会話の進め方',
+    });
+    assert.notEqual(a.misreadLoop, b.misreadLoop);
+    assert.notEqual(a.id, b.id);
   });
 });

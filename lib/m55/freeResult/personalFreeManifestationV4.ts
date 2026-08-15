@@ -731,47 +731,44 @@ function sentenceCount(text: string): number {
   return text.split('。').filter((part) => part.trim().length > 0).length;
 }
 
+const DISPLAY_SENTENCE_BUDGET = 7;
+
 function appendUniqueSentence(base: string, extra: string): string {
   const sentence = completeSentence(extra);
   const needle = sentence.replace(/。$/u, '').slice(0, 12);
   if (!needle || base.includes(needle)) return base;
-  if (sentenceCount(base) >= 10) return base;
+  if (sentenceCount(base) >= DISPLAY_SENTENCE_BUDGET) return base;
   return `${base}${sentence}`;
 }
 
-function tensionBeats(birth: ExpressionAxes, tensionIds: readonly ExpressionAxisId[]): string[] {
-  const beats: string[] = [];
-  for (const axisId of tensionIds) {
-    if (axisId === 'distance') {
-      const line = TENSION_START_DISTANCE_JA[birth.start]?.[birth.distance];
-      if (line) beats.push(line);
-    }
-    if (axisId === 'change') {
-      const line = TENSION_DECISION_CHANGE_JA[birth.decision]?.[birth.change];
-      if (line) beats.push(line);
-    }
-    if (axisId === 'recovery') {
-      beats.push('負荷のあと、戻り方だけは別の手順で整え直したくなる。');
-    }
-    if (axisId === 'decision') {
-      beats.push('候補は並べ終わっていても、返事のタイミングだけは別の基準で残る。');
-    }
-    if (axisId === 'start') {
-      beats.push('着手の速さと、実際に閉じる速さが場面で分かれやすい。');
-    }
-  }
-  return beats;
+function openingHit(primary: ManifestCell): string {
+  const parts = primary.manifestationJa
+    .split('。')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+  const kept = parts.slice(0, 2);
+  return `${kept.join('。')}。`;
 }
 
-function answerOverlayBeats(
+function pickSupportBeats(
+  primaryAxisId: ExpressionAxisId,
   birth: ExpressionAxes,
   answers: ExpressionAxes,
-  usedAxes: ReadonlySet<ExpressionAxisId>,
+  modifiers?: PersonalManifestationModifiersV2,
 ): readonly string[] {
-  const order: readonly ExpressionAxisId[] = ['recovery', 'change', 'decision', 'start', 'distance'];
+  const ranked = [...SURPRISE_ORDER]
+    .filter((axisId) => axisId !== primaryAxisId)
+    .sort(
+      (a, b) =>
+        axisInformationContent(b, birth, answers, modifiers) -
+        axisInformationContent(a, birth, answers, modifiers),
+    );
   const beats: string[] = [];
-  for (const axisId of order) {
-    if (usedAxes.has(axisId)) continue;
+  if (primaryAxisId !== 'start') {
+    beats.push(cellFor('start', birth, answers).sceneWhen);
+  }
+  for (const axisId of ranked) {
+    if (axisId === 'start' && primaryAxisId !== 'start') continue;
     beats.push(cellFor(axisId, birth, answers).sceneWhen);
     if (beats.length >= 2) break;
   }
@@ -781,49 +778,31 @@ function answerOverlayBeats(
 function composeReading(
   primary: ManifestCell,
   primaryAxisId: ExpressionAxisId,
-  second: ManifestCell | null,
-  secondAxisId: ExpressionAxisId | null,
-  third: ManifestCell | null,
-  thirdAxisId: ExpressionAxisId | null,
+  _second: ManifestCell | null,
+  _secondAxisId: ExpressionAxisId | null,
+  _third: ManifestCell | null,
+  _thirdAxisId: ExpressionAxisId | null,
   birth: ExpressionAxes,
   answers: ExpressionAxes,
   modifiers?: PersonalManifestationModifiersV2,
 ): string {
-  let text = primary.manifestationJa;
-  if (modifiers) {
-    text = appendUniqueSentence(text, STEM_SOCIAL_MIRROR_JA[((modifiers.stemLane % 10) + 10) % 10]!);
-    text = appendUniqueSentence(text, LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!);
-    text = appendUniqueSentence(text, SEASON_SCENE_BEAT_JA[modifiers.season3]!);
-    text = appendUniqueSentence(text, DAY_BAND_SCENE_BEAT_JA[modifiers.dayBand]);
-  }
-  if (second) {
-    text = appendUniqueSentence(text, second.sceneWhen);
-  }
-  if (third && third !== second) {
-    text = appendUniqueSentence(text, third.sceneWhen);
-  }
-  const usedAxes = new Set<ExpressionAxisId>(
-    [primaryAxisId, secondAxisId, thirdAxisId].filter((axis): axis is ExpressionAxisId => !!axis),
-  );
-  for (const beat of answerOverlayBeats(birth, answers, usedAxes)) {
+  let text = openingHit(primary);
+  text = appendUniqueSentence(text, primary.sceneWhen);
+  for (const beat of pickSupportBeats(primaryAxisId, birth, answers, modifiers)) {
     text = appendUniqueSentence(text, beat);
   }
-  for (const line of tensionBeats(birth, modifiers?.tensionIds ?? [])) {
-    text = appendUniqueSentence(text, line);
-  }
-  if (second && second.beatJa !== primary.beatJa) {
-    text = appendUniqueSentence(text, second.beatJa);
+  if (modifiers) {
+    text = appendUniqueSentence(text, LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!);
+    text = appendUniqueSentence(
+      text,
+      STEM_SOCIAL_MIRROR_JA[((modifiers.stemLane % 10) + 10) % 10]!,
+    );
   }
   return text;
 }
 
-function sceneFor(primary: ManifestCell, composed: string): string {
-  const parts = composed
-    .split('。')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
-  const last = parts[parts.length - 1] ?? primary.sceneWhen;
-  return completeSentence(last);
+function sceneFor(primary: ManifestCell, _composed: string): string {
+  return completeSentence(primary.sceneWhen);
 }
 
 export function buildPersonalManifestationV4(
