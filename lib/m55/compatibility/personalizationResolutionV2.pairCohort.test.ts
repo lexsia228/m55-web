@@ -110,8 +110,8 @@ describe('personalization resolution v2 pair cohort', () => {
       if (set.size > largest) largest = set.size;
     }
     const share = colliding / rows.length;
-    assert.ok(byLoop.size >= 40, `unique loops ${byLoop.size}`);
-    assert.ok(largest < 191, `largest cluster ${largest}`);
-    assert.ok(share < 0.999, `colliding share ${share}`);
+    assert.ok(byLoop.size >= 200, `unique loops ${byLoop.size}`);
+    assert.ok(largest <= 10, `largest cluster ${largest}`);
+    assert.ok(share <= 0.05, `colliding share ${share}`);
   });
 });

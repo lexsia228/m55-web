@@ -29,12 +29,12 @@ This section is the current authority after PR #117 merge. Pair display identity
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | Human copy lock + AI benchmark **after** collision thresholds; commerce **not authorized** |
-| PERSONALIZATION_CORE | **IN_PROGRESS** |
-| PERSONAL_FREE_COPY | **V6_REUSED_PENDING_NEW_RESOLUTION** |
-| PERSONAL_PREMIUM_RESOLUTION | **IN_PROGRESS** |
-| PAIR_FREE_RESOLUTION | **IN_PROGRESS** |
-| PAIR_PAID_RESOLUTION | **IN_PROGRESS** |
+| NEXT GATE | **Structural collision GREEN (Personal+Pair Free)** → Human 10+10 copy lock + Premium/paid cohort + visual 390/430 + AI benchmark |
+| PERSONALIZATION_CORE | **STRUCTURAL_GREEN** — Personal 1000 complete-reading collision **1.8%** (target ≤2%) · largest cluster **2** |
+| PERSONAL_FREE_COPY | **V6_REUSED** — stem/lunar/season/dayBand/tension + answer-overlay beats wired |
+| PERSONAL_PREMIUM_RESOLUTION | **IN_PROGRESS** — DTR 1440 on canonical stem; premium cohort not re-audited this wave |
+| PAIR_FREE_RESOLUTION | **STRUCTURAL_GREEN** — Pair 1000 loop collision **0%** among distinct profiles (target ≤5%) · unique loops **1000/1000** |
+| PAIR_PAID_RESOLUTION | **SCENE_DIVERSITY_GREEN** — 6/6 distinct `sceneInteractionId` on fixture; paid 1000-pair cohort not re-run |
 | PERSONALIZATION_RESOLUTION | **IN_PROGRESS** on WT `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · `feat/m55-personalization-resolution-v2` · base audit `80f99316b01e05d82c95e92fe4556a89483d4eba` |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |

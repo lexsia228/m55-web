@@ -79,8 +79,8 @@ describe('personalization resolution v2 personal cohort', () => {
       if (set.size > largest) largest = set.size;
     }
     const share = colliding / distinctKeys;
-    assert.ok(share <= 0.25, `complete-reading colliding share ${share} largest ${largest}`);
-    assert.ok(largest <= 5, `largest cluster ${largest}`);
+    assert.ok(share <= 0.02, `complete-reading colliding share ${share} largest ${largest}`);
+    assert.ok(largest <= 3, `largest cluster ${largest}`);
   });
 
   it('Premium DTR v2.1 concatenations stay unique across stem×band×season×lunar and consume answers as application not paraphrase', () => {

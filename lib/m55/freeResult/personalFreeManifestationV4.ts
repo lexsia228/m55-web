@@ -3,6 +3,7 @@
  * V6 patch: paragraph-level customer Japanese. Engine selection unchanged.
  */
 
+import type { CivilDayBand } from '../paidDobCivilRhythm';
 import type {
   ChangeTendency,
   DecisionTendency,
@@ -519,6 +520,8 @@ export function pickManifestationAxis(
 export type PersonalManifestationModifiersV2 = {
   readonly stemLane: number;
   readonly lunarMonth: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  readonly season3: 0 | 1 | 2;
+  readonly dayBand: CivilDayBand;
   readonly tensionIds?: readonly ExpressionAxisId[];
 };
 
@@ -570,7 +573,7 @@ export function lintPersonalPrimaryCopy(text: string): PersonalPrimaryCopyFlag[]
     flags.push('NO_OBSERVABLE_BEHAVIOR');
   }
   if (
-    !/夜|帰り道|買い物|相談|帰宅|期限|予定|疲れた|申し込み|方針|距離を調整|一人の時間|机|週|朝|会議|返信|書類|ノート/.test(
+    !/夜|帰り道|買い物|相談|帰宅|期限|予定|疲れた|申し込み|方針|距離を調整|一人の時間|机|週|朝|会議|返信|書類|ノート|春先|夏|年末|月の先頭|月の中ごろ|月末/.test(
       text,
     )
   ) {
@@ -650,7 +653,7 @@ function completeSentence(text: string): string {
   return /[。！？]$/u.test(trimmed) ? trimmed : `${trimmed}。`;
 }
 
-const STEM_SOCIAL_MIRROR_JA: readonly string[] = [
+export const STEM_SOCIAL_MIRROR_JA: readonly string[] = [
   '周りには、向きを先に決めてから手を出す人に見える。',
   '周りには、場の流れを読んでから動く人に見える。',
   '周りには、反応が返ってきてから本調子になる人に見える。',
@@ -663,7 +666,53 @@ const STEM_SOCIAL_MIRROR_JA: readonly string[] = [
   '周りには、静かに読んでから言葉を置く人に見える。',
 ];
 
-const LUNAR_SCENE_BEAT_JA: readonly string[] = [
+export const SEASON_SCENE_BEAT_JA: readonly string[] = [
+  '春先に予定を並べ直す週に、同じ動きが戻りやすい。',
+  '夏の予定が詰まる前後に、同じ動きが先に立つ。',
+  '年末に予定を見直すとき、同じ動きがはっきりする。',
+];
+
+const DAY_BAND_SCENE_BEAT_JA: Readonly<Record<CivilDayBand, string>> = {
+  early: '月の先頭で予定を整理するとき、同じ動きが出やすい。',
+  mid: '月の中ごろに予定が重なると、同じ動きが先に来る。',
+  late: '月末の締め前に、同じ動きが強く出る。',
+};
+
+const TENSION_START_DISTANCE_JA: Readonly<
+  Record<StartTendency, Readonly<Partial<Record<DistanceTendency, string>>>>
+> = {
+  try: {
+    solo: '外では試しやすく、整えるときは一人の時間に戻りやすい。',
+    middle: '動きは早いのに、関わりでは距離を一定に保ちやすい。',
+  },
+  map: {
+    close: '物事は揃えてから進むのに、近い関係では言葉で距離を整えやすい。',
+    solo: '計画は立ててから動くのに、会ったあとでは一人の時間で整える。',
+  },
+  ask: {
+    solo: '相談してから動く一方で、整えるときは一人の時間に戻りやすい。',
+    middle: '相談してから動く一方で、日常の関わりでは距離を一定に保ちやすい。',
+  },
+};
+
+const TENSION_DECISION_CHANGE_JA: Readonly<
+  Record<DecisionTendency, Readonly<Partial<Record<ChangeTendency, string>>>>
+> = {
+  sort: {
+    observe: '決めるときは比べるのに、変化の直後はまず様子を見る。',
+    adjust: '比較して決めたあと、環境が変わると小さく合わせていく。',
+  },
+  deadline: {
+    observe: '区切りを置いて決める一方で、変化直後は観察から入る。',
+    rebuild: '区切りで決めた内容でも、前提が変わると一度組み直す。',
+  },
+  wait: {
+    adjust: '決めるときは置くのに、変化が来ると小さく合わせる側に切り替わりやすい。',
+    rebuild: '決めるときは置く一方で、大きな変化では組み直しに踏み込みやすい。',
+  },
+};
+
+export const LUNAR_SCENE_BEAT_JA: readonly string[] = [
   '締めの書類を机に戻す週に、同じ動きが戻る。',
   '新しいノートを開いた週に、同じ動きが出る。',
   '予定が二つ重なった夜に、同じ動きが先に立つ。',
@@ -686,28 +735,84 @@ function appendUniqueSentence(base: string, extra: string): string {
   const sentence = completeSentence(extra);
   const needle = sentence.replace(/。$/u, '').slice(0, 12);
   if (!needle || base.includes(needle)) return base;
-  if (sentenceCount(base) >= 6) return base;
+  if (sentenceCount(base) >= 10) return base;
   return `${base}${sentence}`;
+}
+
+function tensionBeats(birth: ExpressionAxes, tensionIds: readonly ExpressionAxisId[]): string[] {
+  const beats: string[] = [];
+  for (const axisId of tensionIds) {
+    if (axisId === 'distance') {
+      const line = TENSION_START_DISTANCE_JA[birth.start]?.[birth.distance];
+      if (line) beats.push(line);
+    }
+    if (axisId === 'change') {
+      const line = TENSION_DECISION_CHANGE_JA[birth.decision]?.[birth.change];
+      if (line) beats.push(line);
+    }
+    if (axisId === 'recovery') {
+      beats.push('負荷のあと、戻り方だけは別の手順で整え直したくなる。');
+    }
+    if (axisId === 'decision') {
+      beats.push('候補は並べ終わっていても、返事のタイミングだけは別の基準で残る。');
+    }
+    if (axisId === 'start') {
+      beats.push('着手の速さと、実際に閉じる速さが場面で分かれやすい。');
+    }
+  }
+  return beats;
+}
+
+function answerOverlayBeats(
+  birth: ExpressionAxes,
+  answers: ExpressionAxes,
+  usedAxes: ReadonlySet<ExpressionAxisId>,
+): readonly string[] {
+  const order: readonly ExpressionAxisId[] = ['recovery', 'change', 'decision', 'start', 'distance'];
+  const beats: string[] = [];
+  for (const axisId of order) {
+    if (usedAxes.has(axisId)) continue;
+    beats.push(cellFor(axisId, birth, answers).sceneWhen);
+    if (beats.length >= 2) break;
+  }
+  return beats;
 }
 
 function composeReading(
   primary: ManifestCell,
+  primaryAxisId: ExpressionAxisId,
   second: ManifestCell | null,
+  secondAxisId: ExpressionAxisId | null,
+  third: ManifestCell | null,
+  thirdAxisId: ExpressionAxisId | null,
+  birth: ExpressionAxes,
+  answers: ExpressionAxes,
   modifiers?: PersonalManifestationModifiersV2,
 ): string {
   let text = primary.manifestationJa;
-  if (second) {
-    const support = completeSentence(second.beatJa);
-    const needle = support.replace(/。$/u, '').slice(0, 10);
-    if (needle && !primary.manifestationJa.includes(needle) && sentenceCount(text) < 6) {
-      text = `${text}${support}`;
-    }
-  }
   if (modifiers) {
-    const stemLine = STEM_SOCIAL_MIRROR_JA[((modifiers.stemLane % 10) + 10) % 10]!;
-    const lunarLine = LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!;
-    text = appendUniqueSentence(text, stemLine);
-    text = appendUniqueSentence(text, lunarLine);
+    text = appendUniqueSentence(text, STEM_SOCIAL_MIRROR_JA[((modifiers.stemLane % 10) + 10) % 10]!);
+    text = appendUniqueSentence(text, LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!);
+    text = appendUniqueSentence(text, SEASON_SCENE_BEAT_JA[modifiers.season3]!);
+    text = appendUniqueSentence(text, DAY_BAND_SCENE_BEAT_JA[modifiers.dayBand]);
+  }
+  if (second) {
+    text = appendUniqueSentence(text, second.sceneWhen);
+  }
+  if (third && third !== second) {
+    text = appendUniqueSentence(text, third.sceneWhen);
+  }
+  const usedAxes = new Set<ExpressionAxisId>(
+    [primaryAxisId, secondAxisId, thirdAxisId].filter((axis): axis is ExpressionAxisId => !!axis),
+  );
+  for (const beat of answerOverlayBeats(birth, answers, usedAxes)) {
+    text = appendUniqueSentence(text, beat);
+  }
+  for (const line of tensionBeats(birth, modifiers?.tensionIds ?? [])) {
+    text = appendUniqueSentence(text, line);
+  }
+  if (second && second.beatJa !== primary.beatJa) {
+    text = appendUniqueSentence(text, second.beatJa);
   }
   return text;
 }
@@ -729,10 +834,11 @@ export function buildPersonalManifestationV4(
   const [axisId, secondAxisId, thirdAxisId] = pickManifestationAxes(birth, answers, modifiers);
   const cell = cellFor(axisId, birth, answers);
   const second = secondAxisId ? cellFor(secondAxisId, birth, answers) : null;
+  const third = thirdAxisId ? cellFor(thirdAxisId, birth, answers) : null;
   const birthTendency = String(birth[axisId]);
   const answerTendency = String(answers[axisId]);
   const modifierKey = modifiers
-    ? `s${modifiers.stemLane}l${modifiers.lunarMonth}`
+    ? `s${modifiers.stemLane}l${modifiers.lunarMonth}g${modifiers.season3}d${modifiers.dayBand}t${(modifiers.tensionIds ?? []).join('')}`
     : 'sxlx';
   const patternId = [
     axisId,
@@ -741,17 +847,29 @@ export function buildPersonalManifestationV4(
     secondAxisId
       ? `${secondAxisId}_${String(birth[secondAxisId])}_${String(answers[secondAxisId])}`
       : 'none',
-    thirdAxisId ?? 'none',
+    thirdAxisId
+      ? `${thirdAxisId}_${String(birth[thirdAxisId])}_${String(answers[thirdAxisId])}`
+      : 'none',
     modifierKey,
   ].join('+');
-  const manifestationJa = composeReading(cell, second, modifiers);
+  const manifestationJa = composeReading(
+    cell,
+    axisId,
+    second,
+    secondAxisId,
+    third,
+    thirdAxisId,
+    birth,
+    answers,
+    modifiers,
+  );
   return {
     patternId,
     axisId,
     birthTendency,
     answerTendency,
     manifestationJa,
-    sceneCandidateJa: sceneFor(cell, cell.manifestationJa),
+    sceneCandidateJa: sceneFor(cell, manifestationJa),
     shortJa: cell.shortJa,
     userDidNotDirectlyAnswerThis: true,
     cannotComeFromDobOnlyJa: `同じ生年月日でも、今回の${axisId}の答えが変わると「${cell.shortJa}」にはならない。`,

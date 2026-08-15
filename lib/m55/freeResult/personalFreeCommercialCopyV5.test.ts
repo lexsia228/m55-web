@@ -91,6 +91,8 @@ function specFor(fixture: (typeof PERSONAL_V5_FIXTURES)[number]) {
     modifiers: {
       stemLane: canonical.value.stemLane,
       lunarMonth: canonical.value.lunarMonth,
+      season3: canonical.value.season3,
+      dayBand: canonical.value.dayBand,
       tensionIds: canonical.value.tensionIds,
     },
   });

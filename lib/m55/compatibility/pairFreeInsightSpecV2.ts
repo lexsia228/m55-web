@@ -16,6 +16,12 @@ import {
   resolveCivilBirthDimensions,
   type CivilBirthDimensionsV1,
 } from '../individualization/birthSignatureV1';
+import {
+  LUNAR_SCENE_BEAT_JA,
+  SEASON_SCENE_BEAT_JA,
+  STEM_SOCIAL_MIRROR_JA,
+} from '../freeResult/personalFreeManifestationV4';
+import type { PairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 import { resolvePairCanonicalProfileV2 } from './pairCanonicalProfileV2';
 import { derivePairDifferenceType } from './pairReadingFingerprint';
 
@@ -312,14 +318,141 @@ function meshFromBirth(
   return `進み方が近いときは、今の二人の速さだけを先にそろえられると噛み合いやすい。${tempoMesh}`;
 }
 
+function pairAnswerModifierLine(
+  answers: CompatibilityCurrentContextAnswers,
+  pairProfile: ReturnType<typeof resolvePairCanonicalProfileV2>,
+): string {
+  const returnBeat =
+    answers.returnPattern === 'someone_reaches'
+      ? '戻るきっかけは短い声かけから始まりやすい。'
+      : answers.returnPattern === 'time_restores'
+        ? '戻るきっかけは自然に会話が戻ったあとに残る。'
+        : '戻るきっかけそのものが重く、空白が続きやすい。';
+  const distanceBeat =
+    answers.distance === 'explain_space'
+      ? '離れる前に次に話す時点を置けると噛み合いやすい。'
+      : answers.distance === 'go_quiet'
+        ? '静かになる時間を拒否と読みやすい。'
+        : '間を取ること自体が負荷になりやすい。';
+  const disagreeBeat =
+    answers.disagreement === 'talk_now'
+      ? '違いが出ると、その場で言葉を重ねたくなる。'
+      : answers.disagreement === 'take_space'
+        ? '違いが出ると、いったん間を取りたくなる。'
+        : '違いが出ると、表では話題を引き取りやすい。';
+  const paceBeat =
+    answers.decisionPace === 'decide_now'
+      ? '結論を先に置きたい日に、このずれが強く出る。'
+      : answers.decisionPace === 'decide_later'
+        ? '結論は置きたい日に、このずれが長く続く。'
+        : '急ぐ話か待てる話かが見えない日に、このずれが不安になりやすい。';
+  const expressionBeat =
+    answers.expressionPace === 'words_soon'
+      ? '気持ちは先に言葉になりやすい。'
+      : answers.expressionPace === 'words_later'
+        ? '気持ちは言葉になるまで時間がかかりやすい。'
+        : 'その日の言葉の出方で、このずれの読み方が変わりやすい。';
+  const lunarBeat =
+    pairProfile && !pairProfile.lunarAligned
+      ? '締めのタイミングが近い週と、話の終わり方がずれやすい。'
+      : '';
+  const stemBeat =
+    pairProfile?.stemDeltaClass === 'far'
+      ? '終わりの感じ方が分かれ、同じ会話でも閉じた側と残した側が入れ替わりやすい。'
+      : pairProfile?.stemDeltaClass === 'near'
+        ? '進み方の土台が少しずれていて、同じ速さに見えても終わりの感じ方が分かれやすい。'
+        : pairProfile?.stemDeltaClass === 'same'
+          ? '進み方の土台は近くても、返す速さの差が二人の間で分かれやすい。'
+          : '';
+  return `${paceBeat}${expressionBeat}${disagreeBeat}${distanceBeat}${returnBeat}${lunarBeat}${stemBeat}`;
+}
+
+function pairRhythmBeat(pairProfile: PairCanonicalProfileV2): string {
+  const parts = [
+    STEM_SOCIAL_MIRROR_JA[((pairProfile.a.stemLane % 10) + 10) % 10]!,
+    LUNAR_SCENE_BEAT_JA[pairProfile.a.lunarMonth - 1]!,
+    SEASON_SCENE_BEAT_JA[pairProfile.a.season3]!,
+  ];
+  if (pairProfile.b.stemLane !== pairProfile.a.stemLane) {
+    parts.push(STEM_SOCIAL_MIRROR_JA[((pairProfile.b.stemLane % 10) + 10) % 10]!);
+  }
+  if (pairProfile.b.lunarMonth !== pairProfile.a.lunarMonth) {
+    parts.push(LUNAR_SCENE_BEAT_JA[pairProfile.b.lunarMonth - 1]!);
+  }
+  if (pairProfile.b.season3 !== pairProfile.a.season3) {
+    parts.push(SEASON_SCENE_BEAT_JA[pairProfile.b.season3]!);
+  }
+  return parts.join('');
+}
+
+function civilRelationBeats(
+  visible: CivilBirthDimensionsV1,
+  inward: CivilBirthDimensionsV1,
+): string {
+  const parts: string[] = [];
+  if (visible.start === inward.start && visible.decision === inward.decision) {
+    parts.push('始め方も決め方も近く見えて、違いは返す速さに出やすい。');
+  } else if (visible.start !== inward.start && visible.decision !== inward.decision) {
+    parts.push('始め方も決め方もずれていて、同じ会話でも終わり方が分かれやすい。');
+  } else if (visible.start !== inward.start) {
+    parts.push('始め方がずれていて、同じ速さに見えても終わり方が分かれやすい。');
+  } else {
+    parts.push('決め方がずれていて、同じ結論に見えても閉じ方が分かれやすい。');
+  }
+  if (visible.recovery !== inward.recovery) {
+    parts.push('戻り方の土台が違うと、同じすれ違いでも整え直し方が分かれやすい。');
+  }
+  if (visible.change !== inward.change) {
+    parts.push('変化への向き合い方が違うと、予定が変わる場面でずれが長引きやすい。');
+  }
+  if (visible.distance !== inward.distance) {
+    parts.push('距離の取り方の土台が違うと、同じ間の取り方でも意味がずれやすい。');
+  }
+  return parts.join('');
+}
+
+function pairBirthContextLine(
+  pairProfile: ReturnType<typeof resolvePairCanonicalProfileV2>,
+  differenceType: PairDifferenceType,
+): string {
+  if (!pairProfile) return '';
+  const parts: string[] = [];
+  if (pairProfile.a.stemLane !== pairProfile.b.stemLane) {
+    parts.push('二人の進み方の土台がずれていて、同じ会話でも終わりの感じ方が分かれやすい。');
+  }
+  if (pairProfile.a.season3 !== pairProfile.b.season3) {
+    parts.push('予定の追い方の差が、同じ速さに見えても終わり方を分けやすい。');
+  }
+  if (pairProfile.a.lunarMonth !== pairProfile.b.lunarMonth) {
+    parts.push('締めの週の感じ方が違うと、同じ話題でも閉じ方がずれやすい。');
+  }
+  if (pairProfile.a.dayBand !== pairProfile.b.dayBand) {
+    parts.push('区切りの置き方が違うと、同じ会話でも返す速さが分かれやすい。');
+  }
+  if (differenceType === 'near_dob_shift') {
+    parts.push('近い生年月日ほど、違いは返す速さや終わり方に出やすい。');
+  }
+  return parts.join('');
+}
+
 function betweenThemLine(
   answers: CompatibilityCurrentContextAnswers,
   roles: { visible: string; inward: string },
   birth: string,
   hit: string,
+  mesh: string,
+  tempo: { between: string; entry: string },
+  pairProfile: ReturnType<typeof resolvePairCanonicalProfileV2>,
+  differenceType: PairDifferenceType,
+  visibleCivil: CivilBirthDimensionsV1,
+  inwardCivil: CivilBirthDimensionsV1,
 ): string {
   const answer = sideLead(answers, roles);
-  return `二人の間では、${hit}${answer}。そのため二人の間では、${birth}。`;
+  const modifiers = pairAnswerModifierLine(answers, pairProfile);
+  const birthContext = pairBirthContextLine(pairProfile, differenceType);
+  const civilContext = civilRelationBeats(visibleCivil, inwardCivil);
+  const rhythmContext = pairProfile ? pairRhythmBeat(pairProfile) : '';
+  return `二人の間では、${hit}${answer}。${tempo.between}${modifiers}${tempo.entry}${mesh}${birthContext}${civilContext}${rhythmContext}そのため二人の間では、${birth}。`;
 }
 
 function premiumContinuation(focusLabel: string, interactionId: PairFreeInteractionId): string {
@@ -390,6 +523,7 @@ export function buildPairFreeInsightSpecV2(args: {
     inwardCivil.start,
     selected.interactionId,
   );
+  const mesh = meshFromBirth(visibleCivil, inwardCivil, tempo.mesh);
   const misreadLoop = conflict.loop.replace(/。{2,}/g, '。');
   return {
     id: `${PAIR_FREE_INSIGHT_SPEC_VERSION}:${selected.interactionId}:${args.pairAxisId}:${differenceType}:${aCivil.value.start}-${bCivil.value.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'l1' : 'l0'}:${args.answers.decisionPace}-${args.answers.disagreement}-${args.answers.distance}-${args.answers.expressionPace}-${args.answers.returnPattern}:${args.personAUsesFirstPerspective ? 'a' : 'b'}`,
@@ -410,13 +544,19 @@ export function buildPairFreeInsightSpecV2(args: {
       roles,
       birth,
       hit,
+      mesh,
+      tempo,
+      pairProfile,
+      differenceType,
+      visibleCivil,
+      inwardCivil,
     ),
-    meshMoment: meshFromBirth(visibleCivil, inwardCivil, tempo.mesh),
+    meshMoment: mesh,
     mismatchEntry: tempo.entry,
     misreadLoop,
     reset: conflict.reset,
     premiumContinuation: premiumContinuation(args.focusLabel, selected.interactionId),
-    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'lsame' : 'ldiff'}:${pairProfile?.a.stemLane ?? 'x'}x${pairProfile?.b.stemLane ?? 'x'}`,
+    manifestationPatternId: `${selected.interactionId}:${visibleCivil.start}x${inwardCivil.start}:${stemDelta}:${pairProfile?.lunarAligned ? 'lsame' : 'ldiff'}:${pairProfile?.a.stemLane ?? 'x'}x${pairProfile?.b.stemLane ?? 'x'}:${args.answers.decisionPace}:${args.answers.disagreement}:${args.answers.distance}:${args.answers.expressionPace}:${args.answers.returnPattern}`,
     relationshipTriggerJa: hit,
   };
 }

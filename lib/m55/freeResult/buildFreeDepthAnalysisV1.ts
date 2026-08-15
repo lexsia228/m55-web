@@ -507,6 +507,8 @@ export function buildFreeDepthAnalysisV1(
     modifiers: {
       stemLane: canonical.value.stemLane,
       lunarMonth: canonical.value.lunarMonth,
+      season3: canonical.value.season3,
+      dayBand: canonical.value.dayBand,
       tensionIds: canonical.value.tensionIds,
     },
   });
