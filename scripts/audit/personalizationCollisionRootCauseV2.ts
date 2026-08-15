@@ -199,9 +199,7 @@ function collisionStats<T extends { effectiveKey: string; reading: string }>(
         semanticA: 'semantic' in a ? (a as { semantic: { stableKey: string } }).semantic.stableKey : '',
         semanticB: 'semantic' in b ? (b as { semantic: { stableKey: string } }).semantic.stableKey : '',
         classification:
-          classify && 'semantic' in a && 'semantic' in b
-            ? classify(a as ReturnType<typeof rowPersonal>, b as ReturnType<typeof rowPersonal>)
-            : 'unknown',
+          classify && 'semantic' in a && 'semantic' in b ? classify(a, b) : 'unknown',
         preview: c.reading,
       };
     }),
