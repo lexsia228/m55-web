@@ -785,8 +785,8 @@ Historical post-merge transition snapshots remain recorded for audit.
 | purpose | Narrative / ownership / share layer over existing inference (私の取扱説明書 · PublicShareSpecV1 · X/native · viewer landing) |
 | product implementation authorized | **true** — presentation/share only; no engine rebuild, no commerce |
 | prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 merge / CanonicalBirthProfileV2 rebuild / DTR body replace |
-| next gate | Human product narrative + share copy lock (PATCH-1 copy in-tree) |
-| notes | Reuses PR81 `/r` + s1 tokens, PR117 Pair privacy-safe share, V5/V6 copy, n1 catalog tokens. Compatibility Paid share is generic NO_OP. Public DOB cue is provenance language only (no raw DOB). |
+| next gate | Human public share card lock |
+| notes | Public identity fingerprint v1. Premium revisit without local answers is DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE. Sticky /dtr/lp click is ENV_DEPENDENT_EXISTING_NAV_TEST_RESIDUAL. |
 
 ---
 

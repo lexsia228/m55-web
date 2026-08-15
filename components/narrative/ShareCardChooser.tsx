@@ -42,19 +42,23 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
 
   if (!context.ok) return null;
   const { narrative, answerAxes, birthAxes, hingeAxisId, stemLaneIndex } = context.value;
-  const recommended = recommendPublicShareVariant({ answerAxes, birthAxes });
   const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
-  const spec = selected
-    ? projectPersonalPublicShareV1({
+  const specs = Object.fromEntries(
+    VARIANTS.map((variant) => [
+      variant,
+      projectPersonalPublicShareV1({
         narrative,
-        variant: selected,
+        variant,
         stemLaneIndex,
         answerAxes,
         birthAxes,
         hingeAxisId,
         origin,
-      })
-    : null;
+      }),
+    ]),
+  ) as Record<(typeof VARIANTS)[number], ReturnType<typeof projectPersonalPublicShareV1>>;
+  const recommended = recommendPublicShareVariant({ answerAxes, birthAxes });
+  const spec = selected ? specs[selected] : null;
 
   return (
     <section
@@ -74,7 +78,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
       <div className={styles.optionGrid} role="list">
         {VARIANTS.map((variant) => {
           const candidate = narrative.shareCandidates.find((item) => item.variant === variant);
-          if (!candidate) return null;
+          if (!candidate || !specs[variant]) return null;
           const isRecommended = variant === recommended;
           return (
             <button

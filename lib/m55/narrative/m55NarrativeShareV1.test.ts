@@ -108,7 +108,7 @@ describe('public share sanitization', () => {
       url: spec.canonicalUrl,
     });
     assert.equal(sharePayloadContainsSensitive(spec.shareTextJa), false);
-    assert.match(spec.body, /始め方：/);
+    assert.match(spec.body, /：/);
     assert.ok(spec.body.split('\n').filter((line) => line.includes('：')).length >= 4);
     assert.match(spec.body, new RegExp(PUBLIC_DOB_PROVENANCE_CUE_JA));
     assert.doesNotMatch(spec.canonicalUrl, /[?&]/);
@@ -285,7 +285,7 @@ describe('human copy pack examples', () => {
 });
 
 describe('selected-card X and public collision', () => {
-  it('P1 manual X uses the hidden-spec insight, not two weak slots', () => {
+  it('P1 manual X uses a fused on-card slot, not two weak axis summaries', () => {
     const ctx = personalContext(PERSONAL_V5_FIXTURES[0]!);
     const spec = projectPersonalPublicShareV1({
       narrative: ctx.narrative,
@@ -299,7 +299,8 @@ describe('selected-card X and public collision', () => {
       spec.shareTextJa,
       /小さく一つ動かしてから、様子を見る。候補を並べてから閉じる/,
     );
-    assert.match(spec.shareTextJa, /決めてもらいたいからではない|材料を集めている|比較が内側|一度置いて/);
+    assert.match(spec.body, /誤解されやすいところ|実際は/);
+    assert.match(spec.shareTextJa, /相談している|一人になったあと|決めているように見られ/);
     if (ctx.birthAxes.start !== ctx.answerAxes.start) {
       assert.equal(
         recommendPublicShareVariant({

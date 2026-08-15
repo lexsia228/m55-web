@@ -27,3 +27,6 @@ export {
 export { buildXShareIntentUrl, xShareEncodedPreview } from './xShareIntentV1';
 export { PUBLIC_SHARE_SPEC_VERSION } from './publicShareSpecV1';
 export type { PublicShareSpecV1 } from './publicShareSpecV1';
+export { buildPublicIdentityFingerprintV1 } from './publicIdentityFingerprintV1';
+export type { PublicIdentityFingerprintV1 } from './publicIdentityFingerprintV1';
+export { PREMIUM_SHARE_IDENTITY_PERSISTENCE } from './projectPublicShareV1';

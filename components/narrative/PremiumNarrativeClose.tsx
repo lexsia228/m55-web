@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { DtrPayload } from '../../lib/m55/dtrEngine';
 import { projectPersonalPremiumNarrativeV1 } from '../../lib/m55/narrative/projectPersonalPremiumNarrativeV1';
-import { projectPremiumPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
+import { PREMIUM_SHARE_IDENTITY_PERSISTENCE, projectPremiumPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
 import { buildPersonalFreeNarrativeShareContextV1 } from '../../lib/m55/narrative/projectPersonalFreeNarrativeV1';
 import PublicShareCardPreview from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
@@ -73,6 +73,9 @@ export default function PremiumNarrativeClose({
       </h2>
       <p className={styles.body} data-testid="m55-premium-takeaway">
         {narrative.takeaway?.text}
+      </p>
+      <p className={styles.mark} data-premium-share-persistence={PREMIUM_SHARE_IDENTITY_PERSISTENCE}>
+        公開カードには生年月日や回答は含まれません。
       </p>
       {narrative.actions.length > 0 ? (
         <ul className={styles.slotList}>

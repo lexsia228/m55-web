@@ -172,6 +172,14 @@ export function projectGenericPublicShareV1(input: {
   });
 }
 
+export const PREMIUM_SHARE_IDENTITY_PERSISTENCE = 'DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE' as const;
+
+/**
+ * Smallest future-safe persistence (not implemented here):
+ * store the already public-safe personal n1 key fields
+ * `{ answerAxes, birthAxes, hingeAxisId }` on the saved report.
+ * Do not persist raw answers or DOB. Current DTR payload has no such field.
+ */
 export function projectPremiumPublicShareV1(input: {
   stemLaneIndex: number;
   answerAxes?: ExpressionAxes;
