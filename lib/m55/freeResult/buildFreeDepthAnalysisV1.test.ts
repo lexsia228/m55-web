@@ -169,8 +169,8 @@ describe('buildFreeDepthAnalysisV1', () => {
     const built = buildFreeDepthAnalysisV1({ ...BASE, freeAnswerSet: PATTERN_C });
     assert.equal(built.ok, true);
     if (!built.ok) return;
-    assert.match(built.value.scenesJa.workJa, /仕事|判断|依頼|候補|試作|確認/);
-    assert.match(built.value.scenesJa.relationJa, /距離|関わり|一人|連絡|会食/);
+    assert.match(built.value.scenesJa.workJa, /仕事|判断|依頼|候補|確認|並べ|材料|聞い/);
+    assert.match(built.value.scenesJa.relationJa, /距離|関わり|一人|連絡|人と会った/);
     assert.match(built.value.scenesJa.changeJa, /予定|環境|変化|変更/);
   });
 

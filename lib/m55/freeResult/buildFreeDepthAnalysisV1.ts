@@ -145,13 +145,13 @@ const CHANGE_PATTERN: Readonly<Record<ChangeTendency, string>> = {
 };
 
 const START_WORK: Readonly<Record<StartTendency, string>> = {
-  map: '新しい依頼が来た直後に、手順と優先順位を書き出してから着手する場面',
-  try: '仕様が固まっていない課題で、小さな試作を一つ作って反応を見る場面',
-  ask: '判断材料が足りないとき、関係者に確認や共有を足してから動く場面',
+  map: '新しい話が来た直後に、手順と優先順位を置いてから着手する場面',
+  try: 'まだ固まっていない話で、小さく一つ動かして反応を見る場面',
+  ask: '判断材料が足りないとき、確認や共有を足してから動く場面',
 };
 
 const DECISION_WORK: Readonly<Record<DecisionTendency, string>> = {
-  sort: '候補が複数あるときに比較表を作ってから選ぶ場面',
+  sort: '候補が複数あるときに並べてから選ぶ場面',
   deadline: '「いつまでに決めるか」を先に置いてから判断する場面',
   wait: '即答を求められても、一晩置いてから結論を返す場面',
 };
@@ -159,12 +159,12 @@ const DECISION_WORK: Readonly<Record<DecisionTendency, string>> = {
 const DISTANCE_SCENE: Readonly<Record<DistanceTendency, string>> = {
   close: '会話の中で「今は少し離れる／近づく」を言葉にして調整する場面',
   middle: '連絡頻度や同席の時間を一定に保ちながら関係を続ける場面',
-  solo: '会食や会議のあとに、一人で過ごす時間を先に確保する場面',
+  solo: '人と会ったあとに、一人で過ごす時間を先に確保する場面',
 };
 
 const CHANGE_SCENE: Readonly<Record<ChangeTendency, string>> = {
   observe: '予定変更の直後に、すぐ組み替えず一日観察する場面',
-  adjust: '変更点だけを差分修正して、全体は崩さず進める場面',
+  adjust: '変更点だけを小さく直して、全体は崩さず進める場面',
   rebuild: '前提が変わったときに、スケジュールを白紙にして組み直す場面',
 };
 
@@ -188,7 +188,7 @@ const STRENGTH_BY_RECOVERY: Readonly<Record<RecoveryTendency, string>> = {
 
 const LOAD_BY_START: Readonly<Record<StartTendency, string>> = {
   map: '準備なしの即着手だけが続くとき',
-  try: '試作の余地なく完成形だけを求められるとき',
+  try: '小さく試す余白なく完成形だけを求められるとき',
   ask: '相談先がなく一人で抱え込むとき',
 };
 

@@ -146,6 +146,13 @@ describe('personalization resolution v2 pair cohort', () => {
       assert.match(between, /^二人の間では/);
       assert.ok(spec.misreadLoop.length > 8);
       assert.ok(spec.reset.length > 8);
+      assert.doesNotMatch(between, /終わりの感じ方|話の終わり方|締めの書類|比較表/);
+      if (/話し終えたと感じるタイミング/.test(spec.relationshipTriggerJa)) {
+        assert.doesNotMatch(
+          between,
+          /結論は置きたい側と、先に言葉を出して確かめたい側の時間差/,
+        );
+      }
     }
     const a = buildPairFreeInsightSpecV2({
       answers: answersAt(4),

@@ -134,7 +134,7 @@ const TEMPO: Readonly<
       entry: '先に出た言葉を結論と読むと、置いて考えたい側は急かされたように感じやすい。',
     },
     words_later: {
-      between: '決めるのも言葉にするのも時間がかかるため、二人の間では静かな時間が長くなりやすい。静けさの意味が揃わないと、離れ始めたように見えやすい。',
+      between: '決めるのも言葉にするのも時間がかかるため、静かな時間が長くなりやすい。静けさの意味が揃わないと、離れ始めたように見えやすい。',
       mesh: '次に話す時点だけ先に置けると、待っている時間が空白に見えにくい。',
       entry: 'どちらも考えているのに、合図がないと「関心が薄い」と読みやすい。',
     },
@@ -221,11 +221,11 @@ function sideLead(
   if (answers.disagreement === 'talk_now' && answers.distance === 'go_quiet') {
     return `${visible}側は違いをその場の言葉で揃えようとしやすく、${inward}側は説明より先に静かになりやすい`;
   }
-  if (answers.disagreement === 'take_space' || answers.distance === 'go_quiet') {
-    return `${visible}側はその間を考える時間として使いやすく、${inward}側は同じ間を気持ちが離れた時間と読みやすい`;
-  }
   if (answers.disagreement === 'one_carries') {
     return `${visible}側は話題を引き取って進めやすく、${inward}側は出なかった一点を抱えたまま戻りやすい`;
+  }
+  if (answers.disagreement === 'take_space' || answers.distance === 'go_quiet') {
+    return `${visible}側はその間を考える時間として使いやすく、${inward}側は同じ間を気持ちが離れた時間と読みやすい`;
   }
   if (
     (answers.decisionPace === 'decide_now' && answers.expressionPace === 'words_soon') ||
@@ -251,7 +251,7 @@ function pairOpeningHit(
   if (interactionId === 'space_misread') {
     return startSplit
       ? '片方は今夜のうちに距離の理由を置きたくなり、もう片方は説明せず静かになりやすい。その静けさを拒否と受け取りやすいところからずれやすい。'
-      : '片方は考える時間として間を取り、もう片方は同じ間を気持ちが離れた時間と受け取りやすい。';
+      : '同じ間でも、意味の取り方が分かれやすい。';
   }
   if (interactionId === 'one_carries_quiet') {
     return startSplit
@@ -298,7 +298,7 @@ function birthLead(
   if (shared) {
     return `${stemBit}、返す速さの差が二人の間で分かれやすい`;
   }
-  return `${stemBit}、同じ会話でも終わりの感じ方が分かれやすい`;
+  return `${stemBit}、このずれが二人の間で先に立ちやすい`;
 }
 
 function meshFromBirth(
@@ -357,26 +357,26 @@ function pickPairBirthSupport(
 ): string {
   if (!pairProfile) {
     return visible.start !== inward.start
-      ? '始め方がずれていて、同じ速さに見えても終わり方が分かれやすい。'
+      ? '始め方がずれていて、同じ速さに見えても戻り方が分かれやすい。'
       : '';
   }
   if (pairProfile.stemDeltaClass === 'far') {
-    return '終わりの感じ方が分かれ、同じ会話でも閉じた側と残した側が入れ替わりやすい。';
+    return '生まれの基調が離れていると、戻る合図の取り方が先に分かれやすい。';
   }
   if (!pairProfile.lunarAligned) {
-    return '締めのタイミングが近い週と、話の終わり方がずれやすい。';
+    return '週のリズムが揃っていないと、同じ会話でも余力の出方がずれやすい。';
   }
   if (pairProfile.a.season3 !== pairProfile.b.season3) {
-    return '予定の追い方の差が、同じ速さに見えても終わり方を分けやすい。';
+    return '予定の追い方が違うと、急ぐ日と置ける日が同時に来やすい。';
   }
   if (pairProfile.a.dayBand !== pairProfile.b.dayBand) {
-    return '区切りの置き方が違うと、同じ会話でも返す速さが分かれやすい。';
+    return '区切りの置き方が違うと、返す速さだけが先に分かれやすい。';
   }
   if (differenceType === 'near_dob_shift') {
-    return '近い生年月日ほど、違いは返す速さや終わり方に出やすい。';
+    return '近い生年月日ほど、違いは返す速さに出やすい。';
   }
   if (visible.start !== inward.start) {
-    return '始め方がずれていて、同じ速さに見えても終わり方が分かれやすい。';
+    return '始め方がずれていて、同じ速さに見えても戻り方が分かれやすい。';
   }
   return '';
 }
@@ -395,9 +395,15 @@ function betweenThemLine(
 ): string {
   const answer = sideLead(answers, roles);
   const answerSupport = pickPairAnswerSupport(answers, interactionId);
-  const birthSupport = pickPairBirthSupport(pairProfile, differenceType, visibleCivil, inwardCivil);
+  const birthSupport =
+    interactionId === 'tempo_mismatch' || interactionId === 'later_decide_words_soon'
+      ? ''
+      : pickPairBirthSupport(pairProfile, differenceType, visibleCivil, inwardCivil);
   const mechanism =
-    /結論を出す速度/.test(tempoBetween) || hit.includes(tempoBetween.slice(0, 12))
+    interactionId === 'tempo_mismatch' ||
+    interactionId === 'later_decide_words_soon' ||
+    /結論を出す速度/.test(tempoBetween) ||
+    hit.includes(tempoBetween.slice(0, 12))
       ? ''
       : tempoBetween;
   return `二人の間では、${hit}${answer}。${mechanism}${answerSupport}${birthSupport}そのため二人の間では、${birth}。`;

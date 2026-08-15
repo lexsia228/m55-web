@@ -115,7 +115,7 @@ describe('personal free commercial copy v5', () => {
       bridges.push(built.value.premiumOpenLoopJa);
       assert.deepEqual(lintPersonalPrimaryCopy(built.value.headlineJa), [], fixture.id);
       assert.deepEqual(customerLanguageBanned(built.value.headlineJa), [], fixture.id);
-      assert.doesNotMatch(built.value.headlineJa, /買い物や仕事の方針を、人に話した直後/);
+      assert.doesNotMatch(built.value.headlineJa, /比較表|締めの書類|試作|返信を翌朝まで置いた朝|差分修正|会食や会議|大きな申し込み/);
       assert.doesNotMatch(built.value.headlineJa, /置くつもりが|材料が足りなくて|あわせて、|応募してしまう|カゴに入れ|送信ログ|カフェに移|返事の間隔を一人で|比べの途中で/);
       assert.doesNotMatch(built.value.headlineJa, /、一人になってから、/);
       assert.ok(((built.value.headlineJa.match(/同じ動き/g) ?? []).length) <= 1, fixture.id);

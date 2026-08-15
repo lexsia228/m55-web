@@ -70,6 +70,11 @@ describe('personal free editorial copy v6', () => {
       const sentences = opening.split('。').filter((part) => part.trim().length > 0);
       assert.ok(sentences.length >= 3 && sentences.length <= 7, `${fixture.id}:${sentences.length}`);
       assert.deepEqual(customerLanguageBanned(opening), [], fixture.id);
+      assert.doesNotMatch(
+        opening,
+        /比較表|締めの書類|試作|返信を翌朝まで置いた朝|差分修正|会食や会議|大きな申し込み/,
+      );
+      assert.doesNotMatch(opening, /同じ動きが出る|同じ動きが戻る/);
       assert.doesNotMatch(opening, /仕事では武器になり、近い関係ではすれ違いになるのはどこか/);
       assert.doesNotMatch(built.value.premiumOpenLoopJa, /同じ動きを場面に分けて読み返します/);
     }
@@ -89,7 +94,13 @@ describe('pair free editorial copy v6', () => {
       });
       const blob = `${spec.betweenThem}\n${spec.misreadLoop}\n${spec.reset}\n${spec.premiumContinuation}`;
       assert.doesNotMatch(blob, /今どちらの日か|見えやすい反応|土台の差が|同じ土台でも|接点の入口|基調の寄り/);
-      assert.doesNotMatch(spec.betweenThem, /あなた側は「/);
+      assert.doesNotMatch(spec.betweenThem, /終わりの感じ方|話の終わり方/);
+      if (/話し終えたと感じるタイミング/.test(spec.relationshipTriggerJa)) {
+        assert.doesNotMatch(
+          spec.betweenThem,
+          /結論は置きたい側と、先に言葉を出して確かめたい側の時間差/,
+        );
+      }
       const youWantsConclusion = /あなた側は.*結論/.test(spec.betweenThem);
       const youWantsWords = /あなた側は.*言葉を足して/.test(spec.betweenThem);
       assert.equal(youWantsConclusion && youWantsWords, false, fixture.id);
