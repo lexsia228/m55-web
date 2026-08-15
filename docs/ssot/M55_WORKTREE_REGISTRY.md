@@ -774,6 +774,20 @@ Historical post-merge transition snapshots remain recorded for audit.
 | prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 / second astrology / Production hybrid AI |
 | next gate | Human Free copy lock (10+10); visual 390/430; generic-AI protocol not run yet |
 
+### WT-031 — Product narrative + social share v1 (ACTIVE, STACKED)
+
+| Field | Value |
+|---|---|
+| path | `/Users/lexsia/Documents/M55_WORKTREE-product-narrative-share-v1` |
+| branch | `feat/m55-product-narrative-share-v1` |
+| base | `feat/m55-personalization-resolution-v2` @ `6d53a71df148ed4c0a1016358bc86830086f8732` |
+| lifecycle | **ACTIVE** — stacked overlay; do not merge personalization; do not auto-merge this branch |
+| purpose | Narrative / ownership / share layer over existing inference (私の取扱説明書 · PublicShareSpecV1 · X/native · viewer landing) |
+| product implementation authorized | **true** — presentation/share only; no engine rebuild, no commerce |
+| prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 merge / CanonicalBirthProfileV2 rebuild / DTR body replace |
+| next gate | Human product narrative + share copy lock |
+| notes | Reuses PR81 `/r` + s1 tokens, PR117 Pair privacy-safe share, V5/V6 copy, n1 catalog tokens. Compatibility Paid share is generic NO_OP. |
+
 ---
 
 ## Non-worktree directories explicitly excluded
