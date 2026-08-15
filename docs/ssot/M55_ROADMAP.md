@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. Production `/synastry` confirms Pair Signature + privacy-safe entry share. Personal Free / Personal Premium / Compatibility Free **visual** quality remain **CLOSED GREEN**. Compatibility Paid product quality is **GREEN_BUT_COMMERCE_GATED**; Production commerce remains **OFF**. Personalization resolution v2 on `feat/m55-personalization-resolution-v2`: **Personal defective collision 0%** · **Free Human editorial polish GREEN** · **Pair structural identity retained**. Premium/Paid 1000 **reused GREEN**. Stacked overlay `feat/m55-product-narrative-share-v1` revenue/viral delight v2 presentation is in-tree — **Human stacked visual lock pending**; do not merge automatically. **NEXT:** Human visual lock — not commerce.
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120 + PR #121 are **MERGED** to main @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. Personalization resolution v2 and narrative/share delight v2 are on main. Production `/synastry` still reflects prior deployment until next Production release. Compatibility commerce remains **OFF**. **NEXT:** Production release/deploy — not another product-design review gate.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
