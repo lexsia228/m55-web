@@ -5,7 +5,27 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`).
+
+## PERSONALIZATION + NARRATIVE SHARE (2026-08-16) — AUTHORITATIVE POST-PR-#120-#121
+
+| Field | Value |
+|---|---|
+| PR #120 | **MERGED** — https://github.com/lexsia228/m55-web/pull/120 · feature head `823d8109fbc36d5d8528cdaa37c009f6f87fa6fd` · merge commit `679debfffa18a6811112b4e1b298653f472658a6` |
+| PR #121 | **MERGED** — https://github.com/lexsia228/m55-web/pull/121 · feature head `9e6aa702465408aeb7f152c06ef91ad6e16adbe5` · merge commit `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
+| origin/main (settlement) | `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
+| Production SHA (diagnostics) | **not reobserved in this settlement** — prior `be6efb4fd7b2994a18fe0f175a536e773ee827ce` |
+| PERSONALIZATION_RESOLUTION | **MERGED GREEN** — CanonicalBirthProfileV2 · DOB×answers fused identity · information-loss closure · V5/V6 polish on main |
+| NARRATIVE_SHARE | **MERGED GREEN** — 私の取扱説明書 · A/B/C share cards · OG A/B/C/Pair · viewer→Free · Free→Premium bridge · Premium narrative close · safe share attribution |
+| Public identity (share) | A162 / B44 / C78 / INFORMATION_LOSS 0 |
+| Delight v2 authority commit | `f04550a1c6cfdf3404b7c2b09ff14a75a8bd4f3c` (contained in main via #121) |
+| WT-030 | **COMPLETED** — retained read-only |
+| WT-031 | **COMPLETED** — retained read-only |
+| NEXT GATE | **Production release/deploy** — Git integration settled; no further product-design review gate |
+| MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
+| TEST_CHECKOUT_4242_AUTHORIZED | **false** |
+| REAL_CHECKOUT_AUTHORIZED | **false** |
+| SALES_LAUNCH_AUTHORIZED | **false** |
 
 ## FOUR-SURFACE COMMERCIAL QUALITY (2026-08-14) — AUTHORITATIVE POST-PR-#117
 
@@ -20,22 +40,17 @@ This section is the current authority after PR #117 merge. Pair display identity
 | Prior Production deployment (P0 repair) | `dpl_2SQembxqK13ghU9o52R1vfNovmwE` @ `511b54d` — no-cache rebuild after `BUILD_OUTPUT_MISMATCH` |
 | P0 Production client integrity | **CLOSED_GREEN** |
 | PERSONAL_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual) |
-| PERSONAL_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — V6 editorial reused; identity source CanonicalBirthProfileV2 IN_PROGRESS |
+| PERSONAL_FREE_INFERENCE_QUALITY | **MERGED GREEN** on main — CanonicalBirthProfileV2 + fused identity via PR #120 |
 | PERSONAL_PREMIUM_COMMERCIAL_QUALITY | **CLOSED_GREEN** (visual/product body); DTR 1440 catalog reused on canonical stem |
 | COMPATIBILITY_FREE_COMMERCIAL_QUALITY | **CLOSED_GREEN** — Pair Signature + privacy-safe entry share live on Production `/synastry` |
-| COMPATIBILITY_FREE_INFERENCE_QUALITY | **PAUSED_FOR_PERSONALIZATION_RESOLUTION** — pair canonical profile IN_PROGRESS |
+| COMPATIBILITY_FREE_INFERENCE_QUALITY | **MERGED GREEN** on main — pair canonical profile via PR #120 |
 | COMPATIBILITY_PAID_PRODUCT_QUALITY | **GREEN_BUT_COMMERCE_GATED** — night ownership grammar in source/fixture |
 | FOUR_SURFACE_VISUAL_SYSTEM | **CLOSED_GREEN** |
 | Pair Premium lifecycle | **READY_BUT_GATED** · **NOT_LIVE** |
 | Compatibility commerce | **OFF** · `commerce_activation=false` · `M55_COMPATIBILITY_COMMERCE_ENABLED` unchanged |
 | ¥600 Light→Full recovery | **separate / pending** — `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
-| NEXT GATE | **Free surface visual 390/430 + generic AI benchmark** — copy-only Human editorial polish GREEN; do not merge until visual + AI lock |
-| PERSONALIZATION_CORE | **STRUCTURAL_GREEN** — Personal 1000 **defective** customer collision **0%** (legitimate shared excluded) · largest defective cluster **0** |
-| PERSONAL_FREE_COPY | **HUMAN_EDITORIAL_POLISH** — biography/repetition/同じ動き copy closed; display budget unchanged; one lunar + one stem |
-| PERSONAL_PREMIUM_RESOLUTION | **GREEN (reuse)** — semantic collision **1.0%**, largest cluster **2** — not re-run this patch |
-| PAIR_FREE_RESOLUTION | **STRUCTURAL_GREEN** + **EDITORIAL_POLISH** — R1–R10 one mechanism; no 終わりの感じ方 restatement dump |
-| PAIR_PAID_RESOLUTION | **GREEN (reuse)** — exact 0% · semantic 0% · 6/6 scenes — not re-run this patch |
-| PERSONALIZATION_RESOLUTION | **IN_PROGRESS** on WT `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · `feat/m55-personalization-resolution-v2` · base audit `80f99316b01e05d82c95e92fe4556a89483d4eba` |
+| NEXT GATE | **Production release/deploy** — PR #120/#121 merged to main @ `7bc2503` |
+| PERSONALIZATION_RESOLUTION | **MERGED GREEN** — PR #120 @ `679debf` · WT-030 **COMPLETED** |
 | MRQ_IMPLEMENTATION_AUTHORIZED | **false** for P3 checkout/4242/sales launch |
 | TEST_CHECKOUT_4242_AUTHORIZED | **false** |
 | REAL_CHECKOUT_AUTHORIZED | **false** |

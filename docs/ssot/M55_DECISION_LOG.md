@@ -333,3 +333,15 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Compatibility Paid share | generic NO_OP (`二人の相性レポートを読みました`) |
 | Existing s1 tokens | remain valid |
 | Commerce / DB / Stripe | unchanged |
+
+### 2026-08-16 — Personalization + narrative/share main settlement (PR #120 + PR #121)
+
+**Status:** Human-authorized **conditional merge + main settlement**. PR #120 merged to `main` @ `679debfffa18a6811112b4e1b298653f472658a6`. PR #121 retargeted to `main` and merged @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. WT-030 / WT-031 **COMPLETED** on main. Production deploy **not** executed in this gate.
+
+| Rule | Value |
+|---|---|
+| Merge order | #120 → retarget #121 → #121 |
+| origin/main (settlement) | `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
+| Public identity | A162 / B44 / C78 / INFORMATION_LOSS 0 |
+| Next gate | Production release/deploy |
+| Production / DB / Stripe / env | unchanged in this settlement |

@@ -40,7 +40,9 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-15 personalization-resolution-v2) — authoritative, read this first:** ACTIVE implementation worktree `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · branch `feat/m55-personalization-resolution-v2` · base audit evidence `80f99316b01e05d82c95e92fe4556a89483d4eba`. Canonical stem = `m55-composite-stem-v2`. PERSONALIZATION_CORE **IN_PROGRESS**. V6 copy reused. Do not merge until collision thresholds + Human copy lock. Visual PR #116/#117 **CLOSED GREEN**. Commerce **OFF**. WT-029 audit is evidence-only (do not implement there). WT-028 V6 remains PAUSED merge.
+**CURRENT (2026-08-16 post-PR-#120-#121) — authoritative, read this first:** PR #120 + PR #121 **MERGED** to `main` @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b`. Personalization (`feat/m55-personalization-resolution-v2`) and narrative/share (`feat/m55-product-narrative-share-v1`) lanes **COMPLETED** on main. WT-030 / WT-031 retained read-only. Production deploy **not executed** in this settlement. **NEXT GATE:** Production release/deploy.
+
+**CURRENT (2026-08-15 personalization-resolution-v2) — historical pre-merge:** ACTIVE implementation worktree `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` · branch `feat/m55-personalization-resolution-v2` · merged via PR #120 @ `679debf`.
 
 **CURRENT (2026-08-15 personalization-resolution audit) — evidence frozen:** `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v1` · `audit/m55-personalization-resolution-v1` @ `80f99316b01e05d82c95e92fe4556a89483d4eba`.
 
@@ -761,32 +763,32 @@ Historical post-merge transition snapshots remain recorded for audit.
 | next gate | Human accepts audit verdict; then smallest consume-existing-signals implementation wave |
 | notes | Verdict `PATCH_REQUIRED_EFFECTIVE_DOB_RESOLUTION_27_AND_TEMPLATE_COLLISION`. Authority `docs/audit/M55_ALL_SURFACE_PERSONALIZATION_RESOLUTION_AUDIT.md`. Evidence commit `80f99316b01e05d82c95e92fe4556a89483d4eba`. |
 
-### WT-030 — Personalization resolution v2 (ACTIVE)
+### WT-030 — Personalization resolution v2 (COMPLETED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-personalization-resolution-v2` |
 | branch | `feat/m55-personalization-resolution-v2` |
 | base | `audit/m55-personalization-resolution-v1` @ `80f99316b01e05d82c95e92fe4556a89483d4eba` |
-| lifecycle | **ACTIVE** |
+| lifecycle | **COMPLETED** — PR #120 **MERGED** @ `679debfffa18a6811112b4e1b298653f472658a6` |
 | purpose | CanonicalBirthProfileV2 + Personal/Pair Free/Paid resolution without a second calendar |
-| product implementation authorized | **true** — identity/resolution only; no visual/payment/AI-provider |
-| prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 / second astrology / Production hybrid AI |
-| next gate | Human Free copy lock (10+10); visual 390/430; generic-AI protocol not run yet |
+| product implementation authorized | **false** — lane closed on main; retained read-only |
+| lastVerifiedAt | `2026-08-16` |
+| lastVerifiedMain | `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
 
-### WT-031 — Product narrative + social share v1 (ACTIVE, STACKED)
+### WT-031 — Product narrative + social share v1 (COMPLETED)
 
 | Field | Value |
 |---|---|
 | path | `/Users/lexsia/Documents/M55_WORKTREE-product-narrative-share-v1` |
 | branch | `feat/m55-product-narrative-share-v1` |
 | base | `feat/m55-personalization-resolution-v2` @ `6d53a71df148ed4c0a1016358bc86830086f8732` |
-| lifecycle | **ACTIVE** — stacked overlay; do not merge personalization; do not auto-merge this branch |
+| lifecycle | **COMPLETED** — PR #121 **MERGED** @ `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
 | purpose | Narrative / ownership / share layer over existing inference (私の取扱説明書 · PublicShareSpecV1 · X/native · viewer landing) |
-| product implementation authorized | **true** — presentation/share only; no engine rebuild, no commerce |
-| prohibited operations | Production / DB / Stripe / env / keys / checkout / PR119 merge / CanonicalBirthProfileV2 rebuild / DTR body replace |
-| next gate | Human stacked visual lock (delight + social object) |
-| notes | Revenue/viral delight v2 presentation. Identity fingerprint v1 unchanged. Premium revisit without local answers is DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE. Sticky /dtr/lp click is ENV_DEPENDENT_EXISTING_NAV_TEST_RESIDUAL. |
+| product implementation authorized | **false** — lane closed on main; retained read-only |
+| lastVerifiedAt | `2026-08-16` |
+| lastVerifiedMain | `7bc2503bb3e188a9bc4cd83ff2b09c4964bbc87b` |
+| notes | Delight v2 authority `f04550a`. DEFERRED_PREMIUM_SHARE_IDENTITY_PERSISTENCE remains non-blocking. |
 
 ---
 
