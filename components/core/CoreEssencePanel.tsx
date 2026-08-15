@@ -630,7 +630,10 @@ export default function CoreEssencePanel() {
 
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <CoreMethodCompact />
+                  <details className={CoreExperienceStyles.freeDepthMore}>
+                    <summary>読みの組み立て</summary>
+                    <CoreMethodCompact />
+                  </details>
                 </div>
               ) : null}
 

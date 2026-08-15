@@ -14,41 +14,42 @@ import type {
 import type { PersonalFreeFusedInsightSpecV3 } from '../freeResult/personalFreeFusedInsightSpecV3';
 import type { ManualSlotV1, ManualSpecV1 } from './m55NarrativeSpecV1';
 import { firstSentenceJa } from './narrativeSafetyV1';
+import { humanizePrivatePresentationJa } from './humanizePrivatePresentationV1';
 
 const START_SLOT: Readonly<Record<StartTendency, string>> = {
   try: '小さく一つ動かしてから、様子を見る。',
-  map: '全体の手順が見えてから動き出す。',
-  ask: '周囲の視点を足してから着手する。',
+  map: '全体の段取りが見えてから動き出す。',
+  ask: '周りの意見を聞いてから取りかかる。',
 };
 
 const DECISION_SLOT: Readonly<Record<DecisionTendency, string>> = {
-  sort: '候補を並べてから閉じる。',
-  deadline: '区切りが見えたところで決める。',
+  sort: '候補を並べてから、答えを一つに絞る。',
+  deadline: '「ここまで」が見えたところで決める。',
   wait: '一度置いてから返す。',
 };
 
 const DISTANCE_SLOT: Readonly<Record<DistanceTendency, string>> = {
-  close: '近い関係ほど、今の間合いを言葉にして整える。',
-  middle: '連絡や同席の間隔を一定に保ちながら続ける。',
+  close: '近い関係ほど、今の距離感を言葉にして整える。',
+  middle: '連絡や会う頻度を、あまり変えずに続ける。',
   solo: '人と会ったあと、一人の時間で整えてから戻る。',
 };
 
 const RECOVERY_SLOT: Readonly<Record<RecoveryTendency, string>> = {
-  pause: '短い区切りを入れて立て直す。',
+  pause: '短い休みを入れて立て直す。',
   shrink: 'やることの範囲を狭くして戻る。',
-  scene: '場所や刺激を変えてから戻る。',
+  scene: '場所や空気を変えてから戻る。',
 };
 
 const CHANGE_SLOT: Readonly<Record<ChangeTendency, string>> = {
   observe: '変化の直後は、一日様子を見てから動く。',
-  adjust: '変わった点だけ小さく合わせて進める。',
+  adjust: '変わったところだけ、少し直して進める。',
   rebuild: '前提が変わったら、一度組み直す。',
 };
 
 const TALK_HINT: Readonly<Record<DistanceTendency, string>> = {
-  close: '結論の前に、今の間合いを一句置く。',
+  close: '決める前に、今の距離感を一言伝える。',
   middle: '頻度は変えず、決める話と様子を見る話を分ける。',
-  solo: '返事を急がず、一人の時間のあとに続きを置く。',
+  solo: 'すぐ返さず、一人の時間のあとに続きを置く。',
 };
 
 function slot(
@@ -57,7 +58,7 @@ function slot(
   bodyJa: string,
   provenanceIds: readonly string[],
 ): ManualSlotV1 {
-  return { id, labelJa, bodyJa, provenanceIds };
+  return { id, labelJa, bodyJa: humanizePrivatePresentationJa(bodyJa), provenanceIds };
 }
 
 function pickShortSlots(

@@ -23,6 +23,7 @@ export const M55_FUNNEL_EVENTS = {
   shareCardImpression: 'share_card_impression',
   shareCardSelected: 'share_card_selected',
   shareXClicked: 'share_x_clicked',
+  shareImageSaved: 'share_image_saved',
   premiumCtaViewed: 'premium_cta_viewed',
   premiumCtaClicked: 'premium_cta_clicked',
   premiumBridgeViewed: 'premium_bridge_viewed',
@@ -99,14 +100,32 @@ export type M55FunnelSurface =
   | 'compatibility_purchase'
   | 'compatibility_saved_report';
 
+export type M55ShareVariantEnum = 'manual' | 'mirror' | 'hidden_spec' | 'pair';
+export type M55ShareChannelEnum = 'x' | 'native' | 'image' | 'copy';
+export type M55EntrySourceEnum = 'shared_result';
+
 /** Allowlisted payload keys only. */
 export type M55FunnelPayload = {
   eventVersion: typeof M55_FUNNEL_EVENT_VERSION;
   surface: M55FunnelSurface;
   occurredAt: string;
+  shareVariant?: M55ShareVariantEnum;
+  shareChannel?: M55ShareChannelEnum;
+  entrySource?: M55EntrySourceEnum;
 };
 
-const ALLOWED_KEYS = new Set(['eventVersion', 'surface', 'occurredAt'] as const);
+const ALLOWED_KEYS = new Set([
+  'eventVersion',
+  'surface',
+  'occurredAt',
+  'shareVariant',
+  'shareChannel',
+  'entrySource',
+] as const);
+
+const SHARE_VARIANT_VALUES = new Set(['manual', 'mirror', 'hidden_spec', 'pair']);
+const SHARE_CHANNEL_VALUES = new Set(['x', 'native', 'image', 'copy']);
+const ENTRY_SOURCE_VALUES = new Set(['shared_result']);
 
 const FORBIDDEN_KEY_PATTERN =
   /dob|birth|hash|nickname|email|clerk|userId|user_id|answer|theme|trait|selector|fingerprint|report|chapter|question|axis|topic|status|temperature|action|mapping|resultText/i;
@@ -144,12 +163,33 @@ export function assertPrivacySafeFunnelPayload(payload: Record<string, unknown>)
   if (typeof payload.occurredAt !== 'string' || !payload.occurredAt) {
     throw new Error('occurredAt required');
   }
+  if (payload.shareVariant !== undefined && !SHARE_VARIANT_VALUES.has(String(payload.shareVariant))) {
+    throw new Error('invalid shareVariant');
+  }
+  if (payload.shareChannel !== undefined && !SHARE_CHANNEL_VALUES.has(String(payload.shareChannel))) {
+    throw new Error('invalid shareChannel');
+  }
+  if (payload.entrySource !== undefined && !ENTRY_SOURCE_VALUES.has(String(payload.entrySource))) {
+    throw new Error('invalid entrySource');
+  }
 }
 
-function emit(event: M55FunnelEventName, surface: M55FunnelSurface): void {
+export type M55FunnelPayloadExtras = Pick<
+  M55FunnelPayload,
+  'shareVariant' | 'shareChannel' | 'entrySource'
+>;
+
+function emit(
+  event: M55FunnelEventName,
+  surface: M55FunnelSurface,
+  extras?: M55FunnelPayloadExtras,
+): void {
   if (typeof window === 'undefined') return;
   try {
-    const payload = buildPrivacySafeFunnelPayload(surface);
+    const payload: M55FunnelPayload = {
+      ...buildPrivacySafeFunnelPayload(surface),
+      ...extras,
+    };
     assertPrivacySafeFunnelPayload(payload);
     track(event, payload);
   } catch {
@@ -162,14 +202,19 @@ export function trackFunnelImpressionOnce(
   event: M55FunnelEventName,
   surface: M55FunnelSurface,
   mountKey: string,
+  extras?: M55FunnelPayloadExtras,
 ): void {
   if (firedImpressions.has(mountKey)) return;
   firedImpressions.add(mountKey);
-  emit(event, surface);
+  emit(event, surface, extras);
 }
 
-export function trackFunnelAction(event: M55FunnelEventName, surface: M55FunnelSurface): void {
-  emit(event, surface);
+export function trackFunnelAction(
+  event: M55FunnelEventName,
+  surface: M55FunnelSurface,
+  extras?: M55FunnelPayloadExtras,
+): void {
+  emit(event, surface, extras);
 }
 
 /** One action per logical key — prevents rapid-click / remount duplicates. */
@@ -177,10 +222,11 @@ export function trackFunnelActionOnce(
   event: M55FunnelEventName,
   surface: M55FunnelSurface,
   actionKey: string,
+  extras?: M55FunnelPayloadExtras,
 ): void {
   if (firedActions.has(actionKey)) return;
   firedActions.add(actionKey);
-  emit(event, surface);
+  emit(event, surface, extras);
 }
 
 /** Test-only reset for impression/action dedupe. */

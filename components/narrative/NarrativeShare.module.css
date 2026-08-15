@@ -17,13 +17,14 @@
 
 .option {
   text-align: left;
-  padding: 0.85rem 1rem;
-  border-radius: 1rem;
+  padding: 0.95rem 1.05rem;
+  border-radius: 1.05rem;
   border: 1px solid rgba(107, 95, 168, 0.2);
   background: rgba(255, 250, 241, 0.88);
   color: rgba(28, 24, 48, 0.94);
   font: inherit;
   cursor: pointer;
+  min-height: 4.5rem;
 }
 
 .optionLabel {
@@ -67,12 +68,240 @@
 .card {
   display: grid;
   gap: 0.7rem;
-  padding: 1.1rem 1.15rem 1.2rem;
+  padding: 1.15rem 1.2rem 1.25rem;
   border-radius: 1.15rem;
-  border: 1px solid rgba(107, 95, 168, 0.2);
+  border: 1px solid rgba(107, 95, 168, 0.22);
   background:
     radial-gradient(120% 90% at 100% 0%, rgba(107, 95, 168, 0.18), transparent 50%),
     linear-gradient(160deg, rgba(255, 250, 241, 0.96), rgba(238, 232, 246, 0.92));
+}
+
+.card[data-card-variant='manual'] {
+  gap: 0.55rem;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 250, 0.94));
+}
+
+.card[data-card-variant='seen_vs_actual'] {
+  background:
+    linear-gradient(180deg, rgba(247, 242, 255, 0.96) 0%, rgba(255, 250, 241, 0.96) 100%);
+}
+
+.card[data-card-variant='hidden_spec'],
+.card[data-card-variant='premium_takeaway'] {
+  gap: 0.85rem;
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(107, 95, 168, 0.28), transparent 55%),
+    linear-gradient(165deg, rgba(28, 24, 48, 0.96), rgba(78, 68, 128, 0.92));
+  color: #fffaf1;
+  border-color: rgba(255, 250, 241, 0.18);
+}
+
+.card[data-card-variant='hidden_spec'] .brand,
+.card[data-card-variant='premium_takeaway'] .brand,
+.card[data-card-variant='hidden_spec'] .headline,
+.card[data-card-variant='premium_takeaway'] .headline,
+.card[data-card-variant='hidden_spec'] .cta,
+.card[data-card-variant='premium_takeaway'] .cta,
+.card[data-card-variant='hidden_spec'] .cue,
+.card[data-card-variant='premium_takeaway'] .cue,
+.card[data-card-variant='hidden_spec'] .mark,
+.card[data-card-variant='premium_takeaway'] .mark {
+  color: rgba(255, 250, 241, 0.92);
+}
+
+.card[data-card-variant='pair_manual'] {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 241, 0.98), rgba(236, 230, 246, 0.95));
+}
+
+.specSheet {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.specRow {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.12);
+}
+
+.specRow:last-child {
+  border-bottom: 0;
+}
+
+.specLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.specValue {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: rgba(28, 24, 48, 0.94);
+}
+
+.mirror {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.mirrorPane {
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+}
+
+.mirrorPane[data-side='seen'] {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(107, 95, 168, 0.16);
+}
+
+.mirrorPane[data-side='actual'] {
+  background: rgba(78, 68, 128, 0.1);
+  border: 1px solid rgba(78, 68, 128, 0.28);
+}
+
+.mirrorLabel {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.mirrorBody {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.mirrorVs {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: rgba(78, 68, 128, 0.7);
+}
+
+.poster {
+  padding: 0.35rem 0 0.15rem;
+}
+
+.posterHero {
+  margin: 0;
+  font-size: clamp(1.28rem, 5.2vw, 1.72rem);
+  font-weight: 750;
+  line-height: 1.42;
+  letter-spacing: 0.01em;
+}
+
+.posterSupport {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  opacity: 0.86;
+}
+
+.relation {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.relationSide,
+.relationReturn {
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.relationReturn {
+  border-color: rgba(78, 68, 128, 0.32);
+  background: rgba(78, 68, 128, 0.08);
+}
+
+.relationLabel {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(55, 48, 82, 0.62);
+  margin-bottom: 0.25rem;
+}
+
+.relationBody {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.cue {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(55, 48, 82, 0.62);
+}
+
+.option[data-variant='manual'] {
+  border-left: 4px solid rgba(78, 68, 128, 0.55);
+  background: linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(244, 238, 250, 0.9));
+}
+
+.option[data-variant='seen_vs_actual'] {
+  border-left: 4px solid rgba(140, 118, 176, 0.7);
+  background: linear-gradient(180deg, rgba(247, 242, 255, 0.96), rgba(255, 250, 241, 0.94));
+}
+
+.option[data-variant='hidden_spec'] {
+  border-left: 4px solid rgba(28, 24, 48, 0.82);
+  background: linear-gradient(165deg, rgba(28, 24, 48, 0.94), rgba(78, 68, 128, 0.9));
+  color: #fffaf1;
+}
+
+.option[data-variant='hidden_spec'] .optionLabel,
+.option[data-variant='hidden_spec'] .optionHint {
+  color: rgba(255, 250, 241, 0.72);
+}
+
+.option[data-selected='true'][data-variant='hidden_spec'] {
+  border-color: rgba(255, 250, 241, 0.55);
+  background: linear-gradient(165deg, rgba(28, 24, 48, 0.98), rgba(78, 68, 128, 0.94));
+}
+
+.manual {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.slotList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid rgba(107, 95, 168, 0.16);
+  border-radius: 0.95rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.slot {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(107, 95, 168, 0.12);
+  background: transparent;
+}
+
+.slot:last-child {
+  border-bottom: 0;
 }
 
 .brand {
@@ -149,28 +378,6 @@
   margin: 0;
   font-size: 0.88rem;
   color: rgba(45, 40, 70, 0.78);
-}
-
-.manual {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.slotList {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.slot {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.7rem 0.8rem;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(107, 95, 168, 0.14);
-  background: rgba(255, 255, 255, 0.55);
 }
 
 .slotLabel {

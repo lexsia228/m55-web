@@ -32,10 +32,16 @@ function SharedEntryCta({
       className={styles.cta}
       data-testid="m55-shared-entry-cta"
       onClick={() => {
+        try {
+          sessionStorage.setItem('m55_entry_source_v1', 'shared_result');
+        } catch {
+          /* ignore */
+        }
         trackFunnelActionOnce(
           M55_FUNNEL_EVENTS.sharedEntryCtaClicked,
           'shared_entry',
           actionKey,
+          { entrySource: 'shared_result' },
         );
       }}
     >
@@ -47,7 +53,6 @@ function SharedEntryCta({
 const NARRATIVE_LANDING = {
   overlineJa: 'この人には、こんな読みが出ました。',
   ctaJa: '無料で自分の取扱説明書を見る',
-  askJa: 'あなたの場合は？',
   privacyNoteJa: '共有リンクには、相手の生年月日や回答は含まれていません。',
 } as const;
 
@@ -63,6 +68,7 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
         : card
           ? `shared-entry-${card.token}`
           : 'shared-entry-fallback',
+      { entrySource: 'shared_result' },
     );
   }, [card, narrative]);
 
@@ -79,7 +85,6 @@ export default function SharedEntryPanel({ card, narrative = null }: Props) {
           spec={narrative}
           premiumMark={narrative.surface === 'personal_premium'}
         />
-        <p className={styles.body}>{NARRATIVE_LANDING.askJa}</p>
         <p className={styles.privacy}>{NARRATIVE_LANDING.privacyNoteJa}</p>
         <SharedEntryCta
           copyLabel={NARRATIVE_LANDING.ctaJa}

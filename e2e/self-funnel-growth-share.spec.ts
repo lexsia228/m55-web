@@ -63,6 +63,32 @@ async function seedResultReady(context: BrowserContext) {
   );
 }
 
+async function hideLocalClerkChrome(page: Page) {
+  await page.addStyleTag({
+    content:
+      '[class*="cl-internal"], [data-clerk-keyless], iframe[src*="clerk"] { display: none !important; visibility: hidden !important; }',
+  });
+  await page.evaluate(() => {
+    for (const node of Array.from(document.querySelectorAll('div,section,aside'))) {
+      const text = node.textContent ?? '';
+      if (text.includes('Configure your application') && node instanceof HTMLElement) {
+        node.style.setProperty('display', 'none', 'important');
+      }
+    }
+  });
+}
+
+async function saveOgPng(page: Page, sharePath: string, filePath: string) {
+  const fs = await import('node:fs');
+  try {
+    const res = await page.request.get(`${sharePath}/opengraph-image`, { timeout: 20_000 });
+    if (!res.ok()) return;
+    fs.writeFileSync(filePath, Buffer.from(await res.body()));
+  } catch {
+    /* local OG compile can exhaust the Playwright webServer; in-page cards remain authority */
+  }
+}
+
 async function openResult(page: Page) {
   await page.goto('/core');
   await expect(page.getByTestId('m55-core-essence')).toHaveAttribute('data-m55-ux-phase', 'RESULT', {
@@ -388,30 +414,74 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await openResult(page);
-    await page.getByTestId('m55-share-card-manual').scrollIntoViewIfNeeded();
-    await page.getByTestId('m55-share-card-manual').click();
-    await expect(page.getByTestId('m55-narrative-share-card')).toBeVisible();
-    await page.getByTestId('m55-free-result-share').screenshot({
-      path: path.join(out, 'personal-free-390.png'),
+    await hideLocalClerkChrome(page);
+
+    await page.getByTestId('m55-free-result-lead').scrollIntoViewIfNeeded();
+    await page.getByTestId('m55-free-result-lead').screenshot({
+      path: path.join(out, 'personal-free-lead-390.png'),
       animations: 'disabled',
     });
+    await page.getByTestId('m55-personal-manual').scrollIntoViewIfNeeded();
+    await page.getByTestId('m55-personal-manual').screenshot({
+      path: path.join(out, 'personal-free-manual-390.png'),
+      animations: 'disabled',
+    });
+
+    await page.getByTestId('m55-share-card-manual').scrollIntoViewIfNeeded();
+    await page.getByTestId('m55-free-result-share').screenshot({
+      path: path.join(out, 'personal-chooser-390.png'),
+      animations: 'disabled',
+    });
+
+    const variants = [
+      { testId: 'm55-share-card-manual', file: 'personal-card-a-390.png', og: 'og-a.png' },
+      { testId: 'm55-share-card-seen_vs_actual', file: 'personal-card-b-390.png', og: 'og-b.png' },
+      { testId: 'm55-share-card-hidden_spec', file: 'personal-card-c-390.png', og: 'og-c.png' },
+    ] as const;
+    let hiddenSharePath = '';
+    const captured: { file: string; og: string; sharePath: string }[] = [];
+    for (const item of variants) {
+      const option = page.getByTestId(item.testId);
+      if ((await option.count()) === 0) continue;
+      await option.click();
+      await expect(page.getByTestId('m55-narrative-share-card')).toBeVisible();
+      await page.getByTestId('m55-narrative-share-card').screenshot({
+        path: path.join(out, item.file),
+        animations: 'disabled',
+      });
+      const sharePath = (await page.getByTestId('m55-share-preview-url').getAttribute('data-share-path')) ?? '';
+      if (item.testId === 'm55-share-card-hidden_spec') hiddenSharePath = sharePath;
+      if (sharePath) captured.push({ file: item.file, og: item.og, sharePath });
+    }
+
+    await page.getByTestId('m55-narrative-share-actions').scrollIntoViewIfNeeded();
+    await page.getByTestId('m55-narrative-share-actions').screenshot({
+      path: path.join(out, 'personal-share-actions-390.png'),
+      animations: 'disabled',
+    });
+    await expect(page.getByTestId('m55-premium-sticky-link')).toHaveCount(0);
+
     await page.setViewportSize({ width: 430, height: 932 });
+    await hideLocalClerkChrome(page);
     await page.getByTestId('m55-free-result-share').screenshot({
       path: path.join(out, 'personal-free-430.png'),
       animations: 'disabled',
     });
-    const sharePath = (await page.getByTestId('m55-share-preview-url').getAttribute('data-share-path')) ?? '';
     await context.close();
 
     const recipient = await cleanContext(browser);
     const rPage = await recipient.newPage();
     await rPage.setViewportSize({ width: 390, height: 844 });
-    await rPage.goto(sharePath);
+    await rPage.goto(hiddenSharePath || '/r/n1');
     await expect(rPage.getByTestId('m55-shared-entry')).toBeVisible();
+    await hideLocalClerkChrome(rPage);
     await rPage.getByTestId('m55-shared-entry').screenshot({
       path: path.join(out, 'viewer-landing-390.png'),
       animations: 'disabled',
     });
+    for (const item of captured) {
+      await saveOgPng(rPage, item.sharePath, path.join(out, item.og));
+    }
     await recipient.close();
   });
 
@@ -441,6 +511,7 @@ test.describe('Self funnel growth share E2E', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/synastry');
     await expect(page.getByTestId('m55-pair-manual')).toBeVisible({ timeout: 25_000 });
+    await hideLocalClerkChrome(page);
     await expect(page.getByTestId('m55-pair-share')).toBeVisible();
     await page.getByTestId('m55-pair-manual').scrollIntoViewIfNeeded();
     await page.getByTestId('m55-pair-manual').screenshot({

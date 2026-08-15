@@ -10,7 +10,9 @@ import {
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import type { PublicShareSpecV1 } from '../../lib/m55/narrative/publicShareSpecV1';
 import { buildXShareIntentUrl } from '../../lib/m55/narrative/xShareIntentV1';
+import { shareVariantEnum } from '../../lib/m55/narrative/publicCardDisplayV1';
 import { sanitizeVisibleShareFallbackText } from '../core/useCoreShareActions';
+import { TOP_FREE_ENTRY_PUBLIC_COPY } from '../../lib/m55/topFreeEntryPublicCopy';
 import styles from './NarrativeShare.module.css';
 
 type Status = 'idle' | 'copied' | 'cancelled' | 'error';
@@ -28,7 +30,10 @@ export default function NarrativeShareActions({
   const [nativeAvailable, setNativeAvailable] = useState(false);
   const [previewAck, setPreviewAck] = useState(!requirePreviewAck);
   const [fallbackText, setFallbackText] = useState<string | null>(null);
+  const [shareComplete, setShareComplete] = useState(false);
   const busyRef = useRef(false);
+  const variantEnum = shareVariantEnum(spec.variant);
+  const premiumHref = `${TOP_FREE_ENTRY_PUBLIC_COPY.cta.viewSavedPlansHref}#m55-paid-questionnaire`;
 
   useEffect(() => {
     setNativeAvailable(
@@ -60,8 +65,10 @@ export default function NarrativeShareActions({
         M55_FUNNEL_EVENTS.nativeShareInvoked,
         surface,
         `narrative-native-${spec.token}`,
+        { shareVariant: variantEnum, shareChannel: 'native' },
       );
       await navigator.share(next);
+      setShareComplete(true);
       setStatus('idle');
     } catch (err) {
       const name = err instanceof DOMException ? err.name : '';
@@ -87,8 +94,10 @@ export default function NarrativeShareActions({
           M55_FUNNEL_EVENTS.shareLinkCopied,
           surface,
           `narrative-copy-${spec.token}`,
+          { shareVariant: variantEnum, shareChannel: 'copy' },
         );
         setStatus('copied');
+        setShareComplete(true);
         return;
       }
       setStatus('error');
@@ -109,10 +118,59 @@ export default function NarrativeShareActions({
         M55_FUNNEL_EVENTS.shareXClicked,
         surface,
         `narrative-x-${spec.token}`,
+        { shareVariant: variantEnum, shareChannel: 'x' },
       );
       window.open(href, '_blank', 'noopener,noreferrer');
     } catch {
       setStatus('error');
+    }
+  }
+
+  async function handleSaveImage() {
+    if (!previewAck || busyRef.current) return;
+    busyRef.current = true;
+    setStatus('idle');
+    try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const imageUrl = `${origin}${spec.imageSpec.path}`;
+      const res = await fetch(imageUrl);
+      if (!res.ok) throw new Error('image fetch failed');
+      const blob = await res.blob();
+      const file = new File([blob], 'm55-share.png', { type: blob.type || 'image/png' });
+      const extras = { shareVariant: variantEnum, shareChannel: 'image' as const };
+      const canShareFile =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.share === 'function' &&
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] });
+      if (canShareFile) {
+        trackFunnelActionOnce(
+          M55_FUNNEL_EVENTS.shareImageSaved,
+          surface,
+          `narrative-image-${spec.token}`,
+          extras,
+        );
+        await navigator.share({ files: [file], title: 'M55', text: spec.shareTextJa });
+        setShareComplete(true);
+        return;
+      }
+      const href = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = href;
+      anchor.download = 'm55-share.png';
+      anchor.click();
+      URL.revokeObjectURL(href);
+      trackFunnelActionOnce(
+        M55_FUNNEL_EVENTS.shareImageSaved,
+        surface,
+        `narrative-image-${spec.token}`,
+        extras,
+      );
+      setShareComplete(true);
+    } catch {
+      setStatus('error');
+    } finally {
+      busyRef.current = false;
     }
   }
 
@@ -158,6 +216,15 @@ export default function NarrativeShareActions({
         >
           リンクをコピー
         </button>
+        <button
+          type="button"
+          className={styles.secondary}
+          onClick={() => void handleSaveImage()}
+          disabled={!previewAck}
+          data-testid="m55-share-image"
+        >
+          画像を保存
+        </button>
       </div>
       {status === 'copied' ? (
         <p className={styles.status} role="status" data-testid="m55-share-status">
@@ -172,6 +239,11 @@ export default function NarrativeShareActions({
       {status === 'error' ? (
         <p className={styles.status} role="status">
           共有できませんでした。テキストをコピーしてください。
+        </p>
+      ) : null}
+      {shareComplete && surface === 'core_share' ? (
+        <p className={styles.status} data-testid="m55-share-premium-continue">
+          <a href={premiumHref}>なぜこうなるかまで読む</a>
         </p>
       ) : null}
       {fallbackText ? (

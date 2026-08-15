@@ -135,6 +135,10 @@ describe('pair privacy and A/B semantics', () => {
       assert.match(publicSpec.body, /すれ違いの入口/);
       assert.match(publicSpec.body, /戻りやすい方法/);
       assert.doesNotMatch(publicSpec.body, /逆方向になりやすい/);
+      const sideIds = narrative.manualSpec.slots.map((slot) => slot.id);
+      assert.ok(sideIds.includes('one_tends'));
+      assert.ok(sideIds.includes('mismatch_entry'));
+      assert.ok(sideIds.includes('return_path'));
     }
   });
 });

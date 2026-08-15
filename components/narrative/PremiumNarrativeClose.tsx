@@ -68,15 +68,11 @@ export default function PremiumNarrativeClose({
       aria-labelledby="premium-narrative-close-title"
       data-testid="m55-premium-narrative-close"
     >
+      <span className={styles.optionLabel}>プレミアムレポート</span>
       <h2 id="premium-narrative-close-title" className={styles.headline}>
-        今のあなたへ残しておく一文
+        読みのまとめ
       </h2>
-      <p className={styles.body} data-testid="m55-premium-takeaway">
-        {narrative.takeaway?.text}
-      </p>
-      <p className={styles.mark} data-premium-share-persistence={PREMIUM_SHARE_IDENTITY_PERSISTENCE}>
-        公開カードには生年月日や回答は含まれません。
-      </p>
+      <PersonalFreeManualBlock manual={narrative.manualSpec} titleId="premium-complete-manual" />
       {narrative.actions.length > 0 ? (
         <ul className={styles.slotList}>
           {narrative.actions.map((action) => (
@@ -87,7 +83,13 @@ export default function PremiumNarrativeClose({
           ))}
         </ul>
       ) : null}
-      <PersonalFreeManualBlock manual={narrative.manualSpec} titleId="premium-complete-manual" />
+      <h3 className={styles.headline}>今のあなたへ残しておく一文</h3>
+      <p className={styles.body} data-testid="m55-premium-takeaway">
+        {narrative.takeaway?.text}
+      </p>
+      <p className={styles.mark} data-premium-share-persistence={PREMIUM_SHARE_IDENTITY_PERSISTENCE}>
+        公開カードには生年月日や回答は含まれません。
+      </p>
       <p className={styles.chooserLead}>本文は共有されません。残す一文だけを渡せます。</p>
       <PublicShareCardPreview spec={spec} premiumMark />
       <NarrativeShareActions spec={spec} surface="dtr_saved_report" />

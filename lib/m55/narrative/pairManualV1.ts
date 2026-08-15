@@ -6,6 +6,9 @@
 import type { PairFreeInsightSpecV2 } from '../compatibility/pairFreeInsightSpecV2';
 import type { ManualSlotV1, ManualSpecV1 } from './m55NarrativeSpecV1';
 import { firstSentenceJa, publicPairVoiceJa } from './narrativeSafetyV1';
+import { humanizePrivatePresentationJa } from './humanizePrivatePresentationV1';
+import { pairStartsFromInsight } from './projectPublicShareV1';
+import { pairRelationSidesJa } from './reconstructPublicCardV1';
 
 function slot(
   id: ManualSlotV1['id'],
@@ -13,7 +16,7 @@ function slot(
   bodyJa: string,
   provenanceIds: readonly string[],
 ): ManualSlotV1 {
-  return { id, labelJa, bodyJa, provenanceIds };
+  return { id, labelJa, bodyJa: humanizePrivatePresentationJa(bodyJa), provenanceIds };
 }
 
 export function buildPairManualV1(input: {
@@ -22,15 +25,21 @@ export function buildPairManualV1(input: {
 }): ManualSpecV1 {
   const spec = input.spec;
   const ids = [spec.interactionId, spec.id];
+  const starts = pairStartsFromInsight(spec);
+  const sides = pairRelationSidesJa(starts.visibleStart, starts.inwardStart);
   const slots: ManualSlotV1[] = [
-    slot('mismatch_entry', 'すれ違いの入口', firstSentenceJa(spec.mismatchEntry), ids),
-    slot('one_tends', '一方がしやすいこと', firstSentenceJa(spec.meshMoment), ids),
+    slot('one_tends', '一方', sides?.oneJa ?? firstSentenceJa(spec.meshMoment), ids),
+    ...(sides
+      ? [slot('other_tends', 'もう一方', sides.otherJa, ids)]
+      : input.completeness === 'complete'
+        ? [slot('other_tends', 'もう一方', firstSentenceJa(spec.betweenThem), ids)]
+        : []),
+    slot('mismatch_entry', 'すれ違い', firstSentenceJa(spec.mismatchEntry), ids),
     slot('pair_misread', '誤読されやすいところ', firstSentenceJa(spec.misreadLoop), ids),
-    slot('return_path', '戻りやすい方法', firstSentenceJa(spec.reset), ids),
+    slot('return_path', '戻り', firstSentenceJa(spec.reset), ids),
   ];
   if (input.completeness === 'complete') {
     slots.push(
-      slot('other_tends', 'もう一方がしやすいこと', firstSentenceJa(spec.betweenThem), ids),
       slot(
         'pair_talk_hint',
         '話すときのヒント',

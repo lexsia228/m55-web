@@ -160,6 +160,18 @@ const PAIR_SIDE: Readonly<Record<StartTendency, string>> = {
   ask: '確認してから、次に進みたい',
 };
 
+/** Existing public-safe start lines. Presentation only — no new Pair cardinality. */
+export function pairRelationSidesJa(
+  visibleStart?: StartTendency,
+  inwardStart?: StartTendency,
+): { oneJa: string; otherJa: string } | null {
+  if (!visibleStart || !inwardStart || visibleStart === inwardStart) return null;
+  return {
+    oneJa: PAIR_SIDE[visibleStart],
+    otherJa: PAIR_SIDE[inwardStart],
+  };
+}
+
 const PAIR_RETURN: Readonly<Record<PairFreeInteractionId, string>> = {
   tempo_mismatch: '「今は決めない。でも今の気持ちはこれ」と分ける。',
   space_misread: '次に話す一点だけ先に置く。返事は急がない。',

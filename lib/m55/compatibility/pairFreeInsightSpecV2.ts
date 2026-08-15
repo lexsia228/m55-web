@@ -175,7 +175,7 @@ function loopFromConflict(
       loop: `確認を重ねるほど、${inward}は考える余白を取りたくなり、その静けさを${visible}が距離を置かれたと受け取りやすい。どちらも関係を切るつもりがなくても、確かめ方が逆方向になりやすい。`,
       reset:
         returning === 'someone_reaches'
-          ? '結論ではなく、次の短い接点だけを一文で置く。返事は急がない。'
+          ? '結論ではなく、次に話す一点だけ先に置く。返事は急がない。'
           : returning === 'time_restores'
             ? '自然に戻ったあと、扱わずに残った一点だけを短く確認する。'
             : '関係の答えを求めず、応じるかを選べる短い接点を一度だけ置く。',
@@ -187,7 +187,7 @@ function loopFromConflict(
       reset:
         distance === 'explain_space'
           ? '離れる前に、返事ではなく次に話す時点だけを伝える。'
-          : '離れる前に、答えではなく次の短い接点だけを伝える。',
+          : '離れる前に、答えではなく次に話す一点だけを伝える。',
     };
   }
   if (disagreement === 'one_carries') {

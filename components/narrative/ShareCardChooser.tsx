@@ -73,7 +73,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
         どの自分を見せる？
       </h2>
       <p className={styles.chooserLead}>
-        生年月日や回答そのものは含まれません。見せたい読みだけを選べます。
+        見せたい自分を一枚だけ選んでください。生年月日や回答そのものは含まれません。
       </p>
       <div className={styles.optionGrid} role="list">
         {VARIANTS.map((variant) => {
@@ -88,12 +88,14 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
               data-selected={selected === variant ? 'true' : 'false'}
               data-recommended={isRecommended ? 'true' : 'false'}
               data-testid={`m55-share-card-${variant}`}
+              data-variant={variant}
               onClick={() => {
                 setSelected(variant);
                 trackFunnelActionOnce(
                   M55_FUNNEL_EVENTS.shareCardSelected,
                   'core_share',
                   `narrative-select-${variant}`,
+                  { shareVariant: variant === 'seen_vs_actual' ? 'mirror' : variant === 'hidden_spec' ? 'hidden_spec' : 'manual' },
                 );
               }}
             >
