@@ -11,6 +11,7 @@ import {
   trackFunnelImpressionOnce,
 } from '../../lib/m55/privacySafeFunnelAnalytics';
 import PairResultSignature from './PairResultSignature';
+import CompatibilityPaidShareBlock from '../narrative/CompatibilityPaidShareBlock';
 import styles from './PaidCompatibilityReportReader.module.css';
 
 type CopyState = {
@@ -353,6 +354,7 @@ export default function PaidCompatibilityReportReader({
         <h2>このレポートについて</h2>
         <p>{snapshot.safetyNote}</p>
       </footer>
+      <CompatibilityPaidShareBlock snapshot={snapshot} />
     </article>
   );
 }

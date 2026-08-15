@@ -73,6 +73,7 @@ import {
 } from '../../lib/m55/paidDtrProductCopy';
 import ConsultRoom from './ConsultRoom';
 import SavedSnapshotNotice from './SavedSnapshotNotice';
+import PremiumNarrativeClose from '../narrative/PremiumNarrativeClose';
 import type { ConsultRoomPreviewRoomData } from '../../lib/m55/fixtures/consultRoomPreviewFixture';
 import { PREMIUM_DEV_FIXTURE_READY_PROP } from '../../lib/m55/commercialUx/premiumExperience/premiumExperienceMountContract';
 import type { ConsultWalletDisplaySnapshot } from '../../lib/m55/reply/consultWalletDisplaySnapshot';
@@ -3501,6 +3502,11 @@ function DtrFullReaderCore({
           renderPanelBody={renderDrawerPanelBody}
         />
         <SavedSnapshotNotice />
+        <PremiumNarrativeClose
+          payload={payload}
+          nickname={view.nickname}
+          stemLaneIndex={stemIdx}
+        />
         <ReportFooterMetaCard
           aiConsultIncluded={aiConsultIncluded}
           expiresAt={expiresAt}

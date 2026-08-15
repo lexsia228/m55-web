@@ -79,10 +79,14 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await openResult(page);
 
-    await expect(page.getByTestId('m55-shareable-result-card')).toHaveCount(1);
     await expect(page.getByTestId('m55-free-result-share')).toBeVisible();
-    await expect(page.getByTestId('m55-share-preview-text')).toContainText('私の今の資質は');
-    await expect(page.getByTestId('m55-share-preview-url')).toHaveText(/\/r\/s1-\d/);
+    await page.getByTestId('m55-share-card-manual').click();
+    await expect(page.getByTestId('m55-narrative-share-card')).toHaveCount(1);
+    await expect(page.getByTestId('m55-share-preview-text')).toContainText('私の取扱説明書');
+    await expect(page.getByTestId('m55-share-preview-url')).toHaveAttribute(
+      'data-share-path',
+      /^\/r\/n1p/,
+    );
     await context.close();
   });
 
@@ -98,8 +102,9 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await openResult(page);
 
-    const sharePath = (await page.getByTestId('m55-share-preview-url').innerText()).trim();
-    expect(sharePath).toMatch(/^\/r\/s1-[0-9]$/);
+    await page.getByTestId('m55-share-card-manual').click();
+    const sharePath = (await page.getByTestId('m55-share-preview-url').getAttribute('data-share-path')) ?? '';
+    expect(sharePath).toMatch(/^\/r\/n1p/);
     await page.getByTestId('m55-share-copy').click();
     await expect(page.getByTestId('m55-share-status')).toContainText('コピーしました');
     await context.close();
@@ -108,9 +113,9 @@ test.describe('Self funnel growth share E2E', () => {
     const rPage = await recipient.newPage();
     await rPage.goto(sharePath);
     await expect(rPage.getByTestId('m55-shared-entry')).toBeVisible();
-    await expect(rPage.getByTestId('m55-shared-entry-trait')).toBeVisible();
     const body = await rPage.locator('main').innerText();
     expect(body).not.toMatch(/1983-02-28|試験|free\.start_style|fingerprint|clerk/i);
+    expect(body).toMatch(/この人には、こんな読みが出ました|あなたの場合は？/);
     const cta = rPage.getByTestId('m55-shared-entry-cta');
     await expect(cta).toHaveAttribute('href', '/core');
     await Promise.all([rPage.waitForURL(/\/core/), cta.click()]);
@@ -130,6 +135,7 @@ test.describe('Self funnel growth share E2E', () => {
     });
     const page = await context.newPage();
     await openResult(page);
+    await page.getByTestId('m55-share-card-manual').click();
     await expect(page.getByTestId('m55-share-native')).toHaveCount(0);
     await expect(page.getByTestId('m55-share-copy')).toBeVisible();
     await context.close();
@@ -160,13 +166,13 @@ test.describe('Self funnel growth share E2E', () => {
     await openResult(page);
     const shareSection = page.getByTestId('m55-free-result-share');
     const text = await shareSection.innerText();
-    // Privacy note may mention 生年月日 as excluded; DOB value / answers must never appear.
     expect(text).toMatch(/生年月日や回答は含まれません/);
     expect(text).not.toMatch(/1983-02-28|ニックネーム：|free\.start_style|m55_profile|\bClerk\b/i);
-    const card = page.getByTestId('m55-shareable-result-card').first();
+    await page.getByTestId('m55-share-card-manual').click();
+    const card = page.getByTestId('m55-narrative-share-card').first();
     const cardText = await card.innerText();
     expect(cardText).toMatch(/M55/);
-    expect(cardText).toMatch(/無料結果を見る/);
+    expect(cardText).toMatch(/取扱説明書/);
     expect(cardText).not.toMatch(/1983-02-28|free\.start_style|試験/);
     await context.close();
   });
@@ -204,7 +210,7 @@ test.describe('Self funnel growth share E2E', () => {
     const page = await context.newPage();
     await page.setViewportSize({ width: 320, height: 720 });
     await openResult(page);
-    await expect(page.getByTestId('m55-shareable-result-card').first()).toBeVisible();
+    await expect(page.getByTestId('m55-share-card-manual')).toBeVisible();
     const overflowX = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
     });
@@ -228,18 +234,11 @@ test.describe('Self funnel growth share E2E', () => {
     await seedResultReady(context);
     const page = await context.newPage();
     await openResult(page);
-    const card = page.getByTestId('m55-shareable-result-card').first();
-    const phrase = (await card.locator('.shareCardPhrase, [class*="shareCardPhrase"]').count())
-      ? await card.locator('[class*="shareCardPhrase"]').first().innerText()
-      : '';
-    const statement = (await card.locator('[class*="shareCardStatement"]').count())
-      ? await card.locator('[class*="shareCardStatement"]').first().innerText()
-      : '';
+    await page.getByTestId('m55-share-card-manual').click();
+    const card = page.getByTestId('m55-narrative-share-card').first();
     const text = await card.innerText();
     expect(text).toMatch(/M55/);
-    if (phrase && statement) {
-      expect(phrase.trim()).not.toEqual(statement.trim());
-    }
+    expect(text).toMatch(/取扱説明書/);
     await context.close();
   });
 
