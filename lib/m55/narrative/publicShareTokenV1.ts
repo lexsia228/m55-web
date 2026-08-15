@@ -150,6 +150,8 @@ export type PairPublicShareKeyV1 = {
   readonly surface: 'compatibility_free' | 'compatibility_paid';
   readonly variant: ShareCandidateVariant;
   readonly interactionId: PairFreeInteractionId;
+  readonly visibleStart?: StartTendency;
+  readonly inwardStart?: StartTendency;
 };
 
 export type GenericPublicShareKeyV1 = {
@@ -170,7 +172,11 @@ export function encodePublicShareToken(key: PublicShareKeyV1): string {
     return `${PUBLIC_SHARE_TOKEN_VERSION}g${VARIANT_CODE[key.variant]}${stem}`;
   }
   if (key.kind === 'pair') {
-    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}`;
+    const starts =
+      key.visibleStart && key.inwardStart
+        ? `${START_CODE[key.visibleStart]}${START_CODE[key.inwardStart]}`
+        : '';
+    return `${PUBLIC_SHARE_TOKEN_VERSION}c${VARIANT_CODE[key.variant]}${PAIR_INTERACTION_CODE[key.interactionId]}${starts}`;
   }
   return [
     PUBLIC_SHARE_TOKEN_VERSION,
@@ -201,23 +207,26 @@ export function decodePublicShareToken(raw: string | null | undefined): PublicSh
     };
   }
 
-  const pair = new RegExp(`^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)$`).exec(
-    token,
-  );
+  const pair = new RegExp(
+    `^${PUBLIC_SHARE_TOKEN_VERSION}c([mg])(tm|sm|oc|tq|ld|hr|df)([mta][mta])?$`,
+  ).exec(token);
   if (pair) {
     const variant = VARIANT_FROM[pair[1]!];
     const interactionId = PAIR_INTERACTION_FROM[pair[2]!];
     if (!variant || !interactionId) return null;
+    const starts = pair[3];
     return {
       kind: 'pair',
       surface: 'compatibility_free',
       variant,
       interactionId,
+      visibleStart: starts ? START_FROM[starts[0]!] : undefined,
+      inwardStart: starts ? START_FROM[starts[1]!] : undefined,
     };
   }
 
   const personal = new RegExp(
-    `^${PUBLIC_SHARE_TOKEN_VERSION}([pr])([abc])([0-9])${AXES_RE}${AXES_RE}([sdrtc])$`,
+    `^${PUBLIC_SHARE_TOKEN_VERSION}([pr])([abct])([0-9])${AXES_RE}${AXES_RE}([sdrtc])$`,
   ).exec(token);
   if (!personal) return null;
   const answerAxes = decodeAxes(personal.slice(4, 9).join(''));

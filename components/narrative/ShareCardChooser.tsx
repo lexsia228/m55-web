@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FreeFiveViewInput } from '../../lib/m55/freeResult/buildFreeFiveViewCompositionV1';
 import { buildPersonalFreeNarrativeShareContextV1 } from '../../lib/m55/narrative/projectPersonalFreeNarrativeV1';
-import { projectPersonalPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
+import {
+  projectPersonalPublicShareV1,
+  recommendPublicShareVariant,
+} from '../../lib/m55/narrative/projectPublicShareV1';
 import type { ShareCandidateVariant } from '../../lib/m55/narrative/m55NarrativeSpecV1';
 import {
   M55_FUNNEL_EVENTS,
@@ -15,6 +18,12 @@ import NarrativeShareActions from './NarrativeShareActions';
 import styles from './NarrativeShare.module.css';
 
 const VARIANTS: readonly ShareCandidateVariant[] = ['manual', 'seen_vs_actual', 'hidden_spec'];
+
+const ROLE_HINT: Readonly<Record<(typeof VARIANTS)[number], string>> = {
+  manual: '残して見せる',
+  seen_vs_actual: '反応を見る',
+  hidden_spec: '意外な一点',
+};
 
 export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }) {
   const [selected, setSelected] = useState<ShareCandidateVariant | null>(null);
@@ -33,6 +42,7 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
 
   if (!context.ok) return null;
   const { narrative, answerAxes, birthAxes, hingeAxisId, stemLaneIndex } = context.value;
+  const recommended = recommendPublicShareVariant({ answerAxes, birthAxes });
   const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
   const spec = selected
     ? projectPersonalPublicShareV1({
@@ -59,18 +69,20 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
         どの自分を見せる？
       </h2>
       <p className={styles.chooserLead}>
-        生年月日や回答は含まれません。見せたい読みだけを選べます。
+        生年月日や回答そのものは含まれません。見せたい読みだけを選べます。
       </p>
       <div className={styles.optionGrid} role="list">
         {VARIANTS.map((variant) => {
           const candidate = narrative.shareCandidates.find((item) => item.variant === variant);
           if (!candidate) return null;
+          const isRecommended = variant === recommended;
           return (
             <button
               key={variant}
               type="button"
               className={styles.option}
               data-selected={selected === variant ? 'true' : 'false'}
+              data-recommended={isRecommended ? 'true' : 'false'}
               data-testid={`m55-share-card-${variant}`}
               onClick={() => {
                 setSelected(variant);
@@ -81,8 +93,13 @@ export default function ShareCardChooser({ input }: { input: FreeFiveViewInput }
                 );
               }}
             >
-              <span className={styles.optionLabel}>カード</span>
+              <span className={styles.optionLabel}>{ROLE_HINT[variant]}</span>
               <span className={styles.optionTitle}>{candidate.labelJa}</span>
+              {isRecommended ? (
+                <span className={styles.optionHint} data-testid="m55-share-card-recommended">
+                  {variant === 'hidden_spec' ? 'いちばん意外な結果' : 'おすすめ'}
+                </span>
+              ) : null}
             </button>
           );
         })}

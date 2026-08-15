@@ -17,7 +17,7 @@ import {
   type CivilBirthDimensionsV1,
 } from '../individualization/birthSignatureV1';
 import { resolvePairCanonicalProfileV2 } from './pairCanonicalProfileV2';
-import { derivePairDifferenceType } from './pairReadingFingerprint';
+import { derivePairDifferenceType } from './pairReadingCivilDelta';
 
 export const PAIR_FREE_INSIGHT_SPEC_VERSION = 'pair_free_insight_v2' as const;
 

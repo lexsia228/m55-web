@@ -21,7 +21,8 @@ import {
   reconstructPersonalPublicCard,
 } from './reconstructPublicCardV1';
 import type { PairFreeInsightSpecV2 } from '../compatibility/pairFreeInsightSpecV2';
-import type { ExpressionAxisId, ExpressionAxes } from '../individualization/types';
+import type { ExpressionAxisId, ExpressionAxes, StartTendency } from '../individualization/types';
+import { recommendPublicShareVariant } from './reconstructPublicCardV1';
 
 function sharePathFor(token: string): string {
   return `${SHARE_ENTRY_PATH_PREFIX}/${token}`;
@@ -72,6 +73,7 @@ export function projectPersonalPublicShareV1(input: {
     variant: input.variant,
     answerAxes: input.answerAxes,
     birthAxes: input.birthAxes,
+    hingeAxisId: input.hingeAxisId,
   });
   if (!reconstructed) return null;
   const key: PublicShareKeyV1 = {
@@ -96,16 +98,41 @@ export function projectPersonalPublicShareV1(input: {
   });
 }
 
+const START_FROM_NAME: Readonly<Record<string, StartTendency>> = {
+  try: 'try',
+  map: 'map',
+  ask: 'ask',
+};
+
+export function pairStartsFromInsight(spec: PairFreeInsightSpecV2): {
+  visibleStart?: StartTendency;
+  inwardStart?: StartTendency;
+} {
+  const match = /:(try|map|ask)x(try|map|ask):/.exec(spec.manifestationPatternId);
+  if (!match) return {};
+  return {
+    visibleStart: START_FROM_NAME[match[1]!],
+    inwardStart: START_FROM_NAME[match[2]!],
+  };
+}
+
 export function projectPairPublicShareV1(input: {
   spec: PairFreeInsightSpecV2;
   origin?: string;
 }): PublicShareSpecV1 {
-  const card = reconstructPairPublicCard(input.spec.interactionId);
+  const starts = pairStartsFromInsight(input.spec);
+  const card = reconstructPairPublicCard(
+    input.spec.interactionId,
+    starts.visibleStart,
+    starts.inwardStart,
+  );
   const key: PublicShareKeyV1 = {
     kind: 'pair',
     surface: 'compatibility_free',
     variant: 'pair_manual',
     interactionId: input.spec.interactionId,
+    visibleStart: starts.visibleStart,
+    inwardStart: starts.inwardStart,
   };
   return specFromCard({
     surface: 'compatibility_free',
@@ -145,6 +172,50 @@ export function projectGenericPublicShareV1(input: {
   });
 }
 
+export function projectPremiumPublicShareV1(input: {
+  stemLaneIndex: number;
+  answerAxes?: ExpressionAxes;
+  birthAxes?: ExpressionAxes;
+  hingeAxisId?: ExpressionAxisId;
+  origin?: string;
+}): PublicShareSpecV1 {
+  if (input.answerAxes && input.birthAxes && input.hingeAxisId) {
+    const reconstructed = reconstructPersonalPublicCard({
+      variant: 'premium_takeaway',
+      answerAxes: input.answerAxes,
+      birthAxes: input.birthAxes,
+      hingeAxisId: input.hingeAxisId,
+    });
+    if (reconstructed) {
+      const key: PublicShareKeyV1 = {
+        kind: 'personal',
+        surface: 'personal_premium',
+        variant: 'premium_takeaway',
+        stemLaneIndex: input.stemLaneIndex,
+        answerAxes: input.answerAxes,
+        birthAxes: input.birthAxes,
+        hingeAxisId: input.hingeAxisId,
+      };
+      return specFromCard({
+        surface: 'personal_premium',
+        variant: 'premium_takeaway',
+        headline: reconstructed.headline,
+        body: reconstructed.body,
+        cta: reconstructed.cta,
+        shareTextJa: reconstructed.shareTextJa,
+        token: encodePublicShareToken(key),
+        provenanceIds: ['premium_takeaway', input.hingeAxisId],
+        origin: input.origin,
+      });
+    }
+  }
+  return projectGenericPublicShareV1({
+    variant: 'premium_takeaway',
+    stemLaneIndex: input.stemLaneIndex,
+    origin: input.origin,
+  });
+}
+
 export function resolvePublicShareSpecFromToken(
   token: string | null | undefined,
   origin?: string,
@@ -159,7 +230,11 @@ export function resolvePublicShareSpecFromToken(
     });
   }
   if (key.kind === 'pair') {
-    const card = reconstructPairPublicCard(key.interactionId);
+    const card = reconstructPairPublicCard(
+      key.interactionId,
+      key.visibleStart,
+      key.inwardStart,
+    );
     return specFromCard({
       surface: 'compatibility_free',
       variant: 'pair_manual',
@@ -176,6 +251,7 @@ export function resolvePublicShareSpecFromToken(
     variant: key.variant,
     answerAxes: key.answerAxes,
     birthAxes: key.birthAxes,
+    hingeAxisId: key.hingeAxisId,
   });
   if (!card) return null;
   return specFromCard({
@@ -197,3 +273,5 @@ export function pickShareCandidate(
 ): ShareCandidateV1 | null {
   return narrative.shareCandidates.find((item) => item.variant === variant) ?? null;
 }
+
+export { recommendPublicShareVariant };

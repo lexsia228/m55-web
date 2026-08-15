@@ -86,7 +86,7 @@ function pickShortSlots(
     ranked.push(
       slot(
         'misread',
-        '誤解されやすい点',
+        '誤解されやすいところ',
         firstSentenceJa(fused.body) || firstSentenceJa(fused.fusedStackJa),
         [hingeId, fused.hingeAxisId],
       ),
@@ -105,7 +105,7 @@ function pickShortSlots(
     ranked.push(
       fused.hingeAxisId === 'recovery'
         ? slot('recovery', '回復方法', RECOVERY_SLOT[axes.recovery], [recoveryId, hingeId])
-        : slot('change', '変化への反応', CHANGE_SLOT[axes.change], [changeId, hingeId]),
+        : slot('change', '変化したとき', CHANGE_SLOT[axes.change], [changeId, hingeId]),
     );
   } else if (ranked.length < 5) {
     ranked.push(slot('recovery', '回復方法', RECOVERY_SLOT[axes.recovery], [recoveryId]));
@@ -129,7 +129,7 @@ function completeSlots(
   const short = pickShortSlots(axes, fused);
   const extra: ManualSlotV1[] = [
     slot('recovery', '回復方法', RECOVERY_SLOT[axes.recovery], [`axis.recovery.${axes.recovery}`]),
-    slot('change', '変化への反応', CHANGE_SLOT[axes.change], [`axis.change.${axes.change}`]),
+    slot('change', '変化したとき', CHANGE_SLOT[axes.change], [`axis.change.${axes.change}`]),
     slot('talk_hint', '私と話すときのヒント', TALK_HINT[axes.distance], [
       `axis.distance.${axes.distance}`,
     ]),

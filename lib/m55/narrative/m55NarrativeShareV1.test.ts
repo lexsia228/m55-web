@@ -18,11 +18,16 @@ import {
   projectPersonalPublicShareV1,
   projectPairPublicShareV1,
   projectGenericPublicShareV1,
+  projectPremiumPublicShareV1,
   resolvePublicShareSpecFromToken,
 } from './projectPublicShareV1';
 import { encodePublicShareToken, decodePublicShareToken } from './publicShareTokenV1';
 import { buildXShareIntentUrl, xShareEncodedPreview } from './xShareIntentV1';
-import { narrativeSafetyHits, paidContentWouldLeak } from './narrativeSafetyV1';
+import { narrativeSafetyHits, paidContentWouldLeak, PUBLIC_DOB_PROVENANCE_CUE_JA } from './narrativeSafetyV1';
+import {
+  publicSemanticKey,
+  recommendPublicShareVariant,
+} from './reconstructPublicCardV1';
 import {
   assertSharePayloadPrivacySafe,
   sharePayloadContainsSensitive,
@@ -103,12 +108,16 @@ describe('public share sanitization', () => {
       url: spec.canonicalUrl,
     });
     assert.equal(sharePayloadContainsSensitive(spec.shareTextJa), false);
+    assert.match(spec.body, /始め方：/);
+    assert.ok(spec.body.split('\n').filter((line) => line.includes('：')).length >= 4);
+    assert.match(spec.body, new RegExp(PUBLIC_DOB_PROVENANCE_CUE_JA));
     assert.doesNotMatch(spec.canonicalUrl, /[?&]/);
   });
 
   it('rejects raw DOB and answer leak in public copy', () => {
     assert.ok(narrativeSafetyHits('生年月日は1983-02-28').includes('NO_PRIVATE_DATA'));
     assert.ok(narrativeSafetyHits('free.start_style.try_first').includes('NO_PRIVATE_DATA'));
+    assert.deepEqual(narrativeSafetyHits(PUBLIC_DOB_PROVENANCE_CUE_JA), []);
   });
 });
 
@@ -125,6 +134,7 @@ describe('pair privacy and A/B semantics', () => {
       assert.equal(sharePayloadContainsSensitive(publicSpec.shareTextJa), false);
       assert.match(publicSpec.body, /すれ違いの入口/);
       assert.match(publicSpec.body, /戻りやすい方法/);
+      assert.doesNotMatch(publicSpec.body, /逆方向になりやすい/);
     }
   });
 });
@@ -186,12 +196,17 @@ describe('personal premium takeaway share', () => {
     assert.ok(narrative.manualSpec.slots.length >= 4);
     assert.doesNotMatch(narrative.takeaway!.text, /章本文は共有しない/);
     assert.doesNotMatch(narrative.trustCue.text, /生年月日/);
-    const share = projectGenericPublicShareV1({
-      variant: 'premium_takeaway',
-      stemLaneIndex: 1,
+    const ctx = personalContext(PERSONAL_V5_FIXTURES[1]!);
+    const share = projectPremiumPublicShareV1({
+      stemLaneIndex: ctx.stemLaneIndex,
+      answerAxes: ctx.answerAxes,
+      birthAxes: ctx.birthAxes,
+      hingeAxisId: ctx.hingeAxisId,
     });
     assert.match(share.cta, /プレミアムレポートから/);
     assert.doesNotMatch(share.body, /s7_work|章本文/);
+    assert.match(share.body, new RegExp(PUBLIC_DOB_PROVENANCE_CUE_JA));
+    assert.match(share.token, /^n1r/);
   });
 });
 
@@ -212,6 +227,8 @@ describe('X URL encoding and native fallback contract', () => {
     assert.match(preview.href, /url=/);
     assert.doesNotMatch(preview.text, /当たりすぎ|震えた|怖いくらい当たった/);
     assert.match(preview.text, /#M55/);
+    assert.match(preview.text, /あなたはどう出る？/);
+    assert.doesNotMatch(preview.text, /小さく一つ動かしてから、様子を見る。候補を並べてから閉じる/);
     const decodedText = new URL(preview.href).searchParams.get('text') ?? '';
     assert.equal(decodedText, spec.shareTextJa);
     assert.doesNotMatch(preview.href, /media=|attachment=/);
@@ -264,5 +281,90 @@ describe('human copy pack examples', () => {
     for (const row of pair) {
       assert.notEqual(row.privateHit, row.publicBody);
     }
+  });
+});
+
+describe('selected-card X and public collision', () => {
+  it('P1 manual X uses the hidden-spec insight, not two weak slots', () => {
+    const ctx = personalContext(PERSONAL_V5_FIXTURES[0]!);
+    const spec = projectPersonalPublicShareV1({
+      narrative: ctx.narrative,
+      variant: 'manual',
+      stemLaneIndex: ctx.stemLaneIndex,
+      answerAxes: ctx.answerAxes,
+      birthAxes: ctx.birthAxes,
+      hingeAxisId: ctx.hingeAxisId,
+    })!;
+    assert.doesNotMatch(
+      spec.shareTextJa,
+      /小さく一つ動かしてから、様子を見る。候補を並べてから閉じる/,
+    );
+    assert.match(spec.shareTextJa, /決めてもらいたいからではない|材料を集めている|比較が内側|一度置いて/);
+    if (ctx.birthAxes.start !== ctx.answerAxes.start) {
+      assert.equal(
+        recommendPublicShareVariant({
+          answerAxes: ctx.answerAxes,
+          birthAxes: ctx.birthAxes,
+        }),
+        'hidden_spec',
+      );
+    }
+  });
+
+  it('reports public semantic collision for Human fixtures and a larger sample', () => {
+    function cluster(keys: string[]) {
+      const counts = new Map<string, number>();
+      for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
+      const sizes = [...counts.values()];
+      return {
+        unique: counts.size,
+        exactCollision: keys.length - counts.size,
+        largest: Math.max(...sizes),
+      };
+    }
+
+    const human = PERSONAL_V5_FIXTURES.slice(0, 5).map((fixture) => personalContext(fixture));
+    const variants = ['manual', 'seen_vs_actual', 'hidden_spec'] as const;
+    const humanReport = Object.fromEntries(
+      variants.map((variant) => [
+        variant,
+        cluster(
+          human.map((ctx) =>
+            publicSemanticKey({
+              variant,
+              answerAxes: ctx.answerAxes,
+              birthAxes: ctx.birthAxes,
+            }),
+          ),
+        ),
+      ]),
+    );
+    assert.ok(humanReport.manual.unique >= 3, JSON.stringify(humanReport.manual));
+    assert.ok(humanReport.hidden_spec.unique >= 3, JSON.stringify(humanReport.hidden_spec));
+
+    const larger = PERSONAL_V5_FIXTURES.flatMap((dobSource) =>
+      PERSONAL_V5_FIXTURES.map((answerSource) =>
+        personalContext({
+          ...dobSource,
+          freeAnswerSet: answerSource.freeAnswerSet,
+        }),
+      ),
+    );
+    const largeReport = Object.fromEntries(
+      variants.map((variant) => [
+        variant,
+        cluster(
+          larger.map((ctx) =>
+            publicSemanticKey({
+              variant,
+              answerAxes: ctx.answerAxes,
+              birthAxes: ctx.birthAxes,
+            }),
+          ),
+        ),
+      ]),
+    );
+    assert.equal(larger.length, PERSONAL_V5_FIXTURES.length ** 2);
+    assert.ok(largeReport.manual.unique >= 5, JSON.stringify(largeReport));
   });
 });

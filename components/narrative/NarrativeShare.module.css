@@ -41,6 +41,14 @@
   line-height: 1.4;
 }
 
+.optionHint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: rgba(78, 68, 128, 0.88);
+}
+
 .option[data-selected='true'] {
   border-color: rgba(78, 68, 128, 0.55);
   background: rgba(238, 232, 246, 0.92);

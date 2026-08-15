@@ -3506,6 +3506,7 @@ function DtrFullReaderCore({
           payload={payload}
           nickname={view.nickname}
           stemLaneIndex={stemIdx}
+          birthDate={view.birthDate}
         />
         <ReportFooterMetaCard
           aiConsultIncluded={aiConsultIncluded}

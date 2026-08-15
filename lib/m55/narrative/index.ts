@@ -21,6 +21,7 @@ export {
   projectPersonalPublicShareV1,
   projectPairPublicShareV1,
   projectGenericPublicShareV1,
+  projectPremiumPublicShareV1,
   resolvePublicShareSpecFromToken,
 } from './projectPublicShareV1';
 export { buildXShareIntentUrl, xShareEncodedPreview } from './xShareIntentV1';

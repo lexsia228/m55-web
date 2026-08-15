@@ -3,7 +3,12 @@
  * Extends existing share privacy; does not weaken it.
  */
 
-import { sharePayloadContainsSensitive } from '../freeResult/privacySafeShareCardV1';
+import {
+  PUBLIC_DOB_PROVENANCE_CUE_JA,
+  sharePayloadContainsSensitive,
+} from '../freeResult/privacySafeShareCardV1';
+
+export { PUBLIC_DOB_PROVENANCE_CUE_JA };
 
 export const NARRATIVE_SAFETY_FLAGS = {
   NO_PRIVATE_DATA: true,
@@ -66,10 +71,11 @@ export function publicPairVoiceJa(text: string): string {
 
 export function narrativeSafetyHits(blob: string): string[] {
   const hits: string[] = [];
-  if (FATE_PATTERN.test(blob)) hits.push('NO_FATE');
-  if (RANK_PATTERN.test(blob)) hits.push('NO_FAKE_RANK');
-  if (FAKE_ENDORSEMENT.test(blob)) hits.push('NO_FAKE_ENDORSEMENT');
-  if (PRIVATE_PATTERN.test(blob)) hits.push('NO_PRIVATE_DATA');
+  const masked = blob.split(PUBLIC_DOB_PROVENANCE_CUE_JA).join('');
+  if (FATE_PATTERN.test(masked)) hits.push('NO_FATE');
+  if (RANK_PATTERN.test(masked)) hits.push('NO_FAKE_RANK');
+  if (FAKE_ENDORSEMENT.test(masked)) hits.push('NO_FAKE_ENDORSEMENT');
+  if (PRIVATE_PATTERN.test(masked)) hits.push('NO_PRIVATE_DATA');
   if (sharePayloadContainsSensitive(blob)) hits.push('NO_PRIVATE_DATA');
   return hits;
 }

@@ -385,7 +385,7 @@ When merged authority or runtime state changes, update observations via Product 
 
 ## NEXT SINGLE ACTION
 
-**CURRENT (2026-08-15 product-narrative-share):** Stacked overlay lane on `feat/m55-product-narrative-share-v1` (base `feat/m55-personalization-resolution-v2` @ `6d53a71df148ed4c0a1016358bc86830086f8732`). Does **not** merge personalization. Does **not** auto-merge. PR119 remains independent. **NEXT SINGLE ACTION:** Human product narrative + share copy lock (面白いか / 見せたいか / 自分らしいか / 他人の結果を見たら自分もやりたいか / M55らしいか / 個人情報不安がないか). USER_VISIBLE_CLOSED_GREEN is **not** claimed. Production deploy is **not** authorized. P3 checkout/4242/sales launch remain **not authorized**.
+**CURRENT (2026-08-15 product-narrative-share PATCH-1):** Stacked overlay on `feat/m55-product-narrative-share-v1`. Commercial copy patch: 4–6-slot public manual, selected-card X, DOB provenance cue, Pair human Japanese, Premium fused takeaway when owner axes exist. Focused share E2E: required Personal/Pair/s1/n1 paths GREEN; sticky `/dtr/lp` click RED in Clerk-keyless local env. Does **not** merge personalization. Does **not** auto-merge. **NEXT SINGLE ACTION:** Human product narrative + share copy lock. USER_VISIBLE_CLOSED_GREEN is **not** claimed. Production deploy is **not** authorized. P3 checkout/4242/sales launch remain **not authorized**.
 
 **CURRENT (2026-08-14 free-inference-quality):** ACTIVE lane is Personal + Compatibility Free inference quality on `feat/m55-free-inference-quality-v1`. Visual four-surface identity remains **CLOSED GREEN**. Compatibility commerce remains **OFF**. **NEXT SINGLE ACTION:** Human actual Free surface copy lock (V6 editorial). P3 checkout/4242/sales launch remain **not authorized**.
 

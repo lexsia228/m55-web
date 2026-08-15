@@ -628,24 +628,6 @@ export default function CoreEssencePanel() {
                 </div>
               ) : null}
 
-              {freeNarrativeContext && sealed.kind === 'ready' ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem}>
-                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
-                    <ShareCardChooser
-                      input={{
-                        birthDate: sealed.profile.birthDate,
-                        stemLaneIndex: sealed.result.stemLaneIndex,
-                        freeAnswerSet: committedAnswers,
-                      }}
-                    />
-                  </div>
-                </div>
-              ) : shareCard ? (
-                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
-                  <CoreFreeResultShareCTA card={shareCard} />
-                </div>
-              ) : null}
-
               {depthAnalysis ? (
                 <div className={CoreExperienceStyles.freeResultRevealItem}>
                   <CoreMethodCompact />
@@ -687,6 +669,24 @@ export default function CoreEssencePanel() {
                     depth={depthAnalysis}
                     traitName={shareCard?.traitNameJa ?? 'あなた'}
                   />
+                </div>
+              ) : null}
+
+              {freeNarrativeContext && sealed.kind === 'ready' ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem}>
+                  <div className={`${CoreExperienceStyles.section} ${CoreExperienceStyles.coreSectionSurface}`}>
+                    <ShareCardChooser
+                      input={{
+                        birthDate: sealed.profile.birthDate,
+                        stemLaneIndex: sealed.result.stemLaneIndex,
+                        freeAnswerSet: committedAnswers,
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : shareCard ? (
+                <div className={CoreExperienceStyles.freeResultRevealItem} id="core-share">
+                  <CoreFreeResultShareCTA card={shareCard} />
                 </div>
               ) : null}
 

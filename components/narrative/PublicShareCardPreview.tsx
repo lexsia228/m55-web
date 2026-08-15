@@ -15,6 +15,7 @@ export default function PublicShareCardPreview({
       className={styles.card}
       data-testid="m55-narrative-share-card"
       data-share-card="true"
+      data-share-path={spec.sharePath}
       aria-label={`M55の共有カード：${spec.headline}`}
     >
       <p className={styles.brand}>M55</p>

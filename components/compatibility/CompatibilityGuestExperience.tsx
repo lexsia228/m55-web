@@ -429,8 +429,6 @@ export default function CompatibilityGuestExperience({
 
           {pairNarrative ? <PairManualBlock manual={pairNarrative.manualSpec} /> : null}
 
-          <PairFreeShareCTA insight={pairInsight} />
-
           <p className={styles.contextNote}>
             土台は生年月日、表れ方と連鎖は今の回答を重ねています。
             相手本人が回答したものではありません。
@@ -532,6 +530,8 @@ export default function CompatibilityGuestExperience({
               </p>
             )}
           </section>
+
+          <PairFreeShareCTA insight={pairInsight} />
 
           <p className={styles.revisitNote}>
             この結果は、タブを開いている間は同じ内容で読み返せます。

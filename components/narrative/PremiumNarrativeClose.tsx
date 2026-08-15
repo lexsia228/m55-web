@@ -3,35 +3,64 @@
 import { useMemo } from 'react';
 import type { DtrPayload } from '../../lib/m55/dtrEngine';
 import { projectPersonalPremiumNarrativeV1 } from '../../lib/m55/narrative/projectPersonalPremiumNarrativeV1';
-import { projectGenericPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
+import { projectPremiumPublicShareV1 } from '../../lib/m55/narrative/projectPublicShareV1';
+import { buildPersonalFreeNarrativeShareContextV1 } from '../../lib/m55/narrative/projectPersonalFreeNarrativeV1';
 import PublicShareCardPreview from './PublicShareCardPreview';
 import NarrativeShareActions from './NarrativeShareActions';
 import PersonalFreeManualBlock from './PersonalFreeManualBlock';
 import styles from './NarrativeShare.module.css';
 
+function readSessionFreeAnswers(): Record<string, string> | null {
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem('m55_free_answers_v1');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const entries = Object.entries(parsed).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    );
+    return entries.length >= 5 ? Object.fromEntries(entries) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function PremiumNarrativeClose({
   payload,
   nickname,
   stemLaneIndex,
+  birthDate,
 }: {
   payload: DtrPayload;
   nickname?: string;
   stemLaneIndex: number;
+  birthDate?: string;
 }) {
   const narrative = useMemo(
     () => projectPersonalPremiumNarrativeV1({ payload, nickname, stemLaneIndex }),
     [payload, nickname, stemLaneIndex],
   );
   const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
-  const spec = useMemo(
-    () =>
-      projectGenericPublicShareV1({
-        variant: 'premium_takeaway',
+  const spec = useMemo(() => {
+    const answers = readSessionFreeAnswers();
+    if (birthDate && answers) {
+      const ctx = buildPersonalFreeNarrativeShareContextV1({
+        birthDate,
         stemLaneIndex,
-        origin,
-      }),
-    [stemLaneIndex, origin],
-  );
+        freeAnswerSet: answers,
+      });
+      if (ctx.ok) {
+        return projectPremiumPublicShareV1({
+          stemLaneIndex: ctx.value.stemLaneIndex,
+          answerAxes: ctx.value.answerAxes,
+          birthAxes: ctx.value.birthAxes,
+          hingeAxisId: ctx.value.hingeAxisId,
+          origin,
+        });
+      }
+    }
+    return projectPremiumPublicShareV1({ stemLaneIndex, origin });
+  }, [birthDate, origin, stemLaneIndex]);
 
   return (
     <section
