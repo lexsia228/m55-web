@@ -12,13 +12,13 @@
   max-width: min(56rem, calc(100vw - 2 * var(--core-page-pad-x)));
   margin: 0 auto;
   padding: clamp(8px, 2vw, 11px) var(--core-page-pad-x)
-    calc(56px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
+    calc(72px + var(--m55-sticky-cta-height) + env(safe-area-inset-bottom, 0px));
   background: #f9f7f5;
 }
 
 /* Fallback only — CorePremiumStickyCta overwrites with measured height. */
 .page[data-m55-sticky-cta='1'] {
-  --m55-sticky-cta-height: 4.75rem;
+  --m55-sticky-cta-height: 5.25rem;
 }
 
 .pageFreshReveal {

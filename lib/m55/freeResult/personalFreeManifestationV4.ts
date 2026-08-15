@@ -30,6 +30,7 @@ export type PersonalManifestationV4 = {
   readonly birthTendency: string;
   readonly answerTendency: string;
   readonly manifestationJa: string;
+  readonly supportingObservationJa: string;
   readonly sceneCandidateJa: string;
   readonly shortJa: string;
   readonly userDidNotDirectlyAnswerThis: true;
@@ -274,7 +275,7 @@ const DISTANCE_MANIFEST: Readonly<
       manifestationJa:
         '普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。',
       beatJa: '普段は間を取りつつ、会話では言葉で寄ってしまう。',
-      sceneWhen: '普段は間を取っている相手に、会話の途中で距離を言葉にする。',
+      sceneWhen: '誰かと話したあと、会話の途中で距離を言葉に整えたくなる。',
       sceneWhile: '会話の途中で、距離を言葉にして寄ってしまう',
     },
     middle: {
@@ -383,7 +384,7 @@ const CHANGE_MANIFEST: Readonly<
       manifestationJa:
         '組み直したいのに、表では一日置いている。静かに見える一方、前提が変わったことはもう決めている。組み直す前提は決めたまま、表では一日置く。',
       beatJa: '組み直す前提は決まっていて、表では一日置いている。',
-      sceneWhen: '組み直す前提は決めたまま、表では一日置く。',
+      sceneWhen: '予定の前提が変わった週に、組み直す前に一日置きたくなる。',
       sceneWhile: '組み直す前提は決まっていて、表では一日置く',
     },
     adjust: {
@@ -746,13 +747,31 @@ function appendUniqueSentence(base: string, extra: string): string {
   return `${base}${sentence}`;
 }
 
-function openingHit(primary: ManifestCell): string {
+function openingHit(
+  primary: ManifestCell,
+  modifiers?: PersonalManifestationModifiersV2,
+): string {
   const parts = primary.manifestationJa
     .split('。')
     .map((part) => part.trim())
     .filter((part) => part.length > 0);
-  const kept = parts.slice(0, 2);
-  return `${kept.join('。')}。`;
+  let text = parts[0] ? `${parts[0]}。` : '';
+  const when = completeSentence(primary.sceneWhen);
+  if (!text) {
+    text = when;
+  } else {
+    const whenBody = when.replace(/。$/u, '');
+    if (whenBody && !text.includes(whenBody)) text = `${text}${when}`;
+  }
+  if (modifiers && sentenceCount(text) < 3) {
+    text = appendUniqueSentence(text, LUNAR_SCENE_BEAT_JA[modifiers.lunarMonth - 1]!);
+  }
+  const sentences = text
+    .split('。')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)
+    .slice(0, 3);
+  return sentences.length ? `${sentences.join('。')}。` : text;
 }
 
 function pickSupportBeats(
@@ -780,19 +799,14 @@ function pickSupportBeats(
   return beats;
 }
 
-function composeReading(
+function composeSupportReading(
   primary: ManifestCell,
   primaryAxisId: ExpressionAxisId,
-  _second: ManifestCell | null,
-  _secondAxisId: ExpressionAxisId | null,
-  _third: ManifestCell | null,
-  _thirdAxisId: ExpressionAxisId | null,
   birth: ExpressionAxes,
   answers: ExpressionAxes,
   modifiers?: PersonalManifestationModifiersV2,
 ): string {
-  let text = openingHit(primary);
-  text = appendUniqueSentence(text, primary.sceneWhen);
+  let text = completeSentence(primary.sceneWhen);
   for (const beat of pickSupportBeats(primaryAxisId, birth, answers, modifiers)) {
     text = appendUniqueSentence(text, beat);
   }
@@ -804,6 +818,20 @@ function composeReading(
     );
   }
   return text;
+}
+
+function composeReading(
+  primary: ManifestCell,
+  primaryAxisId: ExpressionAxisId,
+  _second: ManifestCell | null,
+  _secondAxisId: ExpressionAxisId | null,
+  _third: ManifestCell | null,
+  _thirdAxisId: ExpressionAxisId | null,
+  birth: ExpressionAxes,
+  answers: ExpressionAxes,
+  modifiers?: PersonalManifestationModifiersV2,
+): string {
+  return openingHit(primary, modifiers);
 }
 
 function sceneFor(primary: ManifestCell, _composed: string): string {
@@ -847,12 +875,20 @@ export function buildPersonalManifestationV4(
     answers,
     modifiers,
   );
+  const supportingObservationJa = composeSupportReading(
+    cell,
+    axisId,
+    birth,
+    answers,
+    modifiers,
+  );
   return {
     patternId,
     axisId,
     birthTendency,
     answerTendency,
     manifestationJa,
+    supportingObservationJa,
     sceneCandidateJa: sceneFor(cell, manifestationJa),
     shortJa: cell.shortJa,
     userDidNotDirectlyAnswerThis: true,

@@ -65,13 +65,7 @@ function FreeCtaButton({
 }) {
   if (!isLoaded) {
     return (
-      <button
-        type="button"
-        className={`${className} ${styles.ctaFreeLoading}`}
-        disabled
-        aria-busy="true"
-        data-testid={testIdLoading}
-      >
+      <button type="button" className={className} data-testid={testIdIntake} onClick={onOpenIntake}>
         {label}
       </button>
     );
@@ -112,7 +106,6 @@ export default function HomePanel() {
   }, []);
 
   const view = useMemo(() => {
-    if (!isLoaded) return { kind: 'loading' as const, stage: 'EMPTY' as SelfFunnelStage };
     const profile = ProfileRepository.get(ownerId);
     if (!isValidBasicInfo(profile)) {
       return { kind: 'no_profile' as const, stage: 'EMPTY' as SelfFunnelStage };
@@ -197,19 +190,7 @@ export default function HomePanel() {
                       settles it renders as a disabled placeholder, matching the
                       loading behaviour of the lower free CTAs.
                     */}
-                    {!isLoaded && (
-                      <button
-                        type="button"
-                        className={`${styles.posterHeroCta} ${styles.ctaFreeLoading}`}
-                        disabled
-                        aria-busy="true"
-                        data-testid="m55-home-hero-cta-loading"
-                        data-m55-hero-cta="true"
-                      >
-                        {freeCtaLabel}
-                      </button>
-                    )}
-                    {isLoaded && !hasProfile && (
+                    {!hasProfile && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}
@@ -220,7 +201,7 @@ export default function HomePanel() {
                         {freeCtaLabel}
                       </button>
                     )}
-                    {isLoaded && hasProfile && (
+                    {hasProfile && (
                       <button
                         type="button"
                         className={styles.posterHeroCta}

@@ -47,9 +47,9 @@ const CHANGE_SLOT: Readonly<Record<ChangeTendency, string>> = {
 };
 
 const TALK_HINT: Readonly<Record<DistanceTendency, string>> = {
-  close: '決める前に、今の距離感を一言伝える。',
-  middle: '頻度は変えず、決める話と様子を見る話を分ける。',
-  solo: 'すぐ返さず、一人の時間のあとに続きを置く。',
+  close: '話しかけるときは、決める前に今の距離感を一言確認してもらえると続きやすい。',
+  middle: '頻度は変えずに、決める話と様子を見る話を分けてもらえると話しやすい。',
+  solo: 'すぐ返事を求めず、一人の時間のあとに返してもらえると話しやすい。',
 };
 
 function slot(
@@ -83,13 +83,21 @@ function pickShortSlots(
     ranked.push(slot('actual', '実際は', actual, [manifestId, 'personal_free_manifestation_v4']));
   }
 
-  if (fused.interactionKind === 'diverge_overlay') {
+  const seenActual = seenVsActualFromFused(fused);
+  const misreadBody = seenActual.seenJa.trim();
+  const misreadActual = seenActual.actualJa.trim();
+  if (
+    misreadBody.length >= 4 &&
+    misreadActual.length >= 4 &&
+    misreadBody !== misreadActual &&
+    !misreadBody.includes(misreadActual.slice(0, 8))
+  ) {
     ranked.push(
       slot(
         'misread',
         '誤解されやすいところ',
-        firstSentenceJa(fused.body) || firstSentenceJa(fused.fusedStackJa),
-        [hingeId, fused.hingeAxisId],
+        `人からは「${misreadBody}」に見えやすい一方で、実際は${misreadActual}`,
+        [hingeId, fused.hingeAxisId, manifestId],
       ),
     );
   }

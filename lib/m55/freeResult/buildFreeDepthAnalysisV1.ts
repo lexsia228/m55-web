@@ -23,6 +23,7 @@ import {
 } from './buildFreeFiveViewCompositionV1';
 import { resolveCanonicalBirthProfileV2 } from '../individualization/canonicalBirthProfileV2';
 import { buildPersonalFreeFusedInsightSpecV3 } from './personalFreeFusedInsightSpecV3';
+import { buildHumanizedConciseWhyJa } from './humanizeFreeResultWhyV1';
 
 export const FREE_DEPTH_ANALYSIS_VERSION = 'free-depth-v4' as const;
 
@@ -537,6 +538,18 @@ export function buildFreeDepthAnalysisV1(
     insight.headline,
     insight.behavioralPrediction,
   ];
+  const conciseWhyJa = buildHumanizedConciseWhyJa({
+    birthBaseJa: insight.birthBaseJa,
+    fusedStackJa: insight.fusedStackJa,
+    bodyJa: insight.body,
+  });
+  const supportingObservation = insight.manifestation.supportingObservationJa.trim();
+  const secondarySceneBody =
+    supportingObservation &&
+    supportingObservation !== primaryScene.bodyJa &&
+    !primaryScene.bodyJa.includes(supportingObservation.slice(0, 16))
+      ? supportingObservation
+      : secondaryScene.bodyJa;
 
   const analysis: FreeDepthAnalysisV1 = {
     headlineJa: insight.headline,
@@ -546,7 +559,7 @@ export function buildFreeDepthAnalysisV1(
     strengthConditionsJa: [...insight.strengthConditions],
     loadConditionsJa: [...insight.loadConditions],
     scenesJa,
-    conciseWhyJa: [insight.fusedStackJa, insight.body],
+    conciseWhyJa,
     birthBaseJa: insight.birthBaseJa,
     currentExpressionJa: insight.currentExpressionJa,
     trustCueJa:
@@ -554,7 +567,7 @@ export function buildFreeDepthAnalysisV1(
     manifestationJa: insight.manifestation.manifestationJa,
     primarySceneJa: primaryScene.bodyJa,
     primarySceneLabelJa: primaryScene.labelJa,
-    secondarySceneJa: secondaryScene.bodyJa,
+    secondarySceneJa: secondarySceneBody,
     secondarySceneLabelJa: secondaryScene.labelJa,
     premiumOpenLoopJa: `${insight.premiumContinuation}「${primaryScene.labelJa}」での出方も、そこで読めます。`,
     premiumOpenQuestionJa: insight.premiumOpenQuestion,

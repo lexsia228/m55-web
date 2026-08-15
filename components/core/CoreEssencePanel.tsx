@@ -123,7 +123,6 @@ export default function CoreEssencePanel() {
   }, [isLoaded, user?.id]);
 
   useEffect(() => {
-    if (!isLoaded) return;
     const snap = hydrateCoreEssenceFromStore(ownerId);
     setUxPhase(snap.uxPhase);
     setDraftAnswers(snap.draftAnswers);
@@ -133,10 +132,10 @@ export default function CoreEssencePanel() {
     setQuestionnaireFlowKey((n) => n + 1);
     setHydrated(true);
     previousProfileRef.current = ProfileRepository.get(ownerId);
-  }, [isLoaded, ownerId, profileEpoch]);
+  }, [ownerId, profileEpoch]);
 
   const sealed: SealedState = useMemo(() => {
-    if (!isLoaded || !hydrated) return { kind: 'loading' };
+    if (!hydrated) return { kind: 'loading' };
     const profile = ProfileRepository.get(ownerId);
     if (!isValidBasicInfo(profile)) {
       return { kind: 'locked' };
@@ -148,7 +147,7 @@ export default function CoreEssencePanel() {
       const message = e instanceof Error ? e.message : '読み取りに失敗しました。';
       return { kind: 'error', message };
     }
-  }, [hydrated, isLoaded, ownerId, profileEpoch]);
+  }, [hydrated, ownerId, profileEpoch]);
 
   const committedComplete = isCompleteFreeAnswerSet(committedAnswers);
   const questionnaireDone = isQuestionnaireCompleteForComposition(uxPhase, committedComplete);

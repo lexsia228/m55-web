@@ -206,9 +206,9 @@ const DECISION_EXPRESSION_PHRASE: Readonly<Record<DecisionTendency, string>> = {
 };
 
 const RECOVERY_ACTION_PHRASE: Readonly<Record<RecoveryTendency, string>> = {
-  pause: '短く立ち止まって休む余白を先に置く',
-  shrink: 'やることを一つ小さくする区切りを決める',
-  scene: '場所や雰囲気を少し変えて整える',
+  pause: '短い休みを先に入れてから次に進む',
+  shrink: 'やることを一つ小さくしてから戻る',
+  scene: '場所や空気を少し変えて整える',
 };
 
 const FOCUS_SCENE_PREFIX_JA: Readonly<Record<ReplyThemeId, string>> = {

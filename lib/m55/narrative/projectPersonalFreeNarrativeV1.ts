@@ -60,7 +60,9 @@ export function projectPersonalFreeNarrativeV1(
     completeness: 'short',
   });
   const contrast = seenVsActualFromFused(fused);
-  const hidden = firstSentenceJa(fused.manifestation.shortJa);
+  const hidden =
+    firstSentenceJa(fused.manifestation.supportingObservationJa) ||
+    firstSentenceJa(fused.behavioralPrediction);
   const hiddenBody = compactSentencesJa(fused.body, 2);
 
   const shareCandidates: ShareCandidateV1[] = [
