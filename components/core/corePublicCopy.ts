@@ -160,8 +160,8 @@ export const STATIC_CTA = {
  * Free→paid conversion bridge on /core (after free result outcome).
  * Single personalized Premium bridge — CTA routes to paid questions on /dtr/lp.
  */
-export function buildPremiumBridgeTitle(traitName: string): string {
-  return `「${traitName}」の結果を、さらに深く読み解く`;
+export function buildPremiumBridgeTitle(_traitName: string): string {
+  return 'この結果を、さらに深く読み解く';
 }
 
 const LIGHT_PLAN = PAID_DTR_SAVED_REPORT_PRICING.light;

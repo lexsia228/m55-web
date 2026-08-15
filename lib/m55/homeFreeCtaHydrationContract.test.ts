@@ -22,22 +22,14 @@ const freeCtaEnd = homePanelSource.indexOf('\nexport default function HomePanel'
 const freeCtaSource = homePanelSource.slice(freeCtaStart, freeCtaEnd);
 
 describe('homeFreeCtaHydrationContract — lower FreeCtaButton loading stability', () => {
-  it('does not return null solely because Clerk isLoaded is false', () => {
-    assert.doesNotMatch(freeCtaSource, /if\s*\(\s*!isLoaded\s*\)\s*return\s+null/);
+  it('fail-opens to intake while Clerk auth state is unknown', () => {
     assert.match(freeCtaSource, /if\s*\(\s*!isLoaded\s*\)\s*\{/);
-  });
-
-  it('renders a disabled loading control with aria-busy while auth state is unknown', () => {
     const loadingBranch = freeCtaSource.match(/if\s*\(\s*!isLoaded\s*\)\s*\{[\s\S]*?\n  \}/)?.[0];
-    assert.ok(loadingBranch, 'expected a !isLoaded loading branch in FreeCtaButton');
-    assert.match(loadingBranch!, /type="button"/);
-    assert.match(loadingBranch!, /disabled/);
-    assert.match(loadingBranch!, /aria-busy="true"/);
-    assert.match(loadingBranch!, /data-testid=\{testIdLoading\}/);
-    assert.match(loadingBranch!, /\{label\}/);
-    assert.doesNotMatch(loadingBranch!, /onClick=/);
-    assert.doesNotMatch(loadingBranch!, /<Link/);
-    assert.doesNotMatch(loadingBranch!, /href=/);
+    assert.ok(loadingBranch, 'expected a !isLoaded branch in FreeCtaButton');
+    assert.match(loadingBranch!, /onClick=\{onOpenIntake\}/);
+    assert.match(loadingBranch!, /data-testid=\{testIdIntake\}/);
+    assert.doesNotMatch(loadingBranch!, /disabled/);
+    assert.doesNotMatch(loadingBranch!, /aria-busy="true"/);
   });
 
   it('uses state-aware free CTA labels at lower call sites', () => {
@@ -78,13 +70,14 @@ describe('homeFreeCtaHydrationContract — lower FreeCtaButton loading stability
 });
 
 describe('homeFreeCtaHydrationContract — poster hero state-aware CTA', () => {
-  it('keeps poster hero CTA gating and state-aware labels', () => {
-    assert.match(heroSource, /\{isLoaded && !hasProfile && \(\s*<button/);
-    assert.match(heroSource, /\{isLoaded && hasProfile && \(\s*<button/);
+  it('keeps poster hero CTA clickable for fresh guests without Clerk gate', () => {
+    assert.match(heroSource, /\{!hasProfile && \(\s*<button/);
+    assert.match(heroSource, /\{hasProfile && \(\s*<button/);
     assert.match(heroSource, /data-testid="m55-home-open-birth-intake"/);
     assert.match(heroSource, /data-testid="m55-home-has-profile-hero"/);
     assert.match(heroSource, /\{freeCtaLabel\}/);
     assert.doesNotMatch(heroSource, /ctaFreeLoading/);
+    assert.doesNotMatch(heroSource, /m55-home-hero-cta-loading/);
     assert.doesNotMatch(heroSource, /FreeCtaButton/);
   });
 });

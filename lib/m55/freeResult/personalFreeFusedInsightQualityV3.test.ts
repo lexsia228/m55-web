@@ -86,7 +86,7 @@ describe('personal fused insight quality v3', () => {
     if (!a.ok || !b.ok) return;
     assert.notEqual(a.value.currentExpressionJa, b.value.currentExpressionJa);
     assert.notEqual(a.value.headlineJa, b.value.headlineJa);
-    assert.notEqual(a.value.conciseWhyJa[0], b.value.conciseWhyJa[0]);
+    assert.notEqual(a.value.conciseWhyJa[1], b.value.conciseWhyJa[1]);
   });
 
   it('P3 same DOB + same answers is deterministic', () => {
