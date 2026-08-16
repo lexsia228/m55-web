@@ -9,7 +9,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Current live remote main / Production (2026-08-16 absolute closure audit):** `3657ba17c4d727baeaa003e9f661f27c9a930436` — PR #131 **MERGED**; Production diagnostics SHA match; `de37b1a..3657ba1` is docs/evidence/governance only
+- **Absolute-audit baseline remote main / Production observation (2026-08-16):** `3657ba17c4d727baeaa003e9f661f27c9a930436` — PR #131 **MERGED**; Production diagnostics SHA matched at `2026-08-16T12:09:45.874Z`; `de37b1a..3657ba1` is docs/evidence/governance only. PR #132 is docs-only audit settlement and does not redefine Product closure; its final merge identity is GitHub gate-time authority.
 - **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
 - **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
 - **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; historical bootstrap-era recorded remote; **not** current live remote main

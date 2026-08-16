@@ -11,7 +11,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 
 | Field | Value |
 |---|---|
-| origin/main | `3657ba17c4d727baeaa003e9f661f27c9a930436` (PR #131 **MERGED**) |
+| Audit-baseline origin/main | `3657ba17c4d727baeaa003e9f661f27c9a930436` (PR #131 **MERGED**) |
 | Production SHA | `3657ba17c4d727baeaa003e9f661f27c9a930436` — diagnostics observedAt `2026-08-16T12:09:45.874Z` |
 | Post-product delta | `de37b1a..3657ba1` is docs/evidence/governance only; Product Authority SHA remains `de37b1a` |
 | Product closure SHA | `de37b1a0f6781cf763621b023af6b6c7617b7e5d` |
@@ -22,6 +22,7 @@ Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011
 | Independent open lane | PR #119 Compatibility commerce preflight — **OPEN** |
 | Live worktrees | **5** — see `M55_WORKTREE_REGISTRY.md` final continuity register |
 | Generic AI benchmark | **not run** in closure wave |
+| Absolute-audit settlement | PR #132 is docs-only settlement; it does not redefine Product closure. Its final merge identity is GitHub gate-time authority. |
 
 ## POST-RELEASE GPT HANDOFF (2026-08-16) — SUPERSEDED BY LIFECYCLE CLOSURE
 
