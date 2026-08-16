@@ -368,3 +368,18 @@ This decision authorizes **only** durable transition recording in the four-file 
 | Inference / DB / Stripe / env | unchanged |
 | Card C / public share | unchanged — regression GREEN |
 | Next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` |
+
+### 2026-08-16 — Personal Free USER_VISIBLE_CLOSED_GREEN (Human sign-off · PR #127 + PR #128)
+
+**Status:** Human **USER_VISIBLE_CLOSED_GREEN** on Production @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. PR #127 merged misread seen/actual realizer @ `e2ebfe17e52baaaa176f92ff0976f5b0031315d5`. PR #128 merged misread desire nominalizer micro closure @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Production/main parity **GREEN** on `https://m-55.jp`. Presentation/customer-copy only — no inference rebuild. Generic AI benchmark **not run**.
+
+| Rule | Value |
+|---|---|
+| PERSONAL_FREE_USER_VISIBLE | **USER_VISIBLE_CLOSED_GREEN** |
+| PERSONAL_FREE_ACTIVE_LANE | **false** — lane settled |
+| Locked surfaces | fresh entry · CanonicalBirthProfileV2/fused personalization · WHY 3-layer · hero · manual semantics · misread copy · hiddenSpec distinction · Premium bridge · A/B/C share/Card C · sticky · Production parity — **no reopen absent invalidation** |
+| Next gate | `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` — not another Free redesign |
+
+### 2026-08-16 — Misread customer-copy polish chain (PR #126–#128)
+
+**Status:** Bounded presentation closures on main after PR #124. PR #126 @ `66c6076` (double-period). PR #127 @ `e2ebfe1` (seen/actual realizer). PR #128 @ `de37b1a` (desire nominalizer). No inference/DB/Stripe/env mutation.
