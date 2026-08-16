@@ -23,11 +23,11 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#128 on `main` @ `de37b1a0f6781cf763621b023af6b6c7617b7e5d`. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. **NEXT:** **M55_POST_RELEASE_LIFECYCLE_TRANSITION** → authorized **M55_MRQ_P3_ENTRY_PLANNING** (planning only); independent PR #119 Compatibility commerce — **not** another Personal Free redesign; **not** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (CLOSED_GREEN @ `1e25d17`).
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#131 are **MERGED** on `main` @ `3657ba17c4d727baeaa003e9f661f27c9a930436`; Product closure remains `de37b1a0f6781cf763621b023af6b6c7617b7e5d` because the later delta is docs/evidence/governance only. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. `M55_POST_RELEASE_LIFECYCLE_TRANSITION` is **COMPLETE**. **NEXT:** authorized **M55_MRQ_P3_ENTRY_PLANNING** (planning only); independent PR #119 Compatibility commerce — **not** another Personal Free redesign; **not** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (CLOSED_GREEN @ `1e25d17`).
 
 ## Personal Free user-visible quality (2026-08-16) — USER_VISIBLE_CLOSED_GREEN
 
-PR #123–#128 closed the long-lived Personal Free commercial individuality / user-visible quality lane on `main` @ `de37b1a`. Human **USER_VISIBLE_CLOSED_GREEN** is recorded. This lane is **not active**. Next authorized work: **M55_POST_RELEASE_LIFECYCLE_TRANSITION** (evidence + worktree disposition), then **M55_MRQ_P3_ENTRY_PLANNING** (planning only; implementation not authorized). Independent PR #119 Compatibility commerce remains open — **not** another Free redesign wave.
+PR #123–#128 closed the long-lived Personal Free commercial individuality / user-visible quality lane on `main` @ `de37b1a`. Human **USER_VISIBLE_CLOSED_GREEN** is recorded. This lane is **not active**. `M55_POST_RELEASE_LIFECYCLE_TRANSITION` completed via PR #131. Next authorized work: **M55_MRQ_P3_ENTRY_PLANNING** (planning only; implementation not authorized). Independent PR #119 Compatibility commerce remains open — **not** another Free redesign wave.
 
 ## Current Pair surface identity wave (2026-08-14) — HISTORICAL
 
