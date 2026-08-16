@@ -43,6 +43,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider
       localization={jaJP}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
       appearance={{
         layout: {
           logoImageUrl: "/icons/m55-core-logo.png",
