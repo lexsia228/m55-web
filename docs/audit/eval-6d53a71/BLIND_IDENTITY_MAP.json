@@ -1,0 +1,456 @@
+{
+  "evaluationHead": "6d53a71df148ed4c0a1016358bc86830086f8732",
+  "warning": "SCORER MUST NOT OPEN THIS FILE until scoring is complete.",
+  "mapping": [
+    {
+      "displayId": "H-01",
+      "profileId": "P-14",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-02",
+      "profileId": "P-12",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-03",
+      "profileId": "P-29",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-04",
+      "profileId": "P-34",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-05",
+      "profileId": "P-27",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-06",
+      "profileId": "P-11",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-07",
+      "profileId": "P-25",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-08",
+      "profileId": "P-36",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-09",
+      "profileId": "P-33",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-10",
+      "profileId": "P-22",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-11",
+      "profileId": "P-48",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-12",
+      "profileId": "P-17",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-13",
+      "profileId": "P-06",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-14",
+      "profileId": "P-21",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-15",
+      "profileId": "P-07",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-16",
+      "profileId": "P-19",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-17",
+      "profileId": "P-37",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-18",
+      "profileId": "P-04",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-19",
+      "profileId": "P-35",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-20",
+      "profileId": "P-15",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-21",
+      "profileId": "P-38",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-22",
+      "profileId": "P-01",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-23",
+      "profileId": "P-49",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-24",
+      "profileId": "P-24",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-25",
+      "profileId": "P-45",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-26",
+      "profileId": "P-13",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-27",
+      "profileId": "P-47",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-28",
+      "profileId": "P-16",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-29",
+      "profileId": "P-10",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-30",
+      "profileId": "P-31",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-31",
+      "profileId": "P-20",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-32",
+      "profileId": "P-18",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-33",
+      "profileId": "P-28",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-34",
+      "profileId": "P-09",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-35",
+      "profileId": "P-32",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-36",
+      "profileId": "P-44",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-37",
+      "profileId": "P-23",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-38",
+      "profileId": "P-43",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-39",
+      "profileId": "P-39",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Z": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-40",
+      "profileId": "P-05",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-41",
+      "profileId": "P-41",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-42",
+      "profileId": "P-08",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-43",
+      "profileId": "P-30",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-44",
+      "profileId": "P-03",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-45",
+      "profileId": "P-40",
+      "slots": {
+        "Y": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-46",
+      "profileId": "P-50",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-47",
+      "profileId": "P-46",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "Y": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "X": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-48",
+      "profileId": "P-02",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-49",
+      "profileId": "P-42",
+      "slots": {
+        "X": "A_GENERIC_DOB_ONLY",
+        "Z": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    },
+    {
+      "displayId": "H-50",
+      "profileId": "P-26",
+      "slots": {
+        "Z": "A_GENERIC_DOB_ONLY",
+        "X": "B_GENERIC_DOB_PLUS_ANSWERS",
+        "Y": "C_M55"
+      }
+    }
+  ]
+}

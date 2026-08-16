@@ -1,0 +1,556 @@
+{
+  "evaluationHead": "6d53a71df148ed4c0a1016358bc86830086f8732",
+  "condition": "C_M55",
+  "rows": [
+    {
+      "id": "P-01",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。予定を変えるか迷う夜、手の動きが組み替えに変わる。振り返る夜に、いちばん戻りやすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem9|lunar1|season1|bandlate|tension_none::try|sort|pause|middle|adjust::distance+close+middle+change_rebuild_adjust+recovery_shrink_pause+s9l1g1dlatet::scene_1_1_late::stem_mirror_9::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-02",
+      "m55": {
+        "headlineJa": "小さく直している人に見られても、本人は一度やり直すつもりで手を動かしている。表の小さな直しと、本人のやり直しは同じに見えない。予定を変えるか迷う夜、手の動きが組み替えに変わる。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。連絡は続いているのに、一日の終わりの整えは一人に残る。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「小さく直している人に見えてやり直すつもり」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "change_rebuild_adjust::start_diverge_map_ask::stem1|lunar4|season1|bandmid|tension_none::ask|wait|shrink|middle|adjust::change+rebuild+adjust+distance_middle_middle+decision_wait_wait+s1l4g1dmidt::scene_4_1_mid::stem_mirror_1::mapxwait|start_diverge_overlay"
+    },
+    {
+      "id": "P-03",
+      "m55": {
+        "headlineJa": "会話の中で距離を言葉にした直後に、言い方を一人でやり直している。丁寧に見えるほど、「今さら考え直している」と見られやすい。近い人と話したあと、決めたことを送る前に一度止まる。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。予定の骨は残したまま、細部だけ直し続ける夜がある。期限の前の一日に、強く出やすい。周りには、向きを先に決めてから手を出す人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「距離を言葉にした直後に言い方をやり直す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "distance_close_close::start_diverge_map_try::stem0|lunar7|season1|bandmid|tension_none::try|wait|shrink|close|adjust::distance+close+close+change_adjust_adjust+decision_wait_wait+s0l7g1dmidt::scene_7_1_mid::stem_mirror_0::mapxwait|start_diverge_overlay"
+    },
+    {
+      "id": "P-04",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。出す直前の夜、まだ候補を開き直したくなる。予定変更の直後、表では止まって見える。出かける前に持ち物を減らす日に、見えやすい。周りには、区切りをつけてから次へ移る人に見える。",
+        "primarySceneJa": "新しい依頼の直後に手順を書き出したあと、候補が複数あると比較が始まって着手が遅れる場面で出やすい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem6|lunar5|season2|bandmid|tension_distance_recovery::map|sort|scene|middle|observe::distance+close+middle+change_adjust_observe+recovery_scene_scene+s6l5g2dmidtdistancerecovery::scene_5_2_mid::stem_mirror_6::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-05",
+      "m55": {
+        "headlineJa": "組み直したいのに、表では一日置いている。静かに見える一方、前提が変わったことはもう決めている。組み直す前提は決めたまま、表では一日置く。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。連絡は続いているのに、一日の終わりの整えは一人に残る。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「組み直す前提を一日置いてから出す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "change_rebuild_observe::recovery_diverge_shrink_scene::stem1|lunar4|season1|bandmid|tension_none::try|sort|scene|middle|observe::change+rebuild+observe+distance_middle_middle+decision_wait_sort+s1l4g1dmidt::scene_4_1_mid::stem_mirror_1::mapxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-06",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。組み直す前提は決めたまま、表では一日置く。振り返る夜に、いちばん戻りやすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem9|lunar1|season1|bandlate|tension_none::try|sort|pause|middle|observe::distance+close+middle+change_rebuild_observe+recovery_shrink_pause+s9l1g1dlatet::scene_1_1_late::stem_mirror_9::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-07",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。予定の骨は残したまま、細部だけ直し続ける夜がある。静かな休日の午後に、一人でやり直しやすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem8|lunar8|season2|bandlate|tension_none::try|sort|pause|middle|adjust::distance+solo+middle+change_adjust_adjust+decision_deadline_sort+s8l8g2dlatet::scene_8_2_late::stem_mirror_8::askxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-08",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。途中まで進めた話を、誰かに見てもらいに戻るときに起きやすい。予定を変えるか迷う日、方針は置いたまま細部だけ直す。新しい予定を置き直す週に、先に出やすい。周りには、一つを深めてから外へ出す人に見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem3|lunar2|season2|bandearly|tension_decision_distance_recovery_start::ask|wait|shrink|middle|adjust::distance+close+middle+change_observe_adjust+recovery_scene_shrink+s3l2g2dearlytstartdecisiondistancerecovery::scene_2_2_early::stem_mirror_3::tryxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-09",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。途中まで進めた話を、誰かに見てもらいに戻るときに起きやすい。予定を変えるか迷う夜、手の動きが組み替えに変わる。次の週のことだけ先に置いた夜に、出やすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく動かして様子を見てから、候補を内側で比べやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem8|lunar11|season0|bandearly|tension_none::ask|deadline|pause|middle|adjust::distance+solo+middle+change_rebuild_adjust+decision_sort_deadline+s8l11g0dearlyt::scene_11_0_early::stem_mirror_8::tryxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-10",
+      "m55": {
+        "headlineJa": "普段は静かだが、前提が崩れたときだけ予定を一度捨てて組み直す。急な人に見られても、本人の中では「前提が変わった」で一貫している。前提が崩れた夜、予定を一度捨てて組み直す。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。普段は間を取っている相手に、会話の途中で距離を言葉にする。次の週のことだけ先に置いた夜に、出やすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は静かで前提が崩れたときだけ組み直す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "change_observe_rebuild::distance_diverge_middle_close::stem4|lunar11|season2|bandlate|tension_change_decision::ask|sort|shrink|close|rebuild::change+observe+rebuild+distance_middle_close+decision_deadline_sort+s4l11g2dlatetdecisionchange::scene_11_2_late::stem_mirror_4::askxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-11",
+      "m55": {
+        "headlineJa": "小さく直している延長で、周囲には急な方向転換に見える組み直しが入る。本人の中では、継ぎ足しの先にある。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。予定が終わったあと、一人の時間を先に取って決め方を見直す。短い連絡が続いた夜に、先に来やすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「小さく直している延長で方向転換に見える」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を集めながらも、結論は置いてから出しやすい基調です。"
+      },
+      "semanticKey": "change_adjust_rebuild::recovery_diverge_pause_shrink::stem5|lunar9|season0|bandlate|tension_none::try|deadline|shrink|solo|rebuild::change+adjust+rebuild+distance_solo_solo+decision_wait_deadline+s5l9g0dlatet::scene_9_0_late::stem_mirror_5::askxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-12",
+      "m55": {
+        "headlineJa": "小さく直している延長で、周囲には急な方向転換に見える組み直しが入る。本人の中では、継ぎ足しの先にある。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。誰かに方針を聞かれたあと、一人で書き直したくなる。予定が終わったあと、一人の時間を先に取って決め方を見直す。短い連絡が続いた夜に、先に来やすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「小さく直している延長で方向転換に見える」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を集めながらも、結論は置いてから出しやすい基調です。"
+      },
+      "semanticKey": "change_adjust_rebuild::recovery_diverge_pause_shrink::stem5|lunar9|season0|bandlate|tension_none::map|deadline|shrink|solo|rebuild::change+adjust+rebuild+distance_solo_solo+decision_wait_deadline+s5l9g0dlatet::scene_9_0_late::stem_mirror_5::askxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-13",
+      "m55": {
+        "headlineJa": "差分を直し始めたいのに、まず止まって見える。止まっている人に見られても、頭の中では直し始めている。予定変更の直後、表では止まって見える。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。近い人と話したあと、決めたことを送る前に一度止まる。期限の前の一日に、強く出やすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「直し始めているのに止まって見える」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "change_adjust_observe::decision_diverge_wait_deadline::stem9|lunar7|season1|bandmid|tension_none::try|deadline|shrink|close|observe::change+adjust+observe+distance_close_close+decision_wait_deadline+s9l7g1dmidt::scene_7_1_mid::stem_mirror_9::mapxwait|decision_diverge_overlay"
+    },
+    {
+      "id": "P-14",
+      "m55": {
+        "headlineJa": "一人で整えてから戻りたいのに、その場では距離を言葉にして合わせている。近い関係を保っているように見られても、帰宅後に一人の時間が先に立つ。会話を合わせたあと、戻る前に一人の時間を置く。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。途中で整えるのを止めたあとに、残りやすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では寄せ、帰宅後に一人の時間が先に立つ」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_solo_close::distance_diverge_solo_close::stem5|lunar10|season1|bandlate|tension_none::ask|sort|shrink|close|rebuild::distance+solo+close+change_adjust_rebuild+decision_sort_sort+s5l10g1dlatet::scene_10_1_late::stem_mirror_5::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-15",
+      "m55": {
+        "headlineJa": "連絡は続いているように見られやすい。実際の整えは、会ったあとの一人の時間に寄る。連絡を返したあと、一人になってから整え直したくなる。新しいことを一つ動かした夜、一人でやり直し直したくなる。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。次の週のことだけ先に置いた夜に、出やすい。周りには、精度を上げてから渡す人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「連絡は続け、整えは一人の時間に寄る」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく動かして様子を見てから、候補を内側で比べやすい基調です。"
+      },
+      "semanticKey": "distance_middle_solo::distance_diverge_middle_solo::stem7|lunar11|season0|bandearly|tension_none::try|wait|scene|solo|rebuild::distance+middle+solo+change_adjust_rebuild+decision_sort_wait+s7l11g0dearlyt::scene_11_0_early::stem_mirror_7::tryxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-16",
+      "m55": {
+        "headlineJa": "連絡は続いているように見られやすい。実際の整えは、会ったあとの一人の時間に寄る。連絡を返したあと、一人になってから整え直したくなる。新しいことを一つ動かした夜、一人でやり直し直したくなる。予定変更の直後、表では止まって見える。次の週のことだけ先に置いた夜に、出やすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「連絡は続け、整えは一人の時間に寄る」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_middle_solo::distance_diverge_middle_solo::stem1|lunar11|season2|bandearly|tension_decision_start::try|wait|scene|solo|observe::distance+middle+solo+change_adjust_observe+decision_wait_wait+s1l11g2dearlytstartdecision::scene_11_2_early::stem_mirror_1::tryxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-17",
+      "m55": {
+        "headlineJa": "その場では近い関係を保っているように見られやすい。実際には、会ったあとに一人になってから距離を点検している。近い人と話したあと、帰宅してから今の距離でよかったかを見る。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。予定を変えるか迷う夜、手の動きが組み替えに変わる。期限の前の一日に、強く出やすい。周りには、向きを先に決めてから手を出す人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では近く、帰宅後に一人で点検する」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_solo::distance_diverge_close_solo::stem0|lunar7|season1|bandlate|tension_none::ask|wait|scene|solo|adjust::distance+close+solo+change_rebuild_adjust+decision_sort_wait+s0l7g1dlatet::scene_7_1_late::stem_mirror_0::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-18",
+      "m55": {
+        "headlineJa": "会話の中で距離を言葉にした直後に、言い方を一人でやり直している。丁寧に見えるほど、「今さら考え直している」と見られやすい。近い人と話したあと、決めたことを送る前に一度止まる。決めたことを送る前に、先に手を出してから全体を描き直したくなる。期限が近いとき、置いておきたかった話を閉じてしまう。振り返る夜に、いちばん戻りやすい。周りには、向きを先に決めてから手を出す人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「距離を言葉にした直後に言い方をやり直す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_close_close::recovery_diverge_scene_pause::stem0|lunar1|season2|bandearly|tension_decision_distance_recovery_start::map|deadline|pause|close|observe::distance+close+close+decision_wait_deadline+recovery_scene_pause+s0l1g2dearlytstartdecisiondistancerecovery::scene_1_2_early::stem_mirror_0::tryxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-19",
+      "m55": {
+        "headlineJa": "普段は静かだが、前提が崩れたときだけ予定を一度捨てて組み直す。急な人に見られても、本人の中では「前提が変わった」で一貫している。前提が崩れた夜、予定を一度捨てて組み直す。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。連絡を返したあと、一人になってから整え直したくなる。長い話のあとの帰り道に、残りやすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は静かで前提が崩れたときだけ組み直す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "change_observe_rebuild::distance_diverge_middle_solo::stem1|lunar6|season2|bandlate|tension_change_decision::ask|wait|scene|solo|rebuild::change+observe+rebuild+distance_middle_solo+decision_deadline_wait+s1l6g2dlatetdecisionchange::scene_6_2_late::stem_mirror_1::askxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-20",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。誰かに方針を聞かれたあと、一人で書き直したくなる。前提が崩れた夜、予定を一度捨てて組み直す。途中で整えるのを止めたあとに、残りやすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem1|lunar10|season1|bandlate|tension_none::map|sort|shrink|close|rebuild::distance+middle+close+change_observe_rebuild+decision_sort_sort+s1l10g1dlatet::scene_10_1_late::stem_mirror_1::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-21",
+      "m55": {
+        "headlineJa": "様子を見たいのに、細部だけ直し始めている。直している人に見られても、方針はまだ見定めている。予定を変えるか迷う日、方針は置いたまま細部だけ直す。新しいことを一つ動かした夜、一人でやり直し直したくなる。近い人と話したあと、帰宅してから今の距離でよかったかを見る。短い連絡が続いた夜に、先に来やすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「見定めたいのに細部だけ直し始める」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく試し始めつつ、区切りが見えた瞬間に結論へ寄せやすい基調です。"
+      },
+      "semanticKey": "change_observe_adjust::distance_diverge_close_solo::stem9|lunar9|season1|bandearly|tension_change_decision::try|deadline|pause|solo|adjust::change+observe+adjust+distance_close_solo+decision_deadline_deadline+s9l9g1dearlytdecisionchange::scene_9_1_early::stem_mirror_9::tryxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-22",
+      "m55": {
+        "headlineJa": "その場では近い関係を保っているように見られやすい。実際には、会ったあとに一人になってから距離を点検している。近い人と話したあと、帰宅してから今の距離でよかったかを見る。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。組み直す前提は決めたまま、表では一日置く。期限の前の一日に、強く出やすい。周りには、一つを深めてから外へ出す人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では近く、帰宅後に一人で点検する」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_solo::distance_diverge_close_solo::stem3|lunar7|season1|bandlate|tension_none::try|sort|scene|solo|observe::distance+close+solo+change_rebuild_observe+recovery_shrink_scene+s3l7g1dlatet::scene_7_1_late::stem_mirror_3::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-23",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。組み直す前提は決めたまま、表では一日置く。静かな休日の午後に、一人でやり直しやすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem4|lunar8|season2|bandmid|tension_none::ask|sort|scene|close|observe::distance+middle+close+change_rebuild_observe+decision_sort_sort+s4l8g2dmidt::scene_8_2_mid::stem_mirror_4::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-24",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。組み直す前提は決めたまま、表では一日置く。新しい予定を置き直す週に、先に出やすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem4|lunar2|season2|bandmid|tension_none::ask|wait|scene|close|observe::distance+middle+close+change_rebuild_observe+decision_sort_wait+s4l2g2dmidt::scene_2_2_mid::stem_mirror_4::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-25",
+      "m55": {
+        "headlineJa": "様子を見たいのに、細部だけ直し始めている。直している人に見られても、方針はまだ見定めている。予定を変えるか迷う日、方針は置いたまま細部だけ直す。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。期限で返した夜、置きたかった時間が後から来る。次の週のことだけ先に置いた夜に、出やすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「見定めたいのに細部だけ直し始める」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "change_observe_adjust::recovery_diverge_scene_shrink::stem4|lunar11|season2|bandlate|tension_change_decision::ask|wait|shrink|middle|adjust::change+observe+adjust+decision_deadline_wait+distance_middle_middle+s4l11g2dlatetdecisionchange::scene_11_2_late::stem_mirror_4::askxdeadline|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-26",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。予定変更の直後、表では止まって見える。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "判断材料が足りないとき関係者に確認したあと、一人で候補を並べ直す場面で出やすい。相談で進んだように見えても、決定は別時間に残る。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem8|lunar4|season1|bandlate|tension_none::ask|sort|pause|middle|observe::distance+solo+middle+change_adjust_observe+recovery_shrink_pause+s8l4g1dlatet::scene_4_1_late::stem_mirror_8::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-27",
+      "m55": {
+        "headlineJa": "寝かせるつもりだったのに、期限の合図で閉じてしまう。締めた人に見られても、決めたあとに「もう一晩欲しかった」が残る。期限が近いとき、置いておきたかった話を閉じてしまう。途中まで進めた話を、誰かに見てもらいに戻るときに起きやすい。予定が終わったあと、一人の時間を先に取って決め方を見直す。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「寝かせるつもりが期限で閉じてしまう」は、決める場面で力にも遅れにもなります。プレミアムでは、その続きを読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "decision_wait_deadline::recovery_diverge_scene_pause::stem8|lunar4|season2|bandearly|tension_decision_start::ask|deadline|pause|solo|rebuild::decision+wait+deadline+distance_solo_solo+change_rebuild_rebuild+s8l4g2dearlytstartdecision::scene_4_2_early::stem_mirror_8::tryxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-28",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。誰かに方針を聞かれたあと、一人で書き直したくなる。予定を変えるか迷う夜、手の動きが組み替えに変わる。出かける前に持ち物を減らす日に、見えやすい。周りには、一つを深めてから外へ出す人に見える。",
+        "primarySceneJa": "新しい依頼の直後に手順を書き出したあと、候補が複数あると比較が始まって着手が遅れる場面で出やすい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem3|lunar5|season1|bandlate|tension_none::map|sort|shrink|middle|adjust::distance+close+middle+change_rebuild_adjust+decision_sort_sort+s3l5g1dlatet::scene_5_1_late::stem_mirror_3::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-29",
+      "m55": {
+        "headlineJa": "一人で整えてから戻りたいのに、その場では距離を言葉にして合わせている。近い関係を保っているように見られても、帰宅後に一人の時間が先に立つ。会話を合わせたあと、戻る前に一人の時間を置く。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。前提が崩れた夜、予定を一度捨てて組み直す。短い連絡が続いた夜に、先に来やすい。周りには、反応が返ってきてから本調子になる人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では寄せ、帰宅後に一人の時間が先に立つ」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "distance_solo_close::distance_diverge_solo_close::stem2|lunar9|season1|bandmid|tension_none::ask|deadline|shrink|close|rebuild::distance+solo+close+change_observe_rebuild+decision_wait_deadline+s2l9g1dmidt::scene_9_1_mid::stem_mirror_2::mapxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-30",
+      "m55": {
+        "headlineJa": "普段は静かだが、前提が崩れたときだけ予定を一度捨てて組み直す。急な人に見られても、本人の中では「前提が変わった」で一貫している。前提が崩れた夜、予定を一度捨てて組み直す。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。返事を早く返した夜、整える時間が後回しになる。新しい予定を置き直す週に、先に出やすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は静かで前提が崩れたときだけ組み直す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、見通しを立ててから動き、期限が来ると一気に締めやすい基調です。"
+      },
+      "semanticKey": "change_observe_rebuild::distance_diverge_solo_middle::stem5|lunar2|season0|bandmid|tension_change_decision::try|sort|scene|middle|rebuild::change+observe+rebuild+distance_solo_middle+decision_deadline_sort+s5l2g0dmidtdecisionchange::scene_2_0_mid::stem_mirror_5::mapxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-31",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。新しいことを一つ動かした夜、一人でやり直し直したくなる。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。一年の終わりに振り返るとき、はっきりする。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく動かして様子を見てから、候補を内側で比べやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem4|lunar12|season0|bandearly|tension_none::try|sort|pause|close|rebuild::distance+middle+close+change_adjust_rebuild+decision_sort_sort+s4l12g0dearlyt::scene_12_0_early::stem_mirror_4::tryxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-32",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。新しいことを一つ動かした夜、一人でやり直し直したくなる。組み直す前提は決めたまま、表では一日置く。長い話のあとの帰り道に、残りやすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "決めたことを送る前に、候補をもう一度並べ直す場面で出やすい。前に進んだように見えても、並べ直しが終わっていない。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく動かして様子を見てから、候補を内側で比べやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem5|lunar6|season0|bandearly|tension_none::try|sort|scene|middle|observe::distance+solo+middle+change_rebuild_observe+recovery_pause_scene+s5l6g0dearlyt::scene_6_0_early::stem_mirror_5::tryxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-33",
+      "m55": {
+        "headlineJa": "会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直している。離れて見られても、実際は決め方の再点検だ。予定が終わったあと、一人の時間を先に取って決め方を見直す。誰かに方針を聞かれたあと、一人で書き直したくなる。予定の骨は残したまま、細部だけ直し続ける夜がある。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、反応が返ってきてから本調子になる人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会ったあとに一人で決め方を見直す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_solo_solo::recovery_diverge_shrink_scene::stem2|lunar4|season1|bandlate|tension_none::map|deadline|scene|solo|adjust::distance+solo+solo+change_adjust_adjust+decision_sort_deadline+s2l4g1dlatet::scene_4_1_late::stem_mirror_2::askxsort|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-34",
+      "m55": {
+        "headlineJa": "普段は静かだが、前提が崩れたときだけ予定を一度捨てて組み直す。急な人に見られても、本人の中では「前提が変わった」で一貫している。前提が崩れた夜、予定を一度捨てて組み直す。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。期限で返した夜、置きたかった時間が後から来る。次の週のことだけ先に置いた夜に、出やすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は静かで前提が崩れたときだけ組み直す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "change_observe_rebuild::recovery_diverge_scene_pause::stem4|lunar11|season2|bandlate|tension_change_decision::ask|wait|pause|middle|rebuild::change+observe+rebuild+decision_deadline_wait+distance_middle_middle+s4l11g2dlatetdecisionchange::scene_11_2_late::stem_mirror_4::askxdeadline|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-35",
+      "m55": {
+        "headlineJa": "安定して見えるほど、迷いを一人で抱えたまま連絡だけ続けている。離れていないように見られても、整えは会話の外で起きている。連絡は続いているのに、一日の終わりの整えは一人に残る。決めたことを送る前に、先に手を出してから全体を描き直したくなる。予定の骨は残したまま、細部だけ直し続ける夜がある。短い連絡が続いた夜に、先に来やすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "新しい依頼の直後に手順を書き出したあと、候補が複数あると比較が始まって着手が遅れる場面で出やすい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「安定して見えるほど迷いを一人で抱える」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく試し始めつつ、区切りが見えた瞬間に結論へ寄せやすい基調です。"
+      },
+      "semanticKey": "distance_middle_middle::decision_diverge_deadline_sort::stem1|lunar9|season1|bandearly|tension_none::map|sort|shrink|middle|adjust::distance+middle+middle+change_adjust_adjust+decision_deadline_sort+s1l9g1dearlyt::scene_9_1_early::stem_mirror_1::tryxdeadline|decision_diverge_overlay"
+    },
+    {
+      "id": "P-36",
+      "m55": {
+        "headlineJa": "一人で整えてから戻りたいのに、その場では距離を言葉にして合わせている。近い関係を保っているように見られても、帰宅後に一人の時間が先に立つ。会話を合わせたあと、戻る前に一人の時間を置く。出す直前の夜、まだ候補を開き直したくなる。前提が崩れた夜、予定を一度捨てて組み直す。期限の前の一日に、強く出やすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では寄せ、帰宅後に一人の時間が先に立つ」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_solo_close::distance_diverge_solo_close::stem8|lunar7|season2|bandmid|tension_none::map|deadline|scene|close|rebuild::distance+solo+close+change_observe_rebuild+decision_sort_deadline+s8l7g2dmidt::scene_7_2_mid::stem_mirror_8::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-37",
+      "m55": {
+        "headlineJa": "様子を見たいのに、細部だけ直し始めている。直している人に見られても、方針はまだ見定めている。予定を変えるか迷う日、方針は置いたまま細部だけ直す。誰かに相談したあとの一人の時間で、聞いたことを自分の順番に並べ直したくなる。連絡を返したあと、一人になってから整え直したくなる。出かける前に持ち物を減らす日に、見えやすい。周りには、いつもの手順があるほど安定して見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「見定めたいのに細部だけ直し始める」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、人に聞いて材料を増やしつつ、区切りが来ると一気に決めやすい基調です。"
+      },
+      "semanticKey": "change_observe_adjust::distance_diverge_middle_solo::stem4|lunar5|season2|bandlate|tension_change_decision::try|wait|scene|solo|adjust::change+observe+adjust+distance_middle_solo+decision_deadline_wait+s4l5g2dlatetdecisionchange::scene_5_2_late::stem_mirror_4::askxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-38",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。誰かに方針を聞かれたあと、一人で書き直したくなる。予定を変えるか迷うとき、小さな直しの先が組み直しに見える。期限の前の一日に、強く出やすい。周りには、反応が返ってきてから本調子になる人に見える。",
+        "primarySceneJa": "優先順位を書いてから動くのに、最後の判断だけ置いてしまう場面で出やすい。段取りしている人と、まだ決めていない人が同時にいる。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem2|lunar7|season1|bandlate|tension_none::map|wait|pause|middle|rebuild::distance+solo+middle+change_adjust_rebuild+decision_sort_wait+s2l7g1dlatet::scene_7_1_late::stem_mirror_2::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-39",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。予定を変えるか迷う夜、手の動きが組み替えに変わる。期限の前の一日に、強く出やすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem1|lunar7|season1|bandmid|tension_none::try|deadline|shrink|close|adjust::distance+middle+close+change_rebuild_adjust+decision_wait_deadline+s1l7g1dmidt::scene_7_1_mid::stem_mirror_1::mapxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-40",
+      "m55": {
+        "headlineJa": "一人で整えてから戻りたいのに、その場では距離を言葉にして合わせている。近い関係を保っているように見られても、帰宅後に一人の時間が先に立つ。会話を合わせたあと、戻る前に一人の時間を置く。途中まで進めた話を、誰かに見てもらいに戻るときに起きやすい。予定を変えるか迷う夜、手の動きが組み替えに変わる。静かな休日の午後に、一人でやり直しやすい。周りには、反応が返ってきてから本調子になる人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では寄せ、帰宅後に一人の時間が先に立つ」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、小さく動かして様子を見てから、候補を内側で比べやすい基調です。"
+      },
+      "semanticKey": "distance_solo_close::distance_diverge_solo_close::stem2|lunar8|season0|bandearly|tension_none::ask|sort|scene|close|adjust::distance+solo+close+change_rebuild_adjust+recovery_pause_scene+s2l8g0dearlyt::scene_8_0_early::stem_mirror_2::tryxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-41",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。誰かに方針を聞かれたあと、一人で書き直したくなる。予定を変えるか迷う夜、手の動きが組み替えに変わる。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "全体を見渡してから動く一方、「いつまでに決めるか」を先に置くと、準備中は遅く締切直前だけ急に決まる場面で出やすい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「仕事や判断」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を取り込みながら合わせ、一人になってから候補を並べ直しやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem9|lunar4|season1|bandlate|tension_none::map|deadline|shrink|middle|adjust::distance+close+middle+change_rebuild_adjust+decision_sort_deadline+s9l4g1dlatet::scene_4_1_late::stem_mirror_9::askxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-42",
+      "m55": {
+        "headlineJa": "会話では合わせているように見られやすい。会ったあとに、返事のタイミングを一人で戻したくなる。近い人と話したあと、一日の終わりに連絡の速さを整え直す。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。予定の骨は残したまま、細部だけ直し続ける夜がある。長い話のあとの帰り道に、残りやすい。周りには、向きを先に決めてから手を出す人に見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「会話では合わせて帰宅後にタイミングを戻す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "distance_close_middle::distance_diverge_close_middle::stem0|lunar6|season1|bandmid|tension_none::try|deadline|pause|middle|adjust::distance+close+middle+change_adjust_adjust+decision_wait_deadline+s0l6g1dmidt::scene_6_1_mid::stem_mirror_0::mapxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-43",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。予定を変えるか迷う夜、手の動きが組み替えに変わる。期限の前の一日に、強く出やすい。周りには、精度を上げてから渡す人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem7|lunar7|season2|bandmid|tension_none::ask|deadline|scene|close|adjust::distance+middle+close+change_rebuild_adjust+decision_sort_deadline+s7l7g2dmidt::scene_7_2_mid::stem_mirror_7::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-44",
+      "m55": {
+        "headlineJa": "予定が変わった直後は、動かない人に見られやすい。実際には一日様子を見てから組み替える。予定を変えるか迷うとき、翌日になってようやく組み替える。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。会話を合わせたあと、戻る前に一人の時間を置く。短い連絡が続いた夜に、先に来やすい。周りには、いくつかを同時に抱えて進む人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「動かない人に見えて一日置いてから組み替える」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、見通しを立ててから動き、期限が来ると一気に締めやすい基調です。"
+      },
+      "semanticKey": "change_observe_observe::distance_diverge_solo_close::stem5|lunar9|season0|bandmid|tension_change_decision::ask|wait|shrink|close|observe::change+observe+observe+distance_solo_close+decision_deadline_wait+s5l9g0dmidtdecisionchange::scene_9_0_mid::stem_mirror_5::mapxdeadline|distance_diverge_overlay"
+    },
+    {
+      "id": "P-45",
+      "m55": {
+        "headlineJa": "連絡は続いているように見られやすい。実際の整えは、会ったあとの一人の時間に寄る。連絡を返したあと、一人になってから整え直したくなる。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。組み直す前提は決めたまま、表では一日置く。返事を翌朝まで置いたあと、もう一度考え直しやすい。周りには、場の流れを読んでから動く人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「連絡は続け、整えは一人の時間に寄る」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を見てから動くのに、最後の決断はさらに間を置きやすい基調です。"
+      },
+      "semanticKey": "distance_middle_solo::distance_diverge_middle_solo::stem1|lunar4|season1|bandmid|tension_none::ask|sort|shrink|solo|observe::distance+middle+solo+change_rebuild_observe+decision_wait_sort+s1l4g1dmidt::scene_4_1_mid::stem_mirror_1::mapxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-46",
+      "m55": {
+        "headlineJa": "一人で整えたいのに、返事の速さだけ合わせている。安定して見えるほど、一人の時間が足りていない。返事を早く返した夜、整える時間が後回しになる。途中まで進めた話を、誰かに見てもらいに戻るときに起きやすい。組み直す前提は決めたまま、表では一日置く。振り返る夜に、いちばん戻りやすい。周りには、人とつないでから動きが立つ人に見える。",
+        "primarySceneJa": "人との距離では、連絡頻度を一定に保ちながら、内側の迷いだけを一人で抱える場面が典型です。安定して見えるほど、再点検が外に出にくい。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「一人で整えたいのに返事の速さだけ合わせる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_solo_middle::distance_diverge_solo_middle::stem8|lunar1|season2|bandearly|tension_decision_start::ask|wait|shrink|middle|observe::distance+solo+middle+change_rebuild_observe+decision_wait_wait+s8l1g2dearlytstartdecision::scene_1_2_early::stem_mirror_8::tryxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-47",
+      "m55": {
+        "headlineJa": "その場では近い関係を保っているように見られやすい。実際には、会ったあとに一人になってから距離を点検している。近い人と話したあと、帰宅してから今の距離でよかったかを見る。誰かに頼られて話したあと、帰宅してから答えを閉じたくなる。予定が崩れた夜、周囲には急な組み直しに見える。短い連絡が続いた夜に、先に来やすい。周りには、静かに読んでから言葉を置く人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「その場では近く、帰宅後に一人で点検する」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、周囲の視点を集めながらも、結論は置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_close_solo::distance_diverge_close_solo::stem9|lunar9|season0|bandlate|tension_none::ask|sort|pause|solo|rebuild::distance+close+solo+change_rebuild_rebuild+decision_wait_sort+s9l9g0dlatet::scene_9_0_late::stem_mirror_9::askxwait|distance_diverge_overlay"
+    },
+    {
+      "id": "P-48",
+      "m55": {
+        "headlineJa": "普段は間を取っているのに、会話の中では距離を言葉にしてしまう。丁寧に見える一方、あとから「近づきすぎた」が残る。普段は間を取っている相手に、会話の途中で距離を言葉にする。出す前の段取りを、誰かへ一度見せにいくときに起きやすい。予定を変えるか迷う夜、手の動きが組み替えに変わる。出かける前に持ち物を減らす日に、見えやすい。周りには、精度を上げてから渡す人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は間を取り、会話では言葉で寄せる」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、全体を揃えてから動き、揃ったあとも比較が残りやすい基調です。"
+      },
+      "semanticKey": "distance_middle_close::distance_diverge_middle_close::stem7|lunar5|season2|bandmid|tension_none::ask|sort|pause|close|adjust::distance+middle+close+change_rebuild_adjust+recovery_scene_pause+s7l5g2dmidt::scene_5_2_mid::stem_mirror_7::mapxsort|distance_diverge_overlay"
+    },
+    {
+      "id": "P-49",
+      "m55": {
+        "headlineJa": "会話の中で距離を言葉にした直後に、言い方を一人でやり直している。丁寧に見えるほど、「今さら考え直している」と見られやすい。近い人と話したあと、決めたことを送る前に一度止まる。新しいことを一つ動かした夜、一人でやり直し直したくなる。予定を変えるか迷う日、方針は置いたまま細部だけ直す。期限の前の一日に、強く出やすい。周りには、向きを先に決めてから手を出す人に見える。",
+        "primarySceneJa": "人との距離では、会話の中で「今は少し離れる／近づく」を言葉にした直後に、自分の中で言い方を再点検する場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「距離を言葉にした直後に言い方をやり直す」は、近い人との距離でいちばんすれ違いやすい。プレミアムでは、その続きを仕事と関係に分けて読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、動き出しは早い一方、最後の結論だけは置いてから出しやすい基調です。"
+      },
+      "semanticKey": "distance_close_close::recovery_diverge_scene_shrink::stem0|lunar7|season2|bandearly|tension_decision_distance_recovery_start::try|deadline|shrink|close|adjust::distance+close+close+change_observe_adjust+decision_wait_deadline+s0l7g2dearlytstartdecisiondistancerecovery::scene_7_2_early::stem_mirror_0::tryxwait|recovery_diverge_overlay"
+    },
+    {
+      "id": "P-50",
+      "m55": {
+        "headlineJa": "普段は静かだが、前提が崩れたときだけ予定を一度捨てて組み直す。急な人に見られても、本人の中では「前提が変わった」で一貫している。前提が崩れた夜、予定を一度捨てて組み直す。予定を変えるか迷うとき、整理し切る前に一つ動かしてしまう。期限で返した夜、置きたかった時間が後から来る。短い連絡が続いた夜に、先に来やすい。周りには、反応が返ってきてから本調子になる人に見える。",
+        "primarySceneJa": "人との距離では、人と会ったあとに一人の時間を先に確保し、そこで「今の決め方でよかったか」を見直す場面が典型です。",
+        "trustCueJa": "この読みは、生年月日から見える基調と、今回の回答の重なりから組み立てています。",
+        "premiumOpenLoopJa": "いま見えた「普段は静かで前提が崩れたときだけ組み直す」は、予定が崩れた日に形を変えます。プレミアムでは、その続きを場面ごとに読めます。「人との距離」での出方も、そこで読めます。",
+        "birthBaseJa": "生年月日の土台では、見通しを立ててから動き、期限が来ると一気に締めやすい基調です。"
+      },
+      "semanticKey": "change_observe_rebuild::recovery_diverge_pause_scene::stem2|lunar9|season0|bandmid|tension_change_decision::try|wait|scene|solo|rebuild::change+observe+rebuild+decision_deadline_wait+distance_solo_solo+s2l9g0dmidtdecisionchange::scene_9_0_mid::stem_mirror_2::mapxdeadline|recovery_diverge_overlay"
+    }
+  ]
+}

@@ -7,5 +7,6 @@
 | [E2E_DTR_SUCCESS_EVIDENCE_2026-04-20.md](./E2E_DTR_SUCCESS_EVIDENCE_2026-04-20.md) | 今回の成功ログ要約・成功条件・ユーザー種別の使い分け |
 | [E2E_DTR_RECOVERY_RUNBOOK.md](./E2E_DTR_RECOVERY_RUNBOOK.md) | 障害時の観測ポイント（purchased / snapshot / checkout / API） |
 | [E2E_DTR_VERIFICATION_CHECKLIST.md](./E2E_DTR_VERIFICATION_CHECKLIST.md) | 次回以降の固定検証チェックリスト |
+| [M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/](./M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/) | Personal Free **USER_VISIBLE_CLOSED_GREEN** Human signoff screenshots + contract JSON |
 
-**関連（既存）:** `docs/audit/evidence/`（P1 TC 系）、`docs/PURCHASE_STATE_AND_SUCCESS_UI_CONTRACT.md`
+**関連（既存）:** `docs/audit/evidence/`（P1 TC 系）、`docs/audit/eval-6d53a71/`（personalization resolution @ `6d53a71`）、`docs/PURCHASE_STATE_AND_SUCCESS_UI_CONTRACT.md`
