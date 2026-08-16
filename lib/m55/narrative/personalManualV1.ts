@@ -114,6 +114,8 @@ function extractSeenPhrase(before: string): string {
       .filter((part) => part.length > 0)
       .pop() ?? before.trim();
   if (clause.endsWith('人')) return clause;
+  if (/しているよう$/.test(clause)) return clause.replace(/しているよう$/, 'している人');
+  if (/ているよう$/.test(clause)) return clause.replace(/ているよう$/, 'ている人');
   if (/ように$/.test(clause)) return `${clause.replace(/ように$/, 'い')}人`;
   if (/ている$|いる$|った$|い$|え$/.test(clause)) return `${clause}人`;
   return clause;
@@ -125,6 +127,7 @@ function cleanActualPhrase(text: string): string {
     .replace(/^、/u, '')
     .replace(/^自分の中では/u, '')
     .replace(/^本人の中では/u, '')
+    .replace(/^内側では/u, '')
     .trim();
 }
 
