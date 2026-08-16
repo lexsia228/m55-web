@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-08-15T21:33:36.050767+00:00",
-  "count": 691,
+  "generated_at_utc": "2026-08-16T21:33:09.659404+00:00",
+  "count": 700,
   "records": [
     {
       "path": "docs/ssot/CHECKPOINT_2026-03-02.md",
@@ -85,7 +85,7 @@
     {
       "path": "docs/ssot/M55_CURRENT_STATE.md",
       "category": "ssot",
-      "bytes": 51527
+      "bytes": 60835
     },
     {
       "path": "docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md",
@@ -95,7 +95,7 @@
     {
       "path": "docs/ssot/M55_DECISION_LOG.md",
       "category": "ssot",
-      "bytes": 19280
+      "bytes": 26264
     },
     {
       "path": "docs/ssot/M55_DEPRECATION_MAP_20260330.md",
@@ -3030,7 +3030,7 @@
     {
       "path": "docs/ssot/M55_ROADMAP.md",
       "category": "ssot",
-      "bytes": 11788
+      "bytes": 12808
     },
     {
       "path": "docs/ssot/M55_SELF_FUNNEL_CONTRACT.md",
@@ -3110,7 +3110,7 @@
     {
       "path": "docs/ssot/M55_WORKTREE_REGISTRY.md",
       "category": "ssot",
-      "bytes": 71443
+      "bytes": 76800
     },
     {
       "path": "docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md",
@@ -3268,6 +3268,11 @@
       "bytes": 5537
     },
     {
+      "path": "docs/audit/M55_PERSONALIZATION_HUMAN_ACCEPTANCE_PACK_v1.json",
+      "category": "audit",
+      "bytes": 140243
+    },
+    {
       "path": "docs/audit/M55_PERSONALIZATION_RESOLUTION_AUDIT_v1.json",
       "category": "audit",
       "bytes": 39699
@@ -3315,12 +3320,12 @@
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.json",
       "category": "audit",
-      "bytes": 109318
+      "bytes": 109593
     },
     {
       "path": "docs/audit/M55_REPO_ASSET_INDEX.md",
       "category": "audit",
-      "bytes": 73483
+      "bytes": 73654
     },
     {
       "path": "docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md",
@@ -3386,6 +3391,46 @@
       "path": "docs/audit/TURN_13A_SSOT_SURFACE_INDEX.md",
       "category": "audit",
       "bytes": 1189
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/BENCHMARK_PROFILE_SET.json",
+      "category": "audit",
+      "bytes": 37114
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/BLIND_IDENTITY_MAP.json",
+      "category": "audit",
+      "bytes": 9709
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/BLIND_SCORING_SHEET.md",
+      "category": "audit",
+      "bytes": 58372
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/CONDITION_C_M55.json",
+      "category": "audit",
+      "bytes": 86915
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/GENERIC_AI_PROMPTS_FROZEN.json",
+      "category": "audit",
+      "bytes": 146342
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/M55_FREE_PERSONALIZATION_VISUAL_AND_AI_BENCHMARK.json",
+      "category": "audit",
+      "bytes": 764
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/MANIFEST.md",
+      "category": "audit",
+      "bytes": 576
+    },
+    {
+      "path": "docs/audit/eval-6d53a71/VISUAL_INSPECT.json",
+      "category": "audit",
+      "bytes": 117634
     },
     {
       "path": "docs/audit/evidence/README.md",

@@ -1,7 +1,7 @@
 # M55_REPO_ASSET_INDEX
 
-Generated: 2026-08-15T21:33:36.053511+00:00
-Total records: 691
+Generated: 2026-08-16T21:33:09.662161+00:00
+Total records: 700
 
 - [ssot] `docs/ssot/CHECKPOINT_2026-03-02.md` (1717 bytes)
 - [ssot] `docs/ssot/DESKTOP_PACK_SCAN_REPORT_2026-02-26.md` (3948 bytes)
@@ -19,9 +19,9 @@ Total records: 691
 - [ssot] `docs/ssot/M55_COMMERCIAL_FUNNEL_SSOT.md` (1831 bytes)
 - [ssot] `docs/ssot/M55_COMMERCIAL_QUALITY_CONTRACT.md` (10481 bytes)
 - [ssot] `docs/ssot/M55_COPY_AND_CLAIMS.md` (2471 bytes)
-- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (51527 bytes)
+- [ssot] `docs/ssot/M55_CURRENT_STATE.md` (60835 bytes)
 - [ssot] `docs/ssot/M55_DAILY_DIGEST_AND_HABIT_LOOP_SSOT_v1_2026-03-07.md` (4728 bytes)
-- [ssot] `docs/ssot/M55_DECISION_LOG.md` (19280 bytes)
+- [ssot] `docs/ssot/M55_DECISION_LOG.md` (26264 bytes)
 - [ssot] `docs/ssot/M55_DEPRECATION_MAP_20260330.md` (6382 bytes)
 - [ssot] `docs/ssot/M55_DIVINATION_RESULT_PARITY_P0_CLOSEOUT_2026-05-26.md` (8508 bytes)
 - [ssot] `docs/ssot/M55_DTR_BASE_PREVIEW_GREEN_CHECKPOINT_2026-05-12.md` (3141 bytes)
@@ -608,7 +608,7 @@ Total records: 691
 - [ssot] `docs/ssot/M55_REPLY_WALLET_UNSAFE_ARCHIVE_SQL_REJECTION_v1.md` (5889 bytes)
 - [ssot] `docs/ssot/M55_REPORT_CORRECTION_AND_REPLY_CREDIT_POLICY_v1.md` (30133 bytes)
 - [ssot] `docs/ssot/M55_REPRODUCIBILITY_APPENDIX_v1.md` (5018 bytes)
-- [ssot] `docs/ssot/M55_ROADMAP.md` (11788 bytes)
+- [ssot] `docs/ssot/M55_ROADMAP.md` (12808 bytes)
 - [ssot] `docs/ssot/M55_SELF_FUNNEL_CONTRACT.md` (4516 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_ADDITIONAL_REPLY_PRICE_ENV_CORRECTION_PLANNING_2026-05-24.md` (9366 bytes)
 - [ssot] `docs/ssot/M55_STRIPE_WEBHOOK_ENDPOINT_REGISTRY.md` (2698 bytes)
@@ -624,7 +624,7 @@ Total records: 691
 - [ssot] `docs/ssot/M55_WEB_PAGE_MAPPING_AND_REUSE_MATRIX_v1_2026-03-07.md` (1319 bytes)
 - [ssot] `docs/ssot/M55_WEB_UI_ARCHITECTURE_SSOT_v1_2026-03-07.md` (1134 bytes)
 - [ssot] `docs/ssot/M55_WEB_VISUAL_AND_COMPONENT_CONTRACT_SSOT_v1_2026-03-07.md` (1438 bytes)
-- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (71443 bytes)
+- [ssot] `docs/ssot/M55_WORKTREE_REGISTRY.md` (76800 bytes)
 - [ssot] `docs/ssot/PAYMENT_FULFILLMENT_SSOT_CANDIDATE_v1_2026-03-08.md` (3159 bytes)
 - [ssot] `docs/ssot/POST_REVIEW_UI_SWITCH_SSOT_v1.md` (3410 bytes)
 - [ssot] `docs/ssot/PRICING_WALLET_SEPARATION__EXTRACT_v1_DESKTOP_PACK_2026-02-01.md` (2813 bytes)
@@ -656,6 +656,7 @@ Total records: 691
 - [audit] `docs/audit/M55_IMPLEMENTATION_COMMANDS_FOR_CURSOR.md` (5052 bytes)
 - [audit] `docs/audit/M55_ONE_TIME_CHECKOUT_FULFILLMENT_SPEC_2026-03-08.md` (3165 bytes)
 - [audit] `docs/audit/M55_ONE_TIME_FULFILLMENT_EVIDENCE_REPORT_2026-03-08.md` (5537 bytes)
+- [audit] `docs/audit/M55_PERSONALIZATION_HUMAN_ACCEPTANCE_PACK_v1.json` (140243 bytes)
 - [audit] `docs/audit/M55_PERSONALIZATION_RESOLUTION_AUDIT_v1.json` (39699 bytes)
 - [audit] `docs/audit/M55_PHASE1_MONETIZATION_IMPLEMENTATION_2026-03-06.md` (3608 bytes)
 - [audit] `docs/audit/M55_PHASE1_RETROSPECTIVE_AND_ROUTE_2026-03-06.md` (11236 bytes)
@@ -665,8 +666,8 @@ Total records: 691
 - [audit] `docs/audit/M55_Prototype_Gate_Master_Usage_2026-03-05.md` (1974 bytes)
 - [audit] `docs/audit/M55_Prototype_Gate_Postmortem_2026-03-05_v1.0.md` (10134 bytes)
 - [audit] `docs/audit/M55_REFINED_EXECUTION_ROADMAP_2026-03-07.md` (5608 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (109318 bytes)
-- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (73483 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.json` (109593 bytes)
+- [audit] `docs/audit/M55_REPO_ASSET_INDEX.md` (73654 bytes)
 - [audit] `docs/audit/M55_STEP1_STEP2_CONSTITUTION_AND_ENTITY_AUDIT_2026_03_15.md` (9663 bytes)
 - [audit] `docs/audit/M55_TEAM_CHECKPOINT_2026-03-07_CURRENT_POSITION.md` (3726 bytes)
 - [audit] `docs/audit/M55_THREAD_ASSET_SUMMARY_2026-03-06.md` (1323 bytes)
@@ -680,6 +681,14 @@ Total records: 691
 - [audit] `docs/audit/RECOVERY_COMPLETE_20260401.md` (3466 bytes)
 - [audit] `docs/audit/TURN_12A_CHECKED_LEDGER.md` (1996 bytes)
 - [audit] `docs/audit/TURN_13A_SSOT_SURFACE_INDEX.md` (1189 bytes)
+- [audit] `docs/audit/eval-6d53a71/BENCHMARK_PROFILE_SET.json` (37114 bytes)
+- [audit] `docs/audit/eval-6d53a71/BLIND_IDENTITY_MAP.json` (9709 bytes)
+- [audit] `docs/audit/eval-6d53a71/BLIND_SCORING_SHEET.md` (58372 bytes)
+- [audit] `docs/audit/eval-6d53a71/CONDITION_C_M55.json` (86915 bytes)
+- [audit] `docs/audit/eval-6d53a71/GENERIC_AI_PROMPTS_FROZEN.json` (146342 bytes)
+- [audit] `docs/audit/eval-6d53a71/M55_FREE_PERSONALIZATION_VISUAL_AND_AI_BENCHMARK.json` (764 bytes)
+- [audit] `docs/audit/eval-6d53a71/MANIFEST.md` (576 bytes)
+- [audit] `docs/audit/eval-6d53a71/VISUAL_INSPECT.json` (117634 bytes)
 - [audit] `docs/audit/evidence/README.md` (987 bytes)
 - [audit] `docs/audit/evidence/TC-02_ONE_TIME_HAPPY_PATH.md` (4148 bytes)
 - [audit] `docs/audit/evidence/TC-03_REPLAY_DUPLICATE_RESISTANCE.md` (950 bytes)
