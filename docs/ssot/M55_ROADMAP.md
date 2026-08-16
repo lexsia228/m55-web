@@ -23,7 +23,7 @@ Human commercial-quality approval and actual-screen evidence are mandatory befor
 
 ## Four-surface visual identity (2026-08-14) — CLOSED GREEN
 
-PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#131 are **MERGED** on `main` @ `3657ba17c4d727baeaa003e9f661f27c9a930436`; Product closure remains `de37b1a0f6781cf763621b023af6b6c7617b7e5d` because the later delta is docs/evidence/governance only. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. `M55_POST_RELEASE_LIFECYCLE_TRANSITION` is **COMPLETE**. **NEXT:** authorized **M55_MRQ_P3_ENTRY_PLANNING** (planning only); independent PR #119 Compatibility commerce — **not** another Personal Free redesign; **not** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (CLOSED_GREEN @ `1e25d17`).
+PR #117 is **MERGED** @ `be6efb4fd7b2994a18fe0f175a536e773ee827ce`. PR #120–#132 are **MERGED** on audit-baseline `main` @ `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`; Product closure remains `de37b1a0f6781cf763621b023af6b6c7617b7e5d` because the later delta is docs/evidence/governance only. Personalization + narrative/share + Personal Free commercial individuality are **live on Production** (`https://m-55.jp`). Personal Free user-visible quality is **USER_VISIBLE_CLOSED_GREEN**. Compatibility commerce remains **OFF**. `M55_POST_RELEASE_LIFECYCLE_TRANSITION` and absolute residual-debt disposition are **COMPLETE**. PR #30 and PR #75 are **CLOSED** unmerged as superseded; PR #119 is the sole intended open product/preflight PR. **NEXT:** authorized **M55_MRQ_P3_ENTRY_PLANNING** (planning only) — **not** another Personal Free redesign; **not** `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` (CLOSED_GREEN @ `1e25d17`).
 
 ## Personal Free user-visible quality (2026-08-16) — USER_VISIBLE_CLOSED_GREEN
 
@@ -35,7 +35,7 @@ PR #116 @ `511b54d` and PR #117 @ `be6efb4` closed the four-surface visual ident
 
 ## Current MRQ governance transition (2026-08-06) — AUTHORITATIVE FOR MRQ SEQUENCE, SUPERSEDED FOR ACTIVE IMPLEMENTATION LANE 2026-08-14
 
-PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. PR #68 is **CLOSED** as **superseded** — **unmerged**; not an implementation source. PR #30 is **OPEN** — independent; not blocking MRQ. PR #75 is **OPEN** — frozen reference-only; not blocking MRQ.
+PR #90 is **MERGED** @ `ac71d054556ebec06d6fa107fbe359a88052aca6` (feature head `af33c722e6e585f51f8e51297055d090606fd32e`; mergedAt `2026-08-05T13:13:10Z`); P0 Premium public terminology is **CLOSED GREEN**. MRQ mapping Revision 1 is **CLOSED GREEN** on WT-019 (read-only; no implementation authority). The ACTIVE lane is **M55 MINIMUM-REVENUE-QUALITY — P3 entry/planning**. PR #68, PR #30, and PR #75 are **CLOSED** as superseded/unmerged historical lanes; none is an implementation source. PR #119 remains the sole intended open product/preflight PR.
 
 **Fixed MRQ execution order — agents must not reorder arbitrarily:**
 
