@@ -1,7 +1,7 @@
 # M55 Worktree Registry
 
 Status: **Worktree authority (Tier E — operational)**  
-Last verified: **2026-08-16T12:09:45Z** (`git worktree list --porcelain`; `origin/main` and Production **GREEN** @ `3657ba17c4d727baeaa003e9f661f27c9a930436` · diagnostics observedAt `2026-08-16T12:09:45.874Z` · Product Authority SHA `de37b1a0f6781cf763621b023af6b6c7617b7e5d` retained because the post-product delta is docs/evidence/governance only)
+Last verified: **2026-08-16T15:07:27Z** (`git worktree list --porcelain`; audit-baseline `origin/main` and Production **GREEN** @ `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea` · diagnostics observedAt `2026-08-16T14:26:28.841Z` · Product Authority SHA `de37b1a0f6781cf763621b023af6b6c7617b7e5d` retained because the post-product delta is docs/evidence/governance only)
 Source command: `git worktree list --porcelain` + per-worktree `git status --porcelain`, `@{upstream}`, `rev-list --left-right --count origin/main...HEAD`
 
 ## How to read this registry
@@ -9,7 +9,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 ### Production main authority (Git remote)
 
 - **Branch:** `origin/main`
-- **Absolute-audit baseline remote main / Production observation (2026-08-16):** `3657ba17c4d727baeaa003e9f661f27c9a930436` — PR #131 **MERGED**; Production diagnostics SHA matched at `2026-08-16T12:09:45.874Z`; `de37b1a..3657ba1` is docs/evidence/governance only. PR #132 is docs-only audit settlement and does not redefine Product closure; its final merge identity is GitHub gate-time authority.
+- **Absolute residual-cleanup baseline remote main / Production observation (2026-08-16):** `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea` — PR #132 **MERGED**; Production diagnostics SHA matched at `2026-08-16T14:26:28.841Z`; `de37b1a..9d7eb06` is docs/evidence/governance only. This residual cleanup is lifecycle/docs-only and does not redefine Product closure.
 - **Historical verified baseline:** `575791f2ab80d57c89317e07da4b8020cfba3485` — PR #74 merge anchor; historical transition/descendant anchor; **not** current live remote main
 - **Pre-merge SHA (historical):** `37163a0d473c25365f3bddad579d4844fd8300df`
 - **Locally recorded origin/main (bootstrap merge):** `04c90acdb55665f63df8d332be2cbc66e96b8e8e` — incorporated as second parent of `2591e69454d2d082e31e59a8cb0591bda11c3362`; historical bootstrap-era recorded remote; **not** current live remote main
@@ -41,7 +41,7 @@ Source command: `git worktree list --porcelain` + per-worktree `git status --por
 | **PRIMARY_MAIN_HOME** | Designated baseline worktree path for post–PR #74 commercial funnel work |
 | **ACTIVE_BRANCH** | The branch actively being edited in the current operational gate |
 
-**CURRENT (2026-08-16 absolute machine closure) — authoritative, read this first:** PR #120–#131 on `main` @ `3657ba17c4d727baeaa003e9f661f27c9a930436`. PR #131 lifecycle settlement is **MERGED**. Product closure @ `de37b1a`; the post-product delta is docs/evidence/governance only. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED**. Lifecycle transition **COMPLETE** — Human signoff + personalization eval evidence archived in-repo. **ACTIVE implementation lane: none.** **NEXT:** **M55_MRQ_P3_ENTRY_PLANNING** (planning only). PR #119 Compatibility commerce **OPEN**. Live worktrees: **5** — see **FINAL LIVE WORKTREES** below. WT-032 / WT-033 **REMOVED**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` remains **CLOSED_GREEN** — do not reopen.
+**CURRENT (2026-08-16 absolute residual-debt closure) — authoritative, read this first:** PR #120–#132 on `main` @ audit baseline `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`. Product closure @ `de37b1a`; the post-product delta is docs/evidence/governance only. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED**. Lifecycle transition **COMPLETE** — Human signoff + personalization eval evidence archived in-repo; four superseded stashes dropped; obsolete local-only retention refs retired; PR #30 and PR #75 closed unmerged with remote branches retained. **ACTIVE implementation lane: none.** **NEXT:** **M55_MRQ_P3_ENTRY_PLANNING** (planning only). PR #119 Compatibility commerce is the sole intended open product/preflight PR. Live worktrees: **3** — see **FINAL LIVE WORKTREES** below. WT-001 / WT-009 / WT-032 / WT-033 **REMOVED**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` remains **CLOSED_GREEN** — do not reopen.
 
 **CURRENT (2026-08-16 GPT handoff post-PR-#129) — historical:** PR #120–#129 on `main` @ `4e7d920ba5b41e55e37f2ad0e8c7f01eac7d78f2` (docs settlement). Product closure @ `de37b1a`. Production **GREEN** · canonical `https://m-55.jp`. Personal Free **USER_VISIBLE_CLOSED_GREEN** · lane **SETTLED** — **not ACTIVE**. `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` is **CLOSED_GREEN** (`1e25d17`, 2026-08-13) — **not** next gate. WT-030 / WT-031 retained read-only. WT-033 **COMPLETED_REMOVABLE** — retain until Human archives `docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`. **NEXT:** **M55_POST_RELEASE_LIFECYCLE_TRANSITION** → **M55_MRQ_P3_ENTRY_PLANNING** (planning only). Independent PR #119 Compatibility commerce open.
 
@@ -121,7 +121,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ## Registered worktrees
 
-### WT-001 — PRIMARY_MAIN_HOME
+### WT-001 — Self funnel merged baseline (REMOVED)
 
 | Field | Value |
 |---|---|
@@ -131,18 +131,18 @@ Historical post-merge transition snapshots remain recorded for audit.
 | baseline | `main` @ `355462b84d4a1a28ba6d8a37a3e6a40346a572d2` |
 | current origin/main (2026-07-27 verification-time snapshot; not current as of 2026-08-01 — see `bf5ef09f…` in "Production main authority" above) | `696559009367a6ac445dc7a07876590b16cd8488` |
 | upstream | `origin/feat/m55-self-free-to-premium-funnel-v1` @ `fda934d…` |
-| cleanliness | **clean** |
+| cleanliness | **historical pre-removal snapshot: clean** |
 | locked / prunable | none |
-| lifecycle | **COMPLETED** · **PRIMARY_MAIN_HOME** (superseded **ACTIVE** baseline) |
+| lifecycle | **REMOVED** — 2026-08-16 absolute residual-debt cleanup |
 | operational state | **OPERATIONAL_BASELINE_MERGED** |
-| purpose | **PRIMARY_MAIN_HOME** — Self free→Premium operational baseline (merged; reference only) |
-| related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · backup `refs/backup/m55-self-funnel-pre-main-sync-rev1` retained |
+| purpose | Historical Self free→Premium operational baseline; branch/history retained without a live worktree |
+| related lane / PR | PR #80 **MERGED** @ `6965590…` · feature tip `fda934d…` · former local backup retention ref retired after supersession proof |
 | product implementation authorized | **false** — no new Growth work and no further Self Funnel implementation authorized from this worktree; WT-011 Growth/share is **COMPLETED** (PR #81 MERGED) and must **not** receive new implementation |
-| allowed operations | read-only inspection · historical baseline reference |
-| prohibited operations | append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime / WT-009 edits · routing new product work to WT-011 |
-| removal eligibility | NO — retain as PRIMARY_MAIN_HOME / merged baseline reference |
+| allowed operations | read-only branch/history inspection |
+| prohibited operations | worktree recreation without a new explicit gate · append growth commits · Stripe / webhook / DB / Clerk / env / Pair runtime · routing new product work here |
+| removal eligibility | **COMPLETE** — Human authorized normal clean removal in the residual-debt gate |
 | next gate | none for product implementation — current ACTIVE worktree is **WT-013** for the read-only commercial-surface governance freeze; Pair and commerce remain not authorized |
-| notes | PR #80 merged to `main`. Production classified **OPERATIONAL_BASELINE** (not final commercial launch). Do not continue growth by appending to this merged feature branch. Do **not** restart Growth or Self Funnel implementation on WT-011. |
+| notes | PR #80 merged to `main`. Worktree removed normally after clean/ancestor/no-open-PR proof. Historical local and remote feature branches remain. Do **not** restart Growth or Self Funnel implementation here. |
 
 ### WT-002 — Compatibility purchase delivery (DO NOT USE)
 
@@ -299,7 +299,7 @@ Historical post-merge transition snapshots remain recorded for audit.
 | removal eligibility | deferred — human review |
 | notes | Upstream tracks `origin/main` but checked-out branch is feature. Not PRIMARY_MAIN_HOME. |
 
-### WT-009 — Build Week Control Plane (operational freeze)
+### WT-009 — Build Week Control Plane (REMOVED)
 
 | Field | Value |
 |---|---|
@@ -308,16 +308,16 @@ Historical post-merge transition snapshots remain recorded for audit.
 | branch | `feat/m55-build-week-control-plane-v1` |
 | HEAD | `0cba2cb998e07b81c71ea51d69f7ae0fe92b7f75` |
 | upstream | `origin/feat/m55-build-week-control-plane-v1` |
-| cleanliness | clean (verification-time snapshot) |
+| cleanliness | **historical pre-removal snapshot: clean** |
 | locked / prunable | none |
-| lifecycle | **PAUSED** |
-| operational state | **FROZEN_BY_HUMAN_DECISION** |
+| lifecycle | **REMOVED** — 2026-08-16 absolute residual-debt cleanup |
+| operational state | **CLOSED_SUPERSEDED_HISTORICAL_REFERENCE** |
 | purpose | **FROZEN_BUILD_WEEK_EVIDENCE_AND_EXTERNAL_CONTROL_PLANE** |
-| related lane / PR | PR #75 — **OPEN** (frozen reference-only by Human decision; **not blocking MRQ**) |
-| allowed operations | read-only inspection · Control Plane canonical external audit · PR/check status read-only observation |
-| prohibited operations | source/docs/test/config edit · commit · push · rebase · force-push · merge to `main` · product runtime change · Production change · worktree removal |
-| removal eligibility | NO — frozen reference-only; not blocking MRQ; requires explicit Human approval in separate gate for retirement |
-| notes | Build Week submission evidence preserved under Human decision. Stronger than typical PAUSED: read-only inspection only; no edit/commit/push/rebase/merge without explicit Human gate; no merge to `main`; no product/runtime/Production changes; auto-cleanup/remove prohibited. PR #75 disposition: **FROZEN_REFERENCE_ONLY** — not blocking MRQ. Removal only after explicit Human gate. |
+| related lane / PR | PR #75 — **CLOSED** unmerged as superseded historical reference; remote branch retained |
+| allowed operations | read-only remote branch/history inspection |
+| prohibited operations | merge old Control Plane code to `main` · product/runtime/Production change · worktree recreation without a new explicit gate |
+| removal eligibility | **COMPLETE** — Human authorized normal clean removal after PR #75 closure |
+| notes | All eight PR #75 commits remain recoverable on `origin/feat/m55-build-week-control-plane-v1`. PR #75 was closed with a superseded-history note and was not merged. No product/runtime/Production changes occurred. |
 
 ### WT-010 — Product Authority Pack
 
@@ -824,17 +824,15 @@ Historical post-merge transition snapshots remain recorded for audit.
 
 ---
 
-## FINAL LIVE WORKTREES (2026-08-16 post-lifecycle cleanup) — AUTHORITATIVE
+## FINAL LIVE WORKTREES (2026-08-16 absolute residual-debt cleanup) — AUTHORITATIVE
 
 | Path | Branch | Registry id | Lifecycle | Why it remains | Exit condition |
 |---|---|---|---|---|---|
-| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | primary git root | **FROZEN_REFERENCE** | Primary repository working tree (`.git` root); local WIP scratch only — not product authority | clean local scratch or explicit Human retirement |
-| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` (settlement branch during PR) | WT-024 (control) | **FROZEN_REFERENCE** | Git `main` checkout / canonical repo control | replace only with explicit new control worktree |
-| `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` | `feat/m55-self-free-to-premium-funnel-v1` | WT-001 | **FROZEN_REFERENCE** | PRIMARY_MAIN_HOME merged baseline reference | invalidation or explicit Human retirement |
-| `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | `feat/m55-build-week-control-plane-v1` | WT-009 | **FROZEN_REFERENCE** | Build Week evidence — Human frozen | explicit Human retirement gate |
+| `/Users/lexsia/Documents/M55_CANONICAL` | `feat/m55-personalization-resolution-v2` | primary git root | **PRIMARY_REPO_ROOT** | Primary repository `.git` root; clean; not an ACTIVE implementation lane | keep |
+| `/Users/lexsia/Documents/M55_WORKTREE-mrq-p1c-draft-persistence-v1` | `main` (docs-only settlement branch only while its PR is open) | WT-024 (control) | **MAIN_CONTROL** | Clean recommended control checkout for the next GPT thread | replace only by explicit control-checkout transition |
 | `/Users/lexsia/Documents/M55_WORKTREE-mrq-p3-sales-safety-v1` | `fix/m55-compatibility-commerce-preflight-v1` | WT-027 | **PENDING_INTEGRATION** | PR #119 OPEN — Compatibility commerce preflight | PR #119 merge/close + separate commerce gate |
 
-All other prior registry worktrees: **REMOVED** from live `git worktree list` (2026-08-16). Branches retained on remote unless separately retired.
+All other prior registry worktrees, including WT-001 and WT-009: **REMOVED** from live `git worktree list` (2026-08-16). Historical branches remain; PR #30/#75 remote branches were not deleted. Four superseded stashes and obsolete local retention refs were disposed; `STASH_COUNT=0`, `UNPUSHED_LOCAL_ONLY_COMMITS=0` at the cleanup gate.
 
 ---
 

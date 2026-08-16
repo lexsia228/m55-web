@@ -5,24 +5,26 @@ Machine registry: `M55_COMMERCIAL_STATE_REGISTRY` in `lib/m55/contracts/m55Comme
 Worktree detail: **`docs/ssot/M55_WORKTREE_REGISTRY.md`** (authoritative for paths, branches, lifecycle)
 Product Authority Pack: **`.product-authority/`** (durable authority + observations)
 
-Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation).
+Last updated: 2026-07-27 (Growth Share authority state reconciliation — WT-011); **updated 2026-08-01** (PR #81 post-merge SSOT and thread handoff); **updated 2026-08-03** (PR #83 post-merge governance transition and WT-014 implementation-authority registration); **updated 2026-08-04** (PR #86 post-merge IND-FREE closure and IND-PAID lane activation); **updated 2026-08-04** (PR #88 MERGED lifecycle close); **updated 2026-08-04** (WT-018 Premium public terminology local implementation); **updated 2026-08-06** (PR #90 MERGED · P0 terminology CLOSED GREEN · MRQ governance alignment); **updated 2026-08-06** (PR #92 MERGED · Product Authority post-merge transition); **updated 2026-08-07** (PR #93 MERGED · Product Authority main settlement); **updated 2026-08-10** (PR #94–#96 post-merge MRQ P1A/P1B closure · P1C draft persistence implementation gate); **updated 2026-08-10** (PR #97 MERGED · P1C CLOSED GREEN · post-merge SSOT transition to P2 Revenue-Ready entry); **updated 2026-08-10** (PR #99 MERGED · P2 Revenue-Ready **CLOSED GREEN** · post-merge SSOT transition to P3 entry/planning); **updated 2026-08-11** (P3 entry live-binding snapshot refresh @ `2026-08-11T04:45:05Z`); **updated 2026-08-14** (PR #117 MERGED · four-surface visual identity CLOSED GREEN · Production @ `be6efb4`); **updated 2026-08-15** (all-surface personalization resolution audit · WT-029 · V6 Human lock paused); **updated 2026-08-15** (WT-030 personalization resolution v2 implementation IN_PROGRESS); **updated 2026-08-15** (WT-031 product narrative + social share v1 stacked IN_PROGRESS — Human copy lock pending); **updated 2026-08-16** (PR #120 + PR #121 **MERGED** · personalization + narrative/share main settlement @ `7bc2503`); **updated 2026-08-16** (PR #122 post-merge SSOT settlement @ `9e40f1a`); **updated 2026-08-16** (Production release **GREEN** · personalization + narrative/share live @ `9e40f1a`); **updated 2026-08-16** (PR #123 + PR #124 **MERGED** · Personal Free commercial individuality presentation closure · Production @ `743d0fd`); **updated 2026-08-16** (Human **USER_VISIBLE_CLOSED_GREEN** · PR #128 · Production @ `de37b1a`); **updated 2026-08-16** (docs settlement PR #129 @ `4e7d920`); **updated 2026-08-16** (GPT handoff — stale `M55_LIVE_UPGRADE_RPC_V2_SAME_TRANSACTION_RECOVERY` next-gate regression removed); **updated 2026-08-16** (final thread lifecycle closure — evidence archive + worktree cleanup); **updated 2026-08-16** (PR #131 post-merge absolute machine closure reconciliation); **updated 2026-08-16** (absolute residual-debt disposition — stashes/obsolete refs retired, PR #30/#75 closed, live worktrees reduced to three).
 
-## FINAL THREAD LIFECYCLE CLOSURE (2026-08-16) — AUTHORITATIVE
+## ABSOLUTE RESIDUAL-DEBT CLOSURE (2026-08-16) — AUTHORITATIVE
 
 | Field | Value |
 |---|---|
-| Audit-baseline origin/main | `3657ba17c4d727baeaa003e9f661f27c9a930436` (PR #131 **MERGED**) |
-| Production SHA | `3657ba17c4d727baeaa003e9f661f27c9a930436` — diagnostics observedAt `2026-08-16T12:09:45.874Z` |
-| Post-product delta | `de37b1a..3657ba1` is docs/evidence/governance only; Product Authority SHA remains `de37b1a` |
+| Audit-baseline origin/main | `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea` (PR #132 **MERGED**) |
+| Production SHA | `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea` — diagnostics observedAt `2026-08-16T14:26:28.841Z` |
+| Post-product delta | `de37b1a..9d7eb06` is docs/evidence/governance only; Product Authority SHA remains `de37b1a` |
 | Product closure SHA | `de37b1a0f6781cf763621b023af6b6c7617b7e5d` |
 | Personal Free | **USER_VISIBLE_CLOSED_GREEN** · **SETTLED** · **not ACTIVE** |
 | ACTIVE implementation lane | **none** |
-| Lifecycle transition | **COMPLETE** — Human signoff evidence archived in-repo |
+| Lifecycle transition | **COMPLETE** — Human signoff evidence archived; residual stashes and obsolete local retention refs disposed |
 | NEXT SINGLE ACTION | **M55_MRQ_P3_ENTRY_PLANNING** (planning only; implementation **not authorized**) |
-| Independent open lane | PR #119 Compatibility commerce preflight — **OPEN** |
-| Live worktrees | **5** — see `M55_WORKTREE_REGISTRY.md` final continuity register |
+| Independent open lane | PR #119 Compatibility commerce preflight — **OPEN** and the sole intended open product/preflight PR |
+| Superseded PRs | PR #30 and PR #75 **CLOSED**, unmerged; remote branches retained as history |
+| Live worktrees | **3** — PRIMARY_REPO_ROOT · MAIN_CONTROL · PR #119 PENDING_INTEGRATION |
+| Stashes / obsolete local-only commits | `0` / `0` |
 | Generic AI benchmark | **not run** in closure wave |
-| Absolute-audit settlement | PR #132 is docs-only settlement; it does not redefine Product closure. Its final merge identity is GitHub gate-time authority. |
+| Absolute-audit settlement | PR #132 **MERGED** @ `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`; docs-only and does not redefine Product closure |
 
 ## POST-RELEASE GPT HANDOFF (2026-08-16) — SUPERSEDED BY LIFECYCLE CLOSURE
 
@@ -208,8 +210,8 @@ This section is the current authority for lane status, PR dispositions, and the 
 | P1C draft persistence | **CLOSED GREEN** — PR #97 **MERGED** @ `faef130a335ce6e33cfd784d5318f874beeb70ad` |
 | P2 Revenue-Ready | **CLOSED GREEN** — PR #99 **MERGED** @ `2d14404d62ab7b265e07729448d6db602a055cce` · feature head `21744e195f08aeda03f23b7972bedcbf227aaaaa` · ECP **GREEN** · Premium proof **GREEN** · P2 UIUX freeze preserved |
 | PR #68 | **CLOSED** as **superseded** — **unmerged**; branch retained; **not** an implementation source |
-| PR #30 | **OPEN** — independent; **not blocking MRQ**; HOME reopen **not authorized** |
-| PR #75 | **OPEN** — **frozen reference-only**; **not blocking MRQ** |
+| PR #30 | **CLOSED** unmerged as superseded; remote branch retained; HOME reopen **not authorized** |
+| PR #75 | **CLOSED** unmerged as frozen/superseded historical reference; remote branch retained |
 | MRQ mapping Revision 1 | **CLOSED GREEN** — read-only mapping accepted on WT-019 |
 | WT-018 | `/Users/lexsia/Documents/M55_WORKTREE-premium-public-terminology-v1` · `fix/m55-premium-public-terminology-v1` @ `af33c722e6e585f51f8e51297055d090606fd32e` — **COMPLETED** · retained read-only · write authority **none** |
 | WT-019 | `/Users/lexsia/Documents/M55_WORKTREE-minimum-revenue-quality-v1` · `map/m55-minimum-revenue-quality-v1` @ `ac71d054556ebec06d6fa107fbe359a88052aca6` — mapping-only · retained reference/read-only · MRQ implementation authority **false** · no remote branch |
@@ -381,7 +383,7 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 | Production diagnostics (at PR #80 merge time only; superseded 2026-08-01 by PR #81 @ `bf5ef09f…`) | `vercel_env=production` · `vercel_branch=main` · `vercel_git_sha=6965590…` |
 | Production classification | **OPERATIONAL_BASELINE** |
 | Prior worktree | WT-001 `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` — **COMPLETED** reference |
-| Backup ref retained | `refs/backup/m55-self-funnel-pre-main-sync-rev1` |
+| Former backup ref | Local `refs/heads/refs/backup/m55-self-funnel-pre-main-sync-rev1` retired in the 2026-08-16 residual-debt gate after supersession proof |
 
 ## Product Authority Pack (completed — historical snapshot)
 
@@ -449,10 +451,10 @@ This section is the **immutable historical record of PR #80 only**. It is **not*
 
 | Lane | Status | Worktree ID | Worktree | Notes |
 |---|---|---|---|---|
-| Self free→Premium baseline | **COMPLETED** | **WT-001** | `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` | PR #80 merged · OPERATIONAL_BASELINE · do not append Growth |
+| Self free→Premium baseline | **COMPLETED · WORKTREE REMOVED** | **WT-001** | historical path `/Users/lexsia/Documents/M55_WORKTREE-home-final-ia-v1` | PR #80 merged · branch/history retained · do not append Growth |
 | Product Authority Pack | **COMPLETED** | **WT-010** | `/Users/lexsia/Documents/M55_WORKTREE-product-authority-pack-v1` | PR #79 merged |
 | Paid LP / HOME microcopy | **PAUSED** | **WT-006** | `/Users/lexsia/Documents/M55_CANONICAL-paid-lp-wave1` | reference-only |
-| Build Week control plane | **FROZEN** | **WT-009** | `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | `DO_NOT_MODIFY` |
+| Build Week control plane | **CLOSED SUPERSEDED · WORKTREE REMOVED** | **WT-009** | historical path `/Users/lexsia/Documents/M55_WORKTREE-build-week-control-plane-v1` | PR #75 closed unmerged · remote branch retained |
 | Self funnel Growth / share | **COMPLETED — PR #81 MERGED** | **WT-011** | `/Users/lexsia/Documents/M55_WORKTREE-self-funnel-growth-share-v1` | merge commit `bf5ef09f4f9c1b8610c9039752f3d4ec93b4b149` (2026-08-01) · Production GREEN · worktree/branch retained temporarily for new-thread handoff verification · no further implementation permitted there |
 | PR #81 post-merge SSOT and thread handoff | **COMPLETED — retained read-only** | **WT-012** | `/Users/lexsia/Documents/M55_WORKTREE-pr81-post-merge-transition-v1` | superseded by WT-013 governance freeze; see `M55_PR81_POST_MERGE_HANDOFF_2026-08-01.md` |
 | M55-wide commercial-surface governance freeze | **CLOSED GREEN — WT-013 retained read-only** | **WT-013** | `/Users/lexsia/Documents/M55_WORKTREE-pa-reconciliation-pr81-v1` | Codex orchestration, contract review and actual-diff review only; no application-source write authority |

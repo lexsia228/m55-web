@@ -395,7 +395,7 @@ This decision authorizes **only** durable transition recording in the four-file 
 
 ### 2026-08-16 — Final thread lifecycle closure (evidence archive + worktree cleanup)
 
-**Status:** `M55_POST_RELEASE_LIFECYCLE_TRANSITION` **COMPLETE** via PR #131 **MERGED** @ `3657ba17c4d727baeaa003e9f661f27c9a930436`. Human Personal Free signoff evidence archived in-repo (`docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`). Personalization Human acceptance + `eval-6d53a71` evidence archived (`docs/audit/`). Live worktrees reduced to **5** purposeful lanes, including the primary Git root. WT-032 / WT-033 **REMOVED**. `lib/clerk/m55ClerkShellAppearance.ts` — **SUPERSEDED_NO_ACTION** (not ported; exact stranded local copy removed after hash inventory). Generic AI benchmark **not run**.
+**Status (phase snapshot; superseded by absolute residual-debt disposition below):** `M55_POST_RELEASE_LIFECYCLE_TRANSITION` **COMPLETE** via PR #131 **MERGED** @ `3657ba17c4d727baeaa003e9f661f27c9a930436`. Human Personal Free signoff evidence archived in-repo (`docs/evidence/M55_PERSONAL_FREE_HUMAN_SIGNOFF_2026-08-16/`). Personalization Human acceptance + `eval-6d53a71` evidence archived (`docs/audit/`). At this phase boundary, live worktrees were reduced to **5** purposeful lanes, including the primary Git root; the later residual-debt gate reduced them to three. WT-032 / WT-033 **REMOVED**. `lib/clerk/m55ClerkShellAppearance.ts` — **SUPERSEDED_NO_ACTION** (not ported; exact stranded local copy removed after hash inventory). Generic AI benchmark **not run**.
 
 | Rule | Value |
 |---|---|
@@ -408,3 +408,22 @@ This decision authorizes **only** durable transition recording in the four-file 
 ### 2026-08-16 — Misread customer-copy polish chain (PR #126–#128)
 
 **Status:** Bounded presentation closures on main after PR #124. PR #126 @ `66c6076` (double-period). PR #127 @ `e2ebfe1` (seen/actual realizer). PR #128 @ `de37b1a` (desire nominalizer). No inference/DB/Stripe/env mutation.
+
+### 2026-08-16 — Absolute residual-debt disposition
+
+**Status:** Human-authorized lifecycle cleanup completed from audit baseline `origin/main` / Production `9d7eb0688dc26a459b87113c70a5c3e2ae2a33ea`. Product Authority remains `de37b1a0f6781cf763621b023af6b6c7617b7e5d`; no product source changed and prior product/commercial GREEN is reused.
+
+| Object | Final disposition |
+|---|---|
+| Stashes `367f6e9e`, `3da8f0f5`, `b5ff430d`, `5da95aac` | Path/blob audited; no unique desired work or required evidence; all dropped; `STASH_COUNT=0` |
+| Self-funnel backup commits `6f66c72e`, `76cb1557`, `b5c89dab` | Superseded by current main; exact local retention ref deleted |
+| `8fcb30f9`, `ec60887a`, `53a11e0d`, `e50e1487` | Patch-equivalent to remote/main history; sole local retention branches deleted |
+| `4c52a8f3` | Obsolete legacy pricing baseline; both local retention branches deleted |
+| Authority Pack pre-rewrite backup `844c5bbb` / ancestor `178dadab` | Superseded by verified steady-state Product Authority Pack; named backup ref deleted |
+| PR #30 | **CLOSED** unmerged as superseded; current HOME no longer contains the obsolete duplicate-card structure; remote branch retained |
+| PR #75 | **CLOSED** unmerged as frozen/superseded historical reference; eight commits remain on remote branch |
+| PR #119 | **OPEN** — sole intended pending product/preflight PR; Compatibility commerce remains OFF |
+| WT-001 HOME reference | Clean ancestor with no open-PR dependency; normally removed; branch retained |
+| WT-009 Build Week | Clean after PR #75 closure; normally removed; remote branch retained |
+| Final live worktrees | `M55_CANONICAL` = **PRIMARY_REPO_ROOT**; `M55_WORKTREE-mrq-p1c-draft-persistence-v1` = **MAIN_CONTROL**; `M55_WORKTREE-mrq-p3-sales-safety-v1` = **PENDING_INTEGRATION** |
+| NEXT SINGLE ACTION | **M55_MRQ_P3_ENTRY_PLANNING** — planning only; P3 implementation/checkout/4242/real purchase/sales launch remain unauthorized |
